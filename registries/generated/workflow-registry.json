@@ -10,7 +10,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61090,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-002",
@@ -22,7 +24,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61091,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-003",
@@ -34,7 +38,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61092,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-004",
@@ -46,7 +52,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61093,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-005",
@@ -58,7 +66,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61094,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-006",
@@ -71,7 +81,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61095,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-007",
@@ -83,7 +95,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61096,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-008",
@@ -96,7 +110,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61097,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-009",
@@ -108,7 +124,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61098,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-010",
@@ -120,7 +138,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61099,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-011",
@@ -134,7 +154,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61100,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-012",
@@ -146,7 +168,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61101,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-013",
@@ -159,7 +183,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61102,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-014",
@@ -171,7 +197,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61103,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-015",
@@ -183,7 +211,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61104,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-016",
@@ -195,7 +225,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61105,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-017",
@@ -208,7 +240,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61106,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-018",
@@ -220,7 +254,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61107,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-019",
@@ -234,7 +270,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61108,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-020",
@@ -247,7 +285,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61109,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-021",
@@ -259,7 +299,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61110,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-022",
@@ -272,7 +314,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61111,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-023",
@@ -285,7 +329,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61112,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-024",
@@ -298,7 +344,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61113,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-025",
@@ -312,7 +360,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61114,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-026",
@@ -325,7 +375,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61115,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-027",
@@ -337,7 +389,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61116,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-028",
@@ -351,7 +405,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61117,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-029",
@@ -365,7 +421,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61118,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-030",
@@ -378,7 +436,9 @@
     ],
     "terminalStates": [],
     "sourceLine": 61119,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 2,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-01",
@@ -395,7 +455,9 @@
       "delivered-late"
     ],
     "sourceLine": 101659,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-02",
@@ -412,7 +474,9 @@
       "run cannot start; worker told plainly; other runs continue"
     ],
     "sourceLine": 101683,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-03",
@@ -428,7 +492,9 @@
       "run parks; worker continues elsewhere; supervisor asked to decide"
     ],
     "sourceLine": 101705,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-04",
@@ -443,7 +509,9 @@
       "escalate anyway - over-escalation to a Quality Manager is safe"
     ],
     "sourceLine": 101729,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-05",
@@ -459,7 +527,9 @@
       "digest sent with any incomplete section explicitly marked unavailable"
     ],
     "sourceLine": 101751,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-06",
@@ -474,7 +544,9 @@
       "alert acknowledged; reassignment is a supervisor act with a reason"
     ],
     "sourceLine": 101772,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-07",
@@ -492,7 +564,9 @@
       "captures preserved and raised for Quality Manager disposition"
     ],
     "sourceLine": 101793,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-08",
@@ -509,7 +583,9 @@
       "run stays complete and late data continues to be accepted"
     ],
     "sourceLine": 101814,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-09",
@@ -526,7 +602,9 @@
       "accepted, flagged late_arrival, summary recomputed"
     ],
     "sourceLine": 101835,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-10",
@@ -541,7 +619,9 @@
       "original plus annotation; material correction flagged in the next scheduled report delivery"
     ],
     "sourceLine": 101854,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-11",
@@ -559,7 +639,9 @@
       "no brief produced; manual handover prompted; obligation not marked satisfied"
     ],
     "sourceLine": 101875,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-12",
@@ -574,7 +656,9 @@
       "item stands open and visibly unacknowledged; never auto-acknowledged"
     ],
     "sourceLine": 101897,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-13",
@@ -590,7 +674,9 @@
       "the item stays open, visibly overdue, undecided"
     ],
     "sourceLine": 101917,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-14",
@@ -605,7 +691,9 @@
       "notification remains open and visibly unacknowledged; underlying obligation enforced by other means"
     ],
     "sourceLine": 101941,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-15",
@@ -622,7 +710,9 @@
       "two people told about one blocked worker - over-notification here is safe"
     ],
     "sourceLine": 101962,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-16",
@@ -640,7 +730,9 @@
       "proposal stays open, flagged, and visibly aged"
     ],
     "sourceLine": 101983,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-17",
@@ -658,7 +750,9 @@
       "Recovered, incident closed and duration recorded"
     ],
     "sourceLine": 102004,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-18",
@@ -674,7 +768,9 @@
       "crossing recorded with its true effective date; the ladder never enforces"
     ],
     "sourceLine": 102029,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-19",
@@ -692,7 +788,9 @@
       "tenant remains soft-suspended and operating; the floor is never stopped by this state"
     ],
     "sourceLine": 102051,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-20",
@@ -710,7 +808,9 @@
       "Supervisor manual close remains available; the finish window still guarantees the record finishes"
     ],
     "sourceLine": 102074,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-21",
@@ -726,7 +826,9 @@
       "converted, extended or ended"
     ],
     "sourceLine": 102096,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-22",
@@ -742,7 +844,9 @@
       "data remains retrievable"
     ],
     "sourceLine": 102117,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-23",
@@ -758,7 +862,9 @@
       "there is no terminal safe state that restores the identity; the safe state is prevention"
     ],
     "sourceLine": 102136,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-24",
@@ -773,7 +879,9 @@
       "held data restored to the hot class and the incident recorded"
     ],
     "sourceLine": 102158,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-25",
@@ -789,7 +897,9 @@
       "enablement freezes; existing enabled capabilities continue"
     ],
     "sourceLine": 102180,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-26",
@@ -805,7 +915,9 @@
       "next delivery flags the material correction"
     ],
     "sourceLine": 102199,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-27",
@@ -822,7 +934,9 @@
       "Supervisor manually closes the stuck run; command cancelled with a reason and tombstoned on device retirement; nothing is ever marked applied"
     ],
     "sourceLine": 102222,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-28",
@@ -840,7 +954,9 @@
       "escalate to the Quality Manager rather than silently applying or silently withholding"
     ],
     "sourceLine": 102249,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-29",
@@ -855,7 +971,9 @@
       "the decision record survives for the operational record's full term"
     ],
     "sourceLine": 102270,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SB-SCHED-30",
@@ -874,7 +992,9 @@
       "reconciled final state with intended and actual times"
     ],
     "sourceLine": 102287,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-001",
@@ -889,7 +1009,9 @@
       "Terminal safe state: STATE-PLAT-UNCOMMISSIONED and unreachable"
     ],
     "sourceLine": 66452,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-002",
@@ -904,7 +1026,9 @@
       "Terminal safe state: nothing applies and aging critical requests re-notify the root"
     ],
     "sourceLine": 66638,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-003",
@@ -919,7 +1043,9 @@
       "Terminal safe state: qualified but unprovisioned"
     ],
     "sourceLine": 66820,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-004",
@@ -937,7 +1063,9 @@
       "Terminal safe state: no tenant created and the request remains qualified"
     ],
     "sourceLine": 66971,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-005",
@@ -953,7 +1081,9 @@
       "Terminal safe state: no live Tenant Admin and no configuration possible"
     ],
     "sourceLine": 67129,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-006",
@@ -971,7 +1101,9 @@
       "Terminal safe state: no partial parts registry and a per-row failure report"
     ],
     "sourceLine": 67278,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-007",
@@ -988,7 +1120,9 @@
       "Terminal safe state: no Job can leave draft"
     ],
     "sourceLine": 67428,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-008",
@@ -1003,7 +1137,9 @@
       "Terminal safe state: the assignment block stands until corrected or cleared"
     ],
     "sourceLine": 67574,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-009",
@@ -1021,7 +1157,9 @@
       "STATE-TEN-DEVICE-READY"
     ],
     "sourceLine": 67727,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-010",
@@ -1038,7 +1176,9 @@
       "STATE-STU-PREPARED"
     ],
     "sourceLine": 67877,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-011",
@@ -1054,7 +1194,9 @@
       "STATE-WF-DRAFT-SUBMITTED"
     ],
     "sourceLine": 68028,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-012",
@@ -1069,7 +1211,9 @@
       "STATE-WF-RELEASE-APPROVED"
     ],
     "sourceLine": 68180,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-013",
@@ -1085,7 +1229,9 @@
       "STATE-WF-PUBLISHED-V210"
     ],
     "sourceLine": 68332,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-014",
@@ -1103,7 +1249,9 @@
       "STATE-RUN-ASSIGNED"
     ],
     "sourceLine": 68483,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-015",
@@ -1120,7 +1268,9 @@
       "STATE-SHIFT-STARTED"
     ],
     "sourceLine": 68639,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-016",
@@ -1137,7 +1287,9 @@
       "STATE-RUN-IN-PROGRESS-CONNECTED"
     ],
     "sourceLine": 68791,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-017",
@@ -1154,7 +1306,9 @@
       "STATE-FLOOR-OFFLINE"
     ],
     "sourceLine": 68944,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-018",
@@ -1168,7 +1322,9 @@
       "STATE-HOLD-LOCAL"
     ],
     "sourceLine": 69095,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-019",
@@ -1185,7 +1341,9 @@
       "STATE-HOLD-RELEASED"
     ],
     "sourceLine": 69248,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-020",
@@ -1203,7 +1361,9 @@
       "STATE-AGENT-CONTRIBUTED"
     ],
     "sourceLine": 69402,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-021",
@@ -1220,7 +1380,9 @@
       "STATE-NOTIFICATION-RECONCILED"
     ],
     "sourceLine": 69555,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-022",
@@ -1237,7 +1399,9 @@
       "STATE-OFFLINE-WINDOW-CLOSED"
     ],
     "sourceLine": 69712,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-023",
@@ -1254,7 +1418,9 @@
       "STATE-RESYNCHRONIZED"
     ],
     "sourceLine": 69867,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-024",
@@ -1270,7 +1436,9 @@
       "STATE-RECORD-CORRECTED"
     ],
     "sourceLine": 70021,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-025",
@@ -1287,7 +1455,9 @@
       "STATE-REWORK-COMPLETE"
     ],
     "sourceLine": 70175,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-026",
@@ -1304,7 +1474,9 @@
       "STATE-SHIFT-HANDED-OVER"
     ],
     "sourceLine": 70331,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-027",
@@ -1321,7 +1493,9 @@
       "STATE-RUN-FINISHED"
     ],
     "sourceLine": 70482,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-028",
@@ -1338,7 +1512,9 @@
       "STATE-SUPPORT-SESSION-CLOSED"
     ],
     "sourceLine": 70639,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-029",
@@ -1356,7 +1532,9 @@
       "STATE-PLATFORM-DEGRADED-RECOVERED"
     ],
     "sourceLine": 70794,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-030",
@@ -1374,7 +1552,9 @@
       "STATE-VERSION-ROLLED-BACK"
     ],
     "sourceLine": 70949,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-031",
@@ -1392,7 +1572,9 @@
       "STATE-TENANT-HARD-SUSPENDED"
     ],
     "sourceLine": 71101,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-032",
@@ -1410,7 +1592,9 @@
       "STATE-TENANT-ARCHIVED"
     ],
     "sourceLine": 71258,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "SEQ-033",
@@ -1424,7 +1608,9 @@
       "STATE-LIFECYCLE-SETTLED"
     ],
     "sourceLine": 71413,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-01",
@@ -1438,7 +1624,9 @@
       "Account created, role assigned, enabled"
     ],
     "sourceLine": 23709,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-02",
@@ -1452,7 +1640,9 @@
       "returned"
     ],
     "sourceLine": 23739,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-03",
@@ -1467,7 +1657,9 @@
       "ended"
     ],
     "sourceLine": 23769,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-04",
@@ -1486,7 +1678,9 @@
       "expired"
     ],
     "sourceLine": 23799,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-05",
@@ -1501,7 +1695,9 @@
       "Assigned and active from commit"
     ],
     "sourceLine": 23920,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-06",
@@ -1516,7 +1712,9 @@
       "Assigned and active from commit"
     ],
     "sourceLine": 23944,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-07",
@@ -1533,7 +1731,9 @@
       "auto-cancel at plus 30 minutes"
     ],
     "sourceLine": 24066,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-08",
@@ -1549,7 +1749,9 @@
       "acknowledged then resolved"
     ],
     "sourceLine": 24090,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-09",
@@ -1566,7 +1768,9 @@
       "anomaly Resolved with closure note"
     ],
     "sourceLine": 24236,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-10",
@@ -1581,7 +1785,9 @@
       "Quality Manager decision recorded"
     ],
     "sourceLine": 24260,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-11",
@@ -1598,7 +1804,9 @@
       "containment continues"
     ],
     "sourceLine": 24284,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-12",
@@ -1612,7 +1820,9 @@
       "record persists for the record's full term"
     ],
     "sourceLine": 24402,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-13",
@@ -1629,7 +1839,9 @@
       "unacknowledged and flagged after grace period"
     ],
     "sourceLine": 24523,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-14",
@@ -1644,7 +1856,9 @@
       "returned with comments"
     ],
     "sourceLine": 24547,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-15",
@@ -1659,7 +1873,9 @@
       "returned to draft"
     ],
     "sourceLine": 24573,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-16",
@@ -1676,7 +1892,9 @@
       "not adopted (Job stays on current version indefinitely)"
     ],
     "sourceLine": 24597,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-17",
@@ -1693,7 +1911,9 @@
       "superseded by a published version"
     ],
     "sourceLine": 24621,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-18",
@@ -1711,7 +1931,9 @@
       "acknowledged and read where the type warrants tracking"
     ],
     "sourceLine": 24645,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-19",
@@ -1726,7 +1948,9 @@
       "substitute's first step execution"
     ],
     "sourceLine": 24114,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "UC-HO-20",
@@ -1741,7 +1965,9 @@
       "incoming shift acknowledges"
     ],
     "sourceLine": 24669,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-001",
@@ -1759,7 +1985,9 @@
       "publication blocked while any required level is missing"
     ],
     "sourceLine": 53354,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-002",
@@ -1777,7 +2005,9 @@
       "draft, unsubmittable, no package generated"
     ],
     "sourceLine": 53386,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-003",
@@ -1792,7 +2022,9 @@
       "draft stays in review and nothing publishes"
     ],
     "sourceLine": 53424,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-004",
@@ -1807,7 +2039,9 @@
       "submission stays in review; nothing advances unreviewed"
     ],
     "sourceLine": 53457,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-005",
@@ -1824,7 +2058,9 @@
       "published-not-distributable; prior version remains in force on every device"
     ],
     "sourceLine": 53494,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-006",
@@ -1838,7 +2074,9 @@
       "submission stays in draft with its comments attached; nothing publishes"
     ],
     "sourceLine": 53529,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-007",
@@ -1852,7 +2090,9 @@
       "draft remains unpublished; the floor keeps running the prior version"
     ],
     "sourceLine": 53561,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-008",
@@ -1870,7 +2110,9 @@
       "mixed versions in the fleet, each device's version stated explicitly"
     ],
     "sourceLine": 53596,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-009",
@@ -1888,7 +2130,9 @@
       "no package, therefore no assignment to a device"
     ],
     "sourceLine": 53633,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-010",
@@ -1906,7 +2150,9 @@
       "run stays assigned-not-ready and cannot start"
     ],
     "sourceLine": 53668,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-AUT-011",
@@ -1924,7 +2170,9 @@
       "defective version remains published and readable, no new runs assigned to it, in-flight runs supervised to completion or cancelled"
     ],
     "sourceLine": 53700,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-BOARD-REFRESH",
@@ -1938,7 +2186,9 @@
       "the freshness marker ages visibly and the board never claims to be current"
     ],
     "sourceLine": 117973,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-BOUNDARY-LOOKUP",
@@ -1953,7 +2203,9 @@
       "question raised as unaddressed"
     ],
     "sourceLine": 2504,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CC-AUTHOR-REPORT-FORMAT",
@@ -1967,7 +2219,9 @@
       "format authored; sits outside the closed set of ten"
     ],
     "sourceLine": 16503,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CC-DECIDE-GATE-ITEM",
@@ -1983,7 +2237,9 @@
       "declined with reason"
     ],
     "sourceLine": 16819,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CC-DECIDE-LANE-B",
@@ -1998,7 +2254,9 @@
       "declined with reason"
     ],
     "sourceLine": 16819,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CC-GRANT-CLEARANCE",
@@ -2015,7 +2273,9 @@
       "run parks while the device is offline"
     ],
     "sourceLine": 16657,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CC-RELEASE-HOLD",
@@ -2032,7 +2292,9 @@
       "released"
     ],
     "sourceLine": 16819,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CC-REQUEST-RELEASE",
@@ -2046,7 +2308,9 @@
       "request with mandatory note routed to the Quality Manager"
     ],
     "sourceLine": 16657,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CHANGE-CONTROL",
@@ -2061,7 +2325,9 @@
       "Rejected"
     ],
     "sourceLine": 1155,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CLASSIFY",
@@ -2081,7 +2347,9 @@
       "Assumption"
     ],
     "sourceLine": 1101,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-CLEARANCE",
@@ -2097,7 +2365,9 @@
       "parked run, no ungated work, until the device downloads and validates the clearance"
     ],
     "sourceLine": 81532,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-LOTRELEASE",
@@ -2114,7 +2384,9 @@
       "a held lot is never released by timeout or inference, only by an acknowledged Quality Manager command"
     ],
     "sourceLine": 81530,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-ORDER",
@@ -2131,7 +2403,9 @@
       "exactly one effective outcome with the full command history preserved"
     ],
     "sourceLine": 81588,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-REASSIGN",
@@ -2147,7 +2421,9 @@
       "no work orphaned and no work double-attributed"
     ],
     "sourceLine": 81534,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-SUBSTITUTE",
@@ -2163,7 +2439,9 @@
       "clean attribution either side of the substitution point"
     ],
     "sourceLine": 81536,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-SUSPEND-COMPLIANCE",
@@ -2181,7 +2459,9 @@
       "everything stopped, everything preserved, the fixed message shown; re-entry only through the dual-authorised compliance-emergency path"
     ],
     "sourceLine": 81564,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-SUSPEND-HARD",
@@ -2199,7 +2479,9 @@
       "every in-flight run closed properly, nothing abandoned, no new runs"
     ],
     "sourceLine": 81542,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-SUSPEND-SOFT",
@@ -2217,7 +2499,9 @@
       "operations intact; master-data writes blocked"
     ],
     "sourceLine": 81540,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-VERSION",
@@ -2235,7 +2519,9 @@
       "in-flight runs finish on the version they started on, always"
     ],
     "sourceLine": 81538,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CMD-WIPE",
@@ -2252,7 +2538,9 @@
       "command pending, not applied, honestly rendered; DEC-WIPE-001 governs a device that never returns"
     ],
     "sourceLine": 81586,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CONF-BULK",
@@ -2268,7 +2556,9 @@
       "never an indeterminate bulk outcome; one audit entry per acceptance"
     ],
     "sourceLine": 81647,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CONF-CORRECTION",
@@ -2284,7 +2574,9 @@
       "the full chain preserved in order; a device timestamp never overrules a governance act"
     ],
     "sourceLine": 81621,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CONF-FLAG",
@@ -2300,7 +2592,9 @@
       "the sync result intact and a correction appended above it"
     ],
     "sourceLine": 81649,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CONF-QUALITY",
@@ -2316,7 +2610,9 @@
       "a quality event treated as a quality event, in the deviation workspace not the conflict panel"
     ],
     "sourceLine": 81645,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CONF-RUNSTATE",
@@ -2332,7 +2628,9 @@
       "one coherent run state with the alternative preserved; no invalid lifecycle transition"
     ],
     "sourceLine": 81623,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CONF-SHARED",
@@ -2349,7 +2647,9 @@
       "both versions retained; work never blocked"
     ],
     "sourceLine": 81619,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CONF-SKEW",
@@ -2366,7 +2666,9 @@
       "all captures accepted; conflicts open and individually reviewable"
     ],
     "sourceLine": 81625,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-CONN-LOSS",
@@ -2380,7 +2682,9 @@
       "the board shows data age and the connectivity banner; no liveness is implied"
     ],
     "sourceLine": 117964,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-COVERAGE-MAP",
@@ -2394,7 +2698,9 @@
       "completeness statement with open items named"
     ],
     "sourceLine": 3151,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEC-LIFECYCLE",
@@ -2408,7 +2714,9 @@
       "Verified"
     ],
     "sourceLine": 112327,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEFENSIBLE-RECORD",
@@ -2424,7 +2732,9 @@
       "record retained under the tenant's horizon with its decision record"
     ],
     "sourceLine": 1872,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-KEYLOSS",
@@ -2441,7 +2751,9 @@
       "a named, bounded, audited loss and a productive worker; the lost captures are not recovered"
     ],
     "sourceLine": 81697,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-LOST",
@@ -2457,7 +2769,9 @@
       "the record finishes with a named gap; the wipe stays honestly pending"
     ],
     "sourceLine": 81691,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-POWER",
@@ -2474,7 +2788,9 @@
       "every committed capture preserved; the uncommitted one honestly absent"
     ],
     "sourceLine": 81689,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-QUEUE",
@@ -2491,7 +2807,9 @@
       "nothing duplicated, nothing lost"
     ],
     "sourceLine": 81687,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-RELEASE",
@@ -2507,7 +2825,9 @@
       "released and reconciled after the device acknowledges"
     ],
     "sourceLine": 117489,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-RETIRE",
@@ -2524,7 +2844,9 @@
       "no unsynced work destroyed by an administrative act"
     ],
     "sourceLine": 81693,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-SALVAGE",
@@ -2541,7 +2863,9 @@
       "every recoverable record recovered and every unrecoverable one named"
     ],
     "sourceLine": 81685,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-SEV1",
@@ -2557,7 +2881,9 @@
       "the hold stands until a Quality Manager releases it"
     ],
     "sourceLine": 117488,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-STORAGE",
@@ -2574,7 +2900,9 @@
       "unsynced evidence is never discarded; genuine exhaustion behaviour is TBD under DEC-STORE-001"
     ],
     "sourceLine": 81683,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-VERSION",
@@ -2591,7 +2919,9 @@
       "data preserved, work continuing, sync deferred"
     ],
     "sourceLine": 81695,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEV-WIPE",
@@ -2606,7 +2936,9 @@
       "the wipe stays pending and is rendered as pending; the device is not assumed erased"
     ],
     "sourceLine": 117496,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DEVICE-TRUST",
@@ -2620,7 +2952,9 @@
       "work requiring fresh trust blocks; the run parks; other runs continue"
     ],
     "sourceLine": 117969,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DILIGENCE",
@@ -2634,7 +2968,9 @@
       "diligence satisfied by inspection, not by claim"
     ],
     "sourceLine": 2145,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DLC-ANON",
@@ -2648,7 +2984,9 @@
       "an already-anonymised identity is not re-processed; the act is irreversible"
     ],
     "sourceLine": 117971,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DLC-TIER",
@@ -2663,7 +3001,9 @@
       "legal hold suspends it"
     ],
     "sourceLine": 117498,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-01-DOWNGRADE",
@@ -2679,7 +3019,9 @@
       "takes effect at the start of the first cycle in which consumption fits"
     ],
     "sourceLine": 26909,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-01-UPGRADE",
@@ -2694,7 +3036,9 @@
       "tier record updated, consumption carried forward, ladder recomputed"
     ],
     "sourceLine": 26898,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-02-CASCADE",
@@ -2710,7 +3054,9 @@
       "node archived"
     ],
     "sourceLine": 27140,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-03-SHIFT",
@@ -2724,7 +3070,9 @@
       "Shift available to Job shift timings, run scheduling, the Worker-Shift meter and escalation resolution"
     ],
     "sourceLine": 27299,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-04-CLEARANCE",
@@ -2741,7 +3089,9 @@
       "clearance lapses automatically at the end of the tenant-set duration"
     ],
     "sourceLine": 27498,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-04-QUAL",
@@ -2757,7 +3107,9 @@
       "renewal recorded, blocks lifted at next device sync"
     ],
     "sourceLine": 27486,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-05-JOB",
@@ -2772,7 +3124,9 @@
       "active — runs can be created inside the today-plus-7-days horizon"
     ],
     "sourceLine": 27709,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-06-RUN",
@@ -2787,7 +3141,9 @@
       "finished — closed automatically by the run auto-close scheduler"
     ],
     "sourceLine": 27922,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-07-ASSIGN",
@@ -2803,7 +3159,9 @@
       "assignment delivered with the pinned package and acknowledged on the device"
     ],
     "sourceLine": 28128,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-07-SUBST",
@@ -2818,7 +3176,9 @@
       "substitute works forward from the structured handover; pre-substitution steps stay attributed to the original worker"
     ],
     "sourceLine": 28138,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-08-REVIEW",
@@ -2834,7 +3194,9 @@
       "Summary marked reviewed; at `finished` the Summary closes with the run"
     ],
     "sourceLine": 28316,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-09-PERM",
@@ -2852,7 +3214,9 @@
       "resolved permission set governs access across all five surfaces immediately"
     ],
     "sourceLine": 28535,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-10-NOTIF",
@@ -2869,7 +3233,9 @@
       "re-notified after 4 hours / 1 hour in Regulated-Industry mode"
     ],
     "sourceLine": 28702,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-11-AUDIT",
@@ -2886,7 +3252,9 @@
       "anonymised"
     ],
     "sourceLine": 28876,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-12-INT",
@@ -2900,7 +3268,9 @@
       "read-only tier and usage view rendered; inbound endpoint returns HTTP 501 creating nothing"
     ],
     "sourceLine": 29052,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-13-SUPPORT",
@@ -2917,7 +3287,9 @@
       "ended_by_time_box"
     ],
     "sourceLine": 29208,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-14-CAL",
@@ -2931,7 +3303,9 @@
       "renewal recorded on the linked worker record by a Supervisor or Tenant Admin"
     ],
     "sourceLine": 29352,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-15-CLONE",
@@ -2945,7 +3319,9 @@
       "clone in draft requiring full re-approval by a second identity"
     ],
     "sourceLine": 29484,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-16-PAIR",
@@ -2959,7 +3335,9 @@
       "flag raised to the paired Job's Owner; human decision; nothing propagates automatically"
     ],
     "sourceLine": 29620,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-APPROVE-JOB",
@@ -2973,7 +3351,9 @@
       "approved"
     ],
     "sourceLine": 16819,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-ASSIGN-ROLE",
@@ -2987,7 +3367,9 @@
       "role assigned subject to the mandatory-role rules"
     ],
     "sourceLine": 16503,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-CLOSE-ANOMALY",
@@ -3001,7 +3383,9 @@
       "Resolved with a closure note"
     ],
     "sourceLine": 16819,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-CONFIGURE-HIERARCHY",
@@ -3015,7 +3399,9 @@
       "Site, Area, Location configured; a Job anchors at the deepest configured level"
     ],
     "sourceLine": 16503,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-CREATE-RUN",
@@ -3029,7 +3415,9 @@
       "run scheduled, visible today plus seven days"
     ],
     "sourceLine": 16657,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-CREATE-USER",
@@ -3043,7 +3431,9 @@
       "user created with role types, scopes and a login track"
     ],
     "sourceLine": 16503,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-ENTER-QUALIFICATION",
@@ -3057,7 +3447,9 @@
       "qualification entered with full audit; no self-attestation"
     ],
     "sourceLine": 16657,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-READ-ACCESS-HISTORY",
@@ -3071,7 +3463,9 @@
       "read recorded"
     ],
     "sourceLine": 16983,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-READ-ANOMALY",
@@ -3085,7 +3479,9 @@
       "read recorded"
     ],
     "sourceLine": 16983,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-READ-AUDIT",
@@ -3099,7 +3495,9 @@
       "read recorded as an audited act"
     ],
     "sourceLine": 16983,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DOH-SUBSTITUTE-WORKER",
@@ -3114,7 +3512,9 @@
       "substitute receives structured handover; pre-substitution steps remain attributed to the original worker"
     ],
     "sourceLine": 16657,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DVC-001",
@@ -3131,7 +3531,9 @@
       "enrolled with no package, therefore no runnable work"
     ],
     "sourceLine": 53085,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DVC-002",
@@ -3148,7 +3550,9 @@
       "device holds stale content but cannot start new work"
     ],
     "sourceLine": 53118,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DVC-003",
@@ -3165,7 +3569,9 @@
       "cached authority expired, device unable to authenticate or start work, captures still held locally and unsynced"
     ],
     "sourceLine": 53150,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DVC-004",
@@ -3182,7 +3588,9 @@
       "device de-authorised server-side, wipe pending indefinitely, unsynced captures declared lost in a named reconciliation statement"
     ],
     "sourceLine": 53189,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DVC-005",
@@ -3199,7 +3607,9 @@
       "device unable to authenticate after the window, all local data preserved"
     ],
     "sourceLine": 53224,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-DVC-006",
@@ -3216,7 +3626,9 @@
       "wipe held, device de-authorised, captures still on the encrypted store, named statement of what has not been recovered"
     ],
     "sourceLine": 53257,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ESCALATE",
@@ -3231,7 +3643,9 @@
       "repeated notification with de-duplication; never silence"
     ],
     "sourceLine": 117962,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-EXE-001",
@@ -3249,7 +3663,9 @@
       "run remains unassigned or assigned-not-ready; auto-cancel at plus 30 minutes"
     ],
     "sourceLine": 53787,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-EXE-002",
@@ -3266,7 +3682,9 @@
       "run listed as not ready with the reason"
     ],
     "sourceLine": 53821,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-EXE-003",
@@ -3284,7 +3702,9 @@
       "run parked or handed back with its state preserved"
     ],
     "sourceLine": 53853,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-EXE-004",
@@ -3301,7 +3721,9 @@
       "work stops when the credential-trust window expires, all local data preserved, forced sync required"
     ],
     "sourceLine": 53888,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-EXE-005",
@@ -3319,7 +3741,9 @@
       "capture remains committed locally and unsynced, visibly counted, never presented as recorded"
     ],
     "sourceLine": 53924,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-EXE-006",
@@ -3336,7 +3760,9 @@
       "worker runs a version whose notice they have seen"
     ],
     "sourceLine": 53966,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-EXEC-CAPTURE",
@@ -3351,7 +3777,9 @@
       "block progression on failed specification capture"
     ],
     "sourceLine": 117487,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FEAT-001",
@@ -3369,7 +3797,9 @@
       "prior behaviour in force everywhere, the change recorded as failed with its reason, and the split state named while it existed"
     ],
     "sourceLine": 54620,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FEAT-002",
@@ -3387,7 +3817,9 @@
       "the more restrictive of the two states is in force and the ambiguity is named"
     ],
     "sourceLine": 54658,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FEAT-003",
@@ -3405,7 +3837,9 @@
       "the prior state remains in force and the missed occurrence is visible"
     ],
     "sourceLine": 54691,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FEAT-004",
@@ -3423,7 +3857,9 @@
       "the most restrictive state governs enforcement while the divergence exists, and the divergence is named on every surface that shows the feature"
     ],
     "sourceLine": 54733,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FEAT-005",
@@ -3441,7 +3877,9 @@
       "the run completes on its pinned package and the feature change takes effect at the next execution — never mid-run"
     ],
     "sourceLine": 54770,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FL-AUTHENTICATE",
@@ -3456,7 +3894,9 @@
       "LoggedOut"
     ],
     "sourceLine": 17144,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FL-CAPTURE",
@@ -3473,7 +3913,9 @@
       "rejected"
     ],
     "sourceLine": 17144,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FL-CONTAINMENT",
@@ -3487,7 +3929,9 @@
       "containment checklist complete"
     ],
     "sourceLine": 17144,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FL-EXECUTE-RUN",
@@ -3501,7 +3945,9 @@
       "Submitted"
     ],
     "sourceLine": 17144,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FL-PARKED-RUN",
@@ -3517,7 +3963,9 @@
       "resumed on clearance command at next sync"
     ],
     "sourceLine": 17144,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FL-STEP-UP",
@@ -3531,7 +3979,9 @@
       "second identity captured against that specific authorisation only and then released; the worker's session continues"
     ],
     "sourceLine": 16657,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-FL-SUBSTITUTION-HANDOVER",
@@ -3546,7 +3996,9 @@
       "structured handover delivered"
     ],
     "sourceLine": 17144,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-GATE-DECIDE",
@@ -3560,7 +4012,9 @@
       "the gate item remains open and human-decidable; it never auto-approves"
     ],
     "sourceLine": 117961,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-GLOBAL-DISABLE",
@@ -3576,7 +4030,9 @@
       "On the next package delivery, the capability's configuration is absent, and the workflow either publishes without it or fails its completeness check"
     ],
     "sourceLine": 113682,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-HANDOFF",
@@ -3591,7 +4047,9 @@
       "the brief stands unacknowledged and marked"
     ],
     "sourceLine": 117959,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-HIER-PROPAGATE",
@@ -3605,7 +4063,9 @@
       "Any later change of depth is a migration across every record above, not a setting change"
     ],
     "sourceLine": 112874,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-HOLD-RELEASE",
@@ -3621,7 +4081,9 @@
       "release applied and acknowledged on the device"
     ],
     "sourceLine": 1634,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-LEARN-LANEB",
@@ -3638,7 +4100,9 @@
       "stale-flagged at thirty days with no value change"
     ],
     "sourceLine": 117495,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-LEDGER-EXPORT",
@@ -3653,7 +4117,9 @@
       "ledger exported; pricing, invoicing and collection happen outside the platform"
     ],
     "sourceLine": 2765,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-LRN-001",
@@ -3671,7 +4137,9 @@
       "selection reverts to configured defaults, exactly as at cold start"
     ],
     "sourceLine": 54310,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-LRN-002",
@@ -3689,7 +4157,9 @@
       "the configured value the human set remains in force everywhere until a version carrying the new value is confirmed on each device"
     ],
     "sourceLine": 54342,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-MODEL-CHANGE",
@@ -3705,7 +4175,9 @@
       "Paused via emergency pause if the new model cannot pass"
     ],
     "sourceLine": 113547,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-NEW-CAPABILITY-SEAM",
@@ -3720,7 +4192,9 @@
       "stop: a new record type is an architectural decision"
     ],
     "sourceLine": 2280,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-NOTIF-DIGEST",
@@ -3734,7 +4208,9 @@
       "delivered late and marked late, never silently skipped"
     ],
     "sourceLine": 117954,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-BASIC",
@@ -3753,7 +4229,9 @@
       "OFF-BLK-08 controlled stop with all data retained"
     ],
     "sourceLine": 81308,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-CHECKLIST",
@@ -3770,7 +4248,9 @@
       "an immutable confirmation set"
     ],
     "sourceLine": 81368,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-CORRECT",
@@ -3786,7 +4266,9 @@
       "full history preserved — original, correction, and the order between them"
     ],
     "sourceLine": 81374,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-CROSSSHIFT",
@@ -3803,7 +4285,9 @@
       "both runs recorded with the link intact"
     ],
     "sourceLine": 81324,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-DEV2",
@@ -3820,7 +4304,9 @@
       "deviation recorded, containment executed, escalation pending"
     ],
     "sourceLine": 81358,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-DEVNOTE",
@@ -3837,7 +4323,9 @@
       "an immutable note bound to its deviation"
     ],
     "sourceLine": 81372,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-EVIDENCE",
@@ -3854,7 +4342,9 @@
       "immutable bound evidence held encrypted until confirmed receipt plus integrity check permit eviction"
     ],
     "sourceLine": 81362,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-FORCEDSYNC",
@@ -3872,7 +4362,9 @@
       "parked at the sign-off step; every prior capture preserved"
     ],
     "sourceLine": 81494,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-GATE",
@@ -3890,7 +4382,9 @@
       "no advance without valid proof, for any role, on any surface"
     ],
     "sourceLine": 81420,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-LAZYPULL",
@@ -3909,7 +4403,9 @@
       "run ready after package staging"
     ],
     "sourceLine": 81316,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-LOGIN",
@@ -3927,7 +4423,9 @@
       "no new work past the window with no data loss"
     ],
     "sourceLine": 81456,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-LOT",
@@ -3945,7 +4443,9 @@
       "unresolved binding quarantined at sync"
     ],
     "sourceLine": 81320,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-MEASURE",
@@ -3962,7 +4462,9 @@
       "an immutable, attributed, in-specification record"
     ],
     "sourceLine": 81356,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-MIDNIGHT",
@@ -3978,7 +4480,9 @@
       "one unambiguous production date per run, from the shift's nominal date"
     ],
     "sourceLine": 81326,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-NOUNIT",
@@ -3995,7 +4499,9 @@
       "Run-level freeze with output quarantined on Severity 1"
     ],
     "sourceLine": 81322,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-PERSONAL",
@@ -4012,7 +4518,9 @@
       "a long session never becomes unbounded authority"
     ],
     "sourceLine": 81464,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-PROPAGATE",
@@ -4029,7 +4537,9 @@
       "breach point protected immediately; per-device honest propagation picture"
     ],
     "sourceLine": 81416,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-QUALGATE",
@@ -4046,7 +4556,9 @@
       "parked runs, no ungated work, no override"
     ],
     "sourceLine": 81486,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-REWORK",
@@ -4063,7 +4575,9 @@
       "full multi-cycle history preserved; a human decision required past the authored limit"
     ],
     "sourceLine": 81412,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-SCAN",
@@ -4082,7 +4596,9 @@
       "run parks where no path exists"
     ],
     "sourceLine": 81364,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-SEQUENCE",
@@ -4099,7 +4615,9 @@
       "deviation recorded, no pace shown to the worker, ever"
     ],
     "sourceLine": 81424,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-SERIAL",
@@ -4116,7 +4634,9 @@
       "every capture bound to a real identified unit or explicitly unbound and flagged"
     ],
     "sourceLine": 81318,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-SEV1",
@@ -4135,7 +4655,9 @@
       "Quality Manager release via the lot-release command"
     ],
     "sourceLine": 81360,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-SHAREDSWITCH",
@@ -4152,7 +4674,9 @@
       "clean per-identity attribution"
     ],
     "sourceLine": 81462,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-SIGN",
@@ -4169,7 +4693,9 @@
       "a bound attributed signature or an unsigned parked step, never a forged one"
     ],
     "sourceLine": 81370,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-SIGNOFF",
@@ -4186,7 +4712,9 @@
       "a properly attributed sign-off, a fully recorded substitution, or an unsigned parked step"
     ],
     "sourceLine": 81490,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFF-SITE",
@@ -4204,7 +4732,9 @@
       "trust-window expiry per device"
     ],
     "sourceLine": 81312,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OFFLINE-SHIFT",
@@ -4220,7 +4750,9 @@
       "queued captures upload and pending commands apply in order at reconnection"
     ],
     "sourceLine": 2062,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OPS-001",
@@ -4237,7 +4769,9 @@
       "no brief, an honest flag, and the shift starts anyway"
     ],
     "sourceLine": 54424,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OPS-002",
@@ -4253,7 +4787,9 @@
       "no file delivered and a missed-delivery record exists"
     ],
     "sourceLine": 54463,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OPS-003",
@@ -4271,7 +4807,9 @@
       "escalation never resolves to no one, fallback visibly marked, underlying enforcement already in force"
     ],
     "sourceLine": 54495,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-OPS-004",
@@ -4289,7 +4827,9 @@
       "no partial file delivered as if complete; an interrupted export produces no file"
     ],
     "sourceLine": 54539,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ORG-001",
@@ -4305,7 +4845,9 @@
       "Site exists, not selectable as a scope, no permission granted against it"
     ],
     "sourceLine": 52555,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ORG-002",
@@ -4321,7 +4863,9 @@
       "unbound Area that cannot receive Jobs"
     ],
     "sourceLine": 52586,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ORG-003",
@@ -4338,7 +4882,9 @@
       "no digest fabricated; explicit missed-digest record"
     ],
     "sourceLine": 52623,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ORG-004",
@@ -4356,7 +4902,9 @@
       "pending_approval with unresolved requirements, no runs creatable"
     ],
     "sourceLine": 52656,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PARTXII",
@@ -4370,7 +4918,9 @@
       "Each answered item is closed on its decision card with a date and an owner"
     ],
     "sourceLine": 114550,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-001",
@@ -4387,7 +4937,9 @@
       "no session; the tenant's data is untouched and the attempt is logged in both streams"
     ],
     "sourceLine": 54998,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-002",
@@ -4404,7 +4956,9 @@
       "the session is closed, write access is revoked, and the outstanding report obligation is a tracked open item visible in both streams"
     ],
     "sourceLine": 55035,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-003",
@@ -4421,7 +4975,9 @@
       "no access, work paused, and the request visible in the approval queue — an expired grant never extends itself"
     ],
     "sourceLine": 55070,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-004",
@@ -4439,7 +4995,9 @@
       "the device stops accepting new work when its cached trust window expires; work already captured is preserved and syncs"
     ],
     "sourceLine": 55108,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-005",
@@ -4457,7 +5015,9 @@
       "no new work anywhere, local data preserved on every device, and the exact set of devices that have not confirmed named with their ages"
     ],
     "sourceLine": 55147,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-006",
@@ -4475,7 +5035,9 @@
       "agents unavailable, gates human-decidable, deterministic safety fully operative, and the tenant told plainly"
     ],
     "sourceLine": 55188,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-007",
@@ -4493,7 +5055,9 @@
       "agents paused, deterministic safety operative, and every tenant told — the pause is not considered complete until the communication has been delivered"
     ],
     "sourceLine": 55221,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-008",
@@ -4511,7 +5075,9 @@
       "the floor keeps running offline, per-tenant panels keep showing honest local truth, and the platform makes no claim about anything it cannot observe"
     ],
     "sourceLine": 55259,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-009",
@@ -4529,7 +5095,9 @@
       "agents unavailable and said to be unavailable, gates human-decidable, deterministic safety fully operative, and no stale queued agent action executed on recovery"
     ],
     "sourceLine": 55295,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PLT-010",
@@ -4547,7 +5115,9 @@
       "the capability off, its configuration surface gone, tenants told, in-flight agent runs parked, and the deterministic layer untouched"
     ],
     "sourceLine": 55329,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-PUBLICATION",
@@ -4563,7 +5133,9 @@
       "The device executes the pinned package offline, classifying severity at the instant of capture"
     ],
     "sourceLine": 113078,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-QLT-001",
@@ -4581,7 +5153,9 @@
       "step blocked, run cannot advance past the gate, worker raises a hand-back flag"
     ],
     "sourceLine": 54047,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-QLT-002",
@@ -4599,7 +5173,9 @@
       "step blocked pending a re-pull of the package"
     ],
     "sourceLine": 54081,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-QLT-003",
@@ -4617,7 +5193,9 @@
       "breach point frozen locally, rest of the floor named as not yet confirmed"
     ],
     "sourceLine": 54116,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-QLT-004",
@@ -4635,7 +5213,9 @@
       "deviation exists, material held where Severity 1 applied, gap visible to the reviewing Quality Manager"
     ],
     "sourceLine": 54154,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-QLT-005",
@@ -4652,7 +5232,9 @@
       "anomaly remains Open, visible, and aging in the register and the digest"
     ],
     "sourceLine": 54191,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-QLT-006",
@@ -4670,7 +5252,9 @@
       "lot stays frozen on any device that has not received the release, and the Command Center names those devices"
     ],
     "sourceLine": 54228,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-QUAL-CLEAR",
@@ -4686,7 +5270,9 @@
       "resumes when the clearance arrives"
     ],
     "sourceLine": 117490,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-QUAL-EXPIRY",
@@ -4700,7 +5286,9 @@
       "at-expiry enforcement; the next assignment is blocked"
     ],
     "sourceLine": 117491,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-QUAL-PLAN",
@@ -4714,7 +5302,9 @@
       "the calendar shows its computation time and is not presented as live"
     ],
     "sourceLine": 117975,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RECON-AFTERFINISH",
@@ -4731,7 +5321,9 @@
       "a finished record whose every subsequent change is explicit and audited"
     ],
     "sourceLine": 81653,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RECON-IDEMPOTENT",
@@ -4748,7 +5340,9 @@
       "exactly one officially recorded capture per physical act"
     ],
     "sourceLine": 81655,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RECON-LATE",
@@ -4765,7 +5359,9 @@
       "a complete record with its lateness visible"
     ],
     "sourceLine": 81651,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RECON-LEGACY",
@@ -4782,7 +5378,9 @@
       "historical record intact, correction appended and attributed to a living authority, chain readable by an auditor"
     ],
     "sourceLine": 81720,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RECON-LONGOUTAGE",
@@ -4799,7 +5397,9 @@
       "every run reaching a finished state; every late arrival explicit"
     ],
     "sourceLine": 81699,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RECONNECT",
@@ -4815,7 +5415,9 @@
       "Command Center freshness markers and hold propagation display update, honestly showing issued, propagating, and in force per device"
     ],
     "sourceLine": 113345,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RECORD-LIFE",
@@ -4832,7 +5434,9 @@
       "Erasure executed with a certificate to both audit trails"
     ],
     "sourceLine": 114079,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-REPORT-DELIVER",
@@ -4846,7 +5450,9 @@
       "the report delivers late and flags material corrections in the next delivery"
     ],
     "sourceLine": 117974,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RES-001",
@@ -4864,7 +5470,9 @@
       "whatever has not uploaded remains committed locally and is counted honestly on every surface, and nothing is discarded to make the queue look empty"
     ],
     "sourceLine": 55408,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RES-002",
@@ -4882,7 +5490,9 @@
       "return to the controlled hold with the failure count incremented and human escalation raised"
     ],
     "sourceLine": 55444,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RES-003",
@@ -4900,7 +5510,9 @@
       "the difference remains open, named, and aging; nothing is closed to make a report look clean"
     ],
     "sourceLine": 55481,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-001",
@@ -4914,7 +5526,9 @@
       "no console access exists at all"
     ],
     "sourceLine": 55577,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-002",
@@ -4928,7 +5542,9 @@
       "the root credential is rotated and held by one named custodian; ambiguous custody is resolved by invalidating both copies"
     ],
     "sourceLine": 55599,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-003",
@@ -4942,7 +5558,9 @@
       "no root sign-in is possible and no mutating platform change can be approved; tenant operations continue unaffected"
     ],
     "sourceLine": 55621,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-004",
@@ -4956,7 +5574,9 @@
       "settings read-only, invariants intact"
     ],
     "sourceLine": 55644,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-005",
@@ -4970,7 +5590,9 @@
       "an account with no role and therefore no capability"
     ],
     "sourceLine": 55666,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-006",
@@ -4984,7 +5606,9 @@
       "signed out, re-evaluated on next sign-in"
     ],
     "sourceLine": 55689,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-007",
@@ -4998,7 +5622,9 @@
       "roleless, capability-free account"
     ],
     "sourceLine": 55711,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-008",
@@ -5012,7 +5638,9 @@
       "no engineering mutation applies; read and evaluation paths continue"
     ],
     "sourceLine": 55733,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-009",
@@ -5026,7 +5654,9 @@
       "capability-free account"
     ],
     "sourceLine": 55756,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-010",
@@ -5043,7 +5673,9 @@
       "no support sessions open anywhere; support work waits"
     ],
     "sourceLine": 55778,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-011",
@@ -5057,7 +5689,9 @@
       "the account remains inactive; approvals queue and age, re-notifying the root for critical items"
     ],
     "sourceLine": 55801,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-012",
@@ -5071,7 +5705,9 @@
       "no engineering change is made and the platform runs on its current configuration"
     ],
     "sourceLine": 55823,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-013",
@@ -5085,7 +5721,9 @@
       "no session; the tenant's question waits, and the tenant's data is untouched"
     ],
     "sourceLine": 55845,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-014",
@@ -5099,7 +5737,9 @@
       "no change, current configuration in force"
     ],
     "sourceLine": 55868,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-015",
@@ -5116,7 +5756,9 @@
       "the prior configuration in force with the approval recorded and the application explicitly not done"
     ],
     "sourceLine": 55892,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-016",
@@ -5130,7 +5772,9 @@
       "the change is not applied and the current configuration stands"
     ],
     "sourceLine": 55915,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-017",
@@ -5148,7 +5792,9 @@
       "no unmirrored platform-side act against a tenant persists"
     ],
     "sourceLine": 55938,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-018",
@@ -5162,7 +5808,9 @@
       "not done, visibly pending — a critical action is never performed for convenience"
     ],
     "sourceLine": 55961,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-019",
@@ -5180,7 +5828,9 @@
       "approved-not-executed, displayed as such"
     ],
     "sourceLine": 55985,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-020",
@@ -5194,7 +5844,9 @@
       "nothing executed, the current state stands"
     ],
     "sourceLine": 56008,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-021",
@@ -5208,7 +5860,9 @@
       "the request stays pending and visible forever rather than expiring"
     ],
     "sourceLine": 56031,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-022",
@@ -5225,7 +5879,9 @@
       "no session, tenant data untouched"
     ],
     "sourceLine": 56054,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-023",
@@ -5242,7 +5898,9 @@
       "the session ends by time box at the latest, and the failed termination is recorded"
     ],
     "sourceLine": 56077,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-024",
@@ -5259,7 +5917,9 @@
       "the session ends, and any period beyond the box is recorded as an overrun for investigation"
     ],
     "sourceLine": 56099,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-025",
@@ -5276,7 +5936,9 @@
       "no write access into tenant data, the tenant's data untouched, and the unmet emergency escalated organisationally"
     ],
     "sourceLine": 56121,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-026",
@@ -5293,7 +5955,9 @@
       "the session is closed and the outstanding report is a tracked, visible obligation in both streams"
     ],
     "sourceLine": 56144,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-027",
@@ -5310,7 +5974,9 @@
       "no grant exists and JBS holds nothing"
     ],
     "sourceLine": 56166,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-028",
@@ -5327,7 +5993,9 @@
       "no JBS session open; the client's own team continues the work"
     ],
     "sourceLine": 56189,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-029",
@@ -5344,7 +6012,9 @@
       "no access, with any overrun recorded for investigation"
     ],
     "sourceLine": 56211,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-030",
@@ -5361,7 +6031,9 @@
       "no access by any route"
     ],
     "sourceLine": 56233,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-031",
@@ -5375,7 +6047,9 @@
       "signed out, re-evaluated on next sign-in; a de-escalation is always applied before an escalation"
     ],
     "sourceLine": 56255,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-032",
@@ -5392,7 +6066,9 @@
       "pending items remain pending and visible rather than being auto-approved or dropped"
     ],
     "sourceLine": 56278,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-033",
@@ -5406,7 +6082,9 @@
       "a capability-free enabled account, which is harmless"
     ],
     "sourceLine": 56301,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-034",
@@ -5420,7 +6098,9 @@
       "unknown-activity accounts are disabled rather than retained"
     ],
     "sourceLine": 56323,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-035",
@@ -5435,7 +6115,9 @@
       "no new accounts at all until the defect is closed"
     ],
     "sourceLine": 56346,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-036",
@@ -5449,7 +6131,9 @@
       "the account holds its prior capability at most, and probably none"
     ],
     "sourceLine": 56368,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-037",
@@ -5463,7 +6147,9 @@
       "exactly one root, with the surplus account disabled and the incident escalated"
     ],
     "sourceLine": 56390,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-038",
@@ -5481,7 +6167,9 @@
       "no critical-class action and no account or role change is possible; tenant operations continue in full; the gap is escalated organisationally and recorded"
     ],
     "sourceLine": 56412,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-039",
@@ -5498,7 +6186,9 @@
       "the account is disabled and cannot re-authenticate"
     ],
     "sourceLine": 56438,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-040",
@@ -5512,7 +6202,9 @@
       "critical class frozen, tenants unaffected"
     ],
     "sourceLine": 56460,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-041",
@@ -5530,7 +6222,9 @@
       "no mutating platform change is possible; tenant operations continue; every action by the account is enumerated and under review"
     ],
     "sourceLine": 56483,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-042",
@@ -5548,7 +6242,9 @@
       "no mutating platform change; tenants keep operating; communications continue on the two channels"
     ],
     "sourceLine": 56509,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-043",
@@ -5566,7 +6262,9 @@
       "agents unavailable and said to be unavailable, deterministic safety fully operative, no stale queued agent action executed on recovery"
     ],
     "sourceLine": 56533,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-044",
@@ -5581,7 +6279,9 @@
       "no attestation is issued against an unverified matrix"
     ],
     "sourceLine": 56557,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-ROLE-045",
@@ -5599,7 +6299,9 @@
       "the console accepts no mutating change until the model is verified; tenants continue operating throughout"
     ],
     "sourceLine": 56580,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RUN-CLOSE",
@@ -5614,7 +6316,9 @@
       "late capture inside the window folds in flagged"
     ],
     "sourceLine": 117492,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RUN-NOSHOW",
@@ -5629,7 +6333,9 @@
       "an already-started run is never cancelled"
     ],
     "sourceLine": 117958,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-RUN-SCHEDULE",
@@ -5643,7 +6349,9 @@
       "the horizon is recomputed on next view; no work is lost"
     ],
     "sourceLine": 117976,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-ACCOUNT-CREATE",
@@ -5657,7 +6365,9 @@
       "account created and audited"
     ],
     "sourceLine": 15418,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-APPROVE-ENGINEER-CHANGE",
@@ -5672,7 +6382,9 @@
       "returned with reason"
     ],
     "sourceLine": 15838,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-CLOSE-SESSION",
@@ -5686,7 +6398,9 @@
       "session-ended event mirrored to both audit streams"
     ],
     "sourceLine": 16111,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-COMPOSED-AGENT-REVIEW",
@@ -5700,7 +6414,9 @@
       "reviewed in the approval queue under its own class"
     ],
     "sourceLine": 15967,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-CRITICAL-APPROVE",
@@ -5716,7 +6432,9 @@
       "pending with aging re-notification"
     ],
     "sourceLine": 15418,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-CRITICAL-SUBMIT",
@@ -5730,7 +6448,9 @@
       "escalated to the root, pending"
     ],
     "sourceLine": 15838,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-EMERGENCY-COAUTH",
@@ -5744,7 +6464,9 @@
       "session opens with declared scope"
     ],
     "sourceLine": 15838,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-EMERGENCY-OPEN",
@@ -5761,7 +6483,9 @@
       "session closed with automatic post-session report to the tenant"
     ],
     "sourceLine": 15418,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-ESCALATE-TO-EMERGENCY",
@@ -5775,7 +6499,9 @@
       "handed to the compliance-emergency path; no support session ever becomes a write session"
     ],
     "sourceLine": 16111,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-JBS-GRANT",
@@ -5789,7 +6515,9 @@
       "grant approved, exercised, expired"
     ],
     "sourceLine": 15418,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-OPEN-SUPPORT-SESSION",
@@ -5806,7 +6534,9 @@
       "session ends at time box, engineer close, or tenant End-session press"
     ],
     "sourceLine": 16111,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-PROPOSE-PAUSE",
@@ -5820,7 +6550,9 @@
       "root approves pause; resume is a separate approval"
     ],
     "sourceLine": 15967,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-ROLE-ASSIGN",
@@ -5834,7 +6566,9 @@
       "role assigned and audited"
     ],
     "sourceLine": 15418,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-RUN-EVAL",
@@ -5849,7 +6583,9 @@
       "scenarios fail and the change stops"
     ],
     "sourceLine": 15967,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-SUBMIT-BAND-A",
@@ -5865,7 +6601,9 @@
       "blocked by the evaluation gate"
     ],
     "sourceLine": 15967,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-TENANT-ONBOARD",
@@ -5880,7 +6618,9 @@
       "tenant onboarded, Band B auto-applied and audited"
     ],
     "sourceLine": 15838,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SA-TIER-ASSIGN",
@@ -5894,7 +6634,9 @@
       "tier assigned within published tiers"
     ],
     "sourceLine": 15838,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-AUTOCLOSE",
@@ -5911,7 +6653,9 @@
       "Recomputed"
     ],
     "sourceLine": 100469,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-BASELINE-E2E",
@@ -5929,7 +6673,9 @@
       "Reconciled final state"
     ],
     "sourceLine": 100240,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-CARD-AUTHOR",
@@ -5944,7 +6690,9 @@
       "Card rejected"
     ],
     "sourceLine": 99367,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-DEFN-LIFE",
@@ -5959,7 +6707,9 @@
       "Archived"
     ],
     "sourceLine": 99006,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-FIVE-SURFACE",
@@ -5977,7 +6727,9 @@
       "Reconciliation writes the final state; every surface converges on it"
     ],
     "sourceLine": 100391,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-LOCAL-EXPIRY",
@@ -5993,7 +6745,9 @@
       "Gate evaluates normally"
     ],
     "sourceLine": 100655,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-MEASURE-ADMIT",
@@ -6011,7 +6765,9 @@
       "Admitted with fifteen governance attributes complete"
     ],
     "sourceLine": 101553,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-MECH-SELECT",
@@ -6026,7 +6782,9 @@
       "not automatable at V1 - mechanism class M12"
     ],
     "sourceLine": 99644,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-OCC-LIFE",
@@ -6041,7 +6799,9 @@
       "Reconciled"
     ],
     "sourceLine": 99071,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-OCCURRENCE",
@@ -6058,7 +6818,9 @@
       "Misfire recorded with the policy applied"
     ],
     "sourceLine": 114268,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-OFFLINE-THREE",
@@ -6077,7 +6839,9 @@
       "Tablet three produces a standing reconciliation item that is escalated, not closed"
     ],
     "sourceLine": 100880,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SCHED-TEN-STEPS",
@@ -6093,7 +6857,9 @@
       "Reconciled"
     ],
     "sourceLine": 98910,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-STU-ADMINISTER-GRANT",
@@ -6107,7 +6873,9 @@
       "grant assigned or revoked"
     ],
     "sourceLine": 16503,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-STU-PUBLISH",
@@ -6122,7 +6890,9 @@
       "returned to the Author with comments"
     ],
     "sourceLine": 117493,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-STU-RELEASE-VERSION",
@@ -6136,7 +6906,9 @@
       "released"
     ],
     "sourceLine": 16819,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-STU-VERSION",
@@ -6152,7 +6924,9 @@
       "patch auto-adopts"
     ],
     "sourceLine": 117494,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-SUP-SESSION",
@@ -6167,7 +6941,9 @@
       "session closed at the box or ended by the tenant at any time"
     ],
     "sourceLine": 117497,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TAX-001",
@@ -6183,7 +6959,9 @@
       "the prior catalog is in force globally"
     ],
     "sourceLine": 54845,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TAX-002",
@@ -6200,7 +6978,9 @@
       "the prior catalog in force, with no behavioural consequence because no platform behaviour hangs on the tag"
     ],
     "sourceLine": 54883,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TAX-003",
@@ -6215,7 +6995,9 @@
       "the entry exists and is selectable; the filter appears at the next refresh"
     ],
     "sourceLine": 54915,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TEN-001",
@@ -6231,7 +7013,9 @@
       "provisioning_failed with all access closed"
     ],
     "sourceLine": 52395,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TEN-002",
@@ -6247,7 +7031,9 @@
       "created-and-inactive with no session possible"
     ],
     "sourceLine": 52433,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TEN-003",
@@ -6266,7 +7052,9 @@
       "prior bundle stays in force on the floor and the platform says so"
     ],
     "sourceLine": 52469,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TENANT-ARCHIVE",
@@ -6280,7 +7068,9 @@
       "the window boundary is evaluated on next access; nothing is deleted by a missed run"
     ],
     "sourceLine": 117977,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TENANT-ONBOARD",
@@ -6297,7 +7087,9 @@
       "execution begins and Worker-Shift consumption meters"
     ],
     "sourceLine": 1449,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TENANT-PILOT",
@@ -6311,7 +7103,9 @@
       "the pilot continues until a human acts; no automatic data loss"
     ],
     "sourceLine": 117967,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TENANT-SUSPEND",
@@ -6326,7 +7120,9 @@
       "the suspension is recorded centrally and rendered as issued until each device applies it"
     ],
     "sourceLine": 117966,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-TRACE-RETENTION",
@@ -6340,7 +7136,9 @@
       "traces persist longer than 24 months, a storage cost and not a compliance breach"
     ],
     "sourceLine": 117972,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-USAGE-LADDER",
@@ -6354,7 +7152,9 @@
       "a threshold event fires once per crossing, not once per evaluation"
     ],
     "sourceLine": 117965,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-V2-INTEGRATION",
@@ -6368,7 +7168,9 @@
       "inbound runs created with run_source erp_inbound or api_inbound; external system remains read-only inbound"
     ],
     "sourceLine": 2818,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-VALUESTREAM",
@@ -6385,7 +7187,9 @@
       "finished"
     ],
     "sourceLine": 1764,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-WKR-001",
@@ -6402,7 +7206,9 @@
       "incomplete worker record that cannot be assigned to a run"
     ],
     "sourceLine": 52786,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-WKR-002",
@@ -6418,7 +7224,9 @@
       "no credential active and no session possible"
     ],
     "sourceLine": 52818,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-WKR-003",
@@ -6435,7 +7243,9 @@
       "worker cannot start work on that device and the supervisor is told"
     ],
     "sourceLine": 52853,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-WKR-004",
@@ -6452,7 +7262,9 @@
       "user signed out and must sign in again"
     ],
     "sourceLine": 52892,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-WKR-005",
@@ -6468,7 +7280,9 @@
       "prior, narrower scope remains in force and the platform says so"
     ],
     "sourceLine": 52924,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-WKR-006",
@@ -6486,7 +7300,9 @@
       "run stays parked and the worker works other runs"
     ],
     "sourceLine": 52957,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "WF-WKR-007",
@@ -6504,7 +7320,9 @@
       "the run parks; the gated step is not executed; the worker keeps working other runs"
     ],
     "sourceLine": 52995,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered",
@@ -6526,7 +7344,9 @@
       "Blocked at the qualification gate, or notified under notify-only posture"
     ],
     "sourceLine": 19962,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 199,
+    "idIsPlaceholder": true
   },
   {
     "id": "unnumbered — 23.10 metrics derivation",
@@ -6542,7 +7362,9 @@
       "reconciled after a telemetry gap with the degraded window recorded"
     ],
     "sourceLine": 45140,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.11 tier publication",
@@ -6559,7 +7381,9 @@
       "tenants grandfathered or migrated per the declared treatment"
     ],
     "sourceLine": 45248,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.12 usage metering",
@@ -6577,7 +7401,9 @@
       "reprocessed after a metering rule change"
     ],
     "sourceLine": 45360,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.13 device wipe",
@@ -6594,7 +7420,9 @@
       "queued indefinitely against an unreachable device (DEC-WIPE-001)"
     ],
     "sourceLine": 45474,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.14 broadcast",
@@ -6610,7 +7438,9 @@
       "cancelled before its window"
     ],
     "sourceLine": 45586,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.15 support session and emergency",
@@ -6628,7 +7458,9 @@
       "closed with the automatic post-session report generated (emergency)"
     ],
     "sourceLine": 45714,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.16 JBS grant",
@@ -6645,7 +7477,9 @@
       "reconciled against the declared scope"
     ],
     "sourceLine": 45848,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.17 record lifecycle",
@@ -6663,7 +7497,9 @@
       "held under a legal hold"
     ],
     "sourceLine": 45960,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.18 audit commitment",
@@ -6679,7 +7515,9 @@
       "transaction rolled back and the action does not happen"
     ],
     "sourceLine": 46094,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.19 registry write",
@@ -6696,7 +7534,9 @@
       "rejected at the point of entry with the bound stated, nothing stored"
     ],
     "sourceLine": 46213,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.8 change and account lifecycle",
@@ -6713,7 +7553,9 @@
       "pending after a failed application"
     ],
     "sourceLine": 44739,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 23.9 tenant lifecycle",
@@ -6732,7 +7574,9 @@
       "reactivated inside a window"
     ],
     "sourceLine": 44939,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 24 inventory row lifecycle",
@@ -6751,7 +7595,9 @@
       "retired with a retired-identifier record"
     ],
     "sourceLine": 46898,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 24.3 master-data-to-record path",
@@ -6768,7 +7614,9 @@
       "Execution Summary reviewed and the Anomaly Register dispositioned"
     ],
     "sourceLine": 47155,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 24.4 authoring-to-floor path",
@@ -6786,7 +7634,9 @@
       "blocked for a locale whose worker-facing elements are incomplete"
     ],
     "sourceLine": 47312,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 24.5 exception-to-decision path",
@@ -6804,7 +7654,9 @@
       "unactioned item re-routed, never executed or expired silently"
     ],
     "sourceLine": 47461,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 24.6 one run",
@@ -6820,7 +7672,9 @@
       "complete when every assigned device has synchronised"
     ],
     "sourceLine": 47592,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered — 24.7 platform change",
@@ -6838,7 +7692,9 @@
       "refused where evaluation scenarios are pending or failing"
     ],
     "sourceLine": 47718,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unnumbered-parity-suite",
@@ -6853,7 +7709,9 @@
       "complete run with zero counts in the two failing quadrants"
     ],
     "sourceLine": 23153,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unstated",
@@ -6865,7 +7723,9 @@
       "no unexplained short form survives in narrative prose"
     ],
     "sourceLine": 6498,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 66,
+    "idIsPlaceholder": true
   },
   {
     "id": "unstated (SB-OWN-004 chronological workflow)",
@@ -6881,7 +7741,9 @@
       "redesigned as an entry point into the owner's service"
     ],
     "sourceLine": 13510,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   },
   {
     "id": "unstated (measurement lifecycle)",
@@ -6898,6 +7760,8 @@
       "Execution Summary and anomaly register computed at completion; every step written to the tenant's single audit log"
     ],
     "sourceLine": 13632,
-    "status": "not-represented"
+    "status": "not-represented",
+    "collapsedFrom": 1,
+    "idIsPlaceholder": false
   }
 ]

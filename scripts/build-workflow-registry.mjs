@@ -33,6 +33,17 @@
  *     lines. 81 is the MODULE count and nothing else -- conflating the two
  *     is a named implementation risk in source-reconciliation.json.
  *
+ * COLLAPSE PROVENANCE (post-handoff honesty fix): dedup-by-id silently
+ * folds every raw entry that shares an id into one row, with nothing on the
+ * page distinguishing "this id only ever appeared once" from "199 raw
+ * entries shared this id." Each output row now also carries `collapsedFrom`
+ * (how many raw entries its id actually had, default 1) and
+ * `idIsPlaceholder` (true only for the bare literal ids "unnumbered" and
+ * "unstated" -- the extractor's own placeholders, not a real stable
+ * identifier). This does NOT change the dedup key or invent an id the
+ * source never gave; it only makes the existing collapse visible to
+ * whatever reads this file. Synthesising better ids is out of scope here.
+ *
  * Run with: node scripts/build-workflow-registry.mjs
  */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
@@ -52,10 +63,12 @@ if (chunkFiles.length === 0) {
 }
 
 const byId = new Map()
+const idCounts = new Map() // id -> how many raw entries actually had this id
 
 for (const file of chunkFiles) {
   const chunk = JSON.parse(readFileSync(join(EXTRACT_DIR, file), 'utf8'))
   for (const wf of chunk.workflows ?? []) {
+    idCounts.set(wf.id, (idCounts.get(wf.id) ?? 0) + 1)
     if (byId.has(wf.id)) continue // first occurrence (chunk/line order) wins
     byId.set(wf.id, {
       id: wf.id,
@@ -74,7 +87,20 @@ for (const file of chunkFiles) {
   }
 }
 
-const records = [...byId.values()].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+// Derived, not assumed: scanning every raw id (see the block comment above)
+// shows exactly two literal, unqualified placeholder values recur --
+// "unnumbered" (199 raw entries) and "unstated" (66). Ids that add a
+// discriminating fragment after that text (e.g. "unnumbered — 23.10 metrics
+// derivation") are real, if ugly, distinct ids and are deliberately excluded.
+const PLACEHOLDER_IDS = new Set(['unnumbered', 'unstated'])
+
+const records = [...byId.values()]
+  .map((r) => ({
+    ...r,
+    collapsedFrom: idCounts.get(r.id) ?? 1,
+    idIsPlaceholder: PLACEHOLDER_IDS.has(r.id),
+  }))
+  .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
 
 writeFileSync(OUT_FILE, JSON.stringify(records, null, 2) + '\n')
 console.log(`Wrote ${records.length} workflow records to ${OUT_FILE}`)

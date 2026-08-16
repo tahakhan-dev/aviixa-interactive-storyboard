@@ -149,6 +149,20 @@ export type ReconciliationReport = z.infer<typeof ReconciliationReportSchema>
  * stream", "Not applicable — document control", ...), not always one of the
  * five closed `SurfaceId` values -- coercing it into that enum would either
  * throw away real source text or fabricate a surface the source never named.
+ *
+ * `collapsedFrom` and `idIsPlaceholder` (post-handoff honesty fix): 725 raw
+ * `workflows[]` entries dedupe to these 432 rows by the extractor's own
+ * `id`, and 32 ids repeat -- 199 raw entries share the literal id
+ * "unnumbered", 66 share "unstated" (the extractor's placeholders for a
+ * passage the source gave no clean id), and 30 real-looking ids (e.g.
+ * "SB-001") each name two distinct passages at two different source lines.
+ * `collapsedFrom` is how many raw entries this row's id actually had (>= 1);
+ * `idIsPlaceholder` is true only for the bare literal ids "unnumbered" and
+ * "unstated" themselves, not for ids that merely start with that text plus a
+ * discriminating fragment (e.g. "unnumbered — 23.10 metrics derivation",
+ * which IS a distinct, non-collapsing id). Neither field re-keys the
+ * registry or invents an id the source never gave -- that stays out of
+ * scope for this fix.
  */
 export const WorkflowRecordSchema = z
   .object({
@@ -160,6 +174,8 @@ export const WorkflowRecordSchema = z
     terminalStates: z.array(z.string()),
     sourceLine: z.number().int().nonnegative(),
     status: z.enum(COVERAGE_STATUSES),
+    collapsedFrom: z.number().int().positive(),
+    idIsPlaceholder: z.boolean(),
   })
   .strict()
 
