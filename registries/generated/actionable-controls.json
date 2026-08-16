@@ -1,120 +1,4398 @@
 {
   "slug": "actionable-controls",
-  "countedThing": "the canonical do-not-use-cron control register DNC-01..DNC-22, verified unique -- controls that must always remain a live human decision and may never be enforced by a scheduled sweep. No names were extracted for this family; the frozen source gives these controls no label beyond their id.",
-  "reconciledCount": 22,
-  "rawCount": 22,
-  "dedupRule": "DNC-* identifiers only; 22 raw keys, all unique, zero delta. The 8 standing prohibitions and 12 absolute scheduling prohibitions are separate lists and are not DNC rows.",
+  "countedThing": "608 distinct actionable UI controls (labelled actions like \"End-session\", \"Resolve All\", \"Request release with a note\"), deduped by exact label text from 759 raw extraction entries -- matches spec §2.10. Also discloses, under its own register tag, the separate DNC-01..DNC-22 do-not-use-cron register (22): scheduling policy, never an actionable control, and never merged into this count.",
+  "reconciledCount": 608,
+  "rawCount": 759,
+  "dedupRule": "759 raw controls[] entries across the 36 extraction chunks deduped by exact label text (first occurrence, chunk order, wins) -> 608 distinct actionable controls, matching spec §2.10. Worst collapse: 14 raw entries sharing one label (\"Request release with a note\"). DNC-01..DNC-22 (verified unique, zero delta) is a SEPARATE inventory -- scheduling policy, not an actionable control -- and is listed under the \"do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)\" register tag rather than mixed into this count.",
   "sourceFixesNoTotal": false,
   "rows": [
     {
+      "id": "\"The Training Library needs a connection. It is not needed for any of your runs.\"",
+      "sourceLine": 42209,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "A replay control",
+      "sourceLine": 98970,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Accept",
+      "sourceLine": 38157,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Account creation is root-only",
+      "sourceLine": 14977,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Acknowledge",
+      "sourceLine": 4342,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Acknowledge (handoff brief)",
+      "sourceLine": 64058,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Acknowledge a notification",
+      "sourceLine": 28699,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Acknowledge an alert or escalation",
+      "sourceLine": 11401,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Acknowledge and annotate the shift handoff brief",
+      "sourceLine": 58821,
+      "status": "not-represented",
+      "surface": "Client Command Center",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Acknowledge and annotate the shift-handoff brief",
+      "sourceLine": 11406,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Acknowledge brief",
+      "sourceLine": 38561,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Acknowledge the escalation",
+      "sourceLine": 48431,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Activate tenant",
+      "sourceLine": 75180,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Add",
+      "sourceLine": 33178,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Add a band",
+      "sourceLine": 48308,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Add a correction",
+      "sourceLine": 40663,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Add a second location",
+      "sourceLine": 61683,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Add an append-only annotation",
+      "sourceLine": 63159,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Add review annotation",
+      "sourceLine": 34912,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Additional recipient list",
+      "sourceLine": 17720,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Adjust and approve",
+      "sourceLine": 37153,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Adjust within bounds",
+      "sourceLine": 20428,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Adjust within bounds and approve",
+      "sourceLine": 24907,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Adopt",
+      "sourceLine": 71013,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Adopt all",
+      "sourceLine": 77923,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Adopt now / adopt at the next run boundary (per-Job and bulk)",
+      "sourceLine": 53601,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Advance",
+      "sourceLine": 24907,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Alert and escalation feed filters: Area, severity, type, state",
+      "sourceLine": 54411,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "All-tenant broadcast",
+      "sourceLine": 91295,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Alter the pinned version",
+      "sourceLine": 48163,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Annotate",
+      "sourceLine": 24521,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Annotate (append-only)",
+      "sourceLine": 24234,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve",
+      "sourceLine": 20428,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve (composed-agent review)",
+      "sourceLine": 43339,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve (disabled with inline rule explanation)",
+      "sourceLine": 103411,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve / Adjust within bounds and approve / Decline with a categorised reason",
+      "sourceLine": 4326,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve / Adjust within bounds and approve / Decline with reason",
+      "sourceLine": 63801,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve / adjust-within-bounds / decline with reason (gate-item decision)",
+      "sourceLine": 104547,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve / adjust-within-bounds and approve / decline with a categorised reason",
+      "sourceLine": 59217,
+      "status": "not-represented",
+      "surface": "Client Command Center gate queue and learned-change queue",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve a change this identity proposed",
+      "sourceLine": 48793,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve an engineering-class change",
+      "sourceLine": 48792,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve anything touching the six enforced invariants",
+      "sourceLine": 48793,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve archival",
+      "sourceLine": 65940,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve beyond the permitted bounds",
+      "sourceLine": 63802,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve one's own submission",
+      "sourceLine": 48309,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve or decline a learned-change proposal, Lane B",
+      "sourceLine": 11403,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve or return with reason",
+      "sourceLine": 15783,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve the critical-class severity-catalog change",
+      "sourceLine": 48793,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve your own submission",
+      "sourceLine": 65490,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve — available when this Job is submitted for approval",
+      "sourceLine": 22349,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approve, adjust within bounds, or decline a gate item",
+      "sourceLine": 11402,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Approver-capable holders counter",
+      "sourceLine": 23918,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Archival warning confirmation",
+      "sourceLine": 112908,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Archive",
+      "sourceLine": 33546,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Archive control",
+      "sourceLine": 67417,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Archive version",
+      "sourceLine": 76761,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Area filter, severity filter, search by run identifier",
+      "sourceLine": 47506,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Ask my supervisor",
+      "sourceLine": 89566,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Ask the coaching assistant (saved until connection)",
+      "sourceLine": 89566,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Ask your supervisor for a clearance / Continue with your other assigned runs",
+      "sourceLine": 19523,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Assign",
+      "sourceLine": 34631,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Assignment-time concentration warning",
+      "sourceLine": 112572,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Author and export report formats",
+      "sourceLine": 117313,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Authorise",
+      "sourceLine": 64827,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Back to the step",
+      "sourceLine": 89566,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Backfill",
+      "sourceLine": 109926,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Backfill proposal",
+      "sourceLine": 104695,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Block the shift from starting until acknowledged",
+      "sourceLine": 64059,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Blocked banner on the run record",
+      "sourceLine": 100503,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Bulk export to tenant storage",
+      "sourceLine": 64573,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "By capability",
+      "sourceLine": 14264,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "By person",
+      "sourceLine": 14264,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "CSV and JSON export",
+      "sourceLine": 25686,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Cancel",
+      "sourceLine": 33178,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Cancel a run with a categorised reason",
+      "sourceLine": 1808,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Cancel the release",
+      "sourceLine": 63314,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Cancel the run",
+      "sourceLine": 62382,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Changed in this version.",
+      "sourceLine": 41894,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Class-filtered export",
+      "sourceLine": 110893,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Clear the commercial hold",
+      "sourceLine": 113716,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Clearance (Client Command Center action 10)",
+      "sourceLine": 57083,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Clone",
+      "sourceLine": 29486,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Coaching card replay and dismiss",
+      "sourceLine": 53862,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Coaching is not appearing",
+      "sourceLine": 89394,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Command Center action 10 — grant a qualification clearance",
+      "sourceLine": 51393,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Command Center action 3 — decide a Lane B proposal",
+      "sourceLine": 54342,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Command Center action 4 — release a lot hold",
+      "sourceLine": 54228,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Command Center action 8 — reassignment mid-shift",
+      "sourceLine": 53798,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Command state chip",
+      "sourceLine": 25830,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Complete containment items",
+      "sourceLine": 48648,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Configure severity action bundles",
+      "sourceLine": 61338,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Connections",
+      "sourceLine": 95476,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Continue",
+      "sourceLine": 42058,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Continue anyway (qualification gate)",
+      "sourceLine": 64386,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Continue to screen 1",
+      "sourceLine": 65808,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Continue to the next screen once containment permits",
+      "sourceLine": 48648,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Continue with another run",
+      "sourceLine": 14571,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Continue without signing in",
+      "sourceLine": 62363,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Correct",
+      "sourceLine": 72496,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Countdown prompt as the finish deadline approaches",
+      "sourceLine": 100500,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Countdown prompt to automatic finish",
+      "sourceLine": 118001,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Cover for absence affordance",
+      "sourceLine": 112461,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Create (console user)",
+      "sourceLine": 66809,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Create (root only)",
+      "sourceLine": 55552,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Create (tenant)",
+      "sourceLine": 66959,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Create a Job",
+      "sourceLine": 61357,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Create a corrective Job",
+      "sourceLine": 48432,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Create a run",
+      "sourceLine": 65163,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Create and invite administrator",
+      "sourceLine": 61337,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Create tenant",
+      "sourceLine": 52400,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Create user",
+      "sourceLine": 76133,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Critical class — root approval required",
+      "sourceLine": 23707,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Custom roles are deferred beyond V1",
+      "sourceLine": 14978,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
       "id": "DNC-01",
       "sourceLine": 98485,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-02",
       "sourceLine": 98486,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-03",
       "sourceLine": 98487,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-04",
       "sourceLine": 98488,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-05",
       "sourceLine": 98489,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-06",
       "sourceLine": 98490,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-07",
       "sourceLine": 98491,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-08",
       "sourceLine": 98492,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-09",
       "sourceLine": 98493,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-10",
       "sourceLine": 98494,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-11",
       "sourceLine": 98495,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-12",
       "sourceLine": 98496,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-13",
       "sourceLine": 98497,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-14",
       "sourceLine": 98498,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-15",
       "sourceLine": 98499,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-16",
       "sourceLine": 98500,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-17",
       "sourceLine": 98501,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-18",
       "sourceLine": 98502,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-19",
       "sourceLine": 98503,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-20",
       "sourceLine": 98504,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-21",
       "sourceLine": 98505,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
     },
     {
       "id": "DNC-22",
       "sourceLine": 98506,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+    },
+    {
+      "id": "Date and entity filters (audit export)",
+      "sourceLine": 54544,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Date range and entity filter, CSV and JSON format controls",
+      "sourceLine": 97783,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Date-range, actor, object-type, action-class and scope filters",
+      "sourceLine": 16933,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "De-authorise",
+      "sourceLine": 18286,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Decision control (Lane B proposal card)",
+      "sourceLine": 117495,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Decline",
+      "sourceLine": 33357,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Decline with a categorised reason",
+      "sourceLine": 87213,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Decline with a reason",
+      "sourceLine": 20428,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Decline with reason",
+      "sourceLine": 24907,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Define a new severity level",
+      "sourceLine": 48309,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Delegate the decision",
+      "sourceLine": 63802,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Delegate this action",
+      "sourceLine": 65614,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Delete a losing version",
+      "sourceLine": 63606,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Delete an anomaly",
+      "sourceLine": 48163,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Delete tenant data",
+      "sourceLine": 65941,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Deprecate",
+      "sourceLine": 54850,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Deprecate (rendered in place of delete when referenced)",
+      "sourceLine": 111264,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Depth declaration four-step control",
+      "sourceLine": 112905,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Disable",
+      "sourceLine": 55552,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Disable severity classification",
+      "sourceLine": 61487,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Disable the evaluation gate",
+      "sourceLine": 65490,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Disable the specification gate",
+      "sourceLine": 61487,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Dismiss",
+      "sourceLine": 41566,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Dismiss the banner",
+      "sourceLine": 65039,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Drift canary panel",
+      "sourceLine": 108982,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "ENFORCED badge",
+      "sourceLine": 90550,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "ENFORCED badge (locked invariants)",
+      "sourceLine": 60704,
+      "status": "not-represented",
+      "surface": "Super Admin platform console",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "ENFORCED badge (locked setting rows, no control)",
+      "sourceLine": 103982,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "ENFORCED badge on the evaluation gate",
+      "sourceLine": 87376,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "ENFORCED badge with lock icon",
+      "sourceLine": 44041,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Edit a committed capture",
+      "sourceLine": 62382,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Edit any capture",
+      "sourceLine": 48163,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Edit any section",
+      "sourceLine": 48308,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Edit the capture",
+      "sourceLine": 48432,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Edit the committed 38.0 Newton metre value",
+      "sourceLine": 48649,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Edit the proposed value (Lane-B)",
+      "sourceLine": 63932,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Effective-date control",
+      "sourceLine": 100559,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Emergency pause",
+      "sourceLine": 110543,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Emergency pause (per-tenant and platform-wide scope)",
+      "sourceLine": 54979,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Emergency pause (scope selection, mandatory reason)",
+      "sourceLine": 87854,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Emergency pause / Emergency resume",
+      "sourceLine": 104586,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Emergency pause control",
+      "sourceLine": 113588,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Enable / Disable (atom)",
+      "sourceLine": 86893,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Enable / Disable capability",
+      "sourceLine": 30751,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Enable directly",
+      "sourceLine": 65490,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "End session",
+      "sourceLine": 9709,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "End-session",
+      "sourceLine": 1476,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "End-session (support-session banner)",
+      "sourceLine": 4599,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "End-session control",
+      "sourceLine": 10902,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "End-session control (support-session banner)",
+      "sourceLine": 44272,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "End-session control on the support-session banner",
+      "sourceLine": 48720,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Enrol a device",
+      "sourceLine": 61357,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Enter a supervisor code",
+      "sourceLine": 64386,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Enters tenant context, tenant will see a banner",
+      "sourceLine": 15544,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Erasure requests list",
+      "sourceLine": 97663,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Export",
+      "sourceLine": 28959,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Export (audit extract as comma-separated values / JavaScript object notation)",
+      "sourceLine": 3884,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Export (comma-separated values and JavaScript Object Notation, date and entity filters)",
+      "sourceLine": 104114,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Export as JavaScript Object Notation",
+      "sourceLine": 64572,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Export as comma-separated values",
+      "sourceLine": 20728,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Export as comma-separated values or JavaScript Object Notation",
+      "sourceLine": 54544,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Export the Portable Document Format Summary",
+      "sourceLine": 48162,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Export the audit log as comma-separated values or JavaScript Object Notation",
+      "sourceLine": 1903,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Extend end time",
+      "sourceLine": 28030,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Extend the run end time within the tenant's cap",
+      "sourceLine": 11133,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Extend the time box",
+      "sourceLine": 64699,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Feature enablement strip",
+      "sourceLine": 113715,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Feed filters (Area, severity, type, state)",
+      "sourceLine": 4340,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Filter",
+      "sourceLine": 64572,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Filter by Area, severity, type and state",
+      "sourceLine": 37863,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Filter by date and entity (audit)",
+      "sourceLine": 104111,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Filter by week, Area, certification type and worker",
+      "sourceLine": 29318,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Filter the audit log by date and entity",
+      "sourceLine": 1903,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Filters — domain grouping, status, eval verdict, detection class",
+      "sourceLine": 43158,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Filters: Area, severity, type and state",
+      "sourceLine": 25016,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Filters: type, state, tenant scope and sponsor",
+      "sourceLine": 18185,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Filters: week, Area, certification type, worker",
+      "sourceLine": 52740,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Flag an automatic resolution as wrong",
+      "sourceLine": 63605,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Flag this resolution",
+      "sourceLine": 80541,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Flag this resolution as wrong",
+      "sourceLine": 38157,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Follow a link to the referenced object, read-only",
+      "sourceLine": 64572,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Force the command onto a device",
+      "sourceLine": 63314,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Freshness marker",
+      "sourceLine": 26293,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Freshness marker (selectable)",
+      "sourceLine": 35931,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Freshness marker on every live element",
+      "sourceLine": 1668,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Gate view",
+      "sourceLine": 108982,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Gate-item decision",
+      "sourceLine": 117304,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Global search over workers, Jobs, runs, and parts",
+      "sourceLine": 47206,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Go to my other runs",
+      "sourceLine": 41736,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Grant a clearance",
+      "sourceLine": 27431,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Grant a never-held qualification",
+      "sourceLine": 64255,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Grant a qualification clearance",
+      "sourceLine": 11410,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Grant a qualification clearance (Command Center action 10)",
+      "sourceLine": 2496,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Grant clearance",
+      "sourceLine": 64254,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Grant the engineer write access",
+      "sourceLine": 64699,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Hand back this run",
+      "sourceLine": 42058,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Handoff state chip",
+      "sourceLine": 25129,
+      "status": "not-represented",
+      "surface": "all surfaces rendering a handoff",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Hide the banner",
+      "sourceLine": 64699,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Honest sync indicator",
+      "sourceLine": 113375,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "In-app locked control with the text \"Always on. In-app notifications cannot be turned off.\"",
+      "sourceLine": 73228,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Input type picker",
+      "sourceLine": 113109,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Job Type filter (first-class filter in the Custom Report Builder)",
+      "sourceLine": 54815,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Job anchor picker",
+      "sourceLine": 112907,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Language selector (English / Spanish)",
+      "sourceLine": 42380,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Language toggle (compliance lock screen)",
+      "sourceLine": 41412,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Last-activity review",
+      "sourceLine": 55552,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Legal hold",
+      "sourceLine": 117354,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Library filter defaulting to Published",
+      "sourceLine": 4142,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Library pointer badge",
+      "sourceLine": 113112,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Link to the Standards and Operations Studio for agent switching",
+      "sourceLine": 37781,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Logout",
+      "sourceLine": 40305,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Logout control",
+      "sourceLine": 42380,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Manual close link (to the Delivery Operations Hub run record)",
+      "sourceLine": 36551,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Manual close of a stuck run",
+      "sourceLine": 100928,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Manual per-run portable-document-format export",
+      "sourceLine": 3981,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Manual sync control",
+      "sourceLine": 50611,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Manual synchronisation",
+      "sourceLine": 4448,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Manual trigger",
+      "sourceLine": 109926,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Manual-close control on the run record",
+      "sourceLine": 85073,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mark a prior case relevant or not relevant",
+      "sourceLine": 86526,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mark as read",
+      "sourceLine": 89568,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mark device lost / Request wipe",
+      "sourceLine": 103830,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mark evidence reviewed",
+      "sourceLine": 4245,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mark prior cases relevant or not relevant",
+      "sourceLine": 48431,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mark relevant / not relevant (prior case relevance)",
+      "sourceLine": 58955,
+      "status": "not-represented",
+      "surface": "Client Command Center deviation workspace",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mark reviewed",
+      "sourceLine": 72496,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mark the Summary reviewed",
+      "sourceLine": 48162,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mark the hold in force manually",
+      "sourceLine": 63314,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Microsoft Excel or comma-separated values, recipient set, schedule defaulting to 06:00 daily",
+      "sourceLine": 97784,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Model quarantine",
+      "sourceLine": 91292,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Mute a digest section",
+      "sourceLine": 28693,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Narrow the declared scope before authorising",
+      "sourceLine": 64827,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Navigation rail: Board, Drill, Deviations, Gate, Learned changes, Agents, Alerts, Conflicts, Reports, Handoff",
+      "sourceLine": 35102,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "New Agent",
+      "sourceLine": 34096,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "New Tenant",
+      "sourceLine": 75180,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "New Workflow",
+      "sourceLine": 31976,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Next",
+      "sourceLine": 91615,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Next (advance)",
+      "sourceLine": 62516,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "No 'request access' or 'join the beta' control (absence is the control)",
+      "sourceLine": 96696,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "No control to add an outbound destination (absence is the control)",
+      "sourceLine": 95576,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "No delete or purge control on any storage-related surface (absence is the control)",
+      "sourceLine": 97037,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "No enable control on the ERP inbound row (absence is the control)",
+      "sourceLine": 96422,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "No per-tenant region control (absence is the control)",
+      "sourceLine": 97239,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "No undo, restore or de-anonymise control (absence is the control)",
+      "sourceLine": 97560,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Not available at this version",
+      "sourceLine": 95478,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Not yet set — client decision DEC-*",
+      "sourceLine": 90030,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "On-demand package re-pull",
+      "sourceLine": 113242,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "One-tap relevance marking (prior cases)",
+      "sourceLine": 4321,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open (compliance-emergency session)",
+      "sourceLine": 104252,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open (compliance-emergency)",
+      "sourceLine": 19760,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open Platform Access History",
+      "sourceLine": 64572,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open a ready run",
+      "sourceLine": 48629,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open deviation workspace",
+      "sourceLine": 36763,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open tenant administration area",
+      "sourceLine": 61356,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open the Why was I refused view",
+      "sourceLine": 14573,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open the not-yet-ready run",
+      "sourceLine": 48630,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open the parked run to see why it is parked",
+      "sourceLine": 48629,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open the review queue",
+      "sourceLine": 65162,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open the role definition card",
+      "sourceLine": 14265,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open the trace viewer for a scenario run",
+      "sourceLine": 65489,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Open the work instruction at her profile's difficulty level",
+      "sourceLine": 65808,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Option-list editor",
+      "sourceLine": 113110,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Override the specification gate",
+      "sourceLine": 48432,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Pause",
+      "sourceLine": 109926,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Pause a definition",
+      "sourceLine": 100761,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Pause agent activity",
+      "sourceLine": 65613,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Pause and resume in one action",
+      "sourceLine": 65614,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Pause definition",
+      "sourceLine": 18606,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Pause the deterministic layer",
+      "sourceLine": 65614,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Pause the run",
+      "sourceLine": 48432,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Pause the run / Stop the run",
+      "sourceLine": 62535,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Per-format re-send option on material correction",
+      "sourceLine": 99436,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Per-tenant backlog drill",
+      "sourceLine": 100759,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Persistent sync indicator",
+      "sourceLine": 12256,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Personal-identification-number reset",
+      "sourceLine": 48611,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Pick up unassigned work",
+      "sourceLine": 48630,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Platform Access History",
+      "sourceLine": 58075,
+      "status": "not-represented",
+      "surface": "Delivery Operations Hub",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Platform announcement banner",
+      "sourceLine": 115575,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Platform credential",
+      "sourceLine": 95832,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Play again",
+      "sourceLine": 41566,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Preview Sequence",
+      "sourceLine": 32144,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Preview as a worker at each difficulty level",
+      "sourceLine": 61900,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Preview every screen",
+      "sourceLine": 24907,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Prohibited",
+      "sourceLine": 15544,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Prohibition checklist (satisfied / not applicable with reason / blocking)",
+      "sourceLine": 98835,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Propose catch-up policy change",
+      "sourceLine": 100761,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Propose concurrency change",
+      "sourceLine": 100761,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Propose cron change",
+      "sourceLine": 100761,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Provider or model failover",
+      "sourceLine": 91291,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Publish",
+      "sourceLine": 4079,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Publish as a patch",
+      "sourceLine": 62034,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Publish directly",
+      "sourceLine": 48309,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Publish version 2.1.0",
+      "sourceLine": 62033,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Published filter",
+      "sourceLine": 31877,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Quality Manager review toggle (tenant-wide)",
+      "sourceLine": 3978,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Re-pull package (on demand)",
+      "sourceLine": 4102,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Re-read the notice",
+      "sourceLine": 65808,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Re-send this format when a material correction occurs",
+      "sourceLine": 38355,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reactivate / Revoke",
+      "sourceLine": 19014,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reassign",
+      "sourceLine": 38767,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reassign a paused Job during the cascade",
+      "sourceLine": 27123,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reassign a run (Command Center action 8)",
+      "sourceLine": 2304,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reassign a run mid-shift",
+      "sourceLine": 11408,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Rebase or keep (scheduled-not-started runs)",
+      "sourceLine": 53601,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reclassify an anomaly with a recorded reason",
+      "sourceLine": 48162,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Record",
+      "sourceLine": 40855,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Redrive a dead-letter batch",
+      "sourceLine": 100761,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reference material packaged with this step",
+      "sourceLine": 89212,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Regulated-Industry mode toggle",
+      "sourceLine": 52383,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reissue to a corrected address",
+      "sourceLine": 75604,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reject with reason",
+      "sourceLine": 61701,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release",
+      "sourceLine": 13820,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release (lot hold)",
+      "sourceLine": 4248,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release a lot hold",
+      "sourceLine": 20019,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release a lot hold, including an automatic Severity 1 hold",
+      "sourceLine": 11404,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release and cancel controls",
+      "sourceLine": 99159,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release control (disabled for the Reviewer)",
+      "sourceLine": 20338,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release control with reason",
+      "sourceLine": 117489,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release hold",
+      "sourceLine": 73636,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release hold control (rendered disabled for Supervisor with the message \"Lot release is Quality Manager only. Request release with a note.\")",
+      "sourceLine": 61024,
+      "status": "not-represented",
+      "surface": "Client Command Center",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release lot",
+      "sourceLine": 72004,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release lot hold",
+      "sourceLine": 24234,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release the hold",
+      "sourceLine": 48649,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release the lot hold",
+      "sourceLine": 48431,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Release the lot hold (Command Center action 4)",
+      "sourceLine": 1643,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Relevant / Not relevant",
+      "sourceLine": 37554,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Remove the Severity 1 automatic lot freeze",
+      "sourceLine": 61901,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Replay",
+      "sourceLine": 86398,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Replay / Dismiss (coaching card)",
+      "sourceLine": 4450,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Report a problem",
+      "sourceLine": 93780,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request a lot release with a note",
+      "sourceLine": 47507,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request a new integration",
+      "sourceLine": 95577,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request a tier downgrade",
+      "sourceLine": 26891,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request a tier upgrade",
+      "sourceLine": 26890,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request agent re-check",
+      "sourceLine": 58821,
+      "status": "not-represented",
+      "surface": "Client Command Center",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request an agent re-check",
+      "sourceLine": 37674,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request an agent re-check on a record",
+      "sourceLine": 11409,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request approval",
+      "sourceLine": 103412,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request lot release with a note",
+      "sourceLine": 63021,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request release",
+      "sourceLine": 72004,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Request release with a note",
+      "sourceLine": 1670,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Requires a second authorisation",
+      "sourceLine": 15544,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Requires root approval",
+      "sourceLine": 15793,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resend",
+      "sourceLine": 75604,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resolve",
+      "sourceLine": 4342,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resolve All",
+      "sourceLine": 1678,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resolve All (2 ordinary conflicts; 1 skew-flagged conflict excluded)",
+      "sourceLine": 38157,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resolve an anomaly with a closure note",
+      "sourceLine": 48162,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resolve or Resolve-All sync conflicts",
+      "sourceLine": 11405,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resolve or resolve-all sync conflicts",
+      "sourceLine": 76908,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resolve-All",
+      "sourceLine": 16740,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resolve-All (sync conflicts)",
+      "sourceLine": 23955,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Restore",
+      "sourceLine": 54850,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resume",
+      "sourceLine": 21588,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resume (emergency)",
+      "sourceLine": 110543,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Resume a paused scope",
+      "sourceLine": 91297,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Retire",
+      "sourceLine": 34293,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Retrieval request",
+      "sourceLine": 114117,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Return",
+      "sourceLine": 55918,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Return it with reasons",
+      "sourceLine": 48792,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Return with a reason",
+      "sourceLine": 21050,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Return with comments",
+      "sourceLine": 24907,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Return with reason",
+      "sourceLine": 23707,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Return with reasons",
+      "sourceLine": 43339,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reverse a Lane A refinement",
+      "sourceLine": 87729,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reverse anonymisation",
+      "sourceLine": 65941,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Review",
+      "sourceLine": 34293,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Review prior screens read-only",
+      "sourceLine": 48648,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Reviewer control (disabled for the Author)",
+      "sourceLine": 20338,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Revoke",
+      "sourceLine": 18185,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Role assignment",
+      "sourceLine": 55552,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Role selector (five roles, no creation affordance)",
+      "sourceLine": 23918,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Roles pane four-role matrix (live, per module)",
+      "sourceLine": 55552,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Root only",
+      "sourceLine": 15544,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Run a scenario or a suite on demand",
+      "sourceLine": 87338,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Run interruption is a floor action and is not available from this surface.",
+      "sourceLine": 13538,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Run now",
+      "sourceLine": 18606,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Run scenario",
+      "sourceLine": 43706,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Run suite",
+      "sourceLine": 43706,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Run the evaluation scenarios",
+      "sourceLine": 65489,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Run the locale completeness check",
+      "sourceLine": 48308,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Safe replay",
+      "sourceLine": 91294,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Save / Reset to platform defaults / View the platform floor register",
+      "sourceLine": 61486,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Save as document",
+      "sourceLine": 14355,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Scheduled-obligation strip",
+      "sourceLine": 100618,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Scope selector (Tenant, Site, Area)",
+      "sourceLine": 23918,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Search field accepting a serial number",
+      "sourceLine": 116778,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Search, status filter, Job Type filter, Service Type filter",
+      "sourceLine": 47362,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Second-identity step-up",
+      "sourceLine": 4443,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "See device detail",
+      "sourceLine": 35396,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Select a checklist",
+      "sourceLine": 48308,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Self-service tier upgrade",
+      "sourceLine": 2199,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Set a custom duration (clearance)",
+      "sourceLine": 64255,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Set suspension state",
+      "sourceLine": 61338,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Show help",
+      "sourceLine": 91697,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Sign in",
+      "sourceLine": 95832,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Sign in with a platform credential",
+      "sourceLine": 95829,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Sign in with the managed credential",
+      "sourceLine": 48610,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Single sign-on",
+      "sourceLine": 48611,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Site-scoped pause",
+      "sourceLine": 91289,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Skip release",
+      "sourceLine": 62034,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Skip the export",
+      "sourceLine": 65941,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Skip the hard-gated photograph",
+      "sourceLine": 48649,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Skip the notice",
+      "sourceLine": 65809,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Skip this screen",
+      "sourceLine": 62382,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Source chip reading device, person or scheduled",
+      "sourceLine": 100617,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Start",
+      "sourceLine": 41894,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Start guided configuration",
+      "sourceLine": 61356,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Step-away control",
+      "sourceLine": 12496,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Submit an enablement change",
+      "sourceLine": 65489,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Submit for approval",
+      "sourceLine": 15922,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Submit for review",
+      "sourceLine": 4078,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Submit for root approval",
+      "sourceLine": 45614,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Submit into the approval chain",
+      "sourceLine": 12027,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Submit platform enablement change",
+      "sourceLine": 43158,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Submit tenant enablement change",
+      "sourceLine": 43158,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Submitted for Admin approval",
+      "sourceLine": 14574,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Substitute worker",
+      "sourceLine": 28030,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Suite runner",
+      "sourceLine": 108982,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Supervisor on-demand re-pull",
+      "sourceLine": 49721,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Supervisor-authorised end-time extension",
+      "sourceLine": 1808,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Supervisor-initiated substitution with a reason",
+      "sourceLine": 1808,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Support banner (tenant-visible)",
+      "sourceLine": 116274,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Suppress future proposals of this kind",
+      "sourceLine": 63932,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Surface filter",
+      "sourceLine": 74273,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Surface switcher",
+      "sourceLine": 10766,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Suspend",
+      "sourceLine": 18185,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Suspend / Offboard",
+      "sourceLine": 19014,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Switch worker",
+      "sourceLine": 19268,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Sync now",
+      "sourceLine": 62164,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Tenant contact email address",
+      "sourceLine": 96010,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Tenant filter, capability filter, incident filter",
+      "sourceLine": 47767,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Test connection",
+      "sourceLine": 29121,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "This cannot be enabled by any configuration on this platform",
+      "sourceLine": 14979,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Torque proof photo required",
+      "sourceLine": 40855,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Trigger a governed manual tick",
+      "sourceLine": 100761,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Trigger an on-demand re-pull",
+      "sourceLine": 10363,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Try now",
+      "sourceLine": 41235,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Understood",
+      "sourceLine": 78432,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Update the app to continue",
+      "sourceLine": 71925,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Upload",
+      "sourceLine": 30148,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Verify a tamper-evident chain",
+      "sourceLine": 64573,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Was this useful?",
+      "sourceLine": 37554,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Why you are seeing this",
+      "sourceLine": 89459,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Why?",
+      "sourceLine": 19996,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Wipe",
+      "sourceLine": 18286,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Withdraw",
+      "sourceLine": 76626,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "Work email address",
+      "sourceLine": 95829,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "acknowledge the escalation",
+      "sourceLine": 6963,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "acknowledgement control",
+      "sourceLine": 93095,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "acknowledgement control (shift handoff brief)",
+      "sourceLine": 54411,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "acknowledgement control (version change notice)",
+      "sourceLine": 108570,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "action 10 (grant a qualification clearance)",
+      "sourceLine": 58260,
+      "status": "not-represented",
+      "surface": "Client Command Center",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "action 4 (release a lot hold)",
+      "sourceLine": 59490,
+      "status": "not-represented",
+      "surface": "Client Command Center",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "action 8 (reassignment)",
+      "sourceLine": 58865,
+      "status": "not-represented",
+      "surface": "Client Command Center",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "add-child control",
+      "sourceLine": 52542,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "adjust within bounds",
+      "sourceLine": 16736,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "adjust within bounds and approve",
+      "sourceLine": 69540,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "annotation control",
+      "sourceLine": 95298,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "append a correction",
+      "sourceLine": 81374,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "approve",
+      "sourceLine": 69540,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "approve and return controls",
+      "sourceLine": 44774,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "approve control (absent, not disabled, for the Job creator)",
+      "sourceLine": 7187,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "approve or decline with a categorised reason",
+      "sourceLine": 71086,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "approve or return controls",
+      "sourceLine": 68317,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "approve, adjust-within-bounds, and decline with reason",
+      "sourceLine": 54032,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "archive control (with cascade warning)",
+      "sourceLine": 52542,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "artificial-intelligence mode chip",
+      "sourceLine": 89046,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "blocked-state panel SCR-FL-BLOCK-01 (no dismiss-and-continue, no override control, for any role, on any device)",
+      "sourceLine": 80758,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "broadcast composer requiring type, severity, body, targeting, channel confirmation, and schedule",
+      "sourceLine": 73401,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "camera scan fallback",
+      "sourceLine": 81076,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "cancel a run with a categorised reason",
+      "sourceLine": 80932,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "cancel with a reason",
+      "sourceLine": 89706,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "channel selector rendered as two fixed options",
+      "sourceLine": 45614,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "class-filtered export",
+      "sourceLine": 46121,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "clear-with-reason",
+      "sourceLine": 93782,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "close a stuck run with a mandatory note",
+      "sourceLine": 81016,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "close control (incident page)",
+      "sourceLine": 90758,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "close control (incident record)",
+      "sourceLine": 107949,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "compliance suspension",
+      "sourceLine": 81564,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "compliance suspension control",
+      "sourceLine": 44984,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "compliance-emergency path",
+      "sourceLine": 81586,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "confirm control",
+      "sourceLine": 92484,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "conformance panel",
+      "sourceLine": 46246,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "continue control that is part of starting the work",
+      "sourceLine": 71086,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "create control (Users pane)",
+      "sourceLine": 44774,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "decide again",
+      "sourceLine": 93867,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "decline with a categorised reason",
+      "sourceLine": 69540,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "decline with reason",
+      "sourceLine": 16736,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "degradation banner (state name, start time, what still works, what does not, action, incident link)",
+      "sourceLine": 81953,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "device wipe and de-authorisation",
+      "sourceLine": 81586,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "dismiss control",
+      "sourceLine": 79995,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "eligibility indicator showing whether the viewer may act",
+      "sourceLine": 68317,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "email toggle per category",
+      "sourceLine": 73702,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "emergency pause / resume of the agentic layer",
+      "sourceLine": 84064,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "execute control (rollback decision record)",
+      "sourceLine": 108486,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "explicit acknowledgement control with its timestamp",
+      "sourceLine": 70467,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "export audit as comma-separated values and JavaScript Object Notation with date and entity filters",
+      "sourceLine": 9815,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "export control (usage ledger)",
+      "sourceLine": 45385,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "export controls for comma-separated-values and JavaScript Object Notation formats",
+      "sourceLine": 70623,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "filter bar carrying family, severity, state, Area, and date",
+      "sourceLine": 73393,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "filter bar for Area, severity, type, and state",
+      "sourceLine": 73397,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "filters by Area, severity, type and state",
+      "sourceLine": 69696,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "filters for class, state, age, and proposer",
+      "sourceLine": 44774,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "filters on event class, actor, tenant, object, and date range",
+      "sourceLine": 46121,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "filters on status, tier, and pilot",
+      "sourceLine": 44984,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "five-step guided right-to-erasure sequence",
+      "sourceLine": 45997,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "flag control (flag an automatic resolution as wrong)",
+      "sourceLine": 81649,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "flag-as-wrong control",
+      "sourceLine": 70160,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "forward-only navigation control with read-only access to prior screens",
+      "sourceLine": 68929,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "go control (rollout stage)",
+      "sourceLine": 108407,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "grant a clearance",
+      "sourceLine": 8318,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "grant control",
+      "sourceLine": 93273,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "grant, revoke, and expiry controls (Grants panel)",
+      "sourceLine": 17502,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "grouping and filters by week, Area, certification type and worker",
+      "sourceLine": 16772,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "help control",
+      "sourceLine": 92782,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "mandatory grandfathering declaration",
+      "sourceLine": 45273,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "manual Portable Document Format export control",
+      "sourceLine": 70623,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "manual archival control with a no-active-Jobs indicator",
+      "sourceLine": 68467,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "manual per-run PDF export of the Execution Summary",
+      "sourceLine": 8172,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "manual sync",
+      "sourceLine": 81314,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "manual sync control",
+      "sourceLine": 53742,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "mark evidence reviewed",
+      "sourceLine": 6961,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "mark-reviewed",
+      "sourceLine": 16767,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "mute a digest section",
+      "sourceLine": 9237,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "on-demand package re-pull",
+      "sourceLine": 53095,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "on-demand re-pull",
+      "sourceLine": 79342,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "on-demand re-pull of the work package",
+      "sourceLine": 8775,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "on-demand suite runner (single scenario or whole suite)",
+      "sourceLine": 108748,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "open in the Standards and Operations Studio to disable or reconfigure",
+      "sourceLine": 107697,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "open the tenant's own audit log view",
+      "sourceLine": 107350,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "operational action 10 — grant a qualification clearance",
+      "sourceLine": 80827,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "operational action 4 — release a lot hold",
+      "sourceLine": 81116,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "operational action 5 — conflict resolution",
+      "sourceLine": 82694,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "operational action 6 — acknowledge and annotate",
+      "sourceLine": 83801,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "operational action 8 — reassign a run mid-shift",
+      "sourceLine": 81028,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "operational action 9 — request an agent re-check",
+      "sourceLine": 83767,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "package-readiness indicator",
+      "sourceLine": 89127,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "pause (session-level idle)",
+      "sourceLine": 60008,
+      "status": "not-represented",
+      "surface": "Frontline Worker Application",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "pause a definition",
+      "sourceLine": 107618,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "pause, step-away, hand-back, substitution handover",
+      "sourceLine": 52740,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "per-item annotation (shift handoff brief)",
+      "sourceLine": 54411,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "per-item annotation controls",
+      "sourceLine": 70467,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "per-screen comment control",
+      "sourceLine": 68317,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "per-section mute controls and no service-level mute",
+      "sourceLine": 68775,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "per-tenant emergency pause",
+      "sourceLine": 91287,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "platform-wide emergency pause",
+      "sourceLine": 91288,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "propose a floor change",
+      "sourceLine": 108344,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "publish control",
+      "sourceLine": 68467,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "re-send-on-material-correction option",
+      "sourceLine": 70623,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "read-only PDF export",
+      "sourceLine": 53334,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "read-only PDF export of a version",
+      "sourceLine": 59686,
+      "status": "not-represented",
+      "surface": "Standards and Operations Studio",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "read-only formatted export",
+      "sourceLine": 68467,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "reason picker with the three categories (Emergency cover, Training-in-progress, Other)",
+      "sourceLine": 72241,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "reassign the run",
+      "sourceLine": 8040,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "reassignment",
+      "sourceLine": 93463,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "rebase-or-keep",
+      "sourceLine": 71013,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "rebase-or-keep control per Run",
+      "sourceLine": 77923,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "record a permanent disposition with a mandatory note",
+      "sourceLine": 80435,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "refer-to-Studio",
+      "sourceLine": 93782,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "release control",
+      "sourceLine": 93297,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "release control (requires a decision note)",
+      "sourceLine": 16768,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "release control absent rather than disabled where the Author is also the tenant's Release Authority",
+      "sourceLine": 72420,
+      "status": "not-represented",
+      "surface": "SURF-STU",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "release for revalidation",
+      "sourceLine": 80435,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "release hold",
+      "sourceLine": 7331,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "relevance mark (one tap)",
+      "sourceLine": 9113,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "replay or dismiss (coaching card)",
+      "sourceLine": 60142,
+      "status": "not-represented",
+      "surface": "Frontline Worker Application",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "request a bounded backfill with an explicit occurrence range",
+      "sourceLine": 107618,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "request a lot release with a note",
+      "sourceLine": 6963,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "request a support session",
+      "sourceLine": 107350,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "request an agent re-check",
+      "sourceLine": 88486,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "request release with a note",
+      "sourceLine": 7331,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "resume a definition",
+      "sourceLine": 107618,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "retire control",
+      "sourceLine": 67861,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "revocation control (JBS grant)",
+      "sourceLine": 45871,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "role-scoped filters by Job, Site, Area and Worker",
+      "sourceLine": 68624,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "rollback control",
+      "sourceLine": 108407,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "runaway-loop kill switch",
+      "sourceLine": 91290,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "save action (Observability settings, undecided values)",
+      "sourceLine": 107777,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "scope selector of platform-wide or per tenant",
+      "sourceLine": 70933,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "separate resume control that is its own approved action",
+      "sourceLine": 70933,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "session launcher requiring a reason and a ticket",
+      "sourceLine": 72789,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "step away / hand back flag",
+      "sourceLine": 60008,
+      "status": "not-represented",
+      "surface": "Frontline Worker Application",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "step-away flag",
+      "sourceLine": 93093,
+      "status": "not-represented",
+      "surface": "SURF-FL",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "submit control (Schedule Definition editor)",
+      "sourceLine": 108180,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "sync-conflict resolution",
+      "sourceLine": 94040,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "terminate button (with persistent tenant banner)",
+      "sourceLine": 121689,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "the completion control that is blocked until every Job is reassigned or explicitly accepted as paused",
+      "sourceLine": 71242,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "the restore and erasure controls marked critical-class",
+      "sourceLine": 71398,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "ticket-linked reason class selector",
+      "sourceLine": 45753,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "typed confirmation and reason class (hard suspension)",
+      "sourceLine": 44984,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "un-archive",
+      "sourceLine": 7181,
+      "status": "not-represented",
+      "surface": "SURF-DOH",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "view the activity log",
+      "sourceLine": 107697,
+      "status": "not-represented",
+      "surface": "SURF-CC",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "wipe and de-authorisation",
+      "sourceLine": 107423,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
+    },
+    {
+      "id": "wipe control",
+      "sourceLine": 45498,
+      "status": "not-represented",
+      "surface": "SURF-SA",
+      "register": "actionable controls (surface action catalogue)"
     }
   ]
 }

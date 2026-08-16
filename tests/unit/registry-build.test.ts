@@ -104,3 +104,53 @@ describe('composite keys stop distinct workflows collapsing', () => {
     expect(wf().reconciledCount).toBeNull()
   })
 })
+
+// Fix round 1: actionable-controls was keyed on DNC-* (the do-not-use-cron
+// register — scheduling policy). The real actionable controls are the
+// semantic `controls[]` extraction (759 raw entries: label/surface/
+// module_id/allowed_roles/effect/line), deduped by label to 608 per spec
+// §2.10. DNC-* is a real, separate, reconciled inventory (22) that gets its
+// own clearly labelled section on the same index, not the whole slug.
+describe('actionable controls is the UI-action catalogue, not the do-not-cron register', () => {
+  it('counts the semantic controls extraction (608 of 759), not DNC-*', () => {
+    const r = load('actionable-controls')
+    expect(r.reconciledCount).toBe(608)
+    expect(r.rawCount).toBe(759)
+  })
+
+  it('discloses the DNC-01..DNC-22 register separately, labelled, never merged into the 608', () => {
+    const r = load('actionable-controls')
+    const dnc = r.rows.filter((row: { id: string }) => row.id.startsWith('DNC-'))
+    const controls = r.rows.filter((row: { id: string }) => !row.id.startsWith('DNC-'))
+    expect(dnc).toHaveLength(22)
+    expect(controls).toHaveLength(608)
+    for (const row of dnc) expect(row.register, row.id).toMatch(/do-not-use-cron/i)
+    for (const row of controls) expect(row.register, row.id).not.toMatch(/do-not-use-cron/i)
+  })
+})
+
+// Fix round 1: ai-storyboards scoped to SB-AI-* only (48 of 613 SB-*
+// identifiers), silently dropping the other 565 — the same defect the
+// addendum named for the 20 unjoinable FUNC- ids, just unaddressed here.
+// Every SB-* identifier must render, tagged with which register it belongs
+// to, never dropped.
+describe('ai-storyboards discloses every SB-* register, not only SB-AI-*', () => {
+  it('renders all 613 SB-* identifiers, not just the 48 SB-AI-* ones', () => {
+    const r = load('ai-storyboards')
+    expect(r.rows).toHaveLength(613)
+    expect(r.rawCount).toBe(613)
+  })
+
+  it('labels every row with which register it belongs to', () => {
+    const r = load('ai-storyboards')
+    for (const row of r.rows) expect(typeof row.register, row.id).toBe('string')
+    const registers = new Set(r.rows.map((row: { register: string }) => row.register))
+    expect(registers.size).toBeGreaterThanOrEqual(4)
+  })
+
+  it('still keeps the SB-AI-* AI/fallback storyboards separately labelled (48)', () => {
+    const r = load('ai-storyboards')
+    const ai = r.rows.filter((row: { id: string }) => row.id.startsWith('SB-AI-'))
+    expect(ai).toHaveLength(48)
+  })
+})

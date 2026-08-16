@@ -16,9 +16,14 @@ import { COVERAGE_STATUSES } from '@/coverage/descriptors'
  *  - workflow rows carry `label`, `collapsedFrom` and `idIsPlaceholder`
  *    (composite-key collapse provenance, Task 7);
  *  - the remaining identifier-index families (business use cases, events,
- *    commands, notifications, offline scenarios, AI storyboards, scheduled
- *    work, actionable controls) carry only the three required fields --
- *    the frozen source extraction never named these identifiers.
+ *    commands, notifications, offline scenarios, scheduled work) carry only
+ *    the three required fields -- the frozen source extraction never named
+ *    these identifiers;
+ *  - a file that honestly holds more than one distinct sub-inventory
+ *    (`ai-storyboards`: four separate SB-* registers; `actionable-controls`:
+ *    the 608-row UI-control catalogue plus the separate 22-row DNC-*
+ *    do-not-use-cron register) tags every row with `register`, naming which
+ *    sub-inventory it belongs to, so nothing is silently merged or dropped.
  */
 export const RegistryRowSchema = z
   .object({
@@ -31,6 +36,7 @@ export const RegistryRowSchema = z
     moduleId: z.string().min(1).optional(),
     collapsedFrom: z.number().int().positive().optional(),
     idIsPlaceholder: z.boolean().optional(),
+    register: z.string().min(1).optional(),
   })
   .strict()
 

@@ -210,11 +210,19 @@ export const REGISTRY_DESCRIPTORS = [
   {
     slug: 'actionable-controls',
     title: 'Actionable Controls',
-    idPrefix: 'DNC-',
-    expectedCount: 22,
+    // Fix round 1: this registry is the semantic `controls[]` extraction --
+    // labelled UI actions like "End-session", "Resolve All" -- not the
+    // DNC-* do-not-use-cron register. It has no identifier prefix; rows are
+    // keyed on their exact label text, because the frozen source never gave
+    // these actions an id at all.
+    idPrefix: '',
+    expectedCount: 608,
     sourceNote:
-      '22 exactly: DNC-01..DNC-22, verified unique, confirmed with zero delta — controls that ' +
-      'must always remain a live human decision and may never be enforced by a scheduled sweep ' +
+      '608 distinct actionable UI controls, deduped by exact label text from 759 raw ' +
+      'extraction entries (spec §2.10). The separate DNC-01..DNC-22 do-not-use-cron register ' +
+      '(22, verified unique, zero delta) — controls that must always remain a live human ' +
+      'decision and may never be enforced by a scheduled sweep — is disclosed on this same ' +
+      'index under its own register label, never merged into the 608 ' +
       '(source-reconciliation.json).',
   },
 ] as const satisfies readonly RegistryDescriptor[]

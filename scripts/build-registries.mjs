@@ -259,32 +259,120 @@ function buildBusinessObjectsRegistry() {
 }
 
 // ---------------------------------------------------------------------
-// Actionable controls (do-not-use-cron register): DNC-* identifiers exist
-// ONLY in the identifier index -- no CHK-*.json semantic-extraction category
-// ever names a DNC- id (the "controls" extraction category is unrelated: it
-// captures UI action controls with no `id` field at all). Built from the
-// identifier index, like the other seven nameless families.
+// Actionable controls (fix round 1): the SEMANTIC `controls[]` extraction
+// category -- 759 raw entries, each carrying `label`/`surface`/`module_id`/
+// `allowed_roles`/`effect`/`line` and NO `id` field at all -- is the real
+// actionable-control catalogue, deduped by exact label text (first
+// occurrence, chunk order, wins) to 608 distinct controls, matching spec
+// §2.10. `DNC-*` (the do-not-use-cron register, 22, identifier-index only)
+// is a real, separate, reconciled inventory -- scheduling policy, never an
+// actionable control -- and is disclosed on the same index under its own
+// `register` tag rather than occupying this slug's main count or being
+// dropped for lack of a fifteenth slug to hold it.
 // ---------------------------------------------------------------------
+const ACTIONABLE_CONTROLS_REGISTER = 'actionable controls (surface action catalogue)'
+const DO_NOT_USE_CRON_REGISTER = 'do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)'
+
 function buildActionableControlsRegistry() {
-  const registry = buildIdentifierOnlyRegistry({
-    slug: 'actionable-controls',
-    prefix: 'DNC-',
-    countedThing:
-      'the canonical do-not-use-cron control register DNC-01..DNC-22, verified unique -- ' +
-      'controls that must always remain a live human decision and may never be enforced by a ' +
-      'scheduled sweep. No names were extracted for this family; the frozen source gives these ' +
-      'controls no label beyond their id.',
-    reconciledCount: 22,
-    sourceFixesNoTotal: false,
-    dedupRule:
-      'DNC-* identifiers only; 22 raw keys, all unique, zero delta. The 8 standing ' +
-      'prohibitions and 12 absolute scheduling prohibitions are separate lists and are not ' +
-      'DNC rows.',
-  })
-  if (registry.rawCount !== 22) {
-    throw new Error(`Expected 22 DNC-* identifiers, found ${registry.rawCount}`)
+  const rawControls = []
+  for (const chunk of chunks) {
+    for (const c of chunk.controls ?? []) rawControls.push(c)
   }
-  return registry
+  const byLabel = new Map()
+  for (const c of rawControls) {
+    if (byLabel.has(c.label)) continue // first occurrence (chunk order) wins
+    byLabel.set(c.label, {
+      id: c.label,
+      sourceLine: c.line,
+      status: 'not-represented',
+      surface: c.surface,
+      register: ACTIONABLE_CONTROLS_REGISTER,
+    })
+  }
+  const controlRows = [...byLabel.values()]
+  if (controlRows.length !== 608) {
+    throw new Error(`Expected 608 distinct actionable controls, computed ${controlRows.length}`)
+  }
+
+  const dncRows = idsWithPrefix('DNC-').map((r) => ({
+    ...r,
+    status: 'not-represented',
+    register: DO_NOT_USE_CRON_REGISTER,
+  }))
+  if (dncRows.length !== 22) {
+    throw new Error(`Expected 22 DNC-* identifiers, found ${dncRows.length}`)
+  }
+
+  return {
+    slug: 'actionable-controls',
+    countedThing:
+      '608 distinct actionable UI controls (labelled actions like "End-session", "Resolve ' +
+      'All", "Request release with a note"), deduped by exact label text from 759 raw ' +
+      'extraction entries -- matches spec §2.10. Also discloses, under its own register tag, ' +
+      'the separate DNC-01..DNC-22 do-not-use-cron register (22): scheduling policy, never an ' +
+      'actionable control, and never merged into this count.',
+    reconciledCount: 608,
+    rawCount: rawControls.length,
+    dedupRule:
+      `${rawControls.length} raw controls[] entries across the 36 extraction chunks deduped ` +
+      'by exact label text (first occurrence, chunk order, wins) -> 608 distinct actionable ' +
+      'controls, matching spec §2.10. Worst collapse: 14 raw entries sharing one label ' +
+      '("Request release with a note"). DNC-01..DNC-22 (verified unique, zero delta) is a ' +
+      'SEPARATE inventory -- scheduling policy, not an actionable control -- and is listed ' +
+      `under the "${DO_NOT_USE_CRON_REGISTER}" register tag rather than mixed into this count.`,
+    sourceFixesNoTotal: false,
+    rows: [...controlRows, ...dncRows],
+  }
+}
+
+// ---------------------------------------------------------------------
+// AI storyboards (fix round 1): the SB-* namespace has 613 identifiers, not
+// 48. Scoping this registry to SB-AI-* alone (the AI/fallback storyboard
+// register, Chapter 44) silently dropped the other 565 -- the same defect
+// named for the 20 unjoinable FUNC- ids: disclose what does not fit, never
+// drop it. Every SB-* identifier renders, tagged with which of the four
+// registers it belongs to (verified exhaustive and non-overlapping: 30 + 48
+// + 490 + 45 = 613).
+// ---------------------------------------------------------------------
+function classifyStoryboardRegister(id) {
+  if (/^SB-\d{3}$/.test(id)) return 'platform storyboard catalogue (SB-NNN, Chapter 30, 30 total)'
+  if (id.startsWith('SB-AI-')) return 'AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)'
+  if (id.split('-').length === 3) {
+    return 'storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)'
+  }
+  return 'further-nested storyboard identifiers (4-segment SB-*, 45 total)'
+}
+
+function buildAiStoryboardsRegistry() {
+  const raw = idsWithPrefix('SB-')
+  const rows = raw.map(({ id, sourceLine }) => ({
+    id,
+    sourceLine,
+    status: 'not-represented',
+    register: classifyStoryboardRegister(id),
+  }))
+  if (rows.length !== 613) {
+    throw new Error(`Expected 613 SB-* identifiers, found ${rows.length}`)
+  }
+  const byRegister = new Map()
+  for (const r of rows) byRegister.set(r.register, (byRegister.get(r.register) ?? 0) + 1)
+  return {
+    slug: 'ai-storyboards',
+    countedThing:
+      'every SB-* identifier in the identifier index (613), split across four separate, ' +
+      'clearly labelled registers -- never scoped down to just one of them. No names were ' +
+      'extracted for this family.',
+    reconciledCount: null,
+    rawCount: rows.length,
+    dedupRule:
+      'SB-* splits into four non-overlapping registers by id shape: ' +
+      [...byRegister.entries()].map(([register, count]) => `${count} ${register}`).join('; ') +
+      '. Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and ' +
+      'SB-AI-01..30 AI storyboards) plus SB-031..033 and sub-panel/mnemonic overflow; the ' +
+      'source does not fix one combined total across all four.',
+    sourceFixesNoTotal: true,
+    rows,
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -443,17 +531,7 @@ const registries = [
       'catalogue. The other OFF-* families (offline blockers, connectivity failure modes, ' +
       'offline events) are separate registers and are not included here.',
   }),
-  buildIdentifierOnlyRegistry({
-    slug: 'ai-storyboards',
-    prefix: 'SB-AI-',
-    countedThing:
-      'SB-AI-* identifiers found in the identifier index -- the AI/fallback storyboard ' +
-      'register (Chapter 44), distinct from the separate SB-001..030 platform storyboard ' +
-      'register. No names were extracted for this family.',
-    dedupRule:
-      'This registry counts the SB-AI-* namespace only; SB-001..030 (platform walkthroughs) ' +
-      'and SB-031..033 are a separate register and are not included in this count.',
-  }),
+  buildAiStoryboardsRegistry(),
   buildIdentifierOnlyRegistry({
     slug: 'scheduled-work',
     prefix: 'SCHED-',
