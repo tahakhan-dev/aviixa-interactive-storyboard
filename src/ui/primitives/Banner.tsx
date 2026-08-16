@@ -15,7 +15,7 @@ const TONE_BORDER: Record<StatusTone, string> = {
   attention: 'border-[var(--color-status-attention)]',
   blocked: 'border-[var(--color-status-blocked)]',
   stale: 'border-[var(--color-status-stale)]',
-  neutral: 'border-[var(--color-border-strong)]',
+  neutral: 'border-[var(--color-status-neutral)]',
 }
 
 export interface BannerProps {

@@ -16,7 +16,7 @@ const TONE_CLASS: Record<StatusTone, string> = {
   attention: 'bg-[var(--color-status-attention)]/10 text-[var(--color-status-attention)]',
   blocked: 'bg-[var(--color-status-blocked)]/10 text-[var(--color-status-blocked)]',
   stale: 'bg-[var(--color-status-stale)]/10 text-[var(--color-status-stale)]',
-  neutral: 'bg-[var(--color-surface-sunken)] text-[var(--color-ink-muted)]',
+  neutral: 'bg-[var(--color-status-neutral)]/10 text-[var(--color-status-neutral)]',
 }
 
 export interface StatusPillProps {

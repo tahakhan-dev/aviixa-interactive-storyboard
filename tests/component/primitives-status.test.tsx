@@ -6,7 +6,7 @@ import { EmptyState } from '@/ui/primitives/EmptyState'
 import { SkeletonBlock } from '@/ui/primitives/SkeletonBlock'
 import { FreshnessLabel } from '@/ui/primitives/FreshnessLabel'
 import { PermissionNotice } from '@/ui/primitives/PermissionNotice'
-import { deny, decide } from '@/policy/decision'
+import { allow, deny, decide } from '@/policy/decision'
 
 describe('status primitives', () => {
   it('StatusPill renders both an icon and a text label, never colour alone', () => {
@@ -52,14 +52,24 @@ describe('status primitives', () => {
     expect(screen.getByText(d.explanation)).toBeDefined()
   })
 
-  // Deviation from brief: the brief's literal source called `deny('readOnly', ...)`,
-  // but `deny` is typed to accept only genuine refusals
-  // ('unavailable' | 'explicitlyProhibited' | 'clientDecisionRequired') per
-  // @/policy/decision's RULING 1 — passing 'readOnly' does not compile.
-  // `readOnly` is a permitted-read outcome and goes through `decide` instead.
-  it('PermissionNotice renders nothing for a permitted decision', () => {
+  // Fix round 1, Finding 2: the brief's literal source called
+  // `deny('readOnly', ...)` in a test titled "renders nothing for a
+  // permitted decision", yet asserted the explanation text WAS present —
+  // the title contradicted its own assertion. `readOnly` is permitted-read
+  // but still needs its cause named (it goes through `decide`, since `deny`
+  // only accepts genuine refusals per RULING 1), so the title now says what
+  // the test actually verifies.
+  it('PermissionNotice states the cause for a read-only decision, which is permissive but still needs its reason named', () => {
     const d = decide('readOnly', 'READ_ONLY_RECORD', undefined, { stage: 'BASE_ROLE', sourceRefs: ['x'] })
     const { container } = render(<PermissionNotice decision={d} />)
     expect(container.textContent).toContain(d.explanation)
+  })
+
+  // A fully `allowed` decision needs no explanation surfaced — there is
+  // nothing to account for.
+  it('PermissionNotice renders nothing for a fully allowed decision', () => {
+    const d = allow('BASE_ROLE', ['x'])
+    const { container } = render(<PermissionNotice decision={d} />)
+    expect(container.textContent).toBe('')
   })
 })

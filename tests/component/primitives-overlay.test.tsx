@@ -1,6 +1,6 @@
-import { afterEach, describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { useState } from 'react'
-import { cleanup, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Dialog } from '@/ui/primitives/Dialog'
 import { Drawer } from '@/ui/primitives/Drawer'
@@ -8,8 +8,6 @@ import { Tabs } from '@/ui/primitives/Tabs'
 import { Breadcrumbs } from '@/ui/primitives/Breadcrumbs'
 import { Toast } from '@/ui/primitives/Toast'
 import { LiveRegion } from '@/ui/primitives/LiveRegion'
-
-afterEach(cleanup)
 
 describe('overlay primitives', () => {
   it('Dialog exposes an accessible name and the dialog role', () => {
@@ -75,7 +73,11 @@ describe('overlay primitives', () => {
     expect(dialog.contains(document.activeElement)).toBe(true)
   })
 
-  it('Drawer shares the Dialog focus contract and names its side', () => {
+  // Drawer shares `useOverlayFocus` with Dialog, but is its own exported
+  // primitive with its own mount path — its Escape, Tab-trap and
+  // invoker-restore behaviour is exercised directly rather than assumed
+  // from Dialog's coverage.
+  it('Drawer moves focus into itself and names its side', () => {
     render(
       <Drawer open onClose={() => {}} title="Run details" side="right">
         <p>Body</p>
@@ -83,6 +85,53 @@ describe('overlay primitives', () => {
     )
     const dialog = screen.getByRole('dialog', { name: 'Run details' })
     expect(dialog.contains(document.activeElement)).toBe(true)
+  })
+
+  it('Drawer closes on Escape', async () => {
+    const onClose = vi.fn()
+    render(
+      <Drawer open onClose={onClose} title="Run details">
+        <p>Body</p>
+      </Drawer>,
+    )
+    await userEvent.keyboard('{Escape}')
+    expect(onClose).toHaveBeenCalledOnce()
+  })
+
+  it('Drawer traps Tab focus within itself', async () => {
+    render(
+      <div>
+        <button>Outside</button>
+        <Drawer open onClose={() => {}} title="Run details">
+          <button>First</button>
+          <button>Second</button>
+        </Drawer>
+      </div>,
+    )
+    const dialog = screen.getByRole('dialog')
+    screen.getByRole('button', { name: 'Second' }).focus()
+    await userEvent.tab()
+    expect(dialog.contains(document.activeElement)).toBe(true)
+  })
+
+  it('Drawer restores focus to the invoker on close', async () => {
+    function Harness() {
+      const [open, setOpen] = useState(false)
+      return (
+        <div>
+          <button onClick={() => setOpen(true)}>Open drawer</button>
+          <Drawer open={open} onClose={() => setOpen(false)} title="Run details">
+            <button>Inside</button>
+          </Drawer>
+        </div>
+      )
+    }
+    render(<Harness />)
+    const opener = screen.getByRole('button', { name: 'Open drawer' })
+    await userEvent.click(opener)
+    expect(screen.getByRole('dialog')).toBeDefined()
+    await userEvent.keyboard('{Escape}')
+    expect(document.activeElement).toBe(opener)
   })
 
   it('Tabs move with arrow keys and report the active tab', async () => {

@@ -1,13 +1,11 @@
-import { afterEach, describe, it, expect, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Button } from '@/ui/primitives/Button'
 import { Field } from '@/ui/primitives/Field'
 import { Select } from '@/ui/primitives/Select'
 import { Checkbox } from '@/ui/primitives/Checkbox'
 import { Table } from '@/ui/primitives/Table'
-
-afterEach(cleanup)
 
 describe('form primitives', () => {
   it('Button is operable by keyboard and has an accessible name', async () => {

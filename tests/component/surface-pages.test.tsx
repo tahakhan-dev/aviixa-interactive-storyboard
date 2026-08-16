@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import { SURFACES, type SurfaceDefinition, type SurfaceId } from '@/domain/surfaces'
 
 import SuperAdminHome from '../../app/super-admin/page'
@@ -7,8 +7,6 @@ import HubHome from '../../app/hub/page'
 import StudioHome from '../../app/studio/page'
 import CommandCenterHome from '../../app/command-center/page'
 import FrontlineHome from '../../app/frontline/page'
-
-afterEach(cleanup)
 
 // Each entry pairs a surface id with the page component that is supposed to
 // render it. If a page is ever pointed at the wrong surface, its id here
