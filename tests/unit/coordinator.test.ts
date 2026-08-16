@@ -166,6 +166,49 @@ describe('atomic commit', () => {
     }
   })
 
+  // BLOCKING 2: the plain-data pre-check (firstNonPlainDataReason ->
+  // canonicalSerialize) inherits hash.ts's array blind spot. Before that fix,
+  // each of these three smuggled values passed the pre-check, reached the
+  // in-transaction put()/add(), and (per fake-indexeddb's real
+  // structuredClone) committed successfully with the smuggled data durable
+  // and permanently invisible to the hash chain. Now the pre-check must
+  // catch all three BEFORE the transaction ever opens, so nothing is
+  // written -- not even via the in-transaction synchronous-throw path.
+  it('refuses nextState carrying a non-index array property, and writes nothing', async () => {
+    const smuggledItems = Object.assign([{ ok: 1 }], { smuggled: 'PAYLOAD' })
+    const bad = proposed({
+      nextState: { runId: 'RUN-1', tenants: {}, sequence: 1, items: smuggledItems },
+    })
+    const r = await commitTransition(db, bad)
+    expect(r.ok).toBe(false)
+    for (const store of ['snapshots', 'audit']) {
+      expect((await allRows(db, store)).length, store).toBe(0)
+    }
+  })
+
+  it('refuses an audit record carrying a non-index array property, and writes nothing to any store', async () => {
+    const smuggledTags = Object.assign(['a'], { hiddenActor: 'root' })
+    const bad = proposed({
+      audit: [{ id: 'A-1', sequence: 1, logicalTime: 0, tenant: null, kind: 'X', payload: { tags: smuggledTags } }],
+    })
+    const r = await commitTransition(db, bad)
+    expect(r.ok).toBe(false)
+    for (const store of ['snapshots', 'audit']) {
+      expect((await allRows(db, store)).length, store).toBe(0)
+    }
+  })
+
+  it('refuses a sparse array (new Array(1)) in nextState, which would otherwise hash as [] while storing length: 1', async () => {
+    const bad = proposed({
+      nextState: { runId: 'RUN-1', tenants: {}, sequence: 1, items: new Array(1) },
+    })
+    const r = await commitTransition(db, bad)
+    expect(r.ok).toBe(false)
+    for (const store of ['snapshots', 'audit']) {
+      expect((await allRows(db, store)).length, store).toBe(0)
+    }
+  })
+
   it('aborts the whole transaction on an ASYNCHRONOUS request error (idempotency replay), not just a synchronous throw', async () => {
     await new Promise<void>((res, rej) => {
       const tx = db.transaction('idempotency', 'readwrite')

@@ -46,12 +46,18 @@ function refuse(reason: string): CommitResult {
 /**
  * Domain state carries time only as a Clock-issued number and holds no
  * class instances (RULING: hash.ts throws on Date/Map/Set/RegExp/instances
- * and non-finite numbers). `canonicalSerialize` is exactly that check, and
- * it is synchronous, so this runs BEFORE the transaction ever opens: a
- * value the audit chain's `hashState` could never process later must not
- * be written now, however successfully IndexedDB's structured clone would
- * have accepted it (which is a strictly looser check -- it happily clones
- * a Date or a Map, which is precisely what must never reach the ledger).
+ * and non-finite numbers, and -- since the array blind-spot fix -- on a
+ * non-index own array property or a sparse-array hole too).
+ * `canonicalSerialize` is synchronous, so this runs BEFORE the transaction
+ * ever opens: a value the audit chain's `hashState` could never process
+ * later must not be written now, however successfully IndexedDB's
+ * structured clone would have accepted it. Structured clone is NOT simply a
+ * strictly looser check in every direction: it happily clones a Date or a
+ * Map (which this pre-check correctly refuses), but it also clones symbol
+ * keys and non-enumerable properties by dropping them silently -- and
+ * `canonicalSerialize` deliberately agrees with that drop rather than
+ * rejecting it (see hash.ts), because rejecting a value the store already
+ * discards on its own would over-reject data IndexedDB accepts as-is.
  */
 function firstNonPlainDataReason(nextState: ScenarioDomainState, records: readonly LedgerRecord[]): string | null {
   try {

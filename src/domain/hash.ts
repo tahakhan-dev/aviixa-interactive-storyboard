@@ -4,9 +4,13 @@
  * meaning. `undefined` is encoded as the bare token `undefined` — distinct
  * from an absent key, from `null`, and from the quoted string `"undefined"`
  * — so a cleared field never collides with a field that was never set, and
- * (critically) an `undefined` array element never collides with an empty
- * array: arrays have no key to anchor a dropped element the way objects do,
- * so the token must actually appear in the output, not just at object keys.
+ * an `undefined` array ELEMENT (`[undefined]`) never collides with an empty
+ * array (`[]`): arrays have no key to anchor a dropped element the way
+ * objects do, so the token must actually appear in the output, not just at
+ * object keys. This guarantee holds only for a genuinely-present element set
+ * to `undefined` — a HOLE (`new Array(1)`, no own property at that index at
+ * all) is the case this paragraph's reasoning does not cover, and it is
+ * rejected explicitly below rather than silently hashing as `[]`.
  *
  * Only plain objects (`Object.prototype` or `null` prototype) and arrays are
  * walked. Anything else with an object typeof — `Date`, `Map`, `Set`,
@@ -14,7 +18,9 @@
  * `{}`. Domain state carries time only as a number from the injected Clock,
  * so a `Date` reaching this function is a modelling error, not a value to
  * encode; encoding it as `{}` would make two different instants hash equal,
- * which defeats the entire point of a canonical hash.
+ * which defeats the entire point of a canonical hash. The same
+ * "reject rather than silently pass through" rule applies to an array's own
+ * non-index properties and to sparse holes — see the Array branch below.
  */
 export function canonicalSerialize(value: unknown): string {
   if (value === undefined) return 'undefined'
@@ -27,6 +33,29 @@ export function canonicalSerialize(value: unknown): string {
     return JSON.stringify(value)
   }
   if (Array.isArray(value)) {
+    // `.map()` only ever visits index properties 0..length-1. Two classes of
+    // array escape it entirely and must be rejected explicitly instead:
+    //   - a sparse hole (`new Array(1)`) has no own property at that index,
+    //     so `Object.keys` is shorter than `.length` -- `.map()` would have
+    //     silently hashed it identically to `[]` while `.length` still says
+    //     otherwise.
+    //   - a non-index own enumerable property (`Object.assign([1], {x:1})`)
+    //     is invisible to `.map()` but IS an own enumerable property
+    //     structuredClone (what IndexedDB's put()/add() actually calls)
+    //     persists -- so it would smuggle a property, or even a bare Date,
+    //     past this hash entirely.
+    // Symbol keys and non-enumerable properties are deliberately NOT
+    // checked here (do not use Reflect.ownKeys): structuredClone drops both
+    // of those silently too, so the hash and the eventual stored row
+    // already agree on them -- rejecting them would over-reject values
+    // IndexedDB accepts as-is.
+    const keys = Object.keys(value)
+    if (keys.length !== value.length) throw new Error('Sparse array in state (a hole is not a value)')
+    for (const k of keys) {
+      if (!/^(0|[1-9]\d*)$/.test(k)) {
+        throw new Error(`Array carries a non-index own property "${k}": only index elements are hashed`)
+      }
+    }
     return `[${value.map(canonicalSerialize).join(',')}]`
   }
   if (typeof value === 'object') {

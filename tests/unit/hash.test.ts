@@ -57,6 +57,74 @@ describe('canonical serialisation', () => {
   it('throws rather than silently collapsing a Set to {}', () => {
     expect(() => canonicalSerialize(new Set([1, 2]))).toThrow()
   })
+
+  // BLOCKING 1: canonicalSerialize's array branch used `.map()`, which only
+  // ever visits index properties 0..length-1. A non-index own enumerable
+  // property attached directly to an array (not inside any element) is
+  // invisible to `.map()`, so it hashed identically to the array without it
+  // -- while IndexedDB's structured clone WOULD persist that property. Two
+  // live classes close this: a non-index own property, and a sparse-array
+  // hole (`new Array(1)` hashes as `[]` while `.length` says 1).
+  it('throws on an array carrying a non-index own enumerable property', () => {
+    const smuggled = Object.assign([1, 2], { extra: 'smuggled' })
+    expect(() => canonicalSerialize(smuggled)).toThrow()
+  })
+
+  it('throws on an array carrying a non-index own enumerable Date, not just an opaque prop', () => {
+    // The blind spot doesn't merely hide a plain value: a Date attached at a
+    // non-index array key slips the pre-check entirely (never reaches the
+    // Date-throws-check because `.map()` never visits it), so a real Date
+    // instance would be persisted with nothing to catch it.
+    const smuggled = Object.assign([1], { when: new Date(0) })
+    expect(() => canonicalSerialize(smuggled)).toThrow()
+  })
+
+  it('throws on a sparse array (a hole), which hashes identically to []', () => {
+    const sparse = new Array(1)
+    expect(() => canonicalSerialize(sparse)).toThrow()
+  })
+
+  it('throws on an enumerable getter at a non-index array key', () => {
+    const smuggled: unknown[] & Record<string, unknown> = [1, 2] as never
+    Object.defineProperty(smuggled, 'derived', { value: 'x', enumerable: true, configurable: true })
+    expect(() => canonicalSerialize(smuggled)).toThrow()
+  })
+
+  // Positive case: symbol keys and non-enumerable properties on BOTH objects
+  // and arrays must NOT be rejected -- structuredClone (what IndexedDB
+  // actually uses) drops both silently too, so the hash and the store
+  // already agree on these. Rejecting them would over-reject values
+  // IndexedDB already accepts as-is.
+  it('accepts symbol keys and non-enumerable properties on arrays (structuredClone drops them too, so hash and store agree)', () => {
+    const arr: unknown[] = [1, 2]
+    ;(arr as unknown as Record<symbol, unknown>)[Symbol('meta')] = 'ignored'
+    Object.defineProperty(arr, 'hidden', { value: 'ignored', enumerable: false, configurable: true })
+    expect(() => canonicalSerialize(arr)).not.toThrow()
+    expect(canonicalSerialize(arr)).toBe(canonicalSerialize([1, 2]))
+  })
+
+  it('accepts symbol keys and non-enumerable properties on objects (structuredClone drops them too, so hash and store agree)', () => {
+    const obj: Record<string, unknown> = { a: 1 }
+    ;(obj as unknown as Record<symbol, unknown>)[Symbol('meta')] = 'ignored'
+    Object.defineProperty(obj, 'hidden', { value: 'ignored', enumerable: false, configurable: true })
+    expect(() => canonicalSerialize(obj)).not.toThrow()
+    expect(canonicalSerialize(obj)).toBe(canonicalSerialize({ a: 1 }))
+  })
+
+  // A getter at an object key or a genuine array INDEX is read correctly by
+  // both Object.entries and .map(), so it is not a live defect -- but a
+  // getter that returns a Date must still throw, same as a plain Date would.
+  it('reading an enumerable getter at an object key or array index is fine, but a Date it returns still throws', () => {
+    const okObj = { get x() { return 1 } }
+    expect(canonicalSerialize(okObj)).toBe(canonicalSerialize({ x: 1 }))
+    const badObj = { get x() { return new Date(0) } }
+    expect(() => canonicalSerialize(badObj)).toThrow()
+
+    const okArr: unknown[] = []
+    Object.defineProperty(okArr, 0, { get: () => 1, enumerable: true, configurable: true })
+    Object.defineProperty(okArr, 'length', { value: 1 })
+    expect(canonicalSerialize(okArr)).toBe(canonicalSerialize([1]))
+  })
 })
 
 describe('hashing', () => {
