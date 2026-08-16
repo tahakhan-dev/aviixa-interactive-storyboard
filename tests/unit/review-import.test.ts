@@ -9,7 +9,13 @@ const rec = () => createReviewRecord({
   sourceFingerprint: '47bd18db', scenarioVersion: '1', buildHash: 'abc',
 }, fixedClock(CANONICAL_EPOCH_MS))
 
-const good = () => exportReviewPackage({ sourceHash: '47bd18db', buildHash: 'abc', scenarioVersion: '1', records: [rec()] })
+const good = () => exportReviewPackage({
+  sourceHash: '47bd18db', promptHash: 'p-1', buildHash: 'abc', scenarioVersion: '1',
+  scenarioSeed: 'seed-1', fixtureRefs: [], records: [rec()],
+  decisions: [], bookmarks: [],
+  coverageSnapshot: { takenAtLogical: CANONICAL_EPOCH_MS, byStatus: {} },
+  screenshotRefs: [],
+})
 const expected = { sourceHash: '47bd18db', buildHash: 'abc' }
 
 describe('review package import', () => {

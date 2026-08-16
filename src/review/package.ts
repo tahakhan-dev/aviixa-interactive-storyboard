@@ -26,11 +26,28 @@ export interface PackageManifestEntry {
   readonly sha256: string
 }
 
+/**
+ * What the build claimed at export time: how many anchors sat in each
+ * coverage status. Recorded so two packages reviewed against different
+ * coverage states can be told apart.
+ */
+export interface CoverageSnapshot {
+  readonly takenAtLogical: number
+  readonly byStatus: Readonly<Record<string, number>>
+}
+
 export interface ExportReviewPackageInput {
   readonly sourceHash: string
+  readonly promptHash: string
   readonly buildHash: string
   readonly scenarioVersion: string
+  readonly scenarioSeed: string
+  readonly fixtureRefs: readonly string[]
   readonly records: readonly ReviewRecord[]
+  readonly decisions: readonly string[]
+  readonly bookmarks: readonly string[]
+  readonly coverageSnapshot: CoverageSnapshot
+  readonly screenshotRefs: readonly string[]
 }
 
 /**
@@ -44,9 +61,16 @@ export interface ExportReviewPackageInput {
 export interface ReviewPackage {
   readonly formatVersion: number
   readonly sourceHash: string
+  readonly promptHash: string
   readonly buildHash: string
   readonly scenarioVersion: string
+  readonly scenarioSeed: string
+  readonly fixtureRefs: readonly string[]
   readonly records: readonly ReviewRecord[]
+  readonly decisions: readonly string[]
+  readonly bookmarks: readonly string[]
+  readonly coverageSnapshot: CoverageSnapshot
+  readonly screenshotRefs: readonly string[]
   readonly manifest: readonly PackageManifestEntry[]
   readonly manifestChecksum: string
 }
@@ -55,15 +79,25 @@ export interface ReviewPackage {
  * The package's content, broken into named logical files the manifest can
  * describe independently. `meta.json` carries everything BUT the records so
  * a corrupted records blob can be told apart from corrupted metadata; the
- * two are hashed and reported as separate manifest entries.
+ * two are hashed and reported as separate manifest entries. Every element of
+ * the payload lives in one of these two files, so every element falls
+ * inside the manifest hash scope -- a package's content cannot change
+ * without its checksum changing.
  */
 function packageFiles(input: ExportReviewPackageInput): Readonly<Record<string, string>> {
   return {
     'meta.json': canonicalSerialize({
       formatVersion: PACKAGE_FORMAT_VERSION,
       sourceHash: input.sourceHash,
+      promptHash: input.promptHash,
       buildHash: input.buildHash,
       scenarioVersion: input.scenarioVersion,
+      scenarioSeed: input.scenarioSeed,
+      fixtureRefs: input.fixtureRefs,
+      decisions: input.decisions,
+      bookmarks: input.bookmarks,
+      coverageSnapshot: input.coverageSnapshot,
+      screenshotRefs: input.screenshotRefs,
     }),
     'records.json': canonicalSerialize(input.records),
   }
@@ -115,9 +149,16 @@ export async function exportReviewPackage(input: ExportReviewPackageInput): Prom
   return {
     formatVersion: PACKAGE_FORMAT_VERSION,
     sourceHash: input.sourceHash,
+    promptHash: input.promptHash,
     buildHash: input.buildHash,
     scenarioVersion: input.scenarioVersion,
+    scenarioSeed: input.scenarioSeed,
+    fixtureRefs: input.fixtureRefs,
     records: input.records,
+    decisions: input.decisions,
+    bookmarks: input.bookmarks,
+    coverageSnapshot: input.coverageSnapshot,
+    screenshotRefs: input.screenshotRefs,
     manifest,
     manifestChecksum,
   }
@@ -140,6 +181,13 @@ const PackageManifestEntrySchema = z
     path: z.string().min(1),
     bytes: z.number().int().nonnegative(),
     sha256: z.string().regex(/^[0-9a-f]{64}$/),
+  })
+  .strict()
+
+const CoverageSnapshotSchema = z
+  .object({
+    takenAtLogical: z.number(),
+    byStatus: z.record(z.string(), z.number()),
   })
   .strict()
 
@@ -175,9 +223,16 @@ const ReviewPackageSchema = z
   .object({
     formatVersion: z.number(),
     sourceHash: z.string().min(1),
+    promptHash: z.string().min(1),
     buildHash: z.string().min(1),
     scenarioVersion: z.string().min(1),
+    scenarioSeed: z.string().min(1),
+    fixtureRefs: z.array(z.string()),
     records: z.array(ReviewRecordSchema),
+    decisions: z.array(z.string()),
+    bookmarks: z.array(z.string()),
+    coverageSnapshot: CoverageSnapshotSchema,
+    screenshotRefs: z.array(z.string()),
     manifest: z.array(PackageManifestEntrySchema),
     manifestChecksum: z.string().regex(/^[0-9a-f]{64}$/),
   })
