@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* Clean enterprise SaaS. Light neutral base, blue primary, conventional density.
+   Status colour is rationed: it never carries meaning alone. Every state also
+   carries an icon and a text label. See spec section 15.7. */
+@theme {
+  --color-canvas: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-ink: #0f172a;
+  --color-ink-muted: #475569;
+  --color-ink-subtle: #64748b;
+
+  --color-primary: #1d4ed8;
+  --color-primary-hover: #1e40af;
+  --color-primary-ink: #ffffff;
+
+  --color-status-ok: #047857;
+  --color-status-info: #0369a1;
+  --color-status-attention: #b45309;
+  --color-status-blocked: #b91c1c;
+  --color-status-stale: #6d28d9;
+  --color-status-neutral: #475569;
+
+  --spacing-gutter: 1rem;
+  --radius-control: 0.375rem;
+  --radius-surface: 0.5rem;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+:root { color-scheme: light; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Visible, unobscured focus everywhere. WCAG 2.2 AA. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

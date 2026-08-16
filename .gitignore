@@ -4,3 +4,6 @@ out/
 artifacts/evidence/*/raw/
 *.log
 .DS_Store
+.superpowers/
+next-env.d.ts
+*.tsbuildinfo
