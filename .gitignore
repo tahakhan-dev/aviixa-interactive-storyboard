@@ -1,6 +1,8 @@
 node_modules/
 .next/
 out/
+playwright-report/
+test-results/
 artifacts/evidence/*/raw/
 *.log
 .DS_Store
