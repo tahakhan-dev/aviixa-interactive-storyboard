@@ -15,10 +15,17 @@ import {
 // type, which is a programming error, not a runtime IO failure.
 
 /**
- * V1 has exactly one package shape. A future format change bumps this and
- * import checks it explicitly (Task 10) rather than guessing from shape.
+ * Bumped to 2 in fix round 1 (review, Minor 1): Task 3 (e690e30) added
+ * seven required top-level elements and five required record fields to a
+ * `.strict()` schema without bumping this constant, so it briefly asserted
+ * something false ("exactly one package shape") while two incompatible
+ * shapes both claimed formatVersion 1. A future format change bumps this
+ * again and import checks it explicitly, BEFORE the shape check (see the
+ * reordering in `importReviewPackage` below) -- so an old package reports a
+ * version mismatch by name, rather than quarantining as "does not match the
+ * expected shape" the way a pre-e690e30, formatVersion-1 package used to.
  */
-export const PACKAGE_FORMAT_VERSION = 1
+export const PACKAGE_FORMAT_VERSION = 2
 
 export interface PackageManifestEntry {
   readonly path: string
@@ -184,10 +191,19 @@ const PackageManifestEntrySchema = z
   })
   .strict()
 
+// Fix round 1 (review, Minor 6 -- corrected, see fix report): the review's
+// claim that bare z.number() lets Infinity reach canonicalSerialize's throw
+// does not reproduce against this project's installed zod (4.4.3) --
+// z.number().safeParse(Infinity) already fails on its own, so the shape
+// check catches it before packageFiles is ever called. What bare z.number()
+// DOES still accept, unlike PackageManifestEntrySchema.bytes's
+// `.int().nonnegative()` above, is a negative or fractional value -- e.g.
+// a logical timestamp of -1, or a coverage count of 3.5. Matched to the
+// same discipline.
 const CoverageSnapshotSchema = z
   .object({
-    takenAtLogical: z.number(),
-    byStatus: z.record(z.string(), z.number()),
+    takenAtLogical: z.number().int().nonnegative(),
+    byStatus: z.record(z.string(), z.number().int().nonnegative()),
   })
   .strict()
 
@@ -341,15 +357,32 @@ function packageByteSize(raw: unknown): number {
   }
 }
 
+// Fix round 1 (review, Minor 1): deliberately permissive (no `.strict()`,
+// `formatVersion` is the only field checked) so a package's version can be
+// read WITHOUT first requiring it to match the current, possibly-newer
+// strict shape. Used only to move the format-version check ahead of the
+// shape check below.
+const PackageFormatVersionProbeSchema = z.object({ formatVersion: z.number() })
+
 /**
  * Validates a raw import candidate and either quarantines it or returns a
  * preview — it never applies anything to the review store itself; nothing in
- * this module writes to `@/review/store`. Order, matching the brief exactly:
- * size, then shape (Zod, strict), then format version, then source/build
- * compatibility, then per-entry hashes, then the manifest checksum. The
- * FIRST failure quarantines and stops — later steps never run once an
- * earlier one has failed, so a reviewer is never shown a preview built from
- * data that already failed an earlier, cheaper check.
+ * this module writes to `@/review/store`. Order: size, then format version,
+ * then shape (Zod, strict), then source/build compatibility, then per-entry
+ * hashes, then the manifest checksum. The FIRST failure quarantines and
+ * stops — later steps never run once an earlier one has failed, so a
+ * reviewer is never shown a preview built from data that already failed an
+ * earlier, cheaper check.
+ *
+ * Fix round 1 (review, Minor 1): format version used to run AFTER shape,
+ * matching the brief's literal order. But the shape check is `.strict()`
+ * against the CURRENT shape, so an old-format package (fewer fields, an
+ * honestly-labelled OLDER formatVersion) failed shape first and quarantined
+ * as "does not match the expected shape" -- misdiagnosing a version
+ * mismatch as corruption. Version now runs first, via a permissive probe
+ * schema that only requires `formatVersion` to be present, so an old
+ * package can be identified as old before being held to a shape it never
+ * claimed to have.
  */
 export async function importReviewPackage(
   raw: unknown,
@@ -364,7 +397,17 @@ export async function importReviewPackage(
     )
   }
 
-  // 2. shape
+  // 2. format version
+  const versionProbe = PackageFormatVersionProbeSchema.safeParse(raw)
+  const declaredVersion = versionProbe.success ? versionProbe.data.formatVersion : null
+  if (declaredVersion !== PACKAGE_FORMAT_VERSION) {
+    return quarantine('Unsupported package format version.', {
+      expected: String(PACKAGE_FORMAT_VERSION),
+      actual: declaredVersion === null ? null : String(declaredVersion),
+    })
+  }
+
+  // 3. shape
   const parsed = ReviewPackageSchema.safeParse(raw)
   if (!parsed.success) {
     return quarantine(
@@ -373,14 +416,6 @@ export async function importReviewPackage(
   }
   const pkg = parsed.data
   const normalizedRecords: readonly ReviewRecord[] = pkg.records.map(toReviewRecord)
-
-  // 3. format version
-  if (pkg.formatVersion !== PACKAGE_FORMAT_VERSION) {
-    return quarantine('Unsupported package format version.', {
-      expected: String(PACKAGE_FORMAT_VERSION),
-      actual: String(pkg.formatVersion),
-    })
-  }
 
   // 4. source and build compatibility — refuse to merge across sources/builds
   if (pkg.sourceHash !== expected.sourceHash) {
@@ -486,17 +521,32 @@ export interface ImportPreview {
 export type MergeStrategy = 'merge' | 'replace'
 
 // Controller ruling: compare on substantive fields only, excluding
-// `updatedAtLogical` -- it changes on `superseded()` alone and carries no
-// information beyond what `disposition`/`supersededBy` already state, so
-// including it would report two records identical in every OTHER field as
-// CONFLICTING purely because one was superseded (or re-exported) later
-// than the other. Every other field, including `disposition` and
-// `supersededBy`, stays IN the comparison: unlike the timestamp, those
-// carry real state -- whether a comment is still open or has been
-// superseded, and by what -- that a reviewer genuinely needs surfaced as a
-// conflict, not silently discarded. `createdAtLogical` also stays in: for
-// two records sharing an id, it never legitimately changes, so a
-// difference there is itself a real discrepancy worth flagging.
+// `updatedAtLogical`.
+//
+// Fix round 1 (review, Minor 2 -- corrected): the previous version of this
+// comment justified the exclusion with two claims that do not hold against
+// this codebase. Recorded honestly instead of restated:
+//   - "a superseded/not-superseded pair would conflict purely on
+//     `updatedAtLogical`" is false: `superseded()` sets `disposition` and
+//     `supersededBy` in the SAME object literal as `updatedAtLogical`, and
+//     both of those stay IN this comparison (below). So that pair already
+//     conflicts on `disposition` regardless of whether `updatedAtLogical`
+//     is compared -- the exclusion changes no verdict for it.
+//   - "or re-exported" is false: `exportReviewPackage` never writes
+//     `updatedAtLogical` at all, so re-export cannot produce a difference
+//     in it.
+// Net effect today: the exclusion is INERT. The only pair it could change
+// the verdict on is two records with identical `disposition` and
+// `supersededBy` but different `updatedAtLogical` -- and nothing in this
+// codebase can currently produce that (its one mutator, `superseded()`,
+// always changes all three together). It is kept anyway, defensively: if
+// `updatedAtLogical` is ever set by something OTHER than `superseded()` --
+// a future "touch"/edit-in-place that does not also change `disposition`
+// -- this exclusion is what stops that alone from manufacturing a conflict
+// out of two substantively identical records. `createdAtLogical` stays IN
+// the comparison: for two records sharing an id, it never legitimately
+// changes, so a difference there is itself a real discrepancy worth
+// flagging.
 function comparableFields(record: ReviewRecord): Record<string, unknown> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- deliberately excluded from the substance comparison; see comment above
   const { updatedAtLogical, ...substantive } = record
@@ -509,17 +559,36 @@ function comparableFields(record: ReviewRecord): Record<string, unknown> {
  * is a duplicate; same id and different substance is a conflict carrying
  * both sides; an id `existing` has never seen is new. Pure -- mutates
  * neither argument.
+ *
+ * Fix round 1 (review, Major 3, data loss): `incoming` is deduped BY ID
+ * first, before any comparison against `existing`. Nothing validates
+ * record-id uniqueness upstream of this function (not `ReviewRecordSchema`,
+ * not the manifest checksum), so a malformed package can carry the same id
+ * twice. Without deduping, each raw `incoming` entry used to be classified
+ * independently: two same-id, no-match-in-`existing` entries both landed in
+ * `newRecords` (so `applyImport`'s output carried a duplicate id, and
+ * `putReviewRecord`, keyed on `id`, would silently drop one on write -- the
+ * exact collision `records.ts`'s `nextId` comment documents, reachable
+ * through import instead of a page reload); or one id, present once
+ * identical to `existing` and once altered, landed in BOTH `duplicates` and
+ * `conflicts` at once. Later entries win on a collision within `incoming`
+ * (last write wins, matching `Map` insertion order) -- an arbitrary but
+ * deterministic tie-break; nothing in this codebase orders `incoming`
+ * meaningfully, so there is no principled way to prefer the earlier one
+ * instead. The returned `incoming` field still carries the ORIGINAL,
+ * un-deduped array: it is what was received, not what was compared.
  */
 export function planImport(
   incoming: readonly ReviewRecord[],
   existing: readonly ReviewRecord[],
 ): ImportPreview {
   const existingById = new Map(existing.map((r) => [r.id, r] as const))
+  const dedupedIncoming = new Map(incoming.map((r) => [r.id, r] as const))
   const duplicates: string[] = []
   const conflicts: ImportConflict[] = []
   const newRecords: ReviewRecord[] = []
 
-  for (const inc of incoming) {
+  for (const inc of dedupedIncoming.values()) {
     const match = existingById.get(inc.id)
     if (!match) {
       newRecords.push(inc)

@@ -118,6 +118,58 @@ describe('review package import', () => {
       expect(r.failingEntry).toBe('records.json')
     }
   })
+
+  // Fix round 1 (review, Minor 1): the V1 package shape changed breakingly
+  // in e690e30 (seven new required elements on a `.strict()` schema)
+  // without bumping PACKAGE_FORMAT_VERSION -- so a package from the
+  // PRE-e690e30 build, correctly labelled formatVersion: 1, used to reach
+  // the SHAPE check (step 2) before the version check (step 3) and
+  // quarantine as "does not match the expected shape", misdiagnosing an
+  // old-format package as a malformed one. The version check now runs
+  // first.
+  it('reports a version mismatch, not a shape mismatch, for an old-format package', async () => {
+    const p = await good()
+    const oldFormatPackage = {
+      formatVersion: 1,
+      sourceHash: p.sourceHash,
+      buildHash: p.buildHash,
+      scenarioVersion: p.scenarioVersion,
+      records: p.records,
+      manifest: p.manifest,
+      manifestChecksum: p.manifestChecksum,
+    }
+    const r = await importReviewPackage(oldFormatPackage, expected)
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toMatch(/format version/i)
+  })
+
+  // Fix round 1 (review, Minor 6 -- CORRECTED, see fix report): the review
+  // claimed `CoverageSnapshotSchema`'s bare `z.number()` accepts `Infinity`
+  // and that this reaches `canonicalSerialize` (which throws on a
+  // non-finite number), producing an uncaught throw out of a function whose
+  // contract promises it never throws. Verified directly against this
+  // project's installed zod (4.4.3): `z.number().safeParse(Infinity)`
+  // already FAILS -- zod's base number check rejects non-finite values on
+  // its own, so that specific throw is not reachable here; the shape check
+  // (step 2) already quarantines it before `canonicalSerialize` is ever
+  // called. What bare `z.number()` DOES still accept, unlike its neighbour
+  // `PackageManifestEntrySchema.bytes`'s `.int().nonnegative()` eight lines
+  // above, is a negative or fractional value -- e.g. `takenAtLogical: -1`,
+  // a logical timestamp that makes no sense. Built via `exportReviewPackage`
+  // itself (rather than mutating an already-checksummed `good()` package)
+  // so the checksum is self-consistent and the test actually isolates the
+  // schema's numeric discipline, not a checksum mismatch.
+  it('quarantines a coverageSnapshot with a negative takenAtLogical', async () => {
+    const negativeTimestampPackage = await exportReviewPackage({
+      sourceHash: '47bd18db', promptHash: 'p-1', buildHash: 'abc', scenarioVersion: '1',
+      scenarioSeed: 'seed-1', fixtureRefs: [], records: [rec()],
+      decisions: [], bookmarks: [],
+      coverageSnapshot: { takenAtLogical: -1, byStatus: {} },
+      screenshotRefs: [],
+    })
+    const r = await importReviewPackage(negativeTimestampPackage, expected)
+    expect(r.ok).toBe(false)
+  })
 })
 
 describe('import dedupe, conflict and merge', () => {
@@ -157,12 +209,44 @@ describe('import dedupe, conflict and merge', () => {
     expect(out.find((r) => r.id === 'R-1')?.comment).toBe('incoming')
   })
 
-  it('both strategies add new records and never drop an existing one', () => {
+  // Fix round 1 (review, test-quality): this test used to exercise NO
+  // conflict at all (`incoming = [mk('R-2', 'b')]` only touched a new id),
+  // so it could pass even if a conflict resolution dropped a record -- the
+  // exact branch its own name claims to cover. `existing` now also carries
+  // a conflicting counterpart for R-1.
+  it('both strategies add new records and never drop an existing one, including through a conflict', () => {
     const existing = [mk('R-1', 'a'), mk('R-9', 'keep me')]
     for (const s of ['merge', 'replace'] as const) {
-      const out = applyImport(planImport([mk('R-2', 'b')], existing), s)
+      const out = applyImport(planImport([mk('R-1', 'b'), mk('R-2', 'b')], existing), s)
       expect(out.map((r) => r.id).sort(), s).toEqual(['R-1', 'R-2', 'R-9'])
     }
+  })
+
+  // Fix round 1 (review, Major 3, data loss): `planImport` used to build
+  // `existingById` from `existing` only and classify each raw `incoming`
+  // entry independently -- nothing deduped `incoming` BY ID first. Nothing
+  // validates record-id uniqueness upstream either (not
+  // ReviewRecordSchema, not the manifest checksum), so a package carrying
+  // the same id twice put BOTH copies in `newRecords`; `applyImport` then
+  // returned two records sharing an id, and `putReviewRecord` (keyPath
+  // `id`) would silently drop one on write -- the exact collision
+  // `records.ts`'s `nextId` comment already documents, this time reachable
+  // through import instead of a page reload.
+  it('dedupes within incoming so applyImport never emits two records sharing an id', () => {
+    const p = planImport([mk('R-5', 'first'), mk('R-5', 'second')], [])
+    expect(p.newRecords).toHaveLength(1)
+    const out = applyImport(p, 'merge')
+    expect(out.filter((r) => r.id === 'R-5')).toHaveLength(1)
+  })
+
+  it('never classifies the same id as both a duplicate and a conflict within incoming', () => {
+    const existing = [mk('R-1', 'original')]
+    // First copy is identical to existing (would classify as a duplicate);
+    // second copy differs (would classify as a conflict). Deduping within
+    // incoming means exactly one classification wins, not both.
+    const p = planImport([mk('R-1', 'original'), mk('R-1', 'altered')], existing)
+    expect(p.duplicates).toEqual([])
+    expect(p.conflicts).toHaveLength(1)
   })
 
   it('planning mutates neither input', () => {
