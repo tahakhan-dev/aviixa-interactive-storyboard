@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { existsSync, readdirSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 
 const OUT = join(process.cwd(), 'out')
 
@@ -24,9 +24,17 @@ describe('static export', () => {
   })
 
   it('contains no server-only artifacts', () => {
+    // Next 16 emits `_clientMiddlewareManifest.js` unconditionally under
+    // `output: 'export'`, even though real middleware cannot exist there
+    // (a middleware.ts source file throws at build time under static
+    // export). Allowlisted by exact basename only, so any other
+    // middleware-named file - any casing - still fails this check.
+    const KNOWN_BENIGN = new Set(['_clientMiddlewareManifest.js'])
+    const FORBIDDEN = /\/api\/|middleware|\.node$|server\.js$/i
+
     const files = walk(OUT)
-    const forbidden = files.filter((f) =>
-      /\/api\/|middleware|\.node$|server\.js$/.test(f),
+    const forbidden = files.filter(
+      (f) => !KNOWN_BENIGN.has(basename(f)) && FORBIDDEN.test(f),
     )
     expect(forbidden).toEqual([])
   })

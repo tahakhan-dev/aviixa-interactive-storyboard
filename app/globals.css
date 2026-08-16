@@ -11,7 +11,11 @@
   --color-border-strong: #cbd5e1;
   --color-ink: #0f172a;
   --color-ink-muted: #475569;
-  --color-ink-subtle: #64748b;
+  /* 5.830:1 against --color-canvas (#f8fafc); was #64748b at 4.548:1, too
+     close to the 4.5:1 AA floor for a foundation token. Still subordinate
+     to --color-ink-muted (7.243:1). See research-ledger.json / task-1
+     fix-round-1 report. */
+  --color-ink-subtle: #54637a;
 
   --color-primary: #1d4ed8;
   --color-primary-hover: #1e40af;
