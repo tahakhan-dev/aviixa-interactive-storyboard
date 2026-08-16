@@ -3,6 +3,14 @@ import { canonicalSerialize, sha256Hex } from '@/domain/hash'
 import { SURFACES, type SurfaceId } from '@/domain/surfaces'
 import { REVIEW_STATUSES, type ReviewRecord, type ReviewStatus } from './records'
 
+// Failure-signalling convention (documented in full at the top of
+// `@/review/store`): `importReviewPackage` below is the IO/parsing boundary
+// and follows it exactly -- never throws, always resolves a typed
+// `ImportOutcome` discriminated by `ok`. `exportReviewPackage`'s one throw
+// (a `memory` field on the input) is the synchronous-precondition exception
+// to that rule: it can only fire if an immediate caller bypasses the input
+// type, which is a programming error, not a runtime IO failure.
+
 /**
  * V1 has exactly one package shape. A future format change bumps this and
  * import checks it explicitly (Task 10) rather than guessing from shape.
@@ -265,9 +273,18 @@ export async function importReviewPackage(
   }
 
   // 5. per-entry hashes — recompute each logical file from the package's own
-  // declared fields and compare against what the manifest claims.
+  // declared fields and compare against what the manifest claims. Checked
+  // BOTH directions (I5, final review): the forward loop below catches a
+  // real payload that is missing or altered; the reverse loop catches the
+  // opposite -- a manifest entry DECLARED that this package would never
+  // have produced (e.g. a `memory.json` this exporter is structurally
+  // incapable of exporting, per spec §5). Step 6's checksum is recomputed
+  // from `recomputedManifest`, not from `pkg.manifest`, so it is blind to
+  // anything declared beyond the real entries -- the reverse loop is the
+  // only place an extra declared entry is ever caught.
   const recomputedManifest = await buildManifest(packageFiles(pkg))
   const declaredByPath = new Map(pkg.manifest.map((entry) => [entry.path, entry]))
+  const recomputedByPath = new Map(recomputedManifest.map((entry) => [entry.path, entry]))
   for (const entry of recomputedManifest) {
     const declared = declaredByPath.get(entry.path)
     if (!declared || declared.sha256 !== entry.sha256 || declared.bytes !== entry.bytes) {
@@ -276,6 +293,14 @@ export async function importReviewPackage(
         expected: declared?.sha256 ?? null,
         actual: entry.sha256,
       })
+    }
+  }
+  for (const declared of pkg.manifest) {
+    if (!recomputedByPath.has(declared.path)) {
+      return quarantine(
+        `Manifest declares an entry ("${declared.path}") this package does not actually contain.`,
+        { failingEntry: declared.path, expected: null, actual: declared.sha256 },
+      )
     }
   }
 

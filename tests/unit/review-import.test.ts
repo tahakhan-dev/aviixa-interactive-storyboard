@@ -61,4 +61,53 @@ describe('review package import', () => {
     expect(r.ok).toBe(false)
     if (!r.ok) expect(r.reason.length).toBeGreaterThan(10)
   })
+
+  // I5 (final review): step 6 only checks manifestCHECKSUM against a
+  // checksum recomputed from the RECOMPUTED manifest (meta.json +
+  // records.json, always exactly those two entries -- see packageFiles).
+  // manifestChecksum is unaffected by anything ELSE declared in
+  // pkg.manifest, and step 5's loop iterates only the recomputed entries,
+  // never the declared ones -- so appending an extra declared entry (e.g. a
+  // `memory.json` this exporter can never produce) never touches either
+  // check and the import proceeds ok:true. This smuggles a manifest claim
+  // for a payload the package doesn't (and, per spec §5, structurally
+  // cannot) contain straight past validation.
+  it('quarantines a package declaring an extra manifest entry it never produced', async () => {
+    const p = await good()
+    const withExtra = {
+      ...p,
+      manifest: [...p.manifest, { path: 'memory.json', bytes: 10, sha256: 'a'.repeat(64) }],
+    }
+    const r = await importReviewPackage(withExtra, expected)
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.quarantined).toBe(true)
+      expect(r.failingEntry).toBe('memory.json')
+    }
+  })
+
+  it('quarantines a package missing a manifest entry for a real payload file', async () => {
+    const p = await good()
+    const missing = { ...p, manifest: p.manifest.filter((e) => e.path !== 'records.json') }
+    const r = await importReviewPackage(missing, expected)
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.quarantined).toBe(true)
+      expect(r.failingEntry).toBe('records.json')
+    }
+  })
+
+  it('quarantines a manifest entry with a mismatched declared byte length', async () => {
+    const p = await good()
+    const wrongBytes = {
+      ...p,
+      manifest: p.manifest.map((e) => (e.path === 'records.json' ? { ...e, bytes: e.bytes + 1 } : e)),
+    }
+    const r = await importReviewPackage(wrongBytes, expected)
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.quarantined).toBe(true)
+      expect(r.failingEntry).toBe('records.json')
+    }
+  })
 })
