@@ -7,6 +7,8 @@ import {
   type CoverageStatus,
 } from '@/coverage/descriptors'
 import { Table, StatusPill, type StatusTone } from '@/ui/primitives'
+import { loadWorkflowRegistry } from '@/registry/load'
+import workflowRegistryRaw from '../../registries/generated/workflow-registry.json'
 
 export const metadata: Metadata = { title: 'Coverage Dashboard' }
 
@@ -33,16 +35,33 @@ const STATUS_LABEL: Record<CoverageStatus, string> = {
   'not-represented': 'Not represented',
 }
 
+const WORKFLOW_REGISTRY = loadWorkflowRegistry(workflowRegistryRaw)
+
 /**
- * Every one of the fourteen registries is `not-represented` today: this
- * build implements the review-shell infrastructure (slice 2b), not the 81
- * module screens that would ever demonstrate a module, workflow, event, or
- * any of the other inventories on a running surface. Slices 3-13 have not
- * run, so the dashboard says that plainly rather than dressing up zero rows
- * as "coming soon".
+ * Minor (final review): this used to hardcode every one of the fourteen
+ * rows to `'not-represented'` and then run them through `countByStatus` --
+ * a tautology dressed up as a computation, since the input was a constant.
+ * Now a real per-registry derivation: `workflows` is checked against its
+ * actual generated registry (`registries/generated/workflow-registry.json`,
+ * 432 records); the other thirteen have no item-level registry yet (slices
+ * 3-13 haven't built one), so there is nothing to derive a status FROM, and
+ * `'not-represented'` is the honest default rather than a stand-in for a
+ * computation that doesn't exist. Today this still evaluates to
+ * not-represented for all fourteen -- that is the true state of the build,
+ * not a hardcoded assumption -- but it will change the moment any registry
+ * actually has a demonstrated row.
  */
+function registryStatus(slug: string): CoverageStatus {
+  if (slug === 'workflows') {
+    return WORKFLOW_REGISTRY.some((r) => r.status !== 'not-represented')
+      ? 'demonstrated-in-storyboard'
+      : 'not-represented'
+  }
+  return 'not-represented'
+}
+
 const REGISTRY_STATUS_ENTRIES: readonly { status: CoverageStatus }[] = REGISTRY_DESCRIPTORS.map(
-  () => ({ status: 'not-represented' as const }),
+  (d) => ({ status: registryStatus(d.slug) }),
 )
 const RECONCILIATION_SUMMARY = countByStatus(REGISTRY_STATUS_ENTRIES)
 
@@ -65,16 +84,26 @@ export default function CoveragePage() {
             { key: 'status', header: 'Status in this build' },
           ]}
           rows={REGISTRY_DESCRIPTORS.map((d) => ({
-            registry: <Link href={`/coverage/${d.slug}/`}>{d.title}</Link>,
+            // Blocking 2 (final review): the Workflow Index (`/workflows/`)
+            // is the real, populated index for this registry; `/coverage/
+            // workflows/` is a generic per-registry placeholder page that
+            // itself now just points here (see app/coverage/[registry]/
+            // page.tsx) rather than being a second, permanently-empty page
+            // for the same concept. Link straight to the real one.
+            registry: (
+              <Link href={d.slug === 'workflows' ? '/workflows/' : `/coverage/${d.slug}/`}>
+                {d.title}
+              </Link>
+            ),
             expected:
               d.expectedCount === null
                 ? 'No single closed count in the frozen source'
                 : `${d.expectedCount}`,
             status: (
               <StatusPill
-                tone={STATUS_TONE['not-represented']}
-                icon={STATUS_ICON['not-represented']}
-                label={STATUS_LABEL['not-represented']}
+                tone={STATUS_TONE[registryStatus(d.slug)]}
+                icon={STATUS_ICON[registryStatus(d.slug)]}
+                label={STATUS_LABEL[registryStatus(d.slug)]}
               />
             ),
           }))}

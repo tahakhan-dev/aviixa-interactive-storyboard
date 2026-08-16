@@ -1,5 +1,10 @@
 import type { z } from 'zod'
-import { ReconciliationReportSchema, type ReconciliationReport } from './schemas'
+import {
+  ReconciliationReportSchema,
+  type ReconciliationReport,
+  WorkflowRegistrySchema,
+  type WorkflowRegistry,
+} from './schemas'
 
 export * from './schemas'
 
@@ -25,4 +30,9 @@ export function loadRegistry<S extends z.ZodTypeAny>(
 /** Loads and validates `registries/generated/source-reconciliation.json`. */
 export function loadReconciliation(raw: unknown): ReconciliationReport {
   return loadRegistry(ReconciliationReportSchema, raw, 'source reconciliation report')
+}
+
+/** Loads and validates `registries/generated/workflow-registry.json`. */
+export function loadWorkflowRegistry(raw: unknown): WorkflowRegistry {
+  return loadRegistry(WorkflowRegistrySchema, raw, 'workflow registry')
 }

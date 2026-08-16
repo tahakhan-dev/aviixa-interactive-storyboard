@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { COVERAGE_STATUSES } from '@/coverage/descriptors'
 
 /**
  * Every schema here is `.strict()`. An unknown field in source-derived data
@@ -132,3 +133,38 @@ export const ReconciliationReportSchema = z
   .strict()
 
 export type ReconciliationReport = z.infer<typeof ReconciliationReportSchema>
+
+/**
+ * One row of `registries/generated/workflow-registry.json`, built by
+ * `scripts/build-workflow-registry.mjs` from the 432 distinct `id`-keyed
+ * `workflows[]` entries across `registries/raw/extract/CHK-*.json` (slice
+ * 1's extraction of the frozen source). This is a source-EXTRACTION count,
+ * not a workflow TOTAL: the frozen source fixes no single workflow count
+ * anywhere, and this registry never asserts one (see
+ * `RegistryDescriptor.expectedCount` for `workflows`, which stays `null`).
+ *
+ * `surfacesTouched` is deliberately `string[]`, not `SurfaceId[]`: the
+ * extraction's `surfaces_touched` field is free text off the frozen source
+ * ("Delivery Operations Hub modules 2, 3, 5, 6, 7, 8, 14, 18", "tenant audit
+ * stream", "Not applicable — document control", ...), not always one of the
+ * five closed `SurfaceId` values -- coercing it into that enum would either
+ * throw away real source text or fabricate a surface the source never named.
+ */
+export const WorkflowRecordSchema = z
+  .object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    primaryActor: z.string().min(1),
+    trigger: z.string().min(1),
+    surfacesTouched: z.array(z.string()),
+    terminalStates: z.array(z.string()),
+    sourceLine: z.number().int().nonnegative(),
+    status: z.enum(COVERAGE_STATUSES),
+  })
+  .strict()
+
+export type WorkflowRecord = z.infer<typeof WorkflowRecordSchema>
+
+export const WorkflowRegistrySchema = z.array(WorkflowRecordSchema)
+
+export type WorkflowRegistry = z.infer<typeof WorkflowRegistrySchema>

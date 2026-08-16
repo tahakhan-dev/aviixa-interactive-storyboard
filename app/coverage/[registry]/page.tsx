@@ -54,22 +54,38 @@ export default async function RegistryIndexPage({
       <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">{descriptor.sourceNote}</p>
 
       <div className="mt-6">
-        {/*
-          This is a review/coverage tool, not a product surface — none of
-          the five SurfaceIds is the "true" owner of a cross-cutting index.
-          SURF-DOH is picked because it is the tenant system of record for
-          authoritative operational registries; STATE-01 never reads this
-          value (only STATE-07's Frontline-only guard does), so the choice
-          has no behavioural effect today.
-        */}
-        <ScreenStateBoundary
-          state="STATE-01"
-          surface="SURF-DOH"
-          detail={{
-            objectLabel: descriptor.title.toLowerCase(),
-            whatCreatesIt: `${descriptor.title} entries are authored as each product surface and module screen is built in slices 3-13, then reconciled against the frozen source. Nothing has created one yet in this storyboard.`,
-          }}
-        />
+        {descriptor.slug === 'workflows' ? (
+          // Blocking 2 (final review): this used to render the same
+          // permanently-empty ScreenStateBoundary every other not-yet-built
+          // registry does -- a second empty page for a concept the real
+          // Workflow Index (`/workflows/`) already populates with 432
+          // extracted records. Point here instead of duplicating it.
+          <p className="max-w-prose text-[var(--color-ink-muted)]">
+            The populated Workflow Index lives at{' '}
+            <Link href="/workflows/" className="text-[var(--color-primary)] underline">
+              /workflows/
+            </Link>
+            , not here — this page and that one describe the same registry,
+            and this build never duplicates it as two separate empty pages.
+          </p>
+        ) : (
+          /*
+            This is a review/coverage tool, not a product surface — none of
+            the five SurfaceIds is the "true" owner of a cross-cutting index.
+            SURF-DOH is picked because it is the tenant system of record for
+            authoritative operational registries; STATE-01 never reads this
+            value (only STATE-07's Frontline-only guard does), so the choice
+            has no behavioural effect today.
+          */
+          <ScreenStateBoundary
+            state="STATE-01"
+            surface="SURF-DOH"
+            detail={{
+              objectLabel: descriptor.title.toLowerCase(),
+              whatCreatesIt: `${descriptor.title} entries are authored as each product surface and module screen is built in slices 3-13, then reconciled against the frozen source. Nothing has created one yet in this storyboard.`,
+            }}
+          />
+        )}
       </div>
     </main>
   )
