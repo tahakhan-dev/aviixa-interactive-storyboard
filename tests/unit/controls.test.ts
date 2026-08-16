@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { createControls, CONNECTIVITY_MODES } from '@/scenario/controls'
 import { fixedClock, CANONICAL_EPOCH_MS } from '@/domain/clock'
-import type { PresentationState } from '@/domain/state'
+import { withTenant, type PresentationState } from '@/domain/state'
+import { hashState } from '@/domain/hash'
+import { scenarioRunId, tenantId } from '@/domain/ids'
 
 function harness() {
   const clock = fixedClock(CANONICAL_EPOCH_MS)
@@ -110,5 +112,62 @@ describe('scenario controls', () => {
   it('refuses to move the clock backwards', () => {
     const h = harness()
     expect(() => h.controls.advanceClock(-1)).toThrow()
+  })
+})
+
+describe('the three remaining scenario controls', () => {
+  it('startClean produces a run with no parent lineage', () => {
+    const h = harness()
+    const r = h.controls.startClean(scenarioRunId('RUN-CLEAN'))
+    expect(r.state.runId).toBe('RUN-CLEAN')
+    expect(r.lineage.parentRunId).toBeNull()
+    expect(r.lineage.branchedFromSequence).toBeNull()
+  })
+
+  it('startClean leaves any prior state untouched', async () => {
+    const h = harness()
+    const prior = h.controls.startClean(scenarioRunId('RUN-A')).state
+    const before = await hashState(prior)
+    h.controls.startClean(scenarioRunId('RUN-B'))
+    expect(await hashState(prior)).toBe(before)
+  })
+
+  it('loadCanonicalStory is deterministic — same seed, same state hash', async () => {
+    const a = harness().controls.loadCanonicalStory('seed-1')
+    const b = harness().controls.loadCanonicalStory('seed-1')
+    expect(await hashState(a)).toBe(await hashState(b))
+  })
+
+  it('a different seed produces a different state', async () => {
+    const a = harness().controls.loadCanonicalStory('seed-1')
+    const b = harness().controls.loadCanonicalStory('seed-2')
+    expect(await hashState(a)).not.toBe(await hashState(b))
+  })
+
+  it('compareBeforeAndAfter reports identical states as identical', async () => {
+    const h = harness()
+    const s = h.controls.loadCanonicalStory('seed-1')
+    const c = await h.controls.compareBeforeAndAfter(s, s)
+    expect(c.identical).toBe(true)
+    expect(c.changedTenants).toEqual([])
+    expect(c.sequenceDelta).toBe(0)
+  })
+
+  it('compareBeforeAndAfter names the tenants that changed', async () => {
+    const h = harness()
+    const before = h.controls.loadCanonicalStory('seed-1')
+    const after = withTenant(before, tenantId('TEN-A'), (p) => ({ ...p, displayName: 'Renamed' }))
+    const c = await h.controls.compareBeforeAndAfter(before, after)
+    expect(c.identical).toBe(false)
+    expect(c.changedTenants).toContain('TEN-A')
+  })
+
+  it('compareBeforeAndAfter is pure — neither side is mutated', async () => {
+    const h = harness()
+    const before = h.controls.loadCanonicalStory('seed-1')
+    const after = h.controls.loadCanonicalStory('seed-2')
+    const snap = JSON.stringify({ before, after })
+    await h.controls.compareBeforeAndAfter(before, after)
+    expect(JSON.stringify({ before, after })).toBe(snap)
   })
 })
