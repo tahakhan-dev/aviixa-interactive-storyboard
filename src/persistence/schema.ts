@@ -1,34 +1,19 @@
 export const DB_NAME = 'aviixa-storyboard'
-export const DB_VERSION = 1
+export const DB_VERSION = 2
 
 /**
- * Every object store the app persists to, in one declared list. Ledger
- * stores (`audit`, `events`, `commands`, `notifications`, `schedules`) mirror
- * `LedgerRecord`'s shape and are keyed in-line on `id`. `snapshots` and
- * `meta` hold single/keyed descriptor records with no natural `id` field of
- * their own, so they use out-of-line keys supplied by the caller.
- * `idempotency` is keyed out-of-line on the idempotency key itself, so the
- * coordinator can `add()` (not `put()`) it and let a duplicate key -- a
- * replayed transition -- fail as a real key-collision instead of silently
- * overwriting the record of the transition it already committed.
- *
- * MINOR fix: `captures`, `reviewRecords` and `reviewEvents` were removed
- * from this list. None had a writer or a reader anywhere in this slice --
- * `Ledgers`/`LEDGER_KEYS` (`src/domain/state.ts`, `src/persistence/
- * coordinator.ts`) are closed at exactly the five stores above, and neither
- * review store nor `captures` is one of them. This is the identical
- * situation `LinkButton` was removed from the design-primitives list for
- * one slice ago: named without a consumer or an implementing task in 2a.
- * Spec §5.2 does name "capture" in its prose list of record kinds a future
- * commit may need to write atomically, but spec §6 explicitly assigns
- * "evidence capture" -- and the review shell `reviewRecords`/`reviewEvents`
- * would belong to -- to slice 2b, not 2a. A store with no writer is
- * speculative schema, not working code; a later slice that adds a real
- * writer for any of these should add the store back in the same commit
- * that adds the writer, together with the `DB_VERSION` bump IndexedDB
- * requires for a new store on an existing database.
+ * Product truth. Ledger stores (`audit`, `events`, `commands`,
+ * `notifications`, `schedules`) mirror `LedgerRecord`'s shape and are keyed
+ * in-line on `id`. `snapshots` and `meta` hold single/keyed descriptor
+ * records with no natural `id` field of their own, so they use out-of-line
+ * keys supplied by the caller. `idempotency` is keyed out-of-line on the
+ * idempotency key itself, so the coordinator can `add()` (not `put()`) it
+ * and let a duplicate key -- a replayed transition -- fail as a real
+ * key-collision instead of silently overwriting the record of the
+ * transition it already committed. A review action may never write to any
+ * of these.
  */
-export const STORES = [
+export const PRODUCT_STORES = [
   'snapshots',
   'audit',
   'events',
@@ -38,6 +23,26 @@ export const STORES = [
   'idempotency',
   'meta',
 ] as const
+
+/**
+ * Client-review metadata, restored in slice 2b with writers arriving in
+ * Tasks 7 (`reviewRecords`) and 8 (`reviewEvents`) of that slice -- the
+ * same two stores slice 2a removed as speculative scaffolding when they had
+ * no writer or reader anywhere in that slice (see git history on this
+ * file). `captures` is deliberately NOT restored here: it is named in the
+ * spec's one-transaction list but its writer belongs to a later slice, so
+ * bringing it back now would reintroduce the exact "store with no writer"
+ * situation this file's history already corrected once.
+ *
+ * Deliberately separate stores, not a flag on a product record: the
+ * separation between product truth and client-review metadata is an
+ * enforced invariant in this slice, and a shared store would make it a
+ * convention the next implementer could quietly break by adding a flag
+ * instead of routing through a real review-store writer.
+ */
+export const REVIEW_STORES = ['reviewRecords', 'reviewEvents'] as const
+
+export const STORES = [...PRODUCT_STORES, ...REVIEW_STORES] as const
 
 export type StoreName = (typeof STORES)[number]
 
