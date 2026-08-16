@@ -75,3 +75,32 @@ describe('generated registries', () => {
     }
   })
 })
+
+describe('composite keys stop distinct workflows collapsing', () => {
+  const wf = () => load('workflows')
+
+  it('no row now stands for more than five raw entries', () => {
+    const worst = Math.max(...wf().rows.map((r: { collapsedFrom?: number }) => r.collapsedFrom ?? 1))
+    expect(worst).toBeLessThanOrEqual(5)
+  })
+
+  it('the 199-entry unnumbered row is gone', () => {
+    const un = wf().rows.filter((r: { id: string }) => r.id.startsWith('unnumbered'))
+    for (const r of un) expect(r.collapsedFrom ?? 1).toBeLessThanOrEqual(5)
+  })
+
+  it('still represents every raw entry — none dropped', () => {
+    const total = wf().rows.reduce((n: number, r: { collapsedFrom?: number }) => n + (r.collapsedFrom ?? 1), 0)
+    expect(total).toBe(725)
+  })
+
+  it('composite keys stay unique', () => {
+    const ids = wf().rows.map((r: { id: string }) => r.id)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('still records the source fixes no workflow total', () => {
+    expect(wf().sourceFixesNoTotal).toBe(true)
+    expect(wf().reconciledCount).toBeNull()
+  })
+})
