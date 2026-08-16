@@ -256,7 +256,41 @@ device trust, connectivity, package, offline authorisation → segregation of
 duties, maker-checker, approver availability, human-decision gate.
 
 Explicit deny wins. Scopes intersect. Unauthorised values are absent from the
-rendered DOM and accessibility tree, never merely hidden with CSS.
+rendered DOM and accessibility tree, never merely hidden with CSS. The earliest
+failing stage wins, so a denial never leaks information from a later stage.
+
+#### 3.4.1 Rules learned the hard way — all five were real defects
+
+An earlier version of this design shipped an evaluator that passed 71 tests and
+was still wrong in five ways. Every rule below exists because the absence of it
+was a working exploit, not because it seemed prudent.
+
+1. **Stage 2 checks the RESOURCE's tenant, not the actor's.** An access request
+   carries `resourceTenant`. Checking only "does the actor's own tenant exist"
+   is a liveness check wearing an isolation check's name — under it, a Quality
+   Manager in one factory could release another factory's quality hold, with the
+   audit written under the attacker's tenant so the victim's trail stayed empty.
+2. **A null tenant is a denial, not a skip.** Stage 2 reads
+   `RoleDefinition.domain`. A tenant-domain role with a null tenant is refused;
+   a platform-domain role holding a tenant is also refused, because a platform
+   role reaches tenant data only through a named access session. Skipping the
+   stage on null made a null-tenant role *more* privileged than a correct one —
+   it bypassed isolation and suspension together.
+3. **Every stage fails CLOSED.** A constraint that is declared but
+   under-specified must deny. Declaring `allowedObjectStates` without supplying
+   the object's state, or setting `makerCheckerOf` with an unknown actor, must
+   never be weaker than declaring nothing at all.
+4. **An unregistered feature is OFF.** Absent platform registration is a floor,
+   not a blank cheque. Otherwise a tenant enables a feature the platform never
+   registered — including a typo'd or unreleased one — by tenant config alone.
+5. **A prohibition is explicit, not an absence.** A role the source explicitly
+   prohibits is listed in `deniedRoles`, producing `EXPLICIT_DENY` with
+   `RECORDED_AS_REFUSAL`. Merely omitting it from the allow-list yields a
+   generic reason and, critically, **no audit record** — so a Tenant Admin could
+   probe all ten Command Center actions and leave zero trace.
+
+A state that cannot be canonically serialised returns a typed denial. The kernel
+never throws: an unhashable state is exactly when it must degrade to a refusal.
 
 ### 3.5 Transition result contract
 
