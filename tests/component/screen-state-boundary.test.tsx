@@ -1,15 +1,34 @@
 import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
-import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
+import { ScreenStateBoundary, type CommandState } from '@/ui/ScreenStateBoundary'
 import { SCREEN_STATES } from '@/ui/screen-state'
 import type { SurfaceId } from '@/domain/surfaces'
+import type { PermissionDecision } from '@/policy/decision'
+
+// A real, evaluator-produced decision -- used only to give STATE-05 a
+// legitimate `detail.decision` in tests that aren't specifically about the
+// missing-decision case. The boundary itself must never fabricate one of
+// these (see BLOCKING 4 below).
+const FIXTURE_DECISION: PermissionDecision = {
+  outcome: 'explicitlyProhibited',
+  reasonCode: 'ROLE_NOT_GRANTED',
+  explanation: 'Test fixture: the signed-in role does not carry this action.',
+  stage: 'BASE_ROLE',
+  sourceRefs: [],
+  auditExpectation: 'RECORDED_AS_REFUSAL',
+  conditionToEnable: null,
+}
 
 describe('ScreenStateBoundary', () => {
   it('renders a distinguishable treatment for every one of the thirteen states', () => {
     const seen = new Set<string>()
     for (const s of SCREEN_STATES) {
+      const detail =
+        s.id === 'STATE-05'
+          ? { objectLabel: 'scheduled runs', decision: FIXTURE_DECISION }
+          : { objectLabel: 'scheduled runs' }
       const { container, unmount } = render(
-        <ScreenStateBoundary state={s.id} surface="SURF-FL" detail={{ objectLabel: 'scheduled runs' }}>
+        <ScreenStateBoundary state={s.id} surface="SURF-FL" detail={detail}>
           <p>content</p>
         </ScreenStateBoundary>,
       )
@@ -19,6 +38,21 @@ describe('ScreenStateBoundary', () => {
       unmount()
     }
     expect(seen.size).toBe(13)
+  })
+
+  // BLOCKING 4(b): omitting detail.decision must never render a fabricated
+  // governed denial. Before the fix, this rendered a specific, false,
+  // auditable claim of outcome `explicitlyProhibited` at stage `BASE_ROLE`
+  // with reason `ROLE_NOT_GRANTED` -- a claim no evaluator ever produced.
+  it('throws rather than fabricating a decision when STATE-05 is rendered without detail.decision', () => {
+    expect(() => render(<ScreenStateBoundary state="STATE-05" surface="SURF-DOH" />)).toThrow()
+  })
+
+  it('renders the supplied decision plainly when one is provided for STATE-05', () => {
+    const { container } = render(
+      <ScreenStateBoundary state="STATE-05" surface="SURF-DOH" detail={{ decision: FIXTURE_DECISION }} />,
+    )
+    expect(container.textContent).toContain(FIXTURE_DECISION.explanation)
   })
 
   it('renders children only in the success state', () => {
@@ -73,5 +107,35 @@ describe('ScreenStateBoundary', () => {
     expect(t).not.toContain('applied')
     expect(t).not.toContain('complete')
     expect(t).not.toContain('synced')
+  })
+
+  // BLOCKING 5: the test above only ever drove a non-terminal command state
+  // ('available for delivery'), so it proved the boundary echoes its input,
+  // never that a terminal state is refused. Drive every terminal member of
+  // the canonical fifteen through STATE-09 and assert each is refused,
+  // rather than silently rendered as "⏳applied" with a success tone.
+  it('refuses to render a terminal command state under STATE-09 (Queued)', () => {
+    const terminal: CommandState[] = [
+      'applied', 'acknowledged', 'reconciled', 'rejected', 'failed', 'expired', 'cancelled', 'superseded',
+    ]
+    for (const commandState of terminal) {
+      expect(
+        () => render(<ScreenStateBoundary state="STATE-09" surface="SURF-FL" detail={{ commandState }} />),
+        commandState,
+      ).toThrow()
+    }
+  })
+
+  it('still renders every non-terminal command state under STATE-09', () => {
+    const nonTerminal: CommandState[] = [
+      'created', 'authorised', 'queued', 'available for delivery', 'delivered', 'downloaded', 'validated',
+    ]
+    for (const commandState of nonTerminal) {
+      const { container, unmount } = render(
+        <ScreenStateBoundary state="STATE-09" surface="SURF-FL" detail={{ commandState }} />,
+      )
+      expect((container.textContent ?? '').toLowerCase(), commandState).toContain(commandState)
+      unmount()
+    }
   })
 })

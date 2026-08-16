@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { screenState, type ScreenStateId } from '@/ui/screen-state'
 import type { SurfaceId } from '@/domain/surfaces'
-import { deny, type PermissionDecision } from '@/policy/decision'
+import type { PermissionDecision } from '@/policy/decision'
 import {
   EmptyState,
   SkeletonBlock,
@@ -49,6 +49,26 @@ export type CommandState =
   | 'superseded'
   | 'reconciled'
 
+/**
+ * BLOCKING 5: STATE-09 is the QUEUED state -- an action that has NOT yet
+ * taken effect, shown in its true in-flight state. A terminal command state
+ * (the lifecycle has concluded, one way or another) is not "queued" in any
+ * sense, so rendering one under STATE-09 is exactly the "never applied or
+ * complete" violation the state's own contract forbids. This is the same
+ * partition COMMAND_STATE_TONE already draws: 'ok', 'blocked' and 'stale'
+ * are all concluded outcomes; 'neutral' and 'info' are still in flight.
+ */
+const TERMINAL_COMMAND_STATES: ReadonlySet<CommandState> = new Set([
+  'applied',
+  'acknowledged',
+  'reconciled',
+  'rejected',
+  'failed',
+  'expired',
+  'cancelled',
+  'superseded',
+])
+
 const COMMAND_STATE_TONE: Record<CommandState, StatusTone> = {
   created: 'neutral',
   authorised: 'info',
@@ -89,7 +109,10 @@ export interface ScreenStateDetail {
   permittedFormat?: string
   /**
    * STATE-05: the decision to explain. The boundary RECEIVES this; it never
-   * computes one — no policy import lives in this file.
+   * computes one — no policy VALUE import lives in this file, only the
+   * `PermissionDecision` TYPE (erased at compile time). Required in
+   * practice: STATE-05 throws rather than render anything if this is
+   * omitted, because there is no honest default for a governed denial.
    */
   decision?: PermissionDecision
   /** STATE-06: the one cause of the read-only state. */
@@ -130,18 +153,6 @@ export interface ScreenStateBoundaryProps {
   detail?: ScreenStateDetail
   children?: ReactNode
 }
-
-/**
- * Fallback used only when a caller does not supply `detail.decision` for
- * STATE-05. A literal refusal, not a computed one: no `evaluateAccess`,
- * `ROLES` or `allowedRoles` reference exists in this file.
- */
-const DEFAULT_PERMISSION_DECISION: PermissionDecision = deny(
-  'explicitlyProhibited',
-  'ROLE_NOT_GRANTED',
-  undefined,
-  { stage: 'BASE_ROLE', sourceRefs: [] },
-)
 
 export function ScreenStateBoundary({
   state,
@@ -186,7 +197,21 @@ export function ScreenStateBoundary({
       )
 
     case 'STATE-05':
-      return <PermissionNotice decision={detail?.decision ?? DEFAULT_PERMISSION_DECISION} />
+      // No fabricated fallback: "the caller told us nothing" is not itself
+      // a prohibition. A missing `detail.decision` here means some screen
+      // tried to render Permission-denied without ever calling
+      // `evaluateAccess` -- rendering ANY specific outcome (even
+      // `clientDecisionRequired`) would assert a governed claim no
+      // evaluator produced. This throws rather than fabricates, the same
+      // way the `frontlineOnly` check above throws on a contract violation
+      // instead of silently rendering something plausible-looking.
+      if (detail?.decision === undefined) {
+        throw new Error(
+          'STATE-05 (Permission-denied) requires detail.decision from the policy evaluator. ' +
+            'It was omitted -- this is a caller bug, not a permission outcome, and must not be rendered as one.',
+        )
+      }
+      return <PermissionNotice decision={detail.decision} />
 
     case 'STATE-06':
       return (
@@ -218,6 +243,18 @@ export function ScreenStateBoundary({
 
     case 'STATE-09': {
       const commandState = detail?.commandState ?? 'queued'
+      // Fail loudly rather than render "⏳applied" with a success tone: a
+      // caller asking the Queued boundary to show a concluded command is a
+      // contract violation, not a fourteenth screen state to invent a
+      // rendering for -- throwing matches the `frontlineOnly` precedent
+      // above and STATE-05's precedent (see BLOCKING 4) for the same kind
+      // of caller mistake.
+      if (TERMINAL_COMMAND_STATES.has(commandState)) {
+        throw new Error(
+          `STATE-09 (Queued) cannot render terminal command state "${commandState}" -- ` +
+            'a concluded command is not "queued"; render the state that actually applies once the command has finished, not through the Queued boundary.',
+        )
+      }
       return (
         <StatusPill tone={COMMAND_STATE_TONE[commandState]} icon="⏳" label={commandState} />
       )
