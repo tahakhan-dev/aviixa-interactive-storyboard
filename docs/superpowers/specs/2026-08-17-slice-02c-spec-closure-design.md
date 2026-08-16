@@ -137,6 +137,67 @@ layout's default title.
 **Acceptance:** a server wrapper exports `metadata` around the client child; the
 tab title names the page.
 
+### 2.10 Populate the remaining thirteen registry indexes — spec §7, and the client's third reinforcement
+
+Client instruction, repeated three times now: *"make sure it cover everything every
+workflow use cases each and everything"*. Binding, and it changes this slice's
+scope again.
+
+`/workflows/` was populated with 432 real records in slice 2b. **The other thirteen
+registry indexes are still empty shells rendering `not-represented` for nothing at
+all.** An index with no rows does not satisfy §7 any more than a count with no
+index satisfied §9.6 — it is the same defect one level down.
+
+All fourteen are populatable from data already extracted. Nothing new must be read
+from the frozen source:
+
+| Index | Source | Available |
+|---|---|---|
+| workflows | semantic extraction | 432 — done in 2b |
+| modules | semantic extraction | 92 keyed → **81 canonical** (see below) |
+| business objects | semantic extraction | 421 keyed |
+| actionable controls | semantic extraction | 608 keyed |
+| functions | identifier index, `FUNC-` | 990 |
+| features | identifier index, `FEAT-` | 534 |
+| sub-features | identifier index, `SUB-` | 526 |
+| business use cases | identifier index, `UC-` | 330 |
+| events | identifier index, `EVT-` | 28 |
+| commands | identifier index, `CMD-` | 17 |
+| notifications | identifier index, `NOTIF-` | 205 |
+| offline scenarios | identifier index, `OFF-` | 99 |
+| scheduled work | identifier index, `SCHED-` | 67 |
+| artificial-intelligence storyboards | identifier index, `SB-` | 613 |
+
+`registries/raw/identifier-index.json` holds 17,931 distinct stable identifiers
+across 76 prefix families, every one carrying source line locators. It was produced
+by the first mechanical pass over the frozen bytes and has never been shipped.
+
+**COUNT-SCOPE DISCIPLINE — the hard part, and where this goes wrong if rushed.**
+
+A raw key count is not a canonical count, and this project has already been bitten
+by exactly that confusion. The modules row proves it: the semantic extraction keys
+**92** module records, but the canonical inventory is **81** — the extra eleven are
+aliases and label-keyed duplicates. Shipping 92 would contradict the reconciliation
+this project spent a full extraction wave establishing.
+
+So every index must carry, adjacent to its number:
+- what the number counts, in words — "extracted stable identifiers", "canonical
+  modules", "records with names";
+- the reconciled verdict from umbrella spec §12 where one exists — modules **81**,
+  business objects **99**, offline scenarios **70**, do-not-use-cron **22**,
+  anchored timer rows **35**, command classes **5**;
+- an explicit note where the raw count and the reconciled count differ, showing
+  both and naming the deduplication rule;
+- and, where the source fixes no total at all — workflows, events, notifications —
+  the statement that it does not, rather than presenting an extracted figure as one.
+
+**Acceptance:** all fourteen indexes render real rows with source line locators;
+every count is labelled with what it counts; where a reconciled count exists the
+index shows it and explains any divergence from the raw figure; where the source
+fixes no total the index says so; `workflows.expectedCount` stays `null`; no index
+presents an extracted identifier count as a canonical inventory total; the coverage
+dashboard's totals reconcile to the indexes behind them.
+
 ## 3. What this slice does NOT build
 
 Product surfaces and module screens — slices 3–13. The product's Author → Reviewer
