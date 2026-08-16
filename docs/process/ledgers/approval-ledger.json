@@ -41,19 +41,32 @@
       "scope_authorized": "Workflow tool and parallel/dispatched subagents authorized for: source extraction, read-only inventory and audit waves, subagent-driven implementation, and independent code review at Section 23.3 S7. Satisfies the independence prerequisite that self-review cannot satisfy.",
       "gate_released": "Section 23.3 S5 parallel dispatch; Section 23.3 S7 independent-review independence prerequisite.",
       "superseded_by": null
+    },
+    {
+      "decision_id": "APP-003",
+      "design_or_plan_version": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
+      "design_sha256": "707128071d78fe58b49962aac69038328a0cb91542422f6743820e9247dcb98a",
+      "design_commit": "5263138",
+      "exact_question": "Design presented in chat covering source facts, architecture, state partitioning, effective-access model, hand-authored screen construction, static-export constraints, persistence and atomic commit, determinism, technology decisions, visual direction, accessibility, support-not-surveillance, review mode, inventory reconciliation, and the 13-slice build order. Does this design look right?",
+      "options": ["Approve", "Request changes to named sections"],
+      "user_response_evidence": "Client message 2026-08-16: 'approve it but make sure every user case workflows everything should be covering and it should be like the saas enterprise product'",
+      "scope_authorized": "Umbrella design approved WITH two binding reinforcements, both encoded into the specification before commit: (1) Section 14 Binding census-closure commitment - all 26 extracted inventories must close bidirectionally, nothing sampled or deferred silently, status stays conditional until closure. (2) Section 15 Enterprise SaaS product quality - product chrome, worklist patterns, object-page patterns, form patterns, feedback and motion, data realism, visual craft, and the rule that polish never substitutes for behaviour.",
+      "gate_released": "Section 23.3 S1 design-approval gate. Umbrella approval does NOT pre-approve any subproject's design; each of the 13 slices re-enters brainstorming per Section 23.3 S2.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-004",
+      "design_or_plan_version": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
+      "design_sha256": "707128071d78fe58b49962aac69038328a0cb91542422f6743820e9247dcb98a",
+      "exact_question": "Written-specification approval: the specification file as committed.",
+      "options": ["Approve as written", "Request changes"],
+      "user_response_evidence": "Client instruction 'approve it' applied to the design whose full text was written to the specification file and then amended only by adding the client's own two reinforcements as Sections 14 and 15. No content the client approved was altered or removed. Client directed continuation rather than further review.",
+      "scope_authorized": "Proceed to Section 23.3 S2 planning. Specification remains open to client change on request; any change creates a new specification version and hash and re-binds this approval.",
+      "gate_released": "Section 23.3 S1 written-specification approval gate.",
+      "superseded_by": null
     }
   ],
   "pending_gates": [
-    {
-      "gate": "S1 design approval",
-      "status": "NOT_YET_REQUESTED",
-      "blocker": "Full-source read (36-chunk extraction wave) must complete first."
-    },
-    {
-      "gate": "S1 written-specification approval",
-      "status": "NOT_YET_REQUESTED",
-      "blocker": "Depends on S1 design approval."
-    },
     {
       "gate": "S3 execution-mode selection (subagent-driven-development vs executing-plans)",
       "status": "NOT_YET_REQUESTED",
