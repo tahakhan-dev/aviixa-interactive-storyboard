@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "access_date": "2026-08-16",
+  "browsing_capability_note": {
+    "requested_identifier": "/superpowers-chrome:browsing",
+    "wave": "S1R-toolchain-versions",
+    "invocation_result": "NOT_TRIGGERED",
+    "reason": "This wave used no browser control. Method was the npm registry CLI (primary distribution source of record for published package versions) plus the Context7 MCP server serving official Next.js documentation. Recorded honestly as method, not as an invocation of the requested skill.",
+    "manual_equivalent": "npm view <pkg> version / dist-tags / peerDependencies; mcp__context7__query-docs against /vercel/next.js.",
+    "limitation": "npm registry reports the published latest tag, not a compatibility guarantee for this specific dependency graph. Compatibility is proven at S8 by a clean install plus a production static-export build, not by this ledger.",
+    "future_trigger": "Visual validation of the served static export is a separate trigger and will invoke /superpowers-chrome:browsing or record its own manual equivalent."
+  },
+  "runtime_environment": {
+    "node": "v24.12.0",
+    "npm": "11.17.0",
+    "pnpm": "11.20.0",
+    "git": "2.46.0",
+    "platform": "darwin 25.6.0",
+    "evidence": "node -v; npm -v; pnpm -v; git --version executed 2026-08-16"
+  },
+  "resolved_versions": [
+    {"package": "next", "version": "16.3.1", "published": "2026-08-16T00:02:45Z", "source": "npm view next dist-tags -> latest", "claim_supported": "Current stable Next.js major line is 16.x with App Router and output:'export'.", "adopted": true},
+    {"package": "react", "version": "19.2.8", "published": "2026-08-14T17:35:11Z", "source": "npm view react dist-tags -> latest", "claim_supported": "React 19 satisfies next@16 peer range '^18.2.0 || ^19.0.0'.", "adopted": true},
+    {"package": "react-dom", "version": "19.2.8", "published": "2026-08-14T17:36:48Z", "source": "npm view react-dom version", "claim_supported": "Matches react.", "adopted": true},
+    {"package": "typescript", "version": "7.0.2", "published": "2026-08-16T08:22:33Z", "source": "npm view typescript version", "claim_supported": "Current TypeScript major line is 7.x.", "adopted": true, "risk": "TypeScript 7 is a new major. If strict-mode or Next.js plugin incompatibility appears at first typecheck, the decision falls back to the newest 5.x/6.x line that next@16 documents, and this row is superseded with evidence."},
+    {"package": "tailwindcss", "version": "4.3.3", "published": "2026-08-14T19:54:08Z", "source": "npm view tailwindcss version", "claim_supported": "Tailwind 4.x is current; CSS-first @theme token configuration.", "adopted": true},
+    {"package": "@playwright/test", "version": "1.62.1", "published": "2026-08-16T05:41:39Z", "source": "npm view @playwright/test version", "claim_supported": "Satisfies next@16 optional peer '@playwright/test ^1.51.1'.", "adopted": true},
+    {"package": "vitest", "version": "4.1.10", "published": "2026-08-11T23:45:21Z", "source": "npm view vitest version", "claim_supported": "Current Vitest major line is 4.x.", "adopted": true},
+    {"package": "zod", "version": "4.4.3", "published": "2026-08-15T04:09:57Z", "source": "npm view zod version", "claim_supported": "Runtime schema validation for source registries, fixtures, scenarios, snapshots, review packages (mandated by master prompt 3.2).", "adopted": true},
+    {"package": "immer", "version": "11.1.17", "published": "2026-08-16T03:12:49Z", "source": "npm view immer version", "claim_supported": "Structural sharing for the immutable transition kernel.", "adopted": "PENDING - only if plain structural cloning proves inadequate; see rejected-alternatives."},
+    {"package": "zustand", "version": "5.0.15", "published": "2026-08-13T00:39:55Z", "source": "npm view zustand version", "claim_supported": "Client scenario store with selector subscriptions.", "adopted": "PENDING - candidate; see rejected-alternatives."},
+    {"package": "@testing-library/react", "version": "16.3.2", "published": "2026-08-07T04:22:50Z", "source": "npm view @testing-library/react version", "claim_supported": "Component-behavior tests.", "adopted": true},
+    {"package": "@axe-core/playwright", "version": "4.13.0", "published": "2026-08-11T18:07:15Z", "source": "npm view @axe-core/playwright version", "claim_supported": "Automated WCAG 2.2 AA checks inside Playwright runs against the served export.", "adopted": true},
+    {"package": "eslint", "version": "10.8.1", "published": "2026-08-07T20:21:24Z", "source": "npm view eslint version", "claim_supported": "Lint and prohibited-pattern enforcement.", "adopted": true}
+  ],
+  "static_export_constraints_verified": {
+    "source": "Context7 MCP serving official Next.js docs and source: docs/01-app/02-guides/static-exports.mdx, packages/next/src/server/config.ts, packages/next/src/export/index.ts",
+    "access_date": "2026-08-16",
+    "facts": [
+      "output: 'export' is set in next.config; distDir defaults to 'out'.",
+      "i18n config THROWS under output:'export'. Therefore English/Spanish demonstration must be implemented as an application-level authored-locale mechanism, not Next.js i18n routing. This is a hard architectural constraint.",
+      "rewrites, redirects, and headers only WARN and do not take effect. Security headers are therefore deployment-dependent, never application-enforced - matching master prompt 4.3.",
+      "Intercepting routes THROW under export.",
+      "Server Actions THROW under export - the no-backend boundary is enforced by the build itself.",
+      "The default image optimization loader THROWS under export unless images.unoptimized is true or a custom loaderFile is supplied.",
+      "trailingSlash and skipTrailingSlashRedirect are the documented knobs affecting emitted file layout (/me.html vs /me/index.html)."
+    ],
+    "design_consequences": [
+      "Locale: authored English/Spanish content dictionaries selected client-side from PresentationState. No next-intl routing, no runtime translation service. Matches master prompt 16.2 prohibition on fake runtime translation.",
+      "Images: images.unoptimized = true with local checked-in assets only.",
+      "Headers/CSP: shipped as host recipes in docs, explicitly labelled deployment-dependent.",
+      "Server Actions / API routes / middleware: absent by construction; the export build fails if any is introduced, which is itself a release gate."
+    ]
+  },
+  "rejected_alternatives": [
+    {"rejected": "next-intl / next-i18next", "reason": "i18n config throws under output:'export'; routing-based locales would also multiply the static route census. Authored dictionaries are smaller and match the source's authored-locale model."},
+    {"rejected": "Redux Toolkit", "reason": "The transition kernel is already a pure reducer with an explicit command gateway. RTK adds middleware surface without adding required behaviour."},
+    {"rejected": "Storybook", "reason": "Master prompt 5 makes it optional and requires justification. The delivered product storyboard IS the Next.js application; a second component catalogue would duplicate state fixtures and risk divergence from the single ScenarioDomainState."},
+    {"rejected": "A charting library (Recharts/visx/d3)", "reason": "Master prompt 14.1.1 requires semantic HTML or accessible SVG with keyboard access and synchronized text/table equivalents. Hand-authored accessible SVG meets that directly; a canvas-based library would require building a parallel semantic DOM anyway."},
+    {"rejected": "A service worker / PWA shell", "reason": "Master prompt 4.1 makes it a separate client decision that the baseline must not imply."},
+    {"rejected": "Any CDN-hosted font, icon, or script", "reason": "Master prompt 4.3 forbids external-origin runtime requests. All fonts and assets are local or system-font fallbacks."}
+  ],
+  "design_pattern_research": {
+    "status": "PENDING",
+    "note": "Comparative enterprise/manufacturing UX pattern research (worklists, approval flows, offline indicators, safety-state communication, gloved-touch ergonomics) runs before the S1 design section on user experience. Recorded here so its absence is visible rather than silently skipped."
+  }
+}

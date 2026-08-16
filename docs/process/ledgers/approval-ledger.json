@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "entries": [
+    {
+      "decision_id": "APP-000",
+      "design_or_plan_version": "n/a (pre-design gate)",
+      "exact_question": "Two files named AVIIXA_Production_Product_Blueprint.md exist with different SHA-256 hashes. Which is the authoritative frozen source?",
+      "options": [
+        "Ron-project1 copy (sha256 47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27, 18565031 bytes)",
+        "Brain-project copy (sha256 c5c0db5467d0bcdf65d84246f82755fef6724b094b94424f48521f2704aef004)",
+        "Diff them first"
+      ],
+      "user_response_evidence": "AskUserQuestion answer: 'Ron-project1 copy (Recommended)'",
+      "scope_authorized": "Freeze /Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Production_Product_Blueprint.md as the single governing product source for this run. Brain-project copy recorded as a non-authoritative sibling; never read, merged, or cited.",
+      "gate_released": "Section 2.1 exact-source freeze; Section 0.1 duplicate-filename stop condition.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-001",
+      "design_or_plan_version": "n/a (pre-design gate)",
+      "exact_question": "No git repository exists at Ron-project1. Section 23.3 S0 requires selecting the lifecycle evidence mode before any source reading or design.",
+      "options": [
+        "Authorize git init in a new AVIIXA_Interactive_Storyboard/ subdirectory -> NATIVE_GIT_LIFECYCLE",
+        "MANUAL_HASH_SEALED_LIFECYCLE with SHA-256 sealed snapshot directories"
+      ],
+      "user_response_evidence": "AskUserQuestion answer: 'Authorize git init (Recommended)'",
+      "scope_authorized": "git init inside AVIIXA_Interactive_Storyboard/ only. Never touches sibling files in Ron-project1. LifecycleEvidenceMode = NATIVE_GIT_LIFECYCLE. Native worktree, commit, and base/head review evidence available. Both native execution modes reachable at S3.",
+      "gate_released": "Section 23.3 S0 lifecycle-mode pause; Section 23.3 S4 worktree prerequisite.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-002",
+      "design_or_plan_version": "n/a (pre-design gate)",
+      "exact_question": "Master prompt Section 23 mandates dispatching-parallel-agents and subagent-driven-development, but the harness system prompt forbids subagents and Workflow unless the user requests them. Which authority wins?",
+      "options": [
+        "Authorize agents + Workflow",
+        "Solo, no subagents",
+        "Agents for reading only"
+      ],
+      "user_response_evidence": "AskUserQuestion answer: 'Authorize agents + Workflow (Recommended)'",
+      "scope_authorized": "Workflow tool and parallel/dispatched subagents authorized for: source extraction, read-only inventory and audit waves, subagent-driven implementation, and independent code review at Section 23.3 S7. Satisfies the independence prerequisite that self-review cannot satisfy.",
+      "gate_released": "Section 23.3 S5 parallel dispatch; Section 23.3 S7 independent-review independence prerequisite.",
+      "superseded_by": null
+    }
+  ],
+  "pending_gates": [
+    {
+      "gate": "S1 design approval",
+      "status": "NOT_YET_REQUESTED",
+      "blocker": "Full-source read (36-chunk extraction wave) must complete first."
+    },
+    {
+      "gate": "S1 written-specification approval",
+      "status": "NOT_YET_REQUESTED",
+      "blocker": "Depends on S1 design approval."
+    },
+    {
+      "gate": "S3 execution-mode selection (subagent-driven-development vs executing-plans)",
+      "status": "NOT_YET_REQUESTED",
+      "blocker": "Depends on S2 plan completion."
+    }
+  ]
+}
