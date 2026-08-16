@@ -160,10 +160,18 @@ absolute path anywhere under `out/`, and that gate now also runs post-build.
 ### 5.1 Storage bootstrap state machine
 
 `uninitialized → client-mounted → opening → reading → runtime-validating →
-checksum-verifying → migrating (when required) → ready-durable`
+migrating (when required) → checksum-verifying → ready-durable`
 
 Failure exits: `upgrade-blocked` · `persistence-denied` · `quota-limited` ·
 `corrupt-quarantined` · `migration-failed-read-only` · `ephemeral-preview`.
+
+**Amendment.** An earlier draft placed `checksum-verifying` before `migrating`.
+The implementation does the reverse, and its reasoning is sound: a checksum
+computed over pre-migration bytes tells you nothing about the shape the
+application is about to read, so verifying before migrating verifies the wrong
+thing. The spec moved to match the implementation rather than leave a frozen
+contract and its code disagreeing — a disagreement between the two is worse than
+either order, because the next implementer cannot tell which is authoritative.
 
 **No default-persona flash.** Static HTML and first client paint render a neutral locked
 shell — no default role, tenant, work item, metric, notification, or confidential-looking
@@ -187,13 +195,41 @@ Durability is never inferred from a resolved promise.
 
 ### 5.3 `PersistenceCapability` action matrix
 
-`ready-durable` permits state-changing canonical story actions.
+The sixteen action classes are: `navigate` · `readFixture` · `presentation` ·
+`failurePreview` · `sandboxDemo` — the five that touch no durable store — and
+`durableEvidence` · `requiredAudit` · `captureAcceptance` · `queueAcceptance` ·
+`approval` · `publication` · `release` · `hold` · `synchronisation` ·
+`lifecycleChange` · `checkpointCredit` — the eleven that do.
 
-`ephemeral-preview` permits navigation, read-only fixture inspection, presentation changes,
-failure previews, and clearly labelled non-credit sandbox demonstration. It **blocks** every
-action representing durable evidence, required audit, capture acceptance, queue or command
-acceptance, approval, publication, release, hold, synchronisation, authoritative lifecycle
-change, or checkpoint credit.
+**The table is stated explicitly, not by rule of thumb.** An earlier draft said
+failure exits permit "at most the read-only classes". That is not a contract for
+81 modules to build against — it left an implementer to decide, privately, which
+classes counted. This is the same defect the frozen source names when it
+prohibits a blank permission-matrix cell.
+
+| Bootstrap state | Permitted action classes |
+|---|---|
+| `ready-durable` | all sixteen |
+| `ephemeral-preview` | the five non-durable classes |
+| `quota-limited` | `navigate`, `readFixture`, `presentation` |
+| `upgrade-blocked` | `navigate`, `readFixture`, `presentation` |
+| `migration-failed-read-only` | `navigate`, `readFixture`, `presentation` |
+| `persistence-denied` | `navigate`, `readFixture` |
+| `corrupt-quarantined` | `navigate`, `readFixture` |
+| every in-progress state | none |
+
+`presentation` is permitted on the three recoverable exits because it touches no
+store at all — blocking a density toggle on a read-only screen buys no safety and
+costs the reviewer something real. It stays blocked on `persistence-denied` and
+`corrupt-quarantined`, where the store's integrity is itself in question.
+
+`quota-limited`, `upgrade-blocked` and `migration-failed-read-only` are
+recoverable and uncorrupted; `persistence-denied` and `corrupt-quarantined` are
+not. Treating all five as one risk class would be simpler and wrong.
+
+An unmapped state permits nothing. The gate returns `false` rather than throwing,
+so a boolean consulted everywhere fails closed by refusing rather than by
+crashing.
 
 A persistence failure during an allowed canonical action keeps prior visible truth and
 refuses the action. It never falls back to a partially successful in-memory mutation.
