@@ -115,11 +115,17 @@ offline state is a defect.
 One primitive layer, documented in every state the umbrella spec §4 requires, and capable
 of expressing all thirteen screen states.
 
-`Button` · `LinkButton` · `Field` (label, description, error, required) · `Select` ·
+`Button` · `Field` (label, description, error, required) · `Select` ·
 `Checkbox` · `Table` (sort, density, empty, no-match, loading skeleton, error) ·
 `Dialog` · `Drawer` · `Tabs` · `Breadcrumbs` · `StatusPill` · `Banner` ·
 `Toast` · `LiveRegion` · `SkeletonBlock` · `EmptyState` · `FreshnessLabel` ·
-`PermissionNotice` · `ScreenStateBoundary`.
+`PermissionNotice` — seventeen — plus `ScreenStateBoundary`.
+
+An earlier draft of this list also named `LinkButton`. It was removed after
+review found it had no consumer in this slice and no implementing task. The
+global constraints forbid speculative code and scaffolding "for later", so it
+lands in whichever later slice genuinely needs a link styled as a button, rather
+than shipping unused now.
 
 `ScreenStateBoundary` is the one that carries the contract: given a `ScreenState`, it
 renders the default treatment for that state, and a screen overrides only where it
