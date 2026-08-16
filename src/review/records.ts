@@ -80,8 +80,8 @@ const _reviewSeveritiesExhaustive: _AssertReviewSeveritiesExhaustive = true
 /**
  * What has happened to a review record since it was written. Deliberately
  * none of these reads as an approval either -- `accepted` here means
- * "the client accepted this comment for consideration", not "the change
- * described in it was approved". See the module-level note above.
+ * "the client accepted this comment for consideration", never a sign-off
+ * on the change described in it. See the module-level note above.
  */
 export type ReviewDisposition = 'open' | 'accepted' | 'declined' | 'superseded'
 
