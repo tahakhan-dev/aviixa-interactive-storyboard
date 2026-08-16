@@ -49,8 +49,13 @@ const _reviewStatusesExhaustive: _AssertReviewStatusesExhaustive = true
 const COMMENT_REQUIRED_STATUSES: readonly ReviewStatus[] = ['needs-change', 'question']
 
 /**
- * How much a review comment matters, in the reviewer's own words -- never a
- * product severity, never a release-blocking classification. `question` here
+ * How much the reviewer thinks this comment matters -- a description of the
+ * reviewer's own assessment of the storyboard, and nothing more: it carries
+ * no production or release authority, and nothing in the product consumes
+ * it as a release gate. (Fix round 1, review, Minor 5: `blocking` here
+ * means "the reviewer considers this blocking to THEIR review", not a
+ * product release-blocking classification -- the previous wording denied
+ * that reading directly above the member that most invites it.) `question`
  * deliberately reuses the string `'question'` that also appears in
  * `ReviewStatus`: they are different closed vocabularies (one asks "what
  * kind of comment is this", the other "how much does it matter"), and the
@@ -197,19 +202,81 @@ export function createReviewRecord(input: CreateReviewRecordInput, clock: Clock)
 
 /**
  * Returns a NEW record marking `record` as superseded by `bySupersedingId`.
- * Records are append-only: this never mutates its argument. Superseding a
- * record with its own id is a cycle, not a supersession, and is refused.
+ * Records are append-only: this never mutates its argument.
+ *
+ * Refuses exactly two things, both checkable without a record set:
+ *   - superseding a record BY ITS OWN ID (`bySupersedingId === record.id`).
+ *     (Fix round 1, review, Minor 4: this comment used to say "a cycle, not
+ *     a supersession" -- true of this one case, but this function has no
+ *     record set, so it cannot detect a LONGER cycle, e.g. A -> B -> C -> A.
+ *     `supersedeWithinSet` below is the layer that knows the set and
+ *     refuses those too.)
+ *   - a clock that would move `updatedAtLogical` before `record`'s own
+ *     `createdAtLogical` (Minor 3: `app/review/page.tsx` seeds a fresh
+ *     wall-clock `fixedClock` per page load while review records are
+ *     durable across reloads, so a clock regression between sessions is
+ *     reachable in principle).
  */
 export function superseded(record: ReviewRecord, bySupersedingId: string, clock: Clock): ReviewRecord {
   if (bySupersedingId === record.id) {
     throw new Error('A review record cannot supersede itself')
   }
+  const updatedAtLogical = clock.now()
+  if (updatedAtLogical < record.createdAtLogical) {
+    throw new Error("A review record's updatedAtLogical must not precede its createdAtLogical")
+  }
   return {
     ...record,
     disposition: 'superseded',
     supersededBy: bySupersedingId,
-    updatedAtLogical: clock.now(),
+    updatedAtLogical,
   }
+}
+
+export type SupersedeResult =
+  | { readonly ok: true; readonly record: ReviewRecord }
+  | { readonly ok: false; readonly reason: string }
+
+/**
+ * The layer that KNOWS the record set (`superseded()` above does not --
+ * spec §2.1 acceptance: "`supersededBy` referencing a record that does not
+ * exist is refused," which `superseded()` alone cannot enforce). Refuses,
+ * with a typed result rather than a throw:
+ *   - a `bySupersedingId` that names no record in `knownRecords` (a
+ *     dangling reference)
+ *   - a supersession CYCLE of any length, not just the immediate
+ *     self-reference `superseded()` refuses on its own: walks the forward
+ *     `supersededBy` chain starting at `bySupersedingId`; if that walk ever
+ *     reaches `record.id`, accepting this supersession would close a loop
+ *     back to where it started (A -> B -> C -> A). The immediate
+ *     self-reference is the length-0 case of the same walk (the chain
+ *     starts AT `record.id`), so this subsumes `superseded()`'s own check
+ *     rather than duplicating it under a different rule.
+ * On success, delegates the actual record construction to `superseded()`.
+ */
+export function supersedeWithinSet(
+  knownRecords: readonly ReviewRecord[],
+  record: ReviewRecord,
+  bySupersedingId: string,
+  clock: Clock,
+): SupersedeResult {
+  const byId = new Map(knownRecords.map((r) => [r.id, r] as const))
+  if (!byId.has(bySupersedingId)) {
+    return { ok: false, reason: `supersededBy "${bySupersedingId}" does not reference a known record` }
+  }
+
+  let current: string | undefined = bySupersedingId
+  const walked = new Set<string>()
+  while (current !== undefined) {
+    if (current === record.id) {
+      return { ok: false, reason: `Superseding "${record.id}" by "${bySupersedingId}" would form a supersession cycle` }
+    }
+    if (walked.has(current)) break // an unrelated pre-existing cycle elsewhere; not this call's concern
+    walked.add(current)
+    current = byId.get(current)?.supersededBy ?? undefined
+  }
+
+  return { ok: true, record: superseded(record, bySupersedingId, clock) }
 }
 
 export function createReviewEvent(recordId: string, kind: string, clock: Clock): ReviewEvent {
