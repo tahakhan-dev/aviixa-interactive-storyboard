@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import {
   REVIEW_STATUSES,
+  REVIEW_SEVERITIES,
   createReviewRecord,
   type ReviewStatus,
+  type ReviewSeverity,
   type ReviewRecord,
 } from '@/review/records'
 import { putReviewRecord, listReviewRecords } from '@/review/store'
@@ -23,6 +25,18 @@ const STATUS_ACTION_LABEL: Record<ReviewStatus, string> = {
   'needs-change': 'Needs change',
   question: 'Question',
   comment: 'Comment',
+}
+
+// Fix round 1 (review, Major 1): `severity` used to be hardcoded to
+// 'minor' on every submission -- a real vocabulary member with no control
+// behind it, so a blocking defect was exported as 'minor' and no one could
+// tell from this shell. A reviewer's own assessment of how much a comment
+// matters, per `ReviewSeverity`'s doc comment in `@/review/records`.
+const SEVERITY_LABEL: Record<ReviewSeverity, string> = {
+  blocking: 'Blocking',
+  major: 'Major',
+  minor: 'Minor',
+  question: 'Needs clarification',
 }
 
 /**
@@ -48,6 +62,7 @@ export default function ReviewPage() {
   const [clock] = useState(() => fixedClock(Date.now()))
   const [reviewerLabel, setReviewerLabel] = useState('')
   const [surface, setSurface] = useState<SurfaceId>(SURFACES[0]?.id ?? 'SURF-SA')
+  const [severity, setSeverity] = useState<ReviewSeverity>('minor')
   const [note, setNote] = useState('')
   const [records, setRecords] = useState<readonly ReviewRecord[]>([])
   const [error, setError] = useState<string | undefined>(undefined)
@@ -60,6 +75,19 @@ export default function ReviewPage() {
   // this shell gets no special, unvalidated path to storage.
   useEffect(() => {
     let cancelled = false
+    // Fix round 1 (review, root cause behind Major 1's test hanging): the
+    // cleanup below used to only set `cancelled = true`. It had no way to
+    // reach the opened `IDBDatabase` -- `db` was scoped to `init()`, not
+    // this effect -- so once `storage.kind` became 'durable' the
+    // connection was NEVER closed on unmount, only in the narrow race
+    // where cleanup ran before the open resolved. A leaked connection
+    // blocks a later `indexedDB.deleteDatabase(...)` indefinitely (proven:
+    // a second component test that submits a durable-path note right
+    // after this page's existing one hung past an 8s wait, and even the
+    // test file's own un-awaited-then-awaited cleanup hook timed out at
+    // 10s). Tracking the db in the effect's own scope lets cleanup close
+    // it unconditionally.
+    let openedDb: IDBDatabase | undefined
 
     async function init(): Promise<void> {
       const factory = typeof indexedDB === 'undefined' ? null : indexedDB
@@ -91,6 +119,7 @@ export default function ReviewPage() {
         db.close()
         return
       }
+      openedDb = db
       setStorage({ kind: 'durable', db })
 
       const listed = await listReviewRecords(db)
@@ -100,6 +129,7 @@ export default function ReviewPage() {
     void init()
     return () => {
       cancelled = true
+      openedDb?.close()
     }
   }, [])
 
@@ -113,7 +143,7 @@ export default function ReviewPage() {
           surface,
           reviewerLabel: reviewerLabel.trim() === '' ? 'Unnamed reviewer' : reviewerLabel,
           status,
-          severity: 'minor',
+          severity,
           comment: note,
           // This shell is not yet wired to a live scenario snapshot or
           // build pipeline (that wiring is deferred); these three fields
@@ -212,6 +242,13 @@ export default function ReviewPage() {
           value={surface}
           onChange={(v) => setSurface(v as SurfaceId)}
           options={SURFACES.map((s) => ({ value: s.id, label: s.name }))}
+        />
+
+        <Select
+          label="Severity — how much this matters to you as the reviewer"
+          value={severity}
+          onChange={(v) => setSeverity(v as ReviewSeverity)}
+          options={REVIEW_SEVERITIES.map((s) => ({ value: s, label: SEVERITY_LABEL[s] }))}
         />
 
         <Field label="Note" description="A note is required for two of the four actions below.">
