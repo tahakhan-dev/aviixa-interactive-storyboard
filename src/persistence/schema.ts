@@ -11,6 +11,22 @@ export const DB_VERSION = 1
  * coordinator can `add()` (not `put()`) it and let a duplicate key -- a
  * replayed transition -- fail as a real key-collision instead of silently
  * overwriting the record of the transition it already committed.
+ *
+ * MINOR fix: `captures`, `reviewRecords` and `reviewEvents` were removed
+ * from this list. None had a writer or a reader anywhere in this slice --
+ * `Ledgers`/`LEDGER_KEYS` (`src/domain/state.ts`, `src/persistence/
+ * coordinator.ts`) are closed at exactly the five stores above, and neither
+ * review store nor `captures` is one of them. This is the identical
+ * situation `LinkButton` was removed from the design-primitives list for
+ * one slice ago: named without a consumer or an implementing task in 2a.
+ * Spec §5.2 does name "capture" in its prose list of record kinds a future
+ * commit may need to write atomically, but spec §6 explicitly assigns
+ * "evidence capture" -- and the review shell `reviewRecords`/`reviewEvents`
+ * would belong to -- to slice 2b, not 2a. A store with no writer is
+ * speculative schema, not working code; a later slice that adds a real
+ * writer for any of these should add the store back in the same commit
+ * that adds the writer, together with the `DB_VERSION` bump IndexedDB
+ * requires for a new store on an existing database.
  */
 export const STORES = [
   'snapshots',
@@ -19,10 +35,7 @@ export const STORES = [
   'commands',
   'notifications',
   'schedules',
-  'captures',
   'idempotency',
-  'reviewRecords',
-  'reviewEvents',
   'meta',
 ] as const
 
