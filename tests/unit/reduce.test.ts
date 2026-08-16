@@ -5,37 +5,61 @@ import { fixedClock, CANONICAL_EPOCH_MS } from '@/domain/clock'
 import { reduce } from '@/kernel/reduce'
 import type { ScenarioCommand } from '@/domain/commands'
 import type { TransitionContext } from '@/domain/transition'
+import type { IdentitySimulationState } from '@/domain/state'
+import type { RoleId } from '@/domain/roles'
 
 const RUN = scenarioRunId('RUN-001')
 const BRIGHT = tenantId('TEN-BRIGHTBIKES')
 const GHOST = tenantId('TEN-GHOST')
+const RIVALCO = tenantId('TEN-RIVALCO')
 
+// IMPORTANT 4: CC_RELEASE_LOT_HOLD now enforces MOD-CC-13 action 4's
+// precondition (the lot must currently be HELD), so the standard fixture
+// seeds one held lot matching `releaseHold`'s lotId.
 function baseState() {
   return withTenant(emptyDomainState(RUN), BRIGHT, (p) => ({
     ...p,
     displayName: 'Bright Bikes',
     lifecycleState: 'ACTIVE' as const,
+    objects: { 'lot:LOT-2201': { state: 'HELD' } },
   }))
 }
 
-function context(role: 'QUALITY_MANAGER' | 'SUPERVISOR'): TransitionContext {
+function identityFor(role: RoleId, tenant: typeof BRIGHT | null): IdentitySimulationState {
+  return {
+    signedIn: true,
+    role,
+    tenant,
+    siteScope: ['SITE-RIVERSIDE'],
+    areaScope: ['AREA-ASSEMBLY'],
+    qualifications: [],
+    deviceId: null,
+    stepUpActive: false,
+    accessSessionId: null,
+  }
+}
+
+function context(role: 'QUALITY_MANAGER' | 'SUPERVISOR' | 'TENANT_ADMIN'): TransitionContext {
   return {
     clock: fixedClock(CANONICAL_EPOCH_MS),
-    identity: {
-      signedIn: true,
-      role,
-      tenant: BRIGHT,
-      siteScope: ['SITE-RIVERSIDE'],
-      areaScope: ['AREA-ASSEMBLY'],
-      qualifications: [],
-      deviceId: null,
-      stepUpActive: false,
-      accessSessionId: null,
-    },
+    identity: identityFor(role, BRIGHT),
     online: true,
     deviceTrusted: true,
     actorOfRecord: 'PERSON-QM',
     correlationId: correlationId('COR-1'),
+    failureInjection: null,
+  }
+}
+
+/** A platform-domain context: no ambient tenant (CRITICAL 2). */
+function platformContext(role: 'ROOT_SUPER_ADMIN' | 'ADMIN'): TransitionContext {
+  return {
+    clock: fixedClock(CANONICAL_EPOCH_MS),
+    identity: identityFor(role, null),
+    online: true,
+    deviceTrusted: true,
+    actorOfRecord: 'PERSON-PLATFORM',
+    correlationId: correlationId('COR-PLATFORM'),
     failureInjection: null,
   }
 }
@@ -48,17 +72,7 @@ function context(role: 'QUALITY_MANAGER' | 'SUPERVISOR'): TransitionContext {
 function contextForUnknownTenant(): TransitionContext {
   return {
     clock: fixedClock(CANONICAL_EPOCH_MS),
-    identity: {
-      signedIn: true,
-      role: 'QUALITY_MANAGER',
-      tenant: GHOST,
-      siteScope: ['SITE-RIVERSIDE'],
-      areaScope: ['AREA-ASSEMBLY'],
-      qualifications: [],
-      deviceId: null,
-      stepUpActive: false,
-      accessSessionId: null,
-    },
+    identity: identityFor('QUALITY_MANAGER', GHOST),
     online: true,
     deviceTrusted: true,
     actorOfRecord: 'PERSON-QM',
@@ -84,10 +98,26 @@ describe('transition kernel', () => {
   // MOD-CC-13 action 4: Quality Manager only.
   it('denies a Supervisor releasing a lot hold and leaves state untouched', async () => {
     const before = baseState()
+    const snapshot = JSON.stringify(before)
     const t = await reduce(before, releaseHold, context('SUPERVISOR'))
     expect(t.status).toBe('denied')
     expect(t.decision.reasonCode).toBe('ROLE_NOT_GRANTED')
     expect(t.nextState).toBe(null)
+    // The test's own name promises this second clause too: leaves state
+    // untouched, not just "returns no next state."
+    expect(JSON.stringify(before)).toBe(snapshot)
+  })
+
+  // DEC-PLUS-001 / IMPORTANT 6: Tenant Admin is EXPLICITLY PROHIBITED on all
+  // ten Command Center operational actions — a denial, not an absence —
+  // so it must audit as EXPLICIT_DENY / RECORDED_AS_REFUSAL, leaving a
+  // trace, rather than a silent, untraceable ROLE_NOT_GRANTED.
+  it('denies a Tenant Admin releasing a lot hold as an explicit, audited denial', async () => {
+    const t = await reduce(baseState(), releaseHold, context('TENANT_ADMIN'))
+    expect(t.status).toBe('denied')
+    expect(t.decision.reasonCode).toBe('EXPLICIT_DENY')
+    expect(t.decision.auditExpectation).toBe('RECORDED_AS_REFUSAL')
+    expect(t.audit).toHaveLength(1)
   })
 
   it('never throws on an illegal transition', async () => {
@@ -97,6 +127,30 @@ describe('transition kernel', () => {
       context('QUALITY_MANAGER'),
     )
     expect(['denied', 'validationFailed']).toContain(t.status)
+  })
+
+  // IMPORTANT 4: MOD-CC-13 action 4's precondition is enforced by the
+  // kernel, not merely declared. A lot that was never held, or a lot that
+  // does not exist, cannot be "released."
+  it('denies releasing a hold on a lot that was never held', async () => {
+    const t = await reduce(
+      baseState(),
+      { type: 'CC_RELEASE_LOT_HOLD', tenant: BRIGHT, lotId: 'LOT-NEVER-HELD', note: 'x' },
+      context('QUALITY_MANAGER'),
+    )
+    expect(t.status).toBe('denied')
+    expect(t.decision.reasonCode).toBe('OBJECT_STATE_INVALID')
+    expect(t.nextState).toBe(null)
+  })
+
+  it('denies releasing a hold on a lot that is already released', async () => {
+    const alreadyReleased = withTenant(baseState(), BRIGHT, (p) => ({
+      ...p,
+      objects: { ...p.objects, 'lot:LOT-2201': { state: 'RELEASED' } },
+    }))
+    const t = await reduce(alreadyReleased, releaseHold, context('QUALITY_MANAGER'))
+    expect(t.status).toBe('denied')
+    expect(t.decision.reasonCode).toBe('OBJECT_STATE_INVALID')
   })
 
   // MOD-DOH-17: the audit record is part of the same transition as the action.
@@ -160,17 +214,20 @@ describe('transition kernel', () => {
   it('gives every result a plain-language explanation', async () => {
     const t = await reduce(baseState(), releaseHold, context('SUPERVISOR'))
     expect(t.decision.explanation.length).toBeGreaterThan(20)
+    // A bare all-caps identifier (e.g. "ROLE_NOT_GRANTED_SOMETHING_LONG")
+    // would pass a length-only check. It must not pass this one.
+    expect(t.decision.explanation).not.toMatch(/^[A-Z_]+$/)
   })
 
   // CRITICAL 1 red-proof: a Quality Manager signed into BRIGHT must not be
   // able to release a hold on a RIVALCO lot just by naming RIVALCO's tenant
   // id in the command.
-  it('CRITICAL 1 RED-PROOF: denies a cross-tenant write instead of executing it', async () => {
-    const RIVALCO = tenantId('TEN-RIVALCO')
+  it('CRITICAL 1: denies a cross-tenant write instead of executing it', async () => {
     const state = withTenant(baseState(), RIVALCO, (p) => ({
       ...p,
       displayName: 'Rival Co',
       lifecycleState: 'ACTIVE' as const,
+      objects: { 'lot:LOT-RIVAL-1': { state: 'HELD' } },
     }))
     const crossTenantCommand: ScenarioCommand = {
       type: 'CC_RELEASE_LOT_HOLD',
@@ -181,16 +238,99 @@ describe('transition kernel', () => {
     const t = await reduce(state, crossTenantCommand, context('QUALITY_MANAGER'))
     expect(t.status).not.toBe('accepted')
     expect(t.nextState).toBe(null)
+    expect(t.decision.reasonCode).toBe('TENANT_MISMATCH')
+    // The victim tenant's audit trail must show the refusal, not nothing.
+    expect(t.decision.auditExpectation).toBe('RECORDED_AS_REFUSAL')
+    expect(t.audit).toHaveLength(1)
   })
 
   // CRITICAL 3 red-proof: an unhashable state must degrade to a typed
   // denial, never an unhandled promise rejection.
-  it('CRITICAL 3 RED-PROOF: returns a typed denial instead of throwing when state cannot be hashed', async () => {
+  it('CRITICAL 3: returns a typed denial instead of throwing when state cannot be hashed', async () => {
     const corrupt = withTenant(baseState(), BRIGHT, (p) => ({
       ...p,
       objects: { ...p.objects, 'bad-record': new Date() },
     }))
     const t = await reduce(corrupt, releaseHold, context('QUALITY_MANAGER'))
     expect(t.status).not.toBe('accepted')
+    expect(t.decision.explanation).toMatch(/Date/)
+    expect(t.nextState).toBe(null)
+  })
+
+  // IMPORTANT 7: within one accepted transition, the event and audit
+  // records must not collide on id even though they currently share a kind
+  // and sequence number.
+  it('gives the event and audit records of one accepted transition distinct ids', async () => {
+    const t = await reduce(baseState(), releaseHold, context('QUALITY_MANAGER'))
+    expect(t.events[0]?.id).toBeTruthy()
+    expect(t.audit[0]?.id).toBeTruthy()
+    expect(t.events[0]?.id).not.toBe(t.audit[0]?.id)
+  })
+
+  // IMPORTANT 7: two denials against the same unchanged state (so `seq` is
+  // identical both times) sharing one Clock must still get distinct ids —
+  // this is the literal "two consecutive refusals" case from the review.
+  it('gives two consecutive refusals sharing one clock distinct audit-record ids', async () => {
+    const sharedCtx = contextForUnknownTenant()
+    const t1 = await reduce(baseState(), releaseHold, sharedCtx)
+    const t2 = await reduce(baseState(), releaseHold, sharedCtx)
+    expect(t1.audit[0]?.id).toBeTruthy()
+    expect(t2.audit[0]?.id).toBeTruthy()
+    expect(t1.audit[0]?.id).not.toBe(t2.audit[0]?.id)
+  })
+
+  // MINOR 9: refuse()'s reported sequence must agree with the sequence its
+  // own audit record was built with, instead of a hardcoded 0.
+  it('agrees on sequence number between a denial and its own audit record', async () => {
+    const t = await reduce(baseState(), releaseHold, contextForUnknownTenant())
+    expect(t.sequence).toBe(t.audit[0]?.sequence)
+  })
+
+  // Uncovered command families: PLATFORM_SET_FEATURE_CONTROL is
+  // platform-scoped (no tenant at all — CRITICAL 2's PLATFORM-domain path).
+  it('accepts a platform-domain PLATFORM_SET_FEATURE_CONTROL command', async () => {
+    const t = await reduce(
+      baseState(),
+      { type: 'PLATFORM_SET_FEATURE_CONTROL', feature: 'AI_COACHING', enabled: true },
+      platformContext('ADMIN'),
+    )
+    expect(t.status).toBe('accepted')
+    expect(t.nextState?.platform.featureControls['AI_COACHING']).toBe(true)
+  })
+
+  it('denies a Quality Manager attempting a platform-scoped command', async () => {
+    const t = await reduce(
+      baseState(),
+      { type: 'PLATFORM_SET_FEATURE_CONTROL', feature: 'AI_COACHING', enabled: true },
+      context('QUALITY_MANAGER'),
+    )
+    expect(t.status).toBe('denied')
+  })
+
+  // Uncovered command family: TENANT_SET_DESIRED_FEATURE, a tenant-scoped
+  // command whose resourceTenant must also be enforced (CRITICAL 1).
+  it('accepts a Tenant Admin setting a desired feature value for their own tenant', async () => {
+    const t = await reduce(
+      baseState(),
+      { type: 'TENANT_SET_DESIRED_FEATURE', tenant: BRIGHT, feature: 'AI_COACHING', enabled: true },
+      context('TENANT_ADMIN'),
+    )
+    expect(t.status).toBe('accepted')
+    expect(t.nextState?.tenants[BRIGHT]?.desiredFeatureValues['AI_COACHING']).toBe(true)
+  })
+
+  it('denies a Tenant Admin setting a desired feature value for another tenant', async () => {
+    const state = withTenant(baseState(), RIVALCO, (p) => ({
+      ...p,
+      displayName: 'Rival Co',
+      lifecycleState: 'ACTIVE' as const,
+    }))
+    const t = await reduce(
+      state,
+      { type: 'TENANT_SET_DESIRED_FEATURE', tenant: RIVALCO, feature: 'AI_COACHING', enabled: true },
+      context('TENANT_ADMIN'), // signed into BRIGHT, targets RIVALCO
+    )
+    expect(t.status).not.toBe('accepted')
+    expect(t.decision.reasonCode).toBe('TENANT_MISMATCH')
   })
 })
