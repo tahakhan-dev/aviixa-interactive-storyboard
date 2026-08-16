@@ -1,6 +1,13 @@
 import type { Clock } from '@/domain/clock'
 import type { SurfaceId } from '@/domain/surfaces'
 
+// Failure-signalling convention (documented in full at the top of
+// `@/review/store`): `createReviewRecord` below is synchronous and throws on
+// an invalid caller-controlled argument (a required comment left empty) --
+// that is a programming error in the immediate caller, not an IO failure, so
+// it is exempt from the "never throw" rule that governs this module's IO
+// boundary (`@/review/store`'s `putReviewRecord`/`listReviewRecords`/
+// `resetReview`).
 /**
  * Deliberately none of these reads as an approval. The frozen source's own
  * product review chain (Author -> Reviewer -> Release Authority) grants
@@ -10,12 +17,33 @@ import type { SurfaceId } from '@/domain/surfaces'
  */
 export type ReviewStatus = 'accepted-for-review' | 'needs-change' | 'question' | 'comment'
 
-export const REVIEW_STATUSES: readonly ReviewStatus[] = [
+// I3 (final review): this used to be annotated `readonly ReviewStatus[]`,
+// which WIDENS the literal array back to the union type -- TypeScript then
+// has no way to tell "this array lists every member of the union" from
+// "this array lists three of the four members," so a status added to
+// `ReviewStatus` without a matching entry here is not a compile error.
+// `satisfies` keeps the literal tuple type (so the exhaustiveness check
+// below can verify it) while still checking every element is a valid
+// `ReviewStatus`.
+export const REVIEW_STATUSES = [
   'accepted-for-review',
   'needs-change',
   'question',
   'comment',
-] as const
+] as const satisfies readonly ReviewStatus[]
+
+// Compile-time exhaustiveness check: fails to compile if `ReviewStatus`
+// gains (or loses) a member that `REVIEW_STATUSES` does not list exactly
+// once. `(typeof REVIEW_STATUSES)[number]` is the literal union actually
+// present in the array; this only type-checks if it is identical to
+// `ReviewStatus` in both directions.
+type _AssertReviewStatusesExhaustive = [ReviewStatus] extends [(typeof REVIEW_STATUSES)[number]]
+  ? [(typeof REVIEW_STATUSES)[number]] extends [ReviewStatus]
+    ? true
+    : never
+  : never
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- type-only compile-time check
+const _reviewStatusesExhaustive: _AssertReviewStatusesExhaustive = true
 
 /** A change request with no text is not actionable. */
 const COMMENT_REQUIRED_STATUSES: readonly ReviewStatus[] = ['needs-change', 'question']
