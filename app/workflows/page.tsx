@@ -59,7 +59,7 @@ const WORKFLOW_ROWS: readonly TableRow[] = WORKFLOW_REGISTRY.map((r) => ({
   extractionCoverage:
     r.collapsedFrom > 1 ? (
       <StatusPill
-        tone="info"
+        tone="attention"
         icon="ℹ"
         label={`Represents ${r.collapsedFrom} extracted entries — could not be separated, the source did not give them distinct identifiers`}
       />
