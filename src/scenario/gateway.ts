@@ -108,19 +108,60 @@ function isMalformedState(state: unknown): boolean {
 }
 
 /**
+ * Final review BLOCKING 1: `ctx` was never guarded the way `state`/`command`
+ * are, so a malformed `ctx` reached `reduce()`, which dereferences
+ * `ctx.clock.now()` unconditionally as its first read of the argument. A
+ * missing or non-callable `clock.now` threw a raw TypeError straight out of
+ * the "never throws" gateway. Checked here, before `reduce` is ever called.
+ */
+function isMalformedContext(ctx: unknown): boolean {
+  if (typeof ctx !== 'object' || ctx === null) return true
+  const clock = (ctx as { clock?: unknown }).clock
+  if (typeof clock !== 'object' || clock === null) return true
+  return typeof (clock as { now?: unknown }).now !== 'function'
+}
+
+/**
+ * Final review BLOCKING 1: `deps` was never guarded either. `deps.storageState`
+ * is read (in `permittedUnder(deps.storageState, ...)`) before `deps.db` is
+ * ever touched, so a null/undefined `deps` threw a TypeError reading
+ * `storageState` off it. A `deps` of `{}` sailed past that -- `storageState`
+ * was simply `undefined`, and `permittedUnder` fails closed on an unmapped
+ * key (see capability.ts), so the caller got back `blockedBy: 'capability'`
+ * with a reason blaming "the current storage mode" -- FALSE, there was no
+ * storage state to consult at all. This is exactly the same category error
+ * `actionClassFor`'s missing `default` produced for `command` (fix round 1),
+ * now fixed for `deps` too: a caller supplying no dependencies is an input
+ * problem, never a capability verdict.
+ */
+function isMalformedDeps(deps: unknown): boolean {
+  return (
+    typeof deps !== 'object' ||
+    deps === null ||
+    !('db' in deps) ||
+    !('storageState' in deps)
+  )
+}
+
+/**
  * The one and only path to a domain mutation. Runs four stages in order and
  * stops at the first refusal; never throws -- every stage's failure,
- * including a caller passing a missing argument, is a typed `GatewayResult`,
- * never an exception a caller must catch.
+ * including a caller passing a missing or malformed argument in ANY of the
+ * four positions (`state`, `command`, `ctx`, `deps`), is a typed
+ * `GatewayResult`, never an exception a caller must catch. (Final review
+ * BLOCKING 1: this comment used to claim all four while only `state` and
+ * `command` were actually guarded -- `ctx` and `deps` threw. All four are
+ * now guarded before any of them is dereferenced.)
  *
- * 0. Input: any malformed `state` or `command` -- not just falsy, but any
- *    shape missing the field the next stage would dereference -- is refused
- *    immediately, with `blockedBy: 'input'`. Neither `actionClassFor` (which
- *    reads `command.type`) nor `reduce` (which reads `state.sequence`,
- *    including inside ITS OWN catch-all) is safe to call with either
- *    malformed, so this must run before either is ever reached. An
- *    unrecognised (but structurally well-formed) command type is caught
- *    right after, for the same reason.
+ * 0. Input: any malformed `state`, `command`, `ctx` or `deps` -- not just
+ *    falsy, but any shape missing the field the next stage would dereference
+ *    -- is refused immediately, with `blockedBy: 'input'`. `actionClassFor`
+ *    reads `command.type`; `permittedUnder` reads `deps.storageState`;
+ *    `reduce` reads `state.sequence` and `ctx.clock.now()` (including inside
+ *    its own catch-all); `commitTransition` reads `deps.db`. None of those
+ *    is safe to call with its argument malformed, so all four are checked
+ *    before any of them is ever reached. An unrecognised (but structurally
+ *    well-formed) command type is caught right after, for the same reason.
  * 1. Capability: a durable command is refused here, before the kernel ever
  *    runs, if storage cannot durably record it -- a kernel run that cannot
  *    be committed is a transition that half-happened, so no kernel work
@@ -160,6 +201,26 @@ export async function dispatch(
       ok: false,
       reason:
         'The scenario state supplied to the gateway was not a valid state object, so no action could be attempted. Nothing was changed.',
+      decision: null,
+      blockedBy: 'input',
+    }
+  }
+  // Final review BLOCKING 1: `ctx` and `deps` guarded on the same footing as
+  // `state`/`command` above -- see `isMalformedContext`/`isMalformedDeps`.
+  if (isMalformedContext(ctx)) {
+    return {
+      ok: false,
+      reason:
+        'The transition context supplied to the gateway was not a valid context object with a working clock, so no action could be attempted. Nothing was changed.',
+      decision: null,
+      blockedBy: 'input',
+    }
+  }
+  if (isMalformedDeps(deps)) {
+    return {
+      ok: false,
+      reason:
+        'The dependencies supplied to the gateway did not include a database handle and a storage state, so no action could be attempted. Nothing was changed.',
       decision: null,
       blockedBy: 'input',
     }

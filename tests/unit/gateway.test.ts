@@ -153,4 +153,61 @@ describe('scenario command gateway', () => {
       expect(result.reason).not.toMatch(/storage mode/i)
     }
   })
+
+  // BLOCKING 1 (final review): `ctx` and `deps` were never guarded the way
+  // `state`/`command` were. A malformed `ctx` (missing/broken `clock`) threw
+  // a raw TypeError out of `reduce`'s `ctx.clock.now()`; a null/undefined
+  // `deps` threw reading `deps.storageState`; a `deps` of `{}` was
+  // misclassified as `blockedBy: 'capability'` with a reason blaming "the
+  // current storage mode" -- false, storage was never consulted because
+  // there was no storage state to consult. This is the same 7-shape probe
+  // the finding used: null, undefined, {}, 5, 'x', [], true.
+  const CTX_DEPS_SHAPES: readonly unknown[] = [null, undefined, {}, 5, 'x', [], true]
+
+  describe('refuses every malformed ctx/deps shape as blockedBy: input, not a throw', () => {
+    CTX_DEPS_SHAPES.forEach((shape, i) => {
+      it(`ctx shape #${i} (${JSON.stringify(shape) ?? 'undefined'}) refuses without throwing and writes nothing`, async () => {
+        let threw = false
+        let result: Awaited<ReturnType<typeof dispatch>> | null = null
+        try {
+          result = await dispatch(state(), RELEASE, shape as never, { db, storageState: 'ready-durable' })
+        } catch { threw = true }
+        expect(threw).toBe(false)
+        expect(result?.ok).toBe(false)
+        if (result && !result.ok) {
+          expect(result.blockedBy).toBe('input')
+          expect(result.reason.length).toBeGreaterThan(20)
+        }
+        for (const store of PRODUCT_STORES) {
+          const rows = await new Promise<unknown[]>((res) => {
+            const r = db.transaction(store, 'readonly').objectStore(store).getAll()
+            r.onsuccess = () => res(r.result)
+          })
+          expect(rows).toEqual([])
+        }
+      })
+
+      it(`deps shape #${i} (${JSON.stringify(shape) ?? 'undefined'}) refuses without throwing, never blaming storage mode`, async () => {
+        let threw = false
+        let result: Awaited<ReturnType<typeof dispatch>> | null = null
+        try {
+          result = await dispatch(state(), RELEASE, ctx('QUALITY_MANAGER'), shape as never)
+        } catch { threw = true }
+        expect(threw).toBe(false)
+        expect(result?.ok).toBe(false)
+        if (result && !result.ok) {
+          expect(result.blockedBy).toBe('input')
+          expect(result.reason.length).toBeGreaterThan(20)
+          expect(result.reason).not.toMatch(/storage mode/i)
+        }
+        for (const store of PRODUCT_STORES) {
+          const rows = await new Promise<unknown[]>((res) => {
+            const r = db.transaction(store, 'readonly').objectStore(store).getAll()
+            r.onsuccess = () => res(r.result)
+          })
+          expect(rows).toEqual([])
+        }
+      })
+    })
+  })
 })
