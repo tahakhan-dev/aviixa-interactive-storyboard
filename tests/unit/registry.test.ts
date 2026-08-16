@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { z } from 'zod'
-import { loadRegistry, SourceReferenceSchema } from '@/registry/load'
+import { loadRegistry, SourceReferenceSchema, SOURCE_CLASSIFICATIONS } from '@/registry/load'
 
 describe('registry loading', () => {
   it('accepts a valid record', () => {
@@ -26,12 +26,24 @@ describe('registry loading', () => {
     ).toThrow(/source reference/)
   })
 
-  it('rejects an unknown classification value', () => {
-    expect(() =>
+  // Deferred finding: the original assertion was a bare `.toThrow()`, which
+  // passes on ANY thrown error regardless of content -- it would stay green
+  // even if the message stopped naming the offending field or the valid
+  // classifications, i.e. even if the error became undiagnosable. Assert the
+  // message actually carries both, so the test fails the moment it does not.
+  it('rejects an unknown classification value, naming the field and the valid classifications', () => {
+    try {
       loadRegistry(SourceReferenceSchema, {
         id: 'X', label: 'x', classification: 'Made Up', locator: '§1',
-      }, 'source reference'),
-    ).toThrow()
+      }, 'source reference')
+      throw new Error('should have thrown')
+    } catch (e) {
+      const message = String(e)
+      expect(message).toContain('"classification"')
+      for (const valid of SOURCE_CLASSIFICATIONS) {
+        expect(message).toContain(valid)
+      }
+    }
   })
 
   // Brief defect fixed: the original assertion was `toMatch(/a/)`, which the

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
 import { SCREEN_STATES } from '@/ui/screen-state'
+import type { SurfaceId } from '@/domain/surfaces'
 
 describe('ScreenStateBoundary', () => {
   it('renders a distinguishable treatment for every one of the thirteen states', () => {
@@ -42,10 +43,19 @@ describe('ScreenStateBoundary', () => {
   })
 
   // Frozen source: only the Frontline surface has a true offline state.
-  it('throws when a non-Frontline surface asks for the offline state', () => {
-    expect(() =>
-      render(<ScreenStateBoundary state="STATE-07" surface="SURF-DOH" />),
-    ).toThrow(/only the frontline/i)
+  // Deferred finding: the original test exercised SURF-DOH only, which a
+  // narrower implementation hard-coded to that one surface would also
+  // satisfy. Loop over all four non-Frontline surfaces so this actually
+  // proves the check is generic, and assert SURF-FL is exempt.
+  it('throws on every non-Frontline surface asking for the offline state, and only those', () => {
+    const nonFrontline: SurfaceId[] = ['SURF-SA', 'SURF-DOH', 'SURF-STU', 'SURF-CC']
+    for (const surface of nonFrontline) {
+      expect(
+        () => render(<ScreenStateBoundary state="STATE-07" surface={surface} />),
+        surface,
+      ).toThrow(/only the frontline/i)
+    }
+    expect(() => render(<ScreenStateBoundary state="STATE-07" surface="SURF-FL" />)).not.toThrow()
   })
 
   it('allows the offline state on the Frontline surface', () => {

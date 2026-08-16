@@ -134,6 +134,38 @@ describe('atomic commit', () => {
   // events, commands, notifications and schedules have all already been
   // queued successfully in this transaction, so this proves the abort
   // rolls back everything already queued, not merely the failing store.
+  // Deferred coverage finding (persistence review): the plain-data pre-check
+  // (firstNonPlainDataReason -> canonicalSerialize) intercepts every value
+  // the earlier tests in this file threw at the in-transaction synchronous
+  // put()-throw catch, so that catch block (coordinator.ts's `catch (err) {
+  // abortReason = ...; tx.abort() }` around the store.put()/add() calls) was
+  // never actually exercised by any test.
+  //
+  // canonicalSerialize DOES have a gap: for an array it walks `.map(...)`
+  // over indices 0..length-1 only, so a non-index own property attached
+  // directly to an array is invisible to it and does not fail the
+  // pre-check. Node's real `structuredClone` -- what fake-indexeddb's
+  // synchronous put()/add() actually calls via cloneValueForInsertion --
+  // clones ALL own enumerable array properties, index or not, and throws a
+  // DataCloneError synchronously on a function value found there. A
+  // function "hidden" on a non-index array property is therefore a value
+  // canonicalSerialize accepts but the in-transaction clone still
+  // synchronously rejects: the one case the pre-check does not close, and
+  // the only way to reach the previously-dead catch.
+  it('aborts via the in-transaction synchronous put() throw when a value escapes the pre-check (a function on a non-index array property)', async () => {
+    const smuggled: unknown = Object.assign([1, 2, 3], { hiddenFn: () => {} })
+    const bad = proposed({
+      audit: [
+        { id: 'A-1', sequence: 1, logicalTime: 0, tenant: null, kind: 'X', payload: { items: smuggled } },
+      ],
+    })
+    const r = await commitTransition(db, bad)
+    expect(r.ok).toBe(false)
+    for (const store of ['snapshots', 'audit']) {
+      expect((await allRows(db, store)).length, store).toBe(0)
+    }
+  })
+
   it('aborts the whole transaction on an ASYNCHRONOUS request error (idempotency replay), not just a synchronous throw', async () => {
     await new Promise<void>((res, rej) => {
       const tx = db.transaction('idempotency', 'readwrite')
