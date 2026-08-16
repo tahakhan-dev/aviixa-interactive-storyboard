@@ -54,6 +54,14 @@ describe('no runtime backend', () => {
 describe('source confidentiality', () => {
   const shipped = walk('out')
 
+  // IMPORTANT 2: a missing or empty out/ must be a HARD FAILURE, never a
+  // vacuous pass. walk() silently returns [] when out/ does not exist, which
+  // let the two scans below "pass" while scanning zero files -- exactly the
+  // scenario where a stale or absent build ships a leak undetected.
+  it('scans a non-empty release artifact', () => {
+    expect(shipped.length).toBeGreaterThan(0)
+  })
+
   it('leaks no blueprint filename into the release artifact', () => {
     const offenders = shipped.filter((f) =>
       readFileSync(f, 'utf8').includes('AVIIXA_Production_Product_Blueprint'),

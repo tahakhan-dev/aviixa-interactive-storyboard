@@ -20,10 +20,15 @@ export interface Ledgers {
   readonly schedules: readonly LedgerRecord[]
 }
 
+/** A tenant's subscription tier: the entitlements it carries. IMPORTANT 3. */
+export interface TierDefinition {
+  readonly entitlements: readonly string[]
+}
+
 /** Platform-owned truth. Written once, read by every eligible tenant view. */
 export interface PlatformPartition {
   readonly featureControls: Readonly<Record<string, boolean>>
-  readonly tiers: Readonly<Record<string, unknown>>
+  readonly tiers: Readonly<Record<string, TierDefinition>>
   readonly severityCatalog: readonly string[]
   /** DEC-TAX-002: the seeded catalogue ships empty. The names are owed. */
   readonly seededJobTypes: readonly string[]
@@ -42,6 +47,14 @@ export interface TenantPartition {
     | 'COMPLIANCE_SUSPENDED'
     | 'ARCHIVED'
   readonly desiredFeatureValues: Readonly<Record<string, boolean>>
+  /**
+   * IMPORTANT 3: which entry of `PlatformPartition.tiers` this tenant is on.
+   * Empty string means "no tier assigned" -- the entitlement check (stage 5)
+   * reads `state.platform.tiers[tier]` and fails closed when that lookup
+   * misses, so an unassigned tenant never inherits an entitlement it was
+   * never actually granted.
+   */
+  readonly tier: string
   readonly objects: Readonly<Record<string, unknown>>
 }
 
@@ -60,6 +73,17 @@ export interface IdentitySimulationState {
   readonly tenant: TenantId | null
   readonly siteScope: readonly string[]
   readonly areaScope: readonly string[]
+  /**
+   * IMPORTANT 3 (stage 4 scope intersection). Optional -- not every identity
+   * fixture needs to think about shift scope, so existing fixtures that omit
+   * it are unaffected; when a request declares `requiredShifts`, an absent
+   * `shiftScope` fails closed exactly like an absent `siteScope` entry would.
+   */
+  readonly shiftScope?: readonly string[]
+  /** IMPORTANT 3 (stage 4): which specific object ids this identity may touch. */
+  readonly objectScope?: readonly string[]
+  /** IMPORTANT 3 (stage 4): named temporary grants currently held. */
+  readonly temporaryGrants?: readonly string[]
   readonly qualifications: readonly string[]
   readonly deviceId: string | null
   readonly stepUpActive: boolean
@@ -88,7 +112,23 @@ const EMPTY_TENANT: TenantPartition = {
   displayName: '',
   lifecycleState: 'PROVISIONING',
   desiredFeatureValues: {},
+  tier: '',
   objects: {},
+}
+
+/**
+ * CRITICAL 1(b): a null-prototype map so a tenant id that happens to spell a
+ * prototype member ('constructor', '__proto__', 'toString', ...) can never
+ * resolve to an inherited value via bracket access. This is defence in
+ * depth, not the primary fix -- `tenantPartition` below (CRITICAL 1(a)) is
+ * the actual choke point every caller must go through, because a
+ * null-prototype object does not survive `{...obj}` (object-spread always
+ * produces an Object.prototype-based result), and this map WILL cross a
+ * JSON/structuredClone boundary once a later slice's persistence layer
+ * exists, which also does not preserve a null prototype.
+ */
+function emptyTenantsMap(): Record<string, TenantPartition> {
+  return Object.create(null) as Record<string, TenantPartition>
 }
 
 export function emptyDomainState(runId: ScenarioRunId): ScenarioDomainState {
@@ -102,7 +142,7 @@ export function emptyDomainState(runId: ScenarioRunId): ScenarioDomainState {
       seededServiceTypes: [],
       objects: {},
     },
-    tenants: {},
+    tenants: emptyTenantsMap(),
     ledgers: {
       audit: [],
       events: [],
@@ -114,11 +154,20 @@ export function emptyDomainState(runId: ScenarioRunId): ScenarioDomainState {
   }
 }
 
+/**
+ * CRITICAL 1(a): the one safe way to look up a tenant partition. `Object.
+ * hasOwn` never consults the prototype chain, so a tenant id that spells
+ * 'constructor', '__proto__', 'toString', 'hasOwnProperty' or 'valueOf'
+ * reports as genuinely absent instead of resolving to the inherited
+ * Object.prototype member of that name. Every other place in the kernel and
+ * policy layers that needs a tenant partition must call this, never index
+ * `state.tenants` directly.
+ */
 export function tenantPartition(
   state: ScenarioDomainState,
   tenant: TenantId,
 ): TenantPartition | undefined {
-  return state.tenants[tenant]
+  return Object.hasOwn(state.tenants, tenant) ? state.tenants[tenant] : undefined
 }
 
 /**
@@ -131,9 +180,12 @@ export function withTenant(
   tenant: TenantId,
   fn: (partition: TenantPartition) => TenantPartition,
 ): ScenarioDomainState {
-  const current = state.tenants[tenant] ?? EMPTY_TENANT
+  const current = tenantPartition(state, tenant) ?? EMPTY_TENANT
+  const tenants = Object.assign(emptyTenantsMap(), state.tenants, {
+    [tenant]: fn(current),
+  })
   return {
     ...state,
-    tenants: { ...state.tenants, [tenant]: fn(current) },
+    tenants,
   }
 }

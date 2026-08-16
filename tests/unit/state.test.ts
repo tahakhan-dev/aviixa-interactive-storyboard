@@ -53,4 +53,24 @@ describe('scenario domain state', () => {
     const next = withTenant(s, OTHER, (p) => ({ ...p, displayName: 'Renamed' }))
     expect(next.tenants[BRIGHT]).toBe(brightBefore)
   })
+
+  // CRITICAL 1: a plain `{}`-backed tenants map resolves 'constructor' etc.
+  // to something truthy via Object.prototype, so a naive `!== undefined`
+  // existence check never fires for a tenant that was never registered.
+  describe('CRITICAL 1: tenantPartition never borrows Object.prototype', () => {
+    it.each(['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf'])(
+      'reports %s as an unregistered tenant, not the inherited value',
+      (raw) => {
+        const s = emptyDomainState(RUN)
+        expect(tenantPartition(s, tenantId(raw))).toBeUndefined()
+      },
+    )
+
+    it('still reports a genuinely registered tenant after another poisoned lookup', () => {
+      let s = emptyDomainState(RUN)
+      s = withTenant(s, BRIGHT, (p) => ({ ...p, displayName: 'Bright Bikes' }))
+      expect(tenantPartition(s, tenantId('constructor'))).toBeUndefined()
+      expect(tenantPartition(s, BRIGHT)?.displayName).toBe('Bright Bikes')
+    })
+  })
 })

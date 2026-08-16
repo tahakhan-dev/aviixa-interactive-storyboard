@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { scenarioRunId, tenantId, correlationId } from '@/domain/ids'
+import { scenarioRunId, tenantId, correlationId, causationId, idempotencyKey } from '@/domain/ids'
 import { emptyDomainState, withTenant } from '@/domain/state'
 import { fixedClock, CANONICAL_EPOCH_MS } from '@/domain/clock'
 import { reduce } from '@/kernel/reduce'
@@ -157,7 +157,15 @@ describe('transition kernel', () => {
   it('emits an audit record with every accepted command', async () => {
     const t = await reduce(baseState(), releaseHold, context('QUALITY_MANAGER'))
     expect(t.audit).toHaveLength(1)
-    expect(t.audit[0]?.kind).toBe('CC_RELEASE_LOT_HOLD')
+    expect(t.audit[0]?.kind).toBe('CC_RELEASE_LOT_HOLD_RECORDED')
+  })
+
+  // M5: a consumer merging the event and audit ledgers must be able to tell
+  // them apart by kind alone -- they must not both be the bare command type.
+  it('gives the event and audit record of an accepted transition distinguishable kinds', async () => {
+    const t = await reduce(baseState(), releaseHold, context('QUALITY_MANAGER'))
+    expect(t.events[0]?.kind).toBe('CC_RELEASE_LOT_HOLD')
+    expect(t.audit[0]?.kind).not.toBe(t.events[0]?.kind)
   })
 
   // RULING 2 replaces the brief's trivially-true assertion
@@ -242,6 +250,11 @@ describe('transition kernel', () => {
     // The victim tenant's audit trail must show the refusal, not nothing.
     expect(t.decision.auditExpectation).toBe('RECORDED_AS_REFUSAL')
     expect(t.audit).toHaveLength(1)
+    // IMPORTANT 1: the record must be filed under the VICTIM (RIVALCO)'s
+    // tenant, not the attacker's (BRIGHT) -- otherwise RIVALCO's own audit
+    // trail stays empty while BRIGHT's wrongly shows an entry that isn't
+    // about BRIGHT at all.
+    expect(t.audit[0]?.tenant).toBe(RIVALCO)
   })
 
   // CRITICAL 3 red-proof: an unhashable state must degrade to a typed
@@ -332,5 +345,88 @@ describe('transition kernel', () => {
     )
     expect(t.status).not.toBe('accepted')
     expect(t.decision.reasonCode).toBe('TENANT_MISMATCH')
+  })
+
+  // CRITICAL 1(a)/(b): poisoned tenant ids on the COMMAND side (not just the
+  // identity side) must not silently succeed or crash either.
+  it.each(['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf'])(
+    'CRITICAL 1: refuses a command targeting the never-registered tenant id %s without throwing',
+    async (raw) => {
+      const poisoned = tenantId(raw)
+      const t = await reduce(
+        baseState(),
+        { type: 'CC_RELEASE_LOT_HOLD', tenant: poisoned, lotId: 'LOT-2201', note: 'x' },
+        { ...context('QUALITY_MANAGER'), identity: identityFor('QUALITY_MANAGER', poisoned) },
+      )
+      expect(t.status).not.toBe('accepted')
+      expect(t.nextState).toBe(null)
+    },
+  )
+
+  // CRITICAL 1(c): reduce() must degrade ANY internal failure -- not just an
+  // unhashable state -- to a typed denial, the same way tryHash already
+  // guards hashState. A structurally malformed command (an unregistered
+  // command.type) currently throws out of accessRequestFor's
+  // `SPECS[command.type].access` before evaluateAccess is ever reached.
+  it('CRITICAL 1(c): never throws for a structurally malformed command type', async () => {
+    const malformed = { type: 'NOT_A_REAL_COMMAND' } as unknown as ScenarioCommand
+    let threw = false
+    let result: Awaited<ReturnType<typeof reduce>> | undefined
+    try {
+      result = await reduce(baseState(), malformed, context('QUALITY_MANAGER'))
+    } catch {
+      threw = true
+    }
+    expect(threw).toBe(false)
+    expect(result?.status).not.toBe('accepted')
+  })
+
+  // IMPORTANT 4: ProposedTransition must carry the full spec section 3.5
+  // contract, and TransitionContext.failureInjection must not be dropped.
+  describe('IMPORTANT 4: ProposedTransition carries the full transition-result contract', () => {
+    it('populates actor, tenant, scope, device, failure injection, causation and idempotency on an accepted transition', async () => {
+      const baseCtx = context('QUALITY_MANAGER')
+      const withExtras: TransitionContext = {
+        ...baseCtx,
+        identity: { ...baseCtx.identity, deviceId: 'DEVICE-TABLET-7' },
+        failureInjection: 'SIM-NETWORK-DROP',
+        causationId: causationId('CAU-1'),
+        idempotencyKey: idempotencyKey('IDEM-1'),
+      }
+      const t = await reduce(baseState(), releaseHold, withExtras)
+      expect(t.actor).toBe('PERSON-QM')
+      expect(t.tenant).toBe(BRIGHT)
+      expect(t.scope).toEqual({ siteScope: ['SITE-RIVERSIDE'], areaScope: ['AREA-ASSEMBLY'] })
+      expect(t.device).toBe('DEVICE-TABLET-7')
+      expect(t.activeFailureInjection).toBe('SIM-NETWORK-DROP')
+      expect(t.causationId).toBe('CAU-1')
+      expect(t.idempotencyKey).toBe('IDEM-1')
+    })
+
+    it('names the object version transition for an accepted CC_RELEASE_LOT_HOLD', async () => {
+      const t = await reduce(baseState(), releaseHold, context('QUALITY_MANAGER'))
+      expect(t.objectTransitions).toHaveLength(1)
+      expect(t.objectTransitions[0]).toMatchObject({
+        objectId: 'lot:LOT-2201',
+        fromState: 'HELD',
+        toState: 'RELEASED',
+      })
+    })
+
+    it('carries actor and tenant on a denial too, not just an acceptance', async () => {
+      const t = await reduce(baseState(), releaseHold, context('SUPERVISOR'))
+      expect(t.status).toBe('denied')
+      expect(t.actor).toBe('PERSON-QM')
+      expect(t.tenant).toBe(BRIGHT)
+    })
+
+    it('reports the slice-2+ fields as an explicit empty/null default rather than being silently absent', async () => {
+      const t = await reduce(baseState(), releaseHold, context('QUALITY_MANAGER'))
+      expect(t.deviceTime).toBeNull()
+      expect(t.projectionRefreshStates).toEqual([])
+      expect(t.fallbackFailure).toBeNull()
+      expect(t.recoveryRequirements).toEqual([])
+      expect(t.reconciliationRequirements).toEqual([])
+    })
   })
 })

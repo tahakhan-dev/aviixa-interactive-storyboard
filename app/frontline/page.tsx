@@ -1,6 +1,11 @@
+import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { routeBySurface } from '@/routes/definitions'
 
 const SURFACE = surfaceById('SURF-FL')
+
+// M2: sourced from the route registry, not a second hand-typed string.
+export const metadata: Metadata = { title: routeBySurface('SURF-FL').title }
 
 export default function FrontlineHome() {
   return (

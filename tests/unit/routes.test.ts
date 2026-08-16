@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { ROUTES, routesForRole, routeByPathname } from '@/routes/definitions'
+import { ROUTES, routesForRole, routeByPathname, routeBySurface } from '@/routes/definitions'
 import { SURFACES } from '@/domain/surfaces'
 import { ROLES } from '@/domain/roles'
+import { metadata as superAdminMetadata } from '../../app/super-admin/page'
+import { metadata as hubMetadata } from '../../app/hub/page'
+import { metadata as studioMetadata } from '../../app/studio/page'
+import { metadata as commandCenterMetadata } from '../../app/command-center/page'
+import { metadata as frontlineMetadata } from '../../app/frontline/page'
 
 describe('route registry', () => {
   it('gives every surface at least one route', () => {
@@ -52,9 +57,39 @@ describe('route registry', () => {
     expect(routeByPathname('/command-center')?.surface).toBe('SURF-CC')
   })
 
+  // M6: routeByPathname must normalise more than exactly one trailing slash,
+  // and must not be case-sensitive about the path segment.
+  it('resolves a route regardless of extra trailing slashes or case', () => {
+    expect(routeByPathname('/hub//')?.surface).toBe('SURF-DOH')
+    expect(routeByPathname('/Hub/')?.surface).toBe('SURF-DOH')
+    expect(routeByPathname('/HUB')?.surface).toBe('SURF-DOH')
+  })
+
+  // I5: roles.ts's homeSurface/reachableSurfaces and this file's ternary must
+  // not be allowed to drift apart silently -- slice 3 must not be able to
+  // change one and forget the other.
+  it('agrees with roles.ts reachableSurfaces for every role', () => {
+    for (const role of ROLES) {
+      const fromRoutes = [...new Set(routesForRole(role.id).map((r) => r.surface))].sort()
+      const fromRoleDef = [...role.reachableSurfaces].sort()
+      expect(fromRoutes, role.id).toEqual(fromRoleDef)
+    }
+  })
+
   it('uses no bare acronym as a route title', () => {
     for (const r of ROUTES) {
       expect(r.title, r.id).not.toMatch(/^(SURF|MOD|DOH|STU|CC|FL|SA)-/)
     }
+  })
+
+  // M2: RouteDefinition.title is documented as "Browser tab title" -- each
+  // page's own `metadata.title` export must actually be sourced from it,
+  // not a second hand-typed string that can drift.
+  it('wires every surface page metadata.title from the route registry', () => {
+    expect(superAdminMetadata.title).toBe(routeBySurface('SURF-SA').title)
+    expect(hubMetadata.title).toBe(routeBySurface('SURF-DOH').title)
+    expect(studioMetadata.title).toBe(routeBySurface('SURF-STU').title)
+    expect(commandCenterMetadata.title).toBe(routeBySurface('SURF-CC').title)
+    expect(frontlineMetadata.title).toBe(routeBySurface('SURF-FL').title)
   })
 })

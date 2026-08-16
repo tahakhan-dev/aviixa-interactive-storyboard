@@ -21,13 +21,28 @@ test('an unknown route renders the accessible not-found page', async ({ page }) 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found')
 })
 
-test('no request leaves the origin after load', async ({ page }) => {
-  const foreign: string[] = []
-  page.on('request', (req) => {
-    const url = new URL(req.url())
-    if (url.origin !== 'http://localhost:4173') foreign.push(req.url())
+// I7 (partial): full build-manifest path allowlisting per spec section 5.5
+// is DEFERRED to the release slice -- this proves same-origin-only,
+// GET/HEAD-only, no-/api traffic across every slice-1 surface plus the
+// entry and not-found pages, not yet a full frozen-manifest path allowlist.
+const NO_NETWORK_PATHS = ['/', ...SURFACE_ROUTES.map((r) => r.path), '/no-such-place/']
+
+for (const path of NO_NETWORK_PATHS) {
+  test(`${path} makes no foreign-origin, non-GET/HEAD, or /api request`, async ({ page }) => {
+    const offenders: string[] = []
+    page.on('request', (req) => {
+      const url = new URL(req.url())
+      const method = req.method()
+      if (
+        url.origin !== 'http://localhost:4173' ||
+        !['GET', 'HEAD'].includes(method) ||
+        url.pathname.startsWith('/api')
+      ) {
+        offenders.push(`${method} ${req.url()}`)
+      }
+    })
+    await page.goto(path)
+    await page.waitForLoadState('networkidle')
+    expect(offenders).toEqual([])
   })
-  await page.goto('/hub/')
-  await page.waitForLoadState('networkidle')
-  expect(foreign).toEqual([])
-})
+}

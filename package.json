@@ -12,8 +12,9 @@
     "lint": "eslint .",
     "test:unit": "vitest run --project unit",
     "test:component": "vitest run --project component",
+    "test:release": "vitest run --project release",
     "test:e2e": "playwright test",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test:unit && pnpm test:component && pnpm build && pnpm test:e2e"
+    "verify": "pnpm typecheck && pnpm lint && pnpm test:unit && pnpm test:component && pnpm build && pnpm test:release && pnpm test:e2e"
   },
   "dependencies": {
     "next": "16.3.1",

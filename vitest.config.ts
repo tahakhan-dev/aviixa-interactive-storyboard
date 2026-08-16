@@ -12,7 +12,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           environment: 'node',
-          include: ['tests/unit/**/*.test.ts', 'tests/coverage/**/*.test.ts'],
+          include: ['tests/unit/**/*.test.ts'],
         },
       },
       {
@@ -21,6 +21,22 @@ export default defineConfig({
           name: 'component',
           environment: 'jsdom',
           include: ['tests/component/**/*.test.tsx'],
+        },
+      },
+      {
+        // IMPORTANT 2: tests/coverage/**/*.test.ts read out/, which only
+        // exists after `pnpm build`. They used to run inside the 'unit'
+        // project, which package.json's `verify` ran BEFORE `build` -- so
+        // they either hard-failed on a clean clone (no out/ yet) or
+        // validated the PREVIOUS build's out/, not the one this run just
+        // produced. This project is deliberately excluded from `test:unit`
+        // and instead run by `test:release`, which `verify` runs AFTER
+        // `build` (see package.json).
+        extends: true,
+        test: {
+          name: 'release',
+          environment: 'node',
+          include: ['tests/coverage/**/*.test.ts'],
         },
       },
     ],

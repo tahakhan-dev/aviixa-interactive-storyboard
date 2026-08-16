@@ -8,6 +8,10 @@ const PATHS = [
   '/studio/',
   '/command-center/',
   '/frontline/',
+  // I6: spec section 5.1 requires a generated ACCESSIBLE 404, and section 9
+  // sets the AA bar over the whole surface census -- the not-found page is
+  // part of that census and must not be the one page nothing checks.
+  '/no-such-place/',
 ]
 
 for (const path of PATHS) {

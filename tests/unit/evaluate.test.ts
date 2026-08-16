@@ -437,3 +437,179 @@ describe('effective access evaluation', () => {
     })
   })
 })
+
+// ============================================================================
+// FINAL FIX WAVE (2026-08-16) -- see docs/superpowers/sdd/2026-08-16-slice-01-foundations/final-fix-report.md
+// ============================================================================
+
+describe('CRITICAL 1: a prototype-named tenant id never borrows Object.prototype', () => {
+  const poisonedIds = ['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf']
+
+  // None of these ids is ever registered as a real tenant in activeTenantState().
+  // A plain `{}`-backed tenants map resolves each of them to something truthy
+  // via the prototype chain, so the old `=== undefined` existence check never
+  // fires and stage 2 (and everything after it) is skipped entirely.
+  it.each(poisonedIds)(
+    'refuses a tenant-domain actor whose own tenant id is %s and was never registered',
+    (raw) => {
+      const poisoned = tenantId(raw)
+      const d = evaluateAccess(releaseHold, ctx({ identity: identity({ tenant: poisoned }) }))
+      expect(d.outcome).toBe('blocked')
+      expect(d.stage).toBe('TENANT_ISOLATION')
+    },
+  )
+
+  it.each(poisonedIds)(
+    'never throws when requiredFeature is declared and the tenant id is %s',
+    (raw) => {
+      const poisoned = tenantId(raw)
+      expect(() =>
+        evaluateAccess(
+          { ...releaseHold, requiredFeature: 'AI_COACHING' },
+          ctx({ identity: identity({ tenant: poisoned }) }),
+        ),
+      ).not.toThrow()
+    },
+  )
+})
+
+describe('CRITICAL 2: a declared-null resourceTenant denies, never skips the check', () => {
+  it('denies a tenant-domain actor when resourceTenant is explicitly null at runtime', () => {
+    // The type no longer allows `resourceTenant: null` (AccessRequest carries
+    // `TenantId`, not `TenantId | null`) -- a caller writing `?? null` fails
+    // to compile. This simulates that value surviving anyway (an `any`
+    // boundary, deserialised data, ...) to prove the RUNTIME check also
+    // fails closed, not merely the compiler.
+    const smuggledNull = null as unknown as (typeof BRIGHT)
+    const d = evaluateAccess(
+      { ...releaseHold, resourceTenant: smuggledNull },
+      ctx(), // identity.tenant is BRIGHT, a live tenant.
+    )
+    expect(d.outcome).not.toBe('allowed')
+    expect(d.stage).toBe('TENANT_ISOLATION')
+    expect(d.reasonCode).toBe('TENANT_MISMATCH')
+  })
+})
+
+describe('M4: platform-domain roles are also checked against a suspended resourceTenant', () => {
+  it('refuses a platform-domain actor acting on a HARD_SUSPENDED resourceTenant', () => {
+    const suspended = withTenant(activeTenantState(), BRIGHT, (p) => ({
+      ...p,
+      lifecycleState: 'HARD_SUSPENDED' as const,
+    }))
+    const d = evaluateAccess(
+      { ...releaseHold, allowedRoles: ['ADMIN'], resourceTenant: BRIGHT },
+      ctx({ state: suspended, identity: identity({ role: 'ADMIN', tenant: null }) }),
+    )
+    expect(d.outcome).toBe('unavailable')
+    expect(d.stage).toBe('FEATURE_AND_SUSPENSION')
+    expect(d.reasonCode).toBe('TENANT_SUSPENDED')
+  })
+
+  it('refuses a platform-domain actor naming an unknown resourceTenant', () => {
+    const d = evaluateAccess(
+      { ...releaseHold, allowedRoles: ['ADMIN'], resourceTenant: tenantId('TEN-NOWHERE') },
+      ctx({ identity: identity({ role: 'ADMIN', tenant: null }) }),
+    )
+    expect(d.outcome).toBe('blocked')
+    expect(d.stage).toBe('TENANT_ISOLATION')
+    expect(d.reasonCode).toBe('TENANT_MISMATCH')
+  })
+})
+
+describe('IMPORTANT 3: previously undeclarable stage constraints become reachable', () => {
+  it('stage 4: refuses a required shift the signed-in person is not scoped to', () => {
+    const d = evaluateAccess({ ...releaseHold, requiredShifts: ['SHIFT-NIGHT'] }, ctx())
+    expect(d.outcome).toBe('blocked')
+    expect(d.stage).toBe('SCOPE')
+    expect(d.reasonCode).toBe('OUT_OF_SCOPE')
+  })
+
+  it('stage 4: allows when the required shift is among the scoped shifts', () => {
+    const d = evaluateAccess(
+      { ...releaseHold, requiredShifts: ['SHIFT-DAY'] },
+      ctx({ identity: identity({ shiftScope: ['SHIFT-DAY'] }) }),
+    )
+    expect(d.outcome).toBe('allowed')
+  })
+
+  it('stage 4: refuses a required object scope the signed-in person is not scoped to', () => {
+    const d = evaluateAccess({ ...releaseHold, requiredObjectScope: ['LOT-2201'] }, ctx())
+    expect(d.outcome).toBe('blocked')
+    expect(d.stage).toBe('SCOPE')
+  })
+
+  it('stage 4: refuses a required temporary grant the signed-in person does not hold', () => {
+    const d = evaluateAccess({ ...releaseHold, requiredTemporaryGrant: 'TEMP-COVER-QM' }, ctx())
+    expect(d.outcome).toBe('blocked')
+    expect(d.stage).toBe('SCOPE')
+  })
+
+  it('stage 5: refuses a missing entitlement (ENTITLEMENT_MISSING becomes reachable)', () => {
+    let s = activeTenantState()
+    s = { ...s, platform: { ...s.platform, tiers: { STANDARD: { entitlements: ['BASIC_QA'] } } } }
+    s = withTenant(s, BRIGHT, (p) => ({ ...p, tier: 'STANDARD' }))
+    const d = evaluateAccess({ ...releaseHold, requiredEntitlement: 'ADVANCED_QA' }, ctx({ state: s }))
+    expect(d.outcome).toBe('unavailable')
+    expect(d.stage).toBe('FEATURE_AND_SUSPENSION')
+    expect(d.reasonCode).toBe('ENTITLEMENT_MISSING')
+  })
+
+  it("stage 5: allows an entitlement the tenant's tier includes", () => {
+    let s = activeTenantState()
+    s = { ...s, platform: { ...s.platform, tiers: { STANDARD: { entitlements: ['ADVANCED_QA'] } } } }
+    s = withTenant(s, BRIGHT, (p) => ({ ...p, tier: 'STANDARD' }))
+    const d = evaluateAccess({ ...releaseHold, requiredEntitlement: 'ADVANCED_QA' }, ctx({ state: s }))
+    expect(d.outcome).toBe('allowed')
+  })
+
+  it('stage 6: refuses a stale object version (STALE_VERSION becomes reachable)', () => {
+    const d = evaluateAccess(
+      { ...releaseHold, requiredObjectVersion: 3, objectVersion: 2 },
+      ctx(),
+    )
+    expect(d.outcome).toBe('blocked')
+    expect(d.stage).toBe('OBJECT_STATE')
+    expect(d.reasonCode).toBe('STALE_VERSION')
+  })
+
+  it('stage 6: fails closed when a required object version is declared but none is given', () => {
+    const d = evaluateAccess({ ...releaseHold, requiredObjectVersion: 3 }, ctx())
+    expect(d.outcome).toBe('blocked')
+    expect(d.reasonCode).toBe('STALE_VERSION')
+  })
+
+  it('stage 8: refuses an invalid work package (PACKAGE_INVALID becomes reachable)', () => {
+    const d = evaluateAccess(
+      { ...releaseHold, requiresValidPackage: true, packageValid: false },
+      ctx(),
+    )
+    expect(d.outcome).toBe('unavailable')
+    expect(d.stage).toBe('DEVICE_AND_CONNECTIVITY')
+    expect(d.reasonCode).toBe('PACKAGE_INVALID')
+  })
+
+  it('stage 8: fails closed when a valid package is required but not declared', () => {
+    const d = evaluateAccess({ ...releaseHold, requiresValidPackage: true }, ctx())
+    expect(d.outcome).toBe('unavailable')
+    expect(d.reasonCode).toBe('PACKAGE_INVALID')
+  })
+
+  it('stage 9: refuses when no approver is available (APPROVER_UNAVAILABLE becomes reachable)', () => {
+    const d = evaluateAccess(
+      { ...releaseHold, requiresApproverAvailable: true, approverAvailable: false },
+      ctx(),
+    )
+    expect(d.outcome).toBe('blocked')
+    expect(d.stage).toBe('SEGREGATION_OF_DUTIES')
+    expect(d.reasonCode).toBe('APPROVER_UNAVAILABLE')
+  })
+
+  it('stage 9: allows when an approver is declared available', () => {
+    const d = evaluateAccess(
+      { ...releaseHold, requiresApproverAvailable: true, approverAvailable: true },
+      ctx(),
+    )
+    expect(d.outcome).toBe('allowed')
+  })
+})

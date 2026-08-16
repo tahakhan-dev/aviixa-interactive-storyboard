@@ -1,6 +1,11 @@
+import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { routeBySurface } from '@/routes/definitions'
 
 const SURFACE = surfaceById('SURF-CC')
+
+// M2: sourced from the route registry, not a second hand-typed string.
+export const metadata: Metadata = { title: routeBySurface('SURF-CC').title }
 
 export default function CommandCenterHome() {
   return (

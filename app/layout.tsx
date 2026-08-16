@@ -1,8 +1,16 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+// M2: `default` is what an untitled route (e.g. the entry page, or the
+// generated not-found page) shows; `template` is what every route that DOES
+// set its own `metadata.title` (the five surface pages below, sourced from
+// `ROUTES[].title`) is wrapped in, so `RouteDefinition.title`'s doc comment
+// ("Browser tab title") is actually true rather than aspirational.
 export const metadata: Metadata = {
-  title: 'AVIIXA Interactive Storyboard',
+  title: {
+    default: 'AVIIXA Interactive Storyboard',
+    template: '%s · AVIIXA Interactive Storyboard',
+  },
   description:
     'Client-validation storyboard for the AVIIXA platform. Simulated behaviour only; no production system is connected.',
 }

@@ -53,10 +53,28 @@ export const ROUTES: readonly RouteDefinition[] = SURFACES.map((s) => {
 
 const BY_PATH = new Map(ROUTES.map((r) => [r.pathname, r]))
 
+// M6: strip ALL trailing slashes (not just one -- `/hub//` left one behind)
+// and lower-case the path (`/Hub/` never matched anything). BY_PATH's keys
+// (SURFACES[].basePath) are already lower-case with no trailing slash.
 export function routeByPathname(pathname: string): RouteDefinition | undefined {
-  return BY_PATH.get(pathname.replace(/\/$/, '') || '/')
+  const normalised = pathname.toLowerCase().replace(/\/+$/, '') || '/'
+  return BY_PATH.get(normalised)
 }
 
 export function routesForRole(role: RoleId): readonly RouteDefinition[] {
   return ROUTES.filter((r) => r.allowedRoles.includes(role))
+}
+
+const BY_SURFACE = new Map(ROUTES.map((r) => [r.surface, r]))
+
+/**
+ * M2: the one route each surface's page component reads its
+ * `metadata.title` from, so `RouteDefinition.title`'s "Browser tab title"
+ * doc comment is true rather than aspirational. `routes.test.ts` proves
+ * every surface has exactly one route, so this lookup is safe.
+ */
+export function routeBySurface(id: SurfaceId): RouteDefinition {
+  const found = BY_SURFACE.get(id)
+  if (!found) throw new Error(`no route registered for surface: ${id}`)
+  return found
 }
