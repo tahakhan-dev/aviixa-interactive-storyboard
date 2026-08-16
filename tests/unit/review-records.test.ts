@@ -87,8 +87,11 @@ describe('review records', () => {
     await putReviewRecord(db, afterReload)
 
     expect(afterReload.id).not.toBe(beforeReload.id)
-    const stored = await listReviewRecords(db)
-    expect(stored).toHaveLength(2)
-    expect(stored.map((r) => r.id).sort()).toEqual([beforeReload.id, afterReload.id].sort())
+    const result = await listReviewRecords(db)
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.records).toHaveLength(2)
+      expect(result.records.map((r) => r.id).sort()).toEqual([beforeReload.id, afterReload.id].sort())
+    }
   })
 })
