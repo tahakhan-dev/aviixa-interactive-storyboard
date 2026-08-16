@@ -1,7 +1,10 @@
 import { z } from 'zod'
 import { canonicalSerialize, sha256Hex } from '@/domain/hash'
 import { SURFACES, type SurfaceId } from '@/domain/surfaces'
-import { REVIEW_STATUSES, type ReviewRecord, type ReviewStatus } from './records'
+import {
+  REVIEW_STATUSES, REVIEW_SEVERITIES, REVIEW_DISPOSITIONS,
+  type ReviewRecord, type ReviewStatus, type ReviewSeverity, type ReviewDisposition,
+} from './records'
 
 // Failure-signalling convention (documented in full at the top of
 // `@/review/store`): `importReviewPackage` below is the IO/parsing boundary
@@ -128,6 +131,8 @@ export async function exportReviewPackage(input: ExportReviewPackageInput): Prom
 export const MAX_PACKAGE_BYTES = 5_000_000
 
 const REVIEW_STATUS_VALUES = REVIEW_STATUSES as unknown as [ReviewStatus, ...ReviewStatus[]]
+const REVIEW_SEVERITY_VALUES = REVIEW_SEVERITIES as unknown as [ReviewSeverity, ...ReviewSeverity[]]
+const REVIEW_DISPOSITION_VALUES = REVIEW_DISPOSITIONS as unknown as [ReviewDisposition, ...ReviewDisposition[]]
 const SURFACE_ID_VALUES = SURFACES.map((s) => s.id) as unknown as [SurfaceId, ...SurfaceId[]]
 
 const PackageManifestEntrySchema = z
@@ -145,13 +150,24 @@ const ReviewRecordSchema = z
     anchorType: z.string().min(1),
     anchorId: z.string().min(1),
     surface: z.enum(SURFACE_ID_VALUES),
+    module: z.string().min(1).optional(),
+    functionId: z.string().min(1).optional(),
+    route: z.string().min(1).optional(),
+    screen: z.string().min(1).optional(),
+    storyState: z.string().min(1).optional(),
     reviewerLabel: z.string().min(1),
     status: z.enum(REVIEW_STATUS_VALUES),
+    severity: z.enum(REVIEW_SEVERITY_VALUES),
     comment: z.string(),
+    requestedChange: z.string().min(1).optional(),
     sourceFingerprint: z.string().min(1),
     scenarioVersion: z.string().min(1),
     buildHash: z.string().min(1),
     createdAtLogical: z.number(),
+    updatedAtLogical: z.number(),
+    disposition: z.enum(REVIEW_DISPOSITION_VALUES),
+    response: z.string().nullable(),
+    supersededBy: z.string().nullable(),
   })
   .strict()
 
@@ -166,6 +182,44 @@ const ReviewPackageSchema = z
     manifestChecksum: z.string().regex(/^[0-9a-f]{64}$/),
   })
   .strict()
+
+/**
+ * zod's `.optional()` infers `T | undefined` for a field's TYPE, which is
+ * how zod represents "may be absent" -- but `exactOptionalPropertyTypes`
+ * distinguishes that from `field?: T` ("key may be omitted, but if present
+ * is never explicitly `undefined`"), which is the shape `ReviewRecord`
+ * actually declares. At runtime this is a non-issue: a `raw` value parsed
+ * from `JSON.parse` never has a key explicitly set to `undefined` (JSON has
+ * no `undefined` literal), so zod's parsed output only ever OMITS an absent
+ * optional key. This function makes that omission explicit to the type
+ * checker too, by spreading each optional field only when defined.
+ */
+function toReviewRecord(r: z.infer<typeof ReviewRecordSchema>): ReviewRecord {
+  return {
+    id: r.id,
+    anchorType: r.anchorType,
+    anchorId: r.anchorId,
+    surface: r.surface,
+    ...(r.module !== undefined && { module: r.module }),
+    ...(r.functionId !== undefined && { functionId: r.functionId }),
+    ...(r.route !== undefined && { route: r.route }),
+    ...(r.screen !== undefined && { screen: r.screen }),
+    ...(r.storyState !== undefined && { storyState: r.storyState }),
+    reviewerLabel: r.reviewerLabel,
+    status: r.status,
+    severity: r.severity,
+    comment: r.comment,
+    ...(r.requestedChange !== undefined && { requestedChange: r.requestedChange }),
+    sourceFingerprint: r.sourceFingerprint,
+    scenarioVersion: r.scenarioVersion,
+    buildHash: r.buildHash,
+    createdAtLogical: r.createdAtLogical,
+    updatedAtLogical: r.updatedAtLogical,
+    disposition: r.disposition,
+    response: r.response,
+    supersededBy: r.supersededBy,
+  }
+}
 
 /** What a reviewer sees before anything is applied. Import stops here. */
 export interface ImportPreview {
@@ -249,6 +303,7 @@ export async function importReviewPackage(
     )
   }
   const pkg = parsed.data
+  const normalizedRecords: readonly ReviewRecord[] = pkg.records.map(toReviewRecord)
 
   // 3. format version
   if (pkg.formatVersion !== PACKAGE_FORMAT_VERSION) {
@@ -282,7 +337,7 @@ export async function importReviewPackage(
   // from `recomputedManifest`, not from `pkg.manifest`, so it is blind to
   // anything declared beyond the real entries -- the reverse loop is the
   // only place an extra declared entry is ever caught.
-  const recomputedManifest = await buildManifest(packageFiles(pkg))
+  const recomputedManifest = await buildManifest(packageFiles({ ...pkg, records: normalizedRecords }))
   const declaredByPath = new Map(pkg.manifest.map((entry) => [entry.path, entry]))
   const recomputedByPath = new Map(recomputedManifest.map((entry) => [entry.path, entry]))
   for (const entry of recomputedManifest) {
@@ -316,8 +371,8 @@ export async function importReviewPackage(
   return {
     ok: true,
     preview: {
-      recordCount: pkg.records.length,
-      records: pkg.records,
+      recordCount: normalizedRecords.length,
+      records: normalizedRecords,
       sourceHash: pkg.sourceHash,
       buildHash: pkg.buildHash,
       scenarioVersion: pkg.scenarioVersion,

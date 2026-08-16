@@ -48,14 +48,77 @@ const _reviewStatusesExhaustive: _AssertReviewStatusesExhaustive = true
 /** A change request with no text is not actionable. */
 const COMMENT_REQUIRED_STATUSES: readonly ReviewStatus[] = ['needs-change', 'question']
 
+/**
+ * How much a review comment matters, in the reviewer's own words -- never a
+ * product severity, never a release-blocking classification. `question` here
+ * deliberately reuses the string `'question'` that also appears in
+ * `ReviewStatus`: they are different closed vocabularies (one asks "what
+ * kind of comment is this", the other "how much does it matter"), and the
+ * literal overlap is coincidental, not a shared type.
+ */
+export type ReviewSeverity = 'blocking' | 'major' | 'minor' | 'question'
+
+// Same `as const satisfies` shape as REVIEW_STATUSES above, for the same
+// reason: a plain `readonly ReviewSeverity[]` annotation would widen the
+// literal tuple back to the union, making the exhaustiveness check below
+// vacuous.
+export const REVIEW_SEVERITIES = [
+  'blocking',
+  'major',
+  'minor',
+  'question',
+] as const satisfies readonly ReviewSeverity[]
+
+type _AssertReviewSeveritiesExhaustive = [ReviewSeverity] extends [(typeof REVIEW_SEVERITIES)[number]]
+  ? [(typeof REVIEW_SEVERITIES)[number]] extends [ReviewSeverity]
+    ? true
+    : never
+  : never
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- type-only compile-time check
+const _reviewSeveritiesExhaustive: _AssertReviewSeveritiesExhaustive = true
+
+/**
+ * What has happened to a review record since it was written. Deliberately
+ * none of these reads as an approval either -- `accepted` here means
+ * "the client accepted this comment for consideration", not "the change
+ * described in it was approved". See the module-level note above.
+ */
+export type ReviewDisposition = 'open' | 'accepted' | 'declined' | 'superseded'
+
+export const REVIEW_DISPOSITIONS = [
+  'open',
+  'accepted',
+  'declined',
+  'superseded',
+] as const satisfies readonly ReviewDisposition[]
+
+type _AssertReviewDispositionsExhaustive = [ReviewDisposition] extends [(typeof REVIEW_DISPOSITIONS)[number]]
+  ? [(typeof REVIEW_DISPOSITIONS)[number]] extends [ReviewDisposition]
+    ? true
+    : never
+  : never
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- type-only compile-time check
+const _reviewDispositionsExhaustive: _AssertReviewDispositionsExhaustive = true
+
 export interface CreateReviewRecordInput {
   /** What kind of thing this comment is anchored to (e.g. "screen"). */
   readonly anchorType: string
   readonly anchorId: string
   readonly surface: SurfaceId
+  /** The module this comment concerns. A page-level comment need not name one. */
+  readonly module?: string
+  /** The function this comment concerns. Named `functionId`, never `function` -- a reserved word. */
+  readonly functionId?: string
+  readonly route?: string
+  readonly screen?: string
+  /** The storyboard step the reviewer was on when they wrote this. */
+  readonly storyState?: string
   readonly reviewerLabel: string
   readonly status: ReviewStatus
+  readonly severity: ReviewSeverity
   readonly comment: string
+  /** What the reviewer wants changed. Optional -- not every comment asks for a specific change. */
+  readonly requestedChange?: string
   /** The `hashState` fingerprint of the product state the reviewer saw. */
   readonly sourceFingerprint: string
   readonly scenarioVersion: string
@@ -65,6 +128,10 @@ export interface CreateReviewRecordInput {
 export interface ReviewRecord extends CreateReviewRecordInput {
   readonly id: string
   readonly createdAtLogical: number
+  readonly updatedAtLogical: number
+  readonly disposition: ReviewDisposition
+  readonly response: string | null
+  readonly supersededBy: string | null
 }
 
 /**
@@ -109,10 +176,39 @@ export function createReviewRecord(input: CreateReviewRecordInput, clock: Clock)
   if (COMMENT_REQUIRED_STATUSES.includes(input.status) && input.comment.trim() === '') {
     throw new Error(`A "${input.status}" review record requires a non-empty comment`)
   }
+  // requestedChange is optional -- a comment need not ask for a specific
+  // change. But when the status IS asking for a change and the caller DID
+  // supply a requestedChange, it must not be blank: a present-but-whitespace
+  // value is a caller bug, not an absent one.
+  if (input.status === 'needs-change' && input.requestedChange !== undefined && input.requestedChange.trim() === '') {
+    throw new Error('A "needs-change" review record\'s requested change must not be blank')
+  }
+  const now = clock.now()
   return {
     ...input,
     id: nextId('rr'),
-    createdAtLogical: clock.now(),
+    createdAtLogical: now,
+    updatedAtLogical: now,
+    disposition: 'open',
+    response: null,
+    supersededBy: null,
+  }
+}
+
+/**
+ * Returns a NEW record marking `record` as superseded by `bySupersedingId`.
+ * Records are append-only: this never mutates its argument. Superseding a
+ * record with its own id is a cycle, not a supersession, and is refused.
+ */
+export function superseded(record: ReviewRecord, bySupersedingId: string, clock: Clock): ReviewRecord {
+  if (bySupersedingId === record.id) {
+    throw new Error('A review record cannot supersede itself')
+  }
+  return {
+    ...record,
+    disposition: 'superseded',
+    supersededBy: bySupersedingId,
+    updatedAtLogical: clock.now(),
   }
 }
 

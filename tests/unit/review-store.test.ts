@@ -10,7 +10,7 @@ beforeEach(async () => { db = await openDatabase(new IDBFactory()) })
 
 const rec = () => createReviewRecord({
   anchorType: 'screen', anchorId: 'SCR-1', surface: 'SURF-DOH',
-  reviewerLabel: 'R', status: 'comment', comment: 'Looks right to me.',
+  reviewerLabel: 'R', status: 'comment', severity: 'minor', comment: 'Looks right to me.',
   sourceFingerprint: '47bd18db', scenarioVersion: '1', buildHash: 'abc',
 }, fixedClock(CANONICAL_EPOCH_MS))
 

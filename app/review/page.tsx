@@ -113,6 +113,7 @@ export default function ReviewPage() {
           surface,
           reviewerLabel: reviewerLabel.trim() === '' ? 'Unnamed reviewer' : reviewerLabel,
           status,
+          severity: 'minor',
           comment: note,
           // This shell is not yet wired to a live scenario snapshot or
           // build pipeline (that wiring is deferred); these three fields
