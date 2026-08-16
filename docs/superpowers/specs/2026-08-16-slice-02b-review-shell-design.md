@@ -145,7 +145,75 @@ These are **read-only projections**. They are not product events, and they do no
 
 ---
 
-## 7. Also in this slice
+## 7. Coverage made browsable — registry indexes and the Workflow Index
+
+Client instruction, 2026-08-16: *"make sure it cover everything every workflow use
+cases each and everything"*. Binding, and it changes this slice's scope.
+
+The umbrella spec §14 already binds census closure across all 26 inventories. What was
+missing is the layer that makes closure **visible** rather than asserted in a report.
+Master prompt §9.6 is explicit: a count that exists only in a report, without a
+browsable index behind it, does not satisfy the requirement.
+
+These screens are reviewer-facing, so they belong here rather than deferred to slice 13.
+
+**Registry index screens**, each with live counts and per-item implementation status,
+drilling into that item's card: modules · features · sub-features · functions ·
+workflows · business use cases · business objects · events · commands · notifications ·
+offline scenarios · artificial-intelligence storyboards · scheduled-work items ·
+actionable controls.
+
+**The Workflow Index** lists every workflow with its stable ID, plain-language name,
+owning surface and module, initiating and participating roles, primary objects,
+implementation status, and variant coverage summary — filterable by each of those
+dimensions. Its count reconciles to the umbrella spec §12 table.
+
+**The coverage dashboard** carries separate counts for source-defined, derived,
+recommended, illustrative, unresolved, implemented, intentionally not-applicable, and
+decision-blocked. It links to every index. It never uses a green check to imply a
+production control exists.
+
+Every index is populated from the runtime-validated registries built in slice 2a, so a
+count on screen and a count in the reconciliation come from one source. Status values
+are honest: `demonstrated in storyboard`, `decision blocked`, `not applicable`,
+`not represented` — never `implemented` where that would imply production capability.
+
+Today most rows will read `not represented`, because slices 3–13 have not run. That is
+the point: the dashboard shows the true state of the build from the first day rather
+than appearing complete and quietly filling in.
+
+## 8. Production-grade engineering — what it means, and what it does not
+
+Client instruction, 2026-08-16: *"make sure it should be production level
+implementation"*. Binding, with one boundary that is not mine to move.
+
+**What is required, and is the standard for every line in this build:** exhaustive
+error handling with typed failures rather than thrown exceptions; every failure path
+tested, not just the happy one; no silent catch, no swallowed rejection; strict typing
+with no `any` and no suppressed diagnostics; WCAG 2.2 AA on every route and state;
+deterministic, reproducible behaviour; atomic persistence; every gate proven able to
+fail; comments that state only what the code delivers; and no dead controls anywhere.
+That standard has been enforced through two slices and does not relax.
+
+**What is forbidden, by the master prompt and not by my choice:** this application has
+no backend, and §29.4 prohibits claiming a production capability that was only
+simulated. It must never imply a real database, real authentication, real device
+commands, real integrations, a real scheduler, real artificial-intelligence providers,
+or production audit guarantees. Section 4 makes the absence of a backend a hard,
+testable constraint — the static-export build itself fails if a Server Action or API
+route appears.
+
+So the two readings of "production level" resolve cleanly and without narrowing scope:
+**production-quality engineering, yes — that is the bar. Production-system claims, no —
+those would be false.** A prototype that is honest about being a prototype, built to a
+standard that would survive a production code review, is exactly what the master prompt
+asks for and what a client-validation artefact must be.
+
+Every screen carries the prototype-versus-production disclosure required by §21.2, and
+polish never substitutes for behaviour: a control that looks production-grade but does
+nothing is a defect, not a demonstration.
+
+## 9. Also in this slice
 
 The residual parked at the end of slice 2a, as the first task: `canonicalSerialize`
 rejects a non-index array property with the message "Sparse array in state", which
@@ -159,7 +227,7 @@ has repeatedly found messages asserting something the code does not mean.
 
 ---
 
-## 8. What slice 2b does NOT build
+## 10. What slice 2b does NOT build
 
 Product surfaces and module screens — slices 3–13. The product's Author → Reviewer →
 Release Authority chain — slice 5. Screenshot generation and walkthrough runners —
@@ -168,7 +236,7 @@ decision the baseline must not imply.
 
 ---
 
-## 9. Testing
+## 11. Testing
 
 The separation invariant gets a dedicated gate: a review action must be provably unable
 to produce a product event, audit record, notification, command, schedule, or state
