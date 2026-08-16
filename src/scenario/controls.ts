@@ -1,13 +1,15 @@
 import type { Clock } from '@/domain/clock'
 import type { PresentationState } from '@/domain/state'
 
+// Minor (final review): spec §3 names this mode `recovering`; this shipped
+// `reconnecting` instead. Aligned to the spec's exact word.
 export type ConnectivityMode =
   | 'online'
   | 'slow'
   | 'flapping'
   | 'offline'
   | 'dependency-down'
-  | 'reconnecting'
+  | 'recovering'
 
 export const CONNECTIVITY_MODES: readonly ConnectivityMode[] = [
   'online',
@@ -15,8 +17,14 @@ export const CONNECTIVITY_MODES: readonly ConnectivityMode[] = [
   'flapping',
   'offline',
   'dependency-down',
-  'reconnecting',
+  'recovering',
 ] as const
+
+/** What `play`/`pause`/`setConnectivity` actually hold. See `getPlaybackState`. */
+export interface PlaybackState {
+  readonly playing: boolean
+  readonly connectivity: ConnectivityMode
+}
 
 export interface ScenarioControls {
   /** Move `n` steps through the story. Clamps at both ends -- never wraps. */
@@ -30,6 +38,15 @@ export interface ScenarioControls {
   /** Clears view-only state (filters, selection, story position). */
   resetPresentation(): void
   setConnectivity(mode: ConnectivityMode): void
+  /**
+   * Blocking 5 (final review): `play`/`pause`/`setConnectivity` used to
+   * write to a closure-local object with no way to ever read it back --
+   * unobservable, and therefore untestable, by construction. This getter is
+   * that missing read path, so those three writers are real, tested state
+   * rather than a control that "looks production-grade but does nothing"
+   * (spec §8).
+   */
+  getPlaybackState(): PlaybackState
   /** Advances the injected Clock. Never touches real (ambient) time. */
   advanceClock(ms: number): void
 }
@@ -55,10 +72,17 @@ export function createControls(deps: ControlsDeps): ScenarioControls {
   const { clock, steps, getPresentation, setPresentation } = deps
 
   // Playback/connectivity are presentation-adjacent but not part of
-  // PresentationState itself (no test or consumer reads them back yet); kept
-  // as real, held state -- not dead writes -- so a later UI layer has
-  // somewhere to read from.
-  const playback = { playing: false, connectivity: 'online' as ConnectivityMode }
+  // PresentationState itself. Blocking 5 (final review): this comment used
+  // to claim they were "real, held state -- not dead writes" while
+  // `ScenarioControls` exposed no getter at all, which made `play`, `pause`
+  // and `setConnectivity` unobservable -- and therefore untestable -- by
+  // construction; the claim was false. `getPlaybackState()` below is the
+  // read path that makes it true: mutable, but a mutable object with no
+  // reader was exactly the defect, so this now has one.
+  const playback: { playing: boolean; connectivity: ConnectivityMode } = {
+    playing: false,
+    connectivity: 'online',
+  }
 
   const goToIndex = (index: number): void => {
     if (steps.length === 0) return
@@ -105,6 +129,10 @@ export function createControls(deps: ControlsDeps): ScenarioControls {
 
     setConnectivity(mode) {
       playback.connectivity = mode
+    },
+
+    getPlaybackState() {
+      return { playing: playback.playing, connectivity: playback.connectivity }
     },
 
     advanceClock(ms) {
