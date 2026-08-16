@@ -162,6 +162,26 @@ function buildJoinedFamily({ slug, prefix, familyLabel }) {
 // ---------------------------------------------------------------------
 const CANONICAL_MODULE_ID_RE = /^MOD-(DOH|CC|FL|SA|STU)-(\d{2}|[AB]\d+)$/
 
+/**
+ * Task 10 / addendum §5: maps the raw extraction's seven-value
+ * `classification` field (frozen-source vocabulary, see
+ * `SOURCE_CLASSIFICATIONS` in `@/registry/schemas`) down to the five
+ * `SourceClass` buckets (`@/coverage/descriptors`). Verified against this
+ * build's own raw module data: only two classifications actually occur --
+ * "SoW Fact" (63) and "Derived Clarification" (18, all MOD-STU-*) -- but
+ * the other five are mapped too so this stays correct if a future
+ * extraction wave adds a module under one of them.
+ */
+const SOURCE_CLASSIFICATION_TO_SOURCE_CLASS = {
+  'SoW Fact': 'source-defined',
+  'Derived Clarification': 'derived',
+  'Derived Clarification — adopted working position': 'derived',
+  'Recommendation — Research and Development': 'recommended',
+  Assumption: 'unresolved',
+  'Client Decision Required': 'unresolved',
+  'Illustrative Example': 'illustrative',
+}
+
 function buildModulesRegistry() {
   const rawKeys = new Set()
   const byId = new Map()
@@ -171,6 +191,10 @@ function buildModulesRegistry() {
       if (m.id === 'MOD-SA-20') continue // alias-by-denial; never a module
       if (!CANONICAL_MODULE_ID_RE.test(m.id)) continue // placeholder or range-expression artefact
       if (byId.has(m.id)) continue // first occurrence (chunk order) wins
+      const sourceClass = SOURCE_CLASSIFICATION_TO_SOURCE_CLASS[m.classification]
+      if (sourceClass === undefined) {
+        throw new Error(`Unmapped module classification "${m.classification}" for ${m.id}`)
+      }
       byId.set(m.id, {
         id: m.id,
         sourceLine: m.line,
@@ -178,6 +202,7 @@ function buildModulesRegistry() {
         label: m.name,
         surface: m.surface,
         purpose: m.purpose,
+        sourceClass,
       })
     }
   }
@@ -185,12 +210,21 @@ function buildModulesRegistry() {
   if (rows.length !== 81) {
     throw new Error(`Expected 81 canonical modules, computed ${rows.length}`)
   }
+  const sourceDefinedCount = rows.filter((r) => r.sourceClass === 'source-defined').length
+  const derivedCount = rows.filter((r) => r.sourceClass === 'derived').length
+  if (sourceDefinedCount !== 63 || derivedCount !== 18) {
+    throw new Error(
+      `Addendum §5: expected 63 source-defined + 18 derived modules, computed ` +
+        `${sourceDefinedCount} + ${derivedCount}`,
+    )
+  }
   return {
     slug: 'modules',
     countedThing:
       'canonical modules -- the 81-row inventory the frozen source fixes per surface ' +
       '(19 Super Admin + 19 Delivery Operations Hub + 18 Studio + 13 Command Center + ' +
-      '12 Frontline), never the raw extraction key count.',
+      '12 Frontline), never the raw extraction key count. 63 source-defined + 18 derived ' +
+      '(DEC-STUDIO-001) = 81; the 18 Studio modules may never be presented as source-backed.',
     reconciledCount: 81,
     rawCount: rawKeys.size,
     dedupRule:

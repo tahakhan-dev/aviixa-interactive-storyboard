@@ -4,11 +4,13 @@ import {
   REGISTRY_DESCRIPTORS,
   COVERAGE_STATUSES,
   countByStatus,
+  SOURCE_CLASSES,
+  countByClass,
   type CoverageStatus,
 } from '@/coverage/descriptors'
 import { Table, StatusPill, type StatusTone } from '@/ui/primitives'
 import { loadRegistry } from '@/registry/load'
-import { GeneratedRegistrySchema } from '@/coverage/registry-loader'
+import { GeneratedRegistrySchema, loadGeneratedRegistry } from '@/coverage/registry-loader'
 import workflowsRaw from '../../registries/generated/workflows.json'
 
 export const metadata: Metadata = { title: 'Coverage Dashboard' }
@@ -66,6 +68,19 @@ const REGISTRY_STATUS_ENTRIES: readonly { status: CoverageStatus }[] = REGISTRY_
   (d) => ({ status: registryStatus(d.slug) }),
 )
 const RECONCILIATION_SUMMARY = countByStatus(REGISTRY_STATUS_ENTRIES)
+
+/**
+ * Task 10 / addendum §5: source-defined and derived are counted from
+ * `modules.json`'s own `sourceClass` field on each row -- a STRUCTURED
+ * value the build script maps straight from the raw extraction's
+ * `classification`, never parsed out of `RegistryDescriptor.sourceNote`
+ * prose. This is the one place in the whole build that reads 63 for
+ * modules' source-defined count -- everywhere else (the table above,
+ * `RegistryDescriptor.expectedCount`) correctly reads 81, the total
+ * inventory count; 63 is a narrower, different figure (only the SoW-Fact
+ * modules) and must never replace 81 as "the" module count.
+ */
+const MODULES_CLASS_COUNTS = countByClass(loadGeneratedRegistry('modules').rows)
 
 export default function CoveragePage() {
   return (
@@ -126,6 +141,23 @@ export default function CoveragePage() {
         {COVERAGE_STATUSES.map((status) => (
           <li key={status}>
             {STATUS_LABEL[status]}: {RECONCILIATION_SUMMARY[status]} of {REGISTRY_DESCRIPTORS.length}
+          </li>
+        ))}
+      </ul>
+
+      <h2 className="mt-8 text-xl font-semibold">Source classification</h2>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        Orthogonal to the status above: this says what the frozen source
+        itself claims about an item, never what this build did with it. Of
+        the 81 modules, 63 are source-defined (SoW Fact) and 18 are derived
+        (Derived Clarification, DEC-STUDIO-001) — the 18 Studio modules may
+        never be presented as source-backed. No other registry has been
+        classified against the source yet.
+      </p>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink-muted)]">
+        {SOURCE_CLASSES.map((sourceClass) => (
+          <li key={sourceClass}>
+            {sourceClass}: {MODULES_CLASS_COUNTS.source[sourceClass]} of 81 modules
           </li>
         ))}
       </ul>

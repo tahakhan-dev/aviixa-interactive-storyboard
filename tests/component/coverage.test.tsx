@@ -37,4 +37,16 @@ describe('coverage dashboard', () => {
     const { container } = render(<CoveragePage />)
     expect((container.textContent ?? '').toLowerCase()).toMatch(/simulated/)
   })
+
+  // Task 10 / addendum §5: the dashboard's source-defined class must read
+  // 63 for modules, never 81 -- 81 is the correct total reconciled count
+  // and still renders in the registry table above, but the source-class
+  // breakdown is a narrower, different figure.
+  it('reads 63 source-defined and 18 derived for modules, never 81 for source-defined', () => {
+    const { container } = render(<CoveragePage />)
+    const text = container.textContent ?? ''
+    expect(text).toMatch(/source-defined: 63 of 81 modules/)
+    expect(text).toMatch(/derived: 18 of 81 modules/)
+    expect(text).not.toMatch(/source-defined: 81/)
+  })
 })

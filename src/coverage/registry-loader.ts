@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { z } from 'zod'
 import { loadRegistry } from '@/registry/load'
-import { COVERAGE_STATUSES } from '@/coverage/descriptors'
+import { COVERAGE_STATUSES, SOURCE_CLASSES, BUILD_CLASSES } from '@/coverage/descriptors'
 
 /**
  * One row of a generated registry file (`registries/generated/<slug>.json`,
@@ -31,7 +31,15 @@ import { COVERAGE_STATUSES } from '@/coverage/descriptors'
  *    (`ai-storyboards`: four separate SB-* registers; `actionable-controls`:
  *    the 608-row UI-control catalogue plus the separate 22-row DNC-*
  *    do-not-use-cron register) tags every row with `register`, naming which
- *    sub-inventory it belongs to, so nothing is silently merged or dropped.
+ *    sub-inventory it belongs to, so nothing is silently merged or dropped;
+ *  - `sourceClass`/`buildClass` (Task 10) classify what the frozen source
+ *    claims about a row and what this build did with it, ORTHOGONALLY to
+ *    `status` -- see `SourceClass`/`BuildClass` in `@/coverage/descriptors`.
+ *    Only `modules` populates `sourceClass` today, taken straight from each
+ *    raw module record's own `classification` field (a STRUCTURED source,
+ *    never parsed out of `RegistryDescriptor.sourceNote` prose): addendum
+ *    §5 requires the 18 Studio modules render as `derived`, never
+ *    `source-defined`, under DEC-STUDIO-001.
  */
 export const RegistryRowSchema = z
   .object({
@@ -50,6 +58,9 @@ export const RegistryRowSchema = z
     trigger: z.string().min(1).optional(),
     surfacesTouched: z.array(z.string()).optional(),
     terminalStates: z.array(z.string()).optional(),
+    // Task 10: orthogonal to `status`; see doc comment above.
+    sourceClass: z.enum(SOURCE_CLASSES).optional(),
+    buildClass: z.enum(BUILD_CLASSES).optional(),
   })
   .strict()
 
