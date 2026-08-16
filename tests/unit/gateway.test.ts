@@ -89,64 +89,68 @@ describe('scenario command gateway', () => {
     }
   })
 
-  // CRITICAL (fix round 1): a null/undefined command or state must never
-  // reach `command.type` (actionClassFor) or `state.sequence` (reduce.ts)
-  // unguarded. `ok === false` alone proves nothing about *why* -- each case
-  // below asserts the call did not throw AND that the refusal is reported
-  // as `blockedBy: 'input'` with a plain-language reason.
-  it('refuses a null command without throwing, naming the missing argument', async () => {
-    let threw = false
-    let result: Awaited<ReturnType<typeof dispatch>> | null = null
-    try {
-      result = await dispatch(state(), null as never, ctx('QUALITY_MANAGER'), { db, storageState: 'ready-durable' })
-    } catch { threw = true }
-    expect(threw).toBe(false)
-    expect(result?.ok).toBe(false)
-    if (result && !result.ok) {
-      expect(result.blockedBy).toBe('input')
-      expect(result.reason.length).toBeGreaterThan(20)
-    }
+  // IMPORTANT (fix round 1): the old `!command`/`!state` guards caught only
+  // the FALSY subset (null, undefined, 0, false, ''). A truthy-but-malformed
+  // shape ({}, [], 5, 'x', true) used to sail past them: a malformed COMMAND
+  // fell through to `actionClassFor`'s switch (no `default`), which silently
+  // returned `undefined`, which `permittedUnder` then failed closed on --
+  // reporting `blockedBy: 'capability'` with a reason blaming "the current
+  // storage mode", which was FALSE (storage was fully durable). A malformed
+  // STATE reached `reduce()`, which caught the resulting internal throw and
+  // reported `blockedBy: 'policy'` -- the wrong category for an internal
+  // error, not a policy decision. This matrix covers all 10 shapes below in
+  // BOTH positions (20 cases): every one must refuse WITHOUT throwing, as
+  // `blockedBy: 'input'`, with a reason that does not misname the cause.
+  const MALFORMED_SHAPES: readonly unknown[] = [undefined, null, 0, false, '', {}, [], 5, 'x', true]
+
+  describe('refuses every malformed command/state shape as blockedBy: input, not capability or policy', () => {
+    MALFORMED_SHAPES.forEach((shape, i) => {
+      it(`command shape #${i} (${JSON.stringify(shape) ?? 'undefined'}) refuses without throwing`, async () => {
+        let threw = false
+        let result: Awaited<ReturnType<typeof dispatch>> | null = null
+        try {
+          result = await dispatch(state(), shape as never, ctx('QUALITY_MANAGER'), { db, storageState: 'ready-durable' })
+        } catch { threw = true }
+        expect(threw).toBe(false)
+        expect(result?.ok).toBe(false)
+        if (result && !result.ok) {
+          expect(result.blockedBy).toBe('input')
+          expect(result.reason.length).toBeGreaterThan(20)
+          expect(result.reason).not.toMatch(/storage mode/i)
+        }
+      })
+
+      it(`state shape #${i} (${JSON.stringify(shape) ?? 'undefined'}) refuses without throwing`, async () => {
+        let threw = false
+        let result: Awaited<ReturnType<typeof dispatch>> | null = null
+        try {
+          result = await dispatch(shape as never, RELEASE, ctx('QUALITY_MANAGER'), { db, storageState: 'ready-durable' })
+        } catch { threw = true }
+        expect(threw).toBe(false)
+        expect(result?.ok).toBe(false)
+        if (result && !result.ok) {
+          expect(result.blockedBy).toBe('input')
+          expect(result.reason.length).toBeGreaterThan(20)
+        }
+      })
+    })
   })
 
-  it('refuses an undefined command without throwing, naming the missing argument', async () => {
+  // The residual gap `actionClassFor`'s missing `default` left: an object
+  // that DOES have a `type` property (so the widened shape guard above lets
+  // it through) but whose value is not a recognised command type at all.
+  it('refuses an unrecognised command type as blockedBy: input, not a false storage-mode reason', async () => {
+    const bogus = { type: 'BOGUS_COMMAND_TYPE' }
     let threw = false
     let result: Awaited<ReturnType<typeof dispatch>> | null = null
     try {
-      result = await dispatch(state(), undefined as never, ctx('QUALITY_MANAGER'), { db, storageState: 'ready-durable' })
+      result = await dispatch(state(), bogus as never, ctx('QUALITY_MANAGER'), { db, storageState: 'ready-durable' })
     } catch { threw = true }
     expect(threw).toBe(false)
     expect(result?.ok).toBe(false)
     if (result && !result.ok) {
       expect(result.blockedBy).toBe('input')
-      expect(result.reason.length).toBeGreaterThan(20)
-    }
-  })
-
-  it('refuses a null state without throwing, naming the missing argument', async () => {
-    let threw = false
-    let result: Awaited<ReturnType<typeof dispatch>> | null = null
-    try {
-      result = await dispatch(null as never, RELEASE, ctx('QUALITY_MANAGER'), { db, storageState: 'ready-durable' })
-    } catch { threw = true }
-    expect(threw).toBe(false)
-    expect(result?.ok).toBe(false)
-    if (result && !result.ok) {
-      expect(result.blockedBy).toBe('input')
-      expect(result.reason.length).toBeGreaterThan(20)
-    }
-  })
-
-  it('refuses an undefined state without throwing, naming the missing argument', async () => {
-    let threw = false
-    let result: Awaited<ReturnType<typeof dispatch>> | null = null
-    try {
-      result = await dispatch(undefined as never, RELEASE, ctx('QUALITY_MANAGER'), { db, storageState: 'ready-durable' })
-    } catch { threw = true }
-    expect(threw).toBe(false)
-    expect(result?.ok).toBe(false)
-    if (result && !result.ok) {
-      expect(result.blockedBy).toBe('input')
-      expect(result.reason.length).toBeGreaterThan(20)
+      expect(result.reason).not.toMatch(/storage mode/i)
     }
   })
 })

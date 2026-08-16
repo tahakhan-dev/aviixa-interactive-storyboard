@@ -52,19 +52,29 @@ export interface ReviewEvent {
   readonly createdAtLogical: number
 }
 
-// Ids must be unique without `Math.random()`. `clock.logicalTick()` alone is
-// not enough: two records can be created against two DIFFERENT `Clock`
-// instances (e.g. two `fixedClock(CANONICAL_EPOCH_MS)` calls), each of which
-// starts its own tick counter at 0 -- so their first ticks would collide. A
-// counter held here, at module scope, keeps incrementing across calls
-// regardless of which clock instance is passed, so it is the actual source
-// of uniqueness; the clock's tick and epoch are folded in too so an id also
-// carries when-in-story it was made.
-let idSequence = 0
-
-function nextId(prefix: string, clock: Clock): string {
-  idSequence += 1
-  return `${prefix}-${clock.now()}-${clock.logicalTick()}-${idSequence}`
+// Fix round 1 (CRITICAL): a `clock.logicalTick()` + module-scope counter
+// scheme USED to live here. It was unique only within one module lifetime --
+// `idSequence` reset to 0 on every re-evaluation of this module, which is
+// every browser page reload, and `reviewRecords` (unlike domain state) is
+// durable ACROSS reloads by design. The first review comment made in any two
+// sessions, before the clock ever advanced, produced the identical id
+// `rr-<epoch>-1-1`; `put()` (keyPath `id`) then silently replaced the first
+// reviewer's record with the second's. See
+// tests/unit/review-records.test.ts's "ids stay unique across a simulated
+// page reload" test, which reproduces exactly that.
+//
+// `crypto.randomUUID()` fixes it by not depending on any in-memory counter
+// at all. Review ids are deliberately OUTSIDE the determinism constraint
+// that governs the kernel: they are never fed to `canonicalSerialize`/
+// `hashState`, never part of a `ScenarioDomainState` snapshot, and never
+// replayed through `reduce` -- they exist only as local storage keys for a
+// reviewer-feedback store, so nothing about them needs to reproduce
+// identically from an identical command sequence the way kernel-produced
+// state must. This is NOT precedent for using randomness anywhere in
+// `src/kernel/`, `src/domain/`, or `src/persistence/` -- those still derive
+// everything from the injected `Clock`, exactly as before.
+function nextId(prefix: string): string {
+  return `${prefix}-${crypto.randomUUID()}`
 }
 
 export function createReviewRecord(input: CreateReviewRecordInput, clock: Clock): ReviewRecord {
@@ -73,14 +83,14 @@ export function createReviewRecord(input: CreateReviewRecordInput, clock: Clock)
   }
   return {
     ...input,
-    id: nextId('rr', clock),
+    id: nextId('rr'),
     createdAtLogical: clock.now(),
   }
 }
 
 export function createReviewEvent(recordId: string, kind: string, clock: Clock): ReviewEvent {
   return {
-    id: nextId('re', clock),
+    id: nextId('re'),
     recordId,
     kind,
     createdAtLogical: clock.now(),

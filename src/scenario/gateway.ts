@@ -59,15 +59,52 @@ export type GatewayResult =
  * - `TENANT_SET_DESIRED_FEATURE` -> `'lifecycleChange'`: the tenant-scoped
  *   counterpart of the same kind of authoritative state mutation, for the
  *   same reason.
+ *
+ * Fix round 1 (IMPORTANT): the switch used to have no `default`, so an
+ * unrecognised `command.type` (reachable only by a caller bypassing the type
+ * system, but the shape guard below does exactly that check, not a value
+ * check) fell through and returned `undefined` SILENTLY. `permittedUnder`
+ * then failed closed on that `undefined`, which is correct in effect but
+ * wrong in category: `dispatch` reported `blockedBy: 'capability'` with a
+ * reason blaming "the current storage mode", which was false -- storage was
+ * fully durable. Returning `undefined` explicitly here lets `dispatch` tell
+ * "unrecognised command" (an input problem) apart from "storage can't
+ * durably record this" (an actual capability problem).
  */
-function actionClassFor(command: ScenarioCommand): ActionClass {
+function actionClassFor(command: ScenarioCommand): ActionClass | undefined {
   switch (command.type) {
     case 'CC_RELEASE_LOT_HOLD':
       return 'release'
     case 'PLATFORM_SET_FEATURE_CONTROL':
     case 'TENANT_SET_DESIRED_FEATURE':
       return 'lifecycleChange'
+    default:
+      return undefined
   }
+}
+
+/**
+ * Fix round 1 (IMPORTANT): `!command`/`!state` only ever caught the FALSY
+ * subset (`null`, `undefined`, `0`, `false`, `''`). A truthy-but-malformed
+ * shape -- `{}`, `[]`, `5`, `'x'`, `true` -- sailed straight past that guard
+ * and into `actionClassFor`/`reduce`, which is exactly the "unrecognised
+ * shape reported as a capability/policy failure" bug this checks for
+ * instead. `object`-typed and non-null is necessary but not sufficient: `{}`
+ * and `[]` are both `typeof 'object'` and non-null, so the discriminator
+ * field itself (`type` for a command) is checked too.
+ */
+function isMalformedCommand(command: unknown): boolean {
+  return typeof command !== 'object' || command === null || !('type' in command)
+}
+
+/**
+ * Same reasoning as `isMalformedCommand` above, checked against `sequence`
+ * -- the first field `reduce()` dereferences (`state.sequence + 1`) -- since
+ * `ScenarioDomainState` has no single discriminant field the way a command's
+ * `type` is one.
+ */
+function isMalformedState(state: unknown): boolean {
+  return typeof state !== 'object' || state === null || !('sequence' in state)
 }
 
 /**
@@ -76,11 +113,14 @@ function actionClassFor(command: ScenarioCommand): ActionClass {
  * including a caller passing a missing argument, is a typed `GatewayResult`,
  * never an exception a caller must catch.
  *
- * 0. Input: a null/undefined `state` or `command` is refused immediately,
- *    with `blockedBy: 'input'` -- neither `actionClassFor` (which reads
- *    `command.type`) nor `reduce` (which reads `state.sequence`, including
- *    inside ITS OWN catch-all) is safe to call with either missing, so this
- *    must run before either is ever reached.
+ * 0. Input: any malformed `state` or `command` -- not just falsy, but any
+ *    shape missing the field the next stage would dereference -- is refused
+ *    immediately, with `blockedBy: 'input'`. Neither `actionClassFor` (which
+ *    reads `command.type`) nor `reduce` (which reads `state.sequence`,
+ *    including inside ITS OWN catch-all) is safe to call with either
+ *    malformed, so this must run before either is ever reached. An
+ *    unrecognised (but structurally well-formed) command type is caught
+ *    right after, for the same reason.
  * 1. Capability: a durable command is refused here, before the kernel ever
  *    runs, if storage cannot durably record it -- a kernel run that cannot
  *    be committed is a transition that half-happened, so no kernel work
@@ -98,29 +138,42 @@ export async function dispatch(
   ctx: TransitionContext,
   deps: GatewayDeps,
 ): Promise<GatewayResult> {
-  // Fix round 1 (CRITICAL): a caller passing a null/undefined `state` or
-  // `command` -- e.g. an uninitialised selector result -- previously threw a
-  // TypeError instead of returning a typed refusal, breaking the one
-  // guarantee this file exists to keep. Guarded here, before either value is
-  // ever dereferenced.
-  if (!command) {
+  // Fix round 1 (CRITICAL, then widened as IMPORTANT): a caller passing a
+  // null/undefined `state` or `command` -- e.g. an uninitialised selector
+  // result -- previously threw a TypeError instead of returning a typed
+  // refusal. The original `!command`/`!state` guards fixed that but only for
+  // the FALSY subset; a truthy-but-malformed shape (`{}`, `[]`, `5`, `'x'`,
+  // `true`) sailed past them and got misreported as a capability or policy
+  // failure further down (see `isMalformedCommand`/`isMalformedState` above).
+  // Guarded here, before either value is ever dereferenced.
+  if (isMalformedCommand(command)) {
     return {
       ok: false,
-      reason: 'No command was supplied to the gateway, so no action could be attempted. Nothing was changed.',
+      reason:
+        'The command supplied to the gateway was not a valid, recognised command, so no action could be attempted. Nothing was changed.',
       decision: null,
       blockedBy: 'input',
     }
   }
-  if (!state) {
+  if (isMalformedState(state)) {
     return {
       ok: false,
-      reason: 'No scenario state was supplied to the gateway, so no action could be attempted. Nothing was changed.',
+      reason:
+        'The scenario state supplied to the gateway was not a valid state object, so no action could be attempted. Nothing was changed.',
       decision: null,
       blockedBy: 'input',
     }
   }
 
   const actionClass = actionClassFor(command)
+  if (actionClass === undefined) {
+    return {
+      ok: false,
+      reason: `The command type "${command.type}" is not a recognised action, so no action could be attempted. Nothing was changed.`,
+      decision: null,
+      blockedBy: 'input',
+    }
+  }
   if (!permittedUnder(deps.storageState, actionClass)) {
     return {
       ok: false,
