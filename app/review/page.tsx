@@ -1,12 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   REVIEW_STATUSES,
   createReviewRecord,
   type ReviewStatus,
   type ReviewRecord,
 } from '@/review/records'
+import { putReviewRecord, listReviewRecords } from '@/review/store'
+import { bootstrapStorage } from '@/persistence/bootstrap'
+import { openDatabase } from '@/persistence/schema'
 import { fixedClock } from '@/domain/clock'
 import { SURFACES, type SurfaceId } from '@/domain/surfaces'
 import { Button, Field, Select, Banner } from '@/ui/primitives'
@@ -22,6 +25,21 @@ const STATUS_ACTION_LABEL: Record<ReviewStatus, string> = {
   comment: 'Comment',
 }
 
+/**
+ * BLOCKING 4 (final review): this page used to keep every review record in
+ * `useState` only and never call `putReviewRecord` -- notes vanished on
+ * reload while the page told the reviewer they were "kept separately from
+ * the product's own audit trail," which was false; they were kept nowhere.
+ *
+ * `checking` covers the one render before the effect below has resolved
+ * `bootstrapStorage` -- during that window this shell does not yet know
+ * whether it can save, so it says neither "saved" nor "not saved."
+ */
+type StorageMode =
+  | { readonly kind: 'checking' }
+  | { readonly kind: 'durable'; readonly db: IDBDatabase }
+  | { readonly kind: 'not-durable'; readonly reason: string }
+
 export default function ReviewPage() {
   // Review-record timestamps are deliberately outside the kernel's
   // determinism constraint (see `createReviewRecord`'s doc comment in
@@ -33,10 +51,62 @@ export default function ReviewPage() {
   const [note, setNote] = useState('')
   const [records, setRecords] = useState<readonly ReviewRecord[]>([])
   const [error, setError] = useState<string | undefined>(undefined)
+  const [storage, setStorage] = useState<StorageMode>({ kind: 'checking' })
 
-  function submit(status: ReviewStatus): void {
+  // Runs once, client-side only (never during the static-export prerender
+  // pass, which has no `indexedDB`). Opens the SAME database the gateway
+  // and every other persistence-layer consumer use, via the same
+  // `bootstrapStorage` readiness gate the rest of the app is bound by --
+  // this shell gets no special, unvalidated path to storage.
+  useEffect(() => {
+    let cancelled = false
+
+    async function init(): Promise<void> {
+      const factory = typeof indexedDB === 'undefined' ? null : indexedDB
+      const boot = await bootstrapStorage(factory)
+      if (cancelled) return
+
+      if (!boot.durable || factory === null) {
+        setStorage({
+          kind: 'not-durable',
+          reason:
+            boot.reason ?? 'IndexedDB is not available in this browser, so notes are not being saved.',
+        })
+        return
+      }
+
+      let db: IDBDatabase
+      try {
+        db = await openDatabase(factory)
+      } catch {
+        if (!cancelled) {
+          setStorage({
+            kind: 'not-durable',
+            reason: 'The review database could not be opened, so notes are not being saved.',
+          })
+        }
+        return
+      }
+      if (cancelled) {
+        db.close()
+        return
+      }
+      setStorage({ kind: 'durable', db })
+
+      const listed = await listReviewRecords(db)
+      if (!cancelled && listed.ok) setRecords(listed.records)
+    }
+
+    void init()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  async function submit(status: ReviewStatus): Promise<void> {
+    let record: ReviewRecord
     try {
-      const record = createReviewRecord(
+      record = createReviewRecord(
         {
           anchorType: 'surface',
           anchorId: surface,
@@ -53,12 +123,33 @@ export default function ReviewPage() {
         },
         clock,
       )
-      setRecords((prev) => [...prev, record])
-      setNote('')
-      setError(undefined)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'This review note could not be recorded.')
+      return
     }
+
+    if (storage.kind !== 'durable') {
+      // Honest, not aspirational: storage is not ready, so this note is
+      // shown in-session (so the reviewer sees their own input reflected)
+      // but is NOT claimed to be saved anywhere.
+      setError(
+        storage.kind === 'checking'
+          ? 'This note is not yet saved: storage is still starting up.'
+          : `This note was not saved: ${storage.reason}`,
+      )
+      setRecords((prev) => [...prev, record])
+      setNote('')
+      return
+    }
+
+    const result = await putReviewRecord(storage.db, record)
+    if (!result.ok) {
+      setError(`This review note could not be saved: ${result.reason}`)
+      return
+    }
+    setRecords((prev) => [...prev, record])
+    setNote('')
+    setError(undefined)
   }
 
   return (
@@ -69,12 +160,36 @@ export default function ReviewPage() {
         Simulated behaviour only. This storyboard is a client-validation
         prototype, not a connected production system.
       </p>
+      {/*
+        This sentence is true regardless of storage state: a review record
+        is storyboard metadata, never a product audit record, whether or
+        not it happens to be saved anywhere. The DURABILITY claim -- whether
+        it is actually saved -- is the part that must depend on real storage
+        state (BLOCKING 4, final review), so it is a separate paragraph below.
+      */}
       <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">
         Review records left here are storyboard metadata, kept separately
         from the product&apos;s own audit trail. Accepting a screen for
         client review only marks this storyboard page as reviewed; it is not
         a product audit and never a business-state transition.
       </p>
+      {storage.kind === 'durable' ? (
+        <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
+          These notes are saved to this browser&apos;s local storage.
+        </p>
+      ) : storage.kind === 'checking' ? (
+        <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
+          Checking whether this browser can save these notes durably…
+        </p>
+      ) : (
+        <div className="mt-4">
+          <Banner
+            tone="attention"
+            heading="These notes are not being saved"
+            body={`${storage.reason} Notes typed below will be shown for this session only and will not survive a reload.`}
+          />
+        </div>
+      )}
 
       {error !== undefined ? (
         <div className="mt-4">
@@ -112,7 +227,7 @@ export default function ReviewPage() {
             <Button
               key={status}
               variant={status === 'accepted-for-review' ? 'primary' : 'secondary'}
-              onClick={() => submit(status)}
+              onClick={() => void submit(status)}
             >
               {STATUS_ACTION_LABEL[status]}
             </Button>
