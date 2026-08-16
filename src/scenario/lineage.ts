@@ -20,13 +20,21 @@ export interface RunLineage {
  * function only has the parent's current `ScenarioDomainState` to work with,
  * not its full snapshot history, so the branch starts as a full copy of the
  * parent's current state under the new run id.
+ *
+ * Minor (final review): this used to be `async` with no `await` in its body
+ * -- a pointless Promise wrapper that forced every caller to `await`
+ * something that never actually suspended. Plain synchronous function, per
+ * this codebase's failure-signalling convention (documented at the top of
+ * `@/review/store`): a synchronous precondition check on a caller-controlled
+ * argument throws immediately; only an actual IO boundary returns a typed
+ * async result.
  */
-export async function branchFrom(
+export function branchFrom(
   state: ScenarioDomainState,
   atSequence: number,
   newRunId: ScenarioRunId,
   clock: Clock,
-): Promise<{ readonly lineage: RunLineage; readonly state: ScenarioDomainState }> {
+): { readonly lineage: RunLineage; readonly state: ScenarioDomainState } {
   if (atSequence < 0 || atSequence > state.sequence) {
     throw new Error(
       `Branch sequence ${atSequence} is out of range for parent run "${state.runId}" at sequence ${state.sequence}`,

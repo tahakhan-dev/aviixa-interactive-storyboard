@@ -13,9 +13,9 @@ const base = () => ({
 })
 
 describe('checkpoint branching', () => {
-  it('creates a new run id carrying the parent', async () => {
+  it('creates a new run id carrying the parent', () => {
     const clock = fixedClock(CANONICAL_EPOCH_MS)
-    const { lineage } = await branchFrom(base(), 3, scenarioRunId('RUN-2'), clock)
+    const { lineage } = branchFrom(base(), 3, scenarioRunId('RUN-2'), clock)
     expect(lineage.runId).toBe('RUN-2')
     expect(lineage.parentRunId).toBe('RUN-1')
     expect(lineage.branchedFromSequence).toBe(3)
@@ -25,22 +25,32 @@ describe('checkpoint branching', () => {
   it('leaves the parent state byte-identical', async () => {
     const parent = base()
     const before = await hashState(parent)
-    await branchFrom(parent, 3, scenarioRunId('RUN-2'), fixedClock(CANONICAL_EPOCH_MS))
+    branchFrom(parent, 3, scenarioRunId('RUN-2'), fixedClock(CANONICAL_EPOCH_MS))
     expect(await hashState(parent)).toBe(before)
   })
 
-  it('gives the branch the new run id, not the parent’s', async () => {
-    const { state } = await branchFrom(base(), 3, scenarioRunId('RUN-2'), fixedClock(CANONICAL_EPOCH_MS))
+  it('gives the branch the new run id, not the parent’s', () => {
+    const { state } = branchFrom(base(), 3, scenarioRunId('RUN-2'), fixedClock(CANONICAL_EPOCH_MS))
     expect(state.runId).toBe('RUN-2')
   })
 
-  it('refuses a branch point beyond the parent’s sequence', async () => {
-    await expect(branchFrom(base(), 99, scenarioRunId('RUN-2'), fixedClock(CANONICAL_EPOCH_MS)))
-      .rejects.toThrow(/sequence/i)
+  it('refuses a branch point beyond the parent’s sequence', () => {
+    expect(() => branchFrom(base(), 99, scenarioRunId('RUN-2'), fixedClock(CANONICAL_EPOCH_MS)))
+      .toThrow(/sequence/i)
   })
 
-  it('refuses to reuse the parent’s run id', async () => {
-    await expect(branchFrom(base(), 3, RUN, fixedClock(CANONICAL_EPOCH_MS)))
-      .rejects.toThrow(/run id/i)
+  it('refuses to reuse the parent’s run id', () => {
+    expect(() => branchFrom(base(), 3, RUN, fixedClock(CANONICAL_EPOCH_MS)))
+      .toThrow(/run id/i)
+  })
+
+  // Minor (final review): `branchFrom` used to be `async` with no `await` in
+  // its body -- a pointless Promise wrapper around synchronous work, forcing
+  // every caller to `await` (or `.then`) something that never actually
+  // suspends. Fixed to a plain synchronous function; this is the regression
+  // lock so it does not quietly grow an `await` back in without a reason.
+  it('is synchronous -- returns a plain object, not a Promise', () => {
+    const result = branchFrom(base(), 3, scenarioRunId('RUN-2'), fixedClock(CANONICAL_EPOCH_MS))
+    expect(result).not.toBeInstanceOf(Promise)
   })
 })
