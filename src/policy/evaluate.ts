@@ -112,7 +112,7 @@ export function evaluateAccess(
 
   // 1. Authenticated simulated identity and active session.
   if (!identity.signedIn || identity.role === null) {
-    return deny('blocked', 'NO_ACTIVE_SESSION', undefined, {
+    return deny('explicitlyProhibited', 'NO_ACTIVE_SESSION', undefined, {
       stage: 'SESSION',
       sourceRefs: refs,
       conditionToEnable: 'Sign in on this surface.',
@@ -142,7 +142,7 @@ export function evaluateAccess(
     // id that spells 'constructor', '__proto__', etc. reports as genuinely
     // absent instead of resolving to an inherited Object.prototype member.
     if (identity.tenant === null || tenantPartition(state, identity.tenant) === undefined) {
-      return deny('blocked', 'TENANT_MISMATCH', undefined, {
+      return deny('explicitlyProhibited', 'TENANT_MISMATCH', undefined, {
         stage: 'TENANT_ISOLATION',
         sourceRefs: refs,
         auditExpectation: 'RECORDED_AS_REFUSAL',
@@ -155,7 +155,7 @@ export function evaluateAccess(
     // through an `any`/unvalidated boundary -- so it fails closed rather
     // than silently matching the old `!= null` skip-on-null behaviour.
     if (req.resourceTenant !== undefined && req.resourceTenant !== identity.tenant) {
-      return deny('blocked', 'TENANT_MISMATCH', undefined, {
+      return deny('explicitlyProhibited', 'TENANT_MISMATCH', undefined, {
         stage: 'TENANT_ISOLATION',
         sourceRefs: refs,
         auditExpectation: 'RECORDED_AS_REFUSAL',
@@ -164,7 +164,7 @@ export function evaluateAccess(
   } else {
     // domain === 'PLATFORM'
     if (identity.tenant !== null) {
-      return deny('blocked', 'TENANT_MISMATCH', undefined, {
+      return deny('explicitlyProhibited', 'TENANT_MISMATCH', undefined, {
         stage: 'TENANT_ISOLATION',
         sourceRefs: refs,
         auditExpectation: 'RECORDED_AS_REFUSAL',
@@ -179,7 +179,7 @@ export function evaluateAccess(
     // PLATFORM-domain role, since identity.tenant is always null there --
     // an Admin acting on a HARD_SUSPENDED tenant's resource was allowed.
     if (req.resourceTenant !== undefined && tenantPartition(state, req.resourceTenant) === undefined) {
-      return deny('blocked', 'TENANT_MISMATCH', undefined, {
+      return deny('explicitlyProhibited', 'TENANT_MISMATCH', undefined, {
         stage: 'TENANT_ISOLATION',
         sourceRefs: refs,
         auditExpectation: 'RECORDED_AS_REFUSAL',
@@ -189,14 +189,14 @@ export function evaluateAccess(
 
   // 3. Base-role union, with explicit deny winning.
   if (req.deniedRoles?.includes(role)) {
-    return deny('blocked', 'EXPLICIT_DENY', undefined, {
+    return deny('explicitlyProhibited', 'EXPLICIT_DENY', undefined, {
       stage: 'BASE_ROLE',
       sourceRefs: refs,
       auditExpectation: 'RECORDED_AS_REFUSAL',
     })
   }
   if (!req.allowedRoles.includes(role)) {
-    return deny('blocked', 'ROLE_NOT_GRANTED', undefined, {
+    return deny('explicitlyProhibited', 'ROLE_NOT_GRANTED', undefined, {
       stage: 'BASE_ROLE',
       sourceRefs: refs,
     })
@@ -207,7 +207,7 @@ export function evaluateAccess(
     req.requiredSites?.length &&
     !req.requiredSites.some((s) => identity.siteScope.includes(s))
   ) {
-    return deny('blocked', 'OUT_OF_SCOPE', undefined, {
+    return deny('explicitlyProhibited', 'OUT_OF_SCOPE', undefined, {
       stage: 'SCOPE',
       sourceRefs: refs,
     })
@@ -216,7 +216,7 @@ export function evaluateAccess(
     req.requiredAreas?.length &&
     !req.requiredAreas.some((a) => identity.areaScope.includes(a))
   ) {
-    return deny('blocked', 'OUT_OF_SCOPE', undefined, {
+    return deny('explicitlyProhibited', 'OUT_OF_SCOPE', undefined, {
       stage: 'SCOPE',
       sourceRefs: refs,
     })
@@ -230,7 +230,7 @@ export function evaluateAccess(
     req.requiredShifts?.length &&
     !req.requiredShifts.some((sh) => identity.shiftScope?.includes(sh))
   ) {
-    return deny('blocked', 'OUT_OF_SCOPE', undefined, {
+    return deny('explicitlyProhibited', 'OUT_OF_SCOPE', undefined, {
       stage: 'SCOPE',
       sourceRefs: refs,
     })
@@ -239,7 +239,7 @@ export function evaluateAccess(
     req.requiredObjectScope?.length &&
     !req.requiredObjectScope.some((o) => identity.objectScope?.includes(o))
   ) {
-    return deny('blocked', 'OUT_OF_SCOPE', undefined, {
+    return deny('explicitlyProhibited', 'OUT_OF_SCOPE', undefined, {
       stage: 'SCOPE',
       sourceRefs: refs,
     })
@@ -248,7 +248,7 @@ export function evaluateAccess(
     req.requiredTemporaryGrant &&
     !identity.temporaryGrants?.includes(req.requiredTemporaryGrant)
   ) {
-    return deny('blocked', 'OUT_OF_SCOPE', undefined, {
+    return deny('explicitlyProhibited', 'OUT_OF_SCOPE', undefined, {
       stage: 'SCOPE',
       sourceRefs: refs,
     })
@@ -337,7 +337,7 @@ export function evaluateAccess(
       req.objectState === undefined ||
       !req.allowedObjectStates.includes(req.objectState)
     ) {
-      return deny('blocked', 'OBJECT_STATE_INVALID', undefined, {
+      return deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', undefined, {
         stage: 'OBJECT_STATE',
         sourceRefs: refs,
         conditionToEnable: `The record must be in one of: ${req.allowedObjectStates.join(', ')}.`,
@@ -350,7 +350,7 @@ export function evaluateAccess(
   // case, not a silent pass.
   if (req.requiredObjectVersion !== undefined) {
     if (req.objectVersion === undefined || req.objectVersion !== req.requiredObjectVersion) {
-      return deny('blocked', 'STALE_VERSION', undefined, {
+      return deny('explicitlyProhibited', 'STALE_VERSION', undefined, {
         stage: 'OBJECT_STATE',
         sourceRefs: refs,
       })
@@ -363,7 +363,7 @@ export function evaluateAccess(
       (q) => !identity.qualifications.includes(q),
     )
     if (missing.length > 0) {
-      return deny('blocked', 'MISSING_QUALIFICATION', undefined, {
+      return deny('explicitlyProhibited', 'MISSING_QUALIFICATION', undefined, {
         stage: 'QUALIFICATION',
         sourceRefs: refs,
         conditionToEnable: `A current qualification is needed: ${missing.join(', ')}.`,
@@ -403,7 +403,7 @@ export function evaluateAccess(
   // segregation of duties exists to stop, not a free pass around it.
   if (req.makerCheckerOf != null) {
     if (ctx.actorOfRecord == null || req.makerCheckerOf === ctx.actorOfRecord) {
-      return deny('blocked', 'SEGREGATION_OF_DUTIES', undefined, {
+      return deny('explicitlyProhibited', 'SEGREGATION_OF_DUTIES', undefined, {
         stage: 'SEGREGATION_OF_DUTIES',
         sourceRefs: refs,
         auditExpectation: 'RECORDED_AS_REFUSAL',
@@ -415,7 +415,7 @@ export function evaluateAccess(
   // person's behalf" -- fails closed without an explicit
   // `approverAvailable: true`.
   if (req.requiresApproverAvailable && req.approverAvailable !== true) {
-    return deny('blocked', 'APPROVER_UNAVAILABLE', undefined, {
+    return deny('explicitlyProhibited', 'APPROVER_UNAVAILABLE', undefined, {
       stage: 'SEGREGATION_OF_DUTIES',
       sourceRefs: refs,
       auditExpectation: 'RECORDED_AS_REFUSAL',
@@ -423,7 +423,7 @@ export function evaluateAccess(
   }
 
   if (req.openDecision) {
-    return deny('decisionRequired', 'DECISION_OPEN', undefined, {
+    return deny('clientDecisionRequired', 'DECISION_OPEN', undefined, {
       stage: 'SEGREGATION_OF_DUTIES',
       sourceRefs: [...refs, req.openDecision],
     })

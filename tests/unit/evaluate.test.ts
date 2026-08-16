@@ -69,13 +69,13 @@ describe('effective access evaluation', () => {
 
   it('refuses when nobody is signed in, before any other stage', () => {
     const d = evaluateAccess(releaseHold, ctx({ identity: identity({ signedIn: false }) }))
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('SESSION')
   })
 
   it('refuses a signed-in session with no role at all', () => {
     const d = evaluateAccess(releaseHold, ctx({ identity: identity({ role: null }) }))
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('SESSION')
     expect(d.reasonCode).toBe('NO_ACTIVE_SESSION')
   })
@@ -90,7 +90,7 @@ describe('effective access evaluation', () => {
       { ...releaseHold, resourceTenant: RIVALCO },
       ctx(), // identity.tenant is BRIGHT; both BRIGHT and RIVALCO are live.
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('TENANT_ISOLATION')
     expect(d.reasonCode).toBe('TENANT_MISMATCH')
     expect(d.auditExpectation).toBe('RECORDED_AS_REFUSAL')
@@ -101,7 +101,7 @@ describe('effective access evaluation', () => {
       releaseHold,
       ctx({ identity: identity({ tenant: tenantId('TEN-UNKNOWN') }) }),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('TENANT_ISOLATION')
   })
 
@@ -110,7 +110,7 @@ describe('effective access evaluation', () => {
   // waved through stage 2 and stage 5's suspension check.
   it('refuses a TENANT-domain role holding no tenant at all', () => {
     const d = evaluateAccess(releaseHold, ctx({ identity: identity({ tenant: null }) }))
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('TENANT_ISOLATION')
   })
 
@@ -121,7 +121,7 @@ describe('effective access evaluation', () => {
       { ...releaseHold, allowedRoles: ['ADMIN'] },
       ctx({ identity: identity({ role: 'ADMIN', tenant: BRIGHT }) }),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('TENANT_ISOLATION')
   })
 
@@ -136,7 +136,7 @@ describe('effective access evaluation', () => {
   // MOD-CC-13: Supervisor may request a hold release with a note, never perform it.
   it('refuses a Supervisor releasing a lot hold', () => {
     const d = evaluateAccess(releaseHold, ctx({ identity: identity({ role: 'SUPERVISOR' }) }))
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('BASE_ROLE')
     expect(d.reasonCode).toBe('ROLE_NOT_GRANTED')
   })
@@ -146,7 +146,7 @@ describe('effective access evaluation', () => {
       { ...releaseHold, allowedRoles: ['QUALITY_MANAGER'], deniedRoles: ['QUALITY_MANAGER'] },
       ctx(),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.reasonCode).toBe('EXPLICIT_DENY')
   })
 
@@ -156,7 +156,7 @@ describe('effective access evaluation', () => {
         { ...releaseHold, requiredSites: ['SITE-OTHER'] },
         ctx(),
       )
-      expect(d.outcome).toBe('blocked')
+      expect(d.outcome).toBe('explicitlyProhibited')
       expect(d.stage).toBe('SCOPE')
       expect(d.reasonCode).toBe('OUT_OF_SCOPE')
     })
@@ -166,7 +166,7 @@ describe('effective access evaluation', () => {
         { ...releaseHold, requiredAreas: ['AREA-OTHER'] },
         ctx(),
       )
-      expect(d.outcome).toBe('blocked')
+      expect(d.outcome).toBe('explicitlyProhibited')
       expect(d.stage).toBe('SCOPE')
       expect(d.reasonCode).toBe('OUT_OF_SCOPE')
     })
@@ -261,7 +261,7 @@ describe('effective access evaluation', () => {
       { ...releaseHold, allowedRoles: ['WORKER'], requiredQualifications: ['QUAL-WELD'] },
       ctx({ identity: identity({ role: 'WORKER', qualifications: [] }) }),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('QUALIFICATION')
   })
 
@@ -286,7 +286,7 @@ describe('effective access evaluation', () => {
       { ...releaseHold, makerCheckerOf: 'PERSON-A' },
       ctx({ actorOfRecord: 'PERSON-A' }),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('SEGREGATION_OF_DUTIES')
   })
 
@@ -297,7 +297,7 @@ describe('effective access evaluation', () => {
       { ...releaseHold, makerCheckerOf: 'PERSON-A' },
       ctx({ actorOfRecord: null }),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('SEGREGATION_OF_DUTIES')
     expect(d.reasonCode).toBe('SEGREGATION_OF_DUTIES')
   })
@@ -310,9 +310,9 @@ describe('effective access evaluation', () => {
     expect(d.outcome).toBe('allowed')
   })
 
-  it('reports an open client decision as decisionRequired', () => {
+  it('reports an open client decision as clientDecisionRequired', () => {
     const d = evaluateAccess({ ...releaseHold, openDecision: 'DEC-PLUS-001' }, ctx())
-    expect(d.outcome).toBe('decisionRequired')
+    expect(d.outcome).toBe('clientDecisionRequired')
     expect(d.reasonCode).toBe('DECISION_OPEN')
     expect(d.sourceRefs).toContain('DEC-PLUS-001')
   })
@@ -322,7 +322,7 @@ describe('effective access evaluation', () => {
       { ...releaseHold, objectState: 'RELEASED', allowedObjectStates: ['HELD'] },
       ctx(),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('OBJECT_STATE')
   })
 
@@ -334,7 +334,7 @@ describe('effective access evaluation', () => {
       { ...releaseHold, allowedObjectStates: ['HELD'] },
       ctx(),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('OBJECT_STATE')
     expect(d.reasonCode).toBe('OBJECT_STATE_INVALID')
   })
@@ -454,7 +454,7 @@ describe('CRITICAL 1: a prototype-named tenant id never borrows Object.prototype
     (raw) => {
       const poisoned = tenantId(raw)
       const d = evaluateAccess(releaseHold, ctx({ identity: identity({ tenant: poisoned }) }))
-      expect(d.outcome).toBe('blocked')
+      expect(d.outcome).toBe('explicitlyProhibited')
       expect(d.stage).toBe('TENANT_ISOLATION')
     },
   )
@@ -511,7 +511,7 @@ describe('M4: platform-domain roles are also checked against a suspended resourc
       { ...releaseHold, allowedRoles: ['ADMIN'], resourceTenant: tenantId('TEN-NOWHERE') },
       ctx({ identity: identity({ role: 'ADMIN', tenant: null }) }),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('TENANT_ISOLATION')
     expect(d.reasonCode).toBe('TENANT_MISMATCH')
   })
@@ -520,7 +520,7 @@ describe('M4: platform-domain roles are also checked against a suspended resourc
 describe('IMPORTANT 3: previously undeclarable stage constraints become reachable', () => {
   it('stage 4: refuses a required shift the signed-in person is not scoped to', () => {
     const d = evaluateAccess({ ...releaseHold, requiredShifts: ['SHIFT-NIGHT'] }, ctx())
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('SCOPE')
     expect(d.reasonCode).toBe('OUT_OF_SCOPE')
   })
@@ -535,13 +535,13 @@ describe('IMPORTANT 3: previously undeclarable stage constraints become reachabl
 
   it('stage 4: refuses a required object scope the signed-in person is not scoped to', () => {
     const d = evaluateAccess({ ...releaseHold, requiredObjectScope: ['LOT-2201'] }, ctx())
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('SCOPE')
   })
 
   it('stage 4: refuses a required temporary grant the signed-in person does not hold', () => {
     const d = evaluateAccess({ ...releaseHold, requiredTemporaryGrant: 'TEMP-COVER-QM' }, ctx())
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('SCOPE')
   })
 
@@ -568,14 +568,14 @@ describe('IMPORTANT 3: previously undeclarable stage constraints become reachabl
       { ...releaseHold, requiredObjectVersion: 3, objectVersion: 2 },
       ctx(),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('OBJECT_STATE')
     expect(d.reasonCode).toBe('STALE_VERSION')
   })
 
   it('stage 6: fails closed when a required object version is declared but none is given', () => {
     const d = evaluateAccess({ ...releaseHold, requiredObjectVersion: 3 }, ctx())
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.reasonCode).toBe('STALE_VERSION')
   })
 
@@ -600,7 +600,7 @@ describe('IMPORTANT 3: previously undeclarable stage constraints become reachabl
       { ...releaseHold, requiresApproverAvailable: true, approverAvailable: false },
       ctx(),
     )
-    expect(d.outcome).toBe('blocked')
+    expect(d.outcome).toBe('explicitlyProhibited')
     expect(d.stage).toBe('SEGREGATION_OF_DUTIES')
     expect(d.reasonCode).toBe('APPROVER_UNAVAILABLE')
   })

@@ -2,20 +2,69 @@
  * One decision union governs every route, navigation item, screen, field,
  * control, action, notification, audit view and artificial-intelligence
  * result. Spec section 3.4.
+ *
+ * Frozen source, L10238: "Every cell in every permission matrix carries an
+ * explicit status from the closed set ... Blank cells are prohibited, because a
+ * blank cell is an unanswered question that an implementer will answer privately
+ * and inconsistently."
+ *
+ * CLOSED AT NINE. Adding a tenth is a scope decision, never a drift.
  */
 export type PermissionOutcome =
   /** The actor may proceed. */
   | 'allowed'
-  /** Visible, but refused, with the reason shown. */
-  | 'blocked'
-  /** Not rendered at all, because revealing it would itself disclose something. */
-  | 'hidden'
-  /** Rendered with the sensitive value masked. */
-  | 'redacted'
-  /** Genuinely unavailable right now — suspended, offline, or wrong object state. */
+  /** Permitted, but a stated condition applies and must be surfaced. */
+  | 'allowedWithConditions'
+  /** Visible and unchangeable, with the cause named. */
+  | 'readOnly'
+  /** A cached copy is readable; its age and origin must be shown. */
+  | 'cachedReadOnlyOffline'
+  /** Accepted locally, takes effect later. Renders in its TRUE command state. */
+  | 'queuedOffline'
+  /** Genuinely unavailable now — suspension, connectivity, or object state. */
   | 'unavailable'
-  /** An open client decision governs this and no honest answer exists yet. */
-  | 'decisionRequired'
+  /** The source explicitly prohibits this actor. Audited as a refusal. */
+  | 'explicitlyProhibited'
+  /** An open client decision governs this; the storyboard will not guess. */
+  | 'clientDecisionRequired'
+  /** Does not apply here. Carries a REQUIRED stated reason. */
+  | 'notApplicable'
+
+/**
+ * RULING 2: frozen, in source order. A reviewer can see at a glance that this
+ * is the complete nine — the exhaustiveness check just below fails to
+ * compile if a tenth outcome is ever added to the union without adding it
+ * here too. The permission-matrix rendering in a later slice consumes this
+ * array directly.
+ */
+export const PERMISSION_OUTCOMES: readonly PermissionOutcome[] = [
+  'allowed',
+  'allowedWithConditions',
+  'readOnly',
+  'cachedReadOnlyOffline',
+  'queuedOffline',
+  'unavailable',
+  'explicitlyProhibited',
+  'clientDecisionRequired',
+  'notApplicable',
+] as const
+
+/**
+ * Compile-time proof that PERMISSION_OUTCOMES lists every member of
+ * PermissionOutcome, not just nine strings that happen to match today. If a
+ * tenth outcome is added to the union above without adding it to the array,
+ * `MissingFromOutcomes` stops being `never` and this line fails to compile.
+ */
+type MissingFromOutcomes = Exclude<PermissionOutcome, (typeof PERMISSION_OUTCOMES)[number]>
+const _permissionOutcomesAreExhaustive: MissingFromOutcomes extends never ? true : never = true
+void _permissionOutcomesAreExhaustive
+
+/**
+ * How a FIELD renders. Deliberately separate from PermissionOutcome: a field
+ * can be redacted on a screen the actor is fully allowed to use. Conflating
+ * the two is what made the earlier six-member union ambiguous.
+ */
+export type FieldTreatment = 'visible' | 'redacted' | 'hidden'
 
 /**
  * The nine ordered stages of effective-access evaluation, plus two markers
@@ -47,8 +96,7 @@ export type AuditExpectation =
   /** The source does not require an audit record for this outcome. */
   | 'NOT_AUDITED'
 
-export interface PermissionDecision {
-  readonly outcome: PermissionOutcome
+interface PermissionDecisionBase {
   readonly reasonCode: ReasonCode
   /** Plain language a non-specialist can act on. Never an identifier. */
   readonly explanation: string
@@ -58,6 +106,48 @@ export interface PermissionDecision {
   readonly auditExpectation: AuditExpectation
   /** What would have to become true for this to be allowed. */
   readonly conditionToEnable: string | null
+}
+
+/**
+ * A discriminated union, so a reasonless `notApplicable` cannot be
+ * constructed. `notApplicableReason?: never` on the other arm makes the
+ * compiler reject supplying one where it is meaningless.
+ */
+export type PermissionDecision =
+  | (PermissionDecisionBase & {
+      readonly outcome: Exclude<PermissionOutcome, 'notApplicable'>
+      readonly notApplicableReason?: never
+    })
+  | (PermissionDecisionBase & {
+      readonly outcome: 'notApplicable'
+      readonly notApplicableReason: string
+    })
+
+const ACTION_OUTCOMES = new Set<PermissionOutcome>([
+  'allowed',
+  'allowedWithConditions',
+  // Accepted locally; effect is deferred, but the action was not refused.
+  'queuedOffline',
+])
+
+const READ_OUTCOMES = new Set<PermissionOutcome>([
+  'allowed',
+  'allowedWithConditions',
+  'queuedOffline',
+  'readOnly',
+  'cachedReadOnlyOffline',
+])
+
+export function permitsAction(d: PermissionDecision): boolean {
+  return ACTION_OUTCOMES.has(d.outcome)
+}
+
+export function permitsRead(d: PermissionDecision): boolean {
+  return READ_OUTCOMES.has(d.outcome)
+}
+
+export function isRefusal(d: PermissionDecision): boolean {
+  return !READ_OUTCOMES.has(d.outcome)
 }
 
 export const REASON_CODES = {
@@ -105,37 +195,39 @@ export const REASON_CODES = {
     'This is a hard gate. No role, setting or override can pass it.',
   DECISION_OPEN:
     'An open client decision governs this behaviour, so the storyboard will not pretend to know the answer.',
+  NOT_APPLICABLE:
+    'This capability does not apply in this situation, for the reason stated.',
+  CONDITIONS_APPLY:
+    'You may proceed, but a condition applies and is stated alongside the action.',
+  READ_ONLY_RECORD:
+    'This record can be read but not changed right now, and the cause is named.',
+  CACHED_WHILE_OFFLINE:
+    'This is a stored copy read while offline, and its age and origin are shown.',
+  QUEUED_WHILE_OFFLINE:
+    'The action was accepted on this device and will take effect when it reaches the server.',
 } as const
 
 export type ReasonCode = keyof typeof REASON_CODES
 
-interface DenyOptions {
+interface DecideOptions {
   readonly stage: EvaluationStage
   readonly sourceRefs: readonly string[]
   readonly auditExpectation?: AuditExpectation
   readonly conditionToEnable?: string
 }
 
-export function allow(
-  stage: EvaluationStage,
-  sourceRefs: readonly string[],
-): PermissionDecision {
-  return {
-    outcome: 'allowed',
-    reasonCode: 'ALLOWED',
-    explanation: REASON_CODES.ALLOWED,
-    stage,
-    sourceRefs,
-    auditExpectation: 'RECORDED',
-    conditionToEnable: null,
-  }
-}
-
-export function deny(
-  outcome: Exclude<PermissionOutcome, 'allowed'>,
+/**
+ * RULING 1: the one general constructor carrying the shared decision-shape
+ * logic. `allow`, `deny` and `notApplicable` are thin, honestly-named
+ * wrappers over this (`notApplicable` builds its own literal instead, since
+ * its shape carries a required extra field this signature has no room for).
+ * Excludes 'notApplicable' from `outcome` for the same reason.
+ */
+export function decide(
+  outcome: Exclude<PermissionOutcome, 'notApplicable'>,
   reasonCode: ReasonCode,
   explanation: string | undefined,
-  opts: DenyOptions,
+  opts: DecideOptions,
 ): PermissionDecision {
   return {
     outcome,
@@ -148,6 +240,48 @@ export function deny(
   }
 }
 
-export function isPermitted(d: PermissionDecision): boolean {
-  return d.outcome === 'allowed'
+export function allow(
+  stage: EvaluationStage,
+  sourceRefs: readonly string[],
+): PermissionDecision {
+  return decide('allowed', 'ALLOWED', REASON_CODES.ALLOWED, {
+    stage,
+    sourceRefs,
+    auditExpectation: 'RECORDED',
+  })
+}
+
+/**
+ * RULING 1: narrowed to the genuine refusals only. `allowedWithConditions`,
+ * `readOnly`, `cachedReadOnlyOffline` and `queuedOffline` are permitted
+ * outcomes, not denials — a constructor named `deny` producing "allowed with
+ * conditions" would mislead every future implementer. Those four go through
+ * `decide` instead.
+ */
+export function deny(
+  outcome: 'unavailable' | 'explicitlyProhibited' | 'clientDecisionRequired',
+  reasonCode: ReasonCode,
+  explanation: string | undefined,
+  opts: DecideOptions,
+): PermissionDecision {
+  return decide(outcome, reasonCode, explanation, opts)
+}
+
+export function notApplicable(
+  reason: string,
+  opts: { stage: EvaluationStage; sourceRefs: readonly string[] },
+): PermissionDecision {
+  if (reason.trim() === '') {
+    throw new Error('notApplicable requires a stated reason')
+  }
+  return {
+    outcome: 'notApplicable',
+    notApplicableReason: reason,
+    reasonCode: 'NOT_APPLICABLE',
+    explanation: `This does not apply here: ${reason}.`,
+    stage: opts.stage,
+    sourceRefs: opts.sourceRefs,
+    auditExpectation: 'NOT_AUDITED',
+    conditionToEnable: null,
+  }
 }

@@ -242,7 +242,7 @@ async function tryHash(value: unknown): Promise<{ hash: string } | { error: stri
 
 /** CRITICAL 1(c): the shared shape every internal-failure denial uses. */
 function internalFailureDecision(explanation: string, sourceRefs: readonly string[]): PermissionDecision {
-  return deny('blocked', 'HARD_GATE', explanation, {
+  return deny('explicitlyProhibited', 'HARD_GATE', explanation, {
     stage: 'COMMAND_VALIDATION',
     sourceRefs,
     auditExpectation: 'NOT_AUDITED',
@@ -420,7 +420,7 @@ async function reduceInner(
             }),
           ]
     const status =
-      decision.outcome === 'decisionRequired' ? 'decisionRequired' : 'denied'
+      decision.outcome === 'clientDecisionRequired' ? 'decisionRequired' : 'denied'
     return refuse(decision, priorHash, ctx, spec, status, audit, logicalTime, seq, recordTenant)
   }
 
@@ -440,7 +440,7 @@ async function reduceInner(
   const targetTenant = commandTenant(command)
   if (targetTenant !== null && tenantPartition(state, targetTenant) === undefined) {
     const unknownTenantDecision = deny(
-      'blocked',
+      'explicitlyProhibited',
       'TENANT_MISMATCH',
       'This command targets a tenant that does not exist in this scenario run, so nothing was changed.',
       {
@@ -477,7 +477,7 @@ async function reduceInner(
       // runs after authorisation, so it gets its own stage rather than
       // borrowing OBJECT_STATE's and misreporting where the refusal came
       // from.
-      deny('blocked', 'OBJECT_STATE_INVALID', invalid, {
+      deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', invalid, {
         stage: 'COMMAND_VALIDATION',
         sourceRefs: spec.access.sourceRefs,
       }),
