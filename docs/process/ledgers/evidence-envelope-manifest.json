@@ -1,19 +1,19 @@
 {
- "envelope_id": "c87b86b170f9c40b",
- "candidate_id": "b82d17a98a539730",
- "slice": "2a",
+ "envelope_id": "c276164c9eb96503",
+ "candidate_id": "4e5d75398281277b",
+ "slice": "2b",
  "verification": {
   "command": "pnpm verify",
   "exit_code": 0,
-  "total_tests": 349,
+  "total_tests": 562,
   "clean_rebuild": true
  },
  "payload_excludes_self": true,
  "payload": [
   {
    "path": "docs/process/ledgers/approval-ledger.json",
-   "bytes": 6124,
-   "sha256": "928a42f80c49ad7c8a518eef671912f1a6cf6c016a4a91eab7a49eadc9f12cfd"
+   "bytes": 8386,
+   "sha256": "f77dc21cea537c08b334a5f60f6e1d7d36c69a1c305f40642a4b73d2c1458404"
   },
   {
    "path": "docs/process/ledgers/capability-preflight-matrix.json",
@@ -22,8 +22,8 @@
   },
   {
    "path": "docs/process/ledgers/product-candidate-manifest.json",
-   "bytes": 13856,
-   "sha256": "314e78b3632431ffb3d1369e5a8ec5e5024c81cfff0b4d4cbca43cd711a66bb9"
+   "bytes": 19348,
+   "sha256": "1ab3fca961454dffeb94c77d11ce2b6f0d5578814c72fc9c55ab841121b29829"
   },
   {
    "path": "docs/process/ledgers/research-ledger.json",
@@ -39,6 +39,11 @@
    "path": "registries/generated/source-reconciliation.json",
    "bytes": 80446,
    "sha256": "a94c7696ebb35ef098b4ba76aa67980e13fdc3569fff465f2e2074b82596a69f"
+  },
+  {
+   "path": "registries/generated/workflow-registry.json",
+   "bytes": 223025,
+   "sha256": "1d4c9da484321296cbb3e8cb643c61f9c6b85269c85d481be5d2160e81c01bed"
   }
  ]
 }
