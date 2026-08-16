@@ -127,6 +127,33 @@ describe('canonical serialisation', () => {
   })
 })
 
+describe('array guard names the right cause', () => {
+  it('reports a non-index property as a non-index property, not as sparseness', () => {
+    const a: number[] & { extra?: string } = [1, 2]
+    a.extra = 'smuggled'
+    expect(() => canonicalSerialize(a)).toThrow(/non-index own property "extra"/)
+  })
+
+  it('still reports a genuine hole as sparse', () => {
+    expect(() => canonicalSerialize(new Array(1))).toThrow(/sparse/i)
+    expect(() => canonicalSerialize([1, , 3])).toThrow(/sparse/i)
+  })
+
+  it('reports the non-index cause even when a hole is also present', () => {
+    // Written as `new Array(3)` + explicit index assignment (index 1 left
+    // unset, a real hole) rather than the `[1, , 3]` elided literal: TS
+    // types an elided element as `undefined`, which is not assignable to
+    // `number[]`'s element type under this project's strict settings. This
+    // produces the identical runtime hole without that compile error.
+    const a: number[] & { tag?: string } = new Array(3)
+    a[0] = 1
+    a[2] = 3
+    a.tag = 'x'
+    // Both are wrong, but the extra property is the more actionable diagnosis.
+    expect(() => canonicalSerialize(a)).toThrow(/non-index own property "tag"/)
+  })
+})
+
 describe('hashing', () => {
   it('produces a 64-character lowercase hex digest', async () => {
     const h = await sha256Hex('aviixa')

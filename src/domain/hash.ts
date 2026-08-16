@@ -49,13 +49,21 @@ export function canonicalSerialize(value: unknown): string {
     // of those silently too, so the hash and the eventual stored row
     // already agree on them -- rejecting them would over-reject values
     // IndexedDB accepts as-is.
+    // Non-index keys are checked FIRST. An extra property inflates
+    // keys.length past value.length, so checking length first would report
+    // "sparse" for an array that has no holes at all -- sending the reader
+    // hunting something that does not exist. See tests/unit/hash.test.ts's
+    // "array guard names the right cause" describe block.
     const keys = Object.keys(value)
-    if (keys.length !== value.length) throw new Error('Sparse array in state (a hole is not a value)')
+    const indexKeys: string[] = []
     for (const k of keys) {
-      if (!/^(0|[1-9]\d*)$/.test(k)) {
+      if (/^(0|[1-9]\d*)$/.test(k)) {
+        indexKeys.push(k)
+      } else {
         throw new Error(`Array carries a non-index own property "${k}": only index elements are hashed`)
       }
     }
+    if (indexKeys.length !== value.length) throw new Error('Sparse array in state (a hole is not a value)')
     return `[${value.map(canonicalSerialize).join(',')}]`
   }
   if (typeof value === 'object') {
