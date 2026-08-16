@@ -397,13 +397,25 @@ export async function importReviewPackage(
     )
   }
 
-  // 2. format version
+  // 2. format version.
+  //
+  // Two DIFFERENT failures live here and must not share a message. A blob
+  // that declares no `formatVersion` at all is not an old package -- it is
+  // not a package, and saying "unsupported version" about it names the wrong
+  // cause. A blob that declares one we cannot read is genuinely a version
+  // problem. Both quarantine; only the second is about a version.
   const versionProbe = PackageFormatVersionProbeSchema.safeParse(raw)
-  const declaredVersion = versionProbe.success ? versionProbe.data.formatVersion : null
+  if (!versionProbe.success) {
+    return quarantine(
+      'This is not a review package: it declares no formatVersion.',
+      { expected: String(PACKAGE_FORMAT_VERSION), actual: null },
+    )
+  }
+  const declaredVersion = versionProbe.data.formatVersion
   if (declaredVersion !== PACKAGE_FORMAT_VERSION) {
     return quarantine('Unsupported package format version.', {
       expected: String(PACKAGE_FORMAT_VERSION),
-      actual: declaredVersion === null ? null : String(declaredVersion),
+      actual: String(declaredVersion),
     })
   }
 

@@ -143,6 +143,32 @@ describe('review package import', () => {
     if (!r.ok) expect(r.reason).toMatch(/format version/i)
   })
 
+  // Controller, after fix round 1: moving the version check ahead of the
+  // shape check made a SECOND input misdiagnose. A blob carrying no
+  // `formatVersion` at all is not an old package -- it is not a package.
+  // The probe fails, `declaredVersion` falls to `null`, `null !== 2`, and it
+  // quarantines as "Unsupported package format version" with `actual: null`.
+  // The signal is in the metadata but the message names the wrong cause.
+  // This project already went back and fixed exactly this class once, when
+  // `canonicalSerialize` reported "Sparse array in state" for a non-index
+  // array property -- both live classes were correctly REJECTED, but the
+  // message misnamed why.
+  it('reports a non-package as unrecognised, not as a version mismatch', async () => {
+    const notAPackage = { nothing: 'here' }
+    const r = await importReviewPackage(notAPackage, expected)
+    expect(r.ok).toBe(false)
+    if (!r.ok) {
+      expect(r.reason).not.toMatch(/format version/i)
+      expect(r.reason).toMatch(/not a review package/i)
+    }
+  })
+
+  it('still reports a version mismatch when a version IS declared but wrong', async () => {
+    const r = await importReviewPackage({ formatVersion: 99 }, expected)
+    expect(r.ok).toBe(false)
+    if (!r.ok) expect(r.reason).toMatch(/format version/i)
+  })
+
   // Fix round 1 (review, Minor 6 -- CORRECTED, see fix report): the review
   // claimed `CoverageSnapshotSchema`'s bare `z.number()` accepts `Infinity`
   // and that this reaches `canonicalSerialize` (which throws on a
