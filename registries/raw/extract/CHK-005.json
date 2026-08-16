@@ -1,0 +1,955 @@
+{
+  "chunk_id": "CHK-005",
+  "source_file": "/Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Production_Product_Blueprint.md",
+  "line_start": 13488,
+  "line_end": 16715,
+  "first_heading": "## 9.3 The Register of Who May Never Own This",
+  "last_heading": "## 12.3 Supervisor",
+
+  "modules": [
+    {
+      "id": "MOD-DOH-09",
+      "name": "Permissions, Roles and Access",
+      "surface": "SURF-DOH",
+      "purpose": "Administers the tenant role domain; renders the by-person and by-capability permission views and the refusal-explanation view.",
+      "roles_allowed": ["Tenant Admin"],
+      "key_functions": ["SCR-DOH-ROLE-01", "SCR-DOH-ROLE-02", "SCR-DOH-ROLE-03", "SCR-DOH-ROLE-04"],
+      "classification": "Derived Clarification — the Statement of Work names the module at §4.1.3 item 9 and states its remit at §4.8; the screen composition below is the blueprint's design",
+      "line": 14262
+    },
+    {
+      "id": "MOD-DOH-13",
+      "name": "Tenant View of Platform Administration",
+      "surface": "SURF-DOH",
+      "purpose": "Carries the tenant's Platform Access History listing every cross-tenant access event ever taken against the workspace.",
+      "roles_allowed": ["Tenant Admin", "Read-only Auditor"],
+      "key_functions": ["SCR-DOH-PAH-01", "FEAT-DOH-1301"],
+      "classification": "SoW Fact",
+      "line": 14789
+    },
+    {
+      "id": "MOD-CC-13",
+      "name": "Operational actions module",
+      "surface": "SURF-CC",
+      "purpose": "Carries the closed set of ten Command Center operational actions, each a command through an owning Hub service.",
+      "roles_allowed": ["Supervisor", "Quality Manager"],
+      "key_functions": ["FEAT-CC-1304 Release a lot hold", "FEAT-CC-1301", "FEAT-CC-1302", "FEAT-CC-1303"],
+      "classification": "unstated",
+      "line": 14417
+    },
+    {
+      "id": "MOD-STU-18",
+      "name": "Permissions and Roles",
+      "surface": "SURF-STU",
+      "purpose": "Studio-side administration of authoring capacities: the authoring grant and the Agent Author delegation.",
+      "roles_allowed": ["Tenant Admin"],
+      "key_functions": ["FEAT-STU-1801", "FEAT-STU-1802", "SCR-STU-GRANT-01"],
+      "classification": "unstated",
+      "line": 16480
+    },
+    {
+      "id": "unstated (§8.2 Atom Registry)",
+      "name": "Atom Registry",
+      "surface": "SURF-SA",
+      "purpose": "Band A registry of atoms; enable and disable are Platform Engineer submissions requiring Admin approval.",
+      "roles_allowed": ["Platform Engineer", "Root Super Admin"],
+      "key_functions": ["FEAT-SA-0201", "FUNC-SA-02010001", "FUNC-SA-02010002"],
+      "classification": "SoW Fact",
+      "line": 15944
+    },
+    {
+      "id": "unstated (§8.15)",
+      "name": "Support Sessions capability section",
+      "surface": "SURF-SA",
+      "purpose": "Opens, lists and terminates read-only time-boxed support sessions into tenant context.",
+      "roles_allowed": ["Support", "Admin", "Root Super Admin"],
+      "key_functions": ["FEAT-SA-1501", "FEAT-SA-1504", "FEAT-SA-1505", "SCR-SA-SUP-01", "SCR-SA-SUP-02"],
+      "classification": "SoW Fact",
+      "line": 14854
+    },
+    {
+      "id": "unstated (§8.8)",
+      "name": "Console Users, Roles and Change Approvals",
+      "surface": "SURF-SA",
+      "purpose": "Console account creation, role assignment, disable, last-activity review, and the approval queue.",
+      "roles_allowed": ["Root Super Admin", "Admin"],
+      "key_functions": ["SCR-SA-USR-01", "SCR-SA-ROLES-01", "SCR-SA-APPR-01", "FEAT-SA-0801", "FEAT-SA-0806"],
+      "classification": "SoW Fact",
+      "line": 14977
+    },
+    {
+      "id": "unstated (Tenant Administration)",
+      "name": "Tenant administration area",
+      "surface": "SURF-DOH",
+      "purpose": "The Tenant Admin's screen group inside the Delivery Operations Hub; it is not a sixth surface.",
+      "roles_allowed": ["Tenant Admin"],
+      "key_functions": ["SCR-DOH-TENADM-01", "SCR-DOH-TENADM-02"],
+      "classification": "SoW Fact",
+      "line": 14410
+    }
+  ],
+
+  "roles_rules": [
+    {
+      "role": "Client Command Center (surface-level, every role)",
+      "may": ["render Delivery Operations Hub owned records", "execute the closed set of ten operational actions as commands through owning DOH services"],
+      "may_not": ["own any record", "hold any configuration", "override a specification gate or the evaluation gate", "pause or stop a run", "edit any record or configuration", "create Jobs or Runs"],
+      "surface": "SURF-CC",
+      "scope_conditions": ["four exclusions are absolute for every role [SoW Fact — §6.14.3]"],
+      "governing_decision": null,
+      "line": 13498
+    },
+    {
+      "role": "Frontline Worker Application",
+      "may": ["own its local store and its queue state"],
+      "may_not": ["own assignments", "own conflict resolutions", "own other workers' data", "own any authored content"],
+      "surface": "SURF-FL",
+      "scope_conditions": ["scoped to the logged-in identity's own work"],
+      "governing_decision": null,
+      "line": 13500
+    },
+    {
+      "role": "Standards and Operations Studio",
+      "may": ["own authored content"],
+      "may_not": ["own any operational record", "own the atom registry", "own core agent definitions", "own the memory architecture", "own the evaluation harness"],
+      "surface": "SURF-STU",
+      "scope_conditions": [],
+      "governing_decision": null,
+      "line": 13502
+    },
+    {
+      "role": "Super Admin platform console",
+      "may": ["own platform definition and administration"],
+      "may_not": ["own tenant operational decisions: gate decisions, Lane-B approvals, lot releases, deviation handling", "own tenant workflow content, work instructions, tenant agent configuration", "own tenant user and permission management", "own invoicing, payment execution, pricing"],
+      "surface": "SURF-SA",
+      "scope_conditions": ["platform carries a usage ledger, entitlements, and caps only"],
+      "governing_decision": null,
+      "line": 13504
+    },
+    {
+      "role": "Any agent or artificial-intelligence component",
+      "may": ["propose"],
+      "may_not": ["own any record", "release a Severity 1 hold", "classify a deviation", "bypass a gate", "self-approve", "elevate its own permissions"],
+      "surface": "all",
+      "scope_conditions": ["Agents propose; humans decide; services write", "Detection is deterministic and runs on-device; no artificial-intelligence model sits in the deviation-triggering path"],
+      "governing_decision": null,
+      "line": 13506
+    },
+    {
+      "role": "Delivery Operations Hub",
+      "may": ["file what the Frontline application creates"],
+      "may_not": ["originate operational data of any kind", "run live agents", "own workflow content"],
+      "surface": "SURF-DOH",
+      "scope_conditions": [],
+      "governing_decision": null,
+      "line": 13548
+    },
+    {
+      "role": "Root Super Admin (ROLE-PLAT-ROOT)",
+      "may": ["create console accounts (root-only)", "assign and change console roles (root-only)", "approve the ten critical-class actions", "co-authorise the compliance-emergency path with one Admin", "approve JBS access grants"],
+      "may_not": ["create a second root account", "share the account as a convenience login", "disable or route around any of the six platform invariants", "bypass the evaluation gate", "release a Severity 1 hold", "browse tenant operational content ambiently", "write into tenant data outside the compliance-emergency path", "make a tenant configuration looser than the platform floor", "execute a run or operate a Frontline device", "approve a change whose audit event cannot be written"],
+      "surface": "SURF-SA",
+      "scope_conditions": ["Both console bands, Band A and Band B", "tenant operational content only through a named access class", "single sign-on plus multi-factor authentication, internet-protocol allowlist, short sessions"],
+      "governing_decision": "DEC-ROOTCUST-001",
+      "line": 15396
+    },
+    {
+      "role": "Admin (ROLE-PLAT-ADMIN)",
+      "may": ["run Band B operations: tenant lifecycle, tiers and caps, notifications, archival, usage, devices", "approve Platform Engineer mutating changes", "co-authorise the compliance-emergency path with the root", "propose critical-class actions"],
+      "may_not": ["create, modify or disable console accounts or assign console roles", "approve its own critical-class submissions", "approve a Platform Engineer change it authored itself", "open a compliance-emergency session without the root", "write into tenant data outside that path", "disable an invariant", "release a Severity 1 hold", "act as a tenant role"],
+      "surface": "SURF-SA",
+      "scope_conditions": ["Band B routine actions auto-apply and are audited", "critical class escalates to the root"],
+      "governing_decision": "DEC-FEAT-001",
+      "line": 15826
+    },
+    {
+      "role": "Platform Engineer (ROLE-PLAT-ENG)",
+      "may": ["operate Band A: atom and agent enable/disable, evaluation runs, engineering-class settings, all as submissions", "execute evaluation runs directly", "inspect traces", "propose an emergency pause"],
+      "may_not": ["apply any mutating change directly", "approve any request including another engineer's", "bypass the evaluation gate", "disable an invariant", "create or assign console accounts or roles", "open a compliance-emergency session", "write into tenant data", "release a Severity 1 hold", "act as a tenant role", "alter or delete a trace, an audit record, or evidence"],
+      "surface": "SURF-SA",
+      "scope_conditions": ["maker only; the checker is always a different identity holding the Admin role, or the root for the critical class"],
+      "governing_decision": "DEC-FEAT-001",
+      "line": 15955
+    },
+    {
+      "role": "Support (ROLE-PLAT-SUP)",
+      "may": ["open a normal support session, read-only, ticket-linked, time-boxed", "read console administration and telemetry", "close its own session"],
+      "may_not": ["write anything of any kind inside a support session, without exception", "repair data", "open the compliance-emergency path", "enter a compliance-suspended tenant", "browse tenant content without an open session", "open a session without a ticket-linked reason", "suppress or hide the tenant-visible banner", "prevent the tenant from ending the session", "make configuration changes anywhere", "create or assign console accounts or roles", "release a Severity 1 hold", "act as a tenant role"],
+      "surface": "SURF-SA",
+      "scope_conditions": ["default scope is no tenant context at all; tenant context exists only while a session is open", "session time box default two hours, configurable in platform settings"],
+      "governing_decision": "DEC-SUPEXT-001",
+      "line": 16099
+    },
+    {
+      "role": "Tenant Admin (ROLE-TEN-ADMIN)",
+      "may": ["configure hierarchy, shifts, settings within platform floors", "administer users, roles and scopes", "assign and revoke the authoring grant and the Agent Author delegation", "author report formats and export reports in the Command Center", "read the tier and usage view", "read Platform Access History"],
+      "may_not": ["access another tenant's workspace", "reach the platform root or any platform role", "create a platform role", "create a Tenant Super Admin (none exists)", "hold automatic Quality Manager authority", "release a Severity 1 hold unless separately and validly holding the Quality Manager role", "hold any stage of the Studio approval chain", "act in-shift on the Command Center", "set any configuration looser than the platform floor", "edit any operational record or evidence", "perform any of the ten Command Center operational actions", "see Studio drafts and in-review versions"],
+      "surface": "SURF-DOH",
+      "scope_conditions": ["Maximum scope Tenant", "Frontline Worker Application: Unavailable — the surface serves assigned execution", "Super Admin platform console: Explicitly prohibited"],
+      "governing_decision": "DEC-TENGRANT-001",
+      "line": 16491
+    },
+    {
+      "role": "Supervisor (ROLE-TEN-SUP)",
+      "may": ["maintain worker records and qualifications (supervisor-entered, fully audited)", "create Jobs, create and schedule runs", "assign and substitute workers", "grant expired-certification clearances with a mandatory categorised reason", "acknowledge alerts and escalations", "acknowledge and annotate the handoff brief", "reassign a run mid-shift", "request an agent re-check", "request lot release with a mandatory note", "view the sync-conflict panel (view-only)", "perform the second-identity step-up on a worker device", "act as Studio Reviewer on submissions they did not author, with the authoring grant"],
+      "may_not": ["release any lot hold, including an automatic Severity 1 hold", "grant a clearance for a never-held qualification", "grant a second clearance in the same Area on the same shift without it routing to the Quality Manager", "approve a Job", "approve or release Studio content", "review a submission they authored", "decide a Lane B learned-change proposal", "mark evidence reviewed", "resolve sync conflicts", "override a specification gate or the evaluation gate from any surface", "pause or stop a run from the Command Center", "edit any record or configuration from the Command Center", "see records outside their scope", "access the Super Admin platform console or another tenant"],
+      "surface": "SURF-CC",
+      "scope_conditions": ["sees only the cells and Areas within their scope", "Maximum scope Tenant, Site or Area, as assigned; in practice Area or Site", "no implicit tenant-wide default"],
+      "governing_decision": "DEC-PLUS-001",
+      "line": 16645
+    },
+    {
+      "role": "Quality Manager (ROLE-TEN-QM)",
+      "may": ["Job approval", "Summary review", "the Anomaly Register", "never-held clearances", "run cancellation anywhere", "the Qualification Calendar", "release a Severity 1 lot hold (uniformly, and only this role)", "everything a Supervisor sees plus record-affecting authority in the Command Center", "authoring across the nine Studio sections and Release Authority by tenant default"],
+      "may_not": ["release a hold outside their Tenant, Site or Area scope", "act through an artificial-intelligence agent on their behalf", "represent an offline release as landed"],
+      "surface": "SURF-CC",
+      "scope_conditions": ["the hold's Lot lies inside the holder's Tenant, Site or Area scope", "Quality Manager only, uniformly, with no exceptions by work type, risk class, or tag"],
+      "governing_decision": "DEC-PLUS-001",
+      "line": 14457
+    },
+    {
+      "role": "Read-only Auditor (ROLE-TEN-AUD)",
+      "may": ["read across the tenant including the full audit log", "read published Studio content"],
+      "may_not": ["access the Client Command Center at all", "access the Frontline Worker Application", "access the Super Admin platform console", "see Studio drafts and in-review versions", "write anything anywhere"],
+      "surface": "SURF-DOH",
+      "scope_conditions": ["every one of the thirteen Command Center modules renders Explicitly prohibited in the Read-only Auditor column, citing §6.1.3 and §3.5"],
+      "governing_decision": null,
+      "line": 14458
+    },
+    {
+      "role": "Worker (ROLE-TEN-WKR)",
+      "may": ["execute runs on the Frontline Worker Application", "read own worker record and own certification alerts"],
+      "may_not": ["use the Standards and Operations Studio (meets Workflow content only through execution)", "use the Client Command Center", "use the Super Admin platform console", "self-attest qualifications", "override a gate on-device"],
+      "surface": "SURF-FL",
+      "scope_conditions": ["there is no on-device worker override [SoW Fact — §7.13.1]"],
+      "governing_decision": null,
+      "line": 14459
+    },
+    {
+      "role": "Every platform role (all four)",
+      "may": [],
+      "may_not": ["reach the Frontline Worker Application in any circumstance", "perform any of the ten Command Center operational actions", "occupy any stage of a tenant's Author, Reviewer, Release Authority chain", "browse tenant records ambiently without a named access class"],
+      "surface": "SURF-FL",
+      "scope_conditions": ["Prohibited for every platform role in every circumstance"],
+      "governing_decision": null,
+      "line": 16232
+    }
+  ],
+
+  "business_rules": [
+    {"id": "unnumbered", "statement": "The Command Center is the cockpit, never the engine. It owns no record; there is no separate Command Center database.", "enforcement_point": "Static persistence-dependency assertion across all Command Center modules; build fails if one is introduced", "applies_to": "SURF-CC", "is_hard_gate": true, "line": 13770},
+    {"id": "unnumbered", "statement": "Every Command Center action is a command against a DOH-owned record, executed through the owning DOH service, written to the DOH audit trail; the set is a closed list of ten and adding an action is a scope decision, never a drift.", "enforcement_point": "Owning Hub service; scope governance", "applies_to": "SURF-CC operational actions", "is_hard_gate": true, "line": 13770},
+    {"id": "unnumbered", "statement": "Rule one — nothing crosses a seam without a defined envelope or contract. Captures cross with the runtime envelope; operational events with the lighter envelope; commands as one of five classes; content as a version-pinned work package. There is no informal crossing.", "enforcement_point": "Seam contracts", "applies_to": "all five surfaces", "is_hard_gate": true, "line": 13628},
+    {"id": "unnumbered", "statement": "Rule two — every flow is one-directional per record type. A reader's action does not flow back as a record change; it flows back as a command through the owning service.", "enforcement_point": "Owning service", "applies_to": "all record types", "is_hard_gate": true, "line": 13630},
+    {"id": "unnumbered", "statement": "The Frontline Worker Application is the only surface in the platform where operational data is created; no operational data originates in the DOH itself.", "enforcement_point": "Absence of any capture-creating control on Hub, Studio, Command Center and console surfaces", "applies_to": "operational data", "is_hard_gate": true, "line": 13898},
+    {"id": "unnumbered", "statement": "No back-office data entry, no import path for operational data, and no synthesis by the platform. The platform never invents content, rules, or thresholds.", "enforcement_point": "Import path rejection of operational record types; TEST-ORIGIN-001/002/003", "applies_to": "operational data", "is_hard_gate": true, "line": 13902},
+    {"id": "unnumbered", "statement": "Missing data is recorded as missing with its reason and is never filled in. Corrections are append-only and the original capture is always readable.", "enforcement_point": "Hub filing and annotation service", "applies_to": "captures, step executions", "is_hard_gate": true, "line": 13993},
+    {"id": "unnumbered", "statement": "The audit log is immutable and append-only; an action that cannot be audited does not happen. No surface and no role can mutate the audit log.", "enforcement_point": "Every service; only append succeeds", "applies_to": "audit history", "is_hard_gate": true, "line": 13565},
+    {"id": "unnumbered", "statement": "A cell in either permission view is never blank; it carries a status from the closed set. Unavailable and Explicitly prohibited are different statements and must never be merged.", "enforcement_point": "Generator consistency gate at build time", "applies_to": "permission matrices", "is_hard_gate": true, "line": 14234},
+    {"id": "unnumbered", "statement": "A functionality with no row for one of the nine role types fails the build, because an unstated permission is an undefined permission.", "enforcement_point": "Generator consistency report", "applies_to": "permission assignment set", "is_hard_gate": true, "line": 14245},
+    {"id": "unnumbered", "statement": "Access is an intersection of nine conditions evaluated at once; if any one says no, the answer is no; if any says never, the answer is never even if all the others said yes.", "enforcement_point": "The access decision service", "applies_to": "every request on every surface", "is_hard_gate": true, "line": 14508},
+    {"id": "unnumbered", "statement": "Explicit deny wins: where any condition produces an explicit deny, the request is refused regardless of how many conditions produced an allow.", "enforcement_point": "Access decision precedence", "applies_to": "multi-role identities", "is_hard_gate": true, "line": 14526},
+    {"id": "unnumbered", "statement": "Safety controls win: where a safety control conflicts with any other condition, including a root-level allow, the safety control decides. Safety controls are evaluated first and cannot be reordered by configuration.", "enforcement_point": "Access decision ordering", "applies_to": "all requests", "is_hard_gate": true, "line": 14527},
+    {"id": "unnumbered", "statement": "The decision and its audit event commit in one transaction; an action that cannot be audited does not occur. Where the audit writer cannot commit, the action does not happen.", "enforcement_point": "One-transaction audit guarantee", "applies_to": "every action", "is_hard_gate": true, "line": 14541},
+    {"id": "unnumbered", "statement": "Deny-by-default: an unresolved or unreachable permission condition produces a refusal, never a grant. An absolute rule that cannot be evaluated is treated as violated.", "enforcement_point": "Enforcement service; service-boundary assertions", "applies_to": "all access decisions", "is_hard_gate": true, "line": 14476},
+    {"id": "unnumbered", "statement": "A refusal caused by a scope miss does not disclose the existence of the out-of-scope object.", "enforcement_point": "Refusal message composition", "applies_to": "scope refusals", "is_hard_gate": true, "line": 14534},
+    {"id": "unnumbered", "statement": "Cached decisions serve reads only and always render a freshness marker naming the decision's age. Write paths never use a cached decision.", "enforcement_point": "Decision service", "applies_to": "degraded access path", "is_hard_gate": true, "line": 14617},
+    {"id": "unnumbered", "statement": "An action bound to one named role type is allowed only when that role type is held; no union of other roles substitutes for it. Scope is taken from the role type that produced the allow, never from the union of all scopes held.", "enforcement_point": "Multi-role evaluation order", "applies_to": "multi-role identities", "is_hard_gate": true, "line": 14695},
+    {"id": "unnumbered", "statement": "The audit log records the user identity and the action, never an acting-as-role fiction; the deciding role type is recorded as a decision input only.", "enforcement_point": "Audit schema — no acting-as-role field exists", "applies_to": "all audited actions", "is_hard_gate": true, "line": 14698},
+    {"id": "unnumbered", "statement": "There are exactly three named access classes and only three: the normal support session, the compliance-emergency path, and the JBS access grant. No ambient browsing exists anywhere on the console.", "enforcement_point": "Console gateway; every tenant-content read path", "applies_to": "platform-to-tenant crossings", "is_hard_gate": true, "line": 14777},
+    {"id": "unnumbered", "statement": "A normal support session is read-only without exception; no write capability exists inside it. A data repair is not support.", "enforcement_point": "Session service refuses every write verb", "applies_to": "Support role sessions", "is_hard_gate": true, "line": 16022},
+    {"id": "unnumbered", "statement": "The compliance-emergency path is the only class with write capability into tenant data and the only entry into a compliance-suspended tenant, and requires two authorisations, the root and one Admin, with scope declared before the session opens.", "enforcement_point": "Session authorisation service", "applies_to": "tenant data writes by platform staff", "is_hard_gate": true, "line": 14780},
+    {"id": "unnumbered", "statement": "Every cross-boundary access is written twice: once in the platform audit and once mirrored into the tenant's audit stream, in the same transaction. If the mirror write fails, the session action is refused.", "enforcement_point": "Session service one-transaction mirror guarantee", "applies_to": "all platform-to-tenant access", "is_hard_gate": true, "line": 14886},
+    {"id": "unnumbered", "statement": "No tenant record is read while the tenant cannot see that it is being read; if the banner cannot render, the session is suspended and no further reads are served until the banner is confirmed visible.", "enforcement_point": "Banner heartbeat; session suspension", "applies_to": "support sessions", "is_hard_gate": true, "line": 14887},
+    {"id": "unnumbered", "statement": "Employment by JBS, by the client, or by an implementation partner never confers permanent access. Every crossing is granted, exercised, and expires.", "enforcement_point": "Grant objects with expiry", "applies_to": "external and partner staff", "is_hard_gate": true, "line": 14790},
+    {"id": "unnumbered", "statement": "Absolute rule 1 — There is no Tenant Super Admin. No role exists inside a tenant workspace above the Tenant Admin, and none may be created.", "enforcement_point": "Tenant role catalogue, fixed at five", "applies_to": "tenant security domain", "is_hard_gate": true, "line": 14934},
+    {"id": "unnumbered", "statement": "Absolute rule 3 — The Tenant Admin has no automatic platform authority; no emergency creates the path.", "enforcement_point": "Console authentication and the domain boundary", "applies_to": "Tenant Admin", "is_hard_gate": true, "line": 14936},
+    {"id": "unnumbered", "statement": "Absolute rules 4-8 — Exactly one Root Super Admin account, created through the backend at commissioning; not clonable, not shareable, not convertible from a Tenant Admin, not assignable by a Tenant Admin.", "enforcement_point": "Provisioning; console account creation (root-only)", "applies_to": "platform security domain", "is_hard_gate": true, "line": 14937},
+    {"id": "unnumbered", "statement": "Absolute rule 11 — The six platform invariants (evaluation gate, sandbox-before-publish, encryption at rest, encryption in transit, cross-tenant analytics anonymisation, one-transaction audit guarantee) bind every account including the root and have no off position and no approval path around them.", "enforcement_point": "Settings render locked; no approval path exists", "applies_to": "every account", "is_hard_gate": true, "line": 14944},
+    {"id": "unnumbered", "statement": "Absolute rule 12 — Severity 1 lot release is Quality Manager only, uniformly. No platform role, no Tenant Admin, and no artificial-intelligence agent may release a Severity 1 hold.", "enforcement_point": "The lot release service", "applies_to": "Severity 1 holds", "is_hard_gate": true, "line": 14945},
+    {"id": "unnumbered", "statement": "Absolute rule 13 — There is no self-registration and no password-only path on the console, and no role-escalation path except the root acting.", "enforcement_point": "Console authentication and the Users pane", "applies_to": "SURF-SA", "is_hard_gate": true, "line": 14946},
+    {"id": "unnumbered", "statement": "Absolute rule 14 — At least one Tenant Admin always exists, and an approver-capable role must exist whenever a Job exists; a removal that would breach either is refused with the rule named.", "enforcement_point": "The tenant role assignment service", "applies_to": "tenant role assignment", "is_hard_gate": true, "line": 14947},
+    {"id": "unnumbered", "statement": "An absolute-rule refusal short-circuits the remaining evaluation, names the rule in plain language rather than a numeric code, and writes a security-relevant audit event.", "enforcement_point": "Access decision; audit", "applies_to": "absolute rules 1-14", "is_hard_gate": true, "line": 14955},
+    {"id": "unnumbered", "statement": "Tenants may make the platform stricter than default and may never make it looser than the platform floor; the platform rejects a looser-than-floor value rather than logging it.", "enforcement_point": "Tenant settings validation (SCR-DOH-TENADM-02 floor rejection)", "applies_to": "tenant configuration", "is_hard_gate": true, "line": 16421},
+    {"id": "unnumbered", "statement": "Qualifications are supervisor-entered with a full audit trail; self-attestation is not permitted for any worker. Supervisor permission alone authorises worker-record changes; the audit trail, not a second approval, is the control.", "enforcement_point": "Worker record service", "applies_to": "worker qualifications", "is_hard_gate": true, "line": 16561},
+    {"id": "unnumbered", "statement": "A Supervisor clearance covers an expired certification only; a never-held qualification requires the Quality Manager; a second clearance in the same Area on the same shift, regardless of worker, routes to the Quality Manager.", "enforcement_point": "Clearance service; Area-level escalation", "applies_to": "qualification clearances", "is_hard_gate": true, "line": 16571},
+    {"id": "unnumbered", "statement": "The login is the credential, not the device: identity, qualifications, language preference and attribution travel with the worker onto any conformant device, and a shared tablet confers nothing by itself.", "enforcement_point": "Frontline authentication", "applies_to": "worker identity", "is_hard_gate": true, "line": 16321},
+    {"id": "unnumbered", "statement": "Delegation is deferred beyond V1; cover is handled by manually adding and removing the role.", "enforcement_point": "Role assignment", "applies_to": "tenant roles", "is_hard_gate": false, "line": 16323},
+    {"id": "unnumbered", "statement": "No blocked action is replayed automatically on recovery, because a replayed approval is an approval nobody gave.", "enforcement_point": "Recovery procedure", "applies_to": "degraded access path", "is_hard_gate": true, "line": 15060},
+    {"id": "unnumbered", "statement": "Exit from the ReadOnly state requires three consecutive healthy evaluations and passes through a mandatory reconciliation state before returning to healthy.", "enforcement_point": "Access degradation state machine", "applies_to": "access decision path", "is_hard_gate": true, "line": 15111},
+    {"id": "unnumbered", "statement": "Do not create a hidden second root account as a fallback; a standing second root defeats the property that makes the root auditable. Re-provisioning is atomic replacement, never addition.", "enforcement_point": "Continuous assertion that exactly one root identity is enabled", "applies_to": "root account continuity", "is_hard_gate": true, "line": 15615},
+    {"id": "unnumbered", "statement": "No mutating Band A change applies without an approval record naming a different approver identity; maker and checker must differ.", "enforcement_point": "Approval cycle assertion", "applies_to": "Platform Engineer changes", "is_hard_gate": true, "line": 15992},
+    {"id": "unnumbered", "statement": "The evaluation gate sits before the approval cycle, not inside it: no agent, capability or composed behaviour goes live without passing its evaluation scenarios, and no approval path exists around the gate. An unavailable harness blocks rather than waives.", "enforcement_point": "Evaluation harness gate", "applies_to": "agents, capabilities, composed behaviours", "is_hard_gate": true, "line": 15993},
+    {"id": "unnumbered", "statement": "No Band A change auto-applies on a timeout or in the absence of an Admin; an auto-applied change is an unapproved change.", "enforcement_point": "Approval queue", "applies_to": "Band A submissions", "is_hard_gate": true, "line": 15868},
+    {"id": "unnumbered", "statement": "Critical-class requests never auto-approve, expire silently, or apply without a recorded root decision; they wait and re-notify.", "enforcement_point": "Approval queue aging re-notification", "applies_to": "the ten critical-class actions", "is_hard_gate": true, "line": 15460},
+    {"id": "unnumbered", "statement": "A successful service call is never rendered as an applied device command; a created command is not an applied command.", "enforcement_point": "Command state rendering; read-back from the Hub", "applies_to": "device-targeting actions", "is_hard_gate": true, "line": 13869},
+    {"id": "unnumbered", "statement": "Exactly five tenant role types exist and no interface can create a sixth; there is no Quality Director role, and Job Owner is a field on the Job record, not a role.", "enforcement_point": "Tenant role catalogue", "applies_to": "tenant security domain", "is_hard_gate": true, "line": 16282},
+    {"id": "unnumbered", "statement": "Scope is limited to Tenant, Site and Area, three orthogonal dimensions held simultaneously; Location (Cell), Job and worker-level scoping are deferred beyond V1 and no rule may depend on them.", "enforcement_point": "Scope assignment validation", "applies_to": "all tenant role assignments", "is_hard_gate": true, "line": 14515},
+    {"id": "unnumbered", "statement": "Under soft suspension, master-data writes are blocked while operations continue in full and recertification of existing workers stays open. Under compliance suspension, all logins are blocked immediately, in-flight runs stop, and devices lock at next contact with the fixed worker-facing message.", "enforcement_point": "Tenant suspension state", "applies_to": "tenant lifecycle", "is_hard_gate": true, "line": 16521}
+  ],
+
+  "decisions": [
+    {
+      "id": "DEC-PLUS-001",
+      "question": "Do the five tenant roles form an authority ordering, such that the plus notation means 'this role and every role above it', or are they unordered and additive, such that the plus notation abbreviates an enumerated set?",
+      "options": ["Option 1 — declare an ordering (Worker, Supervisor, Quality Manager, Tenant Admin), reading plus as 'and above'", "Option 2 — declare enumerated sets, replacing every plus form with an explicit list of role types", "Option 3 — union with explicit-deny precedence, no ordering"],
+      "adopted_working_position": "Every authority statement is written with the explicit role types named, and no chapter assumes an ordering among the five additive tenant roles. Where a chapter reproduces a plus form quoted from the source, the reader is directed to DEC-PLUS-001 for its meaning.",
+      "status": "open — recommendation (Option 3) explicitly not adopted as a requirement",
+      "impact": "Blocks the final authority columns in Chapter 17 and the substitute sign-off behaviour in the Frontline Worker Application.",
+      "line": 14674
+    },
+    {
+      "id": "DEC-SUBAUTH-001",
+      "question": "Who may substitute for a Supervisor sign-off on a worker device when no Supervisor is available, given §7.13.3's 'higher authority' clause and the absence of any hierarchy in Part III or Part IV?",
+      "options": ["Name the Quality Manager as the only substitute", "Name the Quality Manager and the Tenant Admin", "Make the substitute set a tenant configuration within a platform floor"],
+      "adopted_working_position": "Recommendation: the Quality Manager only. This recommendation is not adopted as a requirement.",
+      "status": "open",
+      "impact": "A required supervisor sign-off gates a worker's screen; no substitute stops the run, any substitute makes the gate worthless.",
+      "line": 16666
+    },
+    {
+      "id": "DEC-ROOTCUST-001",
+      "question": "Who holds custody of the root account, who are the two break-glass custodians, what is the tolerable duration of a root outage, and what out-of-band identity verification does the client use?",
+      "options": ["Option A — single named custodian with a documented emergency contact", "Option B — two custodians who jointly re-provision, neither holding the credential in ordinary operation", "Option C — custody held by a third party under escrow"],
+      "adopted_working_position": "Recommendation: Option B, with a documented rehearsal cadence and a stated outage tolerance.",
+      "status": "open",
+      "impact": "Blocks the operational runbook, not the software; the software behaviour is settled by SoW Fact §8.8.1.",
+      "line": 15696
+    },
+    {
+      "id": "DEC-JBSWRITE-001",
+      "question": "Whether a JBS access grant may carry write capability into tenant data.",
+      "options": ["Read-only always, with any write performed by client staff through the compliance-emergency path", "A write-capable JBS class requiring the same dual authorisation"],
+      "adopted_working_position": "Recommendation: read-only always, because it keeps §8.15.2's 'only one' statement literally true.",
+      "status": "open",
+      "impact": "Determines whether an external party can ever alter a manufacturer's production record.",
+      "line": 14877
+    },
+    {
+      "id": "DEC-EMEREND-001",
+      "question": "Whether the tenant-visible banner and the tenant's End-session control apply to the compliance-emergency path and the JBS access grant, or only to the normal support session.",
+      "options": ["Banner and End-session on all three", "Banner on all three but no End-session on the compliance-emergency path", "Banner suppressed on the compliance-emergency path entirely"],
+      "adopted_working_position": "Recommendation: banner on all three, End-session on the normal support session and the JBS grant but not on the compliance-emergency path, with the post-session report as compensating visibility.",
+      "status": "open",
+      "impact": "A tenant cannot stop an emergency session, which is deliberate and must be stated in the tenant contract.",
+      "line": 14878
+    },
+    {
+      "id": "DEC-ROOTCHK-001",
+      "question": "Whether the root may itself act as the checker on a Platform Engineer Band A change, substituting for Admin in the maker-checker cycle.",
+      "options": ["The root may act as checker for continuity", "The root may not, preserving a strict two-person separation"],
+      "adopted_working_position": "Recommendation: the root may act as checker only where no Admin account exists or all Admin accounts are disabled, recorded with an explicit continuity reason. This blueprint does not assume the root may substitute.",
+      "status": "open",
+      "impact": "Determines whether Band A changes stall when no Admin is available.",
+      "line": 15499
+    },
+    {
+      "id": "DEC-CONSENT-001",
+      "question": "Should any class of platform access into tenant data require the Tenant Admin's affirmative approval before it opens?",
+      "options": ["No consent required, visibility only, as the source implies", "Consent required for the normal support session with an automatic-approval timeout", "Consent required for JBS grants only"],
+      "adopted_working_position": "Recommendation: consent required for JBS grants only, with visibility-only for the client's own support.",
+      "status": "open",
+      "impact": "The difference between a manufacturer being informed and being in control; materially affects support response times.",
+      "line": 15506
+    },
+    {
+      "id": "DEC-LEGALVIS-001",
+      "question": "Whether the placement of a legal hold on a tenant's data is disclosed to that tenant.",
+      "options": ["Always disclose", "Never disclose", "Disclose unless the hold carries a non-disclosure flag set at placement"],
+      "adopted_working_position": "Recommendation: the third option, making non-disclosure an explicit, audited decision rather than a default.",
+      "status": "open",
+      "impact": "In some jurisdictions disclosure is required; in others it is prejudicial.",
+      "line": 15572
+    },
+    {
+      "id": "DEC-SUPEXT-001",
+      "question": "Whether a support session may be extended beyond its time box, by whom, and how many times.",
+      "options": ["No extension, always a new session", "Extension by the engineer with a new reason, capped at one", "Extension requiring an Admin"],
+      "adopted_working_position": "Recommendation: no extension, always a new session, so each session carries its own reason and time box.",
+      "status": "open",
+      "impact": "Trades support efficiency against audit clarity for long investigations.",
+      "line": 16122
+    },
+    {
+      "id": "DEC-SUPEXP-001",
+      "question": "Whether a support engineer may export anything from inside a session, such as a record extract attached to a ticket.",
+      "options": ["No export, findings written in prose only", "Export of a defined minimal extract, itself audited and mirrored and listed in Platform Access History", "Unrestricted export"],
+      "adopted_working_position": "Recommendation: no export, with findings written in prose, keeping tenant operational content inside the platform where the mirroring holds.",
+      "status": "open",
+      "impact": "An export removes tenant operational content into a ticketing system the tenant cannot see.",
+      "line": 16123
+    },
+    {
+      "id": "DEC-TENGRANT-001",
+      "question": "The lifecycle of the authoring grant and the Agent Author delegation: does an ordinary tenant authoring grant carry an expiry, require periodic re-affirmation, or get reviewed?",
+      "options": ["Perpetual until revoked, matching the plain reading", "An expiry set at assignment", "A periodic re-affirmation, for example annually, with a notification to the Tenant Admin"],
+      "adopted_working_position": "Recommendation: perpetual until revoked, with a mandatory annual review report listing every grant-holder.",
+      "status": "open",
+      "impact": "An authoring grant lets a Supervisor create content governing a factory floor; an unrevoked grant accumulates silently.",
+      "line": 16512
+    },
+    {
+      "id": "DEC-STUDIO-001",
+      "question": "The Standards and Operations Studio module count: the source gives no canonical count and this blueprint derives eighteen from §5.1 through §5.18.",
+      "options": ["Accept the derived count of 18", "Client states a canonical count"],
+      "adopted_working_position": "The feature-centric view must never present the derived Studio count as source-backed; it renders with a derived-count qualifier and a DEC-STUDIO-001 reference.",
+      "status": "open",
+      "impact": "Affects every module inventory and coverage total for the Studio surface.",
+      "line": 14412
+    },
+    {
+      "id": "DEC-RTO-001",
+      "question": "What Recovery Time Objective and Recovery Point Objective apply to platform-side services, in particular the access decision path and the Hub record service?",
+      "options": ["Minutes-scale with active redundancy", "Hours-scale with warm standby", "Next-business-day with backup restore"],
+      "adopted_working_position": "Recommendation: minutes-scale for the access decision path specifically, because it gates every surface. The Statement of Work states no availability targets.",
+      "status": "open — TBD Client Decision Required",
+      "impact": "Determines redundancy cost and how long a tenant's in-shift authority may be unavailable.",
+      "line": 14629
+    },
+    {
+      "id": "DEC-FEAT-001",
+      "question": "Whether atom enablement is a Platform Engineer Band A change requiring Admin approval (§8.2.2) or an Admin action as a platform-side tenant current-value change including feature enablement (§8.19).",
+      "options": ["Platform Engineer submission with Admin approval", "Admin action"],
+      "adopted_working_position": "Both readings are preserved; not resolved here.",
+      "status": "open",
+      "impact": "Determines who may enable a feature or atom and whether maker-checker applies.",
+      "line": 15893
+    },
+    {
+      "id": "DEC-NOSHIFT-001",
+      "question": "What the platform does when nobody holding the target role is on shift for an escalation.",
+      "options": ["Fall back to the tenant's Quality Manager role irrespective of shift and mark the delivery as a fallback"],
+      "adopted_working_position": "The platform falls back to the tenant's Quality Manager role irrespective of shift and marks the delivery as a fallback so the gap is visible rather than silent.",
+      "status": "open",
+      "impact": "Determines whether an escalation is delivered or silently dropped outside shift coverage.",
+      "line": 16652
+    },
+    {
+      "id": "DEC-WIPE-001",
+      "question": "What happens when a device wipe command targets an offline device that never returns.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open",
+      "impact": "Unresolved terminal state for a wipe command against a permanently offline device.",
+      "line": 15390
+    },
+    {
+      "id": "DEC-STORE-001",
+      "question": "Device storage-full behaviour when local captures cannot be committed.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open",
+      "impact": "Affects the sole-origin guarantee when a device runs out of durable local store.",
+      "line": 13984
+    },
+    {
+      "id": "DEC-LIB-001",
+      "question": "Whether a library edit propagating immediately to referencing screens affects an in-flight run whose package is pinned at assignment.",
+      "options": ["Library edit propagates to the in-flight run", "The pinned package governs the in-flight run"],
+      "adopted_working_position": "Both readings are preserved; the interaction for an in-flight run is unstated.",
+      "status": "open",
+      "impact": "Determines whether workers mid-run see changed content.",
+      "line": 13734
+    },
+    {
+      "id": "DEC-AUDEXPORT-001",
+      "question": "What a role definition card export ('Save as document') may contain.",
+      "options": [],
+      "adopted_working_position": null,
+      "status": "open — see section 12.5",
+      "impact": "Bounds what permission documentation leaves the platform.",
+      "line": 14355
+    },
+    {
+      "id": "DEC-ROLE-001",
+      "question": "The Plant Manager and Quality Director contradiction — job titles used in the source that are not platform roles.",
+      "options": [],
+      "adopted_working_position": "This chapter references and does not resolve it.",
+      "status": "open",
+      "impact": "Determines whether additional personas map to any of the five fixed tenant roles.",
+      "line": 16284
+    }
+  ],
+
+  "objects": [
+    {
+      "id": "unstated (Root Super Admin identity)",
+      "name": "Root Super Admin account / root identity",
+      "authoritative_owner_surface": "SURF-SA",
+      "states": ["Provisioned", "Active", "Locked", "Suspected", "Reprovisioning", "Retired"],
+      "key_relationships": ["creates every console account", "assigns every console role", "approves the ten critical-class actions", "co-authorises the compliance-emergency path with one Admin"],
+      "line": 15656
+    },
+    {
+      "id": "unstated (approval request)",
+      "name": "Approval request",
+      "authoritative_owner_surface": "SURF-SA",
+      "states": ["pending", "approved", "returned", "applied"],
+      "key_relationships": ["carries proposer, change class, object reference, difference, rationale, approver, timestamps and audit reference", "composed-agent reviews and tier publications appear in the same queue under their own classes"],
+      "line": 15337
+    },
+    {
+      "id": "unstated (command)",
+      "name": "Command channel action",
+      "authoritative_owner_surface": "SURF-DOH",
+      "states": ["created", "authorized", "queued", "available for delivery", "delivered", "downloaded", "validated", "applied", "acknowledged", "rejected", "failed", "expired", "cancelled", "superseded", "reconciled"],
+      "key_relationships": ["one of five command classes", "reaches a device only at that device's next sync", "acknowledgement reconciles the command record"],
+      "line": 14567
+    },
+    {
+      "id": "unstated (support session)",
+      "name": "Normal support session",
+      "authoritative_owner_surface": "SURF-SA",
+      "states": ["opened", "suspended", "terminated", "expired", "closed"],
+      "key_relationships": ["ticket-linked reason class", "tenant-visible banner with End-session control", "mirrored to the tenant audit stream", "listed in Platform Access History"],
+      "line": 14779
+    },
+    {
+      "id": "unstated (lot hold)",
+      "name": "Severity 1 lot hold",
+      "authoritative_owner_surface": "SURF-DOH",
+      "states": ["placed locally (frozen)", "issued", "propagating", "in force per device", "released"],
+      "key_relationships": ["placed on-device at the instant of capture with no server involvement", "released only by a Quality Manager through the Hub lot service", "Supervisor may only request release with a note"],
+      "line": 13820
+    },
+    {
+      "id": "unstated (qualification clearance)",
+      "name": "Qualification clearance",
+      "authoritative_owner_surface": "SURF-DOH",
+      "states": ["granted", "queued while offline", "applied on device", "expired"],
+      "key_relationships": ["expired certification -> Supervisor", "never-held qualification -> Quality Manager", "second in same Area same shift -> Quality Manager", "rides the command channel"],
+      "line": 16571
+    },
+    {
+      "id": "unstated (permission assignment set)",
+      "name": "Authoritative permission assignment set",
+      "authoritative_owner_surface": "SURF-DOH",
+      "states": ["authored", "reviewed against absolute rules", "committed", "generated", "published"],
+      "key_relationships": ["rows of (role, module, feature, sub-feature, functionality, status, conditions)", "projects into the role-centric view and the feature-centric view"],
+      "line": 14229
+    },
+    {
+      "id": "unstated (worker record)",
+      "name": "Worker record",
+      "authoritative_owner_surface": "SURF-DOH",
+      "states": ["active", "archived (departed)", "reactivated on re-employment with re-validation prompt"],
+      "key_relationships": ["carries qualifications entered by the Supervisor", "carries the instruction-difficulty profile field selecting simple, standard or expanded work-instruction variant", "departure is a two-step flow: reassign runs, then archive"],
+      "line": 16332
+    },
+    {
+      "id": "unstated (authoring grant)",
+      "name": "Authoring grant / Agent Author delegation",
+      "authoritative_owner_surface": "SURF-STU",
+      "states": ["assigned", "in force", "revoked"],
+      "key_relationships": ["assigned and revoked by the Tenant Admin", "lets a Supervisor author and submit but never approve or release", "lifecycle open under DEC-TENGRANT-001"],
+      "line": 16457
+    }
+  ],
+
+  "workflows": [
+    {"id": "WF-SA-ACCOUNT-CREATE", "name": "Create a console account", "primary_actor": "Root Super Admin", "trigger": "A new platform team member requires console access", "surfaces_touched": ["SURF-SA"], "terminal_states": ["account created and audited"], "line": 15418},
+    {"id": "WF-SA-ROLE-ASSIGN", "name": "Assign a console role", "primary_actor": "Root Super Admin", "trigger": "Console account requires a role", "surfaces_touched": ["SURF-SA"], "terminal_states": ["role assigned and audited"], "line": 15418},
+    {"id": "WF-SA-CRITICAL-APPROVE", "name": "Approve a critical-class request", "primary_actor": "Root Super Admin", "trigger": "An Admin or Platform Engineer submits a critical-class action", "surfaces_touched": ["SURF-SA"], "terminal_states": ["approved and applied", "returned with reason", "pending with aging re-notification"], "line": 15418},
+    {"id": "WF-SA-EMERGENCY-OPEN", "name": "Open a compliance-emergency session", "primary_actor": "Root Super Admin plus one Admin", "trigger": "Tenant data must genuinely change", "surfaces_touched": ["SURF-SA", "SURF-DOH", "SURF-STU", "SURF-CC"], "terminal_states": ["session closed with automatic post-session report to the tenant"], "line": 15418},
+    {"id": "WF-SA-JBS-GRANT", "name": "Approve a JBS access grant", "primary_actor": "Root Super Admin", "trigger": "JBS requires scoped access", "surfaces_touched": ["SURF-SA"], "terminal_states": ["grant approved, exercised, expired"], "line": 15418},
+    {"id": "WF-SA-APPROVE-ENGINEER-CHANGE", "name": "Approve a Band A Platform Engineer change", "primary_actor": "Admin", "trigger": "Platform Engineer submits a mutating Band A change", "surfaces_touched": ["SURF-SA"], "terminal_states": ["applied and audited in one transaction", "returned with reason"], "line": 15838},
+    {"id": "WF-SA-TENANT-ONBOARD", "name": "Onboard a tenant", "primary_actor": "Admin", "trigger": "New manufacturer signs", "surfaces_touched": ["SURF-SA", "SURF-DOH"], "terminal_states": ["tenant onboarded, Band B auto-applied and audited"], "line": 15838},
+    {"id": "WF-SA-TIER-ASSIGN", "name": "Assign a published tier", "primary_actor": "Admin", "trigger": "Tenant crosses a usage ladder threshold", "surfaces_touched": ["SURF-SA"], "terminal_states": ["tier assigned within published tiers"], "line": 15838},
+    {"id": "WF-SA-CRITICAL-SUBMIT", "name": "Submit a critical-class request", "primary_actor": "Admin", "trigger": "A critical-class action is required", "surfaces_touched": ["SURF-SA"], "terminal_states": ["escalated to the root, pending"], "line": 15838},
+    {"id": "WF-SA-EMERGENCY-COAUTH", "name": "Co-authorise an emergency session", "primary_actor": "Admin", "trigger": "Root initiates the compliance-emergency path", "surfaces_touched": ["SURF-SA"], "terminal_states": ["session opens with declared scope"], "line": 15838},
+    {"id": "WF-SA-SUBMIT-BAND-A", "name": "Submit a Band A change", "primary_actor": "Platform Engineer", "trigger": "Engineering change prepared and evaluation scenarios pass", "surfaces_touched": ["SURF-SA"], "terminal_states": ["applied on approval", "returned to preparation", "blocked by the evaluation gate"], "line": 15967},
+    {"id": "WF-SA-RUN-EVAL", "name": "Run an evaluation suite", "primary_actor": "Platform Engineer", "trigger": "Agent-affecting change prepared", "surfaces_touched": ["SURF-SA"], "terminal_states": ["scenarios pass", "scenarios fail and the change stops"], "line": 15967},
+    {"id": "WF-SA-COMPOSED-AGENT-REVIEW", "name": "Composed-agent review", "primary_actor": "Platform Engineer", "trigger": "A composed agent requires review", "surfaces_touched": ["SURF-SA"], "terminal_states": ["reviewed in the approval queue under its own class"], "line": 15967},
+    {"id": "WF-SA-PROPOSE-PAUSE", "name": "Propose an emergency pause", "primary_actor": "Platform Engineer or Admin", "trigger": "Agent activity must stop platform-wide or per tenant", "surfaces_touched": ["SURF-SA"], "terminal_states": ["root approves pause; resume is a separate approval"], "line": 15967},
+    {"id": "WF-SA-OPEN-SUPPORT-SESSION", "name": "Open a support session", "primary_actor": "Support", "trigger": "A tenant raises a ticket", "surfaces_touched": ["SURF-SA", "SURF-DOH", "SURF-STU", "SURF-CC"], "terminal_states": ["session ends at time box, engineer close, or tenant End-session press"], "line": 16111},
+    {"id": "WF-SA-CLOSE-SESSION", "name": "Close a support session", "primary_actor": "Support", "trigger": "Investigation complete", "surfaces_touched": ["SURF-SA"], "terminal_states": ["session-ended event mirrored to both audit streams"], "line": 16111},
+    {"id": "WF-SA-ESCALATE-TO-EMERGENCY", "name": "Escalate a finding that requires a data change", "primary_actor": "Support", "trigger": "Investigation concludes tenant data must change", "surfaces_touched": ["SURF-SA"], "terminal_states": ["handed to the compliance-emergency path; no support session ever becomes a write session"], "line": 16111},
+    {"id": "WF-DOH-CONFIGURE-HIERARCHY", "name": "Configure the operational hierarchy", "primary_actor": "Tenant Admin", "trigger": "Workspace setup", "surfaces_touched": ["SURF-DOH"], "terminal_states": ["Site, Area, Location configured; a Job anchors at the deepest configured level"], "line": 16503},
+    {"id": "WF-DOH-CREATE-USER", "name": "Create a tenant user", "primary_actor": "Tenant Admin", "trigger": "New person joins the tenant", "surfaces_touched": ["SURF-DOH"], "terminal_states": ["user created with role types, scopes and a login track"], "line": 16503},
+    {"id": "WF-DOH-ASSIGN-ROLE", "name": "Assign a tenant role", "primary_actor": "Tenant Admin", "trigger": "Role required", "surfaces_touched": ["SURF-DOH"], "terminal_states": ["role assigned subject to the mandatory-role rules"], "line": 16503},
+    {"id": "WF-STU-ADMINISTER-GRANT", "name": "Administer a Studio grant", "primary_actor": "Tenant Admin", "trigger": "A user needs authoring capacity", "surfaces_touched": ["SURF-STU"], "terminal_states": ["grant assigned or revoked"], "line": 16503},
+    {"id": "WF-CC-AUTHOR-REPORT-FORMAT", "name": "Author a report format", "primary_actor": "Tenant Admin or Quality Manager", "trigger": "Tenant needs a report format", "surfaces_touched": ["SURF-CC"], "terminal_states": ["format authored; sits outside the closed set of ten"], "line": 16503},
+    {"id": "WF-DOH-ENTER-QUALIFICATION", "name": "Enter a worker qualification", "primary_actor": "Supervisor", "trigger": "Worker qualification recorded or updated", "surfaces_touched": ["SURF-DOH"], "terminal_states": ["qualification entered with full audit; no self-attestation"], "line": 16657},
+    {"id": "WF-DOH-CREATE-RUN", "name": "Create and schedule a run", "primary_actor": "Supervisor", "trigger": "Work must be scheduled", "surfaces_touched": ["SURF-DOH"], "terminal_states": ["run scheduled, visible today plus seven days"], "line": 16657},
+    {"id": "WF-DOH-SUBSTITUTE-WORKER", "name": "Substitute a worker mid-run", "primary_actor": "Supervisor", "trigger": "Worker unavailable mid-run", "surfaces_touched": ["SURF-DOH", "SURF-FL"], "terminal_states": ["substitute receives structured handover; pre-substitution steps remain attributed to the original worker"], "line": 16657},
+    {"id": "WF-CC-GRANT-CLEARANCE", "name": "Grant a qualification clearance", "primary_actor": "Supervisor (expired) or Quality Manager (never-held / second in Area this shift)", "trigger": "A worker hits a qualification block", "surfaces_touched": ["SURF-CC", "SURF-DOH", "SURF-FL"], "terminal_states": ["clearance applied at the device's next sync", "run parks while the device is offline"], "line": 16657},
+    {"id": "WF-CC-REQUEST-RELEASE", "name": "Request release of a lot hold", "primary_actor": "Supervisor", "trigger": "A lot is held and work is blocked", "surfaces_touched": ["SURF-CC"], "terminal_states": ["request with mandatory note routed to the Quality Manager"], "line": 16657},
+    {"id": "WF-FL-STEP-UP", "name": "Second-identity step-up on a worker device", "primary_actor": "Supervisor or higher authority", "trigger": "A sign-off or approval is required on the worker's device", "surfaces_touched": ["SURF-FL"], "terminal_states": ["second identity captured against that specific authorisation only and then released; the worker's session continues"], "line": 16657},
+    {"id": "unstated (SB-OWN-004 chronological workflow)", "name": "Applying the never-own register to a proposal", "primary_actor": "Architectural governance", "trigger": "A proposal would give a surface a new persisted artefact", "surfaces_touched": ["all five"], "terminal_states": ["refused without further design work", "built on the owning surface", "redesigned as an entry point into the owner's service"], "line": 13510},
+    {"id": "unstated (measurement lifecycle)", "name": "The full lifecycle of one measurement across every seam", "primary_actor": "Worker / platform", "trigger": "Studio publishes a version and a run is assigned", "surfaces_touched": ["SURF-STU", "SURF-DOH", "SURF-FL", "SURF-CC"], "terminal_states": ["Execution Summary and anomaly register computed at completion; every step written to the tenant's single audit log"], "line": 13632}
+  ],
+
+  "screens": [
+    {"id": "SCR-DOH-ROLE-01", "name": "Roles and Access landing", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "line": 14264},
+    {"id": "SCR-DOH-ROLE-02", "name": "By person", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "line": 14265},
+    {"id": "SCR-DOH-ROLE-03", "name": "By capability", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "line": 14266},
+    {"id": "SCR-DOH-ROLE-04", "name": "Why was I refused", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "line": 14267},
+    {"id": "SCR-DOH-ROLE-05", "name": "Role definition card", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "line": 14354},
+    {"id": "SCR-DOH-ROLE-06", "name": "Feature change impact", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "line": 14443},
+    {"id": "SCR-DOH-ROLE-07", "name": "User detail, roles panel", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "line": 14719},
+    {"id": "SCR-DOH-AUD-01", "name": "Action attribution in the audit view", "surface": "SURF-DOH", "module_id": "unstated", "line": 14720},
+    {"id": "SCR-FL-DENY-01", "name": "Frontline Worker Application refusal", "surface": "SURF-FL", "module_id": "unstated", "line": 14571},
+    {"id": "SCR-CC-DENY-01", "name": "Client Command Center refusal", "surface": "SURF-CC", "module_id": "unstated", "line": 14572},
+    {"id": "SCR-DOH-DENY-01", "name": "Delivery Operations Hub refusal", "surface": "SURF-DOH", "module_id": "unstated", "line": 14573},
+    {"id": "SCR-SA-DENY-01", "name": "Super Admin platform console refusal", "surface": "SURF-SA", "module_id": "unstated", "line": 14574},
+    {"id": "SCR-DOH-BANNER-01", "name": "Support session banner", "surface": "SURF-DOH", "module_id": "unstated", "line": 14851},
+    {"id": "SCR-DOH-PAH-01", "name": "Platform Access History", "surface": "SURF-DOH", "module_id": "MOD-DOH-13", "line": 14852},
+    {"id": "SCR-DOH-PAH-02", "name": "Post-session report", "surface": "SURF-DOH", "module_id": "MOD-DOH-13", "line": 14853},
+    {"id": "SCR-SA-SUP-01", "name": "Console-side session list", "surface": "SURF-SA", "module_id": "unstated (§8.15)", "line": 14854},
+    {"id": "SCR-SA-SUP-02", "name": "Session workspace", "surface": "SURF-SA", "module_id": "unstated (§8.15)", "line": 16066},
+    {"id": "SCR-SA-USR-01", "name": "Users pane / Console role assignment", "surface": "SURF-SA", "module_id": "unstated (§8.8)", "line": 14977},
+    {"id": "SCR-DOH-USR-01", "name": "Tenant Admin user management", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "line": 14978},
+    {"id": "SCR-DOH-DEGRADE-01", "name": "Delivery Operations Hub degraded banner", "surface": "SURF-DOH", "module_id": "unstated", "line": 15084},
+    {"id": "SCR-CC-DEGRADE-01", "name": "Client Command Center degraded state", "surface": "SURF-CC", "module_id": "unstated", "line": 15085},
+    {"id": "SCR-STU-DEGRADE-01", "name": "Standards and Operations Studio degraded state", "surface": "SURF-STU", "module_id": "unstated", "line": 15086},
+    {"id": "SCR-SA-DEGRADE-01", "name": "Super Admin platform console degraded state", "surface": "SURF-SA", "module_id": "unstated", "line": 15088},
+    {"id": "SCR-SA-ROLES-01", "name": "Roles pane (four-role matrix rendered live, per module)", "surface": "SURF-SA", "module_id": "unstated (§8.8)", "line": 15336},
+    {"id": "SCR-SA-APPR-01", "name": "Approval queue", "surface": "SURF-SA", "module_id": "unstated (§8.8)", "line": 15337},
+    {"id": "SCR-SA-SET-01", "name": "Platform settings (six invariants render as locked controls)", "surface": "SURF-SA", "module_id": "unstated (§8.7)", "line": 15338},
+    {"id": "SCR-SA-EMER-01", "name": "Compliance-emergency initiation", "surface": "SURF-SA", "module_id": "unstated (§8.15)", "line": 15339},
+    {"id": "SCR-SA-CLASS-01", "name": "Action classification badge", "surface": "SURF-SA", "module_id": "unstated", "line": 15544},
+    {"id": "SCR-SA-ROOT-01", "name": "Root identity status", "surface": "SURF-SA", "module_id": "unstated (§8.8)", "line": 15678},
+    {"id": "SCR-SA-BG-01", "name": "Break-glass initiation (deliberately NOT a console screen; backend only)", "surface": "SURF-SA", "module_id": "unstated", "line": 15679},
+    {"id": "SCR-SA-BG-02", "name": "Post-re-provisioning notice", "surface": "SURF-SA", "module_id": "unstated", "line": 15680},
+    {"id": "SCR-DOH-TENADM-01", "name": "Tenant administration area", "surface": "SURF-DOH", "module_id": "unstated (Tenant Administration)", "line": 16455},
+    {"id": "SCR-DOH-TENADM-02", "name": "Floor rejection", "surface": "SURF-DOH", "module_id": "unstated (Tenant Administration)", "line": 16456},
+    {"id": "SCR-STU-GRANT-01", "name": "Grant administration", "surface": "SURF-STU", "module_id": "MOD-STU-18", "line": 16457},
+    {"id": "SCR-CC-RPT-01", "name": "Report format authoring", "surface": "SURF-CC", "module_id": "unstated (Standard reports and Custom Report Builder)", "line": 16458},
+    {"id": "SCR-CC-BOARD-01", "name": "Command Center live board", "surface": "SURF-CC", "module_id": "unstated (live shift board)", "line": 16606},
+    {"id": "SCR-CC-HOLD-01", "name": "Lot hold detail", "surface": "SURF-CC", "module_id": "MOD-CC-13", "line": 16607},
+    {"id": "SCR-CC-CLEAR-01", "name": "Clearance grant", "surface": "SURF-CC", "module_id": "MOD-CC-13", "line": 16608},
+    {"id": "SCR-DOH-SUBST-01", "name": "Substitution", "surface": "SURF-DOH", "module_id": "unstated (Worker Assignment)", "line": 16609},
+    {"id": "SCR-FL-STEPUP-01", "name": "Second-identity step-up on the device", "surface": "SURF-FL", "module_id": "unstated", "line": 16610}
+  ],
+
+  "state_vocabularies": [
+    {
+      "vocabulary_name": "Command states",
+      "ordered_states": ["created", "authorized", "queued", "available for delivery", "delivered", "downloaded", "validated", "applied", "acknowledged", "rejected", "failed", "expired", "cancelled", "superseded", "reconciled"],
+      "owning_concept": "Command channel action (device-targeting commands)",
+      "line": 14567
+    },
+    {
+      "vocabulary_name": "Command channel state sequence (abbreviated, as cross-checked on role cards)",
+      "ordered_states": ["created", "queued", "delivered", "applied", "acknowledged"],
+      "owning_concept": "Role definition card offline field consistency check (AC-CARD-1004)",
+      "line": 15241
+    },
+    {
+      "vocabulary_name": "Notification states",
+      "ordered_states": ["created", "eligible", "suppressed", "queued", "sent", "provider-accepted", "delivered", "opened", "read", "acknowledged", "claimed", "acted", "escalated", "resolved", "expired", "superseded", "cancelled", "failed", "reconciled"],
+      "owning_concept": "Platform notification",
+      "line": 15407
+    },
+    {
+      "vocabulary_name": "Permission status closed set",
+      "ordered_states": ["Allowed", "Allowed with conditions", "Read-only", "Cached read-only while offline", "Queued while offline", "Unavailable", "Explicitly prohibited", "Client Decision Required", "Not applicable — reason"],
+      "owning_concept": "Permission assignment cell status (never blank)",
+      "line": 14234
+    },
+    {
+      "vocabulary_name": "Access-decision degradation states",
+      "ordered_states": ["Healthy", "Degraded", "ReadOnly", "Recovering", "Reconciling"],
+      "owning_concept": "The access decision service (FB-ACCESS-002)",
+      "line": 15063
+    },
+    {
+      "vocabulary_name": "Hub-unavailability states (ownership under failure)",
+      "ordered_states": ["Normal", "Stale", "NotLive", "FloorContinues", "ControlledHold", "Recovering", "Reconciled"],
+      "owning_concept": "Client Command Center during Delivery Operations Hub outage; Escalated is a parallel branch off NotLive",
+      "line": 14046
+    },
+    {
+      "vocabulary_name": "Root identity lifecycle states",
+      "ordered_states": ["Provisioned", "Active", "Locked", "Suspected", "Reprovisioning", "Retired"],
+      "owning_concept": "Root Super Admin account continuity",
+      "line": 15656
+    },
+    {
+      "vocabulary_name": "Approval request states",
+      "ordered_states": ["pending", "approved", "returned", "applied"],
+      "owning_concept": "Console approval queue record",
+      "line": 15337
+    },
+    {
+      "vocabulary_name": "The eight access classes for a surface",
+      "ordered_states": ["Direct", "Read-only", "Masked", "Diagnostic-only", "Action-only", "Temporarily elevated", "Tenant-approved", "Prohibited"],
+      "owning_concept": "Platform-role reach across the five surfaces",
+      "line": 16178
+    },
+    {
+      "vocabulary_name": "The fallback ladder stages",
+      "ordered_states": ["Primary path", "Safe retry or resume", "Approved alternate dependency", "Last-known-good approved mode", "Deterministic or manual workflow", "Authorized human escalation", "Controlled hold or safe stop", "Recovery and reconciliation"],
+      "owning_concept": "Universal fallback architecture, instantiated for the Hub-unavailable failure",
+      "line": 14093
+    },
+    {
+      "vocabulary_name": "The seven role definition card blocks (fixed order)",
+      "ordered_states": ["Identity", "Reach", "Visibility", "Rights", "Prohibition", "Governance", "Traceability"],
+      "owning_concept": "Role definition card contract (forty-four fields)",
+      "line": 15214
+    },
+    {
+      "vocabulary_name": "The nine intersecting access conditions (evaluation order)",
+      "ordered_states": ["Safety controls", "Role permission", "Assigned scope", "Tenant entitlement", "Object state", "Qualification", "Active grant", "Device and connectivity state", "Segregation of duties"],
+      "owning_concept": "The effective-access model — evaluation order, safety first",
+      "line": 14531
+    },
+    {
+      "vocabulary_name": "The nine intersecting conditions (as numbered in the definition list)",
+      "ordered_states": ["Role permission", "Assigned scope", "Tenant entitlement", "Object state", "Qualification", "Active grant", "Device and connectivity state", "Segregation of duties", "Safety controls"],
+      "owning_concept": "The effective-access model — the nine conditions as defined",
+      "line": 14514
+    },
+    {
+      "vocabulary_name": "Root action classes",
+      "ordered_states": ["Class 1 — root-only actions", "Class 2 — actions requiring another authorisation", "Class 3 — actions requiring tenant consent or, at minimum, tenant visibility", "Class 4 — prohibited to the root"],
+      "owning_concept": "Root Super Admin action classification",
+      "line": 15490
+    },
+    {
+      "vocabulary_name": "The ten critical-class actions requiring root approval",
+      "ordered_states": ["tier publication", "compliance suspension of a tenant", "all-tenant broadcast", "device wipe and de-authorisation", "emergency pause and resume separately", "erasure and archival execution", "retention-value changes", "legal-hold place and release", "severity-catalog changes", "floor-register changes"],
+      "owning_concept": "Root Super Admin approval authority",
+      "line": 15360
+    },
+    {
+      "vocabulary_name": "The closed set of ten Command Center operational actions",
+      "ordered_states": ["1 Acknowledge an alert or escalation", "2 Gate-item decision", "3 Learned-change decision", "4 Release a lot hold", "5 Resolve or Resolve-All sync conflicts", "6 Acknowledge and annotate the handoff brief", "7 Mark evidence reviewed", "8 Reassign a run mid-shift", "9 Request an agent re-check", "10 Grant a qualification clearance"],
+      "owning_concept": "Client Command Center operational actions module",
+      "line": 13828
+    },
+    {
+      "vocabulary_name": "The six platform invariants",
+      "ordered_states": ["the evaluation gate", "sandbox-before-publish", "encryption at rest", "encryption in transit", "cross-tenant analytics anonymisation", "the one-transaction audit guarantee"],
+      "owning_concept": "Platform invariants binding every account including the root",
+      "line": 14944
+    },
+    {
+      "vocabulary_name": "Clearance reason categories",
+      "ordered_states": ["Emergency cover", "Training-in-progress", "Other"],
+      "owning_concept": "Supervisor-granted expired-certification clearance (mandatory categorised reason plus optional free text)",
+      "line": 16571
+    },
+    {
+      "vocabulary_name": "Tenant scope dimensions available at V1 (and deferred)",
+      "ordered_states": ["Tenant", "Site", "Area (also called Line)", "Location (also called Cell) — deferred beyond V1", "Job — deferred beyond V1", "Worker — deferred beyond V1"],
+      "owning_concept": "Tenant role scoping",
+      "line": 16370
+    },
+    {
+      "vocabulary_name": "Worker departure and re-employment sequence",
+      "ordered_states": ["reassign all active and upcoming runs", "archive the worker", "open step executions close as abandoned with the reason 'Worker departed'", "on re-employment the prior record reactivates with history intact and a re-validation prompt"],
+      "owning_concept": "Worker lifecycle two-step departure flow",
+      "line": 16332
+    },
+    {
+      "vocabulary_name": "Studio approval chain",
+      "ordered_states": ["Author", "Reviewer", "Release Authority"],
+      "owning_concept": "Standards and Operations Studio publication chain",
+      "line": 13653
+    }
+  ],
+
+  "numeric_facts": [
+    {"fact": "AVIIXA carries nine human security role types: four in the platform console and five inside every tenant workspace", "value": "9 (4 + 5)", "unit": "role types", "applies_to": "the whole platform", "line": 14171},
+    {"fact": "The Command Center's operational actions are a closed list of ten; adding an action is a scope decision, never a drift", "value": "10", "unit": "actions", "applies_to": "SURF-CC", "line": 13770},
+    {"fact": "Four exclusions are absolute for every role on the Command Center", "value": "4", "unit": "absolute exclusions", "applies_to": "SURF-CC", "line": 13498},
+    {"fact": "Access is an intersection of nine conditions, all of which must say yes", "value": "9", "unit": "conditions", "applies_to": "every access decision", "line": 14512},
+    {"fact": "Delivery Operations Hub module count", "value": "19", "unit": "modules", "applies_to": "SURF-DOH", "line": 14465},
+    {"fact": "Standards and Operations Studio module count — derived, no canonical count in the source", "value": "18", "unit": "modules", "applies_to": "SURF-STU", "line": 14466},
+    {"fact": "Client Command Center module count", "value": "13", "unit": "modules", "applies_to": "SURF-CC", "line": 14467},
+    {"fact": "Frontline Worker Application module count", "value": "12", "unit": "modules", "applies_to": "SURF-FL", "line": 14468},
+    {"fact": "Super Admin platform console capability sections; §8.20 is a diligence narrative, not a capability module", "value": "19", "unit": "capability sections", "applies_to": "SURF-SA", "line": 14469},
+    {"fact": "The role definition card answers forty-four named fields for every role in a fixed order", "value": "44", "unit": "fields", "applies_to": "all nine role types", "line": 14320},
+    {"fact": "Role card block field counts: Identity 10, Reach 8, Visibility 2, Rights 5, Prohibition 2, Governance 10, Traceability 7", "value": "10/8/2/5/2/10/7", "unit": "fields per block", "applies_to": "role definition card", "line": 15214},
+    {"fact": "The absolute rules of the role architecture", "value": "14", "unit": "rules", "applies_to": "role architecture", "line": 14934},
+    {"fact": "Platform invariants that bind every account including the root, with no off position", "value": "6", "unit": "invariants", "applies_to": "every account", "line": 14944},
+    {"fact": "Critical-class actions approved by the root", "value": "10", "unit": "actions", "applies_to": "Root Super Admin approval authority", "line": 15360},
+    {"fact": "Named access classes crossing the platform-tenant boundary, and only three", "value": "3", "unit": "access classes", "applies_to": "platform-to-tenant crossings", "line": 14777},
+    {"fact": "Exactly one Root Super Admin account exists at all times", "value": "1", "unit": "account", "applies_to": "Root Super Admin", "line": 14937},
+    {"fact": "Exactly five tenant role types; custom roles deferred beyond V1", "value": "5", "unit": "role types", "applies_to": "tenant security domain", "line": 16282},
+    {"fact": "Four console roles exist at V1; roles fixed at V1 with no custom role authoring", "value": "4", "unit": "console roles", "applies_to": "SURF-SA", "line": 15134},
+    {"fact": "Connectivity and platform-health escalation thresholds: platform alert, Tenant Admin banner, on-call escalation", "value": "30 / 60 / 120", "unit": "minutes", "applies_to": "connectivity-loss protocol", "line": 14041},
+    {"fact": "Unacknowledged Critical notifications re-notify after 4 hours, or 1 hour in Regulated-Industry mode", "value": "4 hours; 1 hour in Regulated-Industry mode", "unit": "hours", "applies_to": "Critical notifications", "line": 14122},
+    {"fact": "Offline credential trust window, tenant-set, default approximately 24 hours with a platform ceiling of 72 hours", "value": "≈24 default; 72 ceiling", "unit": "hours", "applies_to": "cached credentials on mobile devices", "line": 14598},
+    {"fact": "Normal support session time box, default, configurable in platform settings", "value": "2", "unit": "hours", "applies_to": "normal support session", "line": 14798},
+    {"fact": "Command Center board refresh cadence, default, with a per-tenant floor", "value": "60 default; 30 floor", "unit": "seconds", "applies_to": "SURF-CC live board", "line": 15085},
+    {"fact": "Recommended root session length: 30 minutes of inactivity with a hard cap of 8 hours (Recommendation — R&D, not specified in the Statement of Work)", "value": "30 minutes inactivity; 8 hours hard cap", "unit": "minutes / hours", "applies_to": "Root Super Admin session", "line": 15368},
+    {"fact": "Entry to the degraded read-only posture: two consecutive condition-source failures inside one minute, or any audit-write failure", "value": "2 failures in 1 minute", "unit": "failures / minute", "applies_to": "access decision path", "line": 14620},
+    {"fact": "Exit from the read-only posture requires three consecutive healthy evaluations", "value": "3", "unit": "healthy evaluations", "applies_to": "access decision path", "line": 14620},
+    {"fact": "Worker personal data anonymisation for standard commercial tenants, and never in Regulated-Industry mode", "value": "24", "unit": "months", "applies_to": "worker personal data", "line": 15380},
+    {"fact": "Full orchestrator reasoning traces are platform-internal and retained", "value": "24", "unit": "months", "applies_to": "orchestrator traces (Platform Engineer visibility)", "line": 15948},
+    {"fact": "Torque specification limits for the wheel bolt torque verification step in Workflow version v2.1.0", "value": "44 to 47", "unit": "Newton metres", "applies_to": "wheel bolt torque verification step", "line": 13634},
+    {"fact": "A capture of 41.0 Newton metres is a 6.8 per cent departure below the 44 Newton metre lower limit and is Severity 2 under the authored banding", "value": "41.0 Nm / 6.8 per cent below", "unit": "Newton metres / per cent", "applies_to": "Severity 2 Concern classification", "line": 14856},
+    {"fact": "A capture of 38.0 Newton metres is a 13.6 per cent departure below the 44 Newton metre lower limit and is Severity 1", "value": "38.0 Nm / 13.6 per cent below", "unit": "Newton metres / per cent", "applies_to": "Severity 1 Critical anomaly classification", "line": 14576},
+    {"fact": "Usage-ladder notification events to the Admin", "value": "80, 100, 125", "unit": "per cent", "applies_to": "tenant usage ladder", "line": 15831},
+    {"fact": "Qualification-expiry notification schedule stages", "value": "14, 7, 1, 0", "unit": "days", "applies_to": "qualification expiry", "line": 16496},
+    {"fact": "The immediate expiry-event notification escalates to the Quality Manager if unacknowledged within a configurable window", "value": "2 (default)", "unit": "minutes", "applies_to": "expiry-event notification to Supervisor", "line": 16650},
+    {"fact": "Run no-show: supervisor alert at plus 15 minutes; the run auto-cancels at plus 30 minutes if unstarted", "value": "+15 alert; +30 auto-cancel", "unit": "minutes", "applies_to": "run no-show", "line": 16582},
+    {"fact": "The Shift Handoff Agent runs by default 30 minutes before shift end, and the same 30 minutes is the unacknowledged-brief grace period", "value": "30", "unit": "minutes before shift end", "applies_to": "Shift Handoff Agent", "line": 16575},
+    {"fact": "The run schedule is visible from today plus seven days", "value": "today + 7", "unit": "days", "applies_to": "run schedule visibility", "line": 16576},
+    {"fact": "Riverside Plant crosses two hundred Worker-Shifts in a month, which puts the tenant into the Enterprise band", "value": "200", "unit": "Worker-Shifts per month", "applies_to": "Enterprise tier band (illustrative)", "line": 15292},
+    {"fact": "The Bright Bikes outage cost 55 minutes of oversight (12:40 to 13:35) and no quality evidence", "value": "55", "unit": "minutes", "applies_to": "illustrative Hub outage", "line": 14071},
+    {"fact": "Sophia's support session ran 34 minutes of its two-hour box with eleven read actions", "value": "34 minutes; 11 read actions", "unit": "minutes / actions", "applies_to": "illustrative support session", "line": 16068},
+    {"fact": "The reconciliation report listed eleven refusals, of which nine were caused by the outage and two were correct refusals on scope", "value": "11 total; 9 outage-caused; 2 correct", "unit": "refusals", "applies_to": "illustrative degraded-access reconciliation", "line": 15090},
+    {"fact": "TEST-ROLE-1004 issues one hundred access requests during a generator outage and asserts all one hundred decisions match pre-outage decisions", "value": "100", "unit": "access requests", "applies_to": "permission documentation outage test", "line": 14307},
+    {"fact": "TEST-PLATSURF-1504 attempts each of the ten operational actions as each of the four platform roles and asserts forty refusals", "value": "40", "unit": "refusals", "applies_to": "platform-role Command Center prohibition test", "line": 16268},
+    {"fact": "TEST-ROOTCONT-1107 holds a critical request through a simulated seven-day root outage and asserts it is still pending", "value": "7", "unit": "days", "applies_to": "root outage test", "line": 15748},
+    {"fact": "Day Shift runs 06:00 to 14:00 with digest delivery at 06:00 at Riverside Plant, timezone America/Chicago", "value": "06:00–14:00", "unit": "shift times", "applies_to": "SHIFT-DAY (illustrative)", "line": 16460},
+    {"fact": "Late captures fold in inside the finish window flagged late_arrival; after finish, audited recompute applies with material corrections flagged in the next scheduled report delivery", "value": "finish window boundary", "unit": "reconciliation rule", "applies_to": "capture reconciliation", "line": 13731},
+    {"fact": "Studio approval chain stages: Author, Reviewer, Release Authority", "value": "3", "unit": "stages", "applies_to": "Studio publication", "line": 13653},
+    {"fact": "Studio authoring covers all nine screen configuration sections", "value": "9", "unit": "sections", "applies_to": "Studio authoring grant", "line": 16565},
+    {"fact": "Commands cross the seam as one of five command classes", "value": "5", "unit": "command classes", "applies_to": "command channel", "line": 13628}
+  ],
+
+  "contradictions": [
+    {
+      "description": "The plus notation (`Supervisor+`, `QM+`) implies an ordering the source never defines; §6.1.3 leans to an ordering while §4.8.4's additive statement and §3.5's flat five-role list lean to enumerated sets.",
+      "conflicting_values": ["Reading A: the plus form is shorthand for an ordering across the five roles", "Reading B: the plus form abbreviates an enumerated set and the roles remain unordered and purely additive"],
+      "governing_decision": "DEC-PLUS-001",
+      "line": 14670
+    },
+    {
+      "description": "§7.13.3 says a 'higher authority' may sign off for an unavailable supervisor, with the hierarchy 'resolved from the Hub, within the platform's five fixed roles and the authority matrix of Part III'. Part III contains no such ordering and Part IV defines no hierarchy.",
+      "conflicting_values": ["§7.13.3 asserts a resolvable role hierarchy", "Part III and Part IV define no hierarchy; the five roles are additive and unordered"],
+      "governing_decision": "DEC-SUBAUTH-001",
+      "line": 14668
+    },
+    {
+      "description": "§8.16 places JBS access under 'exactly the same discipline' as the other classes while §8.15.2 says the compliance-emergency path is 'the only one with write capability'; §8.8.5 nevertheless contemplates JBS authoring capacity that writes.",
+      "conflicting_values": ["JBS grant is read-only (from §8.15.2's 'only one')", "JBS personnel perform authoring work inside a tenant context under §8.8.5, which writes"],
+      "governing_decision": "DEC-JBSWRITE-001",
+      "line": 14877
+    },
+    {
+      "description": "§8.2.2 makes atom enablement a Platform Engineer change requiring Admin approval, while §8.19 makes platform-side tenant current-value changes, including feature enablement, Admin actions.",
+      "conflicting_values": ["Platform Engineer submission with Admin approval (§8.2.2)", "Admin action (§8.19)"],
+      "governing_decision": "DEC-FEAT-001",
+      "line": 15893
+    },
+    {
+      "description": "The Statement of Work gives no canonical Standards and Operations Studio module count; the blueprint derives eighteen from §5.1 through §5.18 and forbids presenting it as source-backed.",
+      "conflicting_values": ["18 modules (derived from §5.1–§5.18)", "no canonical count exists in the source"],
+      "governing_decision": "DEC-STUDIO-001",
+      "line": 14412
+    },
+    {
+      "description": "A library edit propagates immediately to referencing screens while a work package is pinned at run assignment; the interaction for an in-flight run is unstated and both readings are preserved.",
+      "conflicting_values": ["library edit propagates immediately to referencing screens", "the package is pinned at assignment and governs the in-flight run"],
+      "governing_decision": "DEC-LIB-001",
+      "line": 13734
+    },
+    {
+      "description": "The source names Job approval under the Quality Manager remit while §3.5 says separation of duties is satisfied by any second holder of the approving role; the blueprint therefore declares Supervisor Job approval Explicitly prohibited.",
+      "conflicting_values": ["Job approval is a Quality Manager remit (§4.8.1)", "separation of duties is satisfied by any second holder of the approving role (§3.5)"],
+      "governing_decision": null,
+      "line": 16629
+    },
+    {
+      "description": "§8.8.3 names Admin as the approver for Platform Engineer changes and separately says the critical class escalates to the root; whether the root may itself act as checker is unstated.",
+      "conflicting_values": ["the root may act as checker for continuity", "the root may not, preserving strict two-person separation"],
+      "governing_decision": "DEC-ROOTCHK-001",
+      "line": 15499
+    },
+    {
+      "description": "§8.15.1 attaches the tenant banner and End-session control explicitly to the normal support session and says nothing about the compliance-emergency path or the JBS grant.",
+      "conflicting_values": ["banner and End-session on all three classes", "banner/End-session only on the normal support session"],
+      "governing_decision": "DEC-EMEREND-001",
+      "line": 14878
+    },
+    {
+      "description": "The Statement of Work describes the root account as having 'unrestricted access to both bands' and then immediately constrains it with the six invariants, the evaluation gate, and the three named access classes.",
+      "conflicting_values": ["'unrestricted access to both bands' (§8.8.1)", "the six platform invariants, the evaluation gate, and the three-layer access boundary bind it (§8.8.1, §3.1, §8.1.2, §8.15)"],
+      "governing_decision": null,
+      "line": 14322
+    },
+    {
+      "description": "The Statement of Work uses job titles that are not platform roles — quality engineer, manufacturing engineer, Plant Manager, Quality Director, implementation team, JBS delivery staff — while fixing exactly five tenant roles.",
+      "conflicting_values": ["personas named in the source (Plant Manager, Quality Director, quality engineer)", "exactly five fixed tenant roles, no Quality Director role"],
+      "governing_decision": "DEC-ROLE-001",
+      "line": 16284
+    }
+  ],
+
+  "controls": [
+    {"label": "End session", "surface": "SURF-DOH", "module_id": "unstated (support session banner SCR-DOH-BANNER-01)", "allowed_roles": ["Tenant Admin", "any tenant user seeing the banner"], "effect": "Terminates the platform support session from the tenant's side", "line": 14851},
+    {"label": "Request release with a note", "surface": "SURF-CC", "module_id": "MOD-CC-13", "allowed_roles": ["Supervisor"], "effect": "Submits a mandatory-note release request to the Quality Manager", "line": 16607},
+    {"label": "Release", "surface": "SURF-CC", "module_id": "MOD-CC-13", "allowed_roles": ["Quality Manager"], "effect": "Calls the Hub lot service to release the hold; never rendered for a Supervisor", "line": 13820},
+    {"label": "Continue with another run", "surface": "SURF-FL", "module_id": "unstated (SCR-FL-DENY-01)", "allowed_roles": ["Worker"], "effect": "Leaves the gated run parked and offers other assigned work", "line": 14571},
+    {"label": "Open the Why was I refused view", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "allowed_roles": ["any tenant role receiving a refusal"], "effect": "Opens SCR-DOH-ROLE-04 showing which of the nine conditions failed", "line": 14573},
+    {"label": "Open the role definition card", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "allowed_roles": ["Tenant Admin"], "effect": "Opens SCR-DOH-ROLE-05 for the selected user's role type", "line": 14265},
+    {"label": "By person", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "allowed_roles": ["Tenant Admin"], "effect": "Role-centric tab: searchable list of the tenant's users", "line": 14264},
+    {"label": "By capability", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "allowed_roles": ["Tenant Admin"], "effect": "Feature-centric tab: surface, module, feature tree with role columns", "line": 14264},
+    {"label": "Save as document", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "allowed_roles": ["Tenant Admin", "Read-only Auditor"], "effect": "Exports the role definition card; contents open under DEC-AUDEXPORT-001", "line": 14355},
+    {"label": "Submit for approval", "surface": "SURF-SA", "module_id": "unstated (Band A sections §8.2–§8.7)", "allowed_roles": ["Platform Engineer"], "effect": "Every Band A mutating control submits; never 'Save' or 'Apply'", "line": 15922},
+    {"label": "Requires root approval", "surface": "SURF-SA", "module_id": "unstated (§8.8 approval queue)", "allowed_roles": ["Admin"], "effect": "Badge before submit; the resulting record renders pending, never applied", "line": 15793},
+    {"label": "Root only", "surface": "SURF-SA", "module_id": "unstated (SCR-SA-CLASS-01)", "allowed_roles": ["Root Super Admin"], "effect": "Action classification badge rendered before the confirmation step", "line": 15544},
+    {"label": "Requires a second authorisation", "surface": "SURF-SA", "module_id": "unstated (SCR-SA-CLASS-01)", "allowed_roles": ["Root Super Admin", "Admin"], "effect": "Action classification badge rendered before the confirmation step", "line": 15544},
+    {"label": "Enters tenant context, tenant will see a banner", "surface": "SURF-SA", "module_id": "unstated (SCR-SA-CLASS-01)", "allowed_roles": ["Support", "Admin", "Root Super Admin"], "effect": "Action classification badge rendered before the confirmation step", "line": 15544},
+    {"label": "Prohibited", "surface": "SURF-SA", "module_id": "unstated (SCR-SA-CLASS-01)", "allowed_roles": [], "effect": "Action classification badge rendered before the confirmation step", "line": 15544},
+    {"label": "Account creation is root-only", "surface": "SURF-SA", "module_id": "unstated (§8.8 Users pane)", "allowed_roles": ["Admin", "Platform Engineer", "Support"], "effect": "Explanatory line replacing the create control, never a greyed control", "line": 14977},
+    {"label": "Approve or return with reason", "surface": "SURF-SA", "module_id": "unstated (SCR-SA-APPR-01)", "allowed_roles": ["Admin", "Root Super Admin"], "effect": "Applies the change with its audit event in one transaction, or returns it", "line": 15783},
+    {"label": "Custom roles are deferred beyond V1", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "allowed_roles": ["Tenant Admin"], "effect": "Footnote on the role picker, which offers exactly the five tenant role types", "line": 14978},
+    {"label": "This cannot be enabled by any configuration on this platform", "surface": "SURF-DOH", "module_id": "MOD-DOH-09", "allowed_roles": ["any tenant role"], "effect": "Refusal-detail text distinguishing Explicitly prohibited from Unavailable", "line": 14979},
+    {"label": "Submitted for Admin approval", "surface": "SURF-SA", "module_id": "unstated (SCR-SA-DENY-01)", "allowed_roles": ["Platform Engineer"], "effect": "Shown instead of 'Applied', with the approval request identifier and pending state", "line": 14574},
+    {"label": "Run interruption is a floor action and is not available from this surface.", "surface": "SURF-CC", "module_id": "unstated (run drill-down)", "allowed_roles": ["Supervisor", "Quality Manager"], "effect": "Explanatory line where a pause/stop/edit control would otherwise be sought", "line": 13538}
+  ],
+
+  "failures_fallbacks": [
+    {"id": "FB-OWN-004", "trigger": "A surface accumulates a persisted artefact it may not own — typically a cache that grew into a store, or a convenience table", "first_fallback": "Remove the artefact and route the capability through the owning service", "fallback_failure": "If removal is not possible within the release, the capability is withdrawn", "terminal_safe_state": "The prohibited artefact does not exist", "recovery": "Data held only in the prohibited artefact is migrated into the owning service through an audited import preserving original timestamps and attribution, annotated as reconstructed", "line": 13574},
+    {"id": "FB-OWN-005", "trigger": "A flow stalls at a seam: package build, upload, command delivery, agent proposal, or summary computation", "first_fallback": "Retry with the queue intact, and display the stall honestly at both ends", "fallback_failure": "A permanently stalled seam becomes a terminal state recorded as expired, cancelled, or superseded as applicable, and never as applied", "terminal_safe_state": "The floor runs on what it holds under local gates; the record shows exactly what is known; the audit records the stall", "recovery": "Captures fold in inside the finish window flagged late_arrival; after finish, audited recompute; commands reconcile on acknowledgement", "line": 13720},
+    {"id": "FB-CC-002", "trigger": "A Command Center action cannot be executed: the owning service refuses, is unavailable, or the write succeeds but the read-back fails", "first_fallback": "On refusal show the refusal and its reason; on unavailability show that the action could not be taken and that nothing changed", "fallback_failure": "If the owning service remains unavailable, no action of that class can be taken from any surface, including the Hub's own screens", "terminal_safe_state": "No local state, no assumed state, no action; the floor is unaffected and continues under its local deterministic layer", "recovery": "None on the Command Center, because it holds nothing; the owning record is authoritative and the audit log settles which", "line": 13846},
+    {"id": "FB-FL-002", "trigger": "Operational data cannot be created: device unavailable, package undeliverable, envelope cannot compose, or device destroyed with unsynced captures", "first_fallback": "Reassign or substitute the worker under action 8 so a different qualified worker on a working device performs the capture", "fallback_failure": "Where a device is lost with unsynced captures, those captures are unrecoverable; the run is closed manually with a mandatory note and the gap is recorded", "terminal_safe_state": "The record contains what was actually captured and an explicit account of what was not; no fabricated value exists anywhere", "recovery": "Late captures fold in inside the finish window flagged late_arrival; after finish, audited recompute; reconciliation never invents a capture", "line": 13969},
+    {"id": "FB-OWN-006", "trigger": "The Delivery Operations Hub service is unavailable — total, partial, or the audit write path alone", "first_fallback": "Retry reads on cadence; hold last confirmed state behind an as-of marker; refuse writes with a plain reason", "fallback_failure": "Render an explicit not-live state and withdraw the action controls entirely rather than disabling them", "terminal_safe_state": "Controlled hold on oversight; production continues on pinned packages under local gates; every held item remains held; every frozen lot remains frozen", "recovery": "Services restore; board refreshes from Hub records; device queues drain in order; pending commands deliver and acknowledge; no Command Center reconciliation is required", "line": 14104},
+    {"id": "FB-ROLE-VIEW-001", "trigger": "The generator produces one permission view and fails on the other, or a functionality has no row for one of the nine role types", "first_fallback": "Publication of the newer view is withheld and the previously published, internally consistent pair remains in force with its own generation timestamp", "fallback_failure": "The Permissions, Roles and Access module renders a banner stating that published permission documentation is unavailable and naming the last known-good version", "terminal_safe_state": "Runtime enforcement is never affected; a documentation outage degrades explanation, never enforcement", "recovery": "The defective row is corrected, the build re-run, both views publish together; decisions taken while stale are re-evaluated in a batch report", "line": 14281},
+    {"id": "FB-ROLE-CARD-001", "trigger": "A role card field is left blank, or filled with an invented contractual value where the Statement of Work is silent", "first_fallback": "The field is set to `Not specified in the Statement of Work` with a classified proposal, or `TBD — Client Decision Required` with a decision identifier, options, recommendation, trade-offs and owner", "fallback_failure": "The card renders the field as an open question and the role is marked as not implementation-ready", "terminal_safe_state": "A role whose card is not implementation-ready is not provisioned in a production tenant; no role is enabled on an assumed permission", "recovery": "The decision is taken, the card completed, the role provisioned; pre-production assignments are re-evaluated", "line": 14371},
+    {"id": "FB-ROLE-FEAT-001", "trigger": "A new feature ships with rows for some roles and none for the others, leaving role types undefined at runtime", "first_fallback": "The enforcement service applies deny-by-default; an undefined permission is a refusal, never a grant", "fallback_failure": "If the enforcement service cannot resolve the feature at all, the surface renders it unavailable with a named reason and raises a platform alert", "terminal_safe_state": "The feature is not reachable by any role until a complete row set exists; no role is silently promoted", "recovery": "Rows are authored, reviewed against the absolute rules, published; deny-by-default refusals during the gap are listed for the Tenant Admin", "line": 14471},
+    {"id": "FB-ACCESS-001", "trigger": "A condition source is unreachable, the audit writer is unavailable, the decision service times out, or a cached device identity is older than the offline trust window", "first_fallback": "An unreachable condition source produces an explicit refusal with a named reason, never an assumed allow (deny-by-default)", "fallback_failure": "If the audit writer cannot commit, the action does not happen; the surface states 'This action could not be recorded and was therefore not performed' and offers a retry", "terminal_safe_state": "Read-only posture for the affected capability with an explicit banner; the Frontline device continues local execution and local gate enforcement", "recovery": "Sources return; three consecutive healthy evaluations exit; blocked actions are retried by their originators, never replayed automatically", "line": 14608},
+    {"id": "FB-ACCESS-002", "trigger": "Extends FB-ACCESS-001 with the surface-level degradation states Healthy, Degraded, ReadOnly, Recovering, Reconciling", "first_fallback": "Reads served from a short-lived cached decision with a freshness marker; writes refused", "fallback_failure": "Two consecutive failures inside one minute enter the ReadOnly state with a named banner", "terminal_safe_state": "The ReadOnly state with the floor unaffected", "recovery": "Three consecutive healthy evaluations, then a mandatory Reconciling state producing the refusal report before returning to Healthy", "line": 15102},
+    {"id": "FB-MULTIROLE-001", "trigger": "An implementation takes the union first and applies explicit deny afterwards, or takes the union of scopes across all held roles", "first_fallback": "The evaluation is rejected and the request refused, because a permission model that cannot be evaluated correctly must not guess", "fallback_failure": "If the role resolver cannot return the held role set, the identity is treated as holding no roles and every request is refused", "terminal_safe_state": "The identity's session is limited to reading its own profile with a banner stating that role resolution is unavailable", "recovery": "The resolver returns; the session's cached role set is discarded and re-resolved, never reused", "line": 14735},
+    {"id": "FB-BOUNDARY-001", "trigger": "A mirroring write to the tenant audit stream fails, the banner fails to render, the session expiry timer fails, or an End-session press does not take effect", "first_fallback": "A failed mirror write refuses the session action; a missed banner heartbeat suspends the session", "fallback_failure": "If the session cannot be suspended cleanly, the session token is revoked at the gateway, terminating every in-flight request", "terminal_safe_state": "The session is closed, the tenant's surfaces return to their ordinary state, and a session-terminated event is written to both audit streams with the reason", "recovery": "The operator opens a new session with a fresh reason and expiry; a failed session is never resumed; action counts in both audit streams are compared", "line": 14880},
+    {"id": "FB-ABSOLUTE-001", "trigger": "A code path reaches a protected operation without passing the absolute-rule evaluation, or a rule check depends on an unavailable service and is skipped", "first_fallback": "The operation is refused; an absolute rule that cannot be evaluated is treated as violated", "fallback_failure": "If the assertion mechanism itself is unavailable, the protected operations are disabled at the gateway", "terminal_safe_state": "Console account creation, role assignment, cross-domain session opening and lot release are unavailable with an explicit banner; Frontline execution continues", "recovery": "The assertion mechanism is restored and three healthy checks pass; any operation that succeeded without a recorded assertion is a security incident", "line": 15002},
+    {"id": "FB-CARD-001", "trigger": "A role card field is answered with an invented value, or a prohibition is stated without a source", "first_fallback": "The field is converted to `TBD — Client Decision Required` with a decision identifier and a full decision card", "fallback_failure": "The role is marked not implementation-ready and is not provisioned in production", "terminal_safe_state": "No role is enabled on an assumed permission", "recovery": "As described in FB-ROLE-CARD-001 in section 10.2", "line": 15224},
+    {"id": "FB-ROOT-001", "trigger": "The root's multi-factor device is lost, the allowlist blocks the legitimate holder, the account is compromised, the holder is unavailable, or critical requests accumulate", "first_fallback": "Band B operations continue under Admin authority and Band A maker-checker continues under Admin approval; only the critical class and console account creation stall", "fallback_failure": "Where the root is unavailable beyond the client's tolerance, the dual-controlled break-glass re-provisioning procedure of section 11.2.3 is invoked", "terminal_safe_state": "The platform continues to operate for tenants; critical-class actions do not occur; tenant execution on the floor is entirely unaffected", "recovery": "The root authenticates or is re-provisioned; the queue is worked; each approval is a fresh human act", "line": 15427},
+    {"id": "FB-ROOTCLASS-001", "trigger": "A console action executes without a classification, or is classified more permissively than its content warrants", "first_fallback": "An unclassified action is refused", "fallback_failure": "If the classifier is unavailable, all non-ordinary console actions are disabled at the gateway", "terminal_safe_state": "Ordinary Band B read operations continue; every mutating and every tenant-context action is unavailable with a named banner", "recovery": "The classifier returns and three healthy classifications pass; under-classified actions are treated as security incidents and reported to any affected tenant", "line": 15574},
+    {"id": "FB-ROOTCONT-001", "trigger": "Custodians unavailable, the backend re-provisioning path fails, the atomic replacement partially completes, or the re-provisioning audit event cannot be written", "first_fallback": "If the atomic replacement cannot complete, it rolls back entirely and the previous identity remains active; a partial state is never left", "fallback_failure": "If rollback also fails, the account store is placed in a read-only posture for console accounts and the incident is escalated", "terminal_safe_state": "Tenants continue to operate; critical-class actions and console account changes wait; no account created, no role assigned, no invariant touched", "recovery": "Re-provisioning completes; the queue is worked as fresh human acts; the exactly-one-root assertion must pass three consecutive times", "line": 15709},
+    {"id": "FB-ADMIN-001", "trigger": "No Admin account is available, an Admin approves a change they authored, or the approval queue is unreachable", "first_fallback": "Platform Engineer changes wait in the queue; they never auto-apply after a timeout", "fallback_failure": "If the queue is unreachable, Band A submission is disabled at the gateway so changes are not lost between the maker and the queue", "terminal_safe_state": "The platform runs on its current configuration; tenants are unaffected; no Band A change takes effect", "recovery": "An Admin account is restored by the root, or the queue returns; three healthy checks exit the state", "line": 15847},
+    {"id": "FB-ENG-001", "trigger": "The evaluation harness is unavailable, the approval queue is unavailable, or a change applies without a recorded approval", "first_fallback": "Where the harness is unavailable, agent-affecting changes cannot be submitted at all; the gate is hard, so an unavailable gate blocks rather than waives", "fallback_failure": "Where the queue is unavailable, Band A submission is disabled at the gateway", "terminal_safe_state": "The platform continues on its current configuration; no agent behaviour changes; tenants and the floor are unaffected", "recovery": "The harness or queue returns; submissions resume; nothing is applied retrospectively; an unapproved applied change is a security incident reverted by a fresh approved change", "line": 15976},
+    {"id": "FB-SUP-001", "trigger": "The banner fails to render, the tenant mirror write fails, the time box fails to expire, an End-session press does not take effect, or an engineer attempts a write", "first_fallback": "A failed mirror write refuses the read; a missed banner heartbeat suspends the session", "fallback_failure": "The session token is revoked at the gateway, terminating in-flight requests", "terminal_safe_state": "The session is closed and a session-terminated event with its reason is written to both audit streams", "recovery": "A new session is opened with a fresh reason; action counts in both audit streams are compared and any discrepancy raised as a finding", "line": 16125},
+    {"id": "FB-PLATSURF-001", "trigger": "A console screen renders tenant operational content outside a session, or a session frame exposes navigation to a second tenant", "first_fallback": "The response is withheld and the request refused", "fallback_failure": "The session is terminated and the console screen is disabled pending investigation", "terminal_safe_state": "Tenant-context reach is unavailable across the console; console administration continues", "recovery": "The defect is corrected and the assertions pass three consecutive times; cross-tenant exposure is treated as a security incident, never as a rendering defect", "line": 16240},
+    {"id": "FB-TENROLE-001", "trigger": "A role removal would breach a mandatory-role rule, the identity provider is unreachable, or a worker's cached credential ages past the offline trust window", "first_fallback": "A breaching removal is refused with the rule named; the managed-credential path can be pre-provisioned as a documented contingency", "fallback_failure": "Where no authentication path succeeds, the tenant's web surfaces are unreachable for affected users; already-authenticated Frontline workers continue inside the offline trust window", "terminal_safe_state": "The floor continues executing on already-assigned runs with cached credentials until the trust window expires; after expiry the worker cannot start new work", "recovery": "The identity provider returns; sessions re-establish; devices re-authenticate at next connectivity; parked or unstartable runs are listed for the Supervisor", "line": 16377},
+    {"id": "FB-TENADM-001", "trigger": "The last Tenant Admin is removed or locked out, a configuration write partially applies, or the tenant enters soft or compliance suspension", "first_fallback": "A breaching removal is refused; a partial configuration write rolls back entirely", "fallback_failure": "Under compliance suspension all logins are blocked immediately, in-flight runs stop, and devices lock at next contact with the fixed message 'Operation suspended. Contact your supervisor. Your work has been saved.'", "terminal_safe_state": "The tenant's records are intact and unpurged; no configuration is half-applied; no worker loses captured work", "recovery": "Lockout resolved by another Tenant Admin, or through a support ticket and, where data must change, the compliance-emergency path", "line": 16514},
+    {"id": "FB-SUPV-001", "trigger": "The Supervisor is unreachable when a clearance is needed, the worker's device is offline when a clearance is granted, no Supervisor is on shift when an escalation resolves, or a substitution is initiated offline", "first_fallback": "An unacknowledged expiry notification escalates to the Quality Manager after the configurable window, default 2 minutes", "fallback_failure": "Where the clearance cannot reach an offline device, the blocked run parks and the worker continues their other assigned runs", "terminal_safe_state": "The worker is not blocked from all work, only from the gated run; no override occurs on the device; no gate is bypassed", "recovery": "The device syncs; the command validates and applies; the run resumes; parked-run durations are reported so repeated parking in one Area is visible", "line": 16668}
+  ],
+
+  "fixtures_cast": [
+    {"name": "Bright Bikes", "kind": "tenant", "role_or_type": "The blueprint's recurring illustrative manufacturer tenant (`TEN-BRIGHTBIKES`)", "line": 13540},
+    {"name": "TEN-BRIGHTBIKES", "kind": "tenant identifier", "role_or_type": "Tenant record identifier for Bright Bikes", "line": 14269},
+    {"name": "Priya", "kind": "person", "role_or_type": "Tenant Admin at Bright Bikes (ROLE-TEN-ADMIN)", "line": 14215},
+    {"name": "Sam", "kind": "person", "role_or_type": "Supervisor on Assembly Line A (ROLE-TEN-SUP)", "line": 14215},
+    {"name": "Elena", "kind": "person", "role_or_type": "Quality Manager (ROLE-TEN-QM)", "line": 14215},
+    {"name": "Omar", "kind": "person", "role_or_type": "Read-only Auditor (ROLE-TEN-AUD)", "line": 14215},
+    {"name": "Maya", "kind": "person", "role_or_type": "Worker on tablet TAB-014 (ROLE-TEN-WKR)", "line": 14215},
+    {"name": "Ahmed", "kind": "person", "role_or_type": "Worker added with a platform-managed username and PIN, scoped to Assembly Line A", "line": 16354},
+    {"name": "Aisha", "kind": "person", "role_or_type": "Root Super Admin, holder of the only root account (ROLE-PLAT-ROOT)", "line": 14215},
+    {"name": "Noah", "kind": "person", "role_or_type": "Admin on the platform console (ROLE-PLAT-ADMIN)", "line": 14215},
+    {"name": "Daniel", "kind": "person", "role_or_type": "Platform Engineer (ROLE-PLAT-ENG)", "line": 14215},
+    {"name": "Sophia", "kind": "person", "role_or_type": "Support engineer (ROLE-PLAT-SUP)", "line": 14215},
+    {"name": "TAB-014", "kind": "device", "role_or_type": "Tablet in Shared device mode at Wheel Station 2", "line": 13636},
+    {"name": "LOT-WB-2291", "kind": "lot", "role_or_type": "Wheel bolt lot carrying the Severity 1 hold", "line": 13540},
+    {"name": "RB-0007", "kind": "unit", "role_or_type": "Unit carrying Maya's 41.0 Newton metre Severity 2 capture", "line": 13697},
+    {"name": "RB-0011", "kind": "unit", "role_or_type": "Unit carrying the 38.0 Newton metre Severity 1 capture", "line": 13697},
+    {"name": "JOB-REDBIKE", "kind": "job", "role_or_type": "Red Bicycle Assembly Job, created by Sam and approved by Elena", "line": 13697},
+    {"name": "RUN-2026-08-14-A", "kind": "run", "role_or_type": "Maya's run on 14 August 2026", "line": 14576},
+    {"name": "SITE-RIVERSIDE", "kind": "site", "role_or_type": "Riverside Plant, timezone America/Chicago", "line": 14357},
+    {"name": "AREA-ASSY-A", "kind": "area", "role_or_type": "Assembly Line A", "line": 14269},
+    {"name": "CELL-WHEEL-2", "kind": "location (Cell)", "role_or_type": "Wheel Station 2", "line": 14576},
+    {"name": "SHIFT-DAY", "kind": "shift", "role_or_type": "Day Shift, 06:00 to 14:00, digest delivery at 06:00", "line": 16460},
+    {"name": "Paint Area B", "kind": "area", "role_or_type": "Area outside Elena's Supervisor scope in the multi-role example", "line": 14722},
+    {"name": "v2.1.0", "kind": "workflow version", "role_or_type": "Published workflow version carrying the 44 to 47 Newton metre limits and severity bands", "line": 13634},
+    {"name": "v2.2.0", "kind": "workflow version", "role_or_type": "Referenced version (not detailed in this chunk)", "line": 13634},
+    {"name": "AUD-BB-000001", "kind": "audit entry", "role_or_type": "Audit chain entry recording Elena's release decision and command identifier", "line": 14578},
+    {"name": "Shift Handoff Agent", "kind": "agent", "role_or_type": "Agent that produced an empty brief in the Diagnostic-only example; runs 30 minutes before shift end", "line": 16219}
+  ]
+}
