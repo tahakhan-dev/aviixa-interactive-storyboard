@@ -140,8 +140,17 @@ describe('nine-outcome permission model', () => {
   })
 
   it('does not carry hidden or redacted as permission outcomes', () => {
-    expect(NINE).not.toContain('hidden' as PermissionOutcome)
-    expect(NINE).not.toContain('redacted' as PermissionOutcome)
+    // Compile-time: checks the real PermissionOutcome type, not a
+    // hand-authored copy of it. If 'hidden' or 'redacted' is ever
+    // reintroduced to the union, `HiddenOrRedactedInOutcome` stops being
+    // `never` and this assignment fails to compile -- unlike a literal-list
+    // comparison, which would keep passing even if the type drifted back.
+    type HiddenOrRedactedInOutcome = Extract<PermissionOutcome, 'hidden' | 'redacted'>
+    const _hiddenAndRedactedExcluded: HiddenOrRedactedInOutcome extends never ? true : never = true
+    void _hiddenAndRedactedExcluded
+    // Runtime, on the actual exported array rather than the test's own copy.
+    expect(PERMISSION_OUTCOMES).not.toContain('hidden')
+    expect(PERMISSION_OUTCOMES).not.toContain('redacted')
   })
 
   it('offers field treatment as a separate three-value concept', () => {

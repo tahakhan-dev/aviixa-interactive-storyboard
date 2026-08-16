@@ -37,7 +37,7 @@ export type PermissionOutcome =
  * here too. The permission-matrix rendering in a later slice consumes this
  * array directly.
  */
-export const PERMISSION_OUTCOMES: readonly PermissionOutcome[] = [
+export const PERMISSION_OUTCOMES = [
   'allowed',
   'allowedWithConditions',
   'readOnly',
@@ -47,7 +47,7 @@ export const PERMISSION_OUTCOMES: readonly PermissionOutcome[] = [
   'explicitlyProhibited',
   'clientDecisionRequired',
   'notApplicable',
-] as const
+] as const satisfies readonly PermissionOutcome[]
 
 /**
  * Compile-time proof that PERMISSION_OUTCOMES lists every member of
