@@ -32,7 +32,14 @@ export type GatewayResult =
       /** Plain language a non-specialist can act on. Never a bare identifier. */
       readonly reason: string
       readonly decision: PermissionDecision | null
-      readonly blockedBy: 'capability' | 'policy' | 'validation' | 'persistence'
+      /**
+       * `'input'` (fix round 1): a null/undefined `state` or `command` reached
+       * the gateway. Distinct from `'validation'`, which is the KERNEL's
+       * verdict on a well-formed command's field values (e.g. an empty
+       * `lotId`) -- a missing argument is not a command at all, so it is
+       * never handed to `reduce` in the first place.
+       */
+      readonly blockedBy: 'capability' | 'policy' | 'validation' | 'persistence' | 'input'
     }
 
 /**
@@ -64,10 +71,16 @@ function actionClassFor(command: ScenarioCommand): ActionClass {
 }
 
 /**
- * The one and only path to a domain mutation. Runs three stages in order and
- * stops at the first refusal; never throws -- every stage's failure is a
- * typed `GatewayResult`, never an exception a caller must catch.
+ * The one and only path to a domain mutation. Runs four stages in order and
+ * stops at the first refusal; never throws -- every stage's failure,
+ * including a caller passing a missing argument, is a typed `GatewayResult`,
+ * never an exception a caller must catch.
  *
+ * 0. Input: a null/undefined `state` or `command` is refused immediately,
+ *    with `blockedBy: 'input'` -- neither `actionClassFor` (which reads
+ *    `command.type`) nor `reduce` (which reads `state.sequence`, including
+ *    inside ITS OWN catch-all) is safe to call with either missing, so this
+ *    must run before either is ever reached.
  * 1. Capability: a durable command is refused here, before the kernel ever
  *    runs, if storage cannot durably record it -- a kernel run that cannot
  *    be committed is a transition that half-happened, so no kernel work
@@ -85,6 +98,28 @@ export async function dispatch(
   ctx: TransitionContext,
   deps: GatewayDeps,
 ): Promise<GatewayResult> {
+  // Fix round 1 (CRITICAL): a caller passing a null/undefined `state` or
+  // `command` -- e.g. an uninitialised selector result -- previously threw a
+  // TypeError instead of returning a typed refusal, breaking the one
+  // guarantee this file exists to keep. Guarded here, before either value is
+  // ever dereferenced.
+  if (!command) {
+    return {
+      ok: false,
+      reason: 'No command was supplied to the gateway, so no action could be attempted. Nothing was changed.',
+      decision: null,
+      blockedBy: 'input',
+    }
+  }
+  if (!state) {
+    return {
+      ok: false,
+      reason: 'No scenario state was supplied to the gateway, so no action could be attempted. Nothing was changed.',
+      decision: null,
+      blockedBy: 'input',
+    }
+  }
+
   const actionClass = actionClassFor(command)
   if (!permittedUnder(deps.storageState, actionClass)) {
     return {
