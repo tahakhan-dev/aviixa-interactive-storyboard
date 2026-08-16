@@ -1,5 +1,7 @@
+import { z } from 'zod'
 import { canonicalSerialize, sha256Hex } from '@/domain/hash'
-import type { ReviewRecord } from './records'
+import { SURFACES, type SurfaceId } from '@/domain/surfaces'
+import { REVIEW_STATUSES, type ReviewRecord, type ReviewStatus } from './records'
 
 /**
  * V1 has exactly one package shape. A future format change bumps this and
@@ -107,5 +109,193 @@ export async function exportReviewPackage(input: ExportReviewPackageInput): Prom
     records: input.records,
     manifest,
     manifestChecksum,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Import: validate, then quarantine or preview. Never apply.
+// ---------------------------------------------------------------------------
+
+/** A package larger than this is refused before it is even shape-checked. */
+export const MAX_PACKAGE_BYTES = 5_000_000
+
+const REVIEW_STATUS_VALUES = REVIEW_STATUSES as unknown as [ReviewStatus, ...ReviewStatus[]]
+const SURFACE_ID_VALUES = SURFACES.map((s) => s.id) as unknown as [SurfaceId, ...SurfaceId[]]
+
+const PackageManifestEntrySchema = z
+  .object({
+    path: z.string().min(1),
+    bytes: z.number().int().nonnegative(),
+    sha256: z.string().regex(/^[0-9a-f]{64}$/),
+  })
+  .strict()
+
+/** Mirrors `ReviewRecord` field-for-field. An unknown field fails closed. */
+const ReviewRecordSchema = z
+  .object({
+    id: z.string().min(1),
+    anchorType: z.string().min(1),
+    anchorId: z.string().min(1),
+    surface: z.enum(SURFACE_ID_VALUES),
+    reviewerLabel: z.string().min(1),
+    status: z.enum(REVIEW_STATUS_VALUES),
+    comment: z.string(),
+    sourceFingerprint: z.string().min(1),
+    scenarioVersion: z.string().min(1),
+    buildHash: z.string().min(1),
+    createdAtLogical: z.number(),
+  })
+  .strict()
+
+const ReviewPackageSchema = z
+  .object({
+    formatVersion: z.number(),
+    sourceHash: z.string().min(1),
+    buildHash: z.string().min(1),
+    scenarioVersion: z.string().min(1),
+    records: z.array(ReviewRecordSchema),
+    manifest: z.array(PackageManifestEntrySchema),
+    manifestChecksum: z.string().regex(/^[0-9a-f]{64}$/),
+  })
+  .strict()
+
+/** What a reviewer sees before anything is applied. Import stops here. */
+export interface ImportPreview {
+  readonly recordCount: number
+  readonly records: readonly ReviewRecord[]
+  readonly sourceHash: string
+  readonly buildHash: string
+  readonly scenarioVersion: string
+}
+
+export type ImportOutcome =
+  | { readonly ok: true; readonly preview: ImportPreview }
+  | {
+      readonly ok: false
+      readonly quarantined: true
+      readonly failingEntry: string | null
+      readonly expected: string | null
+      readonly actual: string | null
+      readonly reason: string
+    }
+
+function quarantine(
+  reason: string,
+  detail?: { failingEntry?: string | null; expected?: string | null; actual?: string | null },
+): ImportOutcome {
+  return {
+    ok: false,
+    quarantined: true,
+    failingEntry: detail?.failingEntry ?? null,
+    expected: detail?.expected ?? null,
+    actual: detail?.actual ?? null,
+    reason,
+  }
+}
+
+/**
+ * Best-effort byte size of an arbitrary unvalidated value, used only to
+ * reject an oversized package before spending any work on it. A value that
+ * cannot be serialised at all (e.g. a circular reference) is treated as
+ * over-size rather than thrown from — this function must never throw, since
+ * it runs before the shape check that is actually responsible for naming
+ * what is wrong with the payload.
+ */
+function packageByteSize(raw: unknown): number {
+  try {
+    const serialised = JSON.stringify(raw)
+    return serialised === undefined ? 0 : new TextEncoder().encode(serialised).length
+  } catch {
+    return Number.POSITIVE_INFINITY
+  }
+}
+
+/**
+ * Validates a raw import candidate and either quarantines it or returns a
+ * preview — it never applies anything to the review store itself; nothing in
+ * this module writes to `@/review/store`. Order, matching the brief exactly:
+ * size, then shape (Zod, strict), then format version, then source/build
+ * compatibility, then per-entry hashes, then the manifest checksum. The
+ * FIRST failure quarantines and stops — later steps never run once an
+ * earlier one has failed, so a reviewer is never shown a preview built from
+ * data that already failed an earlier, cheaper check.
+ */
+export async function importReviewPackage(
+  raw: unknown,
+  expected: { readonly sourceHash: string; readonly buildHash: string },
+): Promise<ImportOutcome> {
+  // 1. size
+  const byteSize = packageByteSize(raw)
+  if (byteSize > MAX_PACKAGE_BYTES) {
+    return quarantine(
+      `Package is ${byteSize} bytes, over the ${MAX_PACKAGE_BYTES}-byte import limit.`,
+      { expected: String(MAX_PACKAGE_BYTES), actual: String(byteSize) },
+    )
+  }
+
+  // 2. shape
+  const parsed = ReviewPackageSchema.safeParse(raw)
+  if (!parsed.success) {
+    return quarantine(
+      `Package does not match the expected shape: ${parsed.error.issues.map((i) => i.message).join('; ')}`,
+    )
+  }
+  const pkg = parsed.data
+
+  // 3. format version
+  if (pkg.formatVersion !== PACKAGE_FORMAT_VERSION) {
+    return quarantine('Unsupported package format version.', {
+      expected: String(PACKAGE_FORMAT_VERSION),
+      actual: String(pkg.formatVersion),
+    })
+  }
+
+  // 4. source and build compatibility — refuse to merge across sources/builds
+  if (pkg.sourceHash !== expected.sourceHash) {
+    return quarantine(
+      'Package source hash does not match the running source; refusing to merge review comments across sources.',
+      { expected: expected.sourceHash, actual: pkg.sourceHash },
+    )
+  }
+  if (pkg.buildHash !== expected.buildHash) {
+    return quarantine('Package build hash does not match the running build.', {
+      expected: expected.buildHash,
+      actual: pkg.buildHash,
+    })
+  }
+
+  // 5. per-entry hashes — recompute each logical file from the package's own
+  // declared fields and compare against what the manifest claims.
+  const recomputedManifest = await buildManifest(packageFiles(pkg))
+  const declaredByPath = new Map(pkg.manifest.map((entry) => [entry.path, entry]))
+  for (const entry of recomputedManifest) {
+    const declared = declaredByPath.get(entry.path)
+    if (!declared || declared.sha256 !== entry.sha256 || declared.bytes !== entry.bytes) {
+      return quarantine(`Manifest entry "${entry.path}" does not match its content hash.`, {
+        failingEntry: entry.path,
+        expected: declared?.sha256 ?? null,
+        actual: entry.sha256,
+      })
+    }
+  }
+
+  // 6. manifest checksum
+  const recomputedChecksum = await sha256Hex(canonicalSerialize(recomputedManifest))
+  if (recomputedChecksum !== pkg.manifestChecksum) {
+    return quarantine('Manifest checksum does not match the manifest contents.', {
+      expected: recomputedChecksum,
+      actual: pkg.manifestChecksum,
+    })
+  }
+
+  return {
+    ok: true,
+    preview: {
+      recordCount: pkg.records.length,
+      records: pkg.records,
+      sourceHash: pkg.sourceHash,
+      buildHash: pkg.buildHash,
+      scenarioVersion: pkg.scenarioVersion,
+    },
   }
 }
