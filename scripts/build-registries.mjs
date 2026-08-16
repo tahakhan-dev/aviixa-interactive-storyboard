@@ -20,23 +20,16 @@
  * `.superpowers/sdd/2026-08-17-slice-02c-spec-closure/controller-addendum-registries.md`
  * for the measured derivation of every number below.
  *
- * NOTE ON `registries/generated/workflow-registry.json`: that file (432
- * rows, produced by the retired `scripts/build-workflow-registry.mjs`) is a
- * SEPARATE, already-shipped artifact consumed directly by
- * `app/coverage/page.tsx` and `app/workflows/page.tsx`, and pinned byte-for-
- * byte by `tests/unit/workflow-registry.test.ts` and
- * `tests/coverage/workflow-index.test.ts` (which asserts the built
- * `/workflows/` page renders exactly that 432-row, id-deduped registry).
- * This script does not touch it. Task 6's brief calls for "ONE generator,
- * not two" for the NEW fourteen-file batch; folding `workflow-registry.json`
- * itself into this script's output would additionally require changing both
- * app pages and both pinned test files, which sit outside this task's
- * declared area (`scripts/`, `src/coverage/`, `src/registry/`,
- * `registries/generated/`) and would risk the currently-green 410/79/41/88
- * suite for zero behavioural gain. Instead, this script writes a new,
- * independent `registries/generated/workflows.json` in the fourteen-file
- * wrapper shape, built straight from the same raw chunks with its own
- * dedup pass (composite `id@line` keys -- see `buildWorkflowsRegistry`).
+ * CONSOLIDATION (fix round 1, defect 3): `registries/generated/workflow-
+ * registry.json` and `scripts/build-workflow-registry.mjs` (the legacy
+ * 432-row, id-only-deduped workflow registry) are RETIRED and deleted. Two
+ * registries existed for one inventory -- `app/workflows/page.tsx` and
+ * `app/coverage/page.tsx` read the legacy file, so Task 7's composite-key
+ * fix (`registries/generated/workflows.json`, 724 rows) reached no screen.
+ * `workflows.json`, produced here by `buildWorkflowsRegistry` below, is now
+ * the ONE registry for this inventory; both app pages and every test read it
+ * through `GeneratedRegistrySchema` (`@/coverage/registry-loader`), the same
+ * as the other thirteen registries.
  *
  * Run with: node scripts/build-registries.mjs
  */

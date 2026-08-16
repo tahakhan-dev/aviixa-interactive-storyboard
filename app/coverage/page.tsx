@@ -7,8 +7,9 @@ import {
   type CoverageStatus,
 } from '@/coverage/descriptors'
 import { Table, StatusPill, type StatusTone } from '@/ui/primitives'
-import { loadWorkflowRegistry } from '@/registry/load'
-import workflowRegistryRaw from '../../registries/generated/workflow-registry.json'
+import { loadRegistry } from '@/registry/load'
+import { GeneratedRegistrySchema } from '@/coverage/registry-loader'
+import workflowsRaw from '../../registries/generated/workflows.json'
 
 export const metadata: Metadata = { title: 'Coverage Dashboard' }
 
@@ -35,25 +36,26 @@ const STATUS_LABEL: Record<CoverageStatus, string> = {
   'not-represented': 'Not represented',
 }
 
-const WORKFLOW_REGISTRY = loadWorkflowRegistry(workflowRegistryRaw)
+const WORKFLOWS = loadRegistry(GeneratedRegistrySchema, workflowsRaw, 'workflows registry')
 
 /**
  * Minor (final review): this used to hardcode every one of the fourteen
  * rows to `'not-represented'` and then run them through `countByStatus` --
  * a tautology dressed up as a computation, since the input was a constant.
  * Now a real per-registry derivation: `workflows` is checked against its
- * actual generated registry (`registries/generated/workflow-registry.json`,
- * 432 records); the other thirteen have no item-level registry yet (slices
- * 3-13 haven't built one), so there is nothing to derive a status FROM, and
- * `'not-represented'` is the honest default rather than a stand-in for a
- * computation that doesn't exist. Today this still evaluates to
- * not-represented for all fourteen -- that is the true state of the build,
- * not a hardcoded assumption -- but it will change the moment any registry
- * actually has a demonstrated row.
+ * actual generated registry (`registries/generated/workflows.json`, 724
+ * composite-keyed records -- fix round 1, defect 3: this used to read the
+ * retired 432-row `workflow-registry.json`); the other thirteen have no
+ * item-level registry yet (slices 3-13 haven't built one), so there is
+ * nothing to derive a status FROM, and `'not-represented'` is the honest
+ * default rather than a stand-in for a computation that doesn't exist.
+ * Today this still evaluates to not-represented for all fourteen -- that is
+ * the true state of the build, not a hardcoded assumption -- but it will
+ * change the moment any registry actually has a demonstrated row.
  */
 function registryStatus(slug: string): CoverageStatus {
   if (slug === 'workflows') {
-    return WORKFLOW_REGISTRY.some((r) => r.status !== 'not-represented')
+    return WORKFLOWS.rows.some((r) => r.status !== 'not-represented')
       ? 'demonstrated-in-storyboard'
       : 'not-represented'
   }

@@ -1,67 +1,50 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Table, StatusPill, type TableColumn, type TableRow } from '@/ui/primitives'
-import { loadWorkflowRegistry } from '@/registry/load'
-import workflowRegistryRaw from '../../registries/generated/workflow-registry.json'
+import { loadRegistry } from '@/registry/load'
+import { GeneratedRegistrySchema } from '@/coverage/registry-loader'
+import workflowsRaw from '../../registries/generated/workflows.json'
 
 export const metadata: Metadata = { title: 'Workflow Index' }
 
 const WORKFLOW_COLUMNS: readonly TableColumn[] = [
   { key: 'id', header: 'Stable ID' },
   { key: 'name', header: 'Name' },
-  { key: 'primaryActor', header: 'Primary actor' },
-  { key: 'surfacesTouched', header: 'Surfaces touched' },
-  { key: 'terminalStates', header: 'Terminal states' },
   { key: 'sourceLine', header: 'Source line' },
   { key: 'status', header: 'Implementation status' },
   { key: 'extractionCoverage', header: 'Extraction coverage' },
 ]
 
 /**
- * BLOCKING 2 (final review): this used to be a literal `[]` -- no generated
- * per-workflow registry existed, even though slice 1's extraction
- * (`registries/raw/extract/CHK-*.json`) already held 432 distinct
- * `workflows[]` entries. `scripts/build-workflow-registry.mjs` now produces
- * `registries/generated/workflow-registry.json` from that extraction
- * (committed, deterministic, sorted by id); validated here with the same
- * strict-Zod-on-load discipline every other registry uses (`@/registry/
- * load`'s `loadRegistry`), so a count on this screen and a count anywhere
- * else that reads this file come from the one validated source.
+ * Fix round 1 (defect 3): this page used to read the retired, legacy
+ * `registries/generated/workflow-registry.json` (432 rows, deduped by the
+ * extractor's bare id) -- so Task 7's composite-key fix
+ * (`registries/generated/workflows.json`, 724 rows, worst residual collapse
+ * 2) reached this file but never this screen. Now reads the ONE workflows
+ * registry through the same strict `GeneratedRegistrySchema` every other
+ * registry index uses.
  *
  * ponytail: no per-column filter UI (surface/actor/status/...) sits in
- * front of this yet -- spec §7 asks for one, but the finding that restored
- * these rows didn't, and 432 static rows read fine on one page without it.
- * Add Select-driven filters over `WORKFLOW_COLUMNS` if reviewers actually
- * need to narrow this list.
- *
- * Honesty fix (post-handoff review): dedup-by-id collapses every raw
- * extraction entry that shared an id into one row here, with nothing
- * previously telling a reader that had happened -- 199 raw entries share
- * the literal id "unnumbered" and 66 share "unstated", so those two rows
- * alone stood for 265 entries as though each were one ordinary record. Every
- * row whose `collapsedFrom` is greater than one (its id repeated in the raw
- * extraction) now carries a visible `StatusPill` saying so, in the
- * "Extraction coverage" column -- not a tooltip or a footnote.
+ * front of this yet -- spec §7 asks for one, but 724 static rows still
+ * read fine on one page without it. Add Select-driven filters over
+ * `WORKFLOW_COLUMNS` if reviewers actually need to narrow this list.
  */
-const WORKFLOW_REGISTRY = loadWorkflowRegistry(workflowRegistryRaw)
+const WORKFLOWS = loadRegistry(GeneratedRegistrySchema, workflowsRaw, 'workflows registry')
 
-const COLLAPSED_ROWS = WORKFLOW_REGISTRY.filter((r) => r.collapsedFrom > 1)
-const ENTRIES_AFFECTED_BY_COLLAPSE = COLLAPSED_ROWS.reduce((sum, r) => sum + r.collapsedFrom, 0)
+const COLLAPSED_ROWS = WORKFLOWS.rows.filter((r) => (r.collapsedFrom ?? 1) > 1)
+const ENTRIES_AFFECTED_BY_COLLAPSE = COLLAPSED_ROWS.reduce((sum, r) => sum + (r.collapsedFrom ?? 1), 0)
 
-const WORKFLOW_ROWS: readonly TableRow[] = WORKFLOW_REGISTRY.map((r) => ({
+const WORKFLOW_ROWS: readonly TableRow[] = WORKFLOWS.rows.map((r) => ({
   id: r.id,
-  name: r.name,
-  primaryActor: r.primaryActor,
-  surfacesTouched: r.surfacesTouched.length > 0 ? r.surfacesTouched.join(', ') : '—',
-  terminalStates: r.terminalStates.length > 0 ? r.terminalStates.join(', ') : '—',
+  name: r.label ?? '—',
   sourceLine: r.sourceLine,
   status: r.status,
   extractionCoverage:
-    r.collapsedFrom > 1 ? (
+    (r.collapsedFrom ?? 1) > 1 ? (
       <StatusPill
         tone="attention"
         icon="ℹ"
-        label={`Represents ${r.collapsedFrom} extracted entries — could not be separated, the source did not give them distinct identifiers`}
+        label={`Represents ${r.collapsedFrom} extracted entries — could not be separated, the source gave them the same passage at the same source line`}
       />
     ) : (
       '—'
@@ -81,21 +64,23 @@ export default function WorkflowIndexPage() {
       </p>
       <h1 className="mt-2 text-3xl font-semibold">Workflow Index</h1>
       <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">
-        Simulated behaviour only. {WORKFLOW_REGISTRY.length} workflow records
-        extracted from the frozen source, each with a name and source line —
-        the frozen source fixes no single workflow total anywhere in its
-        122,241 lines, and 81 is the MODULE count, not a workflow count. This
-        index never presents {WORKFLOW_REGISTRY.length} as a workflow total,
-        only as the size of this extracted, deduplicated record set.
+        Simulated behaviour only. {WORKFLOWS.rawCount} extracted workflow
+        records across the 36 extraction chunks, 1 cross-chunk duplicate
+        merged, {WORKFLOWS.rows.length} rows below — the frozen source fixes
+        no single workflow total anywhere in its 122,241 lines, and 81 is the
+        MODULE count, not a workflow count. This index never presents{' '}
+        {WORKFLOWS.rows.length} as a workflow total, only as the size of this
+        extracted, composite-keyed record set.
       </p>
       <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">
-        {COLLAPSED_ROWS.length} of these rows each represent more than one
-        extracted entry — most carry the placeholder id &ldquo;unnumbered&rdquo;
-        or &ldquo;unstated&rdquo; — because the source gave those entries no
-        separate identifiers, so they could not be listed as distinct rows;
-        {' '}
-        {ENTRIES_AFFECTED_BY_COLLAPSE} extracted entries in total are affected
-        by that collapse.
+        Rows are keyed on id plus source line whenever the extracted id is a
+        placeholder (&ldquo;unnumbered&rdquo; or &ldquo;unstated&rdquo;) or
+        repeats at more than one source line, so distinct passages no longer
+        collapse into one row just because the source gave them the same
+        placeholder text. Only {COLLAPSED_ROWS.length} row still represents
+        more than one extracted entry — {ENTRIES_AFFECTED_BY_COLLAPSE} in
+        total — because it is a genuine duplicate: the same passage, at the
+        same source line, extracted twice.
       </p>
       <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">
         No workflow has been demonstrated in this build yet: every row below
@@ -110,12 +95,12 @@ export default function WorkflowIndexPage() {
         aria-label="Workflow registry table, scrollable horizontally"
       >
         <Table
-          caption={`${WORKFLOW_REGISTRY.length} extracted workflow records, by stable ID, name, primary actor, surfaces touched, terminal states, source line, implementation status, and extraction coverage.`}
+          caption={`${WORKFLOWS.rows.length} extracted workflow records, by stable ID, name, source line, implementation status, and extraction coverage.`}
           columns={WORKFLOW_COLUMNS}
           rows={WORKFLOW_ROWS}
           emptyState={{
             title: 'There are no workflows recorded yet.',
-            whatCreatesIt: 'scripts/build-workflow-registry.mjs, run against registries/raw/extract/CHK-*.json.',
+            whatCreatesIt: 'scripts/build-registries.mjs, run against registries/raw/extract/CHK-*.json.',
           }}
         />
       </div>

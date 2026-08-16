@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { COVERAGE_STATUSES } from '@/coverage/descriptors'
 
 /**
  * Every schema here is `.strict()`. An unknown field in source-derived data
@@ -134,53 +133,13 @@ export const ReconciliationReportSchema = z
 
 export type ReconciliationReport = z.infer<typeof ReconciliationReportSchema>
 
-/**
- * One row of `registries/generated/workflow-registry.json`, built by
- * `scripts/build-workflow-registry.mjs` from the 432 distinct `id`-keyed
- * `workflows[]` entries across `registries/raw/extract/CHK-*.json` (slice
- * 1's extraction of the frozen source). This is a source-EXTRACTION count,
- * not a workflow TOTAL: the frozen source fixes no single workflow count
- * anywhere, and this registry never asserts one (see
- * `RegistryDescriptor.expectedCount` for `workflows`, which stays `null`).
- *
- * `surfacesTouched` is deliberately `string[]`, not `SurfaceId[]`: the
- * extraction's `surfaces_touched` field is free text off the frozen source
- * ("Delivery Operations Hub modules 2, 3, 5, 6, 7, 8, 14, 18", "tenant audit
- * stream", "Not applicable — document control", ...), not always one of the
- * five closed `SurfaceId` values -- coercing it into that enum would either
- * throw away real source text or fabricate a surface the source never named.
- *
- * `collapsedFrom` and `idIsPlaceholder` (post-handoff honesty fix): 725 raw
- * `workflows[]` entries dedupe to these 432 rows by the extractor's own
- * `id`, and 32 ids repeat -- 199 raw entries share the literal id
- * "unnumbered", 66 share "unstated" (the extractor's placeholders for a
- * passage the source gave no clean id), and 30 real-looking ids (e.g.
- * "SB-001") each name two distinct passages at two different source lines.
- * `collapsedFrom` is how many raw entries this row's id actually had (>= 1);
- * `idIsPlaceholder` is true only for the bare literal ids "unnumbered" and
- * "unstated" themselves, not for ids that merely start with that text plus a
- * discriminating fragment (e.g. "unnumbered — 23.10 metrics derivation",
- * which IS a distinct, non-collapsing id). Neither field re-keys the
- * registry or invents an id the source never gave -- that stays out of
- * scope for this fix.
- */
-export const WorkflowRecordSchema = z
-  .object({
-    id: z.string().min(1),
-    name: z.string().min(1),
-    primaryActor: z.string().min(1),
-    trigger: z.string().min(1),
-    surfacesTouched: z.array(z.string()),
-    terminalStates: z.array(z.string()),
-    sourceLine: z.number().int().nonnegative(),
-    status: z.enum(COVERAGE_STATUSES),
-    collapsedFrom: z.number().int().positive(),
-    idIsPlaceholder: z.boolean(),
-  })
-  .strict()
-
-export type WorkflowRecord = z.infer<typeof WorkflowRecordSchema>
-
-export const WorkflowRegistrySchema = z.array(WorkflowRecordSchema)
-
-export type WorkflowRegistry = z.infer<typeof WorkflowRegistrySchema>
+// Fix round 1 (defect 3): the legacy `WorkflowRecordSchema`/
+// `WorkflowRegistrySchema` pair (and `registries/generated/workflow-
+// registry.json`, and `scripts/build-workflow-registry.mjs`) are RETIRED.
+// Two registries existed for one inventory -- this 432-row, id-only-deduped
+// file nothing but `app/workflows/page.tsx` and `app/coverage/page.tsx`
+// read, sitting next to `registries/generated/workflows.json`'s 724-row
+// composite-keyed registry (Task 7) that fixed the exact collapse defect
+// this schema's own doc comment used to describe. `GeneratedRegistrySchema`
+// in `@/coverage/registry-loader` is the one schema for `workflows` now, the
+// same as the other thirteen registries.
