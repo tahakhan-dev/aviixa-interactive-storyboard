@@ -10,21 +10,26 @@ import WorkflowIndexPage from '../../app/workflows/page'
 // file's bare "unnumbered"/"unstated" rows, which no longer exist as such
 // -- composite keying gives each distinct passage its own row.
 describe('/workflows/ collapse honesty', () => {
+  // 724 rows is a much bigger table than the legacy 432-row page, and
+  // `getByRole('cell', ...)` computes an accessible name for every cell it
+  // scans -- getByText on exact cell content is equivalent here (ids are
+  // unique) and far cheaper, but the table is still large enough that a
+  // slow CI runner needs more than the 5s default.
   it('the one genuinely duplicated row visibly states it represents 2 extracted entries', () => {
     render(<WorkflowIndexPage />)
-    const idCell = screen.getByRole('cell', { name: 'unnumbered@L74182' })
+    const idCell = screen.getByText('unnumbered@L74182', { selector: 'td' })
     const row = idCell.closest('tr')
     if (row === null) throw new Error('fixture bug: "unnumbered@L74182" cell has no parent row')
     expect(within(row).getByText(/represents 2 extracted entries/i)).toBeTruthy()
-  })
+  }, 15000)
 
   it('an ordinary, non-collapsed row carries no collapse statement', () => {
     render(<WorkflowIndexPage />)
-    const idCell = screen.getByRole('cell', { name: 'WF-VALUESTREAM' })
+    const idCell = screen.getByText('WF-VALUESTREAM', { selector: 'td' })
     const row = idCell.closest('tr')
     if (row === null) throw new Error('fixture bug: "WF-VALUESTREAM" cell has no parent row')
     expect(within(row).queryByText(/extracted entries/i)).toBeNull()
-  })
+  }, 15000)
 
   it('never says "724 workflows" or "725 workflows" and keeps the no-single-total caveat', () => {
     const { container } = render(<WorkflowIndexPage />)
