@@ -23,6 +23,7 @@ describe('scenario domain state', () => {
     expect(s.ledgers.events).toEqual([])
     expect(s.ledgers.commands).toEqual([])
     expect(s.ledgers.notifications).toEqual([])
+    expect(s.ledgers.schedules).toEqual([])
   })
 
   it('keeps tenant partitions isolated from one another', () => {

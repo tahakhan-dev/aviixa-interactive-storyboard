@@ -17,6 +17,46 @@ describe('canonical serialisation', () => {
       canonicalSerialize({}),
     )
   })
+
+  it('distinguishes an undefined array element from an absent one', () => {
+    // A field cleared to undefined must never collide with a field that was
+    // never populated — the same guarantee the object case gives, extended
+    // to arrays. Undefined has no key to anchor it, so this is the case that
+    // actually silently drops without a distinct encoding.
+    expect(canonicalSerialize([undefined])).not.toBe(canonicalSerialize([]))
+  })
+
+  it('distinguishes undefined from the literal string "undefined"', () => {
+    expect(canonicalSerialize(undefined)).not.toBe(
+      canonicalSerialize('undefined'),
+    )
+  })
+
+  it('serialises -0 and 0 identically', () => {
+    expect(canonicalSerialize(-0)).toBe(canonicalSerialize(0))
+  })
+
+  it('throws on a non-finite number', () => {
+    expect(() => canonicalSerialize(Number.POSITIVE_INFINITY)).toThrow()
+    expect(() => canonicalSerialize(Number.NaN)).toThrow()
+  })
+
+  it('throws rather than silently collapsing a Date to {}', () => {
+    // Domain state must never hold a Date — time comes only from the
+    // injected Clock as a number. A Date reaching the serialiser is a
+    // modelling error, and two different Date instants must never collide
+    // on the same hash the way they would if this fell through to `{}`.
+    expect(() => canonicalSerialize(new Date(0))).toThrow()
+    expect(() => canonicalSerialize(new Date(999))).toThrow()
+  })
+
+  it('throws rather than silently collapsing a Map to {}', () => {
+    expect(() => canonicalSerialize(new Map([[1, 2]]))).toThrow()
+  })
+
+  it('throws rather than silently collapsing a Set to {}', () => {
+    expect(() => canonicalSerialize(new Set([1, 2]))).toThrow()
+  })
 })
 
 describe('hashing', () => {

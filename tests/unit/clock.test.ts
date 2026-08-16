@@ -20,4 +20,21 @@ describe('clock', () => {
       '2026-03-02T06:00:00.000Z',
     )
   })
+
+  it('advances now() forward by exactly the delta', () => {
+    const c = fixedClock(CANONICAL_EPOCH_MS)
+    c.advance(5000)
+    expect(c.now()).toBe(CANONICAL_EPOCH_MS + 5000)
+  })
+
+  it('allows advancing by zero', () => {
+    const c = fixedClock(CANONICAL_EPOCH_MS)
+    c.advance(0)
+    expect(c.now()).toBe(CANONICAL_EPOCH_MS)
+  })
+
+  it('throws on a negative delta, since scenario time never runs backwards', () => {
+    const c = fixedClock(CANONICAL_EPOCH_MS)
+    expect(() => c.advance(-1)).toThrow()
+  })
 })
