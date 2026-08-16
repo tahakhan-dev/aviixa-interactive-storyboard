@@ -69,4 +69,15 @@ describe('persistence capability matrix', () => {
       }
     }
   })
+
+  it('fails closed to false for a state outside the declared union, rather than throwing', () => {
+    // `state` is typed as the closed StorageBootstrapState union, so every
+    // legitimate caller is covered -- but permittedUnder is a boolean gate
+    // that may be consulted with unchecked/upstream input, and a gate that
+    // crashes instead of denying is not "fails closed."
+    const unmapped = 'not-a-real-state' as unknown as StorageBootstrapState
+    expect(() => permittedUnder(unmapped, 'navigate')).not.toThrow()
+    expect(permittedUnder(unmapped, 'navigate')).toBe(false)
+    expect(permittedUnder(unmapped, 'durableEvidence')).toBe(false)
+  })
 })

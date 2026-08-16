@@ -98,5 +98,10 @@ const CAPABILITY_TABLE: Readonly<Record<StorageBootstrapState, readonly ActionCl
   })
 
 export function permittedUnder(state: StorageBootstrapState, action: ActionClass): boolean {
-  return CAPABILITY_TABLE[state].includes(action)
+  // `state` is typed as the closed StorageBootstrapState union, so every
+  // valid value is a key by construction (see CAPABILITY_TABLE above) --
+  // but this is a boolean gate consulted everywhere a caller may act on
+  // unchecked input, so an unmapped key fails closed to `false` rather than
+  // throwing on `undefined.includes`.
+  return (CAPABILITY_TABLE[state] ?? []).includes(action)
 }

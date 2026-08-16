@@ -1,5 +1,5 @@
 import { hashState } from '@/domain/hash'
-import { DB_NAME, DB_VERSION, STORES, errorMessage, openDatabase, IndexedDbBlockedError } from './schema'
+import { DB_NAME, DB_VERSION, STORES, errorMessage, errorName, openDatabase, IndexedDbBlockedError } from './schema'
 
 export { STORES }
 
@@ -133,8 +133,7 @@ export async function bootstrapStorage(
         'Another open connection is blocking the schema upgrade. Close other tabs and retry.',
       )
     }
-    const name = err && typeof err === 'object' && 'name' in err ? String((err as { name: unknown }).name) : ''
-    if (name === 'QuotaExceededError') {
+    if (errorName(err) === 'QuotaExceededError') {
       return exit('quota-limited', false, `Storage quota exceeded while opening the database: ${errorMessage(err)}`)
     }
     return exit('persistence-denied', false, `IndexedDB refused to open: ${errorMessage(err)}`)
@@ -166,6 +165,9 @@ export async function bootstrapStorage(
       await writeMeta(db, { version: DB_VERSION, checksum: await computeChecksum() })
     } catch (err) {
       db.close()
+      if (errorName(err) === 'QuotaExceededError') {
+        return exit('quota-limited', false, `Storage quota exceeded while initialising schema metadata: ${errorMessage(err)}`)
+      }
       return exit('persistence-denied', false, `Failed to initialise schema metadata: ${errorMessage(err)}`)
     }
   } else if (validated.meta.version !== DB_VERSION) {

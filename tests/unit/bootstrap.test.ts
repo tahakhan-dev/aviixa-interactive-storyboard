@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { IDBFactory } from 'fake-indexeddb'
 import { openDatabase } from '@/persistence/schema'
+import { DB_VERSION } from '@/persistence/schema'
 import {
   bootstrapStorage,
   STORES,
@@ -105,6 +106,26 @@ describe('storage bootstrap', () => {
     await new Promise<void>((res, rej) => {
       const tx = db.transaction('meta', 'readwrite')
       tx.objectStore('meta').put({ garbage: true }, META_KEY)
+      tx.oncomplete = () => res()
+      tx.onerror = () => rej(tx.error)
+    })
+    db.close()
+
+    const r = await bootstrapStorage(factory)
+    expect(r.state).toBe<StorageBootstrapState>('corrupt-quarantined')
+    expect(r.durable).toBe(false)
+  })
+
+  // The existing corrupt-quarantined test above hits shape-validation
+  // (a garbage object). This drives the OTHER corrupt-quarantined path: a
+  // structurally valid descriptor at the CURRENT schema version, but whose
+  // checksum doesn't match what this build computes -- proving
+  // checksum-verifying itself is reachable, not just runtime-validating.
+  it('exits to corrupt-quarantined when the stored schema checksum does not match this build', async () => {
+    const db = await openDatabase(factory)
+    await new Promise<void>((res, rej) => {
+      const tx = db.transaction('meta', 'readwrite')
+      tx.objectStore('meta').put({ version: DB_VERSION, checksum: 'tampered-checksum' }, META_KEY)
       tx.oncomplete = () => res()
       tx.onerror = () => rej(tx.error)
     })
