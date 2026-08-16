@@ -430,6 +430,14 @@ function buildWorkflowsRegistry() {
       label: wf.name,
       collapsedFrom: keyCounts.get(key) ?? 1,
       idIsPlaceholder: PLACEHOLDER_WORKFLOW_IDS.has(wf.id),
+      // Fix round 2, §0: restored after consolidation onto the shared
+      // GeneratedRegistrySchema silently flattened these away. Spec §7
+      // requires them on the Workflow Index; Task 11's surface/actor
+      // filters need them on the row to filter by at all.
+      primaryActor: wf.primary_actor,
+      trigger: wf.trigger,
+      surfacesTouched: wf.surfaces_touched ?? [],
+      terminalStates: wf.terminal_states ?? [],
     })
   }
 

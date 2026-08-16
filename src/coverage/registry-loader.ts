@@ -14,7 +14,15 @@ import { COVERAGE_STATUSES } from '@/coverage/descriptors'
  *  - identifier-index rows joined to a module band or surface (functions,
  *    features, sub-features) carry `moduleId` and/or `surface`;
  *  - workflow rows carry `label`, `collapsedFrom` and `idIsPlaceholder`
- *    (composite-key collapse provenance, Task 7);
+ *    (composite-key collapse provenance, Task 7), PLUS the workflow-only
+ *    extension fields `primaryActor`, `trigger`, `surfacesTouched` and
+ *    `terminalStates` (fix round 2, §0): consolidating every registry onto
+ *    one shared row shape flattened workflows to the lowest common
+ *    denominator and silently dropped these, which slice 2b spec §7
+ *    requires on the Workflow Index and Task 11's surface/actor filters
+ *    need on the row to filter by at all. A common core plus typed,
+ *    optional, per-inventory extension fields -- never a widened
+ *    `Record<string, unknown>` to make one inventory's richer shape fit;
  *  - the remaining identifier-index families (business use cases, events,
  *    commands, notifications, offline scenarios, scheduled work) carry only
  *    the three required fields -- the frozen source extraction never named
@@ -37,6 +45,11 @@ export const RegistryRowSchema = z
     collapsedFrom: z.number().int().positive().optional(),
     idIsPlaceholder: z.boolean().optional(),
     register: z.string().min(1).optional(),
+    // Workflow-only extension fields (fix round 2, §0).
+    primaryActor: z.string().min(1).optional(),
+    trigger: z.string().min(1).optional(),
+    surfacesTouched: z.array(z.string()).optional(),
+    terminalStates: z.array(z.string()).optional(),
   })
   .strict()
 

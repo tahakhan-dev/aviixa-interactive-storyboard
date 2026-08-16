@@ -10,6 +10,9 @@ export const metadata: Metadata = { title: 'Workflow Index' }
 const WORKFLOW_COLUMNS: readonly TableColumn[] = [
   { key: 'id', header: 'Stable ID' },
   { key: 'name', header: 'Name' },
+  { key: 'primaryActor', header: 'Primary actor' },
+  { key: 'surfacesTouched', header: 'Surfaces touched' },
+  { key: 'terminalStates', header: 'Terminal states' },
   { key: 'sourceLine', header: 'Source line' },
   { key: 'status', header: 'Implementation status' },
   { key: 'extractionCoverage', header: 'Extraction coverage' },
@@ -37,6 +40,9 @@ const ENTRIES_AFFECTED_BY_COLLAPSE = COLLAPSED_ROWS.reduce((sum, r) => sum + (r.
 const WORKFLOW_ROWS: readonly TableRow[] = WORKFLOWS.rows.map((r) => ({
   id: r.id,
   name: r.label ?? '—',
+  primaryActor: r.primaryActor ?? '—',
+  surfacesTouched: (r.surfacesTouched ?? []).length > 0 ? r.surfacesTouched?.join(', ') : '—',
+  terminalStates: (r.terminalStates ?? []).length > 0 ? r.terminalStates?.join(', ') : '—',
   sourceLine: r.sourceLine,
   status: r.status,
   extractionCoverage:
@@ -95,7 +101,7 @@ export default function WorkflowIndexPage() {
         aria-label="Workflow registry table, scrollable horizontally"
       >
         <Table
-          caption={`${WORKFLOWS.rows.length} extracted workflow records, by stable ID, name, source line, implementation status, and extraction coverage.`}
+          caption={`${WORKFLOWS.rows.length} extracted workflow records, by stable ID, name, primary actor, surfaces touched, terminal states, source line, implementation status, and extraction coverage.`}
           columns={WORKFLOW_COLUMNS}
           rows={WORKFLOW_ROWS}
           emptyState={{

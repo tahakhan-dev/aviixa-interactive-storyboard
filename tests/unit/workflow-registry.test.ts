@@ -75,6 +75,27 @@ describe('workflow registry', () => {
     const raw = readFileSync('registries/generated/workflows.json', 'utf8')
     expect(() => JSON.parse(raw)).not.toThrow()
   })
+
+  // Fix round 2, §0: consolidating onto GeneratedRegistrySchema (fix round
+  // 1) flattened every row to the lowest common denominator across all
+  // fourteen registries, silently dropping the spec §7 columns
+  // (primaryActor, trigger, surfacesTouched, terminalStates) the legacy
+  // WorkflowRecordSchema used to carry -- a regression the coordinator, not
+  // the implementer, is on record owning. Restored as workflow-only
+  // extension fields on the shared RegistryRow shape, not a widened
+  // Record<string, unknown>.
+  it('carries back the spec §7 columns the consolidation dropped: primaryActor, trigger, surfacesTouched, terminalStates', () => {
+    const registry = loadGeneratedRegistry('workflows')
+    for (const r of registry.rows) {
+      expect((r.primaryActor ?? '').length, r.id).toBeGreaterThan(0)
+      expect((r.trigger ?? '').length, r.id).toBeGreaterThan(0)
+      expect(Array.isArray(r.surfacesTouched), r.id).toBe(true)
+      expect(Array.isArray(r.terminalStates), r.id).toBe(true)
+    }
+    const valuestream = registry.rows.find((r) => r.id === 'WF-VALUESTREAM')
+    expect(valuestream?.primaryActor).toMatch(/Quality Manager/)
+    expect(valuestream?.surfacesTouched).toContain('SURF-STU')
+  })
 })
 
 // Honesty defect (post-handoff review), fixed a second time by Task 7's

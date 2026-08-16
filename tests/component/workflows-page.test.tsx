@@ -47,3 +47,34 @@ describe('/workflows/ collapse honesty', () => {
     expect(text).toMatch(/duplicate merged/i)
   })
 })
+
+// Fix round 2, §0: consolidating onto one shared row shape (fix round 1)
+// flattened the Workflow Index from 8 columns to 5, silently dropping
+// primary actor, surfaces touched and terminal states -- spec §7 columns,
+// and the exact data Task 11's surface/actor filters need. Restored as
+// workflow-only extension fields; these tests prove the restored columns
+// actually render real per-row data, not just exist in the schema.
+describe('/workflows/ spec §7 columns restored', () => {
+  it('renders the primary actor for a real row', () => {
+    render(<WorkflowIndexPage />)
+    const idCell = screen.getByText('WF-VALUESTREAM', { selector: 'td' })
+    const row = idCell.closest('tr')
+    if (row === null) throw new Error('fixture bug: "WF-VALUESTREAM" cell has no parent row')
+    expect(within(row).getByText(/Quality Manager/)).toBeTruthy()
+  }, 15000)
+
+  it('renders the surfaces touched for a real row', () => {
+    render(<WorkflowIndexPage />)
+    const idCell = screen.getByText('WF-VALUESTREAM', { selector: 'td' })
+    const row = idCell.closest('tr')
+    if (row === null) throw new Error('fixture bug: "WF-VALUESTREAM" cell has no parent row')
+    expect(within(row).getByText(/SURF-STU/)).toBeTruthy()
+  }, 15000)
+
+  it('column headers include primary actor, surfaces touched and terminal states', () => {
+    render(<WorkflowIndexPage />)
+    expect(screen.getByRole('columnheader', { name: /primary actor/i })).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: /surfaces touched/i })).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: /terminal states/i })).toBeTruthy()
+  })
+})
