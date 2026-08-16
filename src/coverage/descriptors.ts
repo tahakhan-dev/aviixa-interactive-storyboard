@@ -20,12 +20,28 @@ export type CoverageStatus =
   | 'not-applicable'
   | 'not-represented'
 
-export const COVERAGE_STATUSES: readonly CoverageStatus[] = [
+// Controller addendum (registries, §7-8): a plain `readonly CoverageStatus[]`
+// annotation WIDENS the literal array back to the union type, which makes
+// `(typeof COVERAGE_STATUSES)[number]` collapse to plain `CoverageStatus` and
+// any exhaustiveness check below type-check unconditionally, whether or not
+// the array actually lists every member -- the same defect this build
+// already shipped once for a different const (see `_AssertReviewStatusesExhaustive`
+// in `@/review/records.ts` and `CONNECTIVITY_MODES` in `@/scenario/controls.ts`).
+// `as const satisfies readonly CoverageStatus[]` keeps the literal tuple type
+// while still verifying every element is a valid `CoverageStatus`.
+export const COVERAGE_STATUSES = [
   'demonstrated-in-storyboard',
   'decision-blocked',
   'not-applicable',
   'not-represented',
-] as const
+] as const satisfies readonly CoverageStatus[]
+
+// Compile-time exhaustiveness check, same shape as `PERMISSION_OUTCOMES` in
+// `@/policy/decision.ts`: fails to compile if `CoverageStatus` gains or
+// loses a member that `COVERAGE_STATUSES` does not list exactly once.
+type MissingFromCoverageStatuses = Exclude<CoverageStatus, (typeof COVERAGE_STATUSES)[number]>
+const _coverageStatusesExhaustive: MissingFromCoverageStatuses extends never ? true : never = true
+void _coverageStatusesExhaustive
 
 /**
  * One row describing a source-derived inventory. `expectedCount` is `null`
@@ -37,15 +53,37 @@ export const COVERAGE_STATUSES: readonly CoverageStatus[] = [
  * the reconciliation verdict so the screen can show why a number is what it
  * is (or why there isn't one).
  */
+/** The closed fourteen registry slugs the master prompt names. */
+export type RegistrySlug =
+  | 'modules'
+  | 'features'
+  | 'sub-features'
+  | 'functions'
+  | 'workflows'
+  | 'business-use-cases'
+  | 'business-objects'
+  | 'events'
+  | 'commands'
+  | 'notifications'
+  | 'offline-scenarios'
+  | 'ai-storyboards'
+  | 'scheduled-work'
+  | 'actionable-controls'
+
 export interface RegistryDescriptor {
-  readonly slug: string
+  readonly slug: RegistrySlug
   readonly title: string
   readonly idPrefix: string
   readonly expectedCount: number | null
   readonly sourceNote: string
 }
 
-export const REGISTRY_DESCRIPTORS: readonly RegistryDescriptor[] = [
+// Same widening hazard and same fix as `COVERAGE_STATUSES` above: `as const
+// satisfies` keeps every `slug` literal narrowed to `RegistrySlug`, so the
+// exhaustiveness check just below is a real compile-time proof that all
+// fourteen slugs are present exactly once, not two strings that happen to
+// coincide today.
+export const REGISTRY_DESCRIPTORS = [
   {
     slug: 'modules',
     title: 'Modules',
@@ -179,7 +217,19 @@ export const REGISTRY_DESCRIPTORS: readonly RegistryDescriptor[] = [
       'must always remain a live human decision and may never be enforced by a scheduled sweep ' +
       '(source-reconciliation.json).',
   },
-] as const
+] as const satisfies readonly RegistryDescriptor[]
+
+// Compile-time exhaustiveness check, same shape as `PERMISSION_OUTCOMES` in
+// `@/policy/decision.ts`: fails to compile if `RegistrySlug` gains or loses a
+// member that `REGISTRY_DESCRIPTORS` does not list exactly once.
+type MissingFromRegistryDescriptors = Exclude<
+  RegistrySlug,
+  (typeof REGISTRY_DESCRIPTORS)[number]['slug']
+>
+const _registryDescriptorsExhaustive: MissingFromRegistryDescriptors extends never
+  ? true
+  : never = true
+void _registryDescriptorsExhaustive
 
 /** Every status key is present, so a zero renders as a zero rather than an absent row. */
 export function countByStatus(

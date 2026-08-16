@@ -1,0 +1,120 @@
+{
+  "slug": "actionable-controls",
+  "countedThing": "the canonical do-not-use-cron control register DNC-01..DNC-22, verified unique -- controls that must always remain a live human decision and may never be enforced by a scheduled sweep. No names were extracted for this family; the frozen source gives these controls no label beyond their id.",
+  "reconciledCount": 22,
+  "rawCount": 22,
+  "dedupRule": "DNC-* identifiers only; 22 raw keys, all unique, zero delta. The 8 standing prohibitions and 12 absolute scheduling prohibitions are separate lists and are not DNC rows.",
+  "sourceFixesNoTotal": false,
+  "rows": [
+    {
+      "id": "DNC-01",
+      "sourceLine": 98485,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-02",
+      "sourceLine": 98486,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-03",
+      "sourceLine": 98487,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-04",
+      "sourceLine": 98488,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-05",
+      "sourceLine": 98489,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-06",
+      "sourceLine": 98490,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-07",
+      "sourceLine": 98491,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-08",
+      "sourceLine": 98492,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-09",
+      "sourceLine": 98493,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-10",
+      "sourceLine": 98494,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-11",
+      "sourceLine": 98495,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-12",
+      "sourceLine": 98496,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-13",
+      "sourceLine": 98497,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-14",
+      "sourceLine": 98498,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-15",
+      "sourceLine": 98499,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-16",
+      "sourceLine": 98500,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-17",
+      "sourceLine": 98501,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-18",
+      "sourceLine": 98502,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-19",
+      "sourceLine": 98503,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-20",
+      "sourceLine": 98504,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-21",
+      "sourceLine": 98505,
+      "status": "not-represented"
+    },
+    {
+      "id": "DNC-22",
+      "sourceLine": 98506,
+      "status": "not-represented"
+    }
+  ]
+}

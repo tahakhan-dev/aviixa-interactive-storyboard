@@ -1,0 +1,250 @@
+{
+  "slug": "ai-storyboards",
+  "countedThing": "SB-AI-* identifiers found in the identifier index -- the AI/fallback storyboard register (Chapter 44), distinct from the separate SB-001..030 platform storyboard register. No names were extracted for this family.",
+  "reconciledCount": null,
+  "rawCount": 48,
+  "dedupRule": "This registry counts the SB-AI-* namespace only; SB-001..030 (platform walkthroughs) and SB-031..033 are a separate register and are not included in this count.",
+  "sourceFixesNoTotal": true,
+  "rows": [
+    {
+      "id": "SB-AI-000",
+      "sourceLine": 86026,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-001",
+      "sourceLine": 86130,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-002",
+      "sourceLine": 86233,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-003",
+      "sourceLine": 86398,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-004",
+      "sourceLine": 86526,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-005",
+      "sourceLine": 86667,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-006",
+      "sourceLine": 86781,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-007",
+      "sourceLine": 86893,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-008",
+      "sourceLine": 87029,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-009",
+      "sourceLine": 87143,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-01",
+      "sourceLine": 74479,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-010",
+      "sourceLine": 87292,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-011",
+      "sourceLine": 87376,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-012",
+      "sourceLine": 87494,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-013",
+      "sourceLine": 87611,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-014",
+      "sourceLine": 87729,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-015",
+      "sourceLine": 87854,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-016",
+      "sourceLine": 87992,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-02",
+      "sourceLine": 92694,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-03",
+      "sourceLine": 92695,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-04",
+      "sourceLine": 92696,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-05",
+      "sourceLine": 92697,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-06",
+      "sourceLine": 92698,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-07",
+      "sourceLine": 92699,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-08",
+      "sourceLine": 92700,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-09",
+      "sourceLine": 92701,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-10",
+      "sourceLine": 92702,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-100",
+      "sourceLine": 88075,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-11",
+      "sourceLine": 92703,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-12",
+      "sourceLine": 92704,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-13",
+      "sourceLine": 92705,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-14",
+      "sourceLine": 92706,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-15",
+      "sourceLine": 92707,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-16",
+      "sourceLine": 92708,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-17",
+      "sourceLine": 92709,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-18",
+      "sourceLine": 92710,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-19",
+      "sourceLine": 92711,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-20",
+      "sourceLine": 92712,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-21",
+      "sourceLine": 92713,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-22",
+      "sourceLine": 92714,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-23",
+      "sourceLine": 92715,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-24",
+      "sourceLine": 92716,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-25",
+      "sourceLine": 92717,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-26",
+      "sourceLine": 92718,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-27",
+      "sourceLine": 92719,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-28",
+      "sourceLine": 92720,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-29",
+      "sourceLine": 92721,
+      "status": "not-represented"
+    },
+    {
+      "id": "SB-AI-30",
+      "sourceLine": 92722,
+      "status": "not-represented"
+    }
+  ]
+}

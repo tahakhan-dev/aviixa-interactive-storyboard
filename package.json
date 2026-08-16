@@ -6,9 +6,10 @@
   "packageManager": "pnpm@11.20.0",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm build:registries && next build",
     "serve:out": "serve out -p 4173 -L",
     "registry:workflows": "node scripts/build-workflow-registry.mjs",
+    "build:registries": "node scripts/build-registries.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test:unit": "vitest run --project unit",

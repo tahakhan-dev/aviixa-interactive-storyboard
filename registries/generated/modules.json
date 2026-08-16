@@ -1,0 +1,658 @@
+{
+  "slug": "modules",
+  "countedThing": "canonical modules -- the 81-row inventory the frozen source fixes per surface (19 Super Admin + 19 Delivery Operations Hub + 18 Studio + 13 Command Center + 12 Frontline), never the raw extraction key count.",
+  "reconciledCount": 81,
+  "rawCount": 92,
+  "dedupRule": "92 raw MOD-* keys across the 36 extraction chunks -> 82 well-formed identifiers (matching /^MOD-(DOH|CC|FL|SA|STU)-(\\d{2}|[AB]\\d+)$/), excluding 6 placeholder \"unnumbered\"/\"unstated\" keys and 4 range-expression artefacts (\"MOD-SA-01..MOD-SA-19\" etc.) -> 81 canonical modules, excluding MOD-SA-20 -- an alias-by-denial for a diligence narrative the source explicitly says is not a module (source-reconciliation.json).",
+  "sourceFixesNoTotal": false,
+  "rows": [
+    {
+      "id": "MOD-CC-01",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "The Live Shift Board",
+      "surface": "SURF-CC",
+      "purpose": "Live board showing cells and lines with freshness markers; never a default per-worker wall."
+    },
+    {
+      "id": "MOD-CC-02",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "Sync State and Connectivity",
+      "surface": "SURF-CC",
+      "purpose": "Displays sync state and connectivity honestly, including offline as a displayed state."
+    },
+    {
+      "id": "MOD-CC-03",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "Run and Exception Drill-Down",
+      "surface": "SURF-CC",
+      "purpose": "Drill-down into runs and exceptions; the only route to worker-level detail."
+    },
+    {
+      "id": "MOD-CC-04",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "Deviation Workspace and Evidence Review",
+      "surface": "SURF-CC",
+      "purpose": "Holds deviation evidence for review; display only, never edit."
+    },
+    {
+      "id": "MOD-CC-05",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "The Governance Gate Queue",
+      "surface": "SURF-CC",
+      "purpose": "Queue of governance gate items for human decision."
+    },
+    {
+      "id": "MOD-CC-06",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "Learned-Change Approvals (Lane B)",
+      "surface": "SURF-CC",
+      "purpose": "Human approval of Lane B learned changes; agents propose and never apply."
+    },
+    {
+      "id": "MOD-CC-07",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "Feedback Signal Capture",
+      "surface": "SURF-CC",
+      "purpose": "Captures supervisor feedback signals used to detect north-star breaches."
+    },
+    {
+      "id": "MOD-CC-08",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "The Agent Activity Panel",
+      "surface": "SURF-CC",
+      "purpose": "Shows what the agents contributed and where they were unavailable."
+    },
+    {
+      "id": "MOD-CC-09",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "The Alert and Escalation Feed",
+      "surface": "SURF-CC",
+      "purpose": "Feed of alerts and escalations for acknowledgement."
+    },
+    {
+      "id": "MOD-CC-10",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "The Sync-Conflict Review Panel",
+      "surface": "SURF-CC",
+      "purpose": "Reviews offline sync conflicts; the worker never sees or resolves a conflict."
+    },
+    {
+      "id": "MOD-CC-11",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "Standard Reports and the Custom Report Builder",
+      "surface": "SURF-CC",
+      "purpose": "Renders the five standard report data sets owned by the Delivery Operations Hub; builder scope open."
+    },
+    {
+      "id": "MOD-CC-12",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "The Shift Handoff Panel",
+      "surface": "SURF-CC",
+      "purpose": "Displays the Shift Handoff Agent's brief on Studio-configured timing."
+    },
+    {
+      "id": "MOD-CC-13",
+      "sourceLine": 2438,
+      "status": "not-represented",
+      "label": "The Operational Action Set, a Closed List of Ten",
+      "surface": "SURF-CC",
+      "purpose": "Exactly ten operational actions, executed through Delivery Operations Hub services with identical rules."
+    },
+    {
+      "id": "MOD-DOH-01",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Tenant Lifecycle and Tier Operations",
+      "surface": "SURF-DOH",
+      "purpose": "Band A backbone module for tenant lifecycle and tier operations inside the per-tenant operational system of record."
+    },
+    {
+      "id": "MOD-DOH-02",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Location Configuration",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module configuring the location hierarchy; timezone is anchored at Site."
+    },
+    {
+      "id": "MOD-DOH-03",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Shift Management",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module for shift definition and timings."
+    },
+    {
+      "id": "MOD-DOH-04",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Worker Lifecycle and Qualifications",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module holding worker records and supervisor-entered qualifications with full audit."
+    },
+    {
+      "id": "MOD-DOH-05",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Job Lifecycle and Approval",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module for defining and approving Jobs; the creator of a Job cannot approve that same Job."
+    },
+    {
+      "id": "MOD-DOH-06",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Run Scheduling and Execution Oversight",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module scheduling runs and overseeing execution."
+    },
+    {
+      "id": "MOD-DOH-07",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Worker Assignment",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module assigning workers; qualification validated at assignment, availability is not."
+    },
+    {
+      "id": "MOD-DOH-08",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Execution Summary Review and Distribution",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module for Execution Summary review and distribution."
+    },
+    {
+      "id": "MOD-DOH-09",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Permissions, Roles and Access",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module for tenant permissions, roles and access."
+    },
+    {
+      "id": "MOD-DOH-10",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Notifications",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module delivering the tenant notification model over in-app and email."
+    },
+    {
+      "id": "MOD-DOH-11",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Audit and Retention",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module holding the one append-only audit log per tenant and the retention horizon."
+    },
+    {
+      "id": "MOD-DOH-12",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Integration Surface (Tenant Side)",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module carrying the tenant-side integration surface; V1 scaffolding only."
+    },
+    {
+      "id": "MOD-DOH-13",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Tenant View of Platform Administration",
+      "surface": "SURF-DOH",
+      "purpose": "Band A module giving the tenant a read-only view of platform administration affecting it."
+    },
+    {
+      "id": "MOD-DOH-14",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Qualification Calendar",
+      "surface": "SURF-DOH",
+      "purpose": "Band B module giving the Quality Manager a 60-day workforce-wide certification-expiry planning view."
+    },
+    {
+      "id": "MOD-DOH-15",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Job Cloning",
+      "surface": "SURF-DOH",
+      "purpose": "Band B module for cloning Jobs."
+    },
+    {
+      "id": "MOD-DOH-16",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Multi-Area Job Pairing",
+      "surface": "SURF-DOH",
+      "purpose": "Band B module pairing Jobs across areas."
+    },
+    {
+      "id": "MOD-DOH-17",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Regulated-Industry Mode",
+      "surface": "SURF-DOH",
+      "purpose": "Band B module; forces Quality Manager review posture on and prevents anonymisation at 24 months."
+    },
+    {
+      "id": "MOD-DOH-18",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Standard Report Data Sets",
+      "surface": "SURF-DOH",
+      "purpose": "Band B module owning the five standard report data sets, which the Client Command Center renders."
+    },
+    {
+      "id": "MOD-DOH-19",
+      "sourceLine": 2436,
+      "status": "not-represented",
+      "label": "Parts Registry",
+      "surface": "SURF-DOH",
+      "purpose": "Band B module holding parts master data plus Studio inline add."
+    },
+    {
+      "id": "MOD-FL-A1",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Identity, Authentication and Device Mode",
+      "surface": "SURF-FL",
+      "purpose": "Band A execution backbone; the login is the credential and identity travels with the worker."
+    },
+    {
+      "id": "MOD-FL-A2",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "My Runs",
+      "surface": "SURF-FL",
+      "purpose": "Band A; shows the Job with Runs beneath it, scoped to the logged-in identity's own work."
+    },
+    {
+      "id": "MOD-FL-A3",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Run Player",
+      "surface": "SURF-FL",
+      "purpose": "Band A; one screen at a time with instruction and input, no pace, timer or comparison."
+    },
+    {
+      "id": "MOD-FL-A4",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Data Capture and Evidence",
+      "surface": "SURF-FL",
+      "purpose": "Band A; captures values and evidence into the encrypted application store, never the device gallery."
+    },
+    {
+      "id": "MOD-FL-A5",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "On-Device Detection and Containment",
+      "surface": "SURF-FL",
+      "purpose": "Band A; deterministic classification at the instant of capture and pre-authorised containment checklist."
+    },
+    {
+      "id": "MOD-FL-A6",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Offline and Sync Engine",
+      "surface": "SURF-FL",
+      "purpose": "Band A; durable local queue and ordered command application at next sync."
+    },
+    {
+      "id": "MOD-FL-A7",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Security and Data Protection",
+      "surface": "SURF-FL",
+      "purpose": "Band A; encrypted local storage and evidence protection on device."
+    },
+    {
+      "id": "MOD-FL-B10",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Notifications",
+      "surface": "SURF-FL",
+      "purpose": "Band B; Frontline inbox, no operating-system push at launch."
+    },
+    {
+      "id": "MOD-FL-B11",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Worker Lifecycle on Device",
+      "surface": "SURF-FL",
+      "purpose": "Band B; worker lifecycle behaviour on the device."
+    },
+    {
+      "id": "MOD-FL-B12",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Training Library Viewer",
+      "surface": "SURF-FL",
+      "purpose": "Band B; renders Studio-authored training content, online only."
+    },
+    {
+      "id": "MOD-FL-B8",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Coaching Rendering",
+      "surface": "SURF-FL",
+      "purpose": "Band B; renders support content the Prevention Agent is permitted to show, never a stopwatch."
+    },
+    {
+      "id": "MOD-FL-B9",
+      "sourceLine": 2440,
+      "status": "not-represented",
+      "label": "Gates and Sign-Off Authority",
+      "surface": "SURF-FL",
+      "purpose": "Band B; no gate can be overridden by the worker it blocks."
+    },
+    {
+      "id": "MOD-SA-01",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Platform Overview and Health",
+      "surface": "SURF-SA",
+      "purpose": "Console capability section §8.1 for platform overview and health."
+    },
+    {
+      "id": "MOD-SA-02",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Atom Registry",
+      "surface": "SURF-SA",
+      "purpose": "§8.2; the catalog is the registry, registration is a record not orchestrator code."
+    },
+    {
+      "id": "MOD-SA-03",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Core Agents and Composed-Agent Review",
+      "surface": "SURF-SA",
+      "purpose": "§8.3; core agent administration and composed-agent review."
+    },
+    {
+      "id": "MOD-SA-04",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Memory Architecture",
+      "surface": "SURF-SA",
+      "purpose": "§8.4; five typed memory stores administered with per-type retention."
+    },
+    {
+      "id": "MOD-SA-05",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Eval Harness",
+      "surface": "SURF-SA",
+      "purpose": "§8.5; scenario-first evaluation harness and the hard enablement gate with no off position."
+    },
+    {
+      "id": "MOD-SA-06",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Trace Viewer",
+      "surface": "SURF-SA",
+      "purpose": "§8.6; traces as day-one backend artifacts with replans first-class."
+    },
+    {
+      "id": "MOD-SA-07",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Platform Settings",
+      "surface": "SURF-SA",
+      "purpose": "§8.7; renders six invariants locked with no off position for any account including the root."
+    },
+    {
+      "id": "MOD-SA-08",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Console Users, Roles and Change Approvals",
+      "surface": "SURF-SA",
+      "purpose": "§8.8; maker-checker, root-only actions and the critical change class."
+    },
+    {
+      "id": "MOD-SA-09",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Tenants, Lifecycle and Pilots",
+      "surface": "SURF-SA",
+      "purpose": "§8.9; tenant onboarding, lifecycle states and pilot management."
+    },
+    {
+      "id": "MOD-SA-10",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Tenant Metrics and Aggregates",
+      "surface": "SURF-SA",
+      "purpose": "§8.10; anonymised cross-tenant aggregates enforced as an invariant."
+    },
+    {
+      "id": "MOD-SA-11",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Tiers, Entitlements and Caps",
+      "surface": "SURF-SA",
+      "purpose": "§8.11; versioned approvable tier records carrying no price metadata."
+    },
+    {
+      "id": "MOD-SA-12",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Usage and Metering",
+      "surface": "SURF-SA",
+      "purpose": "§8.12; Worker-Shift meter, usage ledger and ledger export."
+    },
+    {
+      "id": "MOD-SA-13",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Devices and Fleet",
+      "surface": "SURF-SA",
+      "purpose": "§8.13; device enrollment and fleet management."
+    },
+    {
+      "id": "MOD-SA-14",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Platform Notifications and Tenant Communications",
+      "surface": "SURF-SA",
+      "purpose": "§8.14; platform notifications and communications to tenants."
+    },
+    {
+      "id": "MOD-SA-15",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Support Access",
+      "surface": "SURF-SA",
+      "purpose": "§8.15; read-only, reason-required, ticket-linked sessions with a two-hour default time box."
+    },
+    {
+      "id": "MOD-SA-16",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "JBS Access",
+      "surface": "SURF-SA",
+      "purpose": "§8.16; scoped, time-boxed, reason-linked, audited, mirrored grants to JBS; no standing access."
+    },
+    {
+      "id": "MOD-SA-17",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Data Lifecycle and Archival",
+      "surface": "SURF-SA",
+      "purpose": "§8.17; no-purge tiering, retention horizon and legal hold as a managed object."
+    },
+    {
+      "id": "MOD-SA-18",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "Platform Audit",
+      "surface": "SURF-SA",
+      "purpose": "§8.18; one-transaction audit guarantee for platform-side actions."
+    },
+    {
+      "id": "MOD-SA-19",
+      "sourceLine": 2442,
+      "status": "not-represented",
+      "label": "The Tenant-Configuration Registry",
+      "surface": "SURF-SA",
+      "purpose": "§8.19; holds platform default, bound and current tenant value for every setting; rejects out-of-bound writes."
+    },
+    {
+      "id": "MOD-STU-01",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Charter and Position",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: the surface's charter and position."
+    },
+    {
+      "id": "MOD-STU-02",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Agent Configuration",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: configures the platform's intelligent agents."
+    },
+    {
+      "id": "MOD-STU-03",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Workflow Library and Tenant Workspace",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: the workflow library and tenant workspace."
+    },
+    {
+      "id": "MOD-STU-04",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Workflow Builder",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: builds Workflows, the authored unit of truth."
+    },
+    {
+      "id": "MOD-STU-05",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Screen Authoring across the nine configuration sections",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: authors screens across nine configuration sections including specification limits and severity mapping."
+    },
+    {
+      "id": "MOD-STU-06",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Shared Instruction Blocks",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: shared instruction blocks."
+    },
+    {
+      "id": "MOD-STU-07",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Content Libraries",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: content libraries."
+    },
+    {
+      "id": "MOD-STU-08",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Training Library",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: training content with upload, versioning and audit."
+    },
+    {
+      "id": "MOD-STU-09",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Work-Instruction Difficulty Levels",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: author writes one level, artificial intelligence drafts the other two, all pass review."
+    },
+    {
+      "id": "MOD-STU-10",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Parts-Registry Authoring Seam",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: Studio inline add into the Delivery Operations Hub parts registry."
+    },
+    {
+      "id": "MOD-STU-11",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Approval Workflow",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: Author, then Reviewer, then Release Authority chain."
+    },
+    {
+      "id": "MOD-STU-12",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Versioning and Publication",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: semantic versioning, mandatory republish description, version classification."
+    },
+    {
+      "id": "MOD-STU-13",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Qualification Requirements",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: authors qualification requirements."
+    },
+    {
+      "id": "MOD-STU-14",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Offline Package",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: produces work packages pinned per run at assignment."
+    },
+    {
+      "id": "MOD-STU-15",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Agent Builder",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: tenant-composed reasoning agents only; tier-gated to Growth and Enterprise."
+    },
+    {
+      "id": "MOD-STU-16",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Memory and the Two-Lane Learning Loop",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: memory and the two-lane learning loop record."
+    },
+    {
+      "id": "MOD-STU-17",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Localisation",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: versioned locale files; nothing machine-translated at runtime."
+    },
+    {
+      "id": "MOD-STU-18",
+      "sourceLine": 2444,
+      "status": "not-represented",
+      "label": "Permissions and Roles in the Studio",
+      "surface": "SURF-STU",
+      "purpose": "Derived Studio module: authoring grant layered on Supervisor or Quality Manager."
+    }
+  ]
+}

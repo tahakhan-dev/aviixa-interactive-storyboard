@@ -1,0 +1,95 @@
+{
+  "slug": "commands",
+  "countedThing": "CMD-* identifiers found in the identifier index -- a different scope from the source's 5 closed command classes or its 16-instance command catalogue. No names were extracted for this family.",
+  "reconciledCount": null,
+  "rawCount": 17,
+  "dedupRule": "This registry counts CMD-* identifier strings only. The reconciled command-class count (5, closed at AC-PROD-051) and the 16-instance catalogue are separate registers and must not be summed with or substituted for this figure.",
+  "sourceFixesNoTotal": true,
+  "rows": [
+    {
+      "id": "CMD-ASG-001",
+      "sourceLine": 51390,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-ASG-002",
+      "sourceLine": 51391,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-ASG-003",
+      "sourceLine": 51392,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-BB-000097",
+      "sourceLine": 74155,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-QUAL-001",
+      "sourceLine": 51373,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-QUAL-002",
+      "sourceLine": 51394,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-REL-001",
+      "sourceLine": 51373,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-REL-002",
+      "sourceLine": 51388,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-REL-003",
+      "sourceLine": 51389,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-SUSP-001",
+      "sourceLine": 51490,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-SUSP-002",
+      "sourceLine": 51491,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-SUSP-003",
+      "sourceLine": 51492,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-SUSP-004",
+      "sourceLine": 51493,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-SUSP-005",
+      "sourceLine": 51494,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-VER-001",
+      "sourceLine": 51373,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-VER-002",
+      "sourceLine": 51496,
+      "status": "not-represented"
+    },
+    {
+      "id": "CMD-VER-003",
+      "sourceLine": 51497,
+      "status": "not-represented"
+    }
+  ]
+}

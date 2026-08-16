@@ -1,0 +1,1035 @@
+{
+  "slug": "notifications",
+  "countedThing": "NOTIF-* identifiers found in the identifier index -- a different scope from the source's 19 notification states, 87 categories in 13 families, or 2 channels. No names were extracted for this family.",
+  "reconciledCount": null,
+  "rawCount": 205,
+  "dedupRule": "This registry counts NOTIF-* identifier strings only; the state, category and channel registers are separate and are not this number.",
+  "sourceFixesNoTotal": true,
+  "rows": [
+    {
+      "id": "NOTIF-001",
+      "sourceLine": 51688,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-002",
+      "sourceLine": 51689,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-003",
+      "sourceLine": 51690,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-004",
+      "sourceLine": 51691,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-005",
+      "sourceLine": 51692,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-006",
+      "sourceLine": 51693,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-007",
+      "sourceLine": 51694,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-008",
+      "sourceLine": 51695,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-009",
+      "sourceLine": 51696,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-010",
+      "sourceLine": 51697,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-011",
+      "sourceLine": 51698,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-012",
+      "sourceLine": 51699,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-013",
+      "sourceLine": 51700,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-014",
+      "sourceLine": 51701,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-015",
+      "sourceLine": 51702,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-016",
+      "sourceLine": 51703,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-017",
+      "sourceLine": 51704,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-018",
+      "sourceLine": 51705,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-019",
+      "sourceLine": 51706,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-020",
+      "sourceLine": 51707,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-021",
+      "sourceLine": 51708,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-022",
+      "sourceLine": 51709,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-023",
+      "sourceLine": 51710,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-024",
+      "sourceLine": 51711,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-025",
+      "sourceLine": 51712,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-026",
+      "sourceLine": 72990,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-027",
+      "sourceLine": 72991,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-028",
+      "sourceLine": 72992,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-029",
+      "sourceLine": 72993,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-030",
+      "sourceLine": 72994,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-031",
+      "sourceLine": 72995,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-032",
+      "sourceLine": 73001,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-033",
+      "sourceLine": 73002,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-034",
+      "sourceLine": 73003,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-035",
+      "sourceLine": 73004,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-036",
+      "sourceLine": 73005,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-037",
+      "sourceLine": 73011,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-038",
+      "sourceLine": 73012,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-039",
+      "sourceLine": 73013,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-040",
+      "sourceLine": 73014,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-041",
+      "sourceLine": 73015,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-042",
+      "sourceLine": 73016,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-043",
+      "sourceLine": 73017,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-044",
+      "sourceLine": 73018,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-045",
+      "sourceLine": 73019,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-046",
+      "sourceLine": 73025,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-047",
+      "sourceLine": 73026,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-048",
+      "sourceLine": 73027,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-049",
+      "sourceLine": 73028,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-050",
+      "sourceLine": 73029,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-051",
+      "sourceLine": 73030,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-052",
+      "sourceLine": 73031,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-053",
+      "sourceLine": 73032,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-054",
+      "sourceLine": 73038,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-055",
+      "sourceLine": 73039,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-056",
+      "sourceLine": 73040,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-057",
+      "sourceLine": 73041,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-058",
+      "sourceLine": 73042,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-059",
+      "sourceLine": 73043,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-060",
+      "sourceLine": 73044,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-061",
+      "sourceLine": 73045,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-062",
+      "sourceLine": 73046,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-063",
+      "sourceLine": 73052,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-064",
+      "sourceLine": 73053,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-065",
+      "sourceLine": 73054,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-066",
+      "sourceLine": 73055,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-067",
+      "sourceLine": 73061,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-068",
+      "sourceLine": 73062,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-069",
+      "sourceLine": 73063,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-070",
+      "sourceLine": 73064,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-071",
+      "sourceLine": 73065,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-072",
+      "sourceLine": 73066,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-073",
+      "sourceLine": 73072,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-074",
+      "sourceLine": 73073,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-075",
+      "sourceLine": 73074,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-076",
+      "sourceLine": 73075,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-077",
+      "sourceLine": 73076,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-078",
+      "sourceLine": 73077,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-079",
+      "sourceLine": 73078,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-080",
+      "sourceLine": 73084,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-081",
+      "sourceLine": 73085,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-082",
+      "sourceLine": 73086,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-083",
+      "sourceLine": 73087,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-084",
+      "sourceLine": 73088,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-085",
+      "sourceLine": 73089,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-086",
+      "sourceLine": 73090,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-087",
+      "sourceLine": 73096,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DEV-SEV1",
+      "sourceLine": 62851,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DEV-SEV2",
+      "sourceLine": 62721,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-01-1",
+      "sourceLine": 27016,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-01-2",
+      "sourceLine": 27017,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-01-3",
+      "sourceLine": 27018,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-01-4",
+      "sourceLine": 27019,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-01-5",
+      "sourceLine": 27020,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-01-6",
+      "sourceLine": 27021,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-02-1",
+      "sourceLine": 27209,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-02-2",
+      "sourceLine": 27210,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-02-3",
+      "sourceLine": 27211,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-03-1",
+      "sourceLine": 27369,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-03-2",
+      "sourceLine": 27370,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-03-3",
+      "sourceLine": 27371,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-04-1",
+      "sourceLine": 27578,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-04-2",
+      "sourceLine": 27579,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-04-3",
+      "sourceLine": 27580,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-04-4",
+      "sourceLine": 27581,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-04-5",
+      "sourceLine": 27582,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-04-6",
+      "sourceLine": 27583,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-04-7",
+      "sourceLine": 27584,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-05-1",
+      "sourceLine": 27794,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-05-2",
+      "sourceLine": 27795,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-05-3",
+      "sourceLine": 27796,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-05-4",
+      "sourceLine": 27797,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-05-5",
+      "sourceLine": 27798,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-05-6",
+      "sourceLine": 27799,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-06-1",
+      "sourceLine": 28019,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-06-2",
+      "sourceLine": 28020,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-06-3",
+      "sourceLine": 28021,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-06-4",
+      "sourceLine": 28022,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-06-5",
+      "sourceLine": 28023,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-06-6",
+      "sourceLine": 28024,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-07-1",
+      "sourceLine": 28207,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-07-2",
+      "sourceLine": 28208,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-07-3",
+      "sourceLine": 28209,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-07-4",
+      "sourceLine": 28210,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-08-1",
+      "sourceLine": 28415,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-08-2",
+      "sourceLine": 28416,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-08-3",
+      "sourceLine": 28417,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-08-4",
+      "sourceLine": 28418,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-08-5",
+      "sourceLine": 28419,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-09-1",
+      "sourceLine": 28597,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-09-2",
+      "sourceLine": 28598,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-09-3",
+      "sourceLine": 28599,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-10-1",
+      "sourceLine": 28775,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-10-2",
+      "sourceLine": 28776,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-10-3",
+      "sourceLine": 28777,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-11-1",
+      "sourceLine": 28949,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-11-2",
+      "sourceLine": 28950,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-11-3",
+      "sourceLine": 28951,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-12-1",
+      "sourceLine": 29113,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-12-2",
+      "sourceLine": 29114,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-12-3",
+      "sourceLine": 29115,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-13-1",
+      "sourceLine": 29266,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-13-2",
+      "sourceLine": 29267,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-13-3",
+      "sourceLine": 29268,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-14-1",
+      "sourceLine": 29405,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-15-1",
+      "sourceLine": 29540,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-15-2",
+      "sourceLine": 29541,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-16-1",
+      "sourceLine": 29674,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-16-2",
+      "sourceLine": 29675,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-17-1",
+      "sourceLine": 29832,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-17-2",
+      "sourceLine": 29833,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-18-1",
+      "sourceLine": 29991,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-18-2",
+      "sourceLine": 29992,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-18-3",
+      "sourceLine": 29993,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-19-1",
+      "sourceLine": 30140,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-19-2",
+      "sourceLine": 30141,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-DOH-19-3",
+      "sourceLine": 30142,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-PLAT-CONN-30",
+      "sourceLine": 62559,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-QUAL-14D",
+      "sourceLine": 64235,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-QUAL-1D",
+      "sourceLine": 64236,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-QUAL-7D",
+      "sourceLine": 64236,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-01-01",
+      "sourceLine": 43054,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-01-02",
+      "sourceLine": 43055,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-01-03",
+      "sourceLine": 43056,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-01-04",
+      "sourceLine": 43057,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-01-05",
+      "sourceLine": 43058,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-02-01",
+      "sourceLine": 43241,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-02-02",
+      "sourceLine": 43242,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-02-03",
+      "sourceLine": 43243,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-02-04",
+      "sourceLine": 43244,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-02-05",
+      "sourceLine": 43245,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-03-01",
+      "sourceLine": 43421,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-03-02",
+      "sourceLine": 43422,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-03-03",
+      "sourceLine": 43423,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-03-04",
+      "sourceLine": 43424,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-03-05",
+      "sourceLine": 43425,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-04-01",
+      "sourceLine": 43611,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-04-02",
+      "sourceLine": 43612,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-04-03",
+      "sourceLine": 43613,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-04-04",
+      "sourceLine": 43614,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-04-05",
+      "sourceLine": 43615,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-05-01",
+      "sourceLine": 43788,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-05-02",
+      "sourceLine": 43789,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-05-03",
+      "sourceLine": 43790,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-05-04",
+      "sourceLine": 43791,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-06-01",
+      "sourceLine": 43916,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-06-02",
+      "sourceLine": 43954,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-08-01",
+      "sourceLine": 44860,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-08-02",
+      "sourceLine": 44861,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-08-03",
+      "sourceLine": 44862,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-08-04",
+      "sourceLine": 44863,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-08-05",
+      "sourceLine": 44864,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-08-06",
+      "sourceLine": 44865,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-09-01",
+      "sourceLine": 45076,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-09-02",
+      "sourceLine": 45077,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-09-03",
+      "sourceLine": 45078,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-09-04",
+      "sourceLine": 45079,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-09-05",
+      "sourceLine": 45080,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-09-06",
+      "sourceLine": 45081,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-09-07",
+      "sourceLine": 45082,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-15-01",
+      "sourceLine": 45823,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-15-02",
+      "sourceLine": 45824,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-15-03",
+      "sourceLine": 45825,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-SA-15-04",
+      "sourceLine": 45826,
+      "status": "not-represented"
+    },
+    {
+      "id": "NOTIF-TEN-CONN-60",
+      "sourceLine": 62560,
+      "status": "not-represented"
+    }
+  ]
+}

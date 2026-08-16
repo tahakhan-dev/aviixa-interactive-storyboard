@@ -1,0 +1,345 @@
+{
+  "slug": "scheduled-work",
+  "countedThing": "SCHED-* identifiers found in the identifier index -- mixes the 35 numbered discovery findings (45A.2 sweep), the Appendix K schedule definitions, and carried-schedule identifiers, which the source keeps as separate registers with no single combined total. No names were extracted for this family.",
+  "reconciledCount": null,
+  "rawCount": 67,
+  "dedupRule": "The source explicitly separates the 35 SCHED-0NN discovery findings from the 24 deployable obligations they cross-walk to, and states both counts are true at different scopes (source-reconciliation.json, \"Anchored timer rows / scheduled work\"). This registry's raw count is neither of those two figures -- it is every SCHED-* identifier the extraction found, undifferentiated by sub-scope, and is not presented as a canonical scheduled-work total.",
+  "sourceFixesNoTotal": true,
+  "rows": [
+    {
+      "id": "SCHED-001",
+      "sourceLine": 98341,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-002",
+      "sourceLine": 98342,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-003",
+      "sourceLine": 98343,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-004",
+      "sourceLine": 98344,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-005",
+      "sourceLine": 98345,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-006",
+      "sourceLine": 98346,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-007",
+      "sourceLine": 98347,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-008",
+      "sourceLine": 98348,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-009",
+      "sourceLine": 98349,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-01",
+      "sourceLine": 117883,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-010",
+      "sourceLine": 98350,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-011",
+      "sourceLine": 98351,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-012",
+      "sourceLine": 98352,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-013",
+      "sourceLine": 98353,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-014",
+      "sourceLine": 98354,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-015",
+      "sourceLine": 98355,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-016",
+      "sourceLine": 98356,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-017",
+      "sourceLine": 98357,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-018",
+      "sourceLine": 98358,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-019",
+      "sourceLine": 98359,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-02",
+      "sourceLine": 117893,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-020",
+      "sourceLine": 98360,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-021",
+      "sourceLine": 98361,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-022",
+      "sourceLine": 98362,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-023",
+      "sourceLine": 98363,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-024",
+      "sourceLine": 98364,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-025",
+      "sourceLine": 98365,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-026",
+      "sourceLine": 98366,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-027",
+      "sourceLine": 98367,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-028",
+      "sourceLine": 98368,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-029",
+      "sourceLine": 98369,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-03",
+      "sourceLine": 117894,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-030",
+      "sourceLine": 98370,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-031",
+      "sourceLine": 98371,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-032",
+      "sourceLine": 98372,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-033",
+      "sourceLine": 98373,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-034",
+      "sourceLine": 98374,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-035",
+      "sourceLine": 98375,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-04",
+      "sourceLine": 117883,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-05",
+      "sourceLine": 117896,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-06",
+      "sourceLine": 117897,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-07",
+      "sourceLine": 117898,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-08",
+      "sourceLine": 117899,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-09",
+      "sourceLine": 117900,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-0NN",
+      "sourceLine": 102465,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-10",
+      "sourceLine": 117901,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-11",
+      "sourceLine": 117902,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-12",
+      "sourceLine": 117903,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-13",
+      "sourceLine": 117904,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-14",
+      "sourceLine": 117905,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-15",
+      "sourceLine": 117906,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-16",
+      "sourceLine": 117907,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-17",
+      "sourceLine": 117908,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-18",
+      "sourceLine": 117909,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-19",
+      "sourceLine": 117910,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-20",
+      "sourceLine": 117911,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-21",
+      "sourceLine": 117912,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-22",
+      "sourceLine": 117913,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-23",
+      "sourceLine": 117914,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-24",
+      "sourceLine": 117915,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-ESCTIMER-001",
+      "sourceLine": 66413,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-FINISH-001",
+      "sourceLine": 66411,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-HANDOFF-001",
+      "sourceLine": 66416,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-OFFTRUST-001",
+      "sourceLine": 66414,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-PLATMAINT-001",
+      "sourceLine": 66412,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-QUAL-EXPIRY-001",
+      "sourceLine": 66410,
+      "status": "not-represented"
+    },
+    {
+      "id": "SCHED-REPORT-001",
+      "sourceLine": 66415,
+      "status": "not-represented"
+    }
+  ]
+}

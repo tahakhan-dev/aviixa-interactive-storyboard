@@ -1,0 +1,5802 @@
+{
+  "slug": "workflows",
+  "countedThing": "distinct extracted workflow-passage records from the 36 extraction chunks, composite-keyed on id plus source line -- an extraction-scope count, never a workflow total (the source fixes none anywhere in its 122,241 lines; 81 is the MODULE count and nothing else).",
+  "reconciledCount": null,
+  "rawCount": 725,
+  "dedupRule": "725 extracted entries, 1 cross-chunk duplicate merged (both variants: \"unnumbered\" at line 74182 in CHK-022, \"A role reading the audit log (6 steps)\", and \"unnumbered\" at the same line in CHK-023, \"A role reading the audit log\" -- same line, same trigger, same actor, one workflow extracted twice) -> 724 rows, keyed on `${id}@L${sourceLine}` whenever the extractor id is a placeholder (\"unnumbered\"/\"unstated\") or recurs at more than one source line. Worst residual collapse: 2.",
+  "sourceFixesNoTotal": true,
+  "rows": [
+    {
+      "id": "SB-001@L61090",
+      "sourceLine": 61090,
+      "status": "not-represented",
+      "label": "Onboarding a tenant and the first Tenant Admin's acceptance",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-001@L61276",
+      "sourceLine": 61276,
+      "status": "not-represented",
+      "label": "Onboarding the Bright Bikes tenant and the first Tenant Admin's acceptance of the invitation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-002@L61091",
+      "sourceLine": 61091,
+      "status": "not-represented",
+      "label": "First configuration of Bright Bikes",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-002@L61417",
+      "sourceLine": 61417,
+      "status": "not-represented",
+      "label": "Priya's first configuration pass over Bright Bikes, from empty workspace to operationally ready",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-003@L61092",
+      "sourceLine": 61092,
+      "status": "not-represented",
+      "label": "Job creation and segregation-of-duties approval",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-003@L61622",
+      "sourceLine": 61622,
+      "status": "not-represented",
+      "label": "Sam creates the Red Bicycle Assembly Job and Elena approves it under segregation of duties",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-004@L61093",
+      "sourceLine": 61093,
+      "status": "not-represented",
+      "label": "Authoring the wheel bolt torque workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-004@L61829",
+      "sourceLine": 61829,
+      "status": "not-represented",
+      "label": "A quality engineer authors the wheel bolt torque verification workflow in the Standards and Operations Studio",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-005@L61094",
+      "sourceLine": 61094,
+      "status": "not-represented",
+      "label": "Author, Reviewer and Release Authority, publishing version 2.1.0",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-005@L61967",
+      "sourceLine": 61967,
+      "status": "not-represented",
+      "label": "The workflow passes Author, Reviewer and Release Authority and publishes as version 2.1.0",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-006@L61095",
+      "sourceLine": 61095,
+      "status": "not-represented",
+      "label": "Work package generated, signed and delivered to tablet TAB-014",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-006@L62101",
+      "sourceLine": 62101,
+      "status": "not-represented",
+      "label": "The work package is generated, signed and delivered to tablet TAB-014",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-007@L61096",
+      "sourceLine": 61096,
+      "status": "not-represented",
+      "label": "Shift start on a shared tablet",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-007@L62300",
+      "sourceLine": 62300,
+      "status": "not-represented",
+      "label": "Maya starts her shift on shared tablet TAB-014 and picks up her assigned run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-008@L61097",
+      "sourceLine": 61097,
+      "status": "not-represented",
+      "label": "Eleven screens with connectivity lost after screen three",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-008@L62444",
+      "sourceLine": 62444,
+      "status": "not-represented",
+      "label": "Maya executes eleven screens while connectivity drops after screen three",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-009@L61098",
+      "sourceLine": 61098,
+      "status": "not-represented",
+      "label": "41.0 Newton metres offline, Severity 2 at capture",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-009@L62675",
+      "sourceLine": 62675,
+      "status": "not-represented",
+      "label": "Maya records 41.0 Newton metres offline and the device classifies Severity 2 at the instant of capture",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-010@L61099",
+      "sourceLine": 61099,
+      "status": "not-represented",
+      "label": "38.0 Newton metres offline, immediate Severity 1 hold",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-010@L62799",
+      "sourceLine": 62799,
+      "status": "not-represented",
+      "label": "Maya records 38.0 Newton metres and the device places an immediate Severity 1 hold on the lot while offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-011@L61100",
+      "sourceLine": 61100,
+      "status": "not-represented",
+      "label": "Reconnection and forty-one captures landing",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-011@L62928",
+      "sourceLine": 62928,
+      "status": "not-represented",
+      "label": "The tablet reconnects and forty-one captures land",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-012@L61101",
+      "sourceLine": 61101,
+      "status": "not-represented",
+      "label": "Deviation workspace review and hold release",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-012@L63093",
+      "sourceLine": 63093,
+      "status": "not-represented",
+      "label": "Elena reviews the deviation workspace and releases the hold",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-013@L61102",
+      "sourceLine": 61102,
+      "status": "not-represented",
+      "label": "Release travelling the command channel to a sibling device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-013@L63245",
+      "sourceLine": 63245,
+      "status": "not-represented",
+      "label": "The hold release travels the command channel and reaches a sibling device at its next sync",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-014@L61103",
+      "sourceLine": 61103,
+      "status": "not-represented",
+      "label": "A cell goes dark on the live shift board and recovers",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-014@L63436",
+      "sourceLine": 63436,
+      "status": "not-represented",
+      "label": "Sam sees a cell go dark on the live shift board and watches it recover",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-015@L61104",
+      "sourceLine": 61104,
+      "status": "not-represented",
+      "label": "A sync conflict and a skew-flagged write excluded from Resolve All",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-015@L63544",
+      "sourceLine": 63544,
+      "status": "not-represented",
+      "label": "A sync conflict surfaces and a clock-skew-flagged write is excluded from Resolve All",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-016@L61105",
+      "sourceLine": 61105,
+      "status": "not-represented",
+      "label": "A gate item beyond pre-authorised policy, adjusted and approved",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-016@L63740",
+      "sourceLine": 63740,
+      "status": "not-represented",
+      "label": "A gate item arrives proposing containment beyond pre-authorised policy and Elena adjusts the scope and approves",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-017@L61106",
+      "sourceLine": 61106,
+      "status": "not-represented",
+      "label": "A Lane-B proposal approved and auto-published as a patch",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-017@L63865",
+      "sourceLine": 63865,
+      "status": "not-represented",
+      "label": "A Lane-B proposal is approved and auto-publishes a patch version",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-018@L61107",
+      "sourceLine": 61107,
+      "status": "not-represented",
+      "label": "Shift handoff brief acknowledged and annotated",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-018@L63997",
+      "sourceLine": 63997,
+      "status": "not-represented",
+      "label": "The Shift Handoff Agent produces a brief and the incoming supervisor acknowledges and annotates it",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-019@L61108",
+      "sourceLine": 61108,
+      "status": "not-represented",
+      "label": "Qualification expiry at 14, 7, 1 and 0 days and a clearance",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-019@L64188",
+      "sourceLine": 64188,
+      "status": "not-represented",
+      "label": "A qualification expires at 14, 7, 1 and 0 days and Sam grants a clearance",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-020@L61109",
+      "sourceLine": 61109,
+      "status": "not-represented",
+      "label": "A never-held qualification gate parks a run until authorised",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-020@L64319",
+      "sourceLine": 64319,
+      "status": "not-represented",
+      "label": "A worker hits a never-held qualification gate and the run parks until Elena authorises",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-021@L61110",
+      "sourceLine": 61110,
+      "status": "not-represented",
+      "label": "Reconstructing the whole story from the audit log",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-021@L64506",
+      "sourceLine": 64506,
+      "status": "not-represented",
+      "label": "Omar the Read-only Auditor reconstructs the whole story from the audit log",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-022@L61111",
+      "sourceLine": 61111,
+      "status": "not-represented",
+      "label": "A read-only support session terminated from the banner",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-022@L64632",
+      "sourceLine": 64632,
+      "status": "not-represented",
+      "label": "Sophia opens a read-only support session and Priya terminates it from the banner",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-023@L61112",
+      "sourceLine": 61112,
+      "status": "not-represented",
+      "label": "A dual-authorised compliance-emergency session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-023@L64759",
+      "sourceLine": 64759,
+      "status": "not-represented",
+      "label": "A compliance-emergency session is dual-authorised, used, reported and closed",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-024@L61113",
+      "sourceLine": 61113,
+      "status": "not-represented",
+      "label": "Soft suspension while the floor keeps running",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-024@L64969",
+      "sourceLine": 64969,
+      "status": "not-represented",
+      "label": "Bright Bikes enters soft suspension and the floor keeps running",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-025@L61114",
+      "sourceLine": 61114,
+      "status": "not-represented",
+      "label": "Hard suspension and the completion pipeline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-025@L65097",
+      "sourceLine": 65097,
+      "status": "not-represented",
+      "label": "Bright Bikes enters hard suspension and in-flight runs complete",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-026@L61115",
+      "sourceLine": 61115,
+      "status": "not-represented",
+      "label": "Compliance suspension while TAB-014 is offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-026@L65221",
+      "sourceLine": 65221,
+      "status": "not-represented",
+      "label": "Bright Bikes enters compliance suspension while tablet TAB-014 is offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-027@L61116",
+      "sourceLine": 61116,
+      "status": "not-represented",
+      "label": "A new atom enabled after its evaluation scenarios pass",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-027@L65424",
+      "sourceLine": 65424,
+      "status": "not-represented",
+      "label": "Daniel enables a new atom after its evaluation scenarios pass",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-028@L61117",
+      "sourceLine": 61117,
+      "status": "not-represented",
+      "label": "Emergency pause for one tenant, deterministic layer untouched",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-028@L65548",
+      "sourceLine": 65548,
+      "status": "not-represented",
+      "label": "Aisha triggers the emergency pause for one tenant and the deterministic layer keeps working",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-029@L61118",
+      "sourceLine": 61118,
+      "status": "not-represented",
+      "label": "A notified-class version publishes and Job Owners decide adoption",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-029@L65739",
+      "sourceLine": 65739,
+      "status": "not-represented",
+      "label": "A notified-class version publishes and Job Owners decide adoption",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-030@L61119",
+      "sourceLine": 61119,
+      "status": "not-represented",
+      "label": "Offboarding, export, archival and the final record state",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-030@L65868",
+      "sourceLine": 65868,
+      "status": "not-represented",
+      "label": "A tenant is offboarded, exported and archived, and the record reaches its final state",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-01",
+      "sourceLine": 101659,
+      "status": "not-represented",
+      "label": "Qualification expiry warning while the worker's tablet is offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-02",
+      "sourceLine": 101683,
+      "status": "not-represented",
+      "label": "The qualification expiry moment reaches an offline device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-03",
+      "sourceLine": 101705,
+      "status": "not-represented",
+      "label": "A qualification clearance reaches its tenant-defined duration",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-04",
+      "sourceLine": 101729,
+      "status": "not-represented",
+      "label": "A second clearance in the same Area on the same shift escalates",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-05",
+      "sourceLine": 101751,
+      "status": "not-represented",
+      "label": "The per-shift digest is assembled and delivered at the Shift's own time",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-06",
+      "sourceLine": 101772,
+      "status": "not-represented",
+      "label": "Run no-show: the supervisor alert at plus fifteen minutes",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-07",
+      "sourceLine": 101793,
+      "status": "not-represented",
+      "label": "Run no-show: automatic cancellation at plus thirty minutes",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-08",
+      "sourceLine": 101814,
+      "status": "not-represented",
+      "label": "The finish window closes and the run record finishes",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-09",
+      "sourceLine": 101835,
+      "status": "not-represented",
+      "label": "A late capture arrives inside the finish window",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-10",
+      "sourceLine": 101854,
+      "status": "not-represented",
+      "label": "A correction arrives after the record finished",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-11",
+      "sourceLine": 101875,
+      "status": "not-represented",
+      "label": "The Shift Handoff Agent runs thirty minutes before shift end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-12",
+      "sourceLine": 101897,
+      "status": "not-represented",
+      "label": "The shift-handoff brief goes unacknowledged past its grace period",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-13",
+      "sourceLine": 101917,
+      "status": "not-represented",
+      "label": "A governance gate item passes its escalation timeout",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-14",
+      "sourceLine": 101941,
+      "status": "not-represented",
+      "label": "A Critical notification is unacknowledged after four hours",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-15",
+      "sourceLine": 101962,
+      "status": "not-represented",
+      "label": "A qualification-expiry notification is unacknowledged after two minutes",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-16",
+      "sourceLine": 101983,
+      "status": "not-represented",
+      "label": "An undecided learning proposal reaches thirty days",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-17",
+      "sourceLine": 102004,
+      "status": "not-represented",
+      "label": "Site-wide connectivity loss crosses thirty, sixty and one hundred and twenty minutes",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-18",
+      "sourceLine": 102029,
+      "status": "not-represented",
+      "label": "The usage ladder crosses eighty, one hundred and one hundred and twenty-five per cent",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-19",
+      "sourceLine": 102051,
+      "status": "not-represented",
+      "label": "Soft suspension applies after thirty days of non-payment",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-20",
+      "sourceLine": 102074,
+      "status": "not-represented",
+      "label": "Hard suspension applies after sixty days of non-payment",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-21",
+      "sourceLine": 102096,
+      "status": "not-represented",
+      "label": "A pilot tenancy reaches its expiry",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-22",
+      "sourceLine": 102117,
+      "status": "not-represented",
+      "label": "The storage tiering scheduler runs at the retention horizon",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-23",
+      "sourceLine": 102136,
+      "status": "not-represented",
+      "label": "Worker personal data anonymises at twenty-four months",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-24",
+      "sourceLine": 102158,
+      "status": "not-represented",
+      "label": "A legal hold suspends a scheduled tiering or anonymisation run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-25",
+      "sourceLine": 102180,
+      "status": "not-represented",
+      "label": "The drift canary re-runs the evaluation suite on cadence",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-26",
+      "sourceLine": 102199,
+      "status": "not-represented",
+      "label": "A scheduled report is delivered, and a later correction is flagged",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-27",
+      "sourceLine": 102222,
+      "status": "not-represented",
+      "label": "A queued command's device never returns",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-28",
+      "sourceLine": 102249,
+      "status": "not-represented",
+      "label": "A version change is adopted at the next run boundary",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-29",
+      "sourceLine": 102270,
+      "status": "not-represented",
+      "label": "Full reasoning traces reduce to decision records at twenty-four months",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SB-SCHED-30",
+      "sourceLine": 102287,
+      "status": "not-represented",
+      "label": "Recovery after roles, qualifications, shifts, versions or official records changed between scheduling and execution",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-001",
+      "sourceLine": 66452,
+      "status": "not-represented",
+      "label": "Commissioning the AVIIXA platform and creating the root account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-002",
+      "sourceLine": 66638,
+      "status": "not-represented",
+      "label": "Onboarding the client's platform team onto the console",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-003",
+      "sourceLine": 66820,
+      "status": "not-represented",
+      "label": "Receiving and qualifying the Bright Bikes tenant-onboarding request",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-004",
+      "sourceLine": 66971,
+      "status": "not-represented",
+      "label": "Creating the Bright Bikes tenant and proving its isolation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-005",
+      "sourceLine": 67129,
+      "status": "not-represented",
+      "label": "Onboarding Bright Bikes' first Tenant Admin",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-006",
+      "sourceLine": 67278,
+      "status": "not-represented",
+      "label": "Configuring Bright Bikes for operation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-007",
+      "sourceLine": 67428,
+      "status": "not-represented",
+      "label": "Creating the tenant's people and giving them their roles",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-008",
+      "sourceLine": 67574,
+      "status": "not-represented",
+      "label": "Recording worker qualifications and arming the expiry schedule",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-009",
+      "sourceLine": 67727,
+      "status": "not-represented",
+      "label": "Enrolling Tablet TAB-014 and Preparing It to Work Without a Network",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-010",
+      "sourceLine": 67877,
+      "status": "not-represented",
+      "label": "Preparing the Authoring Workspace in the Studio",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-011",
+      "sourceLine": 68028,
+      "status": "not-represented",
+      "label": "Building the Wheel Bolt Torque Verification Workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-012",
+      "sourceLine": 68180,
+      "status": "not-represented",
+      "label": "Reviewing, Rejecting, Revising and Approving the Workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-013",
+      "sourceLine": 68332,
+      "status": "not-represented",
+      "label": "Publishing Version 2.1.0 and Generating the Work Package",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-014",
+      "sourceLine": 68483,
+      "status": "not-represented",
+      "label": "Defining, Approving, Scheduling and Assigning the Work",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-015",
+      "sourceLine": 68639,
+      "status": "not-represented",
+      "label": "Maya Signing In and Starting the Day Shift",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-016",
+      "sourceLine": 68791,
+      "status": "not-represented",
+      "label": "Building Red Bicycles on the Floor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-017",
+      "sourceLine": 68944,
+      "status": "not-represented",
+      "label": "Watching the Shift from the Client Command Center",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-018",
+      "sourceLine": 69095,
+      "status": "not-represented",
+      "label": "Catching the Torque Deviation and Freezing the Lot on the Tablet",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-019",
+      "sourceLine": 69248,
+      "status": "not-represented",
+      "label": "Containing the Problem, Deciding Its Disposition, and Releasing the Lot",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-020",
+      "sourceLine": 69402,
+      "status": "not-represented",
+      "label": "What the Agents Contributed, and What Happened Where They Could Not",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-021",
+      "sourceLine": 69555,
+      "status": "not-represented",
+      "label": "The Life of a Notification, from Created to Acknowledged to Reconciled",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-022",
+      "sourceLine": 69712,
+      "status": "not-represented",
+      "label": "Working Through the Outage with No Network at All",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-023",
+      "sourceLine": 69867,
+      "status": "not-represented",
+      "label": "Reconnecting, Draining the Queue, and Applying the Pending Commands",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-024",
+      "sourceLine": 70021,
+      "status": "not-represented",
+      "label": "Resolving the Sync Conflicts and Correcting the Record",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-025",
+      "sourceLine": 70175,
+      "status": "not-represented",
+      "label": "Reworking Two Bicycles and Recording Their Genealogy",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-026",
+      "sourceLine": 70331,
+      "status": "not-represented",
+      "label": "Handing the Shift Over",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-027",
+      "sourceLine": 70482,
+      "status": "not-represented",
+      "label": "Closing the Record, Computing the Summary, and Letting the Auditor Read It",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-028",
+      "sourceLine": 70639,
+      "status": "not-represented",
+      "label": "Opening a Read-Only Support Session into the Tenant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-029",
+      "sourceLine": 70794,
+      "status": "not-represented",
+      "label": "A Platform Incident, an Emergency Pause, and Degraded Operation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-030",
+      "sourceLine": 70949,
+      "status": "not-represented",
+      "label": "Publishing Version 2.2.0, Adopting It, and Rolling It Back",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-031",
+      "sourceLine": 71101,
+      "status": "not-represented",
+      "label": "Suspending a User, a Device, a Site, and Finally the Tenant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-032",
+      "sourceLine": 71258,
+      "status": "not-represented",
+      "label": "Offboarding, Exporting, Archiving, Retaining, and Retiring the Devices",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "SEQ-033",
+      "sourceLine": 71413,
+      "status": "not-represented",
+      "label": "The Final Lifecycle State of Every Bright Bikes Record",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-01",
+      "sourceLine": 23709,
+      "status": "not-represented",
+      "label": "Root Super Admin to Admin, delegation of Band B authority",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-02",
+      "sourceLine": 23739,
+      "status": "not-represented",
+      "label": "Admin to Platform Engineer, the maker-checker cycle in reverse",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-03",
+      "sourceLine": 23769,
+      "status": "not-represented",
+      "label": "Admin to Support, granting the conditions for a support session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-04",
+      "sourceLine": 23799,
+      "status": "not-represented",
+      "label": "tenant to authorized Support, the tenant side of the same session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-05",
+      "sourceLine": 23920,
+      "status": "not-represented",
+      "label": "Tenant Admin to Supervisor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-06",
+      "sourceLine": 23944,
+      "status": "not-represented",
+      "label": "Tenant Admin to Quality Manager",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-07",
+      "sourceLine": 24066,
+      "status": "not-represented",
+      "label": "Supervisor to Worker",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-08",
+      "sourceLine": 24090,
+      "status": "not-represented",
+      "label": "Worker to Supervisor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-09",
+      "sourceLine": 24236,
+      "status": "not-represented",
+      "label": "Worker to Quality Manager",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-10",
+      "sourceLine": 24260,
+      "status": "not-represented",
+      "label": "Supervisor to Quality Manager",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-11",
+      "sourceLine": 24284,
+      "status": "not-represented",
+      "label": "Quality Manager to Supervisor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-12",
+      "sourceLine": 24402,
+      "status": "not-represented",
+      "label": "operational roles to Read-only Auditor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-13",
+      "sourceLine": 24523,
+      "status": "not-represented",
+      "label": "outgoing shift Supervisor to incoming shift Supervisor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-14",
+      "sourceLine": 24547,
+      "status": "not-represented",
+      "label": "Author to Reviewer to Release Authority",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-15",
+      "sourceLine": 24573,
+      "status": "not-represented",
+      "label": "Job creator to Job approver",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-16",
+      "sourceLine": 24597,
+      "status": "not-represented",
+      "label": "Job Owner to Supervisor on a notified-class version adoption",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-17",
+      "sourceLine": 24621,
+      "status": "not-represented",
+      "label": "Quality Manager to Studio author via an emerging-pattern watch item",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-18",
+      "sourceLine": 24645,
+      "status": "not-represented",
+      "label": "platform team to tenant via a platform announcement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-19",
+      "sourceLine": 24114,
+      "status": "not-represented",
+      "label": "Worker to substitute Worker",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "UC-HO-20",
+      "sourceLine": 24669,
+      "status": "not-represented",
+      "label": "outgoing linked run to incoming linked run across shifts",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-001",
+      "sourceLine": 53354,
+      "status": "not-represented",
+      "label": "Authoring a Work Instruction at three difficulty levels",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-002",
+      "sourceLine": 53386,
+      "status": "not-represented",
+      "label": "Creating a Workflow in the Workflow Builder",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-003",
+      "sourceLine": 53424,
+      "status": "not-represented",
+      "label": "Editing a Workflow into a new draft",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-004",
+      "sourceLine": 53457,
+      "status": "not-represented",
+      "label": "Reviewing a submitted Workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-005",
+      "sourceLine": 53494,
+      "status": "not-represented",
+      "label": "Approving and releasing a Workflow version",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-006",
+      "sourceLine": 53529,
+      "status": "not-represented",
+      "label": "Rejecting a submitted Workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-007",
+      "sourceLine": 53561,
+      "status": "not-represented",
+      "label": "Revising a returned Workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-008",
+      "sourceLine": 53596,
+      "status": "not-represented",
+      "label": "Publishing a version to the floor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-009",
+      "sourceLine": 53633,
+      "status": "not-represented",
+      "label": "Generating the offline work package",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-010",
+      "sourceLine": 53668,
+      "status": "not-represented",
+      "label": "Pinning a version to a run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-AUT-011",
+      "sourceLine": 53700,
+      "status": "not-represented",
+      "label": "Rolling back a published version",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-BOARD-REFRESH",
+      "sourceLine": 117973,
+      "status": "not-represented",
+      "label": "refresh the live board",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-BOUNDARY-LOOKUP",
+      "sourceLine": 2504,
+      "status": "not-represented",
+      "label": "Resolving a where-does-this-live question",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CC-AUTHOR-REPORT-FORMAT",
+      "sourceLine": 16503,
+      "status": "not-represented",
+      "label": "Author a report format",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CC-DECIDE-GATE-ITEM",
+      "sourceLine": 16819,
+      "status": "not-represented",
+      "label": "Decide gate item",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CC-DECIDE-LANE-B",
+      "sourceLine": 16819,
+      "status": "not-represented",
+      "label": "Decide Lane B proposal",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CC-GRANT-CLEARANCE",
+      "sourceLine": 16657,
+      "status": "not-represented",
+      "label": "Grant a qualification clearance",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CC-RELEASE-HOLD",
+      "sourceLine": 16819,
+      "status": "not-represented",
+      "label": "Release lot hold",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CC-REQUEST-RELEASE",
+      "sourceLine": 16657,
+      "status": "not-represented",
+      "label": "Request release of a lot hold",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CHANGE-CONTROL",
+      "sourceLine": 1155,
+      "status": "not-represented",
+      "label": "The change-control cycle for this blueprint",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CLASSIFY",
+      "sourceLine": 1101,
+      "status": "not-represented",
+      "label": "Classifying a sentence while authoring",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-CLEARANCE",
+      "sourceLine": 81532,
+      "status": "not-represented",
+      "label": "qualification clearance granted while the device was offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-LOTRELEASE",
+      "sourceLine": 81530,
+      "status": "not-represented",
+      "label": "lot release granted while the device was offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-ORDER",
+      "sourceLine": 81588,
+      "status": "not-represented",
+      "label": "two conflicting commands queued for the same run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-REASSIGN",
+      "sourceLine": 81534,
+      "status": "not-represented",
+      "label": "run reassignment issued while the device was offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-SUBSTITUTE",
+      "sourceLine": 81536,
+      "status": "not-represented",
+      "label": "worker substitution issued while the device was offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-SUSPEND-COMPLIANCE",
+      "sourceLine": 81564,
+      "status": "not-represented",
+      "label": "compliance suspension applied while the device was offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-SUSPEND-HARD",
+      "sourceLine": 81542,
+      "status": "not-represented",
+      "label": "hard tenant suspension applied while the device was offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-SUSPEND-SOFT",
+      "sourceLine": 81540,
+      "status": "not-represented",
+      "label": "soft tenant suspension applied while the device was offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-VERSION",
+      "sourceLine": 81538,
+      "status": "not-represented",
+      "label": "workflow version change published while the device was offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CMD-WIPE",
+      "sourceLine": 81586,
+      "status": "not-represented",
+      "label": "remote wipe issued to a device that never returns",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CONF-BULK",
+      "sourceLine": 81647,
+      "status": "not-represented",
+      "label": "Resolve All invoked with skew-flagged conflicts present",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CONF-CORRECTION",
+      "sourceLine": 81621,
+      "status": "not-represented",
+      "label": "server-side correction while the device holding the original was offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CONF-FLAG",
+      "sourceLine": 81649,
+      "status": "not-represented",
+      "label": "Quality Manager flags an automatic resolution as wrong",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CONF-QUALITY",
+      "sourceLine": 81645,
+      "status": "not-represented",
+      "label": "conflict whose two values disagree beyond the specification limits",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CONF-RUNSTATE",
+      "sourceLine": 81623,
+      "status": "not-represented",
+      "label": "run-level state conflict between two devices",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CONF-SHARED",
+      "sourceLine": 81619,
+      "status": "not-represented",
+      "label": "two workers complete the same shared checklist item offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CONF-SKEW",
+      "sourceLine": 81625,
+      "status": "not-represented",
+      "label": "clock-skew-flagged write loses a conflict pending individual review",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-CONN-LOSS",
+      "sourceLine": 117964,
+      "status": "not-represented",
+      "label": "escalate connectivity loss",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-COVERAGE-MAP",
+      "sourceLine": 3151,
+      "status": "not-represented",
+      "label": "How the Source Coverage Map was built and how a reader audits it",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEC-LIFECYCLE",
+      "sourceLine": 112327,
+      "status": "not-represented",
+      "label": "The decision lifecycle — numbered chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEFENSIBLE-RECORD",
+      "sourceLine": 1872,
+      "status": "not-represented",
+      "label": "Producing a defensible record for one part",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-KEYLOSS",
+      "sourceLine": 81697,
+      "status": "not-represented",
+      "label": "encryption key lost after an operating-system reinstall",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-LOST",
+      "sourceLine": 81691,
+      "status": "not-represented",
+      "label": "device lost or stolen while holding unsynced captures",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-POWER",
+      "sourceLine": 81689,
+      "status": "not-represented",
+      "label": "device battery death mid-run with unsynced captures",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-QUEUE",
+      "sourceLine": 81687,
+      "status": "not-represented",
+      "label": "corrupted upload queue discovered at reconnection",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-RELEASE",
+      "sourceLine": 117489,
+      "status": "not-represented",
+      "label": "request, decide, command, apply",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-RETIRE",
+      "sourceLine": 81693,
+      "status": "not-represented",
+      "label": "device retired while holding unsynced captures",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-SALVAGE",
+      "sourceLine": 81685,
+      "status": "not-represented",
+      "label": "corrupt local database discovered at reconnection",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-SEV1",
+      "sourceLine": 117488,
+      "status": "not-represented",
+      "label": "classify, hold, contain, escalate, release",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-STORAGE",
+      "sourceLine": 81683,
+      "status": "not-represented",
+      "label": "storage pressure during a long offline shift",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-VERSION",
+      "sourceLine": 81695,
+      "status": "not-represented",
+      "label": "application version below the floor discovered at reconnection",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEV-WIPE",
+      "sourceLine": 117496,
+      "status": "not-represented",
+      "label": "authorise, queue, attempt final sync, erase",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DEVICE-TRUST",
+      "sourceLine": 117969,
+      "status": "not-represented",
+      "label": "expire cached credential trust",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DILIGENCE",
+      "sourceLine": 2145,
+      "status": "not-represented",
+      "label": "A diligence session against the console",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DLC-ANON",
+      "sourceLine": 117971,
+      "status": "not-represented",
+      "label": "anonymise worker identity",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DLC-TIER",
+      "sourceLine": 117498,
+      "status": "not-represented",
+      "label": "retain hot, tier beyond the horizon, retrieve on demand",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-01-DOWNGRADE",
+      "sourceLine": 26909,
+      "status": "not-represented",
+      "label": "Alternate path — downgrade",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-01-UPGRADE",
+      "sourceLine": 26898,
+      "status": "not-represented",
+      "label": "Happy path — tier upgrade",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-02-CASCADE",
+      "sourceLine": 27140,
+      "status": "not-represented",
+      "label": "Alternate path — the archival cascade",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-03-SHIFT",
+      "sourceLine": 27299,
+      "status": "not-represented",
+      "label": "Happy path — Shift creation and use",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-04-CLEARANCE",
+      "sourceLine": 27498,
+      "status": "not-represented",
+      "label": "Alternate path — clearance",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-04-QUAL",
+      "sourceLine": 27486,
+      "status": "not-represented",
+      "label": "Happy path — from certificate to enforcement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-05-JOB",
+      "sourceLine": 27709,
+      "status": "not-represented",
+      "label": "Happy path — Job from draft to active",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-06-RUN",
+      "sourceLine": 27922,
+      "status": "not-represented",
+      "label": "Happy path — run scheduling through automatic finish",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-07-ASSIGN",
+      "sourceLine": 28128,
+      "status": "not-represented",
+      "label": "Happy path — validated assignment",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-07-SUBST",
+      "sourceLine": 28138,
+      "status": "not-represented",
+      "label": "Alternate path — mid-run substitution",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-08-REVIEW",
+      "sourceLine": 28316,
+      "status": "not-represented",
+      "label": "Happy path — Summary computation, review and export",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-09-PERM",
+      "sourceLine": 28535,
+      "status": "not-represented",
+      "label": "Happy path — user, role and scope configuration",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-10-NOTIF",
+      "sourceLine": 28702,
+      "status": "not-represented",
+      "label": "Happy path — notification from event to acknowledgement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-11-AUDIT",
+      "sourceLine": 28876,
+      "status": "not-represented",
+      "label": "Happy path — one-transaction audit and retention",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-12-INT",
+      "sourceLine": 29052,
+      "status": "not-represented",
+      "label": "Happy path — integration configuration and usage view",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-13-SUPPORT",
+      "sourceLine": 29208,
+      "status": "not-represented",
+      "label": "Happy path — a platform support session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-14-CAL",
+      "sourceLine": 29352,
+      "status": "not-represented",
+      "label": "Happy path — Qualification Calendar planning",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-15-CLONE",
+      "sourceLine": 29484,
+      "status": "not-represented",
+      "label": "Happy path — Job cloning",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-16-PAIR",
+      "sourceLine": 29620,
+      "status": "not-represented",
+      "label": "Happy path — Multi-Area Job pairing",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-APPROVE-JOB",
+      "sourceLine": 16819,
+      "status": "not-represented",
+      "label": "Approve Job",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-ASSIGN-ROLE",
+      "sourceLine": 16503,
+      "status": "not-represented",
+      "label": "Assign a tenant role",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-CLOSE-ANOMALY",
+      "sourceLine": 16819,
+      "status": "not-represented",
+      "label": "Close anomaly",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-CONFIGURE-HIERARCHY",
+      "sourceLine": 16503,
+      "status": "not-represented",
+      "label": "Configure the operational hierarchy",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-CREATE-RUN",
+      "sourceLine": 16657,
+      "status": "not-represented",
+      "label": "Create and schedule a run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-CREATE-USER",
+      "sourceLine": 16503,
+      "status": "not-represented",
+      "label": "Create a tenant user",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-ENTER-QUALIFICATION",
+      "sourceLine": 16657,
+      "status": "not-represented",
+      "label": "Enter a worker qualification",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-READ-ACCESS-HISTORY",
+      "sourceLine": 16983,
+      "status": "not-represented",
+      "label": "Read Platform Access History",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-READ-ANOMALY",
+      "sourceLine": 16983,
+      "status": "not-represented",
+      "label": "Read Anomaly Register",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-READ-AUDIT",
+      "sourceLine": 16983,
+      "status": "not-represented",
+      "label": "Read audit log",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DOH-SUBSTITUTE-WORKER",
+      "sourceLine": 16657,
+      "status": "not-represented",
+      "label": "Substitute a worker mid-run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DVC-001",
+      "sourceLine": 53085,
+      "status": "not-represented",
+      "label": "Enrolling a device into the tenant's fleet",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DVC-002",
+      "sourceLine": 53118,
+      "status": "not-represented",
+      "label": "Reassigning a device to another Area or worker group",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DVC-003",
+      "sourceLine": 53150,
+      "status": "not-represented",
+      "label": "Handling a lost device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DVC-004",
+      "sourceLine": 53189,
+      "status": "not-represented",
+      "label": "Handling a stolen device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DVC-005",
+      "sourceLine": 53224,
+      "status": "not-represented",
+      "label": "Suspending a device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-DVC-006",
+      "sourceLine": 53257,
+      "status": "not-represented",
+      "label": "Wiping a device under the sync-then-wipe rule",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ESCALATE",
+      "sourceLine": 117962,
+      "status": "not-represented",
+      "label": "escalate and re-notify",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-EXE-001",
+      "sourceLine": 53787,
+      "status": "not-represented",
+      "label": "Assigning a worker to a Job or run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-EXE-002",
+      "sourceLine": 53821,
+      "status": "not-represented",
+      "label": "Downloading the work package to a device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-EXE-003",
+      "sourceLine": 53853,
+      "status": "not-represented",
+      "label": "Executing a run online",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-EXE-004",
+      "sourceLine": 53888,
+      "status": "not-represented",
+      "label": "Executing a run fully offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-EXE-005",
+      "sourceLine": 53924,
+      "status": "not-represented",
+      "label": "Capturing evidence during a step",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-EXE-006",
+      "sourceLine": 53966,
+      "status": "not-represented",
+      "label": "Acknowledging a work-instruction change notice",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-EXEC-CAPTURE",
+      "sourceLine": 117487,
+      "status": "not-represented",
+      "label": "execute a measurement screen and evaluate it",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FEAT-001",
+      "sourceLine": 54620,
+      "status": "not-represented",
+      "label": "Enabling or disabling a feature globally",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FEAT-002",
+      "sourceLine": 54658,
+      "status": "not-represented",
+      "label": "Enabling or disabling a feature for one tenant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FEAT-003",
+      "sourceLine": 54691,
+      "status": "not-represented",
+      "label": "Scheduling a feature change with expiry, cancellation and rollback",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FEAT-004",
+      "sourceLine": 54733,
+      "status": "not-represented",
+      "label": "Handling partial feature propagation across all five surfaces",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FEAT-005",
+      "sourceLine": 54770,
+      "status": "not-represented",
+      "label": "Changing a feature while worker devices are offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FL-AUTHENTICATE",
+      "sourceLine": 17144,
+      "status": "not-represented",
+      "label": "Authenticate",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FL-CAPTURE",
+      "sourceLine": 17144,
+      "status": "not-represented",
+      "label": "Capture",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FL-CONTAINMENT",
+      "sourceLine": 17144,
+      "status": "not-represented",
+      "label": "Containment",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FL-EXECUTE-RUN",
+      "sourceLine": 17144,
+      "status": "not-represented",
+      "label": "Execute run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FL-PARKED-RUN",
+      "sourceLine": 17144,
+      "status": "not-represented",
+      "label": "Parked run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FL-STEP-UP",
+      "sourceLine": 16657,
+      "status": "not-represented",
+      "label": "Second-identity step-up on a worker device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-FL-SUBSTITUTION-HANDOVER",
+      "sourceLine": 17144,
+      "status": "not-represented",
+      "label": "Substitution handover",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-GATE-DECIDE",
+      "sourceLine": 117961,
+      "status": "not-represented",
+      "label": "decide a governance gate item",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-GLOBAL-DISABLE",
+      "sourceLine": 113682,
+      "status": "not-represented",
+      "label": "A global feature disablement, as it would have to work",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-HANDOFF",
+      "sourceLine": 117959,
+      "status": "not-represented",
+      "label": "generate and acknowledge the shift handoff brief",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-HIER-PROPAGATE",
+      "sourceLine": 112874,
+      "status": "not-represented",
+      "label": "How a hierarchy decision propagates through a build",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-HOLD-RELEASE",
+      "sourceLine": 1634,
+      "status": "not-represented",
+      "label": "A Severity 1 hold from capture to release",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-LEARN-LANEB",
+      "sourceLine": 117495,
+      "status": "not-represented",
+      "label": "propose, decide, publish or apply",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-LEDGER-EXPORT",
+      "sourceLine": 2765,
+      "status": "not-represented",
+      "label": "From execution to the client's commercial system",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-LRN-001",
+      "sourceLine": 54310,
+      "status": "not-represented",
+      "label": "Applying a Lane A refinement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-LRN-002",
+      "sourceLine": 54342,
+      "status": "not-represented",
+      "label": "Deciding a Lane B proposal",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-MODEL-CHANGE",
+      "sourceLine": 113547,
+      "status": "not-represented",
+      "label": "A model version change, as it should be governed",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-NEW-CAPABILITY-SEAM",
+      "sourceLine": 2280,
+      "status": "not-represented",
+      "label": "Applying the one-producer discipline to a new capability",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-NOTIF-DIGEST",
+      "sourceLine": 117954,
+      "status": "not-represented",
+      "label": "assemble and deliver the sectioned digest",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-BASIC",
+      "sourceLine": 81308,
+      "status": "not-represented",
+      "label": "offline run execution and reconnection",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-CHECKLIST",
+      "sourceLine": 81368,
+      "status": "not-represented",
+      "label": "offline checkbox confirmations, single and multi-item",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-CORRECT",
+      "sourceLine": 81374,
+      "status": "not-represented",
+      "label": "offline append-only correction to a committed capture",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-CROSSSHIFT",
+      "sourceLine": 81324,
+      "status": "not-represented",
+      "label": "cross-shift process as linked runs with an offline handover",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-DEV2",
+      "sourceLine": 81358,
+      "status": "not-represented",
+      "label": "offline Severity 2 deviation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-DEVNOTE",
+      "sourceLine": 81372,
+      "status": "not-represented",
+      "label": "offline free-text deviation note",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-EVIDENCE",
+      "sourceLine": 81362,
+      "status": "not-represented",
+      "label": "offline photograph capture into the encrypted store",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-FORCEDSYNC",
+      "sourceLine": 81494,
+      "status": "not-represented",
+      "label": "forced-sync high-risk action attempted offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-GATE",
+      "sourceLine": 81420,
+      "status": "not-represented",
+      "label": "offline specification and evidence gate blocking",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-LAZYPULL",
+      "sourceLine": 81316,
+      "status": "not-represented",
+      "label": "mid-shift assignment lazy pull",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-LOGIN",
+      "sourceLine": 81456,
+      "status": "not-represented",
+      "label": "offline login, trust-window expiry and PIN lockout",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-LOT",
+      "sourceLine": 81320,
+      "status": "not-represented",
+      "label": "offline lot-tracked execution",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-MEASURE",
+      "sourceLine": 81356,
+      "status": "not-represented",
+      "label": "offline measurement capture inside specification",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-MIDNIGHT",
+      "sourceLine": 81326,
+      "status": "not-represented",
+      "label": "offline run crossing midnight",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-NOUNIT",
+      "sourceLine": 81322,
+      "status": "not-represented",
+      "label": "offline execution under unit mode none",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-PERSONAL",
+      "sourceLine": 81464,
+      "status": "not-represented",
+      "label": "offline long session on a Personal or assigned device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-PROPAGATE",
+      "sourceLine": 81416,
+      "status": "not-represented",
+      "label": "hold propagation to sibling devices",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-QUALGATE",
+      "sourceLine": 81486,
+      "status": "not-represented",
+      "label": "offline qualification gate, parked run, clearance and clearance expiry",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-REWORK",
+      "sourceLine": 81412,
+      "status": "not-represented",
+      "label": "offline rework loop and repeated rework cycles",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-SCAN",
+      "sourceLine": 81364,
+      "status": "not-represented",
+      "label": "offline barcode scan with camera fallback",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-SEQUENCE",
+      "sourceLine": 81424,
+      "status": "not-represented",
+      "label": "offline sequence or timing deviation detection",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-SERIAL",
+      "sourceLine": 81318,
+      "status": "not-represented",
+      "label": "offline serialized execution, one Unit Execution per piece",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-SEV1",
+      "sourceLine": 81360,
+      "status": "not-represented",
+      "label": "offline Severity 1 classification, local hold and containment",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-SHAREDSWITCH",
+      "sourceLine": 81462,
+      "status": "not-represented",
+      "label": "offline fast worker switch on a Shared device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-SIGN",
+      "sourceLine": 81370,
+      "status": "not-represented",
+      "label": "offline electronic signature capture",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-SIGNOFF",
+      "sourceLine": 81490,
+      "status": "not-represented",
+      "label": "offline supervisor sign-off and substitute sign-off",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFF-SITE",
+      "sourceLine": 81312,
+      "status": "not-represented",
+      "label": "site-wide connectivity loss graded protocol",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OFFLINE-SHIFT",
+      "sourceLine": 2062,
+      "status": "not-represented",
+      "label": "A shift executed entirely offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OPS-001",
+      "sourceLine": 54424,
+      "status": "not-represented",
+      "label": "Producing and acknowledging the shift handoff brief",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OPS-002",
+      "sourceLine": 54463,
+      "status": "not-represented",
+      "label": "Generating and delivering a report",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OPS-003",
+      "sourceLine": 54495,
+      "status": "not-represented",
+      "label": "Raising, delivering and escalating a notification",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-OPS-004",
+      "sourceLine": 54539,
+      "status": "not-represented",
+      "label": "Exporting the audit log",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ORG-001",
+      "sourceLine": 52555,
+      "status": "not-represented",
+      "label": "Creating a Site and anchoring its timezone",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ORG-002",
+      "sourceLine": 52586,
+      "status": "not-represented",
+      "label": "Creating an Area under a Site",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ORG-003",
+      "sourceLine": 52623,
+      "status": "not-represented",
+      "label": "Creating a Shift and its digest delivery time",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ORG-004",
+      "sourceLine": 52656,
+      "status": "not-represented",
+      "label": "Creating a Job and taking it through approval",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PARTXII",
+      "sourceLine": 114550,
+      "status": "not-represented",
+      "label": "How the Part XII register is worked",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-001",
+      "sourceLine": 54998,
+      "status": "not-represented",
+      "label": "Opening a normal support session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-002",
+      "sourceLine": 55035,
+      "status": "not-represented",
+      "label": "Opening the compliance-emergency path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-003",
+      "sourceLine": 55070,
+      "status": "not-represented",
+      "label": "Granting and exercising JBS access",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-004",
+      "sourceLine": 55108,
+      "status": "not-represented",
+      "label": "Applying soft and hard tenant suspension",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-005",
+      "sourceLine": 55147,
+      "status": "not-represented",
+      "label": "Blocking, unblocking and controlled restoration of a tenant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-006",
+      "sourceLine": 55188,
+      "status": "not-represented",
+      "label": "Pausing and resuming artificial intelligence for one tenant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-007",
+      "sourceLine": 55221,
+      "status": "not-represented",
+      "label": "Pausing and resuming artificial intelligence platform-wide",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-008",
+      "sourceLine": 55259,
+      "status": "not-represented",
+      "label": "Managing a platform incident",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-009",
+      "sourceLine": 55295,
+      "status": "not-represented",
+      "label": "Handling an artificial-intelligence outage",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PLT-010",
+      "sourceLine": 55329,
+      "status": "not-represented",
+      "label": "Rolling back an artificial-intelligence capability",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-PUBLICATION",
+      "sourceLine": 113078,
+      "status": "not-represented",
+      "label": "Publication, from authoring to a device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-QLT-001",
+      "sourceLine": 54047,
+      "status": "not-represented",
+      "label": "Creating a deviation from a deterministic trigger",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-QLT-002",
+      "sourceLine": 54081,
+      "status": "not-represented",
+      "label": "Classifying severity on the device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-QLT-003",
+      "sourceLine": 54116,
+      "status": "not-represented",
+      "label": "Placing and propagating a Severity 1 hold",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-QLT-004",
+      "sourceLine": 54154,
+      "status": "not-represented",
+      "label": "Running the containment checklist",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-QLT-005",
+      "sourceLine": 54191,
+      "status": "not-represented",
+      "label": "Handling corrective and preventive action",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-QLT-006",
+      "sourceLine": 54228,
+      "status": "not-represented",
+      "label": "Releasing a lot hold as Quality Manager",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-QUAL-CLEAR",
+      "sourceLine": 117490,
+      "status": "not-represented",
+      "label": "block, notify, decide, command, resume",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-QUAL-EXPIRY",
+      "sourceLine": 117491,
+      "status": "not-represented",
+      "label": "warn, escalate, enforce",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-QUAL-PLAN",
+      "sourceLine": 117975,
+      "status": "not-represented",
+      "label": "recompute the sixty-day qualification horizon",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RECON-AFTERFINISH",
+      "sourceLine": 81653,
+      "status": "not-represented",
+      "label": "captures arriving after the record has finished",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RECON-IDEMPOTENT",
+      "sourceLine": 81655,
+      "status": "not-represented",
+      "label": "duplicate upload after an interrupted sync",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RECON-LATE",
+      "sourceLine": 81651,
+      "status": "not-represented",
+      "label": "late captures arriving inside the record-finish window",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RECON-LEGACY",
+      "sourceLine": 81720,
+      "status": "not-represented",
+      "label": "recovering and correcting a record after the original personnel have left",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RECON-LONGOUTAGE",
+      "sourceLine": 81699,
+      "status": "not-represented",
+      "label": "multi-day outage exceeding the record-finish window",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RECONNECT",
+      "sourceLine": 113345,
+      "status": "not-represented",
+      "label": "A device reconnecting after a dark shift",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RECORD-LIFE",
+      "sourceLine": 114079,
+      "status": "not-represented",
+      "label": "A record's life under the no-purge model",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-REPORT-DELIVER",
+      "sourceLine": 117974,
+      "status": "not-represented",
+      "label": "deliver a scheduled report",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RES-001",
+      "sourceLine": 55408,
+      "status": "not-represented",
+      "label": "Reconnecting a device and draining its queues",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RES-002",
+      "sourceLine": 55444,
+      "status": "not-represented",
+      "label": "Recovering after a failure",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RES-003",
+      "sourceLine": 55481,
+      "status": "not-represented",
+      "label": "Producing a reconciliation statement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-001",
+      "sourceLine": 55577,
+      "status": "not-represented",
+      "label": "Creating the sole Root Super Admin through the back end at platform commissioning",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-002",
+      "sourceLine": 55599,
+      "status": "not-represented",
+      "label": "Handing custody of the root account to the client",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-003",
+      "sourceLine": 55621,
+      "status": "not-represented",
+      "label": "Hardening the root account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-004",
+      "sourceLine": 55644,
+      "status": "not-represented",
+      "label": "First root sign-in and the enforced-invariant acknowledgement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-005",
+      "sourceLine": 55666,
+      "status": "not-represented",
+      "label": "Creating a platform Admin account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-006",
+      "sourceLine": 55689,
+      "status": "not-represented",
+      "label": "Assigning the Admin role",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-007",
+      "sourceLine": 55711,
+      "status": "not-represented",
+      "label": "Creating a Platform Engineer account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-008",
+      "sourceLine": 55733,
+      "status": "not-represented",
+      "label": "Assigning the Platform Engineer role",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-009",
+      "sourceLine": 55756,
+      "status": "not-represented",
+      "label": "Creating a Support account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-010",
+      "sourceLine": 55778,
+      "status": "not-represented",
+      "label": "Assigning the Support role",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-011",
+      "sourceLine": 55801,
+      "status": "not-represented",
+      "label": "Activating a platform Admin account and first sign-in",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-012",
+      "sourceLine": 55823,
+      "status": "not-represented",
+      "label": "Activating a Platform Engineer account and first sign-in",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-013",
+      "sourceLine": 55845,
+      "status": "not-represented",
+      "label": "Activating a Support account and first sign-in",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-014",
+      "sourceLine": 55868,
+      "status": "not-represented",
+      "label": "A Platform Engineer submitting a Band A change",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-015",
+      "sourceLine": 55892,
+      "status": "not-represented",
+      "label": "An Admin approving a Platform Engineer change",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-016",
+      "sourceLine": 55915,
+      "status": "not-represented",
+      "label": "An Admin returning a Platform Engineer change",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-017",
+      "sourceLine": 55938,
+      "status": "not-represented",
+      "label": "An Admin performing a routine Band B action",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-018",
+      "sourceLine": 55961,
+      "status": "not-represented",
+      "label": "An Admin initiating a critical-class action",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-019",
+      "sourceLine": 55985,
+      "status": "not-represented",
+      "label": "The root approving a critical-class request",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-020",
+      "sourceLine": 56008,
+      "status": "not-represented",
+      "label": "The root declining a critical-class request",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-021",
+      "sourceLine": 56031,
+      "status": "not-represented",
+      "label": "Re-notifying the root about an aging critical request",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-022",
+      "sourceLine": 56054,
+      "status": "not-represented",
+      "label": "Opening a read-only support session into a tenant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-023",
+      "sourceLine": 56077,
+      "status": "not-represented",
+      "label": "The tenant ending a support session from its own banner",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-024",
+      "sourceLine": 56099,
+      "status": "not-represented",
+      "label": "A support session expiring at its time box",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-025",
+      "sourceLine": 56121,
+      "status": "not-represented",
+      "label": "Initiating the compliance-emergency path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-026",
+      "sourceLine": 56144,
+      "status": "not-represented",
+      "label": "Closing a compliance-emergency session and issuing the tenant report",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-027",
+      "sourceLine": 56166,
+      "status": "not-represented",
+      "label": "Creating a JBS access grant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-028",
+      "sourceLine": 56189,
+      "status": "not-represented",
+      "label": "Exercising a JBS access grant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-029",
+      "sourceLine": 56211,
+      "status": "not-represented",
+      "label": "A JBS access grant expiring",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-030",
+      "sourceLine": 56233,
+      "status": "not-represented",
+      "label": "Revoking a JBS access grant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-031",
+      "sourceLine": 56255,
+      "status": "not-represented",
+      "label": "Changing the role of an existing console account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-032",
+      "sourceLine": 56278,
+      "status": "not-represented",
+      "label": "Disabling a console account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-033",
+      "sourceLine": 56301,
+      "status": "not-represented",
+      "label": "Re-enabling a console account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-034",
+      "sourceLine": 56323,
+      "status": "not-represented",
+      "label": "Reviewing last activity and handling dormant accounts",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-035",
+      "sourceLine": 56346,
+      "status": "not-represented",
+      "label": "Refusing self-registration on the console",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-036",
+      "sourceLine": 56368,
+      "status": "not-represented",
+      "label": "Refusing role self-escalation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-037",
+      "sourceLine": 56390,
+      "status": "not-represented",
+      "label": "Refusing creation of a second Root Super Admin",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-038",
+      "sourceLine": 56412,
+      "status": "not-represented",
+      "label": "Handling an unavailable root account and the succession question",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-039",
+      "sourceLine": 56438,
+      "status": "not-represented",
+      "label": "Forcibly terminating a suspicious console session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-040",
+      "sourceLine": 56460,
+      "status": "not-represented",
+      "label": "Losing the root's second authentication factor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-041",
+      "sourceLine": 56483,
+      "status": "not-represented",
+      "label": "Containing a compromised platform account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-042",
+      "sourceLine": 56509,
+      "status": "not-represented",
+      "label": "Operating the console during a platform incident",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-043",
+      "sourceLine": 56533,
+      "status": "not-represented",
+      "label": "Operating the console during an artificial-intelligence outage",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-044",
+      "sourceLine": 56557,
+      "status": "not-represented",
+      "label": "Exporting and attesting the platform-role model",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-ROLE-045",
+      "sourceLine": 56580,
+      "status": "not-represented",
+      "label": "Recovering and reconciling the console access model after an incident",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RUN-CLOSE",
+      "sourceLine": 117492,
+      "status": "not-represented",
+      "label": "submit, complete, finish",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RUN-NOSHOW",
+      "sourceLine": 117958,
+      "status": "not-represented",
+      "label": "alert then auto-cancel an unstarted run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-RUN-SCHEDULE",
+      "sourceLine": 117976,
+      "status": "not-represented",
+      "label": "project the run schedule horizon",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-ACCOUNT-CREATE",
+      "sourceLine": 15418,
+      "status": "not-represented",
+      "label": "Create a console account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-APPROVE-ENGINEER-CHANGE",
+      "sourceLine": 15838,
+      "status": "not-represented",
+      "label": "Approve a Band A Platform Engineer change",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-CLOSE-SESSION",
+      "sourceLine": 16111,
+      "status": "not-represented",
+      "label": "Close a support session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-COMPOSED-AGENT-REVIEW",
+      "sourceLine": 15967,
+      "status": "not-represented",
+      "label": "Composed-agent review",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-CRITICAL-APPROVE",
+      "sourceLine": 15418,
+      "status": "not-represented",
+      "label": "Approve a critical-class request",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-CRITICAL-SUBMIT",
+      "sourceLine": 15838,
+      "status": "not-represented",
+      "label": "Submit a critical-class request",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-EMERGENCY-COAUTH",
+      "sourceLine": 15838,
+      "status": "not-represented",
+      "label": "Co-authorise an emergency session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-EMERGENCY-OPEN",
+      "sourceLine": 15418,
+      "status": "not-represented",
+      "label": "Open a compliance-emergency session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-ESCALATE-TO-EMERGENCY",
+      "sourceLine": 16111,
+      "status": "not-represented",
+      "label": "Escalate a finding that requires a data change",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-JBS-GRANT",
+      "sourceLine": 15418,
+      "status": "not-represented",
+      "label": "Approve a JBS access grant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-OPEN-SUPPORT-SESSION",
+      "sourceLine": 16111,
+      "status": "not-represented",
+      "label": "Open a support session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-PROPOSE-PAUSE",
+      "sourceLine": 15967,
+      "status": "not-represented",
+      "label": "Propose an emergency pause",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-ROLE-ASSIGN",
+      "sourceLine": 15418,
+      "status": "not-represented",
+      "label": "Assign a console role",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-RUN-EVAL",
+      "sourceLine": 15967,
+      "status": "not-represented",
+      "label": "Run an evaluation suite",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-SUBMIT-BAND-A",
+      "sourceLine": 15967,
+      "status": "not-represented",
+      "label": "Submit a Band A change",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-TENANT-ONBOARD",
+      "sourceLine": 15838,
+      "status": "not-represented",
+      "label": "Onboard a tenant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SA-TIER-ASSIGN",
+      "sourceLine": 15838,
+      "status": "not-represented",
+      "label": "Assign a published tier",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-AUTOCLOSE",
+      "sourceLine": 100469,
+      "status": "not-represented",
+      "label": "Numbered chronological workflow - run auto-close, the canonical Delivery Operations Hub occurrence",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-BASELINE-E2E",
+      "sourceLine": 100240,
+      "status": "not-represented",
+      "label": "Numbered chronological workflow - one occurrence, end to end, under the baseline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-CARD-AUTHOR",
+      "sourceLine": 99367,
+      "status": "not-represented",
+      "label": "Numbered workflow for authoring a card",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-DEFN-LIFE",
+      "sourceLine": 99006,
+      "status": "not-represented",
+      "label": "Numbered workflow of a definition's life",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-FIVE-SURFACE",
+      "sourceLine": 100391,
+      "status": "not-represented",
+      "label": "Numbered chronological workflow - one occurrence across five surfaces",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-LOCAL-EXPIRY",
+      "sourceLine": 100655,
+      "status": "not-represented",
+      "label": "Numbered chronological workflow - a signed local expiry, offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-MEASURE-ADMIT",
+      "sourceLine": 101553,
+      "status": "not-represented",
+      "label": "Numbered chronological workflow - how a proposed measurement is admitted or refused",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-MECH-SELECT",
+      "sourceLine": 99644,
+      "status": "not-represented",
+      "label": "Numbered chronological workflow - how a mechanism is selected for a given scheduled-work definition",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-OCC-LIFE",
+      "sourceLine": 99071,
+      "status": "not-represented",
+      "label": "Numbered workflow of an occurrence's life",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-OCCURRENCE",
+      "sourceLine": 114268,
+      "status": "not-represented",
+      "label": "One scheduled occurrence",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-OFFLINE-THREE",
+      "sourceLine": 100880,
+      "status": "not-represented",
+      "label": "Numbered chronological workflow - a scheduled occurrence while three tablets are offline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SCHED-TEN-STEPS",
+      "sourceLine": 98910,
+      "status": "not-represented",
+      "label": "The ten numbered steps, separating trigger from execution",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-STU-ADMINISTER-GRANT",
+      "sourceLine": 16503,
+      "status": "not-represented",
+      "label": "Administer a Studio grant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-STU-PUBLISH",
+      "sourceLine": 117493,
+      "status": "not-represented",
+      "label": "author, review, release",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-STU-RELEASE-VERSION",
+      "sourceLine": 16819,
+      "status": "not-represented",
+      "label": "Release Workflow version",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-STU-VERSION",
+      "sourceLine": 117494,
+      "status": "not-represented",
+      "label": "classify the change, republish, notify",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-SUP-SESSION",
+      "sourceLine": 117497,
+      "status": "not-represented",
+      "label": "request with reason and ticket, open, time-box, end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TAX-001",
+      "sourceLine": 54845,
+      "status": "not-represented",
+      "label": "Administering a platform-seeded Job Type through its full lifecycle",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TAX-002",
+      "sourceLine": 54883,
+      "status": "not-represented",
+      "label": "Administering a platform-seeded Service Type tag through its full lifecycle",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TAX-003",
+      "sourceLine": 54915,
+      "status": "not-represented",
+      "label": "Creating a tenant-custom Job Type or Service Type",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TEN-001",
+      "sourceLine": 52395,
+      "status": "not-represented",
+      "label": "Onboarding a new manufacturer onto the platform",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TEN-002",
+      "sourceLine": 52433,
+      "status": "not-represented",
+      "label": "Seeding the tenant's first administrator account",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TEN-003",
+      "sourceLine": 52469,
+      "status": "not-represented",
+      "label": "Configuring the tenant's operating rules",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TENANT-ARCHIVE",
+      "sourceLine": 117977,
+      "status": "not-represented",
+      "label": "evaluate the archival reactivation window",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TENANT-ONBOARD",
+      "sourceLine": 1449,
+      "status": "not-represented",
+      "label": "How a manufacturer becomes an operating tenant",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TENANT-PILOT",
+      "sourceLine": 117967,
+      "status": "not-represented",
+      "label": "expire a pilot tenancy",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TENANT-SUSPEND",
+      "sourceLine": 117966,
+      "status": "not-represented",
+      "label": "apply a suspension state",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-TRACE-RETENTION",
+      "sourceLine": 117972,
+      "status": "not-represented",
+      "label": "expire a full orchestrator trace",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-USAGE-LADDER",
+      "sourceLine": 117965,
+      "status": "not-represented",
+      "label": "evaluate the usage ladder",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-V2-INTEGRATION",
+      "sourceLine": 2818,
+      "status": "not-represented",
+      "label": "How a V2 integration lands without rework",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-VALUESTREAM",
+      "sourceLine": 1764,
+      "status": "not-represented",
+      "label": "The value stream, ten stages: Author, Approve, Publish, Package, Assign, Execute, Capture, Record, Monitor, Review and release",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-WKR-001",
+      "sourceLine": 52786,
+      "status": "not-represented",
+      "label": "Creating a worker record",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-WKR-002",
+      "sourceLine": 52818,
+      "status": "not-represented",
+      "label": "Inviting a worker to the platform",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-WKR-003",
+      "sourceLine": 52853,
+      "status": "not-represented",
+      "label": "Activating a worker identity on a device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-WKR-004",
+      "sourceLine": 52892,
+      "status": "not-represented",
+      "label": "Assigning a role to a tenant user",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-WKR-005",
+      "sourceLine": 52924,
+      "status": "not-represented",
+      "label": "Assigning Tenant, Site and Area scope",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-WKR-006",
+      "sourceLine": 52957,
+      "status": "not-represented",
+      "label": "Recording a qualification against a worker",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "WF-WKR-007",
+      "sourceLine": 52995,
+      "status": "not-represented",
+      "label": "Running the qualification expiry schedule to enforcement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.10 metrics derivation",
+      "sourceLine": 45140,
+      "status": "not-represented",
+      "label": "Telemetry from tenant operations to layer-one and layer-two metrics",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.11 tier publication",
+      "sourceLine": 45248,
+      "status": "not-represented",
+      "label": "Tier record version from draft to propagated entitlements",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.12 usage metering",
+      "sourceLine": 45360,
+      "status": "not-represented",
+      "label": "Operational events to ledger, ladder, and export",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.13 device wipe",
+      "sourceLine": 45474,
+      "status": "not-represented",
+      "label": "A wipe — sync-then-wipe from report to acknowledgement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.14 broadcast",
+      "sourceLine": 45586,
+      "status": "not-represented",
+      "label": "Compose, target, approve, snapshot, deliver, reconcile",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.15 support session and emergency",
+      "sourceLine": 45714,
+      "status": "not-represented",
+      "label": "A support session, and an escalation to the compliance-emergency path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.16 JBS grant",
+      "sourceLine": 45848,
+      "status": "not-represented",
+      "label": "A JBS access grant from need to reconciliation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.17 record lifecycle",
+      "sourceLine": 45960,
+      "status": "not-represented",
+      "label": "A record's whole life — capture to archive, anonymisation, erasure",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.18 audit commitment",
+      "sourceLine": 46094,
+      "status": "not-represented",
+      "label": "An operator change and its audit event in one transaction",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.19 registry write",
+      "sourceLine": 46213,
+      "status": "not-represented",
+      "label": "A write, from either side, validated against the floor register",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.8 change and account lifecycle",
+      "sourceLine": 44739,
+      "status": "not-represented",
+      "label": "A change from proposal to effect, and an account from creation to disablement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 23.9 tenant lifecycle",
+      "sourceLine": 44939,
+      "status": "not-represented",
+      "label": "A tenant from invitation to archival",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 24 inventory row lifecycle",
+      "sourceLine": 46898,
+      "status": "not-represented",
+      "label": "How a row enters, changes, or leaves this inventory",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 24.3 master-data-to-record path",
+      "sourceLine": 47155,
+      "status": "not-represented",
+      "label": "The Delivery Operations Hub master-data-to-record path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 24.4 authoring-to-floor path",
+      "sourceLine": 47312,
+      "status": "not-represented",
+      "label": "The Standards and Operations Studio authoring-to-floor path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 24.5 exception-to-decision path",
+      "sourceLine": 47461,
+      "status": "not-represented",
+      "label": "The Client Command Center exception-to-decision path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 24.6 one run",
+      "sourceLine": 47592,
+      "status": "not-represented",
+      "label": "One run, from login to record",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered — 24.7 platform change",
+      "sourceLine": 47718,
+      "status": "not-represented",
+      "label": "A platform change from proposal to effect",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered-parity-suite",
+      "sourceLine": 23153,
+      "status": "not-represented",
+      "label": "The parity suite, as it runs",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unnumbered@L102347",
+      "sourceLine": 102347,
+      "status": "not-represented",
+      "label": "How the scheduled-work deliverables and registers are maintained (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L103234",
+      "sourceLine": 103234,
+      "status": "not-represented",
+      "label": "Resolving any read of tenant-scoped data (8 steps, three-layer model)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L103366",
+      "sourceLine": 103366,
+      "status": "not-represented",
+      "label": "The authorization decision, in order (12 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L103518",
+      "sourceLine": 103518,
+      "status": "not-represented",
+      "label": "A worker session on a shared tablet (9 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L103649",
+      "sourceLine": 103649,
+      "status": "not-represented",
+      "label": "The trust window over one offline shift (9 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L103785",
+      "sourceLine": 103785,
+      "status": "not-represented",
+      "label": "A tablet is reported missing (11 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L103932",
+      "sourceLine": 103932,
+      "status": "not-represented",
+      "label": "Package integrity from publication to execution, as recommended (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L104072",
+      "sourceLine": 104072,
+      "status": "not-represented",
+      "label": "The one-transaction audit guarantee at work (9 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L104211",
+      "sourceLine": 104211,
+      "status": "not-represented",
+      "label": "The maker-checker cycle for opening break-glass access (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L104359",
+      "sourceLine": 104359,
+      "status": "not-represented",
+      "label": "The lifecycle of one capture (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L104508",
+      "sourceLine": 104508,
+      "status": "not-represented",
+      "label": "Hostile text arrives in a deviation note (9 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L104646",
+      "sourceLine": 104646,
+      "status": "not-represented",
+      "label": "The maker-checker cycle for a privileged schedule operation (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L104799",
+      "sourceLine": 104799,
+      "status": "not-represented",
+      "label": "The maker-checker cycle end to end (11 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L105118",
+      "sourceLine": 105118,
+      "status": "not-represented",
+      "label": "The incident-response process (6 phases: detect, declare and classify, contain, preserve, communicate, recover and review)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L105129",
+      "sourceLine": 105129,
+      "status": "not-represented",
+      "label": "A suspected cross-tenant exposure (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L105267",
+      "sourceLine": 105267,
+      "status": "not-represented",
+      "label": "How the deep security pass dependency is discharged (7 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L105624",
+      "sourceLine": 105624,
+      "status": "not-represented",
+      "label": "How a performance target is set and validated",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L105734",
+      "sourceLine": 105734,
+      "status": "not-represented",
+      "label": "Capacity management as a recurring act",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L105849",
+      "sourceLine": 105849,
+      "status": "not-represented",
+      "label": "An outage from the floor's point of view",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L105971",
+      "sourceLine": 105971,
+      "status": "not-represented",
+      "label": "A device's offline endurance, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L106094",
+      "sourceLine": 106094,
+      "status": "not-represented",
+      "label": "Proving a fifteen-year-old record",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L106407",
+      "sourceLine": 106407,
+      "status": "not-represented",
+      "label": "Publishing in two languages",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L106528",
+      "sourceLine": 106528,
+      "status": "not-represented",
+      "label": "From device profile to published specification",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L106660",
+      "sourceLine": 106660,
+      "status": "not-represented",
+      "label": "How a problem becomes visible",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L106778",
+      "sourceLine": 106778,
+      "status": "not-represented",
+      "label": "A scheduled occurrence, measured",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L106912",
+      "sourceLine": 106912,
+      "status": "not-represented",
+      "label": "A platform change reaching a floor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L107323",
+      "sourceLine": 107323,
+      "status": "not-represented",
+      "label": "Observability workflow for a single signal",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L107393",
+      "sourceLine": 107393,
+      "status": "not-represented",
+      "label": "From a health signal to a health verdict",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L107467",
+      "sourceLine": 107467,
+      "status": "not-represented",
+      "label": "Watching a capture from the floor to the record",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L107565",
+      "sourceLine": 107565,
+      "status": "not-represented",
+      "label": "One scheduled occurrence, observed",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L107742",
+      "sourceLine": 107742,
+      "status": "not-represented",
+      "label": "From threshold to acknowledged alert",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L107825",
+      "sourceLine": 107825,
+      "status": "not-represented",
+      "label": "A normal support session end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L107914",
+      "sourceLine": 107914,
+      "status": "not-represented",
+      "label": "An incident from detection to corrective action",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L107991",
+      "sourceLine": 107991,
+      "status": "not-represented",
+      "label": "The shape of a release on this platform",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L108142",
+      "sourceLine": 108142,
+      "status": "not-represented",
+      "label": "Changing a Schedule Definition safely",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L108228",
+      "sourceLine": 108228,
+      "status": "not-represented",
+      "label": "A scheduler deployment that cannot double-fire",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L108302",
+      "sourceLine": 108302,
+      "status": "not-represented",
+      "label": "What happens when a device with mixed versions syncs",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L108380",
+      "sourceLine": 108380,
+      "status": "not-represented",
+      "label": "A staged application rollout using only what exists",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L108449",
+      "sourceLine": 108449,
+      "status": "not-represented",
+      "label": "Deciding and executing a rollback",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L108531",
+      "sourceLine": 108531,
+      "status": "not-represented",
+      "label": "A rollout and a rollback as experienced by one offline device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L108621",
+      "sourceLine": 108621,
+      "status": "not-represented",
+      "label": "Closing out a deployment",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L108719",
+      "sourceLine": 108719,
+      "status": "not-represented",
+      "label": "How a requirement becomes accepted work",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L108788",
+      "sourceLine": 108788,
+      "status": "not-represented",
+      "label": "Resolving an orphan",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L19962",
+      "sourceLine": 19962,
+      "status": "not-represented",
+      "label": "Resolving one action request (permission resolution order)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L20082",
+      "sourceLine": 20082,
+      "status": "not-represented",
+      "label": "Platform and tenant role coexistence under recommended option (a)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L20263",
+      "sourceLine": 20263,
+      "status": "not-represented",
+      "label": "A Workflow from authoring to the floor, with the separation checks named",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L20396",
+      "sourceLine": 20396,
+      "status": "not-represented",
+      "label": "The no-substitute ladder",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L20589",
+      "sourceLine": 20589,
+      "status": "not-represented",
+      "label": "A revocation propagating across a mixed fleet",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L20695",
+      "sourceLine": 20695,
+      "status": "not-represented",
+      "label": "How one authorization decision is produced, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L20943",
+      "sourceLine": 20943,
+      "status": "not-represented",
+      "label": "A single write traced through the enforcement points (lot hold release)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L21021",
+      "sourceLine": 21021,
+      "status": "not-represented",
+      "label": "A platform change from proposal to effect",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L21439",
+      "sourceLine": 21439,
+      "status": "not-represented",
+      "label": "A support session, from request to reconciliation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L21561",
+      "sourceLine": 21561,
+      "status": "not-represented",
+      "label": "An emergency pause, told honestly",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L21860",
+      "sourceLine": 21860,
+      "status": "not-represented",
+      "label": "How a tenant identity acquires and loses authority",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L22470",
+      "sourceLine": 22470,
+      "status": "not-represented",
+      "label": "A Severity 1 hold, from capture to reconciliation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L23017",
+      "sourceLine": 23017,
+      "status": "not-represented",
+      "label": "Running the coverage check",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L29765",
+      "sourceLine": 29765,
+      "status": "not-represented",
+      "label": "Regulated-Industry mode happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L29932",
+      "sourceLine": 29932,
+      "status": "not-represented",
+      "label": "Standard report data set request through the Custom Report Builder",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L30081",
+      "sourceLine": 30081,
+      "status": "not-represented",
+      "label": "Parts registry bulk load and step reference",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L30204",
+      "sourceLine": 30204,
+      "status": "not-represented",
+      "label": "The full operational edge sequence, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L30300",
+      "sourceLine": 30300,
+      "status": "not-represented",
+      "label": "Setting a tenant configuration value",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L30617",
+      "sourceLine": 30617,
+      "status": "not-represented",
+      "label": "The upstream path from authoring to floor (fifteen steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L30714",
+      "sourceLine": 30714,
+      "status": "not-represented",
+      "label": "How a new capability reaches a tenant's authoring surface (ten steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L31018",
+      "sourceLine": 31018,
+      "status": "not-represented",
+      "label": "A typical authoring session's navigation path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L31262",
+      "sourceLine": 31262,
+      "status": "not-represented",
+      "label": "A publication crossing an offline device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L33324",
+      "sourceLine": 33324,
+      "status": "not-represented",
+      "label": "Three-stage approval chain happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L33869",
+      "sourceLine": 33869,
+      "status": "not-represented",
+      "label": "Work package build, delivery, pinning and offline execution",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L34063",
+      "sourceLine": 34063,
+      "status": "not-represented",
+      "label": "Composing and deploying a reasoning agent",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L34249",
+      "sourceLine": 34249,
+      "status": "not-represented",
+      "label": "Two-lane learning loop",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L38103",
+      "sourceLine": 38103,
+      "status": "not-represented",
+      "label": "Sync-conflict detection, resolution, review",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L38311",
+      "sourceLine": 38311,
+      "status": "not-represented",
+      "label": "Report format authoring, scheduled delivery and material correction",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L38502",
+      "sourceLine": 38502,
+      "status": "not-represented",
+      "label": "Shift handoff brief production, acknowledgement and annotation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L38725",
+      "sourceLine": 38725,
+      "status": "not-represented",
+      "label": "The common path for all ten operational actions",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L39034",
+      "sourceLine": 39034,
+      "status": "not-represented",
+      "label": "The life of one piece of work through the Frontline surface",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L39290",
+      "sourceLine": 39290,
+      "status": "not-represented",
+      "label": "Introducing a new work domain without changing the application",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L39452",
+      "sourceLine": 39452,
+      "status": "not-represented",
+      "label": "How an exclusion request is handled",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L39579",
+      "sourceLine": 39579,
+      "status": "not-represented",
+      "label": "One capture crossing the boundary upward",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L39674",
+      "sourceLine": 39674,
+      "status": "not-represented",
+      "label": "A command from decision to effect",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L39979",
+      "sourceLine": 39979,
+      "status": "not-represented",
+      "label": "A shift's navigation, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L40932",
+      "sourceLine": 40932,
+      "status": "not-represented",
+      "label": "Detection, classification, hold, containment, escalation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L41131",
+      "sourceLine": 41131,
+      "status": "not-represented",
+      "label": "Offline and sync engine across a connectivity gap (three-pass reconnection)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L42259",
+      "sourceLine": 42259,
+      "status": "not-represented",
+      "label": "Traceability across one rework cycle",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L42350",
+      "sourceLine": 42350,
+      "status": "not-represented",
+      "label": "A Spanish-preferring worker's shift (localisation across four layers)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L42428",
+      "sourceLine": 42428,
+      "status": "not-represented",
+      "label": "Validating rendering against the constraints",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L42510",
+      "sourceLine": 42510,
+      "status": "not-represented",
+      "label": "A device from procurement to retirement",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L42600",
+      "sourceLine": 42600,
+      "status": "not-represented",
+      "label": "How an engineering design item closes",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L42925",
+      "sourceLine": 42925,
+      "status": "not-represented",
+      "label": "From a signal to a platform incident",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L43118",
+      "sourceLine": 43118,
+      "status": "not-represented",
+      "label": "An atom from migration to a tenant's floor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L43301",
+      "sourceLine": 43301,
+      "status": "not-represented",
+      "label": "A tenant-composed agent from submission to floor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L43485",
+      "sourceLine": 43485,
+      "status": "not-represented",
+      "label": "A Lane-B proposal from evidence to a device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L43669",
+      "sourceLine": 43669,
+      "status": "not-represented",
+      "label": "Scenario to gate verdict",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L43839",
+      "sourceLine": 43839,
+      "status": "not-represented",
+      "label": "From an agent run to a fifteen-year-old explanation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L43996",
+      "sourceLine": 43996,
+      "status": "not-represented",
+      "label": "A settings change from intent to effect",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L44469",
+      "sourceLine": 44469,
+      "status": "not-represented",
+      "label": "Severity catalog change workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L44500",
+      "sourceLine": 44500,
+      "status": "not-represented",
+      "label": "Locale pack publication workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L71701",
+      "sourceLine": 71701,
+      "status": "not-represented",
+      "label": "The validation pipeline for any material action (15 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L71814",
+      "sourceLine": 71814,
+      "status": "not-represented",
+      "label": "How a validation dimension is added or changed (6 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L71969",
+      "sourceLine": 71969,
+      "status": "not-represented",
+      "label": "Evaluating a restriction (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72066",
+      "sourceLine": 72066,
+      "status": "not-represented",
+      "label": "A tier downgrade request (8 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72136",
+      "sourceLine": 72136,
+      "status": "not-represented",
+      "label": "Editing a shift (8 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72206",
+      "sourceLine": 72206,
+      "status": "not-represented",
+      "label": "From expiry warning to cleared step (11 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72285",
+      "sourceLine": 72285,
+      "status": "not-represented",
+      "label": "A Job from creation to an active run (12 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72383",
+      "sourceLine": 72383,
+      "status": "not-represented",
+      "label": "Publishing a notified-class version (11 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72461",
+      "sourceLine": 72461,
+      "status": "not-represented",
+      "label": "One capture from entry to reconciliation (11 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72539",
+      "sourceLine": 72539,
+      "status": "not-represented",
+      "label": "A Severity 1 event from capture to release (12 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72614",
+      "sourceLine": 72614,
+      "status": "not-represented",
+      "label": "Saving a notification policy change (9 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72687",
+      "sourceLine": 72687,
+      "status": "not-represented",
+      "label": "A Lane B proposal from evidence to distribution (9 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72759",
+      "sourceLine": 72759,
+      "status": "not-represented",
+      "label": "A support session (8 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L72931",
+      "sourceLine": 72931,
+      "status": "not-represented",
+      "label": "How a category becomes a live notification (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L73198",
+      "sourceLine": 73198,
+      "status": "not-represented",
+      "label": "Channel selection for one notification (8 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L73436",
+      "sourceLine": 73436,
+      "status": "not-represented",
+      "label": "The fifteen revalidation and opening steps (notification click)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L73527",
+      "sourceLine": 73527,
+      "status": "not-represented",
+      "label": "Resolving recipients for one escalation (13 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L73604",
+      "sourceLine": 73604,
+      "status": "not-represented",
+      "label": "The escalation ladder (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L73678",
+      "sourceLine": 73678,
+      "status": "not-represented",
+      "label": "A user changing preferences (7 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L73736",
+      "sourceLine": 73736,
+      "status": "not-represented",
+      "label": "A worker offline through a notification event (10 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L73995",
+      "sourceLine": 73995,
+      "status": "not-represented",
+      "label": "Writing an audit event safely (6 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74048",
+      "sourceLine": 74048,
+      "status": "not-represented",
+      "label": "How audit coverage is verified (6 steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74182",
+      "sourceLine": 74182,
+      "status": "not-represented",
+      "label": "A role reading the audit log (6 steps)",
+      "collapsedFrom": 2,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74309",
+      "sourceLine": 74309,
+      "status": "not-represented",
+      "label": "Correcting a recorded value after submission",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74378",
+      "sourceLine": 74378,
+      "status": "not-represented",
+      "label": "An offline action through to reconciliation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74450",
+      "sourceLine": 74450,
+      "status": "not-represented",
+      "label": "Auditing one agent contribution",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74520",
+      "sourceLine": 74520,
+      "status": "not-represented",
+      "label": "The notification audit trail for one escalation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74591",
+      "sourceLine": 74591,
+      "status": "not-represented",
+      "label": "A compliance-emergency session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74659",
+      "sourceLine": 74659,
+      "status": "not-represented",
+      "label": "Assembling an incident timeline",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74721",
+      "sourceLine": 74721,
+      "status": "not-represented",
+      "label": "Exporting the tenant log",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74788",
+      "sourceLine": 74788,
+      "status": "not-represented",
+      "label": "A record's life (retention)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L74896",
+      "sourceLine": 74896,
+      "status": "not-represented",
+      "label": "An audit-store outage",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L75141",
+      "sourceLine": 75141,
+      "status": "not-represented",
+      "label": "The charter-level onboarding sequence",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L75270",
+      "sourceLine": 75270,
+      "status": "not-represented",
+      "label": "Tenant record creation, tier assignment, data-space provisioning and handoff",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L75370",
+      "sourceLine": 75370,
+      "status": "not-represented",
+      "label": "Implementation authoring capacity lifecycle",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L75468",
+      "sourceLine": 75468,
+      "status": "not-represented",
+      "label": "Assessment of the tenant's existing operational content",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L75557",
+      "sourceLine": 75557,
+      "status": "not-represented",
+      "label": "First Tenant Admin invitation, acceptance, authentication and activation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L75678",
+      "sourceLine": 75678,
+      "status": "not-represented",
+      "label": "The Tenant Admin's configuration order (fifteen steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L75789",
+      "sourceLine": 75789,
+      "status": "not-represented",
+      "label": "Onboarding the Supervisor, Quality Manager, Read-only Auditor and Worker",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L75912",
+      "sourceLine": 75912,
+      "status": "not-represented",
+      "label": "Worker qualification and readiness",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L76008",
+      "sourceLine": 76008,
+      "status": "not-represented",
+      "label": "Device enrollment and offline preparation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L76102",
+      "sourceLine": 76102,
+      "status": "not-represented",
+      "label": "Platform-side onboarding of the four console roles",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L76242",
+      "sourceLine": 76242,
+      "status": "not-represented",
+      "label": "The life of one Workflow, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L76338",
+      "sourceLine": 76338,
+      "status": "not-represented",
+      "label": "How authority is established for one submission",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L76435",
+      "sourceLine": 76435,
+      "status": "not-represented",
+      "label": "How the specification and evaluation gates are armed and verified",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L76634",
+      "sourceLine": 76634,
+      "status": "not-represented",
+      "label": "Draft, submission, review, approval and return",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L76727",
+      "sourceLine": 76727,
+      "status": "not-represented",
+      "label": "Publication to device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L76821",
+      "sourceLine": 76821,
+      "status": "not-represented",
+      "label": "An offline capture, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L76989",
+      "sourceLine": 76989,
+      "status": "not-represented",
+      "label": "Assisted authoring",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L77089",
+      "sourceLine": 77089,
+      "status": "not-represented",
+      "label": "A qualification requirement change moving through the population",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L77269",
+      "sourceLine": 77269,
+      "status": "not-represented",
+      "label": "Authoring, validation and the editorial leg",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L77363",
+      "sourceLine": 77363,
+      "status": "not-represented",
+      "label": "A republish, classified",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L84888",
+      "sourceLine": 84888,
+      "status": "not-represented",
+      "label": "Taxonomy sweep",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L85038",
+      "sourceLine": 85038,
+      "status": "not-represented",
+      "label": "Manual episode",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L85303",
+      "sourceLine": 85303,
+      "status": "not-represented",
+      "label": "Capture to record",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L85304",
+      "sourceLine": 85304,
+      "status": "not-represented",
+      "label": "Deviation to containment to release",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L85305",
+      "sourceLine": 85305,
+      "status": "not-represented",
+      "label": "Assignment to execution",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L85306",
+      "sourceLine": 85306,
+      "status": "not-represented",
+      "label": "Authoring to publication",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L85307",
+      "sourceLine": 85307,
+      "status": "not-represented",
+      "label": "Approval and governance decisions",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L85308",
+      "sourceLine": 85308,
+      "status": "not-represented",
+      "label": "Notification and escalation delivery",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L85309",
+      "sourceLine": 85309,
+      "status": "not-represented",
+      "label": "Scheduled lifecycle operations",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L85310",
+      "sourceLine": 85310,
+      "status": "not-represented",
+      "label": "Platform administration and critical-class change",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L86189",
+      "sourceLine": 86189,
+      "status": "not-represented",
+      "label": "One orchestrator run",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L86848",
+      "sourceLine": 86848,
+      "status": "not-represented",
+      "label": "An atom from conception to a tenant's floor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L87254",
+      "sourceLine": 87254,
+      "status": "not-represented",
+      "label": "One gated intervention, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L87691",
+      "sourceLine": 87691,
+      "status": "not-represented",
+      "label": "Lane B from signal to floor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L87818",
+      "sourceLine": 87818,
+      "status": "not-represented",
+      "label": "Emergency pause and its resume",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L88032",
+      "sourceLine": 88032,
+      "status": "not-represented",
+      "label": "Generic lifecycle every AI object follows",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L88585",
+      "sourceLine": 88585,
+      "status": "not-represented",
+      "label": "Composed agent — composition to deployment (eight numbered steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L89016",
+      "sourceLine": 89016,
+      "status": "not-represented",
+      "label": "Chapter 42 — how the connectivity boundary is exercised end to end (eight steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L89512",
+      "sourceLine": 89512,
+      "status": "not-represented",
+      "label": "Worker asks for help while offline — the twenty-two-step behaviour",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L89825",
+      "sourceLine": 89825,
+      "status": "not-represented",
+      "label": "Chapter 43 — how a failure is handled end to end (eight steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L90110",
+      "sourceLine": 90110,
+      "status": "not-represented",
+      "label": "Provider-layer failure workflow (nine steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L90239",
+      "sourceLine": 90239,
+      "status": "not-represented",
+      "label": "Orchestration failure workflow (seven steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L90361",
+      "sourceLine": 90361,
+      "status": "not-represented",
+      "label": "Retrieval failure workflow (eight steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L90497",
+      "sourceLine": 90497,
+      "status": "not-represented",
+      "label": "Governance-layer failure workflow (seven steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L90612",
+      "sourceLine": 90612,
+      "status": "not-represented",
+      "label": "Edge (connectivity/device) failure workflow (six steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L90716",
+      "sourceLine": 90716,
+      "status": "not-represented",
+      "label": "Reconciliation workflow (eight steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L90872",
+      "sourceLine": 90872,
+      "status": "not-represented",
+      "label": "Run summary assembled during an artificial-intelligence outage (eight steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L90956",
+      "sourceLine": 90956,
+      "status": "not-represented",
+      "label": "Publishing while artificial-intelligence drafting is unavailable (nine steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L91045",
+      "sourceLine": 91045,
+      "status": "not-represented",
+      "label": "Client Command Center — a shift with an artificial-intelligence outage (eight steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L91142",
+      "sourceLine": 91142,
+      "status": "not-represented",
+      "label": "Frontline — an artificial-intelligence failure during a run (nine steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L91244",
+      "sourceLine": 91244,
+      "status": "not-represented",
+      "label": "Super Admin — the platform team's incident sequence (ten steps)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L95438",
+      "sourceLine": 95438,
+      "status": "not-represented",
+      "label": "How a candidate integration is admitted or refused",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L95539",
+      "sourceLine": 95539,
+      "status": "not-represented",
+      "label": "How the narrow integration surface is enforced per release",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L95786",
+      "sourceLine": 95786,
+      "status": "not-represented",
+      "label": "Tenant staff sign-in by identity provider",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L95959",
+      "sourceLine": 95959,
+      "status": "not-represented",
+      "label": "An escalation reaches Sam by email",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L96103",
+      "sourceLine": 96103,
+      "status": "not-represented",
+      "label": "An agent run that crosses the AI boundary",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L96241",
+      "sourceLine": 96241,
+      "status": "not-represented",
+      "label": "A coaching asset from upload to retrieval",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L96377",
+      "sourceLine": 96377,
+      "status": "not-represented",
+      "label": "An inbound ERP attempt at the first version",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L96509",
+      "sourceLine": 96509,
+      "status": "not-represented",
+      "label": "A period's usage from event to the client's commercial systems",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L96750",
+      "sourceLine": 96750,
+      "status": "not-represented",
+      "label": "Running the integration failure and fallback matrix during an incident",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L96913",
+      "sourceLine": 96913,
+      "status": "not-represented",
+      "label": "Classifying a new field during design",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L97121",
+      "sourceLine": 97121,
+      "status": "not-represented",
+      "label": "A platform support session",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L97327",
+      "sourceLine": 97327,
+      "status": "not-represented",
+      "label": "A retention change, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L97437",
+      "sourceLine": 97437,
+      "status": "not-represented",
+      "label": "Placing and releasing a legal hold",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L97544",
+      "sourceLine": 97544,
+      "status": "not-represented",
+      "label": "An anonymisation event",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L97649",
+      "sourceLine": 97649,
+      "status": "not-represented",
+      "label": "A right-to-erasure request end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L97771",
+      "sourceLine": 97771,
+      "status": "not-represented",
+      "label": "Producing an audit export for an external auditor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L97873",
+      "sourceLine": 97873,
+      "status": "not-represented",
+      "label": "The quarterly three-way reconciliation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L97995",
+      "sourceLine": 97995,
+      "status": "not-represented",
+      "label": "The chronological life of one scheduled work item",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L98122",
+      "sourceLine": 98122,
+      "status": "not-represented",
+      "label": "The scheduled-work discovery pass",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unnumbered@L98455",
+      "sourceLine": 98455,
+      "status": "not-represented",
+      "label": "Deciding that cron is wrong",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated (SB-OWN-004 chronological workflow)",
+      "sourceLine": 13510,
+      "status": "not-represented",
+      "label": "Applying the never-own register to a proposal",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unstated (measurement lifecycle)",
+      "sourceLine": 13632,
+      "status": "not-represented",
+      "label": "The full lifecycle of one measurement across every seam",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": false
+    },
+    {
+      "id": "unstated@L10242",
+      "sourceLine": 10242,
+      "status": "not-represented",
+      "label": "How to use these matrices in a review",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L10723",
+      "sourceLine": 10723,
+      "status": "not-represented",
+      "label": "How one piece of work crosses all five surfaces (the canonical traverse)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L10865",
+      "sourceLine": 10865,
+      "status": "not-represented",
+      "label": "Establishing a working interaction chain for one Job",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L10975",
+      "sourceLine": 10975,
+      "status": "not-represented",
+      "label": "How a new capability is placed against the charters",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L11093",
+      "sourceLine": 11093,
+      "status": "not-represented",
+      "label": "The Hub's day",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L11217",
+      "sourceLine": 11217,
+      "status": "not-represented",
+      "label": "Authoring to publication",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L11342",
+      "sourceLine": 11342,
+      "status": "not-represented",
+      "label": "An in-shift decision, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L11472",
+      "sourceLine": 11472,
+      "status": "not-represented",
+      "label": "A run on the floor",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L11618",
+      "sourceLine": 11618,
+      "status": "not-represented",
+      "label": "A Platform Engineer change, from proposal to effect",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L11755",
+      "sourceLine": 11755,
+      "status": "not-represented",
+      "label": "Changing a tenant setting",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L11878",
+      "sourceLine": 11878,
+      "status": "not-represented",
+      "label": "Authority descending through the tiers for one capability",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L11991",
+      "sourceLine": 11991,
+      "status": "not-represented",
+      "label": "Composing a reasoning agent inside the boundary",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L12104",
+      "sourceLine": 12104,
+      "status": "not-represented",
+      "label": "What happens when a tenant asks for a Tier-1 change",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L12216",
+      "sourceLine": 12216,
+      "status": "not-represented",
+      "label": "One capture up and one command down",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L12375",
+      "sourceLine": 12375,
+      "status": "not-represented",
+      "label": "Composing and validating one envelope",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L12494",
+      "sourceLine": 12494,
+      "status": "not-represented",
+      "label": "A step-away event",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L12604",
+      "sourceLine": 12604,
+      "status": "not-represented",
+      "label": "A qualification clearance, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L12736",
+      "sourceLine": 12736,
+      "status": "not-represented",
+      "label": "How honesty is rendered through one intervention",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L12856",
+      "sourceLine": 12856,
+      "status": "not-represented",
+      "label": "Validating a proposed value",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L12982",
+      "sourceLine": 12982,
+      "status": "not-represented",
+      "label": "Releasing a change across the deployment shape",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L13107",
+      "sourceLine": 13107,
+      "status": "not-represented",
+      "label": "Resolving an ownership question",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L13369",
+      "sourceLine": 13369,
+      "status": "not-represented",
+      "label": "Using the matrix to design one capability",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L34886",
+      "sourceLine": 34886,
+      "status": "not-represented",
+      "label": "How the three boundaries are enforced at runtime",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L35063",
+      "sourceLine": 35063,
+      "status": "not-represented",
+      "label": "Landing resolution at session open",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L35935",
+      "sourceLine": 35935,
+      "status": "not-represented",
+      "label": "Computing and rendering the freshness marker",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L36004",
+      "sourceLine": 36004,
+      "status": "not-represented",
+      "label": "The connectivity-loss protocol as the Command Center renders it",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L36078",
+      "sourceLine": 36078,
+      "status": "not-represented",
+      "label": "Late data landing against a figure someone already read",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L36156",
+      "sourceLine": 36156,
+      "status": "not-represented",
+      "label": "A run's completion as the Command Center renders it",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L36284",
+      "sourceLine": 36284,
+      "status": "not-represented",
+      "label": "Live shift board happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L36673",
+      "sourceLine": 36673,
+      "status": "not-represented",
+      "label": "Run and exception drill-down happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L36857",
+      "sourceLine": 36857,
+      "status": "not-represented",
+      "label": "Deviation workspace happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L37099",
+      "sourceLine": 37099,
+      "status": "not-represented",
+      "label": "Governance gate queue happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L37313",
+      "sourceLine": 37313,
+      "status": "not-represented",
+      "label": "Learned-change (Lane B) approval happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L37523",
+      "sourceLine": 37523,
+      "status": "not-represented",
+      "label": "Feedback signal capture happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L37686",
+      "sourceLine": 37686,
+      "status": "not-represented",
+      "label": "Agent activity panel happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L37883",
+      "sourceLine": 37883,
+      "status": "not-represented",
+      "label": "Alert and escalation feed happy path",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L6498",
+      "sourceLine": 6498,
+      "status": "not-represented",
+      "label": "Sweeping a chapter against the abbreviation register",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L6628",
+      "sourceLine": 6628,
+      "status": "not-represented",
+      "label": "The glossary maintenance cycle",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L6738",
+      "sourceLine": 6738,
+      "status": "not-represented",
+      "label": "How an object comes into being and travels",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L6952",
+      "sourceLine": 6952,
+      "status": "not-represented",
+      "label": "The numbered ownership resolution workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L7068",
+      "sourceLine": 7068,
+      "status": "not-represented",
+      "label": "Run record lifecycle chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L7153",
+      "sourceLine": 7153,
+      "status": "not-represented",
+      "label": "Job lifecycle chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L7237",
+      "sourceLine": 7237,
+      "status": "not-represented",
+      "label": "Workflow version lifecycle chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L7321",
+      "sourceLine": 7321,
+      "status": "not-represented",
+      "label": "Deviation and Hold chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L7434",
+      "sourceLine": 7434,
+      "status": "not-represented",
+      "label": "One capture, up and back down (envelope and command channel)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L7614",
+      "sourceLine": 7614,
+      "status": "not-represented",
+      "label": "Tenancy and commercial chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L7772",
+      "sourceLine": 7772,
+      "status": "not-represented",
+      "label": "Master data chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L7970",
+      "sourceLine": 7970,
+      "status": "not-represented",
+      "label": "Work definition and execution chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L8318",
+      "sourceLine": 8318,
+      "status": "not-represented",
+      "label": "Identity, qualification and device chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L8561",
+      "sourceLine": 8561,
+      "status": "not-represented",
+      "label": "Authoring, content and package chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L8950",
+      "sourceLine": 8950,
+      "status": "not-represented",
+      "label": "Quality event, governance and decision chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L91646",
+      "sourceLine": 91646,
+      "status": "not-represented",
+      "label": "The chronological workflow of a Prevention Agent degradation",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L9177",
+      "sourceLine": 9177,
+      "status": "not-represented",
+      "label": "Communication, reporting and handoff chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L91871",
+      "sourceLine": 91871,
+      "status": "not-represented",
+      "label": "The offline deviation, end to end",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L92135",
+      "sourceLine": 92135,
+      "status": "not-represented",
+      "label": "Shift handoff assembly and delivery",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L92455",
+      "sourceLine": 92455,
+      "status": "not-represented",
+      "label": "Vision-assisted inspection step",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L93289",
+      "sourceLine": 93289,
+      "status": "not-represented",
+      "label": "Reconnection sync in three phases (DEC-SYNC-001 adopted)",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L93293",
+      "sourceLine": 93293,
+      "status": "not-represented",
+      "label": "Quality Manager hold release after reconnection",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L93461",
+      "sourceLine": 93461,
+      "status": "not-represented",
+      "label": "Command issue to an offline device",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L9362",
+      "sourceLine": 9362,
+      "status": "not-represented",
+      "label": "Agentic platform chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L94060",
+      "sourceLine": 94060,
+      "status": "not-represented",
+      "label": "Model rollback under maker-checker",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L94229",
+      "sourceLine": 94229,
+      "status": "not-represented",
+      "label": "Per-tenant or platform-wide emergency pause and resume",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L94651",
+      "sourceLine": 94651,
+      "status": "not-represented",
+      "label": "Storage pressure shedding cascade",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L95239",
+      "sourceLine": 95239,
+      "status": "not-represented",
+      "label": "Agent-versus-record conflict resolution",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L9689",
+      "sourceLine": 9689,
+      "status": "not-represented",
+      "label": "Access, audit and lifecycle chronological workflow",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    },
+    {
+      "id": "unstated@L9997",
+      "sourceLine": 9997,
+      "status": "not-represented",
+      "label": "Scheduled-work chronological workflow for one piece of scheduled work",
+      "collapsedFrom": 1,
+      "idIsPlaceholder": true
+    }
+  ]
+}

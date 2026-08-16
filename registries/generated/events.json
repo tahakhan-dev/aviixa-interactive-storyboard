@@ -1,0 +1,150 @@
+{
+  "slug": "events",
+  "countedThing": "EVT-* identifiers found in the identifier index; no closed event-count register exists in the frozen source, and no names were extracted for this family.",
+  "reconciledCount": null,
+  "rawCount": 28,
+  "dedupRule": null,
+  "sourceFixesNoTotal": true,
+  "rows": [
+    {
+      "id": "EVT-CAP-001",
+      "sourceLine": 51037,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-CAP-002",
+      "sourceLine": 51037,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-CAP-003",
+      "sourceLine": 51037,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-CAP-004",
+      "sourceLine": 51054,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-CAP-005",
+      "sourceLine": 51045,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-CAP-006",
+      "sourceLine": 51037,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-CAP-007",
+      "sourceLine": 51037,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-CAP-008",
+      "sourceLine": 51045,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-CAP-009",
+      "sourceLine": 51045,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-CONN-30MIN",
+      "sourceLine": 62503,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-DOH-NOSHOW-15",
+      "sourceLine": 26177,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-DOH-NOSHOW-30",
+      "sourceLine": 26178,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-OPS-001",
+      "sourceLine": 51177,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-OPS-002",
+      "sourceLine": 51037,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-OPS-003",
+      "sourceLine": 51179,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-OPS-004",
+      "sourceLine": 51180,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-001",
+      "sourceLine": 51037,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-002",
+      "sourceLine": 51182,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-003",
+      "sourceLine": 51183,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-004",
+      "sourceLine": 51184,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-005",
+      "sourceLine": 51037,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-006",
+      "sourceLine": 51186,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-007",
+      "sourceLine": 51187,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-008",
+      "sourceLine": 51188,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-009",
+      "sourceLine": 51189,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-010",
+      "sourceLine": 51037,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-011",
+      "sourceLine": 51191,
+      "status": "not-represented"
+    },
+    {
+      "id": "EVT-SRV-012",
+      "sourceLine": 51192,
+      "status": "not-represented"
+    }
+  ]
+}

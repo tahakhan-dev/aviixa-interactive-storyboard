@@ -1,0 +1,360 @@
+{
+  "slug": "offline-scenarios",
+  "countedThing": "the canonical offline use-case catalogue UC-OFF-001..UC-OFF-070, verified unique. No names were extracted for this family.",
+  "reconciledCount": 70,
+  "rawCount": 70,
+  "dedupRule": "UC-OFF-* identifiers only; 70 raw keys, all unique, zero delta from the canonical catalogue. The other OFF-* families (offline blockers, connectivity failure modes, offline events) are separate registers and are not included here.",
+  "sourceFixesNoTotal": false,
+  "rows": [
+    {
+      "id": "UC-OFF-001",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-002",
+      "sourceLine": 81306,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-003",
+      "sourceLine": 81312,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-004",
+      "sourceLine": 81314,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-005",
+      "sourceLine": 81316,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-006",
+      "sourceLine": 81318,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-007",
+      "sourceLine": 81320,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-008",
+      "sourceLine": 81322,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-009",
+      "sourceLine": 81324,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-010",
+      "sourceLine": 81218,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-011",
+      "sourceLine": 81219,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-012",
+      "sourceLine": 81354,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-013",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-014",
+      "sourceLine": 81354,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-015",
+      "sourceLine": 81364,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-016",
+      "sourceLine": 81366,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-017",
+      "sourceLine": 81368,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-018",
+      "sourceLine": 81370,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-019",
+      "sourceLine": 81372,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-020",
+      "sourceLine": 81219,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-021",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-022",
+      "sourceLine": 81404,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-023",
+      "sourceLine": 81410,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-024",
+      "sourceLine": 81412,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-025",
+      "sourceLine": 81414,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-026",
+      "sourceLine": 81416,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-027",
+      "sourceLine": 81418,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-028",
+      "sourceLine": 81420,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-029",
+      "sourceLine": 81422,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-030",
+      "sourceLine": 81220,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-031",
+      "sourceLine": 81221,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-032",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-033",
+      "sourceLine": 81454,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-034",
+      "sourceLine": 81462,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-035",
+      "sourceLine": 81454,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-036",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-037",
+      "sourceLine": 81454,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-038",
+      "sourceLine": 81490,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-039",
+      "sourceLine": 81492,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-040",
+      "sourceLine": 81221,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-041",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-042",
+      "sourceLine": 81528,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-043",
+      "sourceLine": 81534,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-044",
+      "sourceLine": 81536,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-045",
+      "sourceLine": 81538,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-046",
+      "sourceLine": 81540,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-047",
+      "sourceLine": 81528,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-048",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-049",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-050",
+      "sourceLine": 81222,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-051",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-052",
+      "sourceLine": 81617,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-053",
+      "sourceLine": 81623,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-054",
+      "sourceLine": 81617,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-055",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-056",
+      "sourceLine": 81617,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-057",
+      "sourceLine": 81649,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-058",
+      "sourceLine": 81651,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-059",
+      "sourceLine": 81651,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-060",
+      "sourceLine": 81223,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-061",
+      "sourceLine": 81224,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-062",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-063",
+      "sourceLine": 81681,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-064",
+      "sourceLine": 81689,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-065",
+      "sourceLine": 81691,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-066",
+      "sourceLine": 81693,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-067",
+      "sourceLine": 81695,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-068",
+      "sourceLine": 81697,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-069",
+      "sourceLine": 81681,
+      "status": "not-represented"
+    },
+    {
+      "id": "UC-OFF-070",
+      "sourceLine": 81212,
+      "status": "not-represented"
+    }
+  ]
+}
