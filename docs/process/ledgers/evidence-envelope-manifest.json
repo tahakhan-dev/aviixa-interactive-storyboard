@@ -1,14 +1,11 @@
 {
- "envelope_id": "cc265f20c67c5489",
- "candidate_id": "ffe0f802acce93df",
+ "envelope_id": "c87b86b170f9c40b",
+ "candidate_id": "b82d17a98a539730",
+ "slice": "2a",
  "verification": {
   "command": "pnpm verify",
   "exit_code": 0,
-  "unit": 165,
-  "component": 15,
-  "release": 11,
-  "e2e": 34,
-  "total": 225,
+  "total_tests": 349,
   "clean_rebuild": true
  },
  "payload_excludes_self": true,
@@ -25,8 +22,8 @@
   },
   {
    "path": "docs/process/ledgers/product-candidate-manifest.json",
-   "bytes": 7346,
-   "sha256": "1d363bcf7e0afc0b3757277d58e75d39d4f3154d42927117337f692df212497a"
+   "bytes": 13856,
+   "sha256": "314e78b3632431ffb3d1369e5a8ec5e5024c81cfff0b4d4cbca43cd711a66bb9"
   },
   {
    "path": "docs/process/ledgers/research-ledger.json",
