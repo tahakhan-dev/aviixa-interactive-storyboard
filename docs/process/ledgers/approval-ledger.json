@@ -98,6 +98,20 @@
    "scope_authorized": "Slice 2b approved WITH two binding reinforcements, both encoded before commit: (1) Section 7 -- coverage made BROWSABLE: fourteen registry index screens, the Workflow Index with per-workflow roles/objects/variant coverage, and a coverage dashboard, all fed from the runtime-validated registries so an on-screen count and the reconciliation share one source. Master prompt 9.6: a count with no browsable index behind it does not satisfy the requirement. This ADDED scope to 2b rather than deferring it to slice 13. (2) Section 8 -- production-grade engineering is the standard and does not relax; production-SYSTEM claims remain forbidden by 29.4 because this application has no backend and such claims would be false.",
    "gate_released": "Slice 2b design approval. Proceed to writing-plans.",
    "superseded_by": null
+  },
+  {
+   "decision_id": "APP-007",
+   "design_or_plan_version": "docs/superpowers/specs/2026-08-17-slice-02c-spec-closure-design.md",
+   "design_sha256": "fb82c5e96d80e1a98dfbbab60773f006c4235d1bd826a89ffcc50f59d2ce33b2",
+   "exact_question": "Slice 2c closure design: ten measured gaps against the approved slice 2b spec, each with its governing section and an acceptance criterion. Approve?",
+   "options": [
+    "Approve",
+    "Request changes"
+   ],
+   "user_response_evidence": "Client message 2026-08-17: 'go approve it and make sure it cover everything every workflow use cases each and everything and make sure it should be productionl level implementation'",
+   "scope_authorized": "Slice 2c approved WITH the coverage reinforcement encoded as ADDED SCOPE rather than acknowledged. Section 2.10 added: populate the remaining THIRTEEN registry indexes, which were empty shells while /workflows/ alone was populated in 2b. All fourteen are fillable from data already extracted -- three from the semantic extraction, ten from registries/raw/identifier-index.json (17,931 identifiers across 76 prefix families with line locators, produced by the first mechanical pass and never shipped). Count-scope discipline recorded as the hard part: the extraction keys 92 modules where the canonical inventory is 81, so every index must state what its number counts, carry the reconciled verdict where one exists, and say plainly where the source fixes no total.",
+   "gate_released": "Slice 2c design approval. Production-grade engineering standard and its boundary against production-system claims already bind via slice 2b spec section 8 and umbrella section 15; census closure binds via umbrella section 14. Not restated, still binding.",
+   "superseded_by": null
   }
  ],
  "pending_gates": [
