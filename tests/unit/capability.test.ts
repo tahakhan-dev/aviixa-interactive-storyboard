@@ -70,6 +70,58 @@ describe('persistence capability matrix', () => {
     }
   })
 
+  // BLOCKING 3: spec §5.3's table, row for row. The spec was amended (bb92eef)
+  // after the capability code landed (c1d2821) to permit `presentation` on
+  // the three RECOVERABLE failure exits (quota-limited, upgrade-blocked,
+  // migration-failed-read-only) -- it touches no durable store, so blocking
+  // it buys no safety. `persistence-denied` and `corrupt-quarantined` stay
+  // at the two genuinely read-only classes, because store integrity is
+  // itself in question there. This test is the row-for-row backstop the
+  // spec asks for so the table can never silently drift from §5.3 again.
+  it('matches spec §5.3 exactly, row for row, for all eight table rows', () => {
+    const SPEC_5_3: Record<StorageBootstrapState | 'every in-progress state', readonly ActionClass[]> = {
+      'ready-durable': [...SAFE, ...DURABLE],
+      'ephemeral-preview': SAFE,
+      'quota-limited': ['navigate', 'readFixture', 'presentation'],
+      'upgrade-blocked': ['navigate', 'readFixture', 'presentation'],
+      'migration-failed-read-only': ['navigate', 'readFixture', 'presentation'],
+      'persistence-denied': ['navigate', 'readFixture'],
+      'corrupt-quarantined': ['navigate', 'readFixture'],
+      'every in-progress state': [],
+      // Every in-progress state shares row 8's answer (none); listed
+      // individually here only so every declared union member is checked.
+      'uninitialized': [],
+      'client-mounted': [],
+      opening: [],
+      reading: [],
+      'runtime-validating': [],
+      'checksum-verifying': [],
+      migrating: [],
+    }
+    const ALL_CLASSES: readonly ActionClass[] = [...SAFE, ...DURABLE]
+    for (const [state, permitted] of Object.entries(SPEC_5_3)) {
+      if (state === 'every in-progress state') continue
+      for (const action of ALL_CLASSES) {
+        expect(
+          permittedUnder(state as StorageBootstrapState, action),
+          `${state}/${action}`,
+        ).toBe(permitted.includes(action))
+      }
+    }
+  })
+
+  // §5.3's own stated reason: presentation touches no store at all, so it is
+  // the one safe class the spec singles out as recoverable on the three
+  // uncorrupted exits but still blocked where store integrity is in doubt.
+  it('permits presentation on the three recoverable exits, blocks it where store integrity is in question', () => {
+    for (const s of ['quota-limited', 'upgrade-blocked', 'migration-failed-read-only'] as const) {
+      expect(permittedUnder(s, 'presentation'), s).toBe(true)
+    }
+    for (const s of ['persistence-denied', 'corrupt-quarantined'] as const) {
+      expect(permittedUnder(s, 'presentation'), s).toBe(false)
+    }
+  })
+
   it('fails closed to false for a state outside the declared union, rather than throwing', () => {
     // `state` is typed as the closed StorageBootstrapState union, so every
     // legitimate caller is covered -- but permittedUnder is a boolean gate
