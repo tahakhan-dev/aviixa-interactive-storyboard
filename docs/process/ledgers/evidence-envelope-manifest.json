@@ -1,0 +1,47 @@
+{
+ "envelope_id": "cc265f20c67c5489",
+ "candidate_id": "ffe0f802acce93df",
+ "verification": {
+  "command": "pnpm verify",
+  "exit_code": 0,
+  "unit": 165,
+  "component": 15,
+  "release": 11,
+  "e2e": 34,
+  "total": 225,
+  "clean_rebuild": true
+ },
+ "payload_excludes_self": true,
+ "payload": [
+  {
+   "path": "docs/process/ledgers/approval-ledger.json",
+   "bytes": 6124,
+   "sha256": "928a42f80c49ad7c8a518eef671912f1a6cf6c016a4a91eab7a49eadc9f12cfd"
+  },
+  {
+   "path": "docs/process/ledgers/capability-preflight-matrix.json",
+   "bytes": 11355,
+   "sha256": "66ae6b2729095e769840ef5b928b9ac004c592cc4a1a8a51f1150db1ce2ce224"
+  },
+  {
+   "path": "docs/process/ledgers/product-candidate-manifest.json",
+   "bytes": 7346,
+   "sha256": "1d363bcf7e0afc0b3757277d58e75d39d4f3154d42927117337f692df212497a"
+  },
+  {
+   "path": "docs/process/ledgers/research-ledger.json",
+   "bytes": 11019,
+   "sha256": "774bf4be85d81f26eef7ae6f312ec27352ee12f61d213a0c15fe478055503314"
+  },
+  {
+   "path": "docs/process/source-reading/source-reading-ledger.json",
+   "bytes": 14285,
+   "sha256": "90055d30fe4d29844336068db03c98367b8eb9741343793dc43797afd71e5133"
+  },
+  {
+   "path": "registries/generated/source-reconciliation.json",
+   "bytes": 80446,
+   "sha256": "a94c7696ebb35ef098b4ba76aa67980e13fdc3569fff465f2e2074b82596a69f"
+  }
+ ]
+}
