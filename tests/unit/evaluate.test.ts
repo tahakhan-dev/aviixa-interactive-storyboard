@@ -148,4 +148,11 @@ describe('effective access evaluation', () => {
     )
     expect(d.stage).toBe('SESSION')
   })
+
+  // CRITICAL 2 red-proof: a TENANT-domain role with a null tenant must not
+  // be MORE privileged than one with a correct tenant.
+  it('CRITICAL 2 RED-PROOF: a null tenant on a TENANT-domain role is not a bypass', () => {
+    const d = evaluateAccess(releaseHold, ctx({ identity: identity({ tenant: null }) }))
+    expect(d.outcome).not.toBe('allowed')
+  })
 })

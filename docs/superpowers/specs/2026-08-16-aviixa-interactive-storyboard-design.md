@@ -514,33 +514,82 @@ never cryptographic authenticity, signer identity, or non-repudiation.
 
 ## 12. Inventory reconciliation
 
-Published in the coverage dashboard and the review package. Current state; rows
-still marked PENDING close when the 36-chunk extraction wave completes.
+**Status: CLOSED.** The complete frozen source was read in 36 lossless chunks
+(37 agents, zero errors, 122,242 lines covered exactly once). Full evidence:
+`registries/generated/source-reconciliation.json` — 13 reconciliation rows,
+66 invariants, 32 closed action sets, 42 state vocabularies, 45 residual
+contradictions, 25 implementation risks.
 
-| Inventory | Prompt candidate | Extracted | Count scope | Resolution |
-|---|---|---|---|---|
-| Surfaces | 5 | 5 | canonical surfaces | ✅ match |
-| Human role types | 9 | 9 (4 platform + 5 tenant) | fixed security roles | ✅ match; `DEC-COUNT-001` preserved |
-| Modules | 81 (19/19/18/13/12) | **81** | canonical `MOD-*`, excluding negative-assertion tokens | ✅ match. Raw grep 82; `MOD-SA-20` occurs only in `TEST-COV-111` asserting its absence. `AC-COV-112` confirms 01–19 |
-| Business objects | 41 | **99** `OBJ-*` | unique `OBJ-*` stable IDs | ⚠ delta +58 — differing count scope; frozen source wins. PENDING scope statement |
-| Workflows | 81 | **118** `WF-*` | unique `WF-*` stable IDs | ⚠ delta +37 — differing count scope; frozen source wins. **Never conflated with the 81 modules** |
-| Events | 30 | 28 `EVT-*` | unique `EVT-*` | ⚠ delta −2. PENDING |
-| Command classes | 5 | 17 `CMD-*` instances | classes vs instances | ⚠ scope mismatch. PENDING |
-| Notification types | 15 | 205 `NOTIF-*` | types vs instances | ⚠ scope mismatch. PENDING |
-| Offline scenarios | 70 | 99 `OFF-*` across sub-families | mixed sub-families (BLK 37, MODE 28, EVT 20, other 14) | ⚠ scope mismatch. PENDING |
-| AI / fallback storyboards | 30 | 16 `AIMODE-*`; 613 `SB-*` overall | PENDING | PENDING |
-| Anchored timer rows | 35 | **35** (`SCHED-001`…`035`) | anchored timer rows | ✅ match |
-| Do-not-use-cron controls | 22 | **22** `DNC-*` | controls | ✅ match |
-| Mandatory candidate groups | 13 | PENDING | PENDING | PENDING |
+Four of the master prompt's validation candidates turned out to be wrong. Per
+Section 2 of the master prompt, the current frozen source wins.
 
-Additional extracted inventories with no prompt candidate: `FUNC-*` 990 ·
-`FEAT-*` 534 · `SUB-*` 526 · `UC-*` 330 · `SCR-*` 272 · `DEC-*` 433 ·
-`FB-*` 671 · `FAIL-*` 87 · `AUD-*` 418 · `AC-*` 5,709 · `TEST-*` 5,700 ·
-`RISK-*` 85 · `VD-*` 31.
+| Inventory | Prompt candidate | Frozen source | Verdict |
+|---|---|---|---|
+| Surfaces | 5 | **5** | ✅ **CONFIRMED.** `AC-PROD-040` makes it build-blocking: *"exactly five surfaces exist; the tenant administration area is not presented as a sixth"* (L1614) |
+| Human security role types | 9 | **9** (5 tenant + 4 platform console) | ✅ number confirmed, but **DERIVED, not SoW Fact**. Appendix L: *"Arithmetic over §3.5 and §8.8.2; the source states no combined figure"* (L119302) |
+| Modules | 81 (19/19/18/13/12) | **81** canonical; 82 numbered `MOD-*` strings; 87 raw tokens | ✅ **CONFIRMED.** `MOD-SA-20` is an *alias-by-denial* — the string exists only in prose refusing it. §8.20 Fundability is *"a diligence narrative rather than a capability module… Counting it as MOD-SA-20 would put a slide deck in the build plan"* (L46330) |
+| Business objects | 41 | **99** (`OBJ-001`…`OBJ-099`); 382 assembled `OBJ-*` strings | ❌ **CANDIDATE WRONG, NO SOURCE BASIS.** No count of forty-one objects exists anywhere. Every "forty-one" is something else — 41 tables (L3143, later corrected to 39), 41 captures in a fixture (L6182), 41 users in a blast-radius example (L46662) |
+| Workflows | 81 | **644** `WF-*` strings (Appendix L: 642); ~118 parents | ❌ **CANDIDATE HAS NO REFERENT.** 81 is the module total and nothing else; no sentence in 122,241 lines assigns 81 to workflows. Build no "81 workflows" register |
+| Events | 30 | **378** `EVT-*` strings; 29 numeric | ❌ **UNSOURCED.** Appendix L: the source enumerates operational events only in the Functional Specification, so this is the blueprint's derived set (L119320) |
+| Command classes | 5 | **5**, closed | ✅ **CONFIRMED.** `AC-PROD-051` (L1680). One open edge: `DEC-CMDCLASS-001` — device wipe `CMD-SUSP-005` reaches the device but is not one of the five |
+| Notification types | 15 | **19** states · **87** categories (`NOTIF-001`…`087`, 13 families) · 2 channels | ❌ **CROSS-REGISTER LEAK.** Fifteen is the *command* state count (L1632), not a notification number |
+| Offline scenarios | 70 | **70** (`UC-OFF-001`…`070`) | ✅ **CONFIRMED.** Only 12 carry their own diagram; the other 58 name a representative |
+| AI / fallback storyboards | 30 | two registers of 30: `SB-001`…`030` and `SB-AI-01`…`30` | ⚠ **AMBIGUOUS, must disambiguate.** The candidate names a count two distinct registers both satisfy |
+| Anchored timer rows | 35 | **35** discovery findings; **24** buildable obligations | ⚠ **BOTH TRUE AT DIFFERENT SCOPES — BUILD 24.** 35 findings = 22 mapped + 13 non-obligations, + 2 independent = 24 deployable |
+| Do-not-use-cron controls | 22 | **22** (`DNC-01`…`22`) | ✅ **CONFIRMED.** All 22 must still hold with every scheduler disabled |
+| Mandatory candidate groups | 13 | **13** | ✅ **CONFIRMED** (L98544, `AC-SCHED-005-01`) |
 
-**The two 81s are different count scopes that coincidentally share a number.**
-81 modules and 81 candidate workflows are never conflated, and neither is
-evidence for the other. The extracted workflow count is 118.
+### 12.1 Count-scope rules that must never be violated
+
+- **81 is the module count and nothing else.** Minting an "81 workflows" register
+  invents a deliverable the source does not have. The two numbers are never
+  conflated and neither is evidence for the other.
+- **Never mint `MOD-SA-20`.** A naive grep-driven scaffolder will create it,
+  because the identifier does appear — inside the sentence that refuses it.
+- **Never present the Studio 18 as source-backed.** `DEC-STUDIO-001` makes every
+  Studio module count `Derived Clarification`. The honest statement is
+  "19 + 13 + 12 + 19 SoW-Fact + 18 Derived = 81".
+- **Eight role-adjacent registers must never be summed:** 9 role types · 1 root
+  account · 10 personas · 14 non-human identity types · 9 temporary-grant types ·
+  5 delegation-shaped mechanisms · 4 emergency mechanisms.
+- **Band A / Band B splits inside DOH and SA are not separate modules,** and no
+  interface may label the split.
+
+### 12.2 Closed sets the interface must respect
+
+Command Center operational actions — **ten**. Command Center absolute exclusions
+— **four**. Command channel classes — **five**. Critical actions needing Root
+approval — **ten**. Enforced platform invariants — **six**, locked with no off
+position for any account including root. Named platform access classes —
+**three**. Permission-matrix cell statuses — **nine**, and a blank cell fails the
+build. Offline capability classes — **seven**. Capture types — **seven** plus
+"none". Artificial-intelligence operating modes — **sixteen**. Artificial-
+intelligence prohibitions — **twelve**. Fallback prohibitions — **twelve**.
+Agent governance-binding values — **three**.
+
+### 12.3 State vocabularies (exact, never collapsed)
+
+Capture **13** · command **15** · notification **19** · handoff **12** ·
+occurrence **15**. `AC-4830` asserts the word "synced" appears as a state name
+nowhere in the product. "Sent" and "done" are likewise forbidden.
+
+Run closing is `submitted → complete → finished`, and `complete → finished` is
+**the one automatic transition on the entire platform**. Hold propagation is
+`issued → propagating → in force` **per device**; "in force" is never shown until
+every relevant device confirms, and **no force-apply control exists anywhere**.
+
+### 12.4 The highest-risk implementation traps
+
+Rendering an action as applied before device acknowledgement · building an
+eleventh Command Center action (Chapter 25's own at-a-glance table already adds
+one) · reading "and above" as a rank ordering rather than an enumerated grant ·
+implementing lot release as "Quality Manager or higher" instead of Quality
+Manager **only** · letting a timer, tier, agent, scheduler or the root produce an
+approval — a gate item times out at 10 minutes (Severity 1) or 30 minutes and
+then **never executes and never expires**, staying open and human-decided ·
+clamping a looser-than-floor configuration value instead of rejecting it at point
+of entry · breaking version pinning — a run pins its package at assignment and is
+never re-based by any publication, adoption or rollback.
 
 ---
 

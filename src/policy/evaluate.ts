@@ -1,4 +1,5 @@
-import type { RoleId } from '@/domain/roles'
+import { roleById, type RoleId } from '@/domain/roles'
+import type { TenantId } from '@/domain/ids'
 import type {
   IdentitySimulationState,
   ScenarioDomainState,
@@ -21,6 +22,13 @@ export interface AccessRequest {
   readonly allowedObjectStates?: readonly string[]
   /** Set when an open client decision governs this behaviour. */
   readonly openDecision?: string
+  /**
+   * CRITICAL 1: the tenant that OWNS the record this action targets. Stage 2
+   * compares this against the actor's own tenant — without it, stage 2 can
+   * only check that the actor's tenant is live, never that the record being
+   * written actually belongs to that tenant.
+   */
+  readonly resourceTenant?: TenantId | null
   readonly sourceRefs: readonly string[]
 }
 
@@ -37,11 +45,20 @@ export interface AccessContext {
   readonly actorOfRecord: string | null
 }
 
+/** Tenant lifecycle states that refuse actions outright: work is paused. */
 const SUSPENDED_STATES = new Set([
   'SOFT_SUSPENDED',
   'HARD_SUSPENDED',
   'COMPLIANCE_SUSPENDED',
 ])
+
+/**
+ * Tenant lifecycle states that are not yet, or no longer, operational.
+ * IMPORTANT 2: PROVISIONING (half set up) and ARCHIVED (done) must refuse
+ * state-changing actions exactly as a suspension does — a tenant that has
+ * never been switched on, or that is closed, is not "active" either.
+ */
+const NOT_YET_OR_NO_LONGER_ACTIVE_STATES = new Set(['PROVISIONING', 'ARCHIVED'])
 
 /**
  * The nine stages run in a fixed order and the earliest failure wins, so a
@@ -65,13 +82,47 @@ export function evaluateAccess(
   }
   const role = identity.role
 
-  // 2. Tenant isolation. A tenant role must be inside a known tenant.
-  if (identity.tenant !== null && state.tenants[identity.tenant] === undefined) {
-    return deny('blocked', 'TENANT_MISMATCH', undefined, {
-      stage: 'TENANT_ISOLATION',
-      sourceRefs: refs,
-      auditExpectation: 'RECORDED_AS_REFUSAL',
-    })
+  // 2. Tenant isolation.
+  //
+  // CRITICAL 2: a null tenant is not a permissive default — it means
+  // something different for each security domain, and it is never a
+  // bypass. A TENANT-domain role (Supervisor, Quality Manager, ...) must
+  // ambiently hold its own live tenant. A PLATFORM-domain role (Admin,
+  // Support, ...) must NEVER ambiently hold a tenant at all; it acts
+  // through named access sessions, so a non-null tenant on a platform role
+  // is itself a violation, not a convenience.
+  //
+  // CRITICAL 1: when the request names the tenant that owns the record
+  // being acted on (`resourceTenant`), that must match the actor's own
+  // tenant too — otherwise stage 2 only ever checks that the ACTOR's
+  // tenant is live, never that the object being written belongs to it,
+  // which is how a signed-in Quality Manager in one tenant could act on
+  // another tenant's record just by naming it in the command.
+  const domain = roleById(role).domain
+  if (domain === 'TENANT') {
+    if (identity.tenant === null || state.tenants[identity.tenant] === undefined) {
+      return deny('blocked', 'TENANT_MISMATCH', undefined, {
+        stage: 'TENANT_ISOLATION',
+        sourceRefs: refs,
+        auditExpectation: 'RECORDED_AS_REFUSAL',
+      })
+    }
+    if (req.resourceTenant != null && req.resourceTenant !== identity.tenant) {
+      return deny('blocked', 'TENANT_MISMATCH', undefined, {
+        stage: 'TENANT_ISOLATION',
+        sourceRefs: refs,
+        auditExpectation: 'RECORDED_AS_REFUSAL',
+      })
+    }
+  } else {
+    // domain === 'PLATFORM'
+    if (identity.tenant !== null) {
+      return deny('blocked', 'TENANT_MISMATCH', undefined, {
+        stage: 'TENANT_ISOLATION',
+        sourceRefs: refs,
+        auditExpectation: 'RECORDED_AS_REFUSAL',
+      })
+    }
   }
 
   // 3. Base-role union, with explicit deny winning.
@@ -118,8 +169,18 @@ export function evaluateAccess(
       conditionToEnable: 'The tenant suspension must be released.',
     })
   }
+  // IMPORTANT 2: a tenant that is still provisioning or has been archived
+  // is not suspended, but it is not operational either.
+  if (partition && NOT_YET_OR_NO_LONGER_ACTIVE_STATES.has(partition.lifecycleState)) {
+    return deny('unavailable', 'TENANT_NOT_ACTIVE', undefined, {
+      stage: 'FEATURE_AND_SUSPENSION',
+      sourceRefs: refs,
+      conditionToEnable: 'The tenant must be active.',
+    })
+  }
   if (req.requiredFeature) {
     const globalValue = state.platform.featureControls[req.requiredFeature]
+    const desired = partition?.desiredFeatureValues[req.requiredFeature]
     if (globalValue === false) {
       // A global disable is an effective ceiling. A tenant desired value
       // can never re-enable it.
@@ -128,13 +189,19 @@ export function evaluateAccess(
         sourceRefs: refs,
       })
     }
-    const desired = partition?.desiredFeatureValues[req.requiredFeature]
-    if (globalValue === undefined && desired !== true) {
-      return deny('unavailable', 'FEATURE_DISABLED', undefined, {
+    if (globalValue === undefined) {
+      // IMPORTANT 1: absent global registration is a floor of OFF, not a
+      // blank canvas tenant config can paint on. A typo'd or unreleased
+      // feature name must never become tenant-enableable, and the refusal
+      // must say the platform never registered it — not that the tenant
+      // switched something off.
+      return deny('unavailable', 'FEATURE_NOT_REGISTERED', undefined, {
         stage: 'FEATURE_AND_SUSPENSION',
         sourceRefs: refs,
       })
     }
+    // globalValue === true from here: available platform-wide unless the
+    // tenant has explicitly opted out.
     if (desired === false) {
       return deny('unavailable', 'FEATURE_DISABLED', undefined, {
         stage: 'FEATURE_AND_SUSPENSION',
@@ -144,16 +211,21 @@ export function evaluateAccess(
   }
 
   // 6. Object lifecycle and version state.
-  if (
-    req.allowedObjectStates?.length &&
-    req.objectState !== undefined &&
-    !req.allowedObjectStates.includes(req.objectState)
-  ) {
-    return deny('blocked', 'OBJECT_STATE_INVALID', undefined, {
-      stage: 'OBJECT_STATE',
-      sourceRefs: refs,
-      conditionToEnable: `The record must be in one of: ${req.allowedObjectStates.join(', ')}.`,
-    })
+  // IMPORTANT 3: a declared constraint must never be weaker than declaring
+  // none. If allowedObjectStates is declared, an undefined objectState is a
+  // denial, not a silent pass — the original `&& req.objectState !== undefined`
+  // guard let a caller void its own constraint just by omitting the state.
+  if (req.allowedObjectStates?.length) {
+    if (
+      req.objectState === undefined ||
+      !req.allowedObjectStates.includes(req.objectState)
+    ) {
+      return deny('blocked', 'OBJECT_STATE_INVALID', undefined, {
+        stage: 'OBJECT_STATE',
+        sourceRefs: refs,
+        conditionToEnable: `The record must be in one of: ${req.allowedObjectStates.join(', ')}.`,
+      })
+    }
   }
 
   // 7. Worker qualification and assignment.
@@ -186,17 +258,19 @@ export function evaluateAccess(
   }
 
   // 9. Segregation of duties, maker-checker, human-decision gate.
-  if (
-    req.makerCheckerOf != null &&
-    ctx.actorOfRecord != null &&
-    req.makerCheckerOf === ctx.actorOfRecord
-  ) {
-    return deny('blocked', 'SEGREGATION_OF_DUTIES', undefined, {
-      stage: 'SEGREGATION_OF_DUTIES',
-      sourceRefs: refs,
-      auditExpectation: 'RECORDED_AS_REFUSAL',
-      conditionToEnable: 'A different authorised person must approve this.',
-    })
+  // IMPORTANT 5: this must fail CLOSED. If the request declares a
+  // maker-checker constraint at all, an unattributed actor (actorOfRecord
+  // null) can never pass it — an unknown actor is exactly the case
+  // segregation of duties exists to stop, not a free pass around it.
+  if (req.makerCheckerOf != null) {
+    if (ctx.actorOfRecord == null || req.makerCheckerOf === ctx.actorOfRecord) {
+      return deny('blocked', 'SEGREGATION_OF_DUTIES', undefined, {
+        stage: 'SEGREGATION_OF_DUTIES',
+        sourceRefs: refs,
+        auditExpectation: 'RECORDED_AS_REFUSAL',
+        conditionToEnable: 'A different, identified authorised person must approve this.',
+      })
+    }
   }
 
   if (req.openDecision) {
@@ -206,5 +280,8 @@ export function evaluateAccess(
     })
   }
 
-  return allow('SEGREGATION_OF_DUTIES', refs)
+  // MINOR 11: report the stage that actually granted the allow — never a
+  // borrowed stage label like SEGREGATION_OF_DUTIES, which would make every
+  // accepted audit entry falsely claim that stage produced the result.
+  return allow('ALL_STAGES_PASSED', refs)
 }

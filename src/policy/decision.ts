@@ -17,7 +17,15 @@ export type PermissionOutcome =
   /** An open client decision governs this and no honest answer exists yet. */
   | 'decisionRequired'
 
-/** The nine ordered stages of effective-access evaluation. Spec section 3.4. */
+/**
+ * The nine ordered stages of effective-access evaluation, plus two markers
+ * used outside that ordered evaluation: 'ALL_STAGES_PASSED' reports which
+ * decision granted an allow (never a false claim of a specific denial
+ * stage), and 'COMMAND_VALIDATION' marks a kernel-level command field-shape
+ * check that runs after authorisation succeeds — it is not one of the nine
+ * access stages and must never be reported as stage 6 (OBJECT_STATE).
+ * Spec section 3.4.
+ */
 export type EvaluationStage =
   | 'SESSION'
   | 'TENANT_ISOLATION'
@@ -28,6 +36,8 @@ export type EvaluationStage =
   | 'QUALIFICATION'
   | 'DEVICE_AND_CONNECTIVITY'
   | 'SEGREGATION_OF_DUTIES'
+  | 'ALL_STAGES_PASSED'
+  | 'COMMAND_VALIDATION'
 
 export type AuditExpectation =
   /** The source requires this outcome to be written to the audit trail. */
@@ -67,10 +77,14 @@ export const REASON_CODES = {
     'The capability is switched off for this tenant, so the action cannot run.',
   GLOBAL_FEATURE_DISABLED:
     'The platform has switched this capability off everywhere, which no tenant setting can re-enable.',
+  FEATURE_NOT_REGISTERED:
+    'The platform has never registered this capability, so no tenant setting can switch it on.',
   ENTITLEMENT_MISSING:
     'The tenant’s current tier does not include this capability.',
   TENANT_SUSPENDED:
     'The tenant is suspended, so actions that create or change work are refused.',
+  TENANT_NOT_ACTIVE:
+    'The tenant is still being set up or has been archived, so day-to-day actions are refused until it is active.',
   OBJECT_STATE_INVALID:
     'The record is not in a state where this action makes sense.',
   STALE_VERSION:

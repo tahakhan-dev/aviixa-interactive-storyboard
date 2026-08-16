@@ -161,4 +161,36 @@ describe('transition kernel', () => {
     const t = await reduce(baseState(), releaseHold, context('SUPERVISOR'))
     expect(t.decision.explanation.length).toBeGreaterThan(20)
   })
+
+  // CRITICAL 1 red-proof: a Quality Manager signed into BRIGHT must not be
+  // able to release a hold on a RIVALCO lot just by naming RIVALCO's tenant
+  // id in the command.
+  it('CRITICAL 1 RED-PROOF: denies a cross-tenant write instead of executing it', async () => {
+    const RIVALCO = tenantId('TEN-RIVALCO')
+    const state = withTenant(baseState(), RIVALCO, (p) => ({
+      ...p,
+      displayName: 'Rival Co',
+      lifecycleState: 'ACTIVE' as const,
+    }))
+    const crossTenantCommand: ScenarioCommand = {
+      type: 'CC_RELEASE_LOT_HOLD',
+      tenant: RIVALCO,
+      lotId: 'LOT-RIVAL-1',
+      note: 'Attacker-supplied note.',
+    }
+    const t = await reduce(state, crossTenantCommand, context('QUALITY_MANAGER'))
+    expect(t.status).not.toBe('accepted')
+    expect(t.nextState).toBe(null)
+  })
+
+  // CRITICAL 3 red-proof: an unhashable state must degrade to a typed
+  // denial, never an unhandled promise rejection.
+  it('CRITICAL 3 RED-PROOF: returns a typed denial instead of throwing when state cannot be hashed', async () => {
+    const corrupt = withTenant(baseState(), BRIGHT, (p) => ({
+      ...p,
+      objects: { ...p.objects, 'bad-record': new Date() },
+    }))
+    const t = await reduce(corrupt, releaseHold, context('QUALITY_MANAGER'))
+    expect(t.status).not.toBe('accepted')
+  })
 })
