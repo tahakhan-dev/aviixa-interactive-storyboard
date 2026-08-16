@@ -276,8 +276,22 @@ function toReviewRecord(r: z.infer<typeof ReviewRecordSchema>): ReviewRecord {
   }
 }
 
+// Deviation from the brief (documented, evidence-backed): Task 4's brief
+// names its dedupe/merge preview type `ImportPreview` too. Declaring both
+// under the same name in this file makes TypeScript MERGE them into one
+// interface requiring every property from BOTH shapes at once -- confirmed
+// by actually doing it and running `pnpm typecheck`: it broke this
+// function's own `preview` return object (`recordCount`/`records`/... is
+// missing `incoming`/`duplicates`/...) as well as the new `planImport`'s
+// (missing `recordCount`/...). Renamed this one -- the package-validation
+// preview `importReviewPackage` has always returned -- to
+// `PackageImportPreview` so the two distinct concepts (validate-and-preview
+// a package; dedupe records against an existing set) get distinct names.
+// Nothing outside this file imports `ImportPreview` by name (grepped before
+// renaming), so this is safe.
+
 /** What a reviewer sees before anything is applied. Import stops here. */
-export interface ImportPreview {
+export interface PackageImportPreview {
   readonly recordCount: number
   readonly records: readonly ReviewRecord[]
   readonly sourceHash: string
@@ -286,7 +300,7 @@ export interface ImportPreview {
 }
 
 export type ImportOutcome =
-  | { readonly ok: true; readonly preview: ImportPreview }
+  | { readonly ok: true; readonly preview: PackageImportPreview }
   | {
       readonly ok: false
       readonly quarantined: true
@@ -433,4 +447,109 @@ export async function importReviewPackage(
       scenarioVersion: pkg.scenarioVersion,
     },
   }
+}
+
+// ---------------------------------------------------------------------------
+// Import step 2: dedupe an already-validated set of incoming records against
+// what is already in the store, and let the reviewer choose how conflicts
+// resolve. This is a separate, pure planning step from `importReviewPackage`
+// above -- it never touches `@/review/store` either.
+// ---------------------------------------------------------------------------
+
+export interface ImportConflict {
+  readonly id: string
+  readonly existing: ReviewRecord
+  readonly incoming: ReviewRecord
+}
+
+// Deviation from the brief (documented, evidence-backed): the brief's
+// `ImportPreview` lists only `incoming`, `duplicates`, `conflicts` and
+// `newRecords`. Those four cannot carry an EXISTING record that `incoming`
+// never mentions at all (neither a duplicate nor a conflict) -- and the
+// "both strategies add new records and never drop an existing one" test
+// requires exactly that: an existing record absent from `incoming`
+// entirely must still appear in `applyImport`'s output. Without the full
+// `existing` set retained somewhere in the preview, `applyImport` cannot
+// reconstruct that record from `duplicates` (which holds bare ids, not
+// records) or `conflicts` (which only covers ids incoming actually
+// mentions). Added `existing` as a fifth field rather than repurposing
+// `incoming` to secretly mean "existing" -- the latter would satisfy the
+// four-field count but make the field's own name lie about its content.
+export interface ImportPreview {
+  readonly incoming: readonly ReviewRecord[]
+  readonly existing: readonly ReviewRecord[]
+  readonly duplicates: readonly string[]
+  readonly conflicts: readonly ImportConflict[]
+  readonly newRecords: readonly ReviewRecord[]
+}
+
+export type MergeStrategy = 'merge' | 'replace'
+
+// Controller ruling: compare on substantive fields only, excluding
+// `updatedAtLogical` -- it changes on `superseded()` alone and carries no
+// information beyond what `disposition`/`supersededBy` already state, so
+// including it would report two records identical in every OTHER field as
+// CONFLICTING purely because one was superseded (or re-exported) later
+// than the other. Every other field, including `disposition` and
+// `supersededBy`, stays IN the comparison: unlike the timestamp, those
+// carry real state -- whether a comment is still open or has been
+// superseded, and by what -- that a reviewer genuinely needs surfaced as a
+// conflict, not silently discarded. `createdAtLogical` also stays in: for
+// two records sharing an id, it never legitimately changes, so a
+// difference there is itself a real discrepancy worth flagging.
+function comparableFields(record: ReviewRecord): Record<string, unknown> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- deliberately excluded from the substance comparison; see comment above
+  const { updatedAtLogical, ...substantive } = record
+  return substantive
+}
+
+/**
+ * Compares `incoming` records against `existing` ones by id, then by
+ * substantive content (see `comparableFields`): same id and same substance
+ * is a duplicate; same id and different substance is a conflict carrying
+ * both sides; an id `existing` has never seen is new. Pure -- mutates
+ * neither argument.
+ */
+export function planImport(
+  incoming: readonly ReviewRecord[],
+  existing: readonly ReviewRecord[],
+): ImportPreview {
+  const existingById = new Map(existing.map((r) => [r.id, r] as const))
+  const duplicates: string[] = []
+  const conflicts: ImportConflict[] = []
+  const newRecords: ReviewRecord[] = []
+
+  for (const inc of incoming) {
+    const match = existingById.get(inc.id)
+    if (!match) {
+      newRecords.push(inc)
+      continue
+    }
+    const same = canonicalSerialize(comparableFields(match)) === canonicalSerialize(comparableFields(inc))
+    if (same) {
+      duplicates.push(inc.id)
+    } else {
+      conflicts.push({ id: inc.id, existing: match, incoming: inc })
+    }
+  }
+
+  return { incoming, existing, duplicates, conflicts, newRecords }
+}
+
+/**
+ * Resolves every conflict in `preview` by the reviewer's explicit choice --
+ * `planImport` never resolves anything itself. `merge` keeps the existing
+ * side of each conflict; `replace` takes the incoming side. Either way,
+ * every existing record survives (unmodified if untouched by `incoming`,
+ * resolved per `strategy` if conflicted) and every genuinely new record is
+ * added: neither strategy ever drops an existing record.
+ */
+export function applyImport(preview: ImportPreview, strategy: MergeStrategy): readonly ReviewRecord[] {
+  const conflictById = new Map(preview.conflicts.map((c) => [c.id, c] as const))
+  const resolvedExisting = preview.existing.map((record) => {
+    const conflict = conflictById.get(record.id)
+    if (!conflict) return record
+    return strategy === 'merge' ? conflict.existing : conflict.incoming
+  })
+  return [...resolvedExisting, ...preview.newRecords]
 }

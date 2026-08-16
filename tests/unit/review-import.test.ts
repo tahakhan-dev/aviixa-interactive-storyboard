@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { exportReviewPackage, importReviewPackage, MAX_PACKAGE_BYTES } from '@/review/package'
+import {
+  exportReviewPackage, importReviewPackage, MAX_PACKAGE_BYTES, planImport, applyImport,
+} from '@/review/package'
 import { createReviewRecord } from '@/review/records'
 import { fixedClock, CANONICAL_EPOCH_MS } from '@/domain/clock'
 
@@ -115,5 +117,59 @@ describe('review package import', () => {
       expect(r.quarantined).toBe(true)
       expect(r.failingEntry).toBe('records.json')
     }
+  })
+})
+
+describe('import dedupe, conflict and merge', () => {
+  const mk = (id: string, comment: string) => ({ ...rec(), id, comment })
+
+  it('reports a record already present as a duplicate, not a new record', () => {
+    const existing = [mk('R-1', 'same')]
+    const p = planImport([mk('R-1', 'same')], existing)
+    expect(p.duplicates).toEqual(['R-1'])
+    expect(p.newRecords).toEqual([])
+    expect(p.conflicts).toEqual([])
+  })
+
+  it('reports a same-id different-content record as a conflict, showing both', () => {
+    const existing = [mk('R-1', 'original text')]
+    const p = planImport([mk('R-1', 'ALTERED text')], existing)
+    expect(p.conflicts).toHaveLength(1)
+    expect(p.conflicts[0]?.existing.comment).toBe('original text')
+    expect(p.conflicts[0]?.incoming.comment).toBe('ALTERED text')
+    expect(p.duplicates).toEqual([])
+  })
+
+  it('reports an unseen record as new', () => {
+    const p = planImport([mk('R-2', 'fresh')], [mk('R-1', 'a')])
+    expect(p.newRecords.map((r) => r.id)).toEqual(['R-2'])
+  })
+
+  it('merge keeps the existing side of every conflict', () => {
+    const existing = [mk('R-1', 'original')]
+    const out = applyImport(planImport([mk('R-1', 'incoming')], existing), 'merge')
+    expect(out.find((r) => r.id === 'R-1')?.comment).toBe('original')
+  })
+
+  it('replace takes the incoming side of every conflict', () => {
+    const existing = [mk('R-1', 'original')]
+    const out = applyImport(planImport([mk('R-1', 'incoming')], existing), 'replace')
+    expect(out.find((r) => r.id === 'R-1')?.comment).toBe('incoming')
+  })
+
+  it('both strategies add new records and never drop an existing one', () => {
+    const existing = [mk('R-1', 'a'), mk('R-9', 'keep me')]
+    for (const s of ['merge', 'replace'] as const) {
+      const out = applyImport(planImport([mk('R-2', 'b')], existing), s)
+      expect(out.map((r) => r.id).sort(), s).toEqual(['R-1', 'R-2', 'R-9'])
+    }
+  })
+
+  it('planning mutates neither input', () => {
+    const incoming = [mk('R-1', 'x')]
+    const existing = [mk('R-1', 'y')]
+    const before = JSON.stringify({ incoming, existing })
+    planImport(incoming, existing)
+    expect(JSON.stringify({ incoming, existing })).toBe(before)
   })
 })
