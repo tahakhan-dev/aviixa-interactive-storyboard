@@ -42,6 +42,7 @@ import {
   SUPPORT_UNSPECIFIED_IN_SOURCE,
   SUPPORT_WORKFLOWS,
   TENANT_OPTIONS,
+  type SessionState,
   UNSPECIFIED_EMERGENCY_CLASS_LABEL,
   UNSPECIFIED_EMERGENCY_CLASS_VALUE,
   UNSPECIFIED_REASON_CLASS_LABEL,
@@ -138,6 +139,8 @@ export function SupportAccessScreen({
   const [adminAuthorised, setAdminAuthorised] = useState(false)
 
   const mode = moduleMode(screenState)
+  /** STATE-06 says every input is disabled, so every input of this module is. */
+  const readOnly = mode === 'read-only'
   const aggregate = aggregateMode(screenState)
   const stateDefinition = SCREEN_STATES.find((s) => s.id === screenState) ?? SCREEN_STATES[0]
 
@@ -275,47 +278,50 @@ export function SupportAccessScreen({
   // session as it hands the finding on, which is why it sets both.
   const alreadyTerminalReason =
     'This session is already recorded as closed in this prototype run, and a closed session is not closed or escalated again.'
-  const closeProps =
-    closeDecision.outcome === 'allowed' && !closureRecorded
-      ? {}
-      : {
-          disabledReason: closureRecorded
-            ? alreadyTerminalReason
-            : namedReason(
-                closeDecision,
-                mode,
-                'Closing a session is held by its own operator — the root, the platform Admin or Support (L16111). This role does not hold it.',
-              ),
-        }
-  const escalateProps =
-    escalateDecision.outcome === 'allowed' && !closureRecorded
-      ? {}
-      : {
-          disabledReason: closureRecorded
-            ? alreadyTerminalReason
-            : namedReason(
-                escalateDecision,
-                mode,
-                'Escalation is raised by the operator of the session — the root, the platform Admin or Support (L16111). This role does not hold it.',
-              ),
-        }
 
-  const rootAuthProps =
-    rootAuthDecision.outcome === 'allowed' && !rootAuthorised
-      ? {}
-      : {
-          disabledReason: rootAuthorised
-            ? 'This authorisation is already recorded for this request.'
-            : namedReason(rootAuthDecision, mode, emergencyRootReason),
-        }
-  const adminAuthProps =
-    adminAuthDecision.outcome === 'allowed' && !adminAuthorised
-      ? {}
-      : {
-          disabledReason: adminAuthorised
-            ? 'This authorisation is already recorded for this request.'
-            : namedReason(adminAuthDecision, mode, emergencyAdminReason),
-        }
+  /**
+   * A recorded click never outranks a refusal. The role and screen-state
+   * decision is read FIRST, so a role that never held the control is told it
+   * does not hold it — not that somebody else's click already used it up.
+   * The recorded click is also cleared whenever either switcher moves
+   * (`resetRecordedClicks`), so it can never describe a different role's run.
+   */
+  function recordedOrRefused(
+    decision: PermissionDecision,
+    roleReason: string,
+    recorded: boolean,
+    recordedReason: string,
+  ): { readonly disabledReason?: string } {
+    if (decision.outcome !== 'allowed') {
+      return { disabledReason: namedReason(decision, mode, roleReason) }
+    }
+    return recorded ? { disabledReason: recordedReason } : {}
+  }
+
+  const closeProps = recordedOrRefused(
+    closeDecision,
+    'Closing a session is held by its own operator — the root, the platform Admin or Support (L16111). This role does not hold it.',
+    closureRecorded,
+    alreadyTerminalReason,
+  )
+  const escalateProps = recordedOrRefused(
+    escalateDecision,
+    'Escalation is raised by the operator of the session — the root, the platform Admin or Support (L16111). This role does not hold it.',
+    closureRecorded,
+    alreadyTerminalReason,
+  )
+  const rootAuthProps = recordedOrRefused(
+    rootAuthDecision,
+    emergencyRootReason,
+    rootAuthorised,
+    'This authorisation is already recorded for this request.',
+  )
+  const adminAuthProps = recordedOrRefused(
+    adminAuthDecision,
+    emergencyAdminReason,
+    adminAuthorised,
+    'This authorisation is already recorded for this request.',
+  )
 
   const emergencyOpenReason =
     emergencyOpenDecision.reasonCode === 'ROLE_NOT_GRANTED'
@@ -323,6 +329,18 @@ export function SupportAccessScreen({
       : `Inactive until a named emergency class, a declared scope and a time box are supplied (L104252), and until both authorisation slots are filled (L19760). The time box has no value in the frozen source: ${EMERGENCY_TIME_BOX}.`
 
   const authorisationCount = (rootAuthorised ? 1 : 0) + (adminAuthorised ? 1 : 0)
+
+  /**
+   * One recorded closure, one rendering of it. The detail list, the row for
+   * the same session in the table above and the post-click note all read
+   * these two values, so no two renderings of this session can disagree.
+   * A closed session shows the tenant no banner at all, which is an absence
+   * rather than a fourth member of the three-state banner vocabulary.
+   */
+  const detailState: SessionState = closureRecorded ? 'closed by operator' : SESSION_DETAIL.state
+  const detailBanner: string = closureRecorded
+    ? 'None — a closed session shows the tenant no banner'
+    : SESSION_DETAIL.bannerState
 
   const sessionRows = SUPPORT_SESSIONS.map((s) => ({
     session: s.id,
@@ -332,9 +350,24 @@ export function SupportAccessScreen({
     scope: s.scopeLabel,
     expiry: s.expiryLabel,
     actions: s.actionCountLabel,
-    state: <StatusPill tone="info" icon="•" label={s.state} />,
-    banner: s.bannerState,
+    state: (
+      <StatusPill tone="info" icon="•" label={s.id === SESSION_DETAIL.id ? detailState : s.state} />
+    ),
+    banner: s.id === SESSION_DETAIL.id ? detailBanner : s.bannerState,
   }))
+
+  /**
+   * The switchers change WHO is looking or WHAT state the module is in. A
+   * click recorded under the previous role or state describes neither, so it
+   * is dropped rather than carried across.
+   */
+  function resetRecordedClicks() {
+    setSessionRequested(false)
+    setClosureRecorded(false)
+    setEscalationRecorded(false)
+    setRootAuthorised(false)
+    setAdminAuthorised(false)
+  }
 
   return (
     <SaConsoleShell module={MODULE}>
@@ -349,7 +382,10 @@ export function SupportAccessScreen({
         <Select
           label="Console role (fixture)"
           value={role}
-          onChange={(v) => setRole(v as RoleId)}
+          onChange={(v) => {
+            setRole(v as RoleId)
+            resetRecordedClicks()
+          }}
           options={SUPPORT_PLATFORM_ROLES.map((r) => ({
             value: r.id,
             label: `${r.name} — ${r.roleAnnotation}`,
@@ -358,7 +394,10 @@ export function SupportAccessScreen({
         <Select
           label="Screen state (fixture)"
           value={screenState}
-          onChange={(v) => setScreenState(v as ScreenStateId)}
+          onChange={(v) => {
+            setScreenState(v as ScreenStateId)
+            resetRecordedClicks()
+          }}
           options={APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
         />
         <p className="max-w-prose text-xs text-[var(--color-ink-subtle)]">
@@ -375,12 +414,12 @@ export function SupportAccessScreen({
         <p className="mt-1 text-[var(--color-ink-muted)]">{stateDefinition.neverDo}</p>
       </div>
 
-      {mode === 'read-only' ? (
+      {readOnly ? (
         <div className="mt-4">
           <Banner
             tone="attention"
             heading="Read-only"
-            body="One cause: this fixture puts the module into a read-only state, so no session can be opened, closed or authorised from it. Every panel below still reads."
+            body="One cause: this fixture puts the module into a read-only state, so every input below is disabled and no session can be opened, closed or authorised from it. Every panel below still reads."
           />
         </div>
       ) : null}
@@ -536,11 +575,11 @@ export function SupportAccessScreen({
           </div>
           <div>
             <dt className="font-medium">Tenant banner</dt>
-            <dd className="text-[var(--color-ink-muted)]">{SESSION_DETAIL.bannerState}</dd>
+            <dd className="text-[var(--color-ink-muted)]">{detailBanner}</dd>
           </div>
           <div>
             <dt className="font-medium">Session state</dt>
-            <dd className="text-[var(--color-ink-muted)]">{SESSION_DETAIL.state}</dd>
+            <dd className="text-[var(--color-ink-muted)]">{detailState}</dd>
           </div>
         </dl>
 
@@ -548,8 +587,9 @@ export function SupportAccessScreen({
           No banner means no session: no read of tenant content is served before the tenant banner is
           confirmed on screen and the session-open event is committed to the tenant’s own stream
           (AC-4870, L107883). A missed banner heartbeat suspends the session and no further read is
-          served until the banner is confirmed again (L14887). The three banner states this module
-          renders are {BANNER_STATES.join('; ')}.
+          served until the banner is confirmed again (L14887). The three banner states a live session
+          carries are {BANNER_STATES.join('; ')}. A closed session carries none of them, because it
+          shows the tenant no banner at all.
         </p>
 
         <div className="mt-4 flex flex-wrap items-start gap-4">
@@ -584,14 +624,16 @@ export function SupportAccessScreen({
               label={escalationRecorded ? 'escalation noted in this run' : 'closure noted in this run'}
             />
             <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-              What the prototype did: it moved this fixture session to a terminal state in this
-              browser tab, and nothing else.{' '}
+              What the prototype did: it re-rendered this fixture session as{' '}
+              <span className="font-medium">{detailState}</span> — in the list above and in the
+              session detail alike — and nothing else.{' '}
               {escalationRecorded
                 ? 'No compliance-emergency session was initiated — that path still needs its two authorisations and a time box the source does not fix.'
                 : 'No tenant access was withdrawn.'}{' '}
               No tenant workspace is connected to this storyboard, so no access was cut off, no
-              banner was cleared, no post-session report was raised and nothing was written to
-              either audit stream. Reload the page and the fixture session is back as it was.
+              tenant saw a banner appear or disappear, no post-session report was raised and nothing
+              was written to either audit stream. Reload the page, or move either switcher above, and
+              the fixture session is back as it was.
             </p>
           </div>
         ) : null}
@@ -635,6 +677,7 @@ export function SupportAccessScreen({
               >
                 <select
                   value={reasonClass}
+                  disabled={readOnly}
                   onChange={(e) => setReasonClass(e.target.value)}
                   className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm text-[var(--color-ink)]"
                 >
@@ -648,15 +691,17 @@ export function SupportAccessScreen({
               <Field
                 label="Tenant"
                 required
+                // In read-only the single cause is the banner's, so this field
+                // never adds the ordering rule as a second cause of inertness.
                 description={
-                  reasonClass === ''
+                  !readOnly && reasonClass === ''
                     ? 'Inert until a ticket-linked reason class is selected (L45753). The reason exists before the tenant is named, never after.'
                     : 'One tenant per session. Naming a tenant here requests a session; it opens nothing by itself.'
                 }
               >
                 <select
                   value={tenant}
-                  disabled={reasonClass === ''}
+                  disabled={readOnly || reasonClass === ''}
                   onChange={(e) => setTenant(e.target.value)}
                   className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm text-[var(--color-ink)] disabled:opacity-50"
                 >
@@ -680,6 +725,7 @@ export function SupportAccessScreen({
                 <input
                   type="text"
                   value={ticketRef}
+                  disabled={readOnly}
                   onChange={(e) => setTicketRef(e.target.value)}
                   className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm text-[var(--color-ink)]"
                 />
@@ -733,6 +779,7 @@ export function SupportAccessScreen({
               >
                 <select
                   value={emergencyClass}
+                  disabled={readOnly}
                   onChange={(e) => setEmergencyClass(e.target.value)}
                   className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm text-[var(--color-ink)]"
                 >
@@ -751,6 +798,7 @@ export function SupportAccessScreen({
                 <input
                   type="text"
                   value={declaredScope}
+                  disabled={readOnly}
                   onChange={(e) => setDeclaredScope(e.target.value)}
                   className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm text-[var(--color-ink)]"
                 />

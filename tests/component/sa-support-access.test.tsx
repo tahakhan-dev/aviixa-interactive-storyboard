@@ -8,6 +8,7 @@ import {
   BANNER_STATES,
   EMERGENCY_SESSION_STATES,
   EMERGENCY_TIME_BOX,
+  SESSION_DETAIL,
   SESSION_STATES,
   SUPPORT_ABSENT_CONTROLS,
   SUPPORT_PLATFORM_ROLES,
@@ -37,6 +38,24 @@ function interactiveText(container: HTMLElement): string[] {
 
 function region(name: RegExp): HTMLElement {
   return screen.getByRole('region', { name })
+}
+
+/** The reason a control states on ITSELF, through its own aria-describedby. */
+function statedReason(control: Element): string {
+  const id = control.getAttribute('aria-describedby')
+  return document.getElementById(id ?? '')?.textContent ?? ''
+}
+
+/** The list row for one session, so the row and the detail can be compared. */
+function sessionRowText(id: string): string {
+  const list = region(/Support session list/i)
+  return within(list).getByText(id).closest('tr')?.textContent ?? ''
+}
+
+/** The value the detail list renders under one of its terms. */
+function detailValue(term: string): string {
+  const detail = region(/Session detail/i)
+  return within(detail).getByText(term).parentElement?.querySelector('dd')?.textContent ?? ''
 }
 
 describe('MOD-SA-15 Support Access — the shell contract', () => {
@@ -437,6 +456,23 @@ describe('MOD-SA-15 — the twelve applicable screen states', () => {
     ).toBe('true')
     expect(screen.getAllByText(/read-only in this state/i).length).toBeGreaterThan(0)
   })
+
+  // The contract this screen prints in STATE-06 says "Every input is
+  // disabled". Every input of this module therefore is — the fixture
+  // switchers excepted, since disabling those would strand the reader in the
+  // state. And the cause stays one cause: no field states a second one.
+  it('STATE-06 read-only: every input of the module is genuinely disabled, under one banner', () => {
+    const { container } = render(<SupportAccessScreen role="SUPPORT" screenState="STATE-06" />)
+    for (const form of [region(/Open a support session/i), region(/Compliance-emergency/i)]) {
+      const inputs = Array.from(form.querySelectorAll('input, select, textarea'))
+      expect(inputs.length, 'no inputs found to check').toBeGreaterThan(0)
+      for (const el of inputs) {
+        expect((el as HTMLInputElement).disabled, `${el.id} left enabled`).toBe(true)
+      }
+    }
+    expect(container.querySelectorAll('[role=status]')).toHaveLength(1)
+    expect(container.textContent ?? '').not.toMatch(/Inert until a ticket-linked reason class/)
+  })
 })
 
 describe('MOD-SA-15 — aggregates never render as zero or blank (AC-SA-01-03)', () => {
@@ -514,6 +550,104 @@ describe('MOD-SA-15 — what the source does not define', () => {
       expect(within(panel).getByText(wf.name)).toBeDefined()
     }
     expect(within(panel).getAllByText(/Matched by/i).length).toBe(SUPPORT_WORKFLOWS.length)
+  })
+})
+
+describe('MOD-SA-15 — one recorded closure, one rendering of it', () => {
+  // The defect this replaces: the closure was recorded in the button copy and
+  // nowhere else, so the same session read "closed" on one control and
+  // "active" in the detail list and in its own row two panels above.
+  it.each([
+    ['Close this session', /^Close this session$/],
+    ['Escalate to the compliance-emergency path', /^Escalate to the compliance-emergency path$/],
+  ] as const)('%s makes the row, the detail and the note agree on one state', (_name, label) => {
+    render(<SupportAccessScreen role="SUPPORT" />)
+    expect(detailValue('Session state')).toBe(SESSION_DETAIL.state)
+    expect(sessionRowText(SESSION_DETAIL.id)).toContain(SESSION_DETAIL.state)
+
+    fireEvent.click(within(region(/Session detail/i)).getByRole('button', { name: label }))
+
+    expect(detailValue('Session state')).toBe('closed by operator')
+    expect(sessionRowText(SESSION_DETAIL.id)).toContain('closed by operator')
+    expect(sessionRowText(SESSION_DETAIL.id)).not.toContain(SESSION_DETAIL.state)
+    // The banner is the same fact seen from the tenant's side, so it moves too.
+    expect(detailValue('Tenant banner')).not.toBe(SESSION_DETAIL.bannerState)
+    expect(sessionRowText(SESSION_DETAIL.id)).not.toContain(SESSION_DETAIL.bannerState)
+    // And the note claims exactly the state that is on screen, not a private one.
+    expect(screen.getByText(/What the prototype did/i).textContent ?? '').toContain(
+      'closed by operator',
+    )
+  })
+
+  it('leaves the two sessions it did not touch exactly as they were', () => {
+    render(<SupportAccessScreen role="SUPPORT" />)
+    fireEvent.click(
+      within(region(/Session detail/i)).getByRole('button', { name: /^Close this session$/ }),
+    )
+    for (const s of SUPPORT_SESSIONS.filter((r) => r.id !== SESSION_DETAIL.id)) {
+      expect(sessionRowText(s.id), s.id).toContain(s.state)
+    }
+  })
+})
+
+describe('MOD-SA-15 — a recorded click never outranks a refusal, and never survives a switcher', () => {
+  const CLOSE = /^Close this session$/
+
+  function closeButton(): HTMLElement {
+    return within(region(/Session detail/i)).getByRole('button', { name: CLOSE })
+  }
+
+  it('tells a role that never held the control that it does not hold it, not that it is already closed', () => {
+    render(<SupportAccessScreen role="SUPPORT" />)
+    fireEvent.click(closeButton())
+    expect(statedReason(closeButton())).toMatch(/already recorded as closed/i)
+
+    fireEvent.change(screen.getByLabelText(/Console role/i), {
+      target: { value: 'PLATFORM_ENGINEER' },
+    })
+    const reason = statedReason(closeButton())
+    expect(reason).toMatch(/This role does not hold it/)
+    expect(reason).not.toMatch(/already recorded as closed/i)
+  })
+
+  it('gives STATE-06 its own single cause after a closure, not the closure', () => {
+    render(<SupportAccessScreen role="SUPPORT" />)
+    fireEvent.click(closeButton())
+    fireEvent.change(screen.getByLabelText(/Screen state/i), { target: { value: 'STATE-06' } })
+    const reason = statedReason(closeButton())
+    expect(reason).toBe('This module is read-only in this state.')
+  })
+
+  it('drops the recorded closure itself when either switcher moves', () => {
+    for (const [labelPattern, value] of [
+      [/Console role/i, 'ADMIN'],
+      [/Screen state/i, 'STATE-08'],
+    ] as const) {
+      const view = render(<SupportAccessScreen role="SUPPORT" />)
+      fireEvent.click(closeButton())
+      expect(screen.queryByText(/What the prototype did/i)).not.toBeNull()
+
+      fireEvent.change(screen.getByLabelText(labelPattern), { target: { value } })
+      expect(screen.queryByText(/What the prototype did/i), value).toBeNull()
+      expect(detailValue('Session state'), value).toBe(SESSION_DETAIL.state)
+      expect(sessionRowText(SESSION_DETAIL.id), value).toContain(SESSION_DETAIL.state)
+      view.unmount()
+    }
+  })
+
+  it('does the same for the two emergency authorisation slots', () => {
+    render(<SupportAccessScreen role="ROOT_SUPER_ADMIN" />)
+    const rootSlot = () =>
+      within(region(/Compliance-emergency/i)).getByRole('button', {
+        name: /Authorise as the Root Super Admin/i,
+      })
+    fireEvent.click(rootSlot())
+    expect(statedReason(rootSlot())).toMatch(/already recorded/i)
+    expect(screen.getByText(/one of two authorisations/i)).toBeDefined()
+
+    fireEvent.change(screen.getByLabelText(/Console role/i), { target: { value: 'SUPPORT' } })
+    expect(statedReason(rootSlot())).toMatch(/Root Super Admin’s alone/)
+    expect(screen.getByText(/No authorisation recorded/i)).toBeDefined()
   })
 })
 
