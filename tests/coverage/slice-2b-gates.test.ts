@@ -226,4 +226,23 @@ describe('slice 2b gates', () => {
   it('the approval gate scans inside a template literal (contents are never stripped, only comments are)', () => {
     expect(stripComments('const label = `Approve this change`')).toMatch(APPROVAL_WORD_PATTERN)
   })
+
+  // CRITICAL (final review round 3): a plain URL in JSX prose -- an
+  // ordinary thing to write -- silently disabled this gate. The
+  // hand-rolled tokenizer treated any bare `//` as a line-comment start
+  // with no notion of "this text is JSX children, not JS", so
+  // `<p>See https://x for details. Approve.</p>` had everything from the
+  // `//` in the URL to end-of-line discarded, including "Approve". Proven
+  // on the exact repro that defeated the old stripper.
+  it('the approval gate is not blinded by a URL in ordinary JSX prose', () => {
+    const planted = `function X() { return <p>See https://example.com/docs for details. Approve the change.</p> }`
+    expect(stripComments(planted)).toMatch(APPROVAL_WORD_PATTERN)
+  })
+
+  it('the approval gate strips a JSX comment container ({/* ... */}) but not sibling JSX text', () => {
+    const planted = '<div>{/* say never approve here */}<span>Approve this</span></div>'
+    const stripped = stripComments(planted)
+    expect(stripped).not.toMatch(/never approve/)
+    expect(stripped).toMatch(APPROVAL_WORD_PATTERN)
+  })
 })
