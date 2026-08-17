@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
-import { UsageMeteringScreen } from '../../app/super-admin/usage-metering/UsageMeteringScreen'
+import { UsageMeteringScreen } from '../../app/super-admin/usage-and-metering/UsageMeteringScreen'
 import {
   LADDER_RUNGS,
   LADDER_STATES,
@@ -13,7 +13,7 @@ import {
   USAGE_SOURCE_CONFLICTS,
   USAGE_UNSPECIFIED_IN_SOURCE,
   USAGE_WORKFLOWS,
-} from '../../app/super-admin/usage-metering/fixtures'
+} from '../../app/super-admin/usage-and-metering/fixtures'
 
 const MODULE = saModuleById('MOD-SA-12')
 
@@ -39,6 +39,15 @@ describe('MOD-SA-12 Usage and Metering — the shell contract', () => {
     expect(screen.getByText(/MOD-SA-12 · Operations layer/)).toBeDefined()
   })
 
+  it('is reachable at the route the console index links to — /super-admin/<slug>/', async () => {
+    // SaConsoleShell builds every index link as `/super-admin/${m.slug}/`, so
+    // the route directory must BE the slug or the link is a 404 in the static
+    // export. Importing the page through the slug is the only gate that fails
+    // when the directory drifts from the registry.
+    const page = await import(`../../app/super-admin/${MODULE.slug}/page.tsx`)
+    expect(typeof page.default).toBe('function')
+  })
+
   it('carries the prototype disclosure', () => {
     render(<UsageMeteringScreen />)
     expect(screen.getByText(/Simulated behaviour only/i)).toBeDefined()
@@ -52,11 +61,23 @@ describe('MOD-SA-12 Usage and Metering — the shell contract', () => {
     }
   })
 
-  it('names none of the four forbidden words anywhere in its copy', () => {
-    const { container } = render(<UsageMeteringScreen />)
-    // `signed` also catches assigned/designed/unsigned, which is deliberate:
-    // the gate is a substring gate and the copy must survive it as written.
-    expect(container.textContent ?? '').not.toMatch(/tamper-evident|chained|signed|verified/i)
+  it('names none of the four forbidden words anywhere in its copy, for every role in every state', () => {
+    // "anywhere" means every role view in every applicable state: the denial
+    // explanations only reach the DOM for the two roles that are refused, and
+    // some copy only exists in one state.
+    for (const role of USAGE_PLATFORM_ROLES) {
+      for (const state of APPLICABLE_STATES) {
+        const { container, unmount } = render(
+          <UsageMeteringScreen role={role.id} screenState={state.id} />,
+        )
+        // `signed` also catches assigned/designed/unsigned, which is deliberate:
+        // the gate is a substring gate and the copy must survive it as written.
+        expect(container.textContent ?? '', `${role.id} / ${state.id}`).not.toMatch(
+          /tamper-evident|chained|signed|verified/i,
+        )
+        unmount()
+      }
+    }
   })
 
   it('resolves every link to the console, and tenant content only to the session-request form', () => {
@@ -387,15 +408,72 @@ describe('MOD-SA-12 — the twelve applicable screen states', () => {
 
   it('STATE-03 renders every aggregate with its as-of time', () => {
     render(<UsageMeteringScreen screenState="STATE-03" />)
-    const table = screen.getByRole('region', { name: /Cross-tenant usage/i })
-    expect(within(table).getByText(/as of/i)).toBeDefined()
+    for (const name of [
+      /Cross-tenant usage/i,
+      /Per-tenant ledger/i,
+      /Storage dimensions/i,
+      /Ladder events/i,
+    ]) {
+      const panel = screen.getByRole('region', { name })
+      expect(within(panel).getByText(/as of/i), String(name)).toBeDefined()
+    }
   })
 
-  it('STATE-08 degrades the aggregate to stale WITH its age, never to zero', () => {
+  it('STATE-08 degrades every ledger-derived panel to stale WITH its age, never to zero', () => {
     render(<UsageMeteringScreen screenState="STATE-08" />)
-    const table = screen.getByRole('region', { name: /Cross-tenant usage/i })
-    expect(table.textContent ?? '').toMatch(/stale/i)
-    expect(table.textContent ?? '').toMatch(/\d+ (minutes|hours) old/i)
+    for (const name of [
+      /Cross-tenant usage/i,
+      /Per-tenant ledger/i,
+      /Storage dimensions/i,
+      /Ladder events/i,
+    ]) {
+      const panel = screen.getByRole('region', { name })
+      const text = panel.textContent ?? ''
+      expect(text, String(name)).toMatch(/stale/i)
+      expect(text, String(name)).toMatch(/\d+ (minutes|hours) old/i)
+    }
+  })
+
+  it('STATE-02 replaces every ledger-derived panel with a placeholder, never fetched-looking rows', () => {
+    render(<UsageMeteringScreen screenState="STATE-02" />)
+    for (const name of [
+      /Cross-tenant usage/i,
+      /Per-tenant ledger/i,
+      /Storage dimensions/i,
+      /Ladder events/i,
+    ]) {
+      const panel = screen.getByRole('region', { name })
+      expect(within(panel).getByRole('status'), String(name)).toBeDefined()
+      expect(panel.querySelector('table'), String(name)).toBeNull()
+    }
+  })
+
+  it('STATE-01 empties every ledger-derived panel, so the screen never contradicts itself', () => {
+    render(<UsageMeteringScreen screenState="STATE-01" />)
+    for (const [name, empty] of [
+      [/Cross-tenant usage/i, /no Worker-Shift has metered/i],
+      [/Per-tenant ledger/i, /Nothing has metered for this tenant/i],
+      [/Storage dimensions/i, /No storage volume has metered/i],
+      [/Ladder events/i, /No ladder threshold has been crossed/i],
+    ] as const) {
+      const panel = screen.getByRole('region', { name })
+      expect(within(panel).getByText(empty), String(name)).toBeDefined()
+      expect(panel.textContent ?? '', String(name)).not.toMatch(/\b0\b/)
+    }
+  })
+
+  it('STATE-12 degrades every ledger-derived panel to unavailable, never to zero or blank', () => {
+    render(<UsageMeteringScreen screenState="STATE-12" />)
+    for (const name of [
+      /Cross-tenant usage/i,
+      /Per-tenant ledger/i,
+      /Storage dimensions/i,
+      /Ladder events/i,
+    ]) {
+      const panel = screen.getByRole('region', { name })
+      expect(panel.textContent ?? '', String(name)).toMatch(/Unavailable/i)
+      expect(panel.querySelector('table'), String(name)).toBeNull()
+    }
   })
 
   it('STATE-12 degrades the aggregate to unavailable, never to zero or blank', () => {

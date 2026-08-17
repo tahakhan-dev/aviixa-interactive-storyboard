@@ -387,11 +387,15 @@ export function UsageMeteringScreen({
               { key: 'count', header: 'Count for the tenant-month' },
               { key: 'note', header: 'What the count is' },
             ]}
-            rows={METERING_DIMENSIONS.map((d) => ({
-              dimension: d.name,
-              count: d.countLabel,
-              note: d.note,
-            }))}
+            rows={
+              mode === 'empty'
+                ? []
+                : METERING_DIMENSIONS.map((d) => ({
+                    dimension: d.name,
+                    count: d.countLabel,
+                    note: d.note,
+                  }))
+            }
             emptyState={{
               title: 'Nothing has metered for this tenant in this month yet',
               whatCreatesIt: 'Operational events on the tenant’s own surfaces fold into the ledger.',
@@ -413,14 +417,18 @@ export function UsageMeteringScreen({
               { key: 'month', header: 'Month' },
               { key: 'volume', header: 'Volume' },
             ]}
-            rows={STORAGE_SERIES.map((s) => ({
-              dimension: s.dimension,
-              month: s.monthLabel,
-              volume:
-                screenState === 'STATE-10' && s.driftsUnderDegradation
-                  ? 'Unreliable — the measured volume diverges from the stored volume, so the figure is withheld rather than shown wrong. A corrected meter and a re-derivation of the affected periods restore it (L97055).'
-                  : s.volumeLabel,
-            }))}
+            rows={
+              mode === 'empty'
+                ? []
+                : STORAGE_SERIES.map((s) => ({
+                    dimension: s.dimension,
+                    month: s.monthLabel,
+                    volume:
+                      screenState === 'STATE-10' && s.driftsUnderDegradation
+                        ? 'Unreliable — the measured volume diverges from the stored volume, so the figure is withheld rather than shown wrong. A corrected meter and a re-derivation of the affected periods restore it (L97055).'
+                        : s.volumeLabel,
+                  }))
+            }
             emptyState={{
               title: 'No storage volume has metered for this tenant-month yet',
               whatCreatesIt: 'Evidence, packages, parts and training content accrue volume as they are stored.',
@@ -458,28 +466,36 @@ export function UsageMeteringScreen({
           A threshold event fires once per crossing, not once per evaluation (WF-USAGE-LADDER,
           L117965), and burst entry is recorded as its own event (AC-SA-12-04, L45456).
         </p>
-        <Table
-          caption="Ladder events recorded in this period"
-          columns={[
-            { key: 'tenant', header: 'Tenant' },
-            { key: 'month', header: 'Month' },
-            { key: 'event', header: 'Event' },
-            { key: 'source', header: 'Source' },
-          ]}
-          {...(mode === 'unavailable'
-            ? { error: 'The ladder event list could not be read in this state. Nothing is treated as un-crossed while it cannot be read.' }
-            : {})}
-          rows={LADDER_EVENTS.map((e) => ({
-            tenant: e.tenantLabel,
-            month: e.monthLabel,
-            event: e.event,
-            source: e.sourceRef,
-          }))}
-          emptyState={{
-            title: 'No ladder threshold has been crossed in this period',
-            whatCreatesIt: 'A crossing of the 80, 100 or 125 per cent threshold records one event.',
-          }}
-        />
+        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          This list is drawn from the same ledger as the tables above, so it degrades with them:
+          nothing here is treated as un-crossed while the ledger cannot be read.
+        </p>
+        <Aggregate label="the ladder event list">
+          <Table
+            caption="Ladder events recorded in this period"
+            columns={[
+              { key: 'tenant', header: 'Tenant' },
+              { key: 'month', header: 'Month' },
+              { key: 'event', header: 'Event' },
+              { key: 'source', header: 'Source' },
+            ]}
+            rows={
+              mode === 'empty'
+                ? []
+                : LADDER_EVENTS.map((e) => ({
+                    tenant: e.tenantLabel,
+                    month: e.monthLabel,
+                    event: e.event,
+                    source: e.sourceRef,
+                  }))
+            }
+            emptyState={{
+              title: 'No ladder threshold has been crossed in this period',
+              whatCreatesIt:
+                'A crossing of the 80, 100 or 125 per cent threshold records one event.',
+            }}
+          />
+        </Aggregate>
       </Section>
 
       <Section id="sa12-ceiling" heading="Allocation ceiling">
@@ -529,9 +545,13 @@ export function UsageMeteringScreen({
           <PermissionNotice decision={thresholdDecision} />
         </div>
         {thresholdsSubmitted ? (
-          <p className="mt-2 text-sm">
-            <StatusPill tone="info" icon="•" label="threshold change recorded" />
-          </p>
+          <div className="mt-2">
+            <StatusPill tone="info" icon="•" label="threshold change requested" />
+            <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
+              A request is shown in its own state. No threshold was changed and nothing was written:
+              this fixture holds no ledger and no tenant configuration.
+            </p>
+          </div>
         ) : null}
         <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
           The three events always fire and cannot be switched off (L50334, L67322), so no mute, no
