@@ -188,10 +188,38 @@ describe('MOD-SA-07 — the emergency pause, D8', () => {
     expect(btn.getAttribute('aria-disabled')).toBeNull()
   })
 
-  it('replaces the approval action bar with the critical-class badge for a non-root role', () => {
+  /**
+   * The class badge is a rule, not a taste, so it has to hold for BOTH
+   * root-held critical-class controls on the pause bar and for EVERY
+   * non-root role — not just for the approval seen by the default role.
+   * A sibling left as a drawn disabled button is what made the notice
+   * beside it untrue.
+   */
+  it('renders both root-only critical-class pause controls as the class badge for every non-root role', () => {
+    for (const r of SA07_PLATFORM_ROLES.filter((x) => x.id !== 'ROOT_SUPER_ADMIN')) {
+      const { unmount } = render(<PlatformSettingsScreen role={r.id} />)
+      for (const name of [/^Approve the pause proposal$/, /^Propose a resume$/]) {
+        expect(screen.queryByRole('button', { name })).toBeNull()
+      }
+      expect(
+        screen.getAllByText(/Critical class — root approval required/i).length,
+      ).toBeGreaterThanOrEqual(2)
+      unmount()
+    }
+  })
+
+  /**
+   * The notice beside the badge may only describe what is on screen. The
+   * Admin's pause PROPOSAL is still drawn in this bar, so no copy here may
+   * say the bar itself was replaced — only that the critical-class controls
+   * in it were.
+   */
+  it('never claims the pause action bar is replaced while a control in that bar is still drawn', () => {
     render(<PlatformSettingsScreen role="ADMIN" />)
-    expect(screen.getAllByText(/Critical class — root approval required/i).length).toBeGreaterThan(0)
-    expect(screen.queryByRole('button', { name: /Approve the pause proposal/i })).toBeNull()
+    expect(screen.getByRole('button', { name: /^Propose an emergency pause$/ })).toBeDefined()
+    const notice = screen.getByText(/Approving a pause is the root’s act alone/i)
+    expect(notice.textContent ?? '').not.toMatch(/action bar above is replaced/i)
+    expect(notice.textContent ?? '').toMatch(/resume proposal/i)
   })
 
   it('lets the root approve', () => {

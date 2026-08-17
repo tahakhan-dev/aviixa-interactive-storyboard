@@ -865,27 +865,27 @@ export function PlatformSettingsScreen({
                 decision={{
                   ...approvePauseDecision,
                   explanation:
-                    'Approving a pause is the root’s act alone, and the action bar above is replaced rather than disabled so no control here can be mistaken for an approval path.',
+                    'Approving a pause is the root’s act alone. Both root-held critical-class controls on this bar — this approval and the resume proposal — are replaced by the class badge rather than drawn inert, so no approval path is drawn here. What stays drawn beside them is the pause PROPOSAL, which is not an approval.',
                 }}
               />
             ) : null}
           </div>
           <div>
-            <Button
-              variant="secondary"
-              {...(proposeResumeDecision.outcome === 'allowed'
-                ? { onClick: () => setPauseProposal('ResumeRequested') }
-                : {
-                    disabledReason: namedReason(
-                      proposeResumeDecision,
-                      role,
-                      'Resume opens its own approval request and never reverses the pause directly (L21588). It is the root’s act.',
-                      availability,
-                    ),
-                  })}
-            >
-              Propose a resume
-            </Button>
+            {/*
+             * Resume is critical class by this section's own copy above, and
+             * root-only by `proposeResumeDecision`. It therefore takes the
+             * SAME §3 rendering as the pause approval: class badge at a
+             * BASE_ROLE refusal, drawn-and-inert at a later-stage one. It
+             * used to be a hand-rolled disabled Button, which made the
+             * notice's "replaced rather than disabled" claim false for the
+             * very bar it described.
+             */}
+            {criticalAction(
+              proposeResumeDecision,
+              'Propose a resume',
+              'Resume opens its own approval request and never reverses the pause directly (L21588). It is the root’s act.',
+              () => setPauseProposal('ResumeRequested'),
+            )}
           </div>
         </div>
 
