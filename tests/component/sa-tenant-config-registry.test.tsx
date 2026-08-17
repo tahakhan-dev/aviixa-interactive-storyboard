@@ -87,18 +87,37 @@ describe('MOD-SA-19 Tenant-Configuration Registry — the shell contract', () =>
     const forbidden = /tamper-evident|chained|signed|verified/i
     const { container } = render(<TenantConfigRegistryScreen />)
 
+    // The three switchers are resolved once. Querying them by accessible name
+    // inside the loop walked the whole screen's accessibility tree 432 times,
+    // which is what pushed this test past vitest's 5000ms default under a
+    // loaded full-suite run (12997ms) — a gate that goes red under load gets
+    // deleted by the next person who sees it.
+    const roleSelect = control(/console role/i)
+    const stateSelect = control(/screen state/i)
+    const classSelect = control(/^write class$/i)
+
     // Every permutation the screen's own switchers reach: 4 roles x 12 states
     // x 3 write classes. Rendering only the default role and state proves the
     // property for one of 144 screens.
     for (const role of REGISTRY_PLATFORM_ROLES) {
-      setRole(role.id)
+      fireEvent.change(roleSelect, { target: { value: role.id } })
       for (const state of APPLICABLE_STATES) {
-        setScreenState(state.id)
+        fireEvent.change(stateSelect, { target: { value: state.id } })
         for (const c of WRITE_CLASSES) {
-          setWriteClass(c.id)
-          expect(container.textContent ?? '', `${role.id} / ${state.id} / ${c.id}`).not.toMatch(
-            forbidden,
-          )
+          fireEvent.change(classSelect, { target: { value: c.id } })
+          const where = `${role.id} / ${state.id} / ${c.id}`
+          const text = container.textContent ?? ''
+          // A cached node React had detached would swallow every later change
+          // and let this loop assert one screen 144 times over, so the walk is
+          // read back off the screen: the switchers are still the live ones,
+          // and the state contract on show is this state's, not the last one's.
+          // (The state's `id — name` would not do: the switcher renders that
+          // string as an <option> for all twelve regardless of selection.)
+          for (const node of [roleSelect, stateSelect, classSelect]) {
+            expect(node.isConnected, where).toBe(true)
+          }
+          expect(text, where).toContain(state.contract)
+          expect(text, where).not.toMatch(forbidden)
         }
       }
     }
