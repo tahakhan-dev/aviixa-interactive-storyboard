@@ -13,6 +13,7 @@ import { GeneratedRegistrySchema, type RegistryRow } from '@/coverage/registry-s
 import { COVERAGE_STATUSES } from '@/coverage/descriptors'
 import { SURFACES } from '@/domain/surfaces'
 import workflowsRaw from '../../registries/generated/workflows.json'
+import modulesRaw from '../../registries/generated/modules.json'
 
 const WORKFLOW_COLUMNS: readonly TableColumn[] = [
   { key: 'id', header: 'Stable ID' },
@@ -35,6 +36,11 @@ const WORKFLOW_COLUMNS: readonly TableColumn[] = [
  * registry index uses.
  */
 const WORKFLOWS = loadRegistry(GeneratedRegistrySchema, workflowsRaw, 'workflows registry')
+// Final review round 2, MAJOR: "81" used to be a bare literal in the prose
+// below ("81 is the MODULE count") -- a hardcoded count outside gate 1's
+// walk, which only covered app/coverage/. Derived the same way every other
+// count on this page already is.
+const MODULES = loadRegistry(GeneratedRegistrySchema, modulesRaw, 'modules registry')
 
 const COLLAPSED_ROWS = WORKFLOWS.rows.filter((r) => (r.collapsedFrom ?? 1) > 1)
 const ENTRIES_AFFECTED_BY_COLLAPSE = COLLAPSED_ROWS.reduce((sum, r) => sum + (r.collapsedFrom ?? 1), 0)
@@ -64,12 +70,21 @@ const SURFACE_OPTIONS = [
 // case-insensitively (the frozen source's casing is inconsistent, e.g.
 // "Super Admin platform console" vs. the canonical "Super Admin Platform
 // Console").
+//
+// Final review round 2, MAJOR: 13 more rows read "all five"/"All five
+// surfaces" -- a row that genuinely touches every surface, including the
+// one just selected, but matched no single-surface filter at all (the
+// same silent-drop defect one level up). "all five" as a case-insensitive
+// substring is unambiguous in this registry: verified it never appears
+// anywhere except these 13 rows, all meaning the same thing.
 function surfaceTouchedMatches(surfacesTouched: readonly string[] | undefined, surfaceId: string): boolean {
   if (!surfacesTouched || surfacesTouched.length === 0) return false
   const surfaceName = SURFACES.find((s) => s.id === surfaceId)?.name.toLowerCase()
-  return surfacesTouched.some(
-    (s) => s.includes(surfaceId) || (surfaceName !== undefined && s.toLowerCase().includes(surfaceName)),
-  )
+  return surfacesTouched.some((s) => {
+    const lower = s.toLowerCase()
+    if (lower.includes('all five')) return true
+    return s.includes(surfaceId) || (surfaceName !== undefined && lower.includes(surfaceName))
+  })
 }
 const ACTOR_OPTIONS = [
   { value: '', label: 'All actors' },
@@ -152,7 +167,7 @@ export function WorkflowIndex() {
         Simulated behaviour only. {WORKFLOWS.rawCount} extracted workflow
         records across the 36 extraction chunks, 1 cross-chunk duplicate
         merged, {WORKFLOWS.rows.length} rows below — the frozen source fixes
-        no single workflow total anywhere in its 122,241 lines, and 81 is the
+        no single workflow total anywhere in its 122,241 lines, and {MODULES.rows.length} is the
         MODULE count, not a workflow count. This index never presents{' '}
         {WORKFLOWS.rows.length} as a workflow total, only as the size of this
         extracted, composite-keyed record set.

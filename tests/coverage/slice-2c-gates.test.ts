@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { stripComments } from './strip-comments'
 import { loadRegistry } from '@/registry/load'
 import { GeneratedRegistrySchema } from '@/coverage/registry-loader'
-import { REGISTRY_DESCRIPTORS } from '@/coverage/descriptors'
+import { REGISTRY_DESCRIPTORS, countByClass } from '@/coverage/descriptors'
 
 function walk(dir: string, acc: string[] = []): string[] {
   if (!existsSync(dir)) return acc
@@ -91,31 +91,87 @@ describe('gate 1: count-scope honesty', () => {
     expect(countScopeOffenders()).toEqual([])
   })
 
-  // Final review, MAJOR 3: this used to scan ONE named file
-  // (app/coverage/[registry]/page.tsx) for a count that a DIFFERENT
-  // hardcoded number (724) had already shipped in, while
-  // app/coverage/page.tsx hardcoded three more (81/63/18 in its Source
-  // classification prose) and was never scanned at all. Every count-bearing
-  // page under app/coverage/ derives every figure from a loaded registry
-  // now (see app/coverage/page.tsx and app/coverage/[registry]/page.tsx);
-  // this gate walks the whole directory generically, not a named file, so
-  // a hardcoded count anywhere under it -- in a file that exists today or
-  // one added later -- trips it.
-  const FORBIDDEN_COUNTS = /\b(81|92|99|63|18|432|724|725|990|613)\b/
-
-  function hardcodedCountOffenders(): string[] {
-    return walk('app/coverage')
-      .filter((f) => /\.tsx$/.test(f))
-      .filter((f) => FORBIDDEN_COUNTS.test(stripComments(readFileSync(f, 'utf8'))))
+  // Final review round 1, MAJOR 3: this used to scan ONE named file for a
+  // hand-written list of numbers. Round 2, MAJOR: that list itself was an
+  // enumeration -- the workflow-collapse lesson repeating inside a gate.
+  // Nine of the fourteen live registry row counts were absent from it
+  // (17/28/67/70/205/330/526/534/630), so a hardcoded "The same 630 rows
+  // also render below." kept the gate green. Computed FRESH from the
+  // registries' own data on every call instead: every registry's
+  // `rows.length`, `rawCount` and `reconciledCount`, PLUS the modules
+  // source-class breakdown (63 source-defined, 18 derived, ...) --
+  // `countByClass` is the exact function app/coverage/page.tsx calls to
+  // render that breakdown, so a hardcoded restatement of one of ITS
+  // figures is caught too, not just the top-level registry counts. Self-
+  // maintaining: a registry added in slices 3-13, or any count that
+  // changes, is covered with no list to remember to update. 0 is excluded
+  // -- not a meaningful "count" to forbid (it appears constantly in
+  // unrelated contexts: array indices, margin classes, key={0}), and every
+  // currently-unpopulated build class is honestly 0.
+  function liveRegistryCounts(): Set<number> {
+    const counts = new Set<number>()
+    for (const f of generatedRegistryFiles().filter((f) => f !== 'source-reconciliation.json')) {
+      const r = JSON.parse(readFileSync(join(REGISTRY_DIR, f), 'utf8')) as {
+        rows: unknown[]
+        rawCount?: number
+        reconciledCount?: number | null
+      }
+      counts.add(r.rows.length)
+      if (typeof r.rawCount === 'number') counts.add(r.rawCount)
+      if (typeof r.reconciledCount === 'number') counts.add(r.reconciledCount)
+    }
+    const modules = JSON.parse(readFileSync(join(REGISTRY_DIR, 'modules.json'), 'utf8')) as {
+      rows: Array<{ sourceClass?: string; buildClass?: string }>
+    }
+    const moduleClasses = countByClass(
+      modules.rows as Array<{
+        sourceClass?: 'source-defined' | 'derived' | 'recommended' | 'illustrative' | 'unresolved'
+        buildClass?: 'implemented' | 'not-applicable' | 'decision-blocked'
+      }>,
+    )
+    for (const n of [...Object.values(moduleClasses.source), ...Object.values(moduleClasses.build)]) {
+      counts.add(n)
+    }
+    counts.delete(0)
+    return counts
   }
 
-  it('no page under app/coverage/ hardcodes a registry count', () => {
+  // Final review round 2, MAJOR: `app/workflows/WorkflowIndex.tsx`
+  // hardcoded 81 and sat outside the old `app/coverage/**` walk entirely.
+  // Rather than name every directory that happens to render a count today,
+  // this walks the whole `app/` tree -- deriving the scope instead of
+  // enumerating it, so a page added in slices 3-13 is covered too.
+  function hardcodedCountOffenders(): string[] {
+    const forbidden = liveRegistryCounts()
+    if (forbidden.size === 0) return []
+    const pattern = new RegExp(`\\b(${[...forbidden].join('|')})\\b`)
+    return walk('app')
+      .filter((f) => /\.tsx$/.test(f))
+      .filter((f) => pattern.test(stripComments(readFileSync(f, 'utf8'))))
+  }
+
+  it('no page anywhere under app/ hardcodes a live registry count', () => {
     expect(hardcodedCountOffenders()).toEqual([])
   })
 
-  it('PLANTED VIOLATION: a hardcoded count in ANY app/coverage/ file trips the gate, not just a named one', () => {
-    const probe = join('app', 'coverage', 'zz-probe.tsx')
-    writeFileSync(probe, 'export const total = 613\n')
+  it('the forbidden-count set is computed from live data, not a hand-written list', () => {
+    const forbidden = liveRegistryCounts()
+    // The nine counts a prior hand-written list omitted -- restoring a
+    // hardcoded "630" (or any of these) used to keep the gate green.
+    for (const n of [17, 28, 67, 70, 205, 330, 526, 534, 630]) {
+      expect(forbidden.has(n), String(n)).toBe(true)
+    }
+    // The modules source-class breakdown, computed the same way
+    // app/coverage/page.tsx computes it -- not stored anywhere in the JSON.
+    expect(forbidden.has(63)).toBe(true)
+    expect(forbidden.has(18)).toBe(true)
+    // 0 is deliberately never forbidden.
+    expect(forbidden.has(0)).toBe(false)
+  })
+
+  it('PLANTED VIOLATION: a hardcoded count in ANY app/ file trips the gate, including outside app/coverage/', () => {
+    const probe = join('app', 'workflows', 'zz-probe.tsx')
+    writeFileSync(probe, 'export const total = 630\n')
     try {
       expect(hardcodedCountOffenders()).toContain(probe)
     } finally {
