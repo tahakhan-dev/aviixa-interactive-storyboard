@@ -38,6 +38,19 @@ export default defineConfig({
           name: 'release',
           environment: 'node',
           include: ['tests/coverage/**/*.test.ts'],
+          // Task 13: multiple files in this project plant scratch files
+          // (`src/zz-probe/`, `registries/generated/zz-probe.json`,
+          // `out/zz-probe.html`, ...) on the REAL shared filesystem to
+          // prove a gate can fail, then delete them. With files running in
+          // parallel (Vitest's default), a `walk('src')`-style scan in one
+          // file can catch another file's probe mid-existence and then
+          // ENOENT on a since-deleted path -- reproduced directly:
+          // slice-2b-gates.test.ts's src/zz-probe/probe.ts, mid-lifetime,
+          // crashed contract-gates.test.ts's readFileSync in a concurrent
+          // run. Root-caused, not retried around: these tests are not safe
+          // to parallelise against each other at all, so this project runs
+          // its files sequentially.
+          fileParallelism: false,
         },
       },
     ],

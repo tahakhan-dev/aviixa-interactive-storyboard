@@ -34,7 +34,10 @@ export interface RoleDefinition {
   readonly sourceRef: string
 }
 
-export const ROLES: readonly RoleDefinition[] = [
+// Task 13 gate: same widening hazard and same fix as `SURFACES` in
+// `@/domain/surfaces` -- `as const satisfies` keeps every `id` literal
+// narrowed to `RoleId`, so the exhaustiveness check below is real.
+export const ROLES = [
   {
     id: 'ROOT_SUPER_ADMIN',
     name: 'Root Super Admin',
@@ -143,7 +146,14 @@ export const ROLES: readonly RoleDefinition[] = [
     maxInstances: null,
     sourceRef: 'MOD-DOH-09, MOD-FL-A2 / §3.5, §7.4',
   },
-] as const
+] as const satisfies readonly RoleDefinition[]
+
+// Compile-time exhaustiveness check, same shape as `PERMISSION_OUTCOMES` in
+// `@/policy/decision.ts`: fails to compile if `RoleId` gains or loses a
+// member that `ROLES` does not list exactly once.
+type MissingFromRoles = Exclude<RoleId, (typeof ROLES)[number]['id']>
+const _rolesExhaustive: MissingFromRoles extends never ? true : never = true
+void _rolesExhaustive
 
 const BY_ID = new Map(ROLES.map((r) => [r.id, r]))
 

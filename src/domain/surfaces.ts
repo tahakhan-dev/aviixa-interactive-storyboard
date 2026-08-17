@@ -21,7 +21,12 @@ export interface SurfaceDefinition {
   readonly ownership: string
 }
 
-export const SURFACES: readonly SurfaceDefinition[] = [
+// Task 13 gate: `: readonly SurfaceDefinition[]` WIDENS the const, which
+// would make the exhaustiveness check below type-check unconditionally
+// (same defect fixed for COVERAGE_STATUSES/REGISTRY_DESCRIPTORS in
+// @/coverage/descriptors and CONNECTIVITY_MODES in @/scenario/controls).
+// `as const satisfies` keeps every `id` literal narrowed to `SurfaceId`.
+export const SURFACES = [
   {
     id: 'SURF-SA',
     name: 'Super Admin Platform Console',
@@ -75,7 +80,14 @@ export const SURFACES: readonly SurfaceDefinition[] = [
     ownership:
       'The local origin of worker operational captures, contributed to the official record at synchronisation.',
   },
-] as const
+] as const satisfies readonly SurfaceDefinition[]
+
+// Compile-time exhaustiveness check, same shape as `PERMISSION_OUTCOMES` in
+// `@/policy/decision.ts`: fails to compile if `SurfaceId` gains or loses a
+// member that `SURFACES` does not list exactly once.
+type MissingFromSurfaces = Exclude<SurfaceId, (typeof SURFACES)[number]['id']>
+const _surfacesExhaustive: MissingFromSurfaces extends never ? true : never = true
+void _surfacesExhaustive
 
 const BY_ID = new Map(SURFACES.map((s) => [s.id, s]))
 
