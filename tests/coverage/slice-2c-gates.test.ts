@@ -141,13 +141,20 @@ describe('gate 1: count-scope honesty', () => {
   // Rather than name every directory that happens to render a count today,
   // this walks the whole `app/` tree -- deriving the scope instead of
   // enumerating it, so a page added in slices 3-13 is covered too.
+  // Final review round 3 (non-blocking): used to return bare file paths,
+  // so a false positive would print `expected [...] to equal []` with no
+  // clue which number in the file matched or which live count forbade it.
+  // Each offender now names both.
   function hardcodedCountOffenders(): string[] {
     const forbidden = liveRegistryCounts()
     if (forbidden.size === 0) return []
     const pattern = new RegExp(`\\b(${[...forbidden].join('|')})\\b`)
-    return walk('app')
-      .filter((f) => /\.tsx$/.test(f))
-      .filter((f) => pattern.test(stripComments(readFileSync(f, 'utf8'))))
+    const offenders: string[] = []
+    for (const f of walk('app').filter((f) => /\.tsx$/.test(f))) {
+      const match = pattern.exec(stripComments(readFileSync(f, 'utf8')))
+      if (match) offenders.push(`${f}: hardcodes ${match[0]}`)
+    }
+    return offenders
   }
 
   it('no page anywhere under app/ hardcodes a live registry count', () => {
@@ -173,7 +180,7 @@ describe('gate 1: count-scope honesty', () => {
     const probe = join('app', 'workflows', 'zz-probe.tsx')
     writeFileSync(probe, 'export const total = 630\n')
     try {
-      expect(hardcodedCountOffenders()).toContain(probe)
+      expect(hardcodedCountOffenders()).toContain(`${probe}: hardcodes 630`)
     } finally {
       rmSync(probe)
     }

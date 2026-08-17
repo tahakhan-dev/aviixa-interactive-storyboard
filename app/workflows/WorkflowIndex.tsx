@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Table, StatusPill, Select, Button, type TableColumn, type TableRow } from '@/ui/primitives'
-import { loadRegistry } from '@/registry/load'
+import { loadRegistry, loadReconciliation } from '@/registry/load'
 // Imports the PURE schema module (no `node:fs`), not `@/coverage/registry-
 // loader` -- this is a client component, and `registry-loader.ts` pulls in
 // `readFileSync`, which Turbopack refuses to put in a browser bundle at all
@@ -14,6 +14,7 @@ import { COVERAGE_STATUSES } from '@/coverage/descriptors'
 import { SURFACES } from '@/domain/surfaces'
 import workflowsRaw from '../../registries/generated/workflows.json'
 import modulesRaw from '../../registries/generated/modules.json'
+import sourceReconciliationRaw from '../../registries/generated/source-reconciliation.json'
 
 const WORKFLOW_COLUMNS: readonly TableColumn[] = [
   { key: 'id', header: 'Stable ID' },
@@ -41,6 +42,13 @@ const WORKFLOWS = loadRegistry(GeneratedRegistrySchema, workflowsRaw, 'workflows
 // walk, which only covered app/coverage/. Derived the same way every other
 // count on this page already is.
 const MODULES = loadRegistry(GeneratedRegistrySchema, modulesRaw, 'modules registry')
+// Final review round 3 (non-blocking): "36" (the extraction-chunk count in
+// the prose below) was a bare literal too, outside the count gate's walk
+// for the same reason 36 is excluded from its derived forbidden-count set
+// -- source-reconciliation.json has no `rows` array to read a length from.
+// Reads its own `extracted` field instead, through the schema this
+// repo already has for the file (`loadReconciliation`).
+const SOURCE_RECONCILIATION = loadReconciliation(sourceReconciliationRaw)
 
 const COLLAPSED_ROWS = WORKFLOWS.rows.filter((r) => (r.collapsedFrom ?? 1) > 1)
 const ENTRIES_AFFECTED_BY_COLLAPSE = COLLAPSED_ROWS.reduce((sum, r) => sum + (r.collapsedFrom ?? 1), 0)
@@ -165,7 +173,7 @@ export function WorkflowIndex() {
       <h1 className="mt-2 text-3xl font-semibold">Workflow Index</h1>
       <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">
         Simulated behaviour only. {WORKFLOWS.rawCount} extracted workflow
-        records across the 36 extraction chunks, 1 cross-chunk duplicate
+        records across the {SOURCE_RECONCILIATION.extracted} extraction chunks, 1 cross-chunk duplicate
         merged, {WORKFLOWS.rows.length} rows below — the frozen source fixes
         no single workflow total anywhere in its 122,241 lines, and {MODULES.rows.length} is the
         MODULE count, not a workflow count. This index never presents{' '}

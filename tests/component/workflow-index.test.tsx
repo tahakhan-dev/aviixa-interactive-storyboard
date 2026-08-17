@@ -18,13 +18,18 @@ describe('workflow index filters', () => {
   // clause left this test passing (51 either way). 'Quality Manager' is a
   // real actor that appears BOTH inside and outside SURF-FL (16 of its 32
   // rows touch FL, 16 do not), so surface+actor (16) is a strict subset of
-  // EITHER filter alone (surface-only 376, actor-only 32) -- two-sided by
+  // EITHER filter alone (surface-only 389, actor-only 32) -- two-sided by
   // construction, not just by which value happened to be picked first.
+  //
+  // Final review round 3 (non-blocking): surface-only was 376 here until
+  // round 2's own "all five" fix (WorkflowIndex.tsx's surfaceTouchedMatches)
+  // pulled in 13 more SURF-FL rows -- this comment named the pre-fix count
+  // and went stale in the very commit that changed it.
   it('filters compose — surface AND actor together narrow further than EITHER alone (two-sided)', async () => {
     render(<WorkflowIndex />)
 
     await userEvent.selectOptions(screen.getByLabelText(/surface/i), 'SURF-FL')
-    const surfaceOnly = screen.getAllByRole('row').length // 377 (376 rows + header)
+    const surfaceOnly = screen.getAllByRole('row').length // 390 (389 rows + header)
 
     await userEvent.selectOptions(screen.getByLabelText(/actor/i), 'Quality Manager')
     const both = screen.getAllByRole('row').length // 17 (16 rows + header)
