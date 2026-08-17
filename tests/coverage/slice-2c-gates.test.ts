@@ -300,35 +300,47 @@ describe('gate 3: a client-review action creates a ReviewEvent and nothing else'
 
 // ===========================================================================
 // Gate 4: nothing reads as an approval. Already exists
-// (tests/coverage/slice-2b-gates.test.ts's APPROVAL_WORD_PATTERN gate,
-// already proven immune to casing, quoting, position, and the
-// union-type-vs-array evasion). Confirmed here rather than reimplemented,
-// plus a guard against the guard being silently weakened or deleted.
+// (tests/coverage/slice-2b-gates.test.ts's APPROVAL_WORD_PATTERN gate, now
+// proven immune to casing, quoting, position, the union-type-vs-array
+// evasion, AND word form -- `/approved/i` missed "Approve"/"Approval"
+// entirely until the CRITICAL final-review fix widened it to `/\bapprov/i`).
+// Confirmed here rather than reimplemented, plus a guard against the guard
+// being silently weakened or deleted.
 // ===========================================================================
 describe('gate 4: nothing reads as an approval (confirming the existing gate)', () => {
   it('the approval-word gate in slice-2b-gates.test.ts is not silently deleted or narrowed', () => {
     const content = readFileSync('tests/coverage/slice-2b-gates.test.ts', 'utf8')
     expect(content).toContain('APPROVAL_WORD_PATTERN')
-    expect(content).toContain('/approved/i')
+    expect(content).toContain('/\\bapprov/i')
   })
 
+  // Final review, CRITICAL: `/approved/i` (the exact literal word) missed
+  // "Approve"/"Approval"/"Approving" -- the realistic wording. Fixed here
+  // too, to the same morphological root `/\bapprov/i` as
+  // slice-2b-gates.test.ts's `APPROVAL_WORD_PATTERN`. Comment-stripped, not
+  // raw: both `app/review/page.tsx` and `src/review/records.ts` carry
+  // comments that explain the vocabulary avoids the word ("Deliberately
+  // never 'Approve'...") -- exactly the "prose naming a forbidden term in
+  // order to forbid it" trap (MOD-SA-20, ROLES.some(...)); the word-root
+  // pattern would match its own denial if scanned raw.
   it('directly re-confirms: no approval word anywhere in review records or the review UI', () => {
     const files = [...walk('src/review'), ...walk('app/review')].filter((f) => /\.tsx?$/.test(f))
-    const offenders = files.filter((f) => /approved/i.test(readFileSync(f, 'utf8')))
+    const offenders = files.filter((f) => /\bapprov/i.test(stripComments(readFileSync(f, 'utf8'))))
     expect(offenders).toEqual([])
   })
 
-  it('PROVEN: the underlying pattern still cannot be defeated by casing, quoting, or matching its own denial', () => {
-    const APPROVAL_WORD_PATTERN = /approved/i
-    expect('Approved').toMatch(APPROVAL_WORD_PATTERN)
-    expect('"approved"').toMatch(APPROVAL_WORD_PATTERN)
-    // A comment that NAMES the word in order to FORBID it must still trip a
-    // gate that scans raw (non-comment-stripped) source -- this is why
-    // slice-2b-gates.test.ts scans src/review/records.ts's raw bytes, not
-    // stripped source: "approved" has no legitimate use anywhere in that
-    // file at all, comment or code, so there is no self-matching trap to
-    // guard against here the way there is for MOD-SA-20 or ROLES.some(...).
-    expect('// never say approved here').toMatch(APPROVAL_WORD_PATTERN)
+  it('PROVEN: the underlying pattern catches every word form and cannot be defeated by casing, quoting, or matching its own denial', () => {
+    const APPROVAL_WORD_PATTERN = /\bapprov/i
+    for (const wordForm of ['Approve', 'Approve for release', 'Approval', 'Approving', 'approved', '"approved"']) {
+      expect(wordForm, wordForm).toMatch(APPROVAL_WORD_PATTERN)
+    }
+    // A comment that NAMES the word in order to FORBID it must NOT trip a
+    // gate that scans comment-stripped source -- unlike the raw scan above,
+    // which would (correctly) treat the same text as a violation if it
+    // appeared in actual code rather than a comment.
+    expect(stripComments('// never say approved or Approve here\nconst ok = 1')).not.toMatch(
+      APPROVAL_WORD_PATTERN,
+    )
   })
 })
 

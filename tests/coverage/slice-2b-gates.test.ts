@@ -126,10 +126,31 @@ describe('slice 2b gates', () => {
   // scan the WHOLE file, case-insensitively, with no quote requirement --
   // "approved" has no legitimate use anywhere in this module regardless of
   // casing, quoting, or position.
-  const APPROVAL_WORD_PATTERN = /approved/i
+  //
+  // Final review, CRITICAL: `/approved/i` -- the exact literal word -- does
+  // not guard the invariant it exists for. A button labelled "Approve" (the
+  // most likely real-world wording) ships clean past it:
+  //   "Approve" / "Approve for release" / "Approval" -> MISSED, "approved" -> caught.
+  // Fixed to the morphological root, `/\bapprov/i`, which catches every
+  // conjugation (approve/approved/approval/approving/approver) with one
+  // pattern, while still permitting this codebase's real "accept"
+  // vocabulary ("Accept for client review", "Accepted",
+  // "accepted-for-review") -- see the two tests immediately below.
+  const APPROVAL_WORD_PATTERN = /\bapprov/i
 
-  it('review status vocabulary contains no approval word, anywhere in the file, case- and quote-insensitively', () => {
-    const s = readFileSync('src/review/records.ts', 'utf8')
+  // Comment-stripped, not raw: widening the pattern to `/\bapprov/i` (the
+  // morphological root, CRITICAL fix above) means the word now has a
+  // legitimate use this file's own comments were already relying on --
+  // "Deliberately none of these reads as an approval" -- explaining WHY the
+  // vocabulary avoids the word is exactly the "prose naming a forbidden
+  // term in order to forbid it" trap this project has hit before (MOD-SA-20,
+  // ROLES.some(...)); scanning raw source here would now fail on that
+  // correct, explanatory comment. The narrower `/approved/i` this replaces
+  // never had this problem (no comment here happened to spell out the exact
+  // past-tense form), which is why the raw-scan claim below was true then
+  // and is not anymore.
+  it('review status vocabulary contains no approval word, anywhere in the code, case- and quote-insensitively', () => {
+    const s = stripComments(readFileSync('src/review/records.ts', 'utf8'))
     expect(s).not.toMatch(APPROVAL_WORD_PATTERN)
   })
 
@@ -150,6 +171,35 @@ describe('slice 2b gates', () => {
       ['added to the ReviewStatus type union', typeUnion],
     ] as const) {
       expect(evasion, name).toMatch(APPROVAL_WORD_PATTERN)
+    }
+  })
+
+  // Final review, CRITICAL: the four evasions above all vary quoting,
+  // casing, position and location -- but EVERY ONE OF THEM uses the literal
+  // string "approved". Not one varies the WORD FORM, so they prove the gate
+  // survives every axis except the one that matters: a button labelled
+  // "Approve" (the most likely real-world wording) shipped past
+  // `/approved/i` clean, reproduced directly --
+  //   "Approve"             -> MISSED
+  //   "Approve for release" -> MISSED
+  //   "Approval"            -> MISSED
+  //   "approved"            -> caught
+  // Fixed to the morphological root `/\bapprov/i`, which catches every
+  // conjugation (approve/approved/approval/approving/approver) with one
+  // pattern. This test adds the missing axis: word form, held constant
+  // across the SAME four evasion techniques above (so both defect classes
+  // stay covered), and separately proves the fix does not turn into a new
+  // false-positive trap against the one word this codebase legitimately
+  // uses for the same concept, "accept".
+  it('the approval-word gate fires on every word form, not just the literal string "approved"', () => {
+    for (const wordForm of ['Approve', 'Approve for release', 'Approval', 'Approving', 'Approver']) {
+      expect(wordForm, wordForm).toMatch(APPROVAL_WORD_PATTERN)
+    }
+  })
+
+  it('the approval-word gate still permits this codebase\'s real "accept" vocabulary', () => {
+    for (const permitted of ['Accept for client review', 'Accepted', 'accepted-for-review']) {
+      expect(permitted, permitted).not.toMatch(APPROVAL_WORD_PATTERN)
     }
   })
 })
