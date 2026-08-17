@@ -599,10 +599,12 @@ const AUDIT_INVARIANT: SaInvariantDefinition = (() => {
 type AggregateVariant = 'current' | 'stale' | 'unavailable' | 'reading' | 'empty'
 
 /**
- * The aggregate reads the same rows the table reads, so it cannot assert a
- * count over records the same screen says do not exist. STATE-01 is that case
- * and gets its own rendering: the empty state is not "no match for the current
- * filter", and it is not a zero either.
+ * The aggregate may not assert a count over records the same screen says do not
+ * exist. STATE-01 is that case and gets its own rendering: the empty state is
+ * not "no match for the current filter", and it is not a zero either. The table
+ * below is held to the same one cause — see `logIsEmpty` at the render site,
+ * which suppresses the filter-shaped empty message in this state (STATE-06 rule
+ * on causes: one condition, one cause, wherever it is rendered).
  */
 function aggregateVariant(state: ScreenStateId): AggregateVariant {
   switch (state) {
@@ -695,17 +697,22 @@ export function PlatformAuditScreen({
       (range === undefined || range.from === '' || e.occurredAt >= range.from),
   )
 
-  const filtered =
-    classFilter !== ANY ||
-    actorFilter !== ANY ||
-    tenantFilter !== ANY ||
-    objectFilter !== ANY ||
-    rangeFilter !== ANY
+  // STATE-01 is the empty log: no record exists at all, so the filter is never
+  // the cause of what the reader sees. Every rendering of that emptiness — the
+  // aggregate above and the table's own empty state — gives the one cause.
+  const logIsEmpty = screenStateId === 'STATE-01'
 
-  const tableRows: readonly TableRow[] =
-    screenStateId === 'STATE-01'
-      ? []
-      : rows.map((e) => ({
+  const filtered =
+    !logIsEmpty &&
+    (classFilter !== ANY ||
+      actorFilter !== ANY ||
+      tenantFilter !== ANY ||
+      objectFilter !== ANY ||
+      rangeFilter !== ANY)
+
+  const tableRows: readonly TableRow[] = logIsEmpty
+    ? []
+    : rows.map((e) => ({
           id: e.id,
           class: (
             <span data-testid="audit-entry-class">{auditEventClass(e.classId)?.name ?? e.classId}</span>
@@ -900,9 +907,9 @@ export function PlatformAuditScreen({
           {variant === 'empty' ? (
             <p>
               <strong>No platform audit entry has been recorded yet</strong> — as of {AS_OF_CURRENT}{' '}
-              (fixture value, not a live clock). The aggregate reads the rows the table below reads,
-              so it says what that table says rather than counting records this screen states do not
-              exist.
+              (fixture value, not a live clock). No record exists to count, so this is neither a zero
+              nor a filter result: the table below names that same one cause, whatever the filters
+              are set to.
             </p>
           ) : null}
           {variant === 'reading' ? (

@@ -409,6 +409,30 @@ describe('MOD-SA-18 — aggregates never render as zero or blank (AC-SA-01-03)',
     }
   })
 
+  it('gives ONE cause for the empty log, in the aggregate AND the table, with a filter set (STATE-06 one-cause rule)', () => {
+    // The emptiness of STATE-01 is "no record exists", never "no match for the
+    // filter". Setting a filter must not make the table print a second, rival
+    // cause beside the aggregate's.
+    for (const role of ALL_ROLES) {
+      const view = renderAs(role, 'STATE-01')
+      fireEvent.change(screen.getByLabelText(/event class/i), {
+        target: { value: 'support-session' },
+      })
+      const agg = screen.getByTestId('entries-aggregate').textContent ?? ''
+      const copy = renderedCopy()
+
+      // No rival cause is printed anywhere on the screen.
+      expect(copy).not.toMatch(/no runs match the current filters/i)
+      expect(copy).not.toMatch(/no entry matches the current filter/i)
+      // And both renderings name the one cause that is true here.
+      expect(agg).toMatch(/no platform audit entry has been recorded yet/i)
+      expect(
+        copy.match(/no platform audit entry has been recorded yet/gi)?.length ?? 0,
+      ).toBeGreaterThanOrEqual(2)
+      view.unmount()
+    }
+  })
+
   it('renders unavailable rather than zero when the aggregate cannot be produced', () => {
     renderAs(ROOT, 'STATE-12')
     const agg = screen.queryByTestId('entries-aggregate')
