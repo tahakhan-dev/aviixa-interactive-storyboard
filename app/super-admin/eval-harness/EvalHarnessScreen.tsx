@@ -61,13 +61,23 @@ function harnessAvailability(state: ScreenStateId): HarnessAvailability {
   return 'available'
 }
 
-type PostureMode = 'current' | 'stale' | 'unavailable' | 'loading'
+type PostureMode = 'current' | 'stale' | 'unavailable' | 'loading' | 'empty'
 
 function postureMode(state: ScreenStateId): PostureMode {
   if (state === 'STATE-02') return 'loading'
   if (state === 'STATE-08') return 'stale'
   if (state === 'STATE-12') return 'unavailable'
   return 'current'
+}
+
+/**
+ * The ONE record set this screen reads. The aggregate, the scenario table,
+ * the run-target list and the gate view all read this — an aggregate over
+ * records the same screen says do not exist is a contradiction, so there is
+ * no second source to disagree with.
+ */
+function visibleScenarios(state: ScreenStateId): readonly EvalScenario[] {
+  return state === 'STATE-01' ? [] : EVAL_SCENARIOS
 }
 
 /**
@@ -139,7 +149,10 @@ export function EvalHarnessScreen({
   const [submittedRun, setSubmittedRun] = useState<EvalRunState | null>(null)
 
   const harness = harnessAvailability(screenState)
-  const posture = postureMode(screenState)
+  const scenarios = visibleScenarios(screenState)
+  // With no scenario records there is nothing to aggregate: the posture says
+  // so in words rather than reporting nought verdicts.
+  const posture: PostureMode = scenarios.length === 0 ? 'empty' : postureMode(screenState)
   const stateDefinition = SCREEN_STATES.find((s) => s.id === screenState) ?? SCREEN_STATES[0]
 
   const context = {
@@ -193,7 +206,7 @@ export function EvalHarnessScreen({
   const runDisabled = runDecision.outcome !== 'allowed'
   const runProps = runDisabled ? { disabledReason: runReason } : {}
 
-  const verdicts = EVAL_SCENARIOS.map((s) => effectiveVerdict(s, screenState))
+  const verdicts = scenarios.map((s) => effectiveVerdict(s, screenState))
   const counts = [
     ['passing', verdicts.filter((v) => v.startsWith('passing')).length],
     ['pending', verdicts.filter((v) => v.startsWith('pending')).length],
@@ -205,8 +218,7 @@ export function EvalHarnessScreen({
 
   const displayedRun: EvalRunState | null =
     submittedRun ?? (screenState === 'STATE-09' ? 'queued' : null)
-  const runTargetLabel =
-    EVAL_SCENARIOS.find((s) => s.id === runTarget)?.name ?? 'the whole suite'
+  const runTargetLabel = scenarios.find((s) => s.id === runTarget)?.name ?? 'the whole suite'
 
   return (
     <SaConsoleShell module={MODULE}>
@@ -278,6 +290,12 @@ export function EvalHarnessScreen({
             Unavailable — the harness posture could not be read. An unavailable aggregate is never
             rendered as a count, and never left blank.
           </p>
+        ) : posture === 'empty' ? (
+          <p className="mt-2 text-sm">
+            No verdict to report — no scenario has been authored yet, so there is nothing to
+            aggregate. The scenario list below says the same thing: this screen never counts records
+            it also says do not exist, and never reports that absence as the number nought.
+          </p>
         ) : (
           <>
             <ul className="mt-2 flex flex-wrap gap-2">
@@ -312,20 +330,16 @@ export function EvalHarnessScreen({
             { key: 'source', header: 'Source' },
           ]}
           loading={screenState === 'STATE-02'}
-          rows={
-            screenState === 'STATE-01'
-              ? []
-              : EVAL_SCENARIOS.map((s) => {
-                  const verdict = effectiveVerdict(s, screenState)
-                  return {
-                    name: s.name,
-                    kind: s.agentBehaviour ? 'Agent behaviour' : 'Deterministic',
-                    verdict: <StatusPill tone={verdictTone(verdict)} icon="•" label={verdict} />,
-                    run: s.lastRunState,
-                    source: s.sourceRef,
-                  }
-                })
-          }
+          rows={scenarios.map((s) => {
+            const verdict = effectiveVerdict(s, screenState)
+            return {
+              name: s.name,
+              kind: s.agentBehaviour ? 'Agent behaviour' : 'Deterministic',
+              verdict: <StatusPill tone={verdictTone(verdict)} icon="•" label={verdict} />,
+              run: s.lastRunState,
+              source: s.sourceRef,
+            }
+          })}
           emptyState={{
             title: 'No evaluation scenario has been authored yet',
             whatCreatesIt:
@@ -360,7 +374,7 @@ export function EvalHarnessScreen({
             onChange={setRunTarget}
             options={[
               { value: 'whole-suite', label: 'The whole suite' },
-              ...EVAL_SCENARIOS.map((s) => ({ value: s.id, label: `${s.id} · ${s.name}` })),
+              ...scenarios.map((s) => ({ value: s.id, label: `${s.id} · ${s.name}` })),
             ]}
           />
         </div>
@@ -419,14 +433,16 @@ export function EvalHarnessScreen({
               }
             : {})}
           rows={EVAL_GATE_ROWS.map((row) => {
-            const blocker = EVAL_SCENARIOS.find((s) => s.id === row.blockedBy)
+            const blocker = scenarios.find((s) => s.id === row.blockedBy)
             return {
               capability: row.capability,
               kind: row.kind,
               blocked:
-                blocker === undefined
+                row.blockedBy === null
                   ? 'Nothing blocks it. Enablement is submitted and approved in the Atom Registry, and is not offered on this screen.'
-                  : `${blocker.name} — ${effectiveVerdict(blocker, screenState)}`,
+                  : blocker === undefined
+                    ? `${row.blockedBy} — the blocking scenario cannot be read in this state, and nothing is treated as unblocked while it cannot be read.`
+                    : `${blocker.name} — ${effectiveVerdict(blocker, screenState)}`,
               source: row.sourceRef,
             }
           })}

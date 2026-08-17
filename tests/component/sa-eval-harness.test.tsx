@@ -49,10 +49,24 @@ describe('MOD-SA-05 Eval Harness — the shell contract', () => {
     }
   })
 
-  it('names none of the four forbidden words anywhere in its copy', () => {
-    const { container } = render(<EvalHarnessScreen />)
-    expect(container.textContent ?? '').not.toMatch(/tamper-evident|chained|signed|verified/i)
-  })
+  // Every role AND every applicable state: the refusal copy that carries the
+  // greatest risk of a banned word only renders for two of the four roles,
+  // and some of it only in particular states. A single default-role render
+  // reports the module clean for a property it never exercised.
+  it.each(EVAL_PLATFORM_ROLES)(
+    'names none of the four forbidden words anywhere in its copy, in every state — $roleAnnotation',
+    (role) => {
+      for (const state of APPLICABLE_STATES) {
+        const { container, unmount } = render(
+          <EvalHarnessScreen role={role.id} screenState={state.id} />,
+        )
+        expect(container.textContent ?? '', `${role.id} / ${state.id}`).not.toMatch(
+          /\b(tamper-evident|chained|signed|verified)\b/i,
+        )
+        unmount()
+      }
+    },
+  )
 
   it('resolves no link to record-level tenant content', () => {
     const { container } = render(<EvalHarnessScreen />)
@@ -296,6 +310,29 @@ describe('MOD-SA-05 — aggregates never render as zero or blank', () => {
     const posture = screen.getByRole('region', { name: /Harness posture/i })
     expect(posture.textContent ?? '').toMatch(/Unavailable/i)
     expect(posture.textContent ?? '').not.toMatch(/\b0\b/)
+  })
+
+  it('STATE-01 aggregates the same records the table shows: no verdict count over an empty list', () => {
+    render(<EvalHarnessScreen screenState="STATE-01" />)
+    const list = screen.getByRole('region', { name: /Scenario list/i })
+    expect(within(list).getByText(/No evaluation scenario has been authored yet/i)).toBeDefined()
+
+    const posture = screen.getByRole('region', { name: /Harness posture/i })
+    // No count of any verdict may be reported while the same screen says the
+    // records do not exist — and the absence is words, not a zero or a blank.
+    for (const verdict of SCENARIO_VERDICTS) {
+      expect(posture.textContent ?? '', verdict).not.toMatch(
+        new RegExp(`\\d+\\s+${verdict}`, 'i'),
+      )
+    }
+    expect(posture.textContent ?? '').not.toMatch(/\b0\b/)
+    expect(within(posture).getByText(/nothing to aggregate/i)).toBeDefined()
+
+    // The run target list offers no scenario that the list says does not exist.
+    const runner = screen.getByRole('region', { name: /Suite runner/i })
+    for (const s of EVAL_SCENARIOS) {
+      expect(within(runner).queryByText(new RegExp(s.name)), s.id).toBeNull()
+    }
   })
 
   it('STATE-02 renders a placeholder, never the number nought', () => {
