@@ -94,6 +94,30 @@ describe('review shell', () => {
     })
   })
 
+  // Major (final review): createReviewEvent had no caller outside a unit
+  // test -- gate 3's name ("a client-review action creates a ReviewEvent
+  // and nothing else") asserted a positive that never happened. Proven
+  // end to end against the real database, same pattern as the record-write
+  // test above.
+  it('writes a ReviewEvent alongside the review record on submit', async () => {
+    const user = userEvent.setup()
+    render(<ReviewPage />)
+    await user.type(screen.getByLabelText(/reviewer name/i), 'A Reviewer')
+    await user.type(screen.getByLabelText(/^note$/i), 'Looks good.')
+    await user.click(screen.getByRole('button', { name: /^comment$/i }))
+
+    await waitFor(async () => {
+      const db = await openDatabase(indexedDB)
+      const events: unknown[] = await new Promise((res) => {
+        const r = db.transaction('reviewEvents', 'readonly').objectStore('reviewEvents').getAll()
+        r.onsuccess = () => res(r.result)
+      })
+      db.close()
+      expect(events.length).toBeGreaterThan(0)
+      expect((events[0] as { kind?: string }).kind).toBe('comment')
+    })
+  })
+
   it('never claims durability the storage state does not provide', async () => {
     const original = globalThis.indexedDB
     // @ts-expect-error -- simulating an environment with no IndexedDB at all.

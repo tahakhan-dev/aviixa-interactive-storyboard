@@ -8,6 +8,7 @@
   "rows": [
     {
       "id": "\"The Training Library needs a connection. It is not needed for any of your runs.\"",
+      "label": "\"The Training Library needs a connection. It is not needed for any of your runs.\"",
       "sourceLine": 42209,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -15,6 +16,7 @@
     },
     {
       "id": "A replay control",
+      "label": "A replay control",
       "sourceLine": 98970,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -22,6 +24,7 @@
     },
     {
       "id": "Accept",
+      "label": "Accept",
       "sourceLine": 38157,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -29,6 +32,7 @@
     },
     {
       "id": "Account creation is root-only",
+      "label": "Account creation is root-only",
       "sourceLine": 14977,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -36,6 +40,7 @@
     },
     {
       "id": "Acknowledge",
+      "label": "Acknowledge",
       "sourceLine": 4342,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -43,6 +48,7 @@
     },
     {
       "id": "Acknowledge (handoff brief)",
+      "label": "Acknowledge (handoff brief)",
       "sourceLine": 64058,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -50,6 +56,7 @@
     },
     {
       "id": "Acknowledge a notification",
+      "label": "Acknowledge a notification",
       "sourceLine": 28699,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -57,6 +64,7 @@
     },
     {
       "id": "Acknowledge an alert or escalation",
+      "label": "Acknowledge an alert or escalation",
       "sourceLine": 11401,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -64,6 +72,7 @@
     },
     {
       "id": "Acknowledge and annotate the shift handoff brief",
+      "label": "Acknowledge and annotate the shift handoff brief",
       "sourceLine": 58821,
       "status": "not-represented",
       "surface": "Client Command Center",
@@ -71,6 +80,7 @@
     },
     {
       "id": "Acknowledge and annotate the shift-handoff brief",
+      "label": "Acknowledge and annotate the shift-handoff brief",
       "sourceLine": 11406,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -78,6 +88,7 @@
     },
     {
       "id": "Acknowledge brief",
+      "label": "Acknowledge brief",
       "sourceLine": 38561,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -85,6 +96,7 @@
     },
     {
       "id": "Acknowledge the escalation",
+      "label": "Acknowledge the escalation",
       "sourceLine": 48431,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -92,6 +104,7 @@
     },
     {
       "id": "Activate tenant",
+      "label": "Activate tenant",
       "sourceLine": 75180,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -99,6 +112,7 @@
     },
     {
       "id": "Add",
+      "label": "Add",
       "sourceLine": 33178,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -106,6 +120,7 @@
     },
     {
       "id": "Add a band",
+      "label": "Add a band",
       "sourceLine": 48308,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -113,6 +128,7 @@
     },
     {
       "id": "Add a correction",
+      "label": "Add a correction",
       "sourceLine": 40663,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -120,6 +136,7 @@
     },
     {
       "id": "Add a second location",
+      "label": "Add a second location",
       "sourceLine": 61683,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -127,6 +144,7 @@
     },
     {
       "id": "Add an append-only annotation",
+      "label": "Add an append-only annotation",
       "sourceLine": 63159,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -134,6 +152,7 @@
     },
     {
       "id": "Add review annotation",
+      "label": "Add review annotation",
       "sourceLine": 34912,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -141,6 +160,7 @@
     },
     {
       "id": "Additional recipient list",
+      "label": "Additional recipient list",
       "sourceLine": 17720,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -148,6 +168,7 @@
     },
     {
       "id": "Adjust and approve",
+      "label": "Adjust and approve",
       "sourceLine": 37153,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -155,6 +176,7 @@
     },
     {
       "id": "Adjust within bounds",
+      "label": "Adjust within bounds",
       "sourceLine": 20428,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -162,6 +184,7 @@
     },
     {
       "id": "Adjust within bounds and approve",
+      "label": "Adjust within bounds and approve",
       "sourceLine": 24907,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -169,6 +192,7 @@
     },
     {
       "id": "Adopt",
+      "label": "Adopt",
       "sourceLine": 71013,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -176,6 +200,7 @@
     },
     {
       "id": "Adopt all",
+      "label": "Adopt all",
       "sourceLine": 77923,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -183,6 +208,7 @@
     },
     {
       "id": "Adopt now / adopt at the next run boundary (per-Job and bulk)",
+      "label": "Adopt now / adopt at the next run boundary (per-Job and bulk)",
       "sourceLine": 53601,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -190,6 +216,7 @@
     },
     {
       "id": "Advance",
+      "label": "Advance",
       "sourceLine": 24907,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -197,6 +224,7 @@
     },
     {
       "id": "Alert and escalation feed filters: Area, severity, type, state",
+      "label": "Alert and escalation feed filters: Area, severity, type, state",
       "sourceLine": 54411,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -204,6 +232,7 @@
     },
     {
       "id": "All-tenant broadcast",
+      "label": "All-tenant broadcast",
       "sourceLine": 91295,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -211,6 +240,7 @@
     },
     {
       "id": "Alter the pinned version",
+      "label": "Alter the pinned version",
       "sourceLine": 48163,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -218,6 +248,7 @@
     },
     {
       "id": "Annotate",
+      "label": "Annotate",
       "sourceLine": 24521,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -225,6 +256,7 @@
     },
     {
       "id": "Annotate (append-only)",
+      "label": "Annotate (append-only)",
       "sourceLine": 24234,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -232,6 +264,7 @@
     },
     {
       "id": "Approve",
+      "label": "Approve",
       "sourceLine": 20428,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -239,6 +272,7 @@
     },
     {
       "id": "Approve (composed-agent review)",
+      "label": "Approve (composed-agent review)",
       "sourceLine": 43339,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -246,6 +280,7 @@
     },
     {
       "id": "Approve (disabled with inline rule explanation)",
+      "label": "Approve (disabled with inline rule explanation)",
       "sourceLine": 103411,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -253,6 +288,7 @@
     },
     {
       "id": "Approve / Adjust within bounds and approve / Decline with a categorised reason",
+      "label": "Approve / Adjust within bounds and approve / Decline with a categorised reason",
       "sourceLine": 4326,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -260,6 +296,7 @@
     },
     {
       "id": "Approve / Adjust within bounds and approve / Decline with reason",
+      "label": "Approve / Adjust within bounds and approve / Decline with reason",
       "sourceLine": 63801,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -267,6 +304,7 @@
     },
     {
       "id": "Approve / adjust-within-bounds / decline with reason (gate-item decision)",
+      "label": "Approve / adjust-within-bounds / decline with reason (gate-item decision)",
       "sourceLine": 104547,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -274,6 +312,7 @@
     },
     {
       "id": "Approve / adjust-within-bounds and approve / decline with a categorised reason",
+      "label": "Approve / adjust-within-bounds and approve / decline with a categorised reason",
       "sourceLine": 59217,
       "status": "not-represented",
       "surface": "Client Command Center gate queue and learned-change queue",
@@ -281,6 +320,7 @@
     },
     {
       "id": "Approve a change this identity proposed",
+      "label": "Approve a change this identity proposed",
       "sourceLine": 48793,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -288,6 +328,7 @@
     },
     {
       "id": "Approve an engineering-class change",
+      "label": "Approve an engineering-class change",
       "sourceLine": 48792,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -295,6 +336,7 @@
     },
     {
       "id": "Approve anything touching the six enforced invariants",
+      "label": "Approve anything touching the six enforced invariants",
       "sourceLine": 48793,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -302,6 +344,7 @@
     },
     {
       "id": "Approve archival",
+      "label": "Approve archival",
       "sourceLine": 65940,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -309,6 +352,7 @@
     },
     {
       "id": "Approve beyond the permitted bounds",
+      "label": "Approve beyond the permitted bounds",
       "sourceLine": 63802,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -316,6 +360,7 @@
     },
     {
       "id": "Approve one's own submission",
+      "label": "Approve one's own submission",
       "sourceLine": 48309,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -323,6 +368,7 @@
     },
     {
       "id": "Approve or decline a learned-change proposal, Lane B",
+      "label": "Approve or decline a learned-change proposal, Lane B",
       "sourceLine": 11403,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -330,6 +376,7 @@
     },
     {
       "id": "Approve or return with reason",
+      "label": "Approve or return with reason",
       "sourceLine": 15783,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -337,6 +384,7 @@
     },
     {
       "id": "Approve the critical-class severity-catalog change",
+      "label": "Approve the critical-class severity-catalog change",
       "sourceLine": 48793,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -344,6 +392,7 @@
     },
     {
       "id": "Approve your own submission",
+      "label": "Approve your own submission",
       "sourceLine": 65490,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -351,6 +400,7 @@
     },
     {
       "id": "Approve — available when this Job is submitted for approval",
+      "label": "Approve — available when this Job is submitted for approval",
       "sourceLine": 22349,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -358,6 +408,7 @@
     },
     {
       "id": "Approve, adjust within bounds, or decline a gate item",
+      "label": "Approve, adjust within bounds, or decline a gate item",
       "sourceLine": 11402,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -365,6 +416,7 @@
     },
     {
       "id": "Approver-capable holders counter",
+      "label": "Approver-capable holders counter",
       "sourceLine": 23918,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -372,6 +424,7 @@
     },
     {
       "id": "Archival warning confirmation",
+      "label": "Archival warning confirmation",
       "sourceLine": 112908,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -379,6 +432,7 @@
     },
     {
       "id": "Archive",
+      "label": "Archive",
       "sourceLine": 33546,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -386,6 +440,7 @@
     },
     {
       "id": "Archive control",
+      "label": "Archive control",
       "sourceLine": 67417,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -393,6 +448,7 @@
     },
     {
       "id": "Archive version",
+      "label": "Archive version",
       "sourceLine": 76761,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -400,6 +456,7 @@
     },
     {
       "id": "Area filter, severity filter, search by run identifier",
+      "label": "Area filter, severity filter, search by run identifier",
       "sourceLine": 47506,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -407,6 +464,7 @@
     },
     {
       "id": "Ask my supervisor",
+      "label": "Ask my supervisor",
       "sourceLine": 89566,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -414,6 +472,7 @@
     },
     {
       "id": "Ask the coaching assistant (saved until connection)",
+      "label": "Ask the coaching assistant (saved until connection)",
       "sourceLine": 89566,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -421,6 +480,7 @@
     },
     {
       "id": "Ask your supervisor for a clearance / Continue with your other assigned runs",
+      "label": "Ask your supervisor for a clearance / Continue with your other assigned runs",
       "sourceLine": 19523,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -428,6 +488,7 @@
     },
     {
       "id": "Assign",
+      "label": "Assign",
       "sourceLine": 34631,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -435,6 +496,7 @@
     },
     {
       "id": "Assignment-time concentration warning",
+      "label": "Assignment-time concentration warning",
       "sourceLine": 112572,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -442,6 +504,7 @@
     },
     {
       "id": "Author and export report formats",
+      "label": "Author and export report formats",
       "sourceLine": 117313,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -449,6 +512,7 @@
     },
     {
       "id": "Authorise",
+      "label": "Authorise",
       "sourceLine": 64827,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -456,6 +520,7 @@
     },
     {
       "id": "Back to the step",
+      "label": "Back to the step",
       "sourceLine": 89566,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -463,6 +528,7 @@
     },
     {
       "id": "Backfill",
+      "label": "Backfill",
       "sourceLine": 109926,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -470,6 +536,7 @@
     },
     {
       "id": "Backfill proposal",
+      "label": "Backfill proposal",
       "sourceLine": 104695,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -477,6 +544,7 @@
     },
     {
       "id": "Block the shift from starting until acknowledged",
+      "label": "Block the shift from starting until acknowledged",
       "sourceLine": 64059,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -484,6 +552,7 @@
     },
     {
       "id": "Blocked banner on the run record",
+      "label": "Blocked banner on the run record",
       "sourceLine": 100503,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -491,6 +560,7 @@
     },
     {
       "id": "Bulk export to tenant storage",
+      "label": "Bulk export to tenant storage",
       "sourceLine": 64573,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -498,6 +568,7 @@
     },
     {
       "id": "By capability",
+      "label": "By capability",
       "sourceLine": 14264,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -505,6 +576,7 @@
     },
     {
       "id": "By person",
+      "label": "By person",
       "sourceLine": 14264,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -512,6 +584,7 @@
     },
     {
       "id": "CSV and JSON export",
+      "label": "CSV and JSON export",
       "sourceLine": 25686,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -519,6 +592,7 @@
     },
     {
       "id": "Cancel",
+      "label": "Cancel",
       "sourceLine": 33178,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -526,6 +600,7 @@
     },
     {
       "id": "Cancel a run with a categorised reason",
+      "label": "Cancel a run with a categorised reason",
       "sourceLine": 1808,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -533,6 +608,7 @@
     },
     {
       "id": "Cancel the release",
+      "label": "Cancel the release",
       "sourceLine": 63314,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -540,6 +616,7 @@
     },
     {
       "id": "Cancel the run",
+      "label": "Cancel the run",
       "sourceLine": 62382,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -547,6 +624,7 @@
     },
     {
       "id": "Changed in this version.",
+      "label": "Changed in this version.",
       "sourceLine": 41894,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -554,6 +632,7 @@
     },
     {
       "id": "Class-filtered export",
+      "label": "Class-filtered export",
       "sourceLine": 110893,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -561,6 +640,7 @@
     },
     {
       "id": "Clear the commercial hold",
+      "label": "Clear the commercial hold",
       "sourceLine": 113716,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -568,6 +648,7 @@
     },
     {
       "id": "Clearance (Client Command Center action 10)",
+      "label": "Clearance (Client Command Center action 10)",
       "sourceLine": 57083,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -575,6 +656,7 @@
     },
     {
       "id": "Clone",
+      "label": "Clone",
       "sourceLine": 29486,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -582,6 +664,7 @@
     },
     {
       "id": "Coaching card replay and dismiss",
+      "label": "Coaching card replay and dismiss",
       "sourceLine": 53862,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -589,6 +672,7 @@
     },
     {
       "id": "Coaching is not appearing",
+      "label": "Coaching is not appearing",
       "sourceLine": 89394,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -596,6 +680,7 @@
     },
     {
       "id": "Command Center action 10 — grant a qualification clearance",
+      "label": "Command Center action 10 — grant a qualification clearance",
       "sourceLine": 51393,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -603,6 +688,7 @@
     },
     {
       "id": "Command Center action 3 — decide a Lane B proposal",
+      "label": "Command Center action 3 — decide a Lane B proposal",
       "sourceLine": 54342,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -610,6 +696,7 @@
     },
     {
       "id": "Command Center action 4 — release a lot hold",
+      "label": "Command Center action 4 — release a lot hold",
       "sourceLine": 54228,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -617,6 +704,7 @@
     },
     {
       "id": "Command Center action 8 — reassignment mid-shift",
+      "label": "Command Center action 8 — reassignment mid-shift",
       "sourceLine": 53798,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -624,6 +712,7 @@
     },
     {
       "id": "Command state chip",
+      "label": "Command state chip",
       "sourceLine": 25830,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -631,6 +720,7 @@
     },
     {
       "id": "Complete containment items",
+      "label": "Complete containment items",
       "sourceLine": 48648,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -638,6 +728,7 @@
     },
     {
       "id": "Configure severity action bundles",
+      "label": "Configure severity action bundles",
       "sourceLine": 61338,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -645,6 +736,7 @@
     },
     {
       "id": "Connections",
+      "label": "Connections",
       "sourceLine": 95476,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -652,6 +744,7 @@
     },
     {
       "id": "Continue",
+      "label": "Continue",
       "sourceLine": 42058,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -659,6 +752,7 @@
     },
     {
       "id": "Continue anyway (qualification gate)",
+      "label": "Continue anyway (qualification gate)",
       "sourceLine": 64386,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -666,6 +760,7 @@
     },
     {
       "id": "Continue to screen 1",
+      "label": "Continue to screen 1",
       "sourceLine": 65808,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -673,6 +768,7 @@
     },
     {
       "id": "Continue to the next screen once containment permits",
+      "label": "Continue to the next screen once containment permits",
       "sourceLine": 48648,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -680,6 +776,7 @@
     },
     {
       "id": "Continue with another run",
+      "label": "Continue with another run",
       "sourceLine": 14571,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -687,6 +784,7 @@
     },
     {
       "id": "Continue without signing in",
+      "label": "Continue without signing in",
       "sourceLine": 62363,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -694,6 +792,7 @@
     },
     {
       "id": "Correct",
+      "label": "Correct",
       "sourceLine": 72496,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -701,6 +800,7 @@
     },
     {
       "id": "Countdown prompt as the finish deadline approaches",
+      "label": "Countdown prompt as the finish deadline approaches",
       "sourceLine": 100500,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -708,6 +808,7 @@
     },
     {
       "id": "Countdown prompt to automatic finish",
+      "label": "Countdown prompt to automatic finish",
       "sourceLine": 118001,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -715,6 +816,7 @@
     },
     {
       "id": "Cover for absence affordance",
+      "label": "Cover for absence affordance",
       "sourceLine": 112461,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -722,6 +824,7 @@
     },
     {
       "id": "Create (console user)",
+      "label": "Create (console user)",
       "sourceLine": 66809,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -729,6 +832,7 @@
     },
     {
       "id": "Create (root only)",
+      "label": "Create (root only)",
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -736,6 +840,7 @@
     },
     {
       "id": "Create (tenant)",
+      "label": "Create (tenant)",
       "sourceLine": 66959,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -743,6 +848,7 @@
     },
     {
       "id": "Create a Job",
+      "label": "Create a Job",
       "sourceLine": 61357,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -750,6 +856,7 @@
     },
     {
       "id": "Create a corrective Job",
+      "label": "Create a corrective Job",
       "sourceLine": 48432,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -757,6 +864,7 @@
     },
     {
       "id": "Create a run",
+      "label": "Create a run",
       "sourceLine": 65163,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -764,6 +872,7 @@
     },
     {
       "id": "Create and invite administrator",
+      "label": "Create and invite administrator",
       "sourceLine": 61337,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -771,6 +880,7 @@
     },
     {
       "id": "Create tenant",
+      "label": "Create tenant",
       "sourceLine": 52400,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -778,6 +888,7 @@
     },
     {
       "id": "Create user",
+      "label": "Create user",
       "sourceLine": 76133,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -785,6 +896,7 @@
     },
     {
       "id": "Critical class — root approval required",
+      "label": "Critical class — root approval required",
       "sourceLine": 23707,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -792,6 +904,7 @@
     },
     {
       "id": "Custom roles are deferred beyond V1",
+      "label": "Custom roles are deferred beyond V1",
       "sourceLine": 14978,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -931,6 +1044,7 @@
     },
     {
       "id": "Date and entity filters (audit export)",
+      "label": "Date and entity filters (audit export)",
       "sourceLine": 54544,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -938,6 +1052,7 @@
     },
     {
       "id": "Date range and entity filter, CSV and JSON format controls",
+      "label": "Date range and entity filter, CSV and JSON format controls",
       "sourceLine": 97783,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -945,6 +1060,7 @@
     },
     {
       "id": "Date-range, actor, object-type, action-class and scope filters",
+      "label": "Date-range, actor, object-type, action-class and scope filters",
       "sourceLine": 16933,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -952,6 +1068,7 @@
     },
     {
       "id": "De-authorise",
+      "label": "De-authorise",
       "sourceLine": 18286,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -959,6 +1076,7 @@
     },
     {
       "id": "Decision control (Lane B proposal card)",
+      "label": "Decision control (Lane B proposal card)",
       "sourceLine": 117495,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -966,6 +1084,7 @@
     },
     {
       "id": "Decline",
+      "label": "Decline",
       "sourceLine": 33357,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -973,6 +1092,7 @@
     },
     {
       "id": "Decline with a categorised reason",
+      "label": "Decline with a categorised reason",
       "sourceLine": 87213,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -980,6 +1100,7 @@
     },
     {
       "id": "Decline with a reason",
+      "label": "Decline with a reason",
       "sourceLine": 20428,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -987,6 +1108,7 @@
     },
     {
       "id": "Decline with reason",
+      "label": "Decline with reason",
       "sourceLine": 24907,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -994,6 +1116,7 @@
     },
     {
       "id": "Define a new severity level",
+      "label": "Define a new severity level",
       "sourceLine": 48309,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -1001,6 +1124,7 @@
     },
     {
       "id": "Delegate the decision",
+      "label": "Delegate the decision",
       "sourceLine": 63802,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1008,6 +1132,7 @@
     },
     {
       "id": "Delegate this action",
+      "label": "Delegate this action",
       "sourceLine": 65614,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1015,6 +1140,7 @@
     },
     {
       "id": "Delete a losing version",
+      "label": "Delete a losing version",
       "sourceLine": 63606,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1022,6 +1148,7 @@
     },
     {
       "id": "Delete an anomaly",
+      "label": "Delete an anomaly",
       "sourceLine": 48163,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1029,6 +1156,7 @@
     },
     {
       "id": "Delete tenant data",
+      "label": "Delete tenant data",
       "sourceLine": 65941,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1036,6 +1164,7 @@
     },
     {
       "id": "Deprecate",
+      "label": "Deprecate",
       "sourceLine": 54850,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1043,6 +1172,7 @@
     },
     {
       "id": "Deprecate (rendered in place of delete when referenced)",
+      "label": "Deprecate (rendered in place of delete when referenced)",
       "sourceLine": 111264,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1050,6 +1180,7 @@
     },
     {
       "id": "Depth declaration four-step control",
+      "label": "Depth declaration four-step control",
       "sourceLine": 112905,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1057,6 +1188,7 @@
     },
     {
       "id": "Disable",
+      "label": "Disable",
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1064,6 +1196,7 @@
     },
     {
       "id": "Disable severity classification",
+      "label": "Disable severity classification",
       "sourceLine": 61487,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1071,6 +1204,7 @@
     },
     {
       "id": "Disable the evaluation gate",
+      "label": "Disable the evaluation gate",
       "sourceLine": 65490,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1078,6 +1212,7 @@
     },
     {
       "id": "Disable the specification gate",
+      "label": "Disable the specification gate",
       "sourceLine": 61487,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1085,6 +1220,7 @@
     },
     {
       "id": "Dismiss",
+      "label": "Dismiss",
       "sourceLine": 41566,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1092,6 +1228,7 @@
     },
     {
       "id": "Dismiss the banner",
+      "label": "Dismiss the banner",
       "sourceLine": 65039,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1099,6 +1236,7 @@
     },
     {
       "id": "Drift canary panel",
+      "label": "Drift canary panel",
       "sourceLine": 108982,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1106,6 +1244,7 @@
     },
     {
       "id": "ENFORCED badge",
+      "label": "ENFORCED badge",
       "sourceLine": 90550,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1113,6 +1252,7 @@
     },
     {
       "id": "ENFORCED badge (locked invariants)",
+      "label": "ENFORCED badge (locked invariants)",
       "sourceLine": 60704,
       "status": "not-represented",
       "surface": "Super Admin platform console",
@@ -1120,6 +1260,7 @@
     },
     {
       "id": "ENFORCED badge (locked setting rows, no control)",
+      "label": "ENFORCED badge (locked setting rows, no control)",
       "sourceLine": 103982,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1127,6 +1268,7 @@
     },
     {
       "id": "ENFORCED badge on the evaluation gate",
+      "label": "ENFORCED badge on the evaluation gate",
       "sourceLine": 87376,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1134,6 +1276,7 @@
     },
     {
       "id": "ENFORCED badge with lock icon",
+      "label": "ENFORCED badge with lock icon",
       "sourceLine": 44041,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1141,6 +1284,7 @@
     },
     {
       "id": "Edit a committed capture",
+      "label": "Edit a committed capture",
       "sourceLine": 62382,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1148,6 +1292,7 @@
     },
     {
       "id": "Edit any capture",
+      "label": "Edit any capture",
       "sourceLine": 48163,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1155,6 +1300,7 @@
     },
     {
       "id": "Edit any section",
+      "label": "Edit any section",
       "sourceLine": 48308,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -1162,6 +1308,7 @@
     },
     {
       "id": "Edit the capture",
+      "label": "Edit the capture",
       "sourceLine": 48432,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1169,6 +1316,7 @@
     },
     {
       "id": "Edit the committed 38.0 Newton metre value",
+      "label": "Edit the committed 38.0 Newton metre value",
       "sourceLine": 48649,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1176,6 +1324,7 @@
     },
     {
       "id": "Edit the proposed value (Lane-B)",
+      "label": "Edit the proposed value (Lane-B)",
       "sourceLine": 63932,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1183,6 +1332,7 @@
     },
     {
       "id": "Effective-date control",
+      "label": "Effective-date control",
       "sourceLine": 100559,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -1190,6 +1340,7 @@
     },
     {
       "id": "Emergency pause",
+      "label": "Emergency pause",
       "sourceLine": 110543,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1197,6 +1348,7 @@
     },
     {
       "id": "Emergency pause (per-tenant and platform-wide scope)",
+      "label": "Emergency pause (per-tenant and platform-wide scope)",
       "sourceLine": 54979,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1204,6 +1356,7 @@
     },
     {
       "id": "Emergency pause (scope selection, mandatory reason)",
+      "label": "Emergency pause (scope selection, mandatory reason)",
       "sourceLine": 87854,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1211,6 +1364,7 @@
     },
     {
       "id": "Emergency pause / Emergency resume",
+      "label": "Emergency pause / Emergency resume",
       "sourceLine": 104586,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1218,6 +1372,7 @@
     },
     {
       "id": "Emergency pause control",
+      "label": "Emergency pause control",
       "sourceLine": 113588,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1225,6 +1380,7 @@
     },
     {
       "id": "Enable / Disable (atom)",
+      "label": "Enable / Disable (atom)",
       "sourceLine": 86893,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1232,6 +1388,7 @@
     },
     {
       "id": "Enable / Disable capability",
+      "label": "Enable / Disable capability",
       "sourceLine": 30751,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -1239,6 +1396,7 @@
     },
     {
       "id": "Enable directly",
+      "label": "Enable directly",
       "sourceLine": 65490,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1246,6 +1404,7 @@
     },
     {
       "id": "End session",
+      "label": "End session",
       "sourceLine": 9709,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1253,6 +1412,7 @@
     },
     {
       "id": "End-session",
+      "label": "End-session",
       "sourceLine": 1476,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1260,6 +1420,7 @@
     },
     {
       "id": "End-session (support-session banner)",
+      "label": "End-session (support-session banner)",
       "sourceLine": 4599,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1267,6 +1428,7 @@
     },
     {
       "id": "End-session control",
+      "label": "End-session control",
       "sourceLine": 10902,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1274,6 +1436,7 @@
     },
     {
       "id": "End-session control (support-session banner)",
+      "label": "End-session control (support-session banner)",
       "sourceLine": 44272,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1281,6 +1444,7 @@
     },
     {
       "id": "End-session control on the support-session banner",
+      "label": "End-session control on the support-session banner",
       "sourceLine": 48720,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1288,6 +1452,7 @@
     },
     {
       "id": "Enrol a device",
+      "label": "Enrol a device",
       "sourceLine": 61357,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1295,6 +1460,7 @@
     },
     {
       "id": "Enter a supervisor code",
+      "label": "Enter a supervisor code",
       "sourceLine": 64386,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1302,6 +1468,7 @@
     },
     {
       "id": "Enters tenant context, tenant will see a banner",
+      "label": "Enters tenant context, tenant will see a banner",
       "sourceLine": 15544,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1309,6 +1476,7 @@
     },
     {
       "id": "Erasure requests list",
+      "label": "Erasure requests list",
       "sourceLine": 97663,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1316,6 +1484,7 @@
     },
     {
       "id": "Export",
+      "label": "Export",
       "sourceLine": 28959,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1323,6 +1492,7 @@
     },
     {
       "id": "Export (audit extract as comma-separated values / JavaScript object notation)",
+      "label": "Export (audit extract as comma-separated values / JavaScript object notation)",
       "sourceLine": 3884,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1330,6 +1500,7 @@
     },
     {
       "id": "Export (comma-separated values and JavaScript Object Notation, date and entity filters)",
+      "label": "Export (comma-separated values and JavaScript Object Notation, date and entity filters)",
       "sourceLine": 104114,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1337,6 +1508,7 @@
     },
     {
       "id": "Export as JavaScript Object Notation",
+      "label": "Export as JavaScript Object Notation",
       "sourceLine": 64572,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1344,6 +1516,7 @@
     },
     {
       "id": "Export as comma-separated values",
+      "label": "Export as comma-separated values",
       "sourceLine": 20728,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1351,6 +1524,7 @@
     },
     {
       "id": "Export as comma-separated values or JavaScript Object Notation",
+      "label": "Export as comma-separated values or JavaScript Object Notation",
       "sourceLine": 54544,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1358,6 +1532,7 @@
     },
     {
       "id": "Export the Portable Document Format Summary",
+      "label": "Export the Portable Document Format Summary",
       "sourceLine": 48162,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1365,6 +1540,7 @@
     },
     {
       "id": "Export the audit log as comma-separated values or JavaScript Object Notation",
+      "label": "Export the audit log as comma-separated values or JavaScript Object Notation",
       "sourceLine": 1903,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1372,6 +1548,7 @@
     },
     {
       "id": "Extend end time",
+      "label": "Extend end time",
       "sourceLine": 28030,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1379,6 +1556,7 @@
     },
     {
       "id": "Extend the run end time within the tenant's cap",
+      "label": "Extend the run end time within the tenant's cap",
       "sourceLine": 11133,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1386,6 +1564,7 @@
     },
     {
       "id": "Extend the time box",
+      "label": "Extend the time box",
       "sourceLine": 64699,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1393,6 +1572,7 @@
     },
     {
       "id": "Feature enablement strip",
+      "label": "Feature enablement strip",
       "sourceLine": 113715,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1400,6 +1580,7 @@
     },
     {
       "id": "Feed filters (Area, severity, type, state)",
+      "label": "Feed filters (Area, severity, type, state)",
       "sourceLine": 4340,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1407,6 +1588,7 @@
     },
     {
       "id": "Filter",
+      "label": "Filter",
       "sourceLine": 64572,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1414,6 +1596,7 @@
     },
     {
       "id": "Filter by Area, severity, type and state",
+      "label": "Filter by Area, severity, type and state",
       "sourceLine": 37863,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1421,6 +1604,7 @@
     },
     {
       "id": "Filter by date and entity (audit)",
+      "label": "Filter by date and entity (audit)",
       "sourceLine": 104111,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1428,6 +1612,7 @@
     },
     {
       "id": "Filter by week, Area, certification type and worker",
+      "label": "Filter by week, Area, certification type and worker",
       "sourceLine": 29318,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1435,6 +1620,7 @@
     },
     {
       "id": "Filter the audit log by date and entity",
+      "label": "Filter the audit log by date and entity",
       "sourceLine": 1903,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1442,6 +1628,7 @@
     },
     {
       "id": "Filters — domain grouping, status, eval verdict, detection class",
+      "label": "Filters — domain grouping, status, eval verdict, detection class",
       "sourceLine": 43158,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1449,6 +1636,7 @@
     },
     {
       "id": "Filters: Area, severity, type and state",
+      "label": "Filters: Area, severity, type and state",
       "sourceLine": 25016,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1456,6 +1644,7 @@
     },
     {
       "id": "Filters: type, state, tenant scope and sponsor",
+      "label": "Filters: type, state, tenant scope and sponsor",
       "sourceLine": 18185,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1463,6 +1652,7 @@
     },
     {
       "id": "Filters: week, Area, certification type, worker",
+      "label": "Filters: week, Area, certification type, worker",
       "sourceLine": 52740,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1470,6 +1660,7 @@
     },
     {
       "id": "Flag an automatic resolution as wrong",
+      "label": "Flag an automatic resolution as wrong",
       "sourceLine": 63605,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1477,6 +1668,7 @@
     },
     {
       "id": "Flag this resolution",
+      "label": "Flag this resolution",
       "sourceLine": 80541,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1484,6 +1676,7 @@
     },
     {
       "id": "Flag this resolution as wrong",
+      "label": "Flag this resolution as wrong",
       "sourceLine": 38157,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1491,6 +1684,7 @@
     },
     {
       "id": "Follow a link to the referenced object, read-only",
+      "label": "Follow a link to the referenced object, read-only",
       "sourceLine": 64572,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1498,6 +1692,7 @@
     },
     {
       "id": "Force the command onto a device",
+      "label": "Force the command onto a device",
       "sourceLine": 63314,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1505,6 +1700,7 @@
     },
     {
       "id": "Freshness marker",
+      "label": "Freshness marker",
       "sourceLine": 26293,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1512,6 +1708,7 @@
     },
     {
       "id": "Freshness marker (selectable)",
+      "label": "Freshness marker (selectable)",
       "sourceLine": 35931,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1519,6 +1716,7 @@
     },
     {
       "id": "Freshness marker on every live element",
+      "label": "Freshness marker on every live element",
       "sourceLine": 1668,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1526,6 +1724,7 @@
     },
     {
       "id": "Gate view",
+      "label": "Gate view",
       "sourceLine": 108982,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1533,6 +1732,7 @@
     },
     {
       "id": "Gate-item decision",
+      "label": "Gate-item decision",
       "sourceLine": 117304,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1540,6 +1740,7 @@
     },
     {
       "id": "Global search over workers, Jobs, runs, and parts",
+      "label": "Global search over workers, Jobs, runs, and parts",
       "sourceLine": 47206,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1547,6 +1748,7 @@
     },
     {
       "id": "Go to my other runs",
+      "label": "Go to my other runs",
       "sourceLine": 41736,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1554,6 +1756,7 @@
     },
     {
       "id": "Grant a clearance",
+      "label": "Grant a clearance",
       "sourceLine": 27431,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1561,6 +1764,7 @@
     },
     {
       "id": "Grant a never-held qualification",
+      "label": "Grant a never-held qualification",
       "sourceLine": 64255,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1568,6 +1772,7 @@
     },
     {
       "id": "Grant a qualification clearance",
+      "label": "Grant a qualification clearance",
       "sourceLine": 11410,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1575,6 +1780,7 @@
     },
     {
       "id": "Grant a qualification clearance (Command Center action 10)",
+      "label": "Grant a qualification clearance (Command Center action 10)",
       "sourceLine": 2496,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1582,6 +1788,7 @@
     },
     {
       "id": "Grant clearance",
+      "label": "Grant clearance",
       "sourceLine": 64254,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1589,6 +1796,7 @@
     },
     {
       "id": "Grant the engineer write access",
+      "label": "Grant the engineer write access",
       "sourceLine": 64699,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1596,6 +1804,7 @@
     },
     {
       "id": "Hand back this run",
+      "label": "Hand back this run",
       "sourceLine": 42058,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1603,6 +1812,7 @@
     },
     {
       "id": "Handoff state chip",
+      "label": "Handoff state chip",
       "sourceLine": 25129,
       "status": "not-represented",
       "surface": "all surfaces rendering a handoff",
@@ -1610,6 +1820,7 @@
     },
     {
       "id": "Hide the banner",
+      "label": "Hide the banner",
       "sourceLine": 64699,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1617,6 +1828,7 @@
     },
     {
       "id": "Honest sync indicator",
+      "label": "Honest sync indicator",
       "sourceLine": 113375,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1624,6 +1836,7 @@
     },
     {
       "id": "In-app locked control with the text \"Always on. In-app notifications cannot be turned off.\"",
+      "label": "In-app locked control with the text \"Always on. In-app notifications cannot be turned off.\"",
       "sourceLine": 73228,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1631,6 +1844,7 @@
     },
     {
       "id": "Input type picker",
+      "label": "Input type picker",
       "sourceLine": 113109,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -1638,6 +1852,7 @@
     },
     {
       "id": "Job Type filter (first-class filter in the Custom Report Builder)",
+      "label": "Job Type filter (first-class filter in the Custom Report Builder)",
       "sourceLine": 54815,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1645,6 +1860,7 @@
     },
     {
       "id": "Job anchor picker",
+      "label": "Job anchor picker",
       "sourceLine": 112907,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1652,6 +1868,7 @@
     },
     {
       "id": "Language selector (English / Spanish)",
+      "label": "Language selector (English / Spanish)",
       "sourceLine": 42380,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1659,6 +1876,7 @@
     },
     {
       "id": "Language toggle (compliance lock screen)",
+      "label": "Language toggle (compliance lock screen)",
       "sourceLine": 41412,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1666,6 +1884,7 @@
     },
     {
       "id": "Last-activity review",
+      "label": "Last-activity review",
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1673,6 +1892,7 @@
     },
     {
       "id": "Legal hold",
+      "label": "Legal hold",
       "sourceLine": 117354,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1680,6 +1900,7 @@
     },
     {
       "id": "Library filter defaulting to Published",
+      "label": "Library filter defaulting to Published",
       "sourceLine": 4142,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -1687,6 +1908,7 @@
     },
     {
       "id": "Library pointer badge",
+      "label": "Library pointer badge",
       "sourceLine": 113112,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -1694,6 +1916,7 @@
     },
     {
       "id": "Link to the Standards and Operations Studio for agent switching",
+      "label": "Link to the Standards and Operations Studio for agent switching",
       "sourceLine": 37781,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1701,6 +1924,7 @@
     },
     {
       "id": "Logout",
+      "label": "Logout",
       "sourceLine": 40305,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1708,6 +1932,7 @@
     },
     {
       "id": "Logout control",
+      "label": "Logout control",
       "sourceLine": 42380,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1715,6 +1940,7 @@
     },
     {
       "id": "Manual close link (to the Delivery Operations Hub run record)",
+      "label": "Manual close link (to the Delivery Operations Hub run record)",
       "sourceLine": 36551,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1722,6 +1948,7 @@
     },
     {
       "id": "Manual close of a stuck run",
+      "label": "Manual close of a stuck run",
       "sourceLine": 100928,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1729,6 +1956,7 @@
     },
     {
       "id": "Manual per-run portable-document-format export",
+      "label": "Manual per-run portable-document-format export",
       "sourceLine": 3981,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1736,6 +1964,7 @@
     },
     {
       "id": "Manual sync control",
+      "label": "Manual sync control",
       "sourceLine": 50611,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1743,6 +1972,7 @@
     },
     {
       "id": "Manual synchronisation",
+      "label": "Manual synchronisation",
       "sourceLine": 4448,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1750,6 +1980,7 @@
     },
     {
       "id": "Manual trigger",
+      "label": "Manual trigger",
       "sourceLine": 109926,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1757,6 +1988,7 @@
     },
     {
       "id": "Manual-close control on the run record",
+      "label": "Manual-close control on the run record",
       "sourceLine": 85073,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1764,6 +1996,7 @@
     },
     {
       "id": "Mark a prior case relevant or not relevant",
+      "label": "Mark a prior case relevant or not relevant",
       "sourceLine": 86526,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1771,6 +2004,7 @@
     },
     {
       "id": "Mark as read",
+      "label": "Mark as read",
       "sourceLine": 89568,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1778,6 +2012,7 @@
     },
     {
       "id": "Mark device lost / Request wipe",
+      "label": "Mark device lost / Request wipe",
       "sourceLine": 103830,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1785,6 +2020,7 @@
     },
     {
       "id": "Mark evidence reviewed",
+      "label": "Mark evidence reviewed",
       "sourceLine": 4245,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1792,6 +2028,7 @@
     },
     {
       "id": "Mark prior cases relevant or not relevant",
+      "label": "Mark prior cases relevant or not relevant",
       "sourceLine": 48431,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1799,6 +2036,7 @@
     },
     {
       "id": "Mark relevant / not relevant (prior case relevance)",
+      "label": "Mark relevant / not relevant (prior case relevance)",
       "sourceLine": 58955,
       "status": "not-represented",
       "surface": "Client Command Center deviation workspace",
@@ -1806,6 +2044,7 @@
     },
     {
       "id": "Mark reviewed",
+      "label": "Mark reviewed",
       "sourceLine": 72496,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1813,6 +2052,7 @@
     },
     {
       "id": "Mark the Summary reviewed",
+      "label": "Mark the Summary reviewed",
       "sourceLine": 48162,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1820,6 +2060,7 @@
     },
     {
       "id": "Mark the hold in force manually",
+      "label": "Mark the hold in force manually",
       "sourceLine": 63314,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1827,6 +2068,7 @@
     },
     {
       "id": "Microsoft Excel or comma-separated values, recipient set, schedule defaulting to 06:00 daily",
+      "label": "Microsoft Excel or comma-separated values, recipient set, schedule defaulting to 06:00 daily",
       "sourceLine": 97784,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1834,6 +2076,7 @@
     },
     {
       "id": "Model quarantine",
+      "label": "Model quarantine",
       "sourceLine": 91292,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1841,6 +2084,7 @@
     },
     {
       "id": "Mute a digest section",
+      "label": "Mute a digest section",
       "sourceLine": 28693,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1848,6 +2092,7 @@
     },
     {
       "id": "Narrow the declared scope before authorising",
+      "label": "Narrow the declared scope before authorising",
       "sourceLine": 64827,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1855,6 +2100,7 @@
     },
     {
       "id": "Navigation rail: Board, Drill, Deviations, Gate, Learned changes, Agents, Alerts, Conflicts, Reports, Handoff",
+      "label": "Navigation rail: Board, Drill, Deviations, Gate, Learned changes, Agents, Alerts, Conflicts, Reports, Handoff",
       "sourceLine": 35102,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1862,6 +2108,7 @@
     },
     {
       "id": "New Agent",
+      "label": "New Agent",
       "sourceLine": 34096,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -1869,6 +2116,7 @@
     },
     {
       "id": "New Tenant",
+      "label": "New Tenant",
       "sourceLine": 75180,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1876,6 +2124,7 @@
     },
     {
       "id": "New Workflow",
+      "label": "New Workflow",
       "sourceLine": 31976,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -1883,6 +2132,7 @@
     },
     {
       "id": "Next",
+      "label": "Next",
       "sourceLine": 91615,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1890,6 +2140,7 @@
     },
     {
       "id": "Next (advance)",
+      "label": "Next (advance)",
       "sourceLine": 62516,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1897,6 +2148,7 @@
     },
     {
       "id": "No 'request access' or 'join the beta' control (absence is the control)",
+      "label": "No 'request access' or 'join the beta' control (absence is the control)",
       "sourceLine": 96696,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1904,6 +2156,7 @@
     },
     {
       "id": "No control to add an outbound destination (absence is the control)",
+      "label": "No control to add an outbound destination (absence is the control)",
       "sourceLine": 95576,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1911,6 +2164,7 @@
     },
     {
       "id": "No delete or purge control on any storage-related surface (absence is the control)",
+      "label": "No delete or purge control on any storage-related surface (absence is the control)",
       "sourceLine": 97037,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1918,6 +2172,7 @@
     },
     {
       "id": "No enable control on the ERP inbound row (absence is the control)",
+      "label": "No enable control on the ERP inbound row (absence is the control)",
       "sourceLine": 96422,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1925,6 +2180,7 @@
     },
     {
       "id": "No per-tenant region control (absence is the control)",
+      "label": "No per-tenant region control (absence is the control)",
       "sourceLine": 97239,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1932,6 +2188,7 @@
     },
     {
       "id": "No undo, restore or de-anonymise control (absence is the control)",
+      "label": "No undo, restore or de-anonymise control (absence is the control)",
       "sourceLine": 97560,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1939,6 +2196,7 @@
     },
     {
       "id": "Not available at this version",
+      "label": "Not available at this version",
       "sourceLine": 95478,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1946,6 +2204,7 @@
     },
     {
       "id": "Not yet set — client decision DEC-*",
+      "label": "Not yet set — client decision DEC-*",
       "sourceLine": 90030,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1953,6 +2212,7 @@
     },
     {
       "id": "On-demand package re-pull",
+      "label": "On-demand package re-pull",
       "sourceLine": 113242,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1960,6 +2220,7 @@
     },
     {
       "id": "One-tap relevance marking (prior cases)",
+      "label": "One-tap relevance marking (prior cases)",
       "sourceLine": 4321,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -1967,6 +2228,7 @@
     },
     {
       "id": "Open (compliance-emergency session)",
+      "label": "Open (compliance-emergency session)",
       "sourceLine": 104252,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1974,6 +2236,7 @@
     },
     {
       "id": "Open (compliance-emergency)",
+      "label": "Open (compliance-emergency)",
       "sourceLine": 19760,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -1981,6 +2244,7 @@
     },
     {
       "id": "Open Platform Access History",
+      "label": "Open Platform Access History",
       "sourceLine": 64572,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -1988,6 +2252,7 @@
     },
     {
       "id": "Open a ready run",
+      "label": "Open a ready run",
       "sourceLine": 48629,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -1995,6 +2260,7 @@
     },
     {
       "id": "Open deviation workspace",
+      "label": "Open deviation workspace",
       "sourceLine": 36763,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2002,6 +2268,7 @@
     },
     {
       "id": "Open tenant administration area",
+      "label": "Open tenant administration area",
       "sourceLine": 61356,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2009,6 +2276,7 @@
     },
     {
       "id": "Open the Why was I refused view",
+      "label": "Open the Why was I refused view",
       "sourceLine": 14573,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2016,6 +2284,7 @@
     },
     {
       "id": "Open the not-yet-ready run",
+      "label": "Open the not-yet-ready run",
       "sourceLine": 48630,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2023,6 +2292,7 @@
     },
     {
       "id": "Open the parked run to see why it is parked",
+      "label": "Open the parked run to see why it is parked",
       "sourceLine": 48629,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2030,6 +2300,7 @@
     },
     {
       "id": "Open the review queue",
+      "label": "Open the review queue",
       "sourceLine": 65162,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2037,6 +2308,7 @@
     },
     {
       "id": "Open the role definition card",
+      "label": "Open the role definition card",
       "sourceLine": 14265,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2044,6 +2316,7 @@
     },
     {
       "id": "Open the trace viewer for a scenario run",
+      "label": "Open the trace viewer for a scenario run",
       "sourceLine": 65489,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2051,6 +2324,7 @@
     },
     {
       "id": "Open the work instruction at her profile's difficulty level",
+      "label": "Open the work instruction at her profile's difficulty level",
       "sourceLine": 65808,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2058,6 +2332,7 @@
     },
     {
       "id": "Option-list editor",
+      "label": "Option-list editor",
       "sourceLine": 113110,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2065,6 +2340,7 @@
     },
     {
       "id": "Override the specification gate",
+      "label": "Override the specification gate",
       "sourceLine": 48432,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2072,6 +2348,7 @@
     },
     {
       "id": "Pause",
+      "label": "Pause",
       "sourceLine": 109926,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2079,6 +2356,7 @@
     },
     {
       "id": "Pause a definition",
+      "label": "Pause a definition",
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2086,6 +2364,7 @@
     },
     {
       "id": "Pause agent activity",
+      "label": "Pause agent activity",
       "sourceLine": 65613,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2093,6 +2372,7 @@
     },
     {
       "id": "Pause and resume in one action",
+      "label": "Pause and resume in one action",
       "sourceLine": 65614,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2100,6 +2380,7 @@
     },
     {
       "id": "Pause definition",
+      "label": "Pause definition",
       "sourceLine": 18606,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2107,6 +2388,7 @@
     },
     {
       "id": "Pause the deterministic layer",
+      "label": "Pause the deterministic layer",
       "sourceLine": 65614,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2114,6 +2396,7 @@
     },
     {
       "id": "Pause the run",
+      "label": "Pause the run",
       "sourceLine": 48432,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2121,6 +2404,7 @@
     },
     {
       "id": "Pause the run / Stop the run",
+      "label": "Pause the run / Stop the run",
       "sourceLine": 62535,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2128,6 +2412,7 @@
     },
     {
       "id": "Per-format re-send option on material correction",
+      "label": "Per-format re-send option on material correction",
       "sourceLine": 99436,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2135,6 +2420,7 @@
     },
     {
       "id": "Per-tenant backlog drill",
+      "label": "Per-tenant backlog drill",
       "sourceLine": 100759,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2142,6 +2428,7 @@
     },
     {
       "id": "Persistent sync indicator",
+      "label": "Persistent sync indicator",
       "sourceLine": 12256,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2149,6 +2436,7 @@
     },
     {
       "id": "Personal-identification-number reset",
+      "label": "Personal-identification-number reset",
       "sourceLine": 48611,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2156,6 +2444,7 @@
     },
     {
       "id": "Pick up unassigned work",
+      "label": "Pick up unassigned work",
       "sourceLine": 48630,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2163,6 +2452,7 @@
     },
     {
       "id": "Platform Access History",
+      "label": "Platform Access History",
       "sourceLine": 58075,
       "status": "not-represented",
       "surface": "Delivery Operations Hub",
@@ -2170,6 +2460,7 @@
     },
     {
       "id": "Platform announcement banner",
+      "label": "Platform announcement banner",
       "sourceLine": 115575,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2177,6 +2468,7 @@
     },
     {
       "id": "Platform credential",
+      "label": "Platform credential",
       "sourceLine": 95832,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2184,6 +2476,7 @@
     },
     {
       "id": "Play again",
+      "label": "Play again",
       "sourceLine": 41566,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2191,6 +2484,7 @@
     },
     {
       "id": "Preview Sequence",
+      "label": "Preview Sequence",
       "sourceLine": 32144,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2198,6 +2492,7 @@
     },
     {
       "id": "Preview as a worker at each difficulty level",
+      "label": "Preview as a worker at each difficulty level",
       "sourceLine": 61900,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2205,6 +2500,7 @@
     },
     {
       "id": "Preview every screen",
+      "label": "Preview every screen",
       "sourceLine": 24907,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2212,6 +2508,7 @@
     },
     {
       "id": "Prohibited",
+      "label": "Prohibited",
       "sourceLine": 15544,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2219,6 +2516,7 @@
     },
     {
       "id": "Prohibition checklist (satisfied / not applicable with reason / blocking)",
+      "label": "Prohibition checklist (satisfied / not applicable with reason / blocking)",
       "sourceLine": 98835,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2226,6 +2524,7 @@
     },
     {
       "id": "Propose catch-up policy change",
+      "label": "Propose catch-up policy change",
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2233,6 +2532,7 @@
     },
     {
       "id": "Propose concurrency change",
+      "label": "Propose concurrency change",
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2240,6 +2540,7 @@
     },
     {
       "id": "Propose cron change",
+      "label": "Propose cron change",
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2247,6 +2548,7 @@
     },
     {
       "id": "Provider or model failover",
+      "label": "Provider or model failover",
       "sourceLine": 91291,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2254,6 +2556,7 @@
     },
     {
       "id": "Publish",
+      "label": "Publish",
       "sourceLine": 4079,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2261,6 +2564,7 @@
     },
     {
       "id": "Publish as a patch",
+      "label": "Publish as a patch",
       "sourceLine": 62034,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2268,6 +2572,7 @@
     },
     {
       "id": "Publish directly",
+      "label": "Publish directly",
       "sourceLine": 48309,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2275,6 +2580,7 @@
     },
     {
       "id": "Publish version 2.1.0",
+      "label": "Publish version 2.1.0",
       "sourceLine": 62033,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2282,6 +2588,7 @@
     },
     {
       "id": "Published filter",
+      "label": "Published filter",
       "sourceLine": 31877,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2289,6 +2596,7 @@
     },
     {
       "id": "Quality Manager review toggle (tenant-wide)",
+      "label": "Quality Manager review toggle (tenant-wide)",
       "sourceLine": 3978,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2296,6 +2604,7 @@
     },
     {
       "id": "Re-pull package (on demand)",
+      "label": "Re-pull package (on demand)",
       "sourceLine": 4102,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2303,6 +2612,7 @@
     },
     {
       "id": "Re-read the notice",
+      "label": "Re-read the notice",
       "sourceLine": 65808,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2310,6 +2620,7 @@
     },
     {
       "id": "Re-send this format when a material correction occurs",
+      "label": "Re-send this format when a material correction occurs",
       "sourceLine": 38355,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2317,6 +2628,7 @@
     },
     {
       "id": "Reactivate / Revoke",
+      "label": "Reactivate / Revoke",
       "sourceLine": 19014,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2324,6 +2636,7 @@
     },
     {
       "id": "Reassign",
+      "label": "Reassign",
       "sourceLine": 38767,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2331,6 +2644,7 @@
     },
     {
       "id": "Reassign a paused Job during the cascade",
+      "label": "Reassign a paused Job during the cascade",
       "sourceLine": 27123,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2338,6 +2652,7 @@
     },
     {
       "id": "Reassign a run (Command Center action 8)",
+      "label": "Reassign a run (Command Center action 8)",
       "sourceLine": 2304,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2345,6 +2660,7 @@
     },
     {
       "id": "Reassign a run mid-shift",
+      "label": "Reassign a run mid-shift",
       "sourceLine": 11408,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2352,6 +2668,7 @@
     },
     {
       "id": "Rebase or keep (scheduled-not-started runs)",
+      "label": "Rebase or keep (scheduled-not-started runs)",
       "sourceLine": 53601,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2359,6 +2676,7 @@
     },
     {
       "id": "Reclassify an anomaly with a recorded reason",
+      "label": "Reclassify an anomaly with a recorded reason",
       "sourceLine": 48162,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2366,6 +2684,7 @@
     },
     {
       "id": "Record",
+      "label": "Record",
       "sourceLine": 40855,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2373,6 +2692,7 @@
     },
     {
       "id": "Redrive a dead-letter batch",
+      "label": "Redrive a dead-letter batch",
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2380,6 +2700,7 @@
     },
     {
       "id": "Reference material packaged with this step",
+      "label": "Reference material packaged with this step",
       "sourceLine": 89212,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2387,6 +2708,7 @@
     },
     {
       "id": "Regulated-Industry mode toggle",
+      "label": "Regulated-Industry mode toggle",
       "sourceLine": 52383,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2394,6 +2716,7 @@
     },
     {
       "id": "Reissue to a corrected address",
+      "label": "Reissue to a corrected address",
       "sourceLine": 75604,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2401,6 +2724,7 @@
     },
     {
       "id": "Reject with reason",
+      "label": "Reject with reason",
       "sourceLine": 61701,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2408,6 +2732,7 @@
     },
     {
       "id": "Release",
+      "label": "Release",
       "sourceLine": 13820,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2415,6 +2740,7 @@
     },
     {
       "id": "Release (lot hold)",
+      "label": "Release (lot hold)",
       "sourceLine": 4248,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2422,6 +2748,7 @@
     },
     {
       "id": "Release a lot hold",
+      "label": "Release a lot hold",
       "sourceLine": 20019,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2429,6 +2756,7 @@
     },
     {
       "id": "Release a lot hold, including an automatic Severity 1 hold",
+      "label": "Release a lot hold, including an automatic Severity 1 hold",
       "sourceLine": 11404,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2436,6 +2764,7 @@
     },
     {
       "id": "Release and cancel controls",
+      "label": "Release and cancel controls",
       "sourceLine": 99159,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2443,6 +2772,7 @@
     },
     {
       "id": "Release control (disabled for the Reviewer)",
+      "label": "Release control (disabled for the Reviewer)",
       "sourceLine": 20338,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2450,6 +2780,7 @@
     },
     {
       "id": "Release control with reason",
+      "label": "Release control with reason",
       "sourceLine": 117489,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2457,6 +2788,7 @@
     },
     {
       "id": "Release hold",
+      "label": "Release hold",
       "sourceLine": 73636,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2464,6 +2796,7 @@
     },
     {
       "id": "Release hold control (rendered disabled for Supervisor with the message \"Lot release is Quality Manager only. Request release with a note.\")",
+      "label": "Release hold control (rendered disabled for Supervisor with the message \"Lot release is Quality Manager only. Request release with a note.\")",
       "sourceLine": 61024,
       "status": "not-represented",
       "surface": "Client Command Center",
@@ -2471,6 +2804,7 @@
     },
     {
       "id": "Release lot",
+      "label": "Release lot",
       "sourceLine": 72004,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2478,6 +2812,7 @@
     },
     {
       "id": "Release lot hold",
+      "label": "Release lot hold",
       "sourceLine": 24234,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2485,6 +2820,7 @@
     },
     {
       "id": "Release the hold",
+      "label": "Release the hold",
       "sourceLine": 48649,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2492,6 +2828,7 @@
     },
     {
       "id": "Release the lot hold",
+      "label": "Release the lot hold",
       "sourceLine": 48431,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2499,6 +2836,7 @@
     },
     {
       "id": "Release the lot hold (Command Center action 4)",
+      "label": "Release the lot hold (Command Center action 4)",
       "sourceLine": 1643,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2506,6 +2844,7 @@
     },
     {
       "id": "Relevant / Not relevant",
+      "label": "Relevant / Not relevant",
       "sourceLine": 37554,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2513,6 +2852,7 @@
     },
     {
       "id": "Remove the Severity 1 automatic lot freeze",
+      "label": "Remove the Severity 1 automatic lot freeze",
       "sourceLine": 61901,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2520,6 +2860,7 @@
     },
     {
       "id": "Replay",
+      "label": "Replay",
       "sourceLine": 86398,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2527,6 +2868,7 @@
     },
     {
       "id": "Replay / Dismiss (coaching card)",
+      "label": "Replay / Dismiss (coaching card)",
       "sourceLine": 4450,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2534,6 +2876,7 @@
     },
     {
       "id": "Report a problem",
+      "label": "Report a problem",
       "sourceLine": 93780,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2541,6 +2884,7 @@
     },
     {
       "id": "Request a lot release with a note",
+      "label": "Request a lot release with a note",
       "sourceLine": 47507,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2548,6 +2892,7 @@
     },
     {
       "id": "Request a new integration",
+      "label": "Request a new integration",
       "sourceLine": 95577,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2555,6 +2900,7 @@
     },
     {
       "id": "Request a tier downgrade",
+      "label": "Request a tier downgrade",
       "sourceLine": 26891,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2562,6 +2908,7 @@
     },
     {
       "id": "Request a tier upgrade",
+      "label": "Request a tier upgrade",
       "sourceLine": 26890,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2569,6 +2916,7 @@
     },
     {
       "id": "Request agent re-check",
+      "label": "Request agent re-check",
       "sourceLine": 58821,
       "status": "not-represented",
       "surface": "Client Command Center",
@@ -2576,6 +2924,7 @@
     },
     {
       "id": "Request an agent re-check",
+      "label": "Request an agent re-check",
       "sourceLine": 37674,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2583,6 +2932,7 @@
     },
     {
       "id": "Request an agent re-check on a record",
+      "label": "Request an agent re-check on a record",
       "sourceLine": 11409,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2590,6 +2940,7 @@
     },
     {
       "id": "Request approval",
+      "label": "Request approval",
       "sourceLine": 103412,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2597,6 +2948,7 @@
     },
     {
       "id": "Request lot release with a note",
+      "label": "Request lot release with a note",
       "sourceLine": 63021,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2604,6 +2956,7 @@
     },
     {
       "id": "Request release",
+      "label": "Request release",
       "sourceLine": 72004,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2611,6 +2964,7 @@
     },
     {
       "id": "Request release with a note",
+      "label": "Request release with a note",
       "sourceLine": 1670,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2618,6 +2972,7 @@
     },
     {
       "id": "Requires a second authorisation",
+      "label": "Requires a second authorisation",
       "sourceLine": 15544,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2625,6 +2980,7 @@
     },
     {
       "id": "Requires root approval",
+      "label": "Requires root approval",
       "sourceLine": 15793,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2632,6 +2988,7 @@
     },
     {
       "id": "Resend",
+      "label": "Resend",
       "sourceLine": 75604,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2639,6 +2996,7 @@
     },
     {
       "id": "Resolve",
+      "label": "Resolve",
       "sourceLine": 4342,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2646,6 +3004,7 @@
     },
     {
       "id": "Resolve All",
+      "label": "Resolve All",
       "sourceLine": 1678,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2653,6 +3012,7 @@
     },
     {
       "id": "Resolve All (2 ordinary conflicts; 1 skew-flagged conflict excluded)",
+      "label": "Resolve All (2 ordinary conflicts; 1 skew-flagged conflict excluded)",
       "sourceLine": 38157,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2660,6 +3020,7 @@
     },
     {
       "id": "Resolve an anomaly with a closure note",
+      "label": "Resolve an anomaly with a closure note",
       "sourceLine": 48162,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2667,6 +3028,7 @@
     },
     {
       "id": "Resolve or Resolve-All sync conflicts",
+      "label": "Resolve or Resolve-All sync conflicts",
       "sourceLine": 11405,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2674,6 +3036,7 @@
     },
     {
       "id": "Resolve or resolve-all sync conflicts",
+      "label": "Resolve or resolve-all sync conflicts",
       "sourceLine": 76908,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2681,6 +3044,7 @@
     },
     {
       "id": "Resolve-All",
+      "label": "Resolve-All",
       "sourceLine": 16740,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2688,6 +3052,7 @@
     },
     {
       "id": "Resolve-All (sync conflicts)",
+      "label": "Resolve-All (sync conflicts)",
       "sourceLine": 23955,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2695,6 +3060,7 @@
     },
     {
       "id": "Restore",
+      "label": "Restore",
       "sourceLine": 54850,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2702,6 +3068,7 @@
     },
     {
       "id": "Resume",
+      "label": "Resume",
       "sourceLine": 21588,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2709,6 +3076,7 @@
     },
     {
       "id": "Resume (emergency)",
+      "label": "Resume (emergency)",
       "sourceLine": 110543,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2716,6 +3084,7 @@
     },
     {
       "id": "Resume a paused scope",
+      "label": "Resume a paused scope",
       "sourceLine": 91297,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2723,6 +3092,7 @@
     },
     {
       "id": "Retire",
+      "label": "Retire",
       "sourceLine": 34293,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2730,6 +3100,7 @@
     },
     {
       "id": "Retrieval request",
+      "label": "Retrieval request",
       "sourceLine": 114117,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2737,6 +3108,7 @@
     },
     {
       "id": "Return",
+      "label": "Return",
       "sourceLine": 55918,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2744,6 +3116,7 @@
     },
     {
       "id": "Return it with reasons",
+      "label": "Return it with reasons",
       "sourceLine": 48792,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2751,6 +3124,7 @@
     },
     {
       "id": "Return with a reason",
+      "label": "Return with a reason",
       "sourceLine": 21050,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2758,6 +3132,7 @@
     },
     {
       "id": "Return with comments",
+      "label": "Return with comments",
       "sourceLine": 24907,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2765,6 +3140,7 @@
     },
     {
       "id": "Return with reason",
+      "label": "Return with reason",
       "sourceLine": 23707,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2772,6 +3148,7 @@
     },
     {
       "id": "Return with reasons",
+      "label": "Return with reasons",
       "sourceLine": 43339,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2779,6 +3156,7 @@
     },
     {
       "id": "Reverse a Lane A refinement",
+      "label": "Reverse a Lane A refinement",
       "sourceLine": 87729,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2786,6 +3164,7 @@
     },
     {
       "id": "Reverse anonymisation",
+      "label": "Reverse anonymisation",
       "sourceLine": 65941,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2793,6 +3172,7 @@
     },
     {
       "id": "Review",
+      "label": "Review",
       "sourceLine": 34293,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2800,6 +3180,7 @@
     },
     {
       "id": "Review prior screens read-only",
+      "label": "Review prior screens read-only",
       "sourceLine": 48648,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2807,6 +3188,7 @@
     },
     {
       "id": "Reviewer control (disabled for the Author)",
+      "label": "Reviewer control (disabled for the Author)",
       "sourceLine": 20338,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2814,6 +3196,7 @@
     },
     {
       "id": "Revoke",
+      "label": "Revoke",
       "sourceLine": 18185,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2821,6 +3204,7 @@
     },
     {
       "id": "Role assignment",
+      "label": "Role assignment",
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2828,6 +3212,7 @@
     },
     {
       "id": "Role selector (five roles, no creation affordance)",
+      "label": "Role selector (five roles, no creation affordance)",
       "sourceLine": 23918,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2835,6 +3220,7 @@
     },
     {
       "id": "Roles pane four-role matrix (live, per module)",
+      "label": "Roles pane four-role matrix (live, per module)",
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2842,6 +3228,7 @@
     },
     {
       "id": "Root only",
+      "label": "Root only",
       "sourceLine": 15544,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2849,6 +3236,7 @@
     },
     {
       "id": "Run a scenario or a suite on demand",
+      "label": "Run a scenario or a suite on demand",
       "sourceLine": 87338,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2856,6 +3244,7 @@
     },
     {
       "id": "Run interruption is a floor action and is not available from this surface.",
+      "label": "Run interruption is a floor action and is not available from this surface.",
       "sourceLine": 13538,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2863,6 +3252,7 @@
     },
     {
       "id": "Run now",
+      "label": "Run now",
       "sourceLine": 18606,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2870,6 +3260,7 @@
     },
     {
       "id": "Run scenario",
+      "label": "Run scenario",
       "sourceLine": 43706,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2877,6 +3268,7 @@
     },
     {
       "id": "Run suite",
+      "label": "Run suite",
       "sourceLine": 43706,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2884,6 +3276,7 @@
     },
     {
       "id": "Run the evaluation scenarios",
+      "label": "Run the evaluation scenarios",
       "sourceLine": 65489,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2891,6 +3284,7 @@
     },
     {
       "id": "Run the locale completeness check",
+      "label": "Run the locale completeness check",
       "sourceLine": 48308,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2898,6 +3292,7 @@
     },
     {
       "id": "Safe replay",
+      "label": "Safe replay",
       "sourceLine": 91294,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2905,6 +3300,7 @@
     },
     {
       "id": "Save / Reset to platform defaults / View the platform floor register",
+      "label": "Save / Reset to platform defaults / View the platform floor register",
       "sourceLine": 61486,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2912,6 +3308,7 @@
     },
     {
       "id": "Save as document",
+      "label": "Save as document",
       "sourceLine": 14355,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2919,6 +3316,7 @@
     },
     {
       "id": "Scheduled-obligation strip",
+      "label": "Scheduled-obligation strip",
       "sourceLine": 100618,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2926,6 +3324,7 @@
     },
     {
       "id": "Scope selector (Tenant, Site, Area)",
+      "label": "Scope selector (Tenant, Site, Area)",
       "sourceLine": 23918,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2933,6 +3332,7 @@
     },
     {
       "id": "Search field accepting a serial number",
+      "label": "Search field accepting a serial number",
       "sourceLine": 116778,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2940,6 +3340,7 @@
     },
     {
       "id": "Search, status filter, Job Type filter, Service Type filter",
+      "label": "Search, status filter, Job Type filter, Service Type filter",
       "sourceLine": 47362,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2947,6 +3348,7 @@
     },
     {
       "id": "Second-identity step-up",
+      "label": "Second-identity step-up",
       "sourceLine": 4443,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2954,6 +3356,7 @@
     },
     {
       "id": "See device detail",
+      "label": "See device detail",
       "sourceLine": 35396,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2961,6 +3364,7 @@
     },
     {
       "id": "Select a checklist",
+      "label": "Select a checklist",
       "sourceLine": 48308,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -2968,6 +3372,7 @@
     },
     {
       "id": "Self-service tier upgrade",
+      "label": "Self-service tier upgrade",
       "sourceLine": 2199,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -2975,6 +3380,7 @@
     },
     {
       "id": "Set a custom duration (clearance)",
+      "label": "Set a custom duration (clearance)",
       "sourceLine": 64255,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -2982,6 +3388,7 @@
     },
     {
       "id": "Set suspension state",
+      "label": "Set suspension state",
       "sourceLine": 61338,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -2989,6 +3396,7 @@
     },
     {
       "id": "Show help",
+      "label": "Show help",
       "sourceLine": 91697,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -2996,6 +3404,7 @@
     },
     {
       "id": "Sign in",
+      "label": "Sign in",
       "sourceLine": 95832,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3003,6 +3412,7 @@
     },
     {
       "id": "Sign in with a platform credential",
+      "label": "Sign in with a platform credential",
       "sourceLine": 95829,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3010,6 +3420,7 @@
     },
     {
       "id": "Sign in with the managed credential",
+      "label": "Sign in with the managed credential",
       "sourceLine": 48610,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3017,6 +3428,7 @@
     },
     {
       "id": "Single sign-on",
+      "label": "Single sign-on",
       "sourceLine": 48611,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3024,6 +3436,7 @@
     },
     {
       "id": "Site-scoped pause",
+      "label": "Site-scoped pause",
       "sourceLine": 91289,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3031,6 +3444,7 @@
     },
     {
       "id": "Skip release",
+      "label": "Skip release",
       "sourceLine": 62034,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -3038,6 +3452,7 @@
     },
     {
       "id": "Skip the export",
+      "label": "Skip the export",
       "sourceLine": 65941,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3045,6 +3460,7 @@
     },
     {
       "id": "Skip the hard-gated photograph",
+      "label": "Skip the hard-gated photograph",
       "sourceLine": 48649,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3052,6 +3468,7 @@
     },
     {
       "id": "Skip the notice",
+      "label": "Skip the notice",
       "sourceLine": 65809,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3059,6 +3476,7 @@
     },
     {
       "id": "Skip this screen",
+      "label": "Skip this screen",
       "sourceLine": 62382,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3066,6 +3484,7 @@
     },
     {
       "id": "Source chip reading device, person or scheduled",
+      "label": "Source chip reading device, person or scheduled",
       "sourceLine": 100617,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3073,6 +3492,7 @@
     },
     {
       "id": "Start",
+      "label": "Start",
       "sourceLine": 41894,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3080,6 +3500,7 @@
     },
     {
       "id": "Start guided configuration",
+      "label": "Start guided configuration",
       "sourceLine": 61356,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3087,6 +3508,7 @@
     },
     {
       "id": "Step-away control",
+      "label": "Step-away control",
       "sourceLine": 12496,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3094,6 +3516,7 @@
     },
     {
       "id": "Submit an enablement change",
+      "label": "Submit an enablement change",
       "sourceLine": 65489,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3101,6 +3524,7 @@
     },
     {
       "id": "Submit for approval",
+      "label": "Submit for approval",
       "sourceLine": 15922,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3108,6 +3532,7 @@
     },
     {
       "id": "Submit for review",
+      "label": "Submit for review",
       "sourceLine": 4078,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -3115,6 +3540,7 @@
     },
     {
       "id": "Submit for root approval",
+      "label": "Submit for root approval",
       "sourceLine": 45614,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3122,6 +3548,7 @@
     },
     {
       "id": "Submit into the approval chain",
+      "label": "Submit into the approval chain",
       "sourceLine": 12027,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -3129,6 +3556,7 @@
     },
     {
       "id": "Submit platform enablement change",
+      "label": "Submit platform enablement change",
       "sourceLine": 43158,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3136,6 +3564,7 @@
     },
     {
       "id": "Submit tenant enablement change",
+      "label": "Submit tenant enablement change",
       "sourceLine": 43158,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3143,6 +3572,7 @@
     },
     {
       "id": "Submitted for Admin approval",
+      "label": "Submitted for Admin approval",
       "sourceLine": 14574,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3150,6 +3580,7 @@
     },
     {
       "id": "Substitute worker",
+      "label": "Substitute worker",
       "sourceLine": 28030,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3157,6 +3588,7 @@
     },
     {
       "id": "Suite runner",
+      "label": "Suite runner",
       "sourceLine": 108982,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3164,6 +3596,7 @@
     },
     {
       "id": "Supervisor on-demand re-pull",
+      "label": "Supervisor on-demand re-pull",
       "sourceLine": 49721,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3171,6 +3604,7 @@
     },
     {
       "id": "Supervisor-authorised end-time extension",
+      "label": "Supervisor-authorised end-time extension",
       "sourceLine": 1808,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3178,6 +3612,7 @@
     },
     {
       "id": "Supervisor-initiated substitution with a reason",
+      "label": "Supervisor-initiated substitution with a reason",
       "sourceLine": 1808,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3185,6 +3620,7 @@
     },
     {
       "id": "Support banner (tenant-visible)",
+      "label": "Support banner (tenant-visible)",
       "sourceLine": 116274,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3192,6 +3628,7 @@
     },
     {
       "id": "Suppress future proposals of this kind",
+      "label": "Suppress future proposals of this kind",
       "sourceLine": 63932,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3199,6 +3636,7 @@
     },
     {
       "id": "Surface filter",
+      "label": "Surface filter",
       "sourceLine": 74273,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3206,6 +3644,7 @@
     },
     {
       "id": "Surface switcher",
+      "label": "Surface switcher",
       "sourceLine": 10766,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3213,6 +3652,7 @@
     },
     {
       "id": "Suspend",
+      "label": "Suspend",
       "sourceLine": 18185,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3220,6 +3660,7 @@
     },
     {
       "id": "Suspend / Offboard",
+      "label": "Suspend / Offboard",
       "sourceLine": 19014,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3227,6 +3668,7 @@
     },
     {
       "id": "Switch worker",
+      "label": "Switch worker",
       "sourceLine": 19268,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3234,6 +3676,7 @@
     },
     {
       "id": "Sync now",
+      "label": "Sync now",
       "sourceLine": 62164,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3241,6 +3684,7 @@
     },
     {
       "id": "Tenant contact email address",
+      "label": "Tenant contact email address",
       "sourceLine": 96010,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3248,6 +3692,7 @@
     },
     {
       "id": "Tenant filter, capability filter, incident filter",
+      "label": "Tenant filter, capability filter, incident filter",
       "sourceLine": 47767,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3255,6 +3700,7 @@
     },
     {
       "id": "Test connection",
+      "label": "Test connection",
       "sourceLine": 29121,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3262,6 +3708,7 @@
     },
     {
       "id": "This cannot be enabled by any configuration on this platform",
+      "label": "This cannot be enabled by any configuration on this platform",
       "sourceLine": 14979,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3269,6 +3716,7 @@
     },
     {
       "id": "Torque proof photo required",
+      "label": "Torque proof photo required",
       "sourceLine": 40855,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3276,6 +3724,7 @@
     },
     {
       "id": "Trigger a governed manual tick",
+      "label": "Trigger a governed manual tick",
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3283,6 +3732,7 @@
     },
     {
       "id": "Trigger an on-demand re-pull",
+      "label": "Trigger an on-demand re-pull",
       "sourceLine": 10363,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3290,6 +3740,7 @@
     },
     {
       "id": "Try now",
+      "label": "Try now",
       "sourceLine": 41235,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3297,6 +3748,7 @@
     },
     {
       "id": "Understood",
+      "label": "Understood",
       "sourceLine": 78432,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3304,6 +3756,7 @@
     },
     {
       "id": "Update the app to continue",
+      "label": "Update the app to continue",
       "sourceLine": 71925,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3311,6 +3764,7 @@
     },
     {
       "id": "Upload",
+      "label": "Upload",
       "sourceLine": 30148,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3318,6 +3772,7 @@
     },
     {
       "id": "Verify a tamper-evident chain",
+      "label": "Verify a tamper-evident chain",
       "sourceLine": 64573,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3325,6 +3780,7 @@
     },
     {
       "id": "Was this useful?",
+      "label": "Was this useful?",
       "sourceLine": 37554,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3332,6 +3788,7 @@
     },
     {
       "id": "Why you are seeing this",
+      "label": "Why you are seeing this",
       "sourceLine": 89459,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3339,6 +3796,7 @@
     },
     {
       "id": "Why?",
+      "label": "Why?",
       "sourceLine": 19996,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3346,6 +3804,7 @@
     },
     {
       "id": "Wipe",
+      "label": "Wipe",
       "sourceLine": 18286,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3353,6 +3812,7 @@
     },
     {
       "id": "Withdraw",
+      "label": "Withdraw",
       "sourceLine": 76626,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -3360,6 +3820,7 @@
     },
     {
       "id": "Work email address",
+      "label": "Work email address",
       "sourceLine": 95829,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3367,6 +3828,7 @@
     },
     {
       "id": "acknowledge the escalation",
+      "label": "acknowledge the escalation",
       "sourceLine": 6963,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3374,6 +3836,7 @@
     },
     {
       "id": "acknowledgement control",
+      "label": "acknowledgement control",
       "sourceLine": 93095,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3381,6 +3844,7 @@
     },
     {
       "id": "acknowledgement control (shift handoff brief)",
+      "label": "acknowledgement control (shift handoff brief)",
       "sourceLine": 54411,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3388,6 +3852,7 @@
     },
     {
       "id": "acknowledgement control (version change notice)",
+      "label": "acknowledgement control (version change notice)",
       "sourceLine": 108570,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3395,6 +3860,7 @@
     },
     {
       "id": "action 10 (grant a qualification clearance)",
+      "label": "action 10 (grant a qualification clearance)",
       "sourceLine": 58260,
       "status": "not-represented",
       "surface": "Client Command Center",
@@ -3402,6 +3868,7 @@
     },
     {
       "id": "action 4 (release a lot hold)",
+      "label": "action 4 (release a lot hold)",
       "sourceLine": 59490,
       "status": "not-represented",
       "surface": "Client Command Center",
@@ -3409,6 +3876,7 @@
     },
     {
       "id": "action 8 (reassignment)",
+      "label": "action 8 (reassignment)",
       "sourceLine": 58865,
       "status": "not-represented",
       "surface": "Client Command Center",
@@ -3416,6 +3884,7 @@
     },
     {
       "id": "add-child control",
+      "label": "add-child control",
       "sourceLine": 52542,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3423,6 +3892,7 @@
     },
     {
       "id": "adjust within bounds",
+      "label": "adjust within bounds",
       "sourceLine": 16736,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3430,6 +3900,7 @@
     },
     {
       "id": "adjust within bounds and approve",
+      "label": "adjust within bounds and approve",
       "sourceLine": 69540,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3437,6 +3908,7 @@
     },
     {
       "id": "annotation control",
+      "label": "annotation control",
       "sourceLine": 95298,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3444,6 +3916,7 @@
     },
     {
       "id": "append a correction",
+      "label": "append a correction",
       "sourceLine": 81374,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3451,6 +3924,7 @@
     },
     {
       "id": "approve",
+      "label": "approve",
       "sourceLine": 69540,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3458,6 +3932,7 @@
     },
     {
       "id": "approve and return controls",
+      "label": "approve and return controls",
       "sourceLine": 44774,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3465,6 +3940,7 @@
     },
     {
       "id": "approve control (absent, not disabled, for the Job creator)",
+      "label": "approve control (absent, not disabled, for the Job creator)",
       "sourceLine": 7187,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3472,6 +3948,7 @@
     },
     {
       "id": "approve or decline with a categorised reason",
+      "label": "approve or decline with a categorised reason",
       "sourceLine": 71086,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3479,6 +3956,7 @@
     },
     {
       "id": "approve or return controls",
+      "label": "approve or return controls",
       "sourceLine": 68317,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -3486,6 +3964,7 @@
     },
     {
       "id": "approve, adjust-within-bounds, and decline with reason",
+      "label": "approve, adjust-within-bounds, and decline with reason",
       "sourceLine": 54032,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3493,6 +3972,7 @@
     },
     {
       "id": "archive control (with cascade warning)",
+      "label": "archive control (with cascade warning)",
       "sourceLine": 52542,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3500,6 +3980,7 @@
     },
     {
       "id": "artificial-intelligence mode chip",
+      "label": "artificial-intelligence mode chip",
       "sourceLine": 89046,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3507,6 +3988,7 @@
     },
     {
       "id": "blocked-state panel SCR-FL-BLOCK-01 (no dismiss-and-continue, no override control, for any role, on any device)",
+      "label": "blocked-state panel SCR-FL-BLOCK-01 (no dismiss-and-continue, no override control, for any role, on any device)",
       "sourceLine": 80758,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3514,6 +3996,7 @@
     },
     {
       "id": "broadcast composer requiring type, severity, body, targeting, channel confirmation, and schedule",
+      "label": "broadcast composer requiring type, severity, body, targeting, channel confirmation, and schedule",
       "sourceLine": 73401,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3521,6 +4004,7 @@
     },
     {
       "id": "camera scan fallback",
+      "label": "camera scan fallback",
       "sourceLine": 81076,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3528,6 +4012,7 @@
     },
     {
       "id": "cancel a run with a categorised reason",
+      "label": "cancel a run with a categorised reason",
       "sourceLine": 80932,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3535,6 +4020,7 @@
     },
     {
       "id": "cancel with a reason",
+      "label": "cancel with a reason",
       "sourceLine": 89706,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3542,6 +4028,7 @@
     },
     {
       "id": "channel selector rendered as two fixed options",
+      "label": "channel selector rendered as two fixed options",
       "sourceLine": 45614,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3549,6 +4036,7 @@
     },
     {
       "id": "class-filtered export",
+      "label": "class-filtered export",
       "sourceLine": 46121,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3556,6 +4044,7 @@
     },
     {
       "id": "clear-with-reason",
+      "label": "clear-with-reason",
       "sourceLine": 93782,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3563,6 +4052,7 @@
     },
     {
       "id": "close a stuck run with a mandatory note",
+      "label": "close a stuck run with a mandatory note",
       "sourceLine": 81016,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3570,6 +4060,7 @@
     },
     {
       "id": "close control (incident page)",
+      "label": "close control (incident page)",
       "sourceLine": 90758,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3577,6 +4068,7 @@
     },
     {
       "id": "close control (incident record)",
+      "label": "close control (incident record)",
       "sourceLine": 107949,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3584,6 +4076,7 @@
     },
     {
       "id": "compliance suspension",
+      "label": "compliance suspension",
       "sourceLine": 81564,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3591,6 +4084,7 @@
     },
     {
       "id": "compliance suspension control",
+      "label": "compliance suspension control",
       "sourceLine": 44984,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3598,6 +4092,7 @@
     },
     {
       "id": "compliance-emergency path",
+      "label": "compliance-emergency path",
       "sourceLine": 81586,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3605,6 +4100,7 @@
     },
     {
       "id": "confirm control",
+      "label": "confirm control",
       "sourceLine": 92484,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3612,6 +4108,7 @@
     },
     {
       "id": "conformance panel",
+      "label": "conformance panel",
       "sourceLine": 46246,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3619,6 +4116,7 @@
     },
     {
       "id": "continue control that is part of starting the work",
+      "label": "continue control that is part of starting the work",
       "sourceLine": 71086,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3626,6 +4124,7 @@
     },
     {
       "id": "create control (Users pane)",
+      "label": "create control (Users pane)",
       "sourceLine": 44774,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3633,6 +4132,7 @@
     },
     {
       "id": "decide again",
+      "label": "decide again",
       "sourceLine": 93867,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3640,6 +4140,7 @@
     },
     {
       "id": "decline with a categorised reason",
+      "label": "decline with a categorised reason",
       "sourceLine": 69540,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3647,6 +4148,7 @@
     },
     {
       "id": "decline with reason",
+      "label": "decline with reason",
       "sourceLine": 16736,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3654,6 +4156,7 @@
     },
     {
       "id": "degradation banner (state name, start time, what still works, what does not, action, incident link)",
+      "label": "degradation banner (state name, start time, what still works, what does not, action, incident link)",
       "sourceLine": 81953,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3661,6 +4164,7 @@
     },
     {
       "id": "device wipe and de-authorisation",
+      "label": "device wipe and de-authorisation",
       "sourceLine": 81586,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3668,6 +4172,7 @@
     },
     {
       "id": "dismiss control",
+      "label": "dismiss control",
       "sourceLine": 79995,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3675,6 +4180,7 @@
     },
     {
       "id": "eligibility indicator showing whether the viewer may act",
+      "label": "eligibility indicator showing whether the viewer may act",
       "sourceLine": 68317,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -3682,6 +4188,7 @@
     },
     {
       "id": "email toggle per category",
+      "label": "email toggle per category",
       "sourceLine": 73702,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3689,6 +4196,7 @@
     },
     {
       "id": "emergency pause / resume of the agentic layer",
+      "label": "emergency pause / resume of the agentic layer",
       "sourceLine": 84064,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3696,6 +4204,7 @@
     },
     {
       "id": "execute control (rollback decision record)",
+      "label": "execute control (rollback decision record)",
       "sourceLine": 108486,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3703,6 +4212,7 @@
     },
     {
       "id": "explicit acknowledgement control with its timestamp",
+      "label": "explicit acknowledgement control with its timestamp",
       "sourceLine": 70467,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3710,6 +4220,7 @@
     },
     {
       "id": "export audit as comma-separated values and JavaScript Object Notation with date and entity filters",
+      "label": "export audit as comma-separated values and JavaScript Object Notation with date and entity filters",
       "sourceLine": 9815,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3717,6 +4228,7 @@
     },
     {
       "id": "export control (usage ledger)",
+      "label": "export control (usage ledger)",
       "sourceLine": 45385,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3724,6 +4236,7 @@
     },
     {
       "id": "export controls for comma-separated-values and JavaScript Object Notation formats",
+      "label": "export controls for comma-separated-values and JavaScript Object Notation formats",
       "sourceLine": 70623,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3731,6 +4244,7 @@
     },
     {
       "id": "filter bar carrying family, severity, state, Area, and date",
+      "label": "filter bar carrying family, severity, state, Area, and date",
       "sourceLine": 73393,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3738,6 +4252,7 @@
     },
     {
       "id": "filter bar for Area, severity, type, and state",
+      "label": "filter bar for Area, severity, type, and state",
       "sourceLine": 73397,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3745,6 +4260,7 @@
     },
     {
       "id": "filters by Area, severity, type and state",
+      "label": "filters by Area, severity, type and state",
       "sourceLine": 69696,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3752,6 +4268,7 @@
     },
     {
       "id": "filters for class, state, age, and proposer",
+      "label": "filters for class, state, age, and proposer",
       "sourceLine": 44774,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3759,6 +4276,7 @@
     },
     {
       "id": "filters on event class, actor, tenant, object, and date range",
+      "label": "filters on event class, actor, tenant, object, and date range",
       "sourceLine": 46121,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3766,6 +4284,7 @@
     },
     {
       "id": "filters on status, tier, and pilot",
+      "label": "filters on status, tier, and pilot",
       "sourceLine": 44984,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3773,6 +4292,7 @@
     },
     {
       "id": "five-step guided right-to-erasure sequence",
+      "label": "five-step guided right-to-erasure sequence",
       "sourceLine": 45997,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3780,6 +4300,7 @@
     },
     {
       "id": "flag control (flag an automatic resolution as wrong)",
+      "label": "flag control (flag an automatic resolution as wrong)",
       "sourceLine": 81649,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3787,6 +4308,7 @@
     },
     {
       "id": "flag-as-wrong control",
+      "label": "flag-as-wrong control",
       "sourceLine": 70160,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3794,6 +4316,7 @@
     },
     {
       "id": "forward-only navigation control with read-only access to prior screens",
+      "label": "forward-only navigation control with read-only access to prior screens",
       "sourceLine": 68929,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3801,6 +4324,7 @@
     },
     {
       "id": "go control (rollout stage)",
+      "label": "go control (rollout stage)",
       "sourceLine": 108407,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3808,6 +4332,7 @@
     },
     {
       "id": "grant a clearance",
+      "label": "grant a clearance",
       "sourceLine": 8318,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3815,6 +4340,7 @@
     },
     {
       "id": "grant control",
+      "label": "grant control",
       "sourceLine": 93273,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3822,6 +4348,7 @@
     },
     {
       "id": "grant, revoke, and expiry controls (Grants panel)",
+      "label": "grant, revoke, and expiry controls (Grants panel)",
       "sourceLine": 17502,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3829,6 +4356,7 @@
     },
     {
       "id": "grouping and filters by week, Area, certification type and worker",
+      "label": "grouping and filters by week, Area, certification type and worker",
       "sourceLine": 16772,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3836,6 +4364,7 @@
     },
     {
       "id": "help control",
+      "label": "help control",
       "sourceLine": 92782,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3843,6 +4372,7 @@
     },
     {
       "id": "mandatory grandfathering declaration",
+      "label": "mandatory grandfathering declaration",
       "sourceLine": 45273,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3850,6 +4380,7 @@
     },
     {
       "id": "manual Portable Document Format export control",
+      "label": "manual Portable Document Format export control",
       "sourceLine": 70623,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3857,6 +4388,7 @@
     },
     {
       "id": "manual archival control with a no-active-Jobs indicator",
+      "label": "manual archival control with a no-active-Jobs indicator",
       "sourceLine": 68467,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -3864,6 +4396,7 @@
     },
     {
       "id": "manual per-run PDF export of the Execution Summary",
+      "label": "manual per-run PDF export of the Execution Summary",
       "sourceLine": 8172,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3871,6 +4404,7 @@
     },
     {
       "id": "manual sync",
+      "label": "manual sync",
       "sourceLine": 81314,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3878,6 +4412,7 @@
     },
     {
       "id": "manual sync control",
+      "label": "manual sync control",
       "sourceLine": 53742,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -3885,6 +4420,7 @@
     },
     {
       "id": "mark evidence reviewed",
+      "label": "mark evidence reviewed",
       "sourceLine": 6961,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3892,6 +4428,7 @@
     },
     {
       "id": "mark-reviewed",
+      "label": "mark-reviewed",
       "sourceLine": 16767,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3899,6 +4436,7 @@
     },
     {
       "id": "mute a digest section",
+      "label": "mute a digest section",
       "sourceLine": 9237,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3906,6 +4444,7 @@
     },
     {
       "id": "on-demand package re-pull",
+      "label": "on-demand package re-pull",
       "sourceLine": 53095,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3913,6 +4452,7 @@
     },
     {
       "id": "on-demand re-pull",
+      "label": "on-demand re-pull",
       "sourceLine": 79342,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3920,6 +4460,7 @@
     },
     {
       "id": "on-demand re-pull of the work package",
+      "label": "on-demand re-pull of the work package",
       "sourceLine": 8775,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -3927,6 +4468,7 @@
     },
     {
       "id": "on-demand suite runner (single scenario or whole suite)",
+      "label": "on-demand suite runner (single scenario or whole suite)",
       "sourceLine": 108748,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3934,6 +4476,7 @@
     },
     {
       "id": "open in the Standards and Operations Studio to disable or reconfigure",
+      "label": "open in the Standards and Operations Studio to disable or reconfigure",
       "sourceLine": 107697,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3941,6 +4484,7 @@
     },
     {
       "id": "open the tenant's own audit log view",
+      "label": "open the tenant's own audit log view",
       "sourceLine": 107350,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -3948,6 +4492,7 @@
     },
     {
       "id": "operational action 10 — grant a qualification clearance",
+      "label": "operational action 10 — grant a qualification clearance",
       "sourceLine": 80827,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3955,6 +4500,7 @@
     },
     {
       "id": "operational action 4 — release a lot hold",
+      "label": "operational action 4 — release a lot hold",
       "sourceLine": 81116,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3962,6 +4508,7 @@
     },
     {
       "id": "operational action 5 — conflict resolution",
+      "label": "operational action 5 — conflict resolution",
       "sourceLine": 82694,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3969,6 +4516,7 @@
     },
     {
       "id": "operational action 6 — acknowledge and annotate",
+      "label": "operational action 6 — acknowledge and annotate",
       "sourceLine": 83801,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3976,6 +4524,7 @@
     },
     {
       "id": "operational action 8 — reassign a run mid-shift",
+      "label": "operational action 8 — reassign a run mid-shift",
       "sourceLine": 81028,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3983,6 +4532,7 @@
     },
     {
       "id": "operational action 9 — request an agent re-check",
+      "label": "operational action 9 — request an agent re-check",
       "sourceLine": 83767,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -3990,6 +4540,7 @@
     },
     {
       "id": "package-readiness indicator",
+      "label": "package-readiness indicator",
       "sourceLine": 89127,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -3997,6 +4548,7 @@
     },
     {
       "id": "pause (session-level idle)",
+      "label": "pause (session-level idle)",
       "sourceLine": 60008,
       "status": "not-represented",
       "surface": "Frontline Worker Application",
@@ -4004,6 +4556,7 @@
     },
     {
       "id": "pause a definition",
+      "label": "pause a definition",
       "sourceLine": 107618,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4011,6 +4564,7 @@
     },
     {
       "id": "pause, step-away, hand-back, substitution handover",
+      "label": "pause, step-away, hand-back, substitution handover",
       "sourceLine": 52740,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -4018,6 +4572,7 @@
     },
     {
       "id": "per-item annotation (shift handoff brief)",
+      "label": "per-item annotation (shift handoff brief)",
       "sourceLine": 54411,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4025,6 +4580,7 @@
     },
     {
       "id": "per-item annotation controls",
+      "label": "per-item annotation controls",
       "sourceLine": 70467,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4032,6 +4588,7 @@
     },
     {
       "id": "per-screen comment control",
+      "label": "per-screen comment control",
       "sourceLine": 68317,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -4039,6 +4596,7 @@
     },
     {
       "id": "per-section mute controls and no service-level mute",
+      "label": "per-section mute controls and no service-level mute",
       "sourceLine": 68775,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4046,6 +4604,7 @@
     },
     {
       "id": "per-tenant emergency pause",
+      "label": "per-tenant emergency pause",
       "sourceLine": 91287,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4053,6 +4612,7 @@
     },
     {
       "id": "platform-wide emergency pause",
+      "label": "platform-wide emergency pause",
       "sourceLine": 91288,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4060,6 +4620,7 @@
     },
     {
       "id": "propose a floor change",
+      "label": "propose a floor change",
       "sourceLine": 108344,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4067,6 +4628,7 @@
     },
     {
       "id": "publish control",
+      "label": "publish control",
       "sourceLine": 68467,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -4074,6 +4636,7 @@
     },
     {
       "id": "re-send-on-material-correction option",
+      "label": "re-send-on-material-correction option",
       "sourceLine": 70623,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4081,6 +4644,7 @@
     },
     {
       "id": "read-only PDF export",
+      "label": "read-only PDF export",
       "sourceLine": 53334,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -4088,6 +4652,7 @@
     },
     {
       "id": "read-only PDF export of a version",
+      "label": "read-only PDF export of a version",
       "sourceLine": 59686,
       "status": "not-represented",
       "surface": "Standards and Operations Studio",
@@ -4095,6 +4660,7 @@
     },
     {
       "id": "read-only formatted export",
+      "label": "read-only formatted export",
       "sourceLine": 68467,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -4102,6 +4668,7 @@
     },
     {
       "id": "reason picker with the three categories (Emergency cover, Training-in-progress, Other)",
+      "label": "reason picker with the three categories (Emergency cover, Training-in-progress, Other)",
       "sourceLine": 72241,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4109,6 +4676,7 @@
     },
     {
       "id": "reassign the run",
+      "label": "reassign the run",
       "sourceLine": 8040,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4116,6 +4684,7 @@
     },
     {
       "id": "reassignment",
+      "label": "reassignment",
       "sourceLine": 93463,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4123,6 +4692,7 @@
     },
     {
       "id": "rebase-or-keep",
+      "label": "rebase-or-keep",
       "sourceLine": 71013,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4130,6 +4700,7 @@
     },
     {
       "id": "rebase-or-keep control per Run",
+      "label": "rebase-or-keep control per Run",
       "sourceLine": 77923,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4137,6 +4708,7 @@
     },
     {
       "id": "record a permanent disposition with a mandatory note",
+      "label": "record a permanent disposition with a mandatory note",
       "sourceLine": 80435,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4144,6 +4716,7 @@
     },
     {
       "id": "refer-to-Studio",
+      "label": "refer-to-Studio",
       "sourceLine": 93782,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4151,6 +4724,7 @@
     },
     {
       "id": "release control",
+      "label": "release control",
       "sourceLine": 93297,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4158,6 +4732,7 @@
     },
     {
       "id": "release control (requires a decision note)",
+      "label": "release control (requires a decision note)",
       "sourceLine": 16768,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4165,6 +4740,7 @@
     },
     {
       "id": "release control absent rather than disabled where the Author is also the tenant's Release Authority",
+      "label": "release control absent rather than disabled where the Author is also the tenant's Release Authority",
       "sourceLine": 72420,
       "status": "not-represented",
       "surface": "SURF-STU",
@@ -4172,6 +4748,7 @@
     },
     {
       "id": "release for revalidation",
+      "label": "release for revalidation",
       "sourceLine": 80435,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4179,6 +4756,7 @@
     },
     {
       "id": "release hold",
+      "label": "release hold",
       "sourceLine": 7331,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4186,6 +4764,7 @@
     },
     {
       "id": "relevance mark (one tap)",
+      "label": "relevance mark (one tap)",
       "sourceLine": 9113,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4193,6 +4772,7 @@
     },
     {
       "id": "replay or dismiss (coaching card)",
+      "label": "replay or dismiss (coaching card)",
       "sourceLine": 60142,
       "status": "not-represented",
       "surface": "Frontline Worker Application",
@@ -4200,6 +4780,7 @@
     },
     {
       "id": "request a bounded backfill with an explicit occurrence range",
+      "label": "request a bounded backfill with an explicit occurrence range",
       "sourceLine": 107618,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4207,6 +4788,7 @@
     },
     {
       "id": "request a lot release with a note",
+      "label": "request a lot release with a note",
       "sourceLine": 6963,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4214,6 +4796,7 @@
     },
     {
       "id": "request a support session",
+      "label": "request a support session",
       "sourceLine": 107350,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4221,6 +4804,7 @@
     },
     {
       "id": "request an agent re-check",
+      "label": "request an agent re-check",
       "sourceLine": 88486,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4228,6 +4812,7 @@
     },
     {
       "id": "request release with a note",
+      "label": "request release with a note",
       "sourceLine": 7331,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4235,6 +4820,7 @@
     },
     {
       "id": "resume a definition",
+      "label": "resume a definition",
       "sourceLine": 107618,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4242,6 +4828,7 @@
     },
     {
       "id": "retire control",
+      "label": "retire control",
       "sourceLine": 67861,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4249,6 +4836,7 @@
     },
     {
       "id": "revocation control (JBS grant)",
+      "label": "revocation control (JBS grant)",
       "sourceLine": 45871,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4256,6 +4844,7 @@
     },
     {
       "id": "role-scoped filters by Job, Site, Area and Worker",
+      "label": "role-scoped filters by Job, Site, Area and Worker",
       "sourceLine": 68624,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4263,6 +4852,7 @@
     },
     {
       "id": "rollback control",
+      "label": "rollback control",
       "sourceLine": 108407,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4270,6 +4860,7 @@
     },
     {
       "id": "runaway-loop kill switch",
+      "label": "runaway-loop kill switch",
       "sourceLine": 91290,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4277,6 +4868,7 @@
     },
     {
       "id": "save action (Observability settings, undecided values)",
+      "label": "save action (Observability settings, undecided values)",
       "sourceLine": 107777,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4284,6 +4876,7 @@
     },
     {
       "id": "scope selector of platform-wide or per tenant",
+      "label": "scope selector of platform-wide or per tenant",
       "sourceLine": 70933,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4291,6 +4884,7 @@
     },
     {
       "id": "separate resume control that is its own approved action",
+      "label": "separate resume control that is its own approved action",
       "sourceLine": 70933,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4298,6 +4892,7 @@
     },
     {
       "id": "session launcher requiring a reason and a ticket",
+      "label": "session launcher requiring a reason and a ticket",
       "sourceLine": 72789,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4305,6 +4900,7 @@
     },
     {
       "id": "step away / hand back flag",
+      "label": "step away / hand back flag",
       "sourceLine": 60008,
       "status": "not-represented",
       "surface": "Frontline Worker Application",
@@ -4312,6 +4908,7 @@
     },
     {
       "id": "step-away flag",
+      "label": "step-away flag",
       "sourceLine": 93093,
       "status": "not-represented",
       "surface": "SURF-FL",
@@ -4319,6 +4916,7 @@
     },
     {
       "id": "submit control (Schedule Definition editor)",
+      "label": "submit control (Schedule Definition editor)",
       "sourceLine": 108180,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4326,6 +4924,7 @@
     },
     {
       "id": "sync-conflict resolution",
+      "label": "sync-conflict resolution",
       "sourceLine": 94040,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4333,6 +4932,7 @@
     },
     {
       "id": "terminate button (with persistent tenant banner)",
+      "label": "terminate button (with persistent tenant banner)",
       "sourceLine": 121689,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4340,6 +4940,7 @@
     },
     {
       "id": "the completion control that is blocked until every Job is reassigned or explicitly accepted as paused",
+      "label": "the completion control that is blocked until every Job is reassigned or explicitly accepted as paused",
       "sourceLine": 71242,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4347,6 +4948,7 @@
     },
     {
       "id": "the restore and erasure controls marked critical-class",
+      "label": "the restore and erasure controls marked critical-class",
       "sourceLine": 71398,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4354,6 +4956,7 @@
     },
     {
       "id": "ticket-linked reason class selector",
+      "label": "ticket-linked reason class selector",
       "sourceLine": 45753,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4361,6 +4964,7 @@
     },
     {
       "id": "typed confirmation and reason class (hard suspension)",
+      "label": "typed confirmation and reason class (hard suspension)",
       "sourceLine": 44984,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4368,6 +4972,7 @@
     },
     {
       "id": "un-archive",
+      "label": "un-archive",
       "sourceLine": 7181,
       "status": "not-represented",
       "surface": "SURF-DOH",
@@ -4375,6 +4980,7 @@
     },
     {
       "id": "view the activity log",
+      "label": "view the activity log",
       "sourceLine": 107697,
       "status": "not-represented",
       "surface": "SURF-CC",
@@ -4382,6 +4988,7 @@
     },
     {
       "id": "wipe and de-authorisation",
+      "label": "wipe and de-authorisation",
       "sourceLine": 107423,
       "status": "not-represented",
       "surface": "SURF-SA",
@@ -4389,6 +4996,7 @@
     },
     {
       "id": "wipe control",
+      "label": "wipe control",
       "sourceLine": 45498,
       "status": "not-represented",
       "surface": "SURF-SA",

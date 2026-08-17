@@ -5,11 +5,12 @@ import {
   REVIEW_STATUSES,
   REVIEW_SEVERITIES,
   createReviewRecord,
+  createReviewEvent,
   type ReviewStatus,
   type ReviewSeverity,
   type ReviewRecord,
 } from '@/review/records'
-import { putReviewRecord, listReviewRecords } from '@/review/store'
+import { putReviewRecord, putReviewEvent, listReviewRecords } from '@/review/store'
 import { bootstrapStorage } from '@/persistence/bootstrap'
 import { openDatabase } from '@/persistence/schema'
 import { fixedClock } from '@/domain/clock'
@@ -178,6 +179,14 @@ export default function ReviewPage() {
       setError(`This review note could not be saved: ${result.reason}`)
       return
     }
+    // Major (final review): a client-review action creates a ReviewEvent,
+    // not just a ReviewRecord -- gate 3 ("a client-review action creates a
+    // ReviewEvent and nothing else") named an invariant nothing exercised.
+    // The record write above is the authoritative save signal for the
+    // reviewer; a failed event write is awaited (never a floating,
+    // unobserved promise) but not surfaced as a second error banner --
+    // the note itself was genuinely saved either way.
+    await putReviewEvent(storage.db, createReviewEvent(record.id, status, clock))
     setRecords((prev) => [...prev, record])
     setNote('')
     setError(undefined)

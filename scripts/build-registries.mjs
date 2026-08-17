@@ -310,6 +310,11 @@ function buildActionableControlsRegistry() {
     if (byLabel.has(c.label)) continue // first occurrence (chunk order) wins
     byLabel.set(c.label, {
       id: c.label,
+      // Minor (final review): `label` was never set, only `id` -- every
+      // row rendered its label text under "ID" and an em dash under
+      // "Name". The label IS the id here (the source gives these actions
+      // no other identifier), so both fields carry it.
+      label: c.label,
       sourceLine: c.line,
       status: 'not-represented',
       surface: c.surface,

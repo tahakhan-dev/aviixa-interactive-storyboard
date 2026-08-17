@@ -302,6 +302,19 @@ function reviewLedgerOffenders(): string[] {
 }
 
 describe('gate 3: a client-review action creates a ReviewEvent and nothing else', () => {
+  // Major (final review): this gate's name asserted a positive
+  // ("creates a ReviewEvent") that nothing in the app ever exercised --
+  // createReviewEvent had no caller outside a unit test, so only the
+  // "nothing else" half was ever checked. Now wired
+  // (app/review/page.tsx's submit() calls putReviewEvent, proven end to
+  // end against a real database in tests/component/review-shell.test.tsx);
+  // this is the static half of that proof.
+  it('the review action actually creates a ReviewEvent -- the writer is wired, not just defined', () => {
+    const s = stripComments(readFileSync('app/review/page.tsx', 'utf8'))
+    expect(s).toMatch(/\bputReviewEvent\b/)
+    expect(s).toMatch(/\bcreateReviewEvent\b/)
+  })
+
   it('no file under src/review/ names a product ledger type, a product store, or the transition path', () => {
     expect(reviewLedgerOffenders()).toEqual([])
   })

@@ -127,6 +127,15 @@ describe('actionable controls is the UI-action catalogue, not the do-not-cron re
     for (const row of dnc) expect(row.register, row.id).toMatch(/do-not-use-cron/i)
     for (const row of controls) expect(row.register, row.id).not.toMatch(/do-not-use-cron/i)
   })
+
+  // Minor (final review): every one of the 608 control rows set `id:
+  // c.label` but never `label: c.label` -- so the ID column rendered the
+  // label text and the Name column rendered "—" for all 608 rows.
+  it('each of the 608 control rows carries the same text as both id and label', () => {
+    const r = load('actionable-controls')
+    const controls = r.rows.filter((row: { id: string }) => !row.id.startsWith('DNC-'))
+    for (const row of controls) expect(row.label, row.id).toBe(row.id)
+  })
 })
 
 // Fix round 1: ai-storyboards scoped to SB-AI-* only (48 of 613 SB-*

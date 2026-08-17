@@ -1,5 +1,5 @@
 import { REVIEW_STORES, errorMessage } from '@/persistence/schema'
-import type { ReviewRecord } from './records'
+import type { ReviewRecord, ReviewEvent } from './records'
 
 /**
  * FAILURE-SIGNALLING CONVENTION for this module (I8, final review — the
@@ -94,6 +94,21 @@ function runReviewTransaction(
 export function putReviewRecord(db: IDBDatabase, record: ReviewRecord): Promise<ReviewStoreResult> {
   return runReviewTransaction(db, 'readwrite', (tx) => {
     reviewObjectStore(tx, REVIEW_RECORDS_STORE).put(record)
+  })
+}
+
+/**
+ * Major (final review): `createReviewEvent` (`@/review/records`) had no
+ * caller outside a unit test -- the `reviewEvents` store existed with no
+ * writer, so gate 3's name ("a client-review action creates a ReviewEvent
+ * and nothing else") asserted a positive that never happened; only the
+ * "nothing else" half was ever exercised. Mirrors `putReviewRecord`
+ * exactly: same transaction discipline, same typed-result convention, same
+ * `REVIEW_STORES`-only scope.
+ */
+export function putReviewEvent(db: IDBDatabase, event: ReviewEvent): Promise<ReviewStoreResult> {
+  return runReviewTransaction(db, 'readwrite', (tx) => {
+    reviewObjectStore(tx, REVIEW_EVENTS_STORE).put(event)
   })
 }
 
