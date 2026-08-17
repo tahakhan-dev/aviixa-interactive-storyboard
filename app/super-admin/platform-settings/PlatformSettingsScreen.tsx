@@ -105,10 +105,11 @@ function namedReason(
     return 'This screen is read-only in this state. One banner names the cause; nothing else is scattered.'
   }
   if (decision.reasonCode === 'DECISION_OPEN') return fallback
-  // Never `decision.explanation` as a last resort: the shared reason-code
-  // copy speaks of being "signed in", and that word is banned in SURF-SA
-  // copy (D10). The outcome still comes from `evaluateAccess`; only the
-  // wording is this screen's.
+  // Never `decision.explanation` as a last resort. The shared REASON_CODES
+  // copy is written for every surface, so this screen states its own reason
+  // in its own words and stays inside SURF-SA's banned-word rule (D10)
+  // whatever the spine says. The outcome still comes from `evaluateAccess`;
+  // only the wording is this screen's.
   return fallback
 }
 
