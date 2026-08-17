@@ -55,14 +55,22 @@ for (const path of PATHS) {
 }
 
 // I4 (final review): `/review/` is the only interactive route in this build
-// -- an input, a select, a textarea and four buttons -- and had no keyboard
-// coverage at all. Proves every one of those controls is reachable by Tab
-// and operable from the keyboard alone, with no mouse interaction.
-test('/review/ input, select, textarea and buttons are all keyboard-reachable and operable', async ({ page }) => {
+// -- an input, two selects, a textarea and four buttons -- and had no
+// keyboard coverage at all. Proves every one of those controls is reachable
+// by Tab and operable from the keyboard alone, with no mouse interaction.
+//
+// Fix round 1 (review, Major 1): the severity select is new -- `severity`
+// used to be hardcoded with no control at all. Added to this test's tab
+// sequence between the surface select and the note textarea, matching
+// where it actually sits in the form; leaving it unproven here would be
+// exactly the kind of interactive control with no keyboard coverage this
+// test exists to catch.
+test('/review/ input, selects, textarea and buttons are all keyboard-reachable and operable', async ({ page }) => {
   await page.goto('/review/')
 
   const reviewerInput = page.getByLabel('Reviewer name')
   const surfaceSelect = page.getByLabel('Which surface this note is about')
+  const severitySelect = page.getByLabel('Severity')
   const noteTextarea = page.getByLabel('Note', { exact: true })
   const acceptButton = page.getByRole('button', { name: 'Accept for client review' })
   const needsChangeButton = page.getByRole('button', { name: 'Needs change' })
@@ -75,6 +83,9 @@ test('/review/ input, select, textarea and buttons are all keyboard-reachable an
 
   await page.keyboard.press('Tab')
   await expect(surfaceSelect).toBeFocused()
+
+  await page.keyboard.press('Tab')
+  await expect(severitySelect).toBeFocused()
 
   await page.keyboard.press('Tab')
   await expect(noteTextarea).toBeFocused()

@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { REGISTRY_DESCRIPTORS, COVERAGE_STATUSES, countByStatus } from '@/coverage/descriptors'
+import {
+  REGISTRY_DESCRIPTORS,
+  COVERAGE_STATUSES,
+  countByStatus,
+  SOURCE_CLASSES,
+  BUILD_CLASSES,
+  countByClass,
+} from '@/coverage/descriptors'
+import { loadGeneratedRegistry } from '@/coverage/registry-loader'
 
 describe('coverage descriptors', () => {
   it('describes exactly the fourteen inventories the master prompt names', () => {
@@ -46,5 +54,45 @@ describe('coverage descriptors', () => {
     const workflows = REGISTRY_DESCRIPTORS.find((d) => d.slug === 'workflows')
     // The source fixes no workflow total; 81 is the MODULE count and nothing else.
     expect(workflows?.expectedCount).toBeNull()
+  })
+})
+
+// Task 10: eight count classes, orthogonal to the four-value implementation
+// status. The five source classes say what the frozen source claims about
+// an item; the three build classes say what this build did with it.
+describe('the eight count classes', () => {
+  it('splits five source classes from three build classes', () => {
+    expect(SOURCE_CLASSES).toHaveLength(5)
+    expect(BUILD_CLASSES).toHaveLength(3)
+  })
+
+  it('keeps them orthogonal — an item can be source-defined AND not built', () => {
+    const c = countByClass([{ sourceClass: 'source-defined', buildClass: 'not-applicable' }])
+    expect(c.source['source-defined']).toBe(1)
+    expect(c.build['not-applicable']).toBe(1)
+  })
+
+  it('returns every key even at zero', () => {
+    const c = countByClass([])
+    expect(Object.keys(c.source).sort()).toEqual([...SOURCE_CLASSES].sort())
+    expect(Object.keys(c.build).sort()).toEqual([...BUILD_CLASSES].sort())
+    for (const v of Object.values(c.source)) expect(v).toBe(0)
+  })
+
+  it('does not collapse the build class into the status vocabulary', () => {
+    expect([...BUILD_CLASSES]).not.toEqual([...COVERAGE_STATUSES])
+  })
+
+  // Addendum §5: Tasks 9 and 10 are coupled. 18 of the 81 modules are
+  // Derived Clarification under DEC-STUDIO-001 and may never be presented
+  // as source-backed — the modules index renders 63 source-defined + 18
+  // derived = 81, from a STRUCTURED field on each row, never parsed out of
+  // RegistryDescriptor.sourceNote prose.
+  it('the generated modules registry classifies 63 source-defined and 18 derived, from a structured field', () => {
+    const modules = loadGeneratedRegistry('modules')
+    const counted = countByClass(modules.rows)
+    expect(counted.source['source-defined']).toBe(63)
+    expect(counted.source.derived).toBe(18)
+    expect(counted.source['source-defined'] + counted.source.derived).toBe(81)
   })
 })

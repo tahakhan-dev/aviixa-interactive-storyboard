@@ -24,7 +24,14 @@ export interface ScreenStateDefinition {
   readonly frontlineOnly: boolean
 }
 
-export const SCREEN_STATES: readonly ScreenStateDefinition[] = [
+// Task 13 gate: same widening hazard and same fix as `SURFACES`/`ROLES` in
+// `@/domain/surfaces`/`@/domain/roles` -- `as const satisfies` keeps every
+// `id` literal narrowed to `ScreenStateId`. `FRONTLINE_ONLY_STATES` below is
+// a deliberate one-member subset (STATE-07 only) and is left in its
+// existing form, same as `SUPERVISOR_AND_ABOVE`/`QUALITY_MANAGER_AND_ABOVE`
+// in `@/domain/roles` -- an exhaustiveness check on a deliberate subset
+// fails to compile by design.
+export const SCREEN_STATES = [
   {
     id: 'STATE-01', name: 'Empty', frontlineOnly: false,
     contract:
@@ -103,7 +110,14 @@ export const SCREEN_STATES: readonly ScreenStateDefinition[] = [
       'The transitional state after a failure or reconnection: what is being replayed or recomputed, and how much remains.',
     neverDo: 'Never show a recovering system as fully recovered.',
   },
-] as const
+] as const satisfies readonly ScreenStateDefinition[]
+
+// Compile-time exhaustiveness check, same shape as `PERMISSION_OUTCOMES` in
+// `@/policy/decision.ts`: fails to compile if `ScreenStateId` gains or loses
+// a member that `SCREEN_STATES` does not list exactly once.
+type MissingFromScreenStates = Exclude<ScreenStateId, (typeof SCREEN_STATES)[number]['id']>
+const _screenStatesExhaustive: MissingFromScreenStates extends never ? true : never = true
+void _screenStatesExhaustive
 
 export const FRONTLINE_ONLY_STATES: readonly ScreenStateId[] = ['STATE-07'] as const
 

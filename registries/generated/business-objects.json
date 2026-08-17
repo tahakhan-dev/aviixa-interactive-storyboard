@@ -1,0 +1,703 @@
+{
+  "slug": "business-objects",
+  "countedThing": "canonical business object cards OBJ-001..OBJ-099 (Chapter 7), never the larger mnemonic OBJ-* identifier set.",
+  "reconciledCount": 99,
+  "rawCount": 381,
+  "dedupRule": "381 distinct OBJ-* identifiers extracted; only the 99 numeric OBJ-NNN cards are canonical objects -- the rest are mnemonic pointers into the same 99 concepts (e.g. OBJ-SURFACE, OBJ-SSO) and are not additional objects.",
+  "sourceFixesNoTotal": false,
+  "rows": [
+    {
+      "id": "OBJ-001",
+      "sourceLine": 7635,
+      "status": "not-represented",
+      "label": "Tenant",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-002",
+      "sourceLine": 7654,
+      "status": "not-represented",
+      "label": "Tenant Group",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-003",
+      "sourceLine": 7673,
+      "status": "not-represented",
+      "label": "Tier Record",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-004",
+      "sourceLine": 7692,
+      "status": "not-represented",
+      "label": "Usage Ledger Entry",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-005",
+      "sourceLine": 7711,
+      "status": "not-represented",
+      "label": "Tenant State History Entry",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-006",
+      "sourceLine": 7796,
+      "status": "not-represented",
+      "label": "Site",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-007",
+      "sourceLine": 7815,
+      "status": "not-represented",
+      "label": "Area (Line)",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-008",
+      "sourceLine": 7834,
+      "status": "not-represented",
+      "label": "Location (Cell)",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-009",
+      "sourceLine": 7853,
+      "status": "not-represented",
+      "label": "Shift",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-010",
+      "sourceLine": 7872,
+      "status": "not-represented",
+      "label": "Part (parts registry entry)",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-011",
+      "sourceLine": 7891,
+      "status": "not-represented",
+      "label": "Job Type",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-012",
+      "sourceLine": 7910,
+      "status": "not-represented",
+      "label": "Service Type tag",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-013",
+      "sourceLine": 7998,
+      "status": "not-represented",
+      "label": "Job",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-014",
+      "sourceLine": 8017,
+      "status": "not-represented",
+      "label": "Run",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-015",
+      "sourceLine": 8036,
+      "status": "not-represented",
+      "label": "Assignment",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-016",
+      "sourceLine": 8055,
+      "status": "not-represented",
+      "label": "Unit Execution",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-017",
+      "sourceLine": 8074,
+      "status": "not-represented",
+      "label": "Step Execution",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-018",
+      "sourceLine": 8093,
+      "status": "not-represented",
+      "label": "Data Capture",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-019",
+      "sourceLine": 8112,
+      "status": "not-represented",
+      "label": "Evidence media",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-020",
+      "sourceLine": 8131,
+      "status": "not-represented",
+      "label": "Unit",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-021",
+      "sourceLine": 8150,
+      "status": "not-represented",
+      "label": "Lot",
+      "surface": "Not specified in the Statement of Work — assumption is Delivery Operations Hub as system of record, raised as DEC-LOT-001"
+    },
+    {
+      "id": "OBJ-022",
+      "sourceLine": 8169,
+      "status": "not-represented",
+      "label": "Execution Summary",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-023",
+      "sourceLine": 8188,
+      "status": "not-represented",
+      "label": "Correction record",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-024",
+      "sourceLine": 8207,
+      "status": "not-represented",
+      "label": "Operational event record",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-025",
+      "sourceLine": 8227,
+      "status": "not-represented",
+      "label": "Rework cycle record",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-026",
+      "sourceLine": 8247,
+      "status": "not-represented",
+      "label": "As-built genealogy link",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-027",
+      "sourceLine": 8342,
+      "status": "not-represented",
+      "label": "User account",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-028",
+      "sourceLine": 8361,
+      "status": "not-represented",
+      "label": "Worker record",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-029",
+      "sourceLine": 8380,
+      "status": "not-represented",
+      "label": "Role grant",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-030",
+      "sourceLine": 8399,
+      "status": "not-represented",
+      "label": "Scope grant",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-031",
+      "sourceLine": 8418,
+      "status": "not-represented",
+      "label": "Qualification",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-032",
+      "sourceLine": 8437,
+      "status": "not-represented",
+      "label": "Clearance",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-033",
+      "sourceLine": 8456,
+      "status": "not-represented",
+      "label": "Device",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-034",
+      "sourceLine": 8475,
+      "status": "not-represented",
+      "label": "Device enrollment",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-035",
+      "sourceLine": 8494,
+      "status": "not-represented",
+      "label": "Implementation authoring grant",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-036",
+      "sourceLine": 8589,
+      "status": "not-represented",
+      "label": "Workflow",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-037",
+      "sourceLine": 8608,
+      "status": "not-represented",
+      "label": "Workflow version",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-038",
+      "sourceLine": 8627,
+      "status": "not-represented",
+      "label": "Screen",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-039",
+      "sourceLine": 8646,
+      "status": "not-represented",
+      "label": "Shared Instruction Block",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-040",
+      "sourceLine": 8665,
+      "status": "not-represented",
+      "label": "Containment Checklist",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-041",
+      "sourceLine": 8684,
+      "status": "not-represented",
+      "label": "Coaching asset",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-042",
+      "sourceLine": 8703,
+      "status": "not-represented",
+      "label": "Coaching Corpus index",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-043",
+      "sourceLine": 8722,
+      "status": "not-represented",
+      "label": "Escalation Routing Template",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-044",
+      "sourceLine": 8741,
+      "status": "not-represented",
+      "label": "Training Library item",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-045",
+      "sourceLine": 8760,
+      "status": "not-represented",
+      "label": "Work package",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-046",
+      "sourceLine": 8779,
+      "status": "not-represented",
+      "label": "Package manifest",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-047",
+      "sourceLine": 8799,
+      "status": "not-represented",
+      "label": "Specification limit set",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-048",
+      "sourceLine": 8818,
+      "status": "not-represented",
+      "label": "Severity catalog level",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-049",
+      "sourceLine": 8837,
+      "status": "not-represented",
+      "label": "Severity action bundle",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-050",
+      "sourceLine": 8856,
+      "status": "not-represented",
+      "label": "Approval record",
+      "surface": "SURF-STU"
+    },
+    {
+      "id": "OBJ-051",
+      "sourceLine": 8875,
+      "status": "not-represented",
+      "label": "Locale pack",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-052",
+      "sourceLine": 8978,
+      "status": "not-represented",
+      "label": "Deviation",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-053",
+      "sourceLine": 8997,
+      "status": "not-represented",
+      "label": "Hold",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-054",
+      "sourceLine": 9016,
+      "status": "not-represented",
+      "label": "Containment record",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-055",
+      "sourceLine": 9035,
+      "status": "not-represented",
+      "label": "Anomaly",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-056",
+      "sourceLine": 9054,
+      "status": "not-represented",
+      "label": "Gate item",
+      "surface": "SURF-CC"
+    },
+    {
+      "id": "OBJ-057",
+      "sourceLine": 9073,
+      "status": "not-represented",
+      "label": "Lane-B learning proposal",
+      "surface": "SURF-CC"
+    },
+    {
+      "id": "OBJ-058",
+      "sourceLine": 9092,
+      "status": "not-represented",
+      "label": "Sync conflict record",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-059",
+      "sourceLine": 9111,
+      "status": "not-represented",
+      "label": "Feedback signal record",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-060",
+      "sourceLine": 9203,
+      "status": "not-represented",
+      "label": "Notification",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-061",
+      "sourceLine": 9222,
+      "status": "not-represented",
+      "label": "Digest",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-062",
+      "sourceLine": 9241,
+      "status": "not-represented",
+      "label": "Shift handoff brief",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-063",
+      "sourceLine": 9260,
+      "status": "not-represented",
+      "label": "Report data set",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-064",
+      "sourceLine": 9279,
+      "status": "not-represented",
+      "label": "Saved report format",
+      "surface": "SURF-CC"
+    },
+    {
+      "id": "OBJ-065",
+      "sourceLine": 9298,
+      "status": "not-represented",
+      "label": "Platform announcement",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-066",
+      "sourceLine": 9391,
+      "status": "not-represented",
+      "label": "Agent definition",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-067",
+      "sourceLine": 9410,
+      "status": "not-represented",
+      "label": "Atom registration record",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-068",
+      "sourceLine": 9429,
+      "status": "not-represented",
+      "label": "Eval scenario",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-069",
+      "sourceLine": 9448,
+      "status": "not-represented",
+      "label": "Eval run result",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-070",
+      "sourceLine": 9467,
+      "status": "not-represented",
+      "label": "Trace",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-071",
+      "sourceLine": 9486,
+      "status": "not-represented",
+      "label": "Decision record",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-072",
+      "sourceLine": 9505,
+      "status": "not-represented",
+      "label": "Memory record — working store",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-073",
+      "sourceLine": 9524,
+      "status": "not-represented",
+      "label": "Memory record — episodic store",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-074",
+      "sourceLine": 9543,
+      "status": "not-represented",
+      "label": "Memory record — semantic store",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-075",
+      "sourceLine": 9562,
+      "status": "not-represented",
+      "label": "Memory record — procedural store",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-076",
+      "sourceLine": 9581,
+      "status": "not-represented",
+      "label": "Memory record — profile store",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-077",
+      "sourceLine": 9600,
+      "status": "not-represented",
+      "label": "Artificial-intelligence request",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-078",
+      "sourceLine": 9619,
+      "status": "not-represented",
+      "label": "Artificial-intelligence output",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-079",
+      "sourceLine": 9715,
+      "status": "not-represented",
+      "label": "Support-access grant",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-080",
+      "sourceLine": 9734,
+      "status": "not-represented",
+      "label": "Compliance-emergency session",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-081",
+      "sourceLine": 9753,
+      "status": "not-represented",
+      "label": "JBS access grant",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-082",
+      "sourceLine": 9772,
+      "status": "not-represented",
+      "label": "Command",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-083",
+      "sourceLine": 9791,
+      "status": "not-represented",
+      "label": "Sync event",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-084",
+      "sourceLine": 9810,
+      "status": "not-represented",
+      "label": "Audit event",
+      "surface": "SURF-DOH"
+    },
+    {
+      "id": "OBJ-085",
+      "sourceLine": 9829,
+      "status": "not-represented",
+      "label": "Legal hold",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-086",
+      "sourceLine": 9848,
+      "status": "not-represented",
+      "label": "Archive record",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-087",
+      "sourceLine": 9867,
+      "status": "not-represented",
+      "label": "Change-approval request",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-088",
+      "sourceLine": 9886,
+      "status": "not-represented",
+      "label": "Tenant-configuration registry entry",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-089",
+      "sourceLine": 9905,
+      "status": "not-represented",
+      "label": "Platform floor register entry",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-090",
+      "sourceLine": 9924,
+      "status": "not-represented",
+      "label": "Erasure certificate",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-091",
+      "sourceLine": 10022,
+      "status": "not-represented",
+      "label": "Schedule Definition",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-092",
+      "sourceLine": 10041,
+      "status": "not-represented",
+      "label": "Schedule Revision",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-093",
+      "sourceLine": 10060,
+      "status": "not-represented",
+      "label": "Scheduled Occurrence",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-094",
+      "sourceLine": 10079,
+      "status": "not-represented",
+      "label": "Scheduled Execution Attempt",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-095",
+      "sourceLine": 10098,
+      "status": "not-represented",
+      "label": "Effect Receipt",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-096",
+      "sourceLine": 10117,
+      "status": "not-represented",
+      "label": "Replay or Backfill Request",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-097",
+      "sourceLine": 10136,
+      "status": "not-represented",
+      "label": "Scheduler Lease or Fencing Record",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-098",
+      "sourceLine": 10155,
+      "status": "not-represented",
+      "label": "Dead-letter or Quarantine Record",
+      "surface": "SURF-SA"
+    },
+    {
+      "id": "OBJ-099",
+      "sourceLine": 10174,
+      "status": "not-represented",
+      "label": "Scheduled-Work Reconciliation Record",
+      "surface": "SURF-SA"
+    }
+  ]
+}

@@ -4,11 +4,16 @@ import {
   REGISTRY_DESCRIPTORS,
   COVERAGE_STATUSES,
   countByStatus,
+  SOURCE_CLASSES,
+  BUILD_CLASSES,
+  BUILD_CLASS_LABEL,
+  countByClass,
   type CoverageStatus,
 } from '@/coverage/descriptors'
 import { Table, StatusPill, type StatusTone } from '@/ui/primitives'
-import { loadWorkflowRegistry } from '@/registry/load'
-import workflowRegistryRaw from '../../registries/generated/workflow-registry.json'
+import { loadRegistry } from '@/registry/load'
+import { GeneratedRegistrySchema, loadGeneratedRegistry } from '@/coverage/registry-loader'
+import workflowsRaw from '../../registries/generated/workflows.json'
 
 export const metadata: Metadata = { title: 'Coverage Dashboard' }
 
@@ -35,25 +40,34 @@ const STATUS_LABEL: Record<CoverageStatus, string> = {
   'not-represented': 'Not represented',
 }
 
-const WORKFLOW_REGISTRY = loadWorkflowRegistry(workflowRegistryRaw)
+const WORKFLOWS = loadRegistry(GeneratedRegistrySchema, workflowsRaw, 'workflows registry')
 
 /**
  * Minor (final review): this used to hardcode every one of the fourteen
  * rows to `'not-represented'` and then run them through `countByStatus` --
  * a tautology dressed up as a computation, since the input was a constant.
  * Now a real per-registry derivation: `workflows` is checked against its
- * actual generated registry (`registries/generated/workflow-registry.json`,
- * 432 records); the other thirteen have no item-level registry yet (slices
- * 3-13 haven't built one), so there is nothing to derive a status FROM, and
- * `'not-represented'` is the honest default rather than a stand-in for a
- * computation that doesn't exist. Today this still evaluates to
- * not-represented for all fourteen -- that is the true state of the build,
- * not a hardcoded assumption -- but it will change the moment any registry
- * actually has a demonstrated row.
+ * actual generated registry (`registries/generated/workflows.json`, 724
+ * composite-keyed records -- fix round 1, defect 3: this used to read the
+ * retired 432-row `workflow-registry.json`); the other thirteen have no
+ * item-level registry yet (slices 3-13 haven't built one), so there is
+ * nothing to derive a status FROM, and `'not-represented'` is the honest
+ * default rather than a stand-in for a computation that doesn't exist.
+ *
+ * Minor (final review): this used to claim the predicate "will change the
+ * moment any registry actually has a demonstrated row" -- true of
+ * `registryStatus` itself (it genuinely reads `WORKFLOWS.rows`, not a
+ * constant), but misleading about the WHOLE system: `scripts/build-
+ * registries.mjs` writes the literal `status: 'not-represented'` on every
+ * row of all fourteen registries today, with no code path that writes
+ * anything else, so `.some((r) => r.status !== 'not-represented')` cannot
+ * currently return true no matter how this function is written -- the
+ * predicate is honest, but the DATA it reads is itself constant until
+ * slices 3-13 (which would set a different status) exist.
  */
 function registryStatus(slug: string): CoverageStatus {
   if (slug === 'workflows') {
-    return WORKFLOW_REGISTRY.some((r) => r.status !== 'not-represented')
+    return WORKFLOWS.rows.some((r) => r.status !== 'not-represented')
       ? 'demonstrated-in-storyboard'
       : 'not-represented'
   }
@@ -64,6 +78,27 @@ const REGISTRY_STATUS_ENTRIES: readonly { status: CoverageStatus }[] = REGISTRY_
   (d) => ({ status: registryStatus(d.slug) }),
 )
 const RECONCILIATION_SUMMARY = countByStatus(REGISTRY_STATUS_ENTRIES)
+
+/**
+ * Task 10 / addendum §5: source-defined and derived are counted from
+ * `modules.json`'s own `sourceClass` field on each row -- a STRUCTURED
+ * value the build script maps straight from the raw extraction's
+ * `classification`, never parsed out of `RegistryDescriptor.sourceNote`
+ * prose. This is the one place in the whole build that reads 63 for
+ * modules' source-defined count -- everywhere else (the table above,
+ * `RegistryDescriptor.expectedCount`) correctly reads 81, the total
+ * inventory count; 63 is a narrower, different figure (only the SoW-Fact
+ * modules) and must never replace 81 as "the" module count.
+ *
+ * Major (final review): every count below (81/63/18) used to be a bare
+ * literal in the JSX -- a hardcoded assumption of exactly the kind gate 1
+ * exists to forbid, and it shipped past the gate because the gate only
+ * scanned one other, unrelated file. Both `TOTAL_MODULES` and the source-
+ * class counts are now derived from the same loaded registry every render.
+ */
+const MODULES_REGISTRY = loadGeneratedRegistry('modules')
+const MODULES_CLASS_COUNTS = countByClass(MODULES_REGISTRY.rows)
+const TOTAL_MODULES = MODULES_REGISTRY.rows.length
 
 export default function CoveragePage() {
   return (
@@ -124,6 +159,50 @@ export default function CoveragePage() {
         {COVERAGE_STATUSES.map((status) => (
           <li key={status}>
             {STATUS_LABEL[status]}: {RECONCILIATION_SUMMARY[status]} of {REGISTRY_DESCRIPTORS.length}
+          </li>
+        ))}
+      </ul>
+
+      <h2 className="mt-8 text-xl font-semibold">Source classification</h2>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        Orthogonal to the status above: this says what the frozen source
+        itself claims about an item, never what this build did with it. Of
+        the {TOTAL_MODULES} modules, {MODULES_CLASS_COUNTS.source['source-defined']} are
+        source-defined (SoW Fact) and {MODULES_CLASS_COUNTS.source.derived} are derived
+        (Derived Clarification, DEC-STUDIO-001) — the {MODULES_CLASS_COUNTS.source.derived}{' '}
+        Studio modules may never be presented as source-backed. No other
+        registry has been classified against the source yet.
+      </p>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink-muted)]">
+        {SOURCE_CLASSES.map((sourceClass) => (
+          <li key={sourceClass}>
+            {sourceClass}: {MODULES_CLASS_COUNTS.source[sourceClass]} of {TOTAL_MODULES} modules
+          </li>
+        ))}
+      </ul>
+
+      {/*
+        Major (final review): BuildClass/BUILD_CLASS_LABEL existed with zero
+        consumers, and countByClass's `.build` half was computed and then
+        discarded -- a computed value nobody read and a label nobody
+        rendered. No row anywhere sets `buildClass` yet (slices 3-13, which
+        would set one, have not run), so every count below is honestly zero
+        -- said so in words, not left implicit in an absent section.
+      */}
+      <h2 className="mt-8 text-xl font-semibold">Build classification</h2>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        Also orthogonal to status: this would say what THIS BUILD did with
+        an item — demonstrated in the storyboard, not applicable, or
+        blocked on an open client decision. No item in any registry has
+        been classified for build status yet: slices 3-13, which would set
+        this, have not run, so every count below is honestly zero rather
+        than fabricated.
+      </p>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink-muted)]">
+        {BUILD_CLASSES.map((buildClass) => (
+          <li key={buildClass}>
+            {BUILD_CLASS_LABEL[buildClass]}: {MODULES_CLASS_COUNTS.build[buildClass]} of {TOTAL_MODULES}{' '}
+            modules
           </li>
         ))}
       </ul>

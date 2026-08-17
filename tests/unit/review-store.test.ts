@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { IDBFactory } from 'fake-indexeddb'
 import { openDatabase, PRODUCT_STORES } from '@/persistence/schema'
-import { putReviewRecord, listReviewRecords, resetReview } from '@/review/store'
-import { createReviewRecord } from '@/review/records'
+import { putReviewRecord, putReviewEvent, listReviewRecords, resetReview } from '@/review/store'
+import { createReviewRecord, createReviewEvent } from '@/review/records'
 import { fixedClock, CANONICAL_EPOCH_MS } from '@/domain/clock'
 
 let db: IDBDatabase
@@ -10,7 +10,7 @@ beforeEach(async () => { db = await openDatabase(new IDBFactory()) })
 
 const rec = () => createReviewRecord({
   anchorType: 'screen', anchorId: 'SCR-1', surface: 'SURF-DOH',
-  reviewerLabel: 'R', status: 'comment', comment: 'Looks right to me.',
+  reviewerLabel: 'R', status: 'comment', severity: 'minor', comment: 'Looks right to me.',
   sourceFingerprint: '47bd18db', scenarioVersion: '1', buildHash: 'abc',
 }, fixedClock(CANONICAL_EPOCH_MS))
 
@@ -89,5 +89,36 @@ describe('review store', () => {
     const result = await listReviewRecords(db)
     expect(result.ok).toBe(true)
     if (result.ok) expect(result.records).toHaveLength(1)
+  })
+
+  // Major (final review): createReviewEvent (@/review/records) had no
+  // caller outside a unit test -- the reviewEvents store existed, but
+  // nothing ever wrote to it. putReviewEvent mirrors putReviewRecord
+  // exactly (same transaction discipline, same typed-result convention,
+  // same REVIEW_STORES-only scope).
+  it('stores a review event', async () => {
+    const event = createReviewEvent('rr-1', 'comment', fixedClock(CANONICAL_EPOCH_MS))
+    const result = await putReviewEvent(db, event)
+    expect(result.ok).toBe(true)
+    const rows: unknown[] = await new Promise((res) => {
+      const r = db.transaction('reviewEvents', 'readonly').objectStore('reviewEvents').getAll()
+      r.onsuccess = () => res(r.result)
+    })
+    expect(rows).toHaveLength(1)
+  })
+
+  it('a stored review event writes to NO product store', async () => {
+    const event = createReviewEvent('rr-1', 'comment', fixedClock(CANONICAL_EPOCH_MS))
+    await putReviewEvent(db, event)
+    for (const s of PRODUCT_STORES) {
+      expect(await countAll(s), s).toBe(0)
+    }
+  })
+
+  it('putReviewEvent reports ok:false with a reason on a closed database, never a silent no-op', async () => {
+    db.close()
+    const result = await putReviewEvent(db, createReviewEvent('rr-1', 'comment', fixedClock(CANONICAL_EPOCH_MS)))
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason.length).toBeGreaterThan(0)
   })
 })

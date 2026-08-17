@@ -2,50 +2,79 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import WorkflowIndexPage from '../../app/workflows/page'
 
-// Honesty defect (post-handoff review): the "unnumbered" row on /workflows/
-// stands for 199 raw extraction entries and "unstated" for 66, with nothing
-// on the page telling a reader either row is anything but one ordinary
-// record. These tests prove the page now says so, visibly, in the row
-// itself -- and only in rows that actually collapsed.
+// Fix round 1 (defect 3): this page used to read the retired 432-row
+// registries/generated/workflow-registry.json; it now reads the ONE
+// workflows registry (registries/generated/workflows.json, 724 composite-
+// keyed rows) through the same GeneratedRegistrySchema loader every other
+// registry uses. These tests replace the ones written against the legacy
+// file's bare "unnumbered"/"unstated" rows, which no longer exist as such
+// -- composite keying gives each distinct passage its own row.
 describe('/workflows/ collapse honesty', () => {
-  it('the "unnumbered" row visibly states how many extracted entries it represents', () => {
+  // 724 rows is a much bigger table than the legacy 432-row page, and
+  // `getByRole('cell', ...)` computes an accessible name for every cell it
+  // scans -- getByText on exact cell content is equivalent here (ids are
+  // unique) and far cheaper, but the table is still large enough that a
+  // slow CI runner needs more than the 5s default.
+  it('the one genuinely duplicated row visibly states it represents 2 extracted entries', () => {
     render(<WorkflowIndexPage />)
-    const idCell = screen.getByRole('cell', { name: 'unnumbered' })
+    const idCell = screen.getByText('unnumbered@L74182', { selector: 'td' })
     const row = idCell.closest('tr')
-    if (row === null) throw new Error('fixture bug: "unnumbered" cell has no parent row')
-    expect(within(row).getByText(/199 extracted entries/i)).toBeTruthy()
-    expect(within(row).getByText(/distinct identifiers/i)).toBeTruthy()
-  })
-
-  it('the "unstated" row visibly states how many extracted entries it represents', () => {
-    render(<WorkflowIndexPage />)
-    const idCell = screen.getByRole('cell', { name: 'unstated' })
-    const row = idCell.closest('tr')
-    if (row === null) throw new Error('fixture bug: "unstated" cell has no parent row')
-    expect(within(row).getByText(/66 extracted entries/i)).toBeTruthy()
-  })
+    if (row === null) throw new Error('fixture bug: "unnumbered@L74182" cell has no parent row')
+    expect(within(row).getByText(/represents 2 extracted entries/i)).toBeTruthy()
+  }, 15000)
 
   it('an ordinary, non-collapsed row carries no collapse statement', () => {
     render(<WorkflowIndexPage />)
-    const idCell = screen.getByRole('cell', { name: 'WF-VALUESTREAM' })
+    const idCell = screen.getByText('WF-VALUESTREAM', { selector: 'td' })
     const row = idCell.closest('tr')
     if (row === null) throw new Error('fixture bug: "WF-VALUESTREAM" cell has no parent row')
     expect(within(row).queryByText(/extracted entries/i)).toBeNull()
-  })
+  }, 15000)
 
-  it('never says "432 workflows" and keeps the no-single-total caveat', () => {
+  it('never says "724 workflows" or "725 workflows" and keeps the no-single-total caveat', () => {
     const { container } = render(<WorkflowIndexPage />)
     const text = container.textContent ?? ''
-    expect(text).not.toMatch(/432\s+workflows\b/i)
+    expect(text).not.toMatch(/724\s+workflows\b/i)
+    expect(text).not.toMatch(/725\s+workflows\b/i)
     expect(text).toMatch(/MODULE count/)
   })
 
-  it('states near the count caveat that some rows represent multiple extracted entries, with a total', () => {
+  it('states the extraction arithmetic near the count caveat: 725 extracted, 1 duplicate merged, 724 rows', () => {
     const { container } = render(<WorkflowIndexPage />)
     const text = container.textContent ?? ''
-    // 325 raw entries collapse into the 32 rows whose id repeats in the raw
-    // extraction (2 placeholder ids + 30 real ids the extraction reused).
-    expect(text).toMatch(/325/)
-    expect(text).toMatch(/more than one extracted entry/i)
+    expect(text).toMatch(/725/)
+    expect(text).toMatch(/724/)
+    expect(text).toMatch(/duplicate merged/i)
+  })
+})
+
+// Fix round 2, §0: consolidating onto one shared row shape (fix round 1)
+// flattened the Workflow Index from 8 columns to 5, silently dropping
+// primary actor, surfaces touched and terminal states -- spec §7 columns,
+// and the exact data Task 11's surface/actor filters need. Restored as
+// workflow-only extension fields; these tests prove the restored columns
+// actually render real per-row data, not just exist in the schema.
+describe('/workflows/ spec §7 columns restored', () => {
+  it('renders the primary actor for a real row', () => {
+    render(<WorkflowIndexPage />)
+    const idCell = screen.getByText('WF-VALUESTREAM', { selector: 'td' })
+    const row = idCell.closest('tr')
+    if (row === null) throw new Error('fixture bug: "WF-VALUESTREAM" cell has no parent row')
+    expect(within(row).getByText(/Quality Manager/)).toBeTruthy()
+  }, 15000)
+
+  it('renders the surfaces touched for a real row', () => {
+    render(<WorkflowIndexPage />)
+    const idCell = screen.getByText('WF-VALUESTREAM', { selector: 'td' })
+    const row = idCell.closest('tr')
+    if (row === null) throw new Error('fixture bug: "WF-VALUESTREAM" cell has no parent row')
+    expect(within(row).getByText(/SURF-STU/)).toBeTruthy()
+  }, 15000)
+
+  it('column headers include primary actor, surfaces touched and terminal states', () => {
+    render(<WorkflowIndexPage />)
+    expect(screen.getByRole('columnheader', { name: /primary actor/i })).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: /surfaces touched/i })).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: /terminal states/i })).toBeTruthy()
   })
 })

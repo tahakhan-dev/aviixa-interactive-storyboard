@@ -1,9 +1,10 @@
 import 'fake-indexeddb/auto'
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ReviewPage from '../../app/review/page'
 import { openDatabase } from '@/persistence/schema'
+import * as reviewStore from '@/review/store'
 
 describe('review shell', () => {
   it('labels its accept action for client review, never as an approval', () => {
@@ -68,6 +69,81 @@ describe('review shell', () => {
     })
   })
 
+  // Fix round 1 (review, Major 1): `severity` used to be hardcoded to
+  // 'minor' on every submission, with no control anywhere in the form --
+  // three lines under this file's own "say so plainly rather than
+  // fabricate" comment. A blocking defect exported as 'minor', inside the
+  // manifest hash scope. Proven end to end against the real database: a
+  // reviewer who picks "Blocking" and submits gets a stored record whose
+  // `severity` actually says so.
+  it('records the severity the reviewer actually picked, not a hardcoded value', async () => {
+    const user = userEvent.setup()
+    render(<ReviewPage />)
+    await user.selectOptions(screen.getByLabelText(/severity/i), 'blocking')
+    await user.type(screen.getByLabelText(/reviewer name/i), 'A Reviewer')
+    await user.type(screen.getByLabelText(/^note$/i), 'This breaks the whole run.')
+    await user.click(screen.getByRole('button', { name: /needs change/i }))
+
+    await waitFor(async () => {
+      const db = await openDatabase(indexedDB)
+      const rows: unknown[] = await new Promise((res) => {
+        const r = db.transaction('reviewRecords', 'readonly').objectStore('reviewRecords').getAll()
+        r.onsuccess = () => res(r.result)
+      })
+      db.close()
+      expect(rows.some((row) => (row as { severity?: string }).severity === 'blocking')).toBe(true)
+    })
+  })
+
+  // Major (final review): createReviewEvent had no caller outside a unit
+  // test -- gate 3's name ("a client-review action creates a ReviewEvent
+  // and nothing else") asserted a positive that never happened. Proven
+  // end to end against the real database, same pattern as the record-write
+  // test above.
+  it('writes a ReviewEvent alongside the review record on submit', async () => {
+    const user = userEvent.setup()
+    render(<ReviewPage />)
+    await user.type(screen.getByLabelText(/reviewer name/i), 'A Reviewer')
+    await user.type(screen.getByLabelText(/^note$/i), 'Looks good.')
+    await user.click(screen.getByRole('button', { name: /^comment$/i }))
+
+    await waitFor(async () => {
+      const db = await openDatabase(indexedDB)
+      const events: unknown[] = await new Promise((res) => {
+        const r = db.transaction('reviewEvents', 'readonly').objectStore('reviewEvents').getAll()
+        r.onsuccess = () => res(r.result)
+      })
+      db.close()
+      expect(events.length).toBeGreaterThan(0)
+      expect((events[0] as { kind?: string }).kind).toBe('comment')
+    })
+  })
+
+  // Minor (final review round 2): `putReviewEvent`'s result used to be
+  // discarded at the call site -- a failed event write was silently
+  // swallowed, no different from the "silent catch" pattern this codebase
+  // otherwise forbids (I8's own doc comment). Proven by forcing a real
+  // failure (the record write still succeeds; only the event write fails)
+  // and checking the typed failure reaches the reviewer, while the note
+  // they entered is not thrown away.
+  it('surfaces a failed event write instead of discarding it, without losing the saved note', async () => {
+    const spy = vi.spyOn(reviewStore, 'putReviewEvent').mockResolvedValue({ ok: false, reason: 'boom' })
+    try {
+      const user = userEvent.setup()
+      render(<ReviewPage />)
+      await user.type(screen.getByLabelText(/reviewer name/i), 'A Reviewer')
+      await user.type(screen.getByLabelText(/^note$/i), 'Looks good.')
+      await user.click(screen.getByRole('button', { name: /^comment$/i }))
+
+      await waitFor(() => {
+        expect(screen.getByText(/event log entry was not.*boom|boom.*event log entry/i)).toBeDefined()
+      })
+      expect(screen.getByText(/looks good/i)).toBeDefined()
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
   it('never claims durability the storage state does not provide', async () => {
     const original = globalThis.indexedDB
     // @ts-expect-error -- simulating an environment with no IndexedDB at all.
@@ -84,9 +160,26 @@ describe('review shell', () => {
   })
 })
 
-afterEach(() => {
+afterEach(async () => {
   // fake-indexeddb persists databases across tests in the same module
   // registry by name; each test above that writes should not see a prior
   // test's rows. Deleting the database is the cheapest reliable reset.
-  indexedDB.deleteDatabase('aviixa-storyboard')
+  //
+  // Fix round 1: this used to fire `deleteDatabase` without awaiting its
+  // result. `deleteDatabase` blocks behind any open connection, and (before
+  // this round's fix to `page.tsx`'s effect cleanup, below) a test that
+  // reached the durable path left its connection open on unmount forever --
+  // reproduced by adding a second DB-writing test right after the existing
+  // one: even this hook timed out at 10s waiting on a delete that could
+  // never unblock. `page.tsx` now closes its connection on unmount
+  // unconditionally, so this delete settles quickly again; awaiting it here
+  // too keeps each test starting from an actually-clean database rather
+  // than a probably-clean one, regardless of what future tests in this file
+  // do with the connection.
+  await new Promise<void>((resolve) => {
+    const req = indexedDB.deleteDatabase('aviixa-storyboard')
+    req.onsuccess = () => resolve()
+    req.onerror = () => resolve()
+    req.onblocked = () => resolve()
+  })
 })

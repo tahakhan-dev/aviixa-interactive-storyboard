@@ -126,10 +126,31 @@ describe('slice 2b gates', () => {
   // scan the WHOLE file, case-insensitively, with no quote requirement --
   // "approved" has no legitimate use anywhere in this module regardless of
   // casing, quoting, or position.
-  const APPROVAL_WORD_PATTERN = /approved/i
+  //
+  // Final review, CRITICAL: `/approved/i` -- the exact literal word -- does
+  // not guard the invariant it exists for. A button labelled "Approve" (the
+  // most likely real-world wording) ships clean past it:
+  //   "Approve" / "Approve for release" / "Approval" -> MISSED, "approved" -> caught.
+  // Fixed to the morphological root, `/\bapprov/i`, which catches every
+  // conjugation (approve/approved/approval/approving/approver) with one
+  // pattern, while still permitting this codebase's real "accept"
+  // vocabulary ("Accept for client review", "Accepted",
+  // "accepted-for-review") -- see the two tests immediately below.
+  const APPROVAL_WORD_PATTERN = /\bapprov/i
 
-  it('review status vocabulary contains no approval word, anywhere in the file, case- and quote-insensitively', () => {
-    const s = readFileSync('src/review/records.ts', 'utf8')
+  // Comment-stripped, not raw: widening the pattern to `/\bapprov/i` (the
+  // morphological root, CRITICAL fix above) means the word now has a
+  // legitimate use this file's own comments were already relying on --
+  // "Deliberately none of these reads as an approval" -- explaining WHY the
+  // vocabulary avoids the word is exactly the "prose naming a forbidden
+  // term in order to forbid it" trap this project has hit before (MOD-SA-20,
+  // ROLES.some(...)); scanning raw source here would now fail on that
+  // correct, explanatory comment. The narrower `/approved/i` this replaces
+  // never had this problem (no comment here happened to spell out the exact
+  // past-tense form), which is why the raw-scan claim below was true then
+  // and is not anymore.
+  it('review status vocabulary contains no approval word, anywhere in the code, case- and quote-insensitively', () => {
+    const s = stripComments(readFileSync('src/review/records.ts', 'utf8'))
     expect(s).not.toMatch(APPROVAL_WORD_PATTERN)
   })
 
@@ -151,5 +172,77 @@ describe('slice 2b gates', () => {
     ] as const) {
       expect(evasion, name).toMatch(APPROVAL_WORD_PATTERN)
     }
+  })
+
+  // Final review, CRITICAL: the four evasions above all vary quoting,
+  // casing, position and location -- but EVERY ONE OF THEM uses the literal
+  // string "approved". Not one varies the WORD FORM, so they prove the gate
+  // survives every axis except the one that matters: a button labelled
+  // "Approve" (the most likely real-world wording) shipped past
+  // `/approved/i` clean, reproduced directly --
+  //   "Approve"             -> MISSED
+  //   "Approve for release" -> MISSED
+  //   "Approval"            -> MISSED
+  //   "approved"            -> caught
+  // Fixed to the morphological root `/\bapprov/i`, which catches every
+  // conjugation (approve/approved/approval/approving/approver) with one
+  // pattern. This test adds the missing axis: word form, held constant
+  // across the SAME four evasion techniques above (so both defect classes
+  // stay covered), and separately proves the fix does not turn into a new
+  // false-positive trap against the one word this codebase legitimately
+  // uses for the same concept, "accept".
+  it('the approval-word gate fires on every word form, not just the literal string "approved"', () => {
+    for (const wordForm of ['Approve', 'Approve for release', 'Approval', 'Approving', 'Approver']) {
+      expect(wordForm, wordForm).toMatch(APPROVAL_WORD_PATTERN)
+    }
+  })
+
+  it('the approval-word gate still permits this codebase\'s real "accept" vocabulary', () => {
+    for (const permitted of ['Accept for client review', 'Accepted', 'accepted-for-review']) {
+      expect(permitted, permitted).not.toMatch(APPROVAL_WORD_PATTERN)
+    }
+  })
+
+  // Final review round 2, MINOR: `stripComments`' regex-vs-division
+  // heuristic is now load-bearing for THIS gate too, not just the generic
+  // stripComments tests below -- a regex literal ending in an escaped
+  // slash once blinded four gates at once by putting the whole tokenizer
+  // into line-comment mode. Verified directly against the approval gate
+  // itself: a same-line regex literal, a string containing `//`/`/*`, and
+  // a template literal (which stripComments deliberately never strips the
+  // CONTENTS of -- only actual comments) must all still let a genuine
+  // "Approve" on the same source reach the pattern.
+  it('the approval gate survives a same-line regex literal ending in an escaped slash', () => {
+    const planted = `const _r = /https?:\\/\\//; const label = 'Approve'`
+    expect(stripComments(planted)).toMatch(APPROVAL_WORD_PATTERN)
+  })
+
+  it('the approval gate is not blinded by a string containing // or /*', () => {
+    const planted =
+      `const url = 'https://example.com/x /* not a comment */' // a real comment\nconst label = 'Approve'`
+    expect(stripComments(planted)).toMatch(APPROVAL_WORD_PATTERN)
+  })
+
+  it('the approval gate scans inside a template literal (contents are never stripped, only comments are)', () => {
+    expect(stripComments('const label = `Approve this change`')).toMatch(APPROVAL_WORD_PATTERN)
+  })
+
+  // CRITICAL (final review round 3): a plain URL in JSX prose -- an
+  // ordinary thing to write -- silently disabled this gate. The
+  // hand-rolled tokenizer treated any bare `//` as a line-comment start
+  // with no notion of "this text is JSX children, not JS", so
+  // `<p>See https://x for details. Approve.</p>` had everything from the
+  // `//` in the URL to end-of-line discarded, including "Approve". Proven
+  // on the exact repro that defeated the old stripper.
+  it('the approval gate is not blinded by a URL in ordinary JSX prose', () => {
+    const planted = `function X() { return <p>See https://example.com/docs for details. Approve the change.</p> }`
+    expect(stripComments(planted)).toMatch(APPROVAL_WORD_PATTERN)
+  })
+
+  it('the approval gate strips a JSX comment container ({/* ... */}) but not sibling JSX text', () => {
+    const planted = '<div>{/* say never approve here */}<span>Approve this</span></div>'
+    const stripped = stripComments(planted)
+    expect(stripped).not.toMatch(/never approve/)
+    expect(stripped).toMatch(APPROVAL_WORD_PATTERN)
   })
 })

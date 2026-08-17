@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { REGISTRY_DESCRIPTORS, type RegistryDescriptor } from '@/coverage/descriptors'
+import { REGISTRY_DESCRIPTORS, type RegistryDescriptor, type RegistrySlug } from '@/coverage/descriptors'
+import { loadGeneratedRegistry } from '@/coverage/registry-loader'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
+import { Table, type TableColumn, type TableRow } from '@/ui/primitives'
 
 interface RegistryParams {
   registry: string
@@ -34,6 +36,91 @@ export async function generateMetadata({
   return { title: descriptor?.title ?? 'Registry not found' }
 }
 
+const ROW_COLUMNS: readonly TableColumn[] = [
+  { key: 'id', header: 'ID' },
+  { key: 'name', header: 'Name' },
+  // Addendum §3: FUNC-/FEAT-/SUB- rows carry `moduleId` or `surface` from
+  // the band/surface join; ai-storyboards/actionable-controls rows carry
+  // `register` naming which sub-inventory they belong to. One generic
+  // column surfaces whichever of the two a row actually has, per row,
+  // rather than adding fourteen bespoke column sets.
+  { key: 'joinedTo', header: 'Joined to / register' },
+  { key: 'sourceLine', header: 'Source line' },
+  { key: 'status', header: 'Status' },
+]
+
+/**
+ * Task 9: the generic registry index, shared by all fourteen
+ * `/coverage/<slug>/` routes. A plain, synchronous function component (not
+ * `async`) so it can be rendered directly in a component test without
+ * awaiting a Server Component — `loadGeneratedRegistry` is itself
+ * synchronous (`readFileSync`), so nothing here needs `await` either.
+ *
+ * Renders every row with its id, name (label/register, whichever the row
+ * carries — the seven nameless families carry neither and get an em dash),
+ * the join/register disclosure, source line and status; the count header
+ * states `countedThing` beside the figure, shows both `rawCount` and
+ * `reconciledCount` with `dedupRule` whenever they differ, and says
+ * plainly when `sourceFixesNoTotal` rather than presenting a total that
+ * does not exist.
+ */
+export function RegistryIndex({ slug }: { slug: RegistrySlug }) {
+  const descriptor = descriptorFor(slug)
+  if (descriptor === undefined) return null
+  const registry = loadGeneratedRegistry(slug)
+
+  if (registry.rows.length === 0) {
+    return (
+      <ScreenStateBoundary
+        state="STATE-01"
+        surface="SURF-DOH"
+        detail={{
+          objectLabel: descriptor.title.toLowerCase(),
+          whatCreatesIt: `${descriptor.title} entries are authored as each product surface and module screen is built in slices 3-13, then reconciled against the frozen source. Nothing has created one yet in this storyboard.`,
+        }}
+      />
+    )
+  }
+
+  const rows: readonly TableRow[] = registry.rows.map((r) => ({
+    id: r.id,
+    name: r.label ?? '—',
+    joinedTo: r.moduleId ?? r.surface ?? r.register ?? '—',
+    sourceLine: r.sourceLine,
+    status: r.status,
+  }))
+
+  return (
+    <div>
+      <p className="max-w-prose text-[var(--color-ink-muted)]">{registry.countedThing}</p>
+      {registry.sourceFixesNoTotal ? (
+        <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
+          The frozen source fixes no single total for this inventory; {registry.rawCount}{' '}
+          extracted records are listed below.
+        </p>
+      ) : (
+        <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
+          Reconciled count: {registry.reconciledCount}. Raw extracted count: {registry.rawCount}.
+        </p>
+      )}
+      {registry.dedupRule !== null ? (
+        <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">{registry.dedupRule}</p>
+      ) : null}
+      <div className="mt-6 overflow-x-auto" tabIndex={0} role="region" aria-label={`${descriptor.title} table, scrollable horizontally`}>
+        <Table
+          caption={`${registry.rows.length} rows in the ${descriptor.title} index, by id, name, join/register, source line and status.`}
+          columns={ROW_COLUMNS}
+          rows={rows}
+          emptyState={{
+            title: `There are no ${descriptor.title.toLowerCase()} yet.`,
+            whatCreatesIt: 'scripts/build-registries.mjs, run against registries/raw/.',
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
 export default async function RegistryIndexPage({
   params,
 }: {
@@ -53,39 +140,26 @@ export default async function RegistryIndexPage({
       <h1 className="mt-2 text-3xl font-semibold">{descriptor.title}</h1>
       <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">{descriptor.sourceNote}</p>
 
+      {descriptor.slug === 'workflows' ? (
+        // Blocking 2 (final review): this used to render the same
+        // permanently-empty ScreenStateBoundary every other not-yet-built
+        // registry did -- a second empty page for a concept the real
+        // Workflow Index (`/workflows/`) already populates. Task 9 now
+        // renders the real rows here too (no registry is empty anymore),
+        // but the richer, filterable view (Task 11) still lives at
+        // `/workflows/`, so this page keeps pointing there rather than
+        // pretending to be the primary place to read this registry.
+        <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">
+          The richer, filterable Workflow Index lives at{' '}
+          <Link href="/workflows/" className="text-[var(--color-primary)] underline">
+            /workflows/
+          </Link>
+          . The same {loadGeneratedRegistry('workflows').rows.length} rows also render below.
+        </p>
+      ) : null}
+
       <div className="mt-6">
-        {descriptor.slug === 'workflows' ? (
-          // Blocking 2 (final review): this used to render the same
-          // permanently-empty ScreenStateBoundary every other not-yet-built
-          // registry does -- a second empty page for a concept the real
-          // Workflow Index (`/workflows/`) already populates with 432
-          // extracted records. Point here instead of duplicating it.
-          <p className="max-w-prose text-[var(--color-ink-muted)]">
-            The populated Workflow Index lives at{' '}
-            <Link href="/workflows/" className="text-[var(--color-primary)] underline">
-              /workflows/
-            </Link>
-            , not here — this page and that one describe the same registry,
-            and this build never duplicates it as two separate empty pages.
-          </p>
-        ) : (
-          /*
-            This is a review/coverage tool, not a product surface — none of
-            the five SurfaceIds is the "true" owner of a cross-cutting index.
-            SURF-DOH is picked because it is the tenant system of record for
-            authoritative operational registries; STATE-01 never reads this
-            value (only STATE-07's Frontline-only guard does), so the choice
-            has no behavioural effect today.
-          */
-          <ScreenStateBoundary
-            state="STATE-01"
-            surface="SURF-DOH"
-            detail={{
-              objectLabel: descriptor.title.toLowerCase(),
-              whatCreatesIt: `${descriptor.title} entries are authored as each product surface and module screen is built in slices 3-13, then reconciled against the frozen source. Nothing has created one yet in this storyboard.`,
-            }}
-          />
-        )}
+        <RegistryIndex slug={descriptor.slug} />
       </div>
     </main>
   )

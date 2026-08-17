@@ -42,7 +42,9 @@ describe('workflow index is reachable from the built site', () => {
     const html = readFileSync(join(OUT, 'workflows', 'index.html'), 'utf8')
     // A stable-id-shaped row from the generated registry, not fabricated.
     expect(html).toMatch(/SB-001/)
-    expect((html.match(/<tr/g) ?? []).length).toBeGreaterThan(400)
+    // Fix round 1 (defect 3): 724 composite-keyed rows now, not the retired
+    // 432-row registry.
+    expect((html.match(/<tr/g) ?? []).length).toBeGreaterThan(700)
   })
 
   it('the entry page links somewhere -- coverage, workflows and review', () => {
@@ -52,15 +54,19 @@ describe('workflow index is reachable from the built site', () => {
     expect(entry).toMatch(/href="\/review\/"/)
   })
 
-  // Count-scope discipline: the 432-adjacent sentence must sit right next
-  // to the number, not paragraphs above it, and 432 must never be labelled
-  // a workflow total.
-  it('the 432 count sits directly next to the "no workflow total" disclaimer', () => {
+  // Count-scope discipline: the 725/724-adjacent sentence must sit right
+  // next to the number, not paragraphs above it, and 724 must never be
+  // labelled a workflow total. (Fix round 1, defect 3: was 432, before the
+  // legacy id-only-deduped registry was retired in favour of Task 7's
+  // composite-keyed one.)
+  it('the 724 count sits directly next to the "no workflow total" disclaimer', () => {
     const html = readFileSync(join(OUT, 'workflows', 'index.html'), 'utf8')
-    const idx = html.indexOf('432')
+    const idx = html.indexOf('725')
     expect(idx).toBeGreaterThan(-1)
     const nearby = html.slice(idx, idx + 400)
     expect(nearby).toMatch(/MODULE count/)
-    expect(html).not.toMatch(/432\s+workflows\b/i)
+    expect(nearby).toMatch(/724/)
+    expect(html).not.toMatch(/724\s+workflows\b/i)
+    expect(html).not.toMatch(/725\s+workflows\b/i)
   })
 })

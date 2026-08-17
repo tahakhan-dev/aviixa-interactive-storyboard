@@ -21,3 +21,19 @@ test('the workflow index renders and states its reconciled count honestly', asyn
   const body = (await page.textContent('body')) ?? ''
   expect(body).not.toMatch(/81\s+workflows/i)
 })
+
+// Task 9: every one of the fourteen registry indexes renders real rows from
+// the built static export, not a permanently-empty placeholder.
+test('every registry index renders real rows, not an empty placeholder', async ({ page }) => {
+  const slugs = [
+    'modules', 'features', 'sub-features', 'functions', 'workflows',
+    'business-use-cases', 'business-objects', 'events', 'commands',
+    'notifications', 'offline-scenarios', 'ai-storyboards',
+    'scheduled-work', 'actionable-controls',
+  ]
+  for (const s of slugs) {
+    await page.goto(`/coverage/${s}/`)
+    const rowCount = await page.getByRole('row').count()
+    expect(rowCount, s).toBeGreaterThan(1)
+  }
+})
