@@ -58,7 +58,14 @@ export type CommandState =
  * partition COMMAND_STATE_TONE already draws: 'ok', 'blocked' and 'stale'
  * are all concluded outcomes; 'neutral' and 'info' are still in flight.
  */
-const TERMINAL_COMMAND_STATES: ReadonlySet<CommandState> = new Set([
+// Exported (not just module-local) so `@/surfaces/sa/command-state`'s
+// `CommandStateBadge` -- used by MOD-SA-07/09/13 wherever a device command
+// state needs its own badge outside the STATE-09 (Queued) boundary above,
+// including terminal states this boundary itself refuses to render under
+// STATE-09 -- draws tone and terminal-ness from the same one source instead
+// of a second, independently-maintained copy that could quietly drift from
+// this one.
+export const TERMINAL_COMMAND_STATES: ReadonlySet<CommandState> = new Set([
   'applied',
   'acknowledged',
   'reconciled',
@@ -69,7 +76,7 @@ const TERMINAL_COMMAND_STATES: ReadonlySet<CommandState> = new Set([
   'superseded',
 ])
 
-const COMMAND_STATE_TONE: Record<CommandState, StatusTone> = {
+export const COMMAND_STATE_TONE: Record<CommandState, StatusTone> = {
   created: 'neutral',
   authorised: 'info',
   queued: 'info',
