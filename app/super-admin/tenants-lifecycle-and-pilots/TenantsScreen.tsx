@@ -45,7 +45,6 @@ const MODULE = saModuleById('MOD-SA-09')
 const ALL_CONSOLE_ROLES: readonly RoleId[] = TENANT_PLATFORM_ROLES.map((r) => r.roleId)
 const ROOT_AND_ADMIN: readonly RoleId[] = ['ROOT_SUPER_ADMIN', 'ADMIN']
 const ADMIN_ONLY: readonly RoleId[] = ['ADMIN']
-const ROOT_ONLY: readonly RoleId[] = ['ROOT_SUPER_ADMIN']
 
 const SCREEN_STATE_OPTIONS = SCREEN_STATES.filter((s) => !s.frontlineOnly).map((s) => ({
   value: s.id,
@@ -151,18 +150,14 @@ export function TenantsScreen() {
   const createDecision = decide(roleId, 'create-tenant', ROOT_AND_ADMIN, ['L75180', 'L52400'])
   const activateDecision = decide(roleId, 'activate-tenant', ROOT_AND_ADMIN, ['L75180'])
   const invitationDecision = decide(roleId, 'manage-invitation', ADMIN_ONLY, ['L75604'])
-  const softDecision = decide(roleId, 'apply-soft-suspension', ROOT_AND_ADMIN, [
-    'WF-PLT-004 L55108',
-  ])
-  const releaseDecision = decide(
-    roleId,
-    'release-soft-suspension',
-    ROOT_AND_ADMIN,
-    ['DEC-SUSP-001 L44927'],
-    'DEC-SUSP-001',
-  )
   const hardDecision = decide(roleId, 'apply-hard-suspension', ROOT_AND_ADMIN, ['L44984'])
-  const complianceDecision = decide(roleId, 'open-compliance-suspension-request', ROOT_ONLY, [
+  // The compliance-suspension control entry names both roles: the Admin
+  // drafts and the root approves (CHK-014 controls[5], L44984). Its effect is
+  // "opens a critical-class request rather than acting", so drafting it is
+  // not the critical act — approval is, and approval lives in MOD-SA-08. The
+  // two roles the entry does not name see the class badge in place of the
+  // action bar.
+  const complianceDecision = decide(roleId, 'open-compliance-suspension-request', ROOT_AND_ADMIN, [
     'L44984',
     'L55942',
   ])
@@ -183,6 +178,12 @@ export function TenantsScreen() {
   const currentCommandState =
     SUSPENSION_COMMAND_SEQUENCE[commandIndex] ?? SUSPENSION_COMMAND_SEQUENCE[0]
   const nextCommandState = SUSPENSION_COMMAND_SEQUENCE[commandIndex + 1]
+  // AC-SA-09-10 / AC-SA-000-08: `applied` is the state the command reached,
+  // not evidence the device took it. Only the device's own acknowledgement —
+  // and the reconciliation that follows it — lets this console say the lock
+  // took effect on that device.
+  const deviceAcknowledged =
+    currentCommandState === 'acknowledged' || currentCommandState === 'reconciled'
 
   const listRows: readonly TableRow[] = visible.map((t) => ({
     tenant: (
@@ -482,20 +483,12 @@ export function TenantsScreen() {
 
           <div>
             <p className="text-sm font-medium">Soft suspension</p>
-            {softDecision.outcome === 'allowed' ? (
-              <Button variant="secondary">Apply soft suspension</Button>
-            ) : (
-              <Button
-                disabledReason={`${softDecision.explanation} Soft and hard suspension are applied by the Admin, and the root holds them too (WF-PLT-004, L55108). Viewing as ${role.name}.`}
-              >
-                Apply soft suspension
-              </Button>
-            )}
-            <Button
-              disabledReason={`${releaseDecision.explanation} DEC-SUSP-001 is open: §4.2.4 lifts a soft suspension on the operator’s signal, §8.9.2 and Part IX say it clears automatically on payment, and §4.2.1 and §8.12 state there is no payment integration. The release stays inert rather than guessing which reading is real.`}
-            >
-              Release soft suspension
-            </Button>
+            <ProhibitionNotice
+              rendering={{
+                kind: 'absent',
+                note: 'Nothing is drawn here for any role, the root included: the frozen source defines no control entry with an allowed-roles list either for applying a soft suspension — WF-PLT-004 (L55108) is a workflow and names no control — or for releasing one, where the release path itself is the open decision DEC-SUSP-001 (§4.2.4 lifts it on the operator’s signal, §8.9.2 and Part IX clear it on payment, §4.2.1 and §8.12 state there is no payment integration). Both are named in the unspecified-in-source panel below rather than drawn, because an inert control implies an enabled state exists for someone and reads back as a requirement to build one.',
+              }}
+            />
           </div>
 
           <div>
@@ -561,9 +554,11 @@ export function TenantsScreen() {
       <section aria-label="Compliance suspension" className="mt-6">
         <h2 className="text-lg font-semibold">Compliance suspension</h2>
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          Critical class. The Admin drafts the request and the Root Super Admin approves; the
-          Platform Engineer is explicitly prohibited from applying one at all. The control opens a
-          request rather than acting (L44984).
+          Critical class. The Admin drafts the request and the Root Super Admin approves — the
+          control entry names both (L44984) — and the control opens a request rather than acting,
+          so drafting it is not the critical act. Approval is. The Platform Engineer is explicitly
+          prohibited from applying one at all, and Support is not named on the control; both see
+          the class badge in place of the action bar.
         </p>
         {complianceDecision.outcome === 'allowed' ? (
           <>
@@ -572,11 +567,12 @@ export function TenantsScreen() {
             </Button>
             {complianceRequestOpened ? (
               <p role="status" className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-                Request SA-REQ-0091 is open and awaiting root approval. This control does not
-                approve it: approval is given in Console Users, Roles and Change Approvals, and a
+                Nothing was sent and no tenant changed: this storyboard holds no request queue, and
+                the panel below is a fixture rendering of what the built platform would draft.
+                Request SA-REQ-0091 would sit awaiting root approval, and this control would not
+                approve it — approval is given in Console Users, Roles and Change Approvals, and a
                 blocked attempt is itself an audit event (AC-SA-000-04). Exactly one root account
-                exists, so no second approver is available — the approval queue renders that
-                openly.
+                exists, so no second approver is available; the approval queue renders that openly.
               </p>
             ) : null}
           </>
@@ -601,6 +597,11 @@ export function TenantsScreen() {
         <div className="mt-3">
           <CommandStateBadge state={currentCommandState} />
         </div>
+        <p role="note" className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          {deviceAcknowledged
+            ? `The device has acknowledged this command (${currentCommandState}), and only now does this console render the lock as having taken effect on that device (AC-SA-09-10).`
+            : `The device has not acknowledged this command. Its true state is ${currentCommandState}, which is what is named above, and the lock is not rendered as having taken effect on the device (AC-SA-09-10).`}
+        </p>
         <p className="mt-2 text-sm text-[var(--color-ink-muted)]">
           {nextCommandState !== undefined
             ? `Next state in the sequence for a command reaching an offline device: ${nextCommandState} (L46708).`

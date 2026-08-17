@@ -4,6 +4,7 @@ import { TenantsScreen } from '../../app/super-admin/tenants-lifecycle-and-pilot
 import {
   DETAIL_TABS,
   LIFECYCLE_TRANSITIONS,
+  SUSPENSION_COMMAND_SEQUENCE,
   TENANTS,
   TENANT_LIFECYCLE_STATES,
   TENANT_PLATFORM_ROLES,
@@ -37,6 +38,12 @@ function selectState(stateId: string): void {
 
 function region(name: string): HTMLElement {
   return screen.getByRole('region', { name })
+}
+
+/** The one row for a named tenant, so an assertion about THAT tenant's state
+ *  cannot be satisfied by a different tenant that already carries the word. */
+function tenantRow(tenantId: string): HTMLElement {
+  return within(region('Tenant list')).getByRole('row', { name: new RegExp(tenantId) })
 }
 
 function openDetail(tenantId: string): void {
@@ -110,6 +117,13 @@ describe('MOD-SA-09 — the tenant list and its aggregates', () => {
     fireEvent.change(screen.getByLabelText(/status filter/i), { target: { value: 'archived' } })
     expect(within(region('Tenant list')).getAllByRole('row')).toHaveLength(2)
     fireEvent.change(screen.getByLabelText(/status filter/i), { target: { value: '' } })
+    // The tier arm, exercised on its own: two seeded tenants are Enterprise,
+    // so a broken tier predicate shows all eight and fails here.
+    fireEvent.change(screen.getByLabelText(/tier filter/i), { target: { value: 'Enterprise' } })
+    const tierRows = within(region('Tenant list')).getAllByRole('row')
+    expect(tierRows).toHaveLength(TENANTS.filter((t) => t.tier === 'Enterprise').length + 1)
+    expect(region('Tenant list').textContent).not.toMatch(/TEN-BRIGHTBIKES/)
+    fireEvent.change(screen.getByLabelText(/tier filter/i), { target: { value: '' } })
     fireEvent.change(screen.getByLabelText(/pilot filter/i), { target: { value: 'pilot-only' } })
     expect(within(region('Tenant list')).getAllByRole('row')).toHaveLength(2)
   })
@@ -185,34 +199,59 @@ describe('MOD-SA-09 — per-control allowed-roles through the policy evaluator',
       target: { value: 'commercial-action' },
     })
     expect(apply().getAttribute('aria-disabled')).toBeNull()
+    // The target row alone, before and after: TEN-HARBOUR is seeded 'hard',
+    // so an assertion over the whole list would pass with no transition.
+    expect(tenantRow('TEN-CLEARWATER').textContent).toMatch(/soft/)
     fireEvent.click(apply())
-    expect(region('Tenant list').textContent).toMatch(/hard/)
+    expect(tenantRow('TEN-CLEARWATER').textContent).toMatch(/hard/)
+    expect(tenantRow('TEN-CLEARWATER').textContent).not.toMatch(/soft/)
   })
 
-  it('refuses the soft-suspension release as an open client decision rather than guessing', () => {
+  it('draws no soft-suspension control at all — absent, not disabled — for every role', () => {
     render(<TenantsScreen />)
-    selectRole('ROLE-PLAT-ROOT')
-    const button = screen.getByRole('button', { name: /release soft suspension/i })
-    expect(button.getAttribute('aria-disabled')).toBe('true')
-    expect(region('Lifecycle actions').textContent).toMatch(/DEC-SUSP-001/)
+    for (const role of TENANT_PLATFORM_ROLES) {
+      selectRole(role.sourceId)
+      const buttons = [...region('Lifecycle actions').querySelectorAll('button')].map(
+        (b) => b.textContent ?? '',
+      )
+      expect(buttons.join(' | '), role.sourceId).not.toMatch(/soft suspension/i)
+      expect(region('Lifecycle actions').textContent, role.sourceId).toMatch(/DEC-SUSP-001/)
+      expect(region('Lifecycle actions').textContent, role.sourceId).toMatch(
+        /no control entry with an allowed-roles list/i,
+      )
+    }
+    // The absence is stated where a reader looks for the requirement, too.
+    expect(region('Unspecified in source').textContent).toMatch(
+      /applying a soft suspension|releasing a soft suspension/i,
+    )
   })
+
 })
 
 describe('MOD-SA-09 — the three prohibition renderings, by rule', () => {
-  it('replaces the compliance-suspension action bar with the class badge for every non-root role', () => {
+  it('replaces the compliance-suspension action bar with the class badge for the two roles its control entry does not name', () => {
     render(<TenantsScreen />)
-    for (const sourceId of ['ROLE-PLAT-ADMIN', 'ROLE-PLAT-ENG', 'ROLE-PLAT-SUP']) {
+    for (const sourceId of ['ROLE-PLAT-ENG', 'ROLE-PLAT-SUP']) {
       selectRole(sourceId)
       const bar = region('Compliance suspension')
       expect(bar.textContent, sourceId).toMatch(/Critical class — root approval required/)
       expect(within(bar).queryByRole('button'), sourceId).toBeNull()
     }
-    selectRole('ROLE-PLAT-ROOT')
-    const button = within(region('Compliance suspension')).getByRole('button', {
-      name: /critical-class request/i,
-    })
-    fireEvent.click(button)
-    expect(region('Compliance suspension').textContent).toMatch(/does not approve/i)
+    // The control entry names the Admin as drafter and the root as approver
+    // (L44984), and its effect is to open a request rather than to act — so
+    // the drafter is not denied the control it is assigned.
+    for (const sourceId of ['ROLE-PLAT-ADMIN', 'ROLE-PLAT-ROOT']) {
+      selectRole(sourceId)
+      const button = within(region('Compliance suspension')).getByRole('button', {
+        name: /critical-class request/i,
+      })
+      expect(button.getAttribute('aria-disabled'), sourceId).toBeNull()
+      fireEvent.click(button)
+      expect(region('Compliance suspension').textContent, sourceId).toMatch(/would not\s+approve/i)
+      // Never a claim that a request was actually opened by this prototype.
+      expect(region('Compliance suspension').textContent, sourceId).toMatch(/nothing was sent/i)
+    }
+    expect(region('Compliance suspension').textContent).toMatch(/Admin drafts the request/i)
   })
 
   it('renders self-signup, a blocked flag, delete and de-anonymisation ABSENT for every role including the root', () => {
@@ -294,14 +333,36 @@ describe('MOD-SA-09 — the no-link rule and the command channel', () => {
     expect(container.textContent).toMatch(/session-request form/i)
   })
 
-  it('AC-SA-09-10: a device lock is never rendered as applied before the device acknowledges it', () => {
+  it('AC-SA-09-10: the lock is not rendered as having taken effect until the device acknowledges it', () => {
     render(<TenantsScreen />)
     const channel = () => region('Suspension command channel')
-    expect(channel().textContent).toMatch(/created/)
-    expect(channel().textContent).not.toMatch(/applied/)
     const step = () => within(channel()).getByRole('button', { name: /advance the fixture/i })
-    for (let i = 0; i < 7; i += 1) fireEvent.click(step())
-    expect(channel().textContent).toMatch(/applied/)
+    const ackIndex = SUSPENSION_COMMAND_SEQUENCE.indexOf('acknowledged')
+    expect(ackIndex).toBeGreaterThan(SUSPENSION_COMMAND_SEQUENCE.indexOf('applied'))
+
+    // The claim the console makes about the device, isolated from the
+    // "next state in the sequence" prediction beside it.
+    const claim = () => within(channel()).getByRole('note').textContent ?? ''
+
+    // Every state in the sequence, not just the terminal one: at each step the
+    // command's own true state is named, and the console claims the lock took
+    // effect on the device only from `acknowledged` onward.
+    for (const [i, state] of SUSPENSION_COMMAND_SEQUENCE.entries()) {
+      expect(claim(), state).toMatch(new RegExp(state))
+      if (i < ackIndex) {
+        expect(claim(), state).toMatch(/has not acknowledged this command/i)
+        expect(claim(), state).not.toMatch(/having taken effect on that device/i)
+        // `applied` is a state the command reached, never evidence about the
+        // device: it may not appear in the claim before the sequence gets there.
+        if (i < SUSPENSION_COMMAND_SEQUENCE.indexOf('applied')) {
+          expect(claim(), state).not.toMatch(/applied/)
+        }
+      } else {
+        expect(claim(), state).toMatch(/has acknowledged this command/i)
+        expect(claim(), state).toMatch(/having taken effect on that device/i)
+      }
+      if (i < SUSPENSION_COMMAND_SEQUENCE.length - 1) fireEvent.click(step())
+    }
     expect(channel().textContent).toMatch(/unreached/i)
   })
 
@@ -343,8 +404,10 @@ describe('MOD-SA-09 — the twelve applicable screen states', () => {
     })
     const apply = screen.getByRole('button', { name: /apply hard suspension/i })
     expect(apply.getAttribute('aria-disabled')).toBeNull()
+    expect(tenantRow('TEN-CLEARWATER').textContent).toMatch(/soft/)
     fireEvent.click(apply)
-    expect(region('Tenant list').textContent).toMatch(/hard/)
+    expect(tenantRow('TEN-CLEARWATER').textContent).toMatch(/hard/)
+    expect(tenantRow('TEN-CLEARWATER').textContent).not.toMatch(/soft/)
     expect(within(region('Tenant detail')).getAllByRole('tab')).toHaveLength(7)
   })
 })
@@ -359,7 +422,15 @@ describe('MOD-SA-09 — what the source does not define', () => {
     }
     const { container } = render(<TenantsScreen />)
     const buttonNames = [...container.querySelectorAll('button')].map((b) => b.textContent ?? '')
-    for (const invented of [/archive tenant/i, /delete/i, /message this tenant/i, /open a session/i]) {
+    for (const invented of [
+      /archive tenant/i,
+      /delete/i,
+      /message this tenant/i,
+      /open a session/i,
+      // Neither soft-suspension control exists in the extraction; the panel
+      // above names both, so neither may be drawn — enabled or inert.
+      /soft suspension/i,
+    ]) {
       expect(buttonNames.join(' '), String(invented)).not.toMatch(invented)
     }
   })

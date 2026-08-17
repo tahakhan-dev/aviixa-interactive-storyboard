@@ -294,7 +294,7 @@ export const LIFECYCLE_TRANSITIONS = [
     to: 'soft',
     cause: 'Non-payment persisting past 30 days, a threshold the client configures, or an explicit operator action.',
     whoMayCause: 'Admin (root holds it too)',
-    rendering: 'Control offered below to the root and the Admin.',
+    rendering: 'No control drawn: the source defines no control entry with an allowed-roles list for applying a soft suspension. WF-PLT-004 is a workflow, not a control, so the affordance is named in the unspecified-in-source panel instead of invented.',
     reversibility: 'reversible',
     reversibilityNote: 'Released by an explicit operator signal — see the open decision DEC-SUSP-001.',
     sourceRef: 'WF-PLT-004 L55108, L44919',
@@ -305,7 +305,7 @@ export const LIFECYCLE_TRANSITIONS = [
     to: 'active',
     cause: 'Release of the soft suspension.',
     whoMayCause: 'Admin, Root Super Admin — subject to DEC-SUSP-001',
-    rendering: 'Control drawn and inert: DEC-SUSP-001 is open, so the release is refused as a client decision rather than guessed at.',
+    rendering: 'No control drawn, and none drawn inert either: the source defines no release control, so it is absent rather than disabled, with DEC-SUSP-001 named where it would sit.',
     reversibility: 'reversible',
     reversibilityNote: 'A released tenant may be suspended again.',
     sourceRef: 'DEC-SUSP-001 L44927',
@@ -338,7 +338,7 @@ export const LIFECYCLE_TRANSITIONS = [
     to: 'compliance',
     cause: 'A security or terms-of-service cause established through the client’s own process.',
     whoMayCause: 'Admin drafts the critical-class request; the Root Super Admin approves. The Platform Engineer is explicitly prohibited.',
-    rendering: 'Critical class. Non-root roles see the class badge in place of the action bar; the root’s control opens a request and does not act.',
+    rendering: 'Critical class. The control opens a request and never acts: the Admin the source names as drafter holds it, and so does the root. The Platform Engineer and Support, whom the control entry does not name, see the class badge in place of the action bar.',
     reversibility: 'reversible',
     reversibilityNote: 'Lifted only by controlled restoration under WF-PLT-005, with the root approving.',
     sourceRef: 'L44984, AC-SA-09-06 L45097, WF-PLT-005 L55147',
@@ -524,6 +524,7 @@ export const HARD_SUSPENSION_REASON_CLASSES = [
 
 export const UNSPECIFIED_IN_SOURCE = [
   'Pilot conversion, pilot extension and pilot expiry are named as operator actions (SUB-SA-PILOT-CONVERT, SCHED-022, SCHED-023) but no control entry with an allowed-roles list exists for any of them.',
+  'No control entry with an allowed-roles list is defined for applying a soft suspension. WF-PLT-004 (L55108) describes the suspension workflow and names no control, and the only nearby entry, Set suspension state (L61338), carries no module identifier and an empty allowed-roles list.',
   'No control is defined for releasing a soft suspension; the release path itself is the open decision DEC-SUSP-001.',
   'No control is defined for archiving a tenant from this module, or for reactivating one inside a reactivation window.',
   'No control is defined for creating, assigning or dissolving a tenant group; the group carries no operational behaviour at all.',
@@ -534,7 +535,7 @@ export const UNSPECIFIED_IN_SOURCE = [
 
 export const UNRESOLVED_IN_SOURCE = [
   'The eighth tab is unresolved. The source asserts eight tabs on the tenant detail page (L44935) and enumerates seven groupings (L45070). Decision D20 builds the seven named and refuses to guess the eighth; the extraction records the same contradiction, noting that splitting Logs and Audit into two tabs is one way the number reaches eight, and the source never says so.',
-  'DEC-SUSP-001 — soft-suspension exit. §4.2.4 lifts it on the operator’s signal; §8.9.2 and Part IX say it clears automatically on payment; §4.2.1 and §8.12 state there is no payment integration on the platform. The adopted working position is the operator signal, and the release control here stays inert with the decision named.',
+  'DEC-SUSP-001 — soft-suspension exit. §4.2.4 lifts it on the operator’s signal; §8.9.2 and Part IX say it clears automatically on payment; §4.2.1 and §8.12 state there is no payment integration on the platform. The adopted working position is the operator signal. No release control is drawn here at all — the source defines none — and the decision is named where one would sit.',
   'DEC-MSG-001 — the worker-facing compliance-suspension message. §4.2.3 and §8.9.2 give two wordings; both are preserved and neither is rendered as canonical on this console.',
   'The screen numbering. This module’s screens appear as SCR-SA-14 and SCR-SA-15 in one scheme and as SCR-SA-11 and SCR-SA-12 in another. Per D1 the names are canonical and the numbers are annotations; no route is keyed on either.',
   'AC-SA-09-07 and AC-SA-09-09 do not appear anywhere in the extraction. The criteria for this module run 01 to 06, 08, and 10 to 14 — two identifiers in the middle of the run are simply absent, and nothing here fills the gap.',
