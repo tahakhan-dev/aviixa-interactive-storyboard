@@ -335,6 +335,34 @@ describe('MOD-SA-05 — aggregates never render as zero or blank', () => {
     }
   })
 
+  // The two panels render the SAME records. This is the cross-panel gate:
+  // whatever scenario the gate view names as a blocker, the scenario list
+  // must also show — in every applicable state, not just the default one.
+  // A row that named a scenario the list says was never authored (and any
+  // second cause invented for its absence) fails here.
+  it.each(APPLICABLE_STATES.map((s) => s.id))(
+    '%s: the gate view names only scenarios the scenario list also shows',
+    (stateId) => {
+      render(<EvalHarnessScreen screenState={stateId} />)
+      const gate = screen.getByRole('region', { name: /Gate view/i }).textContent ?? ''
+      const list = screen.getByRole('region', { name: /Scenario list/i }).textContent ?? ''
+      for (const s of EVAL_SCENARIOS) {
+        if (gate.includes(s.name) || gate.includes(s.id)) {
+          expect(list, `${stateId} names ${s.id} in the gate view only`).toContain(s.name)
+        }
+      }
+    },
+  )
+
+  it('STATE-01: the gate view gives no second account of the missing scenarios', () => {
+    render(<EvalHarnessScreen screenState="STATE-01" />)
+    const gate = screen.getByRole('region', { name: /Gate view/i }).textContent ?? ''
+    for (const s of EVAL_SCENARIOS) {
+      expect(gate, s.id).not.toContain(s.id)
+    }
+    expect(gate).not.toMatch(/cannot be read/i)
+  })
+
   it('STATE-02 renders a placeholder, never the number nought', () => {
     render(<EvalHarnessScreen screenState="STATE-02" />)
     const posture = screen.getByRole('region', { name: /Harness posture/i })

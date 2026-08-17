@@ -216,6 +216,27 @@ export function EvalHarnessScreen({
     // nothing in it is not reported as the number nought.
   ].filter((entry): entry is [string, number] => typeof entry[1] === 'number' && entry[1] > 0)
 
+  // The gate view reads the SAME scenario records as the list and the
+  // aggregate. A capability reaches this blocking list because a scenario
+  // blocks it, so a blocked row exists exactly while its blocking scenario
+  // does: with none authored (STATE-01) the list names none, rather than
+  // giving a second account of records the list says were never authored.
+  const gateRows = EVAL_GATE_ROWS.flatMap((row) => {
+    const blocker = row.blockedBy === null ? null : scenarios.find((s) => s.id === row.blockedBy)
+    if (blocker === undefined) return []
+    return [
+      {
+        capability: row.capability,
+        kind: row.kind,
+        blocked:
+          blocker === null
+            ? 'Nothing blocks it. Enablement is submitted and approved in the Atom Registry, and is not offered on this screen.'
+            : `${blocker.name} — ${effectiveVerdict(blocker, screenState)}`,
+        source: row.sourceRef,
+      },
+    ]
+  })
+
   const displayedRun: EvalRunState | null =
     submittedRun ?? (screenState === 'STATE-09' ? 'queued' : null)
   const runTargetLabel = scenarios.find((s) => s.id === runTarget)?.name ?? 'the whole suite'
@@ -426,26 +447,16 @@ export function EvalHarnessScreen({
             { key: 'blocked', header: 'Blocked by' },
             { key: 'source', header: 'Source' },
           ]}
+          // Same records, same fetch: while the scenario list is still
+          // loading, the blocking list cannot already have read them.
+          loading={screenState === 'STATE-02'}
           {...(harness === 'unavailable'
             ? {
                 error:
                   'The gate view could not be read in this state. Nothing is treated as unblocked while it cannot be read.',
               }
             : {})}
-          rows={EVAL_GATE_ROWS.map((row) => {
-            const blocker = scenarios.find((s) => s.id === row.blockedBy)
-            return {
-              capability: row.capability,
-              kind: row.kind,
-              blocked:
-                row.blockedBy === null
-                  ? 'Nothing blocks it. Enablement is submitted and approved in the Atom Registry, and is not offered on this screen.'
-                  : blocker === undefined
-                    ? `${row.blockedBy} — the blocking scenario cannot be read in this state, and nothing is treated as unblocked while it cannot be read.`
-                    : `${blocker.name} — ${effectiveVerdict(blocker, screenState)}`,
-              source: row.sourceRef,
-            }
-          })}
+          rows={gateRows}
           emptyState={{
             title: 'No capability is currently held by the gate',
             whatCreatesIt: 'A pending or failing scenario places a capability on this list.',
