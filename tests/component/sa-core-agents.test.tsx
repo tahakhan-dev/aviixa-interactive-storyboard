@@ -10,19 +10,8 @@ import {
   CONSOLE_ROLES,
 } from '../../app/super-admin/core-agents-and-composed-agent-review/CoreAgentsScreen'
 
-/**
- * D10's four forbidden words. The `signed` arm needs a word boundary AND an
- * explicit "signed in"/"signed-in" exclusion, and this is not cosmetic: the
- * SHARED spine copy in `@/policy/decision.ts` REASON_CODES says "The
- * signed-in role does not carry a grant for this action." (L161), "No one is
- * signed in on this surface..." (L157) and "...the signed-in person is scoped
- * to." (L165). Every module that renders a genuine `evaluateAccess` denial —
- * which the per-module contract requires of all nineteen — puts one of those
- * strings on screen. A bare `/signed/i` substring gate therefore fires on the
- * spine's own denial copy, on a phrase that makes no claim about the audit
- * log at all. See the finding reported with this module.
- */
-const FORBIDDEN_WORDS = /tamper-evident|\bchained\b|\bsigned\b(?![- ]in)|\bverified\b/i
+/** D10's four forbidden words. No carve-outs: "signed-in" is also forbidden. */
+const FORBIDDEN_WORDS = /tamper-evident|chained|signed|verified/i
 
 function selectRole(roleId: string) {
   fireEvent.change(screen.getByLabelText(/viewing as/i), { target: { value: roleId } })
@@ -246,11 +235,15 @@ describe('MOD-SA-03 — Core Agents and Composed-Agent Review', () => {
     expect(screen.getByTestId('aggregate-scope').textContent ?? '').toMatch(/tenant-month/i)
   })
 
-  it('uses none of the four forbidden words anywhere in its copy', () => {
+  it('uses none of the four forbidden words anywhere in its copy, for any role in any state', () => {
     const { container } = render(<CoreAgentsScreen />)
-    for (const stateId of APPLICABLE_STATES) {
-      selectState(stateId)
-      expect(container.textContent ?? '', stateId).not.toMatch(FORBIDDEN_WORDS)
+    for (const role of CONSOLE_ROLES) {
+      selectRole(role.id)
+      for (const stateId of APPLICABLE_STATES) {
+        selectState(stateId)
+        const hit = FORBIDDEN_WORDS.exec(container.textContent ?? '')
+        expect(hit?.[0], `${role.id}/${stateId} rendered "${hit?.[0] ?? ''}"`).toBeUndefined()
+      }
     }
   })
 
