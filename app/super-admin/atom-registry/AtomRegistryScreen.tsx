@@ -388,10 +388,16 @@ const AS_OF_CURRENT = '2026-08-16 09:15 UTC'
 const AS_OF_STALE = '2026-08-15 07:45 UTC'
 const STALE_AGE = '26 hours old'
 
-type AggregateVariant = 'current' | 'stale' | 'not-yet-read' | 'unavailable'
+type AggregateVariant = 'current' | 'stale' | 'not-yet-read' | 'unavailable' | 'empty'
 
 function aggregateVariant(state: ScreenStateId): AggregateVariant {
   switch (state) {
+    // STATE-01 says the registry holds nothing. The aggregate reads the same
+    // registry the table reads, so it must say the same thing: a count of the
+    // fixture rows here would assert a populated registry and an empty one on
+    // one screen. Stated in words, never as the number nought.
+    case 'STATE-01':
+      return 'empty'
     case 'STATE-02':
       return 'not-yet-read'
     case 'STATE-08':
@@ -418,6 +424,11 @@ function RegistryAggregate({ variant }: { readonly variant: AggregateVariant }) 
         <p className="mt-2 text-sm">
           Not yet read — the count has not arrived. A count that has not arrived is a placeholder, never
           the number nought.
+        </p>
+      ) : variant === 'empty' ? (
+        <p className="mt-2 text-sm">
+          No atoms are registered yet — as of {AS_OF_CURRENT} (fixture value). A backend migration
+          registers an atom.
         </p>
       ) : variant === 'unavailable' ? (
         <p className="mt-2 text-sm">
@@ -560,6 +571,15 @@ export function AtomRegistryScreen({
   // and it binds every account including the root.
   const enablementOffered = selected.evalVerdict === 'passing'
 
+  // A receipt is true of exactly one role, one atom and one screen state. Any
+  // of the three switchers moves the reader into a context the receipt does not
+  // describe — including one where the source states the action does not exist
+  // at all — so the receipt is dropped rather than carried across.
+  function selectAtom(id: string) {
+    setSelectedAtomId(id)
+    setReceipt(null)
+  }
+
   function submit(label: string) {
     setReceipt(
       `${label}: Submitted for Admin approval — request PLT-CHG-FIXTURE-0417. Nothing has taken effect; the request sits in the approval queue (MOD-SA-08).`,
@@ -572,7 +592,7 @@ export function AtomRegistryScreen({
     verdict: a.evalVerdict,
     migration: a.migrationRef,
     open: (
-      <Button variant="secondary" onClick={() => setSelectedAtomId(a.id)}>
+      <Button variant="secondary" onClick={() => selectAtom(a.id)}>
         {`Open ${a.id}`}
       </Button>
     ),
@@ -593,7 +613,10 @@ export function AtomRegistryScreen({
           options={CONSOLE_ROLES.map((r) => ({ value: r.token, label: `${r.label} — ${r.token}` }))}
           onChange={(v) => {
             const next = CONSOLE_ROLES.find((r) => r.token === v)
-            if (next) setRoleToken(next.token)
+            if (next) {
+              setRoleToken(next.token)
+              setReceipt(null)
+            }
           }}
         />
         <Select
@@ -602,7 +625,10 @@ export function AtomRegistryScreen({
           options={APPLICABLE_SCREEN_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
           onChange={(v) => {
             const next = APPLICABLE_SCREEN_STATES.find((s) => s.id === v)
-            if (next) setScreenStateId(next.id)
+            if (next) {
+              setScreenStateId(next.id)
+              setReceipt(null)
+            }
           }}
         />
       </section>
@@ -622,9 +648,9 @@ export function AtomRegistryScreen({
             permittedFormat: 'Platform-wide, or one named tenant.',
             decision: {
               // The verdict comes from `evaluateAccess`; only the wording is
-              // this screen's, because the shared reason-code copy speaks of
-              // being "signed in" and that word is banned in SURF-SA copy
-              // (D10). Nothing about the outcome, stage or refs is rewritten.
+              // this screen's, because STATE-05 must name the role that DOES
+              // carry the action and the shared reason code cannot know it.
+              // Nothing about the outcome, stage or refs is rewritten.
               ...decisionFor(SUBMIT_PLATFORM_ENABLEMENT, 'SUPPORT'),
               explanation:
                 'This console role does not carry the enablement action. The Platform Engineer submits an enablement change and the Admin approves it (L43158, L65490).',

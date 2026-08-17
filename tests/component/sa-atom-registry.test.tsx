@@ -235,6 +235,25 @@ describe('MOD-SA-02 — the registry aggregate', () => {
     },
   )
 
+  // STATE-01 says the registry holds nothing; the aggregate reads the same
+  // registry. A count of the fixture rows beside the empty state asserts a
+  // populated registry and an empty one on one screen. The loop above cannot
+  // catch it: `7 atoms · as of …` satisfies every clause of it.
+  it('STATE-01: the aggregate says the same thing the empty state says — no count, and no number nought', () => {
+    renderAs(ROOT, 'STATE-01')
+    const region = screen.getByRole('region', { name: /registry aggregate/i })
+    const text = region.textContent ?? ''
+    expect(text).toMatch(/No atoms are registered yet/i)
+    expect(text).toMatch(/as of/i)
+    expect(text).not.toMatch(/\b\d+ atoms\b/)
+    // The per-state breakdown asserts populated rows just as loudly as a total.
+    for (const atom of ATOM_FIXTURES) {
+      expect(text, atom.state).not.toMatch(new RegExp(`${atom.state}: \\d`, 'i'))
+    }
+    // ...and the empty state itself still renders, so this is agreement, not silence.
+    expect(screen.getByText(/No interface path creates one, for any account/i)).toBeDefined()
+  })
+
   it('degrades to stale-with-age under STATE-08 and to unavailable under STATE-12', () => {
     const stale = renderAs(ROOT, 'STATE-08')
     expect(
@@ -293,6 +312,44 @@ describe('MOD-SA-02 — submission never reads as application', () => {
     expect(message).toMatch(/Submitted for Admin approval/i)
     expect(message).toMatch(/[A-Z]+-[A-Z]+-FIXTURE-\d+/)
     expect(message).not.toMatch(/\bapplied\b|\bsaved\b/i)
+  })
+
+  // A receipt is true of one role, one atom and one screen state. Carried
+  // across a switcher it becomes a claim about a context that never produced
+  // it — at worst a submission receipt sitting beside the very notice saying
+  // the control is offered to nobody in this state.
+  function submitAs(token: SaConsoleRoleToken) {
+    renderAs(token)
+    fireEvent.click(screen.getByRole('button', { name: 'Submit platform enablement change' }))
+    expect(screen.getByRole('status').textContent ?? '').toMatch(/Submitted for Admin approval/i)
+  }
+
+  it('drops the receipt when the console role changes', () => {
+    submitAs(ENG)
+    fireEvent.change(screen.getByLabelText(/Console role/i), { target: { value: SUP } })
+    expect(screen.queryAllByRole('status')).toHaveLength(0)
+    // The role that cannot submit is not shown a receipt for a submission.
+    expect(screen.queryByText(/Submitted for Admin approval/i)).toBeNull()
+  })
+
+  it('drops the receipt when another atom is opened', () => {
+    submitAs(ENG)
+    fireEvent.click(screen.getByRole('button', { name: `Open ${FAILING_ATOM?.id ?? ''}` }))
+    // The gate's ABSENT notice and a submission receipt may never share a view.
+    expect(screen.getByText(/not offered at all while a scenario/i)).toBeDefined()
+    expect(screen.queryAllByRole('status')).toHaveLength(0)
+    expect(screen.queryByText(/Submitted for Admin approval/i)).toBeNull()
+  })
+
+  it('drops the receipt when the screen state changes', () => {
+    submitAs(ENG)
+    fireEvent.change(screen.getByLabelText(/Screen state/i), { target: { value: 'STATE-06' } })
+    // STATE-06 draws its own role="status" read-only banner, so the receipt is
+    // read out by its copy: one banner, one cause, and no stale receipt beside it.
+    for (const status of screen.queryAllByRole('status')) {
+      expect(status.textContent ?? '').not.toMatch(/Submitted for Admin approval/i)
+    }
+    expect(screen.queryByText(/Submitted for Admin approval/i)).toBeNull()
   })
 })
 
