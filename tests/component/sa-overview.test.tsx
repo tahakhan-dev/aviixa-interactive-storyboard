@@ -4,6 +4,7 @@ import { OverviewScreen } from '../../app/super-admin/platform-overview-and-heal
 import {
   AGGREGATES,
   INCIDENTS,
+  MODULE_STATE_NOTES,
   PLATFORM_ROLES,
 } from '../../app/super-admin/platform-overview-and-health/fixtures'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
@@ -81,6 +82,24 @@ describe('MOD-SA-01 — AC-SA-01-01 and AC-SA-01-03, the eight aggregate element
     expect(text).toMatch(/reconciled/i)
   })
 
+  it('counts incidents from the same records the incident list reads', () => {
+    render(<OverviewScreen />)
+    // Widened deliberately: the fixture's literal types happen to exclude
+    // 'closed' today, and comparing against it directly would be a type
+    // error rather than the assertion this test means to make.
+    const states: readonly string[] = INCIDENTS.map((i) => i.state)
+    const open = states.filter((s) => s !== 'closed').length
+    expect(aggregatesRegion().textContent).toContain(`${open} platform incidents not yet closed`)
+    selectRole('ROLE-PLAT-ROOT')
+    fireEvent.click(within(incidentCard('INC-PLT-02')).getByRole('button', { name: /close/i }))
+    expect(aggregatesRegion().textContent).toContain(
+      `${open - 1} platform incidents not yet closed`,
+    )
+    expect(aggregatesRegion().textContent).not.toContain(
+      `${open} platform incidents not yet closed`,
+    )
+  })
+
   it('renders no rate and no measure below tenant-month anywhere on the screen', () => {
     const { container } = render(<OverviewScreen />)
     const text = container.textContent ?? ''
@@ -103,13 +122,20 @@ describe('MOD-SA-01 — the four platform roles', () => {
     }
   })
 
-  it('shows Support the incident record and refuses the close control with a named reason', () => {
+  it('shows Support the incident record and draws NO close control at all, on any incident', () => {
     render(<OverviewScreen />)
     selectRole('ROLE-PLAT-SUP')
-    const card = incidentCard('INC-PLT-02')
-    const button = within(card).getByRole('button', { name: /close incident/i })
-    expect(button.getAttribute('aria-disabled')).toBe('true')
-    expect(card.textContent).toMatch(/Support holds no incident ownership/i)
+    for (const incident of INCIDENTS) {
+      const card = incidentCard(incident.id)
+      // ABSENT, not disabled: no control, inert or otherwise, and no
+      // aria-disabled element standing in for one.
+      expect(within(card).queryByRole('button'), incident.id).toBeNull()
+      expect(card.querySelector('[aria-disabled]'), incident.id).toBeNull()
+      expect(card.textContent, incident.id).toMatch(/No close control is drawn here for Support/i)
+      expect(card.textContent, incident.id).toMatch(
+        /a disabled control would imply an enabled state exists somewhere for this role/i,
+      )
+    }
   })
 
   it('offers the close control to root, Admin and Platform Engineer when the record permits it', () => {
@@ -178,12 +204,67 @@ describe('MOD-SA-01 — the twelve applicable screen states', () => {
   })
 
   it('renders a named treatment for each of the twelve', () => {
+    // One marker per state, taken from the TREATMENT the screen draws for
+    // it — never from the shared SCREEN_STATES contract paragraph and never
+    // from MODULE_STATE_NOTES, both of which are asserted separately below.
+    // Deleting either the note or the treatment must fail this test.
+    const treatmentMarker: Record<string, RegExp> = {
+      'STATE-01': /There are no platform incidents yet/i,
+      'STATE-02': /Loading the platform aggregates/i,
+      'STATE-03': /the success rendering/i,
+      'STATE-04': /Verification checklist is not accepted/i,
+      'STATE-05': /holds the incident close, so no refusal renders/i,
+      'STATE-06': /the one write this screen has, is disabled/i,
+      'STATE-08': /42 minutes old/i,
+      'STATE-09': /enters the queued state/i,
+      'STATE-10': /Rendered in the agent-health panel below/i,
+      'STATE-11': /Rendered in the agent-health panel below/i,
+      'STATE-12': /Nothing was written/i,
+      'STATE-13': /two of three dependent views recomputed/i,
+    }
     render(<OverviewScreen />)
-    for (const state of SCREEN_STATES.filter((s) => !s.frontlineOnly)) {
+    const applicable = SCREEN_STATES.filter((s) => !s.frontlineOnly)
+    expect(applicable).toHaveLength(12)
+    for (const state of applicable) {
       selectState(state.id)
-      const region = screen.getByRole('region', { name: 'Screen state' })
-      expect(region.textContent, state.id).toContain(state.id)
-      expect((region.textContent ?? '').length, state.id).toBeGreaterThan(state.id.length + 20)
+      const text = screen.getByRole('region', { name: 'Screen state' }).textContent ?? ''
+      expect(text, state.id).toContain(state.id)
+      // The module-specific sentence, verbatim — not a length floor the
+      // shared header satisfies on its own.
+      expect(text, state.id).toContain(MODULE_STATE_NOTES[state.id])
+      const marker = treatmentMarker[state.id]
+      if (marker === undefined) {
+        throw new Error(`no treatment marker declared for ${state.id}`)
+      }
+      expect(text, state.id).toMatch(marker)
+    }
+  })
+
+  it('names the refusal in the STATE-05 treatment for a role without incident ownership', () => {
+    render(<OverviewScreen />)
+    selectRole('ROLE-PLAT-SUP')
+    selectState('STATE-05')
+    const text = screen.getByRole('region', { name: 'Screen state' }).textContent ?? ''
+    expect(text).toMatch(/does not carry a grant for this action/i)
+  })
+
+  it('STATE-06 and STATE-12 stop the one write this screen has, with the cause named', () => {
+    render(<OverviewScreen />)
+    selectRole('ROLE-PLAT-ROOT')
+    for (const [stateId, cause] of [
+      ['STATE-06', /every input on this module is disabled/i],
+      ['STATE-12', /Nothing can be submitted while the platform audit write is failing/i],
+      ['STATE-13', /cannot close while any dependent view is behind/i],
+    ] as const) {
+      selectState(stateId)
+      // INC-PLT-02 is the record that is otherwise closeable: nothing about
+      // the record blocks it, so only the screen state can.
+      const card = incidentCard('INC-PLT-02')
+      const button = within(card).getByRole('button', { name: /close incident/i })
+      expect(button.getAttribute('aria-disabled'), stateId).toBe('true')
+      expect(card.textContent, stateId).toMatch(cause)
+      fireEvent.click(button)
+      expect(incidentCard('INC-PLT-02').textContent, stateId).not.toMatch(/same transaction/i)
     }
   })
 

@@ -26,6 +26,7 @@ import {
   CONNECTIVITY_LADDER,
   INCIDENTS,
   INCIDENT_STATES,
+  MODULE_STATE_NOTES,
   PLATFORM_ROLES,
   UNSPECIFIED_IN_SOURCE,
   type AggregateElement,
@@ -117,9 +118,20 @@ function filterDecision(roleId: RoleId): PermissionDecision {
 }
 
 /** L90767 / AC-4883: what still blocks the close, in the order the source
- *  puts it — reconciliation first, then positive evidence for every
- *  checklist item. `null` means nothing blocks it. */
-function closeBlocker(incident: PlatformIncident): string | null {
+ *  puts it — the screen state first, because STATE-06 disables every input
+ *  and STATE-12 lets nothing be submitted, then reconciliation, then
+ *  positive evidence for every checklist item. `null` means nothing blocks
+ *  it. */
+function closeBlocker(incident: PlatformIncident, stateId: ScreenStateId): string | null {
+  if (stateId === 'STATE-06') {
+    return 'Read-only: every input on this module is disabled while STATE-06 holds, the incident close included.'
+  }
+  if (stateId === 'STATE-12') {
+    return 'Nothing can be submitted while the platform audit write is failing. The close and its audit record commit in one transaction, so a close that could not be audited does not happen at all (FB-SA-03).'
+  }
+  if (stateId === 'STATE-13') {
+    return 'Re-aggregation after the telemetry gap is still running. An incident cannot close while any dependent view is behind (STATE-13).'
+  }
   if (incident.reconciliationOutstanding !== null) {
     return `Disabled while a reconciliation item is outstanding: ${incident.reconciliationOutstanding} (L90758, L90767).`
   }
@@ -130,6 +142,19 @@ function closeBlocker(incident: PlatformIncident): string | null {
       .join(', ')} (AC-4880, AC-4883).`
   }
   return null
+}
+
+/** The incident-count tile reads the SAME records the incident list below
+ *  reads. Closing one on this screen must not leave a count above it saying
+ *  otherwise — an aggregate over records the screen says are closed is a
+ *  contradiction. Never a zero: the empty case is a sentence (AC-SA-01-03). */
+function openIncidentsMeasure(count: number): string {
+  if (count === 0) {
+    return 'No platform incident is open. Every incident on this screen is closed.'
+  }
+  return count === 1
+    ? '1 platform incident not yet closed'
+    : `${count} platform incidents not yet closed`
 }
 
 function AggregateTile({ element }: { readonly element: AggregateElement }) {
@@ -225,7 +250,7 @@ export function OverviewScreen() {
           {definition.contract}
         </p>
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          On this module: {MODULE_STATE_NOTE[stateId]}
+          On this module: {MODULE_STATE_NOTES[stateId]}
         </p>
         <div className="mt-3">{stateTreatment(stateId, role.roleId, role.name)}</div>
       </section>
@@ -235,11 +260,24 @@ export function OverviewScreen() {
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
           Eight aggregate elements (AC-SA-01-01, L43068). Each carries an as-of stamp; a degraded
           one renders stale with its age, a wholly unavailable one renders unavailable, and
-          neither ever renders as zero or blank (AC-SA-01-03, FB-SA-01).
+          neither ever renders as zero or blank (AC-SA-01-03, FB-SA-01). The incident count reads
+          the same records as the incident list below, so closing one here moves both.
         </p>
         <ul className="mt-3 grid gap-3 sm:grid-cols-2">
           {AGGREGATES.map((a) => (
-            <AggregateTile key={a.id} element={a} />
+            <AggregateTile
+              key={a.id}
+              element={
+                a.id === 'AGG-OPEN-INCIDENTS'
+                  ? {
+                      ...a,
+                      value: openIncidentsMeasure(
+                        incidents.filter((i) => i.state !== 'closed').length,
+                      ),
+                    }
+                  : a
+              }
+            />
           ))}
         </ul>
         <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
@@ -389,6 +427,7 @@ export function OverviewScreen() {
                 incident={incident}
                 roleId={role.roleId}
                 roleName={role.name}
+                stateId={stateId}
                 onClose={close}
               />
             ))
@@ -450,15 +489,17 @@ function IncidentCard({
   incident,
   roleId,
   roleName,
+  stateId,
   onClose,
 }: {
   readonly incident: PlatformIncident
   readonly roleId: RoleId
   readonly roleName: string
+  readonly stateId: ScreenStateId
   readonly onClose: (id: string) => void
 }) {
   const decision = decisionFor(roleId, incident)
-  const blocker = closeBlocker(incident)
+  const blocker = closeBlocker(incident, stateId)
 
   return (
     <article
@@ -520,11 +561,17 @@ function IncidentCard({
             incident.
           </p>
         ) : decision.outcome !== 'allowed' ? (
-          <Button
-            disabledReason={`${decision.explanation} Incident close is held by the Root Super Admin, Admin and Platform Engineer; Support holds no incident ownership on this console (L42715). Viewing as ${roleName}.`}
-          >
-            Close incident
-          </Button>
+          // ABSENT, by rule, not by taste (spec §3). A role the evaluator
+          // refuses on the ROLE test holds no incident ownership anywhere in
+          // the source, so no control is drawn — a disabled control would
+          // imply an enabled state exists somewhere for this role, and the
+          // build map records this exact control as absent for Support.
+          <ProhibitionNotice
+            rendering={{
+              kind: 'absent',
+              note: `No close control is drawn here for ${roleName}. ${decision.explanation} Incident ownership on this console is held by the Root Super Admin, Admin and Platform Engineer alone, and Support holds none anywhere in the source (L42715) — so nothing is drawn, not a disabled control, because a disabled control would imply an enabled state exists somewhere for this role.`,
+            }}
+          />
         ) : blocker !== null ? (
           <Button disabledReason={blocker}>Close incident</Button>
         ) : (
@@ -533,34 +580,6 @@ function IncidentCard({
       </div>
     </article>
   )
-}
-
-/** One honest sentence per applicable screen state, saying what on THIS
- *  module reaches it. STATE-07 is frontline-only and is not offered. */
-const MODULE_STATE_NOTE: Record<ScreenStateId, string> = {
-  'STATE-01':
-    'the incident list, when no platform incident is open. No control on this console creates one — a detector, a protocol timer, an invariant alert or a tenant report does.',
-  'STATE-02':
-    'the aggregates and the incident list while they are being fetched. A count that has not arrived renders as a placeholder, never as the number nought.',
-  'STATE-03':
-    'the aggregates and incidents below, each carrying the as-of stamp that says when it was true.',
-  'STATE-04':
-    'a close refused because the verification checklist is not complete with positive evidence for every item.',
-  'STATE-05': 'a role without incident ownership meeting the close control.',
-  'STATE-06':
-    'the whole module for Support, which holds read on both bands and no incident ownership.',
-  'STATE-07': 'nothing. Only the Frontline Worker Application has a true offline state.',
-  'STATE-08':
-    'a degraded aggregate, served last-known-good and stamped stale with its age (FB-SA-01).',
-  'STATE-09':
-    'nothing. This module issues no device command, and its only write — an incident close — commits with its audit record in one transaction, so it is never rendered as queued.',
-  'STATE-10': 'the agent-health panel, while agent quality is degraded.',
-  'STATE-11':
-    'the agent-health panel, with every artificial-intelligence model unavailable. The module stays operable and the emergency pause stays exercisable (AC-SA-000-09).',
-  'STATE-12':
-    'a platform audit write that failed. FB-SA-03: the action does not happen — the incident is unchanged.',
-  'STATE-13':
-    're-aggregation after a telemetry gap. An incident cannot close while any dependent view is behind.',
 }
 
 function stateTreatment(stateId: ScreenStateId, roleId: RoleId, roleName: string) {
@@ -623,8 +642,8 @@ function stateTreatment(stateId: ScreenStateId, roleId: RoleId, roleName: string
           detail={{
             readOnlyCause:
               roleId === 'SUPPORT'
-                ? 'Support holds read on both bands and no incident ownership on this console (L42715).'
-                : 'Everything on this module but the incident close is a computed read; nothing here writes into a tenant.',
+                ? 'Support holds read on both bands and no incident ownership on this console (L42715), and no close control is drawn for it in any state.'
+                : 'The module is read-only: the incident close, the one write this screen has, is disabled with that cause named on every incident record. Nothing else here writes at all.',
           }}
         />
       )

@@ -1,4 +1,5 @@
 import type { RoleId } from '@/domain/roles'
+import type { ScreenStateId } from '@/ui/screen-state'
 
 /**
  * MOD-SA-01 seeded fixture data. Spec §8: no backend — every value below is
@@ -282,3 +283,37 @@ export const UNSPECIFIED_IN_SOURCE = [
   'Export the overview. No export affordance is defined for this module, and no dashboard is accepted as audit evidence anywhere (AC-4803, L107299).',
   'Recovery Time Objective (DEC-RTO-001) and agent-output display (DEC-AIOUT-001) are open client decisions referenced on this module (L60828, L60856). Nothing is rendered for either.',
 ] as const
+
+/**
+ * One honest sentence per applicable screen state, saying what on THIS
+ * module reaches it. STATE-07 is frontline-only and is not offered.
+ *
+ * Lives here, beside the other fixture data, so `tests/component/sa-overview.test.tsx`
+ * can assert that the module-specific sentence — not just the shared
+ * `SCREEN_STATES` contract paragraph — actually renders for every state.
+ */
+export const MODULE_STATE_NOTES: Record<ScreenStateId, string> = {
+  'STATE-01':
+    'the incident list, when no platform incident is open. No control on this console creates one — a detector, a protocol timer, an invariant alert or a tenant report does.',
+  'STATE-02':
+    'the aggregates and the incident list while they are being fetched. A count that has not arrived renders as a placeholder, never as the number nought.',
+  'STATE-03':
+    'the aggregates and incidents below, each carrying the as-of stamp that says when it was true.',
+  'STATE-04':
+    'a close refused because the verification checklist is not complete with positive evidence for every item.',
+  'STATE-05': 'a role without incident ownership meeting the close control.',
+  'STATE-06':
+    'the whole module, whose only write is the incident close. Every input is disabled while the module is read-only, and Support reads it this way in every state.',
+  'STATE-07': 'nothing. Only the Frontline Worker Application has a true offline state.',
+  'STATE-08':
+    'a degraded aggregate, served last-known-good and stamped stale with its age (FB-SA-01).',
+  'STATE-09':
+    'nothing. This module issues no device command, and its only write — an incident close — commits with its audit record in one transaction, so it is never rendered as queued.',
+  'STATE-10': 'the agent-health panel, while agent quality is degraded.',
+  'STATE-11':
+    'the agent-health panel, with every artificial-intelligence model unavailable. The module stays operable and the emergency pause stays exercisable (AC-SA-000-09).',
+  'STATE-12':
+    'a platform audit write that failed. FB-SA-03: the action does not happen — the incident is unchanged, and nothing can be submitted while the state holds.',
+  'STATE-13':
+    're-aggregation after a telemetry gap. An incident cannot close while any dependent view is behind.',
+}
