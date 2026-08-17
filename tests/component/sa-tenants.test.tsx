@@ -344,22 +344,35 @@ describe('MOD-SA-09 — the no-link rule and the command channel', () => {
     // "next state in the sequence" prediction beside it.
     const claim = () => within(channel()).getByRole('note').textContent ?? ''
 
+    // The two facts the note renders, each read by the word that carries its
+    // POLARITY, never by an incidental determiner: a claim that swapped
+    // "the lock is not rendered as having taken effect" for "the lock is
+    // rendered as having taken effect" must be caught, not waved through
+    // because it still says "the device" rather than "that device".
+    const denial = /\block is not rendered as having taken effect\b/i
+    const mention = /\bhaving taken effect\b/i
+    const claimsEffect = () => mention.test(claim()) && !denial.test(claim())
+    const claimsAck = () => !/\bhas not acknowledged this command\b/i.test(claim())
+
     // Every state in the sequence, not just the terminal one: at each step the
     // command's own true state is named, and the console claims the lock took
     // effect on the device only from `acknowledged` onward.
     for (const [i, state] of SUSPENSION_COMMAND_SEQUENCE.entries()) {
       expect(claim(), state).toMatch(new RegExp(state))
+      // The note always speaks to whether the lock took effect; it never goes
+      // silent on the question and leaves the badge to be read as the answer.
+      expect(claim(), state).toMatch(mention)
+      expect(claimsEffect(), `${state}: took-effect claim`).toBe(i >= ackIndex)
+      expect(claimsAck(), `${state}: acknowledgement claim`).toBe(i >= ackIndex)
+      // The note's two renderings of one fact may not contradict each other:
+      // an unacknowledged command may not also be drawn as having landed.
+      expect(claimsEffect(), `${state}: note contradicts itself`).toBe(claimsAck())
       if (i < ackIndex) {
-        expect(claim(), state).toMatch(/has not acknowledged this command/i)
-        expect(claim(), state).not.toMatch(/having taken effect on that device/i)
         // `applied` is a state the command reached, never evidence about the
         // device: it may not appear in the claim before the sequence gets there.
         if (i < SUSPENSION_COMMAND_SEQUENCE.indexOf('applied')) {
           expect(claim(), state).not.toMatch(/applied/)
         }
-      } else {
-        expect(claim(), state).toMatch(/has acknowledged this command/i)
-        expect(claim(), state).toMatch(/having taken effect on that device/i)
       }
       if (i < SUSPENSION_COMMAND_SEQUENCE.length - 1) fireEvent.click(step())
     }
