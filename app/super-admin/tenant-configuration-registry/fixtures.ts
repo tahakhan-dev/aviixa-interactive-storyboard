@@ -372,10 +372,14 @@ export function validateWrite(
       statement: `Rejected at the point of entry. ${setting.name} is bounded at ${setting.bound.statement}; ${trimmed} ${setting.bound.unit} falls outside it. ${NOT_STORED}`,
     }
   }
+  // The statement is the BOUND CHECK only. Whether the write then applies or
+  // merely enters an approval cycle belongs to the write class, not to the
+  // validator — a maker-checker change that reads "Accepted" would be a
+  // queued action rendered as a completed one (STATE-09).
   return {
     kind: 'accepted',
     value,
-    statement: `Accepted. ${trimmed} ${setting.bound.unit} is inside the bound of ${setting.bound.statement}.`,
+    statement: `${trimmed} ${setting.bound.unit} is inside the bound of ${setting.bound.statement}.`,
   }
 }
 
@@ -636,6 +640,14 @@ export const REGISTRY_WORKFLOWS = [
 /* ------------------------------------------------------------------ *
  * Aggregate framing. Fixture strings — nothing here reads a clock.
  * ------------------------------------------------------------------ */
+
+/**
+ * STATE-13. One string, used by the recovery banner AND by every aggregate
+ * that degrades in that state, so the banner can never say "two of nine
+ * re-read" while a panel below it reports all nine as current.
+ */
+export const REGISTRY_RECOVERY_NOTE =
+  'Two settings of nine have been re-read so far. Nothing is presented as conforming until every setting has been re-read against its bound.'
 
 export const REGISTRY_TENANT_LABEL = 'TEN-BRIGHTBIKES'
 export const REGISTRY_AS_OF = 'as of 2026-08-17 08:00 UTC'

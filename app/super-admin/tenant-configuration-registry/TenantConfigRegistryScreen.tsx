@@ -35,6 +35,7 @@ import {
   REGISTRY_ENTRY_STATES,
   REGISTRY_ORIGIN,
   REGISTRY_PLATFORM_ROLES,
+  REGISTRY_RECOVERY_NOTE,
   REGISTRY_SOURCE_CONFLICTS,
   REGISTRY_STALE_AS_OF,
   REGISTRY_TENANT_LABEL,
@@ -70,13 +71,17 @@ function writeMode(state: ScreenStateId): WriteMode {
 }
 
 /** AC-SA-01-03: as-of always; stale-with-age or unavailable; never zero, never blank. */
-type AggregateMode = 'current' | 'stale' | 'unavailable' | 'loading' | 'empty'
+type AggregateMode = 'current' | 'stale' | 'unavailable' | 'loading' | 'empty' | 'recovering'
 
 function aggregateMode(state: ScreenStateId): AggregateMode {
   if (state === 'STATE-01') return 'empty'
   if (state === 'STATE-02') return 'loading'
   if (state === 'STATE-08') return 'stale'
   if (state === 'STATE-12') return 'unavailable'
+  // STATE-13 neverDo: never show a recovering system as fully recovered. The
+  // conformance figures are re-derived setting by setting, so no count and no
+  // current as-of is presented until the re-read finishes.
+  if (state === 'STATE-13') return 'recovering'
   return 'current'
 }
 
@@ -287,7 +292,7 @@ export function TenantConfigRegistryScreen({
           <Banner
             tone="info"
             heading="Recovering"
-            body="The floor register is readable again and a per-tenant conformance report is being re-derived across the governed settings. Two settings of nine have been re-read so far. Nothing is presented as conforming until every setting has been re-read against its bound."
+            body={`The floor register is readable again and a per-tenant conformance report is being re-derived across the governed settings. ${REGISTRY_RECOVERY_NOTE}`}
           />
         </div>
       ) : null}
@@ -334,6 +339,12 @@ export function TenantConfigRegistryScreen({
           <p className="mt-2 max-w-prose text-sm">
             Unavailable — the registry conformance summary could not be read in this state. An
             aggregate that could not be read is never rendered as a count, and never left blank.
+          </p>
+        ) : mode === 'recovering' ? (
+          <p className="mt-2 max-w-prose text-sm">
+            Recovering — no conformance count is presented yet. {REGISTRY_RECOVERY_NOTE} A count
+            rendered now would report a recovering registry as fully recovered, and the as-of stamp
+            attached to it would claim a currency it does not have.
           </p>
         ) : mode === 'empty' ? (
           <p className="mt-2 max-w-prose text-sm">
@@ -407,6 +418,13 @@ export function TenantConfigRegistryScreen({
             }}
           />
         </div>
+        {mode === 'recovering' ? (
+          <p className="mt-2 max-w-prose text-sm">
+            The three values above are the stored registry entries and read normally. The entry
+            state beside each one is a conformance derivation: while the re-read is in progress it
+            is the state derived before the failure, not a current one. {REGISTRY_RECOVERY_NOTE}
+          </p>
+        ) : null}
       </Section>
 
       <Section id="sa19-classes" heading="Three write classes, three approval routes">
@@ -516,14 +534,41 @@ export function TenantConfigRegistryScreen({
           </p>
         ) : null}
 
-        {outcome?.kind === 'accepted' ? (
+        {outcome?.kind === 'accepted' && writeClass.id === 'current-value' ? (
           <div role="status" aria-label="Write outcome" className="mt-3 max-w-prose text-sm">
             <StatusPill tone="ok" icon="•" label={`${writeClass.changeClass} write accepted`} />
-            <p className="mt-2">{outcome.statement}</p>
+            <p className="mt-2">Accepted, and applied on acceptance. {outcome.statement}</p>
             <p className="mt-2">
-              {writeClass.id === 'current-value'
-                ? 'It commits with its audit event in the same transaction: no code path exists where the change commits and its audit event does not, and an audit write that cannot commit refuses the action outright (AC-SA-18-01, FB-SA-03, L46191).'
-                : `${writeClass.changeClass}: ${writeClass.approvalRoute} The audit event for the approval is written in the same transaction as the approval itself.`}
+              It commits with its audit event in the same transaction: no code path exists where the
+              change commits and its audit event does not, and an audit write that cannot commit
+              refuses the action outright (AC-SA-18-01, FB-SA-03, L46191).
+            </p>
+            <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
+              In this storyboard nothing was stored. No registry object was changed, no audit event
+              was written, and the entry above still shows its seeded current value.
+            </p>
+          </div>
+        ) : null}
+
+        {outcome?.kind === 'accepted' && writeClass.id !== 'current-value' ? (
+          <div role="status" aria-label="Write outcome" className="mt-3 max-w-prose text-sm">
+            <StatusPill
+              tone="attention"
+              icon="•"
+              label={`${writeClass.changeClass} — submitted into the approval cycle, not applied`}
+            />
+            <p className="mt-2">
+              The bound check passed: {outcome.statement} Passing the bound is not the change taking
+              effect.
+            </p>
+            <p className="mt-2">
+              {writeClass.changeClass}: {writeClass.approvalRoute} The audit event for the approval
+              is written in the same transaction as the approval itself.
+            </p>
+            <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
+              Nothing has been applied. The platform default is unchanged and stays in force until
+              the checker approves. A request is shown in its own state, and this storyboard has no
+              queue behind it — no submission left the browser.
             </p>
           </div>
         ) : null}
@@ -560,6 +605,13 @@ export function TenantConfigRegistryScreen({
           (AC-SA-19-09, L46318, L44568). The list is the whole affordance: the values stay as they
           are until each tenant changes its own, and nothing on this panel changes a tenant value.
         </p>
+        {mode === 'recovering' ? (
+          <p className="mt-3 max-w-prose text-sm">
+            The conformance report is being re-derived and is not presented. {REGISTRY_RECOVERY_NOTE}{' '}
+            The rows that were outside their bound before the failure are not re-listed from the
+            previous derivation: a list drawn now would read as the finished report.
+          </p>
+        ) : (
         <div className="mt-3">
           <Table
             caption="Conformance report — current values outside a recently tightened bound"
@@ -584,6 +636,7 @@ export function TenantConfigRegistryScreen({
             }}
           />
         </div>
+        )}
         <div className="mt-2">
           <PermissionNotice decision={readDecision} />
         </div>

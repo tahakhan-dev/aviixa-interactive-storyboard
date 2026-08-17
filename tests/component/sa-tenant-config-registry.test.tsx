@@ -83,9 +83,39 @@ describe('MOD-SA-19 Tenant-Configuration Registry — the shell contract', () =>
     }
   })
 
-  it('uses none of the four forbidden words anywhere in its copy', () => {
+  it('uses none of the four forbidden words in any role, state or write class, outcomes included', () => {
+    const forbidden = /tamper-evident|chained|signed|verified/i
     const { container } = render(<TenantConfigRegistryScreen />)
-    expect(container.textContent ?? '').not.toMatch(/tamper-evident|chained|signed|verified/i)
+
+    // Every permutation the screen's own switchers reach: 4 roles x 12 states
+    // x 3 write classes. Rendering only the default role and state proves the
+    // property for one of 144 screens.
+    for (const role of REGISTRY_PLATFORM_ROLES) {
+      setRole(role.id)
+      for (const state of APPLICABLE_STATES) {
+        setScreenState(state.id)
+        for (const c of WRITE_CLASSES) {
+          setWriteClass(c.id)
+          expect(container.textContent ?? '', `${role.id} / ${state.id} / ${c.id}`).not.toMatch(
+            forbidden,
+          )
+        }
+      }
+    }
+
+    // Plus the three write-outcome renderings, which no switcher leaves on
+    // screen: rejection, acceptance, and the critical-class routing.
+    setRole('ROOT_SUPER_ADMIN')
+    setScreenState('STATE-03')
+    submitWrite('record-finish-window', 'current-value', '12')
+    expect(container.textContent ?? '', 'rejected outcome').not.toMatch(forbidden)
+    submitWrite('record-finish-window', 'current-value', '36')
+    expect(container.textContent ?? '', 'accepted outcome').not.toMatch(forbidden)
+    submitWrite('clock-skew-threshold', 'default', '4')
+    expect(container.textContent ?? '', 'engineering-class outcome').not.toMatch(forbidden)
+    setWriteClass('bound')
+    fireEvent.click(screen.getByRole('button', { name: /submit the write/i }))
+    expect(container.textContent ?? '', 'critical-class outcome').not.toMatch(forbidden)
   })
 
   it('resolves tenant content only to the session-request form, never to a record', () => {
@@ -205,6 +235,29 @@ describe('MOD-SA-19 — three write classes, three approval routes', () => {
     expect(outcome.textContent).toMatch(/approval/i)
   })
 
+  it('renders a maker-checker default change as queued, never as applied (STATE-09)', () => {
+    render(<TenantConfigRegistryScreen />)
+    setRole('PLATFORM_ENGINEER')
+    submitWrite('clock-skew-threshold', 'default', '4')
+    const outcome = screen.getByRole('status', { name: /write outcome/i })
+    // The bound check passing is stated, and is not the change taking effect.
+    expect(outcome.textContent).toMatch(/inside the bound/i)
+    expect(outcome.textContent).toMatch(/not applied/i)
+    expect(outcome.textContent).toMatch(/nothing has been applied/i)
+    expect(outcome.textContent).toMatch(/unchanged and stays in force/i)
+    // Never the one-word verdict the applied path uses.
+    expect(outcome.textContent).not.toMatch(/\baccepted\b/i)
+    expect(outcome.textContent).not.toMatch(/took effect|applied on acceptance|complete/i)
+  })
+
+  it('says what the prototype actually did on an applied current-value write', () => {
+    render(<TenantConfigRegistryScreen />)
+    submitWrite('record-finish-window', 'current-value', '36')
+    const outcome = screen.getByRole('status', { name: /write outcome/i })
+    expect(outcome.textContent).toMatch(/nothing was stored/i)
+    expect(outcome.textContent).toMatch(/no audit event was written/i)
+  })
+
   it('replaces the whole action bar with the class badge for a non-root role on a bound change', () => {
     render(<TenantConfigRegistryScreen />)
     for (const role of ['ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'] as const) {
@@ -262,6 +315,24 @@ describe('MOD-SA-19 — conformance, aggregates and prohibitions', () => {
     const unavailable = screen.getByRole('region', { name: /registry conformance summary/i })
     expect(unavailable.textContent).toMatch(/unavailable/i)
     expect(unavailable.textContent).not.toMatch(/\b0\b/)
+  })
+
+  it('STATE-13: presents no conformance count, no as-of and no report while the re-read runs', () => {
+    render(<TenantConfigRegistryScreen />)
+    setScreenState('STATE-13')
+    const summary = screen.getByRole('region', { name: /registry conformance summary/i })
+    expect(summary.textContent).toMatch(/recovering/i)
+    // Neither a complete count nor a current as-of: a recovering system is
+    // never shown as fully recovered.
+    expect(summary.textContent).not.toMatch(/entries rendered/i)
+    expect(summary.textContent).not.toMatch(/as of 2026/i)
+    for (const entryState of REGISTRY_ENTRY_STATES) {
+      expect(summary.textContent).not.toMatch(new RegExp(`${entryState}: \\d`, 'i'))
+    }
+    // And the derived report itself is withheld rather than re-listed.
+    expect(screen.queryByRole('table', { name: /conformance report/i })).toBeNull()
+    const panel = screen.getByRole('region', { name: /conformance panel/i })
+    expect(panel.textContent).toMatch(/being re-derived and is not presented/i)
   })
 
   it('renders the invariants it carries as status chips, never as controls', () => {
