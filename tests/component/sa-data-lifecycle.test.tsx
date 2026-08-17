@@ -58,13 +58,21 @@ describe('MOD-SA-17 Data Lifecycle and Archival — the shell contract', () => {
     }
   })
 
-  it('names none of the four forbidden words anywhere in its copy, in any screen state', () => {
-    for (const state of APPLICABLE_STATES) {
-      const { container, unmount } = render(<DataLifecycleScreen screenState={state.id} />)
-      expect(container.textContent ?? '', state.id).not.toMatch(
-        /tamper-evident|chained|signed|verified/i,
-      )
-      unmount()
+  it('names none of the four forbidden words anywhere in its copy, in any screen state, for any role', () => {
+    // Every forbidden-word route on this screen is role-gated: the refusal
+    // copy a denied role reads is the only copy that ever carried one. Looping
+    // states while rendering the default ADMIN certified a property it never
+    // exercised, so this loops BOTH axes — 4 roles x 12 states.
+    for (const role of LIFECYCLE_PLATFORM_ROLES) {
+      for (const state of APPLICABLE_STATES) {
+        const { container, unmount } = render(
+          <DataLifecycleScreen role={role.id} screenState={state.id} />,
+        )
+        expect(container.textContent ?? '', `${role.id} ${state.id}`).not.toMatch(
+          /tamper-evident|chained|signed|verified/i,
+        )
+        unmount()
+      }
     }
   })
 
@@ -331,6 +339,29 @@ describe('MOD-SA-17 — legal hold, erasure and the critical class', () => {
     }
   })
 
+  it('governs the erasure execution by its own decision, and reports an approval as an approval', () => {
+    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-03" />)
+    const panel = screen.getByRole('region', { name: /Erasure requests/i })
+    fireEvent.click(within(panel).getByRole('button', { name: /Approve the erasure execution/i }))
+    // An approval is not a draft. The control used to set the DRAFT state, so a
+    // root approval of a critical-class execution read back as an un-approved draft.
+    expect(within(panel).queryByText(/draft recorded/i)).toBeNull()
+    expect(within(panel).getAllByText(/approval recorded on the fixture/i).length).toBeGreaterThan(0)
+    // …and it never claims a removal this prototype does not perform.
+    expect(within(panel).getAllByText(/nothing was erased/i).length).toBeGreaterThan(0)
+  })
+
+  it('names the erasure execution, not the legal hold, when the execution approval is refused', () => {
+    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-06" />)
+    const panel = screen.getByRole('region', { name: /Erasure requests/i })
+    const approve = within(panel).getByRole('button', { name: /Approve the erasure execution/i })
+    expect(approve.getAttribute('aria-disabled')).toBe('true')
+    const reason =
+      document.getElementById(approve.getAttribute('aria-describedby') ?? '')?.textContent ?? ''
+    expect(reason).toMatch(/erasure execution/i)
+    expect(reason).not.toMatch(/hold can be placed or released/i)
+  })
+
   it('gives every role read access to the module (D16)', () => {
     for (const role of LIFECYCLE_PLATFORM_ROLES) {
       const { unmount } = render(<DataLifecycleScreen role={role.id} />)
@@ -459,15 +490,57 @@ describe('MOD-SA-17 — the twelve applicable screen states', () => {
   })
 
   it('STATE-05 states which role carries the action rather than hiding the refusal', () => {
-    render(<DataLifecycleScreen role="SUPPORT" screenState="STATE-05" />)
+    // Anchored on the STATE-05 rendering itself. The earlier version asserted
+    // only /Root Super Admin/ inside the erasure region — copy the role gate
+    // emits in EVERY state — so it passed identically under STATE-03 and
+    // proved nothing about STATE-05.
+    const denied = render(<DataLifecycleScreen role="SUPPORT" screenState="STATE-05" />)
+    const banner = screen
+      .getAllByRole('status')
+      .find((n) => /does not carry the action you attempted/i.test(n.textContent ?? ''))
+    expect(banner).toBeDefined()
+    expect(banner?.textContent ?? '').toMatch(/Root Super Admin/i)
+    expect(banner?.textContent ?? '').toMatch(/rather than hidden behind a missing button/i)
+    // The refusal is drawn, not hidden: the control is still there and inert.
     const panel = screen.getByRole('region', { name: /Erasure requests/i })
-    expect(within(panel).getAllByText(/Root Super Admin/i).length).toBeGreaterThan(0)
+    expect(
+      within(panel)
+        .getByRole('button', { name: /Draft an erasure request/i })
+        .getAttribute('aria-disabled'),
+    ).toBe('true')
+    denied.unmount()
+
+    // State specificity: the same banner must NOT be on a success screen.
+    render(<DataLifecycleScreen role="SUPPORT" screenState="STATE-03" />)
+    expect(
+      screen
+        .queryAllByRole('status')
+        .filter((n) => /does not carry the action you attempted/i.test(n.textContent ?? '')),
+    ).toHaveLength(0)
   })
 
-  it('STATE-09 renders an accepted legal hold in its own state, never as in force', () => {
-    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-09" />)
-    const panel = screen.getByRole('region', { name: /Legal hold/i })
-    expect(within(panel).getAllByText(/placed/i).length).toBeGreaterThan(0)
+  it('STATE-09 renders an accepted legal hold in its own state, never as in force, for every role', () => {
+    // Anchored on the queued rendering itself. /placed/i alone was satisfied by
+    // the unrelated HOLD-2026-007 fixture row, which renders in every state, so
+    // the old assertion passed under STATE-03 and would have survived deleting
+    // the whole STATE-09 branch.
+    for (const role of LIFECYCLE_PLATFORM_ROLES) {
+      const { unmount } = render(<DataLifecycleScreen role={role.id} screenState="STATE-09" />)
+      const queued = screen.getByTestId('accepted-hold')
+      // Anchored: the accepted hold's own state pill, never a substring match
+      // that a neighbouring sentence could satisfy.
+      expect(
+        within(queued).getByText(/^placed — scope resolution still running$/i),
+        role.id,
+      ).toBeDefined()
+      expect(within(queued).queryByText(/^in force$/i), role.id).toBeNull()
+      expect(queued.textContent ?? '', role.id).toMatch(/not in force until its scope resolves/i)
+      unmount()
+    }
+
+    // State specificity: nothing is queued on a success screen.
+    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-03" />)
+    expect(screen.queryByTestId('accepted-hold')).toBeNull()
   })
 
   it('STATE-10 keeps the deterministic schedulers running while an agent is degraded', () => {
@@ -478,6 +551,91 @@ describe('MOD-SA-17 — the twelve applicable screen states', () => {
   it('STATE-13 shows what is being replayed rather than presenting recovery as complete', () => {
     render(<DataLifecycleScreen screenState="STATE-13" />)
     expect(screen.getAllByText(/re-evaluated on the next scheduler run/i).length).toBeGreaterThan(0)
+  })
+})
+
+describe('MOD-SA-17 — every panel of records degrades together', () => {
+  /** The four panels that read seeded records, aggregates and lists alike. */
+  const RECORD_PANELS = [/Retention/i, /Legal hold/i, /Anonymisation/i, /Erasure requests/i]
+
+  it('STATE-01 empties the lists too, so no panel contradicts the empty aggregate beside it', () => {
+    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-01" />)
+    const holds = screen.getByRole('region', { name: /Legal hold/i })
+    expect(within(holds).getAllByText(/No legal hold is on record/i).length).toBeGreaterThan(0)
+    for (const hold of LEGAL_HOLDS) {
+      expect(within(holds).queryByText(hold.scopeLabel), hold.id).toBeNull()
+    }
+    const erasure = screen.getByRole('region', { name: /Erasure requests/i })
+    expect(within(erasure).getAllByText(/No erasure request is on record/i).length).toBeGreaterThan(0)
+    for (const request of ERASURE_REQUESTS) {
+      expect(within(erasure).queryByText(request.subjectReference), request.id).toBeNull()
+    }
+  })
+
+  it('STATE-02 renders no list as settled data while the fetch is in flight', () => {
+    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-02" />)
+    for (const name of RECORD_PANELS) {
+      const panel = screen.getByRole('region', { name })
+      expect(within(panel).getAllByRole('status').length, String(name)).toBeGreaterThan(0)
+    }
+    const holds = screen.getByRole('region', { name: /Legal hold/i })
+    for (const hold of LEGAL_HOLDS) {
+      expect(within(holds).queryByText(hold.scopeLabel), hold.id).toBeNull()
+    }
+  })
+
+  it('STATE-08 marks every panel with its as-of time and age, never old content as current', () => {
+    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-08" />)
+    for (const name of RECORD_PANELS) {
+      const panel = screen.getByRole('region', { name })
+      expect(panel.textContent ?? '', String(name)).toMatch(/stale/i)
+      expect(panel.textContent ?? '', String(name)).toMatch(/\d+ (minutes|hours) old/i)
+    }
+  })
+
+  it('STATE-12 renders every panel as unavailable, never as a settled list and never as zero', () => {
+    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-12" />)
+    for (const name of RECORD_PANELS) {
+      const panel = screen.getByRole('region', { name })
+      expect(panel.textContent ?? '', String(name)).toMatch(/Unavailable/i)
+      expect(panel.textContent ?? '', String(name)).not.toMatch(/\b0\b/)
+    }
+    const erasure = screen.getByRole('region', { name: /Erasure requests/i })
+    for (const request of ERASURE_REQUESTS) {
+      expect(within(erasure).queryByText(request.subjectReference), request.id).toBeNull()
+    }
+  })
+})
+
+describe('MOD-SA-17 — read-only and failure reach every control, fixture controls included', () => {
+  it.each(['STATE-06', 'STATE-12'] as const)(
+    '%s draws every control on the screen inert with a named reason, for every role',
+    (stateId) => {
+      for (const role of LIFECYCLE_PLATFORM_ROLES) {
+        const { container, unmount } = render(
+          <DataLifecycleScreen role={role.id} screenState={stateId} />,
+        )
+        const buttons = Array.from(container.querySelectorAll('button'))
+        expect(buttons.length, `${role.id} ${stateId}`).toBeGreaterThan(0)
+        for (const button of buttons) {
+          const label = `${role.id} ${stateId} ${button.textContent ?? ''}`
+          expect(button.getAttribute('aria-disabled'), label).toBe('true')
+          const reason =
+            document.getElementById(button.getAttribute('aria-describedby') ?? '')?.textContent ?? ''
+          expect(reason.length, label).toBeGreaterThan(20)
+        }
+        unmount()
+      }
+    },
+  )
+
+  it.each(['STATE-06', 'STATE-12'] as const)('%s does not let the fixture stepper act', (stateId) => {
+    render(<DataLifecycleScreen role="SUPPORT" screenState={stateId} />)
+    const panel = screen.getByRole('region', { name: /Device de-authorisation/i })
+    const advance = within(panel).getByRole('button', { name: /Advance the fixture/i })
+    fireEvent.click(advance)
+    expect(within(panel).getByTestId('command-state').textContent).toMatch(/created/i)
+    expect(within(panel).getByTestId('command-state').textContent).not.toMatch(/authorized/i)
   })
 })
 

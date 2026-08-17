@@ -148,6 +148,7 @@ export function DataLifecycleScreen({
   const [role, setRole] = useState<RoleId>(initialRole)
   const [screenState, setScreenState] = useState<ScreenStateId>(initialScreenState)
   const [erasureDrafted, setErasureDrafted] = useState(false)
+  const [erasureApproved, setErasureApproved] = useState(false)
   const [holdPlaced, setHoldPlaced] = useState(false)
   const [retentionSubmitted, setRetentionSubmitted] = useState(false)
   const [commandIndex, setCommandIndex] = useState(0)
@@ -198,6 +199,33 @@ export function DataLifecycleScreen({
     },
     context,
   )
+  // The execution approval is its OWN action: a critical-class approval the
+  // root alone carries (L55942, L45997). It is deliberately not the legal-hold
+  // decision — a hold governs a scope, not an erasure approval, and a control
+  // that borrows another action's decision cannot state its own refusal.
+  const erasureApprovalDecision = evaluateAccess(
+    {
+      action: 'MOD-SA-17:approve-erasure-execution',
+      allowedRoles: ['ROOT_SUPER_ADMIN'],
+      allowedObjectStates: ['available'],
+      objectState: surface,
+      sourceRefs: ['L55942', 'L45997', 'L46074'],
+    },
+    context,
+  )
+  // The fixture stepper is still an affordance on this screen, so STATE-06 and
+  // STATE-12 reach it through the same evaluation every other control uses
+  // rather than through a hand-rolled `if`.
+  const stepperDecision = evaluateAccess(
+    {
+      action: 'MOD-SA-17:advance-fixture-command-state',
+      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'],
+      allowedObjectStates: ['available'],
+      objectState: surface,
+      sourceRefs: ['L42846', 'L45570'],
+    },
+    context,
+  )
   const retentionDecision = evaluateAccess(
     {
       action: 'MOD-SA-17:change-retention-value',
@@ -241,16 +269,54 @@ export function DataLifecycleScreen({
               : 'The retention posture cannot be read in this state, so it cannot be changed against it.',
         }
 
+  const approvalProps =
+    erasureApprovalDecision.outcome === 'allowed'
+      ? {}
+      : {
+          disabledReason:
+            surface === 'read-only'
+              ? 'This screen is read-only in this state, so no erasure execution can be approved from it.'
+              : 'The erasure requests cannot be read in this state, so no execution can be approved against them.',
+        }
+
+  /** The stepper refuses on screen state first, and only then on end-of-sequence. */
+  function stepperDisabledReason(): string | null {
+    if (stepperDecision.outcome !== 'allowed') {
+      return surface === 'read-only'
+        ? 'This screen is read-only in this state, so the fixture sequence cannot be advanced from it.'
+        : 'This state is a failure state. Nothing is submitted from this screen while it holds, and the fixture sequence does not advance.'
+    }
+    if (commandIndex >= COMMAND_STATES.length - 1) {
+      return 'The fixture is at the last state in the sequence.'
+    }
+    return null
+  }
+  const stepperReason = stepperDisabledReason()
+  const stepperProps = stepperReason === null ? {} : { disabledReason: stepperReason }
+
   const asOfLabel = mode === 'stale' ? LIFECYCLE_STALE_AS_OF : LIFECYCLE_AS_OF
 
-  /** Shared degradation rendering for every aggregate on this screen. */
-  function Aggregate({ label, children }: { readonly label: string; readonly children: ReactNode }) {
+  /**
+   * Shared degradation rendering for EVERY panel of records on this screen,
+   * aggregates and lists alike. A list that ignores the screen state renders
+   * settled content while the aggregate beside it says the data is empty,
+   * loading or six hours old — the contradiction STATE-08's neverDo forbids.
+   */
+  function Aggregate({
+    label,
+    unavailableNote,
+    children,
+  }: {
+    readonly label: string
+    readonly unavailableNote?: string
+    readonly children: ReactNode
+  }) {
     if (mode === 'loading') return <SkeletonBlock lines={3} label={`Loading ${label}`} />
     if (mode === 'unavailable') {
       return (
         <p className="mt-2 text-sm">
-          Unavailable — {label} could not be read. An aggregate that could not be read is never
-          rendered as a count, and never left blank.
+          {unavailableNote ??
+            `Unavailable — ${label} could not be read. An aggregate that could not be read is never rendered as a count, and never left blank.`}
         </p>
       )
     }
@@ -312,6 +378,16 @@ export function DataLifecycleScreen({
             tone="attention"
             heading="Read-only"
             body="One cause: this fixture puts the lifecycle surface into a read-only state, so no hold, no horizon change and no erasure draft can be submitted from it. Every area below still reads."
+          />
+        </div>
+      ) : null}
+
+      {screenState === 'STATE-05' ? (
+        <div className="mt-4">
+          <Banner
+            tone="blocked"
+            heading="This console role does not carry the action you attempted"
+            body="The refusal is stated rather than hidden behind a missing button. The Admin drafts an erasure request and the Root Super Admin approves its execution (L45997); a retention-value change and a legal-hold placement or release are critical-class actions the Root Super Admin alone carries (L55942, L117354). Which role carries each action is named beside that action below. Nothing about another role’s scope is disclosed here."
           />
         </div>
       ) : null}
@@ -455,34 +531,37 @@ export function DataLifecycleScreen({
           this module renders are {LEGAL_HOLD_STATES.join(', ')} (OBJ-SA-LEGALHOLD, L46016).
         </p>
         <div className="mt-3">
-          <Table
-            caption="Legal holds and their scopes"
-            columns={[
-              { key: 'id', header: 'Hold' },
-              { key: 'tenant', header: 'Tenant' },
-              { key: 'scope', header: 'Scope' },
-              { key: 'state', header: 'State' },
-              { key: 'reason', header: 'Reason' },
-            ]}
-            {...(mode === 'unavailable'
-              ? {
-                  error:
-                    'The legal-hold list could not be read in this state. No scope is treated as unheld while it cannot be read — the tiering scheduler skips rather than proceeds.',
-                }
-              : {})}
-            rows={LEGAL_HOLDS.map((hold) => ({
-              id: hold.id,
-              tenant: hold.tenantLabel,
-              scope: hold.scopeLabel,
-              state: <StatusPill tone={HOLD_TONE[hold.state]} icon="•" label={hold.state} />,
-              reason: hold.reasonLabel,
-            }))}
-            emptyState={{
-              title: 'No legal hold is on record',
-              whatCreatesIt:
-                'A preservation need raised by the client’s legal function, placed by the Root Super Admin against a named scope.',
-            }}
-          />
+          <Aggregate
+            label="the legal holds on record"
+            unavailableNote="Unavailable — the legal-hold list could not be read in this state. No scope is treated as unheld while it cannot be read: the tiering scheduler skips rather than proceeds, and no count is rendered in place of the list."
+          >
+            <Table
+              caption="Legal holds and their scopes"
+              columns={[
+                { key: 'id', header: 'Hold' },
+                { key: 'tenant', header: 'Tenant' },
+                { key: 'scope', header: 'Scope' },
+                { key: 'state', header: 'State' },
+                { key: 'reason', header: 'Reason' },
+              ]}
+              rows={
+                mode === 'empty'
+                  ? []
+                  : LEGAL_HOLDS.map((hold) => ({
+                      id: hold.id,
+                      tenant: hold.tenantLabel,
+                      scope: hold.scopeLabel,
+                      state: <StatusPill tone={HOLD_TONE[hold.state]} icon="•" label={hold.state} />,
+                      reason: hold.reasonLabel,
+                    }))
+              }
+              emptyState={{
+                title: 'No legal hold is on record',
+                whatCreatesIt:
+                  'A preservation need raised by the client’s legal function, placed by the Root Super Admin against a named scope.',
+              }}
+            />
+          </Aggregate>
         </div>
         <div className="mt-3">
           {isRoot ? (
@@ -498,19 +577,25 @@ export function DataLifecycleScreen({
               <div className="mt-2">
                 <PermissionNotice decision={holdDecision} />
               </div>
-              {holdPlaced || screenState === 'STATE-09' ? (
-                <p className="mt-2">
-                  <StatusPill tone="info" icon="•" label="placed — scope resolution still running" />
-                  <span className="ml-2 text-xs text-[var(--color-ink-subtle)]">
-                    An accepted hold is shown in its own state. It is not in force until its scope
-                    resolves, and nothing here presents it as though it already were.
-                  </span>
-                </p>
-              ) : null}
             </>
           ) : (
             <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
           )}
+          {/*
+            Outside the root arm: an accepted-but-not-in-force hold is a fact
+            about the object, not a result belonging to the actor who placed
+            it. Every role reads this panel (D16), so every role reads the
+            queued state rather than seeing the hold silently as settled.
+          */}
+          {holdPlaced || screenState === 'STATE-09' ? (
+            <p className="mt-2" data-testid="accepted-hold">
+              <StatusPill tone="info" icon="•" label="placed — scope resolution still running" />
+              <span className="ml-2 text-xs text-[var(--color-ink-subtle)]">
+                An accepted hold is shown in its own state. It is not in force until its scope
+                resolves, and nothing here presents it as though it already were.
+              </span>
+            </p>
+          ) : null}
         </div>
         <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
           Placing and releasing a hold is a critical-class action held by the Root Super Admin
@@ -632,9 +717,7 @@ export function DataLifecycleScreen({
         <div className="mt-3">
           <Button
             variant="secondary"
-            {...(commandIndex >= COMMAND_STATES.length - 1
-              ? { disabledReason: 'The fixture is at the last state in the sequence.' }
-              : {})}
+            {...stepperProps}
             onClick={() => setCommandIndex((i) => Math.min(i + 1, COMMAND_STATES.length - 1))}
           >
             Advance the fixture to the next command state
@@ -675,36 +758,39 @@ export function DataLifecycleScreen({
           promises none: step four’s honest outcome, today, is a transformation.
         </p>
         <div className="mt-3">
-          <Table
-            caption="Erasure requests on record"
-            columns={[
-              { key: 'id', header: 'Request' },
-              { key: 'state', header: 'State' },
-              { key: 'subject', header: 'Subject reference' },
-              { key: 'basis', header: 'Basis' },
-              { key: 'scope', header: 'Scope summary' },
-              { key: 'outcome', header: 'Outcome' },
-            ]}
-            {...(mode === 'unavailable'
-              ? {
-                  error:
-                    'The erasure request list could not be read in this state. No request is treated as concluded while it cannot be read.',
-                }
-              : {})}
-            rows={ERASURE_REQUESTS.map((request) => ({
-              id: request.id,
-              state: request.state,
-              subject: request.subjectReference,
-              basis: request.basis,
-              scope: request.scopeSummary,
-              outcome: request.outcome,
-            }))}
-            emptyState={{
-              title: 'No erasure request is on record',
-              whatCreatesIt:
-                'A request naming a data subject and stating a legal basis, drafted by the Admin.',
-            }}
-          />
+          <Aggregate
+            label="the erasure requests on record"
+            unavailableNote="Unavailable — the erasure request list could not be read in this state. No request is treated as concluded while it cannot be read, and no count stands in for the list."
+          >
+            <Table
+              caption="Erasure requests on record"
+              columns={[
+                { key: 'id', header: 'Request' },
+                { key: 'state', header: 'State' },
+                { key: 'subject', header: 'Subject reference' },
+                { key: 'basis', header: 'Basis' },
+                { key: 'scope', header: 'Scope summary' },
+                { key: 'outcome', header: 'Outcome' },
+              ]}
+              rows={
+                mode === 'empty'
+                  ? []
+                  : ERASURE_REQUESTS.map((request) => ({
+                      id: request.id,
+                      state: request.state,
+                      subject: request.subjectReference,
+                      basis: request.basis,
+                      scope: request.scopeSummary,
+                      outcome: request.outcome,
+                    }))
+              }
+              emptyState={{
+                title: 'No erasure request is on record',
+                whatCreatesIt:
+                  'A request naming a data subject and stating a legal basis, drafted by the Admin.',
+              }}
+            />
+          </Aggregate>
         </div>
         <div className="mt-3">
           <Button {...draftProps} onClick={() => setErasureDrafted(true)}>
@@ -721,9 +807,27 @@ export function DataLifecycleScreen({
         </div>
         <div className="mt-4">
           {isRoot ? (
-            <Button {...holdProps} onClick={() => setErasureDrafted(true)}>
-              Approve the erasure execution
-            </Button>
+            <>
+              <Button {...approvalProps} onClick={() => setErasureApproved(true)}>
+                Approve the erasure execution
+              </Button>
+              <div className="mt-2">
+                <PermissionNotice decision={erasureApprovalDecision} />
+              </div>
+              {erasureApproved ? (
+                <p className="mt-2">
+                  <StatusPill
+                    tone="info"
+                    icon="•"
+                    label="approval recorded on the fixture — nothing was erased"
+                  />
+                  <span className="ml-2 text-xs text-[var(--color-ink-subtle)]">
+                    This prototype runs no removal and changes no record. What the approval does
+                    here is move the seeded request to its approved state on this screen.
+                  </span>
+                </p>
+              ) : null}
+            </>
           ) : (
             <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
           )}
