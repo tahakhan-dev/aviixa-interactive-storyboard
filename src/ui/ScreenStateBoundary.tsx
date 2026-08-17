@@ -34,7 +34,7 @@ import {
  */
 export type CommandState =
   | 'created'
-  | 'authorised'
+  | 'authorized'
   | 'queued'
   | 'available for delivery'
   | 'delivered'
@@ -78,7 +78,7 @@ export const TERMINAL_COMMAND_STATES: ReadonlySet<CommandState> = new Set([
 
 export const COMMAND_STATE_TONE: Record<CommandState, StatusTone> = {
   created: 'neutral',
-  authorised: 'info',
+  authorized: 'info',
   queued: 'info',
   'available for delivery': 'info',
   delivered: 'info',

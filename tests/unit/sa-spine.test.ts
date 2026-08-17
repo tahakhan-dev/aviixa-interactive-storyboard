@@ -70,12 +70,26 @@ describe('SA_INVARIANTS — the six ENFORCED invariants', () => {
 })
 
 describe('COMMAND_STATES — the fifteen device command states, ordered', () => {
-  it('is closed at fifteen, in the exact source order (L42846)', () => {
+  it('is closed at fifteen, in the exact source order (L1632, L9780)', () => {
     expect(COMMAND_STATES).toEqual([
-      'created', 'authorised', 'queued', 'available for delivery', 'delivered',
+      'created', 'authorized', 'queued', 'available for delivery', 'delivered',
       'downloaded', 'validated', 'applied', 'acknowledged', 'rejected',
       'failed', 'expired', 'cancelled', 'superseded', 'reconciled',
     ])
+  })
+
+  // Controller, after the spine landed: this token shipped as `authorised`,
+  // and the whole-document tally appears to justify it -- the blueprint's
+  // PROSE prefers -ise 835 to 155. That is the wrong scope. Inside the
+  // command-state VOCABULARY the source writes `created, authorized` 57 times
+  // against 2, and the extracted state_vocabularies run 41 to 17 the same way.
+  // The vocabulary token is a rendered label from a closed set, so it matches
+  // the enumeration, not the house style -- the same rule that made slice 2b
+  // rename `reconnecting` to `recovering`. Ordinary prose elsewhere
+  // ("authorisation", "an authorised approver") keeps the -ise spelling.
+  it('uses the vocabulary spelling, not the house prose spelling', () => {
+    expect(COMMAND_STATES).toContain('authorized')
+    expect(COMMAND_STATES).not.toContain('authorised')
   })
 })
 

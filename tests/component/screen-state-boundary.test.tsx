@@ -128,7 +128,7 @@ describe('ScreenStateBoundary', () => {
 
   it('still renders every non-terminal command state under STATE-09', () => {
     const nonTerminal: CommandState[] = [
-      'created', 'authorised', 'queued', 'available for delivery', 'delivered', 'downloaded', 'validated',
+      'created', 'authorized', 'queued', 'available for delivery', 'delivered', 'downloaded', 'validated',
     ]
     for (const commandState of nonTerminal) {
       const { container, unmount } = render(

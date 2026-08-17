@@ -12,7 +12,7 @@ import type { CommandState } from '@/ui/ScreenStateBoundary'
 
 export const COMMAND_STATES = [
   'created',
-  'authorised',
+  'authorized',
   'queued',
   'available for delivery',
   'delivered',
