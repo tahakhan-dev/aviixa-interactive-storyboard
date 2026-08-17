@@ -11,6 +11,7 @@ import {
   APPROVAL_STATES,
   CHANGE_CLASSES,
   CONSOLE_ACCOUNT_STATES,
+  MATRIX_CONFIGURATION_VERSION,
   MATRIX_TOKEN_LABEL,
   ROOT_FROZEN_CAPABILITIES,
   SA08_PLATFORM_ROLES,
@@ -27,6 +28,10 @@ function interactiveText(container: HTMLElement): string[] {
   return Array.from(
     container.querySelectorAll('button, a, input, select, [role=switch], [role=button]'),
   ).map((el) => `${el.textContent ?? ''} ${el.getAttribute('aria-label') ?? ''}`)
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 function row(regionName: RegExp, text: string): HTMLElement {
@@ -79,6 +84,29 @@ describe('MOD-SA-08 Console Users, Roles and Change Approvals — the shell cont
     )
     expect(container.textContent ?? '').not.toMatch(/tamper-evident|chained|signed|verified/i)
   })
+
+  // The gate above walks only what is drawn on arrival. Half this module's
+  // copy — every notice a control prints — exists only AFTER a click, and
+  // that copy is where a shared reason string would surface.
+  it.each(SA08_PLATFORM_ROLES.map((r) => r.id))(
+    'names none of the four forbidden words in the copy a click produces, for %s',
+    (roleId) => {
+      const { container } = render(<ConsoleUsersScreen role={roleId} />)
+      const live = Array.from(container.querySelectorAll('button')).filter(
+        (b) => b.getAttribute('aria-disabled') !== 'true',
+      )
+      expect(live.length, 'no live control to click').toBeGreaterThan(0)
+      // Asserted after EACH click, not once at the end: the Users pane has
+      // one shared notice element, so a later click overwrites the copy an
+      // earlier one printed and an end-of-loop assertion never sees it.
+      for (const b of live) {
+        fireEvent.click(b)
+        expect(container.textContent ?? '', b.textContent ?? '').not.toMatch(
+          /tamper-evident|chained|signed|verified/i,
+        )
+      }
+    },
+  )
 
   it('resolves no link to record-level tenant content', () => {
     const { container } = render(<ConsoleUsersScreen />)
@@ -190,10 +218,21 @@ describe('MOD-SA-08 Roles pane — no blank cell (AC-SA-08-12)', () => {
   it.each(SA08_PLATFORM_ROLES)('exports the matrix with its configuration version for $roleAnnotation', (role) => {
     render(<ConsoleUsersScreen role={role.id} />)
     const pane = screen.getByRole('region', { name: /Roles pane/i })
+    // NOT /configuration version/: the pane's own always-rendered prose says
+    // "stamped with the configuration version it was true for", so that
+    // regex matches a superset and is true before the click ever happens.
+    // The stamp is the version STRING, and the export is the CSV itself.
+    const stamp = new RegExp(escapeRegExp(MATRIX_CONFIGURATION_VERSION))
+    expect(within(pane).queryAllByText(stamp)).toHaveLength(0)
+    expect(pane.querySelector('pre')).toBeNull()
     const exportControl = within(pane).getByRole('button', { name: /Export as comma-separated values/i })
     expect(exportControl.getAttribute('aria-disabled')).toBeNull()
     fireEvent.click(exportControl)
-    expect(within(pane).getAllByText(/configuration version/i).length).toBeGreaterThan(0)
+    expect(within(pane).getAllByText(stamp).length).toBe(1)
+    const csv = pane.querySelector('pre')?.textContent ?? ''
+    // One header row plus one row per module, and the role columns in order.
+    expect(csv.split('\n')).toHaveLength(SA_MODULES.length + 1)
+    expect(csv.split('\n')[0]).toBe(['Module', ...SA08_PLATFORM_ROLES.map((r) => r.name)].join(','))
   })
 })
 
@@ -458,13 +497,39 @@ describe('MOD-SA-08 — no dead controls: every live control does something hone
     expect(APPROVAL_STATES).not.toContain('declined')
   })
 
-  it('every live control on the Users pane reports what it did', () => {
+  // One case per control, each on its OWN render. The previous single-render
+  // loop asserted only `getByRole('status').textContent !== ''` against ONE
+  // shared notice element: the first click filled it permanently, so the
+  // assertion was true forever afterwards and three of the four controls
+  // could be no-ops without the gate noticing.
+  it.each([
+    ['Create user', /Create user/i, /create-account request in this prototype only/i],
+    ['Role assignment', /Role assignment/i, /role-assignment act against account CA-04/i],
+    ['Disable account', /Disable account/i, /disable-account act against CA-03/i],
+    ['Last-activity review', /Last-activity review/i, /Last-activity review opened over the 5 accounts/i],
+  ] as const)('the Users pane control %s reports what it, and only it, actually did', (_label, name, said) => {
     render(<ConsoleUsersScreen role="ROOT_SUPER_ADMIN" />)
     const pane = screen.getByRole('region', { name: /Users pane/i })
-    for (const name of [/Create user/i, /Role assignment/i, /Disable account/i, /Last-activity review/i]) {
-      fireEvent.click(within(pane).getByRole('button', { name }))
-      expect(within(pane).getByRole('status').textContent ?? '', String(name)).not.toBe('')
-    }
+    expect(within(pane).queryByRole('status')).toBeNull()
+    fireEvent.click(within(pane).getByRole('button', { name }))
+    expect(within(pane).getByRole('status').textContent ?? '').toMatch(said)
+  })
+
+  it('no Users pane control claims an effect the prototype did not have', () => {
+    render(<ConsoleUsersScreen role="ROOT_SUPER_ADMIN" />)
+    const pane = screen.getByRole('region', { name: /Users pane/i })
+    const accountRow = (id: string): string =>
+      within(pane).getByText(id).closest('tr')?.textContent ?? ''
+    const before = { 'CA-03': accountRow('CA-03'), 'CA-04': accountRow('CA-04') }
+    fireEvent.click(within(pane).getByRole('button', { name: /Disable account/i }))
+    // The notice says CA-03 still reads active; the table must agree.
+    expect(accountRow('CA-03')).toBe(before['CA-03'])
+    expect(accountRow('CA-03')).toMatch(/active/)
+    fireEvent.click(within(pane).getByRole('button', { name: /Role assignment/i }))
+    expect(accountRow('CA-04')).toBe(before['CA-04'])
+    expect(accountRow('CA-04')).toMatch(/No role held/)
+    fireEvent.click(within(pane).getByRole('button', { name: /Create user/i }))
+    expect(pane.querySelectorAll('tbody tr')).toHaveLength(5)
   })
 })
 
@@ -542,6 +607,41 @@ describe('MOD-SA-08 — aggregates never render as zero or blank (AC-SA-01-03)',
     const region = screen.getByRole('region', { name: /Queue standing/i })
     expect(region.textContent ?? '').toMatch(/Unavailable/i)
     expect(region.textContent ?? '').not.toMatch(/\b0\b/)
+  })
+
+  it('STATE-01: the aggregate counts the same records the tables draw — none of them', () => {
+    render(<ConsoleUsersScreen screenState="STATE-01" />)
+    const region = screen.getByRole('region', { name: /Queue standing/i })
+    // The contradiction this guards: an aggregate asserting eight records
+    // exist on a screen whose two tables both say none do.
+    expect(region.textContent ?? '').not.toMatch(/\d+ pending/)
+    expect(region.textContent ?? '').not.toMatch(/\b0\b/)
+    expect(within(region).getByText(/Nothing is waiting for a platform-level decision/i)).toBeDefined()
+    expect(within(region).getByText(/as of/i)).toBeDefined()
+    expect(
+      screen.getByRole('region', { name: /Approval queue/i }).querySelectorAll('tbody tr'),
+    ).toHaveLength(0)
+    expect(
+      screen.getByRole('region', { name: /Users pane/i }).querySelectorAll('tbody tr'),
+    ).toHaveLength(0)
+  })
+
+  it('STATE-13: draws only the re-read records, names the ones it will not draw, and counts the same set', () => {
+    render(<ConsoleUsersScreen screenState="STATE-13" />)
+    const queue = screen.getByRole('region', { name: /Approval queue/i })
+    const drawn = Array.from(queue.querySelectorAll('tbody tr'))
+    expect(drawn).toHaveLength(6)
+    const banner = screen.getAllByText(/being re-read after a failure/i)[0]?.textContent ?? ''
+    for (const id of ['AR-4466', 'AR-4467']) {
+      expect(within(queue).queryByText(id), id).toBeNull()
+      expect(banner, `${id} named in the recovering banner`).toContain(id)
+    }
+    expect(within(queue).getByText('AR-4471')).toBeDefined()
+    // The two withheld records are the approved-not-applied and the
+    // approved-not-executed ones, so neither may appear in the aggregate.
+    const standing = screen.getByRole('region', { name: /Queue standing/i })
+    expect(standing.textContent ?? '').not.toMatch(/approved-not-applied|approved-not-executed/)
+    expect(standing.textContent ?? '').toMatch(/2 pending engineering-class requests/)
   })
 
   it('STATE-02 renders a placeholder, never the number nought', () => {

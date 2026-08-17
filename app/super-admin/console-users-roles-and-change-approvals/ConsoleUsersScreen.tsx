@@ -56,6 +56,13 @@ const MODULE = saModuleById('MOD-SA-08')
 /** The twelve applicable states: all thirteen less the frontline-only STATE-07. */
 const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
+/**
+ * STATE-13: how far the re-read has reached (fixture). The banner, the row
+ * set and the aggregate all read this one number, so the screen cannot say
+ * two of eight are unrecovered while drawing all eight.
+ */
+const REREAD_RECORD_COUNT = 6
+
 /** No backend, no clock — the policy layer is handed an empty seeded state. */
 const FIXTURE_STATE = emptyDomainState(scenarioRunId('SA-08-CONSOLE-USERS'))
 
@@ -224,7 +231,24 @@ export function ConsoleUsersScreen({
 
   /* ---------------------------- The queue ------------------------------ */
 
-  const rows = APPROVAL_REQUESTS.filter((r) => {
+  /**
+   * The records this screen HAS in this state. The queue table, the account
+   * table and the Queue-standing aggregate all read from here, so no
+   * aggregate can count records the tables on the same screen say do not
+   * exist (STATE-01), and no row can be drawn that STATE-13 says has not
+   * been re-read yet.
+   */
+  const queueRecords: readonly ApprovalRequestFixture[] =
+    screenState === 'STATE-01'
+      ? []
+      : screenState === 'STATE-13'
+        ? APPROVAL_REQUESTS.slice(0, REREAD_RECORD_COUNT)
+        : APPROVAL_REQUESTS
+  const unrereadRecords: readonly ApprovalRequestFixture[] =
+    APPROVAL_REQUESTS.slice(REREAD_RECORD_COUNT)
+  const accountRecords = screenState === 'STATE-01' ? [] : CONSOLE_ACCOUNTS
+
+  const rows = queueRecords.filter((r) => {
     if (classFilter !== 'any' && r.changeClass !== classFilter) return false
     if (stateFilter !== 'any' && r.state !== stateFilter) return false
     if (proposerFilter !== 'any' && r.proposerLabel !== proposerFilter) return false
@@ -312,9 +336,12 @@ export function ConsoleUsersScreen({
     if (declined.includes(request.id)) {
       return (
         <p role="note" className="text-xs text-[var(--color-ink-subtle)]">
-          Declined with a mandatory reason: nothing executed, the current state stands
-          (WF-ROLE-020, L56008). The source closes the approval-state set without a declined
-          member, so no state name is invented for this row — see “Unspecified in source”.
+          Declined: nothing executed, the current state stands (WF-ROLE-020, L56008). The source
+          demands a mandatory reason (L56011) and never says what a reason may contain, so no
+          reason field is drawn and none was collected — this row records the act without
+          claiming compliance it did not obtain. The source also closes the approval-state set
+          without a declined member, so no state name is invented for this row — see
+          “Unspecified in source”.
         </p>
       )
     }
@@ -376,13 +403,13 @@ export function ConsoleUsersScreen({
 
   const counts: ReadonlyArray<readonly [string, number, StatusTone]> = (
     [
-      ['pending engineering-class requests', APPROVAL_REQUESTS.filter((r) => r.state === 'pending' && r.changeClass === 'engineering').length, 'info'],
-      ['pending critical-class requests', APPROVAL_REQUESTS.filter((r) => r.state === 'pending' && r.changeClass === 'critical').length, 'blocked'],
-      ['of them aging', APPROVAL_REQUESTS.filter((r) => r.aging).length, 'attention'],
-      ['approved-not-applied', APPROVAL_REQUESTS.filter((r) => r.state === 'approved-not-applied').length, 'attention'],
-      ['approved-not-executed', APPROVAL_REQUESTS.filter((r) => r.state === 'approved-not-executed').length, 'attention'],
-      ['returned', APPROVAL_REQUESTS.filter((r) => r.state === 'returned').length, 'neutral'],
-      ['applied', APPROVAL_REQUESTS.filter((r) => r.state === 'applied').length, 'ok'],
+      ['pending engineering-class requests', queueRecords.filter((r) => r.state === 'pending' && r.changeClass === 'engineering').length, 'info'],
+      ['pending critical-class requests', queueRecords.filter((r) => r.state === 'pending' && r.changeClass === 'critical').length, 'blocked'],
+      ['of them aging', queueRecords.filter((r) => r.aging).length, 'attention'],
+      ['approved-not-applied', queueRecords.filter((r) => r.state === 'approved-not-applied').length, 'attention'],
+      ['approved-not-executed', queueRecords.filter((r) => r.state === 'approved-not-executed').length, 'attention'],
+      ['returned', queueRecords.filter((r) => r.state === 'returned').length, 'neutral'],
+      ['applied', queueRecords.filter((r) => r.state === 'applied').length, 'ok'],
     ] as const
     // AC-SA-01-03: a category with nothing in it is not reported as the
     // number nought. It is not reported at all.
@@ -503,7 +530,9 @@ export function ConsoleUsersScreen({
           <Banner
             tone="stale"
             heading="Recovering"
-            body="The queue is being re-read after a failure. Six of the eight request records have been re-read; nothing is presented as recovered until all eight are."
+            body={`The queue is being re-read after a failure. ${REREAD_RECORD_COUNT} of the ${APPROVAL_REQUESTS.length} request records have been re-read, and they are the only rows drawn below. ${unrereadRecords
+              .map((r) => r.id)
+              .join(' and ')} are not drawn at all until they have been re-read, because nothing is presented as recovered until it is. The queue standing counts the same ${REREAD_RECORD_COUNT} records.`}
           />
         </div>
       ) : null}
@@ -543,7 +572,7 @@ export function ConsoleUsersScreen({
               )}
               onClick={() =>
                 setUsersPaneNotice(
-                  'Console account CA-06 created with no role held, and therefore no capability. Role assignment is a separate act (WF-ROLE-005).',
+                  'Recorded as a create-account request in this prototype only. No account was created: this console writes nothing, and the table below is a fixture that does not change. In the product a new account holds no role, and therefore no capability, until the root assigns one — role assignment is a separate act (WF-ROLE-005).',
                 )
               }
             >
@@ -561,7 +590,7 @@ export function ConsoleUsersScreen({
             {...inertProps(roleAssignmentDecision, rootOnlyReason)}
             onClick={() =>
               setUsersPaneNotice(
-                'Role assignment recorded against account CA-04. The matrix above reflects it at once, and the account is re-evaluated at its next access (WF-ROLE-006).',
+                'Recorded as a role-assignment act against account CA-04 in this prototype only. Nothing on this screen changed: the matrix above is keyed on module and role with no account dimension, and CA-04 still holds no role. In the product the account is re-evaluated at its next access (WF-ROLE-006).',
               )
             }
           >
@@ -571,7 +600,7 @@ export function ConsoleUsersScreen({
             {...inertProps(disableDecision, rootOnlyReason)}
             onClick={() =>
               setUsersPaneNotice(
-                'Account CA-03 disabled and its sessions terminated. The account is not deleted: nothing on this platform is purged.',
+                'Recorded as a disable-account act against CA-03 in this prototype only. No account was disabled and no session was ended — this console ends none — and CA-03 still reads active in the table below. In the product the account is disabled and never deleted: nothing on this platform is purged.',
               )
             }
           >
@@ -581,7 +610,7 @@ export function ConsoleUsersScreen({
             {...inertProps(lastActivityDecision, rootOnlyReason)}
             onClick={() =>
               setUsersPaneNotice(
-                'Last-activity review opened over the five accounts above. No account is marked dormant, because the source defines no dormancy threshold — see “Unspecified in source”.',
+                `Last-activity review opened over the ${accountRecords.length} accounts listed below — a read, and nothing else was changed. No account is marked dormant, because the source defines no dormancy threshold — see “Unspecified in source”.`,
               )
             }
           >
@@ -604,16 +633,12 @@ export function ConsoleUsersScreen({
               { key: 'lastActivity', header: 'Last activity' },
             ]}
             loading={screenState === 'STATE-02'}
-            rows={
-              screenState === 'STATE-01'
-                ? []
-                : CONSOLE_ACCOUNTS.map((a) => ({
-                    id: a.id,
-                    roleHeld: a.roleHeld,
-                    state: <StatusPill tone={a.state === 'disabled' ? 'neutral' : 'ok'} icon="•" label={a.state} />,
-                    lastActivity: a.lastActivity,
-                  }))
-            }
+            rows={accountRecords.map((a) => ({
+              id: a.id,
+              roleHeld: a.roleHeld,
+              state: <StatusPill tone={a.state === 'disabled' ? 'neutral' : 'ok'} icon="•" label={a.state} />,
+              lastActivity: a.lastActivity,
+            }))}
             emptyState={{
               title: 'No console account exists yet',
               whatCreatesIt:
@@ -714,13 +739,21 @@ export function ConsoleUsersScreen({
           </p>
         ) : (
           <>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {counts.map(([label, n, tone]) => (
-                <li key={label}>
-                  <StatusPill tone={tone} icon="•" label={`${n} ${label}`} />
-                </li>
-              ))}
-            </ul>
+            {counts.length === 0 ? (
+              <p className="mt-2 max-w-prose text-sm">
+                Nothing is waiting for a platform-level decision. This aggregate reads the same
+                records the queue below reads, so it reports no category rather than a row of
+                noughts, and it still carries the time it was true for.
+              </p>
+            ) : (
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {counts.map(([label, n, tone]) => (
+                  <li key={label}>
+                    <StatusPill tone={tone} icon="•" label={`${n} ${label}`} />
+                  </li>
+                ))}
+              </ul>
+            )}
             <div className="mt-2">
               <FreshnessLabel
                 asOfLabel={aggregate === 'stale' ? QUEUE_STALE_AS_OF : QUEUE_AS_OF}
@@ -849,49 +882,45 @@ export function ConsoleUsersScreen({
               ageFilter !== 'any' ||
               proposerFilter !== 'any'
             }
-            rows={
-              screenState === 'STATE-01'
-                ? []
-                : rows.map((r) => ({
-                    request: (
-                      <>
-                        <span className="block font-medium">{r.id}</span>
-                        <span className="block text-xs text-[var(--color-ink-subtle)]">
-                          {r.timestamps}
-                        </span>
-                        <span className="block text-xs text-[var(--color-ink-subtle)]">
-                          {r.ageBand}
-                        </span>
-                      </>
-                    ),
-                    class: CHANGE_CLASSES.find((c) => c.id === r.changeClass)?.name ?? r.changeClass,
-                    object: (
-                      <>
-                        <span className="block">{r.objectReference}</span>
-                        <span className="block text-xs text-[var(--color-ink-subtle)]">{r.diff}</span>
-                      </>
-                    ),
-                    rationale: r.rationale,
-                    state: (
-                      <>
-                        <StatusPill
-                          tone={STATE_TONE[effectiveState(r)]}
-                          icon="•"
-                          label={effectiveState(r)}
-                        />
-                        {r.aging ? (
-                          <span className="mt-1 block">
-                            <StatusPill tone="attention" icon="⚠" label="aging — the root is re-notified" />
-                          </span>
-                        ) : null}
-                      </>
-                    ),
-                    proposer: r.proposerLabel,
-                    approver: r.approver,
-                    audit: r.auditReference,
-                    decision: decisionCell(r),
-                  }))
-            }
+            rows={rows.map((r) => ({
+                request: (
+                  <>
+                    <span className="block font-medium">{r.id}</span>
+                    <span className="block text-xs text-[var(--color-ink-subtle)]">
+                      {r.timestamps}
+                    </span>
+                    <span className="block text-xs text-[var(--color-ink-subtle)]">
+                      {r.ageBand}
+                    </span>
+                  </>
+                ),
+                class: CHANGE_CLASSES.find((c) => c.id === r.changeClass)?.name ?? r.changeClass,
+                object: (
+                  <>
+                    <span className="block">{r.objectReference}</span>
+                    <span className="block text-xs text-[var(--color-ink-subtle)]">{r.diff}</span>
+                  </>
+                ),
+                rationale: r.rationale,
+                state: (
+                  <>
+                    <StatusPill
+                      tone={STATE_TONE[effectiveState(r)]}
+                      icon="•"
+                      label={effectiveState(r)}
+                    />
+                    {r.aging ? (
+                      <span className="mt-1 block">
+                        <StatusPill tone="attention" icon="⚠" label="aging — the root is re-notified" />
+                      </span>
+                    ) : null}
+                  </>
+                ),
+                proposer: r.proposerLabel,
+                approver: r.approver,
+                audit: r.auditReference,
+                decision: decisionCell(r),
+            }))}
             emptyState={{
               title: 'Nothing is waiting for a platform-level decision',
               whatCreatesIt:

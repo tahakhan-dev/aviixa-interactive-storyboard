@@ -817,8 +817,8 @@ export interface UnspecifiedAffordance {
 
 export const SA08_UNSPECIFIED_IN_SOURCE = [
   {
-    affordance: 'The categorised-reason vocabulary for Return',
-    note: 'Return demands a categorised reason (L23707, L55918) and the source never enumerates the categories. The field is rendered required-and-unset rather than stocked with plausible categories, because an invented list reads back as a requirement.',
+    affordance: 'The reason vocabulary for Return and for Decline',
+    note: 'Return demands a categorised reason (L23707, L55918) and Decline a mandatory one (L56011); the source enumerates neither vocabulary. No reason field is drawn on any row, for any role, in any state — stocking one with plausible categories would read back as a requirement, and a field with no options is a dead control. The demand is named here instead, and a returned or declined row says what it did without claiming a reason was collected.',
   },
   {
     affordance: 'The aging threshold that triggers re-notification',
