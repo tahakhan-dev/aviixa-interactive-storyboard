@@ -179,6 +179,20 @@ export function ConsoleUsersScreen({
   const [declined, setDeclined] = useState<readonly string[]>([])
   const [usersPaneNotice, setUsersPaneNotice] = useState<string>('')
 
+  /**
+   * Interaction state records what THIS reader did in THIS role, state and
+   * root-availability. A recorded click never outranks a role or a screen
+   * state, so moving any switcher clears it: no decision taken as the root
+   * survives into a role that never held the control, and no "approved"
+   * note survives into a state whose banner says nothing was decided.
+   */
+  const resetInteraction = () => {
+    setUsersPaneNotice('')
+    setDecided({})
+    setDeclined([])
+    setCriticalAttempt(false)
+  }
+
   const mode = writeMode(screenState)
   const aggregate = aggregateMode(screenState)
   const stateDefinition = SCREEN_STATES.find((s) => s.id === screenState) ?? SCREEN_STATES[0]
@@ -206,25 +220,53 @@ export function ConsoleUsersScreen({
 
   /* ---------------- Users pane: root-only administration ---------------- */
 
-  const rootOnly = (action: string, refs: readonly string[]): PermissionDecision =>
+  /** The accounts this screen HAS in this state; the table below reads the same list. */
+  const accountRecords = screenState === 'STATE-01' ? [] : CONSOLE_ACCOUNTS
+
+  /**
+   * Three of the four Users-pane controls act ON an existing account. Under
+   * STATE-01 there is none, so they refuse for that cause instead of
+   * printing a notice about accounts the same screen says do not exist.
+   * Creation is the exception: STATE-01 keeps the creating action.
+   */
+  const accountObjectState = accountRecords.length === 0 ? 'no-account-exists' : mode
+
+  const rootOnly = (
+    action: string,
+    refs: readonly string[],
+    objectState: string = mode,
+  ): PermissionDecision =>
     evaluateAccess(
       {
         action,
         allowedRoles: ['ROOT_SUPER_ADMIN'],
         allowedObjectStates: ['open'],
-        objectState: mode,
+        objectState,
         sourceRefs: refs,
       },
       context,
     )
 
   const createDecision = rootOnly('MOD-SA-08:create-console-account', ['L44774', 'L55552', 'L76133'])
-  const roleAssignmentDecision = rootOnly('MOD-SA-08:role-assignment', ['L55552'])
-  const disableDecision = rootOnly('MOD-SA-08:disable-console-account', ['L55552'])
-  const lastActivityDecision = rootOnly('MOD-SA-08:last-activity-review', ['L55552'])
+  const roleAssignmentDecision = rootOnly('MOD-SA-08:role-assignment', ['L55552'], accountObjectState)
+  const disableDecision = rootOnly('MOD-SA-08:disable-console-account', ['L55552'], accountObjectState)
+  const lastActivityDecision = rootOnly('MOD-SA-08:last-activity-review', ['L55552'], accountObjectState)
 
   const rootOnlyReason =
     'Console account administration is a root-only administrative action, and no proposal path exists around it (L21026, L55552).'
+
+  /**
+   * One reason per cause, chosen by the code the decision actually carries —
+   * not one fixed string. A role refusal says root-only; an empty pane says
+   * the pane is empty; a read-only or failed-write screen repeats the one
+   * cause its banner already names, rather than printing a second one.
+   */
+  const usersPaneReason = (decision: PermissionDecision): string =>
+    decision.reasonCode === 'ROLE_NOT_GRANTED'
+      ? rootOnlyReason
+      : accountRecords.length === 0
+        ? 'No console account exists yet, so there is nothing to act on. The root creates the first account from this pane, and this control acts once one exists.'
+        : namedReason(decision, mode)
 
   const inertProps = (decision: PermissionDecision, reason: string) =>
     decision.outcome === 'allowed' ? {} : { disabledReason: reason }
@@ -246,7 +288,6 @@ export function ConsoleUsersScreen({
         : APPROVAL_REQUESTS
   const unrereadRecords: readonly ApprovalRequestFixture[] =
     APPROVAL_REQUESTS.slice(REREAD_RECORD_COUNT)
-  const accountRecords = screenState === 'STATE-01' ? [] : CONSOLE_ACCOUNTS
 
   const rows = queueRecords.filter((r) => {
     if (classFilter !== 'any' && r.changeClass !== classFilter) return false
@@ -456,7 +497,10 @@ export function ConsoleUsersScreen({
         <Select
           label="Console role (fixture)"
           value={role}
-          onChange={(v) => setRole(v as RoleId)}
+          onChange={(v) => {
+            setRole(v as RoleId)
+            resetInteraction()
+          }}
           options={SA08_PLATFORM_ROLES.map((r) => ({
             value: r.id,
             label: `${r.name} — ${r.roleAnnotation}`,
@@ -465,13 +509,19 @@ export function ConsoleUsersScreen({
         <Select
           label="Screen state (fixture)"
           value={screenState}
-          onChange={(v) => setScreenState(v as ScreenStateId)}
+          onChange={(v) => {
+            setScreenState(v as ScreenStateId)
+            resetInteraction()
+          }}
           options={APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
         />
         <Select
           label="Root availability (fixture)"
           value={rootAvailable ? 'available' : 'unavailable'}
-          onChange={(v) => setRootAvailable(v === 'available')}
+          onChange={(v) => {
+            setRootAvailable(v === 'available')
+            resetInteraction()
+          }}
           options={[
             { value: 'available', label: 'The root is available' },
             { value: 'unavailable', label: 'The root is unavailable — DEC-ROOTSUCC-001' },
@@ -496,7 +546,7 @@ export function ConsoleUsersScreen({
           <Banner
             tone="attention"
             heading="Read-only"
-            body="One cause: this fixture puts the console into a read-only state, so no decision can be taken from it. Every panel still reads."
+            body="One cause: this fixture puts the console into a read-only state. Every input the console itself carries — the four queue filters, the critical-action selector and every decision control — is disabled for that one cause, and no other message on this screen names a second. The three fixture switchers above belong to the harness, not the console, so they keep working. Every panel still reads."
           />
         </div>
       ) : null}
@@ -587,17 +637,17 @@ export function ConsoleUsersScreen({
             />
           )}
           <Button
-            {...inertProps(roleAssignmentDecision, rootOnlyReason)}
+            {...inertProps(roleAssignmentDecision, usersPaneReason(roleAssignmentDecision))}
             onClick={() =>
               setUsersPaneNotice(
-                'Recorded as a role-assignment act against account CA-04 in this prototype only. Nothing on this screen changed: the matrix above is keyed on module and role with no account dimension, and CA-04 still holds no role. In the product the account is re-evaluated at its next access (WF-ROLE-006).',
+                'Recorded as a role-assignment act against account CA-04 in this prototype only. Nothing on this screen changed: the matrix below is keyed on module and role with no account dimension, and CA-04 still holds no role. In the product the account is re-evaluated at its next access (WF-ROLE-006).',
               )
             }
           >
             Role assignment
           </Button>
           <Button
-            {...inertProps(disableDecision, rootOnlyReason)}
+            {...inertProps(disableDecision, usersPaneReason(disableDecision))}
             onClick={() =>
               setUsersPaneNotice(
                 'Recorded as a disable-account act against CA-03 in this prototype only. No account was disabled and no session was ended — this console ends none — and CA-03 still reads active in the table below. In the product the account is disabled and never deleted: nothing on this platform is purged.',
@@ -607,7 +657,7 @@ export function ConsoleUsersScreen({
             Disable account
           </Button>
           <Button
-            {...inertProps(lastActivityDecision, rootOnlyReason)}
+            {...inertProps(lastActivityDecision, usersPaneReason(lastActivityDecision))}
             onClick={() =>
               setUsersPaneNotice(
                 `Last-activity review opened over the ${accountRecords.length} accounts listed below — a read, and nothing else was changed. No account is marked dormant, because the source defines no dormancy threshold — see “Unspecified in source”.`,
@@ -812,6 +862,7 @@ export function ConsoleUsersScreen({
             label="Filter by class"
             value={classFilter}
             onChange={setClassFilter}
+            disabled={mode === 'read-only'}
             options={[
               { value: 'any', label: 'Any class' },
               ...CHANGE_CLASSES.filter((c) => c.entersQueue).map((c) => ({
@@ -824,6 +875,7 @@ export function ConsoleUsersScreen({
             label="Filter by state"
             value={stateFilter}
             onChange={setStateFilter}
+            disabled={mode === 'read-only'}
             options={[
               { value: 'any', label: 'Any state' },
               ...APPROVAL_STATES.map((s) => ({ value: s, label: s })),
@@ -833,6 +885,7 @@ export function ConsoleUsersScreen({
             label="Filter by age"
             value={ageFilter}
             onChange={setAgeFilter}
+            disabled={mode === 'read-only'}
             options={[
               { value: 'any', label: 'Any age' },
               ...AGE_BANDS.map((b) => ({ value: b satisfies AgeBand, label: b })),
@@ -842,6 +895,7 @@ export function ConsoleUsersScreen({
             label="Filter by proposer"
             value={proposerFilter}
             onChange={setProposerFilter}
+            disabled={mode === 'read-only'}
             options={[
               { value: 'any', label: 'Any proposer' },
               ...Array.from(new Set(APPROVAL_REQUESTS.map((r) => r.proposerLabel))).map((p) => ({
@@ -968,6 +1022,7 @@ export function ConsoleUsersScreen({
             label="Critical-class action to initiate"
             value={criticalTarget}
             onChange={setCriticalTarget}
+            disabled={mode === 'read-only'}
             options={CRITICAL_ACTIONS.map((a) => ({ value: a.id, label: a.name }))}
           />
         </div>

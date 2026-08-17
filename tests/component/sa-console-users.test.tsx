@@ -531,6 +531,134 @@ describe('MOD-SA-08 — no dead controls: every live control does something hone
     fireEvent.click(within(pane).getByRole('button', { name: /Create user/i }))
     expect(pane.querySelectorAll('tbody tr')).toHaveLength(5)
   })
+
+  // The direction a notice points is read off the DOM, never off the copy.
+  // The previous gate accepted "the matrix above" for a matrix the document
+  // puts below, because nothing compared the claim with the layout.
+  it('points at the matrix in the direction the document actually puts it', () => {
+    render(<ConsoleUsersScreen role="ROOT_SUPER_ADMIN" />)
+    const pane = screen.getByRole('region', { name: /Users pane/i })
+    fireEvent.click(within(pane).getByRole('button', { name: /Role assignment/i }))
+    const notice = within(pane).getByRole('status')
+    const matrix = screen.getByRole('region', { name: /Roles pane/i })
+    const drawnBelow = Boolean(
+      notice.compareDocumentPosition(matrix) & Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+    const claim = /the matrix (above|below)/.exec(notice.textContent ?? '')
+    expect(claim, 'the notice names a direction to the matrix').not.toBeNull()
+    expect(claim?.[1]).toBe(drawnBelow ? 'below' : 'above')
+  })
+
+  // Every "listed below" / "in the table below" in a Users pane notice, held
+  // against the table it points at, in the state that empties it.
+  it('STATE-01: the account-scoped controls refuse for the empty pane instead of counting accounts that do not exist', () => {
+    render(<ConsoleUsersScreen role="ROOT_SUPER_ADMIN" screenState="STATE-01" />)
+    const pane = screen.getByRole('region', { name: /Users pane/i })
+    expect(pane.querySelectorAll('tbody tr')).toHaveLength(0)
+    expect(within(pane).getAllByText(/No console account exists yet/i).length).toBeGreaterThan(0)
+    for (const name of [/Role assignment/i, /Disable account/i, /Last-activity review/i]) {
+      const control = within(pane).getByRole('button', { name })
+      expect(control.getAttribute('aria-disabled'), String(name)).toBe('true')
+      const reason = document.getElementById(control.getAttribute('aria-describedby') ?? '')
+      expect(reason?.textContent ?? '', String(name)).toMatch(/nothing to act on/i)
+      fireEvent.click(control)
+    }
+    // STATE-01 keeps the creating action, and only that one.
+    expect(
+      within(pane).getByRole('button', { name: /Create user/i }).getAttribute('aria-disabled'),
+    ).toBeNull()
+    expect(within(pane).queryByRole('status')).toBeNull()
+    expect(pane.textContent ?? '').not.toMatch(/\b0 accounts\b/)
+  })
+
+  it('counts the accounts the table draws, in the states that draw them', () => {
+    for (const state of ['STATE-03', 'STATE-08', 'STATE-13'] as const) {
+      const { unmount } = render(<ConsoleUsersScreen role="ROOT_SUPER_ADMIN" screenState={state} />)
+      const pane = screen.getByRole('region', { name: /Users pane/i })
+      const drawn = pane.querySelectorAll('tbody tr').length
+      fireEvent.click(within(pane).getByRole('button', { name: /Last-activity review/i }))
+      expect(within(pane).getByRole('status').textContent ?? '', state).toMatch(
+        new RegExp(`over the ${drawn} accounts listed below`),
+      )
+      unmount()
+    }
+  })
+})
+
+describe('MOD-SA-08 — a recorded click never outranks the role or the state', () => {
+  it('clears the decision when the role switcher moves', () => {
+    render(<ConsoleUsersScreen role="ADMIN" />)
+    fireEvent.click(within(row(/Approval queue/i, 'AR-4471')).getByRole('button', { name: /Approve/i }))
+    expect(row(/Approval queue/i, 'AR-4471').textContent ?? '').toMatch(/Approved as request AR-4471/)
+    fireEvent.change(screen.getByLabelText(/Console role/i), { target: { value: 'SUPPORT' } })
+    const asSupport = row(/Approval queue/i, 'AR-4471')
+    expect(asSupport.textContent ?? '').not.toMatch(/Approved as request/)
+    expect(asSupport.textContent ?? '').toMatch(/pending/)
+  })
+
+  it('clears the decision when the screen-state switcher moves to a state that says nothing was decided', () => {
+    render(<ConsoleUsersScreen role="ADMIN" />)
+    fireEvent.click(within(row(/Approval queue/i, 'AR-4471')).getByRole('button', { name: /Approve/i }))
+    fireEvent.change(screen.getByLabelText(/Screen state/i), { target: { value: 'STATE-12' } })
+    const failed = row(/Approval queue/i, 'AR-4471')
+    expect(failed.textContent ?? '').not.toMatch(/Approved as request/)
+    expect(failed.textContent ?? '').toMatch(/pending/)
+    expect(screen.getAllByText(/nothing is shown as decided/i).length).toBeGreaterThan(0)
+  })
+
+  it('clears the Users pane notice when the state switcher empties the table under it', () => {
+    render(<ConsoleUsersScreen role="ROOT_SUPER_ADMIN" />)
+    const pane = () => screen.getByRole('region', { name: /Users pane/i })
+    fireEvent.click(within(pane()).getByRole('button', { name: /Last-activity review/i }))
+    expect(within(pane()).getByRole('status').textContent ?? '').toMatch(/5 accounts listed below/)
+    fireEvent.change(screen.getByLabelText(/Screen state/i), { target: { value: 'STATE-01' } })
+    expect(within(pane()).queryByRole('status')).toBeNull()
+    expect(pane().querySelectorAll('tbody tr')).toHaveLength(0)
+  })
+})
+
+describe('MOD-SA-08 STATE-06 — the read-only claim is backed by the controls', () => {
+  it('disables every console input and names exactly one cause', () => {
+    const { container } = render(<ConsoleUsersScreen role="ROOT_SUPER_ADMIN" screenState="STATE-06" />)
+    const harness = ['Console role', 'Screen state', 'Root availability']
+    const selects = Array.from(container.querySelectorAll('select'))
+    const consoleSelects = selects.filter(
+      (s) => !harness.some((h) => (document.querySelector(`label[for="${s.id}"]`)?.textContent ?? '').includes(h)),
+    )
+    // Four queue filters plus the critical-action selector.
+    expect(consoleSelects).toHaveLength(5)
+    for (const s of consoleSelects) expect(s.disabled, s.id).toBe(true)
+    // The harness switchers stay operable, exactly as the banner says.
+    expect(selects.filter((s) => s.disabled)).toHaveLength(5)
+    for (const name of [/Approve/i, /Create user/i, /Role assignment/i, /Disable account/i, /Last-activity review/i, /Submit for root approval/i]) {
+      for (const control of screen.getAllByRole('button', { name })) {
+        expect(control.getAttribute('aria-disabled'), String(name)).toBe('true')
+      }
+    }
+    // One cause, in one wording. Before this gate the Users pane blamed
+    // "a root-only administrative action" for a root that plainly holds it,
+    // while the banner blamed the state — two causes for one refusal.
+    const reasons = Array.from(container.querySelectorAll('button[aria-describedby]')).map(
+      (b) => document.getElementById(b.getAttribute('aria-describedby') ?? '')?.textContent ?? '',
+    )
+    const stateCaused = reasons.filter((r) => /read-only/i.test(r))
+    expect(new Set(stateCaused).size, 'one cause, one wording').toBe(1)
+    // Every control this ROLE holds must blame the state and nothing else:
+    // the root plainly carries console account administration, so a reason
+    // calling it root-only here is a second, false cause for one refusal.
+    const pane = screen.getByRole('region', { name: /Users pane/i })
+    for (const name of [/Create user/i, /Role assignment/i, /Disable account/i, /Last-activity review/i]) {
+      const control = within(pane).getByRole('button', { name })
+      const reason = document.getElementById(control.getAttribute('aria-describedby') ?? '')
+      expect(reason?.textContent ?? '', String(name)).toMatch(/read-only in this state/i)
+    }
+    expect(reasons.filter((r) => /root-only administrative action/i.test(r))).toHaveLength(0)
+    // Whatever else refuses does so for a cause that holds in every state:
+    // a role that never carried that control (the root cannot return).
+    for (const reason of reasons.filter((r) => !/read-only/i.test(r))) {
+      expect(reason).toMatch(/does not carry/i)
+    }
+  })
 })
 
 describe('MOD-SA-08 — the twelve applicable screen states', () => {
