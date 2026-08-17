@@ -107,6 +107,22 @@ function decide(
   )
 }
 
+/**
+ * The ONE cause of this module's read-only rendering (STATE-06: "Never
+ * scatter the cause across several messages. One banner, one cause."). It is
+ * rendered verbatim in all three places the state is stated — the module
+ * note, the boundary banner and every disabled control's reason — because a
+ * second wording of the same fact, role-framed or otherwise, IS the defect
+ * that rule exists to prevent. Change it here or nowhere.
+ *
+ * It names the device-detail selector because that selector is genuinely
+ * disabled below, and it exempts the two view switchers because they are not
+ * module inputs: they are the storyboard's own controls, and disabling the
+ * screen-state one would leave no way out of this state.
+ */
+const STATE_06_CAUSE =
+  'Read-only (STATE-06): every input is disabled — the wipe draft, the approval, the suspension record, both fixture steppers and the device-detail selector. The role and screen-state selectors are storyboard view switchers rather than module inputs, and they stay live so this state can be left. One state, one cause.'
+
 /** The screen state gates every control on this module BEFORE the role
  *  decision is consulted: STATE-06 disables every input and STATE-12 lets
  *  nothing be submitted, whatever the role holds. A control that ignores the
@@ -114,7 +130,7 @@ function decide(
  *  state blocks nothing. */
 function stateBlocker(stateId: ScreenStateId): string | null {
   if (stateId === 'STATE-06') {
-    return 'Read-only (STATE-06): every input on this module is disabled, both wipe steppers and the suspension record included. One state, one cause.'
+    return STATE_06_CAUSE
   }
   if (stateId === 'STATE-12') {
     return 'Nothing can be submitted while the platform audit write accompanying a device command is failing (STATE-12). A device command and its audit entry commit together, so a command that cannot be audited is not recorded at all.'
@@ -131,6 +147,14 @@ export function DevicesScreen() {
   const [commands, setCommands] = useState<readonly CommandLogRow[]>(SEEDED_COMMANDS)
   const [draftOpened, setDraftOpened] = useState(false)
   const [approvalRecorded, setApprovalRecorded] = useState(false)
+
+  /** A recorded click belongs to the role and the screen state it was made
+   *  under. Moving either switcher clears it, so a refusal is never rendered
+   *  beside a notice saying the same action is already done. */
+  function resetInteractions(): void {
+    setDraftOpened(false)
+    setApprovalRecorded(false)
+  }
 
   const role = DEVICE_PLATFORM_ROLES.find((r) => r.sourceId === sourceRoleId) ?? DEVICE_PLATFORM_ROLES[0]
   const roleId = role.roleId
@@ -277,7 +301,10 @@ export function DevicesScreen() {
         <Select
           label="View as platform role"
           value={sourceRoleId}
-          onChange={setSourceRoleId}
+          onChange={(v) => {
+            setSourceRoleId(v)
+            resetInteractions()
+          }}
           options={DEVICE_PLATFORM_ROLES.map((r) => ({
             value: r.sourceId,
             label: `${r.name} (${r.sourceId})`,
@@ -286,7 +313,10 @@ export function DevicesScreen() {
         <Select
           label="Screen state"
           value={stateId}
-          onChange={(v) => setStateId(v as ScreenStateId)}
+          onChange={(v) => {
+            setStateId(v as ScreenStateId)
+            resetInteractions()
+          }}
           options={SCREEN_STATE_OPTIONS}
         />
       </section>
@@ -382,11 +412,14 @@ export function DevicesScreen() {
       <section aria-label="Device detail" className="mt-6">
         <h2 className="text-lg font-semibold">Device detail</h2>
         <div className="mt-2 max-w-sm">
+          {/* A module input, not a storyboard view switcher: STATE-06 says
+              every input is disabled, so this one genuinely is. */}
           <Select
             label="Open a device detail"
             value={detailDevice.id}
             onChange={setDetailDeviceId}
             options={DEVICES.map((d) => ({ value: d.id, label: `${d.id} — ${d.tenantLabel}` }))}
+            disabled={stateId === 'STATE-06'}
           />
         </div>
         <p className="mt-2 max-w-prose text-sm font-medium">
@@ -745,8 +778,9 @@ const MODULE_STATE_NOTE: Record<ScreenStateId, string> = {
     'the wipe request, when its reason is missing. The rule and the accepted form are stated rather than the value merely refused.',
   'STATE-05':
     'a role without a device action meeting its control — the Platform Engineer meeting the wipe draft, for instance.',
-  'STATE-06':
-    'the whole module. Every input is disabled while this state holds — the wipe draft, the approval, the suspension record and both fixture steppers — whatever the selected role otherwise holds.',
+  // Not a paraphrase: the one cause verbatim. A note that reworded it would
+  // be the second message STATE-06 forbids.
+  'STATE-06': STATE_06_CAUSE,
   'STATE-07': 'nothing. Only the Frontline Worker Application has a true offline state.',
   'STATE-08':
     'a degraded fleet count, served last-known-good and stamped stale with its age (AC-SA-01-03).',
@@ -757,7 +791,7 @@ const MODULE_STATE_NOTE: Record<ScreenStateId, string> = {
   'STATE-11':
     'the module with every artificial-intelligence model unavailable. The fleet still reads, both steppers still step, and every control still decides — nothing here depends on a model (AC-SA-000-09).',
   'STATE-12':
-    'a platform audit write that failed alongside a device command. Nothing may be submitted: every control is disabled, the command is not recorded and the device is untouched.',
+    'a platform audit write that failed alongside a device command. Nothing may be submitted: every control that would submit one is disabled, the command is not recorded and the device is untouched. Reading is not submitting, so the fleet, the detail pane and the log still read.',
   'STATE-13':
     're-aggregating fleet telemetry after a gap, with the degraded window recorded rather than smoothed over.',
 }
@@ -822,10 +856,11 @@ function stateTreatment(stateId: ScreenStateId, roleName: string, draftDecision:
         <ScreenStateBoundary
           state="STATE-06"
           surface="SURF-SA"
-          detail={{
-            readOnlyCause:
-              'The Platform Engineer and Support read the whole fleet and hold no device action. The wipe control names the Admin as drafter and the Root Super Admin as approver, and no other reading of it exists (L45498).',
-          }}
+          // The same string every disabled control on this module prints. The
+          // role framing that used to sit here was a SECOND cause for one
+          // read-only rendering, and false for the root, who holds both the
+          // draft and the approval and is disabled anyway.
+          detail={{ readOnlyCause: STATE_06_CAUSE }}
         />
       )
     case 'STATE-08':

@@ -66,6 +66,62 @@ function openDevice(deviceId: string): void {
   })
 }
 
+/**
+ * The three view selects, resolved ONCE per render. React keeps the same DOM
+ * nodes across re-renders, so the permutation loops below must not pay an
+ * accessible-name query per step: 96 of those over a tree this size, not the
+ * re-renders, is what pushed those loops past vitest's 5000ms default under
+ * load. A gate that is flaky-to-red gets disabled by the next person.
+ */
+function switchers(): { role: HTMLElement; state: HTMLElement } {
+  return {
+    role: screen.getByRole('combobox', { name: 'View as platform role' }),
+    state: screen.getByRole('combobox', { name: 'Screen state' }),
+  }
+}
+
+function setSelect(el: HTMLElement, value: string): void {
+  fireEvent.change(el, { target: { value } })
+}
+
+/** The screen states this module offers, resolved once. */
+const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
+
+/** The three states whose treatment reads the selected role: the success
+ *  rendering, the refusal and the read-only gate. */
+const ROLE_SENSITIVE_STATES = ['STATE-03', 'STATE-05', 'STATE-06']
+
+/**
+ * The view sweep both permutation gates below run, with `visit` called once
+ * per view. NOT the 4x12 cross product: that was 48 re-renders of a
+ * six-table tree per test, the two slowest tests in the file, and it timed
+ * out against vitest's 5000ms default under concurrent load — a red gate
+ * pointing at a property the code does not violate, which is how a gate gets
+ * deleted by the next person who sees it.
+ *
+ * The union of two slices covers every string and every control the screen
+ * can draw, because role-dependent copy renders only where the screen state
+ * does not replace it: all twelve states at the root (which holds every
+ * control, so nothing is hidden from this slice), and all four roles at the
+ * three states whose treatment reads the role. 28 re-renders, not 48.
+ */
+function sweepViews(visit: (label: string) => void): void {
+  const sel = switchers()
+  setSelect(sel.role, 'ROLE-PLAT-ROOT')
+  for (const state of APPLICABLE_STATES) {
+    setSelect(sel.state, state.id)
+    visit(`ROLE-PLAT-ROOT / ${state.id}`)
+  }
+  for (const stateId of ROLE_SENSITIVE_STATES) {
+    setSelect(sel.state, stateId)
+    for (const role of DEVICE_PLATFORM_ROLES) {
+      setSelect(sel.role, role.sourceId)
+      visit(`${role.sourceId} / ${stateId}`)
+    }
+  }
+  setSelect(sel.state, 'STATE-03')
+}
+
 function region(name: string): HTMLElement {
   return screen.getByRole('region', { name })
 }
@@ -105,15 +161,9 @@ describe('MOD-SA-13 — the console shell contract', () => {
     const { container } = render(<DevicesScreen />)
     // Every role AND every screen state: the state treatments render their own
     // copy, and a role-only loop never reads a single word of it.
-    for (const role of DEVICE_PLATFORM_ROLES) {
-      selectRole(role.sourceId)
-      for (const state of SCREEN_STATES.filter((s) => !s.frontlineOnly)) {
-        selectState(state.id)
-        const label = `${role.sourceId} / ${state.id}`
-        expect(container.textContent ?? '', label).not.toMatch(FORBIDDEN_WORDS)
-      }
-    }
-    selectState('STATE-03')
+    sweepViews((label) => {
+      expect(container.textContent ?? '', label).not.toMatch(FORBIDDEN_WORDS)
+    })
     // Every device detail pane too — the note and the audit trail are the only
     // free prose about a device on this screen.
     for (const device of DEVICES) {
@@ -317,6 +367,76 @@ describe('MOD-SA-13 — the fifteen command states and the honest stepper', () =
     }
   })
 
+  it('STATE-06: banner, module note and every disabled reason print ONE identical cause', () => {
+    render(<DevicesScreen />)
+    // The ROOT, deliberately: it holds the draft AND the approval, so any
+    // role-framed cause ("holds no device action") is false of the very role
+    // that is nonetheless disabled here. The default role would prove nothing.
+    selectRole('ROLE-PLAT-ROOT')
+    selectState('STATE-06')
+    const reasons = new Set<string>()
+    const buttons = screen.getAllByRole('button')
+    expect(buttons.length).toBeGreaterThan(4)
+    for (const button of buttons) {
+      const name = button.textContent ?? ''
+      expect(button.getAttribute('aria-disabled'), name).toBe('true')
+      const describedBy = button.getAttribute('aria-describedby')
+      expect(describedBy, name).not.toBeNull()
+      reasons.add(document.getElementById(describedBy!)?.textContent ?? '')
+    }
+    // One cause, not one per control and not one per screen region.
+    expect([...reasons], 'every disabled control names the same cause').toHaveLength(1)
+    const cause = [...reasons][0]!
+    expect(cause).toMatch(/^Read-only \(STATE-06\)/)
+    // The banner and this module's own state note carry that same string,
+    // verbatim — the two other places the state is rendered.
+    const stateRegion = region('Screen state').textContent ?? ''
+    expect(stateRegion.split(cause), 'the note and the banner both carry it').toHaveLength(3)
+    // And no SECOND cause anywhere: the role framing the boundary used to
+    // print alongside it is gone.
+    expect(stateRegion).not.toMatch(/hold no device action|names the Admin as drafter/i)
+  })
+
+  it('STATE-06: the device-detail input is genuinely disabled; the view switchers are not', () => {
+    render(<DevicesScreen />)
+    const detail = (): HTMLSelectElement =>
+      screen.getByRole('combobox', { name: 'Open a device detail' }) as HTMLSelectElement
+    expect(detail().disabled).toBe(false)
+    selectState('STATE-06')
+    // "Every input is disabled" is a claim about the DOM, not about prose.
+    expect(detail().disabled).toBe(true)
+    // The two the copy exempts stay live, and must: disabling the screen-state
+    // switcher would leave a reader with no way out of the state.
+    for (const name of ['View as platform role', 'Screen state']) {
+      expect(
+        (screen.getByRole('combobox', { name }) as HTMLSelectElement).disabled,
+        name,
+      ).toBe(false)
+    }
+    selectState('STATE-03')
+    expect(detail().disabled).toBe(false)
+  })
+
+  it('a recorded draft never outlives the role or the screen state it was made under', () => {
+    render(<DevicesScreen />)
+    const drafted = (): boolean =>
+      /SA-REQ-0134/.test(region('Wipe and de-authorisation').textContent ?? '')
+    selectRole('ROLE-PLAT-ADMIN')
+    fireEvent.click(screen.getByRole('button', { name: /draft the wipe/i }))
+    expect(drafted()).toBe(true)
+    // A role that never held the control must be told it lacks the capability,
+    // never that the action is already done.
+    selectRole('ROLE-PLAT-ENG')
+    expect(drafted()).toBe(false)
+    expect(region('Wipe and de-authorisation').textContent ?? '').toMatch(/not permitted|no device action/i)
+    // A screen-state move clears it too.
+    selectRole('ROLE-PLAT-ADMIN')
+    fireEvent.click(screen.getByRole('button', { name: /draft the wipe/i }))
+    expect(drafted()).toBe(true)
+    selectState('STATE-06')
+    expect(drafted()).toBe(false)
+  })
+
   it('keeps the state name visible at every step of the reachable sequence', () => {
     render(<DevicesScreen />)
     for (const step of REACHED_WIPE_SEQUENCE) {
@@ -475,7 +595,7 @@ describe('MOD-SA-13 — the three prohibition renderings, by rule', () => {
   })
 
   it('…instead of inventing one: the drawn controls are exactly the ones the source defines', () => {
-    render(<DevicesScreen />)
+    const { container } = render(<DevicesScreen />)
     // The other half of the rule, and the half a presence-only assertion over
     // UNSPECIFIED_IN_SOURCE can never catch: an "Export the fleet inventory"
     // button two sections above a panel saying no export is defined. The
@@ -490,30 +610,36 @@ describe('MOD-SA-13 — the three prohibition renderings, by rule', () => {
       'Record a device suspension command',
     ]
     const COMBOBOXES = ['View as platform role', 'Screen state', 'Open a device detail']
-    // Every role and every screen state: a control cannot hide behind a view
-    // the default render never reaches.
-    for (const role of DEVICE_PLATFORM_ROLES) {
-      selectRole(role.sourceId)
-      for (const state of SCREEN_STATES.filter((s) => !s.frontlineOnly)) {
-        selectState(state.id)
-        const label = `${role.sourceId} / ${state.id}`
-        for (const button of screen.getAllByRole('button')) {
-          expect(CONTROLS, `${label}: ${button.textContent ?? ''}`).toContain(
-            (button.textContent ?? '').trim(),
-          )
-        }
-        expect(screen.getAllByRole('combobox'), label).toHaveLength(COMBOBOXES.length)
-        for (const name of COMBOBOXES) {
-          expect(screen.getByRole('combobox', { name }), label).toBeDefined()
-        }
-        // No text entry anywhere: a search box over a cross-tenant fleet is
-        // the ambient-browsing path the source forbids.
-        expect(screen.queryAllByRole('textbox'), label).toHaveLength(0)
-        expect(screen.queryAllByRole('searchbox'), label).toHaveLength(0)
-        expect(screen.queryAllByRole('spinbutton'), label).toHaveLength(0)
+    // The 48 permutations are swept with querySelectorAll rather than
+    // getAllByRole: role+name resolution over a tree with six tables and
+    // three option lists costs ~20ms a permutation, which is what made this
+    // test time out under load. The selectors cover the same ground — an
+    // explicit `role=` attribute is included in each — and cost nothing.
+    const controlsIn = (): readonly string[] =>
+      [...container.querySelectorAll('button, [role=button]')].map((b) =>
+        (b.textContent ?? '').trim(),
+      )
+    // The combobox names are proved once, outside the sweep: they are fixed
+    // labels, and nothing in the sweep can rename them.
+    for (const name of COMBOBOXES) expect(screen.getByRole('combobox', { name })).toBeDefined()
+    // Across the sweep: a control cannot hide behind a view the default
+    // render never reaches.
+    sweepViews((label) => {
+      for (const text of controlsIn()) {
+        expect(CONTROLS, `${label}: ${text}`).toContain(text)
       }
-    }
-    selectState('STATE-03')
+      expect(container.querySelectorAll('select, [role=combobox]'), label).toHaveLength(
+        COMBOBOXES.length,
+      )
+      // No text entry anywhere: a search box over a cross-tenant fleet is
+      // the ambient-browsing path the source forbids.
+      expect(
+        container.querySelectorAll(
+          'input, textarea, [contenteditable], [role=textbox], [role=searchbox], [role=spinbutton]',
+        ),
+        label,
+      ).toHaveLength(0)
+    })
   })
 
   it('renders the device policy layer as read-only, with no edit control drawn', () => {
