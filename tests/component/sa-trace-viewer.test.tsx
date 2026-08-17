@@ -140,8 +140,25 @@ describe('MOD-SA-06 Trace Viewer — the honest absence (D9)', () => {
   it('states plainly that it renders no aggregate rather than rendering a zero', () => {
     const { container } = render(<TraceViewerAbsence />)
     expect(textOf(container)).toMatch(/renders no aggregate/i)
-    // AC-SA-01-03: never a zero standing in for an absent count.
-    expect(container.querySelector('[data-aggregate]')).toBeNull()
+
+    // AC-SA-01-03: never a zero standing in for an absent count. An aggregate is
+    // rendered on this console as a value standing on its own — a stat tile, a
+    // table cell, a definition value. So: no element anywhere in this tree may
+    // have a bare number as its entire text. (Line refs like L4682 and ids like
+    // STATE-01 are not bare numbers and are unaffected.)
+    const bareNumbers = [...container.querySelectorAll('*')]
+      .map((el) => el.textContent?.trim() ?? '')
+      .filter((t) => /^-?\d[\d,.]*$/.test(t))
+    expect(bareNumbers, 'a bare number rendered as a value').toEqual([])
+
+    // ...and no count of the module's objects in running prose either, which is
+    // the same defect wearing a label.
+    expect(textOf(container)).not.toMatch(
+      /\b\d[\d,]*\s+(?:traces?|trace records?|decision records?)\b/i,
+    )
+    expect(textOf(container)).not.toMatch(
+      /\b(?:traces?|decision records?)\b[^.]{0,40}?[:=]\s*\d/i,
+    )
   })
 
   it('uses none of the four forbidden words, and no metric below tenant-month', () => {
