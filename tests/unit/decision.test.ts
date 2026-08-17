@@ -65,6 +65,33 @@ describe('permission decision', () => {
     }
   })
 
+  // Slice 3, from two Critical findings on SURF-SA. These strings are rendered
+  // verbatim by `PermissionNotice` on every surface, so a word choice here
+  // reaches every screen in the build.
+  //
+  // TWO separate rules land on the same phrase, and both point the same way:
+  //
+  // 1. AC-SCOPE-033 forbids describing the audit log as tamper-evident,
+  //    chained, signed or verified. `\bsigned\b` matches "signed-in", so the
+  //    SURF-SA vocabulary gate fired on ordinary authentication wording.
+  // 2. More importantly, "signed in" asserts a capability this build does not
+  //    have. There is no authentication anywhere: the role selector is a
+  //    view-switcher, and §29.4 forbids claiming a production capability that
+  //    is only simulated.
+  //
+  // So the fix is the copy, not the gate. `ALLOWED` already said "The current
+  // role" — the other codes now match it.
+  it('claims no authentication, and trips no forbidden-vocabulary gate', () => {
+    for (const [code, text] of Object.entries(REASON_CODES)) {
+      expect(text, `${code} implies a login this prototype does not have`).not.toMatch(
+        /\bsigned[ -]?in\b/i,
+      )
+      expect(text, `${code} trips the SURF-SA vocabulary gate`).not.toMatch(
+        /\b(tamper-evident|chained|signed|verified)\b/i,
+      )
+    }
+  })
+
   it('states an audit expectation on every decision', () => {
     const d: PermissionDecision = deny('explicitlyProhibited', 'EXPLICIT_DENY', 'x', {
       stage: 'BASE_ROLE',
