@@ -71,6 +71,26 @@ describe('MOD-SA-15 Support Access — the shell contract', () => {
     }
   })
 
+  // The copy a click produces is copy too. Closing and escalating both reveal
+  // prose that the default render never shows.
+  it.each(['ROOT_SUPER_ADMIN', 'ADMIN', 'SUPPORT'] as const)(
+    'states what the prototype actually did on close and escalate, claiming nothing it did not do (%s)',
+    (roleId) => {
+      for (const label of [/^Close this session$/, /^Escalate to the compliance-emergency path$/]) {
+        const view = render(<SupportAccessScreen role={roleId} />)
+        const detail = region(/Session detail/i)
+        fireEvent.click(within(detail).getByRole('button', { name: label }))
+        const text = view.container.textContent ?? ''
+        expect(text, roleId).toMatch(/noted in this run/i)
+        expect(text, roleId).toMatch(/No tenant workspace is connected to this storyboard/i)
+        expect(text, roleId).not.toMatch(
+          /tamper-evident|chained|signed|verified|took effect|was accepted|has been terminated/i,
+        )
+        view.unmount()
+      }
+    },
+  )
+
   it('resolves every link to a console route, and never to record-level tenant content', () => {
     for (const role of SUPPORT_PLATFORM_ROLES) {
       const { container, unmount } = render(<SupportAccessScreen role={role.id} />)
@@ -330,13 +350,25 @@ describe('MOD-SA-15 — D19: the emergency time box is required and unset', () =
 })
 
 describe('MOD-SA-15 — the tenant ends it, and no banner means no session', () => {
-  it('mirrors the tenant End-session control into the session detail, inert with its reason', () => {
-    render(<SupportAccessScreen />)
-    const detail = region(/Session detail/i)
-    const end = within(detail).getByRole('button', { name: /End session/i })
-    expect(end.getAttribute('aria-disabled')).toBe('true')
-    expect(within(detail).getByText(/belongs to the tenant/i)).toBeDefined()
-  })
+  // The reason is read from the button's OWN aria-describedby target, in every
+  // role and every state. Asserting only that some prose nearby mentions the
+  // tenant let a placeholder reason ('unused') sit on the control undetected.
+  it.each(APPLICABLE_STATES.flatMap((s) => SUPPORT_PLATFORM_ROLES.map((r) => [r.id, s.id] as const)))(
+    'mirrors the tenant End-session control inert, naming the Tenant Admin as its holder (%s, %s)',
+    (roleId, stateId) => {
+      render(<SupportAccessScreen role={roleId} screenState={stateId as ScreenStateId} />)
+      const detail = region(/Session detail/i)
+      const end = within(detail).getByRole('button', { name: /End session/i })
+      expect(end.getAttribute('aria-disabled')).toBe('true')
+      const reasonId = end.getAttribute('aria-describedby')
+      expect(reasonId, 'the control must point at its own stated reason').toBeTruthy()
+      const reason = document.getElementById(reasonId ?? '')
+      const text = reason?.textContent ?? ''
+      expect(text.length, `empty reason for ${roleId}/${stateId}`).toBeGreaterThan(40)
+      expect(text, `${roleId}/${stateId}`).toMatch(/Tenant Admin/)
+      expect(text, `${roleId}/${stateId}`).not.toMatch(/unused|placeholder|\bTBD\b|^denied$/i)
+    },
+  )
 
   it('renders the banner state as a first-class field on the session detail', () => {
     render(<SupportAccessScreen />)
@@ -486,19 +518,50 @@ describe('MOD-SA-15 — what the source does not define', () => {
 })
 
 describe('MOD-SA-15 — every state renders without a dead control', () => {
-  it('leaves no button that is neither actionable nor carrying a stated reason', () => {
-    for (const state of APPLICABLE_STATES) {
-      for (const role of SUPPORT_PLATFORM_ROLES) {
-        const { container, unmount } = render(
-          <SupportAccessScreen role={role.id} screenState={state.id as ScreenStateId} />,
-        )
-        for (const btn of Array.from(container.querySelectorAll('button'))) {
-          if (btn.getAttribute('aria-disabled') === 'true') {
-            expect(btn.getAttribute('aria-describedby'), `${role.id}/${state.id}`).toBeTruthy()
-          }
+  // Both halves of the property, not just the disabled half: a disabled button
+  // must state its reason, AND an enabled button must actually do something
+  // when pressed. The earlier version asserted only the first half, so an
+  // enabled button with no handler at all passed it.
+  it.each(APPLICABLE_STATES.flatMap((s) => SUPPORT_PLATFORM_ROLES.map((r) => [r.id, s.id] as const)))(
+    'leaves no button that is neither actionable nor carrying a stated reason (%s, %s)',
+    (roleId, stateId) => {
+      const first = render(
+        <SupportAccessScreen role={roleId} screenState={stateId as ScreenStateId} />,
+      )
+      const enabledNames: string[] = []
+      for (const btn of Array.from(first.container.querySelectorAll('button'))) {
+        const label = btn.textContent ?? ''
+        if (btn.getAttribute('aria-disabled') === 'true') {
+          const reasonId = btn.getAttribute('aria-describedby')
+          expect(reasonId, `${roleId}/${stateId}: "${label}" is inert with no reason`).toBeTruthy()
+          expect(
+            document.getElementById(reasonId ?? '')?.textContent ?? '',
+            `${roleId}/${stateId}: "${label}" states an empty reason`,
+          ).not.toBe('')
+        } else {
+          enabledNames.push(label)
         }
-        unmount()
       }
-    }
-  })
+      first.unmount()
+
+      // An enabled control must change the page when pressed. A fresh render per
+      // control, so one press never masks another.
+      for (const label of enabledNames) {
+        const view = render(
+          <SupportAccessScreen role={roleId} screenState={stateId as ScreenStateId} />,
+        )
+        const btn = Array.from(view.container.querySelectorAll('button')).find(
+          (b) => (b.textContent ?? '') === label,
+        )
+        expect(btn, `${roleId}/${stateId}: "${label}" vanished on re-render`).toBeDefined()
+        const before = view.container.textContent ?? ''
+        fireEvent.click(btn as HTMLButtonElement)
+        expect(
+          view.container.textContent ?? '',
+          `${roleId}/${stateId}: "${label}" is offered as operable but does nothing when pressed`,
+        ).not.toBe(before)
+        view.unmount()
+      }
+    },
+  )
 })

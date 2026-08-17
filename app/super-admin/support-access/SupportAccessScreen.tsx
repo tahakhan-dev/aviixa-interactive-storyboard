@@ -129,6 +129,8 @@ export function SupportAccessScreen({
   const [tenant, setTenant] = useState('')
   const [ticketRef, setTicketRef] = useState('')
   const [sessionRequested, setSessionRequested] = useState(false)
+  const [closureRecorded, setClosureRecorded] = useState(false)
+  const [escalationRecorded, setEscalationRecorded] = useState(false)
 
   const [emergencyClass, setEmergencyClass] = useState('')
   const [declaredScope, setDeclaredScope] = useState('')
@@ -251,6 +253,11 @@ export function SupportAccessScreen({
     'Opening a support session is held by the root, the platform Admin and Support (L55560, L16099). This role does not hold it.'
   const emergencyRootReason =
     'The first authorisation on the compliance-emergency path is the Root Super Admin’s alone (L9737). No other role can supply it, and the root cannot supply both.'
+  // The mirrored control's holder, named. A disabled control whose reason is a
+  // placeholder states no reason at all, which is the rendering the
+  // three-rendering rule exists to forbid.
+  const endSessionReason =
+    'This control belongs to the Tenant Admin, on the tenant’s own banner in the Delivery Operations Hub (L45700, L9966). No console role holds it, including the root — the tenant ends platform access, and the platform cannot end it on the tenant’s behalf.'
   const emergencyAdminReason =
     'The second authorisation is a platform Admin’s alone (L9737). No other role can supply it, and one person can never fill both slots (AC-SA-15-07).'
 
@@ -263,25 +270,34 @@ export function SupportAccessScreen({
       : 'A ticket-linked reason class, a tenant and a ticket reference must all be supplied first (AC-SA-15-02, L45753).')
   const openProps = openBlockedReason === '' ? {} : { disabledReason: openBlockedReason }
 
+  // A closure or an escalation leaves the session in a terminal state, so
+  // neither control acts on it a second time. The escalation closes this
+  // session as it hands the finding on, which is why it sets both.
+  const alreadyTerminalReason =
+    'This session is already recorded as closed in this prototype run, and a closed session is not closed or escalated again.'
   const closeProps =
-    closeDecision.outcome === 'allowed'
+    closeDecision.outcome === 'allowed' && !closureRecorded
       ? {}
       : {
-          disabledReason: namedReason(
-            closeDecision,
-            mode,
-            'Closing a session is held by its own operator — the root, the platform Admin or Support (L16111). This role does not hold it.',
-          ),
+          disabledReason: closureRecorded
+            ? alreadyTerminalReason
+            : namedReason(
+                closeDecision,
+                mode,
+                'Closing a session is held by its own operator — the root, the platform Admin or Support (L16111). This role does not hold it.',
+              ),
         }
   const escalateProps =
-    escalateDecision.outcome === 'allowed'
+    escalateDecision.outcome === 'allowed' && !closureRecorded
       ? {}
       : {
-          disabledReason: namedReason(
-            escalateDecision,
-            mode,
-            'Escalation is raised by the operator of the session — the root, the platform Admin or Support (L16111). This role does not hold it.',
-          ),
+          disabledReason: closureRecorded
+            ? alreadyTerminalReason
+            : namedReason(
+                escalateDecision,
+                mode,
+                'Escalation is raised by the operator of the session — the root, the platform Admin or Support (L16111). This role does not hold it.',
+              ),
         }
 
   const rootAuthProps =
@@ -482,11 +498,7 @@ export function SupportAccessScreen({
               renders nothing today. It stays because a future narrowing of the
               read must surface as a stated refusal rather than a vanished panel.
               The refusal on every OTHER control is carried by the control's own
-              named reason instead of a second notice: one cause, one message —
-              and the shared policy explanation for a role refusal opens "The
-              signed-in role...", whose "signed-in" trips the slice's
-              forbidden-word substring gate. See the report accompanying this
-              module. */}
+              named reason instead of a second notice: one cause, one message. */}
           <PermissionNotice decision={readDecision} />
         </div>
       </Section>
@@ -542,21 +554,47 @@ export function SupportAccessScreen({
 
         <div className="mt-4 flex flex-wrap items-start gap-4">
           <div>
-            <Button {...closeProps} variant="secondary">
+            <Button {...closeProps} variant="secondary" onClick={() => setClosureRecorded(true)}>
               Close this session
             </Button>
           </div>
           <div>
-            <Button {...escalateProps} variant="secondary">
+            <Button
+              {...escalateProps}
+              variant="secondary"
+              onClick={() => {
+                setEscalationRecorded(true)
+                setClosureRecorded(true)
+              }}
+            >
               Escalate to the compliance-emergency path
             </Button>
           </div>
           <div>
-            <Button {...{ disabledReason: namedReason(endSessionDecision, mode, 'unused') }}>
+            <Button {...{ disabledReason: namedReason(endSessionDecision, mode, endSessionReason) }}>
               End session (tenant control)
             </Button>
           </div>
         </div>
+        {closureRecorded ? (
+          <div className="mt-3">
+            <StatusPill
+              tone="info"
+              icon="•"
+              label={escalationRecorded ? 'escalation noted in this run' : 'closure noted in this run'}
+            />
+            <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+              What the prototype did: it moved this fixture session to a terminal state in this
+              browser tab, and nothing else.{' '}
+              {escalationRecorded
+                ? 'No compliance-emergency session was initiated — that path still needs its two authorisations and a time box the source does not fix.'
+                : 'No tenant access was withdrawn.'}{' '}
+              No tenant workspace is connected to this storyboard, so no access was cut off, no
+              banner was cleared, no post-session report was raised and nothing was written to
+              either audit stream. Reload the page and the fixture session is back as it was.
+            </p>
+          </div>
+        ) : null}
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
           The End-session control belongs to the tenant, on its own banner in the Delivery Operations
           Hub (L45700, L9966). It is mirrored into this detail so a reader can see it exists; no
