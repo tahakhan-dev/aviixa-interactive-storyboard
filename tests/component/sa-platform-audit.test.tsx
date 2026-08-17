@@ -18,6 +18,26 @@ import {
 /** D10 / spec §10 gate 4: these four words appear nowhere in SURF-SA copy. */
 const FORBIDDEN_WORDS = /\b(tamper-evident|chained|signed|verified)\b/i
 
+const NUMBER_WORD =
+  'zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred'
+
+/**
+ * D4: no count of event classes anywhere. The earlier alternation listed only
+ * `twenty|twenty-two|twenty two|\d+`, so "eleven classes" — a count of exactly
+ * the kind D4 forbids — walked straight through it. Every number word counts,
+ * in digits or spelled out, with up to three words of filler ("named event",
+ * "provisional") before the noun.
+ *
+ * The lookbehind is the one exemption: "the three named access classes" is a
+ * count of the THREE named access classes, a closed fact of the spec that this
+ * screen is required to state, not a count of the event-class fixture whose
+ * size the source contradicts itself about.
+ */
+const COUNT_OF_CLASSES = new RegExp(
+  String.raw`\b(?:\d+|(?:${NUMBER_WORD})(?:[- ](?:${NUMBER_WORD}))?)\s+(?:\w+\s+){0,3}(?<!access )classes\b`,
+  'i',
+)
+
 /**
  * All rendered copy with a separator at every element edge. `textContent`
  * concatenates adjacent text nodes with nothing between them, which blinds a
@@ -38,13 +58,18 @@ function renderAs(role: SaConsoleRoleToken, state?: ScreenStateId) {
 }
 
 /**
- * The first cut of the absence and copy gates scanned only the screen as first
- * painted, and a planted "Edit the export fixture" button survived — because
- * that control exists only after the export flow has been driven. A gate that
- * cannot see what an interaction reveals is not a gate. Every scanning test
- * below drives the export flow to its terminal state first.
+ * Runs `check` on the screen as first painted and again after EVERY click that
+ * advances the export flow — requested, generated, delivered.
+ *
+ * Two earlier cuts of the scanning gates were blind. The first scanned only the
+ * first paint, and a planted "Edit the export fixture" button survived. The
+ * second drove the flow to its terminal state and scanned once there, which
+ * moved the blind spot rather than closing it: anything rendered only while the
+ * export is `requested` or `generated` — one click from the root — was still
+ * never looked at. Checking at every step is the only shape that holds.
  */
-function driveEveryRevealedControl(): void {
+function atEveryExportStep(check: () => void): void {
+  check()
   for (let i = 0; i < 4; i += 1) {
     // A raw DOM scan, not `screen.queryByRole`: this runs 48 times per
     // scanning test and the accessibility-tree query is the slow path.
@@ -53,8 +78,9 @@ function driveEveryRevealedControl(): void {
         /request .*export|advance/i.test(b.textContent ?? '') &&
         b.getAttribute('aria-disabled') !== 'true',
     )
-    if (next === undefined) break
+    if (next === undefined) return
     fireEvent.click(next)
+    check()
   }
 }
 
@@ -96,8 +122,9 @@ describe('MOD-SA-18 Platform Audit — the shell contract', () => {
     for (const role of ALL_ROLES) {
       for (const state of APPLICABLE_SCREEN_STATES) {
         const view = renderAs(role, state.id)
-        driveEveryRevealedControl()
-        expect(renderedCopy()).not.toMatch(FORBIDDEN_WORDS)
+        atEveryExportStep(() => {
+          expect(renderedCopy()).not.toMatch(FORBIDDEN_WORDS)
+        })
         view.unmount()
       }
     }
@@ -147,21 +174,22 @@ describe('MOD-SA-18 — edit and delete are ABSENT, not even greyed (AC-SA-18-04
     for (const role of ALL_ROLES) {
       for (const state of APPLICABLE_SCREEN_STATES) {
         const view = renderAs(role, state.id)
-        driveEveryRevealedControl()
-        // A raw selector rather than four `queryAllByRole` calls: this runs 48
-        // times and the accessibility-tree walk dominates the runtime. The
-        // selector is also WIDER than the role queries were — it catches an
-        // ARIA-role control on a plain element, which a `role: 'button'` query
-        // would find but a `role: 'checkbox'` query would not have.
-        const actionable = [
-          ...document.querySelectorAll(
-            'button, a[href], input, select, [role=button], [role=link], [role=checkbox], [role=switch], [role=menuitem]',
-          ),
-        ]
-        for (const el of actionable) {
-          const name = `${el.textContent ?? ''} ${el.getAttribute('aria-label') ?? ''}`
-          expect(name).not.toMatch(/\b(edit|delete|remove|purge|amend|redact)\b/i)
-        }
+        atEveryExportStep(() => {
+          // A raw selector rather than four `queryAllByRole` calls: this runs
+          // 48 times and the accessibility-tree walk dominates the runtime. The
+          // selector is also WIDER than the role queries were — it catches an
+          // ARIA-role control on a plain element, which a `role: 'button'` query
+          // would find but a `role: 'checkbox'` query would not have.
+          const actionable = [
+            ...document.querySelectorAll(
+              'button, a[href], input, select, [role=button], [role=link], [role=checkbox], [role=switch], [role=menuitem]',
+            ),
+          ]
+          for (const el of actionable) {
+            const name = `${el.textContent ?? ''} ${el.getAttribute('aria-label') ?? ''}`
+            expect(name).not.toMatch(/\b(edit|delete|remove|purge|amend|redact)\b/i)
+          }
+        })
         view.unmount()
       }
     }
@@ -184,15 +212,33 @@ describe('MOD-SA-18 — the class filter is data-driven and its count appears no
   })
 
   it('never renders a count of event classes, for any role in any state', () => {
-    const countShapes =
-      /\b(twenty|twenty-two|twenty two|\d+)\s*(named\s+)?(event\s+)?(audit\s+)?classes\b/i
     for (const role of ALL_ROLES) {
       for (const state of APPLICABLE_SCREEN_STATES) {
         const view = renderAs(role, state.id)
-        driveEveryRevealedControl()
-        expect(renderedCopy()).not.toMatch(countShapes)
+        atEveryExportStep(() => {
+          expect(renderedCopy()).not.toMatch(COUNT_OF_CLASSES)
+        })
         view.unmount()
       }
+    }
+  })
+
+  it('has a count gate with teeth: it catches any spelled-out count, and exempts only the three named access classes', () => {
+    for (const planted of [
+      'Twenty-two classes are seeded.',
+      'eleven classes',
+      '22 classes',
+      'twenty two named event classes',
+      'Three provisional event classes are offered.',
+    ]) {
+      expect(planted).toMatch(COUNT_OF_CLASSES)
+    }
+    for (const legitimate of [
+      'the three named access classes',
+      'Results render with class filters showing only permitted classes',
+      'the frozen source gives two irreconcilable figures for the number of named classes',
+    ]) {
+      expect(legitimate).not.toMatch(COUNT_OF_CLASSES)
     }
   })
 
@@ -272,6 +318,33 @@ describe('MOD-SA-18 — every affordance runs through evaluateAccess (D16)', () 
     }
   })
 
+  it('never prints a raw role token in the Actor column, including tenant-domain actors', () => {
+    renderAs(ROOT)
+    const cells = [...document.querySelectorAll('td')].map((c) => c.textContent ?? '')
+    const actorCells = cells.filter((t) => /\(.*\)/.test(t))
+    expect(actorCells.length).toBeGreaterThan(0)
+    for (const t of actorCells) expect(t).not.toMatch(/[A-Z]{2,}_[A-Z_]+/)
+    // AUD-BB-000008 is the tenant-domain actor: the row a platform-only role
+    // lookup fell through on.
+    expect(actorCells.some((t) => /Priya \(Tenant Admin\)/.test(t))).toBe(true)
+  })
+
+  it('refuses the export where the screen state refuses every submission (STATE-06, STATE-12)', () => {
+    for (const state of ['STATE-06', 'STATE-12'] as const) {
+      for (const role of [ROOT, ADMIN]) {
+        const view = renderAs(role, state)
+        const btn = screen.getByRole('button', { name: /request .*export/i })
+        expect(btn.getAttribute('aria-disabled')).toBe('true')
+        expect(reasonTextOf(btn)).toMatch(/read-only|cannot be audited/i)
+        const before = screen.queryAllByTestId('audit-entry-state').length
+        fireEvent.click(btn)
+        expect(screen.queryByTestId('export-state')).toBeNull()
+        expect(screen.queryAllByTestId('audit-entry-state')).toHaveLength(before)
+        view.unmount()
+      }
+    }
+  })
+
   it('names both source controls and no third invented one', () => {
     expect(MODULE_CONTROLS.map((c) => c.id)).toEqual(['audit-filters', 'class-filtered-export'])
   })
@@ -318,6 +391,22 @@ describe('MOD-SA-18 — aggregates never render as zero or blank (AC-SA-01-03)',
     const copy = renderedCopy()
     expect(copy).toMatch(/as of/i)
     expect(copy).toMatch(/\bold\b|\bage\b|\bago\b|hours|minutes/i)
+  })
+
+  it('never counts records the same screen says do not exist (STATE-01)', () => {
+    for (const role of ALL_ROLES) {
+      const view = renderAs(role, 'STATE-01')
+      const agg = screen.getByTestId('entries-aggregate').textContent ?? ''
+      // The table is empty in STATE-01, so the aggregate may not assert a
+      // match count — and it may not be a zero or a blank either.
+      expect(screen.queryAllByTestId('audit-entry-state')).toHaveLength(0)
+      expect(agg).not.toMatch(/\d+\s*matching/i)
+      expect(agg).not.toMatch(/(^|\D)0(\D|$)/)
+      expect(agg.trim()).not.toBe('')
+      expect(agg).toMatch(/no platform audit entry has been recorded yet/i)
+      expect(agg).toMatch(/as of/i)
+      view.unmount()
+    }
   })
 
   it('renders unavailable rather than zero when the aggregate cannot be produced', () => {

@@ -14,7 +14,7 @@ import { evaluateAccess } from '@/policy/evaluate'
 import { permitsAction, type PermissionDecision } from '@/policy/decision'
 import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
-import { rolesInDomain, type RoleId } from '@/domain/roles'
+import { roleById, type RoleId } from '@/domain/roles'
 import { SaConsoleShell } from '../SaConsoleShell'
 
 /**
@@ -56,17 +56,21 @@ export interface SaConsoleRoleView {
   readonly label: string
 }
 
-const PLATFORM_ROLES = rolesInDomain('PLATFORM')
-
-function platformRoleName(id: RoleId): string {
-  return PLATFORM_ROLES.find((r) => r.id === id)?.name ?? id
+/**
+ * The human name of any role, in either security domain. The audit log records
+ * acts by tenant-domain actors too (a registry write by a Tenant Admin, say),
+ * so a platform-only lookup would fall through to the raw enum token and print
+ * an internal identifier where every other row prints a name.
+ */
+function roleName(id: RoleId): string {
+  return roleById(id).name
 }
 
 export const CONSOLE_ROLE_VIEWS = [
-  { token: 'ROLE-PLAT-ROOT', roleId: 'ROOT_SUPER_ADMIN', label: platformRoleName('ROOT_SUPER_ADMIN') },
-  { token: 'ROLE-PLAT-ADMIN', roleId: 'ADMIN', label: platformRoleName('ADMIN') },
-  { token: 'ROLE-PLAT-ENG', roleId: 'PLATFORM_ENGINEER', label: platformRoleName('PLATFORM_ENGINEER') },
-  { token: 'ROLE-PLAT-SUP', roleId: 'SUPPORT', label: platformRoleName('SUPPORT') },
+  { token: 'ROLE-PLAT-ROOT', roleId: 'ROOT_SUPER_ADMIN', label: roleName('ROOT_SUPER_ADMIN') },
+  { token: 'ROLE-PLAT-ADMIN', roleId: 'ADMIN', label: roleName('ADMIN') },
+  { token: 'ROLE-PLAT-ENG', roleId: 'PLATFORM_ENGINEER', label: roleName('PLATFORM_ENGINEER') },
+  { token: 'ROLE-PLAT-SUP', roleId: 'SUPPORT', label: roleName('SUPPORT') },
 ] as const satisfies readonly SaConsoleRoleView[]
 
 type MissingFromConsoleRoles = Exclude<
@@ -164,7 +168,10 @@ export const AUDIT_EVENT_CLASSES = [
   {
     id: 'approval',
     name: 'Approval',
-    sourceRef: 'The four change classes, L21026',
+    // The count that stood here ("the four change classes") is dropped: this
+    // screen states no count of classes of any kind, and a reader cannot tell
+    // a change-class count from an event-class one (D4).
+    sourceRef: 'The change classes, L21026',
     isAccessClass: false,
   },
   {
@@ -371,8 +378,11 @@ export const AUDIT_ENTRIES = [
 const ANY = '__any__'
 
 const ACTOR_OPTIONS = Array.from(new Set(AUDIT_ENTRIES.map((e) => e.actor))).sort()
+// `flatMap`, not `filter` with a type predicate: the fixture is `as const`, so
+// `tenant` is a literal union and a `t is string` predicate is wider than the
+// value it narrows — which TypeScript rejects outright (TS2677).
 const TENANT_OPTIONS = Array.from(
-  new Set(AUDIT_ENTRIES.map((e) => e.tenant).filter((t): t is string => t !== null)),
+  new Set(AUDIT_ENTRIES.flatMap((e) => (e.tenant === null ? [] : [e.tenant]))),
 ).sort()
 const OBJECT_OPTIONS = Array.from(new Set(AUDIT_ENTRIES.map((e) => e.object))).sort()
 
@@ -586,10 +596,18 @@ const AUDIT_INVARIANT: SaInvariantDefinition = (() => {
   return found
 })()
 
-type AggregateVariant = 'current' | 'stale' | 'unavailable' | 'reading'
+type AggregateVariant = 'current' | 'stale' | 'unavailable' | 'reading' | 'empty'
 
+/**
+ * The aggregate reads the same rows the table reads, so it cannot assert a
+ * count over records the same screen says do not exist. STATE-01 is that case
+ * and gets its own rendering: the empty state is not "no match for the current
+ * filter", and it is not a zero either.
+ */
 function aggregateVariant(state: ScreenStateId): AggregateVariant {
   switch (state) {
+    case 'STATE-01':
+      return 'empty'
     case 'STATE-02':
     case 'STATE-13':
       return 'reading'
@@ -648,6 +666,17 @@ export function PlatformAuditScreen({
   const mayExport = mayAct(exportControl, roleId)
   const variant = aggregateVariant(screenStateId)
 
+  // A control that ignores the screen state is a dead control. STATE-06 is
+  // read-only, so nothing is submitted from it; under STATE-12 the audit store
+  // cannot be read, and an export writes its own audit entry — an action that
+  // cannot be audited does not happen (AC-SA-18-02, FB-SA-03 L46191).
+  const submissionBlocked: string | null =
+    screenStateId === 'STATE-06'
+      ? 'This screen is in its read-only state. Nothing is submitted from it, so the export request is refused here rather than left live.'
+      : screenStateId === 'STATE-12'
+        ? 'The audit store could not be read, and an export writes its own audit entry in the same transaction. An action that cannot be audited does not happen (AC-SA-18-02, FB-SA-03 L46191), so nothing may be submitted from this state.'
+        : null
+
   // L74224: Support reads its OWN session records — the actor bound, not just
   // the class bound. Every other role's scope is the class bound alone.
   const scoped = [...AUDIT_ENTRIES, ...exportEntries].filter((e) => {
@@ -681,7 +710,7 @@ export function PlatformAuditScreen({
           class: (
             <span data-testid="audit-entry-class">{auditEventClass(e.classId)?.name ?? e.classId}</span>
           ),
-          actor: `${e.actor} (${platformRoleName(e.actorRole)})`,
+          actor: `${e.actor} (${roleName(e.actorRole)})`,
           tenant: e.tenant ?? 'Platform — no tenant',
           object: e.object,
           occurredAt: e.occurredAt,
@@ -701,7 +730,7 @@ export function PlatformAuditScreen({
       {
         id: receiptId,
         classId: 'audit-export',
-        actor: role.label === platformRoleName('ROOT_SUPER_ADMIN') ? 'Aisha' : 'Noah',
+        actor: role.label === roleName('ROOT_SUPER_ADMIN') ? 'Aisha' : 'Noah',
         actorRole: roleId,
         tenant: null,
         object: 'OBJ-SA-AUDITEXPORT',
@@ -849,15 +878,31 @@ export function PlatformAuditScreen({
         >
           {variant === 'current' ? (
             <p>
-              <strong>{rows.length === 0 ? 'No entry matches the current filter' : `${rows.length} matching`}</strong>{' '}
+              <strong>
+                {tableRows.length === 0
+                  ? 'No entry matches the current filter'
+                  : `${tableRows.length} matching`}
+              </strong>{' '}
               — as of {AS_OF_CURRENT} (fixture value, not a live clock).
             </p>
           ) : null}
           {variant === 'stale' ? (
             <p>
-              <strong>{rows.length === 0 ? 'No entry matches the current filter' : `${rows.length} matching`}</strong>{' '}
+              <strong>
+                {tableRows.length === 0
+                  ? 'No entry matches the current filter'
+                  : `${tableRows.length} matching`}
+              </strong>{' '}
               — as of {AS_OF_STALE}, {STALE_AGE} (fixture value). Shown with its age, never as though
               it were current.
+            </p>
+          ) : null}
+          {variant === 'empty' ? (
+            <p>
+              <strong>No platform audit entry has been recorded yet</strong> — as of {AS_OF_CURRENT}{' '}
+              (fixture value, not a live clock). The aggregate reads the rows the table below reads,
+              so it says what that table says rather than counting records this screen states do not
+              exist.
             </p>
           ) : null}
           {variant === 'reading' ? (
@@ -1002,7 +1047,9 @@ export function PlatformAuditScreen({
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           {mayExport ? (
-            exportState === null ? (
+            submissionBlocked !== null ? (
+              <Button disabledReason={submissionBlocked}>Request a class-filtered export</Button>
+            ) : exportState === null ? (
               <Button onClick={requestExport}>Request a class-filtered export</Button>
             ) : (
               <Button disabledReason="An export is already in flight. Its state is shown beside this control; a second request would be a second export, not a retry.">
@@ -1027,9 +1074,15 @@ export function PlatformAuditScreen({
                 </strong>
               </span>
               {exportState !== 'delivered' ? (
-                <Button variant="secondary" onClick={advanceExport}>
-                  Advance the export fixture
-                </Button>
+                submissionBlocked !== null ? (
+                  <Button variant="secondary" disabledReason={submissionBlocked}>
+                    Advance the export fixture
+                  </Button>
+                ) : (
+                  <Button variant="secondary" onClick={advanceExport}>
+                    Advance the export fixture
+                  </Button>
+                )
               ) : null}
             </>
           ) : null}
