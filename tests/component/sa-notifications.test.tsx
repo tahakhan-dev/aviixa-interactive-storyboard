@@ -25,6 +25,26 @@ function interactiveText(container: HTMLElement): string[] {
   ).map((el) => `${el.textContent ?? ''} ${el.getAttribute('aria-label') ?? ''}`)
 }
 
+/**
+ * Every input the SCREEN owns, which is every input except the two fixture
+ * switchers. Those two step the storyboard; they are not inputs of the screen
+ * under annotation, and freezing them would strand a reader inside the state
+ * they stepped into.
+ */
+function screenOwnedInputs(
+  container: HTMLElement,
+): (HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement)[] {
+  const switchers = [
+    screen.getByLabelText(/Console role/i),
+    screen.getByLabelText(/Screen state/i),
+  ]
+  return Array.from(
+    container.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+      'input, select, textarea',
+    ),
+  ).filter((el) => !switchers.includes(el))
+}
+
 describe('MOD-SA-14 Platform Notifications — the shell contract', () => {
   it('renders under the console shell with band and module id as an annotation, and exactly one h1', () => {
     render(<NotificationsScreen />)
@@ -46,21 +66,22 @@ describe('MOD-SA-14 Platform Notifications — the shell contract', () => {
     }
   })
 
-  // Rendered copy, for every role and both targets — not just the default
-  // view. The shared `PermissionNotice` renders `decision.explanation`, and
-  // the default text for `ROLE_NOT_GRANTED` is "The signed-in role does not
-  // carry a grant for this action", which contains one of the four forbidden
-  // words. A gate that only renders the default role never sees it.
-  it('names none of the four forbidden words anywhere in its copy, for any role', () => {
+  // Rendered copy for every role, both targets AND every applicable state —
+  // not just the default view. Most of this screen's denial and read-only
+  // sentences exist only off the default path, so a sweep of the default
+  // render can never reach the copy most likely to carry a banned word.
+  it('names none of the four forbidden words anywhere in its copy, for any role in any state', () => {
     for (const role of NOTIF_PLATFORM_ROLES) {
       for (const target of ['single-tenant', 'all-tenant'] as const) {
-        const { container, unmount } = render(
-          <NotificationsScreen role={role.id} target={target} />,
-        )
-        expect(container.textContent ?? '', `${role.id}/${target}`).not.toMatch(
-          /tamper-evident|chained|signed|verified/i,
-        )
-        unmount()
+        for (const state of APPLICABLE_STATES) {
+          const { container, unmount } = render(
+            <NotificationsScreen role={role.id} target={target} screenState={state.id} />,
+          )
+          expect(container.textContent ?? '', `${role.id}/${target}/${state.id}`).not.toMatch(
+            /tamper-evident|chained|signed|verified/i,
+          )
+          unmount()
+        }
       }
     }
   })
@@ -175,7 +196,10 @@ describe('MOD-SA-14 — per-control allowed roles, through evaluateAccess', () =
     ['ADMIN', true],
     ['PLATFORM_ENGINEER', false],
     ['SUPPORT', false],
-  ] as const)('single-tenant notice: send is actionable=%s for %s', (roleId, actionable) => {
+    // The tuple is [roleId, actionable], so the template names the role first
+    // and the expectation second — a name that reads back in the order the
+    // row is written, and therefore changes when a row's boolean is flipped.
+  ] as const)('single-tenant notice: %s — send is actionable=%s', (roleId, actionable) => {
     render(<NotificationsScreen role={roleId} target="single-tenant" />)
     const composer = screen.getByRole('region', { name: /Composer/i })
     const send = within(composer).getByRole('button', { name: /Send notice/i })
@@ -332,6 +356,42 @@ describe('MOD-SA-14 — the twelve applicable screen states', () => {
     expect(
       screen.getAllByRole('status').filter((n) => /read-only/i.test(n.textContent ?? '')),
     ).toHaveLength(1)
+  })
+
+  // The screen prints the state contract verbatim — "Every input is disabled"
+  // for STATE-06, "nothing may be submitted" for STATE-12. These two walk the
+  // inputs the screen owns and the buttons that submit them, in the state the
+  // contract is quoted in, not in the default state.
+  it.each(['STATE-06', 'STATE-12'] as const)(
+    '%s: every input the screen owns is inert and nothing is submitted',
+    (stateId) => {
+      const { container } = render(<NotificationsScreen role="ADMIN" screenState={stateId} />)
+      fireEvent.click(screen.getByRole('button', { name: /Request a support session/i }))
+      const inputs = screenOwnedInputs(container)
+      expect(inputs.length, 'no inputs found — the walk would pass vacuously').toBe(7)
+      for (const el of inputs) {
+        expect(el.disabled, `${stateId} ${el.tagName}#${el.id}`).toBe(true)
+      }
+      for (const name of [/Send notice/i, /Re-send/i, /Submit session request/i]) {
+        expect(
+          screen.getByRole('button', { name }).getAttribute('aria-disabled'),
+          `${stateId} ${String(name)}`,
+        ).toBe('true')
+      }
+    },
+  )
+
+  it('STATE-03: those same inputs are live, so the two assertions above can fail', () => {
+    const { container } = render(<NotificationsScreen role="ADMIN" screenState="STATE-03" />)
+    fireEvent.click(screen.getByRole('button', { name: /Request a support session/i }))
+    const inputs = screenOwnedInputs(container)
+    expect(inputs.length).toBe(7)
+    for (const el of inputs) {
+      expect(el.disabled, `${el.tagName}#${el.id}`).toBe(false)
+    }
+    expect(
+      screen.getByRole('button', { name: /Submit session request/i }).getAttribute('aria-disabled'),
+    ).toBeNull()
   })
 
   it('STATE-09: an accepted send renders in its true broadcast state, never as sent', () => {

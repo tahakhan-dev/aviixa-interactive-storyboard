@@ -80,22 +80,25 @@ function aggregateMode(state: ScreenStateId): AggregateMode {
  * The named reason a drawn-but-inert control carries, written here rather
  * than taken from `decision.explanation`.
  *
- * This is a deliberate deviation from the pattern the other modules use, and
- * it is not stylistic: `PermissionNotice` renders `decision.explanation`, and
- * the default text `@/policy/decision` supplies for `ROLE_NOT_GRANTED` is
- * "The signed-in role does not carry a grant for this action" — which
- * contains one of the four words D10 bans from every line of SURF-SA copy.
- * Rendering a denied decision through that primitive would put a forbidden
- * word on screen. The decision object still drives WHETHER the control acts;
- * only the sentence is ours.
+ * The spine's own `ROLE_NOT_GRANTED` text ("The current role does not carry a
+ * grant for this action.") is correct but generic: it names no holder. D10's
+ * named-reason rendering has to say WHO carries the control instead, and the
+ * source names a different holder per control here — the channel selector's
+ * pair (L45614) is not the Admin's submission control. The decision object
+ * still drives WHETHER the control acts; only the sentence is ours.
  */
 function namedReason(
   decision: PermissionDecision,
   role: RoleId,
   availability: ComposerAvailability,
-  control: 'send' | 'submit' | 'resend' | 'channels',
+  control: 'send' | 'submit' | 'resend' | 'channels' | 'session',
 ): string {
   if (decision.outcome === 'allowed') return ''
+  if (control === 'session') {
+    return availability === 'read-only'
+      ? 'This screen is read-only in this state, so no session request is submitted from it.'
+      : 'This screen could not be read in this state, so no session request is submitted from it.'
+  }
   if (decision.reasonCode === 'ROLE_NOT_GRANTED') {
     if (control === 'submit') {
       return 'Submitting an all-tenant broadcast for root approval is the Admin’s control (L45614). This role does not hold it.'
@@ -163,6 +166,23 @@ export function NotificationsScreen({
   const isAllTenant = target === 'all-tenant'
   const isRoot = role === 'ROOT_SUPER_ADMIN'
 
+  // STATE-06 disables EVERY input this screen owns, and STATE-12 accepts no
+  // submission — the state contract is printed a few lines below, so a live
+  // field here would contradict the sentence beside it.
+  //
+  // The two fixture switchers above are deliberately not among them: they are
+  // the storyboard's stepping controls, not inputs of the screen under
+  // annotation, and freezing them would strand a reader inside the very state
+  // they stepped into.
+  const inputsDisabled = availability !== 'available'
+  const inputReason =
+    availability === 'read-only'
+      ? 'This screen is read-only in this state: this field accepts no entry, and nothing is submitted from it.'
+      : 'This screen could not be read in this state: this field accepts no entry, and nothing is submitted from it.'
+  const describe = (base: string): string => (inputsDisabled ? `${base} ${inputReason}` : base)
+  const INPUT_CLASS =
+    'w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm text-[var(--color-ink)] disabled:opacity-50'
+
   const context = {
     state: FIXTURE_STATE,
     identity: {
@@ -222,6 +242,19 @@ export function NotificationsScreen({
     },
     context,
   )
+  // Every console role may raise a session request; the screen state is the
+  // only thing that stops one, and it stops it through the same evaluator
+  // rather than through a raw boolean on the button.
+  const sessionDecision = evaluateAccess(
+    {
+      action: 'MOD-SA-14:request-support-session',
+      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'],
+      allowedObjectStates: ['available'],
+      objectState: availability,
+      sourceRefs: ['L16022', 'D18 L56107'],
+    },
+    context,
+  )
 
   const sendProps =
     sendDecision.outcome === 'allowed'
@@ -235,6 +268,10 @@ export function NotificationsScreen({
     resendDecision.outcome === 'allowed'
       ? {}
       : { disabledReason: namedReason(resendDecision, role, availability, 'resend') }
+  const sessionProps =
+    sessionDecision.outcome === 'allowed'
+      ? {}
+      : { disabledReason: namedReason(sessionDecision, role, availability, 'session') }
 
   // AC-SA-01-03: a count is only rendered when there is something to count.
   // A category with nothing in it is not reported as the number nought.
@@ -334,16 +371,21 @@ export function NotificationsScreen({
         </ul>
         {channelDecision.outcome === 'allowed' ? (
           <div className="mt-3 max-w-md">
-            <Select
+            <Field
               label="Channels for this send"
-              value={channelChoice}
-              onChange={setChannelChoice}
-              options={[
-                { value: 'in-app', label: 'In-app only' },
-                { value: 'email', label: 'Email only' },
-                { value: 'both', label: 'In-app and email' },
-              ]}
-            />
+              description={describe('Either channel alone, or both together.')}
+            >
+              <select
+                value={channelChoice}
+                disabled={inputsDisabled}
+                onChange={(e) => setChannelChoice(e.target.value)}
+                className={INPUT_CLASS}
+              >
+                <option value="in-app">In-app only</option>
+                <option value="email">Email only</option>
+                <option value="both">In-app and email</option>
+              </select>
+            </Field>
           </div>
         ) : (
           <p role="note" className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
@@ -362,40 +404,59 @@ export function NotificationsScreen({
           quietly.
         </p>
         <div className="mt-3 max-w-md">
-          <Select
-            label="Target"
-            value={target}
-            onChange={(v) => setTarget(v as BroadcastTarget)}
-            options={BROADCAST_TARGETS.map((t) => ({ value: t.id, label: t.label }))}
-          />
+          <Field label="Target" description={describe('One named tenant, or every tenant.')}>
+            <select
+              value={target}
+              disabled={inputsDisabled}
+              onChange={(e) => setTarget(e.target.value as BroadcastTarget)}
+              className={INPUT_CLASS}
+            >
+              {BROADCAST_TARGETS.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </Field>
         </div>
         <div className="mt-3 max-w-xl space-y-3">
           <Field
             label="Announcement type"
-            description="Free text: the source names the field but enumerates no closed set of types."
+            description={describe(
+              'Free text: the source names the field but enumerates no closed set of types.',
+            )}
           >
             <input
               value={announcementType}
+              disabled={inputsDisabled}
               onChange={(e) => setAnnouncementType(e.target.value)}
-              className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm"
+              className={INPUT_CLASS}
             />
           </Field>
           <Field
             label="Severity"
-            description="Free text: no broadcast-severity value set is enumerated for this module."
+            description={describe(
+              'Free text: no broadcast-severity value set is enumerated for this module.',
+            )}
           >
             <input
               value={severity}
+              disabled={inputsDisabled}
               onChange={(e) => setSeverity(e.target.value)}
-              className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm"
+              className={INPUT_CLASS}
             />
           </Field>
-          <Field label="Body" required>
+          <Field
+            label="Body"
+            required
+            {...(inputsDisabled ? { description: inputReason } : {})}
+          >
             <textarea
               value={body}
+              disabled={inputsDisabled}
               onChange={(e) => setBody(e.target.value)}
               rows={3}
-              className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm"
+              className={INPUT_CLASS}
             />
           </Field>
         </div>
@@ -628,16 +689,23 @@ export function NotificationsScreen({
             extension control — a longer look is a new request with a fresh reason (D18, L56107).
           </p>
           <div className="mt-3 max-w-xl space-y-3">
-            <Field label="Reason for the session" required>
-              <textarea
-                rows={2}
-                className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm"
-              />
+            <Field
+              label="Reason for the session"
+              required
+              {...(inputsDisabled ? { description: inputReason } : {})}
+            >
+              <textarea rows={2} disabled={inputsDisabled} className={INPUT_CLASS} />
             </Field>
-            <Field label="Ticket reference" required>
-              <input className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm" />
+            <Field
+              label="Ticket reference"
+              required
+              {...(inputsDisabled ? { description: inputReason } : {})}
+            >
+              <input disabled={inputsDisabled} className={INPUT_CLASS} />
             </Field>
-            <Button onClick={() => setSessionOpen(false)}>Submit session request</Button>
+            <Button {...sessionProps} onClick={() => setSessionOpen(false)}>
+              Submit session request
+            </Button>
           </div>
         </Section>
       ) : null}
