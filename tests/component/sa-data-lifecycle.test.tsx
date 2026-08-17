@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
+import type { RoleId } from '@/domain/roles'
 import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
 import { COMMAND_STATES } from '@/surfaces/sa/command-state'
@@ -519,6 +520,60 @@ describe('MOD-SA-17 — the twelve applicable screen states', () => {
     ).toHaveLength(0)
   })
 
+  it('STATE-05 states no refusal to a role that carries every action this screen draws', () => {
+    // The banner is a claim about THIS role. The root is refused nothing here,
+    // and every control it holds is live in this state, so a blocked banner
+    // would state a refusal no control on the screen contains.
+    const { container } = render(
+      <DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-05" />,
+    )
+    const buttons = Array.from(container.querySelectorAll('button'))
+    expect(buttons.length).toBeGreaterThan(0)
+    for (const button of buttons) {
+      expect(button.getAttribute('aria-disabled'), button.textContent ?? '').toBeNull()
+    }
+    expect(
+      screen
+        .queryAllByRole('status')
+        .filter((n) => /does not carry the action you attempted/i.test(n.textContent ?? '')),
+    ).toHaveLength(0)
+    expect(screen.getAllByText(/carries every action this screen draws/i).length).toBeGreaterThan(0)
+  })
+
+  it('STATE-05 names in its one banner exactly the actions the role is refused, and no others', () => {
+    // What the banner lists and what the controls below do must be the same
+    // fact. The Admin carries the erasure draft, so the banner must not list
+    // it while the button beside it is live.
+    const CRITICAL = [
+      /change the retention horizon/i,
+      /place or release a legal hold/i,
+      /approve an erasure execution/i,
+    ] as const
+    const LACKS: readonly { readonly roleId: RoleId; readonly expected: readonly RegExp[] }[] = [
+      { roleId: 'ADMIN', expected: CRITICAL },
+      { roleId: 'PLATFORM_ENGINEER', expected: [...CRITICAL, /draft an erasure request/i] },
+      { roleId: 'SUPPORT', expected: [...CRITICAL, /draft an erasure request/i] },
+    ]
+    for (const { roleId, expected } of LACKS) {
+      const { unmount } = render(<DataLifecycleScreen role={roleId} screenState="STATE-05" />)
+      const banners = screen
+        .getAllByRole('status')
+        .filter((n) => /does not carry the action you attempted/i.test(n.textContent ?? ''))
+      expect(banners, roleId).toHaveLength(1)
+      const text = banners[0]?.textContent ?? ''
+      for (const claim of expected) expect(text, `${roleId} ${String(claim)}`).toMatch(claim)
+      const draft = screen.getByRole('button', { name: /Draft an erasure request/i })
+      // The one action the Admin holds: named nowhere in the refusal, live below it.
+      if (roleId === 'ADMIN') {
+        expect(text, roleId).not.toMatch(/draft an erasure request/i)
+        expect(draft.getAttribute('aria-disabled'), roleId).toBeNull()
+      } else {
+        expect(draft.getAttribute('aria-disabled'), roleId).toBe('true')
+      }
+      unmount()
+    }
+  })
+
   it('STATE-09 renders an accepted legal hold in its own state, never as in force, for every role', () => {
     // Anchored on the queued rendering itself. /placed/i alone was satisfied by
     // the unrelated HOLD-2026-007 fixture row, which renders in every state, so
@@ -533,7 +588,16 @@ describe('MOD-SA-17 — the twelve applicable screen states', () => {
         within(queued).getByText(/^placed — scope resolution still running$/i),
         role.id,
       ).toBeDefined()
-      expect(within(queued).queryByText(/^in force$/i), role.id).toBeNull()
+      // "Never as in force", asserted where an in-force rendering could
+      // actually appear: the whole legal-hold panel. Inside the queued <p>
+      // the assertion had nothing but two hard-coded strings to look at.
+      // The panel carries exactly the fixture's in-force holds and not one
+      // more, so a queued hold rendered as in force — as its own pill, or as
+      // an extra row in the table — fails here.
+      const panel = screen.getByRole('region', { name: /Legal hold/i })
+      expect(within(panel).queryAllByText(/^in force$/i), role.id).toHaveLength(
+        LEGAL_HOLDS.filter((h) => h.state === 'in force').length,
+      )
       expect(queued.textContent ?? '', role.id).toMatch(/not in force until its scope resolves/i)
       unmount()
     }
@@ -590,6 +654,50 @@ describe('MOD-SA-17 — every panel of records degrades together', () => {
       const panel = screen.getByRole('region', { name })
       expect(panel.textContent ?? '', String(name)).toMatch(/stale/i)
       expect(panel.textContent ?? '', String(name)).toMatch(/\d+ (minutes|hours) old/i)
+    }
+  })
+
+  it('drops every recorded outcome when a switcher moves, so no pill outlives the rendering it belongs to', () => {
+    const OUTCOME_PILLS = [
+      /approval recorded on the fixture/i,
+      /draft recorded/i,
+      /horizon change recorded/i,
+    ] as const
+    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-03" />)
+    const click = (name: RegExp) => fireEvent.click(screen.getByRole('button', { name }))
+    click(/Approve the erasure execution/i)
+    click(/Draft an erasure request/i)
+    click(/Place a legal hold/i)
+    click(/Change the retention horizon/i)
+    for (const pill of OUTCOME_PILLS) expect(screen.getAllByText(pill).length).toBeGreaterThan(0)
+    expect(screen.getByTestId('accepted-hold')).toBeDefined()
+
+    // The role switcher moves to a role that never held any of these controls.
+    // It must be told it lacks the capability, never that the act is done.
+    fireEvent.change(screen.getByLabelText(/Console role/i), { target: { value: 'SUPPORT' } })
+    for (const pill of OUTCOME_PILLS) expect(screen.queryByText(pill), String(pill)).toBeNull()
+    expect(screen.queryByTestId('accepted-hold')).toBeNull()
+    expect(
+      screen.getByRole('button', { name: /Draft an erasure request/i }).getAttribute('aria-disabled'),
+    ).toBe('true')
+
+    // Returning to the role that clicked does not resurrect the outcome either.
+    fireEvent.change(screen.getByLabelText(/Console role/i), {
+      target: { value: 'ROOT_SUPER_ADMIN' },
+    })
+    for (const pill of OUTCOME_PILLS) expect(screen.queryByText(pill), String(pill)).toBeNull()
+
+    // The state switcher moves to a rendering whose own panels say these
+    // records cannot be read at all.
+    click(/Approve the erasure execution/i)
+    click(/Place a legal hold/i)
+    fireEvent.change(screen.getByLabelText(/Screen state/i), { target: { value: 'STATE-12' } })
+    for (const pill of OUTCOME_PILLS) expect(screen.queryByText(pill), String(pill)).toBeNull()
+    expect(screen.queryByTestId('accepted-hold')).toBeNull()
+    for (const name of RECORD_PANELS) {
+      expect(screen.getByRole('region', { name }).textContent ?? '', String(name)).toMatch(
+        /Unavailable/i,
+      )
     }
   })
 

@@ -294,6 +294,38 @@ export function DataLifecycleScreen({
   const stepperReason = stepperDisabledReason()
   const stepperProps = stepperReason === null ? {} : { disabledReason: stepperReason }
 
+  /**
+   * STATE-05 states a refusal THIS role actually has. The four actions below
+   * are the only ones a role can be refused on this screen, so the banner is
+   * built from the decisions the controls themselves render rather than from
+   * fixed prose: the root carries all four, and a blocked banner shown to it
+   * would announce a refusal no control on the screen contains.
+   */
+  const roleRefusedActions = [
+    { label: 'change the retention horizon', decision: retentionDecision },
+    { label: 'place or release a legal hold', decision: holdDecision },
+    { label: 'approve an erasure execution', decision: erasureApprovalDecision },
+    { label: 'draft an erasure request', decision: erasureDraftDecision },
+  ].filter((a) => a.decision.reasonCode === 'ROLE_NOT_GRANTED')
+  const roleName =
+    LIFECYCLE_PLATFORM_ROLES.find((r) => r.id === role)?.name ?? 'This console role'
+
+  /**
+   * A recorded click is a fact about ONE role reading ONE screen state. Moving
+   * either switcher moves to a different rendering of this module, and an
+   * outcome pill that survived the move would state something that rendering
+   * denies — an approval beside "No erasure request is on record", a queued
+   * hold beside the unavailable legal-hold list, or a completed action for a
+   * role that never held the control.
+   */
+  function resetInteractions() {
+    setErasureDrafted(false)
+    setErasureApproved(false)
+    setHoldPlaced(false)
+    setRetentionSubmitted(false)
+    setCommandIndex(0)
+  }
+
   const asOfLabel = mode === 'stale' ? LIFECYCLE_STALE_AS_OF : LIFECYCLE_AS_OF
 
   /**
@@ -346,7 +378,10 @@ export function DataLifecycleScreen({
         <Select
           label="Console role (fixture)"
           value={role}
-          onChange={(v) => setRole(v as RoleId)}
+          onChange={(v) => {
+            setRole(v as RoleId)
+            resetInteractions()
+          }}
           options={LIFECYCLE_PLATFORM_ROLES.map((r) => ({
             value: r.id,
             label: `${r.name} — ${r.roleAnnotation}`,
@@ -355,7 +390,10 @@ export function DataLifecycleScreen({
         <Select
           label="Screen state (fixture)"
           value={screenState}
-          onChange={(v) => setScreenState(v as ScreenStateId)}
+          onChange={(v) => {
+            setScreenState(v as ScreenStateId)
+            resetInteractions()
+          }}
           options={APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
         />
         <p className="max-w-prose text-xs text-[var(--color-ink-subtle)]">
@@ -384,11 +422,21 @@ export function DataLifecycleScreen({
 
       {screenState === 'STATE-05' ? (
         <div className="mt-4">
-          <Banner
-            tone="blocked"
-            heading="This console role does not carry the action you attempted"
-            body="The refusal is stated rather than hidden behind a missing button. The Admin drafts an erasure request and the Root Super Admin approves its execution (L45997); a retention-value change and a legal-hold placement or release are critical-class actions the Root Super Admin alone carries (L55942, L117354). Which role carries each action is named beside that action below. Nothing about another role’s scope is disclosed here."
-          />
+          {roleRefusedActions.length > 0 ? (
+            <Banner
+              tone="blocked"
+              heading="This console role does not carry the action you attempted"
+              body={`The refusal is stated rather than hidden behind a missing button. This role does not carry: ${roleRefusedActions
+                .map((a) => a.label)
+                .join('; ')}. Each one is rendered below either as an inert control carrying its reason or as the critical-class badge that names the Root Super Admin as its approver (L55942, L45997, L117354). Every other action on this screen is live for this role. Nothing about another role’s scope is disclosed here.`}
+            />
+          ) : (
+            <Banner
+              tone="info"
+              heading={`No action on this screen is refused to the ${roleName}`}
+              body="STATE-05 states a refusal where one exists, and this role carries every action this screen draws — the retention horizon change, placing and releasing a legal hold, drafting an erasure request and approving an erasure execution. No refusal is stated here, because none applies; a refusal that does not exist is not invented to fill the state."
+            />
+          )}
         </div>
       ) : null}
 
