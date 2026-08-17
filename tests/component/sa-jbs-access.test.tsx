@@ -36,6 +36,33 @@ function renderAs(role: SaConsoleRoleToken, state?: ScreenStateId) {
   )
 }
 
+/**
+ * The three cells of one rendered grant row, READ FROM THE DOM. Asserting on
+ * the fixture object instead would let any placeholder — '—', 'TBD' — satisfy
+ * a "shows a time box" property while the table shows none.
+ */
+interface GrantRowCells {
+  readonly scope: string
+  readonly timeBox: string
+  readonly reason: string
+}
+
+function grantRow(id: string): GrantRowCells {
+  const table = screen.getByLabelText('JBS access grants')
+  const row = within(table)
+    .getAllByRole('row')
+    .find((r) => within(r).queryAllByRole('cell')[0]?.textContent === id)
+  if (row === undefined) throw new Error(`No rendered row for grant ${id}`)
+  const cells = within(row)
+    .getAllByRole('cell')
+    .map((c) => c.textContent ?? '')
+  const [, , scope, timeBox, reason] = cells
+  if (scope === undefined || timeBox === undefined || reason === undefined) {
+    throw new Error(`Grant row ${id} rendered ${cells.length} cells, expected five`)
+  }
+  return { scope, timeBox, reason }
+}
+
 function reasonTextOf(control: HTMLElement): string {
   const id = control.getAttribute('aria-describedby')
   if (id === null) return ''
@@ -237,12 +264,24 @@ describe('MOD-SA-16 — OBJ-SA-JBSGRANT, seven states', () => {
 
   it('shows a scope, a time box and a linked reason on every grant (AC-WF-ROLE-027-01)', () => {
     renderAs(ROOT)
-    const table = screen.getByLabelText('JBS access grants')
     for (const grant of JBS_GRANTS) {
-      expect(grant.timeBox.length).toBeGreaterThan(0)
-      expect(grant.reason.length).toBeGreaterThan(0)
-      expect(grant.scope.length).toBeGreaterThan(0)
-      expect(table.textContent ?? '').toContain(grant.timeBox)
+      const { scope, timeBox, reason } = grantRow(grant.id)
+      for (const s of grant.scope) expect(scope).toContain(s)
+      // Scope is by named modules or tenant tokens (L45890) — never free text.
+      expect(scope).toMatch(/^(MOD-SA-\d\d |TENANT-[A-Z0-9-]+)/)
+      if (grant.state === 'drafted') {
+        // A draft has declared neither yet: that is the gate at AC-SA-16-02,
+        // and the cell must say so and name the gate. A dash or a 'TBD' reads
+        // as a declared value that happens to be short, which is the lie.
+        expect(timeBox).toMatch(/not yet set .*required before submission .*AC-SA-16-02/)
+        expect(reason).toMatch(/not yet linked .*required before submission .*AC-SA-16-02/)
+      } else {
+        // A declared time box is a bounded period the source itself names:
+        // five working days (L45873) or four hours (L55086). Never open-ended.
+        expect(timeBox).toMatch(/^(five working days|four hours)$/)
+        // A linked reason links a ticket; free text is not a linked reason.
+        expect(reason).toMatch(/^TICKET-FIXTURE-\d+ — \S/)
+      }
     }
   })
 })
@@ -297,9 +336,25 @@ describe('MOD-SA-16 — approve and issue is the root’s alone', () => {
   })
 
   it('names no JBS action among the eleven critical-class actions, so no class badge is asserted', () => {
-    renderAs(ADMIN)
+    expect(CRITICAL_ACTIONS).toHaveLength(11)
     expect(CRITICAL_ACTIONS.map((a) => a.id)).not.toContain('jbs-grant-issue')
-    expect(renderedCopy()).toMatch(/DEC-JBSAUTH-001/)
+    for (const role of [ADMIN, ENG, SUP]) {
+      const view = renderAs(role)
+      const bar = screen.getByTestId('issue-grant-action-bar')
+      // The class-badge rendering REPLACES the action bar with a StatusPill.
+      // A surviving disabled button is therefore proof the badge was not drawn
+      // — whatever label it might have carried.
+      const buttons = within(bar).getAllByRole('button')
+      expect(buttons).toHaveLength(1)
+      const button = buttons[0]
+      if (button === undefined) throw new Error('no control in the issue action bar')
+      expect(button.getAttribute('aria-disabled')).toBe('true')
+      // And the badge's own copy (L23707) appears nowhere in the bar: drawing
+      // it would settle DEC-JBSAUTH-001 on a screen.
+      expect(within(bar).queryByText(/root approval required/i)).toBeNull()
+      expect(reasonTextOf(button)).toMatch(/DEC-JBSAUTH-001/)
+      view.unmount()
+    }
   })
 })
 
