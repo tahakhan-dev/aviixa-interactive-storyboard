@@ -154,7 +154,7 @@ export default async function RegistryIndexPage({
           <Link href="/workflows/" className="text-[var(--color-primary)] underline">
             /workflows/
           </Link>
-          . The same 724 rows also render below.
+          . The same {loadGeneratedRegistry('workflows').rows.length} rows also render below.
         </p>
       ) : null}
 

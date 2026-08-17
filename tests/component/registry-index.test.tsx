@@ -27,8 +27,13 @@ describe('registry index rows', () => {
   it('shows both figures where raw and reconciled differ', () => {
     const { container } = render(<RegistryIndex slug="modules" />)
     const t = container.textContent ?? ''
-    expect(t).toContain('81')
-    expect(t).toContain('92')
+    // Minor (final review): bare `toContain('81')`/`toContain('92')` were
+    // satisfied by the dedupRule prose alone (which itself narrates
+    // "92 raw ... -> 81 canonical modules"), so the "Reconciled count /
+    // Raw extracted count" header this test names could be deleted and it
+    // would still pass. Matches the header's own wording specifically.
+    expect(t).toMatch(/Reconciled count:\s*81/)
+    expect(t).toMatch(/Raw extracted count:\s*92/)
     expect(t.toLowerCase()).toMatch(/alias|duplicate|dedup/)
   })
 

@@ -77,15 +77,6 @@ describe('gate 1: count-scope honesty', () => {
     ).toThrow(/reconciledCount|no total/i)
   })
 
-  // No index page hardcodes a count -- every figure comes from a registry.
-  // 81/92/99/432/725/990/613 are all real, previously-live figures for this
-  // build (modules reconciled/raw, the retired legacy workflow count,
-  // workflows raw, functions raw, ai-storyboards raw).
-  it('no index page hardcodes a registry count', () => {
-    const s = stripComments(readFileSync('app/coverage/[registry]/page.tsx', 'utf8'))
-    expect(s).not.toMatch(/\b(81|92|99|432|725|990|613)\b/)
-  })
-
   it('PLANTED VIOLATION: a scratch registry claiming both fields trips the gate', () => {
     const probe = join(REGISTRY_DIR, 'zz-probe.json')
     writeFileSync(
@@ -100,9 +91,37 @@ describe('gate 1: count-scope honesty', () => {
     expect(countScopeOffenders()).toEqual([])
   })
 
-  it('PLANTED VIOLATION: a hardcoded count in the index page trips the gate', () => {
-    const planted = stripComments("const total = 81 // never allowed here\nexport const x = total")
-    expect(planted).toMatch(/\b(81|92|99|432|725|990|613)\b/)
+  // Final review, MAJOR 3: this used to scan ONE named file
+  // (app/coverage/[registry]/page.tsx) for a count that a DIFFERENT
+  // hardcoded number (724) had already shipped in, while
+  // app/coverage/page.tsx hardcoded three more (81/63/18 in its Source
+  // classification prose) and was never scanned at all. Every count-bearing
+  // page under app/coverage/ derives every figure from a loaded registry
+  // now (see app/coverage/page.tsx and app/coverage/[registry]/page.tsx);
+  // this gate walks the whole directory generically, not a named file, so
+  // a hardcoded count anywhere under it -- in a file that exists today or
+  // one added later -- trips it.
+  const FORBIDDEN_COUNTS = /\b(81|92|99|63|18|432|724|725|990|613)\b/
+
+  function hardcodedCountOffenders(): string[] {
+    return walk('app/coverage')
+      .filter((f) => /\.tsx$/.test(f))
+      .filter((f) => FORBIDDEN_COUNTS.test(stripComments(readFileSync(f, 'utf8'))))
+  }
+
+  it('no page under app/coverage/ hardcodes a registry count', () => {
+    expect(hardcodedCountOffenders()).toEqual([])
+  })
+
+  it('PLANTED VIOLATION: a hardcoded count in ANY app/coverage/ file trips the gate, not just a named one', () => {
+    const probe = join('app', 'coverage', 'zz-probe.tsx')
+    writeFileSync(probe, 'export const total = 613\n')
+    try {
+      expect(hardcodedCountOffenders()).toContain(probe)
+    } finally {
+      rmSync(probe)
+    }
+    expect(hardcodedCountOffenders()).toEqual([])
   })
 
   // MOD-SA-20 is an alias-by-denial (controller addendum §2): the string
@@ -166,24 +185,39 @@ const EXEMPT_CLOSED_VOCAB_NAMES = new Set([
 ])
 
 /**
- * Finds `const NAME: readonly T[] = [` ... `] as const` (without
- * `satisfies`) in a comment-stripped source string -- the inert,
- * const-widening form. A single-line-at-a-time scan (like `stripComments`
- * itself): the declaration line must end in `= [` with nothing after, and
- * the array's own close is the first later line whose trimmed text starts
- * with `]` (every real instance in this codebase formats the close alone on
- * its own line; a one-line array literal, e.g. `const X: readonly T[] =
- * ['a', 'b']`, never matches the declaration pattern at all, since nothing
- * follows `[` on that line, so it is correctly never flagged in the first
- * place -- there is no multi-line array to check for the missing
- * `satisfies`).
+ * Finds `const NAME: readonly T[] = [...] as const` (without `satisfies`)
+ * in a comment-stripped source string -- the inert, const-widening form --
+ * in EITHER its one-line form (`const X: readonly T[] = ['a', 'b'] as
+ * const`) or its multi-line form (array opens at the end of the
+ * declaration line, closes alone on a later line). Final review, MAJOR 4:
+ * an earlier version of this scanner only matched the multi-line form, and
+ * its own doc comment claimed the one-line form was "correctly never
+ * flagged" -- false: it is the identical widening defect (the annotation
+ * still collapses the literal tuple type back to `T[]`) and shipped
+ * undetected. Both forms are checked below; the one-line check runs first
+ * so a one-line declaration is never miscategorised as an (absent)
+ * multi-line one.
  */
 function inertAnnotationOffenders(strippedSrc: string): string[] {
   const lines = strippedSrc.split('\n')
-  const DECL_RE = /^\s*(?:export\s+)?const\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*readonly\s+[\w.]+\[\]\s*=\s*\[\s*$/
+  const ONE_LINE_RE =
+    /^\s*(?:export\s+)?const\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*readonly\s+[\w.]+\[\]\s*=\s*\[.*\]\s*as const\b(.*)$/
+  const MULTI_LINE_DECL_RE = /^\s*(?:export\s+)?const\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*readonly\s+[\w.]+\[\]\s*=\s*\[\s*$/
   const offenders: string[] = []
   for (let i = 0; i < lines.length; i++) {
-    const m = DECL_RE.exec(lines[i]!)
+    const line = lines[i]!
+
+    const oneLine = ONE_LINE_RE.exec(line)
+    if (oneLine) {
+      const name = oneLine[1]!
+      const trailing = (oneLine[2] ?? '').trim()
+      if (!EXEMPT_CLOSED_VOCAB_NAMES.has(name) && !trailing.startsWith('satisfies')) {
+        offenders.push(name)
+      }
+      continue
+    }
+
+    const m = MULTI_LINE_DECL_RE.exec(line)
     if (!m) continue
     const name = m[1]!
     if (EXEMPT_CLOSED_VOCAB_NAMES.has(name)) continue
@@ -223,6 +257,20 @@ describe('gate 2: no closed vocabulary uses the inert annotation form', () => {
   it('does not fire on an unannotated array (no widening is possible without an annotation)', () => {
     const safe = `export const X = [\n  'a',\n  'b',\n] as const\n`
     expect(inertAnnotationOffenders(safe)).toEqual([])
+  })
+
+  // Final review, MAJOR 4: the one-line form is the SAME defect as the
+  // multi-line one and must be caught too.
+  it('PROVEN: fires on the one-line inert form, not just the multi-line one', () => {
+    const planted = `export const X: readonly T[] = ['a', 'b'] as const\n`
+    expect(inertAnnotationOffenders(planted)).toEqual(['X'])
+  })
+
+  it('does not fire on a one-line unannotated array or the safe one-line satisfies form', () => {
+    expect(inertAnnotationOffenders(`export const X = ['a', 'b'] as const\n`)).toEqual([])
+    expect(
+      inertAnnotationOffenders(`export const X = ['a', 'b'] as const satisfies readonly T[]\n`),
+    ).toEqual([])
   })
 
   it('exempts the three deliberate subsets and ROUTES by name', () => {
@@ -424,7 +472,14 @@ describe('gate 6: frozen blueprint prose never reaches out/', () => {
 // passes AA on its composited pill background must not be silently removed.
 // ===========================================================================
 describe('gate 7: token contrast guard is not silently removed', () => {
-  it('every status token passes AA on its composited background', () => {
+  // Minor (final review): this was named "every status token passes AA on
+  // its composited background" -- that is what tests/unit/token-contrast.
+  // test.ts itself proves (six tones composited at 10%, >= 4.75 floor,
+  // plus an onTint < onSurface assertion); THIS check only confirms that
+  // file still exists and still contains its own real contrast function,
+  // so a later slice cannot delete it silently. Renamed to say what it
+  // actually checks.
+  it('the real per-token AA contrast test file is not silently deleted or gutted', () => {
     expect(readFileSync('tests/unit/token-contrast.test.ts', 'utf8')).toContain('compositeOver')
   })
 })
