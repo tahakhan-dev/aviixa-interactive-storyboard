@@ -202,4 +202,28 @@ describe('slice 2b gates', () => {
       expect(permitted, permitted).not.toMatch(APPROVAL_WORD_PATTERN)
     }
   })
+
+  // Final review round 2, MINOR: `stripComments`' regex-vs-division
+  // heuristic is now load-bearing for THIS gate too, not just the generic
+  // stripComments tests below -- a regex literal ending in an escaped
+  // slash once blinded four gates at once by putting the whole tokenizer
+  // into line-comment mode. Verified directly against the approval gate
+  // itself: a same-line regex literal, a string containing `//`/`/*`, and
+  // a template literal (which stripComments deliberately never strips the
+  // CONTENTS of -- only actual comments) must all still let a genuine
+  // "Approve" on the same source reach the pattern.
+  it('the approval gate survives a same-line regex literal ending in an escaped slash', () => {
+    const planted = `const _r = /https?:\\/\\//; const label = 'Approve'`
+    expect(stripComments(planted)).toMatch(APPROVAL_WORD_PATTERN)
+  })
+
+  it('the approval gate is not blinded by a string containing // or /*', () => {
+    const planted =
+      `const url = 'https://example.com/x /* not a comment */' // a real comment\nconst label = 'Approve'`
+    expect(stripComments(planted)).toMatch(APPROVAL_WORD_PATTERN)
+  })
+
+  it('the approval gate scans inside a template literal (contents are never stripped, only comments are)', () => {
+    expect(stripComments('const label = `Approve this change`')).toMatch(APPROVAL_WORD_PATTERN)
+  })
 })

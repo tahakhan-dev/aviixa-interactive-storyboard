@@ -241,51 +241,41 @@ const EXEMPT_CLOSED_VOCAB_NAMES = new Set([
 ])
 
 /**
- * Finds `const NAME: readonly T[] = [...] as const` (without `satisfies`)
- * in a comment-stripped source string -- the inert, const-widening form --
- * in EITHER its one-line form (`const X: readonly T[] = ['a', 'b'] as
- * const`) or its multi-line form (array opens at the end of the
- * declaration line, closes alone on a later line). Final review, MAJOR 4:
- * an earlier version of this scanner only matched the multi-line form, and
- * its own doc comment claimed the one-line form was "correctly never
- * flagged" -- false: it is the identical widening defect (the annotation
- * still collapses the literal tuple type back to `T[]`) and shipped
- * undetected. Both forms are checked below; the one-line check runs first
- * so a one-line declaration is never miscategorised as an (absent)
- * multi-line one.
+ * Finds an EXPORTED `const NAME: readonly T[] = [...]` or
+ * `const NAME: ReadonlyArray<T> = [...]` declaration in a comment-stripped
+ * source string -- the inert, const-widening form. Final review round 2,
+ * LATENT GAP: a prior version of this scanner required a trailing
+ * `as const\b` to fire at all, which missed two forms of the identical
+ * defect -- `export const X: readonly T[] = ['a','b']` (no assertion at
+ * all) and the `ReadonlyArray<T>` spelling -- because an explicit LEADING
+ * array-type annotation widens the const regardless of what follows it: a
+ * declared type always wins over inference from the initializer, `as
+ * const` or not. The safe form (`as const satisfies readonly T[]`) never
+ * carries this leading annotation at all -- the type constraint comes from
+ * `satisfies` AFTER the array -- so simply detecting the leading
+ * annotation is sufficient; nothing on the right-hand side needs
+ * inspecting. `export` is REQUIRED (not optional): this gate's own test
+ * below is named "no EXPORTED closed vocabulary", and `COMMENT_REQUIRED_
+ * STATUSES` in src/review/records.ts is a real, non-exported, module-
+ * private array with exactly this annotation shape that must stay out of
+ * scope (out-of-scope by construction, not by a name added to the
+ * exemption list).
+ *
+ * ponytail: does not follow a type annotation split across multiple lines
+ * (`const X:\n  readonly T[] = [...]`) -- a real gap, but verified zero
+ * live instances of that formatting exist in this codebase today. Upgrade
+ * to a small multi-line-aware scan if that style is ever introduced.
  */
 function inertAnnotationOffenders(strippedSrc: string): string[] {
   const lines = strippedSrc.split('\n')
-  const ONE_LINE_RE =
-    /^\s*(?:export\s+)?const\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*readonly\s+[\w.]+\[\]\s*=\s*\[.*\]\s*as const\b(.*)$/
-  const MULTI_LINE_DECL_RE = /^\s*(?:export\s+)?const\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*readonly\s+[\w.]+\[\]\s*=\s*\[\s*$/
+  const DECL_RE =
+    /^\s*export\s+const\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(?:readonly\s+[\w.]+\[\]|ReadonlyArray<[^=]+>)\s*=\s*\[/
   const offenders: string[] = []
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!
-
-    const oneLine = ONE_LINE_RE.exec(line)
-    if (oneLine) {
-      const name = oneLine[1]!
-      const trailing = (oneLine[2] ?? '').trim()
-      if (!EXEMPT_CLOSED_VOCAB_NAMES.has(name) && !trailing.startsWith('satisfies')) {
-        offenders.push(name)
-      }
-      continue
-    }
-
-    const m = MULTI_LINE_DECL_RE.exec(line)
+  for (const line of lines) {
+    const m = DECL_RE.exec(line)
     if (!m) continue
     const name = m[1]!
-    if (EXEMPT_CLOSED_VOCAB_NAMES.has(name)) continue
-    for (let j = i + 1; j < lines.length; j++) {
-      const trimmed = lines[j]!.trim()
-      if (!trimmed.startsWith(']')) continue
-      const rest = trimmed.slice(1).trim()
-      if (rest === 'as const' || (rest.startsWith('as const') && !rest.includes('satisfies'))) {
-        offenders.push(name)
-      }
-      break
-    }
+    if (!EXEMPT_CLOSED_VOCAB_NAMES.has(name)) offenders.push(name)
   }
   return offenders
 }
@@ -308,6 +298,23 @@ describe('gate 2: no closed vocabulary uses the inert annotation form', () => {
   it('does not fire on the safe `as const satisfies` form', () => {
     const safe = `export const X = [\n  'a',\n  'b',\n] as const satisfies readonly T[]\n`
     expect(inertAnnotationOffenders(safe)).toEqual([])
+  })
+
+  // Final review round 2, LATENT GAP: the annotation widens the const
+  // whether or not `as const` follows it -- an explicit `: readonly T[]`
+  // (or `ReadonlyArray<T>`) declared type always wins over inference from
+  // the initializer, `as const` or not. Both regexes required `as const\b`,
+  // so these two forms shipped undetected. Checked against the real
+  // codebase: zero live violations of either form exist today outside the
+  // three already-exempted deliberate subsets (verified below).
+  it('PROVEN: fires on the annotated form with no `as const` at all', () => {
+    const planted = `export const X: readonly T[] = ['a', 'b']\n`
+    expect(inertAnnotationOffenders(planted)).toEqual(['X'])
+  })
+
+  it('PROVEN: fires on the ReadonlyArray<T> spelling, with or without as const', () => {
+    expect(inertAnnotationOffenders(`export const X: ReadonlyArray<T> = ['a', 'b']\n`)).toEqual(['X'])
+    expect(inertAnnotationOffenders(`export const X: ReadonlyArray<T> = ['a', 'b'] as const\n`)).toEqual(['X'])
   })
 
   it('does not fire on an unannotated array (no widening is possible without an annotation)', () => {
@@ -365,10 +372,20 @@ describe('gate 3: a client-review action creates a ReviewEvent and nothing else'
   // (app/review/page.tsx's submit() calls putReviewEvent, proven end to
   // end against a real database in tests/component/review-shell.test.tsx);
   // this is the static half of that proof.
-  it('the review action actually creates a ReviewEvent -- the writer is wired, not just defined', () => {
+  // Final review round 2, MINOR: `toMatch(/\bputReviewEvent\b/)` is
+  // presence-only -- it would pass just as happily on a bare unused
+  // import, a reference assigned to a variable and never invoked, or a
+  // call inside dead code. Tightened to require the CALL shape, awaited
+  // (proving it is not a floating, unobserved promise either).
+  it('the review action actually creates a ReviewEvent -- the writer is called and awaited, not just referenced', () => {
     const s = stripComments(readFileSync('app/review/page.tsx', 'utf8'))
-    expect(s).toMatch(/\bputReviewEvent\b/)
-    expect(s).toMatch(/\bcreateReviewEvent\b/)
+    expect(s).toMatch(/\bawait\s+putReviewEvent\s*\(/)
+    expect(s).toMatch(/\bcreateReviewEvent\s*\(/)
+  })
+
+  it('PLANTED VIOLATION: an unused import or unreachable reference does not satisfy the call-shape check', () => {
+    const notCalled = "import { putReviewEvent } from '@/review/store'\nconst ref = putReviewEvent\n"
+    expect(stripComments(notCalled)).not.toMatch(/\bawait\s+putReviewEvent\s*\(/)
   })
 
   it('no file under src/review/ names a product ledger type, a product store, or the transition path', () => {
