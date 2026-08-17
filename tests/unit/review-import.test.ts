@@ -196,6 +196,28 @@ describe('review package import', () => {
     const r = await importReviewPackage(negativeTimestampPackage, expected)
     expect(r.ok).toBe(false)
   })
+
+  // Major (final review): spec §2.1 requires updatedAtLogical never
+  // precede createdAtLogical. `superseded()` enforces this on the one
+  // in-app mutator, but both fields were bare `z.number()` on
+  // ReviewRecordSchema -- unlike CoverageSnapshotSchema four lines up,
+  // which the test above already gates -- so IMPORT accepted a record
+  // with createdAtLogical 1000 / updatedAtLogical 0. Built fresh via
+  // exportReviewPackage (not by mutating an already-checksummed `good()`
+  // package) so the checksum is self-consistent and this isolates the
+  // schema's numeric discipline, matching the pattern above.
+  it('quarantines a record whose updatedAtLogical precedes its createdAtLogical', async () => {
+    const badRecord = { ...rec(), createdAtLogical: 1000, updatedAtLogical: 0 }
+    const p = await exportReviewPackage({
+      sourceHash: '47bd18db', promptHash: 'p-1', buildHash: 'abc', scenarioVersion: '1',
+      scenarioSeed: 'seed-1', fixtureRefs: [], records: [badRecord],
+      decisions: [], bookmarks: [],
+      coverageSnapshot: { takenAtLogical: CANONICAL_EPOCH_MS, byStatus: {} },
+      screenshotRefs: [],
+    })
+    const r = await importReviewPackage(p, expected)
+    expect(r.ok).toBe(false)
+  })
 })
 
 describe('import dedupe, conflict and merge', () => {

@@ -227,13 +227,26 @@ const ReviewRecordSchema = z
     sourceFingerprint: z.string().min(1),
     scenarioVersion: z.string().min(1),
     buildHash: z.string().min(1),
-    createdAtLogical: z.number(),
-    updatedAtLogical: z.number(),
+    createdAtLogical: z.number().int().nonnegative(),
+    updatedAtLogical: z.number().int().nonnegative(),
     disposition: z.enum(REVIEW_DISPOSITION_VALUES),
     response: z.string().nullable(),
     supersededBy: z.string().nullable(),
   })
   .strict()
+  // Major (final review): spec §2.1 requires updatedAtLogical never precede
+  // createdAtLogical. `superseded()` (@/review/records) enforces this on
+  // the one in-app mutator that changes updatedAtLogical, but that
+  // enforcement is invisible to IMPORT -- a package built by any other
+  // means (a hand-crafted fixture, a future exporter, a corrupted file)
+  // could carry {createdAtLogical: 1000, updatedAtLogical: 0} and both
+  // fields, bare `z.number()` until this fix, would accept it. Same
+  // ordering rule, same error wording, enforced at the one other place a
+  // ReviewRecord enters this codebase.
+  .refine((r) => r.updatedAtLogical >= r.createdAtLogical, {
+    message: "A review record's updatedAtLogical must not precede its createdAtLogical",
+    path: ['updatedAtLogical'],
+  })
 
 const ReviewPackageSchema = z
   .object({
