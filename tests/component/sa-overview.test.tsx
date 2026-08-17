@@ -6,6 +6,8 @@ import {
   INCIDENTS,
   MODULE_STATE_NOTES,
   PLATFORM_ROLES,
+  READ_ONLY_CAUSE,
+  READ_ONLY_CONTROL_POINTER,
 } from '../../app/super-admin/platform-overview-and-health/fixtures'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { SCREEN_STATES } from '@/ui/screen-state'
@@ -30,6 +32,19 @@ function aggregatesRegion(): HTMLElement {
 
 function incidentCard(id: string): HTMLElement {
   return screen.getByRole('article', { name: `Incident ${id}` })
+}
+
+/** The one tile whose value is recomputed from the incident records below it. */
+function openIncidentsTile(): HTMLElement {
+  const tile = within(aggregatesRegion())
+    .getAllByRole('listitem')
+    .find((li) => (li.textContent ?? '').includes('Platform incidents not yet closed'))
+  if (tile === undefined) throw new Error('AGG-OPEN-INCIDENTS tile is not rendered')
+  return tile
+}
+
+function occurrences(haystack: string, needle: string): number {
+  return haystack.split(needle).length - 1
 }
 
 describe('MOD-SA-01 — the console shell contract', () => {
@@ -98,6 +113,24 @@ describe('MOD-SA-01 — AC-SA-01-01 and AC-SA-01-03, the eight aggregate element
     expect(aggregatesRegion().textContent).not.toContain(
       `${open} platform incidents not yet closed`,
     )
+  })
+
+  it('re-stamps the incident count when it is recomputed here, never keeping the stamp of the value it replaced', () => {
+    render(<OverviewScreen />)
+    const before = openIncidentsTile().textContent ?? ''
+    expect(before).toContain('3 platform incidents not yet closed')
+    expect(before).toContain('as of 2026-08-16 09:12 platform time')
+
+    selectRole('ROLE-PLAT-ROOT')
+    fireEvent.click(within(incidentCard('INC-PLT-02')).getByRole('button', { name: /close/i }))
+
+    const after = openIncidentsTile().textContent ?? ''
+    expect(after).toContain('2 platform incidents not yet closed')
+    // The stamp says WHEN the new count was true. Carrying the aggregation
+    // layer's 09:12 snapshot across a recomputation would present one stamp
+    // for two different counts.
+    expect(after).not.toContain('2026-08-16 09:12 platform time')
+    expect(after).toContain('as of the incident closed on this screen')
   })
 
   it('renders no rate and no measure below tenant-month anywhere on the screen', () => {
@@ -214,7 +247,7 @@ describe('MOD-SA-01 — the twelve applicable screen states', () => {
       'STATE-03': /the success rendering/i,
       'STATE-04': /Verification checklist is not accepted/i,
       'STATE-05': /holds the incident close, so no refusal renders/i,
-      'STATE-06': /the one write this screen has, is disabled/i,
+      'STATE-06': /Every input this module owns is disabled for every console role/i,
       'STATE-08': /42 minutes old/i,
       'STATE-09': /enters the queued state/i,
       'STATE-10': /Rendered in the agent-health panel below/i,
@@ -252,7 +285,7 @@ describe('MOD-SA-01 — the twelve applicable screen states', () => {
     render(<OverviewScreen />)
     selectRole('ROLE-PLAT-ROOT')
     for (const [stateId, cause] of [
-      ['STATE-06', /every input on this module is disabled/i],
+      ['STATE-06', /The cause is named once, in the screen-state banner above/i],
       ['STATE-12', /Nothing can be submitted while the platform audit write is failing/i],
       ['STATE-13', /cannot close while any dependent view is behind/i],
     ] as const) {
@@ -266,6 +299,53 @@ describe('MOD-SA-01 — the twelve applicable screen states', () => {
       fireEvent.click(button)
       expect(incidentCard('INC-PLT-02').textContent, stateId).not.toMatch(/same transaction/i)
     }
+  })
+
+  it('STATE-06: every input this module owns is genuinely disabled, and the two view switchers are not', () => {
+    render(<OverviewScreen />)
+    selectRole('ROLE-PLAT-ROOT')
+    selectState('STATE-06')
+    for (const label of [/tenant filter/i, /capability filter/i, /incident filter/i]) {
+      const input = screen.getByLabelText(label)
+      expect(input, String(label)).toBeInstanceOf(HTMLSelectElement)
+      expect((input as HTMLSelectElement).disabled, String(label)).toBe(true)
+    }
+    for (const incident of INCIDENTS) {
+      const button = within(incidentCard(incident.id)).getByRole('button', {
+        name: /close incident/i,
+      })
+      expect(button.getAttribute('aria-disabled'), incident.id).toBe('true')
+    }
+    // The banner says these two stay live because they are storyboard view
+    // switchers and the way out of the state. Copy and render must agree.
+    expect((screen.getByLabelText(/view as platform role/i) as HTMLSelectElement).disabled).toBe(
+      false,
+    )
+    expect((stateSelect() as HTMLSelectElement).disabled).toBe(false)
+  })
+
+  it('STATE-06 states its cause exactly once, and the disabled controls point at it instead of repeating it', () => {
+    const { container } = render(<OverviewScreen />)
+    selectRole('ROLE-PLAT-ROOT')
+    selectState('STATE-06')
+    const text = container.textContent ?? ''
+    expect(occurrences(text, READ_ONLY_CAUSE)).toBe(1)
+    // One pointer per disabled close, and no pointer restates the cause.
+    expect(occurrences(text, READ_ONLY_CONTROL_POINTER)).toBe(INCIDENTS.length)
+    expect(READ_ONLY_CONTROL_POINTER).not.toContain('disabled for every console role')
+  })
+
+  it('STATE-06 prints the SAME one cause for all four console roles, never a second cause per role', () => {
+    render(<OverviewScreen />)
+    selectState('STATE-06')
+    const banners = PLATFORM_ROLES.map((r) => {
+      selectRole(r.sourceId)
+      return screen.getByRole('region', { name: 'Screen state' }).textContent ?? ''
+    })
+    for (const [i, banner] of banners.entries()) {
+      expect(banner, PLATFORM_ROLES[i]?.sourceId).toContain(READ_ONLY_CAUSE)
+    }
+    expect(new Set(banners).size).toBe(1)
   })
 
   it('AC-SA-000-09: the module stays operable with every artificial-intelligence model unavailable', () => {

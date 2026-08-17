@@ -28,6 +28,8 @@ import {
   INCIDENT_STATES,
   MODULE_STATE_NOTES,
   PLATFORM_ROLES,
+  READ_ONLY_CAUSE,
+  READ_ONLY_CONTROL_POINTER,
   UNSPECIFIED_IN_SOURCE,
   type AggregateElement,
   type AggregateState,
@@ -64,6 +66,15 @@ const SCREEN_STATE_OPTIONS = SCREEN_STATES.filter((s) => !s.frontlineOnly).map((
 }))
 
 const FIXTURE_STATE = emptyDomainState(scenarioRunId('SA-MOD-01-STORYBOARD'))
+
+/** How many incidents the fixture ships open. The difference between this and
+ *  the live count is how many were closed ON THIS SCREEN, which is what the
+ *  tile's as-of stamp names. Widened deliberately: `INCIDENTS` is `as const`,
+ *  so comparing its literal states against 'closed' is a type error rather
+ *  than the count this means to take. */
+const SEEDED_OPEN_INCIDENTS = (INCIDENTS as readonly PlatformIncident[]).filter(
+  (i) => i.state !== 'closed',
+).length
 
 function contextFor(roleId: RoleId) {
   return {
@@ -119,12 +130,18 @@ function filterDecision(roleId: RoleId): PermissionDecision {
 
 /** L90767 / AC-4883: what still blocks the close, in the order the source
  *  puts it — the screen state first, because STATE-06 disables every input
- *  and STATE-12 lets nothing be submitted, then reconciliation, then
- *  positive evidence for every checklist item. `null` means nothing blocks
- *  it. */
+ *  this module owns and STATE-12 lets nothing be submitted, then
+ *  reconciliation, then positive evidence for every checklist item. `null`
+ *  means nothing blocks it.
+ *
+ *  STATE-06 returns the POINTER, never the cause: three incident cards each
+ *  restating the cause would be the scatter STATE-06 exists to forbid. The
+ *  control is still drawn inert with a named reason (§3, DISABLED WITH A
+ *  NAMED REASON) — the reason names the state and says where its one cause
+ *  is written. */
 function closeBlocker(incident: PlatformIncident, stateId: ScreenStateId): string | null {
   if (stateId === 'STATE-06') {
-    return 'Read-only: every input on this module is disabled while STATE-06 holds, the incident close included.'
+    return READ_ONLY_CONTROL_POINTER
   }
   if (stateId === 'STATE-12') {
     return 'Nothing can be submitted while the platform audit write is failing. The close and its audit record commit in one transaction, so a close that could not be audited does not happen at all (FB-SA-03).'
@@ -155,6 +172,19 @@ function openIncidentsMeasure(count: number): string {
   return count === 1
     ? '1 platform incident not yet closed'
     : `${count} platform incidents not yet closed`
+}
+
+/** An aggregate's honesty is its as-of stamp (AC-SA-000-06, fixtures.ts): it
+ *  says WHEN the value was true. This one tile is recomputed from the incident
+ *  records on this screen, so a close made here moves the value AND the stamp
+ *  — the aggregation layer's 09:12 snapshot is no longer when the count was
+ *  true. No clock is read: the recomputation is named by what caused it, so
+ *  the same run always renders the same words. */
+function openIncidentsAsOf(fixtureAsOf: string, closedHere: number): string {
+  if (closedHere === 0) return fixtureAsOf
+  return closedHere === 1
+    ? 'the incident closed on this screen, recomputed from the records below'
+    : `the ${closedHere} incidents closed on this screen, recomputed from the records below`
 }
 
 function AggregateTile({ element }: { readonly element: AggregateElement }) {
@@ -192,9 +222,19 @@ export function OverviewScreen() {
   const role = PLATFORM_ROLES.find((r) => r.sourceId === sourceRoleId) ?? PLATFORM_ROLES[0]
   const isRoot = role.roleId === 'ROOT_SUPER_ADMIN'
   const definition = screenState(stateId)
+  // STATE-06 disables every input this module owns. The two selects at the top
+  // of the page are the storyboard's own view switchers, not module inputs —
+  // disabling the state switcher would leave no way out of the state — and the
+  // banner says exactly that, so copy and render agree.
+  const readOnly = stateId === 'STATE-06'
 
   const tenants = [...new Set(INCIDENTS.flatMap((i) => i.tenants))].sort()
   const capabilities = [...new Set(INCIDENTS.map((i) => i.capability))].sort()
+
+  // The tile above the list and the list itself read the SAME records, and the
+  // tile's as-of stamp moves with them.
+  const openCount = incidents.filter((i) => i.state !== 'closed').length
+  const closedHere = SEEDED_OPEN_INCIDENTS - openCount
 
   const visible = incidents.filter(
     (i) =>
@@ -261,7 +301,8 @@ export function OverviewScreen() {
           Eight aggregate elements (AC-SA-01-01, L43068). Each carries an as-of stamp; a degraded
           one renders stale with its age, a wholly unavailable one renders unavailable, and
           neither ever renders as zero or blank (AC-SA-01-03, FB-SA-01). The incident count reads
-          the same records as the incident list below, so closing one here moves both.
+          the same records as the incident list below, so closing one here moves the count and its
+          as-of stamp together — a recomputed value never keeps the stamp of the one it replaced.
         </p>
         <ul className="mt-3 grid gap-3 sm:grid-cols-2">
           {AGGREGATES.map((a) => (
@@ -271,9 +312,8 @@ export function OverviewScreen() {
                 a.id === 'AGG-OPEN-INCIDENTS'
                   ? {
                       ...a,
-                      value: openIncidentsMeasure(
-                        incidents.filter((i) => i.state !== 'closed').length,
-                      ),
+                      value: openIncidentsMeasure(openCount),
+                      asOf: openIncidentsAsOf(a.asOf, closedHere),
                     }
                   : a
               }
@@ -384,6 +424,7 @@ export function OverviewScreen() {
             label="Tenant filter"
             value={tenantFilter}
             onChange={setTenantFilter}
+            disabled={readOnly}
             options={[
               { value: '', label: 'All tenants' },
               ...tenants.map((t) => ({ value: t, label: t })),
@@ -393,6 +434,7 @@ export function OverviewScreen() {
             label="Capability filter"
             value={capabilityFilter}
             onChange={setCapabilityFilter}
+            disabled={readOnly}
             options={[
               { value: '', label: 'All capabilities' },
               ...capabilities.map((c) => ({ value: c, label: c })),
@@ -402,6 +444,7 @@ export function OverviewScreen() {
             label="Incident filter"
             value={incidentFilter}
             onChange={setIncidentFilter}
+            disabled={readOnly}
             options={[
               { value: '', label: 'All incident states' },
               ...INCIDENT_STATES.map((s) => ({ value: s, label: s })),
@@ -635,16 +678,16 @@ function stateTreatment(stateId: ScreenStateId, roleId: RoleId, roleName: string
       )
     }
     case 'STATE-06':
+      // ONE cause, and the same one for all four roles. Branching the cause on
+      // the role printed two different "single causes" for one condition;
+      // Support's lack of incident ownership is a role fact, it is stated on
+      // the record where the control is ABSENT, and it is not what makes this
+      // screen read-only.
       return (
         <ScreenStateBoundary
           state="STATE-06"
           surface="SURF-SA"
-          detail={{
-            readOnlyCause:
-              roleId === 'SUPPORT'
-                ? 'Support holds read on both bands and no incident ownership on this console (L42715), and no close control is drawn for it in any state.'
-                : 'The module is read-only: the incident close, the one write this screen has, is disabled with that cause named on every incident record. Nothing else here writes at all.',
-          }}
+          detail={{ readOnlyCause: READ_ONLY_CAUSE }}
         />
       )
     case 'STATE-08':

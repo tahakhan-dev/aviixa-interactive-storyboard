@@ -285,6 +285,30 @@ export const UNSPECIFIED_IN_SOURCE = [
 ] as const
 
 /**
+ * STATE-06 has exactly ONE cause on this module, written down exactly once so
+ * no second wording of it can drift into existence. It is rendered in one
+ * place — the screen-state banner — and every control the state disables
+ * points back at it with `READ_ONLY_CONTROL_POINTER` instead of restating it
+ * ("Never scatter the cause across several messages. One banner, one cause.",
+ * `@/ui/screen-state` STATE-06).
+ *
+ * It is the same cause for all four console roles. A role that holds no
+ * incident ownership is a different fact, it belongs to that record's own
+ * ABSENT notice, and printing it here as a second read-only cause would be two
+ * causes for one condition.
+ *
+ * Every claim in it is checked by `tests/component/sa-overview.test.tsx`:
+ * the three filters really carry the native `disabled` attribute, the close
+ * really renders inert, and the two view switchers really do not.
+ */
+export const READ_ONLY_CAUSE =
+  'The module is read-only while STATE-06 holds. Every input this module owns is disabled for every console role: the tenant, capability and incident filters, and the incident close wherever it is drawn. The role and screen-state selects above are storyboard view switchers rather than module inputs, so they stay live — they are how a reader leaves this state.'
+
+/** What a control disabled by STATE-06 says INSTEAD of repeating the cause. */
+export const READ_ONLY_CONTROL_POINTER =
+  'Disabled by STATE-06. The cause is named once, in the screen-state banner above.'
+
+/**
  * One honest sentence per applicable screen state, saying what on THIS
  * module reaches it. STATE-07 is frontline-only and is not offered.
  *
@@ -303,7 +327,7 @@ export const MODULE_STATE_NOTES: Record<ScreenStateId, string> = {
     'a close refused because the verification checklist is not complete with positive evidence for every item.',
   'STATE-05': 'a role without incident ownership meeting the close control.',
   'STATE-06':
-    'the whole module, whose only write is the incident close. Every input is disabled while the module is read-only, and Support reads it this way in every state.',
+    'the whole module, whose only write is the incident close. The banner below names the one cause, and the controls the state disables point back at it rather than restate it.',
   'STATE-07': 'nothing. Only the Frontline Worker Application has a true offline state.',
   'STATE-08':
     'a degraded aggregate, served last-known-good and stamped stale with its age (FB-SA-01).',
