@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { SCREEN_STATES } from '@/ui/screen-state'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { saModuleById } from '@/surfaces/sa/modules'
@@ -54,9 +54,16 @@ describe('MOD-SA-07 Platform Settings — the shell contract', () => {
     }
   })
 
-  it('names none of the four forbidden words anywhere in its copy', () => {
-    const { container } = render(<PlatformSettingsScreen />)
-    expect(container.textContent ?? '').not.toMatch(/tamper-evident|chained|signed|verified/i)
+  it('names none of the four forbidden words anywhere in its copy, for any role in any state', () => {
+    for (const role of SA07_PLATFORM_ROLES) {
+      for (const state of APPLICABLE_STATES) {
+        const { container, unmount } = render(
+          <PlatformSettingsScreen role={role.id} screenState={state.id} />,
+        )
+        expect(container.textContent ?? '').not.toMatch(/tamper-evident|chained|signed|verified/i)
+        unmount()
+      }
+    }
   })
 
   it('resolves no link to record-level tenant content, and names the access classes instead', () => {
@@ -200,10 +207,22 @@ describe('MOD-SA-07 — the emergency pause, D8', () => {
     expect(screen.getByText(/proposal only — pending DEC-PAUSE-001/i)).toBeDefined()
   })
 
-  it('offers Support no pause control at all, and says why', () => {
+  /**
+   * §3: ABSENT is for an action that exists for NO ONE. The pause proposal
+   * exists — the Admin holds it — so Support gets DISABLED WITH A NAMED
+   * REASON, and the reason has to actually be on screen. The earlier name
+   * of this test claimed the ABSENT rendering while its assertion required
+   * a drawn control, so it locked in the opposite of what it said.
+   */
+  it('draws Support’s pause proposal inert with the reason named, never absent', () => {
     render(<PlatformSettingsScreen role="SUPPORT" />)
     const btn = screen.getByRole('button', { name: /Propose an emergency pause/i })
     expect(btn.getAttribute('aria-disabled')).toBe('true')
+    const reasonId = btn.getAttribute('aria-describedby')
+    expect(reasonId).not.toBeNull()
+    expect(document.getElementById(reasonId as string)?.textContent ?? '').toMatch(
+      /Support holds no configuration change on this console and cannot propose a pause \(L42715\)/i,
+    )
   })
 
   it('keeps resume a separate act with its own approval, never a reversal control on the pause', () => {
@@ -290,6 +309,86 @@ describe('MOD-SA-07 — the states that are not decoration', () => {
   it('STATE-13 never shows a recovering system as recovered', () => {
     render(<PlatformSettingsScreen screenState="STATE-13" />)
     expect(screen.getByText(/nothing on this screen is presented as recovered/i)).toBeDefined()
+  })
+})
+
+/**
+ * Every control on this screen that submits something. STATE-06 (read-only)
+ * and STATE-12 (failure) must reach all of them: a control that reads only
+ * the role and never the screen state drew a LIVE approval button on a
+ * screen whose own copy said nothing may be submitted from it.
+ */
+const SUBMITTING_CONTROLS = [
+  /^Propose an emergency pause$/,
+  /^Approve the pause proposal$/,
+  /^Propose a resume$/,
+  /^Approve the catalog change$/,
+  /^Approve the bound change$/,
+] as const
+
+describe('MOD-SA-07 — STATE-06 and STATE-12 reach every control, not only the role-gated ones', () => {
+  for (const stateId of ['STATE-06', 'STATE-12'] as const) {
+    it(`${stateId} draws the root every control it holds inert, naming the STATE as the cause`, () => {
+      render(<PlatformSettingsScreen role="ROOT_SUPER_ADMIN" screenState={stateId} />)
+      // The root's own four. The pause PROPOSAL is the Admin's, so it is
+      // refused a stage earlier and names the role — the earliest failing
+      // stage wins, which is exactly what it should say.
+      for (const name of [
+        /^Approve the pause proposal$/,
+        /^Propose a resume$/,
+        /^Approve the catalog change$/,
+        /^Approve the bound change$/,
+      ]) {
+        const btn = screen.getByRole('button', { name })
+        expect(btn.getAttribute('aria-disabled')).toBe('true')
+        const reasonId = btn.getAttribute('aria-describedby')
+        expect(reasonId).not.toBeNull()
+        expect(document.getElementById(reasonId as string)?.textContent ?? '').toMatch(
+          stateId === 'STATE-06' ? /read-only in this state/i : /cannot be read in this state/i,
+        )
+      }
+    })
+
+    it(`${stateId} refuses the Admin's pause proposal, and clicking it advances nothing`, () => {
+      render(<PlatformSettingsScreen role="ADMIN" screenState={stateId} />)
+      const btn = screen.getByRole('button', { name: /^Propose an emergency pause$/ })
+      expect(btn.getAttribute('aria-disabled')).toBe('true')
+      fireEvent.click(btn)
+      expect(screen.queryByText(/^PauseRequested$/)).toBeNull()
+      expect(screen.queryByText(/A seeded fixture advanced to this state/i)).toBeNull()
+    })
+
+    it(`${stateId} leaves no submittable control live for any of the four roles`, () => {
+      for (const role of SA07_PLATFORM_ROLES) {
+        const { unmount } = render(
+          <PlatformSettingsScreen role={role.id} screenState={stateId} />,
+        )
+        for (const name of SUBMITTING_CONTROLS) {
+          const btn = screen.queryByRole('button', { name })
+          expect(btn === null || btn.getAttribute('aria-disabled') === 'true').toBe(true)
+        }
+        unmount()
+      }
+    })
+  }
+
+  it('STATE-06 states the read-only cause without exempting the emergency pause from it', () => {
+    render(<PlatformSettingsScreen role="ADMIN" screenState="STATE-06" />)
+    const banner = screen.getByText(/puts the settings surface into a read-only state/i)
+    expect(banner.textContent ?? '').not.toMatch(/pause below is unaffected/i)
+    expect(banner.textContent ?? '').toMatch(/emergency pause/i)
+  })
+
+  it('STATE-03 keeps the same controls live, so the two states above are not vacuously disabled', () => {
+    render(<PlatformSettingsScreen role="ROOT_SUPER_ADMIN" screenState="STATE-03" />)
+    for (const name of [
+      /^Approve the pause proposal$/,
+      /^Propose a resume$/,
+      /^Approve the catalog change$/,
+      /^Approve the bound change$/,
+    ]) {
+      expect(screen.getByRole('button', { name }).getAttribute('aria-disabled')).toBeNull()
+    }
   })
 })
 

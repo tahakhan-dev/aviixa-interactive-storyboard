@@ -197,6 +197,8 @@ export function PlatformSettingsScreen({
     {
       action: 'MOD-SA-07:propose-emergency-pause',
       allowedRoles: ['ADMIN'],
+      allowedObjectStates: ['available'],
+      objectState: availability,
       sourceRefs: ['L54979', 'L21588', 'DEC-PAUSE-001', 'D8'],
     },
     context,
@@ -214,6 +216,8 @@ export function PlatformSettingsScreen({
     {
       action: 'MOD-SA-07:approve-emergency-pause',
       allowedRoles: ['ROOT_SUPER_ADMIN'],
+      allowedObjectStates: ['available'],
+      objectState: availability,
       sourceRefs: ['AC-SA-07-14-01 L44604', 'L54979', 'L55942'],
     },
     context,
@@ -222,7 +226,29 @@ export function PlatformSettingsScreen({
     {
       action: 'MOD-SA-07:propose-resume',
       allowedRoles: ['ROOT_SUPER_ADMIN'],
+      allowedObjectStates: ['available'],
+      objectState: availability,
       sourceRefs: ['L21588', 'AC-SA-07-14-01 L44604'],
+    },
+    context,
+  )
+  const approveCatalogDecision = evaluateAccess(
+    {
+      action: 'MOD-SA-07:approve-severity-catalog-change',
+      allowedRoles: ['ROOT_SUPER_ADMIN'],
+      allowedObjectStates: ['available'],
+      objectState: availability,
+      sourceRefs: ['L42801', 'AC-SA-07-11-02 L44490'],
+    },
+    context,
+  )
+  const approveBoundDecision = evaluateAccess(
+    {
+      action: 'MOD-SA-07:approve-floor-register-bound-change',
+      allowedRoles: ['ROOT_SUPER_ADMIN'],
+      allowedObjectStates: ['available'],
+      objectState: availability,
+      sourceRefs: ['L42802', 'AC-SA-07-13-04 L44568'],
     },
     context,
   )
@@ -256,25 +282,63 @@ export function PlatformSettingsScreen({
     context,
   )
 
-  const isRoot = role === 'ROOT_SUPER_ADMIN'
+  /**
+   * §3 applied from the DECISION, never from a role comparison. A refusal
+   * at the BASE_ROLE stage is a critical-class action seen by a role that
+   * does not hold it, so the whole action bar is replaced by the class
+   * badge — no drawn control could be mistaken for an approval path. A
+   * refusal at any later stage (here, object state: STATE-06 read-only and
+   * STATE-12 failure) leaves the control drawn and inert with its cause
+   * named, because the root DOES hold it, just not in this screen state.
+   * An allow draws the live control.
+   *
+   * Driving both the enable choice and the rendering choice off
+   * `evaluateAccess` is the point: a raw `role === 'ROOT_SUPER_ADMIN'`
+   * cannot see screen state, so it drew a live approval button on a screen
+   * whose own copy said nothing may be submitted from it.
+   */
+  const criticalAction = (
+    decision: PermissionDecision,
+    label: string,
+    roleFallback: string,
+    onClick?: () => void,
+  ): ReactNode => {
+    if (decision.outcome === 'allowed') {
+      return <Button {...(onClick ? { onClick } : {})}>{label}</Button>
+    }
+    if (decision.stage === 'BASE_ROLE') {
+      return <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
+    }
+    return (
+      <ProhibitionNotice
+        rendering={{
+          kind: 'disabled-with-reason',
+          label,
+          reason: namedReason(decision, role, roleFallback, availability),
+        }}
+      />
+    )
+  }
 
   // The Platform Engineer is the only role whose pause control is drawn and
   // inert with DEC-PAUSE-001's reason; every other non-Admin gets the
   // ordinary role reason. Both are DISABLED WITH A NAMED REASON — the
-  // control exists on this platform, just not for this role.
-  const proposeReason =
+  // control exists on this platform, just not for this role. The choice
+  // between them is a fallback string only: whether the control acts at all
+  // comes from `proposePauseDecision`, which now also carries the screen's
+  // object state so a read-only or failed screen refuses it.
+  const proposeReason = namedReason(
+    proposePauseDecision,
+    role,
     role === 'PLATFORM_ENGINEER'
       ? 'proposal only — pending DEC-PAUSE-001. Four incompatible readings of who may pause sit in the source; until the client settles it, a Platform Engineer proposal is not accepted here.'
-      : namedReason(
-          proposePauseDecision,
-          role,
-          role === 'SUPPORT'
-            ? 'Support holds no configuration change on this console and cannot propose a pause (L42715).'
-            : 'The root approves the pause rather than proposing it, so that a proposal and its approval are never the same act (D8).',
-          availability,
-        )
-  const proposeDisabled = role !== 'ADMIN'
-  const proposeProps = proposeDisabled ? { disabledReason: proposeReason } : {}
+      : role === 'SUPPORT'
+        ? 'Support holds no configuration change on this console and cannot propose a pause (L42715).'
+        : 'The root approves the pause rather than proposing it, so that a proposal and its approval are never the same act (D8).',
+    availability,
+  )
+  const proposeProps =
+    proposePauseDecision.outcome === 'allowed' ? {} : { disabledReason: proposeReason }
 
   const postureRows = SETTINGS_POSTURE.filter((p) => p.count > 0)
 
@@ -322,7 +386,7 @@ export function PlatformSettingsScreen({
           <Banner
             tone="attention"
             heading="Read-only"
-            body="One cause: this fixture puts the settings surface into a read-only state, so nothing can be submitted from it. Every panel still reads, and the emergency pause below is unaffected."
+            body="One cause: this fixture puts the settings surface into a read-only state, so nothing can be submitted from it — the emergency pause, the catalog approval and the floor-register approval included. Every panel still reads."
           />
         </div>
       ) : null}
@@ -658,10 +722,10 @@ export function PlatformSettingsScreen({
           the point of entry with the floor stated (AC-SA-07-11-02, L44490).
         </p>
         <div className="mt-3">
-          {isRoot ? (
-            <Button>Approve the catalog change</Button>
-          ) : (
-            <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
+          {criticalAction(
+            approveCatalogDecision,
+            'Approve the catalog change',
+            'A change to the severity-classification table is critical class, so the root approves it (L42801).',
           )}
         </div>
       </Section>
@@ -755,10 +819,10 @@ export function PlatformSettingsScreen({
           their behalf.
         </p>
         <div className="mt-3">
-          {isRoot ? (
-            <Button>Approve the bound change</Button>
-          ) : (
-            <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
+          {criticalAction(
+            approveBoundDecision,
+            'Approve the bound change',
+            'A change to a floor-register bound is critical class, so the root approves it (AC-SA-07-13-04, L44568).',
           )}
         </div>
       </Section>
@@ -789,39 +853,38 @@ export function PlatformSettingsScreen({
             </Button>
           </div>
           <div>
-            {isRoot ? (
-              <Button onClick={() => setPauseProposal('Checkpointing')}>
-                Approve the pause proposal
-              </Button>
-            ) : (
-              <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
+            {criticalAction(
+              approvePauseDecision,
+              'Approve the pause proposal',
+              'Approving a pause is the root’s act alone (AC-SA-07-14-01, L44604).',
+              () => setPauseProposal('Checkpointing'),
             )}
-            <PermissionNotice
-              decision={{
-                ...approvePauseDecision,
-                explanation:
-                  'Approving a pause is the root’s act alone, and the action bar above is replaced rather than disabled so no control here can be mistaken for an approval path.',
-              }}
-            />
+            {approvePauseDecision.stage === 'BASE_ROLE' ? (
+              <PermissionNotice
+                decision={{
+                  ...approvePauseDecision,
+                  explanation:
+                    'Approving a pause is the root’s act alone, and the action bar above is replaced rather than disabled so no control here can be mistaken for an approval path.',
+                }}
+              />
+            ) : null}
           </div>
           <div>
-            {isRoot ? (
-              <Button variant="secondary" onClick={() => setPauseProposal('ResumeRequested')}>
-                Propose a resume
-              </Button>
-            ) : (
-              <Button
-                variant="secondary"
-                disabledReason={namedReason(
-                  proposeResumeDecision,
-                  role,
-                  'Resume opens its own approval request and never reverses the pause directly (L21588). It is the root’s act.',
-                  availability,
-                )}
-              >
-                Propose a resume
-              </Button>
-            )}
+            <Button
+              variant="secondary"
+              {...(proposeResumeDecision.outcome === 'allowed'
+                ? { onClick: () => setPauseProposal('ResumeRequested') }
+                : {
+                    disabledReason: namedReason(
+                      proposeResumeDecision,
+                      role,
+                      'Resume opens its own approval request and never reverses the pause directly (L21588). It is the root’s act.',
+                      availability,
+                    ),
+                  })}
+            >
+              Propose a resume
+            </Button>
           </div>
         </div>
 
