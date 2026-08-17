@@ -41,7 +41,7 @@ const ENTRIES_AFFECTED_BY_COLLAPSE = COLLAPSED_ROWS.reduce((sum, r) => sum + (r.
 
 // Task 11: filter option sets, computed once from the loaded registry. The
 // actor list is every distinct `primaryActor` the extraction recorded
-// (427 of them) plus a real, stable sentinel for "no primary actor
+// (426 of them) plus a real, stable sentinel for "no primary actor
 // recorded" -- since every one of today's 724 rows carries one, selecting
 // it can never match a row, which is what makes a deterministic no-match
 // filter combination possible without relying on which real values happen
@@ -53,6 +53,24 @@ const SURFACE_OPTIONS = [
   { value: '', label: 'All surfaces' },
   ...SURFACES.map((s) => ({ value: s.id, label: s.name })),
 ]
+
+// Final review, MAJOR 1: `surfacesTouched` is free text off the frozen
+// source, not always the SURF-* code -- 95 of 724 rows carry only a prose
+// surface name (e.g. "Delivery Operations Hub", "Super Admin platform
+// console"), verified against the real registry. Matching the code alone
+// silently dropped every row whose cell reads exactly that prose name (44
+// of them for SURF-DOH) -- worse than a filter that visibly does not work.
+// Matches EITHER the code or the surface's own human name,
+// case-insensitively (the frozen source's casing is inconsistent, e.g.
+// "Super Admin platform console" vs. the canonical "Super Admin Platform
+// Console").
+function surfaceTouchedMatches(surfacesTouched: readonly string[] | undefined, surfaceId: string): boolean {
+  if (!surfacesTouched || surfacesTouched.length === 0) return false
+  const surfaceName = SURFACES.find((s) => s.id === surfaceId)?.name.toLowerCase()
+  return surfacesTouched.some(
+    (s) => s.includes(surfaceId) || (surfaceName !== undefined && s.toLowerCase().includes(surfaceName)),
+  )
+}
 const ACTOR_OPTIONS = [
   { value: '', label: 'All actors' },
   { value: NO_ACTOR_VALUE, label: '(no primary actor recorded)' },
@@ -106,7 +124,7 @@ export function WorkflowIndex() {
 
   const filteredRows = useMemo(() => {
     return WORKFLOWS.rows.filter((r) => {
-      if (surface !== '' && !(r.surfacesTouched ?? []).some((s) => s.includes(surface))) return false
+      if (surface !== '' && !surfaceTouchedMatches(r.surfacesTouched, surface)) return false
       if (actor === NO_ACTOR_VALUE && r.primaryActor !== undefined) return false
       if (actor !== '' && actor !== NO_ACTOR_VALUE && r.primaryActor !== actor) return false
       if (status !== '' && r.status !== status) return false
