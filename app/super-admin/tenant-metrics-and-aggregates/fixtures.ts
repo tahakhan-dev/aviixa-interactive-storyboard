@@ -303,6 +303,10 @@ export const SA10_UNSPECIFIED_IN_SOURCE = [
     note: 'The census fixes the tile shape as value, comparison window and completeness indicator, but the source does not state which window a comparative uses or how a peer group is formed. The window shown is a fixture label, not a stated rule.',
   },
   {
+    affordance: 'Which console role, if any, may open a tenant’s own audit log view from a measure',
+    note: 'L107350 attributes that onward action to the Platform Engineer alone, and this same surface puts tenant operational content in that role’s may-not list (L97154) while D17 holds the prohibition on a Platform Engineer session. No other console role is named for it anywhere. The grant is not moved to a role the source never names: the action is drawn absent, and the silence is named here.',
+  },
+  {
     affordance: 'A refresh or re-aggregate control',
     note: 'The metrics-derivation workflow ends at "reconciled after a telemetry gap with the degraded window recorded" (L45140), but names no operator-initiated re-aggregation. Recovery is rendered as a state, not as a button.',
   },
@@ -324,14 +328,14 @@ export const SA10_CONFLICTS = [
     conflict:
       'L107350 attributes both onward actions — open the tenant’s own audit log view, and request a support session — to the Platform Engineer. The same source puts tenant operational content in that role’s may-not list on this very surface (L97154), and D17 records the direct conflict between L20740, which forbids the Platform Engineer a support session, and L65401, which allows one.',
     resolution:
-      'D17 holds: the prohibition wins, because Band A / Band B separation is the more restated principle and the narrower grant is the safer prototype. Both onward actions render for the Platform Engineer as drawn-and-inert with that reason named. They are not rendered absent, because they plainly exist for the root, the Admin and Support — and §3 reserves absence for an action that exists for nobody.',
+      'D17 holds: the prohibition wins, because Band A / Band B separation is the more restated principle and the narrower grant is the safer prototype. The two actions then part company. L107350 attributes the session request to the Platform Engineer AND to Support, so with the Platform Engineer held shut it still exists for one role: it renders drawn-and-inert, with its reason named, for every other role. L107350 attributes the audit-log view to the Platform Engineer alone, so with that role held shut it exists for nobody at all, and §3 reserves absence for exactly that — it is drawn as a note where a control would be. Neither action is attributed to the root or to the platform Admin anywhere in the source, so neither is granted to them here.',
   },
   {
     topic: 'A tenant’s own audit log is tenant content',
     conflict:
       'L107350 names "open the tenant’s own audit log view" as an onward action from a measure, while AC-SA-000-07 (L42885) and AC-SEC-801 (L104316) forbid record-level tenant content outside a named access class.',
     resolution:
-      'The action is drawn and resolves to the session-request form, never to the log itself — the source’s own second onward action, "request a support session", is described at L107350 as the only route from a measure toward record-level content.',
+      'The tension is not resolved by drawing the action: its one attributed role is refused on this surface, so it renders absent. Had a role carried it, it would still have resolved to the session-request form and never to the log itself — L107350 describes the other onward action, "request a support session", as the only route from a measure toward record-level content.',
   },
   {
     topic: 'Eight tabs versus seven on the tenant detail page',

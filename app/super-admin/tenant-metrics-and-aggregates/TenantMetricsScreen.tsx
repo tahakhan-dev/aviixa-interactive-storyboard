@@ -88,7 +88,7 @@ function namedReason(decision: PermissionDecision, role: RoleId): string {
   if (role === 'PLATFORM_ENGINEER') {
     return 'Not available to the Platform Engineer. D17 records the direct conflict — L20740 forbids this role a support session, L65401 allows one — and resolves it by holding the prohibition, while L97154 puts tenant operational content in this role’s may-not list on this surface. L107350 attributes the onward action to this role; that attribution is not honoured here, and the conflict is stated in full below.'
   }
-  return decision.explanation
+  return `Not available to this role. L107350 attributes the session request to the Platform Engineer and to Support, and to no other console role — the root and the platform Admin are named for it nowhere. D17 holds the prohibition for the Platform Engineer, which leaves Support as the one role that carries it here. Reading a measure carries no session with it. (${decision.explanation})`
 }
 
 function Section({
@@ -161,26 +161,20 @@ export function TenantMetricsScreen({
   // Per-control allowed roles, never the module-level `roles_allowed` (D16).
   //
   // The two onward actions L107350 names are the ONLY controls the source
-  // defines for this module beyond the tenant and period filters. L107350
-  // attributes both to the Platform Engineer; L97154 and D17 put that role
-  // outside a support session, and the roles that may reach tenant content
-  // through a named, audited access class are the root (L97152), the Admin
-  // (L97153) and Support (L97155). That is the list used here, and the
-  // conflict is stated on screen rather than resolved silently.
-  const ONWARD_ROLES: readonly RoleId[] = ['ROOT_SUPER_ADMIN', 'ADMIN', 'SUPPORT']
+  // defines for this module beyond the tenant and period filters, and their
+  // allowed-role lists are NOT the same list. L107350 gives the session
+  // request ["Platform Engineer", "Support"] and the audit-log view
+  // ["Platform Engineer"] alone. D17 and L97154 hold the Platform Engineer
+  // outside a support session, which leaves Support as the only role that
+  // carries the session request — and leaves the audit-log view carried by
+  // nobody, so it renders ABSENT below rather than as a control. Neither
+  // list names the root or the platform Admin, so neither is granted here:
+  // a grant the source does not state reads back as a requirement.
   const sessionDecision = evaluateAccess(
     {
       action: 'MOD-SA-10:request-support-session',
-      allowedRoles: ONWARD_ROLES,
-      sourceRefs: ['L107350', 'L97152', 'L97153', 'L97155', 'DEC — D17', 'L20740', 'L65401'],
-    },
-    context,
-  )
-  const auditViewDecision = evaluateAccess(
-    {
-      action: 'MOD-SA-10:open-tenant-audit-log-view',
-      allowedRoles: ONWARD_ROLES,
-      sourceRefs: ['L107350', 'AC-SA-000-07 L42885', 'AC-SEC-801 L104316', 'L97154'],
+      allowedRoles: ['SUPPORT'],
+      sourceRefs: ['L107350', 'L97155', 'DEC — D17', 'L20740', 'L65401'],
     },
     context,
   )
@@ -192,11 +186,35 @@ export function TenantMetricsScreen({
     },
     context,
   )
+  // The comparative tab IS the cross-tenant aggregate. L97152, L97153 and
+  // L97154 each read "Cross-tenant aggregates: Read-only, anonymised";
+  // L97155 puts "Cross-tenant aggregates: Unavailable" in Support's may-not
+  // list, and does not soften it. Support therefore reads the per-tenant
+  // measures and not this.
+  const comparativeDecision = evaluateAccess(
+    {
+      action: 'MOD-SA-10:read-cross-tenant-aggregates',
+      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER'],
+      sourceRefs: ['L97152', 'L97153', 'L97154', 'L97155', 'L45179'],
+    },
+    context,
+  )
 
   const sessionDisabled = sessionDecision.outcome !== 'allowed'
+  const comparativeDenied = comparativeDecision.outcome !== 'allowed'
+
+  // STATE-06 disables every input on the screen; STATE-12 lets nothing be
+  // submitted. Both are screen state, which no `role === 'X'` boolean can
+  // see — the form reads this, not the role.
+  const formFrozenReason =
+    screenState === 'STATE-06'
+      ? 'Read-only (STATE-06). Every input on this form is disabled and nothing can be submitted from it; the banner above names the one cause.'
+      : screenState === 'STATE-12'
+        ? 'Failure (STATE-12). The aggregation for this tenant-month could not be read, so nothing may be submitted from this screen. Nothing has been written and no request has been raised.'
+        : null
+  const formFrozen = formFrozenReason !== null
   const sessionProps = sessionDisabled ? { disabledReason: namedReason(sessionDecision, role) } : {}
-  const auditDisabled = auditViewDecision.outcome !== 'allowed'
-  const auditProps = auditDisabled ? { disabledReason: namedReason(auditViewDecision, role) } : {}
+  const submitProps = formFrozenReason !== null ? { disabledReason: formFrozenReason } : {}
 
   /**
    * L97152–L97155: for every console role tenant memory content reads
@@ -207,6 +225,9 @@ export function TenantMetricsScreen({
   const memoryReadout = role === 'SUPPORT' ? 'Unavailable' : 'Unavailable — counts and volume only'
 
   function submitRequest() {
+    // The submit is drawn inert in these states; this second guard means the
+    // property holds even if a caller reaches the handler another way.
+    if (formFrozen) return
     if (reason.trim() === '') {
       setRequestError(
         'A session request states its reason. The rule: every platform-side access is reason-required and ticket-linked (L97155), so a request with an empty reason is not accepted. A sentence naming what the session is for is accepted.',
@@ -273,7 +294,7 @@ export function TenantMetricsScreen({
           <Banner
             tone="attention"
             heading="Read-only"
-            body="One cause: every object on this module is derived and never authored, so nothing here is writable by any role in any state. This banner names that cause once."
+            body="One cause: every object on this module is derived and never authored, so nothing here is writable by any role in any state. Every input on the session-request form is disabled while this state holds, and nothing can be submitted from it. This banner names that cause once."
           />
         </div>
       ) : null}
@@ -281,22 +302,20 @@ export function TenantMetricsScreen({
       {screenState === 'STATE-05' ? (
         <div className="mt-4">
           {/*
-            The refusal is stated, never hidden behind a missing control. It
-            is written here rather than passed through `PermissionNotice`
-            because that primitive renders the shared policy explanation
-            verbatim, and one of those strings contains the word "signed" in
-            the sense of being logged in — a word D10 bans on this surface in
-            an entirely different sense (an audit-integrity claim). Rendering
-            it would defeat the forbidden-word gate on a word form the gate is
-            not written to catch, which is worse than restating the refusal in
-            this module's own words.
+            The refusal is stated, never hidden behind a missing control
+            (STATE-05's contract). It is written in this module's own words
+            rather than passed through `PermissionNotice`, because the three
+            refusals on this screen each have a different source line behind
+            them and a shared policy explanation would name none of them.
+            Each is also stated where it happens; this banner points at them
+            rather than standing in for them.
           */}
           <Banner
             tone="attention"
             heading="This role does not carry the action"
             body={
               readDecision.outcome === 'allowed'
-                ? 'Every one of the four console roles reads every measure and every comparative on this module. The only refusals here are the two onward actions from a measure, and each is drawn inert with its own reason beside it — naming the roles that do carry it: the root, the Admin and Support.'
+                ? 'All four console roles read the per-tenant measures on this module (L42742, D16). Three refusals sit on this screen, and each is stated where it happens rather than summarised here. The anonymised comparative is unavailable to Support, which L97155 puts in that role’s may-not list; the root, the platform Admin and the Platform Engineer each read it anonymised (L97152–L97154). Of the two onward actions from a measure, the session request is carried by Support alone once D17 holds, and is drawn inert with its reason for every other role. The audit-log view is carried by no console role at all, so nothing is drawn for it.'
                 : readDecision.explanation
             }
           />
@@ -445,7 +464,20 @@ export function TenantMetricsScreen({
             aggregation rather than after it, so there is no earlier state any account could return
             to.
           </p>
-          {screenState === 'STATE-02' ? (
+          {comparativeDenied ? (
+            <div className="mt-3">
+              <Banner
+                tone="blocked"
+                heading="Cross-tenant aggregates: Unavailable to this role"
+                body="L97155 puts cross-tenant aggregates in Support’s may-not list on this surface, and does not soften it the way it softens tenant memory content elsewhere: Support reads inside an open support session only, and a cross-tenant distribution is not something a single tenant’s session can carry. The refusal is stated here rather than hidden behind a missing tab. The roles that do read this comparative, anonymised, are the root (L97152), the platform Admin (L97153) and the Platform Engineer (L97154)."
+              />
+              <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+                No band, no count and no as-of time is rendered for this role, because none of it
+                is read. A refused aggregate is not a zero and not a blank — it is a refusal with
+                the rule named (FB-SA-01, L45228).
+              </p>
+            </div>
+          ) : screenState === 'STATE-02' ? (
             <div className="mt-3">
               <SkeletonBlock lines={3} label="Loading the anonymised comparative distribution" />
             </div>
@@ -490,23 +522,31 @@ export function TenantMetricsScreen({
       <Section id="sa10-onward" heading="Onward actions from a measure">
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
           The source names exactly two onward actions from a measure (L107350), and neither of them
-          opens tenant content from this console. Both resolve to a session request under a named
-          access class. There is no ambient browsing anywhere on this surface (AC-SA-000-07,
-          AC-SEC-801).
+          opens tenant content from this console. Their allowed-role lists are not the same list,
+          so they do not render the same way. There is no ambient browsing anywhere on this surface
+          (AC-SA-000-07, AC-SEC-801).
         </p>
-        <div className="mt-3 flex flex-wrap items-start gap-4">
+        <div className="mt-3">
           <Button {...sessionProps} onClick={() => setRequestOpen(true)}>
             Request a support session
           </Button>
-          <Button {...auditProps} onClick={() => setRequestOpen(true)}>
-            Open the tenant’s own audit log view
-          </Button>
         </div>
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          The second action opens the same session-request form as the first. A tenant’s own audit
-          log is tenant content, so it is reachable only inside a named session, and it is that
-          tenant’s own record — the platform audit stream is a separate view in MOD-SA-18.
+          L107350 attributes the session request to the Platform Engineer and to Support. D17 holds
+          the prohibition for the Platform Engineer, which leaves Support as the one console role
+          that carries it — so it is drawn, and drawn inert with its reason named, for the root, the
+          platform Admin and the Platform Engineer alike. It resolves to a request form, never to
+          tenant content.
         </p>
+        <div className="mt-4">
+          <p className="text-sm font-medium">Open the tenant’s own audit log view</p>
+          <ProhibitionNotice
+            rendering={{
+              kind: 'absent',
+              note: 'No console role carries this action here, the root included. L107350 attributes it to the Platform Engineer alone; L97154 puts tenant operational content in that role’s may-not list on this surface and D17 holds the prohibition, so the one role it was attributed to cannot hold it. Nothing is drawn where the control would be, because a disabled control would claim an enabled state exists for somebody. A tenant’s own audit log is that tenant’s record and is reachable only inside a named session in any case — the platform audit stream is a separate view in MOD-SA-18. Which role, if any, should carry this is named below as unspecified in source.',
+            }}
+          />
+        </div>
         <ul className="mt-3 list-disc pl-5 text-sm text-[var(--color-ink-muted)]">
           {ACCESS_CLASSES.map((c) => (
             <li key={c.id}>{c.name}</li>
@@ -539,6 +579,7 @@ export function TenantMetricsScreen({
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
+                disabled={formFrozen}
                 rows={2}
                 className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm"
               />
@@ -547,6 +588,7 @@ export function TenantMetricsScreen({
               <input
                 value={ticket}
                 onChange={(e) => setTicket(e.target.value)}
+                disabled={formFrozen}
                 className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm"
               />
             </Field>
@@ -554,7 +596,9 @@ export function TenantMetricsScreen({
               Tenant: {tenantName}. Time box: the stated default of two hours. There is no extension
               control — a longer look is a new request with a fresh reason (D18, L56107).
             </p>
-            <Button onClick={submitRequest}>Submit session request</Button>
+            <Button {...submitProps} onClick={submitRequest}>
+              Submit session request
+            </Button>
           </div>
           {requestError !== null ? (
             <p role="alert" className="mt-2 text-sm text-[var(--color-status-blocked)]">

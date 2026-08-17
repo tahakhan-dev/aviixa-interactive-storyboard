@@ -67,7 +67,10 @@ describe('MOD-SA-10 Tenant Metrics and Aggregates — the shell contract', () =>
         unmount()
       }
     }
-  })
+    // 48 full renders plus 48 tab clicks: past the 5s default on a cold
+    // transform cache, which aborted the sweep partway and still reported as
+    // a run. The gate must finish, not merely start.
+  }, 30_000)
 
   it('resolves every link inside the console in every state, never to record-level tenant content', () => {
     for (const role of SA10_PLATFORM_ROLES) {
@@ -82,7 +85,7 @@ describe('MOD-SA-10 Tenant Metrics and Aggregates — the shell contract', () =>
         unmount()
       }
     }
-  })
+  }, 30_000)
 })
 
 describe('MOD-SA-10 — the two tabs SCR-SA-16 names', () => {
@@ -195,28 +198,53 @@ describe('MOD-SA-10 — tenant memory reads Unavailable for every console role',
 })
 
 describe('MOD-SA-10 — per-control allowed roles, through evaluateAccess', () => {
-  it('lets root, Admin and Support raise a session request, resolving to a form and never to content', () => {
-    for (const role of ['ROOT_SUPER_ADMIN', 'ADMIN', 'SUPPORT'] as const) {
-      const { unmount } = render(<TenantMetricsScreen role={role} />)
+  /**
+   * L107350 gives "request a support session" allowed_roles
+   * ["Platform Engineer", "Support"], and D17 holds the prohibition for the
+   * Platform Engineer. That leaves Support, and Support alone. Sweeping all
+   * four roles is the point: a single default render would pass while the
+   * root and the Admin held a grant no source line states.
+   */
+  it('gives the session request to Support alone, drawn inert with a named reason for the other three', () => {
+    for (const role of SA10_PLATFORM_ROLES) {
+      const { unmount } = render(<TenantMetricsScreen role={role.id} />)
       const button = screen.getByRole('button', { name: /Request a support session/i })
-      expect(button.getAttribute('aria-disabled')).toBeNull()
-      fireEvent.click(button)
-      expect(screen.getByRole('region', { name: /Session request/i })).toBeDefined()
-      expect(screen.getByLabelText(/Reason/i)).toBeDefined()
+      if (role.id === 'SUPPORT') {
+        expect(button.getAttribute('aria-disabled'), role.id).toBeNull()
+        fireEvent.click(button)
+        expect(screen.getByRole('region', { name: /Session request/i })).toBeDefined()
+        expect(screen.getByLabelText(/Reason/i)).toBeDefined()
+      } else {
+        expect(button.getAttribute('aria-disabled'), role.id).toBe('true')
+        const describedBy = button.getAttribute('aria-describedby')
+        expect(describedBy, role.id).not.toBeNull()
+        const reasonText = document.getElementById(describedBy ?? '')?.textContent ?? ''
+        expect(reasonText, role.id).toMatch(/L107350/)
+        expect(reasonText, role.id).toMatch(role.id === 'PLATFORM_ENGINEER' ? /D17/ : /Support/)
+        expect(reasonText, role.id).not.toMatch(/^denied$/i)
+        fireEvent.click(button)
+        expect(screen.queryByRole('region', { name: /Session request/i }), role.id).toBeNull()
+      }
       unmount()
     }
   })
 
-  it('disables both onward actions for the Platform Engineer with the D17 conflict named', () => {
-    render(<TenantMetricsScreen role="PLATFORM_ENGINEER" />)
-    for (const name of [/Request a support session/i, /Open the tenant’s own audit log view/i]) {
-      const button = screen.getByRole('button', { name })
-      expect(button.getAttribute('aria-disabled')).toBe('true')
-      const describedBy = button.getAttribute('aria-describedby')
-      expect(describedBy).not.toBeNull()
-      const reason = document.getElementById(describedBy ?? '')
-      expect(reason?.textContent ?? '').toMatch(/DEC-|D17|Platform Engineer/i)
-      expect(reason?.textContent ?? '').not.toMatch(/^denied$/i)
+  /**
+   * L107350 gives "open the tenant's own audit log view" allowed_roles
+   * ["Platform Engineer"] and nothing else; L97154 and D17 refuse that role
+   * here. The action therefore exists for NOBODY, which is the one case §3
+   * reserves ABSENT for — not a disabled control, which would assert an
+   * enabled state exists for someone.
+   */
+  it('draws no audit-log-view control for any role including the root, only the note in its place', () => {
+    for (const role of SA10_PLATFORM_ROLES) {
+      const { unmount } = render(<TenantMetricsScreen role={role.id} />)
+      expect(screen.queryByRole('button', { name: /audit log view/i }), role.id).toBeNull()
+      const region = screen.getByRole('region', { name: /Onward actions from a measure/i })
+      expect(within(region).getByText(/No console role carries this action here/i)).toBeDefined()
+      // Exactly one control in the region: the session request.
+      expect(region.querySelectorAll('button'), role.id).toHaveLength(1)
+      unmount()
     }
   })
 
@@ -237,6 +265,50 @@ describe('MOD-SA-10 — per-control allowed roles, through evaluateAccess', () =
       expect(options.some((o) => o.includes(annotation))).toBe(true)
     }
     expect(screen.getByText(/view switcher, not a login/i)).toBeDefined()
+  })
+})
+
+describe('MOD-SA-10 — the comparative is a cross-tenant aggregate (L97152–L97155)', () => {
+  it('refuses it to Support in every applicable state, and to no other role', () => {
+    for (const role of SA10_PLATFORM_ROLES) {
+      for (const state of APPLICABLE_STATES) {
+        const label = `${role.id} ${state.id}`
+        const { unmount } = render(<TenantMetricsScreen role={role.id} screenState={state.id} />)
+        showComparative()
+        const region = screen.getByRole('region', { name: /Anonymised comparative/i })
+        const refusal = within(region).queryByText(/Cross-tenant aggregates: Unavailable to this role/i)
+        if (role.id === 'SUPPORT') {
+          expect(refusal, label).not.toBeNull()
+          expect(region.textContent ?? '', label).toMatch(/L97155/)
+          expect(region.querySelectorAll('[data-distribution-band]'), label).toHaveLength(0)
+          // A refused aggregate is a refusal, never a zero and never a blank.
+          expect((region.textContent ?? '').trim().length, label).toBeGreaterThan(0)
+        } else {
+          expect(refusal, label).toBeNull()
+        }
+        unmount()
+      }
+    }
+  }, 30_000)
+
+  it('still renders the distribution for the three roles L97152–L97154 allow it to', () => {
+    for (const role of ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER'] as const) {
+      const { unmount } = render(<TenantMetricsScreen role={role} screenState="STATE-03" />)
+      showComparative()
+      const region = screen.getByRole('region', { name: /Anonymised comparative/i })
+      expect(region.querySelectorAll('[data-distribution-band]').length, role).toBeGreaterThan(0)
+      unmount()
+    }
+  })
+
+  it('names the roles that do read it, rather than hiding the refusal behind a missing tab', () => {
+    render(<TenantMetricsScreen role="SUPPORT" />)
+    // Both tabs stay reachable; the refusal is stated in the panel.
+    expect(screen.getAllByRole('tab')).toHaveLength(2)
+    showComparative()
+    const region = screen.getByRole('region', { name: /Anonymised comparative/i })
+    expect(region.textContent ?? '').toMatch(/L97152/)
+    expect(region.textContent ?? '').toMatch(/Platform Engineer/)
   })
 })
 
@@ -273,6 +345,43 @@ describe('MOD-SA-10 — the twelve applicable screen states', () => {
   it('STATE-06: one banner, one cause', () => {
     render(<TenantMetricsScreen screenState="STATE-06" />)
     expect(screen.getAllByRole('status').filter((n) => /Read-only/i.test(n.textContent ?? ''))).toHaveLength(1)
+  })
+
+  /**
+   * STATE-06's contract is "every input is disabled"; STATE-12's is that the
+   * reader is never left unsure whether anything was written. Both are
+   * screen state, which no role check can see — so the form must read the
+   * state, not the role.
+   */
+  it('STATE-06 and STATE-12: every form input is disabled and nothing can be submitted', () => {
+    for (const state of ['STATE-06', 'STATE-12'] as const) {
+      const { unmount } = render(<TenantMetricsScreen role="SUPPORT" screenState={state} />)
+      fireEvent.click(screen.getByRole('button', { name: /Request a support session/i }))
+      const region = screen.getByRole('region', { name: /Session request/i })
+      const inputs = Array.from(region.querySelectorAll('textarea, input'))
+      expect(inputs.length, state).toBeGreaterThan(0)
+      for (const el of inputs) {
+        expect((el as HTMLTextAreaElement | HTMLInputElement).disabled, `${state} ${el.tagName}`).toBe(true)
+      }
+      const submit = screen.getByRole('button', { name: /Submit session request/i })
+      expect(submit.getAttribute('aria-disabled'), state).toBe('true')
+      fireEvent.click(submit)
+      expect(screen.queryByText(/Request pending/i), state).toBeNull()
+      unmount()
+    }
+  })
+
+  it('leaves that same form live in a state that is neither read-only nor failure', () => {
+    render(<TenantMetricsScreen role="SUPPORT" screenState="STATE-03" />)
+    fireEvent.click(screen.getByRole('button', { name: /Request a support session/i }))
+    const region = screen.getByRole('region', { name: /Session request/i })
+    const inputs = Array.from(region.querySelectorAll('textarea, input'))
+    expect(inputs.length).toBeGreaterThan(0)
+    for (const el of inputs) {
+      expect((el as HTMLTextAreaElement | HTMLInputElement).disabled).toBe(false)
+    }
+    fireEvent.click(screen.getByRole('button', { name: /Submit session request/i }))
+    expect(screen.getAllByText(/Request pending/i).length).toBeGreaterThan(0)
   })
 
   it('STATE-09: a submitted session request renders as pending, never as an open session', () => {
