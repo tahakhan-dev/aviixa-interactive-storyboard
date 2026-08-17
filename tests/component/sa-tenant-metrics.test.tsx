@@ -8,6 +8,7 @@ import {
   SA10_ABSENT_CONTROLS,
   SA10_MEASURE_COUNT,
   SA10_PLATFORM_ROLES,
+  SA10_READ_MEASURES_SOURCE_REFS,
   SA10_TENANT_MONTHS,
   SA10_UNSPECIFIED_IN_SOURCE,
 } from '../../app/super-admin/tenant-metrics-and-aggregates/fixtures'
@@ -487,4 +488,61 @@ describe('MOD-SA-10 — what the source does not define', () => {
     render(<TenantMetricsScreen />)
     expect(screen.getByText(/No critical-class action originates on this module/i)).toBeDefined()
   })
+})
+
+/**
+ * D16: a module-level `roles_allowed` entry is authoritative NOWHERE. The
+ * STATE-05 banner once cited L42742 for this module's four-role read; L42742
+ * is MOD-SA-08's Part VIII navigation entry, and MOD-SA-10's own is L42744 —
+ * but neither belongs in the banner, because both are the module-level entry
+ * D16 rules out, and printing one beside D16 contradicts D16.
+ *
+ * These tests pin the fix structurally rather than by string: the banner must
+ * print exactly the refs the read decision carries, and no Part VIII
+ * navigation line may appear anywhere on the screen in any state.
+ */
+describe('MOD-SA-10 — the four-role read cites its per-control source, never roles_allowed (D16)', () => {
+  function state05BannerText(): string {
+    const { container } = render(<TenantMetricsScreen screenState="STATE-05" />)
+    const banner = Array.from(container.querySelectorAll('[role=status]')).find((el) =>
+      (el.textContent ?? '').includes('This role does not carry the action'),
+    )
+    expect(banner, 'the STATE-05 refusal banner did not render').toBeDefined()
+    return banner?.textContent ?? ''
+  }
+
+  it('prints every source ref the read decision carries', () => {
+    const text = state05BannerText()
+    expect(SA10_READ_MEASURES_SOURCE_REFS.length).toBeGreaterThan(0)
+    for (const ref of SA10_READ_MEASURES_SOURCE_REFS) {
+      expect(text, `${ref} missing from the STATE-05 banner`).toContain(ref)
+    }
+  })
+
+  it('states that the module-level entry is authoritative nowhere, naming D16 as the rule', () => {
+    const text = state05BannerText()
+    expect(text).toMatch(/D16/)
+    expect(text).toMatch(/roles_allowed entry authoritative nowhere/i)
+  })
+
+  it('cites no Part VIII module-navigation line anywhere on the screen, in any state, for any role', () => {
+    // L42730-L42759 is the Part VIII navigation block: one module-level
+    // `roles_allowed` entry per SURF-SA module (MOD-SA-08 at L42742,
+    // MOD-SA-10 at L42744). D16 forbids reading a control's allowed roles off
+    // any of them, so none may be cited on this screen - not the wrong one,
+    // and not this module's own either.
+    const navLine = /L427[3-5][0-9]/
+    for (const state of APPLICABLE_STATES) {
+      for (const role of SA10_PLATFORM_ROLES) {
+        const { container, unmount } = render(
+          <TenantMetricsScreen role={role.id} screenState={state.id} />,
+        )
+        const hit = navLine.exec(container.textContent ?? '')
+        unmount()
+        expect(hit?.[0], `${state.id}/${role.id} cites a module-level roles_allowed line`).toBe(
+          undefined,
+        )
+      }
+    }
+  }, 30_000)
 })

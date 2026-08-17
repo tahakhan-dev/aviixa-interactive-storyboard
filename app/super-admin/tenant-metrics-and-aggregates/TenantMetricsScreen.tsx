@@ -38,6 +38,7 @@ import {
   SA10_PERMITTED_DIMENSIONS,
   SA10_PLATFORM_ROLES,
   SA10_PROHIBITED_DIMENSIONS,
+  SA10_READ_MEASURES_SOURCE_REFS,
   SA10_STALE_AS_OF,
   SA10_STALE_ORIGIN,
   SA10_TENANT_MONTHS,
@@ -182,7 +183,7 @@ export function TenantMetricsScreen({
     {
       action: 'MOD-SA-10:read-measures',
       allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'],
-      sourceRefs: ['L45164', 'L97152', 'L97153', 'L97154', 'L97155'],
+      sourceRefs: SA10_READ_MEASURES_SOURCE_REFS,
     },
     context,
   )
@@ -315,7 +316,7 @@ export function TenantMetricsScreen({
             heading="This role does not carry the action"
             body={
               readDecision.outcome === 'allowed'
-                ? 'All four console roles read the per-tenant measures on this module (L42742, D16). Three refusals sit on this screen, and each is stated where it happens rather than summarised here. The anonymised comparative is unavailable to Support, which L97155 puts in that role’s may-not list; the root, the platform Admin and the Platform Engineer each read it anonymised (L97152–L97154). Of the two onward actions from a measure, the session request is carried by Support alone once D17 holds, and is drawn inert with its reason for every other role. The audit-log view is carried by no console role at all, so nothing is drawn for it.'
+                ? `All four console roles read the per-tenant measures on this module. D16 holds a module-level roles_allowed entry authoritative nowhere, so the grant printed here is the per-control one this screen evaluates, on ${readDecision.sourceRefs.join(', ')}. Three refusals sit on this screen, and each is stated where it happens rather than summarised here. The anonymised comparative is unavailable to Support, which L97155 puts in that role’s may-not list; the root, the platform Admin and the Platform Engineer each read it anonymised (L97152–L97154). Of the two onward actions from a measure, the session request is carried by Support alone once D17 holds, and is drawn inert with its reason for every other role. The audit-log view is carried by no console role at all, so nothing is drawn for it.`
                 : readDecision.explanation
             }
           />

@@ -51,6 +51,24 @@ export interface Sa10PlatformRole {
   readonly roleAnnotation: string
 }
 
+/**
+ * The ONLY citations for "all four console roles read the per-tenant
+ * measures". L45164 is this module's own §8.10 functions entry; L97152–L97155
+ * are the four per-role permission rows. A module-level `roles_allowed` line
+ * (L42744 for MOD-SA-10) is deliberately NOT here: D16 holds that entry
+ * authoritative nowhere, so citing it beside D16 would contradict D16.
+ *
+ * The read decision and the STATE-05 banner both read this array, so the
+ * grant and the citation printed for it cannot drift apart.
+ */
+export const SA10_READ_MEASURES_SOURCE_REFS = [
+  'L45164',
+  'L97152',
+  'L97153',
+  'L97154',
+  'L97155',
+] as const
+
 export const SA10_PLATFORM_ROLES = [
   { id: 'ROOT_SUPER_ADMIN', name: 'Root Super Admin', roleAnnotation: 'ROLE-PLAT-ROOT' },
   { id: 'ADMIN', name: 'Admin', roleAnnotation: 'ROLE-PLAT-ADMIN' },
