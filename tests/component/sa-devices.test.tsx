@@ -16,14 +16,13 @@ import { COMMAND_STATES } from '@/surfaces/sa/command-state'
 import { SCREEN_STATES } from '@/ui/screen-state'
 
 /**
- * D10's four forbidden words. The `signed` arm carries a word boundary AND a
- * "signed in"/"signed-in" exclusion: the SHARED spine copy in
- * `@/policy/decision.ts` REASON_CODES says "The signed-in role does not carry
- * a grant for this action", and every module that renders a real
- * `evaluateAccess` denial puts that string on screen. The exclusion is one
- * word sense wide — "the log is signed" still fails this gate.
+ * D10's four forbidden words, with NO exclusion arm. The shared spine copy in
+ * `@/policy/decision.ts` REASON_CODES no longer says "signed-in" anywhere, so
+ * the `(?![- ]in)` lookahead that used to guard `\bsigned\b` is gone: it was an
+ * unanchored superset that let "signed in" through, and nothing on this
+ * console needs it any more.
  */
-const FORBIDDEN_WORDS = /tamper-evident|\bchained\b|\bsigned\b(?![- ]in)|\bverified\b/i
+const FORBIDDEN_WORDS = /tamper-evident|\bchained\b|\bsigned\b|\bverified\b/i
 
 /**
  * AC-SA-13-05 is a claim about what a RENDERED STATE says, not about which
@@ -58,6 +57,12 @@ function selectRole(sourceRoleId: string): void {
 function selectState(stateId: string): void {
   fireEvent.change(screen.getByRole('combobox', { name: 'Screen state' }), {
     target: { value: stateId },
+  })
+}
+
+function openDevice(deviceId: string): void {
+  fireEvent.change(screen.getByRole('combobox', { name: 'Open a device detail' }), {
+    target: { value: deviceId },
   })
 }
 
@@ -96,17 +101,43 @@ describe('MOD-SA-13 — the console shell contract', () => {
     expect(text).toMatch(/fixture/i)
   })
 
-  it('D10: never uses tamper-evident, chained, signed or verified, for any role', () => {
+  it('D10: never uses tamper-evident, chained, signed or verified, for any role or screen state', () => {
     const { container } = render(<DevicesScreen />)
+    // Every role AND every screen state: the state treatments render their own
+    // copy, and a role-only loop never reads a single word of it.
     for (const role of DEVICE_PLATFORM_ROLES) {
       selectRole(role.sourceId)
-      expect(container.textContent ?? '', role.sourceId).not.toMatch(FORBIDDEN_WORDS)
+      for (const state of SCREEN_STATES.filter((s) => !s.frontlineOnly)) {
+        selectState(state.id)
+        const label = `${role.sourceId} / ${state.id}`
+        expect(container.textContent ?? '', label).not.toMatch(FORBIDDEN_WORDS)
+      }
+    }
+    selectState('STATE-03')
+    // Every device detail pane too — the note and the audit trail are the only
+    // free prose about a device on this screen.
+    for (const device of DEVICES) {
+      openDevice(device.id)
+      expect(container.textContent ?? '', device.id).not.toMatch(FORBIDDEN_WORDS)
     }
   })
 
-  it('renders no invariant as a control: no switch, no toggle anywhere on the screen', () => {
+  it('draws no toggle control of any kind: no switch, no checkbox and no radio, for any role', () => {
+    // This module renders no invariant at all, so an "invariant as a control"
+    // assertion would be vacuous here. What it CAN prove is the general form:
+    // nothing on this screen is a toggle. `[role=switch]` alone missed every
+    // native checkbox and radio, which is how a toggle actually gets drawn.
     const { container } = render(<DevicesScreen />)
-    expect(container.querySelector('[role=switch]')).toBeNull()
+    for (const role of DEVICE_PLATFORM_ROLES) {
+      selectRole(role.sourceId)
+      expect(container.querySelectorAll('[role=switch]'), role.sourceId).toHaveLength(0)
+      expect(container.querySelectorAll('[role=checkbox]'), role.sourceId).toHaveLength(0)
+      expect(container.querySelectorAll('input[type=checkbox]'), role.sourceId).toHaveLength(0)
+      expect(container.querySelectorAll('input[type=radio]'), role.sourceId).toHaveLength(0)
+      expect(screen.queryAllByRole('switch'), role.sourceId).toHaveLength(0)
+      expect(screen.queryAllByRole('checkbox'), role.sourceId).toHaveLength(0)
+      expect(screen.queryAllByRole('radio'), role.sourceId).toHaveLength(0)
+    }
   })
 })
 
@@ -140,21 +171,83 @@ describe('MOD-SA-13 — the fleet, its telemetry and its aggregates', () => {
     const text = container.textContent ?? ''
     expect(text).not.toMatch(/\brates?\b/i)
     expect(text).not.toMatch(/per[- ](worker|person|operator|shift|hour|minute|run)\b/i)
-    expect(region('Fleet').textContent ?? '').toMatch(/names no worker/i)
+    // The third clause is proved on the RENDERED CELLS, never on the screen's
+    // own prose: `toMatch(/names no worker/i)` only ever read this table's
+    // caption sentence back to itself and could not see a name in a cell.
+    // Two cheap heuristics over each cell, after the tenant labels — the only
+    // legitimate multi-word proper nouns on a device row — are stripped out:
+    // a worker lexicon, and a capitalised name pair.
+    const WORKER_LEXICON =
+      /\b(worker|operator|technician|inspector|employee|staff|person|assignee|assigned to)\b/i
+    const NAME_PAIR = /[A-Z][a-z]+\s+[A-Z][a-z]+/
+    const tenantLabels = DEVICES.map((d) => d.tenantLabel)
+    const cells = within(region('Fleet')).getAllByRole('cell')
+    expect(cells.length).toBeGreaterThan(0)
+    for (const cell of cells) {
+      let t = cell.textContent ?? ''
+      for (const label of tenantLabels) t = t.split(label).join(' ')
+      expect(t, t).not.toMatch(WORKER_LEXICON)
+      expect(t, t).not.toMatch(NAME_PAIR)
+    }
   })
 
   it('AC-SA-13-05: an unreached device is rendered as unreached, never as wiped, locked or updated', () => {
     render(<DevicesScreen />)
-    const fleet = region('Fleet').textContent ?? ''
-    expect(fleet).toMatch(/not been reached/i)
-    expect(fleet).not.toMatch(/\bwiped\b(?!\s+with a final sync attempt)/i)
+    expect(region('Fleet').textContent ?? '').toMatch(/not been reached/i)
+    // All three words AC-SA-13-05 names, checked in BOTH places a device is
+    // described: its fleet row and its detail pane. The pane carries the only
+    // free prose about a device (the note and the audit trail), and the old
+    // region('Fleet') scope never read a word of it.
+    const TOOK_THE_COMMAND = /\bwiped\b|\blocked\b|\bupdated\b/i
+    const unreached = DEVICES.filter((d) => d.contact === 'not reached')
+    expect(unreached.length).toBeGreaterThan(1)
+    for (const device of unreached) {
+      const row = within(region('Fleet'))
+        .getAllByRole('row')
+        .find((r) => (r.textContent ?? '').includes(device.id))
+      expect(row, device.id).toBeDefined()
+      expect(row!.textContent ?? '', device.id).toMatch(/has not been reached/i)
+      expect(row!.textContent ?? '', device.id).not.toMatch(TOOK_THE_COMMAND)
+      openDevice(device.id)
+      expect(region('Device detail').textContent ?? '', device.id).not.toMatch(TOOK_THE_COMMAND)
+    }
+    // The gate is scoped to contact, not to a word the screen simply never
+    // uses: the reached, retired device DOES render as wiped, and must.
+    openDevice('DEV-TAB-0294')
+    expect(region('Device detail').textContent ?? '').toMatch(/\bwiped\b/i)
   })
 
   it('AC-SA-13-06: the package inventory records which package version each run executed against', () => {
     render(<DevicesScreen />)
-    const text = region('Device detail').textContent ?? ''
-    expect(text).toMatch(/package inventory/i)
-    expect(text).toMatch(/package version/i)
+    expect(region('Device detail').textContent ?? '').toMatch(/package inventory/i)
+    // Read the fixture ROWS, not the hard-coded heading and column header:
+    // both of those render whether or not a single package is recorded.
+    const CAPTION = /package versions recorded against this device/i
+    const withPackages = DEVICES.find((d) => d.id === 'DEV-TAB-0141')!
+    expect(withPackages.packages.length).toBeGreaterThan(1)
+    openDevice(withPackages.id)
+    const table = within(region('Device detail')).getByRole('table', { name: CAPTION })
+    expect(within(table).getAllByRole('row')).toHaveLength(withPackages.packages.length + 1)
+    for (const pkg of withPackages.packages) {
+      const row = within(table)
+        .getAllByRole('row')
+        .find((r) => (r.textContent ?? '').includes(pkg.packageVersion))
+      expect(row, pkg.packageVersion).toBeDefined()
+      expect(row!.textContent ?? '', pkg.packageVersion).toContain(pkg.scope)
+      expect(row!.textContent ?? '', pkg.packageVersion).toContain(pkg.runsInTenantMonth)
+      // A tenant-month count, never a rate and never a per-worker series.
+      expect(pkg.runsInTenantMonth, pkg.packageVersion).toMatch(
+        /^\d+ runs recorded in the tenant-month$/,
+      )
+    }
+    // A device with nothing recorded renders the empty state and no grid —
+    // never a zero-row table and never a zero.
+    const empty = DEVICES.find((d) => d.packages.length === 0)!
+    openDevice(empty.id)
+    expect(within(region('Device detail')).queryByRole('table', { name: CAPTION })).toBeNull()
+    expect(region('Device detail').textContent ?? '').toMatch(
+      /no package has been recorded against this device/i,
+    )
   })
 })
 
@@ -171,15 +264,57 @@ describe('MOD-SA-13 — the fifteen command states and the honest stepper', () =
 
   it('starts both fixtures at created and advances only on an explicit user action', () => {
     render(<DevicesScreen />)
-    expect(within(region('Wipe on a device that returns')).getByText('created')).toBeDefined()
-    // A role change and a screen-state change move nothing.
+    const RET = 'Wipe on a device that returns'
+    const NEV = 'Wipe on a device that never returns'
+    // BOTH steppers, not just the reachable one: the unreachable fixture is
+    // the one carrying the AC-SA-13-05 hard gate, and an opening index other
+    // than 0 there renders a command state no user asked for.
+    expect(badgeStates(region(RET))).toEqual(['created'])
+    expect(badgeStates(region(NEV))).toEqual(['created'])
+    // A role change and a screen-state change move neither.
     selectRole('ROLE-PLAT-SUP')
     selectState('STATE-08')
-    expect(within(region('Wipe on a device that returns')).getByText('created')).toBeDefined()
+    expect(badgeStates(region(RET))).toEqual(['created'])
+    expect(badgeStates(region(NEV))).toEqual(['created'])
     selectRole('ROLE-PLAT-ROOT')
     selectState('STATE-03')
     advance(REACHED_ADVANCE)
-    expect(within(region('Wipe on a device that returns')).getByText('authorized')).toBeDefined()
+    expect(badgeStates(region(RET))).toEqual(['authorized'])
+    // Stepping one fixture does not step the other.
+    expect(badgeStates(region(NEV))).toEqual(['created'])
+    advance(UNREACHED_ADVANCE)
+    expect(badgeStates(region(NEV))).toEqual(['authorized'])
+    expect(badgeStates(region(RET))).toEqual(['authorized'])
+  })
+
+  it('STATE-06 and STATE-12 disable every control, both steppers included', () => {
+    render(<DevicesScreen />)
+    selectRole('ROLE-PLAT-ROOT')
+    const NAMES = [
+      /draft the wipe and de-authorisation request/i,
+      /approve the critical-class request/i,
+      REACHED_ADVANCE,
+      UNREACHED_ADVANCE,
+      /record a device suspension command/i,
+    ]
+    for (const stateId of ['STATE-06', 'STATE-12']) {
+      selectState(stateId)
+      for (const name of NAMES) {
+        const button = screen.getByRole('button', { name })
+        expect(button.getAttribute('aria-disabled'), `${stateId} ${String(name)}`).toBe('true')
+      }
+      // And clicking one changes nothing.
+      fireEvent.click(screen.getByRole('button', { name: REACHED_ADVANCE }))
+      expect(badgeStates(region('Wipe on a device that returns')), stateId).toEqual(['created'])
+    }
+    // The same controls are live again once the state permits them.
+    selectState('STATE-03')
+    for (const name of NAMES) {
+      expect(
+        screen.getByRole('button', { name }).getAttribute('aria-disabled'),
+        String(name),
+      ).toBeNull()
+    }
   })
 
   it('keeps the state name visible at every step of the reachable sequence', () => {
@@ -332,11 +467,53 @@ describe('MOD-SA-13 — the three prohibition renderings, by rule', () => {
     expect(notes).toMatch(/no delete or purge/i)
   })
 
-  it('names every affordance the source leaves undefined instead of inventing one', () => {
+  it('names every affordance the source leaves undefined', () => {
     render(<DevicesScreen />)
     const text = region('Unspecified in source').textContent ?? ''
     expect(UNSPECIFIED_IN_SOURCE.length).toBeGreaterThan(3)
     for (const item of UNSPECIFIED_IN_SOURCE) expect(text).toContain(item)
+  })
+
+  it('…instead of inventing one: the drawn controls are exactly the ones the source defines', () => {
+    render(<DevicesScreen />)
+    // The other half of the rule, and the half a presence-only assertion over
+    // UNSPECIFIED_IN_SOURCE can never catch: an "Export the fleet inventory"
+    // button two sections above a panel saying no export is defined. The
+    // control surface is pinned as an ALLOWLIST rather than probed with a
+    // handful of negative regexes, so ANY control the source does not define
+    // fails this test the moment it is drawn.
+    const CONTROLS = [
+      'Draft the wipe and de-authorisation request',
+      'Approve the critical-class request',
+      'Advance the reachable-device fixture one state',
+      'Advance the unreachable-device fixture one state',
+      'Record a device suspension command',
+    ]
+    const COMBOBOXES = ['View as platform role', 'Screen state', 'Open a device detail']
+    // Every role and every screen state: a control cannot hide behind a view
+    // the default render never reaches.
+    for (const role of DEVICE_PLATFORM_ROLES) {
+      selectRole(role.sourceId)
+      for (const state of SCREEN_STATES.filter((s) => !s.frontlineOnly)) {
+        selectState(state.id)
+        const label = `${role.sourceId} / ${state.id}`
+        for (const button of screen.getAllByRole('button')) {
+          expect(CONTROLS, `${label}: ${button.textContent ?? ''}`).toContain(
+            (button.textContent ?? '').trim(),
+          )
+        }
+        expect(screen.getAllByRole('combobox'), label).toHaveLength(COMBOBOXES.length)
+        for (const name of COMBOBOXES) {
+          expect(screen.getByRole('combobox', { name }), label).toBeDefined()
+        }
+        // No text entry anywhere: a search box over a cross-tenant fleet is
+        // the ambient-browsing path the source forbids.
+        expect(screen.queryAllByRole('textbox'), label).toHaveLength(0)
+        expect(screen.queryAllByRole('searchbox'), label).toHaveLength(0)
+        expect(screen.queryAllByRole('spinbutton'), label).toHaveLength(0)
+      }
+    }
+    selectState('STATE-03')
   })
 
   it('renders the device policy layer as read-only, with no edit control drawn', () => {

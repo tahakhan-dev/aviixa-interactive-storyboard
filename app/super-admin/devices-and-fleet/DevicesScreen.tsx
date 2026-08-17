@@ -107,6 +107,21 @@ function decide(
   )
 }
 
+/** The screen state gates every control on this module BEFORE the role
+ *  decision is consulted: STATE-06 disables every input and STATE-12 lets
+ *  nothing be submitted, whatever the role holds. A control that ignores the
+ *  screen state is a dead control by another name. `null` means the screen
+ *  state blocks nothing. */
+function stateBlocker(stateId: ScreenStateId): string | null {
+  if (stateId === 'STATE-06') {
+    return 'Read-only (STATE-06): every input on this module is disabled, both wipe steppers and the suspension record included. One state, one cause.'
+  }
+  if (stateId === 'STATE-12') {
+    return 'Nothing can be submitted while the platform audit write accompanying a device command is failing (STATE-12). A device command and its audit entry commit together, so a command that cannot be audited is not recorded at all.'
+  }
+  return null
+}
+
 export function DevicesScreen() {
   const [sourceRoleId, setSourceRoleId] = useState<string>('ROLE-PLAT-ROOT')
   const [stateId, setStateId] = useState<ScreenStateId>('STATE-03')
@@ -120,6 +135,7 @@ export function DevicesScreen() {
   const role = DEVICE_PLATFORM_ROLES.find((r) => r.sourceId === sourceRoleId) ?? DEVICE_PLATFORM_ROLES[0]
   const roleId = role.roleId
   const definition = screenState(stateId)
+  const blocked = stateBlocker(stateId)
 
   // `DEVICES[0]`, not `devices[0]`: the seeded tuple's first element is
   // statically known to exist under noUncheckedIndexedAccess. The fallback is
@@ -437,13 +453,16 @@ export function DevicesScreen() {
 
         <div className="mt-3 space-y-3">
           <div>
-            {draftDecision.outcome === 'allowed' ? (
+            {draftDecision.outcome === 'allowed' && blocked === null ? (
               <Button onClick={() => setDraftOpened(true)}>
                 Draft the wipe and de-authorisation request
               </Button>
             ) : (
               <Button
-                disabledReason={`${draftDecision.explanation} The Admin drafts this request and the Root Super Admin approves it (L45498); the Platform Engineer and Support read the fleet and hold no device action. Viewing as ${role.name}.`}
+                disabledReason={
+                  blocked ??
+                  `${draftDecision.explanation} The Admin drafts this request and the Root Super Admin approves it (L45498); the Platform Engineer and Support read the fleet and hold no device action. Viewing as ${role.name}.`
+                }
               >
                 Draft the wipe and de-authorisation request
               </Button>
@@ -459,7 +478,14 @@ export function DevicesScreen() {
           </div>
 
           <div>
-            {approveDecision.outcome === 'allowed' ? (
+            {approveDecision.outcome !== 'allowed' ? (
+              // Critical class seen by a non-root role: the class badge
+              // REPLACES the action bar, so no disabled action is drawn.
+              <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
+            ) : blocked !== null ? (
+              // Root holds it, but the screen state does not permit it.
+              <Button disabledReason={blocked}>Approve the critical-class request</Button>
+            ) : (
               <>
                 <Button onClick={() => setApprovalRecorded(true)}>
                   Approve the critical-class request
@@ -472,8 +498,6 @@ export function DevicesScreen() {
                   </p>
                 ) : null}
               </>
-            ) : (
-              <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
             )}
           </div>
         </div>
@@ -507,12 +531,17 @@ export function DevicesScreen() {
           </p>
         ) : null}
         <div className="mt-2">
-          {reachedNext !== undefined ? (
+          {reachedNext !== undefined && blocked === null ? (
             <Button variant="secondary" onClick={() => setReachedIndex(reachedIndex + 1)}>
               Advance the reachable-device fixture one state
             </Button>
           ) : (
-            <Button disabledReason="The sequence has reached its last state; there is nothing further to step.">
+            <Button
+              disabledReason={
+                blocked ??
+                'The sequence has reached its last state; there is nothing further to step.'
+              }
+            >
               Advance the reachable-device fixture one state
             </Button>
           )}
@@ -539,12 +568,12 @@ export function DevicesScreen() {
           {unreachedStep.note}
         </p>
         <div className="mt-2">
-          {unreachedNext !== undefined ? (
+          {unreachedNext !== undefined && blocked === null ? (
             <Button variant="secondary" onClick={() => setUnreachedIndex(unreachedIndex + 1)}>
               Advance the unreachable-device fixture one state
             </Button>
           ) : (
-            <Button disabledReason={UNREACHED_STEPPER_END_REASON}>
+            <Button disabledReason={blocked ?? UNREACHED_STEPPER_END_REASON}>
               Advance the unreachable-device fixture one state
             </Button>
           )}
@@ -564,7 +593,7 @@ export function DevicesScreen() {
           vocabulary, and none of them says a command arrived.
         </p>
         <div className="mt-3">
-          {suspendDecision.outcome === 'allowed' && !suspensionRecorded ? (
+          {suspendDecision.outcome === 'allowed' && !suspensionRecorded && blocked === null ? (
             <Button
               variant="secondary"
               onClick={() => setCommands([...commands, SUSPENSION_COMMAND])}
@@ -574,9 +603,10 @@ export function DevicesScreen() {
           ) : (
             <Button
               disabledReason={
-                suspendDecision.outcome !== 'allowed'
+                blocked ??
+                (suspendDecision.outcome !== 'allowed'
                   ? `${suspendDecision.explanation} A device suspension is issued by the platform Admin, and the root holds it too (WF-DVC-005, L53224). Viewing as ${role.name}.`
-                  : 'The suspension command is already recorded in the log below. This storyboard records it once.'
+                  : 'The suspension command is already recorded in the log below. This storyboard records it once.')
               }
             >
               Record a device suspension command
@@ -716,7 +746,7 @@ const MODULE_STATE_NOTE: Record<ScreenStateId, string> = {
   'STATE-05':
     'a role without a device action meeting its control — the Platform Engineer meeting the wipe draft, for instance.',
   'STATE-06':
-    'the whole module for the Platform Engineer and Support, who read the fleet and hold no device action at all.',
+    'the whole module. Every input is disabled while this state holds — the wipe draft, the approval, the suspension record and both fixture steppers — whatever the selected role otherwise holds.',
   'STATE-07': 'nothing. Only the Frontline Worker Application has a true offline state.',
   'STATE-08':
     'a degraded fleet count, served last-known-good and stamped stale with its age (AC-SA-01-03).',
@@ -727,7 +757,7 @@ const MODULE_STATE_NOTE: Record<ScreenStateId, string> = {
   'STATE-11':
     'the module with every artificial-intelligence model unavailable. The fleet still reads, both steppers still step, and every control still decides — nothing here depends on a model (AC-SA-000-09).',
   'STATE-12':
-    'a platform audit write that failed alongside a device command. The command is not recorded and the device is untouched.',
+    'a platform audit write that failed alongside a device command. Nothing may be submitted: every control is disabled, the command is not recorded and the device is untouched.',
   'STATE-13':
     're-aggregating fleet telemetry after a gap, with the degraded window recorded rather than smoothed over.',
 }
