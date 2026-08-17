@@ -361,9 +361,13 @@ const AS_OF_STALE = 'As of 2026-08-09 09:00 UTC'
 // AC-SA-01-03: a degraded aggregate renders stale with its age, a wholly
 // unavailable one renders unavailable, and neither ever renders as zero or
 // blank. STATE-08 is the degraded case and STATE-12 the unavailable one.
+// STATE-13 is the recomputation after the failure: the boundary says the
+// counts "remain marked Unavailable until then", so they must in fact read
+// Unavailable — rendering the full fixture under the freshest caption would
+// show a recovering system as fully recovered (STATE-13's own neverDo).
 function aggregateMode(state: ScreenStateId): AggregateMode {
   if (state === 'STATE-08') return 'stale'
-  if (state === 'STATE-12') return 'unavailable'
+  if (state === 'STATE-12' || state === 'STATE-13') return 'unavailable'
   return 'current'
 }
 

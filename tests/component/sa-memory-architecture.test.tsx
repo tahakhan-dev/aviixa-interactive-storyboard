@@ -3,6 +3,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
+import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import {
   MemoryArchitectureScreen,
   MEMORY_STORES,
@@ -86,7 +87,19 @@ describe('MOD-SA-04 — the invariants are status chips, never controls', () => 
   it('renders the encryption and anonymisation invariants without any control', () => {
     render(<MemoryArchitectureScreen />)
     const region = screen.getByRole('region', { name: /enforced platform invariants/i })
-    expect(SA_04_INVARIANT_IDS.length).toBeGreaterThan(0)
+    // The named invariants this module must render (census §(a), L103982) —
+    // stated here rather than read from SA_04_INVARIANT_IDS, so that dropping
+    // one from the module fails this test instead of shrinking its subject.
+    for (const id of [
+      'encryption-at-rest',
+      'encryption-in-transit',
+      'cross-tenant-analytics-anonymisation',
+    ] as const) {
+      expect(SA_04_INVARIANT_IDS, id).toContain(id)
+      const invariant = SA_INVARIANTS.find((i) => i.id === id)
+      expect(invariant, id).toBeDefined()
+      expect(within(region).getByText(`${invariant?.name ?? id} — ENFORCED`), id).toBeDefined()
+    }
     expect(region.querySelector('button')).toBeNull()
     expect(region.querySelector('input')).toBeNull()
     expect(region.querySelector('[role=switch]')).toBeNull()
@@ -200,8 +213,39 @@ describe('MOD-SA-04 — the cross-tenant footprint aggregate', () => {
   it('renders no tenant row, and no measure finer than the platform aggregate', () => {
     render(<MemoryArchitectureScreen />)
     const region = screen.getByRole('region', { name: /cross-tenant memory footprint/i })
+    const table = region.querySelector('table')
+    expect(table).not.toBeNull()
+
+    // The table carries exactly three columns — no tenant dimension.
+    const headers = [...(table?.querySelectorAll('thead th') ?? [])].map((th) =>
+      th.textContent?.trim(),
+    )
+    expect(headers).toEqual(['Store', 'Records', 'Volume'])
+
+    // And exactly one row per typed store, keyed on the store name — no
+    // tenant-grain row, and no tenant identifier anywhere in the cells.
+    const rows = [...(table?.querySelectorAll('tbody tr') ?? [])]
+    expect(rows.map((r) => r.querySelector('td')?.textContent?.trim())).toEqual(
+      MEMORY_STORES.map((s) => s.name),
+    )
+    for (const cell of table?.querySelectorAll('td') ?? []) {
+      expect(cell.textContent ?? '', 'tenant grain in a cell').not.toMatch(/TEN-|tenant/i)
+    }
+
     expect(region.textContent).not.toMatch(/\brate\b/i)
     expect(region.textContent).not.toMatch(/per shift|per site|per hour|per day/i)
+  })
+
+  it('never renders the recovering aggregate as current under STATE-13', async () => {
+    render(<MemoryArchitectureScreen />)
+    await selectState('STATE-13')
+    const region = screen.getByRole('region', { name: /cross-tenant memory footprint/i })
+    expect(region.textContent).toMatch(/Recovering/)
+    // The banner says the counts remain marked Unavailable, so they must be.
+    for (const cell of region.querySelectorAll('tbody td:not(:first-child)')) {
+      expect(cell.textContent?.trim()).toBe('Unavailable')
+    }
+    expect(region.querySelector('caption')?.textContent).not.toMatch(/As of \d{4}-\d{2}-\d{2}/)
   })
 })
 
