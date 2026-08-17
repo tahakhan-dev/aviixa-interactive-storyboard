@@ -49,4 +49,19 @@ describe('coverage dashboard', () => {
     expect(text).toMatch(/derived: 18 of 81 modules/)
     expect(text).not.toMatch(/source-defined: 81/)
   })
+
+  // Minor (final review round 2): the Build classification section had no
+  // test at all -- an "honest zero" (no row anywhere has a buildClass yet)
+  // reads identically to the section having silently gone missing unless
+  // something pins the heading and all three rows down. All three counts
+  // are genuinely 0 of 81 today; that is the correct value, not a
+  // placeholder, and this test says so rather than treating 0 as absence.
+  it('pins the Build classification section: heading plus all three honest-zero rows', () => {
+    const { container } = render(<CoveragePage />)
+    expect(screen.getByRole('heading', { name: 'Build classification' })).toBeDefined()
+    const text = container.textContent ?? ''
+    for (const label of ['Demonstrated in storyboard', 'Not applicable', 'Decision blocked']) {
+      expect(text, label).toMatch(new RegExp(`${label}: 0 of 81 modules`))
+    }
+  })
 })

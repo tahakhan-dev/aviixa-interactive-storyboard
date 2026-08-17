@@ -1,9 +1,10 @@
 import 'fake-indexeddb/auto'
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ReviewPage from '../../app/review/page'
 import { openDatabase } from '@/persistence/schema'
+import * as reviewStore from '@/review/store'
 
 describe('review shell', () => {
   it('labels its accept action for client review, never as an approval', () => {
@@ -116,6 +117,31 @@ describe('review shell', () => {
       expect(events.length).toBeGreaterThan(0)
       expect((events[0] as { kind?: string }).kind).toBe('comment')
     })
+  })
+
+  // Minor (final review round 2): `putReviewEvent`'s result used to be
+  // discarded at the call site -- a failed event write was silently
+  // swallowed, no different from the "silent catch" pattern this codebase
+  // otherwise forbids (I8's own doc comment). Proven by forcing a real
+  // failure (the record write still succeeds; only the event write fails)
+  // and checking the typed failure reaches the reviewer, while the note
+  // they entered is not thrown away.
+  it('surfaces a failed event write instead of discarding it, without losing the saved note', async () => {
+    const spy = vi.spyOn(reviewStore, 'putReviewEvent').mockResolvedValue({ ok: false, reason: 'boom' })
+    try {
+      const user = userEvent.setup()
+      render(<ReviewPage />)
+      await user.type(screen.getByLabelText(/reviewer name/i), 'A Reviewer')
+      await user.type(screen.getByLabelText(/^note$/i), 'Looks good.')
+      await user.click(screen.getByRole('button', { name: /^comment$/i }))
+
+      await waitFor(() => {
+        expect(screen.getByText(/event log entry was not.*boom|boom.*event log entry/i)).toBeDefined()
+      })
+      expect(screen.getByText(/looks good/i)).toBeDefined()
+    } finally {
+      spy.mockRestore()
+    }
   })
 
   it('never claims durability the storage state does not provide', async () => {

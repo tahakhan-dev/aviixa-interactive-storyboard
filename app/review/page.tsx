@@ -183,13 +183,20 @@ export default function ReviewPage() {
     // not just a ReviewRecord -- gate 3 ("a client-review action creates a
     // ReviewEvent and nothing else") named an invariant nothing exercised.
     // The record write above is the authoritative save signal for the
-    // reviewer; a failed event write is awaited (never a floating,
-    // unobserved promise) but not surfaced as a second error banner --
-    // the note itself was genuinely saved either way.
-    await putReviewEvent(storage.db, createReviewEvent(record.id, status, clock))
+    // reviewer; the note itself is genuinely saved either way, so it is
+    // never discarded on this second write.
+    //
+    // Minor (final review round 2): the result of this second write used to
+    // be discarded outright -- a failed event write was silently swallowed,
+    // the "silent catch" pattern this codebase otherwise forbids. Set (not
+    // appended) in one place, after the note is recorded, so it is not
+    // immediately clobbered by a later unconditional `setError(undefined)`.
+    const eventResult = await putReviewEvent(storage.db, createReviewEvent(record.id, status, clock))
     setRecords((prev) => [...prev, record])
     setNote('')
-    setError(undefined)
+    setError(
+      eventResult.ok ? undefined : `This review note was saved, but its event log entry was not: ${eventResult.reason}`,
+    )
   }
 
   return (
