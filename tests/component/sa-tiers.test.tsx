@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import type { ScreenStateId } from '@/ui/screen-state'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
+import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
 import {
   TiersScreen,
   TIER_BANDS,
@@ -270,9 +271,21 @@ describe('MOD-SA-11 — tier publication is critical class (AC-SA-11-02, D12)', 
     expect(screen.getByRole('status').textContent ?? '').toMatch(/one transaction/i)
   })
 
+  /**
+   * `/eleven/i` alone was a superset gate: `CRITICAL_ACTION_COUNT_NOTE` (the
+   * D12 eleven-vs-ten discrepancy note) contains the word twice on its own,
+   * so the sentence naming THIS module's critical action could vanish
+   * entirely and the gate stayed green. The assertion now reads the registry
+   * the screen reads and demands the whole sentence.
+   */
   it('names tier publication as one of the eleven critical-class actions', () => {
     renderAs(ROOT)
-    expect(renderedCopy()).toMatch(/eleven/i)
+    const publication = CRITICAL_ACTIONS.find((a) => a.id === 'tier-publication')
+    expect(publication).toBeDefined()
+    expect(renderedCopy()).toContain(
+      `${publication?.name ?? ''} is the first of the eleven critical-class actions`,
+    )
+    expect(renderedCopy()).toContain(publication?.sourceRef ?? '')
   })
 })
 
@@ -340,27 +353,80 @@ describe('MOD-SA-11 — the per-tenant feature override (D7, AC-SA-11-04, WF-FEA
     }
   })
 
+  /**
+   * The prose 'more restrictive' and the open-decision reference are copy;
+   * AC-WF-FEAT-002-03 is a COMPUTATION. Asserting only the copy left the
+   * computation unguarded — flipping `effectiveFeatureState` to the LESS
+   * restrictive answer kept every gate green while the screen showed
+   * tier=enabled, override=disabled, In force=enabled under a caption
+   * saying 'the more restrictive of the two'. The gate now reads the
+   * rendered 'In force' cell of every row and compares it against the
+   * resolution computed independently here.
+   */
   it('resolves a tier/override disagreement to the MORE RESTRICTIVE state and names the open decision', () => {
     renderAs(ADMIN)
     const region = screen.getByRole('region', { name: /per-tenant feature override/i })
-    const text = region.textContent ?? ''
-    expect(text).toMatch(/more restrictive/i)
-    expect(text).toMatch(/DEC-FEAT-004/)
+    expect(region.textContent ?? '').toMatch(/DEC-FEAT-004/)
+
     const disagreeing = FEATURE_OVERRIDES.filter((o) => o.tierState !== o.overrideState)
     expect(disagreeing.length).toBeGreaterThan(0)
+
+    const table = within(region).getByRole('table', { name: /effective state/i })
+    const rows = within(table).getAllByRole('row')
+    for (const o of FEATURE_OVERRIDES) {
+      const row = rows.find((r) => within(r).queryByText(o.tenantToken) !== null)
+      if (row === undefined) throw new Error(`no override row rendered for ${o.tenantToken}`)
+      const cells = within(row).getAllByRole('cell')
+      expect(cells).toHaveLength(5)
+      const tierSays = cells[2]?.textContent ?? ''
+      const overrideSays = cells[3]?.textContent ?? ''
+      const inForce = cells[4]?.textContent ?? ''
+      // The row shows what the fixture says, so the resolution below is a
+      // resolution of what the reader actually sees.
+      expect(tierSays).toBe(o.tierState)
+      expect(overrideSays).toBe(o.overrideState)
+      // Computed here, not imported: the more restrictive of the two.
+      const restrictive =
+        o.tierState === 'disabled' || o.overrideState === 'disabled' ? 'disabled' : 'enabled'
+      expect(inForce.startsWith(restrictive)).toBe(true)
+      if (o.tierState !== o.overrideState) {
+        expect(inForce).toMatch(/more restrictive/i)
+      }
+    }
   })
 })
 
 describe('MOD-SA-11 — the no-link rule (AC-SA-000-07, AC-SEC-801)', () => {
+  /**
+   * The first version of this gate was a BLOCKLIST — a handful of path
+   * segments plus `href.startsWith('/super-admin/')`. Both are satisfied by
+   * an in-console deep link straight at a tenant record, e.g.
+   * `/super-admin/tenants-lifecycle-and-pilots/TENANT-FIXTURE-A/`, which is
+   * exactly the thing AC-SA-000-07 forbids. A blocklist can only ever name
+   * the record shapes someone thought of. This is an ALLOWLIST: a link on
+   * this console goes to the console root or to a module root, and nowhere
+   * deeper — a second path segment IS a record reference. (Next's `Link`
+   * renders the href without the trailing slash, hence the optional one.)
+   */
+  const CONSOLE_LINK_TARGET = /^\/super-admin(?:\/[a-z0-9-]+)?\/?$/
+
   it('resolves every tenant link to the session-request form, never to record-level content', () => {
     for (const role of CONSOLE_ROLE_VIEWS) {
       const view = renderAs(role.token)
       for (const link of screen.getAllByRole('link')) {
         const href = link.getAttribute('href') ?? ''
-        expect(href).not.toMatch(/tenant.*\/(records?|runs?|jobs?|workers?|devices?)\//i)
-        expect(href.startsWith('/super-admin/')).toBe(true)
+        expect(href).toMatch(CONSOLE_LINK_TARGET)
+        // Neither the target nor the invitation may carry a tenant identity.
+        expect(href).not.toMatch(/TENANT-/i)
+        expect(link.textContent ?? '').not.toMatch(/TENANT-FIXTURE-/)
       }
-      expect(screen.getAllByTestId('tenant-session-request').length).toBeGreaterThan(0)
+      // The one tenant-facing link there is resolves to the named-access
+      // session request, and to nothing else.
+      const requests = screen.getAllByTestId('tenant-session-request')
+      expect(requests.length).toBeGreaterThan(0)
+      for (const request of requests) {
+        expect(request.getAttribute('href') ?? '').toMatch(/^\/super-admin\/support-access\/?$/)
+      }
       view.unmount()
     }
   })
@@ -476,12 +542,34 @@ describe('MOD-SA-11 — unspecified in source (D15)', () => {
     }
   })
 
+  /**
+   * `/assign (a )?tier/i` was over-narrow and unanchored: it missed every
+   * natural label for the affordance it exists to forbid ('Assign the
+   * current tier to a tenant', 'Assign tenant to band', 'Tier assignment…'),
+   * and it read only the DEFAULT role, so a control drawn for the Admin
+   * alone was invisible to it. The word `assign` belongs to no legitimate
+   * control on this screen — the source names no assignment control at all
+   * — so the gate is simply: no affordance, for any role, carries it.
+   */
   it('records that the tier ASSIGNMENT control has no stated allowed roles, and draws none', () => {
-    renderAs(ROOT)
-    const region = screen.getByRole('region', { name: /unspecified in source/i })
-    expect(region.textContent ?? '').toMatch(/assign/i)
-    for (const button of screen.getAllByRole('button')) {
-      expect(button.textContent ?? '').not.toMatch(/assign (a )?tier/i)
+    for (const role of CONSOLE_ROLE_VIEWS) {
+      const view = renderAs(role.token)
+      const region = screen.getByRole('region', { name: /unspecified in source/i })
+      const entry = UNSPECIFIED_IN_SOURCE.find((e) => /assign/i.test(e.what))
+      expect(entry).toBeDefined()
+      expect(within(region).getByText(entry?.what ?? '')).not.toBeNull()
+      expect(entry?.detail ?? '').toMatch(/no control row anywhere carries an assign action/i)
+
+      for (const control of [
+        ...screen.getAllByRole('button'),
+        ...screen.getAllByRole('link'),
+        ...screen.queryAllByRole('checkbox'),
+        ...screen.queryAllByRole('combobox'),
+      ]) {
+        expect(control.textContent ?? '').not.toMatch(/assign/i)
+        expect(control.getAttribute('aria-label') ?? '').not.toMatch(/assign/i)
+      }
+      view.unmount()
     }
   })
 })

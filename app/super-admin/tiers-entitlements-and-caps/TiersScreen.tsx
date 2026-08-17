@@ -8,7 +8,12 @@ import {
   type SaInvariantId,
   type SaInvariantDefinition,
 } from '@/surfaces/sa/invariants'
-import { CRITICAL_ACTIONS, CRITICAL_ACTION_COUNT_NOTE } from '@/surfaces/sa/critical-actions'
+import {
+  CRITICAL_ACTIONS,
+  CRITICAL_ACTION_COUNT_NOTE,
+  type SaCriticalActionId,
+  type SaCriticalActionDefinition,
+} from '@/surfaces/sa/critical-actions'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
@@ -673,7 +678,20 @@ function saInvariant(id: SaInvariantId): SaInvariantDefinition {
 
 const AUDIT_INVARIANT = saInvariant('one-transaction-audit-guarantee')
 
-const TIER_PUBLICATION = CRITICAL_ACTIONS.find((a) => a.id === 'tier-publication')
+/**
+ * The module's own critical-class action, looked up TOTALLY for the same
+ * reason `saInvariant` above is: a bare `.find()` returns `undefined` for a
+ * wrong id, a renderer swallows it in a `? :`, and the sentence naming this
+ * module's critical action simply disappears with every gate still green.
+ * A missing member of a closed set this build owns is a programmer error.
+ */
+function saCriticalAction(id: SaCriticalActionId): SaCriticalActionDefinition {
+  const found = CRITICAL_ACTIONS.find((a) => a.id === id)
+  if (!found) throw new Error(`Unknown SURF-SA critical action: ${id}`)
+  return found
+}
+
+const TIER_PUBLICATION = saCriticalAction('tier-publication')
 
 /** Screen states that accompany the content rather than replace it. */
 const STATES_THAT_KEEP_CONTENT: readonly ScreenStateId[] = [
@@ -981,9 +999,7 @@ export function TiersScreen({
               )}
             </div>
             <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-              {TIER_PUBLICATION !== undefined
-                ? `${TIER_PUBLICATION.name} is the first of the eleven critical-class actions (${TIER_PUBLICATION.sourceRef}). `
-                : ''}
+              {`${TIER_PUBLICATION.name} is the first of the eleven critical-class actions (${TIER_PUBLICATION.sourceRef}). `}
               {CRITICAL_ACTION_COUNT_NOTE}
             </p>
             <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
