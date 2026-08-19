@@ -13,10 +13,19 @@ import {
   type DohModuleId,
 } from '@/surfaces/doh/modules'
 import { DOH_SCREENS } from '@/surfaces/doh/screens'
-import { TENANT_WRITE_CLASSES, type TenantState } from '@/surfaces/doh/tenant-state'
+import {
+  writeAllowed,
+  writeClassNote,
+  type TenantState,
+  type WriteAction,
+} from '@/surfaces/doh/tenant-state'
 import { HubChrome } from '@/ui/doh/HubChrome'
+import {
+  TENANT_STATE_LABEL,
+  TENANT_STATE_TONE,
+} from '@/ui/doh/tenant-state-vocabulary'
 import { PrototypeDisclosure } from '@/ui/sa/PrototypeDisclosure'
-import { Breadcrumbs, LiveRegion, Select, StatusPill, type StatusTone } from '@/ui/primitives'
+import { Breadcrumbs, LiveRegion, Select, StatusPill } from '@/ui/primitives'
 import { seededHubBanners } from './banner-fixtures'
 
 const SURFACE = surfaceById('SURF-DOH')
@@ -51,24 +60,44 @@ function isTenantRole(value: string): value is TenantRoleId {
   return TENANT_ROLE_IDS.some((id) => id === value)
 }
 
-const WRITE_CLASS_NOTE = new Map(TENANT_WRITE_CLASSES.map((row) => [row.state, row.note]))
+/**
+ * THE WRITE CLASS ENDING A PLATFORM SUPPORT SESSION IS GATED ON, and the ONE
+ * definition of it. The write-class enumerations name no End-session class at
+ * all; the act's one required write is its AUDIT ENTRY, because terminating a
+ * session is itself an audited act, and `write-audit` is a class the one table
+ * already names. So this is a LOOKUP in that table rather than a new row in it.
+ *
+ * Exported because the route that owns the session composes its own refusal on
+ * top of this one (a lost connection, a session already ended). Two copies of
+ * this mapping would be two things to drift.
+ */
+export const END_SESSION_WRITE_CLASS: WriteAction = 'write-audit'
 
-/** Never a bare identifier in the interface (`RouteDefinition.title`'s rule,
- *  `src/routes/definitions.ts`). The token stays the data; this is the label. */
-const TENANT_STATE_LABEL: Record<TenantState, string> = {
-  active: 'Active',
-  'soft-suspended': 'Suspended — billing (soft)',
-  'hard-suspended': 'Suspended — read-only (hard)',
-  'compliance-suspended': 'Suspended — compliance',
-  archived: 'Closed — archived',
-}
-
-const TENANT_STATE_TONE: Record<TenantState, StatusTone> = {
-  active: 'ok',
-  'soft-suspended': 'attention',
-  'hard-suspended': 'attention',
-  'compliance-suspended': 'blocked',
-  archived: 'neutral',
+/**
+ * Why the End-session control cannot act in this tenant state, or `null`.
+ *
+ * COMPUTED HERE BECAUSE THE BANNER IS CHROME ON EVERY HUB ROUTE AND THE GATE IS
+ * ONE. `src/ui/**` holds no policy, so `BannerRegion` cannot ask the write-class
+ * table anything and must be handed a reason; this file is in `app/`, already
+ * holds the tenant state, already assembles the banners, and every Hub route
+ * wraps it. Computing it once here gates the control on all of them without a
+ * single module screen changing. The alternative — each screen computing a
+ * reason and passing it down — puts one session's gate in nine files.
+ *
+ * The consequence is right in both directions. Open under soft and hard
+ * suspension, which is what "at any time" requires of this control. Closed
+ * under compliance suspension and after archival, where it is not a restriction
+ * at all: no user is signed in to press it.
+ */
+export function endSessionRefusalFor(tenantState: TenantState): string | null {
+  if (writeAllowed(tenantState, END_SESSION_WRITE_CLASS)) return null
+  return (
+    `Blocked while this workspace is ${tenantState}. ${writeClassNote(tenantState)} ` +
+    'Ending a session is itself an audited act, and this state closes the audit write it needs — ' +
+    'under a compliance suspension that is not a restriction at all, because sign-in is blocked ' +
+    'for everyone and nobody is here to press it. The session’s own platform-side time box still ' +
+    'bounds it, and it expires regardless of anything this workspace can or cannot do.'
+  )
 }
 
 /** D1: catalogue-B screen ids are annotations on a module, never route keys. */
@@ -193,6 +222,7 @@ export function HubShell({
    * the seeded data stays one unconditional set and the shell keeps the whole
    * decision about what is drawn.
    */
+  const endSessionRefusal = endSessionRefusalFor(tenantState)
   const banners = notAHubUser
     ? []
     : seededHubBanners({
@@ -200,7 +230,19 @@ export function HubShell({
         role: activeRole,
         supportSessionEnded,
         onEndSession: () => setSupportSessionEnded(true),
-      }).filter((banner) => !ownsPlatformBanners || banner.kind === 'suspension')
+      })
+        .filter((banner) => !ownsPlatformBanners || banner.kind === 'suspension')
+        /* THE GATE TRAVELS WITH THE CONTROL. The reason is attached to the
+           banner's own data rather than threaded as a prop, so it flows through
+           `HubChrome` untouched and no third file learns about it. When the
+           tenant state permits the write this is the identity map. */
+        .map((banner) =>
+          banner.kind === 'support-session' &&
+          banner.accessClass === 'normal-support-session' &&
+          endSessionRefusal !== null
+            ? { ...banner, endSessionDisabledReason: endSessionRefusal }
+            : banner,
+        )
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-6 py-12">
@@ -283,7 +325,7 @@ export function HubShell({
                 icon="●"
                 label={TENANT_STATE_LABEL[tenantState]}
               />{' '}
-              {WRITE_CLASS_NOTE.get(tenantState) ?? ''}
+              {writeClassNote(tenantState)}
             </p>
           </div>
           <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { HubShell, type TenantRoleId } from '../HubShell'
+import { HubShell, endSessionRefusalFor, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { BannerRegion } from '@/ui/doh/BannerRegion'
@@ -24,12 +24,7 @@ import { permitsAction, permitsRead, type PermissionDecision } from '@/policy/de
 import { roleById, type RoleId } from '@/domain/roles'
 import { emptyDomainState, withTenant } from '@/domain/state'
 import { scenarioRunId, tenantId } from '@/domain/ids'
-import {
-  TENANT_STATES,
-  TENANT_WRITE_CLASSES,
-  writeAllowed,
-  type TenantState,
-} from '@/surfaces/doh/tenant-state'
+import { TENANT_STATES, type TenantState } from '@/surfaces/doh/tenant-state'
 import type { SaAccessClassId } from '@/surfaces/sa/access-classes'
 import {
   ABSENT_BY_RULE,
@@ -43,7 +38,6 @@ import {
   DECISIONS_ON_SCREEN,
   DISPUTED_ATTRIBUTIONS,
   END_SESSION_SIMULATION_COPY,
-  END_SESSION_WRITE_CLASS,
   EXTEND_TIME_BOX_REASON,
   HISTORY_INTRO_COPY,
   INAPPLICABLE_SCREEN_STATES,
@@ -61,7 +55,6 @@ import {
   historyDates,
   rolesWithStatus,
   screenAccessBanners,
-  sessionMessage,
   type ApplicableScreenStateId,
   type ControlStatus,
   type HistoryFilterState,
@@ -95,8 +88,6 @@ const FIXTURE_STATE = withTenant(
     objects: {},
   }),
 )
-
-const WRITE_CLASS_NOTE = new Map(TENANT_WRITE_CLASSES.map((row) => [row.state, row.note]))
 
 const STATUS_LABEL: Record<ControlStatus, string> = {
   allowed: 'Allowed',
@@ -226,9 +217,12 @@ export function PlatformAdministrationScreen() {
    * conditional here re-derives a suspension rule.
    */
   function endSessionReason(): string | null {
-    if (!writeAllowed(tenantState, END_SESSION_WRITE_CLASS)) {
-      return `Blocked while this workspace is ${tenantState}. ${WRITE_CLASS_NOTE.get(tenantState) ?? ''} Ending a session is itself an audited act, and this state closes the audit write it needs — under a compliance suspension that is not a restriction at all, because sign-in is blocked for everyone and nobody is here to press it. The session's own platform-side time box still bounds it.`
-    }
+    /* The tenant-state half is the SHELL's, and there is one of it. Every Hub
+       route inherits the same refusal for the same control from the same
+       lookup in the one write-class table; this route composes its own two
+       further conditions on top rather than restating the first. */
+    const gated = endSessionRefusalFor(tenantState)
+    if (gated !== null) return gated
     if (connectionLost) return CONNECTION_LOST_REASON
     if (supportEnded) {
       return 'This session has already ended in this storyboard run. The source defines no re-open control for a terminated session, and none is drawn.'
@@ -252,9 +246,14 @@ export function PlatformAdministrationScreen() {
    */
   const endSessionRefusal = endSessionReason()
   const endSessionIsLive = permitsAction(endSessionDecision) && endSessionRefusal === null
-  const banners = screenAccessBanners(
-    endSessionIsLive ? endedClasses : [...endedClasses, 'normal-support-session'],
-    endSession,
+  /* ONE mechanism, not two. The banner region now takes a HANDED-IN reason, so
+     the refused case is the same banner with a disabled control rather than a
+     withheld banner redrawn beside it — which was a second construction of one
+     rendering, and the shape this build criticises elsewhere. */
+  const banners = screenAccessBanners(endedClasses, endSession).map((banner) =>
+    banner.accessClass === 'normal-support-session' && endSessionRefusal !== null
+      ? { ...banner, endSessionDisabledReason: endSessionRefusal }
+      : banner,
   )
 
   function endSession(): void {
@@ -406,9 +405,10 @@ export function PlatformAdministrationScreen() {
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
           All three platform-side access classes are exercised here, which is what the acceptance
           criterion asks for: every class appears, mirrored identically. The Hub&rsquo;s own banner
-          slot above shows only the one class this storyboard seeds open — that seeded state is
-          shared by every Hub route and is deliberately left alone, so this screen decides for
-          itself which classes it banners rather than changing what every other screen shows.
+          slot above shows NONE of them on this route — it yields its platform slots to the screen
+          that owns the session, so one session carries one control, gated once. What that slot
+          seeds is shared by every Hub route and is deliberately left alone, so this screen decides
+          for itself which classes it banners rather than changing what every other screen shows.
         </p>
         {permitsRead(bannerDecision) ? (
           <div className="mt-3">
@@ -443,6 +443,7 @@ export function PlatformAdministrationScreen() {
           {ACCESS_CLASS_PANELS.map((panel) => (
             <div
               key={panel.accessClass}
+              data-access-class={panel.accessClass}
               className="rounded-[var(--radius-surface)] border border-[var(--color-border)] p-4"
             >
               <p className="font-medium">{panel.name}</p>
@@ -471,32 +472,18 @@ export function PlatformAdministrationScreen() {
               </p>
 
               {panel.tenantMayEnd ? (
-                endSessionIsLive ? (
-                  <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
-                    End session is live on this class, in the banner above. It is drawn there
-                    rather than repeated here: the control belongs to the banner, and two controls
-                    over one session would be two ways to press the same thing.
-                  </p>
-                ) : supportEnded ? (
+                supportEnded ? (
                   <p className="mt-3 max-w-prose text-sm text-[var(--color-ink)]">
                     This session has ended in this storyboard run, so it is no longer bannered and
                     carries no control. The source defines no re-open control for a terminated
                     session, and none is drawn.
                   </p>
-                ) : permitsAction(endSessionDecision) && endSessionRefusal !== null ? (
-                  <div className="mt-3">
-                    <Banner
-                      tone="attention"
-                      heading="Platform access in progress"
-                      body={sessionMessage(panel.accessClass)}
-                      action={<Button disabledReason={endSessionRefusal}>End session</Button>}
-                    />
-                    <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-                      The banner still renders — visibility is the guarantee and it does not depend
-                      on the write path — while its control is DISABLED with a named reason rather
-                      than absent, and never queued.
-                    </p>
-                  </div>
+                ) : permitsAction(endSessionDecision) ? (
+                  <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
+                    {endSessionIsLive
+                      ? 'End session is live on this class, in the banner above. It is drawn there rather than repeated here: the control belongs to the banner, and two controls over one session would be two ways to press the same thing.'
+                      : 'End session is DISABLED on this class right now, in the banner above, carrying its reason — and the banner itself still renders, because visibility is the guarantee and it does not depend on the write path. It is never queued.'}
+                  </p>
                 ) : (
                   <div className="mt-3">
                     <ProhibitionNotice

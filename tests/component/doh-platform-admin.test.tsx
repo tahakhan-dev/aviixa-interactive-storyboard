@@ -166,6 +166,20 @@ describe('MOD-DOH-13 — all three access classes, and the shared seed left alon
       // a disabled control is still a control.
       expect(buttons.length, role).toBe(1)
       expect(ACCESS_CLASS_PANELS.length, 'three classes, one time-box control').toBe(3)
+      // And WHICH panel, asserted against the DOM rather than against source
+      // text: the button must sit inside the support session's own panel, and
+      // neither of the other two may carry one.
+      expect(buttons[0]!.closest('[data-access-class]')?.getAttribute('data-access-class')).toBe(
+        'normal-support-session',
+      )
+      for (const other of ['compliance-emergency-path', 'jbs-access-grant'] as const) {
+        const panel = document.querySelector(`[data-access-class="${other}"]`)
+        expect(panel, other).not.toBeNull()
+        expect(
+          within(panel as HTMLElement).queryByRole('button', { name: /extend the time box/i }),
+          other,
+        ).toBeNull()
+      }
       for (const button of buttons) {
         expect(isInert(button), role).toBe(true)
         expect(statedReason(button), role).toBe(EXTEND_TIME_BOX_REASON)

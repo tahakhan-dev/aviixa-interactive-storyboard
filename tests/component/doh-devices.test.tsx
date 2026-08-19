@@ -502,3 +502,55 @@ describe('the device screen — the states, the table and the panels', () => {
     )
   })
 })
+
+/**
+ * THE GATE TRAVELS WITH THE CONTROL — asserted from a route that does NOT own
+ * the session.
+ *
+ * The Critical fixed in round 1 removed a duplicate End-session control on the
+ * ONE route that owns the session. It left the chrome's control live and
+ * UNGATED on the other eight: a tenant could end, from here, the very session
+ * the owning route was refusing with a named reason. A test that only ever
+ * checked the owning route is the region-scoped helper wearing a different
+ * scope, so this case lives on a NON-owning route on purpose.
+ *
+ * `app/hub/HubShell.tsx` now computes the refusal once and hands it to the
+ * banner region as a string. Drop that `.map(...)` and this case reds.
+ */
+describe('the device screen — the End-session control it does not own is still gated', () => {
+  const endSession = () => screen.queryAllByRole('button', { name: /^end session$/i })
+
+  function reasonOn(el: HTMLElement): string {
+    const id = el.getAttribute('aria-describedby')
+    return id === null ? '' : (document.getElementById(id)?.textContent ?? '')
+  }
+
+  function setState(value: string): void {
+    fireEvent.change(screen.getByRole('combobox', { name: 'Tenant state' }), {
+      target: { value },
+    })
+  }
+
+  it('is inert with a named reason where the workspace state closes the audit write', () => {
+    render(<DevicesScreen />)
+    // Live where the source requires it to be — "at any time" has to keep
+    // meaning it under a billing suspension.
+    for (const open of ['active', 'soft-suspended', 'hard-suspended']) {
+      setState(open)
+      const buttons = endSession()
+      expect(buttons, open).toHaveLength(1)
+      expect(buttons[0]!.getAttribute('aria-disabled'), open).toBeNull()
+    }
+    // And inert, with a reason, where it closes.
+    for (const closed of ['compliance-suspended', 'archived']) {
+      setState(closed)
+      const buttons = endSession()
+      expect(buttons, closed).toHaveLength(1)
+      for (const button of buttons) {
+        expect(button.getAttribute('aria-disabled'), closed).toBe('true')
+        expect(reasonOn(button), closed).toContain(closed)
+        expect(reasonOn(button).length, closed).toBeGreaterThan(40)
+      }
+    }
+  })
+})

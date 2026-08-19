@@ -1,7 +1,6 @@
 import type { ScreenStateId } from '@/ui/screen-state'
 import type { SaAccessClassId } from '@/surfaces/sa/access-classes'
 import { ACCESS_CLASSES } from '@/surfaces/sa/access-classes'
-import type { WriteAction } from '@/surfaces/doh/tenant-state'
 import { DEFERRED_DOH_SCOPES } from '@/surfaces/doh/scope'
 import type { SupportSessionBanner } from '@/ui/doh/BannerRegion'
 import {
@@ -213,20 +212,6 @@ export function screenAccessBanners(
       !endedClasses.includes(s.accessClass),
   )
   return supportSessionBanners(sessions, onEndSession)
-}
-
-/**
- * The seeded MESSAGE for one class, read from the shared array so the wording
- * never drifts between the shell's banner and this screen's own. Used where
- * the support session must still be bannered while its control is disabled —
- * the banner union carries no arm for that case (see `UNRESOLVED_IN_SOURCE`),
- * and the source requires the banner to render from the last loaded state with
- * the End-session control disabled rather than absent.
- */
-export function sessionMessage(accessClass: SaAccessClassId): string {
-  const found = SEEDED_PLATFORM_ACCESS_SESSIONS.find((s) => s.accessClass === accessClass)
-  if (found === undefined) throw new Error(`No seeded session message for ${accessClass}`)
-  return found.message
 }
 
 /** The announcement this workspace currently carries, read from the shell's seed. */
@@ -679,23 +664,29 @@ export const READING_STATUSES = [
  * ------------------------------------------------------------------ */
 
 /**
- * THE WRITE CLASS END-SESSION IS GATED ON, and the reasoning, because the
- * write-class enumerations name no End-session class at all.
+ * THE WRITE CLASS END-SESSION IS GATED ON — DEFINED ONCE, IN THE SHELL, AND
+ * RE-EXPORTED HERE.
  *
- * The act's one required write is its AUDIT ENTRY — "session termination by
- * the tenant is itself an audited act" — and `write-audit` is a class the one
- * table already names. So the gate is a lookup in that table rather than a new
- * row in it, and the mapping is stated on screen and in the unresolved panel.
+ * The write-class enumerations name no End-session class at all. The act's one
+ * required write is its AUDIT ENTRY — "session termination by the tenant is
+ * itself an audited act" — and `write-audit` is a class the one table already
+ * names, so the gate is a lookup in that table rather than a new row in it.
  *
- * The consequence is the right one in both directions. Under soft and hard
- * suspension the audit write stays open, so a workspace behind on its bills
- * can still end a platform session — which is what "at any time" requires, and
- * a tenant unable to end a session is the failure of consequence this module's
- * own fallback ladder is written around. Under compliance suspension and after
- * archival it closes, and there it is not a restriction at all: no user is
- * signed in to press it.
+ * It lives in `app/hub/HubShell.tsx` rather than here because the banner is
+ * chrome on EVERY Hub route and the gate is one: the shell computes the refusal
+ * and hands it to the banner region, so the control is gated on all nine routes
+ * and not only on the one that owns the session. A second copy of the mapping
+ * here would be a second thing to drift, so this is a re-export and nothing
+ * more. This module composes its own further conditions — a lost connection, a
+ * session already ended — on top of the shell's answer.
+ *
+ * The consequence is right in both directions. Under soft and hard suspension
+ * the audit write stays open, so a workspace behind on its bills can still end
+ * a platform session — which is what "at any time" requires. Under compliance
+ * suspension and after archival it closes, and there it is not a restriction at
+ * all: no user is signed in to press it.
  */
-export const END_SESSION_WRITE_CLASS: WriteAction = 'write-audit'
+export { END_SESSION_WRITE_CLASS } from '../HubShell'
 
 /* ------------------------------------------------------------------ *
  * Screen states. STATE-01 is real and common here: many workspaces have

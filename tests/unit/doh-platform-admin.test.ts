@@ -267,7 +267,13 @@ describe('MOD-DOH-13 — the one command, gated through the one write-class tabl
       // A conditional on a tenant state literal would be a second gate.
       expect(src, name).not.toMatch(/tenantState === '(soft|hard|compliance)-suspended'/)
     }
-    expect(SCREEN_SRC).toMatch(/writeAllowed\(tenantState, END_SESSION_WRITE_CLASS\)/)
+    // The tenant-state half is the SHELL's, defined once and re-exported here,
+    // so this screen calls it rather than re-deriving it. Pinned both ways:
+    // the call is present, and the screen re-implements neither the lookup nor
+    // the table it reads.
+    expect(SCREEN_SRC).toMatch(/endSessionRefusalFor\(tenantState\)/)
+    expect(SCREEN_SRC).not.toMatch(/writeAllowed\(/)
+    expect(FIXTURES_SRC).toMatch(/export \{ END_SESSION_WRITE_CLASS \} from '\.\.\/HubShell'/)
   })
 })
 
@@ -370,8 +376,12 @@ describe('MOD-DOH-13 — the panels the contract requires', () => {
       'The time box is set on the platform side and cannot be extended from here',
     )
     expect(SCREEN_SRC).toMatch(/disabledReason=\{EXTEND_TIME_BOX_REASON\}/)
-    // And it is drawn on the support session alone — the panel that names it.
-    expect(SCREEN_SRC).toMatch(/panel\.accessClass === 'normal-support-session' \? \(/)
+    // WHICH panel it sits in is asserted in the component suite, against the
+    // rendered DOM. The source scan that used to stand here —
+    //   toMatch(/panel\.accessClass === 'normal-support-session' \? \(/)
+    // — matched that text TWICE in the screen, at the status-pill ternary and
+    // at the guard it claimed to pin, so deleting the guard left it green. A
+    // scan that reads as protection it does not provide is worse than none.
   })
 
   it('carries a deferred-scoping note, as every other Hub route does', () => {

@@ -29,6 +29,25 @@ export type SupportSessionBanner =
       readonly message: string
       /** D12: any signed-in tenant web user may end THIS class only. */
       readonly onEndSession: () => void
+      /**
+       * A reason the control cannot act RIGHT NOW, computed by the caller and
+       * HANDED IN. Present renders the control disabled carrying this text;
+       * absent renders it live.
+       *
+       * THIS COMPONENT STILL HOLDS NO POLICY, and could not: a string is not a
+       * decision. It does not know the tenant state, it does not know which
+       * write class ending a session belongs to, and it cannot ask.
+       * `app/hub/HubShell.tsx` computes it — that file is in `app/`, it already
+       * holds the tenant state, it already assembles these banners, and every
+       * Hub route wraps it, so one computation gates the control on all of them.
+       *
+       * Without this the control was live and UNGATED on every route that did
+       * not own the session: a tenant could end, from another module's screen,
+       * the very session the owning route was refusing with a named reason.
+       * The banner is chrome on nine routes and the gate is one; a per-screen
+       * prop would have taxed all nine to fix one.
+       */
+      readonly endSessionDisabledReason?: string
     }
   | {
       readonly kind: 'support-session'
@@ -68,6 +87,22 @@ const TONE: Record<HubBanner['kind'], StatusTone> = {
   announcement: 'info',
 }
 
+/**
+ * The End-session control, or nothing. Drawn by the arm the banner is on and
+ * by the reason it was handed — never by anything this file worked out.
+ */
+function endSessionAction(banner: SupportSessionBanner) {
+  if (banner.accessClass !== 'normal-support-session') return undefined
+  if (banner.endSessionDisabledReason !== undefined) {
+    return <Button disabledReason={banner.endSessionDisabledReason}>End session</Button>
+  }
+  return (
+    <Button variant="secondary" onClick={banner.onEndSession}>
+      End session
+    </Button>
+  )
+}
+
 export function BannerRegion({ banners }: BannerRegionProps) {
   if (banners.length === 0) return null
 
@@ -92,13 +127,7 @@ export function BannerRegion({ banners }: BannerRegionProps) {
                 tone={TONE['support-session']}
                 heading={HEADING['support-session']}
                 body={banner.message}
-                action={
-                  banner.accessClass === 'normal-support-session' ? (
-                    <Button variant="secondary" onClick={banner.onEndSession}>
-                      End session
-                    </Button>
-                  ) : undefined
-                }
+                action={endSessionAction(banner)}
               />
             )
 
