@@ -221,7 +221,14 @@ export function ConsoleUsersScreen({
   /* ---------------- Users pane: root-only administration ---------------- */
 
   /** The accounts this screen HAS in this state; the table below reads the same list. */
-  const accountRecords = screenState === 'STATE-01' ? [] : CONSOLE_ACCOUNTS
+  // STATE-01 has no accounts; STATE-02 has not read them yet. Both leave the
+  // table drawing no rows, so both must leave this list empty -- otherwise the
+  // controls and notices above the table describe five accounts it does not
+  // draw, which is the aggregate-and-table divergence this module already
+  // fixed once for the queue.
+  const accountsUnread = screenState === 'STATE-02'
+  const accountRecords =
+    screenState === 'STATE-01' || accountsUnread ? [] : CONSOLE_ACCOUNTS
 
   /**
    * Three of the four Users-pane controls act ON an existing account. Under
@@ -229,7 +236,11 @@ export function ConsoleUsersScreen({
    * printing a notice about accounts the same screen says do not exist.
    * Creation is the exception: STATE-01 keeps the creating action.
    */
-  const accountObjectState = accountRecords.length === 0 ? 'no-account-exists' : mode
+  const accountObjectState = accountsUnread
+    ? 'not-yet-read'
+    : accountRecords.length === 0
+      ? 'no-account-exists'
+      : mode
 
   const rootOnly = (
     action: string,
@@ -264,9 +275,16 @@ export function ConsoleUsersScreen({
   const usersPaneReason = (decision: PermissionDecision): string =>
     decision.reasonCode === 'ROLE_NOT_GRANTED'
       ? rootOnlyReason
-      : accountRecords.length === 0
-        ? 'No console account exists yet, so there is nothing to act on. The root creates the first account from this pane, and this control acts once one exists.'
-        : namedReason(decision, mode)
+      : accountsUnread
+        ? 'The console accounts have not been read yet in this state, so there is nothing on screen to act on. The table below draws no row until they are.'
+        : accountRecords.length === 0
+          ? 'No console account exists yet, so there is nothing to act on. The root creates the first account from this pane, and this control acts once one exists.'
+          : mode === 'write-failed'
+            ? // NOT namedReason's write-failed string: that one says "the request
+              // is still pending", and these three controls have no request
+              // behind them. The account pane writes directly.
+              'The last write on this console failed, so this pane takes no further account action until it is retried. No account changed.'
+            : namedReason(decision, mode)
 
   const inertProps = (decision: PermissionDecision, reason: string) =>
     decision.outcome === 'allowed' ? {} : { disabledReason: reason }
@@ -546,7 +564,7 @@ export function ConsoleUsersScreen({
           <Banner
             tone="attention"
             heading="Read-only"
-            body="One cause: this fixture puts the console into a read-only state. Every input the console itself carries — the four queue filters, the critical-action selector and every decision control — is disabled for that one cause, and no other message on this screen names a second. The three fixture switchers above belong to the harness, not the console, so they keep working. Every panel still reads."
+            body="This fixture puts the console into a read-only state, and every input the console itself carries — the four queue filters, the critical-action selector and every decision control — is disabled by it. A control this role would not hold anyway still names its own role reason, which is a separate fact about the role rather than a second cause of the read-only state. The three fixture switchers above belong to the harness, not the console, so they keep working. Every panel still reads."
           />
         </div>
       ) : null}

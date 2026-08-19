@@ -437,6 +437,61 @@ describe('MOD-SA-13 — the fifteen command states and the honest stepper', () =
     expect(drafted()).toBe(false)
   })
 
+  it('a recorded suspension never outlives its role or screen state: the log row, the button and its reason move together', () => {
+    render(<DevicesScreen />)
+    // All THREE sites that render "the suspension is recorded", read together
+    // on every assertion below. Checking only the button reason is how round 1
+    // shipped a refusal printed directly above the row it denies.
+    const log = (): HTMLElement => region('Command log')
+    const suspensionRow = (): HTMLElement | undefined =>
+      within(log())
+        .getAllByRole('row')
+        .find((r) => (r.textContent ?? '').includes('CMD-0623'))
+    const suspendButton = (): HTMLElement =>
+      within(log()).getByRole('button', { name: /record a device suspension command/i })
+    const suspendReason = (): string | null => {
+      const id = suspendButton().getAttribute('aria-describedby')
+      return id === null ? null : (document.getElementById(id)?.textContent ?? '')
+    }
+
+    // Recorded by a role that holds it: row present, control spent, reason says so.
+    selectRole('ROLE-PLAT-ADMIN')
+    expect(suspensionRow()).toBeUndefined()
+    expect(suspendReason()).toBeNull()
+    fireEvent.click(suspendButton())
+    expect(suspensionRow()).toBeDefined()
+    expect(suspendReason() ?? '').toMatch(/already recorded in the log below/i)
+
+    // AXIS 1 — the role. A role that never held the control must be told it
+    // lacks the capability, and the log must not sit below that refusal still
+    // showing the row that role never created.
+    selectRole('ROLE-PLAT-ENG')
+    expect(suspensionRow(), 'the row outlived the role that recorded it').toBeUndefined()
+    const engReason = suspendReason() ?? ''
+    expect(engReason).toMatch(/does not carry a grant/i)
+    expect(engReason).toMatch(/Viewing as Platform Engineer/)
+    expect(engReason, 'a refusal and "already done" are two causes for one rendering').not.toMatch(
+      /already recorded/i,
+    )
+    // And returning to the role that held it finds the control live again, not
+    // spent: a cleared click must clear the button too, not just the table.
+    selectRole('ROLE-PLAT-ADMIN')
+    expect(suspensionRow()).toBeUndefined()
+    expect(suspendReason()).toBeNull()
+
+    // AXIS 2 — the screen state, from the same recorded starting point.
+    fireEvent.click(suspendButton())
+    expect(suspensionRow()).toBeDefined()
+    selectState('STATE-06')
+    expect(suspensionRow(), 'the row outlived the screen state that recorded it').toBeUndefined()
+    const readOnlyReason = suspendReason() ?? ''
+    expect(readOnlyReason).toMatch(/^Read-only \(STATE-06\)/)
+    expect(readOnlyReason).not.toMatch(/already recorded/i)
+    selectState('STATE-03')
+    expect(suspensionRow()).toBeUndefined()
+    expect(suspendReason()).toBeNull()
+  })
+
   it('keeps the state name visible at every step of the reachable sequence', () => {
     render(<DevicesScreen />)
     for (const step of REACHED_WIPE_SEQUENCE) {

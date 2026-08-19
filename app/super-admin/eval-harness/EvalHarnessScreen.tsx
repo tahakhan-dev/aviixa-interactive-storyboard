@@ -150,6 +150,12 @@ export function EvalHarnessScreen({
 
   const harness = harnessAvailability(screenState)
   const scenarios = visibleScenarios(screenState)
+  // ONE fact, read by every panel that renders scenario records: the posture
+  // aggregate, the scenario table, the gate table AND the run-target
+  // selector. A panel that names a scenario while another says the records
+  // are still being read is the same defect as an aggregate over records the
+  // screen says do not exist.
+  const scenariosLoading = screenState === 'STATE-02'
   // With no scenario records there is nothing to aggregate: the posture says
   // so in words rather than reporting nought verdicts.
   const posture: PostureMode = scenarios.length === 0 ? 'empty' : postureMode(screenState)
@@ -252,7 +258,13 @@ export function EvalHarnessScreen({
         <Select
           label="Console role (fixture)"
           value={role}
-          onChange={(v) => setRole(v as RoleId)}
+          // A recorded click must not outlive the role that made it, or a role
+          // that never held the runner is told the run is already queued
+          // instead of that it lacks the capability.
+          onChange={(v) => {
+            setRole(v as RoleId)
+            setSubmittedRun(null)
+          }}
           options={EVAL_PLATFORM_ROLES.map((r) => ({
             value: r.id,
             label: `${r.name} — ${r.roleAnnotation}`,
@@ -261,7 +273,14 @@ export function EvalHarnessScreen({
         <Select
           label="Screen state (fixture)"
           value={screenState}
-          onChange={(v) => setScreenState(v as ScreenStateId)}
+          // Same for the state switcher, and the chosen target goes with it:
+          // the record it named may not be among the records the new state
+          // shows.
+          onChange={(v) => {
+            setScreenState(v as ScreenStateId)
+            setSubmittedRun(null)
+            setRunTarget('whole-suite')
+          }}
           options={APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
         />
         <p className="max-w-prose text-xs text-[var(--color-ink-subtle)]">
@@ -350,7 +369,7 @@ export function EvalHarnessScreen({
             { key: 'run', header: 'Last run' },
             { key: 'source', header: 'Source' },
           ]}
-          loading={screenState === 'STATE-02'}
+          loading={scenariosLoading}
           rows={scenarios.map((s) => {
             const verdict = effectiveVerdict(s, screenState)
             return {
@@ -389,15 +408,30 @@ export function EvalHarnessScreen({
           </div>
         ) : null}
         <div className="mt-3 max-w-md">
+          {/* The selector reads the SAME records as the scenario table and the
+              gate table. While those are still being read it cannot already
+              have them named, so it offers no scenario and says why — the
+              placeholder STATE-02 requires, not a fully-read list. */}
           <Select
             label="Run target"
-            value={runTarget}
+            value={scenariosLoading ? 'loading' : runTarget}
             onChange={setRunTarget}
-            options={[
-              { value: 'whole-suite', label: 'The whole suite' },
-              ...scenarios.map((s) => ({ value: s.id, label: `${s.id} · ${s.name}` })),
-            ]}
+            disabled={scenariosLoading}
+            options={
+              scenariosLoading
+                ? [{ value: 'loading', label: 'Loading the scenario list — no run target yet' }]
+                : [
+                    { value: 'whole-suite', label: 'The whole suite' },
+                    ...scenarios.map((s) => ({ value: s.id, label: `${s.id} · ${s.name}` })),
+                  ]
+            }
           />
+          {scenariosLoading ? (
+            <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
+              One cause: the scenario records are still being read. No run target can be named
+              until they arrive.
+            </p>
+          ) : null}
         </div>
         {screenState === 'STATE-04' ? (
           <p role="alert" className="mt-2 text-sm text-[var(--color-status-blocked)]">
@@ -449,7 +483,7 @@ export function EvalHarnessScreen({
           ]}
           // Same records, same fetch: while the scenario list is still
           // loading, the blocking list cannot already have read them.
-          loading={screenState === 'STATE-02'}
+          loading={scenariosLoading}
           {...(harness === 'unavailable'
             ? {
                 error:

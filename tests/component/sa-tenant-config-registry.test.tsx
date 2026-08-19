@@ -116,6 +116,15 @@ describe('MOD-SA-19 Tenant-Configuration Registry — the shell contract', () =>
           for (const node of [roleSelect, stateSelect, classSelect]) {
             expect(node.isConnected, where).toBe(true)
           }
+          // `isConnected` catches a detached node; it does NOT catch a
+          // controlled <select> whose onChange is ignored, which is how these
+          // actually break. Without the two assertions below, freezing the
+          // write-class setter leaves all 144 permutations green and the test
+          // proves its named property on the state axis alone. `.value`
+          // reflects the current selection rather than the option list, so it
+          // avoids the <option>-always-present trap.
+          expect((roleSelect as HTMLSelectElement).value, `role axis frozen at ${where}`).toBe(role.id)
+          expect((classSelect as HTMLSelectElement).value, `write-class axis frozen at ${where}`).toBe(c.id)
           expect(text, where).toContain(state.contract)
           expect(text, where).not.toMatch(forbidden)
         }

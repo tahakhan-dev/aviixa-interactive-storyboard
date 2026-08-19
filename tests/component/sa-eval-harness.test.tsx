@@ -335,24 +335,50 @@ describe('MOD-SA-05 — aggregates never render as zero or blank', () => {
     }
   })
 
-  // The two panels render the SAME records. This is the cross-panel gate:
-  // whatever scenario the gate view names as a blocker, the scenario list
-  // must also show — in every applicable state, not just the default one.
-  // A row that named a scenario the list says was never authored (and any
-  // second cause invented for its absence) fails here.
-  it.each(APPLICABLE_STATES.map((s) => s.id))(
-    '%s: the gate view names only scenarios the scenario list also shows',
-    (stateId) => {
-      render(<EvalHarnessScreen screenState={stateId} />)
-      const gate = screen.getByRole('region', { name: /Gate view/i }).textContent ?? ''
-      const list = screen.getByRole('region', { name: /Scenario list/i }).textContent ?? ''
-      for (const s of EVAL_SCENARIOS) {
-        if (gate.includes(s.name) || gate.includes(s.id)) {
-          expect(list, `${stateId} names ${s.id} in the gate view only`).toContain(s.name)
-        }
+  // THREE panels render the SAME scenario record set: the scenario list, the
+  // run-target selector and the gate view. Fixing one and leaving another
+  // reading fully-loaded records is the recurring defect on this module, so
+  // this gate reads all three off the live DOM, on all three axes — every
+  // role, every applicable state, every panel.
+  //
+  // Selector vs list is EQUALITY in both directions: a selector that lists
+  // nine while the list shows none fails, and so does a selector emptied
+  // unconditionally while the list shows nine. The gate view is a subset,
+  // because only a blocking scenario reaches it.
+  const scenarioIdsIn = (text: string): string[] =>
+    EVAL_SCENARIOS.filter((s) => text.includes(s.name)).map((s) => s.id)
+
+  it.each(
+    EVAL_PLATFORM_ROLES.flatMap((r) =>
+      APPLICABLE_STATES.map((s) => [r.id, s.id, r.roleAnnotation] as const),
+    ),
+  )(
+    'the scenario list, the run-target selector and the gate view name the same records — %s / %s',
+    (roleId, stateId) => {
+      render(<EvalHarnessScreen role={roleId} screenState={stateId} />)
+      const where = `${roleId} / ${stateId}`
+
+      const list = scenarioIdsIn(
+        screen.getByRole('region', { name: /Scenario list/i }).textContent ?? '',
+      )
+      const target = scenarioIdsIn(screen.getByLabelText(/Run target/i).textContent ?? '')
+      const gate = scenarioIdsIn(screen.getByRole('region', { name: /Gate view/i }).textContent ?? '')
+
+      expect(target, `${where}: run-target selector diverges from the scenario list`).toEqual(list)
+      for (const id of gate) {
+        expect(list, `${where}: gate view names ${id} the scenario list does not`).toContain(id)
       }
     },
   )
+
+  it('STATE-01: the run-target selector, the list and the aggregate all say no record exists', () => {
+    render(<EvalHarnessScreen screenState="STATE-01" />)
+    const target = screen.getByLabelText(/Run target/i).textContent ?? ''
+    for (const s of EVAL_SCENARIOS) {
+      expect(target, s.id).not.toContain(s.name)
+    }
+    expect(target).toContain('The whole suite')
+  })
 
   it('STATE-01: the gate view gives no second account of the missing scenarios', () => {
     render(<EvalHarnessScreen screenState="STATE-01" />)

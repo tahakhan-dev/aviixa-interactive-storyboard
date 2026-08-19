@@ -150,10 +150,17 @@ export function DevicesScreen() {
 
   /** A recorded click belongs to the role and the screen state it was made
    *  under. Moving either switcher clears it, so a refusal is never rendered
-   *  beside a notice saying the same action is already done. */
+   *  beside a notice saying the same action is already done.
+   *
+   *  ALL THREE recorded interactions, `commands` included: the log resets to
+   *  the seeded rows because the suspension row, the spent-control branch and
+   *  the "already recorded" reason are three renderings of one fact, and a
+   *  reset that clears two of them leaves the third contradicting the refusal
+   *  printed directly above it. */
   function resetInteractions(): void {
     setDraftOpened(false)
     setApprovalRecorded(false)
+    setCommands(SEEDED_COMMANDS)
   }
 
   const role = DEVICE_PLATFORM_ROLES.find((r) => r.sourceId === sourceRoleId) ?? DEVICE_PLATFORM_ROLES[0]
@@ -636,10 +643,15 @@ export function DevicesScreen() {
           ) : (
             <Button
               disabledReason={
+                // One rendering, one cause, named in precedence order. This
+                // branch used to fall through to "already recorded" whenever
+                // the button was disabled for ANY reason, so a role that never
+                // held the command was told the action was already done rather
+                // than that it lacks the grant.
                 blocked ??
-                (suspendDecision.outcome !== 'allowed'
-                  ? `${suspendDecision.explanation} A device suspension is issued by the platform Admin, and the root holds it too (WF-DVC-005, L53224). Viewing as ${role.name}.`
-                  : 'The suspension command is already recorded in the log below. This storyboard records it once.')
+                (suspensionRecorded
+                  ? 'The suspension command is already recorded in the log below. This storyboard records it once.'
+                  : `${suspendDecision.explanation} The Root Super Admin and the platform Admin hold this command (L45498); the Platform Engineer and Support read the fleet and hold no device action. Viewing as ${role.name}.`)
               }
             >
               Record a device suspension command
