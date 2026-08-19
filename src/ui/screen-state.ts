@@ -83,7 +83,7 @@ export const SCREEN_STATES = [
   {
     id: 'STATE-09', name: 'Queued', frontlineOnly: false,
     contract:
-      'An accepted action that has not yet taken effect is shown in its true command state — created, authorised, queued, available for delivery, and so on.',
+      'An accepted action that has not yet taken effect is shown in its true command state — created, authorized, queued, available for delivery, and so on.',
     neverDo: 'Never render a queued action as applied or complete, and never collapse its state into one word.',
   },
   {

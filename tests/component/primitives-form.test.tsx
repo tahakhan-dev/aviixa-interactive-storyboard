@@ -152,3 +152,33 @@ describe('form primitives', () => {
     expect(screen.getByText('Could not load scheduled runs.')).toBeDefined()
   })
 })
+
+// Slice 3, re-verification of the MOD-SA-01 fix round. A module wrote the
+// STATE-06 copy "every input is disabled while the module is read-only" and it
+// could never be true: Select accepted no `disabled` prop and spread no rest
+// props, so its own doc comment -- "States: default, focus, disabled -- all
+// native" -- asserted a capability the component did not have. That is the
+// seventeenth comment this build has found claiming something the code does
+// not do, and the first in a shared primitive, where it silently blocked
+// STATE-06 on every surface rather than one screen.
+describe('Select — disabled is a real state, not a claim in a comment', () => {
+  it('forwards disabled to the native element so a read-only state can hold', () => {
+    render(
+      <Select
+        label="Screen state"
+        options={[{ value: 'a', label: 'A' }]}
+        value="a"
+        onChange={() => {}}
+        disabled
+      />,
+    )
+    expect((screen.getByLabelText('Screen state') as HTMLSelectElement).disabled).toBe(true)
+  })
+
+  it('is enabled by default, so the prop is opt-in', () => {
+    render(
+      <Select label="Tenant filter" options={[{ value: 'a', label: 'A' }]} value="a" onChange={() => {}} />,
+    )
+    expect((screen.getByLabelText('Tenant filter') as HTMLSelectElement).disabled).toBe(false)
+  })
+})

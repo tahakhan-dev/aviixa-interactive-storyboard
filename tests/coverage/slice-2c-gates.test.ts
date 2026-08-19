@@ -148,7 +148,20 @@ describe('gate 1: count-scope honesty', () => {
   function hardcodedCountOffenders(): string[] {
     const forbidden = liveRegistryCounts()
     if (forbidden.size === 0) return []
-    const pattern = new RegExp(`\\b(${[...forbidden].join('|')})\\b`)
+    // `\b` is the wrong boundary here, and slice 3 proved it: it matched the
+    // 18 inside the stable identifier `MOD-SA-18` and the 17 inside the ISO
+    // date '2026-08-17', reporting twelve pages as hardcoding a registry count
+    // when not one of them did. Same shape as `\bsigned\b` matching
+    // "signed-in", and as `//` matching inside a URL -- a token boundary is
+    // not a semantic one.
+    //
+    // A registry count stands alone. A digit run touching a letter, a hyphen
+    // or a dot belongs to something larger -- an identifier (MOD-SA-17,
+    // AC-SA-18-04, L1632), a date, a section number (S8.17) or a version --
+    // and is never the count this gate is about. A comma followed by digits
+    // is the thousands separator in a larger figure ('18,402'), so it is
+    // excluded too -- but a bare comma is not, so "613, which is" still trips.
+    const pattern = new RegExp(`(?<![\\w§.-])(${[...forbidden].join('|')})(?![\\w.-]|,\\d)`)
     const offenders: string[] = []
     for (const f of walk('app').filter((f) => /\.tsx$/.test(f))) {
       const match = pattern.exec(stripComments(readFileSync(f, 'utf8')))

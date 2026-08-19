@@ -154,15 +154,15 @@ export const REASON_CODES = {
   ALLOWED:
     'The current role, scope and object state all permit this action.',
   NO_ACTIVE_SESSION:
-    'No one is signed in on this surface, so no action can be attributed to a person.',
+    'No identity is selected on this surface, so no action can be attributed to a person.',
   TENANT_MISMATCH:
     'This record belongs to a different tenant, and tenants are kept completely separate.',
   ROLE_NOT_GRANTED:
-    'The signed-in role does not carry a grant for this action.',
+    'The current role does not carry a grant for this action.',
   EXPLICIT_DENY:
     'An explicit denial applies to this role, and an explicit denial always wins.',
   OUT_OF_SCOPE:
-    'This record sits outside the site, area or shift the signed-in person is scoped to.',
+    'This record sits outside the site, area or shift the current person is scoped to.',
   FEATURE_DISABLED:
     'The capability is switched off for this tenant, so the action cannot run.',
   GLOBAL_FEATURE_DISABLED:

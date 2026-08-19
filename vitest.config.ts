@@ -22,6 +22,21 @@ export default defineConfig({
           environment: 'jsdom',
           include: ['tests/component/**/*.test.tsx'],
           setupFiles: ['./tests/setup.ts'],
+          // Slice 3. Vitest's 5000ms default is sized for small unit tests.
+          // This project now runs ~1200 cases, and its heaviest legitimately
+          // render large real tables -- the 990-row functions index, the
+          // 724-row workflow index, and nineteen module screens walked across
+          // four roles and twelve screen states. Under parallel load those
+          // crossed 5000ms and went red on timing alone (observed 5.2s-12.3s),
+          // which is how a suite teaches people to re-run it instead of
+          // reading it.
+          //
+          // This is a budget, not a blanket: a test slow because it renders
+          // 990 real rows is doing the work; a test slow because it
+          // re-renders one tree 144 times is badly written, and that one was
+          // made fast rather than given more time. If a case ever needs more
+          // than this, the case is the problem.
+          testTimeout: 30_000,
         },
       },
       {

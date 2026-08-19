@@ -1,124 +1,143 @@
 {
- "schema_version": "1.0.0",
- "entries": [
-  {
-   "decision_id": "APP-000",
-   "design_or_plan_version": "n/a (pre-design gate)",
-   "exact_question": "Two files named AVIIXA_Production_Product_Blueprint.md exist with different SHA-256 hashes. Which is the authoritative frozen source?",
-   "options": [
-    "Ron-project1 copy (sha256 47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27, 18565031 bytes)",
-    "Brain-project copy (sha256 c5c0db5467d0bcdf65d84246f82755fef6724b094b94424f48521f2704aef004)",
-    "Diff them first"
-   ],
-   "user_response_evidence": "AskUserQuestion answer: 'Ron-project1 copy (Recommended)'",
-   "scope_authorized": "Freeze /Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Production_Product_Blueprint.md as the single governing product source for this run. Brain-project copy recorded as a non-authoritative sibling; never read, merged, or cited.",
-   "gate_released": "Section 2.1 exact-source freeze; Section 0.1 duplicate-filename stop condition.",
-   "superseded_by": null
-  },
-  {
-   "decision_id": "APP-001",
-   "design_or_plan_version": "n/a (pre-design gate)",
-   "exact_question": "No git repository exists at Ron-project1. Section 23.3 S0 requires selecting the lifecycle evidence mode before any source reading or design.",
-   "options": [
-    "Authorize git init in a new AVIIXA_Interactive_Storyboard/ subdirectory -> NATIVE_GIT_LIFECYCLE",
-    "MANUAL_HASH_SEALED_LIFECYCLE with SHA-256 sealed snapshot directories"
-   ],
-   "user_response_evidence": "AskUserQuestion answer: 'Authorize git init (Recommended)'",
-   "scope_authorized": "git init inside AVIIXA_Interactive_Storyboard/ only. Never touches sibling files in Ron-project1. LifecycleEvidenceMode = NATIVE_GIT_LIFECYCLE. Native worktree, commit, and base/head review evidence available. Both native execution modes reachable at S3.",
-   "gate_released": "Section 23.3 S0 lifecycle-mode pause; Section 23.3 S4 worktree prerequisite.",
-   "superseded_by": null
-  },
-  {
-   "decision_id": "APP-002",
-   "design_or_plan_version": "n/a (pre-design gate)",
-   "exact_question": "Master prompt Section 23 mandates dispatching-parallel-agents and subagent-driven-development, but the harness system prompt forbids subagents and Workflow unless the user requests them. Which authority wins?",
-   "options": [
-    "Authorize agents + Workflow",
-    "Solo, no subagents",
-    "Agents for reading only"
-   ],
-   "user_response_evidence": "AskUserQuestion answer: 'Authorize agents + Workflow (Recommended)'",
-   "scope_authorized": "Workflow tool and parallel/dispatched subagents authorized for: source extraction, read-only inventory and audit waves, subagent-driven implementation, and independent code review at Section 23.3 S7. Satisfies the independence prerequisite that self-review cannot satisfy.",
-   "gate_released": "Section 23.3 S5 parallel dispatch; Section 23.3 S7 independent-review independence prerequisite.",
-   "superseded_by": null
-  },
-  {
-   "decision_id": "APP-003",
-   "design_or_plan_version": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
-   "design_sha256": "707128071d78fe58b49962aac69038328a0cb91542422f6743820e9247dcb98a",
-   "design_commit": "5263138",
-   "exact_question": "Design presented in chat covering source facts, architecture, state partitioning, effective-access model, hand-authored screen construction, static-export constraints, persistence and atomic commit, determinism, technology decisions, visual direction, accessibility, support-not-surveillance, review mode, inventory reconciliation, and the 13-slice build order. Does this design look right?",
-   "options": [
-    "Approve",
-    "Request changes to named sections"
-   ],
-   "user_response_evidence": "Client message 2026-08-16: 'approve it but make sure every user case workflows everything should be covering and it should be like the saas enterprise product'",
-   "scope_authorized": "Umbrella design approved WITH two binding reinforcements, both encoded into the specification before commit: (1) Section 14 Binding census-closure commitment - all 26 extracted inventories must close bidirectionally, nothing sampled or deferred silently, status stays conditional until closure. (2) Section 15 Enterprise SaaS product quality - product chrome, worklist patterns, object-page patterns, form patterns, feedback and motion, data realism, visual craft, and the rule that polish never substitutes for behaviour.",
-   "gate_released": "Section 23.3 S1 design-approval gate. Umbrella approval does NOT pre-approve any subproject's design; each of the 13 slices re-enters brainstorming per Section 23.3 S2.",
-   "superseded_by": null
-  },
-  {
-   "decision_id": "APP-004",
-   "design_or_plan_version": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
-   "design_sha256": "707128071d78fe58b49962aac69038328a0cb91542422f6743820e9247dcb98a",
-   "exact_question": "Written-specification approval: the specification file as committed.",
-   "options": [
-    "Approve as written",
-    "Request changes"
-   ],
-   "user_response_evidence": "Client instruction 'approve it' applied to the design whose full text was written to the specification file and then amended only by adding the client's own two reinforcements as Sections 14 and 15. No content the client approved was altered or removed. Client directed continuation rather than further review.",
-   "scope_authorized": "Proceed to Section 23.3 S2 planning. Specification remains open to client change on request; any change creates a new specification version and hash and re-binds this approval.",
-   "gate_released": "Section 23.3 S1 written-specification approval gate.",
-   "superseded_by": null
-  },
-  {
-   "decision_id": "APP-005",
-   "design_or_plan_version": "docs/superpowers/specs/2026-08-16-slice-02a-contracts-and-persistence-design.md",
-   "exact_question": "Slice 2a design: nine-outcome permission model with orthogonal FieldTreatment, thirteen screen states, primitives, registry loading, persistence. And should slice 2 be split?",
-   "options": [
-    "Extend to the source's nine + split field treatment",
-    "Keep six, map at the matrix layer",
-    "Extend to nine keeping hidden/redacted inside"
-   ],
-   "user_response_evidence": "AskUserQuestion: 'Extend to the source's nine + split field treatment (Recommended)' and 'Split into 2a and 2b (Recommended)'",
-   "scope_authorized": "Amend a slice-1 frozen contract to the source's closed set of nine; split slice 2 into 2a contracts/persistence and 2b reviewer-facing layer.",
-   "gate_released": "Slice 2a design approval.",
-   "superseded_by": null
-  },
-  {
-   "decision_id": "APP-006",
-   "design_or_plan_version": "docs/superpowers/specs/2026-08-16-slice-02b-review-shell-design.md",
-   "design_sha256": "355ed35c4774ff72c05293f05150b338f540000b3c9e3f6bdc8f638cd3813743",
-   "exact_question": "Slice 2b design: scenario command gateway, client store, scenario controls, review shell, review records, package export/import, evidence capture. Approve?",
-   "options": [
-    "Approve",
-    "Request changes"
-   ],
-   "user_response_evidence": "Client message 2026-08-16: 'go approve it and make sure it cover everything every workflow use cases each and everything and make sure it should be productionl level implementation'",
-   "scope_authorized": "Slice 2b approved WITH two binding reinforcements, both encoded before commit: (1) Section 7 -- coverage made BROWSABLE: fourteen registry index screens, the Workflow Index with per-workflow roles/objects/variant coverage, and a coverage dashboard, all fed from the runtime-validated registries so an on-screen count and the reconciliation share one source. Master prompt 9.6: a count with no browsable index behind it does not satisfy the requirement. This ADDED scope to 2b rather than deferring it to slice 13. (2) Section 8 -- production-grade engineering is the standard and does not relax; production-SYSTEM claims remain forbidden by 29.4 because this application has no backend and such claims would be false.",
-   "gate_released": "Slice 2b design approval. Proceed to writing-plans.",
-   "superseded_by": null
-  },
-  {
-   "decision_id": "APP-007",
-   "design_or_plan_version": "docs/superpowers/specs/2026-08-17-slice-02c-spec-closure-design.md",
-   "design_sha256": "fb82c5e96d80e1a98dfbbab60773f006c4235d1bd826a89ffcc50f59d2ce33b2",
-   "exact_question": "Slice 2c closure design: ten measured gaps against the approved slice 2b spec, each with its governing section and an acceptance criterion. Approve?",
-   "options": [
-    "Approve",
-    "Request changes"
-   ],
-   "user_response_evidence": "Client message 2026-08-17: 'go approve it and make sure it cover everything every workflow use cases each and everything and make sure it should be productionl level implementation'",
-   "scope_authorized": "Slice 2c approved WITH the coverage reinforcement encoded as ADDED SCOPE rather than acknowledged. Section 2.10 added: populate the remaining THIRTEEN registry indexes, which were empty shells while /workflows/ alone was populated in 2b. All fourteen are fillable from data already extracted -- three from the semantic extraction, ten from registries/raw/identifier-index.json (17,931 identifiers across 76 prefix families with line locators, produced by the first mechanical pass and never shipped). Count-scope discipline recorded as the hard part: the extraction keys 92 modules where the canonical inventory is 81, so every index must state what its number counts, carry the reconciled verdict where one exists, and say plainly where the source fixes no total.",
-   "gate_released": "Slice 2c design approval. Production-grade engineering standard and its boundary against production-system claims already bind via slice 2b spec section 8 and umbrella section 15; census closure binds via umbrella section 14. Not restated, still binding.",
-   "superseded_by": null
-  }
- ],
- "pending_gates": [
-  {
-   "gate": "S3 execution-mode selection (subagent-driven-development vs executing-plans)",
-   "status": "NOT_YET_REQUESTED",
-   "blocker": "Depends on S2 plan completion."
-  }
- ]
+  "schema_version": "1.0.0",
+  "entries": [
+    {
+      "decision_id": "APP-000",
+      "design_or_plan_version": "n/a (pre-design gate)",
+      "exact_question": "Two files named AVIIXA_Production_Product_Blueprint.md exist with different SHA-256 hashes. Which is the authoritative frozen source?",
+      "options": [
+        "Ron-project1 copy (sha256 47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27, 18565031 bytes)",
+        "Brain-project copy (sha256 c5c0db5467d0bcdf65d84246f82755fef6724b094b94424f48521f2704aef004)",
+        "Diff them first"
+      ],
+      "user_response_evidence": "AskUserQuestion answer: 'Ron-project1 copy (Recommended)'",
+      "scope_authorized": "Freeze /Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Production_Product_Blueprint.md as the single governing product source for this run. Brain-project copy recorded as a non-authoritative sibling; never read, merged, or cited.",
+      "gate_released": "Section 2.1 exact-source freeze; Section 0.1 duplicate-filename stop condition.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-001",
+      "design_or_plan_version": "n/a (pre-design gate)",
+      "exact_question": "No git repository exists at Ron-project1. Section 23.3 S0 requires selecting the lifecycle evidence mode before any source reading or design.",
+      "options": [
+        "Authorize git init in a new AVIIXA_Interactive_Storyboard/ subdirectory -> NATIVE_GIT_LIFECYCLE",
+        "MANUAL_HASH_SEALED_LIFECYCLE with SHA-256 sealed snapshot directories"
+      ],
+      "user_response_evidence": "AskUserQuestion answer: 'Authorize git init (Recommended)'",
+      "scope_authorized": "git init inside AVIIXA_Interactive_Storyboard/ only. Never touches sibling files in Ron-project1. LifecycleEvidenceMode = NATIVE_GIT_LIFECYCLE. Native worktree, commit, and base/head review evidence available. Both native execution modes reachable at S3.",
+      "gate_released": "Section 23.3 S0 lifecycle-mode pause; Section 23.3 S4 worktree prerequisite.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-002",
+      "design_or_plan_version": "n/a (pre-design gate)",
+      "exact_question": "Master prompt Section 23 mandates dispatching-parallel-agents and subagent-driven-development, but the harness system prompt forbids subagents and Workflow unless the user requests them. Which authority wins?",
+      "options": [
+        "Authorize agents + Workflow",
+        "Solo, no subagents",
+        "Agents for reading only"
+      ],
+      "user_response_evidence": "AskUserQuestion answer: 'Authorize agents + Workflow (Recommended)'",
+      "scope_authorized": "Workflow tool and parallel/dispatched subagents authorized for: source extraction, read-only inventory and audit waves, subagent-driven implementation, and independent code review at Section 23.3 S7. Satisfies the independence prerequisite that self-review cannot satisfy.",
+      "gate_released": "Section 23.3 S5 parallel dispatch; Section 23.3 S7 independent-review independence prerequisite.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-003",
+      "design_or_plan_version": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
+      "design_sha256": "707128071d78fe58b49962aac69038328a0cb91542422f6743820e9247dcb98a",
+      "design_commit": "5263138",
+      "exact_question": "Design presented in chat covering source facts, architecture, state partitioning, effective-access model, hand-authored screen construction, static-export constraints, persistence and atomic commit, determinism, technology decisions, visual direction, accessibility, support-not-surveillance, review mode, inventory reconciliation, and the 13-slice build order. Does this design look right?",
+      "options": [
+        "Approve",
+        "Request changes to named sections"
+      ],
+      "user_response_evidence": "Client message 2026-08-16: 'approve it but make sure every user case workflows everything should be covering and it should be like the saas enterprise product'",
+      "scope_authorized": "Umbrella design approved WITH two binding reinforcements, both encoded into the specification before commit: (1) Section 14 Binding census-closure commitment - all 26 extracted inventories must close bidirectionally, nothing sampled or deferred silently, status stays conditional until closure. (2) Section 15 Enterprise SaaS product quality - product chrome, worklist patterns, object-page patterns, form patterns, feedback and motion, data realism, visual craft, and the rule that polish never substitutes for behaviour.",
+      "gate_released": "Section 23.3 S1 design-approval gate. Umbrella approval does NOT pre-approve any subproject's design; each of the 13 slices re-enters brainstorming per Section 23.3 S2.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-004",
+      "design_or_plan_version": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
+      "design_sha256": "707128071d78fe58b49962aac69038328a0cb91542422f6743820e9247dcb98a",
+      "exact_question": "Written-specification approval: the specification file as committed.",
+      "options": [
+        "Approve as written",
+        "Request changes"
+      ],
+      "user_response_evidence": "Client instruction 'approve it' applied to the design whose full text was written to the specification file and then amended only by adding the client's own two reinforcements as Sections 14 and 15. No content the client approved was altered or removed. Client directed continuation rather than further review.",
+      "scope_authorized": "Proceed to Section 23.3 S2 planning. Specification remains open to client change on request; any change creates a new specification version and hash and re-binds this approval.",
+      "gate_released": "Section 23.3 S1 written-specification approval gate.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-005",
+      "design_or_plan_version": "docs/superpowers/specs/2026-08-16-slice-02a-contracts-and-persistence-design.md",
+      "exact_question": "Slice 2a design: nine-outcome permission model with orthogonal FieldTreatment, thirteen screen states, primitives, registry loading, persistence. And should slice 2 be split?",
+      "options": [
+        "Extend to the source's nine + split field treatment",
+        "Keep six, map at the matrix layer",
+        "Extend to nine keeping hidden/redacted inside"
+      ],
+      "user_response_evidence": "AskUserQuestion: 'Extend to the source's nine + split field treatment (Recommended)' and 'Split into 2a and 2b (Recommended)'",
+      "scope_authorized": "Amend a slice-1 frozen contract to the source's closed set of nine; split slice 2 into 2a contracts/persistence and 2b reviewer-facing layer.",
+      "gate_released": "Slice 2a design approval.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-006",
+      "design_or_plan_version": "docs/superpowers/specs/2026-08-16-slice-02b-review-shell-design.md",
+      "design_sha256": "355ed35c4774ff72c05293f05150b338f540000b3c9e3f6bdc8f638cd3813743",
+      "exact_question": "Slice 2b design: scenario command gateway, client store, scenario controls, review shell, review records, package export/import, evidence capture. Approve?",
+      "options": [
+        "Approve",
+        "Request changes"
+      ],
+      "user_response_evidence": "Client message 2026-08-16: 'go approve it and make sure it cover everything every workflow use cases each and everything and make sure it should be productionl level implementation'",
+      "scope_authorized": "Slice 2b approved WITH two binding reinforcements, both encoded before commit: (1) Section 7 -- coverage made BROWSABLE: fourteen registry index screens, the Workflow Index with per-workflow roles/objects/variant coverage, and a coverage dashboard, all fed from the runtime-validated registries so an on-screen count and the reconciliation share one source. Master prompt 9.6: a count with no browsable index behind it does not satisfy the requirement. This ADDED scope to 2b rather than deferring it to slice 13. (2) Section 8 -- production-grade engineering is the standard and does not relax; production-SYSTEM claims remain forbidden by 29.4 because this application has no backend and such claims would be false.",
+      "gate_released": "Slice 2b design approval. Proceed to writing-plans.",
+      "superseded_by": null
+    },
+    {
+      "decision_id": "APP-007",
+      "design_or_plan_version": "docs/superpowers/specs/2026-08-17-slice-02c-spec-closure-design.md",
+      "design_sha256": "fb82c5e96d80e1a98dfbbab60773f006c4235d1bd826a89ffcc50f59d2ce33b2",
+      "exact_question": "Slice 2c closure design: ten measured gaps against the approved slice 2b spec, each with its governing section and an acceptance criterion. Approve?",
+      "options": [
+        "Approve",
+        "Request changes"
+      ],
+      "user_response_evidence": "Client message 2026-08-17: 'go approve it and make sure it cover everything every workflow use cases each and everything and make sure it should be productionl level implementation'",
+      "scope_authorized": "Slice 2c approved WITH the coverage reinforcement encoded as ADDED SCOPE rather than acknowledged. Section 2.10 added: populate the remaining THIRTEEN registry indexes, which were empty shells while /workflows/ alone was populated in 2b. All fourteen are fillable from data already extracted -- three from the semantic extraction, ten from registries/raw/identifier-index.json (17,931 identifiers across 76 prefix families with line locators, produced by the first mechanical pass and never shipped). Count-scope discipline recorded as the hard part: the extraction keys 92 modules where the canonical inventory is 81, so every index must state what its number counts, carry the reconciled verdict where one exists, and say plainly where the source fixes no total.",
+      "gate_released": "Slice 2c design approval. Production-grade engineering standard and its boundary against production-system claims already bind via slice 2b spec section 8 and umbrella section 15; census closure binds via umbrella section 14. Not restated, still binding.",
+      "superseded_by": null
+    },
+    {
+      "id": "APP-008",
+      "date": "2026-08-17",
+      "subject": "Slice 2c — spec closure",
+      "candidate": "02bccf3383995c2c",
+      "decision": "APPROVED FOR HANDOFF, merged to main (7d32b7e)",
+      "basis": "Four review rounds: 14 findings, then 9, then 1 Critical + 3 minor, then clean. Clean-rebuild pnpm verify exit 0 on the MERGED result: 484 unit + 114 component + 82 release + 91 e2e = 771.",
+      "evidence": {
+        "browsableRecords": 4914,
+        "indexes": 14,
+        "sourceHash": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
+        "sourceHashDrift": "none across four slices",
+        "confidentiality": "0 blueprint filenames, 0 absolute author paths in out/"
+      },
+      "carriedToSlice03": [
+        "D5 (Minor): a JSX text run BEGINNING with // or /* is over-stripped by stripComments. Zero live loss across 117/117 files; the specified loss-audit test is green today and would catch it.",
+        "D6 (Minor): source-reconciliation.json `extracted: 36` is hand-maintained, and \"36 extraction chunks\" is baked into three registries countedThing, rendered outside the count gate tsx-only reach."
+      ]
+    }
+  ],
+  "pending_gates": [
+    {
+      "gate": "S3 execution-mode selection (subagent-driven-development vs executing-plans)",
+      "status": "NOT_YET_REQUESTED",
+      "blocker": "Depends on S2 plan completion."
+    }
+  ]
 }
