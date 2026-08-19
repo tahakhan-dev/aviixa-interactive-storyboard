@@ -1,5 +1,6 @@
 import type { RoleId } from '@/domain/roles'
 import type { ScreenStateId } from '@/ui/screen-state'
+import type { SaFreshness } from '@/surfaces/sa/freshness'
 
 /**
  * MOD-SA-01 seeded fixture data. Spec §8: no backend — every value below is
@@ -38,7 +39,7 @@ export const PLATFORM_ROLES = [
  * aggregate renders stale-with-age, a wholly unavailable one renders
  * unavailable, and neither ever renders as zero or blank.
  */
-export type AggregateState = 'current' | 'stale' | 'unavailable' | 'reconciled'
+export type AggregateState = Extract<SaFreshness, 'current' | 'stale' | 'unavailable' | 'reconciled'>
 
 export interface AggregateElement {
   readonly id: string

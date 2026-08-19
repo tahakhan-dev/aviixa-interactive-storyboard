@@ -1,5 +1,7 @@
 import type { RoleId } from '@/domain/roles'
 import type { CommandState } from '@/surfaces/sa/command-state'
+import { saTenant } from '@/surfaces/sa/tenants'
+import type { SaFreshness } from '@/surfaces/sa/freshness'
 
 /**
  * MOD-SA-13 seeded fixture data. Spec §8, and risk R1 in the census: this is
@@ -119,7 +121,7 @@ export interface DeviceRow {
 export const DEVICES = [
   {
     id: 'DEV-TAB-0141',
-    tenantLabel: 'Bright Bikes (TEN-BRIGHTBIKES)',
+    tenantLabel: saTenant('TEN-BRIGHTBIKES').label,
     state: 'active',
     mode: 'Shared',
     binding: 'Assembly area 2',
@@ -159,7 +161,7 @@ export const DEVICES = [
   },
   {
     id: 'DEV-TAB-0208',
-    tenantLabel: 'Clearwater Tooling (TEN-CLEARWATER)',
+    tenantLabel: saTenant('TEN-CLEARWATER').label,
     state: 'enrolled',
     mode: 'Shared',
     binding: 'not yet bound to an area',
@@ -184,7 +186,7 @@ export const DEVICES = [
   },
   {
     id: 'DEV-TAB-0233',
-    tenantLabel: 'North Forge (TEN-NORTHFORGE)',
+    tenantLabel: saTenant('TEN-NORTHFORGE').label,
     state: 'mode changed',
     mode: 'Personal',
     binding: 'Inspection area 1',
@@ -214,7 +216,7 @@ export const DEVICES = [
   },
   {
     id: 'DEV-TAB-0271',
-    tenantLabel: 'Clearwater Tooling (TEN-CLEARWATER)',
+    tenantLabel: saTenant('TEN-CLEARWATER').label,
     state: 'de-authorised',
     mode: 'Shared',
     binding: 'Assembly area 1',
@@ -250,7 +252,7 @@ export const DEVICES = [
   },
   {
     id: 'DEV-TAB-0294',
-    tenantLabel: 'Bright Bikes (TEN-BRIGHTBIKES)',
+    tenantLabel: saTenant('TEN-BRIGHTBIKES').label,
     state: 'retired',
     mode: 'Shared',
     binding: 'unbound at retirement',
@@ -291,7 +293,7 @@ export const DEVICES = [
  * degraded one is stale with its age, a wholly unavailable one says so.
  * Neither is ever a zero and neither is ever a blank.
  */
-export type AggregateFreshness = 'current' | 'stale' | 'unavailable'
+export type AggregateFreshness = Extract<SaFreshness, 'current' | 'stale' | 'unavailable'>
 
 export interface FleetAggregateRow {
   readonly tenantLabel: string
@@ -305,14 +307,14 @@ export interface FleetAggregateRow {
 
 export const FLEET_AGGREGATES = [
   {
-    tenantLabel: 'Bright Bikes (TEN-BRIGHTBIKES)',
+    tenantLabel: saTenant('TEN-BRIGHTBIKES').label,
     enrolled: '48 devices enrolled',
     unreached: 'none unreached in the last 24 hours',
     asOf: 'as of 2026-08-16 07:45 platform time',
     freshness: 'current',
   },
   {
-    tenantLabel: 'North Forge (TEN-NORTHFORGE)',
+    tenantLabel: saTenant('TEN-NORTHFORGE').label,
     enrolled: '17 devices enrolled',
     unreached: '3 unreached in the last 24 hours',
     asOf: 'as of 2026-08-16 05:30 platform time',
@@ -320,7 +322,7 @@ export const FLEET_AGGREGATES = [
     age: '135 minutes old',
   },
   {
-    tenantLabel: 'Clearwater Tooling (TEN-CLEARWATER)',
+    tenantLabel: saTenant('TEN-CLEARWATER').label,
     enrolled: 'Measure unavailable',
     unreached: 'Measure unavailable',
     asOf: 'as of the last successful aggregation, 2026-08-15 22:10 platform time',

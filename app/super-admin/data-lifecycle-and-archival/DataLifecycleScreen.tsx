@@ -17,6 +17,7 @@ import { CommandStateBadge } from '@/ui/sa/CommandStateBadge'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import type { SaFreshness } from '@/surfaces/sa/freshness'
 import {
   Banner,
   Button,
@@ -81,7 +82,7 @@ function surfaceAvailability(state: ScreenStateId): SurfaceAvailability {
  * stale-with-age or unavailable, and NEVER renders as zero or blank.
  * "Empty" is its own case and is a sentence, not the number nought.
  */
-type AggregateMode = 'current' | 'stale' | 'unavailable' | 'loading' | 'empty'
+type AggregateMode = Extract<SaFreshness, 'current' | 'stale' | 'unavailable' | 'loading' | 'empty'>
 
 function aggregateMode(state: ScreenStateId): AggregateMode {
   if (state === 'STATE-01') return 'empty'

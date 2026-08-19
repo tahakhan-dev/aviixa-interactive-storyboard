@@ -16,6 +16,7 @@ import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
 import { type ScreenStateId } from '@/ui/screen-state'
 import { FreshnessLabel, PermissionNotice, Select, Table } from '@/ui/primitives'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import type { SaFreshness } from '@/surfaces/sa/freshness'
 import { SaConsoleShell } from '../SaConsoleShell'
 
 /**
@@ -340,7 +341,7 @@ function contextFor(roleId: RoleId): AccessContext {
 
 /* ── The footprint aggregate fixture ───────────────────────────────────── */
 
-type AggregateMode = 'current' | 'stale' | 'unavailable'
+type AggregateMode = Extract<SaFreshness, 'current' | 'stale' | 'unavailable'>
 
 interface FootprintRow {
   readonly storeId: MemoryStoreId

@@ -1,4 +1,5 @@
 import type { RoleId } from '@/domain/roles'
+import { saTenant } from '@/surfaces/sa/tenants'
 
 /**
  * MOD-SA-15 Support Access — the seeded fixtures this module's screen steps
@@ -176,7 +177,7 @@ export const SUPPORT_SESSIONS = [
     id: 'SES-4471',
     operator: 'Support operator on ticket TKT-4471',
     operatorRole: 'Support',
-    tenantLabel: 'Bright Bikes',
+    tenantLabel: saTenant('TEN-BRIGHTBIKES').name,
     ticketRef: 'TKT-4471',
     reasonClassLabel: REASON_CLASS_RECORDED,
     scopeLabel: 'One tenant workspace, read-only',
@@ -189,7 +190,7 @@ export const SUPPORT_SESSIONS = [
     id: 'SES-4488',
     operator: 'Support operator on ticket TKT-4488',
     operatorRole: 'Support',
-    tenantLabel: 'Northfield Assembly',
+    tenantLabel: saTenant('TEN-NORTHFIELD').name,
     ticketRef: 'TKT-4488',
     reasonClassLabel: REASON_CLASS_RECORDED,
     scopeLabel: 'One tenant workspace, read-only',
@@ -202,7 +203,7 @@ export const SUPPORT_SESSIONS = [
     id: 'SES-4502',
     operator: 'Admin on ticket TKT-4502',
     operatorRole: 'Admin',
-    tenantLabel: 'Harbour Tooling',
+    tenantLabel: saTenant('TEN-HARBOUR').name,
     ticketRef: 'TKT-4502',
     reasonClassLabel: REASON_CLASS_RECORDED,
     scopeLabel: 'One tenant workspace, read-only',
@@ -223,9 +224,9 @@ export interface TenantOption {
 }
 
 export const TENANT_OPTIONS = [
-  { value: 'TEN-BRIGHT', label: 'Bright Bikes' },
-  { value: 'TEN-NORTH', label: 'Northfield Assembly' },
-  { value: 'TEN-HARBOUR', label: 'Harbour Tooling' },
+  { value: 'TEN-BRIGHTBIKES', label: saTenant('TEN-BRIGHTBIKES').name },
+  { value: 'TEN-NORTHFIELD', label: saTenant('TEN-NORTHFIELD').name },
+  { value: 'TEN-HARBOUR', label: saTenant('TEN-HARBOUR').name },
 ] as const satisfies readonly TenantOption[]
 
 export const SESSION_LIST_AS_OF = 'as of 09:41, 16 August 2026 (fixture)'

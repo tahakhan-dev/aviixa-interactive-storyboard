@@ -234,7 +234,7 @@ describe('MOD-SA-15 — the ordering that prevents browse-first-justify-later (L
     fireEvent.change(within(form).getByLabelText(/reason class/i), {
       target: { value: UNSPECIFIED_REASON_CLASS_VALUE },
     })
-    fireEvent.change(within(form).getByLabelText(/Tenant/i), { target: { value: 'TEN-BRIGHT' } })
+    fireEvent.change(within(form).getByLabelText(/Tenant/i), { target: { value: 'TEN-BRIGHTBIKES' } })
     fireEvent.change(within(form).getByLabelText(/ticket reference/i), {
       target: { value: 'TKT-4471' },
     })
@@ -421,7 +421,7 @@ describe('MOD-SA-15 — the twelve applicable screen states', () => {
     fireEvent.change(within(form).getByLabelText(/reason class/i), {
       target: { value: UNSPECIFIED_REASON_CLASS_VALUE },
     })
-    fireEvent.change(within(form).getByLabelText(/Tenant/i), { target: { value: 'TEN-BRIGHT' } })
+    fireEvent.change(within(form).getByLabelText(/Tenant/i), { target: { value: 'TEN-BRIGHTBIKES' } })
     fireEvent.change(within(form).getByLabelText(/ticket reference/i), {
       target: { value: 'TKT-4471' },
     })

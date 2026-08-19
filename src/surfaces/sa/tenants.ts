@@ -27,6 +27,14 @@ export const SA_TENANTS = [
   tenant('TEN-BRIGHTBIKES', 'Bright Bikes'),
   tenant('TEN-NORTHFORGE', 'North Forge'),
   tenant('TEN-RIVALCO', 'Rival Co'),
+  tenant('TEN-CLEARWATER', 'Clearwater Tooling'),
+  tenant('TEN-NORTHFIELD', 'Northfield Assembly'),
+  tenant('TEN-NORTHWIND-TOOLS', 'Northwind Tools'),
+  tenant('TEN-HARBOUR', 'Harbour Tooling'),
+  tenant('TEN-VALEWORKS', 'Valeworks'),
+  tenant('TEN-OLDMILL', 'Old Mill Fabrication'),
+  tenant('TEN-MERIDIAN', 'Meridian Castings'),
+  tenant('TEN-ASHFIELD', 'Ashfield Precision'),
 ] as const satisfies readonly SaTenantFixture[]
 
 export function saTenant(id: string): SaTenantFixture {

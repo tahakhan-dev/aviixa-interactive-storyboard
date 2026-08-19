@@ -16,6 +16,7 @@ import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import type { SaFreshness } from '@/surfaces/sa/freshness'
 import {
   Banner,
   Button,
@@ -68,7 +69,7 @@ function composerAvailability(state: ScreenStateId): ComposerAvailability {
   return 'available'
 }
 
-type AggregateMode = 'current' | 'stale' | 'unavailable' | 'loading'
+type AggregateMode = Extract<SaFreshness, 'current' | 'stale' | 'unavailable' | 'loading'>
 
 function aggregateMode(state: ScreenStateId): AggregateMode {
   if (state === 'STATE-02') return 'loading'

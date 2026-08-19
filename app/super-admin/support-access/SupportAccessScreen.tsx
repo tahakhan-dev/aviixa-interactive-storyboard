@@ -15,6 +15,7 @@ import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import type { SaFreshness } from '@/surfaces/sa/freshness'
 import {
   Banner,
   Button,
@@ -70,7 +71,7 @@ function moduleMode(state: ScreenStateId): ModuleMode {
  * `AC-SA-01-03`: an aggregate renders with its as-of time and degrades to
  * stale-with-age or unavailable. It never renders as zero, and never blank.
  */
-type AggregateMode = 'current' | 'stale' | 'unavailable' | 'loading' | 'empty'
+type AggregateMode = Extract<SaFreshness, 'current' | 'stale' | 'unavailable' | 'loading' | 'empty'>
 
 function aggregateMode(state: ScreenStateId): AggregateMode {
   if (state === 'STATE-01') return 'empty'

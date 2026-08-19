@@ -486,12 +486,59 @@ describe('slice 3 gate 10: one name per illustrative tenant', () => {
     expect(wrong).toEqual([])
   })
 
+  // THE INVERSE, which the first version of this gate could not see. It
+  // checked one NAME per ID and passed while the same tenant carried THREE
+  // IDs: TEN-BRIGHTBIKES (the source's own, used 83 times), TEN-BRIGHT-BIKES
+  // and TEN-BRIGHT. A consistency check that runs in one direction only is
+  // half a check.
+  it('no tenant name is rendered under two different ids', () => {
+    const byName = new Map<string, Set<string>>()
+    for (const { src } of saSources()) {
+      for (const m of src.matchAll(/(?:id|value):\s*'(TEN-[A-Z-]+)',\s*(?:name|label):\s*'([^']+)'/g)) {
+        const id = m[1] ?? ''
+        const name = (m[2] ?? '').trim()
+        if (!byName.has(name)) byName.set(name, new Set())
+        byName.get(name)!.add(id)
+      }
+    }
+    const conflicts = [...byName.entries()]
+      .filter(([, ids]) => ids.size > 1)
+      .map(([name, ids]) => `"${name}": ${[...ids].join(' / ')}`)
+    expect(conflicts, 'one tenant carrying more than one id').toEqual([])
+  })
+
+  it('every tenant id on the surface is one the shared fixture knows', () => {
+    const known = new Set<string>(SA_TENANTS.map((t) => t.id))
+    const unknown = new Set<string>()
+    for (const { src } of saSources()) {
+      for (const m of src.matchAll(/\bTEN-[A-Z-]+\b/g)) {
+        if (!known.has(m[0])) unknown.add(m[0])
+      }
+    }
+    expect([...unknown], 'tenant ids invented outside SA_TENANTS').toEqual([])
+  })
+
+  // Checked against the SHARED FIXTURE, not against a second literal. Once the
+  // screens stopped hardcoding names, one planted literal was the only one on
+  // the surface, so there was nothing left for it to CONFLICT with -- the
+  // conflict check can no longer be tripped by a single plant, which is the
+  // consolidation working rather than the gate failing. What still catches it
+  // is the name not matching SA_TENANTS.
   it('PLANTED VIOLATION: a re-worded tenant name trips the gate', () => {
     withPlanted(
       'export const P = () => <p>Bright Bikes Manufacturing Ltd (TEN-BRIGHTBIKES)</p>\n',
-      () => expect(nameConflicts().join(' ')).toContain('TEN-BRIGHTBIKES'),
+      () => {
+        const known = new Map(SA_TENANTS.map((t) => [t.id, t.name]))
+        const wrong: string[] = []
+        for (const { file, src } of saSources()) {
+          for (const m of src.matchAll(/([A-Z][A-Za-z' -]{2,40}?)\s*\((TEN-[A-Z0-9-]+)\)/g)) {
+            const canonical = known.get(m[2] ?? '')
+            if (canonical !== undefined && (m[1] ?? '').trim() !== canonical) wrong.push(file)
+          }
+        }
+        expect(wrong.join(' ')).toContain('zz-probe')
+      },
     )
-    expect(nameConflicts()).toEqual([])
   })
 })
 

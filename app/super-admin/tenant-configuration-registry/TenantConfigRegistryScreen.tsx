@@ -14,6 +14,7 @@ import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import type { SaFreshness } from '@/surfaces/sa/freshness'
 import {
   Banner,
   Button,
@@ -71,7 +72,7 @@ function writeMode(state: ScreenStateId): WriteMode {
 }
 
 /** AC-SA-01-03: as-of always; stale-with-age or unavailable; never zero, never blank. */
-type AggregateMode = 'current' | 'stale' | 'unavailable' | 'loading' | 'empty' | 'recovering'
+type AggregateMode = Extract<SaFreshness, 'current' | 'stale' | 'unavailable' | 'loading' | 'empty' | 'recovering'>
 
 function aggregateMode(state: ScreenStateId): AggregateMode {
   if (state === 'STATE-01') return 'empty'

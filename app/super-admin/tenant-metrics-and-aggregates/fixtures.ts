@@ -1,4 +1,5 @@
 import type { RoleId } from '@/domain/roles'
+import { saTenant } from '@/surfaces/sa/tenants'
 
 /**
  * MOD-SA-10 Tenant Metrics and Aggregates — the seeded fixtures this
@@ -105,8 +106,8 @@ export interface Sa10Tenant {
 
 /** Fixture tenants, drawn from the source's own illustrative cast. */
 export const SA10_TENANTS = [
-  { id: 'TEN-BRIGHT-BIKES', name: 'Bright Bikes' },
-  { id: 'TEN-NORTHWIND-TOOLS', name: 'Northwind Tools' },
+  { id: 'TEN-BRIGHTBIKES', name: saTenant('TEN-BRIGHTBIKES').name },
+  { id: 'TEN-NORTHWIND-TOOLS', name: saTenant('TEN-NORTHWIND-TOOLS').name },
 ] as const satisfies readonly Sa10Tenant[]
 
 /* ------------------------------------------------------------------ *

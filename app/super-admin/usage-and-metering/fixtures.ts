@@ -1,4 +1,5 @@
 import type { RoleId } from '@/domain/roles'
+import { saTenant } from '@/surfaces/sa/tenants'
 
 /**
  * MOD-SA-12 Usage and Metering — the seeded fixtures this module's screen
@@ -213,7 +214,7 @@ export interface TenantMonthUsage {
 
 export const TENANT_MONTH_USAGE = [
   {
-    tenantLabel: 'Bright Bikes',
+    tenantLabel: saTenant('TEN-BRIGHTBIKES').name,
     monthLabel: 'July 2026',
     tierBand: 'Growth (100 to 199 Worker-Shifts per month)',
     allocationCeiling: 199,

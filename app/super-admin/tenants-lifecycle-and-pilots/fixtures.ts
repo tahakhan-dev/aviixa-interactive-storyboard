@@ -1,5 +1,7 @@
 import type { RoleId } from '@/domain/roles'
 import type { CommandState } from '@/surfaces/sa/command-state'
+import { saTenant } from '@/surfaces/sa/tenants'
+import type { SaFreshness } from '@/surfaces/sa/freshness'
 
 /**
  * MOD-SA-09 seeded fixture data. Spec §8: no backend — every value below is
@@ -68,7 +70,7 @@ void _statesExhaustive
 
 /** `OBJ-SA-AGGREGATE`'s freshness, applied to the usage figure on each row
  *  (AC-SA-01-03): never a zero, never a blank. */
-export type UsageFreshness = 'current' | 'stale' | 'unavailable'
+export type UsageFreshness = Extract<SaFreshness, 'current' | 'stale' | 'unavailable'>
 
 export interface TenantRow {
   readonly id: string
@@ -93,7 +95,7 @@ export interface TenantRow {
 export const TENANTS = [
   {
     id: 'TEN-BRIGHTBIKES',
-    name: 'Bright Bikes',
+    name: saTenant('TEN-BRIGHTBIKES').name,
     state: 'active',
     tier: 'Growth',
     headlineUsage: '164 Worker-Shifts metered in the tenant-month',
@@ -105,7 +107,7 @@ export const TENANTS = [
   },
   {
     id: 'TEN-VALEWORKS',
-    name: 'Valeworks',
+    name: saTenant('TEN-VALEWORKS').name,
     state: 'pilot',
     tier: 'Starter',
     headlineUsage: '41 Worker-Shifts metered in the tenant-month',
@@ -117,7 +119,7 @@ export const TENANTS = [
   },
   {
     id: 'TEN-NORTHFORGE',
-    name: 'North Forge',
+    name: saTenant('TEN-NORTHFORGE').name,
     state: 'invited',
     tier: 'Starter',
     headlineUsage: null,
@@ -129,7 +131,7 @@ export const TENANTS = [
   },
   {
     id: 'TEN-CLEARWATER',
-    name: 'Clearwater Tooling',
+    name: saTenant('TEN-CLEARWATER').name,
     state: 'soft',
     tier: 'Growth',
     headlineUsage: 'Last-known-good: 128 Worker-Shifts metered in the tenant-month',
@@ -142,7 +144,7 @@ export const TENANTS = [
   },
   {
     id: 'TEN-HARBOUR',
-    name: 'Harbour Plastics',
+    name: saTenant('TEN-HARBOUR').name,
     state: 'hard',
     tier: 'Growth',
     headlineUsage: '77 Worker-Shifts metered in the tenant-month',
@@ -154,7 +156,7 @@ export const TENANTS = [
   },
   {
     id: 'TEN-MERIDIAN',
-    name: 'Meridian Castings',
+    name: saTenant('TEN-MERIDIAN').name,
     state: 'compliance',
     tier: 'Enterprise',
     headlineUsage: '212 Worker-Shifts metered in the tenant-month',
@@ -166,7 +168,7 @@ export const TENANTS = [
   },
   {
     id: 'TEN-ASHFIELD',
-    name: 'Ashfield Precision',
+    name: saTenant('TEN-ASHFIELD').name,
     state: 'pending downgrade',
     tier: 'Enterprise',
     headlineUsage: '188 Worker-Shifts metered in the tenant-month',
@@ -178,7 +180,7 @@ export const TENANTS = [
   },
   {
     id: 'TEN-OLDMILL',
-    name: 'Old Mill Fabrication',
+    name: saTenant('TEN-OLDMILL').name,
     state: 'archived',
     tier: 'Starter',
     headlineUsage: null,

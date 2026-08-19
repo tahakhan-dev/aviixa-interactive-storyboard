@@ -1,4 +1,5 @@
 import type { RoleId } from '@/domain/roles'
+import { saTenant } from '@/surfaces/sa/tenants'
 
 /**
  * MOD-SA-17 Data Lifecycle and Archival — the seeded fixtures this module's
@@ -119,7 +120,7 @@ export interface RetentionPosture {
 
 export const RETENTION_POSTURES = [
   {
-    tenantLabel: 'Bright Bikes',
+    tenantLabel: saTenant('TEN-BRIGHTBIKES').name,
     horizonLabel: 'fifteen years (platform default)',
     boundLabel: 'seven to twenty-five years, per the platform floor register',
     mode: 'standard commercial',
@@ -194,7 +195,7 @@ export interface LegalHoldRow {
 export const LEGAL_HOLDS = [
   {
     id: 'HOLD-2026-004',
-    tenantLabel: 'Bright Bikes',
+    tenantLabel: saTenant('TEN-BRIGHTBIKES').name,
     scopeLabel: 'Frame-weld evidence captured in the 2025 calendar year',
     state: 'in force',
     reasonLabel: 'Preservation notice from the client’s legal function',
@@ -232,7 +233,7 @@ export interface UpcomingAnonymisationRow {
 
 export const UPCOMING_ANONYMISATION = [
   {
-    tenantLabel: 'Bright Bikes',
+    tenantLabel: saTenant('TEN-BRIGHTBIKES').name,
     dueLabel: 'September 2026',
     scopeLabel: 'Worker identities attached to records that reach twenty-four months in that month',
     sourceRef: 'L46074, L97555',
@@ -337,7 +338,7 @@ export interface ErasureRequestRow {
 export const ERASURE_REQUESTS = [
   {
     id: 'ER-2026-018',
-    tenantLabel: 'Bright Bikes',
+    tenantLabel: saTenant('TEN-BRIGHTBIKES').name,
     state: 'halted',
     subjectReference: 'SUBJ-BB-4471',
     basis: 'Data-subject request under the client’s stated standard',
