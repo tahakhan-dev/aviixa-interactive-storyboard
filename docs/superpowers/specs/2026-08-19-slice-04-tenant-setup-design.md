@@ -38,12 +38,30 @@ Fact; the L99408 row renames `MOD-DOH-03` a "digest module" with a purpose belon
 ## 2. The spine — ten things built before any module screen
 
 **S1 — `evaluateAccess` is the only access-control entry point.** The source models **nine
-intersecting access conditions**, and they have two orders. Screens render the **evaluation order,
-safety first** (L14531): safety controls · role permission · assigned scope · tenant entitlement ·
-object state · qualification · active grant · device and connectivity state · segregation of
-duties. Deny-by-default is a gate: *"an unresolved or unreachable permission condition produces a
-refusal, never a grant. An absolute rule that cannot be evaluated is treated as violated"*
-(L14476, `AC-DOH-09-9`).
+intersecting access conditions** (L14512), enumerated in this order:
+
+1. role permission · 2. assigned scope · 3. tenant entitlement · 4. object state ·
+5. qualification · 6. active grant · 7. device and connectivity state ·
+8. segregation of duties · 9. safety controls
+
+**Two precedence rules sit ABOVE the intersection and are not negotiable** (L14512):
+
+- **Explicit deny wins.** Where any condition produces an explicit deny, the request is refused
+  regardless of how many conditions produced an allow. This matters most for multi-role identities.
+- **Safety controls win.** Where a safety control conflicts with any other condition — *including a
+  root-level allow* — the safety control decides.
+
+> **Corrected before implementation.** The census cited L14531 for a "safety-first evaluation
+> order"; that line is the request-arrival step, and no such reordered list exists. Safety controls
+> are condition NINE in the enumeration and win by PRECEDENCE, not by position. Encoding a
+> safety-first array would have shipped a made-up ordering into eight modules, and
+> `SCR-DOH-ROLE-04` would have rendered it to a reviewer as if the source said so.
+
+`SCR-DOH-ROLE-04` renders which of the nine conditions failed **and who can change that
+condition**, and never reveals the existence of records outside the caller's scope (L14267).
+
+Deny-by-default is a gate: *"an undefined permission is a refusal, never a grant"* (L14476);
+`AC-DOH-09-9` adds that a rule which cannot be evaluated is treated as violated.
 
 **S2 — The tenant state gate.** Read on every request and applied **before any write control
 renders** (L27002). The write-class table is stated "exactly" and is **encoded as data, one table**

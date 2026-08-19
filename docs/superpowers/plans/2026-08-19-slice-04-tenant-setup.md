@@ -49,12 +49,18 @@ it('carries five operating tenant states; pilot is a flag, not a state', () => {
   expect(TENANT_STATES).not.toContain('draft')
 })
 
-it('orders the nine access conditions safety-first', () => {
+it('enumerates the nine access conditions in the source order', () => {
+  // Role permission FIRST, safety controls NINTH (L14512). Safety wins by
+  // PRECEDENCE, not by position — see the two precedence rules below.
   expect(ACCESS_CONDITIONS).toHaveLength(9)
-  expect(ACCESS_CONDITIONS[0]).toBe('safety-controls')
-  expect(ACCESS_CONDITIONS.indexOf('role-permission')).toBeLessThan(
-    ACCESS_CONDITIONS.indexOf('assigned-scope'),
-  )
+  expect(ACCESS_CONDITIONS[0]).toBe('role-permission')
+  expect(ACCESS_CONDITIONS[8]).toBe('safety-controls')
+})
+
+it('puts two precedence rules above the intersection', () => {
+  // Explicit deny wins over any number of allows; a safety control wins over
+  // any other condition INCLUDING a root-level allow.
+  expect(PRECEDENCE_RULES).toEqual(['explicit-deny-wins', 'safety-controls-win'])
 })
 
 it('holds exactly three scope dimensions — Cell, Job and worker are deferred', () => {
