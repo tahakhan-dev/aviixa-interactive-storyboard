@@ -116,7 +116,7 @@
     {
       "id": "APP-008",
       "date": "2026-08-17",
-      "subject": "Slice 2c — spec closure",
+      "subject": "Slice 2c \u2014 spec closure",
       "candidate": "02bccf3383995c2c",
       "decision": "APPROVED FOR HANDOFF, merged to main (7d32b7e)",
       "basis": "Four review rounds: 14 findings, then 9, then 1 Critical + 3 minor, then clean. Clean-rebuild pnpm verify exit 0 on the MERGED result: 484 unit + 114 component + 82 release + 91 e2e = 771.",
@@ -135,7 +135,7 @@
     {
       "id": "APP-009",
       "date": "2026-08-19",
-      "subject": "Slice 3 — Platform Bootstrap (SURF-SA), nineteen modules",
+      "subject": "Slice 3 \u2014 Platform Bootstrap (SURF-SA), nineteen modules",
       "candidate": "e109bc8d4f7c384e",
       "decision": "COMPLETE, merged to main (c8e1ce1)",
       "basis": "Ten-agent census; 25 source conflicts decided in the spec; adversarial verification per module as it landed, then two fix rounds: 73 findings, then 20, then 8, then clean. Clean-rebuild pnpm verify exit 0 on the MERGED result: 500 unit + 1200 component + 100 release + 95 e2e = 1895.",
@@ -153,13 +153,28 @@
         "Slice 2c D5: stripComments over-strips a JSX text run BEGINNING with // or /*. Zero live loss.",
         "Slice 2c D6: source-reconciliation.json `extracted: 36` is hand-maintained."
       ]
+    },
+    {
+      "id": "APP-010",
+      "date": "2026-08-19",
+      "subject": "Session resume + standing continuation authority",
+      "exact_question": "Resume slice 4 from Task 2 (commit the green spine, then build the eight Hub modules through Task 12 verification)?",
+      "options": [
+        "Resume slice 4",
+        "Slice 4 then keep going",
+        "Show me what exists first"
+      ],
+      "user_response_evidence": "AskUserQuestion answer: 'Slice 4 then keep going'",
+      "scope_authorized": "Execute slice 4 tasks 2-12 to merge, then CONTINUE without a further resume gate into slices 5+ in the umbrella build order until the census closes or the client halts. Each slice still re-enters its own S1 design/spec gate per Section 23.3 S2; this entry authorizes CONTINUATION, not the skipping of per-slice design approval. Standing client reinforcements from APP-003/APP-006 (full census closure, enterprise SaaS product quality) remain binding.",
+      "gate_released": "Section 23.3 S3 separate-session resume; source hash 47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27 re-verified with no drift; approvals APP-000..APP-009 confirmed valid.",
+      "superseded_by": null
     }
   ],
   "pending_gates": [
     {
-      "gate": "S3 execution-mode selection (subagent-driven-development vs executing-plans)",
+      "gate": "Slice 4 Task 12 whole-branch independent review before merge",
       "status": "NOT_YET_REQUESTED",
-      "blocker": "Depends on S2 plan completion."
+      "blocker": "Depends on tasks 2-11 completion."
     }
   ]
 }
