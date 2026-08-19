@@ -131,6 +131,28 @@
         "D5 (Minor): a JSX text run BEGINNING with // or /* is over-stripped by stripComments. Zero live loss across 117/117 files; the specified loss-audit test is green today and would catch it.",
         "D6 (Minor): source-reconciliation.json `extracted: 36` is hand-maintained, and \"36 extraction chunks\" is baked into three registries countedThing, rendered outside the count gate tsx-only reach."
       ]
+    },
+    {
+      "id": "APP-009",
+      "date": "2026-08-19",
+      "subject": "Slice 3 — Platform Bootstrap (SURF-SA), nineteen modules",
+      "candidate": "e109bc8d4f7c384e",
+      "decision": "COMPLETE, merged to main (c8e1ce1)",
+      "basis": "Ten-agent census; 25 source conflicts decided in the spec; adversarial verification per module as it landed, then two fix rounds: 73 findings, then 20, then 8, then clean. Clean-rebuild pnpm verify exit 0 on the MERGED result: 500 unit + 1200 component + 100 release + 95 e2e = 1895.",
+      "evidence": {
+        "modules": 19,
+        "bands": "Band A definition (7) + Band B operations (12), both V1",
+        "routesExported": 19,
+        "oneH1Each": true,
+        "modulesDemonstrated": "19 of 81, all SURF-SA, computed from the route tree",
+        "gatesAdded": 8,
+        "sourceHash": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
+        "confidentiality": "0 blueprint filenames, 0 absolute author paths, 0 forbidden vocabulary in out/"
+      },
+      "carried": [
+        "Slice 2c D5: stripComments over-strips a JSX text run BEGINNING with // or /*. Zero live loss.",
+        "Slice 2c D6: source-reconciliation.json `extracted: 36` is hand-maintained."
+      ]
     }
   ],
   "pending_gates": [
