@@ -65,6 +65,7 @@ import {
   chipFor,
   clearanceIsEffective,
   clearancesOn,
+  clearancesVisibleTo,
   entryIsLate,
   isLadderRefusal,
   qualificationStateFor,
@@ -84,6 +85,7 @@ import {
   type GatePosture,
   type InstructionDifficulty,
   type Qualification,
+  type QualificationChip,
   type Worker,
   type WorkerControlId,
 } from './fixtures'
@@ -225,7 +227,7 @@ const STATUS_TONE: Readonly<Record<ControlStatus, StatusTone>> = {
   unavailable: 'neutral',
 }
 
-const CHIP_TONE: Readonly<Record<string, StatusTone>> = {
+const CHIP_TONE: Readonly<Record<QualificationChip, StatusTone>> = {
   Valid: 'ok',
   '14 days': 'info',
   '7 days': 'attention',
@@ -358,6 +360,23 @@ export function WorkerLifecycleScreen() {
           workerAreaIds(w, qualifications).includes(effectiveAreaFilter),
         )
 
+  /**
+   * IN-SCOPE BY INTERSECTION, not by resetting in a handler. The checkboxes are
+   * built from `scopedAreas`, so a persona who holds an Area cannot tick one
+   * they do not — but a persona who ticked one and then CHANGED left the id
+   * sitting in state with its checkbox gone, and the write read state rather
+   * than the checkboxes. The register's Area filter one screen up already
+   * solves exactly this hazard by falling back rather than resetting; this is
+   * the same rule applied to a write, where getting it wrong records a
+   * qualification scoped to an Area the writer does not hold.
+   */
+  const effectiveEntryAreaIds = entryAreaIds.filter((id) => inScopeAreaIds.includes(id))
+
+  /** The clearance corpus this persona may read. `Read-only — own scope`
+   *  (L27484), and the corpus carries free text somebody wrote about a named
+   *  person, so an out-of-scope row here leaks more than a register row does. */
+  const visibleClearances = clearancesVisibleTo(role, clearances)
+
   const selectedWorker: Worker | undefined =
     registerWorkers.find((w) => w.id === pickedWorkerId) ?? registerWorkers[0]
   const selectedQualifications =
@@ -368,7 +387,7 @@ export function WorkerLifecycleScreen() {
   const selectedClearances =
     selectedWorker === undefined
       ? []
-      : clearances.filter((c) => c.workerId === selectedWorker.id)
+      : visibleClearances.filter((c) => c.workerId === selectedWorker.id)
 
   /**
    * SB-DOH-016's banner condition: any qualification on this record reading
@@ -398,8 +417,8 @@ export function WorkerLifecycleScreen() {
       : null
 
   const entryAreaError: string | null =
-    entryAreaIds.length === 0
-      ? 'Every qualification carries per-Area scope, so at least one Area is required. A qualification may name Areas under different Sites of this tenant; it may not name none.'
+    effectiveEntryAreaIds.length === 0
+      ? 'Every qualification carries per-Area scope, so at least one Area is required, and it must be an Area this persona actually holds. A qualification may name Areas under different Sites of this tenant; it may not name none, and it may not name one out of scope.'
       : null
 
   const entryDateError: string | null =
@@ -418,6 +437,22 @@ export function WorkerLifecycleScreen() {
     effectiveDifficulty === ''
       ? 'The instruction-difficulty profile accepts only simple, standard or expanded. Until one is accepted the record is held INCOMPLETE and can receive no assignment — no assignment is safer than an assignment whose instructions may render at the wrong level.'
       : null
+
+  /**
+   * A whole number of days, or a stated refusal. Blank is the case that
+   * mattered: `Number('')` is 0, and 0 days to expiry is EXPIRED — so an
+   * emptied field silently recorded a brand-new certificate as already lapsed,
+   * which is a validation failure rendering as a safety state.
+   */
+  function daysError(value: string, field: string): string | null {
+    if (value.trim().length === 0 || !Number.isInteger(Number(value))) {
+      return `${field} is a whole number of days, counted from the register stamp of ${REGISTER_AS_OF}. Blank is not zero: this storyboard reads no clock, so an empty field would record the certificate as already expired rather than as undated.`
+    }
+    return null
+  }
+
+  const entryDaysError = daysError(entryDaysToExpiry, 'The days to this expiry')
+  const recertDaysError = daysError(recertDays, 'The days to the new expiry')
 
   const durationValue = Number(durationDraft ?? String(clearanceValidForDays))
   const durationError: string | null =
@@ -439,17 +474,25 @@ export function WorkerLifecycleScreen() {
    * control; this is the cross-surface route to the surface that
    * grants, and its second-clearance condition reads (Area, Shift).
    * -------------------------------------------------------------- */
-  const handoffShifts = shiftsBoundTo(handoffAreaId)
+  /** Same rule as the register's Area filter, and for the same reason: an Area
+   *  this persona cannot see is not a choice, so it falls back rather than
+   *  being reset in whichever handler we remembered. Without this the Select
+   *  renders blank after a persona switch while the routing and the escalation
+   *  below keep answering about the Area that left. */
+  const effectiveHandoffAreaId = inScopeAreaIds.includes(handoffAreaId)
+    ? handoffAreaId
+    : (inScopeAreaIds[0] ?? handoffAreaId)
+  const handoffShifts = shiftsBoundTo(effectiveHandoffAreaId)
   const effectiveHandoffShiftId =
     handoffShifts.some((s) => s.id === handoffShiftId)
       ? handoffShiftId
       : (handoffShifts[0]?.id ?? handoffShiftId)
   const pairAlreadyCleared = secondClearanceRoutesToQualityManager(
-    handoffAreaId,
+    effectiveHandoffAreaId,
     effectiveHandoffShiftId,
     clearances,
   )
-  const escalation = resolveEscalation(handoffAreaId, effectiveHandoffShiftId)
+  const escalation = resolveEscalation(effectiveHandoffAreaId, effectiveHandoffShiftId)
   const notifyOnly = gatePosture === 'notify-only'
 
   /* -------------------------------------------------------------- *
@@ -661,7 +704,7 @@ export function WorkerLifecycleScreen() {
       id,
       workerId: target.id,
       certificationId: entryCertId,
-      areaIds: entryAreaIds,
+      areaIds: effectiveEntryAreaIds,
       certificationDate: entryCertDate,
       entryDate: entryEntryDate,
       expiryDate: entryExpiryDate,
@@ -670,7 +713,7 @@ export function WorkerLifecycleScreen() {
       note: 'Entered in this storyboard run.',
     }
     commit(
-      `${certificationLabelFor(entryCertId)} was entered against ${target.name}, scoped to ${entryAreaIds
+      `${certificationLabelFor(entryCertId)} was entered against ${target.name}, scoped to ${effectiveEntryAreaIds
         .map(areaNameFor)
         .join(', ')}, with a certification date of ${entryCertDate} and an entry date of ${entryEntryDate}, and recorded with its audit entry in the same transaction. Both dates are on the record, so a late entry shows as a late entry rather than as a compliance gap. Self-attestation was impossible: no worker-role path reaches this control on any surface.`,
       () => {
@@ -829,11 +872,11 @@ export function WorkerLifecycleScreen() {
    */
   function takeHandoff(what: string): void {
     commit(
-      `The ${what} handoff was taken for ${areaNameFor(handoffAreaId)} on ${shiftNameFor(effectiveHandoffShiftId)}, and the routing was recorded with its audit entry in the same transaction. NOTHING WAS GRANTED: the Hub owns the clearance record and its enforcement and mints no grant control anywhere, and this storyboard reaches no Client Command Center, so no clearance exists and none will ever render as applied.`,
+      `The ${what} handoff was taken for ${areaNameFor(effectiveHandoffAreaId)} on ${shiftNameFor(effectiveHandoffShiftId)}, and the routing was recorded with its audit entry in the same transaction. NOTHING WAS GRANTED: the Hub owns the clearance record and its enforcement and mints no grant control anywhere, and this storyboard reaches no Client Command Center, so no clearance exists and none will ever render as applied.`,
       () =>
         setHandoffsTaken((current) => [
           ...current,
-          `${what} — ${areaNameFor(handoffAreaId)} on ${shiftNameFor(effectiveHandoffShiftId)}, routed and recorded, granting nothing`,
+          `${what} — ${areaNameFor(effectiveHandoffAreaId)} on ${shiftNameFor(effectiveHandoffShiftId)}, routed and recorded, granting nothing`,
         ]),
     )
   }
@@ -975,7 +1018,7 @@ export function WorkerLifecycleScreen() {
       ),
       chip: (
         <>
-          <StatusPill tone={CHIP_TONE[chip] ?? 'neutral'} icon="●" label={chip} />
+          <StatusPill tone={CHIP_TONE[chip]} icon="●" label={chip} />
           <span className="block text-xs text-[var(--color-ink-subtle)]">
             {qualificationStateFor(qual)}
           </span>
@@ -984,7 +1027,7 @@ export function WorkerLifecycleScreen() {
     }
   })
 
-  const clearanceRows: readonly TableRow[] = clearances.map((clearance) => ({
+  const clearanceRows: readonly TableRow[] = visibleClearances.map((clearance) => ({
     clearance: (
       <>
         <span className="font-medium">{clearance.id}</span>
@@ -1413,7 +1456,7 @@ export function WorkerLifecycleScreen() {
                       <Checkbox
                         key={area.id}
                         label={`Scope to ${area.name}`}
-                        checked={entryAreaIds.includes(area.id)}
+                        checked={effectiveEntryAreaIds.includes(area.id)}
                         onChange={() =>
                           setEntryAreaIds(
                             entryAreaIds.includes(area.id)
@@ -1462,6 +1505,7 @@ export function WorkerLifecycleScreen() {
                 </Field>
                 <Field
                   label="Days from the register stamp to that expiry"
+                  {...(entryDaysError !== null ? { error: entryDaysError } : {})}
                   description="This storyboard reads no clock, so the warning stage is recorded rather than computed. Enter 6 to see the 7-day stage."
                 >
                   <input
@@ -1478,7 +1522,7 @@ export function WorkerLifecycleScreen() {
                 roleName={roleName}
                 roleRefusal={absentFor('Entering a qualification')}
                 gateReason={tenantGate('edit-configuration')}
-                objectReason={entryAreaError ?? entryDateError}
+                objectReason={entryAreaError ?? entryDateError ?? entryDaysError}
                 onAct={enterQualification}
               />
               <p className="max-w-prose text-xs text-[var(--color-ink-subtle)]">
@@ -1537,7 +1581,10 @@ export function WorkerLifecycleScreen() {
                     className="rounded-[var(--radius-control)] border border-[var(--color-border-strong)] p-2 text-sm"
                   />
                 </Field>
-                <Field label="Days from the register stamp to the new expiry">
+                <Field
+                  label="Days from the register stamp to the new expiry"
+                  {...(recertDaysError !== null ? { error: recertDaysError } : {})}
+                >
                   <input
                     type="number"
                     value={recertDays}
@@ -1567,7 +1614,7 @@ export function WorkerLifecycleScreen() {
                 objectReason={
                   selectedQual === undefined
                     ? 'Select a qualification in the table above before recertifying one.'
-                    : recertRefusal
+                    : (recertRefusal ?? recertDaysError)
                 }
                 onAct={recordRecertification}
               />
@@ -1769,7 +1816,7 @@ export function WorkerLifecycleScreen() {
         <p className="mt-2 text-sm">
           Escalation key: ({ESCALATION_KEY.join(', ')}) ={' '}
           <span className="font-medium">
-            {areaNameFor(handoffAreaId)}, {shiftNameFor(effectiveHandoffShiftId)}
+            {areaNameFor(effectiveHandoffAreaId)}, {shiftNameFor(effectiveHandoffShiftId)}
           </span>{' '}
           {escalation.markedAsFallback ? (
             <StatusPill tone="attention" icon="▲" label="fallback, and marked as one" />
@@ -1863,7 +1910,7 @@ export function WorkerLifecycleScreen() {
         <div className="mt-3 flex flex-wrap items-end gap-4">
           <Select
             label="Area for this handoff"
-            value={handoffAreaId}
+            value={effectiveHandoffAreaId}
             options={scopedAreas.map((a) => ({ value: a.id, label: a.name }))}
             onChange={(value) => changeScenario(() => setHandoffAreaId(value))}
           />
@@ -1883,9 +1930,9 @@ export function WorkerLifecycleScreen() {
           )}
         </div>
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          {areaNameFor(handoffAreaId)} on {shiftNameFor(effectiveHandoffShiftId)}{' '}
+          {areaNameFor(effectiveHandoffAreaId)} on {shiftNameFor(effectiveHandoffShiftId)}{' '}
           {pairAlreadyCleared
-            ? `already holds ${clearancesOn(handoffAreaId, effectiveHandoffShiftId, clearances)
+            ? `already holds ${clearancesOn(effectiveHandoffAreaId, effectiveHandoffShiftId, visibleClearances)
                 .map((c) => c.id)
                 .join(', ')}, so a further clearance there is a SECOND one and routes to the Quality Manager — regardless of which worker it concerns.`
             : 'holds no clearance yet, so a clearance there would be a first one and the second-clearance escalation does not fire.'}

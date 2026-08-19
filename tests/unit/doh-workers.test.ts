@@ -21,8 +21,11 @@ import {
   MANDATORY_EXPIRY_LADDER,
   MEASURE_RULES,
   ON_SHIFT_ROLE_COVERAGE,
+  QUALIFICATION_CHIPS,
+  QUALIFICATION_CHIP_LABEL,
   QUALIFICATION_STATES,
   READING_STATUSES,
+  REGISTER_AS_OF,
   RECORD_REGIONS,
   SEEDED_IMPORT_FILES,
   UNRESOLVED_IN_SOURCE,
@@ -31,6 +34,7 @@ import {
   addEarlierWarningStage,
   chipFor,
   clearanceIsEffective,
+  clearancesVisibleTo,
   clearancesOn,
   effectiveClearanceFor,
   entryIsLate,
@@ -147,16 +151,17 @@ describe('MOD-DOH-04 — the expiry ladder may gain earlier stages and never lat
     // Structural, like the Shift that carries no timezone field: the rule is
     // held by what the interface DOES NOT OFFER. A regression that added a
     // remover would red this before it could reach a screen.
+    // Not a list of five names anyone could sidestep by picking a sixth: this
+    // reads EVERY exported function in the module and refuses any whose name
+    // pairs a subtractive verb with the ladder's own nouns. `addEarlierWarningStage`
+    // is the only ladder mutator that can exist, and it is additive by
+    // construction — the runtime proof of that direction is the case above.
     const source = readFileSync(MY_FILES[0]!, 'utf8')
-    for (const forbidden of [
-      /export function removeWarningStage/,
-      /export function delayWarningStage/,
-      /export function disableWarningStage/,
-      /export function reorderWarningStages/,
-      /export function setWarningLadder/,
-    ]) {
-      expect(source, String(forbidden)).not.toMatch(forbidden)
-    }
+    const exported = [...source.matchAll(/export function (\w+)/g)].map((m) => m[1] ?? '')
+    expect(exported).toContain('addEarlierWarningStage')
+    const subtractive =
+      /^(remove|delete|clear|reset|drop|delay|postpone|disable|suppress|mute|reorder|shorten|weaken|set|replace|override)\w*(warning|stage|ladder)/i
+    expect(exported.filter((name) => subtractive.test(name))).toEqual([])
   })
 })
 
@@ -292,6 +297,18 @@ describe('a clearance is never effective before its command is applied', () => {
     expect(chipFor(mayaLoto, acknowledged)).toBe('Cleared')
   })
 
+  it('draws every chip from the closed six-label vocabulary, so no render site invents one', () => {
+    expect([...QUALIFICATION_CHIPS]).toEqual(['Valid', '14 days', '7 days', '1 day', 'Expired', 'Cleared'])
+    for (const qual of DOH_QUALIFICATIONS) {
+      expect(QUALIFICATION_CHIPS, qual.id).toContain(chipFor(qual, CLEARANCES))
+    }
+    // Every state maps to a label, including `renewed`, which reads Valid
+    // because a renewal in force is a certificate in force.
+    for (const state of QUALIFICATION_STATES) {
+      expect(QUALIFICATION_CHIPS, state).toContain(QUALIFICATION_CHIP_LABEL[state])
+    }
+  })
+
   it('returns a qualification to Expired when the clearance lapses, and never to Valid', () => {
     const kaiLoto = DOH_QUALIFICATIONS.find((q) => q.id === 'QUAL-0615-LOTO')
     expect(kaiLoto).toBeDefined()
@@ -404,7 +421,7 @@ describe('the seeded worker, qualification and clearance registers', () => {
     expect(new Set(DOH_CLEARANCES.map((c) => c.id)).size).toBe(DOH_CLEARANCES.length)
     for (const worker of DOH_WORKERS) {
       expect(WORKER_STATES, worker.id).toContain(worker.state)
-      expect(workerById(worker.id)?.name, worker.id).toBe(worker.name)
+      expect(workerById(worker.id, WORKERS)?.name, worker.id).toBe(worker.name)
     }
     for (const clearance of DOH_CLEARANCES) {
       expect(CLEARANCE_STATES, clearance.id).toContain(clearance.state)
@@ -412,13 +429,13 @@ describe('the seeded worker, qualification and clearance registers', () => {
     for (const qual of DOH_QUALIFICATIONS) {
       expect(QUALIFICATION_STATES, qual.id).toContain(qualificationStateFor(qual))
     }
-    expect(workerById('WKR-NOT-SEEDED')).toBeUndefined()
+    expect(workerById('WKR-NOT-SEEDED', WORKERS)).toBeUndefined()
   })
 
   it('resolves every qualification to a real worker, a seeded certification type and real Areas', () => {
     const certIds = SEEDED_CERTIFICATION_TYPES.map((c) => c.id)
     for (const qual of DOH_QUALIFICATIONS) {
-      expect(workerById(qual.workerId), qual.id).toBeDefined()
+      expect(workerById(qual.workerId, WORKERS), qual.id).toBeDefined()
       expect(certIds, qual.id).toContain(qual.certificationId)
       expect(qual.areaIds.length, qual.id).toBeGreaterThan(0)
       for (const areaId of qual.areaIds) expect(areaById(areaId), `${qual.id} → ${areaId}`).toBeDefined()
@@ -427,6 +444,26 @@ describe('the seeded worker, qualification and clearance registers', () => {
         expect(recertificationRefusal(qual.renewedFromExpiry, qual.expiryDate), qual.id).toBeNull()
       }
     }
+  })
+
+  it('ties every recorded daysToExpiry to its own expiry date and the register stamp', () => {
+    // The two are stored separately because this module reads no clock, and
+    // nothing but this case stops them contradicting each other — a chip saying
+    // "7 days" beside an expiry eight months out, or the Qualification Calendar
+    // (which necessarily places a record by its expiry DATE) disagreeing with
+    // the chip this module derives from the recorded NUMBER.
+    const asOf = REGISTER_AS_OF.slice(0, 10)
+    expect(asOf).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    const day = (iso: string): number => {
+      const [y, m, d] = iso.split('-').map(Number)
+      return Date.UTC(y ?? 0, (m ?? 1) - 1, d ?? 1) / 86_400_000
+    }
+    for (const qual of DOH_QUALIFICATIONS) {
+      expect(day(qual.expiryDate) - day(asOf), qual.id).toBe(qual.daysToExpiry)
+    }
+    // Not vacuous: the seed spans both sides of the stamp.
+    expect(DOH_QUALIFICATIONS.some((q) => q.daysToExpiry < 0)).toBe(true)
+    expect(DOH_QUALIFICATIONS.some((q) => q.daysToExpiry > 0)).toBe(true)
   })
 
   it('holds a qualification scoping across Areas under DIFFERENT Sites, which is the stated rule', () => {
@@ -444,7 +481,7 @@ describe('the seeded worker, qualification and clearance registers', () => {
   it('resolves every clearance to a real worker, a real Area and a real Shift', () => {
     const shiftIds = DOH_SHIFTS.map((s) => s.id)
     for (const clearance of DOH_CLEARANCES) {
-      expect(workerById(clearance.workerId), clearance.id).toBeDefined()
+      expect(workerById(clearance.workerId, WORKERS), clearance.id).toBeDefined()
       expect(areaById(clearance.areaId), clearance.id).toBeDefined()
       expect(shiftIds, clearance.id).toContain(clearance.shiftId)
       if (clearance.qualificationId !== null) {
@@ -509,6 +546,51 @@ describe('the seeded worker, qualification and clearance registers', () => {
  * Scope, read from the location module's one definition.
  * ------------------------------------------------------------------ */
 
+describe('the clearance corpus is scope-filtered, which the matrix row promises', () => {
+  it('shows a tenant-scoped persona the whole corpus', () => {
+    expect(clearancesVisibleTo('TENANT_ADMIN', CLEARANCES)).toHaveLength(CLEARANCES.length)
+    expect(clearancesVisibleTo('READONLY_AUDITOR', CLEARANCES)).toHaveLength(CLEARANCES.length)
+  })
+
+  it('gives an Area-scoped Supervisor a STRICT subset, never the whole corpus', () => {
+    const admin = clearancesVisibleTo('TENANT_ADMIN', CLEARANCES).map((c) => c.id)
+    const supervisor = clearancesVisibleTo('SUPERVISOR', CLEARANCES).map((c) => c.id)
+    for (const id of supervisor) expect(admin, id).toContain(id)
+    // STRICT, both ends. A subset assertion that passes when the two are equal
+    // proves nothing at all, and a filter returning [] would satisfy the
+    // containment above just as happily.
+    expect(supervisor.length).toBeGreaterThan(0)
+    expect(supervisor.length).toBeLessThan(admin.length)
+    // And the row that is genuinely withheld, named, so a filter keyed on the
+    // wrong field cannot pass by dropping a different one.
+    expect(supervisor).not.toContain('CLR-2026-0033')
+    expect(supervisor).toContain('CLR-2026-0031')
+  })
+
+  it('places a clearance by its AREA, which is the half of the key carrying the signal', () => {
+    for (const roleId of ['SUPERVISOR', 'QUALITY_MANAGER'] as const) {
+      const scoped = clearancesVisibleTo(roleId, CLEARANCES)
+      for (const clearance of scoped) {
+        expect(
+          workerAreaIds(workerById(clearance.workerId, WORKERS) ?? DOH_WORKERS[0], QUALIFICATIONS)
+            .length,
+          clearance.id,
+        ).toBeGreaterThan(0)
+        expect(clearance.areaId, clearance.id).toBeTruthy()
+      }
+    }
+    // Kai's clearance sits on Polishing Bay; the Supervisor holds Paint and
+    // Assembly. Key the filter on the worker's home Area instead of the
+    // clearance's own Area and this stops distinguishing them.
+    const supervisorAreas = clearancesVisibleTo('SUPERVISOR', CLEARANCES).map((c) => c.areaId)
+    expect(supervisorAreas.every((a) => ['AREA-ARD-PAINT', 'AREA-ARD-ASSY'].includes(a))).toBe(true)
+  })
+
+  it('gives the Worker no clearance at all, which is the matrix’s one `unavailable` cell', () => {
+    expect(clearancesVisibleTo('WORKER', CLEARANCES)).toEqual([])
+  })
+})
+
 describe('scope on the worker register', () => {
   it('shows a tenant-scoped persona everybody and an Area-scoped Supervisor only their own', () => {
     expect(workersVisibleTo('TENANT_ADMIN', WORKERS, QUALIFICATIONS)).toHaveLength(WORKERS.length)
@@ -525,7 +607,7 @@ describe('scope on the worker register', () => {
     // Tomas is based in the Quality Laboratory, which the Supervisor cannot
     // see, and holds a qualification scoping into Assembly Hall, which they
     // can. Narrow `workerAreaIds` to the home Area alone and this reds.
-    const tomas = workerById('WKR-ARD-0311')
+    const tomas = workerById('WKR-ARD-0311', WORKERS)
     expect(tomas).toBeDefined()
     if (!tomas) return
     expect(tomas.homeAreaId).toBe('AREA-ARD-QC')
@@ -533,6 +615,14 @@ describe('scope on the worker register', () => {
     expect(workersVisibleTo('SUPERVISOR', WORKERS, QUALIFICATIONS).map((w) => w.id)).toContain(
       'WKR-ARD-0311',
     )
+  })
+
+  it('resolves a worker from the register it is handed, not from the seed', () => {
+    const created: Worker = { ...DOH_WORKERS[0]!, id: 'WKR-SESSION-01', name: 'Created in session' }
+    expect(workerById('WKR-SESSION-01', WORKERS)).toBeUndefined()
+    expect(workerById('WKR-SESSION-01', [...WORKERS, created])?.name).toBe('Created in session')
+    // And an archived record still resolves: history stays readable.
+    expect(workerById('WKR-ARD-0402', WORKERS)?.state).toBe('archived')
   })
 
   it('gives the Worker nobody at all, because the Worker holds no Hub scope (D11)', () => {

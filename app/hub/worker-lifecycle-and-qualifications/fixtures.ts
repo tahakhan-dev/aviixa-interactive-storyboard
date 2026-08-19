@@ -408,10 +408,19 @@ export const DOH_WORKERS = [
   },
 ] as const satisfies readonly Worker[]
 
-const WORKER_BY_ID = new Map<string, Worker>(DOH_WORKERS.map((w) => [w.id, w]))
-
-export function workerById(id: string): Worker | undefined {
-  return WORKER_BY_ID.get(id)
+/**
+ * Takes the REGISTER rather than closing over the seed, for the same reason
+ * `qualificationById` and `shiftsForArea` do: a worker created or archived in
+ * a session must be visible to every answer this module gives. A module-level
+ * `Map` built at import time is the snapshot defect this build has already
+ * shipped twice — once as controls that wrote state a filter never read, once
+ * as a fix that reached one call site of three — and it is invisible at the
+ * call site, which is what makes it expensive. The Qualification Calendar
+ * consumes this, and a stale answer there would be a certificate resolved
+ * against a person who no longer exists.
+ */
+export function workerById(id: string, register: readonly Worker[]): Worker | undefined {
+  return register.find((w) => w.id === id)
 }
 
 /* ------------------------------------------------------------------ *
@@ -579,7 +588,34 @@ export function qualificationStateFor(qual: Qualification): QualificationState {
 /** The chip wording SB-DOH-016 fixes (L27592): "Valid, 14 days, 7 days,
  *  1 day, Expired or Cleared". Cleared is the CLEARANCE's state showing
  *  through and is not a sixth qualification state — see `chipFor`. */
-export const QUALIFICATION_CHIP_LABEL: Readonly<Record<QualificationState, string>> = {
+/**
+ * THE SIX CHIP LABELS, as a closed union rather than as `string`.
+ *
+ * Two things on this screen turn on a chip reading exactly `Expired` — the
+ * record banner and the register's certification-standing column — and while
+ * this was `string` both of them compared a magic literal that no compiler
+ * could check. It is also the vocabulary the Qualification Calendar consumes,
+ * and a neighbouring module should not have to re-derive it or compare
+ * literals across a module boundary. Closing the union makes `CHIP_TONE`
+ * exhaustive on the consuming side and deletes the `?? 'neutral'` fallback
+ * that was standing in for a case nothing could reach.
+ */
+export type QualificationChip = 'Valid' | '14 days' | '7 days' | '1 day' | 'Expired' | 'Cleared'
+
+export const QUALIFICATION_CHIPS = [
+  'Valid',
+  '14 days',
+  '7 days',
+  '1 day',
+  'Expired',
+  'Cleared',
+] as const satisfies readonly QualificationChip[]
+
+type MissingFromChips = Exclude<QualificationChip, (typeof QUALIFICATION_CHIPS)[number]>
+const _chipsExhaustive: MissingFromChips extends never ? true : never = true
+void _chipsExhaustive
+
+export const QUALIFICATION_CHIP_LABEL: Readonly<Record<QualificationState, QualificationChip>> = {
   valid: 'Valid',
   warning_14: '14 days',
   warning_7: '7 days',
@@ -588,7 +624,7 @@ export const QUALIFICATION_CHIP_LABEL: Readonly<Record<QualificationState, strin
   renewed: 'Valid',
 }
 
-export const CLEARED_CHIP_LABEL = 'Cleared'
+export const CLEARED_CHIP_LABEL: QualificationChip = 'Cleared'
 
 /**
  * THE RECERTIFICATION RULE (L27437, `AC-DOH-04-9`, `FB-CONFIG-003` at
@@ -766,7 +802,10 @@ export function effectiveClearanceFor(
  * Cleared is reachable ONLY through `clearanceIsEffective`, so a queued
  * clearance can never paint one.
  */
-export function chipFor(qual: Qualification, clearances: readonly Clearance[]): string {
+export function chipFor(
+  qual: Qualification,
+  clearances: readonly Clearance[],
+): QualificationChip {
   if (effectiveClearanceFor(qual.id, clearances) !== null) return CLEARED_CHIP_LABEL
   return QUALIFICATION_CHIP_LABEL[qualificationStateFor(qual)]
 }
@@ -931,6 +970,36 @@ export function workersVisibleTo(
       return workers.filter((w) =>
         workerAreaIds(w, qualifications).some((a) => scope.areaIds.includes(a)),
       )
+    default: {
+      const exhaustive: never = scope.scope
+      throw new Error(`Unhandled scope on MOD-DOH-04: ${String(exhaustive)}`)
+    }
+  }
+}
+
+/**
+ * THE CLEARANCE CORPUS, SCOPE-FILTERED. `Read-only — own scope` for the
+ * Supervisor (L27484), and the reason this exists as its own function rather
+ * than as a filter at the render site: the corpus carries the free-text reason
+ * somebody wrote about a named person, so an out-of-scope row here leaks more
+ * than an out-of-scope row on the register does.
+ *
+ * A clearance is placed by its AREA, which is the half of the escalation key
+ * that carries the signal — not by the worker it concerns. So the filter asks
+ * the same question the escalation asks, and a reader who cannot see an Area on
+ * the location tree meets none of its exceptions here either.
+ */
+export function clearancesVisibleTo(
+  roleId: TenantRoleId,
+  clearances: readonly Clearance[],
+): readonly Clearance[] {
+  const scope = SEEDED_ROLE_SCOPES[roleId]
+  switch (scope.scope) {
+    case 'tenant':
+      return clearances
+    case 'site':
+    case 'area':
+      return clearances.filter((c) => scope.areaIds.includes(c.areaId))
     default: {
       const exhaustive: never = scope.scope
       throw new Error(`Unhandled scope on MOD-DOH-04: ${String(exhaustive)}`)

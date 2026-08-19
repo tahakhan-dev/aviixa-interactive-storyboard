@@ -376,6 +376,66 @@ describe('MOD-DOH-04 — the writes, and what each one changes on screen', () =>
     }
   })
 
+  /**
+   * IMPORTANT 2. `entryAreaIds` was bounded only by which checkboxes rendered,
+   * and a persona switch does not clear it — so an Area ticked as Tenant Admin
+   * stayed in state after the switch, its checkbox gone, and the write went
+   * through. The fix is the intersection the register's Area filter already
+   * used one screen up, applied to a write. Drop the `.filter` and this reds.
+   */
+  it('never writes a qualification scoped to an Area the acting persona does not hold', () => {
+    render(<WorkerLifecycleScreen />)
+    pickWorker(MAYA)
+    // Quality Laboratory is in the Tenant Admin's scope and in no Supervisor's.
+    fireEvent.click(screen.getByLabelText(/scope to Quality Laboratory/i))
+    fireEvent.click(screen.getByLabelText(/scope to Assembly Hall/i))
+    expect(button(/^enter a qualification$/i).getAttribute('aria-disabled')).toBeNull()
+
+    selectRole('SUPERVISOR')
+    expect(screen.queryByLabelText(/scope to Quality Laboratory/i)).toBeNull()
+    // Assembly Hall survives the switch; Quality Laboratory does not, and the
+    // write records only what survived.
+    click(/^enter a qualification$/i)
+    const recorded = text('Last recorded action')
+    expect(recorded).toContain('Assembly Hall')
+    expect(recorded).not.toContain('Quality Laboratory')
+  })
+
+  it('refuses the write outright when the persona switch leaves no Area in scope', () => {
+    render(<WorkerLifecycleScreen />)
+    pickWorker(MAYA)
+    fireEvent.click(screen.getByLabelText(/scope to Quality Laboratory/i))
+    expect(button(/^enter a qualification$/i).getAttribute('aria-disabled')).toBeNull()
+    selectRole('SUPERVISOR')
+    expect(button(/^enter a qualification$/i).getAttribute('aria-disabled')).toBe('true')
+    expect(text('Worker record')).toMatch(/it may not name one out of scope/i)
+  })
+
+  it('falls the handoff Area back after a persona switch rather than answering about a stale one', () => {
+    render(<WorkerLifecycleScreen />)
+    setSelect(/area for this handoff/i, 'AREA-ARD-QC')
+    expect(text('Clearance handoff')).toMatch(/Quality Laboratory/)
+    selectRole('SUPERVISOR')
+    const areaSelect = screen.getByLabelText(/area for this handoff/i) as HTMLSelectElement
+    // Not blank, and not still answering about the Area that left this persona's
+    // scope — the routing and the escalation below both read this value.
+    expect(areaSelect.value).toBe('AREA-ARD-PAINT')
+    const handoff = text('Clearance handoff')
+    expect(handoff).not.toMatch(/Quality Laboratory/)
+    expect(handoff).toMatch(/Paint Line/)
+    expect(text('Escalation resolution')).toMatch(/Paint Line/)
+  })
+
+  it('refuses a blank days-to-expiry rather than recording the certificate as expired', () => {
+    render(<WorkerLifecycleScreen />)
+    pickWorker(MAYA)
+    fireEvent.click(screen.getByLabelText(/scope to Assembly Hall/i))
+    expect(button(/^enter a qualification$/i).getAttribute('aria-disabled')).toBeNull()
+    setInput(/days from the register stamp to that expiry/i, '')
+    expect(button(/^enter a qualification$/i).getAttribute('aria-disabled')).toBe('true')
+    expect(text('Worker record')).toMatch(/Blank is not zero/i)
+  })
+
   it('offers no posture weaker than the floor, and no disabled third option either', () => {
     render(<WorkerLifecycleScreen />)
     const posture = screen.getByLabelText(/^gate posture$/i)
@@ -399,6 +459,42 @@ describe('MOD-DOH-04 — the clearance register grants nothing, and the handoff 
       expect(register.textContent ?? '', roleId).toMatch(/read-only in the Hub for every role/i)
       expect(register.textContent ?? '', roleId).toMatch(/no grant control is drawn here/i)
     }
+  })
+
+  /**
+   * IMPORTANT 1. The corpus cell is `Read-only — own scope`, and this module's
+   * own matrix row — printed on this same screen — promises it is scope-filtered
+   * for the Supervisor. It was not: the table was built from the whole register.
+   * The sweep above loops four personas but only ever asserted "no buttons" and
+   * two copy strings, so it could never have noticed.
+   *
+   * Remove `clearancesVisibleTo` from `clearanceRows` and THIS case reds — and
+   * it reds on the strictness, not on the containment: a filter returning
+   * everything fails the `toBeLessThan`, and a filter returning nothing fails
+   * the `toBeGreaterThan`. Equality is not a pass.
+   */
+  it('D23: scope-filters the corpus, and a Supervisor reads a STRICT subset of the Tenant Admin’s', () => {
+    const idsInCorpus = (): string[] =>
+      DOH_CLEARANCES.map((c) => c.id).filter((id) => text('Clearance register').includes(id))
+
+    const admin = render(<WorkerLifecycleScreen />)
+    const adminIds = idsInCorpus()
+    expect(adminIds).toHaveLength(DOH_CLEARANCES.length)
+    admin.unmount()
+
+    render(<WorkerLifecycleScreen />)
+    selectRole('SUPERVISOR')
+    const supervisorIds = idsInCorpus()
+    for (const id of supervisorIds) expect(adminIds, id).toContain(id)
+    expect(supervisorIds.length).toBeGreaterThan(0)
+    expect(supervisorIds.length).toBeLessThan(adminIds.length)
+    // The withheld row named, so a filter keyed on the wrong field cannot pass
+    // by happening to drop a different one. Kai's clearance sits on Polishing
+    // Bay; this Supervisor holds Paint and Assembly.
+    expect(supervisorIds).not.toContain('CLR-2026-0033')
+    // And the free text that rides with it is gone too — the reason an
+    // out-of-scope corpus row leaks more than an out-of-scope register row.
+    expect(text('Clearance register')).not.toMatch(/Paired with a certified operator/i)
   })
 
   it('D10: the Tenant Admin meets all three handoffs DISABLED with the reason, never absent', () => {
