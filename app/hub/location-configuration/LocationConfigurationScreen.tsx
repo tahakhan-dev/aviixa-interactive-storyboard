@@ -46,16 +46,16 @@ import {
   SEEDED_ROLE_SCOPES,
   UNRESOLVED_IN_SOURCE,
   UNSPECIFIED_IN_SOURCE,
-  areaById,
   certificationName,
-  siteById,
   visibleAreaIds,
   visibleSiteIds,
   type ArchivalCascade,
   type ControlStatus,
   type LocationArea,
   type LocationCell,
+  type LocationNodeFlag,
   type LocationSite,
+  type PausedJob,
 } from './fixtures'
 
 /**
@@ -151,6 +151,25 @@ const MODULE_STATE_NOTE: Readonly<Record<ModuleStateId, string>> = {
     'reconnection. Tenant state is refetched BEFORE any write control is re-enabled, so nothing is offered on the strength of a stale gate (D7).',
 }
 
+/**
+ * Why the whole module is read-only, per tenant state. A `Record` rather than a
+ * conditional ladder for the same reason `STATUS_TONE` below is one: the
+ * compiler refuses a missing key, so a sixth tenant state cannot arrive and
+ * silently name no cause at all. `null` means this state is not read-only —
+ * soft suspension closes some write classes and the per-control gate names
+ * which, but the screen as a whole stays writable.
+ */
+const READ_ONLY_CAUSE: Readonly<Record<TenantState, string | null>> = {
+  active: null,
+  'soft-suspended': null,
+  'hard-suspended':
+    'Hard suspension holds this workspace read-only: only the enumerated completion pipeline stays open, and no configuration edit is in it (L26920).',
+  'compliance-suspended':
+    'Compliance suspension blocks every login in this workspace, so no signed-in person remains to change anything (L26921).',
+  archived:
+    'The workspace is closed. The stricter reading applies where the source states no open write class (L26547).',
+}
+
 const STATUS_TONE: Readonly<Record<ControlStatus, StatusTone>> = {
   allowed: 'ok',
   'allowed-with-conditions': 'info',
@@ -224,6 +243,22 @@ export function LocationConfigurationScreen() {
   const scopedAreas = areas.filter((a) => inScopeAreaIds.includes(a.id))
   const scopedCells = cells.filter((c) => inScopeAreaIds.includes(c.areaId))
 
+  /* -------------------------------------------------------------- *
+   * Node resolution, in ONE place, and from LIVE state.
+   *
+   * `siteById`/`areaById` answer from the map `fixtures.ts` builds once at
+   * module load, over the frozen seed. That is the right answer for a sibling
+   * module reading the seeded tree; it is the wrong answer for every resolve
+   * on this screen, because a node this session created is not in that map and
+   * a node this session renamed is in it under its old name. Resolving a write
+   * target through it fails two ways, and the second is worse than the first:
+   * the target comes back `undefined` and the control does nothing forever, or
+   * a fallback substitutes a DIFFERENT node and the audit sentence names the
+   * Area the Job did not go to. Nothing below resolves through the frozen map.
+   * -------------------------------------------------------------- */
+  const liveSite = (id: string): LocationSite | undefined => sites.find((s) => s.id === id)
+  const liveArea = (id: string): LocationArea | undefined => areas.find((a) => a.id === id)
+
   // Selection always resolves to something in scope: switching persona can
   // never leave a node selected that this persona may not see.
   const selectedSite: LocationSite | undefined =
@@ -249,6 +284,16 @@ export function LocationConfigurationScreen() {
   /** Archival acts on a Site or an Area; with a Location focused it acts on its Area. */
   const archiveTarget: LocationSite | LocationArea | undefined =
     focus === 'site' ? selectedSite : selectedArea
+
+  /**
+   * SB-DOH-014 — the tree collapses to fewer columns at shallower depth, and
+   * this is the number of columns that actually render. The Area column appears
+   * once a Site is selected (empty or not: a Site with no Area is STATE-01, and
+   * the empty state naming what creates one is the point of the column). The
+   * Location column appears only once there is a Location to put in it.
+   */
+  const treeColumns: 1 | 2 | 3 =
+    selectedSite === undefined ? 1 : cellsOfSelectedArea.length === 0 ? 2 : 3
 
   const siteName = nameDraft ?? selectedSite?.name ?? ''
   const siteAddress = addressDraft ?? selectedSite?.address ?? ''
@@ -323,6 +368,27 @@ export function LocationConfigurationScreen() {
     { requiresOnline: true },
   )
 
+  /**
+   * The six controls the structural panel holds. The consolidated ABSENT notice
+   * replaces the panel only when EVERY one of them is refused categorically —
+   * gating it on the create control's decision alone let one control decide
+   * five others' visibility, and the moment the six rows disagreed, five
+   * affordances would have been driven by a row that is not theirs. If they
+   * ever do disagree, the panel renders and each `WriteControl` draws its own
+   * ABSENT from its own decision.
+   */
+  const structuralDecisions = [
+    createDecision,
+    editDecision,
+    reparentDecision,
+    archiveDecision,
+    timezoneDecision,
+    certificationDecision,
+  ]
+  const everyStructuralControlAbsent = structuralDecisions.every(
+    (d) => d.reasonCode === 'ROLE_NOT_GRANTED',
+  )
+
   /* -------------------------------------------------------------- *
    * The tenant state gate, read BEFORE any write control renders. One
    * data table, one function — no conditional here re-derives it.
@@ -335,13 +401,7 @@ export function LocationConfigurationScreen() {
   const readOnlyCause: string | null =
     role === 'READONLY_AUDITOR'
       ? 'The Read-only Auditor reads tenant-wide records and takes no action at all, so every input on this screen is inert for this persona.'
-      : tenantState === 'hard-suspended'
-        ? 'Hard suspension holds this workspace read-only: only the enumerated completion pipeline stays open, and no configuration edit is in it (L26920).'
-        : tenantState === 'compliance-suspended'
-          ? 'Compliance suspension blocks every login in this workspace, so no signed-in person remains to change anything (L26921).'
-          : tenantState === 'archived'
-            ? 'The workspace is closed. The stricter reading applies where the source states no open write class (L26547).'
-            : null
+      : READ_ONLY_CAUSE[tenantState]
 
   /* -------------------------------------------------------------- *
    * Writes. Audit is in the SAME transaction as the action: if the
@@ -394,9 +454,18 @@ export function LocationConfigurationScreen() {
           : null
 
   const blockingJobs: readonly string[] = selectedCell?.inFlightJobs ?? []
-  const reparentTargets = scopedAreas.filter(
-    (a) => a.state === 'active' && !a.flags.includes('archiving') && a.id !== selectedCell?.areaId,
+  /**
+   * Two lists, because they answer two different questions. An Area can RECEIVE
+   * work if it is in scope, active and not itself being archived. Re-parenting
+   * additionally excludes the Location's current parent, which is not a move.
+   * Folding them into one made the reassignment target list depend on whichever
+   * Location happened to be selected in the tree — which for an Area-scoped
+   * Supervisor emptied it and made their one granted control unusable.
+   */
+  const reassignTargets = scopedAreas.filter(
+    (a) => a.state === 'active' && !a.flags.includes('archiving'),
   )
+  const reparentTargets = reassignTargets.filter((a) => a.id !== selectedCell?.areaId)
 
   const heldCascades = cascades.filter((c) => c.state === 'cascade_pending_reassignment')
   const visibleCascades = cascades.filter(
@@ -411,57 +480,100 @@ export function LocationConfigurationScreen() {
     return [...childAreas.map((a) => `${a.name} (${a.id})`), ...childCells.map((c) => `${c.name} (${c.id})`)]
   }
 
-  function jobsUnder(nodeId: string): readonly { readonly id: string; readonly name: string }[] {
+  /**
+   * Every Job this archival would touch. Each carries the Area it is actually
+   * in — never the node being archived, which for a Site is not an Area at all
+   * and would key the reassignment's scope check on the wrong dimension.
+   */
+  function jobsUnder(nodeId: string): readonly PausedJob[] {
     const areaIds = areas.filter((a) => a.siteId === nodeId).map((a) => a.id)
     const own = cascades
       .filter((c) => c.nodeId === nodeId || areaIds.includes(c.nodeId))
       .flatMap((c) => c.pausedJobs)
     const inFlight = cells
       .filter((c) => c.areaId === nodeId || areaIds.includes(c.areaId))
-      .flatMap((c) => c.inFlightJobs.map((id) => ({ id, name: `in flight on ${c.name}` })))
+      .flatMap((c) =>
+        c.inFlightJobs.map((id) => ({ id, name: `in flight on ${c.name}`, areaId: c.areaId })),
+      )
     return [...own, ...inFlight]
+  }
+
+  /**
+   * `archiving` is a flag ON `active` (D21), so it joins whatever flags the node
+   * already carries and is removed on its own. Replacing the array wholesale
+   * silently dropped `unbound` and `scope-pending` from every node archived.
+   */
+  const addArchiving = (flags: readonly LocationNodeFlag[]): readonly LocationNodeFlag[] =>
+    flags.includes('archiving') ? flags : [...flags, 'archiving']
+  const dropArchiving = (flags: readonly LocationNodeFlag[]): readonly LocationNodeFlag[] =>
+    flags.filter((f) => f !== 'archiving')
+
+  /**
+   * A node flagged `archiving` leaves service the moment nothing under it is
+   * still held — and the node may be a Site or an Area, so one rule settles
+   * both and they cannot drift. Called after every cascade change.
+   */
+  function settleArchivals(next: readonly ArchivalCascade[]): void {
+    const heldNodes = new Set(
+      next.filter((c) => c.state === 'cascade_pending_reassignment').map((c) => c.nodeId),
+    )
+    const held = (nodeId: string): boolean =>
+      heldNodes.has(nodeId) || areas.some((a) => a.siteId === nodeId && heldNodes.has(a.id))
+    setCascades(next)
+    setSites((current) =>
+      current.map((s): LocationSite =>
+        s.flags.includes('archiving') && !held(s.id)
+          ? { ...s, state: 'archived', flags: dropArchiving(s.flags) }
+          : s,
+      ),
+    )
+    setAreas((current) =>
+      current.map((a): LocationArea =>
+        a.flags.includes('archiving') && !held(a.id)
+          ? { ...a, state: 'archived', flags: dropArchiving(a.flags) }
+          : a,
+      ),
+    )
   }
 
   function confirmArchival(): void {
     const target = archiveTarget
     if (!target) return
-    const jobs = jobsUnder(target.id)
+    // A Job a pending cascade already holds is already accounted for. Carrying
+    // it into a second cascade would list it twice and offer two controls that
+    // release one Job.
+    const alreadyHeld = new Set(
+      cascades
+        .filter((c) => c.state === 'cascade_pending_reassignment')
+        .flatMap((c) => c.pausedJobs.map((j) => j.id)),
+    )
+    const jobs = jobsUnder(target.id).filter((j) => !alreadyHeld.has(j.id))
     commit(
       `Archival of ${target.name} (${target.id}) recorded with its audit entry in the same transaction as the change.`,
       () => {
-        if (jobs.length > 0) {
-          setAreas((current) =>
-            current.map((a): LocationArea => (a.id === target.id ? { ...a, flags: ['archiving'] } : a)),
-          )
-          setCascades((current) =>
-            current.some((c) => c.nodeId === target.id)
-              ? current
-              : [
-                  ...current,
-                  {
-                    nodeId: target.id,
-                    state: 'cascade_pending_reassignment',
-                    pausedJobs: jobs.map((j) => ({ id: j.id, name: j.name, areaId: target.id })),
-                  },
-                ],
-          )
-        } else {
-          setSites((current) =>
-            current.map((s): LocationSite =>
-              s.id === target.id ? { ...s, state: 'archived', flags: [] } : s,
-            ),
-          )
-          setAreas((current) =>
-            current.map((a): LocationArea =>
-              a.id === target.id ? { ...a, state: 'archived', flags: [] } : a,
-            ),
-          )
-          setCascades((current) =>
-            current.some((c) => c.nodeId === target.id)
-              ? current
-              : [...current, { nodeId: target.id, state: 'cascade_complete', pausedJobs: [] }],
-          )
-        }
+        // The target is a Site or an Area, and the flag has to land on whichever
+        // it is: mapping over Areas alone applied `archiving` to nothing at all
+        // whenever the archived node was a Site.
+        setSites((current) =>
+          current.map((s): LocationSite =>
+            s.id === target.id ? { ...s, flags: addArchiving(s.flags) } : s,
+          ),
+        )
+        setAreas((current) =>
+          current.map((a): LocationArea =>
+            a.id === target.id ? { ...a, flags: addArchiving(a.flags) } : a,
+          ),
+        )
+        settleArchivals(
+          cascades.some((c) => c.nodeId === target.id)
+            ? cascades
+            : [
+                ...cascades,
+                jobs.length > 0
+                  ? { nodeId: target.id, state: 'cascade_pending_reassignment', pausedJobs: jobs }
+                  : { nodeId: target.id, state: 'cascade_complete', pausedJobs: [] },
+              ],
+        )
       },
     )
     setArchiveDialogOpen(false)
@@ -469,14 +581,17 @@ export function LocationConfigurationScreen() {
   }
 
   function reassignJob(cascade: ArchivalCascade, jobId: string): void {
-    const target = areaById(reassignTargetId) ?? reparentTargets[0]
+    // From LIVE state: an Area created in this session is not in the frozen map,
+    // so resolving through it fell back to a DIFFERENT Area and the audit
+    // sentence below named the Area the Job did not go to.
+    const target = liveArea(reassignTargetId) ?? reassignTargets[0]
     if (!target) return
     const remaining = cascade.pausedJobs.filter((j) => j.id !== jobId)
     commit(
       `${jobId} reassigned to ${target.name} and released from the cascade on ${cascade.nodeId}, recorded with its audit entry in the same transaction as the change.`,
-      () => {
-        setCascades((current) =>
-          current.map((c): ArchivalCascade =>
+      () =>
+        settleArchivals(
+          cascades.map((c): ArchivalCascade =>
             c.nodeId === cascade.nodeId
               ? {
                   nodeId: c.nodeId,
@@ -485,15 +600,7 @@ export function LocationConfigurationScreen() {
                 }
               : c,
           ),
-        )
-        if (remaining.length === 0) {
-          setAreas((current) =>
-            current.map((a): LocationArea =>
-              a.id === cascade.nodeId ? { ...a, state: 'archived', flags: [] } : a,
-            ),
-          )
-        }
-      },
+        ),
     )
   }
 
@@ -653,7 +760,7 @@ export function LocationConfigurationScreen() {
           controls. As of {AS_OF}.
         </p>
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          D25 — Site is mandatory, and the Site named {siteById('SITE-ARD-01')?.provisionedName} was
+          D25 — Site is mandatory, and the Site named {liveSite('SITE-ARD-01')?.provisionedName} was
           created at provisioning before any Tenant Admin signed in. It is renameable, which is what
           the edit control below does; the Site-optional path stays reachable by configuration
           rather than by a code change.
@@ -716,7 +823,11 @@ export function LocationConfigurationScreen() {
             )}
           </div>
         ) : (
-          <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <div
+            className={`mt-4 grid gap-4 ${
+              treeColumns === 1 ? 'md:grid-cols-1' : treeColumns === 2 ? 'md:grid-cols-2' : 'md:grid-cols-3'
+            }`}
+          >
             <TreeColumn heading="Sites">
               {listedSites.map((s) => (
                 <NodeRow
@@ -729,6 +840,7 @@ export function LocationConfigurationScreen() {
               ))}
             </TreeColumn>
 
+            {treeColumns < 2 ? null : (
             <TreeColumn heading="Areas">
               {selectedSite === undefined ? (
                 <p className="text-sm text-[var(--color-ink-muted)]">Select a Site.</p>
@@ -749,32 +861,34 @@ export function LocationConfigurationScreen() {
                 ))
               )}
             </TreeColumn>
+            )}
 
+            {treeColumns < 3 ? null : (
             <TreeColumn heading="Locations">
-              {selectedArea === undefined ? (
-                <p className="text-sm text-[var(--color-ink-muted)]">Select an Area.</p>
-              ) : cellsOfSelectedArea.length === 0 ? (
-                <p className="text-sm text-[var(--color-ink-muted)]">
-                  This Area holds no Location. The column collapses rather than drawing an empty
-                  frame.
-                </p>
-              ) : (
-                cellsOfSelectedArea.map((c) => (
-                  <NodeRow
-                    key={c.id}
-                    node={c}
-                    selected={c.id === selectedCell?.id}
-                    onSelect={() => pickCell(c.id)}
-                    extra={
-                      c.inFlightJobs.length > 0
-                        ? `🔒 ${c.inFlightJobs.length} Jobs in flight: ${c.inFlightJobs.join(', ')}`
-                        : null
-                    }
-                  />
-                ))
-              )}
+              {cellsOfSelectedArea.map((c) => (
+                <NodeRow
+                  key={c.id}
+                  node={c}
+                  selected={c.id === selectedCell?.id}
+                  onSelect={() => pickCell(c.id)}
+                  extra={
+                    c.inFlightJobs.length > 0
+                      ? `🔒 ${c.inFlightJobs.length} Jobs in flight: ${c.inFlightJobs.join(', ')}`
+                      : null
+                  }
+                />
+              ))}
             </TreeColumn>
+            )}
           </div>
+        )}
+
+        {treeColumns === 3 ? null : (
+          <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+            {treeColumns === 1
+              ? 'One column at this depth: no Site is selected, so there is no Area column and no Location column to draw.'
+              : `Two columns at this depth: ${selectedArea?.name ?? 'the selected Site'} holds no Location, so the Location column is not drawn at all rather than drawn empty.`}
+          </p>
         )}
 
         <div className="mt-4 rounded-[var(--radius-surface)] border border-[var(--color-border)] p-3">
@@ -822,7 +936,7 @@ export function LocationConfigurationScreen() {
           Each one commits with its audit entry in one transaction.
         </p>
 
-        {createDecision.reasonCode === 'ROLE_NOT_GRANTED' ? (
+        {everyStructuralControlAbsent ? (
           <ProhibitionNotice
             rendering={{
               kind: 'absent',
@@ -847,7 +961,9 @@ export function LocationConfigurationScreen() {
                         setSites((current) => [
                           ...current,
                           {
-                            id: `SITE-ARD-0${current.length + 1}`,
+                            // Two digits, so the tenth Site is SITE-ARD-10 and
+                            // still matches the format the first nine set.
+                            id: `SITE-ARD-${String(current.length + 1).padStart(2, '0')}`,
                             name: `New Site ${current.length + 1}`,
                             address: 'Address not set',
                             contact: 'Contact not set',
@@ -1036,7 +1152,10 @@ export function LocationConfigurationScreen() {
                             : null
                       }
                       onAct={() => {
-                        const target = areaById(reparentTargetId)
+                        // From LIVE state: resolved through the frozen map, an
+                        // Area created in this session came back `undefined`
+                        // and this enabled control did nothing, for ever.
+                        const target = liveArea(reparentTargetId)
                         const moving = selectedCell
                         if (!target || !moving) return
                         commit(
@@ -1206,11 +1325,8 @@ export function LocationConfigurationScreen() {
         ) : (
           <div className="mt-3 space-y-4">
             {visibleCascades.map((cascade) => {
-              const node = areaById(cascade.nodeId) ?? siteById(cascade.nodeId)
-              const reassign = decide('reassign-paused-job', ADMIN_AND_SUPERVISOR, ['L27122'], {
-                requiresOnline: true,
-                requiredAreas: [cascade.nodeId],
-              })
+              // LIVE, so a node renamed in this session is named as it now is.
+              const node = liveArea(cascade.nodeId) ?? liveSite(cascade.nodeId)
               return (
                 <div
                   key={cascade.nodeId}
@@ -1225,34 +1341,49 @@ export function LocationConfigurationScreen() {
                         Reassignment required — {cascade.pausedJobs.length} Jobs paused
                       </p>
                       <ul className="mt-2 space-y-2">
-                        {cascade.pausedJobs.map((job) => (
-                          <li key={job.id} className="flex flex-wrap items-center gap-3 text-sm">
-                            <span>
-                              {job.id} · {job.name}
-                            </span>
-                            {reassign.reasonCode === 'ROLE_NOT_GRANTED' ? (
-                              <ProhibitionNotice
-                                rendering={{
-                                  kind: 'absent',
-                                  note: `Reassignment is not held by the ${roleName} in any scope, so nothing is drawn here. It is held by the Tenant Admin tenant-wide and by a Supervisor inside their own Area.`,
-                                }}
-                              />
-                            ) : (
-                              <WriteControl
-                                label={`Reassign ${job.id}`}
-                                decision={reassign}
-                                roleName={roleName}
-                                gateReason={tenantGate('start-run')}
-                                objectReason={
-                                  reassignTargetId === '' && reparentTargets.length === 0
-                                    ? 'No Area inside your scope can take this Job.'
-                                    : null
-                                }
-                                onAct={() => reassignJob(cascade, job.id)}
-                              />
-                            )}
-                          </li>
-                        ))}
+                        {cascade.pausedJobs.map((job) => {
+                          /* Scope is decided per JOB, on the Area the Job is
+                           * actually in. Keying it on the cascade's own node
+                           * asked whether a SITE id was in the reader's AREA
+                           * scope whenever a Site was the node archived — which
+                           * no Area scope ever contains, so the Tenant Admin
+                           * read a scope refusal for a control this page's own
+                           * matrix marks `allowed` for them. */
+                          const reassign = decide(
+                            'reassign-paused-job',
+                            ADMIN_AND_SUPERVISOR,
+                            ['L27122'],
+                            { requiresOnline: true, requiredAreas: [job.areaId] },
+                          )
+                          return (
+                            <li key={job.id} className="flex flex-wrap items-center gap-3 text-sm">
+                              <span>
+                                {job.id} · {job.name}
+                              </span>
+                              {reassign.reasonCode === 'ROLE_NOT_GRANTED' ? (
+                                <ProhibitionNotice
+                                  rendering={{
+                                    kind: 'absent',
+                                    note: `Reassignment is not held by the ${roleName} in any scope, so nothing is drawn here. It is held by the Tenant Admin tenant-wide and by a Supervisor inside their own Area.`,
+                                  }}
+                                />
+                              ) : (
+                                <WriteControl
+                                  label={`Reassign ${job.id}`}
+                                  decision={reassign}
+                                  roleName={roleName}
+                                  gateReason={tenantGate('start-run')}
+                                  objectReason={
+                                    reassignTargets.length === 0
+                                      ? 'No Area inside your scope can take this Job.'
+                                      : null
+                                  }
+                                  onAct={() => reassignJob(cascade, job.id)}
+                                />
+                              )}
+                            </li>
+                          )
+                        })}
                       </ul>
                       <div className="mt-3 max-w-md">
                         <Select
@@ -1261,7 +1392,7 @@ export function LocationConfigurationScreen() {
                           onChange={setReassignTargetId}
                           options={[
                             { value: '', label: 'The first Area in scope' },
-                            ...reparentTargets.map((a) => ({ value: a.id, label: a.name })),
+                            ...reassignTargets.map((a) => ({ value: a.id, label: a.name })),
                           ]}
                         />
                       </div>

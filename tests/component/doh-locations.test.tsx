@@ -34,6 +34,30 @@ function click(name: RegExp): void {
   fireEvent.click(screen.getByRole('button', { name }))
 }
 
+/** What "Create an Area" will name and identify the next Area as. */
+const NEW_AREA_ID = `AREA-NEW-${DOH_AREAS.length + 1}`
+const NEW_AREA_NAME = `New Area ${DOH_AREAS.length + 1}`
+
+/** The Site whose archival meets Jobs — the cascade node that is not an Area. */
+const SITE_WITH_JOBS = DOH_SITES.filter((s) =>
+  DOH_CELLS.some(
+    (c) =>
+      c.inFlightJobs.length > 0 &&
+      DOH_AREAS.some((a) => a.id === c.areaId && a.siteId === s.id),
+  ),
+)[0]
+
+/** Select a node by name, archive it, and acknowledge the STATE-04 dialog. */
+function archiveSelectedNode(name: string): void {
+  fireEvent.click(screen.getByRole('button', { name: new RegExp(name) }))
+  click(/^archive this node$/i)
+  const dialog = screen.getByRole('dialog')
+  fireEvent.click(within(dialog).getByLabelText(/i have read/i))
+  fireEvent.click(
+    within(screen.getByRole('dialog')).getByRole('button', { name: /^confirm the archival$/i }),
+  )
+}
+
 /** Names and ids a role must never meet — in the tree, a filter, a search or an export. */
 function outOfScopeStrings(roleId: 'SUPERVISOR' | 'QUALITY_MANAGER'): readonly string[] {
   const sites = new Set(visibleSiteIds(roleId))
@@ -238,6 +262,35 @@ describe('MOD-DOH-02 — the three prohibition renderings, applied by rule', () 
     expect(region('Location hierarchy').textContent ?? '').not.toContain(free.name)
   })
 
+  it('re-parents a Location into an Area created in this session, rather than doing nothing at all', () => {
+    render(<LocationConfigurationScreen />)
+    const free = DOH_CELLS.find((c) => c.inFlightJobs.length === 0)
+    expect(free).toBeDefined()
+    if (!free) return
+    const parent = DOH_AREAS.find((a) => a.id === free.areaId)
+    const site = DOH_SITES.find((s) => s.id === parent?.siteId)
+    expect(parent).toBeDefined()
+    expect(site).toBeDefined()
+    if (!parent || !site) return
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(site.name) }))
+    click(/^create an area$/i)
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(parent.name) }))
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(free.name) }))
+    setSelect(/re-parent to area/i, NEW_AREA_ID)
+    expect(
+      (screen.getByLabelText(/re-parent to area/i) as HTMLSelectElement).value,
+      'the Area just created must be an option',
+    ).toBe(NEW_AREA_ID)
+    const button = screen.getByRole('button', { name: /^re-parent this location$/i })
+    expect(button.getAttribute('aria-disabled')).toBeNull()
+    fireEvent.click(button)
+    // Resolved through the frozen module-load map the target came back
+    // undefined, so this ENABLED control did nothing at all, for ever.
+    expect(document.body.textContent ?? '').toContain(`re-parented into ${NEW_AREA_NAME}`)
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(NEW_AREA_NAME) }))
+    expect(region('Location hierarchy').textContent ?? '').toContain(free.name)
+  })
+
   it('renders splitting, merging and re-parenting an Area ABSENT for all five roles', () => {
     render(<LocationConfigurationScreen />)
     for (const roleId of ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER', 'READONLY_AUDITOR']) {
@@ -370,6 +423,24 @@ describe('MOD-DOH-02 — Create, timezone and certification actually change what
     expect(region('Location hierarchy').textContent ?? '').not.toContain('New Site 5')
     click(/^create a site$/i)
     expect(region('Location hierarchy').textContent ?? '').toContain('New Site 5')
+    // Two digits, so the tenth Site still matches the format the first nine set.
+    const row = screen.getByRole('button', { name: /New Site 5/ }).textContent ?? ''
+    expect(row).toContain(`SITE-ARD-${String(DOH_SITES.length + 1).padStart(2, '0')}`)
+  })
+
+  it('collapses the tree to fewer columns at shallower depth, rather than drawing an empty frame', () => {
+    render(<LocationConfigurationScreen />)
+    const tree = () => region('Location hierarchy')
+    const emptyArea = DOH_AREAS.find((a) => !DOH_CELLS.some((c) => c.areaId === a.id))
+    const fullArea = DOH_AREAS.find((a) => DOH_CELLS.some((c) => c.areaId === a.id))
+    expect(emptyArea).toBeDefined()
+    expect(fullArea).toBeDefined()
+    if (!emptyArea || !fullArea) return
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(fullArea.name) }))
+    expect(within(tree()).queryByText('Locations'), 'three columns at full depth').not.toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(emptyArea.name) }))
+    expect(within(tree()).queryByText('Locations'), 'the column collapses').toBeNull()
+    expect(tree().textContent ?? '').toMatch(/two columns at this depth/i)
   })
 
   it('creates a new Area under the selected Site and the tree shows it', () => {
@@ -464,26 +535,119 @@ describe('MOD-DOH-02 — the cascade, and who may release it', () => {
     for (const job of cascade.pausedJobs) expect(text, job.id).toContain(job.name)
   })
 
-  it('releases the held archival once every paused Job has been reassigned', () => {
+  it('releases the held archival once every paused Job has been reassigned, into the Area actually chosen', () => {
     render(<LocationConfigurationScreen />)
     const cascade = ARCHIVAL_CASCADES.find((c) => c.state === 'cascade_pending_reassignment')
     expect(cascade).toBeDefined()
     if (!cascade) return
-    const target = DOH_AREAS.find((a) => a.id !== cascade.nodeId && a.state === 'active')
+    const target = AREAS.find(
+      (a) => a.id !== cascade.nodeId && a.state === 'active' && !a.flags.includes('archiving'),
+    )
     expect(target).toBeDefined()
     if (!target) return
     setSelect(/reassign the paused job to/i, target.id)
+    // The select must actually hold the chosen id: a value that is not an
+    // option is silently dropped, and the test would then only ever exercise
+    // the fallback rather than the target it names.
+    expect(
+      (screen.getByLabelText(/reassign the paused job to/i) as HTMLSelectElement).value,
+      'the chosen Area must be a real option on this render',
+    ).toBe(target.id)
     for (const job of cascade.pausedJobs) {
       fireEvent.click(
         within(region('Archival cascade')).getByRole('button', {
           name: new RegExp(`reassign ${job.id}`, 'i'),
         }),
       )
+      // The audit sentence names the Area chosen, not whichever came first.
+      expect(document.body.textContent ?? '', job.id).toContain(
+        `${job.id} reassigned to ${target.name}`,
+      )
     }
     expect(region('Archival cascade').textContent ?? '').toMatch(/cascade_complete/)
   })
 
-  it('gives the Supervisor the reassignment inside their own Area and no other write', () => {
+  it('reassigns a paused Job into an Area created in this session, and the audit names that Area', () => {
+    render(<LocationConfigurationScreen />)
+    const cascade = ARCHIVAL_CASCADES.find((c) => c.state === 'cascade_pending_reassignment')
+    const job = cascade?.pausedJobs[0]
+    expect(job).toBeDefined()
+    if (!job) return
+    click(/^create an area$/i)
+    setSelect(/reassign the paused job to/i, NEW_AREA_ID)
+    expect((screen.getByLabelText(/reassign the paused job to/i) as HTMLSelectElement).value).toBe(
+      NEW_AREA_ID,
+    )
+    fireEvent.click(
+      within(region('Archival cascade')).getByRole('button', {
+        name: new RegExp(`reassign ${job.id}`, 'i'),
+      }),
+    )
+    // Resolved through the frozen module-load map this named a DIFFERENT Area:
+    // a wrong audit sentence, which on this screen is worse than an inert button.
+    expect(document.body.textContent ?? '').toContain(`${job.id} reassigned to ${NEW_AREA_NAME}`)
+  })
+
+  it('keys the reassignment scope on the Job’s own Area, so a cascade on a Site is not refused to the Tenant Admin', () => {
+    render(<LocationConfigurationScreen />)
+    expect(SITE_WITH_JOBS, 'a Site with Jobs under it must be seeded').toBeDefined()
+    if (!SITE_WITH_JOBS) return
+    archiveSelectedNode(SITE_WITH_JOBS.name)
+    const cascadeText = region('Archival cascade').textContent ?? ''
+    expect(cascadeText, 'the Site archival must open its own cascade').toContain(
+      SITE_WITH_JOBS.id,
+    )
+    // Every Job under the Site is reassignable BY THE TENANT ADMIN: keyed on the
+    // Site id, the Area-scope check refused a control this page's own matrix
+    // marks `allowed` for this role.
+    const inFlight = DOH_CELLS.filter((c) =>
+      DOH_AREAS.some((a) => a.id === c.areaId && a.siteId === SITE_WITH_JOBS.id),
+    ).flatMap((c) => c.inFlightJobs)
+    expect(inFlight.length).toBeGreaterThan(0)
+    for (const jobId of inFlight) {
+      const button = within(region('Archival cascade')).getByRole('button', {
+        name: new RegExp(`reassign ${jobId}`, 'i'),
+      })
+      expect(button.getAttribute('aria-disabled'), jobId).toBeNull()
+    }
+    // And a Job an existing cascade already holds is not carried into a second
+    // block: it would be listed twice with two controls releasing one Job.
+    const alreadyHeld = ARCHIVAL_CASCADES.filter(
+      (c) => c.state === 'cascade_pending_reassignment',
+    ).flatMap((c) => c.pausedJobs.map((j) => j.id))
+    expect(alreadyHeld.length).toBeGreaterThan(0)
+    for (const jobId of alreadyHeld) {
+      expect(
+        within(region('Archival cascade')).getAllByRole('button', {
+          name: new RegExp(`reassign ${jobId}`, 'i'),
+        }),
+        jobId,
+      ).toHaveLength(1)
+    }
+    // The archiving flag lands on the node archived, which here is a Site.
+    const archivingLabel = NODE_FLAG_CONSEQUENCES.find((f) => f.id === 'archiving')?.label ?? '@@'
+    expect(
+      screen.getByRole('button', { name: new RegExp(SITE_WITH_JOBS.name) }).textContent ?? '',
+    ).toContain(archivingLabel)
+  })
+
+  it('keeps the flags a node already carried when it is archived', () => {
+    render(<LocationConfigurationScreen />)
+    const flagged = DOH_SITES.find(
+      (s) => s.state === 'active' && s.flags.length > 0 && !DOH_AREAS.some((a) => a.siteId === s.id),
+    )
+    expect(flagged, 'a flagged Site with nothing under it must be seeded').toBeDefined()
+    if (!flagged) return
+    archiveSelectedNode(flagged.name)
+    const row = screen.getByRole('button', { name: new RegExp(flagged.name) }).textContent ?? ''
+    expect(row).toMatch(/archived/i)
+    for (const flag of flagged.flags) {
+      const label = NODE_FLAG_CONSEQUENCES.find((f) => f.id === flag)?.label ?? '@@'
+      expect(row, flag).toContain(label)
+    }
+  })
+
+  it('gives the Supervisor a reassignment they can actually press, and no other write', () => {
     render(<LocationConfigurationScreen />)
     selectRole('SUPERVISOR')
     const supArea = SEEDED_ROLE_SCOPES.SUPERVISOR.areaIds[0]
@@ -496,11 +660,16 @@ describe('MOD-DOH-02 — the cascade, and who may release it', () => {
     const firstJob = held.pausedJobs[0]
     expect(firstJob).toBeDefined()
     if (!firstJob) return
-    expect(
-      within(region('Archival cascade')).getByRole('button', {
-        name: new RegExp(`reassign ${firstJob.id}`, 'i'),
-      }),
-    ).toBeDefined()
+    const button = within(region('Archival cascade')).getByRole('button', {
+      name: new RegExp(`reassign ${firstJob.id}`, 'i'),
+    })
+    // Present is not enough: `getByRole` is satisfied by an aria-disabled
+    // button, so the Supervisor's ONE granted write on this screen has to be
+    // proved pressable — it needs an in-scope Area that is not the one being
+    // archived, or it is refused for want of anywhere to send the Job.
+    expect(button.getAttribute('aria-disabled')).toBeNull()
+    fireEvent.click(button)
+    expect(document.body.textContent ?? '').toContain(`${firstJob.id} reassigned to`)
     expect(screen.queryByRole('button', { name: /^archive this node$/i })).toBeNull()
   })
 })

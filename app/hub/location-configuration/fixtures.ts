@@ -472,9 +472,18 @@ export const SEEDED_ROLE_SCOPES: Readonly<Record<TenantRoleId, SeededRoleScope>>
     roleId: 'SUPERVISOR',
     scope: 'area',
     siteIds: ['SITE-ARD-01'],
-    areaIds: ['AREA-ARD-PAINT'],
+    /**
+     * TWO Areas, and the second one is load-bearing rather than decorative.
+     * CTL-07 grants the Supervisor one write on this screen — reassigning a
+     * paused Job inside their own Area — and Paint Line is the Area being
+     * archived, so it can never receive a Job. Scoped to Paint Line alone, the
+     * Supervisor's only granted control would be permanently refused for want
+     * of anywhere to send the Job, and the census's one grant would never be
+     * demonstrable. Assembly Hall is the destination that makes it real.
+     */
+    areaIds: ['AREA-ARD-PAINT', 'AREA-ARD-ASSY'],
     label:
-      'Area-scoped to Paint Line. The parent Site renders only as the path to it; every other node of this tenant is out of scope.',
+      'Area-scoped to Paint Line and Assembly Hall. The parent Site renders only as the path to them; every other node of this tenant is out of scope.',
   },
   QUALITY_MANAGER: {
     roleId: 'QUALITY_MANAGER',
