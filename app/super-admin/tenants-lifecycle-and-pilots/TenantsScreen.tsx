@@ -111,6 +111,7 @@ function decide(
 }
 
 export function TenantsScreen() {
+  const [invitationAct, setInvitationAct] = useState<string | null>(null)
   const [sourceRoleId, setSourceRoleId] = useState<string>('ROLE-PLAT-ROOT')
   const [stateId, setStateId] = useState<ScreenStateId>('STATE-03')
   const [statusFilter, setStatusFilter] = useState('')
@@ -468,7 +469,16 @@ export function TenantsScreen() {
             <div className="flex flex-wrap items-start gap-3">
               {(['Resend', 'Reissue to a corrected address', 'Revoke'] as const).map((label) =>
                 invitationDecision.outcome === 'allowed' ? (
-                  <Button key={label} variant="secondary">
+                  // A control with no handler is a DEAD CONTROL: it rendered
+                  // live for the Admin and a click did nothing, silently. The
+                  // spec forbids that outright -- polish never substitutes for
+                  // behaviour -- and it says what happened rather than
+                  // implying a real invitation moved.
+                  <Button
+                    key={label}
+                    variant="secondary"
+                    onClick={() => setInvitationAct(label)}
+                  >
                     {label}
                   </Button>
                 ) : (
@@ -481,6 +491,14 @@ export function TenantsScreen() {
                 ),
               )}
             </div>
+            {invitationAct === null ? null : (
+              <p role="status" className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+                Recorded as “{invitationAct}” against invitation INV-2291 in this prototype run
+                only. No message was sent and no invitation changed: this storyboard has no mail
+                path and no invitation store. In the built platform the act is written to the
+                tenant’s audit stream in the same transaction as the change.
+              </p>
+            )}
           </div>
 
           <div>

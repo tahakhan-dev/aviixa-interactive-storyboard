@@ -628,8 +628,13 @@ describe('MOD-SA-08 STATE-06 — the read-only claim is backed by the controls',
     const reasons = Array.from(container.querySelectorAll('button[aria-describedby]')).map(
       (b) => document.getElementById(b.getAttribute('aria-describedby') ?? '')?.textContent ?? '',
     )
-    const stateCaused = reasons.filter((r) => /read-only/i.test(r))
-    expect(new Set(stateCaused).size, 'one cause, one wording').toBe(1)
+    // ONE wording across every state-blocked control -- and it is a POINTER
+    // at the banner, not a restatement of the cause. STATE-06 says "one
+    // banner, one cause"; this assertion used to require the cause itself on
+    // every control, which is the scatter the contract forbids.
+    const stateCaused = reasons.filter((r) => /banner above names the cause/i.test(r))
+    expect(new Set(stateCaused).size, 'one wording for the state block').toBe(1)
+    expect(stateCaused.length, 'no control points at the banner').toBeGreaterThan(0)
     // Every control this ROLE holds must blame the state and nothing else:
     // the root plainly carries console account administration, so a reason
     // calling it root-only here is a second, false cause for one refusal.
@@ -637,12 +642,12 @@ describe('MOD-SA-08 STATE-06 — the read-only claim is backed by the controls',
     for (const name of [/Create user/i, /Role assignment/i, /Disable account/i, /Last-activity review/i]) {
       const control = within(pane).getByRole('button', { name })
       const reason = document.getElementById(control.getAttribute('aria-describedby') ?? '')
-      expect(reason?.textContent ?? '', String(name)).toMatch(/read-only in this state/i)
+      expect(reason?.textContent ?? '', String(name)).toMatch(/banner above names the cause/i)
     }
     expect(reasons.filter((r) => /root-only administrative action/i.test(r))).toHaveLength(0)
     // Whatever else refuses does so for a cause that holds in every state:
     // a role that never carried that control (the root cannot return).
-    for (const reason of reasons.filter((r) => !/read-only/i.test(r))) {
+    for (const reason of reasons.filter((r) => !/banner above names the cause/i.test(r))) {
       expect(reason).toMatch(/does not carry/i)
     }
   })

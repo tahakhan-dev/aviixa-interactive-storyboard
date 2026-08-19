@@ -129,8 +129,22 @@ describe('slice 3 gate 3: support, not surveillance', () => {
   // is the disclosure the spec requires.
 
   // AXIS 1 — a record keyed by a person, or a column naming one.
-  const PERSON_DIMENSION =
-    /\b(worker|operator|person|employee|individual|staff)[_-]?(id|name|ref|label|key)\b/i
+  // TWO shapes, because requiring a suffix was a REGRESSION: the rewrite that
+  // added aliases also demanded `(id|name|ref|label|key)`, so `perWorker`,
+  // `byWorker`, `workerRanking`, `productivityScore` and `efficiencyRating` --
+  // every one of which the eight-word list it replaced DID catch -- started
+  // passing. Widening one axis narrowed another.
+  const PERSON_DIMENSION = new RegExp(
+    [
+      // a field keyed by a person
+      String.raw`\b(worker|operator|person|employee|individual|staff)[_-]?(id|name|ref|label|key)\b`,
+      // a measure sliced or ranked by one
+      String.raw`\b(per|by)[_-]?(worker|operator|employee|person)\b`,
+      String.raw`\b(worker|operator|employee)[_-]?(ranking|rank|score|league)\b`,
+      String.raw`\b(productivity|efficiency|performance)[_-]?(score|rating|index)\b`,
+    ].join('|'),
+    'i',
+  )
   // `Worker-Shift` is the BILLING UNIT (AC-GOAL-060, L2241) and belongs on the
   // metering ledger, so the person token is excluded when it is part of that
   // compound. A column headed "Worker" is surveillance; a column headed
@@ -372,6 +386,67 @@ describe('slice 3 gate 8: every module survives an artificial-intelligence outag
   })
 })
 
+describe('slice 3 gate 9: every critical-class action discloses its freeze', () => {
+  // D13 / DEC-ROOTSUCC-001. The root approves its own critical requests
+  // because no second approver exists, so root unavailability FREEZES them
+  // rather than routing them elsewhere.
+  //
+  // THIS GATE WENT MISSING. It was written, then a later patch script that
+  // rewrote gate 8 truncated the file from gate 8 onward; gates 10-13 were
+  // appended after, so the sequence read 1-8, 10-13 and the count still said
+  // twelve. Nothing asserted the freeze for several commits, which is how two
+  // screens shipped a <RootUnavailableFreeze> stranded AFTER the component's
+  // closing brace -- dead top-level JSX that typechecked, linted, and rendered
+  // nothing, on the two screens carrying seven of the eleven critical actions.
+  //
+  // So it asks the question that survives both failures: does the built page
+  // SAY it? A declaration in a file is not a disclosure on a screen.
+  function declaredActions(): Map<string, string[]> {
+    const byModule = new Map<string, string[]>()
+    for (const d of readdirSync(SA_ROOT)) {
+      const dir = join(SA_ROOT, d)
+      if (!statSync(dir).isDirectory()) continue
+      const src = readdirSync(dir)
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => readFileSync(join(dir, f), 'utf8'))
+        .join('\n')
+      const m = src.match(/<RootUnavailableFreeze\s+actions=\{\[([\s\S]*?)\]\}/)
+      if (m === null) continue
+      byModule.set(d, [...(m[1] ?? '').matchAll(/'([a-z-]+)'/g)].map((x) => x[1] as string))
+    }
+    return byModule
+  }
+
+  it('every declaring screen RENDERS the freeze in the static export', () => {
+    const declaring = [...declaredActions().keys()]
+    expect(declaring.length, 'no screen declares a critical action').toBeGreaterThan(0)
+    const silent = declaring.filter((slug) => {
+      const page = join('out', 'super-admin', slug, 'index.html')
+      return !existsSync(page) || !readFileSync(page, 'utf8').includes('Critical class frozen')
+    })
+    expect(silent, 'screens that declare the freeze and render none').toEqual([])
+  })
+
+  it('all eleven critical actions are declared by some screen', () => {
+    const declared = new Set<string>([...declaredActions().values()].flat())
+    const missing = CRITICAL_ACTIONS.map((a) => a.id).filter((id) => !declared.has(id))
+    expect(missing, 'critical actions offered with no freeze disclosure').toEqual([])
+  })
+
+  it('no critical action is claimed by two screens', () => {
+    const declared = [...declaredActions().values()].flat()
+    const dupes = declared.filter((id, i) => declared.indexOf(id) !== i)
+    expect([...new Set(dupes)]).toEqual([])
+  })
+
+  it('every declared id is one of the eleven, not an invented one', () => {
+    const known = new Set<string>(CRITICAL_ACTIONS.map((a) => a.id))
+    for (const [mod, ids] of declaredActions()) {
+      for (const id of ids) expect(known.has(id), `${mod} declares unknown action ${id}`).toBe(true)
+    }
+  })
+})
+
 describe('slice 3 gate 10: one name per illustrative tenant', () => {
   // A cross-module review found the same tenant id carrying two names --
   // "Bright Bikes" on five screens and "Brightbikes Manufacturing" on a sixth,
@@ -477,21 +552,54 @@ describe('slice 3 gate 13: STATE-06 states its cause once', () => {
   // the cause" and "Never scatter the cause across several messages. One
   // banner, one cause."
   //
-  // MOD-SA-13 printed the full cause on the banner AND on five separate
-  // controls while MOD-SA-08 stated it once, so two screens resolved one
-  // shared contract two ways -- and MOD-SA-13's own test asserted the scatter,
-  // which is why it held for three review rounds. A control may say it is
-  // blocked and point at the banner; it may not restate the cause.
-  it('no screen puts the read-only cause on an individual control', () => {
-    // `blocked` used as the VALUE of the reason, not as a condition. The first
-    // draft matched the word anywhere inside the braces and flagged
-    // `disabledReason={blocked === null ? X : POINTER}` -- correct code that
-    // only TESTS the state. Fourth time in this build a gate has matched a
-    // token in a context it does not mean.
-    const restates = /disabledReason=\{\s*blocked\s*(\}|\?\?)/
-    const offenders = saSources()
-      .filter(({ src }) => restates.test(src))
-      .map(({ file }) => file)
-    expect(offenders, 'controls handed the raw screen-state cause as their reason').toEqual([])
+  // The question is HOW MANY TIMES, not whether. Two earlier drafts got this
+  // wrong in opposite directions: one keyed on the identifier `blocked` and so
+  // missed MOD-SA-08, which restated the cause from a `mode === 'read-only'`
+  // branch; the next matched the sentence anywhere and flagged the BANNER,
+  // which is the one place the cause belongs. A screen may state it once. A
+  // second statement is the scatter.
+  const CAUSE_SENTENCE =
+    /read-only in this state|every input (on this module )?is disabled|Read-only \(STATE-06\)/gi
+
+  function scatterOffenders(): string[] {
+    const out: string[] = []
+    for (const { file, src } of saSources()) {
+      // `{/* ... */}` is a JSX expression container holding a comment. The
+      // TypeScript scanner does not report it as a comment range, so the
+      // stripper cannot remove it and the text survives while rendering
+      // nothing. Dropped rather than counted.
+      const rendered = src.replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, '')
+
+      // Count STATEMENTS, not regex matches. One sentence can contain two of
+      // the alternatives -- "Read-only (STATE-06): every input is disabled"
+      // matched twice and reported a single, correct banner as a scatter. A
+      // statement is one string literal or one JSX text run.
+      const chunks = rendered.match(/'[^']*'|"[^"]*"|`[^`]*`|>[^<>{}]+</g) ?? []
+      const hits = chunks.filter((c) => {
+        CAUSE_SENTENCE.lastIndex = 0
+        return CAUSE_SENTENCE.test(c)
+      }).length
+      if (hits > 1) out.push(`${file}: states the read-only cause ${hits} times`)
+    }
+    return out
+  }
+
+  it('no screen states the read-only cause more than once', () => {
+    expect(scatterOffenders()).toEqual([])
+  })
+
+  it('PLANTED VIOLATION: a second statement of the cause trips the gate', () => {
+    withPlanted(
+      'export const P = () => (<><p>Read-only (STATE-06)</p><p>every input is disabled</p></>)\n',
+      (probe) => expect(scatterOffenders().join(' ')).toContain(probe),
+    )
+    expect(scatterOffenders()).toEqual([])
+  })
+
+  it('and ONE statement — the banner — does not', () => {
+    withPlanted(
+      'export const P = () => <p>Read-only (STATE-06): the fixture put this module in a read-only state.</p>\n',
+      () => expect(scatterOffenders()).toEqual([]),
+    )
   })
 })

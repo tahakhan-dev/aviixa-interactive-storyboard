@@ -111,7 +111,13 @@ function namedReason(decision: PermissionDecision, mode: WriteMode): string {
     case 'APPROVER_UNAVAILABLE':
       return `${ROOT_FREEZE_HEADLINE} (DEC-ROOTSUCC-001). The request stays pending and visible rather than expiring.`
     case 'OBJECT_STATE_INVALID':
-      if (mode === 'read-only') return 'This screen is read-only in this state, so no decision can be taken from it.'
+      // POINTS at the banner rather than restating the cause. STATE-06's
+      // contract is "one banner naming the cause" and "never scatter the cause
+      // across several messages" -- and three controls here each carried their
+      // own copy of it while the banner named it too. MOD-SA-13 had the same
+      // defect in a different shape.
+      if (mode === 'read-only')
+        return 'Disabled by the screen state — the banner above names the cause.'
       if (mode === 'write-failed')
         return 'The approval write failed. The object is unchanged and the request is still pending, so nothing here is treated as decided (FB-SA-02).'
       return 'Only a pending request can be decided. This one has already been decided.'

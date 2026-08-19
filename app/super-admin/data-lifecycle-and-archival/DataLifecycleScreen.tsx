@@ -265,7 +265,7 @@ export function DataLifecycleScreen({
       : {
           disabledReason:
             surface === 'read-only'
-              ? 'This screen is read-only in this state, so no hold can be placed or released from it.'
+              ? 'Disabled by the screen state — the banner above names the cause.'
               : 'The legal-hold surface cannot be read in this state, so no hold can be placed or released against it.',
         }
   const retentionProps =
@@ -274,7 +274,7 @@ export function DataLifecycleScreen({
       : {
           disabledReason:
             surface === 'read-only'
-              ? 'This screen is read-only in this state, so the horizon cannot be changed from it.'
+              ? 'Disabled by the screen state — the banner above names the cause.'
               : 'The retention posture cannot be read in this state, so it cannot be changed against it.',
         }
 
@@ -284,7 +284,7 @@ export function DataLifecycleScreen({
       : {
           disabledReason:
             surface === 'read-only'
-              ? 'This screen is read-only in this state, so no erasure execution can be approved from it.'
+              ? 'Disabled by the screen state — the banner above names the cause.'
               : 'The erasure requests cannot be read in this state, so no execution can be approved against them.',
         }
 
@@ -292,7 +292,7 @@ export function DataLifecycleScreen({
   function stepperDisabledReason(): string | null {
     if (stepperDecision.outcome !== 'allowed') {
       return surface === 'read-only'
-        ? 'This screen is read-only in this state, so the fixture sequence cannot be advanced from it.'
+        ? 'Disabled by the screen state — the banner above names the cause.'
         : 'This state is a failure state. Nothing is submitted from this screen while it holds, and the fixture sequence does not advance.'
     }
     if (commandIndex >= COMMAND_STATES.length - 1) {
@@ -977,13 +977,7 @@ export function DataLifecycleScreen({
           ))}
         </ul>
       </Section>
+      <RootUnavailableFreeze actions={['erasure-and-archival-execution', 'retention-value-changes', 'legal-hold-place-and-release']} />
     </SaConsoleShell>
   )
-}      <RootUnavailableFreeze
-        actions={[
-          'erasure-and-archival-execution',
-          'retention-value-changes',
-          'legal-hold-place-and-release',
-        ]}
-      />
-
+}

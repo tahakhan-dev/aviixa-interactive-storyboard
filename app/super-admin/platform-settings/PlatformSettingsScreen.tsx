@@ -1087,14 +1087,7 @@ export function PlatformSettingsScreen({
           ))}
         </ul>
       </Section>
+      <RootUnavailableFreeze actions={['emergency-pause', 'emergency-resume', 'severity-catalog-changes', 'floor-register-changes']} />
     </SaConsoleShell>
   )
-}      <RootUnavailableFreeze
-        actions={[
-          'emergency-pause',
-          'emergency-resume',
-          'severity-catalog-changes',
-          'floor-register-changes',
-        ]}
-      />
-
+}

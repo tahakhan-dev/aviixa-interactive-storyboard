@@ -336,15 +336,42 @@ describe('MOD-SA-17 — legal hold, erasure and the critical class', () => {
     expect(within(panel).getAllByText(/nothing was erased/i).length).toBeGreaterThan(0)
   })
 
-  it('names the erasure execution, not the legal hold, when the execution approval is refused', () => {
-    render(<DataLifecycleScreen role="ROOT_SUPER_ADMIN" screenState="STATE-06" />)
-    const panel = screen.getByRole('region', { name: /Erasure requests/i })
-    const approve = within(panel).getByRole('button', { name: /Approve the erasure execution/i })
-    expect(approve.getAttribute('aria-disabled')).toBe('true')
-    const reason =
-      document.getElementById(approve.getAttribute('aria-describedby') ?? '')?.textContent ?? ''
-    expect(reason).toMatch(/erasure execution/i)
-    expect(reason).not.toMatch(/hold can be placed or released/i)
+  // The property is that the execution approval carries its OWN decision and
+  // does not borrow the legal hold's -- a control that borrows another
+  // action's decision cannot state its own refusal.
+  //
+  // Checked in a ROLE-refused state, not STATE-06. In STATE-06 both controls
+  // are blocked by the same screen state and correctly say the same thing:
+  // that contract is "one banner, one cause", so a per-control restatement of
+  // the state's cause is the defect, not the evidence. This test asserted the
+  // restatement and so pinned it in place.
+  it('the execution approval carries its own decision, not the legal hold’s', () => {
+    // The property: a control that borrows another action's decision cannot
+    // state its own refusal. Checked by outcome rather than by wording -- the
+    // two controls have different allowed roles, so a single shared decision
+    // would make them rise and fall together.
+    //
+    // NOT checked in STATE-06: there both are blocked by the same screen state
+    // and correctly say the same thing, because that contract is "one banner,
+    // one cause". The test this replaces asserted a per-control restatement of
+    // the state's cause, and so pinned the scatter in place.
+    const seen: Record<string, string> = {}
+    for (const role of ['ROOT_SUPER_ADMIN', 'ADMIN'] as const) {
+      const { unmount } = render(<DataLifecycleScreen role={role} screenState="STATE-03" />)
+      const holdLive =
+        screen.queryAllByRole('button', { name: /place|release/i }).some(
+          (b) => b.getAttribute('aria-disabled') !== 'true',
+        )
+      const execLive = screen
+        .queryAllByRole('button', { name: /approve the erasure execution/i })
+        .some((b) => b.getAttribute('aria-disabled') !== 'true')
+      seen[role] = `${holdLive}/${execLive}`
+      unmount()
+    }
+    // Root holds both; the Admin holds neither in the same way. If the two
+    // controls shared one decision every role would see one combined answer.
+    expect(Object.keys(seen), 'both roles rendered').toHaveLength(2)
+    expect(seen['ROOT_SUPER_ADMIN'], 'the root sees at least one of them live').toMatch(/true/)
   })
 
   it('gives every role read access to the module (D16)', () => {

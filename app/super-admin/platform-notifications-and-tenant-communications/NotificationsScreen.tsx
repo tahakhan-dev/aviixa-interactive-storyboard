@@ -97,7 +97,7 @@ function namedReason(
   if (decision.outcome === 'allowed') return ''
   if (control === 'session') {
     return availability === 'read-only'
-      ? 'This screen is read-only in this state, so no session request is submitted from it.'
+      ? 'Disabled by the screen state — the banner above names the cause.'
       : 'This screen could not be read in this state, so no session request is submitted from it.'
   }
   if (decision.reasonCode === 'ROLE_NOT_GRANTED') {
@@ -114,7 +114,7 @@ function namedReason(
     return 'The broadcast composer cannot be reached in this state, so nothing can be sent from it.'
   }
   if (availability === 'read-only') {
-    return 'This screen is read-only in this state, so no send is accepted from it.'
+    return 'Disabled by the screen state — the banner above names the cause.'
   }
   return 'This role does not hold this control on this module.'
 }
@@ -178,7 +178,7 @@ export function NotificationsScreen({
   const inputsDisabled = availability !== 'available'
   const inputReason =
     availability === 'read-only'
-      ? 'This screen is read-only in this state: this field accepts no entry, and nothing is submitted from it.'
+      ? 'Disabled by the screen state — the banner above names the cause.'
       : 'This screen could not be read in this state: this field accepts no entry, and nothing is submitted from it.'
   const describe = (base: string): string => (inputsDisabled ? `${base} ${inputReason}` : base)
   const INPUT_CLASS =
