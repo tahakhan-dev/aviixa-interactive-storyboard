@@ -144,7 +144,7 @@
     {
       "id": "MOD-DOH-03",
       "sourceLine": 2436,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Shift Management",
       "surface": "SURF-DOH",
       "purpose": "Band A module for shift definition and timings.",
@@ -225,7 +225,7 @@
     {
       "id": "MOD-DOH-12",
       "sourceLine": 2436,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Integration Surface (Tenant Side)",
       "surface": "SURF-DOH",
       "purpose": "Band A module carrying the tenant-side integration surface; V1 scaffolding only.",
