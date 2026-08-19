@@ -81,8 +81,9 @@ export const DOH_SEAMS = [
     description:
       'The tenant contact email is a field MOD-DOH-12 records on its configuration screen; ' +
       'MOD-DOH-10 owns everything after that. Sending is not delivery, delivery is not ' +
-      'opening, and opening is not acknowledgement — four distinct steps, and no screen may ' +
-      'collapse them into one.',
+      'opening, opening is not acknowledgement, and acknowledgement is not the business action ' +
+      '— four transport states, none of them the outcome, and no screen may collapse them ' +
+      'into one.',
   },
 ] as const satisfies readonly DohSeamDefinition[]
 
