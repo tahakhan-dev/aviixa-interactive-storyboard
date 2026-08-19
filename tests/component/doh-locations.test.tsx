@@ -631,6 +631,73 @@ describe('MOD-DOH-02 — the cascade, and who may release it', () => {
     ).toContain(archivingLabel)
   })
 
+  it('keys the reassignment destination per cascade, so two held archivals cannot share one target', () => {
+    render(<LocationConfigurationScreen />)
+    expect(SITE_WITH_JOBS, 'a Site with Jobs under it must be seeded').toBeDefined()
+    if (!SITE_WITH_JOBS) return
+    const heldArea = ARCHIVAL_CASCADES.find(
+      (c) => c.state === 'cascade_pending_reassignment' && c.pausedJobs.length > 0,
+    )
+    expect(heldArea).toBeDefined()
+    const areaJob = heldArea?.pausedJobs[0]
+    if (!heldArea || !areaJob) return
+
+    // Reach the two-cascade state the way a reader does: archive the Site while
+    // the child cascade is still held. Nothing here constructs a cascade behind
+    // the UI's back, because the path is the thing under test.
+    archiveSelectedNode(SITE_WITH_JOBS.name)
+    const siteJob = DOH_CELLS.filter((c) =>
+      DOH_AREAS.some((a) => a.id === c.areaId && a.siteId === SITE_WITH_JOBS.id),
+    ).flatMap((c) => c.inFlightJobs)[0]
+    expect(siteJob, 'the Site cascade must hold a Job of its own').toBeDefined()
+    if (siteJob === undefined) return
+
+    // Two selects, told apart by their accessible names rather than by position.
+    const areaSelect = () =>
+      screen.getByLabelText(
+        new RegExp(`reassign the paused job to .*${heldArea.nodeId}`, 'i'),
+      ) as HTMLSelectElement
+    const siteSelect = () =>
+      screen.getByLabelText(
+        new RegExp(`reassign the paused job to .*${SITE_WITH_JOBS.id}`, 'i'),
+      ) as HTMLSelectElement
+    expect(areaSelect()).not.toBe(siteSelect())
+
+    const forArea = AREAS.find(
+      (a) => a.state === 'active' && !a.flags.includes('archiving') && a.siteId === SITE_WITH_JOBS.id,
+    )
+    const forSite = AREAS.find(
+      (a) => a.state === 'active' && !a.flags.includes('archiving') && a.siteId !== SITE_WITH_JOBS.id,
+    )
+    expect(forArea).toBeDefined()
+    expect(forSite).toBeDefined()
+    if (!forArea || !forSite) return
+
+    // Choosing in one block must leave the other alone, in both directions.
+    fireEvent.change(areaSelect(), { target: { value: forArea.id } })
+    expect(areaSelect().value).toBe(forArea.id)
+    expect(siteSelect().value, 'the other cascade keeps its own destination').toBe('')
+    fireEvent.change(siteSelect(), { target: { value: forSite.id } })
+    expect(siteSelect().value).toBe(forSite.id)
+    expect(areaSelect().value, 'and is not overwritten in return').toBe(forArea.id)
+
+    // And acting on one names ITS OWN Job and ITS OWN Area in the audit sentence.
+    fireEvent.click(
+      within(region('Archival cascade')).getByRole('button', {
+        name: new RegExp(`reassign ${areaJob.id}`, 'i'),
+      }),
+    )
+    expect(document.body.textContent ?? '').toContain(
+      `${areaJob.id} reassigned to ${forArea.name}`,
+    )
+    fireEvent.click(
+      within(region('Archival cascade')).getByRole('button', {
+        name: new RegExp(`reassign ${siteJob}`, 'i'),
+      }),
+    )
+    expect(document.body.textContent ?? '').toContain(`${siteJob} reassigned to ${forSite.name}`)
+  })
+
   it('keeps the flags a node already carried when it is archived', () => {
     render(<LocationConfigurationScreen />)
     const flagged = DOH_SITES.find(

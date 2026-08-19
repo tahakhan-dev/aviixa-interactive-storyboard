@@ -211,7 +211,19 @@ export function LocationConfigurationScreen() {
   const [timezoneDraft, setTimezoneDraft] = useState<string | null>(null)
   const [certificationDraft, setCertificationDraft] = useState<string | null>(null)
   const [reparentTargetId, setReparentTargetId] = useState('')
-  const [reassignTargetId, setReassignTargetId] = useState('')
+  /**
+   * The reassignment destination, keyed by the cascade it belongs to. ONE shared
+   * string served every cascade block, and two blocks render together the moment
+   * a second archival is held — reachable in a single action now that archiving a
+   * Site over a held child cascade succeeds instead of being wrongly refused.
+   * Sharing the state meant choosing a destination in one block silently showed
+   * and applied it in the other, so the audit sentence could name an Area the
+   * reader never chose for that Job. Same class as the defect this module already
+   * shipped once, on a screen whose audit sentence is the product.
+   */
+  const [reassignTargetByNode, setReassignTargetByNode] = useState<
+    Readonly<Record<string, string>>
+  >({})
 
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false)
   const [archiveAcknowledged, setArchiveAcknowledged] = useState(false)
@@ -584,7 +596,7 @@ export function LocationConfigurationScreen() {
     // From LIVE state: an Area created in this session is not in the frozen map,
     // so resolving through it fell back to a DIFFERENT Area and the audit
     // sentence below named the Area the Job did not go to.
-    const target = liveArea(reassignTargetId) ?? reassignTargets[0]
+    const target = liveArea(reassignTargetByNode[cascade.nodeId] ?? '') ?? reassignTargets[0]
     if (!target) return
     const remaining = cascade.pausedJobs.filter((j) => j.id !== jobId)
     commit(
@@ -1387,9 +1399,14 @@ export function LocationConfigurationScreen() {
                       </ul>
                       <div className="mt-3 max-w-md">
                         <Select
-                          label="Reassign the paused Job to"
-                          value={reassignTargetId}
-                          onChange={setReassignTargetId}
+                          label={`Reassign the paused Job to — ${cascade.nodeId}`}
+                          value={reassignTargetByNode[cascade.nodeId] ?? ''}
+                          onChange={(v) =>
+                            setReassignTargetByNode((current) => ({
+                              ...current,
+                              [cascade.nodeId]: v,
+                            }))
+                          }
                           options={[
                             { value: '', label: 'The first Area in scope' },
                             ...reassignTargets.map((a) => ({ value: a.id, label: a.name })),
