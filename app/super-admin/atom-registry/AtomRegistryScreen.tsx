@@ -467,7 +467,7 @@ export interface UnspecifiedEntry {
   readonly detail: string
 }
 
-export const UNSPECIFIED_IN_SOURCE: readonly UnspecifiedEntry[] = [
+export const UNSPECIFIED_IN_SOURCE = [
   {
     what: 'The fourteen fields of the atom record',
     detail:
@@ -513,7 +513,7 @@ export const UNSPECIFIED_IN_SOURCE: readonly UnspecifiedEntry[] = [
     detail:
       'Registration validation rejects an atom whose declared side-effects would place a model in the deviation-triggering path. Registration happens in a backend migration, so no console affordance shows that rejection; it is stated here rather than mocked up.',
   },
-]
+] as const satisfies readonly UnspecifiedEntry[]
 
 /* ------------------------------------------------------------------ *
  * The screen.

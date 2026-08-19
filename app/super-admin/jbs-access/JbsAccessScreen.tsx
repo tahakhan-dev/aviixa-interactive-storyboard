@@ -517,7 +517,7 @@ export interface UnspecifiedEntry {
   readonly detail: string
 }
 
-export const UNSPECIFIED_IN_SOURCE: readonly UnspecifiedEntry[] = [
+export const UNSPECIFIED_IN_SOURCE = [
   {
     what: 'Whether a JBS grant carries write, or is read-only',
     detail:
@@ -568,7 +568,7 @@ export const UNSPECIFIED_IN_SOURCE: readonly UnspecifiedEntry[] = [
     detail:
       'The source names no facet for this list anywhere. The list is short and complete; no filter has been invented to make the screen look like a real console.',
   },
-]
+] as const satisfies readonly UnspecifiedEntry[]
 
 /* ------------------------------------------------------------------ *
  * The screen.

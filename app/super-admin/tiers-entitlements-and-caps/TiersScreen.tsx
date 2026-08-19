@@ -138,7 +138,7 @@ export interface TierFieldGroup {
   readonly note: string
 }
 
-export const TIER_FIELD_GROUPS: readonly TierFieldGroup[] = [
+export const TIER_FIELD_GROUPS = [
   {
     name: 'Entitlement flags',
     note: 'Agent Author is gated to Growth and Enterprise; Job Type and Service Type are ungated (AC-SA-11-06, L45342).',
@@ -163,7 +163,7 @@ export const TIER_FIELD_GROUPS: readonly TierFieldGroup[] = [
     name: 'Approval reference',
     note: 'The root approval this version was published under. Tier publication is critical class (AC-SA-11-02).',
   },
-]
+] as const satisfies readonly TierFieldGroup[]
 
 /* ------------------------------------------------------------------ *
  * Fixtures. There is no clock on this surface and no ambient `Date.now()`
@@ -599,7 +599,7 @@ export interface UnspecifiedEntry {
   readonly detail: string
 }
 
-export const UNSPECIFIED_IN_SOURCE: readonly UnspecifiedEntry[] = [
+export const UNSPECIFIED_IN_SOURCE = [
   {
     what: 'Who may assign a published tier to a tenant',
     detail:
@@ -650,7 +650,7 @@ export const UNSPECIFIED_IN_SOURCE: readonly UnspecifiedEntry[] = [
     detail:
       'The source names no facet for this list anywhere. The list is short and complete; no filter has been invented to make it look like a real console.',
   },
-]
+] as const satisfies readonly UnspecifiedEntry[]
 
 /* ------------------------------------------------------------------ *
  * The screen.

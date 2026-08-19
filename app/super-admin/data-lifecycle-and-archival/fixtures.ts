@@ -117,7 +117,7 @@ export interface RetentionPosture {
   readonly sourceRef: string
 }
 
-export const RETENTION_POSTURES: readonly RetentionPosture[] = [
+export const RETENTION_POSTURES = [
   {
     tenantLabel: 'Bright Bikes',
     horizonLabel: 'fifteen years (platform default)',
@@ -139,7 +139,7 @@ export const RETENTION_POSTURES: readonly RetentionPosture[] = [
     mode: 'Regulated-Industry mode',
     sourceRef: 'L29724, L46074',
   },
-]
+] as const satisfies readonly RetentionPosture[]
 
 /* ------------------------------------------------------------------ *
  * Tiering — what happens at the horizon. Nothing is deleted.
@@ -151,7 +151,7 @@ export interface TieringOutcome {
   readonly sourceRef: string
 }
 
-export const TIERING_OUTCOMES: readonly TieringOutcome[] = [
+export const TIERING_OUTCOMES = [
   {
     name: 'Data inside the horizon',
     whatHappens:
@@ -176,7 +176,7 @@ export const TIERING_OUTCOMES: readonly TieringOutcome[] = [
       'Nothing is lost. The horizon is re-evaluated on the next run, because the boundary is evaluated on access rather than enforced by a single occurrence.',
     sourceRef: 'L117977',
   },
-]
+] as const satisfies readonly TieringOutcome[]
 
 /* ------------------------------------------------------------------ *
  * Legal hold.
@@ -191,7 +191,7 @@ export interface LegalHoldRow {
   readonly sourceRef: string
 }
 
-export const LEGAL_HOLDS: readonly LegalHoldRow[] = [
+export const LEGAL_HOLDS = [
   {
     id: 'HOLD-2026-004',
     tenantLabel: 'Bright Bikes',
@@ -216,7 +216,7 @@ export const LEGAL_HOLDS: readonly LegalHoldRow[] = [
     reasonLabel: 'Preservation need ended; release recorded and shown to the tenant',
     sourceRef: 'L46016, L74782',
   },
-]
+] as const satisfies readonly LegalHoldRow[]
 
 /* ------------------------------------------------------------------ *
  * Anonymisation. The one irreversible act, and the reason the upcoming-
@@ -230,7 +230,7 @@ export interface UpcomingAnonymisationRow {
   readonly sourceRef: string
 }
 
-export const UPCOMING_ANONYMISATION: readonly UpcomingAnonymisationRow[] = [
+export const UPCOMING_ANONYMISATION = [
   {
     tenantLabel: 'Bright Bikes',
     dueLabel: 'September 2026',
@@ -249,7 +249,7 @@ export const UPCOMING_ANONYMISATION: readonly UpcomingAnonymisationRow[] = [
     scopeLabel: 'No anonymisation event exists for this tenant, in this month or any other',
     sourceRef: 'AC-SA-17-05 L46074, L29724',
   },
-]
+] as const satisfies readonly UpcomingAnonymisationRow[]
 
 /* ------------------------------------------------------------------ *
  * Archival.
@@ -261,7 +261,7 @@ export interface ReactivationBand {
   readonly sourceRef: string
 }
 
-export const ARCHIVE_REACTIVATION_BANDS: readonly ReactivationBand[] = [
+export const ARCHIVE_REACTIVATION_BANDS = [
   {
     name: 'Free restore — zero to six months after archival',
     terms: 'The archived tenancy is brought back with no fee attached to the restore.',
@@ -279,7 +279,7 @@ export const ARCHIVE_REACTIVATION_BANDS: readonly ReactivationBand[] = [
       'A new tenancy is created. The archived data is not destroyed by the boundary passing: it remains exportable for a retrieval fee.',
     sourceRef: 'L117946, L113763',
   },
-]
+] as const satisfies readonly ReactivationBand[]
 
 /* ------------------------------------------------------------------ *
  * The five-step guided right-to-erasure sequence (L45958, L114118).
@@ -291,7 +291,7 @@ export interface ErasureStep {
   readonly whatHappens: string
 }
 
-export const ERASURE_STEPS: readonly ErasureStep[] = [
+export const ERASURE_STEPS = [
   {
     ordinal: 1,
     name: 'Request',
@@ -322,7 +322,7 @@ export const ERASURE_STEPS: readonly ErasureStep[] = [
     whatHappens:
       'A certificate is written to both audit trails wherever removal actually occurred, in the same transaction as the outcome it records.',
   },
-]
+] as const satisfies readonly ErasureStep[]
 
 export interface ErasureRequestRow {
   readonly id: string
@@ -334,7 +334,7 @@ export interface ErasureRequestRow {
   readonly outcome: string
 }
 
-export const ERASURE_REQUESTS: readonly ErasureRequestRow[] = [
+export const ERASURE_REQUESTS = [
   {
     id: 'ER-2026-018',
     tenantLabel: 'Bright Bikes',
@@ -363,7 +363,7 @@ export const ERASURE_REQUESTS: readonly ErasureRequestRow[] = [
     outcome:
       'Transformation rather than removal — the retained record has no identity resolving from it, and the certificate says so',
   },
-]
+] as const satisfies readonly ErasureRequestRow[]
 
 /* ------------------------------------------------------------------ *
  * Prohibitions. Each ABSENT, for every account including the root.
@@ -374,7 +374,7 @@ export interface AbsentControl {
   readonly note: string
 }
 
-export const LIFECYCLE_ABSENT_CONTROLS: readonly AbsentControl[] = [
+export const LIFECYCLE_ABSENT_CONTROLS = [
   {
     label: 'Purge',
     note:
@@ -400,7 +400,7 @@ export const LIFECYCLE_ABSENT_CONTROLS: readonly AbsentControl[] = [
     note:
       'The source defines no control that cancels or skips a scheduled run. A legal hold is what suspends a run for a scope, and it is the only mechanism the source gives.',
   },
-]
+] as const satisfies readonly AbsentControl[]
 
 /* ------------------------------------------------------------------ *
  * Silences and conflicts, both stated rather than filled in.
@@ -411,7 +411,7 @@ export interface UnspecifiedAffordance {
   readonly note: string
 }
 
-export const LIFECYCLE_UNSPECIFIED_IN_SOURCE: readonly UnspecifiedAffordance[] = [
+export const LIFECYCLE_UNSPECIFIED_IN_SOURCE = [
   {
     affordance: 'The role that drafts a retention-value change',
     note:
@@ -442,7 +442,7 @@ export const LIFECYCLE_UNSPECIFIED_IN_SOURCE: readonly UnspecifiedAffordance[] =
     note:
       'The acceptance criteria for this module are extracted as 01, 02, 04, 05, 06, 07, 08, 09 and 11. Two identifiers in the run are absent from the extraction, so whatever they require is unknown to this build. They are named here rather than passed over in silence.',
   },
-]
+] as const satisfies readonly UnspecifiedAffordance[]
 
 export interface SourceConflict {
   readonly topic: string
@@ -450,7 +450,7 @@ export interface SourceConflict {
   readonly resolution: string
 }
 
-export const LIFECYCLE_SOURCE_CONFLICTS: readonly SourceConflict[] = [
+export const LIFECYCLE_SOURCE_CONFLICTS = [
   {
     topic: 'Anonymisation against audit immutability',
     conflict:
@@ -486,7 +486,7 @@ export const LIFECYCLE_SOURCE_CONFLICTS: readonly SourceConflict[] = [
     resolution:
       'Decision D12 — the shared registry carries the eleven the source actually enumerates. Three of them land on this module: erasure and archival execution, retention-value changes, and legal-hold place and release.',
   },
-]
+] as const satisfies readonly SourceConflict[]
 
 /* ------------------------------------------------------------------ *
  * Workflows. The extraction attaches NO module identifier to any workflow,
@@ -502,7 +502,7 @@ export interface LifecycleWorkflow {
   readonly matchedBy: string
 }
 
-export const LIFECYCLE_WORKFLOWS: readonly LifecycleWorkflow[] = [
+export const LIFECYCLE_WORKFLOWS = [
   {
     id: 'unnumbered (L97327)',
     name: 'A retention change, end to end',
@@ -577,4 +577,4 @@ export const LIFECYCLE_WORKFLOWS: readonly LifecycleWorkflow[] = [
     matchedBy:
       'storyboard identifier, and the closure sequence at L65896 that sits inside the same storyboard',
   },
-]
+] as const satisfies readonly LifecycleWorkflow[]
