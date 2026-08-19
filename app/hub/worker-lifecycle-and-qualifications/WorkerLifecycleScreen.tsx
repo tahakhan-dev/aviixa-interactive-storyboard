@@ -14,7 +14,7 @@ import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { CommandStateBadge } from '@/ui/sa/CommandStateBadge'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
-import { screenState, type ScreenStateId } from '@/ui/screen-state'
+import { screenState } from '@/ui/screen-state'
 import {
   Button,
   Checkbox,
@@ -33,9 +33,13 @@ import { emptyDomainState, withTenant } from '@/domain/state'
 import { scenarioRunId, tenantId } from '@/domain/ids'
 import {
   ABSENT_BY_RULE,
+  ABSENT_NOTE_SUFFIX,
   ACTING_STATUSES,
+  APPLICABLE_STATES,
+  AUDIT_SENTENCE,
   CANONICAL_IMPORT_COLUMNS,
   CLEARANCE_REASON_LABEL,
+  CONNECTION_LOST_REASON,
   CONTROL_MATRIX,
   DECISIONS_ON_SCREEN,
   DEFAULT_CLEARANCE_VALID_FOR_DAYS,
@@ -48,11 +52,16 @@ import {
   EXPIRED_BANNER_COPY,
   GATE_POSTURES,
   GATE_POSTURE_FLOOR,
+  HARD_SUSPENSION_RECERTIFICATION_CONSEQUENCE,
   INSTRUCTION_DIFFICULTIES,
   MANDATORY_EXPIRY_LADDER,
   MEASURE_RULES,
+  MODULE_STATE_DETAIL,
+  MODULE_STATE_NOTE,
+  NEVER_APPLIES,
   NOTIFY_ONLY_EXPIRY_NOTICE,
   READING_STATUSES,
+  READ_ONLY_CAUSE,
   RECORD_REGIONS,
   REGISTER_AS_OF,
   SEEDED_CERTIFICATION_TYPES,
@@ -84,6 +93,7 @@ import {
   type ControlStatus,
   type GatePosture,
   type InstructionDifficulty,
+  type ModuleStateId,
   type Qualification,
   type QualificationChip,
   type Worker,
@@ -145,79 +155,6 @@ const FIXTURE_STATE = withTenant(
   }),
 )
 
-/** The ten screen states this module reaches. See NEVER_APPLIES for the rest. */
-const APPLICABLE_STATES = [
-  'STATE-01',
-  'STATE-02',
-  'STATE-03',
-  'STATE-04',
-  'STATE-05',
-  'STATE-06',
-  'STATE-08',
-  'STATE-09',
-  'STATE-12',
-  'STATE-13',
-] as const satisfies readonly ScreenStateId[]
-
-type ModuleStateId = (typeof APPLICABLE_STATES)[number]
-
-const NEVER_APPLIES: readonly { readonly id: ScreenStateId; readonly why: string }[] = [
-  {
-    id: 'STATE-07',
-    why: 'Offline is frontline-only. This is a web surface with no offline mode; a lost connection splits three ways instead, and no write here is ever queued (D7).',
-  },
-  {
-    id: 'STATE-10',
-    why: 'No agent enters, edits, clears or expires a qualification. An agent may surface a pattern in the clearance corpus as a proposal, and the decision is a human one taken on another surface.',
-  },
-  {
-    id: 'STATE-11',
-    why: 'The same reason: the whole module functions unchanged with every agent paused, because the qualification gate is deterministic and lives on the device.',
-  },
-]
-
-const MODULE_STATE_NOTE: Readonly<Record<ModuleStateId, string>> = {
-  'STATE-01':
-    'an Area that holds no worker. Reachable from the Area filter above the register — Packing and Despatch is on the location tree, is bound to no Shift, and nobody is based there or qualified for it.',
-  'STATE-02':
-    'the register while it is being fetched: a skeleton of the eventual table, and never a zero-row grid, because an empty grid reads as "this workspace has nobody on the register" rather than "the rows have not arrived".',
-  'STATE-03': 'the register, the worker record beneath it, and every panel below that.',
-  'STATE-04':
-    'the heaviest state on this screen, and it has three shapes. A recertification whose new expiry does not postdate the previous one is refused with the rule stated and NO partial record created. An instruction-difficulty value outside the three permitted levels is refused and the record is held incomplete and can receive no assignment. A warning stage that is not EARLIER than the platform ladder is refused naming the direction.',
-  'STATE-05':
-    'a persona meeting a control its role does not carry. Every refusal here is per control rather than at the door, because four of the five roles hold something on this module.',
-  'STATE-06':
-    'the whole module for the Read-only Auditor, and for every persona while the tenant state closes the writes. It is also the standing state of the clearance register for EVERY persona, which is D23 rather than a suspension. One banner, one cause.',
-  'STATE-08':
-    'the register served from the last load with a freshness marker and an as-of time, while the connection is down (D7).',
-  'STATE-09':
-    'a clearance that has been granted and whose command has not been applied on the device. It renders in its TRUE command state and never as applied, never as effective, and the qualification it covers keeps reading Expired until the device acknowledges it.',
-  'STATE-12':
-    'a read that failed outright, naming what failed and whether anything was written. Every write control disables rather than queues — a queued clearance would be a safety control with no audit entry.',
-  'STATE-13':
-    'reconnection. The tenant state is refetched BEFORE any write control is re-enabled, so a recertification is never re-offered against a suspension state that may have changed while the connection was down.',
-}
-
-/**
- * Why the whole module is read-only, per tenant state. A `Record` rather than
- * a conditional ladder: the compiler refuses a missing key, so a sixth tenant
- * state cannot arrive and silently name no cause at all. `null` means this
- * state is not read-only as a whole — `soft-suspended` is deliberately `null`,
- * because it is the one state that closes some of this module's writes and
- * leaves others open, and a module-wide banner would be a coarser and falser
- * statement than the per-control refusals already on the screen.
- */
-const READ_ONLY_CAUSE: Readonly<Record<TenantState, string | null>> = {
-  active: null,
-  'soft-suspended': null,
-  'hard-suspended':
-    'Hard suspension holds this workspace read-only: only the enumerated completion pipeline stays open, and neither recertification nor a clearance is in it. In-flight work may be completed and closed; nothing on this record may be changed.',
-  'compliance-suspended':
-    'Compliance suspension blocks every login in this workspace, so no signed-in person remains to enter a qualification or clear a block.',
-  archived:
-    'The workspace is closed. The source states no open write class for a closed tenant, and the stricter interpretation applies in that silence.',
-}
-
 const STATUS_TONE: Readonly<Record<ControlStatus, StatusTone>> = {
   allowed: 'ok',
   'allowed-with-conditions': 'info',
@@ -243,27 +180,10 @@ const SCREEN_STATE_OPTIONS = APPLICABLE_STATES.map((id) => ({
 
 const TENANT_STATE_OPTIONS = TENANT_STATES.map((s) => ({ value: s, label: s }))
 
-/** D7's own sentence for a Hub write meeting a lost connection. */
-const CONNECTION_LOST_REASON =
-  'The connection to this workspace’s own records is lost. The register above degrades to the last loaded rows with a freshness marker, and every write control here disables rather than queues — never queued, in any state, because a queued clearance would be a safety control with no audit entry (D7).'
-
-/** D16, stated where it binds rather than only in the panel below. */
-const HARD_SUSPENSION_RECERTIFICATION_CONSEQUENCE =
-  ' D16, and the consequence is stated rather than softened: a certification that expires during a sixty-day hard suspension then has NO renewal path at all — only substitution, which can strand a line. This build invents no renewal path and flags the silence as a client decision.'
-
 /** The three renderings this screen uses for a role that may not act. */
 type RoleRefusal =
   | { readonly kind: 'absent'; readonly note: string }
   | { readonly kind: 'disabled'; readonly reason: string }
-
-/**
- * The house rule for a refusal, stated once and applied by rule rather than by
- * taste. DISABLED WITH ITS REASON exactly where the source's own refusal names
- * a different holder to route to; ABSENT everywhere else. The reading is
- * unsettled at the source and is recorded in `UNRESOLVED_IN_SOURCE`.
- */
-const ABSENT_NOTE_SUFFIX =
-  ' Whether a refused control of this shape should render as nothing at all or as a control disabled with its reason is UNSETTLED in the frozen source — two named tests assert opposite renderings of one control for one role. This build renders it absent and records the question below rather than closing it here.'
 
 export function WorkerLifecycleScreen() {
   const [role, setRole] = useState<TenantRoleId>('TENANT_ADMIN')
@@ -687,7 +607,7 @@ export function WorkerLifecycleScreen() {
       note: 'Created in this storyboard run.',
     }
     commit(
-      `${created.name} was added to the register with their own platform identity and recorded with the audit entry in the same transaction as the change. Supervisor permission alone authorises a worker-record change and the audit trail is the control rather than a second approval — a design decision the source states outright, not an omission.`,
+      AUDIT_SENTENCE.createWorker(created),
       () => {
         setWorkers((current) => [...current, created])
         setPickedWorkerId(id)
@@ -713,9 +633,7 @@ export function WorkerLifecycleScreen() {
       note: 'Entered in this storyboard run.',
     }
     commit(
-      `${certificationLabelFor(entryCertId)} was entered against ${target.name}, scoped to ${effectiveEntryAreaIds
-        .map(areaNameFor)
-        .join(', ')}, with a certification date of ${entryCertDate} and an entry date of ${entryEntryDate}, and recorded with its audit entry in the same transaction. Both dates are on the record, so a late entry shows as a late entry rather than as a compliance gap. Self-attestation was impossible: no worker-role path reaches this control on any surface.`,
+      AUDIT_SENTENCE.enterQualification(created, target.name),
       () => {
         setQualifications((current) => [...current, created])
         setPickedQualId(id)
@@ -727,7 +645,7 @@ export function WorkerLifecycleScreen() {
     const target = selectedQual
     if (!target) return
     commit(
-      `The ${certificationLabelFor(target.certificationId)} qualification was recertified: its expiry moved from ${target.expiryDate} to ${recertExpiry}, which postdates it, with a certification date of ${recertCertDate} and an entry date of ${recertEntryDate} both recorded. Recording the renewal lifts any active block immediately, delivered at the device's next sync, and the record and its audit entry were written in one transaction.`,
+      AUDIT_SENTENCE.recordRecertification(target, recertExpiry, recertCertDate, recertEntryDate),
       () => {
         setQualifications((current) =>
           current.map((q): Qualification =>
@@ -753,7 +671,7 @@ export function WorkerLifecycleScreen() {
     if (!target) return
     const value = asDifficulty(effectiveDifficulty)
     commit(
-      `The instruction-difficulty profile on ${target.name} is now ${value ?? 'unset'}, recorded with its audit entry in the same transaction as the change. It selects which work-instruction variant they receive at execution and reaches the device in the next work package; an in-flight run keeps the level pinned in its own package.`,
+      AUDIT_SENTENCE.setInstructionDifficulty(target, value),
       () => {
         setWorkers((current) =>
           current.map((w): Worker =>
@@ -770,7 +688,7 @@ export function WorkerLifecycleScreen() {
     const target = selectedWorker
     if (!target) return
     commit(
-      `The runs assigned to ${target.name} — ${[...target.activeRunIds, ...target.upcomingRunIds].join(', ')} — were reassigned, and the open step executions closed as abandoned with the recorded reason "Worker departed." This is step one of the two-step flow; archival is what step two does, and it is offered only now that no run is in the way.`,
+      AUDIT_SENTENCE.reassignRuns(target),
       () => {
         setWorkers((current) =>
           current.map((w): Worker =>
@@ -786,7 +704,7 @@ export function WorkerLifecycleScreen() {
     const target = selectedWorker
     if (!target) return
     commit(
-      `${target.name} was archived and recorded with the audit entry in the same transaction as the change. The record stays in the register and its history stays intact: a re-employment reactivates this record rather than creating a second one.`,
+      AUDIT_SENTENCE.archiveWorker(target),
       () => {
         setWorkers((current) =>
           current.map((w): Worker => (w.id === target.id ? { ...w, state: 'archived' } : w)),
@@ -799,7 +717,7 @@ export function WorkerLifecycleScreen() {
     const target = selectedWorker
     if (!target) return
     commit(
-      `${target.name} was reactivated with their prior record and history intact, and the mandatory re-validation prompt now stands against every prior qualification. Nothing is silently re-trusted: the prompt is not an option this control offered, it is a condition of reactivation.`,
+      AUDIT_SENTENCE.reactivateWorker(target),
       () => {
         setWorkers((current) =>
           current.map((w): Worker =>
@@ -839,9 +757,7 @@ export function WorkerLifecycleScreen() {
       note: `Imported from ${file.fileName} in this storyboard run.`,
     }))
     commit(
-      `${file.fileName} was imported from the single canonical template and every row landed together: ${created
-        .map((w) => w.name)
-        .join(', ')}. The import is all-or-nothing per file, so a file with one bad row writes nothing at all rather than most of itself.`,
+      AUDIT_SENTENCE.importWorkers(file, created),
       () => setWorkers((current) => [...current, ...created]),
     )
   }
@@ -851,7 +767,7 @@ export function WorkerLifecycleScreen() {
     const nextLadder =
       ladderResult !== null && !isLadderRefusal(ladderResult) ? ladderResult : warningLadder
     commit(
-      `The qualification gate now applies the ${nextPosture} posture, a granted clearance runs for ${durationValue} days before it lapses, and the warning ladder is ${nextLadder.join(', ')} days before expiry. The four mandatory stages always fire: a tenant may add earlier ones and may never remove or delay one, and no control anywhere here can take the posture below the ${GATE_POSTURE_FLOOR} floor.`,
+      AUDIT_SENTENCE.saveGateSettings(nextPosture, durationValue, nextLadder),
       () => {
         setGatePosture(nextPosture)
         setClearanceValidForDays(durationValue)
@@ -872,7 +788,7 @@ export function WorkerLifecycleScreen() {
    */
   function takeHandoff(what: string): void {
     commit(
-      `The ${what} handoff was taken for ${areaNameFor(effectiveHandoffAreaId)} on ${shiftNameFor(effectiveHandoffShiftId)}, and the routing was recorded with its audit entry in the same transaction. NOTHING WAS GRANTED: the Hub owns the clearance record and its enforcement and mints no grant control anywhere, and this storyboard reaches no Client Command Center, so no clearance exists and none will ever render as applied.`,
+      AUDIT_SENTENCE.takeHandoff(what, effectiveHandoffAreaId, effectiveHandoffShiftId),
       () =>
         setHandoffsTaken((current) => [
           ...current,
@@ -2353,120 +2269,46 @@ function stateTreatment(
   createDecision: PermissionDecision,
   roleName: string,
 ) {
-  switch (stateId) {
-    case 'STATE-01':
-      return (
-        <ScreenStateBoundary
-          state="STATE-01"
-          surface="SURF-DOH"
-          detail={{
-            objectLabel: 'workers based in or qualified for this Area',
-            whatCreatesIt:
-              'A Tenant Admin or a Supervisor records one, or imports a file. Select Packing and Despatch in the Area filter above to see it — nobody is based there and no qualification scopes to it.',
-          }}
-        />
-      )
-    case 'STATE-02':
-      return (
-        <ScreenStateBoundary
-          state="STATE-02"
-          surface="SURF-DOH"
-          detail={{ objectLabel: 'this workspace’s worker register' }}
-        />
-      )
-    case 'STATE-03':
-      return (
-        <p className="text-sm text-[var(--color-ink-muted)]">
-          The register, the worker record and every panel below are the success rendering, each
-          carrying the moment it was true.
-        </p>
-      )
-    case 'STATE-04':
-      return (
-        <ScreenStateBoundary
-          state="STATE-04"
-          surface="SURF-DOH"
-          detail={{
-            fieldLabel: 'A recertification expiry, an instruction-difficulty level, a warning stage',
-            rule: 'A new expiry must postdate the one it replaces; a difficulty level must be one of three; a tenant warning stage must be EARLIER than the platform ladder.',
-            permittedFormat:
-              'Set a new expiry earlier than the current one in the record below to see the refusal state the rule and write nothing at all — no partial record is created, and the existing qualification state stands exactly as it was.',
-          }}
-        />
-      )
-    case 'STATE-05':
-      if (createDecision.reasonCode !== 'ROLE_NOT_GRANTED') {
-        return (
-          <p role="note" className="text-sm text-[var(--color-ink-muted)]">
-            {roleName} carries the record writes on this module, so no refusal renders for this view
-            at the register. Select the Quality Manager to meet a role that reads every record and
-            may enter no certificate, or any persona at the clearance handoffs, where the refusals
-            differ by role and by control.
-          </p>
-        )
-      }
-      return (
-        <ScreenStateBoundary
-          state="STATE-05"
-          surface="SURF-DOH"
-          detail={{ decision: createDecision }}
-        />
-      )
-    case 'STATE-06':
-      return (
-        <p className="text-sm text-[var(--color-ink-muted)]">
-          Read-only renders as its own banner wherever a cause applies — the persona, the tenant
-          state, and the clearance register for everybody. One banner, one cause; it is not restated
-          here.
-        </p>
-      )
-    case 'STATE-08':
-      return (
-        <ScreenStateBoundary
-          state="STATE-08"
-          surface="SURF-DOH"
-          detail={{
-            asOfLabel: `as of ${REGISTER_AS_OF}`,
-            originLabel:
-              'the last register loaded before the connection dropped, with every write control disabled rather than queued',
-          }}
-        />
-      )
-    case 'STATE-09':
-      return (
-        <ScreenStateBoundary
-          state="STATE-09"
-          surface="SURF-DOH"
-          detail={{ commandState: 'queued' }}
-        />
-      )
-    case 'STATE-12':
-      return (
-        <ScreenStateBoundary
-          state="STATE-12"
-          surface="SURF-DOH"
-          detail={{
-            failureWhat: 'The read of this workspace’s worker register failed.',
-            wasWritten: false,
-            nextStep:
-              'The rows above are the last that loaded. Every write control is disabled rather than queued while the connection is down, so nothing is waiting to be sent.',
-          }}
-        />
-      )
-    case 'STATE-13':
-      return (
-        <ScreenStateBoundary
-          state="STATE-13"
-          surface="SURF-DOH"
-          detail={{
-            recoveryProgress:
-              'Reconnected. The tenant state is being refetched BEFORE any write control is re-enabled — a recertification offered against a stale suspension state is a write the gate never actually saw. The register stays marked as the last loaded until the refetch lands.',
-          }}
-        />
-      )
-    default: {
-      const exhaustive: never = stateId
-      throw new Error(`Unhandled screen state on MOD-DOH-04: ${String(exhaustive)}`)
-    }
+  // The three states whose treatment is NOT a boundary payload. STATE-05 is
+  // the one that could never be data at all: its detail carries the decision
+  // the evaluator returned for THIS render.
+  if (stateId === 'STATE-03') {
+    return (
+      <p className="text-sm text-[var(--color-ink-muted)]">
+        The register, the worker record and every panel below are the success rendering, each
+        carrying the moment it was true.
+      </p>
+    )
   }
+  if (stateId === 'STATE-05') {
+    if (createDecision.reasonCode !== 'ROLE_NOT_GRANTED') {
+      return (
+        <p role="note" className="text-sm text-[var(--color-ink-muted)]">
+          {roleName} carries the record writes on this module, so no refusal renders for this view
+          at the register. Select the Quality Manager to meet a role that reads every record and
+          may enter no certificate, or any persona at the clearance handoffs, where the refusals
+          differ by role and by control.
+        </p>
+      )
+    }
+    return (
+      <ScreenStateBoundary state="STATE-05" surface="SURF-DOH" detail={{ decision: createDecision }} />
+    )
+  }
+  if (stateId === 'STATE-06') {
+    return (
+      <p className="text-sm text-[var(--color-ink-muted)]">
+        Read-only renders as its own banner wherever a cause applies — the persona, the tenant
+        state, and the clearance register for everybody. One banner, one cause; it is not restated
+        here.
+      </p>
+    )
+  }
+  // Every remaining applicable state is the same boundary with its own
+  // payload. `MODULE_STATE_DETAIL` is keyed on exactly this narrowed union, so
+  // an eleventh applicable state fails to compile there rather than falling
+  // through to a default treatment here.
+  return (
+    <ScreenStateBoundary state={stateId} surface="SURF-DOH" detail={MODULE_STATE_DETAIL[stateId]} />
+  )
 }
