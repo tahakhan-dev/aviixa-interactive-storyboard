@@ -9,6 +9,7 @@ import {
   Banner,
   Button,
   Checkbox,
+  LiveRegion,
   Select,
   StatusPill,
   Table,
@@ -263,6 +264,26 @@ export function TenantLifecycleScreen() {
     return null
   }
 
+  /**
+   * An outcome sentence describes ONE request, made against the tier, the
+   * tenant state and the persona that were on screen at the moment it was
+   * made. Move any of those and the sentence stops being true of the fixture
+   * rendered around it — "recorded against the Starter tier" standing over a
+   * screen that now reads Enterprise, or "the action did not happen" standing
+   * after the reviewer changed the state that refused it. So every scenario
+   * change clears it. The tier itself only ever moves inside `requestUpgrade`
+   * below, which writes the matching outcome in the same act, which is why
+   * the two request handlers do not go through here.
+   */
+  function changeScenario(apply: () => void): void {
+    apply()
+    setOutcome(null)
+  }
+
+  function changeRole(next: TenantRoleId): void {
+    changeScenario(() => setRole(next))
+  }
+
   function requestUpgrade(): void {
     if (auditWillFail) {
       setOutcome('audit-failed')
@@ -327,7 +348,7 @@ export function TenantLifecycleScreen() {
           options={TENANT_STATE_OPTIONS}
           onChange={(value) => {
             const next = TENANT_STATES.find((s) => s === value)
-            if (next !== undefined) setTenantState(next)
+            if (next !== undefined) changeScenario(() => setTenantState(next))
           }}
         />
         <Select
@@ -336,7 +357,7 @@ export function TenantLifecycleScreen() {
           options={SCREEN_STATE_OPTIONS}
           onChange={(value) => {
             const next = APPLICABLE_SCREEN_STATES.find((s) => s === value)
-            if (next !== undefined) setStateId(next)
+            if (next !== undefined) changeScenario(() => setStateId(next))
           }}
         />
         <Checkbox label="Pilot tenant" checked={pilot} onChange={setPilot} />
@@ -374,7 +395,7 @@ export function TenantLifecycleScreen() {
 
   if (!permitsRead(readDecision)) {
     return (
-      <HubShell module={MODULE} role={role} onRoleChange={setRole} tenantState={tenantState}>
+      <HubShell module={MODULE} role={role} onRoleChange={changeRole} tenantState={tenantState}>
         {annotation}
         <section aria-label="Permission denied" className="mt-6">
           <h2 className="text-lg font-semibold">This module is not offered to {roleName}</h2>
@@ -409,7 +430,7 @@ export function TenantLifecycleScreen() {
   }
 
   return (
-    <HubShell module={MODULE} role={role} onRoleChange={setRole} tenantState={tenantState}>
+    <HubShell module={MODULE} role={role} onRoleChange={changeRole} tenantState={tenantState}>
       {annotation}
 
       <div className="mt-6">{scenarioControls}</div>
@@ -691,18 +712,25 @@ export function TenantLifecycleScreen() {
             is never rendered as done ahead of its true state.
           </p>
 
-          {outcome !== null ? (
-            <p
-              role="status"
-              className="max-w-prose rounded-[var(--radius-control)] border border-[var(--color-border)] p-3 text-sm text-[var(--color-ink)]"
-            >
-              {outcome === 'audit-failed'
-                ? 'The action did not happen. The audit write failed, and because audit is in the same transaction as the action, the transaction rolled back with it: the tier record is unchanged, no request was recorded, and nothing was written. Try again once the audit path is healthy.'
-                : outcome === 'upgraded'
-                  ? `Upgraded to ${record.name} in this storyboard run. The consumption figure is untouched at ${formatCount(SEEDED_CONSUMPTION)} Worker-Shifts — it carries forward and never resets — and only the ceiling moved. No commercial system was contacted: this storyboard reaches nothing, and in the built platform the change and its audit entry commit together.`
-                  : `Recorded as a request against the ${tierRecord(DOWNGRADE_TARGET_TIER).name} tier. It is not executed and this screen does not render it as executed: the tier-change state is pending_downgrade, and the client platform team acts on it elsewhere.`}
-            </p>
-          ) : null}
+          {/* The container is mounted BEFORE there is anything to announce,
+              which is the whole point of using the shared primitive here
+              rather than putting `role="status"` on the paragraph: a live
+              region inserted at the same moment as its content is not
+              reliably announced, and "The action did not happen" is the one
+              sentence on this screen a reader must not miss. Same shape as
+              `HubShell`'s own live region — always-mounted wrapper,
+              conditional child, and no second live region on the child. */}
+          <LiveRegion>
+            {outcome !== null ? (
+              <p className="max-w-prose rounded-[var(--radius-control)] border border-[var(--color-border)] p-3 text-sm text-[var(--color-ink)]">
+                {outcome === 'audit-failed'
+                  ? 'The action did not happen. The audit write failed, and because audit is in the same transaction as the action, the transaction rolled back with it: the tier record is unchanged, no request was recorded, and nothing was written. Try again once the audit path is healthy.'
+                  : outcome === 'upgraded'
+                    ? `Upgraded to ${record.name} in this storyboard run. The consumption figure is untouched at ${formatCount(SEEDED_CONSUMPTION)} Worker-Shifts — it carries forward and never resets — and only the ceiling moved. No commercial system was contacted: this storyboard reaches nothing, and in the built platform the change and its audit entry commit together.`
+                    : `Recorded as a request against the ${tierRecord(DOWNGRADE_TARGET_TIER).name} tier. It is not executed and this screen does not render it as executed: the tier-change state is pending_downgrade, and the client platform team acts on it elsewhere.`}
+              </p>
+            ) : null}
+          </LiveRegion>
         </div>
       </section>
 

@@ -18,7 +18,9 @@ import {
   UPGRADE_TIER,
   tierRecord,
 } from '../../app/hub/tenant-lifecycle-and-tier-operations/fixtures'
+import { SUSPENSION_BANNERS } from '../../app/hub/banner-fixtures'
 import { TENANT_STATES, writeAllowed } from '@/surfaces/doh/tenant-state'
+import { dohModuleById } from '@/surfaces/doh/modules'
 import { screenState } from '@/ui/screen-state'
 
 /* ------------------------------------------------------------------ *
@@ -59,6 +61,24 @@ function statedReason(el: HTMLElement): string {
   const id = el.getAttribute('aria-describedby')
   if (id === null) return ''
   return document.getElementById(id)?.textContent ?? ''
+}
+
+/**
+ * The rail entry for THIS module, queried out of the shared chrome's real
+ * `nav`. `null` is an absence, not a missing query: the Tenant Admin case
+ * below finds the same link, so a `null` here means the rail withheld it.
+ */
+function railLinkToThisModule(): HTMLElement | null {
+  return within(screen.getByRole('navigation', { name: 'Hub modules' })).queryByRole('link', {
+    name: dohModuleById('MOD-DOH-01').name,
+  })
+}
+
+/** The always-mounted `aria-live` container the outcome message lands in. */
+function outcomeLiveRegion(): HTMLElement {
+  const el = region('Tier requests').querySelector('[aria-live]')
+  if (el === null) throw new Error('Tier requests has no aria-live container at all')
+  return el as HTMLElement
 }
 
 const UPGRADE = /Request a tier upgrade/
@@ -210,13 +230,60 @@ describe('MOD-DOH-01 — per-role affordances through evaluateAccess', () => {
     expect(text).toMatch(/audited/i)
   })
 
-  it('gives the Quality Manager the same refusal, and offers no route in the rail', () => {
+  it('gives the Quality Manager the same refusal', () => {
     render(<TenantLifecycleScreen />)
     viewAs('QUALITY_MANAGER')
     expect(screen.queryByRole('region', { name: 'Tier and usage read view' })).toBeNull()
     expect((screen.getByRole('region', { name: 'Permission denied' }).textContent ?? '')).toMatch(
       /rail does not offer/i,
     )
+  })
+
+  /**
+   * THE SCREEN TELLS BOTH REFUSED ROLES "the module rail does not offer this
+   * route". This case is what makes that sentence true rather than merely
+   * present: it queries the shared chrome's real `nav` and asserts the link is
+   * gone. A case that asserts only that the prose carries the words passes
+   * because the screen says them — which is exactly how the rail came to ship
+   * offering all eight modules to every persona while this screen's own copy
+   * claimed otherwise.
+   */
+  it('offers no route to this module in the rail, to either role the matrix marks Unavailable', () => {
+    render(<TenantLifecycleScreen />)
+    // Positive control first: the Tenant Admin IS offered it, so a null below
+    // is a withheld link and not a query that never matched anything.
+    expect(railLinkToThisModule()).not.toBeNull()
+
+    for (const roleId of ['SUPERVISOR', 'QUALITY_MANAGER']) {
+      viewAs(roleId)
+      expect(railLinkToThisModule()).toBeNull()
+      // The rail itself is still drawn, over the modules these roles DO
+      // reach: this route is withheld, not the whole navigation.
+      expect(
+        within(screen.getByRole('navigation', { name: 'Hub modules' })).getAllByRole('link').length,
+      ).toBeGreaterThan(0)
+    }
+  })
+
+  /**
+   * The other half of the same pair of matrix rows this screen renders
+   * (L26886-L26888), checked against the shipped chrome rather than against
+   * its own prose: the soft and hard suspension banners reach the Tenant Admin
+   * alone, and the compliance message reaches everyone.
+   */
+  it('banners a soft suspension to the Tenant Admin and to no other role that opens this screen', () => {
+    render(<TenantLifecycleScreen />)
+    setTenantState('soft-suspended')
+    expect(screen.getAllByText(SUSPENSION_BANNERS['soft-suspended'].heading).length).toBeGreaterThan(
+      0,
+    )
+    viewAs('READONLY_AUDITOR')
+    expect(screen.queryByText(SUSPENSION_BANNERS['soft-suspended'].heading)).toBeNull()
+
+    setTenantState('compliance-suspended')
+    expect(
+      screen.getAllByText(SUSPENSION_BANNERS['compliance-suspended'].heading).length,
+    ).toBeGreaterThan(0)
   })
 
   it('gives the Read-only Auditor the identical read view minus the two request controls', () => {
@@ -238,9 +305,21 @@ describe('MOD-DOH-01 — per-role affordances through evaluateAccess', () => {
     const matrix = region('Control matrix')
     for (const row of CONTROL_MATRIX) {
       const tableRow = within(matrix).getByRole('row', { name: new RegExp(row.control) })
-      for (const cell of Object.values(row.byRole)) {
-        expect((tableRow.textContent ?? '')).toContain(cell.status)
-      }
+      // PER CELL, not against the row's whole text. Four of these twelve rows
+      // carry the same token in all five role columns, so a row that rendered
+      // one cell instead of five would still satisfy a `toContain` over the
+      // row — the check would pass on a table that had lost four columns.
+      const cells = within(tableRow).getAllByRole('cell')
+      const statuses = Object.values(row.byRole).map((c) => c.status)
+      // Column 0 is the control name and the last is "how it renders here";
+      // the five role columns sit between them, in registry order.
+      expect(cells).toHaveLength(statuses.length + 2)
+      statuses.forEach((status, i) => {
+        // The cell's own first element, exactly — never a prefix or substring
+        // match, because 'Allowed' is a substring of 'Allowed with conditions'
+        // and a cell showing the wrong one of the two would pass.
+        expect(cells[i + 1]?.querySelector('span')?.textContent).toBe(status)
+      })
     }
     expect(CONTROL_MATRIX).toHaveLength(12)
   })
@@ -296,13 +375,59 @@ describe('MOD-DOH-01 — audit is in the same transaction as the action', () => 
     render(<TenantLifecycleScreen />)
     fireEvent.click(screen.getByLabelText(/audit-write failure/i))
     fireEvent.click(screen.getByRole('button', { name: UPGRADE }))
-    expect(within(region('Tier requests')).getByRole('status').textContent ?? '').toMatch(
-      /did not happen/i,
-    )
+    expect(outcomeLiveRegion().textContent ?? '').toMatch(/did not happen/i)
     // The tier is unchanged: the ceiling is still the seeded one.
     expect((region(READ_VIEW_REGIONS[1]).textContent ?? '')).toContain(
       String(tierRecord(SEEDED_TIER).ceiling),
     )
+  })
+
+  it('mounts the announcement’s live region before there is anything to announce', () => {
+    render(<TenantLifecycleScreen />)
+    // Present and empty at first render. A live region inserted at the same
+    // moment as its content is not reliably announced, and "the action did
+    // not happen" is the one sentence here a reader must not miss.
+    const live = outcomeLiveRegion()
+    expect(live.textContent).toBe('')
+
+    fireEvent.click(screen.getByLabelText(/audit-write failure/i))
+    fireEvent.click(screen.getByRole('button', { name: UPGRADE }))
+
+    // The SAME node now carries the message — so an assistive technology
+    // already watching it hears the change, rather than the container and its
+    // content arriving together.
+    expect(outcomeLiveRegion()).toBe(live)
+    expect(live.textContent ?? '').toMatch(/did not happen/i)
+  })
+})
+
+describe('MOD-DOH-01 — an outcome never outlives the fixture it describes', () => {
+  it('clears the outcome when the reviewer moves the tenant state under it', () => {
+    render(<TenantLifecycleScreen />)
+    fireEvent.click(screen.getByRole('button', { name: UPGRADE }))
+    expect(outcomeLiveRegion().textContent ?? '').toMatch(/Upgraded to/i)
+    // The refusal that follows belongs to a different tenant state than the
+    // one the sentence above was written against, so the sentence goes.
+    setTenantState('hard-suspended')
+    expect(outcomeLiveRegion().textContent).toBe('')
+  })
+
+  it('clears the outcome when the reviewer switches persona', () => {
+    render(<TenantLifecycleScreen />)
+    fireEvent.click(screen.getByRole('button', { name: DOWNGRADE }))
+    expect(outcomeLiveRegion().textContent ?? '').toMatch(/Recorded as a request/i)
+    // The Auditor never made this request and holds no control that could.
+    viewAs('READONLY_AUDITOR')
+    expect(outcomeLiveRegion().textContent).toBe('')
+  })
+
+  it('clears the outcome when the reviewer moves the screen state under it', () => {
+    render(<TenantLifecycleScreen />)
+    fireEvent.click(screen.getByRole('button', { name: UPGRADE }))
+    // STATE-02 replaces the consumption figure with a placeholder, so a
+    // sentence naming that figure stops being true of what is on screen.
+    setScreenState('STATE-02')
+    expect(outcomeLiveRegion().textContent).toBe('')
   })
 })
 

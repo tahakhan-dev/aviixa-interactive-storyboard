@@ -60,13 +60,20 @@ describe('the seeded tier and consumption fixture', () => {
     expect(ladderPositionFor(percent)).toBe('at_or_above_80')
   })
 
-  it('leaves consumption unchanged and only the ceiling moved by an upgrade', () => {
+  it('moves only the ceiling up a tier, and keeps no per-tier count a change could reset to', () => {
     const before = tierRecord(SEEDED_TIER).ceiling
     const after = tierRecord(UPGRADE_TARGET_TIER).ceiling
     expect(after).toBeGreaterThan(before)
-    // AC-DOH-01-2: the count carries forward. There is one seeded count and
-    // no per-tier variant of it, so it cannot be reset by a tier change.
-    expect(SEEDED_CONSUMPTION).toBe(512)
+    // AC-DOH-01-2's structural half: consumption is ONE module-level figure,
+    // so a tier record holds nothing a tier change could swap in for it. The
+    // behavioural half — that the screen still shows the same figure after an
+    // upgrade — is asserted against the rendered screen, in
+    // `tests/component/doh-tenant-lifecycle.test.tsx`. `SEEDED_CONSUMPTION`
+    // is not asserted here: pinning a constant to its own literal proves
+    // nothing about carry-forward.
+    for (const record of TIER_RECORDS) {
+      expect(Object.keys(record).filter((k) => /consum|used|count/i.test(k))).toEqual([])
+    }
   })
 
   it('quotes one meter definition, identical across every tier record', () => {
@@ -118,16 +125,26 @@ describe('the twelve-row control matrix', () => {
   })
 })
 
-describe('acting and reading are their own closed sets, never the full status union', () => {
-  // The four type errors this file was written to close were all the same
-  // bug: `ACTING_STATUSES`/`READING_STATUSES` were annotated as the full
-  // `readonly MatrixStatus[]` union, which typechecks 'Unavailable' as an
-  // acting or reading status even though no row of the matrix ever grants
-  // either to a role holding it. 'Unavailable' (and the other prohibition
-  // tokens) are not legitimate members of either set — the annotation was
-  // just wider than the data. This test locks the narrower, true sets in at
-  // runtime, so a future re-widening of the type fails a real assertion
-  // rather than only a compiler diagnostic someone could paper over.
+/**
+ * THE CONTENTS OF `ACTING_STATUSES` AND `READING_STATUSES`, AND NOTHING MORE.
+ *
+ * Read the claim carefully, because an earlier version of this block claimed
+ * more than it delivers. The bug these two constants were fixed for was a
+ * TYPE ANNOTATION: `: readonly MatrixStatus[]` widened them to the whole
+ * six-token union, so `'Unavailable'` typechecked as an acting or reading
+ * status and four `TS2345` errors fell out of `decide()`'s narrower
+ * parameter. An annotation is erased at runtime. Re-add it and every
+ * assertion below stays green while all four errors come back.
+ *
+ * `pnpm typecheck` — `tsc --noEmit` — IS THE GUARD for that bug, and it is
+ * the only guard for it. What these two cases pin is the constants' contents:
+ * that nobody adds a prohibition token to either list, and that the acting
+ * pair and reading triple stay the sets the matrix actually uses. That is
+ * worth having and it is a real check; it is not coverage of the annotation,
+ * and calling it that would teach the next reader that a green unit suite
+ * means the type is safe.
+ */
+describe('acting and reading carry the contents the matrix uses (tsc guards the type)', () => {
   it('never carries a prohibition token', () => {
     const prohibitionTokens = ['Unavailable', 'Explicitly prohibited', 'Not applicable'] as const
     for (const status of [...ACTING_STATUSES, ...READING_STATUSES]) {

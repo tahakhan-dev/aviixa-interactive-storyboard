@@ -27,6 +27,16 @@ export const HUB_TENANT = saTenant('TEN-BRIGHTBIKES')
 
 export type TierId = 'starter' | 'growth' | 'enterprise'
 
+/**
+ * NO RUNTIME CONSUMER, AND KEPT ANYWAY: THE CLOSED-VOCABULARY RULE is what
+ * mandates it. Every closed union in this file carries a listed twin plus the
+ * exhaustiveness check beneath it, and that check is the only thing in the
+ * codebase that fails to compile when a fourth tier joins `TierId` and
+ * nothing else is updated. Deleting the list as "unused" deletes the check
+ * with it. The `export` is load-bearing for the same reason and is not an
+ * invitation to import: a bare `const` used only in type position is what
+ * `@typescript-eslint/no-unused-vars` deletes, and the check goes with it.
+ */
 export const TIER_IDS = ['starter', 'growth', 'enterprise'] as const satisfies readonly TierId[]
 
 type MissingFromTierIds = Exclude<TierId, (typeof TIER_IDS)[number]>
@@ -176,6 +186,9 @@ export function ladderPositionFor(percentOfCeiling: number): LadderPosition {
  *  the Hub records a downgrade REQUEST and never executes one. */
 export type TierChangeState = 'none' | 'pending_downgrade'
 
+/** Same as `TIER_IDS` above, for the same reason: no runtime consumer, kept
+ *  and exported because the closed-vocabulary rule mandates it and the check
+ *  below is what makes this vocabulary actually closed. */
 export const TIER_CHANGE_STATES = ['none', 'pending_downgrade'] as const satisfies
   readonly TierChangeState[]
 
@@ -559,7 +572,9 @@ type MissingFromMatrix = Exclude<ControlId, (typeof CONTROL_MATRIX)[number]['id'
 const _matrixExhaustive: MissingFromMatrix extends never ? true : never = true
 void _matrixExhaustive
 
-export function controlRow(id: ControlId): ControlMatrixRow {
+/** Not exported: `rolesWithStatus` below is its only caller, and the matrix
+ *  itself is what the screen and the tests read. */
+function controlRow(id: ControlId): ControlMatrixRow {
   const found = CONTROL_MATRIX.find((r) => r.id === id)
   if (found === undefined) throw new Error(`No control matrix row for ${id}`)
   return found
@@ -591,6 +606,11 @@ export function rolesWithStatus(
  * literal tuple type instead, so the two stay the true, narrower closed sets
  * they are (matches the `as const satisfies readonly T[]` convention used
  * for every closed vocabulary in this file).
+ *
+ * THE GUARD IS `tsc --noEmit`, AND ONLY `tsc`. Re-adding the annotation is a
+ * type-level change, erased at runtime: every runtime assertion about these
+ * two constants stays green while all four `TS2345` errors come back. The
+ * unit cases over them pin the CONTENTS and cannot see the annotation at all.
  */
 export const ACTING_STATUSES = [
   'Allowed',
