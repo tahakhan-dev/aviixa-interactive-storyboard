@@ -102,6 +102,15 @@ function cardText(): string {
   return region('Single sign-on').textContent ?? ''
 }
 
+/** The connection record's own state, as the card's status pill renders it. */
+function statePill(): string {
+  return (
+    within(region('Single sign-on')).getAllByText(
+      /^(Configured|Not configured|Reserved, inert)$/,
+    )[0]?.textContent ?? ''
+  )
+}
+
 /** Every banner on the page whose heading is the read-only cause. */
 function readOnlyBanners(): readonly HTMLElement[] {
   return screen
@@ -353,12 +362,40 @@ describe('MOD-DOH-12 — connection loss splits three ways (D7)', () => {
     render(<IntegrationSurfaceScreen />)
     for (const state of CONNECTION_LOSS_STATES) {
       setScreenState(state)
-      for (const name of [METADATA, EMAIL_WRITE, TEST_CONNECTION]) {
+      for (const name of [METADATA, EMAIL_WRITE]) {
         const control = button(name)
         expect(isInert(control), `${state} ${String(name)}`).toBe(true)
         expect(statedReason(control)).toMatch(/disable rather than queue/i)
       }
     }
+  })
+
+  it('gives the check that writes nothing its own reason, never a write’s', () => {
+    render(<IntegrationSurfaceScreen />)
+    for (const state of CONNECTION_LOSS_STATES) {
+      setScreenState(state)
+      const control = button(TEST_CONNECTION)
+      expect(isInert(control), state).toBe(true)
+      const reason = statedReason(control)
+      // FIX ROUND 1. It borrowed the metadata write's reason, so a control
+      // that edits no configuration announced the write-class refusal. A
+      // stated reason that is false of the control it sits under is worse
+      // than no reason: it teaches the wrong rule.
+      expect(reason, state).toMatch(/writes nothing/i)
+      expect(reason, state).not.toMatch(/configuration edits are one of the write classes/i)
+      expect(reason, state).not.toMatch(/both writes on this screen/i)
+    }
+  })
+
+  it('leaves the check live under a suspension, because no write class governs a read', () => {
+    render(<IntegrationSurfaceScreen />)
+    setTenantState('soft-suspended')
+    // Both writes are shut; the check is not, and pressing it still works.
+    expect(isInert(button(METADATA))).toBe(true)
+    expect(isInert(button(EMAIL_WRITE))).toBe(true)
+    expect(isInert(button(TEST_CONNECTION))).toBe(false)
+    fireEvent.click(button(TEST_CONNECTION))
+    expect(cardText()).toMatch(/no directory was contacted/i)
   })
 
   it('STATE-08 keeps the loaded record with a freshness marker and an as-of time', () => {
@@ -381,7 +418,12 @@ describe('MOD-DOH-12 — connection loss splits three ways (D7)', () => {
   it('STATE-13 refetches the tenant state before re-enabling either write', () => {
     render(<IntegrationSurfaceScreen />)
     setScreenState('STATE-13')
-    expect((region('Screen state').textContent ?? '')).toMatch(/before/i)
+    const text = region('Screen state').textContent ?? ''
+    // FIX ROUND 1. `/before/i` was satisfied by either of the two sentences
+    // here, so deleting one left the case green. Each is now asserted by a
+    // phrase only it carries: the module's own note, then the boundary's.
+    expect(text).toMatch(/never re-offered against a state that may have changed/i)
+    expect(text).toMatch(/a write the gate never actually saw/i)
   })
 })
 
@@ -456,6 +498,25 @@ describe('MOD-DOH-12 — an outcome never outlives the fixture it describes', ()
     expect(outcomeLiveRegion().textContent).toBe('')
   })
 
+  it('clears a validation refusal when the reviewer switches persona under it', () => {
+    render(<IntegrationSurfaceScreen />)
+    typeEmail('not-an-address')
+    fireEvent.click(button(EMAIL_WRITE))
+    expect(screen.getAllByText(/refused rather than guessed at/i).length).toBeGreaterThan(0)
+    // The Auditor never made this attempt and holds no control that could.
+    viewAs('READONLY_AUDITOR')
+    expect(screen.queryAllByText(/refused rather than guessed at/i)).toHaveLength(0)
+  })
+
+  it('clears a validation refusal when the reviewer moves the tenant state under it', () => {
+    render(<IntegrationSurfaceScreen />)
+    typeEmail('not-an-address')
+    fireEvent.click(button(EMAIL_WRITE))
+    expect(screen.getAllByText(/refused rather than guessed at/i).length).toBeGreaterThan(0)
+    setTenantState('hard-suspended')
+    expect(screen.queryAllByText(/refused rather than guessed at/i)).toHaveLength(0)
+  })
+
   it('clears the outcome when the reviewer moves the record state under it', () => {
     render(<IntegrationSurfaceScreen />)
     fireEvent.click(button(METADATA))
@@ -476,10 +537,42 @@ describe('MOD-DOH-12 — the empty and inert record states', () => {
 
   it('renders STATE-01 and the not-configured record as one answer, never two', () => {
     render(<IntegrationSurfaceScreen />)
+    // Positive control: every one of these reads "configured" first, so a
+    // pass below is a change and not a query that never matched.
+    expect(statePill()).toBe('Configured')
+    expect(cardText()).toMatch(/A connection record exists/)
+    expect(cardText()).toMatch(/Protocol: OpenID Connect/)
+
     setScreenState('STATE-01')
-    // The selector says there is no record; the card must not then show one.
-    expect(cardText()).not.toMatch(/Protocol: OpenID Connect/)
+
+    // FIX ROUND 1. The old case asserted only the ternary's branch plus a
+    // phrase from another region, so it passed while the pill two paragraphs
+    // above still read "Configured — a connection record exists". All four
+    // renderings of the record now come off one derived value, and all four
+    // are asserted here.
+    expect(statePill()).toBe('Not configured')                       // the pill
+    expect(cardText()).toMatch(/No connection record is in force/)   // the meaning
+    expect(cardText()).not.toMatch(/A connection record exists/)
+    expect(cardText()).not.toMatch(/Protocol: OpenID Connect/)       // the ternary
     expect((region('Screen state').textContent ?? '')).toMatch(/no connection record in force/i)
+  })
+
+  it('never announces a configured record over a card rendering the empty shape', () => {
+    render(<IntegrationSurfaceScreen />)
+    setScreenState('STATE-01')
+
+    // The check: it reads the same derived record, so it cannot report a
+    // federated resolution against a record the card says is not in force.
+    fireEvent.click(button(TEST_CONNECTION))
+    expect(cardText()).toMatch(/platform-held credential track/i)
+    expect(cardText()).not.toMatch(/resolves onto the single sign-on track/i)
+
+    // The write: creating the first record is what STATE-01 says ends the
+    // empty state, so the announcement and the card agree afterwards.
+    fireEvent.click(button(METADATA))
+    expect(outcomeLiveRegion().textContent ?? '').toMatch(/reads as configured/i)
+    expect(statePill()).toBe('Configured')
+    expect(cardText()).toMatch(/Protocol:/)
   })
 
   it('names what the reserved-inert state does and does not mean', () => {

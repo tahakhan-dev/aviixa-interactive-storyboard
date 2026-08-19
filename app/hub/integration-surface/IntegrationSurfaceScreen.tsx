@@ -172,14 +172,31 @@ export function IntegrationSurfaceScreen({
   const connectionLost = (CONNECTION_LOSS_STATES as readonly string[]).includes(stateId)
 
   /**
-   * Whether the single sign-on card renders its configured shape. Two
-   * drivers, deliberately folded into ONE boolean so they can never disagree
-   * on screen: the record's own state, and the empty screen state a reviewer
-   * can select. STATE-01 IS "no connection record in force"; letting the
-   * selector say that while the card below showed a configured provider
-   * would be a screen contradicting itself.
+   * ONE DERIVED RECORD, AND EVERY BRANCH THAT RENDERS OR READS THE
+   * CONNECTION READS IT.
+   *
+   * Two drivers say whether a record is in force: the record's own state, and
+   * the empty screen state a reviewer can select. STATE-01 IS "no connection
+   * record in force", so it is folded in HERE, once, by coercing the state on
+   * a derived copy — not by a boolean each rendering branch has to remember
+   * to consult.
+   *
+   * Fix round 1 found exactly that defect: the fold lived on a `configured`
+   * boolean that one of four branches read, so the status pill and the state
+   * meaning rendered straight off the raw record and the card said
+   * "Configured — a connection record exists" two paragraphs above "no
+   * protocol is in force and no domain resolves onto this record". Four
+   * branches reading one derived value cannot disagree; four branches each
+   * remembering to check cannot be relied on.
+   *
+   * The WRITES below deliberately still spread `connection`, never this: a
+   * write must persist onto the real record, or saving the contact email
+   * while STATE-01 is selected would quietly persist the coercion with it.
    */
-  const configured = connection.state === 'configured' && stateId !== 'STATE-01'
+  const connectionShown: SsoConnectionRecord =
+    stateId === 'STATE-01' ? { ...connection, state: 'not_configured' } : connection
+
+  const configured = connectionShown.state === 'configured'
 
   /**
    * May this persona open the screen at all? Derived from the matrix by the
@@ -233,6 +250,31 @@ export function IntegrationSurfaceScreen({
   const emailBlockReason = writeBlockReason('provide-tenant-contact-email')
 
   /**
+   * The test-connection check is a READ, and it gates like one. It borrowed
+   * the metadata write's reason until fix round 1, which meant a control that
+   * edits no configuration announced "configuration edits are one of the
+   * write classes this state closes" under a suspension, and "both writes on
+   * this screen disable rather than queue" under a lost connection. The rule
+   * was met — a disabled control carried a reason — but the reason was false
+   * of the control carrying it, which is a dead control that has learned to
+   * talk. So: the role's own cell, because validating metadata is part of
+   * configuring it; and the freshness of the record it would resolve against.
+   * The write-class table never sees this control, because it writes nothing.
+   */
+  function testBlockReason(): string | null {
+    const cell = matrixRow('configure-single-sign-on-metadata').byRole[role]
+    if (cell.status === 'Explicitly prohibited') {
+      return `Not held by the ${roleName}. ${cell.detail} Validating single sign-on metadata is part of configuring it, so this check carries the same authority as the control above — and the same refusal.`
+    }
+    if (connectionLost || stateId === 'STATE-02') {
+      return 'The connection record on this screen is the last one loaded, or has not arrived at all, so a check against it would report on a record that may already have changed. Nothing is queued and nothing is waiting: this control writes nothing, so there is no action to hold.'
+    }
+    return null
+  }
+
+  const testBlockedBecause = testBlockReason()
+
+  /**
    * An outcome sentence describes ONE write, made against the persona, the
    * tenant state, the screen state and the record that were on screen when it
    * was made. Move any of those and the sentence stops being true of what a
@@ -242,6 +284,11 @@ export function IntegrationSurfaceScreen({
     apply()
     setOutcome(null)
     setTestResult(null)
+    // Fix round 1: the validation message was the one piece of feedback that
+    // survived a scenario change, so a refusal written against one persona
+    // stayed on screen under the next. Same staleness the two lines above
+    // exist to prevent, so it clears in the same place.
+    setEmailError(null)
   }
 
   function changeRole(next: TenantRoleId): void {
@@ -267,7 +314,14 @@ export function IntegrationSurfaceScreen({
     setTestResult(null)
     commitWithAudit(
       'the single sign-on metadata change',
-      () => setConnection({ ...connection, protocol: draftProtocol, state: 'configured' }),
+      () => {
+        setConnection({ ...connection, protocol: draftProtocol, state: 'configured' })
+        // STATE-01 is "there is no connection record". Creating one is what
+        // STATE-01's own `whatCreatesIt` says ends it, so a successful create
+        // leaves the empty state rather than announcing a configured record
+        // over a card still rendering the empty shape.
+        if (stateId === 'STATE-01') setStateId('STATE-03')
+      },
       `Single sign-on metadata saved in this storyboard: the connection record now names ${PROTOCOL_LABEL[draftProtocol]} and reads as configured. No identity provider was contacted, no metadata was exchanged, and nobody’s sign-in changed — there is nothing on the other end of this record.`,
     )
   }
@@ -299,7 +353,7 @@ export function IntegrationSurfaceScreen({
    * the audit path above: there is no transaction here to fail.
    */
   function testConnection(): void {
-    const domain = connection.emailDomains[0]
+    const domain = connectionShown.emailDomains[0]
     if (domain === undefined) {
       setTestResult(
         'The connection record carries no email domain, so there is no address to resolve against it. Nothing was contacted.',
@@ -307,7 +361,7 @@ export function IntegrationSurfaceScreen({
       return
     }
     const probe = `${TEST_CONNECTION_LOCAL_PART}@${domain}`
-    const track = resolveSignInTrack(probe, connection)
+    const track = resolveSignInTrack(probe, connectionShown)
     setTestResult(
       track === 'sso'
         ? `${probe} resolves onto the single sign-on track against the record above. Resolved against the seeded fixture: no directory was contacted and none answered.`
@@ -368,7 +422,7 @@ export function IntegrationSurfaceScreen({
         />
         <Select
           label="Connection record state"
-          value={connection.state}
+          value={connectionShown.state}
           options={CONNECTION_STATE_OPTIONS}
           onChange={(value) => {
             const next = SSO_CONNECTION_STATES.find((s) => s === value)
@@ -467,7 +521,7 @@ export function IntegrationSurfaceScreen({
               readOnlyCause: holdsNoWriteHere
                 ? `Read-only for the ${roleName} view: both write rows of this module’s matrix mark this persona Explicitly prohibited, so the record is readable and neither control acts.`
                 : 'Read-only while the reviewer holds this screen in its read-only state; the two writes below name it as the reason they do not act.',
-              asOfLabel: connection.configuredAsOfLabel,
+              asOfLabel: connectionShown.configuredAsOfLabel,
               originLabel:
                 'the last connection record loaded before the connection dropped, degraded rather than blanked, with both writes disabled rather than queued',
               failureWhat: 'The read of this workspace’s single sign-on connection record failed.',
@@ -499,25 +553,25 @@ export function IntegrationSurfaceScreen({
         </p>
 
         <div className="mt-4 rounded-[var(--radius-surface)] border border-[var(--color-border)] p-4">
-          <p className="font-medium text-[var(--color-ink)]">{connection.providerLabel}</p>
+          <p className="font-medium text-[var(--color-ink)]">{connectionShown.providerLabel}</p>
           <p className="mt-2 text-sm">
             <StatusPill
-              tone={CONNECTION_STATE_TONE[connection.state]}
+              tone={CONNECTION_STATE_TONE[connectionShown.state]}
               icon="●"
-              label={CONNECTION_STATE_LABEL[connection.state]}
+              label={CONNECTION_STATE_LABEL[connectionShown.state]}
             />
           </p>
           <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-            {CONNECTION_STATE_MEANING[connection.state]}
+            {CONNECTION_STATE_MEANING[connectionShown.state]}
           </p>
 
           {configured ? (
             <>
               <p className="mt-3 text-sm text-[var(--color-ink)]">
-                Protocol: {connection.protocol === null ? 'none chosen' : PROTOCOL_LABEL[connection.protocol]}
+                Protocol: {connectionShown.protocol === null ? 'none chosen' : PROTOCOL_LABEL[connectionShown.protocol]}
               </p>
               <p className="mt-1 text-sm text-[var(--color-ink)]">
-                Email domains resolved onto this record: {connection.emailDomains.join(', ')}
+                Email domains resolved onto this record: {connectionShown.emailDomains.join(', ')}
               </p>
             </>
           ) : (
@@ -530,13 +584,13 @@ export function IntegrationSurfaceScreen({
           )}
 
           <p className="mt-3 text-sm text-[var(--color-ink)]">
-            Tenant contact email: {connection.tenantContactEmail}
+            Tenant contact email: {connectionShown.tenantContactEmail}
           </p>
 
           <div className="mt-2">
             <FreshnessLabel
-              asOfLabel={connection.configuredAsOfLabel}
-              originLabel={connection.originLabel}
+              asOfLabel={connectionShown.configuredAsOfLabel}
+              originLabel={connectionShown.originLabel}
             />
           </div>
 
@@ -616,12 +670,12 @@ export function IntegrationSurfaceScreen({
           <div>
             <p className="text-sm font-medium">Test connection</p>
             <div className="mt-2">
-              {metadataBlockReason === null ? (
+              {testBlockedBecause === null ? (
                 <Button variant="secondary" onClick={testConnection}>
                   Test connection
                 </Button>
               ) : (
-                <Button variant="secondary" disabledReason={metadataBlockReason}>
+                <Button variant="secondary" disabledReason={testBlockedBecause}>
                   Test connection
                 </Button>
               )}
@@ -631,7 +685,9 @@ export function IntegrationSurfaceScreen({
               through the same resolver the sign-in screen uses, so the two can never disagree about
               which track an address lands on — and it reaches nothing, writes nothing, and
               therefore has no audit entry to fail. It carries the same authority as the metadata
-              control above, because validating metadata is part of configuring it.
+              control above, because validating metadata is part of configuring it — but not the
+              same gate: a control that writes nothing is never gated on a write class, and it has
+              nothing to queue.
             </p>
             {testResult === null ? null : (
               <p className="mt-2 max-w-prose text-sm text-[var(--color-ink)]">{testResult}</p>
@@ -675,7 +731,7 @@ export function IntegrationSurfaceScreen({
             </span>
             The platform maps an asserted subject to exactly one existing user record within exactly
             one workspace; where no such record exists, sign-in is refused and no account is created
-            to receive it. {connection.openDecision ?? 'No open decision'} is the open client
+            to receive it. {connectionShown.openDecision ?? 'No open decision'} is the open client
             decision that governs it, and the adopted interim position is refusal.
           </p>
           <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">

@@ -30,12 +30,15 @@ import type { TenantRoleId } from '../HubShell'
  * L29041-L29050. "Every cell carries an explicit status" (L10238), so
  * every cell below carries one and the screen renders all five columns.
  *
- * FOUR OF THE NINE ROWS ARE OUTSIDE FEAT-DOH-1201 and no control is
- * drawn for any of them. They stay in the table because a matrix with
+ * TWO OF THE NINE ROWS DRAW A CONTROL on this screen and the other
+ * SEVEN draw none — six because nobody holds them at all, and one, the
+ * tier and usage read view, because this slice renders it on another
+ * module's screen. All seven stay in the table because a matrix with
  * its inconvenient rows removed is a matrix a reader cannot check, and
- * because one of them — the tier and usage read view — is the ONLY row
- * carrying `Unavailable`, and therefore the only row that decides which
- * roles the module rail offers this route to at all.
+ * because that one row is the ONLY row carrying `Unavailable`, and
+ * therefore the only row that decides which roles the module rail
+ * offers this route to at all. The unit suite partitions all nine and
+ * asserts the counts, so this comment cannot drift from them again.
  * ------------------------------------------------------------------ */
 
 export type MatrixStatus =
@@ -230,15 +233,10 @@ type MissingFromMatrix = Exclude<ControlId, (typeof CONTROL_MATRIX)[number]['id'
 const _matrixExhaustive: MissingFromMatrix extends never ? true : never = true
 void _matrixExhaustive
 
-/** Not exported: the two derivations below are its only callers. */
-function controlRow(id: ControlId): ControlMatrixRow {
+export function matrixRow(id: ControlId): ControlMatrixRow {
   const found = CONTROL_MATRIX.find((r) => r.id === id)
   if (found === undefined) throw new Error(`No control matrix row for ${id}`)
   return found
-}
-
-export function matrixRow(id: ControlId): ControlMatrixRow {
-  return controlRow(id)
 }
 
 /**
@@ -250,7 +248,7 @@ export function rolesWithStatus(
   id: ControlId,
   statuses: readonly MatrixStatus[],
 ): readonly TenantRoleId[] {
-  const row = controlRow(id)
+  const row = matrixRow(id)
   return (Object.keys(row.byRole) as readonly TenantRoleId[]).filter((role) =>
     statuses.includes(row.byRole[role].status),
   )
