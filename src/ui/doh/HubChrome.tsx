@@ -32,23 +32,29 @@ export interface HubChromeProps {
    */
   readonly activeModuleId?: DohModuleId
   /**
-   * The persona the chrome is rendering for. Task 2 fix 2: a persona that
-   * reaches no Hub screen is offered no Hub navigation — eight links whose
-   * every destination renders `Unavailable` would be the shell contradicting
-   * its own copy (D11). Omitted means no persona filter, and the rail
-   * renders on the `activeModuleId` condition alone.
+   * The persona the chrome is rendering for. REQUIRED, and deliberately not
+   * defaulted: a D11 guard whose default is "show it" fails open, and the
+   * caller always knows the persona. Task 2 fix round 2 (Minor-6).
+   *
+   * A persona the route registry does not admit reaches no Hub screen, so it
+   * is offered NO chrome at all — neither the module rail (eight links whose
+   * every destination renders `Unavailable`) nor the banner region (whose
+   * support-session slot carries a live End-session button). Both were the
+   * same mistake: chrome offered to a persona that reaches nothing.
    */
-  readonly role?: RoleId
+  readonly role: RoleId
   readonly children: ReactNode
 }
 
 export function HubChrome({ banners, activeModuleId, role, children }: HubChromeProps) {
-  const showRail =
-    activeModuleId !== undefined && (role === undefined || HUB_ROUTE.allowedRoles.includes(role))
+  // One question, asked once: does this persona reach this surface at all?
+  // Everything the chrome offers hangs off it.
+  const reachesHub = HUB_ROUTE.allowedRoles.includes(role)
+  const showRail = reachesHub && activeModuleId !== undefined
 
   return (
     <div className="space-y-6">
-      <BannerRegion banners={banners} />
+      <BannerRegion banners={reachesHub ? banners : []} />
       {showRail ? (
         <nav
           aria-label="Hub modules"

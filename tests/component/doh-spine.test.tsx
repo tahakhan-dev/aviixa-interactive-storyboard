@@ -55,7 +55,7 @@ describe('HubChrome — the shared banner region and module rail', () => {
     // only, so this case now names one. The assertion is unchanged -- the
     // rail lists all eight whichever one is current.
     render(
-      <HubChrome banners={[]} activeModuleId="MOD-DOH-01">
+      <HubChrome banners={[]} role="TENANT_ADMIN" activeModuleId="MOD-DOH-01">
         <p>content</p>
       </HubChrome>,
     )
@@ -70,7 +70,7 @@ describe('HubChrome — the shared banner region and module rail', () => {
 
   it('marks the active module with aria-current, and no other', () => {
     render(
-      <HubChrome banners={[]} activeModuleId="MOD-DOH-03">
+      <HubChrome banners={[]} role="TENANT_ADMIN" activeModuleId="MOD-DOH-03">
         <p>content</p>
       </HubChrome>,
     )
@@ -80,7 +80,7 @@ describe('HubChrome — the shared banner region and module rail', () => {
 
   it('renders its children beneath the chrome', () => {
     render(
-      <HubChrome banners={[]}>
+      <HubChrome banners={[]} role="TENANT_ADMIN">
         <p>module body</p>
       </HubChrome>,
     )
@@ -90,7 +90,7 @@ describe('HubChrome — the shared banner region and module rail', () => {
   it('renders banners passed through to the banner region', () => {
     const banners: readonly HubBanner[] = [{ kind: 'announcement', message: 'Read me.' }]
     render(
-      <HubChrome banners={banners}>
+      <HubChrome banners={banners} role="TENANT_ADMIN">
         <p>content</p>
       </HubChrome>,
     )

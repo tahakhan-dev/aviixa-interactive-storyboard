@@ -52,6 +52,16 @@ function isTenantRole(value: string): value is TenantRoleId {
 
 const WRITE_CLASS_NOTE = new Map(TENANT_WRITE_CLASSES.map((row) => [row.state, row.note]))
 
+/** Never a bare identifier in the interface (`RouteDefinition.title`'s rule,
+ *  `src/routes/definitions.ts`). The token stays the data; this is the label. */
+const TENANT_STATE_LABEL: Record<TenantState, string> = {
+  active: 'Active',
+  'soft-suspended': 'Suspended — billing (soft)',
+  'hard-suspended': 'Suspended — read-only (hard)',
+  'compliance-suspended': 'Suspended — compliance',
+  archived: 'Closed — archived',
+}
+
 const TENANT_STATE_TONE: Record<TenantState, StatusTone> = {
   active: 'ok',
   'soft-suspended': 'attention',
@@ -78,12 +88,19 @@ function screenAnnotation(moduleId: DohModuleId): string {
  *   `SCR-DOH-NN` annotation, purpose, breadcrumb back to `/hub/`) wrapping
  *   `children`. Tasks 3-10 code against this.
  *
- * STATE OWNERSHIP, which the eight module screens inherit: the shell holds
- * NO simulation state a screen depends on. `role` and `tenantState` are
- * controlled props owned by the calling screen's own `useState`, matching the
- * nineteen slice-3 screens. The shell falls back to local state only on the
- * index, where there is no calling screen. So a module screen stays
- * independently testable — render it, drive its own state, no provider.
+ * STATE OWNERSHIP, which the eight module screens inherit: `role` and
+ * `tenantState` are controlled props owned by the calling screen's own
+ * `useState`, matching the nineteen slice-3 screens. The shell falls back to
+ * local state for `role` only on the index, where there is no calling screen.
+ * So a module screen stays independently testable — render it, drive its own
+ * state, no provider.
+ *
+ * The shell does hold ONE piece of state of its own: whether the reviewer has
+ * pressed End session, which decides whether the seeded support-session banner
+ * is still bannered. It is chrome state, not simulation state a screen drives:
+ * no module screen reads it, none needs to, and it resets with the shell. If a
+ * later module needs to own that session, it becomes a controlled prop like
+ * the two above — do not mirror it into a screen's state.
  */
 export interface HubShellProps {
   readonly module?: DohModuleDefinition
@@ -132,7 +149,9 @@ export function HubShell({
         {...(module !== undefined ? { activeModuleId: module.id } : {})}
       >
         {notAHubUser ? (
-          <h1 className="text-3xl font-semibold">Unavailable for the Worker view</h1>
+          <h1 className="text-3xl font-semibold">
+            Unavailable for the {roleById(activeRole).name} view
+          </h1>
         ) : module !== undefined ? (
           <div>
             <Breadcrumbs
@@ -182,7 +201,11 @@ export function HubShell({
             />
             <p className="text-sm text-[var(--color-ink-muted)]">
               <span className="font-medium text-[var(--color-ink)]">Tenant state: </span>
-              <StatusPill tone={TENANT_STATE_TONE[tenantState]} icon="●" label={tenantState} />{' '}
+              <StatusPill
+                tone={TENANT_STATE_TONE[tenantState]}
+                icon="●"
+                label={TENANT_STATE_LABEL[tenantState]}
+              />{' '}
               {WRITE_CLASS_NOTE.get(tenantState) ?? ''}
             </p>
           </div>
@@ -194,12 +217,17 @@ export function HubShell({
             permissions matrix marks that categorically prohibited for all five tenant roles, so it
             renders ABSENT rather than disabled.
           </p>
-          <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Banners cover all three platform access classes; End session appears on the normal
-            support session only, because an emergency access the workspace could terminate would
-            not be an emergency access (D13). Any signed-in tenant web user may press it, because
-            the control belongs to the tenant (D12).
-          </p>
+          {notAHubUser ? null : (
+            <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+              One access class is seeded open here, the normal support session, and End session on
+              it is live: any signed-in tenant web user may press it, because the control belongs to
+              the tenant (D12). The compliance-emergency path and the JBS access grant carry no
+              End-session control at all — by construction, not by configuration, since the banner
+              type has no such field on those two arms, so there is nothing to disable (D13). All
+              three classes are exercised on the Tenant View of Platform Administration screen,
+              which this slice builds later.
+            </p>
+          )}
           <LiveRegion>
             {supportSessionEnded ? (
               <p className="mt-2 max-w-prose text-sm text-[var(--color-ink)]">
@@ -216,7 +244,8 @@ export function HubShell({
             className="mt-6 rounded-[var(--radius-surface)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-4"
           >
             <p className="max-w-prose text-[var(--color-ink)]">
-              The Worker holds no Hub screen. Every Hub route renders Unavailable for this persona:
+              The {roleById(activeRole).name} holds no Hub screen. Every Hub route renders
+              Unavailable for this persona — no module rail, no banner region, no module content:
               the route registry admits {hubRoleNames}, and no Worker.
             </p>
             <p className="mt-3 max-w-prose text-[var(--color-ink-muted)]">
@@ -229,6 +258,7 @@ export function HubShell({
               view &ldquo;changes the login model&apos;s surface area, the training burden, and the
               attack surface&rdquo; (L23067).
             </p>
+            <PrototypeDisclosure />
           </div>
         ) : module !== undefined ? (
           <div className="mt-6">{children}</div>

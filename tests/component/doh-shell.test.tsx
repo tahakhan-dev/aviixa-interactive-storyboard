@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { surfaceById } from '@/domain/surfaces'
 import { rolesInDomain } from '@/domain/roles'
@@ -133,10 +133,20 @@ describe('HubShell — the three-slot banner region (C1)', () => {
     expect(screen.getByText(/no platform session was terminated/i)).toBeDefined()
   })
 
-  it('states D12 and D13 where a reviewer can read them', () => {
+  it('states what is actually true of the three access classes, not a claim this build cannot show', () => {
     render(<HubShell />)
-    expect(screen.getByText(/D12/)).toBeDefined()
-    expect(screen.getByText(/D13/)).toBeDefined()
+    const claim = screen.getByText(/D13/)
+    const text = claim.textContent ?? ''
+    // D12, on the one class this build seeds open.
+    expect(text).toMatch(/D12/)
+    expect(text).toMatch(/seeded open/i)
+    expect(text).toMatch(/normal support session/i)
+    // D13, and WHY the other two carry no control: the type, not a setting.
+    expect(text).toMatch(/compliance-emergency path/i)
+    expect(text).toMatch(/JBS access grant/i)
+    expect(text).toMatch(/by construction, not by configuration/i)
+    // The unverifiable claim this replaced.
+    expect(document.body.textContent ?? '').not.toMatch(/banners cover all three/i)
   })
 })
 
@@ -151,13 +161,32 @@ describe('HubShell — the reviewer view switcher (AC-16-12)', () => {
     expect(screen.queryByRole('option', { name: /platform engineer/i })).toBeNull()
   })
 
-  it('never renders an acting-as, impersonation or session-level role control', () => {
-    render(<HubShell />)
-    const text = document.body.textContent ?? ''
-    expect(text).not.toMatch(/act(ing)? as/i)
-    expect(text).not.toMatch(/impersonat/i)
-    expect(text).not.toMatch(/switch role|role selector/i)
-    expect(screen.getByText(/AC-16-12/)).toBeDefined()
+  it('never renders an acting-as, impersonation or session-level role control, in any of its three modes', async () => {
+    const modes: readonly (() => Promise<void>)[] = [
+      async () => {
+        render(<HubShell />)
+      },
+      async () => {
+        render(
+          <HubShell module={dohModuleById('MOD-DOH-01')}>
+            <p>module body</p>
+          </HubShell>,
+        )
+      },
+      async () => {
+        render(<HubShell />)
+        await userEvent.selectOptions(screen.getByLabelText('View as tenant role'), 'WORKER')
+      },
+    ]
+    for (const [index, mount] of modes.entries()) {
+      await mount()
+      const text = document.body.textContent ?? ''
+      expect(text, `mode ${index}`).not.toMatch(/act(ing)? as/i)
+      expect(text, `mode ${index}`).not.toMatch(/impersonat/i)
+      expect(text, `mode ${index}`).not.toMatch(/switch role|role selector/i)
+      expect(screen.getByText(/AC-16-12/), `mode ${index}`).toBeDefined()
+      cleanup()
+    }
   })
 
   it('says on screen that changing the view performs no product action and alters no audit actor', () => {
@@ -186,6 +215,33 @@ describe('HubShell — the Worker view (D11, DEC-WKRVIEW-001)', () => {
     expect(screen.getByText(/cannot check their own certification expiry/i)).toBeDefined()
     expect(screen.getByText(/DEC-WKRVIEW-001/)).toBeDefined()
     expect(screen.getByText(/D11/)).toBeDefined()
+  })
+
+  it('is offered no banner region either, so no live End-session control reaches it', async () => {
+    render(<HubShell />)
+    // Present for the persona that does reach the Hub...
+    expect(screen.getByRole('button', { name: /end session/i })).toBeDefined()
+    expect(screen.getByText(SEEDED_ANNOUNCEMENTS[0]!.message)).toBeDefined()
+
+    await userEvent.selectOptions(screen.getByLabelText('View as tenant role'), 'WORKER')
+
+    // ...and gone for the persona the shell has just declared reaches nothing.
+    expect(screen.queryByRole('button', { name: /end session/i })).toBeNull()
+    expect(screen.queryByText(SEEDED_ANNOUNCEMENTS[0]!.message)).toBeNull()
+    expect(screen.queryByText(OPEN_SESSION!.message)).toBeNull()
+  })
+
+  it('shows no suspension banner either, on a suspended tenant', async () => {
+    render(<HubShell tenantState="hard-suspended" />)
+    expect(screen.getByText(SUSPENSION_BANNERS['hard-suspended'].message)).toBeDefined()
+    await userEvent.selectOptions(screen.getByLabelText('View as tenant role'), 'WORKER')
+    expect(screen.queryByText(SUSPENSION_BANNERS['hard-suspended'].message)).toBeNull()
+  })
+
+  it('still carries the prototype disclosure, which every screen must', async () => {
+    render(<HubShell />)
+    await userEvent.selectOptions(screen.getByLabelText('View as tenant role'), 'WORKER')
+    expect(screen.getByText(/simulated behaviour only/i)).toBeDefined()
   })
 
   it('withholds the module index too, and keeps the view switcher reachable', async () => {
