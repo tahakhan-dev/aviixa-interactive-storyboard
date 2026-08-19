@@ -24,6 +24,7 @@ import { permitsAction, type PermissionDecision } from '@/policy/decision'
 import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
 import { rolesInDomain, type RoleId } from '@/domain/roles'
+import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
 import { SaConsoleShell } from '../SaConsoleShell'
 
 /**
@@ -1151,6 +1152,7 @@ export function TiersScreen({
           </section>
         </>
       ) : null}
+      <RootUnavailableFreeze actions={['tier-publication']} />
     </SaConsoleShell>
   )
 }

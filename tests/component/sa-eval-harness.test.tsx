@@ -417,3 +417,28 @@ describe('MOD-SA-05 — what the source does not define', () => {
     }
   })
 })
+
+describe('MOD-SA-05 — STATE-02: the selector and the run buttons read one fact', () => {
+  // Controller review, C3. The STATE-02 fix disabled the run-target selector
+  // and left the Run buttons live, so one click made the panel say "No run
+  // target can be named until they arrive" and "Run target: the whole suite"
+  // at once. The 48-permutation test that shipped with the fix compared option
+  // lists only, so it could not see the buttons.
+  it('offers no run while the scenario list has not arrived', () => {
+    render(<EvalHarnessScreen screenState="STATE-02" />)
+    for (const b of screen.getAllByRole('button')) {
+      if (!/^run\b/i.test(b.textContent ?? '')) continue
+      expect(
+        b.getAttribute('aria-disabled'),
+        `"${b.textContent}" is live while the list is still loading`,
+      ).toBe('true')
+    }
+  })
+
+  it('offers a run once the list has arrived', () => {
+    render(<EvalHarnessScreen screenState="STATE-03" />)
+    const runs = screen.getAllByRole('button').filter((b) => /^run\b/i.test(b.textContent ?? ''))
+    expect(runs.length, 'no run control at all — the test above would be vacuous').toBeGreaterThan(0)
+    expect(runs.some((b) => b.getAttribute('aria-disabled') !== 'true')).toBe(true)
+  })
+})

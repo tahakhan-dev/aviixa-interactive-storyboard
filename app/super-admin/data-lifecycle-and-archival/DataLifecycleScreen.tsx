@@ -15,6 +15,7 @@ import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { CommandStateBadge } from '@/ui/sa/CommandStateBadge'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
+import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
 import {
   Banner,
   Button,
@@ -970,4 +971,11 @@ export function DataLifecycleScreen({
       </Section>
     </SaConsoleShell>
   )
-}
+}      <RootUnavailableFreeze
+        actions={[
+          'erasure-and-archival-execution',
+          'retention-value-changes',
+          'legal-hold-place-and-release',
+        ]}
+      />
+

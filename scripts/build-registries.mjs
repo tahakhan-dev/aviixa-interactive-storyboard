@@ -200,15 +200,15 @@ const SOURCE_CLASSIFICATION_TO_SOURCE_CLASS = {
  * numbers while fourteen were live.
  */
 function demonstratedModuleIds() {
-  const roots = ['app']
+  const roots = [join(ROOT, 'app')]
   const owned = new Set()
   const walkDirs = (dir) => {
-    let entries
-    try {
-      entries = readdirSync(dir, { withFileTypes: true })
-    } catch {
-      return
-    }
+    // No silent catch. This walk deciding "nothing is demonstrated" is
+    // indistinguishable, in the output, from a build where nothing IS
+    // demonstrated -- and the 81/63/18 guards below pass either way. Running
+    // this script from another cwd used to regenerate all nineteen SURF-SA
+    // modules as `not-represented`, exit 0, no warning.
+    const entries = readdirSync(dir, { withFileTypes: true })
     const hasPage = entries.some((e) => e.isFile() && e.name === 'page.tsx')
     if (hasPage) {
       const counts = new Map()
@@ -224,7 +224,18 @@ function demonstratedModuleIds() {
       }
       collect(dir)
       const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1])
-      if (ranked.length > 0) owned.add(ranked[0][0])
+      if (ranked.length > 0) {
+        // The comment used to assert "verified unambiguous (zero ties)" and
+        // nothing enforced it, while three route directories sat one mention
+        // from a flip. A tie would resolve by Map insertion order, silently
+        // attributing a route to whichever module happened to be seen first.
+        if (ranked.length > 1 && ranked[0][1] === ranked[1][1]) {
+          throw new Error(
+            `Ambiguous module ownership for route ${dir}: ${ranked[0][0]} and ${ranked[1][0]} are both mentioned ${ranked[0][1]} times. A route must name its own module more often than any it cross-references.`,
+          )
+        }
+        owned.add(ranked[0][0])
+      }
     }
     for (const e of entries) if (e.isDirectory()) walkDirs(join(dir, e.name))
   }
@@ -233,6 +244,15 @@ function demonstratedModuleIds() {
 }
 
 const DEMONSTRATED_MODULE_IDS = demonstratedModuleIds()
+
+// A build that finds no shipped module is a broken walk, not an empty product:
+// nineteen SURF-SA routes exist on disk. Failing here beats writing a coverage
+// dashboard that quietly reports nothing is built.
+if (DEMONSTRATED_MODULE_IDS.size === 0) {
+  throw new Error(
+    'No module route was found under app/. The route walk is broken -- refusing to write registries that would report every module as not-represented.',
+  )
+}
 
 function buildModulesRegistry() {
   const rawKeys = new Set()

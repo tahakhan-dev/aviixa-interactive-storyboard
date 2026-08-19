@@ -161,7 +161,17 @@ describe('gate 1: count-scope honesty', () => {
     // and is never the count this gate is about. A comma followed by digits
     // is the thousands separator in a larger figure ('18,402'), so it is
     // excluded too -- but a bare comma is not, so "613, which is" still trips.
-    const pattern = new RegExp(`(?<![\\w§.-])(${[...forbidden].join('|')})(?![\\w.-]|,\\d)`)
+    //
+    // The TRAILING set is narrower than the leading one, and the first attempt
+    // got that wrong: excluding a trailing `.` and `-` blinded the gate to
+    // "The registry holds 81." and "an 81-module inventory" -- and sentence
+    // end is the commonest position for a count in rendered prose. Only a word
+    // character, a DECIMAL point (8.17) or a thousands separator continues the
+    // token; a bare full stop ends a sentence, and a hyphen after a count is
+    // part of a phrase, not of an identifier. The leading exclusion already
+    // rejects MOD-SA-18, 2026-08-17 and AC-SA-18-04, so the trailing one does
+    // not need to.
+    const pattern = new RegExp(`(?<![\\w§.-])(${[...forbidden].join('|')})(?![\\w]|\\.\\d|,\\d)`)
     const offenders: string[] = []
     for (const f of walk('app').filter((f) => /\.tsx$/.test(f))) {
       const match = pattern.exec(stripComments(readFileSync(f, 'utf8')))
@@ -187,6 +197,41 @@ describe('gate 1: count-scope honesty', () => {
     expect(forbidden.has(18)).toBe(true)
     // 0 is deliberately never forbidden.
     expect(forbidden.has(0)).toBe(false)
+  })
+
+  // The first boundary fix passed this test while blinding the gate to a count
+  // at the end of a sentence -- because the planted probe only ever wrote
+  // `= 613`, one position out of the several a count actually appears in. A
+  // probe that exercises one position proves the gate works in one position.
+  it.each([
+    ['sentence end', 'export const C = () => <p>The registry holds 990.</p>\n'],
+    ['before a hyphen', 'export const C = () => <p>an 81-module inventory</p>\n'],
+    ['after a colon', 'export const C = () => <p>Functions indexed: 990</p>\n'],
+    ['before a bare comma', 'export const C = () => <p>holds 630, and more</p>\n'],
+  ])('PLANTED VIOLATION: a count %s trips the gate', (_where, body) => {
+    const probe = join('app', 'coverage', 'zz-probe.tsx')
+    writeFileSync(probe, body)
+    try {
+      expect(hardcodedCountOffenders().join(' ')).toContain(probe)
+    } finally {
+      rmSync(probe)
+    }
+    expect(hardcodedCountOffenders()).toEqual([])
+  })
+
+  it.each([
+    ['a stable identifier', 'export const C = () => <p>MOD-SA-18 and AC-SA-17-04</p>\n'],
+    ['an ISO date', "export const C = () => <p>{'2026-08-17'}</p>\n"],
+    ['a thousands separator', "export const C = () => <p>{'18,402 runs'}</p>\n"],
+    ['a section number', 'export const C = () => <p>section 8.17 says</p>\n'],
+  ])('and %s does NOT trip it', (_what, body) => {
+    const probe = join('app', 'coverage', 'zz-probe.tsx')
+    writeFileSync(probe, body)
+    try {
+      expect(hardcodedCountOffenders()).toEqual([])
+    } finally {
+      rmSync(probe)
+    }
   })
 
   it('PLANTED VIOLATION: a hardcoded count in ANY app/ file trips the gate, including outside app/coverage/', () => {

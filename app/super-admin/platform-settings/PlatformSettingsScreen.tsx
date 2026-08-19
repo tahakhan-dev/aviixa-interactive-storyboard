@@ -13,6 +13,7 @@ import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { CommandStateBadge } from '@/ui/sa/CommandStateBadge'
+import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
 import {
   Banner,
   Button,
@@ -1088,4 +1089,12 @@ export function PlatformSettingsScreen({
       </Section>
     </SaConsoleShell>
   )
-}
+}      <RootUnavailableFreeze
+        actions={[
+          'emergency-pause',
+          'emergency-resume',
+          'severity-catalog-changes',
+          'floor-register-changes',
+        ]}
+      />
+

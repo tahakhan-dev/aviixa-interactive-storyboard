@@ -25,6 +25,7 @@ import type { PermissionDecision } from '@/policy/decision'
 import type { RoleId } from '@/domain/roles'
 import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
+import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
 import {
   DETAIL_TABS,
   HARD_SUSPENSION_REASON_CLASSES,
@@ -746,6 +747,7 @@ export function TenantsScreen() {
           ))}
         </ul>
       </section>
+      <RootUnavailableFreeze actions={['compliance-suspension']} />
     </SaConsoleShell>
   )
 }

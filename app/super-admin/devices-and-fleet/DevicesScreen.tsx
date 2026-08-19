@@ -23,6 +23,7 @@ import type { PermissionDecision } from '@/policy/decision'
 import type { RoleId } from '@/domain/roles'
 import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
+import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
 import {
   ABSENT_BY_RULE,
   DEVICES,
@@ -772,6 +773,7 @@ export function DevicesScreen() {
           ))}
         </ul>
       </section>
+      <RootUnavailableFreeze actions={['device-wipe']} />
     </SaConsoleShell>
   )
 }

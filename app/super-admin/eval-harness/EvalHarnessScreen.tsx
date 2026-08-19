@@ -209,8 +209,20 @@ export function EvalHarnessScreen({
   )
 
   const runReason = namedReason(runDecision, role, harness)
-  const runDisabled = runDecision.outcome !== 'allowed'
-  const runProps = runDisabled ? { disabledReason: runReason } : {}
+  // A run needs a target, and in STATE-02 the scenario list has not arrived --
+  // the selector says exactly that. Gating the run on the DECISION alone left
+  // the buttons live beside it, so one click produced "No run target can be
+  // named until they arrive" and "queued / Run target: the whole suite" on the
+  // same screen. The selector and the buttons read one fact, so they read it
+  // from one place.
+  const runDisabled = runDecision.outcome !== 'allowed' || scenariosLoading
+  const runProps = runDisabled
+    ? {
+        disabledReason: scenariosLoading
+          ? 'The scenario list has not arrived in this state, so no run target can be named yet.'
+          : runReason,
+      }
+    : {}
 
   const verdicts = scenarios.map((s) => effectiveVerdict(s, screenState))
   const counts = [

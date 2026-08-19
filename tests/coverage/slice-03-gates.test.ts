@@ -255,3 +255,58 @@ describe('slice 3 gate 8: every module survives an artificial-intelligence outag
     )
   })
 })
+
+describe('slice 3 gate 9: every critical-class action discloses its freeze', () => {
+  // D13 / DEC-ROOTSUCC-001. The root approves its own critical requests
+  // because no second approver exists, so root unavailability FREEZES them
+  // rather than routing them elsewhere -- the most honest thing this
+  // storyboard can show about the design.
+  //
+  // It shipped as per-screen prose, and a cross-module review found the
+  // predictable result: five screens stated it and the two carrying SEVEN of
+  // the eleven -- the emergency pause, and retention and legal hold -- omitted
+  // it. Per-module review cannot see that; only a comparison across screens
+  // can.
+  //
+  // The first version of this gate tried to INFER which screens offer a
+  // critical action, and flagged ten -- including one whose copy reads "No
+  // control in this module is one of the eleven critical-class actions" and
+  // one that names an action owned elsewhere in order to render it ABSENT.
+  // Matching prose again. So the disclosure is DECLARED instead: a screen
+  // offering a critical action renders <RootUnavailableFreeze actions={...}>,
+  // and the gate asserts the declarations cover all eleven exactly once.
+  function declaredActions(): Map<string, string[]> {
+    const byModule = new Map<string, string[]>()
+    for (const d of readdirSync(SA_ROOT)) {
+      const dir = join(SA_ROOT, d)
+      if (!statSync(dir).isDirectory()) continue
+      const src = readdirSync(dir)
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => readFileSync(join(dir, f), 'utf8'))
+        .join('\n')
+      const m = src.match(/<RootUnavailableFreeze\s+actions=\{\[([\s\S]*?)\]\}/)
+      if (m === null) continue
+      byModule.set(d, [...(m[1] ?? '').matchAll(/'([a-z-]+)'/g)].map((x) => x[1] as string))
+    }
+    return byModule
+  }
+
+  it('all eleven critical actions are declared by some screen', () => {
+    const declared = new Set<string>([...declaredActions().values()].flat())
+    const missing = CRITICAL_ACTIONS.map((a) => a.id).filter((id) => !declared.has(id))
+    expect(missing, 'critical actions offered with no freeze disclosure').toEqual([])
+  })
+
+  it('no critical action is claimed by two screens', () => {
+    const declared = [...declaredActions().values()].flat()
+    const dupes = declared.filter((id, i) => declared.indexOf(id) !== i)
+    expect([...new Set(dupes)], 'two screens claim the same critical action').toEqual([])
+  })
+
+  it('every declared id is one of the eleven, not an invented one', () => {
+    const known = new Set<string>(CRITICAL_ACTIONS.map((a) => a.id))
+    for (const [mod, ids] of declaredActions()) {
+      for (const id of ids) expect(known.has(id), `${mod} declares unknown action ${id}`).toBe(true)
+    }
+  })
+})

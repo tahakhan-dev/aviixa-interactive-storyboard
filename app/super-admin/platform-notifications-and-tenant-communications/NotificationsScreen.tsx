@@ -14,6 +14,7 @@ import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
 import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
+import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
 import {
   Banner,
   Button,
@@ -753,6 +754,7 @@ export function NotificationsScreen({
           ))}
         </ul>
       </Section>
+      <RootUnavailableFreeze actions={['all-tenant-broadcast']} />
     </SaConsoleShell>
   )
 }
