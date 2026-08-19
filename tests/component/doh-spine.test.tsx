@@ -51,8 +51,11 @@ describe('BannerRegion — the three-slot banner region and nothing more', () =>
 
 describe('HubChrome — the shared banner region and module rail', () => {
   it('lists all eight in-slice modules as navigable links, keyed by slug', () => {
+    // Task 2 fix 1: the rail is navigation and renders on a module route
+    // only, so this case now names one. The assertion is unchanged -- the
+    // rail lists all eight whichever one is current.
     render(
-      <HubChrome banners={[]}>
+      <HubChrome banners={[]} activeModuleId="MOD-DOH-01">
         <p>content</p>
       </HubChrome>,
     )
