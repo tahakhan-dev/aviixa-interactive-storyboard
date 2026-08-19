@@ -35,9 +35,27 @@ const SA_ROOT = join('app', 'super-admin')
 // before; only external tooling that globs the tree loses sight of it.
 const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
 
+// The one predicate every SA_ROOT-listing site routes through -- walk() and
+// five other `readdirSync(SA_ROOT)` call sites each independently listed
+// every entry and touched all of them (statSync, or a nested readdirSync);
+// any one throws ENOENT if a sibling's `finally` removes its probe in
+// between, `declaredActions()` (gate 9) widest of all since it runs outside
+// any withPlanted and so overlaps a sibling's plant naturally. One filter,
+// used everywhere SA_ROOT's own entries are listed, closes all of them at
+// once rather than one call site at a time.
+//
+// Exact match, not a prefix: matching anything merely STARTING WITH
+// `zz-probe` also matched a FILE so named, at any depth, in any scanned root
+// (`src/ui/sa/zz-probe.tsx`, `app/super-admin/<module>/zz-probeHelpers.tsx`)
+// -- invisible to every gate, a safety gate walkable past by choosing a
+// filename. This matches only the exact directory name this code can ever
+// create.
+const isForeignProbe = (e: string): boolean => /^\.zz-probe-\d+$/.test(e) && e !== OWN_PROBE_DIR
+const saEntries = (): string[] => readdirSync(SA_ROOT).filter((e) => !isForeignProbe(e))
+
 function walk(dir: string, acc: string[] = []): string[] {
   for (const e of readdirSync(dir)) {
-    if (/^\.?zz-probe/.test(e) && e !== OWN_PROBE_DIR) continue
+    if (isForeignProbe(e)) continue
     const p = join(dir, e)
     if (statSync(p).isDirectory()) walk(p, acc)
     else acc.push(p)
@@ -109,6 +127,13 @@ function withPlanted(contents: string, assertCaught: (probe: string) => void): v
     rmSync(dir, { recursive: true, force: true })
   }
 }
+
+// Defend against pid reuse: if a PAST crashed run left OWN_PROBE_DIR behind
+// and this run drew the same pid, the `!== OWN_PROBE_DIR` checks above would
+// admit that STALE probe into every scan as this run's own, and a gate
+// running before this run's first plant would read its leftover violation as
+// real. Clear it before anything else runs.
+rmSync(join(SA_ROOT, OWN_PROBE_DIR), { recursive: true, force: true })
 
 process.on('exit', () => {
   try {
@@ -288,16 +313,12 @@ describe('slice 3 gate 4: names are canonical, screen numbers are annotations', 
   // 26, and SCR-SA-03 alone names both the atom registry and the agent roster.
   // Anything keyed on a bare number eventually wires the wrong screen.
   it('no route directory is named after a bare SCR-SA number', () => {
-    const dirs = readdirSync(SA_ROOT).filter((e) => statSync(join(SA_ROOT, e)).isDirectory())
+    const dirs = saEntries().filter((e) => statSync(join(SA_ROOT, e)).isDirectory())
     for (const d of dirs) expect(d, `${d} is keyed on a screen number`).not.toMatch(/^scr-sa-\d+$/i)
   })
 
   it('every module route directory matches its registry slug', () => {
-    const dirs = new Set(
-      readdirSync(SA_ROOT)
-        .filter((e) => !/^\.?zz-probe/.test(e))
-        .filter((e) => statSync(join(SA_ROOT, e)).isDirectory()),
-    )
+    const dirs = new Set(saEntries().filter((e) => statSync(join(SA_ROOT, e)).isDirectory()))
     for (const m of SA_MODULES) {
       expect(dirs.has(m.slug), `${m.id} expects app/super-admin/${m.slug}/`).toBe(true)
     }
@@ -316,7 +337,7 @@ describe('slice 3 gate 5: the module inventory is nineteen, and MOD-SA-20 is not
     // that a search over text "would otherwise match itself", because the only
     // place MOD-SA-20 appears is in prose refusing it (TEST-COV-111, L4736).
     expect(SA_MODULES.map((m) => m.id)).not.toContain('MOD-SA-20')
-    const dirs = readdirSync(SA_ROOT).filter((e) => statSync(join(SA_ROOT, e)).isDirectory())
+    const dirs = saEntries().filter((e) => statSync(join(SA_ROOT, e)).isDirectory())
     for (const d of dirs) expect(d).not.toMatch(/fundability/i)
   })
 })
@@ -463,7 +484,7 @@ describe('slice 3 gate 9: every critical-class action discloses its freeze', () 
   // SAY it? A declaration in a file is not a disclosure on a screen.
   function declaredActions(): Map<string, string[]> {
     const byModule = new Map<string, string[]>()
-    for (const d of readdirSync(SA_ROOT)) {
+    for (const d of saEntries()) {
       const dir = join(SA_ROOT, d)
       if (!statSync(dir).isDirectory()) continue
       const src = readdirSync(dir)
@@ -642,7 +663,7 @@ describe('slice 3 gate 12: one tab-title shape across the surface', () => {
   // console a tab belonged to. Cosmetic alone; a navigation defect in a
   // storyboard whose whole job is to be walked through.
   it('every Super Admin route names the console in its title', () => {
-    const pages = readdirSync(SA_ROOT)
+    const pages = saEntries()
       .filter((d) => statSync(join(SA_ROOT, d)).isDirectory())
       .map((d) => join(SA_ROOT, d, 'page.tsx'))
       .filter((f) => existsSync(f))
