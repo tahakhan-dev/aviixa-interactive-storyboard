@@ -56,7 +56,21 @@ export const TENANT_ROLE_ORDER = [
  * set, so this build counts the two operational tenant roles and prints the
  * assumption next to the number. See `UNSPECIFIED_IN_SOURCE`.
  */
-export const APPROVER_CAPABLE_ROLES: readonly TenantRoleId[] = ['QUALITY_MANAGER', 'SUPERVISOR']
+export const APPROVER_CAPABLE_ROLES = [
+  'QUALITY_MANAGER',
+  'SUPERVISOR',
+] as const satisfies readonly TenantRoleId[]
+
+/**
+ * The check that matters for a SUBSET: `satisfies` already refuses a role
+ * that is not a tenant role, and this refuses the other direction — the set
+ * widening until it holds every tenant role, at which point "approver-capable"
+ * stops distinguishing anybody and the standing counter stops meaning
+ * anything. A strict subset has at least one tenant role outside it.
+ */
+type NonApproverTenantRole = Exclude<TenantRoleId, (typeof APPROVER_CAPABLE_ROLES)[number]>
+const _approverRolesAreAStrictSubset: [NonApproverTenantRole] extends [never] ? never : true = true
+void _approverRolesAreAStrictSubset
 
 /** The exact sentences the standing panel turns red with. Never paraphrased. */
 export const MANDATORY_ROLE_STATEMENTS = {
@@ -110,7 +124,7 @@ export interface AccountLifecycleRival {
  * discarded. A reader who finds one of them in the source can see here which
  * reading this build took and why.
  */
-export const ACCOUNT_LIFECYCLE_RIVALS: readonly AccountLifecycleRival[] = [
+export const ACCOUNT_LIFECYCLE_RIVALS = [
   {
     label: 'The module card for MOD-DOH-09',
     states: [...USER_ACCOUNT_STATES],
@@ -150,7 +164,12 @@ export const ACCOUNT_LIFECYCLE_RIVALS: readonly AccountLifecycleRival[] = [
     adopted: false,
     note: 'A fourth, non-matching vocabulary for the same concept. It is the only one carrying "Dormant", and the source defines no dormancy threshold anywhere.',
   },
-]
+] as const satisfies readonly AccountLifecycleRival[]
+
+/** D21 has to ADOPT one of the four. Four rivals and no ruling would be the defect. */
+type AdoptedRival = Extract<(typeof ACCOUNT_LIFECYCLE_RIVALS)[number], { adopted: true }>
+const _oneLifecycleIsAdopted: [AdoptedRival] extends [never] ? never : true = true
+void _oneLifecycleIsAdopted
 
 /* ------------------------------------------------------------------ *
  * The user register. Identity and authority only.
@@ -340,7 +359,10 @@ export function standingCounters(
 ): StandingCounters {
   const tenantAdmins = users.filter((u) => u.roles.includes('TENANT_ADMIN')).length
   const approverCapable = users.filter((u) =>
-    u.roles.some((r) => APPROVER_CAPABLE_ROLES.includes(r)),
+    // Asked this way round because the declared set is now a narrowed tuple:
+    // `APPROVER_CAPABLE_ROLES.includes(anyTenantRole)` no longer type-checks,
+    // which is the widening this conversion was for.
+    APPROVER_CAPABLE_ROLES.some((approver) => u.roles.includes(approver)),
   ).length
   const warnings: string[] = []
   if (tenantAdmins === 0) warnings.push(MANDATORY_ROLE_STATEMENTS.tenantAdmin)
@@ -419,7 +441,7 @@ const AUDITOR_NO_WRITE =
 const WORKER_NO_SELF_SERVICE =
   'Explicitly prohibited — self-service role change is a privilege-escalation path, and the source refuses it rather than merely leaving it out (H18, L22027).'
 
-export const PERMISSION_MATRIX: readonly MatrixRow[] = [
+export const PERMISSION_MATRIX = [
   {
     id: 'create-or-edit-user-account',
     label: 'Create a user account',
@@ -605,7 +627,13 @@ export const PERMISSION_MATRIX: readonly MatrixRow[] = [
     ),
     note: 'No surface renders a session-level role context of any kind. The view control on this storyboard is the reviewer’s, it changes only which seeded fixtures render, and it alters no audit actor.',
   },
-]
+] as const satisfies readonly MatrixRow[]
+
+/** Every declared row id is on the matrix. A missing row would otherwise only
+ *  surface as a thrown `matrixRow()` at render time. */
+type MissingFromMatrix = Exclude<MatrixRowId, (typeof PERMISSION_MATRIX)[number]['id']>
+const _matrixExhaustive: MissingFromMatrix extends never ? true : never = true
+void _matrixExhaustive
 
 /* ------------------------------------------------------------------ *
  * The rendering rule. Applied by rule, never by taste.
@@ -675,13 +703,13 @@ const EXTRA_ABSENT_CONTROLS: readonly AbsentControl[] = [
  * categorical automatically appears here and a row that stops being
  * categorical automatically leaves.
  */
-export const ABSENT_CONTROLS: readonly AbsentControl[] = [
+export const ABSENT_CONTROLS = [
   ...PERMISSION_MATRIX.filter((r) => r.prohibition === 'categorical').map((r) => ({
     label: r.label,
     note: `${r.cells.TENANT_ADMIN.cause} ${r.note}`,
   })),
   ...EXTRA_ABSENT_CONTROLS,
-]
+] as const satisfies readonly AbsentControl[]
 
 /* ------------------------------------------------------------------ *
  * The access-resolution boot order (spec S8, L25667).
@@ -773,7 +801,7 @@ export interface InapplicableState {
   readonly reason: string
 }
 
-export const DOH09_INAPPLICABLE_STATES: readonly InapplicableState[] = [
+export const DOH09_INAPPLICABLE_STATES = [
   {
     id: 'STATE-07',
     reason:
@@ -794,7 +822,20 @@ export const DOH09_INAPPLICABLE_STATES: readonly InapplicableState[] = [
     reason:
       'For the same reason: with every agent unavailable this module is unchanged and fully operable, because permission resolution is deterministic.',
   },
-]
+] as const satisfies readonly InapplicableState[]
+
+/**
+ * The two lists are complements, proved rather than trusted: every state this
+ * module does NOT reach carries a stated reason here. Drop a state from
+ * `DOH09_APPLICABLE_STATES` without writing its reason and this fails to
+ * compile, which is the only moment anybody would notice.
+ */
+type UnreasonedInapplicableState = Exclude<
+  Exclude<ScreenStateId, Doh09StateId>,
+  (typeof DOH09_INAPPLICABLE_STATES)[number]['id']
+>
+const _inapplicableStatesExhaustive: UnreasonedInapplicableState extends never ? true : never = true
+void _inapplicableStatesExhaustive
 
 /* ------------------------------------------------------------------ *
  * The seeded domain state and the identity the evaluator is handed.
@@ -883,8 +924,27 @@ export function fixtureContext(
  * SCR-DOH-ROLE-04 — the seeded refusals, one per access condition.
  * ------------------------------------------------------------------ */
 
+/**
+ * The ten seeded refusals, as a closed set. Narrow rather than `string`
+ * because `refusalScenario()` below THROWS on an unknown id: with a `string`
+ * parameter a perfectly well-typed caller reaches that throw, which the
+ * global constraint forbids (typed failures, never a thrown exception on an
+ * expected path). `RosterScenarioId` above is the same pattern.
+ */
+export type RefusalScenarioId =
+  | 'role-permission'
+  | 'assigned-scope'
+  | 'tenant-entitlement'
+  | 'object-state'
+  | 'qualification'
+  | 'active-grant'
+  | 'device-and-connectivity'
+  | 'segregation-of-duties'
+  | 'safety-controls'
+  | 'unevaluable-rule'
+
 export interface RefusalScenario extends FixtureContextOptions {
-  readonly id: string
+  readonly id: RefusalScenarioId
   /** Which of the nine intersecting conditions this scenario exercises. */
   readonly condition: AccessCondition
   readonly label: string
@@ -902,7 +962,7 @@ export interface RefusalScenario extends FixtureContextOptions {
 
 const ALL_TENANT_ROLES = [...TENANT_ROLE_ORDER]
 
-export const REFUSAL_SCENARIOS: readonly RefusalScenario[] = [
+export const REFUSAL_SCENARIOS = [
   {
     id: 'role-permission',
     condition: 'role-permission',
@@ -1067,9 +1127,18 @@ export const REFUSAL_SCENARIOS: readonly RefusalScenario[] = [
     },
     ...DEFAULT_CONTEXT,
   },
-]
+] as const satisfies readonly RefusalScenario[]
 
-export function refusalScenario(id: string): RefusalScenario {
+type MissingFromRefusals = Exclude<RefusalScenarioId, (typeof REFUSAL_SCENARIOS)[number]['id']>
+const _refusalsExhaustive: MissingFromRefusals extends never ? true : never = true
+void _refusalsExhaustive
+
+/**
+ * Total over `RefusalScenarioId` by construction — the exhaustiveness check
+ * above is what makes the throw unreachable rather than merely unlikely, and
+ * it is kept as an invariant guard, not as an expected path.
+ */
+export function refusalScenario(id: RefusalScenarioId): RefusalScenario {
   const found = REFUSAL_SCENARIOS.find((s) => s.id === id)
   if (!found) throw new Error(`Unknown MOD-DOH-09 refusal scenario: ${id}`)
   return found
@@ -1088,7 +1157,7 @@ export interface ConditionMapping {
   readonly whoCanChangeIt: string
 }
 
-export const CONDITION_MAPPINGS: readonly ConditionMapping[] = [
+export const CONDITION_MAPPINGS = [
   {
     condition: 'role-permission',
     name: 'Role permission',
@@ -1145,7 +1214,20 @@ export const CONDITION_MAPPINGS: readonly ConditionMapping[] = [
       'PRECEDENCE, not a stage. A safety control wins over any other condition including a root-level allow, and reaches the evaluator as an explicit deny — the second place the two lists diverge.',
     whoCanChangeIt: 'Nobody, on any surface.',
   },
-]
+] as const satisfies readonly ConditionMapping[]
+
+/**
+ * The check this one actually needed. Nine written mappings prove nothing on
+ * their own: `conditionMapping()` in the screen throws when a condition has
+ * no row, so a condition added to the spine used to surface as a render-time
+ * exception on `SCR-DOH-ROLE-04`. It is now a compile error here instead.
+ */
+type UnmappedAccessCondition = Exclude<
+  AccessCondition,
+  (typeof CONDITION_MAPPINGS)[number]['condition']
+>
+const _conditionMappingsExhaustive: UnmappedAccessCondition extends never ? true : never = true
+void _conditionMappingsExhaustive
 
 /* ------------------------------------------------------------------ *
  * SCR-DOH-ROLE-05 — the seven fixed role-definition-card blocks (L15214).
@@ -1217,7 +1299,7 @@ export interface UnspecifiedEntry {
   readonly note: string
 }
 
-export const UNSPECIFIED_IN_SOURCE: readonly UnspecifiedEntry[] = [
+export const UNSPECIFIED_IN_SOURCE = [
   {
     affordance: 'Who may use the sign-in address screen',
     note: 'The source names the work-email field, the Continue control, the platform-credential path and its submit (L95829, L95832) and states no allowed-roles list for any of them. The screen renders the shape and says the roles are unstated rather than assigning some.',
@@ -1242,7 +1324,7 @@ export const UNSPECIFIED_IN_SOURCE: readonly UnspecifiedEntry[] = [
     affordance: 'What a refused mandatory-role removal offers next',
     note: 'The refusal is stated absolutely and no alternative path is named. The screen states the rule and stops there rather than inventing a request-an-exception route, which is precisely what "no override exists on any surface" forbids.',
   },
-]
+] as const satisfies readonly UnspecifiedEntry[]
 
 export interface SourceConflict {
   readonly topic: string
@@ -1250,7 +1332,7 @@ export interface SourceConflict {
   readonly resolution: string
 }
 
-export const SOURCE_CONFLICTS: readonly SourceConflict[] = [
+export const SOURCE_CONFLICTS = [
   {
     topic: 'The order the nine conditions are rendered in',
     conflict:
@@ -1293,7 +1375,7 @@ export const SOURCE_CONFLICTS: readonly SourceConflict[] = [
     resolution:
       'Neither is used as an identifier here. This module is annotated with the canonical catalogue-B rows and with the role-explanation family by name, and every route is keyed on the module slug.',
   },
-]
+] as const satisfies readonly SourceConflict[]
 
 /* ------------------------------------------------------------------ *
  * Freshness, and the one write class this module asks the gate about.

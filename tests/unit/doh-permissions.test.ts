@@ -125,13 +125,26 @@ describe('MOD-DOH-09 — the twelve-row control matrix', () => {
     expect(renderingFor(createUser, 'TENANT_ADMIN')).toBe('control')
   })
 
-  it('names a stated condition on every Allowed-with-conditions cell', () => {
-    for (const row of PERMISSION_MATRIX) {
-      for (const role of TENANT_ROLE_ORDER) {
-        if (row.cells[role].outcome === 'allowedWithConditions') {
-          expect(row.cells[role].cause.trim().length).toBeGreaterThan(0)
-        }
-      }
+  // Was vacuous: it asserted a non-empty cause on the cells the test above
+  // already asserts a non-empty cause on, unconditionally, for every cell. No
+  // edit to fixtures.ts could fail it without failing that one first. It now
+  // checks the thing the token PROMISES — that the cell states WHICH
+  // condition, anchored to the source line that imposes it — and asserts the
+  // cells exist, so the loop cannot go quiet by there being none.
+  it('states which condition, with its source line, on every Allowed-with-conditions cell', () => {
+    const conditional = PERMISSION_MATRIX.flatMap((row) =>
+      TENANT_ROLE_ORDER.filter((role) => row.cells[role].outcome === 'allowedWithConditions').map(
+        (role) => ({ where: `${row.id}/${role}`, cause: row.cells[role].cause }),
+      ),
+    )
+    expect(conditional).toHaveLength(3)
+    for (const { where, cause } of conditional) {
+      const [token, ...rest] = cause.split('—')
+      expect(token?.trim(), where).toBe('Allowed with conditions')
+      const stated = rest.join('—').trim()
+      // The condition itself, not the token restated, and traceable.
+      expect(stated.length, where).toBeGreaterThan(20)
+      expect(stated, where).toMatch(/L\d{4,6}/)
     }
   })
 })
@@ -305,7 +318,7 @@ describe('MOD-DOH-09 — object vocabularies and the panels the contract require
     }
   })
 
-  it('draws every absent control as a note rather than a disabled button', () => {
+  it('gives every absent control a stated note where the control would sit', () => {
     expect(ABSENT_CONTROLS.length).toBeGreaterThan(0)
     for (const control of ABSENT_CONTROLS) expect(control.note.trim().length).toBeGreaterThan(0)
   })
@@ -425,6 +438,14 @@ describe('the person-measure key gate, proved in both directions', () => {
     ['SCREAMING_SNAKE', 'RUNS_PER_HOUR'],
     ['PascalCase', 'ProductivityIndexScore'],
     ['an acronym prefix', 'PINResetCount'],
+    // THE FOUR THE WORD MATCHER LOST, and the reason stems exist. Every one
+    // of these was caught by the raw-substring expression this replaced, so
+    // dropping them would have traded a false positive for four false
+    // negatives. Each is a measure root wearing a suffix.
+    ['a root wearing "er"', 'defectCounter'],
+    ['a root wearing "card"', 'workerScorecard'],
+    ['a root wearing "ed"', 'runsRanked'],
+    ['a root wearing "s"', 'throughputs'],
   ])('refuses %s (%s)', (_what, key) => {
     expect(namesPersonBehaviouralMeasure(key)).toBe(true)
   })

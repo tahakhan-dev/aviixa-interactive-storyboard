@@ -32,6 +32,29 @@
  * `perShiftCount` → `per shift count` (a measure), while `permissions` →
  * `permissions` (one word, and NOT the word `per`).
  *
+ * ## Why whole words alone were not enough either
+ *
+ * Whole-word matching against fixed sets closed the substring hole and opened
+ * a smaller one at the other end: the old expression matched `defectCounter`,
+ * `workerScorecard`, `runsRanked` and `throughputs` as substrings, and word
+ * equality refuses all four — `counter`, `scorecard`, `ranked` and
+ * `throughputs` are in none of the three sets. A gate that loses real
+ * positives to close a false one has traded one defect for another.
+ *
+ * STEMS give both. A word also counts when it is a measure root plus one
+ * entry from a CLOSED suffix list (`s`, `es`, `ed`, `er`, `ers`, `card`,
+ * `cards`, `board`, `boards`), matched from the START of the word:
+ *
+ *   - `counter` = count + er,  `scorecard` = score + card
+ *   - `ranked`  = rank  + ed,  `throughputs` = throughput + s
+ *   - `account` does NOT stem from `count` — a stem grows from a root's
+ *     start, and `count` is a SUFFIX of `account`, never its root.
+ *
+ * `ing` is deliberately absent from that list: `meaning` would otherwise stem
+ * from `mean`, and a label is not a measure. The suffix list stays closed for
+ * exactly that reason — every entry added to it has to be checked against the
+ * false-positive half of the proof.
+ *
  * ## Three axes, because a behavioural measure arrives in three shapes
  *
  * Modelled on the three-axis reasoning in `slice-03-gates.test.ts`: a
@@ -170,6 +193,37 @@ const DURATION: ReadonlySet<string> = new Set([
 ])
 
 /**
+ * Every measure root, across the three axes. Stemming runs over all of them
+ * rather than the magnitude set alone, because `throughputs` stems from a
+ * PACE root and `durations` from a DURATION one — the suffix problem is not
+ * an axis-1 problem.
+ */
+const MEASURE_ROOTS: readonly string[] = [...MAGNITUDE, ...PACE, ...DURATION]
+
+/**
+ * A CLOSED list. Nothing here may turn a root into an unrelated word: `ing`
+ * is excluded because `mean` + `ing` is `meaning`, which measures nobody.
+ */
+const MEASURE_SUFFIXES: ReadonlySet<string> = new Set([
+  's',
+  'es',
+  'ed',
+  'er',
+  'ers',
+  'card',
+  'cards',
+  'board',
+  'boards',
+])
+
+/** `counter` from `count`, `scorecard` from `score` — a root plus a known tail. */
+function stemsFromAMeasureRoot(word: string): boolean {
+  return MEASURE_ROOTS.some(
+    (root) => word.length > root.length && word.startsWith(root) && MEASURE_SUFFIXES.has(word.slice(root.length)),
+  )
+}
+
+/**
  * True when this object key names a behavioural measure on a person.
  *
  * Apply it to the keys of a record that IS about a person — a user register
@@ -185,8 +239,10 @@ export function namesPersonBehaviouralMeasure(key: string): boolean {
   const parts = words(key)
 
   for (const [index, part] of parts.entries()) {
-    // AXIS 1 and the direct half of AXIS 2 and AXIS 3: one word is enough.
+    // AXIS 1 and the direct half of AXIS 2 and AXIS 3: one word is enough,
+    // whether it is the root itself or the root wearing a known suffix.
     if (MAGNITUDE.has(part) || PACE.has(part) || DURATION.has(part)) return true
+    if (stemsFromAMeasureRoot(part)) return true
 
     // AXIS 2, second shape: `per`/`by` immediately followed by a unit. The
     // pair is the semantic unit here — `per` alone means nothing, and a bare

@@ -73,6 +73,7 @@ import {
   type Doh09StateId,
   type MatrixRow,
   type MatrixRowId,
+  type RefusalScenarioId,
   type RoleCardBlockName,
   type RosterScenario,
   type RosterScenarioId,
@@ -215,6 +216,23 @@ const ORDINALS = [
   'Ninth',
 ] as const
 
+/**
+ * Never a blank. `ORDINALS[i] ?? ''` rendered "Refused at the &nbsp;of the
+ * nine conditions" the moment a scenario's condition left `ACCESS_CONDITIONS`
+ * — a hole exactly where a reader is being taught the list. Both readings of
+ * a missing ordinal now name themselves.
+ */
+function ordinalAt(index: number): string {
+  return ORDINALS[index] ?? 'Unlisted'
+}
+
+function refusedAtPhrase(index: number): string {
+  const ordinal = ORDINALS[index]
+  return ordinal === undefined
+    ? 'refused at a condition the spine no longer lists among the nine, which is a defect stated here rather than rendered as a blank'
+    : `refused at the ${ordinal.toLowerCase()} of the nine conditions`
+}
+
 /* ------------------------------------------------------------------ *
  * Connection loss (D7). Nothing on this surface ever queues a write.
  * ------------------------------------------------------------------ */
@@ -293,7 +311,7 @@ export interface PermissionsScreenProps {
   readonly tenantState?: TenantState
   readonly screenState?: Doh09StateId
   readonly roster?: RosterScenarioId
-  readonly refusalScenarioId?: string
+  readonly refusalScenarioId?: RefusalScenarioId
   /** Whether the audit write in the same transaction succeeds or fails. */
   readonly auditPath?: 'commits' | 'write-fails'
 }
@@ -314,7 +332,7 @@ export function PermissionsScreen({
   const [tenantState, setTenantState] = useState<TenantState>(initialTenantState ?? 'active')
   const [stateId, setStateId] = useState<Doh09StateId>(initialScreenState ?? 'STATE-03')
   const [rosterId, setRosterId] = useState<RosterScenarioId>(initialRoster ?? 'seeded')
-  const [refusalId, setRefusalId] = useState<string>(initialRefusal ?? 'role-permission')
+  const [refusalId, setRefusalId] = useState<RefusalScenarioId>(initialRefusal ?? 'role-permission')
   const [auditPath, setAuditPath] = useState<'commits' | 'write-fails'>(
     initialAuditPath ?? 'commits',
   )
@@ -379,6 +397,12 @@ export function PermissionsScreen({
     )
   }
 
+  /**
+   * The scope row asked once, so the button and the picker beside it cannot
+   * disagree about whether this view may assign a scope.
+   */
+  const scopeBlockReason = writeBlockReason(matrixRow('assign-or-remove-scope'))
+
   function selectedUser(): TenantUserFixture | undefined {
     return users.find((u) => u.id === selectedUserId)
   }
@@ -395,13 +419,31 @@ export function PermissionsScreen({
    * Handlers. Every one of them says what it did NOT do.
    * -------------------------------------------------------------- */
 
+  /**
+   * THE GOVERNING INVARIANT, and the reason it is a function rather than a
+   * branch inside one handler: a business action and its required audit
+   * append are ONE transaction, so an audit failure REFUSES the action
+   * instead of producing an unaudited success. Every write handler below asks
+   * this before it mutates anything — a demonstration wired only to the one
+   * control that changes nothing on its success path would never roll an
+   * observable mutation back, and would teach the opposite of the invariant.
+   *
+   * Asked AFTER a handler's own domain refusals, because a refused action is
+   * not an action and appends no audit entry to fail.
+   */
+  function auditFailure(whatDidNotHappen: string): string {
+    return `The audit write failed, so the action did not happen. ${whatDidNotHappen} The register is unchanged, nothing is left half-applied, and nothing was queued for later — audit commits in the same transaction as the action, so a failed audit fails the action with it.`
+  }
+
+  /** The register-side handlers, whose refusal belongs in the register's own status line. */
+  function auditRefused(whatDidNotHappen: string): boolean {
+    if (auditPath !== 'write-fails') return false
+    setRegisterMessage(auditFailure(whatDidNotHappen))
+    return true
+  }
+
   function createAccount() {
-    if (auditPath === 'write-fails') {
-      setRegisterMessage(
-        'The audit write failed, so the action did not happen. No account was created, the register is unchanged, and nothing is left half-applied — audit commits in the same transaction as the action, so a failed audit fails the action with it.',
-      )
-      return
-    }
+    if (auditRefused('No account was created.')) return
     setRegisterMessage(
       'Recorded in this storyboard: an intent to create a user account, attributed to the identity in view, with its audit entry in the same transaction. No account was created — the source names the workflow and never the fields of its form, so no form is drawn here and nothing was invented to fill one.',
     )
@@ -416,6 +458,7 @@ export function PermissionsScreen({
       )
       return
     }
+    if (auditRefused(`No role was assigned to ${target.displayName}.`)) return
     setUsers(
       users.map((u) =>
         u.id === target.id ? { ...u, roles: [...u.roles, roleToAssign] } : u,
@@ -451,6 +494,7 @@ export function PermissionsScreen({
       )
       return
     }
+    if (auditRefused(`No role was removed from ${target.displayName}.`)) return
     setUsers(after)
     setRegisterMessage(
       `Removed the ${roleById(roleToAssign).name} role from ${target.displayName}, with its audit entry in the same transaction. Both mandatory-role rules were checked at the moment of removal, which is the only moment either can be violated.`,
@@ -466,13 +510,35 @@ export function PermissionsScreen({
       )
       return
     }
+    if (auditRefused('No personal identification number was issued or reset.')) return
     setUsers(users.map((u) => (u.id === target.id ? { ...u, managedPinIssued: true } : u)))
     setRegisterMessage(
       `Recorded a managed personal identification number issued for ${target.displayName}, with its audit entry in the same transaction. No number is shown, no length is implied and no delivery channel is claimed: the source names the control and never the value, so this screen records the act and stops there.`,
     )
   }
 
+  /**
+   * The scope row is a ROUTING prohibition, so a control has to exist here:
+   * the Tenant Admin holds it live and every other role meets it disabled
+   * with its reason, which is what the by-person list says is drawn. Pass one
+   * has one dimension, so the write is real and its effect is nil — stated
+   * rather than hidden behind a control that quietly does nothing.
+   */
+  function assignScope() {
+    const target = selectedUser()
+    if (target === undefined) return
+    if (auditRefused(`No scope was assigned to ${target.displayName}.`)) return
+    setRegisterMessage(
+      `Assigned the tenant scope to ${target.displayName}, with its audit entry in the same transaction. The register does not move: the tenant dimension is the only one this pass offers and every seeded account already holds it. Pass two ADDS Site and Area to this control rather than un-greying anything.`,
+    )
+  }
+
   function toggleConnection() {
+    // Same invariant, reported where this control's own answers appear.
+    if (auditPath === 'write-fails') {
+      setConnectionNote(auditFailure('The connection record was not changed.'))
+      return
+    }
     const nextState = connection.state === 'configured' ? 'not_configured' : 'configured'
     setConnection({ ...connection, state: nextState })
     setResolvedTrack(null)
@@ -526,7 +592,7 @@ export function PermissionsScreen({
   const conditionRows: TableRow[] = ACCESS_CONDITIONS.map((condition, index) => {
     const mapping = conditionMapping(condition)
     return {
-      order: ORDINALS[index] ?? '',
+      order: ordinalAt(index),
       condition: mapping.name,
       carriedBy: mapping.carriedBy,
       // L14267: a refusal names who can change the condition that refused.
@@ -562,6 +628,31 @@ export function PermissionsScreen({
     track: TRACK_LABEL[u.loginTrack],
     credential: u.managedPinIssued ? 'Issued' : 'None issued',
   }))
+
+  /**
+   * A heading over an empty list teaches nothing, and the Tenant Admin's
+   * Refused list is empty BY CONSTRUCTION — the `Table` primitive has an
+   * `emptyState` contract for exactly this and these lists had none.
+   */
+  function renderingList(
+    rows: readonly MatrixRow[],
+    whenEmpty: string,
+    describe: (row: MatrixRow) => string,
+  ) {
+    if (rows.length === 0) {
+      return <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">{whenEmpty}</p>
+    }
+    return (
+      <ul className="mt-2 space-y-2">
+        {rows.map((row) => (
+          <li key={row.id} className="max-w-prose text-sm">
+            <span className="font-medium text-[var(--color-ink)]">{row.label}</span>
+            <span className="text-[var(--color-ink-muted)]"> — {describe(row)}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
 
   const heldRows = PERMISSION_MATRIX.filter((r) => {
     const rendering = renderingFor(r, role)
@@ -655,7 +746,10 @@ export function PermissionsScreen({
               label="Refusal to explain"
               value={refusalId}
               options={REFUSAL_SCENARIOS.map((s) => ({ value: s.id, label: s.label }))}
-              onChange={setRefusalId}
+              onChange={(value) => {
+                const next = REFUSAL_SCENARIOS.find((s) => s.id === value)
+                if (next !== undefined) setRefusalId(next.id)
+              }}
             />
             <Select
               label="Audit write"
@@ -780,49 +874,33 @@ export function PermissionsScreen({
             <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
               Held
             </h3>
-            <ul className="mt-2 space-y-2">
-              {heldRows.map((row) => (
-                <li key={row.id} className="max-w-prose text-sm">
-                  <span className="font-medium text-[var(--color-ink)]">{row.label}</span>
-                  <span className="text-[var(--color-ink-muted)]">
-                    {' '}
-                    — {row.cells[role].cause} Drawn as {RENDERING_LABEL[renderingFor(row, role)]}.
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {renderingList(
+              heldRows,
+              `The ${roleName} view holds no row on this screen. Every row is either refused with its reason below or drawn nowhere at all, and neither list is a hole.`,
+              (row) =>
+                `${row.cells[role].cause} Drawn as ${RENDERING_LABEL[renderingFor(row, role)]}.`,
+            )}
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
               Refused, and the control still shown so the rule is taught where it binds
             </h3>
-            <ul className="mt-2 space-y-2">
-              {refusedRows.map((row) => (
-                <li key={row.id} className="max-w-prose text-sm">
-                  <span className="font-medium text-[var(--color-ink)]">{row.label}</span>
-                  <span className="text-[var(--color-ink-muted)]">
-                    {' '}
-                    — {row.cells[role].cause} Drawn as {RENDERING_LABEL[renderingFor(row, role)]}.
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {renderingList(
+              refusedRows,
+              `Nothing is refused-but-drawn for the ${roleName} view. Every row this view does not hold is refused by a rule that binds all five roles, so it is drawn nowhere at all rather than disabled — the list below.`,
+              (row) =>
+                `${row.cells[role].cause} Drawn as ${RENDERING_LABEL[renderingFor(row, role)]}.`,
+            )}
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
               Drawn nowhere at all
             </h3>
-            <ul className="mt-2 space-y-2">
-              {absentRows.map((row) => (
-                <li key={row.id} className="max-w-prose text-sm">
-                  <span className="font-medium text-[var(--color-ink)]">{row.label}</span>
-                  <span className="text-[var(--color-ink-muted)]">
-                    {' '}
-                    — rendered as {RENDERING_LABEL.absent}.
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {renderingList(
+              absentRows,
+              `Every row on the matrix reaches the ${roleName} view as a control or as a refusal it can read, so nothing is withheld silently.`,
+              () => `rendered as ${RENDERING_LABEL.absent}.`,
+            )}
           </div>
         </section>
 
@@ -888,12 +966,22 @@ export function PermissionsScreen({
           </div>
 
           <div className="flex flex-wrap items-end gap-6">
-            <Select
-              label="User to change"
-              value={selectedUserId}
-              options={users.map((u) => ({ value: u.id, label: u.displayName }))}
-              onChange={setSelectedUserId}
-            />
+            {/* STATE-12: the read that would populate this list is the one
+                that failed. Naming eight people from it would be the surface
+                claiming to know something it just said it could not read. */}
+            {stateId === 'STATE-12' ? (
+              <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
+                No person can be offered to change. The list of people comes from the read that
+                failed, so it is not drawn from a stale copy and no name is enumerated here.
+              </p>
+            ) : (
+              <Select
+                label="User to change"
+                value={selectedUserId}
+                options={users.map((u) => ({ value: u.id, label: u.displayName }))}
+                onChange={setSelectedUserId}
+              />
+            )}
             <Select
               label="Role to assign"
               value={roleToAssign}
@@ -903,16 +991,18 @@ export function PermissionsScreen({
                 if (next !== undefined) setRoleToAssign(next)
               }}
             />
-            {/* One option, because pass one has one dimension. The handler is
-                a no-op because a native select with a single option cannot
-                change: this is not a dead control so much as a dimension with
-                nothing yet to choose between, and Site and Area are added to
-                it — not un-greyed — by the module's second pass. */}
+            {/* One option, because pass one has one dimension: this is not a
+                dead control so much as a dimension with nothing yet to choose
+                between, and Site and Area are added to it — not un-greyed —
+                by the module's second pass. It is disabled through the SAME
+                gate as the button beside it, so a role the scope row refuses
+                does not meet an enabled picker. */}
             <Select
               label="Scope to assign"
               value="tenant"
               options={[{ value: 'tenant', label: 'Tenant — the whole workspace' }]}
               onChange={() => undefined}
+              disabled={scopeBlockReason !== null}
             />
           </div>
 
@@ -922,15 +1012,16 @@ export function PermissionsScreen({
             a disabled button would imply a roadmap promise the source has not made (L23918).
           </p>
           <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            Scope in this pass: {role === 'TENANT_ADMIN'
-              ? 'scope assignment is yours, and the tenant dimension is the only one this pass offers.'
-              : matrixRow('assign-or-remove-scope').cells[role].cause}
+            Scope in this pass: the tenant dimension is the only one offered, and the control
+            beside the picker carries this row&apos;s own answer for the view in front of you —
+            live for the Tenant Admin, disabled with its stated reason for every other role.
           </p>
 
           <div className="flex flex-wrap gap-3">
             {gatedButton('create-or-edit-user-account', 'Create a user account', createAccount)}
             {gatedButton('assign-or-remove-role', 'Assign the role', assignRole)}
             {gatedButton('assign-or-remove-role', 'Remove the role', removeRole)}
+            {gatedButton('assign-or-remove-scope', 'Assign the scope', assignScope)}
             {gatedButton(
               'issue-or-reset-managed-pin',
               'Issue or reset a managed personal identification number',
@@ -1057,8 +1148,8 @@ export function PermissionsScreen({
             {scenarioRefused ? (
               <>
                 <p className="mt-1 text-sm text-[var(--color-ink)]">
-                  Refused at the {(ORDINALS[scenarioOrder] ?? '').toLowerCase()} of the nine
-                  conditions — {conditionMapping(scenario.condition).name}.
+                  This request was {refusedAtPhrase(scenarioOrder)} —{' '}
+                  {conditionMapping(scenario.condition).name}.
                 </p>
                 <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
                   {scenario.narrative}

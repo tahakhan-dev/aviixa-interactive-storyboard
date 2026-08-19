@@ -10,6 +10,7 @@ import {
   MANDATORY_ROLE_STATEMENTS,
   PERMISSION_MATRIX,
   ROLE_CARD_BLOCK_NAMES,
+  SIGN_IN_STAGES,
   TENANT_ROLE_ORDER,
 } from '../../app/hub/permissions-roles-and-access/fixtures'
 
@@ -87,8 +88,12 @@ describe('MOD-DOH-09 — SCR-DOH-01, the two-track sign-in', () => {
   it('renders the boot order as a visible resolution sequence, not an invisible branch', () => {
     render(<PermissionsScreen />)
     const signIn = region(/two-track sign-in/i)
-    for (const stage of ['Unauthenticated', 'Scope resolved', 'Tenant state applied', 'Hub rendered']) {
-      expect(within(signIn).getByText(new RegExp(stage, 'i'))).toBeDefined()
+    // Read from the fixture rather than typed out, because the typed-out list
+    // held four of the five and silently skipped 'Track resolved' — the one
+    // stage that was RENAMED, so the rename was asserted nowhere in this suite.
+    expect(SIGN_IN_STAGES).toHaveLength(5)
+    for (const stage of SIGN_IN_STAGES) {
+      expect(within(signIn).getByText(stage.name), stage.id).toBeDefined()
     }
   })
 
@@ -178,6 +183,42 @@ describe('MOD-DOH-09 — SCR-DOH-18, users, roles and scopes', () => {
     expect(picker.querySelectorAll('option')).toHaveLength(TENANT_ROLE_ORDER.length)
     expect(within(users).queryByRole('button', { name: /create a custom role/i })).toBeNull()
     expect(within(users).getByText(/deferred beyond/i)).toBeDefined()
+  })
+
+  // Finding 1: the by-person list says this row is drawn as a live control
+  // for the Tenant Admin and as a disabled control carrying its reason for
+  // everyone else. Both halves are now checked against the DOM.
+  it('draws the scope row as a live control for the Tenant Admin', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const users = region(/users, roles and scopes/i)
+    const assign = buttonNamed(users, /^Assign the scope$/)
+    expect(assign.getAttribute('aria-disabled')).toBeNull()
+    expect((within(users).getByLabelText(/scope to assign/i) as HTMLSelectElement).disabled).toBe(
+      false,
+    )
+  })
+
+  it.each(['SUPERVISOR', 'QUALITY_MANAGER', 'READONLY_AUDITOR'] as const)(
+    'draws the scope row disabled, with its named reason, for the %s',
+    (role) => {
+      render(<PermissionsScreen role={role} />)
+      const users = region(/users, roles and scopes/i)
+      const assign = buttonNamed(users, /^Assign the scope$/)
+      expect(assign.getAttribute('aria-disabled')).toBe('true')
+      expect(describedText(assign)).toMatch(/scope assignment belongs to the Tenant Admin alone/i)
+      // The picker beside it is gated by the same answer, never left live.
+      expect((within(users).getByLabelText(/scope to assign/i) as HTMLSelectElement).disabled).toBe(
+        true,
+      )
+    },
+  )
+
+  it('names no person under STATE-12, because that read is the one that failed', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" screenState="STATE-12" />)
+    const users = region(/users, roles and scopes/i)
+    expect(within(users).queryByLabelText(/user to change/i)).toBeNull()
+    expect(within(users).getByText(/no person can be offered to change/i)).toBeDefined()
+    expect(users.textContent ?? '').not.toMatch(/Priya Raman/)
   })
 
   it('offers the tenant scope only in this pass, with no dead Site or Area option', () => {
@@ -309,6 +350,16 @@ describe('MOD-DOH-09 — prohibitions rendered by rule', () => {
     }
   })
 
+  // The Tenant Admin's Refused list is empty BY CONSTRUCTION. A heading over
+  // an empty list is the one shape the Table primitive's emptyState contract
+  // exists to prevent, and these lists had none.
+  it('states why the Refused list is empty rather than leaving a bare heading', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const byPerson = region(/by person/i)
+    expect(within(byPerson).queryAllByRole('listitem').length).toBeGreaterThan(0)
+    expect(within(byPerson).getByText(/Nothing is refused-but-drawn/i)).toBeDefined()
+  })
+
   it('keeps Unavailable and Explicitly prohibited apart rather than merging them', () => {
     render(<PermissionsScreen role="TENANT_ADMIN" />)
     const matrix = region(/by capability/i)
@@ -370,10 +421,70 @@ describe('MOD-DOH-09 — audit in the same transaction', () => {
     fireEvent.click(buttonNamed(users, /create a user account/i))
     expect(within(users).getByRole('status').textContent ?? '').toMatch(/the action did not happen/i)
   })
+
+  // The control case. Without it the refusal below proves only that the
+  // button does nothing, which a broken button also achieves.
+  it('assigns the role and moves the standing counter when the audit write commits', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" auditPath="commits" />)
+    const users = region(/users, roles and scopes/i)
+    const panel = region(/mandatory-role guard/i)
+    const before = within(panel).getByText(/Approver-capable holders: \d+/).textContent
+    fireEvent.click(buttonNamed(users, /^Assign the role$/))
+    expect(within(users).getByRole('status').textContent ?? '').toMatch(/Assigned the/i)
+    expect(within(panel).getByText(/Approver-capable holders: \d+/).textContent).not.toBe(before)
+  })
+
+  // THE INVARIANT, on a control whose success path mutates observably: the
+  // roster, the register row and the standing counter all move when this
+  // action commits, so a failed audit that left any of them moved would be an
+  // unaudited success. Create-a-user-account cannot prove this — it changes
+  // nothing either way.
+  it('rolls the whole action back when the audit write fails, leaving the register unchanged', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" auditPath="write-fails" />)
+    const users = region(/users, roles and scopes/i)
+    const panel = region(/mandatory-role guard/i)
+    const before = within(panel).getByText(/Approver-capable holders: \d+/).textContent
+    const registerBefore = within(users).getByRole('table').textContent
+
+    fireEvent.click(buttonNamed(users, /^Assign the role$/))
+
+    expect(within(users).getByRole('status').textContent ?? '').toMatch(/the action did not happen/i)
+    expect(within(panel).getByText(/Approver-capable holders: \d+/).textContent).toBe(before)
+    expect(within(users).getByRole('table').textContent).toBe(registerBefore)
+  })
+
+  // Each row picks a target the action would genuinely change, so the audit
+  // guard is reached rather than short-circuited by a domain refusal — a
+  // handler's own refusal is not an action and appends no audit entry.
+  it.each([
+    ['creating an account', /create a user account/i, 'USR-DOH-0001'],
+    ['assigning a role the person does not hold', /^Assign the role$/, 'USR-DOH-0001'],
+    ['removing a role the person does hold', /^Remove the role$/, 'USR-DOH-0003'],
+    ['assigning a scope', /^Assign the scope$/, 'USR-DOH-0001'],
+    [
+      'issuing a managed credential',
+      /issue or reset a managed personal identification number/i,
+      'USR-DOH-0001',
+    ],
+  ] as const)('refuses %s on the same terms, not just the control that changes nothing', (
+    _what,
+    label,
+    userId,
+  ) => {
+    render(<PermissionsScreen role="TENANT_ADMIN" auditPath="write-fails" />)
+    const users = region(/users, roles and scopes/i)
+    fireEvent.change(within(users).getByLabelText(/user to change/i), {
+      target: { value: userId },
+    })
+    fireEvent.click(buttonNamed(users, label))
+    expect(within(users).getByRole('status').textContent ?? '').toMatch(
+      /the action did not happen/i,
+    )
+  })
 })
 
 describe('MOD-DOH-09 — the standing panels the contract requires', () => {
-  it('names its cross-slice position against the seam registry rather than stubbing one inline', () => {
+  it('states that it registers no cross-slice seam rather than stubbing one inline', () => {
     render(<PermissionsScreen />)
     const seams = region(/cross-slice/i)
     expect(within(seams).getByText(/registers no cross-slice seam/i)).toBeDefined()
