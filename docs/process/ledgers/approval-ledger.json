@@ -178,13 +178,30 @@
       "scope_authorized": "Close slice 4 completely: task 10's independent review, task 11's gates, task 12 verification, the whole-branch review and the merge \u2014 AND every deferred controller item rather than carrying them forward. Explicitly included by 'complete everything': the WriteControl lift, the shared-constants hoist, the task-9 screen extraction, the six missing \u00a723.2 process ledgers, and the registry status computation that leaves 13 of 14 inventories reporting not-represented for everything. 'Production level' reaffirms the standing reinforcements from APP-003 and APP-006 \u2014 enterprise-SaaS product quality, full census closure, no claim of a production capability that is only simulated.",
       "gate_released": "Slice-4 close. Standing continuation authority from APP-010 into slices 5+ is unchanged and not consumed by this.",
       "superseded_by": null
+    },
+    {
+      "id": "APP-012",
+      "date": "2026-08-20",
+      "subject": "Standing autonomous authority to census closure \u2014 all fourteen inventories, all thirteen slices",
+      "exact_question": "How many things are remaining? (answered: 2 slice-4 tasks, 9 later slices, 183 of 4,914 registry items demonstrated)",
+      "user_response_evidence": "Client message 2026-08-20: 'complete these two task and after that ... complete modules,workflows,ai-storyboards,functions,business-objects,actionalble-controls,business-use-cases,notification,scheduled-work,features,sub-features,offline-scenarios,events,commands everything should be complete you will not stop untill everything is done and completed don't stop for questions,suggesstion do or pick what you think is best for the business if you get confused you can do research from the internet and choose what is best for the business i want everything complete and everything should be production level implementation'",
+      "scope_authorized": "Close slice 4 (tasks 11 and 12, whole-branch review, merge), then execute slices 5 through 13 continuously to full census closure across all fourteen inventories. NO further resume gate, and no pausing for questions or confirmations. Each slice still gets its own design, plan, per-task independent review and fix loops \u2014 the client has removed the CHECK-IN, not the discipline. Decision-making is delegated: where a choice is open, pick the one best for the business and proceed.",
+      "decision_delegation_limits": "Two limits survive this delegation because they protect the client rather than constrain me. (1) An UNRESOLVED SOURCE decision is still disclosed on screen with its alternatives, and my pick is labelled a client-delegated choice rather than presented as a ratified requirement \u2014 the client delegated the decision, not the pretence that the source settled it. (2) No production capability may be claimed that is only simulated; that is a statement about the artefact's honesty and no authorisation changes it. Both were already binding via APP-003 and APP-006 and are restated because the delegation is broad.",
+      "research_authorised": "Internet research authorised for technical and design decisions per master prompt \u00a722 \u2014 versions, framework behaviour, accessibility standards, industrial UX patterns. It may NOT be used to invent AVIIXA product scope: the frozen blueprint remains the only source of product facts, and a market pattern never becomes a requirement by imitation.",
+      "gate_released": "All remaining slice gates through census closure. Supersedes APP-010's continuation authority by widening it.",
+      "superseded_by": null
     }
   ],
   "pending_gates": [
     {
       "gate": "Slice 4 whole-branch independent review before merge",
       "status": "NOT_YET_REQUESTED",
-      "blocker": "Depends on tasks 10-12 and the six controller items."
+      "blocker": "Tasks 11 and 12."
+    },
+    {
+      "gate": "Per-slice design and specification approval, slices 5-13",
+      "status": "DELEGATED",
+      "blocker": "APP-012 delegates the decision, not the discipline: each slice still gets a design and a written spec, self-reviewed, with rulings recorded \u2014 the client check-in is removed."
     }
   ]
 }
