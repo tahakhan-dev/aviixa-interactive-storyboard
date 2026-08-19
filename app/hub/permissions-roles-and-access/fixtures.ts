@@ -11,10 +11,12 @@ import type { TenantRoleId } from '../HubShell'
 import {
   DOH_AREAS,
   DOH_SITES,
+  NODE_FLAG_CONSEQUENCES,
   areaById,
   siteById,
   visibleAreaIds,
   visibleSiteIds,
+  type LocationNodeFlag,
 } from '../location-configuration/fixtures'
 
 /**
@@ -143,7 +145,7 @@ export const SCOPE_RULES = [
     id: 'narrow-only',
     title: 'A scope narrows a role and never widens it',
     detail:
-      'Assigning a scope can only make a grant finer: tenant to Site, Site to an Area under that same Site. The reverse is refused at the write with the rule named, and so is a sideways move to an Area under a different Site, because neither is a narrowing of what the grant already holds.',
+      'The rule governs the SCOPE control: assigning a scope can only make a grant finer — tenant to Site, Site to an Area under that same Site. The reverse is refused at the write with the rule named, and so is a sideways move to an Area under a different Site, because neither is a narrowing of what the grant already holds. It does not govern the ROLE control beside it: removing a role removes its grant and its scope together, and assigning that role again creates a NEW grant at the widest scope. That sequence is two audited acts, not a scope assignment, and the source settles neither its scope nor whether the old one should return — see the panel naming what the source leaves undefined.',
     sourceRef: 'L17470',
   },
   {
@@ -260,6 +262,22 @@ export interface ScopeTargetExclusion {
   readonly reason: string
 }
 
+/**
+ * What a location-node flag DOES, read from the module that owns the flag
+ * rather than restated here. The consequence sentence for `scope-pending` is
+ * the rule this module obeys when it withholds a Site from the picker, and
+ * two copies of it would drift the moment the owner reworded theirs.
+ *
+ * Total over `LocationNodeFlag` by construction — the owner proves its own
+ * list exhaustive — so the throw is an invariant guard, never an expected
+ * path, exactly like `matrixRow()` below.
+ */
+function nodeFlagConsequence(flag: LocationNodeFlag): string {
+  const found = NODE_FLAG_CONSEQUENCES.find((c) => c.id === flag)
+  if (!found) throw new Error(`No recorded consequence for location node flag: ${flag}`)
+  return found.consequence
+}
+
 function siteIsAssignable(id: string): boolean {
   const site = siteById(id)
   return site !== undefined && site.state === 'active' && !site.flags.includes('scope-pending')
@@ -295,7 +313,7 @@ function buildScopeTargets(): {
       reason:
         site.state === 'archived'
           ? 'Archived. Its history stays readable and every record that referred to it still resolves, but nobody is newly scoped to a node the tenant has closed.'
-          : 'Scope-pending. This Site is excluded from the role-assignment pickers until its scope is set, so nobody can be scoped to it by accident (D21).',
+          : `Scope-pending, and the consequence is the owning module's own: ${nodeFlagConsequence('scope-pending')} (D21).`,
     })
   }
   for (const area of DOH_AREAS) {
@@ -1630,6 +1648,10 @@ export const UNSPECIFIED_IN_SOURCE = [
   {
     affordance: 'What "own scope" means when the record is a person, not a place',
     note: 'The register row for the Supervisor and the Quality Manager reads "Read-only, own scope" (L28532). A scope names a Site or an Area; a user account sits in neither, and the source never says whether a person falls inside a scope by the Sites their grants name, by their account, or not at all. The scope this pass enforces is therefore applied where the source does define it — the location nodes a view reaches, resolved through the evaluator — and the register itself is not filtered on a reading nobody wrote.',
+  },
+  {
+    affordance: 'Whether a scope survives its role being removed and assigned again',
+    note: 'A role assignment carries two states and no third: `assigned` and `removed` (L28512). A removed assignment is gone, so assigning the role again creates a new grant, and this build gives that new grant the widest scope and says so in the confirmation — the honest reading of a vocabulary with no lapsed or suspended state to hold a scope in. The source names manual add and remove as the cover for delegation (L28495, L28528) without ever saying what becomes of a scope across it. The consequence is real and is stated rather than hidden: removing an Area-scoped role and assigning it again widens that person’s reach, in two audited acts, and no rule in the source refuses it. The narrow-only rule binds the scope control, which refuses a widening every time.',
   },
   {
     affordance: 'What happens to a grant when the node it is scoped to is archived',

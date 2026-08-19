@@ -515,7 +515,7 @@ export function PermissionsScreen({
     if (auditRefused(`No role was removed from ${target.displayName}.`)) return
     setUsers(after)
     setRegisterMessage(
-      `Removed the ${roleById(roleToAssign).name} role from ${target.displayName}, with its audit entry in the same transaction. Both mandatory-role rules were checked at the moment of removal, which is the only moment either can be violated.`,
+      `Removed the ${roleById(roleToAssign).name} role from ${target.displayName}, with its audit entry in the same transaction. The grant's scope went with it: an assignment is assigned or removed and there is no third state to hold a scope in, so assigning this role again would create a new grant at the widest scope rather than restoring this one. Both mandatory-role rules were checked at the moment of removal, which is the only moment either can be violated.`,
     )
   }
 
@@ -1211,9 +1211,7 @@ export function PermissionsScreen({
             What the scope actually resolves to, through the evaluator.
          * ---------------------------------------------------------- */}
         <section aria-label="Locations this view reaches" className="space-y-3">
-          <h2 className="text-lg font-semibold">
-            Locations the {roleName} view reaches (SCR-DOH-ROLE-01)
-          </h2>
+          <h2 className="text-lg font-semibold">Locations the {roleName} view reaches</h2>
           <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
             Every row below is a request naming that node, answered by the scope stage of the one
             evaluator against this identity&apos;s assigned Site and Area sets. Nothing here is a

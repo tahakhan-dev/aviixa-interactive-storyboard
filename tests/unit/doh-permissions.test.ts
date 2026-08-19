@@ -15,6 +15,7 @@ import {
   resolveSignInTrack,
 } from '@/surfaces/doh/sso-connection'
 import {
+  NODE_FLAG_CONSEQUENCES,
   areaById,
   siteById,
   visibleAreaIds,
@@ -390,6 +391,19 @@ describe('MOD-DOH-09 — pass two: Site and Area scope', () => {
     for (const entry of SCOPE_TARGET_EXCLUSIONS) {
       expect(entry.reason.trim().length, entry.nodeId).toBeGreaterThan(20)
     }
+  })
+
+  // FIX ROUND 1, FINDING 3. The reason the picker withholds a scope-pending
+  // Site is the OWNING module's own consequence sentence, read rather than
+  // hand-copied. Reword it over there and this fails here, which is what a
+  // second copy could never do.
+  it('reads the scope-pending reason from the module that owns the flag', () => {
+    const owned = NODE_FLAG_CONSEQUENCES.find((c) => c.id === 'scope-pending')?.consequence
+    expect(owned).toBeDefined()
+    const withheld = SCOPE_TARGET_EXCLUSIONS.find((e) => e.nodeId === 'SITE-ARD-03')
+    expect(withheld).toBeDefined()
+    if (owned === undefined || withheld === undefined) return
+    expect(withheld.reason).toContain(owned)
   })
 
   it('states the three scope rules, each anchored to the source', () => {

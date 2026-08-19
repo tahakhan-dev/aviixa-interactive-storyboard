@@ -371,6 +371,76 @@ describe('MOD-DOH-09 — pass two, Site and Area scope', () => {
     expect(within(grants).getByText(/nobody is named here/i)).toBeDefined()
   })
 
+  // FIX ROUND 1, FINDING 1. The `unchanged` arm had no test in either suite.
+  // Delete it and a same-scope assignment falls through to the audit gate and
+  // the mutation, claiming "Narrowed the … grant" for a write that changed
+  // nothing — and, on the failing-audit path, claiming the action did not
+  // happen when there was no action to fail.
+  it('writes nothing when the scope assigned is the scope already held', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" auditPath="commits" />)
+    const users = region(/users, roles and scopes/i)
+    const before = scopeRow(users, 'Priya Raman')
+
+    assignScope(users, { user: 'USR-DOH-0001', role: 'TENANT_ADMIN', scope: 'tenant' })
+
+    const status = within(users).getByRole('status').textContent ?? ''
+    expect(status).toMatch(/already sits at Tenant/i)
+    // The claim the missing arm would have made about a write that did nothing.
+    expect(status).not.toMatch(/Narrowed the/i)
+    expect(scopeRow(users, 'Priya Raman')).toBe(before)
+  })
+
+  it('appends no audit entry for an assignment that would change nothing', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" auditPath="write-fails" />)
+    const users = region(/users, roles and scopes/i)
+
+    assignScope(users, { user: 'USR-DOH-0001', role: 'TENANT_ADMIN', scope: 'tenant' })
+
+    const status = within(users).getByRole('status').textContent ?? ''
+    // A non-action has no audit write to fail: reaching the audit gate here
+    // would report a failure for something that was never attempted.
+    expect(status).not.toMatch(/the action did not happen/i)
+    expect(status).toMatch(/no audit entry was appended/i)
+  })
+
+  // FIX ROUND 1, FINDING 2. Removing a role and assigning it again produces a
+  // NEW grant at the widest scope — two audited acts, not a scope assignment.
+  // The behaviour is deliberate and both halves say so on screen; this pins
+  // the sequence so it cannot change silently in either direction.
+  it('recreates a removed role as a new grant at the widest scope, and says so', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const users = region(/users, roles and scopes/i)
+    expect(scopeRow(users, 'Rosa Mendez')).toMatch(/Supervisor: Area — Paint Line/)
+
+    fireEvent.change(within(users).getByLabelText(/user to change/i), {
+      target: { value: 'USR-DOH-0005' },
+    })
+    fireEvent.change(within(users).getByLabelText(/role to assign/i), {
+      target: { value: 'SUPERVISOR' },
+    })
+    fireEvent.click(buttonNamed(users, /^Remove the role$/))
+    expect(within(users).getByRole('status').textContent ?? '').toMatch(
+      /grant's scope went with it/i,
+    )
+    expect(scopeRow(users, 'Rosa Mendez')).not.toMatch(/Supervisor/)
+
+    fireEvent.click(buttonNamed(users, /^Assign the role$/))
+    expect(within(users).getByRole('status').textContent ?? '').toMatch(
+      /new grant starts at the widest scope/i,
+    )
+    expect(scopeRow(users, 'Rosa Mendez')).toMatch(/Supervisor: Tenant/)
+  })
+
+  it('names the sequence the source does not settle rather than leaving it implicit', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const unspecified = region(/unspecified in source/i)
+    expect(
+      within(unspecified).getByText(/Whether a scope survives its role being removed/i),
+    ).toBeDefined()
+    const scope = region(/scope in this pass/i)
+    expect(within(scope).getByText(/does not govern the ROLE control beside it/i)).toBeDefined()
+  })
+
   it('states all three scope rules where a reviewer reads them', () => {
     render(<PermissionsScreen role="TENANT_ADMIN" />)
     const scope = region(/scope in this pass/i)
