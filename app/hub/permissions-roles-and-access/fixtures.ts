@@ -8,10 +8,18 @@ import type { WriteAction } from '@/surfaces/doh/tenant-state'
 import type { SignInTrack } from '@/surfaces/doh/sso-connection'
 import type { ScreenStateId } from '@/ui/screen-state'
 import type { TenantRoleId } from '../HubShell'
+import {
+  DOH_AREAS,
+  DOH_SITES,
+  areaById,
+  siteById,
+  visibleAreaIds,
+  visibleSiteIds,
+} from '../location-configuration/fixtures'
 
 /**
  * MOD-DOH-09 Permissions, Roles and Access — the seeded fixtures this
- * module's screen steps through, pass one (Tenant scope only).
+ * module's screen steps through, pass two (Tenant, Site and Area scope).
  *
  * No backend and no clock: every "as of" value below is a fixture string,
  * never a computed time. Every entry carries the frozen-source line it came
@@ -77,6 +85,242 @@ export const MANDATORY_ROLE_STATEMENTS = {
   tenantAdmin: 'At least one Tenant Admin always exists.',
   approver: 'A tenant must hold an approver role whenever a Job exists.',
 } as const
+
+/* ------------------------------------------------------------------ *
+ * SCOPE — pass two. Three live dimensions, and three rules about them.
+ *
+ * THE SITES AND AREAS BELOW ARE NOT SEEDED HERE. They are read from the
+ * location configuration module's own fixture, which is the one place the
+ * tenant's physical structure is seeded for the whole Hub. A second copy of
+ * the hierarchy in this file would be two sources of Site truth, and every
+ * node named anywhere in this module resolves through `siteById` / `areaById`
+ * so a hand-typed identifier fails a test rather than rendering a fiction.
+ * ------------------------------------------------------------------ */
+
+/**
+ * One scope, on one grant. The dimension is the spine's, and `nodeId` is the
+ * Site or Area it narrows to — `null` at the tenant dimension, because the
+ * tenant is not a node in the location tree.
+ */
+export interface ScopeRef {
+  readonly dimension: DohScope
+  readonly nodeId: string | null
+}
+
+export const TENANT_SCOPE: ScopeRef = { dimension: 'tenant', nodeId: null }
+
+/**
+ * A role, and the scope that narrows it. SCOPE LIVES ON THE GRANT and never
+ * on the account: `AC-16-02` (L20046) says scopes do not merge across grants,
+ * and an account-level scope field is exactly the shape that would merge them
+ * — two grants would have one scope between them and the rule would be a
+ * sentence rather than a structure. There is nothing here to union.
+ */
+export interface RoleGrant {
+  readonly role: TenantRoleId
+  readonly scope: ScopeRef
+}
+
+export type ScopeRuleId = 'additive' | 'narrow-only' | 'no-merge'
+
+export interface ScopeRule {
+  readonly id: ScopeRuleId
+  readonly title: string
+  readonly detail: string
+  readonly sourceRef: string
+}
+
+/** The three facts about scope this pass has to render, not merely obey. */
+export const SCOPE_RULES = [
+  {
+    id: 'additive',
+    title: 'Scopes are additive',
+    detail:
+      'A person may hold several roles at once and the permissions add up: what they may DO is the union of their grants. It is only where they may do it that never adds up — each grant carries its own scope and acts inside it.',
+    sourceRef: 'L28495, L17470',
+  },
+  {
+    id: 'narrow-only',
+    title: 'A scope narrows a role and never widens it',
+    detail:
+      'Assigning a scope can only make a grant finer: tenant to Site, Site to an Area under that same Site. The reverse is refused at the write with the rule named, and so is a sideways move to an Area under a different Site, because neither is a narrowing of what the grant already holds.',
+    sourceRef: 'L17470',
+  },
+  {
+    id: 'no-merge',
+    title: 'Scopes do not merge across grants',
+    detail:
+      'Two grants each carrying a scope do not union into a wider one. A person scoped to one Area under one role and to a different Site under another reaches each only through the grant that carries it; neither grant borrows the other’s reach.',
+    sourceRef: 'AC-16-02 L20046',
+  },
+] as const satisfies readonly ScopeRule[]
+
+type MissingFromScopeRules = Exclude<ScopeRuleId, (typeof SCOPE_RULES)[number]['id']>
+const _scopeRulesExhaustive: MissingFromScopeRules extends never ? true : never = true
+void _scopeRulesExhaustive
+
+/** The picker value for a scope. One string, so a `Select` can carry it. */
+export function scopeKey(scope: ScopeRef): string {
+  return scope.nodeId === null ? scope.dimension : `${scope.dimension}:${scope.nodeId}`
+}
+
+/**
+ * The inverse, as a TYPED FAILURE rather than a throw: an unknown key is a
+ * `null` the caller must handle, and the only caller is a `Select`'s
+ * `onChange`, which ignores a value it cannot resolve.
+ */
+export function scopeFromKey(key: string): ScopeRef | null {
+  return ASSIGNABLE_SCOPE_TARGETS.find((t) => t.key === key)?.scope ?? null
+}
+
+/** Never a bare token in the interface. Resolves the node through its owner. */
+export function scopeLabel(scope: ScopeRef): string {
+  if (scope.dimension === 'tenant') return 'Tenant — the whole workspace'
+  if (scope.nodeId === null) return `${scope.dimension} — no node named, which is a defect`
+  if (scope.dimension === 'site') {
+    const site = siteById(scope.nodeId)
+    return `Site — ${site?.name ?? `${scope.nodeId}, which no longer resolves`}`
+  }
+  const area = areaById(scope.nodeId)
+  const parent = area === undefined ? undefined : siteById(area.siteId)
+  return `Area — ${area?.name ?? `${scope.nodeId}, which no longer resolves`}${
+    parent === undefined ? '' : `, under ${parent.name}`
+  }`
+}
+
+/**
+ * Whether a scope reaches a location node. DOWNWARDS ONLY: the tenant
+ * dimension reaches everything, a Site reaches itself and its own Areas, and
+ * an Area reaches itself and nothing above it. An Area that reached its Site
+ * would be a widening dressed as a lookup.
+ */
+export function reaches(scope: ScopeRef, nodeId: string): boolean {
+  if (scope.dimension === 'tenant') return true
+  if (scope.nodeId === null) return false
+  if (scope.nodeId === nodeId) return true
+  if (scope.dimension === 'site') return areaById(nodeId)?.siteId === scope.nodeId
+  return false
+}
+
+export type ScopeChange = 'narrows' | 'unchanged' | 'not-a-narrowing'
+
+/**
+ * The narrow-only rule (L17470), as one total function. A change narrows
+ * exactly when the scope being assigned names a node the current scope
+ * already reaches — which makes widening (Site to tenant), sideways moves
+ * (Site to an Area under another Site) and role-swapping all the same answer,
+ * and none of them a narrowing.
+ */
+export function scopeChange(from: ScopeRef, to: ScopeRef): ScopeChange {
+  if (scopeKey(from) === scopeKey(to)) return 'unchanged'
+  if (to.nodeId !== null && reaches(from, to.nodeId)) return 'narrows'
+  return 'not-a-narrowing'
+}
+
+/**
+ * Every location node this module can name, flattened once. Read from the
+ * location configuration module's records — the ONE place Sites and Areas are
+ * seeded — so nothing below is a second copy of the hierarchy.
+ */
+export interface LocationNodeRef {
+  readonly id: string
+  readonly dimension: 'site' | 'area'
+  readonly name: string
+  readonly parentName: string | null
+}
+
+function buildLocationNodes(): LocationNodeRef[] {
+  return [
+    ...DOH_SITES.map((s): LocationNodeRef => ({
+      id: s.id,
+      dimension: 'site',
+      name: s.name,
+      parentName: null,
+    })),
+    ...DOH_AREAS.map((a): LocationNodeRef => ({
+      id: a.id,
+      dimension: 'area',
+      name: a.name,
+      parentName: siteById(a.siteId)?.name ?? null,
+    })),
+  ]
+}
+
+export const LOCATION_NODES = buildLocationNodes()
+
+export interface ScopeTarget {
+  readonly key: string
+  readonly label: string
+  readonly scope: ScopeRef
+}
+
+export interface ScopeTargetExclusion {
+  readonly nodeId: string
+  readonly label: string
+  readonly reason: string
+}
+
+function siteIsAssignable(id: string): boolean {
+  const site = siteById(id)
+  return site !== undefined && site.state === 'active' && !site.flags.includes('scope-pending')
+}
+
+/**
+ * ONE walk of the location records, producing both halves at once: what the
+ * assignment picker offers, and what it withholds with the reason beside it.
+ * Two lists built by one pass cannot disagree about a node, and neither is
+ * typed out — a Site added or archived over there changes both over here.
+ *
+ * A `scope-pending` Site is excluded from the role-assignment pickers until
+ * its scope is set (D21). An archived node stays readable and stops being
+ * assignable: nobody is newly scoped to a node the tenant has closed.
+ */
+function buildScopeTargets(): {
+  targets: ScopeTarget[]
+  excluded: ScopeTargetExclusion[]
+} {
+  const targets: ScopeTarget[] = [
+    { key: 'tenant', label: scopeLabel(TENANT_SCOPE), scope: TENANT_SCOPE },
+  ]
+  const excluded: ScopeTargetExclusion[] = []
+  for (const site of DOH_SITES) {
+    if (siteIsAssignable(site.id)) {
+      const scope: ScopeRef = { dimension: 'site', nodeId: site.id }
+      targets.push({ key: scopeKey(scope), label: scopeLabel(scope), scope })
+      continue
+    }
+    excluded.push({
+      nodeId: site.id,
+      label: site.name,
+      reason:
+        site.state === 'archived'
+          ? 'Archived. Its history stays readable and every record that referred to it still resolves, but nobody is newly scoped to a node the tenant has closed.'
+          : 'Scope-pending. This Site is excluded from the role-assignment pickers until its scope is set, so nobody can be scoped to it by accident (D21).',
+    })
+  }
+  for (const area of DOH_AREAS) {
+    if (area.state === 'active' && siteIsAssignable(area.siteId)) {
+      const scope: ScopeRef = { dimension: 'area', nodeId: area.id }
+      targets.push({ key: scopeKey(scope), label: scopeLabel(scope), scope })
+      continue
+    }
+    excluded.push({
+      nodeId: area.id,
+      label: area.name,
+      reason:
+        area.state === 'archived'
+          ? 'Archived with its Site. Still readable, and not assignable — the same rule as the Site above it.'
+          : 'Its Site is not assignable, so neither is it: an Area cannot be scoped to while the Site it hangs from is withheld.',
+    })
+  }
+  return { targets, excluded }
+}
+
+const SCOPE_TARGET_WALK = buildScopeTargets()
+
+export const ASSIGNABLE_SCOPE_TARGETS = SCOPE_TARGET_WALK.targets
+
+export const SCOPE_TARGET_EXCLUSIONS = SCOPE_TARGET_WALK.excluded
 
 /* ------------------------------------------------------------------ *
  * OBJ-DOH-USER and its three rivals.
@@ -187,10 +431,13 @@ export interface TenantUserFixture {
   readonly id: string
   readonly displayName: string
   readonly workEmail: string
-  /** Multi-role is allowed and permissions are additive (L28495). */
-  readonly roles: readonly TenantRoleId[]
-  /** Pass one: `tenant` only. Site and Area arrive in pass two. */
-  readonly scope: DohScope
+  /**
+   * Multi-role is allowed and permissions are additive (L28495) — and each
+   * role arrives WITH its own scope, because scopes do not merge across
+   * grants (AC-16-02, L20046). There is deliberately no account-level scope
+   * field: two grants have no shared scope to widen into.
+   */
+  readonly grants: readonly RoleGrant[]
   readonly accountState: UserAccountState
   readonly loginTrack: SignInTrack
   /** The managed personal identification number is issued, not shown. */
@@ -199,12 +446,24 @@ export interface TenantUserFixture {
   readonly actorOfRecord: string
 }
 
+/** Two short constructors, so a grant cannot be written without its scope. */
+function atTenant(role: TenantRoleId): RoleGrant {
+  return { role, scope: TENANT_SCOPE }
+}
+
+function atSite(role: TenantRoleId, siteId: string): RoleGrant {
+  return { role, scope: { dimension: 'site', nodeId: siteId } }
+}
+
+function atArea(role: TenantRoleId, areaId: string): RoleGrant {
+  return { role, scope: { dimension: 'area', nodeId: areaId } }
+}
+
 const PRIYA: TenantUserFixture = {
   id: 'USR-DOH-0001',
   displayName: 'Priya Raman',
   workEmail: 'priya.raman@northfieldfoods.example',
-  roles: ['TENANT_ADMIN'],
-  scope: 'tenant',
+  grants: [atTenant('TENANT_ADMIN')],
   accountState: 'active',
   loginTrack: 'sso',
   managedPinIssued: false,
@@ -215,8 +474,7 @@ const HELENA: TenantUserFixture = {
   id: 'USR-DOH-0002',
   displayName: 'Helena Vosloo',
   workEmail: 'helena.vosloo@northfieldfoods.example',
-  roles: ['TENANT_ADMIN'],
-  scope: 'tenant',
+  grants: [atTenant('TENANT_ADMIN')],
   accountState: 'active',
   loginTrack: 'sso',
   managedPinIssued: false,
@@ -227,8 +485,9 @@ const MARCUS: TenantUserFixture = {
   id: 'USR-DOH-0003',
   displayName: 'Marcus Bell',
   workEmail: 'marcus.bell@northfieldfoods.example',
-  roles: ['SUPERVISOR'],
-  scope: 'tenant',
+  // Deliberately still tenant-wide: the narrowing control needs a grant that
+  // has somewhere to go, or its live path could never be demonstrated.
+  grants: [atTenant('SUPERVISOR')],
   accountState: 'active',
   loginTrack: 'sso',
   managedPinIssued: false,
@@ -239,8 +498,7 @@ const WEN: TenantUserFixture = {
   id: 'USR-DOH-0004',
   displayName: 'Wen Li',
   workEmail: 'wen.li@northfieldfoods.example',
-  roles: ['QUALITY_MANAGER'],
-  scope: 'tenant',
+  grants: [atSite('QUALITY_MANAGER', 'SITE-ARD-01')],
   accountState: 'active',
   loginTrack: 'sso',
   managedPinIssued: false,
@@ -250,11 +508,14 @@ const WEN: TenantUserFixture = {
 const ROSA: TenantUserFixture = {
   id: 'USR-DOH-0005',
   displayName: 'Rosa Mendez',
-  // The multi-role case the card allows: permissions are additive, and the
-  // audit trail still names one identity for both (L28495, L17546).
-  roles: ['SUPERVISOR', 'QUALITY_MANAGER'],
+  // THE NON-MERGING CASE, and the reason this account is seeded at all.
+  // Permissions are additive and the audit trail still names one identity for
+  // both (L28495, L17546) — but the two grants' scopes do not add up: the
+  // Supervisor grant reaches one Area under one Site, the Quality Manager
+  // grant reaches a different Site entirely, and neither borrows the other's
+  // reach (AC-16-02, L20046).
+  grants: [atArea('SUPERVISOR', 'AREA-ARD-PAINT'), atSite('QUALITY_MANAGER', 'SITE-ARD-02')],
   workEmail: 'rosa.mendez@northfieldfoods.example',
-  scope: 'tenant',
   accountState: 'active',
   loginTrack: 'sso',
   managedPinIssued: false,
@@ -265,8 +526,7 @@ const DANA: TenantUserFixture = {
   id: 'USR-DOH-0006',
   displayName: 'Dana Ortiz',
   workEmail: 'dana.ortiz@auditpartners.example',
-  roles: ['READONLY_AUDITOR'],
-  scope: 'tenant',
+  grants: [atTenant('READONLY_AUDITOR')],
   accountState: 'active',
   loginTrack: 'managed',
   managedPinIssued: false,
@@ -277,8 +537,7 @@ const SAM: TenantUserFixture = {
   id: 'USR-DOH-0007',
   displayName: 'Sam Oyelaran',
   workEmail: 'sam.oyelaran@northfieldfoods.example',
-  roles: ['WORKER'],
-  scope: 'tenant',
+  grants: [atArea('WORKER', 'AREA-ARD-ASSY')],
   accountState: 'active',
   loginTrack: 'managed',
   managedPinIssued: true,
@@ -289,12 +548,53 @@ const TOMAS: TenantUserFixture = {
   id: 'USR-DOH-0008',
   displayName: 'Tomás Iglesias',
   workEmail: 'tomas.iglesias@northfieldfoods.example',
-  roles: ['WORKER'],
-  scope: 'tenant',
+  grants: [atArea('WORKER', 'AREA-ARD-ASSY')],
   accountState: 'suspended_by_tenant_state',
   loginTrack: 'managed',
   managedPinIssued: true,
   actorOfRecord: 'ACT-DOH-TOMAS',
+}
+
+/* ------------------------------------------------------------------ *
+ * Reading a grant set. Every caller asks these rather than indexing,
+ * so "holds the role" and "holds it HERE" stay different questions.
+ * ------------------------------------------------------------------ */
+
+export function rolesHeld(user: TenantUserFixture): readonly TenantRoleId[] {
+  return user.grants.map((g) => g.role)
+}
+
+export function grantFor(user: TenantUserFixture, role: TenantRoleId): RoleGrant | undefined {
+  return user.grants.find((g) => g.role === role)
+}
+
+export interface MergeProbe {
+  readonly reachedBy: RoleGrant
+  readonly notReachedBy: RoleGrant
+  readonly nodeId: string
+  readonly nodeLabel: string
+}
+
+/**
+ * The non-merging rule, demonstrated on the data rather than asserted in
+ * prose: the first location node one grant reaches and another does not. A
+ * union across grants would reach it through both, which is precisely what
+ * `AC-16-02` refuses. `null` when the account holds one grant, or when its
+ * grants happen to reach the same nodes — both stated on screen rather than
+ * rendered as a blank.
+ */
+export function mergeProbe(user: TenantUserFixture): MergeProbe | null {
+  for (const reachedBy of user.grants) {
+    for (const notReachedBy of user.grants) {
+      if (reachedBy.role === notReachedBy.role) continue
+      for (const node of LOCATION_NODES) {
+        if (reaches(reachedBy.scope, node.id) && !reaches(notReachedBy.scope, node.id)) {
+          return { reachedBy, notReachedBy, nodeId: node.id, nodeLabel: node.name }
+        }
+      }
+    }
+  }
+  return null
 }
 
 export type RosterScenarioId = 'seeded' | 'last-tenant-admin' | 'no-approver-holder'
@@ -357,12 +657,17 @@ export function standingCounters(
   users: readonly TenantUserFixture[],
   jobExists: boolean,
 ): StandingCounters {
-  const tenantAdmins = users.filter((u) => u.roles.includes('TENANT_ADMIN')).length
+  const tenantAdmins = users.filter((u) => rolesHeld(u).includes('TENANT_ADMIN')).length
   const approverCapable = users.filter((u) =>
     // Asked this way round because the declared set is now a narrowed tuple:
     // `APPROVER_CAPABLE_ROLES.includes(anyTenantRole)` no longer type-checks,
     // which is the widening this conversion was for.
-    APPROVER_CAPABLE_ROLES.some((approver) => u.roles.includes(approver)),
+    //
+    // Counted on the ROLE and not on its scope: the mandatory-role rule asks
+    // whether the tenant holds an approver at all, and an approver scoped to
+    // one Area is still one. Counting scoped grants out would make the rule
+    // stricter than the source states it.
+    APPROVER_CAPABLE_ROLES.some((approver) => rolesHeld(u).includes(approver)),
   ).length
   const warnings: string[] = []
   if (tenantAdmins === 0) warnings.push(MANDATORY_ROLE_STATEMENTS.tenantAdmin)
@@ -500,7 +805,7 @@ export const PERMISSION_MATRIX = [
     cells: prohibitedForOthers(
       'Explicitly prohibited — scope assignment belongs to the Tenant Admin alone (L28524).',
     ),
-    note: 'Pass one offers the tenant dimension only. Site and Area are a later pass of this same module; they are not stubbed here, because an option that does nothing is a promise.',
+    note: 'Three live dimensions: tenant, Site and Area. The Sites and Areas offered are read from the location configuration module’s own records, so this module seeds no second copy of the hierarchy, and an assignment may only ever narrow the grant it acts on.',
   },
   {
     id: 'remove-last-tenant-admin',
@@ -750,7 +1055,7 @@ export const SIGN_IN_STAGES = [
     id: 'scope-resolved',
     name: 'Scope resolved',
     detail:
-      'The identity’s scope set is read. In this pass the only dimension is the tenant itself; Site and Area are a later pass of this same module and are not offered here.',
+      'The identity’s scope set is read, one scope per grant: tenant, a Site, or an Area under a Site. It is read here, before anything renders, and it narrows what the resolved permissions can act on rather than adding to them.',
   },
   {
     id: 'tenant-state-applied',
@@ -893,9 +1198,11 @@ export const DEFAULT_CONTEXT: FixtureContextOptions = {
 }
 
 /**
- * The evaluator context for one seeded persona. Scope arrays are empty in
- * pass one — the tenant dimension is ambient, and Site and Area arrive with
- * the module's second pass.
+ * The evaluator context for one seeded persona. PASS TWO: the scope arrays
+ * are no longer empty. They are read from the location configuration module's
+ * own seeded role scopes, so the evaluator's scope stage has something real to
+ * intersect against and a narrowed persona is refused by the evaluator rather
+ * than by a conditional written here.
  */
 export function fixtureContext(
   role: TenantRoleId,
@@ -907,8 +1214,8 @@ export function fixtureContext(
       signedIn: true,
       role,
       tenant: FIXTURE_TENANT,
-      siteScope: [],
-      areaScope: [],
+      siteScope: visibleSiteIds(role),
+      areaScope: visibleAreaIds(role),
       qualifications: [],
       deviceId: null,
       stepUpActive: false,
@@ -1319,6 +1626,14 @@ export const UNSPECIFIED_IN_SOURCE = [
   {
     affordance: 'The fields of the create-account form',
     note: 'The workflow exists with acceptance criteria (WF-WKR-004, L52892) and no field list anywhere. No form is drawn: inventing one would read back as a requirement.',
+  },
+  {
+    affordance: 'What "own scope" means when the record is a person, not a place',
+    note: 'The register row for the Supervisor and the Quality Manager reads "Read-only, own scope" (L28532). A scope names a Site or an Area; a user account sits in neither, and the source never says whether a person falls inside a scope by the Sites their grants name, by their account, or not at all. The scope this pass enforces is therefore applied where the source does define it — the location nodes a view reaches, resolved through the evaluator — and the register itself is not filtered on a reading nobody wrote.',
+  },
+  {
+    affordance: 'What happens to a grant when the node it is scoped to is archived',
+    note: 'An archived Site or Area stays readable and is withheld from the assignment picker here, but no line says whether a grant already scoped to it survives the archival, lapses, or falls back to the parent. Nothing is invented: the seeded grants name active nodes, and the question is recorded rather than answered by a rule this module would have made up.',
   },
   {
     affordance: 'What a refused mandatory-role removal offers next',

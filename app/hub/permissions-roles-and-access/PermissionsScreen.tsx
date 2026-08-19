@@ -45,10 +45,12 @@ import {
   ABSENT_CONTROLS,
   ACCOUNT_LIFECYCLE_RIVALS,
   APPROVER_CAPABLE_ROLES,
+  ASSIGNABLE_SCOPE_TARGETS,
   CONDITION_MAPPINGS,
   CONFIGURATION_EDIT_ACTION,
   DOH09_APPLICABLE_STATES,
   DOH09_INAPPLICABLE_STATES,
+  LOCATION_NODES,
   MANDATORY_ROLE_STATEMENTS,
   PERMISSION_MATRIX,
   REFUSAL_SCENARIOS,
@@ -59,19 +61,29 @@ import {
   ROLE_CARD_BLOCK_NAMES,
   ROLE_CARD_COPY,
   ROSTER_SCENARIOS,
+  SCOPE_RULES,
+  SCOPE_TARGET_EXCLUSIONS,
   SIGN_IN_STAGES,
   SOURCE_CONFLICTS,
   TENANT_ROLE_ORDER,
+  TENANT_SCOPE,
   UNSPECIFIED_IN_SOURCE,
   USER_ACCOUNT_STATES,
   fixtureContext,
+  grantFor,
   matrixRow,
+  mergeProbe,
   refusalScenario,
   renderingFor,
+  rolesHeld,
+  scopeChange,
+  scopeFromKey,
+  scopeLabel,
   standingCounters,
   type ConditionMapping,
   type Doh09StateId,
   type MatrixRow,
+  type LocationNodeRef,
   type MatrixRowId,
   type RefusalScenarioId,
   type RoleCardBlockName,
@@ -82,7 +94,7 @@ import {
 } from './fixtures'
 
 /**
- * MOD-DOH-09 — Permissions, Roles and Access, pass one (Tenant scope only).
+ * MOD-DOH-09 — Permissions, Roles and Access, pass two (Tenant, Site, Area).
  *
  * The module that decides who exists in the tenant, what each may do, and
  * where. It owns `OBJ-DOH-USER` and is the only module anywhere that creates
@@ -341,6 +353,10 @@ export function PermissionsScreen({
   const [users, setUsers] = useState<readonly TenantUserFixture[]>(seededRoster.users)
   const [selectedUserId, setSelectedUserId] = useState<string>(seededRoster.users[0]?.id ?? '')
   const [roleToAssign, setRoleToAssign] = useState<TenantRoleId>('SUPERVISOR')
+  /* The picker's own value is the KEY, not the scope: a `Select` carries one
+     string, and every key it offers was built from the location records, so
+     `scopeFromKey` can only fail on a value this screen never rendered. */
+  const [scopeToAssign, setScopeToAssign] = useState<string>('tenant')
   const [registerMessage, setRegisterMessage] = useState<string>(NO_ACTION_YET)
 
   const [connection, setConnection] = useState<SsoConnectionRecord>(SEEDED_SSO_CONNECTION)
@@ -452,7 +468,7 @@ export function PermissionsScreen({
   function assignRole() {
     const target = selectedUser()
     if (target === undefined) return
-    if (target.roles.includes(roleToAssign)) {
+    if (rolesHeld(target).includes(roleToAssign)) {
       setRegisterMessage(
         `${target.displayName} already holds the ${roleById(roleToAssign).name} role. Roles are additive and an assignment is recorded once; nothing was written a second time.`,
       )
@@ -461,25 +477,27 @@ export function PermissionsScreen({
     if (auditRefused(`No role was assigned to ${target.displayName}.`)) return
     setUsers(
       users.map((u) =>
-        u.id === target.id ? { ...u, roles: [...u.roles, roleToAssign] } : u,
+        u.id === target.id
+          ? { ...u, grants: [...u.grants, { role: roleToAssign, scope: TENANT_SCOPE }] }
+          : u,
       ),
     )
     setRegisterMessage(
-      `Assigned the ${roleById(roleToAssign).name} role to ${target.displayName}, at tenant scope, with its audit entry in the same transaction. Permissions are additive and take effect on the web surfaces at once; a device would see them at its next sync.`,
+      `Assigned the ${roleById(roleToAssign).name} role to ${target.displayName}, at the tenant scope, with its audit entry in the same transaction. A new grant starts at the widest scope and is narrowed afterwards by the scope control beside this one: a scope narrows a role and never grants one. Permissions are additive and take effect on the web surfaces at once; a device would see them at its next sync.`,
     )
   }
 
   function removeRole() {
     const target = selectedUser()
     if (target === undefined) return
-    if (!target.roles.includes(roleToAssign)) {
+    if (!rolesHeld(target).includes(roleToAssign)) {
       setRegisterMessage(
         `${target.displayName} does not hold the ${roleById(roleToAssign).name} role, so there is nothing to remove and nothing was written.`,
       )
       return
     }
     const after = users.map((u) =>
-      u.id === target.id ? { ...u, roles: u.roles.filter((r) => r !== roleToAssign) } : u,
+      u.id === target.id ? { ...u, grants: u.grants.filter((g) => g.role !== roleToAssign) } : u,
     )
     const wouldBe = standingCounters(after, seededRoster.jobExists)
     if (wouldBe.tenantAdmins === 0) {
@@ -504,7 +522,7 @@ export function PermissionsScreen({
   function issuePin() {
     const target = selectedUser()
     if (target === undefined) return
-    if (role === 'SUPERVISOR' && !target.roles.includes('WORKER')) {
+    if (role === 'SUPERVISOR' && !rolesHeld(target).includes('WORKER')) {
       setRegisterMessage(
         `Refused by the condition stated on this row: a Supervisor may issue or reset a managed personal identification number within own scope and for workers only (L28531). ${target.displayName} holds no Worker role, so nothing was written.`,
       )
@@ -520,16 +538,68 @@ export function PermissionsScreen({
   /**
    * The scope row is a ROUTING prohibition, so a control has to exist here:
    * the Tenant Admin holds it live and every other role meets it disabled
-   * with its reason, which is what the by-person list says is drawn. Pass one
-   * has one dimension, so the write is real and its effect is nil — stated
-   * rather than hidden behind a control that quietly does nothing.
+   * with its reason, which is what the by-person list says is drawn.
+   *
+   * PASS TWO gives it something to change. It acts on ONE grant — the one
+   * carrying the role in the picker beside it — and the three refusals below
+   * are the three scope rules made enforceable rather than merely printed:
+   *
+   * - no grant for that role: a scope narrows a role and never grants one;
+   * - not a narrowing: a widening or a sideways move is refused (L17470);
+   * - unchanged: nothing to write, and nothing is claimed to have been.
+   *
+   * The audit question is asked AFTER all three, because a refused action is
+   * not an action and appends no audit entry to fail — and BEFORE the
+   * mutation, which the register's Scope column shows.
    */
   function assignScope() {
     const target = selectedUser()
     if (target === undefined) return
+    const next = scopeFromKey(scopeToAssign)
+    if (next === null) {
+      // Unreachable from the picker, which offers only keys the same walk
+      // built — and answered rather than returned silently, because a
+      // control that does nothing without saying so is the defect this
+      // module's own copy warns about.
+      setRegisterMessage(
+        'Nothing was written: that scope does not resolve to a Site or an Area this tenant holds. No node was guessed at.',
+      )
+      return
+    }
+    const grantRoleName = roleById(roleToAssign).name
+    const grant = grantFor(target, roleToAssign)
+    if (grant === undefined) {
+      setRegisterMessage(
+        `${target.displayName} holds no ${grantRoleName} grant, so there is no scope to narrow and nothing was written. A scope narrows a role and never grants one (L17470): assign the role first, then narrow it.`,
+      )
+      return
+    }
+    const change = scopeChange(grant.scope, next)
+    if (change === 'unchanged') {
+      setRegisterMessage(
+        `The ${grantRoleName} grant on ${target.displayName} already sits at ${scopeLabel(next)}. Nothing was written, and no audit entry was appended for an action that would change nothing.`,
+      )
+      return
+    }
+    if (change === 'not-a-narrowing') {
+      setRegisterMessage(
+        `Refused, and the rule is named rather than hinted at: a scope narrows a role and never widens it (L17470). The ${grantRoleName} grant on ${target.displayName} holds ${scopeLabel(grant.scope)}, and ${scopeLabel(next)} is not inside it — a widening and a sideways move are the same answer here. Nothing was written.`,
+      )
+      return
+    }
     if (auditRefused(`No scope was assigned to ${target.displayName}.`)) return
+    setUsers(
+      users.map((u) =>
+        u.id === target.id
+          ? {
+              ...u,
+              grants: u.grants.map((g) => (g.role === roleToAssign ? { ...g, scope: next } : g)),
+            }
+          : u,
+      ),
+    )
     setRegisterMessage(
-      `Assigned the tenant scope to ${target.displayName}, with its audit entry in the same transaction. The register does not move: the tenant dimension is the only one this pass offers and every seeded account already holds it. Pass two ADDS Site and Area to this control rather than un-greying anything.`,
+      `Narrowed the ${grantRoleName} grant on ${target.displayName} to ${scopeLabel(next)}, with its audit entry in the same transaction. The Scope column on the register moves for that grant and for no other: this account's other grants keep the scope they were given, because scopes do not merge across grants (AC-16-02, L20046).`,
     )
   }
 
@@ -620,10 +690,20 @@ export function PermissionsScreen({
     return cells
   })
 
+  /**
+   * The Scope column is per GRANT, not per account: one line for each role
+   * held, carrying that role's own scope. A single "Scope: Tenant" cell would
+   * be the account-level scope the non-merging rule forbids, drawn.
+   */
   const registerRows: TableRow[] = users.map((u) => ({
     person: u.displayName,
-    roles: u.roles.map((r) => roleById(r).name).join(', '),
-    scope: 'Tenant',
+    roles: rolesHeld(u)
+      .map((r) => roleById(r).name)
+      .join(', '),
+    scope:
+      u.grants.length === 0
+        ? 'No grant, so no scope'
+        : u.grants.map((g) => `${roleById(g.role).name}: ${scopeLabel(g.scope)}`).join(' · '),
     account: ACCOUNT_STATE_LABEL[u.accountState],
     track: TRACK_LABEL[u.loginTrack],
     credential: u.managedPinIssued ? 'Issued' : 'None issued',
@@ -663,13 +743,43 @@ export function PermissionsScreen({
   )
   const absentRows = PERMISSION_MATRIX.filter((r) => renderingFor(r, role) === 'absent')
 
+  /* -------------------------------------------------------------- *
+   * Scope, resolved rather than asserted. Which location nodes this
+   * view reaches is answered by the evaluator's own scope stage, one
+   * request per node, against the identity's real Site and Area sets.
+   * -------------------------------------------------------------- */
+  function reachDecision(node: LocationNodeRef): PermissionDecision {
+    return evaluateAccess(
+      {
+        action: 'MOD-DOH-09:read-location-node',
+        allowedRoles: [...TENANT_ROLE_ORDER],
+        ...(node.dimension === 'site'
+          ? { requiredSites: [node.id] }
+          : { requiredAreas: [node.id] }),
+        sourceRefs: ['L17470', 'L27214'],
+      },
+      fixtureContext(role),
+    )
+  }
+
+  const reachRows: TableRow[] = LOCATION_NODES.filter((n) => permitsAction(reachDecision(n))).map(
+    (n) => ({
+      node: n.name,
+      dimension: n.dimension === 'site' ? 'Site' : 'Area',
+      parent: n.parentName ?? 'The tenant itself',
+    }),
+  )
+
+  const selectedForScope = selectedUser()
+  const probe = selectedForScope === undefined ? null : mergeProbe(selectedForScope)
+
   function cardBody(block: RoleCardBlockName): string {
     const copy = ROLE_CARD_COPY[role]
     switch (block) {
       case 'Identity':
         return `${roleName} — one of the five fixed tenant role types. There is no sixth, and no surface creates one.`
       case 'Reach':
-        return 'The tenant, and nothing outside it. Site and Area arrive with the second pass of this module; Cell, Job and worker scoping are deferred beyond the first version and no rule may depend on them.'
+        return `Whatever this role's own grant is scoped to: the tenant, one Site, or one Area under a Site. The scope narrows the role and never widens it, and where a person holds two roles the two scopes stay apart. Cell, Job and worker scoping are deferred beyond the first version and no rule may depend on them. The table above shows what this view resolves to.`
       case 'Visibility':
         return copy.visibility
       case 'Rights':
@@ -945,7 +1055,7 @@ export function PermissionsScreen({
               columns={[
                 { key: 'person', header: 'Person' },
                 { key: 'roles', header: 'Roles held' },
-                { key: 'scope', header: 'Scope' },
+                { key: 'scope', header: 'Scope, by grant' },
                 { key: 'account', header: 'Account state' },
                 { key: 'track', header: 'Sign-in track' },
                 { key: 'credential', header: 'Managed credential' },
@@ -991,17 +1101,19 @@ export function PermissionsScreen({
                 if (next !== undefined) setRoleToAssign(next)
               }}
             />
-            {/* One option, because pass one has one dimension: this is not a
-                dead control so much as a dimension with nothing yet to choose
-                between, and Site and Area are added to it — not un-greyed —
-                by the module's second pass. It is disabled through the SAME
+            {/* PASS TWO: three live dimensions. Every Site and Area below is
+                read from the location records rather than seeded here, and the
+                two nodes that are withheld say why in the panel further down
+                rather than simply not appearing. Disabled through the SAME
                 gate as the button beside it, so a role the scope row refuses
                 does not meet an enabled picker. */}
             <Select
               label="Scope to assign"
-              value="tenant"
-              options={[{ value: 'tenant', label: 'Tenant — the whole workspace' }]}
-              onChange={() => undefined}
+              value={scopeToAssign}
+              options={ASSIGNABLE_SCOPE_TARGETS.map((t) => ({ value: t.key, label: t.label }))}
+              onChange={(value) => {
+                if (scopeFromKey(value) !== null) setScopeToAssign(value)
+              }}
               disabled={scopeBlockReason !== null}
             />
           </div>
@@ -1012,9 +1124,11 @@ export function PermissionsScreen({
             a disabled button would imply a roadmap promise the source has not made (L23918).
           </p>
           <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            Scope in this pass: the tenant dimension is the only one offered, and the control
-            beside the picker carries this row&apos;s own answer for the view in front of you —
-            live for the Tenant Admin, disabled with its stated reason for every other role.
+            Assigning a scope acts on ONE grant — the role chosen in the picker beside it — and
+            only ever narrows it. The control carries this row&apos;s own answer for the view in
+            front of you: live for the Tenant Admin, disabled with its stated reason for every
+            other role. Scoping a role the person does not hold is refused, because a scope
+            narrows a role and never grants one.
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -1037,6 +1151,101 @@ export function PermissionsScreen({
             className="max-w-prose rounded-[var(--radius-surface)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-3 text-sm text-[var(--color-ink)]"
           >
             {registerMessage}
+          </p>
+        </section>
+
+        {/* ---------------------------------------------------------- *
+            The grants on one account, and the rule that keeps their
+            scopes apart.
+         * ---------------------------------------------------------- */}
+        <section aria-label="Scope grants on the selected account" className="space-y-3">
+          <h2 className="text-lg font-semibold">Scope grants on the selected account</h2>
+          {stateId === 'STATE-12' ? (
+            <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
+              No grant can be shown and nobody is named here. The grants come from the register
+              read that failed, and a stale copy of them would be this screen claiming to know
+              something it has just said it could not read.
+            </p>
+          ) : selectedForScope === undefined ? (
+            <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
+              No account is selected on the register above, so there is no grant set to show.
+            </p>
+          ) : (
+            <>
+              <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
+                {selectedForScope.displayName} holds {selectedForScope.grants.length} grant
+                {selectedForScope.grants.length === 1 ? '' : 's'}. Each carries its own scope, and
+                one grant is what a single scope assignment moves.
+              </p>
+              <ul className="space-y-2">
+                {selectedForScope.grants.map((g) => (
+                  <li key={g.role} className="max-w-prose text-sm">
+                    <span className="font-medium text-[var(--color-ink)]">
+                      {roleById(g.role).name}
+                    </span>
+                    <span className="text-[var(--color-ink-muted)]"> — {scopeLabel(g.scope)}</span>
+                  </li>
+                ))}
+              </ul>
+              {probe === null ? (
+                <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
+                  Every grant on this account reaches the same nodes, so nothing here demonstrates
+                  the non-merging rule. It still binds: choose the account holding two roles to see
+                  a node one grant reaches and the other does not.
+                </p>
+              ) : (
+                <p className="max-w-prose text-sm text-[var(--color-ink)]">
+                  {probe.nodeLabel} is reached by the {roleById(probe.reachedBy.role).name} grant,
+                  which holds {scopeLabel(probe.reachedBy.scope)}, and is NOT reached by the{' '}
+                  {roleById(probe.notReachedBy.role).name} grant, which holds{' '}
+                  {scopeLabel(probe.notReachedBy.scope)}. If scopes merged across grants, both would
+                  reach it. They do not merge (AC-16-02, L20046): the permissions add up, the places
+                  never do.
+                </p>
+              )}
+            </>
+          )}
+        </section>
+
+        {/* ---------------------------------------------------------- *
+            What the scope actually resolves to, through the evaluator.
+         * ---------------------------------------------------------- */}
+        <section aria-label="Locations this view reaches" className="space-y-3">
+          <h2 className="text-lg font-semibold">
+            Locations the {roleName} view reaches (SCR-DOH-ROLE-01)
+          </h2>
+          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
+            Every row below is a request naming that node, answered by the scope stage of the one
+            evaluator against this identity&apos;s assigned Site and Area sets. Nothing here is a
+            list this screen filtered by hand.
+          </p>
+          <div className="overflow-x-auto">
+            <Table
+              caption={`The Sites and Areas the ${roleName} view resolves to`}
+              columns={[
+                { key: 'node', header: 'Node' },
+                { key: 'dimension', header: 'Dimension' },
+                { key: 'parent', header: 'Under' },
+              ]}
+              rows={reachRows}
+              emptyState={{
+                title: 'This view reaches no Site and no Area.',
+                whatCreatesIt:
+                  'A Tenant Admin assigns a scope to one of this identity’s grants. Until then it resolves to nothing, and a refusal is the honest answer rather than a blank.',
+              }}
+            />
+          </div>
+          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
+            What sits outside is not listed, counted or hinted at. A refusal names the boundary and
+            never what is on the other side of it (L14267), which is why this table is the scope
+            itself rather than a longer list with rows greyed out.
+          </p>
+          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
+            Two different things are on this screen and neither is the other. This table is the
+            scope of the SEEDED PERSONA you are viewing through, which the location configuration
+            module owns and every Hub screen resolves against, so one persona reads the same
+            everywhere. The Scope column on the register above is the scope of each individual
+            account&apos;s grants, which is what the control on this screen writes.
           </p>
         </section>
 
@@ -1238,10 +1447,32 @@ export function PermissionsScreen({
         <section aria-label="Scope in this pass" className="space-y-3">
           <h2 className="text-lg font-semibold">Scope in this pass</h2>
           <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Pass one of this module offers the tenant dimension and nothing else. Site and Area are
-            a later pass of this same module and are not stubbed here, because an option that does
-            nothing is a promise.
+            Three live dimensions: the tenant, a Site, and an Area under a Site. The Sites and Areas
+            offered are read from the location configuration module&apos;s own records — the one
+            place the tenant&apos;s physical structure is seeded — so nothing on this screen is a
+            second copy of the hierarchy, and every node named here resolves there or fails a test.
           </p>
+          <dl className="space-y-3">
+            {SCOPE_RULES.map((rule) => (
+              <div key={rule.id}>
+                <dt className="text-sm font-semibold text-[var(--color-ink)]">
+                  {rule.title} ({rule.sourceRef})
+                </dt>
+                <dd className="max-w-prose text-sm text-[var(--color-ink-muted)]">{rule.detail}</dd>
+              </div>
+            ))}
+          </dl>
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+            Nodes the assignment picker withholds, and why
+          </h3>
+          <ul className="space-y-2">
+            {SCOPE_TARGET_EXCLUSIONS.map((entry) => (
+              <li key={entry.nodeId} className="max-w-prose text-sm">
+                <span className="font-medium text-[var(--color-ink)]">{entry.label}</span>
+                <span className="text-[var(--color-ink-muted)]"> — {entry.reason}</span>
+              </li>
+            ))}
+          </ul>
           <ul className="space-y-2">
             {DEFERRED_DOH_SCOPES.map((deferred) => (
               <li key={deferred} className="max-w-prose text-sm text-[var(--color-ink-muted)]">

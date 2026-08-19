@@ -7,9 +7,11 @@ import { TENANT_STATES } from '@/surfaces/doh/tenant-state'
 import { SEEDED_SSO_CONNECTION } from '@/surfaces/doh/sso-connection'
 import { PermissionsScreen } from '../../app/hub/permissions-roles-and-access/PermissionsScreen'
 import {
+  ASSIGNABLE_SCOPE_TARGETS,
   MANDATORY_ROLE_STATEMENTS,
   PERMISSION_MATRIX,
   ROLE_CARD_BLOCK_NAMES,
+  SCOPE_RULES,
   SIGN_IN_STAGES,
   TENANT_ROLE_ORDER,
 } from '../../app/hub/permissions-roles-and-access/fixtures'
@@ -221,12 +223,161 @@ describe('MOD-DOH-09 — SCR-DOH-18, users, roles and scopes', () => {
     expect(users.textContent ?? '').not.toMatch(/Priya Raman/)
   })
 
-  it('offers the tenant scope only in this pass, with no dead Site or Area option', () => {
+})
+
+/**
+ * PASS TWO. The test this block replaces asserted the scope picker offered
+ * `['tenant']` and nothing else — true of pass one, and the exact thing this
+ * task removes. What replaces it is the same question asked of the new
+ * dimensions: are they real, do they come from the location records rather
+ * than from a second copy typed here, and does assigning one change anything.
+ */
+describe('MOD-DOH-09 — pass two, Site and Area scope', () => {
+  function scopeRow(users: HTMLElement, person: string): string {
+    const row = within(users)
+      .getAllByRole('row')
+      .find((r) => (r.textContent ?? '').includes(person))
+    if (row === undefined) throw new Error(`no register row for ${person}`)
+    return row.textContent ?? ''
+  }
+
+  function assignScope(users: HTMLElement, opts: { user: string; role: string; scope: string }) {
+    fireEvent.change(within(users).getByLabelText(/user to change/i), {
+      target: { value: opts.user },
+    })
+    fireEvent.change(within(users).getByLabelText(/role to assign/i), {
+      target: { value: opts.role },
+    })
+    fireEvent.change(within(users).getByLabelText(/scope to assign/i), {
+      target: { value: opts.scope },
+    })
+    fireEvent.click(buttonNamed(users, /^Assign the scope$/))
+  }
+
+  // Fails if the option list is hand-typed here instead of walked from the
+  // location records: the picker and the fixture would stop matching.
+  it('offers every assignable node from the location records and invents none', () => {
     render(<PermissionsScreen role="TENANT_ADMIN" />)
     const users = region(/users, roles and scopes/i)
     const scope = within(users).getByLabelText(/scope to assign/i) as HTMLSelectElement
     const values = Array.from(scope.querySelectorAll('option')).map((o) => o.getAttribute('value'))
-    expect(values).toEqual(['tenant'])
+    expect(values).toEqual(ASSIGNABLE_SCOPE_TARGETS.map((t) => t.key))
+    expect(values).toContain('tenant')
+    expect(values.filter((v) => v?.startsWith('site:')).length).toBeGreaterThan(0)
+    expect(values.filter((v) => v?.startsWith('area:')).length).toBeGreaterThan(0)
+    // D21 and the archive rule, in the DOM: withheld, and each says why.
+    expect(values).not.toContain('site:SITE-ARD-03')
+    expect(values).not.toContain('area:AREA-ARD-STORE')
+  })
+
+  // THE POINT OF THIS TASK: `assignScope` had no observable effect in pass
+  // one. Fails the moment the handler stops writing the narrowed grant.
+  it('narrows the grant it names, and the register moves', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const users = region(/users, roles and scopes/i)
+    expect(scopeRow(users, 'Marcus Bell')).toMatch(/Supervisor: Tenant/)
+
+    assignScope(users, { user: 'USR-DOH-0003', role: 'SUPERVISOR', scope: 'area:AREA-ARD-PAINT' })
+
+    expect(within(users).getByRole('status').textContent ?? '').toMatch(/Narrowed the Supervisor/i)
+    expect(scopeRow(users, 'Marcus Bell')).toMatch(/Supervisor: Area — Paint Line/)
+    expect(scopeRow(users, 'Marcus Bell')).not.toMatch(/Supervisor: Tenant/)
+  })
+
+  // Fails if scope is ever stored on the ACCOUNT rather than on the grant:
+  // the untouched Supervisor grant would move with the Quality Manager one.
+  it('moves one grant and leaves the account’s other grant where it was', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const users = region(/users, roles and scopes/i)
+    expect(scopeRow(users, 'Rosa Mendez')).toMatch(/Supervisor: Area — Paint Line/)
+
+    assignScope(users, {
+      user: 'USR-DOH-0005',
+      role: 'QUALITY_MANAGER',
+      scope: 'area:AREA-ARD-QC',
+    })
+
+    const after = scopeRow(users, 'Rosa Mendez')
+    expect(after).toMatch(/Quality Manager: Area — Quality Laboratory/)
+    expect(after).toMatch(/Supervisor: Area — Paint Line/)
+  })
+
+  // Fails if the narrow-only rule stops being enforced at the write.
+  it('refuses a widening by naming the rule, and writes nothing', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const users = region(/users, roles and scopes/i)
+    const before = scopeRow(users, 'Rosa Mendez')
+
+    assignScope(users, { user: 'USR-DOH-0005', role: 'SUPERVISOR', scope: 'tenant' })
+
+    const status = within(users).getByRole('status').textContent ?? ''
+    expect(status).toMatch(/never widens it/i)
+    expect(status).toMatch(/L17470/)
+    expect(status).toMatch(/nothing was written/i)
+    expect(scopeRow(users, 'Rosa Mendez')).toBe(before)
+  })
+
+  // Fails if a scope assignment is allowed to create the grant it scopes,
+  // which would be a scope granting a role rather than narrowing one.
+  it('refuses to scope a role the account does not hold', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const users = region(/users, roles and scopes/i)
+    const before = scopeRow(users, 'Priya Raman')
+
+    assignScope(users, { user: 'USR-DOH-0001', role: 'SUPERVISOR', scope: 'site:SITE-ARD-01' })
+
+    const status = within(users).getByRole('status').textContent ?? ''
+    expect(status).toMatch(/holds no Supervisor grant/i)
+    expect(status).toMatch(/never grants one/i)
+    expect(scopeRow(users, 'Priya Raman')).toBe(before)
+  })
+
+  // Fails if the two grants are ever unioned: the probe would find no node
+  // that one reaches and the other does not.
+  it('names a node one grant reaches and the other does not', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const users = region(/users, roles and scopes/i)
+    fireEvent.change(within(users).getByLabelText(/user to change/i), {
+      target: { value: 'USR-DOH-0005' },
+    })
+    const grants = region(/scope grants on the selected account/i)
+    expect(within(grants).getByText(/is NOT reached by the/i)).toBeDefined()
+    expect(grants.textContent ?? '').toMatch(/AC-16-02/)
+    expect(grants.textContent ?? '').toMatch(/do not merge/i)
+  })
+
+  // Fails if the evaluator is handed empty scope arrays again: every view
+  // would resolve to the same set of nodes.
+  it('resolves fewer locations for a scoped view than for the tenant-wide one', () => {
+    const admin = render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const adminRows = within(region(/locations this view reaches/i)).getAllByRole('row').length
+    expect(within(region(/locations this view reaches/i)).getByText('Quality Laboratory')).toBeDefined()
+    admin.unmount()
+
+    render(<PermissionsScreen role="SUPERVISOR" />)
+    const scoped = region(/locations this view reaches/i)
+    const scopedRows = within(scoped).getAllByRole('row').length
+    expect(scopedRows).toBeLessThan(adminRows)
+    expect(within(scoped).getByText('Paint Line')).toBeDefined()
+    // Out of scope, and therefore not listed at all — not listed and greyed.
+    expect(within(scoped).queryByText('Quality Laboratory')).toBeNull()
+  })
+
+  // Fails if the grants panel renders from the read that just failed.
+  it('names no account and no grant under STATE-12', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" screenState="STATE-12" />)
+    const grants = region(/scope grants on the selected account/i)
+    expect(grants.textContent ?? '').not.toMatch(/Priya Raman/)
+    expect(within(grants).getByText(/nobody is named here/i)).toBeDefined()
+  })
+
+  it('states all three scope rules where a reviewer reads them', () => {
+    render(<PermissionsScreen role="TENANT_ADMIN" />)
+    const scope = region(/scope in this pass/i)
+    for (const rule of SCOPE_RULES) {
+      expect(within(scope).getByText(new RegExp(rule.title, 'i')), rule.id).toBeDefined()
+    }
+    expect(within(scope).getByText(/Tresco Lane Store/)).toBeDefined()
   })
 })
 
@@ -456,30 +607,44 @@ describe('MOD-DOH-09 — audit in the same transaction', () => {
   // Each row picks a target the action would genuinely change, so the audit
   // guard is reached rather than short-circuited by a domain refusal — a
   // handler's own refusal is not an action and appends no audit entry.
+  // The scope row's target moved with pass two: scoping Priya's non-existent
+  // Supervisor grant is refused by the handler's own domain rule and never
+  // reaches the audit, so the row now narrows a grant that genuinely exists —
+  // Marcus, Supervisor, tenant-wide, narrowed to an Area under his Site.
   it.each([
-    ['creating an account', /create a user account/i, 'USR-DOH-0001'],
-    ['assigning a role the person does not hold', /^Assign the role$/, 'USR-DOH-0001'],
-    ['removing a role the person does hold', /^Remove the role$/, 'USR-DOH-0003'],
-    ['assigning a scope', /^Assign the scope$/, 'USR-DOH-0001'],
+    ['creating an account', /create a user account/i, 'USR-DOH-0001', null],
+    ['assigning a role the person does not hold', /^Assign the role$/, 'USR-DOH-0001', null],
+    ['removing a role the person does hold', /^Remove the role$/, 'USR-DOH-0003', null],
+    ['narrowing a scope', /^Assign the scope$/, 'USR-DOH-0003', 'area:AREA-ARD-PAINT'],
     [
       'issuing a managed credential',
       /issue or reset a managed personal identification number/i,
       'USR-DOH-0001',
+      null,
     ],
   ] as const)('refuses %s on the same terms, not just the control that changes nothing', (
     _what,
     label,
     userId,
+    scopeKey,
   ) => {
     render(<PermissionsScreen role="TENANT_ADMIN" auditPath="write-fails" />)
     const users = region(/users, roles and scopes/i)
+    const registerBefore = within(users).getByRole('table').textContent
     fireEvent.change(within(users).getByLabelText(/user to change/i), {
       target: { value: userId },
     })
+    if (scopeKey !== null) {
+      fireEvent.change(within(users).getByLabelText(/scope to assign/i), {
+        target: { value: scopeKey },
+      })
+    }
     fireEvent.click(buttonNamed(users, label))
     expect(within(users).getByRole('status').textContent ?? '').toMatch(
       /the action did not happen/i,
     )
+    // And the mutation it would have made is not half-applied.
+    expect(within(users).getByRole('table').textContent).toBe(registerBefore)
   })
 })
 

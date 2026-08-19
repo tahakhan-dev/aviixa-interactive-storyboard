@@ -15,9 +15,16 @@ import {
   resolveSignInTrack,
 } from '@/surfaces/doh/sso-connection'
 import {
+  areaById,
+  siteById,
+  visibleAreaIds,
+  visibleSiteIds,
+} from '../../app/hub/location-configuration/fixtures'
+import {
   ACCOUNT_LIFECYCLE_RIVALS,
   ABSENT_CONTROLS,
   APPROVER_CAPABLE_ROLES,
+  ASSIGNABLE_SCOPE_TARGETS,
   CONFIGURATION_EDIT_ACTION,
   DOH09_APPLICABLE_STATES,
   DOH09_INAPPLICABLE_STATES,
@@ -26,17 +33,24 @@ import {
   REFUSAL_SCENARIOS,
   ROLE_CARD_BLOCK_NAMES,
   ROSTER_SCENARIOS,
+  SCOPE_RULES,
+  SCOPE_TARGET_EXCLUSIONS,
   SIGN_IN_STAGES,
   SOURCE_CONFLICTS,
   TENANT_ROLE_ORDER,
+  TENANT_SCOPE,
   UNSPECIFIED_IN_SOURCE,
   USER_ACCOUNT_STATES,
   ROLE_ASSIGNMENT_STATES,
   fixtureContext,
   fixtureState,
+  mergeProbe,
+  reaches,
   renderingFor,
+  scopeChange,
   standingCounters,
   type MatrixRow,
+  type ScopeRef,
 } from '../../app/hub/permissions-roles-and-access/fixtures'
 
 const MODULE = dohModuleById('MOD-DOH-09')
@@ -273,17 +287,145 @@ describe('MOD-DOH-09 — deny by default, driven through the one evaluator', () 
   })
 })
 
-describe('MOD-DOH-09 — pass one is Tenant scope only', () => {
-  it('offers the tenant dimension and nothing else in this pass', () => {
-    expect(DOH_SCOPES).toEqual(['tenant', 'site', 'area'])
-    // Pass two (Site and Area) is a later task; pass one must not stub them.
-    expect(ROSTER_SCENARIOS.flatMap((s) => s.users).every((u) => u.scope === 'tenant')).toBe(true)
+/**
+ * PASS TWO. Pass one asserted here that every seeded account sat at the
+ * tenant dimension and that Site and Area were not stubbed. That assertion
+ * was true of pass one and is the thing this task removes: the dimensions are
+ * now live, so the check moves from "nothing but tenant" to "every Site and
+ * Area named here is one the location fixture owns, and a scope only ever
+ * narrows".
+ */
+describe('MOD-DOH-09 — pass two: Site and Area scope', () => {
+  const allGrants = ROSTER_SCENARIOS.flatMap((s) => s.users).flatMap((u) => u.grants)
+
+  it('seeds Site and Area grants whose every node resolves in the location fixture', () => {
+    // Two sources of Site truth is the defect this asserts against: a hand-typed
+    // Site id in this module resolves nowhere and fails here.
+    for (const grant of allGrants) {
+      if (grant.scope.dimension === 'tenant') {
+        expect(grant.scope.nodeId, grant.role).toBeNull()
+        continue
+      }
+      const { dimension, nodeId } = grant.scope
+      expect(nodeId, `${grant.role}/${dimension}`).not.toBeNull()
+      if (nodeId === null) continue
+      const found = dimension === 'site' ? siteById(nodeId) : areaById(nodeId)
+      expect(found, `${grant.role} names ${nodeId}`).toBeDefined()
+    }
+    // Not vacuous: both new dimensions are actually seeded.
+    expect(allGrants.some((g) => g.scope.dimension === 'site')).toBe(true)
+    expect(allGrants.some((g) => g.scope.dimension === 'area')).toBe(true)
+  })
+
+  it('narrows only: a scope goes finer, never wider and never sideways', () => {
+    const tenant = TENANT_SCOPE
+    const site1: ScopeRef = { dimension: 'site', nodeId: 'SITE-ARD-01' }
+    const site2: ScopeRef = { dimension: 'site', nodeId: 'SITE-ARD-02' }
+    const areaUnder1: ScopeRef = { dimension: 'area', nodeId: 'AREA-ARD-ASSY' }
+    const areaUnder2: ScopeRef = { dimension: 'area', nodeId: 'AREA-ARD-QC' }
+
+    expect(scopeChange(tenant, site1)).toBe('narrows')
+    expect(scopeChange(tenant, areaUnder1)).toBe('narrows')
+    expect(scopeChange(site1, areaUnder1)).toBe('narrows')
+    expect(scopeChange(site1, site1)).toBe('unchanged')
+    // The three the rule exists to refuse (L17470).
+    expect(scopeChange(site1, tenant)).toBe('not-a-narrowing')
+    expect(scopeChange(areaUnder1, tenant)).toBe('not-a-narrowing')
+    expect(scopeChange(site1, areaUnder2)).toBe('not-a-narrowing')
+    expect(scopeChange(site1, site2)).toBe('not-a-narrowing')
+  })
+
+  it('does not merge across grants: one grant never reaches through another', () => {
+    const rosa = ROSTER_SCENARIOS.flatMap((s) => s.users).find((u) => u.grants.length > 1)
+    if (!rosa) throw new Error('no multi-grant account is seeded')
+    const probe = mergeProbe(rosa)
+    if (probe === null) throw new Error('the multi-grant account demonstrates nothing')
+
+    // The node one grant reaches is NOT reached by the other. A union would.
+    expect(reaches(probe.reachedBy.scope, probe.nodeId)).toBe(true)
+    expect(reaches(probe.notReachedBy.scope, probe.nodeId)).toBe(false)
+    expect(probe.reachedBy.role).not.toBe(probe.notReachedBy.role)
+  })
+
+  it('resolves reach down the hierarchy and never up it', () => {
+    const site: ScopeRef = { dimension: 'site', nodeId: 'SITE-ARD-01' }
+    const area: ScopeRef = { dimension: 'area', nodeId: 'AREA-ARD-ASSY' }
+    expect(reaches(TENANT_SCOPE, 'SITE-ARD-02')).toBe(true)
+    expect(reaches(site, 'SITE-ARD-01')).toBe(true)
+    expect(reaches(site, 'AREA-ARD-ASSY')).toBe(true)
+    expect(reaches(site, 'AREA-ARD-QC')).toBe(false)
+    expect(reaches(area, 'AREA-ARD-ASSY')).toBe(true)
+    // Upwards is the widening the rule refuses: an Area does not reach its Site.
+    expect(reaches(area, 'SITE-ARD-01')).toBe(false)
+  })
+
+  it('offers every assignable node from the location fixture and invents none', () => {
+    const keys = ASSIGNABLE_SCOPE_TARGETS.map((t) => t.key)
+    expect(keys[0]).toBe('tenant')
+    expect(new Set(keys).size).toBe(keys.length)
+    for (const target of ASSIGNABLE_SCOPE_TARGETS) {
+      if (target.scope.dimension === 'tenant') continue
+      const nodeId = target.scope.nodeId
+      expect(nodeId).not.toBeNull()
+      if (nodeId === null) continue
+      const node = target.scope.dimension === 'site' ? siteById(nodeId) : areaById(nodeId)
+      expect(node, nodeId).toBeDefined()
+      expect(node?.state, nodeId).toBe('active')
+    }
+    expect(ASSIGNABLE_SCOPE_TARGETS.some((t) => t.scope.dimension === 'site')).toBe(true)
+    expect(ASSIGNABLE_SCOPE_TARGETS.some((t) => t.scope.dimension === 'area')).toBe(true)
+  })
+
+  it('withholds the scope-pending and archived nodes, and says which and why', () => {
+    const offered = ASSIGNABLE_SCOPE_TARGETS.map((t) => t.scope.nodeId)
+    // D21: a scope-pending Site is excluded from the role-assignment pickers.
+    expect(offered).not.toContain('SITE-ARD-03')
+    // Archived nodes are still readable and are not assignable.
+    expect(offered).not.toContain('SITE-ARD-04')
+    expect(offered).not.toContain('AREA-ARD-STORE')
+    const withheld = SCOPE_TARGET_EXCLUSIONS.map((e) => e.nodeId)
+    expect(withheld).toContain('SITE-ARD-03')
+    expect(withheld).toContain('SITE-ARD-04')
+    expect(withheld).toContain('AREA-ARD-STORE')
+    for (const entry of SCOPE_TARGET_EXCLUSIONS) {
+      expect(entry.reason.trim().length, entry.nodeId).toBeGreaterThan(20)
+    }
+  })
+
+  it('states the three scope rules, each anchored to the source', () => {
+    expect(SCOPE_RULES.map((r) => r.id)).toEqual(['additive', 'narrow-only', 'no-merge'])
+    for (const rule of SCOPE_RULES) {
+      expect(rule.detail.trim().length, rule.id).toBeGreaterThan(40)
+      expect(rule.sourceRef, rule.id).toMatch(/L\d{4,6}/)
+    }
+  })
+
+  it('hands the evaluator the identity’s real Site and Area scope, not an empty pair', () => {
+    const supervisor = fixtureContext('SUPERVISOR').identity
+    expect(supervisor.areaScope).toEqual(visibleAreaIds('SUPERVISOR'))
+    expect(supervisor.areaScope.length).toBeGreaterThan(0)
+    expect(fixtureContext('TENANT_ADMIN').identity.siteScope).toEqual(visibleSiteIds('TENANT_ADMIN'))
+
+    // The narrowing, resolved through the ONE evaluator rather than asserted.
+    const request = {
+      action: 'MOD-DOH-09:read-location-node',
+      allowedRoles: [...TENANT_ROLE_ORDER],
+      requiredAreas: ['AREA-ARD-QC'],
+      sourceRefs: ['L17470'],
+    }
+    expect(evaluateAccess(request, fixtureContext('TENANT_ADMIN')).outcome).toBe('allowed')
+    const scoped = evaluateAccess(request, fixtureContext('SUPERVISOR'))
+    expect(isRefusal(scoped)).toBe(true)
+    expect(scoped.stage).toBe('SCOPE')
   })
 
   it('keeps Cell, Job and worker scoping out of the live dimension entirely', () => {
+    expect(DOH_SCOPES).toEqual(['tenant', 'site', 'area'])
     expect(DEFERRED_DOH_SCOPES).toEqual(['cell', 'job', 'worker'])
     for (const deferred of DEFERRED_DOH_SCOPES) {
       expect(DOH_SCOPES).not.toContain(deferred)
+      // No picker option can offer one, because no target carries the dimension.
+      expect(ASSIGNABLE_SCOPE_TARGETS.some((t) => t.key.startsWith(deferred))).toBe(false)
     }
   })
 })
