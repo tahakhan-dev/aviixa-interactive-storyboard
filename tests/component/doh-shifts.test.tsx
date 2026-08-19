@@ -624,6 +624,14 @@ describe('MOD-DOH-03 — the required panels', () => {
     expect(body).not.toMatch(/categorical rather than conditional/i)
     expect(body).toMatch(/can never press it/i)
     expect(body).toMatch(/allowed-with-conditions/)
+    // THE THIRD POINTER. This refusal note tells the reader the unsettled half
+    // "is recorded in Unresolved in source", and that clause is a claim about
+    // the build exactly like the two pinned above it. The array entry's
+    // EXISTENCE is already protected — deleting it reds the unit case — but the
+    // clause that points at it was not, so editing the sentence alone left
+    // every test in the round green. The phrase occurs nowhere else in this
+    // module, so nothing but the clause itself can satisfy this.
+    expect(body).toMatch(/recorded in Unresolved in source/i)
   })
 
   it('offers an archived Site in the register filter but never as a parent for a Shift', () => {
