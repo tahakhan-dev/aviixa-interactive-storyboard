@@ -594,6 +594,63 @@ describe('MOD-DOH-03 — the required panels', () => {
     for (const item of UNRESOLVED_IN_SOURCE) expect(unresolved).toContain(item)
   })
 
+  /**
+   * A sentence pointing at content elsewhere in the build is a claim, and the
+   * iterate-the-array case above cannot fail when the target is deleted. These
+   * tie each pointer to the entry it names: remove the entry and this reds.
+   */
+  it('makes no pointer at Unresolved in source that the panel does not answer', () => {
+    render(<ShiftManagementScreen />)
+    const unresolved = region('Unresolved in source').textContent ?? ''
+
+    expect(region('Control matrix').textContent ?? '').toMatch(
+      /recorded as unresolved below/i,
+    )
+    expect(unresolved).toMatch(/disabled with its reason/i)
+
+    expect(region('Per-Shift digest delivery time').textContent ?? '').toMatch(
+      /recorded as unresolved below/i,
+    )
+    expect(unresolved).toMatch(/earliest and no latest/i)
+  })
+
+  it('does not contradict itself about the prohibition it renders', () => {
+    render(<ShiftManagementScreen />)
+    selectRole('SUPERVISOR')
+    const body = document.body.textContent ?? ''
+    // The matrix on this same screen shows the Tenant Admin holding four of
+    // these five writes with conditions, so the refusal note must not call the
+    // prohibition unconditional.
+    expect(body).not.toMatch(/categorical rather than conditional/i)
+    expect(body).toMatch(/can never press it/i)
+    expect(body).toMatch(/allowed-with-conditions/)
+  })
+
+  it('offers an archived Site in the register filter but never as a parent for a Shift', () => {
+    render(<ShiftManagementScreen />)
+    const archived = DOH_SITES.find((s) => s.state === 'archived')
+    expect(archived).toBeDefined()
+    if (!archived) return
+    const optionValues = (el: HTMLElement) =>
+      [...el.querySelectorAll('option')].map((o) => o.getAttribute('value'))
+    expect(optionValues(screen.getByLabelText(/filter the register by Site/i))).toContain(
+      archived.id,
+    )
+    expect(optionValues(screen.getByLabelText(/^parent site$/i))).not.toContain(archived.id)
+  })
+
+  it('drops a Site filter the persona can no longer see rather than holding a dead value', () => {
+    render(<ShiftManagementScreen />)
+    setSelect(/filter the register by Site/i, 'SITE-ARD-02')
+    expect(region('Shift register').textContent ?? '').toContain(KELVIN.name)
+    // The Supervisor is Area-scoped to the first Site only, so SITE-ARD-02
+    // leaves their option list entirely.
+    selectRole('SUPERVISOR')
+    const filter = screen.getByLabelText(/filter the register by Site/i) as HTMLSelectElement
+    expect(filter.value).toBe('all')
+    expect(region('Shift register').textContent ?? '').toContain(EARLY.name)
+  })
+
   it('states that audit is in the same transaction as the action', () => {
     render(<ShiftManagementScreen />)
     expect(document.body.textContent ?? '').toMatch(/same transaction/i)

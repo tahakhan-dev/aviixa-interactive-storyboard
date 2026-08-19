@@ -617,11 +617,21 @@ export function rolesWithStatus(
 }
 
 /** The two statuses that let a role ACT. Never widened to include a token
- *  that names a prohibition — see the note in `tests/unit/doh-shifts.test.ts`. */
-export const ACTING_STATUSES = ['allowed', 'allowed-with-conditions'] as const
+ *  that names a prohibition — see the note in `tests/unit/doh-shifts.test.ts`.
+ *  `satisfies` rather than a type annotation, for the reason the sibling
+ *  module records: an annotation would widen these to the whole six-token
+ *  union and let a prohibition token typecheck as an acting status. */
+export const ACTING_STATUSES = [
+  'allowed',
+  'allowed-with-conditions',
+] as const satisfies readonly ControlStatus[]
 
-/** The three statuses that let a role READ. */
-export const READING_STATUSES = ['allowed', 'allowed-with-conditions', 'read-only'] as const
+/** The three statuses that let a role READ. Same shape, same reason. */
+export const READING_STATUSES = [
+  'allowed',
+  'allowed-with-conditions',
+  'read-only',
+] as const satisfies readonly ControlStatus[]
 
 /* ------------------------------------------------------------------ *
  * SB-DOH-015 (L27377) — the explainer panel beneath the editor form.
@@ -779,6 +789,7 @@ export const UNRESOLVED_IN_SOURCE = [
   'The Worker holds a scoped read on this module’s View Shifts row — the only cell in the whole matrix granting a Worker anything — while the surface decision withholds every Hub route from the Worker. The two cannot both be honoured. This build honours the surface decision and states the cost: a worker cannot see their own shift times on the web, and meets them on the device instead.',
   'A shift may not span Sites is carried in workflow prose only and is not recorded as a hard gate in the extraction, though it reads exactly like one. It is enforced here structurally — the Area multi-select is built from the parent Site’s Areas — and reported as a probable gate the extraction missed rather than treated as advisory.',
   'The archival refusal is classified Derived Clarification rather than SoW Fact, so the control itself, its refusal condition and the notification it raises are all a reading of the workflow rather than a stated requirement. It is built because the workflow states the outcome plainly, and flagged here because a client may not recognise it as their own.',
+  'Whether a write this module prohibits for the Supervisor, the Quality Manager, the Auditor and the Worker should render ABSENT or DISABLED WITH ITS REASON. This build renders it ABSENT, matching the neighbouring Hub modules. The competing reading is that the control exists on this same screen for the Tenant Admin, so a refused role should open the screen and be told the rule at the moment it binds — the treatment the decision’s own worked example gives a Supervisor on a right they can never hold. The frozen source decides the same shape both ways in different places, so this is settled slice-wide rather than five times in five modules, and the rendering here may change when it is.',
   'The digest section list is stated twice and differently: a three-item list and a four-item list, in different parts of the source. Neither renders here — the sections belong to the notifications module — but whichever module builds them will have to settle which list is real.',
 ] as const satisfies readonly string[]
 

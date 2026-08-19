@@ -176,8 +176,15 @@ const MODULE_STATE_NOTE: Readonly<Record<ModuleStateId, string>> = {
  * Why the whole module is read-only, per tenant state. A `Record` rather than
  * a conditional ladder: the compiler refuses a missing key, so a sixth tenant
  * state cannot arrive and silently name no cause at all. `null` means this
- * state is not read-only as a whole — soft suspension closes some write
- * classes and the per-control gate names which.
+ * state is not read-only as a whole. `soft-suspended` is a deliberate `null`
+ * and is the one to read twice: it closes SOME write classes in general, and
+ * on this module it happens to close every one of them, because MOD-DOH-03
+ * uses only `create-shift` and `edit-configuration` and soft suspension closes
+ * both. It is still not given a module-wide banner, because the cause it would
+ * name is a per-class refusal rather than a state of the screen, and every one
+ * of the five controls already names that class where it binds. One banner one
+ * cause cuts both ways: a banner asserting the whole screen is read-only would
+ * be a second, coarser statement of five refusals that are already explained.
  */
 const READ_ONLY_CAUSE: Readonly<Record<TenantState, string | null>> = {
   active: null,
@@ -256,8 +263,13 @@ export function ShiftManagementScreen() {
   const inScopeSiteIds = visibleSiteIds(role)
   const inScopeAreaIds = visibleAreaIds(role)
   const visibleShifts = shiftsVisibleTo(role, shifts)
+  /** A filter naming a Site this persona cannot see is not a filter, so it
+   *  falls back rather than being reset in whichever handler we remembered. */
+  const effectiveSiteFilter = inScopeSiteIds.includes(siteFilter) ? siteFilter : 'all'
   const registerShifts =
-    siteFilter === 'all' ? visibleShifts : visibleShifts.filter((s) => s.siteId === siteFilter)
+    effectiveSiteFilter === 'all'
+      ? visibleShifts
+      : visibleShifts.filter((s) => s.siteId === effectiveSiteFilter)
 
   const selectedShift: Shift | undefined =
     registerShifts.find((s) => s.id === pickedShiftId) ?? registerShifts[0]
@@ -397,7 +409,7 @@ export function ShiftManagementScreen() {
 
   const readOnlyCause: string | null =
     role === 'READONLY_AUDITOR'
-      ? 'The Read-only Auditor reads tenant-wide records and takes no action at all, so every control on this screen is absent for this persona rather than merely inert.'
+      ? 'The Read-only Auditor reads tenant-wide records and takes no action at all, so every control that would WRITE a Shift is absent for this persona rather than merely inert. The editor’s own fields still render and still respond — they are how this persona reads a Shift’s times, its bound Areas and the timezone it inherits — and none of them can record anything, because the control that would commit the change is not drawn.'
       : READ_ONLY_CAUSE[tenantState]
 
   /* -------------------------------------------------------------- *
@@ -613,7 +625,7 @@ export function ShiftManagementScreen() {
     }
   })
 
-  const filteredSite = DOH_SITES.find((s) => s.id === siteFilter)
+  const filteredSite = DOH_SITES.find((s) => s.id === effectiveSiteFilter)
 
   /* -------------------------------------------------------------- *
    * The matrix table.
@@ -748,7 +760,7 @@ export function ShiftManagementScreen() {
         <div className="mt-3 max-w-sm">
           <Select
             label="Filter the register by Site"
-            value={siteFilter}
+            value={effectiveSiteFilter}
             options={[
               { value: 'all', label: 'Every Site' },
               ...DOH_SITES.filter((s) => inScopeSiteIds.includes(s.id)).map((s) => ({
@@ -1314,7 +1326,7 @@ function WriteControl({
       <ProhibitionNotice
         rendering={{
           kind: 'absent',
-          note: `${label} is not held by the ${roleName} in any scope, so nothing is drawn here. The prohibition is categorical rather than conditional: there is no state of this workspace in which this persona could press it.`,
+          note: `${label} is not held by the ${roleName} in any scope, and this build draws nothing where it would sit. The Tenant Admin does hold it on this same screen, under conditions the matrix below states — so what is settled is that this persona can never press it, and what is NOT settled is whether that should render as nothing at all or as a control disabled with its reason. The frozen source decides this shape both ways in different places; it is recorded in Unresolved in source and is being settled once, for every module, rather than here.`,
         }}
       />
     )

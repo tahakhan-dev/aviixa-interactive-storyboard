@@ -574,6 +574,28 @@ describe('the required panels carry real content, not placeholders', () => {
     }
   })
 
+  /**
+   * THE POINTERS THIS MODULE MAKES AT ITS OWN PANELS.
+   *
+   * The screen tells the reader, in three places, that a question it raises is
+   * "recorded as unresolved below". That is a claim about the build, and the
+   * case above it — which iterates the array and asserts each element renders —
+   * is structurally incapable of noticing a missing element: delete an entry and
+   * it iterates one fewer time, still green, while the sentence pointing at it
+   * quietly becomes a lie. One of the three pointers had in fact been broken
+   * exactly that way. These assertions name the entry each pointer needs, so
+   * deleting one reds a test instead of re-breaking a pointer.
+   */
+  it('resolves every pointer the screen makes at Unresolved in source', () => {
+    const unresolved = [...UNRESOLVED_IN_SOURCE]
+    // "…should render disabled with its reason, is recorded as unresolved below."
+    expect(unresolved.some((i) => /disabled with its reason/i.test(i))).toBe(true)
+    // "…an earliest and a latest for the value — is recorded as unresolved below."
+    expect(unresolved.some((i) => /earliest and no latest/i.test(i))).toBe(true)
+    // The Worker/D11 collision, pointed at from the matrix panel.
+    expect(unresolved.some((i) => /Worker/.test(i) && /D11|surface decision/i.test(i))).toBe(true)
+  })
+
   it('records exactly one adopted cardinality option and names the mitigation it ships', () => {
     expect(SHIFT_CARDINALITY_OPTIONS.filter((o) => o.adopted)).toHaveLength(1)
     expect(SHIFT_CARDINALITY_OPTIONS.find((o) => o.adopted)?.id).toBe('A')
