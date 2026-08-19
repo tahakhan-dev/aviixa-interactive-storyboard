@@ -59,9 +59,40 @@ describe('workflow registry', () => {
     }
   })
 
-  it('every record starts at status not-represented, never implemented', () => {
+  // This used to assert every row was `not-represented` full stop, which was
+  // true only because the generator wrote that literal on every row of every
+  // registry -- a hardcoded zero the coverage dashboard then reported as a
+  // fact. Workflow status is now computed from the built route tree. The
+  // guard the old assertion actually existed for still holds and is checked
+  // harder: no row may claim a status this build cannot support, and a row
+  // that DOES read demonstrated must be named by a shipped screen -- verified
+  // by re-scanning app/ here, independently of the generator, so a generator
+  // that started inventing statuses would fail this test rather than agree
+  // with itself.
+  it('no record claims a status the tree does not support', () => {
+    const appDir = join(process.cwd(), 'app')
+    const named = new Set<string>()
+    const walk = (dir: string): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (e.isDirectory()) walk(join(dir, e.name))
+        else if (/\.tsx?$/.test(e.name)) {
+          for (const t of readFileSync(join(dir, e.name), 'utf8').match(
+            /[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g,
+          ) ?? []) {
+            named.add(t)
+          }
+        }
+      }
+    }
+    walk(appDir)
+    expect(named.size).toBeGreaterThan(0)
+
     const registry = loadGeneratedRegistry('workflows')
-    for (const r of registry.rows) expect(r.status, r.id).toBe('not-represented')
+    for (const r of registry.rows) {
+      expect(['not-represented', 'demonstrated-in-storyboard'], r.id).toContain(r.status)
+      if (r.status === 'demonstrated-in-storyboard') expect(named.has(r.id), r.id).toBe(true)
+    }
+    expect(registry.rows.some((r) => r.status === 'demonstrated-in-storyboard')).toBe(true)
   })
 
   // The one field that must never gain a number (spec §7, this review's

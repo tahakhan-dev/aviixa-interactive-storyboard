@@ -3,7 +3,7 @@
   "countedThing": "SCHED-* identifiers found in the identifier index -- mixes the 35 numbered discovery findings (45A.2 sweep), the Appendix K schedule definitions, and carried-schedule identifiers, which the source keeps as separate registers with no single combined total. No names were extracted for this family.",
   "reconciledCount": null,
   "rawCount": 67,
-  "dedupRule": "The source explicitly separates the 35 SCHED-0NN discovery findings from the 24 deployable obligations they cross-walk to, and states both counts are true at different scopes (source-reconciliation.json, \"Anchored timer rows / scheduled work\"). This registry's raw count is neither of those two figures -- it is every SCHED-* identifier the extraction found, undifferentiated by sub-scope, and is not presented as a canonical scheduled-work total.",
+  "dedupRule": "The source explicitly separates the 35 SCHED-0NN discovery findings from the 24 deployable obligations they cross-walk to, and states both counts are true at different scopes (source-reconciliation.json, \"Anchored timer rows / scheduled work\"). This registry's raw count is neither of those two figures -- it is every SCHED-* identifier the extraction found, undifferentiated by sub-scope, and is not presented as a canonical scheduled-work total. Status is computed from the built route tree, never from a list: 2 of 67 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -124,12 +124,12 @@
     {
       "id": "SCHED-022",
       "sourceLine": 98362,
-      "status": "not-represented"
+      "status": "demonstrated-in-storyboard"
     },
     {
       "id": "SCHED-023",
       "sourceLine": 98363,
-      "status": "not-represented"
+      "status": "demonstrated-in-storyboard"
     },
     {
       "id": "SCHED-024",

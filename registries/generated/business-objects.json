@@ -3,7 +3,7 @@
   "countedThing": "canonical business object cards OBJ-001..OBJ-099 (Chapter 7), never the larger mnemonic OBJ-* identifier set.",
   "reconciledCount": 99,
   "rawCount": 381,
-  "dedupRule": "381 distinct OBJ-* identifiers extracted; only the 99 numeric OBJ-NNN cards are canonical objects -- the rest are mnemonic pointers into the same 99 concepts (e.g. OBJ-SURFACE, OBJ-SSO) and are not additional objects.",
+  "dedupRule": "381 distinct OBJ-* identifiers extracted; only the 99 numeric OBJ-NNN cards are canonical objects -- the rest are mnemonic pointers into the same 99 concepts (e.g. OBJ-SURFACE, OBJ-SSO) and are not additional objects. Status is computed from the built route tree, never from a list: 6 of 99 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Only the numeric OBJ-NNN card id counts here: the built screens overwhelmingly cite the mnemonic pointers (OBJ-SA-SESSION, OBJ-DOH-SHIFT) into the same concepts, and the source publishes no mnemonic-to-card mapping to join them on without inventing one; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": false,
   "rows": [
     {
@@ -506,35 +506,35 @@
     {
       "id": "OBJ-072",
       "sourceLine": 9505,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Memory record — working store",
       "surface": "SURF-SA"
     },
     {
       "id": "OBJ-073",
       "sourceLine": 9524,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Memory record — episodic store",
       "surface": "SURF-SA"
     },
     {
       "id": "OBJ-074",
       "sourceLine": 9543,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Memory record — semantic store",
       "surface": "SURF-SA"
     },
     {
       "id": "OBJ-075",
       "sourceLine": 9562,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Memory record — procedural store",
       "surface": "SURF-SA"
     },
     {
       "id": "OBJ-076",
       "sourceLine": 9581,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Memory record — profile store",
       "surface": "SURF-SA"
     },
@@ -555,7 +555,7 @@
     {
       "id": "OBJ-079",
       "sourceLine": 9715,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Support-access grant",
       "surface": "SURF-SA"
     },

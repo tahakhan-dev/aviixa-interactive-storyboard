@@ -3,7 +3,7 @@
   "countedThing": "Function identifiers (FUNC-*) from the identifier index (990 raw), each joined to its owning module band code or surface code where the id shape allows it. No names were extracted for this family in the frozen source.",
   "reconciledCount": null,
   "rawCount": 990,
-  "dedupRule": "20 of 990 FUNC-* ids have no reliable band or surface join (second segment not one of the twelve module bands or five surface codes) and are listed unjoined by id, never dropped: FUNC-PLAT-SURFGATE-01, FUNC-TEN-001, FUNC-TEN-002, FUNC-TEN-003, FUNC-TEN-004, FUNC-TEN-005, FUNC-TEN-006, FUNC-TEN-007, FUNC-TEN-008, FUNC-TEN-009, FUNC-TEN-010, FUNC-TEN-011, FUNC-TEN-012, FUNC-TEN-013, FUNC-TEN-014, FUNC-TEN-015, FUNC-TEN-016, FUNC-TEN-017, FUNC-TEN-018, FUNC-TEN-SETTINGS-01.",
+  "dedupRule": "20 of 990 FUNC-* ids have no reliable band or surface join (second segment not one of the twelve module bands or five surface codes) and are listed unjoined by id, never dropped: FUNC-PLAT-SURFGATE-01, FUNC-TEN-001, FUNC-TEN-002, FUNC-TEN-003, FUNC-TEN-004, FUNC-TEN-005, FUNC-TEN-006, FUNC-TEN-007, FUNC-TEN-008, FUNC-TEN-009, FUNC-TEN-010, FUNC-TEN-011, FUNC-TEN-012, FUNC-TEN-013, FUNC-TEN-014, FUNC-TEN-015, FUNC-TEN-016, FUNC-TEN-017, FUNC-TEN-018, FUNC-TEN-SETTINGS-01. Status is computed from the built route tree, never from a list: 12 of 990 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -2674,13 +2674,13 @@
     {
       "id": "FUNC-DOH-03-1",
       "sourceLine": 27341,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH"
     },
     {
       "id": "FUNC-DOH-03-2",
       "sourceLine": 27349,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH"
     },
     {
@@ -2710,19 +2710,19 @@
     {
       "id": "FUNC-DOH-04-1",
       "sourceLine": 27539,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH"
     },
     {
       "id": "FUNC-DOH-04-2",
       "sourceLine": 27547,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH"
     },
     {
       "id": "FUNC-DOH-04-3",
       "sourceLine": 27557,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH"
     },
     {
@@ -3154,7 +3154,7 @@
     {
       "id": "FUNC-DOH-12-3",
       "sourceLine": 29095,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH"
     },
     {
@@ -3184,13 +3184,13 @@
     {
       "id": "FUNC-DOH-13-1",
       "sourceLine": 29242,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH"
     },
     {
       "id": "FUNC-DOH-13-2",
       "sourceLine": 29246,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH"
     },
     {
@@ -4899,7 +4899,7 @@
     {
       "id": "FUNC-SA-11-01-A1",
       "sourceLine": 45324,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-SA"
     },
     {
@@ -5283,7 +5283,7 @@
     {
       "id": "FUNC-SA-16-01-A1",
       "sourceLine": 45924,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-SA"
     },
     {
@@ -5433,7 +5433,7 @@
     {
       "id": "FUNC-SA-18-01-A1",
       "sourceLine": 46175,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-SA"
     },
     {
@@ -5481,7 +5481,7 @@
     {
       "id": "FUNC-SA-18-04-A4",
       "sourceLine": 46189,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-SA"
     },
     {

@@ -3,7 +3,7 @@
   "countedThing": "UC-* identifiers found in the identifier index across every role-scoped use-case register (UC-WKR, UC-SUP, UC-TADM, UC-HO, UC-OFF, ...) -- not one closed count across roles. No names were extracted for this family. Includes the UC-OFF-* offline scenarios, which are also reported on their own below with their own reconciled count.",
   "reconciledCount": null,
   "rawCount": 330,
-  "dedupRule": null,
+  "dedupRule": "Status is computed from the built route tree, never from a list: 2 of 330 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -234,12 +234,12 @@
     {
       "id": "UC-HO-01",
       "sourceLine": 23709,
-      "status": "not-represented"
+      "status": "demonstrated-in-storyboard"
     },
     {
       "id": "UC-HO-02",
       "sourceLine": 23739,
-      "status": "not-represented"
+      "status": "demonstrated-in-storyboard"
     },
     {
       "id": "UC-HO-03",

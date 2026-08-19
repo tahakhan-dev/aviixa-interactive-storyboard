@@ -168,13 +168,23 @@
       "scope_authorized": "Execute slice 4 tasks 2-12 to merge, then CONTINUE without a further resume gate into slices 5+ in the umbrella build order until the census closes or the client halts. Each slice still re-enters its own S1 design/spec gate per Section 23.3 S2; this entry authorizes CONTINUATION, not the skipping of per-slice design approval. Standing client reinforcements from APP-003/APP-006 (full census closure, enterprise SaaS product quality) remain binding.",
       "gate_released": "Section 23.3 S3 separate-session resume; source hash 47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27 re-verified with no drift; approvals APP-000..APP-009 confirmed valid.",
       "superseded_by": null
+    },
+    {
+      "id": "APP-011",
+      "date": "2026-08-20",
+      "subject": "Slice 4 close \u2014 full closure authorised, production-level standard reaffirmed",
+      "exact_question": "How many things are remaining? (answered with measured counts: 2 slice-4 tasks, 6 controller items, 9 later slices, and the finding that 13 of 14 registries have no status computation wired)",
+      "user_response_evidence": "Client message 2026-08-20: 'go and close this slice and make sure it should be production level and complete everything'",
+      "scope_authorized": "Close slice 4 completely: task 10's independent review, task 11's gates, task 12 verification, the whole-branch review and the merge \u2014 AND every deferred controller item rather than carrying them forward. Explicitly included by 'complete everything': the WriteControl lift, the shared-constants hoist, the task-9 screen extraction, the six missing \u00a723.2 process ledgers, and the registry status computation that leaves 13 of 14 inventories reporting not-represented for everything. 'Production level' reaffirms the standing reinforcements from APP-003 and APP-006 \u2014 enterprise-SaaS product quality, full census closure, no claim of a production capability that is only simulated.",
+      "gate_released": "Slice-4 close. Standing continuation authority from APP-010 into slices 5+ is unchanged and not consumed by this.",
+      "superseded_by": null
     }
   ],
   "pending_gates": [
     {
-      "gate": "Slice 4 Task 12 whole-branch independent review before merge",
+      "gate": "Slice 4 whole-branch independent review before merge",
       "status": "NOT_YET_REQUESTED",
-      "blocker": "Depends on tasks 2-11 completion."
+      "blocker": "Depends on tasks 10-12 and the six controller items."
     }
   ]
 }

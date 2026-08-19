@@ -3,7 +3,7 @@
   "countedThing": "distinct extracted workflow-passage records from the 36 extraction chunks, composite-keyed on id plus source line -- an extraction-scope count, never a workflow total (the source fixes none anywhere in its 122,241 lines; 81 is the MODULE count and nothing else).",
   "reconciledCount": null,
   "rawCount": 725,
-  "dedupRule": "725 extracted entries, 1 cross-chunk duplicate merged (both variants: \"unnumbered\" at line 74182 in CHK-022, \"A role reading the audit log (6 steps)\", and \"unnumbered\" at the same line in CHK-023, \"A role reading the audit log\" -- same line, same trigger, same actor, one workflow extracted twice) -> 724 rows, keyed on `${id}@L${sourceLine}` whenever the extractor id is a placeholder (\"unnumbered\"/\"unstated\") or recurs at more than one source line. Worst residual collapse: 2.",
+  "dedupRule": "725 extracted entries, 1 cross-chunk duplicate merged (both variants: \"unnumbered\" at line 74182 in CHK-022, \"A role reading the audit log (6 steps)\", and \"unnumbered\" at the same line in CHK-023, \"A role reading the audit log\" -- same line, same trigger, same actor, one workflow extracted twice) -> 724 rows, keyed on `${id}@L${sourceLine}` whenever the extractor id is a placeholder (\"unnumbered\"/\"unstated\") or recurs at more than one source line. Worst residual collapse: 2. Status is computed from the built route tree, never from a list: 72 of 724 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. The composite key is matched whole: a screen naming \"SB-030\" does not demonstrate \"SB-030@L61090\", because the composite key exists to say the source carries more than one passage under that id and a bare citation cannot say which. The 345 composite-keyed and placeholder-named rows carry no citable identifier at all, so this count under-reports rather than guessing; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -1295,7 +1295,7 @@
     {
       "id": "SB-SCHED-17",
       "sourceLine": 102004,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Site-wide connectivity loss crosses thirty, sixty and one hundred and twenty minutes",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -1391,7 +1391,7 @@
     {
       "id": "SB-SCHED-22",
       "sourceLine": 102117,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "The storage tiering scheduler runs at the retention horizon",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -1427,7 +1427,7 @@
     {
       "id": "SB-SCHED-24",
       "sourceLine": 102158,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "A legal hold suspends a scheduled tiering or anonymisation run",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -1444,7 +1444,7 @@
     {
       "id": "SB-SCHED-25",
       "sourceLine": 102180,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "The drift canary re-runs the evaluation suite on cadence",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -2157,7 +2157,7 @@
     {
       "id": "SEQ-033",
       "sourceLine": 71413,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "The Final Lifecycle State of Every Bright Bikes Record",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -2173,7 +2173,7 @@
     {
       "id": "UC-HO-01",
       "sourceLine": 23709,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Root Super Admin to Admin, delegation of Band B authority",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -2189,7 +2189,7 @@
     {
       "id": "UC-HO-02",
       "sourceLine": 23739,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Admin to Platform Engineer, the maker-checker cycle in reverse",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -2655,7 +2655,7 @@
     {
       "id": "WF-AUT-008",
       "sourceLine": 53596,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Publishing a version to the floor",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -3084,7 +3084,7 @@
     {
       "id": "WF-CMD-WIPE",
       "sourceLine": 81586,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "remote wipe issued to a device that never returns",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -3484,7 +3484,7 @@
     {
       "id": "WF-DEV-WIPE",
       "sourceLine": 117496,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "authorise, queue, attempt final sync, erase",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4077,7 +4077,7 @@
     {
       "id": "WF-DVC-001",
       "sourceLine": 53085,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Enrolling a device into the tenant's fleet",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4096,7 +4096,7 @@
     {
       "id": "WF-DVC-002",
       "sourceLine": 53118,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Reassigning a device to another Area or worker group",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4115,7 +4115,7 @@
     {
       "id": "WF-DVC-003",
       "sourceLine": 53150,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Handling a lost device",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4134,7 +4134,7 @@
     {
       "id": "WF-DVC-004",
       "sourceLine": 53189,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Handling a stolen device",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4153,7 +4153,7 @@
     {
       "id": "WF-DVC-005",
       "sourceLine": 53224,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Suspending a device",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4172,7 +4172,7 @@
     {
       "id": "WF-DVC-006",
       "sourceLine": 53257,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Wiping a device under the sync-then-wipe rule",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4342,7 +4342,7 @@
     {
       "id": "WF-FEAT-001",
       "sourceLine": 54620,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Enabling or disabling a feature globally",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4362,7 +4362,7 @@
     {
       "id": "WF-FEAT-002",
       "sourceLine": 54658,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Enabling or disabling a feature for one tenant",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4382,7 +4382,7 @@
     {
       "id": "WF-FEAT-003",
       "sourceLine": 54691,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Scheduling a feature change with expiry, cancellation and rollback",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4402,7 +4402,7 @@
     {
       "id": "WF-FEAT-004",
       "sourceLine": 54733,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Handling partial feature propagation across all five surfaces",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4422,7 +4422,7 @@
     {
       "id": "WF-FEAT-005",
       "sourceLine": 54770,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Changing a feature while worker devices are offline",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -4665,7 +4665,7 @@
     {
       "id": "WF-LEDGER-EXPORT",
       "sourceLine": 2765,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "From execution to the client's commercial system",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -5352,7 +5352,7 @@
     {
       "id": "WF-OPS-003",
       "sourceLine": 54495,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Raising, delivering and escalating a notification",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -5483,7 +5483,7 @@
     {
       "id": "WF-PLT-001",
       "sourceLine": 54998,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Opening a normal support session",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -5502,7 +5502,7 @@
     {
       "id": "WF-PLT-002",
       "sourceLine": 55035,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Opening the compliance-emergency path",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -5521,7 +5521,7 @@
     {
       "id": "WF-PLT-003",
       "sourceLine": 55070,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Granting and exercising JBS access",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -5540,7 +5540,7 @@
     {
       "id": "WF-PLT-004",
       "sourceLine": 55108,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Applying soft and hard tenant suspension",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -5560,7 +5560,7 @@
     {
       "id": "WF-PLT-005",
       "sourceLine": 55147,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Blocking, unblocking and controlled restoration of a tenant",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -5620,7 +5620,7 @@
     {
       "id": "WF-PLT-008",
       "sourceLine": 55259,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Managing a platform incident",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -5640,7 +5640,7 @@
     {
       "id": "WF-PLT-009",
       "sourceLine": 55295,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Handling an artificial-intelligence outage",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6055,7 +6055,7 @@
     {
       "id": "WF-RES-003",
       "sourceLine": 55481,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Producing a reconciliation statement",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6075,7 +6075,7 @@
     {
       "id": "WF-ROLE-001",
       "sourceLine": 55577,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Creating the sole Root Super Admin through the back end at platform commissioning",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6091,7 +6091,7 @@
     {
       "id": "WF-ROLE-002",
       "sourceLine": 55599,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Handing custody of the root account to the client",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6107,7 +6107,7 @@
     {
       "id": "WF-ROLE-003",
       "sourceLine": 55621,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Hardening the root account",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6123,7 +6123,7 @@
     {
       "id": "WF-ROLE-004",
       "sourceLine": 55644,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "First root sign-in and the enforced-invariant acknowledgement",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6139,7 +6139,7 @@
     {
       "id": "WF-ROLE-005",
       "sourceLine": 55666,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Creating a platform Admin account",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6155,7 +6155,7 @@
     {
       "id": "WF-ROLE-006",
       "sourceLine": 55689,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Assigning the Admin role",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6171,7 +6171,7 @@
     {
       "id": "WF-ROLE-007",
       "sourceLine": 55711,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Creating a Platform Engineer account",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6187,7 +6187,7 @@
     {
       "id": "WF-ROLE-008",
       "sourceLine": 55733,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Assigning the Platform Engineer role",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6203,7 +6203,7 @@
     {
       "id": "WF-ROLE-009",
       "sourceLine": 55756,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Creating a Support account",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6219,7 +6219,7 @@
     {
       "id": "WF-ROLE-010",
       "sourceLine": 55778,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Assigning the Support role",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6238,7 +6238,7 @@
     {
       "id": "WF-ROLE-011",
       "sourceLine": 55801,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Activating a platform Admin account and first sign-in",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6254,7 +6254,7 @@
     {
       "id": "WF-ROLE-012",
       "sourceLine": 55823,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Activating a Platform Engineer account and first sign-in",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6270,7 +6270,7 @@
     {
       "id": "WF-ROLE-013",
       "sourceLine": 55845,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Activating a Support account and first sign-in",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6286,7 +6286,7 @@
     {
       "id": "WF-ROLE-014",
       "sourceLine": 55868,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "A Platform Engineer submitting a Band A change",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6302,7 +6302,7 @@
     {
       "id": "WF-ROLE-015",
       "sourceLine": 55892,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "An Admin approving a Platform Engineer change",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6321,7 +6321,7 @@
     {
       "id": "WF-ROLE-016",
       "sourceLine": 55915,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "An Admin returning a Platform Engineer change",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6337,7 +6337,7 @@
     {
       "id": "WF-ROLE-017",
       "sourceLine": 55938,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "An Admin performing a routine Band B action",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6357,7 +6357,7 @@
     {
       "id": "WF-ROLE-018",
       "sourceLine": 55961,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "An Admin initiating a critical-class action",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6373,7 +6373,7 @@
     {
       "id": "WF-ROLE-019",
       "sourceLine": 55985,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "The root approving a critical-class request",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6393,7 +6393,7 @@
     {
       "id": "WF-ROLE-020",
       "sourceLine": 56008,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "The root declining a critical-class request",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6409,7 +6409,7 @@
     {
       "id": "WF-ROLE-021",
       "sourceLine": 56031,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Re-notifying the root about an aging critical request",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6425,7 +6425,7 @@
     {
       "id": "WF-ROLE-022",
       "sourceLine": 56054,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Opening a read-only support session into a tenant",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6444,7 +6444,7 @@
     {
       "id": "WF-ROLE-023",
       "sourceLine": 56077,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "The tenant ending a support session from its own banner",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6463,7 +6463,7 @@
     {
       "id": "WF-ROLE-024",
       "sourceLine": 56099,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "A support session expiring at its time box",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6501,7 +6501,7 @@
     {
       "id": "WF-ROLE-026",
       "sourceLine": 56144,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Closing a compliance-emergency session and issuing the tenant report",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6520,7 +6520,7 @@
     {
       "id": "WF-ROLE-027",
       "sourceLine": 56166,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Creating a JBS access grant",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6558,7 +6558,7 @@
     {
       "id": "WF-ROLE-029",
       "sourceLine": 56211,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "A JBS access grant expiring",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6577,7 +6577,7 @@
     {
       "id": "WF-ROLE-030",
       "sourceLine": 56233,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Revoking a JBS access grant",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6947,7 +6947,7 @@
     {
       "id": "WF-SA-CLOSE-SESSION",
       "sourceLine": 16111,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Close a support session",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -6963,7 +6963,7 @@
     {
       "id": "WF-SA-COMPOSED-AGENT-REVIEW",
       "sourceLine": 15967,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Composed-agent review",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7013,7 +7013,7 @@
     {
       "id": "WF-SA-EMERGENCY-COAUTH",
       "sourceLine": 15838,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Co-authorise an emergency session",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7029,7 +7029,7 @@
     {
       "id": "WF-SA-EMERGENCY-OPEN",
       "sourceLine": 15418,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Open a compliance-emergency session",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7048,7 +7048,7 @@
     {
       "id": "WF-SA-ESCALATE-TO-EMERGENCY",
       "sourceLine": 16111,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Escalate a finding that requires a data change",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7064,7 +7064,7 @@
     {
       "id": "WF-SA-JBS-GRANT",
       "sourceLine": 15418,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Approve a JBS access grant",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7080,7 +7080,7 @@
     {
       "id": "WF-SA-OPEN-SUPPORT-SESSION",
       "sourceLine": 16111,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Open a support session",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7131,7 +7131,7 @@
     {
       "id": "WF-SA-RUN-EVAL",
       "sourceLine": 15967,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Run an evaluation suite",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7183,7 +7183,7 @@
     {
       "id": "WF-SA-TIER-ASSIGN",
       "sourceLine": 15838,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Assign a published tier",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7506,7 +7506,7 @@
     {
       "id": "WF-TAX-001",
       "sourceLine": 54845,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Administering a platform-seeded Job Type through its full lifecycle",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7524,7 +7524,7 @@
     {
       "id": "WF-TAX-002",
       "sourceLine": 54883,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Administering a platform-seeded Service Type tag through its full lifecycle",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7701,7 +7701,7 @@
     {
       "id": "WF-USAGE-LADDER",
       "sourceLine": 117965,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "evaluate the usage ladder",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7808,7 +7808,7 @@
     {
       "id": "WF-WKR-004",
       "sourceLine": 52892,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Assigning a role to a tenant user",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
