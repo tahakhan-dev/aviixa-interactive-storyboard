@@ -14,6 +14,7 @@ import {
   READ_VIEW_REGIONS,
   SEEDED_CONSUMPTION,
   SEEDED_TIER,
+  UNRESOLVED_IN_SOURCE,
   UNSPECIFIED_IN_SOURCE,
   UPGRADE_TIER,
   tierRecord,
@@ -454,6 +455,22 @@ describe('MOD-DOH-01 — absent by rule, seams and the honest panels', () => {
     for (const item of UNSPECIFIED_IN_SOURCE) {
       expect(within(panel).getByText(item)).toBeDefined()
     }
+  })
+
+  /**
+   * A sentence pointing at content elsewhere in the build is a claim, and
+   * the iterate-the-array case above cannot fail when the target is
+   * deleted. This ties the pointer to the entry it names: remove the entry
+   * and this reds.
+   */
+  it('makes no pointer at Unresolved in source that the panel does not answer', () => {
+    render(<TenantLifecycleScreen />)
+    viewAs('READONLY_AUDITOR')
+    const requests = region('Tier requests').textContent ?? ''
+    expect(requests).toMatch(/recorded in the unresolved panel/i)
+
+    const unresolved = region('Unresolved in source').textContent ?? ''
+    expect(unresolved).toMatch(/disabled with its reason/i)
   })
 
   it('renders every decision reference this screen depends on', () => {

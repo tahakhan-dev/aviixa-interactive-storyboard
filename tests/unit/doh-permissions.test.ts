@@ -7,6 +7,7 @@ import { ACCESS_CONDITIONS, PRECEDENCE_RULES } from '@/surfaces/doh/access-condi
 import { DEFERRED_DOH_SCOPES, DOH_SCOPES } from '@/surfaces/doh/scope'
 import { TENANT_STATES, writeAllowed } from '@/surfaces/doh/tenant-state'
 import { dohModuleById } from '@/surfaces/doh/modules'
+import { DOH_SEAMS } from '@/surfaces/doh/seams'
 import {
   SEEDED_SSO_CONNECTION,
   SSO_CONNECTION_STATES,
@@ -656,5 +657,27 @@ describe('MOD-DOH-09 — the rail and this matrix agree about who reaches the mo
     expect([...withheldByTheSpine].sort()).toEqual([...withheldByTheMatrix].sort())
     // Not vacuous: the Worker is withheld, and is the only one.
     expect(withheldByTheMatrix).toEqual(['WORKER'])
+  })
+})
+
+/**
+ * THE POINTER THIS SCREEN MAKES AT THE SHARED SEAM REGISTRY.
+ *
+ * The "Cross-slice position" panel tells the reader this module registers no
+ * cross-slice seam of its own. That is a claim about the build, not prose —
+ * the component suite already checks the screen renders the sentence, but a
+ * rendered sentence is not proof it is still true. This checks it against
+ * the registry itself, the same shape MOD-DOH-12 carries for its own
+ * (opposite) claim.
+ */
+describe('the cross-slice claim this screen makes', () => {
+  it('really carries no row in the shared seam registry, as the screen says', () => {
+    const consumers: readonly string[] = DOH_SEAMS.map((s) => s.consumingModule)
+    expect(consumers.filter((c) => c === 'MOD-DOH-09')).toEqual([])
+    // Not vacuous: the registry is populated and other slice-4 modules do
+    // carry a row — a registry that had lost every row would pass the line
+    // above while meaning something entirely different.
+    expect(DOH_SEAMS.length).toBeGreaterThan(0)
+    expect(consumers).toContain('MOD-DOH-01')
   })
 })

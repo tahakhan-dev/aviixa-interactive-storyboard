@@ -10,6 +10,7 @@ import {
   SITE_COUNT,
   TENANT_STATE_HISTORY,
   TIER_RECORDS,
+  UNRESOLVED_IN_SOURCE,
   UPGRADE_TARGET_TIER,
   ladderPositionFor,
   rolesWithStatus,
@@ -217,5 +218,26 @@ describe('MOD-DOH-01 — the rail and this matrix agree about who reaches the mo
     expect([...withheldByTheSpine].sort()).toEqual([...withheldByTheMatrix].sort())
     // Not vacuous: this module is withheld from three of the five.
     expect(withheldByTheMatrix).toHaveLength(3)
+  })
+})
+
+/**
+ * THE POINTER THIS SCREEN MAKES AT ITS OWN UNRESOLVED PANEL.
+ *
+ * The absence note shown to every role but the Tenant Admin says the
+ * competing reading — that this control should render disabled with its
+ * reason, the way the Tenant Admin's own copy of it does, rather than absent
+ * — "is recorded in the unresolved panel". That is a claim about the build.
+ * The iterate-the-array pattern this file's other checks use is structurally
+ * incapable of noticing that entry going missing: delete it and the panel
+ * just renders one fewer item, still green, while the screen's sentence
+ * quietly becomes a lie. This names the entry the pointer needs, so deleting
+ * it reds a test instead of re-breaking a pointer — the exact shape of
+ * defect MOD-DOH-03 shipped and fixed in this same panel.
+ */
+describe('MOD-DOH-01 — the pointer this screen makes at Unresolved in source', () => {
+  it('resolves the upgrade-absence note’s pointer onto a real Unresolved-in-source entry', () => {
+    expect(UNRESOLVED_IN_SOURCE.length).toBeGreaterThan(0)
+    expect(UNRESOLVED_IN_SOURCE.some((i) => /disabled with its reason/i.test(i))).toBe(true)
   })
 })
