@@ -125,6 +125,21 @@ function decide(
 const STATE_06_CAUSE =
   'Read-only (STATE-06): every input is disabled — the wipe draft, the approval, the suspension record, both fixture steppers and the device-detail selector. The role and screen-state selectors are storyboard view switchers rather than module inputs, and they stay live so this state can be left. One state, one cause.'
 
+/**
+ * What a control says while a screen state blocks it: that it is blocked, and
+ * WHERE the cause is stated — never the cause itself again.
+ *
+ * `STATE-06`'s contract is "one banner naming the cause" and "never scatter the
+ * cause across several messages". This module printed the full cause on the
+ * banner AND on four separate controls, which is the scatter the contract
+ * forbids; MOD-SA-08 states it once and a cross-module review found the two
+ * resolving one shared contract two ways. A pointer is not a second statement
+ * of the cause, and it keeps the control from being a dead control with no
+ * accessible reason at all.
+ */
+const BLOCKED_BY_STATE_POINTER =
+  'Disabled by the screen state — the banner at the top of this module names the cause.'
+
 /** The screen state gates every control on this module BEFORE the role
  *  decision is consulted: STATE-06 disables every input and STATE-12 lets
  *  nothing be submitted, whatever the role holds. A control that ignores the
@@ -500,7 +515,7 @@ export function DevicesScreen() {
             ) : (
               <Button
                 disabledReason={
-                  blocked ??
+                  (blocked === null ? undefined : BLOCKED_BY_STATE_POINTER) ??
                   `${draftDecision.explanation} The Admin drafts this request and the Root Super Admin approves it (L45498); the Platform Engineer and Support read the fleet and hold no device action. Viewing as ${role.name}.`
                 }
               >
@@ -524,7 +539,7 @@ export function DevicesScreen() {
               <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
             ) : blocked !== null ? (
               // Root holds it, but the screen state does not permit it.
-              <Button disabledReason={blocked}>Approve the critical-class request</Button>
+              <Button disabledReason={BLOCKED_BY_STATE_POINTER}>Approve the critical-class request</Button>
             ) : (
               <>
                 <Button onClick={() => setApprovalRecorded(true)}>
@@ -578,7 +593,7 @@ export function DevicesScreen() {
           ) : (
             <Button
               disabledReason={
-                blocked ??
+                (blocked === null ? undefined : BLOCKED_BY_STATE_POINTER) ??
                 'The sequence has reached its last state; there is nothing further to step.'
               }
             >
@@ -613,7 +628,11 @@ export function DevicesScreen() {
               Advance the unreachable-device fixture one state
             </Button>
           ) : (
-            <Button disabledReason={blocked ?? UNREACHED_STEPPER_END_REASON}>
+            <Button
+              disabledReason={
+                blocked === null ? UNREACHED_STEPPER_END_REASON : BLOCKED_BY_STATE_POINTER
+              }
+            >
               Advance the unreachable-device fixture one state
             </Button>
           )}
@@ -648,7 +667,7 @@ export function DevicesScreen() {
                 // the button was disabled for ANY reason, so a role that never
                 // held the command was told the action was already done rather
                 // than that it lacks the grant.
-                blocked ??
+                (blocked === null ? undefined : BLOCKED_BY_STATE_POINTER) ??
                 (suspensionRecorded
                   ? 'The suspension command is already recorded in the log below. This storyboard records it once.'
                   : `${suspendDecision.explanation} The Root Super Admin and the platform Admin hold this command (WF-DVC-005, L53224); the Platform Engineer and Support read the fleet and hold no device action. Viewing as ${role.name}.`)

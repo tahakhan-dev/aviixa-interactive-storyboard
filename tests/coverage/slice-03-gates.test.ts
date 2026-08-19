@@ -459,3 +459,27 @@ describe('slice 3 gate 12: one tab-title shape across the surface', () => {
     expect(wrong, 'routes not naming the console in their tab title').toEqual([])
   })
 })
+
+describe('slice 3 gate 13: STATE-06 states its cause once', () => {
+  // src/ui/screen-state.ts: "Every input is disabled, with ONE banner naming
+  // the cause" and "Never scatter the cause across several messages. One
+  // banner, one cause."
+  //
+  // MOD-SA-13 printed the full cause on the banner AND on five separate
+  // controls while MOD-SA-08 stated it once, so two screens resolved one
+  // shared contract two ways -- and MOD-SA-13's own test asserted the scatter,
+  // which is why it held for three review rounds. A control may say it is
+  // blocked and point at the banner; it may not restate the cause.
+  it('no screen puts the read-only cause on an individual control', () => {
+    // `blocked` used as the VALUE of the reason, not as a condition. The first
+    // draft matched the word anywhere inside the braces and flagged
+    // `disabledReason={blocked === null ? X : POINTER}` -- correct code that
+    // only TESTS the state. Fourth time in this build a gate has matched a
+    // token in a context it does not mean.
+    const restates = /disabledReason=\{\s*blocked\s*(\}|\?\?)/
+    const offenders = saSources()
+      .filter(({ src }) => restates.test(src))
+      .map(({ file }) => file)
+    expect(offenders, 'controls handed the raw screen-state cause as their reason').toEqual([])
+  })
+})

@@ -359,13 +359,20 @@ describe('MOD-SA-13 — the fifteen command states and the honest stepper', () =
     }
   })
 
-  it('STATE-06: banner, module note and every disabled reason print ONE identical cause', () => {
+  it('STATE-06: the cause is stated ONCE, and every disabled control points at it', () => {
     render(<DevicesScreen />)
     // The ROOT, deliberately: it holds the draft AND the approval, so any
     // role-framed cause ("holds no device action") is false of the very role
     // that is nonetheless disabled here. The default role would prove nothing.
     selectRole('ROLE-PLAT-ROOT')
     selectState('STATE-06')
+
+    // STATE-06's contract is "one banner naming the cause" and "never scatter
+    // the cause across several messages". This test used to assert the
+    // OPPOSITE -- that every disabled control printed the full cause verbatim
+    // -- so it pinned the scatter in place. MOD-SA-08 stated it once, and a
+    // cross-module review found the two screens resolving one shared contract
+    // two ways.
     const reasons = new Set<string>()
     const buttons = screen.getAllByRole('button')
     expect(buttons.length).toBeGreaterThan(4)
@@ -373,19 +380,24 @@ describe('MOD-SA-13 — the fifteen command states and the honest stepper', () =
       const name = button.textContent ?? ''
       expect(button.getAttribute('aria-disabled'), name).toBe('true')
       const describedBy = button.getAttribute('aria-describedby')
+      // Still a REASON on every one: a disabled control with nothing to say is
+      // a dead control by another name.
       expect(describedBy, name).not.toBeNull()
       reasons.add(document.getElementById(describedBy!)?.textContent ?? '')
     }
-    // One cause, not one per control and not one per screen region.
-    expect([...reasons], 'every disabled control names the same cause').toHaveLength(1)
-    const cause = [...reasons][0]!
-    expect(cause).toMatch(/^Read-only \(STATE-06\)/)
-    // The banner and this module's own state note carry that same string,
-    // verbatim — the two other places the state is rendered.
+
+    // One pointer, shared by every blocked control — and it is a pointer, not
+    // a second statement of the cause.
+    expect([...reasons], 'every blocked control says the same thing').toHaveLength(1)
+    const pointer = [...reasons][0]!
+    expect(pointer).toMatch(/banner at the top of this module names the cause/i)
+    expect(pointer, 'a control restates the cause instead of pointing at it').not.toMatch(
+      /every input is disabled/i,
+    )
+
+    // The cause itself appears in the state region, and no control repeats it.
     const stateRegion = region('Screen state').textContent ?? ''
-    expect(stateRegion.split(cause), 'the note and the banner both carry it').toHaveLength(3)
-    // And no SECOND cause anywhere: the role framing the boundary used to
-    // print alongside it is gone.
+    expect(stateRegion).toMatch(/^.*Read-only \(STATE-06\)/s)
     expect(stateRegion).not.toMatch(/hold no device action|names the Admin as drafter/i)
   })
 
@@ -477,7 +489,11 @@ describe('MOD-SA-13 — the fifteen command states and the honest stepper', () =
     selectState('STATE-06')
     expect(suspensionRow(), 'the row outlived the screen state that recorded it').toBeUndefined()
     const readOnlyReason = suspendReason() ?? ''
-    expect(readOnlyReason).toMatch(/^Read-only \(STATE-06\)/)
+    // The control POINTS at the banner rather than restating the cause:
+    // STATE-06 forbids scattering the cause across several messages. What
+    // matters for THIS axis is that the reason moved off "already recorded"
+    // when the state changed.
+    expect(readOnlyReason).toMatch(/banner at the top of this module names the cause/i)
     expect(readOnlyReason).not.toMatch(/already recorded/i)
     selectState('STATE-03')
     expect(suspensionRow()).toBeUndefined()
