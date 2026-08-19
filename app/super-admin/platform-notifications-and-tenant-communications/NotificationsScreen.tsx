@@ -15,6 +15,7 @@ import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import {
   Banner,
   Button,
@@ -45,7 +46,6 @@ import {
 const MODULE = saModuleById('MOD-SA-14')
 
 /** The twelve applicable states: all thirteen less the frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /** No backend, no clock — the policy layer is handed an empty seeded state. */
 const FIXTURE_STATE = emptyDomainState(scenarioRunId('SA-14-NOTIFICATIONS'))
@@ -313,7 +313,7 @@ export function NotificationsScreen({
           label="Screen state (fixture)"
           value={screenState}
           onChange={(v) => setScreenState(v as ScreenStateId)}
-          options={APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
+          options={SA_APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
         />
         <p className="max-w-prose text-xs text-[var(--color-ink-subtle)]">
           The role control is a view switcher, not a login. Nothing here authenticates anybody, and

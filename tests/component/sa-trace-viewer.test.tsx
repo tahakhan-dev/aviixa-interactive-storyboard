@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import { ROLES } from '@/domain/roles'
-import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { TraceViewerAbsence } from '../../app/super-admin/trace-viewer/TraceViewerAbsence'
 
 const MODULE = saModuleById('MOD-SA-06')
@@ -88,7 +88,7 @@ describe('MOD-SA-06 Trace Viewer — the honest absence (D9)', () => {
   it('names every applicable screen state and excludes the frontline-only STATE-07', () => {
     const { container } = render(<TraceViewerAbsence />)
     const text = textOf(container)
-    const applicable = SCREEN_STATES.filter((s) => !s.frontlineOnly)
+    const applicable = SA_APPLICABLE_STATES
     expect(applicable).toHaveLength(12)
     for (const state of applicable) {
       expect(text, state.id).toContain(state.id)

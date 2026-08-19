@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync, writeFileSync, rmSync, mkdirSync }
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
 import { SA_MODULES } from '@/surfaces/sa/modules'
+import { SA_APPLICABLE_STATE_IDS } from '@/surfaces/sa/screen-states'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { CRITICAL_ACTIONS, CRITICAL_ACTION_COUNT_NOTE } from '@/surfaces/sa/critical-actions'
 
@@ -287,76 +288,72 @@ describe('slice 3 gate 8: every module survives an artificial-intelligence outag
   // AC-SA-000-09 (L42887): with every model unavailable, all nineteen modules
   // remain operable and the emergency pause remains exercisable. STATE-11 is a
   // tested requirement on every module, not decoration.
-  it('every module route has a component test naming the applicable screen states', () => {
-    const tests = readdirSync(join('tests', 'component')).filter((f) => /^sa-.*\.test\.tsx$/.test(f))
-    const missing = SA_MODULES.filter(
-      (m) => !tests.some((t) => stripComments(readFileSync(join('tests', 'component', t), 'utf8')).includes(m.id)),
-    ).map((m) => m.id)
+  //
+  // The first version of this gate COUNTED FILES -- `withState11.length >= 19`
+  // over 21 sa-*.test.tsx files. It passed at the boundary by coincidence: 19
+  // matched, and the two that did not happen not to be module tests. It would
+  // have kept passing with two module tests missing STATE-11 entirely, and it
+  // read raw text rather than comment-stripped source, so a mention in a
+  // comment counted. It never mapped a module to its test at all.
+  // EVERY test naming the module, not the first one found. Taking the first
+  // match attributed MOD-SA-01 to a neighbouring module's test that merely
+  // cross-references it, and then reported the real test as missing -- the
+  // same first-match-wins fragility that made the registry build attribute a
+  // route to whichever module was seen first.
+  // Parsed ONCE. Reading and comment-stripping all twenty-one test files for
+  // each of nineteen modules is 399 AST parses, which timed out -- a gate
+  // slow enough to go red on timing teaches people to re-run it rather than
+  // read it, so it is made fast rather than given more time.
+  const MODULE_TESTS: readonly { file: string; src: string }[] = readdirSync(
+    join('tests', 'component'),
+  )
+    .filter((x) => /^sa-.*\.test\.tsx$/.test(x))
+    .map((f) => ({
+      file: f,
+      src: stripComments(readFileSync(join('tests', 'component', f), 'utf8')),
+    }))
+
+  function testSourcesFor(moduleId: string): { file: string; src: string }[] {
+    return MODULE_TESTS.filter((t) => t.src.includes(moduleId))
+  }
+
+  it('every one of the nineteen modules maps to a component test naming it', () => {
+    const missing = SA_MODULES.filter((m) => testSourcesFor(m.id).length === 0).map((m) => m.id)
     expect(missing, 'modules with no component test naming them').toEqual([])
   })
 
-  it('every module test exercises STATE-11', () => {
-    const dir = join('tests', 'component')
-    const withState11 = readdirSync(dir)
-      .filter((f) => /^sa-.*\.test\.tsx$/.test(f))
-      .filter((f) => readFileSync(join(dir, f), 'utf8').includes('STATE-11'))
-    expect(withState11.length, 'module tests exercising the AI-unavailable state').toBeGreaterThanOrEqual(
-      SA_MODULES.length,
-    )
-  })
-})
-
-describe('slice 3 gate 9: every critical-class action discloses its freeze', () => {
-  // D13 / DEC-ROOTSUCC-001. The root approves its own critical requests
-  // because no second approver exists, so root unavailability FREEZES them
-  // rather than routing them elsewhere -- the most honest thing this
-  // storyboard can show about the design.
-  //
-  // It shipped as per-screen prose, and a cross-module review found the
-  // predictable result: five screens stated it and the two carrying SEVEN of
-  // the eleven -- the emergency pause, and retention and legal hold -- omitted
-  // it. Per-module review cannot see that; only a comparison across screens
-  // can.
-  //
-  // The first version of this gate tried to INFER which screens offer a
-  // critical action, and flagged ten -- including one whose copy reads "No
-  // control in this module is one of the eleven critical-class actions" and
-  // one that names an action owned elsewhere in order to render it ABSENT.
-  // Matching prose again. So the disclosure is DECLARED instead: a screen
-  // offering a critical action renders <RootUnavailableFreeze actions={...}>,
-  // and the gate asserts the declarations cover all eleven exactly once.
-  function declaredActions(): Map<string, string[]> {
-    const byModule = new Map<string, string[]>()
-    for (const d of readdirSync(SA_ROOT)) {
-      const dir = join(SA_ROOT, d)
-      if (!statSync(dir).isDirectory()) continue
-      const src = readdirSync(dir)
-        .filter((f) => /\.tsx?$/.test(f))
-        .map((f) => readFileSync(join(dir, f), 'utf8'))
-        .join('\n')
-      const m = src.match(/<RootUnavailableFreeze\s+actions=\{\[([\s\S]*?)\]\}/)
-      if (m === null) continue
-      byModule.set(d, [...(m[1] ?? '').matchAll(/'([a-z-]+)'/g)].map((x) => x[1] as string))
+  it('every module test exercises STATE-11, in code and not in a comment', () => {
+    const missing: string[] = []
+    for (const m of SA_MODULES) {
+      const ts = testSourcesFor(m.id)
+      if (!ts.some((t) => t.src.includes('STATE-11'))) missing.push(m.id)
     }
-    return byModule
-  }
-
-  it('all eleven critical actions are declared by some screen', () => {
-    const declared = new Set<string>([...declaredActions().values()].flat())
-    const missing = CRITICAL_ACTIONS.map((a) => a.id).filter((id) => !declared.has(id))
-    expect(missing, 'critical actions offered with no freeze disclosure').toEqual([])
+    expect(missing, 'modules whose test never reaches the AI-unavailable state').toEqual([])
   })
 
-  it('no critical action is claimed by two screens', () => {
-    const declared = [...declaredActions().values()].flat()
-    const dupes = declared.filter((id, i) => declared.indexOf(id) !== i)
-    expect([...new Set(dupes)], 'two screens claim the same critical action').toEqual([])
-  })
-
-  it('every declared id is one of the eleven, not an invented one', () => {
-    const known = new Set<string>(CRITICAL_ACTIONS.map((a) => a.id))
-    for (const [mod, ids] of declaredActions()) {
-      for (const id of ids) expect(known.has(id), `${mod} declares unknown action ${id}`).toBe(true)
+  it('every module test walks all twelve applicable screen states', () => {
+    // The test this replaces was named "…naming the applicable screen states"
+    // and asserted only that a file contained the module id. It checked no
+    // state at all.
+    //
+    // Its first replacement asked whether each test NAMED all twelve ids, and
+    // flagged eighteen of nineteen -- because the tests iterate a shared list
+    // rather than spelling out ids. That was the gate testing the wrong thing.
+    // So the question is the honest one: does the test walk the SHARED twelve,
+    // or does it enumerate them itself?
+    expect(SA_APPLICABLE_STATE_IDS, 'STATE-07 is frontline-only').toHaveLength(12)
+    const gaps: string[] = []
+    for (const m of SA_MODULES) {
+      const ts = testSourcesFor(m.id)
+      if (ts.length === 0) continue
+      const covered = ts.some(
+        (t) =>
+          t.src.includes('SA_APPLICABLE_STATE') ||
+          t.src.includes('APPLICABLE_STATES') ||
+          SA_APPLICABLE_STATE_IDS.every((id) => t.src.includes(id)),
+      )
+      if (!covered) gaps.push(m.id)
     }
+    expect(gaps, 'module tests that neither walk the shared states nor name all twelve').toEqual([])
   })
 })

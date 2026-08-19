@@ -1,16 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { OverviewScreen } from '../../app/super-admin/platform-overview-and-health/OverviewScreen'
-import {
-  AGGREGATES,
-  INCIDENTS,
-  MODULE_STATE_NOTES,
-  PLATFORM_ROLES,
-  READ_ONLY_CAUSE,
-  READ_ONLY_CONTROL_POINTER,
-} from '../../app/super-admin/platform-overview-and-health/fixtures'
+import { AGGREGATES, INCIDENTS, MODULE_STATE_NOTES, PLATFORM_ROLES, READ_ONLY_CAUSE, READ_ONLY_CONTROL_POINTER } from '../../app/super-admin/platform-overview-and-health/fixtures'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { SCREEN_STATES } from '@/ui/screen-state'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 
 function selectRole(sourceRoleId: string): void {
   fireEvent.change(screen.getByLabelText(/view as platform role/i), {
@@ -256,7 +250,7 @@ describe('MOD-SA-01 — the twelve applicable screen states', () => {
       'STATE-13': /two of three dependent views recomputed/i,
     }
     render(<OverviewScreen />)
-    const applicable = SCREEN_STATES.filter((s) => !s.frontlineOnly)
+    const applicable = SA_APPLICABLE_STATES
     expect(applicable).toHaveLength(12)
     for (const state of applicable) {
       selectState(state.id)

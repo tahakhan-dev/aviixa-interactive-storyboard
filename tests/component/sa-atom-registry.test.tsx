@@ -1,14 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import type { ScreenStateId } from '@/ui/screen-state'
-import {
-  AtomRegistryScreen,
-  CONSOLE_ROLES,
-  APPLICABLE_SCREEN_STATES,
-  ATOM_FIXTURES,
-  UNSPECIFIED_IN_SOURCE,
-  type SaConsoleRoleToken,
-} from '../../app/super-admin/atom-registry/AtomRegistryScreen'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import { AtomRegistryScreen, CONSOLE_ROLES, ATOM_FIXTURES, UNSPECIFIED_IN_SOURCE, type SaConsoleRoleToken } from '../../app/super-admin/atom-registry/AtomRegistryScreen'
 
 /** D10 / spec §10 gate 4: these four words appear nowhere in SURF-SA copy. */
 const FORBIDDEN_WORDS = /\b(tamper-evident|chained|signed|verified)\b/i
@@ -190,11 +184,11 @@ describe('MOD-SA-02 — the trace viewer', () => {
 
 describe('MOD-SA-02 — the twelve applicable screen states', () => {
   it('offers exactly the twelve applicable states, and never the frontline-only STATE-07', () => {
-    expect(APPLICABLE_SCREEN_STATES).toHaveLength(12)
-    expect(APPLICABLE_SCREEN_STATES.map((s) => s.id)).not.toContain('STATE-07')
+    expect(SA_APPLICABLE_STATES).toHaveLength(12)
+    expect(SA_APPLICABLE_STATES.map((s) => s.id)).not.toContain('STATE-07')
   })
 
-  it.each(APPLICABLE_SCREEN_STATES.map((s) => s.id))('renders %s without throwing', (id) => {
+  it.each(SA_APPLICABLE_STATES.map((s) => s.id))('renders %s without throwing', (id) => {
     const r = renderAs(ROOT, id)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     r.unmount()
@@ -222,7 +216,7 @@ describe('MOD-SA-02 — the twelve applicable screen states', () => {
 })
 
 describe('MOD-SA-02 — the registry aggregate', () => {
-  it.each(APPLICABLE_SCREEN_STATES.map((s) => s.id))(
+  it.each(SA_APPLICABLE_STATES.map((s) => s.id))(
     'renders an as-of timestamp or an explicit degradation in %s — never zero, never blank',
     (id) => {
       const r = renderAs(ROOT, id)
@@ -371,7 +365,7 @@ describe('MOD-SA-02 — forbidden copy', () => {
     r.unmount()
   })
 
-  it.each(APPLICABLE_SCREEN_STATES.map((s) => s.id))('uses none of the four forbidden words in %s', (id) => {
+  it.each(SA_APPLICABLE_STATES.map((s) => s.id))('uses none of the four forbidden words in %s', (id) => {
     const r = renderAs(SUP, id)
     expect(renderedCopy()).not.toMatch(FORBIDDEN_WORDS)
     r.unmount()

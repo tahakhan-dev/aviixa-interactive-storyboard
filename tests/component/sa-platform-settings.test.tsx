@@ -1,26 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import { SCREEN_STATES } from '@/ui/screen-state'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { saModuleById } from '@/surfaces/sa/modules'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { PlatformSettingsScreen } from '../../app/super-admin/platform-settings/PlatformSettingsScreen'
-import {
-  SETTINGS_CATEGORIES,
-  CROSS_CUTTING_SECTIONS,
-  FLOOR_REGISTER_ROWS,
-  GOVERNED_SETTINGS_COUNT,
-  SETTING_STATES,
-  PAUSE_STATES,
-  LOCALE_PACK_STATES,
-  SA07_PLATFORM_ROLES,
-  SA07_UNSPECIFIED_IN_SOURCE,
-  EXTENSION_LABEL,
-} from '../../app/super-admin/platform-settings/fixtures'
+import { SETTINGS_CATEGORIES, CROSS_CUTTING_SECTIONS, FLOOR_REGISTER_ROWS, GOVERNED_SETTINGS_COUNT, SETTING_STATES, PAUSE_STATES, LOCALE_PACK_STATES, SA07_PLATFORM_ROLES, SA07_UNSPECIFIED_IN_SOURCE, EXTENSION_LABEL } from '../../app/super-admin/platform-settings/fixtures'
 
 const MODULE = saModuleById('MOD-SA-07')
 
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 function interactiveElements(container: HTMLElement): Element[] {
   return Array.from(
@@ -56,7 +44,7 @@ describe('MOD-SA-07 Platform Settings — the shell contract', () => {
 
   it('names none of the four forbidden words anywhere in its copy, for any role in any state', () => {
     for (const role of SA07_PLATFORM_ROLES) {
-      for (const state of APPLICABLE_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const { container, unmount } = render(
           <PlatformSettingsScreen role={role.id} screenState={state.id} />,
         )
@@ -304,8 +292,8 @@ describe('MOD-SA-07 — STATE-11, artificial intelligence unavailable (AC-SA-000
 
 describe('MOD-SA-07 — the twelve applicable screen states', () => {
   it('renders every applicable state, and never STATE-07', () => {
-    expect(APPLICABLE_STATES).toHaveLength(12)
-    for (const state of APPLICABLE_STATES) {
+    expect(SA_APPLICABLE_STATES).toHaveLength(12)
+    for (const state of SA_APPLICABLE_STATES) {
       const { container, unmount } = render(<PlatformSettingsScreen screenState={state.id} />)
       expect(
         within(container).getAllByText(new RegExp(`${state.id} — ${state.name}`)).length,

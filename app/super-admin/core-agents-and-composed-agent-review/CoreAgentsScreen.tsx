@@ -14,6 +14,7 @@ import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { Button, Field, Select, StatusPill } from '@/ui/primitives'
+import { SA_APPLICABLE_STATE_IDS } from '@/surfaces/sa/screen-states'
 import { SaConsoleShell } from '../SaConsoleShell'
 
 /**
@@ -42,9 +43,7 @@ export const CONSOLE_ROLES = rolesInDomain('PLATFORM')
  * The twelve applicable screen states: all thirteen less the frontline-only
  * STATE-07, derived from the closed set rather than re-typed beside it.
  */
-export const APPLICABLE_STATES: readonly ScreenStateId[] = SCREEN_STATES.filter(
-  (s) => !s.frontlineOnly,
-).map((s) => s.id)
+export const APPLICABLE_STATES: readonly ScreenStateId[] = SA_APPLICABLE_STATE_IDS
 
 // ---------------------------------------------------------------------------
 // Seeded fixture data. No backend, no clock: §8 of the spec — every state is a

@@ -1,21 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
-import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { EvalHarnessScreen } from '../../app/super-admin/eval-harness/EvalHarnessScreen'
-import {
-  EVAL_PLATFORM_ROLES,
-  EVAL_SCENARIOS,
-  SCENARIO_VERDICTS,
-  EVAL_RUN_STATES,
-  CANARY_RUN_STATES,
-  EVAL_UNSPECIFIED_IN_SOURCE,
-} from '../../app/super-admin/eval-harness/fixtures'
+import { EVAL_PLATFORM_ROLES, EVAL_SCENARIOS, SCENARIO_VERDICTS, EVAL_RUN_STATES, CANARY_RUN_STATES, EVAL_UNSPECIFIED_IN_SOURCE } from '../../app/super-admin/eval-harness/fixtures'
 
 const MODULE = saModuleById('MOD-SA-05')
 
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /**
  * Every interactive element on the page. Used by the ABSENT gates: a
@@ -56,7 +48,7 @@ describe('MOD-SA-05 Eval Harness — the shell contract', () => {
   it.each(EVAL_PLATFORM_ROLES)(
     'names none of the four forbidden words anywhere in its copy, in every state — $roleAnnotation',
     (role) => {
-      for (const state of APPLICABLE_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const { container, unmount } = render(
           <EvalHarnessScreen role={role.id} screenState={state.id} />,
         )
@@ -228,13 +220,13 @@ describe('MOD-SA-05 — the twelve applicable screen states', () => {
     render(<EvalHarnessScreen />)
     const selector = screen.getByLabelText(/Screen state/i)
     expect(within(selector).queryByText(/STATE-07/)).toBeNull()
-    for (const state of APPLICABLE_STATES) {
+    for (const state of SA_APPLICABLE_STATES) {
       expect(within(selector).getByText(new RegExp(state.id)), state.id).toBeDefined()
     }
     expect(within(selector).getAllByRole('option')).toHaveLength(12)
   })
 
-  it.each(APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
+  it.each(SA_APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
     render(<EvalHarnessScreen screenState={stateId} />)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('region', { name: /Gate view/i })).toBeDefined()
@@ -350,7 +342,7 @@ describe('MOD-SA-05 — aggregates never render as zero or blank', () => {
 
   it.each(
     EVAL_PLATFORM_ROLES.flatMap((r) =>
-      APPLICABLE_STATES.map((s) => [r.id, s.id, r.roleAnnotation] as const),
+      SA_APPLICABLE_STATES.map((s) => [r.id, s.id, r.roleAnnotation] as const),
     ),
   )(
     'the scenario list, the run-target selector and the gate view name the same records — %s / %s',

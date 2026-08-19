@@ -1,28 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
-import { SCREEN_STATES } from '@/ui/screen-state'
 import { SA_MODULES, saModuleById } from '@/surfaces/sa/modules'
 import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
 import { PERMISSION_OUTCOMES } from '@/policy/decision'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { ConsoleUsersScreen } from '../../app/super-admin/console-users-roles-and-change-approvals/ConsoleUsersScreen'
-import {
-  APPROVAL_REQUESTS,
-  APPROVAL_REQUEST_FIELDS,
-  APPROVAL_STATES,
-  CHANGE_CLASSES,
-  CONSOLE_ACCOUNT_STATES,
-  MATRIX_CONFIGURATION_VERSION,
-  MATRIX_TOKEN_LABEL,
-  ROOT_FROZEN_CAPABILITIES,
-  SA08_PLATFORM_ROLES,
-  SA08_UNSPECIFIED_IN_SOURCE,
-  SA08_WORKFLOWS,
-} from '../../app/super-admin/console-users-roles-and-change-approvals/fixtures'
+import { APPROVAL_REQUESTS, APPROVAL_REQUEST_FIELDS, APPROVAL_STATES, CHANGE_CLASSES, CONSOLE_ACCOUNT_STATES, MATRIX_CONFIGURATION_VERSION, MATRIX_TOKEN_LABEL, ROOT_FROZEN_CAPABILITIES, SA08_PLATFORM_ROLES, SA08_UNSPECIFIED_IN_SOURCE, SA08_WORKFLOWS } from '../../app/super-admin/console-users-roles-and-change-approvals/fixtures'
 
 const MODULE = saModuleById('MOD-SA-08')
 
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 function interactiveText(container: HTMLElement): string[] {
   return Array.from(
@@ -666,13 +653,13 @@ describe('MOD-SA-08 — the twelve applicable screen states', () => {
     render(<ConsoleUsersScreen />)
     const selector = screen.getByLabelText(/Screen state/i)
     expect(within(selector).queryByText(/STATE-07/)).toBeNull()
-    for (const state of APPLICABLE_STATES) {
+    for (const state of SA_APPLICABLE_STATES) {
       expect(within(selector).getByText(new RegExp(state.id)), state.id).toBeDefined()
     }
     expect(within(selector).getAllByRole('option')).toHaveLength(12)
   })
 
-  it.each(APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
+  it.each(SA_APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
     render(<ConsoleUsersScreen screenState={stateId} />)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('region', { name: /Approval queue/i })).toBeDefined()

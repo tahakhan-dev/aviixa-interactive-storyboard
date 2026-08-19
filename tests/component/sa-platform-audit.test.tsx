@@ -1,19 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import type { ScreenStateId } from '@/ui/screen-state'
-import {
-  PlatformAuditScreen,
-  CONSOLE_ROLE_VIEWS,
-  APPLICABLE_SCREEN_STATES,
-  AUDIT_EVENT_CLASSES,
-  AUDIT_ENTRY_STATES,
-  AUDIT_EXPORT_STATES,
-  AUDIT_ENTRIES,
-  MODULE_CONTROLS,
-  UNSPECIFIED_IN_SOURCE,
-  readableClassesFor,
-  type SaConsoleRoleToken,
-} from '../../app/super-admin/platform-audit/PlatformAuditScreen'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import { PlatformAuditScreen, CONSOLE_ROLE_VIEWS, AUDIT_EVENT_CLASSES, AUDIT_ENTRY_STATES, AUDIT_EXPORT_STATES, AUDIT_ENTRIES, MODULE_CONTROLS, UNSPECIFIED_IN_SOURCE, readableClassesFor, type SaConsoleRoleToken } from '../../app/super-admin/platform-audit/PlatformAuditScreen'
 
 /** D10 / spec §10 gate 4: these four words appear nowhere in SURF-SA copy. */
 const FORBIDDEN_WORDS = /\b(tamper-evident|chained|signed|verified)\b/i
@@ -120,7 +109,7 @@ describe('MOD-SA-18 Platform Audit — the shell contract', () => {
 
   it('uses none of the four forbidden words, for any role in any state (D10)', () => {
     for (const role of ALL_ROLES) {
-      for (const state of APPLICABLE_SCREEN_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const view = renderAs(role, state.id)
         atEveryExportStep(() => {
           expect(renderedCopy()).not.toMatch(FORBIDDEN_WORDS)
@@ -131,9 +120,9 @@ describe('MOD-SA-18 Platform Audit — the shell contract', () => {
   })
 
   it('renders each of the twelve applicable states with exactly one h1, never STATE-07', () => {
-    expect(APPLICABLE_SCREEN_STATES).toHaveLength(12)
-    expect(APPLICABLE_SCREEN_STATES.map((s) => s.id)).not.toContain('STATE-07')
-    for (const state of APPLICABLE_SCREEN_STATES) {
+    expect(SA_APPLICABLE_STATES).toHaveLength(12)
+    expect(SA_APPLICABLE_STATES.map((s) => s.id)).not.toContain('STATE-07')
+    for (const state of SA_APPLICABLE_STATES) {
       const view = renderAs(ROOT, state.id)
       expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
       view.unmount()
@@ -172,7 +161,7 @@ describe('MOD-SA-18 — the audit entry has exactly one state (D3)', () => {
 describe('MOD-SA-18 — edit and delete are ABSENT, not even greyed (AC-SA-18-04, AC-SEC-701)', () => {
   it('offers no edit or delete control to any role, including the root, in any state', () => {
     for (const role of ALL_ROLES) {
-      for (const state of APPLICABLE_SCREEN_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const view = renderAs(role, state.id)
         atEveryExportStep(() => {
           // A raw selector rather than four `queryAllByRole` calls: this runs
@@ -213,7 +202,7 @@ describe('MOD-SA-18 — the class filter is data-driven and its count appears no
 
   it('never renders a count of event classes, for any role in any state', () => {
     for (const role of ALL_ROLES) {
-      for (const state of APPLICABLE_SCREEN_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const view = renderAs(role, state.id)
         atEveryExportStep(() => {
           expect(renderedCopy()).not.toMatch(COUNT_OF_CLASSES)

@@ -13,6 +13,7 @@ import { CRITICAL_ACTIONS, CRITICAL_ACTION_COUNT_NOTE } from '@/surfaces/sa/crit
 import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import {
   Banner,
   Button,
@@ -54,7 +55,6 @@ import {
 const MODULE = saModuleById('MOD-SA-08')
 
 /** The twelve applicable states: all thirteen less the frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /**
  * STATE-13: how far the re-read has reached (fixture). The banner, the row
@@ -531,7 +531,7 @@ export function ConsoleUsersScreen({
             setScreenState(v as ScreenStateId)
             resetInteraction()
           }}
-          options={APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
+          options={SA_APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
         />
         <Select
           label="Root availability (fixture)"

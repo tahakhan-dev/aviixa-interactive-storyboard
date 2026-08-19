@@ -19,13 +19,14 @@ import {
   type TableRow,
 } from '@/ui/primitives'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
-import { SCREEN_STATES, screenState, type ScreenStateId } from '@/ui/screen-state'
+import { screenState, type ScreenStateId } from '@/ui/screen-state'
 import { evaluateAccess } from '@/policy/evaluate'
 import type { PermissionDecision } from '@/policy/decision'
 import type { RoleId } from '@/domain/roles'
 import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
 import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import {
   DETAIL_TABS,
   HARD_SUSPENSION_REASON_CLASSES,
@@ -47,7 +48,7 @@ const ALL_CONSOLE_ROLES: readonly RoleId[] = TENANT_PLATFORM_ROLES.map((r) => r.
 const ROOT_AND_ADMIN: readonly RoleId[] = ['ROOT_SUPER_ADMIN', 'ADMIN']
 const ADMIN_ONLY: readonly RoleId[] = ['ADMIN']
 
-const SCREEN_STATE_OPTIONS = SCREEN_STATES.filter((s) => !s.frontlineOnly).map((s) => ({
+const SCREEN_STATE_OPTIONS = SA_APPLICABLE_STATES.map((s) => ({
   value: s.id,
   label: `${s.id} — ${s.name}`,
 }))

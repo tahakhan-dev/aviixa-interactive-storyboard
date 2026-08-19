@@ -1,24 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
-import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { UsageMeteringScreen } from '../../app/super-admin/usage-and-metering/UsageMeteringScreen'
-import {
-  LADDER_RUNGS,
-  LADDER_STATES,
-  METERING_DIMENSIONS,
-  STORAGE_DIMENSIONS,
-  TENANT_MONTH_USAGE,
-  USAGE_PLATFORM_ROLES,
-  USAGE_SOURCE_CONFLICTS,
-  USAGE_UNSPECIFIED_IN_SOURCE,
-  USAGE_WORKFLOWS,
-} from '../../app/super-admin/usage-and-metering/fixtures'
+import { LADDER_RUNGS, LADDER_STATES, METERING_DIMENSIONS, STORAGE_DIMENSIONS, TENANT_MONTH_USAGE, USAGE_PLATFORM_ROLES, USAGE_SOURCE_CONFLICTS, USAGE_UNSPECIFIED_IN_SOURCE, USAGE_WORKFLOWS } from '../../app/super-admin/usage-and-metering/fixtures'
 
 const MODULE = saModuleById('MOD-SA-12')
 
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /**
  * Every interactive element on the page. Used by the ABSENT gates: a
@@ -66,7 +55,7 @@ describe('MOD-SA-12 Usage and Metering — the shell contract', () => {
     // explanations only reach the DOM for the two roles that are refused, and
     // some copy only exists in one state.
     for (const role of USAGE_PLATFORM_ROLES) {
-      for (const state of APPLICABLE_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const { container, unmount } = render(
           <UsageMeteringScreen role={role.id} screenState={state.id} />,
         )
@@ -373,13 +362,13 @@ describe('MOD-SA-12 — the twelve applicable screen states', () => {
     render(<UsageMeteringScreen />)
     const selector = screen.getByLabelText(/Screen state/i)
     expect(within(selector).queryByText(/STATE-07/)).toBeNull()
-    for (const state of APPLICABLE_STATES) {
+    for (const state of SA_APPLICABLE_STATES) {
       expect(within(selector).getByText(new RegExp(state.id)), state.id).toBeDefined()
     }
     expect(within(selector).getAllByRole('option')).toHaveLength(12)
   })
 
-  it.each(APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
+  it.each(SA_APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
     render(<UsageMeteringScreen screenState={stateId} />)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('region', { name: /Usage ladder/i })).toBeDefined()

@@ -1,22 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
-import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { TenantMetricsScreen } from '../../app/super-admin/tenant-metrics-and-aggregates/TenantMetricsScreen'
-import {
-  METRIC_STATES,
-  SA10_ABSENT_CONTROLS,
-  SA10_MEASURE_COUNT,
-  SA10_PLATFORM_ROLES,
-  SA10_READ_MEASURES_SOURCE_REFS,
-  SA10_TENANT_MONTHS,
-  SA10_UNSPECIFIED_IN_SOURCE,
-} from '../../app/super-admin/tenant-metrics-and-aggregates/fixtures'
+import { METRIC_STATES, SA10_ABSENT_CONTROLS, SA10_MEASURE_COUNT, SA10_PLATFORM_ROLES, SA10_READ_MEASURES_SOURCE_REFS, SA10_TENANT_MONTHS, SA10_UNSPECIFIED_IN_SOURCE } from '../../app/super-admin/tenant-metrics-and-aggregates/fixtures'
 
 const MODULE = saModuleById('MOD-SA-10')
 
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 function interactiveText(container: HTMLElement): string[] {
   return Array.from(
@@ -58,7 +49,7 @@ describe('MOD-SA-10 Tenant Metrics and Aggregates — the shell contract', () =>
    */
   it('names none of the four forbidden words in any state, for any role, on either tab', () => {
     for (const role of SA10_PLATFORM_ROLES) {
-      for (const state of APPLICABLE_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const { container, unmount } = render(
           <TenantMetricsScreen role={role.id} screenState={state.id} />,
         )
@@ -75,7 +66,7 @@ describe('MOD-SA-10 Tenant Metrics and Aggregates — the shell contract', () =>
 
   it('resolves every link inside the console in every state, never to record-level tenant content', () => {
     for (const role of SA10_PLATFORM_ROLES) {
-      for (const state of APPLICABLE_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const { container, unmount } = render(
           <TenantMetricsScreen role={role.id} screenState={state.id} />,
         )
@@ -272,7 +263,7 @@ describe('MOD-SA-10 — per-control allowed roles, through evaluateAccess', () =
 describe('MOD-SA-10 — the comparative is a cross-tenant aggregate (L97152–L97155)', () => {
   it('refuses it to Support in every applicable state, and to no other role', () => {
     for (const role of SA10_PLATFORM_ROLES) {
-      for (const state of APPLICABLE_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const label = `${role.id} ${state.id}`
         const { unmount } = render(<TenantMetricsScreen role={role.id} screenState={state.id} />)
         showComparative()
@@ -320,7 +311,7 @@ describe('MOD-SA-10 — the twelve applicable screen states', () => {
     const options = Array.from(selector.querySelectorAll('option')).map((o) => o.value)
     expect(options).toHaveLength(12)
     expect(options).not.toContain('STATE-07')
-    for (const state of APPLICABLE_STATES) expect(options).toContain(state.id)
+    for (const state of SA_APPLICABLE_STATES) expect(options).toContain(state.id)
   })
 
   it('STATE-11: with every model unavailable the module remains fully operable', () => {
@@ -532,7 +523,7 @@ describe('MOD-SA-10 — the four-role read cites its per-control source, never r
     // any of them, so none may be cited on this screen - not the wrong one,
     // and not this module's own either.
     const navLine = /L427[3-5][0-9]/
-    for (const state of APPLICABLE_STATES) {
+    for (const state of SA_APPLICABLE_STATES) {
       for (const role of SA10_PLATFORM_ROLES) {
         const { container, unmount } = render(
           <TenantMetricsScreen role={role.id} screenState={state.id} />,

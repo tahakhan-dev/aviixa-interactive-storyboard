@@ -1,19 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { DevicesScreen } from '../../app/super-admin/devices-and-fleet/DevicesScreen'
-import {
-  DEVICES,
-  DEVICE_LIFECYCLE_STATES,
-  DEVICE_PLATFORM_ROLES,
-  DEVICE_POLICY_ITEMS,
-  DEVICE_WORKFLOWS,
-  UNREACHED_WIPE_SEQUENCE,
-  UNSPECIFIED_IN_SOURCE,
-  REACHED_WIPE_SEQUENCE,
-  type WipeStep,
-} from '../../app/super-admin/devices-and-fleet/fixtures'
+import { DEVICES, DEVICE_LIFECYCLE_STATES, DEVICE_PLATFORM_ROLES, DEVICE_POLICY_ITEMS, DEVICE_WORKFLOWS, UNREACHED_WIPE_SEQUENCE, UNSPECIFIED_IN_SOURCE, REACHED_WIPE_SEQUENCE, type WipeStep } from '../../app/super-admin/devices-and-fleet/fixtures'
 import { COMMAND_STATES } from '@/surfaces/sa/command-state'
 import { SCREEN_STATES } from '@/ui/screen-state'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 
 /**
  * D10's four forbidden words, with NO exclusion arm. The shared spine copy in
@@ -85,7 +76,6 @@ function setSelect(el: HTMLElement, value: string): void {
 }
 
 /** The screen states this module offers, resolved once. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /** The three states whose treatment reads the selected role: the success
  *  rendering, the refusal and the read-only gate. */
@@ -108,7 +98,7 @@ const ROLE_SENSITIVE_STATES = ['STATE-03', 'STATE-05', 'STATE-06']
 function sweepViews(visit: (label: string) => void): void {
   const sel = switchers()
   setSelect(sel.role, 'ROLE-PLAT-ROOT')
-  for (const state of APPLICABLE_STATES) {
+  for (const state of SA_APPLICABLE_STATES) {
     setSelect(sel.state, state.id)
     visit(`ROLE-PLAT-ROOT / ${state.id}`)
   }
@@ -730,7 +720,7 @@ describe('MOD-SA-13 — the twelve applicable screen states', () => {
     )
     expect(options).toHaveLength(SCREEN_STATES.length - 1)
     expect(options.map((o) => o.textContent ?? '').join(' ')).not.toMatch(/STATE-07/)
-    for (const state of SCREEN_STATES.filter((s) => !s.frontlineOnly)) {
+    for (const state of SA_APPLICABLE_STATES) {
       selectState(state.id)
       expect(region('Screen state').textContent, state.id).toContain(state.id)
     }
@@ -761,5 +751,25 @@ describe('MOD-SA-13 — the no-link rule', () => {
     }
     expect(hrefs.some((h) => /^\/super-admin\/support-access\/?$/.test(h))).toBe(true)
     expect(container.textContent ?? '').toMatch(/no ambient browsing/i)
+  })
+})
+
+describe('MOD-SA-13 — a rendered citation names the control it explains', () => {
+  // Controller review. The suspension refusal shipped citing L45498, which
+  // this file's own line 487 calls "the one control the frozen source defines
+  // for this module" -- the WIPE. The suspension's decision cites
+  // WF-DVC-005 L53224. A wrong locator in visible copy sends a reviewer to the
+  // wrong passage, which is worse than no locator at all.
+  it('the suspension refusal cites the suspension source, never the wipe source', () => {
+    render(<DevicesScreen />)
+    selectRole('ROLE-PLAT-ENG')
+    const btn = screen
+      .getAllByRole('button')
+      .find((b) => /record a device suspension command/i.test(b.textContent ?? ''))
+    expect(btn, 'no suspension control to check').toBeDefined()
+    const id = btn!.getAttribute('aria-describedby')
+    const reason = id === null ? '' : (document.getElementById(id)?.textContent ?? '')
+    expect(reason).toMatch(/L53224/)
+    expect(reason, 'cites the wipe source for the suspension').not.toMatch(/L45498/)
   })
 })

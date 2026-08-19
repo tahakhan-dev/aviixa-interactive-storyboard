@@ -1,17 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
-import {
-  MemoryArchitectureScreen,
-  MEMORY_STORES,
-  SA_04_ABSENT_ACTIONS,
-  SA_04_ROLE_VIEWS,
-  SA_04_UNSPECIFIED_AFFORDANCES,
-  SA_04_INVARIANT_IDS,
-} from '../../app/super-admin/memory-architecture/MemoryArchitectureScreen'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import { MemoryArchitectureScreen, MEMORY_STORES, SA_04_ABSENT_ACTIONS, SA_04_ROLE_VIEWS, SA_04_UNSPECIFIED_AFFORDANCES, SA_04_INVARIANT_IDS } from '../../app/super-admin/memory-architecture/MemoryArchitectureScreen'
 
 const MODULE = saModuleById('MOD-SA-04')
 const ROLE_SELECT = /console role/i
@@ -250,7 +243,7 @@ describe('MOD-SA-04 — the cross-tenant footprint aggregate', () => {
 })
 
 describe('MOD-SA-04 — the twelve applicable screen states', () => {
-  const applicable = SCREEN_STATES.filter((s) => !s.frontlineOnly)
+  const applicable = SA_APPLICABLE_STATES
 
   it('offers exactly the twelve applicable states, and never the frontline-only STATE-07', () => {
     render(<MemoryArchitectureScreen />)

@@ -13,8 +13,9 @@ import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
-import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
+import { type ScreenStateId } from '@/ui/screen-state'
 import { FreshnessLabel, PermissionNotice, Select, Table } from '@/ui/primitives'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { SaConsoleShell } from '../SaConsoleShell'
 
 /**
@@ -377,7 +378,6 @@ function aggregateMode(state: ScreenStateId): AggregateMode {
 // stays operable and the aggregate renders (AC-SA-000-09).
 const AGGREGATE_SUPPRESSING_STATES: readonly ScreenStateId[] = ['STATE-01', 'STATE-02', 'STATE-04']
 
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /* ── The screen ────────────────────────────────────────────────────────── */
 
@@ -461,7 +461,7 @@ export function MemoryArchitectureScreen() {
           <Select
             label="Screen state"
             value={stateId}
-            options={APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} ${s.name}` }))}
+            options={SA_APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} ${s.name}` }))}
             onChange={(v) => setStateId(v as ScreenStateId)}
           />
         </div>

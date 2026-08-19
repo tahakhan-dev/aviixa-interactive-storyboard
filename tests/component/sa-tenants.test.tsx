@@ -1,16 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { TenantsScreen } from '../../app/super-admin/tenants-lifecycle-and-pilots/TenantsScreen'
-import {
-  DETAIL_TABS,
-  LIFECYCLE_TRANSITIONS,
-  SUSPENSION_COMMAND_SEQUENCE,
-  TENANTS,
-  TENANT_LIFECYCLE_STATES,
-  TENANT_PLATFORM_ROLES,
-  UNSPECIFIED_IN_SOURCE,
-} from '../../app/super-admin/tenants-lifecycle-and-pilots/fixtures'
+import { DETAIL_TABS, LIFECYCLE_TRANSITIONS, SUSPENSION_COMMAND_SEQUENCE, TENANTS, TENANT_LIFECYCLE_STATES, TENANT_PLATFORM_ROLES, UNSPECIFIED_IN_SOURCE } from '../../app/super-admin/tenants-lifecycle-and-pilots/fixtures'
 import { SCREEN_STATES } from '@/ui/screen-state'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 
 /**
  * D10's four forbidden words. The `signed` arm carries a word boundary AND a
@@ -396,7 +389,7 @@ describe('MOD-SA-09 — the twelve applicable screen states', () => {
     )
     expect(options).toHaveLength(SCREEN_STATES.length - 1)
     expect(options.map((o) => o.getAttribute('value'))).not.toContain('STATE-07')
-    for (const state of SCREEN_STATES.filter((s) => !s.frontlineOnly)) {
+    for (const state of SA_APPLICABLE_STATES) {
       selectState(state.id)
       const text = region('Screen state').textContent ?? ''
       expect(text, state.id).toContain(state.id)

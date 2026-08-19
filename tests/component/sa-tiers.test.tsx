@@ -3,18 +3,8 @@ import { render, screen, within, fireEvent } from '@testing-library/react'
 import type { ScreenStateId } from '@/ui/screen-state'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
-import {
-  TiersScreen,
-  TIER_BANDS,
-  TIER_RECORDS,
-  TIER_FIELD_GROUPS,
-  TENANT_TIER_ASSIGNMENTS,
-  FEATURE_OVERRIDES,
-  CONSOLE_ROLE_VIEWS,
-  APPLICABLE_SCREEN_STATES,
-  UNSPECIFIED_IN_SOURCE,
-  type SaConsoleRoleToken,
-} from '../../app/super-admin/tiers-entitlements-and-caps/TiersScreen'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import { TiersScreen, TIER_BANDS, TIER_RECORDS, TIER_FIELD_GROUPS, TENANT_TIER_ASSIGNMENTS, FEATURE_OVERRIDES, CONSOLE_ROLE_VIEWS, UNSPECIFIED_IN_SOURCE, type SaConsoleRoleToken } from '../../app/super-admin/tiers-entitlements-and-caps/TiersScreen'
 
 /** D10 / spec §10 gate 4: these four words appear nowhere in SURF-SA copy. */
 const FORBIDDEN_WORDS = /\b(tamper-evident|chained|signed|verified)\b/i
@@ -75,7 +65,7 @@ describe('MOD-SA-11 Tiers, Entitlements and Caps — the shell contract', () => 
 
   it('uses none of the four forbidden words, for any role in any state', () => {
     for (const role of CONSOLE_ROLE_VIEWS) {
-      for (const state of APPLICABLE_SCREEN_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const view = renderAs(role.token, state.id)
         expect(renderedCopy()).not.toMatch(FORBIDDEN_WORDS)
         view.unmount()
@@ -86,13 +76,13 @@ describe('MOD-SA-11 Tiers, Entitlements and Caps — the shell contract', () => 
 
 describe('MOD-SA-11 — the twelve applicable screen states', () => {
   it('offers exactly the twelve applicable states and never the frontline-only STATE-07', () => {
-    expect(APPLICABLE_SCREEN_STATES).toHaveLength(12)
-    expect(APPLICABLE_SCREEN_STATES.map((s) => s.id)).not.toContain('STATE-07')
+    expect(SA_APPLICABLE_STATES).toHaveLength(12)
+    expect(SA_APPLICABLE_STATES.map((s) => s.id)).not.toContain('STATE-07')
   })
 
   it('renders every applicable state for every role without throwing', () => {
     for (const role of CONSOLE_ROLE_VIEWS) {
-      for (const state of APPLICABLE_SCREEN_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const view = renderAs(role.token, state.id)
         expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
         view.unmount()

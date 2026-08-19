@@ -1,31 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import type { RoleId } from '@/domain/roles'
-import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
 import { COMMAND_STATES } from '@/surfaces/sa/command-state'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { DataLifecycleScreen } from '../../app/super-admin/data-lifecycle-and-archival/DataLifecycleScreen'
-import {
-  ARCHIVE_REACTIVATION_BANDS,
-  CLOSURE_SEQUENCE,
-  ERASURE_REQUESTS,
-  ERASURE_STEPS,
-  LEGAL_HOLDS,
-  LEGAL_HOLD_STATES,
-  LIFECYCLE_ABSENT_CONTROLS,
-  LIFECYCLE_AREAS,
-  LIFECYCLE_PLATFORM_ROLES,
-  LIFECYCLE_SOURCE_CONFLICTS,
-  LIFECYCLE_UNSPECIFIED_IN_SOURCE,
-  LIFECYCLE_WORKFLOWS,
-  RETENTION_POSTURES,
-  UPCOMING_ANONYMISATION,
-} from '../../app/super-admin/data-lifecycle-and-archival/fixtures'
+import { ARCHIVE_REACTIVATION_BANDS, CLOSURE_SEQUENCE, ERASURE_REQUESTS, ERASURE_STEPS, LEGAL_HOLDS, LEGAL_HOLD_STATES, LIFECYCLE_ABSENT_CONTROLS, LIFECYCLE_AREAS, LIFECYCLE_PLATFORM_ROLES, LIFECYCLE_SOURCE_CONFLICTS, LIFECYCLE_UNSPECIFIED_IN_SOURCE, LIFECYCLE_WORKFLOWS, RETENTION_POSTURES, UPCOMING_ANONYMISATION } from '../../app/super-admin/data-lifecycle-and-archival/fixtures'
 
 const MODULE = saModuleById('MOD-SA-17')
 
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /**
  * Every interactive element on the page. The ABSENT gates below read this:
@@ -65,7 +49,7 @@ describe('MOD-SA-17 Data Lifecycle and Archival — the shell contract', () => {
     // states while rendering the default ADMIN certified a property it never
     // exercised, so this loops BOTH axes — 4 roles x 12 states.
     for (const role of LIFECYCLE_PLATFORM_ROLES) {
-      for (const state of APPLICABLE_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         const { container, unmount } = render(
           <DataLifecycleScreen role={role.id} screenState={state.id} />,
         )
@@ -409,13 +393,13 @@ describe('MOD-SA-17 — the twelve applicable screen states', () => {
     render(<DataLifecycleScreen />)
     const selector = screen.getByLabelText(/Screen state/i)
     expect(within(selector).queryByText(/STATE-07/)).toBeNull()
-    for (const state of APPLICABLE_STATES) {
+    for (const state of SA_APPLICABLE_STATES) {
       expect(within(selector).getByText(new RegExp(state.id)), state.id).toBeDefined()
     }
     expect(within(selector).getAllByRole('option')).toHaveLength(12)
   })
 
-  it.each(APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
+  it.each(SA_APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
     render(<DataLifecycleScreen screenState={stateId} />)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('region', { name: /Retention/i })).toBeDefined()

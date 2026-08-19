@@ -6,13 +6,14 @@ import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
-import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
+import { type ScreenStateId } from '@/ui/screen-state'
 import { Button, Select, Table, type TableRow } from '@/ui/primitives'
 import { evaluateAccess } from '@/policy/evaluate'
 import { permitsAction, type PermissionDecision } from '@/policy/decision'
 import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
 import type { RoleId } from '@/domain/roles'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { SaConsoleShell } from '../SaConsoleShell'
 
 /**
@@ -69,7 +70,6 @@ function consoleRole(token: SaConsoleRoleToken): SaConsoleRole {
 }
 
 /** The twelve applicable states: all thirteen less the frontline-only STATE-07. */
-export const APPLICABLE_SCREEN_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /* ------------------------------------------------------------------ *
  * OBJ-SA-ATOM's seven states (L43178) and OBJ-SA-SCENARIO's three
@@ -622,9 +622,9 @@ export function AtomRegistryScreen({
         <Select
           label="Screen state"
           value={screenStateId}
-          options={APPLICABLE_SCREEN_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
+          options={SA_APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
           onChange={(v) => {
-            const next = APPLICABLE_SCREEN_STATES.find((s) => s.id === v)
+            const next = SA_APPLICABLE_STATES.find((s) => s.id === v)
             if (next) {
               setScreenStateId(next.id)
               setReceipt(null)

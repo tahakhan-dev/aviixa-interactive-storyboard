@@ -1,23 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
-import { SCREEN_STATES } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { NotificationsScreen } from '../../app/super-admin/platform-notifications-and-tenant-communications/NotificationsScreen'
-import {
-  BROADCAST_STATES,
-  NOTIF_ABSENT_CONTROLS,
-  NOTIF_CHANNELS,
-  NOTIF_PLATFORM_ROLES,
-  NOTIF_SOURCE_CONFLICTS,
-  NOTIF_UNSPECIFIED_IN_SOURCE,
-  NOTIF_WORKFLOWS,
-  SEND_HISTORY,
-} from '../../app/super-admin/platform-notifications-and-tenant-communications/fixtures'
+import { BROADCAST_STATES, NOTIF_ABSENT_CONTROLS, NOTIF_CHANNELS, NOTIF_PLATFORM_ROLES, NOTIF_SOURCE_CONFLICTS, NOTIF_UNSPECIFIED_IN_SOURCE, NOTIF_WORKFLOWS, SEND_HISTORY } from '../../app/super-admin/platform-notifications-and-tenant-communications/fixtures'
 
 const MODULE = saModuleById('MOD-SA-14')
 
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 function interactiveText(container: HTMLElement): string[] {
   return Array.from(
@@ -73,7 +63,7 @@ describe('MOD-SA-14 Platform Notifications — the shell contract', () => {
   it('names none of the four forbidden words anywhere in its copy, for any role in any state', () => {
     for (const role of NOTIF_PLATFORM_ROLES) {
       for (const target of ['single-tenant', 'all-tenant'] as const) {
-        for (const state of APPLICABLE_STATES) {
+        for (const state of SA_APPLICABLE_STATES) {
           const { container, unmount } = render(
             <NotificationsScreen role={role.id} target={target} screenState={state.id} />,
           )
@@ -87,7 +77,7 @@ describe('MOD-SA-14 Platform Notifications — the shell contract', () => {
   })
 
   it('renders no rate, no percentage and nothing below the tenant', () => {
-    for (const state of APPLICABLE_STATES) {
+    for (const state of SA_APPLICABLE_STATES) {
       const { container, unmount } = render(<NotificationsScreen screenState={state.id} />)
       const text = container.textContent ?? ''
       expect(text, state.id).not.toMatch(/\d\s?%/)
@@ -329,13 +319,13 @@ describe('MOD-SA-14 — the twelve applicable screen states', () => {
     render(<NotificationsScreen />)
     const selector = screen.getByLabelText(/Screen state/i)
     expect(within(selector).queryByText(/STATE-07/)).toBeNull()
-    for (const state of APPLICABLE_STATES) {
+    for (const state of SA_APPLICABLE_STATES) {
       expect(within(selector).getByText(new RegExp(state.id)), state.id).toBeDefined()
     }
     expect(within(selector).getAllByRole('option')).toHaveLength(12)
   })
 
-  it.each(APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
+  it.each(SA_APPLICABLE_STATES.map((s) => s.id))('renders %s without losing the module', (stateId) => {
     render(<NotificationsScreen screenState={stateId} />)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('region', { name: /Composer/i })).toBeDefined()

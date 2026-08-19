@@ -1,28 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import type { RoleId } from '@/domain/roles'
-import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
+import { type ScreenStateId } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { TenantConfigRegistryScreen } from '../../app/super-admin/tenant-configuration-registry/TenantConfigRegistryScreen'
-import {
-  GOVERNED_SETTINGS,
-  GOVERNED_SETTING_COUNT_NOTE,
-  PLATFORM_FIXED_ITEMS,
-  REGISTRY_ABSENT_CONTROLS,
-  REGISTRY_ENTRY_STATES,
-  REGISTRY_PLATFORM_ROLES,
-  REGISTRY_SOURCE_CONFLICTS,
-  REGISTRY_UNSPECIFIED_IN_SOURCE,
-  REGISTRY_WORKFLOWS,
-  WRITABLE_SETTINGS,
-  WRITE_CLASSES,
-  validateWrite,
-} from '../../app/super-admin/tenant-configuration-registry/fixtures'
+import { GOVERNED_SETTINGS, GOVERNED_SETTING_COUNT_NOTE, PLATFORM_FIXED_ITEMS, REGISTRY_ABSENT_CONTROLS, REGISTRY_ENTRY_STATES, REGISTRY_PLATFORM_ROLES, REGISTRY_SOURCE_CONFLICTS, REGISTRY_UNSPECIFIED_IN_SOURCE, REGISTRY_WORKFLOWS, WRITABLE_SETTINGS, WRITE_CLASSES, validateWrite } from '../../app/super-admin/tenant-configuration-registry/fixtures'
 
 const MODULE = saModuleById('MOD-SA-19')
 
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /**
  * Queried by role rather than by label text: a `<section aria-labelledby>`
@@ -101,7 +88,7 @@ describe('MOD-SA-19 Tenant-Configuration Registry — the shell contract', () =>
     // property for one of 144 screens.
     for (const role of REGISTRY_PLATFORM_ROLES) {
       fireEvent.change(roleSelect, { target: { value: role.id } })
-      for (const state of APPLICABLE_STATES) {
+      for (const state of SA_APPLICABLE_STATES) {
         fireEvent.change(stateSelect, { target: { value: state.id } })
         for (const c of WRITE_CLASSES) {
           fireEvent.change(classSelect, { target: { value: c.id } })
@@ -428,7 +415,7 @@ describe('MOD-SA-19 — the twelve applicable screen states', () => {
 
   it('renders every one of the twelve with its contract, and never a blank frame', () => {
     render(<TenantConfigRegistryScreen />)
-    for (const state of APPLICABLE_STATES) {
+    for (const state of SA_APPLICABLE_STATES) {
       setScreenState(state.id)
       // The option in the switcher matches too, so the assertion is on presence.
       expect(screen.getAllByText(new RegExp(`${state.id} — ${state.name}`)).length).toBeGreaterThan(1)

@@ -1,29 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
-import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
+import { type ScreenStateId } from '@/ui/screen-state'
 import { saModuleById } from '@/surfaces/sa/modules'
 import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { SupportAccessScreen } from '../../app/super-admin/support-access/SupportAccessScreen'
-import {
-  BANNER_STATES,
-  EMERGENCY_SESSION_STATES,
-  EMERGENCY_TIME_BOX,
-  SESSION_DETAIL,
-  SESSION_STATES,
-  SUPPORT_ABSENT_CONTROLS,
-  SUPPORT_PLATFORM_ROLES,
-  SUPPORT_SESSIONS,
-  SUPPORT_SOURCE_CONFLICTS,
-  SUPPORT_UNSPECIFIED_IN_SOURCE,
-  SUPPORT_WORKFLOWS,
-  UNSPECIFIED_EMERGENCY_CLASS_VALUE,
-  UNSPECIFIED_REASON_CLASS_VALUE,
-} from '../../app/super-admin/support-access/fixtures'
+import { BANNER_STATES, EMERGENCY_SESSION_STATES, EMERGENCY_TIME_BOX, SESSION_DETAIL, SESSION_STATES, SUPPORT_ABSENT_CONTROLS, SUPPORT_PLATFORM_ROLES, SUPPORT_SESSIONS, SUPPORT_SOURCE_CONFLICTS, SUPPORT_UNSPECIFIED_IN_SOURCE, SUPPORT_WORKFLOWS, UNSPECIFIED_EMERGENCY_CLASS_VALUE, UNSPECIFIED_REASON_CLASS_VALUE } from '../../app/super-admin/support-access/fixtures'
 
 const MODULE = saModuleById('MOD-SA-15')
 
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
-const APPLICABLE_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /**
  * Every interactive element on the page. The ABSENT gates use it: an ABSENT
@@ -372,7 +358,7 @@ describe('MOD-SA-15 — the tenant ends it, and no banner means no session', () 
   // The reason is read from the button's OWN aria-describedby target, in every
   // role and every state. Asserting only that some prose nearby mentions the
   // tenant let a placeholder reason ('unused') sit on the control undetected.
-  it.each(APPLICABLE_STATES.flatMap((s) => SUPPORT_PLATFORM_ROLES.map((r) => [r.id, s.id] as const)))(
+  it.each(SA_APPLICABLE_STATES.flatMap((s) => SUPPORT_PLATFORM_ROLES.map((r) => [r.id, s.id] as const)))(
     'mirrors the tenant End-session control inert, naming the Tenant Admin as its holder (%s, %s)',
     (roleId, stateId) => {
       render(<SupportAccessScreen role={roleId} screenState={stateId as ScreenStateId} />)
@@ -421,7 +407,7 @@ describe('MOD-SA-15 — the twelve applicable screen states', () => {
   })
 
   it('renders every applicable state with its contract and its never-do', () => {
-    for (const state of APPLICABLE_STATES) {
+    for (const state of SA_APPLICABLE_STATES) {
       const { unmount } = render(<SupportAccessScreen screenState={state.id} />)
       expect(screen.getByText(state.contract), state.id).toBeDefined()
       expect(screen.getByText(state.neverDo), state.id).toBeDefined()
@@ -656,7 +642,7 @@ describe('MOD-SA-15 — every state renders without a dead control', () => {
   // must state its reason, AND an enabled button must actually do something
   // when pressed. The earlier version asserted only the first half, so an
   // enabled button with no handler at all passed it.
-  it.each(APPLICABLE_STATES.flatMap((s) => SUPPORT_PLATFORM_ROLES.map((r) => [r.id, s.id] as const)))(
+  it.each(SA_APPLICABLE_STATES.flatMap((s) => SUPPORT_PLATFORM_ROLES.map((r) => [r.id, s.id] as const)))(
     'leaves no button that is neither actionable nor carrying a stated reason (%s, %s)',
     (roleId, stateId) => {
       const first = render(

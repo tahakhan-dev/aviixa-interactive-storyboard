@@ -15,12 +15,13 @@ import {
   type StatusTone,
 } from '@/ui/primitives'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
-import { SCREEN_STATES, screenState, type ScreenStateId } from '@/ui/screen-state'
+import { screenState, type ScreenStateId } from '@/ui/screen-state'
 import { evaluateAccess } from '@/policy/evaluate'
 import type { PermissionDecision } from '@/policy/decision'
 import type { RoleId } from '@/domain/roles'
 import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import {
   AGGREGATES,
   CONNECTIVITY_LADDER,
@@ -60,7 +61,7 @@ const AGGREGATE_TONE: Record<AggregateState, StatusTone> = {
   reconciled: 'info',
 }
 
-const SCREEN_STATE_OPTIONS = SCREEN_STATES.filter((s) => !s.frontlineOnly).map((s) => ({
+const SCREEN_STATE_OPTIONS = SA_APPLICABLE_STATES.map((s) => ({
   value: s.id,
   label: `${s.id} — ${s.name}`,
 }))

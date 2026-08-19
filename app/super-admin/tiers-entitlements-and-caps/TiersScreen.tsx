@@ -17,7 +17,7 @@ import {
 import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
-import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
+import { type ScreenStateId } from '@/ui/screen-state'
 import { Button, Checkbox, Select, Table, type TableRow } from '@/ui/primitives'
 import { evaluateAccess } from '@/policy/evaluate'
 import { permitsAction, type PermissionDecision } from '@/policy/decision'
@@ -25,6 +25,7 @@ import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
 import { rolesInDomain, type RoleId } from '@/domain/roles'
 import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { SaConsoleShell } from '../SaConsoleShell'
 
 /**
@@ -93,7 +94,6 @@ function consoleRoleView(token: SaConsoleRoleToken): SaConsoleRoleView {
 }
 
 /** The twelve applicable states: all thirteen less the frontline-only STATE-07. */
-export const APPLICABLE_SCREEN_STATES = SCREEN_STATES.filter((s) => !s.frontlineOnly)
 
 /* ------------------------------------------------------------------ *
  * Closed vocabularies the source fixes for this module.
@@ -784,12 +784,12 @@ export function TiersScreen({
         <Select
           label="Screen state"
           value={screenStateId}
-          options={APPLICABLE_SCREEN_STATES.map((s) => ({
+          options={SA_APPLICABLE_STATES.map((s) => ({
             value: s.id,
             label: `${s.id} — ${s.name}`,
           }))}
           onChange={(v) => {
-            const next = APPLICABLE_SCREEN_STATES.find((s) => s.id === v)
+            const next = SA_APPLICABLE_STATES.find((s) => s.id === v)
             if (next) setScreenStateId(next.id)
           }}
         />

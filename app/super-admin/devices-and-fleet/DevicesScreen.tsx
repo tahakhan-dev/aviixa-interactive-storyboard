@@ -17,13 +17,14 @@ import {
   type TableRow,
 } from '@/ui/primitives'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
-import { SCREEN_STATES, screenState, type ScreenStateId } from '@/ui/screen-state'
+import { screenState, type ScreenStateId } from '@/ui/screen-state'
 import { evaluateAccess } from '@/policy/evaluate'
 import type { PermissionDecision } from '@/policy/decision'
 import type { RoleId } from '@/domain/roles'
 import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
 import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
+import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import {
   ABSENT_BY_RULE,
   DEVICES,
@@ -50,7 +51,7 @@ const ALL_CONSOLE_ROLES: readonly RoleId[] = DEVICE_PLATFORM_ROLES.map((r) => r.
 const ROOT_AND_ADMIN: readonly RoleId[] = ['ROOT_SUPER_ADMIN', 'ADMIN']
 const ROOT_ONLY: readonly RoleId[] = ['ROOT_SUPER_ADMIN']
 
-const SCREEN_STATE_OPTIONS = SCREEN_STATES.filter((s) => !s.frontlineOnly).map((s) => ({
+const SCREEN_STATE_OPTIONS = SA_APPLICABLE_STATES.map((s) => ({
   value: s.id,
   label: `${s.id} — ${s.name}`,
 }))
@@ -650,7 +651,7 @@ export function DevicesScreen() {
                 blocked ??
                 (suspensionRecorded
                   ? 'The suspension command is already recorded in the log below. This storyboard records it once.'
-                  : `${suspendDecision.explanation} The Root Super Admin and the platform Admin hold this command (L45498); the Platform Engineer and Support read the fleet and hold no device action. Viewing as ${role.name}.`)
+                  : `${suspendDecision.explanation} The Root Super Admin and the platform Admin hold this command (WF-DVC-005, L53224); the Platform Engineer and Support read the fleet and hold no device action. Viewing as ${role.name}.`)
               }
             >
               Record a device suspension command
