@@ -31,11 +31,15 @@ export default defineConfig({
           // which is how a suite teaches people to re-run it instead of
           // reading it.
           //
-          // This is a budget, not a blanket: a test slow because it renders
-          // 990 real rows is doing the work; a test slow because it
-          // re-renders one tree 144 times is badly written, and that one was
-          // made fast rather than given more time. If a case ever needs more
-          // than this, the case is the problem.
+          // This IS a blanket -- it applies to every case in the project,
+          // and calling it "a budget, not a blanket" (as this comment first
+          // did) was a claim the code did not support. What keeps it honest is
+          // the rule applied alongside it: a test slow because it renders 990
+          // real rows is doing the work and gets the headroom; a test slow
+          // because it re-rendered one tree 144 times was made FAST rather
+          // than given more time, and so was a gate that re-parsed 21 files
+          // 19 times. The blanket exists so contention does not turn a green
+          // suite red; it is not permission for a slow test.
           testTimeout: 30_000,
         },
       },

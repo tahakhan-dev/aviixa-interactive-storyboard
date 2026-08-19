@@ -12,8 +12,12 @@ export default defineConfig({
   // WCAG failure when nothing was wrong with the page -- the most misleading
   // shape a red test can take, because it names the wrong cause.
   //
-  // A budget, not a blanket: axe scanning 724 real rows is the work. If a case
-  // ever needs more than this, the case is the problem.
+  // This IS a blanket -- it applies to all 95 e2e cases, and the first version
+  // of this comment called it "a budget, not a blanket", which the code did not
+  // support. Axe scanning 724 real rows is genuinely the work; the honest cost
+  // is that a real hang now burns 90s before failing. Accepted deliberately: a
+  // suite that goes red on contention teaches people to re-run it, and a
+  // re-run suite is one nobody reads.
   timeout: 90_000,
   forbidOnly: !!process.env.CI,
   reporter: [['list'], ['html', { open: 'never' }]],

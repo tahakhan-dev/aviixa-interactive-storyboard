@@ -20,9 +20,21 @@ function walk(dir: string, acc: string[] = []): string[] {
   return acc
 }
 
-/** Every authored SURF-SA source file, comments stripped. */
+/**
+ * Every authored SURF-SA source file, comments stripped.
+ *
+ * INCLUDES the shared spine. `src/ui/sa/` and `src/surfaces/sa/` carry copy
+ * that renders on all nineteen screens — the invariant chips, the prohibition
+ * notices, the access-class descriptions, the freeze disclosure — and the
+ * first version of these gates walked `app/super-admin/` alone, so a forbidden
+ * word or a person dimension introduced in the spine would have reached every
+ * screen while every gate stayed quiet.
+ */
+const SA_SOURCE_ROOTS = [SA_ROOT, join('src', 'ui', 'sa'), join('src', 'surfaces', 'sa')]
+
 function saSources(): { file: string; src: string }[] {
-  return walk(SA_ROOT)
+  return SA_SOURCE_ROOTS.filter((r) => existsSync(r))
+    .flatMap((r) => walk(r))
     .filter((f) => /\.tsx?$/.test(f))
     .map((f) => ({ file: f, src: stripComments(readFileSync(f, 'utf8')) }))
 }
