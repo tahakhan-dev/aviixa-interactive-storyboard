@@ -197,9 +197,25 @@ describe('MOD-SA-10 — per-control allowed roles, through evaluateAccess', () =
    * four roles is the point: a single default render would pass while the
    * root and the Admin held a grant no source line states.
    */
-  it('gives the session request to Support alone, drawn inert with a named reason for the other three', () => {
+  // Spec S3, the third case. D17 is CATEGORICAL for the Platform Engineer --
+  // "may not enter tenant context under any access class" -- so nothing is
+  // drawn for that role, the same way MOD-SA-15 renders it. The root and the
+  // platform Admin are merely not attributed this narrower act, which is a
+  // conditional non-grant, so they get the control drawn inert with its reason.
+  // This test asserted a disabled button for all three until a cross-module
+  // review found the two screens rendering one prohibition two ways.
+  it('draws nothing for the Platform Engineer, inert for root and Admin, live for Support', () => {
     for (const role of SA10_PLATFORM_ROLES) {
       const { unmount } = render(<TenantMetricsScreen role={role.id} />)
+      if (role.id === 'PLATFORM_ENGINEER') {
+        expect(
+          screen.queryByRole('button', { name: /Request a support session/i }),
+          'a categorical prohibition must draw no control at all',
+        ).toBeNull()
+        expect(document.body.textContent ?? '').toMatch(/D17/)
+        unmount()
+        continue
+      }
       const button = screen.getByRole('button', { name: /Request a support session/i })
       if (role.id === 'SUPPORT') {
         expect(button.getAttribute('aria-disabled'), role.id).toBeNull()
@@ -212,7 +228,7 @@ describe('MOD-SA-10 — per-control allowed roles, through evaluateAccess', () =
         expect(describedBy, role.id).not.toBeNull()
         const reasonText = document.getElementById(describedBy ?? '')?.textContent ?? ''
         expect(reasonText, role.id).toMatch(/L107350/)
-        expect(reasonText, role.id).toMatch(role.id === 'PLATFORM_ENGINEER' ? /D17/ : /Support/)
+        expect(reasonText, role.id).toMatch(/Support/)
         expect(reasonText, role.id).not.toMatch(/^denied$/i)
         fireEvent.click(button)
         expect(screen.queryByRole('region', { name: /Session request/i }), role.id).toBeNull()
@@ -234,8 +250,12 @@ describe('MOD-SA-10 — per-control allowed roles, through evaluateAccess', () =
       expect(screen.queryByRole('button', { name: /audit log view/i }), role.id).toBeNull()
       const region = screen.getByRole('region', { name: /Onward actions from a measure/i })
       expect(within(region).getByText(/No console role carries this action here/i)).toBeDefined()
-      // Exactly one control in the region: the session request.
-      expect(region.querySelectorAll('button'), role.id).toHaveLength(1)
+      // The session request is the region's only control -- and for the
+      // Platform Engineer there is none at all, because D17 is categorical
+      // (spec S3, third case) and a categorical prohibition draws nothing.
+      expect(region.querySelectorAll('button'), role.id).toHaveLength(
+        role.id === 'PLATFORM_ENGINEER' ? 0 : 1,
+      )
       unmount()
     }
   })

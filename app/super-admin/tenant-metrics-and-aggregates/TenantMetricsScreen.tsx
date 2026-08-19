@@ -528,16 +528,37 @@ export function TenantMetricsScreen({
           (AC-SA-000-07, AC-SEC-801).
         </p>
         <div className="mt-3">
-          <Button {...sessionProps} onClick={() => setRequestOpen(true)}>
-            Request a support session
-          </Button>
+          {role === 'PLATFORM_ENGINEER' ? (
+            // CATEGORICAL, so nothing is drawn (spec S3, the third case). D17
+            // reads "may not enter tenant context under ANY access class"
+            // (L20740) -- a disabled control would say the Platform Engineer
+            // could hold this under some condition, which is the opposite of
+            // what the rule says. MOD-SA-15 renders the same prohibition the
+            // same way; this screen used to draw it inert, and a cross-module
+            // review found the two disagreeing.
+            <ProhibitionNotice
+              rendering={{
+                kind: 'absent',
+                note: 'Nothing is drawn here for the Platform Engineer. D17 holds that this role may not enter tenant context under any access class (L20740), and a session request is a request to enter it. That is a categorical prohibition, not an ungranted permission, so no control appears — a disabled one would imply an enabled state exists for this role somewhere. MOD-SA-15 renders the same prohibition identically.',
+              }}
+            />
+          ) : (
+            <Button {...sessionProps} onClick={() => setRequestOpen(true)}>
+              Request a support session
+            </Button>
+          )}
         </div>
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
           L107350 attributes the session request to the Platform Engineer and to Support. D17 holds
           the prohibition for the Platform Engineer, which leaves Support as the one console role
-          that carries it — so it is drawn, and drawn inert with its reason named, for the root, the
-          platform Admin and the Platform Engineer alike. It resolves to a request form, never to
+          that carries it here — so the control is drawn inert for the root and the platform Admin,
+          and not drawn at all for the Platform Engineer. It resolves to a request form, never to
           tenant content.
+          {' '}
+          That the root and the platform Admin cannot request one <em>here</em> while they open
+          sessions in Support Access (MOD-SA-15) is scope, not a contradiction: this control is the
+          narrower act the source attributes to Support alone, and a grant the source does not state
+          would read back as a requirement. The session itself is opened where the source puts it.
         </p>
         <div className="mt-4">
           <p className="text-sm font-medium">Open the tenant’s own audit log view</p>

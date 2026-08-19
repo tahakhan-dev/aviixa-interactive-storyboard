@@ -104,6 +104,26 @@ Admin with "User creation is root-only" (L76133).
 role, the whole action bar becomes "Critical class — root approval required", so no control
 can be mistaken for approval (L23707).
 
+**A third case the first draft of this rule missed.** ABSENT and DISABLED were
+split on "does anyone hold it?", and a cross-module review found two screens
+rendering the same `D17` prohibition two different ways under that rule — both
+defensibly. The split is finer:
+
+| the action | rendering |
+|---|---|
+| exists for no one, including the root | **ABSENT** |
+| exists for others, and a rule **categorically** forbids it to this role | **ABSENT** |
+| exists for others, and this role simply is not granted it here or now | **DISABLED WITH A NAMED REASON** |
+
+The middle row is the one that was missing. `D17` says the Platform Engineer
+"may not enter tenant context under any access class" — that is categorical, so
+nothing is drawn for that role even though root, Admin and Support open sessions
+freely. A disabled control says *you could hold this under some condition*; a
+categorical prohibition says *you never can*, and drawing it inert states the
+opposite of the rule. The census applied the same reasoning to incident close
+for Support ("absent, not disabled, because Support holds no incident ownership
+anywhere in the source").
+
 **The collision resolves structurally:** the ENFORCED badge is a **status chip, not a
 control** — not focusable, no pressed state, no tooltip implying an approval path. That
 satisfies L44041's badge and L87376's absence at once.

@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync, writeFileSync, rmSync, mkdirSync }
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
 import { SA_MODULES } from '@/surfaces/sa/modules'
+import { SA_TENANTS } from '@/surfaces/sa/tenants'
 import { SA_APPLICABLE_STATE_IDS } from '@/surfaces/sa/screen-states'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { CRITICAL_ACTIONS, CRITICAL_ACTION_COUNT_NOTE } from '@/surfaces/sa/critical-actions'
@@ -355,5 +356,53 @@ describe('slice 3 gate 8: every module survives an artificial-intelligence outag
       if (!covered) gaps.push(m.id)
     }
     expect(gaps, 'module tests that neither walk the shared states nor name all twelve').toEqual([])
+  })
+})
+
+describe('slice 3 gate 10: one name per illustrative tenant', () => {
+  // A cross-module review found the same tenant id carrying two names --
+  // "Bright Bikes" on five screens and "Brightbikes Manufacturing" on a sixth,
+  // "North Forge" against "North Forge Components". No screen is wrong on its
+  // own; only the set is, which is why per-module review could not see it.
+  // "Bright Bikes" is the frozen source's own recurring fictional tenant.
+  function nameConflicts(): string[] {
+    const byId = new Map<string, Set<string>>()
+    for (const { src } of saSources()) {
+      for (const m of src.matchAll(/([A-Z][A-Za-z' -]{2,40}?)\s*\((TEN-[A-Z0-9]+)\)/g)) {
+        const name = (m[1] ?? '').trim()
+        const id = m[2] ?? ''
+        if (!byId.has(id)) byId.set(id, new Set())
+        byId.get(id)!.add(name)
+      }
+    }
+    return [...byId.entries()]
+      .filter(([, names]) => names.size > 1)
+      .map(([id, names]) => `${id}: ${[...names].join(' / ')}`)
+  }
+
+  it('no tenant id is rendered under two different names', () => {
+    expect(nameConflicts()).toEqual([])
+  })
+
+  it('every rendered tenant name matches the shared fixture', () => {
+    const known = new Map(SA_TENANTS.map((t) => [t.id, t.name]))
+    const wrong: string[] = []
+    for (const { file, src } of saSources()) {
+      for (const m of src.matchAll(/([A-Z][A-Za-z' -]{2,40}?)\s*\((TEN-[A-Z0-9]+)\)/g)) {
+        const name = (m[1] ?? '').trim()
+        const id = m[2] ?? ''
+        const canonical = known.get(id)
+        if (canonical !== undefined && name !== canonical) wrong.push(`${file}: ${id} as "${name}"`)
+      }
+    }
+    expect(wrong).toEqual([])
+  })
+
+  it('PLANTED VIOLATION: a re-worded tenant name trips the gate', () => {
+    withPlanted(
+      'export const P = () => <p>Bright Bikes Manufacturing Ltd (TEN-BRIGHTBIKES)</p>\n',
+      () => expect(nameConflicts().join(' ')).toContain('TEN-BRIGHTBIKES'),
+    )
+    expect(nameConflicts()).toEqual([])
   })
 })

@@ -27,7 +27,7 @@ export const ACCESS_CLASSES = [
     id: 'compliance-emergency-path',
     name: 'The compliance-emergency path',
     description:
-      'Requires two named authorisations. Writes into tenant data are only ever made through this path.',
+      'Requires two named authorisations. Of the three access classes this is the only one carrying write capability into tenant data (L4651) — a support session is read-only without exception. That is a statement about the access classes, not about the whole console: platform-side data-lifecycle governance (retention, legal hold, archival) is not an access class and reaches no record-level content, which is what AC-SA-005 actually scopes.',
     sourceRef: 'L4612, L14777',
   },
   {

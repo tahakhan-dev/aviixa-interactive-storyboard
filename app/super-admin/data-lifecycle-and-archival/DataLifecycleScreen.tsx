@@ -190,6 +190,14 @@ export function DataLifecycleScreen({
     },
     context,
   )
+  // NOT an access class, and the screen says so. A cross-module review read
+  // the spine's "writes into tenant data are only ever made through the
+  // compliance-emergency path" against these root-held controls and called it
+  // a contradiction. The source scopes that sentence to the three ACCESS
+  // CLASSES (L4651) -- among them, only the compliance path can write.
+  // Retention, legal hold and archival are platform-side lifecycle governance:
+  // they set policy over a scope and reach no record-level tenant operational
+  // content, which is what AC-SA-005 (L11710) actually governs.
   const holdDecision = evaluateAccess(
     {
       action: 'MOD-SA-17:place-or-release-legal-hold',

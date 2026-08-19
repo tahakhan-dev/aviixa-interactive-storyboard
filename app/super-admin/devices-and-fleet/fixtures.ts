@@ -119,7 +119,7 @@ export interface DeviceRow {
 export const DEVICES = [
   {
     id: 'DEV-TAB-0141',
-    tenantLabel: 'Brightbikes Manufacturing (TEN-BRIGHTBIKES)',
+    tenantLabel: 'Bright Bikes (TEN-BRIGHTBIKES)',
     state: 'active',
     mode: 'Shared',
     binding: 'Assembly area 2',
@@ -184,7 +184,7 @@ export const DEVICES = [
   },
   {
     id: 'DEV-TAB-0233',
-    tenantLabel: 'North Forge Components (TEN-NORTHFORGE)',
+    tenantLabel: 'North Forge (TEN-NORTHFORGE)',
     state: 'mode changed',
     mode: 'Personal',
     binding: 'Inspection area 1',
@@ -250,7 +250,7 @@ export const DEVICES = [
   },
   {
     id: 'DEV-TAB-0294',
-    tenantLabel: 'Brightbikes Manufacturing (TEN-BRIGHTBIKES)',
+    tenantLabel: 'Bright Bikes (TEN-BRIGHTBIKES)',
     state: 'retired',
     mode: 'Shared',
     binding: 'unbound at retirement',
@@ -305,14 +305,14 @@ export interface FleetAggregateRow {
 
 export const FLEET_AGGREGATES = [
   {
-    tenantLabel: 'Brightbikes Manufacturing (TEN-BRIGHTBIKES)',
+    tenantLabel: 'Bright Bikes (TEN-BRIGHTBIKES)',
     enrolled: '48 devices enrolled',
     unreached: 'none unreached in the last 24 hours',
     asOf: 'as of 2026-08-16 07:45 platform time',
     freshness: 'current',
   },
   {
-    tenantLabel: 'North Forge Components (TEN-NORTHFORGE)',
+    tenantLabel: 'North Forge (TEN-NORTHFORGE)',
     enrolled: '17 devices enrolled',
     unreached: '3 unreached in the last 24 hours',
     asOf: 'as of 2026-08-16 05:30 platform time',
