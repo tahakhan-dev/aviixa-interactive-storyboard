@@ -603,3 +603,60 @@ describe('slice 3 gate 13: STATE-06 states its cause once', () => {
     )
   })
 })
+
+describe('slice 3 gate 14: no dead controls', () => {
+  // "A control that looks production-grade but does nothing is a defect, not a
+  // demonstration" (spec §8). MOD-SA-09 rendered three invitation buttons live
+  // for the Admin with no handler at all: a click did nothing, silently. Three
+  // module reviews and two cross-module passes missed it, because every one of
+  // them read what the code SAYS rather than what a control DOES.
+  //
+  // An enabled Button must carry an onClick. A disabled one must carry a
+  // disabledReason. A control with no reason is as dead as one with no handler.
+  function deadControls(): string[] {
+    const out: string[] = []
+    for (const { file, src } of saSources()) {
+      for (const m of src.matchAll(/<Button\b([^>]*)>/g)) {
+        const attrs = m[1] ?? ''
+        const wired = /onClick=/.test(attrs)
+        const reasoned = /disabledReason=/.test(attrs)
+        const spread = /\{\.\.\./.test(attrs) // {...props} may carry either
+        if (!wired && !reasoned && !spread) {
+          out.push(`${file}:${src.slice(0, m.index).split('\n').length}`)
+        }
+      }
+    }
+    return out
+  }
+
+  it('every Button is either wired or carries a stated reason', () => {
+    expect(deadControls(), 'buttons that neither act nor say why they cannot').toEqual([])
+  })
+
+  it('PLANTED VIOLATION: a button with neither trips the gate', () => {
+    withPlanted(
+      'export const P = () => <Button variant="secondary">Do a thing</Button>\n',
+      (probe) => expect(deadControls().join(' ')).toContain(probe),
+    )
+    expect(deadControls()).toEqual([])
+  })
+})
+
+describe('slice 3 gates: the file itself', () => {
+  // THIRD TIME. Three separate patch scripts of mine rewrote a gate with
+  // `write(src.slice(0, start) + replacement)` and silently truncated every
+  // gate defined after it. Gate 9 vanished that way and nothing asserted the
+  // root-unavailable freeze for several commits, which is how two screens
+  // shipped it as dead code; gate 14 vanished the same way minutes later.
+  //
+  // Both times the count still looked right because I checked how many gates
+  // existed rather than WHICH. A sequence check costs nothing and catches the
+  // whole class.
+  it('defines gates 1..N with no gap, so a truncating edit cannot hide one', () => {
+    const src = readFileSync(join('tests', 'coverage', 'slice-03-gates.test.ts'), 'utf8')
+    const numbers = [...src.matchAll(/^describe\('slice 3 gate (\d+):/gm)].map((m) => Number(m[1]))
+    expect(numbers.length, 'no gates found').toBeGreaterThan(0)
+    const expected = Array.from({ length: numbers.length }, (_, i) => i + 1)
+    expect(numbers, 'gate numbers are not a gapless 1..N sequence').toEqual(expected)
+  })
+})
