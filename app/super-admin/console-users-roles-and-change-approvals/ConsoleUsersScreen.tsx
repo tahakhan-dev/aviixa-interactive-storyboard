@@ -116,13 +116,17 @@ function namedReason(decision: PermissionDecision, mode: WriteMode): string {
         return 'The approval write failed. The object is unchanged and the request is still pending, so nothing here is treated as decided (FB-SA-02).'
       return 'Only a pending request can be decided. This one has already been decided.'
     default:
-      // Deliberately NOT `decision.explanation`. Three strings in the
-      // shared REASON_CODES table (`src/policy/decision.ts` lines 157, 161
-      // and 165) spell one of the four words D10 bans from every word of
-      // SURF-SA copy. Rendering a shared explanation verbatim puts that
-      // word on screen for any role the decision refuses, so every reason
-      // this module shows is written here instead. Reproduced against the
-      // already-committed MOD-SA-05 as well, viewed as Support.
+      // Deliberately NOT `decision.explanation`, though no longer for the
+      // reason first written here. That comment said three strings in the
+      // shared REASON_CODES table spelled one of the four words D10 bans --
+      // true when written, and fixed at the source since: "signed in" also
+      // claimed an authentication this build does not have, so the reason
+      // codes were reworded and a test now holds them to it.
+      //
+      // The remaining reason is smaller and still good: a shared explanation
+      // is written for every surface, and a refusal on this screen should
+      // name THIS module's rule and cite THIS module's source lines. Module
+      // reasons stay module-local for that reason, not out of fear of a word.
       return `${decision.reasonCode}: this control is not available in the current combination of role and state. ${decision.conditionToEnable ?? ''}`.trim()
   }
 }
