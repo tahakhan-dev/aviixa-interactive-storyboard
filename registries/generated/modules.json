@@ -126,7 +126,7 @@
     {
       "id": "MOD-DOH-01",
       "sourceLine": 2436,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Tenant Lifecycle and Tier Operations",
       "surface": "SURF-DOH",
       "purpose": "Band A backbone module for tenant lifecycle and tier operations inside the per-tenant operational system of record.",
@@ -135,7 +135,7 @@
     {
       "id": "MOD-DOH-02",
       "sourceLine": 2436,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Location Configuration",
       "surface": "SURF-DOH",
       "purpose": "Band A module configuring the location hierarchy; timezone is anchored at Site.",
@@ -198,7 +198,7 @@
     {
       "id": "MOD-DOH-09",
       "sourceLine": 2436,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Permissions, Roles and Access",
       "surface": "SURF-DOH",
       "purpose": "Band A module for tenant permissions, roles and access.",
