@@ -185,9 +185,16 @@ describe('DOH_SCREENS — catalogue B, names canonical, never a three-digit form
   })
 })
 
-describe('DOH_SEAMS — the five named cross-slice seams', () => {
-  it('is closed at five', () => {
-    expect(DOH_SEAMS).toHaveLength(5)
+describe('DOH_SEAMS — the six named cross-slice seams', () => {
+  it('names every seam from the canonical six, in id order', () => {
+    expect(DOH_SEAMS.map((s) => s.id)).toEqual([
+      'worker-shift-meter',
+      'archival-cascade',
+      'shift-digest-delivery',
+      'platform-access-history-audit',
+      'qualification-gate',
+      'tenant-contact-email-delivery',
+    ])
   })
 
   it('names every seam owner distinctly, never leaving one nameless', () => {

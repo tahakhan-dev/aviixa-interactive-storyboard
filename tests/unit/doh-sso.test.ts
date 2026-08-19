@@ -24,7 +24,7 @@ import {
 } from '../../app/hub/integration-surface/fixtures'
 import { dohModuleById } from '@/surfaces/doh/modules'
 import { dohScreenById } from '@/surfaces/doh/screens'
-import { DOH_SEAMS } from '@/surfaces/doh/seams'
+import { DOH_SEAMS, dohSeamById } from '@/surfaces/doh/seams'
 import { TENANT_STATES, writeAllowed } from '@/surfaces/doh/tenant-state'
 import {
   SEEDED_SSO_CONNECTION,
@@ -322,27 +322,76 @@ describe('the panels that say what the source does not', () => {
 })
 
 /**
- * The screen says, in its cross-slice panel, that this module's one
- * cross-slice dependency has no row in the shared seam registry. That is a
- * claim about the build, so it is checked against the build rather than left
- * as prose — the exact shape of defect a sibling module shipped when its copy
- * described a rail that offered the route it said was withheld.
+ * THE POINTERS THIS SCREEN MAKES AT ITS OWN PANELS, AND AT ANOTHER MODULE'S.
+ *
+ * The metadata-field note says "see the unspecified panel below" — a claim
+ * about the build the case above cannot notice going false, because it only
+ * checks the panel is non-empty and never ties a specific sentence to a
+ * specific entry: delete the entry and the panel still renders, one item
+ * shorter, still non-empty, still green.
+ *
+ * The matrix subtitle makes a second, cross-module pointer: "the tier and
+ * usage read view" is this module's only `Unavailable` row, and the screen
+ * says that view "renders on another module's screen" rather than here. The
+ * shared spine is the one place that can settle WHICH module — this checks
+ * the claim against it rather than against this file's own say-so.
+ */
+describe('the pointers this screen makes at Unspecified in source and at another module', () => {
+  it('resolves the metadata-field note onto a real Unspecified-in-source entry', () => {
+    expect(UNSPECIFIED_IN_SOURCE.some((i) => /No metadata FIELD is enumerated/i.test(i))).toBe(
+      true,
+    )
+  })
+
+  it('resolves "the tier and usage read view" onto MOD-DOH-01, never onto this module', () => {
+    expect(
+      UNRESOLVED_IN_SOURCE.some(
+        (i) => /tier and usage read view/i.test(i) && /another module.s screen/i.test(i),
+      ),
+    ).toBe(true)
+    expect(matrixRow('view-tier-and-usage-read-view').control).toMatch(
+      /tier and usage read view/i,
+    )
+    // The spine, not this file, decides which module SCR-DOH-03 belongs to.
+    const screen = dohScreenById('SCR-DOH-03')
+    expect(screen.name).toMatch(/tier and usage read view/i)
+    expect(screen.moduleId).toBe('MOD-DOH-01')
+    // Not vacuous: the module the claim points AWAY from is this one.
+    expect(screen.moduleId).not.toBe('MOD-DOH-12')
+  })
+})
+
+/**
+ * The screen used to say, in its cross-slice panel, that this module's one
+ * cross-slice dependency had no row in the shared seam registry — a claim
+ * about the build, checked against the build rather than left as prose. The
+ * registry now carries that row (`tenant-contact-email-delivery`, consumed by
+ * MOD-DOH-12, owned by MOD-DOH-10), so the disclosure the earlier case pinned
+ * has rotted on purpose, and the load-bearing claim flips to this: the seam
+ * resolves, names its real owner, and the screen renders it through the
+ * shared `SeamNotice` component rather than a hand-rolled copy of one.
  */
 describe('the cross-slice dependency this screen names', () => {
-  it('really is missing from the shared seam registry, as the screen says it is', () => {
-    // Widened to `string` on purpose. `DOH_SEAMS` is `as const`, so
-    // `consumingModule` narrows to the five modules that DO have a row and
-    // `tsc` refuses the comparison outright as having no overlap — which is
-    // itself a second, compile-time proof of the same fact. This asks the
-    // question at runtime so the case reads as an assertion rather than as
-    // an error somebody deleted.
+  it('resolves in the shared seam registry, owned by Notifications (MOD-DOH-10) in slice 10', () => {
+    const seam = dohSeamById('tenant-contact-email-delivery')
+    expect(seam.consumingModule).toBe('MOD-DOH-12')
+    expect(seam.ownerModule).toBe('MOD-DOH-10')
+    expect(seam.ownerSlice).toBe(10)
+    // Not vacuous: the registry carries more than this one row, and this
+    // module's row sits alongside the others rather than replacing them.
     const consumers: readonly string[] = DOH_SEAMS.map((s) => s.consumingModule)
-    expect(consumers.filter((c) => c === 'MOD-DOH-12')).toEqual([])
-    // Not vacuous: the registry is populated, and four other slice-4 modules
-    // do have a row. A registry that had lost every row would pass the line
-    // above while meaning something entirely different.
-    expect(DOH_SEAMS.length).toBeGreaterThan(0)
+    expect(consumers).toContain('MOD-DOH-12')
     expect(consumers).toContain('MOD-DOH-01')
+  })
+
+  it('renders the seam through the shared SeamNotice component, not a local copy', () => {
+    const src = stripComments(
+      readFileSync('app/hub/integration-surface/IntegrationSurfaceScreen.tsx', 'utf8'),
+    )
+    expect(src).toMatch(/<SeamNotice\s+seamId="tenant-contact-email-delivery"\s*\/>/)
+    // A hand-rolled copy would hardcode the notice's own heading text; the
+    // shared component owns that text now, so the screen names only an id.
+    expect(src).not.toMatch(/Cross-slice seam — not built here/)
   })
 })
 

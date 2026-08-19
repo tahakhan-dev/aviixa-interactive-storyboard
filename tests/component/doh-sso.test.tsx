@@ -611,13 +611,12 @@ describe('MOD-DOH-12 — absent by rule, the rest of the surface, and the honest
     }
   })
 
-  it('names its one cross-slice dependency, and that the seam registry has no row for it', () => {
+  it('names its one cross-slice dependency, owned by Notifications in slice 10', () => {
     render(<IntegrationSurfaceScreen />)
     const seam = region('Cross-slice dependency')
     const text = seam.textContent ?? ''
     expect(text).toMatch(/Cross-slice seam — not built here/)
-    expect(text).toMatch(/slice 10/)
-    expect(text).toMatch(/no row in the shared seam registry/i)
+    expect(text).toMatch(/Owned by MOD-DOH-10, slice 10/)
   })
 
   it('renders the unspecified-in-source panel, item for item', () => {
@@ -626,6 +625,21 @@ describe('MOD-DOH-12 — absent by rule, the rest of the surface, and the honest
     for (const item of UNSPECIFIED_IN_SOURCE) {
       expect(within(panel).getByText(item)).toBeDefined()
     }
+  })
+
+  /**
+   * A sentence pointing at content elsewhere in the build is a claim, and
+   * the iterate-the-array case above cannot fail when the target is
+   * deleted. This ties the pointer to the entry it names: remove the entry
+   * and this reds.
+   */
+  it('makes no pointer at Unspecified in source that the panel does not answer', () => {
+    render(<IntegrationSurfaceScreen />)
+    const singleSignOn = region('Single sign-on').textContent ?? ''
+    expect(singleSignOn).toMatch(/see the unspecified panel below/i)
+
+    const unspecified = region('Unspecified in source').textContent ?? ''
+    expect(unspecified).toMatch(/No metadata FIELD is enumerated/i)
   })
 
   it('records the catalogue conflict about who may open this screen', () => {

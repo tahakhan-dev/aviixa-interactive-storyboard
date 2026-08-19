@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
+import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import {
   Banner,
@@ -746,27 +747,8 @@ export function IntegrationSurfaceScreen({
 
       <section aria-label="Cross-slice dependency" className="mt-6">
         <h2 className="text-lg font-semibold">Cross-slice dependency</h2>
-        {/* NOT a `SeamNotice`: the shared seam registry carries no row for
-            this module and is frozen for this task, so the interface is named
-            in full here and the missing registry row is raised in the task
-            report rather than added by this file. */}
-        <div
-          role="note"
-          className="mt-2 rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4 text-sm"
-        >
-          <p className="font-medium text-[var(--color-ink)]">
-            Cross-slice seam — not built here
-          </p>
-          <p className="mt-1 text-[var(--color-ink-muted)]">
-            The tenant contact email is recorded on this screen and delivered by nobody in this
-            slice. Sending is not delivery, delivery is not opening, opening is not acknowledgement,
-            and acknowledgement is not the business action — no screen may collapse those, and this
-            one renders none of them, because it performs none of them.
-          </p>
-          <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
-            Owned by the Notifications module, slice 10. This seam has no row in the shared seam
-            registry, which is stated here rather than left to look like an oversight.
-          </p>
+        <div className="mt-2">
+          <SeamNotice seamId="tenant-contact-email-delivery" />
         </div>
       </section>
 

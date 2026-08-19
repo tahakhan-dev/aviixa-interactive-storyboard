@@ -13,6 +13,7 @@ export type DohSeamId =
   | 'shift-digest-delivery'
   | 'platform-access-history-audit'
   | 'qualification-gate'
+  | 'tenant-contact-email-delivery'
 
 export interface DohSeamDefinition {
   readonly id: DohSeamId
@@ -71,6 +72,16 @@ export const DOH_SEAMS = [
       'MOD-DOH-04 owns the qualification record and its evaluator; the gate at assignment ' +
       '(MOD-DOH-07) and at run start (MOD-DOH-06) is enforced in slice 6 — two of the three ' +
       'enforcement points.',
+  },
+  {
+    id: 'tenant-contact-email-delivery',
+    consumingModule: 'MOD-DOH-12',
+    ownerModule: 'MOD-DOH-10',
+    ownerSlice: 10,
+    description:
+      'The tenant contact email is a field MOD-DOH-12 records on its configuration screen; ' +
+      'MOD-DOH-10 owns delivery to that address — sending, queuing and acknowledgement all ' +
+      'happen in the Notifications module, not here.',
   },
 ] as const satisfies readonly DohSeamDefinition[]
 
