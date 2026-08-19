@@ -206,3 +206,18 @@ export function writeAllowed(state: TenantWriteState, action: WriteAction): bool
   if (!row) return false // Stricter interpretation: an unmapped state refuses (L26547).
   return row.open === 'all' || row.open.includes(action)
 }
+
+/**
+ * The note that names WHY a state refuses, read from the same row
+ * `writeAllowed` reads. Four screens each built their own
+ * `new Map(TENANT_WRITE_CLASSES.map(...))` to reach it and each wrote its own
+ * `?? ''`; this is that lookup once, over the map the table already keeps.
+ *
+ * No exhaustiveness check of its own: `_writeClassesExhaustive` above already
+ * proves every `TenantWriteState` has a row, so the `?? ''` is unreachable for
+ * a well-typed caller and is kept only to preserve the exact string the four
+ * call sites produced.
+ */
+export function writeClassNote(state: TenantWriteState): string {
+  return WRITE_CLASS_BY_STATE.get(state)?.note ?? ''
+}

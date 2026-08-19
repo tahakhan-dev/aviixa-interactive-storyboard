@@ -24,8 +24,8 @@ import { emptyDomainState, withTenant } from '@/domain/state'
 import { scenarioRunId, tenantId } from '@/domain/ids'
 import {
   TENANT_STATES,
-  TENANT_WRITE_CLASSES,
   writeAllowed,
+  writeClassNote,
   type TenantState,
 } from '@/surfaces/doh/tenant-state'
 import { HubShell, type HubShellUncataloguedScreen, type TenantRoleId } from '../HubShell'
@@ -95,8 +95,6 @@ const DEVICE_SCREEN: HubShellUncataloguedScreen = {
 }
 
 const HUB_TENANT_ID = tenantId('TEN-BRIGHTBIKES')
-
-const WRITE_CLASS_NOTE = new Map(TENANT_WRITE_CLASSES.map((row) => [row.state, row.note]))
 
 const STATUS_LABEL: Record<ControlStatus, string> = {
   allowed: 'Allowed',
@@ -274,7 +272,7 @@ export function DevicesScreen() {
    */
   function gateReason(): string | null {
     if (!writeAllowed(tenantState, DEVICE_WRITE_CLASS)) {
-      return `Blocked while this workspace is ${tenantState}. ${WRITE_CLASS_NOTE.get(tenantState) ?? ''} Every device write here is gated on the configuration class, because the write-class enumerations name no device class at all — and enrolment against a workspace that is not active is refused by name in the source.`
+      return `Blocked while this workspace is ${tenantState}. ${writeClassNote(tenantState)} Every device write here is gated on the configuration class, because the write-class enumerations name no device class at all — and enrolment against a workspace that is not active is refused by name in the source.`
     }
     if (connectionLost) return CONNECTION_LOST_REASON
     return null

@@ -10,12 +10,15 @@ import {
   type TenantState,
   type WriteAction,
 } from '@/surfaces/doh/tenant-state'
+import {
+  WriteControl as SharedWriteControl,
+  type WriteControlProps as SharedWriteControlProps,
+} from '@/ui/WriteControl'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
 import { screenState, type ScreenStateId } from '@/ui/screen-state'
 import {
-  Button,
   Checkbox,
   Field,
   LiveRegion,
@@ -1296,55 +1299,29 @@ export function ShiftManagementScreen() {
 }
 
 /* ------------------------------------------------------------------ *
- * The write control. Inlined here rather than shared: the neighbouring
- * Hub module carries an equivalent one and does not export it, and a
- * shared primitive for it does not exist. The four branches are the
- * three prohibition renderings plus the acting case, applied in the
- * order the rules bind — role first (nothing is drawn for a role that
- * cannot hold it in any scope), then the evaluator's own refusal, then
- * the tenant state gate, then the object's own condition.
+ * THIS MODULE'S WORDING for the one shared write control,
+ * `@/ui/WriteControl`. No longer inlined: the neighbouring Hub module
+ * carried an equivalent copy, and the two agreed on every branch, so the
+ * four branches — role first (nothing is drawn for a role that cannot hold
+ * it in any scope), then the evaluator's own refusal, then the tenant state
+ * gate, then the object's own condition — are stated once there and the
+ * words that are this module's own are stated here. The rendering is
+ * unchanged, and the unsettled question below is left exactly as open as it
+ * was; what changed is that settling it is now one edit rather than nine.
  * ------------------------------------------------------------------ */
-interface WriteControlProps {
-  readonly label: string
-  readonly decision: PermissionDecision
-  readonly roleName: string
-  readonly gateReason: string | null
-  readonly objectReason: string | null
-  readonly onAct: () => void
-}
+const NEVER_QUEUED_NOTE =
+  'a configuration change accepted with no audit entry would be a change nobody could account for'
 
-function WriteControl({
-  label,
-  decision,
-  roleName,
-  gateReason,
-  objectReason,
-  onAct,
-}: WriteControlProps) {
-  if (decision.reasonCode === 'ROLE_NOT_GRANTED') {
-    return (
-      <ProhibitionNotice
-        rendering={{
-          kind: 'absent',
-          note: `${label} is not held by the ${roleName} in any scope, and this build draws nothing where it would sit. The Tenant Admin does hold it on this same screen, under conditions the matrix below states — so what is settled is that this persona can never press it, and what is NOT settled is whether that should render as nothing at all or as a control disabled with its reason. The frozen source decides this shape both ways in different places; it is recorded in Unresolved in source and is being settled once, for every module, rather than here.`,
-        }}
-      />
-    )
-  }
-  if (decision.outcome !== 'allowed') {
-    return (
-      <Button
-        disabledReason={`${decision.explanation}${
-          decision.conditionToEnable !== null ? ` ${decision.conditionToEnable}` : ''
-        } Nothing here is queued — never queued, in any state — because a configuration change accepted with no audit entry would be a change nobody could account for (D7). Viewing as ${roleName}.`}
-      >
-        {label}
-      </Button>
-    )
-  }
-  if (gateReason !== null) return <Button disabledReason={gateReason}>{label}</Button>
-  if (objectReason !== null) return <Button disabledReason={objectReason}>{label}</Button>
-  return <Button onClick={onAct}>{label}</Button>
+type WriteControlProps = Omit<SharedWriteControlProps, 'refusalNote' | 'neverQueuedNote'>
+
+function WriteControl(props: WriteControlProps) {
+  return (
+    <SharedWriteControl
+      {...props}
+      refusalNote={`${props.label} is not held by the ${props.roleName} in any scope, and this build draws nothing where it would sit. The Tenant Admin does hold it on this same screen, under conditions the matrix below states — so what is settled is that this persona can never press it, and what is NOT settled is whether that should render as nothing at all or as a control disabled with its reason. The frozen source decides this shape both ways in different places; it is recorded in Unresolved in source and is being settled once, for every module, rather than here.`}
+      neverQueuedNote={NEVER_QUEUED_NOTE}
+    />
+  )
 }
 
 /* ------------------------------------------------------------------ *

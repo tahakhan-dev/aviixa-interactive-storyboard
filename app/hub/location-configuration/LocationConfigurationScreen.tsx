@@ -10,6 +10,10 @@ import {
   type TenantState,
   type WriteAction,
 } from '@/surfaces/doh/tenant-state'
+import {
+  WriteControl as SharedWriteControl,
+  type WriteControlProps as SharedWriteControlProps,
+} from '@/ui/WriteControl'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
@@ -1626,61 +1630,30 @@ export function LocationConfigurationScreen() {
 }
 
 /* ------------------------------------------------------------------ *
- * One rendering rule for every write control on this screen.
+ * THIS MODULE'S WORDING for the one shared write control,
+ * `@/ui/WriteControl` — which now holds the branch order and both
+ * prohibition renderings that were hand-inlined here.
  *
+ * The rule it applies is unchanged, and nothing about it is settled here.
  * ABSENT where the role is refused categorically — it cannot hold the
  * control in any scope, and a disabled control would imply a grant that
  * could be given. DISABLED WITH THE REASON where the control exists for
  * this role and is refused by the tenant state, the connection or the
  * state of the object it acts on.
  * ------------------------------------------------------------------ */
-interface WriteControlProps {
-  readonly label: string
-  readonly decision: PermissionDecision
-  readonly roleName: string
-  /** From `writeAllowed` over the one write-class table. */
-  readonly gateReason: string | null
-  /** From the state of the object this control acts on. */
-  readonly objectReason: string | null
-  readonly onAct: () => void
-}
+const NEVER_QUEUED_NOTE =
+  'a structural change accepted with no audit entry would be a configuration write nobody could account for'
 
-function WriteControl({
-  label,
-  decision,
-  roleName,
-  gateReason,
-  objectReason,
-  onAct,
-}: WriteControlProps) {
-  if (decision.reasonCode === 'ROLE_NOT_GRANTED') {
-    return (
-      <ProhibitionNotice
-        rendering={{
-          kind: 'absent',
-          note: `${label} is not held by this role in any scope, so nothing is drawn here. Viewing as ${roleName}.`,
-        }}
-      />
-    )
-  }
-  if (decision.outcome !== 'allowed') {
-    return (
-      <Button
-        disabledReason={`${decision.explanation}${
-          decision.conditionToEnable !== null ? ` ${decision.conditionToEnable}` : ''
-        } Nothing here is queued — never queued, in any state — because a structural change accepted with no audit entry would be a configuration write nobody could account for (D7). Viewing as ${roleName}.`}
-      >
-        {label}
-      </Button>
-    )
-  }
-  if (gateReason !== null) {
-    return <Button disabledReason={gateReason}>{label}</Button>
-  }
-  if (objectReason !== null) {
-    return <Button disabledReason={objectReason}>{label}</Button>
-  }
-  return <Button onClick={onAct}>{label}</Button>
+type WriteControlProps = Omit<SharedWriteControlProps, 'refusalNote' | 'neverQueuedNote'>
+
+function WriteControl(props: WriteControlProps) {
+  return (
+    <SharedWriteControl
+      {...props}
+      refusalNote={`${props.label} is not held by this role in any scope, so nothing is drawn here. Viewing as ${props.roleName}.`}
+      neverQueuedNote={NEVER_QUEUED_NOTE}
+    />
+  )
 }
 
 /* ------------------------------------------------------------------ *

@@ -24,6 +24,7 @@ import {
   type SsoConnectionState,
   type SsoProtocol,
 } from '@/surfaces/doh/sso-connection'
+import { TENANT_STATE_LABEL } from '@/ui/doh/tenant-state-vocabulary'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
 import { screenState } from '@/ui/screen-state'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
@@ -186,15 +187,6 @@ const CONNECTION_STATE_LABEL: Readonly<Record<SsoConnectionState, string>> = {
   configured: 'Configured',
   not_configured: 'Not configured',
   reserved_inert: 'Reserved, and inert',
-}
-
-/** Never a bare token in the interface — the token stays the data. */
-const TENANT_STATE_LABEL: Readonly<Record<TenantState, string>> = {
-  active: 'Active',
-  'soft-suspended': 'Suspended — billing (soft)',
-  'hard-suspended': 'Suspended — read-only (hard)',
-  'compliance-suspended': 'Suspended — compliance',
-  archived: 'Closed — archived',
 }
 
 /**

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
+import { TENANT_STATE_TONE } from '@/ui/doh/tenant-state-vocabulary'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import {
@@ -13,7 +14,6 @@ import {
   Select,
   StatusPill,
   Table,
-  type StatusTone,
   type TableRow,
 } from '@/ui/primitives'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
@@ -25,8 +25,8 @@ import { emptyDomainState, withTenant } from '@/domain/state'
 import { scenarioRunId, tenantId } from '@/domain/ids'
 import {
   TENANT_STATES,
-  TENANT_WRITE_CLASSES,
   writeAllowed,
+  writeClassNote,
   type TenantState,
   type WriteAction,
 } from '@/surfaces/doh/tenant-state'
@@ -107,16 +107,6 @@ const FIXTURE_STATE = withTenant(
     objects: {},
   }),
 )
-
-const WRITE_CLASS_NOTE = new Map(TENANT_WRITE_CLASSES.map((row) => [row.state, row.note]))
-
-const TENANT_STATE_TONE: Record<TenantState, StatusTone> = {
-  active: 'ok',
-  'soft-suspended': 'attention',
-  'hard-suspended': 'attention',
-  'compliance-suspended': 'blocked',
-  archived: 'neutral',
-}
 
 const SCREEN_STATE_OPTIONS = APPLICABLE_SCREEN_STATES.map((id) => ({
   value: id,
@@ -240,7 +230,7 @@ export function TenantLifecycleScreen() {
    */
   function gateReason(action: WriteAction): string | null {
     if (!writeAllowed(tenantState, action)) {
-      return `Blocked while this workspace is ${tenantState}. ${WRITE_CLASS_NOTE.get(tenantState) ?? ''} Route out: ${PLATFORM_SUPPORT_ROUTE}. The refusal is one row of the write-class table, read before this control rendered.`
+      return `Blocked while this workspace is ${tenantState}. ${writeClassNote(tenantState)} Route out: ${PLATFORM_SUPPORT_ROUTE}. The refusal is one row of the write-class table, read before this control rendered.`
     }
     if (connectionLost) return CONNECTION_LOST_REASON
     return null
