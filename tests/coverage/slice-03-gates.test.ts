@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, statSync, writeFileSync, rmSync, mkdirSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync, writeFileSync, rmSync, mkdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
 import { SA_MODULES } from '@/surfaces/sa/modules'
 import { SA_TENANTS } from '@/surfaces/sa/tenants'
+import { SA_FRESHNESS, saAggregateText, saFreshnessFor } from '@/surfaces/sa/freshness'
 import { SA_APPLICABLE_STATE_IDS } from '@/surfaces/sa/screen-states'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { CRITICAL_ACTIONS, CRITICAL_ACTION_COUNT_NOTE } from '@/surfaces/sa/critical-actions'
@@ -404,5 +405,57 @@ describe('slice 3 gate 10: one name per illustrative tenant', () => {
       () => expect(nameConflicts().join(' ')).toContain('TEN-BRIGHTBIKES'),
     )
     expect(nameConflicts()).toEqual([])
+  })
+})
+
+describe('slice 3 gate 11: one aggregate vocabulary, and two distinct states', () => {
+  // Ten screens defined their own freshness type with SIX different member
+  // sets between them, and one had drifted to `fresh` / `not-yet-arrived` --
+  // inventing words for a vocabulary the frozen source states as
+  // current/stale/unavailable/reconciled (L42991) -- while collapsing
+  // STATE-02 (Loading) and STATE-13 (Recovery) into one rendering the other
+  // eighteen keep apart. No screen was wrong alone.
+  it('no screen invents a word outside the shared aggregate vocabulary', () => {
+    const invented = /'(fresh|not-yet-arrived|nyа|pending-arrival)'/
+    const offenders = saSources()
+      .filter(({ src }) => invented.test(src))
+      .map(({ file }) => file)
+    expect(offenders).toEqual([])
+  })
+
+  it('STATE-02 and STATE-13 map to different renderings', () => {
+    // A value that has not arrived is not a value being rebuilt after a
+    // failure, and telling a reviewer otherwise hides which one the screen is
+    // in.
+    expect(saFreshnessFor('STATE-02')).not.toBe(saFreshnessFor('STATE-13'))
+    expect(saAggregateText(saFreshnessFor('STATE-02'), 'x')).not.toBe(
+      saAggregateText(saFreshnessFor('STATE-13'), 'x'),
+    )
+  })
+
+  it('no aggregate rendering is a zero or a blank (AC-SA-01-03)', () => {
+    for (const f of SA_FRESHNESS) {
+      const text = saAggregateText(f, 'REAL VALUE')
+      expect(text.trim(), f).not.toBe('')
+      expect(text.trim(), f).not.toBe('0')
+    }
+  })
+})
+
+describe('slice 3 gate 12: one tab-title shape across the surface', () => {
+  // Four formats shipped across nineteen routes and five carried no product
+  // name at all, so a reviewer with several tabs open could not tell which
+  // console a tab belonged to. Cosmetic alone; a navigation defect in a
+  // storyboard whose whole job is to be walked through.
+  it('every Super Admin route names the console in its title', () => {
+    const pages = readdirSync(SA_ROOT)
+      .filter((d) => statSync(join(SA_ROOT, d)).isDirectory())
+      .map((d) => join(SA_ROOT, d, 'page.tsx'))
+      .filter((f) => existsSync(f))
+    expect(pages.length, 'nineteen module routes').toBe(19)
+    const wrong = pages.filter(
+      (f) => !/— Super Admin Platform Console/.test(readFileSync(f, 'utf8')),
+    )
+    expect(wrong, 'routes not naming the console in their tab title').toEqual([])
   })
 })

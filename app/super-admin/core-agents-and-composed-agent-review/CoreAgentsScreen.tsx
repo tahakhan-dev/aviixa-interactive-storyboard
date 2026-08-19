@@ -15,6 +15,7 @@ import { InvariantChip } from '@/ui/sa/InvariantChip'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { Button, Field, Select, StatusPill } from '@/ui/primitives'
 import { SA_APPLICABLE_STATE_IDS } from '@/surfaces/sa/screen-states'
+import { saAggregateText, saFreshnessFor, type SaFreshness } from '@/surfaces/sa/freshness'
 import { SaConsoleShell } from '../SaConsoleShell'
 
 /**
@@ -174,26 +175,27 @@ const PENDING_AS_OF =
   'As of — not yet arrived. The aggregation run has not completed, and no count is shown in place of one.'
 const UNAVAILABLE_AS_OF = 'Unavailable. Last known good as of 2026-08-17 05:00 UTC.'
 
-type Freshness = 'fresh' | 'stale' | 'not-yet-arrived' | 'unavailable'
-
-function freshnessFor(state: ScreenStateId): Freshness {
-  if (state === 'STATE-02' || state === 'STATE-13') return 'not-yet-arrived'
-  if (state === 'STATE-08') return 'stale'
-  if (state === 'STATE-11' || state === 'STATE-12') return 'unavailable'
-  return 'fresh'
-}
+// The shared vocabulary and the shared mapping. This screen used to define its
+// own -- `fresh` / `not-yet-arrived`, inventing words for a vocabulary the
+// frozen source states as current/stale/unavailable/reconciled (L42991) -- and
+// it collapsed STATE-02 and STATE-13 into one rendering that every other
+// screen keeps apart. A value that has not arrived is not a value being
+// rebuilt after a failure.
+type Freshness = SaFreshness
+const freshnessFor = saFreshnessFor
 
 const AS_OF_TEXT: Record<Freshness, string> = {
-  fresh: FRESH_AS_OF,
+  current: FRESH_AS_OF,
   stale: STALE_AS_OF,
-  'not-yet-arrived': PENDING_AS_OF,
+  reconciled: FRESH_AS_OF,
+  loading: PENDING_AS_OF,
+  empty: PENDING_AS_OF,
+  recovering: PENDING_AS_OF,
   unavailable: UNAVAILABLE_AS_OF,
 }
 
 function aggregateValue(freshness: Freshness, value: string): string {
-  if (freshness === 'unavailable') return 'Unavailable'
-  if (freshness === 'not-yet-arrived') return 'Not yet arrived'
-  return value
+  return saAggregateText(freshness, value)
 }
 
 // ---------------------------------------------------------------------------

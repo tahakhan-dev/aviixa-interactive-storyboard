@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { saModuleById } from '@/surfaces/sa/modules'
 import { OverviewScreen } from './OverviewScreen'
 
-export const metadata: Metadata = { title: saModuleById('MOD-SA-01').name }
+export const metadata: Metadata = { title: `${saModuleById('MOD-SA-01').name} — Super Admin Platform Console` }
 
 // Re-exported so tests/component/sa-overview.test.tsx can import the screen
 // itself, matching the pattern `app/workflows/page.tsx` set: the screen needs

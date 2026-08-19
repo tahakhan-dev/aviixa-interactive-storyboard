@@ -176,7 +176,7 @@ const AS_OF_STALE = '2026-08-15 07:45 UTC'
 const STALE_AGE = '26 hours old'
 
 /**
- * The three bands, by Worker-Shifts per tenant-month (L2195, L26856,
+ * The three bands, by Worker-Shifts per month (L2195, L26856,
  * L118919). The number is a BILLING UNIT — a count on a commercial ledger
  * for one tenant in one calendar month. It is never a rate, never a series,
  * never split below the tenant, and never compared between people.
@@ -189,9 +189,9 @@ export interface TierBand {
 }
 
 export const TIER_BANDS = [
-  { name: 'Starter', boundary: 'below 100 Worker-Shifts per tenant-month', agentAuthor: false },
-  { name: 'Growth', boundary: '100 to 199 Worker-Shifts per tenant-month', agentAuthor: true },
-  { name: 'Enterprise', boundary: '200 and above Worker-Shifts per tenant-month', agentAuthor: true },
+  { name: 'Starter', boundary: 'below 100 Worker-Shifts per month', agentAuthor: false },
+  { name: 'Growth', boundary: '100 to 199 Worker-Shifts per month', agentAuthor: true },
+  { name: 'Enterprise', boundary: '200 and above Worker-Shifts per month', agentAuthor: true },
 ] as const satisfies readonly TierBand[]
 
 export interface TierRecordFixture {
