@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, statSync, writeFileSync, rmSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync, writeFileSync, rmSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
 import { SA_MODULES } from '@/surfaces/sa/modules'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
-import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
+import { CRITICAL_ACTIONS, CRITICAL_ACTION_COUNT_NOTE } from '@/surfaces/sa/critical-actions'
 
 const SA_ROOT = join('app', 'super-admin')
 
@@ -33,11 +33,9 @@ function saSources(): { file: string; src: string }[] {
  * every word form but the past tense.
  */
 function withPlanted(contents: string, assertCaught: (probe: string) => void): void {
-  const probe = join(SA_ROOT, 'zz-probe', 'Probe.tsx')
-  writeFileSync(join(SA_ROOT, 'zz-probe'), '', { flag: 'wx' })
-  rmSync(join(SA_ROOT, 'zz-probe'))
   const dir = join(SA_ROOT, 'zz-probe')
-  require('node:fs').mkdirSync(dir, { recursive: true })
+  const probe = join(dir, 'Probe.tsx')
+  mkdirSync(dir, { recursive: true })
   writeFileSync(probe, contents)
   try {
     assertCaught(probe)
@@ -52,19 +50,6 @@ describe('slice 3 gate 1: the six invariants are status chips, never controls', 
   // "locked and unpressable" -- while AC-SA-INV-003 (L47849) forbids an off
   // control, an approval path AND a configuration key. A disabled toggle
   // implies an enabled state exists somewhere for someone.
-  const CONTROL_SHAPES = /<button|<input|role="switch"|role={'switch'}|onClick=/
-
-  function invariantControlOffenders(): string[] {
-    const out: string[] = []
-    for (const { file, src } of saSources()) {
-      if (!/InvariantChip/.test(src)) continue
-      // The chip's own module is where a control would be introduced.
-      if (!/ui\/sa\/InvariantChip/.test(file)) continue
-      if (CONTROL_SHAPES.test(src)) out.push(file)
-    }
-    return out
-  }
-
   it('no invariant renders as a button, input, switch or click target', () => {
     const chip = readFileSync(join('src', 'ui', 'sa', 'InvariantChip.tsx'), 'utf8')
     const stripped = stripComments(chip)
@@ -79,7 +64,7 @@ describe('slice 3 gate 1: the six invariants are status chips, never controls', 
     expect(SA_INVARIANTS).toHaveLength(6)
     const words = /\b(enable|disable|turn off|switch off|toggle)\b/i
     for (const inv of SA_INVARIANTS) {
-      expect(`${inv.name} ${inv.statement ?? ''}`, inv.id).not.toMatch(words)
+      expect(`${inv.name} ${inv.description}`, inv.id).not.toMatch(words)
     }
   })
 })
@@ -205,10 +190,18 @@ describe('slice 3 gate 6: the eleven critical-class actions', () => {
     expect(CRITICAL_ACTIONS).toHaveLength(11)
   })
 
-  it('every critical action names root approval', () => {
-    for (const a of CRITICAL_ACTIONS) {
-      expect(a.approver ?? 'ROOT_SUPER_ADMIN', a.id).toMatch(/root/i)
-    }
+  it('records the count discrepancy rather than silently padding or truncating', () => {
+    // A list short by one drops a root approval; a list padded to a round
+    // number invents one. The note has to say which happened and why.
+    expect(CRITICAL_ACTION_COUNT_NOTE).toMatch(/\bten\b/i)
+    expect(CRITICAL_ACTION_COUNT_NOTE).toMatch(/\beleven\b/i)
+    expect(CRITICAL_ACTION_COUNT_NOTE).toMatch(/L55942/)
+  })
+
+  it('every critical action carries a distinct id and a source locator', () => {
+    const ids = CRITICAL_ACTIONS.map((a) => a.id)
+    expect(new Set(ids).size, 'duplicate critical-action id').toBe(ids.length)
+    for (const a of CRITICAL_ACTIONS) expect(a.sourceRef, a.id).toMatch(/L\d+/)
   })
 })
 

@@ -182,6 +182,58 @@ const SOURCE_CLASSIFICATION_TO_SOURCE_CLASS = {
   'Illustrative Example': 'illustrative',
 }
 
+
+/**
+ * Which modules this build actually SHIPS a screen for, computed from the
+ * route tree rather than kept in a hand-maintained list.
+ *
+ * A route directory owns exactly one module: the module id mentioned most
+ * often inside it. Verified unambiguous across all nineteen SURF-SA routes
+ * (zero ties), which matters because several screens legitimately cross-
+ * reference a neighbouring module and a naive "any id mentioned here" rule
+ * would mark a module demonstrated because someone linked to it.
+ *
+ * Computed, not enumerated: slices 4-13 add their own route trees and are
+ * picked up without anyone remembering to edit a list. This build has already
+ * paid for the enumerate-instead-of-compute mistake twice -- a workflow
+ * collapse fix scoped to two known ids, and a count gate that hand-listed ten
+ * numbers while fourteen were live.
+ */
+function demonstratedModuleIds() {
+  const roots = ['app']
+  const owned = new Set()
+  const walkDirs = (dir) => {
+    let entries
+    try {
+      entries = readdirSync(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+    const hasPage = entries.some((e) => e.isFile() && e.name === 'page.tsx')
+    if (hasPage) {
+      const counts = new Map()
+      const collect = (d) => {
+        for (const e of readdirSync(d, { withFileTypes: true })) {
+          const full = join(d, e.name)
+          if (e.isDirectory()) continue // a nested route owns itself
+          if (!/\.tsx?$/.test(e.name)) continue
+          for (const id of readFileSync(full, 'utf8').match(/MOD-[A-Z]{2,3}-\d{2}/g) ?? []) {
+            counts.set(id, (counts.get(id) ?? 0) + 1)
+          }
+        }
+      }
+      collect(dir)
+      const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1])
+      if (ranked.length > 0) owned.add(ranked[0][0])
+    }
+    for (const e of entries) if (e.isDirectory()) walkDirs(join(dir, e.name))
+  }
+  for (const r of roots) walkDirs(r)
+  return owned
+}
+
+const DEMONSTRATED_MODULE_IDS = demonstratedModuleIds()
+
 function buildModulesRegistry() {
   const rawKeys = new Set()
   const byId = new Map()
@@ -198,7 +250,7 @@ function buildModulesRegistry() {
       byId.set(m.id, {
         id: m.id,
         sourceLine: m.line,
-        status: 'not-represented',
+        status: DEMONSTRATED_MODULE_IDS.has(m.id) ? 'demonstrated-in-storyboard' : 'not-represented',
         label: m.name,
         surface: m.surface,
         purpose: m.purpose,

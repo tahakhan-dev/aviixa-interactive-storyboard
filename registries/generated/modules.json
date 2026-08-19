@@ -405,7 +405,7 @@
     {
       "id": "MOD-SA-01",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Platform Overview and Health",
       "surface": "SURF-SA",
       "purpose": "Console capability section §8.1 for platform overview and health.",
@@ -414,7 +414,7 @@
     {
       "id": "MOD-SA-02",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Atom Registry",
       "surface": "SURF-SA",
       "purpose": "§8.2; the catalog is the registry, registration is a record not orchestrator code.",
@@ -423,7 +423,7 @@
     {
       "id": "MOD-SA-03",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Core Agents and Composed-Agent Review",
       "surface": "SURF-SA",
       "purpose": "§8.3; core agent administration and composed-agent review.",
@@ -432,7 +432,7 @@
     {
       "id": "MOD-SA-04",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Memory Architecture",
       "surface": "SURF-SA",
       "purpose": "§8.4; five typed memory stores administered with per-type retention.",
@@ -441,7 +441,7 @@
     {
       "id": "MOD-SA-05",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Eval Harness",
       "surface": "SURF-SA",
       "purpose": "§8.5; scenario-first evaluation harness and the hard enablement gate with no off position.",
@@ -450,7 +450,7 @@
     {
       "id": "MOD-SA-06",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Trace Viewer",
       "surface": "SURF-SA",
       "purpose": "§8.6; traces as day-one backend artifacts with replans first-class.",
@@ -459,7 +459,7 @@
     {
       "id": "MOD-SA-07",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Platform Settings",
       "surface": "SURF-SA",
       "purpose": "§8.7; renders six invariants locked with no off position for any account including the root.",
@@ -468,7 +468,7 @@
     {
       "id": "MOD-SA-08",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Console Users, Roles and Change Approvals",
       "surface": "SURF-SA",
       "purpose": "§8.8; maker-checker, root-only actions and the critical change class.",
@@ -477,7 +477,7 @@
     {
       "id": "MOD-SA-09",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Tenants, Lifecycle and Pilots",
       "surface": "SURF-SA",
       "purpose": "§8.9; tenant onboarding, lifecycle states and pilot management.",
@@ -486,7 +486,7 @@
     {
       "id": "MOD-SA-10",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Tenant Metrics and Aggregates",
       "surface": "SURF-SA",
       "purpose": "§8.10; anonymised cross-tenant aggregates enforced as an invariant.",
@@ -495,7 +495,7 @@
     {
       "id": "MOD-SA-11",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Tiers, Entitlements and Caps",
       "surface": "SURF-SA",
       "purpose": "§8.11; versioned approvable tier records carrying no price metadata.",
@@ -504,7 +504,7 @@
     {
       "id": "MOD-SA-12",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Usage and Metering",
       "surface": "SURF-SA",
       "purpose": "§8.12; Worker-Shift meter, usage ledger and ledger export.",
@@ -513,7 +513,7 @@
     {
       "id": "MOD-SA-13",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Devices and Fleet",
       "surface": "SURF-SA",
       "purpose": "§8.13; device enrollment and fleet management.",
@@ -522,7 +522,7 @@
     {
       "id": "MOD-SA-14",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Platform Notifications and Tenant Communications",
       "surface": "SURF-SA",
       "purpose": "§8.14; platform notifications and communications to tenants.",
@@ -531,7 +531,7 @@
     {
       "id": "MOD-SA-15",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Support Access",
       "surface": "SURF-SA",
       "purpose": "§8.15; read-only, reason-required, ticket-linked sessions with a two-hour default time box.",
@@ -540,7 +540,7 @@
     {
       "id": "MOD-SA-16",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "JBS Access",
       "surface": "SURF-SA",
       "purpose": "§8.16; scoped, time-boxed, reason-linked, audited, mirrored grants to JBS; no standing access.",
@@ -549,7 +549,7 @@
     {
       "id": "MOD-SA-17",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Data Lifecycle and Archival",
       "surface": "SURF-SA",
       "purpose": "§8.17; no-purge tiering, retention horizon and legal hold as a managed object.",
@@ -558,7 +558,7 @@
     {
       "id": "MOD-SA-18",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "Platform Audit",
       "surface": "SURF-SA",
       "purpose": "§8.18; one-transaction audit guarantee for platform-side actions.",
@@ -567,7 +567,7 @@
     {
       "id": "MOD-SA-19",
       "sourceLine": 2442,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "The Tenant-Configuration Registry",
       "surface": "SURF-SA",
       "purpose": "§8.19; holds platform default, bound and current tenant value for every setting; rejects out-of-bound writes.",
