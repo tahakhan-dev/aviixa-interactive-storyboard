@@ -320,7 +320,7 @@ describe('MOD-SA-02 — submission never reads as application', () => {
 
   it('drops the receipt when the console role changes', () => {
     submitAs(ENG)
-    fireEvent.change(screen.getByLabelText(/Console role/i), { target: { value: SUP } })
+    fireEvent.change(screen.getByLabelText(/view as platform role/i), { target: { value: SUP } })
     expect(screen.queryAllByRole('status')).toHaveLength(0)
     // The role that cannot submit is not shown a receipt for a submission.
     expect(screen.queryByText(/Submitted for Admin approval/i)).toBeNull()

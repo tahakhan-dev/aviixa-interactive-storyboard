@@ -668,7 +668,7 @@ export function JbsAccessScreen({
 
       <section aria-label="View switchers" className="mt-4 flex flex-wrap gap-6">
         <Select
-          label="Console role (a view switcher, not a sign-in)"
+          label="View as platform role"
           value={roleToken}
           options={CONSOLE_ROLE_VIEWS.map((r) => ({
             value: r.token,

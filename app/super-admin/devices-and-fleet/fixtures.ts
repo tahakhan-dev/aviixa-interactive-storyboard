@@ -95,8 +95,12 @@ export interface DeviceAuditRow {
 
 export interface DeviceRow {
   readonly id: string
-  /** An anonymised tenant label. No link on this console resolves to the
-   *  tenant record behind it. */
+  /** The tenant's trading name and id, from the shared fixture. NOT
+   *  anonymised -- this comment claimed it was while every value carried both.
+   *  Anonymisation is MOD-SA-10's rule for cross-tenant COMPARATIVES, and it
+   *  is enforced there; naming the tenant a device belongs to is fleet
+   *  administration, which the console does openly. No link on this console
+   *  resolves to the tenant record behind it. */
   readonly tenantLabel: string
   readonly state: DeviceLifecycleState
   /** Shared or Personal — an enrollment binding class, set tenant-side. It

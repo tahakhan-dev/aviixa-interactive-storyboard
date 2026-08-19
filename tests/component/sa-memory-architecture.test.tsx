@@ -7,7 +7,7 @@ import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { MemoryArchitectureScreen, MEMORY_STORES, SA_04_ABSENT_ACTIONS, SA_04_ROLE_VIEWS, SA_04_UNSPECIFIED_AFFORDANCES, SA_04_INVARIANT_IDS } from '../../app/super-admin/memory-architecture/MemoryArchitectureScreen'
 
 const MODULE = saModuleById('MOD-SA-04')
-const ROLE_SELECT = /console role/i
+const ROLE_SELECT = /view as platform role/i
 const STATE_SELECT = /screen state/i
 
 async function selectRole(role: string) {

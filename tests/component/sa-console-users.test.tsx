@@ -577,7 +577,7 @@ describe('MOD-SA-08 — a recorded click never outranks the role or the state', 
     render(<ConsoleUsersScreen role="ADMIN" />)
     fireEvent.click(within(row(/Approval queue/i, 'AR-4471')).getByRole('button', { name: /Approve/i }))
     expect(row(/Approval queue/i, 'AR-4471').textContent ?? '').toMatch(/Approved as request AR-4471/)
-    fireEvent.change(screen.getByLabelText(/Console role/i), { target: { value: 'SUPPORT' } })
+    fireEvent.change(screen.getByLabelText(/view as platform role/i), { target: { value: 'SUPPORT' } })
     const asSupport = row(/Approval queue/i, 'AR-4471')
     expect(asSupport.textContent ?? '').not.toMatch(/Approved as request/)
     expect(asSupport.textContent ?? '').toMatch(/pending/)
@@ -607,7 +607,7 @@ describe('MOD-SA-08 — a recorded click never outranks the role or the state', 
 describe('MOD-SA-08 STATE-06 — the read-only claim is backed by the controls', () => {
   it('disables every console input and names exactly one cause', () => {
     const { container } = render(<ConsoleUsersScreen role="ROOT_SUPER_ADMIN" screenState="STATE-06" />)
-    const harness = ['Console role', 'Screen state', 'Root availability']
+    const harness = ['View as platform role', 'Screen state', 'Root availability']
     const selects = Array.from(container.querySelectorAll('select'))
     const consoleSelects = selects.filter(
       (s) => !harness.some((h) => (document.querySelector(`label[for="${s.id}"]`)?.textContent ?? '').includes(h)),

@@ -268,7 +268,7 @@ export function EvalHarnessScreen({
 
       <div className="mt-6 flex flex-wrap gap-6 rounded-[var(--radius-surface)] border border-[var(--color-border)] p-4">
         <Select
-          label="Console role (fixture)"
+          label="View as platform role"
           value={role}
           // A recorded click must not outlive the role that made it, or a role
           // that never held the runner is told the run is already queued

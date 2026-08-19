@@ -386,7 +386,7 @@ export function DataLifecycleScreen({
 
       <div className="mt-6 flex flex-wrap gap-6 rounded-[var(--radius-surface)] border border-[var(--color-border)] p-4">
         <Select
-          label="Console role (fixture)"
+          label="View as platform role"
           value={role}
           onChange={(v) => {
             setRole(v as RoleId)

@@ -207,7 +207,7 @@ describe('MOD-SA-05 — per-control allowed roles, through evaluateAccess', () =
   it('names every one of the four platform roles as a view switcher, never a login', () => {
     render(<EvalHarnessScreen />)
     expect(EVAL_PLATFORM_ROLES).toHaveLength(4)
-    const selector = screen.getByLabelText(/Console role/i)
+    const selector = screen.getByLabelText(/view as platform role/i)
     for (const role of EVAL_PLATFORM_ROLES) {
       expect(within(selector).getByText(new RegExp(role.roleAnnotation))).toBeDefined()
     }

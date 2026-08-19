@@ -22,7 +22,7 @@ function control(name: RegExp, role: 'combobox' | 'textbox' = 'combobox'): HTMLE
 }
 
 function setRole(role: RoleId): void {
-  fireEvent.change(control(/console role/i), { target: { value: role } })
+  fireEvent.change(control(/view as platform role/i), { target: { value: role } })
 }
 
 function setScreenState(state: ScreenStateId): void {
@@ -79,7 +79,7 @@ describe('MOD-SA-19 Tenant-Configuration Registry — the shell contract', () =>
     // which is what pushed this test past vitest's 5000ms default under a
     // loaded full-suite run (12997ms) — a gate that goes red under load gets
     // deleted by the next person who sees it.
-    const roleSelect = control(/console role/i)
+    const roleSelect = control(/view as platform role/i)
     const stateSelect = control(/screen state/i)
     const classSelect = control(/^write class$/i)
 

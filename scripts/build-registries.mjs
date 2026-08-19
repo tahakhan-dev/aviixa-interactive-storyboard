@@ -217,7 +217,7 @@ function demonstratedModuleIds() {
           const full = join(d, e.name)
           if (e.isDirectory()) continue // a nested route owns itself
           if (!/\.tsx?$/.test(e.name)) continue
-          for (const id of readFileSync(full, 'utf8').match(/MOD-[A-Z]{2,3}-\d{2}/g) ?? []) {
+          for (const id of readFileSync(full, 'utf8').match(/MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+)/g) ?? []) {
             counts.set(id, (counts.get(id) ?? 0) + 1)
           }
         }

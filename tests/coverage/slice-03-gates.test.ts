@@ -707,3 +707,20 @@ describe('slice 3 gates: the file itself', () => {
     expect(numbers, 'gate numbers are not a gapless 1..N sequence').toEqual(expected)
   })
 })
+
+describe('slice 3 gate 15: one label for the role switcher', () => {
+  // Eighteen screens label it "View as platform role"; MOD-SA-04 said
+  // "Console role" alone. A reviewer walking nineteen screens should not have
+  // to relearn the control that changes what every screen shows -- and the
+  // wording matters beyond consistency: "View as" says this is a VIEW
+  // SWITCHER, not a login. There is no authentication in this build.
+  it('every screen carrying a role switcher uses the same label', () => {
+    const labels = new Set<string>()
+    for (const { src } of saSources()) {
+      for (const m of src.matchAll(/label="([^"]*\brole\b[^"]*)"/gi)) labels.add(m[1] ?? '')
+    }
+    expect([...labels], 'more than one wording for the role switcher').toEqual([
+      'View as platform role',
+    ])
+  })
+})

@@ -270,7 +270,7 @@ describe('MOD-SA-10 — per-control allowed roles, through evaluateAccess', () =
 
   it('names all four platform roles as a view switcher, never a login', () => {
     render(<TenantMetricsScreen />)
-    const selector = screen.getByLabelText(/Console role/i)
+    const selector = screen.getByLabelText(/view as platform role/i)
     const options = Array.from(selector.querySelectorAll('option')).map((o) => o.textContent ?? '')
     expect(options).toHaveLength(4)
     for (const annotation of ['ROLE-PLAT-ROOT', 'ROLE-PLAT-ADMIN', 'ROLE-PLAT-ENG', 'ROLE-PLAT-SUP']) {

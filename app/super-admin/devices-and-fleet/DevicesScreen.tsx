@@ -113,7 +113,8 @@ function decide(
  * The ONE cause of this module's read-only rendering (STATE-06: "Never
  * scatter the cause across several messages. One banner, one cause."). It is
  * rendered verbatim in all three places the state is stated — the module
- * note, the boundary banner and every disabled control's reason — because a
+ * note and the boundary banner. Controls POINT at it rather than repeat it,
+ * because STATE-06 forbids scattering the cause — this line said otherwise
  * second wording of the same fact, role-framed or otherwise, IS the defect
  * that rule exists to prevent. Change it here or nowhere.
  *
@@ -888,7 +889,7 @@ function stateTreatment(stateId: ScreenStateId, roleName: string, draftDecision:
         <ScreenStateBoundary
           state="STATE-06"
           surface="SURF-SA"
-          // The same string every disabled control on this module prints. The
+          // The banner's own cause. Controls carry a pointer to it, not a copy. The
           // role framing that used to sit here was a SECOND cause for one
           // read-only rendering, and false for the root, who holds both the
           // draft and the approval and is disabled anyway.

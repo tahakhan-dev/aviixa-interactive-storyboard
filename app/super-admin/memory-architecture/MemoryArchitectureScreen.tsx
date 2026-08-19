@@ -454,7 +454,7 @@ export function MemoryArchitectureScreen() {
         </p>
         <div className="mt-3 flex flex-wrap gap-6">
           <Select
-            label="Console role"
+            label="View as platform role"
             value={roleId}
             options={SA_04_ROLE_VIEWS.map((r) => ({ value: r.id, label: `${r.name} (${r.id})` }))}
             onChange={(v) => setRoleId(v as SaConsoleRoleId)}

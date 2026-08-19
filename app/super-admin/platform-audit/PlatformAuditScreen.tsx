@@ -767,7 +767,7 @@ export function PlatformAuditScreen({
       <Section id="sa18-view" heading="View">
         <div className="mt-3 flex flex-wrap gap-4">
           <Select
-            label="Console role (view switcher, not a sign-on)"
+            label="View as platform role"
             value={roleToken}
             options={CONSOLE_ROLE_VIEWS.map((r) => ({ value: r.token, label: `${r.label} — ${r.token}` }))}
             onChange={(v) => {

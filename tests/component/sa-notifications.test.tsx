@@ -25,7 +25,7 @@ function screenOwnedInputs(
   container: HTMLElement,
 ): (HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement)[] {
   const switchers = [
-    screen.getByLabelText(/Console role/i),
+    screen.getByLabelText(/view as platform role/i),
     screen.getByLabelText(/Screen state/i),
   ]
   return Array.from(
@@ -245,7 +245,7 @@ describe('MOD-SA-14 — per-control allowed roles, through evaluateAccess', () =
   it('names every one of the four platform roles as a view switcher, never a login', () => {
     render(<NotificationsScreen />)
     expect(NOTIF_PLATFORM_ROLES).toHaveLength(4)
-    const selector = screen.getByLabelText(/Console role/i)
+    const selector = screen.getByLabelText(/view as platform role/i)
     for (const role of NOTIF_PLATFORM_ROLES) {
       expect(within(selector).getByText(new RegExp(role.roleAnnotation))).toBeDefined()
     }

@@ -685,7 +685,7 @@ describe('MOD-SA-17 — every panel of records degrades together', () => {
 
     // The role switcher moves to a role that never held any of these controls.
     // It must be told it lacks the capability, never that the act is done.
-    fireEvent.change(screen.getByLabelText(/Console role/i), { target: { value: 'SUPPORT' } })
+    fireEvent.change(screen.getByLabelText(/view as platform role/i), { target: { value: 'SUPPORT' } })
     for (const pill of OUTCOME_PILLS) expect(screen.queryByText(pill), String(pill)).toBeNull()
     expect(screen.queryByTestId('accepted-hold')).toBeNull()
     expect(
@@ -693,7 +693,7 @@ describe('MOD-SA-17 — every panel of records degrades together', () => {
     ).toBe('true')
 
     // Returning to the role that clicked does not resurrect the outcome either.
-    fireEvent.change(screen.getByLabelText(/Console role/i), {
+    fireEvent.change(screen.getByLabelText(/view as platform role/i), {
       target: { value: 'ROOT_SUPER_ADMIN' },
     })
     for (const pill of OUTCOME_PILLS) expect(screen.queryByText(pill), String(pill)).toBeNull()

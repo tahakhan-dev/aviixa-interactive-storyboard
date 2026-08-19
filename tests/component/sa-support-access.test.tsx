@@ -588,7 +588,7 @@ describe('MOD-SA-15 — a recorded click never outranks a refusal, and never sur
     fireEvent.click(closeButton())
     expect(statedReason(closeButton())).toMatch(/already recorded as closed/i)
 
-    fireEvent.change(screen.getByLabelText(/Console role/i), {
+    fireEvent.change(screen.getByLabelText(/view as platform role/i), {
       target: { value: 'PLATFORM_ENGINEER' },
     })
     const reason = statedReason(closeButton())
@@ -606,7 +606,7 @@ describe('MOD-SA-15 — a recorded click never outranks a refusal, and never sur
 
   it('drops the recorded closure itself when either switcher moves', () => {
     for (const [labelPattern, value] of [
-      [/Console role/i, 'ADMIN'],
+      [/view as platform role/i, 'ADMIN'],
       [/Screen state/i, 'STATE-08'],
     ] as const) {
       const view = render(<SupportAccessScreen role="SUPPORT" />)
@@ -631,7 +631,7 @@ describe('MOD-SA-15 — a recorded click never outranks a refusal, and never sur
     expect(statedReason(rootSlot())).toMatch(/already recorded/i)
     expect(screen.getByText(/one of two authorisations/i)).toBeDefined()
 
-    fireEvent.change(screen.getByLabelText(/Console role/i), { target: { value: 'SUPPORT' } })
+    fireEvent.change(screen.getByLabelText(/view as platform role/i), { target: { value: 'SUPPORT' } })
     expect(statedReason(rootSlot())).toMatch(/Root Super Admin’s alone/)
     expect(screen.getByText(/No authorisation recorded/i)).toBeDefined()
   })
