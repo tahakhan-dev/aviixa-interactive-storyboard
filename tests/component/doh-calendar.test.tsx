@@ -348,6 +348,30 @@ describe('MOD-DOH-14 — the states, the panels and the honest omissions', () =>
     expect(region('Route to action').textContent).toMatch(/Open the worker records/)
   })
 
+  /**
+   * ONE state fold, BOTH branches. The lapsed list is a second read of the same
+   * register the projection reads. Leaving it populated under STATE-12 put one
+   * screen in contradiction with itself two paragraphs apart — rows listed
+   * beside a grid that had just said the read failed.
+   */
+  it('STATE-12 takes the lapsed list with it, rather than contradicting the grid', () => {
+    render(<QualificationCalendarScreen />)
+    const lapsed = alreadyLapsedFor(
+      'QUALITY_MANAGER',
+      DOH_QUALIFICATIONS,
+      DOH_WORKERS,
+      DOH_CLEARANCES,
+    )
+    // Non-vacuous: they ARE listed when the read succeeds.
+    expect(lapsed.length).toBeGreaterThan(0)
+    expect(region('Outside the forward horizon').textContent).toContain(lapsed[0]!.workerName)
+
+    setScreenState('STATE-12')
+    const outside = region('Outside the forward horizon')
+    for (const e of lapsed) expect(outside.textContent, e.qualificationId).not.toContain(e.expiryDate)
+    expect(outside.textContent).toMatch(/the read that failed above is the read this list is made from/)
+  })
+
   it('STATE-01 names what would appear and what creates it, and is not a failure', () => {
     render(<QualificationCalendarScreen />)
     setScreenState('STATE-01')
@@ -410,11 +434,17 @@ describe('MOD-DOH-14 — the states, the panels and the honest omissions', () =>
     }
   })
 
-  it('names the cross-slice seam its notification half depends on', () => {
+  it('claims no seam it does not have, and says why none is drawn', () => {
     render(<QualificationCalendarScreen />)
     const action = region('Route to action')
-    expect(action.textContent).toMatch(/Cross-slice seam — not built here/)
-    expect(action.textContent).toMatch(/slice 10/)
+    // The registered seam it used to render describes another module's
+    // digest-time FIELD — the wrong owner for the wrong dependency.
+    expect(action.textContent).not.toMatch(/Cross-slice seam — not built here/)
+    expect(action.textContent).toMatch(/reaches no REGISTERED cross-slice seam/)
+    // And the gap is raised rather than passed over in silence.
+    expect(region('Unspecified in source').textContent).toMatch(
+      /seam registry carries NO entry for this module/,
+    )
   })
 
   it('states that audit is in the same transaction and that a refusal is audited too', () => {

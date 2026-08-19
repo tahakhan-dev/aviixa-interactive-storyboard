@@ -312,8 +312,9 @@ describe('MOD-DOH-14 — the cell key is (week, Area) and can never be (worker)'
         /\bperWorker\b|\bbyWorker\b|\bworkerCount\b|\bexpiryFrequency\b|\bworkerRunCount\b/,
       )
     }
-    // The exemption is narrow and real: exactly one line in the fixtures file
-    // carries it, and it is the compile-time denial.
+    // The exemption is narrow and real: exactly TWO lines in the fixtures file
+    // carry it — the type alias that spells the forbidden names out, and the
+    // `Extract` that refuses them — and both are the compile-time denial.
     expect(FIXTURES_SRC.split('\n').filter((l) => /ForbiddenMeasureField/.test(l))).toHaveLength(2)
     expect(SCREEN_SRC).not.toMatch(/ForbiddenMeasureField/)
     // Proof the scan is live rather than exempted into silence.

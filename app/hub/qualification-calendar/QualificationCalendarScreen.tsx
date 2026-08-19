@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
-import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import {
   Banner,
@@ -210,9 +209,14 @@ export function QualificationCalendarScreen() {
     ? []
     : calendarEntriesFor(role, DOH_QUALIFICATIONS, DOH_WORKERS, DOH_CLEARANCES)
   const entries = applyFilters(allEntries, filters)
-  const lapsed = emptyRequested
-    ? []
-    : alreadyLapsedFor(role, DOH_QUALIFICATIONS, DOH_WORKERS, DOH_CLEARANCES)
+  /* ONE state fold, applied to BOTH branches. The lapsed list is a second read
+     of the SAME register the projection reads, so a read that failed outright
+     took both with it — leaving it populated beside a grid that says the read
+     failed would be one screen contradicting itself two paragraphs apart. */
+  const lapsed =
+    emptyRequested || projectionFailed
+      ? []
+      : alreadyLapsedFor(role, DOH_QUALIFICATIONS, DOH_WORKERS, DOH_CLEARANCES)
 
   /* The certification types actually reachable in this reader's scope. An
      option that could only ever return nothing is not offered — the filter is
@@ -688,7 +692,14 @@ export function QualificationCalendarScreen() {
           the grid for a complete list of qualifications.
         </p>
         <h3 className="mt-4 font-medium">A certification that has already lapsed</h3>
-        {lapsed.length === 0 ? (
+        {projectionFailed ? (
+          <p className="mt-1 max-w-prose text-sm text-[var(--color-ink)]">
+            Not listed, because the read that failed above is the read this list is made from.
+            These records come from the same qualification register as the grid, so nothing is
+            shown here rather than showing rows the screen has just said it could not fetch. They
+            remain reachable directly on the worker records.
+          </p>
+        ) : lapsed.length === 0 ? (
           <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
             None in this reader&rsquo;s scope at the as-of stamp.
           </p>
@@ -734,15 +745,18 @@ export function QualificationCalendarScreen() {
             Open the worker records
           </Link>
         </p>
-        <div className="mt-4">
-          <SeamNotice seamId="shift-digest-delivery" />
-        </div>
-        <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-          MOD-DOH-14 originates no notification of its own. Its one notification row is the
+        <p className="mt-4 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          <span className="font-medium text-[var(--color-ink)]">
+            MOD-DOH-14 reaches no REGISTERED cross-slice seam, and no seam notice is drawn.{' '}
+          </span>
+          It originates no notification of its own; its one notification row is the
           certification-expiry section of the per-shift digest, which is also this screen&rsquo;s
-          own fallback-of-fallback when the projection cannot compute — the same facts, carried by
-          another route. The delivery half is owned by a later slice, and that seam is registered
-          against the shift module that first needed it rather than duplicated for this one.
+          fallback-of-fallback when the projection cannot compute. That delivery half is owned by a
+          later slice — a real cross-slice dependency — but the seam registry carries no entry for
+          it. The nearest registered seam is about another module&rsquo;s digest-time FIELD, which
+          is a different dependency, and rendering it here would name the wrong owner for the wrong
+          thing. The gap is recorded in the unspecified panel rather than papered over with a seam
+          notice that does not describe this module.
         </p>
       </section>
 

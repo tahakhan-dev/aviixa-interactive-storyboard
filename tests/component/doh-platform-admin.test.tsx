@@ -53,14 +53,18 @@ function statedReason(el: HTMLElement): string {
 }
 
 /**
- * The module's OWN End-session control, scoped to its own region. The Hub
- * chrome above carries one too, for the shell's seeded session; conflating
- * the two would let this suite pass against a screen that drew none of its own.
+ * EVERY End-session control on the page, not the ones inside this module's own
+ * region.
+ *
+ * The version this replaces searched only inside `Platform access in progress`,
+ * and its own comment said outright that the Hub chrome above carried one too.
+ * That is a test scoped AROUND the defect: the chrome drew a second, live,
+ * UNGATED control on this route — `aria-disabled` null under a compliance
+ * suspension, an archived workspace and a lost connection alike — and a green
+ * suite never saw it. Page-wide is the only scope that can.
  */
-function ownEndSessionButtons(): readonly HTMLElement[] {
-  return within(region('Platform access in progress')).queryAllByRole('button', {
-    name: /^end session$/i,
-  })
+function endSessionButtons(): readonly HTMLElement[] {
+  return screen.queryAllByRole('button', { name: /^end session$/i })
 }
 
 describe('MOD-DOH-13 — identity, and the two catalogues that collide here', () => {
@@ -97,9 +101,51 @@ describe('MOD-DOH-13 — all three access classes, and the shared seed left alon
     expect(SEEDED_PLATFORM_ACCESS_SESSIONS.filter((s) => s.open)).toHaveLength(1)
   })
 
-  it('draws exactly one End-session control, on the support session alone', () => {
+  /**
+   * ONE SESSION, ONE CONTROL, GATED ONCE — asserted page-wide and in every
+   * state that refuses it. If the chrome's own support-session banner returns
+   * to this route (drop `ownsPlatformBanners` from the `HubShell` call), the
+   * count goes to two and the second carries no `aria-disabled` and no reason.
+   * THIS is the case that reds.
+   */
+  it('draws exactly ONE End-session control page-wide, gated once, in every state', () => {
     render(<PlatformAdministrationScreen />)
-    expect(ownEndSessionButtons()).toHaveLength(1)
+    expect(endSessionButtons()).toHaveLength(1)
+    expect(isInert(endSessionButtons()[0]!)).toBe(false)
+
+    for (const state of ['compliance-suspended', 'archived'] as const) {
+      setTenantState(state)
+      const buttons = endSessionButtons()
+      expect(buttons, state).toHaveLength(1)
+      // Every one of them gated, not merely the first.
+      for (const button of buttons) {
+        expect(isInert(button), state).toBe(true)
+        expect(statedReason(button).length, state).toBeGreaterThan(0)
+      }
+    }
+    setTenantState('active')
+    setScreenState('STATE-08')
+    const offline = endSessionButtons()
+    expect(offline).toHaveLength(1)
+    for (const button of offline) {
+      expect(isInert(button)).toBe(true)
+      expect(statedReason(button)).toMatch(/disables rather than queues/i)
+    }
+  })
+
+  it('lets the chrome yield its platform slots, so no banner renders twice', () => {
+    render(<PlatformAdministrationScreen />)
+    // Drawn once. Two copies is what a chrome that did not yield produced.
+    expect(screen.getAllByText(/Planned platform maintenance/)).toHaveLength(1)
+    expect(screen.getAllByText(/read-only session open on this workspace/i)).toHaveLength(1)
+    // And the chrome keeps the slot no route owns.
+    setTenantState('hard-suspended')
+    expect(screen.getAllByText(/suspended and read-only/i).length).toBeGreaterThan(0)
+  })
+
+  it('draws its End-session control on the support session alone', () => {
+    render(<PlatformAdministrationScreen />)
+    expect(endSessionButtons()).toHaveLength(1)
     const own = region('Platform access in progress')
     expect(own.textContent).toMatch(
       /No End-session control exists on this class, for any role, and none is disabled either/,
@@ -114,7 +160,12 @@ describe('MOD-DOH-13 — all three access classes, and the shared seed left alon
       const buttons = within(region('Platform access in progress')).getAllByRole('button', {
         name: /extend the time box/i,
       })
-      expect(buttons.length, role).toBe(ACCESS_CLASS_PANELS.length)
+      // ONE, on the support session alone. L64699 names this control on the
+      // support-session banner panel and nowhere else; drawing it on the other
+      // two extends a source row onto classes the source is silent about, and
+      // a disabled control is still a control.
+      expect(buttons.length, role).toBe(1)
+      expect(ACCESS_CLASS_PANELS.length, 'three classes, one time-box control').toBe(3)
       for (const button of buttons) {
         expect(isInert(button), role).toBe(true)
         expect(statedReason(button), role).toBe(EXTEND_TIME_BOX_REASON)
@@ -131,7 +182,7 @@ describe('MOD-DOH-13 — End session is a real control with an honest consequenc
     // Before: open, bannered, and the control live.
     expect(own().textContent).toMatch(/Open/)
     expect(within(own()).getByText(/read-only session open on this workspace/i)).toBeTruthy()
-    const button = ownEndSessionButtons()[0]!
+    const button = endSessionButtons()[0]!
     expect(isInert(button)).toBe(false)
 
     fireEvent.click(button)
@@ -148,7 +199,7 @@ describe('MOD-DOH-13 — End session is a real control with an honest consequenc
     fireEvent.click(
       screen.getByLabelText(/simulate an audit-write failure on the next end session/i),
     )
-    fireEvent.click(ownEndSessionButtons()[0]!)
+    fireEvent.click(endSessionButtons()[0]!)
     const own = region('Platform access in progress')
     expect(own.textContent).toMatch(/The action did not happen/)
     // And the session is still open, still bannered.
@@ -160,7 +211,7 @@ describe('MOD-DOH-13 — End session is a real control with an honest consequenc
     for (const role of ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER', 'READONLY_AUDITOR']) {
       const view = render(<PlatformAdministrationScreen />)
       viewAs(role)
-      const buttons = ownEndSessionButtons()
+      const buttons = endSessionButtons()
       expect(buttons, role).toHaveLength(1)
       expect(isInert(buttons[0]!), role).toBe(false)
       fireEvent.click(buttons[0]!)
@@ -174,7 +225,7 @@ describe('MOD-DOH-13 — End session is a real control with an honest consequenc
   it('disables rather than queues under connection loss, and keeps the banner', () => {
     render(<PlatformAdministrationScreen />)
     setScreenState('STATE-08')
-    const button = ownEndSessionButtons()[0]!
+    const button = endSessionButtons()[0]!
     expect(isInert(button)).toBe(true)
     expect(statedReason(button)).toMatch(/disables rather than queues/i)
     expect(statedReason(button)).toMatch(/time box remains the bound/i)
@@ -201,13 +252,13 @@ describe('MOD-DOH-13 — End session is a real control with an honest consequenc
   it('applies the tenant state gate before the control renders', () => {
     render(<PlatformAdministrationScreen />)
     setTenantState('compliance-suspended')
-    const button = ownEndSessionButtons()[0]!
+    const button = endSessionButtons()[0]!
     expect(isInert(button)).toBe(true)
     expect(statedReason(button)).toMatch(/compliance-suspended/)
     expect(statedReason(button)).toMatch(/not a restriction at all/i)
     // Open again under soft suspension: "at any time" has to keep meaning it.
     setTenantState('soft-suspended')
-    expect(isInert(ownEndSessionButtons()[0]!)).toBe(false)
+    expect(isInert(endSessionButtons()[0]!)).toBe(false)
   })
 })
 
@@ -240,8 +291,8 @@ describe('MOD-DOH-13 — the history, its readers and its refusals', () => {
       expect(history.textContent, role).toMatch(/is not offered to/i)
       expect(history.textContent, role).toMatch(/the refusal is about the history/i)
       // The guarantee is not taken away with the table.
-      expect(ownEndSessionButtons(), role).toHaveLength(1)
-      expect(isInert(ownEndSessionButtons()[0]!), role).toBe(false)
+      expect(endSessionButtons(), role).toHaveLength(1)
+      expect(isInert(endSessionButtons()[0]!), role).toBe(false)
       // And the post-session report is absent for them.
       expect(region('Post-session report').textContent, role).toMatch(/No post-session report/)
       view.unmount()

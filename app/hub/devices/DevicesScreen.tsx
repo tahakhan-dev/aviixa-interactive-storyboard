@@ -1,17 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import { surfaceById } from '@/domain/surfaces'
-import { routeBySurface } from '@/routes/definitions'
 import { roleById, type RoleId } from '@/domain/roles'
-import { HubChrome } from '@/ui/doh/HubChrome'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { CommandStateBadge } from '@/ui/sa/CommandStateBadge'
-import { PrototypeDisclosure } from '@/ui/sa/PrototypeDisclosure'
 import {
   Banner,
-  Breadcrumbs,
   Button,
   Checkbox,
   Field,
@@ -34,8 +28,7 @@ import {
   writeAllowed,
   type TenantState,
 } from '@/surfaces/doh/tenant-state'
-import { seededHubBanners } from '../banner-fixtures'
-import type { TenantRoleId } from '../HubShell'
+import { HubShell, type HubShellUncataloguedScreen, type TenantRoleId } from '../HubShell'
 import {
   ABSENT_BY_RULE,
   APPLICABLE_SCREEN_STATES,
@@ -84,35 +77,24 @@ import {
 /**
  * `SCR-DOH-DEVICES` — uncatalogued, and claiming no module.
  *
- * WHY THIS SCREEN DOES NOT WRAP IN `HubShell`, stated plainly because it is a
- * deliberate deviation from the per-module contract rather than an oversight.
- * The shell is keyed on a module definition: it prints the module id, its
- * `SCR-DOH-NN` annotation and its purpose, and it marks that module current in
- * the rail. This screen group has no module and no catalogue row — the
- * identifier occurs exactly once in the frozen source and appears in neither
- * catalogue — so handing the shell a module would print a module header over a
- * device screen and mint exactly the ownership D5 refuses. It therefore renders
- * the shared Hub chrome directly, with the same banner assembly the shell uses
- * and no rail entry, and says so on screen.
+ * IT WRAPS `HubShell` IN THE SHELL'S UNCATALOGUED-SCREEN MODE. The shell used
+ * to have two modes and neither fitted: with a module it prints that module's
+ * id and marks it current in the rail, which mints exactly the ownership D5
+ * refuses; without one it renders the module index and drops `children`. This
+ * screen therefore duplicated the chrome instead — a stated deviation from the
+ * per-module contract, now retired. The shell's third mode takes a `screen`
+ * descriptor: the shell's own header, breadcrumb, persona switcher, banner
+ * region and prototype disclosure, over a route that names no module id
+ * anywhere and takes no place in the rail.
  */
-const SURFACE = surfaceById('SURF-DOH')
-const HUB_ROUTE = routeBySurface('SURF-DOH')
+const DEVICE_SCREEN: HubShellUncataloguedScreen = {
+  title: SCREEN_TITLE,
+  annotation: `${SCREEN_IDENTIFIER} — UNCATALOGUED (D4). This identifier occurs exactly once in the frozen source and appears in NEITHER screen catalogue, so no catalogue row is minted for it and no two-digit number is invented. This route is keyed on its own slug and claims no module (D5).`,
+  purpose:
+    'The tenant’s own device inventory and the enrollment panel behind it. Enrol, reassign, retire, and report a device lost. Suspending and wiping are not built here and never will be from this surface.',
+}
 
 const HUB_TENANT_ID = tenantId('TEN-BRIGHTBIKES')
-
-const TENANT_ROLE_IDS = [
-  'TENANT_ADMIN',
-  'SUPERVISOR',
-  'QUALITY_MANAGER',
-  'READONLY_AUDITOR',
-  'WORKER',
-] as const satisfies readonly RoleId[]
-
-const ROLE_OPTIONS = TENANT_ROLE_IDS.map((id) => ({ value: id, label: roleById(id).name }))
-
-function isTenantRole(value: string): value is TenantRoleId {
-  return TENANT_ROLE_IDS.some((id) => id === value)
-}
 
 const WRITE_CLASS_NOTE = new Map(TENANT_WRITE_CLASSES.map((row) => [row.state, row.note]))
 
@@ -215,7 +197,6 @@ export function DevicesScreen() {
   const [stateId, setStateId] = useState<ApplicableScreenStateId>('STATE-03')
   const [flagEnabled, setFlagEnabled] = useState(FLAG_DEFAULT_ENABLED)
   const [auditWillFail, setAuditWillFail] = useState(false)
-  const [supportSessionEnded, setSupportSessionEnded] = useState(false)
 
   const [devices, setDevices] = useState<readonly Device[]>(SEEDED_DEVICES)
   const [commands, setCommands] = useState<readonly DeviceCommandRecord[]>([])
@@ -232,7 +213,6 @@ export function DevicesScreen() {
   const roleName = roleById(role).name
   const definition = screenState(stateId)
 
-  const notAHubUser = !HUB_ROUTE.allowedRoles.includes(role)
   const connectionLost = stateId === 'STATE-08' || stateId === 'STATE-12' || stateId === 'STATE-13'
   const readFailed = stateId === 'STATE-12'
   const emptyRequested = stateId === 'STATE-01'
@@ -317,6 +297,10 @@ export function DevicesScreen() {
   function changeScenario(apply: () => void): void {
     apply()
     setOutcome(null)
+  }
+
+  function changeRole(next: TenantRoleId): void {
+    changeScenario(() => setRole(next))
   }
 
   const enrolValidation: string | null = (() => {
@@ -439,15 +423,6 @@ export function DevicesScreen() {
     )
   }
 
-  const banners = notAHubUser
-    ? []
-    : seededHubBanners({
-        tenantState,
-        role,
-        supportSessionEnded,
-        onEndSession: () => setSupportSessionEnded(true),
-      })
-
   const matrixRows: readonly TableRow[] = CONTROL_MATRIX.map((row) => ({
     control: (
       <>
@@ -482,14 +457,6 @@ export function DevicesScreen() {
       </p>
       <div className="mt-3 flex flex-wrap items-end gap-6">
         <Select
-          label="View as tenant role"
-          value={role}
-          options={ROLE_OPTIONS}
-          onChange={(value) => {
-            if (isTenantRole(value)) changeScenario(() => setRole(value))
-          }}
-        />
-        <Select
           label="Screen state"
           value={stateId}
           options={SCREEN_STATE_OPTIONS}
@@ -519,13 +486,6 @@ export function DevicesScreen() {
         />
       </div>
       <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
-        Changing a persona re-renders this storyboard&rsquo;s seeded fixtures from that
-        person&rsquo;s point of view. It performs no product action, changes no business state, and
-        alters no audit actor. The Hub renders no control that changes a signed-in user&rsquo;s own
-        role or session role context, and that is categorically prohibited for all five tenant
-        roles, so it renders ABSENT rather than disabled.
-      </p>
-      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
         The feature flag above is the real one, named rather than silent (D3), and it is read by the
         shared access evaluator&rsquo;s own feature stage — so switching it off refuses every device
         control through the same nine ordered stages as any other refusal, rather than by a
@@ -535,66 +495,35 @@ export function DevicesScreen() {
   )
 
   return (
-    <main id="main" className="mx-auto max-w-5xl px-6 py-12">
-      <p className="text-sm font-medium tracking-wide text-[var(--color-ink-subtle)]">AVIIXA</p>
+    <HubShell
+      screen={DEVICE_SCREEN}
+      role={role}
+      onRoleChange={changeRole}
+      tenantState={tenantState}
+    >
+      <>
+        <div
+          role="note"
+          className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] p-4 text-sm text-[var(--color-ink-muted)]"
+        >
+          <p className="max-w-prose">
+            <span className="font-medium text-[var(--color-ink)]">
+              This screen claims no module, and is not in the module rail.{' '}
+            </span>
+            Every other Hub route wraps the shell around a module definition — its identifier, its
+            screen annotation and its place in the rail. This screen group has none of those: it is
+            uncatalogued, and the one Hub module the workflow catalogue attributes device enrolment
+            to has a card saying the Hub shows the tenant its own position read-only and nothing
+            more. Handing the shell a module here would print that module&rsquo;s header over a
+            device screen and mint exactly the ownership its card refuses (D5). So it wraps the
+            shell in its UNCATALOGUED-SCREEN mode instead: the shell&rsquo;s own header,
+            breadcrumb, persona switcher, banner region and disclosure, over a route that names no
+            module id anywhere and takes no place in the rail. That disputed attribution is
+            recorded in full on the screen it belongs to.
+          </p>
+        </div>
 
-      <HubChrome banners={banners} modules={[]}>
-        {notAHubUser ? (
-          <>
-            <h1 className="text-3xl font-semibold">
-              Unavailable for the {roleName} view
-            </h1>
-            <div
-              role="note"
-              className="mt-6 rounded-[var(--radius-surface)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-4"
-            >
-              <p className="max-w-prose text-[var(--color-ink)]">
-                The {roleName} holds no Hub screen at all, so this uncatalogued route renders
-                nothing for it either — no chrome, no inventory, no controls. The route registry
-                admits {HUB_ROUTE.allowedRoles.map((r) => roleById(r).name).join(', ')}, and no
-                Worker.
-              </p>
-              <PrototypeDisclosure />
-            </div>
-            <div className="mt-6">{scenarioControls}</div>
-          </>
-        ) : (
-          <>
-            <Breadcrumbs items={[{ label: SURFACE.name, href: '/hub/' }, { label: SCREEN_TITLE }]} />
-            <h1 className="mt-2 text-3xl font-semibold">{SCREEN_TITLE}</h1>
-            <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
-              {SCREEN_IDENTIFIER} — UNCATALOGUED (D4). This identifier occurs exactly once in the
-              frozen source and appears in NEITHER screen catalogue, so no catalogue row is minted
-              for it and no two-digit number is invented. This route is keyed on its own slug.
-            </p>
-            <p className="mt-3 max-w-prose text-[var(--color-ink-muted)]">
-              The tenant&rsquo;s own device inventory and the enrollment panel behind it. Enrol,
-              reassign, retire, and report a device lost. Suspending and wiping are not built here
-              and never will be from this surface.
-            </p>
-            <div
-              role="note"
-              className="mt-4 rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] p-4 text-sm text-[var(--color-ink-muted)]"
-            >
-              <p className="max-w-prose">
-                <span className="font-medium text-[var(--color-ink)]">
-                  This screen claims no module, and is not in the module rail.{' '}
-                </span>
-                Every other Hub route wraps in a shell keyed on a module definition — its
-                identifier, its screen annotation and its place in the rail. This screen group has
-                none of those: it is uncatalogued, and the one Hub module the workflow catalogue
-                attributes device enrolment to has a card saying the Hub shows the tenant its own
-                position read-only and nothing more. Handing the shell a module here would print
-                that module&rsquo;s header over a device screen and mint exactly the ownership its
-                card refuses (D5). So it renders the shared Hub chrome directly — the same banner
-                assembly, with no rail entry — and the deviation from the per-module contract is
-                stated here rather than hidden. That disputed attribution is recorded in full on
-                the screen it belongs to.
-              </p>
-            </div>
-            <PrototypeDisclosure />
-
-            {scenarioControls}
+        {scenarioControls}
 
             <section aria-label="Screen state" className="mt-6">
               <h2 className="text-lg font-semibold">Screen state</h2>
@@ -1150,15 +1079,8 @@ export function DevicesScreen() {
               </ul>
             </section>
 
-            <p className="mt-8 text-sm">
-              <Link href="/hub/" className="text-[var(--color-primary)] underline">
-                Back to {SURFACE.name}
-              </Link>
-            </p>
-          </>
-        )}
-      </HubChrome>
-    </main>
+      </>
+    </HubShell>
   )
 }
 

@@ -2,6 +2,7 @@ import type { ScreenStateId } from '@/ui/screen-state'
 import type { SaAccessClassId } from '@/surfaces/sa/access-classes'
 import { ACCESS_CLASSES } from '@/surfaces/sa/access-classes'
 import type { WriteAction } from '@/surfaces/doh/tenant-state'
+import { DEFERRED_DOH_SCOPES } from '@/surfaces/doh/scope'
 import type { SupportSessionBanner } from '@/ui/doh/BannerRegion'
 import {
   SEEDED_ANNOUNCEMENTS,
@@ -797,6 +798,10 @@ export const ABSENT_BY_RULE = [
   {
     label: 'Prevent an access class from being recorded',
     note: 'Explicitly prohibited for every tenant role AND every platform role. Mirroring is automatic, and an access that cannot be audited does not happen — the mirror failing stops the access rather than letting it proceed unrecorded. This is the row that makes the history a guarantee rather than a report.',
+  },
+  {
+    label: 'Deferred scoping',
+    note: `This module has no scoping dimension at all: a platform-side access is against the WORKSPACE, and Platform Access History is that workspace's own filtered audit projection rather than anything cut by Site, Area or anything beneath them. So Cell, Job and worker scoping (${DEFERRED_DOH_SCOPES.join(', ')}) renders ABSENT here in the strongest sense — there is no filter, picker or column it could sit in, and no rule on this screen could depend on it. Stated rather than omitted, because this is the one Hub route where a reader might otherwise wonder whether the omission was an oversight.`,
   },
   {
     label: 'Everything the scope gate puts outside the Hub',

@@ -368,7 +368,21 @@ export function PlatformAdministrationScreen() {
   }))
 
   return (
-    <HubShell module={MODULE} role={role} onRoleChange={changeRole} tenantState={tenantState}>
+    <HubShell
+      module={MODULE}
+      role={role}
+      onRoleChange={changeRole}
+      tenantState={tenantState}
+      /* CRITICAL: one session, ONE control, gated once. The chrome's banner
+         slot draws an unconditionally live End-session control — `src/ui/**`
+         holds no policy, so it cannot ask the tenant-state gate anything — and
+         this route holds that gate. Without this the two were drawn together:
+         this screen's control disabled with its reason, and the chrome's live
+         beside it under a compliance suspension, an archived workspace and a
+         lost connection alike. The chrome now carries the suspension slot
+         only. */
+      ownsPlatformBanners
+    >
       {annotation}
 
       <div className="mt-6">{scenarioControls}</div>
@@ -469,15 +483,13 @@ export function PlatformAdministrationScreen() {
                     carries no control. The source defines no re-open control for a terminated
                     session, and none is drawn.
                   </p>
-                ) : permitsAction(endSessionDecision) ? (
+                ) : permitsAction(endSessionDecision) && endSessionRefusal !== null ? (
                   <div className="mt-3">
                     <Banner
                       tone="attention"
                       heading="Platform access in progress"
                       body={sessionMessage(panel.accessClass)}
-                      action={
-                        <Button disabledReason={endSessionRefusal ?? ''}>End session</Button>
-                      }
+                      action={<Button disabledReason={endSessionRefusal}>End session</Button>}
                     />
                     <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
                       The banner still renders — visibility is the guarantee and it does not depend
@@ -506,16 +518,25 @@ export function PlatformAdministrationScreen() {
                 </div>
               )}
 
-              <div className="mt-3">
-                <Button disabledReason={EXTEND_TIME_BOX_REASON}>Extend the time box</Button>
-              </div>
-              <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-                This one control is DISABLED with its reason rather than absent, and that is the
-                source&rsquo;s own rendering for it rather than this build&rsquo;s judgement: the
-                same panel that says the grant-write-access and hide-the-banner controls
-                &ldquo;do not exist&rdquo; says this one is disabled and quotes the reason it
-                carries. Both renderings are the source&rsquo;s, side by side, on one banner.
-              </p>
+              {panel.accessClass === 'normal-support-session' ? (
+                <>
+                  <div className="mt-3">
+                    <Button disabledReason={EXTEND_TIME_BOX_REASON}>Extend the time box</Button>
+                  </div>
+                  <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+                    This one control is DISABLED with its reason rather than absent, and that is
+                    the source&rsquo;s own rendering for it rather than this build&rsquo;s
+                    judgement: the same panel that says the grant-write-access and
+                    hide-the-banner controls &ldquo;do not exist&rdquo; says this one is disabled
+                    and quotes the reason it carries. Both renderings are the source&rsquo;s,
+                    side by side, on one banner. It is drawn on THIS class alone, because the
+                    panel that names it is the support-session banner&rsquo;s; the source says
+                    nothing about a time-box control on the other two, and extending a source row
+                    onto a class the source is silent about would be inventing a control — a
+                    disabled one is still one.
+                  </p>
+                </>
+              ) : null}
             </div>
           ))}
         </div>

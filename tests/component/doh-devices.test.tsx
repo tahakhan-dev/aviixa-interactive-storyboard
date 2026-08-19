@@ -65,14 +65,23 @@ describe('the device screen — identity, and the module it deliberately does no
     expect(body).toMatch(/Simulated behaviour only/)
   })
 
-  it('states on screen why it does not wrap in the module shell', () => {
+  it('wraps the shell in its uncatalogued mode, claiming no module and taking no rail place', () => {
     render(<DevicesScreen />)
     const body = document.body.textContent ?? ''
     expect(body).toMatch(/This screen claims no module, and is not in the module rail/)
     expect(body).toMatch(/mint exactly the ownership its card refuses/)
-    // And it really has no rail: the shared chrome draws one only for a module.
+    expect(body).toMatch(/UNCATALOGUED-SCREEN mode/)
+    // No rail: the shared chrome draws one only where a module is current.
     expect(screen.queryByRole('navigation', { name: 'Hub modules' })).toBeNull()
-    expect(screen.getByRole('link', { name: /back to/i })).toBeTruthy()
+    // But it IS the shell's chrome — its breadcrumb, its persona switcher and
+    // its disclosure, rather than a second copy of them. If the shell's
+    // uncatalogued mode regressed to dropping children, the inventory below
+    // would vanish and this whole file would red.
+    expect(
+      screen.getByRole('link', { name: 'Delivery Operations Hub' }).getAttribute('href'),
+    ).toMatch(/^\/hub\/?$/)
+    expect(screen.getByLabelText('View as tenant role')).toBeTruthy()
+    expect(region('Device inventory')).toBeTruthy()
   })
 
   it('renders nothing at all for a persona the surface withholds the Hub from', () => {
@@ -239,8 +248,19 @@ describe('the device screen — mark-lost and the wipe request (D27)', () => {
     expect(commands.textContent).toMatch(/a wipe REQUEST on TAB-014/)
     expect(commands.textContent).toMatch(/wipes nothing itself/)
     expect(commands.textContent).toMatch(/root approver/)
-    // The device is not wiped, and nothing says it is.
-    expect(document.body.textContent).not.toMatch(/\bwiped\b(?!.*never)/i)
+    // IMPORTANT 2. The line this replaces was
+    //   `expect(document.body.textContent).not.toMatch(/\bwiped\b(?!.*never)/i)`
+    // and it could not fail: `textContent` is one long line, so the negative
+    // lookahead scanned the whole remaining document and found a "never"
+    // thousands of characters later. A planted "the device was wiped." at the
+    // front of the body passed it. Replaced with an assertion on what is
+    // actually RENDERED as a state: no badge on this screen reads a terminal
+    // command state, and the device's own state chip still says what it is.
+    for (const terminal of ['wiped', 'applied', 'acknowledged', 'reconciled', 'delivered']) {
+      expect(screen.queryByText(terminal), terminal).toBeNull()
+    }
+    expect(within(card).getAllByText('in_service').length).toBeGreaterThan(0)
+    expect(commands.textContent).toMatch(/wipes nothing itself/)
   })
 
   it('draws no control that executes a wipe or suspends a device, for anybody', () => {

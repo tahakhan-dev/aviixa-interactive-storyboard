@@ -103,21 +103,59 @@ function screenAnnotation(moduleId: DohModuleId): string {
  * later module needs to own that session, it becomes a controlled prop like
  * the two above — do not mirror it into a screen's state.
  */
+/**
+ * A route that owns NO module: an uncatalogued screen group, whose identifier
+ * appears in neither screen catalogue and which no module id may claim.
+ *
+ * Without this, `HubShell` had two modes and neither fitted such a route: with
+ * `module` it prints that module's id and marks it current in the rail, which
+ * mints ownership the source refuses; without `module` it renders the module
+ * index and DROPS `children` entirely. So the device screen could not wrap the
+ * shell at all and duplicated its chrome instead. This is the third option —
+ * the shell's own header and chrome over a screen that claims no module.
+ */
+export interface HubShellUncataloguedScreen {
+  readonly title: string
+  /** Sits where a module's id and `SCR-DOH-NN` annotation would. */
+  readonly annotation: string
+  readonly purpose: string
+}
+
 export interface HubShellProps {
   readonly module?: DohModuleDefinition
+  /** For a route that owns no module. Mutually exclusive with `module` in
+   *  practice; `module` wins if both are supplied. */
+  readonly screen?: HubShellUncataloguedScreen
   /** Which seeded persona's view renders. Owned by the calling screen. */
   readonly role?: TenantRoleId
   readonly onRoleChange?: (role: TenantRoleId) => void
   /** Read before any write control renders (S2). Defaults to `active`. */
   readonly tenantState?: TenantState
+  /**
+   * THE ROUTE RENDERS THE PLATFORM-SIDE BANNER SLOTS ITSELF, so the chrome
+   * carries the suspension slot only.
+   *
+   * One session must have ONE control, gated ONCE. The chrome's End-session
+   * control is unconditionally live by design — `src/ui/**` holds no policy,
+   * so `BannerRegion` cannot ask a tenant-state gate anything — and a route
+   * that owns the session holds the gate. Without this flag both were drawn:
+   * the module's own control disabled with its reason and the chrome's live
+   * beside it, which is a write control rendering ungated on a route that had
+   * just refused it. The chrome yields to the route that owns the session
+   * rather than the other way round, because the gate is policy and policy may
+   * not move into `src/ui/`.
+   */
+  readonly ownsPlatformBanners?: boolean
   readonly children?: ReactNode
 }
 
 export function HubShell({
   module,
+  screen,
   role,
   onRoleChange,
   tenantState = 'active',
+  ownsPlatformBanners = false,
   children,
 }: HubShellProps) {
   // Index-only fallback: on a module route the screen above owns this.
@@ -147,6 +185,14 @@ export function HubShell({
    *    screen whose own copy says the rail does not offer it.
    */
   const railModules = notAHubUser ? [] : dohModulesReachedBy(activeRole)
+  /**
+   * The suspension slot is always the chrome's: no route owns a suspension and
+   * none carries a control over one. The support-session and announcement
+   * slots go to the route that owns them, where one exists — see
+   * `ownsPlatformBanners`. Filtered HERE rather than in `banner-fixtures`, so
+   * the seeded data stays one unconditional set and the shell keeps the whole
+   * decision about what is drawn.
+   */
   const banners = notAHubUser
     ? []
     : seededHubBanners({
@@ -154,7 +200,7 @@ export function HubShell({
         role: activeRole,
         supportSessionEnded,
         onEndSession: () => setSupportSessionEnded(true),
-      })
+      }).filter((banner) => !ownsPlatformBanners || banner.kind === 'suspension')
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-6 py-12">
@@ -184,6 +230,16 @@ export function HubShell({
               route is keyed on the module slug (D1).
             </p>
             <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">{module.purpose}</p>
+            <PrototypeDisclosure />
+          </div>
+        ) : screen !== undefined ? (
+          <div>
+            <Breadcrumbs
+              items={[{ label: SURFACE.name, href: '/hub/' }, { label: screen.title }]}
+            />
+            <h1 className="mt-2 text-3xl font-semibold">{screen.title}</h1>
+            <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">{screen.annotation}</p>
+            <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">{screen.purpose}</p>
             <PrototypeDisclosure />
           </div>
         ) : (
@@ -251,7 +307,7 @@ export function HubShell({
               it is shown to every persona here and recorded as an open question rather than guessed.
             </p>
           )}
-          {notAHubUser ? null : (
+          {notAHubUser || ownsPlatformBanners ? null : (
             <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
               One access class is seeded open here, the normal support session, and End session on
               it is live: any signed-in tenant web user may press it, because the control belongs to
@@ -260,6 +316,15 @@ export function HubShell({
               type has no such field on those two arms, so there is nothing to disable (D13). All
               three classes are exercised on the Tenant View of Platform Administration screen,
               which this slice builds later.
+            </p>
+          )}
+          {notAHubUser || !ownsPlatformBanners ? null : (
+            <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+              This route owns the platform-side banner slots, so the chrome above carries the
+              suspension slot only. The support-session and announcement banners, and the one
+              End-session control over that session, are rendered by the screen below — one
+              session, one control, gated once. Drawing both would put a live, ungated write
+              control beside a refused one.
             </p>
           )}
           <LiveRegion>
@@ -294,7 +359,7 @@ export function HubShell({
             </p>
             <PrototypeDisclosure />
           </div>
-        ) : module !== undefined ? (
+        ) : module !== undefined || screen !== undefined ? (
           <div className="mt-6">{children}</div>
         ) : (
           <>

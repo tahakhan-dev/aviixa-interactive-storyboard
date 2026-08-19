@@ -370,6 +370,18 @@ describe('MOD-DOH-13 — the panels the contract requires', () => {
       'The time box is set on the platform side and cannot be extended from here',
     )
     expect(SCREEN_SRC).toMatch(/disabledReason=\{EXTEND_TIME_BOX_REASON\}/)
+    // And it is drawn on the support session alone — the panel that names it.
+    expect(SCREEN_SRC).toMatch(/panel\.accessClass === 'normal-support-session' \? \(/)
+  })
+
+  it('carries a deferred-scoping note, as every other Hub route does', () => {
+    const scoping = ABSENT_BY_RULE.find((a) => a.label === 'Deferred scoping')
+    expect(scoping).toBeDefined()
+    // The honest reason for THIS module: it has no scoping dimension at all.
+    expect(scoping!.note).toMatch(/no scoping dimension at all/)
+    for (const deferred of ['cell', 'job', 'worker']) {
+      expect(scoping!.note, deferred).toContain(deferred)
+    }
   })
 
   it('says "workspace" and never "tenant" in the banner form (D18)', () => {
