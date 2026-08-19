@@ -264,7 +264,6 @@ export function DevicesScreen() {
   const packageRows: readonly TableRow[] = detailDevice.packages.map((p) => ({
     version: p.packageVersion,
     scope: p.scope,
-    runs: p.runsInTenantMonth,
   }))
 
   const auditRows: readonly TableRow[] = detailDevice.auditTrail.map((a) => ({
@@ -449,7 +448,6 @@ export function DevicesScreen() {
             columns={[
               { key: 'version', header: 'Package version' },
               { key: 'scope', header: 'Scope' },
-              { key: 'runs', header: 'Runs recorded in the tenant-month' },
             ]}
             rows={packageRows}
             emptyState={{

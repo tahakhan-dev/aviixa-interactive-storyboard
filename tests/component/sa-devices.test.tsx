@@ -284,11 +284,13 @@ describe('MOD-SA-13 — the fleet, its telemetry and its aggregates', () => {
         .find((r) => (r.textContent ?? '').includes(pkg.packageVersion))
       expect(row, pkg.packageVersion).toBeDefined()
       expect(row!.textContent ?? '', pkg.packageVersion).toContain(pkg.scope)
-      expect(row!.textContent ?? '', pkg.packageVersion).toContain(pkg.runsInTenantMonth)
-      // A tenant-month count, never a rate and never a per-worker series.
-      expect(pkg.runsInTenantMonth, pkg.packageVersion).toMatch(
-        /^\d+ runs recorded in the tenant-month$/,
-      )
+      // NO RUN COUNT on a device row. The comment here used to read "a
+      // tenant-month count, never a per-worker series" while the fixture
+      // carried '58 runs recorded in the tenant-month' on a device in PERSONAL
+      // mode -- one person's device, bound to one area. That is a per-person
+      // work count, and the comment asserting it was not one is the reason it
+      // survived three review rounds.
+      expect(row!.textContent ?? '', pkg.packageVersion).not.toMatch(/\bruns?\b/i)
     }
     // A device with nothing recorded renders the empty state and no grid —
     // never a zero-row table and never a zero.

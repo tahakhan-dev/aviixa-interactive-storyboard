@@ -82,7 +82,6 @@ export interface PackageInventoryRow {
   readonly scope: string
   /** A count at the tenant-month grain (AC-SA-13-06). Never a rate, never a
    *  series, never attached to a person. */
-  readonly runsInTenantMonth: string
 }
 
 export interface DeviceAuditRow {
@@ -137,12 +136,10 @@ export const DEVICES = [
       {
         packageVersion: 'PKG-ASSY-4.2.0',
         scope: 'Assembly area 2',
-        runsInTenantMonth: '412 runs recorded in the tenant-month',
       },
       {
         packageVersion: 'PKG-ASSY-4.1.0',
         scope: 'Assembly area 2, superseded',
-        runsInTenantMonth: '96 runs recorded in the tenant-month',
       },
     ],
     auditTrail: [
@@ -204,7 +201,6 @@ export const DEVICES = [
       {
         packageVersion: 'PKG-INSP-4.1.0',
         scope: 'Inspection area 1',
-        runsInTenantMonth: '58 runs recorded in the tenant-month',
       },
     ],
     auditTrail: [
@@ -235,7 +231,6 @@ export const DEVICES = [
       {
         packageVersion: 'PKG-ASSY-4.2.0',
         scope: 'Assembly area 1',
-        runsInTenantMonth: '137 runs recorded in the tenant-month',
       },
     ],
     auditTrail: [
@@ -272,7 +267,6 @@ export const DEVICES = [
       {
         packageVersion: 'PKG-ASSY-4.2.0',
         scope: 'Assembly area 3, at retirement',
-        runsInTenantMonth: '11 runs recorded in the tenant-month',
       },
     ],
     auditTrail: [

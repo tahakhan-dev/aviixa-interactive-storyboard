@@ -102,46 +102,96 @@ describe('slice 3 gate 3: support, not surveillance', () => {
   // on a commercial ledger, never a rate, never a series below tenant-month,
   // never a comparison between people.
   //
-  // THIS GATE MATCHES STRUCTURE, NOT PROSE, and the first draft did not.
-  // Matching the phrase "per-worker" flagged six sites, and every one was a
-  // DENIAL -- "There is no per-worker row", "no per-worker breakdown exists
-  // for any account including the root" -- which is the absence disclosure the
-  // spec requires. That is the sixth time in this build a gate has matched the
-  // prose that names what it forbids in order to forbid it, and the first
-  // where comment-stripping could not help, because the denials are rendered
-  // copy rather than comments.
+  // THREE AXES, because spec S6 names three and the first version of this gate
+  // tested one. It was also a case-SENSITIVE eight-word list, so `WorkerId`,
+  // `operatorId`, `personId`, `employeeId`, `worker_ref` and a column headed
+  // 'Worker' all walked past it -- and letter casing is the exact defeat this
+  // build already records once, in a gate that missed
+  // `_clientMiddlewareManifest.js`.
   //
-  // What actually constitutes surveillance is a DATA DIMENSION: a record keyed
-  // by a person, or a column that names one. Prose cannot create one and
-  // cannot remove one, so prose is not what this reads.
-  const WORKER_DIMENSION =
-    /\b(workerId|worker_id|workerName|byWorker|perWorker|workerRanking|productivityScore|efficiencyRating)\b/
+  // It matches STRUCTURE, not prose: an earlier draft matched the phrase
+  // "per-worker" and flagged six DENIALS ("There is no per-worker row"), which
+  // is the disclosure the spec requires.
 
-  function workerDimensionOffenders(): string[] {
+  // AXIS 1 — a record keyed by a person, or a column naming one.
+  const PERSON_DIMENSION =
+    /\b(worker|operator|person|employee|individual|staff)[_-]?(id|name|ref|label|key)\b/i
+  // `Worker-Shift` is the BILLING UNIT (AC-GOAL-060, L2241) and belongs on the
+  // metering ledger, so the person token is excluded when it is part of that
+  // compound. A column headed "Worker" is surveillance; a column headed
+  // "Worker-Shifts metered against allocation" is a commercial measure. This
+  // is the third time in this build a gate has matched a token inside a larger
+  // term it does not mean -- after `signed` inside "signed-in" and `18` inside
+  // `MOD-SA-18` -- so the rule is the same: match the semantic unit.
+  const PERSON_COLUMN =
+    /header:\s*['"`][^'"`]*\b(worker(?!-shift)|operator|employee)\b/i
+
+  // AXIS 2 — a rate. A measure per unit time is a pace measure.
+  const RATE = /\b(per\s*(hour|minute|second)|\/\s*(hr|hour|min)|throughput|runs?\s*per\b|rate\s*of\s*work)\b/i
+
+  // AXIS 3 — a series below tenant-month. Worker-Shift is a monthly billing
+  // count; anything finer is the first step down the chain.
+  const SUB_MONTH_SERIES =
+    /\b(per[\s-]?(shift|run|day|hour)|by[\s-]?(shift|run|day)|daily\s+(count|total|series)|hourly\s+(count|total|series))\b/i
+
+  function offenders(re: RegExp): string[] {
     return saSources()
-      .filter(({ src }) => WORKER_DIMENSION.test(src))
+      .filter(({ src }) => {
+        // A denial is not a violation: "No per-shift view exists" states the
+        // absence the spec requires. Only a line that is NOT a denial counts.
+        return src
+          .split('\n')
+          .some((line) => re.test(line) && !/\b(no|never|not|cannot|neither|nor|absent|prohibited)\b/i.test(line))
+      })
       .map(({ file }) => file)
   }
 
-  it('no SURF-SA record or column carries a worker dimension', () => {
-    expect(workerDimensionOffenders()).toEqual([])
+  it('AXIS 1: no record or column carries a person dimension', () => {
+    expect(offenders(PERSON_DIMENSION)).toEqual([])
+    expect(offenders(PERSON_COLUMN)).toEqual([])
   })
 
-  it('PLANTED VIOLATION: a worker-keyed fixture row trips the gate', () => {
-    withPlanted(
-      'export const ROWS = [{ workerId: "WKR-1", shifts: 12 }]\n',
-      (probe) => expect(workerDimensionOffenders()).toContain(probe),
-    )
-    expect(workerDimensionOffenders()).toEqual([])
+  it('AXIS 2: no measure is expressed as a rate', () => {
+    expect(offenders(RATE)).toEqual([])
   })
 
-  it('a denial of a per-worker view does NOT trip the gate', () => {
-    // The exact copy the first draft flagged. Stating that a breakdown does
-    // not exist is the disclosure, not the defect.
-    withPlanted(
-      'export const N = "No per-worker, per-shift or per-run view exists on this console."\n',
-      () => expect(workerDimensionOffenders()).toEqual([]),
-    )
+  it('AXIS 3: no series runs below tenant-month', () => {
+    expect(offenders(SUB_MONTH_SERIES)).toEqual([])
+  })
+
+  it.each([
+    ['a worker-keyed row', 'export const R = [{ workerId: "WKR-1", shifts: 12 }]\n', 'PERSON_DIMENSION'],
+    ['a camelCase variant', 'export const R = [{ WorkerName: "A" }]\n', 'PERSON_DIMENSION'],
+    ['an operator alias', 'export const R = [{ operatorId: "OP-9" }]\n', 'PERSON_DIMENSION'],
+    ['an employee alias', 'export const R = [{ employee_ref: "E-3" }]\n', 'PERSON_DIMENSION'],
+    ['a column headed Worker', "export const C = [{ key: 'w', header: 'Worker' }]\n", 'PERSON_COLUMN'],
+    ['a rate', 'export const M = "412 runs per hour"\n', 'RATE'],
+    ['a per-shift series', 'export const M = "Runs per shift, trending"\n', 'SUB_MONTH_SERIES'],
+  ])('PLANTED VIOLATION: %s trips the gate', (_what, body) => {
+    withPlanted(body, (probe) => {
+      const all = [
+        ...offenders(PERSON_DIMENSION),
+        ...offenders(PERSON_COLUMN),
+        ...offenders(RATE),
+        ...offenders(SUB_MONTH_SERIES),
+      ]
+      expect(all).toContain(probe)
+    })
+  })
+
+  it.each([
+    ['a denial of a per-worker view', 'export const N = "No per-worker view exists on this console."\n'],
+    ['a denial of a per-shift series', 'export const N = "There is no per-shift or per-run series here."\n'],
+  ])('and %s does NOT trip it', (_what, body) => {
+    withPlanted(body, () => {
+      const all = [
+        ...offenders(PERSON_DIMENSION),
+        ...offenders(PERSON_COLUMN),
+        ...offenders(RATE),
+        ...offenders(SUB_MONTH_SERIES),
+      ]
+      expect(all).toEqual([])
+    })
   })
 })
 
