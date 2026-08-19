@@ -52,10 +52,12 @@ describe('BannerRegion — the three-slot banner region and nothing more', () =>
 describe('HubChrome — the shared banner region and module rail', () => {
   it('lists all eight in-slice modules as navigable links, keyed by slug', () => {
     // Task 2 fix 1: the rail is navigation and renders on a module route
-    // only, so this case now names one. The assertion is unchanged -- the
-    // rail lists all eight whichever one is current.
+    // only, so this case now names one. Task 2 fix round 3: WHICH modules
+    // the rail lists is no longer this component's decision -- the shell
+    // computes the persona's list and hands it over, so the case hands it
+    // all eight. The assertion is unchanged: it draws what it is given.
     render(
-      <HubChrome banners={[]} role="TENANT_ADMIN" activeModuleId="MOD-DOH-01">
+      <HubChrome banners={[]} modules={DOH_MODULES} activeModuleId="MOD-DOH-01">
         <p>content</p>
       </HubChrome>,
     )
@@ -70,7 +72,7 @@ describe('HubChrome — the shared banner region and module rail', () => {
 
   it('marks the active module with aria-current, and no other', () => {
     render(
-      <HubChrome banners={[]} role="TENANT_ADMIN" activeModuleId="MOD-DOH-03">
+      <HubChrome banners={[]} modules={DOH_MODULES} activeModuleId="MOD-DOH-03">
         <p>content</p>
       </HubChrome>,
     )
@@ -80,7 +82,7 @@ describe('HubChrome — the shared banner region and module rail', () => {
 
   it('renders its children beneath the chrome', () => {
     render(
-      <HubChrome banners={[]} role="TENANT_ADMIN">
+      <HubChrome banners={[]} modules={DOH_MODULES}>
         <p>module body</p>
       </HubChrome>,
     )
@@ -90,7 +92,7 @@ describe('HubChrome — the shared banner region and module rail', () => {
   it('renders banners passed through to the banner region', () => {
     const banners: readonly HubBanner[] = [{ kind: 'announcement', message: 'Read me.' }]
     render(
-      <HubChrome banners={banners} role="TENANT_ADMIN">
+      <HubChrome banners={banners} modules={DOH_MODULES}>
         <p>content</p>
       </HubChrome>,
     )

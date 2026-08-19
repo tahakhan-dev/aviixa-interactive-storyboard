@@ -16,6 +16,9 @@ import {
   tierRecord,
 } from '../../app/hub/tenant-lifecycle-and-tier-operations/fixtures'
 import { TENANT_STATES } from '@/surfaces/doh/tenant-state'
+import { dohModuleById } from '@/surfaces/doh/modules'
+import { rolesInDomain } from '@/domain/roles'
+import type { TenantRoleId } from '../../app/hub/HubShell'
 
 /**
  * MOD-DOH-01's only pure logic: a percentage becomes one of four ladder
@@ -161,5 +164,41 @@ describe('support-not-surveillance, held in the fixture shape itself', () => {
     for (const row of TENANT_STATE_HISTORY) {
       expect(operating).toContain(row.to)
     }
+  })
+})
+
+/**
+ * THE CROSS-CHECK. The module rail reads ONE field — `rolesReaching` on this
+ * module's definition in `@/surfaces/doh/modules` — while this screen renders
+ * its own permission matrix. Two copies of one rule is the drift this build
+ * keeps paying for, so this case asserts the two agree.
+ *
+ * The rule, one sentence: the roles the spine withholds the route from are
+ * exactly the roles this matrix marks `Unavailable`. That token's own meaning
+ * is "cannot hold this in any scope", so by the prohibition-rendering rule it
+ * renders ABSENT and the rail does not offer the route. `Explicitly
+ * prohibited` is deliberately NOT that token — the control exists on this
+ * screen for another role, so the refused role opens the screen and reads why
+ * — and the two are never merged (L10238).
+ *
+ * Every module suite carries this case, adapted only to how its own matrix
+ * spells a cell. The five modules not yet built inherit the pattern.
+ */
+describe('MOD-DOH-01 — the rail and this matrix agree about who reaches the module', () => {
+  it('withholds the route from exactly the roles the matrix marks Unavailable', () => {
+    const tenantRoles = rolesInDomain('TENANT').map((r) => r.id) as readonly TenantRoleId[]
+    // Guards the narrowing above, and proves the sweep below covers all five.
+    expect(Object.keys(CONTROL_MATRIX[0]!.byRole).sort()).toEqual([...tenantRoles].sort())
+
+    const withheldByTheMatrix = tenantRoles.filter((role) =>
+      CONTROL_MATRIX.some((row) => row.byRole[role].status === 'Unavailable'),
+    )
+    const withheldByTheSpine = tenantRoles.filter(
+      (role) => !dohModuleById('MOD-DOH-01').rolesReaching.includes(role),
+    )
+
+    expect([...withheldByTheSpine].sort()).toEqual([...withheldByTheMatrix].sort())
+    // Not vacuous: this module is withheld from three of the five.
+    expect(withheldByTheMatrix).toHaveLength(3)
   })
 })

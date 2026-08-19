@@ -8,6 +8,7 @@ import { roleById, type RoleId } from '@/domain/roles'
 import {
   DOH_MODULES,
   DOH_OUT_OF_SLICE_MODULES,
+  dohModulesReachedBy,
   type DohModuleDefinition,
   type DohModuleId,
 } from '@/surfaces/doh/modules'
@@ -126,26 +127,46 @@ export function HubShell({
   const activeRole = role ?? ownRole
   const setRole = onRoleChange ?? setOwnRole
 
-  const banners = seededHubBanners({
-    tenantState,
-    supportSessionEnded,
-    onEndSession: () => setSupportSessionEnded(true),
-  })
-
   // D11, read out of the route registry rather than re-asserted here.
   const notAHubUser = !HUB_ROUTE.allowedRoles.includes(activeRole)
   const hubRoleNames = HUB_ROUTE.allowedRoles.map((r) => roleById(r).name).join(', ')
+
+  /**
+   * The shell decides; the chrome draws. Two questions, asked here because
+   * `src/ui/` may hold no permission logic at all — "taking a button off the
+   * screen does not stop anyone", so a component that answered either of
+   * these would be answering something only the enforcement layer may:
+   *
+   * 1. Does this persona reach SURF-DOH at all? One registry statement, and
+   *    it does not list the Worker (D11). A persona that reaches nothing is
+   *    offered no chrome — no rail, no banner region, no module content.
+   * 2. Which modules does it reach? Each module's own matrix answers that,
+   *    carried on the module definition and read by `dohModulesReachedBy`.
+   *    A module the matrix marks `Unavailable` renders ABSENT, so the rail
+   *    does not offer the route — a Supervisor is not shown a link to a
+   *    screen whose own copy says the rail does not offer it.
+   */
+  const railModules = notAHubUser ? [] : dohModulesReachedBy(activeRole)
+  const banners = notAHubUser
+    ? []
+    : seededHubBanners({
+        tenantState,
+        role: activeRole,
+        supportSessionEnded,
+        onEndSession: () => setSupportSessionEnded(true),
+      })
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-6 py-12">
       <p className="text-sm font-medium tracking-wide text-[var(--color-ink-subtle)]">AVIIXA</p>
 
-      {/* The rail is navigation: it renders on a module route only, and never
-          for a persona that reaches no Hub screen (D11). Both conditions live
-          in `HubChrome` itself — the shell just tells it the persona. */}
+      {/* The rail is navigation: it renders on a module route only, over the
+          modules this persona actually reaches, and not at all for a persona
+          that reaches no Hub screen (D11). Every one of those decisions is
+          made above; the chrome draws the two lists it is handed. */}
       <HubChrome
         banners={banners}
-        role={activeRole}
+        modules={railModules}
         {...(module !== undefined ? { activeModuleId: module.id } : {})}
       >
         {notAHubUser ? (
@@ -217,6 +238,19 @@ export function HubShell({
             permissions matrix marks that categorically prohibited for all five tenant roles, so it
             renders ABSENT rather than disabled.
           </p>
+          {notAHubUser ? null : (
+            <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+              Two things change with the persona and are meant to. The module rail offers only the
+              modules whose own permission matrix gives this persona something — a module marked
+              Unavailable renders ABSENT, so the route is not offered rather than offered and then
+              refused. And the suspension banner splits on two adjacent rows of the tenant-lifecycle
+              matrix (L26886-L26888): the soft and hard suspension banners reach the Tenant Admin
+              alone, because no other user sees anything at all in those two states, while the
+              compliance-suspension message reaches all five roles, because sign-in is blocked for
+              everyone and everyone must be told why. The archived state is covered by neither row;
+              it is shown to every persona here and recorded as an open question rather than guessed.
+            </p>
+          )}
           {notAHubUser ? null : (
             <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
               One access class is seeded open here, the normal support session, and End session on

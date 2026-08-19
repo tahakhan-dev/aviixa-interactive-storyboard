@@ -6,6 +6,7 @@ import type {
 } from '@/ui/doh/BannerRegion'
 import type { SaAccessClassId } from '@/surfaces/sa/access-classes'
 import type { TenantState } from '@/surfaces/doh/tenant-state'
+import type { RoleId } from '@/domain/roles'
 
 /**
  * The seeded banner fixtures behind the Hub's three-slot banner region.
@@ -67,6 +68,60 @@ export const SUSPENSION_BANNERS: Record<Exclude<TenantState, 'active'>, Suspensi
 }
 
 /**
+ * WHO SEES EACH SUSPENSION BANNER. Two adjacent rows of the tenant lifecycle
+ * and tier module's permission matrix (L26886-L26888) carry two different
+ * answers, and a single rule for both was the defect this table replaces:
+ *
+ * - Seeing the suspension banner in the soft or hard state is `Allowed` for
+ *   the Tenant Admin and `Not applicable` for everyone else, in the source's
+ *   own words because no other user sees anything at all in those two
+ *   states. Suspension for non-payment is a commercial matter between the
+ *   workspace's administrator and the platform; a Supervisor's shift does
+ *   not change because of it, and telling them would leak the commercial
+ *   relationship to people who hold no part in it.
+ * - Seeing the compliance-suspension message is `Allowed` for all five
+ *   roles. Sign-in is blocked for everyone in that state, so everyone must
+ *   be told why.
+ *
+ * `archived` is the fourth entry in `SUSPENSION_BANNERS` and NO row of that
+ * matrix covers it. Its audience is therefore not derived — it is left as
+ * this storyboard already had it, shown to every Hub persona, and recorded
+ * as an open question rather than guessed into a rule. Do not read the
+ * value below as a source statement.
+ */
+const EVERY_TENANT_ROLE = [
+  'TENANT_ADMIN',
+  'SUPERVISOR',
+  'QUALITY_MANAGER',
+  'READONLY_AUDITOR',
+  'WORKER',
+] as const
+
+const SUSPENSION_BANNER_AUDIENCE = {
+  'soft-suspended': ['TENANT_ADMIN'],
+  'hard-suspended': ['TENANT_ADMIN'],
+  'compliance-suspended': EVERY_TENANT_ROLE,
+  archived: EVERY_TENANT_ROLE,
+} as const satisfies Record<Exclude<TenantState, 'active'>, readonly RoleId[]>
+
+/**
+ * The suspension slot, for one persona. `null` means the slot is empty —
+ * either the workspace is not suspended, or this persona is not one the
+ * source shows this class of suspension to.
+ */
+export function suspensionBannerFor(
+  tenantState: TenantState,
+  role: RoleId,
+): SuspensionBanner | null {
+  if (tenantState === 'active') return null
+  // Widened deliberately: the tables above are `as const`, so a narrow
+  // `.includes` would only ever accept the roles already listed and the
+  // question would answer itself.
+  const audience: readonly RoleId[] = SUSPENSION_BANNER_AUDIENCE[tenantState]
+  return audience.includes(role) ? SUSPENSION_BANNERS[tenantState] : null
+}
+
+/**
  * The platform-side access sessions this storyboard seeds, one per access
  * class (`ACCESS_CLASSES`). `open` is the seeded state of each — the shell
  * banners the open ones. Extending this array is how task 10 adds the other
@@ -79,7 +134,10 @@ export interface SeededPlatformAccessSession {
   readonly open: boolean
 }
 
-export const SEEDED_PLATFORM_ACCESS_SESSIONS: readonly SeededPlatformAccessSession[] = [
+// `as const satisfies`, never a leading `: readonly T[]` annotation: the
+// annotation widens the const and makes the exhaustiveness check below
+// vacuous, which is how a closed vocabulary quietly stops being closed.
+export const SEEDED_PLATFORM_ACCESS_SESSIONS = [
   {
     accessClass: 'normal-support-session',
     message:
@@ -101,17 +159,27 @@ export const SEEDED_PLATFORM_ACCESS_SESSIONS: readonly SeededPlatformAccessSessi
       'reason-linked, audited and mirrored to you.',
     open: false,
   },
-]
+] as const satisfies readonly SeededPlatformAccessSession[]
+
+// The doc comment above claims one entry per access class. This is what
+// makes the claim true rather than aspirational: it fails to compile if a
+// class is added to `SaAccessClassId` and not seeded here.
+type MissingFromSeededSessions = Exclude<
+  SaAccessClassId,
+  (typeof SEEDED_PLATFORM_ACCESS_SESSIONS)[number]['accessClass']
+>
+const _seededSessionsExhaustive: MissingFromSeededSessions extends never ? true : never = true
+void _seededSessionsExhaustive
 
 /** L45684: no tenant user can mute this, so the variant carries no dismiss control. */
-export const SEEDED_ANNOUNCEMENTS: readonly AnnouncementBanner[] = [
+export const SEEDED_ANNOUNCEMENTS = [
   {
     kind: 'announcement',
     message:
       'Planned platform maintenance this Saturday, 02:00-04:00 in each workspace timezone. ' +
       'Frontline devices keep working offline throughout.',
   },
-]
+] as const satisfies readonly AnnouncementBanner[]
 
 /**
  * The ONE construction of `SupportSessionBanner`'s discriminated union.
@@ -145,6 +213,15 @@ export function supportSessionBanners(
 export interface SeededHubBannerOptions {
   /** Held by the shell; the suspension banner is a lookup on it, never a rule. */
   readonly tenantState: TenantState
+  /**
+   * The persona the banners are assembled for. The suspension slot splits
+   * on it (see `suspensionBannerFor`); the other two slots do not — the tenant
+   * view of platform administration's matrix marks seeing the support-session
+   * banner and seeing a platform announcement `Allowed` for every Hub role
+   * alike (L29194, L29196). This directory names no module id literal, by the
+   * build rule: it claims no module.
+   */
+  readonly role: RoleId
   /** True once the reviewer has pressed End session in this storyboard. */
   readonly supportSessionEnded: boolean
   readonly onEndSession: () => void
@@ -156,12 +233,17 @@ export interface SeededHubBannerOptions {
  */
 export function seededHubBanners({
   tenantState,
+  role,
   supportSessionEnded,
   onEndSession,
 }: SeededHubBannerOptions): readonly HubBanner[] {
-  const suspension = tenantState === 'active' ? [] : [SUSPENSION_BANNERS[tenantState]]
+  const suspension = suspensionBannerFor(tenantState, role)
   const open = supportSessionEnded
     ? []
     : SEEDED_PLATFORM_ACCESS_SESSIONS.filter((s) => s.open)
-  return [...suspension, ...supportSessionBanners(open, onEndSession), ...SEEDED_ANNOUNCEMENTS]
+  return [
+    ...(suspension === null ? [] : [suspension]),
+    ...supportSessionBanners(open, onEndSession),
+    ...SEEDED_ANNOUNCEMENTS,
+  ]
 }

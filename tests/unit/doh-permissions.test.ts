@@ -452,3 +452,32 @@ describe('the person-measure key gate, proved in both directions', () => {
     expect(namesPersonBehaviouralMeasure(key)).toBe(false)
   })
 })
+
+/**
+ * THE CROSS-CHECK. Same case as `tests/unit/doh-tenant-lifecycle.test.ts` and
+ * `tests/unit/doh-locations.test.ts` carry, adapted to this matrix's own
+ * spelling of a cell: the module rail reads one field, `rolesReaching` on this
+ * module's definition in `@/surfaces/doh/modules`, while this screen renders
+ * its own matrix, and the two must not drift.
+ *
+ * The rule: the roles the spine withholds the route from are exactly the roles
+ * this matrix marks `unavailable`. This module's own matrix states the reason
+ * the two tokens are never merged, in the cell itself — `unavailable` is
+ * "cannot hold this in any scope", so the route renders ABSENT, while
+ * `explicitlyProhibited` leaves the control on this screen for another role
+ * and the refused role opens it and reads why.
+ */
+describe('MOD-DOH-09 — the rail and this matrix agree about who reaches the module', () => {
+  it('withholds the route from exactly the roles the matrix marks unavailable', () => {
+    const withheldByTheMatrix = TENANT_ROLE_ORDER.filter((role) =>
+      PERMISSION_MATRIX.some((row) => row.cells[role].outcome === 'unavailable'),
+    )
+    const withheldByTheSpine = TENANT_ROLE_ORDER.filter(
+      (role) => !MODULE.rolesReaching.includes(role),
+    )
+
+    expect([...withheldByTheSpine].sort()).toEqual([...withheldByTheMatrix].sort())
+    // Not vacuous: the Worker is withheld, and is the only one.
+    expect(withheldByTheMatrix).toEqual(['WORKER'])
+  })
+})

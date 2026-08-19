@@ -3,7 +3,12 @@ import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { surfaceById } from '@/domain/surfaces'
 import { rolesInDomain } from '@/domain/roles'
-import { DOH_MODULES, DOH_OUT_OF_SLICE_MODULES, dohModuleById } from '@/surfaces/doh/modules'
+import {
+  DOH_MODULES,
+  DOH_OUT_OF_SLICE_MODULES,
+  dohModuleById,
+  dohModulesReachedBy,
+} from '@/surfaces/doh/modules'
 import { DOH_SCREENS } from '@/surfaces/doh/screens'
 import { TENANT_STATES, type TenantState } from '@/surfaces/doh/tenant-state'
 import { HubShell, type TenantRoleId } from '../../app/hub/HubShell'
@@ -367,5 +372,141 @@ describe('app/hub/page.tsx', () => {
     render(<HubHome />)
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(SURFACE.name)
     expect(screen.getByText(DOH_MODULES[0]!.purpose)).toBeDefined()
+  })
+})
+
+/**
+ * Fix round 3, findings 1 and 2, which close together. The chrome used to ask
+ * one question — does this persona reach the surface at all — and then offer
+ * all eight modules, including ones each module's own matrix marks
+ * `Unavailable`. A Supervisor was shown a link to Tenant Lifecycle and Tier
+ * Operations sitting directly above that screen's own sentence saying the rail
+ * does not offer the route to a Supervisor.
+ *
+ * The decision now lives in the shell, which is the same fix as taking the
+ * policy out of `src/ui/` (an architectural gate forbids a component holding
+ * any), because a component that holds no policy cannot hold a wrong one.
+ */
+describe('HubShell — the rail offers only the modules the persona actually reaches', () => {
+  const module = dohModuleById('MOD-DOH-03')
+
+  it('offers a Supervisor exactly its reachable modules, and no route into one that withholds it', () => {
+    render(
+      <HubShell module={module} role="SUPERVISOR" onRoleChange={() => {}}>
+        <p>module body</p>
+      </HubShell>,
+    )
+    const rail = screen.getByRole('navigation', { name: 'Hub modules' })
+    const railed = within(rail)
+      .getAllByRole('link')
+      .map((l) => l.textContent)
+
+    expect(railed).toEqual(dohModulesReachedBy('SUPERVISOR').map((m) => m.name))
+    // The live defect, named: MOD-DOH-01 marks the Supervisor Unavailable on
+    // every reading row, and its screen says so in its own copy.
+    expect(railed).not.toContain(dohModuleById('MOD-DOH-01').name)
+    expect(railed).not.toContain(dohModuleById('MOD-DOH-13').name)
+    expect(railed.length).toBeLessThan(DOH_MODULES.length)
+  })
+
+  it('offers a Quality Manager and a Read-only Auditor their own different lists', () => {
+    for (const roleId of ['QUALITY_MANAGER', 'READONLY_AUDITOR'] as const) {
+      const { unmount } = render(
+        <HubShell module={module} role={roleId} onRoleChange={() => {}}>
+          <p>module body</p>
+        </HubShell>,
+      )
+      const rail = screen.getByRole('navigation', { name: 'Hub modules' })
+      expect(
+        within(rail)
+          .getAllByRole('link')
+          .map((l) => l.textContent),
+        roleId,
+      ).toEqual(dohModulesReachedBy(roleId).map((m) => m.name))
+      unmount()
+    }
+    // Not vacuous: the two lists genuinely differ, so this is a filter and not
+    // a pass-through wearing one.
+    expect(dohModulesReachedBy('QUALITY_MANAGER')).not.toEqual(
+      dohModulesReachedBy('READONLY_AUDITOR'),
+    )
+  })
+
+  it('still offers the Tenant Admin all eight, so nothing is hidden that should not be', () => {
+    render(
+      <HubShell module={module} role="TENANT_ADMIN" onRoleChange={() => {}}>
+        <p>module body</p>
+      </HubShell>,
+    )
+    const rail = screen.getByRole('navigation', { name: 'Hub modules' })
+    expect(within(rail).getAllByRole('link')).toHaveLength(DOH_MODULES.length)
+  })
+})
+
+/**
+ * Fix round 3, finding 3. Two adjacent rows of the MOD-DOH-01 permission
+ * matrix (L26886-L26888) carry two different answers, and the fixture had one
+ * rule for both: the soft and hard suspension banners reach the Tenant Admin
+ * alone, because no other user sees anything at all in those two states, while
+ * the compliance-suspension message reaches all five roles, because sign-in is
+ * blocked for everyone and everyone must be told why.
+ */
+describe('HubShell — the suspension banner splits on the two rows the source splits on', () => {
+  it('shows the soft and hard suspension banners to the Tenant Admin alone', () => {
+    for (const state of ['soft-suspended', 'hard-suspended'] as const) {
+      for (const roleId of NON_WORKER_ROLES) {
+        const { unmount } = render(
+          <HubShell role={roleId} onRoleChange={() => {}} tenantState={state} />,
+        )
+        const banner = SUSPENSION_BANNERS[state]
+        const label = `${state} / ${roleId}`
+        if (roleId === 'TENANT_ADMIN') {
+          expect(screen.getByText(banner.message), label).toBeDefined()
+          expect(screen.getByText(banner.heading), label).toBeDefined()
+        } else {
+          expect(screen.queryByText(banner.message), label).toBeNull()
+          expect(screen.queryByText(banner.heading), label).toBeNull()
+        }
+        // Anchored on a banner every persona keeps, so the negative half
+        // cannot pass against a shell that suppressed the whole region.
+        expect(screen.getByText(SEEDED_ANNOUNCEMENTS[0]!.message), label).toBeDefined()
+        unmount()
+      }
+    }
+  })
+
+  it('shows the compliance-suspension message to every persona the Hub admits', () => {
+    for (const roleId of NON_WORKER_ROLES) {
+      const { unmount } = render(
+        <HubShell role={roleId} onRoleChange={() => {}} tenantState="compliance-suspended" />,
+      )
+      const banner = SUSPENSION_BANNERS['compliance-suspended']
+      expect(screen.getByText(banner.message), roleId).toBeDefined()
+      unmount()
+    }
+  })
+
+  it('leaves the archived banner unchanged for every persona — the source answers neither row', () => {
+    // OPEN QUESTION, recorded rather than guessed: no row of the L26883-L26896
+    // matrix covers the archived state, so its audience is not derived. This
+    // case pins the behaviour this storyboard already had, so a later answer
+    // is a deliberate change and not a silent one.
+    for (const roleId of NON_WORKER_ROLES) {
+      const { unmount } = render(
+        <HubShell role={roleId} onRoleChange={() => {}} tenantState="archived" />,
+      )
+      expect(screen.getByText(SUSPENSION_BANNERS.archived.message), roleId).toBeDefined()
+      unmount()
+    }
+  })
+
+  it('says on screen which suspension reaches whom, where a reviewer can read it', () => {
+    render(<HubShell />)
+    const note = screen.getByText(/L26886-L26888/)
+    const text = note.textContent ?? ''
+    expect(text).toMatch(/Tenant Admin alone/i)
+    expect(text).toMatch(/all five roles/i)
+    expect(text).toMatch(/archived/i)
+    expect(text).toMatch(/open question/i)
   })
 })

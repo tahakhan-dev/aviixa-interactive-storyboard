@@ -25,6 +25,9 @@ import {
   type LocationCell,
   type LocationSite,
 } from '../../app/hub/location-configuration/fixtures'
+import { dohModuleById } from '@/surfaces/doh/modules'
+import { rolesInDomain } from '@/domain/roles'
+import type { TenantRoleId } from '../../app/hub/HubShell'
 
 /** Widened views of the seeded tuples: `as const` narrows each node's `flags`
  *  to its own empty or one-member tuple, which makes `.includes` uncallable
@@ -255,5 +258,37 @@ describe('MOD-DOH-02 source files — determinism and D1', () => {
     expect(
       readFileSync('app/hub/location-configuration/LocationConfigurationScreen.tsx', 'utf8'),
     ).toMatch(/SCR-DOH-04/)
+  })
+})
+
+/**
+ * THE CROSS-CHECK. Same case as `tests/unit/doh-tenant-lifecycle.test.ts`
+ * carries, adapted to this matrix's own spelling of a cell: the module rail
+ * reads one field, `rolesReaching` on this module's definition in
+ * `@/surfaces/doh/modules`, while this screen renders its own matrix, and the
+ * two must not drift.
+ *
+ * The rule: the roles the spine withholds the route from are exactly the roles
+ * this matrix marks `unavailable` — "cannot hold this in any scope", so the
+ * route renders ABSENT and the rail does not offer it. `explicitly-prohibited`
+ * is deliberately NOT that token: the control exists on this screen for another
+ * role, so the refused role opens the screen and reads why.
+ */
+describe('MOD-DOH-02 — the rail and this matrix agree about who reaches the module', () => {
+  it('withholds the route from exactly the roles the matrix marks unavailable', () => {
+    const tenantRoles = rolesInDomain('TENANT').map((r) => r.id) as readonly TenantRoleId[]
+    // Guards the narrowing above, and proves the sweep below covers all five.
+    expect(Object.keys(CONTROL_MATRIX[0]!.status).sort()).toEqual([...tenantRoles].sort())
+
+    const withheldByTheMatrix = tenantRoles.filter((role) =>
+      CONTROL_MATRIX.some((row) => row.status[role] === 'unavailable'),
+    )
+    const withheldByTheSpine = tenantRoles.filter(
+      (role) => !dohModuleById('MOD-DOH-02').rolesReaching.includes(role),
+    )
+
+    expect([...withheldByTheSpine].sort()).toEqual([...withheldByTheMatrix].sort())
+    // Not vacuous: the Worker is withheld, and is the only one.
+    expect(withheldByTheMatrix).toEqual(['WORKER'])
   })
 })
