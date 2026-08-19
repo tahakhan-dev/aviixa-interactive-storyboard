@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
+import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import {
   Banner,
@@ -745,19 +746,9 @@ export function QualificationCalendarScreen() {
             Open the worker records
           </Link>
         </p>
-        <p className="mt-4 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          <span className="font-medium text-[var(--color-ink)]">
-            MOD-DOH-14 reaches no REGISTERED cross-slice seam, and no seam notice is drawn.{' '}
-          </span>
-          It originates no notification of its own; its one notification row is the
-          certification-expiry section of the per-shift digest, which is also this screen&rsquo;s
-          fallback-of-fallback when the projection cannot compute. That delivery half is owned by a
-          later slice — a real cross-slice dependency — but the seam registry carries no entry for
-          it. The nearest registered seam is about another module&rsquo;s digest-time FIELD, which
-          is a different dependency, and rendering it here would name the wrong owner for the wrong
-          thing. The gap is recorded in the unspecified panel rather than papered over with a seam
-          notice that does not describe this module.
-        </p>
+        <div className="mt-4">
+          <SeamNotice seamId="certification-expiry-digest" />
+        </div>
       </section>
 
       <section aria-label="Control matrix" className="mt-6">

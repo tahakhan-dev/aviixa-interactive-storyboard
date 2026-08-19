@@ -21,6 +21,7 @@ import {
 } from '../../app/hub/qualification-calendar/fixtures'
 import { DOH_AREAS, visibleAreaIds } from '../../app/hub/location-configuration/fixtures'
 import { dohModuleById } from '@/surfaces/doh/modules'
+import { dohSeamById } from '@/surfaces/doh/seams'
 import { screenState } from '@/ui/screen-state'
 
 function viewAs(roleId: string): void {
@@ -434,15 +435,21 @@ describe('MOD-DOH-14 — the states, the panels and the honest omissions', () =>
     }
   })
 
-  it('claims no seam it does not have, and says why none is drawn', () => {
+  it('resolves its real cross-slice seam through the shared component, owned by MOD-DOH-10', () => {
     render(<QualificationCalendarScreen />)
     const action = region('Route to action')
-    // The registered seam it used to render describes another module's
-    // digest-time FIELD — the wrong owner for the wrong dependency.
-    expect(action.textContent).not.toMatch(/Cross-slice seam — not built here/)
-    expect(action.textContent).toMatch(/reaches no REGISTERED cross-slice seam/)
-    // And the gap is raised rather than passed over in silence.
-    expect(region('Unspecified in source').textContent).toMatch(
+    const text = action.textContent ?? ''
+    const seam = dohSeamById('certification-expiry-digest')
+    expect(text).toMatch(/Cross-slice seam — not built here/)
+    expect(text).toMatch(/Owned by MOD-DOH-10, slice 10/)
+    // The exact registry description, not a hand-rolled paraphrase — proof
+    // this renders through the shared SeamNotice component rather than a
+    // local copy.
+    expect(text).toContain(seam.description)
+    // The false claim it replaced, and the gap statement it required, are
+    // both gone.
+    expect(text).not.toMatch(/reaches no REGISTERED cross-slice seam/)
+    expect(region('Unspecified in source').textContent).not.toMatch(
       /seam registry carries NO entry for this module/,
     )
   })

@@ -796,7 +796,6 @@ export const UNSPECIFIED_IN_SOURCE = [
   'No definition is given for how a qualification scoped across two Areas should be counted in a per-Area grid. This build counts it in both, because the exposure is real in both, and states it beside the grid.',
   'No empty-Area convention is stated. An Area with nothing expiring still renders its row, because "nothing expires here in the next 60 days" is an answer a planner needs and a missing row is not.',
   'No control is defined for subscribing to, or opting out of, the certification-expiry section of the per-shift digest from this screen.',
-  'The seam registry carries NO entry for this module’s own cross-slice dependency. The Calendar’s one notification row, and its fallback-of-fallback when the projection cannot compute, are both the per-shift digest’s certification-expiry section, whose delivery a later slice owns. The nearest registered seam describes another module’s digest-time field, which is a different dependency with a different consumer, so no seam notice is drawn here at all — naming the wrong owner for the wrong thing is worse than naming nothing. Raised so the registry gains the entry rather than this screen borrowing one.',
 ] as const
 
 export const UNRESOLVED_IN_SOURCE = [

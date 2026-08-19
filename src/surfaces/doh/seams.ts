@@ -1,7 +1,7 @@
 import type { DohModuleId } from './modules'
 
 /**
- * The SURF-DOH spine, part 6 of 6: the five named cross-slice seams. Spec §5.
+ * The SURF-DOH spine, part 6 of 6: the seven named cross-slice seams. Spec §5.
  *
  * A silent stub is the defect this registry exists to prevent (R10): each
  * seam is a named interface with a seeded fixture behind it, rendered by
@@ -14,6 +14,7 @@ export type DohSeamId =
   | 'platform-access-history-audit'
   | 'qualification-gate'
   | 'tenant-contact-email-delivery'
+  | 'certification-expiry-digest'
 
 export interface DohSeamDefinition {
   readonly id: DohSeamId
@@ -84,6 +85,21 @@ export const DOH_SEAMS = [
       'opening, opening is not acknowledgement, and acknowledgement is not the business action ' +
       '— four transport states, none of them the outcome, and no screen may collapse them ' +
       'into one.',
+  },
+  {
+    id: 'certification-expiry-digest',
+    consumingModule: 'MOD-DOH-14',
+    ownerModule: 'MOD-DOH-10',
+    ownerSlice: 10,
+    description:
+      'MOD-DOH-14 originates no notification of its own; its one notification row, and its ' +
+      'fallback-of-fallback when the projection cannot compute, are both the certification-' +
+      'expiry section of the per-shift digest. MOD-DOH-14 owns only the expiry facts that ' +
+      'section carries — MOD-DOH-10 owns the digest and its delivery. This is not ' +
+      'shift-digest-delivery: that seam’s consumer is MOD-DOH-03’s digest-time ' +
+      'preference field, a different module and a different dependency. The fallback-of-' +
+      'fallback is unavailable until slice 10 ships MOD-DOH-10, so this degraded path is not ' +
+      'something the Calendar can reach today.',
   },
 ] as const satisfies readonly DohSeamDefinition[]
 

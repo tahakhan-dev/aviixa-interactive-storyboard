@@ -43,6 +43,7 @@ import {
 } from '../../app/hub/worker-lifecycle-and-qualifications/fixtures'
 import { SEEDED_ROLE_SCOPES, visibleAreaIds } from '../../app/hub/location-configuration/fixtures'
 import { dohModuleById } from '@/surfaces/doh/modules'
+import { DOH_SEAMS, dohSeamById } from '@/surfaces/doh/seams'
 import { rolesInDomain } from '@/domain/roles'
 import type { TenantRoleId } from '../../app/hub/HubShell'
 
@@ -499,5 +500,40 @@ describe('MOD-DOH-14 — the panels the contract requires, and the module owning
   it('closes its own vocabularies', () => {
     expect([...CALENDAR_SCOPES]).toEqual(['tenant-wide-by-role', 'seeded-role-scope'])
     expect(CONTROL_STATUSES).toHaveLength(6)
+  })
+})
+
+/**
+ * The screen used to say, in "Route to action", that MOD-DOH-14 reached no
+ * registered cross-slice seam and that the gap was recorded in the
+ * unspecified panel instead. The registry now carries that row
+ * (`certification-expiry-digest`, consumed by MOD-DOH-14, owned by
+ * MOD-DOH-10), so that disclosure has rotted on purpose: the load-bearing
+ * claim flips to this — the seam resolves, names its real owner, and the
+ * screen renders it through the shared `SeamNotice` component rather than a
+ * hand-rolled copy of one.
+ */
+describe('MOD-DOH-14 — the cross-slice dependency this screen names', () => {
+  it('resolves in the shared seam registry, owned by Notifications (MOD-DOH-10) in slice 10', () => {
+    const seam = dohSeamById('certification-expiry-digest')
+    expect(seam.consumingModule).toBe('MOD-DOH-14')
+    expect(seam.ownerModule).toBe('MOD-DOH-10')
+    expect(seam.ownerSlice).toBe(10)
+    // Not vacuous: this row sits alongside the others rather than replacing
+    // them.
+    const consumers: readonly string[] = DOH_SEAMS.map((s) => s.consumingModule)
+    expect(consumers).toContain('MOD-DOH-14')
+    expect(consumers).toContain('MOD-DOH-12')
+  })
+
+  it('renders the seam through the shared SeamNotice component, not a local copy', () => {
+    expect(SCREEN_SRC).toMatch(/<SeamNotice\s+seamId="certification-expiry-digest"\s*\/>/)
+    // A hand-rolled copy would hardcode the notice's own heading text; the
+    // shared component owns that text now, so the screen names only an id.
+    expect(SCREEN_SRC).not.toMatch(/Cross-slice seam — not built here/)
+    // The false claim it replaced, and the gap statement it required, are
+    // both gone from the screen and the fixtures.
+    expect(SCREEN_SRC).not.toMatch(/reaches no REGISTERED cross-slice seam/)
+    expect(FIXTURES_SRC).not.toMatch(/seam registry carries NO entry for this module/)
   })
 })

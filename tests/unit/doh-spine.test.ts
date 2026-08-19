@@ -185,8 +185,8 @@ describe('DOH_SCREENS — catalogue B, names canonical, never a three-digit form
   })
 })
 
-describe('DOH_SEAMS — the six named cross-slice seams', () => {
-  it('names every seam from the canonical six, in id order', () => {
+describe('DOH_SEAMS — the seven named cross-slice seams', () => {
+  it('names every seam from the canonical seven, in id order', () => {
     expect(DOH_SEAMS.map((s) => s.id)).toEqual([
       'worker-shift-meter',
       'archival-cascade',
@@ -194,6 +194,7 @@ describe('DOH_SEAMS — the six named cross-slice seams', () => {
       'platform-access-history-audit',
       'qualification-gate',
       'tenant-contact-email-delivery',
+      'certification-expiry-digest',
     ])
   })
 
