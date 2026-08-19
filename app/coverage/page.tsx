@@ -9,11 +9,10 @@ import {
   BUILD_CLASS_LABEL,
   countByClass,
   type CoverageStatus,
+  type RegistrySlug,
 } from '@/coverage/descriptors'
 import { Table, StatusPill, type StatusTone } from '@/ui/primitives'
-import { loadRegistry } from '@/registry/load'
-import { GeneratedRegistrySchema, loadGeneratedRegistry } from '@/coverage/registry-loader'
-import workflowsRaw from '../../registries/generated/workflows.json'
+import { loadGeneratedRegistry, type GeneratedRegistry } from '@/coverage/registry-loader'
 
 export const metadata: Metadata = { title: 'Coverage Dashboard' }
 
@@ -40,38 +39,35 @@ const STATUS_LABEL: Record<CoverageStatus, string> = {
   'not-represented': 'Not represented',
 }
 
-const WORKFLOWS = loadRegistry(GeneratedRegistrySchema, workflowsRaw, 'workflows registry')
-
 /**
- * Minor (final review): this used to hardcode every one of the fourteen
- * rows to `'not-represented'` and then run them through `countByStatus` --
- * a tautology dressed up as a computation, since the input was a constant.
- * Now a real per-registry derivation: `workflows` is checked against its
- * actual generated registry (`registries/generated/workflows.json`, 724
- * composite-keyed records -- fix round 1, defect 3: this used to read the
- * retired 432-row `workflow-registry.json`); the other thirteen have no
- * item-level registry yet (slices 3-13 haven't built one), so there is
- * nothing to derive a status FROM, and `'not-represented'` is the honest
- * default rather than a stand-in for a computation that doesn't exist.
+ * Every one of the fourteen registries is loaded from its own generated
+ * file (`registries/generated/<slug>.json`, written by `scripts/build-
+ * registries.mjs`) and checked by the same rule: a registry counts as
+ * demonstrated the moment any one of its own rows does. No slug is
+ * special-cased and there is no hardcoded fallback for a registry this
+ * code has never heard of -- a fifteenth registry added to
+ * `REGISTRY_DESCRIPTORS` is covered automatically. If a registry's JSON
+ * cannot be read or fails schema validation, `loadGeneratedRegistry`
+ * throws at module load: that is a build failure to surface, never a
+ * silent `'not-represented'` standing in for a computation that didn't
+ * run.
  *
- * Minor (final review): this used to claim the predicate "will change the
- * moment any registry actually has a demonstrated row" -- true of
- * `registryStatus` itself (it genuinely reads `WORKFLOWS.rows`, not a
- * constant), but misleading about the WHOLE system: `scripts/build-
- * registries.mjs` writes the literal `status: 'not-represented'` on every
- * row of all fourteen registries today, with no code path that writes
- * anything else, so `.some((r) => r.status !== 'not-represented')` cannot
- * currently return true no matter how this function is written -- the
- * predicate is honest, but the DATA it reads is itself constant until
- * slices 3-13 (which would set a different status) exist.
+ * Still true, and the reason this was worth fixing: hardcoding a status
+ * and running it through a counting function is a tautology dressed up as
+ * a computation, because the input is a constant -- a summary built that
+ * way cannot move when the thing it claims to summarize moves. That is
+ * exactly what this function used to be for thirteen of the fourteen
+ * registries. It no longer is; watch the next registry added here doesn't
+ * quietly become one either.
  */
-function registryStatus(slug: string): CoverageStatus {
-  if (slug === 'workflows') {
-    return WORKFLOWS.rows.some((r) => r.status !== 'not-represented')
-      ? 'demonstrated-in-storyboard'
-      : 'not-represented'
-  }
-  return 'not-represented'
+const REGISTRIES: Record<RegistrySlug, GeneratedRegistry> = Object.fromEntries(
+  REGISTRY_DESCRIPTORS.map((d) => [d.slug, loadGeneratedRegistry(d.slug)]),
+) as Record<RegistrySlug, GeneratedRegistry>
+
+function registryStatus(slug: RegistrySlug): CoverageStatus {
+  return REGISTRIES[slug].rows.some((r) => r.status !== 'not-represented')
+    ? 'demonstrated-in-storyboard'
+    : 'not-represented'
 }
 
 const REGISTRY_STATUS_ENTRIES: readonly { status: CoverageStatus }[] = REGISTRY_DESCRIPTORS.map(
@@ -96,7 +92,7 @@ const RECONCILIATION_SUMMARY = countByStatus(REGISTRY_STATUS_ENTRIES)
  * scanned one other, unrelated file. Both `TOTAL_MODULES` and the source-
  * class counts are now derived from the same loaded registry every render.
  */
-const MODULES_REGISTRY = loadGeneratedRegistry('modules')
+const MODULES_REGISTRY = REGISTRIES.modules
 const MODULES_CLASS_COUNTS = countByClass(MODULES_REGISTRY.rows)
 const TOTAL_MODULES = MODULES_REGISTRY.rows.length
 
@@ -151,9 +147,11 @@ export default function CoveragePage() {
 
       <h2 className="mt-8 text-xl font-semibold">Reconciliation summary</h2>
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-        Counted across the fourteen registries above, not across their
-        individual entries — the item-level registries themselves belong to
-        slices 3-13, which have not run yet.
+        Counted across the fourteen registries above, one status per
+        registry — each checked against its own item-level rows in
+        <code>registries/generated/&lt;slug&gt;.json</code>, never against a
+        single registry standing in for all fourteen. A registry counts as
+        demonstrated the moment any one of its own rows does.
       </p>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink-muted)]">
         {COVERAGE_STATUSES.map((status) => (
