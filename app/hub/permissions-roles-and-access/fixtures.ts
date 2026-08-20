@@ -8,6 +8,7 @@ import type { WriteAction } from '@/surfaces/doh/tenant-state'
 import type { SignInTrack } from '@/surfaces/doh/sso-connection'
 import type { ScreenStateId } from '@/ui/screen-state'
 import type { TenantRoleId } from '../HubShell'
+import type { MatrixRowSurface } from '@/surfaces/doh/modules'
 import {
   DOH_AREAS,
   DOH_SITES,
@@ -723,6 +724,11 @@ export interface MatrixCell {
 export interface MatrixRow {
   readonly id: MatrixRowId
   readonly label: string
+  /** Where this row's capability is met — read by the shared derivation in
+   *  `@/surfaces/doh/modules`. All twelve are this screen's own: the module
+   *  owns no banner and hands nothing to a device. Configuring single
+   *  sign-on is edited on a SIBLING Hub screen, which is still a screen. */
+  readonly surface: MatrixRowSurface
   readonly sourceRef: string
   readonly cells: Readonly<Record<TenantRoleId, MatrixCell>>
   /**
@@ -767,6 +773,7 @@ const WORKER_NO_SELF_SERVICE =
 export const PERMISSION_MATRIX = [
   {
     id: 'create-or-edit-user-account',
+    surface: 'screen',
     label: 'Create a user account',
     sourceRef: 'L28522',
     prohibition: 'routing',
@@ -793,6 +800,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'assign-or-remove-role',
+    surface: 'screen',
     label: 'Assign or remove a role',
     sourceRef: 'L28523',
     prohibition: 'routing',
@@ -817,6 +825,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'assign-or-remove-scope',
+    surface: 'screen',
     label: 'Assign or remove a scope',
     sourceRef: 'L28524',
     prohibition: 'routing',
@@ -827,6 +836,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'remove-last-tenant-admin',
+    surface: 'screen',
     label: 'Remove the last Tenant Admin',
     sourceRef: 'L28525, AC-16-39 L20658',
     prohibition: 'categorical',
@@ -837,6 +847,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'remove-last-approver-capable-role',
+    surface: 'screen',
     label: 'Remove the last approver-capable role while a Job exists',
     sourceRef: 'L28526, L16859',
     prohibition: 'categorical',
@@ -847,6 +858,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'create-custom-role',
+    surface: 'screen',
     label: 'Create a custom role',
     sourceRef: 'L28527, L17662',
     prohibition: 'categorical',
@@ -857,6 +869,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'delegate-role-temporarily',
+    surface: 'screen',
     label: 'Delegate a role temporarily',
     sourceRef: 'L28528',
     prohibition: 'categorical',
@@ -867,6 +880,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'scope-permission-below-area',
+    surface: 'screen',
     label: 'Scope a permission to a Location, a Job or a worker',
     sourceRef: 'L28529, L14515',
     prohibition: 'categorical',
@@ -877,6 +891,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'configure-single-sign-on',
+    surface: 'screen',
     label: 'Configure single sign-on',
     sourceRef: 'L28530',
     prohibition: 'routing',
@@ -887,6 +902,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'issue-or-reset-managed-pin',
+    surface: 'screen',
     label: 'Issue or reset a managed personal identification number',
     sourceRef: 'L28531',
     prohibition: 'routing',
@@ -909,6 +925,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'view-user-and-role-register',
+    surface: 'screen',
     label: 'View the user and role register',
     sourceRef: 'L28532',
     prohibition: 'routing',
@@ -939,6 +956,7 @@ export const PERMISSION_MATRIX = [
   },
   {
     id: 'attribute-action-to-another-role',
+    surface: 'screen',
     // Deliberately NOT the source's own phrasing. AC-16-12 is what this row
     // enforces, and shipping its literal wording would put the very phrase
     // the gate greps for into the rendered document.

@@ -9,6 +9,7 @@ import {
   supportSessionBanners,
 } from '../banner-fixtures'
 import type { TenantRoleId } from '../HubShell'
+import type { ControlStatus, DohControlMatrixRow } from '@/surfaces/doh/modules'
 
 /**
  * MOD-DOH-13 — Tenant View of Platform Administration. Seeded fixture data for
@@ -393,13 +394,23 @@ export const SEEDED_POST_SESSION_REPORT: PostSessionReport = {
  * finding rather than reconciled in silence.
  * ------------------------------------------------------------------ */
 
-export type ControlStatus =
-  | 'allowed'
-  | 'allowed-with-conditions'
-  | 'read-only'
-  | 'explicitly-prohibited'
-  | 'not-applicable'
-  | 'unavailable'
+/**
+ * The cell-status union and the row's surface come from their ONE owner,
+ * `@/surfaces/doh/modules`. Six Hub matrices shipped six identical copies of
+ * this union, each with its own exhaustiveness proof; six proofs of six
+ * unions prove nothing about the seventh spelling.
+ *
+ * THE ARRAY STAYS LOCAL, AND DELIBERATELY. The spine imports these matrices
+ * to derive `rolesReaching`, so a VALUE imported back from the spine closes
+ * a runtime cycle — and it closes it in the worst way: with a fixture module
+ * as the entry point, the spine re-enters a sibling fixture that is still
+ * mid-evaluation and reads `undefined` off it (reproduced as
+ * `TypeError: Cannot read properties of undefined (reading 'map')` in
+ * `permissions-roles-and-access`). A `import type` is erased and opens no
+ * edge at all. The `Exclude` proof below is over the ONE union, so this
+ * array is provably the whole of it and the six copies cannot drift apart.
+ */
+export type { ControlStatus, MatrixRowSurface } from '@/surfaces/doh/modules'
 
 export const CONTROL_STATUSES = [
   'allowed',
@@ -426,15 +437,9 @@ export type PlatformAdminControlId =
   | 'receive-the-post-session-report'
   | 'prevent-an-access-class-from-being-recorded'
 
-export interface ControlMatrixRow {
-  readonly id: PlatformAdminControlId
-  readonly control: string
-  readonly status: Readonly<Record<TenantRoleId, ControlStatus>>
-  readonly detail: Readonly<Record<TenantRoleId, string>>
-  readonly rendering: string
-  readonly effect: string
-  readonly sourceRef: string
-}
+/** The shared Hub row shape, declared once in the spine and read by six
+ *  matrices that used to declare three shapes between them. */
+export type ControlMatrixRow = DohControlMatrixRow<PlatformAdminControlId>
 
 const PROHIBITED_FOR_ALL_FIVE: Readonly<Record<TenantRoleId, ControlStatus>> = {
   TENANT_ADMIN: 'explicitly-prohibited',
@@ -458,6 +463,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'view-platform-access-history',
     control: 'View Platform Access History',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'read-only',
       SUPERVISOR: 'unavailable',
@@ -480,6 +486,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'see-the-support-session-banner',
     control: 'See the support-session banner',
+    surface: 'chrome',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed',
@@ -503,6 +510,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'end-a-support-session-from-the-banner',
     control: 'End a support session from the banner',
+    surface: 'chrome',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed-with-conditions',
@@ -527,6 +535,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'see-a-platform-announcement',
     control: 'See a platform announcement',
+    surface: 'chrome',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed',
@@ -549,6 +558,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'post-or-edit-a-platform-announcement',
     control: 'Post or edit a platform announcement',
+    surface: 'another-surface',
     status: PROHIBITED_FOR_ALL_FIVE,
     detail: sameDetailForAllFive(
       'Explicitly prohibited — the client’s platform team only.',
@@ -561,6 +571,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'configure-tiers-or-feature-gates',
     control: 'Configure tiers or feature gates',
+    surface: 'another-surface',
     status: PROHIBITED_FOR_ALL_FIVE,
     detail: sameDetailForAllFive('Explicitly prohibited — Super Admin platform console only.'),
     rendering:
@@ -571,6 +582,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'manage-pilots-or-tenant-groups',
     control: 'Manage pilots or tenant groups',
+    surface: 'another-surface',
     status: PROHIBITED_FOR_ALL_FIVE,
     detail: sameDetailForAllFive('Explicitly prohibited — Super Admin platform console only.'),
     rendering: 'ABSENT, and named in the scope-gate panel for the same reason.',
@@ -580,6 +592,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'initiate-or-approve-a-compliance-emergency-access',
     control: 'Initiate or approve a compliance-emergency access',
+    surface: 'another-surface',
     status: PROHIBITED_FOR_ALL_FIVE,
     detail: sameDetailForAllFive(
       'Explicitly prohibited — dual-authorised by two senior platform staff.',
@@ -592,6 +605,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'receive-the-post-session-report',
     control: 'Receive the post-session report for a compliance emergency',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'unavailable',
@@ -614,6 +628,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'prevent-an-access-class-from-being-recorded',
     control: 'Prevent a platform-side access class from being recorded',
+    surface: 'another-surface',
     status: PROHIBITED_FOR_ALL_FIVE,
     detail: sameDetailForAllFive(
       'Explicitly prohibited — for every role, and for every PLATFORM role too: mirroring is automatic and suppression is prohibited to all.',

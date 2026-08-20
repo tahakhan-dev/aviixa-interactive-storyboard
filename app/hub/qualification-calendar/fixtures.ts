@@ -17,6 +17,7 @@ import {
   type Worker,
 } from '../worker-lifecycle-and-qualifications/fixtures'
 import type { TenantRoleId } from '../HubShell'
+import type { ControlStatus, DohControlMatrixRow } from '@/surfaces/doh/modules'
 
 /**
  * MOD-DOH-14 — the Qualification Calendar. A 60-day, read-only PROJECTION,
@@ -446,13 +447,23 @@ export function filtersAreActive(filters: CalendarFilterState): boolean {
  * cell is an unanswered question an implementer answers privately.
  * ------------------------------------------------------------------ */
 
-export type ControlStatus =
-  | 'allowed'
-  | 'allowed-with-conditions'
-  | 'read-only'
-  | 'explicitly-prohibited'
-  | 'not-applicable'
-  | 'unavailable'
+/**
+ * The cell-status union and the row's surface come from their ONE owner,
+ * `@/surfaces/doh/modules`. Six Hub matrices shipped six identical copies of
+ * this union, each with its own exhaustiveness proof; six proofs of six
+ * unions prove nothing about the seventh spelling.
+ *
+ * THE ARRAY STAYS LOCAL, AND DELIBERATELY. The spine imports these matrices
+ * to derive `rolesReaching`, so a VALUE imported back from the spine closes
+ * a runtime cycle — and it closes it in the worst way: with a fixture module
+ * as the entry point, the spine re-enters a sibling fixture that is still
+ * mid-evaluation and reads `undefined` off it (reproduced as
+ * `TypeError: Cannot read properties of undefined (reading 'map')` in
+ * `permissions-roles-and-access`). A `import type` is erased and opens no
+ * edge at all. The `Exclude` proof below is over the ONE union, so this
+ * array is provably the whole of it and the six copies cannot drift apart.
+ */
+export type { ControlStatus, MatrixRowSurface } from '@/surfaces/doh/modules'
 
 export const CONTROL_STATUSES = [
   'allowed',
@@ -475,16 +486,10 @@ export type CalendarControlId =
   | 'change-the-horizon'
   | 'export-the-calendar'
 
-export interface ControlMatrixRow {
-  readonly id: CalendarControlId
-  readonly control: string
-  readonly status: Readonly<Record<TenantRoleId, ControlStatus>>
-  /** The source's own qualifying words, per role, never blank. */
-  readonly detail: Readonly<Record<TenantRoleId, string>>
-  readonly rendering: string
-  readonly effect: string
-  readonly sourceRef: string
-}
+/** The shared Hub row shape, declared once in the spine and read by six
+ *  matrices that used to declare three shapes between them. `detail` — the
+ *  source's own qualifying words, per role, never blank — is part of it. */
+export type ControlMatrixRow = DohControlMatrixRow<CalendarControlId>
 
 const PROHIBITED_FOR_ALL_FIVE: Readonly<Record<TenantRoleId, ControlStatus>> = {
   TENANT_ADMIN: 'explicitly-prohibited',
@@ -516,6 +521,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'open-the-calendar',
     control: 'Open the Qualification Calendar',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'read-only',
       SUPERVISOR: 'read-only',
@@ -539,6 +545,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'filter-the-calendar',
     control: 'Filter by week, Area, certification type or worker',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'allowed-with-conditions',
@@ -561,6 +568,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'link-through-to-a-worker-record',
     control: 'Link through to a worker record',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed-with-conditions',
@@ -584,6 +592,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'record-a-recertification-from-the-calendar',
     control: 'Record a recertification from the Calendar',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'allowed-with-conditions',
@@ -608,6 +617,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'change-the-horizon',
     control: 'Change the 60-day horizon',
+    surface: 'screen',
     status: PROHIBITED_FOR_ALL_FIVE,
     detail: sameDetailForAllFive(
       'Explicitly prohibited — the horizon is fixed at 60 days, restated some twenty times across the source.',
@@ -620,6 +630,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'export-the-calendar',
     control: 'Export the Calendar',
+    surface: 'screen',
     status: NOT_APPLICABLE_FOR_ALL_FIVE,
     detail: sameDetailForAllFive(
       'Not applicable — the Statement of Work does not specify a Calendar export; the underlying data is reachable through the audit and report paths.',

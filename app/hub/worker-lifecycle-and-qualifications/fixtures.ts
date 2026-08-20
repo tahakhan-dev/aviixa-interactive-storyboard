@@ -1,4 +1,5 @@
 import type { TenantRoleId } from '../HubShell'
+import type { ControlStatus, DohControlMatrixRow } from '@/surfaces/doh/modules'
 import type { CommandState, ScreenStateDetail } from '@/ui/ScreenStateBoundary'
 import type { ScreenStateId } from '@/ui/screen-state'
 import type { TenantState } from '@/surfaces/doh/tenant-state'
@@ -1106,13 +1107,23 @@ export const SEEDED_IMPORT_FILES = [
  * that an implementer will answer privately".
  * ------------------------------------------------------------------ */
 
-export type ControlStatus =
-  | 'allowed'
-  | 'allowed-with-conditions'
-  | 'read-only'
-  | 'explicitly-prohibited'
-  | 'not-applicable'
-  | 'unavailable'
+/**
+ * The cell-status union and the row's surface come from their ONE owner,
+ * `@/surfaces/doh/modules`. Six Hub matrices shipped six identical copies of
+ * this union, each with its own exhaustiveness proof; six proofs of six
+ * unions prove nothing about the seventh spelling.
+ *
+ * THE ARRAY STAYS LOCAL, AND DELIBERATELY. The spine imports these matrices
+ * to derive `rolesReaching`, so a VALUE imported back from the spine closes
+ * a runtime cycle — and it closes it in the worst way: with a fixture module
+ * as the entry point, the spine re-enters a sibling fixture that is still
+ * mid-evaluation and reads `undefined` off it (reproduced as
+ * `TypeError: Cannot read properties of undefined (reading 'map')` in
+ * `permissions-roles-and-access`). A `import type` is erased and opens no
+ * edge at all. The `Exclude` proof below is over the ONE union, so this
+ * array is provably the whole of it and the six copies cannot drift apart.
+ */
+export type { ControlStatus, MatrixRowSurface } from '@/surfaces/doh/modules'
 
 export const CONTROL_STATUSES = [
   'allowed',
@@ -1144,26 +1155,42 @@ export type WorkerControlId =
   | 'view-own-certification-alerts'
   | 'read-clearance-corpus'
 
-export interface ControlMatrixRow {
-  readonly id: WorkerControlId
-  readonly control: string
-  readonly status: Readonly<Record<TenantRoleId, ControlStatus>>
-  /** How this screen draws each refusal, by rule and not by taste. */
-  readonly rendering: string
-  readonly effect: string
-  readonly sourceRef: string
-}
+/** The shared Hub row shape, declared once in the spine and read by six
+ *  matrices that used to declare three shapes between them. */
+export type ControlMatrixRow = DohControlMatrixRow<WorkerControlId>
+
+/**
+ * WHERE THE SOURCE STATES A TOKEN AND NOTHING ELSE. The frozen table at
+ * L27470-L27484 qualifies most of the Tenant Admin and Supervisor cells and
+ * both Worker grants, and gives the bare word `Explicitly prohibited` for
+ * the Quality Manager, the Read-only Auditor and the Worker on most write
+ * rows. A blank cell is forbidden (L10238) and a cause this build wrote
+ * would read as the source’s, so those cells carry the token and point at
+ * the panel that records the silence.
+ */
+const BARE_PROHIBITION =
+  'Explicitly prohibited. The source states the bare token for this role on this row and qualifies it nowhere; the silence is recorded in UNSPECIFIED_IN_SOURCE rather than filled in here.'
 
 export const CONTROL_MATRIX = [
   {
     id: 'create-or-edit-worker',
     control: 'Create or edit a worker record',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27470), tenant-wide.',
+      SUPERVISOR:
+        'Allowed with conditions — own scope; blocked for new workers in soft suspension (L27470).',
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin, and for the Supervisor within their own Area scope. Blocked for NEW workers in soft suspension, which is the write-class table’s answer and not a second rule stated here. ABSENT for the other three: no other role holds it in any scope and no other surface grants it, so nothing is drawn where it would sit.',
@@ -1174,12 +1201,25 @@ export const CONTROL_MATRIX = [
   {
     id: 'view-worker',
     control: 'View a worker record',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'allowed-with-conditions',
       READONLY_AUDITOR: 'read-only',
       WORKER: 'allowed-with-conditions',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27471), tenant-wide.',
+      SUPERVISOR:
+        'Allowed with conditions — own scope (L27471).',
+      QUALITY_MANAGER:
+        'Allowed with conditions — own scope (L27471).',
+      READONLY_AUDITOR:
+        'Read-only (L27471).',
+      WORKER:
+        'Allowed with conditions — own record only (L27471). Met on the device: the Worker holds no Hub route (D11), and the clearance-corpus row withholds this module besides.',
     },
     rendering:
       'The register renders for four roles and is scope-filtered for two of them. The Auditor reads it under STATE-06 with the cause named. The Worker’s own-record-only grant renders on no screen at all, because the Worker holds no Hub route — the collision is stated rather than resolved in silence.',
@@ -1190,12 +1230,23 @@ export const CONTROL_MATRIX = [
   {
     id: 'enter-qualification',
     control: 'Enter a qualification',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27472), tenant-wide.',
+      SUPERVISOR:
+        'Allowed — with full audit (L27472).',
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER:
+        'Explicitly prohibited — self-attestation is not permitted (L27472).',
     },
     rendering:
       'Live for the Tenant Admin and the Supervisor with full audit. ABSENT for the other three, and for the Worker absent ABSOLUTELY and by construction rather than by a permission check: no worker-role path reaches qualification entry, on any surface, through any interface. The Quality Manager’s absence here is the deliberate half of the authority split — the role that may clear a block may not enter the certificate that creates one.',
@@ -1206,12 +1257,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'record-recertification',
     control: 'Record a recertification',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27473), tenant-wide.',
+      SUPERVISOR:
+        'Allowed with conditions — new expiry must postdate the old; stays open in soft suspension (L27473).',
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin and the Supervisor, refused with the rule stated when the new expiry does not postdate the old, and STAYS OPEN in soft suspension while creation does not. Under HARD suspension it is closed with its consequence named (D16). ABSENT for the other three.',
@@ -1222,12 +1283,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'back-date-issue-date',
     control: 'Back-date an issue date',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — both certification date and entry date recorded (L27474).',
+      SUPERVISOR:
+        'Allowed with conditions — same condition (L27474).',
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Not a control of its own: it is the certification-date field of the entry and recertification forms, whose condition is that BOTH dates are recorded whenever they differ. Where those forms are absent, so is this.',
@@ -1238,12 +1309,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'set-instruction-difficulty',
     control: 'Set the instruction-difficulty profile',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27475), stated with no qualifying words.',
+      SUPERVISOR:
+        'Allowed (L27475), stated with no qualifying words.',
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin and the Supervisor, offering exactly three levels. A value outside them is refused and the record is held INCOMPLETE and can receive no assignment. ABSENT for the other three.',
@@ -1254,12 +1335,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'clear-expired-certification',
     control: 'Grant a clearance for an expired certification',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'explicitly-prohibited',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'allowed',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN: BARE_PROHIBITION,
+      SUPERVISOR:
+        'Allowed with conditions — mandatory categorised reason; the Quality Manager is notified (L27476).',
+      QUALITY_MANAGER:
+        'Allowed (L27476), stated with no qualifying words.',
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'No grant control exists in the Hub for anybody (D23): what renders is the cross-surface handoff to the Client Command Center, where action number 10 actually grants. It is live for the Supervisor with a mandatory categorised reason and for the Quality Manager, and DISABLED WITH ITS REASON for the Tenant Admin (D10) — the most privileged tenant role sits deliberately outside the safety-exception path, and the disabled control is where that rule teaches itself. ABSENT for the Auditor, whose read-only cause is named once for the whole screen.',
@@ -1270,12 +1361,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'clear-never-held',
     control: 'Grant a clearance for a never-held qualification',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'explicitly-prohibited',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'allowed-with-conditions',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN: BARE_PROHIBITION,
+      SUPERVISOR:
+        'Explicitly prohibited — requires Quality Manager authorisation (L27477).',
+      QUALITY_MANAGER:
+        'Allowed with conditions — reason code plus authorisation (L27477).',
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'The canonical DISABLED-WITH-A-NAMED-REASON case. For the Supervisor the handoff renders greyed carrying "requires Quality Manager authorisation", because FB-QUAL-005 names the primary failure as a supervisor believing they can authorise and the first fallback as the disabled control with its reason, "which teaches the rule at the moment it binds". Disabled with its reason for the Tenant Admin too, for the same reason and a different rule. ABSENT for the Auditor.',
@@ -1286,12 +1387,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'clear-second-in-area-on-shift',
     control: 'Grant a second clearance in the same Area on the same shift',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'explicitly-prohibited',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'allowed-with-conditions',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN: BARE_PROHIBITION,
+      SUPERVISOR:
+        'Explicitly prohibited — routes to the Quality Manager (L27478).',
+      QUALITY_MANAGER:
+        'Allowed with conditions (L27478), stated with no further qualifying words.',
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Quality Manager only where the chosen Area and Shift already hold a clearance, and disabled with the reason otherwise — a first clearance is not a second one. Disabled with "routes to the Quality Manager" for the Supervisor, and with the authority rule for the Tenant Admin.',
@@ -1302,12 +1413,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'set-gate-posture-or-duration',
     control: 'Set the gate posture or the clearance duration',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — in the tenant administration area, never below the notify-only floor (L27479).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin in this module’s own section of the tenant administration area, which is a screen GROUP rather than a surface and is owned by no single module (D2). Never below the notify-only floor: no third posture exists to select, so the floor is held by the closed vocabulary rather than by a check. ABSENT for the other four.',
@@ -1318,12 +1438,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'archive-worker',
     control: 'Archive a worker',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — two-step flow (L27480).',
+      SUPERVISOR:
+        'Allowed with conditions — two-step flow, own scope (L27480).',
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'A TWO-STEP flow, and the two steps are two controls rather than one control with a confirmation: reassign the active and upcoming runs, then archive. The second stays disabled with the runs named while any remain, so the order is enforced by what is offered rather than by a warning. ABSENT for the other three.',
@@ -1334,12 +1464,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'reactivate-worker',
     control: 'Reactivate a departed worker',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — re-validation prompt mandatory (L27481).',
+      SUPERVISOR:
+        'Allowed with conditions — same condition (L27481).',
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live on an archived record only, and the re-validation prompt is MANDATORY rather than offered: reactivation always leaves the prompt standing, and there is no control anywhere that reactivates without it. ABSENT for the other three.',
@@ -1350,12 +1490,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'bulk-import-workers',
     control: 'Bulk import workers',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27482), tenant-wide.',
+      SUPERVISOR:
+        'Allowed with conditions — canonical template only (L27482).',
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin and, from the canonical template only, for the Supervisor. One template exists and no mapping control is drawn for anybody: per-tenant column mapping is the client’s onboarding operation, outside the platform. ABSENT for the other three.',
@@ -1366,12 +1516,25 @@ export const CONTROL_MATRIX = [
   {
     id: 'view-own-certification-alerts',
     control: 'View own certification alerts',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed',
       QUALITY_MANAGER: 'allowed',
       READONLY_AUDITOR: 'read-only',
       WORKER: 'allowed-with-conditions',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27483), stated with no qualifying words.',
+      SUPERVISOR:
+        'Allowed (L27483), stated with no qualifying words.',
+      QUALITY_MANAGER:
+        'Allowed (L27483), stated with no qualifying words.',
+      READONLY_AUDITOR:
+        'Read-only (L27483).',
+      WORKER:
+        'Allowed with conditions — own certifications only (L27483). Met on the device, for the same two reasons as the own-record read.',
     },
     rendering:
       'The expiry ladder and its audiences render for four roles. The Worker’s own-certifications-only grant is the second cell in this matrix granting a Worker something and it renders on no screen, because the Worker holds no Hub route — the cost is stated rather than hidden.',
@@ -1382,12 +1545,25 @@ export const CONTROL_MATRIX = [
   {
     id: 'read-clearance-corpus',
     control: 'Read the clearance corpus across time',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'read-only',
       SUPERVISOR: 'read-only',
       QUALITY_MANAGER: 'read-only',
       READONLY_AUDITOR: 'read-only',
       WORKER: 'unavailable',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Read-only (L27484), tenant-wide.',
+      SUPERVISOR:
+        'Read-only — own scope (L27484).',
+      QUALITY_MANAGER:
+        'Read-only (L27484).',
+      READONLY_AUDITOR:
+        'Read-only (L27484).',
+      WORKER:
+        'Unavailable (L27484), stated bare. Unavailable is the source’s withholding token — no standing on the module in any scope, never merged with Explicitly prohibited (L10238) — and it is what withholds this whole module from the Worker.',
     },
     rendering:
       'READ-ONLY for four roles with the cause named, scope-filtered for the Supervisor, and UNAVAILABLE for the Worker — the only `Unavailable` cell in this whole matrix, and therefore the one cell that decides which roles the module rail offers this route to at all.',
@@ -1580,6 +1756,7 @@ export const ABSENT_BY_RULE = [
 ] as const satisfies readonly AbsentByRule[]
 
 export const UNSPECIFIED_IN_SOURCE = [
+  'No CAUSE is stated for most refusing cells of this matrix. The frozen table at L27470-L27484 qualifies the Tenant Admin and Supervisor cells on most rows and both Worker grants, and gives the Quality Manager, the Read-only Auditor and the Worker the bare word `Explicitly prohibited` on every write row but one. Those cells carry the token and this note; the authority-split reading the screen states beside them — the role that may clear a block may not enter the certificate that creates one — is this build’s, and is labelled as one.',
   'Who creates a certification type, on which screen, under which module, and whether the platform seeds any at all. The source is entirely silent: certification types are referenced as configuration by every gate that reads one and are created by nobody. This build ships the seeded list the location module already holds and draws no administration screen, because an invented one would read back as a requirement (D22).',
   'Whether entering a FIRST qualification for an existing worker stays open in soft suspension. The source states that recertification stays open and that creation of new records is blocked, and says nothing about a first entry. This build reads it as a configuration write and therefore closed, because the one statement that mentions suspension at all attaches "remains open in soft suspension" to recertification alone and to nothing else — the stricter reading, recorded here rather than adopted silently.',
   'Whether a LAPSED clearance still occupies its Area and Shift for the second-clearance rule. This build counts it, because a lapse does not un-signal an Area and the rule exists to notice repetition rather than concurrency; the source states the rule without saying which clearances it ranges over.',

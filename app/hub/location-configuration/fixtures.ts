@@ -1,4 +1,5 @@
 import type { TenantRoleId } from '../HubShell'
+import type { ControlStatus, DohControlMatrixRow } from '@/surfaces/doh/modules'
 import type { DohScope } from '@/surfaces/doh/scope'
 
 /**
@@ -528,13 +529,23 @@ export function visibleAreaIds(roleId: TenantRoleId): readonly string[] {
  * unanswered question that an implementer will answer privately".
  * ------------------------------------------------------------------ */
 
-export type ControlStatus =
-  | 'allowed'
-  | 'allowed-with-conditions'
-  | 'read-only'
-  | 'explicitly-prohibited'
-  | 'not-applicable'
-  | 'unavailable'
+/**
+ * The cell-status union and the row's surface come from their ONE owner,
+ * `@/surfaces/doh/modules`. Six Hub matrices shipped six identical copies of
+ * this union, each with its own exhaustiveness proof; six proofs of six
+ * unions prove nothing about the seventh spelling.
+ *
+ * THE ARRAY STAYS LOCAL, AND DELIBERATELY. The spine imports these matrices
+ * to derive `rolesReaching`, so a VALUE imported back from the spine closes
+ * a runtime cycle — and it closes it in the worst way: with a fixture module
+ * as the entry point, the spine re-enters a sibling fixture that is still
+ * mid-evaluation and reads `undefined` off it (reproduced as
+ * `TypeError: Cannot read properties of undefined (reading 'map')` in
+ * `permissions-roles-and-access`). A `import type` is erased and opens no
+ * edge at all. The `Exclude` proof below is over the ONE union, so this
+ * array is provably the whole of it and the six copies cannot drift apart.
+ */
+export type { ControlStatus, MatrixRowSurface } from '@/surfaces/doh/modules'
 
 export const CONTROL_STATUSES = [
   'allowed',
@@ -549,26 +560,44 @@ type MissingFromControlStatuses = Exclude<ControlStatus, (typeof CONTROL_STATUSE
 const _controlStatusesExhaustive: MissingFromControlStatuses extends never ? true : never = true
 void _controlStatusesExhaustive
 
-export interface ControlMatrixRow {
-  readonly id: string
-  readonly control: string
-  readonly status: Readonly<Record<TenantRoleId, ControlStatus>>
-  /** How this screen draws each refusal, by rule and not by taste. */
-  readonly rendering: string
-  readonly effect: string
-  readonly sourceRef: string
-}
+/** The shared Hub row shape, declared once in the spine and read by six
+ *  matrices that used to declare three shapes between them. */
+export type ControlMatrixRow = DohControlMatrixRow
+
+/**
+ * WHERE THE SOURCE STATES A TOKEN AND NOTHING ELSE. The frozen table at
+ * L27117-L27127 qualifies the Tenant Admin column on eight of its eleven
+ * rows, and the Supervisor on two; the remaining non-admin cells carry the
+ * bare word. A blank cell is forbidden (L10238) and a cause this build wrote
+ * would read as the source’s, so those cells carry the token and a pointer
+ * to the panel that records the silence.
+ */
+const BARE_PROHIBITION =
+  'Explicitly prohibited. The source states the bare token for this role and qualifies it for none of the four non-admin roles on this row; the silence is recorded in UNSPECIFIED_IN_SOURCE rather than filled in here.'
 
 export const CONTROL_MATRIX = [
   {
     id: 'CTL-01',
     control: 'View the location tree',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'allowed-with-conditions',
       READONLY_AUDITOR: 'read-only',
       WORKER: 'unavailable',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27117), tenant-wide.',
+      SUPERVISOR:
+        'Allowed with conditions — own Site and Area scopes (L27117).',
+      QUALITY_MANAGER:
+        'Allowed with conditions — own scopes (L27117).',
+      READONLY_AUDITOR:
+        'Read-only (L27117).',
+      WORKER:
+        'Unavailable (L27117), stated bare. Unavailable is the source’s withholding token — no standing on the module in any scope, never merged with Explicitly prohibited (L10238) — so the rail offers this route to nobody it marks.',
     },
     rendering:
       'The tree renders for four roles and is scope-filtered for two of them. Out-of-scope nodes are absent from the tree, the filters, the search and the export alike. The Auditor reads it under STATE-06 with the cause named. The Worker reaches no Hub screen at all.',
@@ -578,12 +607,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-02',
     control: 'Create a Site, an Area or a Location',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — blocked in soft, hard and compliance suspension (L27118).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin while the tenant state opens master-data creation, disabled with the write class named while it does not. ABSENT for the other four: the prohibition is categorical and they cannot hold it in any scope.',
@@ -593,12 +631,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-03',
     control: 'Edit a name, an address or a contact',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — allowed at any time, fully audited (L27119).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin at any time — in-flight Jobs do not hold it. ABSENT for the other four.',
@@ -609,12 +656,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-04',
     control: 'Re-parent a Location or change its depth',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — blocked while in-flight Jobs exist; the sanctioned path is archive-and-recreate (L27120).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'The one disabled-with-a-reason case on this screen. The control exists for the Tenant Admin and is refused by OBJECT STATE, not by role, so it renders disabled with the blocking Jobs named rather than absent. ABSENT for the other four.',
@@ -625,12 +681,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-05',
     control: 'Split, merge or re-parent an Area',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'explicitly-prohibited',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Explicitly prohibited — not supported at V1 (L27121).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'ABSENT for every role including the Tenant Admin. Not supported at V1, and a disabled control would promise a V2 the source has not promised.',
@@ -640,12 +705,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-06',
     control: 'Archive a Site or an Area',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — the cascade must complete reassignment first (L27122).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin behind a confirmation that lists every affected child node and every affected Job first. ABSENT for the other four.',
@@ -656,12 +730,22 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-07',
     control: 'Reassign a paused Job during the cascade',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27123), tenant-wide.',
+      SUPERVISOR:
+        'Allowed with conditions — own Area scope (L27123).',
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin tenant-wide and for the Supervisor inside their own Area. ABSENT for the other three.',
@@ -671,12 +755,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-08',
     control: 'Set the Site timezone',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — one timezone per Site; per-Area and per-Shift overrides are Unavailable at V1 (L27124).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin, one value per Site. The per-Area and per-Shift override is ABSENT for everyone, because it does not exist.',
@@ -687,12 +780,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-09',
     control: 'Set a Location’s required certification',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27125), stated with no qualifying words.',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin as a choice from the seeded list, never as free text. ABSENT for the other four.',
@@ -703,12 +805,25 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-10',
     control: 'View a map of locations',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'not-applicable',
       SUPERVISOR: 'not-applicable',
       QUALITY_MANAGER: 'not-applicable',
       READONLY_AUDITOR: 'not-applicable',
       WORKER: 'not-applicable',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Not applicable — map and geocoding visualisation are deferred beyond V1 (L27126).',
+      SUPERVISOR:
+        'Not applicable — same reason (L27126).',
+      QUALITY_MANAGER:
+        'Not applicable — same reason (L27126).',
+      READONLY_AUDITOR:
+        'Not applicable — same reason (L27126).',
+      WORKER:
+        'Not applicable — same reason (L27126).',
     },
     rendering: 'ABSENT for every role, with the reason in help text. Nothing exists to enable.',
     effect: 'Deferred beyond V1. No geocoding, no coordinates and no map component ships.',
@@ -717,12 +832,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'CTL-11',
     control: 'Create an equipment record',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'explicitly-prohibited',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Explicitly prohibited — equipment is not a first-class entity at V1 (L27127).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'ABSENT for every role, and refused on all three routes a reader might try: from a location, from parts and from a Job.',
@@ -747,6 +871,7 @@ export const EQUIPMENT_REFUSAL_PATHS = [
  * ------------------------------------------------------------------ */
 
 export const UNSPECIFIED_IN_SOURCE = [
+  'No CAUSE is stated for the non-admin columns of eight of the eleven matrix rows. The frozen table at L27117-L27127 qualifies the Tenant Admin on eight rows, the Supervisor on two, and gives every other refusing cell the bare word `Explicitly prohibited`. Those cells carry the token and this note; the prose beside them on screen is this build’s reading of why, and is labelled as one rather than quoted as the source’s.',
   'Cell exists in the object model — it is the third level of the tree and the node a re-parent acts on — but it is not a scope dimension at V1. No role can be scoped to a Cell, no filter offers one, and no control that would offer one is drawn even inert, because an inert control implies a roadmap promise the source has not made.',
   'No control creates, edits or retires a certification type. The list on this screen is seeded, and the source never says who creates one, on which screen, under which module, or whether the platform seeds any (D22). This is a client blocker, not an oversight to code around.',
   'No search, sort, saved view or column chooser is defined for the tree. The search box here narrows the same scope-filtered set the tree already holds and grants nothing.',

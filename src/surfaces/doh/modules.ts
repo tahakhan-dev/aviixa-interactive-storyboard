@@ -7,8 +7,32 @@
  * three-digit `SCR-DOH-NNN` literal is forbidden anywhere in the codebase —
  * the two source catalogues collide silently on the same identifier. Every
  * `slug` below is a plain name, never a screen number, for the same reason.
+ *
+ * THIS FILE ALSO OWNS THE CONTROL-MATRIX VOCABULARY the nine Hub matrices
+ * share — the row's surface, the status union, the row shape and the ONE
+ * derivation of `rolesReaching`. It owns them because `rolesReaching` is
+ * computed FROM the matrices: a rule that lives beside the thing it reads
+ * cannot be applied to eight modules and forgotten on the ninth.
+ *
+ * SO THE SPINE IMPORTS THE EIGHT MATRICES, WHICH POINTS THE OTHER WAY from
+ * every other import in `src/`, and that is the price of the field being
+ * derived rather than typed twice. The direction is one-way at RUNTIME: the
+ * fixtures take only `import type` from here, which is erased, so the only
+ * value cycle in the graph is the one `HubShell` already had. The devices
+ * matrix is absent from the list below because that screen is uncatalogued
+ * and claims no module (D4, D5) — it has no route for a rail to offer.
  */
-import type { RoleId } from '@/domain/roles'
+import { rolesInDomain, type RoleId } from '@/domain/roles'
+import type { PermissionOutcome } from '@/policy/decision'
+import type { TenantRoleId } from '../../../app/hub/HubShell'
+import { CONTROL_MATRIX as TENANT_LIFECYCLE_MATRIX } from '../../../app/hub/tenant-lifecycle-and-tier-operations/fixtures'
+import { CONTROL_MATRIX as LOCATIONS_MATRIX } from '../../../app/hub/location-configuration/fixtures'
+import { CONTROL_MATRIX as SHIFTS_MATRIX } from '../../../app/hub/shift-management/fixtures'
+import { CONTROL_MATRIX as WORKERS_MATRIX } from '../../../app/hub/worker-lifecycle-and-qualifications/fixtures'
+import { PERMISSION_MATRIX } from '../../../app/hub/permissions-roles-and-access/fixtures'
+import { CONTROL_MATRIX as SSO_MATRIX } from '../../../app/hub/integration-surface/fixtures'
+import { CONTROL_MATRIX as PLATFORM_ADMIN_MATRIX } from '../../../app/hub/tenant-view-of-platform-administration/fixtures'
+import { CONTROL_MATRIX as CALENDAR_MATRIX } from '../../../app/hub/qualification-calendar/fixtures'
 
 export type DohModuleId =
   | 'MOD-DOH-01'
@@ -19,6 +43,295 @@ export type DohModuleId =
   | 'MOD-DOH-12'
   | 'MOD-DOH-13'
   | 'MOD-DOH-14'
+
+/* ==================================================================== *
+ * THE CONTROL-MATRIX VOCABULARY. One surface union, one status union,
+ * one row shape, one derivation — all of them here, all of them read by
+ * `app/hub/<module>/fixtures.ts`.
+ * ==================================================================== */
+
+/**
+ * WHERE THE CAPABILITY A MATRIX ROW NAMES IS MET.
+ *
+ * THE DEFECT THIS EXISTS FOR. A permission matrix row is not always about
+ * the screen that prints it. "See the suspension banner" and "See the
+ * support-session banner" are about the Hub CHROME, which every persona
+ * meets on every route regardless of what the module rail offers; "Call the
+ * inbound business-system integration endpoint" is "not a screen control at
+ * all — an outside system calls it"; "Change ladder thresholds" is set in
+ * the Super Admin console. Scanning a role's whole column and calling the
+ * result "can this role reach this module" merges all three, and a role
+ * that holds nothing but a chrome banner reads as a module user.
+ *
+ * THE THREE, and the line between them:
+ *
+ * - `screen` — the row names a capability of this module's own screen. It
+ *   stays `screen` when the answer is "absent for everyone": a row like
+ *   "Create an equipment record" or "Change the 60-day horizon" is still
+ *   this screen's own disclosure that it offers nothing. It also stays
+ *   `screen` when the Hub screen that renders it belongs to a SIBLING
+ *   module — `MOD-DOH-12`'s tier read view is built on `MOD-DOH-01`'s
+ *   screen, and it is a Hub screen either way.
+ * - `chrome` — the shell draws it on every Hub route, above the content
+ *   and outside the rail's answer. A role reaches it whether or not the
+ *   rail offers the module, so holding it says nothing about reach.
+ * - `another-surface` — the capability IS met, but not on a Hub screen:
+ *   the Super Admin platform console, the worker's device, the Client
+ *   Command Center, or an outside system calling in. This screen can only
+ *   describe it.
+ *
+ * The reservation is what keeps the third honest: `another-surface` means
+ * somebody, somewhere, holds it. A capability that exists NOWHERE is a
+ * `screen` row whose every cell refuses.
+ */
+export type MatrixRowSurface = 'screen' | 'chrome' | 'another-surface'
+
+export const MATRIX_ROW_SURFACES = [
+  'screen',
+  'chrome',
+  'another-surface',
+] as const satisfies readonly MatrixRowSurface[]
+
+// Same widening hazard, same fix, as `PERMISSION_OUTCOMES` in
+// `@/policy/decision`: `as const satisfies` keeps the members literal, so a
+// fourth surface added to the union above and not to the array fails here.
+type MissingFromRowSurfaces = Exclude<MatrixRowSurface, (typeof MATRIX_ROW_SURFACES)[number]>
+const _rowSurfacesExhaustive: MissingFromRowSurfaces extends never ? true : never = true
+void _rowSurfacesExhaustive
+
+/**
+ * THE ONE CELL-STATUS UNION, and it was six identical copies — one each in
+ * the devices, location-configuration, shift-management, qualification-
+ * calendar, tenant-view-of-platform-administration and worker-lifecycle
+ * fixtures, each with its own array and its own exhaustiveness proof. Six
+ * proofs of six unions prove nothing about the seventh spelling.
+ */
+export type ControlStatus =
+  | 'allowed'
+  | 'allowed-with-conditions'
+  | 'read-only'
+  | 'explicitly-prohibited'
+  | 'not-applicable'
+  | 'unavailable'
+
+export const CONTROL_STATUSES = [
+  'allowed',
+  'allowed-with-conditions',
+  'read-only',
+  'explicitly-prohibited',
+  'not-applicable',
+  'unavailable',
+] as const satisfies readonly ControlStatus[]
+
+type MissingFromControlStatuses = Exclude<ControlStatus, (typeof CONTROL_STATUSES)[number]>
+const _controlStatusesExhaustive: MissingFromControlStatuses extends never ? true : never = true
+void _controlStatusesExhaustive
+
+/**
+ * THE SAME SIX STATUSES IN THE SOURCE'S OWN TITLE CASE, which `MOD-DOH-01`
+ * and `MOD-DOH-12` render verbatim into their on-screen tables. It was two
+ * identical copies. It is NOT merged into `ControlStatus`: both spellings
+ * are asserted literally by those modules' own suites and by what their
+ * screens print, so merging them would change a rendered document.
+ */
+export type MatrixStatus =
+  | 'Allowed'
+  | 'Allowed with conditions'
+  | 'Read-only'
+  | 'Unavailable'
+  | 'Explicitly prohibited'
+  | 'Not applicable'
+
+export const MATRIX_STATUSES = [
+  'Allowed',
+  'Allowed with conditions',
+  'Read-only',
+  'Unavailable',
+  'Explicitly prohibited',
+  'Not applicable',
+] as const satisfies readonly MatrixStatus[]
+
+type MissingFromMatrixStatuses = Exclude<MatrixStatus, (typeof MATRIX_STATUSES)[number]>
+const _matrixStatusesExhaustive: MissingFromMatrixStatuses extends never ? true : never = true
+void _matrixStatusesExhaustive
+
+/**
+ * THE ONE ROW SHAPE for the six matrices that key a cell on `ControlStatus`.
+ * It was three shapes among those six — one carrying `provenance`, two
+ * carrying `detail`, three carrying neither — so a gate asking one question
+ * of all six had to ask it three ways.
+ *
+ * `detail` is required, per cell and per role. A refusal with no stated
+ * cause is a refusal the screen cannot explain, and L10238 is explicit:
+ * "a blank cell is an unanswered question that an implementer will answer
+ * privately and inconsistently". Where the frozen source states no cause,
+ * the cell says so and the module's `UNSPECIFIED_IN_SOURCE` panel carries
+ * it — no cause is invented to fill the field.
+ */
+export interface DohControlMatrixRow<Id extends string = string> {
+  readonly id: Id
+  readonly control: string
+  /** Where this row's capability is met. Read by `rolesReachingByMatrix`. */
+  readonly surface: MatrixRowSurface
+  readonly status: Readonly<Record<TenantRoleId, ControlStatus>>
+  /** Per cell, per role, never blank. */
+  readonly detail: Readonly<Record<TenantRoleId, string>>
+  /** How this screen draws each refusal, by rule and not by taste. */
+  readonly rendering: string
+  readonly effect: string
+  readonly sourceRef: string
+}
+
+/** A role holds a capability when the cell lets it read or act. */
+const HOLDING_STATUSES = [
+  'allowed',
+  'allowed-with-conditions',
+  'read-only',
+] as const satisfies readonly ControlStatus[]
+
+/**
+ * The five tenant roles, in registry order, read from `@/domain/roles`
+ * rather than typed here a sixth time. The narrowing is safe by the
+ * registry's own definition — the TENANT security domain holds exactly
+ * these five (MOD-DOH-09) — and `tests/component/doh-shell.test.tsx`
+ * asserts the shell's tuple equals `rolesInDomain('TENANT')`, so a sixth
+ * tenant role fails there rather than silently widening this.
+ */
+const TENANT_ROLES = rolesInDomain('TENANT').map((r) => r.id as TenantRoleId)
+
+/**
+ * The Title-Case spelling onto the shared union. A TOTAL `Record`, not a
+ * lookup with a fallback: a seventh `MatrixStatus` fails to compile here
+ * instead of normalising to `undefined` and quietly reaching every module.
+ */
+const FROM_TITLE_CASE: Readonly<Record<MatrixStatus, ControlStatus>> = {
+  Allowed: 'allowed',
+  'Allowed with conditions': 'allowed-with-conditions',
+  'Read-only': 'read-only',
+  Unavailable: 'unavailable',
+  'Explicitly prohibited': 'explicitly-prohibited',
+  'Not applicable': 'not-applicable',
+}
+
+/**
+ * `MOD-DOH-09` keys its cells on the policy union instead. Total for the
+ * same reason, and the two offline outcomes map onto what they let a person
+ * do: a cached read is a read, a queued write is a write that was accepted.
+ * `clientDecisionRequired` maps onto `not-applicable` — it is neither a
+ * grant nor the withholding token, so it settles the reach question in
+ * neither direction, which is the honest answer for a question the client
+ * has not answered. No cell in the nine matrices carries it today.
+ *
+ * `unavailable` HERE IS THE OVERLOADED TOKEN, and this is the one place the
+ * two senses could be conflated. They are not, and the reason is structural
+ * rather than a rule applied by hand: a MATRIX CELL states role-level
+ * standing — "cannot hold this in any scope" — while TRANSIENT
+ * unavailability of an action a role does hold is never a matrix cell at
+ * all. It is a `PermissionDecision` computed at render time
+ * (`decide('unavailable', 'TENANT_SUSPENDED', …)`), and this derivation
+ * reads no decision. Write a transient refusal into a matrix cell and the
+ * two would merge; the matrices do not, and each module's suite pins the
+ * cells that carry the token.
+ */
+const FROM_OUTCOME: Readonly<Record<PermissionOutcome, ControlStatus>> = {
+  allowed: 'allowed',
+  allowedWithConditions: 'allowed-with-conditions',
+  readOnly: 'read-only',
+  cachedReadOnlyOffline: 'read-only',
+  queuedOffline: 'allowed',
+  unavailable: 'unavailable',
+  explicitlyProhibited: 'explicitly-prohibited',
+  clientDecisionRequired: 'not-applicable',
+  notApplicable: 'not-applicable',
+}
+
+/**
+ * WHO REACHES A MODULE'S ROUTE — the ONE implementation of the rule, and
+ * the only thing `rolesReaching` is allowed to be.
+ *
+ * THE RULE, in one sentence with two clauses that both do work:
+ *
+ *   a role reaches the route when this module's OWN SCREEN offers it
+ *   something, and no screen row marks it `Unavailable`.
+ *
+ * CLAUSE ONE, `surface === 'screen'`, is what stops a chrome banner from
+ * counting as module standing. `MOD-DOH-01`'s compliance message is
+ * `Allowed` for all five roles because sign-in is blocked for everyone and
+ * everyone must be told why (L26886-L26888) — it is the shell's suspension
+ * slot, and three of those five hold nothing on the screen itself.
+ * `MOD-DOH-13` carries the same shape across three banner rows (L29198-
+ * L29200).
+ *
+ * CLAUSE TWO is the source's own withholding token. `Unavailable` means
+ * "cannot hold this in any scope" — no standing on the module at all — and
+ * the source keeps it deliberately distinct from `Explicitly prohibited`
+ * (L10238): a role that is only ever prohibited OPENS the screen and meets
+ * a refusal it can read, while a role marked `Unavailable` is not offered
+ * the route and a deep link meets STATE-05. It outranks a grant on the same
+ * matrix, which is what `MOD-DOH-04` turns on: the Worker is `Unavailable`
+ * on the clearance corpus, so the two conditional grants left in that
+ * column — the own-record read and the own-certification alerts — are met
+ * on the device rather than in the Hub.
+ *
+ * BOTH CLAUSES ARE LOAD-BEARING, AND THIS WAS MEASURED RATHER THAN
+ * ASSERTED. Run the rule with clause two removed and `MOD-DOH-04` gains the
+ * Worker — five roles, not four — which is `tests/unit/doh-workers.test.ts`
+ * going red. Run it with the surface classification removed, so clause one
+ * reads every row instead of the screen rows, and it is exactly the three
+ * modules the slice-4 gate names that move: `MOD-DOH-01` offers all five
+ * roles instead of two, `MOD-DOH-13` offers four instead of two,
+ * `MOD-DOH-04` offers five instead of four. The other five are unchanged
+ * either way.
+ *
+ * What the two clauses do NOT do is disagree with each other on today's
+ * data: with the classification in place, each alone reaches the same eight
+ * answers. That is worth saying plainly rather than dressing the second
+ * clause up as redundant — the classification is what makes the meaning
+ * question askable at all, and the withholding token is what answers it
+ * when a role holds something on the screen and still has no standing.
+ *
+ * NOT D11, AND DELIBERATELY NOT. Whether the persona reaches SURF-DOH at
+ * all is the route registry's answer, asked first by `app/hub/HubShell.tsx`
+ * — which is why `MOD-DOH-03` reaching all five roles is not a bug: its
+ * matrix withholds from nobody, and the Worker still lands on no Hub route.
+ * Restating D11 here would give one rule two owners.
+ */
+export function rolesReachingByMatrix<Row extends { readonly surface: MatrixRowSurface }>(
+  rows: readonly Row[],
+  statusOf: (row: Row, role: TenantRoleId) => ControlStatus,
+): readonly TenantRoleId[] {
+  const screenRows = rows.filter((row) => row.surface === 'screen')
+  return TENANT_ROLES.filter((role) => {
+    const column = screenRows.map((row) => statusOf(row, role))
+    const holdsSomething = column.some((status) =>
+      (HOLDING_STATUSES as readonly ControlStatus[]).includes(status),
+    )
+    return holdsSomething && !column.includes('unavailable')
+  })
+}
+
+/* The three cell readers, one per spelling the nine matrices use. They are
+ * exported because `MOD-DOH-12` publishes the same derivation over its own
+ * matrix for its screen to pass to `evaluateAccess`, and that copy must run
+ * the SAME rule over the SAME rows rather than a second implementation of
+ * it — its unit suite compares the two, and a wrapper that just re-read
+ * `rolesReaching` would make that comparison vacuous. */
+
+/** The six matrices keyed on the shared union. */
+export const cellStatus = (row: DohControlMatrixRow, role: TenantRoleId): ControlStatus =>
+  row.status[role]
+
+/** `MOD-DOH-01` and `MOD-DOH-12`, keyed on the Title-Case spelling. */
+export const titleCaseCellStatus = (
+  row: { readonly byRole: Readonly<Record<TenantRoleId, { readonly status: MatrixStatus }>> },
+  role: TenantRoleId,
+): ControlStatus => FROM_TITLE_CASE[row.byRole[role].status]
+
+/** `MOD-DOH-09`, keyed on the policy union. */
+export const outcomeCellStatus = (
+  row: { readonly cells: Readonly<Record<TenantRoleId, { readonly outcome: PermissionOutcome }>> },
+  role: TenantRoleId,
+): ControlStatus => FROM_OUTCOME[row.cells[role].outcome]
 
 export interface DohModuleDefinition {
   readonly id: DohModuleId
@@ -32,54 +345,24 @@ export interface DohModuleDefinition {
    * The tenant roles this module's route is offered to, and the ONE place
    * the module rail reads to decide what to draw.
    *
-   * THE DERIVATION, and it is one rule applied to every module: a role is
-   * withheld exactly when that module's own permission matrix marks any
-   * cell in its column `Unavailable` — the token whose own definition is
-   * "cannot hold this in any scope", and which the source keeps
-   * deliberately distinct from `Explicitly prohibited`. The two are never
-   * merged (L10238): `Explicitly prohibited` means the control exists on
-   * this screen and this role is not granted it, so the role OPENS the
-   * screen and meets a refusal it can read; `Unavailable` means the role
-   * has no standing on the module at all, so by the prohibition-rendering
-   * rule it renders ABSENT — the rail does not offer the route.
+   * DERIVED, NEVER TYPED. Every entry below computes this from that
+   * module's own matrix through `rolesReachingByMatrix`, so there is no
+   * second copy to drift from the first. It was a hand-maintained list
+   * carrying a hand-written rule ("any cell in its column `Unavailable`"),
+   * and a gate found the rule wrong on three of the eight while the values
+   * it happened to produce were right.
    *
-   * ONE OWNER, PLUS A CROSS-CHECK. This field is the copy the chrome reads;
-   * each module's own matrix stays the copy the module renders. Neither is
-   * derived from the other at runtime (they live in different layers), so
-   * each module's unit suite asserts they agree — see
-   * `tests/unit/doh-tenant-lifecycle.test.ts`, `tests/unit/doh-locations.test.ts`
-   * and `tests/unit/doh-permissions.test.ts` for the pattern the five
-   * remaining modules inherit. Drift fails a test instead of shipping.
-   *
-   * THIS IS THE MODULE'S ANSWER ONLY. Whether the persona reaches SURF-DOH
-   * at all is a prior and separate question, owned by the route registry
-   * (D11 — the Worker holds no Hub screen), and `HubShell` asks that one
-   * first. So a Worker listed here (`MOD-DOH-03`, whose matrix carries no
-   * `Unavailable` cell in any column) still reaches no Hub route: this
-   * field is never consulted for a persona the surface already withholds.
-   * Restating D11 here would give one rule two owners.
+   * LAZY ON PURPOSE. `app/hub/tenant-view-of-platform-administration/fixtures.ts`
+   * re-exports a value from `app/hub/HubShell.tsx`, which imports this
+   * file — so a matrix read at module-initialisation time is read before
+   * the fixture module has finished evaluating and comes back `undefined`
+   * (reproduced: `TypeError: Cannot read properties of undefined`, with the
+   * platform-administration suite as the entry point). A getter defers the
+   * read to first use, by which time every module in the cycle is
+   * initialised.
    */
   readonly rolesReaching: readonly RoleId[]
 }
-
-/* The three shapes the eight matrices actually produce, named once rather
- * than spelled out eight times. Each module below cites the source lines its
- * own matrix occupies, so the derivation is checkable per module and not
- * only in aggregate. */
-const ADMIN_AND_AUDITOR = ['TENANT_ADMIN', 'READONLY_AUDITOR'] as const
-const EVERY_ROLE_BUT_THE_WORKER = [
-  'TENANT_ADMIN',
-  'SUPERVISOR',
-  'QUALITY_MANAGER',
-  'READONLY_AUDITOR',
-] as const
-const EVERY_TENANT_ROLE = [
-  'TENANT_ADMIN',
-  'SUPERVISOR',
-  'QUALITY_MANAGER',
-  'READONLY_AUDITOR',
-  'WORKER',
-] as const
 
 // Same widening hazard as `SA_MODULES`/`ROLES`/`SCREEN_STATES`: a plain
 // `: readonly DohModuleDefinition[]` annotation would widen the const and
@@ -92,10 +375,13 @@ export const DOH_MODULES = [
     slug: 'tenant-lifecycle-and-tier-operations',
     purpose:
       "Enforce the tenant's commercial and compliance state everywhere in the Hub, record every transition, and render the tenant's own position read-only.",
-    // L26883-L26896. Supervisor, Quality Manager and Worker are `Unavailable`
-    // on all four reading rows; the two reading roles are the only ones the
-    // route is offered to.
-    rolesReaching: ADMIN_AND_AUDITOR,
+    // L26883-L26896. Two of the twelve rows are the shell's suspension slot
+    // rather than this screen, and the compliance message is `Allowed` for
+    // all five roles there; on the screen's own rows the Supervisor, the
+    // Quality Manager and the Worker are `Unavailable` throughout.
+    get rolesReaching(): readonly RoleId[] {
+      return rolesReachingByMatrix(TENANT_LIFECYCLE_MATRIX, titleCaseCellStatus)
+    },
   },
   {
     id: 'MOD-DOH-02',
@@ -103,9 +389,11 @@ export const DOH_MODULES = [
     slug: 'location-configuration',
     purpose:
       "Hold the tenant's physical structure as the anchor for timezone, shifts, Job binding, scoping and reporting drill-down.",
-    // L27113-L27127. Only the Worker is `Unavailable` (on viewing the
-    // location tree); the other four read or write somewhere in the matrix.
-    rolesReaching: EVERY_ROLE_BUT_THE_WORKER,
+    // L27113-L27127. Eleven screen rows and nothing else; only the Worker is
+    // `Unavailable` (on viewing the location tree).
+    get rolesReaching(): readonly RoleId[] {
+      return rolesReachingByMatrix(LOCATIONS_MATRIX, cellStatus)
+    },
   },
   {
     id: 'MOD-DOH-03',
@@ -113,13 +401,15 @@ export const DOH_MODULES = [
     slug: 'shift-management',
     purpose:
       "Define the tenant's working-time blocks as the anchor for metering, production dating and escalation resolution.",
-    // L27287-L27295. The one matrix of the eight carrying no `Unavailable`
+    // L27287-L27297. The one matrix of the eight carrying no `Unavailable`
     // cell at all — every column, the Worker's included, holds a reading or
     // acting status on `View Shifts`. So this module withholds its route
     // from nobody. The Worker still reaches no Hub route: the route registry
     // answers that first (D11), and this field is never consulted for a
     // persona the surface already withholds.
-    rolesReaching: EVERY_TENANT_ROLE,
+    get rolesReaching(): readonly RoleId[] {
+      return rolesReachingByMatrix(SHIFTS_MATRIX, cellStatus)
+    },
   },
   {
     id: 'MOD-DOH-04',
@@ -127,9 +417,14 @@ export const DOH_MODULES = [
     slug: 'worker-lifecycle-and-qualifications',
     purpose:
       'Hold who may do what, enforce it at assignment and on the device, and provide the audited exception path when the line would otherwise stop.',
-    // L27466-L27482. Only the Worker is `Unavailable` (reading the clearance
-    // corpus across time).
-    rolesReaching: EVERY_ROLE_BUT_THE_WORKER,
+    // L27466-L27484. Fifteen screen rows. The Worker holds two of them —
+    // the own-record read and the own-certification alerts — and is
+    // `Unavailable` on the clearance corpus, which is the module's own
+    // statement that the Worker has no standing here; both grants are met
+    // on the device.
+    get rolesReaching(): readonly RoleId[] {
+      return rolesReachingByMatrix(WORKERS_MATRIX, cellStatus)
+    },
   },
   {
     id: 'MOD-DOH-09',
@@ -137,9 +432,12 @@ export const DOH_MODULES = [
     slug: 'permissions-roles-and-access',
     purpose:
       'Configure who exists in the tenant, what each may do, and where; enforce it across all five surfaces from one place.',
-    // L28518-L28533. Only the Worker is `Unavailable` (viewing the user and
-    // role register); the other three non-admin roles read that register.
-    rolesReaching: EVERY_ROLE_BUT_THE_WORKER,
+    // L28518-L28533. Twelve screen rows; only the Worker is `Unavailable`
+    // (viewing the user and role register), and the other three non-admin
+    // roles read that register.
+    get rolesReaching(): readonly RoleId[] {
+      return rolesReachingByMatrix(PERMISSION_MATRIX, outcomeCellStatus)
+    },
   },
   {
     id: 'MOD-DOH-12',
@@ -147,10 +445,13 @@ export const DOH_MODULES = [
     slug: 'integration-surface',
     purpose:
       'Narrowed to single sign-on only (FEAT-DOH-1201): the connection record for the tenant and its contact email. No operational object.',
-    // L29038-L29048. Supervisor, Quality Manager and Worker are `Unavailable`
-    // on the tenant read view, and hold no reading or acting status on any
-    // other row of this matrix — the module offers them nothing at all.
-    rolesReaching: ADMIN_AND_AUDITOR,
+    // L29038-L29050. The tier read view is a Hub screen row even though this
+    // slice builds it on `MOD-DOH-01`'s screen; it is the one row carrying
+    // `Unavailable`, and it withholds the Supervisor, the Quality Manager
+    // and the Worker, who hold nothing else here either.
+    get rolesReaching(): readonly RoleId[] {
+      return rolesReachingByMatrix(SSO_MATRIX, titleCaseCellStatus)
+    },
   },
   {
     id: 'MOD-DOH-13',
@@ -158,13 +459,13 @@ export const DOH_MODULES = [
     slug: 'tenant-view-of-platform-administration',
     purpose:
       "Make every platform-side access to a tenant's workspace visible to that tenant, and give the tenant a control it can actually exercise.",
-    // L29193-L29204. Supervisor, Quality Manager and Worker are `Unavailable`
-    // on Platform Access History and on the post-session report. The rows
-    // where the Supervisor and Quality Manager ARE `Allowed` — seeing the
-    // support-session banner and ending the session from it — are the Hub
-    // CHROME's banner slot, not this module's screen, and they reach every
-    // Hub persona through the banner region regardless of the rail.
-    rolesReaching: ADMIN_AND_AUDITOR,
+    // L29195-L29206. Three of the ten rows are the shell's banner slot and
+    // reach every Hub persona regardless of the rail; on the two rows this
+    // screen owns — Platform Access History and the post-session report —
+    // the Supervisor, the Quality Manager and the Worker are `Unavailable`.
+    get rolesReaching(): readonly RoleId[] {
+      return rolesReachingByMatrix(PLATFORM_ADMIN_MATRIX, cellStatus)
+    },
   },
   {
     id: 'MOD-DOH-14',
@@ -172,10 +473,12 @@ export const DOH_MODULES = [
     slug: 'qualification-calendar',
     purpose:
       'Give the Quality Manager a single 60-day, tenant-wide view of certification expiry for planning.',
-    // L29341-L29348, the matrix D24 adopts over its seven restatements. Only
-    // the Worker is `Unavailable`; the Supervisor reads it filtered to their
-    // own Area, and the Tenant Admin and Auditor read it.
-    rolesReaching: EVERY_ROLE_BUT_THE_WORKER,
+    // L29341-L29350, the matrix D24 adopts over its seven restatements. Six
+    // screen rows; only the Worker is `Unavailable`. The Supervisor reads it
+    // filtered to their own Area, and the Tenant Admin and Auditor read it.
+    get rolesReaching(): readonly RoleId[] {
+      return rolesReachingByMatrix(CALENDAR_MATRIX, cellStatus)
+    },
   },
 ] as const satisfies readonly DohModuleDefinition[]
 
@@ -199,10 +502,14 @@ export function dohModuleById(id: DohModuleId): DohModuleDefinition {
  * the module rail draws, computed here so no component has to.
  *
  * The parameter annotation on the callback is load-bearing: `DOH_MODULES` is
- * `as const`, so each `rolesReaching` is a narrow literal tuple whose
- * `.includes` would only accept the members it already lists. Widening the
- * element to `DohModuleDefinition` asks the real question — is this role in
- * the list — instead of a tautology.
+ * `as const`, so a narrower element type would let `.includes` accept only
+ * the members it already lists. Widening the element to
+ * `DohModuleDefinition` asks the real question — is this role in the list —
+ * instead of a tautology.
+ *
+ * Reading `m.rolesReaching` runs that module's derivation over its own
+ * matrix. Eight matrices of at most fifteen rows is not worth a cache, and
+ * a cache is the thing that would let the rail and the screen disagree.
  *
  * This answers the MODULE question only. Whether `role` reaches SURF-DOH at
  * all is the route registry's answer (D11), asked first by `app/hub/HubShell.tsx`.

@@ -4,6 +4,7 @@ import type { WriteAction } from '@/surfaces/doh/tenant-state'
 import { DEFERRED_DOH_SCOPES } from '@/surfaces/doh/scope'
 import { DOH_AREAS, DOH_SITES, areaById } from '../location-configuration/fixtures'
 import type { TenantRoleId } from '../HubShell'
+import type { ControlStatus, DohControlMatrixRow } from '@/surfaces/doh/modules'
 
 /**
  * `SCR-DOH-DEVICES` — Device enrollment and the tenant's device inventory.
@@ -345,13 +346,23 @@ export const LOST_REPORT_CONFIRMATION =
  * anywhere in the frozen source.
  * ------------------------------------------------------------------ */
 
-export type ControlStatus =
-  | 'allowed'
-  | 'allowed-with-conditions'
-  | 'read-only'
-  | 'explicitly-prohibited'
-  | 'not-applicable'
-  | 'unavailable'
+/**
+ * The cell-status union and the row's surface come from their ONE owner,
+ * `@/surfaces/doh/modules`. Six Hub matrices shipped six identical copies of
+ * this union, each with its own exhaustiveness proof; six proofs of six
+ * unions prove nothing about the seventh spelling.
+ *
+ * THE ARRAY STAYS LOCAL, AND DELIBERATELY. The spine imports these matrices
+ * to derive `rolesReaching`, so a VALUE imported back from the spine closes
+ * a runtime cycle — and it closes it in the worst way: with a fixture module
+ * as the entry point, the spine re-enters a sibling fixture that is still
+ * mid-evaluation and reads `undefined` off it (reproduced as
+ * `TypeError: Cannot read properties of undefined (reading 'map')` in
+ * `permissions-roles-and-access`). A `import type` is erased and opens no
+ * edge at all. The `Exclude` proof below is over the ONE union, so this
+ * array is provably the whole of it and the six copies cannot drift apart.
+ */
+export type { ControlStatus, MatrixRowSurface } from '@/surfaces/doh/modules'
 
 export const CONTROL_STATUSES = [
   'allowed',
@@ -389,14 +400,17 @@ export type DeviceControlId =
   | 'suspend-a-device'
   | 'change-the-device-mode'
 
-export interface ControlMatrixRow {
-  readonly id: DeviceControlId
-  readonly control: string
-  readonly status: Readonly<Record<TenantRoleId, ControlStatus>>
+/**
+ * The shared Hub row shape, plus the one field only this matrix carries.
+ * Six Hub matrices declared three different row shapes between them; the
+ * shape is declared once now, and the extension below is the honest
+ * exception rather than a fourth private copy.
+ */
+export interface ControlMatrixRow extends DohControlMatrixRow<DeviceControlId> {
+  /** Devices is the one module with NO five-role table anywhere in the
+   *  frozen source, so every row states whether its statuses are the
+   *  source's words or this build's derivation. */
   readonly provenance: StatusProvenance
-  readonly rendering: string
-  readonly effect: string
-  readonly sourceRef: string
 }
 
 const TENANT_ADMIN_ONLY: Readonly<Record<TenantRoleId, ControlStatus>> = {
@@ -415,10 +429,24 @@ const PROHIBITED_FOR_ALL_FIVE: Readonly<Record<TenantRoleId, ControlStatus>> = {
   WORKER: 'explicitly-prohibited',
 }
 
+/**
+ * NO FIVE-ROLE TABLE FOR DEVICES EXISTS ANYWHERE IN THE FROZEN SOURCE, so
+ * no per-cell cause can be quoted from one. A blank cell is forbidden
+ * (L10238) and a cause this build wrote would read as the source’s — so
+ * every non-Tenant-Admin cell below says which of the two it is, and the
+ * absence of the table itself is recorded in UNSPECIFIED_IN_SOURCE.
+ */
+const NO_ROLE_TABLE_QUOTED =
+  'Unavailable. No five-role table for devices exists in the frozen source; this row’s refusal is QUOTED from the workflow’s own denied path, which states the outcome without qualifying it per role. See UNSPECIFIED_IN_SOURCE.'
+
+const NO_ROLE_TABLE_DERIVED =
+  'Unavailable. No five-role table for devices exists in the frozen source and this row says nothing at all about this role, so this build WITHHOLDS rather than granting on silence. Derived, not quoted; see UNSPECIFIED_IN_SOURCE.'
+
 export const CONTROL_MATRIX = [
   {
     id: 'view-the-device-inventory',
     control: 'View the device inventory',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'read-only',
       SUPERVISOR: 'unavailable',
@@ -427,6 +455,14 @@ export const CONTROL_MATRIX = [
       WORKER: 'unavailable',
     },
     provenance: 'derived-from-silence',
+    detail: {
+      TENANT_ADMIN:
+        'Read-only — the panel fields are named and the Tenant Admin is the role named on every device row this source has (L67861, L53089). Derived, not quoted.',
+      SUPERVISOR: NO_ROLE_TABLE_DERIVED,
+      QUALITY_MANAGER: NO_ROLE_TABLE_DERIVED,
+      READONLY_AUDITOR: NO_ROLE_TABLE_DERIVED,
+      WORKER: NO_ROLE_TABLE_DERIVED,
+    },
     rendering:
       'The inventory renders for the Tenant Admin. ABSENT for the other four — and their absence is DERIVED, not quoted: the source names the Tenant Admin on every device row it has and states nothing at all about the other four, so this build withholds rather than granting on silence.',
     effect: 'A read of this workspace’s own device records.',
@@ -435,8 +471,17 @@ export const CONTROL_MATRIX = [
   {
     id: 'enrol-a-device',
     control: 'Enrol a device',
+    surface: 'screen',
     status: TENANT_ADMIN_ONLY,
     provenance: 'quoted-from-source',
+    detail: {
+      TENANT_ADMIN:
+        'Allowed — behind the named feature flag; the workflow opens with the Tenant Admin (WF-DVC-001 L53085).',
+      SUPERVISOR: NO_ROLE_TABLE_QUOTED,
+      QUALITY_MANAGER: NO_ROLE_TABLE_QUOTED,
+      READONLY_AUDITOR: NO_ROLE_TABLE_QUOTED,
+      WORKER: NO_ROLE_TABLE_QUOTED,
+    },
     rendering:
       'Live for the Tenant Admin behind the named feature flag. ABSENT for the other four: the workflow’s own denied path names all four attempting enrolment and being refused, so the refusal is quoted rather than derived.',
     effect:
@@ -446,8 +491,18 @@ export const CONTROL_MATRIX = [
   {
     id: 'reassign-a-device',
     control: 'Reassign a device to another Area',
+    surface: 'screen',
     status: TENANT_ADMIN_ONLY,
     provenance: 'quoted-from-source',
+    detail: {
+      TENANT_ADMIN:
+        'Allowed — and refused while a run is in flight on the device (AC-WF-DVC-002-01 L53132).',
+      SUPERVISOR:
+        'Unavailable — reassignment by a Supervisor is refused by name, because device policy sits with the Tenant Admin (WF-DVC-002 L53118).',
+      QUALITY_MANAGER: NO_ROLE_TABLE_DERIVED,
+      READONLY_AUDITOR: NO_ROLE_TABLE_DERIVED,
+      WORKER: NO_ROLE_TABLE_DERIVED,
+    },
     rendering:
       'Live for the Tenant Admin, and DISABLED with its reason while a run is in flight on the device. ABSENT for the other four: reassignment by a Supervisor is refused by name, because device policy sits with the Tenant Admin.',
     effect:
@@ -457,8 +512,17 @@ export const CONTROL_MATRIX = [
   {
     id: 'retire-a-device',
     control: 'Retire a device',
+    surface: 'screen',
     status: TENANT_ADMIN_ONLY,
     provenance: 'derived-from-silence',
+    detail: {
+      TENANT_ADMIN:
+        'Allowed — the retire control is named in the screen’s one source line, with no role list beside it (L67861). Derived, not quoted.',
+      SUPERVISOR: NO_ROLE_TABLE_DERIVED,
+      QUALITY_MANAGER: NO_ROLE_TABLE_DERIVED,
+      READONLY_AUDITOR: NO_ROLE_TABLE_DERIVED,
+      WORKER: NO_ROLE_TABLE_DERIVED,
+    },
     rendering:
       'Live for the Tenant Admin. The control is named in the screen’s one source line; no role list is given for it, so it inherits the Tenant Admin-only shape every other device row has, and that inheritance is marked as derived.',
     effect:
@@ -468,8 +532,19 @@ export const CONTROL_MATRIX = [
   {
     id: 'mark-a-device-lost',
     control: 'Mark a device lost',
+    surface: 'screen',
     status: TENANT_ADMIN_ONLY,
     provenance: 'quoted-from-source',
+    detail: {
+      TENANT_ADMIN:
+        'Allowed — the workflow opens with the Tenant Admin (WF-DVC-003 L53152).',
+      SUPERVISOR:
+        'Unavailable — a Supervisor cannot mark a device lost, stated by name in the denied path (AC-WF-DVC-003-01 L53164).',
+      QUALITY_MANAGER: NO_ROLE_TABLE_DERIVED,
+      READONLY_AUDITOR: NO_ROLE_TABLE_DERIVED,
+      WORKER:
+        'Unavailable — a Worker cannot mark a device lost, stated by name in the denied path (AC-WF-DVC-003-01 L53164).',
+    },
     rendering:
       'Live for the Tenant Admin. ABSENT for the other four: a Supervisor or Worker cannot mark a device lost, stated by name in the workflow’s denied path.',
     effect:
@@ -479,8 +554,17 @@ export const CONTROL_MATRIX = [
   {
     id: 'request-a-wipe',
     control: 'Request a wipe',
+    surface: 'screen',
     status: TENANT_ADMIN_ONLY,
     provenance: 'quoted-from-source',
+    detail: {
+      TENANT_ADMIN:
+        'Allowed, and carrying the critical-class badge: the press creates a request routed to the platform team, and approval is not the tenant’s (SB-SEC-005 L103830, L107423).',
+      SUPERVISOR: NO_ROLE_TABLE_DERIVED,
+      QUALITY_MANAGER: NO_ROLE_TABLE_DERIVED,
+      READONLY_AUDITOR: NO_ROLE_TABLE_DERIVED,
+      WORKER: NO_ROLE_TABLE_DERIVED,
+    },
     rendering:
       'Live for the Tenant Admin, and carrying the CLASS BADGE — the one critical-class action a slice-4 role can see and cannot approve. The badge is what stops a reader believing the press wiped anything.',
     effect:
@@ -490,8 +574,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'execute-a-wipe',
     control: 'Execute a wipe',
+    surface: 'another-surface',
     status: PROHIBITED_FOR_ALL_FIVE,
     provenance: 'quoted-from-source',
+    detail: {
+      TENANT_ADMIN:
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+      SUPERVISOR:
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+      QUALITY_MANAGER:
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+      READONLY_AUDITOR:
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+      WORKER:
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+    },
     rendering:
       'ABSENT for every tenant role. A categorical rule: the tenant cannot invoke a remote wipe, and wipe authority stays on the platform console under root approval. Nothing is drawn, and nothing is disabled either — a disabled Wipe control would imply the tenant might one day hold it.',
     effect: 'Nothing here.',
@@ -500,8 +597,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'suspend-a-device',
     control: 'Suspend a device',
+    surface: 'another-surface',
     status: PROHIBITED_FOR_ALL_FIVE,
     provenance: 'quoted-from-source',
+    detail: {
+      TENANT_ADMIN:
+        'Explicitly prohibited — suspension is a platform console workflow (WF-DVC-005 L53224). The lost report on this screen asks for one, and asking is not issuing.',
+      SUPERVISOR:
+        'Explicitly prohibited — suspension is a platform console workflow (WF-DVC-005 L53224). The lost report on this screen asks for one, and asking is not issuing.',
+      QUALITY_MANAGER:
+        'Explicitly prohibited — suspension is a platform console workflow (WF-DVC-005 L53224). The lost report on this screen asks for one, and asking is not issuing.',
+      READONLY_AUDITOR:
+        'Explicitly prohibited — suspension is a platform console workflow (WF-DVC-005 L53224). The lost report on this screen asks for one, and asking is not issuing.',
+      WORKER:
+        'Explicitly prohibited — suspension is a platform console workflow (WF-DVC-005 L53224). The lost report on this screen asks for one, and asking is not issuing.',
+    },
     rendering:
       'ABSENT for every tenant role. Suspension is a platform console workflow and belongs to the console’s own device module; the lost report on this screen is what ASKS for one, and asking is not the same as issuing.',
     effect: 'Nothing here.',
@@ -510,8 +620,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'change-the-device-mode',
     control: 'Change the device mode after enrollment',
+    surface: 'screen',
     status: PROHIBITED_FOR_ALL_FIVE,
     provenance: 'quoted-from-source',
+    detail: {
+      TENANT_ADMIN:
+        'Explicitly prohibited — the mode is fixed at enrollment (AC-WF-DVC-001-03 L53099), so no role changes it afterwards, here or anywhere.',
+      SUPERVISOR:
+        'Explicitly prohibited — the mode is fixed at enrollment (AC-WF-DVC-001-03 L53099), so no role changes it afterwards, here or anywhere.',
+      QUALITY_MANAGER:
+        'Explicitly prohibited — the mode is fixed at enrollment (AC-WF-DVC-001-03 L53099), so no role changes it afterwards, here or anywhere.',
+      READONLY_AUDITOR:
+        'Explicitly prohibited — the mode is fixed at enrollment (AC-WF-DVC-001-03 L53099), so no role changes it afterwards, here or anywhere.',
+      WORKER:
+        'Explicitly prohibited — the mode is fixed at enrollment (AC-WF-DVC-001-03 L53099), so no role changes it afterwards, here or anywhere.',
+    },
     rendering:
       'ABSENT for every role. The mode is fixed at enrollment, so no editor is drawn beside it on any row and no disabled one either.',
     effect: 'Nothing. Shared or Personal is decided once, at enrollment.',
@@ -690,6 +813,7 @@ export const DECISIONS_ON_SCREEN = [
 
 export const UNSPECIFIED_IN_SOURCE = [
   'NO FIVE-ROLE PERMISSION MATRIX FOR DEVICES EXISTS ANYWHERE in the frozen source. Every device row names the Tenant Admin and says nothing about the other four. This build withholds on that silence rather than granting on it, and marks every derived row as derived.',
+  'No CAUSE is stated for any cell of this matrix, because the matrix itself has no source. Every per-role detail below therefore says which of two things it is: QUOTED from the workflow’s own denied path, or DERIVED from the source saying nothing about that role. Neither is a reason the source gives per role, and none is invented to fill the field.',
   'DEC-DEVLOST-001 is open and the source carries no lost-device or stolen-device classification at all, no reporting path and no distinct handling for the two. The maximum age at which a lost report should escalate to a stolen classification or an automatic wipe is a Client Decision with the trade-off stated: a premature wipe destroys evidence that exists only on that device, and a late one prolongs exposure.',
   'A lost report is gated here as a configuration edit, which closes it under a billing suspension. Reporting a missing tablet is a security act rather than a configuration edit, and the source says nothing about it — raised as a client decision rather than settled quietly.',
   'No control is defined for cancelling or withdrawing a wipe request once raised, and no expiry is stated for one.',

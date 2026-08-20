@@ -5,6 +5,12 @@ import { emptyDomainState, withTenant, type ScenarioDomainState } from '@/domain
 import { scenarioRunId, tenantId } from '@/domain/ids'
 import type { AccessContext } from '@/policy/evaluate'
 import type { TenantRoleId } from '../HubShell'
+import {
+  rolesReachingByMatrix as rolesReachingByRule,
+  titleCaseCellStatus,
+  type MatrixRowSurface,
+  type MatrixStatus,
+} from '@/surfaces/doh/modules'
 
 /**
  * MOD-DOH-12 — Integration Surface (tenant side), narrowed to FEAT-DOH-1201
@@ -41,13 +47,13 @@ import type { TenantRoleId } from '../HubShell'
  * asserts the counts, so this comment cannot drift from them again.
  * ------------------------------------------------------------------ */
 
-export type MatrixStatus =
-  | 'Allowed'
-  | 'Allowed with conditions'
-  | 'Read-only'
-  | 'Unavailable'
-  | 'Explicitly prohibited'
-  | 'Not applicable'
+/**
+ * The Title-Case status vocabulary, and the row's surface, both re-exported
+ * from their ONE owner in `@/surfaces/doh/modules`. This module and
+ * `MOD-DOH-01` shipped identical copies of this union; the copies are gone
+ * and the spelling is unchanged, because this screen prints these words.
+ */
+export type { MatrixStatus, MatrixRowSurface }
 
 export type ControlId =
   | 'configure-single-sign-on-metadata'
@@ -69,6 +75,11 @@ export interface MatrixCell {
 export interface ControlMatrixRow {
   readonly id: ControlId
   readonly control: string
+  /** Where this row's capability is met — read by the shared derivation in
+   *  `@/surfaces/doh/modules`. The tier read view is a Hub SCREEN row even
+   *  though this slice builds it on `SCR-DOH-03`; the inbound endpoint is
+   *  not a screen control at all. */
+  readonly surface: MatrixRowSurface
   readonly byRole: Readonly<Record<TenantRoleId, MatrixCell>>
   /** How this row renders on SCR-DOH-21, by the three-rendering rule. */
   readonly rendering: string
@@ -106,6 +117,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'configure-single-sign-on-metadata',
     control: 'Configure single sign-on metadata',
+    surface: 'screen',
     byRole: {
       TENANT_ADMIN: {
         status: 'Allowed',
@@ -122,6 +134,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'provide-tenant-contact-email',
     control: 'Provide the tenant contact email',
+    surface: 'screen',
     byRole: {
       TENANT_ADMIN: {
         status: 'Allowed',
@@ -137,6 +150,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'manage-email-vendor-credentials',
     control: 'Manage email-vendor credentials',
+    surface: 'another-surface',
     byRole: sameForAllFive(
       'Not applicable',
       'The tenant manages no credentials; the vendor is platform-contracted.',
@@ -150,6 +164,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'supply-ai-api-key',
     control: 'Supply an artificial-intelligence application programming interface key',
+    surface: 'screen',
     byRole: sameForAllFive(
       'Not applicable',
       'Compute is bundled; no tenant key is required.',
@@ -161,6 +176,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'configure-outbound-webhook',
     control: 'Configure an outbound webhook',
+    surface: 'screen',
     byRole: sameForAllFive(
       'Explicitly prohibited',
       'Deferred beyond this version, for every tenant role including the Tenant Admin.',
@@ -173,6 +189,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'configure-directory-provisioning',
     control: 'Configure directory provisioning',
+    surface: 'screen',
     byRole: sameForAllFive(
       'Explicitly prohibited',
       'Deferred beyond this version, for every tenant role including the Tenant Admin.',
@@ -185,6 +202,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'call-inbound-business-system-endpoint',
     control: 'Call the inbound business-system integration endpoint',
+    surface: 'another-surface',
     byRole: sameForAllFive(
       'Not applicable',
       'The endpoint is stubbed and returns HTTP status 501, creating nothing.',
@@ -198,6 +216,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'view-tier-and-usage-read-view',
     control: 'View the tier and usage read view',
+    surface: 'screen',
     byRole: {
       TENANT_ADMIN: { status: 'Read-only', detail: 'Reads the tenant’s own commercial position.' },
       SUPERVISOR: {
@@ -219,6 +238,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'change-tier-cap-or-threshold',
     control: 'Change a tier, a cap or a threshold',
+    surface: 'another-surface',
     byRole: sameForAllFive(
       'Explicitly prohibited',
       'The Super Admin platform console only, for every tenant role including the Tenant Admin.',
@@ -274,24 +294,20 @@ export const READING_STATUSES = [
 ] as const satisfies readonly MatrixStatus[]
 
 /**
- * THE ROLES THIS MODULE'S SCREEN OPENS FOR, derived from the matrix by the
- * one rule the whole surface uses: a role is withheld exactly when some cell
- * in its column reads `Unavailable` — "cannot hold this in any scope", the
- * token the source keeps deliberately distinct from `Explicitly prohibited`
- * (L10238). A role marked `Explicitly prohibited` and nothing worse OPENS the
- * screen and meets a refusal it can read; a role marked `Unavailable` does
- * not reach it at all, and the rail does not offer the route.
+ * THE ROLES THIS MODULE'S SCREEN OPENS FOR. The rule itself is not written
+ * here: it is `rolesReachingByMatrix` in `@/surfaces/doh/modules`, applied
+ * to THIS module's rows — a role reaches the route when a `screen` row
+ * offers it something and no `screen` row marks it `Unavailable`.
  *
- * The module rail reads the same rule from `rolesReaching` on this module's
- * spine definition. The two live in different layers and neither is derived
- * from the other at runtime, so `tests/unit/doh-sso.test.ts` asserts they
- * agree — drift fails a test instead of shipping.
+ * This wrapper exists because the screen passes the list to `evaluateAccess`
+ * and the rail reads `rolesReaching` on the spine definition. BOTH now run
+ * the one rule; what stops that from being a tautology is that each runs it
+ * over its own reference to the rows, and `tests/unit/doh-sso.test.ts`
+ * compares the two. Re-reading `rolesReaching` here instead would make that
+ * comparison compare a value with itself.
  */
 export function rolesReachingByMatrix(): readonly TenantRoleId[] {
-  const allRoles = Object.keys(CONTROL_MATRIX[0].byRole) as readonly TenantRoleId[]
-  return allRoles.filter(
-    (role) => !CONTROL_MATRIX.some((row) => row.byRole[role].status === 'Unavailable'),
-  )
+  return rolesReachingByRule(CONTROL_MATRIX, titleCaseCellStatus)
 }
 
 /* ------------------------------------------------------------------ *

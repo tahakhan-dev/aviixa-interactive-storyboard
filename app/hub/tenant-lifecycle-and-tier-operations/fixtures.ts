@@ -2,6 +2,7 @@ import type { TenantState, WriteAction } from '@/surfaces/doh/tenant-state'
 import type { ScreenStateId } from '@/ui/screen-state'
 import { saTenant } from '@/surfaces/sa/tenants'
 import type { TenantRoleId } from '../HubShell'
+import type { MatrixRowSurface, MatrixStatus } from '@/surfaces/doh/modules'
 
 /**
  * MOD-DOH-01 — Tenant Lifecycle and Tier Operations. Seeded fixture data for
@@ -330,13 +331,13 @@ export const TENANT_STATE_HISTORY = [
  * and the screen renders all five columns for every row.
  * ------------------------------------------------------------------ */
 
-export type MatrixStatus =
-  | 'Allowed'
-  | 'Allowed with conditions'
-  | 'Read-only'
-  | 'Unavailable'
-  | 'Explicitly prohibited'
-  | 'Not applicable'
+/**
+ * The Title-Case status vocabulary, and the row's surface, both re-exported
+ * from their ONE owner in `@/surfaces/doh/modules`. This module and
+ * `MOD-DOH-12` shipped identical copies of this union; the copies are gone
+ * and the spelling is unchanged, because this screen prints these words.
+ */
+export type { MatrixStatus, MatrixRowSurface }
 
 export type ControlId =
   | 'view-tier-and-consumption'
@@ -361,6 +362,10 @@ export interface MatrixCell {
 export interface ControlMatrixRow {
   readonly id: ControlId
   readonly control: string
+  /** Where this row's capability is met — read by the module rail's own
+   *  derivation in `@/surfaces/doh/modules`. Two of these twelve rows are
+   *  the shell's suspension slot rather than this screen. */
+  readonly surface: MatrixRowSurface
   readonly byRole: Readonly<Record<TenantRoleId, MatrixCell>>
   /** How this row renders on SCR-DOH-03, by the three-rendering rule. */
   readonly rendering: string
@@ -409,6 +414,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'view-tier-and-consumption',
     control: 'View tier, entitlements, caps and consumption',
+    surface: 'screen',
     byRole: READ_ONLY_FOR_ADMIN_AND_AUDITOR,
     rendering:
       'Regions 1 and 2 render for the two reading roles. For the other three the route is ABSENT, and a deep link meets STATE-05.',
@@ -418,6 +424,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'view-ladder-position',
     control: 'View ladder position and burst-band status',
+    surface: 'screen',
     byRole: READ_ONLY_FOR_ADMIN_AND_AUDITOR,
     rendering: 'Region 3, with the three thresholds marked and the burst band shaded.',
     effect: 'A read.',
@@ -426,6 +433,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'view-suspension-status',
     control: 'View suspension status',
+    surface: 'screen',
     byRole: READ_ONLY_FOR_ADMIN_AND_AUDITOR,
     rendering:
       'Region 5. Catalogue A carries this as a screen of its own and catalogue B has no row for it, so it is built as a region of SCR-DOH-03 and not as a route (D1).',
@@ -435,6 +443,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'see-suspension-banner',
     control: 'See the suspension banner in soft or hard',
+    surface: 'chrome',
     byRole: {
       TENANT_ADMIN: { status: 'Allowed', detail: 'Sees the banner in the Hub chrome.' },
       SUPERVISOR: {
@@ -462,6 +471,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'see-compliance-message',
     control: 'See the compliance-suspension message',
+    surface: 'chrome',
     byRole: {
       TENANT_ADMIN: { status: 'Allowed', detail: 'The fixed message, unrewordable.' },
       SUPERVISOR: { status: 'Allowed', detail: 'The fixed message, unrewordable.' },
@@ -477,6 +487,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'request-tier-upgrade',
     control: 'Request a tier upgrade',
+    surface: 'screen',
     byRole: {
       TENANT_ADMIN: {
         status: 'Allowed',
@@ -492,6 +503,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'request-tier-downgrade',
     control: 'Request a tier downgrade',
+    surface: 'screen',
     byRole: {
       TENANT_ADMIN: {
         status: 'Allowed with conditions',
@@ -507,6 +519,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'execute-downgrade',
     control: 'Execute a downgrade',
+    surface: 'another-surface',
     byRole: prohibitedForAllFive('Prohibited for every tenant role, the Tenant Admin included.'),
     rendering: 'ABSENT for all five. Nothing is drawn where it would sit — only the note saying why.',
     effect: 'None here. The client platform team executes a recorded request.',
@@ -515,6 +528,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'change-suspension-state',
     control: 'Change a suspension state',
+    surface: 'another-surface',
     byRole: prohibitedForAllFive('Prohibited for every tenant role, the Tenant Admin included.'),
     rendering: 'ABSENT for all five. A workspace cannot lift its own suspension.',
     effect: 'None here.',
@@ -523,6 +537,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'change-ladder-thresholds',
     control: 'Change ladder thresholds',
+    surface: 'another-surface',
     byRole: prohibitedForAllFive('Set per tenant in the Super Admin console, not here.'),
     rendering: 'ABSENT for all five. The thresholds render as read values with no control beside them.',
     effect: 'None here.',
@@ -531,6 +546,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'view-tenant-group-membership',
     control: 'View tenant-group membership',
+    surface: 'another-surface',
     byRole: {
       TENANT_ADMIN: {
         status: 'Not applicable',
@@ -561,6 +577,7 @@ export const CONTROL_MATRIX = [
   {
     id: 'read-tenant-state-history',
     control: 'Read tenant_state_history via audit',
+    surface: 'screen',
     byRole: READ_ONLY_FOR_ADMIN_AND_AUDITOR,
     rendering: 'A read-only table below the five regions, with no edit, annotate or delete control.',
     effect: 'A read of the tenant’s own audit records.',

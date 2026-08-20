@@ -1,4 +1,5 @@
 import type { TenantRoleId } from '../HubShell'
+import type { ControlStatus, DohControlMatrixRow } from '@/surfaces/doh/modules'
 import {
   DOH_AREAS,
   SEEDED_ROLE_SCOPES,
@@ -435,13 +436,23 @@ export function scopeLabelFor(roleId: TenantRoleId): string {
  * an unanswered question that an implementer will answer privately".
  * ------------------------------------------------------------------ */
 
-export type ControlStatus =
-  | 'allowed'
-  | 'allowed-with-conditions'
-  | 'read-only'
-  | 'explicitly-prohibited'
-  | 'not-applicable'
-  | 'unavailable'
+/**
+ * The cell-status union and the row's surface come from their ONE owner,
+ * `@/surfaces/doh/modules`. Six Hub matrices shipped six identical copies of
+ * this union, each with its own exhaustiveness proof; six proofs of six
+ * unions prove nothing about the seventh spelling.
+ *
+ * THE ARRAY STAYS LOCAL, AND DELIBERATELY. The spine imports these matrices
+ * to derive `rolesReaching`, so a VALUE imported back from the spine closes
+ * a runtime cycle — and it closes it in the worst way: with a fixture module
+ * as the entry point, the spine re-enters a sibling fixture that is still
+ * mid-evaluation and reads `undefined` off it (reproduced as
+ * `TypeError: Cannot read properties of undefined (reading 'map')` in
+ * `permissions-roles-and-access`). A `import type` is erased and opens no
+ * edge at all. The `Exclude` proof below is over the ONE union, so this
+ * array is provably the whole of it and the six copies cannot drift apart.
+ */
+export type { ControlStatus, MatrixRowSurface } from '@/surfaces/doh/modules'
 
 export const CONTROL_STATUSES = [
   'allowed',
@@ -465,26 +476,40 @@ export type ShiftControlId =
   | 'override-timezone'
   | 'view-shifts'
 
-export interface ControlMatrixRow {
-  readonly id: ShiftControlId
-  readonly control: string
-  readonly status: Readonly<Record<TenantRoleId, ControlStatus>>
-  /** How this screen draws each refusal, by rule and not by taste. */
-  readonly rendering: string
-  readonly effect: string
-  readonly sourceRef: string
-}
+/** The shared Hub row shape, declared once in the spine and read by six
+ *  matrices that used to declare three shapes between them. */
+export type ControlMatrixRow = DohControlMatrixRow<ShiftControlId>
+
+/**
+ * WHERE THE SOURCE STATES A TOKEN AND NOTHING ELSE. The frozen table at
+ * L27291-L27297 qualifies the Tenant Admin column on five of its seven rows
+ * and every cell of `View Shifts`; the four other columns carry the bare
+ * word on all six write rows. A cell may not be blank (L10238), and a cause
+ * this build invented would read as the source's — so the cell says what the
+ * source said and points at the panel that records the silence.
+ */
+const BARE_PROHIBITION =
+  'Explicitly prohibited. The source states the bare token for this role and qualifies it for none of the four non-admin roles; the silence is recorded in UNSPECIFIED_IN_SOURCE rather than filled in here.'
 
 export const CONTROL_MATRIX = [
   {
     id: 'create-shift',
     control: 'Create a Shift',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — blocked in every suspension state (L27291).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin in the active state and disabled with the write class named in every suspension state — creation of a new Shift is blocked in all four. ABSENT for the other four roles: the prohibition is categorical and none of them can hold it in any scope.',
@@ -495,12 +520,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'edit-shift',
     control: 'Edit a Shift',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — never retroactively re-stamps completed runs (L27292).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin while the write class is open, disabled with its reason otherwise, and refused with the rule stated when the new times would overlap another Shift on a shared Area. ABSENT for the other four.',
@@ -511,12 +545,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'archive-shift',
     control: 'Archive a Shift',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed-with-conditions',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed with conditions — refused while runs are scheduled against it (L27293).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'Live for the Tenant Admin, and the request is refused server-side while runs are still scheduled against the Shift — the refusal raises NOTIF-DOH-03-3 to the requester rather than greying the control, because the condition is on the object and is checked on every attempt. ABSENT for the other four.',
@@ -527,12 +570,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'bind-areas',
     control: 'Bind a Shift to Areas',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27294), stated with no qualifying words.',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'A multi-select over the parent Site’s active Areas only, so a Shift can never be made to span Sites. Refused with the rule stated when a chosen Area already holds an overlapping Shift. ABSENT for the other four.',
@@ -543,12 +595,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'set-digest-time',
     control: 'Set the per-Shift digest delivery time',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed — default 06:00 (L27295).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'One time field, pre-filled 06:00, with the platform default and the timezone it is bound to rendered beside it. ABSENT for the other four. No send control, no delivery status and no recipient list is drawn for anybody, including the Tenant Admin — delivery is another slice’s.',
@@ -559,12 +620,21 @@ export const CONTROL_MATRIX = [
   {
     id: 'override-timezone',
     control: 'Override the inherited timezone',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'explicitly-prohibited',
       SUPERVISOR: 'explicitly-prohibited',
       QUALITY_MANAGER: 'explicitly-prohibited',
       READONLY_AUDITOR: 'explicitly-prohibited',
       WORKER: 'explicitly-prohibited',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Explicitly prohibited — per-Shift timezone override is deferred beyond V1 (L27296).',
+      SUPERVISOR: BARE_PROHIBITION,
+      QUALITY_MANAGER: BARE_PROHIBITION,
+      READONLY_AUDITOR: BARE_PROHIBITION,
+      WORKER: BARE_PROHIBITION,
     },
     rendering:
       'ABSENT for all five, the Tenant Admin included, and absent structurally rather than by a rule this screen applies: a Shift carries no timezone field for a control to write to. A disabled control would imply an enabled state exists for somebody, and for this one it exists for nobody.',
@@ -575,12 +645,25 @@ export const CONTROL_MATRIX = [
   {
     id: 'view-shifts',
     control: 'View Shifts',
+    surface: 'screen',
     status: {
       TENANT_ADMIN: 'allowed',
       SUPERVISOR: 'allowed-with-conditions',
       QUALITY_MANAGER: 'allowed-with-conditions',
       READONLY_AUDITOR: 'read-only',
       WORKER: 'allowed-with-conditions',
+    },
+    detail: {
+      TENANT_ADMIN:
+        'Allowed (L27297), tenant-wide.',
+      SUPERVISOR:
+        'Allowed with conditions — own Site and Area scopes (L27297).',
+      QUALITY_MANAGER:
+        'Allowed with conditions — own scopes (L27297).',
+      READONLY_AUDITOR:
+        'Read-only (L27297).',
+      WORKER:
+        'Allowed with conditions — own assigned shift only (L27297). Met on the device: the Worker holds no Hub route (D11).',
     },
     rendering:
       'The register renders for four roles and is scope-filtered for two of them. The Auditor reads it under STATE-06 with the cause named. The Worker column is the one cell in this whole matrix granting a Worker anything, and D11 withholds every Hub route from the Worker regardless — so the grant renders on no screen. That collision is stated on this screen rather than resolved silently.',
@@ -779,6 +862,7 @@ export const UNSPECIFIED_IN_SOURCE = [
   'A misfire policy for the per-Shift digest — what happens to a delivery whose moment passes while the platform cannot send. Every scheduled behaviour is required to declare one, and this one terminates at an open decision, so none is asserted here.',
   'Whether an archived Shift still occupies its Areas for the overlap refusal. This screen reads it as no longer occupying them, so a retired Shift cannot make an Area permanently unusable; the source states the refusal without saying which Shifts it ranges over.',
   'Whether a Shift may name an archived Site as its parent. This screen offers only active Sites in the editor while keeping archived ones in the register filter, because the Shifts recorded under a closed facility stay readable and a new block on one would be unworkable; the source states no rule in either direction.',
+  'No CAUSE is stated for six of this matrix’s seven rows in four of its five columns. The frozen table at L27291-L27297 qualifies the Tenant Admin column on five rows and every cell of View Shifts, and gives the Supervisor, the Quality Manager, the Read-only Auditor and the Worker the bare word `Explicitly prohibited` on every write row. Those cells carry the token and this note rather than a reason this build wrote for the source; the screen prose beside them is a reading, and it is labelled as one.',
   'What a Shift bound to zero Areas means operationally. It is reachable here because cardinality is deferred, and the only consequence the source states is one an Area feels rather than the Shift: an Area with no bound Shift cannot receive a Job.',
 ] as const satisfies readonly string[]
 
