@@ -53,9 +53,23 @@ export interface Sa10PlatformRole {
 }
 
 /**
- * The ONLY citations for "all four console roles read the per-tenant
- * measures": L97152–L97155, the four per-role SURF-SA permission rows in
- * CHK-029 (Root Super Admin, Admin platform, Platform Engineer, Support).
+ * The citations for the four-role read on the per-tenant measures. That
+ * sentence is this build's summary, never a source quotation — the source
+ * makes the grant as a matrix row, and the row is what is cited.
+ *
+ * `MOD-SA-10`'s own permission matrix (header L45199) opens with
+ * "Read the fifteen per-tenant measures" (L45201), reading Allowed under
+ * each of the four console-role columns and Explicitly prohibited under Any
+ * tenant role. The feature tree then says it three times in words, once per
+ * measure group — "Allowed: all four console roles, read." (L45211), and
+ * again at L45213 and L45215.
+ *
+ * L97152–L97155 were cited here until this correction and are not a grant
+ * for this control. They are four per-role rows of a DIFFERENT matrix
+ * (header L97145, who may reach a tenant's data), whose columns are tenant
+ * operational content, configuration, memory content, cross-tenant
+ * aggregates and another tenant's data — the fifteen measures appear in
+ * none of them. They govern the comparative tab, which cites them there.
  *
  * MOD-SA-10 carries a module-level `roles_allowed` entry TWICE in the
  * extraction — L42744 (CHK-013, as ROLE-PLAT-* identifiers) and L45164
@@ -69,10 +83,10 @@ export interface Sa10PlatformRole {
  * grant and the citation printed for it cannot drift apart.
  */
 export const SA10_READ_MEASURES_SOURCE_REFS = [
-  'L97152',
-  'L97153',
-  'L97154',
-  'L97155',
+  'L45201',
+  'L45211',
+  'L45213',
+  'L45215',
 ] as const
 
 export const SA10_PLATFORM_ROLES = [

@@ -495,10 +495,22 @@ export interface FrozenCapability {
 }
 
 /**
- * The seven capabilities root loss freezes SIMULTANEOUSLY, quoted from
- * DEC-ROOTSUCC-001's own impact statement (L56417): "Root loss freezes
- * compliance suspension, device wipe, emergency pause, retention changes,
- * legal hold, severity-catalog changes and floor changes simultaneously."
+ * The seven capabilities root loss freezes SIMULTANEOUSLY. The words are the
+ * decision's own: the `TBD — Client Decision Required` (`DEC-ROOTSUCC-001`)
+ * clause in the root-unavailability workflow's fallbacks bullet gives the
+ * reason it matters — that workflow's own identifier is deliberately not
+ * written here, because the coverage registry reads a route naming one as
+ * evidence the route demonstrates it, and this panel demonstrates the freeze
+ * rather than the workflow
+ * (L56417): "its loss freezes compliance suspension, device wipe, emergency
+ * pause, retention changes, legal hold, severity-catalog changes, and floor
+ * changes simultaneously".
+ *
+ * Quoted verbatim rather than tidied. An earlier revision printed this as
+ * "Root loss freezes ... severity-catalog changes and floor changes
+ * simultaneously" — a paraphrase that recapitalised the subject and dropped
+ * a comma while wearing quotation marks, which is a claim the source does
+ * not make about its own wording.
  *
  * Seven, not eleven: the decision names these, and this panel does not
  * widen it. The remaining critical actions are frozen too — every critical

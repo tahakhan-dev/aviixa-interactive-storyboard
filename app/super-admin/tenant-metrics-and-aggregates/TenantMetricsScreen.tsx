@@ -316,7 +316,7 @@ export function TenantMetricsScreen({
             heading="This role does not carry the action"
             body={
               readDecision.outcome === 'allowed'
-                ? `All four console roles read the per-tenant measures on this module. D16 holds a module-level roles_allowed entry authoritative nowhere, so the grant printed here is the one this screen evaluates for this control, cited to the four per-role SURF-SA permission rows and to nothing else: ${readDecision.sourceRefs.join(', ')}. Three refusals sit on this screen, and each is stated where it happens rather than summarised here. The anonymised comparative is unavailable to Support, which L97155 puts in that role’s may-not list; the root, the platform Admin and the Platform Engineer each read it anonymised (L97152–L97154). Of the two onward actions from a measure, the session request is carried by Support alone once D17 holds, and is drawn inert with its reason for every other role. The audit-log view is carried by no console role at all, so nothing is drawn for it.`
+                ? `All four console roles read the per-tenant measures on this module. D16 holds a module-level roles_allowed entry authoritative nowhere, so the grant printed here is the one this screen evaluates for this control, cited to this module’s own permission-matrix row for reading the fifteen measures and to the three feature-tree entries that repeat it, and to nothing else: ${readDecision.sourceRefs.join(', ')}. Three refusals sit on this screen, and each is stated where it happens rather than summarised here. The anonymised comparative is unavailable to Support, which L97155 puts in that role’s may-not list; the root, the platform Admin and the Platform Engineer each read it anonymised (L97152–L97154). Of the two onward actions from a measure, the session request is carried by Support alone once D17 holds, and is drawn inert with its reason for every other role. The audit-log view is carried by no console role at all, so nothing is drawn for it.`
                 : readDecision.explanation
             }
           />
@@ -529,17 +529,33 @@ export function TenantMetricsScreen({
         </p>
         <div className="mt-3">
           {role === 'PLATFORM_ENGINEER' ? (
-            // CATEGORICAL, so nothing is drawn (spec S3, the third case). D17
-            // reads "may not enter tenant context under ANY access class"
-            // (L20740) -- a disabled control would say the Platform Engineer
-            // could hold this under some condition, which is the opposite of
-            // what the rule says. MOD-SA-15 renders the same prohibition the
-            // same way; this screen used to draw it inert, and a cross-module
-            // review found the two disagreeing.
+            // CATEGORICAL, so nothing is drawn (spec S3, the third case).
+            //
+            // D17's reading -- that this role may not enter tenant context
+            // under any access class -- is a Derived Clarification, not a
+            // source sentence. No line of the frozen source says it in those
+            // words, and it is not quoted here as though one did. D17 reaches
+            // it from the Band A / Band B separation (L20740, L65401), and
+            // the source's own per-control rows carry it on two of the three
+            // named access classes: the compliance-emergency path is
+            // Explicitly prohibited to this role (L45798), and the console-function
+            // permission matrix refuses it one (L21166) -- naming the row by
+            // line rather than by its FUNC id, which the coverage registry
+            // would read as a claim that this screen demonstrates it.
+            //
+            // The competing reading is the one the third class leaves open --
+            // MOD-SA-15's own matrix row allows this role a support session
+            // (L45794) -- and it would draw this control inert with its
+            // reason rather than absent. D17 holds the prohibition, and a
+            // disabled control would say the Platform Engineer could hold
+            // this under some condition, which is the opposite of what D17
+            // holds. MOD-SA-15 renders the same prohibition the same way;
+            // this screen used to draw it inert, and a cross-module review
+            // found the two disagreeing.
             <ProhibitionNotice
               rendering={{
                 kind: 'absent',
-                note: 'Nothing is drawn here for the Platform Engineer. D17 holds that this role may not enter tenant context under any access class (L20740), and a session request is a request to enter it. That is a categorical prohibition, not an ungranted permission, so no control appears — a disabled one would imply an enabled state exists for this role somewhere. MOD-SA-15 renders the same prohibition identically.',
+                note: 'Nothing is drawn here for the Platform Engineer. Derived Clarification, not a stated rule: no line of the frozen source says this role may not enter tenant context under any access class, and nothing here quotes one as though it did. D17 reads it that way from the Band A / Band B separation (L20740, L65401), and the source carries the prohibition itself on two of the three named access classes — the compliance-emergency path is Explicitly prohibited to this role (L45798) and the console-function permission matrix refuses it one (L21166). The competing reading is the third class: MOD-SA-15’s own matrix row allows this role a support session (L45794), and under that reading this control would be drawn inert with its reason instead of absent. D17 holds the prohibition, and a session request is a request to enter tenant context. That makes it a categorical prohibition rather than an ungranted permission, so no control appears — a disabled one would imply an enabled state exists for this role somewhere. MOD-SA-15 renders the same prohibition identically.',
               }}
             />
           ) : (

@@ -33,8 +33,11 @@ import { SaConsoleShell } from '../SaConsoleShell'
  *
  * Screen annotations only (D1 — names are canonical, `SCR-SA-NN` numbers are
  * annotations and no route is keyed on one): SCR-SA-17 "Tier records and
- * publication" (L42809) / "Tier records list and record view" (L45273),
- * SB-SA-11 (L45273), SCR-SA-14 "Tiers, entitlements and caps" (L48743 — the
+ * publication" (L42809), whose storyboard is SB-SA-11 (L45273). The build's
+ * extraction labels that same screen "Tier records list and record view" and
+ * points the label at L45273; that is the extraction's own name, not a
+ * second name the source gives the screen, and it is not cited as one.
+ * Also SCR-SA-14 "Tiers, entitlements and caps" (L48743 — the
  * second, incompatible numbering scheme D1 exists to neutralise), plus the
  * unnumbered per-tenant feature panel on the tenant detail Overview tab
  * (L54606).
@@ -604,7 +607,7 @@ export const UNSPECIFIED_IN_SOURCE = [
   {
     what: 'Who may assign a published tier to a tenant',
     detail:
-      'FEAT-SA-TIER-ASSIGN is named as a key function (L21088) and "assignment within published tiers is Band B" (L21282), but no control row anywhere carries an assign action with allowed roles. Module-level `roles_allowed` is authoritative nowhere (D16) and it disagrees with itself across six chunks — Admin alone (L2442, L98239), root and Admin (L11668, L60866), root, Admin and Support (L21088), all four (L42745, L45277), and empty (L116399). No assignment control is drawn on this screen rather than picking one of those lists.',
+      'FEAT-SA-TIER-ASSIGN is named as a key function (L21088), and the source does class it Band B — "tier assignment within published tiers" (L21015) is one of the Band B routine actions that "are Admin actions that auto-apply, audited" (L21015), and condition [M15] adds that "Tier assignment within already-published tiers auto-applies; publishing a tier does not" (L21098). But no control row anywhere carries an assign action with allowed roles. Module-level `roles_allowed` is authoritative nowhere (D16) and it disagrees with itself across six chunks — Admin alone (L2442, L98239), root and Admin (L11668, L60866), root, Admin and Support (L21088), all four (L42745, L45277), and empty (L116399). No assignment control is drawn on this screen rather than picking one of those lists.',
   },
   {
     what: 'The vocabulary of limits and caps, and of threshold defaults',

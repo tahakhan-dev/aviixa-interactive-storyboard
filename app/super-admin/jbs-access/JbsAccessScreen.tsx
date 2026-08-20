@@ -291,9 +291,19 @@ interface ControlDefinition {
 }
 
 /**
- * THE one control the frozen source defines for MOD-SA-16 (L45871):
- * "revocation control (JBS grant)", allowed roles Root Super Admin and
- * Admin, effect "Revokes a grant at any point, taking effect immediately".
+ * THE one control defined for MOD-SA-16. The frozen source states it in
+ * `SB-SA-16`'s storyboard paragraph (L45871): "Revocation is available at
+ * any point and takes effect immediately", and its permission-matrix row
+ * `Revoke a grant` reads Allowed, Allowed, Unavailable, Unavailable across
+ * the four console-role columns (L45915), which is where the two allowed
+ * roles below come from.
+ *
+ * The label "revocation control (JBS grant)" and the effect wording carried
+ * on the control are this build's extraction speaking, not the source —
+ * `registries/raw/extract/CHK-014.json` coins both and points them at the
+ * same line 45871. They are kept because the control registry joins on that
+ * label, and attributed here because the source does not use those words.
+ *
  * WF-ROLE-030 (L56233) gives its terminal state: no access by any route.
  */
 const REVOKE_GRANT: ControlDefinition = {
