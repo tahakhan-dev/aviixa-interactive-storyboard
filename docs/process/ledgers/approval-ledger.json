@@ -190,6 +190,18 @@
       "research_authorised": "Internet research authorised for technical and design decisions per master prompt \u00a722 \u2014 versions, framework behaviour, accessibility standards, industrial UX patterns. It may NOT be used to invent AVIIXA product scope: the frozen blueprint remains the only source of product facts, and a market pattern never becomes a requirement by imitation.",
       "gate_released": "All remaining slice gates through census closure. Supersedes APP-010's continuation authority by widening it.",
       "superseded_by": null
+    },
+    {
+      "id": "APP-013",
+      "date": "2026-08-20",
+      "subject": "Autonomous run to completion \u2014 no inter-slice stop, final blueprint audit loop, compaction recovery",
+      "user_response_evidence": "Client message 2026-08-20, amending APP-012: '...complete the all reamining slices and don't stop for every slices that are completed like when you're done with the slice 5 you will stop then i'll say start with the slice 6 then you do instead when you're done with the slice 5 then automatically you will go to slice 6 and then goes on till the last slice and the you will audit it again whole thing to see is anything is remaining or not ... lastly you will do is you will be audit against this blueprint ... and you will be verify with the code to see is anything is remaining or not if anything is reaminig you will cover it or fix it you keep doing this process untill its fully completed and you will say nothing is remainig its ready to give demo to the client ... you don't have permission to stop untill everything is done ... and when you're compacting the session when its reach its maximum capacity what you have to do if featch or read everything again so that you don't lost the context of anything'",
+      "scope_authorized": "Four things beyond APP-012. (1) NO inter-slice stop: on completing a slice, proceed directly into the next without reporting for permission, through slice 13. (2) After slice 13, a full-build audit for gaps, fixing what it finds and re-testing. (3) Then a CLOSING AUDIT AGAINST THE FROZEN BLUEPRINT, verified against the code, repeated until nothing remains \u2014 the completion claim 'nothing is remaining, ready to demo' may be made only when that loop closes clean. (4) The Workflow tool is explicitly permitted alongside the Superpowers protocol.",
+      "compaction_contract": "On context compaction the controller must re-read its state from disk rather than rely on recollection. The durable resume brief is docs/process/RESUME.md, which names the source fingerprint, every approval, the build order, the current position, the standing rules, and the path to every ledger. It is updated at each slice boundary and at every material ruling. git log and the ledgers are authoritative over memory.",
+      "research_authorised": "Reaffirmed and widened: where the frozen blueprint does not answer a question, internet R&D is authorised to resolve it. The \u00a722 boundary stands \u2014 research informs technical and design decisions and never becomes an AVIIXA product fact by imitation.",
+      "no_stop_clause": "The client has withdrawn permission to stop for questions, suggestions or confirmations, explicitly including runs exceeding 24 hours. Stopping remains required only for the master prompt's own safety stops: a source-drift event, an irreversible or destructive operation, or a defect where every path forward is a guess. None of those is a check-in and each must be reported as a blocker with its evidence.",
+      "gate_released": "All remaining gates through census closure and the closing blueprint audit.",
+      "superseded_by": null
     }
   ],
   "pending_gates": [
