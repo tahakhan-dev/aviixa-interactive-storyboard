@@ -20,6 +20,7 @@ import {
   type PartsRegistrySeam,
   type RegistryPartState,
 } from '@/studio/seams/parts/registry'
+import { routedProhibitionApplies } from '@/studio/modules/stu-18/rendering'
 import { stu10Row, type Stu10RowId } from './matrix'
 
 /**
@@ -204,7 +205,43 @@ export function partsAffordance(
     readonly registryReachable?: boolean
   } = {},
 ): PartsControlRendering {
-  const decision = partsDecision(rowId, persona, options.ctx ?? STU10_DEFAULT_CONTEXT)
+  const ctx = options.ctx ?? STU10_DEFAULT_CONTEXT
+  const decision = partsDecision(rowId, persona, ctx)
+
+  // THE ROUTED PROHIBITION, ASKED BEFORE THE ABSENCE. `routedTo` is `null` on
+  // all forty-eight cells, and this module is the reason the brief expects
+  // some cells not to classify: it is a SEAM, and three of its refusals are
+  // about where a record lives rather than about who may act.
+  //
+  // - Row 3 (`Mint the part identifier`) refuses everybody in the card's own
+  //   words, `the platform mints it` (L33115). The minter is the platform,
+  //   not a persona, so there is no column anywhere that holds it and nothing
+  //   to point at.
+  // - Rows 5 and 6 (`Edit registry fields from the Studio beyond the name`,
+  //   `Delete a part from the Studio`) are refused everywhere. The nearest
+  //   thing anybody holds is row 4 of the source's table, `Complete a
+  //   skeletal part record` — `Allowed — in the Delivery Operations Hub` for
+  //   the Tenant Admin — and that row is NOT in this matrix at all: it is a
+  //   cross-surface statement in `STU_10_CROSS_SURFACE`, because a `Not
+  //   applicable` cell cannot be a persona column's answer. A `routedTo` can
+  //   only name a row of THIS matrix, so there is no honest target, and
+  //   completing a skeletal record is in any case a different act from
+  //   editing or deleting an existing one (L33207: the seam "cannot be used
+  //   to edit or delete an existing registry record").
+  // - Row 7 (`Force a step to carry a part reference`) refuses in the words
+  //   `a part reference is optional per part` — a design fact about the
+  //   model, not an act performed somewhere else.
+  const routedTo = stu10Row(rowId).routedTo[persona]
+  const routedDecision = routedTo === null ? null : partsDecision(routedTo, persona, ctx)
+  if (routedProhibitionApplies(decision, routedTo, routedDecision)) {
+    return {
+      kind: 'disabled',
+      label,
+      reason:
+        `${decision.reason} ${stu10Row(routedTo).capability} is the route open to you and is ` +
+        'offered beside this one.',
+    }
+  }
 
   if (decision.outcome === 'explicitlyProhibited') {
     return {

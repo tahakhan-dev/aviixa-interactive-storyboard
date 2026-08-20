@@ -12,6 +12,7 @@ import {
 import type { StudioCommercialTier, StudioGrantId, StudioGrantState } from '@/studio/access/grants'
 import { WHEEL_BOLT_DRAFT_CONTENT } from '@/studio/journey/fixture'
 import type { WorkflowStatus } from '@/studio/vocab'
+import { routedProhibitionApplies } from '@/studio/modules/stu-18/rendering'
 import { stu03Row, type Stu03RowId, type StudioLibraryMatrixRow } from './matrix'
 
 /**
@@ -1165,6 +1166,37 @@ export function libraryAffordance(
   const row: StudioLibraryMatrixRow = stu03Row(rowId)
   const decision = libraryDecision(rowId, s)
   const outcome: PermissionOutcome = decision.outcome
+
+  // THE ROUTED PROHIBITION, ASKED BEFORE THE SWITCH. `routedTo` is `null` on
+  // all seventy-two cells of this card, and every one of those nulls is an
+  // answer:
+  //
+  // - Row 2 (`See Draft and In Review Workflows`) refuses three columns that
+  //   hold row 1 — but `AC-STU-048` (L32013) uses the source's own word for
+  //   the rendering: Draft and In Review Workflows are "**invisible** to roles
+  //   without the authoring grant and outside the approval chain". Invisible
+  //   is ABSENT, stated by the source rather than adjudicated here.
+  // - Row 7 (`Edit or delete a platform-seeded starter type`) refuses every
+  //   column, and `FUNC-STU-03-02-A-1` (L31937) is why it can never become
+  //   true: the foundation is carried "without **ever** letting a tenant edit
+  //   it", `AC-STU-049` adds "by any tenant role". Row 6 creates a CUSTOM
+  //   type, which is a different capability, not this one relocated.
+  // - Row 9 is tenant isolation, refused everywhere by construction.
+  //
+  // `storyboardProhibition` below is a SEPARATE mechanism with its own source
+  // line and is deliberately not folded into this one — see the note on the
+  // `explicitlyProhibited` branch.
+  const routedTo = row.routedTo[s.persona]
+  const routedDecision = routedTo === null ? null : libraryDecision(routedTo, s)
+  if (routedProhibitionApplies(decision, routedTo, routedDecision)) {
+    return {
+      kind: 'disabled',
+      label,
+      reason:
+        `${decision.reason} ${stu03Row(routedTo).capability} is the route open to you and is ` +
+        'offered beside this one.',
+    }
+  }
 
   switch (outcome) {
     case 'allowed':

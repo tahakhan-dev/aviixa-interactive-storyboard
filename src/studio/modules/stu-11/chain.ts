@@ -15,6 +15,7 @@ import type { StudioCommercialTier, StudioGrantId, StudioGrantState } from '@/st
 import type { StudioModuleId } from '@/studio/modules'
 import type { SubmissionState } from '@/studio/vocab'
 import type { PublishCheckImplementation } from '@/studio/publish/register'
+import { routedProhibitionApplies } from '@/studio/modules/stu-18/rendering'
 import { approvalRow, type StudioApprovalCapabilityId } from './matrix'
 
 /**
@@ -689,6 +690,39 @@ export function approvalAffordance(
     ...(chain === null ? {} : { resourceTenant: chain.tenant }),
     ...occupancyFor(chain, context.actor.identityId),
   })
+}
+
+/**
+ * THE ROUTED PROHIBITION, ANSWERED IN THE DOMAIN RATHER THAN ON THE SCREEN.
+ *
+ * Returns the capability this identity is routed to on this row, or `null`
+ * where the cell is not a routed prohibition. `SCR-STU-11` calls this and
+ * draws what it returns; it derives no column and evaluates no permission of
+ * its own, which is why the answer is checkable here without rendering
+ * anything.
+ *
+ * **THE ROUTE IS CHECKED, NOT ASSERTED.** The pointer on the matrix row only
+ * nominates a target; what decides the rendering is the EVALUATOR'S answer
+ * for that target, for this same identity. `routedProhibitionApplies`
+ * (`MOD-STU-18`, task 11's mechanism) is the one implementation of that
+ * check, and a pointer at a row this identity does not hold returns `null` —
+ * so the cell falls back to ABSENT and no disabled control is manufactured.
+ *
+ * The columns read are the ones the EVALUATOR resolved, never a column
+ * re-derived from the persona: multi-role is additive (L33389), and asking a
+ * column the evaluator did not resolve would answer for somebody else.
+ */
+export function approvalRoute(
+  capability: StudioApprovalCapabilityId,
+  context: ApprovalContext,
+  chain: ApprovalChain | null,
+): StudioApprovalCapabilityId | null {
+  const row = approvalRow(capability)
+  const decision = approvalAffordance(capability, context, chain)
+  const routedTo =
+    decision.personaColumns.map((column) => row.routedTo[column]).find((t) => t != null) ?? null
+  const routedDecision = routedTo === null ? null : approvalAffordance(routedTo, context, chain)
+  return routedProhibitionApplies(decision, routedTo, routedDecision) ? routedTo : null
 }
 
 /**

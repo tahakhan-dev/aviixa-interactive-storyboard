@@ -83,6 +83,17 @@ export interface CharterMatrixRow extends StudioMatrixRow {
    * screen carries.
    */
   readonly surface: StudioMatrixRowSurface
+  /**
+   * PER COLUMN, never per row. Task 11's mechanism (`MOD-STU-07`), retrofitted
+   * here. Where a prohibited cell's own words name an alternative THIS persona
+   * holds, this is that capability's id; `null` is the answer for a categorical
+   * prohibition, and it is written on every column rather than omitted.
+   *
+   * The pointer is CHECKED, never asserted: the fold asks
+   * `routedProhibitionApplies` for the routed row's own decision, and a route
+   * whose target does not permit this persona collapses back to ABSENT.
+   */
+  readonly routedTo: Readonly<Record<StudioPersonaColumn, CharterAction | null>>
   readonly derivation: Readonly<Record<StudioPersonaColumn, string | null>>
 }
 
@@ -139,11 +150,28 @@ const IMPLEMENTATION_TEAM_NO_ENABLEMENT =
  * THE MATRIX — L31571-L31579, transposed. Seven data rows in, four out.
  * ==================================================================== */
 
+/**
+ * Every column answers `null` — this row routes nobody anywhere. Written
+ * down rather than left off: a cell that omits the field and a cell that
+ * says "no route" read identically at a glance, and only one is an answer.
+ */
+const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, CharterAction | null>> = {
+  'quality-manager': null,
+  'supervisor-with-authoring-grant': null,
+  'supervisor-without-grant': null,
+  'plant-manager-persona': null,
+  'tenant-admin': null,
+  'read-only-auditor': null,
+  worker: null,
+  'implementation-team': null,
+}
+
 export const MOD_STU_01_MATRIX = [
   {
     action: 'see-charter-statements',
     capability: 'See the charter statements',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L31571', 'L31573', 'L31574', 'L31575', 'L31576', 'L31577', 'L31578'],
@@ -179,6 +207,7 @@ export const MOD_STU_01_MATRIX = [
     // approval" (L31579) — an act of the platform console, not of a Studio
     // screen. See CHARTER_PLATFORM_ENGINEER_CELLS.
     surface: 'another-surface',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L31571', 'L31573', 'L31574', 'L31575', 'L31576', 'L31577', 'L31578', 'L31599'],
@@ -200,6 +229,7 @@ export const MOD_STU_01_MATRIX = [
     action: 'author-an-atom',
     capability: 'Author an atom',
     surface: 'another-surface',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L31571', 'L31573', 'L31574', 'L31575', 'L31576', 'L31577', 'L31578', 'L34010'],
@@ -221,6 +251,7 @@ export const MOD_STU_01_MATRIX = [
     action: 'enable-a-capability',
     capability: 'Enable a capability within entitlement',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L31571', 'L31573', 'L31574', 'L31575', 'L31576', 'L31577', 'L31578', 'L34555'],

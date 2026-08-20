@@ -42,6 +42,7 @@ import {
   rollback,
   swapPinnedPackage,
   versionAffordance,
+  versionRoute,
   visibleLinkage,
   pendingSubmission,
   visibleVersions,
@@ -215,6 +216,27 @@ function VersionControl(props: VersionControlProps) {
       reviewer: RELEASED_SUBMISSION.reviewer,
       releaseAuthority: RELEASED_SUBMISSION.releaseAuthority,
     })
+    // THE ROUTED PROHIBITION. Decided in the domain (`versionRoute`), drawn
+    // here. Null on every cell of this card today — the reasons are on
+    // `versionRoute` itself, beside the check rather than beside the drawing.
+    const routedTo = versionRoute(row, context, register.tenant, {
+      author: RELEASED_SUBMISSION.author,
+      reviewer: RELEASED_SUBMISSION.reviewer,
+      releaseAuthority: RELEASED_SUBMISSION.releaseAuthority,
+    })
+    if (routedTo !== null) {
+      return (
+        <span data-control={capability} data-enabled="false">
+          <Button
+            variant="secondary"
+            disabledReason={`${label} is disabled because ${decision.reason} ${versionRow(routedTo).capability} is the route open to you and is enabled beside this one.`}
+          >
+            {label}
+          </Button>
+        </span>
+      )
+    }
+
     const prohibitedByCell =
       decision.personaColumns.length > 0 &&
       decision.personaColumns.every((column) => row.cells[column].outcome === 'explicitlyProhibited')

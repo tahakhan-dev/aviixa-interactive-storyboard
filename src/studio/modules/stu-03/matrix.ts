@@ -146,6 +146,17 @@ export interface StudioLibraryMatrixRow extends StudioMatrixRow {
   /** Read by `reachByStudioMatrix`'s clause one. All nine are screen rows. */
   readonly surface: StudioMatrixRowSurface
   /**
+   * PER COLUMN, never per row. Task 11's mechanism (`MOD-STU-07`), retrofitted
+   * here. Where a prohibited cell's own words name an alternative THIS persona
+   * holds, this is that capability's id; `null` is the answer for a categorical
+   * prohibition, and it is written on every column rather than omitted.
+   *
+   * The pointer is CHECKED, never asserted: the fold asks
+   * `routedProhibitionApplies` for the routed row's own decision, and a route
+   * whose target does not permit this persona collapses back to ABSENT.
+   */
+  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu03RowId | null>>
+  /**
    * Non-null on the ONE row `SB-STU-06` states a rendering for. Every other
    * row leaves a prohibited cell absent, which is the surface default.
    */
@@ -196,11 +207,28 @@ function withPlantManager(
 }
 
 /** The nine rows of L31904–L31912, one row per source line, in source order. */
+/**
+ * Every column answers `null` — this row routes nobody anywhere. Written
+ * down rather than left off: a cell that omits the field and a cell that
+ * says "no route" read identically at a glance, and only one is an answer.
+ */
+const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu03RowId | null>> = {
+  'quality-manager': null,
+  'supervisor-with-authoring-grant': null,
+  'supervisor-without-grant': null,
+  'plant-manager-persona': null,
+  'tenant-admin': null,
+  'read-only-auditor': null,
+  worker: null,
+  'implementation-team': null,
+}
+
 export const STU_03_MATRIX = [
   {
     id: 'open-the-library-filtered-to-published',
     capability: 'Open the Library filtered to Published',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     // THE published-read row. L34605's fail-closed floor keeps exactly this
     // open when the identity layer is unreachable: "permits nothing beyond
     // published read". `AC-STU-017` (L31097) and `AC-STU-047` (L32012) make
@@ -223,6 +251,7 @@ export const STU_03_MATRIX = [
     id: 'see-draft-and-in-review-workflows',
     capability: 'See Draft and In Review Workflows',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     storyboardProhibition: null,
@@ -248,6 +277,7 @@ export const STU_03_MATRIX = [
     id: 'create-a-new-workflow',
     capability: 'Create a new Workflow',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     storyboardProhibition: {
@@ -281,6 +311,7 @@ export const STU_03_MATRIX = [
     id: 'apply-a-job-type-to-a-workflow',
     capability: 'Apply a Job Type to a Workflow',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     storyboardProhibition: null,
@@ -299,6 +330,7 @@ export const STU_03_MATRIX = [
     id: 'apply-a-service-type-tag',
     capability: 'Apply a Service Type tag',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     storyboardProhibition: null,
@@ -317,6 +349,7 @@ export const STU_03_MATRIX = [
     id: 'create-a-custom-job-type-or-service-type-tag',
     capability: 'Create a custom Job Type or Service Type tag',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     storyboardProhibition: null,
@@ -351,6 +384,7 @@ export const STU_03_MATRIX = [
     id: 'edit-or-delete-a-platform-seeded-starter-type',
     capability: 'Edit or delete a platform-seeded starter type',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     storyboardProhibition: null,
@@ -377,6 +411,7 @@ export const STU_03_MATRIX = [
     id: 'see-linkage-counts',
     capability: 'See linkage counts',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     storyboardProhibition: null,
@@ -399,6 +434,7 @@ export const STU_03_MATRIX = [
     // surface. `another-surface` would reserve that somebody somewhere holds
     // it, and nobody does.
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     storyboardProhibition: null,

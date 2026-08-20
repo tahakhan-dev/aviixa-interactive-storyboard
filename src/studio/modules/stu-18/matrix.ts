@@ -119,6 +119,17 @@ void _rowIdsExhaustive
 export type Stu18MatrixRow = StudioMatrixRow & {
   readonly id: Stu18RowId
   readonly surface: StudioMatrixRowSurface
+  /**
+   * PER COLUMN, never per row. Task 11's mechanism (`MOD-STU-07`), retrofitted
+   * here. Where a prohibited cell's own words name an alternative THIS persona
+   * holds, this is that capability's id; `null` is the answer for a categorical
+   * prohibition, and it is written on every column rather than omitted.
+   *
+   * The pointer is CHECKED, never asserted: the fold asks
+   * `routedProhibitionApplies` for the routed row's own decision, and a route
+   * whose target does not permit this persona collapses back to ABSENT.
+   */
+  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu18RowId | null>>
 }
 
 /* ==================================================================== *
@@ -173,6 +184,84 @@ function cellsOf(
  * THE TWENTY-THREE ROWS — L34541 to L34563, one row per source line.
  * ==================================================================== */
 
+/**
+ * Every column answers `null` — this row routes nobody anywhere. Written
+ * down rather than left off: a cell that omits the field and a cell that
+ * says "no route" read identically at a glance, and only one is an answer.
+ */
+const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu18RowId | null>> = {
+  'quality-manager': null,
+  'supervisor-with-authoring-grant': null,
+  'supervisor-without-grant': null,
+  'plant-manager-persona': null,
+  'tenant-admin': null,
+  'read-only-auditor': null,
+  worker: null,
+  'implementation-team': null,
+}
+
+/**
+ * THE THREE ROUTED CELLS OF THE CONSOLIDATED MATRIX, each with the row that
+ * receives it and the cell that proves the receiver permits the same persona.
+ *
+ * This card RESTATES other modules' rules, so most of its prohibitions are
+ * categorical restatements and route nowhere. Three are not: their own words
+ * name the alternative the same holder keeps, and the row holding it is on
+ * this very card, one or nine lines away.
+ *
+ * 1. Row 7, `Create, edit, archive Content Library items` (L34547) — the
+ *    grant-holder's cell reads `Explicitly prohibited — **may propose only**`.
+ *    Row 8, `Propose a Content Library change` (L34548), reads `Allowed` in
+ *    that same column. This is `MOD-STU-07`'s routing rule (L32628/L32631)
+ *    restated at the consolidated level, and it routes here for the same
+ *    reason it routes there.
+ * 2. Row 13, `Hold or delegate the Agent Author capability` (L34553) — the
+ *    Tenant Admin's cell reads `Explicitly prohibited — **assigns it, does
+ *    not hold it by default**`. Row 19, `Assign or revoke GRANT-STU-AUTHOR
+ *    and GRANT-STU-AGENT` (L34558), reads `Allowed — administers Studio
+ *    capacities from the tenant administration area` in that same column.
+ *    The cell names the act; the act is a row of this table.
+ * 3. Row 20, `Hold any stage of the approval chain` (L34559) — the
+ *    implementation-team cell reads `Explicitly prohibited — **author and
+ *    submit only**`. Row 10, `Submit for review` (L34550), reads `Allowed
+ *    with conditions` in that same column, and L34520 provisions the capacity
+ *    in exactly those words.
+ *
+ * NOT ROUTED, and each is an answer rather than an omission:
+ *
+ * - Row 13's grant-holder cell says `unless delegated GRANT-STU-AGENT`. That
+ *   is a CONDITION on this capability, not a different capability elsewhere,
+ *   and `requiredGrant` is the field that carries it.
+ * - Row 20's Tenant Admin cell says `holds no stage, for separation of
+ *   duties`. Categorical, and `AC-STU-152` (L34669) is why it can never
+ *   become true.
+ * - Row 12 (`Approve or release`) refuses the grant-holder with no
+ *   alternative named. Row 11 (`Act as Reviewer`) is a DIFFERENT stage, not
+ *   the same act relocated, so pointing at it would tell somebody they may
+ *   release by reviewing.
+ * - Rows 3's and 22's refusals have only `Read-only` cells beside them, and
+ *   `Read-only` is not an ACTION: a route to it resolves to nothing to click
+ *   and collapses back to ABSENT.
+ */
+const ROUTES: Partial<
+  Record<Stu18RowId, Readonly<Partial<Record<StudioPersonaColumn, Stu18RowId>>>>
+> = {
+  'create-edit-archive-content-library-items': {
+    'supervisor-with-authoring-grant': 'propose-a-content-library-change',
+  },
+  'hold-or-delegate-the-agent-author-capability': {
+    'tenant-admin': 'assign-or-revoke-the-two-grants',
+  },
+  'hold-any-stage-of-the-approval-chain': {
+    'implementation-team': 'submit-for-review',
+  },
+}
+
+/** One row's routes, defaulting every unnamed column to `null`. */
+function routesFor(id: Stu18RowId): Readonly<Record<StudioPersonaColumn, Stu18RowId | null>> {
+  return { ...ROUTES_NOWHERE, ...(ROUTES[id] ?? {}) }
+}
+
 export const STU18_MATRIX = [
   {
     id: 'open-the-studio',
@@ -180,6 +269,7 @@ export const STU18_MATRIX = [
     // Surface access, not module standing. Task 4's rule: an "Open the
     // Studio" row is chrome, never a screen row.
     surface: 'chrome',
+    routedTo: routesFor('open-the-studio'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34541', 'FUNC-STU-18-01-A-1 L34580', 'AC-STU-150 L34667'],
@@ -200,6 +290,7 @@ export const STU18_MATRIX = [
     id: 'read-published-workflow-content',
     capability: 'Read published Workflow content',
     surface: 'screen',
+    routedTo: routesFor('read-published-workflow-content'),
     // THE ONE ROW L34605's FAIL-CLOSED FLOOR NAMES: "permits nothing beyond
     // published read". A boolean the row declares, never a string match on
     // its capability text.
@@ -220,6 +311,7 @@ export const STU18_MATRIX = [
     id: 'read-drafts-and-in-review-versions',
     capability: 'Read drafts and in-review versions',
     surface: 'screen',
+    routedTo: routesFor('read-drafts-and-in-review-versions'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34543', 'L34508', 'AC-STU-151 L34668'],
@@ -234,6 +326,7 @@ export const STU18_MATRIX = [
     id: 'create-a-workflow',
     capability: 'Create a Workflow',
     surface: 'screen',
+    routedTo: routesFor('create-a-workflow'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34544'],
@@ -247,6 +340,7 @@ export const STU18_MATRIX = [
     id: 'author-all-nine-configuration-sections',
     capability: 'Author all nine configuration sections',
     surface: 'screen',
+    routedTo: routesFor('author-all-nine-configuration-sections'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34545'],
@@ -260,6 +354,7 @@ export const STU18_MATRIX = [
     id: 'create-and-apply-shared-instruction-blocks',
     capability: 'Create and apply Shared Instruction Blocks',
     surface: 'screen',
+    routedTo: routesFor('create-and-apply-shared-instruction-blocks'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34546'],
@@ -273,6 +368,7 @@ export const STU18_MATRIX = [
     id: 'create-edit-archive-content-library-items',
     capability: 'Create, edit, archive Content Library items',
     surface: 'screen',
+    routedTo: routesFor('create-edit-archive-content-library-items'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34547', 'MOD-STU-07 L32637'],
@@ -288,6 +384,7 @@ export const STU18_MATRIX = [
     id: 'propose-a-content-library-change',
     capability: 'Propose a Content Library change',
     surface: 'screen',
+    routedTo: routesFor('propose-a-content-library-change'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34548'],
@@ -301,6 +398,7 @@ export const STU18_MATRIX = [
     id: 'manage-qualification-requirements',
     capability: 'Manage Qualification Requirements',
     surface: 'screen',
+    routedTo: routesFor('manage-qualification-requirements'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34549'],
@@ -314,6 +412,7 @@ export const STU18_MATRIX = [
     id: 'submit-for-review',
     capability: 'Submit for review',
     surface: 'screen',
+    routedTo: routesFor('submit-for-review'),
     isPublishedRead: false,
     // The Author's own act. L33289 orders the chain Author, Reviewer, Release
     // Authority, and submission is the act that closes the Author stage.
@@ -329,6 +428,7 @@ export const STU18_MATRIX = [
     id: 'act-as-reviewer',
     capability: 'Act as Reviewer',
     surface: 'screen',
+    routedTo: routesFor('act-as-reviewer'),
     isPublishedRead: false,
     stage: 'reviewer',
     sourceRefs: ['L34551', 'L33389', 'AC-STU-153 L34670'],
@@ -344,6 +444,7 @@ export const STU18_MATRIX = [
     id: 'approve-or-release',
     capability: 'Approve or release',
     surface: 'screen',
+    routedTo: routesFor('approve-or-release'),
     isPublishedRead: false,
     stage: 'release-authority',
     sourceRefs: ['L34552', 'L33389', 'AC-STU-154 L34671'],
@@ -358,6 +459,7 @@ export const STU18_MATRIX = [
     id: 'hold-or-delegate-the-agent-author-capability',
     capability: 'Hold or delegate the Agent Author capability',
     surface: 'screen',
+    routedTo: routesFor('hold-or-delegate-the-agent-author-capability'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34553', 'DEC-DELEG-001'],
@@ -384,6 +486,7 @@ export const STU18_MATRIX = [
     id: 'compose-a-reasoning-agent',
     capability: 'Compose a reasoning agent',
     surface: 'screen',
+    routedTo: routesFor('compose-a-reasoning-agent'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34554', 'L34586', 'DEC-DELEG-001'],
@@ -420,6 +523,7 @@ export const STU18_MATRIX = [
     // rule for a capability that exists nowhere is a screen row whose every
     // cell refuses, and three of these defer instead.
     surface: 'screen',
+    routedTo: routesFor('enable-or-disable-an-atomic-capability'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34555', 'DEC-CAPAUTH-001'],
@@ -445,6 +549,7 @@ export const STU18_MATRIX = [
     id: 'read-the-learning-view',
     capability: 'Read the learning view',
     surface: 'screen',
+    routedTo: routesFor('read-the-learning-view'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34556'],
@@ -460,6 +565,7 @@ export const STU18_MATRIX = [
     // The cell says where: "in the Client Command Center". A Studio screen
     // can describe this and can never offer it.
     surface: 'another-surface',
+    routedTo: routesFor('decide-a-lane-b-proposal'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34557', 'DEC-LANEBAUTH-001'],
@@ -488,6 +594,7 @@ export const STU18_MATRIX = [
     // `screen` because two source statements put a Studio screen on it and
     // one puts the area elsewhere; the divergence renders on the screen.
     surface: 'screen',
+    routedTo: routesFor('assign-or-revoke-the-two-grants'),
     isPublishedRead: false,
     // NOT an approval stage. L34569 and AC-STU-152: the Tenant Admin
     // administers capacities and holds no stage of the chain.
@@ -504,6 +611,7 @@ export const STU18_MATRIX = [
     id: 'hold-any-stage-of-the-approval-chain',
     capability: 'Hold any stage of the approval chain',
     surface: 'screen',
+    routedTo: routesFor('hold-any-stage-of-the-approval-chain'),
     isPublishedRead: false,
     // `null`, and deliberately: the row asks about ALL THREE stages at once.
     // Naming one would make the separation-of-duties floor apply to a third
@@ -534,6 +642,7 @@ export const STU18_MATRIX = [
     id: 'publish-training-library-content',
     capability: 'Publish Training Library content',
     surface: 'screen',
+    routedTo: routesFor('publish-training-library-content'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34560'],
@@ -548,6 +657,7 @@ export const STU18_MATRIX = [
     id: 'generate-a-portable-document-format-export',
     capability: 'Generate a portable-document-format export of a version',
     surface: 'screen',
+    routedTo: routesFor('generate-a-portable-document-format-export'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34561'],
@@ -574,6 +684,7 @@ export const STU18_MATRIX = [
     // refuses — task 4's own rule, and this is the row it describes. The
     // floor is the platform's, not the tenant's (FUNC-STU-18-03-A-1).
     surface: 'screen',
+    routedTo: routesFor('widen-beyond-the-floor'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34562', 'L34508', 'AC-STU-154 L34671'],
@@ -586,6 +697,7 @@ export const STU18_MATRIX = [
     // it as module standing would withhold this module from every persona,
     // because seven of its eight cells refuse.
     surface: 'chrome',
+    routedTo: routesFor('use-any-capability-while-offline'),
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L34563', 'L34637', 'TEST-STU-153 L34682'],

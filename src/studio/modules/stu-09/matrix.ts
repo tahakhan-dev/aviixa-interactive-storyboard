@@ -123,6 +123,17 @@ export interface StudioDifficultyMatrixRow extends StudioMatrixRow {
   readonly id: Stu09RowId
   /** Read by `reachByStudioMatrix`'s clause one. All seven are screen rows. */
   readonly surface: StudioMatrixRowSurface
+  /**
+   * PER COLUMN, never per row. Task 11's mechanism (`MOD-STU-07`), retrofitted
+   * here. Where a prohibited cell's own words name an alternative THIS persona
+   * holds, this is that capability's id; `null` is the answer for a categorical
+   * prohibition, and it is written on every column rather than omitted.
+   *
+   * The pointer is CHECKED, never asserted: the fold asks
+   * `routedProhibitionApplies` for the routed row's own decision, and a route
+   * whose target does not permit this persona collapses back to ABSENT.
+   */
+  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu09RowId | null>>
 }
 
 function cell(
@@ -178,11 +189,49 @@ function withPlantManager(
 }
 
 /** Rows 1–6 and 8 of L32964–L32971, in source order. Row 7 is below. */
+/**
+ * Every column answers `null` — this row routes nobody anywhere. Written
+ * down rather than left off: a cell that omits the field and a cell that
+ * says "no route" read identically at a glance, and only one is an answer.
+ */
+const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu09RowId | null>> = {
+  'quality-manager': null,
+  'supervisor-with-authoring-grant': null,
+  'supervisor-without-grant': null,
+  'plant-manager-persona': null,
+  'tenant-admin': null,
+  'read-only-auditor': null,
+  worker: null,
+  'implementation-team': null,
+}
+
+/**
+ * THE ONE ROUTED CELL ON THIS CARD, and the evidence it is a route rather
+ * than a categorical refusal.
+ *
+ * Row 4, `Review drafted levels in the chain`, refuses the implementation
+ * team in the card's own words as `author and submit only; the capacity holds
+ * no stage of the chain`. That sentence NAMES the capacity the same holder
+ * keeps — L34520 provisions the team "a provisioned, temporary authoring
+ * capacity during onboarding — **author and submit only**", and
+ * `FUNC-STU-18-02-C-1` (L34588) prohibits "the capacity itself from any
+ * approval stage". Row 1 of this card is that authoring act, and its
+ * implementation-team cell reads `Allowed with conditions`.
+ *
+ * The claim is checked against row 1's own decision, not against this
+ * comment: prohibit row 1 for the capacity and row 4 collapses back to
+ * ABSENT.
+ */
+const ROUTES_IMPL_TEAM_TO_AUTHORING: Readonly<
+  Record<StudioPersonaColumn, Stu09RowId | null>
+> = { ...ROUTES_NOWHERE, 'implementation-team': 'author-one-difficulty-level' }
+
 export const STU_09_MATRIX = [
   {
     id: 'author-one-difficulty-level',
     capability: "Author one difficulty level of a screen's instruction",
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L32964', 'FUNC-STU-09-01-A-1 L32987', 'AC-STU-086 L33073'],
@@ -202,6 +251,7 @@ export const STU_09_MATRIX = [
     id: 'request-artificial-intelligence-drafting',
     capability: 'Request artificial-intelligence drafting of the other two levels',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L32965', 'FUNC-STU-09-01-B-1 L32989', 'L34545'],
@@ -226,6 +276,7 @@ export const STU_09_MATRIX = [
     id: 'edit-a-drafted-level-before-submission',
     capability: 'Edit a drafted level before submission',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L32966', 'SB-STU-12 L33038', 'L34545'],
@@ -243,6 +294,7 @@ export const STU_09_MATRIX = [
     id: 'review-drafted-levels-in-the-chain',
     capability: 'Review drafted levels in the chain',
     surface: 'screen',
+    routedTo: ROUTES_IMPL_TEAM_TO_AUTHORING,
     isPublishedRead: false,
     // The ONE row that occupies an approval stage. Its own cell states the
     // condition — "not on own submission" — and `evaluateStudioAccess`
@@ -269,6 +321,7 @@ export const STU_09_MATRIX = [
     id: 'publish-a-level-that-has-not-been-reviewed',
     capability: 'Publish a level that has not been reviewed',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     // Six prohibitions in the card and eight here. AC-STU-087 (L33074)
@@ -291,6 +344,7 @@ export const STU_09_MATRIX = [
     id: 'make-a-level-change-a-capture-gate-limit-or-severity-mapping',
     capability: 'Make a level change a capture, gate, limit, or severity mapping',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     // FUNC-STU-09-01-C-1 (L32991): "Roles prohibited: no role may configure
@@ -311,6 +365,7 @@ export const STU_09_MATRIX = [
     id: 'read-all-three-levels-of-published-content',
     capability: 'Read all three levels of published content',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     // THE published-read row. L34605's fail-closed floor keeps exactly this
     // open when the identity layer is unreachable: "permits nothing beyond
     // published read".

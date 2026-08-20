@@ -124,6 +124,17 @@ export interface StudioVersionMatrixCell extends StudioMatrixCell {
 export interface StudioVersionMatrixRow extends StudioMatrixRow {
   readonly id: StudioVersionCapabilityId
   readonly surface: StudioMatrixRowSurface
+  /**
+   * PER COLUMN, never per row. Task 11's mechanism (`MOD-STU-07`), retrofitted
+   * here. Where a prohibited cell's own words name an alternative THIS persona
+   * holds, this is that capability's id; `null` is the answer for a categorical
+   * prohibition, and it is written on every column rather than omitted.
+   *
+   * The pointer is CHECKED, never asserted: the fold asks
+   * `routedProhibitionApplies` for the routed row's own decision, and a route
+   * whose target does not permit this persona collapses back to ABSENT.
+   */
+  readonly routedTo: Readonly<Record<StudioPersonaColumn, StudioVersionCapabilityId | null>>
   readonly cells: Readonly<Record<StudioPersonaColumn, StudioVersionMatrixCell>>
 }
 
@@ -183,11 +194,28 @@ function withPlantManager(
   }
 }
 
+/**
+ * Every column answers `null` — this row routes nobody anywhere. Written
+ * down rather than left off: a cell that omits the field and a cell that
+ * says "no route" read identically at a glance, and only one is an answer.
+ */
+const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, StudioVersionCapabilityId | null>> = {
+  'quality-manager': null,
+  'supervisor-with-authoring-grant': null,
+  'supervisor-without-grant': null,
+  'plant-manager-persona': null,
+  'tenant-admin': null,
+  'read-only-auditor': null,
+  worker: null,
+  'implementation-team': null,
+}
+
 export const STU_12_MATRIX = [
   {
     id: 'select-bump-classification',
     capability: 'Select the bump classification at republish',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: 'author',
     sourceRefs: ['L33458', 'FUNC-STU-12-01-A-1 L33485'],
@@ -205,6 +233,7 @@ export const STU_12_MATRIX = [
     id: 'validate-classification-against-diff',
     capability: 'Validate the classification against the diff',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: 'reviewer',
     sourceRefs: ['L33459', 'FUNC-STU-12-01-A-2 L33486', 'AC-STU-106 L33584'],
@@ -225,6 +254,7 @@ export const STU_12_MATRIX = [
     id: 'write-republish-description',
     capability: 'Write the mandatory republish description',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: 'author',
     sourceRefs: ['L33460', 'FUNC-STU-12-01-B-1 L33488', 'AC-STU-105 L33583'],
@@ -242,6 +272,7 @@ export const STU_12_MATRIX = [
     id: 'publish-a-version',
     capability: 'Publish a version',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: 'release-authority',
     sourceRefs: ['L33461', 'L33511', 'L53602'],
@@ -265,6 +296,7 @@ export const STU_12_MATRIX = [
     id: 'decide-adoption',
     capability: 'Decide adoption of a notified-class version',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     // No approval stage: adoption is a Delivery Operations Hub decision by the
     // Job Owner, not a stage of the three-stage chain, so separation of duties
@@ -323,6 +355,7 @@ export const STU_12_MATRIX = [
     id: 'view-version-history',
     capability: 'View the version history and approval log',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     // L34605's fail-closed floor "permits nothing beyond published read", and
     // this is that read: prior versions are retained in full and remain
     // permanently readable (L33435).
@@ -343,6 +376,7 @@ export const STU_12_MATRIX = [
     id: 'view-screen-level-diff',
     capability: 'View the screen-level diff',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: true,
     stage: null,
     sourceRefs: ['L33465', 'FUNC-STU-12-03-B-1 L33501'],
@@ -360,6 +394,7 @@ export const STU_12_MATRIX = [
     id: 'view-job-and-run-linkage',
     capability: 'View the Job and Run linkage',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: true,
     stage: null,
     sourceRefs: ['L33466', 'FUNC-STU-12-03-C-1 L33503'],
@@ -377,6 +412,7 @@ export const STU_12_MATRIX = [
     id: 'archive-a-version',
     capability: 'Archive a version manually',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33467', 'FUNC-STU-12-03-D-1 L33505', 'AC-STU-110 L33588'],
@@ -397,6 +433,7 @@ export const STU_12_MATRIX = [
     id: 'export-a-version',
     capability: 'Export a version to portable document format',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     // Export GENERATION is an audited act (L33573), not a bare read, so the
     // identity-layer floor must refuse it rather than fall back to it.
     isPublishedRead: false,
@@ -425,6 +462,7 @@ export const STU_12_MATRIX = [
     // refuses — it grants nobody standing on this module, and it must not be
     // mistaken for a cross-surface act somebody else may take.
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33469', 'FUNC-STU-12-02-C-1 L33496', 'AC-STU-108 L33586', 'L53602'],

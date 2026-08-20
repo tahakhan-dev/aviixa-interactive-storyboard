@@ -94,6 +94,17 @@ export interface StudioPartsMatrixRow extends StudioMatrixRow {
   readonly id: Stu10RowId
   /** Read by `reachByStudioMatrix`'s clause one. All six are screen rows. */
   readonly surface: StudioMatrixRowSurface
+  /**
+   * PER COLUMN, never per row. Task 11's mechanism (`MOD-STU-07`), retrofitted
+   * here. Where a prohibited cell's own words name an alternative THIS persona
+   * holds, this is that capability's id; `null` is the answer for a categorical
+   * prohibition, and it is written on every column rather than omitted.
+   *
+   * The pointer is CHECKED, never asserted: the fold asks
+   * `routedProhibitionApplies` for the routed row's own decision, and a route
+   * whose target does not permit this persona collapses back to ABSENT.
+   */
+  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu10RowId | null>>
 }
 
 function cell(
@@ -128,11 +139,28 @@ function withPlantManager(
 }
 
 /** Rows 1–3 and 5–7 of L33113–L33119, in source order. Row 4 is below. */
+/**
+ * Every column answers `null` — this row routes nobody anywhere. Written
+ * down rather than left off: a cell that omits the field and a cell that
+ * says "no route" read identically at a glance, and only one is an answer.
+ */
+const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu10RowId | null>> = {
+  'quality-manager': null,
+  'supervisor-with-authoring-grant': null,
+  'supervisor-without-grant': null,
+  'plant-manager-persona': null,
+  'tenant-admin': null,
+  'read-only-auditor': null,
+  worker: null,
+  'implementation-team': null,
+}
+
 export const STU_10_MATRIX = [
   {
     id: 'reference-an-existing-part',
     capability: 'Reference an existing part from a work-instruction step',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33113', 'FUNC-STU-10-01-A-1 L33135'],
@@ -150,6 +178,7 @@ export const STU_10_MATRIX = [
     id: 'inline-add-a-part-through-the-mini-form',
     capability: 'Inline-add a part through the name-only mini-form',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33114', 'FUNC-STU-10-02-A-1 L33140', 'AC-STU-091 L33215'],
@@ -167,6 +196,7 @@ export const STU_10_MATRIX = [
     id: 'mint-the-part-identifier',
     capability: 'Mint the part identifier',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     // FUNC-STU-10-02-A-2 (L33141): "Roles allowed: none may set it. Roles
@@ -190,6 +220,7 @@ export const STU_10_MATRIX = [
     id: 'edit-registry-fields-beyond-the-name',
     capability: 'Edit registry fields from the Studio beyond the name',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33117', 'L33207', 'AC-STU-091 L33215'],
@@ -207,6 +238,7 @@ export const STU_10_MATRIX = [
     id: 'delete-a-part-from-the-studio',
     capability: 'Delete a part from the Studio',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33118', 'L33207'],
@@ -224,6 +256,7 @@ export const STU_10_MATRIX = [
     id: 'force-a-step-to-carry-a-part-reference',
     capability: 'Force a step to carry a part reference',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     // FUNC-STU-10-01-B-1 (L33137): "Roles prohibited: no role may configure

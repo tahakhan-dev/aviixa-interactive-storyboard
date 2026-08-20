@@ -11,6 +11,7 @@ import {
 } from '@/studio/access/evaluate'
 import type { StudioCommercialTier, StudioGrantId, StudioGrantState } from '@/studio/access/grants'
 import { DIFFICULTY_LEVELS, LOCALES, type DifficultyLevel, type Locale } from '@/studio/vocab'
+import { routedProhibitionApplies } from '@/studio/modules/stu-18/rendering'
 import { stu09Row, type Stu09RowId } from './matrix'
 
 /**
@@ -533,7 +534,31 @@ export function difficultyAffordance(
   label: string,
 ): DifficultyControlRendering {
   const decision = difficultyDecision(rowId, persona, ctx)
-  const cell = stu09Row(rowId).cells[persona]
+  const row = stu09Row(rowId)
+  const cell = row.cells[persona]
+
+  // THE ROUTED PROHIBITION, ASKED BEFORE THE ABSENCE. One cell of the
+  // fifty-six routes: row 4's implementation-team cell, whose own words are
+  // `author and submit only` and whose route is therefore row 1. It renders
+  // DISABLED, with the capacity it keeps named. Every other prohibited cell
+  // routes nowhere and stays ABSENT.
+  //
+  // The pointer is not trusted: row 1's decision for THIS persona is
+  // evaluated, so a route at a row this persona does not hold collapses back
+  // to ABSENT rather than manufacturing a disabled control.
+  const routedTo = row.routedTo[persona]
+  const routedDecision =
+    routedTo === null ? null : difficultyDecision(routedTo, persona, ctx)
+  if (routedProhibitionApplies(decision, routedTo, routedDecision)) {
+    return {
+      kind: 'disabled',
+      label,
+      reason:
+        `${decision.reason} ${stu09Row(routedTo).capability} is what this capacity keeps and is ` +
+        'the route open to it (L34520, FUNC-STU-18-02-C-1 L34588).',
+      openDecision: cell.openDecision,
+    }
+  }
 
   if (decision.outcome === 'explicitlyProhibited') {
     return {

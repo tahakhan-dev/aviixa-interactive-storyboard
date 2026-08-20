@@ -16,6 +16,7 @@ import {
   type TierTwoAuditWrite,
   type TierTwoRefusalAudit,
 } from '@/studio/access/refusal'
+import { routedProhibitionApplies } from '@/studio/modules/stu-18/rendering'
 import {
   ENABLEMENT_AUTHORITY_POSITION,
   charterRow,
@@ -196,7 +197,37 @@ export function charterAffordance(
   label: string,
 ): CharterControlRendering {
   const decision = charterDecision(action, persona, ctx)
-  const cell = charterActionRow(action).cells[persona]
+  const row = charterActionRow(action)
+  const cell = row.cells[persona]
+
+  // THE ROUTED PROHIBITION, ASKED BEFORE THE ABSENCE. `routedTo` is `null` on
+  // all thirty-two cells of this card, so this branch never fires today — and
+  // it is here rather than omitted because the field is meaningless unless
+  // something reads it. Write a route on a cell and the rendering changes;
+  // that is what makes the nulls an answer instead of decoration.
+  //
+  // WHY ALL THIRTY-TWO ARE NULL. `Change the boundary` and `Author an atom`
+  // are `another-surface` rows whose holder is the Platform Engineer in the
+  // platform console (L31579) — a DIFFERENT PERSON on a surface no Studio
+  // persona can reach, so no tenant persona holds either act anywhere and
+  // there is nowhere to send them. `FUNC-STU-01-01-C-1` (L31599) states it
+  // outright: "Roles allowed: none — this is a universal refusal." The
+  // platform-side holder is rendered as a cross-surface STATEMENT
+  // (`CHARTER_PLATFORM_ENGINEER_CELLS`), which is the honest rendering of a
+  // capability somebody else holds somewhere the reader cannot go.
+  const routedTo = row.routedTo[persona]
+  const routedDecision =
+    routedTo === null ? null : charterDecision(routedTo, persona, ctx)
+  if (routedProhibitionApplies(decision, routedTo, routedDecision)) {
+    return {
+      kind: 'disabled',
+      label,
+      reason:
+        `${decision.reason} ${charterActionRow(routedTo).capability} is the route open to you ` +
+        'and is offered beside this one.',
+      openDecision: cell.openDecision,
+    }
+  }
 
   // `Explicitly prohibited` → ABSENT, with the explanatory line L31611
   // requires in place of blank space.

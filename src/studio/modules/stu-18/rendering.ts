@@ -1,7 +1,7 @@
 import { scenarioRunId, tenantId, type TenantId } from '@/domain/ids'
 import type { RoleId } from '@/domain/roles'
 import { emptyDomainState, withTenant, type ScenarioDomainState } from '@/domain/state'
-import type { PermissionOutcome } from '@/policy/decision'
+import { permitsAction, type PermissionOutcome } from '@/policy/decision'
 import {
   evaluateStudioAccess,
   type IdentityLayerState,
@@ -234,6 +234,48 @@ function withCondition(decision: StudioAccessDecision): string {
   return condition === null ? decision.reason : `${decision.reason} ${condition}`
 }
 
+/* ==================================================================== *
+ * THE ROUTED PROHIBITION — task 11's mechanism, ONE implementation.
+ * ==================================================================== */
+
+/**
+ * `MOD-STU-07` (task 11) introduced the routed prohibition and `MOD-STU-04`
+ * and `MOD-STU-13` adopted it, each by copying the same four-clause
+ * condition into its own affordance fold. This is that condition, extracted
+ * once, so the seven modules retrofitted afterwards share ONE spelling of it
+ * rather than adding seven more copies.
+ *
+ * **THE RULE IT SETTLES.** `Explicitly prohibited` carries no rendering
+ * anywhere in the frozen source, so it is ABSENT by default. The single
+ * exception is a prohibition that is a ROUTING rule rather than a
+ * categorical one: the persona holds the capability, is refused *here*, and
+ * the reason can say where it lives. That cell renders DISABLED.
+ *
+ * **AND IT IS CHECKED, NEVER ASSERTED.** `routedDecision` is the evaluator's
+ * answer for the capability `routedTo` names, for the SAME persona. Where
+ * that answer does not permit acting, the route is closed and the cell
+ * collapses back to ABSENT — which is the correct rendering for a
+ * prohibition with nowhere to send anyone. A `routedTo` aimed at a row
+ * nobody holds therefore changes nothing on screen; it cannot manufacture a
+ * disabled control out of a categorical refusal.
+ *
+ * It is a PREDICATE rather than a renderer because the seven modules return
+ * five different rendering unions. What is shared between them is the
+ * question, not the shape of the answer.
+ */
+export function routedProhibitionApplies<Id extends string>(
+  decision: StudioAccessDecision,
+  routedTo: Id | null,
+  routedDecision: StudioAccessDecision | null,
+): routedTo is Id {
+  return (
+    decision.outcome === 'explicitlyProhibited' &&
+    routedTo !== null &&
+    routedDecision !== null &&
+    permitsAction(routedDecision.decision)
+  )
+}
+
 /**
  * The rendering for ONE control, given the decision the evaluator produced
  * for it. Handed a decision; computes no permission of its own.
@@ -447,11 +489,31 @@ export function capabilityPanelRows(
     const decision = decisionForRow(row, s)
     const statement = capabilityStatement(row, s.persona)
     const availability = availabilityOf(decision)
+
+    // `AC-STU-155` (L34672) asks for THE SPECIFIC MISSING CONDITION, and on a
+    // routed prohibition the specific condition is a place: the capability is
+    // not missing from this identity at all, it is held one row away. Three
+    // cells of this card are routed (see `ROUTES` in `./matrix`), and this is
+    // where their route is READ — a `routedTo` nothing consulted would be the
+    // decoration this panel exists to refuse.
+    //
+    // NOTE THIS PANEL DRAWS STATEMENTS, NOT CONTROLS. `SB-STU-21` (L34631)
+    // asks for a list "each marked Available or Unavailable with the specific
+    // missing condition named", so the route lands in the CONDITION sentence
+    // and never in an affordance. The row stays Unavailable — the person
+    // cannot do this act — and the sentence says what they can do instead.
+    const routedTo = row.routedTo[s.persona]
+    const routedDecision = routedTo === null ? null : decisionForRow(stu18Row(routedTo), s)
+    const routed = routedProhibitionApplies(decision, routedTo, routedDecision)
+
     return {
       row,
       availability,
       label: AVAILABILITY[availability],
-      condition: withCondition(decision),
+      condition: routed
+        ? `${withCondition(decision)} ${stu18Row(routedTo).capability} is what you hold instead, ` +
+          `and it is Available to you (${stu18Row(routedTo).sourceRefs[0] ?? ''}).`
+        : withCondition(decision),
       cellText: statement.text,
       cellLocator: row.sourceRefs[0] ?? '',
       openDecision: row.cells[s.persona].openDecision,

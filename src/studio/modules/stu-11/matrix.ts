@@ -85,6 +85,17 @@ export interface StudioApprovalMatrixRow extends StudioMatrixRow {
   readonly id: StudioApprovalCapabilityId
   /** Read by `reachByStudioMatrix`'s clause one. All ten are screen rows. */
   readonly surface: StudioMatrixRowSurface
+  /**
+   * PER COLUMN, never per row. Task 11's mechanism (`MOD-STU-07`), retrofitted
+   * here. Where a prohibited cell's own words name an alternative THIS persona
+   * holds, this is that capability's id; `null` is the answer for a categorical
+   * prohibition, and it is written on every column rather than omitted.
+   *
+   * The pointer is CHECKED, never asserted: the fold asks
+   * `routedProhibitionApplies` for the routed row's own decision, and a route
+   * whose target does not permit this persona collapses back to ABSENT.
+   */
+  readonly routedTo: Readonly<Record<StudioPersonaColumn, StudioApprovalCapabilityId | null>>
 }
 
 function cell(
@@ -117,11 +128,66 @@ function withPlantManager(
   }
 }
 
+/**
+ * Every column answers `null` — this row routes nobody anywhere. Written
+ * down rather than left off: a cell that omits the field and a cell that
+ * says "no route" read identically at a glance, and only one is an answer.
+ */
+const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, StudioApprovalCapabilityId | null>> = {
+  'quality-manager': null,
+  'supervisor-with-authoring-grant': null,
+  'supervisor-without-grant': null,
+  'plant-manager-persona': null,
+  'tenant-admin': null,
+  'read-only-auditor': null,
+  worker: null,
+  'implementation-team': null,
+}
+
+/**
+ * THE ONE ROUTED ROW ON THIS CARD, and the evidence for both of its columns.
+ *
+ * Row 3, `Edit content while reviewing`, is refused to everybody — but the
+ * Quality Manager cell does not stop at the refusal, it names the route:
+ * `Explicitly prohibited — the Reviewer cannot edit; **corrections go back to
+ * the Author**` (L33272). `FUNC-STU-11-01-B-3` (L33300) states the same
+ * sentence as the row's PURPOSE, not as one column's rider — "corrections go
+ * back to the Author so that the Author remains the single content owner and
+ * the review remains a review" — and `FUNC-STU-11-01-B-2` (L33299) names the
+ * act that sends them back: "Return with comments or advance. Purpose: the
+ * two lawful outcomes. Roles allowed: Quality Manager or Supervisor with the
+ * grant, in either case not the Author."
+ *
+ * So the route is `return-with-comments`, and it is carried on exactly the
+ * two columns `FUNC-STU-11-01-B-1`/`-B-2` admit to the Reviewer stage. The
+ * grant-holder's own cell is a bare `Explicitly prohibited`, and the route is
+ * still theirs: the refusal is a row-level rule ("Roles allowed: none"), and
+ * the lawful alternative is stated for both Reviewer-stage roles at once.
+ *
+ * INDEPENDENTLY PINNED, and deliberately not against this field: row 4's own
+ * cells at L33273 read `Allowed` in both columns. The fold asks the evaluator
+ * for row 4's decision rather than trusting the pointer, so prohibiting row 4
+ * collapses row 3 back to ABSENT.
+ *
+ * The other six columns route nowhere and stay ABSENT. They hold
+ * `return-with-comments` nowhere either, so even a route written on them
+ * would render nothing — but writing one would be an assertion the data does
+ * not support, and the point of this field is that it is not one.
+ */
+const ROUTES_REVIEWERS_TO_RETURN: Readonly<
+  Record<StudioPersonaColumn, StudioApprovalCapabilityId | null>
+> = {
+  ...ROUTES_NOWHERE,
+  'quality-manager': 'return-with-comments',
+  'supervisor-with-authoring-grant': 'return-with-comments',
+}
+
 export const STU_11_MATRIX = [
   {
     id: 'author-and-submit',
     capability: 'Author and submit',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: 'author',
     sourceRefs: ['L33270'],
@@ -142,6 +208,7 @@ export const STU_11_MATRIX = [
     id: 'review-a-submission',
     capability: 'Review a submission',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: 'reviewer',
     sourceRefs: ['L33271'],
@@ -165,6 +232,7 @@ export const STU_11_MATRIX = [
     id: 'edit-content-while-reviewing',
     capability: 'Edit content while reviewing',
     surface: 'screen',
+    routedTo: ROUTES_REVIEWERS_TO_RETURN,
     // No stage: this is the capability the source allows to NOBODY
     // (`FUNC-STU-11-01-B-3`, L33300 — "Roles allowed: none"), so there is no
     // stage for anyone to occupy by doing it.
@@ -188,6 +256,7 @@ export const STU_11_MATRIX = [
     id: 'return-with-comments',
     capability: 'Return a submission with comments',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: 'reviewer',
     sourceRefs: ['L33273'],
@@ -205,6 +274,7 @@ export const STU_11_MATRIX = [
     id: 'advance-to-release',
     capability: 'Advance a submission to release',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: 'reviewer',
     sourceRefs: ['L33274'],
@@ -222,6 +292,7 @@ export const STU_11_MATRIX = [
     id: 'release-and-publish',
     capability: 'Release and publish',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: 'release-authority',
     sourceRefs: ['L33275'],
@@ -245,6 +316,7 @@ export const STU_11_MATRIX = [
     id: 'hold-release-authority-override',
     capability: 'Hold a per-workflow Release Authority override',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     // Holding the override is ELIGIBILITY to be named Release Authority on one
     // workflow. It occupies no stage on any submission by itself, so
@@ -274,6 +346,7 @@ export const STU_11_MATRIX = [
     id: 'assign-release-authority',
     capability: 'Assign Release Authority per workflow',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33277', 'FUNC-STU-11-03-A-2 L33311'],
@@ -291,6 +364,7 @@ export const STU_11_MATRIX = [
     id: 'bypass-the-release-authority',
     capability: 'Bypass the Release Authority',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33278', 'FUNC-STU-11-01-C-2 L33303', 'AC-STU-099 L33399'],
@@ -308,6 +382,7 @@ export const STU_11_MATRIX = [
     id: 'read-the-approval-log',
     capability: 'Read the approval log',
     surface: 'screen',
+    routedTo: ROUTES_NOWHERE,
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33279'],

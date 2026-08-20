@@ -16,6 +16,7 @@ import {
   type VersionBumpClass,
 } from '@/studio/vocab'
 import type { ApprovalPublishSubject, ChainStaffing } from '@/studio/modules/stu-11/chain'
+import { routedProhibitionApplies } from '@/studio/modules/stu-18/rendering'
 import {
   evaluatePublish,
   type PublishBlocker,
@@ -504,6 +505,54 @@ export function versionAffordance(
     reviewerOfRecord: stages.reviewer,
     releaseAuthorityOfRecord: stages.releaseAuthority,
   })
+}
+
+/**
+ * THE ROUTED PROHIBITION, ANSWERED IN THE DOMAIN RATHER THAN ON THE SCREEN.
+ *
+ * Returns the capability this actor is routed to on this row, or `null` where
+ * the cell is not a routed prohibition. `SCR-STU-12` calls this and draws
+ * what it returns.
+ *
+ * **`routedTo` IS `null` ON ALL EIGHTY-EIGHT CELLS OF THIS CARD**, so this
+ * returns `null` today — and it is wired in rather than skipped because a
+ * field nothing reads is decoration, and the two near misses are answers
+ * rather than omissions:
+ *
+ * - Row 5 (`Decide adoption of a notified-class version`, L33462) refuses
+ *   four columns "unless also the Job Owner". That is a CONDITION on the same
+ *   act, keyed to a FIELD on the Job rather than to a role (L33433: "Job
+ *   Owner is a field on the Job record ... not a role"), and `decideAdoption`
+ *   already answers it by building the row from that field. A `routedTo`
+ *   would restate an object condition as a place.
+ * - Row 4 (`Publish a version`, L33461) refuses the grant-holder with no
+ *   alternative named. Validating the classification as Reviewer is a
+ *   DIFFERENT stage, not this act relocated, so pointing at it would tell
+ *   somebody they may release by reviewing.
+ *
+ * Row 6 of the source's table, `Rebase a scheduled Run` (L33463), is the one
+ * cell here whose token reads `Allowed` for a Delivery Operations Hub act. It
+ * is carried in `STU_12_CROSS_SURFACE` as a statement and is not a row of
+ * this matrix at all, so no control is ever drawn from it.
+ */
+export function versionRoute(
+  row: StudioVersionMatrixRow,
+  context: VersionContext,
+  resourceTenant: TenantId,
+  stages: {
+    readonly author: string | null
+    readonly reviewer: string | null
+    readonly releaseAuthority: string | null
+  } = { author: null, reviewer: null, releaseAuthority: null },
+): StudioVersionCapabilityId | null {
+  const decision = versionAffordance(row, context, resourceTenant, stages)
+  const routedTo =
+    decision.personaColumns.map((column) => row.routedTo[column]).find((t) => t != null) ?? null
+  const routedDecision =
+    routedTo === null
+      ? null
+      : versionAffordance(versionRow(routedTo), context, resourceTenant, stages)
+  return routedProhibitionApplies(decision, routedTo, routedDecision) ? routedTo : null
 }
 
 /**

@@ -21,6 +21,7 @@ import {
   ageingBand,
   approvalAffordance,
   approvalNotificationRows,
+  approvalRoute,
   chainStalled,
   checkChainStaffable,
   decline,
@@ -184,6 +185,27 @@ export function ApprovalWorkflowScreen({ selectedSubmissionId }: ApprovalWorkflo
   ) {
     const decision = approvalAffordance(capability, context, chain)
     const row = approvalRow(capability)
+
+    // THE ROUTED PROHIBITION. Decided in the domain (`approvalRoute`), drawn
+    // here. `MOD-STU-11`'s one routed row is `Edit content while reviewing`,
+    // whose Quality Manager cell names the route in its own words —
+    // "corrections go back to the Author" (L33272) — and whose route is
+    // `Return a submission with comments`, the lawful Reviewer outcome
+    // (`FUNC-STU-11-01-B-2`, L33299). Everything else is ABSENT.
+    const routedTo = approvalRoute(capability, context, chain)
+    if (routedTo !== null) {
+      return (
+        <span data-testid={testid} data-enabled="false">
+          <Button
+            variant="secondary"
+            disabledReason={`${label} is disabled because ${decision.reason} ${approvalRow(routedTo).capability} is the route open to you and is enabled beside this one.`}
+          >
+            {label}
+          </Button>
+        </span>
+      )
+    }
+
     const prohibitedByCell =
       decision.personaColumns.length > 0 &&
       decision.personaColumns.every((column) => row.cells[column].outcome === 'explicitlyProhibited')
@@ -409,6 +431,23 @@ export function ApprovalWorkflowScreen({ selectedSubmissionId }: ApprovalWorkflo
                     open,
                     () => run(() => advance(open, context)),
                     'advance-control',
+                  )}
+                  {/*
+                    Row 3 of the card (L33272), rendered where it binds. It can
+                    never be enabled for anybody — `FUNC-STU-11-01-B-3`
+                    (L33300) allows it to no role, `AC-STU-098` (L33398) says
+                    "in any path", and there is no `act` because there is no
+                    act. What varies is DISABLED against ABSENT, and it is the
+                    matrix's `routedTo` that decides which: a Reviewer-stage
+                    persona sees the rule and the route beside it, and everyone
+                    else sees nothing to click at all.
+                  */}
+                  {control(
+                    'edit-content-while-reviewing',
+                    'Edit the content here',
+                    open,
+                    () => undefined,
+                    'edit-while-reviewing-control',
                   )}
                   {control(
                     'author-and-submit',
