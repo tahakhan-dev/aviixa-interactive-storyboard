@@ -42,20 +42,54 @@ import { join } from 'node:path'
  * list derived from a directory that happens to be EMPTY is the same
  * family of defect as the hand list, so every caller pins a floor.
  */
+function presentOrNull<T>(read: () => T): T | null {
+  try {
+    return read()
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException | null)?.code === 'ENOENT') return null
+    throw err
+  }
+}
+
 export function exportedRoutes(root = 'out'): string[] {
   if (!existsSync(root)) throw new Error(`No static export at ${root} — run \`pnpm build\` first.`)
   const routes: string[] = []
 
-  const walk = (dir: string, prefix: string): void => {
+  /**
+   * ENOENT ON AN ENTRY THIS WALK ITSELF LISTED IS TOLERATED, and that is not
+   * laziness — it is the same rule `scripts/build-stu-module-reach.mjs` and
+   * `tests/coverage/slice-2c-gates.test.ts` already state, for the same
+   * reason. This walks `out/` while a concurrent `pnpm build` is rewriting
+   * it and while sibling gate files plant and delete scratch probes there to
+   * prove they can fail; an entry that disappears between `readdirSync`
+   * listing it and `statSync` touching it is not a finding.
+   *
+   * IT CANNOT DETECT LESS. Only an ALREADY-DELETED path is skipped, and a
+   * deleted directory exports no `index.html` and serves no route. It in
+   * fact detects MORE: measured before this change, one vanished entry
+   * aborted the ENTIRE walk, so every route after it went unscanned — the
+   * axe run and the same-origin proof both silently covered nothing. The
+   * proof is in the task report.
+   *
+   * THE ROOT IS DELIBERATELY NOT COVERED. `readdirSync` on the root stays
+   * unguarded so a missing `out/` still fails loudly rather than scanning
+   * zero files and returning an empty list — the vacuous pass every caller's
+   * floor assertion exists to catch.
+   */
+  const walk = (dir: string, prefix: string, isRoot: boolean): void => {
+    const entries = isRoot ? readdirSync(dir) : presentOrNull(() => readdirSync(dir))
+    if (entries === null) return
     if (existsSync(join(dir, 'index.html'))) routes.push(prefix)
-    for (const entry of readdirSync(dir)) {
+    for (const entry of entries) {
       if (entry === '_next') continue
       const child = join(dir, entry)
-      if (statSync(child).isDirectory()) walk(child, `${prefix}${entry}/`)
+      const stat = presentOrNull(() => statSync(child))
+      if (stat === null) continue
+      if (stat.isDirectory()) walk(child, `${prefix}${entry}/`, false)
     }
   }
 
-  walk(root, '/')
+  walk(root, '/', true)
   return routes.sort()
 }
 

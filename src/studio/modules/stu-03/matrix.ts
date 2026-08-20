@@ -113,8 +113,31 @@ void _rowIdsExhaustive
 export interface StoryboardProhibitionRendering {
   /** The storyboard's own sentence, quoted. */
   readonly statement: string
-  /** What the reader is told is missing, in the storyboard's own terms. */
-  readonly missingCondition: string
+  /**
+   * The condition to name to a **Supervisor without the grant**, and to
+   * nobody else.
+   *
+   * IT IS PERSONA-SPECIFIC BECAUSE THE OBSTACLE IS. L31976 names the
+   * Supervisor by name — "so a Supervisor understands they need the grant" —
+   * and the Supervisor's two columns are one role split by a grant (L34584),
+   * so the grant really is what separates them. It is NOT what separates the
+   * other read-only personas from this capability, and saying so to them
+   * would name the wrong missing condition:
+   *
+   * - the **Plant Manager persona** is stated read-only and unable to edit by
+   *   §5.18, so offering it the authoring grant would offer a capacity the
+   *   source withholds. `MOD-STU-18` reached the same exclusion for the same
+   *   reason and this module does not disagree with it.
+   * - the **Tenant Admin** administers grants and may not self-assign one
+   *   (L34584), so "ask your Tenant Admin" is addressed to the person reading
+   *   it and is advice they cannot act on.
+   *
+   * Every other persona gets the evaluator's own stated reason instead, which
+   * is what `AC-STU-155` (L34672) asks for: the specific missing condition.
+   */
+  readonly grantCondition: string
+  /** Said to every persona the control is drawn for. The storyboard's point. */
+  readonly generalCondition: string
   readonly sourceRef: string
 }
 
@@ -232,9 +255,12 @@ export const STU_03_MATRIX = [
         'A New Workflow button sits top-right, visible to grant-holders and disabled with a ' +
         'stated reason for read-only roles rather than hidden, so a Supervisor understands they ' +
         'need the grant rather than assuming the feature is missing.',
-      missingCondition:
-        'Creating a Workflow requires the authoring grant, GRANT-STU-AUTHOR. Ask your Tenant ' +
-        'Admin. The feature exists and is not missing; this view does not hold it.',
+      // The wording follows `SB-STU-21`'s own worked example of a stated
+      // missing condition (L34631) — "Requires the authoring grant. Ask your
+      // Tenant Admin." — so a reader meets one sentence for one obstacle
+      // across both surfaces rather than two spellings of it.
+      grantCondition: 'Requires the authoring grant, GRANT-STU-AUTHOR. Ask your Tenant Admin.',
+      generalCondition: 'The feature exists and is not missing; this view does not hold it.',
       sourceRef: 'SB-STU-06 L31976',
     },
     sourceRefs: ['L31906', 'SB-STU-06 L31976', 'FUNC-STU-03-01-B-1 L31934'],

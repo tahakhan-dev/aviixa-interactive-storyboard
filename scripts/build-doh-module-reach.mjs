@@ -309,8 +309,38 @@ for (const [mutant, { ids, clause }] of Object.entries(MUTANT_PINS)) {
  */
 const IMPORT_STATEMENT = /^[ \t]*(?:import|export)\b[\s\S]*?\bfrom\s*['"]([^'"]+)['"]/gm
 
+/**
+ * ENOENT IS TOLERATED HERE, AND THAT IS NOT LAZINESS. Verbatim the rule
+ * `scripts/build-stu-module-reach.mjs` already states, applied to the sibling
+ * that never got it. This scan walks the whole `src/` tree, and other
+ * processes plant and delete scratch probes in it to prove their own gates
+ * can fail (`tests/coverage/slice-2c-gates.test.ts` is the pattern). A
+ * sibling's `finally` removing its probe between this walk listing it and
+ * this walk reading it makes a correct build fail on a path that no longer
+ * exists.
+ *
+ * IT DOES NOT DETECT LESS. A file that exists is read; only a file that has
+ * ALREADY BEEN DELETED is skipped, and a deleted file imports nothing at
+ * runtime. It in fact detects MORE than the unguarded form did: measured
+ * before this change, an ENOENT thrown by a vanished neighbour ABORTED the
+ * whole scan, so a real inverted import sitting beside it was never reported
+ * at all. The proof is in the task report — probe C went from "ENOENT masked
+ * the real finding" to "inverted import still DETECTED alongside a vanished
+ * entry".
+ */
+function readIfPresent(read, path) {
+  try {
+    return read(path)
+  } catch (err) {
+    if (err && err.code === 'ENOENT') return null
+    throw err
+  }
+}
+
 function srcFiles(dir, acc = []) {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+  const entries = readIfPresent((d) => readdirSync(d, { withFileTypes: true }), dir)
+  if (entries === null) return acc
+  for (const entry of entries) {
     const full = join(dir, entry.name)
     if (entry.isDirectory()) srcFiles(full, acc)
     else if (/\.tsx?$/.test(entry.name)) acc.push(full)
@@ -321,7 +351,8 @@ function srcFiles(dir, acc = []) {
 const APP_DIR = join(ROOT, 'app')
 const inverted = []
 for (const file of srcFiles(join(ROOT, 'src'))) {
-  const text = readFileSync(file, 'utf8')
+  const text = readIfPresent((f) => readFileSync(f, 'utf8'), file)
+  if (text === null) continue
   for (const match of text.matchAll(IMPORT_STATEMENT)) {
     const [statement, specifier] = match
     if (!specifier.startsWith('.')) continue
