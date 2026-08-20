@@ -14,6 +14,7 @@ import {
   TENANT_STATE_HISTORY,
   TIER_RECORDS,
   UNRESOLVED_IN_SOURCE,
+  UNSPECIFIED_IN_SOURCE,
   UPGRADE_TARGET_TIER,
   ladderPositionFor,
   rolesWithStatus,
@@ -300,5 +301,65 @@ describe('MOD-DOH-01 source files — determinism and the three-digit SCR-DOH li
     for (const { file, src } of moduleSources()) {
       expect(src, file).not.toMatch(/SCR-DOH-\d{3}/)
     }
+  })
+})
+
+/**
+ * THE FALSE ATTRIBUTION THIS ENTRY USED TO CARRY, AND THE DERIVATION THAT
+ * REPLACED IT.
+ *
+ * The Auditor entry in `UNRESOLVED_IN_SOURCE` read "The census states the
+ * Auditor sees the identical screen minus the two request buttons" and
+ * rendered that sentence to a client. No such statement exists: the word
+ * `census` occurs three times in the frozen source and every one names a
+ * `TEST-*` row (`Section census`, `Test census`, `Gate census`). There is no
+ * role, screen or permission census, and no "identical screen minus"
+ * sentence anywhere in it.
+ *
+ * The claim itself is sound; it is a DERIVATION, and it derives across three
+ * references, each verified at source:
+ *
+ *   L26885-L26887  the Auditor is `Read-only` on all three tier-and-usage
+ *                  view rows -- cells identical to the Tenant Admin's.
+ *   L26890-L26891  the Auditor is `Explicitly prohibited` on "Request a tier
+ *                  upgrade" and "Request a tier downgrade". These two rows
+ *                  are already this fixture's own `sourceRef`s on them.
+ *   L27029         SB-DOH-013: "No control on this screen changes a value;
+ *                  the only actions are the upgrade request and the
+ *                  downgrade request."
+ *
+ * Same three locators as `readingB` for `mod-doh-01-auditor-requests` in
+ * `tests/coverage/slice-04-gates.test.ts`. This case pins them onto the
+ * entry the screen actually prints: drop a locator, drop the classification,
+ * or re-attribute the sentence to a document, and this reds.
+ */
+describe('MOD-DOH-01 — the Auditor absence is a derivation, not a citation', () => {
+  const entry = UNRESOLVED_IN_SOURCE.find((i) => /rendered ABSENT rather than disabled/.test(i))
+
+  it('is present, and is the entry the screen renders', () => {
+    expect(entry).toBeDefined()
+  })
+
+  it('carries all three locators the derivation stands on', () => {
+    expect(entry).toContain('L26885-L26887')
+    expect(entry).toContain('L26890-L26891')
+    expect(entry).toContain('L27029')
+  })
+
+  it('classifies itself as a Derived Clarification rather than a stated fact', () => {
+    expect(entry).toContain('Derived Clarification')
+  })
+
+  it('attributes the "identical screen minus" sentence to no document at all', () => {
+    // The exact false attribution, and the shape of it: no entry in either
+    // panel may say a census STATES anything, because none does.
+    for (const item of [...UNSPECIFIED_IN_SOURCE, ...UNRESOLVED_IN_SOURCE]) {
+      expect(item, item.slice(0, 60)).not.toMatch(/census states/i)
+    }
+    expect(entry).not.toMatch(/The census states/)
+  })
+
+  it('keeps the competing reading the screen points at, and the pointer above still resolves', () => {
+    expect(entry).toContain('disabled with its reason')
   })
 })

@@ -1,4 +1,5 @@
 import type { TenantRoleId } from '../HubShell'
+import { BARE_PROHIBITION } from '@/surfaces/doh/modules'
 import type { ControlStatus, DohControlMatrixRow } from '@/surfaces/doh/modules'
 import {
   DOH_AREAS,
@@ -488,8 +489,6 @@ export type ControlMatrixRow = DohControlMatrixRow<ShiftControlId>
  * this build invented would read as the source's — so the cell says what the
  * source said and points at the panel that records the silence.
  */
-const BARE_PROHIBITION =
-  'Explicitly prohibited. The source states the bare token for this role and qualifies it for none of the four non-admin roles; the silence is recorded in UNSPECIFIED_IN_SOURCE rather than filled in here.'
 
 export const CONTROL_MATRIX = [
   {

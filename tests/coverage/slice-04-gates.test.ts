@@ -1,9 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync, writeFileSync, rmSync, mkdirSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { JSDOM } from 'jsdom'
 import { stripComments } from './strip-comments'
-import { DOH_MODULES, DOH_OUT_OF_SLICE_MODULES, type DohModuleId } from '@/surfaces/doh/modules'
+import { namesPersonBehaviouralMeasure } from './person-measure-keys'
+import {
+  DOH_MODULES,
+  DOH_OUT_OF_SLICE_MODULES,
+  type DohModuleId,
+  type MatrixRowSurface,
+} from '@/surfaces/doh/modules'
 import { WriteControl } from '@/ui/WriteControl'
 import { decide, deny, type PermissionDecision } from '@/policy/decision'
 
@@ -152,13 +159,23 @@ process.on('exit', () => {
 /* -------------------------------------------------------------------- *
  * The nine Hub routes, and their nine permission matrices normalised.
  *
- * THREE SHAPES, not one. `slug`, `{status: Record<Role, kebab>}`,
- * `{byRole: Record<Role, {status: TitleCase, detail}>}` and
+ * THREE SHAPES, not one. `{status: Record<Role, kebab>, detail: Record<Role,
+ * string>}`, `{byRole: Record<Role, {status: TitleCase, detail}>}` and
  * `{cells: Record<Role, {outcome: camelCase, cause}>}` all ship in this
- * slice, and four of the nine carry no per-cell reason at all. Normalising
- * once here is what lets gates 1 and 4 ask one question of all nine rather
- * than nine questions — and a tenth shape lands as an UNMAPPED status,
- * which gate 1 fails on rather than silently skipping.
+ * slice. Normalising once here is what lets gates 1 and 4 ask one question
+ * of all nine rather than nine questions — and a tenth shape lands as an
+ * UNMAPPED status, which gate 1 fails on rather than silently skipping.
+ *
+ * REVIEW CORRECTION. This comment used to claim "four of the nine carry no
+ * per-cell reason at all", and gate 1 repeated it as a recorded finding.
+ * The finding does not exist. All four of the matrices it meant — devices,
+ * location-configuration, shift-management, worker-lifecycle — are
+ * `DohControlMatrixRow`s, and that interface makes `detail` REQUIRED per
+ * cell and per role (`src/surfaces/doh/modules.ts`: "Per cell, per role,
+ * never blank"). `normaliseRow` reads it, so all nine carry a per-cell
+ * reason and the gate is strictly stronger than the sentence describing it.
+ * The `?? null` fallback below is kept for a shape that has none, not for
+ * one of today's nine.
  * -------------------------------------------------------------------- */
 
 const TENANT_ROLE_IDS = [
@@ -234,6 +251,22 @@ interface NormalisedCell {
 interface NormalisedRow {
   readonly id: string
   readonly label: string
+  /**
+   * WHERE THIS ROW'S CAPABILITY IS MET — `screen`, `chrome` or
+   * `another-surface`, carried straight off the fixture.
+   *
+   * REVIEW CORRECTION, and it is why gate 4 shrank. `normaliseRow` used to
+   * DROP this field. Gate 4's premise is that `rolesReaching` is derived
+   * from the literal `Unavailable` token and so cannot ask a meaning
+   * question — but the production derivation, `rolesReachingByMatrix`,
+   * filters `row.surface === 'screen'` FIRST and only then reads the token.
+   * The gate, computing over chrome and another-surface rows too, was
+   * asking a DIFFERENT and wider question than the code it audits, then
+   * whitelisting the difference it had manufactured. Two of its three
+   * pinned exceptions were its own artefacts: every row they named is
+   * `surface: 'chrome'`, as the exceptions' own `why` strings said.
+   */
+  readonly surface: MatrixRowSurface
   /** Row-level prose describing how the row renders. Never blank (L10238). */
   readonly rowReason: string
   readonly cells: readonly NormalisedCell[]
@@ -274,9 +307,17 @@ function normaliseRow(raw: RawRow): NormalisedRow {
     return { role, status, reason, rawStatus }
   })
 
+  // Not defaulted. A row shape that carries no `surface` is a shape this
+  // normaliser has not been taught, and gate 4 filters on this field --
+  // quietly calling an unknown row a screen row is how the gate ended up
+  // asking a wider question than the code it audits in the first place.
+  const surface = raw.surface as MatrixRowSurface | undefined
+  if (surface === undefined) throw new Error(`Matrix row ${String(raw.id)} carries no surface`)
+
   return {
     id: String(raw.id),
     label: String(raw.control ?? raw.label),
+    surface,
     rowReason: String(raw.rendering ?? raw.note ?? ''),
     cells,
   }
@@ -478,13 +519,32 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
    * `aria-describedby` to a visible reason element. A non-actionable
    * element with no such wiring is an unreasoned refusal.
    */
+  /**
+   * REVIEW CORRECTION. This used to pass the WHOLE `aria-describedby` value
+   * to `getElementById`. `aria-describedby` is an ID REFERENCE LIST -- a
+   * space-separated set of ids, concatenated by the accessibility tree into
+   * one description -- so `aria-describedby="reason-a reason-b"` was looked
+   * up as a single id named `"reason-a reason-b"`, found nothing, and the
+   * control was reported as unreasoned. It failed SAFE (a false positive,
+   * never a false negative) and no multi-token inert control exists in the
+   * build today, so it has never fired. Fixed anyway: the first one written
+   * would have turned a correctly-described control red, and a gate that
+   * cries wolf on correct code gets its rule weakened rather than its bug
+   * fixed.
+   *
+   * Every token must resolve, and the concatenation must say something. A
+   * token pointing at nothing contributes nothing to the description and is
+   * the same defect as the whole attribute pointing at nothing.
+   */
   function unreasonedInertControls(pages: readonly { slug: string; doc: Document }[]): string[] {
     const out: string[] = []
     for (const { slug, doc } of pages) {
       for (const el of doc.querySelectorAll('[aria-disabled="true"],[disabled]')) {
         const described = el.getAttribute('aria-describedby')
-        const target = described === null ? null : doc.getElementById(described)
-        if (target === null || (target.textContent ?? '').trim() === '') {
+        const tokens = (described ?? '').split(/\s+/).filter((t) => t !== '')
+        const targets = tokens.map((id) => doc.getElementById(id))
+        const description = targets.map((t) => t?.textContent ?? '').join(' ')
+        if (tokens.length === 0 || targets.includes(null) || description.trim() === '') {
           out.push(`${slug}: <${el.tagName.toLowerCase()}> "${(el.textContent ?? '').slice(0, 40)}"`)
         }
       }
@@ -515,6 +575,14 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
       'a reason that is blank',
       '<html><body><button aria-disabled="true" aria-describedby="r">Do it</button><span id="r"> </span></body></html>',
     ],
+    [
+      'a TOKEN LIST with one token pointing nowhere',
+      '<html><body><button aria-disabled="true" aria-describedby="r gone">Do it</button><span id="r">Because.</span></body></html>',
+    ],
+    [
+      'a token list where every token is blank',
+      '<html><body><button aria-disabled="true" aria-describedby="r s">Do it</button><span id="r"> </span><span id="s"></span></body></html>',
+    ],
   ])('PLANTED VIOLATION: an inert control with %s trips the gate', (_what, html) => {
     withPlanted(OUT_HUB, 'index.html', html, () => {
       const { document: doc } = new JSDOM(
@@ -523,6 +591,24 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
       expect(unreasonedInertControls([{ slug: OWN_PROBE_DIR, doc }])).not.toEqual([])
     })
     expect(unreasonedInertControls(builtHubPages())).toEqual([])
+  })
+
+  it('and a MULTI-TOKEN aria-describedby whose tokens all resolve does NOT trip it', () => {
+    // The other direction, and the one the old whole-attribute lookup got
+    // wrong: two ids, both resolving, is a correctly described control.
+    withPlanted(
+      OUT_HUB,
+      'index.html',
+      '<html><body><button aria-disabled="true" aria-describedby="why-role why-state">Do it</button>' +
+        '<span id="why-role">Your role does not hold this.</span>' +
+        '<span id="why-state">The workspace is suspended.</span></body></html>',
+      () => {
+        const { document: doc } = new JSDOM(
+          readFileSync(join(OUT_HUB, OWN_PROBE_DIR, 'index.html'), 'utf8'),
+        ).window
+        expect(unreasonedInertControls([{ slug: OWN_PROBE_DIR, doc }])).toEqual([])
+      },
+    )
   })
 
   it('no matrix cell carries a status outside the closed set', () => {
@@ -570,6 +656,7 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
     const blanked: NormalisedRow = {
       id: 'probe-row',
       label: 'Probe',
+      surface: 'screen',
       rowReason: '',
       cells: TENANT_ROLE_IDS.map((role) => ({
         role,
@@ -858,7 +945,25 @@ describe('slice 4 gate 3: per-module constraints are enumerated from the DIRECTO
    * So this gate re-applies the constraint FROM THE DIRECTORY. The proof
    * below is the whole point — a probe file planted inside a real module
    * directory, which that module's own hardcoded list does not name and
-   * therefore cannot see, and which this gate catches. */
+   * therefore cannot see, and which this gate catches.
+   *
+   * REVIEW CORRECTION — THE GATE NAMED THREE CONSTRAINTS AND RE-APPLIED
+   * ONE. The paragraph above names the `SCR` gate, the determinism gate and
+   * the per-worker behavioural-measure gate, and the first version of this
+   * gate re-applied only the `SCR` one. The other two stayed enforced per
+   * module, four of the nine module suites still hand-named the files they
+   * scanned, and this gate's own hand-named-path assertion only checks that
+   * a hand-named path still EXISTS — it cannot see that the LIST exists. So
+   * a new file in Location Configuration, Shift Management, Integration
+   * Surface or Qualification Calendar escaped both remaining constraints
+   * with the suite green: the slice's signature defect, a fix reaching some
+   * call sites and not all, inside the gate written to catch it.
+   *
+   * All three are re-applied from the directory now, and the four
+   * hand-naming suites were converted to directory walks in the same pass
+   * (`doh-locations`, `doh-shifts`, `doh-sso` had `MY_FILES`;
+   * `doh-calendar` had two `readFileSync` path constants, which its sibling
+   * module's comment correctly calls one level worse). */
 
   // D1/R6. Catalogue A (`SCR-DOH-001`…`026`) and catalogue B
   // (`SCR-DOH-01`…`23`) use the SAME identifiers for DIFFERENT screens —
@@ -872,6 +977,55 @@ describe('slice 4 gate 3: per-module constraints are enumerated from the DIRECTO
       .map(({ file }) => file)
   }
 
+  /** Every `app/hub/...` path each suite names by hand, keyed by suite file. */
+  function handNamedHubPaths(): Map<string, string[]> {
+    const byFile = new Map<string, string[]>()
+    for (const dir of ['tests/unit', 'tests/component']) {
+      for (const f of entriesOf(dir)) {
+        const full = join(dir, f)
+        if (statSync(full).isDirectory()) continue
+        const paths = [
+          ...new Set(
+            [...readFileSync(full, 'utf8').matchAll(/app\/hub\/[A-Za-z0-9./-]+\.tsx?/g)].map((m) => m[0]!),
+          ),
+        ]
+        if (paths.length > 0) byFile.set(full, paths)
+      }
+    }
+    return byFile
+  }
+
+  /**
+   * A suite that names THREE OR MORE files from one module directory is
+   * ENUMERATING that module rather than pointing at one file by role.
+   *
+   * REVIEW FINDING, and the half gate 3 could not see. The stale-path check
+   * below asks whether each hand-named path still EXISTS; it cannot ask
+   * whether the LIST exists, so four suites kept hand lists under it and
+   * stayed green — `doh-locations`, `doh-shifts` and `doh-sso` through a
+   * three-path `MY_FILES`, `doh-calendar` through two `readFileSync` path
+   * constants. Three is the exact size all three `MY_FILES` had, and it is
+   * the line between an enumeration and a pointer: naming a module's
+   * fixtures and its screen because a claim is about ONE of the two
+   * specifically is legitimate and stays (`doh-workers`, `doh-calendar`).
+   */
+  const ENUMERATION_THRESHOLD = 3
+
+  function moduleEnumerations(byFile: ReadonlyMap<string, readonly string[]>): string[] {
+    const out: string[] = []
+    for (const [file, paths] of byFile) {
+      const byModule = new Map<string, number>()
+      for (const p of paths) {
+        const dir = p.slice(0, p.lastIndexOf('/'))
+        byModule.set(dir, (byModule.get(dir) ?? 0) + 1)
+      }
+      for (const [dir, n] of byModule) {
+        if (n >= ENUMERATION_THRESHOLD) out.push(`${file} hand-enumerates ${n} files of ${dir}`)
+      }
+    }
+    return out
+  }
+
   it('walks every Hub source file, and the walk is wider than any hand list', () => {
     const walked = hubSources().map((s) => s.file)
     expect(walked.length, 'the directory walk found nothing').toBeGreaterThan(25)
@@ -879,31 +1033,63 @@ describe('slice 4 gate 3: per-module constraints are enumerated from the DIRECTO
     // Every path a per-module suite names by hand must still exist. A
     // renamed file leaves a stale entry in a hardcoded list and the list
     // has no way to notice; this does.
-    const handNamed = new Set<string>()
-    for (const dir of ['tests/unit', 'tests/component']) {
-      for (const f of readdirSync(dir)) {
-        for (const m of readFileSync(join(dir, f), 'utf8').matchAll(/app\/hub\/[A-Za-z0-9./-]+\.tsx?/g)) {
-          handNamed.add(m[0]!)
-        }
-      }
-    }
+    const byFile = handNamedHubPaths()
+    const handNamed = new Set([...byFile.values()].flat())
     expect(handNamed.size, 'no hand-named Hub paths found — the check below is vacuous').toBeGreaterThan(10)
     const stale = [...handNamed].filter((p) => !existsSync(p))
     expect(stale, 'per-module suites naming Hub files that no longer exist').toEqual([])
+  })
+
+  it('no suite hand-enumerates a module’s files — the list itself, not just its paths', () => {
+    expect(moduleEnumerations(handNamedHubPaths())).toEqual([])
+  })
+
+  it('PLANTED VIOLATION: a suite that hand-lists three files of one module trips it', () => {
+    // The predicate, over a synthesised suite. Planting a real file under
+    // `tests/unit/` would be planting inside another Vitest project's
+    // include glob, so this feeds the same function the same shape instead.
+    const planted = new Map<string, string[]>([
+      [
+        'tests/unit/doh-probe.test.ts',
+        [
+          'app/hub/shift-management/fixtures.ts',
+          'app/hub/shift-management/ShiftManagementScreen.tsx',
+          'app/hub/shift-management/page.tsx',
+        ],
+      ],
+    ])
+    expect(moduleEnumerations(planted).join(' ')).toContain('hand-enumerates 3 files')
+  })
+
+  it('and a suite naming ONE file of each of three modules does NOT trip it', () => {
+    // The complement. Pointing at a specific file because a claim is about
+    // that file is not an enumeration, however many modules are pointed at.
+    const pointers = new Map<string, string[]>([
+      [
+        'tests/unit/doh-probe.test.ts',
+        [
+          'app/hub/shift-management/fixtures.ts',
+          'app/hub/location-configuration/fixtures.ts',
+          'app/hub/qualification-calendar/fixtures.ts',
+        ],
+      ],
+    ])
+    expect(moduleEnumerations(pointers)).toEqual([])
   })
 
   it('no three-digit SCR-DOH-NNN literal anywhere under app/hub/', () => {
     expect(threeDigitOffenders()).toEqual([])
   })
 
-  it('PLANTED VIOLATION: a file the module’s own hardcoded list cannot see trips this gate', () => {
-    // Planted INSIDE `worker-lifecycle-and-qualifications/`, the exact
-    // module whose `MY_FILES` names three paths. That list does not name
-    // this file; the directory walk does.
+  it('PLANTED VIOLATION: a file no per-module suite names trips this gate', () => {
+    // Planted INSIDE `worker-lifecycle-and-qualifications/`, the module
+    // whose hardcoded `MY_FILES` started this audit. All nine suites walk
+    // their directories now, so "the module's own list cannot see it" is
+    // history rather than the live hazard — what this still proves is that
+    // the slice-wide walk reaches INSIDE a module directory, which is the
+    // property the whole gate rests on.
     const moduleDir = join(HUB_ROOT, 'worker-lifecycle-and-qualifications')
-    const myFiles = readFileSync(join('tests', 'unit', 'doh-workers.test.ts'), 'utf8')
     withPlanted(moduleDir, 'Probe.tsx', 'export const P = () => <p>SCR-DOH-008</p>\n', (probe) => {
-      expect(myFiles, 'the module’s hardcoded list now names the probe').not.toContain('Probe.tsx')
       expect(threeDigitOffenders()).toContain(probe)
     })
     expect(threeDigitOffenders()).toEqual([])
@@ -913,6 +1099,192 @@ describe('slice 4 gate 3: per-module constraints are enumerated from the DIRECTO
     withPlanted(HUB_ROOT, 'Probe.tsx', 'export const P = () => <p>SCR-DOH-08</p>\n', () => {
       expect(threeDigitOffenders()).toEqual([])
     })
+  })
+
+  /* ---------------- constraint 2 of 3 — determinism ---------------- */
+
+  /**
+   * ONE REGEX OVER THE SOURCES THIS GATE ALREADY WALKS AND ALREADY
+   * COMMENT-STRIPS. The nine module suites each carry their own copy of
+   * this, five over a directory walk and four over a hand list; this is the
+   * copy that cannot fall behind the directory. Comment-stripping is why it
+   * can be this blunt — `doh-tenant-lifecycle.test.ts` documents a source
+   * file that NAMES `Date.now()` in order to deny it, and a raw scan would
+   * fail on correct code.
+   */
+  const NONDETERMINISM = /Date\.now|new Date\(|Math\.random/
+
+  function nondeterministicSources(): string[] {
+    return hubSources()
+      .filter(({ src }) => NONDETERMINISM.test(src))
+      .map(({ file }) => file)
+  }
+
+  it('no clock read and no randomness anywhere under app/hub/', () => {
+    expect(nondeterministicSources()).toEqual([])
+  })
+
+  it('PLANTED VIOLATION: a clock read in a file the module’s hand list cannot see trips it', () => {
+    // Planted inside `location-configuration/`, one of the four modules
+    // whose suite hand-named its files when this was written. That list
+    // could not see this file; the directory can.
+    const moduleDir = join(HUB_ROOT, 'location-configuration')
+    withPlanted(moduleDir, 'ClockProbe.ts', 'export const t = Date.now()\n', (probe) => {
+      expect(nondeterministicSources()).toContain(probe)
+    })
+    expect(nondeterministicSources()).toEqual([])
+  })
+
+  it('and a comment NAMING Date.now in order to deny it does NOT trip it', () => {
+    withPlanted(HUB_ROOT, 'DenialProbe.ts', '// Nothing here reads Date.now() or Math.random().\nexport const t = 1\n', () => {
+      expect(nondeterministicSources()).toEqual([])
+    })
+  })
+
+  /* ------- constraint 3 of 3 — no behavioural measure on a person ------- */
+
+  /**
+   * KEY-SHAPED, NOT TEXT-SHAPED, so this one cannot be a regex over the
+   * sources: the question is asked of an OBJECT KEY, and the answer lives
+   * in `tests/coverage/person-measure-keys.ts`. It needs the modules'
+   * exported values, so the walk imports them — every `.ts` data module
+   * under `app/hub/`, discovered from the directory, none of them named
+   * here. A tenth module, or a second data file inside an existing one, is
+   * scanned the moment it exists.
+   *
+   * TWO CEILINGS, NAMED RATHER THAN LEFT IMPLICIT.
+   *
+   * 1. THE PERSON HALF IS NOT MECHANISABLE SLICE-WIDE. The matcher answers
+   *    "does this key name a behavioural measure?"; whether the RECORD is
+   *    about a person is the half a human supplies, and each module suite
+   *    supplies it by choosing which registers to scan. So this gate asks
+   *    the WIDER question — no key anywhere in the slice's data names a
+   *    behavioural measure at all — which strictly subsumes the per-module
+   *    one and needs no judgement. The cost is stated in `MEASURE_KEY_PINS`
+   *    below: a legitimate NON-person measure would be refused here too and
+   *    would have to be pinned with a reason. The per-module suites remain
+   *    the authority on the person half and are not replaced by this.
+   *
+   * 2. `.ts` DATA MODULES ONLY. A record literal declared inside a screen
+   *    `.tsx` is out of reach — importing nine React component modules into
+   *    a node-environment gate buys nothing this does not already get from
+   *    `fixtures.ts`, which is where every screen reads its records from.
+   *    The `.tsx` files are still covered by constraints 1 and 2 above,
+   *    which are text-shaped and walk every extension.
+   */
+  const dataModules = (): string[] => walk(HUB_ROOT).filter((f) => f.endsWith('.ts'))
+
+  /**
+   * Keys the matcher refuses that are NOT measures, each with the reason.
+   * Both directions are asserted: an unpinned offender fails, and a pin
+   * that has stopped being real fails too.
+   */
+  const MEASURE_KEY_PINS: Readonly<Record<string, string>> = {
+    whatItMeansHere:
+      'A MATCHER FALSE POSITIVE, not a measure. `words()` cuts this to `what it means here`, and `means` stems from the MAGNITUDE root `mean` plus the closed suffix `s`. The matcher\'s own doc comment records the same hole one word over — `ing` is excluded from the suffix list precisely so `meaning` does not stem from `mean` — and `s` cannot be excluded without losing `counts`, `totals` and `scores`. The five keys carrying this name are prose on `SUSPENSION_STATUS`, describing what a suspension state means on this screen. Nothing is counted.',
+  }
+
+  /** Every object key in every exported value of `files`, with where it sits. */
+  async function fixtureKeys(files: readonly string[]): Promise<{ key: string; where: string }[]> {
+    const found: { key: string; where: string }[] = []
+    const seen = new Set<unknown>()
+    const scan = (value: unknown, path: string, depth: number): void => {
+      // Depth-capped and cycle-guarded: fixtures are plain data, but a gate
+      // that can hang on one is a gate people stop running.
+      if (depth > 8 || value === null || typeof value !== 'object' || seen.has(value)) return
+      seen.add(value)
+      if (Array.isArray(value)) {
+        value.forEach((v, i) => scan(v, `${path}[${i}]`, depth + 1))
+        return
+      }
+      for (const [key, v] of Object.entries(value as Record<string, unknown>)) {
+        found.push({ key, where: `${path}.${key}` })
+        scan(v, `${path}.${key}`, depth + 1)
+      }
+    }
+    for (const file of files) {
+      const mod = (await import(pathToFileURL(resolve(file)).href)) as Record<string, unknown>
+      for (const [name, value] of Object.entries(mod)) {
+        if (typeof value === 'function') continue
+        scan(value, `${file}#${name}`, 0)
+      }
+    }
+    return found
+  }
+
+  async function measureKeyOffenders(files: readonly string[]): Promise<string[]> {
+    return (await fixtureKeys(files))
+      .filter(({ key }) => namesPersonBehaviouralMeasure(key) && MEASURE_KEY_PINS[key] === undefined)
+      .map(({ where }) => where)
+  }
+
+  it('walks every data module in the slice, and reaches real keys', async () => {
+    const files = dataModules()
+    // Vacuity guards, both of them. An empty file list scans nothing; a
+    // file list that imports to nothing scans nothing either, and both pass.
+    expect(files.length, 'no data modules found under app/hub/').toBeGreaterThan(8)
+    expect(files, 'the walk missed a module fixtures file').toContain(
+      join(HUB_ROOT, 'shift-management', 'fixtures.ts'),
+    )
+    // The matcher is live on this run, not asleep: proved on keys the slice
+    // does not contain, through the same function the scan calls.
+    expect(namesPersonBehaviouralMeasure('runsPerWorker')).toBe(true)
+    expect(namesPersonBehaviouralMeasure('productivityScore')).toBe(true)
+    expect(namesPersonBehaviouralMeasure('roleName')).toBe(false)
+  })
+
+  it('no exported key in any Hub data module names a behavioural measure', async () => {
+    expect(await measureKeyOffenders(dataModules())).toEqual([])
+  })
+
+  it('every pinned key is still present, and still not a measure', async () => {
+    // The other direction. A pin that has stopped being real is a standing
+    // licence for a key nothing checks any more.
+    const pinned = Object.keys(MEASURE_KEY_PINS)
+    expect(pinned.length).toBeGreaterThan(0)
+    const found = new Set((await fixtureKeys(dataModules())).map(({ key }) => key))
+    expect(found.size, 'the key walk found nothing to check the pins against').toBeGreaterThan(100)
+    for (const key of pinned) {
+      expect(MEASURE_KEY_PINS[key]!.trim(), `${key} has no recorded reason`).not.toBe('')
+      expect(found.has(key), `${key} is pinned but no longer appears in any fixture`).toBe(true)
+      expect(namesPersonBehaviouralMeasure(key), `${key} is pinned but the matcher now passes it`).toBe(true)
+    }
+  })
+
+  it('PLANTED VIOLATION: a measure key in a data file no module suite names trips it', async () => {
+    // Planted inside `shift-management/`, another of the four modules that
+    // hand-named its files. Its own suite scanned three constants and could
+    // not have seen this; the directory walk imports it.
+    const moduleDir = join(HUB_ROOT, 'shift-management')
+    const contents = "export const ROSTER = [{ workerId: 'W-1', runsPerHour: 4 }]\n"
+    let caught: string[] = []
+    const dir = join(moduleDir, OWN_PROBE_DIR)
+    const probe = join(dir, 'MeasureProbe.ts')
+    try {
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(probe, contents)
+      caught = await measureKeyOffenders(dataModules())
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+    expect(caught.join(' '), 'the planted measure key was not caught').toContain('runsPerHour')
+    expect(await measureKeyOffenders(dataModules())).toEqual([])
+  })
+
+  it('and a lifecycle key that merely CONTAINS a measure word does NOT trip it', async () => {
+    // `accountState` contains `count`; the matcher splits words first, so it
+    // walks past. Planted through the same reader as the case above.
+    const dir = join(HUB_ROOT, OWN_PROBE_DIR)
+    const probe = join(dir, 'AccountProbe.ts')
+    let caught: string[] = []
+    try {
+      mkdirSync(dir, { recursive: true })
+      writeFileSync(probe, "export const R = [{ accountState: 'active', roleName: 'Supervisor' }]\n")
+      caught = await measureKeyOffenders(dataModules())
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+    expect(caught).toEqual([])
   })
 })
 
@@ -925,20 +1297,41 @@ describe('slice 4 gate 4: Unavailable keyed on meaning, never on the literal str
    * L15085, L20184, L65024), which renders DISABLED WITH A REASON. A gate
    * matching the token will misfire.
    *
-   * `DOH_MODULES.rolesReaching` is derived from the TOKEN — its own doc
-   * comment says so: "a role is withheld exactly when that module's own
-   * permission matrix marks any cell in its column `Unavailable`". This
-   * gate asks the MEANING question instead: does the module withhold every
-   * capability of the module from that role?
+   * REVIEW CORRECTION — THIS GATE RECORDED A FALSE FINDING AGAINST
+   * PRODUCTION CODE, AND IT IS WITHDRAWN. The premise used to be that
+   * `DOH_MODULES.rolesReaching` "is derived from the TOKEN" and so cannot
+   * ask a meaning question. It is not. `rolesReachingByMatrix` opens with
+   * `rows.filter((row) => row.surface === 'screen')` and only then reads
+   * the token — the production code asks a meaning question FIRST, and the
+   * `MatrixRowSurface` classification exists for exactly this reason.
    *
-   * On three of eight modules the two answers differ, and each difference
-   * is pinned below with the rows that cause it. Every one is currently
-   * harmless — D11 or chrome ownership rescues the outcome — and every one
-   * is a token-derivation defect. Reported, not fixed: this gate measures
-   * the build. */
+   * What was left was a gate that DROPPED `surface` in `normaliseRow`,
+   * computed a role's holdings over chrome and another-surface rows the
+   * production derivation never reads, and then pinned the disagreement it
+   * had manufactured as three findings. Two of the three were pure
+   * artefacts and are gone: every row they named is `surface: 'chrome'`,
+   * which their own `why` strings stated.
+   *
+   * WHAT THE GATE STILL ASKS, over the same rows the code reads: does the
+   * module withhold every capability OF THIS MODULE'S OWN SCREEN from that
+   * role? On one of eight modules the answers still differ, and that
+   * difference is pinned below with the rows that cause it. It is harmless
+   * — D11 withholds the surface first — and it is a genuine token
+   * over-reach. Reported, not fixed: this gate measures the build. */
+
+  /**
+   * THE ROWS THE PRODUCTION DERIVATION ACTUALLY READS. `rolesReachingByMatrix`
+   * opens with `rows.filter((row) => row.surface === 'screen')`, so this
+   * does too. An audit that computes over a wider row set than the code it
+   * audits is not measuring that code.
+   */
+  const screenRows = (m: HubModuleUnderGate): readonly NormalisedRow[] =>
+    m.rows.filter((r) => r.surface === 'screen')
 
   const HOLDERS = (m: HubModuleUnderGate): TenantRoleId[] =>
-    TENANT_ROLE_IDS.filter((role) => m.rows.some((r) => r.cells.some((c) => c.role === role && HOLDS.has(c.status))))
+    TENANT_ROLE_IDS.filter((role) =>
+      screenRows(m).some((r) => r.cells.some((c) => c.role === role && HOLDS.has(c.status))),
+    )
 
   /**
    * The three (module, role) pairs where the token rule and the meaning
@@ -955,25 +1348,76 @@ describe('slice 4 gate 4: Unavailable keyed on meaning, never on the literal str
   }
 
   const DERIVATION_EXCEPTIONS: readonly DerivationException[] = [
-    {
-      moduleId: 'MOD-DOH-01',
-      roles: ['SUPERVISOR', 'QUALITY_MANAGER', 'WORKER'],
-      rows: ['see-compliance-message'],
-      why: 'The compliance-suspension message is `Allowed` for all five roles because sign-in is blocked for everyone and everyone must be told why (L26886-L26888). It is the Hub CHROME’s suspension slot, reached through the banner region regardless of the rail — not this module’s screen.',
-    },
-    {
-      moduleId: 'MOD-DOH-13',
-      roles: ['SUPERVISOR', 'QUALITY_MANAGER'],
-      rows: ['see-the-support-session-banner', 'end-a-support-session-from-the-banner', 'see-a-platform-announcement'],
-      why: 'The rows where the Supervisor and Quality Manager are `Allowed` are the Hub CHROME’s banner slot (L29194, L29196), not this module’s screen — stated in `DOH_MODULES`’ own comment on this module.',
-    },
+    /* WAS THREE, IS ONE. The `MOD-DOH-01` and `MOD-DOH-13` entries were
+     * ARTEFACTS OF THIS GATE, not findings against the build, and both
+     * evaporated the moment `HOLDERS` started filtering to `screen` rows
+     * the way `rolesReachingByMatrix` always has. Their own `why` strings
+     * said as much: `see-compliance-message` is `surface: 'chrome'`, and so
+     * are all three of `see-the-support-session-banner`,
+     * `end-a-support-session-from-the-banner` and
+     * `see-a-platform-announcement`. The gate dropped `surface`, computed a
+     * disagreement over rows the production code never reads, then
+     * whitelisted the disagreement it had manufactured -- a recorded
+     * finding against production code that was not true of it. The one
+     * below is the genuine case. */
     {
       moduleId: 'MOD-DOH-04',
       roles: ['WORKER'],
       rows: ['view-worker', 'view-own-certification-alerts'],
-      why: 'THE CLEANEST INSTANCE OF THE MISFIRE. One `Unavailable` cell — reading the clearance corpus — withholds the WHOLE module from the Worker, while the Worker holds two capabilities in this matrix. Both are met on the device, not in the Hub, and D11 withholds the surface first, so the outcome is right by a different rule than the one that produced it.',
+      why: 'THE ONE REAL INSTANCE, and it survives the `screen` filter: all fifteen `MOD-DOH-04` rows are `surface: \'screen\'`, so no row classification rescues it. One `Unavailable` cell — reading the clearance corpus — withholds the WHOLE module from the Worker, while the Worker holds two capabilities on this module\'s own screen. Both are met on the device, not in the Hub, and D11 withholds the surface first, so the outcome is right by a different rule than the one that produced it.',
     },
   ]
+
+  it('records at least one real disagreement, and every exception is well formed', () => {
+    // Non-vacuity. `DERIVATION_EXCEPTIONS` went from three entries to one
+    // when the `screen` filter landed; an empty list would make the
+    // "still real" assertion below iterate nothing and pass forever, which
+    // is the shape this file exists to refuse.
+    expect(DERIVATION_EXCEPTIONS.length).toBeGreaterThan(0)
+    for (const e of DERIVATION_EXCEPTIONS) {
+      expect(e.roles.length, `${e.moduleId} excepts no role`).toBeGreaterThan(0)
+      expect(e.rows.length, `${e.moduleId} names no row`).toBeGreaterThan(0)
+    }
+  })
+
+  it('the pinned exception survives the screen filter — none of its rows is chrome', () => {
+    // The withdrawal, asserted rather than asserted-about. Two exceptions
+    // were dropped because every row they named was `surface: 'chrome'`;
+    // this is what stops a THIRD artefact being pinned the same way.
+    for (const e of DERIVATION_EXCEPTIONS) {
+      const m = HUB_MODULES_UNDER_GATE.find((x) => x.moduleId === e.moduleId)!
+      for (const rowId of e.rows) {
+        const row = m.rows.find((r) => r.id === rowId)!
+        expect(row.surface, `${e.moduleId}/${rowId} is a ${row.surface} row, not this screen’s own`).toBe('screen')
+      }
+    }
+  })
+
+  it('the two withdrawn exceptions really were chrome, on the live fixtures', () => {
+    // Named rows, checked at source, so "they were artefacts" is a fact in
+    // the suite rather than a claim in a comment. If a fixture reclassifies
+    // one of these to `screen`, the disagreement becomes real again and the
+    // first assertion in this gate goes red — which is the correct outcome.
+    const withdrawn: readonly { moduleId: DohModuleId; rows: readonly string[] }[] = [
+      { moduleId: 'MOD-DOH-01', rows: ['see-compliance-message'] },
+      {
+        moduleId: 'MOD-DOH-13',
+        rows: [
+          'see-the-support-session-banner',
+          'end-a-support-session-from-the-banner',
+          'see-a-platform-announcement',
+        ],
+      },
+    ]
+    for (const w of withdrawn) {
+      const m = HUB_MODULES_UNDER_GATE.find((x) => x.moduleId === w.moduleId)!
+      for (const rowId of w.rows) {
+        const row = m.rows.find((r) => r.id === rowId)
+        expect(row, `${w.moduleId}/${rowId} no longer exists`).toBeDefined()
+        expect(row!.surface, `${w.moduleId}/${rowId}`).toBe('chrome')
+      }
+    }
+  })
 
   it('every module’s rail offer matches the MEANING of Unavailable, or is a pinned exception', () => {
     const unexplained: string[] = []
@@ -1004,7 +1448,7 @@ describe('slice 4 gate 4: Unavailable keyed on meaning, never on the literal str
       const reaching: readonly string[] = definition.rolesReaching
       for (const role of e.roles) {
         expect(reaching.includes(role), `${e.moduleId}: ${role} is now offered the route`).toBe(false)
-        const holdingRows = m.rows
+        const holdingRows = screenRows(m)
           .filter((r) => r.cells.some((c) => c.role === role && HOLDS.has(c.status)))
           .map((r) => r.id)
         expect(holdingRows.length, `${e.moduleId}/${role} no longer holds anything`).toBeGreaterThan(0)
@@ -1014,6 +1458,38 @@ describe('slice 4 gate 4: Unavailable keyed on meaning, never on the literal str
       }
       expect(e.why.trim(), `${e.moduleId} has no recorded reason`).not.toBe('')
     }
+  })
+
+  it('PLANTED: a chrome-only holding does NOT read as reach, and the same row as `screen` does', () => {
+    // The correction, proved able to fail in both directions rather than
+    // stated. `HOLDERS` is run over a synthesised module: one row a role
+    // holds, one row it does not, and the only thing that changes between
+    // the two halves is `surface`. Before the filter landed, both halves
+    // returned the same answer -- which is exactly how two chrome rows
+    // became two pinned findings against production code.
+    const row = (id: string, surface: MatrixRowSurface, holder: TenantRoleId): NormalisedRow => ({
+      id,
+      label: id,
+      surface,
+      rowReason: 'probe',
+      cells: TENANT_ROLE_IDS.map((role) => ({
+        role,
+        status: (role === holder ? 'Allowed' : 'Unavailable') as CellStatus,
+        reason: 'probe',
+        rawStatus: 'probe',
+      })),
+    })
+    const probe = (surface: MatrixRowSurface): HubModuleUnderGate => ({
+      slug: 'probe',
+      moduleId: null,
+      rows: [row('own-screen-row', 'screen', 'TENANT_ADMIN'), row('banner-row', surface, 'WORKER')],
+    })
+
+    expect(HOLDERS(probe('chrome')), 'a chrome row was counted as module reach').toEqual(['TENANT_ADMIN'])
+    expect(HOLDERS(probe('another-surface'))).toEqual(['TENANT_ADMIN'])
+    // And the filter is not simply dropping everything: reclassify the very
+    // same row to `screen` and the Worker holds the module.
+    expect(HOLDERS(probe('screen'))).toEqual(['TENANT_ADMIN', 'WORKER'])
   })
 
   it('PLANTED VIOLATION: a token-derived withholding with no pinned reason trips the gate', () => {
@@ -1040,8 +1516,9 @@ describe('slice 4 gate 4: Unavailable keyed on meaning, never on the literal str
       const reaching: readonly string[] = DOH_MODULES.find((d) => d.id === m.moduleId)!.rolesReaching
       for (const role of TENANT_ROLE_IDS) {
         if (reaching.includes(role)) continue
-        const held = m.rows.filter((r) => r.cells.some((c) => c.role === role && HOLDS.has(c.status))).length
-        if (held === m.rows.length) absurd.push(`${m.moduleId}/${role}`)
+        const rows = screenRows(m)
+        const held = rows.filter((r) => r.cells.some((c) => c.role === role && HOLDS.has(c.status))).length
+        if (held === rows.length) absurd.push(`${m.moduleId}/${role}`)
       }
     }
     expect(absurd).toEqual([])
@@ -1203,10 +1680,35 @@ describe('slice 4 gate 6: no live ungated write control on any route', () => {
    * decision — and a future caller that forgets it gets a live control
    * back. So the gate is on the CALLERS, not on the component.
    *
-   * Ceiling, stated rather than hidden: this is per FILE, not per call
-   * site. A file that gates one banner render and not a second would pass.
-   * The second assertion below narrows that by pinning the End-session
-   * control to ONE construction site. */
+   * THREE CEILINGS, stated rather than hidden. Two of them were found by
+   * review and were not written down; none is exploited by the build today,
+   * and the first assertion below pins an EXACT two-file set, so a third
+   * renderer evading any of them would have to also leave that set
+   * undisturbed.
+   *
+   * 1. PER FILE, NOT PER CALL SITE. A file that gates one banner render and
+   *    not a second would pass. Narrowed by the second assertion below,
+   *    which pins the End-session control to ONE construction site.
+   *
+   * 2. `BANNER_RENDER` MATCHES `[^>]*` BETWEEN THE TAG NAME AND `banners=`,
+   *    so it cannot see a render whose earlier props contain a `>` --
+   *    an inline arrow function is the ordinary way that happens:
+   *    `<BannerRegion onX={() => f()} banners={...} />`. Such a render is
+   *    invisible to this gate, which means it is neither required to
+   *    compute the refusal NOR able to disturb the pinned file set. A
+   *    balanced-JSX matcher is the fix if one is ever written; today every
+   *    call site puts `banners` first and takes no function prop.
+   *
+   * 3. THE SCAN ROOT IS `app/hub` ONLY. `hubSources()` walks the route
+   *    tree, so `src/ui/doh/HubChrome.tsx` -- which renders its own
+   *    `<BannerRegion>` -- is outside it and is not checked. That is
+   *    deliberate rather than an oversight to leave unsaid: `src/ui/**`
+   *    holds no policy and cannot compute a decision, so requiring
+   *    `endSessionRefusalFor` there would be requiring the wrong thing.
+   *    The consequence is that a component under `src/ui/**` growing a
+   *    second, ungated banner render is this gate's blind spot; what stands
+   *    in its place is that `HubChrome` takes the refusal as a PROP from
+   *    its caller, and every caller is inside the walked tree. */
 
   const BANNER_RENDER = /<(BannerRegion|HubChrome)\b[^>]*\bbanners=/s
 

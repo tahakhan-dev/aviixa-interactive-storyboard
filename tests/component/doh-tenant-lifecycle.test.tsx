@@ -21,6 +21,7 @@ import {
 } from '../../app/hub/tenant-lifecycle-and-tier-operations/fixtures'
 import { SUSPENSION_BANNERS } from '../../app/hub/banner-fixtures'
 import { TENANT_STATES, writeAllowed } from '@/surfaces/doh/tenant-state'
+import { TENANT_STATE_LABEL } from '@/ui/doh/tenant-state-vocabulary'
 import { dohModuleById } from '@/surfaces/doh/modules'
 import { screenState } from '@/ui/screen-state'
 
@@ -163,11 +164,40 @@ describe('MOD-DOH-01 — SCR-DOH-03, the five regions in fixed order', () => {
     expect((locations.textContent ?? '')).toMatch(/Cell, Job and worker/i)
   })
 
-  it('names the suspension status of the tenant state it is showing', () => {
+  /**
+   * Region 5's pill rendered `label={tenantState}` -- the raw token -- while
+   * the shell one screen up rendered `label={TENANT_STATE_LABEL[tenantState]}`
+   * from the same state. The same pill therefore read `compliance-suspended`
+   * here and "Suspended -- compliance" there, AFTER the hoist that exists to
+   * end exactly that. This is the covering case: it walks all five states and
+   * asserts the pill prints the hoisted label and never the token, so putting
+   * `label={tenantState}` back reds it.
+   */
+  it('names the suspension status in the hoisted vocabulary, never the raw token', () => {
     render(<TenantLifecycleScreen />)
-    expect((region(READ_VIEW_REGIONS[4]).textContent ?? '')).toMatch(/active/i)
-    setTenantState('hard-suspended')
-    expect((region(READ_VIEW_REGIONS[4]).textContent ?? '')).toMatch(/hard-suspended/i)
+    for (const state of TENANT_STATES) {
+      setTenantState(state)
+      const region5 = region(READ_VIEW_REGIONS[4]).textContent ?? ''
+      expect(region5, state).toContain(TENANT_STATE_LABEL[state])
+      // The pill's own text, isolated and exact: the prose beneath it
+      // legitimately names states, so the claim is pinned where the pill is
+      // rather than across the whole region. Restore `label={tenantState}`
+      // and `getByText` finds nothing at all.
+      const pill = within(region(READ_VIEW_REGIONS[4])).getByText(
+        TENANT_STATE_LABEL[state],
+      )
+      expect(pill.textContent, state).toBe(TENANT_STATE_LABEL[state])
+    }
+  })
+
+  it('prints the same words for a state as the shell one screen up', () => {
+    render(<TenantLifecycleScreen />)
+    for (const state of TENANT_STATES) {
+      setTenantState(state)
+      // Two pills, one vocabulary: the shell's and region 5's. Before the fix
+      // these disagreed for every state.
+      expect(screen.getAllByText(TENANT_STATE_LABEL[state]).length, state).toBeGreaterThan(1)
+    }
   })
 })
 

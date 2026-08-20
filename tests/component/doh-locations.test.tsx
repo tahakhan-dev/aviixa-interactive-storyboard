@@ -788,3 +788,76 @@ describe('MOD-DOH-02 — the empty state, the screen states and the Worker', () 
     expect(document.body.textContent ?? '').toMatch(/certification expiry/i)
   })
 })
+
+/* ------------------------------------------------------------------ *
+ * WHAT THE CLIENT ACTUALLY READS. Two claims this screen prints that had
+ * no covering case at all: the citation under each control name, and the
+ * disclosure beside the reassignment picker.
+ * ------------------------------------------------------------------ */
+
+describe('MOD-DOH-02 — the citation under each control name reaches the page', () => {
+  /**
+   * `row.sourceRef` is the only half of the row this screen prints -- the
+   * per-cell `detail` never reaches the DOM here -- so a wrong line number in
+   * the fixture is a wrong line number on the client's screen with nothing
+   * beside it to contradict. `tests/unit/doh-locations.test.ts` pins the
+   * numbers to the frozen table; this pins them to the page. Stop rendering
+   * `row.sourceRef` and this reds.
+   */
+  it('prints every row’s source reference in the control cell', () => {
+    render(<LocationConfigurationScreen />)
+    const matrix = region('Control matrix')
+    for (const row of CONTROL_MATRIX) {
+      const tableRow = within(matrix).getByRole('row', { name: new RegExp(row.control) })
+      expect(tableRow.textContent ?? '', row.id).toContain(row.sourceRef)
+    }
+  })
+
+  it('prints the corrected line for the two rows the off-by-one was reported on', () => {
+    render(<LocationConfigurationScreen />)
+    const matrix = region('Control matrix')
+    // CTL-06 read L27121 ("Split, merge or re-parent an Area"); its own row is
+    // L27122. CTL-11 read L27126 ("View a map of locations"); its own row is
+    // L27127. Named literally, so the arithmetic in the unit gate cannot drift
+    // as a block and stay green.
+    const archive = within(matrix).getByRole('row', { name: /Archive a Site or an Area/ })
+    expect(archive.textContent ?? '').toContain('L27122')
+    expect(archive.textContent ?? '').not.toContain('L27121')
+    const equipment = within(matrix).getByRole('row', { name: /Create an equipment record/ })
+    expect(equipment.textContent ?? '').toContain('L27127')
+    expect(equipment.textContent ?? '').not.toContain('L27126')
+  })
+})
+
+describe('MOD-DOH-02 — the reassignment picker discloses its own scope', () => {
+  /**
+   * `reassignTargets` is ONE role-scoped list shared by every cascade, so a
+   * cascade offers Areas that were never under its own archived node. That was
+   * deferred as "deliberate and pre-existing, documented in a code comment" --
+   * and a declaration in a file is not a disclosure on a screen. This is the
+   * sentence, and this is the case that fails when it is deleted.
+   */
+  it('says on the page that the options are scoped to the role and not to the node', () => {
+    render(<LocationConfigurationScreen />)
+    const cascade = region('Archival cascade').textContent ?? ''
+    expect(cascade).toMatch(/scoped to your role and not to this node/i)
+    expect(cascade).toMatch(/were never under the node being archived/i)
+  })
+
+  it('is true of the picker: it offers an Area from outside the archived node’s own subtree', () => {
+    render(<LocationConfigurationScreen />)
+    const held = ARCHIVAL_CASCADES.find((c) => c.state === 'cascade_pending_reassignment')
+    expect(held).toBeDefined()
+    if (!held) return
+    const picker = screen.getByLabelText(/reassign the paused job to/i) as HTMLSelectElement
+    const offered = [...picker.options].map((o) => o.value).filter((v) => v !== '')
+    // An Area under a DIFFERENT Site than the cascade's node is on offer,
+    // which is precisely what the sentence above discloses. If a later change
+    // scopes the options per node, this case reds and the sentence must go
+    // with it -- the two cannot drift apart silently.
+    const nodeSiteId = AREAS.find((a) => a.id === held.nodeId)?.siteId ?? held.nodeId
+    const unrelated = AREAS.filter((a) => a.siteId !== nodeSiteId).map((a) => a.id)
+    expect(unrelated.length).toBeGreaterThan(0)
+    expect(offered.some((id) => unrelated.includes(id))).toBe(true)
+  })
+})

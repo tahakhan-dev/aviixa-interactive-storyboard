@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
-import { TENANT_STATE_TONE } from '@/ui/doh/tenant-state-vocabulary'
+import { TENANT_STATE_LABEL, TENANT_STATE_TONE } from '@/ui/doh/tenant-state-vocabulary'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import {
@@ -586,7 +586,7 @@ export function TenantLifecycleScreen() {
         <section aria-label={READ_VIEW_REGIONS[4]} className="mt-5">
           <h3 className="font-medium">5. {READ_VIEW_REGIONS[4]}</h3>
           <p className="mt-1 text-sm">
-            <StatusPill tone={TENANT_STATE_TONE[tenantState]} icon="●" label={tenantState} />
+            <StatusPill tone={TENANT_STATE_TONE[tenantState]} icon="●" label={TENANT_STATE_LABEL[tenantState]} />
             {pilot ? (
               <>
                 {' '}

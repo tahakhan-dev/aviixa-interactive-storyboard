@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import {
   ABSENT_BY_RULE,
   ACTING_STATUSES,
@@ -436,20 +436,48 @@ describe('support-not-surveillance', () => {
  * read off this module's own source files.
  * ------------------------------------------------------------------ */
 
-const MY_FILES = [
-  'app/hub/integration-surface/page.tsx',
-  'app/hub/integration-surface/IntegrationSurfaceScreen.tsx',
-  'app/hub/integration-surface/fixtures.ts',
-] as const
+/**
+ * THE MODULE'S OWN SOURCE FILES, ENUMERATED FROM THE DIRECTORY rather than
+ * named by hand. `MY_FILES` was a hardcoded three-path list, and this
+ * module's determinism gate, its three-digit `SCR-DOH` gate and its
+ * route-ownership gate lived only inside it — so a fourth file this module
+ * grew would have escaped all three while the suite stayed green. That is
+ * the defect slice 4 gate 3 exists to catch, and gate 3 could not see it:
+ * its assertion checks that a hand-named path still EXISTS, which says
+ * nothing about the list existing at all.
+ *
+ * The route-ownership gate is the one that matters most here, because it is
+ * the one with a BUILD consequence: `scripts/build-registries.mjs`
+ * attributes a route directory to the module id mentioned most often inside
+ * it and throws on a tie. A new file in this directory shifts that count,
+ * and the hand list could not see the file that shifted it.
+ */
+const MODULE_DIR = 'app/hub/integration-surface'
+
+function moduleSources(): { file: string; src: string }[] {
+  return readdirSync(MODULE_DIR)
+    .filter((f) => /\.tsx?$/.test(f))
+    .map((f) => `${MODULE_DIR}/${f}`)
+    // Comment-stripped, with the house tool rather than a fourth copy of it:
+    // this file's own header names all three forbidden calls in order to
+    // forbid them, and a gate that a denial trips is a gate people learn to
+    // reword around.
+    .map((file) => ({ file, src: stripComments(readFileSync(file, 'utf8')) }))
+}
 
 describe('MOD-DOH-12 source files — determinism, D1 and route ownership', () => {
-  // Comment-stripped, with the house tool rather than a fourth copy of it:
-  // this file's own header names all three in order to forbid them, and a
-  // gate that a denial trips is a gate people learn to reword around.
+  it('walks the module directory, so a fourth file cannot escape the three gates below', () => {
+    // Non-vacuity. All three gates iterate this walk, and an empty walk
+    // passes all three — the hand list's defect wearing a directory.
+    const files = moduleSources().map((s) => s.file)
+    expect(files.length).toBeGreaterThan(2)
+    expect(files).toContain(`${MODULE_DIR}/fixtures.ts`)
+    expect(files).toContain(`${MODULE_DIR}/IntegrationSurfaceScreen.tsx`)
+  })
+
   it('reads no clock and no randomness anywhere in this module', () => {
-    for (const file of MY_FILES) {
-      const code = stripComments(readFileSync(file, 'utf8'))
-      expect(code, file).not.toMatch(/Date\.now|new Date\(|Math\.random/)
+    for (const { file, src } of moduleSources()) {
+      expect(src, file).not.toMatch(/Date\.now|new Date\(|Math\.random/)
     }
   })
 
@@ -460,8 +488,8 @@ describe('MOD-DOH-12 source files — determinism, D1 and route ownership', () =
   })
 
   it('D1: writes no three-digit SCR-DOH literal here, and annotates the two-digit one', () => {
-    for (const file of MY_FILES) {
-      expect(readFileSync(file, 'utf8'), file).not.toMatch(/SCR-DOH-\d{3}/)
+    for (const { file, src } of moduleSources()) {
+      expect(src, file).not.toMatch(/SCR-DOH-\d{3}/)
     }
     expect(
       readFileSync('app/hub/integration-surface/IntegrationSurfaceScreen.tsx', 'utf8'),
@@ -472,7 +500,7 @@ describe('MOD-DOH-12 source files — determinism, D1 and route ownership', () =
     // `scripts/build-registries.mjs` attributes a route directory to the
     // module id it mentions most often inside it, and THROWS on a tie —
     // failing the build for every module, not only this one.
-    const text = MY_FILES.map((f) => readFileSync(f, 'utf8')).join('\n')
+    const text = moduleSources().map((s) => s.src).join('\n')
     const own = (text.match(/MOD-DOH-12/g) ?? []).length
     expect(own).toBeGreaterThan(0)
     for (const other of ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '13', '14']) {

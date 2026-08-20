@@ -1,4 +1,5 @@
 import type { TenantRoleId } from '../HubShell'
+import { BARE_PROHIBITION } from '@/surfaces/doh/modules'
 import type { ControlStatus, DohControlMatrixRow } from '@/surfaces/doh/modules'
 import type { CommandState, ScreenStateDetail } from '@/ui/ScreenStateBoundary'
 import type { ScreenStateId } from '@/ui/screen-state'
@@ -1168,8 +1169,6 @@ export type ControlMatrixRow = DohControlMatrixRow<WorkerControlId>
  * would read as the source’s, so those cells carry the token and point at
  * the panel that records the silence.
  */
-const BARE_PROHIBITION =
-  'Explicitly prohibited. The source states the bare token for this role on this row and qualifies it nowhere; the silence is recorded in UNSPECIFIED_IN_SOURCE rather than filled in here.'
 
 export const CONTROL_MATRIX = [
   {

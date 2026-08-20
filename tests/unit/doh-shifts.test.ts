@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { stripComments } from '../coverage/strip-comments'
 import { namesPersonBehaviouralMeasure } from '../coverage/person-measure-keys'
 import {
   ABSENT_BY_RULE,
@@ -62,11 +63,31 @@ const AREAS: readonly LocationArea[] = DOH_AREAS
  */
 const MATRIX: readonly ControlMatrixRow[] = CONTROL_MATRIX
 
-const MY_FILES = [
-  'app/hub/shift-management/fixtures.ts',
-  'app/hub/shift-management/ShiftManagementScreen.tsx',
-  'app/hub/shift-management/page.tsx',
-]
+/**
+ * THE MODULE'S OWN SOURCE FILES, ENUMERATED FROM THE DIRECTORY rather than
+ * named by hand. `MY_FILES` was a hardcoded three-path list, and this module's
+ * determinism gate and its three-digit `SCR-DOH` gate lived only inside it —
+ * so a fourth file this module grew would have escaped both while the suite
+ * stayed green. That is the defect slice 4 gate 3 exists to catch, and gate
+ * 3 could not see it: its assertion checks that a hand-named path still
+ * EXISTS, which says nothing about the list existing at all.
+ *
+ * A directory walk means a fourth file is covered the moment it exists.
+ * Gate 3 now re-applies BOTH constraints slice-wide from the directory as
+ * well, so this suite is the module-level half of a rule that no longer
+ * depends on any one suite remembering it.
+ */
+const MODULE_DIR = 'app/hub/shift-management'
+
+function moduleSources(): { file: string; src: string }[] {
+  return readdirSync(MODULE_DIR)
+    .filter((f) => /\.tsx?$/.test(f))
+    .map((f) => `${MODULE_DIR}/${f}`)
+    // Stripped, not raw: a source file that NAMES `Date.now()` in order to
+    // deny it is correct code, and a gate over raw text fails on it — the
+    // exact hazard `stripComments` exists for.
+    .map((file) => ({ file, src: stripComments(readFileSync(file, 'utf8')) }))
+}
 
 /* ------------------------------------------------------------------ *
  * TIMEZONE INHERITANCE. The property this module exists to hold, and
@@ -621,15 +642,24 @@ describe('the required panels carry real content, not placeholders', () => {
  * ------------------------------------------------------------------ */
 
 describe('MOD-DOH-03 source files — determinism and D1', () => {
+  it('walks the module directory, so a fourth file cannot escape the gates below', () => {
+    // Non-vacuity. Every gate below iterates this walk, and an empty walk
+    // passes them all — the hand list's defect wearing a directory.
+    const files = moduleSources().map((s) => s.file)
+    expect(files.length).toBeGreaterThan(2)
+    expect(files).toContain(`${MODULE_DIR}/fixtures.ts`)
+    expect(files).toContain(`${MODULE_DIR}/ShiftManagementScreen.tsx`)
+  })
+
   it('reads no clock and no randomness anywhere in this module', () => {
-    for (const file of MY_FILES) {
-      expect(readFileSync(file, 'utf8'), file).not.toMatch(/Date\.now|new Date\(|Math\.random/)
+    for (const { file, src } of moduleSources()) {
+      expect(src, file).not.toMatch(/Date\.now|new Date\(|Math\.random/)
     }
   })
 
   it('D1: writes no three-digit SCR-DOH literal anywhere in this module, and annotates the two-digit one', () => {
-    for (const file of MY_FILES) {
-      expect(readFileSync(file, 'utf8'), file).not.toMatch(/SCR-DOH-\d{3}/)
+    for (const { file, src } of moduleSources()) {
+      expect(src, file).not.toMatch(/SCR-DOH-\d{3}/)
     }
     expect(readFileSync('app/hub/shift-management/ShiftManagementScreen.tsx', 'utf8')).toMatch(
       /SCR-DOH-05/,
@@ -637,7 +667,7 @@ describe('MOD-DOH-03 source files — determinism and D1', () => {
   })
 
   it('names its own module id more often than any module it cross-references, so the route walk is unambiguous', () => {
-    const text = MY_FILES.map((f) => readFileSync(f, 'utf8')).join('\n')
+    const text = moduleSources().map((s) => s.src).join('\n')
     const own = (text.match(/MOD-DOH-03/g) ?? []).length
     expect(own).toBeGreaterThan(0)
     for (const other of ['01', '02', '04', '05', '06', '07', '09', '10', '11', '12', '13', '14']) {

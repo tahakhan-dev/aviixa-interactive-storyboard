@@ -127,7 +127,7 @@ const NEVER_APPLIES: readonly { readonly id: ScreenStateId; readonly why: string
   },
   {
     id: 'STATE-10',
-    why: 'No agent creates, edits, archives or proposes a location (L27204), so there is no degraded agent output to render.',
+    why: 'No agent creates, edits, archives or proposes a location (L27203), so there is no degraded agent output to render.',
   },
   {
     id: 'STATE-11',
@@ -242,7 +242,7 @@ export function LocationConfigurationScreen() {
   /* -------------------------------------------------------------- *
    * Scope, in ONE place. The tree, the filter, the search and the
    * export all read these three lists, so an out-of-scope node cannot
-   * leak into one of them by being filtered in only three (L27214).
+   * leak into one of them by being filtered in only three (L27215).
    *
    * `visibleSiteIds`/`visibleAreaIds` answer from the SEEDED snapshot —
    * correct for a Site- or Area-scoped persona, who is scoped to named
@@ -361,7 +361,7 @@ export function LocationConfigurationScreen() {
     )
   }
 
-  const viewDecision = decide('view-location-tree', ALL_HUB_ROLES, ['L27117', 'L27214'])
+  const viewDecision = decide('view-location-tree', ALL_HUB_ROLES, ['L27117', 'L27215'])
   const createDecision = decide('create-location-node', TENANT_ADMIN_ONLY, ['L27118'], {
     requiresOnline: true,
   })
@@ -371,16 +371,16 @@ export function LocationConfigurationScreen() {
   const reparentDecision = decide('reparent-location', TENANT_ADMIN_ONLY, ['L27149', 'L27185'], {
     requiresOnline: true,
   })
-  const archiveDecision = decide('archive-location-node', TENANT_ADMIN_ONLY, ['L27121'], {
+  const archiveDecision = decide('archive-location-node', TENANT_ADMIN_ONLY, ['L27122'], {
     requiresOnline: true,
   })
-  const timezoneDecision = decide('set-site-timezone', TENANT_ADMIN_ONLY, ['L27123', 'L2612'], {
+  const timezoneDecision = decide('set-site-timezone', TENANT_ADMIN_ONLY, ['L27124', 'L2612'], {
     requiresOnline: true,
   })
   const certificationDecision = decide(
     'set-required-certification',
     TENANT_ADMIN_ONLY,
-    ['L27124', 'L27214'],
+    ['L27125', 'L27215'],
     { requiresOnline: true },
   )
 
@@ -477,6 +477,12 @@ export function LocationConfigurationScreen() {
    * Folding them into one made the reassignment target list depend on whichever
    * Location happened to be selected in the tree — which for an Area-scoped
    * Supervisor emptied it and made their one granted control unusable.
+   *
+   * `reassignTargets` is ONE role-scoped list shared by every cascade, so a
+   * cascade offers Areas unrelated to its own archived node. Deliberate — the
+   * source states no rule narrowing a target to the archived subtree — and
+   * DISCLOSED ON THE SCREEN beside the picker, not only here: a declaration in
+   * a file is not a disclosure to a reader.
    */
   const reassignTargets = scopedAreas.filter(
     (a) => a.state === 'active' && !a.flags.includes('archiving'),
@@ -806,7 +812,7 @@ export function LocationConfigurationScreen() {
         <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
           The filter and the search narrow the same scoped set the columns hold. An out-of-scope
           node is absent from the tree, the filter, the search and the export alike — scope narrows
-          a role and never widens it (L27214).
+          a role and never widens it (L27215).
         </p>
 
         {query !== '' ? (
@@ -1067,7 +1073,7 @@ export function LocationConfigurationScreen() {
               <p className="text-sm font-medium">Edit the Site name, address and contact</p>
               <p className="max-w-prose text-xs text-[var(--color-ink-subtle)]">
                 Editable at any time and fully audited. Jobs in flight do not hold this control —
-                only re-parenting is held by them (L27119).
+                only re-parenting is held by them (L27119, L27120).
               </p>
               <div className="mt-2 max-w-md space-y-3">
                 <Field
@@ -1368,7 +1374,7 @@ export function LocationConfigurationScreen() {
                           const reassign = decide(
                             'reassign-paused-job',
                             ADMIN_AND_SUPERVISOR,
-                            ['L27122'],
+                            ['L27123'],
                             { requiresOnline: true, requiredAreas: [job.areaId] },
                           )
                           return (
@@ -1416,6 +1422,13 @@ export function LocationConfigurationScreen() {
                             ...reassignTargets.map((a) => ({ value: a.id, label: a.name })),
                           ]}
                         />
+                        <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+                          This list is scoped to your role and not to this node: it offers every
+                          active Area you can see, including Areas that were never under the node
+                          being archived, because the source states no rule narrowing a
+                          reassignment target to the archived node&apos;s own subtree. Read the Area
+                          name before you choose.
+                        </p>
                       </div>
                     </>
                   ) : (

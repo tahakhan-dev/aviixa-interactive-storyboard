@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { stripComments } from '../coverage/strip-comments'
 import { namesPersonBehaviouralMeasure } from '../coverage/person-measure-keys'
 import {
   ABSENT_BY_RULE,
@@ -47,11 +48,38 @@ import { DOH_SEAMS, dohSeamById } from '@/surfaces/doh/seams'
 import { rolesInDomain } from '@/domain/roles'
 import type { TenantRoleId } from '../../app/hub/HubShell'
 
-const FIXTURES_SRC = readFileSync('app/hub/qualification-calendar/fixtures.ts', 'utf8')
-const SCREEN_SRC = readFileSync(
-  'app/hub/qualification-calendar/QualificationCalendarScreen.tsx',
-  'utf8',
-)
+/**
+ * THE MODULE'S OWN SOURCE FILES, ENUMERATED FROM THE DIRECTORY.
+ *
+ * This suite used to scan through TWO `readFileSync` CONSTANTS and nothing
+ * else — which `doh-permissions.test.ts` correctly calls one level worse
+ * than a hardcoded `MY_FILES`: a hand-picked set of constants is a hand list
+ * that does not even look like one. `page.tsx` was never scanned by any of
+ * the three gates below, and a fourth file this module grew would not have
+ * been either, with the suite green throughout. That is the defect slice 4
+ * gate 3 exists to catch, and gate 3 could not see it — its assertion checks
+ * that a hand-named path still EXISTS, which says nothing about whether a
+ * list exists at all.
+ *
+ * `FIXTURES_SRC` and `SCREEN_SRC` STAY, and only where the claim is about a
+ * SPECIFIC one of the two by role — that the compile-time denial lives in
+ * the fixtures and not in the screen, that the screen renders the seam
+ * notice. `moduleSources()` is for every gate whose claim is about the
+ * module as a whole, so a fourth file is covered the moment it exists.
+ */
+const MODULE_DIR = 'app/hub/qualification-calendar'
+
+function moduleSources(): { file: string; src: string }[] {
+  return readdirSync(MODULE_DIR)
+    .filter((f) => /\.tsx?$/.test(f))
+    .map((f) => `${MODULE_DIR}/${f}`)
+    // Stripped, not raw: a file that NAMES a forbidden call in order to deny
+    // it is correct code, and a gate over raw text fails on it.
+    .map((file) => ({ file, src: stripComments(readFileSync(file, 'utf8')) }))
+}
+
+const FIXTURES_SRC = readFileSync(`${MODULE_DIR}/fixtures.ts`, 'utf8')
+const SCREEN_SRC = readFileSync(`${MODULE_DIR}/QualificationCalendarScreen.tsx`, 'utf8')
 
 /**
  * Day arithmetic exists HERE and nowhere in the module. A test may read a
@@ -294,11 +322,12 @@ describe('MOD-DOH-14 — the cell key is (week, Area) and can never be (worker)'
     expect(namesPersonBehaviouralMeasure('recertificationRate')).toBe(true)
   })
 
-  it('neither source file cuts by worker or names a per-worker measure', () => {
-    for (const [name, src] of [
-      ['fixtures', FIXTURES_SRC],
-      ['screen', SCREEN_SRC],
-    ] as const) {
+  it('no source file in this module cuts by worker or names a per-worker measure', () => {
+    // Walked, not the two named constants: `page.tsx` was outside this scan
+    // entirely, and so was any file this module might grow.
+    const sources = moduleSources()
+    expect(sources.length, 'the module walk found nothing').toBeGreaterThan(2)
+    for (const { file: name, src } of sources) {
       // The DENIAL is exempt, and the exemption is one named construct rather
       // than a widened pattern: `ForbiddenMeasureField` exists precisely to
       // spell these names out so the compiler can refuse them, and a gate that
@@ -383,11 +412,10 @@ describe('MOD-DOH-14 — the six-row matrix, verified at source L29343-L29350', 
     // Non-vacuous: the derivation reads the STATUS, not the row's existence.
     expect(rolesWithStatus('open-the-calendar', ['allowed'])).toEqual(['QUALITY_MANAGER'])
     expect(rolesWithStatus('open-the-calendar', ['unavailable'])).toEqual(['WORKER'])
-    // And no role list is written into either source file by hand.
-    for (const [name, src] of [
-      ['fixtures', FIXTURES_SRC],
-      ['screen', SCREEN_SRC],
-    ] as const) {
+    // And no role list is written into any source file in this module by hand.
+    const sources = moduleSources()
+    expect(sources.length).toBeGreaterThan(2)
+    for (const { file: name, src } of sources) {
       expect(src, name).not.toMatch(/allowedRoles:\s*\[/)
     }
   })
@@ -489,10 +517,12 @@ describe('MOD-DOH-14 — the panels the contract requires, and the module owning
   })
 
   it('reads no clock anywhere in the module', () => {
-    for (const [name, src] of [
-      ['fixtures', FIXTURES_SRC],
-      ['screen', SCREEN_SRC],
-    ] as const) {
+    const sources = moduleSources()
+    // Non-vacuity: an empty walk passes this gate silently, which is the
+    // hand-picked constants' defect wearing a directory.
+    expect(sources.length, 'the module walk found nothing').toBeGreaterThan(2)
+    expect(sources.map((s) => s.file)).toContain(`${MODULE_DIR}/page.tsx`)
+    for (const { file: name, src } of sources) {
       expect(src, name).not.toMatch(/Date\.now\(|new Date\(|Math\.random\(/)
     }
   })

@@ -184,6 +184,23 @@ export interface DohControlMatrixRow<Id extends string = string> {
   readonly sourceRef: string
 }
 
+/**
+ * THE ONE WORDING for a cell where the frozen source states the bare token and
+ * qualifies it nowhere. `detail` may not be blank (L10238) and a cause this
+ * build invented would read back as the source's, so the cell says exactly what
+ * the source said and points at the module's own silence panel.
+ *
+ * Held here, beside the `detail` field whose rule it satisfies, because it was
+ * hand-written three times across three module fixtures in three near-identical
+ * wordings — the same drift the row shape above was hoisted to end, and one no
+ * single-module review could see. The wording is deliberately role-neutral: two
+ * of the three copies said "none of the four non-admin roles", which is false
+ * in `worker-lifecycle-and-qualifications`, where the Tenant Admin's own cell
+ * carries this token on three rows.
+ */
+export const BARE_PROHIBITION =
+  'Explicitly prohibited. The source states the bare token for this role on this row and qualifies it nowhere; the silence is recorded in UNSPECIFIED_IN_SOURCE rather than filled in here.'
+
 /** A role holds a capability when the cell lets it read or act. */
 const HOLDING_STATUSES = [
   'allowed',

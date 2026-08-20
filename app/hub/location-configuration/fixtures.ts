@@ -1,4 +1,5 @@
 import type { TenantRoleId } from '../HubShell'
+import { BARE_PROHIBITION } from '@/surfaces/doh/modules'
 import type { ControlStatus, DohControlMatrixRow } from '@/surfaces/doh/modules'
 import type { DohScope } from '@/surfaces/doh/scope'
 
@@ -210,7 +211,7 @@ export interface LocationArea {
   readonly flags: readonly LocationNodeFlag[]
   /**
    * A gate input, protected as configuration rather than free text
-   * (L27214): it is always one of `SEEDED_CERTIFICATION_TYPES` or null.
+   * (L27215): it is always one of `SEEDED_CERTIFICATION_TYPES` or null.
    */
   readonly requiredCertificationId: string | null
   readonly inUseBy: readonly string[]
@@ -441,7 +442,7 @@ export function certificationName(id: string | null): string {
 /* ------------------------------------------------------------------ *
  * Scope. ONE definition, consumed by the tree, the filters, the search
  * and the export alike — an Area-scoped Supervisor cannot see an
- * out-of-scope node in ANY of them (L27214).
+ * out-of-scope node in ANY of them (L27215).
  * ------------------------------------------------------------------ */
 
 export interface SeededRoleScope {
@@ -567,13 +568,11 @@ export type ControlMatrixRow = DohControlMatrixRow
 /**
  * WHERE THE SOURCE STATES A TOKEN AND NOTHING ELSE. The frozen table at
  * L27117-L27127 qualifies the Tenant Admin column on eight of its eleven
- * rows, and the Supervisor on two; the remaining non-admin cells carry the
- * bare word. A blank cell is forbidden (L10238) and a cause this build wrote
- * would read as the source’s, so those cells carry the token and a pointer
- * to the panel that records the silence.
+ * rows, and the Supervisor on two; the remaining cells carry the bare word.
+ * The wording is `BARE_PROHIBITION`, held once in `@/surfaces/doh/modules`
+ * beside the `detail` field whose L10238 rule it satisfies — it was written
+ * out by hand here and in two sibling fixtures, in three wordings.
  */
-const BARE_PROHIBITION =
-  'Explicitly prohibited. The source states the bare token for this role and qualifies it for none of the four non-admin roles on this row; the silence is recorded in UNSPECIFIED_IN_SOURCE rather than filled in here.'
 
 export const CONTROL_MATRIX = [
   {
@@ -602,7 +601,7 @@ export const CONTROL_MATRIX = [
     rendering:
       'The tree renders for four roles and is scope-filtered for two of them. Out-of-scope nodes are absent from the tree, the filters, the search and the export alike. The Auditor reads it under STATE-06 with the cause named. The Worker reaches no Hub screen at all.',
     effect: 'A read. It grants nothing and narrows what the other ten rows can act on.',
-    sourceRef: 'L27117, L27214',
+    sourceRef: 'L27117, L27215',
   },
   {
     id: 'CTL-02',
@@ -700,7 +699,7 @@ export const CONTROL_MATRIX = [
     rendering:
       'ABSENT for every role including the Tenant Admin. Not supported at V1, and a disabled control would promise a V2 the source has not promised.',
     effect: 'Archive-and-recreate is the sanctioned path, and it is the one this screen offers.',
-    sourceRef: 'L27120',
+    sourceRef: 'L27121',
   },
   {
     id: 'CTL-06',
@@ -725,7 +724,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin behind a confirmation that lists every affected child node and every affected Job first. ABSENT for the other four.',
     effect:
       'A soft archive. History stays readable and the archival is held until the cascade completes.',
-    sourceRef: 'L27121, L112908',
+    sourceRef: 'L27122, L112908',
   },
   {
     id: 'CTL-07',
@@ -750,7 +749,7 @@ export const CONTROL_MATRIX = [
     rendering:
       'Live for the Tenant Admin tenant-wide and for the Supervisor inside their own Area. ABSENT for the other three.',
     effect: 'Releases the held archival once the last paused Job has been reassigned.',
-    sourceRef: 'L27122',
+    sourceRef: 'L27123',
   },
   {
     id: 'CTL-08',
@@ -775,7 +774,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin, one value per Site. The per-Area and per-Shift override is ABSENT for everyone, because it does not exist.',
     effect:
       'Everything under the Site inherits it: production dating, shift boundaries and reporting drill-down all resolve against this one value.',
-    sourceRef: 'L27123, AC-SCOPE-034 L2612',
+    sourceRef: 'L27124, AC-SCOPE-034 L2612',
   },
   {
     id: 'CTL-09',
@@ -800,7 +799,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin as a choice from the seeded list, never as free text. ABSENT for the other four.',
     effect:
       'A gate input: what is set here is enforced at assignment and at run start, in another slice. It is protected as configuration for that reason.',
-    sourceRef: 'L27124, L27214',
+    sourceRef: 'L27125, L27215',
   },
   {
     id: 'CTL-10',
@@ -827,7 +826,7 @@ export const CONTROL_MATRIX = [
     },
     rendering: 'ABSENT for every role, with the reason in help text. Nothing exists to enable.',
     effect: 'Deferred beyond V1. No geocoding, no coordinates and no map component ships.',
-    sourceRef: 'L27125',
+    sourceRef: 'L27126',
   },
   {
     id: 'CTL-11',
@@ -851,7 +850,7 @@ export const CONTROL_MATRIX = [
     rendering:
       'ABSENT for every role, and refused on all three routes a reader might try: from a location, from parts and from a Job.',
     effect: 'No equipment object exists in this product at V1.',
-    sourceRef: 'L27126, TEST-DOH-02-D4 L27246',
+    sourceRef: 'L27127, TEST-DOH-02-D4 L27246',
   },
 ] as const satisfies readonly ControlMatrixRow[]
 
