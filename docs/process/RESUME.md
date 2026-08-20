@@ -102,6 +102,32 @@ re-review each round; commit.
 - Verify with all four: `pnpm typecheck`, `pnpm test:unit`, `pnpm test:component`,
   `pnpm test:release`. `pnpm verify` chains them plus lint and build.
 
+## 6a. Path-list discipline — a procedure, because the habit has failed three times
+
+Before dispatching, write down every live agent's path list and diff the new one against
+**all of them**, not against the other dispatch in the same message. This has been recorded
+as a lesson twice and violated three times:
+
+1. `tests/unit/doh-sso.test.ts` given to a batched sweep and an infrastructure fix at once.
+2. `app/hub/HubShell.tsx` given to a task-10 fix round and the component lift at once — so a
+   commit describing only the gate also carried the lift, and the attribution is wrong in
+   the permanent record.
+3. `tests/unit/doh-{locations,tenant-lifecycle}.test.ts` given to a route-coverage fix and a
+   false-claims fix at once.
+
+None caused a defect. All three were caught only because the controller checked the tree
+rather than assuming. **A lesson recorded three times and violated three times is not a
+lesson — it is a missing step.** The step: keep the table below current, and do not dispatch
+until the new path list has been diffed against every row in it.
+
+| agent | path list | status |
+|---|---|---|
+| _(update at each dispatch; clear on report)_ | | |
+
+**When a collision happens anyway:** do not rewrite history to tidy it. Verify the tree is
+correct, commit with the attribution stated plainly, and tell any reviewer reading that diff
+what else is in it. A corrected history is worth less than an accurate record.
+
 ## 7. What this build has learned — apply these without being asked
 
 **Ten defect shapes, every one shipped behind a green suite:**
