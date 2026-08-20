@@ -42,14 +42,20 @@
  *
  * Run with: node scripts/build-registries.mjs
  */
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const EXTRACT_DIR = join(ROOT, 'registries', 'raw', 'extract')
 const INDEX_FILE = join(ROOT, 'registries', 'raw', 'identifier-index.json')
-const OUT_DIR = join(ROOT, 'registries', 'generated')
+// A caller may redirect the whole output tree with AVIIXA_REGISTRY_OUT.
+// This exists so a determinism check can generate somewhere harmless and
+// compare, instead of overwriting the committed artefacts to check them --
+// which is how a freshness assertion becomes self-healing.
+const OUT_DIR = process.env.AVIIXA_REGISTRY_OUT ?? join(ROOT, 'registries', 'generated')
+
+mkdirSync(OUT_DIR, { recursive: true })
 
 const chunkFiles = readdirSync(EXTRACT_DIR)
   .filter((f) => /^CHK-\d+\.json$/.test(f))

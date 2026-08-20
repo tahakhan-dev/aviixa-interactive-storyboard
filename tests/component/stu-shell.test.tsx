@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterAll } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { execFileSync } from 'node:child_process'
-import { writeFileSync, rmSync, mkdirSync, existsSync, readFileSync } from 'node:fs'
+import { writeFileSync, rmSync, mkdirSync, mkdtempSync, existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 import { surfaceById } from '@/domain/surfaces'
 import { routeBySurface } from '@/routes/definitions'
 import type { PermissionOutcome } from '@/policy/decision'
@@ -816,9 +817,25 @@ function withPlanted(contents: string, assert: () => void): void {
   }
 }
 
+// The generator writes its whole output tree wherever AVIIXA_REGISTRY_OUT
+// points. Without that redirect this suite rewrote the COMMITTED
+// registries/generated/stu/module-reach.json on every run, so the artefact
+// tracked whatever half-built code happened to be in the tree at the moment a
+// test ran. A test suite that edits the thing it is checking has no way to
+// stay red. Found independently by two implementers on the same afternoon.
+const GENERATOR_OUT = mkdtempSync(join(tmpdir(), 'aviixa-reach-'))
+const GENERATED_REACH = join(GENERATOR_OUT, 'stu', 'module-reach.json')
+afterAll(() => rmSync(GENERATOR_OUT, { recursive: true, force: true }))
+
 function runGenerator(): { ok: boolean; output: string } {
   try {
-    return { ok: true, output: execFileSync('node', ['scripts/build-stu-module-reach.mjs'], { encoding: 'utf8' }) }
+    return {
+      ok: true,
+      output: execFileSync('node', ['scripts/build-stu-module-reach.mjs'], {
+        encoding: 'utf8',
+        env: { ...process.env, AVIIXA_REGISTRY_OUT: GENERATOR_OUT },
+      }),
+    }
   } catch (err) {
     const e = err as { stderr?: string; stdout?: string; message?: string }
     return { ok: false, output: String(e.stderr ?? '') + String(e.stdout ?? '') + String(e.message ?? '') }
@@ -906,7 +923,7 @@ describe('scripts/build-stu-module-reach.mjs — the direction guard', () => {
   // file says so rather than carrying an answer nobody computed.
   it('writes a declared absence for every module whose matrix is not built', () => {
     runGenerator()
-    const written = JSON.parse(readFileSync('registries/generated/stu/module-reach.json', 'utf8')) as {
+    const written = JSON.parse(readFileSync(GENERATED_REACH, 'utf8')) as {
       modules: Record<string, { matrixPath: string | null; reach: unknown }>
     }
     expect(Object.keys(written.modules).sort()).toEqual(STU_MODULES.map((m) => m.id).sort())

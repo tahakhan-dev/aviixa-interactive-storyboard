@@ -1,0 +1,154 @@
+/**
+ * Two release gates over the generated registries, both of which exist because
+ * the unit suite used to assert freshness by OVERWRITING the artefacts it was
+ * checking and then comparing them to themselves. That assertion could not stay
+ * red: a failing run repaired its own subject, so running the suite twice made
+ * it green whatever had changed. It also meant every test run rewrote committed
+ * files to match whatever half-built code was in the tree at that moment.
+ *
+ * Two implementers found the second writer independently on the same afternoon,
+ * from opposite directions: one was told not to run the generator and noticed
+ * that `pnpm test:component` ran it anyway; the other pinned the artefact's
+ * sha256 either side of its own run, found it byte-identical, and reported the
+ * instruction conflict regardless. Two independent discoveries of one conflict
+ * means the instruction was wrong rather than the agents -- so the rule is now
+ * a property of the code instead of something three people have to remember.
+ *
+ * Gate 1 is FRESHNESS, and it lives in the release project rather than in unit
+ * because it is only meaningful when the working tree is coherent. During a
+ * wave of parallel module work it is legitimately false, and a gate that is
+ * expected to be red is a gate people learn to ignore.
+ *
+ * Gate 2 is the durable one: no test may invoke a generator without redirecting
+ * its output. Gate 1 can only catch a drift that has already happened; gate 2
+ * catches the mechanism that causes it.
+ */
+import { describe, it, expect } from 'vitest'
+import { readFileSync, readdirSync, mkdtempSync, rmSync, statSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { join, relative } from 'node:path'
+import { tmpdir } from 'node:os'
+
+const GENERATORS = [
+  'scripts/build-registries.mjs',
+  'scripts/build-doh-module-reach.mjs',
+  'scripts/build-stu-module-reach.mjs',
+] as const
+
+const COMMITTED = 'registries/generated'
+
+/**
+ * One file under registries/generated is NOT generated: the census
+ * reconciliation is 80KB of hand-authored analysis that happens to live beside
+ * the derived artefacts, and it is cited by tests, by two of the generated
+ * registries, and by four census documents.
+ *
+ * This gate found it, by asking for the first time whether the directory's name
+ * is true. It is not, and that is worth stating rather than papering over: a
+ * hand-maintained file in a directory called "generated" invites a reader to
+ * assume it is reproducible and a future clean-and-regenerate step to drop it.
+ *
+ * Moving it would break every citation, so instead the exception is named and
+ * FIXED AT EXACTLY ONE. A second hand-authored file appearing here turns this
+ * list red and forces the decision rather than quietly widening the exception.
+ */
+const HAND_AUTHORED = ['source-reconciliation.json'] as const
+
+/** Every generated file, path-relative to the output root, recursively. */
+function walk(root: string, prefix = ''): readonly string[] {
+  return readdirSync(join(root, prefix), { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? walk(root, join(prefix, e.name)) : [join(prefix, e.name)],
+  )
+}
+
+describe('the registries on disk are what the current tree generates', () => {
+  // RED when: source changes land without the artefacts being regenerated, or
+  // a generator's output changes without the files on disk following.
+  //
+  // Scope, stated plainly: this reads the working tree, not git. In a clean
+  // checkout those are the same thing, so in CI it means "committed". Run
+  // locally mid-edit it means "coherent right now", which is the weaker claim
+  // and the one to trust.
+  it('every generated file matches a fresh generation, byte for byte', () => {
+    const scratch = mkdtempSync(join(tmpdir(), 'aviixa-fresh-'))
+    try {
+      for (const script of GENERATORS) {
+        execFileSync('node', [script], {
+          cwd: process.cwd(),
+          env: { ...process.env, AVIIXA_REGISTRY_OUT: scratch },
+        })
+      }
+      const generated = [...walk(scratch)].sort()
+      const committed = [...walk(COMMITTED)].sort()
+      // A file that exists on one side only is the failure this catches most
+      // often -- a new registry nobody committed, or a stale one nobody deleted.
+      // The hand-authored exception is added to the expected set rather than
+      // filtered out of the actual one, so losing it is a failure too.
+      expect(committed, 'the set of files under registries/generated').toEqual(
+        [...generated, ...HAND_AUTHORED].sort(),
+      )
+      for (const rel of generated) {
+        expect(
+          readFileSync(join(COMMITTED, rel), 'utf8'),
+          `${rel} is stale -- run the generators and commit the result`,
+        ).toBe(readFileSync(join(scratch, rel), 'utf8'))
+      }
+    } finally {
+      rmSync(scratch, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('no test writes the artefacts it checks', () => {
+  const TEST_ROOTS = ['tests/unit', 'tests/component', 'tests/coverage', 'tests/e2e', 'tests/accessibility']
+
+  function testFiles(): readonly string[] {
+    const out: string[] = []
+    const visit = (dir: string): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        const p = join(dir, e.name)
+        if (e.isDirectory()) visit(p)
+        else if (/\.(test|spec)\.tsx?$/.test(e.name)) out.push(p)
+      }
+    }
+    for (const root of TEST_ROOTS) {
+      try {
+        if (statSync(root).isDirectory()) visit(root)
+      } catch {
+        // A root that does not exist yet is not a failure; the gate covers
+        // whichever of them do.
+      }
+    }
+    return out.sort()
+  }
+
+  // RED when: any test shells out to a generator without AVIIXA_REGISTRY_OUT.
+  //
+  // The scan walks CALL SITES, not mentions. A first pass keyed on "the file
+  // names this script somewhere" flagged three false positives -- a doc comment
+  // explaining the generator, and this gate's own list of the scripts it
+  // polices. Reading forward from each exec call instead means prose about a
+  // generator is not mistaken for running one, and it also means this file
+  // holds itself to the rule: the calls in gate 1 carry the redirect and pass.
+  it('every generator invocation in a test redirects its output', () => {
+    const CALL = /\b(?:execFileSync|execSync|spawnSync|spawn|exec)\s*\(/g
+    const offenders: string[] = []
+    for (const file of testFiles()) {
+      const src = readFileSync(file, 'utf8')
+      for (const match of src.matchAll(CALL)) {
+        const at = match.index ?? 0
+        // Far enough to clear the arguments and the options object of any
+        // realistic call, short enough not to swallow the next statement.
+        const window = src.slice(at, at + 400)
+        const script = GENERATORS.find((g) => window.includes(g))
+        if (script && !window.includes('AVIIXA_REGISTRY_OUT')) {
+          offenders.push(`${relative(process.cwd(), file)} -> ${script}`)
+        }
+      }
+    }
+    expect(
+      offenders,
+      'a test that runs a generator into registries/generated rewrites the committed artefacts',
+    ).toEqual([])
+  })
+})

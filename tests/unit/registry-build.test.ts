@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, existsSync, readdirSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync } from 'node:fs'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 import { execFileSync } from 'node:child_process'
 
 const SLUGS = [
@@ -64,14 +66,39 @@ describe('generated registries', () => {
   })
 
   // Invariant 5: no ambient Date.now()/Math.random() anywhere in the
-  // generator, proven directly rather than assumed -- rebuilding from the
-  // same committed inputs must reproduce the exact same bytes on disk.
-  it('rebuilding from the same raw inputs reproduces byte-identical files', () => {
-    const before = Object.fromEntries(SLUGS.map((slug) => [slug, readFileSync(`registries/generated/${slug}.json`, 'utf8')]))
-    execFileSync('node', ['scripts/build-registries.mjs'], { cwd: process.cwd() })
-    for (const slug of SLUGS) {
-      const after = readFileSync(`registries/generated/${slug}.json`, 'utf8')
-      expect(after, slug).toBe(before[slug])
+  // generator, proven directly rather than assumed -- two runs from the same
+  // inputs must produce the exact same bytes.
+  //
+  // This used to generate OVER registries/generated and then compare the result
+  // to what it had just overwritten, which made it two broken things at once. It
+  // could not stay red -- a failing run repaired the very files it was checking,
+  // so a second run of the same suite went green regardless. And it meant the
+  // committed artefacts silently tracked whatever half-built code was in the
+  // tree when someone last ran the tests.
+  //
+  // The two claims it conflated are now separate. DETERMINISM lives here and is
+  // true whatever state the working tree is in. FRESHNESS -- committed bytes
+  // equal what the current tree generates -- is a release gate in
+  // tests/coverage/registry-freshness.test.ts, because it is only meaningful
+  // when the tree is coherent, which during a wave of parallel work it is not.
+  it('two runs from the same inputs produce byte-identical files', () => {
+    const first = mkdtempSync(join(tmpdir(), 'aviixa-registry-'))
+    const second = mkdtempSync(join(tmpdir(), 'aviixa-registry-'))
+    try {
+      for (const dir of [first, second]) {
+        execFileSync('node', ['scripts/build-registries.mjs'], {
+          cwd: process.cwd(),
+          env: { ...process.env, AVIIXA_REGISTRY_OUT: dir },
+        })
+      }
+      for (const slug of SLUGS) {
+        expect(readFileSync(join(second, `${slug}.json`), 'utf8'), slug).toBe(
+          readFileSync(join(first, `${slug}.json`), 'utf8'),
+        )
+      }
+    } finally {
+      rmSync(first, { recursive: true, force: true })
+      rmSync(second, { recursive: true, force: true })
     }
   })
 })

@@ -54,7 +54,11 @@ import { registerHooks } from 'node:module'
 import ts from 'typescript'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const OUT_DIR = join(ROOT, 'registries', 'generated')
+// A caller may redirect the whole output tree with AVIIXA_REGISTRY_OUT.
+// This exists so a determinism check can generate somewhere harmless and
+// compare, instead of overwriting the committed artefacts to check them --
+// which is how a freshness assertion becomes self-healing.
+const OUT_DIR = process.env.AVIIXA_REGISTRY_OUT ?? join(ROOT, 'registries', 'generated')
 
 /**
  * A TypeScript loader for this process only.
