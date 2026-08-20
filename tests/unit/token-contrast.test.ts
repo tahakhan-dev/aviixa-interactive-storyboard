@@ -14,7 +14,15 @@ const TONES = ['ok', 'info', 'attention', 'blocked', 'stale', 'neutral'] as cons
 const PILL_TINT_ALPHA = 0.1
 
 describe('status token contrast, measured where it actually renders', () => {
-  const surface = token('--color-surface')
+  // This used to composite over --color-surface (#ffffff). That is the
+  // LIGHTEST surface in the palette, so the tint came out lighter than it
+  // ever renders and the measurement was structurally incapable of failing:
+  // every tone passed here while --color-status-ok shipped at 4.383:1 on
+  // /hub/ and axe caught it in the e2e suite instead. A tint is only as
+  // light as what it sits on, so the guard has to measure the DARKEST
+  // surface a pill can sit on -- --color-surface-sunken, which backs 28 of
+  // the token-backed panels including the /hub/ section that failed.
+  const surface = token('--color-surface-sunken')
 
   it.each(TONES)('%s passes AA at 12px on the composited pill background', (tone) => {
     const c = token(`--color-status-${tone}`)
@@ -22,7 +30,7 @@ describe('status token contrast, measured where it actually renders', () => {
     expect(contrastRatio(c, rendered)).toBeGreaterThanOrEqual(4.5)
   })
 
-  it.each(TONES)('%s also passes against the plain surface', (tone) => {
+  it.each(TONES)('%s also passes against that surface untinted', (tone) => {
     expect(contrastRatio(token(`--color-status-${tone}`), surface)).toBeGreaterThanOrEqual(4.5)
   })
 
