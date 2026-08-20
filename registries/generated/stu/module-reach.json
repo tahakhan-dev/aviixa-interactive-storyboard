@@ -4,9 +4,18 @@
   "rule": "Over a module’s own screen rows only, a persona is offered the route when some cell lets it read or act; failing that it is an open client decision when some cell defers to one; failing both the route is withheld. Implemented once, as reachByStudioMatrix in src/studio/modules.ts, and applied here to each module’s real matrix. `reach: null` means the module has not been built yet and nothing was derived -- the spine fails closed on it and says so on screen.",
   "modules": {
     "MOD-STU-01": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-01/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/capabilities/page.tsx"
     },
     "MOD-STU-02": {
       "matrixPath": null,
@@ -54,9 +63,18 @@
       "routePath": null
     },
     "MOD-STU-11": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-11/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/approvals/page.tsx"
     },
     "MOD-STU-12": {
       "matrixPath": null,
@@ -89,9 +107,18 @@
       "routePath": null
     },
     "MOD-STU-18": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-18/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/permissions-and-grants/page.tsx"
     }
   }
 }

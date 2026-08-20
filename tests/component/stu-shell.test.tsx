@@ -14,6 +14,7 @@ import {
   STUDIO_MODULE_REACH_STATES,
   reachByStudioMatrix,
   stuModuleById,
+  stuModulesReachedBy,
   stuPersonaById,
   type StudioMatrixRowSurface,
   type StudioModuleDefinition,
@@ -576,19 +577,47 @@ describe('StudioShell — the module index', () => {
     expect(checkedRouted).toBeGreaterThan(0)
   })
 
-  // The live registry offers no module link at all in this wave: no module
-  // route is built yet. That is asserted as the FACT it is, rather than
-  // left as a loop over an empty set that would pass whatever the shell
-  // did. The slug-keying rule itself is proven above, over a registry that
-  // does produce links.
-  it('offers no module link at all while no module route is built', () => {
+  // WAVE 1 WROTE THIS CASE AS "no module route is built yet, so the rail
+  // offers nothing" — true when it was written, over a registry with zero
+  // built routes. Wave 2 built three (MOD-STU-01, MOD-STU-11, MOD-STU-18),
+  // which makes that premise false by design, not a defect: once routes
+  // exist, a rail that still offers nothing is the broken navigation
+  // surface, and offering a route that does not exist is the other broken
+  // shape. The risk inverted, so this re-points to what stays true on
+  // either side of that line — the same shape SURF-DOH's HubShell already
+  // proved for its own rail (`dohModulesReachedBy`, cross-checked in
+  // `tests/component/doh-shell.test.tsx`): the rail offers exactly the
+  // module routes this persona reaches, and no others.
+  //
+  // DERIVED, NOT HAND-LISTED, on both sides of the comparison.
+  // `stuModulesReachedBy` is `STU_MODULES`'s own published answer to "which
+  // routes does this persona reach", and `routeBuilt` inside it is derived
+  // from the tree by `scripts/build-stu-module-reach.mjs` — the same reason
+  // `tests/e2e/exported-routes.ts` walks `out/` instead of maintaining a
+  // path list by hand. Nothing here is a count or a hand-picked module id,
+  // so a fourth route landing needs no edit to this test to stay covered.
+  //
+  // RED in EITHER direction: an extra link `linkFor` renders for a module
+  // `stuModulesReachedBy` does not name fails `toEqual` on the surplus
+  // element (a route offered that should not exist); a link `linkFor`
+  // withholds for a module `stuModulesReachedBy` does name fails it on the
+  // missing element (the wave-1 shape, offering nothing once routes exist).
+  // Both proven by planting each defect directly in StudioShell.tsx and
+  // reverting — see the report.
+  it('offers exactly the module routes the quality manager reaches, and no others', () => {
     render(<StudioShell />)
-    expect(STU_MODULES.every((m) => !m.routeBuilt)).toBe(true)
+    // next/link normalises the trailing slash outside a running Next app
+    // router (same precedent as tests/component/doh-shell.test.tsx and the
+    // slug-keying case above), so both sides compare with it stripped.
     const hrefs = screen
       .queryAllByRole('link')
-      .map((l) => l.getAttribute('href') ?? '')
-      .filter((h) => h.startsWith('/studio/') && h !== '/studio/')
-    expect(hrefs).toEqual([])
+      .map((l) => (l.getAttribute('href') ?? '').replace(/\/$/, ''))
+      .filter((h) => h.startsWith('/studio/') && h !== '/studio')
+    const expected = stuModulesReachedBy(STU_MODULES, PERMITTED).map((m) => `/studio/${m.slug}`)
+    // Not vacuous: today at least one built route is reached, so this
+    // cannot pass by both sides being empty.
+    expect(expected.length).toBeGreaterThan(0)
+    expect(hrefs).toEqual(expected)
   })
 })
 
@@ -803,22 +832,62 @@ describe('scripts/build-stu-module-reach.mjs — the direction guard', () => {
   // creates it fails the build. Both halves are asserted in one case: the
   // clean run must SUCCEED, so a guard that refused everything would fail
   // this too.
-  it('runs clean today and exits non-zero when a file under src/ value-imports app/', () => {
-    expect(runGenerator().ok, 'the tree must be clean before the probe means anything').toBe(true)
+  //
+  // TIMEOUT DIAGNOSIS (contention, not a hang, not a defect in the guard).
+  // This case spawns a real `node` process THREE times, and each spawn
+  // re-runs the generator's own `src/` walk plus a real
+  // `ts.transpileModule` pass over every module directory the wave has
+  // landed so far. RULED OUT: a hung child process — `execFileSync` has no
+  // timeout of its own, so a genuine hang would fail the whole file after
+  // Vitest's cap, not this case specifically, and every invocation made
+  // here and independently elsewhere has always returned (`ok: true`/
+  // `false` with the expected message), never blocked.
+  //
+  // WHAT IT IS: wall-clock waiting for a CPU slot on a machine other
+  // processes are also loading. On a quiet host each spawn is well under a
+  // second (measured directly: 0.52s-0.59s real time, three spawns). Under
+  // load, measured directly against this same unmodified generator just
+  // now: three solo invocations of `node scripts/build-stu-module-reach.mjs`
+  // returned in 20.51s / 15.11s / 10.62s of REAL time while burning only
+  // ~1.8s of USER time each — the process itself does the same ~1.8s of
+  // work every time, it is just parked waiting for the scheduler the rest
+  // of the interval. Three such spawns in one `it()`, back to back, is what
+  // pushed the original (unmodified) case past the global 30s
+  // `testTimeout` inside the full `pnpm test:component` run and failed it
+  // on timing alone, with the assertions themselves never in question.
+  //
+  // The suite's own `vitest.config.ts` already documents this exact shape
+  // for jsdom renders — real work that balloons under parallel CPU
+  // contention gets headroom, a test slow because it re-did something
+  // wastefully gets rewritten instead — and three cold Node starts plus
+  // real compilation is the same kind of real work, not a re-render loop to
+  // fix. So the fix here is the same one, scoped to this one case rather
+  // than the project's global `testTimeout`: a per-test override. 90s was
+  // chosen with the worst run measured above in view (this case, run alone,
+  // finished in 35.51s of a 60s budget at the SAME contention that produced
+  // the 10.62s-20.51s single-spawn times above), leaving headroom rather
+  // than the minimum that happened to pass once. No assertion below
+  // changed.
+  it(
+    'runs clean today and exits non-zero when a file under src/ value-imports app/',
+    () => {
+      expect(runGenerator().ok, 'the tree must be clean before the probe means anything').toBe(true)
 
-    withPlanted(
-      "import { StudioShell } from '../../../app/studio/StudioShell'\nexport const p = StudioShell\n",
-      () => {
-        const planted = runGenerator()
-        expect(planted.ok).toBe(false)
-        expect(planted.output).toMatch(/VALUE-imports app\//)
-        expect(planted.output).toMatch(/zz-probe-stu-reach/)
-      },
-    )
+      withPlanted(
+        "import { StudioShell } from '../../../app/studio/StudioShell'\nexport const p = StudioShell\n",
+        () => {
+          const planted = runGenerator()
+          expect(planted.ok).toBe(false)
+          expect(planted.output).toMatch(/VALUE-imports app\//)
+          expect(planted.output).toMatch(/zz-probe-stu-reach/)
+        },
+      )
 
-    expect(existsSync(PROBE)).toBe(false)
-    expect(runGenerator().ok, 'the guard must go quiet again once the probe is gone').toBe(true)
-  })
+      expect(existsSync(PROBE)).toBe(false)
+      expect(runGenerator().ok, 'the guard must go quiet again once the probe is gone').toBe(true)
+    },
+    90_000,
+  )
 
   // RED when: a type-only import is treated as an inversion. `import type`
   // is erased and opens no runtime edge; forbidding it would be a guard that

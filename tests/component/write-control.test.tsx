@@ -14,11 +14,33 @@ import { allow, decide, deny, type PermissionDecision } from '@/policy/decision'
  * disabled-with-a-reason: that question is unsettled in the frozen source,
  * and a test here would freeze it. What it pins is that the module's own
  * wording is what gets rendered, whatever the rendering turns out to be.
+ *
+ * The ONE part of that question which IS settled is pinned, because the
+ * component used to get it wrong: `ROLE_NOT_GRANTED` is written for a
+ * categorical prohibition AND for a grant this person held and no longer
+ * holds, and those two render oppositely. The two decisions below differ only
+ * in their OUTCOME, which is exactly the discrimination the component makes.
  */
 const ROLE_REFUSED: PermissionDecision = deny('explicitlyProhibited', 'ROLE_NOT_GRANTED', undefined, {
   stage: 'BASE_ROLE',
   sourceRefs: [],
 })
+
+/**
+ * A revoked grant, shaped as `evaluateStudioAccess` shapes one: the same
+ * reason code as `ROLE_REFUSED`, outcome `unavailable`, and the revocation
+ * named in the explanation the caller hands in (L34605).
+ */
+const GRANT_REVOKED: PermissionDecision = deny(
+  'unavailable',
+  'ROLE_NOT_GRANTED',
+  'Workflow Authoring (GRANT-STU-AUTHOR) does not currently apply, because it was revoked.',
+  {
+    stage: 'BASE_ROLE',
+    sourceRefs: ['L34605'],
+    conditionToEnable: 'Ask your Tenant Admin to assign GRANT-STU-AUTHOR again.',
+  },
+)
 
 const ALLOWED = allow('ALL_STAGES_PASSED', [])
 
@@ -44,6 +66,19 @@ describe('WriteControl', () => {
     renderControl({ decision: ROLE_REFUSED })
     expect(screen.getByRole('note').textContent).toBe('MODULE REFUSAL NOTE')
     expect(screen.queryByRole('button')).toBeNull()
+  })
+
+  // FAILS IF: the ABSENT branch goes back to keying on the reason code alone.
+  // A person whose grant was revoked would then be shown the note that says
+  // the capability exists for nobody -- told it never existed, rather than
+  // that it was taken away.
+  it('disables with the revocation named, never absent, for a revoked grant', () => {
+    renderControl({ decision: GRANT_REVOKED })
+    expect(screen.queryByRole('note'), 'a revoked grant rendered as ABSENT').toBeNull()
+    const button = screen.getByRole('button')
+    expect(button.getAttribute('aria-disabled')).toBe('true')
+    expect(document.body.textContent).toContain('does not currently apply, because it was revoked.')
+    expect(document.body.textContent).toContain('Ask your Tenant Admin to assign GRANT-STU-AUTHOR again.')
   })
 
   it('disables with the module’s D7 clause, the condition and the role for any other refusal', () => {

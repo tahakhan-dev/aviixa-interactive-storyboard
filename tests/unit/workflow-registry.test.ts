@@ -72,8 +72,17 @@ describe('workflow registry', () => {
   it('no record claims a status the tree does not support', () => {
     const appDir = join(process.cwd(), 'app')
     const named = new Set<string>()
+    // A scratch probe belonging to a CONCURRENT process: the release gates
+    // plant one under `app/` and delete it as soon as their own assertion
+    // finishes, so this walk can list one and then read a path that no longer
+    // exists -- a correct build failing on a race, not on a finding.
+    // `tests/coverage/slice-2c-gates.test.ts` carries the full account. EXACT
+    // match, never a prefix: a prefix form would also hide a real screen file
+    // named `zz-probe.tsx` from this scan.
+    const isForeignProbe = (name: string): boolean => /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(name)
     const walk = (dir: string): void => {
       for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (isForeignProbe(e.name)) continue
         if (e.isDirectory()) walk(join(dir, e.name))
         else if (/\.tsx?$/.test(e.name)) {
           for (const t of readFileSync(join(dir, e.name), 'utf8').match(

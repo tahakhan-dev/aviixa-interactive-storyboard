@@ -2,10 +2,25 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
+/**
+ * A scratch probe belonging to a CONCURRENT process. Other test files plant
+ * one under `src/`, `app/` and `out/` to prove their own gate can fail and
+ * delete it the moment the assertion finishes; this walk covers all three, so
+ * it is the widest exposure of the set. Listing one and then touching it
+ * fails a correct build on a race, not on a finding.
+ * `tests/coverage/slice-2c-gates.test.ts` carries the full account.
+ *
+ * EXACT match, never a prefix: a prefix form would also hide a real source
+ * file named `zz-probe.tsx` from every gate here -- a gate walkable past by
+ * choosing a filename. A leading dot and a trailing pid are both required.
+ */
+const isForeignProbe = (entry: string): boolean => /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry)
+
 function walk(dir: string, acc: string[] = []): string[] {
   if (!existsSync(dir)) return acc
   for (const entry of readdirSync(dir)) {
     if (entry === 'node_modules' || entry === '.next') continue
+    if (isForeignProbe(entry)) continue
     const full = join(dir, entry)
     if (statSync(full).isDirectory()) walk(full, acc)
     else acc.push(full)

@@ -1,23 +1,143 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, statSync, existsSync, writeFileSync, rmSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync, existsSync, writeFileSync, rmSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
 import { loadRegistry } from '@/registry/load'
 import { GeneratedRegistrySchema } from '@/coverage/registry-loader'
 import { REGISTRY_DESCRIPTORS, countByClass } from '@/coverage/descriptors'
 
+/**
+ * THE PROBE RACE, and the four parts that remove it. Same defect and same
+ * fix as `tests/coverage/slice-03-gates.test.ts`, which earned each part;
+ * this file had NEITHER half of it. Reproduced before the fix by running two
+ * `pnpm test:release` processes at once: four cases in this file died with
+ * `ENOENT ... lstat 'app/coverage/zz-probe.tsx'` (its own probe, deleted by
+ * the sibling's `finally`), and one case in `slice-04-gates.test.ts` died with
+ * `ENOENT ... open 'src/studio/.zz-probe-stu-reach-48498/probe.ts'` (a
+ * FOREIGN probe its own exclusion did not recognise). There was no offender
+ * in either scan; the walk simply lost a race.
+ *
+ * 1. PER-PROCESS. Every probe this file plants now lives under
+ *    `.zz-probe-<pid>`, so two runs write two different paths and neither
+ *    `finally` can delete the other's file. The shared literal paths this
+ *    replaces (`app/coverage/zz-probe.tsx`, `app/workflows/zz-probe.tsx`,
+ *    `src/review/zz-probe.ts`, `out/zz-probe.html`,
+ *    `registries/generated/zz-probe.json`) were the direct cause above.
+ * 2. DOT-PREFIXED. `tsc`'s include glob and Next's router do not descend
+ *    into a path segment starting with `.`, so a concurrent `pnpm typecheck`
+ *    or `next build` can no longer observe a probe mid-lifetime and fail on
+ *    a path that no longer exists by the time it reports it. `readdirSync`
+ *    has no such blind spot, so this file's own scans still see it.
+ * 3. FOREIGN-PROBE EXCLUSION. A distinct path stops the DELETE race but not
+ *    the READ race: this file's `walk()` still lists a sibling's probe and
+ *    then touches it. Every entry belonging to another process is skipped,
+ *    which removes the race rather than narrowing its window.
+ * 4. PRE-RUN CLEAR PLUS EXIT HANDLER, below, for a probe orphaned by a run
+ *    that was killed mid-assertion or that drew a reused pid.
+ *
+ * The predicate is an EXACT match, never a prefix. A prefix form (`zz-probe`)
+ * also matches a real source file so named at any depth -- a safety gate
+ * walkable past by choosing a filename, which is the defect the slice-3 fix
+ * recorded and corrected. The optional middle group admits the one other
+ * shape this repo creates, `tests/component/stu-shell.test.tsx`'s
+ * `.zz-probe-stu-reach-<pid>`; a leading dot AND a trailing pid are both
+ * still required, so `zz-probe.tsx` and `zz-probeHelpers.tsx` match nothing.
+ */
+const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
+const isForeignProbe = (entry: string): boolean =>
+  /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry) && entry !== OWN_PROBE_DIR
+
+/**
+ * ENOENT ON AN ENTRY THIS WALK ITSELF LISTED IS TOLERATED, and that is not
+ * laziness -- it is the same rule `scripts/build-stu-module-reach.mjs` states
+ * for the same reason. Part 3 above removes the probe race outright, but
+ * `walk('out')` also runs while a sibling `pnpm build` is rewriting `out/`,
+ * and a file that disappears between the listing and the touch is not a
+ * finding. It cannot hide one either: only an ALREADY-DELETED path is
+ * skipped, and a deleted file ships nothing and renders nothing.
+ *
+ * The ROOT is deliberately NOT covered -- `walk('out')` on a missing `out/`
+ * must still fail loudly rather than scan zero files and pass, which is the
+ * vacuous pass `prohibited-patterns.test.ts` already guards against.
+ */
+function presentOrNull<T>(read: () => T): T | null {
+  try {
+    return read()
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException | null)?.code === 'ENOENT') return null
+    throw err
+  }
+}
+
 function walk(dir: string, acc: string[] = []): string[] {
   if (!existsSync(dir)) return acc
   for (const entry of readdirSync(dir)) {
     if (entry === 'node_modules' || entry === '.next') continue
+    if (isForeignProbe(entry)) continue
     const full = join(dir, entry)
-    if (statSync(full).isDirectory()) walk(full, acc)
+    const stat = presentOrNull(() => statSync(full))
+    if (stat === null) continue
+    if (stat.isDirectory()) walk(full, acc)
     else acc.push(full)
   }
   return acc
 }
 
+/** `readFileSync`, with an entry that vanished after the walk listed it skipped. */
+const readIfPresent = (f: string): string | null => presentOrNull(() => readFileSync(f, 'utf8'))
+
 const REGISTRY_DIR = 'registries/generated'
+
+/**
+ * This process's own scratch registry. A `.json` FILE rather than a directory
+ * because `generatedRegistryFiles()` lists `REGISTRY_DIR` one level deep and
+ * keys on the extension -- a probe inside a subdirectory would be invisible to
+ * the very gate it exists to trip.
+ */
+const OWN_PROBE_JSON = `${OWN_PROBE_DIR}.json`
+const isForeignProbeJson = (f: string): boolean =>
+  /^\.zz-probe-\d+\.json$/.test(f) && f !== OWN_PROBE_JSON
+
+/** Every root this file plants a probe under, cleared before and after the run. */
+const PROBE_ROOTS = [join('app', 'coverage'), join('app', 'workflows'), join('src', 'review'), 'out']
+
+// Defend against pid reuse: a PAST crashed run that left a probe behind, plus
+// this run drawing the same pid, would admit that STALE probe into every scan
+// as this run's own -- and a gate running before this run's first plant would
+// read its leftover violation as real. Clear them before anything else runs.
+const clearOwnProbes = (): void => {
+  for (const root of PROBE_ROOTS) rmSync(join(root, OWN_PROBE_DIR), { recursive: true, force: true })
+  rmSync(join(REGISTRY_DIR, OWN_PROBE_JSON), { force: true })
+}
+clearOwnProbes()
+
+// Cleanup on a crash, not only on a thrown assertion: `process.exit()` called
+// mid-assertion, or an uncaught error unwinding past a `finally`, both skip
+// it. 'exit' handlers may only do synchronous work, which `rmSync` is.
+process.on('exit', () => {
+  try {
+    clearOwnProbes()
+  } catch {
+    // Best-effort: nothing else can run once the process is exiting.
+  }
+})
+
+/**
+ * Plant a scratch file at this process's own probe path, prove the gate sees
+ * it, then remove it. Creation and write are inside the `try`, so a failure
+ * partway through still cleans up rather than only the success path doing so.
+ */
+function withProbe(root: string, name: string, contents: string, assert: (probe: string) => void): void {
+  const dir = join(root, OWN_PROBE_DIR)
+  const probe = join(dir, name)
+  try {
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(probe, contents)
+    assert(probe)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+}
 
 /**
  * Walked fresh on every call (not cached at module load), same discipline
@@ -26,7 +146,11 @@ const REGISTRY_DIR = 'registries/generated'
  * proves the live scan sees it, not a snapshot taken before the plant.
  */
 function generatedRegistryFiles(): string[] {
-  return readdirSync(REGISTRY_DIR).filter((f) => f.endsWith('.json'))
+  // A SIBLING process's scratch registry is excluded for a second reason
+  // beyond the ENOENT race: `liveRegistryCounts()` reads every file this
+  // returns, so a foreign probe's `reconciledCount: 1` would enter the
+  // forbidden-count set and flag every `app/` file containing a bare 1.
+  return readdirSync(REGISTRY_DIR).filter((f) => f.endsWith('.json') && !isForeignProbeJson(f))
 }
 
 function countScopeOffenders(): string[] {
@@ -78,15 +202,15 @@ describe('gate 1: count-scope honesty', () => {
   })
 
   it('PLANTED VIOLATION: a scratch registry claiming both fields trips the gate', () => {
-    const probe = join(REGISTRY_DIR, 'zz-probe.json')
-    writeFileSync(
-      probe,
-      JSON.stringify({ sourceFixesNoTotal: true, reconciledCount: 1, rows: [] }),
-    )
+    const probe = join(REGISTRY_DIR, OWN_PROBE_JSON)
     try {
-      expect(countScopeOffenders()).toContain('zz-probe.json')
+      writeFileSync(
+        probe,
+        JSON.stringify({ sourceFixesNoTotal: true, reconciledCount: 1, rows: [] }),
+      )
+      expect(countScopeOffenders()).toContain(OWN_PROBE_JSON)
     } finally {
-      rmSync(probe)
+      rmSync(probe, { force: true })
     }
     expect(countScopeOffenders()).toEqual([])
   })
@@ -174,7 +298,9 @@ describe('gate 1: count-scope honesty', () => {
     const pattern = new RegExp(`(?<![\\w§.-])(${[...forbidden].join('|')})(?![\\w]|\\.\\d|,\\d)`)
     const offenders: string[] = []
     for (const f of walk('app').filter((f) => /\.tsx$/.test(f))) {
-      const match = pattern.exec(stripComments(readFileSync(f, 'utf8')))
+      const raw = readIfPresent(f)
+      if (raw === null) continue
+      const match = pattern.exec(stripComments(raw))
       if (match) offenders.push(`${f}: hardcodes ${match[0]}`)
     }
     return offenders
@@ -209,13 +335,9 @@ describe('gate 1: count-scope honesty', () => {
     ['after a colon', 'export const C = () => <p>Functions indexed: 990</p>\n'],
     ['before a bare comma', 'export const C = () => <p>holds 630, and more</p>\n'],
   ])('PLANTED VIOLATION: a count %s trips the gate', (_where, body) => {
-    const probe = join('app', 'coverage', 'zz-probe.tsx')
-    writeFileSync(probe, body)
-    try {
+    withProbe(join('app', 'coverage'), 'Probe.tsx', body, (probe) => {
       expect(hardcodedCountOffenders().join(' ')).toContain(probe)
-    } finally {
-      rmSync(probe)
-    }
+    })
     expect(hardcodedCountOffenders()).toEqual([])
   })
 
@@ -225,23 +347,15 @@ describe('gate 1: count-scope honesty', () => {
     ['a thousands separator', "export const C = () => <p>{'18,402 runs'}</p>\n"],
     ['a section number', 'export const C = () => <p>section 8.17 says</p>\n'],
   ])('and %s does NOT trip it', (_what, body) => {
-    const probe = join('app', 'coverage', 'zz-probe.tsx')
-    writeFileSync(probe, body)
-    try {
+    withProbe(join('app', 'coverage'), 'Probe.tsx', body, () => {
       expect(hardcodedCountOffenders()).toEqual([])
-    } finally {
-      rmSync(probe)
-    }
+    })
   })
 
   it('PLANTED VIOLATION: a hardcoded count in ANY app/ file trips the gate, including outside app/coverage/', () => {
-    const probe = join('app', 'workflows', 'zz-probe.tsx')
-    writeFileSync(probe, 'export const total = 630\n')
-    try {
+    withProbe(join('app', 'workflows'), 'Probe.tsx', 'export const total = 630\n', (probe) => {
       expect(hardcodedCountOffenders()).toContain(`${probe}: hardcodes 630`)
-    } finally {
-      rmSync(probe)
-    }
+    })
     expect(hardcodedCountOffenders()).toEqual([])
   })
 
@@ -280,13 +394,13 @@ describe('gate 1: count-scope honesty', () => {
   })
 
   it('PLANTED VIOLATION: MOD-SA-20 as an actual row id trips the structured gate', () => {
-    const probe = join(REGISTRY_DIR, 'zz-probe.json')
-    writeFileSync(probe, JSON.stringify({ rows: [{ id: 'MOD-SA-20' }] }))
+    const probe = join(REGISTRY_DIR, OWN_PROBE_JSON)
     try {
+      writeFileSync(probe, JSON.stringify({ rows: [{ id: 'MOD-SA-20' }] }))
       const parsed = JSON.parse(readFileSync(probe, 'utf8')) as { rows: Array<{ id: string }> }
       expect(parsed.rows.map((r) => r.id)).toContain('MOD-SA-20')
     } finally {
-      rmSync(probe)
+      rmSync(probe, { force: true })
     }
   })
 })
@@ -422,7 +536,9 @@ function reviewLedgerOffenders(): string[] {
   return walk('src/review')
     .filter((f) => /\.tsx?$/.test(f))
     .filter((f) => {
-      const s = stripComments(readFileSync(f, 'utf8'))
+      const raw = readIfPresent(f)
+      if (raw === null) return false
+      const s = stripComments(raw)
       if (/\b(DomainEvent|AuditEvent|LedgerRecord)\b/.test(s)) return true
       if (/commitTransition|from\s+['"]@\/kernel\//.test(s)) return true
       return PRODUCT_STORE_NAMES.some((name) => new RegExp(`['"]${name}['"]`).test(s))
@@ -471,29 +587,22 @@ describe('gate 3: a client-review action creates a ReviewEvent and nothing else'
   })
 
   it('PLANTED VIOLATION: a product-ledger reference under src/review/ trips the gate', () => {
-    const probeDir = join('src', 'review')
-    const probe = join(probeDir, 'zz-probe.ts')
-    writeFileSync(probe, "import type { LedgerRecord } from '@/domain/transition'\nexport const x: LedgerRecord | null = null\n")
-    try {
-      expect(reviewLedgerOffenders()).toContain(probe)
-    } finally {
-      rmSync(probe)
-    }
+    withProbe(
+      join('src', 'review'),
+      'Probe.ts',
+      "import type { LedgerRecord } from '@/domain/transition'\nexport const x: LedgerRecord | null = null\n",
+      (probe) => expect(reviewLedgerOffenders()).toContain(probe),
+    )
     expect(reviewLedgerOffenders()).toEqual([])
   })
 
   it('does not fire on a comment naming the forbidden types in order to forbid them', () => {
-    const probeDir = join('src', 'review')
-    const probe = join(probeDir, 'zz-probe.ts')
-    writeFileSync(
-      probe,
+    withProbe(
+      join('src', 'review'),
+      'Probe.ts',
       '// This module must never reference LedgerRecord, DomainEvent or AuditEvent.\nexport const ok = 1\n',
+      (probe) => expect(reviewLedgerOffenders()).not.toContain(probe),
     )
-    try {
-      expect(reviewLedgerOffenders()).not.toContain(probe)
-    } finally {
-      rmSync(probe)
-    }
   })
 })
 
@@ -599,22 +708,23 @@ describe('gate 6: frozen blueprint prose never reaches out/', () => {
     const shipped = walk('out')
     expect(shipped.length, 'a missing or empty out/ must fail loudly, never pass vacuously').toBeGreaterThan(0)
     const offenders = CONFIDENTIAL_UNUSED_MARKERS.flatMap((marker) =>
-      shipped.filter((f) => readFileSync(f, 'utf8').includes(marker)).map((f) => `"${marker}" in ${f}`),
+      shipped.filter((f) => readIfPresent(f)?.includes(marker) === true).map((f) => `"${marker}" in ${f}`),
     )
     expect(offenders).toEqual([])
   })
 
   it('PLANTED VIOLATION: a confidential marker copied into a shipped file trips the gate', () => {
-    const probe = join('out', 'zz-probe.html')
-    writeFileSync(probe, `<html><body>${CONFIDENTIAL_UNUSED_MARKERS[0]}</body></html>`)
-    try {
-      const offenders = CONFIDENTIAL_UNUSED_MARKERS.flatMap((marker) =>
-        walk('out').filter((f) => readFileSync(f, 'utf8').includes(marker)),
-      )
-      expect(offenders).toContain(probe)
-    } finally {
-      rmSync(probe)
-    }
+    withProbe(
+      'out',
+      'Probe.html',
+      `<html><body>${CONFIDENTIAL_UNUSED_MARKERS[0]}</body></html>`,
+      (probe) => {
+        const offenders = CONFIDENTIAL_UNUSED_MARKERS.flatMap((marker) =>
+          walk('out').filter((f) => readIfPresent(f)?.includes(marker) === true),
+        )
+        expect(offenders).toContain(probe)
+      },
+    )
   })
 })
 

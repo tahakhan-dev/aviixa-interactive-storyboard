@@ -3,8 +3,24 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
 
+/**
+ * A scratch probe belonging to a CONCURRENT process. Other test files plant
+ * one under `src/` to prove their own gate can fail and delete it the moment
+ * the assertion finishes; this walk listing one and then touching it fails a
+ * correct build on a race, not on a finding (reproduced: two `pnpm
+ * test:release` runs at once, ENOENT on the other run's probe). Skipping them
+ * removes the race rather than narrowing its window.
+ * `tests/coverage/slice-2c-gates.test.ts` carries the full account.
+ *
+ * EXACT match, never a prefix: a prefix form would also hide a real source
+ * file named `zz-probe.tsx` from every gate here -- a gate walkable past by
+ * choosing a filename. A leading dot and a trailing pid are both required.
+ */
+const isForeignProbe = (entry: string): boolean => /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry)
+
 function walk(dir: string, acc: string[] = []): string[] {
   for (const e of readdirSync(dir)) {
+    if (isForeignProbe(e)) continue
     const full = join(dir, e)
     if (statSync(full).isDirectory()) walk(full, acc)
     else acc.push(full)

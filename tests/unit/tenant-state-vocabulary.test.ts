@@ -34,9 +34,19 @@ describe('TENANT_STATE_OPTIONS — the one place the Select list is built', () =
   it('no screen rebuilds the tenant-state option list locally with the raw token as the label', () => {
     const rawPattern = /TENANT_STATES\.map\(\s*\(\s*(\w+)\s*\)\s*=>\s*\(\{\s*value:\s*\1\s*,\s*label:\s*\1\s*\}\)\s*\)/
 
+    // A scratch probe belonging to a CONCURRENT process: the release gates
+    // plant one under `app/` to prove they can fail and delete it as soon as
+    // their own assertion finishes, so this walk can list one and then stat a
+    // path that no longer exists -- a correct build failing on a race, not on
+    // a finding. `tests/coverage/slice-2c-gates.test.ts` carries the full
+    // account. EXACT match, never a prefix: a prefix form would also hide a
+    // real screen file named `zz-probe.tsx` from this scan.
+    const isForeignProbe = (e: string): boolean => /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(e)
+
     const offenders: string[] = []
     const walk = (dir: string): void => {
       for (const entry of readdirSync(dir)) {
+        if (isForeignProbe(entry)) continue
         const full = join(dir, entry)
         if (statSync(full).isDirectory()) {
           walk(full)

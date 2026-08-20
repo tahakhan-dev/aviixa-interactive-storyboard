@@ -2235,7 +2235,7 @@ function WriteControl({
   objectReason,
   onAct,
 }: WriteControlProps) {
-  if (decision.reasonCode === 'ROLE_NOT_GRANTED') {
+  if (decision.reasonCode === 'ROLE_NOT_GRANTED' && decision.outcome === 'explicitlyProhibited') {
     if (roleRefusal.kind === 'disabled') {
       return (
         <Button disabledReason={`${roleRefusal.reason} Viewing as ${roleName}.`}>{label}</Button>

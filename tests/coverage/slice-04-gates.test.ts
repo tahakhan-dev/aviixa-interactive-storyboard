@@ -86,10 +86,21 @@ const OUT_HUB = join('out', 'hub')
  * Exact match, not a prefix: matching anything merely STARTING WITH
  * `zz-probe` also matches a FILE so named at any depth, which would be a
  * safety gate walkable past by choosing a filename.
+ *
+ * THE OPTIONAL MIDDLE GROUP IS A CORRECTION, not decoration. `/^\.zz-probe-
+ * \d+$/` recognised only the `<pid>` shape, and gate 6 walks all of `src/`
+ * as well as `app/` — so it did NOT recognise
+ * `tests/component/stu-shell.test.tsx`'s `.zz-probe-stu-reach-<pid>` and lost
+ * exactly the race this exclusion exists to remove: reproduced with two
+ * concurrent runs as `ENOENT: ... open
+ * 'src/studio/.zz-probe-stu-reach-48498/probe.ts'` in "the End-session
+ * control has exactly ONE construction site". A fix that reached one probe
+ * shape and not the other. The dot and the trailing pid are still both
+ * required, so `zz-probe.tsx` and `zz-probeHelpers.tsx` still match nothing.
  */
 const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
 const isForeignProbe = (entry: string): boolean =>
-  /^\.zz-probe-\d+$/.test(entry) && entry !== OWN_PROBE_DIR
+  /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry) && entry !== OWN_PROBE_DIR
 
 function walk(dir: string, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
@@ -1732,79 +1743,126 @@ describe('slice 4 gate 6: no live ungated write control on any route', () => {
       .map(({ file }) => file)
   }
 
-  it('every file that renders the banner region computes the End-session refusal', () => {
-    const sources = hubSources()
-    const renderers = sources.filter(({ src }) => BANNER_RENDER.test(src)).map(({ file }) => file)
-    // Vacuity guard: with no renderer found, "all renderers are gated" is
-    // true and empty — which is precisely how the Critical survived nine
-    // routes in the first place.
-    expect(renderers.sort(), 'the set of banner-rendering files changed').toEqual([
-      join(HUB_ROOT, 'HubShell.tsx'),
-      join(HUB_ROOT, 'tenant-view-of-platform-administration', 'PlatformAdministrationScreen.tsx'),
-    ])
-    expect(ungatedBannerRenderers(sources)).toEqual([])
-  })
+  // TIMEOUT DIAGNOSIS (contention, not a hang, not extra work). The five
+  // cases below are the ones in this file whose cost is a real file-tree
+  // walk: each calls `hubSources()` (reads and comment-strips every file
+  // under `app/hub`) at least once, and "exactly ONE construction site"
+  // walks `app` AND `src` in full. RULED OUT: a hang or a defect in the
+  // gate — every invocation here and in isolation has always returned with
+  // the expected result, never blocked, and the `release` project's own
+  // `fileParallelism: false` means nothing else in this run is racing these
+  // reads. WHAT IT IS: wall-clock waiting for a CPU slot. Measured directly,
+  // isolating just this `describe` block (`vitest -t "slice 4 gate 6"`)
+  // against three concurrent solo copies of this same file (the four-way
+  // load this build's release suite sees when several agents' suites run
+  // together): 8.48s of USER time total across all five cases, against
+  // 104.55s of REAL time (11% CPU) — the same flat amount of work, just
+  // parked waiting for the scheduler. Individual cases in that run: 6.29s,
+  // 14.79s (the app+src walk), 9.62s and 9.66s (each `withPlanted` case
+  // calls `hubSources()` twice) against the unmodified 5000ms default —
+  // four of five failed on timing alone, none on the assertion. So the fix
+  // is the same one this build already uses for this exact shape
+  // (`tests/component/stu-shell.test.tsx`'s node-spawn case): a per-test
+  // override, not the project's global `testTimeout`, so the other fifty
+  // cases in this file — none of which showed any sign of the edge across
+  // three solo runs at 14%-40% CPU — keep the 5s default that catches a
+  // genuine hang. 30_000 matches the value already established for this
+  // purpose elsewhere in the suite (`vitest.config.ts`'s `component`
+  // project; `tests/component/sa-tenant-metrics.test.tsx`) and clears the
+  // worst measured case (14.79s) with better than 2x headroom.
+  it(
+    'every file that renders the banner region computes the End-session refusal',
+    () => {
+      const sources = hubSources()
+      const renderers = sources.filter(({ src }) => BANNER_RENDER.test(src)).map(({ file }) => file)
+      // Vacuity guard: with no renderer found, "all renderers are gated" is
+      // true and empty — which is precisely how the Critical survived nine
+      // routes in the first place.
+      expect(renderers.sort(), 'the set of banner-rendering files changed').toEqual([
+        join(HUB_ROOT, 'HubShell.tsx'),
+        join(HUB_ROOT, 'tenant-view-of-platform-administration', 'PlatformAdministrationScreen.tsx'),
+      ])
+      expect(ungatedBannerRenderers(sources)).toEqual([])
+    },
+    30_000,
+  )
 
-  it('the End-session control has exactly ONE construction site', () => {
-    // `SupportSessionBanner` is a discriminated union whose
-    // `normal-support-session` arm is the only one carrying `onEndSession`.
-    // One construction site is what makes a single gate sufficient; a
-    // second would be a second control to forget.
-    const builders = walk('app')
-      .concat(walk('src'))
-      .filter((f) => /\.tsx?$/.test(f))
-      .filter((f) => {
-        const src = stripComments(readFileSync(f, 'utf8'))
-        return /kind:\s*'support-session'/.test(src) && /onEndSession\s*,/.test(src)
-      })
-      .sort()
-    expect(builders, 'the End-session control is built in more than one place').toEqual([
-      join('app', 'hub', 'banner-fixtures.ts'),
-    ])
-  })
+  it(
+    'the End-session control has exactly ONE construction site',
+    () => {
+      // `SupportSessionBanner` is a discriminated union whose
+      // `normal-support-session` arm is the only one carrying `onEndSession`.
+      // One construction site is what makes a single gate sufficient; a
+      // second would be a second control to forget.
+      const builders = walk('app')
+        .concat(walk('src'))
+        .filter((f) => /\.tsx?$/.test(f))
+        .filter((f) => {
+          const src = stripComments(readFileSync(f, 'utf8'))
+          return /kind:\s*'support-session'/.test(src) && /onEndSession\s*,/.test(src)
+        })
+        .sort()
+      expect(builders, 'the End-session control is built in more than one place').toEqual([
+        join('app', 'hub', 'banner-fixtures.ts'),
+      ])
+    },
+    30_000,
+  )
 
-  it('PLANTED VIOLATION: a route rendering the banner region without the gate trips it', () => {
-    withPlanted(
-      HUB_ROOT,
-      'Probe.tsx',
-      "import { BannerRegion } from '@/ui/doh/BannerRegion'\n" +
-        'export const P = () => <BannerRegion banners={[]} />\n',
-      (probe) => {
-        expect(ungatedBannerRenderers(hubSources())).toContain(probe)
-      },
-    )
-    expect(ungatedBannerRenderers(hubSources())).toEqual([])
-  })
+  it(
+    'PLANTED VIOLATION: a route rendering the banner region without the gate trips it',
+    () => {
+      withPlanted(
+        HUB_ROOT,
+        'Probe.tsx',
+        "import { BannerRegion } from '@/ui/doh/BannerRegion'\n" +
+          'export const P = () => <BannerRegion banners={[]} />\n',
+        (probe) => {
+          expect(ungatedBannerRenderers(hubSources())).toContain(probe)
+        },
+      )
+      expect(ungatedBannerRenderers(hubSources())).toEqual([])
+    },
+    30_000,
+  )
 
-  it('PLANTED VIOLATION: importing the gate without CALLING it trips it too', () => {
-    // The weakness this gate was found to have, kept as a case: a route
-    // that names the refusal and never computes one has a live control.
-    withPlanted(
-      HUB_ROOT,
-      'Probe.tsx',
-      "import { BannerRegion } from '@/ui/doh/BannerRegion'\n" +
-        "import { endSessionRefusalFor } from './HubShell'\n" +
-        'export type Unused = typeof endSessionRefusalFor\n' +
-        'export const P = () => <BannerRegion banners={[]} />\n',
-      (probe) => {
-        expect(ungatedBannerRenderers(hubSources())).toContain(probe)
-      },
-    )
-    expect(ungatedBannerRenderers(hubSources())).toEqual([])
-  })
+  it(
+    'PLANTED VIOLATION: importing the gate without CALLING it trips it too',
+    () => {
+      // The weakness this gate was found to have, kept as a case: a route
+      // that names the refusal and never computes one has a live control.
+      withPlanted(
+        HUB_ROOT,
+        'Probe.tsx',
+        "import { BannerRegion } from '@/ui/doh/BannerRegion'\n" +
+          "import { endSessionRefusalFor } from './HubShell'\n" +
+          'export type Unused = typeof endSessionRefusalFor\n' +
+          'export const P = () => <BannerRegion banners={[]} />\n',
+        (probe) => {
+          expect(ungatedBannerRenderers(hubSources())).toContain(probe)
+        },
+      )
+      expect(ungatedBannerRenderers(hubSources())).toEqual([])
+    },
+    30_000,
+  )
 
-  it('and the same route WITH the gate computed does not trip it', () => {
-    withPlanted(
-      HUB_ROOT,
-      'Probe.tsx',
-      "import { BannerRegion } from '@/ui/doh/BannerRegion'\n" +
-        "import { endSessionRefusalFor } from './HubShell'\n" +
-        "export const P = () => { void endSessionRefusalFor('active'); return <BannerRegion banners={[]} /> }\n",
-      () => {
-        expect(ungatedBannerRenderers(hubSources())).toEqual([])
-      },
-    )
-  })
+  it(
+    'and the same route WITH the gate computed does not trip it',
+    () => {
+      withPlanted(
+        HUB_ROOT,
+        'Probe.tsx',
+        "import { BannerRegion } from '@/ui/doh/BannerRegion'\n" +
+          "import { endSessionRefusalFor } from './HubShell'\n" +
+          "export const P = () => { void endSessionRefusalFor('active'); return <BannerRegion banners={[]} /> }\n",
+        () => {
+          expect(ungatedBannerRenderers(hubSources())).toEqual([])
+        },
+      )
+    },
+    30_000,
+  )
 })
 
 describe('slice 4 gates: the file itself', () => {

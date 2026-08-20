@@ -23,6 +23,32 @@ import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
  * named-test strength. Each module's CURRENT rendering is preserved exactly.
  * What this file buys is that when the question IS settled, the branch flips
  * in one place instead of once per module.
+ *
+ * ONE CLASSIFICATION INSIDE THAT QUESTION IS ALREADY DECIDED, and the ABSENT
+ * branch now reflects it. `ROLE_NOT_GRANTED` is written by evaluators for TWO
+ * situations that the slice-4 adjudication separates:
+ *
+ * - a CATEGORICAL prohibition — nobody holds the capability, or this person
+ *   never holds it in any circumstance. Nothing is drawn, because a disabled
+ *   control invites the belief the right exists somewhere.
+ * - a grant this person DID hold and no longer holds — revoked, expired, or
+ *   assigned but not yet active. They are refused here, now, and the disabled
+ *   control carrying the reason is what teaches the rule at the moment it
+ *   binds (L34605: "the session is not silently degraded").
+ *
+ * Keying ABSENT on the reason code alone collapsed the second onto the first
+ * and told a person whose grant was revoked that it had never existed. The
+ * branch therefore keys on the OUTCOME as well — the token the source
+ * actually writes — so only `explicitlyProhibited` renders absent, and a
+ * revoked grant (`unavailable`, same reason code) falls through to the
+ * disabled branch below with its own explanation and condition. `src/studio/
+ * modules/stu-18/rendering.ts` reached this rule independently and is where
+ * the collision was first named.
+ *
+ * This narrows ONE branch. It does not choose a side in the general question
+ * above: the categorical case still renders absent, exactly as the
+ * `role-refused-write-control` fixture in `tests/coverage/slice-04-gates.
+ * test.ts` pins it.
  */
 export interface WriteControlProps {
   readonly label: string
@@ -58,7 +84,7 @@ export function WriteControl({
   neverQueuedNote,
   onAct,
 }: WriteControlProps) {
-  if (decision.reasonCode === 'ROLE_NOT_GRANTED') {
+  if (decision.reasonCode === 'ROLE_NOT_GRANTED' && decision.outcome === 'explicitlyProhibited') {
     return <ProhibitionNotice rendering={{ kind: 'absent', note: refusalNote }} />
   }
   if (decision.outcome !== 'allowed') {

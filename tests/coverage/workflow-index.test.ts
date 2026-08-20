@@ -4,8 +4,22 @@ import { join } from 'node:path'
 
 const OUT = join(process.cwd(), 'out')
 
+/**
+ * A scratch probe belonging to a CONCURRENT process. `slice-04-gates` plants
+ * an `index.html` under `out/hub/.zz-probe-<pid>/`, which this walk would pick
+ * up as a page and then read after the sibling's `finally` deleted it -- a
+ * correct build failing on a race, not on a finding.
+ * `tests/coverage/slice-2c-gates.test.ts` carries the full account.
+ *
+ * EXACT match, never a prefix: a prefix form would also hide a real emitted
+ * page under a directory named `zz-probe` -- a gate walkable past by choosing
+ * a filename. A leading dot and a trailing pid are both required.
+ */
+const isForeignProbe = (entry: string): boolean => /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry)
+
 function walk(dir: string, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
+    if (isForeignProbe(entry)) continue
     const full = join(dir, entry)
     if (statSync(full).isDirectory()) walk(full, acc)
     else acc.push(full)

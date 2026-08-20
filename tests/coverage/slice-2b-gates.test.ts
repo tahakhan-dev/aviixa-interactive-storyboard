@@ -3,8 +3,39 @@ import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync, rmSync }
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
 
+/**
+ * This file both PLANTS a probe and WALKS the trees other files plant in, so
+ * it needs both halves of the race fix `tests/coverage/slice-2c-gates.test.ts`
+ * documents in full. Its probe used to be the fixed path `src/zz-probe/`,
+ * shared by every concurrent process; it is now per-process and dot-prefixed,
+ * and `walk()` skips every OTHER process's probe rather than listing it and
+ * then losing the race to its `finally`.
+ *
+ * EXACT match, never a prefix: a prefix form also hides a real source file
+ * named `zz-probe.tsx` from every gate in this file -- a safety gate walkable
+ * past by choosing a filename.
+ */
+const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
+const isForeignProbe = (entry: string): boolean =>
+  /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry) && entry !== OWN_PROBE_DIR
+
+const PROBE_DIR = join('src', OWN_PROBE_DIR)
+
+// Defend against pid reuse: a stale probe from a killed run that drew this
+// pid would otherwise be read as this run's own, and a gate running before
+// the first plant would report its leftover violation as real.
+rmSync(PROBE_DIR, { recursive: true, force: true })
+process.on('exit', () => {
+  try {
+    rmSync(PROBE_DIR, { recursive: true, force: true })
+  } catch {
+    // Best-effort: nothing else can run once the process is exiting.
+  }
+})
+
 function walk(dir: string, acc: string[] = []): string[] {
   for (const e of readdirSync(dir)) {
+    if (isForeignProbe(e)) continue
     const full = join(dir, e)
     if (statSync(full).isDirectory()) walk(full, acc)
     else acc.push(full)
@@ -52,14 +83,13 @@ describe('slice 2b gates', () => {
   // allowlist: fires on a violation in a directory that does not exist
   // today, planted fresh and removed immediately after.
   it('fires on a violation in a directory this gate does not special-case today', () => {
-    const probeDir = join('src', 'zz-probe')
-    const probeFile = join(probeDir, 'probe.ts')
-    mkdirSync(probeDir, { recursive: true })
+    const probeFile = join(PROBE_DIR, 'probe.ts')
+    mkdirSync(PROBE_DIR, { recursive: true })
     writeFileSync(probeFile, "import { reduce } from '@/kernel/reduce'\nexport const x = reduce\n")
     try {
       expect(gatewayOnlyOffenders()).toContain(probeFile)
     } finally {
-      rmSync(probeDir, { recursive: true, force: true })
+      rmSync(PROBE_DIR, { recursive: true, force: true })
     }
   })
 
@@ -73,9 +103,8 @@ describe('slice 2b gates', () => {
   // prose naming the forbidden imports (to explain why they are forbidden)
   // must not trip the gate.
   it('does not fire on a comment naming the forbidden imports', () => {
-    const probeDir = join('src', 'zz-probe')
-    const probeFile = join(probeDir, 'probe.ts')
-    mkdirSync(probeDir, { recursive: true })
+    const probeFile = join(PROBE_DIR, 'probe.ts')
+    mkdirSync(PROBE_DIR, { recursive: true })
     writeFileSync(
       probeFile,
       "// This file must never import reduce from '@/kernel/reduce' or commitTransition from '@/persistence/coordinator'.\nexport const x = 1\n",
@@ -83,7 +112,7 @@ describe('slice 2b gates', () => {
     try {
       expect(gatewayOnlyOffenders()).not.toContain(probeFile)
     } finally {
-      rmSync(probeDir, { recursive: true, force: true })
+      rmSync(PROBE_DIR, { recursive: true, force: true })
     }
   })
 
