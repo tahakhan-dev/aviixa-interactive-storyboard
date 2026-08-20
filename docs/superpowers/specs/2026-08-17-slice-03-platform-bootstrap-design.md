@@ -16,7 +16,7 @@ bands** (`AC-SA-000-02`, L42880). Band A is the **definition layer**, §8.1–§
 independently corroborate that split.
 
 `MOD-SA-20` is **not built.** §8.20 is a diligence narrative, and the source states
-"Nineteen module identifiers; §8.20 Fundability Surface deliberately excluded" (L4567).
+"Module identifiers `MOD-SA-01` through `MOD-SA-19` were assigned one per capability section, §8.1 through §8.19, with §8.20 deliberately excluded from the module numbering" (L4567).
 The string exists in the frozen source only in prose refusing it — an alias-by-denial.
 
 ### The tier-1 role of this surface
@@ -165,7 +165,7 @@ rendered with its decision reference where a reviewer can see it.
 | D22 | `MOD-SA-07` scheduled-work and feature material is "User-Mandated Product Extension", not SoW Fact | **Built visibly separated and labelled**, so contract and extension are distinguishable on screen. |
 | D23 | The eight per-surface access classes are named once and never defined | **Not used anywhere in this slice.** Any mapping onto the three named classes would be an inference the source does not make. |
 | D24 | Permission-matrix cell status set varies from five to nine tokens | **The nine-token cut** (L10238) — the most frequently restated, and already the closed `PermissionOutcome` set shipped in slice 2a. |
-| D25 | Band split | Bands are **navigation only**, labelled by meaning — "Definition layer" and "Operations layer" — with both stated as V1. The split "sequences the build and carries no commercial or acceptance meaning" (L2397). |
+| D25 | Band split | Bands are **navigation only**, labelled by meaning — "Definition layer" and "Operations layer" — with both stated as V1. Band structure carries "no commercial or acceptance meaning" and the split is "an internal build-sequencing lens only" (L2397). |
 
 ---
 

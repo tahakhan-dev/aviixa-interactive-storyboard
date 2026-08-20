@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 /**
@@ -152,6 +152,17 @@ const SOURCE_PATH = join(process.cwd(), '..', 'AVIIXA_Production_Product_Bluepri
 const SOURCE_SHA256 = '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27'
 const SOURCE_LINE_COUNT = 122_241
 
+/**
+ * THE NON-BREAKING HYPHEN IS NOT FOLDED HERE, and that is deliberate rather
+ * than an omission — see `WORD_HYPHENS`, which folds it in the lexer before
+ * any text reaches this function. Widening this class to U+2010..U+2015 as
+ * well was written first and then DELETED: with the lexer folding already in
+ * place, no input to `normalise` in this tree carries U+2010, U+2011 or
+ * U+2015 — not the frozen source, not `registries/raw/extract/`, not the
+ * identifier index — so the wider class could not be made to fail. A widening
+ * whose plant stays green is a widening that is doing nothing, and this file
+ * has already shipped one assertion that passed with its subject deleted.
+ */
 const normalise = (s: string): string =>
   s
     .replace(/['‘’“”]/g, '"')
@@ -276,8 +287,34 @@ const IDENTIFIERS = buildIdentifierIndex(sourceRaw, VOCABULARY)
 
 /* ── the scan ──────────────────────────────────────────────────────────── */
 
-const SCAN_ROOTS = ['src', 'app', 'tests', 'scripts']
-const SCANNED_EXT = /\.(ts|tsx|mjs|js|jsx)$/
+/**
+ * `docs` IS A SCAN ROOT AND `.superpowers/sdd` IS NOT, and neither half is an
+ * oversight.
+ *
+ * Documents cite the frozen source exactly as code does, and until this line
+ * changed, nothing checked one of them. Measured before widening: 50 findings
+ * across 7 documents, three of the four classes this gate exists for,
+ * including four quotations printing the EXTRACTION's own words as source
+ * prose -- the same shape as the screen defect that prompted this file. A
+ * citation on screen misleads the client; a citation in a plan misleads the
+ * next agent, and this run has been misled that way three times.
+ *
+ * `.superpowers/sdd/<plan>/` stays out for two reasons that are not squeamish-
+ * ness. It is DELETED when its plan closes (`RESUME.md` §4), so a gate rooted
+ * there would go from green to green-with-nothing-scanned without a diff. And
+ * it holds raw `review-*.diff` files, whose `-` lines are by construction the
+ * wrong citations a commit removed -- a scan of those reports every defect
+ * this build has ever FIXED. What §4 does say is that anything there which
+ * must outlive the slice is MOVED into `docs/process/`, which is inside this
+ * scan, and that is the moment `CORRECTION` exists for.
+ *
+ * `.md` only. `docs/census/*-raw-maps.json` is a record of what the extractor
+ * produced rather than a claim about the source -- `44712` sitting in one of
+ * them is correct as it stands, and scanning it would report a defect nobody
+ * committed.
+ */
+const SCAN_ROOTS = ['src', 'app', 'tests', 'scripts', 'docs']
+const SCANNED_EXT = /\.(ts|tsx|mjs|js|jsx|md)$/
 
 /**
  * Another test file's scratch probe, planted on the real filesystem and
@@ -302,6 +339,86 @@ function walk(dir: string, acc: string[] = []): string[] {
 }
 
 /* ── the lexer ─────────────────────────────────────────────────────────── */
+
+/**
+ * The sentence a quotation sits in, bounded by a full stop or a `BARRIER`.
+ * Not the comment: a long doc comment that mentions the extraction once would
+ * otherwise excuse every quotation in it.
+ */
+const sentenceBreak = (): RegExp => /[.;](?=\s)|\u0000/g
+const sentenceStart = (buffer: string, at: number): number => {
+  let start = 0
+  for (const m of buffer.slice(0, at).matchAll(sentenceBreak())) start = m.index + m[0].length
+  return start
+}
+const sentenceEnd = (buffer: string, from: number): number => {
+  const scan = sentenceBreak()
+  scan.lastIndex = from
+  const m = scan.exec(buffer)
+  return m === null ? buffer.length : m.index
+}
+
+/**
+ * QUOTING A WRONG CITATION IN ORDER TO CORRECT IT.
+ *
+ * A document may write a locator it knows to be wrong, because the wrong one
+ * is its subject. Plans, briefs, census maps and this build's own ledgers
+ * record defective assertions VERBATIM so the record shows what was wrong —
+ * `RESUME.md` §4 then moves those records out of `.superpowers/sdd/` and into
+ * `docs/process/` when a plan closes, which is how they arrive inside this
+ * scan. A gate that cannot tell
+ *
+ *     this document cites L31453 for FB-STU-10
+ *
+ * from
+ *
+ *     this document records that someone cited L31453 for FB-STU-10, and the
+ *     correct line is L31454
+ *
+ * flags every correction anyone ever writes down, and is then weakened until
+ * it flags nothing. Both those endings are worse than the gate not existing.
+ *
+ * THE RULE: the correcting text carries an explicit marker that NAMES THE
+ * LOCATOR it is quoting, `[cited-in-error: L31453]`, and the marker exempts
+ * that locator IN ITS OWN SENTENCE and nothing else.
+ *
+ * Three properties, and each one is a plant below rather than a claim here:
+ *
+ *   EXPLICIT. Nothing writes `[cited-in-error: …]` by accident. The rejected
+ *   alternative was proximity to corrective language — "wrong", "corrected",
+ *   "erratum". Measured against this tree, that rule silences real defects:
+ *   `surf-stu-slice05-build-map.md:347` reads `the source says it is easy to
+ *   get wrong (L32443)`, and `plans/2026-08-20-slice-05:1014` reads `a build
+ *   that renders this as a role check gets it wrong` beside a live citation.
+ *   Both sentences carry corrective language about the SUBJECT, not about the
+ *   locator. A keyword rule cannot tell those apart; naming the number can.
+ *
+ *   PER-CITATION, not per-file and not per-sentence. A whole-file exemption
+ *   for `docs/**` is the state before this scan existed with extra steps. A
+ *   bare sentence-level marker would silence every other citation in a
+ *   sentence that legitimately makes several claims. The marker names the
+ *   number, so a wrong citation standing beside a corrected one is still
+ *   reported.
+ *
+ *   COUNTED OUT LOUD. Every exemption taken is printed with the sentence it
+ *   was taken in, so an exemption cannot grow quietly. An exemption nobody can
+ *   count is an exemption nobody audits.
+ *
+ * It reaches the coinage checker through the same door: a quotation is
+ * "offered as the source's words" only when a NON-EXEMPT citation sits beside
+ * it, so a record of someone else's wrong quotation is not convicted for
+ * reproducing it.
+ */
+const CORRECTION = /\[cited-in-error:\s*L\d{3,6}(?:\s*,\s*L?\d{3,6})*\s*\]/g
+
+/** Every line number a `[cited-in-error: …]` marker in this sentence names. */
+const correctedIn = (sentence: string): ReadonlySet<number> => {
+  const named = new Set<number>()
+  for (const m of sentence.matchAll(CORRECTION)) {
+    for (const n of m[0].matchAll(/\d{3,6}/g)) named.add(Number(n[0]))
+  }
+  return named
+}
 
 /**
  * `L` + 3-6 digits, optionally a separator and a second line number whose `L`
@@ -348,6 +465,55 @@ const RUN_JOIN = /^[\s,;·()[\]`'"]*(?:and|or|[A-Z]{2,4}(?:-[A-Z0-9.]+)+)?[\s,;�
 const CONNECTIVE = /^[\s—–\-:,*()[\]·`]*$/
 const MAX_GAP = 6
 
+/**
+ * THE ONE OTHER THING A CITATION AND ITS QUOTATION MAY HAVE BETWEEN THEM: the
+ * identifier the citation is labelling.
+ *
+ * The census maps and the plans write a locator, the identifier that locator
+ * names, and then that identifier's text — `L30780 \`AC-STU-005\`: "No user
+ * interface control anywhere in the Studio creates, edits, or deletes an atomic
+ * capability."` That is one claim, not two, and it is the same shape `RUN_JOIN`
+ * already admits between two citations for the same reason: the commonest way
+ * this tree labels a locator is with the identifier it belongs to.
+ *
+ * WITHOUT THIS THE GATE READS THE SENTENCE BACKWARDS, and that is worse than
+ * missing it. `MAX_GAP` of six cannot span `\`AC-STU-005\`: *`, so no
+ * quotation bound to the citation on its left; the binder then fell through to
+ * the citation on its RIGHT — the NEXT row's locator — and reported the next
+ * row's line as wrong for this row's words. Five of the first document
+ * findings were that cascade, and every one of them named a citation that was
+ * correct. A false alarm that prints a correct locator as a defect is the
+ * shape that teaches a reader to stop believing the gate.
+ *
+ * The widened cap applies ONLY when a label is really there: `LABELLED`
+ * requires the identifier, so a plain run of punctuation is still held to six.
+ * Thirty is measured off the longest form in the tree — `\`FUNC-STU-18-04-A-1\`:
+ * *` is twenty-three characters — not chosen for roundness.
+ *
+ * AND ONLY LEFTWARDS, for the reason `anchorOf` gives at length in the other
+ * direction: `"<quote>" <ID> (<line>)` is not a parenthetical citation of the
+ * quotation, it is the NEXT CLAUSE. `studio/disclosure/decisions.ts` writes
+ * `The source's interim rule: "…" AC-STU-090 (<line>) requires that interim
+ * rule …`, where the quotation belongs to the decision record named in the
+ * same object's `locator` field and the citation belongs to the criterion that
+ * follows. Binding rightwards through a label reported that correct citation
+ * as a defect. Measured before choosing: rightwards through a label binds
+ * six more quotations across the whole tree, of which five are real defects in
+ * `src/` and `app/` and one is that false alarm — so the direction is worth
+ * having and is NOT free, and it belongs to a dispatch that can fix what it
+ * finds. The five are named in this task's report.
+ */
+const LABELLED = /^[\s—–\-:,*()[\]·`'"]*[A-Z]{2,4}(?:-[A-Z0-9.]+)+[\s—–\-:,*()[\]·`'"]*$/
+const LABEL_GAP = 30
+
+/**
+ * May a quotation bind to the citation on its LEFT with this text between?
+ * The rightwards fallback stays on `CONNECTIVE` alone.
+ */
+const bindsLabelled = (gap: string): boolean =>
+  (gap.length <= MAX_GAP && CONNECTIVE.test(gap)) ||
+  (gap.length <= LABEL_GAP && LABELLED.test(gap))
+
 /** Shortest quotation treated as a verbatim claim rather than a coined label. */
 const MIN_QUOTE = 30
 
@@ -390,6 +556,11 @@ export interface Citation {
    * and why it is the direction it is.
    */
   readonly anchor?: string
+  /**
+   * This locator is quoted in order to be corrected, and the sentence says so
+   * with `[cited-in-error: <this line>]`. Not graded. See `CORRECTION`.
+   */
+  readonly correction?: true
 }
 
 /**
@@ -402,12 +573,33 @@ export interface Citation {
  * Without it `surfaces/doh/modules.ts` binds an authored `purpose` string on
  * one line to the citation comment on the next, and reports a defect that is
  * not one.
+ *
+ * THE HYPHEN FOLD HERE IS NARROWER THAN `normalise`'S, and the two are not the
+ * same fix. `normalise` decides whether a QUOTATION matches the source, so it
+ * folds every dash: a claim is the same claim however its punctuation is
+ * spelled. This decides what the LEXER SEES, and there the spelling is part of
+ * the token — `IDENTIFIER` and `CITATION` run over this buffer, and `CITATION`
+ * already reads en dash, em dash and ellipsis as range separators in their own
+ * right. Folding those would rewrite a citation's reported token into a form
+ * the file does not contain.
+ *
+ * So only U+2010 and U+2011 are folded, the two characters a writer means as a
+ * HYPHEN INSIDE A WORD rather than as punctuation between two. The census maps
+ * write `MOD‑DOH‑14` with U+2011 so a table cell cannot wrap mid-identifier,
+ * 2,466 times, and the lexer saw not one of them: no anchor, no verdict, no
+ * finding. That is the "gate that scans nothing" shape, and it is invisible in
+ * a green run rather than loud in a red one. U+2010, U+2011 and `-` are each
+ * one UTF-16 unit, so every offset in this buffer still names its own
+ * character; a fold that changed the length would corrupt `lineAt`.
  */
+const WORD_HYPHENS = /[\u2010\u2011]/g
+
 function flatten(text: string): { buffer: string; lineAt: (offset: number) => number } {
   let buffer = ''
   const marks: { offset: number; line: number }[] = []
   let previousWasComment = false
-  for (const [index, raw] of text.split('\n').entries()) {
+  for (const [index, line] of text.split('\n').entries()) {
+    const raw = line.replace(WORD_HYPHENS, '-')
     const isComment = /^\s*(\*|\/\/|\/\*)/.test(raw)
     const body = isComment ? raw.replace(/^\s*(\/\*\*?|\*\/|\*|\/\/)\s?/, '') : raw
     if (index > 0) buffer += isComment && previousWasComment ? ' ' : BARRIER
@@ -460,7 +652,7 @@ export function citationsIn(
     // Prefer the citation that precedes the quotation; a quotation binds once.
     let cite = found.find((m) => {
       const ends = m.index + m[0].length
-      return ends <= opens && opens - ends <= MAX_GAP && CONNECTIVE.test(buffer.slice(ends, opens))
+      return ends <= opens && bindsLabelled(buffer.slice(ends, opens))
     })
     cite ??= found.find(
       (m) =>
@@ -552,6 +744,13 @@ export function citationsIn(
     const [start, end] = spanOf(m)
     const quote = bound.get(m.index)
     const anchor = anchorOf(m)
+    // Sentence-scoped and locator-named: the marker must sit in the same
+    // sentence AND name this citation's own line. A marker one sentence away,
+    // or naming a different line, exempts nothing.
+    const named = correctedIn(
+      buffer.slice(sentenceStart(buffer, m.index), sentenceEnd(buffer, m.index + m[0].length)),
+    )
+    const correction = named.has(start) || named.has(end)
     return {
       file,
       line: lineAt(m.index),
@@ -559,6 +758,7 @@ export function citationsIn(
       offset: m.index,
       start,
       end,
+      ...(correction ? { correction: true as const } : {}),
       // The run is computed for EVERY citation now, not only quoted ones: an
       // anchored citation is satisfied by any span of its run for the same
       // reason a quotation is -- `SB-SA-10 (<line>, <line>)` cited both.
@@ -737,24 +937,6 @@ const EXTRACT_DIR = join(process.cwd(), 'registries', 'raw', 'extract')
 const COINAGE_NEAR = 120
 
 /**
- * The sentence a quotation sits in, bounded by a full stop or a `BARRIER`.
- * Not the comment: a long doc comment that mentions the extraction once would
- * otherwise excuse every quotation in it.
- */
-const sentenceBreak = (): RegExp => /[.;](?=\s)|\u0000/g
-const sentenceStart = (buffer: string, at: number): number => {
-  let start = 0
-  for (const m of buffer.slice(0, at).matchAll(sentenceBreak())) start = m.index + m[0].length
-  return start
-}
-const sentenceEnd = (buffer: string, from: number): number => {
-  const scan = sentenceBreak()
-  scan.lastIndex = from
-  const m = scan.exec(buffer)
-  return m === null ? buffer.length : m.index
-}
-
-/**
  * A sentence that names the extraction as the author of the words it quotes.
  * Every inflected form the tree uses is here, and each is asserted below —
  * a checker whose regex misses the inflection of the word it targets is a
@@ -817,6 +999,9 @@ export function coinageIn(
     // BARRIER between them means they are not one statement -- the leak-marker
     // array in `slice-2c-gates.test.ts` is one quotation per line.
     const offered = cites.some((c) => {
+      // A record of someone else's wrong citation is not this file offering
+      // the words as the source's. See `CORRECTION`.
+      if (c.correction === true) return false
       const ends = c.offset + c.token.length
       const gap = c.offset < opens ? buffer.slice(ends, opens) : buffer.slice(closes, c.offset)
       return gap.length <= COINAGE_NEAR && !gap.includes(BARRIER)
@@ -845,7 +1030,15 @@ export function coinageIn(
 
 const files = SCAN_ROOTS.flatMap((root) => walk(root))
 const citations = files.flatMap((file) => citationsIn(file, readFileSync(file, 'utf8')))
-const graded = citations.map((c) => ({ citation: c, verdict: checkCitation(c, source, sourceRaw) }))
+/**
+ * The exemptions, taken out of grading and printed BY NAME. Everything else in
+ * `citations` is graded, so the two lists together still account for every
+ * citation this tree carries -- asserted below.
+ */
+const corrections = citations.filter((c) => c.correction === true)
+const graded = citations
+  .filter((c) => c.correction !== true)
+  .map((c) => ({ citation: c, verdict: checkCitation(c, source, sourceRaw) }))
 /**
  * Printed in full as well as asserted. Vitest elides a long array in its diff,
  * and a gate whose findings cannot be read is a gate people re-run instead of
@@ -927,7 +1120,7 @@ describe('locator fidelity: the frozen source', () => {
 })
 
 describe('locator fidelity: the scan is not vacuous', () => {
-  it('walks the four roots and finds files in each', () => {
+  it('walks every scan root and finds files in each', () => {
     for (const root of SCAN_ROOTS) {
       expect(walk(root).length, `${root}/ contributed no scanned file`).toBeGreaterThan(0)
     }
@@ -1005,6 +1198,20 @@ describe('locator fidelity: the scan is not vacuous', () => {
       citations.length,
     )
     expect(anchoredAll.length).toBe(strongByAnchor.length + anchoredUnproven.length + strongByQuote.filter((c) => c.anchor !== undefined).length)
+  })
+
+  it('names every citation it exempts as quoted-in-error rather than counting them', () => {
+    // An exemption nobody can read is an exemption nobody audits. Printed with
+    // the file and the locator, so a reviewer can go and look at each one.
+    if (corrections.length > 0) {
+      console.error(
+        `\n[locator-fidelity] exempt, quoted in order to correct (${corrections.length}):\n  ` +
+          corrections.map((c) => `${c.file}:${c.line} ${c.token}`).sort().join('\n  '),
+      )
+    }
+    // Graded plus exempt accounts for EVERY citation. Without this an edit
+    // could drop citations out of both and leave the gate looking healthy.
+    expect(graded.length + corrections.length).toBe(citations.length)
   })
 })
 
@@ -1382,6 +1589,264 @@ describe('locator fidelity: the coinage checker reports planted defects', () => 
     for (const word of ['extra', 'coil', 'chunk', 'CHK', 'source', 'blueprint']) {
       expect(ATTRIBUTED.test(`the ${word} says so`), word).toBe(false)
     }
+  })
+})
+
+describe('locator fidelity: documents are inside the scan, and it is not vacuous', () => {
+  /**
+   * THE ONE THING THAT MAKES THE OTHER DOCUMENT CHECKS WORTH ANYTHING. A gate
+   * whose scan reaches nothing passes forever and looks identical to a gate
+   * that found nothing wrong. This build has shipped that twice, and once a
+   * gate passed with its subject DELETED because an unrelated constant
+   * elsewhere rendered the same words -- so this asserts the SPECIFIC file,
+   * not merely that some markdown was read somewhere.
+   */
+  it('reads real markdown under docs/ in the run that grades this tree', () => {
+    expect(SCANNED_EXT.test('build-map.md')).toBe(true)
+    const md = walk('docs').filter((f) => f.endsWith('.md'))
+    expect(md.length, 'docs/ contributed no markdown to the scan').toBeGreaterThan(10)
+    // The scan the assertions actually run over -- not a second walk that
+    // could agree with itself while the real one read nothing.
+    expect(files).toEqual(expect.arrayContaining(md))
+    expect(citations.some((c) => c.file.startsWith('docs'))).toBe(true)
+  })
+
+  it('grades a defect planted in a real file on disk under docs/', () => {
+    // Planted on the REAL filesystem and removed in the same test, because
+    // `walk` reading a directory listing is the step every other assertion
+    // here takes on trust. Named so `isForeignProbe` hides it from any other
+    // suite's scan mid-lifetime, and the release project runs its files
+    // sequentially for exactly this reason.
+    const dir = join('docs', `.zz-probe-doccite-${process.pid}`)
+    const probe = join(dir, 'probe.md')
+    mkdirSync(dir, { recursive: true })
+    try {
+      // A blank line of the REAL frozen source, so the verdict is a fact
+      // about the source rather than about a fixture: the line the DOH census
+      // map cited for its structural-authority sentence is blank, and the
+      // sentence is on the next line. Both numbers are BUILT by `cite()` and
+      // neither is written out here -- a literal blank-line number in this
+      // file's own prose is lexed and graded like any other citation, and the
+      // first draft of this comment failed this gate with one.
+      writeFileSync(probe, `A census row citing nothing at all (${cite(27_214)}).\n`, 'utf8')
+      expect(walk(dir)).toEqual([probe])
+      const found = citationsIn(probe, readFileSync(probe, 'utf8'))
+      expect(found.length).toBe(1)
+      expect(checkCitation(found[0] as Citation, source, sourceRaw)).toEqual({ kind: 'blank-line' })
+      // And the same shape one line over is NOT reported, so the check is
+      // reading the line rather than reporting everything it is handed.
+      writeFileSync(probe, `A census row citing the security paragraph (${cite(27_215)}).\n`, 'utf8')
+      const good = citationsIn(probe, readFileSync(probe, 'utf8'))
+      expect(checkCitation(good[0] as Citation, source, sourceRaw)).toBeNull()
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('locator fidelity: the non-breaking hyphen is a hyphen everywhere', () => {
+  // U+2011 written out, once, so every assertion below names the same
+  // character and none of them can be satisfied by an ASCII hyphen typed by
+  // mistake. The frozen source contains it zero times; the census maps contain
+  // 2,466.
+  const NB = '\u2011'
+
+  it('is the character the documents really use', () => {
+    const map = 'docs/census/2026-08-19-surf-doh-slice04-build-map.md'
+    expect(existsSync(map)).toBe(true)
+    expect(readFileSync(map, 'utf8').includes(NB)).toBe(true)
+    expect(sourceBytes.toString('utf8').includes(NB)).toBe(false)
+  })
+
+  it('folds in a quotation, so a hyphenated identifier still matches the source', () => {
+    // Before this, `MOD-DOH-14` written with U+2011 matched no source line and
+    // the citation was reported ABSENT -- a defect the document had not
+    // committed.
+    const src = ['feeds `MOD-DOH-14` the Qualification Calendar'].map(normalise)
+    const c = citationsIn('probe.md', `${cite(1)} — "feeds \`MOD${NB}DOH${NB}14\` the Qualification Calendar"`)[0] as Citation
+    expect(c.quote, 'the quotation must bind or this proves nothing').toBeDefined()
+    expect(checkCitation(c, src, src)).toBeNull()
+    // The plant: the same words with a hyphen the fold does NOT cover stay
+    // absent, so this is the fold doing the work and not a looser comparison.
+    const underscored = citationsIn('probe.md', `${cite(1)} — "feeds \`MOD_DOH_14\` the Qualification Calendar"`)[0] as Citation
+    expect(checkCitation(underscored, src, src)).toEqual({ kind: 'absent' })
+  })
+
+  it('folds in the lexer, so a range written with it is ONE range and not two', () => {
+    // The half of the gap that produced findings rather than hiding them.
+    // `L30780‑L30783` lexed as two bare citations, and the first of them was
+    // then reported as the wrong line for the identifier the pair covers.
+    const one = citationsIn('probe.md', `see ${cite(1)}${NB}${cite(4)} for the rule`)
+    expect(one.length).toBe(1)
+    expect([one[0]?.start, one[0]?.end]).toEqual([1, 4])
+    // Proof that it is the fold and not the CITATION separator class: a
+    // character the fold does not cover still lexes as two citations.
+    expect(citationsIn('probe.md', `see ${cite(1)}~${cite(4)} for the rule`).length).toBe(2)
+  })
+
+  it('folds in the lexer, so an identifier written with it still anchors', () => {
+    const src = ['alpha', '| `FB-ZZ-09` | ninth |', '| `FB-ZZ-10` | tenth |']
+    const VOCAB = new Set(['FB-ZZ-09', 'FB-ZZ-10'])
+    const index = buildIdentifierIndex(src, VOCAB)
+    const text = `/** \`FB${NB}ZZ${NB}10\` (${cite(2)}) */`
+    const c = citationsIn('probe.md', text, VOCAB)[0] as Citation
+    expect(c.anchor, 'U+2011 must not hide an identifier from the anchor check').toBe('FB-ZZ-10')
+    expect(checkCitation(c, src.map(normalise), src, index)).toEqual({
+      kind: 'anchor-miss',
+      anchor: 'FB-ZZ-10',
+      sibling: 'FB-ZZ-09',
+      at: [3],
+    })
+  })
+})
+
+describe('locator fidelity: a quotation binds through the identifier it labels', () => {
+  const CLAIM = 'no user interface control anywhere in the studio creates an atomic capability'
+  const src = ['alpha', 'beta', `- \`AC-ZZ-005\` — ${CLAIM}.`].map(normalise)
+
+  it('binds leftwards through the label, which is the documents own convention', () => {
+    // `surf-stu-slice05-build-map.md:58` writes exactly this shape. Without
+    // it the quotation fell through to the NEXT row's locator and that
+    // correct locator was reported as a defect.
+    const c = citationsIn('probe.md', `${cite(3)} \`AC-ZZ-005\`: *"${CLAIM}"*`)[0] as Citation
+    expect(c.quote).toBe(CLAIM)
+    expect(checkCitation(c, src, src)).toBeNull()
+  })
+
+  it('binds nothing leftwards when the gap is words rather than a label', () => {
+    expect(
+      citationsIn('probe.md', `${cite(3)} states in its own words *"${CLAIM}"*`)[0]?.quote,
+    ).toBeUndefined()
+  })
+
+  it('does not bind RIGHTWARDS through a label, which is a different claim', () => {
+    // `studio/disclosure/decisions.ts` writes `"<quote>" AC-STU-090 (<line>)
+    // requires ...`, where the quotation belongs to the decision record and
+    // the citation to the criterion that follows it.
+    expect(
+      citationsIn('probe.md', `*"${CLAIM}"* \`AC-ZZ-005\` (${cite(3)}) requires it`)[0]?.quote,
+    ).toBeUndefined()
+  })
+
+  it('holds a plain punctuation gap to the six characters it was measured at', () => {
+    // The widened cap must not leak to gaps with no label in them.
+    const wide = '- - - - - - - - - -'
+    expect(wide.length).toBeGreaterThan(MAX_GAP)
+    expect(citationsIn('probe.md', `${cite(3)} ${wide} *"${CLAIM}"*`)[0]?.quote).toBeUndefined()
+  })
+})
+
+describe('locator fidelity: a citation quoted in order to correct it', () => {
+  /**
+   * THE TWO CASES, ON THE REAL DEFECT THIS BUILD ACTUALLY SHIPPED. `FB-STU-10`
+   * is at L31454 and L31453 is `FB-STU-09`; nine citations across six files
+   * carried the neighbouring line. That off-by-one is the subject of a record
+   * in this build's own ledger, and when a plan closes `RESUME.md` §4 moves
+   * such records into `docs/process/` -- into this scan.
+   *
+   * The premise is asserted against the frozen source through `IDENTIFIERS`,
+   * never against the text under test: editing a document cannot move an
+   * identifier, and editing the source fails the sha256 pinned above.
+   */
+  const WRONG = 31_453
+  const RIGHT = 31_454
+
+  it('has the premise the two cases are told apart by', () => {
+    expect(IDENTIFIERS.lines.get('FB-STU-10')).toContain(RIGHT)
+    expect(IDENTIFIERS.lines.get('FB-STU-10')).not.toContain(WRONG)
+    expect(IDENTIFIERS.atLine.get(WRONG)).toContain('FB-STU-09')
+  })
+
+  /**
+   * The citation under test is the ANCHORED one -- the sentence's claim about
+   * where `FB-STU-10` lives. The marker carries a locator of its own and it
+   * must not be mistaken for the claim: picking `start === WRONG` returned the
+   * marker's copy and passed CASE B for the wrong reason, which is how the
+   * first draft of this fixture proved nothing.
+   */
+  const verdict = (text: string): Verdict | null => {
+    const found = citationsIn('probe.md', text)
+    const c = found.find((x) => x.anchor === 'FB-STU-10') as Citation
+    expect(c, `no anchored citation in ${JSON.stringify(text)}`).toBeDefined()
+    expect(c.start, 'the anchored citation must be the wrong line').toBe(WRONG)
+    return c.correction === true ? null : checkCitation(c, source, sourceRaw)
+  }
+  const MISS = {
+    kind: 'anchor-miss',
+    anchor: 'FB-STU-10',
+    sibling: 'FB-STU-09',
+    at: IDENTIFIERS.lines.get('FB-STU-10'),
+  }
+  const mark = (...lines: number[]): string =>
+    `[cited-in-error: ${lines.map((n) => cite(n)).join(', ')}]`
+
+  it('CASE A — a document asserting the wrong line is reported', () => {
+    expect(verdict(`The fallback contract \`FB-STU-10\` (${cite(WRONG)}) governs the audit write`)).toEqual(MISS)
+  })
+
+  it('CASE B — a document recording that someone asserted it is not', () => {
+    expect(
+      verdict(
+        `Nine sites cited \`FB-STU-10\` (${cite(WRONG)}) ${mark(WRONG)}, and the correct line is ${cite(RIGHT)}`,
+      ),
+    ).toBeNull()
+  })
+
+  it('is the marker doing that, and not the corrective words around it', () => {
+    // The rejected alternative, proven wrong rather than argued away: strip
+    // the marker and leave every corrective word in place, and the same
+    // sentence is reported again. A rule keyed on "cited", "correct" or
+    // "wrong" would have passed both this and CASE A.
+    expect(
+      verdict(
+        `Nine sites cited \`FB-STU-10\` (${cite(WRONG)}), and the correct line is ${cite(RIGHT)}`,
+      ),
+    ).toEqual(MISS)
+  })
+
+  it('exempts the locator the marker NAMES and no other', () => {
+    // Per-citation, not per-sentence. A marker naming the corrected line does
+    // not excuse the wrong one sitting beside it.
+    expect(
+      verdict(`\`FB-STU-10\` (${cite(WRONG)}) is the audit contract ${mark(RIGHT)}`),
+    ).toEqual(MISS)
+  })
+
+  it('exempts inside its own sentence and no further', () => {
+    // Sentence scope, the same scope `ATTRIBUTED` is held to and for the same
+    // reason: a marker at the top of a long record must not excuse every
+    // citation below it.
+    expect(
+      verdict(`The sweep is recorded here ${mark(WRONG)}. Elsewhere \`FB-STU-10\` (${cite(WRONG)}) governs the audit write`),
+    ).toEqual(MISS)
+  })
+
+  it('exempts a range only when the marker names one of its endpoints', () => {
+    expect(verdict(`\`FB-STU-10\` (${cite(WRONG, RIGHT)}) ${mark(WRONG)}`)).toBeNull()
+    expect(verdict(`\`FB-STU-10\` (${cite(WRONG)}) ${mark(31_455)}`)).toEqual(MISS)
+  })
+
+  it('reaches the coinage checker through the same door', () => {
+    const COINED_WORDS = 'admin drafts the grant and the root approves and issues it'
+    const coined = buildCoinage([
+      { name: 'CHK-000.json', body: { workflows: [{ id: 'WF-ZZ-01', primary_actor: COINED_WORDS, line: 3 }] } },
+    ])
+    const fake = ['alpha', 'beta', 'gamma'].map(normalise)
+    const quoted = (extra: string): string[] =>
+      coinageIn('probe.md', `A screen offered (${cite(3)}${extra}) — "${COINED_WORDS}" as the source's`, coined, fake).map(
+        (c) => c.quote,
+      )
+    // Reported when the sentence offers the words as the source's ...
+    expect(quoted('')).toEqual([normalise(COINED_WORDS)])
+    // ... and not when the sentence is a record of someone else doing so.
+    expect(quoted(` ${mark(3)}`)).toEqual([])
+  })
+
+  it('takes no exemption from a marker that names no line', () => {
+    // A bare `[cited-in-error]` is a per-sentence blanket, which is the shape
+    // this rule exists to avoid. It exempts nothing.
+    expect(correctedIn('[cited-in-error] and the correct line is elsewhere').size).toBe(0)
+    expect(correctedIn(`[cited-in-error: ${cite(WRONG)}]`)).toEqual(new Set([WRONG]))
   })
 })
 

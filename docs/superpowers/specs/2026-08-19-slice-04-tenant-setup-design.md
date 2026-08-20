@@ -13,7 +13,7 @@ The Hub is nineteen modules split across three slices. Slice 4 takes the **setup
 
 | module | why it is in slice 4 |
 |---|---|
-| `MOD-DOH-01` Tenant Lifecycle and Tier Operations | "Gates the write classes of every other module" (L26866). Nothing else is testable without it. |
+| `MOD-DOH-01` Tenant Lifecycle and Tier Operations | "Gates the write classes of every other module" (L26877). Nothing else is testable without it. |
 | `MOD-DOH-02` Location Configuration | Owns `OBJ-DOH-SITE/AREA/CELL`. Two slice-4 modules name it a hard dependency (L28503, L27451). |
 | `MOD-DOH-03` Shift Management | Owns `OBJ-DOH-SHIFT`. `MOD-DOH-04` needs it for on-shift roster resolution (L27451). |
 | `MOD-DOH-04` Worker Lifecycle and Qualifications | Owns `OBJ-DOH-WORKER/QUAL/CLEAR`. Workers and qualifications, both named in the boundary. |
@@ -51,11 +51,22 @@ intersecting access conditions** (L14512), enumerated in this order:
 - **Safety controls win.** Where a safety control conflicts with any other condition — *including a
   root-level allow* — the safety control decides.
 
-> **Corrected before implementation.** The census cited L14531 for a "safety-first evaluation
-> order"; that line is the request-arrival step, and no such reordered list exists. Safety controls
-> are condition NINE in the enumeration and win by PRECEDENCE, not by position. Encoding a
-> safety-first array would have shipped a made-up ordering into eight modules, and
-> `SCR-DOH-ROLE-04` would have rendered it to a reviewer as if the source said so.
+> **Corrected before implementation.** The census cited L14531 [cited-in-error: L14531] for a
+> "safety-first evaluation order"; that line is the request-arrival step, and no such reordered
+> list exists. Safety controls are condition NINE in the enumeration and win by PRECEDENCE, not
+> by position. Encoding a safety-first array would have shipped a made-up ordering into eight
+> modules, and `SCR-DOH-ROLE-04` would have rendered it to a reviewer as if the source said so.
+>
+> **This ruling is DISPUTED and is not settled here.** Reading the frozen source for the
+> correction-quoting rule found that a safety-first evaluation ordering DOES exist: §"Numbered
+> workflow — one access decision, end to end" (L14529) runs the request arriving at L14531 and
+> then evaluates safety controls FIRST at L14532, role permission at L14533, assigned scope
+> L14534, tenant entitlement L14535, object state L14536, qualification L14537, active grants
+> L14538, device and connectivity L14539, segregation of duties L14540 — the census map's nine,
+> in the census map's order. The DEFINITION order at L14514–L14522 does place safety ninth, so
+> the source states both and this ruling followed only one of them. Only the LOCATOR the census
+> map used was wrong. Whether eight modules built on this ruling change is a design decision and
+> belongs to the controller; it is recorded here rather than reversed in a citation task.
 
 `SCR-DOH-ROLE-04` renders which of the nine conditions failed **and who can change that
 condition**, and never reveals the existence of records outside the caller's scope (L14267).
@@ -138,7 +149,7 @@ reference where a reviewer can see it.
 | **D9** | **A Tenant Admin may enter a qualification and record a recertification.** The `MOD-DOH-04` matrix (L27466) gives all five columns and says `Allowed`. **One census reader claimed the matrix has no Tenant Admin row; that is false.** L33638 dissents alone and is recorded as an erratum. |
 | **D10** | **A Tenant Admin may NOT grant a clearance** — `Explicitly prohibited` on all three rows (L27472). Rendered **DISABLED with the reason, not absent**, because the controls exist on the same screen for the Supervisor and Quality Manager, and `FB-QUAL-005` says the disabled control teaches the rule at the moment it binds. The most privileged tenant role sits deliberately outside the safety-exception path. |
 | **D11** | **The Worker gets no Hub screen.** `DEC-WKRVIEW-001` is open; the source names the stake plainly — it *"changes the login model's surface area, the training burden, and the attack surface"* (L23067). Worker renders `Unavailable` throughout; workers meet their own certification alerts on the device. **The cost is stated on screen:** a worker without a device in hand cannot check their own expiry. |
-| **D12** | **Any signed-in tenant web user may press End-session** — Tenant Admin `Allowed`, the other three `Allowed with conditions`, *"because the control belongs to the tenant"* (L29195). L21449, which grants the platform-side Support role the tenant's own control, is excluded. |
+| **D12** | **Any signed-in tenant web user may press End-session** — Tenant Admin `Allowed`, the other three `Allowed with conditions`, *"because the control belongs to the tenant"* (L29199; the matrix header is L29195). L21449, which grants the platform-side Support role the tenant's own control, is excluded. |
 | **D13** | **Banner on all three access classes; End-session on the support session only.** *"An emergency access the tenant could terminate would not be an emergency access"* (L64810). The compliance-emergency class carries the automatic post-session report instead, and the control to suppress that report does not exist. |
 | **D14** | **Platform Access History is a read-through view over a seeded audit fixture, with the slice-10 dependency declared.** `AC-SA-18-06` requires it to read *the same audit records* — one audit truth per tenant. Building a second store to make slice 4 self-contained is the defect, and it would stay invisible until slice 10 tried to reconcile. |
 | **D15** | **A tier upgrade is BLOCKED under soft suspension**, banner naming the reason and routing to platform support. Soft's default trigger is 30 days of non-payment; letting a non-paying tenant self-service a higher ceiling is the riskier default, and L26547 instructs the stricter reading where tenant-state governance is ambiguous. **The counter-argument is recorded — this is a coin-flip the client should settle.** |

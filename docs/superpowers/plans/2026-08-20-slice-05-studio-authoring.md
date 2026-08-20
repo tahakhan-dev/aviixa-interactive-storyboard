@@ -486,7 +486,7 @@ it('renders the module count with its derived qualifier and DEC-STUDIO-001', () 
 | 10 | a recorded Severity 1 arming confirmation | L32313 | Task 15 |
 | 11 | a staffable chain | L33307 | Task 7 |
 
-**Where the check itself cannot run, publication is BLOCKED** (`FB-STU-09` L31453; `AC-STU-149` L34487): *"where the check itself cannot run, publication is blocked, failing closed, because publishing an unverified locale is the exact failure the check exists to prevent."*
+**Where the check itself cannot run, publication is BLOCKED** (`FB-STU-09` L31453; `AC-STU-149` L34487), and `FUNC-STU-17-03-A-1` L34409 states it in full: *"where the check itself cannot run, publication is blocked, failing closed, because publishing an unverified locale is the exact failure the check exists to prevent."*
 
 **C4 — this registry exists so no check is implemented twice.** The Builder's live validation panel and the publish path both **read** it. A module implementing a sibling's check is a defect.
 
@@ -1673,7 +1673,7 @@ it('offers no locale-pack management anywhere on the Studio', () => {
 
 ### What this task must build
 
-- **The propagation honesty rule (L32480, `AC-STU-070` L32562).** *"because a block edit changes worker-facing instruction content, it is a content change requiring republication, which means propagation is not instantaneous on the floor and **no view may suggest otherwise**."* L32500: *"Where a block is edited after the Workflow is published, the change lands in a new draft and reaches the floor only through a new published version and its adoption; **no propagation occurs to a pinned package.**"*
+- **The propagation honesty rule, `AC-STU-070` at L32562.** At L32480: *"because a block edit changes worker-facing instruction content, it is a content change requiring republication, which means propagation is not instantaneous on the floor and **no view may suggest otherwise**."* L32500: *"Where a block is edited after the Workflow is published, the change lands in a new draft and reaches the floor only through a new published version and its adoption; **no propagation occurs to a pinned package.**"*
 - **The audit shape a reviewer must see (L32548):** *"Block creation, edits, applications, and removals are captured in the draft revision history and surface in the screen-level diff **for every affected screen, so that a reviewer sees eight changed screens rather than one changed block.**"*
 - **States (L32473):** Draft, Applied to one or more screens, Published within a version. *"A block with no applying screens is Draft and orphaned, and is **reported as an unused block at submission rather than blocking it**."*
 - **`SB-STU-09` (L32523):** the panel lists every block in this Workflow with title, applying-screen count, and locale/difficulty coverage state. *"A prominent line states: 'Blocks belong to this Workflow only. They are not Content Library items and cannot be used in another Workflow.' **A delete control is disabled while applying screens exist, with those screens named.**"*
@@ -2245,7 +2245,7 @@ it('never auto-approves a proposal and flags it stale at 30 days without expirin
 | 11 | Preview | `WF-AUT-004` L53468 | `MOD-STU-11` | 7 |
 | 12 | Submit | `WF-AUT-002` → `WF-AUT-004` | `MOD-STU-11` | 7 |
 | 13 | Return with comments | `WF-AUT-006` L53540 | `MOD-STU-11` | 7 |
-| 14 | Revise and resubmit | `WF-AUT-007` L53572 | `MOD-STU-11` | 7 |
+| 14 | Revise and resubmit | `WF-AUT-007` L53561 | `MOD-STU-11` | 7 |
 | 15 | Evaluate — **composed agents only, not Workflows** | — | `MOD-STU-15` | 21 |
 | 16 | Maker-checker approve | `WF-AUT-004`+`005` L53505 | `MOD-STU-11` | 7 |
 | 17 | Publish | `WF-AUT-008` L53607 | `MOD-STU-12` | 10 |
