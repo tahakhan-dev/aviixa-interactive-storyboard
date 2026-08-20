@@ -160,7 +160,7 @@ export const STU_EXCLUDED_STATES = [
     reason:
       'Offline is not applicable anywhere on this surface, because authoring requires a ' +
       'connection; a lost connection renders STATE-12 with unsaved-work protection.',
-    sourceRef: 'L48330 (and L30835: the Studio requires connectivity)',
+    sourceRef: 'L48330 (and L30834: the Studio requires connectivity)',
   },
 ] as const satisfies readonly StudioExcludedState[]
 

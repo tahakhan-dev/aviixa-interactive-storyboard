@@ -103,8 +103,8 @@ function annotationFor(module: StudioModuleDefinition, screenId: StudioScreenId 
  * The derived module count, and the only place on this surface a count of
  * Studio modules may render.
  *
- * `AC-STU-014` (L30992) binds this build's own documents and screens, not
- * only the blueprint's: "No document, screen, or interface produced by this
+ * `AC-STU-014` binds this build's own documents and screens, not only the
+ * blueprint's — L30992: "No document, screen, or interface produced by this
  * programme presents a Studio module count as a Statement-of-Work fact."
  * L30897 is the fact it is qualifying — the Statement of Work provides no
  * canonical module count for this surface at all — and L30899 is the rule

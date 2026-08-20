@@ -111,7 +111,7 @@ export interface BuilderWriteResult {
 }
 
 /**
- * L32175: *"Structural changes — screens added, removed, reordered, branches
+ * L32169: *"Structural changes — screens added, removed, reordered, branches
  * drawn or retargeted, defaults changed — are captured in the draft revision
  * history and surface in the screen-level diff at publication."*
  */

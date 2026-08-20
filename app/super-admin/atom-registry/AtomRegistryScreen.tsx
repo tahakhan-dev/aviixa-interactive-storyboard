@@ -119,7 +119,7 @@ export interface AtomFixture {
 
 /**
  * Placeholder rows, and labelled as such on screen. The frozen source's own
- * catalogue of fourteen atoms is "explicitly not a committed set" (L43116,
+ * catalogue of fourteen atoms is "illustrative, not a committed set" (L43116,
  * L86897) and its names are not carried in the extraction this build reads,
  * so naming fourteen plausible capabilities here would ship a fiction that
  * reads back as a requirement. What these rows DO carry is the part the
@@ -491,7 +491,7 @@ export const UNSPECIFIED_IN_SOURCE = [
   {
     what: 'The atom catalogue itself',
     detail:
-      'The source’s catalogue is "explicitly not a committed set" (L43116, L86897). The rows on this screen are placeholders that exercise the seven OBJ-SA-ATOM states, not the source’s catalogue.',
+      'The source’s catalogue is "illustrative, not a committed set" (L43116, L86897). The rows on this screen are placeholders that exercise the seven OBJ-SA-ATOM states, not the source’s catalogue.',
   },
   {
     what: 'Any onward action from a per-tenant enablement row',

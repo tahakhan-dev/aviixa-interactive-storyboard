@@ -42,7 +42,7 @@ export type TenantWriteState = TenantState | 'indeterminate'
  */
 export type WriteAction =
   // Master-data creation, named exactly at L26919/L64977: "creation of new
-  // Jobs, Workers, locations, shifts, parts".
+  // Jobs, new Workers, new locations, new shifts, new parts".
   | 'create-job'
   | 'create-worker'
   | 'create-location'

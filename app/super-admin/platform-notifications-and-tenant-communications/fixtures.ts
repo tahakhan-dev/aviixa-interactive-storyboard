@@ -35,8 +35,8 @@ export const NOTIF_PLATFORM_ROLES = [
  * ------------------------------------------------------------------ */
 
 /**
- * `AC-SA-14-01` (L45684): "Exactly two channels exist — in-app and email —
- * and no configuration adds a third." Corroborated independently by
+ * `AC-SA-14-01` (L45684): "exactly two channels exist and no configuration
+ * adds a third." The two are in-app and email. Corroborated independently by
  * `AC-SA-07-06-01` (L44281, "platform-wide at every tier") and the numeric
  * facts at L44281 and L47096. This is one of the closed sets the spec lists
  * as a build input (§2.4), so it is a closed union with a real
@@ -128,9 +128,9 @@ void _broadcastStatesExhaustive
  * ------------------------------------------------------------------ */
 
 /**
- * `AC-SA-14-03` (L45684): "All-tenant broadcasts require root approval
- * (critical class); single-tenant notices do not." `all-tenant-broadcast` is
- * one of the eleven entries in `CRITICAL_ACTIONS`, so the class badge that
+ * `AC-SA-14-03` (L45684): "all-tenant broadcasts require root approval;
+ * single-tenant notices do not." `all-tenant-broadcast` is one of the eleven
+ * entries in `CRITICAL_ACTIONS`, so the class badge that
  * replaces the action bar here is the same rendering the rest of the console
  * uses for a critical-class action seen by a non-root role (spec §3).
  */

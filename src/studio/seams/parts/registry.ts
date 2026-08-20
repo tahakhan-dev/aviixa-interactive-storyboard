@@ -41,7 +41,7 @@ export const PART_SEAM_WRITABLE_FIELDS = ['name'] as const
 export type PartSeamWritableField = (typeof PART_SEAM_WRITABLE_FIELDS)[number]
 
 /**
- * L33161: "The registry record is Skeletal until completed in the Delivery
+ * L33129: "The registry record is Skeletal until completed in the Delivery
  * Operations Hub, then Complete. The Studio never advances the state; it
  * only creates the Skeletal record."
  */

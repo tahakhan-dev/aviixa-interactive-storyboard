@@ -443,7 +443,7 @@ function boltScreen(number: string, bolt: string): ScreenConfiguration {
     },
     inputType: 'measurement entry',
     timing: {
-      // The maximum and the trigger are the source's own (L32380); the
+      // The maximum and the trigger are the source's own (L32381); the
       // MINIMUM is a seeded fixture value, because the illustrative example
       // states only the maximum while §5.5.4 configures both. Stated here
       // rather than presented as the source's number.
@@ -841,7 +841,7 @@ export function stu05Decision(
  * 7. THE ONE AUDIT PATH.
  * ==================================================================== */
 
-/** L32431 — "Every section value change is captured in the draft revision history." */
+/** L32405 — "Every section value change is captured in the draft revision history." */
 export type ScreenWriteAction =
   | 'author-screen-content'
   | 'choose-input-type'
@@ -995,7 +995,7 @@ export function setInstruction(
 }
 
 /**
- * `AC-STU-064` (L32337, L32422). A value belonging to a section that is no
+ * `AC-STU-064` (L32337, L32420). A value belonging to a section that is no
  * longer relevant is RETAINED AND MARKED INACTIVE, never deleted, "so that
  * reverting the input type restores them; this prevents an accidental type
  * change from destroying a specification limit."
@@ -1015,7 +1015,7 @@ export function setInputType(
     )
   }
   return commit(
-    { ...input, rowId: 'choose-the-input-type', action: 'choose-input-type', section: 'Input type', sourceRefs: ['L32230', 'AC-STU-064 L32422'] },
+    { ...input, rowId: 'choose-the-input-type', action: 'choose-input-type', section: 'Input type', sourceRefs: ['L32230', 'AC-STU-064 L32420'] },
     (screen) => {
       const measurement = input.inputType === 'measurement entry'
       return {

@@ -73,7 +73,7 @@ export const DOH_SCREENS = [
     id: 'SCR-DOH-09',
     name: 'Qualification Calendar',
     moduleId: 'MOD-DOH-14',
-    sourceRef: 'L48103, SB-DOH-026 L29412',
+    sourceRef: 'L48103, SB-DOH-026 L29413',
   },
   {
     id: 'SCR-DOH-18',

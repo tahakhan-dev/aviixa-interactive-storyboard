@@ -90,7 +90,7 @@ export interface LibraryWriteResult {
   readonly namedScreens: readonly string[]
 }
 
-const AUDIT_REFS = ['L32754', 'L34657'] as const
+const AUDIT_REFS = ['L32753', 'L34657'] as const
 
 function refuse(
   register: LibraryRegister,
@@ -984,7 +984,7 @@ export function indexCoachingAsset(input: IndexCoachingAssetInput): LibraryWrite
       action: 'index',
       library: 'coaching-corpus',
       itemId,
-      sourceRefs: ['AC-STU-072 L32764', 'L32596'],
+      sourceRefs: ['AC-STU-072 L32764', 'L32597'],
     },
     (r) =>
       replaceItem(r, itemId, (current) =>

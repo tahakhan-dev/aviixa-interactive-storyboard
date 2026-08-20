@@ -363,7 +363,7 @@ describe('enforcement posture — the only configurable gate (L33616)', () => {
     expect(effectivePosture(read)).toBe('hard-block')
   })
 
-  // Row 11 (L33645) and the Security line (L33763): "a looser value is
+  // Row 11 (L33645) and the Security line (L33756): "a looser value is
   // rejected rather than logged."
   //
   // FAILS IF: a value outside the two is adopted, or is adopted as `notify`.
@@ -686,7 +686,7 @@ describe('grandfathering', () => {
     }
   })
 
-  // FUNC-STU-13-04-A-1 (L33686): "no role may clear the flag without a
+  // FUNC-STU-13-04-A-1 (L33679): "no role may clear the flag without a
   // recorded reason."
   //
   // FAILS IF: a blank reason clears the flag.

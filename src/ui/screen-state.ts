@@ -1,5 +1,5 @@
 /**
- * Frozen source §25 (L48014): "Rather than writing the same thirteen paragraphs
+ * Frozen source §25 (L48000): "Rather than writing the same thirteen paragraphs
  * seventy-nine times, this section writes them once as a contract every screen
  * must honour, and then each screen only has to record where it differs."
  *

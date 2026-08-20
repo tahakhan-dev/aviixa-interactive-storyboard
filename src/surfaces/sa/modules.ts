@@ -1,13 +1,14 @@
 /**
  * The SURF-SA spine: the nineteen Super Admin capability modules across two
- * navigation bands. Spec §1, §4 D25: the split is navigation only, "sequences
- * the build and carries no commercial or acceptance meaning" (L2397) — both
+ * navigation bands. Spec §1, §4 D25: the split is navigation only and
+ * sequences the build; it "carries no commercial or acceptance meaning"
+ * (L2397) — both
  * bands are V1, labelled by meaning ("Definition layer" / "Operations
  * layer"), never by number.
  *
  * `MOD-SA-20` is deliberately absent: §8.20 is a diligence narrative the
- * frozen source names only to refuse ("Nineteen module identifiers; §8.20
- * Fundability Surface deliberately excluded", L4567) — an alias-by-denial,
+ * frozen source names only to refuse ("§8.20 deliberately excluded from the
+ * module numbering", L4567) — an alias-by-denial,
  * not a twentieth module.
  *
  * D16: `roles_allowed` at module level is authoritative nowhere (it is

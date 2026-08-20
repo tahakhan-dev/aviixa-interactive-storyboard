@@ -37,12 +37,13 @@ import { SaConsoleShell } from '../SaConsoleShell'
  * streams. The empty state of this screen is the point of the module.
  *
  * The frozen source defines exactly ONE control here: the revocation
- * control, Root Super Admin and Admin, "revokes a grant at any point, taking
- * effect immediately" (L45871). Two further affordances are forced by hard
- * acceptance criteria rather than invented — grant drafting and submission
+ * control, Root Super Admin and Admin: "Revocation is available at any point
+ * and takes effect immediately" (L45871). Two further affordances are forced
+ * by hard acceptance criteria rather than invented — grant drafting and submission
  * (AC-SA-16-02, a hard gate on scope + time box + reason) and the approve-
- * and-issue step the roles matrix explicitly withholds from the Admin
- * (L44712, "may not: Approve and issue a JBS grant"). Everything else the
+ * and-issue step the roles matrix explicitly withholds from the Admin: the
+ * `Approve and issue a grant` row reads `Explicitly prohibited` in every
+ * column but the Root Super Admin's (L45914). Everything else the
  * module would need is named in the unspecified-in-source panel and drawn
  * nowhere (D15).
  */

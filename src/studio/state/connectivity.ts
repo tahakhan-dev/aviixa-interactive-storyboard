@@ -26,7 +26,7 @@
  *   a read that failed outright      -> STATE-12, naming what failed and
  *                                       whether anything was written (L48330);
  *   every write control              -> DISABLED with a named reason, and
- *                                       NEVER QUEUED (L30835, D9 sense A);
+ *                                       NEVER QUEUED (L30834, D9 sense A);
  *   the editor                       -> the explicit disconnected state with
  *                                       the local buffer and the plain
  *                                       statement that no save has been
@@ -151,7 +151,7 @@ export const STU_CONNECTIVITY_TREATMENTS = [
     reason:
       'Unavailable — the Studio requires an active connection. The action is not queued: nothing ' +
       'on this surface holds a write to replay later.',
-    sourceRef: 'L30835 (SoW §5.1.3), MOD-STU-18 row 23, D9 sense A, D4',
+    sourceRef: 'L30834 (SoW §5.1.3), MOD-STU-18 row 23, D9 sense A, D4',
   },
   {
     kind: 'editor',

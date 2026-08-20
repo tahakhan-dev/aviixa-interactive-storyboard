@@ -183,7 +183,7 @@ export function QualificationCalendarScreen() {
     'open-the-qualification-calendar',
     'open-the-calendar',
     READING_STATUSES,
-    ['L29345', 'L48103', 'SB-DOH-026 L29412'],
+    ['L29345', 'L48103', 'SB-DOH-026 L29413'],
   )
   const filterDecision = decide(
     role,

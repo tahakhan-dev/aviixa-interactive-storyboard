@@ -130,7 +130,7 @@ export const SLOT_LIBRARY = {
  * ==================================================================== */
 
 /**
- * L32754 lists what writes to the tenant audit log: *"Item creation, edits,
+ * L32753 lists what writes to the tenant audit log: *"Item creation, edits,
  * review outcomes, archival, asset approval, flagging, retirement, and every
  * propagation event."*
  *
@@ -337,7 +337,7 @@ interface LibraryItemBase {
    * made to a `Published` item the original is never touched; a new record
    * is written carrying this pointer back to it. The source grants no
    * in-place edit of published content — *"the prior published item remains
-   * in force"* (L32656) until review completes.
+   * in force"* (L32678) until review completes.
    */
   readonly supersedes: string | null
   /**

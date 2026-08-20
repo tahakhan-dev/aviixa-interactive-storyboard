@@ -32,7 +32,7 @@ import { DOH_SHIFTS, shiftById, shiftsForArea, type Shift } from '../shift-manag
  *   - The clearance escalation keys on `(Area, Shift)` and never on
  *     `(Worker)`: `ESCALATION_KEY` below is that pair as data, and
  *     `secondClearanceRoutesToQualityManager` takes an Area and a Shift and
- *     has no worker parameter at all — so "regardless of worker" (L27534) is
+ *     has no worker parameter at all — so "regardless of worker" (L27437) is
  *     a fact about the SIGNATURE rather than a sentence in a comment.
  *   - Escalation resolution resolves a ROLE against the roles on shift.
  *     `ON_SHIFT_ROLE_COVERAGE` holds role identifiers, never people, so there
@@ -75,7 +75,7 @@ void _workerStatesExhaustive
 
 /** `OBJ-DOH-QUAL`. The four warning stages are STATES, not notifications hung
  *  off one state, "because each stage has a different audience and because a
- *  tenant may add earlier stages but never remove one" (L27528). */
+ *  tenant may add earlier stages but never remove one" (L27533). */
 export type QualificationState =
   | 'valid'
   | 'warning_14'
@@ -99,7 +99,7 @@ void _qualStatesExhaustive
 
 /** `OBJ-DOH-CLEAR`. A lapse returns the qualification to Expired and never to
  *  Valid, "so a clearance can never quietly become a permanent qualification"
- *  (L27528, AC-DOH-04-8). */
+ *  (L27533, AC-DOH-04-8). */
 export type ClearanceState = 'granted' | 'active' | 'lapsed' | 'superseded_by_renewal'
 
 export const CLEARANCE_STATES = [
@@ -146,7 +146,7 @@ const _workerTypesExhaustive: MissingFromWorkerTypes extends never ? true : neve
 void _workerTypesExhaustive
 
 /** The mandatory categorised reason on an expired-certification clearance
- *  (L27533): "Emergency cover, Training-in-progress, or Other, plus optional
+ *  (L27435): "Emergency cover, Training-in-progress, or Other — plus optional
  *  free text". A closed set — free text is beside it, never instead of it. */
 export type ClearanceReasonCode = 'emergency-cover' | 'training-in-progress' | 'other'
 
@@ -443,7 +443,7 @@ export interface Qualification {
   /** When the certificate was actually issued. Back-dating is allowed. */
   readonly certificationDate: string
   /** When it was entered on the platform. Both are recorded, so "a renewal
-   *  entered late does not create an apparent compliance gap" (L27435). */
+   *  entered late does not create an apparent compliance gap" (L27441). */
   readonly entryDate: string
   readonly expiryDate: string
   /**
@@ -689,7 +689,7 @@ export interface Clearance {
   /** Optional free text BESIDE the code, never instead of it (L27533). */
   readonly reasonText: string
   /** The ROLE that granted it. Full audit metadata is "who granted, for whom,
-   *  where, why, when granted and when lapsed" (L27535); the role is what the
+   *  where, why, when granted and when lapsed" (L27439); the role is what the
    *  authority split turns on and is what this register renders. */
   readonly grantedByRole: TenantRoleId
   readonly grantedAt: string
@@ -816,7 +816,7 @@ export function chipFor(
 
 /* ------------------------------------------------------------------ *
  * THE ESCALATION KEY. Slice gate 3, and the sentence the source uses
- * for it (L27534): the scope is "deliberately Area-level, not
+ * for it (L27437): the scope is "deliberately Area-level, not
  * per-worker: repeated exceptions in one Area are a signal about the
  * Area."
  * ------------------------------------------------------------------ */
@@ -875,10 +875,10 @@ export const ON_SHIFT_ROLE_COVERAGE: Readonly<Record<string, readonly TenantRole
   'SHIFT-KEL-BACK': ['SUPERVISOR'],
 }
 
-/** The role an unacknowledged expiry escalates to (L27430). */
+/** The role an unacknowledged expiry escalates to (L27429). */
 export const ESCALATION_TARGET_ROLE: TenantRoleId = 'QUALITY_MANAGER'
 
-/** "the configurable window, default 2 minutes" (L27430). A label, not a
+/** "a configurable window, default 2 minutes" (L27429). A label, not a
  *  timer: this storyboard runs no clock and starts nothing. */
 export const ESCALATION_WINDOW_DEFAULT = '2 minutes'
 
@@ -889,7 +889,7 @@ export interface EscalationResolution {
   readonly targetRole: TenantRoleId
   readonly resolvedOnShift: boolean
   /** "marks the delivery as a fallback so the gap is visible rather than
-   *  silent" (L27430). */
+   *  silent" (L27429). */
   readonly markedAsFallback: boolean
   readonly note: string
 }
@@ -1024,7 +1024,7 @@ export function selectableAreas(roleId: TenantRoleId): readonly LocationArea[] {
 
 /* ------------------------------------------------------------------ *
  * BULK IMPORT — "a single canonical comma-separated-values template"
- * (L27438), all-or-nothing per file (L26707). No per-tenant column
+ * (L27445), all-or-nothing per file (L26707). No per-tenant column
  * mapping exists in the platform: it is the client's onboarding
  * operation, outside the product.
  * ------------------------------------------------------------------ */
@@ -1407,7 +1407,7 @@ export const CONTROL_MATRIX = [
       'Live for the Quality Manager only where the chosen Area and Shift already hold a clearance, and disabled with the reason otherwise — a first clearance is not a second one. Disabled with "routes to the Quality Manager" for the Supervisor, and with the authority rule for the Tenant Admin.',
     effect:
       'The escalation keys on the pairing of Area and Shift and never on a person: repeated exceptions in one Area are a signal about the Area, and the rule fires regardless of which worker is involved.',
-    sourceRef: 'L27478, FUNC-DOH-04-3.1.3 L27558, AC-DOH-04-7 L27608, L27534',
+    sourceRef: 'L27478, FUNC-DOH-04-3.1.3 L27558, AC-DOH-04-7 L27608, L27437',
   },
   {
     id: 'set-gate-posture-or-duration',
@@ -1510,7 +1510,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin and, from the canonical template only, for the Supervisor. One template exists and no mapping control is drawn for anybody: per-tenant column mapping is the client’s onboarding operation, outside the platform. ABSENT for the other three.',
     effect:
       'All-or-nothing per file. A file that fails validation on any row writes nothing at all, reports the row and the rule, and leaves every existing record untouched.',
-    sourceRef: 'L27482, FUNC-DOH-04-1.2.1 L27550, TEST-DOH-04-F3 L27637, L26707',
+    sourceRef: 'L27482, FUNC-DOH-04-1.2.1 L27550, TEST-DOH-04-F3 L27632, L26707',
   },
   {
     id: 'view-own-certification-alerts',

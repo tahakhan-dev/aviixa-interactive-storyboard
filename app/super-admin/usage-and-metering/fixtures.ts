@@ -410,7 +410,7 @@ export const USAGE_UNSPECIFIED_IN_SOURCE = [
   },
   {
     affordance: 'Re-derivation after a metering rule change',
-    note: 'The metering workflow ends at "reprocessed after a metering rule change" (L45360), but the source names no control, no actor and no trigger for that reprocessing. The terminal state is rendered; no button for it is.',
+    note: 'The metering workflow ends at "a metering rule change triggers reprocessing over the event stream" (L45360), but the source names no control, no actor and no trigger for that reprocessing. The terminal state is rendered; no button for it is.',
   },
   {
     affordance: 'Declaring a storage dimension’s telemetry unreliable',

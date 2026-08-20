@@ -177,7 +177,7 @@ export const AUDIT_EVENT_CLASSES = [
   {
     id: 'denial',
     name: 'Denial',
-    sourceRef: 'One authorisation decision, end to end — "deny with reason and write an audited denial", L20695',
+    sourceRef: 'One authorisation decision, end to end — "deny with reason and write an audited denial", L20710',
     isAccessClass: false,
   },
   {
@@ -220,14 +220,14 @@ export function auditEventClass(id: string): AuditEventClass | undefined {
 }
 
 /**
- * Which classes a role may read. L74182: "Results render with class filters
+ * Which classes a role may read. L74187: "Results render with class filters
  * showing only permitted classes."
  *
  * - Root and Admin: every class.
  * - Support: "Read own session records" (L74224) — its own support-session
  *   records and nothing else. The narrowest and most explicit statement the
  *   source makes about audit read scope on this surface.
- * - Platform Engineer: "Read platform log for engineering classes" (L74223).
+ * - Platform Engineer: "platform log for engineering classes" (L74223).
  *   The source never says WHICH classes are engineering classes. Narrowing by
  *   guess would fabricate a permission boundary that reads back as a
  *   requirement, so this prototype does not narrow it — it renders the whole

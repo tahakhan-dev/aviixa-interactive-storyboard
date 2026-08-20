@@ -218,7 +218,7 @@ export interface SeededHubBannerOptions {
    * on it (see `suspensionBannerFor`); the other two slots do not — the tenant
    * view of platform administration's matrix marks seeing the support-session
    * banner and seeing a platform announcement `Allowed` for every Hub role
-   * alike (L29194, L29196). This directory names no module id literal, by the
+   * alike (L29198, L29201). This directory names no module id literal, by the
    * build rule: it claims no module.
    */
   readonly role: RoleId

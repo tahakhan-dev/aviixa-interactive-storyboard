@@ -146,7 +146,7 @@ export function blockControls(s: Stu06Scenario): readonly BlockControl[] {
  * THE DELETE CONTROL, AND THE ROW THAT GOVERNS IT.
  *
  * FINDING, recorded rather than smoothed. `SB-STU-09` (L32523) and the
- * alternate path (L32501) both describe a DELETE control on this screen, and
+ * alternate path (L32500) both describe a DELETE control on this screen, and
  * the permission matrix at L32458-L32463 carries **no delete row**. Row 4 is
  * *Remove a block from a screen*, which is a different act: it un-applies a
  * block and leaves the block itself alone.

@@ -278,7 +278,7 @@ export const UNSPECIFIED_IN_SOURCE = [
   'Acknowledge an incident (open → acknowledged). The state exists in OBJ-SA-INCIDENT; no control that performs the transition is defined anywhere for this module.',
   'Assign an incident owner. AC-4880 requires a named role owner as an ATTRIBUTE of the record; no assignment control is defined.',
   'Escalate an incident, or set an incident level. The four platform incident levels at L107904 are marked *proposed*, so nothing is rendered for them (D5).',
-  'Annotate an incident. Named as a Support permission at L42715 ("no state change past acknowledged") but never defined as a control on any screen, so none is built.',
+  'Annotate an incident. Named as a Support permission at L43014 ("no state change past acknowledged") but never defined as a control on any screen, so none is built.',
   'Change an observability threshold. The threshold proposal and approval cycle belongs to MOD-SA-07, not here (L107742).',
   'Refresh or recompute an aggregate on demand. OBJ-SA-AGGREGATE carries a refresh floor as a relationship (L42990); no user-facing refresh control is defined.',
   'Export the overview. No export affordance is defined for this module, and no dashboard is accepted as audit evidence anywhere (AC-4803, L107299).',

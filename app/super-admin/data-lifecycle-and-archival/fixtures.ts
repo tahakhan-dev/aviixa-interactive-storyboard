@@ -7,9 +7,9 @@ import { saTenant } from '@/surfaces/sa/tenants'
  * fixture string, never a computed time (spec §8, and the no-ambient-Date
  * rule).
  *
- * The binding constraint on this file is `AC-SA-17-01` (L46074): "No purge
- * capability exists anywhere on the platform for any account; nothing ages
- * out of existence." Nothing in this file describes a purge, and no fixture
+ * The binding constraint on this file is `AC-SA-17-01` (L46074): "no purge
+ * capability exists anywhere on the platform for any account." Nothing ages
+ * out of existence: nothing in this file describes a purge, and no fixture
  * row carries a state that means "gone". The retention value is a
  * HOT-RETRIEVABILITY HORIZON — shortening it MOVES data to a colder storage
  * class and never deletes it (`AC-SA-17-02`).

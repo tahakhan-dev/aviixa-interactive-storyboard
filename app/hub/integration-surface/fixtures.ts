@@ -33,8 +33,9 @@ import {
 
 /* ------------------------------------------------------------------ *
  * The module card's permission matrix, nine rows, verified at
- * L29041-L29050. "Every cell carries an explicit status" (L10238), so
- * every cell below carries one and the screen renders all five columns.
+ * L29041-L29050. L10238: "Every cell in every permission matrix carries an
+ * explicit status" — so every cell below carries one, and the screen renders
+ * all five columns.
  *
  * TWO OF THE NINE ROWS DRAW A CONTROL on this screen and the other
  * SEVEN draw none — six because nobody holds them at all, and one, the

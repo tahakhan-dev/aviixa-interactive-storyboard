@@ -188,7 +188,7 @@ export interface HubPinRecord {
   readonly runId: string
   readonly version: string
   /**
-   * The pin is written before the download (L53695). Until the download
+   * The pin is written before the download (L53696). Until the download
    * completes the run "must show as assigned-not-ready" (L53677) — a pin is
    * not a delivery, and a delivery is not an application.
    */

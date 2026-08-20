@@ -332,7 +332,7 @@ export const SA10_UNSPECIFIED_IN_SOURCE = [
   },
   {
     affordance: 'A refresh or re-aggregate control',
-    note: 'The metrics-derivation workflow ends at "reconciled after a telemetry gap with the degraded window recorded" (L45140), but names no operator-initiated re-aggregation. Recovery is rendered as a state, not as a button.',
+    note: 'The metrics-derivation workflow ends at "Reconciliation after a telemetry gap re-computes and records the degraded window" (L45140), but names no operator-initiated re-aggregation. Recovery is rendered as a state, not as a button.',
   },
 ] as const satisfies readonly Sa10Unspecified[]
 

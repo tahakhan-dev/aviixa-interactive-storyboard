@@ -36,7 +36,7 @@ import { SaConsoleShell } from '../SaConsoleShell'
  * Two deliberate deviations, both reported:
  *
  * 1. The census §1 recommends ONE Admin control here — "Trigger a
- *    coaching-corpus re-index" (L42713) — while the same census's conflict
+ *    coaching-corpus re-index" (L43574) — while the same census's conflict
  *    C15 lists "trigger re-index" among the four affordances that must be
  *    rendered as gaps. The two paragraphs contradict each other. The build
  *    follows C15 and the module brief: no control is drawn, and the re-index
@@ -288,8 +288,9 @@ const FOOTPRINT_READ: AccessRequest = {
   action: 'SA04_READ_CROSS_TENANT_MEMORY_FOOTPRINT',
   allowedRoles: ALL_CONSOLE_ROLES,
   // Support is refused the cross-tenant aggregate at L97155. The source also
-  // says the opposite at L87560 ("read counts and volume on the footprint
-  // view"). The narrower grant is the safer prototype and L97155 is the
+  // says the opposite at L43598: "per-tenant, per-type counts and volume,
+  // with no content visibility", allowed to all four console roles, read.
+  // The narrower grant is the safer prototype and L97155 is the
   // surface-wide permission matrix, so the prohibition holds — the same way
   // spec §4 D17 resolves the Platform Engineer support-session conflict. The
   // screen names both lines so a reviewer sees the conflict, not just the

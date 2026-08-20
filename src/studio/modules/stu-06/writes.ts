@@ -481,7 +481,7 @@ export interface RemoveBlockInput {
 }
 
 /**
- * `FUNC-STU-06-02-A-2`, L32489 — *"Remove a block from a screen, leaving the
+ * `FUNC-STU-06-02-A-2`, L32484 — *"Remove a block from a screen, leaving the
  * screen-specific note intact."* The note lives on the SCREEN and is never
  * touched by this, which is why it survives rather than being restored.
  */

@@ -722,7 +722,7 @@ export const JOURNEY_STEPS = [
     sourceRef: 'L53644, L68396',
     ownerModule: 'MOD-STU-14',
     actingSurface: 'STU',
-    note: 'The completeness check is a separate act from the build: limits, severity mappings, gate rules and deviation-capture forms must all be present "or it cannot be built, because a package missing any of them would produce a device that cannot enforce alone" (L68396). Passing it is what makes the version distributable.',
+    note: 'The completeness check is a separate act from the build: limits, severity mappings, gate rules and deviation-capture forms must all be present "or it cannot be built, because a package missing any of them would produce a device that cannot enforce alone" (L68386). Passing it is what makes the version distributable.',
     effects: {
       DOH: affected(
         'The tenant audit log receives the package build; no Job is affected yet, because no Job exists.',

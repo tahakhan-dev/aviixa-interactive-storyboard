@@ -148,7 +148,7 @@ export const SUPPORT_TIME_BOX =
   'Two hours (the default). The value is set in Platform Settings, not here.'
 
 /* ------------------------------------------------------------------ *
- * The session list — "who, tenant, reason, scope, expiry and action count"
+ * The session list — "who, tenant, reason, scope, expiry, and action count"
  * (L54979, L55009). The action count is a count of the PLATFORM
  * operator's own reads inside one session, which is what makes a session
  * reconcilable against the tenant's own stream (L14880). It is not a

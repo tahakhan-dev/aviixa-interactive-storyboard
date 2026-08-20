@@ -748,7 +748,7 @@ export function PermissionsScreen({
         ...(node.dimension === 'site'
           ? { requiredSites: [node.id] }
           : { requiredAreas: [node.id] }),
-        sourceRefs: ['L17470', 'L27214'],
+        sourceRefs: ['L17470', 'L27215'],
       },
       fixtureContext(role),
     )

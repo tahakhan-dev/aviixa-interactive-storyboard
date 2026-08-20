@@ -527,7 +527,7 @@ export function WorkerLifecycleScreen() {
     'clearance-handoff-second-in-area-on-shift',
     'clear-second-in-area-on-shift',
     ACTING_STATUSES,
-    ['L27478', 'L27534'],
+    ['L27478', 'L27437'],
     { requiresOnline: true },
   )
 

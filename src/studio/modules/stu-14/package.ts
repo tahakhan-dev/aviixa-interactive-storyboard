@@ -388,7 +388,7 @@ export interface IntegrityVerdict {
 /**
  * L33839 and L32918. Two failure sources, one verdict:
  *
- * - a training item in the package — `AC-STU-080` (L32922): "On restoration,
+ * - a training item in the package — `AC-STU-080` (L32922, L32918): "On restoration,
  *   package definitions are re-verified to confirm no training item was
  *   included; any inclusion is treated as a package integrity failure and the
  *   package is quarantined rather than delivered";

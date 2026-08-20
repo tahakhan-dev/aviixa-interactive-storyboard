@@ -374,10 +374,13 @@ describe('MOD-DOH-02 — every control cites its own row of the frozen matrix ta
   })
 
   it('cites no line that is blank in the frozen source', () => {
-    // L27204 and L27214 are both empty lines at the frozen source: L27203 is
+    // Lines 27204 and 27214 are both empty at the frozen source: L27203 is
     // the artificial-intelligence paragraph and L27215 is the Security
     // paragraph, and each citation sat one line off its own sentence. A
-    // citation at a blank line points a reader at nothing.
+    // citation at a blank line points a reader at nothing. The two bad numbers
+    // are written here WITHOUT the citation prefix on purpose -- naming a
+    // blank line is not citing one, and tests/coverage/locator-fidelity.test.ts
+    // reads every citation in this tree as a claim.
     // RAW, not `moduleSources()`: two of the four bad citations lived in doc
     // comments, which `stripComments` removes. A citation is a claim wherever
     // it is written.

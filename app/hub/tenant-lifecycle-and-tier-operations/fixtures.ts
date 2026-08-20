@@ -641,7 +641,7 @@ export const READING_STATUSES = [
 
 /* ------------------------------------------------------------------ *
  * The five regions of SCR-DOH-03, in the fixed order the source states
- * three times (L27029, FUNC-DOH-12-3.2.1 L29100, AC-DOH-12-6 L29136).
+ * three times (L27029, FUNC-DOH-12-3.2.1 L29097, AC-DOH-12-6 L29136).
  * ------------------------------------------------------------------ */
 
 export const READ_VIEW_REGIONS = [

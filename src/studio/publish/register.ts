@@ -16,7 +16,7 @@ import {
  *    registration is a typed failure, never a silent replacement.
  * 2. **Fail closed.** A check that cannot run blocks publication, exactly as
  *    a check that fails does — `FB-STU-09` (L31453) and `AC-STU-149`
- *    (L34487): "where the check itself cannot run, publication is blocked,
+ *    (L34487, L34409): "where the check itself cannot run, publication is blocked,
  *    failing closed, because publishing an unverified locale is the exact
  *    failure the check exists to prevent." An unregistered check is the
  *    strongest form of a check that cannot run.
