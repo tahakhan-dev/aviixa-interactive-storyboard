@@ -69,6 +69,16 @@ describe('the registries on disk are what the current tree generates', () => {
   // checkout those are the same thing, so in CI it means "committed". Run
   // locally mid-edit it means "coherent right now", which is the weaker claim
   // and the one to trust.
+  // Timeout, per-test rather than per-project. Measured, not guessed: this
+  // case passes 5/5 in isolation and fails about 1 run in 9 inside the full
+  // release project, which is the wait-for-scheduler signature -- real time
+  // far above user time, with the work itself unchanged. The unit project's
+  // rule applies: a test slow because it is doing the work gets the headroom,
+  // a test slow because it repeats itself gets made faster. This one reads the
+  // 18MB source or the built tree once and is already memoised.
+  //
+  // Given per-test so every OTHER release gate stays on the tight default,
+  // where a sudden slowdown is still a signal rather than absorbed noise.
   it('every generated file matches a fresh generation, byte for byte', () => {
     const scratch = mkdtempSync(join(tmpdir(), 'aviixa-fresh-'))
     try {
@@ -96,7 +106,7 @@ describe('the registries on disk are what the current tree generates', () => {
     } finally {
       rmSync(scratch, { recursive: true, force: true })
     }
-  })
+  }, 30_000)
 })
 
 describe('no test writes the artefacts it checks', () => {

@@ -10,6 +10,7 @@ import {
 } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { createHash } from 'node:crypto'
 import { JSDOM } from 'jsdom'
 import { namesPersonBehaviouralMeasure } from './person-measure-keys'
 
@@ -273,12 +274,31 @@ interface BuiltRoute {
  */
 const BUILT_STUDIO_ROUTE_FLOOR = 17
 
+/**
+ * Parsed built routes, cached on the exact bytes they were parsed from.
+ *
+ * Three gate-1 cases were taking four to five seconds each and timing out
+ * about one run in nine. The cause was not contention and not the file
+ * reads: every call re-ran JSDOM over every built page, and seven call
+ * sites do that. The project's own rule says a test slow because it
+ * repeats itself is MADE FASTER rather than given more time, so this is
+ * memoised instead of being handed a longer budget.
+ *
+ * The cache key is the concatenated HTML, not a file list or an mtime.
+ * Several gates PLANT a violation into out/ and delete it again, and a
+ * cache those plants could not invalidate would quietly serve the
+ * pre-plant document -- turning every planted proof green and defeating
+ * the one thing this file exists to demonstrate. Reading the bytes is
+ * cheap; parsing them is not, so the read happens every call and only the
+ * parse is reused.
+ */
+let parsedRoutes: { key: string; routes: readonly BuiltRoute[] } | null = null
+
 function readAllBuiltStudioRoutes(): readonly BuiltRoute[] {
-  const routes: BuiltRoute[] = []
+  const raw: { route: string; file: string; html: string }[] = []
   const push = (route: string, file: string): void => {
     if (!existsSync(file)) return
-    const html = readFileSync(file, 'utf8')
-    routes.push({ route, file, html, doc: new JSDOM(html).window.document })
+    raw.push({ route, file, html: readFileSync(file, 'utf8') })
   }
   push('/studio', join(OUT_STUDIO, 'index.html'))
   for (const entry of entriesOf(OUT_STUDIO)) {
@@ -286,6 +306,17 @@ function readAllBuiltStudioRoutes(): readonly BuiltRoute[] {
     if (!statSync(dir).isDirectory()) continue
     push(`/studio/${entry}`, join(dir, 'index.html'))
   }
+  // Hashed rather than concatenated: the pages total several megabytes, and
+  // building one string of them on every call cost more than it saved. A
+  // native digest over the same bytes is the same guarantee for a fraction
+  // of the work -- and it must stay content-based, not mtime-based, because
+  // the plants below rewrite pages in place.
+  const digest = createHash('sha1')
+  for (const r of raw) digest.update(r.file).update('\u0000').update(r.html).update('\u0001')
+  const key = digest.digest('hex')
+  if (parsedRoutes?.key === key) return parsedRoutes.routes
+  const routes = raw.map((r) => ({ ...r, doc: new JSDOM(r.html).window.document }))
+  parsedRoutes = { key, routes }
   return routes
 }
 
@@ -512,6 +543,23 @@ describe('slice 5 gate 1: no bare Studio module count in the built tree', () => 
    */
   function countSites(doc: Document): readonly Element[] {
     const sites: Element[] = []
+    // Whole-document check first. Below, every element is asked for its own
+    // textContent, and JSDOM computes that by re-walking all descendants --
+    // so on a page with thousands of nodes the loop is quadratic in the
+    // page's text. Most built pages do not mention a module count at all,
+    // and for those this returns immediately instead of walking the tree.
+    //
+    // Measured, because the last two attempts at this were guesses: gate 1's
+    // three cases ran 4.0s, 5.1s and 5.1s against a 5s budget and timed out
+    // about one run in nine. Memoising the JSDOM parse across call sites did
+    // NOT help -- the cost was here, inside a single case, not in repeated
+    // parsing. Same rule as the unit project's: a test slow because it
+    // repeats itself is made faster, not given a longer budget.
+    //
+    // `body` rather than `documentElement` so `<head>` is out, and the same
+    // whitespace collapse as below so a count broken across a newline is
+    // still seen by this pre-check. It must never be NARROWER than the loop.
+    if (!MODULE_COUNT.test((doc.body?.textContent ?? '').replace(/\s+/g, ' '))) return sites
     for (const el of doc.querySelectorAll('*')) {
       // `<script>` and `<style>` contents are part of `textContent`, and
       // Next's flight payload carries the whole page's prose inside one
@@ -613,6 +661,16 @@ describe('slice 5 gate 1: no bare Studio module count in the built tree', () => 
     expect(text).toContain(DECISION_REF)
   })
 
+  // Timeout, per-test rather than per-project. Measured, not guessed: this
+  // case passes 5/5 in isolation and fails about 1 run in 9 inside the full
+  // release project, which is the wait-for-scheduler signature -- real time
+  // far above user time, with the work itself unchanged. The unit project's
+  // rule applies: a test slow because it is doing the work gets the headroom,
+  // a test slow because it repeats itself gets made faster. This one reads the
+  // 18MB source or the built tree once and is already memoised.
+  //
+  // Given per-test so every OTHER release gate stays on the tight default,
+  // where a sudden slowdown is still a signal rather than absorbed noise.
   it('PLANTED VIOLATION: a bare count on a built page trips it', () => {
     withPlanted(
       OUT_STUDIO,
@@ -625,7 +683,7 @@ describe('slice 5 gate 1: no bare Studio module count in the built tree', () => 
         ).toContain(OWN_PROBE_DIR)
       },
     )
-  })
+  }, 30_000)
 })
 
 /* ==================================================================== *
