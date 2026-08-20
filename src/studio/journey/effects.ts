@@ -407,7 +407,7 @@ export const JOURNEY_STEPS = [
     number: 9,
     title: 'Save draft',
     wfAut: null,
-    sourceRef: 'FB-STU-01 L31443–L31453, L31481',
+    sourceRef: 'FB-STU-01 L31443–L31454, L31481',
     ownerModule: 'MOD-STU-04 under FB-STU-01',
     actingSurface: 'STU',
     note: 'Nothing on this surface queues a write. Where the connection is lost the editor holds the local buffer and states plainly that no save has been recorded (AC-STU-009).',

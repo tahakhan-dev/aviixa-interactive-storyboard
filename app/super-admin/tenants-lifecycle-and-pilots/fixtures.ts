@@ -266,7 +266,7 @@ export const LIFECYCLE_TRANSITIONS = [
     rendering: 'No control: the source names pilot extension as an operator action but defines no control entry with an allowed-roles list. Named in the unspecified-in-source panel rather than invented.',
     reversibility: 'not stated in source',
     reversibilityNote: 'The source does not say whether an extension can be withdrawn.',
-    sourceRef: 'L44931, SCHED-023 L99432',
+    sourceRef: 'L44931, SCHED-023 L99434',
   },
   {
     id: 'TRN-06',
@@ -288,7 +288,7 @@ export const LIFECYCLE_TRANSITIONS = [
     rendering: 'No control defined; the expiry is a scheduled operator action in the source (SCHED-023).',
     reversibility: 'not stated in source',
     reversibilityNote: 'The source states no reinstatement path for an expired pilot.',
-    sourceRef: 'SCHED-022, SCHED-023, L99432',
+    sourceRef: 'SCHED-022 L99432, SCHED-023 L99434',
   },
   {
     id: 'TRN-08',

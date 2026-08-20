@@ -482,7 +482,7 @@ export function WorkerLifecycleScreen() {
     'set-instruction-difficulty',
     'set-instruction-difficulty',
     ACTING_STATUSES,
-    ['L27475', 'L52798'],
+    ['L27475', 'L52800'],
     { requiresOnline: true },
   )
   const archiveDecision = decide('archive-worker', 'archive-worker', ACTING_STATUSES, ['L27480'], {

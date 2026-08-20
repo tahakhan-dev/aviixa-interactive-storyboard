@@ -340,7 +340,7 @@ export const SUPPORT_SOURCE_CONFLICTS = [
   {
     topic: 'Extension of the time box',
     conflict:
-      'DEC-SUPEXT-001 is open. L64699 describes the tenant-banner extension control as "Disabled — the time box is set on the platform side", which implies a platform-side control exists; L56107 states there is no in-place extension at all.',
+      'DEC-SUPEXT-001 is open. L64699 disables the tenant-banner extension control with "The time box is set on the platform side and cannot be extended from here", which implies a platform-side control exists; L56107 states there is no in-place extension at all.',
     resolution:
       'D18: no extension anywhere. The control is ABSENT platform-side rather than disabled, because a disabled extension control implies an enabled one exists somewhere, and under D18 it never does.',
   },

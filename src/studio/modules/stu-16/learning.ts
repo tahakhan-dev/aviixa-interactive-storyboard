@@ -44,7 +44,7 @@ import { writeOnPublication, type MemoryWrite } from './memory'
  * proposal, decision, decider identity, decision time, publication, and
  * adoption is audited. The audit trail is what makes 'never auto-approved;
  * automatically published' a defensible statement rather than a slogan."*
- * `FB-STU-10` (L31453): an action that cannot be audited does not happen.
+ * `FB-STU-10` (L31454): an action that cannot be audited does not happen.
  *
  * Three acts, one enforcement point. An audit contract wired to one handler
  * of three is a defect this build has shipped.
@@ -184,7 +184,7 @@ function detailOf(act: LearningAct): string {
  * **THE ONE WRITE PATH FOR EVERY ACT THIS MODULE OWNS.** The audit entry is
  * written FIRST and the act is refused outright where it cannot be written:
  * *"an action that cannot be audited does not happen"* (`FB-STU-10`,
- * L31453).
+ * L31454).
  *
  * There is no act here that changes a configured operating value. That is
  * the module's whole contract, held by there being no member of `LearningAct`
@@ -209,7 +209,7 @@ export function applyLearningAct(
       outcome: 'refused',
       reason:
         `Refused: the audit entry could not be written (${written.reason}), so the change was ` +
-        'not made. An action that cannot be audited does not happen (FB-STU-10, L31453), and ' +
+        'not made. An action that cannot be audited does not happen (FB-STU-10, L31454), and ' +
         'automatic must not mean opaque (L34228).',
     }
   }

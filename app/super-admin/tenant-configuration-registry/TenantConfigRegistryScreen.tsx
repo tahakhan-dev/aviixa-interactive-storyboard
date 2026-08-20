@@ -63,8 +63,8 @@ type WriteMode = 'writable' | 'read-only'
 /**
  * STATE-12 deliberately stays `writable`. FB-SA-10 (L46316) makes the
  * unreadable bound a REJECTION at validation, not a removed control: "retry,
- * then reject the write with the bound stated" — refusing is the behaviour,
- * not the failure. Disabling the control in that state would hide the very
+ * then reject the write with the bound stated" (L44566) — refusing is the
+ * behaviour, not the failure. Disabling the control in that state would hide the very
  * outcome the state exists to show.
  */
 function writeMode(state: ScreenStateId): WriteMode {

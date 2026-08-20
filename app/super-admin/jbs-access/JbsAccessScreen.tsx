@@ -351,12 +351,19 @@ const SUBMIT_GRANT: ControlDefinition = {
 /**
  * The roles matrix at L44712 is explicit and unusually direct: the Admin
  * "may not: Approve and issue a JBS grant", in the same may-not list as
- * publishing a tier version and approving a wipe. Workflow 23.16 (L45848)
- * agrees — "Admin (drafts), Root Super Admin (approves and issues)".
+ * publishing a tier version and approving a wipe.
+ *
+ * Workflow 23.16 (L45848) and WF-ROLE-027 (L56169) write every step of the
+ * grant in the passive — a grant is drafted, it is approved and issued — and
+ * name no role on either act. The maker-checker split "Admin (drafts), Root
+ * Super Admin (approves and issues)" is this build's extraction speaking,
+ * `registries/raw/extract/CHK-014.json` against that same line, and it is
+ * recorded here rather than cited, because the source fixes the split only
+ * through the may-not list at L44712.
  *
  * The CLASS of that act is a different question and it is OPEN.
- * DEC-JBSAUTH-001 (L23081) asks "Is granting JBS access an Admin routine
- * action or a critical-class action?" and its working position is a
+ * DEC-JBSAUTH-001 (L23081) asks "whether granting JBS access is an Admin
+ * routine action or a critical-class action" and its working position is a
  * recommendation, not a decision. So this control renders DISABLED WITH A
  * NAMED REASON naming both the roles matrix and the open decision — the
  * precedent the spec itself sets for an open decision (D8's "proposal only —
@@ -537,7 +544,7 @@ export const UNSPECIFIED_IN_SOURCE = [
   {
     what: 'The class of the approve-and-issue act',
     detail:
-      'DEC-JBSAUTH-001 (L23081) is open: "Is granting JBS access an Admin routine action or a critical-class action?" Its working position — Admin action for a new grant, critical class for an extension — is a recommendation. The eleven critical-class actions the source enumerates (L55942) name no JBS act. The control is therefore rendered disabled with a named reason for every non-root role, and no critical-class badge is drawn, because the badge would assert the answer.',
+      'DEC-JBSAUTH-001 (L23081) is open: "whether granting JBS access is an Admin routine action or a critical-class action" Its working position — Admin action for a new grant, critical class for an extension — is a recommendation. The eleven critical-class actions the source enumerates (L55942) name no JBS act. The control is therefore rendered disabled with a named reason for every non-root role, and no critical-class badge is drawn, because the badge would assert the answer.',
   },
   {
     what: 'Whether the tenant sees a banner and may end a JBS session itself',

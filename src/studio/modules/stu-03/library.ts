@@ -718,7 +718,7 @@ export interface LibraryAuditEntry {
 export type LibraryAuditResult = { readonly ok: true } | { readonly ok: false; readonly reason: string }
 export type LibraryAuditWrite = (entry: LibraryAuditEntry) => LibraryAuditResult
 
-const AUDIT_REFS = ['L32002', 'L32004', 'FB-STU-10 L31453'] as const
+const AUDIT_REFS = ['L32002', 'L32004', 'FB-STU-10 L31454'] as const
 
 function isImplementationTeam(s: LibraryScenario): boolean {
   return s.persona === 'implementation-team'

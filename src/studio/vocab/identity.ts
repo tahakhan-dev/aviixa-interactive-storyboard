@@ -108,7 +108,7 @@ const _studioScreenIdsExhaustive: Exclude<StudioScreenId, (typeof STUDIO_SCREEN_
 void _studioScreenIdsExhaustive
 
 /**
- * The ten Studio fallback contracts, L31443-L31453. Each is defined once in
+ * The ten Studio fallback contracts, L31443-L31454. Each is defined once in
  * the source's own table and referenced by identifier throughout §20.2.
  * `FB-STU-10` is the strictest: an action that cannot be audited does not
  * happen, and there is no first fallback that permits it to proceed unaudited.

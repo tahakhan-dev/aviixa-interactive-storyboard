@@ -365,7 +365,7 @@ interface ControlDefinition {
 /**
  * THE one control the frozen source defines for MOD-SA-11 (L45273):
  * "mandatory grandfathering declaration", allowed roles Root Super Admin and
- * Admin, effect "must be completed before tier submission is possible".
+ * Admin, effect "must be completed before submission is possible".
  */
 const GRANDFATHERING_DECLARATION: ControlDefinition = {
   id: 'grandfathering-declaration',

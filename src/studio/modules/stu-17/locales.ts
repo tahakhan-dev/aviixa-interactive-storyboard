@@ -715,7 +715,7 @@ function withState(
  * one handler that mutates nothing.
  *
  * THE AUDIT IS WRITTEN BEFORE THE MUTATION, and a failed audit refuses the
- * act outright — `FB-STU-10` (L31453): an action that cannot be audited does
+ * act outright — `FB-STU-10` (L31454): an action that cannot be audited does
  * not happen, and there is no first fallback that permits it to proceed
  * unaudited. The workflow handed in is never mutated; a caller holding the
  * earlier one keeps exactly what it had.
@@ -772,7 +772,7 @@ export function applyLocalisationAct(
       outcome: 'refused',
       reason:
         'Refused: the audit entry could not be written, so the change was not made. An action ' +
-        'that cannot be audited does not happen (FB-STU-10, L31453).',
+        'that cannot be audited does not happen (FB-STU-10, L31454).',
     }
   }
 

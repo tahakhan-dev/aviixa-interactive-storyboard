@@ -206,7 +206,7 @@ describe('the closed vocabularies -- design §4\'s nineteen plus the Workflow au
     expect(GRANT_STATES).toEqual(['Assigned', 'Active', 'Revoked', 'Expired'])
   })
 
-  // L31443-L31453.
+  // L31443-L31454.
   it('holds the ten Studio fallback contracts', () => {
     expect(FALLBACK_CONTRACTS).toEqual([
       'FB-STU-01',

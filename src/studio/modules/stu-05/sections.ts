@@ -1059,7 +1059,7 @@ export function setGate(input: ScreenWriteInput & { readonly gate: GateType }): 
     return refuse(input.draft, `“${String(input.gate)}” is not a gate type. Nothing was written.`)
   }
   return commit(
-    { ...input, rowId: 'set-a-hard-or-soft-proof-gate', action: 'set-gate', section: 'Gate and proof', sourceRefs: ['L32236', 'AC-STU-061 L32418'] },
+    { ...input, rowId: 'set-a-hard-or-soft-proof-gate', action: 'set-gate', section: 'Gate and proof', sourceRefs: ['L32236', 'AC-STU-061 L32417'] },
     (screen) => ({ ...screen, gate: input.gate }),
     `${input.screenId}: ${input.gate} proof gate saved. This governs proof capture only — a soft ` +
       'proof gate never softens the specification gate.',
@@ -1292,7 +1292,7 @@ export function attachPointer(input: AttachPointerInput): AttachPointerResult {
  * ==================================================================== */
 
 /**
- * `TEST-STU-068` (L32428): "confirm no such control exists and the
+ * `TEST-STU-068` (L32427): "confirm no such control exists and the
  * application programming interface refuses." There is no
  * `setSpecificationGate` and no `defineSeverityLevel` here, and the covering
  * test asserts their absence by name AND by pattern, so a differently spelled

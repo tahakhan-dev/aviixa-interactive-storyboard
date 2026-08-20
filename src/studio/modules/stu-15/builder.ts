@@ -344,7 +344,7 @@ export interface BuilderResult {
   readonly agent: ComposedAgent | null
 }
 
-const AUDIT_REFS = ['L34123', 'FB-STU-10 L31453'] as const
+const AUDIT_REFS = ['L34123', 'FB-STU-10 L31454'] as const
 
 function refuse(
   register: ComposedAgentRegister,

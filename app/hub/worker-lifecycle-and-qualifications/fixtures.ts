@@ -115,10 +115,10 @@ void _clearanceStatesExhaustive
 
 /**
  * The instruction-difficulty profile. A CLOSED three-member vocabulary
- * (`AC-WF-WKR-001-03`, L52798) and the reason the record can be incomplete:
+ * (`AC-WF-WKR-001-03` L52800) and the reason the record can be incomplete:
  * an invalid value is refused, and the record is "held incomplete and cannot
- * receive assignments" — "no assignment is safer than an assignment whose
- * instructions may render at the wrong level".
+ * receive assignments" (`FB-WKR-001` L52796) — "no assignment is safer than
+ * an assignment whose instructions may render at the wrong level".
  */
 export type InstructionDifficulty = 'simple' | 'standard' | 'expanded'
 
@@ -135,8 +135,8 @@ type MissingFromDifficulties = Exclude<
 const _difficultiesExhaustive: MissingFromDifficulties extends never ? true : never = true
 void _difficultiesExhaustive
 
-/** `worker_type` — "no operational difference between them at V1"
- *  (`AC-WF-WKR-001-02`, L52798), carried because the record carries it. */
+/** `worker_type` — "no operational difference between them at V1" (L27421;
+ *  `AC-WF-WKR-001-02` L52800), carried because the record carries it. */
 export type WorkerType = 'employee' | 'contractor'
 
 export const WORKER_TYPES = ['employee', 'contractor'] as const satisfies readonly WorkerType[]
@@ -283,7 +283,7 @@ export interface Worker {
   readonly workerType: WorkerType
   /**
    * `null` means the profile has not been accepted. The record is then
-   * INCOMPLETE and cannot receive assignments (`FB-WKR-001`, L52798). The
+   * INCOMPLETE and cannot receive assignments (`FB-WKR-001` L52796). The
    * union stays closed: an invalid value is refused at entry rather than
    * stored, so no record can ever hold a fourth difficulty level.
    */
@@ -1195,7 +1195,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin, and for the Supervisor within their own Area scope. Blocked for NEW workers in soft suspension, which is the write-class table’s answer and not a second rule stated here. ABSENT for the other three: no other role holds it in any scope and no other surface grants it, so nothing is drawn where it would sit.',
     effect:
       'Creates the record with its own platform identity, or edits one. Supervisor permission alone authorises the change and the audit trail is the control rather than a second approval — a deliberate design decision the source states outright.',
-    sourceRef: 'L27470, FUNC-DOH-04-1.1.1 L27546, AC-WF-WKR-001-04 L52798',
+    sourceRef: 'L27470, FUNC-DOH-04-1.1.1 L27546, AC-WF-WKR-001-04 L52800',
   },
   {
     id: 'view-worker',
@@ -1329,7 +1329,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin and the Supervisor, offering exactly three levels. A value outside them is refused and the record is held INCOMPLETE and can receive no assignment. ABSENT for the other three.',
     effect:
       'Selects which work-instruction difficulty variant the worker receives at execution. It reaches the device in the next work package; an in-flight run keeps the level pinned in its own package.',
-    sourceRef: 'L27475, FUNC-DOH-04-1.1.2 L27547, AC-WF-WKR-001-03 / FB-WKR-001 L52798',
+    sourceRef: 'L27475, FUNC-DOH-04-1.1.2 L27547, AC-WF-WKR-001-03 L52800 / FB-WKR-001 L52796',
   },
   {
     id: 'clear-expired-certification',
@@ -1432,7 +1432,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin in this module’s own section of the tenant administration area, which is a screen GROUP rather than a surface and is owned by no single module (D2). Never below the notify-only floor: no third posture exists to select, so the floor is held by the closed vocabulary rather than by a check. ABSENT for the other four.',
     effect:
       'Selects strict blocking, the platform default, or notify-only, under which execution proceeds and the same events raise notifications and audit flags. Sets how long a granted clearance runs before it lapses — a tenant setting, not a fixed per-shift expiry.',
-    sourceRef: 'L27479, FUNC-DOH-04-2.3.1 L27554, TEST-DOH-04-D4 L27625, AC-PROD-040 / D2',
+    sourceRef: 'L27479, FUNC-DOH-04-2.3.1 L27554, TEST-DOH-04-D4 L27626, AC-PROD-040 / D2',
   },
   {
     id: 'archive-worker',

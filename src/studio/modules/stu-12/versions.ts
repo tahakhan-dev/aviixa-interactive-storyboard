@@ -680,7 +680,7 @@ export function applyVersionAct(
         reason: `${written.reason}. The act is not recorded, so nothing changed: no version number is minted, no adoption row is written and the prior version remains in force. Repeat it once the record can be written.`,
         outcome: null,
         blockers: [],
-        sourceRefs: ['L33519', 'L33573', 'FB-STU-10 L31453'],
+        sourceRefs: ['L33519', 'L33573', 'FB-STU-10 L31454'],
       },
       auditFailure: written.reason,
     }
@@ -1430,7 +1430,7 @@ export function editInPlace(version: PublishedVersion): VersionActRefusal {
 export function swapPinnedPackage(run: PinnedRun, to: string): VersionActRefusal {
   return structuralRefusal(
     `Swapping ${run.runId}’s pinned package to ${to} is refused for every role and every agent: a run finishes on the workflow version it started on. A publication cannot re-base an in-flight run; the correct response to a bad version already running is operational — cancel or complete under supervision — not technical.`,
-    ['FUNC-STU-12-02-C-1 L33496', 'AC-STU-108 L33586', 'L53602', 'L53707', 'FB-STU-10 L31453'],
+    ['FUNC-STU-12-02-C-1 L33496', 'AC-STU-108 L33586', 'L53602', 'L53707', 'FB-STU-10 L31454'],
   )
 }
 

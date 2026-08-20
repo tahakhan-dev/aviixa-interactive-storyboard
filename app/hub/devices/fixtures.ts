@@ -466,7 +466,7 @@ export const CONTROL_MATRIX = [
     rendering:
       'The inventory renders for the Tenant Admin. ABSENT for the other four — and their absence is DERIVED, not quoted: the source names the Tenant Admin on every device row it has and states nothing at all about the other four, so this build withholds rather than granting on silence.',
     effect: 'A read of this workspace’s own device records.',
-    sourceRef: 'L67861 panel fields; L53089 "Tenant Admin opens device enrollment"',
+    sourceRef: 'L67861 panel fields; L53090 "Tenant Admin opens device enrollment"',
   },
   {
     id: 'enrol-a-device',
@@ -579,20 +579,20 @@ export const CONTROL_MATRIX = [
     provenance: 'quoted-from-source',
     detail: {
       TENANT_ADMIN:
-        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67865, TEST-009-02 L67867).',
       SUPERVISOR:
-        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67865, TEST-009-02 L67867).',
       QUALITY_MANAGER:
-        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67865, TEST-009-02 L67867).',
       READONLY_AUDITOR:
-        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67865, TEST-009-02 L67867).',
       WORKER:
-        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67867, TEST-009-02 L67869).',
+        'Explicitly prohibited — the tenant cannot invoke a remote wipe; wipe authority stays on the platform console under root approval (AC-009-04 L67865, TEST-009-02 L67867).',
     },
     rendering:
       'ABSENT for every tenant role. A categorical rule: the tenant cannot invoke a remote wipe, and wipe authority stays on the platform console under root approval. Nothing is drawn, and nothing is disabled either — a disabled Wipe control would imply the tenant might one day hold it.',
     effect: 'Nothing here.',
-    sourceRef: 'AC-009-04 L67867, TEST-009-02 L67869',
+    sourceRef: 'AC-009-04 L67865, TEST-009-02 L67867',
   },
   {
     id: 'suspend-a-device',

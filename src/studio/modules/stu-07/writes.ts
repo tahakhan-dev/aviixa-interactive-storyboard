@@ -723,7 +723,7 @@ export function setRoutingRule(input: SetRoutingRuleInput): LibraryWriteResult {
       library: 'escalation-routing',
       itemId,
       tenant: input.actor.tenant,
-      sourceRefs: ['L32635', 'AC-STU-075 L32767', 'TEST-STU-080 L32778', ...AUDIT_REFS],
+      sourceRefs: ['L32635', 'AC-STU-075 L32767', 'TEST-STU-080 L32777', ...AUDIT_REFS],
     })
     return refuse(
       register,
