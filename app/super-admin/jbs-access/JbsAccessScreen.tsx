@@ -312,7 +312,7 @@ const REVOKE_GRANT: ControlDefinition = {
   effect:
     'Revokes a grant at any point, taking effect immediately (L45871). Revocation is initiated with a reason and its terminal state is no access by any route (WF-ROLE-030, L56233).',
   allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
-  sourceRefs: ['L45871', 'WF-ROLE-030 L56233', 'L44712'],
+  sourceRefs: ['L45871', 'WF-ROLE-030 L56233', 'L45915'],
   refusalReasons: {
     PLATFORM_ENGINEER:
       'The source names only the Root Super Admin and the Admin on the revocation control (L45871). The Platform Engineer is a Band A maker and holds nothing on this grant.',
@@ -324,12 +324,50 @@ const REVOKE_GRANT: ControlDefinition = {
 }
 
 /**
- * Forced by AC-SA-16-02 (L45938), a hard gate: "Every grant enumerates its
- * scope, carries a time box, and links a reason before it can be submitted."
- * A hard gate on submission presumes a submission; workflow 23.16 (L45848)
- * names the Admin as the drafter and the root as the approver, and WF-ROLE-027
- * (L56166) names root or Admin as the actor. This is not an invented control —
- * it is the minimum the acceptance criterion forces (D15).
+ * The one Derived Clarification this module renders, written once because
+ * four call sites say it — the two refusal reasons, the default, and the
+ * draft section's own paragraph. It replaced three rendered strings that
+ * asserted a role split against two lines that state none.
+ */
+export const SUBMIT_DERIVATION =
+  'Derived Clarification, not a stated rule: no line of the frozen source names a role for ' +
+  'submitting a JBS grant, and nothing here quotes one as though it did. AC-SA-16-02 (L45938) ' +
+  'makes submission a hard gate — "every grant enumerates its scope, carries a time box, and ' +
+  'links a reason before it can be submitted" — and writes it in the passive, and the source ' +
+  'carries no Submit row anywhere. What it does state is the row this act belongs to: ' +
+  'MOD-SA-16’s permission matrix reads "Draft a grant" as Allowed, Allowed, Unavailable, ' +
+  'Unavailable across the Root Super Admin, Admin, Platform Engineer and Support columns ' +
+  '(L45913), and FUNC-SA-16-01-A1 writes the same in words — "Allowed: Admin and root. ' +
+  'Prohibited: Engineer, Support, every tenant role" (L45924). This build reads submission as ' +
+  'the last act of drafting and gives this control the draft row’s roles. The competing ' +
+  'reading is that submission is a separate act the source assigns to nobody, under which no ' +
+  'control would be drawn here at all and the acceptance criterion would bind to nothing; it ' +
+  'is recorded here rather than settled in silence. Workflow 23.16 (L45848) and WF-ROLE-027 ' +
+  '(L56166) run every step in the passive and name nobody, so neither is cited for who.'
+
+/**
+ * Forced by AC-SA-16-02 (L45938), a hard gate: "every grant enumerates its
+ * scope, carries a time box, and links a reason before it can be submitted".
+ * A hard gate on submission presumes a submission, so the control is the
+ * minimum the acceptance criterion forces rather than an invention (D15).
+ *
+ * WHO may submit is a DERIVED CLARIFICATION and is rendered as one.
+ *
+ * The frozen source has no `Submit a grant` row anywhere and names no role
+ * for submitting: AC-SA-16-02 states the gate in the passive and leaves the
+ * actor unstated. What it does state is the row this control's act belongs
+ * to. `MOD-SA-16`'s permission matrix row `Draft a grant` reads Allowed,
+ * Allowed, Unavailable, Unavailable across the four console-role columns
+ * (L45913), and `FUNC-SA-16-01-A1` writes the same in words: "Allowed: Admin
+ * and root. Prohibited: Engineer, Support, every tenant role" (L45924). This
+ * build reads submission as the last act of drafting and gives the control
+ * the draft row's roles.
+ *
+ * Two earlier citations are retired here because they were false. Workflow
+ * 23.16 (L45848) and `WF-ROLE-027` (L56166, happy path L56169) write every
+ * step in the passive — a grant is drafted, it is approved and issued — and
+ * name nobody on either act, so neither is cited for who. The refusal
+ * reasons said they did, on screen, in text a user reads.
  */
 const SUBMIT_GRANT: ControlDefinition = {
   id: 'submit-jbs-grant',
@@ -337,35 +375,56 @@ const SUBMIT_GRANT: ControlDefinition = {
   effect:
     'Moves a drafted grant to pending approval. Its scope, its time box and its linked reason are all present, or it cannot be submitted (AC-SA-16-02, L45938).',
   allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
-  sourceRefs: ['AC-SA-16-02 L45938', 'WF-ROLE-027 L56166', 'workflow 23.16 L45848'],
+  sourceRefs: ['AC-SA-16-02 L45938', 'L45913', 'FUNC-SA-16-01-A1 L45924'],
   refusalReasons: {
-    PLATFORM_ENGINEER:
-      'Workflow 23.16 (L45848) names the Admin as the drafter and the Root Super Admin as the approver, and WF-ROLE-027 (L56166) names the same two. The Platform Engineer appears on neither, so this control exists on the platform and not for this role.',
-    SUPPORT:
-      'Workflow 23.16 (L45848) names the Admin as the drafter and the Root Super Admin as the approver, and WF-ROLE-027 (L56166) names the same two. The Support role appears on neither, so this control exists on the platform and not for this role.',
+    PLATFORM_ENGINEER: `${SUBMIT_DERIVATION} The Platform Engineer's cell on that row reads Unavailable, so this control exists on the platform and not for this role.`,
+    SUPPORT: `${SUBMIT_DERIVATION} The Support role's cell on that row reads Unavailable, so this control exists on the platform and not for this role.`,
   },
-  defaultRefusalReason:
-    'Workflow 23.16 (L45848) names only the Admin and the Root Super Admin on a grant draft.',
+  defaultRefusalReason: SUBMIT_DERIVATION,
 }
 
 /**
- * The roles matrix at L44712 is explicit and unusually direct: the Admin
- * "may not: Approve and issue a JBS grant", in the same may-not list as
- * publishing a tier version and approving a wipe.
+ * Written once because four call sites say it, and once wrong in four places
+ * is how the retired claim spread.
+ */
+export const ISSUE_IS_ROOT_ONLY =
+  'MOD-SA-16’s permission matrix reads "Approve and issue a grant" as Allowed in the Root ' +
+  'Super Admin’s column and Explicitly prohibited in every other (L45914), and ' +
+  'FUNC-SA-16-01-A2 writes the same in words — "Allowed: root approves and issues; root and ' +
+  'Admin revoke" (L45925). The module record’s general role line disagrees, grouping issue ' +
+  'with revocation at "the root and Admin" (L45884); the two specific statements are ' +
+  'followed and the general one is shown rather than reconciled away.'
+
+/**
+ * WHO approves and issues is NOT derived — the source states it four times,
+ * and this control cites the two most specific statements.
  *
- * Workflow 23.16 (L45848) and WF-ROLE-027 (L56169) write every step of the
- * grant in the passive — a grant is drafted, it is approved and issued — and
- * name no role on either act. The maker-checker split "Admin (drafts), Root
- * Super Admin (approves and issues)" is this build's extraction speaking,
- * `registries/raw/extract/CHK-014.json` against that same line, and it is
- * recorded here rather than cited, because the source fixes the split only
- * through the may-not list at L44712.
+ * `MOD-SA-16`'s permission matrix row `Approve and issue a grant` reads
+ * `Allowed` in the Root Super Admin's column and `Explicitly prohibited` in
+ * every other, the Admin's included (L45914). `FUNC-SA-16-01-A2` writes it in
+ * words: "Allowed: root approves and issues; root and Admin revoke" (L45925).
+ * The module record says the same twice more, at L45885 and in the drafting
+ * half of L45913.
+ *
+ * The module record's own role line DISAGREES, and that is disclosed rather
+ * than reconciled quietly: L45884 groups issue with revocation at "the root
+ * and Admin". Two specific statements against one general one, so the two
+ * win; the general one is printed beside the control.
+ *
+ * What is NOT the source: the may-not list naming "Approve and issue a JBS
+ * grant" is `registries/raw/extract/CHK-014.json`, which attaches it to line
+ * 44712 — a line that carries the Admin row of §8.8's four-role table and no
+ * JBS content of any kind. The extraction also coins the maker-checker split
+ * as a primary_actor at line 45848. Both were cited here as though the source
+ * carried them, on screen; both are retired. Workflow 23.16 (L45848) and
+ * `WF-ROLE-027` (L56166, happy path L56169) write every step in the passive —
+ * a grant is drafted, it is approved and issued — and name nobody.
  *
  * The CLASS of that act is a different question and it is OPEN.
  * DEC-JBSAUTH-001 (L23081) asks "whether granting JBS access is an Admin
  * routine action or a critical-class action" and its working position is a
  * recommendation, not a decision. So this control renders DISABLED WITH A
- * NAMED REASON naming both the roles matrix and the open decision — the
+ * NAMED REASON naming both the permission-matrix row and the open decision — the
  * precedent the spec itself sets for an open decision (D8's "proposal only —
  * pending DEC-PAUSE-001"). It deliberately does NOT render the class badge:
  * the badge asserts critical class, and asserting it here would resolve an
@@ -377,17 +436,13 @@ const ISSUE_GRANT: ControlDefinition = {
   effect:
     'Approves a grant pending approval and issues it against its declared scope, time box and reason (workflow 23.16, L45848).',
   allowedRoles: ['ROOT_SUPER_ADMIN'],
-  sourceRefs: ['L44712', 'workflow 23.16 L45848', 'WF-SA-JBS-GRANT L15418'],
+  sourceRefs: ['L45914', 'FUNC-SA-16-01-A2 L45925', 'WF-SA-JBS-GRANT L15418'],
   refusalReasons: {
-    ADMIN:
-      'The Admin may not approve and issue a JBS grant (roles matrix, L44712); the Admin drafts and the Root Super Admin approves and issues (workflow 23.16, L45848). Whether that act is an Admin routine action or a critical-class action is undecided — DEC-JBSAUTH-001 is open, and its stated position is a recommendation, not a resolution. No critical-class badge is drawn here, because drawing one would settle that decision on a screen.',
-    PLATFORM_ENGINEER:
-      'Only the Root Super Admin approves and issues a JBS grant (L44712, workflow 23.16 L45848). The class of that act is undecided — DEC-JBSAUTH-001 is open.',
-    SUPPORT:
-      'Only the Root Super Admin approves and issues a JBS grant (L44712, workflow 23.16 L45848). The class of that act is undecided — DEC-JBSAUTH-001 is open.',
+    ADMIN: `${ISSUE_IS_ROOT_ONLY} So the Admin may not approve and issue a JBS grant. Whether that act is an Admin routine action or a critical-class action is undecided — DEC-JBSAUTH-001 is open, and its stated position is a recommendation, not a resolution. No critical-class badge is drawn here, because drawing one would settle that decision on a screen.`,
+    PLATFORM_ENGINEER: `${ISSUE_IS_ROOT_ONLY} The class of that act is undecided — DEC-JBSAUTH-001 is open.`,
+    SUPPORT: `${ISSUE_IS_ROOT_ONLY} The class of that act is undecided — DEC-JBSAUTH-001 is open.`,
   },
-  defaultRefusalReason:
-    'Only the Root Super Admin approves and issues a JBS grant (L44712). The class of that act is undecided — DEC-JBSAUTH-001 is open.',
+  defaultRefusalReason: `${ISSUE_IS_ROOT_ONLY} The class of that act is undecided — DEC-JBSAUTH-001 is open.`,
 }
 
 function decisionFor(control: ControlDefinition, roleId: RoleId): PermissionDecision {
@@ -720,7 +775,7 @@ export function JbsAccessScreen({
           detail={{
             objectLabel: 'JBS access grants',
             whatCreatesIt:
-              'Nothing has created one, and that is the resting state of this module: JBS holds nothing. An Admin drafts a grant with a scope, a time box and a linked reason; the Root Super Admin approves and issues it (workflow 23.16, L45848). Until then there is no standing access and no default grant in any environment (AC-SA-16-01).',
+              'Nothing has created one, and that is the resting state of this module: JBS holds nothing. An Admin drafts a grant with a scope, a time box and a linked reason (L45913); the Root Super Admin approves and issues it (L45914). Until then there is no standing access and no default grant in any environment (AC-SA-16-01).',
             fieldLabel: 'Time box',
             rule: 'Every grant enumerates its scope, carries a time box and links a reason before it can be submitted (AC-SA-16-02, L45938).',
             permittedFormat:
@@ -728,7 +783,7 @@ export function JbsAccessScreen({
             decision: {
               ...decisionFor(ISSUE_GRANT, 'ADMIN'),
               explanation:
-                'The Admin may not approve and issue a JBS grant (roles matrix, L44712). The Admin drafts; the Root Super Admin approves and issues (workflow 23.16, L45848).',
+                `${ISSUE_IS_ROOT_ONLY} So the Admin may not approve and issue a JBS grant; the Admin drafts (L45913).`,
             },
             readOnlyCause: READ_ONLY_CAUSE,
             asOfLabel: `as of ${AS_OF_STALE} (${STALE_AGE}, fixture value)`,
@@ -828,6 +883,9 @@ export function JbsAccessScreen({
               session-request form for this access class — it produces a request, never a session and
               never a view of tenant content.
             </p>
+            <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+              {SUBMIT_DERIVATION}
+            </p>
             <div className="mt-3 space-y-2">
               {mayDraft && !readOnly ? (
                 <>
@@ -876,9 +934,9 @@ export function JbsAccessScreen({
           <section aria-label="Approve and issue" className="mt-8">
             <h2 className="text-lg font-semibold">Approve and issue</h2>
             <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-              The Admin drafts; the Root Super Admin approves and issues (workflow 23.16, L45848).
-              The roles matrix states it directly: the Admin may not approve and issue a JBS grant
-              (L44712).
+              {ISSUE_IS_ROOT_ONLY} The Admin drafts and the Root Super Admin approves and issues,
+              and both halves are the source&rsquo;s own rows (L45913, L45914) — not the workflow
+              paragraphs, which run every step in the passive and name nobody.
             </p>
             <div data-testid="issue-grant-action-bar" className="mt-3">
               <ActionControl

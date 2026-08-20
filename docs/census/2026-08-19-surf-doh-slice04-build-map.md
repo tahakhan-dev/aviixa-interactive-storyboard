@@ -259,7 +259,7 @@ Boundary test on record: TEST‑DOH‑14‑N1 seeds 5, 30, 59, 60 and 61 days ou
 
 **States.** 01, 02, 03, 04, 05, 06, 08, **09 Queued — mandatory here**: a retire or a wipe request renders in its true command state and never as done (L48015 STATE‑09), 12, 13.
 
-**Roles.** Every device control is Tenant Admin only in the source rows I have (L53089 "Tenant Admin opens device enrollment"; L103830). No five‑role matrix exists for devices anywhere. The other four roles: ABSENT. **The "Request wipe" control gets the CLASS BADGE** — it is the one critical‑class action a slice‑4 role can see and cannot approve, and the badge is what stops the Tenant Admin believing the press wiped anything.
+**Roles.** Every device control is Tenant Admin only in the source rows I have (L53090 "Tenant Admin opens device enrollment"; L103830). No five‑role matrix exists for devices anywhere. The other four roles: ABSENT. **The "Request wipe" control gets the CLASS BADGE** — it is the one critical‑class action a slice‑4 role can see and cannot approve, and the badge is what stops the Tenant Admin believing the press wiped anything.
 
 **Two open decisions block hardening.** DEC‑DEVOWN‑001 (L8459, L8472, L8491, L10324) — Client Decision Required, `adopted_working_position: null`, on whether a Tenant Admin may enrol at all. DEC‑DEVLOST‑001, impact recorded as "Blocks WF‑DVC‑001 to WF‑DVC‑006" (L56662), with no lost/stolen classification anywhere (L53160). See D3, D4, D27.
 

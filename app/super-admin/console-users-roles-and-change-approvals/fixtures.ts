@@ -922,7 +922,7 @@ export const SA08_SOURCE_CONFLICTS = [
   {
     topic: 'Which screen numbers name this module',
     conflict:
-      'The 26-screen inventory numbers this module SCR-SA-12 and SCR-SA-13 (L42804, L42805); the 22-screen inventory numbers the same panes SCR-SA-09 and SCR-SA-10 (L48730) and adds a console access screen.',
+      'The 26-screen inventory numbers this module SCR-SA-12 and SCR-SA-13 (L42804, L42805); the 22-row screen register numbers the same panes SCR-SA-09 and SCR-SA-10 (L48738, L48739) and adds a console access screen the other inventory has no row for, SCR-SA-01 Console sign-in (L48730).',
     resolution:
       'Names are canonical and every number is an annotation (D1). This route is keyed on the module slug, so a ticket citing either scheme still resolves.',
   },

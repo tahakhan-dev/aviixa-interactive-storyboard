@@ -1,10 +1,13 @@
 import { describe, it, expect } from 'vitest'
+import { createHash } from 'node:crypto'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import { render, screen, within, fireEvent } from '@testing-library/react'
 import type { ScreenStateId } from '@/ui/screen-state'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
-import { JbsAccessScreen, JBS_GRANT_STATES, JBS_GRANTS, RECONCILIATION_CHECKS, CONSOLE_ROLE_VIEWS, UNSPECIFIED_IN_SOURCE, type SaConsoleRoleToken } from '../../app/super-admin/jbs-access/JbsAccessScreen'
+import { JbsAccessScreen, JBS_GRANT_STATES, JBS_GRANTS, RECONCILIATION_CHECKS, CONSOLE_ROLE_VIEWS, UNSPECIFIED_IN_SOURCE, SUBMIT_DERIVATION, ISSUE_IS_ROOT_ONLY, type SaConsoleRoleToken } from '../../app/super-admin/jbs-access/JbsAccessScreen'
 
 /** D10 / spec §10 gate 4: these four words appear nowhere in SURF-SA copy. */
 const FORBIDDEN_WORDS = /\b(tamper-evident|chained|signed|verified)\b/i
@@ -324,7 +327,13 @@ describe('MOD-SA-16 — approve and issue is the root’s alone', () => {
     expect(button.getAttribute('aria-disabled')).toBe('true')
     const reason = reasonTextOf(button)
     expect(reason).toMatch(/DEC-JBSAUTH-001/)
-    expect(reason).toMatch(/may not approve and issue|L44712/i)
+    // L45914 is the `Approve and issue a grant` permission-matrix row, which
+    // reads Explicitly prohibited in the Admin's column. The reason used to
+    // cite L44712 for this, which is §8.8's Admin row and says nothing about
+    // JBS; the reason and this expectation were corrected together.
+    expect(reason).toMatch(/may not approve and issue/i)
+    expect(reason).toContain('L45914')
+    expect(reason).not.toContain('L44712')
   })
 
   it('names no JBS action among the eleven critical-class actions, so no class badge is asserted', () => {
@@ -481,5 +490,228 @@ describe('MOD-SA-16 — unspecified in source (D15)', () => {
     expect(
       UNSPECIFIED_IN_SOURCE.some((e) => /OBJ-SA-JBSSESSION/.test(e.what) || /OBJ-SA-JBSSESSION/.test(e.detail)),
     ).toBe(true)
+  })
+})
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * MOD-SA-16 — the false-claim gate.
+ *
+ * This module shipped, on screen, in refusal reasons a user reads: "Workflow
+ * 23.16 (L45848) names the Admin as the drafter and the Root Super Admin as
+ * the approver, and WF-ROLE-027 (L56166) names the same two." Neither line
+ * names either role. Both run every step in the passive. The split came from
+ * `registries/raw/extract/CHK-014.json`, whose `primary_actor` field coins it
+ * and attaches it to line 45848; a second string cited a "may not: Approve and
+ * issue a JBS grant" list to L44712, which is the Admin row of §8.8's
+ * four-role table and carries no JBS content at all.
+ *
+ * WHAT IS SCANNED IS THE STRUCTURE, NOT THE SENTENCE. A gate keyed on the
+ * exact spelling of what it forbids passes the moment someone rephrases it.
+ * The structure is: one sentence carrying (a) one of the four locators that
+ * cannot support a role claim, (b) a console-role name, and (c) a grant act.
+ * That is what "attributing a role split to those locators" looks like in any
+ * wording. The consequence for an author is a simple rule — say what those
+ * lines do NOT contain without naming a role in the same sentence, exactly as
+ * the module's own retired-citation notes now do.
+ *
+ * THE EXPECTATION IS NOT DERIVED FROM THE FIELD UNDER TEST. The premise —
+ * that those lines name no role — is asserted against the frozen source,
+ * whose sha256 is pinned, not against the screen. Editing the screen cannot
+ * make the premise true, and editing the source fails the pin.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+const SOURCE_PATH = join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md')
+const SOURCE_SHA256 = '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27'
+const MODULE_DIR = join(process.cwd(), 'app', 'super-admin', 'jbs-access')
+
+/**
+ * The four lines the retired claims cited. L45848 is workflow 23.16's
+ * chronological paragraph, L56166 the `WF-ROLE-027` heading and L56169 its
+ * happy path — all three passive throughout. L44712 is §8.8's Admin row and
+ * is about Band B operations, not about JBS.
+ */
+const MUTE_LINES = [44712, 45848, 56166, 56169] as const
+/**
+ * The regex is BUILT from that list rather than written beside it. Written
+ * twice, the list and the pattern drift: editing one to a line the source pin
+ * never checks was tried, and nothing went red.
+ */
+const MUTE_LOCATORS = new RegExp(`\\bL(?:${MUTE_LINES.join('|')})\\b`)
+
+/**
+ * The four console roles, as this surface's copy writes them.
+ *
+ * `Support` is matched CASE-SENSITIVELY and the other three are not, and that
+ * is a finding rather than a convenience: L45848 ends "exactly as a support
+ * session does", and a case-blind `\bsupport\b` convicted the very line whose
+ * silence this gate exists to pin. The common noun and the role are different
+ * words here. `admin`, `platform engineer` and `root super admin` carry no
+ * such common-noun sense in this copy, so they stay case-blind and a
+ * lowercase rewording of the claim is still caught.
+ */
+const CONSOLE_ROLE_NAME = /\b(root super admin|super admin|platform engineer|admin|the root)\b/i
+const SUPPORT_ROLE = /\bSupport\b/
+
+const namesConsoleRole = (s: string): boolean =>
+  CONSOLE_ROLE_NAME.test(s) || SUPPORT_ROLE.test(s)
+
+/** The acts a grant passes through, in any inflection an author would reach for. */
+const GRANT_ACT =
+  /\b(draft|drafts|drafted|drafter|drafting|submit|submits|submitted|submission|approve|approves|approved|approver|approval|issue|issues|issued|issuing|revoke|revokes|revoked)\b/i
+
+/**
+ * Sentences, from text that may be JSX, a template literal or a doc comment.
+ * Whitespace is collapsed FIRST so a claim broken across three source lines is
+ * still one sentence -- the retired L44712 string was written across three,
+ * and splitting on newlines would have cut its locator off its claim and let
+ * it through. Splitting on `[.;:!?]` + whitespace leaves "23.16" and "§8.8"
+ * intact, because their dots are followed by a digit.
+ */
+function sentencesOf(text: string): readonly string[] {
+  return text.replace(/\s+/g, ' ').split(/(?<=[.;:!?])\s+/)
+}
+
+/** Every sentence that attributes a role's grant act to a line that states none. */
+function falseRoleClaims(text: string): readonly string[] {
+  return sentencesOf(text).filter(
+    (s) => MUTE_LOCATORS.test(s) && namesConsoleRole(s) && GRANT_ACT.test(s),
+  )
+}
+
+const moduleText = readdirSync(MODULE_DIR)
+  .filter((f) => /\.tsx?$/.test(f))
+  .map((f) => readFileSync(join(MODULE_DIR, f), 'utf8'))
+  .join('\n')
+
+describe('MOD-SA-16 — the screen asserts no role split those lines do not state', () => {
+  it('pins the premise against the frozen source, not against the screen', () => {
+    expect(existsSync(SOURCE_PATH), `frozen source not found at ${SOURCE_PATH}`).toBe(true)
+    const bytes = readFileSync(SOURCE_PATH)
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe(SOURCE_SHA256)
+    const lines = bytes.toString('utf8').split('\n')
+    const at = (n: number): string => lines[n - 1] ?? ''
+
+    // ANTI-WEAKENING. Dropping a line from MUTE_LINES silently restores the
+    // claim that cited it, and every other assertion here would stay green --
+    // tried, and nothing went red. These four are the lines the retired
+    // strings cited; the list may grow, never shrink.
+    for (const n of [44712, 45848, 56166, 56169]) {
+      expect(MUTE_LINES, `L${n} was dropped from the muted set`).toContain(n)
+    }
+
+    // Non-vacuity: these are real, non-blank lines being read.
+    for (const n of MUTE_LINES) {
+      expect(at(n).trim().length, `L${n} is blank`).toBeGreaterThan(20)
+    }
+    // The workflow lines name no console role at all. L44712 is the one
+    // exception and is asserted separately just below: it DOES name roles,
+    // and is muted for the other half of the rule -- it says nothing about
+    // JBS or about grants, so no grant claim can rest on it either.
+    for (const n of MUTE_LINES.filter((n) => n !== 44712)) {
+      expect(namesConsoleRole(at(n)), `L${n} does name a console role`).toBe(false)
+    }
+    // L44712 does name roles -- but says nothing about JBS or about grants.
+    expect(namesConsoleRole(at(44712))).toBe(true)
+    expect(at(44712)).not.toMatch(/\b(jbs|grant|grants)\b/i)
+
+    // And the lines that DO state the split, which the module now cites.
+    expect(at(45913)).toMatch(/Draft a grant \| Allowed \| Allowed \| Unavailable \| Unavailable/)
+    expect(at(45914)).toMatch(/Approve and issue a grant \| Allowed \| Explicitly prohibited/)
+    expect(at(45925)).toContain('Allowed: root approves and issues; root and Admin revoke')
+  })
+
+  it('convicts the retired claim and two rewordings of it', () => {
+    // The exact string this module shipped.
+    expect(
+      falseRoleClaims(
+        'Workflow 23.16 (L45848) names the Admin as the drafter and the Root Super Admin as the approver, and WF-ROLE-027 (L56166) names the same two.',
+      ),
+    ).toHaveLength(1)
+    // Reworded until no phrase of the original survives.
+    expect(
+      falseRoleClaims(
+        'Per the JBS grant workflow at L45848, issuing belongs to the root alone once a platform administrator has prepared the request.',
+      ),
+    ).toHaveLength(1)
+    // The second retired claim, written across three source lines as it was.
+    expect(
+      falseRoleClaims(
+        'The roles matrix states it directly: the Admin may not\n              approve and issue a JBS grant\n              (L44712).',
+      ),
+    ).toHaveLength(1)
+  })
+
+  it('acquits the true statements the module now makes, so it is not a blanket ban', () => {
+    // A mute locator with no role named: what an honest retirement note reads like.
+    expect(
+      falseRoleClaims(
+        'Workflow 23.16 (L45848) and WF-ROLE-027 (L56166) run every step in the passive and name nobody, so neither is cited for who.',
+      ),
+    ).toHaveLength(0)
+    // A role and a grant act cited to a line that really does state them.
+    expect(
+      falseRoleClaims(
+        'MOD-SA-16’s permission matrix reads "Approve and issue a grant" as Allowed in the Root Super Admin’s column and Explicitly prohibited in every other (L45914).',
+      ),
+    ).toHaveLength(0)
+  })
+
+  it('finds no such claim anywhere in the module’s own files', () => {
+    // Non-vacuity: the scan read the module, and the module still cites those
+    // lines -- so a passing result is the absence of the claim, not the
+    // absence of input.
+    expect(moduleText.length).toBeGreaterThan(20_000)
+    expect(moduleText).toMatch(MUTE_LOCATORS)
+    expect(falseRoleClaims(moduleText)).toEqual([])
+  })
+
+  it('finds no such claim in what any of the four roles actually reads', () => {
+    for (const role of CONSOLE_ROLE_VIEWS) {
+      const view = renderAs(role.token)
+      expect(falseRoleClaims(renderedCopy()), `rendered for ${role.token}`).toEqual([])
+      view.unmount()
+    }
+  })
+
+  it('keeps the reading on screen and names it derived, rather than dropping it', () => {
+    // The ruling was that the screen must not assert the split falsely AND
+    // must not lose it, so deleting the copy has to be a failure too.
+    //
+    // THIS ASSERTION WAS WRITTEN WRONG FIRST, AND THE PLANT CAUGHT IT. It
+    // began as `expect(copy).toContain('Derived Clarification')` plus
+    // `/competing reading/i`, and it PASSED with the entire submit derivation
+    // deleted from the screen — because CRITICAL_ACTION_COUNT_NOTE renders on
+    // this same screen and contains both phrases. A gate satisfied by another
+    // module's copy is a gate that cannot fail. It now asserts the
+    // derivation's own words reach the DOM, which nothing else can supply.
+    const flat = (s: string): string => s.replace(/\s+/g, ' ').trim()
+
+    // What the copy must SAY is pinned here; that the source supports it is
+    // pinned separately, above, against the frozen source.
+    expect(SUBMIT_DERIVATION).toContain('Derived Clarification')
+    expect(SUBMIT_DERIVATION).toContain('L45913')
+    expect(SUBMIT_DERIVATION).toContain('L45924')
+    expect(SUBMIT_DERIVATION).toMatch(/competing reading/i)
+    expect(SUBMIT_DERIVATION.length).toBeGreaterThan(600)
+    expect(ISSUE_IS_ROOT_ONLY).toContain('L45914')
+    expect(ISSUE_IS_ROOT_ONLY).toContain('L45925')
+    expect(ISSUE_IS_ROOT_ONLY).toContain('L45884')
+
+    // The Admin may draft, so its submit refusal reason never renders. The
+    // section paragraph is what carries the derivation for that role.
+    const admin = renderAs(ADMIN)
+    expect(flat(renderedCopy())).toContain(flat(SUBMIT_DERIVATION))
+    expect(flat(renderedCopy())).toContain(flat(ISSUE_IS_ROOT_ONLY))
+    admin.unmount()
+
+    // And the refused roles read it in the refusal itself.
+    for (const role of [ENG, SUP]) {
+      const view = renderAs(role)
+      const submit = within(screen.getByTestId('submit-grant-action-bar')).getByRole('button')
+      expect(flat(reasonTextOf(submit)), `submit refusal for ${role}`).toContain(
+        flat(SUBMIT_DERIVATION),
+      )
+      view.unmount()
+    }
   })
 })
