@@ -345,7 +345,7 @@ export function QualificationRequirementsScreen() {
                 rows={requirement.overrides.map((o) => ({
                   screen: `${o.screenId} — ${o.screenName}`,
                   certification: o.certification,
-                  maintained: MAINTAINED_CERTIFICATIONS.includes(o.certification)
+                  maintained: (MAINTAINED_CERTIFICATIONS as readonly string[]).includes(o.certification)
                     ? 'Yes'
                     : 'No — publication is blocked with this certification named',
                 }))}
