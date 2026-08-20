@@ -14,25 +14,27 @@
  * computed FROM the matrices: a rule that lives beside the thing it reads
  * cannot be applied to eight modules and forgotten on the ninth.
  *
- * SO THE SPINE IMPORTS THE EIGHT MATRICES, WHICH POINTS THE OTHER WAY from
- * every other import in `src/`, and that is the price of the field being
- * derived rather than typed twice. The direction is one-way at RUNTIME: the
- * fixtures take only `import type` from here, which is erased, so the only
- * value cycle in the graph is the one `HubShell` already had. The devices
- * matrix is absent from the list below because that screen is uncatalogued
- * and claims no module (D4, D5) — it has no route for a rail to offer.
+ * THE RULE LIVES HERE; THE MATRICES DO NOT REACH IT AT RUNTIME. This file
+ * used to import the eight module matrices to run that rule itself, which
+ * pointed `src/` at `app/` — the shared contract importing its own
+ * consumers — and closed a real value cycle (`HubShell` and two fixtures
+ * import back into this file). The cycle was survivable only because
+ * `rolesReaching` was a GETTER, deferring each read past module
+ * initialisation; an eager read threw. So the rule is now applied ONCE, at
+ * build time, by `scripts/build-doh-module-reach.mjs`, which writes it to
+ * `registries/generated/doh/module-reach.json`; this file imports that.
+ * Nothing under `src/` value-imports `app/` any more, and that generator
+ * refuses to write anything if one ever does again. The field is still
+ * derived, still cannot drift from the matrices, and is no longer a getter.
+ *
+ * The devices matrix is absent from the list below because that screen is
+ * uncatalogued and claims no module (D4, D5) — it has no route for a rail
+ * to offer, and so no reach entry either.
  */
 import { rolesInDomain, type RoleId } from '@/domain/roles'
 import type { PermissionOutcome } from '@/policy/decision'
 import type { TenantRoleId } from '../../../app/hub/HubShell'
-import { CONTROL_MATRIX as TENANT_LIFECYCLE_MATRIX } from '../../../app/hub/tenant-lifecycle-and-tier-operations/fixtures'
-import { CONTROL_MATRIX as LOCATIONS_MATRIX } from '../../../app/hub/location-configuration/fixtures'
-import { CONTROL_MATRIX as SHIFTS_MATRIX } from '../../../app/hub/shift-management/fixtures'
-import { CONTROL_MATRIX as WORKERS_MATRIX } from '../../../app/hub/worker-lifecycle-and-qualifications/fixtures'
-import { PERMISSION_MATRIX } from '../../../app/hub/permissions-roles-and-access/fixtures'
-import { CONTROL_MATRIX as SSO_MATRIX } from '../../../app/hub/integration-surface/fixtures'
-import { CONTROL_MATRIX as PLATFORM_ADMIN_MATRIX } from '../../../app/hub/tenant-view-of-platform-administration/fixtures'
-import { CONTROL_MATRIX as CALENDAR_MATRIX } from '../../../app/hub/qualification-calendar/fixtures'
+import MODULE_REACH from '../../../registries/generated/doh/module-reach.json'
 
 export type DohModuleId =
   | 'MOD-DOH-01'
@@ -273,22 +275,31 @@ const FROM_OUTCOME: Readonly<Record<PermissionOutcome, ControlStatus>> = {
  * column — the own-record read and the own-certification alerts — are met
  * on the device rather than in the Hub.
  *
- * BOTH CLAUSES ARE LOAD-BEARING, AND THIS WAS MEASURED RATHER THAN
- * ASSERTED. Run the rule with clause two removed and `MOD-DOH-04` gains the
- * Worker — five roles, not four — which is `tests/unit/doh-workers.test.ts`
- * going red. Run it with the surface classification removed, so clause one
- * reads every row instead of the screen rows, and it is exactly the three
- * modules the slice-4 gate names that move: `MOD-DOH-01` offers all five
- * roles instead of two, `MOD-DOH-13` offers four instead of two,
- * `MOD-DOH-04` offers five instead of four. The other five are unchanged
- * either way.
+ * BOTH CLAUSES ARE LOAD-BEARING, AND IT IS MEASURED RATHER THAN ASSERTED —
+ * on every build, by the mutation pins in `scripts/build-doh-module-reach.mjs`,
+ * which is where this rule is now run over the eight matrices. Three
+ * mutants, three pinned answers:
  *
- * What the two clauses do NOT do is disagree with each other on today's
- * data: with the classification in place, each alone reaches the same eight
- * answers. That is worth saying plainly rather than dressing the second
- * clause up as redundant — the classification is what makes the meaning
- * question askable at all, and the withholding token is what answers it
- * when a role holds something on the screen and still has no standing.
+ * - clause two removed: exactly `MOD-DOH-04` moves, gaining the Worker —
+ *   five roles, not four — which is `tests/unit/doh-workers.test.ts` red.
+ * - clause one removed, clause two left in place: NOTHING moves. Reading
+ *   every row instead of the screen rows gains the chrome grants, but the
+ *   same widening pulls the screen rows' `Unavailable` cells into the same
+ *   column, and clause two withholds on them regardless.
+ * - both removed, which is the bare "does this role hold anything anywhere
+ *   in this matrix" question `tests/coverage/slice-04-gates.test.ts` gate 4
+ *   asks: exactly the three modules that gate pins move — `MOD-DOH-01`
+ *   offers all five roles instead of two, `MOD-DOH-13` offers four instead
+ *   of two, `MOD-DOH-04` offers five instead of four. The other five are
+ *   unchanged under every mutant.
+ *
+ * So the classification is load-bearing against the MEANING question rather
+ * than against clause two, and the two clauses do not disagree with each
+ * other on today's data. That is worth saying plainly rather than dressing
+ * either clause up as redundant — the classification is what makes the
+ * meaning question askable at all, and the withholding token is what
+ * answers it when a role holds something on the screen and still has no
+ * standing.
  *
  * NOT D11, AND DELIBERATELY NOT. Whether the persona reaches SURF-DOH at
  * all is the route registry's answer, asked first by `app/hub/HubShell.tsx`
@@ -345,23 +356,55 @@ export interface DohModuleDefinition {
    * The tenant roles this module's route is offered to, and the ONE place
    * the module rail reads to decide what to draw.
    *
-   * DERIVED, NEVER TYPED. Every entry below computes this from that
-   * module's own matrix through `rolesReachingByMatrix`, so there is no
-   * second copy to drift from the first. It was a hand-maintained list
-   * carrying a hand-written rule ("any cell in its column `Unavailable`"),
-   * and a gate found the rule wrong on three of the eight while the values
-   * it happened to produce were right.
+   * DERIVED, NEVER TYPED, AND NOT DERIVED HERE. Every entry below reads it
+   * from `registries/generated/doh/module-reach.json`, which
+   * `scripts/build-doh-module-reach.mjs` writes by applying
+   * `rolesReachingByMatrix` — the function directly above, the one and only
+   * implementation — to that module's own matrix. There is no second copy
+   * of the rule and no second copy of the answer. It was a hand-maintained
+   * list carrying a hand-written rule ("any cell in its column
+   * `Unavailable`"), and a gate found the rule wrong on three of the eight
+   * while the values it happened to produce were right.
    *
-   * LAZY ON PURPOSE. `app/hub/tenant-view-of-platform-administration/fixtures.ts`
-   * re-exports a value from `app/hub/HubShell.tsx`, which imports this
-   * file — so a matrix read at module-initialisation time is read before
-   * the fixture module has finished evaluating and comes back `undefined`
-   * (reproduced: `TypeError: Cannot read properties of undefined`, with the
-   * platform-administration suite as the entry point). A getter defers the
-   * read to first use, by which time every module in the cycle is
-   * initialised.
+   * A GENERATED FILE SOMEBODY CAN OPEN IS NOT A HAND-MAINTAINED FIELD HERE,
+   * and four separate things stop it becoming one. `pnpm build` re-runs the
+   * generator, so an edit survives only until the next build. Until then the
+   * eight module suites in `tests/unit` compare this field against their own
+   * live matrices and go red on the edited entry — each non-vacuously,
+   * pinning the exact role set AND its size, so neither a widened nor a
+   * narrowed list passes. A module id deleted from the file fails `tsc` on
+   * the annotation below rather than becoming a module nobody reaches. And
+   * `reachOf` refuses any token that is not a tenant role, so a typo throws
+   * at import rather than quietly shrinking a rail.
    */
   readonly rolesReaching: readonly RoleId[]
+}
+
+/**
+ * The generated map, read once. The annotation is the compile-time half of
+ * the guard: a `DohModuleId` missing from the JSON fails `tsc` here rather
+ * than becoming a module that reaches nobody.
+ */
+const GENERATED_REACH: Readonly<Record<DohModuleId, readonly string[]>> = MODULE_REACH.reach
+
+/**
+ * One module's generated reach, narrowed to `RoleId` by INTERSECTING with
+ * the role registry rather than by asserting — which is what makes the
+ * runtime half of the guard real. A token the registry does not know is
+ * dropped by the filter, the lengths then disagree, and this throws; the
+ * cast that would have been the short way to write this would have shipped
+ * the typo instead. Canonical registry order, whatever order the file is in.
+ */
+function reachOf(id: DohModuleId): readonly RoleId[] {
+  const generated = GENERATED_REACH[id]
+  const roles = TENANT_ROLES.filter((role) => generated.includes(role))
+  if (roles.length !== generated.length) {
+    throw new Error(
+      `registries/generated/doh/module-reach.json: ${id} names a role that is not a tenant role ` +
+        `or names one twice (${generated.join(', ')}). Re-run \`pnpm build:registries\`.`,
+    )
+  }
+  return roles
 }
 
 // Same widening hazard as `SA_MODULES`/`ROLES`/`SCREEN_STATES`: a plain
@@ -379,9 +422,7 @@ export const DOH_MODULES = [
     // rather than this screen, and the compliance message is `Allowed` for
     // all five roles there; on the screen's own rows the Supervisor, the
     // Quality Manager and the Worker are `Unavailable` throughout.
-    get rolesReaching(): readonly RoleId[] {
-      return rolesReachingByMatrix(TENANT_LIFECYCLE_MATRIX, titleCaseCellStatus)
-    },
+    rolesReaching: reachOf('MOD-DOH-01'),
   },
   {
     id: 'MOD-DOH-02',
@@ -391,9 +432,7 @@ export const DOH_MODULES = [
       "Hold the tenant's physical structure as the anchor for timezone, shifts, Job binding, scoping and reporting drill-down.",
     // L27113-L27127. Eleven screen rows and nothing else; only the Worker is
     // `Unavailable` (on viewing the location tree).
-    get rolesReaching(): readonly RoleId[] {
-      return rolesReachingByMatrix(LOCATIONS_MATRIX, cellStatus)
-    },
+    rolesReaching: reachOf('MOD-DOH-02'),
   },
   {
     id: 'MOD-DOH-03',
@@ -407,9 +446,7 @@ export const DOH_MODULES = [
     // from nobody. The Worker still reaches no Hub route: the route registry
     // answers that first (D11), and this field is never consulted for a
     // persona the surface already withholds.
-    get rolesReaching(): readonly RoleId[] {
-      return rolesReachingByMatrix(SHIFTS_MATRIX, cellStatus)
-    },
+    rolesReaching: reachOf('MOD-DOH-03'),
   },
   {
     id: 'MOD-DOH-04',
@@ -422,9 +459,7 @@ export const DOH_MODULES = [
     // `Unavailable` on the clearance corpus, which is the module's own
     // statement that the Worker has no standing here; both grants are met
     // on the device.
-    get rolesReaching(): readonly RoleId[] {
-      return rolesReachingByMatrix(WORKERS_MATRIX, cellStatus)
-    },
+    rolesReaching: reachOf('MOD-DOH-04'),
   },
   {
     id: 'MOD-DOH-09',
@@ -435,9 +470,7 @@ export const DOH_MODULES = [
     // L28518-L28533. Twelve screen rows; only the Worker is `Unavailable`
     // (viewing the user and role register), and the other three non-admin
     // roles read that register.
-    get rolesReaching(): readonly RoleId[] {
-      return rolesReachingByMatrix(PERMISSION_MATRIX, outcomeCellStatus)
-    },
+    rolesReaching: reachOf('MOD-DOH-09'),
   },
   {
     id: 'MOD-DOH-12',
@@ -449,9 +482,7 @@ export const DOH_MODULES = [
     // slice builds it on `MOD-DOH-01`'s screen; it is the one row carrying
     // `Unavailable`, and it withholds the Supervisor, the Quality Manager
     // and the Worker, who hold nothing else here either.
-    get rolesReaching(): readonly RoleId[] {
-      return rolesReachingByMatrix(SSO_MATRIX, titleCaseCellStatus)
-    },
+    rolesReaching: reachOf('MOD-DOH-12'),
   },
   {
     id: 'MOD-DOH-13',
@@ -463,9 +494,7 @@ export const DOH_MODULES = [
     // reach every Hub persona regardless of the rail; on the two rows this
     // screen owns — Platform Access History and the post-session report —
     // the Supervisor, the Quality Manager and the Worker are `Unavailable`.
-    get rolesReaching(): readonly RoleId[] {
-      return rolesReachingByMatrix(PLATFORM_ADMIN_MATRIX, cellStatus)
-    },
+    rolesReaching: reachOf('MOD-DOH-13'),
   },
   {
     id: 'MOD-DOH-14',
@@ -476,9 +505,7 @@ export const DOH_MODULES = [
     // L29341-L29350, the matrix D24 adopts over its seven restatements. Six
     // screen rows; only the Worker is `Unavailable`. The Supervisor reads it
     // filtered to their own Area, and the Tenant Admin and Auditor read it.
-    get rolesReaching(): readonly RoleId[] {
-      return rolesReachingByMatrix(CALENDAR_MATRIX, cellStatus)
-    },
+    rolesReaching: reachOf('MOD-DOH-14'),
   },
 ] as const satisfies readonly DohModuleDefinition[]
 
@@ -507,9 +534,9 @@ export function dohModuleById(id: DohModuleId): DohModuleDefinition {
  * `DohModuleDefinition` asks the real question — is this role in the list —
  * instead of a tautology.
  *
- * Reading `m.rolesReaching` runs that module's derivation over its own
- * matrix. Eight matrices of at most fifteen rows is not worth a cache, and
- * a cache is the thing that would let the rail and the screen disagree.
+ * Reading `m.rolesReaching` is a plain array read: the derivation over that
+ * module's matrix already ran at build time, so there is nothing here to
+ * cache and nothing that could let the rail and the screen disagree.
  *
  * This answers the MODULE question only. Whether `role` reaches SURF-DOH at
  * all is the route registry's answer (D11), asked first by `app/hub/HubShell.tsx`.

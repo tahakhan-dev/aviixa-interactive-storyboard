@@ -31,6 +31,15 @@
  * through `GeneratedRegistrySchema` (`@/coverage/registry-loader`), the same
  * as the other thirteen registries.
  *
+ * SIBLING (spine direction fix): `scripts/build-doh-module-reach.mjs` writes
+ * `registries/generated/doh/module-reach.json` and runs immediately after
+ * this script, from the same `pnpm build:registries`. It is deliberately NOT
+ * part of this file: it executes the module graph through `typescript`,
+ * which costs ~350ms cold, and `tests/unit/registry-build.test.ts` spawns
+ * THIS script inside a 5s budget while forty test files run in parallel --
+ * measured, that cost made the spawn time out two runs in three. Two jobs,
+ * two scripts, one npm script.
+ *
  * Run with: node scripts/build-registries.mjs
  */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
