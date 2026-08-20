@@ -944,9 +944,13 @@ function studioFeatureSchemeNote() {
   }
 
   return (
-    'Studio feature schemes (D10), mapped once, here, and nowhere else. The frozen source runs ' +
-    'TWO numbering schemes over the same Studio features: Chapter 20\'s three-part scheme inside ' +
-    `the eighteen module cards (FEAT-STU-01-01 style, ${threeTotal} ids, L${STU_CARD_BAND.first}-` +
+    'Studio feature schemes (D10), mapped once, here, and nowhere else. The Studio module count ' +
+    'used throughout this note is a DERIVED COUNT, not stated in the Statement of Work: L30897 ' +
+    'records that the Statement of Work provides no canonical module count for this surface, and ' +
+    'the eighteen come from one stated derivation rule under DEC-STUDIO-001 [Derived ' +
+    'Clarification]. AC-STU-014 binds this note as much as it binds a screen. The frozen source ' +
+    'runs TWO numbering schemes over the same Studio features: Chapter 20\'s three-part scheme ' +
+    `inside the eighteen module cards (FEAT-STU-01-01 style, ${threeTotal} ids, L${STU_CARD_BAND.first}-` +
     `L${STU_CARD_BAND.last}), and the four-digit traceability catalogue at L47378-L47431 ` +
     `(FEAT-STU-0101 style, ${fourTotal} ids, exactly three per module across all 18 modules). ` +
     'THE FOUR-DIGIT CATALOGUE IS THE TRACEABILITY KEY (same ruling and reason as slice 4\'s ' +

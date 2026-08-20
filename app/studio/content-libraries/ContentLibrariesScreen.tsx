@@ -157,7 +157,7 @@ export function ContentLibrariesScreen() {
   return (
     <StudioShell module={MODULE} persona={persona} onPersonaChange={setPersona}>
       <div className="space-y-6">
-        <div
+        <section
           className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4"
           aria-label="Storyboard failure switch"
         >
@@ -177,7 +177,7 @@ export function ContentLibrariesScreen() {
             exactly as it was: the audit entry commits in the same transaction as the action, so a
             failed audit fails the action with it, and nothing is queued for later.
           </p>
-        </div>
+        </section>
 
         <Tabs
           tabs={TABS}

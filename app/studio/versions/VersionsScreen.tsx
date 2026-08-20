@@ -737,8 +737,15 @@ function VersionControl(props: VersionControlProps) {
           behaviour, by contrast, is not open at all:
         </p>
         <ul className="mt-2 space-y-1 text-sm text-[var(--color-ink-muted)]">
+          {/* Keyed on the STATEMENT, not the locator. Three of these five
+              rows cite L53706, so keying on the locator gave three siblings
+              one key — which React reconciles by dropping or mis-updating
+              rows, silently losing a settled-behaviour statement from a
+              disclosure whose whole job is to be complete. The statements
+              are distinct; `tests/coverage/slice-05-gates.test.ts`'s
+              ROLLBACK_ALIAS_FIXTURE asserts all five reach the page. */}
           {ROLLBACK_DISCLOSURE.settledBehaviour.map((settled) => (
-            <li key={settled.locator}>
+            <li key={settled.statement}>
               {settled.statement}{' '}
               <span className="text-xs text-[var(--color-ink-subtle)]">[{settled.locator}]</span>
             </li>

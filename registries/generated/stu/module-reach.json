@@ -18,9 +18,18 @@
       "routePath": "app/studio/capabilities/page.tsx"
     },
     "MOD-STU-02": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-02/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/agents/page.tsx"
     },
     "MOD-STU-03": {
       "matrixPath": "src/studio/modules/stu-03/matrix.ts",
@@ -65,9 +74,18 @@
       "routePath": "app/studio/screen-configuration/page.tsx"
     },
     "MOD-STU-06": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-06/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/instruction-blocks/page.tsx"
     },
     "MOD-STU-07": {
       "matrixPath": "src/studio/modules/stu-07/matrix.ts",
@@ -84,9 +102,18 @@
       "routePath": "app/studio/content-libraries/page.tsx"
     },
     "MOD-STU-08": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-08/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/training-library/page.tsx"
     },
     "MOD-STU-09": {
       "matrixPath": "src/studio/modules/stu-09/matrix.ts",
@@ -145,29 +172,74 @@
       "routePath": "app/studio/versions/page.tsx"
     },
     "MOD-STU-13": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-13/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/qualification-requirements/page.tsx"
     },
     "MOD-STU-14": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-14/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/work-package/page.tsx"
     },
     "MOD-STU-15": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-15/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/agents/page.tsx"
     },
     "MOD-STU-16": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-16/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "withheld",
+        "plant-manager-persona": "withheld",
+        "tenant-admin": "withheld",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "withheld"
+      },
+      "routePath": "app/studio/learning/page.tsx"
     },
     "MOD-STU-17": {
-      "matrixPath": null,
-      "reach": null,
-      "routePath": null
+      "matrixPath": "src/studio/modules/stu-17/matrix.ts",
+      "reach": {
+        "quality-manager": "offered",
+        "supervisor-with-authoring-grant": "offered",
+        "supervisor-without-grant": "offered",
+        "plant-manager-persona": "offered",
+        "tenant-admin": "offered",
+        "read-only-auditor": "client-decision-open",
+        "worker": "withheld",
+        "implementation-team": "offered"
+      },
+      "routePath": "app/studio/localisation/page.tsx"
     },
     "MOD-STU-18": {
       "matrixPath": "src/studio/modules/stu-18/matrix.ts",

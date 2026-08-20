@@ -204,7 +204,7 @@ export function BuilderScreen() {
   return (
     <StudioShell module={MODULE} screenId="SCR-STU-03" persona={persona} onPersonaChange={setPersona}>
       <div className="space-y-6">
-        <div
+        <section
           className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4"
           aria-label="Storyboard failure switches"
         >
@@ -230,7 +230,7 @@ export function BuilderScreen() {
             validation is discarded and submission stays refused until it re-runs in full — a
             result computed before a dependency changed is stale data (L32152).
           </p>
-        </div>
+        </section>
 
         <BuilderView
           canvas={canvas}

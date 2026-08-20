@@ -384,28 +384,29 @@ describe('accessibility — axe on every journey step', () => {
   }, 300_000)
 
   /**
-   * ONE DECLARED FINDING, LOCATED, AND OWNED BY A FILE THIS TASK MAY NOT
-   * TOUCH. Five steps compose `MOD-STU-04`'s route, and that route carries a
-   * pre-existing `aria-prohibited-attr`: `app/studio/builder/BuilderScreen.tsx`
-   * line 206-209 puts `aria-label="Storyboard failure switches"` on a bare
-   * `<div>`, which has no role that supports an accessible name, so the label
-   * names nothing. The fix is one word — `<section>` instead of `<div>`, the
-   * shape `StudioShell` already uses for its own "Storyboard view switchers"
-   * block — and `app/studio/builder/**` is outside this task's path list.
+   * THE DECLARED FINDING IS GONE, AND THIS IS WHERE ITS EXCEPTION WAS.
    *
-   * IT IS PINNED AS PRESENT RATHER THAN ALLOWED AWAY. This map is compared
-   * for EQUALITY, so the gate goes red in both directions: a new undecided
-   * rule anywhere fails it, and so does this one disappearing. When
-   * `BuilderScreen` is fixed this test fails and the exception must be
-   * deleted, which is the only kind of exception that cannot rot.
+   * Five journey steps compose `MOD-STU-04`'s route, and that route carried a
+   * pre-existing `aria-prohibited-attr`: `app/studio/builder/BuilderScreen.tsx`
+   * put `aria-label="Storyboard failure switches"` on a bare `<div>`, which
+   * has no role that supports an accessible name, so the label named nothing.
+   * This map pinned it as PRESENT on steps 3, 4, 5, 8 and 9 with the fix
+   * written down — `<section>` instead of `<div>`, the shape `StudioShell`
+   * already uses for its own "Storyboard view switchers" block — because
+   * `app/studio/builder/**` was outside that task's path list.
+   *
+   * Slice 5 task 24 made the fix, AT BOTH SITES: the same defect was also on
+   * `app/studio/content-libraries/ContentLibrariesScreen.tsx`'s "Storyboard
+   * failure switch" block, which no journey step composes and which the
+   * journey walk therefore could not see. Fix once, where all callers route.
+   *
+   * The exception is DELETED rather than emptied, exactly as its own comment
+   * required: "this map is compared for EQUALITY, so the gate goes red in
+   * both directions… When `BuilderScreen` is fixed this test fails and the
+   * exception must be deleted, which is the only kind of exception that
+   * cannot rot." It did, and it is.
    */
-  const DECLARED_INCOMPLETE: Readonly<Record<number, readonly string[]>> = {
-    3: ['aria-prohibited-attr'],
-    4: ['aria-prohibited-attr'],
-    5: ['aria-prohibited-attr'],
-    8: ['aria-prohibited-attr'],
-    9: ['aria-prohibited-attr'],
-  }
+  const DECLARED_INCOMPLETE: Readonly<Record<number, readonly string[]>> = {}
 
   it('leaves nothing but colour contrast and one declared, located finding undecided', async () => {
     const found: Record<number, readonly string[]> = {}
@@ -419,14 +420,17 @@ describe('accessibility — axe on every journey step', () => {
     expect(found).toEqual(DECLARED_INCOMPLETE)
   }, 300_000)
 
-  it('the declared finding is the composed route’s own, not something the journey caused', async () => {
-    // Proved rather than asserted: the same finding, on the same element, with
-    // the journey nowhere in the tree.
+  it('the composed route carries no undecided finding of its own either', async () => {
+    // The other half of the fix, proved on the route ALONE with the journey
+    // nowhere in the tree — so a clean walk above cannot be the journey
+    // hiding a finding the route still has.
     const { container } = render(<BuilderScreen />)
     const result = await axe.run(container)
     const undecided = result.incomplete.filter((r) => !ALLOWED_INCOMPLETE.has(r.id))
-    expect(undecided.map((r) => r.id)).toEqual(['aria-prohibited-attr'])
-    expect(JSON.stringify(undecided[0]!.nodes)).toContain('Storyboard failure switches')
+    expect(undecided.map((r) => r.id)).toEqual([])
+    // And the block that carried the label is still there, still labelled —
+    // the fix changed the element, never removed the disclosure.
+    expect(container.querySelector('section[aria-label="Storyboard failure switches"]')).not.toBeNull()
   }, 120_000)
 
   it('the axe run is not vacuous — it really scanned these trees', async () => {
