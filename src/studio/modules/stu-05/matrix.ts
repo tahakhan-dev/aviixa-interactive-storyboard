@@ -56,20 +56,32 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  * `AC-STU-157` (L34674) independently forbids reading the Auditor's cell as a
  * refusal, which is the second reason the card wins that one.
  *
- * ### THE ROUTED PROHIBITION — `routedTo`, per COLUMN
+ * ### THERE IS NO `routedTo` FIELD ON THIS CARD, AND THAT IS THE ANSWER
  *
- * Wave 3 made "disabled with a named reason" CHECKABLE: a cell renders
- * disabled only where it carries a `routedTo` whose target actually permits
- * this persona. Row 8 is this matrix's one routed cell — the Quality
- * Manager's prohibition NAMES the owner ("the tenant administration area owns
- * it") and the Tenant Admin's cell one column over is `Allowed`. Rows 5 and 6
- * route nowhere from any column, so they render as an ABSENCE, which is what
- * `Explicitly prohibited` carries everywhere it is categorical.
+ * The surface's routed prohibition renders a refusal DISABLED only where the
+ * cell's own words point the reader at another row OF THIS MATRIX that the
+ * evaluator says this same persona may act on. `MOD-STU-06` set the
+ * convention for a card where no cell does that: the field is not written at
+ * all, because a map of eight nulls per row that no fold reads is prose
+ * wearing a mechanism's clothes — declared, never consulted, and free to go
+ * wrong the day somebody writes a non-null into it.
  *
- * Because row 8's route leads to ANOTHER SURFACE rather than to a control on
- * this screen, the rendering rule in `./rendering.ts` draws it as a stated
- * cross-surface fact and never as a disabled button on a Studio route: R22,
- * and the `severity-action-bundle-editor` seam (`src/studio/seams.ts`).
+ * Row 8 is the one cell that looked like a route, and it was one under the
+ * reading this build has now retired: its Quality Manager cell names the
+ * owner ("the tenant administration area owns it") and the TENANT ADMIN cell
+ * one column across is `Allowed`. That is a different person. `AC-CC-012`
+ * (L35037) settles what a screen does with a capability another identity
+ * holds — "an out-of-scope Area is absent, not greyed" — and `SCR-SA-USR-01`
+ * (L14977) says the same of root-only account creation: an explanatory line,
+ * "never as a greyed control". So the Quality Manager's cell is an ABSENCE
+ * carrying its own words, and row 8 renders as the cross-surface statement
+ * `actionBundlePreview` already draws through the `severity-action-bundle-editor`
+ * seam. Rows 5 and 6 are categorical in every column.
+ *
+ * The consuming path is `routedProhibitionApplies` in
+ * `@/studio/modules/stu-18/rendering`, and the ten cards that reach it are
+ * enumerated by slice 5 gate 17, which fails if this card ever declares the
+ * field again without a fold that reads it.
  *
  * ### The two conditions this matrix does NOT carry
  *
@@ -113,12 +125,6 @@ export interface Stu05MatrixRow extends StudioMatrixRow {
   readonly id: Stu05RowId
   /** Read by `reachByStudioMatrix`'s clause one. */
   readonly surface: StudioMatrixRowSurface
-  /**
-   * PER COLUMN, never per row. Where a prohibited cell's own words name an
-   * alternative, this is where that alternative is held. `null` is the answer
-   * for a categorical prohibition and it is written on every column.
-   */
-  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu05RowId | null>>
   /** Why a column the card does not head reads the way it does. */
   readonly derivation: Readonly<Record<StudioPersonaColumn, string | null>>
 }
@@ -177,28 +183,6 @@ const IMPL_TEAM_OUTSIDE_STUDIO =
   'gives it tenant administration. Refused, because L34605 is explicit that the Studio permits ' +
   'nothing it has not been told to permit. Derived Clarification, fail-closed.'
 
-/** Every column answers `null` — the row routes nobody anywhere. */
-const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu05RowId | null>> = {
-  'quality-manager': null,
-  'supervisor-with-authoring-grant': null,
-  'supervisor-without-grant': null,
-  'plant-manager-persona': null,
-  'tenant-admin': null,
-  'read-only-auditor': null,
-  worker: null,
-  'implementation-team': null,
-}
-
-/**
- * Row 8's routed cell. The Quality Manager's prohibition names the owner, and
- * the owner is the Tenant Admin cell of this same row — so the route points
- * at the row itself, and `rendering.ts` checks that the target column
- * actually permits it before drawing anything.
- */
-const ROUTES_QUALITY_MANAGER_TO_THE_TENANT_ADMIN: Readonly<
-  Record<StudioPersonaColumn, Stu05RowId | null>
-> = { ...ROUTES_NOWHERE, 'quality-manager': 'edit-a-tenant-action-bundle' }
-
 interface CardColumns {
   readonly qualityManager: StudioMatrixCell
   readonly grantHolder: StudioMatrixCell
@@ -218,7 +202,6 @@ function rowOf(
     readonly implementationNote: string
     readonly plantManagerNote: string
     readonly surface?: StudioMatrixRowSurface
-    readonly routedTo?: Readonly<Record<StudioPersonaColumn, Stu05RowId | null>>
   },
 ): Stu05MatrixRow {
   return {
@@ -233,7 +216,6 @@ function rowOf(
     // separation of duties from the wrong module.
     stage: null,
     sourceRefs: [sourceRef],
-    routedTo: derived.routedTo ?? ROUTES_NOWHERE,
     cells: {
       'quality-manager': columns.qualityManager,
       'supervisor-with-authoring-grant': columns.grantHolder,
@@ -426,7 +408,6 @@ export const STU_05_MATRIX = [
       implementationNote: IMPL_TEAM_OUTSIDE_STUDIO,
       plantManagerNote: PLANT_MANAGER_MIRRORS,
       surface: 'another-surface',
-      routedTo: ROUTES_QUALITY_MANAGER_TO_THE_TENANT_ADMIN,
     },
   ),
   authoringRow(

@@ -173,12 +173,20 @@ describe('MOD-STU-02 — the permission matrix, L31731-L31739', () => {
     }
   })
 
-  it('routes nobody anywhere — `routedTo` is null on every cell of every row', () => {
+  it('declares no `routedTo` at all — the absence IS the answer, MOD-STU-06 style', () => {
+    // The surface renders a refusal DISABLED only where a cell's own words
+    // point the reader at another row OF THIS MATRIX that the evaluator says
+    // this same persona may act on. No cell of this card does, so the field is
+    // not written: a map of eight nulls per row that no fold reads is a
+    // declaration nothing consults, and that is the shape of defect this slice
+    // has now shipped twice. Slice 5 gate 17 holds the cross-module version.
+    //
+    // FAILS IF: the field is declared again on this card without a fold that
+    // reads it.
     for (const row of STU_02_MATRIX) {
-      for (const column of ALL_PERSONAS) {
-        expect(row.routedTo[column]).toBeNull()
-      }
+      expect(Object.hasOwn(row, 'routedTo'), row.id).toBe(false)
     }
+    void ALL_PERSONAS
   })
 
   it('states a derivation for every column the card does not head, and none for the six it does', () => {
@@ -490,7 +498,7 @@ describe('MOD-STU-15 — the permission matrix, L34009-L34020', () => {
       for (const column of STU_15_CARD_ONLY_COLUMNS) {
         expect(row.cardOnlyColumns[column].note.length).toBeGreaterThan(0)
       }
-      expect(row.routedTo['quality-manager']).toBeNull()
+      expect(Object.hasOwn(row, 'routedTo'), row.id).toBe(false)
     }
   })
 

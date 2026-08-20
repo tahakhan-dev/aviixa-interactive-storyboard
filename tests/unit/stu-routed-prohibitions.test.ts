@@ -15,6 +15,15 @@ import { STU01_SEED_STATE } from '@/studio/modules/stu-01/capabilities'
 import { STU_03_MATRIX, STU_03_ROW_IDS } from '@/studio/modules/stu-03/matrix'
 import { libraryAffordance, SEEDED_SCENARIO as LIBRARY_SCENARIO } from '@/studio/modules/stu-03/library'
 
+import { STU_04_MATRIX, STU_04_CAPABILITY_IDS, stu04Row } from '@/studio/modules/stu-04/matrix'
+import { builderControls, scenario as stu04Scenario } from '@/studio/modules/stu-04/rendering'
+
+import { STU_07_MATRIX, STU_07_CAPABILITY_IDS, stu07Row } from '@/studio/modules/stu-07/matrix'
+import { libraryControls, scenario as stu07Scenario } from '@/studio/modules/stu-07/rendering'
+
+import { STU_13_MATRIX, STU_13_ROW_IDS } from '@/studio/modules/stu-13/matrix'
+import { qualificationControls, stu13Scenario } from '@/studio/modules/stu-13/qualifications'
+
 import { STU_09_MATRIX, STU_09_ROW_IDS } from '@/studio/modules/stu-09/matrix'
 import { difficultyAffordance, STU09_DEFAULT_CONTEXT } from '@/studio/modules/stu-09/levels'
 
@@ -44,32 +53,59 @@ import {
 } from '@/studio/modules/stu-18/rendering'
 
 /**
- * THE ROUTED PROHIBITION, RETROFITTED TO THE SEVEN MODULES BUILT BEFORE IT
- * EXISTED — `MOD-STU-01`, `-03`, `-09`, `-10`, `-11`, `-12` and `-18`.
+ * THE ROUTED PROHIBITION — THE WHOLE MECHANISM, ACROSS EVERY CARD THAT
+ * DECLARES IT.
  *
- * ### What the mechanism decides, and why it is one file
+ * ### What it decides
  *
  * `Explicitly prohibited` carries no rendering anywhere in the frozen source,
  * so it renders ABSENT. The one exception is a prohibition that is a ROUTING
  * rule rather than a categorical one: the person holds the capability, is
  * refused HERE, and the reason can say where it lives. That renders DISABLED.
  *
- * Before `routedTo` the difference was an author's judgement, asserted in
- * prose. `routedTo` makes it a fact: the pointer only NOMINATES a target, and
- * what decides the rendering is the evaluator's own answer for that target,
- * for the same identity. A pointer at a row nobody holds changes nothing.
+ * `routedTo` only NOMINATES a target. What decides the rendering is the
+ * evaluator's own answer for that target, for the same identity, through the
+ * one predicate the surface shares — `routedProhibitionApplies`.
  *
- * The seven modules share ONE implementation of that check —
- * `routedProhibitionApplies` — so this file is one file. A per-module file
- * would let the mechanism drift into seven spellings, which is the state this
- * retrofit exists to end.
+ * ### "Actually permits" — the definition, and the one this build retired
+ *
+ * The predicate asks whether the target permits **this persona**. It used to
+ * be asked two ways: `MOD-STU-07` and `MOD-STU-04` asked of this persona,
+ * `MOD-STU-13` asked whether ANYBODY held the target. A rule with two
+ * readings is not one rule, and the frozen source settles it against the
+ * second reading by name:
+ *
+ * - `AC-CC-012` (L35037) — "A Supervisor session renders only Areas within
+ *   its scope grant; an out-of-scope Area is **absent, not greyed**." Another
+ *   Supervisor holds that Area.
+ * - `SCR-SA-USR-01` (L14977) — account creation is root-only, and "for every
+ *   other console role it renders as an explanatory line reading 'Account
+ *   creation is root-only', **never as a greyed control**."
+ *
+ * and states the implication a greyed control carries, which is why:
+ * `SB-ARCH-018` (L12889) refuses one "because showing a greyed control would
+ * imply the setting **could exist**", and `FUNC-SA-09-06-A2` (L45068) refuses
+ * one because "greyed controls imply the action exists **elsewhere**". A
+ * disabled control is a promise about what THIS reader could reach. Nothing
+ * in the source affirms the wider reading; the two locators above refuse it.
+ * So it is not a source contradiction and is not pinned as one — it is a
+ * defect, and `MOD-STU-13`'s one pointer, written under it, is gone.
+ *
+ * ### Ten cards declare the field. Seven used to and no longer do.
+ *
+ * `MOD-STU-01`, `-03`, `-04`, `-07`, `-09`, `-10`, `-11`, `-12`, `-13` and
+ * `-18` declare `routedTo` AND read it in a fold. `MOD-STU-02`, `-05`, `-08`,
+ * `-14`, `-15`, `-16` and `-17` declared a map of eight nulls per row that no
+ * code path consulted; following `MOD-STU-06`, which never declared it and
+ * documented why, the field is gone from all seven. A declaration nothing
+ * reads is the defect shape this slice has now shipped twice, and the absence
+ * of the field is a structure that cannot express it. Slice 5 gate 17 holds
+ * the enumeration.
  *
  * ### The independence rule this file obeys
  *
- * **NO EXPECTATION HERE IS DERIVED FROM `routedTo`.** Three tasks in this
- * slice shipped tests that read the same field the code read, so the field
- * could be wrong and the test agreed. Every claim below is pinned against one
- * of two things that are not `routedTo`:
+ * **NO EXPECTATION HERE IS DERIVED FROM `routedTo`.** Every claim below is
+ * pinned against one of two things that are not `routedTo`:
  *
  * 1. **The source's own words for the cell**, read off `cells[column].note` —
  *    the module's transcription of the blueprint, which the routing field
@@ -201,6 +237,46 @@ const STU12_STAGES = {
  * locator for each is in the module's matrix header.
  */
 const ROUTED_CENSUS = [
+  // ---- MOD-STU-07, the module that introduced the mechanism. Five rows give
+  // the Supervisor-with-grant `Explicitly prohibited` while row 4 gives that
+  // same Supervisor `Allowed` (L32628-L32634). Two of the five say `may
+  // propose only` in the source's own words; the other three are bare, and
+  // their route is the card's shape rather than their own sentence.
+  {
+    module: 'MOD-STU-07',
+    row: 'create-a-library-item',
+    column: 'supervisor-with-authoring-grant' as StudioPersonaColumn,
+    namesTheRoute: 'may propose only',
+    target: 'propose-a-change',
+  },
+  {
+    module: 'MOD-STU-07',
+    row: 'edit-a-library-item',
+    column: 'supervisor-with-authoring-grant' as StudioPersonaColumn,
+    namesTheRoute: 'may propose only',
+    target: 'propose-a-change',
+  },
+  {
+    module: 'MOD-STU-07',
+    row: 'archive-a-library-item',
+    column: 'supervisor-with-authoring-grant' as StudioPersonaColumn,
+    namesTheRoute: null,
+    target: 'propose-a-change',
+  },
+  {
+    module: 'MOD-STU-07',
+    row: 'approve-a-coaching-asset',
+    column: 'supervisor-with-authoring-grant' as StudioPersonaColumn,
+    namesTheRoute: null,
+    target: 'propose-a-change',
+  },
+  {
+    module: 'MOD-STU-07',
+    row: 'retire-a-flagged-coaching-asset',
+    column: 'supervisor-with-authoring-grant' as StudioPersonaColumn,
+    namesTheRoute: null,
+    target: 'propose-a-change',
+  },
   {
     module: 'MOD-STU-09',
     row: 'review-drafted-levels-in-the-chain',
@@ -249,6 +325,28 @@ const ROUTED_CENSUS = [
   },
 ] as const
 
+/**
+ * The six cards that declare `routedTo` and nominate nothing on it —
+ * `MOD-STU-01`, `-03`, `-04`, `-10`, `-12` and `-13`. Their folds READ the
+ * field on every row they fold; every answer is `null`, and that is a
+ * derivation rather than an omission. Each has a covering case below that drives the predicate directly,
+ * because a module with no route of its own cannot reach the branch through
+ * its own data.
+ *
+ * A card that declares the field and has no fold that reads it is not on this
+ * list and must not exist: slice 5 gate 17 enumerates the ten, and the seven
+ * cards that used to carry the field as eight nulls per row no longer declare
+ * it at all.
+ */
+const DECLARES_BUT_NOMINATES_NOTHING = [
+  'MOD-STU-01',
+  'MOD-STU-03',
+  'MOD-STU-04',
+  'MOD-STU-10',
+  'MOD-STU-12',
+  'MOD-STU-13',
+] as const
+
 interface ModuleUnderTest {
   readonly module: string
   readonly rows: readonly {
@@ -262,16 +360,19 @@ interface ModuleUnderTest {
 const MODULES: readonly ModuleUnderTest[] = [
   { module: 'MOD-STU-01', rows: MOD_STU_01_MATRIX.map((r) => ({ ...r, id: r.action })), ids: CHARTER_ACTIONS },
   { module: 'MOD-STU-03', rows: STU_03_MATRIX, ids: STU_03_ROW_IDS },
+  { module: 'MOD-STU-04', rows: STU_04_MATRIX, ids: STU_04_CAPABILITY_IDS },
+  { module: 'MOD-STU-07', rows: STU_07_MATRIX, ids: STU_07_CAPABILITY_IDS },
   { module: 'MOD-STU-09', rows: STU_09_MATRIX, ids: STU_09_ROW_IDS },
   { module: 'MOD-STU-10', rows: STU_10_MATRIX, ids: STU_10_ROW_IDS },
   { module: 'MOD-STU-11', rows: STU_11_MATRIX, ids: STU_11_CAPABILITY_IDS },
   { module: 'MOD-STU-12', rows: STU_12_MATRIX, ids: STU_12_CAPABILITY_IDS },
+  { module: 'MOD-STU-13', rows: STU_13_MATRIX, ids: STU_13_ROW_IDS },
   { module: 'MOD-STU-18', rows: STU18_MATRIX, ids: STU18_ROW_IDS },
 ]
 
 const PERMITS = new Set(['allowed', 'allowedWithConditions'])
 
-describe('the routed prohibition — the retrofit across the seven modules', () => {
+describe('the routed prohibition — every card that declares it', () => {
   // Not a spot check: every module's row type declares `routedTo` as a TOTAL
   // record over the eight columns, and this proves the value matches the
   // type at run time. A partial map would leave a column reading `undefined`,
@@ -309,26 +410,22 @@ describe('the routed prohibition — the retrofit across the seven modules', () 
     },
   )
 
-  // THE WHOLE RETROFIT, AS ONE NUMBER. Six cells route out of five hundred
-  // and sixty. Every other prohibited cell is ABSENT, and that is the answer
-  // rather than an omission — the declined cells and the reason each was
-  // declined are recorded on the module that declined them.
+  // THE WHOLE MECHANISM, AS ONE TABLE. Eleven cells nominate a route out of
+  // the ten cards that declare the field; every other prohibited cell is
+  // ABSENT, and that is the answer rather than an omission.
   //
-  // ONE PROHIBITED CELL ON THESE SEVEN MODULES STILL RENDERS DISABLED
-  // WITHOUT A ROUTE, and it is not an oversight: `MOD-STU-03`'s New Workflow
-  // button carries `storyboardProhibition`, because `SB-STU-06` (L31976)
-  // states the exception in the source's own words — "disabled with a stated
-  // reason for read-only roles rather than hidden". That is a separately
-  // sourced instruction with its own locator, not a second spelling of this
-  // mechanism, and folding it in either way would edit the source rather than
-  // read it. The residual question it leaves open is recorded in the task
-  // report, not settled here.
+  // ONE PROHIBITED CELL ON THESE MODULES STILL RENDERS DISABLED WITHOUT A
+  // ROUTE, and it is not an oversight: `MOD-STU-03`'s New Workflow button
+  // carries `storyboardProhibition`, because `SB-STU-06` (L31976) states the
+  // exception in the source's own words — "disabled with a stated reason for
+  // read-only roles rather than hidden". That is a separately sourced
+  // instruction with its own locator, not a second spelling of this mechanism.
   //
   // FAILS IF: a route is added to a cell that should be absent, or removed
   // from one that should be routed. Both directions are the planted defects
   // this file exists to catch, and neither can be written without this
   // literal moving.
-  it('routes exactly six cells, and names each one', () => {
+  it('nominates exactly eleven cells across the ten cards, and names each one', () => {
     const actual = MODULES.flatMap((mod) =>
       mod.rows.flatMap((row) =>
         STUDIO_PERSONA_COLUMNS.filter((c) => row.routedTo[c] !== null).map(
@@ -341,6 +438,19 @@ describe('the routed prohibition — the retrofit across the seven modules', () 
     )
   })
 
+  // The other half of the same census, and the reason a card with no route is
+  // still not decorative: it declares the field, its fold reads it on every
+  // row, and every answer is `null`.
+  //
+  // FAILS IF: one of the six gains a route without this list moving, or a
+  // card is added to the list that in fact routes somebody.
+  it('leaves the other six cards nominating nothing at all', () => {
+    const silent = MODULES.filter((mod) =>
+      mod.rows.every((row) => STUDIO_PERSONA_COLUMNS.every((c) => row.routedTo[c] === null)),
+    ).map((mod) => mod.module)
+    expect(silent).toEqual([...DECLARES_BUT_NOMINATES_NOTHING])
+  })
+
   // INDEPENDENCE PIN 1 — the source's own words, read off the cell's note.
   //
   // FAILS IF: a route is written on a cell whose transcribed text does not
@@ -348,7 +458,7 @@ describe('the routed prohibition — the retrofit across the seven modules', () 
   // of the blueprint rather than a preference about rendering.
   it.each(
     ROUTED_CENSUS.filter((r) => r.namesTheRoute !== null).map(
-      (r) => [`${r.row}/${r.column}`, r] as const,
+      (r) => [`${r.module}/${r.row}/${r.column}`, r] as const,
     ),
   )('%s carries the alternative in the cell’s own words', (_name, entry) => {
     const row = MODULES.find((m) => m.module === entry.module)!.rows.find((r) => r.id === entry.row)!
@@ -356,15 +466,24 @@ describe('the routed prohibition — the retrofit across the seven modules', () 
   })
 
   // INDEPENDENCE PIN 2 — THE TARGET'S OWN MATRIX, and the clause that makes
-  // this mechanism checkable at all. A `routedTo` claims the target permits
-  // the capability for this persona; that claim is read here off the TARGET
-  // ROW'S OWN CELL, never off the pointer or off any decision the pointer
-  // produced.
+  // this mechanism checkable at all. A `routedTo` NOMINATES; whether it
+  // renders is decided by the evaluator's answer for the target FOR THIS SAME
+  // PERSONA. That answer is read here off the TARGET ROW'S OWN CELL, never off
+  // the pointer and never off any decision the pointer produced.
   //
-  // FAILS IF: a route points at a surface that does not actually permit the
-  // capability — the exact defect the mechanism is for, and the one planted
-  // below to prove this arm can go red.
-  it.each(ROUTED_CENSUS.map((r) => [`${r.row}/${r.column}`, r] as const))(
+  // THE DEFINITION THIS PINS, AND THE ONE IT REFUSES. "Actually permits" means
+  // the target permits THIS persona — not that somebody, anywhere, holds it.
+  // `MOD-STU-13` implemented the second reading until this task; the frozen
+  // source refuses it by name in two places, `AC-CC-012` (L35037, "an
+  // out-of-scope Area is absent, not greyed" — of an Area another Supervisor
+  // holds) and `SCR-SA-USR-01` (L14977, root-only account creation renders for
+  // every other console role as an explanatory line, "never as a greyed
+  // control"). Hence `entry.column` on BOTH sides of this assertion.
+  //
+  // FAILS IF: a route points at a target that does not permit the capability
+  // for that persona — the exact defect the mechanism is for, and the one
+  // planted below to prove this arm can go red.
+  it.each(ROUTED_CENSUS.map((r) => [`${r.module}/${r.row}/${r.column}`, r] as const))(
     '%s points at a target whose own cell permits that same persona',
     (_name, entry) => {
       const mod = MODULES.find((m) => m.module === entry.module)!
@@ -454,6 +573,109 @@ describe('MOD-STU-03 — the two near misses, and why neither routes', () => {
       )
       expect(rendering.kind, persona).toBe('absent')
     }
+  })
+})
+
+describe('MOD-STU-04 — the row that nominated a route no fold ever read', () => {
+  const ROW = 'open-the-canvas-for-a-draft-workflow'
+
+  // Rows 1 and 2 are the two READS, not controls, so they never appear in
+  // `BUILDER_CONTROLS` and `builderControls` — the one place this module reads
+  // `routedTo` — never visits them. Row 1 used to nominate row 2 for the three
+  // columns that hold the published canvas `Read-only`; the pointer could not
+  // render (`Read-only` is not an action) and no path asked. It is gone.
+  //
+  // What enforces row 1 is the READ: a persona refused the draft canvas never
+  // has a draft in the response, which is L32171's "rendered view with no
+  // editing affordances rather than a disabled editor".
+  //
+  // FAILS IF: the pointer comes back, or the refusal moves from the read into
+  // a rendering.
+  it.each(['supervisor-without-grant', 'plant-manager-persona', 'tenant-admin'] as const)(
+    'withholds drafts from %s in the read, and nominates nothing',
+    (persona) => {
+      expect(stu04Row(ROW).routedTo[persona]).toBeNull()
+      expect(stu04Row(ROW).cells[persona].outcome).toBe('explicitlyProhibited')
+      expect(stu04Row('open-the-canvas-read-only-for-a-published-version').cells[persona].outcome)
+        .toBe('readOnly')
+    },
+  )
+
+  // The fold that DOES read the field reaches every control it draws, and
+  // every answer is null — so the nine controls are an answer, not an
+  // omission, and a route planted onto any of them changes what is drawn.
+  //
+  // FAILS IF: `builderControls` stops consulting `routedTo`.
+  it('reads routedTo on every control it folds', () => {
+    for (const persona of STUDIO_PERSONA_COLUMNS) {
+      for (const control of builderControls(stu04Scenario({ persona }))) {
+        expect(stu04Row(control.capabilityId).routedTo[persona], control.id).toBeNull()
+      }
+    }
+  })
+})
+
+describe('MOD-STU-07 — the card that introduced the mechanism', () => {
+  // The five ownership rows give the Supervisor-with-grant `Explicitly
+  // prohibited` while row 4 gives that same Supervisor `Allowed` (L32628 —
+  // L32634). Same person, same screen, one row apart: the prohibition is a
+  // ROUTING rule, and this is the case the whole mechanism was built for.
+  //
+  // FAILS IF: a route is dropped, or its target stops permitting that
+  // persona, or the reason stops naming where the capability lives.
+  it('disables the five ownership controls for the grant-holder, naming Propose', () => {
+    const controls = libraryControls(
+      stu07Scenario({ persona: 'supervisor-with-authoring-grant' }),
+      'containment-checklists',
+    )
+    for (const id of ['create-a-library-item', 'edit-a-library-item', 'archive-a-library-item'] as const) {
+      const control = controls.find((c) => c.id === id)!
+      expect(control.affordance.kind, id).toBe('disabled')
+      if (control.affordance.kind !== 'disabled') continue
+      expect(control.affordance.reason, id).toMatch(/propose/i)
+    }
+    // Pinned against the target's own cell for the same persona.
+    expect(stu07Row('propose-a-change').cells['supervisor-with-authoring-grant'].outcome).toBe(
+      'allowed',
+    )
+  })
+
+  // The other arm, on the same rows: the columns that hold Propose nowhere
+  // get no route and no control.
+  //
+  // FAILS IF: the route is read per ROW instead of per COLUMN.
+  it.each(['supervisor-without-grant', 'tenant-admin', 'worker'] as const)(
+    'renders the same rows absent for %s, who holds Propose nowhere',
+    (persona) => {
+      const controls = libraryControls(stu07Scenario({ persona }), 'containment-checklists')
+      const create = controls.find((c) => c.id === 'create-a-library-item')!
+      expect(create.affordance.kind).toBe('absent')
+      expect(PERMITS.has(stu07Row('propose-a-change').cells[persona].outcome)).toBe(false)
+    },
+  )
+})
+
+describe('MOD-STU-13 — the card whose route the source took away', () => {
+  // `MOD-STU-13` asked whether ANYBODY held the target and rendered row 5's
+  // Quality Manager cell DISABLED on the strength of the TENANT ADMIN's
+  // `Allowed`. `AC-CC-012` (L35037) and `SCR-SA-USR-01` (L14977) refuse that
+  // rendering by name, so the pointer was a false claim under the settled
+  // definition and is gone. The cell is an ABSENCE carrying its own words.
+  //
+  // Pinned against the target row's own cells — the Quality Manager's, which
+  // refuses, and the Tenant Admin's, which is the `Allowed` the retired
+  // reading was reaching for.
+  //
+  // FAILS IF: the wider reading returns, in this module or in the shared
+  // predicate.
+  it('renders row 5 absent for the Quality Manager, whose own cell on it refuses', () => {
+    const control = qualificationControls(stu13Scenario({ persona: 'quality-manager' })).find(
+      (c) => c.id === 'set-hard-block-versus-notify-posture',
+    )!
+    expect(control.affordance.kind).toBe('absent')
+    const row = STU_13_MATRIX.find((r) => r.id === 'set-hard-block-versus-notify-posture')!
+    expect(row.cells['quality-manager'].outcome).toBe('explicitlyProhibited')
+    expect(row.cells['tenant-admin'].outcome).toBe('allowed')
   })
 })
 

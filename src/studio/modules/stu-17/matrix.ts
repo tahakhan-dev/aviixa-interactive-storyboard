@@ -71,15 +71,25 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  * rather than smoothed away, because the two answers differ on who may OPEN
  * the screen and only one of them is the cell-level source.
  *
- * ### THE ROUTED PROHIBITION — `routedTo`, per COLUMN, and null everywhere
+ * ### THERE IS NO `routedTo` FIELD ON THIS CARD, AND THAT IS THE ANSWER
  *
- * A cell renders DISABLED only where it carries a `routedTo` whose target
- * actually permits this persona; otherwise `Explicitly prohibited` renders as
- * an ABSENCE. No cell on this card names an alternative — rows 4, 5 and 6 are
+ * The surface's routed prohibition renders a refusal DISABLED only where the
+ * cell's own words point the reader at another row OF THIS MATRIX that the
+ * evaluator says this same persona may act on. `MOD-STU-06` set the
+ * convention for a card where no cell does that: the field is not written at
+ * all, because a map of eight nulls per row that no fold reads is prose
+ * wearing a mechanism's clothes — declared, never consulted, and free to go
+ * wrong the day somebody writes a non-null into it.
+ *
+ * No cell on this card names an alternative — rows 4, 5 and 6 are
  * categorical refusals with no route for anybody, and rows 1, 2 and 3 refuse
  * personas for whom the capability exists on this very screen but names them
- * no other way to reach it. So every column of every row routes nowhere, and
- * every refusal on this screen is an absence with the rule stated beside it.
+ * no other way to reach it.
+ *
+ * The consuming path is `routedProhibitionApplies` in
+ * `@/studio/modules/stu-18/rendering`, and the ten cards that reach it are
+ * enumerated by slice 5 gate 17, which fails if this card ever declares the
+ * field again without a fold that reads it.
  *
  * ### `requiredTiers` and `requiredGrant` are `null` on every cell
  *
@@ -118,8 +128,6 @@ export interface Stu17MatrixRow extends StudioMatrixRow {
   readonly id: Stu17RowId
   /** Read by `reachByStudioMatrix`'s clause one. */
   readonly surface: StudioMatrixRowSurface
-  /** PER COLUMN, never per row. `null` on every one — see the note above. */
-  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu17RowId | null>>
   /** Why a column the card does not head reads the way it does. */
   readonly derivation: Readonly<Record<StudioPersonaColumn, string | null>>
 }
@@ -170,18 +178,6 @@ const IMPL_TEAM_UNIVERSAL_REFUSAL =
   'card omits can hold what the surface’s most capable authoring role does not. No derivation ' +
   'is needed and none is invented.'
 
-/** Every column answers `null` — no row of this card routes anybody anywhere. */
-const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu17RowId | null>> = {
-  'quality-manager': null,
-  'supervisor-with-authoring-grant': null,
-  'supervisor-without-grant': null,
-  'plant-manager-persona': null,
-  'tenant-admin': null,
-  'read-only-auditor': null,
-  worker: null,
-  'implementation-team': null,
-}
-
 interface CardColumns {
   readonly qualityManager: StudioMatrixCell
   readonly grantHolder: StudioMatrixCell
@@ -217,7 +213,6 @@ function rowOf(
     // module.
     stage: null,
     sourceRefs: [sourceRef],
-    routedTo: ROUTES_NOWHERE,
     cells: {
       'quality-manager': columns.qualityManager,
       'supervisor-with-authoring-grant': columns.grantHolder,

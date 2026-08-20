@@ -35,7 +35,6 @@ import {
   qualificationAffordance,
   qualificationControls,
   readTenantPosture,
-  routedCapabilityIsHeld,
   reapplyTag,
   stu13PublishRegister,
   stu13Decision,
@@ -185,9 +184,10 @@ describe('row 9 — “Explicitly prohibited from the Studio”, on four cells',
  * ==================================================================== */
 
 describe('the routed prohibition', () => {
-  // Task 11's mechanism: a prohibited cell renders DISABLED only where its
-  // `routedTo` names a capability THIS persona actually holds; otherwise
-  // ABSENT, because `Explicitly prohibited` carries no rendering anywhere.
+  // The mechanism: a prohibited cell renders DISABLED only where its
+  // `routedTo` names a row of THIS matrix that the evaluator says THIS
+  // persona may act on; otherwise ABSENT, because `Explicitly prohibited`
+  // carries no rendering anywhere.
   //
   // FAILS IF: a pointer names a row this matrix does not carry.
   it('resolves every routedTo pointer against this matrix', () => {
@@ -200,75 +200,115 @@ describe('the routed prohibition', () => {
     }
   })
 
-  // Row 5's Quality Manager cell NAMES the owner ("the posture is a tenant
-  // setting") and the Tenant Admin cell of the same row is `Allowed`, so the
-  // route resolves to a real holder and the cell renders DISABLED.
+  // THIS CARD NOW ROUTES NOBODY, AND THAT IS A CHANGE THE SOURCE MADE.
   //
-  // FAILS IF: the route is removed, or the target column stops permitting.
-  it('routes only row 5’s Quality Manager cell, because only that cell names an owner', () => {
+  // Row 5's Quality Manager cell names the owner ("the posture is a tenant
+  // setting") and the TENANT ADMIN column one across is `Allowed`. Under the
+  // "somebody holds it somewhere" reading this module used to implement, that
+  // rendered a DISABLED control for the Quality Manager. The frozen source
+  // refuses that rendering by name: `AC-CC-012` (L35037) — "an out-of-scope
+  // Area is absent, not greyed", of an Area another Supervisor holds — and
+  // `SCR-SA-USR-01` (L14977), where root-only account creation renders for
+  // every other console role as an explanatory line, "never as a greyed
+  // control". A `routedTo` names what THIS reader holds instead, so the
+  // pointer was a false claim and is gone.
+  //
+  // PINNED AGAINST THE TARGET'S OWN CELL, NEVER AGAINST `routedTo`: the
+  // second expectation reads row 5's Quality Manager cell on the row the
+  // pointer used to name, which is the claim the pointer was making and must
+  // not be trusted to make about itself.
+  //
+  // FAILS IF: any cell of this card gains a route.
+  it('routes nobody, and row 5’s target refuses the very persona that pointed at it', () => {
     const routed = STU_13_MATRIX.flatMap((row) =>
       PERSONAS.filter((c) => row.routedTo[c] !== null).map((c) => `${row.id}/${c}`),
     )
-    expect(routed).toEqual(['set-hard-block-versus-notify-posture/quality-manager'])
+    expect(routed).toEqual([])
+    expect(
+      stu13Row('set-hard-block-versus-notify-posture').cells['quality-manager'].outcome,
+    ).toBe('explicitlyProhibited')
   })
 
-  // Row 6's Quality Manager cell is a BARE `Explicitly prohibited` (L33640) —
-  // it names nobody — so it routes nowhere and renders ABSENT. That is the
-  // difference between rows 5 and 6, read off the source's own words.
+  // Rows 5 and 6 now read alike for the Quality Manager, and the source says
+  // they should: neither cell names anything that persona holds. What still
+  // separates them is the TENANT ADMIN column, which row 5 renders disabled
+  // through the `another-surface` arm — that persona genuinely holds the act,
+  // over there — and which row 6 renders the same way for the same reason.
   //
-  // FAILS IF: row 6 is given the route row 5 has, on the assumption that two
-  // adjacent tenant-setting rows must read alike.
-  it('renders row 6 absent for the Quality Manager and row 5 disabled', () => {
-    const controls = qualificationControls(stu13Scenario({ persona: 'quality-manager' }))
-    const posture = controls.find((c) => c.id === 'set-hard-block-versus-notify-posture')!
-    const duration = controls.find((c) => c.id === 'set-clearance-duration')!
-    expect(posture.affordance.kind).toBe('disabled')
-    expect(duration.affordance.kind).toBe('absent')
+  // FAILS IF: the routed branch starts firing on a target this persona does
+  // not hold, which is the reading this task retired.
+  it('renders rows 5 and 6 absent for the Quality Manager, and disabled for the Tenant Admin', () => {
+    const qm = qualificationControls(stu13Scenario({ persona: 'quality-manager' }))
+    for (const id of ['set-hard-block-versus-notify-posture', 'set-clearance-duration'] as const) {
+      expect(qm.find((c) => c.id === id)!.affordance.kind, id).toBe('absent')
+    }
+    const admin = qualificationControls(stu13Scenario({ persona: 'tenant-admin' }))
+    for (const id of ['set-hard-block-versus-notify-posture', 'set-clearance-duration'] as const) {
+      expect(admin.find((c) => c.id === id)!.affordance.kind, id).toBe('disabled')
+    }
   })
 
-  // The clause that makes ABSENT and DISABLED a fact rather than a taste: a
-  // capability SOMEBODY holds is withheld from you and renders disabled; a
-  // capability NOBODY holds does not exist to be withheld and renders absent.
-  // Both arms are exercised here rather than only the one this matrix reaches,
-  // because a branch a suite never enters is a branch nobody has checked.
+  // THE PREDICATE, DRIVEN IN BOTH DIRECTIONS. A branch a suite never enters
+  // is a branch nobody has checked, and this card reaches neither arm on its
+  // own data any more — so both are driven here through the SHARED predicate
+  // the whole surface uses, with the target's decision supplied by this
+  // module's own evaluator.
   //
-  // FAILS IF: the routed branch stops asking whether the target is held, in
-  // either direction.
-  it('renders a routed prohibition absent when nobody holds the routed capability', () => {
+  // FAILS IF: `routedProhibitionApplies` stops asking the evaluator for the
+  // target's answer, or starts asking it of a column other than this
+  // persona's.
+  it('opens on a target this persona may act on and closes on one they may not', () => {
     const prohibited = stu13Decision('set-clearance-duration', 'quality-manager')
     expect(prohibited.outcome).toBe('explicitlyProhibited')
 
-    const nobodyHolds = qualificationAffordance(
-      'Set the clearance duration',
-      prohibited,
-      'another-surface',
+    // Held by NOBODY: row 11 is refused in all eight columns.
+    const floor = stu13Decision(
       'make-the-qualification-gate-looser-than-the-platform-floor',
-      routedCapabilityIsHeld(
-        'make-the-qualification-gate-looser-than-the-platform-floor',
-        stu13Scenario(),
-      ),
+      'quality-manager',
     )
-    expect(nobodyHolds.kind).toBe('absent')
-
-    const somebodyHolds = qualificationAffordance(
-      'Set the clearance duration',
-      prohibited,
-      'another-surface',
-      'set-hard-block-versus-notify-posture',
-      routedCapabilityIsHeld('set-hard-block-versus-notify-posture', stu13Scenario()),
-    )
-    expect(somebodyHolds.kind).toBe('disabled')
-  })
-
-  // FAILS IF: `routedCapabilityIsHeld` stops reading the whole row — row 11 is
-  // refused in all eight columns and row 5 is held in exactly one, so a check
-  // that read only the acting persona's column would answer `false` for both.
-  it('reads the whole routed row, not one hand-picked column', () => {
-    const s = stu13Scenario({ persona: 'quality-manager' })
-    expect(routedCapabilityIsHeld('set-hard-block-versus-notify-posture', s)).toBe(true)
     expect(
-      routedCapabilityIsHeld('make-the-qualification-gate-looser-than-the-platform-floor', s),
-    ).toBe(false)
+      qualificationAffordance(
+        'Set the clearance duration',
+        prohibited,
+        'another-surface',
+        'make-the-qualification-gate-looser-than-the-platform-floor',
+        floor,
+      ).kind,
+    ).toBe('absent')
+
+    // Held by SOMEBODY ELSE — the Tenant Admin's column on row 5 is
+    // `Allowed` — but not by the Quality Manager, so it stays absent. This is
+    // the arm the retired reading got wrong, and it is asserted directly.
+    const heldByAnother = stu13Decision('set-hard-block-versus-notify-posture', 'quality-manager')
+    expect(
+      stu13Row('set-hard-block-versus-notify-posture').cells['tenant-admin'].outcome,
+    ).toBe('allowed')
+    expect(
+      qualificationAffordance(
+        'Set the clearance duration',
+        prohibited,
+        'another-surface',
+        'set-hard-block-versus-notify-posture',
+        heldByAnother,
+      ).kind,
+    ).toBe('absent')
+
+    // Held by THIS persona: row 1 is `Allowed` for the Quality Manager, so a
+    // route at it opens and the cell renders disabled with the alternative
+    // named. Pinned against row 1's own cell, not against any pointer.
+    const heldHere = stu13Decision('state-the-workflow-qualification-baseline', 'quality-manager')
+    expect(
+      stu13Row('state-the-workflow-qualification-baseline').cells['quality-manager'].outcome,
+    ).toBe('allowed')
+    expect(
+      qualificationAffordance(
+        'Set the clearance duration',
+        prohibited,
+        'another-surface',
+        'state-the-workflow-qualification-baseline',
+        heldHere,
+      ).kind,
+    ).toBe('disabled')
   })
 
   // FAILS IF: an enabled control is drawn with no service function behind it

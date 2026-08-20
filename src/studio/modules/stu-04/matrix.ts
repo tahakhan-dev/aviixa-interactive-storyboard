@@ -44,18 +44,28 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  * Task 11's mechanism, adopted surface-wide. `routedTo[column]` names the
  * capability in THIS matrix that this persona holds instead, or `null`.
  *
- * Row 1 is the only row that routes anywhere: the Supervisor without the
- * grant, the Plant Manager persona and the Tenant Admin are prohibited on
- * the DRAFT canvas and `Read-only` on the PUBLISHED one, so row 2 is
- * genuinely what they hold instead. **And the pointer is CHECKED, not
- * asserted:** `builderAffordance` renders a disabled control only where the
- * routed capability's own decision actually PERMITS ACTING, and `readOnly`
- * does not. So row 1 collapses back to ABSENT for all three — which is the
- * correct rendering, because opening a draft canvas is a capability those
- * personas never hold, and the published canvas they DO hold is the screen's
- * content rather than a button. The pointer still earns its place: it is
- * what makes that collapse a derivation from data rather than an author's
- * judgement, and the covering test drives both sides of the branch.
+ * `builderControls` reads the field on every row it folds, and every column
+ * of every row answers `null`.
+ *
+ * **ROW 1 USED TO NOMINATE ROW 2, AND THE POINTER IS GONE — twice over.**
+ * The Supervisor without the grant, the Plant Manager persona and the Tenant
+ * Admin are prohibited on the DRAFT canvas and `Read-only` on the PUBLISHED
+ * one, so the pointer read "they hold row 2 instead". Two things were wrong
+ * with it:
+ *
+ * - `Read-only` is not an ACTION, so `routedProhibitionApplies` closed it in
+ *   every scenario. A pointer that can never render is a claim nothing tests.
+ * - **No fold ever asked.** Rows 1 and 2 are the two READS (`draftCanvasFor`,
+ *   `publishedCanvasFor`, `readableWorkflows`); neither is a control, so
+ *   neither appears in `BUILDER_CONTROLS`, and `builderControls` — the one
+ *   place this module reads `routedTo` — never visits them. The field was
+ *   declared, the fold read it on nine other rows, and these three cells sat
+ *   outside every path. That is the defect shape this slice has shipped twice.
+ *
+ * Row 1's refusal is enforced where it belongs and better than a pointer
+ * could: `readableWorkflows` withholds the drafts from the RESPONSE and
+ * states why, which is L32171's requirement that read-only roles get "a
+ * rendered view with no editing affordances rather than a disabled editor".
  *
  * Every other row routes nowhere. Rows 3, 4, 5, 7, 8 and 9 refuse those same
  * personas with no alternative anywhere on this screen; row 6 refuses
@@ -158,24 +168,6 @@ const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu04CapabilityId | n
 }
 
 /**
- * The three columns prohibited on the DRAFT canvas and `Read-only` on the
- * PUBLISHED one. Written as an override of `ROUTES_NOWHERE` so the five
- * columns that route nowhere keep saying so explicitly.
- *
- * The Worker is deliberately NOT here: `Explicitly prohibited` on both rows
- * means there is nowhere to send them, and a row-level pointer would have
- * sent them anyway.
- */
-const ROUTES_READERS_TO_PUBLISHED: Readonly<
-  Record<StudioPersonaColumn, Stu04CapabilityId | null>
-> = {
-  ...ROUTES_NOWHERE,
-  'supervisor-without-grant': 'open-the-canvas-read-only-for-a-published-version',
-  'plant-manager-persona': 'open-the-canvas-read-only-for-a-published-version',
-  'tenant-admin': 'open-the-canvas-read-only-for-a-published-version',
-}
-
-/**
  * The Plant Manager cell mirrors the without-grant cell and says so in its
  * own derivation rather than being silently aliased. Every other column is
  * headed by the card, so its derivation is `null` — the cell is a
@@ -245,7 +237,7 @@ export const STU_04_MATRIX = [
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L32060', 'AC-STU-048 L32013', 'AC-STU-151 L34668'],
-    routedTo: ROUTES_READERS_TO_PUBLISHED,
+    routedTo: ROUTES_NOWHERE,
     ...withPlantManager({
       'quality-manager': ALLOWED,
       'supervisor-with-authoring-grant': ALLOWED,

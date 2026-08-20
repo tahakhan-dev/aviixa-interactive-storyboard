@@ -54,16 +54,24 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  * published version. That is an **ABSENCE**, not a disabled control: a
  * disabled control implies a condition that could become true, and none can.
  *
- * ### `routedTo` IS `null` ON EVERY CELL, AND IT IS WRITTEN DOWN
+ * ### THERE IS NO `routedTo` FIELD ON THIS CARD, AND THAT IS THE ANSWER
  *
- * Task 11's mechanism, surface-wide: a cell renders **disabled** only where
- * its `routedTo` names a capability the persona actually holds **on this
- * surface**, and a capability nobody holds renders **absent**. No cell of
- * this card names one. Rows 2 and 3 have an alternative and it is on ANOTHER
- * SURFACE — pointing `routedTo` at it is exactly how a disabled Studio
- * control gets justified by a Hub permission — so the map is present, total,
- * and null throughout, and the covering test asserts that rather than
- * assuming it.
+ * The surface's routed prohibition renders a refusal DISABLED only where the
+ * cell's own words point the reader at another row OF THIS MATRIX that the
+ * evaluator says this same persona may act on. `MOD-STU-06` set the
+ * convention for a card where no cell does that: the field is not written at
+ * all, because a map of eight nulls per row that no fold reads is prose
+ * wearing a mechanism's clothes — declared, never consulted, and free to go
+ * wrong the day somebody writes a non-null into it.
+ *
+ * No cell of this card names one. Rows 2 and 3 have an alternative and it is
+ * on ANOTHER SURFACE — pointing a route at it is exactly how a disabled
+ * Studio control gets justified by a Hub permission.
+ *
+ * The consuming path is `routedProhibitionApplies` in
+ * `@/studio/modules/stu-18/rendering`, and the ten cards that reach it are
+ * enumerated by slice 5 gate 17, which fails if this card ever declares the
+ * field again without a fold that reads it.
  *
  * ### THE CARD HEADS SIX COLUMNS; THE VOCABULARY HAS EIGHT
  *
@@ -105,8 +113,6 @@ export interface StudioPackageMatrixRow extends StudioMatrixRow {
   readonly id: Stu14RowId
   /** Read by `reachByStudioMatrix`'s clause one. All five are screen rows. */
   readonly surface: StudioMatrixRowSurface
-  /** Task 11's mechanism. Null on every cell of this card — see the header. */
-  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu14RowId | null>>
 }
 
 function cell(
@@ -141,18 +147,6 @@ const IMPL_READING = cell(
   `Allowed with conditions — onboarding only. This card heads no implementation-team column; filled from the consolidated matrix (${IMPL_SOURCE.reading})`,
 )
 
-/** Nobody is routed anywhere on this card. Total, and asserted. */
-const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu14RowId | null>> = {
-  'quality-manager': null,
-  'supervisor-with-authoring-grant': null,
-  'supervisor-without-grant': null,
-  'plant-manager-persona': null,
-  'tenant-admin': null,
-  'read-only-auditor': null,
-  worker: null,
-  'implementation-team': null,
-}
-
 /**
  * The Plant Manager persona reads the `supervisor-without-grant` cell and
  * says so in its own note rather than being silently aliased.
@@ -185,7 +179,6 @@ export const STU_14_MATRIX = [
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33822', 'FUNC-STU-14-01-A-1 L33845', 'L33814'],
-    routedTo: ROUTES_NOWHERE,
     cells: withPlantManager({
       // THE ROW. The most privileged tenant role on the surface, categorically
       // prohibited, with no alternative holder anywhere — the package
@@ -216,7 +209,6 @@ export const STU_14_MATRIX = [
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33825', 'FUNC-STU-14-02-B-1 L33858', 'AC-STU-125 L33946'],
-    routedTo: ROUTES_NOWHERE,
     cells: withPlantManager({
       'quality-manager': PROHIBITED,
       'supervisor-with-authoring-grant': PROHIBITED,
@@ -239,7 +231,6 @@ export const STU_14_MATRIX = [
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33826', 'FUNC-STU-14-01-C-1 L33852', 'L33799', 'AC-STU-080 L32922'],
-    routedTo: ROUTES_NOWHERE,
     cells: withPlantManager({
       'quality-manager': PROHIBITED,
       'supervisor-with-authoring-grant': PROHIBITED,
@@ -262,7 +253,6 @@ export const STU_14_MATRIX = [
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L33827', 'FUNC-STU-14-01-A-3 L33847', 'TEST-STU-126 L33955'],
-    routedTo: ROUTES_NOWHERE,
     cells: withPlantManager({
       'quality-manager': PROHIBITED,
       'supervisor-with-authoring-grant': PROHIBITED,
@@ -289,7 +279,6 @@ export const STU_14_MATRIX = [
     isPublishedRead: true,
     stage: null,
     sourceRefs: ['L33828', 'SB-STU-17 L33905', 'AC-STU-150 L34667', 'L34542'],
-    routedTo: ROUTES_NOWHERE,
     cells: withPlantManager({
       'quality-manager': ALLOWED,
       'supervisor-with-authoring-grant': ALLOWED,

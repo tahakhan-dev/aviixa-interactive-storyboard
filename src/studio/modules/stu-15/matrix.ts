@@ -70,15 +70,26 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  * can be deleted by a later refactor along with its tests, and an absent
  * reference cannot.
  *
- * ### `routedTo` IS `null` ON EVERY CELL
+ * ### THERE IS NO `routedTo` FIELD ON THIS CARD, AND THAT IS THE ANSWER
  *
- * A cell renders **disabled** only where its `routedTo` names a capability
- * the persona actually holds **on this surface**. Rows 9 and 11 have
- * alternative holders and both alternatives are on other surfaces — the
- * Super Admin platform console and the tenant administration area — so the
- * map is total and null throughout, and `STU_15_CROSS_SURFACE` carries the
- * statements. Row 1's alternative is on this surface but on ANOTHER MODULE's
- * screen, and nobody holds it there either, so it routes nowhere too.
+ * The surface's routed prohibition renders a refusal DISABLED only where the
+ * cell's own words point the reader at another row OF THIS MATRIX that the
+ * evaluator says this same persona may act on. `MOD-STU-06` set the
+ * convention for a card where no cell does that: the field is not written at
+ * all, because a map of eight nulls per row that no fold reads is prose
+ * wearing a mechanism's clothes — declared, never consulted, and free to go
+ * wrong the day somebody writes a non-null into it.
+ *
+ * Rows 9 and 11 have alternative holders and both alternatives are on other
+ * surfaces — the Super Admin platform console and the tenant administration
+ * area — so `STU_15_CROSS_SURFACE` carries the statements. Row 1's
+ * alternative is on this surface but on ANOTHER MODULE's screen, and nobody
+ * holds it there either.
+ *
+ * The consuming path is `routedProhibitionApplies` in
+ * `@/studio/modules/stu-18/rendering`, and the ten cards that reach it are
+ * enumerated by slice 5 gate 17, which fails if this card ever declares the
+ * field again without a fold that reads it.
  */
 
 export type Stu15RowId =
@@ -155,7 +166,6 @@ export interface Stu15CardCell {
 export interface Stu15MatrixRow extends StudioMatrixRow {
   readonly id: Stu15RowId
   readonly surface: StudioMatrixRowSurface
-  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu15RowId | null>>
   readonly derivation: Readonly<Record<StudioPersonaColumn, string | null>>
   /** The card's own two extra columns. Rendered; never evaluated. */
   readonly cardOnlyColumns: Readonly<Record<Stu15CardOnlyColumn, Stu15CardCell>>
@@ -270,17 +280,6 @@ const IMPL_TEAM_UNIVERSAL_REFUSAL =
   'omits can hold what the surface’s most capable authoring role does not. No derivation is needed ' +
   'and none is invented.'
 
-const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu15RowId | null>> = {
-  'quality-manager': null,
-  'supervisor-with-authoring-grant': null,
-  'supervisor-without-grant': null,
-  'plant-manager-persona': null,
-  'tenant-admin': null,
-  'read-only-auditor': null,
-  worker: null,
-  'implementation-team': null,
-}
-
 interface RowInput {
   readonly id: Stu15RowId
   readonly capability: string
@@ -312,7 +311,6 @@ function rowOf(input: RowInput): Stu15MatrixRow {
     // would settle separation of duties from the wrong module.
     stage: null,
     sourceRefs: [input.sourceRef],
-    routedTo: ROUTES_NOWHERE,
     cells: {
       'quality-manager': input.qualityManager,
       'supervisor-with-authoring-grant': input.grantHolder,

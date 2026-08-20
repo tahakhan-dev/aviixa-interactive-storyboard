@@ -32,16 +32,27 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  * posture control off that `Allowed with conditions` would invert the
  * ownership the cell spends its whole note stating.
  *
- * ### `routedTo` IS `null` ON EVERY CELL, WRITTEN DOWN RATHER THAN ASSUMED
+ * ### THERE IS NO `routedTo` FIELD ON THIS CARD, AND THAT IS THE ANSWER
  *
- * A cell renders **disabled** only where its `routedTo` names a capability
- * the persona actually holds **on this surface**; a capability nobody holds
- * here renders **absent**. Rows 7 and 9 both have an alternative holder and
- * BOTH alternatives are on another surface — the tenant administration area
- * for row 7, the Client Command Center for row 9. Pointing `routedTo` at
- * either is exactly how a disabled Studio control gets justified by a
- * permission that lives somewhere else, so the map is present, total, and
- * null throughout, and `STU_02_CROSS_SURFACE` carries the two statements.
+ * The surface's routed prohibition renders a refusal DISABLED only where the
+ * cell's own words point the reader at another row OF THIS MATRIX that the
+ * evaluator says this same persona may act on. `MOD-STU-06` set the
+ * convention for a card where no cell does that: the field is not written at
+ * all, because a map of eight nulls per row that no fold reads is prose
+ * wearing a mechanism's clothes — declared, never consulted, and free to go
+ * wrong the day somebody writes a non-null into it.
+ *
+ * Rows 7 and 9 both have an alternative holder and BOTH alternatives are on
+ * another surface — the tenant administration area for row 7, the Client
+ * Command Center for row 9. Pointing a route at either is exactly how a
+ * disabled Studio control gets justified by a permission that lives somewhere
+ * else, so neither is a route and `STU_02_CROSS_SURFACE` carries the two
+ * statements instead. Row 8 is categorical with no holder anywhere.
+ *
+ * The consuming path is `routedProhibitionApplies` in
+ * `@/studio/modules/stu-18/rendering`, and the ten cards that reach it are
+ * enumerated by slice 5 gate 17, which fails if this card ever declares the
+ * field again without a fold that reads it.
  *
  * ### ROW 8 IS CATEGORICAL, WITH NO HOLDER ANYWHERE
  *
@@ -103,12 +114,6 @@ export interface Stu02MatrixRow extends StudioMatrixRow {
   readonly id: Stu02RowId
   /** Read by `reachByStudioMatrix`'s clause one. */
   readonly surface: StudioMatrixRowSurface
-  /**
-   * PER COLUMN, and `null` on every cell of every row — see the file header.
-   * Written out rather than omitted, so "routes nowhere" is a statement this
-   * matrix makes and the covering test can read.
-   */
-  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu02RowId | null>>
   /** Why a column the card does not head reads the way it does. */
   readonly derivation: Readonly<Record<StudioPersonaColumn, string | null>>
 }
@@ -156,18 +161,6 @@ const IMPL_TEAM_OUTSIDE_STUDIO =
   'administration area or the Client Command Center. Refused, because L34605 is explicit that the ' +
   'Studio permits nothing it has not been told to permit. Derived Clarification, fail-closed.'
 
-/** Every column answers `null` — no row of this card routes anybody anywhere. */
-const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu02RowId | null>> = {
-  'quality-manager': null,
-  'supervisor-with-authoring-grant': null,
-  'supervisor-without-grant': null,
-  'plant-manager-persona': null,
-  'tenant-admin': null,
-  'read-only-auditor': null,
-  worker: null,
-  'implementation-team': null,
-}
-
 interface CardColumns {
   readonly qualityManager: StudioMatrixCell
   readonly grantHolder: StudioMatrixCell
@@ -200,7 +193,6 @@ function rowOf(
     // would settle separation of duties from the wrong module.
     stage: null,
     sourceRefs: [sourceRef],
-    routedTo: ROUTES_NOWHERE,
     cells: {
       'quality-manager': columns.qualityManager,
       'supervisor-with-authoring-grant': columns.grantHolder,

@@ -184,17 +184,20 @@ describe('the permission matrix is the source table at L33822-L33829', () => {
     ).toBe('readOnly')
   })
 
-  it('routes nobody anywhere: no cell on this card names an alternative', () => {
-    // FAILS IF: a cell gains a `routedTo`. Task 11's rule is that a cell
-    // renders DISABLED only where its `routedTo` names a capability the
-    // persona actually holds on THIS surface. No cell of this card does —
-    // rows 2 and 3's alternatives are on another surface entirely — so every
-    // refusal here is an ABSENCE.
+  it('declares no `routedTo` at all — the absence IS the answer, MOD-STU-06 style', () => {
+    // The surface renders a refusal DISABLED only where a cell's own words
+    // point the reader at another row OF THIS MATRIX that the evaluator says
+    // this same persona may act on. No cell of this card does, so the field is
+    // not written: a map of eight nulls per row that no fold reads is a
+    // declaration nothing consults, and that is the shape of defect this slice
+    // has now shipped twice. Slice 5 gate 17 holds the cross-module version.
+    //
+    // FAILS IF: the field is declared again on this card without a fold that
+    // reads it.
     for (const row of STU_14_MATRIX) {
-      for (const column of STUDIO_PERSONA_COLUMNS) {
-        expect(row.routedTo[column]).toBeNull()
-      }
+      expect(Object.hasOwn(row, 'routedTo'), row.id).toBe(false)
     }
+    void STUDIO_PERSONA_COLUMNS
   })
 
   it('derives reach from its own screen rows', () => {

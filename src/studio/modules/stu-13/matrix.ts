@@ -47,27 +47,41 @@ import type { StudioSeamId } from '@/studio/seams'
  * and row 5's Quality Manager cells NAME THE OWNER; **row 6's does not** —
  * L33640 reads a bare `Explicitly prohibited` in that column, and the design
  * fact (`uniform at tenant level, deliberately not per user`) sits inside the
- * TENANT ADMIN cell instead. That asymmetry is the source's, and it is why
- * only row 5 carries a `routedTo`.
+ * TENANT ADMIN cell instead. That asymmetry is the source's, and it used to
+ * be why only row 5 carried a `routedTo` — see the next section for why that
+ * route is gone.
  *
- * ### THE ROUTED PROHIBITION — `routedTo`, per COLUMN
+ * ### THE ROUTED PROHIBITION — `routedTo`, per COLUMN, and NULL EVERYWHERE
  *
  * Task 11's mechanism, surface-wide: a prohibited cell renders DISABLED only
- * where it carries a `routedTo` whose target ACTUALLY PERMITS this persona,
- * and ABSENT otherwise, because `Explicitly prohibited` carries no rendering
- * anywhere. Exactly one cell on this card routes: row 5's Quality Manager
- * cell, whose own words name the owner and whose Tenant Admin column one
- * across is `Allowed`.
+ * where it carries a `routedTo` whose target ACTUALLY PERMITS **this
+ * persona**, and ABSENT otherwise, because `Explicitly prohibited` carries no
+ * rendering anywhere. `qualificationControls` reads the field on every row;
+ * every column of every row answers `null`.
  *
- * Nothing else routes, and that is an answer rather than an omission:
+ * **ROW 5 USED TO ROUTE, AND THE SOURCE TOOK IT AWAY.** Its Quality Manager
+ * cell names the owner ("the posture is a tenant setting") and the TENANT
+ * ADMIN column one across is `Allowed`, so under the "somebody holds it
+ * somewhere" reading this file once implemented, the cell rendered DISABLED.
+ * That reading is refused by the frozen source in two named places:
+ * `AC-CC-012` (L35037) — "an out-of-scope Area is **absent, not greyed**",
+ * of an Area another Supervisor holds — and `SCR-SA-USR-01` (L14977), where
+ * root-only account creation renders for every other console role as an
+ * explanatory line, "**never as a greyed control**". A `routedTo` names what
+ * THIS reader holds instead; the Quality Manager holds this act nowhere, so
+ * the pointer was a false claim and is gone. The cell renders ABSENT with its
+ * own words, and the Tenant Admin's cell on the same row still renders
+ * disabled through the `another-surface` arm, because that persona does hold
+ * the act — over there.
+ *
+ * Nothing else routes either, and that is an answer rather than an omission:
  *
  * - Rows 1, 2 and 3 refuse the same act to the same five columns and this
  *   card offers no lower-authority version of it — there is no "propose"
  *   sibling here as there is in `MOD-STU-07`.
  * - Row 10's `Read-only` cells are the only other thing those columns hold,
  *   and `Read-only` is not an ACTION: a pointer at it resolves to nothing to
- *   click and collapses back to ABSENT. Writing the pointer anyway would be
- *   ceremony that reads like a finding.
+ *   click and collapses back to ABSENT.
  * - Row 6 is the near miss and is deliberately left unrouted: see above.
  *
  * ### THE TWO COLUMNS THIS CARD DOES NOT HEAD
@@ -214,17 +228,6 @@ const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu13RowId | null>> =
   'implementation-team': null,
 }
 
-/**
- * Row 5's one routed cell. The Quality Manager's prohibition names the owner
- * — "the posture is a tenant setting" — and the owner is the Tenant Admin
- * cell of this same row, so the route points at the row itself and the
- * rendering rule checks that the target column actually permits it before
- * drawing anything.
- */
-const ROUTES_QUALITY_MANAGER_TO_THE_TENANT_ADMIN: Readonly<
-  Record<StudioPersonaColumn, Stu13RowId | null>
-> = { ...ROUTES_NOWHERE, 'quality-manager': 'set-hard-block-versus-notify-posture' }
-
 /** The six columns this card heads, in its own header order (L33635). */
 interface CardColumns {
   readonly qualityManager: StudioMatrixCell
@@ -360,7 +363,6 @@ export const STU_13_MATRIX = [
     },
     { implementationTeam: PROHIBITED, implementationNote: IMPL_NOTE_TENANT_ADMIN },
     'another-surface',
-    ROUTES_QUALITY_MANAGER_TO_THE_TENANT_ADMIN,
   ),
   /**
    * ROW 6 — the fifth inversion, and the near miss. Its Quality Manager cell

@@ -3106,6 +3106,174 @@ describe('slice 5 gate 16: no worker identifier groups a behavioural measure', (
  * would then look like a missing gate if they ever moved.
  * ==================================================================== */
 
+/* ==================================================================== *
+ * GATE 17 — every `routedTo` declared is READ, and one predicate decides it.
+ * ==================================================================== */
+
+/**
+ * What a card's sources look like to the classifier: its matrix, and every
+ * other TypeScript file in the same module directory.
+ */
+interface RoutedCardSources {
+  readonly matrix: string
+  readonly folds: readonly string[]
+}
+
+interface RoutedCard {
+  readonly module: string
+  /** The row type declares the field. */
+  readonly declares: boolean
+  /** Some file OTHER than the matrix indexes it — `row.routedTo[...]`. */
+  readonly consumes: boolean
+}
+
+/**
+ * PURE, so the planted violation can be fed a doctored map rather than being
+ * written to disk and hoped away again.
+ */
+function classifyRoutedCards(
+  sources: Readonly<Record<string, RoutedCardSources>>,
+): readonly RoutedCard[] {
+  return Object.entries(sources)
+    .map(([module, src]) => ({
+      module,
+      declares: /^\s*readonly routedTo:/m.test(src.matrix),
+      consumes: src.folds.some((text) => text.includes('routedTo[')),
+    }))
+    .sort((a, b) => a.module.localeCompare(b.module))
+}
+
+function readRoutedCardSources(): Readonly<Record<string, RoutedCardSources>> {
+  const root = join('src', 'studio', 'modules')
+  const out: Record<string, RoutedCardSources> = {}
+  for (const module of readdirSync(root)) {
+    const dir = join(root, module)
+    if (!statSync(dir).isDirectory()) continue
+    const files = readdirSync(dir).filter((f) => f.endsWith('.ts'))
+    if (!files.includes('matrix.ts')) continue
+    out[module] = {
+      matrix: readFileSync(join(dir, 'matrix.ts'), 'utf8'),
+      folds: files
+        .filter((f) => f !== 'matrix.ts')
+        .map((f) => readFileSync(join(dir, f), 'utf8')),
+    }
+  }
+  return out
+}
+
+/**
+ * The ten cards that declare `routedTo`. Written out, so a card that starts
+ * or stops declaring cannot slip past on a count.
+ */
+const ROUTED_DECLARERS = [
+  'stu-01',
+  'stu-03',
+  'stu-04',
+  'stu-07',
+  'stu-09',
+  'stu-10',
+  'stu-11',
+  'stu-12',
+  'stu-13',
+  'stu-18',
+] as const
+
+describe('slice 5 gate 17: every routedTo declared is read, by the one predicate', () => {
+  // WHY THIS GATE EXISTS. `routedTo` is the mechanism that made ABSENT versus
+  // DISABLED checkable, and it shipped decorative on most of the cards that
+  // carried it: seven declared a total map of eight nulls per row that no code
+  // path consulted, and an eighth (`MOD-STU-04`) declared three NON-NULL
+  // pointers on a row its only fold never visits. Prose in three of those
+  // files stated the rule as though something enforced it. That is the same
+  // shape as the `stage` field task 20 shipped, and planting was the only
+  // thing that found either.
+  //
+  // The structural half of the fix is that seven cards no longer declare the
+  // field at all — a card that cannot express a route cannot express a
+  // decorative one. This gate is the other half: it holds the line for the ten
+  // that DO declare it, and for the eleventh card somebody adds in slice 6.
+
+  const CARDS = classifyRoutedCards(readRoutedCardSources())
+
+  // A scan that found nothing would pass every assertion below.
+  //
+  // FAILS IF: the module directory moves, or the classifier stops separating
+  // two non-empty sets.
+  it('scans a non-empty population and separates declarers from the rest', () => {
+    expect(CARDS.length, 'no Studio module matrices found').toBeGreaterThanOrEqual(18)
+    expect(CARDS.filter((c) => c.declares).length).toBeGreaterThan(0)
+    expect(CARDS.filter((c) => !c.declares).length).toBeGreaterThan(0)
+  })
+
+  // THE GATE. A declaration nothing reads is prose wearing a mechanism's
+  // clothes: it looks like a constraint, a reviewer reads it as a rule, and
+  // nothing enforces it.
+  //
+  // FAILS IF: any card declares `routedTo` without a file beside its matrix
+  // that indexes it.
+  it('lets no card declare routedTo without a fold that indexes it', () => {
+    const decorative = CARDS.filter((c) => c.declares && !c.consumes).map((c) => c.module)
+    expect(decorative, `these cards declare routedTo and no fold reads it: ${decorative.join(', ')}`)
+      .toEqual([])
+  })
+
+  // WHICH cards, not how many. Slice 4 lost a gate to a count that still
+  // looked right.
+  //
+  // FAILS IF: a card starts or stops declaring the field without this list
+  // moving with it.
+  it('names the ten cards that declare it', () => {
+    expect(CARDS.filter((c) => c.declares).map((c) => c.module)).toEqual([...ROUTED_DECLARERS])
+  })
+
+  // ONE PREDICATE, ONE NAME. Three cards each carried their own copy of the
+  // four-clause condition and one of the three asked a DIFFERENT question —
+  // whether ANYBODY held the target rather than whether this persona did. A
+  // rule with two readings is not one rule.
+  //
+  // FAILS IF: a second implementation of the routed prohibition is defined
+  // anywhere under `src/studio/`.
+  it('defines the predicate exactly once across the whole surface', () => {
+    const defs: string[] = []
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir)) {
+        const full = join(dir, entry)
+        if (statSync(full).isDirectory()) walk(full)
+        else if (entry.endsWith('.ts') && /export function routedProhibitionApplies\b/.test(readFileSync(full, 'utf8'))) {
+          defs.push(full)
+        }
+      }
+    }
+    walk(join('src', 'studio'))
+    expect(defs).toEqual([join('src', 'studio', 'modules', 'stu-18', 'rendering.ts')])
+  })
+
+  // PLANTED VIOLATION 1 — the defect this gate is for: a card declares the
+  // field and no fold reads it.
+  it('PLANTED VIOLATION: a card that declares routedTo with no fold reading it trips it', () => {
+    const planted = classifyRoutedCards({
+      'stu-02': {
+        matrix: '  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu02RowId | null>>\n',
+        folds: ['export function agentControls() { return affordanceFor(label, decision) }'],
+      },
+    })
+    expect(planted.filter((c) => c.declares && !c.consumes).map((c) => c.module)).toEqual(['stu-02'])
+  })
+
+  // PLANTED VIOLATION 2 — the same defect arriving from the other side: a
+  // declaring card whose fold stops indexing the field.
+  it('PLANTED VIOLATION: a declaring card whose fold stops indexing it trips it', () => {
+    const real = readRoutedCardSources()
+    const planted = classifyRoutedCards({
+      'stu-07': {
+        matrix: real['stu-07']!.matrix,
+        folds: real['stu-07']!.folds.map((text) => text.split('routedTo[').join('routedToNOPE[')),
+      },
+    })
+    expect(planted).toEqual([{ module: 'stu-07', declares: true, consumes: false }])
+  })
+})
+
 describe('slice 5 fixture: LANEB_CONTRADICTION_FIXTURE pins DEC-LANEB-001 without settling it', () => {
   /* D14. `AC-STU-097` (L33397) — "No content reaches a published version
    * without three recorded transitions by three distinct identities" —
@@ -3280,9 +3448,10 @@ describe('slice 5 gates: the file itself', () => {
     // The brief's own count, asserted from the same array the sequence
     // check reads — so a message can never quote a number the assertion
     // did not compute.
-    expect(numbers.length, `slice 5 declares sixteen gates; this file defines ${numbers.length}`).toBe(
-      16,
-    )
+    expect(
+      numbers.length,
+      `slice 5 declares seventeen gates; this file defines ${numbers.length}`,
+    ).toBe(17)
   })
 
   it('both contradiction fixtures are present and neither is numbered as a gate', () => {

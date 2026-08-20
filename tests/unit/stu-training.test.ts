@@ -159,12 +159,20 @@ describe('the permission matrix is the source table at L32815-L32825', () => {
     ).toBe('DEC-AUDSTU-001')
   })
 
-  it('routes nobody anywhere — every prohibition on this card is categorical', () => {
+  it('declares no `routedTo` at all — the absence IS the answer, MOD-STU-06 style', () => {
+    // The surface renders a refusal DISABLED only where a cell's own words
+    // point the reader at another row OF THIS MATRIX that the evaluator says
+    // this same persona may act on. No cell of this card does, so the field is
+    // not written: a map of eight nulls per row that no fold reads is a
+    // declaration nothing consults, and that is the shape of defect this slice
+    // has now shipped twice. Slice 5 gate 17 holds the cross-module version.
+    //
+    // FAILS IF: the field is declared again on this card without a fold that
+    // reads it.
     for (const row of STU_08_MATRIX) {
-      for (const column of STUDIO_PERSONA_COLUMNS) {
-        expect(row.routedTo[column]).toBeNull()
-      }
+      expect(Object.hasOwn(row, 'routedTo'), row.id).toBe(false)
     }
+    void STUDIO_PERSONA_COLUMNS
   })
 
   /**

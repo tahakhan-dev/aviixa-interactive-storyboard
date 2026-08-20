@@ -1,6 +1,5 @@
 import { permitsAction } from '@/policy/decision'
 import {
-  STUDIO_PERSONA_COLUMNS,
   evaluateStudioAccess,
   type StudioAccessDecision,
   type StudioPersonaColumn,
@@ -12,6 +11,7 @@ import {
   SEEDED_TENANT,
   affordanceFor,
   studioGrantsFor,
+  routedProhibitionApplies,
   studioIdentityFor,
   type CapabilityAffordance,
   type Stu18Scenario,
@@ -901,47 +901,48 @@ const CONTROL_SERVICE = {
 } as const satisfies Readonly<Record<Stu13RowId, keyof typeof qualificationService | null>>
 
 /**
- * Does ANY persona column hold the routed capability? This is task 11's
- * "actually permits" clause, and it is what keeps ABSENT and DISABLED apart
- * as a fact rather than a taste: a capability somebody holds is withheld from
- * you (disabled, with the holder named); a capability nobody holds does not
- * exist to be withheld (absent).
- */
-export function routedCapabilityIsHeld(id: Stu13RowId, s: Stu13Scenario): boolean {
-  return STUDIO_PERSONA_COLUMNS.some((column) =>
-    permitsAction(stu13Decision(id, column, s).decision),
-  )
-}
-
-/**
  * Task 11's routed-prohibition branch: a prohibited cell renders DISABLED
- * only where the capability it is routed to actually PERMITS ACTING for this
+ * only where the capability it is routed to actually PERMITS ACTING for THIS
  * persona. Handed decisions; computes no permission of its own.
  *
- * `routedIsHeld` is the "actually permits" clause, and it is asked of the
- * WHOLE routed row rather than of one column: the question a routed
- * prohibition answers is "does this capability exist, held by somebody" —
- * DISABLED — as against "nobody holds it anywhere" — ABSENT. Asking it of one
- * hand-picked column would put a magic persona in the rendering rule and
- * would answer a narrower question than the rule states. `routedCapabilityIsHeld`
- * below is the one implementation.
+ * **THIS MODULE USED TO ASK A DIFFERENT QUESTION, AND THE SOURCE SETTLED IT
+ * AGAINST THAT READING.** `routedCapabilityIsHeld` scanned all eight columns
+ * and answered "does anybody hold this, anywhere" — so row 5's Quality
+ * Manager cell rendered DISABLED on the strength of the TENANT ADMIN's
+ * `Allowed`. The frozen source refuses that rendering by name, twice:
  *
- * On this matrix the check does real work in BOTH directions. Row 5's Quality
- * Manager cell routes to its own row, whose Tenant Admin column is `Allowed`,
- * so it renders disabled with the owner named. Row 6's does not route at all,
- * so it renders ABSENT — and the difference between the two is the difference
- * between their two cells in the source. A route at row 11, which every column
- * refuses, would render ABSENT too, and the covering test proves that arm
- * directly rather than assuming it.
+ * - `AC-CC-012` (L35037): "A Supervisor session renders only Areas within
+ *   its scope grant; an out-of-scope Area is **absent, not greyed**." Another
+ *   Supervisor holds that Area. It is still absent for this one.
+ * - `SCR-SA-USR-01` (L14977): account creation is root-only, and "for every
+ *   other console role it renders as an explanatory line reading 'Account
+ *   creation is root-only', **never as a greyed control**." The root identity
+ *   holds it. It is still not greyed for anybody else.
+ *
+ * And the implication the source attaches to a greyed control is the reason:
+ * `SB-ARCH-018` (L12889) refuses one "because showing a greyed control would
+ * imply the setting **could exist**", and `FUNC-SA-09-06-A2` (L45068) refuses
+ * one because "greyed controls imply the action exists **elsewhere**". A
+ * disabled control is a promise about what THIS reader could reach. So the
+ * question is asked of this persona's own column, through the one predicate
+ * the surface shares — `routedProhibitionApplies` — and this module's own
+ * matrix header (`./matrix.ts`) already stated the rule that way.
+ *
+ * WHAT THAT CHANGES HERE: row 5's Quality Manager cell renders ABSENT with
+ * its own words ("Explicitly prohibited — the posture is a tenant setting")
+ * standing where the control would be. The route is not deleted; it is
+ * CHECKED, and the check closes it. The Tenant Admin's cell on the same row
+ * still renders disabled, through the `another-surface` arm below, because
+ * that persona genuinely does hold the act — over there.
  */
 export function qualificationAffordance(
   label: string,
   decision: StudioAccessDecision,
   surface: StudioMatrixRowSurface,
   routedTo: Stu13RowId | null,
-  routedIsHeld: boolean,
+  routedDecision: StudioAccessDecision | null,
 ): CapabilityAffordance {
-  if (decision.outcome === 'explicitlyProhibited' && routedTo !== null && routedIsHeld) {
+  if (routedProhibitionApplies(decision, routedTo, routedDecision)) {
     return {
       kind: 'disabled',
       label,
@@ -988,7 +989,7 @@ export function qualificationControls(
       decision,
       row.surface,
       routedTo,
-      routedTo !== null && routedCapabilityIsHeld(routedTo, s),
+      routedTo === null ? null : stu13Decision(routedTo, s.persona, s),
     )
     return {
       id,

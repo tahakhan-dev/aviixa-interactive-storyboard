@@ -63,18 +63,27 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  * content is excluded from the offline work package". The sense is written on
  * the record as `unavailableSense` rather than inferred from the word.
  *
- * ### THE ROUTED PROHIBITION — `routedTo`, per COLUMN, and null everywhere
+ * ### THERE IS NO `routedTo` FIELD ON THIS CARD, AND THAT IS THE ANSWER
  *
- * A cell renders DISABLED only where it carries a `routedTo` whose target
- * actually permits that persona; otherwise `Explicitly prohibited` renders as
- * an ABSENCE. **No cell of this card names an alternative held on this
- * screen.** Row 4's Supervisor cell reads "Explicitly prohibited — cannot
- * approve or release", which is a statement of the separation-of-duties floor
- * rather than a routing; row 6's Worker cell names the Frontline Training
- * Library Viewer, which is ANOTHER SURFACE and therefore not a capability in
- * this matrix at all — that route is stated once, by the seam notice. So
- * every column of every row routes nowhere, and every refusal on this screen
- * is an absence with the rule stated beside it.
+ * The surface's routed prohibition renders a refusal DISABLED only where the
+ * cell's own words point the reader at another row OF THIS MATRIX that the
+ * evaluator says this same persona may act on. `MOD-STU-06` set the
+ * convention for a card where no cell does that: the field is not written at
+ * all, because a map of eight nulls per row that no fold reads is prose
+ * wearing a mechanism's clothes — declared, never consulted, and free to go
+ * wrong the day somebody writes a non-null into it.
+ *
+ * No cell of this card names an alternative held on this screen. Row 4's
+ * Supervisor cell reads "Explicitly prohibited — cannot approve or release",
+ * which is a statement of the separation-of-duties floor rather than a
+ * routing; row 6's Worker cell names the Frontline Training Library Viewer,
+ * which is ANOTHER SURFACE and therefore not a capability in this matrix at
+ * all — that route is stated once, by the seam notice.
+ *
+ * The consuming path is `routedProhibitionApplies` in
+ * `@/studio/modules/stu-18/rendering`, and the ten cards that reach it are
+ * enumerated by slice 5 gate 17, which fails if this card ever declares the
+ * field again without a fold that reads it.
  *
  * ### THE TWO COLUMNS THE CARD DOES NOT HEAD
  *
@@ -122,8 +131,6 @@ export interface Stu08MatrixRow extends StudioMatrixRow {
   readonly id: Stu08RowId
   /** Read by `reachByStudioMatrix`'s clause one. */
   readonly surface: StudioMatrixRowSurface
-  /** PER COLUMN, never per row. `null` on every one — see the note above. */
-  readonly routedTo: Readonly<Record<StudioPersonaColumn, Stu08RowId | null>>
   /** Why a column the card does not head reads the way it does. */
   readonly derivation: Readonly<Record<StudioPersonaColumn, string | null>>
 }
@@ -144,17 +151,6 @@ const AUDITOR_OPEN = cell(
   'Client Decision Required — `DEC-AUDSTU-001`',
   'DEC-AUDSTU-001',
 )
-
-const ROUTES_NOWHERE: Readonly<Record<StudioPersonaColumn, Stu08RowId | null>> = {
-  'quality-manager': null,
-  'supervisor-with-authoring-grant': null,
-  'supervisor-without-grant': null,
-  'plant-manager-persona': null,
-  'tenant-admin': null,
-  'read-only-auditor': null,
-  worker: null,
-  'implementation-team': null,
-}
 
 const PLANT_MANAGER_VIA_SUPERVISOR =
   'MOD-STU-08’s table (L32815) heads no Plant Manager column. DEC-ROLE-001 (L34522) delivers this ' +
@@ -262,7 +258,6 @@ export const STU_08_MATRIX = [
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L32817', 'FUNC-STU-08-01-A-1 L32841'],
-    routedTo: ROUTES_NOWHERE,
     ...withDerivedColumns(
       {
         'quality-manager': ALLOWED,
@@ -283,7 +278,6 @@ export const STU_08_MATRIX = [
     isPublishedRead: false,
     stage: 'author',
     sourceRefs: ['L32818', 'FUNC-STU-08-02-A-1 L32846'],
-    routedTo: ROUTES_NOWHERE,
     ...withDerivedColumns(
       {
         'quality-manager': ALLOWED,
@@ -304,7 +298,6 @@ export const STU_08_MATRIX = [
     isPublishedRead: false,
     stage: 'reviewer',
     sourceRefs: ['L32819', 'L33245', 'FUNC-STU-08-02-A-1 L32846'],
-    routedTo: ROUTES_NOWHERE,
     ...withDerivedColumns(
       {
         'quality-manager': cell(
@@ -331,7 +324,6 @@ export const STU_08_MATRIX = [
     isPublishedRead: false,
     stage: 'release-authority',
     sourceRefs: ['L32820', 'L34561', 'FUNC-STU-11-01-C-1 L33302'],
-    routedTo: ROUTES_NOWHERE,
     ...withDerivedColumns(
       {
         'quality-manager': cell(
@@ -358,7 +350,6 @@ export const STU_08_MATRIX = [
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L32821', 'L32865'],
-    routedTo: ROUTES_NOWHERE,
     ...withDerivedColumns(
       {
         'quality-manager': ALLOWED,
@@ -379,7 +370,6 @@ export const STU_08_MATRIX = [
     isPublishedRead: true,
     stage: null,
     sourceRefs: ['L32822', 'AC-STU-157 L34674'],
-    routedTo: ROUTES_NOWHERE,
     ...withDerivedColumns(
       {
         'quality-manager': ALLOWED,
@@ -404,7 +394,6 @@ export const STU_08_MATRIX = [
     isPublishedRead: false,
     stage: null,
     sourceRefs: ['L32825', 'FUNC-STU-08-03-B-1 L32851', 'AC-STU-081 L32923'],
-    routedTo: ROUTES_NOWHERE,
     ...withDerivedColumns(
       {
         'quality-manager': PROHIBITED,

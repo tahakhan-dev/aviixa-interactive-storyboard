@@ -886,16 +886,30 @@ describe('every control does something and every disabled one names a reason', (
     expect(routed.kind === 'disabled' ? routed.reason : '').toMatch(/instead/i)
   })
 
-  it('routes row 1 to the published canvas for the three read-only columns and nowhere else', () => {
-    // FAILS IF: the routing pointer is hung off the ROW rather than the
-    // CELL — a row-level pointer would route the Worker, who holds nothing
-    // on either canvas.
+  it('nominates nothing on row 1, and enforces its refusal in the READ instead', () => {
+    // Row 1 used to nominate row 2 for the three columns that hold the
+    // published canvas `Read-only`. The pointer could not render — `Read-only`
+    // is not an ACTION, so `routedProhibitionApplies` closed it in every
+    // scenario — and, more to the point, NO FOLD EVER ASKED: rows 1 and 2 are
+    // the two READS, so neither is in `BUILDER_CONTROLS` and `builderControls`,
+    // the one place this module reads `routedTo`, never visits them.
+    //
+    // What enforces row 1 is `readableWorkflows`: a persona refused the draft
+    // canvas has no draft in the RESPONSE — L32171's "rendered view with no
+    // editing affordances rather than a disabled editor".
+    //
+    // FAILS IF: the pointer returns, or the refusal moves out of the read.
     const row = stu04Row('open-the-canvas-for-a-draft-workflow')
-    const routed = STUDIO_PERSONA_COLUMNS.filter((c) => row.routedTo[c] !== null)
-    expect(routed.sort()).toEqual(
-      ['supervisor-without-grant', 'plant-manager-persona', 'tenant-admin'].sort(),
+    for (const column of STUDIO_PERSONA_COLUMNS) {
+      expect(row.routedTo[column], column).toBeNull()
+    }
+    const withheld = readableWorkflows(
+      scenario({ persona: 'tenant-admin' }),
+      SEEDED_CANVAS_REGISTER,
     )
-    expect(row.routedTo.worker).toBeNull()
+    expect(withheld.workflows.every((w) => w.lifecycle !== 'Draft')).toBe(true)
+    expect(withheld.withheldCount).toBeGreaterThan(0)
+    expect(withheld.withheldReason).not.toBeNull()
   })
 })
 
