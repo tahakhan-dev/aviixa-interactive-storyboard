@@ -104,7 +104,7 @@ void _versionStatesExhaustive
 export const ADOPTION_STATES = JOB_ADOPTION_STATES
 
 /**
- * The Workflow's own authoring status is NOT declared here.
+ * NEEDS_CONTEXT — the Workflow's own authoring status is NOT declared here.
  *
  * L31124 states four names (`Draft`, `In Review`, `Published`, `Archived`) and
  * `OBJ-036` (L8597) states three of them "as authoring statuses of the
