@@ -75,7 +75,7 @@ export type RefinementTarget =
   | { readonly kind: 'configured-value'; readonly proposal: OpenProposal }
 
 /**
- * THE SINGLE TEST, L34164. *"Does it alter a configured operating value?"*
+ * THE SINGLE TEST, L34164: *"Does it alter a configured operating value?"*
  *
  * L34171 names the three the source itself gives: *"a trigger percentage, a
  * routing target, checklist content"*. All three are values a person set in
@@ -100,7 +100,7 @@ export const SINGLE_TEST_STATEMENT =
   'applied automatically, logged, and reversible. Lane B is any refinement that would change a ' +
   'configured operating value: a trigger percentage, a routing target, checklist content. It is ' +
   'surfaced as an evidence-backed proposal and decided by a person in the Client Command Center, ' +
-  'exactly once (L34164, L34170, L34171).'
+  'exactly once (L34164, L34169, L34171).'
 
 /** `SB-STU-19`'s footer, verbatim (L34293). Not conditional on anything. */
 export const LEARNING_FOOTER =
@@ -164,7 +164,7 @@ export type LearningActResult =
     }
 
 const ACT_REFS: Readonly<Record<LearningActId, readonly string[]>> = {
-  'apply-lane-a-refinement': ['L34170', 'FUNC-STU-16-02-C-1 L34228', 'AC-STU-136 L34330'],
+  'apply-lane-a-refinement': ['L34169', 'FUNC-STU-16-02-C-1 L34228', 'AC-STU-136 L34330'],
   'reverse-lane-a-refinement': ['L34196', 'FUNC-STU-16-02-C-1 L34228', 'AC-STU-136 L34330'],
   'write-memory-on-publication': ['FUNC-STU-16-01-A-1 L34218', 'FUNC-STU-16-01-A-2 L34219'],
 }

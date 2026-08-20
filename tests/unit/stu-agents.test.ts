@@ -121,7 +121,7 @@ import {
  *    `TIER_REQUIREMENT_LINE` composes `SB-STU-18`'s own sentence in front and
  *    why the test below pins the string against what the CONTROL renders.
  * 4. `tier="Essential"` — not a member of `StudioCommercialTier`. The source's
- *    own below-Growth tier is `Starter` (L67955).
+ *    own below-Growth tier is `Starter` (L67946).
  */
 
 const ALL_PERSONAS: readonly StudioPersonaColumn[] = STUDIO_PERSONA_COLUMNS

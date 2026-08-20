@@ -42,7 +42,7 @@ import {
  *
  * `SB-STU-18` (L34096): "**Compose controls are shown with the reason
  * 'Requires the Growth or Enterprise tier' where the tier is below Growth,
- * rather than hidden.**" `AC-STU-133` (L34136) says the same as an acceptance
+ * rather than hidden.**" `AC-STU-133` (L34138) says the same as an acceptance
  * criterion: "with the requirement stated rather than the control hidden."
  *
  * Task 1's evaluator produces its own, longer sentence for a tier refusal —
@@ -54,7 +54,7 @@ import {
  * covering test pins the storyboard string against what the control actually
  * renders rather than against this constant on its own.
  *
- * **FINDING, recorded rather than averaged.** L67955's alternate workflow
+ * **FINDING, recorded rather than averaged.** L67946's alternate workflow
  * reads "A Starter-tier tenant sees **no** Agent Builder, because Agent
  * Author capability is tier-gated", which is the opposite rendering from
  * `SB-STU-18` and `AC-STU-133`. The module card's storyboard and its own
@@ -117,13 +117,13 @@ export const AGENT_BUILDER_PERMANENT_LINE =
 export const TIER_REQUIREMENT_LINE = 'Requires the Growth or Enterprise tier.'
 
 /**
- * The `SB-STU-18` / `AC-STU-133` divergence from L67955, stated on screen
+ * The `SB-STU-18` / `AC-STU-133` divergence from L67946, stated on screen
  * rather than resolved in a comment nobody reads.
  */
 export const TIER_RENDERING_DIVERGENCE =
-  'The source states this two ways. SB-STU-18 (L34096) and AC-STU-133 (L34136) require the compose ' +
+  'The source states this two ways. SB-STU-18 (L34096) and AC-STU-133 (L34138) require the compose ' +
   'control to be SHOWN with the tier requirement stated rather than hidden; the alternate workflow ' +
-  'at L67955 says a Starter-tier tenant "sees no Agent Builder". The storyboard and the acceptance ' +
+  'at L67946 says a Starter-tier tenant "sees no Agent Builder". The storyboard and the acceptance ' +
   'criterion govern here, because a hidden control teaches a reader nothing about what is missing. ' +
   'Both readings are on the record.'
 

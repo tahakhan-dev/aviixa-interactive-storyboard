@@ -549,33 +549,42 @@ describe('StudioShell — the module index', () => {
     }
   })
 
-  // RED when: the index links a module whose reach has not been derived.
-  // Fail closed (S1, L34605): where the layer that answers is unreachable
-  // the Studio "permits nothing beyond published read", and an underived
-  // reach is exactly that — unanswered, not permitted.
-  it('offers no link for a module whose reach is not yet derived, and says so', () => {
+  // RED when: the index links a module the source gives no route of its
+  // own, or lets that row go quiet about why. Fail closed (S1, L34605):
+  // where the layer that answers is unreachable the Studio "permits nothing
+  // beyond published read", and a row that says nothing is the blank cell
+  // L10238 prohibits.
+  //
+  // THIS CASE LOST ITS SECOND ARM, AND THE ARM WAS DELETED RATHER THAN
+  // WEAKENED. It also walked the modules that HAVE a route but whose reach
+  // is not derived, and pinned that set non-empty. The set is empty now:
+  // all eighteen module matrices have landed and
+  // `registries/generated/stu/module-reach.json` carries a derivation for
+  // every one, so `slug !== null && reach === null` is unreachable over the
+  // live registry. Pinning it non-empty makes the suite go red when the
+  // product improves, which is the wrong direction for a guard to point.
+  //
+  // WHAT IT PROTECTED IS STILL PROVED, AND PROVED HARDER, by "links a
+  // module with a derived reach and refuses one without, on the same built
+  // routes" above: that case drives `linkFor` over the `modules` prop on a
+  // row with `routeBuilt: true` and `reach: null`, so the missing link is
+  // caused by the reach rule and not by the route not existing — the exact
+  // vacuity `StudioShellProps.modules` was added to break. Re-pointing this
+  // arm at the same prop would have shipped a second spelling of it.
+  it('offers no link for a module the source gives no route, and says so', () => {
     render(<StudioShell />)
-    let checkedRouted = 0
-    let checkedRouteless = 0
+    let checked = 0
     for (const m of STU_MODULES) {
+      if (m.slug !== null) continue
       const row = screen.getByTestId(`module-row-${m.id}`)
-      if (m.slug === null) {
-        // A module the source gives no route renders its own reason, which
-        // is about the source and not about this wave.
-        expect(within(row).queryByRole('link'), m.id).toBeNull()
-        expect(row.textContent ?? '', m.id).toMatch(/no route of its own/i)
-        checkedRouteless += 1
-        continue
-      }
-      if (m.reach !== null) continue
+      // A module the source gives no route renders its own reason, which is
+      // about the source and not about this wave.
       expect(within(row).queryByRole('link'), m.id).toBeNull()
-      expect(row.textContent ?? '', m.id).toMatch(/permission matrix is not built/i)
-      checkedRouted += 1
+      expect(row.textContent ?? '', m.id).toMatch(/no route of its own/i)
+      checked += 1
     }
-    // A loop over an empty set passes every assertion inside it. Both arms
-    // are pinned so this cannot become that test.
-    expect(checkedRouteless).toBeGreaterThan(0)
-    expect(checkedRouted).toBeGreaterThan(0)
+    // A loop over an empty set passes every assertion inside it.
+    expect(checked).toBeGreaterThan(0)
   })
 
   // WAVE 1 WROTE THIS CASE AS "no module route is built yet, so the rail

@@ -48,7 +48,7 @@ import {
  * ### THERE IS NO WRITE ON THIS ROUTE
  *
  * Rows 1 to 6 are `Allowed` for the Quality Manager and the grant holder,
- * and every one of them is authored somewhere else: L31852 names
+ * and every one of them is authored somewhere else: L31830 names
  * `MOD-STU-05`, `MOD-STU-07` and `MOD-STU-13` as the modules that supply
  * them. So each control carries `authoredIn` — the section and module that
  * owns the write — and this module exports no write function at all. A
@@ -252,7 +252,7 @@ export const ARMING_CROSS_REFERENCE: ArmingCrossReference = {
   actualSection: '§5.5.8, Deviation rules and severity mapping — where the behaviour is stated',
   openDecision: 'D23',
   readOnlyHere: true,
-  sourceRefs: ['L31814', 'L31869', 'AC-STU-043 L31843'],
+  sourceRefs: ['L31814', 'L31869', 'AC-STU-043 L31854'],
 }
 
 /* ==================================================================== *

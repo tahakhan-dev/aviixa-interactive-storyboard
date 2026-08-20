@@ -43,7 +43,7 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  * L34196's Quality Manager cell reads *"Explicitly prohibited — there is no
  * separate on/off switch"*, and L34177 is the fact behind it: *"Learning is
  * on by default, and the approval queue is the control ... so there is no
- * separate on/off switch"*. `FUNC-STU-16-04-A-2` (L34247) states it as a
+ * separate on/off switch"*. `FUNC-STU-16-04-A-2` (L34243) states it as a
  * function: *"Provide no separate on/off switch for learning"*.
  *
  * **Rendering it as a disabled toggle invents the control the source says
@@ -66,9 +66,9 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  *   access at all`. This is the ONLY `Explicitly prohibited` on the card
  *   that carries a POSITIVE STATEMENT OF A DIFFERENT SURFACE'S RULE, and
  *   that is what makes it a SETTLED FACT rather than an open decision. The
- *   source states the same thing again in `FUNC-STU-16-03-B-1` (L34237):
+ *   source states the same thing again in `FUNC-STU-16-03-B-1` (L34234):
  *   *"Roles prohibited: the Read-only Auditor, who has no Client Command
- *   Center access at all"*, and `TEST-STU-138` (L34346) tests it: *"confirm
+ *   Center access at all"*, and `TEST-STU-138` (L34343) tests it: *"confirm
  *   the Client Command Center is unreachable to that role at all"*.
  *
  * A settled fact about another surface is not `DEC-AUDSTU-001`'s question.

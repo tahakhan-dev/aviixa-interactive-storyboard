@@ -493,9 +493,9 @@ function buildBusinessObjectsRegistry() {
 // tries to reconcile it.
 //
 // The line band of Chapter 20's eighteen Studio module cards (20.2.1
-// MOD-STU-01 at L31552 through the end of 20.2.18 at L34689, where 20.3
-// begins). Every locator the three blocks below cite falls inside it, and
-// each block asserts that rather than trusting it.
+// MOD-STU-01 at L31552 through the last line before 20.3 begins at L34690).
+// Every locator the three blocks below cite falls inside it, and each block
+// asserts that rather than trusting it.
 // ---------------------------------------------------------------------
 const STU_CARD_BAND = { first: 31552, last: 34689 }
 

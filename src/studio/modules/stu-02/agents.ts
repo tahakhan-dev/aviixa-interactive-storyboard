@@ -14,7 +14,7 @@ import type { ConfigurationSection } from '@/studio/vocab'
  *
  * ### THIS MODULE AUTHORS NOTHING, AND THAT IS THE DESIGN
  *
- * Its Interconnections line (L31852) states where every value it needs is
+ * Its Interconnections line (L31830) states where every value it needs is
  * authored: "`MOD-STU-05` supplies the configuration sections; `MOD-STU-07`
  * supplies the pointers; `MOD-STU-13` supplies qualification context;
  * `MOD-STU-14` carries the result to the device; `MOD-STU-16` proposes
@@ -28,7 +28,7 @@ import type { ConfigurationSection } from '@/studio/vocab'
  * nothing; composes 05, 07 and 13"*. **That sentence is not in the frozen
  * source.** Every occurrence of "owns nothing" in the blueprint is about the
  * Client Command Center (L6950, L13128, L35313, L47457, L49568). The
- * SUBSTANCE is corroborated by L31852 above and by the "Where it is
+ * SUBSTANCE is corroborated by L31830 above and by the "Where it is
  * configured" column of L31707-L31709, and this file is built on those.
  *
  * ### THE HONESTY CONSTRAINT THIS FILE IS MOST EXPOSED TO
@@ -230,7 +230,7 @@ export const DETECTION_MECHANISMS = [
 ] as const satisfies readonly DetectionMechanism[]
 
 /**
- * The no-artificial-intelligence statement, L31858, quoted because it is the
+ * The no-artificial-intelligence statement, L31826, quoted because it is the
  * one sentence that keeps an emergency pause from reading as a floor outage:
  * "With every agent disabled by an emergency pause, the deterministic layer
  * configured here continues untouched… Emergency pause renders as agent
@@ -365,7 +365,7 @@ export function agentParameterReadings(
       value: checklist ?? 'No containment checklist attached on this screen',
       section: 'Deviation rules and severity mapping',
       authoredIn: 'Content Libraries, MOD-STU-07, referenced by pointer from Section 7',
-      sourceRef: 'L31708 · FUNC-STU-02-02-B-2 L31766',
+      sourceRef: 'L31708 · FUNC-STU-02-02-B-2 L31768',
     },
     {
       agent: 'deviation-and-containment',
@@ -373,7 +373,7 @@ export function agentParameterReadings(
       value: routing ?? 'No routing template attached on this screen',
       section: 'Deviation rules and severity mapping',
       authoredIn: 'Content Libraries, MOD-STU-07, referenced by pointer from Section 7',
-      sourceRef: 'L31708 · FUNC-STU-02-02-B-3 L31767',
+      sourceRef: 'L31708 · FUNC-STU-02-02-B-3 L31769',
     },
     {
       agent: 'deviation-and-containment',

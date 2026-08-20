@@ -6,12 +6,12 @@ import {
 import type { Locale } from '@/studio/vocab'
 
 /**
- * **LANE A — selection and ranking, automatic (L34166-L34170).**
+ * **LANE A — selection and ranking, automatic (L34164-L34169).**
  *
  * ## THIS FILE HOLDS NO REFERENCE TO LANE B, AND THAT IS THE ENFORCEMENT
  *
  * L34164 divides the whole system by one test: *"does it alter a configured
- * operating value?"* Lane A is everything that does not, and L34170 states
+ * operating value?"* Lane A is everything that does not, and L34169 states
  * the consequence as a definition rather than as a rule to be obeyed:
  * **"Lane A changes no configured value by definition"**.
  *
@@ -52,7 +52,7 @@ import type { Locale } from '@/studio/vocab'
  *
  * ## LOGGED AND REVERSIBLE
  *
- * *"applied automatically, logged, and reversible"* (L34170), and
+ * *"applied automatically, logged, and reversible"* (L34169), and
  * `FUNC-STU-16-02-C-1` (L34228): *"automatic must not mean opaque."* Every
  * refinement carries the weight it replaced, so reversing one restores the
  * prior selection rather than resetting to a default nobody chose.
@@ -234,7 +234,7 @@ export function laneASignal(): LaneASignal {
  * The low-resolution-rate threshold, and it is a **Derived Clarification**.
  *
  * L34179 says assets "with a low resolution rate are flagged for review or
- * retirement" and `MOD-STU-07` L32634 says an asset is flagged "when it
+ * retirement" and `MOD-STU-07` L32666 says an asset is flagged "when it
  * consistently fails to resolve difficulties". **Neither states a number**,
  * and no number is presented here as a source fact: `LOW_PERFORMER_NOTE`
  * renders beside every flag.
@@ -249,7 +249,7 @@ export const MINIMUM_FLAGGING_SAMPLE_SIZE = 20
 
 export const LOW_PERFORMER_NOTE =
   `Derived Clarification. The source flags "a low resolution rate" (L34179) and an asset that ` +
-  '"consistently fails to resolve difficulties" (L32634) without stating a number. This build ' +
+  '"consistently fails to resolve difficulties" (L32666) without stating a number. This build ' +
   `uses below ${Math.round(LOW_RESOLUTION_RATE_THRESHOLD * 100)} per cent over at least ` +
   `${MINIMUM_FLAGGING_SAMPLE_SIZE} selections, and states so rather than presenting either ` +
   'figure as a source fact.'
@@ -336,7 +336,7 @@ function flagNoteFor(rate: number | null, sampleSize: number, flagged: boolean):
  * ==================================================================== */
 
 /**
- * L34168: *"When a supervisor marks a surfaced prior case as genuinely
+ * L34167: *"When a supervisor marks a surfaced prior case as genuinely
  * relevant, or not, that feedback adjusts which prior cases surface next
  * time."* `SB-STU-19` (L34293): *"Prior-case relevance shows the feedback the
  * operation has given and how similarity has shifted."*
@@ -445,7 +445,7 @@ export function applyLaneASignal(
         `Selection weight for ${observation.signal.assetId} on ${observation.signal.screenId} ` +
         `(${observation.signal.locale}, "${observation.signal.failurePattern}") moved from ` +
         `${priorWeight} to ${weight} over ${observation.selections} selections. No configured ` +
-        'value changed: Lane A changes none by definition (L34170).',
+        'value changed: Lane A changes none by definition (L34169).',
     },
   }
 }

@@ -46,7 +46,7 @@ import type { VersionBumpClass } from '@/studio/vocab'
  * ## AGEING NEVER EXPIRES
  *
  * L34171: *"Undecided proposals age visibly with a 30-day stale flag and
- * never expire silently."* `FUNC-STU-16-03-A-2` (L34234): *"Roles
+ * never expire silently."* `FUNC-STU-16-03-A-2` (L34232): *"Roles
  * prohibited: none may suppress the flag."* `expired` is typed `false` — the
  * literal, not the boolean — so no arithmetic and no future branch can set
  * it true without changing the type and failing to compile.
@@ -116,7 +116,7 @@ export type OpenProposalState = Extract<LaneBProposalState, 'Proposed' | 'Stale-
  * ==================================================================== */
 
 /**
- * `FUNC-STU-16-03-A-1` (L34233): *"Assemble an evidence-backed proposal
+ * `FUNC-STU-16-03-A-1` (L34231): *"Assemble an evidence-backed proposal
  * carrying the current value, the proposed value, and the scope of impact."*
  * `SB-STU-19` (L34293) adds the evidence summary, the age, and the stale
  * badge past 30 days.
@@ -239,7 +239,7 @@ export const LANE_B_SIMULATION_NOTE =
 /**
  * What crosses the seam from `MOD-CC-06` / `MOD-CC-13` action 3, slice 9.
  *
- * `FUNC-STU-16-03-B-1` (L34237): *"Accept or reject exactly once in the
+ * `FUNC-STU-16-03-B-1` (L34234): *"Accept or reject exactly once in the
  * Client Command Center."* The two verbs are the source's own.
  * `deciderIdentityId` is an IDENTITY, never a role — L34657, and the audit
  * trail records identity and action rather than "acting as role".

@@ -15,7 +15,7 @@ import { STU_SEAMS, stuSeamById, stuSeamStatus, type StudioSeamDefinition } from
  *
  * L33971: "**The Agent Builder composes from the registry; it never adds to
  * it.** … **A tenant enables and composes; a tenant never authors an atom.**"
- * `AC-STU-128` (L34129): "No Studio path creates, edits, or deletes an atomic
+ * `AC-STU-128` (L34133): "No Studio path creates, edits, or deletes an atomic
  * capability." There is therefore no `authorAtom`, no `createCapability` and
  * no atom writer of any shape in this module — `MOD-STU-01`'s
  * `studioService.defineCapability` is the surface's one universal refusal and
@@ -26,7 +26,7 @@ import { STU_SEAMS, stuSeamById, stuSeamStatus, type StudioSeamDefinition } from
  * L33990: "The launch builder composes **reasoning agents only** … **Action
  * agents … ship as platform-provided templates the tenant configures rather
  * than composes, because their blast radius requires platform-authored
- * evaluations.**" `AC-STU-131` (L34132). `composeReasoningAgent` takes no
+ * evaluations.**" `AC-STU-131` (L34136). `composeReasoningAgent` takes no
  * agent-kind parameter, so there is no argument that could ask for an action
  * agent, and there is no `composeActionAgent` to call. A refusal function
  * would be a guard a refactor can delete; a missing function cannot be called
@@ -45,7 +45,7 @@ import { STU_SEAMS, stuSeamById, stuSeamStatus, type StudioSeamDefinition } from
  * No evaluation is run here and none is simulated as run. Where the harness
  * is unreachable "the composition holds at Evaluation pending and is never
  * advanced on an assumption" (L34050), and where a result is unknown it is
- * "displayed as unknown" (L34124). Every gate outcome below is a SEEDED
+ * "displayed as unknown" (L34129). Every gate outcome below is a SEEDED
  * FIXTURE read through a declared seam, and every reader carries the seam.
  *
  * DETERMINISM: no clock, no counter, no random source. Timestamps are data.
@@ -83,7 +83,7 @@ void _statesExhaustive
  * `DEC-AGENTLC-001`." The six states above are the whole set the source
  * gives, and **none of them is terminal** — `Deployed` has an edge to `[*]`
  * in the diagram but no state means "retired". This constant states that
- * absence on screen, because `AC-STU-135` (L34137) requires exactly that:
+ * absence on screen, because `AC-STU-135` (L34140) requires exactly that:
  * "Deprecation, disablement, and rollback are not implemented silently;
  * `DEC-AGENTLC-001` is surfaced."
  */
@@ -110,7 +110,7 @@ const _gateIdsExhaustive: MissingFromGateIds extends never ? true : never = true
 void _gateIdsExhaustive
 
 /**
- * FOUR VALUES, and `unknown` is the one that does the work. L34124: "Evaluation
+ * FOUR VALUES, and `unknown` is the one that does the work. L34129: "Evaluation
  * results are never inferred; an unknown result is displayed as unknown." A
  * three-valued outcome would have to render an unreached gate as `pending`,
  * which claims a submission that never happened.
@@ -139,7 +139,7 @@ export interface GovernanceGate {
 /**
  * "Three independent gates stand between a composition and production, and
  * every failure path returns to Composed rather than to a partially deployed
- * state" (L34089), in the order L33988 states them.
+ * state" (L34094), in the order L33988 states them.
  */
 export const GOVERNANCE_GATES = [
   {
@@ -229,7 +229,7 @@ const NOT_REACHED = (gate: GovernanceGateId): GateRecord => ({
 })
 
 /**
- * The source's own illustrative composition (L34093): Elena composes
+ * The source's own illustrative composition (L34098): Elena composes
  * "Weekly Torque Trend Brief" from three enabled capabilities — retrieve
  * prior deviation cases, aggregate measurement distributions, and summarise
  * — mapped to Assembly — Wheel Bolt Torque Verification with a weekly
@@ -295,10 +295,10 @@ export function disabledCapabilitiesOf(agent: ComposedAgent): readonly string[] 
  * ==================================================================== */
 
 /**
- * `FUNC-STU-15-01-A-2` (L34037) and `AC-STU-130` (L34135): "disabling never
- * alters a pinned package, so a disabled capability continues to execute on
- * in-flight Runs until they finish, **which must be stated plainly rather
- * than hidden**."
+ * `AC-STU-130` (L34135) restates `FUNC-STU-15-01-A-2` (L34037): "disabling
+ * never alters a pinned package, so a disabled capability continues to
+ * execute on in-flight Runs until they finish, **which must be stated
+ * plainly rather than hidden**."
  */
 export const DISABLEMENT_HONESTY_LINE =
   'Disabling a capability never alters an already-pinned package. A pinned package carries what it ' +
@@ -344,7 +344,7 @@ export interface BuilderResult {
   readonly agent: ComposedAgent | null
 }
 
-const AUDIT_REFS = ['L34118', 'FB-STU-10 L31453'] as const
+const AUDIT_REFS = ['L34123', 'FB-STU-10 L31453'] as const
 
 function refuse(
   register: ComposedAgentRegister,
@@ -435,7 +435,7 @@ export function composeReasoningAgent(
     detail: `compose reasoning agent “${input.name}” from ${input.capabilities
       .map((c) => c.atomId)
       .join(' → ')}`,
-    sourceRefs: [...AUDIT_REFS, 'L34033'],
+    sourceRefs: [...AUDIT_REFS, 'L34043'],
   })
   if (!attempt.ok) {
     return refuse(
@@ -485,7 +485,7 @@ export interface SubmitInput {
 }
 
 /**
- * L34043's `FB-STU-08` difference, verbatim: "where the harness is
+ * L34050's `FB-STU-08` difference, verbatim: "where the harness is
  * unreachable, the composition holds at Evaluation pending and is never
  * advanced on an assumption."
  *
@@ -516,7 +516,7 @@ export function submitToEvaluationGate(
     action: 'submit',
     agentId: agent.id,
     detail: `submit “${agent.name}” to the evaluation harness (${input.harness})`,
-    sourceRefs: [...AUDIT_REFS, 'L34043'],
+    sourceRefs: [...AUDIT_REFS, 'L34050'],
   })
   if (!attempt.ok) {
     return refuse(
@@ -604,7 +604,7 @@ export interface MapInput {
 }
 
 /**
- * `FUNC-STU-15-02-A-3` (L34041) — map the agent to Workflows, screens and
+ * `FUNC-STU-15-02-A-3` (L34045) — map the agent to Workflows, screens and
  * triggers.
  *
  * THE AUDIT APPEND IS BEFORE THE MUTATION, AND THIS HANDLER ACTUALLY
@@ -627,7 +627,7 @@ export function mapComposedAgent(input: MapInput, writeAudit: BuilderAuditWrite)
     action: 'map',
     agentId: agent.id,
     detail: `map “${agent.name}” to ${input.mapping.workflowName} / ${input.mapping.screenId} on ${input.mapping.trigger}`,
-    sourceRefs: [...AUDIT_REFS, 'L34041'],
+    sourceRefs: [...AUDIT_REFS, 'L34045'],
   })
   if (!attempt.ok) {
     return refuse(
@@ -659,7 +659,7 @@ export interface DeployInput {
 }
 
 /**
- * `AC-STU-132` (L34133): "A composed agent reaches production only after the
+ * `AC-STU-132` (L34137): "A composed agent reaches production only after the
  * evaluation gate, the tenant approval chain, and platform review, in that
  * order."
  *
@@ -701,7 +701,7 @@ export function deployComposedAgent(
     action: 'deploy',
     agentId: agent.id,
     detail: `deploy “${agent.name}” in the tenant workspace`,
-    sourceRefs: [...AUDIT_REFS, 'L34133'],
+    sourceRefs: [...AUDIT_REFS, 'L34137'],
   })
   if (!attempt.ok) {
     return refuse(
