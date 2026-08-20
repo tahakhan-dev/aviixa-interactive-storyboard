@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { namesPersonBehaviouralMeasure } from '../coverage/person-measure-keys'
+import { stripComments } from '../coverage/strip-comments'
 import {
   ABSENT_BY_RULE,
   ACCESS_CLASS_PANELS,
@@ -50,6 +51,24 @@ const SCREEN_SRC = readFileSync(
 )
 
 const TENANT_ROLES = rolesInDomain('TENANT').map((r) => r.id) as readonly TenantRoleId[]
+
+/**
+ * THE MODULE'S OWN SOURCE FILES, ENUMERATED FROM THE DIRECTORY. Slice 4 gate
+ * 3 measured this suite at three `readFileSync` calls — `FIXTURES_SRC` and
+ * `SCREEN_SRC` above, hand-named — which misses `page.tsx` entirely, and
+ * carried no three-digit `SCR-DOH` gate at all. `FIXTURES_SRC`/`SCREEN_SRC`
+ * stay: many cases below name them individually. This walker is for the two
+ * gates that need every file this module owns, so a third or fourth file it
+ * grows is covered without anyone remembering to add it.
+ */
+const MODULE_DIR = 'app/hub/tenant-view-of-platform-administration'
+
+function moduleSources(): { file: string; src: string }[] {
+  return readdirSync(MODULE_DIR)
+    .filter((f) => /\.tsx?$/.test(f))
+    .map((f) => `${MODULE_DIR}/${f}`)
+    .map((file) => ({ file, src: stripComments(readFileSync(file, 'utf8')) }))
+}
 
 describe('MOD-DOH-13 — the matrix, verified at source L29195-L29206', () => {
   /**
@@ -345,11 +364,14 @@ describe('MOD-DOH-13 — the history is a read-through projection, and says so',
     }
   })
 
-  it('names no behavioural measure on a person in any history row or class panel', () => {
+  it('names no behavioural measure on a person in any history row, class panel or matrix row', () => {
     const records: readonly Record<string, unknown>[] = [
       ...SEEDED_ACCESS_HISTORY,
       ...ACCESS_CLASS_PANELS,
       SEEDED_POST_SESSION_REPORT as unknown as Record<string, unknown>,
+      // Widened to the control matrix's own rows, matching the shape
+      // `doh-workers.test.ts` uses for the same gate.
+      ...(CONTROL_MATRIX as unknown as readonly Record<string, unknown>[]),
     ]
     // These rows genuinely ARE about named people, which is the half of the
     // question the shared matcher does not answer for itself.
@@ -470,12 +492,23 @@ describe('MOD-DOH-13 — the panels the contract requires', () => {
     expect(CONTROL_STATUSES).toHaveLength(6)
   })
 
+  // RESCOPED. This used to check only `FIXTURES_SRC` and `SCREEN_SRC`, which
+  // misses `page.tsx` — the exact file slice 4 gate 3 named. Walked from the
+  // directory instead, so `page.tsx` is covered and a fourth file would be
+  // too.
   it('reads no clock anywhere in the module', () => {
-    for (const [name, src] of [
-      ['fixtures', FIXTURES_SRC],
-      ['screen', SCREEN_SRC],
-    ] as const) {
-      expect(src, name).not.toMatch(/Date\.now\(|new Date\(|Math\.random\(/)
+    for (const { file, src } of moduleSources()) {
+      expect(src, file).not.toMatch(/Date\.now\(|new Date\(|Math\.random\(/)
+    }
+  })
+
+  // ADDED. Missing entirely: this suite carried no three-digit `SCR-DOH`
+  // gate anywhere, for any file. D1 forbids the catalogue-A three-digit form
+  // everywhere under `app/hub/`; every other module suite in this build
+  // carries this gate and this one did not.
+  it('D1: writes no three-digit SCR-DOH literal anywhere in this module', () => {
+    for (const { file, src } of moduleSources()) {
+      expect(src, file).not.toMatch(/SCR-DOH-\d{3}/)
     }
   })
 })

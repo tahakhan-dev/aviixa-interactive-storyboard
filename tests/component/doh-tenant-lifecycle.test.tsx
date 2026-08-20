@@ -458,6 +458,25 @@ describe('MOD-DOH-01 — absent by rule, seams and the honest panels', () => {
   })
 
   /**
+   * ADDED. `UNRESOLVED_IN_SOURCE` was imported into this file and never
+   * referenced — lint's own finding. The screen renders the panel fully
+   * (`TenantLifecycleScreen.tsx` maps every entry into a `<li>`), so the
+   * disclosure DOES reach the screen; what was missing is this suite's own
+   * proof of it. The pointer case below already hand-picks one entry by a
+   * hardcoded regex, which is exactly the iterate-the-array gap its own
+   * comment warns about for `UNSPECIFIED_IN_SOURCE`: delete an entry and a
+   * hardcoded regex has no way to notice. This is the same item-for-item
+   * case as the one above, for the sibling panel.
+   */
+  it('renders the unresolved-in-source panel, item for item', () => {
+    render(<TenantLifecycleScreen />)
+    const panel = region('Unresolved in source')
+    for (const item of UNRESOLVED_IN_SOURCE) {
+      expect(within(panel).getByText(item)).toBeDefined()
+    }
+  })
+
+  /**
    * A sentence pointing at content elsewhere in the build is a claim, and
    * the iterate-the-array case above cannot fail when the target is
    * deleted. This ties the pointer to the entry it names: remove the entry

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { namesPersonBehaviouralMeasure } from '../coverage/person-measure-keys'
 import {
   ABSENT_BY_RULE,
@@ -84,11 +84,30 @@ const IMPORT_FILES: readonly ImportFile[] = SEEDED_IMPORT_FILES
  */
 const MATRIX: readonly ControlMatrixRow[] = CONTROL_MATRIX
 
-const MY_FILES = [
-  'app/hub/worker-lifecycle-and-qualifications/fixtures.ts',
-  'app/hub/worker-lifecycle-and-qualifications/WorkerLifecycleScreen.tsx',
-  'app/hub/worker-lifecycle-and-qualifications/page.tsx',
-]
+/**
+ * RESCOPED. THE DEFECT THAT STARTED THIS SLICE'S SOURCE-SCAN AUDIT. `MY_
+ * FILES` used to be a hardcoded three-path list, and this module's
+ * determinism gate, its three-digit `SCR-DOH` gate and its per-worker
+ * behavioural-measure gate existed ONLY here. A screen-extraction task
+ * correctly refused to pull a fourth file out of this directory, because
+ * that file would have been invisible to all three — the hand list had no
+ * way to notice it had fallen behind what it covered.
+ *
+ * `FIXTURES_PATH` and `SCREEN_PATH` stay named: several cases below read a
+ * specific one of the two by role (fixtures vs. screen), not "any module
+ * file". `moduleFiles()` is for the gates that need every file this module
+ * owns, walked from the directory each call, so a fourth file is covered
+ * the moment it exists rather than when someone remembers to register it.
+ */
+const MODULE_DIR = 'app/hub/worker-lifecycle-and-qualifications'
+const FIXTURES_PATH = `${MODULE_DIR}/fixtures.ts`
+const SCREEN_PATH = `${MODULE_DIR}/WorkerLifecycleScreen.tsx`
+
+function moduleFiles(): string[] {
+  return readdirSync(MODULE_DIR)
+    .filter((f) => /\.tsx?$/.test(f))
+    .map((f) => `${MODULE_DIR}/${f}`)
+}
 
 /* ------------------------------------------------------------------ *
  * THE 14/7/1/0 LADDER. The direction is the whole point: a tenant may
@@ -156,7 +175,7 @@ describe('MOD-DOH-04 — the expiry ladder may gain earlier stages and never lat
     // pairs a subtractive verb with the ladder's own nouns. `addEarlierWarningStage`
     // is the only ladder mutator that can exist, and it is additive by
     // construction — the runtime proof of that direction is the case above.
-    const source = readFileSync(MY_FILES[0]!, 'utf8')
+    const source = readFileSync(FIXTURES_PATH, 'utf8')
     const exported = [...source.matchAll(/export function (\w+)/g)].map((m) => m[1] ?? '')
     expect(exported).toContain('addEarlierWarningStage')
     const subtractive =
@@ -831,7 +850,7 @@ describe('support-not-surveillance, held in the fixture shape itself', () => {
     // The compile-time half lives in the fixtures file; this asserts the guard
     // is actually there, because a type-level check that gets deleted leaves
     // no runtime trace at all.
-    const source = readFileSync(MY_FILES[0]!, 'utf8')
+    const source = readFileSync(FIXTURES_PATH, 'utf8')
     expect(source).toMatch(/type ForbiddenMeasureField/)
     expect(source).toMatch(/type MeasureFieldOnWorker = Extract<keyof Worker, ForbiddenMeasureField>/)
     expect(source).toMatch(
@@ -859,7 +878,7 @@ describe('support-not-surveillance, held in the fixture shape itself', () => {
     // violation. Same three-axis shape the slice-3 gate uses.
     const PERSON_MEASURE =
       /\b(worker|operator|employee|person)[_-]?(ranking|rank|score|league|count|total|rate)\b|\b(productivity|efficiency|performance)[_-]?(score|rating|index)\b|\b(runs?|steps?)\s*per\s*(hour|shift|day)\b/i
-    for (const file of MY_FILES) {
+    for (const file of moduleFiles()) {
       const offending = readFileSync(file, 'utf8')
         .split('\n')
         .filter(
@@ -957,22 +976,22 @@ describe('the required panels carry real content, not placeholders', () => {
 
 describe('MOD-DOH-04 source files — determinism, D1 and route ownership', () => {
   it('reads no clock and no randomness anywhere in this module', () => {
-    for (const file of MY_FILES) {
+    for (const file of moduleFiles()) {
       expect(readFileSync(file, 'utf8'), file).not.toMatch(/Date\.now|new Date\(|Math\.random/)
     }
   })
 
   it('D1: writes no three-digit SCR-DOH literal anywhere, and annotates the two two-digit ones', () => {
-    for (const file of MY_FILES) {
+    for (const file of moduleFiles()) {
       expect(readFileSync(file, 'utf8'), file).not.toMatch(/SCR-DOH-\d{3}/)
     }
-    const screen = readFileSync(MY_FILES[1]!, 'utf8')
+    const screen = readFileSync(SCREEN_PATH, 'utf8')
     expect(screen).toMatch(/SCR-DOH-07/)
     expect(screen).toMatch(/SCR-DOH-08/)
   })
 
   it('names its own module id more often than any module it cross-references, so the route walk is unambiguous', () => {
-    const text = MY_FILES.map((f) => readFileSync(f, 'utf8')).join('\n')
+    const text = moduleFiles().map((f) => readFileSync(f, 'utf8')).join('\n')
     const own = (text.match(/MOD-DOH-04/g) ?? []).length
     expect(own).toBeGreaterThan(0)
     for (const other of ['01', '02', '03', '05', '06', '07', '09', '10', '11', '12', '13', '14']) {
@@ -982,7 +1001,7 @@ describe('MOD-DOH-04 source files — determinism, D1 and route ownership', () =
   })
 
   it('seeds no second copy of a Site, an Area, a Shift or a certification type', () => {
-    const fixtures = readFileSync(MY_FILES[0]!, 'utf8')
+    const fixtures = readFileSync(FIXTURES_PATH, 'utf8')
     for (const producerExport of [
       /export const DOH_SITES/,
       /export const DOH_AREAS/,

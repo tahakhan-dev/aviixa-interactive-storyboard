@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
+import { readFileSync, readdirSync } from 'node:fs'
 import { namesPersonBehaviouralMeasure } from '../coverage/person-measure-keys'
+import { stripComments } from '../coverage/strip-comments'
 import { rolesInDomain, type RoleId } from '@/domain/roles'
 import { PERMISSION_OUTCOMES, isRefusal, type PermissionOutcome } from '@/policy/decision'
 import { evaluateAccess } from '@/policy/evaluate'
@@ -56,6 +58,29 @@ import {
 } from '../../app/hub/permissions-roles-and-access/fixtures'
 
 const MODULE = dohModuleById('MOD-DOH-09')
+
+/**
+ * THE MODULE'S OWN SOURCE FILES, ENUMERATED FROM THE DIRECTORY. Slice 4 gate
+ * 3 measured this suite at zero `readFileSync` calls: the D1 and AC-16-12
+ * gates below existed, but both scanned `JSON.stringify` of the FIXTURE
+ * DATA, never the source text of `fixtures.ts`, `PermissionsScreen.tsx` or
+ * `page.tsx` — so a forbidden literal sitting in a comment, in JSX prose or
+ * in any code this module carries that is not one of the nine named
+ * constants would pass unseen. A directory walk closes that, and a fourth
+ * file this module grows is covered without anyone remembering to add it.
+ */
+const MODULE_DIR = 'app/hub/permissions-roles-and-access'
+
+function moduleSources(): { file: string; src: string }[] {
+  return readdirSync(MODULE_DIR)
+    .filter((f) => /\.tsx?$/.test(f))
+    .map((f) => `${MODULE_DIR}/${f}`)
+    // Stripped, not raw — the same hazard `doh-tenant-lifecycle.test.ts`
+    // hit: this module's own source discusses the forbidden three-digit
+    // form and session-role language IN ORDER TO DENY them, in prose that
+    // would otherwise trip the gates it explains.
+    .map((file) => ({ file, src: stripComments(readFileSync(file, 'utf8')) }))
+}
 
 function cellsOf(row: MatrixRow): PermissionOutcome[] {
   return TENANT_ROLE_ORDER.map((r) => row.cells[r].outcome)
@@ -512,23 +537,38 @@ describe('MOD-DOH-09 — the screen states this module actually has', () => {
 })
 
 describe('MOD-DOH-09 — the gates this module is measured against', () => {
-  const allText = JSON.stringify({
-    PERMISSION_MATRIX,
-    ROSTER_SCENARIOS,
-    REFUSAL_SCENARIOS: REFUSAL_SCENARIOS.map((s) => ({ ...s, request: s.request.action })),
-    ABSENT_CONTROLS,
-    UNSPECIFIED_IN_SOURCE,
-    SOURCE_CONFLICTS,
-    SIGN_IN_STAGES,
-    ACCOUNT_LIFECYCLE_RIVALS,
-    SEEDED_SSO_CONNECTION,
-  })
+  // RESCOPED. Both gates below used to scan only `JSON.stringify` of nine
+  // named fixture constants — data, never source. That is the same defect
+  // shape slice 4 gate 3 found in `tests/unit/doh-workers.test.ts`'s
+  // hardcoded `MY_FILES`, one level worse: a hand-picked SET OF CONSTANTS
+  // rather than a hand-picked SET OF FILES, so anything this module's source
+  // carries outside those nine — a comment, a JSX literal, a tenth constant
+  // — was invisible to both. `allText` now carries the module's actual
+  // source files, walked from the directory, alongside the original fixture
+  // dump, so both surfaces are covered and a fourth file is covered the
+  // moment it exists.
+  const allText =
+    JSON.stringify({
+      PERMISSION_MATRIX,
+      ROSTER_SCENARIOS,
+      REFUSAL_SCENARIOS: REFUSAL_SCENARIOS.map((s) => ({ ...s, request: s.request.action })),
+      ABSENT_CONTROLS,
+      UNSPECIFIED_IN_SOURCE,
+      SOURCE_CONFLICTS,
+      SIGN_IN_STAGES,
+      ACCOUNT_LIFECYCLE_RIVALS,
+      SEEDED_SSO_CONNECTION,
+    }) +
+    '\n' +
+    moduleSources()
+      .map(({ src }) => src)
+      .join('\n')
 
-  it('contains no three-digit screen literal anywhere in its fixtures (D1)', () => {
+  it('contains no three-digit screen literal anywhere in its fixtures or source (D1)', () => {
     expect(allText).not.toMatch(/SCR-DOH-\d{3}/)
   })
 
-  it('contains no session-role-context language anywhere in its fixtures (AC-16-12)', () => {
+  it('contains no session-role-context language anywhere in its fixtures or source (AC-16-12)', () => {
     expect(allText).not.toMatch(/act(ing)? as/i)
     expect(allText).not.toMatch(/impersonat/i)
     expect(allText).not.toMatch(/switch role|role selector/i)
@@ -545,13 +585,30 @@ describe('MOD-DOH-09 — the gates this module is measured against', () => {
   // splits the key into words first and compares whole words only. See
   // `tests/coverage/person-measure-keys.ts`, and the both-directions proof
   // in the describe block below.
-  it('keys no behavioural measure on a person anywhere in the user register', () => {
+  //
+  // Widened to the control matrix's own rows alongside the user register —
+  // the second record shape this module owns — matching the shape
+  // `doh-workers.test.ts` and `doh-platform-admin.test.ts` use for the same
+  // gate.
+  it('keys no behavioural measure on a person anywhere in the user register or the control matrix', () => {
     for (const scenario of ROSTER_SCENARIOS) {
       for (const user of scenario.users) {
         for (const key of Object.keys(user)) {
           expect(namesPersonBehaviouralMeasure(key), key).toBe(false)
         }
       }
+    }
+    for (const row of PERMISSION_MATRIX) {
+      for (const key of Object.keys(row)) {
+        expect(namesPersonBehaviouralMeasure(key), key).toBe(false)
+      }
+    }
+  })
+
+  // ADDED. Missing entirely: this suite carried no determinism gate at all.
+  it('reads no clock and no randomness anywhere in this module', () => {
+    for (const { file, src } of moduleSources()) {
+      expect(src, file).not.toMatch(/Date\.now|new Date\(|Math\.random/)
     }
   })
 

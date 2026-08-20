@@ -1,4 +1,7 @@
 import { describe, it, expect } from 'vitest'
+import { readFileSync, readdirSync } from 'node:fs'
+import { namesPersonBehaviouralMeasure } from '../coverage/person-measure-keys'
+import { stripComments } from '../coverage/strip-comments'
 import {
   ACTING_STATUSES,
   CONTROL_MATRIX,
@@ -20,6 +23,29 @@ import { TENANT_STATES } from '@/surfaces/doh/tenant-state'
 import { dohModuleById } from '@/surfaces/doh/modules'
 import { rolesInDomain } from '@/domain/roles'
 import type { TenantRoleId } from '../../app/hub/HubShell'
+
+/**
+ * THE MODULE'S OWN SOURCE FILES, ENUMERATED FROM THE DIRECTORY rather than
+ * named by hand. Slice 4 gate 3 (`tests/coverage/slice-04-gates.test.ts`)
+ * found this suite scanning NOTHING at all — no determinism gate, no
+ * three-digit `SCR-DOH` gate — the same defect shape `doh-workers.test.ts`
+ * shipped with a hardcoded `MY_FILES`, one level worse: there was no list to
+ * fall behind, because there was no gate. A directory walk means a fourth
+ * file this module grows is covered the moment it exists.
+ */
+const MODULE_DIR = 'app/hub/tenant-lifecycle-and-tier-operations'
+
+function moduleSources(): { file: string; src: string }[] {
+  return readdirSync(MODULE_DIR)
+    .filter((f) => /\.tsx?$/.test(f))
+    .map((f) => `${MODULE_DIR}/${f}`)
+    // Stripped, not raw: this module's own fixtures.ts carries a doc comment
+    // NAMING `Date.now()`, `new Date()` and `Math.random()` in order to deny
+    // them, and a gate over raw source text would fail on correct code today
+    // — the exact hazard `stripComments` exists for (see its own doc
+    // comment, and `hubSources()` in `tests/coverage/slice-04-gates.test.ts`).
+    .map((file) => ({ file, src: stripComments(readFileSync(file, 'utf8')) }))
+}
 
 /**
  * MOD-DOH-01's only pure logic: a percentage becomes one of four ladder
@@ -162,13 +188,27 @@ describe('acting and reading carry the contents the matrix uses (tsc guards the 
 })
 
 describe('support-not-surveillance, held in the fixture shape itself', () => {
-  it('keys no fixture row on a worker identifier', () => {
-    const keys = [
-      ...SITE_COUNT.flatMap((s) => Object.keys(s)),
-      ...TENANT_STATE_HISTORY.flatMap((h) => Object.keys(h)),
-      ...TIER_RECORDS.flatMap((t) => Object.keys(t)),
-    ]
-    expect(keys.filter((k) => /worker/i.test(k))).toEqual([])
+  /**
+   * RESCOPED. This case used to run a raw `/worker/i` substring test over
+   * three fixture arrays — the same shape of gate `tests/coverage/person-
+   * measure-keys.ts` replaced everywhere else in this build after it refused
+   * `accountState` for containing `count`. It now calls the shared matcher,
+   * and it widens to `CONTROL_MATRIX`'s own top-level keys alongside the
+   * three record arrays, matching the shape `doh-workers.test.ts` and
+   * `doh-platform-admin.test.ts` use for the same gate.
+   */
+  it('keys no behavioural measure on a person anywhere in this module’s fixtures', () => {
+    const rows: readonly object[] = [...SITE_COUNT, ...TENANT_STATE_HISTORY, ...TIER_RECORDS, ...CONTROL_MATRIX]
+    // Not vacuous: these are records the module genuinely keeps, which is the
+    // half of the question the matcher does not answer for itself.
+    expect(rows.length).toBeGreaterThan(10)
+    for (const row of rows) {
+      for (const key of Object.keys(row)) {
+        expect(namesPersonBehaviouralMeasure(key), key).toBe(false)
+      }
+    }
+    // The matcher is live rather than asleep on this record shape.
+    expect(namesPersonBehaviouralMeasure('workerRanking')).toBe(true)
   })
 
   it('records every state transition against a team or a trigger, never a person', () => {
@@ -239,5 +279,26 @@ describe('MOD-DOH-01 — the pointer this screen makes at Unresolved in source',
   it('resolves the upgrade-absence note’s pointer onto a real Unresolved-in-source entry', () => {
     expect(UNRESOLVED_IN_SOURCE.length).toBeGreaterThan(0)
     expect(UNRESOLVED_IN_SOURCE.some((i) => /disabled with its reason/i.test(i))).toBe(true)
+  })
+})
+
+/**
+ * ADDED. Slice gate 3 measured this suite at zero `readFileSync` calls: no
+ * determinism gate and no three-digit `SCR-DOH` gate existed anywhere in it,
+ * for either of the module's two source files. Both gates are new here, and
+ * both read the DIRECTORY rather than a hand-typed pair of paths, so a third
+ * file this module grows is covered without anyone remembering to add it.
+ */
+describe('MOD-DOH-01 source files — determinism and the three-digit SCR-DOH literal', () => {
+  it('reads no clock and no randomness anywhere in this module', () => {
+    for (const { file, src } of moduleSources()) {
+      expect(src, file).not.toMatch(/Date\.now|new Date\(|Math\.random/)
+    }
+  })
+
+  it('writes no three-digit SCR-DOH literal anywhere in this module', () => {
+    for (const { file, src } of moduleSources()) {
+      expect(src, file).not.toMatch(/SCR-DOH-\d{3}/)
+    }
   })
 })
