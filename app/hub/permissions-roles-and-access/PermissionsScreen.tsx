@@ -24,7 +24,7 @@ import {
   type SsoConnectionState,
   type SsoProtocol,
 } from '@/surfaces/doh/sso-connection'
-import { TENANT_STATE_LABEL } from '@/ui/doh/tenant-state-vocabulary'
+import { TENANT_STATE_OPTIONS } from '@/ui/doh/tenant-state-vocabulary'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
 import { screenState } from '@/ui/screen-state'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
@@ -817,7 +817,7 @@ export function PermissionsScreen({
             <Select
               label="Tenant state"
               value={tenantState}
-              options={TENANT_STATES.map((s) => ({ value: s, label: TENANT_STATE_LABEL[s] }))}
+              options={TENANT_STATE_OPTIONS}
               onChange={(value) => {
                 const next = TENANT_STATES.find((s) => s === value)
                 if (next !== undefined) setTenantState(next)

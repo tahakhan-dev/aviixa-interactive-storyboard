@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
+import { TENANT_STATE_OPTIONS } from '@/ui/doh/tenant-state-vocabulary'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import {
   Banner,
@@ -120,8 +121,6 @@ const SCREEN_STATE_OPTIONS = APPLICABLE_SCREEN_STATES.map((id) => ({
   value: id,
   label: `${id} — ${screenState(id).name}`,
 }))
-
-const TENANT_STATE_OPTIONS = TENANT_STATES.map((s) => ({ value: s, label: s }))
 
 const EVERY_WEEK = 'every-week'
 const EVERY_AREA = 'every-area'
@@ -347,7 +346,7 @@ export function QualificationCalendarScreen() {
       const n = cellCount(entries, week.index, area.id)
       row[`w${week.index}`] =
         n === 0 ? (
-          <span className="text-[var(--color-ink-subtle)]" aria-label="none expiring">
+          <span className="text-[var(--color-ink-subtle)]" role="img" aria-label="none expiring">
             &mdash;
           </span>
         ) : (

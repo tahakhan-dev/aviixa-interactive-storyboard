@@ -3,7 +3,11 @@
 import { useState } from 'react'
 import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
-import { TENANT_STATE_LABEL, TENANT_STATE_TONE } from '@/ui/doh/tenant-state-vocabulary'
+import {
+  TENANT_STATE_LABEL,
+  TENANT_STATE_OPTIONS,
+  TENANT_STATE_TONE,
+} from '@/ui/doh/tenant-state-vocabulary'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import {
@@ -112,8 +116,6 @@ const SCREEN_STATE_OPTIONS = APPLICABLE_SCREEN_STATES.map((id) => ({
   value: id,
   label: `${id} — ${screenState(id).name}`,
 }))
-
-const TENANT_STATE_OPTIONS = TENANT_STATES.map((s) => ({ value: s, label: s }))
 
 /** D7's own sentence for a Hub write meeting a lost connection (L27004). */
 const CONNECTION_LOST_REASON =

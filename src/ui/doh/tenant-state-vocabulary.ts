@@ -1,5 +1,5 @@
-import type { TenantState } from '@/surfaces/doh/tenant-state'
-import type { StatusTone } from '@/ui/primitives'
+import { TENANT_STATES, type TenantState } from '@/surfaces/doh/tenant-state'
+import type { StatusTone, SelectOption } from '@/ui/primitives'
 
 /**
  * The WORDS and the TONE for a tenant state — presentation vocabulary over a
@@ -32,6 +32,16 @@ export const TENANT_STATE_LABEL = {
 type MissingFromStateLabels = Exclude<TenantState, keyof typeof TENANT_STATE_LABEL>
 const _stateLabelsExhaustive: MissingFromStateLabels extends never ? true : never = true
 void _stateLabelsExhaustive
+
+/** Every tenant state as a `Select` option, labelled through the map above.
+ *  Seven Hub screens each hand-built this exact list with `label: s` — the
+ *  raw token, e.g. `compliance-suspended` — instead of the label; one had
+ *  already been fixed in isolation with its own inline version of this same
+ *  map. This is the one place both classes of caller should get it from. */
+export const TENANT_STATE_OPTIONS: readonly SelectOption[] = TENANT_STATES.map((s) => ({
+  value: s,
+  label: TENANT_STATE_LABEL[s],
+}))
 
 /** Colour is never load-bearing alone (`StatusPill`'s rule) — the pill this
  *  feeds carries its label beside the tone. */

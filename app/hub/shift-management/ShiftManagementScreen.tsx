@@ -15,6 +15,7 @@ import {
   type WriteControlProps as SharedWriteControlProps,
 } from '@/ui/WriteControl'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
+import { TENANT_STATE_OPTIONS } from '@/ui/doh/tenant-state-vocabulary'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
 import { screenState, type ScreenStateId } from '@/ui/screen-state'
@@ -213,8 +214,6 @@ const SCREEN_STATE_OPTIONS = APPLICABLE_STATES.map((id) => ({
   value: id,
   label: `${id} — ${screenState(id).name}`,
 }))
-
-const TENANT_STATE_OPTIONS = TENANT_STATES.map((s) => ({ value: s, label: s }))
 
 /** D7's own sentence for a Hub write meeting a lost connection. */
 const CONNECTION_LOST_REASON =

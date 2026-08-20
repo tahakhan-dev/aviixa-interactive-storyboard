@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { roleById, type RoleId } from '@/domain/roles'
+import { TENANT_STATE_OPTIONS } from '@/ui/doh/tenant-state-vocabulary'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { CommandStateBadge } from '@/ui/sa/CommandStateBadge'
 import {
@@ -121,8 +122,6 @@ const SCREEN_STATE_OPTIONS = APPLICABLE_SCREEN_STATES.map((id) => ({
   value: id,
   label: `${id} — ${screenState(id).name}`,
 }))
-
-const TENANT_STATE_OPTIONS = TENANT_STATES.map((s) => ({ value: s, label: s }))
 
 const CONNECTION_LOST_REASON =
   'The connection to this workspace’s own records is lost. The inventory degrades to the last loaded records with a freshness marker, and every write control here disables rather than queues — a queued device command would be an action with no audit entry, and worse, one the reader would believe had reached a device.'

@@ -37,7 +37,11 @@ test('the scanned route list is derived from the export, and is not a stub', () 
  * real finding in exactly that bucket, on a screen nothing had ever
  * scanned, and the assertion above would never have shown it.
  *
- * So the incomplete bucket is pinned, per rule, with a reason each.
+ * So the incomplete bucket is checked unconditionally, below, on every
+ * route: anything axe could not decide fails the route unless it is named
+ * in `ALLOWED_INCOMPLETE_ANYWHERE`. That check does not depend on any
+ * per-route exception existing — it is what catches a regression, not the
+ * exception list.
  *
  * `color-contrast` is allowed EVERYWHERE, and this is the stated ceiling:
  * axe declines to compute a ratio for an element whose content is only
@@ -53,39 +57,24 @@ test('the scanned route list is derived from the export, and is not a stub', () 
  * compute would be allowed here too, and only the token measurement would
  * catch it.
  *
- * Everything else must be named below or the route goes red.
+ * Everything else must be gone from the incomplete bucket or the route
+ * goes red — including, as of this build, `aria-prohibited-attr` on
+ * `/hub/qualification-calendar/`: fifty empty calendar cells used to
+ * render `<span aria-label="none expiring">—</span>`, prohibited because a
+ * bare `span`'s implicit `generic` role takes no accessible name (WCAG 2.2
+ * §4.1.2, §1.3.1). That was carried here as a route-specific pin — a
+ * documented, deliberately temporary exception — while the fix waited on
+ * the screen owner. The screen owner has since fixed it (`role="img"` on
+ * the same span, in the same loop, in
+ * `app/hub/qualification-calendar/QualificationCalendarScreen.tsx`), axe
+ * no longer lists the rule as incomplete on that route, and the pin was
+ * deleted rather than kept as an empty fixture — see git history for the
+ * shape of a route-specific pin (`PinnedIncomplete`) if a future finding
+ * needs one again. The unconditional check below still fails on any route
+ * where a prohibited ARIA attribute — or anything else undecided — shows
+ * up unexplained, this one included.
  */
 const ALLOWED_INCOMPLETE_ANYWHERE: readonly string[] = ['color-contrast']
-
-interface PinnedIncomplete {
-  readonly path: string
-  readonly rule: string
-  readonly what: string
-  readonly fix: string
-}
-
-const PINNED_INCOMPLETE: readonly PinnedIncomplete[] = [
-  {
-    path: '/hub/qualification-calendar/',
-    rule: 'aria-prohibited-attr',
-    what:
-      'REPORTED, NOT FIXED — it is a screen-owner change and the screen is owned elsewhere. 50 empty calendar cells render as `<span aria-label="none expiring">&mdash;</span>`. `aria-label` is PROHIBITED on a bare `span`: the span has the implicit role `generic`, which takes no accessible name, so assistive technology is not required to expose the label and most does not. A screen reader lands on 50 cells announcing an em dash, or nothing, where the sighted reading is "none expiring". WCAG 2.2 §4.1.2 Name, Role, Value (A) and §1.3.1 Info and Relationships (A). Axe files it as INCOMPLETE rather than a violation because AT support is inconsistent, which is precisely why reading only `violations` missed it.',
-    fix: 'app/hub/qualification-calendar/QualificationCalendarScreen.tsx around line 350: give the span a name-bearing role (`role="img"`), or drop the attribute and put the words in the DOM — `<span className="sr-only">none expiring</span><span aria-hidden="true">&mdash;</span>`. Either exposes the name without relying on a prohibited attribute.',
-  },
-]
-
-test('every pinned incomplete finding names a route that is actually scanned', () => {
-  // A pin whose path is not in the list pins nothing and is never checked
-  // in either direction — the finding would read as recorded and be
-  // invisible. There is one pin today; a build with none should delete the
-  // machinery rather than keep an empty fixture, so this floor is 1.
-  expect(PINNED_INCOMPLETE.length).toBeGreaterThan(0)
-  for (const p of PINNED_INCOMPLETE) {
-    expect(PATHS, `${p.rule} is pinned on ${p.path}, which is not scanned`).toContain(p.path)
-    expect(p.what.trim(), p.path).not.toBe('')
-    expect(p.fix.trim(), p.path).not.toBe('')
-  }
-})
 
 for (const path of PATHS) {
   test(`${path} has no WCAG 2.2 A or AA violation`, async ({ page }) => {
@@ -95,17 +84,15 @@ for (const path of PATHS) {
       .analyze()
     expect(results.violations).toEqual([])
 
-    // The undecided bucket, and both directions of it.
-    const pinnedHere = PINNED_INCOMPLETE.filter((p) => p.path === path).map((p) => p.rule)
+    // The undecided bucket. Unconditional: no route gets a pass here
+    // unless the rule is in `ALLOWED_INCOMPLETE_ANYWHERE` above. This is
+    // what would go red if `aria-prohibited-attr`, or anything else axe
+    // cannot decide, showed up on any route — this one included.
     const undecided = results.incomplete.map((r) => r.id)
     expect(
-      undecided.filter((id) => !ALLOWED_INCOMPLETE_ANYWHERE.includes(id) && !pinnedHere.includes(id)).sort(),
+      undecided.filter((id) => !ALLOWED_INCOMPLETE_ANYWHERE.includes(id)).sort(),
       `${path}: axe could not decide a rule nothing has recorded a reason for`,
     ).toEqual([])
-    // A pin that has stopped being real is a silent licence — when the
-    // screen owner fixes the calendar labels, this goes red and the pin
-    // above gets deleted rather than outliving the defect it describes.
-    expect(pinnedHere.filter((id) => !undecided.includes(id)), `${path}: a pinned finding is gone`).toEqual([])
   })
 
   test(`${path} exposes exactly one level-1 heading`, async ({ page }) => {

@@ -5,6 +5,7 @@ import { HubShell, endSessionRefusalFor, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { BannerRegion } from '@/ui/doh/BannerRegion'
+import { TENANT_STATE_OPTIONS } from '@/ui/doh/tenant-state-vocabulary'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import {
   Banner,
@@ -109,8 +110,6 @@ const SCREEN_STATE_OPTIONS = APPLICABLE_SCREEN_STATES.map((id) => ({
   value: id,
   label: `${id} — ${screenState(id).name}`,
 }))
-
-const TENANT_STATE_OPTIONS = TENANT_STATES.map((s) => ({ value: s, label: s }))
 
 const EVERY_CLASS = 'every-class'
 const EVERY_DATE = 'every-date'

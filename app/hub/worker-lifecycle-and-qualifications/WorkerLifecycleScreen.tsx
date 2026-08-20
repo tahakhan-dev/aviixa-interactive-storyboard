@@ -11,6 +11,7 @@ import {
   type WriteAction,
 } from '@/surfaces/doh/tenant-state'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
+import { TENANT_STATE_OPTIONS } from '@/ui/doh/tenant-state-vocabulary'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { CommandStateBadge } from '@/ui/sa/CommandStateBadge'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
@@ -177,8 +178,6 @@ const SCREEN_STATE_OPTIONS = APPLICABLE_STATES.map((id) => ({
   value: id,
   label: `${id} — ${screenState(id).name}`,
 }))
-
-const TENANT_STATE_OPTIONS = TENANT_STATES.map((s) => ({ value: s, label: s }))
 
 /** The three renderings this screen uses for a role that may not act. */
 type RoleRefusal =

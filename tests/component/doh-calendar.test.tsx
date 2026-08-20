@@ -110,6 +110,27 @@ describe('MOD-DOH-14 — the horizon is drawn, and it is drawn from the record�
     expect(grid.textContent).toContain(GRID_FOOTER_COPY)
   })
 
+  /**
+   * axe files `aria-prohibited-attr` against these cells as INCOMPLETE, not
+   * a violation, because the element has visible text content — but a bare
+   * `<span>` still carries the implicit role `generic`, which takes no
+   * accessible name, so `aria-label` on it is legal HTML and illegal ARIA at
+   * once (WCAG 2.2 4.1.2, 1.3.1). `getByRole('img', ...)` only finds the
+   * cell once it carries a role that actually permits a name — this fails
+   * red against the bare-span shape and only passes once the role is fixed.
+   */
+  it('an empty week cell exposes its status through a name-bearing role, not aria-label on a bare span', () => {
+    render(<QualificationCalendarScreen />)
+    const grid = region('Qualification Calendar grid')
+    const emptyCells = within(grid).getAllByRole('img', { name: 'none expiring' })
+    expect(emptyCells.length).toBeGreaterThan(0)
+    for (const cell of emptyCells) {
+      expect(cell.tagName).toBe('SPAN')
+      expect(cell.getAttribute('role')).toBe('img')
+      expect(cell.textContent).toContain('—')
+    }
+  })
+
   it('a cell count equals the number of rows the same cell expands to', () => {
     render(<QualificationCalendarScreen />)
     const grid = region('Qualification Calendar grid')

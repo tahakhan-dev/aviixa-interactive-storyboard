@@ -5,7 +5,6 @@ import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
 import { DOH_SCOPES, DEFERRED_DOH_SCOPES } from '@/surfaces/doh/scope'
 import {
-  TENANT_STATES,
   writeAllowed,
   type TenantState,
   type WriteAction,
@@ -15,6 +14,7 @@ import {
   type WriteControlProps as SharedWriteControlProps,
 } from '@/ui/WriteControl'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
+import { TENANT_STATE_OPTIONS } from '@/ui/doh/tenant-state-vocabulary'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
 import { screenState, type ScreenStateId } from '@/ui/screen-state'
@@ -691,7 +691,7 @@ export function LocationConfigurationScreen() {
             label="Tenant state (scenario)"
             value={tenantState}
             onChange={(v) => setTenantState(v as TenantState)}
-            options={TENANT_STATES.map((s) => ({ value: s, label: s }))}
+            options={TENANT_STATE_OPTIONS}
           />
           <Select
             label="Connection"

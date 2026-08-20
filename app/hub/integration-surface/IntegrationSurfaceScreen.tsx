@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
+import { TENANT_STATE_OPTIONS } from '@/ui/doh/tenant-state-vocabulary'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import {
   Banner,
@@ -82,8 +83,6 @@ import {
  * same transaction.
  */
 const MODULE = dohModuleById('MOD-DOH-12')
-
-const TENANT_STATE_OPTIONS = TENANT_STATES.map((s) => ({ value: s, label: s }))
 
 const SCREEN_STATE_OPTIONS = APPLICABLE_SCREEN_STATES.map((id) => ({
   value: id,
