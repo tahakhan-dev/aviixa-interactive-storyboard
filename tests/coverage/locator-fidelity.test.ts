@@ -497,11 +497,31 @@ const MAX_GAP = 6
  * rule …`, where the quotation belongs to the decision record named in the
  * same object's `locator` field and the citation belongs to the criterion that
  * follows. Binding rightwards through a label reported that correct citation
- * as a defect. Measured before choosing: rightwards through a label binds
- * six more quotations across the whole tree, of which five are real defects in
- * `src/` and `app/` and one is that false alarm — so the direction is worth
- * having and is NOT free, and it belongs to a dispatch that can fix what it
- * finds. The five are named in this task's report.
+ * as a defect.
+ *
+ * RE-MEASURED, BECAUSE THE FIGURE HANDED ON WAS WRONG. The previous task
+ * recorded that rightwards-through-a-label "binds six more quotations across
+ * the whole tree, five real defects and one false alarm". Run against this
+ * tree it binds SIXTEEN new findings: five real defects in `src/`/`app/` and
+ * ELEVEN false alarms — ten in `docs/` plus `decisions.ts`. All ten document
+ * lines predate that task byte-identically (`git show 79dc658^`), so the
+ * figure was measured wrong rather than invalidated by its own edits.
+ *
+ * ALL ELEVEN ARE ONE SHAPE, and it is the shape `anchorOf` already rejected
+ * on forty samples in the other direction:
+ *
+ *     **Gate-failure branching (L32044).** *"When a worker fails a gate …"*
+ *     `AC-STU-057` (L32182).
+ *
+ * The quotation's own locator is stated to the LEFT and is blocked from
+ * binding only by the full stop `CONNECTIVE` deliberately refuses; the
+ * citation on the RIGHT is the next clause's criterion. So DIRECTION IS NOT
+ * THE DISCRIMINATOR, and a raw rightwards rule is wrong eleven times in
+ * sixteen — on the form this tree's documents use by convention. It is not
+ * landed, and `does not bind RIGHTWARDS through a label` pins that.
+ *
+ * WHAT IS LANDED IS THE HALF THAT CANNOT BE WRONG. See `looseQuote` and
+ * `looseIsAbsent`.
  */
 const LABELLED = /^[\s—–\-:,*()[\]·`'"]*[A-Z]{2,4}(?:-[A-Z0-9.]+)+[\s—–\-:,*()[\]·`'"]*$/
 const LABEL_GAP = 30
@@ -513,6 +533,61 @@ const LABEL_GAP = 30
 const bindsLabelled = (gap: string): boolean =>
   (gap.length <= MAX_GAP && CONNECTIVE.test(gap)) ||
   (gap.length <= LABEL_GAP && LABELLED.test(gap))
+
+/**
+ * THE ONE VERDICT A RIGHTWARDS LABEL BINDING MAY REACH, AND WHY IT CANNOT
+ * PRODUCE A FALSE ALARM.
+ *
+ * A quotation that binds to nothing under `bindsLabelled` leftwards, and to
+ * nothing rightwards under `CONNECTIVE`, but WOULD bind rightwards through a
+ * label, is recorded as `looseQuote` and graded for ABSENCE ALONE: reported
+ * only when the quoted words appear NOWHERE in the 122,241 lines of the frozen
+ * source. Never `mislocated`, never counted as strong, never within `WINDOW`.
+ *
+ * This is not a compromise between the two readings, it is the part of the
+ * claim that both readings agree on. In the co-citation form the quotation is
+ * a genuine quotation of the source — that is why someone put it in quotation
+ * marks — so it is found, and nothing is reported. It is only when the words
+ * are in NO line of the source that the sentence is wrong on every reading of
+ * it: there is no other locator the quotation could have belonged to, so which
+ * citation it binds to stops mattering. DIRECTION BECOMES IRRELEVANT TO
+ * CORRECTNESS, which is exactly what the sixteen-finding measurement above
+ * could not say about `mislocated`.
+ *
+ * Asserted rather than argued: every one of the eleven false alarms grades
+ * `mislocated` and not one grades `absent`, and `accepts a rightwards label
+ * binding whose words the source really carries` plants that shape and watches
+ * it pass while the absent one fails.
+ *
+ * WHAT THIS DELIBERATELY DOES NOT COVER. Two of the five defects it was
+ * measured against — `learning.ts` quoting a platform invariant at
+ * `FB-STU-10`'s row, and `access-classes.ts` quoting L9685's sentence at
+ * `AC-SA-005` — are `mislocated`, and nothing here catches the next one of
+ * those. The words exist elsewhere in the source, so the sentence is
+ * indistinguishable from a co-citation without reading it. The covering
+ * convention, not a gate: write the locator on the LEFT of the words it
+ * carries, which `binds leftwards through the label` already grades in full.
+ *
+ * ONE JOINED HAYSTACK PER SOURCE, NOT ONE SCAN PER CITATION. Absence is the
+ * only question here, so the whole file can be one string; joined on the
+ * newline the lines were split at, a quotation that carries no newline still
+ * cannot match across two of them, which is the same span the per-line check
+ * allows. Written as a rescan first: nineteen citations by 122,241 lines is
+ * over a gigabyte of comparison at module load, and it pushed a five-second
+ * timeout in `slice-05-gates.test.ts` over the edge on roughly half of runs
+ * -- this project runs its files sequentially in one worker, so a cost here
+ * is a cost there. Measured against a clean baseline rather than assumed:
+ * four release runs green before, four with two failures after.
+ */
+const haystacks = new WeakMap<readonly string[], string>()
+const looseIsAbsent = (words: string, source: readonly string[]): boolean => {
+  let hay = haystacks.get(source)
+  if (hay === undefined) {
+    hay = source.join('\n')
+    haystacks.set(source, hay)
+  }
+  return !hay.includes(words)
+}
 
 /** Shortest quotation treated as a verbatim claim rather than a coined label. */
 const MIN_QUOTE = 30
@@ -545,6 +620,12 @@ export interface Citation {
   readonly end: number
   /** Present only when a verbatim quotation is bound to this citation. */
   readonly quote?: string
+  /**
+   * A quotation that binds to this citation ONLY RIGHTWARDS THROUGH A LABEL —
+   * `"<quote>" \`<ID>\` (<line>)` — and so is graded for ABSENCE ALONE. See
+   * `looseIsAbsent` for the measurement that decided that.
+   */
+  readonly looseQuote?: string
   /**
    * Every span in the run this citation belongs to, itself included. A bound
    * quotation is satisfied by any of them -- see `RUN_JOIN`.
@@ -646,6 +727,7 @@ export function citationsIn(
     return !(previous === '/' && next === '/')
   })
   const bound = new Map<number, string>()
+  const loose = new Map<number, string>()
   for (const quote of buffer.matchAll(QUOTED)) {
     const opens = quote.index
     const closes = quote.index + quote[0].length
@@ -660,13 +742,19 @@ export function citationsIn(
         m.index - closes <= MAX_GAP &&
         CONNECTIVE.test(buffer.slice(closes, m.index)),
     )
+    // LAST, and only when nothing above bound: the citation that FOLLOWS the
+    // quotation through a label. Graded for absence alone -- `looseIsAbsent`.
+    const target =
+      cite ??
+      found.find((m) => m.index >= closes && bindsLabelled(buffer.slice(closes, m.index)))
+    const into = cite === undefined ? loose : bound
     const inner = quote[1]
-    if (cite === undefined || inner === undefined || bound.has(cite.index)) continue
+    if (target === undefined || inner === undefined || into.has(target.index)) continue
     // Tested BEFORE coring: coring strips the delimiters these look for.
     if (inner.includes('${') || /\.\.\.|…/.test(inner)) continue
     const claim = quoteCore(inner)
     if (claim.length < MIN_QUOTE) continue
-    bound.set(cite.index, claim)
+    into.set(target.index, claim)
   }
   const spanOf = (m: RegExpExecArray | RegExpMatchArray): readonly [number, number] => {
     const start = Number(m[1])
@@ -743,6 +831,7 @@ export function citationsIn(
   return found.map((m, index) => {
     const [start, end] = spanOf(m)
     const quote = bound.get(m.index)
+    const looseQuote = loose.get(m.index)
     const anchor = anchorOf(m)
     // Sentence-scoped and locator-named: the marker must sit in the same
     // sentence AND name this citation's own line. A marker one sentence away,
@@ -764,6 +853,9 @@ export function citationsIn(
       // reason a quotation is -- `SB-SA-10 (<line>, <line>)` cited both.
       group: runOf(index),
       ...(quote === undefined ? {} : { quote }),
+      // Never both: a real binding always outranks a loose one, so a citation
+      // that carries `quote` is graded in full and never for absence alone.
+      ...(quote !== undefined || looseQuote === undefined ? {} : { looseQuote }),
       ...(anchor === undefined ? {} : { anchor }),
     }
   })
@@ -859,7 +951,13 @@ export function checkCitation(
   // the sentence that tells the reader what to change.
   const anchored = anchorVerdict(citation, identifiers)
   if (anchored !== null) return anchored
-  if (quote === undefined) return null
+  if (quote === undefined) {
+    // ABSENCE ALONE, and no `WINDOW`: a loose binding cannot say WHERE the
+    // words belong, only that the source has them nowhere. See `looseIsAbsent`.
+    const { looseQuote } = citation
+    if (looseQuote === undefined) return null
+    return looseIsAbsent(looseQuote, source) ? { kind: 'absent' } : null
+  }
   for (const [lo, hi] of citation.group ?? [[start, end]]) {
     const from = Math.max(0, lo - 1 - WINDOW)
     const to = Math.min(source.length, hi + WINDOW)
@@ -880,7 +978,10 @@ const describeOffender = (c: Citation, v: Verdict): string =>
         .slice(0, 6)
         .join(', ')}${v.at.length > 6 ? ' …' : ''}`
     : '') +
-  (c.quote === undefined ? '' : ` — "${c.quote.slice(0, 90)}"`)
+  ((c.quote ?? c.looseQuote) === undefined
+    ? ''
+    : ` — "${(c.quote ?? (c.looseQuote as string)).slice(0, 90)}"` +
+      (c.quote === undefined ? ' [citation follows the quotation]' : ''))
 
 /* ── extraction coinage ────────────────────────────────────────────────── */
 
@@ -966,7 +1067,18 @@ export function buildCoinage(chunks: readonly { name: string; body: unknown }[])
         // `id` is a label, never prose, and every identifier in the vocabulary
         // would otherwise read as an extraction string.
         if (field === 'id' || typeof value !== 'string') continue
-        const words = normalise(value)
+        // `quoteCore` AND NOT `normalise`, KEYED THE SAME WAY THE LOOKUP IS.
+        // An extraction `statement` ends in a full stop and a quotation of it
+        // does not -- the stop sits outside the closing quotation mark. Keyed
+        // on `normalise` the map held "...and logged." and the lookup asked
+        // for "...and logged", so an exact-map miss hid every quotation of an
+        // extraction SENTENCE. It hid a real one:
+        // `tenant-configuration-registry/fixtures.ts` quoted
+        // `CHK-014.json AC-SA-19-03.statement L46318` verbatim, gloss and all,
+        // and this checker -- the checker that exists for exactly that -- said
+        // nothing. Stripping the wrapper on both sides is what `quoteCore` is
+        // for, and it costs zero new findings across the tree.
+        const words = quoteCore(value)
         if (words.length < MIN_QUOTE || coined.has(words)) continue
         coined.set(words, `${chunk} ${String(entry.id ?? 'unnumbered')}.${field} L${entry.line}`)
       }
@@ -989,7 +1101,8 @@ export function coinageIn(
   for (const match of buffer.matchAll(QUOTED)) {
     const inner = match[1]
     if (inner === undefined) continue
-    const words = normalise(inner)
+    // Keyed identically to `buildCoinage`, which is the whole of the fix.
+    const words = quoteCore(inner)
     const from = coined.get(words)
     if (from === undefined) continue
     if (source.some((line) => line.includes(words))) continue
@@ -1088,6 +1201,13 @@ const coinage = files.flatMap((file) =>
 )
 
 const strongByQuote = citations.filter((c) => c.quote !== undefined)
+/**
+ * Counted APART from `strongByQuote` and deliberately not added to it. These
+ * are checked for absence and for nothing else, so calling them strong would
+ * be the overclaim this file exists to prevent -- they stay in the weak
+ * remainder and are printed on their own line.
+ */
+const looselyQuoted = citations.filter((c) => c.looseQuote !== undefined)
 const anchoredAll = citations.filter((c) => c.anchor !== undefined)
 const anchoredUnproven = anchoredAll.filter((c) => {
   if (c.quote !== undefined) return false
@@ -1135,6 +1255,18 @@ describe('locator fidelity: the scan is not vacuous', () => {
     // narrows the binding rules until it empties, this gate becomes the weak
     // check wearing the strong check's name, and that must be a failure.
     expect(strongByQuote.length).toBeGreaterThan(250)
+  })
+
+  it('binds the loose, absence-only quotations to real citations in this tree', () => {
+    // The absence check runs over `looseQuote` and nothing else, so a binder
+    // that stopped producing any would leave a green run with nothing scanned
+    // -- the shape this file has already shipped once, in the lexer. Sixteen
+    // were measured when the rule landed; the floor is set below that so a
+    // fixed defect does not fail the gate, and above zero so an empty binder
+    // does.
+    expect(looselyQuoted.length).toBeGreaterThan(8)
+    // And they are not quietly counted as proven.
+    expect(looselyQuoted.some((c) => strongByQuote.includes(c))).toBe(false)
   })
 
   it('reads the identifier vocabulary and finds it in the frozen source', () => {
@@ -1187,6 +1319,7 @@ describe('locator fidelity: the scan is not vacuous', () => {
     console.error(
       `\n[locator-fidelity] ${citations.length} citations in ${new Set(citations.map((c) => c.file)).size} files` +
         `\n  strong, verbatim quotation   ${strongByQuote.length}` +
+        `\n  loose, absence checked only  ${looselyQuoted.length}` +
         `\n  strong, identifier anchor    ${strongByAnchor.length}` +
         `\n  anchored but unproven (weak) ${anchoredUnproven.length}` +
         `\n  weak, plausibility only      ${citations.length - stronglyChecked}`,
@@ -1496,6 +1629,7 @@ describe('locator fidelity: the identifier anchor reports planted defects', () =
 
 describe('locator fidelity: the coinage checker reports planted defects', () => {
   const COINED_WORDS = 'admin drafts the grant and the root approves and issues it'
+  const COINED_SENTENCE = 'a looser-than-floor value is rejected at entry with the bound stated'
   const SOURCE_WORDS = 'a grant is drafted specifying scope by named modules'
   const chunks = [
     {
@@ -1504,6 +1638,10 @@ describe('locator fidelity: the coinage checker reports planted defects', () => 
         workflows: [
           { id: 'WF-ZZ-01', primary_actor: COINED_WORDS, name: SOURCE_WORDS, line: 3 },
         ],
+        // A SENTENCE, terminated the way every extraction `statement` is. A
+        // quotation of it drops that full stop, and keying the map on
+        // `normalise` made the two strings unequal -- see `buildCoinage`.
+        criteria: [{ id: 'AC-ZZ-01', statement: `${COINED_SENTENCE}.`, line: 3 }],
         // No `line`, so nothing here is an extraction claim about a line.
         notes: [{ id: 'N1', text: 'a note the extractor wrote with no line at all' }],
       },
@@ -1526,6 +1664,30 @@ describe('locator fidelity: the coinage checker reports planted defects', () => 
   it('reports extraction wording offered as a frozen-source quotation', () => {
     expect(found(`/** Workflow 23.16 (${cite(3)}) agrees — "${COINED_WORDS}". */`)).toEqual([
       normalise(COINED_WORDS),
+    ])
+  })
+
+  it('reports an extraction SENTENCE quoted without its terminal full stop', () => {
+    // THE HOLE THAT HID A SHIPPED DEFECT. The extraction writes the statement
+    // with its full stop; every quotation of it leaves the stop outside the
+    // closing mark. Keyed on `normalise` this was an exact-map miss and the
+    // checker reported nothing at all.
+    expect(coined.has(quoteCore(`${COINED_SENTENCE}.`))).toBe(true)
+    expect(found(`/** AC-ZZ-01 (${cite(3)}) states "${COINED_SENTENCE}". */`)).toEqual([
+      quoteCore(COINED_SENTENCE),
+    ])
+  })
+
+  it('reports it with the full stop written INSIDE the quotation marks too', () => {
+    // The mirror of the case above, and the half of the fix the other fixture
+    // could not exercise: `persistence/coordinator.ts` writes
+    // `"an action that cannot be audited does not happen."` with the stop
+    // inside. Now the LOOKUP carries the wrapper the map key does not, and it
+    // is the same exact-map miss the other way round. Both sides are keyed
+    // through `quoteCore` for this reason, and each side has a fixture that
+    // fails when only that side is reverted.
+    expect(found(`/** AC-ZZ-01 (${cite(3)}) states "${COINED_SENTENCE}." */`)).toEqual([
+      quoteCore(COINED_SENTENCE),
     ])
   })
 
@@ -1726,6 +1888,51 @@ describe('locator fidelity: a quotation binds through the identifier it labels',
     expect(
       citationsIn('probe.md', `*"${CLAIM}"* \`AC-ZZ-005\` (${cite(3)}) requires it`)[0]?.quote,
     ).toBeUndefined()
+  })
+
+  /**
+   * The three that decide the direction question, and they are one fixture
+   * seen from both sides: the SAME rightwards shape is reported when the words
+   * are nowhere in the source and accepted when they are somewhere in it.
+   * Nothing here is derived from the field under test -- `src` is the fake
+   * source, and whether it carries `CLAIM` is the only thing that moves.
+   */
+  it('reports a rightwards-labelled quotation the source has nowhere', () => {
+    const absent = 'the only state that makes this deadlock visible to a tenant'
+    const c = citationsIn('probe.ts', `*"${absent}"* \`AC-ZZ-005\` (${cite(3)})`)[0] as Citation
+    expect(c.quote).toBeUndefined()
+    expect(c.looseQuote).toBe(absent)
+    expect(checkCitation(c, src, src)).toEqual({ kind: 'absent' })
+  })
+
+  it('accepts a rightwards-labelled quotation whose words the source carries elsewhere', () => {
+    // THE ELEVEN FALSE ALARMS, IN ONE CASE. `CLAIM` is at line 3 of `src` and
+    // the citation names line 1, so a rightwards rule graded on `mislocated`
+    // reports this -- and it is the co-citation form, where the quotation's
+    // own locator is the one stated earlier in the sentence.
+    const c = citationsIn('probe.md', `*"${CLAIM}"* \`AC-ZZ-005\` (${cite(1)})`)[0] as Citation
+    expect(c.looseQuote).toBe(CLAIM)
+    expect(checkCitation(c, src, src)).toBeNull()
+  })
+
+  it('prefers a real binding over a loose one, so a bound quotation is graded in full', () => {
+    // ONE citation offered BOTH candidates, because a fixture with only a
+    // leftwards one asserts `looseQuote === undefined` against a binder that
+    // was never going to set it -- an expectation derived from nothing. Here
+    // `OTHER` precedes the citation and can only bind loosely, `CLAIM` follows
+    // it and binds properly, and the precedence guard is what keeps the loose
+    // reading from shadowing the graded one. Graded against a source long
+    // enough that `WINDOW` cannot reach the words, so `mislocated` is the
+    // binding's doing and not the slack's.
+    const OTHER = 'a second sentence long enough to be read as a verbatim claim'
+    const far = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', `- ${CLAIM}.`].map(normalise)
+    const c = citationsIn(
+      'probe.md',
+      `*"${OTHER}"* \`AC-ZZ-005\` (${cite(1)}): *"${CLAIM}"*`,
+    )[0] as Citation
+    expect(c.quote).toBe(CLAIM)
+    expect(c.looseQuote).toBeUndefined()
+    expect(checkCitation(c, far, far)).toEqual({ kind: 'mislocated', foundAt: [6] })
   })
 
   it('holds a plain punctuation gap to the six characters it was measured at', () => {

@@ -406,8 +406,13 @@ export function checkChainStaffable(
  * from the staffing the caller holds now means it cannot drift from the truth.
  *
  * It is a flag and not a state: the enumeration stays at L33289's five. It
- * exists because it is "the only state that makes DEC-RELAUTH-001's deadlock
- * visible to a tenant" (`SEQ-012` L68307).
+ * exists because the source names the state rather than leaving it implicit,
+ * L68315: "Stalled is a named state rather than an implicit delay, so a
+ * tenant can see that its own staffing is what is holding publication". The
+ * transition it names is L68307. What it makes visible is the staffing
+ * shortfall of `DEC-RELAUTH-001` (L33255): "The Workflow stalls and the floor
+ * keeps running on the prior version, which is safe but is also a silent
+ * operational deadlock".
  */
 export function chainStalled(
   chain: ApprovalChain,

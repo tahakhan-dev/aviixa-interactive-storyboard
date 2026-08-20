@@ -1,7 +1,8 @@
 /**
  * The three named access classes — the only route to tenant content
- * (frozen source L4612, L14777). "No ambient browsing exists anywhere on
- * the console" (`AC-SA-005`, L11710).
+ * (frozen source L4612, L14777). The platform rule, L9685: "no ambient
+ * browsing exists anywhere on the console". Record-level, `AC-SA-005`
+ * (L11710): "no ambient browsing path exists".
  */
 export type SaAccessClassId =
   | 'normal-support-session'

@@ -8,9 +8,9 @@ import { saTenant } from '@/surfaces/sa/tenants'
  * rule).
  *
  * The binding constraint on this file is spec §6 and census risk R5. A
- * Worker-Shift is a BILLING UNIT — "one worker attached to work in one
- * calendar shift meters exactly one Worker-Shift regardless of run count"
- * (`AC-GOAL-060`, L2241). Every figure here is therefore a COUNT for one
+ * Worker-Shift is a BILLING UNIT — `AC-GOAL-060` (L2241): "a worker attached
+ * to work in one calendar shift meters exactly one Worker-Shift regardless of
+ * run count". Every figure here is therefore a COUNT for one
  * tenant in one calendar month. There is no per-worker row, no per-site or
  * per-shift row, no rate and no comparison between people in this file,
  * and none can be derived from what it carries: the counts are stored

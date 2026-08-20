@@ -182,9 +182,10 @@ function detailOf(act: LearningAct): string {
 
 /**
  * **THE ONE WRITE PATH FOR EVERY ACT THIS MODULE OWNS.** The audit entry is
- * written FIRST and the act is refused outright where it cannot be written:
- * *"an action that cannot be audited does not happen"* (`FB-STU-10`,
- * L31454).
+ * written FIRST and the act is refused outright where it cannot be written —
+ * `FB-STU-10` (L31220): *"an action that cannot be audited does not happen"*,
+ * and the contract's own row, L31454: *"Action does not happen; state
+ * unchanged; user told the action was not performed"*.
  *
  * There is no act here that changes a configured operating value. That is
  * the module's whole contract, held by there being no member of `LearningAct`

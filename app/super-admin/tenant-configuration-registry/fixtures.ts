@@ -9,11 +9,12 @@ import type { RoleId } from '@/domain/roles'
  * `Date.now()`.
  *
  * The one thing this module must get right is the REJECTION, because the
- * source is unusually precise about it: "a looser-than-floor value is
- * rejected at the point of entry with the bound stated and is not stored —
- * never accepted and logged" (AC-SA-19-03, L46318). The register rejects; it
- * does not log (L44568). That is a different sentence from "the refusal is
- * not recorded" — FB-FLOOR-001 (L12917) and FB-TA-001 (L11815) both state
+ * source is unusually precise about it — `AC-SA-19-03` (L46318): "a
+ * looser-than-floor value is rejected at the point of entry with the bound
+ * stated and is not stored". Rejected at entry, so never accepted and then
+ * logged as a setting: the register rejects; it does not log (L44568). That
+ * is a different sentence from "the refusal is not recorded" —
+ * FB-FLOOR-001 (L12917) and FB-TA-001 (L11815) both state
  * that refused attempts ARE recorded. What is never recorded is the value as
  * a setting. Both are rendered, because collapsing them loses the design.
  */
