@@ -65,11 +65,56 @@ function hasPolicyValueImport(strippedSrc: string): boolean {
 const STRIPPED = new Map(SRC.map((f) => [f, stripComments(readFileSync(f, 'utf8'))]))
 
 describe('contract gates', () => {
-  // Frozen source, L10238: a blank permission-matrix cell is prohibited,
-  // "because a blank cell is an unanswered question that an implementer
-  // will answer privately and inconsistently."
+  /**
+   * Frozen source, L10238: a blank permission-matrix cell is prohibited,
+   * "because a blank cell is an unanswered question that an implementer
+   * will answer privately and inconsistently."
+   *
+   * This used to scan EVERY file under src/ for `outcome:` taking a null, and
+   * it held for four slices only because one concept owned that field name.
+   * Slice 5 introduced a second, unrelated one: a domain refusal reports
+   * `outcome: null` precisely BECAUSE it did not come out of the evaluator,
+   * and reporting it under a borrowed access outcome would be a lie. So the
+   * old gate flagged the honest field and would have pushed someone to fake an
+   * outcome to silence it -- the gate arguing for the defect it exists to
+   * prevent.
+   *
+   * The scope is now derived from the declaration rather than assumed from a
+   * word: a matrix file is one that declares a matrix-cell type or a keyed
+   * `cells` record. That set is asserted below, so a matrix living somewhere
+   * new cannot escape the gate by being somewhere new.
+   */
+  const declaresMatrix = (src: string): boolean =>
+    /\b\w*MatrixCell\b/.test(src) || /\bcells:\s*Readonly<Record</.test(src)
+  const MATRIX_FILES = SRC.filter((f) => declaresMatrix(STRIPPED.get(f)!))
+
+  it('finds every file that declares a permission matrix', () => {
+    // RED when: a module ships a matrix the gate below never reads. The count
+    // is derived and then asserted, rather than a list anyone maintains by
+    // hand -- the same shape the generated registries use.
+    const studioMatrices = MATRIX_FILES.filter((f) => /modules\/stu-\d+\/matrix\.ts$/.test(f))
+    expect(studioMatrices.length, `studio matrices found: ${studioMatrices.join(', ')}`).toBe(18)
+    expect(MATRIX_FILES.length, 'every matrix file').toBeGreaterThanOrEqual(studioMatrices.length)
+  })
+
   it('declares no permission matrix cell as empty, null or undefined', () => {
-    const offenders = SRC.filter((f) => /outcome:\s*(null|undefined|''|"")/.test(STRIPPED.get(f)!))
+    const offenders = MATRIX_FILES.filter((f) => /outcome:\s*(null|undefined|''|"")/.test(STRIPPED.get(f)!))
+    expect(offenders).toEqual([])
+  })
+
+  it('admits no matrix-cell type whose outcome could be empty', () => {
+    // The literal check above catches a blank cell that was written. This
+    // catches the TYPE that would let someone write one -- an optional field
+    // or a union with null/undefined -- which is the version that survives a
+    // review because no blank cell exists yet.
+    const offenders: string[] = []
+    for (const f of MATRIX_FILES) {
+      for (const m of STRIPPED.get(f)!.matchAll(/\boutcome(\??):\s*([^\n]+)/g)) {
+        const optional = m[1] === '?'
+        const declared = m[2] ?? ''
+        if (optional || /\b(null|undefined)\b/.test(declared)) offenders.push(`${f}: ${m[0]?.trim()}`)
+      }
+    }
     expect(offenders).toEqual([])
   })
 
