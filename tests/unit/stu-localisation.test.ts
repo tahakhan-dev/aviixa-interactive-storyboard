@@ -1,6 +1,9 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
+import { LocalisationScreen } from '../../app/studio/localisation/LocalisationScreen'
 import { reachByStudioMatrix, STU_PERSONAS } from '@/studio/modules'
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
 import { studioDecision } from '@/studio/disclosure/decisions'
@@ -24,7 +27,6 @@ import {
   ELEMENT_LOCALE_STATES,
   OBJ_STU_LOCALE_GAP,
   PERMANENT_LINE,
-  PER_LOCALE_BLOCKING,
   WHEEL_BOLT_LOCALISATION,
   WORKER_FACING_ELEMENT_KINDS,
   WORKFLOW_LOCALE_STATES,
@@ -541,24 +543,61 @@ describe('D11 — OBJ-STU-LOCALE has no numeric counterpart', () => {
  * The Derived Clarification at L34361 — BOTH readings render.
  * ==================================================================== */
 
-describe('the per-locale reading is disclosed, never presented as settled', () => {
-  it('holds both readings with their own locators', () => {
-    expect(PER_LOCALE_BLOCKING.readings.map((r) => r.locator)).toEqual(['L34361', 'L34361'])
-    expect(PER_LOCALE_BLOCKING.readings[0]?.text).toMatch(/publishes in English and is blocked in Spanish/)
-    expect(PER_LOCALE_BLOCKING.readings[1]?.text).toMatch(/any incompleteness blocks the whole publication/)
-    expect(PER_LOCALE_BLOCKING.readings.length).toBe(2)
+describe('the per-locale reading is disclosed from the canon, never presented as settled', () => {
+  // FAILS IF: the canonical record loses a reading, a reading loses its own
+  // locator, or a reading gains a field in which it could be marked the answer.
+  it('holds both readings with their own locators, and neither is the answer', () => {
+    const record = studioDecision('D29')
+    // The source states this conflict at L34361 and never gives it a `DEC-*`
+    // identifier, so the record says so rather than inventing one.
+    expect(record.decisionRef).toBeNull()
+    expect(record.alias).toBeNull()
+    expect(record.readings).toHaveLength(2)
+    for (const r of record.readings) expect(r.locator).toContain('L34361')
+    expect(record.readings[0]?.text).toMatch(/publishes in English and is blocked in Spanish/)
+    expect(record.readings[1]?.text).toMatch(/any incompleteness blocks the whole publication/)
+    for (const r of record.readings) expect(Object.keys(r).sort()).toEqual(['locator', 'text'])
+    // The position, and the cost of it, live only in `adopted`.
+    expect(record.adopted).toMatch(/per-locale/i)
+    expect(record.adopted).toMatch(/Derived Clarification/)
+    expect(record.adopted).toMatch(/partially localised improvement impossible to ship/)
   })
 
-  it('gives no reading a field in which it could be marked the answer', () => {
-    for (const reading of PER_LOCALE_BLOCKING.readings) {
-      expect(Object.keys(reading).sort()).toEqual(['locator', 'text'])
-    }
+  // THE HALF THAT MATTERS. FAILS IF: `MOD-STU-17` mints its own copy of the
+  // decision again, under ANY name -- two wordings of one decision is how one
+  // of them quietly stops mentioning the alternative. Not keyed on the old
+  // export's name, because a re-mint would simply be called something else.
+  // Proven able to fail by planting `PER_LOCALE_BLOCKING` back: see the task
+  // report.
+  it('keeps no local copy of the decision anywhere in the module', () => {
+    const localCopies = Object.entries(localesModule)
+      .filter(([, value]) => Array.isArray((value as { readings?: unknown } | null)?.readings))
+      .map(([name]) => name)
+    expect(localCopies).toEqual([])
+    // A positive control, so the assertion above cannot pass on an empty scan:
+    // the module really is loaded and really does export its seeds.
+    expect(Object.keys(localesModule)).toContain('WHEEL_BOLT_LOCALISATION')
   })
 
-  it('states the cost of the position it took', () => {
-    expect(PER_LOCALE_BLOCKING.adopted).toMatch(/per-locale/i)
-    expect(PER_LOCALE_BLOCKING.cost.length).toBeGreaterThan(0)
-    expect(PER_LOCALE_BLOCKING.sourceClass).toBe('Derived Clarification')
+  // FAILS IF: the screen goes back to wording the decision itself, or renders
+  // the canonical record without its alternative. Every assertion is read OFF
+  // THE RECORD, so a rewording follows instead of going stale.
+  it('renders the canonical record on the screen, both readings and the label', () => {
+    const record = studioDecision('D29')
+    const html = renderToStaticMarkup(createElement(LocalisationScreen))
+    expect(html).toContain(record.question)
+    for (const r of record.readings) expect(html).toContain(r.text)
+    expect(html).toContain(record.adopted)
+    expect(html).toContain('client-delegated choice')
+    expect(html).toContain('APP-012')
+    // AND NO SECOND WORDING: the screen must not hand-render the tension.
+    const screen = readFileSync(
+      join(APP_DIR, 'studio', 'localisation', 'LocalisationScreen.tsx'),
+      'utf8',
+    )
+    expect(screen).toContain('<DecisionDisclosure id="D29" />')
+    expect(screen).not.toContain('per-locale-disclosure')
+    expect(screen).not.toContain('Both readings stand')
   })
 })
 

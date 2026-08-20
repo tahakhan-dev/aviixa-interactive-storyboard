@@ -278,8 +278,8 @@ describe('D21 -- the three states modelled as flags, each attached where the sou
   })
 })
 
-describe('the twenty-eight decision records', () => {
-  it('holds exactly twenty-eight, D1 through D28, in order', () => {
+describe('the twenty-nine decision records', () => {
+  it('holds exactly twenty-nine, D1 through D29, in order', () => {
     expect(STUDIO_DECISION_IDS).toEqual([
       'D1',
       'D2',
@@ -309,8 +309,9 @@ describe('the twenty-eight decision records', () => {
       'D26',
       'D27',
       'D28',
+      'D29',
     ])
-    expect(STUDIO_DECISIONS).toHaveLength(28)
+    expect(STUDIO_DECISIONS).toHaveLength(29)
   })
 
   /**

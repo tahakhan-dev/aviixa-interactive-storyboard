@@ -1,9 +1,10 @@
 /**
- * Slice 5, task 3 -- the `SURF-STU` decision canon: the twenty-four of design
- * section 3 and census section 7, plus `D25`-`D28`, the four source `DEC-*`
- * cards that modules had been disclosing locally until the canon carried them.
- * Every record carries **all** of its source readings, each with its own
- * locator.
+ * Slice 5, task 3 -- the `SURF-STU` decision canon: **twenty-nine records**.
+ * The twenty-four of design section 3 and census section 7, plus `D25`-`D28`,
+ * the four source `DEC-*` cards that modules had been disclosing locally until
+ * the canon carried them, plus `D29`, `MOD-STU-17`'s L34361 tension, which was
+ * the last such local copy. Every record carries **all** of its source
+ * readings, each with its own locator.
  *
  * The rule this file exists to enforce, from `APP-012`: the client delegated
  * the decision, not the pretence that the source settled it. So a record holds
@@ -48,6 +49,7 @@ export type StudioDecisionId =
   | 'D26'
   | 'D27'
   | 'D28'
+  | 'D29'
 
 /**
  * One reading of the source, and where it is. **Exactly two fields.** There is
@@ -672,12 +674,34 @@ export const STUDIO_DECISIONS = [
       'Option (a), the card’s own recommendation — “because the platform’s only irreversible act is worker personal-data anonymisation and adding a second irreversible act to a content operation is disproportionate”. MOD-STU-12 owns it: un-archival requires an audited reason and refuses without one, and the restored state is DERIVED, so an un-archived version never claims to be in force while a newer one exists. MOD-STU-03’s Library draws no un-archive control, because archival is a per-VERSION act and none of the nine matrix rows governing that screen names archival; the state machine there carries the statement instead (L31974). Why it matters: a tenant that archives the wrong version has no stated remedy, and the platform’s no-purge data model means the content certainly still exists. Decision owner, L33443: the client’s quality lead.',
     pins: [],
   },
+  {
+    id: 'D29',
+    decisionRef: null,
+    alias: null,
+    question:
+      'Does an incomplete locale block publication in that locale only, or does any incompleteness block the whole publication?',
+    readings: [
+      {
+        text:
+          'Per-locale. “The blocking rule is per-locale, not per-Workflow. A Workflow declaring English and Spanish whose Spanish coaching default is missing publishes in English and is blocked in Spanish, with the specific missing element named.” `FUNC-STU-17-03-A-2` states the same as a functionality: “Block publication in the incomplete locale only, naming each missing element, and permit publication in complete locales.”',
+        locator: 'L34361 · FUNC-STU-17-03-A-2 L34410',
+      },
+      {
+        text:
+          'Whole-publication. The same sentence records the alternative in its own words, and rejects it in its own words: “the alternative reading, that any incompleteness blocks the whole publication, would make a partially localised improvement impossible to ship and is rejected for that reason.” The rejection is the source’s, not this build’s, and it is carried here as the source’s sentence rather than restated as a ruling.',
+        locator: 'L34361',
+      },
+    ],
+    adopted:
+      'The per-locale reading. The Statement-of-Work sentence it reads is “an incomplete locale blocks publication in that locale” (L34359), and L34410 states the per-locale scope a second time as `FUNC-STU-17-03-A-2`. The source itself classes that scope a `Derived Clarification` rather than a `SoW Fact` (L34410, L34498), which is exactly why it renders as a reading here and never as a settled rule. MOD-STU-17 implements it: English publishes while Spanish is blocked and the missing element is named, and where the completeness check cannot run every declared locale is blocked, failing closed (`FUNC-STU-17-03-A-1` L34409, `AC-STU-149` L34487). The cost is stated rather than hidden: a version can reach the floor in one language while the other is still blocked, so a mixed-language site may run English screens for Spanish-speaking workers unless the Release Authority holds the release — which is what the card’s own example has Elena do (L34449). The whole-publication reading removes that risk and pays for it in the source’s own words: it would make a partially localised improvement impossible to ship.',
+    pins: [],
+  },
 ] as const satisfies readonly StudioDecision[]
 
 /**
  * The ids as a closed set in their own right, with the same real
  * exhaustiveness check every vocabulary in `@/studio/vocab` carries: adding a
- * twenty-ninth id to the union without listing it here stops `Exclude`
+ * thirtieth id to the union without listing it here stops `Exclude`
  * resolving to `never` and fails the type-check.
  *
  * It is declared as its own literal list rather than mapped off
@@ -713,6 +737,7 @@ export const STUDIO_DECISION_IDS = [
   'D26',
   'D27',
   'D28',
+  'D29',
 ] as const satisfies readonly StudioDecisionId[]
 
 const _decisionIdsExhaustive: Exclude<StudioDecisionId, (typeof STUDIO_DECISION_IDS)[number]> extends never ? true : never = true

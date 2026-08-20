@@ -1,4 +1,4 @@
-import type { DecisionReading, StudioDecisionId } from '@/studio/disclosure/decisions'
+import type { StudioDecisionId } from '@/studio/disclosure/decisions'
 import { STU_MODULES, stuModuleById, type StudioModuleId } from '@/studio/modules'
 import type { PublishCheckImplementation, PublishCheckVerdict } from '@/studio/publish/register'
 import { LOCALES, type Locale } from '@/studio/vocab'
@@ -16,7 +16,8 @@ import { LOCALES, type Locale } from '@/studio/vocab'
  *    `FUNC-STU-17-03-A-2` (L34410) states the same as a functionality:
  *    "Block publication in the incomplete locale only, naming each missing
  *    element, and permit publication in complete locales." Both readings of
- *    that sentence render — see `PER_LOCALE_BLOCKING`.
+ *    that sentence render, from the shared canon: `D29` in
+ *    `@/studio/disclosure/decisions`. This module holds NO copy of it.
  *
  * 2. **THE CHECK FAILS CLOSED.** `FUNC-STU-17-03-A-1` (L34409): "where the
  *    check itself cannot run, publication is blocked, failing closed, because
@@ -572,68 +573,22 @@ export const WHEEL_BOLT_LOCALISATION: LocalisedWorkflow = {
 }
 
 /* ==================================================================== *
- * THE DERIVED CLARIFICATION AT L34361 — BOTH READINGS.
+ * THE DERIVED CLARIFICATION AT L34361 — IN THE CANON, NOT HERE.
  * ==================================================================== */
 
-export interface Stu17SourceTension {
-  readonly id: string
-  readonly question: string
-  /**
-   * Every reading, each with its own locator. Exactly two fields per reading,
-   * reusing task 3's `DecisionReading` rather than declaring a parallel shape
-   * — a reading with a third field is how a disclosure quietly becomes an
-   * assertion.
-   */
-  readonly readings: readonly DecisionReading[]
-  readonly adopted: string
-  /** What this build's position costs, stated rather than hidden. */
-  readonly cost: string
-  readonly sourceClass: 'Derived Clarification'
-  /** The task-3 decision record that covers this, or `null` where none does. */
-  readonly decision: StudioDecisionId | null
-}
-
 /**
- * L34361's two readings of "blocks publication in that locale".
+ * L34361's two readings of "blocks publication in that locale" used to be
+ * held in this module, in the canon's shape but outside it, because the canon
+ * carried no record for them. It carries one now — `D29` — so the tension
+ * renders through `DecisionDisclosure` like every other decision on this
+ * surface, and this module states no wording of its own.
  *
- * **THIS IS NOT RENDERED THROUGH `DecisionDisclosure`, AND THE REASON IS A
- * DECLARED GAP RATHER THAN A PREFERENCE.** That component takes a
- * `StudioDecisionId`, and task 3's twenty-four records carry no entry for
- * this tension — the nearest, `D11`, is about object naming. Adding a
- * twenty-fifth record is an edit to `src/studio/disclosure/decisions.ts`,
- * which this task does not own, so the record is held here in the same shape
- * (`readings` of `{ text, locator }`, an `adopted` position, a stated `cost`)
- * that `MOD-STU-18`'s `UNSPECIFIED_IN_SOURCE` established for exactly this
- * situation. It is reported to the controller as a gap: a `D25` row would let
- * it render through the one disclosure component like every other.
- *
- * Neither reading is marked the answer. The source itself states the second
- * and rejects it, and this record carries the rejection as the source's
- * words rather than as this build's ruling.
+ * **NOTHING HERE MAY HOLD A `readings` ARRAY AGAIN.** Two wordings of one
+ * decision is how one of them quietly stops mentioning the alternative;
+ * `tests/unit/stu-localisation.test.ts` scans this module's exports for the
+ * shape rather than for the old export's name, so a re-mint under a new name
+ * still goes red.
  */
-export const PER_LOCALE_BLOCKING: Stu17SourceTension = {
-  id: 'per-locale-versus-whole-publication-blocking',
-  question:
-    'Does an incomplete locale block publication in that locale only, or does any incompleteness block the whole publication?',
-  readings: [
-    {
-      text:
-        'Per-locale. “A Workflow declaring English and Spanish whose Spanish coaching default is missing publishes in English and is blocked in Spanish, with the specific missing element named.”',
-      locator: 'L34361',
-    },
-    {
-      text:
-        'Whole-publication. The same sentence records the alternative in its own words: “the alternative reading, that any incompleteness blocks the whole publication, would make a partially localised improvement impossible to ship and is rejected for that reason.”',
-      locator: 'L34361',
-    },
-  ],
-  adopted:
-    'The per-locale reading. It is the source’s own stated reading of “blocks publication in that locale”, and FUNC-STU-17-03-A-2 (L34410) states it a second time as a functionality — “Block publication in the incomplete locale only, naming each missing element, and permit publication in complete locales.” The source classes the per-locale scope Derived Clarification (L34410, L34498), so it renders as a reading rather than as a settled fact.',
-  cost:
-    'A version can reach the floor in one language while the other is still blocked, so a mixed-language site may run English screens for Spanish-speaking workers unless the Release Authority holds the release — which is exactly what the card’s example has Elena do. The whole-publication reading would remove that risk and, in the source’s own words, would make a partially localised improvement impossible to ship.',
-  sourceClass: 'Derived Clarification',
-  decision: null,
-}
 
 /* ==================================================================== *
  * D11 — `OBJ-STU-LOCALE` HAS NO NUMERIC COUNTERPART.

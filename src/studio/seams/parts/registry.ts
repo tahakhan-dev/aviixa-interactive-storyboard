@@ -193,7 +193,7 @@ export const unreachablePartsRegistry: PartsRegistrySeam = {
 
 /**
  * `DEC-PARTSTUB-001` (L33203), newly proposed and **unspecified in the
- * Statement of Work**. It is NOT one of the twenty-four `SURF-STU`
+ * Statement of Work**. It is NOT one of the twenty-nine `SURF-STU`
  * decisions `@/studio/disclosure/decisions` carries, so it cannot be
  * rendered through `DecisionDisclosure`; it renders as its own
  * "unspecified in source" entry, with every option and the recommendation

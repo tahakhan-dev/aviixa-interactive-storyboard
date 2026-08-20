@@ -15,7 +15,6 @@ import type { Locale } from '@/studio/vocab'
 import {
   OBJ_STU_LOCALE_GAP,
   PERMANENT_LINE,
-  PER_LOCALE_BLOCKING,
   WHEEL_BOLT_LOCALISATION,
   coverageGrid,
   localeCompletenessCheck,
@@ -361,37 +360,10 @@ export function LocalisationScreen() {
           </section>
         ) : null}
 
-        {/* The Derived Clarification at L34361 — BOTH readings, neither
-            settled. Held in this module rather than in task 3's twenty-four
-            records, and the reason is stated on `PER_LOCALE_BLOCKING`. */}
-        <section
-          role="note"
-          aria-label="Open reading — per-locale versus whole-publication blocking"
-          data-testid="per-locale-disclosure"
-          className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4 text-sm"
-        >
-          <p className="font-medium text-[var(--color-ink)]">{PER_LOCALE_BLOCKING.question}</p>
-          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
-            Both readings stand. Neither is this build&rsquo;s to settle.
-          </p>
-          <ul className="mt-1 space-y-2">
-            {PER_LOCALE_BLOCKING.readings.map((reading) => (
-              <li key={reading.text.slice(0, 32)}>
-                <span className="text-[var(--color-ink)]">{reading.text}</span>{' '}
-                <span className="whitespace-nowrap text-xs text-[var(--color-ink-subtle)]">
-                  [{reading.locator}]
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
-            This build&apos;s working position — {PER_LOCALE_BLOCKING.sourceClass}
-          </p>
-          <p className="mt-1 max-w-prose text-[var(--color-ink)]">{PER_LOCALE_BLOCKING.adopted}</p>
-          <p className="mt-1 max-w-prose text-[var(--color-ink-subtle)]">
-            What this costs: {PER_LOCALE_BLOCKING.cost}
-          </p>
-        </section>
+        {/* D29 — the Derived Clarification at L34361, both readings, through
+            the one disclosure component. The wording lives in the canon, so
+            this screen carries no second copy of it. */}
+        <DecisionDisclosure id="D29" />
 
         {/* D11 — the object naming scheme, through the one disclosure
             component. `OBJ-STU-LOCALE` is one of its three registered gaps. */}
