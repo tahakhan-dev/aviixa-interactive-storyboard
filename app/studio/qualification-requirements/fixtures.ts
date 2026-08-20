@@ -58,11 +58,11 @@ export const PNEUMATIC_CERTIFICATION = 'Pneumatic Tool Certification'
  * seam. Names, not records: this module names certifications, never people
  * (L33756), so nothing here carries personal data.
  */
-export const MAINTAINED_CERTIFICATIONS: readonly string[] = [
+export const MAINTAINED_CERTIFICATIONS = [
   ...SEEDED_CERTIFICATION_TYPES.map((c) => c.name),
   TORQUE_CERTIFICATION,
   PNEUMATIC_CERTIFICATION,
-]
+] as const satisfies readonly string[]
 
 /**
  * The Workflow in view — `SEQ-011`'s wheel-bolt torque verification, the same
@@ -104,7 +104,7 @@ export const PUBLISHED_AT = '2026-08-14T00:00:00Z'
  * after publication so that both halves of L33618 have something to be true
  * about: `active` assignments grandfather, later Runs take the change.
  */
-export const BRIGHT_BIKES_ASSIGNMENTS: readonly Assignment[] = [
+export const BRIGHT_BIKES_ASSIGNMENTS = [
   {
     assignmentId: 'ASG-MAYA-0814',
     workerName: 'Maya',
@@ -132,13 +132,13 @@ export const BRIGHT_BIKES_ASSIGNMENTS: readonly Assignment[] = [
     continuation: null,
     evaluation: 'Satisfied',
   },
-]
+] as const satisfies readonly Assignment[]
 
 /**
  * Ahmed's assigned runs on `TAB-014`. L33727: when he reaches screen 3
  * offline the run parks and "he continues his other assigned runs".
  */
-export const BRIGHT_BIKES_RUNS: readonly RunOnDevice[] = [
+export const BRIGHT_BIKES_RUNS = [
   {
     runId: 'RUN-2026-08-14-A',
     name: 'Wheel Bolt Torque Verification — Line A',
@@ -157,7 +157,7 @@ export const BRIGHT_BIKES_RUNS: readonly RunOnDevice[] = [
     state: 'Available',
     parkedReason: null,
   },
-]
+] as const satisfies readonly RunOnDevice[]
 
 /**
  * The screens the source names as carrying the override: "screens 3 through
@@ -178,7 +178,7 @@ export const OVERRIDE_SCREENS: readonly { readonly screenId: string; readonly sc
  * number of rows — a view whose every count reads `1` cannot show a reader
  * whether the counts mean anything.
  */
-export const OTHER_WORKSPACE_REQUIREMENTS: readonly QualificationRequirement[] = [
+export const OTHER_WORKSPACE_REQUIREMENTS = [
   {
     workflowId: 'WF-BRAKE-BLEED',
     workflowName: 'Assembly — Brake Bleed and Pressure Check',
@@ -193,4 +193,4 @@ export const OTHER_WORKSPACE_REQUIREMENTS: readonly QualificationRequirement[] =
     ],
     status: 'Published',
   },
-]
+] as const satisfies readonly QualificationRequirement[]

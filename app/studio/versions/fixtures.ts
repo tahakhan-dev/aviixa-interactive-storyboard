@@ -384,7 +384,7 @@ export const LINKAGE_UNAVAILABLE: LinkageReading = {
  * determined, so it renders as unknown with the last known state and its
  * timestamp — never as adopted.
  */
-export const SEEDED_DEVICES: readonly AdoptionInput[] = [
+export const SEEDED_DEVICES = [
   { deviceId: 'TAB-BB-01', commandState: 'delivered', lastKnown: null },
   { deviceId: 'TAB-BB-02', commandState: 'queued', lastKnown: null },
   {
@@ -392,4 +392,4 @@ export const SEEDED_DEVICES: readonly AdoptionInput[] = [
     commandState: null,
     lastKnown: { state: 'downloaded', at: '2026-06-20T22:10:00.000Z' },
   },
-]
+] as const satisfies readonly AdoptionInput[]

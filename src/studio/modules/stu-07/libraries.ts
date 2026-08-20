@@ -302,12 +302,12 @@ export function isNotificationChannel(value: string): value is NotificationChann
  * of 4"). The screen renders the seam notice beside them rather than
  * presenting them as this module's own list.
  */
-export const SEEDED_SEVERITY_BANDS: readonly string[] = [
+export const SEEDED_SEVERITY_BANDS = [
   'Severity 1',
   'Severity 2',
   'Severity 3',
   'Severity 4',
-]
+] as const satisfies readonly string[]
 
 /* ==================================================================== *
  * THE RECORDS. `OBJ-040`..`OBJ-043`, L8665-L8722.

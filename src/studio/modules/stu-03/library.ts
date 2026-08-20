@@ -347,7 +347,7 @@ export const LIBRARY_AS_OF = '2026-08-14'
  *   renders";
  * - **no row names a starter Job Type or Service Type tag** (L31894).
  */
-export const SEEDED_WORKFLOWS: readonly WorkflowRecord[] = [
+export const SEEDED_WORKFLOWS = [
   {
     id: 'WF-BB-WHEEL-BOLT-TORQUE',
     name: WHEEL_BOLT_DRAFT_CONTENT.workflowName,
@@ -425,7 +425,7 @@ export const SEEDED_WORKFLOWS: readonly WorkflowRecord[] = [
       'another tenant’s Workflow content. It is here so the scope filter has something real to ' +
       'exclude and so the cross-tenant refusal has a real identifier to refuse.',
   },
-]
+] as const satisfies readonly WorkflowRecord[]
 
 export interface LibraryState {
   readonly workflows: readonly WorkflowRecord[]
