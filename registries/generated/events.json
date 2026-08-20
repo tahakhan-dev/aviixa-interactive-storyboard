@@ -3,7 +3,7 @@
   "countedThing": "EVT-* identifiers found in the identifier index; no closed event-count register exists in the frozen source, and no names were extracted for this family.",
   "reconciledCount": null,
   "rawCount": 28,
-  "dedupRule": null,
+  "dedupRule": "Status is computed from the built route tree, never from a list: 0 of 28 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {

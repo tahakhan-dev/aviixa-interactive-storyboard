@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 
 const SLUGS = [
@@ -161,5 +161,70 @@ describe('ai-storyboards discloses every SB-* register, not only SB-AI-*', () =>
     const r = load('ai-storyboards')
     const ai = r.rows.filter((row: { id: string }) => row.id.startsWith('SB-AI-'))
     expect(ai).toHaveLength(48)
+  })
+})
+
+// Every registry's status used to be the literal `'not-represented'`, written
+// on every row of all fourteen files with no code path that wrote anything
+// else -- a coverage dashboard reporting zero for everything the build had
+// already built, which reads as a fact rather than as the missing measurement
+// it was. Status is now computed from the shipped route tree. These tests
+// recompute the evidence independently of the generator, so a generator that
+// started inventing statuses fails here rather than agreeing with itself.
+describe('per-item status is computed from the built tree, not hardcoded', () => {
+  const namedByAShippedScreen = (): Set<string> => {
+    const named = new Set<string>()
+    const walk = (dir: string): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (e.isDirectory()) walk(`${dir}/${e.name}`)
+        else if (/\.tsx?$/.test(e.name)) {
+          const text = readFileSync(`${dir}/${e.name}`, 'utf8')
+          for (const t of text.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) named.add(t)
+          for (const m of text.matchAll(/\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g)) {
+            const label = m[1]
+            if (label !== undefined) named.add(label.replace(/\\(.)/g, '$1'))
+          }
+        }
+      }
+    }
+    walk('app')
+    return named
+  }
+
+  it('at least one registry has a demonstrated row — a build with 27 module screens reporting fourteen zeros is a broken measurement', () => {
+    const demonstrated = SLUGS.map(
+      (slug) =>
+        load(slug).rows.filter((r: { status: string }) => r.status === 'demonstrated-in-storyboard')
+          .length,
+    )
+    expect(demonstrated.some((n) => n > 0)).toBe(true)
+  })
+
+  it('every demonstrated row is named by a file under app/ — no status without evidence', () => {
+    const named = namedByAShippedScreen()
+    expect(named.size).toBeGreaterThan(0)
+    for (const slug of SLUGS) {
+      for (const row of load(slug).rows) {
+        if (row.status !== 'demonstrated-in-storyboard') continue
+        expect(named.has(row.id), `${slug}/${row.id}`).toBe(true)
+      }
+    }
+  })
+
+  it('every row carries one of the honest coverage statuses, never an "implemented" claim', () => {
+    for (const slug of SLUGS) {
+      for (const row of load(slug).rows) {
+        expect(['demonstrated-in-storyboard', 'decision-blocked', 'not-applicable', 'not-represented'], `${slug}/${row.id}`).toContain(row.status)
+      }
+    }
+  })
+
+  it('every registry states, on screen, which signal set its statuses and what it counted', () => {
+    for (const slug of SLUGS) {
+      const r = load(slug)
+      expect(r.dedupRule, slug).toContain('Status is computed from the built route tree')
+      const n = r.rows.filter((x: { status: string }) => x.status === 'demonstrated-in-storyboard').length
+      expect(r.dedupRule, slug).toContain(`${n} of ${r.rows.length} rows`)
+    }
   })
 })

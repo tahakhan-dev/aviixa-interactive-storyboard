@@ -1,0 +1,706 @@
+[
+  {
+    "label": "PASS-1 — module derivation and the slice-5 inventory",
+    "value": {
+      "surface": "SURF-STU",
+      "frozenSourceSha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
+      "frozenSourceLines": 122241,
+      "countIsDerivedNotSourceStated": true,
+      "derivationChain": [
+        {
+          "step": 1,
+          "locator": "L1568",
+          "quote": "No canonical module count exists in the source for the Standards and Operations Studio; this blueprint derives a logical model of 18 modules from §5.1 to §5.18 and labels it `Derived Clarification`, carried as `DEC-STUDIO-001`. Any claim of a source-backed Studio count would be false.",
+          "note": "Contrast: DOH 19 SoW Fact §4.1.3, CC 13 SoW Fact §6.1.6, FL 12 SoW Fact §7.3, SA 19 capability sections §8.1-§8.19."
+        },
+        {
+          "step": 2,
+          "locator": "L30897",
+          "quote": "The Statement of Work provides no canonical module count for the Standards and Operations Studio. Part V describes the Studio's scope in eighteen numbered sections (§5.1 through §5.18) but nowhere presents a module inventory table equivalent to §4.1.3 for the Delivery Operations Hub, §6.1.6 for the Client Command Center, or §7.3 for the Frontline Worker Application. Any Studio module count is therefore derived, not sourced. This is recorded as `DEC-STUDIO-001`."
+        },
+        {
+          "step": 3,
+          "locator": "L30899",
+          "quote": "The derivation rule used. One module per numbered section of Part V, in section order, with the section's own heading as the module name. This yields exactly eighteen modules, `MOD-STU-01` through `MOD-STU-18`."
+        },
+        {
+          "step": 4,
+          "locator": "L30901",
+          "quote": "Part V's numbered sections are already scoped by function, each with a distinct owner, a distinct object type, and distinct governance... A model that respects the source's own section boundaries is the model least likely to invent a seam the source does not have."
+        },
+        {
+          "step": 5,
+          "locator": "L30905-L30907",
+          "rejectedAlternatives": [
+            "Alternative A — six-module functional grouping (Authoring; Content; Governance; Distribution; Agents; Administration). REJECTED: 'it collapses distinctions the source explicitly separates and that carry different permissions. It would place the Training Library (§5.8), whose delivery is online-only and produces no production record, in the same module as the Coaching Corpus (§5.7.2), whose assets ship inside the offline work package. Those two have opposite packaging rules.' (L30905)",
+            "Alternative B — nine-module grouping mirroring the nine screen configuration sections. REJECTED: 'the nine sections are sections of one screen configuration panel, not modules of a surface. Eleven of the eighteen Part V sections... have no home in a nine-way screen-section split.' (L30906)",
+            "Alternative C — twenty-two-module grouping promoting the three standard agents and the four Content Library sub-areas. REJECTED: 'the three agents are not Studio modules but platform-provided agents that the Studio configures, and treating them as Studio modules would blur the Tier-2 boundary of §5.1.2.' (L30907)"
+          ]
+        },
+        {
+          "step": 6,
+          "locator": "L30911-L30930",
+          "note": "The derived inventory table itself, eighteen rows, each carrying module identifier, module name, source section, primary object owned or governed."
+        },
+        {
+          "step": 7,
+          "locator": "registries/generated/modules.json",
+          "note": "All eighteen already registered with sourceLine 2444, sourceClass 'derived', status 'not-represented'. The build's own register agrees with the derivation and does not present it as source-backed."
+        }
+      ],
+      "corroboratingRestatements": [
+        "L1607 surface table: 18 `Derived Clarification`, `DEC-STUDIO-001`",
+        "L2444 §-level restatement naming all eighteen module names in one sentence",
+        "L2471 module-count-per-surface table",
+        "L2937 ASSUM-004",
+        "L4036 Part V coverage map",
+        "L11259-L11278 module index",
+        "L14412, L14466 feature-centric view",
+        "L21999, L22029 MTX-TEN-02b",
+        "L34702-L34719 chapter-20 traceability table"
+      ],
+      "governingAcceptanceCriteria": [
+        "AC-STU-014 (L30992) — no document, screen, or interface produced by this programme presents a Studio module count as a Statement-of-Work fact.",
+        "AC-STU-015 (L30993) — every `MOD-STU-*` identifier resolves to exactly one numbered section of Part V.",
+        "AC-STU-016 (L30994) — the Studio's navigation grouping can be changed without changing any authoring, approval, publication, or permission rule.",
+        "AC-COV-082 (L4189) — every use of the eighteen-module Studio model carries a `Derived Clarification` label and cites `DEC-STUDIO-001`.",
+        "TEST-SCOPE-014 (L2477) — document scan asserting every Studio count carries `Derived Clarification` and `DEC-STUDIO-001`.",
+        "L14442 — a header line names the surface's module count and, for the Studio, renders the words 'derived count, not stated in the Statement of Work' beside the number, with `DEC-STUDIO-001` linked. TEST-ROLE-1023 (L14497) asserts this renders."
+      ],
+      "namedFailureMode": {
+        "locator": "L4183",
+        "quote": "Its specific failure mode is derived-count leakage: the derived eighteen-module Studio model being quoted elsewhere as a source-backed count. Detection: any claim of a Studio module count without the `Derived Clarification` label."
+      },
+      "sliceModules": [
+        { "id": "MOD-STU-01", "name": "Charter and Position", "section": "§5.1", "card": "L31552-L31678", "ownsObject": "none — 'the surface's authority boundary; no persisted object' (L30913)" },
+        { "id": "MOD-STU-02", "name": "Agent Configuration", "section": "§5.2", "card": "L31680-L31869", "ownsObject": "OBJ-STU-AGENTCFG (L31135); canonical OBJ-066 Agent definition (L9391)" },
+        { "id": "MOD-STU-03", "name": "Workflow Library and Tenant Workspace", "section": "§5.3", "card": "L31871-L32030", "ownsObject": "OBJ-STU-WORKFLOW (L31124); canonical OBJ-036 (L8589)" },
+        { "id": "MOD-STU-04", "name": "Workflow Builder", "section": "§5.4", "card": "L32032-L32193", "ownsObject": "OBJ-STU-WORKFLOW + OBJ-STU-SCREEN (L32078)" },
+        { "id": "MOD-STU-05", "name": "Screen Authoring — the Nine Configuration Sections", "section": "§5.5", "card": "L32195-L32433", "ownsObject": "OBJ-STU-SCREEN (L31126); canonical OBJ-038 (L8627)" },
+        { "id": "MOD-STU-06", "name": "Shared Instruction Blocks", "section": "§5.6", "card": "L32435-L32572", "ownsObject": "OBJ-STU-BLOCK (L31127); canonical OBJ-039 (L8646)" },
+        { "id": "MOD-STU-07", "name": "Content Libraries", "section": "§5.7", "card": "L32574-L32784", "ownsObject": "OBJ-STU-CHECKLIST/ASSET/ROUTING (L31128-L31130); canonical OBJ-040/041/042/043 (L8665-L8722)" },
+        { "id": "MOD-STU-08", "name": "Training Library", "section": "§5.8", "card": "L32786-L32937", "ownsObject": "OBJ-STU-TRAINING (L31131); canonical OBJ-044 (L8741)" },
+        { "id": "MOD-STU-09", "name": "Work-Instruction Difficulty Levels", "section": "§5.9", "card": "L32939-L33088", "ownsObject": "none of its own; three renderings of OBJ-STU-SCREEN content (L30921)" },
+        { "id": "MOD-STU-10", "name": "Parts-Registry Authoring Seam", "section": "§5.10", "card": "L33090-L33231", "ownsObject": "none — writes a skeletal DOH parts-registry record (L33127)" },
+        { "id": "MOD-STU-11", "name": "Approval Workflow", "section": "§5.11", "card": "L33233-L33416", "ownsObject": "OBJ-STU-SUBMISSION (L31133); canonical OBJ-050 Approval record (L8856)" },
+        { "id": "MOD-STU-12", "name": "Versioning and Publication", "section": "§5.12", "card": "L33418-L33602", "ownsObject": "OBJ-STU-VERSION (L31125); canonical OBJ-037 (L8608)" },
+        { "id": "MOD-STU-13", "name": "Qualification Requirements", "section": "§5.13", "card": "L33604-L33781", "ownsObject": "OBJ-STU-QUALREQ (L31132)" },
+        { "id": "MOD-STU-14", "name": "The Offline Package", "section": "§5.14", "card": "L33783-L33959", "ownsObject": "OBJ-STU-PACKAGE (L31134); canonical OBJ-045 Work package + OBJ-046 Package manifest (L8760, L8779)" },
+        { "id": "MOD-STU-15", "name": "The Agent Builder", "section": "§5.15", "card": "L33961-L34152", "ownsObject": "OBJ-STU-CAPSTATE + OBJ-STU-COMPOSED (L31136-L31137)" },
+        { "id": "MOD-STU-16", "name": "Memory and the Two-Lane Learning Loop", "section": "§5.16", "card": "L34154-L34349", "ownsObject": "the five typed memory stores (platform-owned architecture, L34162)" },
+        { "id": "MOD-STU-17", "name": "Localisation", "section": "§5.17", "card": "L34351-L34498", "ownsObject": "OBJ-STU-LOCALE (L31138); canonical OBJ-051 Locale pack is platform-side (L8875)" },
+        { "id": "MOD-STU-18", "name": "Permissions and Roles in the Studio", "section": "§5.18", "card": "L34500-L34686", "ownsObject": "GRANT-STU-AUTHOR, GRANT-STU-AGENT, GRANT-STU-IMPL (L34571)" }
+      ],
+      "excludedFromSliceFive": [
+        "Nothing in SURF-STU is excluded. All eighteen derived modules are in slice 5, because the umbrella build order assigns the whole surface to one slice ('Studio authoring through publication and package') and because every one of the eighteen is reachable from the authoring-to-package spine without an unbuilt-surface dependency that cannot be seamed.",
+        "MOD-STU-14 builds the package DEFINITION, MANIFEST and PINNING CONTRACT only. Package delivery to a device, on-device evaluation, offline execution and reconnect belong to slices 7 and 8 (umbrella build order rows 7 and 8).",
+        "MOD-STU-16 builds the Studio's procedural/semantic WRITE, the learning READ VIEW, and the Lane-B proposal RECORD. The Lane-B DECISION is a Client Command Center act (slice 9) and the memory architecture is platform-owned (slice 11 for the AI paths).",
+        "MOD-STU-10 builds the inline-add seam and the skeletal record REQUEST. The DOH parts registry itself is MOD-DOH-19, explicitly not built in slice 4 ('tenant master data, but not tenant setup', slice-4 spec §1) and not yet scheduled — this is an UNREGISTERED dependency and is declared as an absence, not guessed."
+      ],
+      "openScopeQuestions": [
+        "Whether the Read-only Auditor may open the Studio at all — DEC-AUDSTU-001, unresolved, and every Auditor cell in chapter 20 reads `Client Decision Required` rather than a status.",
+        "Whether Plant Manager is a role or a persona — DEC-ROLE-001; it is a row in a table headed 'Fixed role' (L34512) while §3.5 fixes five roles.",
+        "Whether the Agent Author capability may be delegated at V1 — DEC-DELEG-001 (L17920, L19571): §5.18 and §5.15.4 use 'delegation' while §4.8.4 defers delegation beyond V1."
+      ]
+    }
+  },
+  {
+    "label": "PASS-2 — screens, catalogues and the identifier collision",
+    "value": {
+      "catalogues": [
+        {
+          "id": "Catalogue A — mnemonic",
+          "locator": "L31067-L31089",
+          "count": 21,
+          "columns": ["Screen identifier", "Screen name", "What it does", "Named in the source"],
+          "ids": ["SCR-STU-LIBRARY", "SCR-STU-NEWWF", "SCR-STU-CANVAS", "SCR-STU-PANEL", "SCR-STU-BLOCK", "SCR-STU-CHECKLIST", "SCR-STU-CORPUS", "SCR-STU-ROUTING", "SCR-STU-TRAINING", "SCR-STU-QUAL", "SCR-STU-QUEUE", "SCR-STU-PREVIEW", "SCR-STU-VERSION", "SCR-STU-DIFF", "SCR-STU-LINKAGE", "SCR-STU-CAPS", "SCR-STU-AGENT", "SCR-STU-LEARN", "SCR-STU-LOCALE", "SCR-STU-PARTADD", "SCR-STU-DRAFTAI"],
+          "classification": "`Derived Clarification` (L31110). Twenty of twenty-one carry 'Named in the source: Yes' with a section; only SCR-STU-LOCALE is 'Derived from §5.17's completeness check'."
+        },
+        {
+          "id": "Catalogue B — numbered",
+          "locator": "L48259-L48273",
+          "count": 15,
+          "columns": ["Screen identifier", "Screen name", "Purpose", "Roles that can open it", "Modules and features shown", "Navigation entry point"],
+          "ids": ["SCR-STU-01", "SCR-STU-02", "SCR-STU-03", "SCR-STU-04", "SCR-STU-05", "SCR-STU-06", "SCR-STU-07", "SCR-STU-08", "SCR-STU-09", "SCR-STU-10", "SCR-STU-11", "SCR-STU-12", "SCR-STU-13", "SCR-STU-14", "SCR-STU-15"],
+          "classification": "`Derived Clarification` (L48360). Carries roles-that-can-open, modules-and-features and navigation entry point — three fields catalogue A lacks.",
+          "acceptanceCriterion": "AC-SCR-STU-001 (L48346) — 'All fifteen screens exist with their stated purposes, roles, and entry points.'"
+        }
+      ],
+      "collisionAnalysis": {
+        "isSupersetRelationship": false,
+        "notes": [
+          "Catalogue A splits what catalogue B merges: SCR-STU-13 'Agent configuration and Agent Builder' (L48271) covers MOD-STU-02 AND MOD-STU-15, where catalogue A has separate SCR-STU-CAPS and SCR-STU-AGENT (L31084-L31085).",
+          "Catalogue A splits Version Control three ways — SCR-STU-VERSION, SCR-STU-DIFF, SCR-STU-LINKAGE (L31081-L31083) — where catalogue B has one SCR-STU-12 (L48270).",
+          "Catalogue B has a Sign-in row SCR-STU-01 (L48259) that catalogue A has no row for.",
+          "Catalogue B has SCR-STU-15 Studio permissions and grants (L48273); catalogue A has no permissions screen at all.",
+          "Catalogue A has SCR-STU-LEARN, SCR-STU-PARTADD and SCR-STU-DRAFTAI (L31086, L31088, L31089) that catalogue B folds away entirely.",
+          "THE COLLISION IS DIFFERENT IN SHAPE FROM SLICE 4's. There is no numeric/three-digit clash here (no SCR-STU-001 form exists anywhere). The two catalogues share a prefix but not a token: a mnemonic literal and a two-digit literal can coexist without binding the wrong route. What collides is COVERAGE — three screens exist only in A, one navigation-critical screen only in B."
+        ]
+      },
+      "uncataloguedScreenLiterals": [
+        { "literal": "SCR-STU-SCREENCFG", "locator": "L11251", "context": "SB-ARCH-005 storyboard, screen configuration surface" },
+        { "literal": "SCR-STU-AGENTBUILDER", "locator": "L12027", "context": "SB-ARCH-011, the Agent Builder's capability palette" },
+        { "literal": "SCR-STU-DEGRADE-01", "locator": "L15086", "context": "degraded-mode inventory: 'Submission, review and release controls are unavailable. Draft editing continues locally in the browser session and is not lost, but cannot be submitted.'" },
+        { "literal": "SCR-STU-GRANT-01", "locator": "L16457", "context": "Grant administration: 'Assign and revoke the authoring grant and the Agent Author delegation. Each grant row shows the holder, the grant type, and, where the client decides one, an expiry; see DEC-TENGRANT-001'" },
+        { "literal": "SCR-STU-APPROVE", "locator": "L20338", "context": "SB-16-03, the Approval Queue, 'module 11'" },
+        { "literal": "SCR-STU-SCREEN-CONFIG", "locator": "L61890", "context": "Workflow Builder, screen 7 configuration storyboard panel" },
+        { "literal": "SCR-STU-RELEASE", "locator": "L62023", "context": "release decision storyboard panel; also SB-012-03 at L68317" },
+        { "literal": "SCR-STU-AGENTCFG", "locator": "L68013", "context": "SB-010-01 Agent configuration" },
+        { "literal": "SCR-STU-LIBRARIES", "locator": "L68013", "context": "SB-010-02 Content and training libraries" },
+        { "literal": "SCR-STU-CAPABILITY", "locator": "L68013", "context": "SB-010-03 Atomic capability area" },
+        { "literal": "SCR-STU-BUILDER", "locator": "L68164", "context": "SB-011-01 Workflow Builder screen editor" },
+        { "literal": "SCR-STU-DIFFICULTY", "locator": "L68164", "context": "SB-011-02 Difficulty levels" },
+        { "literal": "SCR-STU-QUALREQ", "locator": "L68164", "context": "SB-011-03 Qualification requirements" },
+        { "literal": "SCR-STU-QUEUE", "locator": "L68317", "context": "SB-012-01 Approval Queue" },
+        { "literal": "SCR-STU-PREVIEW", "locator": "L68317", "context": "SB-012-02 Screen-by-screen preview — ALSO in catalogue A at L31080" },
+        { "literal": "SCR-STU-PUBLISH", "locator": "L68467", "context": "SB-013-01 Publication" },
+        { "literal": "SCR-STU-VERSIONS", "locator": "L68467", "context": "SB-013-02 Version history and difference" },
+        { "literal": "SCR-STU-VERSION-01", "locator": "L93443", "context": "version history with v2.1.0 and v2.2.0 and the mandatory description" },
+        { "literal": "SCR-STU-PUB-01", "locator": "L100558", "context": "Publication: 'Shows the version being published, its approval chain with three named people and three timestamps, its evaluation...'" }
+      ],
+      "storyboards": {
+        "chapter20": "SB-STU-01 … SB-STU-21, one per surface section and one per module, L30666 through L34631",
+        "canonicalStory": "SB-010-01/02/03 (L68013), SB-011-01/02/03 (L68164), SB-012-01/02/03 (L68317), SB-013-01/02 (L68467)",
+        "crossChapter": "SB-ARCH-005 (L11251), SB-ARCH-011 (L12027), SB-16-03 (L20338), SB-25-02 (L48298), SB-STU-APPROVAL-01 and SB-STU-REPUBLISH-01 (L117493-L117494), SB-STU-GRANTS"
+      },
+      "screenStates": {
+        "contract": "L48007-L48014, thirteen states STATE-01 Empty … STATE-13 Recovery",
+        "surfaceDepartures": {
+          "locator": "L48330",
+          "quote": "All fifteen screens render the contract defaults with four stated departures. `STATE-07` offline is not applicable anywhere on this surface, because authoring requires a connection; a lost connection renders `STATE-12` with unsaved-work protection. `STATE-09` queued applies only on `SCR-STU-04` and `SCR-STU-11` at publication, where the new version's distribution to devices renders in command state rather than as complete. `STATE-10` and `STATE-11` apply on `SCR-STU-04` and `SCR-STU-13`: when the drafting aid is degraded or unavailable, the author writes all three difficulty levels manually and the panel says so, because the platform's artificial intelligence accelerates authoring and never publishes. `STATE-04` validation on this surface carries a special weight: the locale completeness check and the missing-severity-mapping check are publication blockers, not warnings."
+        },
+        "contradictionWithChapter20": "L30842-L30851 (the 20.1.3 connectivity state machine) names four states — Connected, Degraded, ReadOnlyCache, Suspended — and L30863 (FB-STU-01) says the Studio 'switches the editor to an explicit disconnected state, retains the author's unsaved edits in a local draft buffer, disables submit and publish controls, and states plainly that no save has been recorded'. L48330 says a lost connection renders STATE-12. The global contract at L48014 says the three web surfaces 'render a connection-lost banner and enter STATE-08 or STATE-13'. Three answers; see decision D7."
+      }
+    }
+  },
+  {
+    "label": "PASS-3 — the permission-matrix index (every matrix, every row, exact spans)",
+    "value": {
+      "countScope": "Every figure below is a count of rows I read in a named table at a named line. No number here is an extraction tally. Verbatim transcriptions of all twenty-six matrices are in docs/census/2026-08-20-surf-stu-slice05-build-map.md §1 and §6.",
+      "totalMatrices": 26,
+      "totalDataRows": 239,
+      "perModuleMatrices": [
+        { "module": "MOD-STU-01", "heading": "Roles that see and use it, with permission", "headerLine": 31571, "dataRows": 7, "span": "L31573-L31579", "columns": ["Actor", "See the charter statements", "Change the boundary", "Author an atom", "Enable a capability within entitlement"], "shape": "actor-per-row, capability-per-column — the ONLY module matrix in this shape" },
+        { "module": "MOD-STU-02", "headerLine": 31729, "dataRows": 9, "span": "L31731-L31739", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-03", "headerLine": 31902, "dataRows": 9, "span": "L31904-L31912", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker", "Implementation team grant"] },
+        { "module": "MOD-STU-04", "headerLine": 32059, "dataRows": 10, "span": "L32061-L32070", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker", "Implementation team grant"] },
+        { "module": "MOD-STU-05", "headerLine": 32257, "dataRows": 9, "span": "L32259-L32267", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-06", "headerLine": 32456, "dataRows": 6, "span": "L32458-L32463", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-07", "headerLine": 32626, "dataRows": 10, "span": "L32628-L32637", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-08", "headerLine": 32815, "dataRows": 9, "span": "L32817-L32825", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-09", "headerLine": 32962, "dataRows": 8, "span": "L32964-L32971", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-10", "headerLine": 33111, "dataRows": 7, "span": "L33113-L33119", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-11", "headerLine": 33268, "dataRows": 10, "span": "L33270-L33279", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker", "Implementation team grant"] },
+        { "module": "MOD-STU-12", "headerLine": 33456, "dataRows": 12, "span": "L33458-L33469", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker", "Job Owner, a field on the Job"] },
+        { "module": "MOD-STU-13", "headerLine": 33633, "dataRows": 11, "span": "L33635-L33645", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-14", "headerLine": 33820, "dataRows": 8, "span": "L33822-L33829", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-15", "headerLine": 34007, "dataRows": 12, "span": "L34009-L34020", "columns": ["Action", "Quality Manager", "Delegated administrator with Agent Author", "Supervisor with authoring grant", "Tenant Admin", "Read-only Auditor", "Worker", "Platform Engineer"], "shape": "the ONLY module matrix whose second column is a GRANT HOLDER rather than a role, and the only one carrying a platform role column" },
+        { "module": "MOD-STU-16", "headerLine": 34192, "dataRows": 9, "span": "L34194-L34202", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-17", "headerLine": 34374, "dataRows": 8, "span": "L34376-L34383", "columns": ["Action", "Quality Manager", "Supervisor with grant", "Supervisor without grant", "Tenant Admin", "Read-only Auditor", "Worker"] },
+        { "module": "MOD-STU-18", "heading": "The consolidated Studio permission matrix", "headerLine": 34539, "dataRows": 23, "span": "L34541-L34563", "columns": ["Capability", "Quality Manager", "Supervisor with GRANT-STU-AUTHOR", "Supervisor without the grant", "Plant Manager persona", "Tenant Admin", "Read-only Auditor", "Worker", "GRANT-STU-IMPL"], "shape": "nine columns — the widest matrix on the surface; the only one carrying the Plant Manager persona column", "note": "L34537 states 'Every cell carries an explicit status.'" }
+      ],
+      "perModuleSubtotalDataRows": 187,
+      "crossCuttingMatrices": [
+        { "id": "Tier authority matrix", "locator": "L30757-L30765", "dataRows": 7, "note": "Action × four tiers; establishes 'Author an atomic capability' as Explicitly prohibited for Tier 2 and every tier below" },
+        { "id": "Platform role → Studio access", "locator": "L30807-L30812", "dataRows": 4, "note": "All four platform roles Explicitly prohibited from standing Studio access; each reachable only through a named access class" },
+        { "id": "Tenant role → Studio access as stated", "locator": "L30819-L30828", "dataRows": 8, "note": "Eight rows for five roles: it splits Supervisor into with-grant and without-grant, adds Plant Manager, adds the implementation-team grant" },
+        { "id": "§5.18's own table, reproduced faithfully", "locator": "L34512-L34518", "dataRows": 5, "note": "The SOURCE table. Five rows, headed 'Fixed role', includes Plant Manager, OMITS the Read-only Auditor" },
+        { "id": "MTX-TEN-02b tenant role → the eighteen derived Studio modules", "locator": "L22031-L22050", "dataRows": 18, "note": "Conditions [Y1]-[Y24] at L22052. Uses `Unavailable` on MOD-STU-04/05/10 for the Tenant Admin where chapter 20 uses `Explicitly prohibited` / `Read-only` — the overloaded-Unavailable hazard" },
+        { "id": "§25.3 Actions and permissions on the Studio", "locator": "L48319-L48328", "dataRows": 8, "note": "Uses `Unavailable` and `Not applicable` where chapter 20 uses `Explicitly prohibited` and `Client Decision Required`; gives the Auditor `Read-only` on Content Libraries where chapter 20 gives `Explicitly prohibited`" },
+        { "id": "MTX-TEN-01 tenant role → surface (SURF-STU row only)", "locator": "L21928", "dataRows": 1, "note": "TA `Allowed with conditions` [U6]; Sup `Read-only` [U7]; QM `Allowed` [U8]; Aud `Client Decision Required` [U9]; Wkr `Explicitly prohibited` [U10]" },
+        { "id": "MTX-PLAT-01 platform role → surface (SURF-STU row only)", "locator": "L21068", "dataRows": 1, "note": "Root `Allowed with conditions` [P4]; Admin `Allowed with conditions` [P8]; Engineer `Explicitly prohibited` [P6]; Support `Allowed with conditions` [P7]" }
+      ],
+      "crossCuttingSubtotalDataRows": 52,
+      "tokenCensus": {
+        "note": "Tokens observed across the twenty-six matrices, against the nine-token closed set adopted in slice 4 (D8, L10238).",
+        "observed": ["Allowed", "Allowed with conditions", "Read-only", "Explicitly prohibited", "Not applicable — <reason>", "Client Decision Required", "Unavailable"],
+        "notObserved": ["Cached read-only while offline", "Queued while offline"],
+        "notObservedReason": "The Studio is web-only with no offline mode (L30561, L30834). L31515 states the convention explicitly: 'Because the Studio is web-only and requires an active connection, the statuses `Cached read-only while offline` and `Queued while offline` almost never apply to a Studio actor. Where they appear, they describe the Frontline consequence of a Studio configuration, not a Studio user's own experience, and the row says so.'",
+        "unavailableOccurrences": [
+          "MOD-STU-08 L32824 Worker: 'Unavailable — delivery is online-only and content is excluded from the offline work package' — sense A, a capability that exists but is withheld in this condition",
+          "MOD-STU-18 L34563 every column: 'Unavailable — the Studio requires an active connection' — sense A again",
+          "MTX-TEN-02b L22036/L22037/L22042 Tenant Admin on MOD-STU-04/05/10: `Unavailable` [Y6] 'The Tenant Admin administers Studio capacities and reads published content; no authoring capacity is assigned' — sense B, the role cannot hold it in any scope",
+          "MTX-TEN-01 L21931 Frontline row TA/Aud: `Unavailable` — sense B",
+          "§25.3 L48322/L48325/L48326 TA and Auditor: `Unavailable` — sense B",
+          "SEQ-010/011/012/013 role-authority tables L67909, L68052-L68054, L68060, L68204-L68206, L68212, L68356-L68358, L68364: `Unavailable` for platform roles and Worker — sense B"
+        ]
+      }
+    }
+  },
+  {
+    "label": "PASS-4 — objects, state vocabularies and their rivals",
+    "value": {
+      "twoObjectNamingSchemes": {
+        "schemeA": { "id": "OBJ-STU-* mnemonic", "locator": "L31122-L31138", "count": 15, "classification": "`Derived Clarification` (L31238: 'Object, event, and integration identifiers: Derived Clarification')" },
+        "schemeB": { "id": "OBJ-036 … OBJ-051, OBJ-066 numeric", "locator": "L8589-L8875, L9391", "count": 18, "classification": "part of the canonical OBJ-001…OBJ-099 register confirmed at umbrella §12 as the ninety-nine business objects" },
+        "registryEvidence": "registries/generated/business-objects.json carries 99 rows, all numeric; ZERO carry an `OBJ-STU-*` identifier. Both schemes describe the same objects; only one is in the register.",
+        "mapping": [
+          { "mnemonic": "OBJ-STU-WORKFLOW", "numeric": "OBJ-036", "numericLine": 8589 },
+          { "mnemonic": "OBJ-STU-VERSION", "numeric": "OBJ-037", "numericLine": 8608 },
+          { "mnemonic": "OBJ-STU-SCREEN", "numeric": "OBJ-038", "numericLine": 8627 },
+          { "mnemonic": "OBJ-STU-BLOCK", "numeric": "OBJ-039", "numericLine": 8646 },
+          { "mnemonic": "OBJ-STU-CHECKLIST", "numeric": "OBJ-040", "numericLine": 8665 },
+          { "mnemonic": "OBJ-STU-ASSET", "numeric": "OBJ-041", "numericLine": 8684 },
+          { "mnemonic": "(none — the index is not an OBJ-STU-* object)", "numeric": "OBJ-042 Coaching Corpus index", "numericLine": 8703 },
+          { "mnemonic": "OBJ-STU-ROUTING", "numeric": "OBJ-043", "numericLine": 8722 },
+          { "mnemonic": "OBJ-STU-TRAINING", "numeric": "OBJ-044", "numericLine": 8741 },
+          { "mnemonic": "OBJ-STU-PACKAGE", "numeric": "OBJ-045 Work package", "numericLine": 8760 },
+          { "mnemonic": "(none — the manifest is folded into OBJ-STU-PACKAGE)", "numeric": "OBJ-046 Package manifest", "numericLine": 8779 },
+          { "mnemonic": "(none — folded into OBJ-STU-SCREEN §5.5.6)", "numeric": "OBJ-047 Specification limit set", "numericLine": 8799 },
+          { "mnemonic": "(none — platform-owned)", "numeric": "OBJ-048 Severity catalog level", "numericLine": 8818 },
+          { "mnemonic": "(none — tenant administration area)", "numeric": "OBJ-049 Severity action bundle", "numericLine": 8837 },
+          { "mnemonic": "OBJ-STU-SUBMISSION", "numeric": "OBJ-050 Approval record", "numericLine": 8856 },
+          { "mnemonic": "(none — platform-side)", "numeric": "OBJ-051 Locale pack", "numericLine": 8875 },
+          { "mnemonic": "OBJ-STU-AGENTCFG / OBJ-STU-COMPOSED", "numeric": "OBJ-066 Agent definition", "numericLine": 9391 },
+          { "mnemonic": "OBJ-STU-QUALREQ", "numeric": "no numeric row found", "numericLine": null },
+          { "mnemonic": "OBJ-STU-CAPSTATE", "numeric": "no numeric row found", "numericLine": null },
+          { "mnemonic": "OBJ-STU-LOCALE", "numeric": "no numeric row found — OBJ-051 is the platform locale pack, not the per-locale authored variant", "numericLine": null }
+        ]
+      },
+      "rivalStateVocabularies": [
+        {
+          "object": "Workflow",
+          "sets": [
+            { "locator": "L31124", "set": "Draft · In Review · Published · Archived", "source": "chapter 20 object table" },
+            { "locator": "L31924", "set": "Draft, In Review, Published, Archived", "note": "'The first three are stated in §5.3.1; Archived follows from §5.12.3's manual archival.' — the card is candid that Archived is derived" },
+            { "locator": "L8598", "set": "Draft, In Review, Published", "note": "OBJ-036 card — NO Archived state" },
+            { "locator": "L32080", "set": "structurally valid | structurally invalid", "note": "MOD-STU-04 adds an orthogonal validity flag WITHIN Draft, not a lifecycle state" }
+          ],
+          "conflict": "Whether a Workflow (as opposed to a Workflow version) can be Archived at all. OBJ-036 has no Archived; chapter 20 has one."
+        },
+        {
+          "object": "Workflow version",
+          "sets": [
+            { "locator": "L31125", "set": "Published · Superseded · Archived" },
+            { "locator": "L33479", "set": "Published, Superseded when a later version exists, or Archived. Adoption per Job is Notified, Decided-adopt, Decided-defer, or Outdated after the update window lapses" },
+            { "locator": "L8616", "set": "Draft, In Review, Published, Outdated, Archived", "note": "OBJ-037 card — uses OUTDATED where the module card uses SUPERSEDED, and puts Draft/In Review on the VERSION rather than on the Workflow" },
+            { "locator": "L53325-L53328", "set": "Published → Superseded; Published → ArchivedVersion", "note": "chapter 28 state diagram" }
+          ],
+          "conflict": "NAMED-TEST STRENGTH. `Superseded` and `Outdated` are two different names, and L33479 uses BOTH in one paragraph for two DIFFERENT things — Superseded is a version state, Outdated is a per-Job adoption state. OBJ-037 collapses them onto the version. A build that folds them loses the distinction between 'a newer version exists' and 'this Job's update window lapsed'."
+        },
+        { "object": "Screen", "sets": [{ "locator": "L31126", "set": "Configured · Incomplete · Published within a version" }, { "locator": "L32277", "set": "Incomplete → Configured → Published within a version; publication blocked while any screen is Incomplete" }], "conflict": "none found" },
+        { "object": "Shared Instruction Block", "sets": [{ "locator": "L31127", "set": "Draft · Applied · Published within a version" }, { "locator": "L32473", "set": "Draft, Applied to one or more screens, Published within a version; a block with no applying screens is Draft and orphaned" }], "conflict": "none found" },
+        { "object": "Containment checklist / Escalation routing template", "sets": [{ "locator": "L31128, L31130", "set": "Draft · Published · Archived" }, { "locator": "L32647", "set": "Draft, Published, Archived" }], "conflict": "none found" },
+        { "object": "Coaching asset", "sets": [{ "locator": "L31129", "set": "Uploaded · Approved · Indexed · Flagged for review · Retired" }, { "locator": "L32647", "set": "Uploaded, Approved, Indexed, Flagged for review, Retired; an asset that is Approved but not yet Indexed is retrievable only by metadata filter" }], "conflict": "none found" },
+        { "object": "Approval submission", "sets": [{ "locator": "L31133", "set": "Submitted · Returned with comments · Advanced · Released · Withdrawn" }, { "locator": "L33289", "set": "Submitted, Returned with comments, Advanced, Released, Withdrawn" }, { "locator": "L33335-L33352", "set": "Drafting, Submitted, UnderReview, Returned, AwaitingRelease, Released, Withdrawn" }, { "locator": "L68297-L68312", "set": "Submitted, UnderReview, Returned, Revising, Advanced, ReleaseApproved, Stalled, Publishing" }], "conflict": "The state-diagram sets add UnderReview / Revising / Stalled / AwaitingRelease that the enumerated set does not carry. Withdrawn is `Recommendation — R&D` (L33296), not SoW Fact." },
+        { "object": "Work package", "sets": [{ "locator": "L31134", "set": "Defined · Built · Delivered · Pinned · Superseded" }, { "locator": "L33839", "set": "Defined, Built, Delivered, Pinned, Superseded. A package that fails integrity verification is Quarantined and is never Delivered" }, { "locator": "L68454-L68461", "set": "Versioned, Building, Distributable, Incomplete, Recovery, Pinned" }], "conflict": "Quarantined is stated in the card body but omitted from both enumerations. Distributable / Incomplete appear only in SEQ-013." },
+        { "object": "Composed reasoning agent", "sets": [{ "locator": "L31136", "set": "Composed · Evaluation pending · Evaluation passed · In approval · Platform review · Deployed" }, { "locator": "L34030", "set": "same six, plus: 'Failure at the evaluation gate returns the composition to Composed with the failing scenarios named. Deprecation, disablement, and rollback states are DEC-AGENTLC-001'" }], "conflict": "No terminal state exists. There is no Deprecated, Disabled or Rolled-back state — DEC-AGENTLC-001." },
+        { "object": "Capability enablement state", "sets": [{ "locator": "L31137", "set": "Enabled · Disabled · Not entitled" }], "conflict": "none found" },
+        { "object": "Per-locale authored variant", "sets": [{ "locator": "L31138", "set": "Authored · Drafted by artificial intelligence · Reviewed · Complete · Incomplete" }, { "locator": "L34393", "set": "Per element per locale: Authored, Drafted by artificial intelligence, Reviewed, Complete, Incomplete. Per locale on a Workflow: Complete and publishable, or Incomplete and blocked" }, { "locator": "L32981", "set": "MOD-STU-09 per level per locale: Authored, Drafted by artificial intelligence, Edited, Reviewed, Published within a version" }], "conflict": "MOD-STU-09 adds `Edited` and `Published within a version`; MOD-STU-17 adds `Complete`/`Incomplete`. Same axis, two vocabularies." },
+        { "object": "Qualification requirement", "sets": [{ "locator": "L31132", "set": "Draft · Published within a version" }, { "locator": "L33655", "set": "Drafted or Published within a version. Against a given assignment it evaluates to Satisfied, Unsatisfied-blocked, Unsatisfied-notified, Cleared by a granted clearance, or Grandfathered-and-flagged" }], "conflict": "`Draft` vs `Drafted` — a one-character divergence between two tables eight hundred lines apart." },
+        { "object": "Lane-B proposal", "sets": [{ "locator": "L34212", "set": "Proposed, Stale-flagged at 30 days, Approved, Rejected, Published as a patch, or Applied immediately for a server-only value" }], "conflict": "none found; note 'Lane-A refinements have no proposal state because they are applied automatically, logged, and reversible'" },
+        { "object": "Grant", "sets": [{ "locator": "L34573", "set": "Assigned, Active, Revoked, or Expired" }], "conflict": "Assigned and Active are not distinguished by any stated behaviour. DEC-TENGRANT-001 (L16457) asks whether a grant carries an expiry at all." }
+      ],
+      "commandStates": {
+        "locator": "L31181",
+        "set": "created · authorized · queued · available for delivery · delivered · downloaded · validated · applied · acknowledged · rejected · failed · expired · cancelled · superseded · reconciled",
+        "count": 15,
+        "bindingRule": "L31181: 'A published version is not in force on a device until the corresponding version-change command reaches `applied` on that device. The Studio's publication view must therefore never show a version as \"live on the floor\"; it shows it as published, with per-device adoption reported by the Delivery Operations Hub.'",
+        "acceptanceCriteria": ["AC-STU-023 (L31226)", "AC-STU-112 (L33590)", "AC-STU-118 (L33769)"]
+      },
+      "eventsEmitted": {
+        "locator": "L31162-L31175",
+        "count": 12,
+        "ids": ["EVT-STU-SUBMITTED", "EVT-STU-RETURNED", "EVT-STU-ADVANCED", "EVT-STU-PUBLISHED", "EVT-STU-PATCH-AUTOPUBLISHED", "EVT-STU-ARCHIVED", "EVT-STU-LIBRARY-UPDATED", "EVT-STU-ASSET-FLAGGED", "EVT-STU-CAPABILITY-TOGGLED", "EVT-STU-AGENT-COMPOSED", "EVT-STU-LOCALE-INCOMPLETE", "EVT-STU-PART-MINTED"],
+        "classification": "L31160: 'Every event below is `Derived Clarification` in its identifier and payload shape; the underlying occurrence is `SoW Fact` where a section is cited.'",
+        "registryStatus": "registries/generated/events.json carries 28 rows, none of them EVT-STU-*. These twelve are a disjoint namespace, exactly like slice 4's."
+      },
+      "eventsConsumed": { "locator": "L31177", "ids": ["EVT-DOH-JOB-LINKED", "EVT-DOH-RUN-LINKED", "EVT-DOH-PARTS-UPDATED", "EVT-CC-LANEB-APPROVED", "EVT-SA-CATALOG-CHANGED", "EVT-SA-CAPABILITY-REGISTERED", "EVT-SA-EVAL-RESULT", "EVT-FL-COACHING-DISMISSED", "EVT-FL-COACHING-RESOLVED"], "count": 9 },
+      "integrations": { "locator": "L31185-L31191", "count": 5, "ids": ["INT-STU-DOH", "INT-STU-FL", "INT-STU-CC", "INT-STU-SA", "INT-STU-EMBED"] },
+      "fallbackContracts": { "locator": "L31443-L31454", "count": 10, "ids": ["FB-STU-01", "FB-STU-02", "FB-STU-03", "FB-STU-04", "FB-STU-05", "FB-STU-06", "FB-STU-07", "FB-STU-08", "FB-STU-09", "FB-STU-10"], "note": "Every one carries 'TBD — Client Decision Required' for its RTO/RPO under DEC-RTO-001 (L31456)" },
+      "notifications": {
+        "count": 41,
+        "note": "Forty-one trigger/recipient/channel/state-progression rows across the eighteen module cards. NONE carries a NOTIF-* identifier. registries/generated/notifications.json holds 205 rows, zero of them Studio. The Studio's notification surface is entirely unregistered.",
+        "bindingRule": "L31841: 'A notification must never be the only mechanism enforcing safety, a hold, qualification, authorization, approval, suspension, or a device command.' Restated at L33752 and enforced at AC-WF-AUT-006-03 (L53543): 'Returned items are visible in the Author's queue independently of notification delivery.'"
+      },
+      "featureNumberingSchemes": {
+        "schemeChapter20": { "form": "FEAT-STU-01-01 / SUB-STU-01-01-A / FUNC-STU-01-01-A-1", "locator": "L31593-L31604 onward", "count": "~40 features, ~70 sub-features, ~90 functionalities across the eighteen cards" },
+        "schemeFourDigit": { "form": "FEAT-STU-0101 / SUB-STU-0101 / FUNC-STU-0101", "locator": "L47378-L47431", "count": 54, "note": "exactly three per module, eighteen modules, one table" },
+        "registryEvidence": "registries/generated/features.json holds 123 STU rows — BOTH schemes are registered side by side. sub-features.json holds 58 SUB-STU rows and functions.json 60 FUNC-STU rows, i.e. the four-digit scheme plus a handful. The blueprint never states the two schemes describe the same features.",
+        "verdict": "Same shape as slice 4's D20. See decision D20 in the build map."
+      }
+    }
+  },
+  {
+    "label": "PASS-5 — the Workflow Builder exemplar: the full interactive journey with five-surface effects",
+    "value": {
+      "why": "The master prompt names the Workflow Builder the exemplar and demands a real interactive authoring journey rather than a picture. The source supplies THREE independent renderings of that journey and they must be reconciled rather than picked from.",
+      "renderings": [
+        { "id": "A — the workflow catalogue", "locator": "L53338-L53730 (§28.6)", "content": "WF-AUT-001 … WF-AUT-011, each with Source, In simple words, Actors and surfaces, Happy path, Denied path, Failure path, Offline-device impact, Artificial-intelligence impact, Fallback ladder, FIVE SURFACES, Recovery and reconciliation, Audit, Acceptance criteria, Tests, Illustrative Example, and a diagram. This is the only rendering that states five-surface effects explicitly and is therefore the spine." },
+        { "id": "B — the canonical story sequences", "locator": "L67873-L68478 (§30A.13-§30A.16)", "content": "SEQ-010 Preparing the authoring workspace; SEQ-011 Building the workflow; SEQ-012 Reviewing, rejecting, revising and approving; SEQ-013 Publishing v2.1.0 and generating the work package. Each carries Starting state, Ending state, role-and-surface authority table, Allowed/Conditional/Prohibited actions, per-surface behaviour for all five surfaces, Required fields, ten Validations, Normal/Alternate/Denied/Offline/AI/no-AI workflows, Notification, Audit event, a named FB-SEQ-0xx contract, two diagrams, storyboards, acceptance criteria and tests." },
+        { "id": "C — the module cards", "locator": "L32032-L32193 (MOD-STU-04) and its neighbours", "content": "Happy path, Alternate paths, storyboard SB-STU-07, structural validation set, and the five-per-module feature tree." }
+      ],
+      "journeySteps": [
+        {
+          "step": "open or create",
+          "primaryLocator": "WF-AUT-002 L53386; MOD-STU-03 FUNC-STU-03-01-B-1 L31934; SCR-STU-02/SCR-STU-LIBRARY",
+          "sourceRule": "L31877 'The Workflow Library is the first view on opening the Studio... The default filter is Published.' AC-STU-017 (L31097).",
+          "alternate": "L31956 'Where the author intends to change an existing Workflow, they create a draft from a published version rather than a new Workflow, which preserves version lineage.' — WF-AUT-003 (L53424).",
+          "fiveSurfaces": "DOH — supplies linkage counts, which render as 'Linkage unavailable, last retrieved at <ts>' and NEVER as zero (FUNC-STU-03-01-A-1 L31930, AC-STU-053 L32018). STU — the Library. CC — nothing. FL — nothing; no draft is ever delivered to a device (AC-011-02 L68168). SA — the platform taxonomy the Library inherits read-only."
+        },
+        {
+          "step": "choose taxonomy",
+          "primaryLocator": "L31890 §5.3.2; FUNC-STU-04-01-A-2 L32087, FUNC-STU-04-01-A-3 L32088",
+          "sourceRule": "'the eight starter Job Types and the eight starter Service Type tags'. Job Type is structural, EXACTLY ONE per Workflow, available at every tier. Service Type is an optional tag that 'never decides platform behaviour and nothing structural may hang on it'.",
+          "openDecision": "DEC-TAX-002 — the sixteen names are not stated anywhere and are not invented. Adopted working position (L31892): the seeded catalogue ships EMPTY at v1 and every tenant creates its own immediately, at every tier, with no approval step. DEC-TAXROLE-001 (L31914) — which role may create a custom type is not stated.",
+          "fiveSurfaces": "DOH — filters Workflow selection by Job Type (L31890); the Service Type tag pre-populates qualification requirements through the tenant's tag-to-qualification-set mapping. STU — the Library and the Builder settings panel. CC — nothing. FL — nothing. SA — holds the platform-seeded catalogue, inherited read-only."
+        },
+        {
+          "step": "name, scope and version",
+          "primaryLocator": "L32040 §5.4.1",
+          "sourceRule": "VERBATIM: 'Each Workflow carries four settings set before screen authoring begins — name, Job Type, the optional Service Type tag, and locale coverage (English and Spanish at launch) — and exactly two workflow-level defaults that every screen inherits unless overridden: the default escalation routing template and the default coaching trigger percentage. Deviation severity is never a workflow default; it is always mapped explicitly per screen.' L32040 continues: 'The word \"exactly\" is the source's own and is load-bearing: an implementation that adds a third inheritable default, however convenient, departs from the specification and must be raised as a change request.'",
+          "gate": "AC-STU-054 (L32179) — exactly four settings, exactly two inheritable defaults, no third. AC-STU-055 (L32180) — no UI control or API route sets a workflow-level default severity. FUNC-STU-04-01-C-1 (L32094) makes the refusal a functionality with fallback FB-STU-10.",
+          "fiveSurfaces": "DOH — Job Type drives selection filtering. STU — the left panel of SB-STU-07 (L32144), 'each labelled with whether it is inherited by screens'. CC — nothing at authoring. FL — the inherited coaching trigger executes on the device from the package. SA — the locale set."
+        },
+        {
+          "step": "add, reorder and remove screens",
+          "primaryLocator": "FUNC-STU-04-02-A-1 L32097; WF-AUT-002 L53391",
+          "sourceRule": "THE LOAD-BEARING SENTENCE, L32042: 'The screen order and branch targets drawn on this canvas are also the reference the sequence-detection mechanism compares against at run time: an out-of-order or skipped screen is a deterministic sequence deviation. This dual role is the single most important thing an author must understand about the canvas. The drawing is not documentation. It is the rule.'",
+          "gate": "FUNC-STU-04-02-A-2 (L32098): 'no role may author a sequence reference that differs from the drawn order, because two references would make skip detection unfalsifiable.' AC-STU-056 (L32181).",
+          "fiveSurfaces": "DOH — nothing until publication. STU — the canvas, plus the right panel's live structural validation list (L32144). CC — nothing. FL — the packaged sequence is what the device's deterministic sequence mechanism compares against (L31716). SA — nothing."
+        },
+        {
+          "step": "conditional branching and the gate-failure default",
+          "primaryLocator": "L32042 §5.4.2, L32044 §5.4.3",
+          "sourceRule": "'a measurement screen may route to the next standard screen when in tolerance and to a deviation-capture screen when out of tolerance'. L32044: 'When a worker fails a gate, the branch target defaults to a platform-standard deviation-capture screen — the author does not have to draw a failure path on every gated screen. A per-screen override is available for non-standard flows. The platform deviation-capture forms are part of the offline package, so the default path works without connectivity.'",
+          "gate": "AC-STU-057 (L32182); FUNC-STU-04-02-C-2 (L32104): 'the override target must itself be packaged or the override is rejected at publication'.",
+          "fiveSurfaces": "DOH — nothing. STU — the canvas. CC — nothing. FL — the default path opens locally from the package with no signal (TEST-STU-063 L32189). SA — nothing."
+        },
+        {
+          "step": "configure the nine sections",
+          "primaryLocator": "L32216-L32253 (the nine-section table and each section's prose); matrix L32257-L32267",
+          "sourceRule": "L32203: 'Clicking a screen node opens the configuration panel, organised into nine sections. Sections not relevant to the selected input type are not displayed — Section 5 appears only on measurement screens — Sections 8 and 9 are optional, and, per the capability principle, each section exists because an agent capability requires the information it captures.' L32201: 'A screen is the atomic unit of authoring and execution: one screen in the Builder corresponds exactly to one screen on the worker's device and one unit of execution telemetry... There is no intermediate sub-screen construct.'",
+          "sections": [
+            "1 Screen content — instruction text and optional reference image; a Shared Instruction Block's content appears first if applied (L32218, L32228)",
+            "2 Input type — one of seven capture types, or none (L32219, L32230); DEC-CAP-001 adopted working position is the §5.5.3 seven",
+            "3 Timing — maximum and minimum duration and the coaching trigger percentage (L32220, L32234)",
+            "4 Gate and proof — hard gate or soft gate (L32221, L32236); 'A soft proof gate never softens the specification gate'",
+            "5 Specification limits — lower, upper, unit, drawing reference. MEASUREMENT SCREENS ONLY (L32222, L32238)",
+            "6 Coaching content — the curated default coaching cards; live assets retrieved from the approved corpus (L32223, L32240)",
+            "7 Deviation rules and severity mapping — the mapping into the global catalog, banded on measurement screens, the containment checklist, and the escalation routing (L32224, L32242-L32249)",
+            "8 Tool and equipment — required tool, optional barcode scan to unlock the screen, optional calibration confirmation. OPTIONAL (L32225, L32251)",
+            "9 Qualification override — an additional certification required for this specific screen, above the workflow baseline. OPTIONAL (L32226, L32253)"
+          ],
+          "gate": "AC-STU-059 through AC-STU-065 (L32415-L32421). AC-STU-062: 'Severity is set explicitly on every screen that can deviate; publication is blocked otherwise.' L32244: 'the platform never assumes a value — severity must be set explicitly on every screen that can deviate'.",
+          "severityArming": "SB-STU-05 (L31814) and FUNC-STU-05-08-C-1 (L32313): mapping a band to Severity 1 raises an inline confirmation headed 'This band arms an automatic lot hold.' stating what will be held, that release is Quality Manager only with no supervisor exception, that the hold is placed on the device immediately including offline, and that escalation delivery follows at sync. 'if the confirmation cannot be recorded, the mapping is not saved.'",
+          "fiveSurfaces": "DOH — the tenant action bundles and the certification list the panel reads. STU — SB-STU-08 (L32379), a nine-section accordion with per-section completion indicators and a live consequence preview under Section 7. CC — the deviation workspace renders the configured severity level and its action bundle (L53397). FL — every one of the nine sections' authored values executes from the pinned package with no connectivity (L32385). SA — the global severity catalog and the atom registry bound what the Builder can offer."
+        },
+        {
+          "step": "validate",
+          "primaryLocator": "FUNC-STU-04-02-B-2 L32101; SB-STU-07 right panel L32144; L48330",
+          "sourceRule": "The structural validation set is enumerated in the storyboard, L32144: 'unreachable nodes, dangling branch targets, screens with no severity mapping, screens missing a curated coaching default in a declared locale. Each validation item names the specific screen and is clickable.' L48330: 'STATE-04 validation on this surface carries a special weight: the locale completeness check and the missing-severity-mapping check are publication blockers, not warnings.'",
+          "gate": "AC-STU-058 (L32183) — a Workflow with an unreachable node or a dangling branch target cannot be submitted. L32120: 'Where a branch target is deleted, the branch is flagged as dangling and the Workflow becomes structurally invalid until the author supplies a target; the platform does not silently reroute.'",
+          "fiveSurfaces": "DOH — nothing. STU — the validation panel. CC — nothing. FL — nothing. SA — the evaluation harness gates capabilities, not workflows."
+        },
+        {
+          "step": "save draft",
+          "primaryLocator": "FB-STU-01 L31445, L30863",
+          "sourceRule": "L30863: 'The Studio switches the editor to an explicit disconnected state, retains the author's unsaved edits in a local draft buffer, disables submit and publish controls, and states plainly that no save has been recorded.' AC-STU-009 (L30871): 'The Studio never displays a save confirmation for a write that did not durably commit.'",
+          "fiveSurfaces": "DOH — the reconciliation record is written to the tenant audit log in the same transaction as the accepted revision (L30867). STU — the draft. CC/FL/SA — nothing."
+        },
+        {
+          "step": "compare versions (diff)",
+          "primaryLocator": "FUNC-STU-12-03-B-1 L33501; SCR-STU-DIFF; SB-STU-15 L33546",
+          "sourceRule": "L33438: 'a screen-level diff between any two versions — which screens changed, what instruction text was added or removed, what specification-limit values changed, and what severity-mapping or deviation-rule updates were made'.",
+          "gate": "FUNC-STU-12-01-A-2 (L33486): 'where the diff engine is unavailable, the classification cannot be validated and the submission is held rather than advanced, because advancing an unvalidated classification could auto-adopt a behaviour change.'",
+          "fiveSurfaces": "DOH — nothing. STU — the diff. CC — nothing. FL — nothing. SA — nothing."
+        },
+        {
+          "step": "preview",
+          "primaryLocator": "FUNC-STU-11-01-B-1 L33298; SCR-STU-PREVIEW; SB-STU-14 L33357; SB-012-02 L68317",
+          "sourceRule": "L33242: the Reviewer 'opens the submission from the Approval Queue, steps through each screen in preview, reviews instruction text, specification limits, coaching content, and deviation rules'. SB-STU-14: 'a right-hand panel showing the four review obligations named in the source — instruction text, specification limits, coaching content, deviation rules — each with a tick and a comment box.'",
+          "gate": "AC-STU-004 in WF-AUT-004 form: AC-WF-AUT-004-03 (L53471) 'Advancement is blocked where any screen cannot be previewed.'",
+          "fiveSurfaces": "DOH — nothing until publication. STU — the preview. CC — nothing. FL — nothing; 'No device receives a preview, a comment or an approval' (L68228). SA — composed agents follow this same chain plus the evaluation gate and platform review (L53468)."
+        },
+        {
+          "step": "submit",
+          "primaryLocator": "FUNC-STU-11-01-A-1 L33295; EVT-STU-SUBMITTED L31164",
+          "gate": "FUNC-STU-11-02-A-2 (L33307) — 'Check chain staffability before submission and name the shortfall', source status `Client Decision Required` DEC-RELAUTH-001. AC-STU-103 (L33403).",
+          "fiveSurfaces": "DOH — the submission event enters the tenant audit log. STU — the Approval Queue. CC — nothing; 'a workflow approval likewise is not an in-shift decision' (L68226). FL — nothing. SA — nothing."
+        },
+        {
+          "step": "return with comments",
+          "primaryLocator": "WF-AUT-006 L53529; FUNC-STU-11-01-B-2 L33299; EVT-STU-RETURNED L31165",
+          "sourceRule": "L53535: 'Rejection without comments is refused, because the comment is the instruction to the Author.'",
+          "gate": "AC-WF-AUT-006-03 (L53543) — 'Returned items are visible in the Author's queue independently of notification delivery.' This is the rule that stops a notification being the only mechanism.",
+          "fiveSurfaces": "DOH — no effect. STU — the queue and version history. CC — no effect. FL — no effect; the prior version remains in force. SA — no effect. (verbatim L53540)"
+        },
+        {
+          "step": "revise",
+          "primaryLocator": "WF-AUT-007 L53561",
+          "sourceRule": "L53567: 'A revision cannot skip the Reviewer stage even where the change is trivial. The Reviewer still cannot edit.' AC-WF-AUT-007-01 (L53575): 'Every resubmission re-runs the full chain.'",
+          "fiveSurfaces": "L53572 verbatim: 'As for WF-AUT-006 until publication occurs.'"
+        },
+        {
+          "step": "evaluate (composed agents only)",
+          "primaryLocator": "FUNC-STU-15-03-A-1 L34050",
+          "sourceRule": "'the evaluation gate is hard, platform-wide, and binds every operator including the root account'. 'where the harness is unreachable, the composition holds at Evaluation pending and is never advanced on an assumption.'",
+          "note": "There is NO evaluation gate on a Workflow. It applies to composed agents only. Conflating the two would invent a gate."
+        },
+        {
+          "step": "maker-checker approve (the three-stage chain)",
+          "primaryLocator": "L33239-L33245 §5.11.1; matrix L33268-L33279",
+          "sourceRule": "VERBATIM L33239: 'No Workflow content reaches the frontline without explicit human sign-off at each stage.' Author completes and submits. Reviewer 'opens the submission from the Approval Queue, steps through each screen in preview, reviews instruction text, specification limits, coaching content, and deviation rules, and either returns the Workflow with comments or advances it. The Reviewer cannot edit content directly — corrections go back to the Author.' Release Authority 'grants final publication sign-off against the diff and the change summary, creating a new version. The Release Authority cannot be bypassed.'",
+          "gate": "L33389: 'Person distinctness is checked against identity, not against role, because multi-role is additive and the audit log records identity and action rather than \"acting as role\". A user holding both the Supervisor and Quality Manager roles is still one person and still cannot occupy two stages.' AC-STU-100 (L33400), AC-STU-153 (L34670), AC-SCR-STU-002 (L48347).",
+          "fiveSurfaces": "DOH — receives every chain transition into the tenant audit log; 'It still shows no workflow version available for Job linkage, because approval to publish is not publication' (L68222). STU — queue, preview, comment threads, approval log. CC — shows nothing. FL — unchanged and carrying nothing. SA — approval-chain depth is a platform setting the console holds (L68230)."
+        },
+        {
+          "step": "publish",
+          "primaryLocator": "WF-AUT-008 L53596; MOD-STU-12 L33424-L33433; SEQ-013 L68392-L68398",
+          "sourceRule": "Semantic version vMAJOR.MINOR.PATCH. PATCH = 'corrections that change no operating behaviour: a typographical error, a clarified phrase, an updated reference image, a Lane-B-approved value' (L33426). MINOR and MAJOR = 'the notified classes: changes to what the worker does or what the platform enforces, meaning limits, gates, timing, severity mappings, sequence, screens added or removed, with MAJOR marking restructuring' (L33427). 'Every republish requires a mandatory republish description — what changed and why' (L33429).",
+          "gate": "AC-STU-105/106 (L33583-L33584); AC-WF-AUT-008-03 (L53610) 'The worker-facing change notice text equals the mandatory republish description' with TEST-WF-AUT-008-03 comparing 'notice text to description text byte for byte'.",
+          "fiveSurfaces": "DOH (L53607) — 'Job version history, adoption tracking, and the audit.' STU — 'the linkage view showing which Jobs and Runs are on each version.' CC — 'no publication role; it shows deviations against the version each run actually executed.' FL — 'the change notice on the first screen of the next execution and the flagged steps in situ.' SA — 'the per-device package inventory with per-run pinned versions and the adoption-timing lag metric.'"
+        },
+        {
+          "step": "generate the package",
+          "primaryLocator": "WF-AUT-009 L53633; MOD-STU-14 L33791-L33799",
+          "sourceRule": "The five content classes, VERBATIM (L33793-L33797): '1. all screen content, including instruction text at the difficulty levels — all levels pending the packaging decision of DEC-WIDIFF-001 — in the Run's locale; 2. specification limits and gate rules; 3. the screen severity mappings together with the severity-catalog definitions and tenant action bundles needed to classify and act at capture; 4. the platform deviation-capture forms, so the default gate-failure path works offline; 5. the designated coaching defaults and short-form coaching assets, included subject to available device storage.' L33799: 'Training Library content is excluded. Escalation delivery is server-side and is not packaged.'",
+          "countConflict": "L33791 says the package 'contains everything the device must render, evaluate, and enforce alone' in FIVE numbered classes. AC-WF-AUT-009-01 (L53647) enumerates SIX mandatory content classes — 'specification limits, gate rules, severity mappings, catalog definitions, tenant action bundles, and deviation-capture forms' — by splitting class 3 into three and class 2 into two and dropping screen content and coaching. TEST-WF-AUT-009-01 (L53648) is a 'Manifest assertion for the six mandatory content classes.' AC-STU-120 (L33941) says 'all five stated content classes'. FIVE and SIX are both asserted as test-strength counts of the same manifest.",
+          "gate": "AC-STU-121 (L33942) — a package failing integrity verification is Quarantined and never delivered.",
+          "fiveSurfaces": "DOH (L53644) — 'assignment pins the package.' STU — 'package definition and contents.' CC — 'deviation workspace reads the severity level and bundle the device applied.' FL — 'evaluates and enforces from the package alone.' SA — 'the severity catalog distributes into packages and a catalog change is a package-affecting, critical-class change.'"
+        },
+        {
+          "step": "pin",
+          "primaryLocator": "WF-AUT-010 L53668; FUNC-STU-12-02-C-1 L33496",
+          "sourceRule": "L53670: 'each run pins its work package at assignment and the pin is immutable for the life of the run'; 'a run finishes on the Workflow version it started on'. L53673: the pin is taken BEFORE the download — 'The package identifier is written to the run record as its pin' then 'The device downloads that exact package.'",
+          "gate": "AC-WF-AUT-010-01/02 (L53682). L53696: 'The diagram shows the pin being taken before the download rather than after, which is why a download failure is a readiness problem and never a version ambiguity.'",
+          "seam": "WF-AUT-010's surface is the DELIVERY OPERATIONS HUB and its module is MOD-DOH-06 — NOT a Studio module. Slice 5 builds the pinning CONTRACT and renders the pin; the pinning ACT is slice 6.",
+          "fiveSurfaces": "DOH — 'the run record with its immutable pin.' STU — 'the linkage view showing runs per version.' CC — 'the run's version is shown alongside its deviations.' FL — 'the pinned package is what executes.' SA — 'per-run pinned versions in the device package inventory.' (verbatim L53679)"
+        },
+        {
+          "step": "supersede",
+          "primaryLocator": "L31125, L33479, L53325-L53326, L8616",
+          "sourceRule": "L53332: 'a superseded version is not deleted — prior versions are retained in full and remain permanently readable, and archival is a deliberate act against a no-active-Jobs indicator'.",
+          "conflict": "The state is named `Superseded` at L31125/L33479/L53326 and `Outdated` at L8616. L33479 uses `Outdated` for a DIFFERENT thing — the per-Job adoption state after the update window lapses. See PASS-4."
+        },
+        {
+          "step": "roll back",
+          "primaryLocator": "WF-AUT-011 L53700-L53730",
+          "sourceRule": "L53702: 'Not specified in the Statement of Work as a rollback act.' L53703: 'A published version turns out to be wrong. The platform does not un-publish it, because the floor may already have run it. Instead the previous content is put through the chain again and comes out as a new, higher version number.'",
+          "deniedPath": "L53706 VERBATIM: 'Deleting or hiding a published version is refused; prior versions are retained in full. Rolling back by editing a published version in place is refused. Skipping the chain for a rollback is refused — nothing reaches the frontline without sign-off at each stage.'",
+          "openDecision": "TWO identifiers for one question. `DEC-WFROLL-001` (L53350, L53702, L53710, L60809, L115391 'Chapter 28 — Complete Workflow Catalog, 8') asks whether a version can be marked WITHDRAWN so no new Job may link to it. `DEC-VERROLL-001` (L8623, L115390 'Chapter 7 — Domain Model and Business Objects, 5') is 'raised on the rollback question'. Neither card cross-references the other.",
+          "fiveSurfaces": "DOH — 'Job linkage and adoption.' STU — 'version history showing both the withdrawn and the corrected version.' CC — 'deviations continue to be attributed to whichever version each run executed.' FL — 'the change notice at the next execution boundary.' SA — 'package inventory shows the fleet's mixed state during the transition.' (verbatim L53711)"
+        },
+        {
+          "step": "archive",
+          "primaryLocator": "FUNC-STU-12-03-D-1 L33505; L33440",
+          "sourceRule": "L33440: 'manual archival — a version is never auto-archived when its Jobs are archived; archival is a deliberate action taken against a clear no-active-Jobs indicator'. L33505: 'where the no-active-Jobs indicator cannot be computed, archival is blocked rather than performed on an assumption.'",
+          "openDecision": "DEC-ARCH-001 (L33443) — 'It does not state whether an archived version can be un-archived, whether an archived version can be linked to a new Job, or whether archival is reversible at all.' Also raised at L31974 in MOD-STU-03's state diagram, where the transition 'Archived --> Published' is drawn and labelled 'republication is not defined in the source'.",
+          "gate": "AC-STU-110 (L33588). MOD-STU-12 matrix row L33467 gives Archive to the Quality Manager alone and `Explicitly prohibited` to everyone else including the Supervisor with the grant."
+        }
+      ],
+      "sequenceLevelInvariants": [
+        "SEQ-011 ending state (L68040) is the most complete single statement of what a finished draft contains and should be the fixture's target state.",
+        "SEQ-012 (L68242-L68246) is the only place the return-revise-resubmit cycle is walked with audit identifiers per step: AUD-BB-000269, 000275, 000281, 000287.",
+        "SEQ-013 step 3 (L68396) makes the package completeness check a separate act from the build: 'The platform, checking the package before it is publishable, verifies that the specification limits, the severity mappings, the gate rules and the deviation-capture forms are all present.'",
+        "SEQ-012's FB-SEQ-012 (L68262) names the one-person-quality-team failure exactly: 'no eligible Reviewer exists because the only other grant-holder authored the submission'. Terminal safe state: 'the submission stays submitted and unpublished, no version exists, no package can be built, and no Job can link to it.' This is DEC-RELAUTH-001 in operational form."
+      ]
+    }
+  },
+  {
+    "label": "PASS-6 — open decisions: every question the source leaves open, with both readings and their locators",
+    "value": {
+      "chapterTwentyOpenDecisionsTable": "L34723-L34753, twenty-nine rows: seventeen Registered, twelve marked **New**",
+      "honestyStatement": {
+        "locator": "L34755",
+        "quote": "This chapter does not claim complete coverage of the Standards and Operations Studio. Twelve decisions were carried into this chapter and eleven were newly identified here. One of them, `DEC-CAP-001`, now carries an adopted working position... The remaining twenty-two are open, and several — `DEC-LANEB-001`, `DEC-LIB-001`, `DEC-WIDIFF-001` and `DEC-PKGFIELD-001` in particular — materially affect implementable behaviour rather than presentation. Any statement that the Studio specification is complete would be false while those remain undecided.",
+        "arithmeticNote": "The table lists 29 rows of which 12 carry **New**; the prose says 'twelve carried in and eleven newly identified'. 12 + 11 = 23, not 29, and 'eleven newly identified' does not match the twelve **New** rows. The prose and the table disagree by one on the new count and by six on the total. AC-STU-159 (L34760) requires every DEC-* referenced in the chapter to appear in the table; it does not require the prose count to match."
+      },
+      "decisionsFoundOutsideChapterTwentyThatBindTheStudio": [
+        { "id": "DEC-DELEG-001", "locator": "L17915, L17920, L19571, L22052 [Y21]", "question": "May the Agent Author capability be delegated at V1?", "readingA": "§5.18 and §5.15.4 describe it as 'held or delegated' and 'assigned to the Quality Manager or a delegated administrator'; MOD-STU-15's matrix has a whole column headed 'Delegated administrator with Agent Author' (L34007).", "readingB": "§4.8.4 states plainly 'Delegation is deferred beyond V1; cover is handled by manually adding a role or grant' (L17920).", "interimPosition": "MTX-TEN-02b [Y21] (L22052): 'Until decided, the build denies Supervisor access to the Agent Builder and names the decision.'", "notInChapter20Table": true },
+        { "id": "DEC-VERROLL-001", "locator": "L8623, L115390", "question": "The rollback question, raised on OBJ-037", "collision": "Duplicates DEC-WFROLL-001 (L53350, L115391). Two identifiers, one question, two owning chapters, no cross-reference.", "notInChapter20Table": true },
+        { "id": "DEC-TENGRANT-001", "locator": "L16457", "question": "Whether a Studio grant row carries an expiry", "notInChapter20Table": true },
+        { "id": "DEC-FEAT-001", "locator": "L67891", "question": "Atom enablement authority: §8.2.2 makes it a Platform Engineer change requiring Admin approval while §8.19 makes platform-side tenant feature enablement an Admin action", "notInChapter20Table": true },
+        { "id": "DEC-FEAT-003", "locator": "L67960", "question": "Precedence between a global capability disable and a tenant-specific override — 'a genuine precedence question the source does not settle'", "notInChapter20Table": true },
+        { "id": "DEC-A11Y-001", "locator": "L48204, L48332", "question": "The target accessibility conformance standard and level, unstated for every web surface", "bindsStudio": "L48332 names the nine-section configuration panel 'the densest screen on the platform and... the accessibility risk'" },
+        { "id": "DEC-STORE-001", "locator": "L33850, L53640", "question": "Device storage-full behaviour, explicitly deferred to the Frontline functional specification", "bindsStudio": "MOD-STU-14 packages coaching assets 'subject to available device storage' and must not invent the eviction rule" },
+        { "id": "DEC-SYNC-001", "locator": "L31302, L33913", "question": "Capture-upload against command-download ordering at reconnection", "adoptedPosition": "2026-08-14, three phases: stop-class commands first, then every pending capture with nothing discarded, then enabling-class commands. `Derived Clarification — adopted working position`, ratification outstanding." },
+        { "id": "DEC-SCAN-001", "locator": "L32251, L32317", "question": "The deployed scanner hardware list, owed by the client", "bindsStudio": "Section 8's tool-barcode requirement 'carries an unresolved hardware dependency that must be confirmed before go-live'" },
+        { "id": "DEC-NOSHIFT-001", "locator": "L32618, L32673", "question": "The nobody-on-shift escalation default", "bindsStudio": "An authored routing template whose roles are all off-shift at 03:00 delivers nothing unless the default is settled" },
+        { "id": "DEC-PLUS-001", "locator": "L30832, L34526", "question": "The meaning of `Supervisor+` and `Quality Manager+`", "reading": "'an additive union of the named roles rather than a ranked hierarchy'" },
+        { "id": "DEC-STUXREF-001", "locator": "L31869", "question": "§5.2.2 cites '(5.5.9)' for the Severity 1 arming disclosure; §5.5.1's table and §5.11's numbering place Deviation Rules and Severity Mapping at §5.5.8, with §5.5.9 being Tool and Equipment. The cross-reference is off by one.", "whyItMatters": "'downstream requirement traceability keyed on the cited section number would point at the wrong configuration section'" }
+      ],
+      "materialContradictionsAtNamedTestStrength": [
+        {
+          "id": "DEC-LANEB-001",
+          "locator": "L33253 (full card), L34173, L48336, L53309",
+          "readingA": "§5.11.1: 'No Workflow content reaches the frontline without explicit human sign-off at each stage' (L33239). §5.12.1 lists 'a Lane-B-approved value' as a PATCH class change (L33426), so a Lane-B value IS Workflow content.",
+          "readingB": "§5.16.3 and §6.7.4: an approved Lane-B proposal auto-publishes a patch version with 'no second approval, no ceremony' (L34171).",
+          "sourceRecommendation": "L33253: 'reading (b) restricted to values that cannot alter a specification limit, a severity mapping, or a gate rule, with any Lane-B proposal touching those three routed through the full chain.'",
+          "acceptanceCriteriaOnBothSides": ["AC-STU-097 (L33397) 'No content reaches a published version without three recorded transitions by three distinct identities'", "AC-STU-104 (L33404) 'The interaction between the chain and Lane-B auto-publication is not implemented silently'", "AC-STU-138 (L34332) 'An approved package-borne value publishes as a patch and adopts per the tenant's adoption timing'"],
+          "verdict": "AC-STU-097 and AC-STU-138 cannot both hold for a package-borne Lane-B value. This is the slice-5 equivalent of slice 4's named-test-strength contradiction."
+        },
+        {
+          "id": "DEC-LIB-001",
+          "locator": "L32591 (full card), L33805, L53676, L68084, L68414",
+          "readingA": "§5.7: 'screens hold pointers, so updating a library item propagates to every screen that references it' (L32580), 'immediately' (L32591).",
+          "readingB": "§5.14 and Part II: 'a Run's work package is pinned at assignment and never re-based' (L32591).",
+          "sourceRecommendation": "'pinning semantics for anything that ships in the package, with the library edit reaching the floor at the next package build... Under this reading the source's \"propagates immediately\" is true of authoring — every referencing screen shows the new version in the Studio at once — and becomes true of the floor at the next package build.'",
+          "consequenceIfWrong": "'a mid-Run containment change would make the run record ambiguous about which policy was in force'"
+        },
+        {
+          "id": "DEC-WIDIFF-001",
+          "locator": "L32949 (full card), L33793, L53362, L68390",
+          "readingA": "carry all three levels (the source's stated INTERIM rule: L32949 'Until it resolves, the package definition carries instruction content at all levels')",
+          "readingB": "carry only the assigned worker's level",
+          "sourceRecommendation": "'option (c), because mid-Run substitution is a supported operation, substitution can occur offline, and a worker receiving the standard level rather than their profile level is a degradation of comfort rather than of safety, whereas receiving nothing is a stoppage.'",
+          "note": "The source RECOMMENDS (c) — assigned level plus standard as fallback — while its own INTERIM rule is (a) all levels. AC-STU-090 (L33077) requires the interim rule to be applied AND DEC-WIDIFF-001 surfaced. Building (c) would violate the interim rule; building (a) would ignore the recommendation. The interim rule wins because it is the one carrying an acceptance criterion."
+        },
+        {
+          "id": "DEC-PKGFIELD-001",
+          "locator": "L33807",
+          "question": "The authoritative field-by-field assignment of package-borne versus server-only values.",
+          "sourceStatement": "'§6.7.4 states that the authoritative field-by-field assignment is carried in the package contract of Part VII; Part VII does not enumerate it.'",
+          "consequence": "'without it an approved Lane-B value cannot be routed deterministically to either the patch-publication path or the immediate-application path'"
+        },
+        {
+          "id": "DEC-CAP-001",
+          "locator": "L32232 (full card), L53392, L68068",
+          "readingA": "§1.7 and §7.8.3: measurement, scan, photo, checklist, boolean, electronic signature, free text",
+          "readingB": "§5.5.3: measurement entry, photo capture, barcode or QR scan, checkbox confirmation, digital signature, free text, dropdown selection",
+          "status": "ADOPTED working position 2026-08-14 on the §5.5.3 set, with checkbox confirmation carrying a multiplicity setting so one confirmation is a boolean and many is a checklist.",
+          "gate": "AC-STU-065 (L32421) names the seven verbatim and requires publication blocked for anything outside the set, with the offending type named. TEST-WF-AUT-002-04 (L53401): 'Cross-check the Builder capture-type list against the Frontline renderer list and fail the build on divergence.'",
+          "whyItMatters": "L32232: 'a Frontline player cannot render a type the contract does not name. If the Studio offers dropdown selection and the Frontline capture-type contract does not carry it, an author can publish a screen the device cannot render.'"
+        },
+        {
+          "id": "DEC-LIBREV-001",
+          "locator": "L32622",
+          "question": "What 'lightweight review' removes from the three-stage chain for Content Library edits",
+          "readingA": "§5.7.4 introduces 'a lightweight review for edits to published Content Library items'",
+          "readingB": "§5.11.1 states no Workflow content reaches the frontline without explicit human sign-off at EACH of the three stages, and §5.8 states Training Library content passes 'the same approval chain'",
+          "sourceRecommendation": "option (a), the full three-stage chain with a scoped preview limited to the changed item. 'Until it is decided, this blueprint treats library edits as passing the full chain and records the divergence.'"
+        },
+        {
+          "id": "DEC-AUDSTU-001",
+          "locator": "L34524 (full card), L30817, L23098",
+          "question": "The Read-only Auditor's Studio access; the §5.18 table (L34512-L34518) enumerates five rows and the Auditor is not one of them.",
+          "sourceRecommendation": "option (b) — read-only Studio access limited to published versions, version history, approval logs, and diffs, with no access to drafts or in-review versions.",
+          "counterPattern": "§3.5 states the Read-only Auditor 'has no Command Center access and works from the DOH record, which carries every Command Center decision' (L34524), which establishes a pattern of routing the auditor to the DOH record. But Studio publish events reach that log while 'the diff and the approval log are not stated to be'.",
+          "bindingConstraint": "L34524 final sentence, and AC-STU-157 (L34674): 'Until decided, every Read-only Auditor cell in this chapter reads Client Decision Required rather than being guessed.' This is the single most pervasive open cell on the surface — it appears in 15 of the 26 matrices.",
+          "conflictingRestatements": ["§25.3 L48321 gives the Auditor 'Not applicable — the Auditor works from the Delivery Operations Hub record, which carries every publication event' on 'Open published Workflow content' and 'Read-only' on 'Maintain Content Libraries' — a status where chapter 20 says the question is open", "SEQ-010 L67908 gives the Auditor 'Read-only' outright: 'Reads publication and configuration events in the tenant audit log; holds no Studio authoring capability'"]
+        },
+        { "id": "DEC-LANEBAUTH-001", "locator": "L34175", "question": "Who decides a Lane-B proposal", "readingA": "§5.16.3: 'a Quality Engineer or Quality Manager accepts or rejects'", "readingB": "§3.8 and the Command Center's closed action set: a Quality Manager and above action", "pivot": "'A quality engineer is a persona, not a role: §5.18 staffs them as holders of the Supervisor or Quality Manager role with the authoring grant applied. Under §5.18's staffing model, a quality engineer holding only the Supervisor role would be able to decide a Lane-B proposal under §5.16.3 but not under §6.14.2.'", "sourceRecommendation": "option (a), Quality Manager and above only, 'because the Client Command Center's action set is explicitly closed at ten and adding decision authority to a role is a scope decision rather than a drift'" },
+        { "id": "DEC-CAPAUTH-001", "locator": "L33992", "question": "Which role is the 'authorised user' who enables and disables an atomic capability", "sourceStatement": "'§5.15.2 states that \"an authorised user\" enables capabilities in the Atomic Capability area, without naming the role, while §5.15.4 names the Agent Author capability specifically for compose authority.'", "sourceRecommendation": "option (b), the Tenant Admin with mandatory Quality Manager consultation recorded", "reach": "This one decision blanks an entire ROW of MOD-STU-15's matrix (L34009: all four tenant columns read `Client Decision Required`) and a row of MOD-STU-18's consolidated matrix (L34555)." },
+        { "id": "DEC-RELAUTH-001", "locator": "L33255", "question": "Minimum staffing for a completable chain, and per-workflow Release Authority override eligibility", "namedFailure": "'a tenant with exactly one Quality Manager and one authoring-grant holder can author and review but cannot release, because releasing would require the reviewer to perform a second stage. The Workflow stalls and the floor keeps running on the prior version, which is safe but is also a silent operational deadlock.'", "sourceRecommendation": "option (a), 'require at least two holders of a Release-Authority-capable role at tenant scope, enforced at Workflow submission with a clear message'" },
+        { "id": "DEC-EMBED-001", "locator": "L32606, L31193", "question": "Data-processing posture for the named external multimodal embedding model (Gemini Embedding 2.0) over corpus media containing identifiable workers", "sourceStatement": "'It does not state whether corpus content crosses the platform boundary to be embedded, under what data-processing terms, in which region, how a model deprecation or version change is handled, or whether the index must be rebuilt when the model changes.'", "sourceRecommendation": "option (a), embed in-region under a DPA with an explicit no-training, no-retention term, plus a documented index-rebuild procedure", "note": "L31216: 'The arrow to the embedding model is the only arrow in this chapter that leaves the platform's own components, which is why it carries its own decision identifier.'" },
+        { "id": "DEC-AGENTLC-001", "locator": "L33994", "question": "Composed-agent deprecation, disablement, rollback, and the fate of in-flight runs", "namedFailure": "'a composed reasoning agent that begins producing misleading briefs has no stated off switch short of the platform-wide emergency pause, which is a much blunter instrument'", "sourceRecommendation": "option (a) tenant-side disable with an audited reason PLUS option (c) versioned composed-agent lifecycle" },
+        { "id": "DEC-ARCH-001", "locator": "L33443, L31974", "question": "Whether a manually archived version can be un-archived or re-linked", "sourceRecommendation": "option (a), reversible by the Quality Manager with an audited reason, 'because the platform's only irreversible act is worker personal-data anonymisation and adding a second irreversible act to a content operation is disproportionate'" },
+        { "id": "DEC-WFROLL-001", "locator": "L53710", "question": "Whether a version can be marked withdrawn so no new Job may link to it", "sourceRecommendation": "'a withdrawn flag that blocks new linkage while preserving readability'", "tradeOff": "'one more state in the version model'" },
+        { "id": "DEC-TAXROLE-001", "locator": "L31914", "question": "Which tenant role may create, edit, deprecate, and archive a custom Job Type or Service Type tag", "sourceRecommendation": "'Tenant Admin in the tenant administration area, because Job Type shapes Delivery Operations Hub behaviour rather than Workflow content, with the Quality Manager consulted'", "whyItMatters": "'an uncontrolled custom Job Type list degrades Workflow selection on the floor'" },
+        { "id": "DEC-PARTSTUB-001", "locator": "L33203", "question": "The reminder interval for an incomplete skeletal part record", "sourceRecommendation": "'a tenant-configurable interval defaulting to seven days'" },
+        { "id": "DEC-RTO-001", "locator": "L31456", "question": "RTO and RPO values, unstated for every surface", "sourceRecommendation": "'the moderate pair for the Studio (four hours, one hour), because the Studio is not in the runtime path and the floor is unaffected by its outage, paired with a stringent pair for the Delivery Operations Hub, which is'" },
+        { "id": "DEC-MON-001", "locator": "L31483", "question": "Whether Studio operational metrics are exposed to tenants or held platform-side", "monitoringSet": "ten metrics, `Recommendation — R&D`: publication success rate and transaction failure count; approval-queue depth and ageing distribution; time from submission to release; locale-completeness failure rate by locale; index backlog depth and age; package build success rate and build duration; per-version adoption lag; library pointer resolution failure count; capability dependency validation failure count; count of drafts blocked from submission with the blocking reason" },
+        { "id": "DEC-TAX-002 / DEC-TAX-003", "locator": "L31892-L31896", "question": "The names and codes of the eight starter Job Types and eight starter Service Type tags; and global taxonomy versioning", "adoptedPosition": "seeded catalogue ships EMPTY at v1; tenants create their own immediately at every tier with no approval step; the sixteen are loaded later, inherited read-only, overwriting no tenant-created entry", "internalTension": "The card's own option (c) — 'the platform ships with an empty seeded set and every tenant creates its own' — is listed as CONTRADICTING §5.3.2, and the adopted position is materially option (c). L31896 reconciles it: 'Because the mechanism and the counts are preserved and only the load is deferred, §5.3.2's eight-and-eight statement is satisfied on delivery of the names rather than contradicted.'" },
+        { "id": "DEC-GATE-001", "locator": "L31692", "question": "Action-agent gating: pre-authorised Studio-authored policy versus a runtime human gate", "adoptedPosition": "per-agent governance-binding field: Prevention Agent carries `authoring-time policy`, Deviation and Containment Agent carries `runtime human gate` for proposals beyond pre-authorised containment", "studioConsequence": "L31692: 'the Studio must author the pre-authorised policy completely, because for the Prevention Agent that authoring approval is the whole of the human approval, and must never present pre-authorised policy as though it were a runtime human gate.'" },
+        { "id": "DEC-CONTLAUNCH-001", "locator": "L31721, L32593", "question": "Who launches the containment checklist", "adoptedPosition": "Option A — the device launches locally from the pinned package at classification with no network; the agent enriches afterwards and never triggers", "studioConsequence": "L32653: 'every step to be fully renderable from the package with no server call — a step that requires a server lookup cannot be a launch-time step, and authoring must refuse it.'" },
+        { "id": "DEC-ROLE-001", "locator": "L34522, L30816", "question": "Plant Manager listed as a fixed role in a table headed 'Fixed role' while §3.5 fixes five roles", "adoptedTreatment": "'This blueprint treats Plant Manager as a persona whose Studio access is delivered by a Supervisor role without the authoring grant, which produces exactly the access §5.18 describes, and records the divergence rather than resolving it.'" },
+        { "id": "DEC-NAME-001", "locator": "L30525", "question": "Delivery Operations Hub vs 'Digital Operations Hub'", "status": "Registered, preserved" }
+      ],
+      "silencesWithNoDecisionIdentifier": [
+        { "question": "What the Studio does when the connection drops — three incompatible answers", "readingA": "L48014 global contract: the three web surfaces 'render a connection-lost banner and enter STATE-08 or STATE-13'", "readingB": "L48330 §25.3: 'STATE-07 offline is not applicable anywhere on this surface... a lost connection renders STATE-12 with unsaved-work protection'", "readingC": "L30842-L30851 chapter 20's own four-state machine: Connected → Degraded → ReadOnlyCache → Suspended, with FB-STU-01 (L30863) describing 'an explicit disconnected state' that is none of the thirteen", "note": "No DEC-* identifier exists for this. Slice 4 resolved the same shape as its D7." },
+        { "question": "Whether the package manifest carries FIVE or SIX mandatory content classes", "readingA": "L33791-L33797 and AC-STU-120 (L33941): five", "readingB": "AC-WF-AUT-009-01 (L53647) and TEST-WF-AUT-009-01 (L53648): six", "note": "No DEC-* identifier. Both are test-strength assertions about the same manifest." },
+        { "question": "Whether a Workflow (not a version) has an Archived state", "readingA": "L31124, L31924: yes", "readingB": "L8598 OBJ-036: no — 'Draft, In Review, Published'", "note": "No DEC-* identifier." },
+        { "question": "Whether the version state after supersession is called `Superseded` or `Outdated`", "readingA": "L31125, L33479, L53326: Superseded", "readingB": "L8616 OBJ-037: Outdated", "complication": "L33479 uses Outdated for the per-Job adoption state, so a build that adopts OBJ-037's name loses a distinction the same paragraph draws.", "note": "No DEC-* identifier." },
+        { "question": "Which screen catalogue is canonical", "readingA": "L31067-L31089, twenty-one mnemonic ids", "readingB": "L48259-L48273, fifteen numbered ids with AC-SCR-STU-001 asserting 'All fifteen screens exist'", "note": "No DEC-* identifier. Nineteen further one-off screen literals exist outside both catalogues (see PASS-2)." },
+        { "question": "Which feature-numbering scheme is the traceability key", "readingA": "chapter-20 form FEAT-STU-01-01", "readingB": "four-digit catalogue FEAT-STU-0101 (L47378-L47431)", "note": "No DEC-* identifier. registries/generated/features.json has registered BOTH." },
+        { "question": "Whether the Read-only Auditor may generate a PDF export", "readingA": "MOD-STU-12 L33468 and MOD-STU-18 L34561: `Client Decision Required — DEC-AUDSTU-001`", "readingB": "L30856 SEQ-narrative: 'The lawful route that is fully specified is the portable-document-format export of a Workflow version (§5.12.3), produced by a user who does hold Studio read access' — i.e. by someone else, on the Auditor's behalf", "note": "Reading B is the source telling the Auditor to depend on the audited party to produce the evidence, which L34524 itself calls out as 'weakening the audit'." }
+      ]
+    }
+  },
+  {
+    "label": "PASS-7 — cross-slice seams, registered and unregistered",
+    "value": {
+      "rule": "A seam ships as a NAMED interface with a seeded fixture behind it and an entry in the handover list. A silent stub is the defect (slice-4 R10). Where the counterpart module is not yet registered anywhere, the absence is DECLARED, not guessed.",
+      "registeredSeams": [
+        { "seam": "Job and Run linkage counts in the Workflow Library", "consumer": "MOD-STU-03 (FUNC-STU-03-01-A-1, L31930)", "owner": "MOD-DOH-05 / MOD-DOH-06, slice 6", "contract": "Renders 'Linkage unavailable, last retrieved at <ts>' and NEVER zero (AC-STU-053, L32018). L31956: 'showing zero linked Jobs would invite an author to change a Workflow they believe is unused.'", "registryStatus": "MOD-DOH-05 and MOD-DOH-06 are in registries/generated/modules.json, status not-represented" },
+        { "seam": "Job Owner identity and the adoption decision", "consumer": "MOD-STU-12 (FUNC-STU-12-02-B-1, L33493)", "owner": "MOD-DOH-05, slice 6. 'Job Owner is a field on the Job record, defaulting to the creator and reassignable — not a role' (L33433)", "contract": "MOD-STU-12's matrix carries a whole COLUMN headed 'Job Owner, a field on the Job' (L33456) whose every cell but one reads 'Not applicable'. The one Allowed cell is L33462 'Decide adoption of a notified-class version'.", "registryStatus": "registered, not-represented" },
+        { "seam": "Package build trigger and pin", "consumer": "MOD-STU-14", "owner": "MOD-DOH-06, slice 6 — WF-AUT-010's surface is the DOH, not the Studio (L53668)", "contract": "MOD-STU-14's matrix L33823: 'Trigger a package build | Not applicable — the build fires at run assignment in the Delivery Operations Hub'. Slice 5 builds the DEFINITION and MANIFEST and renders the pin; it never fires a build.", "registryStatus": "registered, not-represented" },
+        { "seam": "Qualification validation at assignment", "consumer": "MOD-STU-13 (FUNC-STU-13-02-A-1, L33667)", "owner": "MOD-DOH-07, slice 6", "contract": "'Validate at assignment in the Delivery Operations Hub... Offline: not applicable — assignment happens in the Delivery Operations Hub.' Slice 5 owns the REQUIREMENT and the EVALUATOR; slice 6 owns the first of three enforcement points.", "registryStatus": "registered, not-represented" },
+        { "seam": "Qualification clearance, Command Center action ten", "consumer": "MOD-STU-13 (FUNC-STU-13-03-B-1, L33676)", "owner": "MOD-CC-13, slice 9", "contract": "'Roles allowed: granted by Supervisor and above in the Client Command Center as action ten. Roles prohibited: the Studio from granting one; any agent from granting one.' AC-STU-118 (L33769): 'No surface shows a clearance as effective before its command reaches applied on the device.'", "registryStatus": "registered, not-represented", "sliceFourPrecedent": "Slice 4's D23 already ruled the Hub builds the clearance REGISTER read-only with no grant control. Slice 5 inherits that ruling for the Studio side." },
+        { "seam": "Lane-B decision", "consumer": "MOD-STU-16 (FUNC-STU-16-03-B-1, L34234)", "owner": "MOD-CC-06 / MOD-CC-13 action 3, slice 9", "contract": "'Accept or reject exactly once in the Client Command Center.' SB-STU-19's footer (L34293): 'each linking to the Client Command Center where the decision is made — the Studio displays, it does not decide.'", "registryStatus": "registered, not-represented" },
+        { "seam": "The tenant audit log", "consumer": "every Studio write", "owner": "MOD-DOH-17 / MOD-DOH-18, slice 10", "contract": "L31481: 'The Studio keeps no audit log of its own. There is one immutable log per tenant, owned by the Delivery Operations Hub, which ingests Studio publish events.' AC-STU-021 (L31224), AC-STU-024 (L31227). Slice 4 already established the read-through-over-a-seeded-fixture pattern for Platform Access History (its D14).", "registryStatus": "registered, not-represented" },
+        { "seam": "Grant assignment and revocation", "consumer": "MOD-STU-18 (FUNC-STU-18-02-A-1, L34584)", "owner": "the tenant administration area inside SURF-DOH — SCR-DOH-23, and MOD-DOH-09 which owns OBJ-DOH-USER. BUILT IN SLICE 4.", "contract": "L34532: 'grant administration sits in the tenant administration area inside the Delivery Operations Hub'. FUNC-STU-18-02-A-1's specific difference: 'where the grant cannot be evaluated, the Studio denies the authoring capability rather than assuming it, failing closed.' FUNC-STU-03-03-A-1 (L31944): 'revocation must be enforceable even if the Studio is degraded, so revocation is an identity-layer action rather than a Studio-layer one.'", "registryStatus": "MOD-DOH-09 is demonstrated-in-storyboard — this is the ONE seam whose counterpart is already built. It is a CONSUMPTION seam, not a stub." },
+        { "seam": "Tenant action bundles per severity level", "consumer": "MOD-STU-05 Section 7 (L32242), MOD-STU-14 (L33795)", "owner": "the tenant administration area, SURF-DOH. MOD-STU-05's matrix L32266 gives the Tenant Admin 'Allowed — in the tenant administration area, above the floor only'.", "contract": "'Tenants may add actions to a bundle; they may never remove or weaken the floor.' The floor is 'automatic lot freeze plus Quality-Manager-only release'.", "registryStatus": "OBJ-049 Severity action bundle (L8837) is registered; its owning module is not stated in chapter 20 and is not built. DECLARE AS UNREGISTERED OWNER." },
+        { "seam": "Tag-to-qualification-set mapping", "consumer": "MOD-STU-13 (FUNC-STU-13-01-A-2, L33662)", "owner": "the tenant administration area, SURF-DOH. Matrix L33638: 'Not applicable — the mapping is tenant administration area master data'.", "contract": "'where the mapping is unreadable, the author states the baseline manually and publication is not blocked, because the mapping is a convenience rather than a requirement.'", "registryStatus": "no module owns it in any card read. DECLARE AS UNREGISTERED OWNER." },
+        { "seam": "Qualification gate posture and clearance duration", "consumer": "MOD-STU-13 (FUNC-STU-13-03-A-1, L33674)", "owner": "the tenant administration area, SURF-DOH. Slice 4's S7 built the tenant-configuration floor and the gate-posture never-below-notify-only rule (L27425).", "contract": "'where the posture cannot be read, the device applies the stricter posture, hard-block, because the configurability principle permits stricter and never looser.'", "registryStatus": "built in slice 4 as a floor register; the Studio READS it. Consumption seam." },
+        { "seam": "Worker certification list", "consumer": "MOD-STU-13 (L33647 preconditions)", "owner": "MOD-DOH-04, BUILT IN SLICE 4 (owns OBJ-DOH-QUAL)", "contract": "AC-STU-119 (L33770): 'The Studio cannot create, edit, or delete a worker certification record.' FUNC-STU-13-01-B-1's specific difference: 'an override naming a certification the tenant does not maintain blocks publication with the certification named.'", "registryStatus": "MOD-DOH-04 demonstrated-in-storyboard. CONSUMPTION SEAM — and it lands on slice 4's D22, the certification-type client blocker: slice 4 shipped certification types as a seeded fixture with no CRUD screen. Slice 5's publication-blocking check reads that same fixture." },
+        { "seam": "Worker-profile difficulty-level field", "consumer": "MOD-STU-09 (FUNC-STU-09-03-A-1, L32998)", "owner": "MOD-DOH-04, slice 4. Matrix L32970: 'Not applicable — the profile field is Delivery Operations Hub master data'.", "contract": "'where the profile field cannot be read, the package carries all levels under the interim rule and the device renders the standard level, which is a defined default rather than an absence.'", "registryStatus": "MOD-DOH-04 built. The FIELD itself was not in slice 4's scope statement. DECLARE AS AN ADDITIVE FIXTURE FIELD, not a new module." },
+        { "seam": "Shift timing for the Shift Handoff Agent schedule", "consumer": "MOD-STU-02 (L31737 matrix row; SCHED-HANDOFF-001 at L67942)", "owner": "MOD-DOH-03, BUILT IN SLICE 4 (owns OBJ-DOH-SHIFT)", "contract": "'Change the Shift Handoff Agent's run time before shift end | Allowed with conditions — a tenant-level setting administered in the tenant administration area, read here'. The default is 30 minutes before shift end computed against the Shift's end time.", "registryStatus": "MOD-DOH-03 built. Consumption seam." },
+        { "seam": "Atomic capability registry, entitlement set, commercial tier", "consumer": "MOD-STU-01, MOD-STU-15", "owner": "MOD-SA-02 / MOD-SA-11, BUILT IN SLICE 3", "contract": "AC-STU-005 (L30780): 'No user interface control anywhere in the Studio creates, edits, or deletes an atomic capability.' AC-STU-008 (L30783): capabilities outside entitlement 'are visible as unavailable with a stated reason, never silently absent.'", "registryStatus": "MOD-SA-02 and MOD-SA-11 demonstrated-in-storyboard. Consumption seam." },
+        { "seam": "Global severity catalog", "consumer": "MOD-STU-05 Section 7, MOD-STU-14", "owner": "MOD-SA-07, BUILT IN SLICE 3", "contract": "'Severity levels are not defined in the Studio' (L32242). FUNC-STU-02-02-B-1's specific difference: 'an unreadable catalog blocks publication rather than offering a stale level list.'", "registryStatus": "MOD-SA-07 demonstrated-in-storyboard. Consumption seam." },
+        { "seam": "Evaluation harness results", "consumer": "MOD-STU-15 (FUNC-STU-15-03-A-1, L34050)", "owner": "MOD-SA-05, BUILT IN SLICE 3", "contract": "'where the harness is unreachable, the composition holds at Evaluation pending and is never advanced on an assumption.'", "registryStatus": "MOD-SA-05 demonstrated-in-storyboard. Consumption seam." },
+        { "seam": "Platform-level review of a composed agent", "consumer": "MOD-STU-15 (FUNC-STU-15-03-C-1, L34054)", "owner": "SURF-SA, slice 12 (platform controls). 'Roles allowed: platform operators in the Super Admin platform console. Roles prohibited: every tenant role.'", "registryStatus": "no named MOD-SA module owns the composed-agent review queue in the cards read. L67927 names it 'the composed-agent review queue'. DECLARE AS UNREGISTERED OWNER." },
+        { "seam": "Locale packs", "consumer": "MOD-STU-17", "owner": "SURF-SA — 'Locale-pack versioning and governance sit platform-side' (L31153, L34382)", "contract": "MOD-STU-17's matrix L34382 gives EVERY role 'Not applicable — locale-pack versioning sits platform-side'. This is the only matrix row on the surface where all six cells are identical Not-applicable.", "registryStatus": "OBJ-051 Locale pack (L8875) registered; owning module not named. DECLARE AS UNREGISTERED OWNER." }
+      ],
+      "unregisteredDependencies": [
+        {
+          "name": "The Delivery Operations Hub parts registry",
+          "consumer": "MOD-STU-10, the whole module",
+          "statedOwner": "MOD-DOH-19 Parts Registry",
+          "registryStatus": "MOD-DOH-19 IS in registries/generated/modules.json with status not-represented, but it is EXPLICITLY EXCLUDED from slice 4 ('tenant master data, but not tenant setup, users, Workers, qualifications or devices; nothing in slice 4 reads OBJ-DOH-PART' — slice-4 spec §1) and appears in NO later slice's stated scope in the umbrella build order.",
+          "verdict": "REGISTERED IDENTIFIER, UNSCHEDULED MODULE. Slice 5 must not borrow a Hub screen id for the completion step. It declares the absence: the seam ships as a named interface plus a seeded skeletal-record fixture, the 'Skeletal' badge renders, and the completion path is stated as belonging to MOD-DOH-19 with no slice assigned.",
+          "hardConstraint": "FUNC-STU-10-02-B-1 (L33143): 'if the hand-off cannot be confirmed, the reference is not created, because a reference to a part that does not exist in the registry would break genealogy.' AC-STU-096 (L33220): 'A part reference is attached only after the registry confirms creation.' A stubbed seam that silently succeeds would violate both."
+        },
+        {
+          "name": "The Frontline Training Library Viewer",
+          "consumer": "MOD-STU-08's matrix rows L32823-L32824 name it three times as the WORKER's route",
+          "statedOwner": "MOD-FL-B12 (referenced at L22052 [Y10]: '§7.3 B12')",
+          "registryStatus": "MOD-FL-B12 registered, not-represented; slice 7 is 'Frontline online execution and capture'",
+          "verdict": "DECLARE. Slice 5 builds the AUTHORING and the EXCLUSION GUARANTEE; the viewer is slice 7. The three Worker rows render as cross-surface statements, not as Studio controls."
+        },
+        {
+          "name": "The severity action bundle editor",
+          "consumer": "MOD-STU-05 Section 7's live consequence preview (SB-STU-08, L32379: 'for each band, the catalog level, the tenant's configured action bundle for that level, and, for Severity 1, the platform floor stated in full')",
+          "statedOwner": "'the tenant administration area' — no MOD-DOH-* identifier is given anywhere",
+          "verdict": "UNREGISTERED OWNER. Ships as a named read interface over a seeded bundle fixture."
+        },
+        {
+          "name": "The composed-agent platform review queue",
+          "consumer": "MOD-STU-15 FUNC-STU-15-03-C-1",
+          "statedOwner": "'the Super Admin platform console' — no MOD-SA-* identifier",
+          "verdict": "UNREGISTERED OWNER. Ships as a named interface with a seeded outcome fixture; the composition holds at Platform review and is never advanced on an assumption."
+        },
+        {
+          "name": "The multimodal embedding and indexing service",
+          "consumer": "MOD-STU-07 FEAT-STU-07-02 (SUB-STU-07-02-B)",
+          "statedOwner": "an EXTERNAL model, currently Gemini Embedding 2.0 (L31191, L32595)",
+          "verdict": "OUTSIDE THE PLATFORM ENTIRELY. The storyboard is browser-only with no network (umbrella §5.5). The index is simulated as a seeded fixture with an explicit 'not indexed' state, and DEC-EMBED-001 renders on screen. AC-STU-072 (L32764) — 'indexing never changes approval state' — is what makes the simulation honest."
+        }
+      ],
+      "seamsTheStudioOWNSForLaterSlices": [
+        { "seam": "The work-package definition and manifest", "consumers": "slice 7 (Frontline online execution) and slice 8 (offline, package, reconnect)", "contract": "the five content classes (L33793-L33797), the exclusions (L33799), the integrity check (L33839, L68396)" },
+        { "seam": "Agent operating parameters", "consumers": "slice 11 (AI and its absence)", "contract": "L31707-L31709, what each of the three standard agents needs from the Studio and where it is configured" },
+        { "seam": "Threshold and deviation-rule context", "consumers": "slice 9 (Command Center)", "contract": "INT-STU-CC (L31189), outbound" },
+        { "seam": "Escalation routing rules", "consumers": "slice 10 (notifications)", "contract": "L31120 seam 4 — 'the producer of escalation routing rules, which the Delivery Operations Hub then resolves from roles to persons'" },
+        { "seam": "Procedural and semantic memory writes", "consumers": "slice 11", "contract": "FUNC-STU-16-01-A-1/A-2 (L34218-L34219)" }
+      ]
+    }
+  },
+  {
+    "label": "PASS-8 — the honest risk list",
+    "value": {
+      "risks": [
+        { "id": "R1", "risk": "A build renders a published version as live on the floor.", "why": "The Studio's whole publication surface is one step away from claiming a device state it cannot know. L31181: 'A published version is not in force on a device until the corresponding version-change command reaches applied on that device. The Studio's publication view must therefore never show a version as \"live on the floor\".' Three acceptance criteria guard it — AC-STU-023 (L31226), AC-STU-112 (L33590), AC-STU-118 (L33769) — and SB-STU-03 (L31304) writes the honest summary line: 'Published. One Job notified. Zero of one devices on this version.'", "mitigation": "Every adoption figure renders in its true command state from the fifteen-state ladder; a gate plants a 'live on the floor' string and proves it red." },
+        { "id": "R2", "risk": "The Read-only Auditor column gets a status instead of a decision.", "why": "DEC-AUDSTU-001 is open and touches 15 of the 26 matrices, and THREE places in the source already give the Auditor a status — §25.3 L48321 'Not applicable', §25.3 L48325 'Read-only', SEQ-010 L67908 'Read-only'. An implementer transcribing from any of those three will fill a cell the chapter deliberately leaves open. AC-STU-157 (L34674) is explicit: 'every Read-only Auditor cell states Client Decision Required'.", "mitigation": "The token vocabulary carries `Client Decision Required` as a first-class rendering; a gate asserts no Auditor cell on SURF-STU resolves to a permission status." },
+        { "id": "R3", "risk": "A third inheritable default is added to the Workflow Builder.", "why": "L32040: 'exactly two workflow-level defaults... The word \"exactly\" is the source's own and is load-bearing: an implementation that adds a third inheritable default, however convenient, departs from the specification and must be raised as a change request.' Severity is the obvious candidate and is the one thing forbidden — FUNC-STU-04-01-C-1 (L32094) makes the refusal a functionality, and AC-STU-055 (L32180) forbids the API route as well as the control.", "mitigation": "The four settings and two defaults are a closed vocabulary with an exhaustiveness check; a gate plants a third default and proves it red." },
+        { "id": "R4", "risk": "The canvas drawing is treated as documentation rather than as the sequence-detection rule.", "why": "L32042: 'The drawing is not documentation. It is the rule.' FUNC-STU-04-02-A-2 (L32098): 'no role may author a sequence reference that differs from the drawn order, because two references would make skip detection unfalsifiable.' A build that stores the drawn order and the detection reference separately creates exactly the second reference the source forbids.", "mitigation": "One data structure; AC-STU-056 (L32181) as a gate that reads the built artefact." },
+        { "id": "R5", "risk": "A capture type outside the adopted seven is offered.", "why": "TWO seven-type lists exist and differ. L32232: 'a Frontline player cannot render a type the contract does not name.' TEST-WF-AUT-002-04 (L53401) demands the check be a BUILD failure: 'Cross-check the Builder capture-type list against the Frontline renderer list and fail the build on divergence.'", "mitigation": "One `as const satisfies readonly CaptureType[]` with an exhaustiveness check, named verbatim from AC-STU-065 (L32421), plus a gate that plants an eighth type." },
+        { "id": "R6", "risk": "A screen that can deviate publishes with no severity mapping.", "why": "Stated four times: L32244 'the platform never assumes a value', AC-STU-042 (L31853), AC-STU-062 (L32418), AC-WF-AUT-002-01 (L53400), AC-SCR-STU-003 (L48348), AC-011-01 (L68168). It is the single most-restated rule on the surface, which is itself the signal that it is the one most likely to be got wrong.", "mitigation": "A publication-blocking validation that names each unmapped screen; the gate plants an unmapped measurement screen." },
+        { "id": "R7", "risk": "The severity-1 arming confirmation is rendered as a warning rather than as a recorded act.", "why": "FUNC-STU-05-08-C-1 (L32313) specific difference: 'if the confirmation cannot be recorded, the mapping is not saved.' AC-STU-043 (L31854) and AC-STU-063 (L32419) both require the CONFIRMATION to be recorded, not the warning to be shown. A build that shows the panel and saves regardless satisfies a naive reading and fails both criteria.", "mitigation": "The confirmation is a write through the audit path; the covering test mutates the band before the audit fails and asserts the band did not persist." },
+        { "id": "R8", "risk": "Separation of duties is evaluated by role rather than by identity.", "why": "L33389: 'A user holding both the Supervisor and Quality Manager roles is still one person and still cannot occupy two stages.' AC-STU-100 (L33400), AC-STU-153 (L34670), AC-SCR-STU-002 (L48347), TEST-STU-152 (L34681). A role-based check passes every test written with single-role personas and fails the one multi-role persona the source insists on.", "mitigation": "Distinctness keys on identity; a fixture persona holds both roles and the gate asserts refusal." },
+        { "id": "R9", "risk": "A Studio view claims an escalation was delivered.", "why": "AC-STU-028 (L31328): 'No Studio view reports escalation as delivered before the Delivery Operations Hub records delivery.' L31257: 'a tenant must never be told that an offline device \"escalated\"; the device classified and held, and the escalation was delivered when connectivity returned.' AC-STU-123 (L33944).", "mitigation": "Escalation state renders from the notification-state ladder; no Studio surface holds a delivery claim." },
+        { "id": "R10", "risk": "The superseded discovery-stage description of offline severity evaluation reappears.", "why": "L31256 and L33803 both name it explicitly, and AC-STU-030 (L31330) and AC-STU-126 (L33947) both forbid it: 'The superseded discovery-stage description of offline severity evaluation appears nowhere in delivered documentation or user interface text.' The superseded wording is 'processed at sync, with severity-band evaluation running on the captured value at that point'. It is a plausible sentence that an implementer might write from first principles.", "mitigation": "A string gate over the built artefact for the superseded phrasing." },
+        { "id": "R11", "risk": "A Shared Instruction Block is modelled as a library item.", "why": "L32443: 'A block is not a library item. It has no cross-Workflow reuse, no independent version number, and no separate governance: it lives inside its Workflow and is published, diffed, and archived with it.' AC-STU-066 (L32558). The natural data model for 'write once, apply to eight screens' is a library, and the source forbids exactly that.", "mitigation": "The block record is keyed by Workflow; FUNC-STU-06-02-B-1 (L32486) refuses cross-Workflow reference at the service layer, and the gate attempts one." },
+        { "id": "R12", "risk": "The Studio mints a second audit log.", "why": "L31481: 'The Studio keeps no audit log of its own. There is one immutable log per tenant, owned by the Delivery Operations Hub.' This is the same defect shape slice 4 named in its D14 — building a second store to make a slice self-contained, invisible until the owning slice tries to reconcile.", "mitigation": "Read-through over slice 4's audit fixture; a gate asserts one store." },
+        { "id": "R13", "risk": "Two decision identifiers for the rollback question both get built.", "why": "DEC-WFROLL-001 (chapter 28) and DEC-VERROLL-001 (chapter 7) ask the same question with no cross-reference. A census that reads both chapters will register two open decisions where the client has one." },
+        { "id": "R14", "risk": "A screen sentence points at content that is not there.", "why": "Slice 4's defect shape 5, and this surface is dense with pointers: screens hold pointers to library items (AC-STU-071, L32763), a coaching default per declared locale (AC-STU-074, L32766), a certification the tenant maintains (L33664), a branch target (L32101), a block reference (L32483), a part reference (L33211). Every one of those is a sentence on a screen naming content elsewhere.", "mitigation": "Every pointer-bearing sentence has a test that fails when its target is removed — not one that iterates an array and can only pass." },
+        { "id": "R15", "risk": "Scope is enforced in what a screen draws rather than in what it reads.", "why": "Slice 4's defect shape 7. Here the scope dimension is not Site/Area but DRAFT VISIBILITY: L34508 'Drafts and in-review versions are visible only to grant-holders and the chain'. AC-STU-048 (L32013) and AC-STU-151 (L34668). A build that renders the Library from an unfiltered read and hides draft rows in the component has the same defect slice 4 shipped.", "mitigation": "The selector filters; the component receives only what the identity may read; the gate asserts the selector, not the render." },
+        { "id": "R16", "risk": "A Lane-B patch is built under one reading of DEC-LANEB-001 while the approval chain is built under the other.", "why": "AC-STU-097 (L33397) and AC-STU-138 (L34332) are both acceptance criteria and cannot both hold for a package-borne Lane-B value. AC-STU-104 (L33404) and AC-STU-143 (L34337) both require the tension to be SURFACED rather than implemented silently, which is the only instruction that binds both sides.", "mitigation": "The conflict renders on screen with both readings and their locators; the pinned fixture holds both and neither is asserted as the source's answer." },
+        { "id": "R17", "risk": "The package manifest is asserted against the wrong count.", "why": "FIVE content classes at L33791/AC-STU-120 versus SIX at AC-WF-AUT-009-01/TEST-WF-AUT-009-01. A gate written against either number will pass while contradicting a named acceptance criterion.", "mitigation": "The manifest is a data structure quoting the five numbered classes verbatim, with the six-way split recorded as a second grouping of the same contents rather than as a different manifest." },
+        { "id": "R18", "risk": "The eighteen-module count is rendered without its derived qualifier.", "why": "L4183 names this exact failure — 'derived-count leakage'. L14442 requires the count to render with 'derived count, not stated in the Statement of Work' beside the number and DEC-STUDIO-001 linked, and TEST-ROLE-1023 (L14497) asserts it. AC-STU-014 (L30992) forbids ANY document, screen or interface from presenting a Studio module count as a SoW fact — and that includes this census and this design.", "mitigation": "Every place the number 18 appears on a Studio surface carries the qualifier; a gate scans the built artefact for a bare Studio count." },
+        { "id": "R19", "risk": "The Studio's notification surface is built without identifiers.", "why": "Forty-one notification rows exist across the eighteen cards, none carrying a NOTIF-* identifier, and notifications.json holds zero Studio rows. A slice-10 reconciliation will find forty-one behaviours with no register entry. Slice 4 hit the same shape with AC identifiers that existed with no content (its R9).", "mitigation": "Register the forty-one as derived rows with their card locators at census time rather than at slice 10." },
+        { "id": "R20", "risk": "The Studio is built as if it could ever be offline.", "why": "Every module card has an Offline field and seventeen of eighteen say 'Unavailable — the Studio requires an active connection'. L31515 warns that where an offline STATUS appears it 'describes the Frontline consequence of a Studio configuration, not a Studio user's own experience, and the row says so'. A build that renders a Studio offline state satisfies the shared state contract and contradicts the surface." }
+      ]
+    }
+  }
+]

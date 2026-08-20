@@ -11,8 +11,51 @@ import { CRITICAL_ACTIONS, CRITICAL_ACTION_COUNT_NOTE } from '@/surfaces/sa/crit
 
 const SA_ROOT = join('app', 'super-admin')
 
+// This process's own scratch-probe directory name (see `withPlanted` below).
+// Any OTHER `.zz-probe-*` entry under SA_ROOT belongs to a different process
+// -- a sibling `pnpm test:release` run, or a stale leftover from one that
+// crashed. Giving each process a distinct probe path stops them overwriting
+// one file, but `saSources()` still walks every directory under SA_ROOT -- so
+// without this exclusion, one process's walk would list a SIBLING's probe
+// too, and lose the race when that sibling's own `finally` deletes it
+// mid-scan (reproduced directly: ENOENT reading the OTHER pid's Probe.tsx,
+// not this process's own). Skipping every foreign `.zz-probe-*` entry makes
+// each process's scan blind to every probe but its own, which removes the
+// race rather than narrowing its window -- and, as a side effect, also makes
+// a leftover from a crashed run invisible to every later run's scan, since a
+// later run's own pid essentially never matches the stale one.
+//
+// Dot-prefixed, not just pid-suffixed: `tsc`'s `include` glob (`**/*.tsx`)
+// does not descend into a path segment starting with `.` -- verified
+// directly, a deliberate type error planted in a dot-prefixed probe was
+// invisible to `pnpm typecheck` -- so a concurrent typecheck run can no
+// longer observe this file mid-lifetime and fail on a path that, by the time
+// it reports the error, no longer exists. `readdirSync` (what `walk` uses)
+// has no such blind spot, so `saSources()` still sees the probe exactly as
+// before; only external tooling that globs the tree loses sight of it.
+const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
+
+// The one predicate every SA_ROOT-listing site routes through -- walk() and
+// five other `readdirSync(SA_ROOT)` call sites each independently listed
+// every entry and touched all of them (statSync, or a nested readdirSync);
+// any one throws ENOENT if a sibling's `finally` removes its probe in
+// between, `declaredActions()` (gate 9) widest of all since it runs outside
+// any withPlanted and so overlaps a sibling's plant naturally. One filter,
+// used everywhere SA_ROOT's own entries are listed, closes all of them at
+// once rather than one call site at a time.
+//
+// Exact match, not a prefix: matching anything merely STARTING WITH
+// `zz-probe` also matched a FILE so named, at any depth, in any scanned root
+// (`src/ui/sa/zz-probe.tsx`, `app/super-admin/<module>/zz-probeHelpers.tsx`)
+// -- invisible to every gate, a safety gate walkable past by choosing a
+// filename. This matches only the exact directory name this code can ever
+// create.
+const isForeignProbe = (e: string): boolean => /^\.zz-probe-\d+$/.test(e) && e !== OWN_PROBE_DIR
+const saEntries = (): string[] => readdirSync(SA_ROOT).filter((e) => !isForeignProbe(e))
+
 function walk(dir: string, acc: string[] = []): string[] {
   for (const e of readdirSync(dir)) {
+    if (isForeignProbe(e)) continue
     const p = join(dir, e)
     if (statSync(p).isDirectory()) walk(p, acc)
     else acc.push(p)
@@ -46,18 +89,59 @@ function saSources(): { file: string; src: string }[] {
  * four of those: one defeated by letter casing, one blinded by a regex
  * literal, one that matched its own denial, and an approval gate that missed
  * every word form but the past tense.
+ *
+ * The probe directory is suffixed with `process.pid`, not fixed. Two
+ * `pnpm test:release` processes running at once used to collide on the one
+ * literal path `app/super-admin/zz-probe/Probe.tsx` -- one process's
+ * `finally` block deleting the probe out from under the other's assertion,
+ * observed as ENOENT, as `expected '' to contain …Probe.tsx`, and as 5s
+ * timeouts once enough assertions queued up behind the missing file. A pid is
+ * stable for the life of one process and distinct between any two processes
+ * alive at once, so two runs now write to two different directories and
+ * cannot delete each other's probe -- and `walk()`'s exclusion above stops
+ * one process from ever reading the other's probe in the first place, which
+ * a differing path alone did not: a scan can still list a sibling's probe
+ * before its `finally` deletes it. Creation and the write are inside the
+ * `try` too, so a failure partway through still cleans up rather than only
+ * the success path doing so.
+ *
+ * Cleanup on a crash, not only on a thrown assertion: `process.exit()` called
+ * mid-assertion, or an uncaught error unwinding past this stack, both skip a
+ * pending `finally`. The module-level `process.on('exit', ...)` below is a
+ * second, independent cleanup path for exactly that case -- 'exit' handlers
+ * may only do synchronous work, which `rmSync` is. A hard kill (SIGKILL, an
+ * OOM kill) still bypasses everything in userspace, `finally` and 'exit'
+ * alike; a probe orphaned that way is handled by the two properties above
+ * instead of by cleanup: dot-prefixed, so it stays invisible to `tsc` and to
+ * `next build`, and foreign to every later run's `walk()`, so it never
+ * re-enters a gate's scan.
  */
 function withPlanted(contents: string, assertCaught: (probe: string) => void): void {
-  const dir = join(SA_ROOT, 'zz-probe')
+  const dir = join(SA_ROOT, OWN_PROBE_DIR)
   const probe = join(dir, 'Probe.tsx')
-  mkdirSync(dir, { recursive: true })
-  writeFileSync(probe, contents)
   try {
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(probe, contents)
     assertCaught(probe)
   } finally {
     rmSync(dir, { recursive: true, force: true })
   }
 }
+
+// Defend against pid reuse: if a PAST crashed run left OWN_PROBE_DIR behind
+// and this run drew the same pid, the `!== OWN_PROBE_DIR` checks above would
+// admit that STALE probe into every scan as this run's own, and a gate
+// running before this run's first plant would read its leftover violation as
+// real. Clear it before anything else runs.
+rmSync(join(SA_ROOT, OWN_PROBE_DIR), { recursive: true, force: true })
+
+process.on('exit', () => {
+  try {
+    rmSync(join(SA_ROOT, OWN_PROBE_DIR), { recursive: true, force: true })
+  } catch {
+    // Best-effort: nothing else can run once the process is exiting.
+  }
+})
 
 describe('slice 3 gate 1: the six invariants are status chips, never controls', () => {
   // R2, the single most likely visual error in the slice. A lock icon on a
@@ -229,15 +313,12 @@ describe('slice 3 gate 4: names are canonical, screen numbers are annotations', 
   // 26, and SCR-SA-03 alone names both the atom registry and the agent roster.
   // Anything keyed on a bare number eventually wires the wrong screen.
   it('no route directory is named after a bare SCR-SA number', () => {
-    const dirs = readdirSync(SA_ROOT).filter((e) => statSync(join(SA_ROOT, e)).isDirectory())
+    const dirs = saEntries().filter((e) => statSync(join(SA_ROOT, e)).isDirectory())
     for (const d of dirs) expect(d, `${d} is keyed on a screen number`).not.toMatch(/^scr-sa-\d+$/i)
   })
 
   it('every module route directory matches its registry slug', () => {
-    const dirs = new Set(
-      readdirSync(SA_ROOT).filter((e) => statSync(join(SA_ROOT, e)).isDirectory()),
-    )
-    dirs.delete('zz-probe')
+    const dirs = new Set(saEntries().filter((e) => statSync(join(SA_ROOT, e)).isDirectory()))
     for (const m of SA_MODULES) {
       expect(dirs.has(m.slug), `${m.id} expects app/super-admin/${m.slug}/`).toBe(true)
     }
@@ -256,7 +337,7 @@ describe('slice 3 gate 5: the module inventory is nineteen, and MOD-SA-20 is not
     // that a search over text "would otherwise match itself", because the only
     // place MOD-SA-20 appears is in prose refusing it (TEST-COV-111, L4736).
     expect(SA_MODULES.map((m) => m.id)).not.toContain('MOD-SA-20')
-    const dirs = readdirSync(SA_ROOT).filter((e) => statSync(join(SA_ROOT, e)).isDirectory())
+    const dirs = saEntries().filter((e) => statSync(join(SA_ROOT, e)).isDirectory())
     for (const d of dirs) expect(d).not.toMatch(/fundability/i)
   })
 })
@@ -403,7 +484,7 @@ describe('slice 3 gate 9: every critical-class action discloses its freeze', () 
   // SAY it? A declaration in a file is not a disclosure on a screen.
   function declaredActions(): Map<string, string[]> {
     const byModule = new Map<string, string[]>()
-    for (const d of readdirSync(SA_ROOT)) {
+    for (const d of saEntries()) {
       const dir = join(SA_ROOT, d)
       if (!statSync(dir).isDirectory()) continue
       const src = readdirSync(dir)
@@ -582,7 +663,7 @@ describe('slice 3 gate 12: one tab-title shape across the surface', () => {
   // console a tab belonged to. Cosmetic alone; a navigation defect in a
   // storyboard whose whole job is to be walked through.
   it('every Super Admin route names the console in its title', () => {
-    const pages = readdirSync(SA_ROOT)
+    const pages = saEntries()
       .filter((d) => statSync(join(SA_ROOT, d)).isDirectory())
       .map((d) => join(SA_ROOT, d, 'page.tsx'))
       .filter((f) => existsSync(f))

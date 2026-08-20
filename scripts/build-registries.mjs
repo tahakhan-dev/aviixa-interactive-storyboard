@@ -31,6 +31,15 @@
  * through `GeneratedRegistrySchema` (`@/coverage/registry-loader`), the same
  * as the other thirteen registries.
  *
+ * SIBLING (spine direction fix): `scripts/build-doh-module-reach.mjs` writes
+ * `registries/generated/doh/module-reach.json` and runs immediately after
+ * this script, from the same `pnpm build:registries`. It is deliberately NOT
+ * part of this file: it executes the module graph through `typescript`,
+ * which costs ~350ms cold, and `tests/unit/registry-build.test.ts` spawns
+ * THIS script inside a 5s budget while forty test files run in parallel --
+ * measured, that cost made the spawn time out two runs in three. Two jobs,
+ * two scripts, one npm script.
+ *
  * Run with: node scripts/build-registries.mjs
  */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
@@ -91,13 +100,13 @@ function buildIdentifierOnlyRegistry({
   reconciledCount = null,
   sourceFixesNoTotal = true,
 }) {
-  const rows = idsWithPrefix(prefix).map((r) => ({ ...r, status: 'not-represented' }))
+  const rows = idsWithPrefix(prefix).map((r) => ({ ...r, status: statusForId(r.id) }))
   return {
     slug,
     countedThing,
     reconciledCount,
     rawCount: rows.length,
-    dedupRule,
+    dedupRule: appendNote(dedupRule, statusNote(rows, CITED_BY_A_SHIPPED_SCREEN)),
     sourceFixesNoTotal,
     rows,
   }
@@ -129,7 +138,7 @@ function buildJoinedFamily({ slug, prefix, familyLabel }) {
   const rows = raw.map(({ id, sourceLine }) => ({
     id,
     sourceLine,
-    status: 'not-represented',
+    status: statusForId(id),
     ...joinToModuleOrSurface(id),
   }))
   const unjoined = rows.filter((r) => !r.moduleId && !r.surface)
@@ -141,12 +150,14 @@ function buildJoinedFamily({ slug, prefix, familyLabel }) {
       'No names were extracted for this family in the frozen source.',
     reconciledCount: null,
     rawCount: rows.length,
-    dedupRule:
+    dedupRule: appendNote(
       unjoined.length > 0
         ? `${unjoined.length} of ${rows.length} ${prefix}* ids have no reliable band or surface ` +
           `join (second segment not one of the twelve module bands or five surface codes) and are ` +
           `listed unjoined by id, never dropped: ${unjoined.map((r) => r.id).join(', ')}.`
         : `All ${rows.length} ${prefix}* ids joined to a module band or surface code; none unjoined.`,
+      statusNote(rows, CITED_BY_A_SHIPPED_SCREEN),
+    ),
     sourceFixesNoTotal: true,
     rows,
   }
@@ -184,24 +195,54 @@ const SOURCE_CLASSIFICATION_TO_SOURCE_CLASS = {
 
 
 /**
- * Which modules this build actually SHIPS a screen for, computed from the
- * route tree rather than kept in a hand-maintained list.
+ * ONE pass over the shipped route tree, producing every piece of evidence the
+ * fourteen status computations below rest on. Nothing here is a list: delete a
+ * route directory and whatever it was the only evidence for falls back to
+ * `not-represented` on the next build, which is the whole point.
  *
- * A route directory owns exactly one module: the module id mentioned most
- * often inside it. Verified unambiguous across all nineteen SURF-SA routes
- * (zero ties), which matters because several screens legitimately cross-
- * reference a neighbouring module and a naive "any id mentioned here" rule
- * would mark a module demonstrated because someone linked to it.
+ * A "shipped route" is a directory under `app/` holding a `page.tsx`. Its own
+ * `.ts`/`.tsx` files are read (never a nested route's -- a nested route owns
+ * itself), and three things are taken from them:
  *
- * Computed, not enumerated: slices 4-13 add their own route trees and are
- * picked up without anyone remembering to edit a list. This build has already
- * paid for the enumerate-instead-of-compute mistake twice -- a workflow
- * collapse fix scoped to two known ids, and a count gate that hand-listed ten
- * numbers while fourteen were live.
+ *  - `ownedModuleIds` -- the module id a route names more often than any
+ *    other. Ownership, not mention: several screens legitimately cross-
+ *    reference a neighbouring module, and a naive "any id mentioned here"
+ *    rule would mark a module demonstrated because someone linked to it. Ties
+ *    throw rather than resolve by Map insertion order.
+ *
+ *  - `citedTokens` -- every identifier-shaped token a shipped screen names.
+ *    This is the SAME evidence class the module rule uses (a `MOD-*` token in
+ *    a route file), widened from one prefix to all of them, and it is what
+ *    gives the other thirteen inventories a per-item status. A row is
+ *    `demonstrated-in-storyboard` when a shipped screen names that EXACT id;
+ *    no prefix match, no fuzzy match, no substring match -- "SB-030" does not
+ *    demonstrate "SB-030@L61090", because the composite key exists precisely
+ *    to say the source has two passages under that id and a bare citation
+ *    cannot tell you which one a screen walks.
+ *    KNOWN CEILING, disclosed rather than papered over: a screen that names
+ *    an identifier in order to record that it does NOT act on it (a disputed
+ *    workflow attribution, an absent control, a source conflict) is cited the
+ *    same as one that renders it. This build carries no structural marker
+ *    separating the two, so these counts are read as "named by a shipped
+ *    screen", never as "rendered by one".
+ *
+ *  - `declaredControlLabels` -- the `control:` label of every control-matrix
+ *    row a shipped screen declares. `actionable-controls` rows are keyed on
+ *    frozen-source label TEXT (the source gives those actions no identifier),
+ *    so a token scan cannot reach them and a substring scan is worse than
+ *    useless: the 608 labels include "Add", "Next", "Return" and "Filter",
+ *    which match dashboard chrome in `app/coverage` and `app/workflows` and
+ *    would have inflated that inventory by dozens of rows that no module
+ *    declares. Exact equality against a declared control-matrix label is the
+ *    only honest join available, and it under-reports -- see the note that
+ *    registry carries.
  */
-function demonstratedModuleIds() {
-  const roots = [join(ROOT, 'app')]
-  const owned = new Set()
+function walkRouteTree() {
+  const ownedModuleIds = new Set()
+  const citedTokens = new Set()
+  const declaredControlLabels = new Set()
+  let declaresControlMatrix = false
+
   const walkDirs = (dir) => {
     // No silent catch. This walk deciding "nothing is demonstrated" is
     // indistinguishable, in the output, from a build where nothing IS
@@ -212,17 +253,21 @@ function demonstratedModuleIds() {
     const hasPage = entries.some((e) => e.isFile() && e.name === 'page.tsx')
     if (hasPage) {
       const counts = new Map()
-      const collect = (d) => {
-        for (const e of readdirSync(d, { withFileTypes: true })) {
-          const full = join(d, e.name)
-          if (e.isDirectory()) continue // a nested route owns itself
-          if (!/\.tsx?$/.test(e.name)) continue
-          for (const id of readFileSync(full, 'utf8').match(/MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+)/g) ?? []) {
-            counts.set(id, (counts.get(id) ?? 0) + 1)
-          }
+      for (const e of entries) {
+        if (e.isDirectory()) continue // a nested route owns itself
+        if (!/\.tsx?$/.test(e.name)) continue
+        const text = readFileSync(join(dir, e.name), 'utf8')
+        for (const id of text.match(/MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+)/g) ?? []) {
+          counts.set(id, (counts.get(id) ?? 0) + 1)
+        }
+        for (const token of text.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) {
+          citedTokens.add(token)
+        }
+        if (text.includes('CONTROL_MATRIX')) declaresControlMatrix = true
+        for (const m of text.matchAll(/\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g)) {
+          declaredControlLabels.add(m[1].replace(/\\(.)/g, '$1'))
         }
       }
-      collect(dir)
       const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1])
       if (ranked.length > 0) {
         // The comment used to assert "verified unambiguous (zero ties)" and
@@ -234,16 +279,17 @@ function demonstratedModuleIds() {
             `Ambiguous module ownership for route ${dir}: ${ranked[0][0]} and ${ranked[1][0]} are both mentioned ${ranked[0][1]} times. A route must name its own module more often than any it cross-references.`,
           )
         }
-        owned.add(ranked[0][0])
+        ownedModuleIds.add(ranked[0][0])
       }
     }
     for (const e of entries) if (e.isDirectory()) walkDirs(join(dir, e.name))
   }
-  for (const r of roots) walkDirs(r)
-  return owned
+  walkDirs(join(ROOT, 'app'))
+  return { ownedModuleIds, citedTokens, declaredControlLabels, declaresControlMatrix }
 }
 
-const DEMONSTRATED_MODULE_IDS = demonstratedModuleIds()
+const ROUTE_EVIDENCE = walkRouteTree()
+const DEMONSTRATED_MODULE_IDS = ROUTE_EVIDENCE.ownedModuleIds
 
 // A build that finds no shipped module is a broken walk, not an empty product:
 // nineteen SURF-SA routes exist on disk. Failing here beats writing a coverage
@@ -252,6 +298,62 @@ if (DEMONSTRATED_MODULE_IDS.size === 0) {
   throw new Error(
     'No module route was found under app/. The route walk is broken -- refusing to write registries that would report every module as not-represented.',
   )
+}
+
+// Same refusal, extended to the evidence the other thirteen inventories now
+// read. A route tree that yields no identifier token at all has not been read;
+// twenty-seven module screens on disk cite hundreds. Writing thirteen files
+// full of `not-represented` off a walk that read nothing is the exact defect
+// this whole mechanism exists to remove.
+if (ROUTE_EVIDENCE.citedTokens.size === 0) {
+  throw new Error(
+    'The route walk found no identifier token under app/ -- refusing to write registries whose per-item status would report every inventory as not-represented off a walk that read nothing.',
+  )
+}
+
+// The control-label join has a second failure mode the token scan does not:
+// it depends on the `control:` field convention holding in the module
+// fixtures. A tree that still declares control matrices while this parser
+// extracts no label from them is a broken parser, not a build with no
+// controls -- and it would silently zero the one signal `actionable-controls`
+// has.
+if (ROUTE_EVIDENCE.declaresControlMatrix && ROUTE_EVIDENCE.declaredControlLabels.size === 0) {
+  throw new Error(
+    'Route screens declare a CONTROL_MATRIX but no `control:` label could be parsed from any of them -- refusing to write an actionable-controls registry whose status would read zero because the parser, not the tree, went empty.',
+  )
+}
+
+/**
+ * The one status rule the thirteen non-module inventories share: a shipped
+ * route screen names this exact identifier. Derivable and re-derivable --
+ * nothing is remembered between builds.
+ */
+function statusForId(id) {
+  return ROUTE_EVIDENCE.citedTokens.has(id) ? 'demonstrated-in-storyboard' : 'not-represented'
+}
+
+/**
+ * Every registry says, in the prose the registry index already renders, which
+ * signal set its statuses and what that signal counted. A status nobody can
+ * trace back to evidence is the same defect as a hardcoded zero.
+ */
+function statusNote(rows, signal) {
+  const n = rows.filter((r) => r.status === 'demonstrated-in-storyboard').length
+  return (
+    `Status is computed from the built route tree, never from a list: ${n} of ${rows.length} rows ` +
+    `read demonstrated-in-storyboard because ${signal}; every other row reads not-represented. ` +
+    'Delete or rename the route that carries that evidence and those rows fall back on the next build.'
+  )
+}
+
+const CITED_BY_A_SHIPPED_SCREEN =
+  'a shipped route screen under app/ (a directory holding a page.tsx) names that exact ' +
+  'identifier as a whole token -- the same evidence class the module rule above uses, widened ' +
+  'from MOD-* to this family. Naming includes naming an identifier to record that the screen ' +
+  'does NOT act on it, which this build has no structural marker to separate'
+
+function appendNote(dedupRule, note) {
+  return dedupRule === null ? note : `${dedupRule} ${note}`
 }
 
 function buildModulesRegistry() {
@@ -299,13 +401,20 @@ function buildModulesRegistry() {
       '(DEC-STUDIO-001) = 81; the 18 Studio modules may never be presented as source-backed.',
     reconciledCount: 81,
     rawCount: rawKeys.size,
-    dedupRule:
+    dedupRule: appendNote(
       `${rawKeys.size} raw MOD-* keys across the 36 extraction chunks -> 82 well-formed ` +
-      'identifiers (matching /^MOD-(DOH|CC|FL|SA|STU)-(\\d{2}|[AB]\\d+)$/), excluding 6 ' +
-      'placeholder "unnumbered"/"unstated" keys and 4 range-expression artefacts ' +
-      '("MOD-SA-01..MOD-SA-19" etc.) -> 81 canonical modules, excluding MOD-SA-20 -- an ' +
-      'alias-by-denial for a diligence narrative the source explicitly says is not a module ' +
-      '(source-reconciliation.json).',
+        'identifiers (matching /^MOD-(DOH|CC|FL|SA|STU)-(\\d{2}|[AB]\\d+)$/), excluding 6 ' +
+        'placeholder "unnumbered"/"unstated" keys and 4 range-expression artefacts ' +
+        '("MOD-SA-01..MOD-SA-19" etc.) -> 81 canonical modules, excluding MOD-SA-20 -- an ' +
+        'alias-by-denial for a diligence narrative the source explicitly says is not a module ' +
+        '(source-reconciliation.json).',
+      statusNote(
+        rows,
+        'a shipped route directory under app/ names that module id more often than any other ' +
+          'module id it mentions -- ownership, not mention, so a screen cross-referencing a ' +
+          'neighbour does not demonstrate it, and a tie throws rather than resolving silently',
+      ),
+    ),
     sourceFixesNoTotal: false,
     rows,
   }
@@ -331,7 +440,7 @@ function buildBusinessObjectsRegistry() {
       byId.set(o.id, {
         id: o.id,
         sourceLine: o.line,
-        status: 'not-represented',
+        status: statusForId(o.id),
         label: o.name,
         surface: o.authoritative_owner_surface,
       })
@@ -348,10 +457,18 @@ function buildBusinessObjectsRegistry() {
       'mnemonic OBJ-* identifier set.',
     reconciledCount: 99,
     rawCount: rawObjIds.size,
-    dedupRule:
+    dedupRule: appendNote(
       `${rawObjIds.size} distinct OBJ-* identifiers extracted; only the ${rows.length} numeric ` +
-      'OBJ-NNN cards are canonical objects -- the rest are mnemonic pointers into the same 99 ' +
-      'concepts (e.g. OBJ-SURFACE, OBJ-SSO) and are not additional objects.',
+        'OBJ-NNN cards are canonical objects -- the rest are mnemonic pointers into the same 99 ' +
+        'concepts (e.g. OBJ-SURFACE, OBJ-SSO) and are not additional objects.',
+      statusNote(
+        rows,
+        `${CITED_BY_A_SHIPPED_SCREEN}. Only the numeric OBJ-NNN card id counts here: the built ` +
+          'screens overwhelmingly cite the mnemonic pointers (OBJ-SA-SESSION, OBJ-DOH-SHIFT) ' +
+          'into the same concepts, and the source publishes no mnemonic-to-card mapping to join ' +
+          'them on without inventing one',
+      ),
+    ),
     sourceFixesNoTotal: false,
     rows,
   }
@@ -388,7 +505,13 @@ function buildActionableControlsRegistry() {
       // no other identifier), so both fields carry it.
       label: c.label,
       sourceLine: c.line,
-      status: 'not-represented',
+      // The only honest join available for a row whose id IS free text: a
+      // shipped screen declares a control-matrix row whose `control:` label
+      // is exactly this label. See `walkRouteTree` for why substring
+      // matching was rejected outright.
+      status: ROUTE_EVIDENCE.declaredControlLabels.has(c.label)
+        ? 'demonstrated-in-storyboard'
+        : 'not-represented',
       surface: c.surface,
       register: ACTIONABLE_CONTROLS_REGISTER,
     })
@@ -400,7 +523,7 @@ function buildActionableControlsRegistry() {
 
   const dncRows = idsWithPrefix('DNC-').map((r) => ({
     ...r,
-    status: 'not-represented',
+    status: statusForId(r.id),
     register: DO_NOT_USE_CRON_REGISTER,
   }))
   if (dncRows.length !== 22) {
@@ -417,13 +540,29 @@ function buildActionableControlsRegistry() {
       'actionable control, and never merged into this count.',
     reconciledCount: 608,
     rawCount: rawControls.length,
-    dedupRule:
+    dedupRule: appendNote(
       `${rawControls.length} raw controls[] entries across the 36 extraction chunks deduped ` +
-      'by exact label text (first occurrence, chunk order, wins) -> 608 distinct actionable ' +
-      'controls, matching spec §2.10. Worst collapse: 14 raw entries sharing one label ' +
-      '("Request release with a note"). DNC-01..DNC-22 (verified unique, zero delta) is a ' +
-      'SEPARATE inventory -- scheduling policy, not an actionable control -- and is listed ' +
-      `under the "${DO_NOT_USE_CRON_REGISTER}" register tag rather than mixed into this count.`,
+        'by exact label text (first occurrence, chunk order, wins) -> 608 distinct actionable ' +
+        'controls, matching spec §2.10. Worst collapse: 14 raw entries sharing one label ' +
+        '("Request release with a note"). DNC-01..DNC-22 (verified unique, zero delta) is a ' +
+        'SEPARATE inventory -- scheduling policy, not an actionable control -- and is listed ' +
+        `under the "${DO_NOT_USE_CRON_REGISTER}" register tag rather than mixed into this count.`,
+      statusNote(
+        [...controlRows, ...dncRows],
+        'a shipped route screen declares a control-matrix row whose `control:` label is EXACTLY ' +
+          'this source label (the 608 control rows), or names the identifier as a whole token ' +
+          `(the DNC-* rows). This is the weakest of the fourteen signals and says so: the built ` +
+          `screens declare ${ROUTE_EVIDENCE.declaredControlLabels.size} control-matrix labels, of ` +
+          `which ${[...ROUTE_EVIDENCE.declaredControlLabels].filter((l) => byLabel.has(l)).length} ` +
+          'are word-for-word a source label and the rest are the same control re-worded for a ' +
+          'reader. The frozen source gives these actions no identifier -- the label IS the key -- ' +
+          'so there is nothing else to join on, and a looser match was rejected: the 608 labels ' +
+          'include "Add", "Next", "Return" and "Filter", which occur in unrelated prose and ' +
+          'chrome across the tree and would have inflated this number by dozens. Read this ' +
+          'figure as "controls the build labelled identically to the source", never as "controls ' +
+          'the build demonstrates"',
+      ),
+    ),
     sourceFixesNoTotal: false,
     rows: [...controlRows, ...dncRows],
   }
@@ -452,7 +591,7 @@ function buildAiStoryboardsRegistry() {
   const rows = raw.map(({ id, sourceLine }) => ({
     id,
     sourceLine,
-    status: 'not-represented',
+    status: statusForId(id),
     register: classifyStoryboardRegister(id),
   }))
   if (rows.length !== 613) {
@@ -468,12 +607,24 @@ function buildAiStoryboardsRegistry() {
       'extracted for this family.',
     reconciledCount: null,
     rawCount: rows.length,
-    dedupRule:
+    dedupRule: appendNote(
       'SB-* splits into four non-overlapping registers by id shape: ' +
-      [...byRegister.entries()].map(([register, count]) => `${count} ${register}`).join('; ') +
-      '. Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and ' +
-      'SB-AI-01..30 AI storyboards) plus SB-031..033 and sub-panel/mnemonic overflow; the ' +
-      'source does not fix one combined total across all four.',
+        [...byRegister.entries()].map(([register, count]) => `${count} ${register}`).join('; ') +
+        '. Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and ' +
+        'SB-AI-01..30 AI storyboards) plus SB-031..033 and sub-panel/mnemonic overflow; the ' +
+        'source does not fix one combined total across all four.',
+      statusNote(
+        rows,
+        `${CITED_BY_A_SHIPPED_SCREEN}. Per register: ` +
+          [...byRegister.keys()]
+            .map(
+              (register) =>
+                `${rows.filter((r) => r.register === register && r.status === 'demonstrated-in-storyboard').length} of ` +
+                `${byRegister.get(register)} in the ${register}`,
+            )
+            .join('; '),
+      ),
+    ),
     sourceFixesNoTotal: true,
     rows,
   }
@@ -537,7 +688,7 @@ function buildWorkflowsRegistry() {
     byKey.set(key, {
       id: key,
       sourceLine: wf.line,
-      status: 'not-represented',
+      status: statusForId(key),
       label: wf.name,
       collapsedFrom: keyCounts.get(key) ?? 1,
       idIsPlaceholder: PLACEHOLDER_WORKFLOW_IDS.has(wf.id),
@@ -569,13 +720,23 @@ function buildWorkflowsRegistry() {
       'source fixes none anywhere in its 122,241 lines; 81 is the MODULE count and nothing else).',
     reconciledCount: null,
     rawCount: raw.length,
-    dedupRule:
+    dedupRule: appendNote(
       `${raw.length} extracted entries, 1 cross-chunk duplicate merged (both variants: ` +
-      '"unnumbered" at line 74182 in CHK-022, "A role reading the audit log (6 steps)", and ' +
-      '"unnumbered" at the same line in CHK-023, "A role reading the audit log" -- same line, ' +
-      'same trigger, same actor, one workflow extracted twice) -> 724 rows, keyed on ' +
-      '`${id}@L${sourceLine}` whenever the extractor id is a placeholder ("unnumbered"/' +
-      '"unstated") or recurs at more than one source line. Worst residual collapse: 2.',
+        '"unnumbered" at line 74182 in CHK-022, "A role reading the audit log (6 steps)", and ' +
+        '"unnumbered" at the same line in CHK-023, "A role reading the audit log" -- same line, ' +
+        'same trigger, same actor, one workflow extracted twice) -> 724 rows, keyed on ' +
+        '`${id}@L${sourceLine}` whenever the extractor id is a placeholder ("unnumbered"/' +
+        '"unstated") or recurs at more than one source line. Worst residual collapse: 2.',
+      statusNote(
+        rows,
+        `${CITED_BY_A_SHIPPED_SCREEN}. The composite key is matched whole: a screen naming ` +
+          '"SB-030" does not demonstrate "SB-030@L61090", because the composite key exists to ' +
+          'say the source carries more than one passage under that id and a bare citation ' +
+          `cannot say which. The ${rows.filter((r) => !/^[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+$/.test(r.id)).length} ` +
+          'composite-keyed and placeholder-named rows carry no citable identifier at all, so ' +
+          'this count under-reports rather than guessing',
+      ),
+    ),
     sourceFixesNoTotal: true,
     rows,
   }
@@ -667,4 +828,25 @@ if (registries.length !== 14) {
   throw new Error(`Expected 14 registries, built ${registries.length}`)
 }
 
+// The last extension of the refusal, and the one that covers a mechanism
+// failing rather than a walk failing. Twenty-seven module screens ship. If
+// every one of the fourteen inventories computed zero demonstrated rows, the
+// status mechanism itself is broken -- a regex that stopped matching, a field
+// renamed, a path changed -- and the fourteen files would go out saying this
+// build demonstrates nothing. That is the measurement-read-as-fact this whole
+// change exists to stop, so it fails before anything is written.
+const demonstratedByRegistry = registries.map((r) => [
+  r.slug,
+  r.rows.filter((row) => row.status === 'demonstrated-in-storyboard').length,
+])
+if (demonstratedByRegistry.every(([, n]) => n === 0)) {
+  throw new Error(
+    'Every one of the fourteen registries computed zero demonstrated rows while app/ ships module routes. The status mechanism is broken -- refusing to write registries that would report this build as demonstrating nothing.',
+  )
+}
+
 for (const registry of registries) writeRegistry(registry)
+console.log(
+  'Demonstrated-in-storyboard rows: ' +
+    demonstratedByRegistry.map(([slug, n]) => `${slug} ${n}`).join(', '),
+)

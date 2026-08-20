@@ -8,7 +8,7 @@
     "dev": "next dev",
     "build": "pnpm build:registries && next build",
     "serve:out": "serve out -p 4173 -L",
-    "build:registries": "node scripts/build-registries.mjs",
+    "build:registries": "node scripts/build-registries.mjs && node scripts/build-doh-module-reach.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test:unit": "vitest run --project unit",

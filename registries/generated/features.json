@@ -3,7 +3,7 @@
   "countedThing": "Feature identifiers (FEAT-*) from the identifier index (534 raw), each joined to its owning module band code or surface code where the id shape allows it. No names were extracted for this family in the frozen source.",
   "reconciledCount": null,
   "rawCount": 534,
-  "dedupRule": "All 534 FEAT-* ids joined to a module band or surface code; none unjoined.",
+  "dedupRule": "All 534 FEAT-* ids joined to a module band or surface code; none unjoined. Status is computed from the built route tree, never from a list: 1 of 534 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -1205,7 +1205,7 @@
     {
       "id": "FEAT-DOH-1201",
       "sourceLine": 47260,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH"
     },
     {

@@ -1,7 +1,37 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import CoveragePage from '../../app/coverage/page'
 import { REGISTRY_DESCRIPTORS } from '@/coverage/descriptors'
+
+// Regression guard for `registryStatus` (app/coverage/page.tsx): wraps the
+// real `loadGeneratedRegistry` so exactly one registry's rows ('modules')
+// can be forced, in memory only, from their real status to an all-
+// `not-represented` copy -- `registries/generated/modules.json` on disk is
+// never touched. The flag lives in `vi.hoisted()` state (a plain `let`
+// here would be in its temporal dead zone: `vi.mock`'s factory runs before
+// any of this file's own top-level statements, including a `let`
+// initializer, execute). It starts (and normally stays) `false`, so every
+// OTHER test in this file, including the statically-imported `CoveragePage`
+// above, sees real data unchanged. Only the "mutation proof" test below
+// flips it, and only inside dynamically re-imported module instances it
+// explicitly requests via `vi.resetModules()`.
+const mockState = vi.hoisted(() => ({ forceModulesUnrepresented: false }))
+
+vi.mock('@/coverage/registry-loader', async () => {
+  const actual = await vi.importActual<typeof import('@/coverage/registry-loader')>(
+    '@/coverage/registry-loader',
+  )
+  return {
+    ...actual,
+    loadGeneratedRegistry: (slug: string) => {
+      const real = actual.loadGeneratedRegistry(slug)
+      if (slug === 'modules' && mockState.forceModulesUnrepresented) {
+        return { ...real, rows: real.rows.map((r) => ({ ...r, status: 'not-represented' as const })) }
+      }
+      return real
+    },
+  }
+})
 
 describe('coverage dashboard', () => {
   // Brief defect, corrected: the verbatim brief used
@@ -63,5 +93,46 @@ describe('coverage dashboard', () => {
     for (const label of ['Demonstrated in storyboard', 'Not applicable', 'Decision blocked']) {
       expect(text, label).toMatch(new RegExp(`${label}: 0 of 81 modules`))
     }
+  })
+
+  // Mutation proof, kept as a live regression test rather than a one-off
+  // manual check: `registryStatus` used to hardcode `'not-represented'` for
+  // every registry except `workflows`, so the Reconciliation summary's
+  // "Demonstrated in storyboard" count could only ever be 0 or 1 no matter
+  // what any registry's own rows said. This forces `modules` -- a registry
+  // that today genuinely has demonstrated rows -- to report zero
+  // demonstrated rows, confirms the summary's counts move by exactly one in
+  // response, then undoes the mutation and confirms the summary recovers.
+  // A `registryStatus` that regresses to a constant, or back to a
+  // workflows-only special case, cannot move the summary at all: `during`
+  // would equal `before` and the middle assertions below would fail.
+  it('mutation proof: the reconciliation summary falls when a demonstrated registry is forced to not-represented, and recovers when restored', async () => {
+    async function renderSummary() {
+      vi.resetModules()
+      const { default: FreshCoveragePage } = await import('../../app/coverage/page')
+      const { container, unmount } = render(<FreshCoveragePage />)
+      const text = container.textContent ?? ''
+      unmount()
+      return {
+        demonstrated: Number(text.match(/Demonstrated in storyboard: (\d+) of 14/)?.[1]),
+        notRepresented: Number(text.match(/Not represented: (\d+) of 14/)?.[1]),
+      }
+    }
+
+    mockState.forceModulesUnrepresented = false
+    const before = await renderSummary()
+    // Sanity check this is not the old workflows-only special case, under
+    // which no mutation to `modules` could ever change anything.
+    expect(before.demonstrated).toBeGreaterThan(1)
+
+    mockState.forceModulesUnrepresented = true
+    const during = await renderSummary()
+    expect(during.demonstrated).toBe(before.demonstrated - 1)
+    expect(during.notRepresented).toBe(before.notRepresented + 1)
+
+    mockState.forceModulesUnrepresented = false
+    const after = await renderSummary()
+    expect(after.demonstrated).toBe(before.demonstrated)
+    expect(after.notRepresented).toBe(before.notRepresented)
   })
 })

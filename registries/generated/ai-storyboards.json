@@ -3,7 +3,7 @@
   "countedThing": "every SB-* identifier in the identifier index (613), split across four separate, clearly labelled registers -- never scoped down to just one of them. No names were extracted for this family.",
   "reconciledCount": null,
   "rawCount": 613,
-  "dedupRule": "SB-* splits into four non-overlapping registers by id shape: 30 platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 490 storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 45 further-nested storyboard identifiers (4-segment SB-*, 45 total); 48 AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total). Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and SB-AI-01..30 AI storyboards) plus SB-031..033 and sub-panel/mnemonic overflow; the source does not fix one combined total across all four.",
+  "dedupRule": "SB-* splits into four non-overlapping registers by id shape: 30 platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 490 storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 45 further-nested storyboard identifiers (4-segment SB-*, 45 total); 48 AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total). Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and SB-AI-01..30 AI storyboards) plus SB-031..033 and sub-panel/mnemonic overflow; the source does not fix one combined total across all four. Status is computed from the built route tree, never from a list: 55 of 613 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Per register: 1 of 30 in the platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 44 of 490 in the storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 10 of 45 in the further-nested storyboard identifiers (4-segment SB-*, 45 total); 0 of 48 in the AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total); every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -615,7 +615,7 @@
     {
       "id": "SB-030",
       "sourceLine": 61119,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "platform storyboard catalogue (SB-NNN, Chapter 30, 30 total)"
     },
     {
@@ -867,13 +867,13 @@
     {
       "id": "SB-31-01",
       "sourceLine": 75180,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-31-02",
       "sourceLine": 75309,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -891,7 +891,7 @@
     {
       "id": "SB-31-05",
       "sourceLine": 75604,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -915,13 +915,13 @@
     {
       "id": "SB-31-09",
       "sourceLine": 76038,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-31-10",
       "sourceLine": 76133,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -1233,7 +1233,7 @@
     {
       "id": "SB-45-08-01",
       "sourceLine": 96540,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
@@ -1257,7 +1257,7 @@
     {
       "id": "SB-45-12-01",
       "sourceLine": 97034,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
@@ -1275,25 +1275,25 @@
     {
       "id": "SB-45-15-01",
       "sourceLine": 97339,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
       "id": "SB-45-16-01",
       "sourceLine": 97449,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
       "id": "SB-45-17-01",
       "sourceLine": 97555,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
       "id": "SB-45-18-01",
       "sourceLine": 97661,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
@@ -1749,7 +1749,7 @@
     {
       "id": "SB-AUD-03",
       "sourceLine": 74153,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -1767,7 +1767,7 @@
     {
       "id": "SB-BG-01",
       "sourceLine": 74622,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -2115,7 +2115,7 @@
     {
       "id": "SB-DEC-03",
       "sourceLine": 112905,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -2235,25 +2235,25 @@
     {
       "id": "SB-DOH-013",
       "sourceLine": 27029,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-DOH-014",
       "sourceLine": 27217,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-DOH-015",
       "sourceLine": 27377,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-DOH-016",
       "sourceLine": 27592,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -2301,19 +2301,19 @@
     {
       "id": "SB-DOH-024",
       "sourceLine": 29121,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-DOH-025",
       "sourceLine": 29274,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-DOH-026",
       "sourceLine": 29413,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -2985,7 +2985,7 @@
     {
       "id": "SB-RBAC-01",
       "sourceLine": 20728,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -3003,13 +3003,13 @@
     {
       "id": "SB-RBAC-04",
       "sourceLine": 20953,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-RBAC-05",
       "sourceLine": 21050,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -3027,7 +3027,7 @@
     {
       "id": "SB-RBAC-08",
       "sourceLine": 21588,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -3063,13 +3063,13 @@
     {
       "id": "SB-RET-01",
       "sourceLine": 74820,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-RISK-01",
       "sourceLine": 115553,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -3087,25 +3087,25 @@
     {
       "id": "SB-SA-01",
       "sourceLine": 42971,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-02",
       "sourceLine": 43158,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-03",
       "sourceLine": 43339,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-04",
       "sourceLine": 43528,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -3117,109 +3117,109 @@
     {
       "id": "SB-SA-06",
       "sourceLine": 43885,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-07",
       "sourceLine": 44041,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-08",
       "sourceLine": 44774,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-09",
       "sourceLine": 44984,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-10",
       "sourceLine": 45160,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-11",
       "sourceLine": 45273,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-12",
       "sourceLine": 45385,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-13",
       "sourceLine": 45498,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-14",
       "sourceLine": 45614,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-15",
       "sourceLine": 45753,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-16",
       "sourceLine": 45871,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-17",
       "sourceLine": 45997,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-18",
       "sourceLine": 46121,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-19",
       "sourceLine": 46246,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SA-DEVICE-01",
       "sourceLine": 117496,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
       "id": "SB-SA-RETENTION-01",
       "sourceLine": 117498,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
       "id": "SB-SA-TENANT-01",
       "sourceLine": 117966,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
       "id": "SB-SA-USAGE-01",
       "sourceLine": 117965,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
     },
     {
@@ -3321,7 +3321,7 @@
     {
       "id": "SB-SCHED-17",
       "sourceLine": 102004,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -3351,7 +3351,7 @@
     {
       "id": "SB-SCHED-22",
       "sourceLine": 102117,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -3363,13 +3363,13 @@
     {
       "id": "SB-SCHED-24",
       "sourceLine": 102158,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
       "id": "SB-SCHED-25",
       "sourceLine": 99639,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {
@@ -3435,7 +3435,7 @@
     {
       "id": "SB-SEC-005",
       "sourceLine": 103828,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
     },
     {

@@ -21,8 +21,18 @@
   --color-primary-hover: #1e40af;
   --color-primary-ink: #ffffff;
 
-  --color-status-ok: #047857;
-  --color-status-info: #0369a1;
+  /* StatusPill paints the tone over a 10% tint of ITSELF, so the achieved
+     ratio depends on the surface BEHIND the pill, not on --color-surface.
+     The darkest of those is --color-surface-sunken (#f1f5f9), which hosts 28
+     of the 51 token-backed panels. Measured there:
+       ok    #047857 -> 4.383:1  FAILED SC 1.4.3 on /hub/ (axe, 12px normal)
+       info  #0369a1 -> 4.701:1  passed AA but under this file's 4.75 rule
+     Both darkened along their own hue/saturation axis (emerald 163deg/94%,
+     sky 201deg/96%) to the lightest value clearing 4.75:1 on the sunken
+     tint -- 5.008:1 and 4.984:1. Hue is unchanged, so the six tones stay
+     distinguishable by hue, not by lightness. See a11y-contrast-report.md. */
+  --color-status-ok: #036d4f;
+  --color-status-info: #03659b;
   --color-status-attention: #a04a08;
   --color-status-blocked: #b91c1c;
   --color-status-stale: #6d28d9;

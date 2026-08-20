@@ -3,7 +3,7 @@
   "countedThing": "the canonical offline use-case catalogue UC-OFF-001..UC-OFF-070, verified unique. No names were extracted for this family.",
   "reconciledCount": 70,
   "rawCount": 70,
-  "dedupRule": "UC-OFF-* identifiers only; 70 raw keys, all unique, zero delta from the canonical catalogue. The other OFF-* families (offline blockers, connectivity failure modes, offline events) are separate registers and are not included here.",
+  "dedupRule": "UC-OFF-* identifiers only; 70 raw keys, all unique, zero delta from the canonical catalogue. The other OFF-* families (offline blockers, connectivity failure modes, offline events) are separate registers and are not included here. Status is computed from the built route tree, never from a list: 0 of 70 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": false,
   "rows": [
     {
