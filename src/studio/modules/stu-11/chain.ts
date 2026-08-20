@@ -323,55 +323,6 @@ export const DIAGRAM_ONLY_NODES = [
 ] as const
 
 /* ==================================================================== *
- * `DEC-RELAUTH-001` — disclosed here because the shared canon has no record.
- * ==================================================================== */
-
-/**
- * The shared decision canon (`@/studio/disclosure/decisions`) carries twenty-four
- * records, `D1`-`D24`, and **none of them is `DEC-RELAUTH-001`** — it is named
- * only inside `D21`'s prose. This module owns the decision, so it discloses it
- * here rather than implementing option (a) silently.
- *
- * This is a declared duplication with a stated end: the record belongs in the
- * canon as a `D25`, which is one entry in a file outside this task's path
- * list. A test in `tests/unit/stu-approvals.test.ts` goes red the moment a
- * `DEC-RELAUTH-001` record lands in the canon, which is what forces this local
- * copy to be deleted rather than left to drift.
- */
-export const DEC_RELAUTH_001 = {
-  id: 'DEC-RELAUTH-001',
-  sourceRef: 'L33255',
-  question:
-    'What is the minimum staffing a tenant must maintain for the three-stage chain to be completable, and who is eligible to receive a per-workflow Release Authority override?',
-  whyItMatters:
-    'A tenant with exactly one Quality Manager and one authoring-grant holder can author and review but cannot release, because releasing would require the reviewer to perform a second stage. The Workflow stalls and the floor keeps running on the prior version, which is safe but is also a silent operational deadlock.',
-  options: [
-    {
-      letter: 'a',
-      text:
-        'Require at least two holders of a Release-Authority-capable role at tenant scope, enforced at Workflow submission with a clear message.',
-      tradeOff: 'Imposes a staffing requirement on small tenants.',
-    },
-    {
-      letter: 'b',
-      text:
-        'Permit the per-workflow override to name any authoring-grant holder who is not the Author or the Reviewer.',
-      tradeOff: 'Widens release authority beyond the Quality Manager, which §5.11.2 does not contemplate.',
-    },
-    {
-      letter: 'c',
-      text:
-        'Permit the Reviewer stage to be performed by a second Quality Manager only, forcing the staffing question at onboarding.',
-      tradeOff: 'The strictest and least flexible.',
-    },
-  ],
-  adopted:
-    'Option (a), with a pre-submission staffing check that names the shortfall — the source’s own recommendation, "because a deadlock discovered at release time wastes an entire authoring cycle". It is registered as publish check eleven and it refuses submission; it never auto-approves and never substitutes a role that is not authorised.',
-  decisionOwner: 'the client’s product owner with the onboarding function',
-  appLabel: 'A client-delegated choice under APP-012, not a position the source settled.',
-} as const
-
-/* ==================================================================== *
  * STAFFABILITY — `FUNC-STU-11-02-A-2` (L33307), publish check 11.
  * ==================================================================== */
 

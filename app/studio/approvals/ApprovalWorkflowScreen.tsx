@@ -16,7 +16,6 @@ import { JOURNEY_STEPS } from '@/studio/journey/effects'
 import { STU_11_MATRIX, approvalRow } from '@/studio/modules/stu-11/matrix'
 import {
   APPROVAL_CONSUMER_CONTRACTS,
-  DEC_RELAUTH_001,
   DIAGRAM_ONLY_NODES,
   advance,
   ageingBand,
@@ -537,37 +536,8 @@ export function ApprovalWorkflowScreen({ selectedSubmissionId }: ApprovalWorkflo
           <h2 id="relauth-heading" className="text-lg font-semibold">
             An open client decision governs the staffing rule
           </h2>
-          <div
-            role="note"
-            className="mt-2 rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4 text-sm"
-          >
-            <p className="font-medium text-[var(--color-ink)]">
-              Open decision {DEC_RELAUTH_001.id} — {DEC_RELAUTH_001.sourceRef}
-            </p>
-            <p className="mt-1 text-[var(--color-ink-muted)]">{DEC_RELAUTH_001.question}</p>
-            <p className="mt-2 text-[var(--color-ink-muted)]">{DEC_RELAUTH_001.whyItMatters}</p>
-            <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
-              All options stand. None is this build&rsquo;s to settle.
-            </p>
-            <ul className="mt-1 space-y-2">
-              {DEC_RELAUTH_001.options.map((option) => (
-                <li key={option.letter}>
-                  <span className="text-[var(--color-ink)]">
-                    ({option.letter}) {option.text}
-                  </span>{' '}
-                  <span className="text-xs text-[var(--color-ink-subtle)]">{option.tradeOff}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
-              This build&apos;s working position
-            </p>
-            <p className="mt-1 text-[var(--color-ink)]">{DEC_RELAUTH_001.adopted}</p>
-            <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
-              {DEC_RELAUTH_001.appLabel} Decision owner: {DEC_RELAUTH_001.decisionOwner}. This
-              decision is disclosed here rather than from the shared Studio decision canon because
-              that canon carries no record for it.
-            </p>
+          <div className="mt-2">
+            <DecisionDisclosure id="D26" />
           </div>
         </section>
 

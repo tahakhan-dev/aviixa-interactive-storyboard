@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { readFileSync } from 'node:fs'
 
 import { permitsAction } from '@/policy/decision'
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
@@ -1333,21 +1334,31 @@ describe('pointers to content owned elsewhere', () => {
     // The counter-argument is on the record and is not trivial.
     expect(checklists).toContain('by up to one Run')
 
-    // DEC-EMBED-001 has NO record in the twenty-four the shared registry
-    // holds, so it is disclosed by this module on the tab it binds. The bare
-    // identifier is again not enough -- the `multimodal-embedding-service`
+    // DEC-EMBED-001 NOW HAS a canonical record -- D27 -- so this module stops
+    // wording the decision itself and renders the canon on the tab it binds.
+    // The bare identifier is not enough: the `multimodal-embedding-service`
     // seam's own contract sentence already names it, so asserting the
     // identifier alone passes with the panel deleted. Found by planting that.
+    // So every assertion below is read OFF THE RECORD and follows a rewording.
+    const embed = studioDecision('D27')
+    expect(embed.decisionRef).toBe('DEC-EMBED-001')
+    expect(embed.readings).toHaveLength(3)
+    for (const r of embed.readings) expect(r.locator).toContain('L32606')
     const corpus = viewMarkup({ persona: 'quality-manager' }, 'coaching-corpus')
     expect(corpus).toContain('DEC-EMBED-001')
     expect(corpus).toContain('identifiable workers')
     expect(corpus).toContain('Unspecified in the Statement of Work')
+    expect(corpus).toContain(embed.question)
     // All three of the source's options render, and this build's pick is
     // labelled a client-delegated choice rather than the source's answer.
-    expect(corpus).toContain('no retention by the model provider')
-    expect(corpus).toContain('exclude video containing identifiable')
-    expect(corpus).toContain('in-boundary embedding model')
+    for (const r of embed.readings) expect(corpus).toContain(r.text)
+    expect(corpus).toContain(embed.adopted)
     expect(corpus).toContain('client-delegated choice')
+    // AND NO SECOND WORDING. The module's own view file must not restate the
+    // options it used to carry -- one decision, one wording, on this surface.
+    const view = readFileSync('src/studio/modules/stu-07/ContentLibrariesView.tsx', 'utf8')
+    expect(view).not.toContain('in-boundary embedding model')
+    expect(view).not.toContain('no retention by the model provider')
     expect(corpus).toContain('APP-012')
   })
 })

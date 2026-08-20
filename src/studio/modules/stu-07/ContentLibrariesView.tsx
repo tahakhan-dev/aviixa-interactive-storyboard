@@ -556,44 +556,22 @@ function CorpusTab({ register }: { readonly register: LibraryRegister }) {
         </p>
       </section>
 
-      <section
-        aria-labelledby="embed-heading"
-        className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4"
-      >
+      <section aria-labelledby="embed-heading">
         <h2 id="embed-heading" className="text-lg font-semibold">
           Unspecified in the Statement of Work — DEC-EMBED-001
         </h2>
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink)]">
           The Statement of Work names a specific external multimodal embedding model and
           simultaneously states that corpus media may contain identifiable workers and is subject to
-          the platform’s personal-information policy. It does not state whether corpus content
-          crosses the platform boundary to be embedded, under what data-processing terms, in which
-          region, how a model deprecation is handled, or whether the index must be rebuilt when the
-          model changes (L32606).
+          the platform&rsquo;s personal-information policy (L32606). This module supplies the tab it
+          binds to; the decision itself is rendered from the shared canon, so there is one wording
+          of it on the surface and not two.
         </p>
-        <ul className="mt-2 list-disc space-y-1 pl-6 text-sm text-[var(--color-ink-muted)]">
-          <li>
-            Embed in-region under a data-processing agreement with no retention by the model
-            provider.
-          </li>
-          <li>
-            Embed only non-identifiable asset types and exclude video containing identifiable
-            workers from semantic indexing, falling back to metadata retrieval for those.
-          </li>
-          <li>Run an in-boundary embedding model, accepting a quality difference.</li>
-        </ul>
-        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          This build takes the first, with an explicit no-training, no-retention term and a
-          documented index-rebuild procedure for model version changes — a client-delegated choice
-          under APP-012, not a position the source settled. Corpus media containing identifiable
-          workers is held in the tenant’s own isolated memory, never shared across tenants and never
-          exported as external training data (L32756).
-        </p>
-        <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-          DEC-EMBED-001 carries no record in the twenty-four this surface’s shared disclosure
-          registry holds, so it is disclosed here, on the tab it binds, rather than left unstated.
-        </p>
+        <div className="mt-3">
+          <DecisionDisclosure id="D27" />
+        </div>
       </section>
+
     </>
   )
 }

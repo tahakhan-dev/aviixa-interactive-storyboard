@@ -410,33 +410,18 @@ export interface UnspecifiedItem {
 /**
  * The unspecified-in-source panel for `MOD-STU-18`.
  *
- * These are NOT rendered through `DecisionDisclosure`: task 3's twenty-four
- * records carry no entry for `DEC-ROLE-001`, and none for the two divergences
- * this module found in its own reading, so there is no id to hand it. Each
- * entry therefore states its own alternatives and its own cost, which is what
- * the standing rule requires of an unresolved source decision — the client
- * delegated the decision, not the pretence that the source settled it.
+ * These are the two divergences this module found in its OWN reading. The
+ * source gave neither a `DEC-*` identifier, so there is no id to hand
+ * `DecisionDisclosure` and each entry states its own alternatives and its own
+ * cost — what the standing rule requires of an unresolved source decision.
+ *
+ * `DEC-ROLE-001` is deliberately NOT here. It is a source decision card, it
+ * now carries a canonical record as `D25`, and this module renders it through
+ * `DecisionDisclosure` like every other one. A second copy here would be two
+ * wordings of one decision, which is how one of them quietly stops mentioning
+ * an alternative.
  */
 export const UNSPECIFIED_IN_SOURCE = [
-  {
-    id: 'DEC-ROLE-001',
-    question: 'Is Plant Manager a fixed role, or a persona?',
-    readings: [
-      {
-        text: '§5.18’s table is headed **Fixed role** and includes Plant Manager as one of its five rows.',
-        locator: 'L34512–L34516',
-      },
-      {
-        text: '§3.5 states plainly that there is no Quality Director and fixes exactly five roles: Tenant Admin, Supervisor, Quality Manager, Read-only Auditor and Worker. §6.1.3 separately lists “Plant Manager / Quality Director” as a Client Command Center user group.',
-        locator: 'DEC-ROLE-001 · L34522',
-      },
-    ],
-    adopted:
-      'The source’s own recorded position: a persona “whose Studio access is delivered by a Supervisor role without the authoring grant, which produces exactly the access §5.18 describes”. The column stays in the matrix and no sixth role is minted, so this build’s evaluator resolves a Plant Manager through the supervisor-without-grant column and says so.',
-    cost:
-      'A Plant Manager and a Supervisor without the grant are indistinguishable in the audit log, because they are one role there. If the client makes Plant Manager a role, every cell of that column becomes separately settable and the two stop sharing an answer.',
-    locator: 'L34522 · L34516',
-  },
   {
     id: 'grant-administration-surface',
     question: 'Where does grant administration happen — the Studio, or the Hub?',

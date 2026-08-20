@@ -40,7 +40,6 @@ import {
 } from '@/studio/modules/stu-12/diff'
 import {
   ADOPTION_STATES,
-  DEC_ARCH_001,
   EXPORT_SECTIONS,
   ROLLBACK_DISCLOSURE,
   VERSION_ACT_IDS,
@@ -754,15 +753,25 @@ describe('the version state machine — all 16 origin x transition pairs', () =>
     }
   })
 
-  // FAILS IF: DEC-ARCH-001 lands in the shared decision canon and this module
-  // keeps its own local disclosure — two renderings of one decision.
-  it('discloses DEC-ARCH-001 locally only while the shared canon has no record', () => {
-    expect(STUDIO_DECISIONS.map((d): string | null => d.decisionRef)).not.toContain('DEC-ARCH-001')
-    expect(DEC_ARCH_001.options).toHaveLength(3)
-    expect(DEC_ARCH_001.adopted).toMatch(/option \(a\)/i)
+  // FAILS IF: DEC-ARCH-001 leaves the shared decision canon, or this module
+  // mints a local copy of it again — two renderings of one decision. The
+  // landing already happened: this test used to assert the canon had NO record
+  // and that the local `DEC_ARCH_001` const carried it; it now asserts the
+  // opposite half and keeps the no-local-copy half.
+  it('discloses DEC-ARCH-001 from the shared canon and keeps no local copy', () => {
+    expect(STUDIO_DECISIONS.map((d): string | null => d.decisionRef)).toContain('DEC-ARCH-001')
+    const record = studioDecision('D28')
+    expect(record.decisionRef).toBe('DEC-ARCH-001')
+    expect(record.readings).toHaveLength(3)
+    for (const r of record.readings) expect(r.locator).toContain('L33443')
+    expect(record.adopted).toMatch(/option \(a\)/i)
+    // THE NO-LOCAL-COPY HALF. `MOD-STU-12` exports nothing named for this
+    // decision, so a second record added here goes red on arrival.
+    expect(Object.keys(stu12Versions).filter((k) => /ARCH_001|DEC_/i.test(k))).toEqual([])
     const page = html()
     expect(page).toContain('DEC-ARCH-001')
-    for (const option of DEC_ARCH_001.options) expect(page).toContain(option.text)
+    for (const r of record.readings) expect(page).toContain(r.text)
+    expect(page).toContain(record.adopted)
   })
 })
 
@@ -1067,16 +1076,28 @@ describe('the screen', () => {
     expect(html()).toContain('Linkage unavailable')
   })
 
-  // FAILS IF: the four Workflow authoring statuses land in the shared canon
-  // and this module's NEEDS_CONTEXT note is left standing, OR this module ever
+  // FAILS IF: the four Workflow authoring statuses leave the shared canon, or
+  // this module's retired NEEDS_CONTEXT note comes back, OR this module ever
   // mints its own copy of them. Both halves, because a shared vocabulary
   // duplicated across modules is only ever found at a whole-branch review.
-  it('mints no copy of the Workflow authoring statuses, and reports the need instead', () => {
-    expect(Object.keys(studioVocab)).not.toContain('WORKFLOW_STATUSES')
+  //
+  // HALF ONE — the canon carries the set, once. Before the hoist this half
+  // read `not.toContain('WORKFLOW_STATUSES')` and named the NEEDS_CONTEXT note
+  // that stood in its place; the hoist landed, so it now names the canon.
+  // HALF TWO is unchanged and must stay that way: it is what goes red if a
+  // local copy is ever minted here, and it is not derived from half one.
+  it('reads the Workflow authoring statuses from the canon and mints no copy of them', () => {
+    expect(Object.keys(studioVocab)).toContain('WORKFLOW_STATUSES')
+    expect([...studioVocab.WORKFLOW_STATUSES]).toEqual([
+      'Draft',
+      'In Review',
+      'Published',
+      'Archived',
+    ])
     expect(Object.keys(studioVocab)).not.toContain('WORKFLOW_AUTHORING_STATES')
     expect(Object.keys(stu12Versions).filter((k) => /WORKFLOW/i.test(k))).toEqual([])
     const source = readFileSync('src/studio/modules/stu-12/versions.ts', 'utf8')
-    expect(source).toContain('NEEDS_CONTEXT')
+    expect(source).not.toContain('NEEDS_CONTEXT')
     // The observable publication moves is the pending submission, typed in the
     // vocabulary task 3 already owns.
     expect(SUBMISSION_STATES as readonly string[]).toContain(

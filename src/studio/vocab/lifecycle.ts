@@ -10,6 +10,37 @@
  */
 
 /**
+ * The Workflow's own authoring status. L31924: "Draft, In Review, Published,
+ * Archived. The first three are stated in §5.3.1; Archived follows from
+ * §5.12.3's manual archival." `OBJ-STU-WORKFLOW`'s register row carries the
+ * same four (L31124).
+ *
+ * D6, and `Archived` wins. `OBJ-036`'s lifecycle line (L8597) reads "Draft,
+ * In Review, Published as authoring statuses of the workflow's current
+ * version" and omits it; that is the NARROWER STATEMENT, not a contradiction,
+ * because a current version is never the archived one. `MOD-STU-03`'s state
+ * machine (L31959-L31972) draws Archived and its Library cannot express *not
+ * linkable* without it.
+ *
+ * **Hoisted out of `MOD-STU-03` and declared once.** It is a lifecycle
+ * vocabulary that `MOD-STU-03` and `MOD-STU-12` both read, and a second
+ * declaration is exactly how two lists drift apart. The draft/released
+ * PARTITION over these four is not vocabulary and stays in `MOD-STU-03` --
+ * it is that module's own read-scope policy, drawn from its matrix row 2.
+ */
+export type WorkflowStatus = 'Draft' | 'In Review' | 'Published' | 'Archived'
+
+export const WORKFLOW_STATUSES = [
+  'Draft',
+  'In Review',
+  'Published',
+  'Archived',
+] as const satisfies readonly WorkflowStatus[]
+
+const _workflowStatusesExhaustive: Exclude<WorkflowStatus, (typeof WORKFLOW_STATUSES)[number]> extends never ? true : never = true
+void _workflowStatusesExhaustive
+
+/**
  * L33426: "At republish the Author selects the bump classification and the
  * Reviewer validates it against the diff -- a mis-classified patch is
  * returned". PATCH auto-adopts; MINOR and MAJOR are the notified classes,

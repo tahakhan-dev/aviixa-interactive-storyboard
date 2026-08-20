@@ -371,6 +371,7 @@ export function PermissionsScreen(props: PermissionsScreenProps) {
             <DecisionDisclosure id="D9" />
             <DecisionDisclosure id="D13" />
             <DecisionDisclosure id="D24" />
+            <DecisionDisclosure id="D25" />
           </section>
 
           <UnspecifiedPanel />

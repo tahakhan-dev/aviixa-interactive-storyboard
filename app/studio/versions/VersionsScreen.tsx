@@ -24,7 +24,6 @@ import {
 } from '@/studio/modules/stu-12/diff'
 import {
   ADOPTION_STATES,
-  DEC_ARCH_001,
   EXPORT_SECTIONS,
   ROLLBACK_DISCLOSURE,
   VERSION_STATES,
@@ -769,38 +768,7 @@ function VersionControl(props: VersionControlProps) {
           <DecisionDisclosure id="D5" />
           <DecisionDisclosure id="D6" />
           <DecisionDisclosure id="D21" />
-          <div
-            role="note"
-            className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4 text-sm"
-          >
-            <p className="font-medium text-[var(--color-ink)]">
-              Open decision {DEC_ARCH_001.id} — {DEC_ARCH_001.sourceRef}
-            </p>
-            <p className="mt-1 text-[var(--color-ink-muted)]">{DEC_ARCH_001.question}</p>
-            <p className="mt-2 text-[var(--color-ink-muted)]">{DEC_ARCH_001.whyItMatters}</p>
-            <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
-              All options stand. None is this build&rsquo;s to settle.
-            </p>
-            <ul className="mt-1 space-y-2">
-              {DEC_ARCH_001.options.map((option) => (
-                <li key={option.letter}>
-                  <span className="text-[var(--color-ink)]">
-                    ({option.letter}) {option.text}
-                  </span>{' '}
-                  <span className="text-xs text-[var(--color-ink-subtle)]">{option.tradeOff}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
-              This build&apos;s working position
-            </p>
-            <p className="mt-1 text-[var(--color-ink)]">{DEC_ARCH_001.adopted}</p>
-            <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
-              {DEC_ARCH_001.appLabel} Decision owner: {DEC_ARCH_001.decisionOwner}. This decision is
-              disclosed here rather than from the shared Studio decision canon because that canon
-              carries no record for it.
-            </p>
-          </div>
+          <DecisionDisclosure id="D28" />
         </div>
       </section>
 

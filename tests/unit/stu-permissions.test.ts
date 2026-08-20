@@ -771,13 +771,33 @@ describe('the disputed restatements', () => {
   // its alternatives -- the client delegated the decision, not the pretence
   // that the source settled it.
   it('states every unspecified-in-source item with both readings and its cost', () => {
-    expect(UNSPECIFIED_IN_SOURCE.length).toBeGreaterThan(2)
+    expect(UNSPECIFIED_IN_SOURCE.length).toBeGreaterThan(1)
     for (const item of UNSPECIFIED_IN_SOURCE) {
       expect(item.readings.length, item.id).toBeGreaterThan(1)
       expect(item.cost.length, item.id).toBeGreaterThan(30)
       expect(item.locator, item.id).toMatch(/L\d+/)
     }
-    expect(UNSPECIFIED_IN_SOURCE.map((i) => i.id)).toContain('DEC-ROLE-001')
+  })
+
+  // FAILS IF: DEC-ROLE-001 leaves the shared decision canon, or this module
+  // mints a local copy of it again -- two wordings of one decision. It used to
+  // be an UNSPECIFIED_IN_SOURCE entry here because the canon had no record;
+  // the canon now carries D25, so this half is flipped and the no-local-copy
+  // half is what this test exists to keep failing on a re-mint.
+  it('discloses DEC-ROLE-001 from the shared canon and keeps no local copy', () => {
+    const record = studioDecision('D25')
+    expect(record.decisionRef).toBe('DEC-ROLE-001')
+    // All three readings section 13.3 states, each with its own locator.
+    expect(record.readings).toHaveLength(3)
+    for (const r of record.readings) expect(r.locator).toMatch(/L\d{4,6}/)
+    // THE NO-LOCAL-COPY HALF.
+    expect(UNSPECIFIED_IN_SOURCE.map((i) => i.id)).not.toContain('DEC-ROLE-001')
+    // And the screen renders the canonical record, read off the record itself
+    // so a rewording follows instead of going stale.
+    const html = permissionsMarkup({ persona: 'tenant-admin' })
+    expect(html).toContain('DEC-ROLE-001')
+    for (const r of record.readings) expect(html).toContain(r.text)
+    expect(html).toContain(record.adopted)
   })
 
   // FAILS IF: `Expired` is claimed for a grant the source does not attach it

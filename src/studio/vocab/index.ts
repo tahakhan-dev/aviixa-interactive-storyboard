@@ -1,6 +1,7 @@
 /**
  * Slice 5, task 3 -- the nineteen closed vocabularies of `SURF-STU`, design
- * §4. Seventeen are declared here; two are **shared, never re-declared**:
+ * §4, plus the Workflow authoring statuses hoisted out of `MOD-STU-03`.
+ * Eighteen are declared here; two are **shared, never re-declared**:
  *
  * - the fifteen command states, slice 3 -- `@/surfaces/sa/command-state`
  *   (`COMMAND_STATES`, L31181). S10: the fifteen are the ONLY adoption
@@ -30,6 +31,7 @@ import {
   PACKAGE_STATES,
   SUBMISSION_STATES,
   VERSION_BUMP_CLASSES,
+  WORKFLOW_STATUSES,
 } from './lifecycle'
 
 /**
@@ -54,6 +56,7 @@ export const STUDIO_VOCABULARY_MEMBERS = [
   ...DIFFICULTY_LEVELS,
   ...LOCALES,
   ...NOTIFICATION_CHANNELS,
+  ...WORKFLOW_STATUSES,
   ...VERSION_BUMP_CLASSES,
   ...JOB_ADOPTION_STATES,
   ...SUBMISSION_STATES,

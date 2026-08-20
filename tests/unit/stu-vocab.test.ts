@@ -47,7 +47,7 @@ import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
 const render = (id: StudioDecisionId) =>
   renderToStaticMarkup(createElement(DecisionDisclosure, { id }))
 
-describe('the nineteen closed vocabularies -- members verified at the frozen source', () => {
+describe('the closed vocabularies -- design §4\'s nineteen plus the Workflow authoring statuses hoisted out of MOD-STU-03, members verified at the frozen source', () => {
   // L30899 (the derivation rule) and the inventory table at L30911-L30930.
   it('holds the eighteen derived Studio module ids and no nineteenth', () => {
     expect(STUDIO_MODULE_IDS).toEqual([
@@ -278,8 +278,8 @@ describe('D21 -- the three states modelled as flags, each attached where the sou
   })
 })
 
-describe('the twenty-four decision records', () => {
-  it('holds exactly twenty-four, D1 through D24, in order', () => {
+describe('the twenty-eight decision records', () => {
+  it('holds exactly twenty-eight, D1 through D28, in order', () => {
     expect(STUDIO_DECISION_IDS).toEqual([
       'D1',
       'D2',
@@ -305,8 +305,12 @@ describe('the twenty-four decision records', () => {
       'D22',
       'D23',
       'D24',
+      'D25',
+      'D26',
+      'D27',
+      'D28',
     ])
-    expect(STUDIO_DECISIONS).toHaveLength(24)
+    expect(STUDIO_DECISIONS).toHaveLength(28)
   })
 
   /**
@@ -434,7 +438,7 @@ describe('DecisionDisclosure -- the only place a decision is rendered', () => {
 
   /**
    * Caught by eye, not by the suite: the first draft tested `alias !== undefined`
-   * while `alias` is `string | null`, so all twenty-three null-alias records
+   * while `alias` is `string | null`, so all null-alias records
    * rendered a dangling "(also cited as )". The suite was green throughout,
    * because it only ever asserted that D7 DOES render both identifiers.
    */
@@ -453,7 +457,7 @@ describe('DecisionDisclosure -- the only place a decision is rendered', () => {
     expect(markup).toContain('AC-WF-AUT-009-01')
   })
 
-  it('marks the build position a client-delegated choice on every one of the twenty-four', () => {
+  it('marks the build position a client-delegated choice on every record', () => {
     for (const id of STUDIO_DECISION_IDS) {
       expect(render(id), `${id} APP-012`).toContain('client-delegated choice under APP-012')
     }

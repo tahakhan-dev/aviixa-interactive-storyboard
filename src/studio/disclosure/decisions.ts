@@ -1,7 +1,9 @@
 /**
- * Slice 5, task 3 -- the twenty-four `SURF-STU` decisions, design section 3
- * and census section 7, each carrying **both** source readings with their own
- * locators.
+ * Slice 5, task 3 -- the `SURF-STU` decision canon: the twenty-four of design
+ * section 3 and census section 7, plus `D25`-`D28`, the four source `DEC-*`
+ * cards that modules had been disclosing locally until the canon carried them.
+ * Every record carries **all** of its source readings, each with its own
+ * locator.
  *
  * The rule this file exists to enforce, from `APP-012`: the client delegated
  * the decision, not the pretence that the source settled it. So a record holds
@@ -42,6 +44,10 @@ export type StudioDecisionId =
   | 'D22'
   | 'D23'
   | 'D24'
+  | 'D25'
+  | 'D26'
+  | 'D27'
+  | 'D28'
 
 /**
  * One reading of the source, and where it is. **Exactly two fields.** There is
@@ -571,12 +577,107 @@ export const STUDIO_DECISIONS = [
       'Expired applies to GRANT-STU-IMPL because section 5.11.4 requires revocation at onboarding’s end. The other two grants render Client Decision Required under DEC-TENGRANT-001, with the four grant states — Assigned, Active, Revoked, Expired — modelled for all three so the decision changes a rendering rather than a schema.',
     pins: ['Assigned', 'Active', 'Revoked', 'Expired'],
   },
+  {
+    id: 'D25',
+    decisionRef: 'DEC-ROLE-001',
+    alias: null,
+    question: 'Is Plant Manager a fixed role, or a persona?',
+    readings: [
+      {
+        text: 'Reading A, the closure reading: five tenant roles exist and Plant Manager and Quality Director are personas. §4.8.1 is the strongest closure statement the source makes — “There are five fixed roles at V1; custom roles are deferred beyond V1. There is no ‘Quality Director’ role” — and §3.5 repeats it. A plant manager is a Supervisor at Site or Tenant scope, and where decision authority is genuinely needed the person additionally holds Quality Manager, which is the resolution §6.1.3 supplies in its own closing sentence.',
+        locator: 'DEC-ROLE-001 · Reading A L17688 · §4.8.1 quoted at L17684',
+      },
+      {
+        text: 'Reading B, the user-group reading: “Plant Manager / Quality Director” is a real Client Command Center user group with its own landing view, its own aggregate tiles and a named position in the escalation-fallback chain, but composed rather than declared — a role plus a scope plus a landing-view preference. It owes a landing-view field and an escalation recipient class, and still owes no sixth role.',
+        locator: 'DEC-ROLE-001 · Reading B L17690',
+      },
+      {
+        text: 'Reading C, the fixed-role-table reading: §5.18’s Studio access table is headed “Fixed role” and carries Plant Manager as a row alongside Quality Manager, Supervisor, Tenant Admin and Frontline Worker. Read literally the Studio recognises a sixth fixed role whose entire remit is “Read-only access to published Workflow content. No access to drafts or in-review versions; cannot edit.”',
+        locator: 'DEC-ROLE-001 · Reading C L17692 · §5.18 table L34512-L34516',
+      },
+    ],
+    adopted:
+      'Reading A, which is also the source’s own recorded position for this surface: Plant Manager is “a persona whose Studio access is delivered by a Supervisor role without the authoring grant, which produces exactly the access §5.18 describes” (L34522). The persona column stays in every Studio matrix and no sixth role is minted, so the access evaluator resolves a Plant Manager through the supervisor-without-grant column and every derived cell names DEC-ROLE-001 as the reason. The cost is stated rather than hidden: a Plant Manager and a Supervisor without the grant are one identity in the audit log and cannot be told apart there, and if the client makes Plant Manager a role every cell of that column becomes separately settable. Decision owner, L17705: the client product owner, with the tenant quality lead consulted.',
+    pins: [],
+  },
+  {
+    id: 'D26',
+    decisionRef: 'DEC-RELAUTH-001',
+    alias: null,
+    question:
+      'What is the minimum staffing a tenant must maintain for the three-stage chain to be completable, and who is eligible to receive a per-workflow Release Authority override?',
+    readings: [
+      {
+        text: 'Option (a): require at least two holders of a Release-Authority-capable role at tenant scope, enforced at Workflow submission with a clear message. Trade-off, stated in the card: it imposes a staffing requirement on small tenants.',
+        locator: 'DEC-RELAUTH-001 · L33255',
+      },
+      {
+        text: 'Option (b): permit the per-workflow override to name any authoring-grant holder who is not the Author or the Reviewer. Trade-off: it widens release authority beyond the Quality Manager, which §5.11.2 does not contemplate.',
+        locator: 'DEC-RELAUTH-001 · L33255',
+      },
+      {
+        text: 'Option (c): permit the Reviewer stage to be performed by a second Quality Manager only, forcing the staffing question at onboarding. Trade-off: the strictest and least flexible.',
+        locator: 'DEC-RELAUTH-001 · L33255',
+      },
+    ],
+    adopted:
+      'Option (a), with the pre-submission staffing check the card itself recommends, “because a deadlock discovered at release time wastes an entire authoring cycle”. It ships as publish check eleven and it REFUSES submission naming the shortfall; it never auto-approves and never substitutes a role that is not authorised. Why it matters, in the card’s own words: a tenant with exactly one Quality Manager and one authoring-grant holder can author and review but cannot release, the Workflow stalls, and the floor keeps running on the prior version — safe, but a silent operational deadlock. Decision owner, L33255: the client’s product owner with the onboarding function.',
+    pins: [],
+  },
+  {
+    id: 'D27',
+    decisionRef: 'DEC-EMBED-001',
+    alias: null,
+    question:
+      'Does Coaching Corpus content cross the platform boundary to be embedded — under what data-processing terms, in which region, and is the index rebuilt when the model changes?',
+    readings: [
+      {
+        text: 'Option (a): embed in-region under a data-processing agreement with no retention by the model provider. Trade-off: it requires a contractual term and a named region.',
+        locator: 'DEC-EMBED-001 · L32606',
+      },
+      {
+        text: 'Option (b): embed only non-identifiable asset types and exclude video containing identifiable workers from semantic indexing, falling back to metadata retrieval for those. Trade-off: it reduces retrieval quality, and the card adds that it “degrades the corpus precisely where video is most useful”.',
+        locator: 'DEC-EMBED-001 · L32606',
+      },
+      {
+        text: 'Option (c): run an in-boundary embedding model, accepting a quality difference. Trade-off: it increases platform engineering scope and carries an unquantified quality cost.',
+        locator: 'DEC-EMBED-001 · L32606',
+      },
+    ],
+    adopted:
+      'Option (a), with an explicit no-training, no-retention term and a documented index-rebuild procedure for model version changes. Why it matters is the card’s own reason: the deployment posture is cloud, United States region, with the client owning the account, and sending video of identifiable workers to an external model is a data-processing question the compliance posture must answer explicitly. What the source does settle is held to regardless of the answer — corpus media containing identifiable workers is held in the tenant’s own isolated memory, never shared across tenants and never exported as external training data (L32755). Decision owner, L32606: the client’s platform team with legal counsel, alongside DEC-CERT-001.',
+    pins: [],
+  },
+  {
+    id: 'D28',
+    decisionRef: 'DEC-ARCH-001',
+    alias: null,
+    question:
+      'Can an archived version be un-archived, can an archived version be linked to a new Job, and is archival reversible at all?',
+    readings: [
+      {
+        text: 'Option (a): archival is reversible by the Quality Manager with an audited reason. Trade-off: it makes archival a weaker signal of retirement.',
+        locator: 'DEC-ARCH-001 · L33443',
+      },
+      {
+        text: 'Option (b): archival is irreversible and a new version must be created from the archived content. Trade-off: it forces a version-number increment for a clerical mistake.',
+        locator: 'DEC-ARCH-001 · L33443',
+      },
+      {
+        text: 'Option (c): archival is reversible only within a stated window. Trade-off: it adds a timer nobody asked for.',
+        locator: 'DEC-ARCH-001 · L33443',
+      },
+    ],
+    adopted:
+      'Option (a), the card’s own recommendation — “because the platform’s only irreversible act is worker personal-data anonymisation and adding a second irreversible act to a content operation is disproportionate”. MOD-STU-12 owns it: un-archival requires an audited reason and refuses without one, and the restored state is DERIVED, so an un-archived version never claims to be in force while a newer one exists. MOD-STU-03’s Library draws no un-archive control, because archival is a per-VERSION act and none of the nine matrix rows governing that screen names archival; the state machine there carries the statement instead (L31974). Why it matters: a tenant that archives the wrong version has no stated remedy, and the platform’s no-purge data model means the content certainly still exists. Decision owner, L33443: the client’s quality lead.',
+    pins: [],
+  },
 ] as const satisfies readonly StudioDecision[]
 
 /**
- * The twenty-four ids as a closed set in their own right, with the same real
+ * The ids as a closed set in their own right, with the same real
  * exhaustiveness check every vocabulary in `@/studio/vocab` carries: adding a
- * twenty-fifth id to the union without listing it here stops `Exclude`
+ * twenty-ninth id to the union without listing it here stops `Exclude`
  * resolving to `never` and fails the type-check.
  *
  * It is declared as its own literal list rather than mapped off
@@ -608,6 +709,10 @@ export const STUDIO_DECISION_IDS = [
   'D22',
   'D23',
   'D24',
+  'D25',
+  'D26',
+  'D27',
+  'D28',
 ] as const satisfies readonly StudioDecisionId[]
 
 const _decisionIdsExhaustive: Exclude<StudioDecisionId, (typeof STUDIO_DECISION_IDS)[number]> extends never ? true : never = true
@@ -618,7 +723,7 @@ const BY_ID = new Map<StudioDecisionId, StudioDecision>(STUDIO_DECISIONS.map((d)
 /**
  * The honest stand-in for an id with no record. It cannot be reached while
  * `stu-vocab.test.ts` holds -- that test asserts the record ids ARE the
- * twenty-four -- and it exists so that a registry defect discloses itself on
+ * declared set -- and it exists so that a registry defect discloses itself on
  * screen instead of throwing inside a render. A typed failure, never a throw.
  */
 function missingRecord(id: StudioDecisionId): StudioDecision {

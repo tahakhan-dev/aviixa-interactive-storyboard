@@ -17,7 +17,6 @@ import {
   STATE_MACHINE_NOTES,
   UNSPECIFIED_IN_SOURCE,
   WORKFLOW_OBJECT,
-  WORKFLOW_STATUSES,
   WORKFLOW_TRANSITIONS,
   applyLibraryFilters,
   createCustomType,
@@ -32,9 +31,9 @@ import {
   type LibraryScenario,
   type LibraryState,
   type WorkflowRecord,
-  type WorkflowStatus,
   workflowsVisibleTo,
 } from '@/studio/modules/stu-03/library'
+import { WORKFLOW_STATUSES, type WorkflowStatus } from '@/studio/vocab'
 import { STU_03_MATRIX } from '@/studio/modules/stu-03/matrix'
 import { StudioSeamNotice } from '@/ui/stu/StudioSeamNotice'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
@@ -480,6 +479,7 @@ export function WorkflowLibraryScreen(props: WorkflowLibraryScreenProps) {
             <DecisionDisclosure id="D20" />
             <DecisionDisclosure id="D6" />
             <DecisionDisclosure id="D11" />
+            <DecisionDisclosure id="D28" />
           </section>
 
           <UnspecifiedPanel />

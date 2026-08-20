@@ -12,6 +12,7 @@ import { WHEEL_BOLT_DRAFT_CONTENT } from '@/studio/journey/fixture'
 import { studioIdentityFor } from '@/studio/modules/stu-18/rendering'
 
 import { STU_03_MATRIX, STU_03_ROW_IDS, stu03Row, type Stu03RowId } from '@/studio/modules/stu-03/matrix'
+import { WORKFLOW_STATUSES } from '@/studio/vocab'
 import {
   DEFAULT_FILTERS,
   DEFAULT_STATUS_FILTER,
@@ -29,7 +30,6 @@ import {
   UNRELEASED_STATUSES,
   UNSPECIFIED_IN_SOURCE,
   WORKFLOW_OBJECT,
-  WORKFLOW_STATUSES,
   WORKFLOW_TRANSITIONS,
   applyLibraryFilters,
   createCustomType,
@@ -965,6 +965,21 @@ describe('the Workflow state machine', () => {
     expect(STU_03_ROW_IDS.some((id) => id.includes('archive'))).toBe(false)
   })
 
+  // FAILS IF: DEC-ARCH-001 leaves the shared decision canon, or this module
+  // mints a local copy of it again. It used to be an UNSPECIFIED_IN_SOURCE
+  // entry here because the canon had no record; the canon now carries D28.
+  it('discloses DEC-ARCH-001 from the shared canon and keeps no local copy', () => {
+    const record = studioDecision('D28')
+    expect(record.decisionRef).toBe('DEC-ARCH-001')
+    expect(UNSPECIFIED_IN_SOURCE.map((r) => r.id)).not.toContain('DEC-ARCH-001')
+    const text = plain(screenMarkup())
+    expect(text).toContain('DEC-ARCH-001')
+    for (const r of record.readings) expect(text).toContain(r.text)
+    // The screen-scoped statement stays where it belongs: the state machine
+    // note, which says this Library draws no un-archive control and why.
+    expect(text).toContain('Not specified in the Statement of Work')
+  })
+
   // D6. FAILS IF: Archived is dropped from the status vocabulary, or the
   // disclosure stops carrying OBJ-036's narrower statement.
   it('keeps the Archived state and records OBJ-036 as the narrower statement', () => {
@@ -997,10 +1012,12 @@ describe('the Workflow state machine', () => {
 describe('the unspecified-in-source panel', () => {
   // FAILS IF: a record loses a reading, its adopted position or its cost —
   // any of which turns a disclosure into an assertion.
-  it('carries three records, each with at least two readings, a position and a cost', () => {
-    expect(UNSPECIFIED_IN_SOURCE).toHaveLength(3)
+  it('carries two records, each with at least two readings, a position and a cost', () => {
+    expect(UNSPECIFIED_IN_SOURCE).toHaveLength(2)
+    // DEC-ARCH-001 is NOT here. It is a source decision card owned by
+    // MOD-STU-12, it carries a canonical record as D28, and this screen
+    // renders that record rather than restating it -- see the test below.
     expect(UNSPECIFIED_IN_SOURCE.map((r) => r.id)).toEqual([
-      'DEC-ARCH-001',
       'DEC-TAXROLE-001',
       'archived-visibility',
     ])

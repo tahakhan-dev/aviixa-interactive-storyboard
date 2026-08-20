@@ -11,6 +11,7 @@ import {
 } from '@/studio/access/evaluate'
 import type { StudioCommercialTier, StudioGrantId, StudioGrantState } from '@/studio/access/grants'
 import { WHEEL_BOLT_DRAFT_CONTENT } from '@/studio/journey/fixture'
+import type { WorkflowStatus } from '@/studio/vocab'
 import { stu03Row, type Stu03RowId, type StudioLibraryMatrixRow } from './matrix'
 
 /**
@@ -65,31 +66,18 @@ import { stu03Row, type Stu03RowId, type StudioLibraryMatrixRow } from './matrix
  * ==================================================================== */
 
 /**
- * L31924: "Draft, In Review, Published, Archived. The first three are stated
- * in §5.3.1; Archived follows from §5.12.3's manual archival."
+ * `WorkflowStatus` and `WORKFLOW_STATUSES` are NOT declared here and are NOT
+ * re-exported from here. They are lifecycle vocabulary shared with
+ * `MOD-STU-12`, so they live once in `@/studio/vocab/lifecycle` beside the
+ * other closed sets, and a module reaches them through the one import site.
+ * A re-export would make the name importable from two places, which is the
+ * condition the hoist exists to end.
  *
- * **D6, and Archived wins.** `OBJ-036`'s own lifecycle line (L8597) reads
- * "Draft, In Review, Published as authoring statuses of the workflow's
- * current version" and omits Archived. This module's state machine
- * (L31959–L31972) draws Archived, `OBJ-STU-WORKFLOW`'s register row (L31124)
- * carries it, and a Library with no archived filter cannot express *not
- * linkable* — which is what the mermaid says Archived means. `OBJ-036` is
- * recorded as the NARROWER STATEMENT, not as a contradiction: it is scoped to
- * "the workflow's current version", and a current version is never the
- * archived one.
+ * What stays below is this module's OWN policy over those four names: the
+ * draft/released partition that gates the read (matrix row 2, L31905) and the
+ * filter the Library opens on (`AC-STU-047`, L32012). Neither is a
+ * vocabulary; both are `MOD-STU-03` rules that happen to be expressed in it.
  */
-export type WorkflowStatus = 'Draft' | 'In Review' | 'Published' | 'Archived'
-
-export const WORKFLOW_STATUSES = [
-  'Draft',
-  'In Review',
-  'Published',
-  'Archived',
-] as const satisfies readonly WorkflowStatus[]
-
-type MissingFromStatuses = Exclude<WorkflowStatus, (typeof WORKFLOW_STATUSES)[number]>
-const _statusesExhaustive: MissingFromStatuses extends never ? true : never = true
-void _statusesExhaustive
 
 /**
  * The two statuses row 2 gates — "See Draft and In Review Workflows"
@@ -1332,47 +1320,18 @@ export interface UnspecifiedRecord {
 }
 
 /**
- * Three questions this module met that the source does not settle. Each
- * states every reading, the position this build took, and what that position
- * costs — a client-delegated choice under `APP-012`, never a claim that the
- * source settled it.
+ * Two questions this module met that the source does not settle and gave no
+ * `DEC-*` identifier. Each states every reading, the position this build took,
+ * and what that position costs — a client-delegated choice under `APP-012`,
+ * never a claim that the source settled it.
+ *
+ * `DEC-ARCH-001` is deliberately NOT here. It is a source decision card owned
+ * by `MOD-STU-12`, it now carries a canonical record as `D28`, and this screen
+ * renders it through `DecisionDisclosure` rather than restating it. What is
+ * screen-scoped — that the Library draws no un-archive control and why — stays
+ * on the state machine note above (`STATE_MACHINE_NOTES.unArchivalIsOpen`).
  */
 export const UNSPECIFIED_IN_SOURCE = [
-  {
-    id: 'DEC-ARCH-001',
-    question: 'Can an archived Workflow version be un-archived?',
-    readings: [
-      {
-        text:
-          'The state machine draws the transition: “Archived --> Published : republication is not ' +
-          'defined in the source, see the note below”.',
-        locator: 'L31970',
-      },
-      {
-        text:
-          'The note under it: the Statement of Work “does not state whether an archived version ' +
-          'can be un-archived. Not specified in the Statement of Work.” The decision card adds ' +
-          'that it does not state whether an archived version can be linked to a new Job either.',
-        locator: 'L31974 · DEC-ARCH-001 L33443',
-      },
-    ],
-    adopted:
-      'The Library offers no un-archive control, and this module invents none: the transition ' +
-      'renders as a statement on the state machine above. That is a statement about THIS screen ' +
-      'and not about the platform — archival is a per-VERSION act, DEC-ARCH-001 is proposed in ' +
-      'section 20.2.12, and MOD-STU-12 Versioning and Publication is the module that owns both ' +
-      'the version and the decision. Nine matrix rows govern this screen and not one of them ' +
-      'names archival, so a control here would be one this module’s own permission table cannot ' +
-      'evaluate. The source’s own recommendation — option (a), reversible by the Quality Manager ' +
-      'with an audited reason — is shown beside the alternatives rather than assumed.',
-    cost:
-      'A reader who archived the wrong Workflow finds no remedy on this screen and has to go to ' +
-      'the version history to look for one. Whether one exists at all is DEC-ARCH-001’s to ' +
-      'answer, wherever it is answered; this module does not answer it in either direction, and ' +
-      'the Library’s Archived filter exists so that a retired Workflow is at least visible and ' +
-      'readable rather than silently gone.',
-    locator: 'L31970 · L31974 · L33443 (proposed in section 20.2.12)',
-  },
   {
     id: 'DEC-TAXROLE-001',
     question: 'Which tenant role may create a custom Job Type or Service Type tag?',

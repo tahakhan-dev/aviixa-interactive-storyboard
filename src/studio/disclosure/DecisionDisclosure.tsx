@@ -6,7 +6,7 @@ import { studioDecision, type StudioDecisionId } from './decisions'
  * how two screens end up disclosing the same decision differently and how one
  * of them quietly stops mentioning the alternative.
  *
- * What it always renders, for every one of the twenty-four:
+ * What it always renders, for every record in the canon:
  *
  * 1. the identifier -- this build's key, the source's `DEC-*` identifier where
  *    one exists, and the plain statement where none does;

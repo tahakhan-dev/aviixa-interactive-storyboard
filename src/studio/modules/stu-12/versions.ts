@@ -104,23 +104,13 @@ void _versionStatesExhaustive
 export const ADOPTION_STATES = JOB_ADOPTION_STATES
 
 /**
- * NEEDS_CONTEXT — the Workflow's own authoring status is NOT declared here.
- *
- * L31124 states four names (`Draft`, `In Review`, `Published`, `Archived`) and
- * `OBJ-036` (L8597) states three of them "as authoring statuses of the
- * workflow's current version". They belong in `@/studio/vocab/lifecycle.ts`
- * beside the other nineteen closed sets, and that file carries none of them
- * today. `MOD-STU-03` needs the same four and declared them locally
- * (`src/studio/modules/stu-03/library.ts`) because task 3's file is outside
- * its path list; it is outside this task's path list too.
- *
- * **So this module mints no second copy and reports the need instead.** A
- * shared vocabulary duplicated across modules is found only at a whole-branch
- * review, because no single module review ever sees two of them — slice 4 paid
- * for that twice. `tests/unit/stu-versions.test.ts` asserts BOTH halves: that
- * the canon still lacks the set, so it goes red when the hoist lands and this
- * comment has to be deleted; and that this module exports nothing matching
- * `WORKFLOW`, so a local copy added later goes red on arrival.
+ * The Workflow's own authoring status is not declared here, and never was.
+ * It is now in the shared canon — `WORKFLOW_STATUSES` in
+ * `@/studio/vocab/lifecycle`, hoisted out of `MOD-STU-03` — so this module
+ * reads it from there on the day it needs it and still mints no second copy.
+ * `tests/unit/stu-versions.test.ts` holds both halves: that the canon carries
+ * the set, and that this module exports nothing matching `WORKFLOW`, so a
+ * local copy added later goes red on arrival.
  *
  * What this module needed the status FOR is answered without it:
  * `register.pendingSubmission` carries the submission awaiting publication in
@@ -1478,49 +1468,4 @@ export const ROLLBACK_DISCLOSURE = {
       locator: 'L53707',
     },
   ],
-} as const
-
-/* ==================================================================== *
- * `DEC-ARCH-001` — disclosed here, because the shared canon has no record.
- * ==================================================================== */
-
-/**
- * The shared decision canon (`@/studio/disclosure/decisions`) carries
- * twenty-four records and **none of them is `DEC-ARCH-001`** — it is named
- * only inside `D6`'s prose. This module owns the decision, so it discloses it
- * here rather than implementing option (a) silently.
- *
- * A declared duplication with a stated end, the same shape `MOD-STU-11`
- * applies to `DEC-RELAUTH-001`: the record belongs in the canon as a new entry,
- * which is one line in a file outside this task's path list, and
- * `tests/unit/stu-versions.test.ts` goes red the moment it lands.
- */
-export const DEC_ARCH_001 = {
-  id: 'DEC-ARCH-001',
-  sourceRef: 'L33443',
-  question:
-    'Can an archived version be un-archived, can an archived version be linked to a new Job, and is archival reversible at all?',
-  whyItMatters:
-    'A tenant that archives the wrong version has no stated remedy, and the platform’s no-purge data model means the content certainly still exists.',
-  options: [
-    {
-      letter: 'a',
-      text: 'Archival is reversible by the Quality Manager with an audited reason.',
-      tradeOff: 'Makes archival a weaker signal of retirement.',
-    },
-    {
-      letter: 'b',
-      text: 'Archival is irreversible and a new version must be created from the archived content.',
-      tradeOff: 'Forces a version-number increment for a clerical mistake.',
-    },
-    {
-      letter: 'c',
-      text: 'Archival is reversible only within a stated window.',
-      tradeOff: 'Adds a timer nobody asked for.',
-    },
-  ],
-  adopted:
-    'Option (a), the source’s own recommendation — “because the platform’s only irreversible act is worker personal-data anonymisation and adding a second irreversible act to a content operation is disproportionate”. Un-archival requires an audited reason and the restored state is derived, so an un-archived version never claims to be in force while a newer one is.',
-  decisionOwner: 'the client’s quality lead',
-  appLabel: 'A client-delegated choice under APP-012, not a position the source settled.',
 } as const

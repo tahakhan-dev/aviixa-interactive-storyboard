@@ -7,6 +7,7 @@ import { scenarioRunId, tenantId } from '@/domain/ids'
 import { STU_MODULES, reachByStudioMatrix, stuModuleById } from '@/studio/modules'
 import { evaluateStudioAccess } from '@/studio/access/evaluate'
 import { STUDIO_DECISIONS, studioDecision } from '@/studio/disclosure/decisions'
+import * as stu11Chain from '@/studio/modules/stu-11/chain'
 import { SUBMISSION_STATES } from '@/studio/vocab'
 import { publishCheckById } from '@/studio/publish/checks'
 import {
@@ -34,7 +35,6 @@ import {
   APPROVAL_TRANSITION_IDS,
   APPROVAL_TRANSITIONS,
   APPROVAL_REFUSAL_CODES,
-  DEC_RELAUTH_001,
   DIAGRAM_ONLY_NODES,
   applyTransition,
   submit,
@@ -906,15 +906,29 @@ describe('DEC-LANEB-001 and the Lane-B value classifier', () => {
     )
   })
 
-  // FAILS IF: DEC-RELAUTH-001 lands in the shared decision canon and this
-  // module keeps its own local disclosure — two renderings of one decision.
-  it('discloses DEC-RELAUTH-001 locally only while the shared canon has no record for it', () => {
-    expect(STUDIO_DECISIONS.map((d): string | null => d.decisionRef)).not.toContain('DEC-RELAUTH-001')
-    expect(DEC_RELAUTH_001.options).toHaveLength(3)
-    expect(DEC_RELAUTH_001.adopted).toMatch(/option \(a\)/i)
+  // FAILS IF: DEC-RELAUTH-001 leaves the shared decision canon, or this module
+  // mints a local copy of it again — two renderings of one decision. The
+  // landing already happened: this test used to assert the canon had NO record
+  // and that the local `DEC_RELAUTH_001` const carried it; it now asserts the
+  // opposite half and keeps the no-local-copy half.
+  it('discloses DEC-RELAUTH-001 from the shared canon and keeps no local copy', () => {
+    expect(STUDIO_DECISIONS.map((d): string | null => d.decisionRef)).toContain('DEC-RELAUTH-001')
+    const record = studioDecision('D26')
+    expect(record.decisionRef).toBe('DEC-RELAUTH-001')
+    // All three of the source's options stand as readings, each with its own
+    // locator, and the build's pick is in `adopted` and nowhere else.
+    expect(record.readings).toHaveLength(3)
+    for (const r of record.readings) expect(r.locator).toContain('L33255')
+    expect(record.adopted).toMatch(/option \(a\)/i)
+    // THE NO-LOCAL-COPY HALF. `MOD-STU-11` exports nothing named for this
+    // decision, so a second record added here goes red on arrival.
+    expect(Object.keys(stu11Chain).filter((k) => /RELAUTH/i.test(k))).toEqual([])
+    // And the screen renders the canonical record, read off the record itself
+    // so a rewording follows instead of going stale.
     const html = renderToStaticMarkup(createElement(ApprovalWorkflowScreen))
     expect(html).toContain('DEC-RELAUTH-001')
-    for (const option of DEC_RELAUTH_001.options) expect(html).toContain(option.text)
+    for (const r of record.readings) expect(html).toContain(r.text)
+    expect(html).toContain(record.adopted)
   })
 })
 
