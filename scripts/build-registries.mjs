@@ -139,7 +139,7 @@ function joinToModuleOrSurface(id) {
   return {}
 }
 
-function buildJoinedFamily({ slug, prefix, familyLabel }) {
+function buildJoinedFamily({ slug, prefix, familyLabel, extraNote = null }) {
   const raw = idsWithPrefix(prefix)
   const rows = raw.map(({ id, sourceLine }) => ({
     id,
@@ -162,7 +162,9 @@ function buildJoinedFamily({ slug, prefix, familyLabel }) {
           `join (second segment not one of the twelve module bands or five surface codes) and are ` +
           `listed unjoined by id, never dropped: ${unjoined.map((r) => r.id).join(', ')}.`
         : `All ${rows.length} ${prefix}* ids joined to a module band or surface code; none unjoined.`,
-      statusNote(rows, CITED_BY_A_SHIPPED_SCREEN),
+      extraNote === null
+        ? statusNote(rows, CITED_BY_A_SHIPPED_SCREEN)
+        : appendNote(statusNote(rows, CITED_BY_A_SHIPPED_SCREEN), extraNote()),
     ),
     sourceFixesNoTotal: true,
     rows,
@@ -467,17 +469,503 @@ function buildBusinessObjectsRegistry() {
       `${rawObjIds.size} distinct OBJ-* identifiers extracted; only the ${rows.length} numeric ` +
         'OBJ-NNN cards are canonical objects -- the rest are mnemonic pointers into the same 99 ' +
         'concepts (e.g. OBJ-SURFACE, OBJ-SSO) and are not additional objects.',
-      statusNote(
-        rows,
-        `${CITED_BY_A_SHIPPED_SCREEN}. Only the numeric OBJ-NNN card id counts here: the built ` +
-          'screens overwhelmingly cite the mnemonic pointers (OBJ-SA-SESSION, OBJ-DOH-SHIFT) ' +
-          'into the same concepts, and the source publishes no mnemonic-to-card mapping to join ' +
-          'them on without inventing one',
+      appendNote(
+        statusNote(
+          rows,
+          `${CITED_BY_A_SHIPPED_SCREEN}. Only the numeric OBJ-NNN card id counts here: the built ` +
+            'screens overwhelmingly cite the mnemonic pointers (OBJ-SA-SESSION, OBJ-DOH-SHIFT) ' +
+            'into the same concepts, and the source publishes no mnemonic-to-card mapping to join ' +
+            'them on without inventing one',
+        ),
+        studioObjectGapNote(rawObjIds, byId),
       ),
     ),
     sourceFixesNoTotal: false,
     rows,
   }
+}
+
+// ---------------------------------------------------------------------
+// Slice 5 Task 25 -- three closures over Studio content the frozen source
+// states but never gives an identifier to. All three live in the generator
+// because `registries/generated/**` is build output (C14): a hand-edited row
+// there is erased by the next `pnpm build` and stays invisible until slice 10
+// tries to reconcile it.
+//
+// The line band of Chapter 20's eighteen Studio module cards (20.2.1
+// MOD-STU-01 at L31552 through the end of 20.2.18 at L34689, where 20.3
+// begins). Every locator the three blocks below cite falls inside it, and
+// each block asserts that rather than trusting it.
+// ---------------------------------------------------------------------
+const STU_CARD_BAND = { first: 31552, last: 34689 }
+
+// ---------------------------------------------------------------------
+// R19 -- the Studio notification triggers, as DERIVED rows.
+//
+// The eighteen module cards each carry a `**Notifications.**` table whose
+// rows state a trigger, its recipient, its channel and its state
+// progression. Not one of those rows carries a `NOTIF-*` identifier: the
+// 205-row `NOTIF-*` register this file already builds has ZERO locators
+// anywhere inside the Studio card band, which `buildNotificationsRegistry`
+// below re-derives and asserts rather than repeating from a brief. So a
+// slice-10 reconciliation reading `notifications.json` would find these
+// behaviours nowhere.
+//
+// Slice 4 hit the mirror of this shape as its R9 -- identifiers with no
+// content. This is content with no identifiers, and the two failure modes
+// have opposite fixes: R9 could not invent content, and R19 must not invent
+// an identifier. The row ids below are `STU-TRIGGER-<module>-<position>`,
+// derived and labelled `sourceClass: 'derived'`, and no `NOTIF-*` id is
+// minted for any of them. `position` is the row's position in its card's own
+// table, so the one deliberately-absent row leaves its position empty rather
+// than being papered over by renumbering.
+//
+// COUNT, MEASURED: the brief for this task stated forty-one trigger rows.
+// The cards hold FIFTY-SEVEN, of which fifty-six are notifiable and one is
+// the deliberate absence excluded below. Forty-one is the running total
+// through MOD-STU-13 -- a truncated count, the third brief-supplied figure
+// in this slice that did not survive checking. The assertions below carry
+// the measured numbers, never the stated one.
+//
+// `trigger` and `delivery` are verbatim source cell text (recipient and
+// channel joined by an em dash); `line` is the table row's own locator.
+// ---------------------------------------------------------------------
+const STU_NOTIFICATION_TRIGGERS = [
+  { mod: '01', pos: 1, line: 31662, trigger: 'A capability a published Workflow depends on is disabled', delivery: 'Quality Manager — In-app and email' },
+  { mod: '01', pos: 2, line: 31663, trigger: 'A newly registered capability becomes available within entitlement', delivery: 'Quality Manager and Tenant Admin — In-app' },
+  { mod: '02', pos: 1, line: 31836, trigger: 'Repeated coaching for one worker on one screen crosses the tenant threshold', delivery: 'Supervisor — In-app, with email per the tenant\'s configuration' },
+  { mod: '02', pos: 2, line: 31837, trigger: 'A deviation is confirmed and classified', delivery: 'Roles named in the referenced escalation routing template, resolved to people on shift — In-app and email' },
+  { mod: '02', pos: 3, line: 31838, trigger: 'The Shift Handoff brief is assembled', delivery: 'Incoming supervisor by default; optionally Quality Manager and plant manager — In-app with optional email' },
+  { mod: '02', pos: 4, line: 31839, trigger: 'An emerging-pattern watch item names a candidate screen for instruction review', delivery: 'Quality Manager and authoring-grant holders — In-app' },
+  { mod: '03', pos: 1, line: 31998, trigger: 'The implementation team\'s temporary authoring grant is due to be revoked at onboarding close', delivery: 'Tenant Admin and Quality Manager — In-app and email' },
+  { mod: '03', pos: 2, line: 31999, trigger: 'A custom Job Type is created', delivery: 'Quality Manager — In-app' },
+  { mod: '03', pos: 3, line: 32000, trigger: 'Linkage counts have been unavailable for longer than the tenant\'s connectivity-loss alert threshold', delivery: 'Tenant Admin — In-app' },
+  { mod: '04', pos: 1, line: 32166, trigger: 'A branch target is deleted, making an open draft structurally invalid', delivery: 'The draft\'s Author — In-app' },
+  { mod: '04', pos: 2, line: 32167, trigger: 'A workflow default routing template is archived while Workflows still inherit it', delivery: 'Quality Manager — In-app and email' },
+  { mod: '05', pos: 1, line: 32401, trigger: 'A screen is left Incomplete when the author leaves the Workflow', delivery: 'The author — In-app' },
+  { mod: '05', pos: 2, line: 32402, trigger: 'A curated coaching default designated on a screen is retired in the corpus', delivery: 'Quality Manager and the Workflow\'s last author — In-app and email' },
+  { mod: '05', pos: 3, line: 32403, trigger: 'A certification named in a Section 9 override is no longer maintained by the tenant', delivery: 'Quality Manager — In-app and email' },
+  { mod: '06', pos: 1, line: 32545, trigger: 'A block edit changes content on screens already published in a prior version', delivery: 'The Workflow\'s Author, at draft time — In-app' },
+  { mod: '06', pos: 2, line: 32546, trigger: 'A block is left with no applying screens at submission', delivery: 'The Author — In-app' },
+  { mod: '07', pos: 1, line: 32747, trigger: 'A coaching asset\'s resolution rate falls below the review threshold', delivery: 'Quality Manager — In-app and email' },
+  { mod: '07', pos: 2, line: 32748, trigger: 'An authoring-grant holder proposes a library change', delivery: 'Quality Manager — In-app and email' },
+  { mod: '07', pos: 3, line: 32749, trigger: 'A library edit to a published item takes effect', delivery: 'Quality Manager and the authors of referencing Workflows — In-app' },
+  { mod: '07', pos: 4, line: 32750, trigger: 'Indexing has been unavailable beyond the tenant\'s alert threshold', delivery: 'Quality Manager and Tenant Admin — In-app' },
+  { mod: '07', pos: 5, line: 32751, trigger: 'A deviation escalation is delivered as a nobody-on-shift fallback', delivery: 'The nobody-on-shift fallback recipient, marked as a fallback delivery — In-app and email' },
+  { mod: '08', pos: 1, line: 32909, trigger: 'A training item is published', delivery: 'Supervisors at the affected scope — In-app' },
+  { mod: '08', pos: 2, line: 32910, trigger: 'Storage entitlement for training content is approaching its ceiling', delivery: 'Tenant Admin — In-app and email' },
+  { mod: '09', pos: 1, line: 33060, trigger: 'A drafted level awaits the author\'s edit', delivery: 'The author — In-app' },
+  { mod: '09', pos: 2, line: 33061, trigger: 'A screen has fewer than six renderings at submission', delivery: 'The author — In-app' },
+  { mod: '10', pos: 1, line: 33200, trigger: 'A skeletal part record is created from the Studio', delivery: 'Tenant Admin, as the registry\'s completion owner — In-app' },
+  { mod: '10', pos: 2, line: 33201, trigger: 'A skeletal record remains incomplete beyond the tenant\'s review interval', delivery: 'Tenant Admin — In-app and email' },
+  { mod: '11', pos: 1, line: 33379, trigger: 'A submission enters the Approval Queue', delivery: 'Eligible Reviewers — In-app and email' },
+  { mod: '11', pos: 2, line: 33380, trigger: 'A submission is returned with comments', delivery: 'The Author — In-app and email' },
+  { mod: '11', pos: 3, line: 33381, trigger: 'A submission is advanced to release', delivery: 'The Release Authority — In-app and email' },
+  { mod: '11', pos: 4, line: 33382, trigger: 'A submission ages beyond the tenant\'s review interval', delivery: 'The Quality Manager — In-app and email' },
+  { mod: '11', pos: 5, line: 33383, trigger: 'The chain cannot be staffed at submission', delivery: 'The Author and the Tenant Admin — In-app and email' },
+  { mod: '12', pos: 1, line: 33568, trigger: 'A notified-class version is published', delivery: 'The owner named on each Job running the prior version — In-app and email' },
+  { mod: '12', pos: 2, line: 33569, trigger: 'The update window is about to lapse without a decision', delivery: 'The Job Owner, with the Quality Manager on the second notice — In-app and email' },
+  { mod: '12', pos: 3, line: 33570, trigger: 'A patch version is published', delivery: 'Quality Manager, informational — In-app' },
+  { mod: '12', pos: 4, line: 33571, trigger: 'A version is archived', delivery: 'Quality Manager and the Workflow\'s last Author — In-app' },
+  { mod: '13', pos: 1, line: 33747, trigger: 'A qualification gate blocks a worker', delivery: 'Supervisor, through the standard escalation path — In-app and email' },
+  { mod: '13', pos: 2, line: 33748, trigger: 'A second override in the same area in the same shift', delivery: 'Quality Manager — In-app and email' },
+  { mod: '13', pos: 3, line: 33749, trigger: 'An active assignment is grandfathered and flagged by a requirement change', delivery: 'Supervisor of the affected area — In-app and email' },
+  { mod: '13', pos: 4, line: 33750, trigger: 'A published override names a certification the tenant no longer maintains', delivery: 'Quality Manager — In-app and email' },
+  { mod: '14', pos: 1, line: 33927, trigger: 'Package delivery to a device fails before the shift', delivery: 'Supervisor of the affected area — In-app and email' },
+  { mod: '14', pos: 2, line: 33928, trigger: 'A package fails integrity verification and is quarantined', delivery: 'Supervisor and Quality Manager — In-app and email' },
+  { mod: '14', pos: 3, line: 33929, trigger: 'Coaching assets were omitted for storage', delivery: 'Supervisor, informational — In-app' },
+  { mod: '15', pos: 1, line: 34118, trigger: 'A composed agent fails the evaluation gate', delivery: 'The composing Agent Author — In-app and email' },
+  { mod: '15', pos: 2, line: 34119, trigger: 'A composed agent is released and awaits platform review', delivery: 'Quality Manager — In-app' },
+  { mod: '15', pos: 3, line: 34120, trigger: 'Platform review approves or declines', delivery: 'Quality Manager and the composing Agent Author — In-app and email' },
+  { mod: '15', pos: 4, line: 34121, trigger: 'A capability a deployed composed agent depends on is disabled', delivery: 'Quality Manager and the composing Agent Author — In-app and email' },
+  { mod: '16', pos: 1, line: 34315, trigger: 'A Lane-B proposal is raised', delivery: 'Quality Manager — In-app and email' },
+  { mod: '16', pos: 2, line: 34316, trigger: 'A proposal reaches 30 days undecided and is stale-flagged', delivery: 'Quality Manager — In-app and email' },
+  { mod: '16', pos: 3, line: 34317, trigger: 'An approved package-borne value auto-publishes a patch', delivery: 'Quality Manager, informational — In-app' },
+  { mod: '16', pos: 4, line: 34318, trigger: 'A coaching asset is flagged for low resolution rate', delivery: 'Quality Manager — In-app and email' },
+  { mod: '17', pos: 1, line: 34469, trigger: 'The completeness check blocks a locale at publication', delivery: 'The Author and the Release Authority — In-app and email' },
+  { mod: '17', pos: 2, line: 34470, trigger: 'A locale variant is drafted and awaits review', delivery: 'The Author — In-app' },
+  { mod: '18', pos: 1, line: 34653, trigger: 'An authoring grant is assigned or revoked', delivery: 'The affected user and the Quality Manager — In-app and email' },
+  { mod: '18', pos: 2, line: 34654, trigger: 'The Agent Author capability is delegated or revoked', delivery: 'The affected user and the Quality Manager — In-app and email' },
+  { mod: '18', pos: 3, line: 34655, trigger: 'The implementation team\'s temporary capacity is due for revocation', delivery: 'Tenant Admin and Quality Manager — In-app and email' },
+]
+
+/**
+ * The one row of the eighteen cards' notification tables that states its own
+ * absence. Excluded from the derived rows above by the source's own reason,
+ * quoted from the cell, and asserted absent so a later paste cannot quietly
+ * reintroduce it as a notification the source refuses to send.
+ */
+const STU_TRIGGER_DELIBERATELY_ABSENT = {
+  moduleId: 'MOD-STU-01',
+  position: 3,
+  line: 31664,
+  trigger: 'A request to define a foundation object is refused',
+  reason:
+    'Not applicable -- a refusal is audited, not notified; notifying every refusal would train ' +
+    'users to ignore notifications',
+}
+
+/**
+ * The measured per-card distribution of notifiable trigger rows. Asserted
+ * against the table above in both directions, so a row moved between two
+ * cards fails even though the total still adds up -- the total alone would
+ * not catch it.
+ */
+const STU_TRIGGER_ROWS_PER_CARD = {
+  '01': 2, '02': 4, '03': 3, '04': 2, '05': 3, '06': 2,
+  '07': 5, '08': 2, '09': 2, '10': 2, '11': 5, '12': 4,
+  '13': 4, '14': 3, '15': 4, '16': 4, '17': 2, '18': 3,
+}
+
+const STU_TRIGGER_REGISTER =
+  'Studio module-card notification triggers (derived -- the frozen source states these as ' +
+  'trigger rows on the eighteen MOD-STU-* cards of Chapter 20 and mints no NOTIF-* identifier ' +
+  'for any of them)'
+const NOTIF_IDENTIFIER_REGISTER = 'NOTIF-* identifiers from the identifier index'
+
+function buildStudioTriggerRows() {
+  const rows = STU_NOTIFICATION_TRIGGERS.map((t) => {
+    const id = `STU-TRIGGER-${t.mod}-${String(t.pos).padStart(2, '0')}`
+    return {
+      id,
+      sourceLine: t.line,
+      status: statusForId(id),
+      label: t.trigger,
+      purpose: t.delivery,
+      surface: 'SURF-STU',
+      moduleId: `MOD-STU-${t.mod}`,
+      register: STU_TRIGGER_REGISTER,
+      sourceClass: 'derived',
+    }
+  })
+
+  // Derive, then assert the derived figures -- the shape buildModulesRegistry
+  // uses for the 63 + 18 module split.
+  const perCard = {}
+  for (const r of rows) perCard[r.moduleId.slice(-2)] = (perCard[r.moduleId.slice(-2)] ?? 0) + 1
+  const cards = Object.keys(perCard).sort()
+  const expectedCards = Object.keys(STU_TRIGGER_ROWS_PER_CARD).sort()
+  if (cards.join(',') !== expectedCards.join(',')) {
+    throw new Error(
+      `R19: expected trigger rows on all eighteen Studio cards ${expectedCards.join(',')}, ` +
+        `computed ${cards.join(',')}`,
+    )
+  }
+  for (const card of cards) {
+    if (perCard[card] !== STU_TRIGGER_ROWS_PER_CARD[card]) {
+      throw new Error(
+        `R19: MOD-STU-${card} -- expected ${STU_TRIGGER_ROWS_PER_CARD[card]} notifiable trigger ` +
+          `rows, computed ${perCard[card]}`,
+      )
+    }
+  }
+  // Named, so a planted wrong figure cannot print "expected 56 ... computed
+  // 56" while failing -- the message must name the expectation the check
+  // actually uses.
+  const EXPECTED_NOTIFIABLE = 56
+  const total = rows.length
+  const distributionTotal = Object.values(STU_TRIGGER_ROWS_PER_CARD).reduce((a, b) => a + b, 0)
+  if (total !== EXPECTED_NOTIFIABLE || distributionTotal !== EXPECTED_NOTIFIABLE) {
+    throw new Error(
+      `R19: expected ${EXPECTED_NOTIFIABLE} notifiable Studio trigger rows (57 rows on the ` +
+        `eighteen cards less the one deliberate absence at ` +
+        `L${STU_TRIGGER_DELIBERATELY_ABSENT.line}), computed ${total} from the table and ` +
+        `${distributionTotal} from the per-card distribution`,
+    )
+  }
+
+  // Content with no identifiers must not become content with INVENTED
+  // identifiers. Neither the row ids nor the verbatim trigger text may carry
+  // a NOTIF-* identifier, and the deliberate absence must stay absent.
+  for (const r of rows) {
+    if (/NOTIF-/.test(r.id) || /NOTIF-/.test(r.label)) {
+      throw new Error(`R19: ${r.id} carries a NOTIF-* identifier the frozen source does not have`)
+    }
+    if (r.sourceLine < STU_CARD_BAND.first || r.sourceLine > STU_CARD_BAND.last) {
+      throw new Error(
+        `R19: ${r.id} cites L${r.sourceLine}, outside the Studio card band ` +
+          `L${STU_CARD_BAND.first}-L${STU_CARD_BAND.last}`,
+      )
+    }
+    if (r.sourceLine === STU_TRIGGER_DELIBERATELY_ABSENT.line) {
+      throw new Error(
+        `R19: L${STU_TRIGGER_DELIBERATELY_ABSENT.line} is the deliberately-absent row ` +
+          `("${STU_TRIGGER_DELIBERATELY_ABSENT.reason}") and must never be registered`,
+      )
+    }
+  }
+  const ids = new Set(rows.map((r) => r.id))
+  if (ids.size !== rows.length) {
+    throw new Error(`R19: derived trigger ids collide -- ${rows.length} rows, ${ids.size} ids`)
+  }
+  const lines = new Set(rows.map((r) => r.sourceLine))
+  if (lines.size !== rows.length) {
+    throw new Error(`R19: two derived trigger rows cite the same source line`)
+  }
+  return rows
+}
+
+/**
+ * `notifications.json` = the 205 `NOTIF-*` identifier rows this file has
+ * always built, PLUS the 56 derived Studio trigger rows above, each tagged
+ * with the `register` it belongs to so the two are never silently merged --
+ * the same disclosure `actionable-controls` uses for the DNC-* register.
+ *
+ * `rawCount` stays the NOTIF-* extraction count and is NOT restated as the
+ * row count: the count-scope rule at the head of this file forbids
+ * presenting one scope's figure as another's.
+ */
+function buildNotificationsRegistry() {
+  const base = buildIdentifierOnlyRegistry({
+    slug: 'notifications',
+    prefix: 'NOTIF-',
+    countedThing:
+      'NOTIF-* identifiers found in the identifier index -- a different scope from the ' +
+      "source's 19 notification states, 87 categories in 13 families, or 2 channels. No names " +
+      'were extracted for this family. Plus 56 DERIVED Studio notification-trigger rows ' +
+      '(R19), which are trigger behaviours the frozen source states on the eighteen MOD-STU-* ' +
+      'module cards without giving any of them a NOTIF-* identifier; the two registers are ' +
+      'tagged separately on every row and are never summed into one canonical total.',
+  })
+  const identifierRows = base.rows.map((r) => ({ ...r, register: NOTIF_IDENTIFIER_REGISTER }))
+  const studioRows = buildStudioTriggerRows()
+
+  // The claim "none of the eighteen cards' trigger rows carries a NOTIF-*
+  // identifier", re-derived from this build's own identifier index rather
+  // than accepted from a brief: no NOTIF-* id has any locator in the band.
+  const notifInBand = Object.entries(identifierIndex).filter(
+    ([id, ls]) =>
+      id.startsWith('NOTIF-') &&
+      ls.some((l) => l >= STU_CARD_BAND.first && l <= STU_CARD_BAND.last),
+  )
+  if (notifInBand.length !== 0) {
+    throw new Error(
+      `R19: ${notifInBand.length} NOTIF-* identifiers now have a locator inside the Studio card ` +
+        `band (${notifInBand.map(([id]) => id).join(', ')}). The derived rows exist precisely ` +
+        'because the source names none there -- re-check before registering them as derived.',
+    )
+  }
+  const studioIdentifierRows = identifierRows.filter((r) => /STU/.test(r.id))
+  if (studioIdentifierRows.length !== 0) {
+    throw new Error(
+      `R19: the NOTIF-* register now holds ${studioIdentifierRows.length} Studio rows; the ` +
+        'derived register below assumes it holds none.',
+    )
+  }
+
+  const rows = [...identifierRows, ...studioRows]
+  return {
+    ...base,
+    rows,
+    // Deliberately NOT rows.length: 205 is what the NOTIF-* extraction found.
+    rawCount: identifierRows.length,
+    dedupRule: appendNote(
+      `This registry holds two registers, tagged per row and never summed. (1) ` +
+        `${identifierRows.length} NOTIF-* identifier strings; the state, category and channel ` +
+        'registers are separate and are not this number. (2) ' +
+        `${studioRows.length} DERIVED Studio notification triggers (R19), one per notifiable ` +
+        'row of the `**Notifications.**` table on each of the eighteen MOD-STU-* module cards ' +
+        `(Chapter 20, L${STU_CARD_BAND.first}-L${STU_CARD_BAND.last}). Every one of the ` +
+        'eighteen cards states triggers; not one of those rows carries a NOTIF-* identifier, ' +
+        'and no NOTIF-* identifier has any locator inside that band, so none is minted here -- ' +
+        'each derived row is `sourceClass: derived`, keyed STU-TRIGGER-<card>-<row position>, ' +
+        'and carries its own card locator. The cards hold 57 trigger rows in total; ' +
+        `MOD-STU-01 position ${STU_TRIGGER_DELIBERATELY_ABSENT.position} (L` +
+        `${STU_TRIGGER_DELIBERATELY_ABSENT.line}) is EXCLUDED because the source itself makes ` +
+        `it an absence -- "${STU_TRIGGER_DELIBERATELY_ABSENT.reason}" -- leaving ` +
+        `${studioRows.length}. Per card: ` +
+        // Sorted explicitly: '10'..'18' are canonical integer keys and '01'..
+        // '09' are not, so object insertion order puts 10-18 first.
+        Object.entries(STU_TRIGGER_ROWS_PER_CARD)
+          .sort(([a], [b]) => (a < b ? -1 : 1))
+          .map(([c, n]) => `MOD-STU-${c} ${n}`)
+          .join(', ') +
+        '.',
+      statusNote(rows, CITED_BY_A_SHIPPED_SCREEN),
+    ),
+  }
+}
+
+// ---------------------------------------------------------------------
+// D11 -- three Studio object gaps, registered as a GAP LIST and not as rows.
+//
+// `OBJ-STU-QUALREQ`, `OBJ-STU-CAPSTATE` and `OBJ-STU-LOCALE` are Studio-owned
+// objects the source names, gives lifecycle states, and assigns an owner --
+// and none of them has a numeric counterpart in the closed OBJ-001..OBJ-099
+// register. Three module tasks found them independently and all three
+// declined to mint a number, which is the correct call: OBJ-1xx rows would
+// inflate a ninety-nine the source closes (R23). They are disclosed here, in
+// the prose the registry index already renders, rather than added to `rows`
+// -- adding rows is how a closed count silently becomes 102.
+// ---------------------------------------------------------------------
+const STU_OBJECT_GAPS = [
+  {
+    id: 'OBJ-STU-QUALREQ',
+    cardLocator: 'MOD-STU-13 Qualification Requirements, card L33604-L33782 (objects-affected L33653)',
+    reason:
+      'the numeric register\'s nearest row is OBJ-031 "Qualification" (L8418, owned by SURF-DOH) ' +
+      '-- the certification a worker holds, not the requirement a Workflow states, so it is a ' +
+      'different object and not a numeric counterpart',
+  },
+  {
+    id: 'OBJ-STU-CAPSTATE',
+    cardLocator: 'MOD-STU-15 The Agent Builder, card L33961-L34153 (objects-affected L34028)',
+    reason:
+      'the numeric register carries no capability, enablement or entitlement object at all, so ' +
+      'there is no row to map onto',
+  },
+  {
+    id: 'OBJ-STU-LOCALE',
+    cardLocator: 'MOD-STU-17 Localisation, card L34351-L34499 (objects-affected L34391)',
+    reason:
+      'the numeric register\'s nearest row is OBJ-051 "Locale pack" (L8875, owned by SURF-SA) -- ' +
+      'platform-side locale-pack governance, not the per-locale authored variant held inside one ' +
+      'Workflow, so it is a different object and not a numeric counterpart',
+  },
+]
+
+/**
+ * D11's disclosure, derived from this build's own object extraction: each
+ * mnemonic must be present in the raw OBJ-* set and absent from the numeric
+ * OBJ-NNN set. If a future extraction wave mints a number for one of them,
+ * the gap stops being a gap and this throws rather than going on claiming it.
+ */
+function studioObjectGapNote(rawObjIds, numericById) {
+  for (const gap of STU_OBJECT_GAPS) {
+    if (!rawObjIds.has(gap.id)) {
+      throw new Error(`D11: ${gap.id} is no longer in the OBJ-* extraction; re-derive the gap list`)
+    }
+    if (numericById.has(gap.id)) {
+      throw new Error(`D11: ${gap.id} is a numeric OBJ-NNN card now; it is no longer a gap`)
+    }
+  }
+  if (STU_OBJECT_GAPS.length !== 3) {
+    throw new Error(`D11: expected 3 Studio object gaps, computed ${STU_OBJECT_GAPS.length}`)
+  }
+  return (
+    `Studio object gaps (D11), ${STU_OBJECT_GAPS.length} of them, registered as a GAP LIST and ` +
+    'deliberately NOT as rows: minting OBJ-100..OBJ-102 for these would inflate a ninety-nine ' +
+    'the source closes (R23), so the count above stays 99 and the gap is stated instead of ' +
+    'papered over. ' +
+    STU_OBJECT_GAPS.map(
+      (g) => `${g.id} -- ${g.cardLocator}; no numeric row because ${g.reason}`,
+    ).join('. ') +
+    '. All three were found independently by three different Studio module tasks, and all three ' +
+    'declined to mint a number.'
+  )
+}
+
+// ---------------------------------------------------------------------
+// D10 -- the two Studio feature schemes, mapped ONCE, in one table.
+//
+// The frozen source runs two parallel numbering schemes over the same Studio
+// features and never reconciles them:
+//
+//   (a) Chapter 20's three-part scheme, inside the eighteen module cards --
+//       FEAT-STU-01-01 / SUB-STU-01-01-A / FUNC-STU-01-01-A-1;
+//   (b) the four-digit traceability catalogue at L47378-L47431 --
+//       FEAT-STU-0101 / SUB-STU-0101 / FUNC-STU-0101, exactly three features
+//       per module across all eighteen modules.
+//
+// THE FOUR-DIGIT CATALOGUE IS THE TRACEABILITY KEY -- same ruling and same
+// reason as slice 4's D20. The two are never mixed in a ticket, and the map
+// below is why that rule is not merely tidiness: the schemes DO NOT
+// correspond positionally. Ten of the eighteen modules disagree on how many
+// features they have, so `FEAT-STU-05-02` is not `FEAT-STU-0502` and reading
+// one as the other silently retargets the reference.
+// ---------------------------------------------------------------------
+const FEAT_STU_FOUR_DIGIT_RE = /^FEAT-STU-(\d{2})(\d{2})$/
+const FEAT_STU_THREE_PART_RE = /^FEAT-STU-(\d{2})-(\d{2})$/
+
+function studioFeatureSchemeNote() {
+  const byCard = {}
+  for (const id of Object.keys(identifierIndex)) {
+    const four = FEAT_STU_FOUR_DIGIT_RE.exec(id)
+    const three = FEAT_STU_THREE_PART_RE.exec(id)
+    const card = four?.[1] ?? three?.[1]
+    if (card === undefined) continue
+    byCard[card] ??= { four: [], three: [] }
+    byCard[card][four ? 'four' : 'three'].push(id)
+  }
+  const cards = Object.keys(byCard).sort()
+  for (const c of cards) {
+    byCard[c].four.sort()
+    byCard[c].three.sort()
+  }
+  const fourTotal = cards.reduce((n, c) => n + byCard[c].four.length, 0)
+  const threeTotal = cards.reduce((n, c) => n + byCard[c].three.length, 0)
+  const divergent = cards.filter((c) => byCard[c].three.length !== byCard[c].four.length)
+
+  if (cards.length !== 18) {
+    throw new Error(`D10: expected 18 Studio module cards in the feature schemes, computed ${cards.length}`)
+  }
+  for (const c of cards) {
+    if (byCard[c].four.length !== 3) {
+      throw new Error(
+        `D10: the four-digit catalogue fixes exactly three features per module; MOD-STU-${c} ` +
+          `has ${byCard[c].four.length}`,
+      )
+    }
+  }
+  // Named, so the message cannot drift from the check it reports -- a planted
+  // wrong figure printed "expected 54 ... computed 54" while failing, which
+  // is a gate telling the truth in the assertion and a lie in the diagnosis.
+  const EXPECTED_FOUR_DIGIT = 54
+  const EXPECTED_THREE_PART = 69
+  if (fourTotal !== EXPECTED_FOUR_DIGIT || threeTotal !== EXPECTED_THREE_PART) {
+    throw new Error(
+      `D10: expected ${EXPECTED_FOUR_DIGIT} four-digit catalogue features (18 x 3) and ` +
+        `${EXPECTED_THREE_PART} Chapter 20 three-part features, computed ${fourTotal} and ` +
+        `${threeTotal}`,
+    )
+  }
+  if (divergent.length !== 10) {
+    throw new Error(
+      `D10: expected 10 of 18 modules where the two schemes disagree on feature count, computed ` +
+        `${divergent.length} (${divergent.join(', ')})`,
+    )
+  }
+  // The SUB-/FUNC- halves of Chapter 20's three-part scheme (SUB-STU-01-01-A,
+  // FUNC-STU-01-01-A-1) are IN the frozen source but absent from this build's
+  // identifier index -- a real extraction gap, declared rather than hidden.
+  // Asserted at zero so the day the extraction is widened, this goes red and
+  // the map gets extended instead of quietly under-reporting.
+  const threePartSub = Object.keys(identifierIndex).filter((id) =>
+    /^SUB-STU-\d{2}-\d{2}-[A-Z]$/.test(id),
+  ).length
+  const threePartFunc = Object.keys(identifierIndex).filter((id) =>
+    /^FUNC-STU-\d{2}-\d{2}-[A-Z]-\d+$/.test(id),
+  ).length
+  if (threePartSub !== 0 || threePartFunc !== 0) {
+    throw new Error(
+      `D10: the identifier index now carries ${threePartSub} three-part SUB-STU-* and ` +
+        `${threePartFunc} three-part FUNC-STU-* ids; extend the scheme map to cover them.`,
+    )
+  }
+
+  return (
+    'Studio feature schemes (D10), mapped once, here, and nowhere else. The frozen source runs ' +
+    'TWO numbering schemes over the same Studio features: Chapter 20\'s three-part scheme inside ' +
+    `the eighteen module cards (FEAT-STU-01-01 style, ${threeTotal} ids, L${STU_CARD_BAND.first}-` +
+    `L${STU_CARD_BAND.last}), and the four-digit traceability catalogue at L47378-L47431 ` +
+    `(FEAT-STU-0101 style, ${fourTotal} ids, exactly three per module across all 18 modules). ` +
+    'THE FOUR-DIGIT CATALOGUE IS THE TRACEABILITY KEY (same ruling and reason as slice 4\'s ' +
+    'D20); the two are never mixed in one ticket. They are NOT positionally equivalent -- ' +
+    `${divergent.length} of the 18 modules (${divergent.map((c) => `MOD-STU-${c}`).join(', ')}) ` +
+    'disagree on how many features they hold, so reading FEAT-STU-05-02 as FEAT-STU-0502 ' +
+    'retargets the reference. The map: ' +
+    cards
+      .map(
+        (c) =>
+          `MOD-STU-${c} ch20 [${byCard[c].three.map((i) => i.slice(9)).join(' ')}] -> ` +
+          `catalogue [${byCard[c].four.map((i) => i.slice(9)).join(' ')}]`,
+      )
+      .join('; ') +
+    `. The SUB-/FUNC- halves of the three-part scheme (SUB-STU-01-01-A, FUNC-STU-01-01-A-1) are ` +
+    'in the frozen source but absent from this build\'s identifier index, which carries only ' +
+    'their four-digit forms; that extraction gap is declared here, not hidden, and the map ' +
+    'covers FEAT-* only until the extraction is widened.'
+  )
 }
 
 // ---------------------------------------------------------------------
@@ -753,7 +1241,13 @@ function buildWorkflowsRegistry() {
 // ---------------------------------------------------------------------
 const registries = [
   buildModulesRegistry(),
-  buildJoinedFamily({ slug: 'features', prefix: 'FEAT-', familyLabel: 'Feature' }),
+  buildJoinedFamily({
+    slug: 'features',
+    prefix: 'FEAT-',
+    familyLabel: 'Feature',
+    // D10: the two Studio feature schemes, mapped once and only here.
+    extraNote: studioFeatureSchemeNote,
+  }),
   buildJoinedFamily({ slug: 'sub-features', prefix: 'SUB-', familyLabel: 'Sub-feature' }),
   buildJoinedFamily({ slug: 'functions', prefix: 'FUNC-', familyLabel: 'Function' }),
   buildWorkflowsRegistry(),
@@ -786,17 +1280,7 @@ const registries = [
       '(5, closed at AC-PROD-051) and the 16-instance catalogue are separate registers and ' +
       'must not be summed with or substituted for this figure.',
   }),
-  buildIdentifierOnlyRegistry({
-    slug: 'notifications',
-    prefix: 'NOTIF-',
-    countedThing:
-      'NOTIF-* identifiers found in the identifier index -- a different scope from the ' +
-      "source's 19 notification states, 87 categories in 13 families, or 2 channels. No names " +
-      'were extracted for this family.',
-    dedupRule:
-      'This registry counts NOTIF-* identifier strings only; the state, category and channel ' +
-      'registers are separate and are not this number.',
-  }),
+  buildNotificationsRegistry(),
   buildIdentifierOnlyRegistry({
     slug: 'offline-scenarios',
     prefix: 'UC-OFF-',
