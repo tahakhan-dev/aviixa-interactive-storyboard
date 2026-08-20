@@ -5,6 +5,7 @@ import { HubShell, type TenantRoleId } from '../HubShell'
 import { dohModuleById } from '@/surfaces/doh/modules'
 import {
   ACCESS_CONDITIONS,
+  EVALUATION_ORDER,
   PRECEDENCE_RULES,
   type AccessCondition,
   type PrecedenceRule,
@@ -234,7 +235,7 @@ function refusedAtPhrase(index: number): string {
   const ordinal = ORDINALS[index]
   return ordinal === undefined
     ? 'refused at a condition the spine no longer lists among the nine, which is a defect stated here rather than rendered as a blank'
-    : `refused at the ${ordinal.toLowerCase()} of the nine conditions`
+    : `refused at the ${ordinal.toLowerCase()} of the nine conditions evaluated`
 }
 
 /* ------------------------------------------------------------------ *
@@ -649,12 +650,16 @@ export function PermissionsScreen({
 
   const scenarioDecision = evaluateAccess(scenario.request, fixtureContext(role, scenario))
   const scenarioRefused = !permitsAction(scenarioDecision)
-  const scenarioOrder = ACCESS_CONDITIONS.indexOf(scenario.condition)
+  // The position the request was refused AT is a fact about evaluation, so it
+  // is read from the workflow order (L14532 onwards), not from the definition
+  // enumeration. The table below still shows both.
+  const scenarioOrder = EVALUATION_ORDER.indexOf(scenario.condition)
 
   const conditionRows: TableRow[] = ACCESS_CONDITIONS.map((condition, index) => {
     const mapping = conditionMapping(condition)
     return {
       order: ordinalAt(index),
+      evaluated: ordinalAt(EVALUATION_ORDER.indexOf(condition)),
       condition: mapping.name,
       carriedBy: mapping.carriedBy,
       // L14267: a refusal names who can change the condition that refused.
@@ -1319,16 +1324,21 @@ export function PermissionsScreen({
           </div>
           <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
             Those two rules sit ABOVE the nine-condition intersection rather than reordering it.
-            Safety wins by precedence, not by position: the list below is the order the source
-            itself enumerates, role permission first and safety controls ninth, and this screen
-            renders that array without ever re-sorting it.
+            The source then states two things that are easy to mistake for one: it enumerates the
+            nine conditions with role permission first and safety controls ninth, and it separately
+            gives a numbered workflow that evaluates safety FIRST. Both columns below are the
+            source&rsquo;s own — Order is the enumeration, Evaluated is the workflow — and neither
+            is sorted from the other. Safety wins by precedence AND is evaluated first, which is
+            why a safety breach is reported here as a safety refusal and never as an explicit role
+            denial.
           </p>
 
           <div className="overflow-x-auto">
             <Table
-              caption="The nine intersecting access conditions, in the order the source enumerates them"
+              caption="The nine intersecting access conditions, in the order the source enumerates them and in the order it evaluates them"
               columns={[
                 { key: 'order', header: 'Order' },
+                { key: 'evaluated', header: 'Evaluated' },
                 { key: 'condition', header: 'Condition' },
                 { key: 'carriedBy', header: 'Where the evaluator carries it' },
                 { key: 'changedBy', header: 'Who changes it' },

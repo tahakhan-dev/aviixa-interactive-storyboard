@@ -12,7 +12,11 @@ import {
   writeAllowed,
 } from '@/surfaces/doh/tenant-state'
 import { DOH_SCOPES, DEFERRED_DOH_SCOPES } from '@/surfaces/doh/scope'
-import { ACCESS_CONDITIONS, PRECEDENCE_RULES } from '@/surfaces/doh/access-conditions'
+import {
+  ACCESS_CONDITIONS,
+  EVALUATION_ORDER,
+  PRECEDENCE_RULES,
+} from '@/surfaces/doh/access-conditions'
 import { DOH_SCREENS, dohScreenById } from '@/surfaces/doh/screens'
 import { DOH_SEAMS, dohSeamById } from '@/surfaces/doh/seams'
 
@@ -152,11 +156,19 @@ describe('DOH_SCOPES — exactly three dimensions', () => {
   })
 })
 
-describe('ACCESS_CONDITIONS — the nine, in source order (L14512)', () => {
-  it('enumerates the nine access conditions in the source order, role permission first, safety controls ninth', () => {
+describe('ACCESS_CONDITIONS — the nine, in definition order (L14514-L14522)', () => {
+  it('enumerates the nine access conditions in the definition order, role permission first, safety controls ninth', () => {
     expect(ACCESS_CONDITIONS).toHaveLength(9)
     expect(ACCESS_CONDITIONS[0]).toBe('role-permission')
     expect(ACCESS_CONDITIONS[8]).toBe('safety-controls')
+  })
+
+  // The source states an ORDER as well as a LIST, and they differ. Keeping
+  // them in one array is what reported a safety breach as a role denial.
+  it('carries the workflow order as a separate array, safety first (L14532)', () => {
+    expect(EVALUATION_ORDER).toHaveLength(9)
+    expect(EVALUATION_ORDER[0]).toBe('safety-controls')
+    expect(ACCESS_CONDITIONS[0]).not.toBe(EVALUATION_ORDER[0])
   })
 
   it('puts two precedence rules above the intersection', () => {

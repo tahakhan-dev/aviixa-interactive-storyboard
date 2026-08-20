@@ -209,7 +209,7 @@ export interface Tier2Classification {
  * here and still refused there.
  *
  * `stage: 'BASE_ROLE'` deliberately. The Tier-2 boundary is not one of the
- * nine access stages, and `EvaluationStage` lives in `@/policy/decision`,
+ * ordered access stages, and `EvaluationStage` lives in `@/policy/decision`,
  * which is outside this task's path list. `BASE_ROLE` is the least-wrong of
  * the nine because the refusal IS a statement about base authority — "Roles
  * allowed: none — this is a universal refusal" (L31599). A dedicated

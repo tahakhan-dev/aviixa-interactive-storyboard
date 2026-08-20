@@ -67,6 +67,48 @@ intersecting access conditions** (L14512), enumerated in this order:
 > the source states both and this ruling followed only one of them. Only the LOCATOR the census
 > map used was wrong. Whether eight modules built on this ruling change is a design decision and
 > belongs to the controller; it is recorded here rather than reversed in a citation task.
+>
+> **SETTLED, 2026-08-21. The ruling above is amended, not withdrawn — the record shows what was
+> believed and why it changed.** Both structures were read in full against the frozen source at
+> `47bd18db…`. What each says:
+>
+> - **The definition enumeration, L14514–L14522** — nine conditions, role permission first
+>   (L14514), safety controls ninth (L14522): *"The specification gates and the evaluation gate
+>   admit no override from any surface or any role"*. The original correction is RIGHT about this
+>   list, and it is not re-sorted. It is `ACCESS_CONDITIONS` and it is the screen's Order column.
+> - **The numbered workflow, L14529–L14541** — *"Numbered workflow — one access decision, end to
+>   end."* Step 1 (L14531) is the request arriving. Step 2 (L14532) is *"Safety controls are
+>   evaluated first. A request that would override a specification gate or the evaluation gate,
+>   or that would breach a platform invariant, is refused immediately and recorded as a safety
+>   refusal."* Steps 3–10 run role permission, assigned scope, tenant entitlement, object state,
+>   qualification, active grants, device and connectivity, segregation of duties. The diagram's
+>   own reading at L14567 is *"Safety is evaluated first so that no other condition can be
+>   arranged to bypass it."* The original correction is WRONG that no such list exists. It is
+>   `EVALUATION_ORDER` and it is the screen's new Evaluated column.
+>
+> **Why it was not behaviourally inert.** Precedence and position give the same allow/deny answer.
+> They do not give the same REFUSAL REASON, and L14532's last clause — *"recorded as a safety
+> refusal"* — is a claim about the reason, as L14534's *"must not disclose the existence of the
+> out-of-scope object"* is a claim about the message. Measured, not argued: MOD-DOH-09 encoded its
+> one safety control as `deniedRoles: <every tenant role>`, so the "Removing the last Tenant
+> Admin" refusal returned `EXPLICIT_DENY` at stage `BASE_ROLE`, and `SCR-DOH-ROLE-04` rendered
+> *"An explicit denial applies to this role, and an explicit denial always wins"* under a heading
+> that said Safety controls — the wrong one of the two precedence rules the source states
+> separately at L14526 and L14527. The same request naming another tenant's record returned
+> `TENANT_MISMATCH`, because the old encoding sat behind tenant isolation rather than in front of
+> everything.
+>
+> **What changed.** `evaluateAccess` gained a `safetyControl` field and a `SAFETY_CONTROLS` stage
+> evaluated immediately after the request-arrival check, with its own `SAFETY_CONTROL` reason
+> code; MOD-DOH-09's fixture declares it instead of `deniedRoles`; `SCR-DOH-ROLE-04` renders both
+> orders side by side and no longer tells a reader that no safety-first ordering exists. Gate 7 in
+> `tests/coverage/slice-04-gates.test.ts` parses the workflow order out of the frozen source at run
+> time and fails if a safety-breaching request comes back with any non-safety reason.
+>
+> **What did NOT change, deliberately.** Tenant isolation, entitlement, object state and the rest
+> keep their existing relative order. The source's step 4 names *"the object's Site and Area"* and
+> says nothing about re-ordering the cross-tenant guard, and encoding an order the source does not
+> state is the error the original correction existed to prevent.
 
 `SCR-DOH-ROLE-04` renders which of the nine conditions failed **and who can change that
 condition**, and never reveals the existence of records outside the caller's scope (L14267).

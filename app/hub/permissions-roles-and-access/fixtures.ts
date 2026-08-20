@@ -1446,8 +1446,18 @@ export const REFUSAL_SCENARIOS = [
       'Nobody, on any surface. Assign the role to a second person first; then this stops being the last one.',
     request: {
       action: 'MOD-DOH-09:remove-last-tenant-admin',
+      // Every role is on the allow-list, so nothing but the safety control
+      // refuses this. Delete `safetyControl` and the request is ALLOWED —
+      // which is what makes the safety stage the thing under test here
+      // rather than a role rule quietly doing the work.
       allowedRoles: ALL_TENANT_ROLES,
-      deniedRoles: ALL_TENANT_ROLES,
+      // Previously `deniedRoles: ALL_TENANT_ROLES`, which refused correctly
+      // and reported EXPLICIT_DENY at BASE_ROLE — the role-permission
+      // condition, and the wrong one of the source's two precedence rules.
+      // L14532 requires such a request be "refused immediately and recorded
+      // as a safety refusal".
+      safetyControl:
+        'Removing the last Tenant Admin is refused by a platform-fixed safety control. It is not a role rule, and no surface, role or support session reaches past it.',
       sourceRefs: ['AC-16-03 L20047', 'AC-16-39 L20658'],
     },
     ...DEFAULT_CONTEXT,
@@ -1488,8 +1498,8 @@ export function refusalScenario(id: RefusalScenarioId): RefusalScenario {
 }
 
 /**
- * How the source's nine conditions land on the evaluator's nine stages. The
- * two do not correspond one-to-one, and pretending they do would be the
+ * How the source's nine conditions land on the evaluator's ordered stages.
+ * The two do not correspond one-to-one, and pretending they do would be the
  * quiet kind of wrong: the reader is shown both columns and the two places
  * they diverge.
  */
@@ -1554,7 +1564,7 @@ export const CONDITION_MAPPINGS = [
     condition: 'safety-controls',
     name: 'Safety controls',
     carriedBy:
-      'PRECEDENCE, not a stage. A safety control wins over any other condition including a root-level allow, and reaches the evaluator as an explicit deny — the second place the two lists diverge.',
+      'The safety stage, which the evaluator runs before every other condition. It is ninth in the source’s definition list and first in the source’s numbered workflow, and both are true — the second place the two lists diverge.',
     whoCanChangeIt: 'Nobody, on any surface.',
   },
 ] as const satisfies readonly ConditionMapping[]
@@ -1691,9 +1701,9 @@ export const SOURCE_CONFLICTS = [
   {
     topic: 'The order the nine conditions are rendered in',
     conflict:
-      'One reading cites L14531 for an evaluation order with safety controls first, against the definition order at L14514. L14531 is the request-arrival step, not a reordered list, and no safety-first ordering exists anywhere in the source.',
+      'One reading cites L14531 for an evaluation order with safety controls first, against the definition order at L14514. The citation is off by one — L14531 is the request-arrival step — but the ordering it describes is real, and sits on the very next line.',
     resolution:
-      'L14512 enumerates the nine with role permission FIRST and safety controls NINTH, and puts two precedence rules ABOVE the intersection instead of reordering it. Safety wins by precedence, not by position. This screen renders the spine’s own array and never re-sorts it.',
+      'Both structures are the source’s, and both are shown. The definition list at L14514 to L14522 enumerates the nine with role permission FIRST and safety controls NINTH, and that is the Order column. The numbered workflow at L14529 evaluates safety FIRST, at L14532, and that is the Evaluated column. An earlier ruling here recorded that no safety-first ordering existed anywhere in the source. That was wrong, and while it stood this module — the only one of the eight that ships a safety-control refusal — reported that refusal as an explicit role denial.',
   },
   {
     topic: 'How many rows are prohibited for all five roles',

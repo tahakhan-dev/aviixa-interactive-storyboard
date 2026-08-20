@@ -67,16 +67,25 @@ void _permissionOutcomesAreExhaustive
 export type FieldTreatment = 'visible' | 'redacted' | 'hidden'
 
 /**
- * The nine ordered stages of effective-access evaluation, plus two markers
+ * The ten ordered stages of effective-access evaluation, plus two markers
  * used outside that ordered evaluation: 'ALL_STAGES_PASSED' reports which
  * decision granted an allow (never a false claim of a specific denial
  * stage), and 'COMMAND_VALIDATION' marks a kernel-level command field-shape
- * check that runs after authorisation succeeds — it is not one of the nine
- * access stages and must never be reported as stage 6 (OBJECT_STATE).
+ * check that runs after authorisation succeeds — it is not one of the
+ * access stages and must never be reported as OBJECT_STATE.
  * Spec section 3.4.
+ *
+ * 'SAFETY_CONTROLS' is listed second because that is where the frozen
+ * source's numbered workflow puts it: L14531 is the request arriving, and
+ * L14532 is "Safety controls are evaluated first. A request that would
+ * override a specification gate or the evaluation gate, or that would
+ * breach a platform invariant, is refused immediately and recorded as a
+ * safety refusal." A safety breach reported under any other stage is that
+ * last clause not being honoured.
  */
 export type EvaluationStage =
   | 'SESSION'
+  | 'SAFETY_CONTROLS'
   | 'TENANT_ISOLATION'
   | 'BASE_ROLE'
   | 'SCOPE'
@@ -193,6 +202,14 @@ export const REASON_CODES = {
     'No authorised approver is available, and the platform never approves on a person’s behalf.',
   HARD_GATE:
     'This is a hard gate. No role, setting or override can pass it.',
+  /**
+   * Distinct from EXPLICIT_DENY on purpose. The frozen source states two
+   * separate non-negotiable precedence rules — "Explicit deny wins" (L14526)
+   * and "Safety controls win" (L14527) — and reporting a safety breach as an
+   * explicit deny names the wrong one of the two to the reader.
+   */
+  SAFETY_CONTROL:
+    'A safety control refuses this. It is fixed by the platform, and no role, surface or override reaches past it.',
   DECISION_OPEN:
     'An open client decision governs this behaviour, so the storyboard will not pretend to know the answer.',
   NOT_APPLICABLE:

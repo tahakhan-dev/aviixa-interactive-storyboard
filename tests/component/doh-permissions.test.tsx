@@ -486,12 +486,29 @@ describe('MOD-DOH-09 — SCR-DOH-ROLE-04, why was I refused', () => {
     expect(rows[8]?.textContent ?? '').toMatch(/safety controls/i)
   })
 
-  it('renders the two precedence rules above the intersection, not a reordered list', () => {
+  // Was: `/by precedence, not by position/`. That sentence was half of the
+  // source. L14522 does put safety ninth in the DEFINITION list, but the
+  // numbered workflow at L14529 evaluates it first (L14532), so the screen
+  // now shows both and claims neither is the whole answer.
+  it('renders the two precedence rules above the intersection, and BOTH source orders', () => {
     render(<PermissionsScreen />)
     const refused = region(/why was i refused/i)
     expect(within(refused).getByText(/explicit deny wins/i)).toBeDefined()
     expect(within(refused).getByText(/safety controls win/i)).toBeDefined()
-    expect(within(refused).getByText(/by precedence, not by position/i)).toBeDefined()
+    expect(within(refused).getByText(/evaluates safety FIRST/)).toBeDefined()
+    expect(within(refused).getByText(/safety controls ninth/i)).toBeDefined()
+    // The claim that went out to readers and was false. It must not come back.
+    expect(within(refused).queryByText(/by precedence, not by position/i)).toBeNull()
+  })
+
+  it('gives the nine an Evaluated column, with safety first in it', () => {
+    render(<PermissionsScreen />)
+    const refused = region(/why was i refused/i)
+    const rows = within(refused).getAllByRole('row')
+    expect(rows[0]?.textContent ?? '').toMatch(/Evaluated/)
+    // Safety is the ninth ROW (definition order) and the first EVALUATED.
+    expect(rows[9]?.textContent ?? '').toMatch(/safety controls/i)
+    expect(rows[9]?.textContent ?? '').toMatch(/First/)
   })
 
   it('marks which condition refused, and names who can change it', () => {
@@ -734,7 +751,9 @@ describe('MOD-DOH-09 — the standing panels the contract requires', () => {
   it('records the corrected condition ordering where a reviewer can read it', () => {
     render(<PermissionsScreen />)
     const conflicts = region(/conflicts in the source/i)
-    expect(within(conflicts).getByText(/L14512/)).toBeDefined()
+    // Both structures, both cited: the definition list and the workflow.
+    expect(within(conflicts).getAllByText(/L14514/).length).toBeGreaterThan(0)
+    expect(within(conflicts).getAllByText(/L14532/).length).toBeGreaterThan(0)
   })
 
   it('states the cost of the Worker holding no Hub screen', () => {

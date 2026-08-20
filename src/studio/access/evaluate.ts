@@ -452,17 +452,17 @@ function finalise(
  *  2. The grant, because it decides WHICH COLUMN of the matrix this person
  *     reads — and a lapsed grant is named here rather than degrading silently.
  *  3. The tier, because it gates the capability the column just granted.
- *  4. Slice 3's nine stages, which gate this particular REQUEST: session,
- *     tenant isolation, the cell as a base-role verdict, suspension, object
- *     state, connectivity, and separation of duties.
+ *  4. Slice 3's ordered stages, which gate this particular REQUEST: session,
+ *     safety controls, tenant isolation, the cell as a base-role verdict,
+ *     suspension, object state, connectivity, and separation of duties.
  *  5. The cell's own outcome, where nothing above refused. `evaluateAccess`
  *     can only ever downgrade the cell, never upgrade it.
  *
  * Step 4 running the cell's verdict through the BASE_ROLE stage is what makes
  * row 23 of the matrix come out right without a special case: a prohibited
  * column offline reads "Explicitly prohibited — no access at all" (the deny
- * lands at stage 3) while a permitted column offline reads "Unavailable — the
- * Studio requires an active connection" (the deny lands at stage 8).
+ * lands at the base-role stage) while a permitted column offline reads "Unavailable — the
+ * Studio requires an active connection" (the deny lands at the device stage).
  */
 export function evaluateStudioAccess(input: StudioAccessInput): StudioAccessDecision {
   const { row, identity, grants } = input

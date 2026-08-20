@@ -127,7 +127,7 @@ const CONNECTION_LOST_REASON =
   'The connection to this workspace’s own records is lost. The inventory degrades to the last loaded records with a freshness marker, and every write control here disables rather than queues — a queued device command would be an action with no audit entry, and worse, one the reader would believe had reached a device.'
 
 /** The evaluator's own feature stage does the flag, so a control behind it
- *  refuses through the same nine ordered stages as every other refusal. */
+ *  refuses through the same ordered stages as every other refusal. */
 function fixtureState(flagEnabled: boolean) {
   const base = withTenant(
     emptyDomainState(scenarioRunId('DOH-DEVICES-STORYBOARD')),
@@ -485,7 +485,7 @@ export function DevicesScreen() {
       <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
         The feature flag above is the real one, named rather than silent (D3), and it is read by the
         shared access evaluator&rsquo;s own feature stage — so switching it off refuses every device
-        control through the same nine ordered stages as any other refusal, rather than by a
+        control through the same ordered stages as any other refusal, rather than by a
         conditional drawn around the controls.
       </p>
     </section>

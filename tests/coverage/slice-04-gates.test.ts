@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync, writeFileSync, rmSync, mkdirSync, existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { createHash } from 'node:crypto'
 import { JSDOM } from 'jsdom'
 import { stripComments } from './strip-comments'
 import { namesPersonBehaviouralMeasure } from './person-measure-keys'
@@ -12,7 +13,14 @@ import {
   type MatrixRowSurface,
 } from '@/surfaces/doh/modules'
 import { WriteControl } from '@/ui/WriteControl'
-import { decide, deny, type PermissionDecision } from '@/policy/decision'
+import { decide, deny, isRefusal, type PermissionDecision } from '@/policy/decision'
+import { evaluateAccess, type AccessRequest } from '@/policy/evaluate'
+import { tenantId } from '@/domain/ids'
+import {
+  ACCESS_CONDITIONS,
+  EVALUATION_ORDER,
+  type AccessCondition,
+} from '@/surfaces/doh/access-conditions'
 
 import { CONTROL_MATRIX as DEVICES_MATRIX } from '../../app/hub/devices/fixtures'
 import { CONTROL_MATRIX as SSO_MATRIX } from '../../app/hub/integration-surface/fixtures'
@@ -21,7 +29,11 @@ import {
   visibleSiteIds,
   visibleAreaIds,
 } from '../../app/hub/location-configuration/fixtures'
-import { PERMISSION_MATRIX } from '../../app/hub/permissions-roles-and-access/fixtures'
+import {
+  PERMISSION_MATRIX,
+  fixtureContext,
+  refusalScenario,
+} from '../../app/hub/permissions-roles-and-access/fixtures'
 import {
   CONTROL_MATRIX as CALENDAR_MATRIX,
   calendarAreaIdsFor,
@@ -1863,6 +1875,205 @@ describe('slice 4 gate 6: no live ungated write control on any route', () => {
     },
     30_000,
   )
+})
+
+/* ==================================================================== *
+ * GATE 7 — a safety breach is refused AS A SAFETY REFUSAL.
+ *
+ * WHY THIS GATE EXISTS AT ALL, given the answer is a refusal either way.
+ *
+ * The slice-4 spine ruled that safety controls win by PRECEDENCE and not by
+ * position, because the source's definition list puts them ninth. Half of
+ * that ruling was right and half was not: the source also carries a numbered
+ * workflow, and its step 2 is a statement about the REFUSAL REASON, not only
+ * about whether the request is refused --
+ *
+ *   L14532  "Safety controls are evaluated first. A request that would
+ *            override a specification gate or the evaluation gate, or that
+ *            would breach a platform invariant, is refused immediately and
+ *            recorded as a safety refusal."
+ *
+ * Under the old encoding a safety control was declared as `deniedRoles:
+ * <every role>`, so MOD-DOH-09's "Removing the last Tenant Admin" refusal
+ * came back EXPLICIT_DENY at BASE_ROLE and `SCR-DOH-ROLE-04` rendered "An
+ * explicit denial applies to this role, and an explicit denial always wins"
+ * under a heading that said Safety controls. Two separate precedence rules
+ * exist in the source (L14526, L14527) and the reader was shown the wrong
+ * one. The same request naming another tenant's record came back
+ * TENANT_MISMATCH, because the old encoding sat behind tenant isolation.
+ *
+ * THE EXPECTATION IS NOT DERIVED FROM THE FIELD UNDER TEST. The order this
+ * gate enforces is parsed out of the frozen source's own numbered steps at
+ * run time; `EVALUATION_ORDER` is then compared against it. Moving the
+ * constant and a written-down copy of the constant together does not survive
+ * that, because there is no written-down copy.
+ * ==================================================================== */
+
+describe('slice 4 gate 7: a safety breach is refused as a safety refusal', () => {
+  const SOURCE_PATH = join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md')
+  const SOURCE_SHA256 = '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27'
+  const WORKFLOW_HEADING = 'Numbered workflow — one access decision, end to end.'
+
+  /** The opening words each workflow step uses for the condition it runs. */
+  const STEP_OPENERS: readonly (readonly [string, AccessCondition])[] = [
+    ['Safety controls', 'safety-controls'],
+    ['Role permission', 'role-permission'],
+    ['Assigned scope', 'assigned-scope'],
+    ['Tenant entitlement', 'tenant-entitlement'],
+    ['Object state', 'object-state'],
+    ['Qualification', 'qualification'],
+    ['Active grants', 'active-grant'],
+    ['Device and connectivity', 'device-and-connectivity'],
+    ['Segregation of duties', 'segregation-of-duties'],
+  ]
+
+  const sourceLines = (): readonly string[] =>
+    readFileSync(SOURCE_PATH, 'utf8').split('\n')
+
+  /** The numbered steps of the workflow, in the order the source writes them. */
+  function workflowSteps(lines: readonly string[]): readonly string[] {
+    const at = lines.findIndex((l) => l.includes(WORKFLOW_HEADING))
+    expect(at, `the frozen source no longer carries "${WORKFLOW_HEADING}"`).toBeGreaterThan(-1)
+    const steps: string[] = []
+    for (let i = at + 1; i < lines.length; i++) {
+      const line = lines[i] ?? ''
+      if (/^\d+\.\s/.test(line)) steps.push(line)
+      else if (steps.length > 0 && line.trim() !== '') break
+    }
+    return steps
+  }
+
+  it('reads the frozen bytes, so a drifted copy cannot soften this gate', () => {
+    expect(existsSync(SOURCE_PATH), `frozen source not found at ${SOURCE_PATH}`).toBe(true)
+    expect(createHash('sha256').update(readFileSync(SOURCE_PATH)).digest('hex')).toBe(
+      SOURCE_SHA256,
+    )
+  })
+
+  it('finds the numbered workflow, and its safety step says what is recorded', () => {
+    const steps = workflowSteps(sourceLines())
+    expect(steps).toHaveLength(11)
+    const safety = steps[1] ?? ''
+    expect(safety).toContain('Safety controls are evaluated first.')
+    // The clause the whole gate rests on. Without it the source would be
+    // stating an order and nothing about the reason, and this gate would be
+    // decoration over a distinction with no observable consequence.
+    expect(safety).toContain('recorded as a safety refusal')
+  })
+
+  it('EVALUATION_ORDER is the source workflow order, parsed rather than restated', () => {
+    const steps = workflowSteps(sourceLines())
+    const matched: AccessCondition[] = []
+    let unmatched = 0
+    for (const step of steps) {
+      const body = step.replace(/^\d+\.\s*/, '')
+      const hit = STEP_OPENERS.find(([opener]) => body.startsWith(opener))
+      if (hit) matched.push(hit[1])
+      else unmatched += 1
+    }
+    // Step 1 (the request arriving) and step 11 (the audit write) name no
+    // condition. Pinning the count stops a step that quietly stopped matching
+    // from shrinking the order without anything going red.
+    expect(unmatched, 'exactly two workflow steps name no access condition').toBe(2)
+    expect(matched).toEqual([...EVALUATION_ORDER])
+    expect([...matched].sort()).toEqual([...ACCESS_CONDITIONS].sort())
+  })
+
+  /* ---- the behaviour ------------------------------------------------- */
+
+  /** Null when the decision IS a safety refusal; the offending label if not. */
+  const nonSafetyReason = (d: PermissionDecision): string | null =>
+    d.stage === 'SAFETY_CONTROLS' && d.reasonCode === 'SAFETY_CONTROL'
+      ? null
+      : `${d.stage}/${d.reasonCode}`
+
+  const decide09 = (req: AccessRequest): PermissionDecision =>
+    evaluateAccess(req, fixtureContext('TENANT_ADMIN'))
+
+  const SAFETY_SCENARIO = refusalScenario('safety-controls')
+
+  /**
+   * The shipped request with its safety declaration removed — the base for
+   * every plant below, so a plant differs from the real thing in exactly the
+   * one field this gate is about.
+   */
+  const WITHOUT_SAFETY: AccessRequest = (() => {
+    const { safetyControl, ...rest } = SAFETY_SCENARIO.request
+    void safetyControl
+    return rest
+  })()
+
+  /** The same request, also failing every other condition the source lists. */
+  const alsoFailingEverythingElse = (req: AccessRequest): AccessRequest => ({
+    ...req,
+    requiredSites: ['SITE-NOWHERE'],
+    requiredAreas: ['AREA-NOWHERE'],
+    requiredTemporaryGrant: 'GRANT-NOBODY-HOLDS',
+    requiredEntitlement: 'entitlement-no-tier-carries',
+    allowedObjectStates: ['active'],
+    objectState: 'archived',
+    requiredQualifications: ['QUAL-NOBODY-HOLDS'],
+    requiresTrustedDevice: true,
+    makerCheckerOf: 'ACT-DOH-VIEWER',
+    resourceTenant: tenantId('TEN-SOMEBODY-ELSE'),
+  })
+
+  it('the shipped MOD-DOH-09 safety refusal comes back as a safety refusal', () => {
+    const d = decide09(SAFETY_SCENARIO.request)
+    expect(isRefusal(d)).toBe(true)
+    expect(nonSafetyReason(d)).toBeNull()
+    expect(d.auditExpectation).toBe('RECORDED_AS_REFUSAL')
+  })
+
+  it('and still does when the same request fails every other condition too', () => {
+    const d = decide09(alsoFailingEverythingElse(SAFETY_SCENARIO.request))
+    expect(nonSafetyReason(d)).toBeNull()
+  })
+
+  it(
+    'PLANTED VIOLATION: the pre-correction encoding (deniedRoles) trips the gate',
+    () => {
+      const d = decide09({
+        ...WITHOUT_SAFETY,
+        deniedRoles: [...WITHOUT_SAFETY.allowedRoles],
+      })
+      // Still refused -- the allow/deny answer never differed. The REASON did,
+      // and it is exactly the one a reader was shown before this correction.
+      expect(isRefusal(d)).toBe(true)
+      expect(nonSafetyReason(d)).toBe('BASE_ROLE/EXPLICIT_DENY')
+    },
+  )
+
+  it(
+    'PLANTED VIOLATION: cross-tenant, the old encoding lost even the deny reason',
+    () => {
+      const planted: AccessRequest = {
+        ...WITHOUT_SAFETY,
+        deniedRoles: [...WITHOUT_SAFETY.allowedRoles],
+        resourceTenant: tenantId('TEN-SOMEBODY-ELSE'),
+      }
+      expect(nonSafetyReason(decide09(planted))).toBe('TENANT_ISOLATION/TENANT_MISMATCH')
+      // The corrected encoding, same request: safety decides first.
+      expect(
+        nonSafetyReason(
+          decide09({ ...SAFETY_SCENARIO.request, resourceTenant: tenantId('TEN-SOMEBODY-ELSE') }),
+        ),
+      ).toBeNull()
+    },
+  )
+
+  it('PLANTED VIOLATION: dropping the declaration stops the refusal entirely', () => {
+    // Proof that `safetyControl` is the only thing refusing this request, so
+    // the assertions above are about that field and not about a role rule
+    // quietly doing the work behind it.
+    expect(isRefusal(decide09(WITHOUT_SAFETY))).toBe(false)
+  })
+
+  it('the refusal a reader sees never names the other precedence rule', () => {
+    const d = decide09(SAFETY_SCENARIO.request)
+    expect(d.explanation).not.toMatch(/explicit deni?al/i)
+    expect(d.explanation).toMatch(/safety control/i)
+  })
 })
 
 describe('slice 4 gates: the file itself', () => {

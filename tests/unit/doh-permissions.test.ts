@@ -5,7 +5,11 @@ import { stripComments } from '../coverage/strip-comments'
 import { rolesInDomain, type RoleId } from '@/domain/roles'
 import { PERMISSION_OUTCOMES, isRefusal, type PermissionOutcome } from '@/policy/decision'
 import { evaluateAccess } from '@/policy/evaluate'
-import { ACCESS_CONDITIONS, PRECEDENCE_RULES } from '@/surfaces/doh/access-conditions'
+import {
+  ACCESS_CONDITIONS,
+  EVALUATION_ORDER,
+  PRECEDENCE_RULES,
+} from '@/surfaces/doh/access-conditions'
 import { DEFERRED_DOH_SCOPES, DOH_SCOPES } from '@/surfaces/doh/scope'
 import { TENANT_STATES, writeAllowed } from '@/surfaces/doh/tenant-state'
 import { dohModuleById } from '@/surfaces/doh/modules'
@@ -96,13 +100,19 @@ describe('MOD-DOH-09 — the five tenant roles and the spine it consumes', () =>
     expect(MODULE.slug).toBe('permissions-roles-and-access')
   })
 
-  // The controller's correction: role permission FIRST, safety controls NINTH,
-  // and safety wins by PRECEDENCE. Nothing in this module may re-sort them.
-  it('keeps the nine access conditions in the spine order, safety ninth and never first', () => {
+  // The DEFINITION enumeration (L14514-L14522): role permission first, safety
+  // controls ninth. Nothing in this module may re-sort it. The workflow order
+  // is a SEPARATE array; slice-4 gate 7 pins that one against the source.
+  it('keeps the nine access conditions in the definition order, safety ninth', () => {
     expect(ACCESS_CONDITIONS[0]).toBe('role-permission')
     expect(ACCESS_CONDITIONS[8]).toBe('safety-controls')
     expect(ACCESS_CONDITIONS).toHaveLength(9)
     expect(PRECEDENCE_RULES).toEqual(['explicit-deny-wins', 'safety-controls-win'])
+  })
+
+  it('keeps the evaluation order separate, with safety first in it (L14532)', () => {
+    expect(EVALUATION_ORDER[0]).toBe('safety-controls')
+    expect([...EVALUATION_ORDER].sort()).toEqual([...ACCESS_CONDITIONS].sort())
   })
 
   it('exercises every one of the nine conditions with a seeded refusal scenario', () => {

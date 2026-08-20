@@ -13,20 +13,32 @@ export interface AccessRequest {
   readonly deniedRoles?: readonly RoleId[]
   readonly requiredSites?: readonly string[]
   readonly requiredAreas?: readonly string[]
-  /** IMPORTANT 3 (stage 4): the shift(s) this action is scoped to. */
+  /** IMPORTANT 3 (scope stage): the shift(s) this action is scoped to. */
   readonly requiredShifts?: readonly string[]
-  /** IMPORTANT 3 (stage 4): the specific object id(s) this action is scoped to. */
+  /** IMPORTANT 3 (scope stage): the specific object id(s) this action is scoped to. */
   readonly requiredObjectScope?: readonly string[]
-  /** IMPORTANT 3 (stage 4): a named temporary grant the actor must hold. */
+  /** IMPORTANT 3 (scope stage): a named temporary grant the actor must hold. */
   readonly requiredTemporaryGrant?: string
+  /**
+   * The safety control this request would breach, stated in plain language.
+   * Present means breached: a caller declares it only for a request that
+   * would override a specification gate or the evaluation gate, or breach a
+   * platform invariant.
+   *
+   * It is a SEPARATE field rather than `deniedRoles: everyRole` — which is
+   * how MOD-DOH-09 encoded it before — because the two produce different
+   * REFUSAL REASONS for the same allow/deny answer, and this build renders
+   * refusal reasons and audits them. See the safety stage below.
+   */
+  readonly safetyControl?: string
   readonly requiredFeature?: string
-  /** IMPORTANT 3 (stage 5): the tenant's tier must carry this entitlement. */
+  /** IMPORTANT 3 (feature and suspension stage): the tenant's tier must carry this entitlement. */
   readonly requiredEntitlement?: string
   readonly requiredQualifications?: readonly string[]
   readonly objectState?: string
   readonly allowedObjectStates?: readonly string[]
   /**
-   * IMPORTANT 3 (stage 6): the object version the actor last read. Declaring
+   * IMPORTANT 3 (object-state stage): the object version the actor last read. Declaring
    * `requiredObjectVersion` without a matching `objectVersion` fails closed
    * (STALE_VERSION), the same as `allowedObjectStates` without `objectState`.
    */
@@ -34,25 +46,25 @@ export interface AccessRequest {
   readonly objectVersion?: number
   readonly requiresOnline?: boolean
   readonly requiresTrustedDevice?: boolean
-  /** IMPORTANT 3 (stage 8): the pinned work package for this run must be valid. */
+  /** IMPORTANT 3 (device and connectivity stage): the pinned work package for this run must be valid. */
   readonly requiresValidPackage?: boolean
   readonly packageValid?: boolean
   /** When set, the actor who made the change being approved. */
   readonly makerCheckerOf?: string | null
-  /** IMPORTANT 3 (stage 9): an authorised approver must currently be available. */
+  /** IMPORTANT 3 (segregation-of-duties stage): an authorised approver must currently be available. */
   readonly requiresApproverAvailable?: boolean
   readonly approverAvailable?: boolean
   /** Set when an open client decision governs this behaviour. */
   readonly openDecision?: string
   /**
-   * CRITICAL 1: the tenant that OWNS the record this action targets. Stage 2
-   * compares this against the actor's own tenant — without it, stage 2 can
+   * CRITICAL 1: the tenant that OWNS the record this action targets. The
+   * tenant-isolation stage compares this against the actor's own tenant — without it, that stage can
    * only check that the actor's tenant is live, never that the record being
    * written actually belongs to that tenant.
    *
    * CRITICAL 2: deliberately `TenantId`, never `TenantId | null`. The old
    * `| null` type let a caller write `resourceTenant: lookup(id)?.tenantId ??
-   * null` and have stage 2 treat that as "no constraint declared" instead of
+   * null` and have tenant isolation treat that as "no constraint declared" instead of
    * "declared, and the answer is no tenant" — the exact fail-open pattern
    * already closed for `allowedObjectStates`. Dropping `| null` makes that
    * mistake a COMPILE error (`?? null` no longer type-checks against
@@ -94,14 +106,34 @@ const SUSPENDED_STATES = new Set([
 const NOT_YET_OR_NO_LONGER_ACTIVE_STATES = new Set(['PROVISIONING', 'ARCHIVED'])
 
 /**
- * The nine stages below run in a fixed order and the earliest FAILING
- * condition wins, so a denial never leaks information from a later stage.
- * Explicit deny beats allow. A stage may check more than one condition (for
- * example, stage 4 intersects site, area, shift, object and temporary-grant
- * scope together; stage 9 checks segregation of duties, approver
+ * The stages below run in a fixed order and the earliest FAILING condition
+ * wins, so a denial never leaks information from a later stage. Explicit
+ * deny beats allow. A stage may check more than one condition (for example,
+ * the scope stage intersects site, area, shift, object and temporary-grant
+ * scope together; the last stage checks segregation of duties, approver
  * availability and the human-decision gate together) -- within a stage,
  * checks run in the order written and the first failing one reports. Spec
  * section 3.4.
+ *
+ * SAFETY IS STAGE 2, AND THAT IS A CHANGE. The slice-4 spine ruled that
+ * safety controls win by precedence rather than by position, on the ground
+ * that the source enumerates them ninth and states no evaluation order. Half
+ * of that is right: the DEFINITION list does put safety ninth (L14522). But
+ * the source also carries a numbered workflow, "Numbered workflow -- one
+ * access decision, end to end" (L14529), whose step 1 is the request
+ * arriving (L14531) and whose step 2 (L14532) is "Safety controls are
+ * evaluated first. A request that would override a specification gate or the
+ * evaluation gate, or that would breach a platform invariant, is refused
+ * immediately and recorded as a safety refusal." Its diagram is read the same
+ * way at L14567: "Safety is evaluated first so that no other condition can be
+ * arranged to bypass it."
+ *
+ * Precedence and position give the same ALLOW/DENY answer. They do not give
+ * the same REFUSAL REASON, and "recorded as a safety refusal" is a statement
+ * about the reason. Before this, a safety-breaching request declared as
+ * `deniedRoles` was refused EXPLICIT_DENY at BASE_ROLE, and the same request
+ * naming another tenant's record was refused TENANT_MISMATCH -- neither of
+ * them a safety refusal, both of them rendered to a reader.
  */
 export function evaluateAccess(
   req: AccessRequest,
@@ -120,7 +152,23 @@ export function evaluateAccess(
   }
   const role = identity.role
 
-  // 2. Tenant isolation.
+  // 2. Safety controls, before every other condition. Placed here rather
+  // than at the very top because the source's own step 1 (L14531) is the
+  // request arriving CARRYING THE IDENTITY, which is what the session check
+  // above answers; safety is the first thing evaluated once it has.
+  //
+  // `RECORDED_AS_REFUSAL` because L14532 does not merely refuse, it says
+  // "recorded as a safety refusal" -- the audit expectation is part of the
+  // sentence, not an inference from it.
+  if (req.safetyControl !== undefined) {
+    return deny('explicitlyProhibited', 'SAFETY_CONTROL', req.safetyControl.trim() || undefined, {
+      stage: 'SAFETY_CONTROLS',
+      sourceRefs: refs,
+      auditExpectation: 'RECORDED_AS_REFUSAL',
+    })
+  }
+
+  // 3. Tenant isolation.
   //
   // CRITICAL 2: a null tenant is not a permissive default — it means
   // something different for each security domain, and it is never a
@@ -132,7 +180,7 @@ export function evaluateAccess(
   //
   // CRITICAL 1: when the request names the tenant that owns the record
   // being acted on (`resourceTenant`), that must match the actor's own
-  // tenant too — otherwise stage 2 only ever checks that the ACTOR's
+  // tenant too — otherwise tenant isolation only ever checks that the ACTOR's
   // tenant is live, never that the object being written belongs to it,
   // which is how a signed-in Quality Manager in one tenant could act on
   // another tenant's record just by naming it in the command.
@@ -174,7 +222,7 @@ export function evaluateAccess(
     // an ambient tenant -- but when the request DOES declare which tenant's
     // resource is being touched, that tenant must be known, exactly as the
     // TENANT branch above already requires for an ambient tenant. Without
-    // this, stage 5's suspension check (which keys off identity.tenant for
+    // this, the feature and suspension stage's check (which keys off identity.tenant for
     // a TENANT-domain role) had nothing to key off at all for a
     // PLATFORM-domain role, since identity.tenant is always null there --
     // an Admin acting on a HARD_SUSPENDED tenant's resource was allowed.
@@ -187,7 +235,7 @@ export function evaluateAccess(
     }
   }
 
-  // 3. Base-role union, with explicit deny winning.
+  // 4. Base-role union, with explicit deny winning.
   if (req.deniedRoles?.includes(role)) {
     return deny('explicitlyProhibited', 'EXPLICIT_DENY', undefined, {
       stage: 'BASE_ROLE',
@@ -202,7 +250,7 @@ export function evaluateAccess(
     })
   }
 
-  // 4. Scope intersection.
+  // 5. Scope intersection.
   if (
     req.requiredSites?.length &&
     !req.requiredSites.some((s) => identity.siteScope.includes(s))
@@ -222,7 +270,7 @@ export function evaluateAccess(
     })
   }
   // IMPORTANT 3: shift, object and temporary-grant scope, completing spec
-  // section 3.4's stage 4 list (Tenant/Site/Area/Shift/object/temporary
+  // section 3.4's scope-stage list (Tenant/Site/Area/Shift/object/temporary
   // grant). An identity that carries no shiftScope/objectScope/
   // temporaryGrants at all fails closed against a declared requirement,
   // exactly like an empty siteScope/areaScope already does above.
@@ -254,11 +302,11 @@ export function evaluateAccess(
     })
   }
 
-  // 5. Feature enablement, entitlement, platform floor, tenant effective
+  // 6. Feature enablement, entitlement, platform floor, tenant effective
   // value, suspension.
   //
   // M4: for a TENANT-domain role this is the actor's own tenant (already
-  // proven live, and matching any declared resourceTenant, by stage 2 above).
+  // proven live, and matching any declared resourceTenant, by the tenant-isolation stage above).
   // For a PLATFORM-domain role identity.tenant is always null -- the tenant
   // whose suspension/entitlement state matters is the RESOURCE's declared
   // tenant, if the request names one. Keying this off identity.tenant alone
@@ -327,7 +375,7 @@ export function evaluateAccess(
     }
   }
 
-  // 6. Object lifecycle and version state.
+  // 7. Object lifecycle and version state.
   // IMPORTANT 3: a declared constraint must never be weaker than declaring
   // none. If allowedObjectStates is declared, an undefined objectState is a
   // denial, not a silent pass — the original `&& req.objectState !== undefined`
@@ -344,7 +392,7 @@ export function evaluateAccess(
       })
     }
   }
-  // IMPORTANT 3: object version, completing stage 6's "object lifecycle AND
+  // IMPORTANT 3: object version, completing the object-state stage's "object lifecycle AND
   // version state". Fails closed: declaring a required version without
   // supplying the object's current version is exactly the STALE_VERSION
   // case, not a silent pass.
@@ -357,7 +405,7 @@ export function evaluateAccess(
     }
   }
 
-  // 7. Worker qualification and assignment.
+  // 8. Worker qualification and assignment.
   if (req.requiredQualifications?.length) {
     const missing = req.requiredQualifications.filter(
       (q) => !identity.qualifications.includes(q),
@@ -371,7 +419,7 @@ export function evaluateAccess(
     }
   }
 
-  // 8. Device trust, connectivity, package, offline authorisation.
+  // 9. Device trust, connectivity, package, offline authorisation.
   if (req.requiresTrustedDevice && !ctx.deviceTrusted) {
     return deny('unavailable', 'DEVICE_UNTRUSTED', undefined, {
       stage: 'DEVICE_AND_CONNECTIVITY',
@@ -385,7 +433,7 @@ export function evaluateAccess(
       conditionToEnable: 'Reconnect to complete this action.',
     })
   }
-  // IMPORTANT 3: package, completing stage 8's "device trust, connectivity,
+  // IMPORTANT 3: package, completing the device and connectivity stage's "device trust, connectivity,
   // package, offline authorisation". Fails closed: requiring a valid package
   // without an explicit `packageValid: true` is a denial, not a pass.
   if (req.requiresValidPackage && req.packageValid !== true) {
@@ -395,7 +443,7 @@ export function evaluateAccess(
     })
   }
 
-  // 9. Segregation of duties, maker-checker, approver availability,
+  // 10. Segregation of duties, maker-checker, approver availability,
   // human-decision gate.
   // IMPORTANT 5: this must fail CLOSED. If the request declares a
   // maker-checker constraint at all, an unattributed actor (actorOfRecord
