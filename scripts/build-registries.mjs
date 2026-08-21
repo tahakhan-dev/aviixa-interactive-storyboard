@@ -43,7 +43,7 @@
  * Run with: node scripts/build-registries.mjs
  */
 import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { join, dirname, basename, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -245,10 +245,77 @@ const SOURCE_CLASSIFICATION_TO_SOURCE_CLASS = {
  *    only honest join available, and it under-reports -- see the note that
  *    registry carries.
  */
+/* ==================================================================== *
+ * THE PROBE GUARD (Phase 0.3).
+ *
+ * Gates plant scratch directories named `.zz-probe-<pid>` under `app/` and
+ * `src/` to prove they can fail. The name is in `.gitignore` AND skipped by
+ * every gate's `isForeignProbe`, so a probe a killed process never removed is
+ * invisible to `git status` and to every gate at once. `walkDirs` below
+ * descends into dot-prefixed directories, so an orphan carrying a `page.tsx`
+ * and `MOD-*` tokens mints a phantom route owner nobody can see. One was
+ * found in `app/super-admin/` at Phase 0.
+ *
+ * MATCHED ON SHAPE, NOT ON A SPELLING -- the same regex as
+ * `tests/coverage/contract-gates.test.ts:19`: a leading dot, an optional
+ * label, and a trailing process id. A guard keyed on one directory name is
+ * satisfied by the next agent that picks a different label.
+ *
+ * LIVE PROBES ARE NOT ORPHANS, and the distinction is what makes this guard
+ * safe to run at all. `tests/unit/registry-build.test.ts` spawns this script
+ * while other suites plant probes of their own, and Phase 0.4's acceptance is
+ * three whole suites running CONCURRENTLY. Refusing on every probe would turn
+ * that into a false red. The trailing number is a pid, so liveness is the
+ * available test, and it is the same fact the orphan class is defined by: the
+ * process that planted it is gone.
+ *
+ * ponytail: pid reuse -- an orphan whose pid was recycled by an unrelated
+ * process reads as live and is missed. The narrower fix is a lock file the
+ * planter holds; add it when an orphan actually survives this.
+ * ==================================================================== */
+const PROBE_DIR_RE = /^\.zz-probe-(?:[a-z0-9-]+-)?(\d+)$/
+
+const isPlanterAlive = (pid) => {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (err) {
+    // EPERM: the process exists and is not ours. Alive.
+    return err.code === 'EPERM'
+  }
+}
+
+function probeDirs(dir, acc = []) {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (!e.isDirectory()) continue
+    const full = join(dir, e.name)
+    const match = PROBE_DIR_RE.exec(e.name)
+    if (match === null) probeDirs(full, acc)
+    else acc.push({ path: full, pid: Number(match[1]) })
+  }
+  return acc
+}
+
+const orphanProbes = [join(ROOT, 'app'), join(ROOT, 'src')]
+  .flatMap((root) => probeDirs(root))
+  .filter((p) => !isPlanterAlive(p.pid))
+if (orphanProbes.length > 0) {
+  throw new Error(
+    'Refusing to generate: a probe directory is orphaned under app/ or src/ -- the process that ' +
+      'planted it is gone, so nothing will remove it, and it is invisible to `git status` ' +
+      '(.gitignore) and to every gate (isForeignProbe) at once:\n  ' +
+      orphanProbes.map((p) => `${p.path} (planted by pid ${p.pid}, not running)`).join('\n  ') +
+      '\nDelete it. An orphan carrying a page.tsx and MOD-* tokens mints a phantom route owner ' +
+      'in these registries that no reviewer can see.',
+  )
+}
+
 function walkRouteTree() {
   const ownedModuleIds = new Set()
   const citedTokens = new Set()
   const declaredControlLabels = new Set()
+  /** Route directory basename -> every directory carrying it. See the slug rule below. */
+  const routeDirsByName = new Map()
   let declaresControlMatrix = false
 
   const walkDirs = (dir) => {
@@ -260,6 +327,8 @@ function walkRouteTree() {
     const entries = readdirSync(dir, { withFileTypes: true })
     const hasPage = entries.some((e) => e.isFile() && e.name === 'page.tsx')
     if (hasPage) {
+      const name = basename(dir)
+      routeDirsByName.set(name, [...(routeDirsByName.get(name) ?? []), relative(ROOT, dir)])
       const counts = new Map()
       for (const e of entries) {
         if (e.isDirectory()) continue // a nested route owns itself
@@ -290,10 +359,16 @@ function walkRouteTree() {
         ownedModuleIds.add(ranked[0][0])
       }
     }
-    for (const e of entries) if (e.isDirectory()) walkDirs(join(dir, e.name))
+    // A LIVE probe belongs to a suite running right now; the orphan guard above
+    // has already refused on any dead one. Descending into either would let a
+    // scratch `page.tsx` mint a route owner, which is how registry output would
+    // differ between an idle box and a concurrent one.
+    for (const e of entries) {
+      if (e.isDirectory() && !PROBE_DIR_RE.test(e.name)) walkDirs(join(dir, e.name))
+    }
   }
   walkDirs(join(ROOT, 'app'))
-  return { ownedModuleIds, citedTokens, declaredControlLabels, declaresControlMatrix }
+  return { ownedModuleIds, citedTokens, declaredControlLabels, declaresControlMatrix, routeDirsByName }
 }
 
 const ROUTE_EVIDENCE = walkRouteTree()
@@ -307,6 +382,104 @@ if (DEMONSTRATED_MODULE_IDS.size === 0) {
     'No module route was found under app/. The route walk is broken -- refusing to write registries that would report every module as not-represented.',
   )
 }
+
+/* ==================================================================== *
+ * THE SLUG RULE (Phase 0.6 -- slice-5 finding F4).
+ *
+ * Argmax alone awards a route to whichever module its files mention most, so
+ * a module that DECLARES a route and shares the screen with its host loses
+ * its own route to that host and reads `not-represented` while owning it.
+ * Live instance: `MOD-STU-15` declares `slug: 'agents'`, `app/studio/agents/`
+ * exists and builds, and `MOD-STU-02` outnumbers it there 4 mentions to 2.
+ * Fifteen of eighteen Studio modules moved on the last slice, not eighteen,
+ * and the coverage numerator under-reported by exactly that row.
+ *
+ * The rule: a module declaring `slug: X` whose route directory `X` exists is
+ * demonstrated. Argmax still decides every route no module claims by slug --
+ * `/studio/journey` and `/studio/sign-in` are two -- so nothing is taken away
+ * from it; a second, independent way to earn the status is added.
+ *
+ * WHY THE DECLARATIONS ARE READ AS TEXT. The spines are TypeScript and the
+ * sibling reach generators execute them through `typescript`, which costs
+ * ~350ms cold. `tests/unit/registry-build.test.ts` spawns THIS script inside
+ * a 5s budget while forty test files run in parallel, and the doc comment at
+ * the top of this file records that cost timing out two runs in three. A
+ * `slug:` string literal is the one thing in those files a regex can read
+ * without becoming an interpreter, and a parse that silently goes empty is
+ * refused below rather than falling back on argmax unannounced.
+ *
+ * NO SURFACE TABLE. The route directory is found by name among the
+ * directories the walk above actually visited, never by mapping `MOD-STU-*`
+ * to `app/studio`; two route directories sharing a claimed name are refused
+ * the same way an argmax tie is, rather than resolved by a guess.
+ * ==================================================================== */
+const SPINE_MODULE_ID = /\bid:\s*'(MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+))'/g
+const SPINE_SLUG = /\bslug:\s*'([^'\\]+)'/
+
+/** Every `modules.ts` under `src/` -- the surface spines, found by name. */
+function spineFiles(dir, acc = []) {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (e.isDirectory()) {
+      if (!PROBE_DIR_RE.test(e.name)) spineFiles(join(dir, e.name), acc)
+    } else if (e.name === 'modules.ts') {
+      acc.push(join(dir, e.name))
+    }
+  }
+  return acc
+}
+
+/** `MOD-* -> declared slug`. An entry runs from its own `id:` to the next one. */
+function declaredSlugs() {
+  const byModule = new Map()
+  for (const file of spineFiles(join(ROOT, 'src'))) {
+    const text = readFileSync(file, 'utf8')
+    const marks = [...text.matchAll(SPINE_MODULE_ID)]
+    marks.forEach((mark, i) => {
+      const next = marks[i + 1]
+      const entry = text.slice(mark.index, next === undefined ? undefined : next.index)
+      const slug = SPINE_SLUG.exec(entry)
+      if (slug === null) return // `slug: null`, or a card that declares no route
+      const seen = byModule.get(mark[1])
+      if (seen !== undefined && seen.slug !== slug[1]) {
+        throw new Error(
+          `${mark[1]} declares slug "${seen.slug}" in ${seen.file} and "${slug[1]}" in ` +
+            `${relative(ROOT, file)}. One module owns at most one route; refusing to pick one.`,
+        )
+      }
+      byModule.set(mark[1], { slug: slug[1], file: relative(ROOT, file) })
+    })
+  }
+  return byModule
+}
+
+const MODULE_SLUGS = declaredSlugs()
+if (MODULE_SLUGS.size === 0) {
+  throw new Error(
+    'No `slug:` declaration was parsed from any src/**/modules.ts -- refusing to write registries ' +
+      'that would fall back on module-mention argmax alone without saying so. That fallback is ' +
+      'exactly the defect this rule exists to remove, and a silent one is worse than the original.',
+  )
+}
+
+/** `MOD-* -> the route directory its declared slug names`, for modules that have one. */
+const SLUG_DEMONSTRATED = new Map()
+for (const [id, { slug, file }] of MODULE_SLUGS) {
+  const dirs = ROUTE_EVIDENCE.routeDirsByName.get(slug)
+  if (dirs === undefined) continue // declared, not built -- honestly not-represented
+  if (dirs.length > 1) {
+    throw new Error(
+      `${id} (${file}) declares slug "${slug}" and ${dirs.length} route directories carry that ` +
+        `name: ${dirs.join(', ')}. Which one demonstrates the module is a guess; refusing to make it.`,
+    )
+  }
+  SLUG_DEMONSTRATED.set(id, dirs[0])
+  DEMONSTRATED_MODULE_IDS.add(id)
+}
+console.log(
+  `Route evidence: ${DEMONSTRATED_MODULE_IDS.size} modules demonstrated -- ` +
+    `${SLUG_DEMONSTRATED.size} by a declared slug naming a built route directory, the rest by ` +
+    `mention argmax over the ${ROUTE_EVIDENCE.routeDirsByName.size} route directory names under app/.`,
+)
 
 // Same refusal, extended to the evidence the other thirteen inventories now
 // read. A route tree that yields no identifier token at all has not been read;
@@ -400,6 +573,24 @@ function buildModulesRegistry() {
         `${sourceDefinedCount} + ${derivedCount}`,
     )
   }
+  // Phase 0.6, checked against the WRITTEN rows rather than against the set
+  // they were written from, and against the two inputs separately: the
+  // `slug:` declarations parsed out of src/ and the route directories found
+  // under app/. It is red on the argmax-only rule this replaced -- MOD-STU-15
+  // named it, with `app/studio/agents` on disk the whole time -- and it stays
+  // red for anything later that recomputes or filters this status field.
+  const slugClaimedButNotDemonstrated = [...SLUG_DEMONSTRATED.entries()].filter(
+    ([id]) => byId.has(id) && byId.get(id).status !== 'demonstrated-in-storyboard',
+  )
+  if (slugClaimedButNotDemonstrated.length > 0) {
+    throw new Error(
+      `${slugClaimedButNotDemonstrated.length} module(s) declare a slug whose route directory is ` +
+        'built and still read not-represented:\n  ' +
+        slugClaimedButNotDemonstrated.map(([id, dir]) => `${id} -> ${dir}`).join('\n  ') +
+        '\nA module that owns a shipped route is demonstrated by it, however often the screen it ' +
+        'shares names its host.',
+    )
+  }
   return {
     slug: 'modules',
     countedThing:
@@ -418,9 +609,14 @@ function buildModulesRegistry() {
         '(source-reconciliation.json).',
       statusNote(
         rows,
-        'a shipped route directory under app/ names that module id more often than any other ' +
-          'module id it mentions -- ownership, not mention, so a screen cross-referencing a ' +
-          'neighbour does not demonstrate it, and a tie throws rather than resolving silently',
+        'the module declares a `slug` and a shipped route directory of that name exists under ' +
+          `app/ (${SLUG_DEMONSTRATED.size} rows), or, for a route no module claims by slug, ` +
+          'because the route directory names that module id more often than any other module id ' +
+          'it mentions -- ownership, not mention, so a screen cross-referencing a neighbour does ' +
+          'not demonstrate it, and a tie throws rather than resolving silently. The declared ' +
+          'slug is read first because argmax alone awarded a shared screen to whichever module ' +
+          'it mentioned most, so a module that owns a route and shares the screen with its host ' +
+          'read not-represented while owning it',
       ),
     ),
     sourceFixesNoTotal: false,
