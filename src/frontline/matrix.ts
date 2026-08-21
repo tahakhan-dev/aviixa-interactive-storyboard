@@ -333,9 +333,29 @@ export type FrontlineAffordance =
  * downgraded or hidden — the matrix goes on saying `Allowed` on screen with
  * its own words and its own locator. What is refused is the CONTROL.
  */
+/**
+ * `NoInfer` ON THE COLUMN, AND IT IS LOAD-BEARING RATHER THAN TIDY.
+ *
+ * `Column` must be inferred from the ROW, never from the column argument. A
+ * matrix is written `as const` — the idiom across all eighteen Studio matrices
+ * and every Frontline one — so its rows carry literal types, and `routedTo`
+ * carries the literal keys it actually names. Let `Column` infer from the
+ * argument and asking about ONE column instantiates the row type at that one
+ * column: a row routing `{ worker: 'append-correction' }` then shares no
+ * property with `Partial<Record<'readonlyAuditor', …>>`, and TypeScript's
+ * weak-type check rejects it — an error about a column the caller is not
+ * asking about, raised against a row that is correct.
+ *
+ * Three call sites hit it the moment `A3_MATRIX` was moved onto the shipped
+ * `as const` idiom, and every one asked a legitimate question: one column, one
+ * pair of columns, one subset. Annotating each row at each call site is the
+ * same repair written three times and again for every module still to come.
+ * Inferring `Column` from the row and constraining the argument to a member of
+ * it is the same check, asked once, where all callers route.
+ */
 export function frontlineAffordance<Id extends string, Column extends string>(
   row: FrontlineMatrixRow<Id, Column>,
-  column: Column,
+  column: NoInfer<Column>,
 ): FrontlineAffordance {
   const cell = row.cells[column]
 

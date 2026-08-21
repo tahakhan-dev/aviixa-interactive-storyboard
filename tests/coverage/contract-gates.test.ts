@@ -94,6 +94,40 @@ describe('contract gates', () => {
     expect(offenders).toEqual([])
   })
 
+  /**
+   * The expression bound to one field, and NOT the rest of the line.
+   *
+   * The gate below used to read `[^\n]+` after the colon, which is the whole
+   * remainder of the line. That is right for a type declaration, which ends at
+   * a newline, and wrong for a cell written on one line -- where the very next
+   * field is `openDecision: null` and the `null` belongs to IT. Twelve honest
+   * cells in `fl-a1/matrix.ts` were flagged that way, every one of them
+   * `outcome: 'allowed', note: 'Allowed', openDecision: null },`.
+   *
+   * That is the old failure shape in this suite's own words: the gate arguing
+   * for the defect it exists to prevent. Silencing it by splitting those cells
+   * across lines would move the same twelve past a gate that still cannot read
+   * a one-line cell, and eight modules are still to be written.
+   *
+   * So the scan stops at the field's own boundary: the first `,` `;` `}` or
+   * newline at bracket depth zero. Generic and call parameters are held by the
+   * depth count, so `Readonly<Record<K, V>>` is one expression rather than two.
+   * `=>` is not a closing angle bracket and is skipped explicitly.
+   */
+  const fieldExpression = (src: string, from: number): string => {
+    let depth = 0
+    for (let i = from; i < src.length; i++) {
+      const c = src[i]!
+      if (c === '=' && src[i + 1] === '>') { i++; continue }
+      if (c === '<' || c === '(' || c === '[' || c === '{') depth++
+      else if (c === '>' || c === ')' || c === ']' || c === '}') {
+        if (depth === 0 && c === '}') return src.slice(from, i)
+        depth--
+      } else if (depth === 0 && (c === ',' || c === ';' || c === '\n')) return src.slice(from, i)
+    }
+    return src.slice(from)
+  }
+
   it('admits no matrix-cell type whose outcome could be empty', () => {
     // The literal check above catches a blank cell that was written. This
     // catches the TYPE that would let someone write one -- an optional field
@@ -101,13 +135,37 @@ describe('contract gates', () => {
     // review because no blank cell exists yet.
     const offenders: string[] = []
     for (const f of MATRIX_FILES) {
-      for (const m of STRIPPED.get(f)!.matchAll(/\boutcome(\??):\s*([^\n]+)/g)) {
+      const src = STRIPPED.get(f)!
+      for (const m of src.matchAll(/\boutcome(\??):[ \t]*/g)) {
         const optional = m[1] === '?'
-        const declared = m[2] ?? ''
-        if (optional || /\b(null|undefined)\b/.test(declared)) offenders.push(`${f}: ${m[0]?.trim()}`)
+        const declared = fieldExpression(src, m.index + m[0].length)
+        if (optional || /\b(null|undefined)\b/.test(declared))
+          offenders.push(`${f}: outcome${m[1]}: ${declared.trim()}`)
       }
     }
     expect(offenders).toEqual([])
+  })
+
+  it('still catches an optional outcome and a nullable one, on one line and across lines', () => {
+    // THE GATE ABOVE WAS NARROWED, SO THIS PROVES IT CAN STILL FAIL. Each of
+    // these is a defect the narrowed scan must still see: the optional field,
+    // the nullable union, and the nullable union sharing a line with a second
+    // field -- which is the exact shape the narrowing had to keep readable.
+    // The generic case is the one a naive "stop at the first comma" would
+    // break on, and it must NOT be reported.
+    const probe = (src: string): string[] => {
+      const out: string[] = []
+      for (const m of src.matchAll(/\boutcome(\??):[ \t]*/g)) {
+        const declared = fieldExpression(src, m.index + m[0].length)
+        if (m[1] === '?' || /\b(null|undefined)\b/.test(declared)) out.push(declared.trim())
+      }
+      return out
+    }
+    expect(probe('readonly outcome?: PermissionOutcome\n')).toEqual(['PermissionOutcome'])
+    expect(probe('readonly outcome: PermissionOutcome | null\n')).toEqual(['PermissionOutcome | null'])
+    expect(probe("{ outcome: X | undefined, note: 'n' }")).toEqual(['X | undefined'])
+    expect(probe("{ outcome: 'allowed', note: 'Allowed', openDecision: null },")).toEqual([])
+    expect(probe('readonly outcome: Readonly<Record<RoleId, Outcome>>\n')).toEqual([])
   })
 
   // "taking a button off the screen does not stop anyone" -- components hold

@@ -263,29 +263,39 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-**Slice 4, branch `slice-04-tenant-setup`.** All ten build tasks complete and reviewed.
-Task 11's six gates committed (`6631f4c`, release 138→189). Two fix waves running against
-defects those gates found: `rolesReaching` wrong on three modules, and module suites whose
-gates scan nothing plus a lint failure blocking `pnpm verify`.
+**Slice 7, branch `slice-05-studio-authoring`** — slices 5, 6 and 7 share that branch and
+it has not been merged to `main`. Slices 5 and 6 shipped and were verified
+(`docs/process/2026-08-21-slice-05-verification.md`,
+`docs/process/2026-08-22-slice-06-verification.md`). Slice 7's wave 0 — the six shared
+representations every Frontline module task consumes — landed at `32c9754`.
 
-**Next:** finish those fixes → task 12 verification → whole-branch review → merge to
-`main` → **slice 5 immediately, without stopping.**
+**Running now:** wave 1, tasks 7-10 — MOD-FL-A3, A4, A5 and A1. Live ledger and the
+path-list table are at `.superpowers/sdd/2026-08-21-slice-07/progress.md`; per-module
+briefs are in that directory's `briefs/`.
 
-**Coverage, measured from the generated registries — regenerate rather than quote this:**
+**Next:** wave 1 reviews and fix loop → wave 2, the eight remaining modules → wave 3, the
+`out/` categorical-absence sweep, the gates file, verification and whole-branch review →
+**slice 8 immediately, without stopping.**
+
+**Coverage, measured from the generated registries — regenerate rather than quote this.**
+Stale at the time of writing: last generated before slices 6 and 7 landed.
 
 ```
-183 / 4,914 items demonstrated
-modules 27/81 · workflows 72/724 · ai-storyboards 55/613 · functions 12/990
-business-objects 6/99 · actionable-controls 4/630 · business-use-cases 2/330
-notifications 2/205 · scheduled-work 2/67 · features 1/534
+230 / 4,948 items demonstrated
+modules 50/81 · workflows 80/724 · ai-storyboards 68/613 · functions 14/990
+business-objects 7/99 · actionable-controls 4/608 · business-use-cases 2/330
+notifications 2/261 · scheduled-work 2/67 · features 1/534
 sub-features 0/526 · offline-scenarios 0/70 · events 0/28 · commands 0/17
 ```
 
-Ten of the fourteen are computed from the built tree with a mutation proof each. Four are
-honestly zero: two namespaces disjoint from the source register, two belonging to unbuilt
-slices. **`actionable-controls` is a floor, not a figure** — the join is on label text the
-modules reword, and closing it needs a verbatim source-label field on the control-matrix
-row.
+**`functions`, `features` and `sub-features` are join floors, not absences — and thin
+underneath the join.** A row reads demonstrated only when a shipped route directory under
+`app/` names its identifier as a whole token. The tree names **123** distinct `FUNC-*` ids
+in `src/` against **24** in `app/`, and the scorer credits **14**. So the reported figure
+understates what is built, and what is built is still 123 of 990 after six slices. This is
+the shape §6.2 criterion 11 of the re-plan anticipates: the census closes as **reconciled
+with a stated delta**, never as 100 %. `actionable-controls` is a floor for the separate
+reason already recorded — its join is on label text the modules reword.
 
 ## 9. The closing obligation
 
