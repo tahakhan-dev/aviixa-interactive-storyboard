@@ -1,7 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import { WriteControl, type WriteControlProps } from '@/ui/WriteControl'
 import { allow, decide, deny, type PermissionDecision } from '@/policy/decision'
+import { approveDecision } from '@/surfaces/doh/modules/doh-05/access'
+import { SEEDED_JOBS } from '@/surfaces/doh/modules/doh-05/jobs'
 
 /**
  * The four branches of the ONE shared write control, proven directly rather
@@ -118,5 +120,83 @@ describe('WriteControl', () => {
     const onAct = renderControl({ gateReason: 'GATE REASON' })
     fireEvent.click(screen.getByRole('button'))
     expect(onAct).not.toHaveBeenCalled()
+  })
+})
+
+/* ==================================================================== *
+ * THE TWO SPELLINGS OF ONE BASE-ROLE REFUSAL.
+ *
+ * The decisions below are NOT hand-built. They come out of `evaluateAccess`
+ * over `MOD-DOH-05` row 4 (L27697), which is the row that produced the
+ * defect and the only row on this build where one matrix row emits both
+ * spellings at once:
+ *
+ *   Supervisor    — flat `Explicitly prohibited`, named in the command
+ *                   spec's `deniedRoles`      => EXPLICIT_DENY
+ *   Tenant Admin  — "`Explicitly prohibited` unless the Tenant Admin also
+ *                   holds an approver role and did not create it", in
+ *                   NEITHER list, so that the escape is asserted no more
+ *                   than the prohibition is  => ROLE_NOT_GRANTED
+ *
+ * The premise is asserted first, off the evaluator, so that this file proves
+ * the two spellings EXIST before it proves the component treats them alike.
+ * Keying ABSENT on `ROLE_NOT_GRANTED` drew a disabled Approve button for the
+ * categorical cell and nothing for the cell with the escape — each cell
+ * rendered as the other one.
+ * ==================================================================== */
+
+const REDBIKE = SEEDED_JOBS.find((j) => j.record.jobId === 'JOB-REDBIKE')!
+const WHEELTRUE = SEEDED_JOBS.find((j) => j.record.jobId === 'JOB-WHEELTRUE')!
+
+function renderDecision(decision: PermissionDecision) {
+  cleanup()
+  renderControl({ decision })
+  return {
+    note: screen.queryByRole('note'),
+    button: screen.queryByRole('button'),
+  }
+}
+
+describe('WriteControl — a base-role refusal, in either spelling', () => {
+  it('is two different reason codes on one row, at one stage, with one outcome', () => {
+    const categorical = approveDecision('SUPERVISOR', REDBIKE)
+    const withAnEscape = approveDecision('TENANT_ADMIN', REDBIKE)
+
+    expect(categorical.reasonCode).toBe('EXPLICIT_DENY')
+    expect(withAnEscape.reasonCode).toBe('ROLE_NOT_GRANTED')
+    for (const d of [categorical, withAnEscape]) {
+      expect(d.stage, d.reasonCode).toBe('BASE_ROLE')
+      expect(d.outcome, d.reasonCode).toBe('explicitlyProhibited')
+    }
+  })
+
+  // FAILS IF: the ABSENT branch goes back to keying on the reason code. The
+  // Supervisor's categorical cell would draw a disabled Approve button,
+  // inviting the belief that some condition could open it, when the row never
+  // lifts for that role at all.
+  it('draws nothing for the CATEGORICAL cell, spelled EXPLICIT_DENY', () => {
+    const { note, button } = renderDecision(approveDecision('SUPERVISOR', REDBIKE))
+    expect(note?.textContent).toBe('MODULE REFUSAL NOTE')
+    expect(button, 'a categorical base-role prohibition drew a control').toBeNull()
+  })
+
+  it('draws nothing for the cell WITH AN ESCAPE either, spelled ROLE_NOT_GRANTED', () => {
+    const { note, button } = renderDecision(approveDecision('TENANT_ADMIN', REDBIKE))
+    expect(note?.textContent).toBe('MODULE REFUSAL NOTE')
+    expect(button).toBeNull()
+  })
+
+  // THE BRANCH IS STILL NARROW, which is the half a stage test could lose. A
+  // refusal past BASE_ROLE is a statement about this record and this person
+  // now — the Quality Manager created JOB-WHEELTRUE, so she meets segregation
+  // of duties at stage 10 — and that is what a disabled control is for.
+  it('leaves a later-stage refusal on the disabled branch, with its reason', () => {
+    const sod = approveDecision('QUALITY_MANAGER', WHEELTRUE)
+    expect(sod.stage, 'the fixture stopped producing a post-BASE_ROLE refusal').not.toBe('BASE_ROLE')
+
+    const { note, button } = renderDecision(sod)
+    expect(note, 'a refusal about this Job rendered as ABSENT').toBeNull()
+    expect(button?.getAttribute('aria-disabled')).toBe('true')
+    expect(document.body.textContent).toContain(sod.explanation)
   })
 })

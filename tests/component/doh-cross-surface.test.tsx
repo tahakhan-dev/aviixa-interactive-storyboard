@@ -1,10 +1,17 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
-import { CrossSurfaceStatement } from '@/ui/doh/CrossSurfaceStatement'
+import {
+  CrossSurfaceStatement,
+  type OffRegisterCrossSurface,
+} from '@/ui/doh/CrossSurfaceStatement'
 import { SeamNotice } from '@/ui/doh/SeamNotice'
 import { DOH_BOUNDARY_REGISTER, crossSurfaceStatement } from '@/surfaces/doh/boundary'
 import { DOH_SEAMS } from '@/surfaces/doh/seams'
 import { SURFACES } from '@/domain/surfaces'
+import {
+  CONTROL_MATRIX as DOH_08_MATRIX,
+  type Doh08Row,
+} from '@/surfaces/doh/modules/doh-08/matrix'
 import type { TenantRoleId } from '../../app/hub/HubShell'
 
 const TENANT_ROLES: readonly TenantRoleId[] = [
@@ -106,6 +113,164 @@ describe('CrossSurfaceStatement — the eight adjacent capabilities', () => {
     for (const row of DOH_BOUNDARY_REGISTER) {
       const { node, unmount } = renderStatement(row.id, 'TENANT_ADMIN')
       expect(node.textContent, row.id).not.toMatch(/not built here|slice \d/i)
+      unmount()
+    }
+  })
+
+  it('marks a registered row as registered, so the two shapes stay tellable apart', () => {
+    for (const row of DOH_BOUNDARY_REGISTER) {
+      const { node, unmount } = renderStatement(row.id, 'TENANT_ADMIN')
+      expect(node.getAttribute('data-registered'), row.id).toBe('true')
+      unmount()
+    }
+  })
+})
+
+/* ==================================================================== *
+ * ADJACENT, AND NOT ON THE REGISTER.
+ *
+ * The register is eight rows. `MOD-DOH-08` classifies TWO of its own rows
+ * `another-surface` and neither is one of the eight, so neither could be
+ * handed to this component and the module hand-rolled a bordered note of its
+ * own. `MOD-DOH-07` row 4 is a third, for the same reason.
+ *
+ * The premise is measured off the module's matrix and the register, not
+ * declared here: if a later slice DID register the lot-hold release, the
+ * first test below goes red and this whole section is asking the wrong
+ * question.
+ * ==================================================================== */
+
+const LOT_HOLD: OffRegisterCrossSurface = {
+  boundary: null,
+  rowId: 'release-a-severity-1-lot-hold',
+  capability: 'Release a Severity 1 lot hold',
+  owningSurface: 'SURF-CC',
+  linkState: 'statement',
+  linkLabel: null,
+  linkHref: null,
+  note: 'Owned there, not here. Releasing a Severity 1 lot hold is Client Command Center action 4.',
+  offRegisterNote:
+    'This act is not one of the eight rows of the §19.1.2 boundary register (L25719-L25726), so there is no registered boundary behind this statement.',
+  sourceRef: 'L28307',
+}
+
+function renderOffRegister(over: Partial<OffRegisterCrossSurface> = {}) {
+  const { unmount } = render(<CrossSurfaceStatement statement={{ ...LOT_HOLD, ...over }} />)
+  return { node: screen.getByTestId('cross-surface-statement'), unmount }
+}
+
+describe('CrossSurfaceStatement — an adjacent capability the register does not list', () => {
+  it('is a real case: MOD-DOH-08 carries two adjacent rows and the register lists neither', () => {
+    const adjacent: readonly Doh08Row[] = DOH_08_MATRIX.filter(
+      (r) => r.surface === 'another-surface',
+    )
+    expect(adjacent.map((r) => r.id)).toEqual([
+      'reclassify-an-anomaly-severity',
+      'release-a-severity-1-lot-hold',
+    ])
+    const registered = new Set<string>(DOH_BOUNDARY_REGISTER.map((r) => r.id))
+    for (const row of adjacent) expect(registered.has(row.id), row.id).toBe(false)
+    // And the pointer field is empty on both, which is what left them
+    // unrenderable: `crossSurfaceStatement` takes a `DohBoundaryId`.
+    for (const row of adjacent) expect(row.boundary, row.id).toBeUndefined()
+  })
+
+  it('renders the capability, the owning surface and the row’s own line', () => {
+    const { node, unmount } = renderOffRegister()
+    expect(node.textContent).toContain('Release a Severity 1 lot hold')
+    expect(node.textContent).toContain('Client Command Center')
+    expect(node.textContent).toContain('L28307')
+    expect(node.getAttribute('data-boundary')).toBe('release-a-severity-1-lot-hold')
+    unmount()
+  })
+
+  // THE HONESTY REQUIREMENT. A statement with no register row behind it must
+  // SAY there is none. Without this the component would render a boundary
+  // claim indistinguishable from one §4.1.2 actually registers.
+  it('says outright that the register does not list it', () => {
+    const { node, unmount } = renderOffRegister()
+    expect(node.getAttribute('data-registered')).toBe('false')
+    expect(within(node).getByTestId('cross-surface-source').textContent).toContain(
+      'not one of the eight rows of the §19.1.2 boundary register',
+    )
+    unmount()
+  })
+
+  it('draws no editing affordance, for either link state', () => {
+    for (const linkState of ['statement', 'open-decision'] as const) {
+      const { node, unmount } = renderOffRegister({ linkState })
+      expect(node.querySelectorAll(AFFORDANCES), linkState).toHaveLength(0)
+      unmount()
+    }
+  })
+
+  it('never claims the capability is late', () => {
+    const { node, unmount } = renderOffRegister()
+    expect(node.textContent).not.toMatch(/not built here|slice \d/i)
+    unmount()
+  })
+
+  /* ---- DISCRIMINATION 1: the pointer is checked, never asserted. ---- */
+
+  it('draws no link where it was handed none, which is MOD-DOH-07’s reading', () => {
+    const { node, unmount } = renderOffRegister()
+    expect(within(node).queryAllByRole('link')).toHaveLength(0)
+    unmount()
+  })
+
+  it('draws one where it was handed a checked one, which is MOD-DOH-08’s', () => {
+    const { node, unmount } = renderOffRegister({
+      linkState: 'link',
+      linkLabel: 'Open in the Client Command Center',
+      linkHref: '/command-center',
+    })
+    const link = within(node).getByRole('link', { name: 'Open in the Client Command Center' })
+    expect(link.getAttribute('href')).toBe('/command-center')
+    unmount()
+  })
+
+  // Widening the MODEL must not widen the POINTER. A statement claiming
+  // `link` with a half-built pointer draws nothing rather than a dead one.
+  it('draws nothing for a link state carrying only half a pointer', () => {
+    for (const half of [
+      { linkState: 'link', linkLabel: 'Open in the Client Command Center', linkHref: null },
+      { linkState: 'link', linkLabel: null, linkHref: '/command-center' },
+    ] as const) {
+      const { node, unmount } = renderOffRegister(half)
+      expect(within(node).queryAllByRole('link'), JSON.stringify(half)).toHaveLength(0)
+      unmount()
+    }
+  })
+
+  /* ---- DISCRIMINATION 2: crossing a surface is not crossing a module. ---- */
+
+  // `MOD-DOH-06` row 1's record-finish window is set on SCR-DOH-23 in the
+  // tenant administration area — a different Hub SCREEN, slice 12's to build.
+  // A cross-surface statement over it would claim another surface owns
+  // something this one does. The type already refuses `SURF-DOH`; the cast
+  // is what an untyped caller would do, and it must still fail closed.
+  it('refuses a boundary whose owner is this very surface', () => {
+    expect(() =>
+      render(
+        <CrossSurfaceStatement
+          statement={
+            {
+              ...LOT_HOLD,
+              rowId: 'set-the-record-finish-window',
+              owningSurface: 'SURF-DOH',
+            } as unknown as OffRegisterCrossSurface
+          }
+        />,
+      ),
+    ).toThrow(/crossing a SURFACE, not a module/)
+  })
+
+  it('accepts every other surface, so the refusal is about SURF-DOH and not about strictness', () => {
+    for (const surface of SURFACES.filter((s) => s.id !== 'SURF-DOH')) {
+      const { node, unmount } = renderOffRegister({
+        owningSurface: surface.id as OffRegisterCrossSurface['owningSurface'],
+      })
+      expect(node.textContent, surface.id).toContain(surface.name)
       unmount()
     }
   })

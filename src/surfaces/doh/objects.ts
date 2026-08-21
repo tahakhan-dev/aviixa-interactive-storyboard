@@ -351,14 +351,91 @@ function spec(
 /**
  * MOD-DOH-08's identity card (L28294) names `FB-DOH-COMPUTE-006` primary,
  * `FB-DOH-EXPORT-009` for the export and `FB-DOH-NOTIF-004` for
- * notifications — and NO write pattern, although rows 6 and 10 (L28305,
- * L28309) are both writes. The gap is in the source, not closed by guessing
- * a fourth identifier for it: `FB-DOH-WRITE-002` is the register's own
- * pattern for "a master-data or configuration write fails", it is what every
- * other write-bearing Hub card names, and naming it is recorded here rather
- * than made to look like a card citation.
+ * notifications — and NO write pattern. The three sibling cards all name one
+ * (L27688, L27903, L28113 each say `FB-DOH-WRITE-002`), so this card is the
+ * only Hub card in the four that omits it.
+ *
+ * THE COUNT, RE-DERIVED. This comment used to say "rows 6 and 10 are both
+ * writes", which is not the card's write surface — it is the subset of it
+ * that this FILE gives a Hub command. Counted off the matrix at L28298
+ * (header), L28299 (separator), L28300-L28314 (fifteen data rows), **FIVE**
+ * rows are writes this surface carries: the five in `MOD_DOH_08_WRITE_ROWS`.
+ * The other ten are not, each for its own reason, and the reasons are what
+ * make the count checkable rather than asserted:
+ *
+ * - rows 1, 2 and 7 are reads — "View an Execution Summary", "Work the
+ *   review queue", "View the Anomaly Register";
+ * - row 12 is the export the card ALREADY names `FB-DOH-EXPORT-009` for;
+ * - rows 9 and 11 read `Explicitly prohibited` in all five columns, so no
+ *   role holds a write to fall back from;
+ * - rows 13 and 15 read `Not applicable — deferred beyond V1` in all five;
+ * - rows 5 and 8 are writes on ANOTHER SURFACE — anomaly-severity
+ *   reclassification and the Severity 1 lot-hold release, which is Client
+ *   Command Center action 4 and reads `Allowed` at L28307. `MOD-DOH-08`'s own
+ *   matrix classifies both `another-surface`, and a Hub write pattern over an
+ *   act the Hub does not perform would be a second false claim.
+ *
+ * Getting the count wrong understated the gap rather than overstating it, so
+ * the conclusion is unchanged and now rests on the whole card: the gap is in
+ * the source, not closed by guessing a fourth identifier for it.
+ * `FB-DOH-WRITE-002` is the register's own pattern for "a master-data or
+ * configuration write fails", it is what every other write-bearing Hub card
+ * names, and naming it is recorded here rather than made to look like a card
+ * citation.
  */
 const MOD_DOH_08_WRITE_PATTERN: FallbackPatternId = 'FB-DOH-WRITE-002'
+
+/**
+ * The five, with the row that carries each and one column that holds it.
+ * Exported because a count stated in a comment cannot go red:
+ * `tests/unit/doh-objects.test.ts` reads every line below out of the frozen
+ * source and re-counts the span, so this list cannot drift from §19.10
+ * without failing.
+ *
+ * `command` names the Hub command this file dispatches for the row, or
+ * `null`. Two of the five have one — which is exactly the pair the old
+ * comment mistook for the whole write surface. The other three are writes
+ * `MOD-DOH-08` renders and this slice gives no kernel command: rows 3 and 4
+ * belong to the module task, and row 14 is a tenant setting made on
+ * `SCR-DOH-23` in the tenant administration area, which is slice 12's.
+ */
+export const MOD_DOH_08_WRITE_ROWS = [
+  {
+    ordinal: 3,
+    sourceRef: 'L28302',
+    control: 'Mark a Summary reviewed',
+    heldBy: 'QUALITY_MANAGER',
+    command: null,
+  },
+  {
+    ordinal: 4,
+    sourceRef: 'L28303',
+    control: 'Flag an anomaly',
+    heldBy: 'QUALITY_MANAGER',
+    command: null,
+  },
+  {
+    ordinal: 6,
+    sourceRef: 'L28305',
+    control: 'Resolve an anomaly',
+    heldBy: 'QUALITY_MANAGER',
+    command: 'DOH_RESOLVE_ANOMALY',
+  },
+  {
+    ordinal: 10,
+    sourceRef: 'L28309',
+    control: 'Add a correction annotation',
+    heldBy: 'QUALITY_MANAGER',
+    command: 'DOH_ANNOTATE_SUMMARY',
+  },
+  {
+    ordinal: 14,
+    sourceRef: 'L28313',
+    control: 'Set the review toggle',
+    heldBy: 'TENANT_ADMIN',
+    command: null,
+  },
+] as const
 
 export const HUB_COMMAND_SPECS: Readonly<Record<HubCommand['type'], HubCommandSpec>> = {
   // ---- Job, MOD-DOH-05. Card L27688: WRITE-002 primary. ----

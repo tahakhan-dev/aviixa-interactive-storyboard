@@ -24,6 +24,7 @@ import {
 } from '@/surfaces/doh/job-owner'
 import {
   HUB_COMMAND_SPECS,
+  MOD_DOH_08_WRITE_ROWS,
   applyHubCommand,
   objectKey,
   readJob,
@@ -32,6 +33,10 @@ import {
   type ExecutionSummaryRecord,
   type JobRecord,
 } from '@/surfaces/doh/objects'
+import {
+  CONTROL_MATRIX as DOH_08_MATRIX,
+  type Doh08Row,
+} from '@/surfaces/doh/modules/doh-08/matrix'
 
 /**
  * THE FROZEN SOURCE, not `registries/raw/`.
@@ -213,6 +218,144 @@ describe('§19.2 Hub fallback-pattern registry', () => {
 
   it('refuses an identifier no module could have read from §19.2', () => {
     expect(() => fallbackPattern('FB-DOH-CORE-999' as never)).toThrow(/Unknown Hub fallback/)
+  })
+})
+
+/* ==================================================================== *
+ * 1b. HOW MANY WRITE ROWS MOD-DOH-08 ACTUALLY HAS.
+ *
+ * `MOD_DOH_08_WRITE_PATTERN` exists because MOD-DOH-08's identity card names
+ * no write pattern while its matrix carries writes. The comment beside it
+ * used to say "rows 6 and 10 are both writes", which is the subset of the
+ * write surface that THIS FILE gives a Hub command — not the write surface.
+ * There are five.
+ *
+ * DERIVED HERE, NOT READ BACK. Nothing below takes its expectation from
+ * `MOD_DOH_08_WRITE_ROWS`; the set is rebuilt from the frozen source by a
+ * stated rule and the constant is compared against it. The rule is:
+ *
+ *   a row is a WRITE this surface carries when
+ *     (1) at least one of its five cells is permissive — the cell contains
+ *         `Allowed`, which covers `Allowed` and `Allowed with conditions`
+ *         and excludes `Read-only`, `Unavailable`, `Explicitly prohibited`
+ *         and `Not applicable`; AND
+ *     (2) its action is not a READ or an EXPORT — "View …", "Work the …",
+ *         "Export …". MOD-DOH-08's own matrix says the same of the queue
+ *         row: "Working the queue is reading it; the acts are rows 3 to 6";
+ *         AND
+ *     (3) the module does not classify it `another-surface`. A Hub write
+ *         pattern over an act the Hub does not perform is a second false
+ *         claim, and two rows here are exactly that.
+ *
+ * The classification in (3) comes from MOD-DOH-08's matrix rather than from
+ * a list written here, because the classification is the thing this build
+ * already proves against the source elsewhere; re-typing it would make this
+ * test agree with a second copy instead of with §19.10.
+ * ==================================================================== */
+
+const DOH_08_MATRIX_HEADER = 28_298
+const DOH_08_MATRIX_FIRST_ROW = 28_300
+const DOH_08_MATRIX_LAST_ROW = 28_314
+
+describe('MOD-DOH-08’s write surface, counted off §19.10', () => {
+  /** Row ordinals count from L28300 as row 1. */
+  const sourceRows = Array.from(
+    { length: DOH_08_MATRIX_LAST_ROW - DOH_08_MATRIX_FIRST_ROW + 1 },
+    (_unused, i) => {
+      const line = DOH_08_MATRIX_FIRST_ROW + i
+      const cells = tableCells(sourceLine(line))
+      return { ordinal: i + 1, line, action: cells[0] ?? '', roleCells: cells.slice(1) }
+    },
+  )
+
+  const adjacentLines = new Set(
+    (DOH_08_MATRIX as readonly Doh08Row[])
+      .filter((r) => r.surface === 'another-surface')
+      .map((r) => Number(r.sourceRef.slice(1))),
+  )
+
+  const READ_OR_EXPORT = /^(View |Work the |Export )/
+
+  const derived = sourceRows.filter(
+    (r) =>
+      r.roleCells.some((c) => c.includes('Allowed')) &&
+      !READ_OR_EXPORT.test(r.action) &&
+      !adjacentLines.has(r.line),
+  )
+
+  it('spans a header, a separator and fifteen data rows, counted line by line', () => {
+    // The plan's spans start on the table HEADER, so n rows enclose n+2 lines.
+    expect(sourceLine(DOH_08_MATRIX_HEADER)).toContain('| Action | Tenant Admin |')
+    expect(sourceLine(DOH_08_MATRIX_HEADER + 1)).toMatch(/^\|-+\|/)
+    expect(sourceRows).toHaveLength(15)
+    expect(DOH_08_MATRIX_LAST_ROW - DOH_08_MATRIX_HEADER + 1).toBe(15 + 2)
+    for (const row of sourceRows) expect(row.roleCells, `L${row.line}`).toHaveLength(5)
+  })
+
+  it('finds FIVE write rows, where the file used to claim two', () => {
+    expect(derived).toHaveLength(5)
+    expect(derived.map((r) => r.ordinal)).toEqual([3, 4, 6, 10, 14])
+  })
+
+  it('records the same five, at the same lines, with the same control names', () => {
+    expect(
+      MOD_DOH_08_WRITE_ROWS.map((r) => ({
+        ordinal: r.ordinal,
+        line: Number(r.sourceRef.slice(1)),
+        control: r.control,
+      })),
+    ).toEqual(derived.map((r) => ({ ordinal: r.ordinal, line: r.line, control: r.action })))
+  })
+
+  it('names a role whose own cell on that row is permissive', () => {
+    // The recorded holder is checked against the SOURCE cell, in the column
+    // §19.10 puts it in, so a holder copied from the wrong row goes red.
+    const COLUMN: Readonly<Record<string, number>> = {
+      TENANT_ADMIN: 0,
+      SUPERVISOR: 1,
+      QUALITY_MANAGER: 2,
+      READONLY_AUDITOR: 3,
+      WORKER: 4,
+    }
+    for (const row of MOD_DOH_08_WRITE_ROWS) {
+      const cells = tableCells(sourceLine(Number(row.sourceRef.slice(1)))).slice(1)
+      const column = COLUMN[row.heldBy]
+      expect(column, `${row.control}: unknown column ${row.heldBy}`).toBeDefined()
+      expect(cells[column!], `${row.control} / ${row.heldBy}`).toContain('Allowed')
+    }
+  })
+
+  it('drops the two adjacent rows, which are writes on the Client Command Center', () => {
+    // Both carry a permissive cell and neither is this surface's, which is
+    // why permissiveness alone is not the rule.
+    expect([...adjacentLines].sort()).toEqual([28_304, 28_307])
+    for (const line of adjacentLines) {
+      const cells = tableCells(sourceLine(line)).slice(1)
+      expect(cells.some((c) => c.includes('Allowed')), `L${line}`).toBe(true)
+      expect(derived.some((r) => r.line === line), `L${line} counted as a Hub write`).toBe(false)
+    }
+  })
+
+  it('gives a Hub command to exactly two of the five, and they are the pair the old count named', () => {
+    const withCommands = MOD_DOH_08_WRITE_ROWS.filter((r) => r.command !== null)
+    expect(withCommands.map((r) => r.ordinal)).toEqual([6, 10])
+    for (const row of withCommands) {
+      const spec = HUB_COMMAND_SPECS[row.command as keyof typeof HUB_COMMAND_SPECS]
+      expect(spec, `${row.command} is not a Hub command`).toBeDefined()
+      expect(spec.fallbackPatternId, row.command!).toBe('FB-DOH-WRITE-002')
+    }
+  })
+
+  it('is the only one of the four cards that names no write pattern, which is the whole argument', () => {
+    // Read off the four identity cards rather than restated. If a later
+    // reading of L28294 finds a write pattern after all, the constant above
+    // stops being justified and this goes red.
+    const WRITE_PATTERN = 'FB-DOH-WRITE-002'
+    for (const card of [27_688, 27_903, 28_113]) {
+      expect(sourceLine(card), `L${card}`).toContain(WRITE_PATTERN)
+    }
+    expect(sourceLine(28_294)).not.toContain(WRITE_PATTERN)
+    expect(sourceLine(28_294)).toContain('FB-DOH-COMPUTE-006')
   })
 })
 

@@ -25,8 +25,7 @@ import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
  * in one place instead of once per module.
  *
  * ONE CLASSIFICATION INSIDE THAT QUESTION IS ALREADY DECIDED, and the ABSENT
- * branch now reflects it. `ROLE_NOT_GRANTED` is written by evaluators for TWO
- * situations that the slice-4 adjudication separates:
+ * branch reflects it. TWO situations the slice-4 adjudication separates:
  *
  * - a CATEGORICAL prohibition — nobody holds the capability, or this person
  *   never holds it in any circumstance. Nothing is drawn, because a disabled
@@ -36,19 +35,41 @@ import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
  *   control carrying the reason is what teaches the rule at the moment it
  *   binds (L34605: "the session is not silently degraded").
  *
- * Keying ABSENT on the reason code alone collapsed the second onto the first
- * and told a person whose grant was revoked that it had never existed. The
- * branch therefore keys on the OUTCOME as well — the token the source
- * actually writes — so only `explicitlyProhibited` renders absent, and a
- * revoked grant (`unavailable`, same reason code) falls through to the
- * disabled branch below with its own explanation and condition. `src/studio/
- * modules/stu-18/rendering.ts` reached this rule independently and is where
- * the collision was first named.
+ * THE TEST IS THE STAGE, NOT THE REASON CODE, and the difference is not a
+ * refinement — keying on the code rendered the two cases INVERTED.
+ * `evaluateAccess` refuses at `BASE_ROLE` in TWO spellings and both mean the
+ * same thing to a reader ("no role on this row grants you this"):
+ * `EXPLICIT_DENY` where the request names the role in `deniedRoles`, and
+ * `ROLE_NOT_GRANTED` where it names it in neither list. `MOD-DOH-05` meets
+ * both on ONE row — row 4, L27697: the Supervisor's flat `Explicitly
+ * prohibited` is in `deniedRoles` so it spells `EXPLICIT_DENY`, and the
+ * Tenant Admin's "`Explicitly prohibited` unless the Tenant Admin also holds
+ * an approver role and did not create it" is in NEITHER list, deliberately,
+ * so that a prohibition-carrying-a-permissive-escape asserts neither half
+ * (`src/surfaces/doh/objects.ts`, `DOH_APPROVE_JOB`). Keying ABSENT on
+ * `ROLE_NOT_GRANTED` therefore drew a DISABLED control for the categorical
+ * cell and NOTHING for the cell with the escape — the inversion of what each
+ * cell says. Found by `MOD-DOH-05`'s component suite, worked around
+ * in-module at `app/hub/job-lifecycle-and-approval/JobLifecycleScreen.tsx`
+ * (`isCategoricalRoleRefusal`), and stated once here.
  *
- * This narrows ONE branch. It does not choose a side in the general question
- * above: the categorical case still renders absent, exactly as the
+ * THE OUTCOME IS STILL HALF THE TEST, for the revoked grant. A grant that
+ * does not currently confer is `deny('unavailable', 'ROLE_NOT_GRANTED', …,
+ * { stage: 'BASE_ROLE' })` — `src/studio/access/evaluate.ts`'s
+ * `grantRefusal` — so it sits at the same STAGE as the categorical case and
+ * is separated only by its outcome. `explicitlyProhibited` renders absent;
+ * `unavailable` falls through to the disabled branch below with its own
+ * explanation and condition. `src/studio/modules/stu-18/rendering.ts` reached
+ * that half independently and is where the collision was first named.
+ *
+ * This widens ONE branch from one spelling of a two-spelling refusal to the
+ * refusal itself. It does not choose a side in the general question above:
+ * the categorical case still renders absent, exactly as the
  * `role-refused-write-control` fixture in `tests/coverage/slice-04-gates.
- * test.ts` pins it.
+ * test.ts` pins it. A later stage's refusal — segregation of duties, object
+ * state, suspension — is a statement about this record and this person right
+ * now, which is what a disabled control with its reason is for, and none of
+ * them reaches this branch.
  */
 export interface WriteControlProps {
   readonly label: string
@@ -84,7 +105,7 @@ export function WriteControl({
   neverQueuedNote,
   onAct,
 }: WriteControlProps) {
-  if (decision.reasonCode === 'ROLE_NOT_GRANTED' && decision.outcome === 'explicitlyProhibited') {
+  if (decision.stage === 'BASE_ROLE' && decision.outcome === 'explicitlyProhibited') {
     return <ProhibitionNotice rendering={{ kind: 'absent', note: refusalNote }} />
   }
   if (decision.outcome !== 'allowed') {

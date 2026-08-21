@@ -32,11 +32,12 @@
  *
  * ── AND THE SOURCE SAYS THERE IS EXACTLY ONE ───────────────────────────────
  * Twice, marked `SoW Fact` both times, the source states that auto-close is
- * the platform's only actorless transition — L27854 and L7078 — while
+ * the platform's only actorless transition — L27933 and L7078 — while
  * L27868, also `SoW Fact`, gives two more. That contradiction is real, it is
  * not this task's to settle, and it is disclosed at
  * `CONTRADICTION_AUTOMATIC_TRANSITION_COUNT` rather than resolved by picking
- * whichever count made the code tidier.
+ * whichever count made the code tidier. The COUNT is unchanged from wave 0's
+ * reading; one of its two locators was wrong and is corrected there.
  *
  * ── NO ACTOR ───────────────────────────────────────────────────────────────
  * Every other write in this build carries an actor and an audit line naming
@@ -528,7 +529,7 @@ export const BRIEFED_TIMER_ROWS = [
     locator: 'L27868',
     kind: 'automatic-transition',
     finding:
-      'A genuine actorless run-state change, scheduled to cancelled. Restated at L7072. It is also the row that contradicts L27854 and L7078.',
+      'A genuine actorless run-state change, scheduled to cancelled. Restated at L7072. It is also the row that contradicts L27933 and L7078.',
   },
   {
     row: 'run auto-close when the finish window elapses',
@@ -557,11 +558,28 @@ export const BRIEFED_TIMER_ROWS = [
  * The source contradicts itself about how many actorless transitions exist,
  * and both sides are marked `SoW Fact`. Preserved, not resolved.
  *
- * L27854 — "That automatic closing is the only thing on this platform that
- * happens without a person deciding it."
+ * ONE LOCATOR CORRECTED, THE CLAIM UNTOUCHED. Wave 0 cited the `SoW Fact`
+ * side as L27854 and L7078. L7078 is tagged and stands. **L27854 is not
+ * tagged at all** — it is §19.8's untagged "In simple words" paragraph,
+ * which states the claim in plain words and carries no classification. The
+ * `SoW Fact`-tagged restatement inside §19.8 is L27933, step 10 of the happy
+ * path. `MOD-DOH-06` measured this against the frozen source
+ * (`src/surfaces/doh/modules/doh-06/matrix.ts`,
+ * `CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED`) and this record now
+ * cites the same pair. Nothing about the CONTRADICTION changes: the source
+ * still asserts exactly one actorless transition, twice and tagged, and
+ * L27868 still gives two more.
+ *
+ * L27933 — "This is **the one automatic transition on the platform** — a
+ * data-integrity rule, not a status change." `[SoW Fact — §2.4, §4.6.8]`
  *
  * L7078 — "The finish window elapses and the run auto-close scheduler
  * finishes the record. This is the platform's one automatic transition".
+ * `[SoW Fact — §2.4, §8.7.1]`
+ *
+ * L27854 says the same thing in plain words and is kept out of
+ * `claimLocators` for the one reason that matters: a locator in that list is
+ * offered as a tagged source claim, and that line is not one.
  *
  * Against L27868, which gives an alert at +15 and a cancellation at +30 with
  * no actor anywhere in the sentence. The +30 auto-cancel is unambiguously a
@@ -577,7 +595,7 @@ export const BRIEFED_TIMER_ROWS = [
 export const CONTRADICTION_AUTOMATIC_TRANSITION_COUNT = {
   id: 'CONTRADICTION-AUTOCLOSE-ONLY',
   claim: "This is the platform's one automatic transition.",
-  claimLocators: ['L27854', 'L7078'],
+  claimLocators: ['L27933', 'L7078'],
   against:
     'L27868 gives a supervisor alert at plus 15 minutes and an auto-cancellation at plus 30 minutes, neither of which any person decides.',
   againstLocators: ['L27868', 'L7072'],

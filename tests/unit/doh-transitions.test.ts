@@ -184,24 +184,50 @@ describe('the timer count, read at the locators rather than taken from the brief
  * The dispatch called these "four automatic state changes". The source
  * says, twice and marked SoW Fact both times, that there is ONE. Neither
  * of those numbers survives reading L27868. Preserved, not resolved.
+ *
+ * ONE OF THE TWO LOCATORS WAS WRONG AND IS CORRECTED HERE. Wave 0 cited
+ * L27854 and L7078 as the tagged pair. L27854 states the claim but is
+ * §19.8's untagged "In simple words" paragraph and carries no
+ * classification; the tagged restatement inside §19.8 is L27933. The
+ * contradiction is untouched — only where to look for one half of it moved.
+ *
+ * THE TAG IS NOW READ, NOT ASSUMED, which is what would have caught this the
+ * first time: the old block asserted the WORDS at L27854 and never asked
+ * whether the line was tagged, so a locator pointing at plain prose passed a
+ * test named for a `SoW Fact` claim. Every locator in `claimLocators` is now
+ * required to carry the tag, at its own line, in the frozen source.
  * ==================================================================== */
 
+const SOW_FACT = '[SoW Fact'
+
 describe('the source contradicts itself on how many actorless transitions exist', () => {
-  it('states at L27854 that auto-close is the only one', () => {
-    expect(plain(L(27_854))).toContain(
-      'That automatic closing is the only thing on this platform that happens without a person deciding it.',
+  it('states it at L27933, inside §19.8, and marks it SoW Fact', () => {
+    expect(plain(L(27_933))).toContain(
+      'This is the one automatic transition on the platform — a data-integrity rule, not a status change.',
     )
+    expect(L(27_933)).toContain(SOW_FACT)
   })
 
   it('states it again at L7078, and marks it SoW Fact', () => {
     expect(plain(L(7078))).toContain("This is the platform's one automatic transition")
-    expect(L(7078)).toContain('SoW Fact')
+    expect(L(7078)).toContain(SOW_FACT)
+  })
+
+  // WHY L27854 IS NOT IN `claimLocators`, proved rather than asserted. It
+  // says the same thing and carries no classification, so offering it as a
+  // tagged source claim is the defect this test now forbids.
+  it('says the same thing at L27854 in plain words, with NO classification', () => {
+    expect(plain(L(27_854))).toContain(
+      'That automatic closing is the only thing on this platform that happens without a person deciding it.',
+    )
+    expect(L(27_854)).not.toContain('SoW Fact')
+    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.claimLocators).not.toContain('L27854')
   })
 
   it('gives two more at L27868, also marked SoW Fact', () => {
     expect(plain(L(27_868))).toContain('supervisor alert at plus 15 minutes')
     expect(plain(L(27_868))).toContain('auto-cancelled at plus 30 minutes')
-    expect(L(27_868)).toContain('SoW Fact')
+    expect(L(27_868)).toContain(SOW_FACT)
   })
 
   it('restates the same two at L7072, so it is not a one-line slip', () => {
@@ -211,8 +237,29 @@ describe('the source contradicts itself on how many actorless transitions exist'
 
   it('records the contradiction unresolved, with both sides locatable', () => {
     expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.resolved).toBe(false)
-    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.claimLocators).toEqual(['L27854', 'L7078'])
+    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.claimLocators).toEqual(['L27933', 'L7078'])
     expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.againstLocators).toEqual(['L27868', 'L7072'])
+  })
+
+  // THE GENERAL FORM, so the next locator to go wrong goes red too. Every
+  // line this record offers as a tagged claim must BE tagged, wherever the
+  // record moves next; the expectation is the frozen source, never the field.
+  it('carries the SoW Fact tag at every line it cites as a tagged claim', () => {
+    for (const locator of CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.claimLocators) {
+      const line = Number(locator.replace(/^L/, ''))
+      expect(Number.isInteger(line), locator).toBe(true)
+      expect(L(line), `${locator} is offered as a SoW Fact claim and is not tagged`).toContain(
+        SOW_FACT,
+      )
+    }
+  })
+
+  // The claim the record states must be findable at the lines it names.
+  it('quotes something each cited line actually says', () => {
+    for (const locator of CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.claimLocators) {
+      const line = Number(locator.replace(/^L/, ''))
+      expect(plain(L(line)).toLowerCase(), locator).toContain('one automatic transition')
+    }
   })
 })
 

@@ -32,6 +32,7 @@ import {
   type SeededJob,
 } from '@/surfaces/doh/modules/doh-05/jobs'
 import { actDecision, adoptVersionDecision } from '@/surfaces/doh/modules/doh-05/access'
+import { JobCloningPanel } from '@/surfaces/doh/modules/doh-15/JobCloningPanel'
 import { APPROVAL_QUEUE_ROUTE, JOB_LIFECYCLE_ROUTE, MODULE_HEADER } from '@/surfaces/doh/modules/doh-05/routes'
 
 /**
@@ -338,8 +339,8 @@ export function JobLifecycleScreen() {
         </h2>
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
           A sub-view of this route, not a route of its own. Catalogue B mounts Job cloning and
-          multi-Area pairing inside it; both are other tasks&rsquo; modules and neither is drawn
-          here.
+          multi-Area pairing inside it (L48105); Job cloning is drawn below by its own component,
+          which holds its own matrix and every rendering decision in it.
         </p>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -523,6 +524,9 @@ export function JobLifecycleScreen() {
             being silently dropped.
           </p>
         </div>
+
+        {/* MOD-DOH-15, mounted per catalogue B L48105. No route of its own. */}
+        <JobCloningPanel role={role} sourceJob={selected.record} />
       </section>
 
       <section aria-label="Control matrix" className="mt-8">

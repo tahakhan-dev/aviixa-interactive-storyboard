@@ -312,6 +312,8 @@ if (orphanProbes.length > 0) {
 
 function walkRouteTree() {
   const ownedModuleIds = new Set()
+  /** Ties, judged after slug claims are known. See the walk below. */
+  const ambiguousRoutes = []
   const citedTokens = new Set()
   const declaredControlLabels = new Set()
   /** Route directory basename -> every directory carrying it. See the slug rule below. */
@@ -352,11 +354,21 @@ function walkRouteTree() {
         // from a flip. A tie would resolve by Map insertion order, silently
         // attributing a route to whichever module happened to be seen first.
         if (ranked.length > 1 && ranked[0][1] === ranked[1][1]) {
-          throw new Error(
-            `Ambiguous module ownership for route ${dir}: ${ranked[0][0]} and ${ranked[1][0]} are both mentioned ${ranked[0][1]} times. A route must name its own module more often than any it cross-references.`,
-          )
+          // RECORDED, NOT THROWN HERE. A tie is only ambiguous while nobody
+          // has CLAIMED the route, and slug claims are parsed below, after
+          // this walk. Throwing here judged the route before the evidence
+          // that settles it had been read.
+          //
+          // It matters because mounting a component from one module inside
+          // another module's screen is a legitimate and necessary pattern --
+          // the source puts a whole module inside another's screen with no
+          // route of its own -- and doing it moves the mention count by one.
+          // Two Hub routes reached a tie that way in a single wave, and a
+          // third sat one mention from it.
+          ambiguousRoutes.push({ dir, name, a: ranked[0], b: ranked[1] })
+        } else {
+          ownedModuleIds.add(ranked[0][0])
         }
-        ownedModuleIds.add(ranked[0][0])
       }
     }
     // A LIVE probe belongs to a suite running right now; the orphan guard above
@@ -368,7 +380,7 @@ function walkRouteTree() {
     }
   }
   walkDirs(join(ROOT, 'app'))
-  return { ownedModuleIds, citedTokens, declaredControlLabels, declaresControlMatrix, routeDirsByName }
+  return { ownedModuleIds, ambiguousRoutes, citedTokens, declaredControlLabels, declaresControlMatrix, routeDirsByName }
 }
 
 const ROUTE_EVIDENCE = walkRouteTree()
@@ -474,6 +486,32 @@ for (const [id, { slug, file }] of MODULE_SLUGS) {
   }
   SLUG_DEMONSTRATED.set(id, dirs[0])
   DEMONSTRATED_MODULE_IDS.add(id)
+}
+
+/* ====================================================================
+ * THE TIES, JUDGED NOW THAT THE CLAIMS ARE KNOWN.
+ *
+ * The walk records a tie rather than throwing on it, because a tie only
+ * means "ambiguous" while nobody has claimed the route. A module that
+ * DECLARES a slug owns that route outright; the mention count was only ever
+ * a way to guess an owner where no one had said.
+ *
+ * This is not a loosening. A tie on an UNCLAIMED route still refuses, with
+ * the same message it always had. What changed is that mounting a component
+ * from one module inside another module's screen -- which the source
+ * requires, since it places a whole module inside another's screen with no
+ * route of its own -- no longer breaks the build by moving a mention count
+ * by one.
+ * ==================================================================== */
+const SLUG_CLAIMED_DIRS = new Set(SLUG_DEMONSTRATED.values())
+for (const { dir, name, a, b } of ROUTE_EVIDENCE.ambiguousRoutes) {
+  const claimed = SLUG_CLAIMED_DIRS.has(relative(ROOT, dir))
+  if (claimed) continue
+  throw new Error(
+    `Ambiguous module ownership for route ${dir}: ${a[0]} and ${b[0]} are both mentioned ` +
+      `${a[1]} times, and no module declares slug "${name}". A route must either name its own ` +
+      `module more often than any it cross-references, or be claimed by a slug declaration.`,
+  )
 }
 console.log(
   `Route evidence: ${DEMONSTRATED_MODULE_IDS.size} modules demonstrated -- ` +
