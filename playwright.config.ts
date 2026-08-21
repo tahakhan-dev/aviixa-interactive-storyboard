@@ -26,6 +26,34 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  /**
+   * SERVED FROM A SNAPSHOT, NOT FROM `out/`, AND THAT IS A CONCURRENCY FIX.
+   *
+   * `pnpm build` begins `rm -rf out`, which was added to stop stale artefacts
+   * surviving a rebuild — a real defect, and the right fix for it. It created
+   * a second one: this suite served from the very directory the build
+   * deletes, so a build starting while a suite was running pulled the tree
+   * out from under the server. It happened twice, and once it produced 106
+   * wholly false failures — the most expensive shape a red run can take,
+   * because every one of them names the wrong cause and none of them is a
+   * defect in the thing under test.
+   *
+   * `serve:out` now copies `out/` to `.serve-snapshot/` and serves THAT, so
+   * what a suite reads is fixed at the moment the suite started. Measured
+   * before choosing it: 24MB, 485 files, 0.11s to copy — against a rebuild
+   * of the whole export, that is free.
+   *
+   * WHY HERE AND NOT IN THE BUILD. Making the build atomic instead — build
+   * aside, then swap — means fighting the exporter over its output path, and
+   * it would still leave every other reader of `out/` racing a delete. One
+   * copy at the reader is smaller than an atomic writer, and it puts the
+   * guarantee where the guarantee is needed: this suite reads one tree, and
+   * nothing outside this process can change it mid-run.
+   *
+   * The snapshot is re-copied on every start, so it can never serve a stale
+   * export; `reuseExistingServer` keeps a second suite on the first suite's
+   * snapshot, which is the same sharing the fixed port already implies.
+   */
   webServer: {
     command: 'pnpm serve:out',
     url: 'http://localhost:4173',

@@ -1,6 +1,7 @@
 node_modules/
 .next/
 out/
+.serve-snapshot/
 playwright-report/
 test-results/
 artifacts/evidence/*/raw/
