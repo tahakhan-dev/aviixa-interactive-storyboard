@@ -77,6 +77,7 @@ import {
 
 const HUB_ROOT = join('app', 'hub')
 const OUT_HUB = join('out', 'hub')
+const APP_HUB = join(process.cwd(), 'app', 'hub')
 
 /**
  * This process's own scratch-probe directory name, and the exclusion that
@@ -352,6 +353,23 @@ function heldByNobody(): { slug: string; label: string; rowId: string }[] {
  * nothing, and a source-reading gate called it present.
  * -------------------------------------------------------------------- */
 
+/**
+ * How many Hub routes there SHOULD be, counted from the AUTHORED tree.
+ *
+ * Deliberately a different source from `builtHubPages()`, which reads `out/`.
+ * An expectation taken from the subject proves only that the subject equals
+ * itself, and this build has shipped that mistake four times -- most sharply as
+ * a pointer and its corroborating literal moved together, which every check
+ * reading either one agreed with.
+ *
+ * `app/hub/<slug>/page.tsx` is the claim; `out/hub/<slug>/index.html` is the
+ * artefact; the gate is that they agree. A route authored and never exported
+ * fails here, and so does an exported route nobody authored.
+ */
+function authoredHubRouteCount(): number {
+  return entriesOf(APP_HUB).filter((e) => existsSync(join(APP_HUB, e, 'page.tsx'))).length
+}
+
 function builtHubPages(): { slug: string; doc: Document }[] {
   return entriesOf(OUT_HUB)
     .filter((e) => statSync(join(OUT_HUB, e)).isDirectory())
@@ -554,7 +572,10 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
 
   it('every non-actionable element on every built route carries a resolving reason', () => {
     const pages = builtHubPages()
-    expect(pages.length, 'no built Hub pages').toBe(9)
+    // DERIVED, not a constant. This read `toBe(9)` and went red the moment
+    // slice 6 added Hub routes -- a floor edited by hand whenever the thing it
+    // counts grows is a floor that gets edited to whatever makes it pass.
+    expect(pages.length, 'built Hub routes must match the authored ones').toBe(authoredHubRouteCount())
     const inert = pages.reduce(
       (n, { doc }) => n + doc.querySelectorAll('[aria-disabled="true"],[disabled]').length,
       0,
@@ -1597,9 +1618,9 @@ describe('slice 4 gate 5: every screen pointer resolves to content that exists',
     return out
   }
 
-  it('reads nine built Hub pages carrying real pointers', () => {
+  it('reads every built Hub page and finds real pointers on them', () => {
     const pages = builtHubPages()
-    expect(pages).toHaveLength(9)
+    expect(pages).toHaveLength(authoredHubRouteCount())
     // Vacuity guards, one per class.
     const hrefs = pages.reduce((n, { doc }) => n + doc.querySelectorAll('a[href^="/"]').length, 0)
     expect(hrefs, 'no internal links to resolve').toBeGreaterThan(20)
@@ -1608,7 +1629,18 @@ describe('slice 4 gate 5: every screen pointer resolves to content that exists',
     const pointing = pages.filter(({ doc }) =>
       NAMED_PANELS.some((p) => p.pointer.test(doc.body.textContent ?? '')),
     )
-    expect(pointing.length, 'no page points at a named panel').toBe(9)
+    // This read `toBe(9)` -- one page per slice-4 Hub route -- which made it a
+    // headcount of the routes that existed the day it was written rather than a
+    // claim about pointers. Slice 6 added five routes and it went red without a
+    // single pointer having changed.
+    //
+    // The claim worth keeping: no named panel is unreachable. A panel this build
+    // declares and no page points at is a panel nobody can get to.
+    for (const panel of NAMED_PANELS) {
+      const reached = pages.filter(({ doc }) => panel.pointer.test(doc.body.textContent ?? ''))
+      expect(reached.length, `no page points at ${String(panel.label)}`).toBeGreaterThan(0)
+    }
+    expect(pointing.length, 'no page points at any named panel').toBeGreaterThan(0)
   })
 
   it('every internal link resolves to an exported page', () => {
