@@ -58,8 +58,15 @@ const ILLUSTRATIVE = new RegExp(`^(?:${PREFIXES.illustrative.prefixes.join('|')}
 const chunks = readdirSync(OUT).filter((f) => /^\.graphify_chunk_\d+\.json$/.test(f)).sort()
 if (chunks.length === 0) throw new Error('No chunks to check.')
 
+const canonicalPath = new Map(
+  JSON.parse(readFileSync(resolve(ROOT, '..', 'blueprint-slices', 'slices.json'), 'utf8')).slices.map(
+    (sl) => [sl.file.split('/').pop(), sl.file],
+  ),
+)
+
 const failures = []
 const rows = []
+let nonCanonical = 0
 for (const f of chunks) {
   const d = JSON.parse(readFileSync(join(OUT, f), 'utf8'))
   const nodes = d.nodes ?? []
@@ -76,7 +83,22 @@ for (const f of chunks) {
   const present = new Set()
   let missingFiles = 0
   for (const p of files) {
-    const abs = resolve(ROOT, '..', 'blueprint-slices', basename(dirname(p)), basename(p))
+    /*
+     * Resolve by BASENAME through the manifest, not by the directory the chunk
+     * names. Ninety-four paths across the chunks name the wrong chapter
+     * directory -- `ch-8/...7-6-the-domain-matrices.md` for a file in `ch-7/`.
+     * The merge canonicalises those, but it writes the merged graph, not the
+     * chunk files this reads, so resolving the chunk's own string would fail a
+     * chunk whose only fault is already repaired downstream.
+     *
+     * The mismatch is still counted and printed. A wrong path is worth knowing
+     * about even when something else fixes it -- silence here is how the next
+     * one goes unnoticed.
+     */
+    const canonical = canonicalPath.get(basename(p))
+    if (canonical === undefined) { missingFiles += 1; continue }
+    if (!p.endsWith(canonical)) nonCanonical += 1
+    const abs = resolve(ROOT, '..', 'blueprint-slices', basename(dirname(canonical)), basename(canonical))
     if (!existsSync(abs)) { missingFiles += 1; continue }
     for (const m of readFileSync(abs, 'utf8').matchAll(IDENT)) {
       if (!ILLUSTRATIVE.test(m[0])) present.add(m[0])
@@ -110,7 +132,9 @@ for (const f of chunks) {
         `across ${files.length} slice(s) -- returned clean but did not extract`,
     )
   }
-  if (missingFiles > 0) failures.push(`${f}: ${missingFiles} named slice file(s) do not exist`)
+  if (missingFiles > 0) {
+    failures.push(`${f}: ${missingFiles} named slice file(s) the manifest does not recognise`)
+  }
 }
 
 /*
@@ -138,3 +162,9 @@ if (failures.length > 0) {
   )
 }
 console.log(`\nAll ${rows.length} chunk(s) at or above the ${Math.round(FLOOR * 100)}% floor.`)
+if (nonCanonical > 0) {
+  console.log(
+    `  note: ${nonCanonical} source_file path(s) name the wrong chapter directory; ` +
+      `the merge canonicalises these against the manifest.`,
+  )
+}
