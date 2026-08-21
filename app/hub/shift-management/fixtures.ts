@@ -113,9 +113,10 @@ export interface Shift {
   readonly digestTime: string
   readonly state: ShiftState
   /**
-   * Runs scheduled against this Shift, BY REFERENCE ONLY (L27280). Slice 4
-   * exposes the reference and implements no run state, no run record and no
-   * run screen — MOD-DOH-06 owns those, in slice 6. A non-empty list refuses
+   * Runs scheduled against this Shift, BY REFERENCE ONLY (L27280). This
+   * module exposes the reference and implements no run state, no run record
+   * and no run screen — MOD-DOH-06 owns those and slice 6 built them, at
+   * `/hub/run-scheduling-and-execution-oversight`. A non-empty list refuses
    * archival and raises NOTIF-DOH-03-3.
    */
   readonly scheduledRunIds: readonly string[]
@@ -389,9 +390,11 @@ export function overlapConflict(
 
 /* ------------------------------------------------------------------ *
  * AC-WF-ORG-002-04 (L52600): "An Area with no bound Shift cannot
- * receive a Job." The Job refusal belongs to slice 6; the QUERYABLE
- * state belongs here, and the location module already publishes the
- * matching `unbound` flag on the same Areas.
+ * receive a Job." The QUERYABLE state belongs here, and the location
+ * module already publishes the matching `unbound` flag on the same
+ * Areas. The refusal itself is MOD-DOH-05's, at Job creation — and
+ * slice 6 built MOD-DOH-05 without it. An outstanding gap, not a
+ * scheduled one: the slice that owned it has landed.
  * ------------------------------------------------------------------ */
 
 export function areasWithNoBoundShift(shifts: readonly Shift[]): readonly LocationArea[] {
@@ -736,7 +739,7 @@ export const SHIFT_ANCHORS = [
   {
     id: 'production-date',
     what: 'The production date of a run that crosses midnight',
-    why: 'A run that starts before midnight and finishes after it takes its production date from the Shift’s nominal date, not from the wall clock at either end and not from a server’s day. This module supplies the nominal date; run scheduling applies it, in a later slice.',
+    why: 'A run that starts before midnight and finishes after it takes its production date from the Shift’s nominal date, not from the wall clock at either end and not from a server’s day. This module supplies the nominal date; MOD-DOH-06 applies it on the run schedule board, built in slice 6.',
     sourceRef: 'AC-30B-502 L72184, FUNC-DOH-03-2.3.1 L27353',
   },
   {
@@ -845,7 +848,7 @@ export const ABSENT_BY_RULE = [
   },
   {
     label: 'Run state, a run list, or a run screen',
-    note: 'A run is listed as affected BY REFERENCE only. This module exposes the reference a run denormalises and implements no run state whatever; the scheduled-run references shown against a Shift are ids and nothing more. Run scheduling and its screens belong to a later slice.',
+    note: 'A run is listed as affected BY REFERENCE only. This module exposes the reference a run denormalises and implements no run state whatever; the scheduled-run references shown against a Shift are ids and nothing more. Run state and the run screens are MOD-DOH-06’s, at /hub/run-scheduling-and-execution-oversight, and slice 6 builds them — this module still draws none of it.',
   },
   {
     label: 'A control that changes a signed-in person’s role or session role context',

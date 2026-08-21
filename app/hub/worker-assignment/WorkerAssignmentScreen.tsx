@@ -57,16 +57,20 @@ import {
  * route per module. The catalogue's own cell is rendered beside the reach,
  * not overwritten by it.
  *
- * WHY THE SHELL IS IN ITS `screen` MODE RATHER THAN ITS `module` MODE. The
- * `module` mode takes a `DohModuleDefinition`, and `MOD-DOH-07` has no row
- * in `DOH_MODULES` yet — that single-line registration lives in
- * `src/surfaces/doh/modules.ts`, which four concurrent wave-1 module tasks
- * share and none of them may hold. So this route names the module and the
- * screen in the annotation slot, and the module rail does not yet offer it.
- * Stated rather than hidden, and it is an integration step, not a ruling:
- * the moment that row lands, this route joins the rail, `dohScreenReach`
- * starts answering for `SCR-DOH-15`, and the generator finds this module's
- * matrix at `app/hub/worker-assignment/fixtures.ts` with no edit here.
+ * WHY THE SHELL IS IN ITS `screen` MODE RATHER THAN ITS `module` MODE. NOT
+ * a registration gap any more: `MOD-DOH-07` has its row in `DOH_MODULES`,
+ * `dohScreenReach` answers for `SCR-DOH-15`, and every other Hub module
+ * route's rail now links here. "The module rail does not yet offer it",
+ * which stood here, is false, and so is the promise that the generator would
+ * read this module's matrix from `app/hub/worker-assignment/fixtures.ts` —
+ * it reads `src/surfaces/doh/modules/doh-07/matrix.ts` directly.
+ *
+ * What is still true is narrower and is the whole reason: the annotation slot
+ * below carries the catalogue's own entry point and the promotion that
+ * overrode it, and the shell's `module` header has nowhere to put either.
+ * The cost, disclosed rather than hidden: the shell draws its rail only in
+ * `module` mode, so THIS route draws none. That is `HubShell`'s shape and
+ * not this module's to change.
  *
  * WHAT THIS SCREEN DRAWS NO CONTROL FOR, WHATEVER ITS TOKEN READS. Row 4
  * reads `Allowed with conditions` for two of the five roles and is Client

@@ -798,7 +798,7 @@ export const CONTROL_MATRIX = [
     rendering:
       'Live for the Tenant Admin as a choice from the seeded list, never as free text. ABSENT for the other four.',
     effect:
-      'A gate input: what is set here is enforced at assignment and at run start, in another slice. It is protected as configuration for that reason.',
+      'A gate input: what is set here is enforced at assignment, on the Worker Assignment screen this slice builds. The run-start enforcement point is registered to the same slice and no control for it is drawn anywhere in this build. It is protected as configuration for that reason.',
     sourceRef: 'L27125, L27215',
   },
   {

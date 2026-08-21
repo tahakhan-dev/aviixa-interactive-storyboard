@@ -4,25 +4,20 @@ import { reviewAgingBand, type AgingBand } from '@/surfaces/doh/transitions'
 import type { AnomalyRecord, ExecutionSummaryRecord } from '@/surfaces/doh/objects'
 
 /**
- * MOD-DOH-08's seed, and the route's contract with the reach generator.
+ * MOD-DOH-08's seed.
  *
- * ── WHY `CONTROL_MATRIX` IS RE-EXPORTED FROM HERE ─────────────────────────
- * `scripts/build-doh-module-reach.mjs` finds each module's matrix at
- * `app/hub/<slug>/fixtures.ts` off that module's own `slug` and refuses to
- * write a reach map it cannot find one for. The matrix itself is source-
- * derived surface data and lives in `@/surfaces/doh/modules/doh-08/matrix`;
- * this line is the generator's entry point to it, so the day `MOD-DOH-08`
- * lands in `DOH_MODULES` the generator works with no further edit.
- *
- * IT DOES NOT WORK TODAY, AND THAT IS NOT THIS FILE'S DOING. `MOD-DOH-08` is
- * still in `DOH_OUT_OF_SLICE_MODULES`, so the generator never asks for this
- * module and `registries/generated/doh/module-reach.json` carries no entry for
- * it. Moving it is an edit to `src/surfaces/doh/modules.ts`, which this task
- * may not make. Reported, not worked around: nothing here hand-writes a rail
- * or a reach set to paper over it.
+ * THIS FILE NO LONGER RE-EXPORTS `CONTROL_MATRIX`, AND THE REASON IT DID IS
+ * GONE. The re-export existed as the reach generator's entry point, because
+ * `scripts/build-doh-module-reach.mjs` resolved every matrix at
+ * `app/hub/<slug>/fixtures.ts`. Registering the seven slice-6 modules made
+ * that impossible — five of them have no such file — so the generator now
+ * prefers `src/surfaces/doh/modules/doh-NN/matrix.ts` where one exists, and
+ * `registries/generated/doh/module-reach.json` records that it read
+ * `src/surfaces/doh/modules/doh-08/matrix.ts` for this module. Nothing
+ * imported the re-export but the sentence justifying it, so both are gone
+ * rather than left standing as a false account of how the map is built. The
+ * matrix has one home and one import path: `@/surfaces/doh/modules/doh-08/matrix`.
  */
-export { CONTROL_MATRIX } from '@/surfaces/doh/modules/doh-08/matrix'
-
 export const SCREEN_TITLE = 'Execution Summary review'
 
 /**
@@ -53,7 +48,8 @@ export const SCREEN_TITLE = 'Execution Summary review'
  *    module where observing it and naming the screen disagree.
  *
  * Disclosed rather than assumed: the break is real, this is where it is
- * recorded, and the slug the eventual `DOH_MODULES` row must carry is this one.
+ * recorded, and `MOD-DOH-08`'s `DOH_MODULES` row carries this slug — the row
+ * exists now, and `@/surfaces/doh/modules` points back here for the reasons.
  */
 export const ROUTE_SLUG = 'execution-summary-review'
 export const ROUTE_PATH = `/hub/${ROUTE_SLUG}`

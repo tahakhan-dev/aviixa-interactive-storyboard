@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test'
-import AxeBuilder from '@axe-core/playwright'
 import { scannableRoutes } from '../e2e/exported-routes'
-import { ALLOWED_INCOMPLETE_ANYWHERE, WCAG_TAGS } from './axe-policy'
+import { PINNED_BEST_PRACTICE, pinnedFor, runAxe, scanHere } from './axe-policy'
 
 // C1: this list used to be WRITTEN BY HAND, and its own comment claimed it
 // was "every route in the 25-page export (24 distinct paths)". It was last
@@ -22,9 +21,17 @@ test('the scanned route list is derived from the export, and is not a stub', () 
   // directory that happens to be empty scans nothing and passes, which is
   // the hand list's defect wearing a walk. `tests/e2e/routes.spec.ts` holds
   // the planted-probe proof that the derivation actually grows; this pins
-  // the floor at the scale the export has had since slice 3. 54 paths today.
-  expect(PATHS.length).toBeGreaterThan(50)
-  expect(PATHS.filter((p) => p.startsWith('/hub/')).length).toBeGreaterThan(9)
+  // the floor at the scale the export has had since slice 3.
+  //
+  // 79 paths today: 78 exported `index.html` directories plus the
+  // unexported `/no-such-place/` the host answers from `404.html`. Split
+  // 18 Studio / 18 Hub / 20 Super Admin / 23 elsewhere. The comment used to
+  // say 54, which was three slices stale — the number is restated here
+  // because the driven sweep in `axe-states.spec.ts` now claims all three
+  // module surfaces and a floor nobody can date is a floor nobody trusts.
+  expect(PATHS.length).toBeGreaterThan(70)
+  expect(PATHS.filter((p) => p.startsWith('/studio/')).length).toBeGreaterThan(15)
+  expect(PATHS.filter((p) => p.startsWith('/hub/')).length).toBeGreaterThan(15)
   expect(PATHS.filter((p) => p.startsWith('/super-admin/')).length).toBeGreaterThan(19)
 })
 
@@ -34,7 +41,7 @@ test('the scanned route list is derived from the export, and is not a stub', () 
  * and `incomplete` is the bucket for checks axe RAN and could not decide.
  * A rule that lands there is not a rule that passed, and a suite that only
  * reads `violations` reports "no violation" while axe is saying "I could
- * not tell". Running the derived 54-route list for the first time put a
+ * not tell". Running the derived route list for the first time put a
  * real finding in exactly that bucket, on a screen nothing had ever
  * scanned, and the assertion above would never have shown it.
  *
@@ -51,6 +58,15 @@ test('the scanned route list is derived from the export, and is not a stub', () 
  * driven-state harness would have started allowing a rule this file still
  * failed on, or the reverse, and the first anyone would know is a route
  * passing in one harness and not the other.
+ *
+ * THE SECOND COPY OF THE TAG FILTER USED TO LIVE HERE. This file built its
+ * own `AxeBuilder`, called `.withTags([...WCAG_TAGS])` itself, and repeated
+ * the incomplete-bucket filter inline — the exact duplication the paragraph
+ * above complains about, in the file that complains about it. Both are gone:
+ * the scan is `scanHere` from `./axe-policy`, so the rule set, the WCAG
+ * assertion, the best-practice pin and the undecided check are decided in
+ * ONE place for the route scan and the driven scan alike. Widening the rule
+ * set was a one-line change in one file because of it.
  *
  * Everything else must be gone from the incomplete bucket or the route
  * goes red — including, as of this build, `aria-prohibited-attr` on
@@ -70,20 +86,14 @@ test('the scanned route list is derived from the export, and is not a stub', () 
  * up unexplained, this one included.
  */
 for (const path of PATHS) {
-  test(`${path} has no WCAG 2.2 A or AA violation`, async ({ page }) => {
+  test(`${path} has no WCAG 2.2 A or AA violation, and only its pinned best-practice ones`, async ({
+    page,
+  }) => {
     await page.goto(path)
-    const results = await new AxeBuilder({ page }).withTags([...WCAG_TAGS]).analyze()
-    expect(results.violations).toEqual([])
-
-    // The undecided bucket. Unconditional: no route gets a pass here
-    // unless the rule is in `ALLOWED_INCOMPLETE_ANYWHERE` above. This is
-    // what would go red if `aria-prohibited-attr`, or anything else axe
-    // cannot decide, showed up on any route — this one included.
-    const undecided = results.incomplete.map((r) => r.id)
-    expect(
-      undecided.filter((id) => !ALLOWED_INCOMPLETE_ANYWHERE.includes(id)).sort(),
-      `${path}: axe could not decide a rule nothing has recorded a reason for`,
-    ).toEqual([])
+    // All three buckets, in `./axe-policy`: WCAG violations empty,
+    // best-practice violations EQUAL to this route's pin, and nothing
+    // undecided that has no recorded reason.
+    await scanHere(page, path, path)
   })
 
   test(`${path} exposes exactly one level-1 heading`, async ({ page }) => {
@@ -95,6 +105,40 @@ for (const path of PATHS) {
     await page.goto(path)
     await page.keyboard.press('Tab')
     await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused()
+  })
+}
+
+/**
+ * THE ASSERTION THAT RETIRES A PIN.
+ *
+ * `PINNED_BEST_PRACTICE` records best-practice violations this build has and
+ * has not yet fixed. `scanHere` checks that nothing appears BEYOND the pin;
+ * this checks the other direction, which is the one that rots if nobody
+ * writes it: that every pinned rule is STILL THERE.
+ *
+ * Compared for EQUALITY at the route's default state. The day the `h3` at
+ * `app/studio/training-library/TrainingLibraryScreen.tsx:219` becomes an
+ * `h2`, this test goes red — "expected heading-order, received nothing" —
+ * and the only way to make it green is to delete the row. An exception list
+ * that cannot survive the fix it excuses is an exception list that cannot
+ * lie about the state of the build.
+ *
+ * A `toContain` here would do the opposite: it would stay green forever
+ * after the fix, and the pin would sit in the file telling every future
+ * reader that a screen is broken when it is not.
+ */
+for (const path of Object.keys(PINNED_BEST_PRACTICE)) {
+  test(`${path}: its pinned best-practice findings are still present, or the pin must go`, async ({
+    page,
+  }) => {
+    await page.goto(path)
+    const { bestPracticeIds } = await runAxe(page)
+    expect(
+      bestPracticeIds,
+      `${path}: the best-practice findings here are not the ones pinned for it. If a pinned rule ` +
+        'is gone, the defect was FIXED — delete its row from `PINNED_BEST_PRACTICE` rather than ' +
+        'keeping an exception that outlived what it excused.',
+    ).toEqual(pinnedFor(path))
   })
 }
 

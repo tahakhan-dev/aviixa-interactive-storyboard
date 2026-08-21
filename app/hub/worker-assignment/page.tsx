@@ -1,16 +1,11 @@
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { dohModuleById } from '@/surfaces/doh/modules'
 import { WorkerAssignmentScreen } from './WorkerAssignmentScreen'
 
-/**
- * The title names the module rather than reading it from `dohModuleById`,
- * because `MOD-DOH-07` has no `DOH_MODULES` row yet — that one-line
- * registration lives in a file four concurrent wave-1 module tasks share.
- * The name is the canonical one (`registries/generated/modules.json`,
- * §4.1.3), and it becomes a lookup the moment the row lands.
- */
+// The row landed, so this is the lookup the hardcoded name promised to become.
 export const metadata: Metadata = {
-  title: `Worker Assignment — ${surfaceById('SURF-DOH').name}`,
+  title: `${dohModuleById('MOD-DOH-07').name} — ${surfaceById('SURF-DOH').name}`,
 }
 
 // Re-exported so tests/component/doh-assignment.test.tsx can import the

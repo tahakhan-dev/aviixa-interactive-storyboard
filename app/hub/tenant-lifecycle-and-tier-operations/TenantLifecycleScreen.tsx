@@ -514,8 +514,10 @@ export function TenantLifecycleScreen() {
           </div>
           <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
             MOD-DOH-01 ships the meter as a state machine over the seeded figure above. Its live
-            inputs are assignment events another slice owns, named in the seam rather than stubbed
-            silently inside this file.
+            inputs are the assignment and substitution events MOD-DOH-07 emits, and MOD-DOH-07 is
+            built in this slice &mdash; so the seam above reads closed. The figure this screen
+            shows is still the seeded one: nothing here reads those events yet, and that is named
+            rather than stubbed silently inside this file.
           </p>
         </section>
 

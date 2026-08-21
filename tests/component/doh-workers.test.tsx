@@ -98,10 +98,16 @@ describe('MOD-DOH-04 — the shell contract and the screen identity', () => {
     expect(container.textContent ?? '').not.toMatch(/SCR-DOH-\d{3}/)
   })
 
-  it('names the qualification gate as a cross-slice seam owned by a later slice, not an inline stub', () => {
+  // RE-PINNED. This asserted "not built here" over `qualification-gate`,
+  // whose `ownerSlice` is 6 — so the moment slice 6 shipped MOD-DOH-07 the
+  // pin was holding the screen to a false absence. The negative assertion is
+  // the one that matters: a closed seam may never wear the outstanding
+  // wording.
+  it('names the qualification gate as a cross-slice seam its owning slice has closed', () => {
     render(<WorkerLifecycleScreen />)
     const handoff = text('Clearance handoff')
-    expect(handoff).toMatch(/Cross-slice seam — not built here/i)
+    expect(handoff).toMatch(/Cross-slice seam — closed at slice 6/i)
+    expect(handoff).not.toMatch(/not built here/i)
     expect(handoff).toMatch(/slice 6/i)
     expect(handoff).toMatch(/two of the three\s+enforcement points|two of the three enforcement points/i)
   })

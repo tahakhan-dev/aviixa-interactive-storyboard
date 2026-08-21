@@ -4,11 +4,20 @@ import type { GatePosture } from '../worker-lifecycle-and-qualifications/fixture
  * `MOD-DOH-07` Worker Assignment — the seeded scenario `SCR-DOH-15` renders.
  *
  * THE MATRIX IS NOT HERE. It lives in
- * `src/surfaces/doh/modules/doh-07/matrix.ts` and is re-exported below under
- * the name `scripts/build-doh-module-reach.mjs` looks for
- * (`CONTROL_MATRIX`, at `app/hub/<slug>/fixtures.ts`). So the day a task
- * adds this module's row to `DOH_MODULES` the generator finds its matrix
- * with no edit here and no second copy of it anywhere.
+ * `src/surfaces/doh/modules/doh-07/matrix.ts` and is re-exported below.
+ *
+ * THE RE-EXPORT IS NO LONGER THE GENERATOR'S ENTRY POINT, and saying it was
+ * is now false. `scripts/build-doh-module-reach.mjs` used to resolve every
+ * matrix at `app/hub/<slug>/fixtures.ts`; registering the seven slice-6
+ * modules made that impossible — five of them have no such file — so it now
+ * prefers `src/surfaces/doh/modules/doh-NN/matrix.ts` where one exists.
+ * `registries/generated/doh/module-reach.json` records the file it actually
+ * read, and for `MOD-DOH-07` that is the `src/` matrix, not this line.
+ *
+ * THE RE-EXPORT STAYS BECAUSE THE SCREEN READS IT. `WorkerAssignmentScreen`
+ * imports `CONTROL_MATRIX` from here alongside the seed, so there is still
+ * one import site for one module's data and still no second copy of the
+ * matrix anywhere.
  *
  * The seed is `SB-DOH-019` (L28216) and the Illustrative Example at L28218,
  * used verbatim in their particulars: Sam assigns Maya to

@@ -2,9 +2,12 @@ import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
 import { PartsRegistryScreen, SCREEN_TITLE } from './PartsRegistryScreen'
 
-// The module id is NOT in this title, deliberately. `MOD-DOH-19` owns this
-// route, but it is not yet in `DOH_MODULES` and printing an id the module
-// registry does not serve would mint ownership the tree cannot check.
+// The module id is NOT in this title, deliberately, and the reason is no
+// longer a registration gap — `MOD-DOH-19` is in `DOH_MODULES` now. No Hub
+// page title carries a module id: an id is an annotation and never a name
+// (D1), and `HubShell` is the one place that prints it. The title carries
+// catalogue B's own screen name for `SCR-DOH-06` (L48100), which is what a
+// browser tab is naming.
 export const metadata: Metadata = {
   title: `${SCREEN_TITLE} — ${surfaceById('SURF-DOH').name}`,
 }

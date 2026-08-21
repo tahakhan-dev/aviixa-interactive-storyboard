@@ -37,12 +37,24 @@ import {
  * part of it would be a second place the answer could be spelled differently.
  *
  * ── WHY THE SHELL IS GIVEN `screen` AND NOT `module` ──────────────────────
- * `HubShell`'s `module` prop takes a `DohModuleDefinition`, and `MOD-DOH-08`
- * is not in `DOH_MODULES` — it is still in `DOH_OUT_OF_SLICE_MODULES`, and
- * moving it is an edit to a file this task may not make. So the shell gets the
- * uncatalogued-screen shape with the real identifiers in its annotation, the
- * rail does not offer this route, and the gap is reported rather than papered
- * over with a hand-written rail entry.
+ * NOT because of a registration gap any more. `MOD-DOH-08` is in
+ * `DOH_MODULES`, so "the rail does not offer this route", which stood here,
+ * is false: the rail links here for the two personas this module's own
+ * matrix admits. Row 2 (L28301) withholds the review queue from the Tenant
+ * Admin, the Supervisor and the Worker, so the derived reach is the Quality
+ * Manager and the Read-only Auditor, and their rails carry it. That is the
+ * rail's own filter working, not a gap.
+ *
+ * What is still true is narrower: the shell's `module` header would print the
+ * module's own name, "Execution Summary Review and Distribution", over a
+ * route that is `SCR-DOH-16` with `SCR-DOH-17` as its sub-view and exposes no
+ * distribution at all — the same disagreement `./fixtures` records against
+ * `ROUTE_SLUG`. The annotation below names both catalogue ids and the module;
+ * the `module` header can name only one screen id per module row.
+ *
+ * The cost, disclosed rather than hidden: the shell draws its rail only in
+ * `module` mode, so THIS route draws none. That is `HubShell`'s shape and not
+ * this module's to change.
  */
 
 /** The card's own three review states, L28290, spelled for a reader. */

@@ -472,11 +472,17 @@ describe('MOD-DOH-01 — absent by rule, seams and the honest panels', () => {
     }
   })
 
+  // RE-PINNED. This asserted "not built here" over `worker-shift-meter`,
+  // whose `ownerSlice` is 6 — so the moment slice 6 shipped MOD-DOH-07 the
+  // pin was holding the screen to a false absence. The negative assertion is
+  // the one that matters: a closed seam may never wear the outstanding
+  // wording.
   it('names the Worker-Shift meter seam rather than stubbing it inline', () => {
     render(<TenantLifecycleScreen />)
-    const seam = screen.getByText(/Cross-slice seam — not built here/)
+    const seam = screen.getByText(/Cross-slice seam — closed at slice 6/)
     expect(seam).toBeDefined()
-    expect((seam.parentElement?.textContent ?? '')).toMatch(/slice 6/)
+    expect(seam.parentElement?.textContent ?? '').toMatch(/slice 6/)
+    expect(seam.parentElement?.textContent ?? '').not.toMatch(/not built here/i)
   })
 
   it('renders the unspecified-in-source panel, item for item', () => {

@@ -1703,7 +1703,7 @@ export const SOURCE_CONFLICTS = [
     conflict:
       'One reading cites L14531 for an evaluation order with safety controls first, against the definition order at L14514. The citation is off by one — L14531 is the request-arrival step — but the ordering it describes is real, and sits on the very next line.',
     resolution:
-      'Both structures are the source’s, and both are shown. The definition list at L14514 to L14522 enumerates the nine with role permission FIRST and safety controls NINTH, and that is the Order column. The numbered workflow at L14529 evaluates safety FIRST, at L14532, and that is the Evaluated column. An earlier ruling here recorded that no safety-first ordering existed anywhere in the source. That was wrong, and while it stood this module — the only one of the eight that ships a safety-control refusal — reported that refusal as an explicit role denial.',
+      'Both structures are the source’s, and both are shown. The definition list at L14514 to L14522 enumerates the nine with role permission FIRST and safety controls NINTH, and that is the Order column. The numbered workflow at L14529 evaluates safety FIRST, at L14532, and that is the Evaluated column. An earlier ruling here recorded that no safety-first ordering existed anywhere in the source. That was wrong, and while it stood this module — the only one of slice 4’s eight that ships a safety-control refusal — reported that refusal as an explicit role denial.',
   },
   {
     topic: 'How many rows are prohibited for all five roles',

@@ -1320,8 +1320,10 @@ export function LocationConfigurationScreen() {
                 D22 — the certification types above are a seeded list. No screen in this product
                 creates, edits or retires one, and the source never says who would. That is raised
                 as a client blocker rather than answered by inventing an administration screen.
-                What is set here is a gate input, enforced at assignment and at run start in a
-                later slice, which is why it is a choice from a list and never free text.
+                What is set here is a gate input. It is enforced at assignment on the Worker
+                Assignment screen, built in this slice; the run-start point is registered to the
+                same slice and no control for it is drawn anywhere in this build. That is why this
+                is a choice from a list and never free text.
               </p>
             </div>
           </div>

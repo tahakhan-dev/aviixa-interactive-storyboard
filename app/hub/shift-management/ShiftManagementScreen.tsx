@@ -1133,8 +1133,10 @@ export function ShiftManagementScreen() {
         <h2 className="text-lg font-semibold">Areas with no bound Shift</h2>
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
           The queryable state this module owes the rest of the platform: an Area with no bound Shift
-          can receive no Job. The refusal itself belongs to a later slice; the state belongs here,
-          and it is recomputed from the register above every time a binding changes.
+          can receive no Job. The state belongs here, and it is recomputed from the register above
+          every time a binding changes. The refusal itself is MOD-DOH-05&rsquo;s, at Job creation
+          &mdash; and this build ships MOD-DOH-05 without it, so the refusal is an outstanding gap
+          rather than something still scheduled.
         </p>
         {unboundAreas.length === 0 ? (
           <p className="mt-3 text-sm text-[var(--color-ink-muted)]">

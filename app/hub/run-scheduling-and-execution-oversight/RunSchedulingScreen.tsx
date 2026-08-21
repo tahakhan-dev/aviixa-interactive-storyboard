@@ -229,6 +229,11 @@ export function RunSchedulingScreen() {
      impossible — a record nobody can open cannot be corrected at all. */
   const behindHorizon = inScope.filter((r) => !withinHorizon(r))
   const selected = inScope.find((r) => r.facts.runId === selectedRunId) ?? null
+  /* The runs DEC-STUCK-001 bites on for THIS persona, off the module's own
+     predicate — an instant (`manuallyClosedAtMs`), never a state name. Read
+     by the page-level disclosure below, which renders whether this is empty
+     or not. */
+  const closedByHand = inScope.filter(stateIsGovernedByDecStuck)
 
   const annotation = (
     <div className="space-y-2">
@@ -241,7 +246,7 @@ export function RunSchedulingScreen() {
       <p data-testid="registry-gap" className="text-xs text-[var(--color-ink-subtle)]">
         {MODULE_REGISTRY_GAP.what} {MODULE_REGISTRY_GAP.consequence} {MODULE_REGISTRY_GAP.whyNotFixedHere}{' '}
         Reach below is derived from this module&rsquo;s own matrix through the same function the
-        generator would have used, so it is the same answer by the same rule:{' '}
+        generator uses, so it is the same answer by the same rule:{' '}
         {MODULE_REGISTRY_GAP.reachThisModuleWouldGet.map((r) => roleById(r).name).join(', ')}.
       </p>
     </div>
@@ -507,6 +512,73 @@ export function RunSchedulingScreen() {
 
         <div className="mt-4">
           <RunDecisionDisclosure decision={DEC_RUNSTATE_001} />
+        </div>
+      </section>
+
+      {/* ---------------- closing a stuck run by hand, and DEC-STUCK-001 mounted ----------------
+       *
+       * THE MOUNT. `DEC_STUCK_001` had a mount and no reader. It rendered only
+       * inside the run-detail panel, under `stateIsGovernedByDecStuck`, and the
+       * board opens with NO run selected — so the disclosure was authored,
+       * mounted, and invisible in `out/`. That is the false-comfort defect: the
+       * record says the decision was disclosed and no client ever saw it, which
+       * is worse than an undisclosed decision because the ledger reads clean.
+       *
+       * THE FIX IS THE MISSING SIBLING, NOT A WIDER CONDITION. Both other open
+       * decisions on this screen already carry a page-level mount beside the
+       * topic they dispute — `DEC-FINISH-001` under the record-finish window,
+       * `DEC-RUNSTATE-001` under the closing lifecycle, each ALSO rendered
+       * per-run where it bites. This decision had the per-run half and not the
+       * page half. Nothing here relaxes `stateIsGovernedByDecStuck`, which
+       * still decides what the DETAIL panel says about one run.
+       *
+       * IT SETTLES NOTHING, AND IT COULD HAVE. The section states only
+       * `manualCloseAssertion` — the finish-clock half both readings share and
+       * the whole of what AC-RUN-004 (L7128) permits this build to assert — and
+       * then hands both readings to the disclosure unadopted. There is no
+       * branch on a state name anywhere below: naming `submitted` or `complete`
+       * as this run's state would settle DEC-STUCK-001, and keying the section
+       * off one would settle DEC-RUNSTATE-001 as well. The bite site is counted
+       * off `manuallyClosedAtMs` through the module's own predicate, which is an
+       * INSTANT, exactly as the board branches.
+       *
+       * IT RENDERS UNCONDITIONALLY, and that is the point rather than an
+       * oversight. The decision is open whatever this tenant's runs happen to
+       * be; gating the disclosure on the fixture would put it back behind a
+       * condition that some future seed makes false. What the fixture decides
+       * is only the sentence naming where it bites today.
+       * ------------------------------------------------------------------- */}
+      <section aria-label="Closing a stuck run by hand" className="mt-10">
+        <h2 className="text-lg font-semibold">Closing a stuck run by hand</h2>
+        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          Row 9 of the matrix below, L27917: a Supervisor or a Quality Manager may close a run whose
+          device has stopped answering. The row&rsquo;s own condition cell states one reading of an
+          open decision almost word for word, so it is rendered as the source&rsquo;s cell and never
+          as this build&rsquo;s rule &mdash; and no <code>DOH_CLOSE_STUCK_RUN</code> command exists,
+          deliberately, because a command would have to name the state it writes.
+        </p>
+        <p data-testid="stuck-page-asserted" className="mt-2 max-w-prose text-sm text-[var(--color-ink)]">
+          {manualCloseAssertion.asserted}{' '}
+          <span className="text-xs text-[var(--color-ink-subtle)]">
+            [{manualCloseAssertion.sourceRef}]
+          </span>
+        </p>
+        <p
+          data-testid="stuck-page-not-asserted"
+          className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          Not asserted: {manualCloseAssertion.notAsserted}
+        </p>
+        <p data-testid="stuck-bites-on" className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+          {closedByHand.length === 0
+            ? 'No run in view was closed by hand, so nothing on this board turns on the answer today. The decision is disclosed anyway: it is open whatever this board happens to hold.'
+            : `Where it bites on this board: ${closedByHand
+                .map((r) => r.facts.runId)
+                .join(', ')} — open the run above for the close instant and the window end.`}
+        </p>
+
+        <div className="mt-4">
+          <RunDecisionDisclosure decision={DEC_STUCK_001} />
         </div>
       </section>
 

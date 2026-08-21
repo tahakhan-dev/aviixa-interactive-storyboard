@@ -31,13 +31,22 @@ import {
  * part of it would be a second place the answer could be spelled differently.
  *
  * ── WHY THE SHELL IS GIVEN `screen` AND NOT `module` ──────────────────────
- * `MOD-DOH-19` is not in `DOH_MODULES` — it is still in
- * `DOH_OUT_OF_SLICE_MODULES`, and a later pass registers all seven slice-6
- * modules. So the shell gets the uncatalogued-screen shape with the real
- * identifiers in its annotation, the rail does not offer this route, and the
- * gap is reported rather than papered over with a hand-written rail entry.
- * Reach is still DERIVED — `doh19RolesReaching()` runs the shared rule over
- * this module's own matrix and is printed below.
+ * NOT because of a registration gap any more. `MOD-DOH-19` is in
+ * `DOH_MODULES`, `registries/generated/doh/module-reach.json` carries its
+ * derived reach, and every OTHER Hub module route's rail now links here — so
+ * "the rail does not offer this route", which stood here, is false.
+ *
+ * What is still true is narrower and is the whole reason: the shell's
+ * `module` header prints `{id} · {SCR-DOH-NN}` and the module's purpose, and
+ * this route's annotation carries more than that — the module id, the
+ * catalogue B screen id and the route path together. Passing `module` would
+ * drop the disclosure to gain a breadcrumb. The cost is disclosed rather than
+ * hidden: because the shell draws its rail only in `module` mode, THIS route
+ * draws none, so a reader arrives here and cannot navigate onward from the
+ * rail. That is `HubShell`'s shape and not this module's to change.
+ *
+ * Reach is DERIVED either way — `doh19RolesReaching()` runs the shared rule
+ * over this module's own matrix and is printed below.
  */
 
 export const SCREEN_TITLE = 'Parts registry'

@@ -19,16 +19,34 @@ import { exportedRoutes } from './exported-routes'
  * are derived too. A new select, a new option or a new toggle is driven the
  * moment `pnpm build` emits it, with no edit here and none in the spec.
  *
- * WHY THE `id` AND NOT THE LABEL TEXT IS THE HANDLE. Both are returned, but
- * the `id` is what a driver locates by. Every control on this surface is a
+ * THE `id` IS NOT A SAFE HANDLE ON A LIVE PAGE, AND THIS COMMENT USED TO SAY
+ * IT WAS. Both fields are returned. The claim here was that the `id` is what
+ * a driver should locate by: every control on this surface is a
  * `src/ui/primitives` `Select` or `Checkbox`, both of which mint their `id`
- * with React's `useId` — an id that is IDENTICAL in the server-rendered
- * markup and after hydration, which is the whole contract of `useId`. So an
- * id parsed out of `index.html` addresses the same element the live page
- * exposes, and it needs no HTML-entity decoding, no disambiguation between
- * two controls that happen to share a label, and no `exact:` guesswork. The
- * label is carried for the failure message, because `#_R_2qmav5ubtb_` names
- * nothing a human can act on.
+ * with React's `useId`, and `useId` is IDENTICAL in the server-rendered
+ * markup and after hydration. That much is true, and it is not enough.
+ *
+ * `useId` is stable across HYDRATION. It is NOT stable across an UNMOUNT AND
+ * REMOUNT: React mints a fresh value, in a different format. Measured on
+ * `/hub/integration-surface/`, driving the viewer role off its default and
+ * back — a region that unmounts for a role that cannot read it:
+ *
+ *   before  Screen state = _R_a5uav5ubtb_      (server-rendered)
+ *   away    Screen state = _r_1_               (remounted on the client)
+ *   back    Screen state = _r_5_               (remounted again)
+ *
+ * A driver holding the exported id addresses NOTHING from that point on, and
+ * because a Playwright action given no explicit timeout inherits the test's,
+ * it reports the wall clock rather than the cause. This cost two Hub routes a
+ * five-minute `Test timeout exceeded` before it was tracked down.
+ *
+ * SO THE LABEL IS THE HANDLE, and `tests/accessibility/axe-states.spec.ts`
+ * locates by it. That is not a retreat to hand-written prose: the label is
+ * parsed from the SAME export as the id, in the same pass, so a relabelled
+ * control moves the export and the locator together in one build. Measured
+ * across all 78 exported routes there is not one duplicated control label and
+ * not one empty one. The `id` is still returned — it is what proves two
+ * parsed controls are distinct, and it still names the element in a report.
  *
  * WHAT THIS DOES NOT DO. It reports what a control OFFERS. It says nothing
  * about whether driving it changes anything — that is the driver's

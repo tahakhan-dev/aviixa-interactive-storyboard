@@ -118,6 +118,21 @@ const AUDITED = {
     runsBeforeBuild: false,
     verdict: 'NOT VACUOUS. Expectations come from src/, never from out/.',
   },
+  'slice-06-gates.test.ts': {
+    subject:
+      'out/hub/** against expectations read from src/surfaces/doh/**, the frozen blueprint, ' +
+      'and the real build-registries generator',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS. `build` writes the subject and runs first, which is the arrangement this ' +
+      'audit exists to catch -- but what makes it safe is the test, not the order. Every ' +
+      'expectation is derived from src/, from the blueprint, or from the generator; none is ' +
+      'read back out of out/. The build turns src/ into out/ and the gate asserts properties ' +
+      'of that transformation, so the build cannot satisfy the gate by rewriting what the gate ' +
+      'compares against. Contrast registry-freshness, which compared committed artefacts to ' +
+      'freshly generated ones and could only ever compare a directory to itself.',
+  },
   'slice-2b-gates.test.ts': {
     subject: 'authored sources under src/ and app/',
     rewrittenBy: null,

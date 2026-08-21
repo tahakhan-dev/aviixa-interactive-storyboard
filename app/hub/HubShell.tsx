@@ -111,14 +111,18 @@ function screenAnnotation(moduleId: DohModuleId): string {
  * The shell every Hub route renders under. Two modes, selected by whether
  * `module` is supplied — the same shape `SaConsoleShell` uses on `SURF-SA`:
  *
- * - No `module`: the module index. The eight slice-4 modules link by slug;
- *   the other eleven render as NOT IN THIS SLICE, each naming the slice that
- *   owns it, so name-matching cannot quietly pull one back in.
+ * - No `module`: the module index. Every row of `DOH_MODULES` links by slug;
+ *   every row of `DOH_OUT_OF_SLICE_MODULES` renders as NOT IN THIS SLICE,
+ *   each naming the slice that owns it, so name-matching cannot quietly pull
+ *   one back in. Both lists are READ and never counted in prose: this
+ *   sentence used to say "the eight slice-4 modules" and "the other eleven",
+ *   and slice 6 moved seven rows from the second register to the first in a
+ *   single edit, falsifying both numbers at once.
  * - `module` supplied: that module's own header (name, module id and its
  *   `SCR-DOH-NN` annotation, purpose, breadcrumb back to `/hub/`) wrapping
  *   `children`. Tasks 3-10 code against this.
  *
- * STATE OWNERSHIP, which the eight module screens inherit: `role` and
+ * STATE OWNERSHIP, which every module screen inherits: `role` and
  * `tenantState` are controlled props owned by the calling screen's own
  * `useState`, matching the nineteen slice-3 screens. The shell falls back to
  * local state for `role` only on the index, where there is no calling screen.
@@ -437,10 +441,10 @@ export function HubShell({
             <section className="mt-8">
               <h2 className="text-lg font-semibold">Not in this slice</h2>
               <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-                The other eleven of this surface&apos;s {SURFACE.canonicalModuleCount} canonical
-                modules. They are listed rather than dropped, so nothing here is mistaken for
-                missing work, and each names the slice that owns it. None is reachable from this
-                build.
+                The other {DOH_OUT_OF_SLICE_MODULES.length} of this surface&apos;s{' '}
+                {SURFACE.canonicalModuleCount} canonical modules. They are listed rather than
+                dropped, so nothing here is mistaken for missing work, and each names the slice that
+                owns it. None is reachable from this build.
               </p>
               <ul className="mt-3 space-y-3">
                 {DOH_OUT_OF_SLICE_MODULES.map((m) => (

@@ -86,11 +86,15 @@ describe('MOD-DOH-02 — the shell contract and the screen identity', () => {
     expect(container.textContent ?? '').not.toMatch(/SCR-DOH-\d{3}/)
   })
 
-  it('names the archival cascade as a cross-slice seam owned by another slice, not an inline stub', () => {
+  // RE-PINNED. This asserted "not built here" over `archival-cascade`, whose
+  // `ownerSlice` is 6 — so the moment slice 6 shipped MOD-DOH-05 the pin was
+  // holding the screen to a false absence. The negative assertion is the one
+  // that matters: a closed seam may never wear the outstanding wording.
+  it('names the archival cascade as a cross-slice seam its owning slice has closed', () => {
     render(<LocationConfigurationScreen />)
     const cascade = region('Archival cascade').textContent ?? ''
-    expect(cascade).toMatch(/Cross-slice seam — not built here/i)
-    expect(cascade).toMatch(/slice 6/i)
+    expect(cascade).toMatch(/Cross-slice seam — closed at slice 6/i)
+    expect(cascade).not.toMatch(/not built here/i)
   })
 })
 

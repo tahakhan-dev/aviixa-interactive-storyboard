@@ -78,10 +78,18 @@ describe('HubShell — the module index', () => {
     }
   })
 
-  it('renders the other eleven modules as not in this slice, naming the slice that owns each, and links none of them', () => {
+  // The title said "the other eleven" and the body asserted no count at all,
+  // so when slice 6 moved seven rows into `DOH_MODULES` the shell's own
+  // hardcoded "The other eleven" went false and nothing here noticed. The
+  // count assertion below is derived from the same register the section
+  // renders, so the sentence and the list can no longer disagree.
+  it('renders every out-of-slice module as not in this slice, naming the slice that owns each, counting them, and linking none of them', () => {
     render(<HubShell />)
     const section = screen.getByText(/not in this slice/i).closest('section')
     expect(section).not.toBeNull()
+    expect(section?.textContent).toContain(
+      `The other ${DOH_OUT_OF_SLICE_MODULES.length} of this surface's 19 canonical modules`,
+    )
     for (const m of DOH_OUT_OF_SLICE_MODULES) {
       expect(section?.textContent, m.id).toContain(m.id)
       expect(section?.textContent, m.id).toContain(m.name)
