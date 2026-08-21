@@ -242,10 +242,10 @@ describe('the Studio grant model (L34571, L34573)', () => {
     expect(grantStateNote('Expired')).toMatch(/expir/i)
   })
 
-  // Fails if GRANT-STU-AUTHOR's expiry is marked 'stated' — D24 puts Expired on
+  // Fails if GRANT-STU-AUTHOR's expiry is marked 'stated' — DEC-TENGRANT-001 puts Expired on
   // GRANT-STU-IMPL only (§5.11.4 revocation at onboarding's end) and leaves the
   // other two to DEC-TENGRANT-001.
-  it('applies Expired to GRANT-STU-IMPL only, per D24', () => {
+  it('applies Expired to GRANT-STU-IMPL only, per DEC-TENGRANT-001', () => {
     expect(studioGrantById('GRANT-STU-IMPL').expiryStatus).toBe('stated')
     expect(studioGrantById('GRANT-STU-AUTHOR').expiryStatus).toBe('clientDecisionRequired')
     expect(studioGrantById('GRANT-STU-AGENT').expiryStatus).toBe('clientDecisionRequired')
@@ -757,7 +757,7 @@ describe('the evaluator reads a matrix row, never a role list (C19)', () => {
     expect(r.decision.auditExpectation).toBe('RECORDED_AS_REFUSAL')
   })
 
-  // Fails if a Client Decision Required cell is resolved to a permission — D3
+  // Fails if a Client Decision Required cell is resolved to a permission — DEC-AUDSTU-001
   // and AC-STU-157: the Read-only Auditor's cells are never guessed.
   it('carries a Client Decision Required cell through unresolved, naming its decision', () => {
     const r = evaluateStudioAccess(

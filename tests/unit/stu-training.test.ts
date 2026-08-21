@@ -9,7 +9,7 @@ import { STUDIO_PERSONA_COLUMNS } from '@/studio/access/evaluate'
 import { reachByStudioMatrix, STU_MODULES, stuModuleById } from '@/studio/modules'
 import { stuSeamById, STU_SEAMS } from '@/studio/seams'
 import { STU_SCREENS, stuScreensForModule } from '@/studio/screens'
-import { studioDecision } from '@/studio/disclosure/decisions'
+import { decisionRecord } from '@/disclosure/decisions'
 import {
   APPROVAL_CONSUMER_CONTRACTS,
   APPROVAL_TRANSITIONS,
@@ -775,8 +775,8 @@ describe('the module, the screen and the object are the registry’s own', () =>
    */
   it('discloses DEC-AUDSTU-001 and the object scheme through the one component', () => {
     const html = renderToStaticMarkup(createElement(TrainingLibraryScreen))
-    for (const id of ['D3', 'D11'] as const) {
-      const record = studioDecision(id)
+    for (const id of ['DEC-AUDSTU-001', 'D11'] as const) {
+      const record = decisionRecord(id)
       expect(html).toContain(record.question)
       for (const reading of record.readings) expect(html).toContain(reading.text)
       expect(html).toContain(record.adopted)
@@ -785,9 +785,9 @@ describe('the module, the screen and the object are the registry’s own', () =>
     expect(html).toContain('APP-012')
     // AND NO SECOND WORDING: the screen must not hand-render either tension.
     const screen = readFileSync(join(ROUTE_DIR, 'TrainingLibraryScreen.tsx'), 'utf8')
-    expect(screen).toContain('<DecisionDisclosure id="D3" />')
+    expect(screen).toContain('<DecisionDisclosure id="DEC-AUDSTU-001" />')
     expect(screen).toContain('<DecisionDisclosure id="D11" />')
-    expect(studioDecision('D3').decisionRef).toBe('DEC-AUDSTU-001')
+    expect(decisionRecord('DEC-AUDSTU-001').decisionRef).toBe('DEC-AUDSTU-001')
   })
 
   it('carries OBJ-044 and OBJ-STU-TRAINING as one object under two identifiers (D11)', () => {

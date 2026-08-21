@@ -1,9 +1,10 @@
-import type { ScenarioCommand } from '@/domain/commands'
+import { isHubCommand, type ScenarioCommand } from '@/domain/commands'
 import type { ScenarioDomainState } from '@/domain/state'
 import type { CommittedTransition, TransitionContext } from '@/domain/transition'
 import type { PermissionDecision } from '@/policy/decision'
 import type { StorageBootstrapState } from '@/persistence/bootstrap'
 import { permittedUnder, type ActionClass } from '@/persistence/capability'
+import { hubActionClass } from '@/surfaces/doh/objects'
 
 // ─────────────────────────────────────────────────────────────────────────
 // THIS FILE IS THE ONLY MUTATION ENTRY POINT IN THE APPLICATION.
@@ -72,6 +73,15 @@ export type GatewayResult =
  * durably record this" (an actual capability problem).
  */
 function actionClassFor(command: ScenarioCommand): ActionClass | undefined {
+  // SLICE 6. The switch's `default: return undefined` fails CLOSED, which is
+  // right for a shape that bypassed the type system -- but every one of the
+  // twelve Hub commands is a well-formed member of `ScenarioCommand`, so
+  // falling into that default would have reported each of them as "not a
+  // recognised action" and refused every Hub write on this branch. Each Hub
+  // command's class is declared in `HUB_COMMAND_SPECS` alongside its access
+  // rule; all twelve are durable classes, so none proceeds outside
+  // `ready-durable`.
+  if (isHubCommand(command)) return hubActionClass(command)
   switch (command.type) {
     case 'CC_RELEASE_LOT_HOLD':
       return 'release'

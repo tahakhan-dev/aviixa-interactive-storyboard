@@ -13,7 +13,7 @@ import {
   decisionForRow,
   type Stu18Scenario,
 } from '@/studio/modules/stu-18/rendering'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { routeOpenDecisionFor } from '@/routes/definitions'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { Button, Select } from '@/ui/primitives'
@@ -143,8 +143,8 @@ export function SignInScreen(props: SignInScreenProps) {
             <strong>{auditorOpen.decision}</strong> rather than as a refusal. {auditorOpen.why}
           </p>
         )}
-        <DecisionDisclosure id="D3" />
-        <DecisionDisclosure id="D24" />
+        <DecisionDisclosure id="DEC-AUDSTU-001" />
+        <DecisionDisclosure id="DEC-TENGRANT-001" />
       </section>
 
       <section

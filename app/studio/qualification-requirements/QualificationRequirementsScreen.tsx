@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { STU_MODULES, stuModuleById, type StudioPersonaId } from '@/studio/modules'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import {
   VALIDATION_POINTS,
   addOverride,
@@ -448,7 +448,7 @@ export function QualificationRequirementsScreen() {
             />
             {controlById('view-the-cross-workflow-requirement-view').affordance.kind ===
             'decision-open' ? (
-              <DecisionDisclosure id="D3" />
+              <DecisionDisclosure id="DEC-AUDSTU-001" />
             ) : null}
           </section>
         )}

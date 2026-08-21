@@ -6,7 +6,7 @@ import { ROUTES, routesForRole, routeOpenDecisionFor } from '@/routes/definition
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
 import { STU_PERSONAS, reachByStudioMatrix, type StudioPersonaId } from '@/studio/modules'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
-import { studioDecision } from '@/studio/disclosure/decisions'
+import { decisionRecord } from '@/disclosure/decisions'
 
 import {
   STU18_MATRIX,
@@ -782,10 +782,10 @@ describe('the disputed restatements', () => {
   // FAILS IF: DEC-ROLE-001 leaves the shared decision canon, or this module
   // mints a local copy of it again -- two wordings of one decision. It used to
   // be an UNSPECIFIED_IN_SOURCE entry here because the canon had no record;
-  // the canon now carries D25, so this half is flipped and the no-local-copy
+  // the canon now carries DEC-ROLE-001, so this half is flipped and the no-local-copy
   // half is what this test exists to keep failing on a re-mint.
   it('discloses DEC-ROLE-001 from the shared canon and keeps no local copy', () => {
-    const record = studioDecision('D25')
+    const record = decisionRecord('DEC-ROLE-001')
     expect(record.decisionRef).toBe('DEC-ROLE-001')
     // All three readings section 13.3 states, each with its own locator.
     expect(record.readings).toHaveLength(3)
@@ -965,8 +965,8 @@ describe('SCR-STU-15 — Studio permissions and grants', () => {
   // its target is removed.
   it('pins every pointer it makes at content this build actually renders', () => {
     const html = permissionsMarkup({ persona: 'tenant-admin' })
-    for (const decisionId of ['D2', 'D3', 'D9', 'D13', 'D24'] as const) {
-      const record = studioDecision(decisionId)
+    for (const decisionId of ['D2', 'DEC-AUDSTU-001', 'D9', 'DEC-DELEG-001', 'DEC-TENGRANT-001'] as const) {
+      const record = decisionRecord(decisionId)
       expect(html, decisionId).toContain(record.question)
     }
     // The capability panel names the storyboard's own worked example. The

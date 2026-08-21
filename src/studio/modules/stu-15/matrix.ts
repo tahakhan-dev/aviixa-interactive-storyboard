@@ -24,7 +24,7 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  *
  * - **Delegated administrator with Agent Author** is a GRANT HOLDER, not a
  *   role, and `DEC-DELEG-001` is open on whether the grant may be delegated
- *   at all (D13).
+ *   at all (DEC-DELEG-001).
  * - **Platform Engineer** is a real `RoleId` in the platform registry, and it
  *   reaches no Studio route: its two `Allowed with conditions` cells are both
  *   acts of the Super Admin platform console.
@@ -42,7 +42,7 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  * every Workflow, and it has **no authorised operator until the client
  * rules**. This module therefore holds NO enablement control: `MOD-STU-01`
  * owns the Atomic Capability view and its register, and this module reads
- * the seeded state through it (D12).
+ * the seeded state through it (DEC-CAPAUTH-001).
  *
  * ### ROW 3 — THE ONE PLACE THIS CARD AND THE CONSOLIDATED MATRIX CONTRADICT
  *
@@ -220,7 +220,7 @@ const CAPAUTH_OPEN = cell(
  * delegation, and §4.8.4 states plainly that "Delegation is deferred beyond
  * V1". So the whole of that cell's grant hangs on an open decision, and
  * `Client Decision Required` is the only token that renders both readings.
- * D13 is this build's disclosure of it.
+ * DEC-DELEG-001 is this build's disclosure of it.
  */
 const DELEG_OPEN = cell(
   'clientDecisionRequired',

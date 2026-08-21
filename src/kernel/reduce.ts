@@ -1,4 +1,4 @@
-import type { ScenarioCommand } from '@/domain/commands'
+import { isHubCommand, type ScenarioCommand } from '@/domain/commands'
 import { hashState } from '@/domain/hash'
 import type { TenantId } from '@/domain/ids'
 import type { LedgerRecord, ScenarioDomainState } from '@/domain/state'
@@ -12,6 +12,19 @@ import type {
 import { deny, type PermissionDecision } from '@/policy/decision'
 import { evaluateAccess, type AccessRequest } from '@/policy/evaluate'
 import type { SurfaceId } from '@/domain/surfaces'
+// SLICE 6. The twelve Hub Job/Run/Assignment/Summary commands are narrowed as
+// ONE family at each of the five sites below, rather than as twelve cases in
+// four switches and a Record. Every Hub-specific fact -- access rule, action
+// class, validation, state change -- lives in `@/surfaces/doh/objects`,
+// beside the records it is about, so this file stays the kernel and does not
+// become a second home for module knowledge.
+import {
+  HUB_COMMAND_SPECS,
+  applyHubCommand,
+  hubAccessRequest,
+  hubCommandTenant,
+  validateHubCommand,
+} from '@/surfaces/doh/objects'
 
 /** Which access rule and which surfaces each command family carries. */
 interface CommandSpec {
@@ -30,6 +43,10 @@ interface CommandSpec {
 }
 
 const SPECS: Record<ScenarioCommand['type'], CommandSpec> = {
+  // The Hub family. `Record<ScenarioCommand['type'], ...>` still makes the
+  // table exhaustive by construction: a thirteenth Hub command that
+  // `HUB_COMMAND_SPECS` does not carry fails to compile here.
+  ...HUB_COMMAND_SPECS,
   // MOD-CC-13 action 4. Quality Manager only; a Supervisor may request with
   // a note but never perform the release. DEC-PLUS-001: Tenant Admin is
   // EXPLICITLY PROHIBITED on all ten Command Center operational actions —
@@ -72,6 +89,8 @@ const SPECS: Record<ScenarioCommand['type'], CommandSpec> = {
 
 /** The tenant a command targets, or null for a platform-scoped command. */
 function commandTenant(command: ScenarioCommand): TenantId | null {
+  // Every Hub command is tenant-scoped; there is no platform-scoped Hub act.
+  if (isHubCommand(command)) return hubCommandTenant(command)
   switch (command.type) {
     case 'CC_RELEASE_LOT_HOLD':
     case 'TENANT_SET_DESIRED_FEATURE':
@@ -124,7 +143,13 @@ function currentLotState(
 function accessRequestFor(
   command: ScenarioCommand,
   state: ScenarioDomainState,
+  actorOfRecord: string | null,
 ): Omit<AccessRequest, 'action'> {
+  // SLICE 6: `actorOfRecord` is threaded in because MOD-DOH-05 row 10
+  // (L27703) and MOD-DOH-16 row 5 (L29617) state every role cell as
+  // conditional on the acting identity being the value of the target Job's
+  // OWNER FIELD. That condition cannot be answered from the command alone.
+  if (isHubCommand(command)) return hubAccessRequest(command, state, actorOfRecord)
   const base = SPECS[command.type].access
   switch (command.type) {
     case 'CC_RELEASE_LOT_HOLD': {
@@ -392,7 +417,7 @@ async function reduceInner(
     )
 
   const decision = evaluateAccess(
-    { action: command.type, ...accessRequestFor(command, state) },
+    { action: command.type, ...accessRequestFor(command, state, ctx.actorOfRecord) },
     {
       state,
       identity: ctx.identity,
@@ -546,6 +571,7 @@ async function reduceInner(
 }
 
 function validate(command: ScenarioCommand): string | null {
+  if (isHubCommand(command)) return validateHubCommand(command)
   switch (command.type) {
     case 'CC_RELEASE_LOT_HOLD':
       if (command.lotId.trim() === '') {
@@ -568,6 +594,7 @@ function apply(
   seq: number,
 ): ScenarioDomainState {
   const bumped = { ...state, sequence: seq }
+  if (isHubCommand(command)) return applyHubCommand(bumped, command)
   switch (command.type) {
     case 'CC_RELEASE_LOT_HOLD':
       return withTenant(bumped, command.tenant, (p) => ({

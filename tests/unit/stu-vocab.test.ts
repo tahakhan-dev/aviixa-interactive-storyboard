@@ -26,12 +26,12 @@ import {
   WORKFLOW_SETTINGS,
 } from '@/studio/vocab'
 import {
-  STUDIO_DECISIONS,
-  STUDIO_DECISION_IDS,
-  studioDecision,
-  type StudioDecisionId,
-} from '@/studio/disclosure/decisions'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+  OPEN_DECISIONS,
+  OPEN_DECISION_IDS,
+  decisionRecord,
+  type DecisionId,
+} from '@/disclosure/decisions'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 
 /**
  * Task 3, slice 5. Nineteen closed vocabularies and the decision-disclosure
@@ -44,7 +44,7 @@ import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
  * not produce, because it iterated the array it was meant to police.
  */
 
-const render = (id: StudioDecisionId) =>
+const render = (id: DecisionId) =>
   renderToStaticMarkup(createElement(DecisionDisclosure, { id }))
 
 describe('the closed vocabularies -- design §4\'s nineteen plus the Workflow authoring statuses hoisted out of MOD-STU-03, members verified at the frozen source', () => {
@@ -280,38 +280,38 @@ describe('D21 -- the three states modelled as flags, each attached where the sou
 
 describe('the twenty-nine decision records', () => {
   it('holds exactly twenty-nine, D1 through D29, in order', () => {
-    expect(STUDIO_DECISION_IDS).toEqual([
+    expect(OPEN_DECISION_IDS).toEqual([
       'D1',
       'D2',
-      'D3',
+      'DEC-AUDSTU-001',
       'D4',
       'D5',
       'D6',
-      'D7',
+      'DEC-WFROLL-001',
       'D8',
       'D9',
       'D10',
       'D11',
-      'D12',
-      'D13',
-      'D14',
-      'D15',
-      'D16',
-      'D17',
-      'D18',
-      'D19',
-      'D20',
+      'DEC-CAPAUTH-001',
+      'DEC-DELEG-001',
+      'DEC-LANEB-001',
+      'DEC-LIB-001',
+      'DEC-WIDIFF-001',
+      'DEC-LIBREV-001',
+      'DEC-LANEBAUTH-001',
+      'DEC-CAP-001',
+      'DEC-TAX-002',
       'D21',
       'D22',
-      'D23',
-      'D24',
-      'D25',
-      'D26',
-      'D27',
-      'D28',
+      'DEC-STUXREF-001',
+      'DEC-TENGRANT-001',
+      'DEC-ROLE-001',
+      'DEC-RELAUTH-001',
+      'DEC-EMBED-001',
+      'DEC-ARCH-001',
       'D29',
     ])
-    expect(STUDIO_DECISIONS).toHaveLength(29)
+    expect(OPEN_DECISIONS).toHaveLength(29)
   })
 
   /**
@@ -320,11 +320,11 @@ describe('the twenty-nine decision records', () => {
    * the array it polices could only ever pass -- shipped four times here.
    */
   it('has a record for every declared id, and no record for an undeclared one', () => {
-    expect(STUDIO_DECISIONS.map((d) => d.id)).toEqual([...STUDIO_DECISION_IDS])
+    expect(OPEN_DECISIONS.map((d) => d.id)).toEqual([...OPEN_DECISION_IDS])
   })
 
   it('gives every decision at least two readings, each with a locator and a question', () => {
-    for (const d of STUDIO_DECISIONS) {
+    for (const d of OPEN_DECISIONS) {
       expect(d.readings.length, `${d.id} readings`).toBeGreaterThanOrEqual(2)
       expect(d.question.length, `${d.id} question`).toBeGreaterThan(0)
       expect(d.adopted.length, `${d.id} adopted`).toBeGreaterThan(0)
@@ -341,7 +341,7 @@ describe('the twenty-nine decision records', () => {
    * so there is no field in which one reading could be flagged as settled.
    */
   it('gives a reading exactly two fields, so no reading can be marked the source answer', () => {
-    for (const d of STUDIO_DECISIONS) {
+    for (const d of OPEN_DECISIONS) {
       for (const r of d.readings) {
         expect(Object.keys(r).sort(), `${d.id} reading shape`).toEqual(['locator', 'text'])
       }
@@ -349,29 +349,29 @@ describe('the twenty-nine decision records', () => {
   })
 
   it('names the source DEC identifier where one exists and null where none does', () => {
-    expect(studioDecision('D19').decisionRef).toBe('DEC-CAP-001')
-    expect(studioDecision('D3').decisionRef).toBe('DEC-AUDSTU-001')
-    expect(studioDecision('D14').decisionRef).toBe('DEC-LANEB-001')
+    expect(decisionRecord('DEC-CAP-001').decisionRef).toBe('DEC-CAP-001')
+    expect(decisionRecord('DEC-AUDSTU-001').decisionRef).toBe('DEC-AUDSTU-001')
+    expect(decisionRecord('DEC-LANEB-001').decisionRef).toBe('DEC-LANEB-001')
     // D4 and D8 are conflicts the source never gave a `DEC-*` identifier.
-    expect(studioDecision('D4').decisionRef).toBeNull()
-    expect(studioDecision('D8').decisionRef).toBeNull()
+    expect(decisionRecord('D4').decisionRef).toBeNull()
+    expect(decisionRecord('D8').decisionRef).toBeNull()
   })
 
   it('carries DEC-LANEB-001 as both AC-STU-097 and AC-STU-138 with their own locators', () => {
-    const d = studioDecision('D14')
+    const d = decisionRecord('DEC-LANEB-001')
     const locators = d.readings.map((r) => r.locator)
     expect(locators.some((l) => l.includes('AC-STU-097') && l.includes('L33397'))).toBe(true)
     expect(locators.some((l) => l.includes('AC-STU-138') && l.includes('L34332'))).toBe(true)
   })
 
   it('carries DEC-WFROLL-001 as canonical with DEC-VERROLL-001 as its alias', () => {
-    const d = studioDecision('D7')
+    const d = decisionRecord('DEC-WFROLL-001')
     expect(d.decisionRef).toBe('DEC-WFROLL-001')
     expect(d.alias).toBe('DEC-VERROLL-001')
   })
 
   it('is the only alias on the surface', () => {
-    expect(STUDIO_DECISIONS.filter((d) => d.alias !== null).map((d) => d.id)).toEqual(['D7'])
+    expect(OPEN_DECISIONS.filter((d) => d.alias !== null).map((d) => d.id)).toEqual(['DEC-WFROLL-001'])
   })
 })
 
@@ -384,19 +384,19 @@ describe('a disclosure cannot rot -- every pinned member is a live vocabulary me
    * as a loop over `pins` alone.
    */
   it('names the specific decisions that pin vocabulary, so a lost pin is a failure', () => {
-    expect(STUDIO_DECISIONS.filter((d) => d.pins.length > 0).map((d) => d.id)).toEqual([
+    expect(OPEN_DECISIONS.filter((d) => d.pins.length > 0).map((d) => d.id)).toEqual([
       'D1',
       'D5',
-      'D16',
-      'D19',
+      'DEC-WIDIFF-001',
+      'DEC-CAP-001',
       'D21',
-      'D23',
-      'D24',
+      'DEC-STUXREF-001',
+      'DEC-TENGRANT-001',
     ])
   })
 
   it('resolves every pin against a closed vocabulary', () => {
-    for (const d of STUDIO_DECISIONS) {
+    for (const d of OPEN_DECISIONS) {
       for (const pin of d.pins) {
         expect(STUDIO_VOCABULARY_MEMBERS, `${d.id} pins ${pin}`).toContain(pin)
       }
@@ -404,7 +404,7 @@ describe('a disclosure cannot rot -- every pinned member is a live vocabulary me
   })
 
   it('renders every pin in the disclosure it belongs to', () => {
-    for (const d of STUDIO_DECISIONS) {
+    for (const d of OPEN_DECISIONS) {
       if (d.pins.length === 0) continue
       const markup = render(d.id)
       for (const pin of d.pins) {
@@ -413,26 +413,26 @@ describe('a disclosure cannot rot -- every pinned member is a live vocabulary me
     }
   })
 
-  it('pins D19 to all eight capture types, so dropping one goes red here too', () => {
-    expect(studioDecision('D19').pins).toEqual([...CAPTURE_TYPES])
+  it('pins DEC-CAP-001 to all eight capture types, so dropping one goes red here too', () => {
+    expect(decisionRecord('DEC-CAP-001').pins).toEqual([...CAPTURE_TYPES])
   })
 })
 
 describe('DecisionDisclosure -- the only place a decision is rendered', () => {
   it('renders the identifier, both readings, each locator, the adopted position, and APP-012', () => {
-    const markup = render('D14')
-    expect(markup).toContain('D14')
+    const markup = render('DEC-LANEB-001')
+    expect(markup).toContain('DEC-LANEB-001')
     expect(markup).toContain('DEC-LANEB-001')
     expect(markup).toContain('AC-STU-097')
     expect(markup).toContain('L33397')
     expect(markup).toContain('AC-STU-138')
     expect(markup).toContain('L34332')
     expect(markup).toContain('client-delegated choice under APP-012')
-    expect(markup).toContain(studioDecision('D14').adopted)
+    expect(markup).toContain(decisionRecord('DEC-LANEB-001').adopted)
   })
 
   it('renders both identifiers for the rollback question, so either search finds the card', () => {
-    const markup = render('D7')
+    const markup = render('DEC-WFROLL-001')
     expect(markup).toContain('DEC-WFROLL-001')
     expect(markup).toContain('DEC-VERROLL-001')
   })
@@ -441,12 +441,12 @@ describe('DecisionDisclosure -- the only place a decision is rendered', () => {
    * Caught by eye, not by the suite: the first draft tested `alias !== undefined`
    * while `alias` is `string | null`, so all null-alias records
    * rendered a dangling "(also cited as )". The suite was green throughout,
-   * because it only ever asserted that D7 DOES render both identifiers.
+   * because it only ever asserted that DEC-WFROLL-001 DOES render both identifiers.
    */
-  it('renders the alias fragment on D7 and on nothing else', () => {
-    expect(render('D7')).toContain('also cited as DEC-VERROLL-001')
-    for (const id of STUDIO_DECISION_IDS) {
-      if (id === 'D7') continue
+  it('renders the alias fragment on DEC-WFROLL-001 and on nothing else', () => {
+    expect(render('DEC-WFROLL-001')).toContain('also cited as DEC-VERROLL-001')
+    for (const id of OPEN_DECISION_IDS) {
+      if (id === 'DEC-WFROLL-001') continue
       expect(render(id), `${id} alias fragment`).not.toContain('also cited as')
     }
   })
@@ -459,13 +459,13 @@ describe('DecisionDisclosure -- the only place a decision is rendered', () => {
   })
 
   it('marks the build position a client-delegated choice on every record', () => {
-    for (const id of STUDIO_DECISION_IDS) {
+    for (const id of OPEN_DECISION_IDS) {
       expect(render(id), `${id} APP-012`).toContain('client-delegated choice under APP-012')
     }
   })
 
   it('never presents an adopted position as the source having settled it', () => {
-    for (const id of STUDIO_DECISION_IDS) {
+    for (const id of OPEN_DECISION_IDS) {
       const markup = render(id)
       expect(markup, `${id} label`).toContain('This build&#x27;s working position')
       expect(markup, `${id} label`).not.toContain('The source settles this')
@@ -473,7 +473,7 @@ describe('DecisionDisclosure -- the only place a decision is rendered', () => {
   })
 
   it('renders every reading of every decision, not merely the first', () => {
-    for (const d of STUDIO_DECISIONS) {
+    for (const d of OPEN_DECISIONS) {
       const markup = render(d.id)
       for (const r of d.readings) {
         expect(markup, `${d.id} locator ${r.locator}`).toContain(r.locator)

@@ -745,7 +745,7 @@ describe('slice 5 gate 1: no bare Studio module count in the built tree', () => 
  * ==================================================================== */
 
 describe('slice 5 gate 2: the closed authoring vocabularies are exhaustive', () => {
-  /* D19, R3, R5. Four sets, each closed by the source's own sentence, and
+  /* DEC-CAP-001, R3, R5. Four sets, each closed by the source's own sentence, and
    * each carrying BOTH halves of the proof: the exact membership (so an
    * eighth member is red at run time) and a type-level companion (so an
    * eighth member is red at `tsc` time, before a test ever runs).
@@ -847,7 +847,7 @@ describe('slice 5 gate 2: the closed authoring vocabularies are exhaustive', () 
  * ==================================================================== */
 
 describe('slice 5 gate 3: no Read-only Auditor screen cell resolves to a permission status', () => {
-  /* D3 / `AC-STU-157` (L34674) / L34524: "Until decided, every Read-only
+  /* DEC-AUDSTU-001 / `AC-STU-157` (L34674) / L34524: "Until decided, every Read-only
    * Auditor cell in this chapter reads `Client Decision Required` rather
    * than being guessed."
    *
@@ -3387,7 +3387,7 @@ describe('slice 5 gate 17: every routedTo declared is read, by the one predicate
 })
 
 describe('slice 5 fixture: LANEB_CONTRADICTION_FIXTURE pins DEC-LANEB-001 without settling it', () => {
-  /* D14. `AC-STU-097` (L33397) — "No content reaches a published version
+  /* DEC-LANEB-001. `AC-STU-097` (L33397) — "No content reaches a published version
    * without three recorded transitions by three distinct identities" —
    * and `AC-STU-138` (L34332) — "an approved package-borne value publishes
    * as a patch and adopts per the tenant's adoption timing; a server-only
@@ -3473,7 +3473,7 @@ describe('slice 5 fixture: LANEB_CONTRADICTION_FIXTURE pins DEC-LANEB-001 withou
 })
 
 describe('slice 5 fixture: ROLLBACK_ALIAS_FIXTURE pins both rollback identifiers', () => {
-  /* D7. The same open question carries TWO source identifiers with no
+  /* DEC-WFROLL-001. The same open question carries TWO source identifiers with no
    * cross-reference between them: `DEC-WFROLL-001` (chapter 28, L53350 —
    * the card with options, a recommendation, a trade-off and an owner) and
    * `DEC-VERROLL-001` (chapter 7, L8623 — the same question in one line).

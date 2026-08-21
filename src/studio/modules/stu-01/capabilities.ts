@@ -19,7 +19,7 @@ import type { PublishCheckImplementation, PublishCheckVerdict } from '@/studio/p
  *
  * WHY EVERY ENTITLED CAPABILITY IS SEEDED ENABLED. L33984: "At launch the
  * three standard agents and their capabilities are present by default, which
- * is why the nine sections appear as described in MOD-STU-05." D12 turns that
+ * is why the nine sections appear as described in MOD-STU-05." DEC-CAPAUTH-001 turns that
  * into this build's seed, so all nine configuration sections exist and the
  * mechanism `AC-STU-006` and `AC-STU-008` require to be visible is visible.
  *

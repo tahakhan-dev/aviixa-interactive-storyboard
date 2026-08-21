@@ -1483,7 +1483,7 @@ export function rollback(
 /**
  * `DEC-WFROLL-001` and `DEC-VERROLL-001` — the disclosure this module owns.
  *
- * The QUESTION is open and the shared decision canon carries it as `D7`, with
+ * The QUESTION is open and the shared decision canon carries it as `DEC-WFROLL-001`, with
  * both identifiers and both locator sets; the screen renders it through task
  * 3's `DecisionDisclosure` and nothing here duplicates it. What this record
  * adds is the half that is NOT open: the rollback BEHAVIOUR is stated

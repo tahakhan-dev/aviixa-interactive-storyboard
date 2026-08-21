@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { STU_MODULES, stuModuleById, type StudioPersonaId } from '@/studio/modules'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { PUBLISH_CHECKS } from '@/studio/publish/checks'
 import {
   createPublishCheckRegister,

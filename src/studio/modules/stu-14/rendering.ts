@@ -1,6 +1,6 @@
 import type { StudioAccessDecision, StudioAccessInput } from '@/studio/access/evaluate'
 import { evaluateStudioAccess } from '@/studio/access/evaluate'
-import type { DecisionReading } from '@/studio/disclosure/decisions'
+import type { DecisionReading } from '@/disclosure/decisions'
 import {
   SEEDED_SCENARIO,
   SEEDED_STATE,
@@ -155,8 +155,8 @@ function renderedNote(affordance: CapabilityAffordance): string {
 /**
  * `DEC-PKGFIELD-001` (L33807) and `DEC-STORE-001` (L33850) are both
  * `Client Decision Required` in this module's own Source status block
- * (L33959), and **`src/studio/disclosure/decisions.ts` carries a
- * record for neither**. `D14` mentions `DEC-PKGFIELD-001` inside its adopted
+ * (L33959), and **`src/disclosure/decisions.ts` carries a
+ * record for neither**. `DEC-LANEB-001` mentions `DEC-PKGFIELD-001` inside its adopted
  * text but the canon has no record keyed to it, and `DEC-STORE-001` appears
  * in the canon nowhere at all.
  *
@@ -204,7 +204,7 @@ export const STU_14_LOCAL_DISCLOSURES = [
       'here. Decision owner: the platform architect, as an input to the Frontline functional ' +
       'specification.',
     canonNote:
-      'The Studio decision canon carries no record for DEC-PKGFIELD-001. D14 (DEC-LANEB-001) ' +
+      'The Studio decision canon carries no record for DEC-PKGFIELD-001. DEC-LANEB-001 (DEC-LANEB-001) ' +
       'names it inside its adopted text as a dependency, which is not the same as disclosing it. ' +
       'Declared here as a gap for the canon rather than filed under a neighbouring identifier.',
   },

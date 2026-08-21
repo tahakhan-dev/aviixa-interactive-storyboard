@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { STU_MODULES, stuModuleById, type StudioPersonaId } from '@/studio/modules'
 import { STU_SEAMS, stuSeamById } from '@/studio/seams'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { STU_08_CROSS_SURFACE } from '@/studio/modules/stu-08/matrix'
 import {
   SEEDED_TRAINING_REGISTER,
@@ -294,12 +294,12 @@ export function TrainingLibraryScreen() {
           {TRAINING_PACKAGE_EXCLUSION.statement}
         </p>
 
-        {/* D3 — DEC-AUDSTU-001, which governs row 6's Read-only Auditor cell,
+        {/* DEC-AUDSTU-001 — DEC-AUDSTU-001, which governs row 6's Read-only Auditor cell,
             and D11, the object-identifier scheme this module's OBJ-044 /
             OBJ-STU-TRAINING pairing reads. Both through the ONE disclosure
             component: a module writing its own disclosure prose is how two
             screens come to disclose one decision differently. */}
-        <DecisionDisclosure id="D3" />
+        <DecisionDisclosure id="DEC-AUDSTU-001" />
         <DecisionDisclosure id="D11" />
 
         {log.length > 0 ? (

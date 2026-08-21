@@ -6,7 +6,8 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { ComponentType } from 'react'
 import { SEQUENCE_STATES } from '@/studio/journey/fixture'
-import { JOURNEY_STEPS, JOURNEY_SURFACES } from '@/studio/journey/effects'
+import { JOURNEY_STEPS } from '@/studio/journey/effects'
+import { JOURNEY_SURFACES } from '@/ui/shared/journey'
 import { STU_MODULES, stuModuleById } from '@/studio/modules'
 import {
   JOURNEY_COMPOSITION,

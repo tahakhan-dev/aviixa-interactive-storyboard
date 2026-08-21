@@ -10,7 +10,7 @@ import { STU_SCREENS, stuScreensForModule } from '@/studio/screens'
 import { STU_SEAMS, stuSeamById } from '@/studio/seams'
 import { publishCheckById } from '@/studio/publish/checks'
 import { COACHING_ASSET_STATES, NOTIFICATION_CHANNELS, LOCALES } from '@/studio/vocab'
-import { studioDecision } from '@/studio/disclosure/decisions'
+import { decisionRecord } from '@/disclosure/decisions'
 
 import {
   STU_07_MATRIX,
@@ -1311,11 +1311,11 @@ describe('pointers to content owned elsewhere', () => {
     expect(html).toContain('MOD-STU-05')
   })
 
-  // FAILS IF: D15 or D17 loses its DEC-* identifier, or this module stops
+  // FAILS IF: DEC-LIB-001 or DEC-LIBREV-001 loses its DEC-* identifier, or this module stops
   // disclosing one of the three open decisions that render here.
-  it('discloses D15, D17 and DEC-EMBED-001 on the screens they bind', () => {
-    expect(studioDecision('D15').decisionRef).toBe('DEC-LIB-001')
-    expect(studioDecision('D17').decisionRef).toBe('DEC-LIBREV-001')
+  it('discloses DEC-LIB-001, DEC-LIBREV-001 and DEC-EMBED-001 on the screens they bind', () => {
+    expect(decisionRecord('DEC-LIB-001').decisionRef).toBe('DEC-LIB-001')
+    expect(decisionRecord('DEC-LIBREV-001').decisionRef).toBe('DEC-LIBREV-001')
 
     const checklists = viewMarkup({ persona: 'quality-manager' }, 'containment-checklists')
     expect(checklists).toContain('DEC-LIB-001')
@@ -1323,24 +1323,24 @@ describe('pointers to content owned elsewhere', () => {
 
     // THE BARE IDENTIFIER IS NOT ENOUGH, and this was found by planting the
     // defect rather than by reading the code. Removing `DecisionDisclosure
-    // id="D17"` from the tab left the suite GREEN, because the edit cell's
+    // id="DEC-LIBREV-001"` from the tab left the suite GREEN, because the edit cell's
     // own words -- "scope under `DEC-LIBREV-001`" -- render on the same tab
     // as the enabled control's note. An assertion satisfied by a DIFFERENT
     // element than the one it names is defect shape 5. So each disclosure is
     // pinned on text only that record carries, read off the record itself so
     // it follows a rewording instead of going stale.
-    expect(checklists).toContain(studioDecision('D15').question)
-    expect(checklists).toContain(studioDecision('D17').question)
+    expect(checklists).toContain(decisionRecord('DEC-LIB-001').question)
+    expect(checklists).toContain(decisionRecord('DEC-LIBREV-001').question)
     // The counter-argument is on the record and is not trivial.
     expect(checklists).toContain('by up to one Run')
 
-    // DEC-EMBED-001 NOW HAS a canonical record -- D27 -- so this module stops
+    // DEC-EMBED-001 NOW HAS a canonical record -- DEC-EMBED-001 -- so this module stops
     // wording the decision itself and renders the canon on the tab it binds.
     // The bare identifier is not enough: the `multimodal-embedding-service`
     // seam's own contract sentence already names it, so asserting the
     // identifier alone passes with the panel deleted. Found by planting that.
     // So every assertion below is read OFF THE RECORD and follows a rewording.
-    const embed = studioDecision('D27')
+    const embed = decisionRecord('DEC-EMBED-001')
     expect(embed.decisionRef).toBe('DEC-EMBED-001')
     expect(embed.readings).toHaveLength(3)
     for (const r of embed.readings) expect(r.locator).toContain('L32606')

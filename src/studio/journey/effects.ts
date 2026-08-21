@@ -1,4 +1,10 @@
-import type { SurfaceId } from '@/domain/surfaces'
+import {
+  affected,
+  noEffect,
+  type JourneyStep,
+  type JourneySurfaceCode,
+  type SurfaceEffect,
+} from '@/ui/shared/journey'
 import {
   JOURNEY_AS_OF,
   MET,
@@ -27,78 +33,13 @@ import {
  * claim a device had been reached before it had.
  */
 
-export type JourneySurfaceCode = 'DOH' | 'STU' | 'CC' | 'FL' | 'SA'
-
-export interface JourneySurfaceRef {
-  readonly code: JourneySurfaceCode
-  readonly surfaceId: SurfaceId
-  readonly name: string
-}
-
-export const JOURNEY_SURFACES = [
-  { code: 'DOH', surfaceId: 'SURF-DOH', name: 'Delivery Operations Hub' },
-  { code: 'STU', surfaceId: 'SURF-STU', name: 'Standards and Operations Studio' },
-  { code: 'CC', surfaceId: 'SURF-CC', name: 'Client Command Center' },
-  { code: 'FL', surfaceId: 'SURF-FL', name: 'Frontline Worker Application' },
-  { code: 'SA', surfaceId: 'SURF-SA', name: 'Super Admin platform console' },
-] as const satisfies readonly JourneySurfaceRef[]
-
-// Compile-time exhaustiveness check, same shape as `PERMISSION_OUTCOMES` in
-// `@/policy/decision.ts`: every surface code appears exactly once, and every
-// platform surface is represented.
-type MissingFromJourneySurfaces = Exclude<
-  JourneySurfaceCode,
-  (typeof JOURNEY_SURFACES)[number]['code']
->
-const _journeySurfacesExhaustive: MissingFromJourneySurfaces extends never ? true : never = true
-void _journeySurfacesExhaustive
-type MissingSurfaceId = Exclude<SurfaceId, (typeof JOURNEY_SURFACES)[number]['surfaceId']>
-const _everySurfaceRepresented: MissingSurfaceId extends never ? true : never = true
-void _everySurfaceRepresented
-
 /**
- * An effect either happened on this surface or it did not. The second case
- * carries a REASON: "no direct effect" is a rendering, not an omission.
+ * `SURF-STU`'s twenty-two journey steps: the surface-neutral step record from
+ * `@/ui/shared/journey` composed with this journey's own state transition.
+ * The vocabulary, the effect model and the panel are shared with every other
+ * surface's journey; only the fixture state below is the Studio's.
  */
-export type SurfaceEffect =
-  | { readonly kind: 'affected'; readonly statement: string; readonly sourceRef: string }
-  | { readonly kind: 'noDirectEffect'; readonly reason: string; readonly sourceRef: string }
-
-export type FiveSurfaceEffectRecord = { readonly [K in JourneySurfaceCode]: SurfaceEffect }
-
-const affected = (statement: string, sourceRef: string): SurfaceEffect => ({
-  kind: 'affected',
-  statement,
-  sourceRef,
-})
-const noEffect = (reason: string, sourceRef: string): SurfaceEffect => ({
-  kind: 'noDirectEffect',
-  reason,
-  sourceRef,
-})
-
-/**
- * The one sentence a surface row renders. Never empty for either case,
- * which is what makes an empty string structurally impossible rather than
- * merely discouraged.
- */
-export function effectStatement(effect: SurfaceEffect): string {
-  return effect.kind === 'affected' ? effect.statement : `No direct effect — ${effect.reason}`
-}
-
-export interface JourneyStep extends JourneyStepTransition {
-  readonly number: number
-  readonly title: string
-  /** The member workflow this step belongs to, or null where the source names none. */
-  readonly wfAut: string | null
-  readonly sourceRef: string
-  readonly ownerModule: string
-  /** The surface the ACT happens on. Step 19's act is the Hub's, not the Studio's. */
-  readonly actingSurface: JourneySurfaceCode
-  readonly effects: FiveSurfaceEffectRecord
-  /** Where this step departs from a five-surface row, and why. */
-  readonly note: string | null
-}
+export type StudioJourneyStep = JourneyStep & JourneyStepTransition
 
 // ---------------------------------------------------------------------------
 // Reasons that recur, quoted once. Each is a per-phase surface behaviour
@@ -144,7 +85,7 @@ export const JOURNEY_STEPS = [
   {
     number: 1,
     title: 'Open or create',
-    wfAut: 'WF-AUT-002',
+    workflowRef: 'WF-AUT-002',
     sourceRef: 'L53386, L68090',
     ownerModule: 'MOD-STU-03',
     actingSurface: 'STU',
@@ -189,7 +130,7 @@ export const JOURNEY_STEPS = [
   {
     number: 2,
     title: 'Choose taxonomy',
-    wfAut: 'WF-AUT-002',
+    workflowRef: 'WF-AUT-002',
     sourceRef: 'L53386, L5739',
     ownerModule: 'MOD-STU-03',
     actingSurface: 'STU',
@@ -221,7 +162,7 @@ export const JOURNEY_STEPS = [
   {
     number: 3,
     title: 'Name, scope, version — four settings, exactly two inheritable defaults',
-    wfAut: 'WF-AUT-002',
+    workflowRef: 'WF-AUT-002',
     sourceRef: 'L32040, L8595',
     ownerModule: 'MOD-STU-04',
     actingSurface: 'STU',
@@ -257,7 +198,7 @@ export const JOURNEY_STEPS = [
   {
     number: 4,
     title: 'Add, reorder, remove screens',
-    wfAut: 'WF-AUT-002',
+    workflowRef: 'WF-AUT-002',
     sourceRef: 'L61842, L32098',
     ownerModule: 'MOD-STU-04',
     actingSurface: 'STU',
@@ -281,7 +222,7 @@ export const JOURNEY_STEPS = [
   {
     number: 5,
     title: 'Draw branches; accept or override the gate-failure default',
-    wfAut: 'WF-AUT-002',
+    workflowRef: 'WF-AUT-002',
     sourceRef: 'L32103',
     ownerModule: 'MOD-STU-04',
     actingSurface: 'STU',
@@ -314,7 +255,7 @@ export const JOURNEY_STEPS = [
   {
     number: 6,
     title: 'Configure the nine sections',
-    wfAut: 'WF-AUT-002',
+    workflowRef: 'WF-AUT-002',
     sourceRef: 'L53397, L32216',
     ownerModule: 'MOD-STU-05',
     actingSurface: 'STU',
@@ -344,7 +285,7 @@ export const JOURNEY_STEPS = [
   {
     number: 7,
     title: 'Author one difficulty level; draft the other two',
-    wfAut: 'WF-AUT-001',
+    workflowRef: 'WF-AUT-001',
     sourceRef: 'L53365, L68095',
     ownerModule: 'MOD-STU-09',
     actingSurface: 'STU',
@@ -379,7 +320,7 @@ export const JOURNEY_STEPS = [
   {
     number: 8,
     title: 'Validate',
-    wfAut: 'WF-AUT-002',
+    workflowRef: 'WF-AUT-002',
     sourceRef: 'L53396, L32101',
     ownerModule: 'MOD-STU-04 with the S3 publish-check registry',
     actingSurface: 'STU',
@@ -406,7 +347,7 @@ export const JOURNEY_STEPS = [
   {
     number: 9,
     title: 'Save draft',
-    wfAut: null,
+    workflowRef: null,
     sourceRef: 'FB-STU-01 L31443–L31454, L31481',
     ownerModule: 'MOD-STU-04 under FB-STU-01',
     actingSurface: 'STU',
@@ -428,7 +369,7 @@ export const JOURNEY_STEPS = [
   {
     number: 10,
     title: 'Compare versions (diff)',
-    wfAut: 'WF-AUT-003',
+    workflowRef: 'WF-AUT-003',
     sourceRef: 'L53435',
     ownerModule: 'MOD-STU-12',
     actingSurface: 'STU',
@@ -452,7 +393,7 @@ export const JOURNEY_STEPS = [
   {
     number: 11,
     title: 'Preview',
-    wfAut: 'WF-AUT-004',
+    workflowRef: 'WF-AUT-004',
     sourceRef: 'L53468',
     ownerModule: 'MOD-STU-11',
     actingSurface: 'STU',
@@ -476,7 +417,7 @@ export const JOURNEY_STEPS = [
   {
     number: 12,
     title: 'Submit',
-    wfAut: 'WF-AUT-002 into WF-AUT-004',
+    workflowRef: 'WF-AUT-002 into WF-AUT-004',
     sourceRef: 'L68096, L68222',
     ownerModule: 'MOD-STU-11',
     actingSurface: 'STU',
@@ -520,7 +461,7 @@ export const JOURNEY_STEPS = [
   {
     number: 13,
     title: 'Return with comments',
-    wfAut: 'WF-AUT-006',
+    workflowRef: 'WF-AUT-006',
     sourceRef: 'L53540, L68243',
     ownerModule: 'MOD-STU-11',
     actingSurface: 'STU',
@@ -557,7 +498,7 @@ export const JOURNEY_STEPS = [
   {
     number: 14,
     title: 'Revise and resubmit',
-    wfAut: 'WF-AUT-007',
+    workflowRef: 'WF-AUT-007',
     sourceRef: 'L53572, L68244',
     ownerModule: 'MOD-STU-11',
     actingSurface: 'STU',
@@ -592,7 +533,7 @@ export const JOURNEY_STEPS = [
   {
     number: 15,
     title: 'Evaluate — composed agents only, not Workflows',
-    wfAut: null,
+    workflowRef: null,
     sourceRef: 'L34148, L53468',
     ownerModule: 'MOD-STU-15',
     actingSurface: 'STU',
@@ -626,7 +567,7 @@ export const JOURNEY_STEPS = [
   {
     number: 16,
     title: 'Maker-checker approve',
-    wfAut: 'WF-AUT-004 and WF-AUT-005',
+    workflowRef: 'WF-AUT-004 and WF-AUT-005',
     sourceRef: 'L68246, L68192',
     ownerModule: 'MOD-STU-11',
     actingSurface: 'STU',
@@ -665,7 +606,7 @@ export const JOURNEY_STEPS = [
   {
     number: 17,
     title: 'Publish',
-    wfAut: 'WF-AUT-008',
+    workflowRef: 'WF-AUT-008',
     sourceRef: 'L53607, L68390',
     ownerModule: 'MOD-STU-12',
     actingSurface: 'STU',
@@ -718,7 +659,7 @@ export const JOURNEY_STEPS = [
   {
     number: 18,
     title: 'Generate the package',
-    wfAut: 'WF-AUT-009',
+    workflowRef: 'WF-AUT-009',
     sourceRef: 'L53644, L68396',
     ownerModule: 'MOD-STU-14',
     actingSurface: 'STU',
@@ -756,7 +697,7 @@ export const JOURNEY_STEPS = [
   {
     number: 19,
     title: 'Pin — a Delivery Operations Hub act',
-    wfAut: 'WF-AUT-010',
+    workflowRef: 'WF-AUT-010',
     sourceRef: 'L53679, L53677',
     ownerModule: 'MOD-DOH-06, slice 6 — a seam, not a Studio control',
     actingSurface: 'DOH',
@@ -794,7 +735,7 @@ export const JOURNEY_STEPS = [
   {
     number: 20,
     title: 'Supersede',
-    wfAut: 'WF-AUT-008, implicitly',
+    workflowRef: 'WF-AUT-008, implicitly',
     sourceRef: 'L53332, L53689, L33479',
     ownerModule: 'MOD-STU-12',
     actingSurface: 'STU',
@@ -848,7 +789,7 @@ export const JOURNEY_STEPS = [
   {
     number: 21,
     title: 'Roll back',
-    wfAut: 'WF-AUT-011',
+    workflowRef: 'WF-AUT-011',
     sourceRef: 'L53711, L53720',
     ownerModule: 'MOD-STU-12',
     actingSurface: 'STU',
@@ -899,7 +840,7 @@ export const JOURNEY_STEPS = [
   {
     number: 22,
     title: 'Archive',
-    wfAut: 'WF-AUT-011, implicitly',
+    workflowRef: 'WF-AUT-011, implicitly',
     sourceRef: 'L33505, L53332',
     ownerModule: 'MOD-STU-12',
     actingSurface: 'STU',
@@ -941,13 +882,13 @@ export const JOURNEY_STEPS = [
       ),
     }),
   },
-] satisfies readonly JourneyStep[]
+] satisfies readonly StudioJourneyStep[]
 
-export function journeyStep(number: number): JourneyStep | null {
+export function journeyStep(number: number): StudioJourneyStep | null {
   return JOURNEY_STEPS.find((s) => s.number === number) ?? null
 }
 
-export function effectFor(step: JourneyStep, surface: JourneySurfaceCode): SurfaceEffect {
+export function effectFor(step: StudioJourneyStep, surface: JourneySurfaceCode): SurfaceEffect {
   return step.effects[surface]
 }
 

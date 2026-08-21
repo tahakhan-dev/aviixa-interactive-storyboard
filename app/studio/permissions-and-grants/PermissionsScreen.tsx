@@ -31,7 +31,7 @@ import {
   SECTION_253_DISPUTED,
   UNSPECIFIED_IN_SOURCE,
 } from '@/studio/modules/stu-18/restatements'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { routeOpenDecisionFor } from '@/routes/definitions'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
@@ -366,12 +366,12 @@ export function PermissionsScreen(props: PermissionsScreenProps) {
                 <strong>{auditorOpen.decision}</strong> rather than as a refusal. {auditorOpen.why}
               </p>
             )}
-            <DecisionDisclosure id="D3" />
+            <DecisionDisclosure id="DEC-AUDSTU-001" />
             <DecisionDisclosure id="D2" />
             <DecisionDisclosure id="D9" />
-            <DecisionDisclosure id="D13" />
-            <DecisionDisclosure id="D24" />
-            <DecisionDisclosure id="D25" />
+            <DecisionDisclosure id="DEC-DELEG-001" />
+            <DecisionDisclosure id="DEC-TENGRANT-001" />
+            <DecisionDisclosure id="DEC-ROLE-001" />
           </section>
 
           <UnspecifiedPanel />

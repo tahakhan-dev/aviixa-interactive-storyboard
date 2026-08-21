@@ -614,5 +614,29 @@ export const DOH_OUT_OF_SLICE_MODULES = [
 type InSliceId = (typeof DOH_MODULES)[number]['id']
 type OutOfSliceId = (typeof DOH_OUT_OF_SLICE_MODULES)[number]['id']
 type OverlappingModuleIds = Extract<OutOfSliceId, InSliceId>
+
+/**
+ * The eleven ids `DOH_OUT_OF_SLICE_MODULES` names, narrowed to literals by
+ * the `as const satisfies` above rather than widened to the interface's
+ * deliberate bare `string`.
+ *
+ * NOT A ROUTE KEY, AND THAT IS THE WHOLE POINT of the bare `string` on
+ * `DohOutOfSliceModule.id`. This alias exists so `@/surfaces/doh/screens`
+ * can say WHICH out-of-slice module a catalogue-B screen row names without
+ * either widening to `string` — which would let a typo through — or
+ * promoting the id into `DohModuleId`, which is the closed set of modules
+ * this build actually serves a route for.
+ */
+export type DohOutOfSliceModuleId = OutOfSliceId
+
+/**
+ * The surface's whole canonical nineteen-module inventory as one union: the
+ * eight with a route and the eleven without. Read by the screen registry,
+ * which must name a module for catalogue-B rows whose module is not built
+ * here — `SCR-DOH-10` names `MOD-DOH-05` whether or not slice 6 has landed
+ * it yet, and inventing a second spelling for the unbuilt half is how a
+ * later slice ends up with two ids for one module.
+ */
+export type DohCanonicalModuleId = DohModuleId | DohOutOfSliceModuleId
 const _noModuleIsInBothLists: OverlappingModuleIds extends never ? true : never = true
 void _noModuleIsInBothLists

@@ -1,4 +1,4 @@
-import type { StudioDecisionId } from '@/studio/disclosure/decisions'
+import type { DecisionId } from '@/disclosure/decisions'
 import { STU_MODULES, stuModuleById, type StudioModuleId } from '@/studio/modules'
 import type { PublishCheckImplementation, PublishCheckVerdict } from '@/studio/publish/register'
 import { LOCALES, type Locale } from '@/studio/vocab'
@@ -17,7 +17,7 @@ import { LOCALES, type Locale } from '@/studio/vocab'
  *    "Block publication in the incomplete locale only, naming each missing
  *    element, and permit publication in complete locales." Both readings of
  *    that sentence render, from the shared canon: `D29` in
- *    `@/studio/disclosure/decisions`. This module holds NO copy of it.
+ *    `@/disclosure/decisions`. This module holds NO copy of it.
  *
  * 2. **THE CHECK FAILS CLOSED.** `FUNC-STU-17-03-A-1` (L34409): "where the
  *    check itself cannot run, publication is blocked, failing closed, because
@@ -626,7 +626,7 @@ export const OBJ_STU_LOCALE_GAP = {
       'worker-facing content: tenant content, authored and reviewed in the Studio. Joining the ' +
       'two would report coverage for an object this surface does not hold.',
   },
-  decision: 'D11' as StudioDecisionId,
+  decision: 'D11' as DecisionId,
   /**
    * The one sentence a screen renders for this gap. Deliberately says nothing
    * about pack management or pack versioning: that row of the matrix reads

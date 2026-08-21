@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { STU_MODULES, stuModuleById, type StudioPersonaId } from '@/studio/modules'
 import { SEEDED_LIBRARY_REGISTER, type LibraryRegister } from '@/studio/modules/stu-07/libraries'
 import type { LibraryActor, LibraryAuditEntry } from '@/studio/modules/stu-07/writes'
@@ -630,14 +630,14 @@ export function LearningView({ persona: initialPersona = 'quality-manager' }: Le
           </section>
         ) : null}
 
-        {/* D14 — DEC-LANEB-001, through the one disclosure component and the
+        {/* DEC-LANEB-001 — DEC-LANEB-001, through the one disclosure component and the
             canon's own wording. A second disclosure of this decision is a
             defect: task 7 built it and both locator sets live there. */}
-        <DecisionDisclosure id="D14" />
-        {/* D18 — DEC-LANEBAUTH-001, who may decide a Lane-B proposal. Row 2's
+        <DecisionDisclosure id="DEC-LANEB-001" />
+        {/* DEC-LANEBAUTH-001 — DEC-LANEBAUTH-001, who may decide a Lane-B proposal. Row 2's
             Supervisor-with-grant cell is Client Decision Required for exactly
             this reason. */}
-        <DecisionDisclosure id="D18" />
+        <DecisionDisclosure id="DEC-LANEBAUTH-001" />
         {/* D11 — the object naming scheme. This module's objects are the five
             typed stores, OBJ-STU-VERSION on a Lane-B patch, and OBJ-STU-ASSET
             on flagging and retirement (L34210). */}

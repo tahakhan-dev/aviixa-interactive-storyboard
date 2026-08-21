@@ -1,4 +1,4 @@
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { STU_SEAMS, stuSeamById } from '@/studio/seams'
 import { StudioSeamNotice } from '@/ui/stu/StudioSeamNotice'
 import { STU_14_CROSS_SURFACE } from './matrix'
@@ -221,8 +221,8 @@ export function PackageManifestView({ pkg, scenario }: PackageManifestViewProps)
 
       {/* ---- The open decisions ---- */}
       <DecisionDisclosure id="D8" />
-      <DecisionDisclosure id="D15" />
-      <DecisionDisclosure id="D16" />
+      <DecisionDisclosure id="DEC-LIB-001" />
+      <DecisionDisclosure id="DEC-WIDIFF-001" />
       <DecisionDisclosure id="D21" />
 
       {STU_14_LOCAL_DISCLOSURES.map((disclosure) => (

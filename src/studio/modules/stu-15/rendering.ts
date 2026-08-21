@@ -336,7 +336,7 @@ export function capabilityEnablementReadings(
 }
 
 /**
- * D12's position, stated where the mechanism renders: the view is read-only,
+ * DEC-CAPAUTH-001's position, stated where the mechanism renders: the view is read-only,
  * the enablement controls are absent, and `DEC-CAPAUTH-001` is named.
  */
 export const NO_ENABLEMENT_OPERATOR_STATEMENT =

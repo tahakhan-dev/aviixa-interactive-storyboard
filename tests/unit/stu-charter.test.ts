@@ -467,7 +467,7 @@ describe('FUNC-STU-01-01-C-1 (L31599) — refusing is the safe direction', () =>
  * 4. THE ENABLEMENT CONTROL — DISABLED, NOT ABSENT, AND NAMED
  * ==================================================================== */
 
-describe('D12 — the enablement control names DEC-CAPAUTH-001 and acts for nobody', () => {
+describe('DEC-CAPAUTH-001 — the enablement control names DEC-CAPAUTH-001 and acts for nobody', () => {
   const TOLERANCE = capabilityById(CAPABILITY_REGISTER.rows, 'CAP-TOLERANCE')!
   const EQUIPMENT_SIGNAL = capabilityById(CAPABILITY_REGISTER.rows, 'CAP-EQUIPMENT-SIGNAL')!
 
@@ -622,11 +622,11 @@ describe('D12 — the enablement control names DEC-CAPAUTH-001 and acts for nobo
   })
 
   // FAILS IF: the unspecified-in-source panel stops using task 3's component,
-  // or D12's disclosure is dropped from the view.
+  // or DEC-CAPAUTH-001's disclosure is dropped from the view.
   it('discloses the open decision through the shared disclosure component', () => {
     const html = renderView('tenant-admin')
     expect(html).toMatch(/A client-delegated choice under APP-012, not a position the source settled/)
-    expect(html).toMatch(/Open decision D12/)
+    expect(html).toMatch(/Open decision DEC-CAPAUTH-001/)
   })
 })
 
@@ -738,7 +738,7 @@ describe('SB-STU-02 (L30751) — the Atomic Capability area', () => {
   })
 
   // FAILS IF: the nine sections stop being reachable from the seeded state.
-  // D12 seeds enablement so all nine render; a loop over an empty section
+  // DEC-CAPAUTH-001 seeds enablement so all nine render; a loop over an empty section
   // list would pass every negative assertion inside it, so the length is
   // asserted first and each section is named.
   it('seeds enablement so all nine configuration sections exist', () => {

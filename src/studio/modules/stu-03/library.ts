@@ -176,7 +176,7 @@ export function linkageStatement(reading: LinkageReading): string {
 }
 
 /* ==================================================================== *
- * 3. THE TAXONOMY — D20 / `DEC-TAX-002`, adopted.
+ * 3. THE TAXONOMY — DEC-TAX-002 / `DEC-TAX-002`, adopted.
  * ==================================================================== */
 
 export type TaxonomyKind = 'Job Type' | 'Service Type tag'
@@ -1358,7 +1358,7 @@ export interface UnspecifiedRecord {
  * never a claim that the source settled it.
  *
  * `DEC-ARCH-001` is deliberately NOT here. It is a source decision card owned
- * by `MOD-STU-12`, it now carries a canonical record as `D28`, and this screen
+ * by `MOD-STU-12`, it now carries a canonical record as `DEC-ARCH-001`, and this screen
  * renders it through `DecisionDisclosure` rather than restating it. What is
  * screen-scoped — that the Library draws no un-archive control and why — stays
  * on the state machine note above (`STATE_MACHINE_NOTES.unArchivalIsOpen`).

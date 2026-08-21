@@ -78,7 +78,7 @@ const _tiersExhaustive: MissingFromTiers extends never ? true : never = true
 void _tiersExhaustive
 
 /**
- * D24: "`Expired` applies to `GRANT-STU-IMPL` because §5.11.4 requires
+ * DEC-TENGRANT-001: "`Expired` applies to `GRANT-STU-IMPL` because §5.11.4 requires
  * revocation at onboarding's end; the other two grants render `Client Decision
  * Required` under `DEC-TENGRANT-001`."
  *
@@ -103,7 +103,7 @@ export interface StudioGrantDefinition {
    */
   readonly requiredTiers: readonly StudioCommercialTier[] | null
   readonly expiryStatus: GrantExpiryStatus
-  /** The open decision governing expiry, where D24 leaves it open. */
+  /** The open decision governing expiry, where DEC-TENGRANT-001 leaves it open. */
   readonly expiryDecision: string | null
   readonly sourceRefs: readonly string[]
 }
@@ -119,7 +119,7 @@ export const STUDIO_GRANT_DEFINITIONS = [
     requiredTiers: null,
     expiryStatus: 'clientDecisionRequired',
     expiryDecision: 'DEC-TENGRANT-001',
-    sourceRefs: ['L34584', 'L34571', 'D24'],
+    sourceRefs: ['L34584', 'L34571', 'DEC-TENGRANT-001'],
   },
   {
     id: 'GRANT-STU-AGENT',
@@ -130,7 +130,7 @@ export const STUDIO_GRANT_DEFINITIONS = [
     requiredTiers: ['Growth', 'Enterprise'],
     expiryStatus: 'clientDecisionRequired',
     expiryDecision: 'DEC-TENGRANT-001',
-    sourceRefs: ['L34586', 'L34571', 'D24'],
+    sourceRefs: ['L34586', 'L34571', 'DEC-TENGRANT-001'],
   },
   {
     id: 'GRANT-STU-IMPL',
@@ -142,7 +142,7 @@ export const STUDIO_GRANT_DEFINITIONS = [
     requiredTiers: null,
     expiryStatus: 'stated',
     expiryDecision: null,
-    sourceRefs: ['L34588', 'L34573', 'D24'],
+    sourceRefs: ['L34588', 'L34573', 'DEC-TENGRANT-001'],
   },
 ] as const satisfies readonly StudioGrantDefinition[]
 

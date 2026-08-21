@@ -302,7 +302,7 @@ describe('section visibility, derived once', () => {
 })
 
 /* ==================================================================== *
- * 3. THE ARMING CONFIRMATION — STEP 2, C10/D23, R7.
+ * 3. THE ARMING CONFIRMATION — STEP 2, C10/DEC-STUXREF-001, R7.
  * ==================================================================== */
 
 describe('the Severity 1 arming confirmation is a recorded act', () => {

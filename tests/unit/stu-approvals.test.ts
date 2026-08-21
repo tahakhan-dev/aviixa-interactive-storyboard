@@ -6,7 +6,7 @@ import { emptyDomainState, withTenant, type ScenarioDomainState } from '@/domain
 import { scenarioRunId, tenantId } from '@/domain/ids'
 import { STU_MODULES, reachByStudioMatrix, stuModuleById } from '@/studio/modules'
 import { evaluateStudioAccess } from '@/studio/access/evaluate'
-import { STUDIO_DECISIONS, studioDecision } from '@/studio/disclosure/decisions'
+import { OPEN_DECISIONS, decisionRecord } from '@/disclosure/decisions'
 import * as stu11Chain from '@/studio/modules/stu-11/chain'
 import { SUBMISSION_STATES } from '@/studio/vocab'
 import { publishCheckById } from '@/studio/publish/checks'
@@ -827,7 +827,7 @@ describe('DEC-RELAUTH-001 — the pre-submission staffing check', () => {
       'Withdrawn',
     ])
     expect(SUBMISSION_STATES).not.toContain('Stalled')
-    expect(studioDecision('D21').pins).toContain('Stalled')
+    expect(decisionRecord('D21').pins).toContain('Stalled')
     // The flag is DERIVED from the staffing that holds now, so it cannot go
     // stale: a submission whose remaining staff can no longer finish it reads
     // as stalled, and it is still `Submitted`.
@@ -851,7 +851,7 @@ describe('DEC-RELAUTH-001 — the pre-submission staffing check', () => {
 // ===========================================================================
 
 describe('DEC-LANEB-001 and the Lane-B value classifier', () => {
-  // FAILS IF: either locator string moves or a reading is dropped from D14.
+  // FAILS IF: either locator string moves or a reading is dropped from DEC-LANEB-001.
   // The disclosure is the whole instruction `AC-STU-104` and `AC-STU-143` give.
   it('renders both readings with both locator sets', () => {
     const html = renderToStaticMarkup(createElement(ApprovalWorkflowScreen))
@@ -860,7 +860,7 @@ describe('DEC-LANEB-001 and the Lane-B value classifier', () => {
     expect(html).toContain('AC-STU-104')
     expect(html).toContain('AC-STU-143')
     expect(html).toContain('A client-delegated choice under APP-012')
-    const d14 = studioDecision('D14')
+    const d14 = decisionRecord('DEC-LANEB-001')
     expect(d14.decisionRef).toBe('DEC-LANEB-001')
     expect(d14.readings).toHaveLength(2)
     // Neither reading can be marked as the source's answer: the record has no
@@ -912,8 +912,8 @@ describe('DEC-LANEB-001 and the Lane-B value classifier', () => {
   // and that the local `DEC_RELAUTH_001` const carried it; it now asserts the
   // opposite half and keeps the no-local-copy half.
   it('discloses DEC-RELAUTH-001 from the shared canon and keeps no local copy', () => {
-    expect(STUDIO_DECISIONS.map((d): string | null => d.decisionRef)).toContain('DEC-RELAUTH-001')
-    const record = studioDecision('D26')
+    expect(OPEN_DECISIONS.map((d): string | null => d.decisionRef)).toContain('DEC-RELAUTH-001')
+    const record = decisionRecord('DEC-RELAUTH-001')
     expect(record.decisionRef).toBe('DEC-RELAUTH-001')
     // All three of the source's options stand as readings, each with its own
     // locator, and the build's pick is in `adopted` and nowhere else.
@@ -1039,13 +1039,13 @@ describe('the chain as a service (S2, FUNC-STU-11-06-A-1 L33320)', () => {
   })
 
   // FAILS IF: `DEC-LIBREV-001`'s interim treatment is weakened to a two-stage
-  // chain for library edits. D17 / L32622 — option (a), the full chain with a
+  // chain for library edits. DEC-LIBREV-001 / L32622 — option (a), the full chain with a
   // preview scoped to the changed item.
   it('gives the library edit the full chain with a scoped preview, never a shorter chain', () => {
     const lib = APPROVAL_CONSUMER_CONTRACTS.find((c) => c.id === 'content-library-edit')!
     expect(lib.previewScope).toBe('the changed item only')
     expect(lib.decisionRef).toBe('DEC-LIBREV-001')
-    expect(studioDecision('D17').adopted).toMatch(/option \(a\)/i)
+    expect(decisionRecord('DEC-LIBREV-001').adopted).toMatch(/option \(a\)/i)
     // Every consumer passes the same three stages. The composed agent adds two
     // gates and removes none.
     for (const contract of APPROVAL_CONSUMER_CONTRACTS)

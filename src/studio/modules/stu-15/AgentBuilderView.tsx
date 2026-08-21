@@ -1,7 +1,7 @@
 import type { CapabilityAffordance } from '@/studio/modules/stu-18/rendering'
 import { Button } from '@/ui/primitives'
 import { StudioSeamNotice } from '@/ui/stu/StudioSeamNotice'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import {
   DISABLEMENT_HONESTY_LINE,
   NO_TERMINAL_STATE_STATEMENT,
@@ -212,8 +212,8 @@ export function AgentBuilderView({
       </section>
 
       <DecisionDisclosure id="D11" />
-      <DecisionDisclosure id="D12" />
-      <DecisionDisclosure id="D13" />
+      <DecisionDisclosure id="DEC-CAPAUTH-001" />
+      <DecisionDisclosure id="DEC-DELEG-001" />
 
       {STU_15_LOCAL_DISCLOSURES.map((disclosure) => (
         <section

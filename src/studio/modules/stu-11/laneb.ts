@@ -4,7 +4,7 @@ import { CONFIGURATION_SECTIONS, type ConfigurationSection } from '@/studio/voca
  * `DEC-LANEB-001` (L33253) — the value classifier, and **only** the
  * classifier. Nothing here asserts which reading the source meant.
  *
- * The disclosure is `DecisionDisclosure id="D14"` and it renders both
+ * The disclosure is `DecisionDisclosure id="DEC-LANEB-001"` and it renders both
  * readings with both locator sets. `AC-STU-097` (L33397) and `AC-STU-138`
  * (L34332) **cannot both hold for one package-borne Lane-B value**, and the
  * only instruction binding both sides is `AC-STU-104` (L33404) /

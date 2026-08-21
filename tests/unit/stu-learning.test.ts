@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { LearningView } from '../../app/studio/learning/LearningView'
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
-import { studioDecision } from '@/studio/disclosure/decisions'
+import { decisionRecord } from '@/disclosure/decisions'
 import { reachByStudioMatrix, STU_PERSONAS, stuPersonaById } from '@/studio/modules'
 import {
   SEEDED_LIBRARY_REGISTER,
@@ -1077,7 +1077,7 @@ describe('the open decisions render through the one disclosure component', () =>
   it('renders DEC-LANEB-001 with both of task 7’s locator sets', () => {
     const markup = html('quality-manager')
     const text = visibleText(markup)
-    const d14 = studioDecision('D14')
+    const d14 = decisionRecord('DEC-LANEB-001')
     expect(d14.decisionRef).toBe('DEC-LANEB-001')
     for (const reading of d14.readings) expect(text).toContain(`[${reading.locator}]`)
     expect(text).toContain('AC-STU-097 · L33397 · card DEC-LANEB-001 L33253')
@@ -1087,7 +1087,7 @@ describe('the open decisions render through the one disclosure component', () =>
 
   it('renders DEC-LANEBAUTH-001 and settles the Supervisor-with-grant cell as OPEN', () => {
     const text = visibleText(html('quality-manager'))
-    const d18 = studioDecision('D18')
+    const d18 = decisionRecord('DEC-LANEBAUTH-001')
     expect(d18.decisionRef).toBe('DEC-LANEBAUTH-001')
     for (const reading of d18.readings) expect(text).toContain(`[${reading.locator}]`)
     const cell = stu16Row('decide-a-lane-b-proposal').cells['supervisor-with-authoring-grant']
@@ -1102,7 +1102,7 @@ describe('the open decisions render through the one disclosure component', () =>
     expect(corpus).not.toMatch(/readings\s*:\s*\[/)
     expect(corpus).not.toMatch(/locator\s*:\s*['"]/)
     // And the canon's own copy of the text is not duplicated here.
-    for (const reading of studioDecision('D14').readings) {
+    for (const reading of decisionRecord('DEC-LANEB-001').readings) {
       expect(corpus).not.toContain(reading.text.slice(0, 60))
     }
   })

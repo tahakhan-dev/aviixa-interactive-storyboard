@@ -188,7 +188,7 @@ void _composedAgentStatesExhaustive
  * L34573: "A grant is Assigned, Active, Revoked, or Expired, the last applying
  * to the implementation team's capacity at onboarding's end."
  *
- * D24: `Expired` applies to `GRANT-STU-IMPL` because §5.11.4 requires
+ * DEC-TENGRANT-001: `Expired` applies to `GRANT-STU-IMPL` because §5.11.4 requires
  * revocation at onboarding's end. Whether the other two grants carry an expiry
  * is `DEC-TENGRANT-001` (L16457) and renders `Client Decision Required`.
  */

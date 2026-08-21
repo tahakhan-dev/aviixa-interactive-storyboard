@@ -3,7 +3,7 @@ import type { TenantId } from '@/domain/ids'
 import type { StudioPersonaColumn } from '@/studio/access/evaluate'
 import { STU_PERSONAS, stuPersonaById } from '@/studio/modules'
 import { studioConnectivityTreatment } from '@/studio/state/connectivity'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { Banner, Button, FreshnessLabel, StatusPill } from '@/ui/primitives'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
@@ -38,7 +38,7 @@ import { NotAvailableLine } from './NotAvailableLine'
 /**
  * `SCR-STU-CAPS` — the Atomic Capabilities view, and the charter it enforces.
  *
- * READ-ONLY BY RULING, NOT BY OMISSION (D12). `DEC-CAPAUTH-001` is open and
+ * READ-ONLY BY RULING, NOT BY OMISSION (DEC-CAPAUTH-001). `DEC-CAPAUTH-001` is open and
  * nobody holds capability enablement, so every enable-or-disable control here
  * is rendered DISABLED with the decision named rather than working or hidden:
  * building an operator would pre-empt the decision, and dropping the view
@@ -410,7 +410,7 @@ export function AtomicCapabilitiesView({
           </ul>
           <p className="mt-3 text-sm text-[var(--color-ink)]">{ENABLEMENT_AUTHORITY_POSITION}</p>
         </div>
-        <DecisionDisclosure id="D12" />
+        <DecisionDisclosure id="DEC-CAPAUTH-001" />
       </section>
 
       {/* ---------------------------------------------------------------- *

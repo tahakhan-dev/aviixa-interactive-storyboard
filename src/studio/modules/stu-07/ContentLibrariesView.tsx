@@ -1,4 +1,4 @@
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { publishCheckById } from '@/studio/publish/checks'
 import { STU_SEAMS, stuSeamById } from '@/studio/seams'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
@@ -481,8 +481,8 @@ function ChecklistTab() {
         <h2 id="checklist-decisions-heading" className="text-lg font-semibold">
           Open client decisions that govern this tab
         </h2>
-        <DecisionDisclosure id="D15" />
-        <DecisionDisclosure id="D17" />
+        <DecisionDisclosure id="DEC-LIB-001" />
+        <DecisionDisclosure id="DEC-LIBREV-001" />
       </section>
     </>
   )
@@ -568,7 +568,7 @@ function CorpusTab({ register }: { readonly register: LibraryRegister }) {
           of it on the surface and not two.
         </p>
         <div className="mt-3">
-          <DecisionDisclosure id="D27" />
+          <DecisionDisclosure id="DEC-EMBED-001" />
         </div>
       </section>
 

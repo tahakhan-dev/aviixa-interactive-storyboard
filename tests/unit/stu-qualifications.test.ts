@@ -4,7 +4,7 @@ import { PUBLISH_CHECKS, publishCheckById } from '@/studio/publish/checks'
 import { evaluatePublish } from '@/studio/publish/register'
 import { STU_SEAMS, stuSeamById, stuSeamStatus } from '@/studio/seams'
 import { STU_MODULES, stuModuleById } from '@/studio/modules'
-import { studioDecision } from '@/studio/disclosure/decisions'
+import { decisionRecord } from '@/disclosure/decisions'
 import {
   STU_13_CROSS_SURFACE,
   STU_13_MATRIX,
@@ -868,7 +868,7 @@ describe('registry standing', () => {
   // FAILS IF: the gap stops being declared — which is how a registered gap
   // becomes a silent one.
   it('leaves OBJ-STU-QUALREQ a registered gap under D11', () => {
-    const d11 = studioDecision('D11')
+    const d11 = decisionRecord('D11')
     expect(d11.adopted).toContain('OBJ-STU-QUALREQ')
     expect(d11.adopted).toContain('registered gap')
   })

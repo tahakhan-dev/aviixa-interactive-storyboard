@@ -494,7 +494,7 @@ const MAX_GAP = 6
  *
  * AND ONLY LEFTWARDS, for the reason `anchorOf` gives at length in the other
  * direction: `"<quote>" <ID> (<line>)` is not a parenthetical citation of the
- * quotation, it is the NEXT CLAUSE. `studio/disclosure/decisions.ts` writes
+ * quotation, it is the NEXT CLAUSE. `disclosure/decisions.ts` writes
  * `The source's interim rule: "…" AC-STU-090 (<line>) requires that interim
  * rule …`, where the quotation belongs to the decision record named in the
  * same object's `locator` field and the citation belongs to the criterion that
@@ -1948,7 +1948,7 @@ describe('locator fidelity: a quotation binds through the identifier it labels',
   })
 
   it('does not bind RIGHTWARDS through a label, which is a different claim', () => {
-    // `studio/disclosure/decisions.ts` writes `"<quote>" AC-STU-090 (<line>)
+    // `disclosure/decisions.ts` writes `"<quote>" AC-STU-090 (<line>)
     // requires ...`, where the quotation belongs to the decision record and
     // the citation to the criterion that follows it.
     expect(

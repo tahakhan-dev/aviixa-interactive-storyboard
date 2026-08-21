@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import * as studioVocab from '@/studio/vocab'
 import * as stu12Versions from '@/studio/modules/stu-12/versions'
 import { JOB_ADOPTION_STATES, SUBMISSION_STATES, VERSION_BUMP_CLASSES } from '@/studio/vocab'
-import { STUDIO_DECISIONS, studioDecision } from '@/studio/disclosure/decisions'
+import { OPEN_DECISIONS, decisionRecord } from '@/disclosure/decisions'
 import { STU_MODULES, reachByStudioMatrix, stuModuleById } from '@/studio/modules'
 import { STU_SEAMS, stuSeamById } from '@/studio/seams'
 import { PUBLISH_CHECKS, publishCheckById } from '@/studio/publish/checks'
@@ -358,7 +358,7 @@ describe('D5 — Superseded is the version state, Outdated is the Job adoption s
   // FAILS IF: D5's disclosure stops rendering both readings, or the screen
   // starts presenting one as the source's answer.
   it('discloses D5 with both readings and neither settled', () => {
-    const d5 = studioDecision('D5')
+    const d5 = decisionRecord('D5')
     expect(d5.readings).toHaveLength(2)
     const page = html()
     for (const reading of d5.readings) expect(page).toContain(reading.locator)
@@ -418,7 +418,7 @@ describe('the rollback question — refused acts and two identifiers', () => {
     const page = html()
     expect(page).toMatch(/DEC-WFROLL-001/)
     expect(page).toMatch(/DEC-VERROLL-001/)
-    const d7 = studioDecision('D7')
+    const d7 = decisionRecord('DEC-WFROLL-001')
     expect(d7.decisionRef).toBe('DEC-WFROLL-001')
     expect(d7.alias).toBe('DEC-VERROLL-001')
     // BOTH locator sets pinned. Removing either reading turns this red.
@@ -759,8 +759,8 @@ describe('the version state machine — all 16 origin x transition pairs', () =>
   // and that the local `DEC_ARCH_001` const carried it; it now asserts the
   // opposite half and keeps the no-local-copy half.
   it('discloses DEC-ARCH-001 from the shared canon and keeps no local copy', () => {
-    expect(STUDIO_DECISIONS.map((d): string | null => d.decisionRef)).toContain('DEC-ARCH-001')
-    const record = studioDecision('D28')
+    expect(OPEN_DECISIONS.map((d): string | null => d.decisionRef)).toContain('DEC-ARCH-001')
+    const record = decisionRecord('DEC-ARCH-001')
     expect(record.decisionRef).toBe('DEC-ARCH-001')
     expect(record.readings).toHaveLength(3)
     for (const r of record.readings) expect(r.locator).toContain('L33443')

@@ -25,7 +25,7 @@
  * (L32232). `TEST-WF-AUT-002-04` (L53401) makes divergence between this list
  * and the Frontline renderer list a **build failure**.
  *
- * D19 is ADOPTED, not open. Both source readings still render, through
+ * DEC-CAP-001 is ADOPTED, not open. Both source readings still render, through
  * `DecisionDisclosure` and `DEC-CAP-001`.
  */
 export type CaptureType =
@@ -108,7 +108,7 @@ void _inheritableDefaultsExhaustive
  *
  * Section 7 is where the Severity 1 arming confirmation lives. §5.2.2 cites
  * "(5.5.9)", which is Tool and Equipment -- the off-by-one recorded as
- * `DEC-STUXREF-001` (L31869) and disclosed as D23.
+ * `DEC-STUXREF-001` (L31869) and disclosed as DEC-STUXREF-001.
  */
 export type ConfigurationSection =
   | 'Screen content'

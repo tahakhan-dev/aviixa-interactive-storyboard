@@ -1,4 +1,4 @@
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { publishCheckById } from '@/studio/publish/checks'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
 import { DIFFICULTY_LEVELS } from '@/studio/vocab'
@@ -467,7 +467,7 @@ function PropagationPanel() {
         travelled inside.
       </p>
       <div className="mt-3">
-        <DecisionDisclosure id="D3" />
+        <DecisionDisclosure id="DEC-AUDSTU-001" />
       </div>
     </section>
   )

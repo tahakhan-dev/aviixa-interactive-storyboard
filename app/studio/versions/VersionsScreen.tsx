@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { STU_MODULES, stuModuleById, type StudioPersonaId } from '@/studio/modules'
 import { STU_SEAMS, stuSeamById } from '@/studio/seams'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
 import { screenState } from '@/ui/screen-state'
 import { renderAdoption, renderAdoptionSummary } from '@/studio/state/adoption'
@@ -785,7 +785,7 @@ function VersionControl(props: VersionControlProps) {
           })()}
         </p>
         <div className="mt-3">
-          <DecisionDisclosure id="D7" />
+          <DecisionDisclosure id="DEC-WFROLL-001" />
         </div>
       </section>
 
@@ -797,7 +797,7 @@ function VersionControl(props: VersionControlProps) {
           <DecisionDisclosure id="D5" />
           <DecisionDisclosure id="D6" />
           <DecisionDisclosure id="D21" />
-          <DecisionDisclosure id="D28" />
+          <DecisionDisclosure id="DEC-ARCH-001" />
         </div>
       </section>
 

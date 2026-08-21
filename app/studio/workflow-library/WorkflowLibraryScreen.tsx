@@ -6,7 +6,7 @@ import { STU_MODULES, stuModuleById, type StudioPersonaId } from '@/studio/modul
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
 import { STUDIO_GRANT_STATES, type StudioGrantState } from '@/studio/access/grants'
 import { STU_SEAMS, stuSeamById } from '@/studio/seams'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
 import {
   DEFAULT_FILTERS,
@@ -476,10 +476,10 @@ export function WorkflowLibraryScreen(props: WorkflowLibraryScreenProps) {
             <h2 id="open-decisions" className="text-lg font-semibold">
               The open decisions this screen renders
             </h2>
-            <DecisionDisclosure id="D20" />
+            <DecisionDisclosure id="DEC-TAX-002" />
             <DecisionDisclosure id="D6" />
             <DecisionDisclosure id="D11" />
-            <DecisionDisclosure id="D28" />
+            <DecisionDisclosure id="DEC-ARCH-001" />
           </section>
 
           <UnspecifiedPanel />

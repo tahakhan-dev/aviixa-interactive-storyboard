@@ -6,7 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { WorkPackageScreen } from '../../app/studio/work-package/WorkPackageScreen'
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
-import { studioDecision } from '@/studio/disclosure/decisions'
+import { decisionRecord } from '@/disclosure/decisions'
 import { reachByStudioMatrix } from '@/studio/modules'
 import { STU_SCREENS, stuScreensForModule } from '@/studio/screens'
 import { STU_OWNED_SEAMS, STU_SEAMS, stuSeamById } from '@/studio/seams'
@@ -548,7 +548,7 @@ describe('coaching omitted for storage is listed explicitly by asset name', () =
 
 /* ==================================================================== *
  * STEP 7 — the pin renders, and nothing suggests a newer version
- * changes it. D15, D16, and protection by OMISSION.
+ * changes it. DEC-LIB-001, DEC-WIDIFF-001, and protection by OMISSION.
  * ==================================================================== */
 
 describe('the package is pinned per Run and the pin is rendered, never fired', () => {
@@ -584,21 +584,21 @@ describe('the package is pinned per Run and the pin is rendered, never fired', (
     expect(code).not.toMatch(/rebase|repin|swapPackage|latestPublished/i)
   })
 
-  it('renders D15’s counter-argument rather than only its adopted reading', () => {
-    const d15 = studioDecision('D15')
+  it('renders DEC-LIB-001’s counter-argument rather than only its adopted reading', () => {
+    const d15 = decisionRecord('DEC-LIB-001')
     expect(d15.decisionRef).toBe('DEC-LIB-001')
     expect(d15.adopted).toMatch(/delays a safety-motivated checklist improvement by up to one Run/)
-    expect(renderedForEveryPersona()).toMatch(/Open decision D15/)
+    expect(renderedForEveryPersona()).toMatch(/Open decision DEC-LIB-001/)
   })
 
-  it('ships all three difficulty levels and states the storage trade-off (D16)', () => {
+  it('ships all three difficulty levels and states the storage trade-off (DEC-WIDIFF-001)', () => {
     expect([...RUN_2026_08_14_A_PACKAGE.difficultyLevels].sort()).toEqual(
       [...DIFFICULTY_LEVELS].sort(),
     )
-    const d16 = studioDecision('D16')
+    const d16 = decisionRecord('DEC-WIDIFF-001')
     expect(d16.decisionRef).toBe('DEC-WIDIFF-001')
     expect(d16.adopted).toMatch(/multiplies the instruction payload by three/)
-    expect(renderedForEveryPersona()).toMatch(/Open decision D16/)
+    expect(renderedForEveryPersona()).toMatch(/Open decision DEC-WIDIFF-001/)
   })
 
   it('withholds the manifest from the personas whose cell withholds the read', () => {

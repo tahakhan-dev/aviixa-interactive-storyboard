@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { STU_OWNED_SEAMS } from '@/studio/seams'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
 import { studioConnectivityTreatment } from '@/studio/state/connectivity'
@@ -152,7 +152,7 @@ export function BuilderView(props: BuilderViewProps) {
           </p>
         </section>
         <ReadableScope readable={readable} />
-        <DecisionDisclosure id="D3" />
+        <DecisionDisclosure id="DEC-AUDSTU-001" />
       </div>
     )
   }
@@ -473,7 +473,7 @@ export function BuilderView(props: BuilderViewProps) {
 
       <PackagedFailurePath />
       <ScreenStatePanel />
-      <DecisionDisclosure id="D3" />
+      <DecisionDisclosure id="DEC-AUDSTU-001" />
     </div>
   )
 }

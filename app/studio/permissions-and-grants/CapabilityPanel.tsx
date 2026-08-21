@@ -85,7 +85,7 @@ export function CapabilityPanel({ scenario }: CapabilityPanelProps) {
         <dd className="text-[var(--color-ink-muted)]">
           <ul className="space-y-1">
             {grants.map((grant) => {
-              // D24 is read off the ONE grant table (task 1's), never a second
+              // DEC-TENGRANT-001 is read off the ONE grant table (task 1's), never a second
               // copy here: L34573 attaches `Expired` to GRANT-STU-IMPL alone,
               // and the other two carry DEC-TENGRANT-001 on the same record.
               const definition = studioGrantById(grant.id)

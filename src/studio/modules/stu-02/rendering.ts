@@ -224,7 +224,7 @@ export function crossSurfaceStatements(
  * does not implement it: the heading and the four statements are imported
  * from where they are authored, never retyped, so the two can never disagree.
  *
- * `DEC-STUXREF-001` (D23) rides with it: §5.2.2 cites "(5.5.9)" for the
+ * `DEC-STUXREF-001` (DEC-STUXREF-001) rides with it: §5.2.2 cites "(5.5.9)" for the
  * place the Studio surfaces the arming consequence, and §5.5.9 is Tool and
  * Equipment. The behaviour is at §5.5.8, Deviation rules and severity
  * mapping. The off-by-one matters because downstream traceability keyed on
@@ -236,7 +236,7 @@ export interface ArmingCrossReference {
   readonly implementedBy: string
   readonly citedSection: string
   readonly actualSection: string
-  readonly openDecision: 'D23'
+  readonly openDecision: 'DEC-STUXREF-001'
   readonly readOnlyHere: true
   readonly sourceRefs: readonly string[]
 }
@@ -250,7 +250,7 @@ export const ARMING_CROSS_REFERENCE: ArmingCrossReference = {
     'the authored band.',
   citedSection: '§5.5.9, Tool and equipment — the cited section, and the wrong one',
   actualSection: '§5.5.8, Deviation rules and severity mapping — where the behaviour is stated',
-  openDecision: 'D23',
+  openDecision: 'DEC-STUXREF-001',
   readOnlyHere: true,
   sourceRefs: ['L31814', 'L31869', 'AC-STU-043 L31854'],
 }

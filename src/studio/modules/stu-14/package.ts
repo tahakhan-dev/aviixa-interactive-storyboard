@@ -234,7 +234,7 @@ export interface WorkPackage {
   /** A version published after this Run started, where one exists. Display only. */
   readonly newerPublishedVersion: string | null
   readonly locale: Locale
-  /** D16: all three ship, under DEC-WIDIFF-001's interim rule. */
+  /** DEC-WIDIFF-001: all three ship, under DEC-WIDIFF-001's interim rule. */
   readonly difficultyLevels: readonly DifficultyLevel[]
   readonly screenCount: number
   /** What the build actually assembled. The manifest's own contents list. */

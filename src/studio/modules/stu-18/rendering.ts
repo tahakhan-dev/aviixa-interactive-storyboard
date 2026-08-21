@@ -27,7 +27,7 @@ import { stu18Row, type Stu18MatrixRow } from './matrix'
  *
  * - `readOnly` renders THE CELL'S OWN WORDS (`decision.reason`) with no
  *   further composition — `WriteControl`'s disabled branch instead appends a
- *   fixed "Nothing here is queued... (D7)" sentence to every non-allowed
+ *   fixed "Nothing here is queued... (DEC-WFROLL-001)" sentence to every non-allowed
  *   decision, which would misstate a read-only cell as a refused write.
  * - `clientDecisionRequired` is not a disabled control at all — it renders
  *   `kind: 'decision-open'`, showing both readings and the open decision id.

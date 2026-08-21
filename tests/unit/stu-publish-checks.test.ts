@@ -246,15 +246,13 @@ import {
   WHEEL_BOLT_DRAFT_CONTENT,
   type JourneyState,
 } from '@/studio/journey/fixture'
+import { JOURNEY_REFUSALS, JOURNEY_STEPS, journeyStep } from '@/studio/journey/effects'
 import {
   effectStatement,
-  JOURNEY_REFUSALS,
-  JOURNEY_STEPS,
   JOURNEY_SURFACES,
-  journeyStep,
   type JourneySurfaceCode,
-} from '@/studio/journey/effects'
-import { FiveSurfaceEffects } from '@/ui/stu/FiveSurfaceEffects'
+} from '@/ui/shared/journey'
+import { FiveSurfaceEffects } from '@/ui/shared/FiveSurfaceEffects'
 
 function foldedStates(): readonly JourneyState[] {
   const fold = journeyStates(JOURNEY_STEPS)
@@ -504,7 +502,7 @@ describe('the journey fixture — every step reachable from the one before it', 
     for (const f of [
       'src/studio/journey/fixture.ts',
       'src/studio/journey/effects.ts',
-      'src/ui/stu/FiveSurfaceEffects.tsx',
+      'src/ui/shared/FiveSurfaceEffects.tsx',
     ])
       expect({ f, hit: banned.test(readFileSync(f, 'utf8')) }).toEqual({ f, hit: false })
   })
@@ -578,7 +576,7 @@ describe('FiveSurfaceEffects — the panel Task 23 renders on every step', () =>
   // Fails if the panel starts computing permissions instead of rendering the
   // record it is handed. No policy under src/ui.
   it('holds no policy', () => {
-    const src = readFileSync('src/ui/stu/FiveSurfaceEffects.tsx', 'utf8')
+    const src = readFileSync('src/ui/shared/FiveSurfaceEffects.tsx', 'utf8')
     expect(src).not.toMatch(/@\/policy/)
     expect(src).not.toMatch(/\ballowedRoles\b|\bevaluateAccess\b/)
   })

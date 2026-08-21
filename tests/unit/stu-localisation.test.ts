@@ -7,7 +7,7 @@ import { isForeignProbe } from '../probe-paths'
 import { LocalisationScreen } from '../../app/studio/localisation/LocalisationScreen'
 import { reachByStudioMatrix, STU_PERSONAS } from '@/studio/modules'
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
-import { studioDecision } from '@/studio/disclosure/decisions'
+import { decisionRecord } from '@/disclosure/decisions'
 import { publishCheckById } from '@/studio/publish/checks'
 import {
   createPublishCheckRegister,
@@ -547,7 +547,7 @@ describe('D11 — OBJ-STU-LOCALE has no numeric counterpart', () => {
   })
 
   it('is the same gap task 3 recorded on D11, not a second copy of the ruling', () => {
-    expect(studioDecision('D11').adopted).toContain('OBJ-STU-LOCALE')
+    expect(decisionRecord('D11').adopted).toContain('OBJ-STU-LOCALE')
     expect(OBJ_STU_LOCALE_GAP.decision).toBe('D11')
   })
 
@@ -568,7 +568,7 @@ describe('the per-locale reading is disclosed from the canon, never presented as
   // FAILS IF: the canonical record loses a reading, a reading loses its own
   // locator, or a reading gains a field in which it could be marked the answer.
   it('holds both readings with their own locators, and neither is the answer', () => {
-    const record = studioDecision('D29')
+    const record = decisionRecord('D29')
     // The source states this conflict at L34361 and never gives it a `DEC-*`
     // identifier, so the record says so rather than inventing one.
     expect(record.decisionRef).toBeNull()
@@ -604,7 +604,7 @@ describe('the per-locale reading is disclosed from the canon, never presented as
   // the canonical record without its alternative. Every assertion is read OFF
   // THE RECORD, so a rewording follows instead of going stale.
   it('renders the canonical record on the screen, both readings and the label', () => {
-    const record = studioDecision('D29')
+    const record = decisionRecord('D29')
     const html = renderToStaticMarkup(createElement(LocalisationScreen))
     expect(html).toContain(record.question)
     for (const r of record.readings) expect(html).toContain(r.text)

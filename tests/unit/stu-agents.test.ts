@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { PermissionOutcome } from '@/policy/decision'
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
-import { studioDecision } from '@/studio/disclosure/decisions'
+import { decisionRecord } from '@/disclosure/decisions'
 import { reachByStudioMatrix, type StudioPersonaId } from '@/studio/modules'
 import { STU_SCREENS, stuScreensForModule } from '@/studio/screens'
 import { STU_SEAMS, stuSeamById, stuSeamStatus } from '@/studio/seams'
@@ -475,12 +475,12 @@ describe('MOD-STU-02 — the configuration read and the arming cross-reference',
     expect(ARMING_CROSS_REFERENCE.implementedBy).toMatch(/MOD-STU-05/)
   })
 
-  it('renders D23’s off-by-one with both section numbers', () => {
+  it('renders DEC-STUXREF-001’s off-by-one with both section numbers', () => {
     const html = renderConfiguration()
-    expect(html).toContain('Open decision D23 — DEC-STUXREF-001')
+    expect(html).toContain('Open decision DEC-STUXREF-001')
     expect(html).toContain('§5.5.9')
     expect(html).toContain('§5.5.8')
-    expect(studioDecision('D23').decisionRef).toBe('DEC-STUXREF-001')
+    expect(decisionRecord('DEC-STUXREF-001').decisionRef).toBe('DEC-STUXREF-001')
   })
 })
 
@@ -530,7 +530,7 @@ describe('MOD-STU-15 — the permission matrix, L34009-L34020', () => {
 })
 
 /* ==================================================================== *
- * MOD-STU-15 — row 1, nobody holds enablement (C11, D12).
+ * MOD-STU-15 — row 1, nobody holds enablement (C11, DEC-CAPAUTH-001).
  * ==================================================================== */
 
 describe('MOD-STU-15 — capability enablement has no authorised operator', () => {
@@ -567,7 +567,7 @@ describe('MOD-STU-15 — capability enablement has no authorised operator', () =
 })
 
 /* ==================================================================== *
- * MOD-STU-15 — DEC-DELEG-001 (D13).
+ * MOD-STU-15 — DEC-DELEG-001 (DEC-DELEG-001).
  * ==================================================================== */
 
 describe('MOD-STU-15 — the Supervisor is denied the Agent Builder and the decision is named', () => {
@@ -597,9 +597,9 @@ describe('MOD-STU-15 — the Supervisor is denied the Agent Builder and the deci
     expect(note).toContain('L34011')
   })
 
-  it('discloses D13 on the builder view', () => {
-    expect(studioDecision('D13').decisionRef).toBe('DEC-DELEG-001')
-    expect(renderBuilder()).toContain('Open decision D13 — DEC-DELEG-001')
+  it('discloses DEC-DELEG-001 on the builder view', () => {
+    expect(decisionRecord('DEC-DELEG-001').decisionRef).toBe('DEC-DELEG-001')
+    expect(renderBuilder()).toContain('Open decision DEC-DELEG-001')
   })
 })
 
@@ -973,7 +973,7 @@ describe('MOD-STU-15 — what the screen must say plainly', () => {
     expect(OBJ_STU_CAPSTATE_GAP.mnemonic).toBe('OBJ-STU-CAPSTATE')
     expect(OBJ_STU_CAPSTATE_GAP.numericCounterpart).toBeNull()
     expect(OBJ_STU_CAPSTATE_GAP.disclosure).toBe('D11')
-    expect(studioDecision('D11').adopted).toContain('OBJ-STU-CAPSTATE')
+    expect(decisionRecord('D11').adopted).toContain('OBJ-STU-CAPSTATE')
     expect(renderBuilder()).toContain('Registered gap — OBJ-STU-CAPSTATE')
   })
 })

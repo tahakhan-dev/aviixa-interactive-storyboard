@@ -3,10 +3,10 @@ import {
   effectStatement,
   type JourneyStep,
   type JourneySurfaceCode,
-} from '@/studio/journey/effects'
+} from './journey'
 
 /**
- * The five-surface effect panel for one journey step.
+ * The five-surface effect panel for one journey step, on any surface.
  *
  * The rule this renders: an action's effect is visible on **every surface it
  * touches, and honestly absent on the ones it does not**. A surface with no
@@ -16,7 +16,10 @@ import {
  * discouraged (`effectStatement` always returns a sentence).
  *
  * This component holds no policy: it renders the step record it is handed
- * and computes nothing about who may do what.
+ * and computes nothing about who may do what. It is also blind to which
+ * surface handed it the step — `SURF-STU`'s twenty-two-step authoring journey
+ * and `SURF-DOH`'s operational journey render through this one component, so
+ * the same act cannot be described two different ways in two places.
  */
 export interface FiveSurfaceEffectsProps {
   readonly step: JourneyStep
@@ -30,8 +33,8 @@ export function FiveSurfaceEffects({ step }: FiveSurfaceEffectsProps) {
     >
       <h3 className="text-sm font-semibold text-[var(--color-ink)]">
         Step {step.number} — {step.title}
-        {step.wfAut === null ? null : (
-          <span className="ml-2 font-normal text-[var(--color-ink-subtle)]">{step.wfAut}</span>
+        {step.workflowRef === null ? null : (
+          <span className="ml-2 font-normal text-[var(--color-ink-subtle)]">{step.workflowRef}</span>
         )}
       </h3>
       <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">

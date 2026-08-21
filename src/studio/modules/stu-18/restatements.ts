@@ -416,7 +416,7 @@ export interface UnspecifiedItem {
  * cost — what the standing rule requires of an unresolved source decision.
  *
  * `DEC-ROLE-001` is deliberately NOT here. It is a source decision card, it
- * now carries a canonical record as `D25`, and this module renders it through
+ * now carries a canonical record as `DEC-ROLE-001`, and this module renders it through
  * `DecisionDisclosure` like every other one. A second copy here would be two
  * wordings of one decision, which is how one of them quietly stops mentioning
  * an alternative.

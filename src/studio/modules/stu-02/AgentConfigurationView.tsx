@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import type { CapabilityAffordance } from '@/studio/modules/stu-18/rendering'
 import { Button, Field } from '@/ui/primitives'
 import { StudioSeamNotice } from '@/ui/stu/StudioSeamNotice'
@@ -247,7 +247,7 @@ export function AgentConfigurationView({
         </p>
       </section>
 
-      <DecisionDisclosure id="D23" />
+      <DecisionDisclosure id="DEC-STUXREF-001" />
 
       {STU_02_LOCAL_DISCLOSURES.map((disclosure) => (
         <section

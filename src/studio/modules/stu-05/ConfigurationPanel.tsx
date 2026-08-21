@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { StudioPersonaColumn } from '@/studio/access/evaluate'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import type { AtomicCapabilityRow } from '@/studio/modules/stu-01/capabilities'
 import { NotAvailableLine } from '@/studio/modules/stu-01/NotAvailableLine'
 import {
@@ -344,7 +344,7 @@ export function ConfigurationPanel({
               <>
                 <p className="text-sm">Capture type: {screen.inputType}</p>
                 <Control affordance={controlFor('choose-the-input-type')!.affordance} />
-                <DecisionDisclosure id="D19" />
+                <DecisionDisclosure id="DEC-CAP-001" />
               </>
             ) : null}
 
@@ -433,7 +433,7 @@ export function ConfigurationPanel({
                 <Control affordance={controlFor('map-a-band-to-a-catalog-level')!.affordance} />
                 <Control affordance={controlFor('define-a-new-severity-level')!.affordance} />
                 <StudioSeamNotice seam={bundleSeam} />
-                <DecisionDisclosure id="D23" />
+                <DecisionDisclosure id="DEC-STUXREF-001" />
               </>
             ) : null}
 

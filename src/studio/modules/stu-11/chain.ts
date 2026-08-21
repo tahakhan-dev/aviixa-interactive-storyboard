@@ -113,7 +113,7 @@ export const APPROVAL_CONSUMER_CONTRACTS = [
   {
     id: 'content-library-edit',
     ownerModule: 'MOD-STU-07',
-    // D17 / `DEC-LIBREV-001` (L32622): "lightweight review" is option (a) —
+    // DEC-LIBREV-001 / `DEC-LIBREV-001` (L32622): "lightweight review" is option (a) —
     // the FULL three-stage chain with a preview scoped to the changed item.
     // The source's own recommendation and its own interim treatment: "Until it
     // is decided, this blueprint treats library edits as passing the full

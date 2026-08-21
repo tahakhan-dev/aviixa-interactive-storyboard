@@ -7,7 +7,7 @@ import { STU_MODULES, reachByStudioMatrix, stuModuleById } from '@/studio/module
 import { STU_SCREENS, stuScreensForModule } from '@/studio/screens'
 import { STU_SEAMS, stuSeamById } from '@/studio/seams'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
-import { studioDecision } from '@/studio/disclosure/decisions'
+import { decisionRecord } from '@/disclosure/decisions'
 import { WHEEL_BOLT_DRAFT_CONTENT } from '@/studio/journey/fixture'
 import { studioIdentityFor } from '@/studio/modules/stu-18/rendering'
 
@@ -454,7 +454,7 @@ describe('linkage counts', () => {
 })
 
 /* ==================================================================== *
- * 4. THE TAXONOMY — D20 / DEC-TAX-002, adopted.
+ * 4. THE TAXONOMY — DEC-TAX-002 / DEC-TAX-002, adopted.
  * ==================================================================== */
 
 describe('the classification taxonomy', () => {
@@ -967,9 +967,9 @@ describe('the Workflow state machine', () => {
 
   // FAILS IF: DEC-ARCH-001 leaves the shared decision canon, or this module
   // mints a local copy of it again. It used to be an UNSPECIFIED_IN_SOURCE
-  // entry here because the canon had no record; the canon now carries D28.
+  // entry here because the canon had no record; the canon now carries DEC-ARCH-001.
   it('discloses DEC-ARCH-001 from the shared canon and keeps no local copy', () => {
-    const record = studioDecision('D28')
+    const record = decisionRecord('DEC-ARCH-001')
     expect(record.decisionRef).toBe('DEC-ARCH-001')
     expect(UNSPECIFIED_IN_SOURCE.map((r) => r.id)).not.toContain('DEC-ARCH-001')
     const text = plain(screenMarkup())
@@ -984,7 +984,7 @@ describe('the Workflow state machine', () => {
   // disclosure stops carrying OBJ-036's narrower statement.
   it('keeps the Archived state and records OBJ-036 as the narrower statement', () => {
     expect(WORKFLOW_STATUSES).toContain('Archived')
-    const d6 = studioDecision('D6')
+    const d6 = decisionRecord('D6')
     expect(d6.question).toContain('Archived state')
     expect(d6.readings.map((r) => r.locator).join(' ')).toContain('OBJ-036')
     expect(d6.adopted).toContain('narrower statement')
@@ -1015,7 +1015,7 @@ describe('the unspecified-in-source panel', () => {
   it('carries two records, each with at least two readings, a position and a cost', () => {
     expect(UNSPECIFIED_IN_SOURCE).toHaveLength(2)
     // DEC-ARCH-001 is NOT here. It is a source decision card owned by
-    // MOD-STU-12, it carries a canonical record as D28, and this screen
+    // MOD-STU-12, it carries a canonical record as DEC-ARCH-001, and this screen
     // renders that record rather than restating it -- see the test below.
     expect(UNSPECIFIED_IN_SOURCE.map((r) => r.id)).toEqual([
       'DEC-TAXROLE-001',
@@ -1143,10 +1143,10 @@ describe('SCR-STU-02 — the Workflow Library', () => {
 
   // FAILS IF: a module writes its own disclosure prose instead of using the
   // shared component, or a decision this screen depends on is removed.
-  it('renders D6, D11 and D20 through the shared disclosure component', () => {
+  it('renders D6, D11 and DEC-TAX-002 through the shared disclosure component', () => {
     const text = plain(screenMarkup())
-    for (const id of ['D6', 'D11', 'D20'] as const) {
-      const decision = studioDecision(id)
+    for (const id of ['D6', 'D11', 'DEC-TAX-002'] as const) {
+      const decision = decisionRecord(id)
       expect(text, id).toContain(decision.question)
       expect(text, id).toContain(decision.adopted)
     }

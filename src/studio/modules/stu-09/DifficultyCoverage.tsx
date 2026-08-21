@@ -1,4 +1,4 @@
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import type { StudioPersonaColumn } from '@/studio/access/evaluate'
 import { STU_SEAMS, stuSeamById, type StudioSeamDefinition } from '@/studio/seams'
 import { screenRendersState } from '@/studio/state/screen-states'
@@ -270,8 +270,8 @@ export function DifficultyCoverage({
         {frontlineRow.statement}
       </p>
 
-      {/* D16 / DEC-WIDIFF-001, through the one disclosure component. */}
-      <DecisionDisclosure id="D16" />
+      {/* DEC-WIDIFF-001 / DEC-WIDIFF-001, through the one disclosure component. */}
+      <DecisionDisclosure id="DEC-WIDIFF-001" />
     </section>
   )
 }

@@ -1,14 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { JOURNEY_STEPS, journeyStep, type JourneyStep } from '@/studio/journey/effects'
+import { JOURNEY_STEPS, journeyStep, type StudioJourneyStep } from '@/studio/journey/effects'
 import {
   FB_SEQ_012,
   fbSeq012TerminalState,
   type JourneyState,
 } from '@/studio/journey/fixture'
 import { STU_MODULES, stuModuleById } from '@/studio/modules'
-import { FiveSurfaceEffects } from '@/ui/stu/FiveSurfaceEffects'
+import { FiveSurfaceEffects } from '@/ui/shared/FiveSurfaceEffects'
 import { StudioSeamNotice } from '@/ui/stu/StudioSeamNotice'
 import {
   JOURNEY_FOLD,
@@ -66,7 +66,7 @@ function StateLine({
  * in the Delivery Operations Hub at run assignment, and `MOD-DOH-06` owns it
  * in slice 6. There is no button here whose token could be read as a build.
  */
-function SeamStep({ step, composed }: { readonly step: JourneyStep; readonly composed: ComposedSeam }) {
+function SeamStep({ step, composed }: { readonly step: StudioJourneyStep; readonly composed: ComposedSeam }) {
   const pin = JOURNEY_STATES[step.number]?.hubPin
   return (
     <main id="main" className="mx-auto max-w-5xl px-6 py-12">

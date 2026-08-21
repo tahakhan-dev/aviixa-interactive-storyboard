@@ -1,15 +1,20 @@
-import { studioDecision, type StudioDecisionId } from './decisions'
+import { decisionRecord, type DecisionId } from './decisions'
 
 /**
- * The ONLY place a `SURF-STU` decision is rendered. Eighteen screens consume
- * it; a module writing its own disclosure prose is a defect, because that is
- * how two screens end up disclosing the same decision differently and how one
- * of them quietly stops mentioning the alternative.
+ * The ONLY place an open decision is rendered, on ANY surface. A module
+ * writing its own disclosure prose is a defect, because that is how two
+ * screens end up disclosing the same decision differently and how one of them
+ * quietly stops mentioning the alternative. That risk is no longer confined to
+ * one surface: `DEC-LANEB-001`, `DEC-WFROLL-001`, `DEC-LIB-001` and
+ * `DEC-TAX-002` are cited by `SURF-STU` and by `SURF-DOH` both, and a Hub
+ * screen citing one gets this component and this record -- the identical
+ * wording and the identical locator set the Studio screen renders, because
+ * there is only one of each.
  *
  * What it always renders, for every record in the canon:
  *
- * 1. the identifier -- this build's key, the source's `DEC-*` identifier where
- *    one exists, and the plain statement where none does;
+ * 1. the identifier -- the source's own `DEC-*` where the source names one,
+ *    and this build's key with the plain statement where it does not;
  * 2. **every** reading, each with its own frozen-source locator. Not the one
  *    the build implemented -- all of them;
  * 3. this build's working position, labelled a **client-delegated choice under
@@ -19,11 +24,11 @@ import { studioDecision, type StudioDecisionId } from './decisions'
  * table, and renders it. No policy lives here.
  */
 export interface DecisionDisclosureProps {
-  readonly id: StudioDecisionId
+  readonly id: DecisionId
 }
 
 export function DecisionDisclosure({ id }: DecisionDisclosureProps) {
-  const decision = studioDecision(id)
+  const decision = decisionRecord(id)
 
   return (
     <section
@@ -39,7 +44,7 @@ export function DecisionDisclosure({ id }: DecisionDisclosureProps) {
           </>
         ) : (
           <>
-            Open decision {decision.id} — {decision.decisionRef}
+            Open decision {decision.decisionRef}
             {decision.alias !== null ? <> (also cited as {decision.alias})</> : null}
           </>
         )}

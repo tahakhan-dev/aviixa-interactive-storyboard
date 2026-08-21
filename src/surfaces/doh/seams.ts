@@ -7,6 +7,42 @@ import type { DohModuleId } from './modules'
  * seam is a named interface with a seeded fixture behind it, rendered by
  * `@/ui/doh/SeamNotice`, stating plainly which slice owns the missing half.
  */
+/**
+ * The slice being built. `dohSeamStatus` reads it, so "closed" is DERIVED
+ * from the slice that owns the counterpart rather than restated as a second
+ * field a hand edit could put out of step with the `ownerSlice` beside it —
+ * the shape `stuSeamStatus` in `@/studio/seams` already ships.
+ *
+ * THREE SEAMS CLOSE AT THIS NUMBER, and each was checked against what slice
+ * 4 recorded before the number moved, because a seam closed without reading
+ * its recorded expectation is a seam closed on a guess:
+ *
+ * - `worker-shift-meter` — slice 4 recorded MOD-DOH-07 as owner. L26876
+ *   lists MOD-DOH-01's dependency as "the Worker-Shift meter inputs from
+ *   assignment and substitution", and assignment and substitution are
+ *   MOD-DOH-07's whole remit. AC-DOH-01-1 (L27039) is the contract the
+ *   closure must satisfy: one per worker per calendar shift regardless of
+ *   run count, and one per substituting worker who actually worked.
+ *   RECORDED EXPECTATION CORRECT.
+ * - `archival-cascade` — slice 4 recorded MOD-DOH-05 as owner. L7161:
+ *   archiving a Site or Area auto-pauses every Job bound to it, notifies
+ *   the Tenant Admin with the list, and prompts reassignment before
+ *   archival completes. Jobs and the derived `paused` state are
+ *   MOD-DOH-05's (L7197, L7206). RECORDED EXPECTATION CORRECT.
+ * - `qualification-gate` — slice 4 recorded "two of the three enforcement
+ *   points", MOD-DOH-07 at assignment and MOD-DOH-06 at run start. The
+ *   source's three are "at assignment, at run start, and at
+ *   override-carrying screens" (AC-PROD-032 L1548, restated L19444,
+ *   L24028, L8423). The third is Client Command Center action 10 (L22182
+ *   `[J16]`) — a different surface, never a Hub half of this seam, which
+ *   is why slice 4 named two modules and not three. RECORDED EXPECTATION
+ *   CORRECT, and the closure is total for the seam as recorded.
+ *
+ * The other four rows are untouched: their `ownerSlice` is 10 and they stay
+ * open, which is what a slice-6 build should say about them.
+ */
+const THIS_SLICE = 6
+
 export type DohSeamId =
   | 'worker-shift-meter'
   | 'archival-cascade'
@@ -113,4 +149,27 @@ export function dohSeamById(id: DohSeamId): DohSeamDefinition {
   const found = BY_ID.get(id)
   if (!found) throw new Error(`Unknown SURF-DOH seam: ${id}`)
   return found
+}
+
+/**
+ * DERIVED FROM `ownerSlice`, NEVER STORED — the same ruling
+ * `stuSeamStatus` makes on `SURF-STU`. `closed` means the slice that owns
+ * the missing half is this one or an earlier one, so the notice must stop
+ * saying "not built here"; `open` means it is still a later slice's.
+ *
+ * A STORED FLAG WOULD BE A SECOND THING TO KEEP TRUE, and the one the
+ * notice reads. Closing these three by editing three rows would have left
+ * `ownerSlice` and the flag free to disagree; deriving means the only way
+ * to close a seam is to be the slice that owns it.
+ *
+ * DRAWING A CLOSED SEAM AS AN ABSENCE IS A FALSE ABSENCE — slice 4's
+ * defect shape 4 — which is why this is a two-state answer and not a
+ * three-state one with a "closing" middle. Slice 6 either ships the owning
+ * module or it does not ship, and the gates task runs strictly after every
+ * build task precisely so this cannot go out half-true.
+ */
+export type DohSeamStatus = 'open' | 'closed'
+
+export function dohSeamStatus(seam: DohSeamDefinition): DohSeamStatus {
+  return seam.ownerSlice <= THIS_SLICE ? 'closed' : 'open'
 }

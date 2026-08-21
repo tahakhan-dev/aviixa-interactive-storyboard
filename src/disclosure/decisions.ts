@@ -1,12 +1,12 @@
 /**
- * Slice 5, task 3 -- the `SURF-STU` decision canon: **twenty-nine records**.
- * The twenty-four of design section 3 and census section 7, plus `D25`-`D28`,
- * the four source `DEC-*` cards that modules had been disclosing locally until
- * the canon carried them, plus `D29`, `MOD-STU-17`'s L34361 tension, which was
- * the last such local copy. Every record carries **all** of its source
- * readings, each with its own locator.
+ * The open-decision canon, for every surface: **twenty-nine records** today,
+ * all of them raised while `SURF-STU` was built and none of them owned by it.
+ * Slice 5 shipped this file under `src/studio/`; it moved here unchanged in
+ * substance because a decision is a property of the SOURCE, not of the screen
+ * that happens to render it, and slice 6 cites four of these records from
+ * `SURF-DOH`: `DEC-LANEB-001`, `DEC-WFROLL-001`, `DEC-LIB-001`, `DEC-TAX-002`.
  *
- * The rule this file exists to enforce, from `APP-012`: the client delegated
+ * THE RULE THIS FILE EXISTS TO ENFORCE, from `APP-012`: the client delegated
  * the decision, not the pretence that the source settled it. So a record holds
  * the readings and the build position separately, and a reading has no field
  * in which it could be marked "the answer". Which reading the build acted on
@@ -17,38 +17,50 @@
  * instruction for the worst of them: surface the tension, never implement it
  * silently.
  *
+ * THE KEY, AND WHY IT CHANGED. Slice 5 keyed these on `D1`..`D29`, its own
+ * design-section numbering. That number is unusable across surfaces, and not
+ * hypothetically: slice 4 numbers the Hub's decisions `D1`..`D27` in its own
+ * prose, so `D11` is already the Studio's object-naming scheme in one file and
+ * the Hub's `DEC-WKRVIEW-001` in another. A second surface citing `D11` would
+ * render the wrong disclosure. So **where the source names the decision, the
+ * source's own `DEC-*` identifier IS the key** -- one identifier, one record,
+ * one wording, whichever surface asks for it. Twelve conflicts the source
+ * recorded without ever naming keep this build's own key and say so by
+ * carrying `decisionRef: null`; nothing on another surface can cite one,
+ * because there is no shared identifier to cite it by.
+ *
  * This module is data. It computes nothing and decides nothing.
  */
 
-export type StudioDecisionId =
+export type DecisionId =
   | 'D1'
   | 'D2'
-  | 'D3'
+  | 'DEC-AUDSTU-001'
   | 'D4'
   | 'D5'
   | 'D6'
-  | 'D7'
+  | 'DEC-WFROLL-001'
   | 'D8'
   | 'D9'
   | 'D10'
   | 'D11'
-  | 'D12'
-  | 'D13'
-  | 'D14'
-  | 'D15'
-  | 'D16'
-  | 'D17'
-  | 'D18'
-  | 'D19'
-  | 'D20'
+  | 'DEC-CAPAUTH-001'
+  | 'DEC-DELEG-001'
+  | 'DEC-LANEB-001'
+  | 'DEC-LIB-001'
+  | 'DEC-WIDIFF-001'
+  | 'DEC-LIBREV-001'
+  | 'DEC-LANEBAUTH-001'
+  | 'DEC-CAP-001'
+  | 'DEC-TAX-002'
   | 'D21'
   | 'D22'
-  | 'D23'
-  | 'D24'
-  | 'D25'
-  | 'D26'
-  | 'D27'
-  | 'D28'
+  | 'DEC-STUXREF-001'
+  | 'DEC-TENGRANT-001'
+  | 'DEC-ROLE-001'
+  | 'DEC-RELAUTH-001'
+  | 'DEC-EMBED-001'
+  | 'DEC-ARCH-001'
   | 'D29'
 
 /**
@@ -64,18 +76,25 @@ export interface DecisionReading {
   readonly locator: string
 }
 
-export interface StudioDecision {
-  /** This build's stable key, matching design section 3 and census section 7. */
-  readonly id: StudioDecisionId
+export interface OpenDecision {
+  /**
+   * The citation key, from any surface. It is the source's own `DEC-*`
+   * identifier wherever the source names one, and this build's own key only
+   * where the source names none -- the invariant `id === decisionRef` OR
+   * `decisionRef === null`, which `surface-neutral.test.ts` holds against the
+   * whole array so the two can never drift into naming one decision twice.
+   */
+  readonly id: DecisionId
   /**
    * The source's own `DEC-*` identifier, or `null` where the source recorded
    * the conflict without ever giving it one. `null` is disclosed on screen,
    * not hidden -- an unidentified conflict is harder for a client to find, and
-   * saying so is part of the disclosure.
+   * saying so is part of the disclosure. It is also what tells a reader that
+   * `id` is this build's key rather than the source's.
    */
   readonly decisionRef: string | null
   /**
-   * A second source identifier for the same question, or `null`. Only `D7`
+   * A second source identifier for the same question, or `null`. Only `DEC-WFROLL-001`
    * has one: `DEC-VERROLL-001`. Required-and-nullable rather than optional, so
    * every record carries the key and the whole array can take the
    * `as const satisfies` form the closed-vocabulary gate requires.
@@ -94,7 +113,7 @@ export interface StudioDecision {
   readonly pins: readonly string[]
 }
 
-export const STUDIO_DECISIONS = [
+export const OPEN_DECISIONS = [
   {
     id: 'D1',
     decisionRef: null,
@@ -134,7 +153,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D3',
+    id: 'DEC-AUDSTU-001',
     decisionRef: 'DEC-AUDSTU-001',
     alias: null,
     question: 'May the Read-only Auditor open the Studio, and see what?',
@@ -220,7 +239,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D7',
+    id: 'DEC-WFROLL-001',
     decisionRef: 'DEC-WFROLL-001',
     alias: 'DEC-VERROLL-001',
     question:
@@ -316,7 +335,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D12',
+    id: 'DEC-CAPAUTH-001',
     decisionRef: 'DEC-CAPAUTH-001',
     alias: null,
     question: 'Who may enable an atomic capability, and does anyone hold it?',
@@ -335,7 +354,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D13',
+    id: 'DEC-DELEG-001',
     decisionRef: 'DEC-DELEG-001',
     alias: null,
     question: 'May the Agent Author capability be delegated?',
@@ -354,7 +373,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D14',
+    id: 'DEC-LANEB-001',
     decisionRef: 'DEC-LANEB-001',
     alias: null,
     question:
@@ -374,7 +393,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D15',
+    id: 'DEC-LIB-001',
     decisionRef: 'DEC-LIB-001',
     alias: null,
     question: 'Does a library edit reach an in-flight Run?',
@@ -393,7 +412,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D16',
+    id: 'DEC-WIDIFF-001',
     decisionRef: 'DEC-WIDIFF-001',
     alias: null,
     question: 'How many difficulty levels does the offline package carry?',
@@ -412,7 +431,7 @@ export const STUDIO_DECISIONS = [
     pins: ['simple', 'standard', 'expanded'],
   },
   {
-    id: 'D17',
+    id: 'DEC-LIBREV-001',
     decisionRef: 'DEC-LIBREV-001',
     alias: null,
     question:
@@ -432,7 +451,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D18',
+    id: 'DEC-LANEBAUTH-001',
     decisionRef: 'DEC-LANEBAUTH-001',
     alias: null,
     question: 'Who may decide a Lane-B proposal?',
@@ -451,7 +470,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D19',
+    id: 'DEC-CAP-001',
     decisionRef: 'DEC-CAP-001',
     alias: null,
     question: 'Which seven capture types exist at launch?',
@@ -482,7 +501,7 @@ export const STUDIO_DECISIONS = [
     ],
   },
   {
-    id: 'D20',
+    id: 'DEC-TAX-002',
     decisionRef: 'DEC-TAX-002',
     alias: null,
     question:
@@ -541,7 +560,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D23',
+    id: 'DEC-STUXREF-001',
     decisionRef: 'DEC-STUXREF-001',
     alias: null,
     question:
@@ -561,7 +580,7 @@ export const STUDIO_DECISIONS = [
     pins: ['Deviation rules and severity mapping', 'Tool and equipment'],
   },
   {
-    id: 'D24',
+    id: 'DEC-TENGRANT-001',
     decisionRef: 'DEC-TENGRANT-001',
     alias: null,
     question: 'Does a Studio grant carry an expiry?',
@@ -580,7 +599,7 @@ export const STUDIO_DECISIONS = [
     pins: ['Assigned', 'Active', 'Revoked', 'Expired'],
   },
   {
-    id: 'D25',
+    id: 'DEC-ROLE-001',
     decisionRef: 'DEC-ROLE-001',
     alias: null,
     question: 'Is Plant Manager a fixed role, or a persona?',
@@ -603,7 +622,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D26',
+    id: 'DEC-RELAUTH-001',
     decisionRef: 'DEC-RELAUTH-001',
     alias: null,
     question:
@@ -627,7 +646,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D27',
+    id: 'DEC-EMBED-001',
     decisionRef: 'DEC-EMBED-001',
     alias: null,
     question:
@@ -651,7 +670,7 @@ export const STUDIO_DECISIONS = [
     pins: [],
   },
   {
-    id: 'D28',
+    id: 'DEC-ARCH-001',
     decisionRef: 'DEC-ARCH-001',
     alias: null,
     question:
@@ -696,7 +715,7 @@ export const STUDIO_DECISIONS = [
       'The per-locale reading. The Statement-of-Work sentence it reads is “an incomplete locale blocks publication in that locale” (L34359), and L34410 states the per-locale scope a second time as `FUNC-STU-17-03-A-2`. The source itself classes that scope a `Derived Clarification` rather than a `SoW Fact` (L34410, L34498), which is exactly why it renders as a reading here and never as a settled rule. MOD-STU-17 implements it: English publishes while Spanish is blocked and the missing element is named, and where the completeness check cannot run every declared locale is blocked, failing closed (`FUNC-STU-17-03-A-1` L34409, `AC-STU-149` L34487). The cost is stated rather than hidden: a version can reach the floor in one language while the other is still blocked, so a mixed-language site may run English screens for Spanish-speaking workers unless the Release Authority holds the release — which is what the card’s own example has Elena do (L34449). The whole-publication reading removes that risk and pays for it in the source’s own words: it would make a partially localised improvement impossible to ship.',
     pins: [],
   },
-] as const satisfies readonly StudioDecision[]
+] as const satisfies readonly OpenDecision[]
 
 /**
  * The ids as a closed set in their own right, with the same real
@@ -705,45 +724,45 @@ export const STUDIO_DECISIONS = [
  * resolving to `never` and fails the type-check.
  *
  * It is declared as its own literal list rather than mapped off
- * `STUDIO_DECISIONS`, because a check derived from the array it is meant to
+ * `OPEN_DECISIONS`, because a check derived from the array it is meant to
  * police can only ever pass.
  */
-export const STUDIO_DECISION_IDS = [
+export const OPEN_DECISION_IDS = [
   'D1',
   'D2',
-  'D3',
+  'DEC-AUDSTU-001',
   'D4',
   'D5',
   'D6',
-  'D7',
+  'DEC-WFROLL-001',
   'D8',
   'D9',
   'D10',
   'D11',
-  'D12',
-  'D13',
-  'D14',
-  'D15',
-  'D16',
-  'D17',
-  'D18',
-  'D19',
-  'D20',
+  'DEC-CAPAUTH-001',
+  'DEC-DELEG-001',
+  'DEC-LANEB-001',
+  'DEC-LIB-001',
+  'DEC-WIDIFF-001',
+  'DEC-LIBREV-001',
+  'DEC-LANEBAUTH-001',
+  'DEC-CAP-001',
+  'DEC-TAX-002',
   'D21',
   'D22',
-  'D23',
-  'D24',
-  'D25',
-  'D26',
-  'D27',
-  'D28',
+  'DEC-STUXREF-001',
+  'DEC-TENGRANT-001',
+  'DEC-ROLE-001',
+  'DEC-RELAUTH-001',
+  'DEC-EMBED-001',
+  'DEC-ARCH-001',
   'D29',
-] as const satisfies readonly StudioDecisionId[]
+] as const satisfies readonly DecisionId[]
 
-const _decisionIdsExhaustive: Exclude<StudioDecisionId, (typeof STUDIO_DECISION_IDS)[number]> extends never ? true : never = true
+const _decisionIdsExhaustive: Exclude<DecisionId, (typeof OPEN_DECISION_IDS)[number]> extends never ? true : never = true
 void _decisionIdsExhaustive
 
-const BY_ID = new Map<StudioDecisionId, StudioDecision>(STUDIO_DECISIONS.map((d): [StudioDecisionId, StudioDecision] => [d.id, d]))
+const BY_ID = new Map<DecisionId, OpenDecision>(OPEN_DECISIONS.map((d): [DecisionId, OpenDecision] => [d.id, d]))
 
 /**
  * The honest stand-in for an id with no record. It cannot be reached while
@@ -751,7 +770,7 @@ const BY_ID = new Map<StudioDecisionId, StudioDecision>(STUDIO_DECISIONS.map((d)
  * declared set -- and it exists so that a registry defect discloses itself on
  * screen instead of throwing inside a render. A typed failure, never a throw.
  */
-function missingRecord(id: StudioDecisionId): StudioDecision {
+function missingRecord(id: DecisionId): OpenDecision {
   return {
     id,
     decisionRef: null,
@@ -764,6 +783,6 @@ function missingRecord(id: StudioDecisionId): StudioDecision {
   }
 }
 
-export function studioDecision(id: StudioDecisionId): StudioDecision {
+export function decisionRecord(id: DecisionId): OpenDecision {
   return BY_ID.get(id) ?? missingRecord(id)
 }

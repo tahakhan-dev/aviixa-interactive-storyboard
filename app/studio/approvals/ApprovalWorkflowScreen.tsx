@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { STU_MODULES, stuModuleById, type StudioPersonaId } from '@/studio/modules'
-import { DecisionDisclosure } from '@/studio/disclosure/DecisionDisclosure'
+import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
 import { screenState } from '@/ui/screen-state'
 import {
@@ -576,7 +576,7 @@ export function ApprovalWorkflowScreen({ selectedSubmissionId }: ApprovalWorkflo
             An open client decision governs the staffing rule
           </h2>
           <div className="mt-2">
-            <DecisionDisclosure id="D26" />
+            <DecisionDisclosure id="DEC-RELAUTH-001" />
           </div>
         </section>
 
@@ -585,7 +585,7 @@ export function ApprovalWorkflowScreen({ selectedSubmissionId }: ApprovalWorkflo
             The chain against Lane-B automatic publication
           </h2>
           <div className="mt-2">
-            <DecisionDisclosure id="D14" />
+            <DecisionDisclosure id="DEC-LANEB-001" />
           </div>
           <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
             {seededLaneBClassifier.provenance}
