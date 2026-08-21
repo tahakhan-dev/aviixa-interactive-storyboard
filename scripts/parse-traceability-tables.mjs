@@ -37,26 +37,28 @@ const manifest = JSON.parse(readFileSync(join(SLICES, 'slices.json'), 'utf8'))
 const targets = manifest.slices.filter((s) => s.tableParse === true)
 if (targets.length === 0) throw new Error('No slices marked tableParse in the manifest.')
 
-const IDENT =
-  /\b(?:MOD|SCR|FEAT|SUB|FUNC|AC|TEST|DEC|WF|SB|OBJ|FB|SEQ|STATE|EVT|CMD|NOTIF|SCHED|UC|REQ|OFF|RISK|ASSUM)-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]\b/g
+/*
+ * Prefixes from `registries/blueprint-prefixes.json`, derived from Appendix A,
+ * the blueprint's own allocation authority. This list used to be written out
+ * by hand here and in three other tools, and all four were missing the same
+ * nine registered families -- 1,282 distinct identifiers nothing was looking
+ * for. Longest-first so `SCHED` cannot claim `SCHEDRUN-001`.
+ */
+const PREFIXES = JSON.parse(readFileSync(join(ROOT, 'registries', 'blueprint-prefixes.json'), 'utf8'))
+const ALT = [...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes]
+  .sort((a, b) => b.length - a.length)
+  .join('|')
+const IDENT = new RegExp(`\\b(?:${ALT})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]\\b`, 'g')
 
 /**
- * The Bright Bikes illustrative set, which the blueprint marks `Illustrative
- * Example` and states creates no requirement. Left in, one fictional bike shop
- * becomes the graph's busiest neighbourhood.
- *
- * `ROLE-` WAS IN THIS LIST AND SHOULD NEVER HAVE BEEN. An extracting agent
- * pushed back, and it was right: Appendix A -- the document's own allocation
- * authority, which states that an identifier outside it is a defect -- lists
- * `ROLE-PLAT-` ("AVIIXA platform console role", four fixed values) and
- * `ROLE-TEN-` ("Tenant role", five fixed values at V1). They are SoW Facts
- * appearing in every permission matrix, and filtering them silently deleted
- * the actors from a graph built to answer who-can-do-what.
- *
- * The three that remain were each checked the same way: all appear under an
- * `Illustrative Example` heading, and Appendix A has no entry for any of them.
+ * The worked example (a fictional bicycle manufacturer). The blueprint marks it
+ * `Illustrative Example` and states it creates no requirement; none of these
+ * prefixes has an Appendix A row. `ROLE-` was on this list once and should
+ * never have been -- Appendix A registers `ROLE-PLAT-` and `ROLE-TEN-`, and
+ * filtering them deleted the actors from a graph built to answer
+ * who-can-do-what.
  */
-const ILLUSTRATIVE = /^(?:TAB|LOT|RB|RUN|JOB|AREA|CELL|SITE)-/
+const ILLUSTRATIVE = new RegExp(`^(?:${PREFIXES.illustrative.prefixes.join('|')})-`)
 
 const idOf = (ident) => ident.toLowerCase().replace(/[^a-z0-9]+/g, '_')
 const cellsOf = (line) => line.replace(/^\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim())

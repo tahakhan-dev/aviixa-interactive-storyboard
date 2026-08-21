@@ -49,11 +49,20 @@ if (sha !== EXPECTED_SHA) {
 }
 const lines = raw.toString('utf8').split('\n')
 
-/** The identifier families the blueprint declares. Dots are included so a
- *  compound form like `AC-26.1-01` matches whole rather than truncating at the
- *  dot and indexing the wrong, shorter identifier. */
-const IDENT =
-  /\b((?:MOD|SCR|FEAT|SUB|FUNC|AC|TEST|DEC|WF|SB|OBJ|FB|SEQ|STATE|EVT|CMD|NOTIF|SCHED|UC|REQ|OFF|RISK|ASSUM)-[A-Z0-9][A-Z0-9.-]*[A-Z0-9])\b/
+/*
+ * Prefixes from `registries/blueprint-prefixes.json`, derived from Appendix A,
+ * the blueprint's own allocation authority. Four tools each carried a
+ * hand-written copy of this list and all four were missing the same nine
+ * registered families -- 1,282 distinct identifiers that nothing was looking
+ * for. Nothing failed; the numbers were just quietly too kind.
+ *
+ * Longest-first so `SCHED` cannot claim `SCHEDRUN-001`.
+ */
+const PREFIXES = JSON.parse(readFileSync(join(ROOT, 'registries', 'blueprint-prefixes.json'), 'utf8'))
+const ALT = [...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes]
+  .sort((a, b) => b.length - a.length)
+  .join('|')
+const IDENT = new RegExp(`\\b((?:${ALT})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9])\\b`)
 
 const graph = JSON.parse(readFileSync(GRAPH, 'utf8'))
 

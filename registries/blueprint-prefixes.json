@@ -1,0 +1,18 @@
+{
+ "note": "The blueprint's identifier prefixes, taken from Appendix A -- Complete Identifier Registry by Prefix, which the document names its allocation authority and which states that an identifier outside it is a defect. Single source of truth: four separate tools were each carrying their own hand-written copy of this list, and every one of them was missing nine registered prefixes, so every coverage figure they produced was optimistic. Derived once, read everywhere.",
+ "source": { "appendix": "A", "lines": "118812-118880" },
+ "registered": [
+  "AC", "AI", "AUD", "CMD", "DEC", "EVT", "FB", "FEAT", "FUNC", "GRANT",
+  "IDENT", "INT", "MOD", "NOTIF", "OBJ", "OFF", "PER", "REQ", "RISK",
+  "ROLE-PLAT", "ROLE-TEN", "SB", "SCHED", "SCHEDRUN", "SCR", "SEQ",
+  "STATE", "SUB", "SURF", "TEST", "UC", "WF"
+ ],
+ "unregisteredButPresent": {
+  "note": "Present in the document with no Appendix A row. Appendix A calls that a defect in the document, not in this graph, so they are indexed rather than discarded -- dropping real content to satisfy a registry would be deciding a source question by omission.",
+  "prefixes": ["ASSUM"]
+ },
+ "illustrative": {
+  "note": "The worked example (a fictional bicycle manufacturer). The blueprint marks it `Illustrative Example` and states it creates no requirement; none of these has an Appendix A row, and each was checked for an illustrative heading at first use. Left in, the graph's busiest neighbourhood is a worked example.",
+  "prefixes": ["TAB", "LOT", "RB", "RUN", "JOB", "AREA", "CELL", "SITE"]
+ }
+}

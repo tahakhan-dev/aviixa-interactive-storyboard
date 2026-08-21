@@ -30,9 +30,30 @@ const argv = process.argv.slice(2)
 const i = argv.indexOf('--floor')
 const FLOOR = i === -1 ? 0.5 : Number(argv[i + 1])
 
-const IDENT =
-  /\b(?:MOD|SCR|FEAT|SUB|FUNC|AC|TEST|DEC|WF|SB|OBJ|FB|SEQ|STATE|EVT|CMD|NOTIF|SCHED|UC|REQ|OFF|RISK|ASSUM)-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]\b/g
-const ILLUSTRATIVE = /^(?:TAB|LOT|RB|ROLE)-/
+/**
+ * The identifier prefixes, from `registries/blueprint-prefixes.json`, which is
+ * derived from Appendix A -- the blueprint's own allocation authority.
+ *
+ * This used to be a literal list written out here. Four tools each carried
+ * their own copy and every one was missing the same nine registered prefixes
+ * (AI-, AUD-, GRANT-, IDENT-, INT-, PER-, ROLE-PLAT-, ROLE-TEN-, SCHEDRUN-,
+ * SURF-), together 1,282 distinct identifiers. Nothing failed: the coverage
+ * checker simply used too small a denominator and reported ratios that were
+ * quietly optimistic, which is the worst way for a measurement to be wrong.
+ *
+ * Longest-first alternation so `SCHED` cannot claim `SCHEDRUN-001` and leave a
+ * dangling `RUN-`.
+ */
+const PREFIXES = JSON.parse(readFileSync(join(ROOT, 'registries', 'blueprint-prefixes.json'), 'utf8'))
+const ALT = [...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes]
+  .sort((a, b) => b.length - a.length)
+  .join('|')
+// `\\b` and not `\b`: inside a template literal `\b` is the BACKSPACE character,
+// so the first version of this line compiled to a regex that matched nothing and
+// the whole check reported success over an empty set. The guard below exists
+// because that failure printed 'All 0 chunk(s) at or above the floor'.
+const IDENT = new RegExp(`\\b(?:${ALT})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]\\b`, 'g')
+const ILLUSTRATIVE = new RegExp(`^(?:${PREFIXES.illustrative.prefixes.join('|')})-`)
 
 const chunks = readdirSync(OUT).filter((f) => /^\.graphify_chunk_\d+\.json$/.test(f)).sort()
 if (chunks.length === 0) throw new Error('No chunks to check.')
@@ -90,6 +111,20 @@ for (const f of chunks) {
     )
   }
   if (missingFiles > 0) failures.push(`${f}: ${missingFiles} named slice file(s) do not exist`)
+}
+
+/*
+ * NON-VACUITY. A checker that examined nothing must not report success.
+ * The first build of the shared prefix loader produced a regex matching zero
+ * identifiers, and this script cheerfully printed "All 0 chunk(s) at or above
+ * the 70% floor" -- a green result from a check that had not run.
+ */
+if (rows.length === 0) {
+  throw new Error(
+    `Examined ${chunks.length} chunk(s) and found no identifiers to check in any of them. ` +
+      `That is a broken checker, not a clean result -- refusing to report success over an ` +
+      `empty set.`,
+  )
 }
 
 for (const r of rows) console.log(r)
