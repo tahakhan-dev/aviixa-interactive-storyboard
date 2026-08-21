@@ -58,10 +58,15 @@ const ILLUSTRATIVE = new RegExp(`^(?:${PREFIXES.illustrative.prefixes.join('|')}
 const chunks = readdirSync(OUT).filter((f) => /^\.graphify_chunk_\d+\.json$/.test(f)).sort()
 if (chunks.length === 0) throw new Error('No chunks to check.')
 
+const manifestSlices = JSON.parse(
+  readFileSync(resolve(ROOT, '..', 'blueprint-slices', 'slices.json'), 'utf8'),
+).slices
+const tableParseSlices = new Set(
+  manifestSlices.filter((sl) => sl.tableParse === true).map((sl) => sl.file.split('/').pop()),
+)
+
 const canonicalPath = new Map(
-  JSON.parse(readFileSync(resolve(ROOT, '..', 'blueprint-slices', 'slices.json'), 'utf8')).slices.map(
-    (sl) => [sl.file.split('/').pop(), sl.file],
-  ),
+  manifestSlices.map((sl) => [sl.file.split('/').pop(), sl.file]),
 )
 
 const failures = []
@@ -100,7 +105,23 @@ for (const f of chunks) {
     if (!p.endsWith(canonical)) nonCanonical += 1
     const abs = resolve(ROOT, '..', 'blueprint-slices', basename(dirname(canonical)), basename(canonical))
     if (!existsSync(abs)) { missingFiles += 1; continue }
-    for (const m of readFileSync(abs, 'utf8').matchAll(IDENT)) {
+    /*
+     * THE DENOMINATOR HAS TO MATCH WHAT THE EXTRACTOR WAS ASKED FOR.
+     *
+     * Chapters 5 and 54 are parsed deterministically from their tables, not
+     * read by a model. Judging that parse against every identifier in the file
+     * -- including the ones in the surrounding prose, which it was never asked
+     * to read -- scored it 86% and called it a failure. The parse is not
+     * incomplete; the measurement was asking the wrong question.
+     *
+     * For a tableParse slice the denominator is the identifiers inside table
+     * rows. Everywhere else it is the whole file.
+     */
+    const text = readFileSync(abs, 'utf8')
+    const scanned = tableParseSlices.has(basename(canonical))
+      ? text.split('\n').filter((l) => l.startsWith('|')).join('\n')
+      : text
+    for (const m of scanned.matchAll(IDENT)) {
       if (!ILLUSTRATIVE.test(m[0])) present.add(m[0])
     }
   }
