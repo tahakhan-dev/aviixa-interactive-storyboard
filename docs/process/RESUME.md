@@ -34,6 +34,37 @@ client's no-stop instruction does not override.
 It is far too large to read whole. Use `grep -n` and `sed -n 'A,Bp'`. It is read-only
 input and must never become an application asset.
 
+### 2a. The knowledge graph — an index over the source, never a substitute for it
+
+`graphify-out/graph.json` holds a graph of this codebase and of the blueprint, built by
+local AST parsing for code and by extraction for the document. Query it with:
+
+```
+graphify query "what governs closing a stuck run?"
+graphify path "MOD-DOH-08" "MOD-CC-13"     # the cross-surface trap class
+graphify explain "src_ui_writecontrol_writecontrol"
+```
+
+**Three rules, and the first is the one that matters.**
+
+**The graph never outranks the blueprint.** It is derived, and this build has been bitten
+three times by a derived layer mistaken for the source — an extractor's own wording quoted
+as the document's, an extractor's own line number cited as the document's, and a chunk
+pinning itself to a line that was then cited. A `graphify query` result is **a lead to
+verify, not evidence**. Open the line it names and read it.
+
+**Cite the blueprint, never the graph.** Every blueprint node carries `blueprint_locator`,
+the real line in the frozen source. That is what belongs in a comment or a test. A citation
+of a graph node is a citation of a guess about the source.
+
+**Its coverage is partial and its edges are labelled.** Every edge is tagged `EXTRACTED`
+(read from the source) or `INFERRED` (resolved), and an `INFERRED` edge is the graph's
+opinion. Star re-exports through a barrel do not resolve, so "who uses X" is incomplete for
+anything exported via `src/ui/primitives/index.ts`.
+
+Rebuild after a slice lands: `graphify update .` re-extracts changed code with no LLM cost.
+The blueprint half never needs rebuilding — the source is frozen.
+
 ## 3. Client authority — `docs/process/ledgers/approval-ledger.json`
 
 Fourteen entries, APP-000 to APP-013. The four that govern behaviour now:
@@ -101,6 +132,10 @@ re-review each round; commit.
   other dispatch in the same message.** This was violated twice and caused two collisions.
 - Verify with all four: `pnpm typecheck`, `pnpm test:unit`, `pnpm test:component`,
   `pnpm test:release`. `pnpm verify` chains them plus lint and build.
+- **Ask the graph before grepping 122,241 lines.** `graphify query`, `graphify path` and
+  `graphify explain` answer "what governs this?" and "what connects these?" in one command.
+  It is an index, so treat what it returns as a lead: **open the line it names and read it
+  before citing it**, and cite the blueprint line, never the graph node. See §2a.
 
 ## 6a. Path-list discipline — a procedure, because the habit has failed three times
 
