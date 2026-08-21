@@ -85,7 +85,7 @@ describe('the device screen — uncatalogued, and claiming no module (D4, D5)', 
     expect(slugs).not.toContain('devices')
     // Non-vacuity: the spine is populated, so "no module claims it" is a real
     // answer rather than an empty registry answering itself.
-    expect(DOH_MODULES).toHaveLength(8)
+    expect(DOH_MODULES).toHaveLength(15)
     expect(DOH_SCREENS.length).toBeGreaterThan(10)
     // And the module-id scan is live: it finds one in a sibling directory.
     expect(

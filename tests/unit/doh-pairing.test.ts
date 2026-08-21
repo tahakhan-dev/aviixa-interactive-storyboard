@@ -10,7 +10,18 @@ import {
   MOD_DOH_16_TENANT_ADMIN_CONTRADICTION,
   jobOwnerVerdict,
 } from '@/surfaces/doh/job-owner'
-import { HUB_COMMAND_SPECS, hubAccessRequest } from '@/surfaces/doh/objects'
+import {
+  HUB_COMMAND_SPECS,
+  applyHubCommand,
+  hubAccessRequest,
+  jobPairedWith,
+  objectKey,
+  readJob,
+  validateHubCommand,
+  type JobRecord,
+} from '@/surfaces/doh/objects'
+import { emptyDomainState, withTenant } from '@/domain/state'
+import { scenarioRunId } from '@/domain/ids'
 import { DOH_05_FIXTURE_STATE, DOH_05_IDENTITIES, HUB_TENANT_ID } from '@/surfaces/doh/modules/doh-05/jobs'
 import { DEC_AREA_001_POSITION as DEC_AREA_001_AT_SOURCE } from '@/surfaces/doh/modules/doh-05/matrix'
 import {
@@ -853,13 +864,70 @@ describe('the route registers a storyboard name and mints no screen identifier',
  * ==================================================================== */
 
 describe('the silences are recorded rather than filled', () => {
-  it('records the pairing write having no Hub command, which is a real gap', () => {
-    expect(Object.keys(HUB_COMMAND_SPECS)).toHaveLength(12)
-    expect(Object.keys(HUB_COMMAND_SPECS)).not.toContain('DOH_PAIR_JOBS')
-    expect(Object.keys(HUB_COMMAND_SPECS)).toContain('DOH_ACT_ON_PAIRED_REVIEW_FLAG')
-    expect(UNRESOLVED_IN_SOURCE.join(' ')).toContain('none of them pairs or unpairs two Jobs')
-    // The card names a write pattern for the pairing act all the same.
+  it('has a Hub command for each of the two pairing writes, and both sides of the link are written', () => {
+    // The gap this test used to pin is cleared. The card names a write
+    // pattern for the pairing act (L29607) and rows 1 and 2 are both writes;
+    // there are now commands for both, and the spec they carry is the card's
+    // own pattern rather than a paraphrase of it.
+    expect(Object.keys(HUB_COMMAND_SPECS)).toHaveLength(15)
     expect(L(29_607)).toContain('FB-DOH-WRITE-002')
+    for (const type of ['DOH_PAIR_JOBS', 'DOH_UNPAIR_JOBS'] as const) {
+      expect(HUB_COMMAND_SPECS[type].fallbackPatternId, type).toBe('FB-DOH-WRITE-002')
+      // Rows 1 and 2 are not owner-conditioned; only rows 4 and 5 are.
+      expect([...HUB_COMMAND_SPECS[type].access.allowedRoles], type).toEqual([
+        'TENANT_ADMIN',
+        'SUPERVISOR',
+      ])
+    }
+    expect(HUB_COMMAND_SPECS.DOH_ACT_ON_PAIRED_REVIEW_FLAG.access.allowedRoles).toContain(
+      'QUALITY_MANAGER',
+    )
+
+    // L29598: "the `linked_job_ref` on EACH Job". Both sides, both ways.
+    const tenant = HUB_TENANT_ID
+    const job = (jobId: string): JobRecord => ({
+      jobId,
+      name: jobId,
+      jobTypeId: 'JOBTYPE-BRIGHTBIKES-ASSEMBLY',
+      parentNodeId: 'AREA-ASSY-A',
+      ownerId: 'ACT-DOH-SAM',
+      state: 'active',
+      createdBy: 'ACT-DOH-SAM',
+    })
+    const seeded = withTenant(
+      emptyDomainState(scenarioRunId('DOH-MOD-16-PAIR')),
+      tenant,
+      (p) => ({
+        ...p,
+        objects: {
+          ...p.objects,
+          [objectKey.job('JOB-A')]: job('JOB-A'),
+          [objectKey.job('JOB-B')]: job('JOB-B'),
+        },
+      }),
+    )
+    const paired = applyHubCommand(seeded, {
+      type: 'DOH_PAIR_JOBS',
+      tenant,
+      jobId: 'JOB-A',
+      pairedJobId: 'JOB-B',
+    })
+    expect(jobPairedWith(readJob(paired, tenant, 'JOB-A')!)).toBe('JOB-B')
+    expect(jobPairedWith(readJob(paired, tenant, 'JOB-B')!)).toBe('JOB-A')
+
+    const unpaired = applyHubCommand(paired, {
+      type: 'DOH_UNPAIR_JOBS',
+      tenant,
+      jobId: 'JOB-A',
+      pairedJobId: 'JOB-B',
+    })
+    expect(jobPairedWith(readJob(unpaired, tenant, 'JOB-A')!)).toBeNull()
+    expect(jobPairedWith(readJob(unpaired, tenant, 'JOB-B')!)).toBeNull()
+
+    // L29596 pairs TWO Jobs; a Job paired with itself is one Job with a link.
+    expect(
+      validateHubCommand({ type: 'DOH_PAIR_JOBS', tenant, jobId: 'JOB-A', pairedJobId: 'JOB-A' }),
+    ).toContain('cannot be paired with itself')
   })
 
   it('records the contradiction, the catalogue-A cell, and does not settle either', () => {

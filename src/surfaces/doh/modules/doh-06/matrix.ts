@@ -1060,31 +1060,28 @@ export const RUN_CONTRADICTIONS = [
 ] as const satisfies readonly RunContradiction[]
 
 /**
- * MOD-DOH-06 IS NOT IN `DOH_MODULES`, AND THIS TASK MAY NOT PUT IT THERE.
+ * MOD-DOH-06 IS IN `DOH_MODULES`, AND THIS RECORDS WHAT IT COST TO GET THERE.
  *
  * `@/surfaces/doh/screens` says of `dohScreenReach`: "the moment a module
  * task adds its fixture and `DOH_MODULES` row, the generator produces its
  * reach and this function starts answering". Wave 0 task 5 landed the
  * catalogue-B screen rows — SCR-DOH-13 and SCR-DOH-14 are both registered —
- * but left every slice-6 module in `DOH_OUT_OF_SLICE_MODULES`, so
- * `DohModuleId` has no `MOD-DOH-06` member, `registries/generated/doh/
- * module-reach.json` has no entry, and `dohScreenReach('SCR-DOH-13')`
- * returns null.
+ * but left every slice-6 module in `DOH_OUT_OF_SLICE_MODULES`, so for a
+ * whole wave `DohModuleId` had no `MOD-DOH-06` member, the reach JSON had no
+ * entry, and `dohScreenReach('SCR-DOH-13')` answered null while this screen
+ * shipped. The registry task closed all seven at once.
  *
- * That edit lands in `src/surfaces/doh/modules.ts`, the generator's
- * `derivedFrom` map, and the reach JSON — one wave-0 file and one generated
- * file that all four wave-1 module tasks need identically and that are
- * running concurrently. It is REPORTED rather than made here. Until it
- * lands the module rail offers no link to this route, and this screen
- * derives its own reach from its own matrix through the same function the
- * generator would have used, which is the same answer by the same rule.
+ * THE GAP IS KEPT AS A RENDERED DISCLOSURE RATHER THAN DELETED, because the
+ * screen printed it while it was true and a reader who saw it deserves to
+ * see it resolved rather than to find it silently gone. What it now says is
+ * what actually happened.
  */
 export const MODULE_REGISTRY_GAP = {
-  what: 'MOD-DOH-06 is absent from `DohModuleId`, `DOH_MODULES` and `registries/generated/doh/module-reach.json`.',
+  what: 'MOD-DOH-06 was absent from `DohModuleId`, `DOH_MODULES` and `registries/generated/doh/module-reach.json` for the wave in which this screen was built. It is registered now.',
   consequence:
-    'The Hub module rail offers no link to /hub/run-scheduling-and-execution-oversight, and `dohScreenReach(\'SCR-DOH-13\')` returns null rather than this module’s reach.',
+    'While it was absent the Hub module rail offered no link to /hub/run-scheduling-and-execution-oversight and `dohScreenReach(\'SCR-DOH-13\')` returned null rather than this module’s reach. Both now answer.',
   whyNotFixedHere:
-    'The fix is in `src/surfaces/doh/modules.ts` and the reach generator — a wave-0 file and a generated file that MOD-DOH-05, MOD-DOH-07 and MOD-DOH-08 need identically and are editing concurrently. Reported to the controller.',
+    'The fix was in `src/surfaces/doh/modules.ts` and the reach generator — a shared spine file and a generated file that MOD-DOH-05, MOD-DOH-07 and MOD-DOH-08 needed identically and were editing concurrently, so it belonged to the one task that could make it once for all seven. It has been made, and the value below is now the generated value rather than a preview of it.',
   reachThisModuleWouldGet: MOD_DOH_06_ROLES_REACHING,
 } as const
 

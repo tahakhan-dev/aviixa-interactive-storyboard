@@ -12,11 +12,15 @@ import { dohScreenById } from '@/surfaces/doh/screens'
  * rather than from the rail, and the two screens link to each other.
  *
  * WHY `HubShell`'S UNCATALOGUED-SCREEN MODE AND NOT ITS MODULE MODE.
- * `HubShellProps.module` takes a `DohModuleDefinition`, and `MOD-DOH-05` is
- * still listed in `DOH_OUT_OF_SLICE_MODULES` — registering it means editing
- * `src/surfaces/doh/modules.ts`, which three sibling module tasks are
- * consuming concurrently in this same wave, and four tasks editing one
- * closed union is how a shared file loses a member. The header below states
+ * `HubShellProps.module` takes a `DohModuleDefinition`, and `MOD-DOH-05` was
+ * listed in `DOH_OUT_OF_SLICE_MODULES` when this route was built —
+ * registering it meant editing `src/surfaces/doh/modules.ts`, which three
+ * sibling module tasks were consuming concurrently, and four tasks editing
+ * one closed union is how a shared file loses a member. It is registered
+ * now, and this route stays on the uncatalogued-screen mode deliberately:
+ * this module owns TWO routes and `HubShellProps.module` draws one header
+ * per module, so the approval queue would have to borrow the Job list's.
+ * The rail entry the module now has points at this route. The header below states
  * the module identifier and its catalogue-B screen annotations itself, so
  * nothing about the screen's identity is lost by taking the third mode; what
  * IS lost is the rail entry, and that is recorded rather than worked around

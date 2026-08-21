@@ -461,11 +461,14 @@ export const MOD_DOH_15_REACH: readonly TenantRoleId[] = rolesReachingByMatrix(
  * conditions` to clone, and L48105's "Roles that can open it" cell reads
  * "Supervisor" alone.
  *
- * `DohCatalogueNarrowing` is keyed on `screenId` with ONE `matrixRef`, so a
- * screen that mounts three modules — as L48105 does — has one slot for what
- * can be three separate narrowings. That shape gap is reported upward rather
- * than patched into another task's file, and the second narrowing is held
- * here in the module that measured it.
+ * THAT SHAPE GAP IS NOW CLOSED, and this note records what it was. The
+ * register used to key `DohCatalogueNarrowing` on `screenId` with ONE
+ * `matrixRef`, so a screen that mounts three modules — as L48105 does — had
+ * one slot for what can be three separate narrowings. It now carries a
+ * `moduleId` and derives `omittedRoles` per (screen, module) anchor, so
+ * `SCR-DOH-11` holds both entries: `MOD-DOH-05`'s at L27695 and this
+ * module's at L29477. This module measured the second one and keeps it
+ * below; the register no longer has to be trusted to have room for it.
  *
  * IT IS DISCLOSED, NOT ENFORCED. `screens.ts` is explicit that
  * `catalogueBRoles` "is NOT who may reach the screen" and that a screen
@@ -486,7 +489,7 @@ export const MOD_DOH_15_MOUNT = {
   narrowingRef:
     'L29477 — MOD-DOH-15 "Clone a Job", `Allowed with conditions` for the Tenant Admin, against L48105`s "Supervisor"',
   registerGap:
-    'This is the SECOND narrowing of SCR-DOH-11. DOH_CATALOGUE_B_REACH_NARROWER holds one entry per screen and its SCR-DOH-11 entry cites L27695 (MOD-DOH-05 row 2). A screen mounting three modules can be narrowed by each of them; the register`s shape records one.',
+    'This is the SECOND narrowing of SCR-DOH-11: MOD-DOH-05 row 2 narrows the same screen at L27695. A screen mounting three modules can be narrowed by each of them, and DOH_CATALOGUE_B_REACH_NARROWER now keys on the module as well as the screen and derives each entry`s omitted roles from that module`s own matrix row — so both narrowings of this screen are registered rather than one.',
 } as const
 
 /* ==================================================================== *
@@ -672,16 +675,16 @@ export const MOD_DOH_15_UNSPECIFIED_IN_SOURCE = [
     sourceRef: 'L29524 against L29478',
   },
   {
-    topic: 'Recurrence is not a field of the Job record',
+    topic: 'What a recurrence pattern may say',
     whatIsMissing:
-      '`AC-DOH-15-3` (L29559) requires that cloning from a recurring Job ALWAYS raises the prompt, and the whole module turns on whether the source recurs. `JobRecord` in `@/surfaces/doh/objects` carries no recurrence field — jobId, name, jobTypeId, parentNodeId, ownerId, state, createdBy — so this build cannot read the answer off the record. It is handed to the fold as `Doh15Context.sourceRecurs` and both branches render. Adding the field is a change to another task`s file and is reported rather than made.',
-    sourceRef: 'L29559; `JobRecord`, `@/surfaces/doh/objects`',
+      '`AC-DOH-15-3` (L29559) requires that cloning from a recurring Job ALWAYS raises the prompt, and the whole module turns on whether the source recurs. `JobRecord` in `@/surfaces/doh/objects` carried no recurrence field at all; it now carries one, because §4.5.1 (L27648) lists "its recurrence pattern" among the Job`s own fields and L7155 sets it at creation. What the source still does not give is the VOCABULARY: `one-off` is the only pattern token it states (L29452), and "Daily" and "weekday-only" appear once each inside an Illustrative Example (L7189). So the field is a plain string, no closed set is invented, and a Job whose pattern this build does not know reads as recurring — the safe side of the word "always".',
+    sourceRef: 'L29559; L27648; L29452; `JobRecord`, `@/surfaces/doh/objects`',
   },
   {
-    topic: 'No Hub command for the clone act',
+    topic: 'The recurrence answer has no command of its own',
     whatIsMissing:
-      '`HUB_COMMAND_TYPES` in `@/domain/commands` mints twelve Hub commands and no clone is among them. So the clone cannot go through `hubAccessRequest` the way `DOH_APPROVE_JOB` and `DOH_DECIDE_VERSION_ADOPTION` do, and `cloneDecision` reads the row`s own cells instead. The audit line the source requires — "recording the source Job identifier, the acting identity, the copied elements and the recurrence answer" (L29543) — has no command to hang off. Reported, not minted: the command registry is another task`s file.',
-    sourceRef: 'L29543; `HUB_COMMAND_TYPES`, `@/domain/commands`',
+      '`HUB_COMMAND_TYPES` in `@/domain/commands` minted twelve Hub commands and no clone was among them; `DOH_CLONE_JOB` now exists, so the audit line the source requires at L29543 has something to hang off and the clone goes through `hubAccessRequest` the way `DOH_APPROVE_JOB` does. The prompt at row 2 (L29478) still has none. That is deliberate rather than overlooked: the prompt is a SECOND act with its own role cells, and `FUNC-DOH-15-2.1.1` (L29524) names its allowed roles as "the cloning identity", which is a field of the act and not one of the five roles — so a command minted for it would have to name an actor the role model cannot express. `cloneDecision` reads the row`s own cells instead.',
+    sourceRef: 'L29543; L29478; L29524; `HUB_COMMAND_TYPES`, `@/domain/commands`',
   },
   {
     topic: 'An idempotency key no part of the module specifies',

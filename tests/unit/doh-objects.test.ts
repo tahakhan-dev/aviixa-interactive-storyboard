@@ -13,6 +13,7 @@ import {
   HUB_COMMAND_TYPES,
   isHubCommand,
   type HubCommand,
+  type HubCommandType,
   type ScenarioCommand,
 } from '@/domain/commands'
 import { FALLBACK_PATTERNS, fallbackPattern } from '@/surfaces/doh/fallbacks'
@@ -37,6 +38,11 @@ import {
   CONTROL_MATRIX as DOH_08_MATRIX,
   type Doh08Row,
 } from '@/surfaces/doh/modules/doh-08/matrix'
+import { MOD_DOH_05_ACTS } from '@/surfaces/doh/modules/doh-05/matrix'
+import { MOD_DOH_06_MATRIX } from '@/surfaces/doh/modules/doh-06/matrix'
+import { CONTROL_MATRIX as DOH_07_MATRIX } from '@/surfaces/doh/modules/doh-07/matrix'
+import { MOD_DOH_15_MATRIX } from '@/surfaces/doh/modules/doh-15/matrix'
+import { CONTROL_MATRIX as DOH_16_MATRIX } from '@/surfaces/doh/modules/doh-16/matrix'
 
 /**
  * THE FROZEN SOURCE, not `registries/raw/`.
@@ -156,6 +162,153 @@ function context(role: RoleId, actorOfRecord: string): TransitionContext {
 /* ==================================================================== *
  * 1. THE HUB FALLBACK-PATTERN REGISTRY
  * ==================================================================== */
+
+/* ==================================================================== *
+ * THE WRITE SURFACE, DERIVED FROM THE MATRICES
+ * ==================================================================== */
+
+/**
+ * WHICH ACTS NEED A `HubCommand`, measured off the six Hub matrices rather
+ * than counted by hand. `@/domain/commands` used to say the matrices name
+ * "roughly twenty-five" acts and gave no way to check it. They name
+ * thirty-four writes.
+ *
+ * THE RULE, three clauses, each doing work and each checked below:
+ *
+ *  1. `surface === 'screen'` — the act is met on THIS module's own screen.
+ *     A Command Center act, a Studio act or a console act is not a Hub
+ *     write however permissive its cell reads.
+ *  2. some role's cell is `allowed` or `allowed-with-conditions` — the
+ *     ACTING statuses, `MOD-DOH-06`'s own list. A row nobody may act on has
+ *     no write for a command to carry.
+ *  3. the Read-only Auditor does NOT hold the row. That role is defined by
+ *     holding every read and no write (L1604's charter, and its cells across
+ *     all six matrices), so a row it holds is a READ — which is how "View
+ *     Jobs", "View the schedule", "Work the review queue" and the two
+ *     Anomaly Register views come out of the set without anyone naming them.
+ */
+const ACTING: readonly string[] = ['allowed', 'allowed-with-conditions']
+const HOLDING: readonly string[] = ['allowed', 'allowed-with-conditions', 'read-only']
+
+interface ScannedRow {
+  readonly id: string
+  readonly control: string
+  readonly surface: string
+  readonly status: Readonly<Record<string, string | null>>
+  readonly sourceRef: string
+}
+
+/** `MOD-DOH-05` contributes ACTS, not rows: row 11 states two in one cell. */
+const WRITE_SOURCES: readonly { readonly moduleId: string; readonly rows: readonly ScannedRow[] }[] =
+  [
+    {
+      moduleId: 'MOD-DOH-05',
+      rows: MOD_DOH_05_ACTS.map((a) => ({ ...a, surface: 'screen' })) as readonly ScannedRow[],
+    },
+    { moduleId: 'MOD-DOH-06', rows: MOD_DOH_06_MATRIX as readonly ScannedRow[] },
+    { moduleId: 'MOD-DOH-07', rows: DOH_07_MATRIX as readonly ScannedRow[] },
+    { moduleId: 'MOD-DOH-08', rows: DOH_08_MATRIX as readonly ScannedRow[] },
+    { moduleId: 'MOD-DOH-15', rows: MOD_DOH_15_MATRIX as readonly ScannedRow[] },
+    { moduleId: 'MOD-DOH-16', rows: DOH_16_MATRIX as readonly ScannedRow[] },
+  ]
+
+function writeActs(): readonly string[] {
+  return WRITE_SOURCES.flatMap(({ moduleId, rows }) =>
+    rows
+      .filter((row) => {
+        const cells = Object.values(row.status)
+        const acts = cells.some((c) => c !== null && ACTING.includes(c))
+        const auditor = row.status.READONLY_AUDITOR
+        const auditorHolds = auditor !== null && auditor !== undefined && HOLDING.includes(auditor)
+        return row.surface === 'screen' && acts && !auditorHolds
+      })
+      .map((row) => `${moduleId}/${row.id}`),
+  )
+}
+
+/**
+ * The declared half: which derived write act each shipped command carries.
+ * There is no derivable link between a matrix row and a command type, so
+ * this is stated — and every key is checked against the derived set below,
+ * so a row that is renamed or reclassified takes this map red with it.
+ */
+const COMMAND_FOR: Readonly<Record<string, HubCommandType>> = {
+  'MOD-DOH-05/create-a-job': 'DOH_CREATE_JOB',
+  'MOD-DOH-05/submit-a-job-for-approval': 'DOH_SUBMIT_JOB_FOR_APPROVAL',
+  'MOD-DOH-05/approve-a-job': 'DOH_APPROVE_JOB',
+  'MOD-DOH-05/reassign-the-job-owner': 'DOH_REASSIGN_JOB_OWNER',
+  'MOD-DOH-05/decide-a-notified-class-version-adoption': 'DOH_DECIDE_VERSION_ADOPTION',
+  'MOD-DOH-06/create-a-run': 'DOH_SCHEDULE_RUN',
+  'MOD-DOH-06/cancel-a-run': 'DOH_CANCEL_RUN',
+  'MOD-DOH-07/assign-worker': 'DOH_ASSIGN_WORKER',
+  'MOD-DOH-07/substitute-worker': 'DOH_SUBSTITUTE_WORKER',
+  'MOD-DOH-08/resolve-an-anomaly': 'DOH_RESOLVE_ANOMALY',
+  'MOD-DOH-08/add-a-correction-annotation': 'DOH_ANNOTATE_SUMMARY',
+  'MOD-DOH-15/clone-a-job': 'DOH_CLONE_JOB',
+  'MOD-DOH-16/create-a-pairing-between-two-jobs': 'DOH_PAIR_JOBS',
+  'MOD-DOH-16/remove-a-pairing': 'DOH_UNPAIR_JOBS',
+  'MOD-DOH-16/act-on-the-review-flag': 'DOH_ACT_ON_PAIRED_REVIEW_FLAG',
+}
+
+describe('the Hub write surface, derived from the six matrices', () => {
+  it('derives thirty-four write acts, and every clause of the rule removes something', () => {
+    const acts = writeActs()
+    expect(acts).toHaveLength(34)
+    expect(new Set(acts).size, 'a row id appears twice within one module').toBe(acts.length)
+
+    // Clause 3 is what removes the reads, and it removes exactly five.
+    expect(acts).not.toContain('MOD-DOH-05/view-jobs')
+    expect(acts).not.toContain('MOD-DOH-06/view-the-schedule')
+    expect(acts).not.toContain('MOD-DOH-07/view-assignments')
+    expect(acts).not.toContain('MOD-DOH-08/work-the-review-queue')
+    expect(acts).not.toContain('MOD-DOH-08/view-the-anomaly-register')
+
+    // Clause 1 is what removes the acts met elsewhere: MOD-DOH-08's two
+    // Command Center rows read `Allowed` and `Allowed with conditions`.
+    expect(acts).not.toContain('MOD-DOH-08/release-a-severity-1-lot-hold')
+    expect(acts).not.toContain('MOD-DOH-08/reclassify-an-anomaly-severity')
+    expect(acts).not.toContain('MOD-DOH-15/approve-the-cloned-job')
+
+    // Clause 2 is what removes the rows nobody may act on at all.
+    expect(acts).not.toContain('MOD-DOH-16/cause-automated-propagation-across-the-link')
+    expect(acts).not.toContain('MOD-DOH-08/force-a-re-finalisation')
+  })
+
+  it('carries a command for fifteen of the thirty-four, and names the nineteen that have none', () => {
+    const acts = writeActs()
+    const commanded = acts.filter((a) => COMMAND_FOR[a] !== undefined)
+    expect(commanded).toHaveLength(15)
+    expect(acts.length - commanded.length).toBe(19)
+
+    // Every shipped command is carried by exactly one derived act, so the
+    // count above cannot be reached by mapping two acts onto one command.
+    expect(new Set(commanded.map((a) => COMMAND_FOR[a])).size).toBe(HUB_COMMAND_TYPES.length)
+    expect(HUB_COMMAND_TYPES).toHaveLength(15)
+
+    // And the map cannot rot: a key naming a row the derivation does not
+    // produce is a row that was renamed, reclassified or made a read.
+    for (const key of Object.keys(COMMAND_FOR)) {
+      expect(acts, `${key} is not a derived write act`).toContain(key)
+    }
+  })
+
+  it('the three commands this slice added close the two gaps the modules recorded', () => {
+    // MOD-DOH-15's whole module is one write and had no command at all;
+    // MOD-DOH-16 had a command that acts on a pairing nothing could make.
+    for (const key of [
+      'MOD-DOH-15/clone-a-job',
+      'MOD-DOH-16/create-a-pairing-between-two-jobs',
+      'MOD-DOH-16/remove-a-pairing',
+    ]) {
+      expect(writeActs()).toContain(key)
+      expect(COMMAND_FOR[key]).toBeDefined()
+    }
+    // Both cards name a Hub WRITE pattern, which is what separates these
+    // three from the nineteen left uncommanded.
+    expect(sourceLine(29471)).toContain('FB-DOH-WRITE-002')
+    expect(sourceLine(29607)).toContain('FB-DOH-WRITE-002')
+  })
+})
 
 describe('§19.2 Hub fallback-pattern registry', () => {
   it('registers exactly the number of patterns §19.2 itself defines', () => {

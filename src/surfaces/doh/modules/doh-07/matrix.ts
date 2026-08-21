@@ -21,17 +21,15 @@ import type { TenantRoleId } from '../../../../../app/hub/HubShell'
  * correction says every span in it starts on the header, and this matrix is
  * one of the fifteen that confirmed it.
  *
- * WHAT THIS FILE DOES NOT DO. It registers no route, adds no row to
- * `DOH_MODULES` and writes nothing into
- * `registries/generated/doh/module-reach.json`. That registration is a
- * single-line edit to `src/surfaces/doh/modules.ts`, which four wave-1
- * module tasks share and none of them may hold; it is recorded as an
- * integration step in this task's report rather than raced for. The
- * consequence is stated rather than hidden: `dohScreenReach('SCR-DOH-15')`
- * answers `null` until that row lands, which is wave 0's own designed
- * meaning of `null` — "there is nothing to derive from yet" — and NOT an
- * empty role set. `MOD_DOH_07_REACH` below derives the real answer from
- * this matrix in the meantime, using the ONE implementation of the rule.
+ * WHAT THIS FILE DOES NOT DO. It registers no route and adds no row to
+ * `DOH_MODULES` — that registration was a single-line edit to
+ * `src/surfaces/doh/modules.ts` which four wave-1 module tasks shared and
+ * none of them could hold, so it was recorded as an integration step and
+ * made once for all seven. It has been made, and
+ * `dohScreenReach('SCR-DOH-15')` now answers this module's reach instead of
+ * `null`. `MOD_DOH_07_REACH` below is still derived here rather than read
+ * from the spine, using the ONE implementation of the rule, so the suite can
+ * compare the two rather than reading one value twice.
  */
 
 export type AssignmentControlId =
@@ -235,8 +233,20 @@ const HOLDING: readonly ControlStatus[] = ['allowed', 'allowed-with-conditions',
  * could not be one: where the alternative to a refusal is off-matrix
  * entirely — a grant table that does not exist, a check that is deferred —
  * there is nothing to point at, and a pointer would have to invent its own
- * target. `routedTo` is a Studio mechanism and no Hub counterpart is built
- * here.
+ * target.
+ *
+ * THAT IS THE WHOLE OF WHY THIS CARD CARRIES NONE, and the sentence that
+ * used to stand here — "`routedTo` is a Studio mechanism and no Hub
+ * counterpart is built here" — was false in both halves. `MOD-DOH-08`
+ * carries `routedTo` on every row of its own matrix and folds it in
+ * `doh-08/rendering`, so a Hub counterpart is built, in this slice, one
+ * module over. The accurate rule is `MOD-DOH-08`'s and it is not this
+ * module's to restate differently: **`routedTo[column]` names a capability
+ * IN THIS MATRIX that the persona holds instead, or `null`; an alternative
+ * on another surface is never a `routedTo`** — it renders in the cell's own
+ * words inside the cross-surface statement. Under that rule this card still
+ * has nothing to route, which is the same answer for a reason that survives
+ * reading.
  */
 export function assignmentCellRendering(
   row: AssignmentMatrixRow,

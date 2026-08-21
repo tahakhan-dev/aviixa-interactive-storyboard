@@ -36,17 +36,43 @@ export type CommandType = ScenarioCommand['type']
  * was a Hub Job or Run act, so every module in chapter 19 wrote through
  * nothing at all.
  *
- * WHY THESE TWELVE AND NOT TWENTY-FIVE. The four module matrices between
- * them name roughly twenty-five acts, and enumerating all of them here would
- * be inventing consumers. These twelve are exactly the acts named by
- * something outside this file: the eight steps of the operational journey
- * the plan's task 13 spells out (Job drafted, approved by a second person,
- * run scheduled, worker assigned with the package pinned, run submitted,
- * Summary computed, anomaly resolved, run finished — of which "submitted",
- * "Summary computed" and "finished" are AUTOMATIC transitions with no actor
- * and therefore belong to the due-transition evaluator, not here), plus the
- * three rows the Job-Owner predicate gates and the state-machine step
- * (`submit for approval`) without which `draft` cannot reach `active`.
+ * FIFTEEN, AGAINST THIRTY-FOUR WRITE ACTS THE MATRICES NAME. The gap is
+ * MEASURED rather than estimated, by `tests/unit/doh-objects.test.ts`, which
+ * derives the write acts from the six Hub matrices themselves — a row this
+ * module's own screen carries, that some role may ACT on, and that the
+ * Read-only Auditor does not hold — and pairs each with its command or with
+ * none. The old wording here said the matrices name "roughly twenty-five"
+ * acts and gave no way to check it; a count nothing can re-derive is a count
+ * that drifts, and this one was low by nine.
+ *
+ * WHY THESE FIFTEEN. Twelve are the acts named by something outside this
+ * file: the eight steps of the operational journey the plan's task 13 spells
+ * out (Job drafted, approved by a second person, run scheduled, worker
+ * assigned with the package pinned, run submitted, Summary computed, anomaly
+ * resolved, run finished — of which "submitted", "Summary computed" and
+ * "finished" are AUTOMATIC transitions with no actor and therefore belong to
+ * the due-transition evaluator, not here), plus the three rows the Job-Owner
+ * predicate gates and the state-machine step (`submit for approval`) without
+ * which `draft` cannot reach `active`.
+ *
+ * THE THREE ADDED HERE ARE THE ACTS WHOSE OWN IDENTITY CARD NAMES A HUB
+ * WRITE PATTERN AND WHICH HAD NO COMMAND AT ALL. `MOD-DOH-15`'s card
+ * (L29471) names `FB-DOH-WRITE-002` primary and its whole module is one
+ * write — the clone — which had no command, so the audit line the source
+ * requires at L29543 had nothing to hang off. `MOD-DOH-16`'s card (L29607)
+ * names `FB-DOH-WRITE-002` "for the pairing act", and its rows 1 and 2
+ * (L29613, L29614) create and remove a pairing, writing the `linked_job_ref`
+ * the card's Outputs line names on each Job; the only pairing command that
+ * existed was `DOH_ACT_ON_PAIRED_REVIEW_FLAG`, which acts on a pairing
+ * nothing could make.
+ *
+ * NOTHING ELSE IS MINTED. The other nineteen write acts are real, and the
+ * derivation names every one of them rather than leaving the gap as a round
+ * number — configuration writes made on `SCR-DOH-23`, edits and archival on
+ * a Job, the two review-queue writes `MOD-DOH-08` renders, the recurrence
+ * prompt whose allowed role is not one of the five. A command for an act no
+ * card names as this surface's write would be a consumer invented to justify
+ * a type.
  *
  * EVERY MEMBER IS TENANT-SCOPED. The Hub is a tenant surface; there is no
  * platform-scoped Hub act. `commandTenant` in the kernel relies on that
@@ -80,6 +106,16 @@ export type HubCommand =
        * nowhere to route a version-adoption decision or a paired-Job flag.
        */
       readonly ownerId: string
+      /**
+       * §4.5.1 (L27648) lists "its recurrence pattern" among the fields a
+       * Job carries, and L7155 sets it at creation. Required for the same
+       * reason `ownerId` is: `AC-DOH-15-3` turns on whether the SOURCE Job
+       * recurs, and a Job whose recurrence nothing recorded cannot answer.
+       * `ONE_OFF_RECURRENCE` in `@/surfaces/doh/objects` is the source's own
+       * token for no recurrence; every other value is the tenant's own
+       * pattern text, which the source never enumerates.
+       */
+      readonly recurrence: string
     }
   | {
       readonly type: 'DOH_SUBMIT_JOB_FOR_APPROVAL'
@@ -124,6 +160,58 @@ export type HubCommand =
       readonly jobId: string
       readonly pairedJobId: string
       readonly note: string
+    }
+
+  /* ---- Cloning (MOD-DOH-15, §19.17) ---- */
+  | {
+      /**
+       * MOD-DOH-15 row 1, L29477. ONE TRANSACTION, which is `AC-DOH-15-5`:
+       * "No partial clone can exist." L29452 names the six elements copied
+       * and the three reset, so the clone carries only what it cannot
+       * derive from the source Job — a new identifier, a new name and an
+       * owner. Everything else is read off the source record, which is what
+       * makes "copies exactly the six named elements and no others"
+       * (`AC-DOH-15-1`) checkable rather than restated.
+       *
+       * THERE IS NO `recurrence` FIELD, AND THAT IS `AC-DOH-15-2`: a clone
+       * resets recurrence to one-off, unconditionally. Letting the command
+       * carry a recurrence would make the reset optional. The prompt at
+       * L29452 — "This was cloned from a recurring Job — set recurrence
+       * now?" — is a SECOND act (row 2, L29478) with its own role cells,
+       * and it is not minted here.
+       */
+      readonly type: 'DOH_CLONE_JOB'
+      readonly tenant: TenantId
+      readonly sourceJobId: string
+      readonly jobId: string
+      readonly name: string
+      readonly ownerId: string
+    }
+
+  /* ---- Pairing (MOD-DOH-16, §19.18) ---- */
+  | {
+      /**
+       * MOD-DOH-16 row 1, L29613. The card's Outputs line (L29598) names
+       * "the `linked_job_ref` on each Job", so this writes BOTH — a pairing
+       * recorded on one side only is a link one of the two Jobs cannot see.
+       *
+       * NOT GATED BY THE JOB-OWNER PREDICATE. Row 1's cells are `Allowed`
+       * for the Tenant Admin and `Allowed with conditions — must hold scope
+       * over both Jobs` for the Supervisor; neither mentions the Job Owner.
+       * Only rows 4 and 5, the review flag, are owner-conditioned.
+       */
+      readonly type: 'DOH_PAIR_JOBS'
+      readonly tenant: TenantId
+      readonly jobId: string
+      readonly pairedJobId: string
+    }
+  | {
+      /** MOD-DOH-16 row 2, L29614. Same cells as row 1, and the same two
+       *  writes in reverse: L29629's removal clears both sides. */
+      readonly type: 'DOH_UNPAIR_JOBS'
+      readonly tenant: TenantId
+      readonly jobId: string
+      readonly pairedJobId: string
     }
 
   /* ---- Run (MOD-DOH-06, §19.8) ---- */
@@ -207,7 +295,7 @@ export type HubCommand =
 export type HubCommandType = HubCommand['type']
 
 /**
- * The twelve, listed once. `isHubCommand` narrows on membership of this set
+ * The fifteen, listed once. `isHubCommand` narrows on membership of this set
  * rather than on a `startsWith('DOH_')` string test, which would be a lie to
  * the type system: a prefix check narrows nothing soundly, and the kernel's
  * exhaustive switches depend on the narrowing being real.
@@ -219,6 +307,9 @@ export const HUB_COMMAND_TYPES = [
   'DOH_REASSIGN_JOB_OWNER',
   'DOH_DECIDE_VERSION_ADOPTION',
   'DOH_ACT_ON_PAIRED_REVIEW_FLAG',
+  'DOH_CLONE_JOB',
+  'DOH_PAIR_JOBS',
+  'DOH_UNPAIR_JOBS',
   'DOH_SCHEDULE_RUN',
   'DOH_CANCEL_RUN',
   'DOH_ASSIGN_WORKER',
@@ -228,7 +319,7 @@ export const HUB_COMMAND_TYPES = [
 ] as const satisfies readonly HubCommandType[]
 
 // Same exhaustiveness shape as `ROLES` and `PERMISSION_OUTCOMES`: adding a
-// thirteenth member to `HubCommand` without listing it here stops
+// sixteenth member to `HubCommand` without listing it here stops
 // `MissingFromHubTypes` being `never` and fails the build. Without this, a
 // new Hub command would silently fall out of `isHubCommand` and be reported
 // by the gateway as "not a recognised action" — a fail-closed refusal, but

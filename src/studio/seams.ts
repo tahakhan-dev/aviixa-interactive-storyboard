@@ -12,15 +12,20 @@ import { STU_MODULES, type StudioModuleId } from './modules'
  * it.
  *
  * WHERE THE COUNTERPART IS UNSCHEDULED, THE ABSENCE IS DECLARED RATHER THAN
- * GUESSED. Five of the rows below carry NO owning slice at all (census
- * §6.3) — the Parts Registry, the severity action bundle editor, the
- * tag-to-qualification-set mapping, the composed-agent platform review
- * queue, and the multimodal embedding service. Slice 4 hit two unregistered
- * dependencies and both modules declared the absence instead of borrowing
- * the nearest identifier; one pinned "the registry lacks this row" with a
- * test built to go red when the row landed, and it did. `ownerSlices: []`
- * is that declaration here, and `stuSeamStatus` derives `unscheduled` from
- * it rather than from a second hand-written flag that could disagree.
+ * GUESSED. Four of the rows below carry NO owning slice at all (census
+ * §6.3) — the severity action bundle editor, the tag-to-qualification-set
+ * mapping, the composed-agent platform review queue, and the multimodal
+ * embedding service. The Parts Registry was a fifth and is not any more:
+ * slice 6 shipped `MOD-DOH-19`, so that row now carries `ownerSlices: [6]`
+ * and reads `scheduled`. An unscheduled declaration that has stopped being
+ * true reads, from a screen, exactly like one nobody ever looked up.
+ *
+ * Slice 4 hit two unregistered dependencies and both modules declared the
+ * absence instead of borrowing the nearest identifier; one pinned "the
+ * registry lacks this row" with a test built to go red when the row landed,
+ * and it did. `ownerSlices: []` is that declaration here, and
+ * `stuSeamStatus` derives `unscheduled` from it rather than from a second
+ * hand-written flag that could disagree.
  *
  * NO COUNT IS ASSERTED ANYWHERE. The plan's standing ruling — "the census
  * does not reconcile with itself … no gate may key on those numbers.
@@ -60,7 +65,8 @@ export type StudioSeamId =
   | 'escalation-delivery-and-role-resolution'
   | 'tenant-audit-log'
   | 'composed-agent-platform-review'
-  // Census §6.3 — no owning slice anywhere. Declared, never guessed.
+  // Census §6.3 — no owning slice when the census was taken. Declared,
+  // never guessed; `parts-registry` has since acquired one.
   | 'parts-registry'
   | 'severity-action-bundle-editor'
   | 'tag-to-qualification-set-mapping'
@@ -315,17 +321,35 @@ export const STU_SEAMS = [
     sourceRef: 'census §6.2, L34030',
   },
 
-  /* ---- Census §6.3 — unregistered. Declared, not guessed. ---- */
+  /* ---- Census §6.3 — unregistered when the census was taken. Declared,
+   *      not guessed. `parts-registry` is no longer among them. ---- */
   {
+    /**
+     * NO LONGER UNSCHEDULED, AND THAT IS THE WHOLE OF THE FIX. This row sat
+     * under the §6.3 heading with `ownerSlices: []` because when slice 5 was
+     * built `MOD-DOH-19` was assigned to no slice anywhere in the repo. The
+     * re-plan`s §3.0 ruled it into slice 6 — its only dependency
+     * (`MOD-DOH-02`) shipped in slice 4 and its second entry point
+     * (`MOD-STU-10`) shipped in slice 5 — and slice 6 shipped it, route and
+     * matrix. `stuSeamStatus` derives `scheduled` from the number below, so
+     * the notice stops saying "owner stated, no slice assigned" about a
+     * module that is built.
+     *
+     * IT STAYS IN THIS BLOCK RATHER THAN MOVING UP, because the block
+     * headings record where the CENSUS put each row. Moving it would erase
+     * the fact that the census had no slice for it; the number is what
+     * carries the correction, and it is the only thing `stuSeamStatus`
+     * reads.
+     */
     id: 'parts-registry',
     name: 'The parts registry',
     consumingModules: ['MOD-STU-10'],
     owner:
-      'MOD-DOH-19 Parts Registry — registered in the module inventory as not-represented, explicitly excluded from slice 4, and named in no later slice’s stated scope',
-    ownerSlices: [],
+      'MOD-DOH-19 Parts Registry — excluded from slice 4 and named in no later slice’s stated scope at the time this row was written; ruled into slice 6 by the re-plan §3.0 and shipped there, with a route at /hub/parts-registry and its own control matrix (L30070-L30077)',
+    ownerSlices: [6],
     contract:
-      'MOD-STU-10 depends on it entirely. The seam returns a confirmed or an unconfirmed outcome and the unconfirmed path is the one the gate exercises: if the hand-off cannot be confirmed the reference is not created, because a reference to a part that does not exist in the registry would break genealogy.',
-    sourceRef: 'L33143, AC-STU-096 L33220',
+      'MOD-STU-10 depends on it entirely. The seam returns a confirmed or an unconfirmed outcome and the unconfirmed path is the one the gate exercises: if the hand-off cannot be confirmed the reference is not created, because a reference to a part that does not exist in the registry would break genealogy. CROSS-SLICE FINDING, DISCLOSED AND NOT RESOLVED: MOD-STU-10 row 4 (L33116) routes the Tenant Admin into a Hub act — "Complete a skeletal part record", `Allowed — in the Delivery Operations Hub, subject to its own permissions" — and MOD-DOH-19`s own matrix (L30070-L30077, eight rows) contains no row for it. Its nearest row is "Edit a part record" (L30072), which is a field write and not the Skeletal-to-Complete transition the Studio names; the registry`s own state pair is Skeletal and Complete. No row is minted on the Hub side to receive this pointer, because minting one would manufacture a capability in order to justify a pointer, which is the defect and not the fix. Both statements stand as the source wrote them.',
+    sourceRef: 'L33143, AC-STU-096 L33220; the finding: L33116 against L30070-L30077',
   },
   {
     id: 'severity-action-bundle-editor',

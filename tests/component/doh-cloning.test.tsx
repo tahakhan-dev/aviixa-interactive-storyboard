@@ -187,6 +187,10 @@ describe('the whole matrix and its silences reach the reader', () => {
     const list = within(region()).getByTestId('doh-15-silences')
     expect(within(list).getAllByRole('listitem').length).toBeGreaterThanOrEqual(6)
     expect(list.textContent).toContain('the cloning identity')
-    expect(list.textContent).toContain('Recurrence is not a field of the Job record')
+    // The recurrence silence is now about the VOCABULARY, not the field:
+    // `JobRecord` carries `recurrence`, and what the source still withholds
+    // is what a pattern may say. The panel renders the corrected silence.
+    expect(list.textContent).toContain('What a recurrence pattern may say')
+    expect(list.textContent).not.toContain('Recurrence is not a field of the Job record')
   })
 })

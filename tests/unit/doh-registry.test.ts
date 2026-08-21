@@ -16,6 +16,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import {
   DOH_SCREENS,
   DOH_CATALOGUE_AB_SWAP,
@@ -27,8 +28,15 @@ import {
 import { DOH_MODULES, DOH_OUT_OF_SLICE_MODULES } from '@/surfaces/doh/modules'
 import { DOH_SEAMS, dohSeamById, dohSeamStatus } from '@/surfaces/doh/seams'
 import { rolesInDomain } from '@/domain/roles'
+import { doh08Row } from '@/surfaces/doh/modules/doh-08/matrix'
 
 const SCREENS_SRC = readFileSync('src/surfaces/doh/screens.ts', 'utf8')
+
+const SOURCE_LINES = readFileSync(
+  join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md'),
+  'utf8',
+).split('\n')
+const sourceLine = (n: number): string => SOURCE_LINES[n - 1] ?? ''
 
 /**
  * The nine catalogue-B rows slice 6 adds, transcribed from L48104-L48111 and
@@ -192,12 +200,17 @@ describe('reach — derived from the matrix, never from the catalogue cell', () 
   const TENANT_ROLES = rolesInDomain('TENANT').map((r) => r.id)
 
   it('answers from the module’s generated rolesReaching, not from catalogueBRoles', () => {
-    // SCR-DOH-06's catalogue cell names two roles (L48100); MOD-DOH-19's
-    // matrix at L30074 gives four a holding status. The module has not
-    // landed, so the honest answer is null — and it is emphatically not the
-    // two the catalogue names.
-    expect(dohScreenReach('SCR-DOH-06')).toBeNull()
-    expect(dohScreenById('SCR-DOH-06').catalogueBRoles).toContain('Supervisor')
+    // SCR-DOH-06's catalogue cell names TWO roles (L48100); MOD-DOH-19's
+    // matrix at L30074 gives FOUR a holding status. Now that the module has
+    // landed the answer is the matrix's four, and it is emphatically not the
+    // catalogue's two — which is the whole reason `catalogueBRoles` is never
+    // parsed into a role list.
+    expect(dohScreenReach('SCR-DOH-06')).toEqual(
+      DOH_MODULES.find((m) => m.id === 'MOD-DOH-19')?.rolesReaching,
+    )
+    expect(dohScreenReach('SCR-DOH-06')).toHaveLength(4)
+    expect(dohScreenById('SCR-DOH-06').catalogueBRoles).toBe('Tenant Admin, Supervisor')
+    expect(dohScreenReach('SCR-DOH-06')).toContain('QUALITY_MANAGER')
 
     // A screen whose module HAS landed answers with that module's derived
     // set. SCR-DOH-03's catalogue cell reads "Tenant Admin" alone (L48097);
@@ -209,13 +222,20 @@ describe('reach — derived from the matrix, never from the catalogue cell', () 
     expect(dohScreenById('SCR-DOH-03').catalogueBRoles).toBe('Tenant Admin')
   })
 
-  it('returns null for every slice-6 screen, because no slice-6 module has landed', () => {
+  it('answers for every slice-6 screen now that the seven modules have landed, and null only where no module owns the screen', () => {
     for (const row of SLICE_6_ROWS) {
-      expect(dohScreenReach(row.id), row.id).toBeNull()
+      const reach = dohScreenReach(row.id)
+      expect(reach, row.id).not.toBeNull()
+      expect(reach, row.id).toEqual(
+        DOH_MODULES.find((m) => m.id === row.moduleId)?.rolesReaching,
+      )
     }
-    // Non-vacuous: the twelve slice-4 rows are not all null.
-    const answered = DOH_SCREENS.filter((s) => dohScreenReach(s.id) !== null)
-    expect(answered.length).toBeGreaterThan(8)
+    // Non-vacuous in the other direction: `null` is still a live answer, and
+    // it now means exactly "this screen names no module" rather than "this
+    // module has not landed". The two ownerless rows are the only ones left.
+    const unanswered = DOH_SCREENS.filter((s) => dohScreenReach(s.id) === null)
+    expect(unanswered.map((s) => s.id)).toEqual(['SCR-DOH-02', 'SCR-DOH-23'])
+    for (const s of unanswered) expect(s.moduleId, s.id).toBeNull()
   })
 
   it('never returns a token that is not a tenant role', () => {
@@ -242,32 +262,61 @@ describe('reach — derived from the matrix, never from the catalogue cell', () 
 
 describe('DOH_CATALOGUE_B_REACH_NARROWER — the C1 trap, measured', () => {
   /**
-   * Written from the matrix lines, each read at the source. The plan named
-   * four; SCR-DOH-06 is the fifth and is in this table because L30074 says
-   * so, not because the registry does.
+   * Written from the matrix lines, each read at the source, and NOT copied
+   * from the register — the register derives its own answer and this table
+   * is the independent side of the comparison.
+   *
+   * The plan named FOUR. `SCR-DOH-06` is the fifth case and `SCR-DOH-11` is
+   * narrowed TWICE, by the two different modules L48105 mounts in the Job
+   * editor, so there are SIX narrowings over five screens.
    */
   const MEASURED = [
-    { screenId: 'SCR-DOH-06', omitted: ['Quality Manager', 'Read-only Auditor'], line: 'L30074' },
-    { screenId: 'SCR-DOH-11', omitted: ['Tenant Admin'], line: 'L27695' },
-    { screenId: 'SCR-DOH-13', omitted: ['Tenant Admin'], line: 'L27910' },
+    { screenId: 'SCR-DOH-06', moduleId: 'MOD-DOH-19', omitted: ['Quality Manager', 'Read-only Auditor'], line: 'L30074' },
+    { screenId: 'SCR-DOH-11', moduleId: 'MOD-DOH-05', omitted: ['Tenant Admin'], line: 'L27695' },
+    { screenId: 'SCR-DOH-11', moduleId: 'MOD-DOH-15', omitted: ['Tenant Admin'], line: 'L29477' },
+    { screenId: 'SCR-DOH-13', moduleId: 'MOD-DOH-06', omitted: ['Tenant Admin'], line: 'L27910' },
     {
       screenId: 'SCR-DOH-15',
+      moduleId: 'MOD-DOH-07',
       omitted: ['Tenant Admin', 'Quality Manager', 'Read-only Auditor'],
       line: 'L28125',
     },
-    { screenId: 'SCR-DOH-17', omitted: ['Tenant Admin'], line: 'L28306' },
+    { screenId: 'SCR-DOH-17', moduleId: 'MOD-DOH-08', omitted: ['Tenant Admin'], line: 'L28306' },
   ] as const
 
-  it('names exactly the five measured rows, each against its matrix line', () => {
-    expect(DOH_CATALOGUE_B_REACH_NARROWER.map((n) => n.screenId)).toEqual(
-      MEASURED.map((m) => m.screenId),
+  it('names exactly the six measured narrowings, each against its module and its matrix line', () => {
+    expect(DOH_CATALOGUE_B_REACH_NARROWER.map((n) => `${n.screenId}/${n.moduleId}`)).toEqual(
+      MEASURED.map((m) => `${m.screenId}/${m.moduleId}`),
     )
     for (const m of MEASURED) {
-      const row = DOH_CATALOGUE_B_REACH_NARROWER.find((n) => n.screenId === m.screenId)
-      expect(row, m.screenId).toBeDefined()
+      const row = DOH_CATALOGUE_B_REACH_NARROWER.find(
+        (n) => n.screenId === m.screenId && n.moduleId === m.moduleId,
+      )
+      expect(row, `${m.screenId}/${m.moduleId}`).toBeDefined()
       expect(row?.omittedRoles, m.screenId).toEqual(m.omitted)
       expect(row?.matrixRef, m.screenId).toContain(m.line)
     }
+  })
+
+  it('drops the three anchors that derive to no narrowing, so the filter is live', () => {
+    // `SCR-DOH-10`, `SCR-DOH-12` and `SCR-DOH-16` are anchored in the
+    // register and derive an EMPTY omitted set, which is why they are absent.
+    // Without them the filter would never have been exercised and "narrower"
+    // would be a list rather than a measurement.
+    const ids: readonly string[] = DOH_CATALOGUE_B_REACH_NARROWER.map((n) => n.screenId)
+    for (const id of ['SCR-DOH-10', 'SCR-DOH-12', 'SCR-DOH-16']) expect(ids).not.toContain(id)
+  })
+
+  it('never counts the Worker, because D11 and the catalogue agree there', () => {
+    // Two anchored rows admit the Worker — L27910 and L28125 — and neither
+    // catalogue cell names it. That is the route registry agreeing with the
+    // catalogue while only the matrix dissents, so it is not a narrowing.
+    for (const n of DOH_CATALOGUE_B_REACH_NARROWER) {
+      expect(n.omittedRoles, n.screenId).not.toContain('Worker')
+    }
+    const schedule = DOH_CATALOGUE_B_REACH_NARROWER.find((n) => n.screenId === 'SCR-DOH-13')
+    expect(schedule?.matrixRef).toContain('L27910')
+    expect(dohScreenById('SCR-DOH-13').catalogueBRoles).not.toContain('Worker')
   })
 
   it('omits from the catalogue cell exactly the roles it claims are omitted', () => {
@@ -411,15 +460,38 @@ describe('DOH_SEAMS — the three slice-4 seams slice 6 owns', () => {
     expect(dohSeamStatus(seam)).toBe('closed')
   })
 
-  it('leaves the four slice-10 seams open', () => {
+  it('leaves the four slice-10 seams open, and the slice-12 one too', () => {
     const open = DOH_SEAMS.filter((s) => dohSeamStatus(s) === 'open')
     expect(open.map((s) => s.id)).toEqual([
+      'regulated-industry-mode',
       'shift-digest-delivery',
       'platform-access-history-audit',
       'tenant-contact-email-delivery',
       'certification-expiry-digest',
     ])
-    for (const s of open) expect(s.ownerSlice, s.id).toBe(10)
+    expect(dohSeamById('regulated-industry-mode').ownerSlice).toBe(12)
+    for (const s of open.filter((x) => x.id !== 'regulated-industry-mode')) {
+      expect(s.ownerSlice, s.id).toBe(10)
+    }
+  })
+
+  /**
+   * THE EIGHTH SEAM, which did not exist. `MOD-DOH-08` reads MOD-DOH-17 for
+   * row 14's forced-on constraint and builds none of it; with no registered
+   * row, `SeamNotice` could draw nothing and the screen hand-wrote the
+   * sentence — which reads, from the screen, exactly like a seam declared
+   * and unowned.
+   */
+  it('registers the Regulated-Industry mode seam MOD-DOH-08 reads and does not build', () => {
+    const seam = dohSeamById('regulated-industry-mode')
+    expect(seam.consumingModule).toBe('MOD-DOH-08')
+    expect(seam.ownerModule).toBe('MOD-DOH-17')
+    // Not derived from the field under test: L28313 is the row that creates
+    // the dependency, and MOD-DOH-17 is out of this slice's module set.
+    expect(sourceLine(28_313)).toContain('Regulated-Industry mode')
+    expect(DOH_OUT_OF_SLICE_MODULES.map((m) => m.id)).toContain('MOD-DOH-17')
+    // The one module that carries the constraint carries no control for it.
+    expect(doh08Row('set-the-review-toggle').noControlHere).toContain('MOD-DOH-17')
   })
 
   it('derives status from ownerSlice rather than from a stored flag', () => {
@@ -429,8 +501,8 @@ describe('DOH_SEAMS — the three slice-4 seams slice 6 owns', () => {
       expect(Object.keys(s), s.id).not.toContain('status')
       expect(Object.keys(s), s.id).not.toContain('closed')
     }
-    expect(DOH_SEAMS).toHaveLength(7)
-    // Non-vacuous: the partition is 3 / 4, not 7 / 0 or 0 / 7.
+    expect(DOH_SEAMS).toHaveLength(8)
+    // Non-vacuous: the partition is 3 / 5, not 8 / 0 or 0 / 8.
     expect(DOH_SEAMS.filter((s) => dohSeamStatus(s) === 'closed')).toHaveLength(3)
   })
 

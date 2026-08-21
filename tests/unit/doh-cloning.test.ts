@@ -27,6 +27,32 @@ import { HUB_COMMAND_TYPES } from '@/domain/commands'
 import { emptyDomainState, withTenant } from '@/domain/state'
 import { scenarioRunId, tenantId } from '@/domain/ids'
 import { HUB_TENANT_ID } from '@/surfaces/doh/modules/doh-05/jobs'
+import {
+  ONE_OFF_RECURRENCE,
+  applyHubCommand,
+  jobRecurs,
+  objectKey,
+  readJob,
+  type JobRecord,
+} from '@/surfaces/doh/objects'
+
+/** One Job to vary, so each assertion below changes exactly one field. */
+const CLONE_TENANT = HUB_TENANT_ID
+const BASE_JOB: JobRecord = {
+  jobId: 'JOB-SOURCE',
+  name: 'Red bike frame assembly',
+  jobTypeId: 'JOBTYPE-BRIGHTBIKES-ASSEMBLY',
+  parentNodeId: 'AREA-ASSY-A',
+  ownerId: 'ACT-DOH-SAM',
+  state: 'draft',
+  createdBy: 'ACT-DOH-SAM',
+}
+
+const putJob = (job: JobRecord) =>
+  withTenant(emptyDomainState(scenarioRunId('DOH-MOD-15-CLONE')), CLONE_TENANT, (p) => ({
+    ...p,
+    objects: { ...p.objects, [objectKey.job(job.jobId)]: job },
+  }))
 
 /**
  * `MOD-DOH-15` — Job Cloning. A component with no route of its own.
@@ -608,19 +634,32 @@ describe('the module adds no role and mints no pointer', () => {
     expect(sourceLine(48105)).toContain('MOD-DOH-05, MOD-DOH-15, MOD-DOH-16')
   })
 
-  it('is not yet registered in DOH_MODULES, which is the declared debt', () => {
-    // A later pass registers all seven slice-6 modules at once. Until then
-    // reach is derived in-module, which is why MOD_DOH_15_REACH exists here
-    // and not as a generated field.
-    expect(DOH_MODULES.map((m) => m.id)).not.toContain('MOD-DOH-15')
+  it('is registered in DOH_MODULES under the slug of the screen that mounts it', () => {
+    // The debt this test used to pin — "not yet registered" — is cleared.
+    // The registered row carries the mount's slug, not a route of its own,
+    // and its generated reach equals the in-module derivation over the same
+    // rows by the same rule. Both sides are asserted so the equality cannot
+    // pass by both collapsing to empty.
+    const registered = DOH_MODULES.find((m) => m.id === 'MOD-DOH-15')
+    expect(registered).toBeDefined()
+    expect(registered?.slug).toBe('job-lifecycle-and-approval')
+    expect(registered?.slug).toBe(DOH_MODULES.find((m) => m.id === 'MOD-DOH-05')?.slug)
+    expect(registered?.rolesReaching).toEqual(MOD_DOH_15_REACH)
+    expect(MOD_DOH_15_REACH).toEqual(['TENANT_ADMIN', 'SUPERVISOR'])
   })
 
-  it('adds a SECOND narrowing to SCR-DOH-11 that the shared register cannot hold', () => {
-    const existing = DOH_CATALOGUE_B_REACH_NARROWER.find((n) => n.screenId === 'SCR-DOH-11')!
-    expect(existing.matrixRef).toContain('L27695')
-    expect(existing.omittedRoles).toEqual(['Tenant Admin'])
+  it('adds a SECOND narrowing to SCR-DOH-11, and the shared register now holds both', () => {
+    const both = DOH_CATALOGUE_B_REACH_NARROWER.filter((n) => n.screenId === 'SCR-DOH-11')
+    expect(both).toHaveLength(2)
+    const [byJob, byClone] = both
+    expect(byJob?.moduleId).toBe('MOD-DOH-05')
+    expect(byJob?.matrixRef).toContain('L27695')
+    expect(byClone?.moduleId).toBe('MOD-DOH-15')
+    expect(byClone?.matrixRef).toContain('L29477')
     // Same screen, same omitted role, a DIFFERENT capability and a different
-    // line. The register keys one matrixRef per screen; this is the second.
+    // line — which is exactly what one-entry-per-screen could not express.
+    expect(byJob?.omittedRoles).toEqual(['Tenant Admin'])
+    expect(byClone?.omittedRoles).toEqual(['Tenant Admin'])
     expect(MOD_DOH_15_MOUNT.narrowingRef).toContain('L29477')
     expect(MOD_DOH_15_MOUNT.narrowingRef).not.toContain('L27695')
   })
@@ -631,14 +670,65 @@ describe('the module adds no role and mints no pointer', () => {
  * ==================================================================== */
 
 describe('what the source does not say is recorded, not filled in', () => {
-  it('records the clone act having no Hub command', () => {
-    expect(HUB_COMMAND_TYPES.filter((t) => t.includes('CLONE'))).toEqual([])
-    expect(MOD_DOH_15_UNSPECIFIED_IN_SOURCE.some((s) => s.topic.includes('Hub command'))).toBe(true)
+  it('has a Hub command for the clone act, and none for the prompt that follows it', () => {
+    // The debt this test used to pin is cleared: L29543's audit line now has
+    // a command to hang off. The PROMPT still has none, and that is a
+    // different fact with its own reason — `FUNC-DOH-15-2.1.1` names its
+    // allowed roles as "the cloning identity", which is not one of the five.
+    expect(HUB_COMMAND_TYPES.filter((t) => t.includes('CLONE'))).toEqual(['DOH_CLONE_JOB'])
+    expect(HUB_COMMAND_TYPES.filter((t) => t.includes('RECURRENCE'))).toEqual([])
+    expect(
+      MOD_DOH_15_UNSPECIFIED_IN_SOURCE.some((s) => s.topic.includes('recurrence answer')),
+    ).toBe(true)
   })
 
-  it('records recurrence not being a field of the Job record', () => {
-    expect(MOD_DOH_15_UNSPECIFIED_IN_SOURCE.some((s) => s.topic.includes('Recurrence'))).toBe(true)
+  it('reads recurrence off the Job record, and treats an unstated pattern as recurring', () => {
     expect(sourceLine(29559)).toContain('always raises the recurrence prompt')
+    // The field exists. §4.5.1 lists it among the Job's own fields.
+    expect(sourceLine(27648)).toContain('recurrence pattern')
+    const daily: JobRecord = { ...BASE_JOB, recurrence: 'Daily' }
+    const oneOff: JobRecord = { ...BASE_JOB, recurrence: ONE_OFF_RECURRENCE }
+    const unstated: JobRecord = { ...BASE_JOB }
+    expect(jobRecurs(daily)).toBe(true)
+    expect(jobRecurs(oneOff)).toBe(false)
+    // The safe side of "always": an unknown pattern raises the prompt.
+    expect(jobRecurs(unstated)).toBe(true)
+    // And the silence that remains is about the VOCABULARY, not the field.
+    expect(
+      MOD_DOH_15_UNSPECIFIED_IN_SOURCE.some((s) => s.topic.includes('recurrence pattern may say')),
+    ).toBe(true)
+  })
+
+  it('resets the clone to one-off and copies no pairing, which is AC-DOH-15-1 and AC-DOH-15-2', () => {
+    expect(sourceLine(29558)).toContain('recurrence to one-off')
+    expect(sourceLine(29557)).toContain('exactly the six named elements and no others')
+    const source: JobRecord = {
+      ...BASE_JOB,
+      recurrence: 'Daily',
+      linkedJobRef: 'JOB-OTHER',
+      state: 'active',
+      createdBy: 'ACT-OTHER',
+    }
+    const seeded = putJob(source)
+    const cloned = applyHubCommand(seeded, {
+      type: 'DOH_CLONE_JOB',
+      tenant: CLONE_TENANT,
+      sourceJobId: source.jobId,
+      jobId: 'JOB-CLONE',
+      name: 'Red bike frame assembly (copy)',
+      ownerId: 'ACT-CLONER',
+    })
+    const clone = readJob(cloned, CLONE_TENANT, 'JOB-CLONE')
+    expect(clone?.jobTypeId).toBe(source.jobTypeId)
+    expect(clone?.parentNodeId).toBe(source.parentNodeId)
+    expect(clone?.state).toBe('draft')
+    expect(clone?.recurrence).toBe(ONE_OFF_RECURRENCE)
+    // `linked_job_ref` is not one of the six copied elements, and `createdBy`
+    // is not either — copying it would launder a segregation-of-duties breach.
+    expect(clone?.linkedJobRef).toBeNull()
+    expect(clone?.createdBy).toBe('ACT-CLONER')
+    // The source Job is untouched: AC-DOH-15-5, one transaction, one new Job.
+    expect(readJob(cloned, CLONE_TENANT, source.jobId)).toEqual(source)
   })
 
   it('records the idempotency key TEST-DOH-15-R1 names and the card never specifies', () => {

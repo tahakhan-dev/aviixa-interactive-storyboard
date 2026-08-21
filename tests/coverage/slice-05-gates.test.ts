@@ -41,7 +41,7 @@ import {
   type PublishCheckImplementation,
   type PublishCheckRegister,
 } from '@/studio/publish/register'
-import { STU_SEAMS, stuSeamStatus, type StudioSeamDefinition } from '@/studio/seams'
+import { STU_SEAMS, stuSeamById, stuSeamStatus, type StudioSeamDefinition } from '@/studio/seams'
 import {
   PART_SEAM_WRITABLE_FIELDS,
   confirmedPartsRegistry,
@@ -2927,18 +2927,25 @@ describe('slice 5 gate 15: every cross-slice seam is a named interface with a fi
 
   it('an unscheduled seam declares the absence rather than guessing a slice', () => {
     const unscheduled = STU_SEAMS.filter((s) => stuSeamStatus(s) === 'unscheduled')
-    // Census §6.3 names five. The count is asserted so a sixth arrives
-    // declared rather than inheriting another row's slice.
+    // Census §6.3 named FIVE. Four remain: slice 6 shipped `MOD-DOH-19`, so
+    // `parts-registry` carries `ownerSlices: [6]` and reads `scheduled`. The
+    // list is still asserted whole so a sixth row arrives declared rather
+    // than inheriting another row's slice — and so a row LOSING its slice is
+    // just as visible as one gaining a wrong one.
     expect(unscheduled.map((s) => s.id).sort()).toEqual(
       [
         'composed-agent-platform-review-queue',
         'multimodal-embedding-service',
-        'parts-registry',
         'severity-action-bundle-editor',
         'tag-to-qualification-set-mapping',
       ].sort(),
     )
     for (const seam of unscheduled) expect(seam.ownerSlices).toEqual([])
+    // The row that moved, checked against the module that moved it rather
+    // than against its own field.
+    const parts = stuSeamById(STU_SEAMS, 'parts-registry')
+    expect(stuSeamStatus(parts)).toBe('scheduled')
+    expect(parts.ownerSlices).toEqual([6])
   })
 
   it('MOD-STU-10’s seam has three fixtures, and the UNCONFIRMED one creates nothing', () => {

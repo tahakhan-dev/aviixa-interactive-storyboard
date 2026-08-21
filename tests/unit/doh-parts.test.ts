@@ -21,6 +21,7 @@ import { cellStatus, rolesReachingByMatrix, type ControlStatus } from '@/surface
 import { DOH_CATALOGUE_B_REACH_NARROWER, dohScreenById } from '@/surfaces/doh/screens'
 import { TENANT_WRITE_CLASSES, type TenantWriteState } from '@/surfaces/doh/tenant-state'
 import { REGISTRY_PART_STATES } from '@/studio/seams/parts/registry'
+import { STU_SEAMS, stuSeamById } from '@/studio/seams'
 import type { TenantRoleId } from '../../app/hub/HubShell'
 
 /* ==================================================================== *
@@ -501,5 +502,51 @@ describe('cross-chapter defects this module is the target of', () => {
   it('every finding is recorded with a locator, including the six the plan did not list', () => {
     expect(DOH_19_FINDINGS.length).toBe(7)
     for (const f of DOH_19_FINDINGS) expect(f.sourceRef).toMatch(/L\d{4,6}/)
+  })
+})
+
+/* ==================================================================== *
+ * A CROSS-SLICE POINTER WITH NOTHING TO POINT AT
+ * ==================================================================== */
+
+/**
+ * `MOD-STU-10` row 4 (L33116) routes the Tenant Admin into a Hub act
+ * `MOD-DOH-19`'s matrix does not carry, and slice 5 shipped that pointer
+ * before slice 6 wrote the matrix it points into.
+ *
+ * NOTHING IS MINTED TO RECEIVE IT. A row added here to make the pointer
+ * resolve would manufacture a Hub capability in order to justify a Studio
+ * statement — the inverse of reading the source. The finding is recorded on
+ * the `parts-registry` seam, which is where the dependency itself is
+ * registered, and both statements stand as the source wrote them.
+ */
+describe('MOD-STU-10 row 4 names a Hub act this matrix has no row for', () => {
+  it('measures the pointer against the eight rows, and mints none', () => {
+    // The Studio side: L33116, Tenant Admin column, an Allowed into the Hub.
+    const studioRow = cells(L(33_116))
+    expect(studioRow[0]).toBe('Complete a skeletal part record')
+    expect(studioRow[4]).toBe(
+      'Allowed — in the Delivery Operations Hub, subject to its own permissions',
+    )
+
+    // The Hub side: eight rows, and not one of them is that act. Matched on
+    // the two words the transition is named by, not on the whole sentence,
+    // so a reworded row would still be found.
+    expect(CONTROL_MATRIX).toHaveLength(8)
+    const completions = CONTROL_MATRIX.filter((r) => /complet/i.test(r.control))
+    expect(completions).toEqual([])
+    // Non-vacuous: the scan finds the nearest row, which is a FIELD WRITE
+    // and not the Skeletal-to-Complete transition the Studio names.
+    const edit = CONTROL_MATRIX.find((r) => r.id === 'edit-a-part-record')
+    expect(edit?.control).toBe('Edit a part record')
+    expect(edit?.status.TENANT_ADMIN).toBe('allowed')
+    expect(REGISTRY_PART_STATES).toEqual(['Skeletal', 'Complete'])
+  })
+
+  it('records the finding on the seam that carries the dependency', () => {
+    const seam = stuSeamById(STU_SEAMS, 'parts-registry')
+    expect(seam.contract).toContain('L33116')
+    expect(seam.contract).toContain('no row for it')
+    expect(seam.sourceRef).toContain('L30070-L30077')
   })
 })

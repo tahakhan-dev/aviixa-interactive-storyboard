@@ -7,10 +7,17 @@
     "MOD-DOH-02": "app/hub/location-configuration/fixtures.ts",
     "MOD-DOH-03": "app/hub/shift-management/fixtures.ts",
     "MOD-DOH-04": "app/hub/worker-lifecycle-and-qualifications/fixtures.ts",
+    "MOD-DOH-05": "src/surfaces/doh/modules/doh-05/matrix.ts",
+    "MOD-DOH-06": "src/surfaces/doh/modules/doh-06/matrix.ts",
+    "MOD-DOH-07": "src/surfaces/doh/modules/doh-07/matrix.ts",
+    "MOD-DOH-08": "src/surfaces/doh/modules/doh-08/matrix.ts",
     "MOD-DOH-09": "app/hub/permissions-roles-and-access/fixtures.ts",
     "MOD-DOH-12": "app/hub/integration-surface/fixtures.ts",
     "MOD-DOH-13": "app/hub/tenant-view-of-platform-administration/fixtures.ts",
-    "MOD-DOH-14": "app/hub/qualification-calendar/fixtures.ts"
+    "MOD-DOH-14": "app/hub/qualification-calendar/fixtures.ts",
+    "MOD-DOH-15": "src/surfaces/doh/modules/doh-15/matrix.ts",
+    "MOD-DOH-16": "src/surfaces/doh/modules/doh-16/matrix.ts",
+    "MOD-DOH-19": "src/surfaces/doh/modules/doh-19/matrix.ts"
   },
   "reach": {
     "MOD-DOH-01": [
@@ -36,6 +43,30 @@
       "QUALITY_MANAGER",
       "READONLY_AUDITOR"
     ],
+    "MOD-DOH-05": [
+      "TENANT_ADMIN",
+      "SUPERVISOR",
+      "QUALITY_MANAGER",
+      "READONLY_AUDITOR"
+    ],
+    "MOD-DOH-06": [
+      "TENANT_ADMIN",
+      "SUPERVISOR",
+      "QUALITY_MANAGER",
+      "READONLY_AUDITOR",
+      "WORKER"
+    ],
+    "MOD-DOH-07": [
+      "TENANT_ADMIN",
+      "SUPERVISOR",
+      "QUALITY_MANAGER",
+      "READONLY_AUDITOR",
+      "WORKER"
+    ],
+    "MOD-DOH-08": [
+      "QUALITY_MANAGER",
+      "READONLY_AUDITOR"
+    ],
     "MOD-DOH-09": [
       "TENANT_ADMIN",
       "SUPERVISOR",
@@ -51,6 +82,22 @@
       "READONLY_AUDITOR"
     ],
     "MOD-DOH-14": [
+      "TENANT_ADMIN",
+      "SUPERVISOR",
+      "QUALITY_MANAGER",
+      "READONLY_AUDITOR"
+    ],
+    "MOD-DOH-15": [
+      "TENANT_ADMIN",
+      "SUPERVISOR"
+    ],
+    "MOD-DOH-16": [
+      "TENANT_ADMIN",
+      "SUPERVISOR",
+      "QUALITY_MANAGER",
+      "READONLY_AUDITOR"
+    ],
+    "MOD-DOH-19": [
       "TENANT_ADMIN",
       "SUPERVISOR",
       "QUALITY_MANAGER",

@@ -312,8 +312,13 @@ describe('reachByStudioMatrix — the one rule', () => {
  * ==================================================================== */
 
 /** Census §6.3 — the five with no owning slice anywhere. */
+/**
+ * FOUR, NOT FIVE. `parts-registry` was the fifth until slice 6 shipped
+ * `MOD-DOH-19`; its row now carries `ownerSlices: [6]` and reads
+ * `scheduled`. It is asserted separately below, because "this seam stopped
+ * being unscheduled" is a different claim from "these four still are".
+ */
 const UNSCHEDULED = [
-  'parts-registry',
   'severity-action-bundle-editor',
   'tag-to-qualification-set-mapping',
   'composed-agent-platform-review-queue',
@@ -324,13 +329,24 @@ describe('the cross-slice seam registry', () => {
   // RED when: one of the five borrows the nearest slice number rather than
   // declaring the absence. Slice 4 hit two unregistered dependencies and
   // both declared them; this keeps that.
-  it('declares the five unregistered dependencies with an owner and no slice', () => {
+  it('declares the four still-unregistered dependencies with an owner and no slice', () => {
     for (const id of UNSCHEDULED) {
       const seam = stuSeamById(STU_SEAMS, id)
       expect(seam.ownerSlices, id).toEqual([])
       expect(seam.owner, id).toBeTruthy()
       expect(stuSeamStatus(seam), id).toBe('unscheduled')
     }
+    // And the list is the whole of them: a sixth row quietly losing its
+    // slice would otherwise be invisible here.
+    expect(STU_SEAMS.filter((s) => stuSeamStatus(s) === 'unscheduled').map((s) => s.id)).toEqual([
+      ...UNSCHEDULED,
+    ])
+  })
+
+  it('no longer declares the parts registry unscheduled, because its owner shipped', () => {
+    const seam = stuSeamById(STU_SEAMS, 'parts-registry')
+    expect(seam.ownerSlices).toEqual([6])
+    expect(stuSeamStatus(seam)).toBe('scheduled')
   })
 
   // RED when: a forward seam is marked built, or a consumption seam is
@@ -379,10 +395,12 @@ describe('StudioSeamNotice', () => {
   // RED when: the notice invents a slice for a seam that has none. The
   // exact sentence the brief requires.
   it('says "owner stated, no slice assigned" for an unscheduled seam', () => {
-    render(<StudioSeamNotice seam={stuSeamById(STU_SEAMS, 'parts-registry')} />)
+    // `parts-registry` used to be the example here and is not any more:
+    // slice 6 shipped MOD-DOH-19, so that row carries ownerSlices [6].
+    render(<StudioSeamNotice seam={stuSeamById(STU_SEAMS, 'multimodal-embedding-service')} />)
     const ownership = screen.getByTestId('seam-ownership').textContent ?? ''
     expect(ownership).toMatch(/owner stated, no slice assigned/i)
-    expect(ownership).toMatch(/MOD-DOH-19/)
+    expect(ownership).toMatch(/Gemini Embedding/)
     // The ownership line may quote the source saying the counterpart is
     // named in NO later slice; what it may never do is claim one owns it.
     expect(ownership).not.toMatch(/(owned by|built in) slices? \d/i)

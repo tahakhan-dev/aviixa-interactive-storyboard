@@ -421,7 +421,7 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
    * SO THIS GATE DOES NOT PICK A SIDE. It asserts only what is true on both
    * readings, and pins the contested cases as contested. */
 
-  it('the normalised matrices are non-empty and cover all nine Hub routes', () => {
+  it('the normalised matrices are non-empty and cover all nine slice-4 Hub routes', () => {
     // A vacuity guard on everything below: every assertion in this gate
     // iterates these rows, and an empty iteration passes silently.
     expect(HUB_MODULES_UNDER_GATE).toHaveLength(9)
@@ -429,10 +429,33 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
       expect(m.rows.length, `${m.slug} has no matrix rows`).toBeGreaterThan(0)
       for (const row of m.rows) expect(row.cells).toHaveLength(5)
     }
-    // Every in-slice module is under gate, read out of the compile-time
-    // exhaustive `DOH_MODULES` rather than from a hand list here.
+    /**
+     * EVERY SLICE-4 MODULE IS UNDER GATE, and "slice-4" is DERIVED rather
+     * than hand-listed here: a slice-4 module keeps its matrix in
+     * `app/hub/<slug>/fixtures.ts` and has no
+     * `src/surfaces/doh/modules/doh-NN/matrix.ts`, which is the slice-6
+     * shape. So a ninth slice-4 module added to `DOH_MODULES` still fails
+     * this line, which is what the check was for.
+     *
+     * THE SCOPE NARROWED WHEN THE SLICE-6 SEVEN WERE REGISTERED, and it is
+     * narrowed openly rather than by dropping the assertion. This is a
+     * SLICE-4 gate: its own body reads `out/hub/<slug>/index.html` and
+     * asserts what those nine screens render. Pulling seven slice-6 screens
+     * under it would be a slice-6 gate wearing this one's name. The seven
+     * are named below so they cannot hide in the gap, and the slice-6 gates
+     * task owns them.
+     */
+    const matrixInSrc = (id: string) =>
+      existsSync(`src/surfaces/doh/modules/${id.replace('MOD-DOH-', 'doh-').toLowerCase()}/matrix.ts`)
+    const sliceFour = DOH_MODULES.filter((m) => !matrixInSrc(m.id))
+    const sliceSix = DOH_MODULES.filter((m) => matrixInSrc(m.id))
+    expect(sliceFour).toHaveLength(8)
+    expect(sliceSix.map((m) => m.id)).toEqual([
+      'MOD-DOH-05', 'MOD-DOH-06', 'MOD-DOH-07', 'MOD-DOH-08',
+      'MOD-DOH-15', 'MOD-DOH-16', 'MOD-DOH-19',
+    ])
     const gated = new Set(HUB_MODULES_UNDER_GATE.map((m) => m.moduleId))
-    for (const m of DOH_MODULES) expect(gated.has(m.id), `${m.id} is not under gate`).toBe(true)
+    for (const m of sliceFour) expect(gated.has(m.id), `${m.id} is not under gate`).toBe(true)
   })
 
   /* ---------------- 1a — absent for nonexistence ---------------- */

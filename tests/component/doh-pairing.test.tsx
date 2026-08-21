@@ -340,7 +340,11 @@ describe('the screen renders every row and its own disclosures', () => {
   it('records the silences on screen, including the pairing act having no Hub command', () => {
     render(<PairedSchedulingScreen />)
     const all = screen.getAllByTestId('unresolved').map((e) => e.textContent ?? '').join(' ')
-    expect(all).toContain('none of them pairs or unpairs two Jobs')
+    // The command gap this line used to pin is closed: DOH_PAIR_JOBS and
+    // DOH_UNPAIR_JOBS exist. The screen records that it WAS a gap and what
+    // closed it, rather than dropping the disclosure.
+    expect(all).toContain('none of them paired or unpaired two Jobs')
+    expect(all).toContain('DOH_PAIR_JOBS')
     expect(all).toContain('settles neither')
   })
 })

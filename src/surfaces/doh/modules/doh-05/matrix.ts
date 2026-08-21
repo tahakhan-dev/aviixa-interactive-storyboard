@@ -747,15 +747,17 @@ const TENANT_ROLE_ORDER = [
  * `DOH_CATALOGUE_B_REACH_NARROWER`; this module reads the matrix and the
  * screen registry keeps the quotation, so neither has to be trusted twice.
  *
- * NOT IN `DOH_MODULES`, AND THAT IS A SHARED-FILE CONSTRAINT RATHER THAN A
- * RULING. `MOD-DOH-05` is still listed in `DOH_OUT_OF_SLICE_MODULES`, so
- * `dohModulesReachedBy` does not offer these routes in the Hub rail and
- * `dohScreenReach('SCR-DOH-10')` answers `null`. Registering it means
- * editing `src/surfaces/doh/modules.ts`, which three sibling module tasks
- * are consuming concurrently in this same wave. The registry edit belongs to
- * the task that can make it once for all four. Until then the reach below is
- * the derivation the rail WOULD read, computed from the same rule over the
- * same rows, and the screens link to each other directly.
+ * REGISTERED NOW, AND IT WAS A SHARED-FILE CONSTRAINT RATHER THAN A RULING.
+ * `MOD-DOH-05` was listed in `DOH_OUT_OF_SLICE_MODULES` for the wave in
+ * which this module was built, so `dohModulesReachedBy` offered these routes
+ * to nobody and `dohScreenReach('SCR-DOH-10')` answered `null`. Registering
+ * meant editing `src/surfaces/doh/modules.ts`, which three sibling module
+ * tasks were consuming concurrently, so it belonged to the task that could
+ * make it once for all seven. It has been made. The reach below is still
+ * computed here rather than read from the spine, and that is deliberate:
+ * `tests/unit/doh-job.test.ts` compares this value against the generated one,
+ * and a wrapper that just re-read the generated field would make the
+ * comparison vacuous.
  */
 export const MOD_DOH_05_REACH: readonly TenantRoleId[] = rolesReachingByMatrix(
   MOD_DOH_05_MATRIX,

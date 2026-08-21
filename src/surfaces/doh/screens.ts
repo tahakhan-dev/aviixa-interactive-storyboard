@@ -1,5 +1,17 @@
-import type { RoleId } from '@/domain/roles'
-import { DOH_MODULES, type DohCanonicalModuleId } from './modules'
+import { rolesInDomain, type RoleId } from '@/domain/roles'
+import {
+  DOH_MODULES,
+  cellStatus,
+  rolesReachingByMatrix,
+  type DohCanonicalModuleId,
+  type DohControlMatrixRow,
+} from './modules'
+import { doh05Row } from './modules/doh-05/matrix'
+import { matrixRow as doh06Row } from './modules/doh-06/matrix'
+import { assignmentRow as doh07Row } from './modules/doh-07/matrix'
+import { doh08Row } from './modules/doh-08/matrix'
+import { doh15Row } from './modules/doh-15/matrix'
+import { doh19Row } from './modules/doh-19/matrix'
 
 /**
  * The SURF-DOH spine, part 5 of 6: screen identifiers. Spec §2 S4, D1.
@@ -26,8 +38,8 @@ import { DOH_MODULES, type DohCanonicalModuleId } from './modules'
  * OMISSION. `catalogueBRoles` is the source's own "Roles that can open it"
  * cell, quoted; it is NOT who may reach the screen. On five of the nine
  * slice-6 rows the cell is measurably NARROWER than the module's own
- * control matrix — see `DOH_CATALOGUE_B_REACH_NARROWER`, which names the
- * matrix line and the roles in each case. Reach comes from
+ * control matrix — see `DOH_CATALOGUE_B_REACH_NARROWER`, which derives the
+ * omitted roles from the matrix row and names the line in each case. Reach comes from
  * `rolesReachingByMatrix` applied to the module's real matrix at build
  * time, and `dohScreenReach` below is the only way to get a role list out
  * of a screen row. A hand-written rail on a screen is the drift slice 5
@@ -290,18 +302,22 @@ export function dohScreenById(id: DohScreenId): DohScreenDefinition {
  * `rolesReachingByMatrix` to that module's real control matrix. There is no
  * second copy of the rule and no second copy of the answer, and in
  * particular there is no path from `catalogueBRoles` to a role list:
- * `DOH_CATALOGUE_B_REACH_NARROWER` records that the catalogue cell is
- * narrower than the matrix on five of the nine slice-6 rows, so a screen
- * that drew its rail from the catalogue would withhold from roles the
+ * `DOH_CATALOGUE_B_REACH_NARROWER` DERIVES that the catalogue cell is
+ * narrower than the matrix on five of the nine slice-6 rows — six times
+ * over, because `SCR-DOH-11` is narrowed by two different modules — so a
+ * screen that drew its rail from the catalogue would withhold from roles the
  * source admits.
  *
- * `null` IS THE HONEST ANSWER FOR A MODULE THAT HAS NOT LANDED, and it is
- * not an empty set. Ten slice-6 tasks follow this one; until a module's
- * matrix and fixture exist there is nothing to derive from, and an empty
- * array would be a derivation that never ran wearing the clothes of one
- * that did. It is also not a permanent state: the moment a module task adds
- * its fixture and `DOH_MODULES` row, the generator produces its reach and
- * this function starts answering — with no edit here.
+ * `null` IS THE HONEST ANSWER FOR A SCREEN NO MODULE OWNS, and it is not an
+ * empty set. It was also the answer for a module that had not landed, and
+ * for one wave every slice-6 row answered `null` for that second reason;
+ * the registry task moved all seven modules into `DOH_MODULES` and those
+ * rows now answer, with no edit here — which was the design. What is left
+ * answering `null` is `SCR-DOH-02`, the rail, and `SCR-DOH-23`, the
+ * ownerless tenant administration area: two rows whose `moduleId` is `null`
+ * because the source gives them no module, not because a build has not
+ * caught up. An empty array in either case would be a derivation that never
+ * ran wearing the clothes of one that did.
  */
 export function dohScreenReach(id: DohScreenId): readonly RoleId[] | null {
   const moduleId = dohScreenById(id).moduleId
@@ -310,66 +326,118 @@ export function dohScreenReach(id: DohScreenId): readonly RoleId[] | null {
 }
 
 /**
- * THE C1 TRAP, MEASURED. Catalogue B's "Roles that can open it" cell is
- * narrower than the owning module's own control matrix on FIVE of the nine
- * slice-6 rows. Each entry names the matrix line whose cell admits a role
- * the catalogue omits, for the same capability the screen's own row names.
+ * THE C1 TRAP, DERIVED. Catalogue B's "Roles that can open it" cell is
+ * narrower than the owning module's own control matrix on five of the
+ * slice-6 screens, and on one of them TWICE.
  *
- * MEASURED HERE FOR THE NINE SLICE-6 ROWS ONLY. The twelve slice-4 rows
- * were not re-measured in this task and their absence from this list is
- * therefore silence, not a finding of "not narrower". Saying so is cheaper
- * than a list that reads as exhaustive and is not.
+ * NOTHING BELOW IS A HAND-WRITTEN ROLE LIST ANY MORE, and that is the whole
+ * change. The register used to carry `omittedRoles` as prose, which is how
+ * it came to hold one entry per SCREEN while `SCR-DOH-11` is narrowed by two
+ * different modules, and how "the plan named four" survived one round longer
+ * than the measurement did. What is declared here is the one thing a
+ * derivation cannot supply — WHICH matrix row is a given screen's own
+ * capability row, which is a reading of the source — and everything else is
+ * computed from that row and that cell.
  *
- * `SCR-DOH-14` IS DELIBERATELY ABSENT and is the reason the criterion is
- * "the screen's own capability row" rather than "the module's reach".
- * MOD-DOH-06's matrix has one view row, L27910, and it belongs to the
+ * THE RULE, in one sentence: a screen is narrowed when its module's own
+ * capability row admits a role that catalogue B's cell for that screen does
+ * not name. "Admits" is `rolesReachingByMatrix` applied to that single row —
+ * the ONE implementation of the holding rule, not a second copy of it.
+ *
+ * THE WORKER IS NOT COUNTED, and the exclusion is `MOD-DOH-07`'s own ruling
+ * (`CATALOGUE_B_NARROWING` in `@/surfaces/doh/modules/doh-07/rulings`)
+ * applied to every row rather than to the one that measured it. D11 withholds
+ * the whole surface from the Worker, so where the matrix admits the Worker
+ * and the catalogue does not, the catalogue and the ROUTE REGISTRY agree and
+ * only the matrix dissents — that dissent is disclosed on the row itself and
+ * is not a catalogue defect. It bites on exactly two rows, L27910 and L28125,
+ * and without it both would report a role nobody can reach.
+ *
+ * `SCR-DOH-14` HAS NO ANCHOR, which is why it is absent and why the criterion
+ * is "the screen's own capability row" rather than "the module's reach".
+ * `MOD-DOH-06`'s matrix has one view row, L27910, and it belongs to the
  * schedule board; no row names the run detail's own view act. Comparing
  * against MODULE reach instead would mark `SCR-DOH-12` and `SCR-DOH-14`
  * narrower too — true but vacuous, since every screen of a multi-screen
  * module is narrower than its module.
  *
- * THE PLAN NAMED FOUR. `SCR-DOH-06` is the fifth, found by measuring rather
- * than by transcribing: L30074 gives the Quality Manager and the Read-only
- * Auditor `Read-only` on the parts registry, which is a holding status, and
- * catalogue B's cell names neither.
+ * THREE ANCHORS DERIVE TO NO NARROWING AND ARE DROPPED — `SCR-DOH-10`,
+ * `SCR-DOH-12` and `SCR-DOH-16`. They are anchored anyway, so the filter is
+ * a live question rather than a list of foregone answers: `SCR-DOH-16`'s
+ * L28301 admits exactly the two roles its cell names while its sibling
+ * `SCR-DOH-17` is narrowed, and that difference is measured here rather than
+ * asserted.
+ *
+ * MEASURED FOR THE SLICE-6 ROWS ONLY. The twelve slice-4 rows were not
+ * anchored and their absence is silence, not a finding of "not narrower".
  */
 export interface DohCatalogueNarrowing {
   readonly screenId: DohScreenId
-  /** The roles the matrix admits and catalogue B's cell omits. */
+  /** Which module narrows it — a screen mounting three can be narrowed by each. */
+  readonly moduleId: DohCanonicalModuleId
+  /** The roles the matrix admits and catalogue B's cell omits. Derived. */
   readonly omittedRoles: readonly string[]
-  /** The matrix line, and the capability row it is. */
+  /** The matrix line, and the capability row it is. Derived from the row. */
   readonly matrixRef: string
 }
 
-export const DOH_CATALOGUE_B_REACH_NARROWER = [
-  {
-    screenId: 'SCR-DOH-06',
-    omittedRoles: ['Quality Manager', 'Read-only Auditor'],
-    matrixRef: 'L30074 — MOD-DOH-19 "View the registry", `Read-only` for both',
-  },
-  {
-    screenId: 'SCR-DOH-11',
-    omittedRoles: ['Tenant Admin'],
-    matrixRef: 'L27695 — MOD-DOH-05 "Edit a draft Job", unconditional `Allowed`',
-  },
-  {
-    screenId: 'SCR-DOH-13',
-    omittedRoles: ['Tenant Admin'],
-    matrixRef: 'L27910 — MOD-DOH-06 "View the schedule, today plus 7 days", `Allowed`',
-  },
-  {
-    screenId: 'SCR-DOH-15',
-    omittedRoles: ['Tenant Admin', 'Quality Manager', 'Read-only Auditor'],
-    matrixRef:
-      'L28125 — MOD-DOH-07 "View assignments", `Allowed` / `Allowed` / `Read-only` respectively',
-  },
-  {
-    screenId: 'SCR-DOH-17',
-    omittedRoles: ['Tenant Admin'],
-    matrixRef:
-      'L28306 — MOD-DOH-08 "View the Anomaly Register", `Allowed`; L28300 "View an Execution Summary" says `Allowed` too',
-  },
-] as const satisfies readonly DohCatalogueNarrowing[]
+/**
+ * THE ONE DECLARED INPUT: which row of which module's matrix is this
+ * screen's own capability row. Everything else below is computed.
+ *
+ * Ordered by screen, then by the order catalogue B's own "Modules and
+ * features shown" cell names the modules — so `SCR-DOH-11`'s `MOD-DOH-05`
+ * anchor precedes its `MOD-DOH-15` one, as L48105 does.
+ */
+const NARROWING_ANCHORS = [
+  { screenId: 'SCR-DOH-06', moduleId: 'MOD-DOH-19', row: doh19Row('view-the-registry') },
+  { screenId: 'SCR-DOH-10', moduleId: 'MOD-DOH-05', row: doh05Row('view-jobs') },
+  { screenId: 'SCR-DOH-11', moduleId: 'MOD-DOH-05', row: doh05Row('edit-a-draft-job') },
+  { screenId: 'SCR-DOH-11', moduleId: 'MOD-DOH-15', row: doh15Row('clone-a-job') },
+  { screenId: 'SCR-DOH-12', moduleId: 'MOD-DOH-05', row: doh05Row('approve-a-job') },
+  { screenId: 'SCR-DOH-13', moduleId: 'MOD-DOH-06', row: doh06Row('view-the-schedule') },
+  { screenId: 'SCR-DOH-15', moduleId: 'MOD-DOH-07', row: doh07Row('view-assignments') },
+  { screenId: 'SCR-DOH-16', moduleId: 'MOD-DOH-08', row: doh08Row('work-the-review-queue') },
+  { screenId: 'SCR-DOH-17', moduleId: 'MOD-DOH-08', row: doh08Row('view-the-anomaly-register') },
+] as const satisfies readonly {
+  readonly screenId: DohScreenId
+  readonly moduleId: DohCanonicalModuleId
+  readonly row: DohControlMatrixRow
+}[]
+
+/**
+ * Role id to the name catalogue B writes, read out of the role registry so a
+ * renamed role cannot leave a stale spelling here. A cell naming a token this
+ * map does not know is a cell this parser has not been taught, and it throws
+ * below rather than silently reporting every role as omitted.
+ */
+const TENANT_ROLE_NAMES = new Map(rolesInDomain('TENANT').map((r) => [r.id, r.name]))
+
+function omittedByCatalogue(
+  row: DohControlMatrixRow,
+  cell: string,
+): readonly string[] {
+  // The single-row matrix is the point: `rolesReachingByMatrix` over one row
+  // answers "which roles hold this row", by the one implementation of the
+  // holding rule and with no second copy of it here.
+  const admitted = rolesReachingByMatrix([row], cellStatus)
+  return admitted
+    .filter((role) => role !== 'WORKER')
+    .map((role) => {
+      const name = TENANT_ROLE_NAMES.get(role)
+      if (name === undefined) throw new Error(`No registry name for tenant role ${role}`)
+      return name
+    })
+    .filter((name) => !cell.includes(name))
+}
+
+export const DOH_CATALOGUE_B_REACH_NARROWER: readonly DohCatalogueNarrowing[] =
+  NARROWING_ANCHORS.map(({ screenId, moduleId, row }) => ({
+    screenId,
+    moduleId,
+    omittedRoles: omittedByCatalogue(row, dohScreenById(screenId).catalogueBRoles),
+    matrixRef: `${row.sourceRef} — ${moduleId} "${row.control}"`,
+  })).filter((n) => n.omittedRoles.length > 0)
 
 /**
  * THE ONE VIEW WITH NO CATALOGUE-B ROW, registered as an uncatalogued
@@ -400,7 +468,7 @@ export const DOH_UNCATALOGUED_SCREEN_NAMES = [
   {
     name: 'SB-DOH-028',
     moduleId: 'MOD-DOH-16',
-    note: 'The paired scheduling view. Catalogue B carries no row for MOD-DOH-16 at all, so no catalogue-B id is borrowed and none is minted; the storyboard name is the annotation. Catalogue A names it at L26074 under a three-digit literal this codebase forbids, with a "Primary role" of "Supervisor and Job Owner" — Job Owner is a field on the Job record, not a role.',
+    note: 'The paired scheduling view. Catalogue B gives MOD-DOH-16 no SCREEN OF ITS OWN — it names the module once, inside SCR-DOH-11`s "Modules and features shown" cell at L48105, where the Job editor mounts it alongside MOD-DOH-15 — so this view has no catalogue-B id to borrow and none is minted; the storyboard name is the annotation. (The note used to read "carries no row for MOD-DOH-16 at all", which is false: `alsoShows` on SCR-DOH-11 in this same file records the L48105 mount. The treatment was right for the wrong reason.) Catalogue A names the view at L26074 under a three-digit literal this codebase forbids, with a "Primary role" of "Supervisor and Job Owner" — Job Owner is a field on the Job record, not a role.',
     sourceRef: 'L29681 (SB-DOH-028); L29615 (matrix view row); L26074 (catalogue A, by locator)',
   },
 ] as const satisfies readonly DohUncataloguedScreenName[]

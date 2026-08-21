@@ -1,5 +1,5 @@
 /**
- * The SURF-DOH spine, part 1 of 6: the eight slice-4 modules of the
+ * The SURF-DOH spine, part 1 of 6: the fifteen built modules of the
  * Delivery Operations Hub's nineteen-module inventory (`canonicalModuleCount`
  * on `SURF-DOH` in `@/domain/surfaces`). Spec §1.
  *
@@ -8,14 +8,14 @@
  * the two source catalogues collide silently on the same identifier. Every
  * `slug` below is a plain name, never a screen number, for the same reason.
  *
- * THIS FILE ALSO OWNS THE CONTROL-MATRIX VOCABULARY the nine Hub matrices
+ * THIS FILE ALSO OWNS THE CONTROL-MATRIX VOCABULARY the sixteen Hub matrices
  * share — the row's surface, the status union, the row shape and the ONE
  * derivation of `rolesReaching`. It owns them because `rolesReaching` is
  * computed FROM the matrices: a rule that lives beside the thing it reads
- * cannot be applied to eight modules and forgotten on the ninth.
+ * cannot be applied to fifteen modules and forgotten on the sixteenth.
  *
  * THE RULE LIVES HERE; THE MATRICES DO NOT REACH IT AT RUNTIME. This file
- * used to import the eight module matrices to run that rule itself, which
+ * used to import the module matrices to run that rule itself, which
  * pointed `src/` at `app/` — the shared contract importing its own
  * consumers — and closed a real value cycle (`HubShell` and two fixtures
  * import back into this file). The cycle was survivable only because
@@ -41,10 +41,17 @@ export type DohModuleId =
   | 'MOD-DOH-02'
   | 'MOD-DOH-03'
   | 'MOD-DOH-04'
+  | 'MOD-DOH-05'
+  | 'MOD-DOH-06'
+  | 'MOD-DOH-07'
+  | 'MOD-DOH-08'
   | 'MOD-DOH-09'
   | 'MOD-DOH-12'
   | 'MOD-DOH-13'
   | 'MOD-DOH-14'
+  | 'MOD-DOH-15'
+  | 'MOD-DOH-16'
+  | 'MOD-DOH-19'
 
 /* ==================================================================== *
  * THE CONTROL-MATRIX VOCABULARY. One surface union, one status union,
@@ -67,26 +74,128 @@ export type DohModuleId =
  *
  * THE THREE, and the line between them:
  *
- * - `screen` — the row names a capability of this module's own screen. It
- *   stays `screen` when the answer is "absent for everyone": a row like
- *   "Create an equipment record" or "Change the 60-day horizon" is still
- *   this screen's own disclosure that it offers nothing. It also stays
- *   `screen` when the Hub screen that renders it belongs to a SIBLING
- *   module — `MOD-DOH-12`'s tier read view is built on `MOD-DOH-01`'s
- *   screen, and it is a Hub screen either way.
+ * - `screen` — the capability is met on THIS MODULE'S OWN SCREEN. It stays
+ *   `screen` when the answer is "absent for everyone": a row like "Create
+ *   an equipment record" or "Change the 60-day horizon" is still this
+ *   screen's own disclosure that it offers nothing. It also stays `screen`
+ *   where this BUILD renders the module's own capability on a shared
+ *   screen — `MOD-DOH-12`'s tier read view is `MOD-DOH-12`'s capability,
+ *   drawn on `MOD-DOH-01`'s screen because this slice built one screen for
+ *   both; the screen is shared, the capability is not delegated.
  * - `chrome` — the shell draws it on every Hub route, above the content
  *   and outside the rail's answer. A role reaches it whether or not the
  *   rail offers the module, so holding it says nothing about reach.
- * - `another-surface` — the capability IS met, but not on a Hub screen:
- *   the Super Admin platform console, the worker's device, the Client
- *   Command Center, or an outside system calling in. This screen can only
- *   describe it.
+ * - `another-surface` — the capability is met, and NOT on this module's own
+ *   screen. This screen can only describe it.
  *
  * The reservation is what keeps the third honest: `another-surface` means
  * somebody, somewhere, holds it. A capability that exists NOWHERE is a
  * `screen` row whose every cell refuses.
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * THREE MEMBERS, FOUR CASES — the ruling, settled against the source rather
+ * than by majority. `another-surface` had drifted to three readings inside
+ * one slice, and the reason is structural: there is a fourth case and no
+ * member for it, so each module that met it borrowed a different neighbour.
+ *
+ * THE FOURTH CASE is a capability met on a DIFFERENT SCREEN OF THIS SURFACE.
+ * Four live rows are in it:
+ *
+ * - `MOD-DOH-05` row 8 (L27701), the tag-to-qualification-set mapping, met
+ *   in the tenant administration area — `SCR-DOH-23`, L48117.
+ * - `MOD-DOH-15` row 3 (L29479), approving a cloned Job, which is
+ *   `MOD-DOH-05` row 4 drawn on `SCR-DOH-12` (L48106).
+ * - `MOD-DOH-06` rows 11 and 12 (L27918, L27919), the record-finish window
+ *   and the run-extension cap, both set in the tenant administration area.
+ *
+ * The first two are classified `another-surface`; the last two are
+ * classified `screen`. NEITHER MODULE IS WRONG ABOUT ITS OWN SCREEN, and
+ * that is what makes this a vocabulary defect rather than four mistakes:
+ *
+ * - FOR REACH, the fourth case must behave like `another-surface`. Clause
+ *   one below asks whether this module's OWN SCREEN offers the role
+ *   something, and a capability met on another screen does not. It is
+ *   measured, not argued: `MOD-DOH-15` row 3 is the only row on its card
+ *   whose Quality Manager cell holds anything, so classifying it `screen`
+ *   gives that module a Quality Manager whose whole standing is an act on
+ *   another module's screen — two roles becomes three, and the
+ *   `noClassification` mutant in `scripts/build-doh-module-reach.mjs` pins
+ *   it on every build.
+ * - FOR RENDERING, the fourth case must NOT behave like `another-surface`.
+ *   `adjacentAffordance` in `@/surfaces/doh/boundary` folds the token
+ *   straight to `cross-surface`, and `AC-DOH-012-3` (L25767) makes that a
+ *   CROSS-SURFACE LINK. `MOD-DOH-06` says exactly why it refuses one: the
+ *   setting is "a different Hub screen", so what its rows draw is a named
+ *   pointer and no control — "not a `CrossSurfaceStatement` (which claims a
+ *   place on another surface)". `MOD-DOH-05` reaches the same conclusion
+ *   from the other side, withholding its `boundary` pointer because "the
+ *   eight-row boundary register is CROSS-SURFACE, and the tenant
+ *   administration area is a different screen of THIS surface".
+ *
+ * AND THE SOURCE SETTLES WHICH IT IS NOT. L1598, on the five-surface
+ * diagram: the tenant administration area "is attached to the Delivery
+ * Operations Hub rather than drawn as its own box, **because it is a screen
+ * group and not a surface**". `AC-PROD-040` (L1614): "exactly five surfaces
+ * exist; the tenant administration area is not presented as a sixth." So
+ * none of the four rows is on another surface, whatever it is classified.
+ *
+ * THE REMEDY, NAMED AND NOT TAKEN HERE: a fourth member, `another-screen`,
+ * excluded from reach exactly as `another-surface` is and rendered as a
+ * named pointer rather than a cross-surface link. It touches six matrices,
+ * two folds and `@/surfaces/doh/boundary`, which is a task of its own; this
+ * ruling is what that task would encode. UNTIL THEN, READ THE THIRD MEMBER
+ * AS "not this module's own screen" — that is what clause one uses it for,
+ * and it is the reading a fourth module must not diverge from again.
  */
 export type MatrixRowSurface = 'screen' | 'chrome' | 'another-surface'
+
+/**
+ * THE LIVE READINGS THE RULING ABOVE ADJUDICATES, recorded rather than
+ * corrected here: they live in module files this task does not own, and a
+ * classification changed from outside the module that measured it is how a
+ * reading gets averaged instead of settled.
+ *
+ * Each is a FINDING, not a permission: nothing may cite a row here as
+ * precedent for a fifth reading.
+ */
+export interface MatrixRowSurfaceDivergence {
+  /** The file, rows or fold that reads the token differently. */
+  readonly where: string
+  readonly reads: string
+  readonly ruling:
+    /** Right for reach, and the member's NAME is what is false. */
+    | 'right-for-reach-wrong-name'
+    /** Right for what it renders, and wrong for reach — the same fourth case. */
+    | 'right-for-rendering-wrong-for-reach'
+    /** Reads a fact off the token that the token does not carry. */
+    | 'narrower-than-the-definition'
+  readonly why: string
+  readonly sourceRef: string
+}
+
+export const MATRIX_ROW_SURFACE_DIVERGENCES = [
+  {
+    where: '`MOD-DOH-05` row 8 and `MOD-DOH-15` row 3',
+    reads: '`another-surface` means "not THIS MODULE’s screen". `MOD-DOH-05` row 8 is met in the tenant administration area; `MOD-DOH-15` row 3 is met on `SCR-DOH-12`, `MOD-DOH-05`’s approval queue. Both are screens of SURF-DOH.',
+    ruling: 'right-for-reach-wrong-name',
+    why: 'This is the classification the reach rule needs — neither capability is met on the classifying module’s own screen, so neither may count toward reaching its route, and `MOD-DOH-15` measurably gains a Quality Manager if it does. What is false is the member’s NAME: L1598 and AC-PROD-040 (L1614) put the tenant administration area inside SURF-DOH and cap the surfaces at five, and `SCR-DOH-12` is plainly a Hub screen. Both rows withhold the `boundary` pointer for exactly that reason and neither is handed to `CrossSurfaceStatement`, so the cross-surface rendering the token normally triggers is suppressed by hand on each card.',
+    sourceRef: 'L27701 and L29479 (the rows); L1598 and AC-PROD-040 L1614 (five surfaces); L48117 and L48106 (the two Hub screens)',
+  },
+  {
+    where: '`MOD-DOH-06` rows 11 and 12',
+    reads: '`another-surface` means another SURFACE, so a capability set on a different HUB screen stays `screen`. Both rows are set in the tenant administration area and are classified `screen`, drawing a named pointer and no control.',
+    ruling: 'right-for-rendering-wrong-for-reach',
+    why: 'The rendering is right and the module says why: a `CrossSurfaceStatement` "claims a place on another surface" and the tenant administration area is not one, so the rows draw a named pointer instead. The classification is still wrong for clause one — neither value is set on `MOD-DOH-06`’s own screen, so neither should count toward reaching its route. It does not move this module’s answer, because row 2 (L27910) admits all five roles on its own screen anyway; that is a fact about this card, not a defence of the classification.',
+    sourceRef: 'L27918 and L27919 (the rows); L48117 (SCR-DOH-23); L27910 (the row that carries this module’s reach)',
+  },
+  {
+    where: '`@/surfaces/doh/modules/doh-08/rendering`, `crossSurface`',
+    reads: '`another-surface` means the Client Command Center — the fold resolves `routeBySurface(\'SURF-CC\')` for every `another-surface` row and labels the link "Open in the Client Command Center".',
+    ruling: 'narrower-than-the-definition',
+    why: 'Correct on this card, and only because both of its `another-surface` rows are Command Center acts: row 5 reclassification and row 8 the Severity 1 lot-hold release, which is Command Center action 4 (L28304, L28307, L49578). It is not the definition. The token says only "not this screen", so the same fold over `MOD-DOH-05` row 8 or `MOD-DOH-15` row 3 would offer a Command Center link for a capability met on a Hub screen — and a routing pointer is read as a verified fact. The target belongs on the row (`metElsewhere`, `metInstead`, `boundary`), never on the token.',
+    sourceRef: 'L28304 and L28307 (the two rows); L1600-L1606 (the five surfaces)',
+  },
+] as const satisfies readonly MatrixRowSurfaceDivergence[]
 
 export const MATRIX_ROW_SURFACES = [
   'screen',
@@ -294,29 +403,38 @@ const FROM_OUTCOME: Readonly<Record<PermissionOutcome, ControlStatus>> = {
  *
  * BOTH CLAUSES ARE LOAD-BEARING, AND IT IS MEASURED RATHER THAN ASSERTED —
  * on every build, by the mutation pins in `scripts/build-doh-module-reach.mjs`,
- * which is where this rule is now run over the eight matrices. Three
+ * which is where this rule is now run over the fifteen matrices. Three
  * mutants, three pinned answers:
  *
- * - clause two removed: exactly `MOD-DOH-04` moves, gaining the Worker —
- *   five roles, not four — which is `tests/unit/doh-workers.test.ts` red.
- * - clause one removed, clause two left in place: NOTHING moves. Reading
- *   every row instead of the screen rows gains the chrome grants, but the
- *   same widening pulls the screen rows' `Unavailable` cells into the same
- *   column, and clause two withholds on them regardless.
+ * - clause two removed: `MOD-DOH-04` and `MOD-DOH-08` move, both to all
+ *   five roles. `MOD-DOH-04` gains the Worker, which is
+ *   `tests/unit/doh-workers.test.ts` red; `MOD-DOH-08` gains the Tenant
+ *   Admin, the Supervisor and the Worker, all three withheld by row 2's
+ *   `Unavailable` on the review queue (L28301).
+ * - clause one removed, clause two left in place: exactly `MOD-DOH-15`
+ *   moves, gaining the Quality Manager. THIS ANSWER CHANGED WHEN THE
+ *   SLICE-6 SEVEN WERE REGISTERED and the old text here — "NOTHING moves" —
+ *   was true of eight modules and is false of fifteen. On the slice-4 eight,
+ *   reading every row instead of the screen rows gained the chrome grants
+ *   but dragged the screen rows' `Unavailable` cells into the same column,
+ *   and clause two withheld on them regardless, so the two clauses never
+ *   disagreed. `MOD-DOH-15` is the first module where they do: no cell on
+ *   its card carries `Unavailable` at all, so clause two can withhold
+ *   nothing, and its row 3 — approving a clone, which is `MOD-DOH-05` row 4
+ *   met on another screen — is the ONLY row whose Quality Manager cell holds
+ *   anything. Clause one keeps that role out unaided.
  * - both removed, which is the bare "does this role hold anything anywhere
  *   in this matrix" question `tests/coverage/slice-04-gates.test.ts` gate 4
- *   asks: exactly the three modules that gate pins move — `MOD-DOH-01`
- *   offers all five roles instead of two, `MOD-DOH-13` offers four instead
- *   of two, `MOD-DOH-04` offers five instead of four. The other five are
- *   unchanged under every mutant.
+ *   asks: `MOD-DOH-01`, `MOD-DOH-04`, `MOD-DOH-08`, `MOD-DOH-13` and
+ *   `MOD-DOH-15` move. `MOD-DOH-01` offers all five roles instead of two,
+ *   `MOD-DOH-13` four instead of two, `MOD-DOH-04` five instead of four —
+ *   the three exceptions that gate pins — plus the two slice-6 modules it
+ *   does not look at.
  *
- * So the classification is load-bearing against the MEANING question rather
- * than against clause two, and the two clauses do not disagree with each
- * other on today's data. That is worth saying plainly rather than dressing
- * either clause up as redundant — the classification is what makes the
- * meaning question askable at all, and the withholding token is what
- * answers it when a role holds something on the screen and still has no
- * standing.
+ * So the classification is load-bearing against the MEANING question on
+ * every module, and on `MOD-DOH-15` against the reach answer itself. The two
+ * clauses DO now disagree on live data, which is why each is pinned
+ * separately rather than one being described as redundant.
  *
  * NOT D11, AND DELIBERATELY NOT. Whether the persona reaches SURF-DOH at
  * all is the route registry's answer, asked first by `app/hub/HubShell.tsx`
@@ -365,7 +483,16 @@ export interface DohModuleDefinition {
   readonly id: DohModuleId
   /** Canonical name (`registries/generated/modules.json`, the source's own §4.1.3 inventory). */
   readonly name: string
-  /** URL segment under `/hub/`, unique, never a bare number. */
+  /**
+   * URL segment under `/hub/`, never a bare number.
+   *
+   * UNIQUE PER ROUTE, NOT PER MODULE — corrected when the slice-6 seven
+   * landed. `MOD-DOH-15` has no screen of its own: L48105 mounts it inside
+   * `SCR-DOH-11`, `MOD-DOH-05`'s Job editor, so the two share a slug. The
+   * field's job is to say where the rail sends a reader, and the honest
+   * answer for a mounted module is the screen that mounts it. Two modules
+   * naming one route is a fact about the source, not a collision.
+   */
   readonly slug: string
   /** One plain-language sentence, quoted from the module's own purpose line. */
   readonly purpose: string
@@ -479,6 +606,56 @@ export const DOH_MODULES = [
     rolesReaching: reachOf('MOD-DOH-04'),
   },
   {
+    id: 'MOD-DOH-05',
+    name: 'Job Lifecycle and Approval',
+    slug: 'job-lifecycle-and-approval',
+    purpose:
+      'Hold the standing definition of work, gate it through an absolute segregation of duties, and route version-adoption decisions to an accountable owner.',
+    // L27694-L27707, fourteen data rows (L27692 is the header). Row 8 is the
+    // one `another-surface` row; every other row is this module's own screen.
+    // Only the Worker carries `Unavailable`, on `View Jobs` (L27707).
+    //
+    // TWO ROUTES, ONE SLUG. `SCR-DOH-10` and `SCR-DOH-11` live at this slug;
+    // `SCR-DOH-12`, the approval queue, has its own navigation entry
+    // (L48106) and its own directory. `slug` is the rail's link and a module
+    // has one; the queue is reached from the screen this slug names.
+    rolesReaching: reachOf('MOD-DOH-05'),
+  },
+  {
+    id: 'MOD-DOH-06',
+    name: 'Run Scheduling and Execution Oversight',
+    slug: 'run-scheduling-and-execution-oversight',
+    purpose:
+      'Create, schedule, oversee, modify within strict limits, and close the execution records that everything else on the platform hangs off.',
+    // L27909-L27920, twelve data rows (L27907 is the header). Every row is a
+    // screen row and only the Worker carries `Unavailable`.
+    rolesReaching: reachOf('MOD-DOH-06'),
+  },
+  {
+    id: 'MOD-DOH-07',
+    name: 'Worker Assignment',
+    slug: 'worker-assignment',
+    purpose:
+      "Bind people to runs under a qualification check, fix the run's version contract, and provide a safe, attributed handover when a person changes mid-run.",
+    // L28119-L28126, eight data rows (L28117 is the header).
+    rolesReaching: reachOf('MOD-DOH-07'),
+  },
+  {
+    id: 'MOD-DOH-08',
+    name: 'Execution Summary Review and Distribution',
+    slug: 'execution-summary-review',
+    // The one slug that names the screen rather than the module name, and it
+    // is a disclosed break rather than a slip — `app/hub/execution-summary-
+    // review/fixtures.ts` records the four reasons and states that this is
+    // the slug this row must carry.
+    purpose:
+      'Compute the honest record of what a run produced, put anything abnormal in front of a Quality Manager, and keep the record correctable without ever rewriting it.',
+    // L28300-L28314, fifteen data rows (L28298 is the header). Rows 5 and 8
+    // are `another-surface` (Client Command Center); row 2 marks the Tenant
+    // Admin, the Supervisor and the Worker `Unavailable` on the review queue.
+    rolesReaching: reachOf('MOD-DOH-08'),
+  },
+  {
     id: 'MOD-DOH-09',
     name: 'Permissions, Roles and Access',
     slug: 'permissions-roles-and-access',
@@ -523,6 +700,59 @@ export const DOH_MODULES = [
     // screen rows; only the Worker is `Unavailable`. The Supervisor reads it
     // filtered to their own Area, and the Tenant Admin and Auditor read it.
     rolesReaching: reachOf('MOD-DOH-14'),
+  },
+  {
+    id: 'MOD-DOH-15',
+    name: 'Job Cloning',
+    /**
+     * THE ONE SLUG THAT IS NOT THIS MODULE'S OWN ROUTE, because this module
+     * has none and the source says so. Catalogue B carries no `SCR-DOH-*`
+     * row for `MOD-DOH-15`; L48105 MOUNTS it inside `SCR-DOH-11`, the Job
+     * editor, which is `MOD-DOH-05`'s screen at this slug — and
+     * `MOD_DOH_15_MOUNT` in `@/surfaces/doh/modules/doh-15/matrix` records
+     * `hasRouteOfItsOwn: false` off that line.
+     *
+     * SO `slug` IS UNIQUE PER ROUTE AND NOT PER MODULE, and the field's own
+     * doc below now says so. The alternative was a rail entry pointing at a
+     * URL that 404s, which asserts a route the source does not give this
+     * module; or leaving the module unregistered, which is the debt this
+     * task exists to clear and which `tests/unit/doh-cloning.test.ts` pins.
+     * A rail entry pointing at the screen that actually mounts the panel is
+     * the source's own answer to "where is this module reached".
+     */
+    slug: 'job-lifecycle-and-approval',
+    purpose:
+      'Create a new Job from an existing one without carrying forward the three things that must be decided afresh: identity, approval and schedule.',
+    // L29477-L29482, six data rows (L29475 is the header). Row 3 is
+    // `another-surface` — approving a clone is `MOD-DOH-05` row 4 on another
+    // screen — and it is the only row whose Quality Manager cell holds
+    // anything, so clause one is what narrows this module to two roles. No
+    // cell on this card carries `Unavailable`.
+    rolesReaching: reachOf('MOD-DOH-15'),
+  },
+  {
+    id: 'MOD-DOH-16',
+    name: 'Multi-Area Job Pairing',
+    slug: 'multi-area-job-pairing',
+    purpose:
+      'Represent work that spans Areas as two linked Jobs, visible together, with a human-decided change signal across the link.',
+    // L29613-L29618, six data rows (L29611 is the header). The paired
+    // scheduling view is uncatalogued — `DOH_UNCATALOGUED_SCREEN_NAMES`
+    // registers it under the storyboard name `SB-DOH-028` — and L48105
+    // additionally mounts this module inside the Job editor.
+    rolesReaching: reachOf('MOD-DOH-16'),
+  },
+  {
+    id: 'MOD-DOH-19',
+    name: 'Parts Registry',
+    slug: 'parts-registry',
+    purpose:
+      "Hold the tenant's part master data so work instructions can reference parts and genealogy can record what was consumed.",
+    // L30070-L30077, eight data rows (L30068 is the header); catalogue B row
+    // L48100. L30074 gives the Quality Manager and the Read-only Auditor
+    // `Read-only` on viewing the registry, which catalogue B's cell omits —
+    // see `DOH_CATALOGUE_B_REACH_NARROWER` in `@/surfaces/doh/screens`.
+    rolesReaching: reachOf('MOD-DOH-19'),
   },
 ] as const satisfies readonly DohModuleDefinition[]
 
@@ -574,33 +804,39 @@ export interface DohOutOfSliceModule {
 }
 
 /**
- * The other eleven of the Hub's nineteen canonical modules (spec §1's
+ * The other four of the Hub's nineteen canonical modules (spec §1's
  * exclusion table, `registries/generated/modules.json` for the names).
- * Rendered by the Task 2 module index as "not in this slice", never
- * silently dropped, so name-matching cannot pull one back into slice 4 by
+ * Rendered by the module index as "not in this slice", never silently
+ * dropped, so name-matching cannot pull one back into this slice by
  * accident.
+ *
+ * IT WAS ELEVEN AND IT IS FOUR. Seven rows moved into `DOH_MODULES` above
+ * when slice 6 landed — `MOD-DOH-05`, `06`, `07`, `08`, `15`, `16` and `19`,
+ * every one of which had a built route or a built mount and a control matrix
+ * under `src/surfaces/doh/modules/` while this list still called it out of
+ * slice. `MOD-DOH-19`'s row had also gone stale in the other direction: it
+ * read "not yet scheduled", and slice 6 shipped it.
  */
 export const DOH_OUT_OF_SLICE_MODULES = [
-  { id: 'MOD-DOH-05', name: 'Job Lifecycle and Approval', ownedBy: 'Slice 6' },
-  { id: 'MOD-DOH-06', name: 'Run Scheduling and Execution Oversight', ownedBy: 'Slice 6' },
-  { id: 'MOD-DOH-07', name: 'Worker Assignment', ownedBy: 'Slice 6' },
-  { id: 'MOD-DOH-08', name: 'Execution Summary Review and Distribution', ownedBy: 'Slice 6' },
   { id: 'MOD-DOH-10', name: 'Notifications', ownedBy: 'Slice 10' },
   { id: 'MOD-DOH-11', name: 'Audit and Retention', ownedBy: 'Slice 10' },
-  { id: 'MOD-DOH-15', name: 'Job Cloning', ownedBy: 'Slice 6' },
-  { id: 'MOD-DOH-16', name: 'Multi-Area Job Pairing', ownedBy: 'Slice 6' },
   {
     id: 'MOD-DOH-17',
     name: 'Regulated-Industry Mode',
     ownedBy:
-      'No single-slice owner — every enforcement target it names sits in slice 6 or slice 10, so slice 4 has nothing to enforce (L29736).',
+      'Slice 12. Every enforcement target it names sits in slice 6 or slice 10, so it had nothing to enforce before those landed (L29736); slice 6 reads its forced-on half for MOD-DOH-08 row 14 and builds none of it.',
   },
-  { id: 'MOD-DOH-18', name: 'Standard Report Data Sets', ownedBy: 'Slice 6' },
   {
-    id: 'MOD-DOH-19',
-    name: 'Parts Registry',
-    ownedBy:
-      'Not yet scheduled — tenant master data, but not tenant setup, users, Workers, qualifications or devices.',
+    id: 'MOD-DOH-18',
+    name: 'Standard Report Data Sets',
+    // WAS `Slice 6`, AND SLICE 6 IS THIS SLICE — so the row said "not in
+    // this slice" about a module it named this slice as owning. The master
+    // design gives slice 6 "Job, Run, assignment, official truth" and slice
+    // 10 "Notifications, schedules, audit, reports, handoff"; the re-plan's
+    // §3.0 rules it to slice 10 on that ground and records this exact row as
+    // wrong. It owns no screen in either catalogue, so the ruling costs
+    // nothing either way.
+    ownedBy: 'Slice 10',
   },
 ] as const satisfies readonly DohOutOfSliceModule[]
 
@@ -609,14 +845,14 @@ export const DOH_OUT_OF_SLICE_MODULES = [
  * nothing may appear in both. `DohOutOfSliceModule.id` is a bare string by
  * design (these are OUT of the closed set), so this is the only check that
  * can catch a module being listed twice — the exhaustiveness check above
- * covers the in-slice eight and cannot see these eleven at all.
+ * covers the in-slice fifteen and cannot see these four at all.
  */
 type InSliceId = (typeof DOH_MODULES)[number]['id']
 type OutOfSliceId = (typeof DOH_OUT_OF_SLICE_MODULES)[number]['id']
 type OverlappingModuleIds = Extract<OutOfSliceId, InSliceId>
 
 /**
- * The eleven ids `DOH_OUT_OF_SLICE_MODULES` names, narrowed to literals by
+ * The four ids `DOH_OUT_OF_SLICE_MODULES` names, narrowed to literals by
  * the `as const satisfies` above rather than widened to the interface's
  * deliberate bare `string`.
  *

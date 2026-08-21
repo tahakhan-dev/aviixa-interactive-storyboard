@@ -11,6 +11,7 @@ import {
   registerPublishChecks,
 } from '@/studio/publish/register'
 import { STU_SEAMS, stuSeamById, stuSeamStatus } from '@/studio/seams'
+import { DOH_MODULES } from '@/surfaces/doh/modules'
 import {
   confirmedPartsRegistry,
   DEC_PARTSTUB_001,
@@ -46,12 +47,15 @@ import { PartsMiniForm, type PartsMiniFormProps } from '@/studio/modules/stu-10/
 /**
  * `MOD-STU-10` — the Parts-Registry Authoring Seam.
  *
- * THE FAR SIDE OF THIS SEAM DOES NOT EXIST AND IS NOT SCHEDULED.
- * `MOD-DOH-19` is registered `not-represented`, was excluded from slice 4 and
- * is named in no later slice's stated scope. That is why the UNCONFIRMED
- * path is the one this file exercises hardest: R21 — "a stub that returns a
+ * THE FAR SIDE OF THIS SEAM WAS UNSCHEDULED AND HAS SINCE SHIPPED.
+ * `MOD-DOH-19` was registered `not-represented`, was excluded from slice 4
+ * and was named in no later slice's stated scope; slice 6 built it. The
+ * UNCONFIRMED path is still the one this file exercises hardest, for a
+ * reason that never depended on the schedule: R21 — "a stub that returns a
  * minted identifier without a confirmed hand-off is invisible until a
- * package carries an unresolvable part reference."
+ * package carries an unresolvable part reference." A far side that usually
+ * confirms does not make an unconfirmed hand-off impossible; it makes it
+ * rarer, which is worse.
  *
  * NO ASSERTION HERE MAY PASS ON AN EMPTY SET. `AC-STU-094` makes an empty
  * reference list the ORDINARY case, which is precisely the shape a vacuous
@@ -179,25 +183,35 @@ describe('MOD-STU-10 permission matrix', () => {
  * ==================================================================== */
 
 describe('the parts registry seam', () => {
-  // FAILS IF: anybody gives the parts registry an owning slice to make the
-  // notice read more tidily. `ownerSlices: []` is the declaration.
-  it('declares an owner with no slice assigned', () => {
+  // FAILS IF: the seam goes back to declaring no owning slice, or acquires
+  // one nobody shipped. `MOD-DOH-19` was unscheduled when this row was
+  // written and slice 6 shipped it, so the declaration this test used to
+  // pin has become the wrong one. The number is checked against the SHIPPED
+  // module rather than against itself.
+  it('names the slice that shipped its owner, and no longer declares it unscheduled', () => {
     const seam = stuSeamById(STU_SEAMS, 'parts-registry')
-    expect(seam.ownerSlices).toEqual([])
-    expect(stuSeamStatus(seam)).toBe('unscheduled')
+    expect(seam.ownerSlices).toEqual([6])
+    expect(stuSeamStatus(seam)).toBe('scheduled')
     expect(seam.owner).toContain('MOD-DOH-19')
-    expect(seam.owner).toContain('not-represented')
     expect(seam.consumingModules).toEqual(['MOD-STU-10'])
+    // Non-vacuous, and this is what makes the number true rather than
+    // asserted: the Hub spine actually carries the module now.
+    const owner = DOH_MODULES.find((m) => m.id === 'MOD-DOH-19')
+    expect(owner?.slug).toBe('parts-registry')
+    expect(owner?.rolesReaching.length).toBeGreaterThan(0)
+    // And the register still holds four genuinely unscheduled rows, so
+    // `unscheduled` has not quietly stopped being reachable.
+    expect(STU_SEAMS.filter((x) => stuSeamStatus(x) === 'unscheduled')).toHaveLength(4)
   })
 
-  // FAILS IF: the panel starts naming a slice for a dependency that has
-  // none, or stops declaring the seam at all.
-  it('renders “Owner stated, no slice assigned” on the panel', () => {
+  // FAILS IF: the panel goes on saying a dependency has no slice after its
+  // owner shipped, or stops declaring the seam at all.
+  it('stops saying “no slice assigned” on the panel and names the slice instead', () => {
     const html = miniFormMarkup()
     expect(html).toContain('Cross-slice seam — not built here')
-    expect(html).toContain('Owner stated, no slice assigned')
     expect(html).toContain('MOD-DOH-19')
-    expect(html).not.toMatch(/owned by slice \d/)
+    expect(html).not.toContain('Owner stated, no slice assigned')
+    expect(html).toMatch(/owned by slice 6/)
   })
 
   // FAILS IF: a second writable field, an edit path or a delete path appears

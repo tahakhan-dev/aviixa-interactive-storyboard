@@ -251,15 +251,14 @@ function ownerConditioned(
  * `Unavailable`, and clause two withholds. Clause one narrows nothing here,
  * because all six rows are this screen's own.
  *
- * DERIVED IN-MODULE AND NOT REGISTERED, WHICH IS KNOWN DEBT. `MOD-DOH-16` is
- * still in `DOH_OUT_OF_SLICE_MODULES`, so the module rail offers this route
- * to nobody and `registries/generated/doh/module-reach.json` carries no entry
- * for it. Registering it means editing `src/surfaces/doh/modules.ts`, which
- * concurrent module tasks are consuming. What is NOT done in its place is a
- * hand-written rail: the answer below comes from `rolesReachingByMatrix`, the
- * same one implementation every registered module's entry is generated from,
- * so when the module is registered the generated value and this one are the
- * same rule applied to the same rows.
+ * DERIVED IN-MODULE, AND THE MODULE IS NOW REGISTERED TOO. `MOD-DOH-16` sat
+ * in `DOH_OUT_OF_SLICE_MODULES` for the wave in which this screen was built,
+ * so the rail offered this route to nobody and the reach JSON carried no
+ * entry; the registry task moved all seven slice-6 modules at once. What was
+ * never done in its place is a hand-written rail — the answer below comes
+ * from `rolesReachingByMatrix`, the same one implementation the generated
+ * entry is produced from, so the two are the same rule over the same rows
+ * and `tests/unit/doh-pairing.test.ts` compares them.
  */
 export function doh16RolesReaching(): readonly TenantRoleId[] {
   return rolesReachingByMatrix(CONTROL_MATRIX, cellStatus)

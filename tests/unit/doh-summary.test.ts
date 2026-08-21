@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import {
   CONTROL_MATRIX,
   DOH_08_CARD_ROW_COUNT,
@@ -48,8 +49,14 @@ const ROLES: readonly TenantRole[] = [
   'WORKER',
 ]
 
-const BLUEPRINT =
-  '/Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Production_Product_Blueprint.md'
+/**
+ * RESOLVED FROM THE WORKING DIRECTORY, never hardcoded. This line held an
+ * absolute path into one developer's home directory, so every locator
+ * assertion in this file failed on any other machine — and failed with
+ * ENOENT, which reads as "the source is missing" rather than "the path is
+ * wrong". Nine sibling suites already resolve it this way; this one did not.
+ */
+const BLUEPRINT = join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md')
 
 /** The frozen source, read once. Lines are 1-based, as every locator is. */
 const SOURCE_LINES: readonly string[] = readFileSync(BLUEPRINT, 'utf8').split('\n')

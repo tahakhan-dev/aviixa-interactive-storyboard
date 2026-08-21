@@ -1,7 +1,10 @@
 import type { DohModuleId } from './modules'
 
 /**
- * The SURF-DOH spine, part 6 of 6: the seven named cross-slice seams. Spec §5.
+ * The SURF-DOH spine, part 6 of 6: the cross-slice seam registry. Spec §5.
+ *
+ * SEVEN ROWS BECAME EIGHT. `regulated-industry-mode` was named by
+ * `MOD-DOH-08` and by its screen and registered nowhere — see its own row.
  *
  * A silent stub is the defect this registry exists to prevent (R10): each
  * seam is a named interface with a seeded fixture behind it, rendered by
@@ -39,11 +42,13 @@ import type { DohModuleId } from './modules'
  *   CORRECT, and the closure is total for the seam as recorded.
  *
  * The other four rows are untouched: their `ownerSlice` is 10 and they stay
- * open, which is what a slice-6 build should say about them.
+ * open, which is what a slice-6 build should say about them. The eighth row
+ * added here, `regulated-industry-mode`, is slice 12`s and stays open too.
  */
 const THIS_SLICE = 6
 
 export type DohSeamId =
+  | 'regulated-industry-mode'
   | 'worker-shift-meter'
   | 'archival-cascade'
   | 'shift-digest-delivery'
@@ -54,7 +59,7 @@ export type DohSeamId =
 
 export interface DohSeamDefinition {
   readonly id: DohSeamId
-  /** The slice-4 module that needs the missing half. */
+  /** The built module that needs the missing half. */
   readonly consumingModule: DohModuleId
   /** The module that owns the missing half — not necessarily in slice 4. */
   readonly ownerModule: string
@@ -63,6 +68,35 @@ export interface DohSeamDefinition {
 }
 
 export const DOH_SEAMS = [
+  {
+    /**
+     * THE EIGHTH SEAM, AND IT DID NOT EXIST. `MOD-DOH-08` row 14 (L28313)
+     * states that the review toggle is "forced on and not disableable in
+     * Regulated-Industry mode", so this slice READS `MOD-DOH-17` and builds
+     * none of it — and there was no seam row for that, only prose on the
+     * module and on its screen.
+     *
+     * A SEAM THAT DOES NOT EXIST AND A SEAM RECORDED AS UNSCHEDULED READ THE
+     * SAME FROM A SCREEN, AND ONLY ONE IS TRUE. `SeamNotice` can only draw a
+     * registered row; with none, the screen had to hand-write the sentence,
+     * which is the silent-stub shape (R10) this registry exists to prevent —
+     * the absence was invisible to every gate that walks `DOH_SEAMS`.
+     *
+     * `MOD-DOH-06` names `MOD-DOH-17` too, at its rows 10 and 11, but that
+     * reference is NOT a dependency and is deliberately not a second
+     * consuming module here: those rows send a setting to `SCR-DOH-23`, and
+     * the note records that the ownerless screen group carries `MOD-DOH-17`
+     * and the Part IX settings register. Registering `MOD-DOH-06` as a
+     * consumer would claim a dependency on Regulated-Industry mode that
+     * module does not have.
+     */
+    id: 'regulated-industry-mode',
+    consumingModule: 'MOD-DOH-08',
+    ownerModule: 'MOD-DOH-17',
+    ownerSlice: 12,
+    description:
+      'MOD-DOH-08 row 14 (L28313) makes the review toggle "forced on and not disableable in Regulated-Industry mode". MOD-DOH-08 renders the constraint and no control; MOD-DOH-17 (card L29714-L29874) owns the mode itself, and the re-plan rules it to slice 12 because every enforcement target it names sits in slice 6 or slice 10 (L29736). The toggle is set in the tenant administration area, SCR-DOH-23 (L48117), which is slice 12`s to build as well.',
+  },
   {
     id: 'worker-shift-meter',
     consumingModule: 'MOD-DOH-01',

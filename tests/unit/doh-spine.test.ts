@@ -1,10 +1,18 @@
+import { existsSync } from 'node:fs'
 import { describe, it, expect } from 'vitest'
 import {
   DOH_MODULES,
   DOH_OUT_OF_SLICE_MODULES,
+  MATRIX_ROW_SURFACE_DIVERGENCES,
+  cellStatus,
   dohModuleById,
+  rolesReachingByMatrix,
   type DohModuleId,
 } from '@/surfaces/doh/modules'
+import { MOD_DOH_05_MATRIX } from '@/surfaces/doh/modules/doh-05/matrix'
+import { MOD_DOH_06_MATRIX } from '@/surfaces/doh/modules/doh-06/matrix'
+import { MOD_DOH_15_MATRIX } from '@/surfaces/doh/modules/doh-15/matrix'
+import { CONTROL_MATRIX as DOH_19_MATRIX } from '@/surfaces/doh/modules/doh-19/matrix'
 import {
   TENANT_STATES,
   TENANT_WRITE_CLASSES,
@@ -20,19 +28,21 @@ import {
 import { DOH_SCREENS, dohScreenById } from '@/surfaces/doh/screens'
 import { DOH_SEAMS, dohSeamById } from '@/surfaces/doh/seams'
 
-describe('DOH_MODULES — the eight slice-4 modules', () => {
-  it('carries exactly eight modules, slugged not numbered', () => {
-    expect(DOH_MODULES).toHaveLength(8)
+describe('DOH_MODULES — the fifteen built modules', () => {
+  it('carries exactly fifteen modules, slugged not numbered', () => {
+    expect(DOH_MODULES).toHaveLength(15)
     for (const m of DOH_MODULES) {
       expect(m.slug, m.id).not.toMatch(/^SCR-DOH-\d+$/i)
       expect(m.slug, m.id).toMatch(/^[a-z0-9-]+$/)
     }
   })
 
-  it('names every module from the canonical eight, in id order', () => {
+  it('names every built module in id order — the slice-4 eight plus the slice-6 seven', () => {
     expect(DOH_MODULES.map((m) => m.id)).toEqual([
       'MOD-DOH-01', 'MOD-DOH-02', 'MOD-DOH-03', 'MOD-DOH-04',
+      'MOD-DOH-05', 'MOD-DOH-06', 'MOD-DOH-07', 'MOD-DOH-08',
       'MOD-DOH-09', 'MOD-DOH-12', 'MOD-DOH-13', 'MOD-DOH-14',
+      'MOD-DOH-15', 'MOD-DOH-16', 'MOD-DOH-19',
     ])
   })
 
@@ -43,15 +53,119 @@ describe('DOH_MODULES — the eight slice-4 modules', () => {
     expect(dohModuleById('MOD-DOH-14' as DohModuleId).name).toBe('Qualification Calendar')
   })
 
-  it('gives every module a unique slug', () => {
-    const slugs = DOH_MODULES.map((m) => m.slug)
-    expect(new Set(slugs).size).toBe(slugs.length)
+  /**
+   * SLUG IS UNIQUE PER ROUTE AND NOT PER MODULE, which was the shape before
+   * `MOD-DOH-15` landed and is no longer the claim the spine makes. What is
+   * asserted instead is stronger than uniqueness: every slug names a route
+   * directory that EXISTS, so no rail entry can point at a 404, and the only
+   * module sharing another's slug is the one the source gives no screen of
+   * its own (L48105 mounts `MOD-DOH-15` inside `MOD-DOH-05`'s Job editor).
+   */
+  it('gives every module a slug naming a built route, sharing one only where the source mounts one module in another', () => {
+    for (const m of DOH_MODULES) {
+      expect(existsSync(`app/hub/${m.slug}/page.tsx`), `${m.id} -> app/hub/${m.slug}`).toBe(true)
+    }
+    const shared = DOH_MODULES.filter(
+      (m) => DOH_MODULES.filter((o) => o.slug === m.slug).length > 1,
+    ).map((m) => m.id)
+    expect(shared).toEqual(['MOD-DOH-05', 'MOD-DOH-15'])
+    expect(dohScreenById('SCR-DOH-11').alsoShows).toContain('MOD-DOH-15')
   })
 })
 
-describe('DOH_OUT_OF_SLICE_MODULES — the other eleven, not built in slice 4', () => {
-  it('carries exactly eleven, none overlapping the eight in-slice ids', () => {
-    expect(DOH_OUT_OF_SLICE_MODULES).toHaveLength(11)
+/**
+ * THE `another-surface` RULING, PINNED AGAINST LIVE ROWS.
+ *
+ * The register in `@/surfaces/doh/modules` is prose; these are the rows it
+ * describes. Each assertion is written so that CORRECTING a divergence goes
+ * red here — a task that reclassifies `MOD-DOH-05` row 8 or renames the
+ * member has to come back and update the register rather than leaving a
+ * finding describing a tree that no longer exists.
+ */
+describe('MatrixRowSurface — `another-surface` means "not this module’s own screen"', () => {
+  it('registers all three divergences, each naming where it lives and why', () => {
+    expect(MATRIX_ROW_SURFACE_DIVERGENCES).toHaveLength(3)
+    for (const d of MATRIX_ROW_SURFACE_DIVERGENCES) {
+      expect(d.where.length, d.where).toBeGreaterThan(10)
+      expect(d.why.length, d.where).toBeGreaterThan(80)
+      expect(d.sourceRef, d.where).toMatch(/L\d{4,5}/)
+    }
+  })
+
+  it('the two rows the register names are still classified `another-surface`, and their alternative is still a Hub screen', () => {
+    const mapping = MOD_DOH_05_MATRIX.find(
+      (r) => r.id === 'maintain-the-tag-to-qualification-set-mapping',
+    )!
+    expect(mapping.surface).toBe('another-surface')
+    expect(mapping.sourceRef).toContain('L27701')
+    // The alternative is the tenant administration area, which is SCR-DOH-23
+    // — a Hub screen group, not a surface (L1598, AC-PROD-040 L1614).
+    expect(mapping.detail.TENANT_ADMIN).toContain('tenant administration area')
+    expect(dohScreenById('SCR-DOH-23').name).toBe('Tenant administration area')
+
+    const approve = MOD_DOH_15_MATRIX.find((r) => r.id === 'approve-the-cloned-job')!
+    expect(approve.surface).toBe('another-surface')
+    expect(approve.metInstead).toContain('L48106')
+    expect(dohScreenById('SCR-DOH-12').name).toBe('Job approval queue')
+  })
+
+  it('MOD-DOH-06 puts the SAME fourth case on the other side of the line, and its answer does not move', () => {
+    // Two rows set in the tenant administration area — the same place as
+    // MOD-DOH-05 row 8 — and classified `screen` rather than
+    // `another-surface`. That is the vocabulary being one member short, not
+    // a module being careless: both cards refuse a cross-surface link and
+    // both are right to.
+    const settings = MOD_DOH_06_MATRIX.filter((r) =>
+      ['set-the-record-finish-window', 'set-the-run-extension-cap'].includes(r.id),
+    )
+    expect(settings).toHaveLength(2)
+    for (const row of settings) {
+      expect(row.surface, row.id).toBe('screen')
+      expect(row.detail.TENANT_ADMIN, row.id).toContain('tenant administration area')
+    }
+    // Reclassifying them the way MOD-DOH-05 classifies its own does not move
+    // this module's reach, because row 2 admits every role on its own screen.
+    const asIfElsewhere = MOD_DOH_06_MATRIX.map((r) =>
+      settings.some((s) => s.id === r.id) ? { ...r, surface: 'another-surface' as const } : r,
+    )
+    expect(rolesReachingByMatrix(asIfElsewhere, cellStatus)).toEqual(
+      rolesReachingByMatrix(MOD_DOH_06_MATRIX, cellStatus),
+    )
+  })
+
+  it('neither MOD-DOH-05 nor MOD-DOH-15 carries a boundary pointer, which is why the token cannot be read as a surface', () => {
+    for (const row of [...MOD_DOH_05_MATRIX, ...MOD_DOH_15_MATRIX]) {
+      expect((row as { boundary?: string }).boundary, row.id).toBeUndefined()
+    }
+    // Non-vacuous: rows that DO name a surface carry it on their own field,
+    // never on the classification.
+    const inline = DOH_19_MATRIX.find((r) => r.id === 'add-a-part-inline-during-authoring')!
+    expect(inline.surface).toBe('another-surface')
+    expect(inline.metElsewhere?.surface).toBe('SURF-STU')
+  })
+
+  it('the classification, not the token, is what keeps the Quality Manager off MOD-DOH-15', () => {
+    // Clause one alone. Reclassify row 3 `screen` and the module gains a
+    // Quality Manager whose only standing is an act on another screen; the
+    // build's `noClassification` mutant pins the same fact.
+    const asIfScreen = MOD_DOH_15_MATRIX.map((r) =>
+      r.id === 'approve-the-cloned-job' ? { ...r, surface: 'screen' as const } : r,
+    )
+    expect(rolesReachingByMatrix(MOD_DOH_15_MATRIX, cellStatus)).toEqual([
+      'TENANT_ADMIN',
+      'SUPERVISOR',
+    ])
+    expect(rolesReachingByMatrix(asIfScreen, cellStatus)).toEqual([
+      'TENANT_ADMIN',
+      'SUPERVISOR',
+      'QUALITY_MANAGER',
+    ])
+  })
+})
+
+describe('DOH_OUT_OF_SLICE_MODULES — the other four, not built here', () => {
+  it('carries exactly four, none overlapping the fifteen in-slice ids', () => {
+    expect(DOH_OUT_OF_SLICE_MODULES).toHaveLength(4)
     const inSlice: ReadonlySet<string> = new Set(DOH_MODULES.map((m) => m.id))
     for (const m of DOH_OUT_OF_SLICE_MODULES) {
       expect(inSlice.has(m.id), m.id).toBe(false)
@@ -64,7 +178,7 @@ describe('DOH_OUT_OF_SLICE_MODULES — the other eleven, not built in slice 4', 
     }
   })
 
-  it('together with the eight in-slice modules accounts for all nineteen canonical Hub modules', () => {
+  it('together with the fifteen in-slice modules accounts for all nineteen canonical Hub modules', () => {
     expect(DOH_MODULES.length + DOH_OUT_OF_SLICE_MODULES.length).toBe(19)
   })
 })
@@ -197,9 +311,12 @@ describe('DOH_SCREENS — catalogue B, names canonical, never a three-digit form
   })
 })
 
-describe('DOH_SEAMS — the seven named cross-slice seams', () => {
-  it('names every seam from the canonical seven, in id order', () => {
+describe('DOH_SEAMS — the eight named cross-slice seams', () => {
+  it('names every seam from the canonical eight, in id order', () => {
     expect(DOH_SEAMS.map((s) => s.id)).toEqual([
+      // The eighth. `MOD-DOH-08` reads Regulated-Industry mode for row 14's
+      // forced-on constraint and builds none of it; there was no row for it.
+      'regulated-industry-mode',
       'worker-shift-meter',
       'archival-cascade',
       'shift-digest-delivery',

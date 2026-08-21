@@ -327,10 +327,18 @@ describe('HubShell — the module rail is navigation, and renders only where it 
     }
   })
 
-  it('renders the rail on a module route, listing all eight modules', () => {
+  it('renders the rail on a module route, listing every module this persona reaches and no other', () => {
     render(<HubShell module={module}>{null}</HubShell>)
     const rail = screen.getByRole('navigation', { name: 'Hub modules' })
-    expect(within(rail).getAllByRole('link')).toHaveLength(DOH_MODULES.length)
+    // NOT `DOH_MODULES.length`, and the difference is the point. The default
+    // persona is the Tenant Admin, and `MOD-DOH-08` marks the Tenant Admin
+    // `Unavailable` on the review queue (L28301), so the rail is one shorter
+    // than the register. Asserting the register's length would have made the
+    // rail's own filter unobservable.
+    const reached = dohModulesReachedBy('TENANT_ADMIN')
+    expect(within(rail).getAllByRole('link')).toHaveLength(reached.length)
+    expect(reached.length).toBe(DOH_MODULES.length - 1)
+    expect(reached.map((m) => m.id)).not.toContain('MOD-DOH-08')
   })
 
   it('D11: offers no Hub navigation to the Worker, and offers it to the other four', async () => {
@@ -432,14 +440,18 @@ describe('HubShell — the rail offers only the modules the persona actually rea
     )
   })
 
-  it('still offers the Tenant Admin all eight, so nothing is hidden that should not be', () => {
+  it('still offers the Tenant Admin every module whose own matrix admits it, so nothing is hidden that should not be', () => {
     render(
       <HubShell module={module} role="TENANT_ADMIN" onRoleChange={() => {}}>
         <p>module body</p>
       </HubShell>,
     )
     const rail = screen.getByRole('navigation', { name: 'Hub modules' })
-    expect(within(rail).getAllByRole('link')).toHaveLength(DOH_MODULES.length)
+    const reached = dohModulesReachedBy('TENANT_ADMIN')
+    expect(within(rail).getAllByRole('link')).toHaveLength(reached.length)
+    // Fourteen of the fifteen: only `MOD-DOH-08` withholds from this role,
+    // and it withholds by its own matrix rather than by anything here.
+    expect(reached).toHaveLength(14)
   })
 })
 

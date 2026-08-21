@@ -180,15 +180,63 @@ const TENANT_ROLES = rolesInDomain('TENANT').map((r) => r.id)
  * an unmatched shape and throws, which is the difference between a build
  * that stops and a module that silently reaches nobody.
  */
-function readerFor(row, slug) {
+function readerFor(row, where) {
   if ('status' in row) return spine.cellStatus
   if ('byRole' in row) return spine.titleCaseCellStatus
   if ('cells' in row) return spine.outcomeCellStatus
   throw new Error(
-    `app/hub/${slug}/fixtures.ts: matrix row "${row.id}" carries none of the three known cell ` +
+    `${where}: matrix row "${row.id}" carries none of the three known cell ` +
       'spellings (status / byRole / cells). Refusing to derive a reach map from a matrix this ' +
       'script cannot read.',
   )
+}
+
+/**
+ * WHERE A MODULE'S MATRIX LIVES, derived from the module's own fields and
+ * never from a table mapping module to path.
+ *
+ * TWO HOMES, BECAUSE THE SURFACE HAS TWO. The slice-4 eight keep their
+ * matrices in `app/hub/<slug>/fixtures.ts`; the slice-6 seven keep theirs in
+ * `src/surfaces/doh/modules/doh-NN/matrix.ts`, which is source-derived
+ * surface data and belongs under `src/` -- and two of the seven have no route
+ * directory to hold a fixture at all (`MOD-DOH-15` is a panel mounted in
+ * another module's screen, L48105). Both candidates are computed from the id
+ * and the slug; the first that exists on disk wins, and a module with neither
+ * fails below rather than reaching nobody.
+ *
+ * The src home is preferred where both exist. `app/hub/worker-assignment` and
+ * `app/hub/execution-summary-review` re-export the src matrix verbatim, so
+ * the two candidates are the same array either way; reading the real home
+ * means a module needs no route directory to be registered.
+ */
+function matrixCandidates(module) {
+  return [
+    `src/surfaces/doh/modules/${module.id.replace('MOD-DOH-', 'doh-').toLowerCase()}/matrix.ts`,
+    `app/hub/${module.slug}/fixtures.ts`,
+  ]
+}
+
+/**
+ * THE MATRIX EXPORT, FOUND BY NAME SHAPE RATHER THAN BY A LIST OF NAMES.
+ * Four spellings ship across the fifteen modules -- `CONTROL_MATRIX`,
+ * `PERMISSION_MATRIX`, `MOD_DOH_05_MATRIX`, `MOD_DOH_06_MATRIX`,
+ * `MOD_DOH_15_MATRIX` -- and a two-name lookup silently answered `undefined`
+ * for the last three. Every export whose name ends `MATRIX` is a candidate;
+ * exactly one must be a non-empty array, so a file carrying two matrices
+ * fails here instead of having one of them picked by property order.
+ */
+function matrixIn(namespace, where, moduleId) {
+  const found = Object.entries(namespace).filter(
+    ([name, value]) => name.endsWith('MATRIX') && Array.isArray(value) && value.length > 0,
+  )
+  if (found.length !== 1) {
+    throw new Error(
+      `${where} exports ${found.length} non-empty *MATRIX arrays (${found.map(([n]) => n).join(', ') || 'none'}). ` +
+        `Exactly one is required. Refusing to write a reach map that would withhold ${moduleId} ` +
+        'from every role because its matrix could not be found, or pick one of two by chance.',
+    )
+  }
+  return found[0][1]
 }
 
 const HOLDING = new Set(['allowed', 'allowed-with-conditions', 'read-only'])
@@ -216,17 +264,18 @@ const derivedFrom = {}
 const mutantMoves = { noClassification: [], noWithholding: [], neitherClause: [] }
 
 for (const module of spine.DOH_MODULES) {
-  const fixturePath = `app/hub/${module.slug}/fixtures.ts`
-  const fixtures = await loadTs(fixturePath)
-  const matrix = fixtures.CONTROL_MATRIX ?? fixtures.PERMISSION_MATRIX
-  if (!Array.isArray(matrix) || matrix.length === 0) {
+  const candidates = matrixCandidates(module)
+  const fixturePath = candidates.find((p) => resolveSourceFile(resolvePath(ROOT, p)) !== null)
+  if (fixturePath === undefined) {
     throw new Error(
-      `${fixturePath} exports no non-empty CONTROL_MATRIX or PERMISSION_MATRIX. Refusing to ` +
-        `write a reach map that would withhold ${module.id} from every role because its matrix ` +
-        'could not be found.',
+      `${module.id} has no matrix file. Looked for ${candidates.join(' and ')}. Refusing to ` +
+        'write a reach map that would withhold it from every role because its matrix could not ' +
+        'be found.',
     )
   }
-  const statusOf = readerFor(matrix[0], module.slug)
+  const fixtures = await loadTs(fixturePath)
+  const matrix = matrixIn(fixtures, fixturePath, module.id)
+  const statusOf = readerFor(matrix[0], fixturePath)
 
   if (!matrix.some((row) => row.surface === 'screen')) {
     throw new Error(
@@ -259,32 +308,47 @@ for (const module of spine.DOH_MODULES) {
  *
  * Three mutants, because the interesting claim needs all three to be honest:
  *
- * - `noClassification` -- clause one off, clause two still on: NOTHING moves.
- *   Reading every row instead of the screen rows gains the chrome grants, but
- *   the same widening also drags the screen rows' `Unavailable` cells into
- *   the same column, and clause two withholds on them anyway. This is the
- *   spine's own claim that "each alone reaches the same eight answers", and
- *   it is pinned here so the claim is executable instead of asserted.
- * - `noWithholding` -- clause two off: exactly `MOD-DOH-04` moves, gaining
- *   the Worker, which is `tests/unit/doh-workers.test.ts` going red.
+ * - `noClassification` -- clause one off, clause two still on: exactly
+ *   `MOD-DOH-15` moves, gaining the Quality Manager (2 roles becomes 3).
+ *   RE-MEASURED WHEN THE SLICE-6 SEVEN WERE REGISTERED, and it USED to be
+ *   the empty set. On the slice-4 eight, reading every row instead of the
+ *   screen rows gained the chrome grants and the same widening dragged the
+ *   screen rows' `Unavailable` cells into the same column, so clause two
+ *   withheld anyway and the two clauses never disagreed. `MOD-DOH-15` is the
+ *   first module on this surface where they do: no cell on its card carries
+ *   `Unavailable` at all, so clause two can withhold nothing, and its row 3
+ *   -- approving a clone, which is `MOD-DOH-05` row 4 on another screen -- is
+ *   the ONLY row whose Quality Manager cell holds anything. Clause one is
+ *   what keeps that role out, alone and unaided. The spine's old claim that
+ *   "each alone reaches the same answers" was true of eight modules and is
+ *   false of fifteen.
+ * - `noWithholding` -- clause two off: `MOD-DOH-04` and `MOD-DOH-08` move,
+ *   both to all five roles. `MOD-DOH-04` gains the Worker, which is
+ *   `tests/unit/doh-workers.test.ts` going red; `MOD-DOH-08` gains the Tenant
+ *   Admin, the Supervisor and the Worker, all three withheld by row 2's
+ *   `Unavailable` on the review queue (L28301).
  * - `neitherClause` -- both off, which is the raw "does this role hold
  *   anything anywhere in this matrix" question `slice-04-gates.test.ts` gate
- *   4 compares against: exactly `MOD-DOH-01`, `MOD-DOH-04` and `MOD-DOH-13`
- *   move, the same three that gate pins as derivation exceptions.
+ *   4 compares against: `MOD-DOH-01`, `MOD-DOH-04`, `MOD-DOH-08`,
+ *   `MOD-DOH-13` and `MOD-DOH-15` move. The first, second and fourth are the
+ *   three that gate pins as derivation exceptions; the other two are slice-6
+ *   modules that gate does not look at.
  *
- * So the classification is load-bearing against the MEANING question, not
- * against clause two -- which is a sharper statement than "strip the
- * classification and three modules move", and it is the one the numbers
- * support.
+ * So the classification is load-bearing against the MEANING question AND, on
+ * `MOD-DOH-15`, against the reach answer itself. Both statements are measured
+ * here on every build rather than asserted in a comment.
  */
 const MUTANT_PINS = {
   noClassification: {
-    ids: [],
+    ids: ['MOD-DOH-15'],
     clause: 'the `screen` classification (clause one), with the withholding token left in place',
   },
-  noWithholding: { ids: ['MOD-DOH-04'], clause: 'the `Unavailable` withholding token (clause two)' },
+  noWithholding: {
+    ids: ['MOD-DOH-04', 'MOD-DOH-08'],
+    clause: 'the `Unavailable` withholding token (clause two)',
+  },
   neitherClause: {
-    ids: ['MOD-DOH-01', 'MOD-DOH-04', 'MOD-DOH-13'],
+    ids: ['MOD-DOH-01', 'MOD-DOH-04', 'MOD-DOH-08', 'MOD-DOH-13', 'MOD-DOH-15'],
     clause: 'both clauses, leaving the bare "holds anything anywhere" question gate 4 asks',
   },
 }

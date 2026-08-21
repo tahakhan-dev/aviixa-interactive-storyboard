@@ -109,6 +109,12 @@ export const SEEDED_JOBS = [
       ownerId: A.SUPERVISOR,
       state: 'pending_approval',
       createdBy: A.SUPERVISOR,
+      // The source's own Illustrative Example: Elena later wants this Job's
+      // "recurrence changed from daily to weekday-only" (L7189), so daily is
+      // what it recurs on now. This is the seed that makes `AC-DOH-15-3` —
+      // cloning from a RECURRING Job always raises the prompt — reachable.
+      recurrence: 'Daily',
+      linkedJobRef: null,
     },
     boundNodeArchiving: false,
     pendingRecurrenceProposal: null,
@@ -126,6 +132,12 @@ export const SEEDED_JOBS = [
       ownerId: A.QUALITY_MANAGER,
       state: 'pending_approval',
       createdBy: A.QUALITY_MANAGER,
+      // NO `recurrence`, deliberately. The source states none for this Job
+      // and `JobRecord.recurrence` is optional precisely so a seed can say
+      // so; asserting `one-off` here would read back as a schedule somebody
+      // chose. `jobRecurs` treats the silence as recurring, which is the
+      // safe side of `AC-DOH-15-3`'s "always".
+      linkedJobRef: null,
     },
     boundNodeArchiving: false,
     pendingRecurrenceProposal: null,
@@ -140,6 +152,11 @@ export const SEEDED_JOBS = [
       ownerId: A.SUPERVISOR,
       state: 'active',
       createdBy: A.SUPERVISOR,
+      // Not a free choice: `pendingRecurrenceProposal` below already says
+      // the proposal is "in place of daily", so the current pattern IS
+      // daily. The field and the proposal cannot disagree.
+      recurrence: 'Daily',
+      linkedJobRef: null,
     },
     boundNodeArchiving: false,
     pendingRecurrenceProposal: 'Weekly on Monday, proposed in place of daily. Awaiting approval.',
@@ -154,6 +171,8 @@ export const SEEDED_JOBS = [
       ownerId: A.TENANT_ADMIN,
       state: 'draft',
       createdBy: A.TENANT_ADMIN,
+      // No `recurrence`: the source states none for this Job. See JOB-WHEELTRUE.
+      linkedJobRef: null,
     },
     boundNodeArchiving: false,
     pendingRecurrenceProposal: null,
@@ -172,6 +191,8 @@ export const SEEDED_JOBS = [
       ownerId: A.SUPERVISOR,
       state: 'active',
       createdBy: A.TENANT_ADMIN,
+      // No `recurrence`: the source states none for this Job. See JOB-WHEELTRUE.
+      linkedJobRef: null,
     },
     boundNodeArchiving: true,
     pendingRecurrenceProposal: null,

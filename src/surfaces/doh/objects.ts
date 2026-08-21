@@ -86,6 +86,75 @@ export interface JobRecord {
    * append-only fact, and the two would eventually disagree.
    */
   readonly createdBy: string
+  /**
+   * THE RECURRENCE PATTERN, AND WHY IT IS A FIELD RATHER THAN A CONTEXT
+   * FLAG. §4.5.1 (L27648) lists "its recurrence pattern" among the things a
+   * Job carries, L7155 sets it at creation, L8004 lists it among the object's
+   * fields and `OBJ-DOH-JOB` (L26149) names it again. `AC-DOH-15-2` requires
+   * a clone to reset it "to one-off" and `AC-DOH-15-3` requires that cloning
+   * "from a RECURRING Job always raises the recurrence prompt" — neither is
+   * answerable off a record that does not carry it, which is why
+   * `MOD-DOH-15` had to take `sourceRecurs` as a hand-passed context flag
+   * and record the absence as a silence.
+   *
+   * A STRING, AND NOT A UNION. The source names exactly one value —
+   * `one-off`, at L29452 and `AC-DOH-15-2` — and gives "Daily" and
+   * "weekday-only" only inside an Illustrative Example (L7189). Enumerating
+   * a pattern vocabulary here would invent a closed set the source does not
+   * state. `ONE_OFF_RECURRENCE` below is the one token that IS stated, and
+   * `jobRecurs` is the only question this build asks of the field.
+   *
+   * OPTIONAL, AND THE ABSENCE IS THE POINT. The source gives a recurrence
+   * for almost no individual Job, so a REQUIRED field would force every
+   * seeded fixture to assert a schedule nobody chose — the "blank cell an
+   * implementer answers privately" defect (L10238) written into a type.
+   * Absent means "this seed states no pattern", which is not the same fact
+   * as `one-off`, and `jobRecurs` below fails in the SAFE direction on it:
+   * `AC-DOH-15-3` says cloning from a recurring Job ALWAYS raises the
+   * prompt, so an unknown pattern raises it rather than suppressing it. A
+   * Job this build CREATES always carries the field, because
+   * `DOH_CREATE_JOB` requires it — L7155 sets recurrence at creation.
+   */
+  readonly recurrence?: string
+  /**
+   * MOD-DOH-16's `linked_job_ref`, or `null` where the Job is unpaired.
+   * L8004 lists "optional linked Job reference for multi-Area pairing" among
+   * the Job's own fields and the module's Outputs line (L29598) names "the
+   * `linked_job_ref` on each Job" — each, so a pairing is written on both
+   * sides and neither can see a link the other does not.
+   *
+   * OPTIONAL AND NULLABLE, and the two states are different facts.
+   * `undefined` is "this record predates any pairing act"; `null` is
+   * "`DOH_UNPAIR_JOBS` cleared it". Both read as unpaired through
+   * `jobPairedWith`, which is the only thing that asks.
+   */
+  readonly linkedJobRef?: string | null
+}
+
+/**
+ * The source's own word for a Job that does not recur, and the value
+ * `AC-DOH-15-2` requires a clone to reset to. Not an enum: it is the ONE
+ * pattern token the source states.
+ */
+export const ONE_OFF_RECURRENCE = 'one-off'
+
+/**
+ * `AC-DOH-15-3`'s question, asked in one place, and it FAILS SAFE.
+ *
+ * The criterion is "cloning from a recurring Job ALWAYS raises the
+ * recurrence prompt". A Job whose pattern this build does not know is
+ * therefore treated as recurring — the prompt is raised, and the worst case
+ * is a question asked of somebody who could have answered it silently.
+ * Reading an unknown pattern as `one-off` would SUPPRESS the prompt, which
+ * is the one outcome the word "always" rules out.
+ */
+export function jobRecurs(job: JobRecord): boolean {
+  return job.recurrence !== ONE_OFF_RECURRENCE
+}
+
+/** The paired Job's identifier, or `null`. Absent and cleared read alike. */
+export function jobPairedWith(job: JobRecord): string | null {
+  return job.linkedJobRef ?? null
 }
 
 /**
@@ -506,6 +575,42 @@ export const HUB_COMMAND_SPECS: Readonly<Record<HubCommand['type'], HubCommandSp
     ],
   }),
 
+  // ---- Cloning, MOD-DOH-15. Card L29471: WRITE-002 primary. ----
+
+  // Row 1, L29477: Tenant Admin `Allowed with conditions` — blocked in every
+  // suspension state as new-Job creation; Supervisor `Allowed with
+  // conditions` — own Area scope, blocked in suspension. Both suspension
+  // clauses are already the feature-and-suspension stage of evaluateAccess,
+  // exactly as DOH_CREATE_JOB's are, because a clone IS a Job creation.
+  DOH_CLONE_JOB: spec('FB-DOH-WRITE-002', 'lifecycleChange', {
+    allowedRoles: TENANT_ADMIN_AND_SUPERVISOR,
+    deniedRoles: ['QUALITY_MANAGER', 'READONLY_AUDITOR', 'WORKER'],
+    sourceRefs: ['MOD-DOH-15 row 1', 'L29477', '§4.5.6', 'L29452'],
+  }),
+
+  // ---- Pairing, MOD-DOH-16. Card L29607: WRITE-002 for the pairing act. ----
+
+  // Rows 1 and 2, L29613 and L29614: Tenant Admin `Allowed`, Supervisor
+  // `Allowed with conditions` — must hold scope over BOTH Jobs. The
+  // both-Jobs clause is a scope question and belongs to the scope stage of
+  // evaluateAccess, not to a second gate here.
+  //
+  // NEITHER IS OWNER-GATED. Only rows 4 and 5 name the Job Owner, and only
+  // `DOH_ACT_ON_PAIRED_REVIEW_FLAG` carries that condition. Putting
+  // `OWNER_CONDITIONED_ROLES` here would narrow two unconditioned rows to
+  // the owner and refuse a Tenant Admin the source allows outright.
+  DOH_PAIR_JOBS: spec('FB-DOH-WRITE-002', 'lifecycleChange', {
+    allowedRoles: TENANT_ADMIN_AND_SUPERVISOR,
+    deniedRoles: ['QUALITY_MANAGER', 'READONLY_AUDITOR', 'WORKER'],
+    sourceRefs: ['MOD-DOH-16 row 1', 'L29613', '§4.5.7', 'L29598'],
+  }),
+
+  DOH_UNPAIR_JOBS: spec('FB-DOH-WRITE-002', 'lifecycleChange', {
+    allowedRoles: TENANT_ADMIN_AND_SUPERVISOR,
+    deniedRoles: ['QUALITY_MANAGER', 'READONLY_AUDITOR', 'WORKER'],
+    sourceRefs: ['MOD-DOH-16 row 2', 'L29614', 'L29629'],
+  }),
+
   // ---- Run, MOD-DOH-06. Card L27903. ----
 
   // Row 1, L27909: Tenant Admin `Explicitly prohibited` — run creation is
@@ -739,6 +844,29 @@ export function validateHubCommand(command: HubCommand): string | null {
       return blank('Annotation text', command.text)
     case 'DOH_ACT_ON_PAIRED_REVIEW_FLAG':
       return blank('A note', command.note)
+    case 'DOH_CLONE_JOB':
+      return (
+        blank('A source Job', command.sourceJobId) ??
+        // `AC-DOH-15-2`: the clone RESETS the name. A clone with no new name
+        // would inherit the source's, which is the "silent duplicate" the
+        // reset exists to stop.
+        blank('A new Job name', command.name) ??
+        blank('A Job Owner', command.ownerId) ??
+        (command.sourceJobId === command.jobId
+          ? 'A Job cannot be cloned onto itself.'
+          : null)
+      )
+    case 'DOH_PAIR_JOBS':
+    case 'DOH_UNPAIR_JOBS':
+      return (
+        blank('A Job', command.jobId) ??
+        blank('A paired Job', command.pairedJobId) ??
+        // L29596: pairing represents work "as TWO linked Jobs". A Job paired
+        // with itself is one Job wearing a link.
+        (command.jobId === command.pairedJobId
+          ? 'A Job cannot be paired with itself.'
+          : null)
+      )
     case 'DOH_SUBMIT_JOB_FOR_APPROVAL':
     case 'DOH_APPROVE_JOB':
     case 'DOH_DECIDE_VERSION_ADOPTION':
@@ -781,8 +909,55 @@ export function applyHubCommand(
         // the two are the same value; they diverge the moment
         // `DOH_REASSIGN_JOB_OWNER` runs, and only `ownerId` moves.
         createdBy: command.ownerId,
+        recurrence: command.recurrence,
+        // A new Job is unpaired. `DOH_PAIR_JOBS` is the only thing that
+        // writes this field, on both Jobs at once.
+        linkedJobRef: null,
       }
       return putObject(state, tenant, objectKey.job(command.jobId), job)
+    }
+
+    case 'DOH_CLONE_JOB': {
+      const source = readJob(state, tenant, command.sourceJobId)
+      if (source === undefined) return state
+      /**
+       * `AC-DOH-15-1` (L29557): "copies exactly the six named elements and
+       * no others". `AC-DOH-15-2` (L29558): "resets exactly the three named
+       * elements: name, state to `draft`, recurrence to one-off". The six
+       * and the three are enumerated in the prose at L29452.
+       *
+       * WRITTEN FIELD BY FIELD RATHER THAN BY SPREADING THE SOURCE. A
+       * `{ ...source, ... }` would copy `createdBy` and `linkedJobRef` too —
+       * the first laundering a segregation-of-duties breach onto the clone,
+       * the second carrying a pairing L29452 does not list among the six.
+       * Naming every field is what makes "and no others" a property of the
+       * code rather than of the reviewer's attention.
+       */
+      const clone: JobRecord = {
+        jobId: command.jobId,
+        name: command.name,
+        jobTypeId: source.jobTypeId,
+        parentNodeId: source.parentNodeId,
+        ownerId: command.ownerId,
+        state: 'draft',
+        createdBy: command.ownerId,
+        recurrence: ONE_OFF_RECURRENCE,
+        linkedJobRef: null,
+      }
+      return putObject(state, tenant, objectKey.job(command.jobId), clone)
+    }
+
+    case 'DOH_PAIR_JOBS':
+    case 'DOH_UNPAIR_JOBS': {
+      // BOTH SIDES, L29598: "the `linked_job_ref` on each Job". Written
+      // through one expression so a future edit cannot update one side and
+      // forget the other.
+      const ref = command.type === 'DOH_PAIR_JOBS' ? command.pairedJobId : null
+      const paired = withJob(state, tenant, command.jobId, (j) => ({ ...j, linkedJobRef: ref }))
+      return withJob(paired, tenant, command.pairedJobId, (j) => ({
+        ...j,
+        linkedJobRef: command.type === 'DOH_PAIR_JOBS' ? command.jobId : null,
+      }))
     }
 
     case 'DOH_SUBMIT_JOB_FOR_APPROVAL':

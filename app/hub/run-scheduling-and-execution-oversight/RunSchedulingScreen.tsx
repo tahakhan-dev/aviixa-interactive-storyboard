@@ -334,7 +334,7 @@ export function RunSchedulingScreen() {
               { key: 'area', header: 'Area' },
               { key: 'start', header: 'Scheduled start' },
               { key: 'position', header: 'Position' },
-              { key: 'open', header: '' },
+              { key: 'open', header: 'Action' },
             ]}
             rows={boardRuns.map((r) => boardRow(r, clock, setSelectedRunId))}
             emptyState={{
@@ -362,7 +362,7 @@ export function RunSchedulingScreen() {
                 { key: 'area', header: 'Area' },
                 { key: 'start', header: 'Scheduled start' },
                 { key: 'position', header: 'Position' },
-                { key: 'open', header: '' },
+                { key: 'open', header: 'Action' },
               ]}
               rows={behindHorizon.map((r) => boardRow(r, clock, setSelectedRunId))}
               emptyState={{
