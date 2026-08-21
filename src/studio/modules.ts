@@ -44,7 +44,7 @@
  */
 import type { RoleId } from '@/domain/roles'
 import type { PermissionOutcome } from '@/policy/decision'
-import GENERATED from '../../registries/generated/stu/module-reach.json'
+import GENERATED from '../../registries/generated/stu/module-reach.json' with { type: 'json' }
 
 export type StudioModuleId =
   | 'MOD-STU-01'

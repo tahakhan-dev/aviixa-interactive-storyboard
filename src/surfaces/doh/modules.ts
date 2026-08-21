@@ -34,7 +34,7 @@
 import { rolesInDomain, type RoleId } from '@/domain/roles'
 import type { PermissionOutcome } from '@/policy/decision'
 import type { TenantRoleId } from '../../../app/hub/HubShell'
-import MODULE_REACH from '../../../registries/generated/doh/module-reach.json'
+import MODULE_REACH from '../../../registries/generated/doh/module-reach.json' with { type: 'json' }
 
 export type DohModuleId =
   | 'MOD-DOH-01'
