@@ -34,6 +34,8 @@ const argOf = (flag, fallback) => {
 }
 const GRAPH = resolve(argOf('--graph', join(ROOT, 'graphify-out', 'graph.json')))
 const SLICES = resolve(argOf('--slices', join(ROOT, '..', 'blueprint-slices')))
+/** How a mapped node names its source: the frozen document, not the staging slice. */
+const SOURCE_NAME = 'AVIIXA_Production_Product_Blueprint.md'
 
 const manifest = JSON.parse(readFileSync(join(SLICES, 'slices.json'), 'utf8'))
 /** slice filename (basename) -> its record. Keyed on basename because a node's
@@ -85,6 +87,23 @@ for (const node of nodes) {
   node.blueprint_line = original
   node.blueprint_locator = `L${original}`
   node.blueprint_slice = slice.file
+
+  /*
+   * REPOINT THE NODE AT THE FROZEN SOURCE, not at the slice it was read from.
+   *
+   * `graphify query` prints whatever is in source_file and source_location, and
+   * before this it printed a staging-directory path and a slice-local line --
+   * `blueprint-slices/ch-2/001292-...md loc=128`. That is unusable as a
+   * citation and worse than unusable as a habit: the whole rule this graph
+   * operates under is CITE THE BLUEPRINT, NEVER THE GRAPH, and the tool was
+   * handing people a derived path to copy.
+   *
+   * Now a query result reads `AVIIXA_Production_Product_Blueprint.md loc=L1419`
+   * and can be opened and read directly. The slice is kept on
+   * `blueprint_slice` for anyone tracing how the node was produced.
+   */
+  node.source_file = SOURCE_NAME
+  node.source_location = `L${original}`
   mapped += 1
 }
 
