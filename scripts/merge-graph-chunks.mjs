@@ -115,6 +115,38 @@ if (NORMALISE && fragments.size > 0) {
 }
 
 /**
+ * CANONICALISE `source_file` AGAINST THE MANIFEST.
+ *
+ * An agent was told to copy its file paths verbatim, reported that it had, and
+ * wrote `ch-8/010230-...-7-6-the-domain-matrices.md` for a file that lives in
+ * `ch-7/`. The section is numbered 7.6 and sits beside chapter 8's slices, so
+ * the mistake is an easy one to make and an easy one to miss: the path still
+ * looks entirely plausible, and every downstream tool that keys on the basename
+ * keeps working. Only a check that opens the file notices.
+ *
+ * Repaired rather than re-run. The manifest already knows where every slice
+ * lives, and a lookup is exact where a re-read is a fresh chance to mistype it.
+ * A basename that the manifest does not recognise is left alone -- that is a
+ * code file or something genuinely outside the blueprint, and rewriting it
+ * would be inventing provenance rather than correcting it.
+ */
+const canonicalPath = new Map(
+  JSON.parse(readFileSync(join(ROOT, '..', 'blueprint-slices', 'slices.json'), 'utf8')).slices.map(
+    (sl) => [sl.file.split('/').pop(), sl.file],
+  ),
+)
+let repairedPaths = 0
+for (const item of [...nodes, ...edges]) {
+  const raw = String(item.source_file ?? '')
+  if (raw === '') continue
+  const canonical = canonicalPath.get(raw.split('/').pop())
+  if (canonical !== undefined && !raw.endsWith(canonical)) {
+    item.source_file = canonical
+    repairedPaths += 1
+  }
+}
+
+/**
  * DROP THE WORKED EXAMPLE, AT THE CHOKE POINT.
  *
  * The blueprint carries a fictional bicycle manufacturer as an `Illustrative
@@ -221,6 +253,7 @@ for (const line of perChunk) console.log(`  ${line}`)
 console.log(`Merged ${chunkFiles.length} chunks: ${deduped.length} nodes, ${edges.length} edges`)
 console.log(`  prefixed duplicates: ${fragments.size}${folded ? ` (folded ${folded})` : ''}`)
 console.log(`  edge source_file repaired: ${repairedEdgeFiles}`)
+console.log(`  source_file paths canonicalised against the manifest: ${repairedPaths}`)
 console.log(`  illustrative-example nodes dropped: ${droppedNodes} (and ${droppedEdges} edges touching them)`)
 console.log(`  same-id duplicates dropped: ${nodes.length - deduped.length}`)
 console.log(`  edges awaiting a chunk not yet merged: ${unresolved}`)
