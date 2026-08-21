@@ -28,7 +28,7 @@
  *
  * Usage:  node scripts/merge-graph-chunks.mjs [--normalise]
  */
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -130,11 +130,14 @@ if (NORMALISE && fragments.size > 0) {
  * code file or something genuinely outside the blueprint, and rewriting it
  * would be inventing provenance rather than correcting it.
  */
-const canonicalPath = new Map(
-  JSON.parse(readFileSync(join(ROOT, '..', 'blueprint-slices', 'slices.json'), 'utf8')).slices.map(
-    (sl) => [sl.file.split('/').pop(), sl.file],
-  ),
-)
+const manifestSlices = JSON.parse(
+  readFileSync(join(ROOT, '..', 'blueprint-slices', 'slices.json'), 'utf8'),
+).slices
+const PREFIXES = JSON.parse(readFileSync(join(ROOT, 'registries', 'blueprint-prefixes.json'), 'utf8'))
+const IDENT_SOURCE = `\\b(?:${[...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes]
+  .sort((a, b) => b.length - a.length)
+  .join('|')})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]\\b`
+const canonicalPath = new Map(manifestSlices.map((sl) => [sl.file.split('/').pop(), sl.file]))
 let repairedPaths = 0
 for (const item of [...nodes, ...edges]) {
   const raw = String(item.source_file ?? '')
@@ -240,6 +243,43 @@ for (const n of nodes) {
 const ids = new Set(deduped.map((n) => n.id))
 const unresolved = edges.filter((e) => !ids.has(e.source) || !ids.has(e.target)).length
 
+/**
+ * EVERY SLICE MUST BE REPRESENTED SOMEWHERE.
+ *
+ * An agent reported "238/238 = 100%" for a nine-file batch and had never opened
+ * four of them. Its ratio was true and useless: it measured the identifiers in
+ * the five files it read against the nodes it made from those five files. A
+ * self-measurement cannot see the file it never looked at.
+ *
+ * Coverage per chunk cannot catch this either -- a chunk that reads five of
+ * nine slices well scores well. Only the whole merge knows the full set of
+ * slices that were supposed to be read, so the check belongs here, once, at the
+ * end, against the manifest rather than against anybody's report.
+ *
+ * Short slices are the ones that go missing -- the four skipped were 10, 24, 40
+ * and 16 lines. A slice with no identifiers in it is exempt, because there is
+ * nothing for it to contribute and demanding a node would invent one.
+ */
+const representedSlices = new Set(
+  nodes.map((n) => String(n.source_file ?? '').split('/').pop()).filter(Boolean),
+)
+const IDENT_ANY = new RegExp(IDENT_SOURCE, 'g')
+const unreadSlices = []
+for (const sl of manifestSlices) {
+  const name = sl.file.split('/').pop()
+  if (representedSlices.has(name)) continue
+  const abs = join(ROOT, '..', 'blueprint-slices', sl.file.split('/').slice(-2)[0], name)
+  if (!existsSync(abs)) continue
+  IDENT_ANY.lastIndex = 0
+  if (IDENT_ANY.test(readFileSync(abs, 'utf8'))) unreadSlices.push(name)
+}
+if (unreadSlices.length > 0) {
+  for (const n of unreadSlices.slice(0, 12)) console.error(`  unread: ${n}`)
+  console.error(
+    `  ${unreadSlices.length} slice(s) carry identifiers and contributed no node to any chunk.`,
+  )
+}
+
 writeFileSync(
   join(OUT, '.graphify_semantic.json'),
   JSON.stringify({ nodes: deduped, edges, hyperedges, input_tokens: 0, output_tokens: 0 }, null, 1) +
@@ -257,3 +297,4 @@ console.log(`  source_file paths canonicalised against the manifest: ${repairedP
 console.log(`  illustrative-example nodes dropped: ${droppedNodes} (and ${droppedEdges} edges touching them)`)
 console.log(`  same-id duplicates dropped: ${nodes.length - deduped.length}`)
 console.log(`  edges awaiting a chunk not yet merged: ${unresolved}`)
+console.log(`  slices carrying identifiers that no chunk read: ${unreadSlices.length}`)
