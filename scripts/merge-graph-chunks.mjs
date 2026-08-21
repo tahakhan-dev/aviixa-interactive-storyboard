@@ -134,9 +134,10 @@ const manifestSlices = JSON.parse(
   readFileSync(join(ROOT, '..', 'blueprint-slices', 'slices.json'), 'utf8'),
 ).slices
 const PREFIXES = JSON.parse(readFileSync(join(ROOT, 'registries', 'blueprint-prefixes.json'), 'utf8'))
-const IDENT_SOURCE = `\\b(?:${[...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes]
-  .sort((a, b) => b.length - a.length)
-  .join('|')})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]\\b`
+const IDENT_SOURCE =
+  `${PREFIXES.matching.leadingGuard}(?:${[...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes]
+    .sort((a, b) => b.length - a.length)
+    .join('|')})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]${PREFIXES.matching.trailing}`
 const canonicalPath = new Map(manifestSlices.map((sl) => [sl.file.split('/').pop(), sl.file]))
 let repairedPaths = 0
 for (const item of [...nodes, ...edges]) {

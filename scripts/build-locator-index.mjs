@@ -62,7 +62,9 @@ const PREFIXES = JSON.parse(readFileSync(join(ROOT, 'registries', 'blueprint-pre
 const ALT = [...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes]
   .sort((a, b) => b.length - a.length)
   .join('|')
-const IDENT = new RegExp(`\\b((?:${ALT})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9])\\b`)
+const IDENT = new RegExp(
+  `${PREFIXES.matching.leadingGuard}((?:${ALT})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9])${PREFIXES.matching.trailing}`,
+)
 
 const graph = JSON.parse(readFileSync(GRAPH, 'utf8'))
 

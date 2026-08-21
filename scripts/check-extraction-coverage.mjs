@@ -52,7 +52,10 @@ const ALT = [...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes
 // so the first version of this line compiled to a regex that matched nothing and
 // the whole check reported success over an empty set. The guard below exists
 // because that failure printed 'All 0 chunk(s) at or above the floor'.
-const IDENT = new RegExp(`\\b(?:${ALT})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]\\b`, 'g')
+const IDENT = new RegExp(
+  `${PREFIXES.matching.leadingGuard}(?:${ALT})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]${PREFIXES.matching.trailing}`,
+  'g',
+)
 const ILLUSTRATIVE = new RegExp(`^(?:${PREFIXES.illustrative.prefixes.join('|')})-`)
 
 const chunks = readdirSync(OUT).filter((f) => /^\.graphify_chunk_\d+\.json$/.test(f)).sort()

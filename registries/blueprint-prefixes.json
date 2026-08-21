@@ -1,18 +1,38 @@
 {
- "note": "The blueprint's identifier prefixes, taken from Appendix A -- Complete Identifier Registry by Prefix, which the document names its allocation authority and which states that an identifier outside it is a defect. Single source of truth: four separate tools were each carrying their own hand-written copy of this list, and every one of them was missing nine registered prefixes, so every coverage figure they produced was optimistic. Derived once, read everywhere.",
+ "note": "The blueprint's identifier prefixes. `registered` is Appendix A -- Complete Identifier Registry by Prefix, which the document names its allocation authority and which states that an identifier outside it is a defect. The other three lists exist because the document does not obey its own appendix, and a graph that indexed only the appendix would miss 390 real identifiers.",
  "source": { "appendix": "A", "lines": "118812-118880" },
+
+ "matching": {
+  "note": "A leading guard of (?<![A-Z0-9-]) is REQUIRED when building a regex from these. Without it `\\bAI-` matches inside `FAIL-AI-01` and invents an identifier `AI-01` that exists nowhere -- 60 phantoms in one chapter, which made a correct extraction measure as 74%. The same shape read `DEC-ROLE-001` as a `ROLE-001`. Alternation must also be longest-first so `SCHED` cannot claim `SCHEDRUN-001`.",
+  "leadingGuard": "(?<![A-Z0-9-])",
+  "trailing": "\\b"
+ },
+
  "registered": [
   "AC", "AI", "AUD", "CMD", "DEC", "EVT", "FB", "FEAT", "FUNC", "GRANT",
   "IDENT", "INT", "MOD", "NOTIF", "OBJ", "OFF", "PER", "REQ", "RISK",
   "ROLE-PLAT", "ROLE-TEN", "SB", "SCHED", "SCHEDRUN", "SCR", "SEQ",
   "STATE", "SUB", "SURF", "TEST", "UC", "WF"
  ],
+
  "unregisteredButPresent": {
-  "note": "Present in the document with no Appendix A row. Appendix A calls that a defect in the document, not in this graph, so they are indexed rather than discarded -- dropping real content to satisfy a registry would be deciding a source question by omission.",
-  "prefixes": ["ASSUM"]
+  "note": "Substantive product content with no Appendix A row -- failure modes, training records, matrices, validation rules, non-goals, alerts, single points of failure, exclusions, AI modes, diagrams, dashboards, delegations, emergency paths. Appendix A calls their absence a defect in the DOCUMENT; dropping real content to make a registry look tidy would be deciding a source question by omission. 388 of these 390 identifiers were captured by extraction agents unprompted, which is a fair sign they read as real to a careful reader too.",
+  "prefixes": [
+   "ASSUM", "FAIL", "TRN", "MTX", "VD", "VAL", "NONGOAL", "DNC", "ALRT",
+   "TC", "SPOF", "EXCL", "AIMODE", "DIA", "DASH", "DELEG", "EMERG", "OPEN"
+  ]
  },
+
  "illustrative": {
-  "note": "The worked example (a fictional bicycle manufacturer). The blueprint marks it `Illustrative Example` and states it creates no requirement; none of these has an Appendix A row, and each was checked for an illustrative heading at first use. Left in, the graph's busiest neighbourhood is a worked example.",
-  "prefixes": ["TAB", "LOT", "RB", "RUN", "JOB", "AREA", "CELL", "SITE"]
+  "note": "The worked example (a fictional bicycle manufacturer). The blueprint marks it `Illustrative Example` and states it creates no requirement. Left in, the graph's busiest neighbourhood is a worked example and a reader asking what the product must do gets answers about a bike shop that does not exist. The ESC/CHK/TCK/BB group all carry the same instance number 4471, which is what identifies them as one example's paperwork rather than four families.",
+  "prefixes": [
+   "TAB", "LOT", "RB", "RUN", "JOB", "AREA", "CELL", "SITE",
+   "DWG", "TEN", "SHIFT", "WB", "BB", "DEV", "ANO", "CHK", "TCK", "ESC", "QH"
+  ]
+ },
+
+ "externalStandards": {
+  "note": "Citations to other people's documents, not identifiers this blueprint allocates. ISA-101, IEC-62264, ISO-TS-9241, ANSI, MIL-STD, ASD-STE100, 21 CFR Part 11, MESA, a Kafka improvement proposal, the EU AI Act, SHA-256, and NIST AI RMF subcategory codes (MS-, MG-, GV-). Counting them as blueprint identifiers would report the graph as missing content it was never meant to hold.",
+  "prefixes": ["ISA", "IEC", "ISO", "ANSI", "MIL", "ASD", "CFR", "MESA", "KIP", "EU", "SHA", "MS", "MG", "GV", "PLAT", "FCA", "CAP", "SEC"]
  }
 }

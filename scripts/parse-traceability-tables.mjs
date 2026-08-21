@@ -48,7 +48,10 @@ const PREFIXES = JSON.parse(readFileSync(join(ROOT, 'registries', 'blueprint-pre
 const ALT = [...PREFIXES.registered, ...PREFIXES.unregisteredButPresent.prefixes]
   .sort((a, b) => b.length - a.length)
   .join('|')
-const IDENT = new RegExp(`\\b(?:${ALT})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]\\b`, 'g')
+const IDENT = new RegExp(
+  `${PREFIXES.matching.leadingGuard}(?:${ALT})-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]${PREFIXES.matching.trailing}`,
+  'g',
+)
 
 /**
  * The worked example (a fictional bicycle manufacturer). The blueprint marks it
