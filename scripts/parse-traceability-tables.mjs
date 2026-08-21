@@ -110,11 +110,12 @@ for (const slice of targets) {
           id: idOf(key),
           label: key,
           type: 'identifier',
+          file_type: 'document',
           source_file: slice.file,
           source_location: `${i + 1}`,
           blueprint_line: blueprintLine,
-          confidence: 1.0,
-          provenance: 'EXTRACTED',
+          confidence: 'EXTRACTED',
+          confidence_score: 1.0,
         })
       }
       for (let c = 0; c < cells.length; c += 1) {
@@ -125,7 +126,8 @@ for (const slice of targets) {
             nodes.set(other, {
               id: idOf(other), label: other, type: 'identifier',
               source_file: slice.file, source_location: `${i + 1}`,
-              blueprint_line: blueprintLine, confidence: 1.0, provenance: 'EXTRACTED',
+              blueprint_line: blueprintLine, confidence: 'EXTRACTED', confidence_score: 1.0,
+              file_type: 'document',
             })
           }
           edges.push({
@@ -135,8 +137,8 @@ for (const slice of targets) {
             // decorative falls back to a named-but-honest default rather than
             // inventing a verb the table does not use.
             relation: (headers[c] ?? '').replace(/`/g, '').trim() || 'traced_to',
-            confidence: 1.0,
-            provenance: 'EXTRACTED',
+            confidence: 'EXTRACTED',
+            confidence_score: 1.0,
             source_file: slice.file,
             source_location: `${i + 1}`,
             blueprint_line: blueprintLine,

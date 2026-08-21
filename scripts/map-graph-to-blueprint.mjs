@@ -127,6 +127,25 @@ for (const node of nodes) {
  */
 const unmappable = unknownSlice.length + outOfRange.length
 const RATE_CEILING = 0.005
+/*
+ * EDGES CARRY A PATH TOO, and the report prints it. Repointed the same way and
+ * for the same reason as nodes: a "Surprising Connections" entry that names a
+ * staging-directory slice is not something a reader can open.
+ */
+let edgesRepointed = 0
+for (const edge of graph.edges ?? graph.links ?? []) {
+  const slice = byName.get(basename(String(edge.source_file ?? '')))
+  if (slice === undefined) continue
+  const m = String(edge.source_location ?? '').match(/(\d+)(?!.*\d)/)
+  if (m === null) continue
+  const original = slice.startLine + Number(m[1]) - 1
+  if (original > slice.endLine) continue
+  edge.blueprint_line = original
+  edge.source_file = SOURCE_NAME
+  edge.source_location = `L${original}`
+  edgesRepointed += 1
+}
+
 if (unmappable > 0) {
   for (const line of [...unknownSlice, ...outOfRange].slice(0, 20)) console.error(`  dropped: ${line}`)
 }
@@ -144,4 +163,5 @@ writeFileSync(GRAPH, JSON.stringify(graph, null, 1) + '\n')
 console.log(`Mapped ${mapped} blueprint locations to frozen-source lines.`)
 console.log(`  ${notBlueprint} nodes are not from the blueprint (code, or unsourced).`)
 console.log(`  every mapped line verified inside its slice's declared range.`)
+console.log(`  ${edgesRepointed} edge(s) repointed at the frozen source.`)
 console.log(`  ${unmappable} location(s) dropped as unmappable — those nodes carry no citable line.`)
