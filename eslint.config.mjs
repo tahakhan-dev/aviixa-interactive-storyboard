@@ -24,6 +24,13 @@ export default tseslint.config(
       'out/**',
       '.next/**',
       'node_modules/**',
+      // The knowledge-graph output. It is NOT dot-prefixed, so unlike the probe
+      // convention above it does not get `tsc`'s free pass on `.`-segments --
+      // `tsconfig.json`'s `include` is an unanchored `**/*.ts`, so the exclude
+      // there is what stops a stray `.ts` here entering `pnpm typecheck`. This
+      // entry stops `eslint .` walking it at all rather than relying on no
+      // config block happening to match `.html`/`.json`/`.md`.
+      'graphify-out/**',
       '**/.zz-probe-*[0-9]/**',
       '**/.zz-probe-*[0-9].json',
     ],

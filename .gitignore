@@ -11,3 +11,4 @@ artifacts/evidence/*/raw/
 next-env.d.ts
 *.tsbuildinfo
 .zz-probe-*
+graphify-out/
