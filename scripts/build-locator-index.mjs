@@ -32,7 +32,17 @@ import { fileURLToPath } from 'node:url'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const SOURCE = resolve(ROOT, '..', 'AVIIXA_Production_Product_Blueprint.md')
 const GRAPH = join(ROOT, 'graphify-out', 'graph.json')
-const OUT = join(ROOT, 'registries', 'blueprint-locators.json')
+/*
+ * `--out` exists so the automatic updater can rebuild this index to a scratch
+ * path and COMPARE it, rather than overwrite the committed one. The committed
+ * file is the subject of a release gate; a hook that rewrites it silently would
+ * mean the gate's subject changes without anyone deciding it should.
+ */
+const outFlag = process.argv.indexOf('--out')
+const OUT =
+  outFlag === -1
+    ? join(ROOT, 'registries', 'blueprint-locators.json')
+    : resolve(process.argv[outFlag + 1] ?? '')
 
 const EXPECTED_SHA = '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27'
 

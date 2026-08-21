@@ -94,10 +94,32 @@ permission row at L32637 sits within `20.2.7 MOD-STU-07`, which opens at L32574.
 correct and the gate allows it. Five accurate citations were nearly "corrected" into
 inaccurate ones before this was understood.
 
-Rebuild after a slice lands: `graphify update .` re-extracts changed code with no LLM cost.
-The blueprint half never needs rebuilding — the source is frozen. If the graph is rebuilt,
-re-run `node scripts/map-graph-to-blueprint.mjs` then `node scripts/build-locator-index.mjs`;
-the gate is not part of that chain and must never rebuild its own subject.
+### Keeping it current — automatic, and one command you must not run
+
+A Claude Code `Stop` hook runs `scripts/graph-update.mjs` at the end of every turn. It exits in
+~0.4s when no code changed, takes ~25s when it did, and reports the exact delta: files
+re-extracted, nodes and edges before and after, blueprint locations re-mapped, whether the
+committed locator index drifted, and how many of its ten integrity invariants hold. It backs
+the graph up first and restores it if the rebuild fails or the result violates an invariant.
+
+**Do not run `graphify update .` on this project**, and ignore any advice that says to — the
+line above used to. It rebuilds from the CODE corpus alone and writes that as the whole graph:
+run once, it replaced 29,498 nodes with 6,849 and discarded every blueprint node, reporting
+success. The docstring says unchanged nodes are preserved. They were not.
+
+    node scripts/graph-update.mjs            # update if anything changed
+    node scripts/graph-update.mjs --check    # report staleness, change nothing
+    node scripts/verify-graph-integrity.mjs  # the ten invariants, ~0.4s
+
+`verify-graph-integrity.mjs` is what makes "the graph is fine" a checkable claim rather than an
+exit code: the blueprint sha256 unchanged, no collapse, blueprint nodes citing the frozen
+source, no half-mapped node, no prefixed-duplicate ids, **no identifier in the graph or the
+index that the source does not contain**, no placeholder community labels, and every
+identifier-bearing slice read. A planted `AC-GHOST-999` walks past a check that only inspects
+the index, because the index lists only what it found in the source — so the graph is asked
+too.
+
+The blueprint half never needs rebuilding — the source is frozen.
 
 ## 3. Client authority — `docs/process/ledgers/approval-ledger.json`
 

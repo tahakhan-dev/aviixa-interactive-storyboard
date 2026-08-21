@@ -268,11 +268,26 @@ const unresolved = edges.filter((e) => !ids.has(e.source) || !ids.has(e.target))
  */
 const sourceText = readFileSync(join(ROOT, '..', 'AVIIXA_Production_Product_Blueprint.md'), 'utf8')
 const IDENT_LABEL = new RegExp(`^(${IDENT_SOURCE.replace(PREFIXES.matching.leadingGuard, '')})`)
+
+/*
+ * ONE PASS OVER THE SOURCE, THEN SET MEMBERSHIP.
+ *
+ * This was `sourceText.includes(identifier)` per node: 29,775 nodes each
+ * scanning an 18MB string, roughly a TERABYTE of work, and it made the merge
+ * take 53 seconds. Exactly the shape already fixed in the citation gate, left
+ * here because a merge that is merely slow still produces the right answer --
+ * which is how a quadratic scan survives review.
+ */
+const inSource = new Set()
+const SOURCE_SCAN = new RegExp(IDENT_SOURCE, 'g')
+for (let m = SOURCE_SCAN.exec(sourceText); m !== null; m = SOURCE_SCAN.exec(sourceText)) {
+  inSource.add(m[0])
+}
 const fabricated = new Set()
 for (const n of deduped) {
   const m = IDENT_LABEL.exec(String(n.label ?? '').trim())
   if (m === null) continue
-  if (!sourceText.includes(m[1])) fabricated.add(n.id)
+  if (!inSource.has(m[1])) fabricated.add(n.id)
 }
 if (fabricated.size > 0) {
   for (const id of [...fabricated].slice(0, 15)) console.error(`  fabricated identifier dropped: ${id}`)
