@@ -24,7 +24,9 @@ import { join } from 'node:path'
  *     ellipsis range                1   a horizontal-ellipsis separator
  *     slash pair                    4   two citations, NOT a range
  *
- * 6,511 citations, in 244 of the 434 files scanned, of which 294 are ranges.
+ * 11,899 citations, in 262 files scanned. RE-DERIVED, never carried: the
+ * figures in this comment were stale by 5,388 citations for two days because
+ * they were copied forward from the run that first wrote them.
  *
  * So the lexer scans for the STRUCTURE, not one spelling: a separator class of
  * hyphen / en dash / em dash / ellipsis, an optional second `L`, optional
@@ -43,10 +45,10 @@ import { join } from 'node:path'
  * These are NOT the same claim and this file never lets one pass for the
  * other. Every count is asserted separately below, and the split is printed:
  *
- *     strong, verbatim quotation      408
- *     strong, identifier anchor     1,153
- *     anchored but unproven (weak)     41
- *     weak, plausibility only       4,950
+ *     strong, verbatim quotation      744
+ *     strong, identifier anchor     1,806
+ *     anchored but unproven (weak)    100
+ *     weak, plausibility only       9,349
  *
  * WEAK. A bare line number with no quotation and no identifier beside it
  * carries no checkable content — nothing says WHAT that line is supposed to
@@ -1246,15 +1248,60 @@ describe('locator fidelity: the scan is not vacuous', () => {
     }
   })
 
-  it('lexes the thousands of citations this tree is known to carry', () => {
-    expect(citations.length).toBeGreaterThan(5_000)
+  /**
+   * THE RATCHET, and why the three floors it replaced were not one.
+   *
+   * They read `> 5_000` citations, `> 250` strong-by-quotation and `> 1_000`
+   * anchored. Measured against the tree they guard, strong-by-quotation could
+   * have fallen from 744 to 251 -- two thirds of the only bucket that proves
+   * anything -- and every one of them would have stayed green. A floor set far
+   * below the truth is a number that cannot fail, which is this build's most
+   * repeated defect wearing its most respectable disguise.
+   *
+   * Baseline measured 2026-08-21. When a bucket genuinely grows, raise the
+   * baseline in the same commit that grows it -- that is the ratchet, and it
+   * is deliberately a little annoying, because the alternative is a guard that
+   * quietly stops guarding.
+   *
+   * EROSION_BAND exists for real churn: rewording a comment can move one
+   * citation between buckets without anything being wrong.
+   *
+   * It was two per cent until it was tested. At two per cent -- fifteen
+   * quotations -- stripping the quotations from SEVEN module files fitted
+   * inside the band and the gate stayed green. That is a real regression a
+   * guard slept through, so the band is half a per cent: four quotations,
+   * enough for incidental rewording and not enough for a file. Measured
+   * rather than chosen: at 0.5% the seven-file strip reds and the tree passes.
+   *
+   * A band wide enough to hide a regression is the floor problem again with a
+   * friendlier name, and the only way to find out which one you have is to
+   * plant the regression you are trying to catch.
+   */
+  const BASELINE = {
+    citations: 11_899,
+    strongByQuote: 744,
+    anchored: 1_806,
+    unproven: 100,
+    weak: 9_349,
+  } as const
+  const EROSION_BAND = 0.005
+  const atLeast = (n: number): number => Math.floor(n * (1 - EROSION_BAND))
+
+  it('carries at least the citations it carried when the baseline was measured', () => {
+    expect(
+      citations.length,
+      `citations fell below the ${BASELINE.citations} baseline; raise it deliberately or explain the loss`,
+    ).toBeGreaterThanOrEqual(atLeast(BASELINE.citations))
   })
 
   it('binds a verbatim quotation to a meaningful number of them', () => {
     // The strong bucket is the only one that proves anything. If a future edit
     // narrows the binding rules until it empties, this gate becomes the weak
     // check wearing the strong check's name, and that must be a failure.
-    expect(strongByQuote.length).toBeGreaterThan(250)
+    expect(
+      strongByQuote.length,
+      `strong-by-quotation fell below the ${BASELINE.strongByQuote} baseline`,
+    ).toBeGreaterThanOrEqual(atLeast(BASELINE.strongByQuote))
   })
 
   it('binds the loose, absence-only quotations to real citations in this tree', () => {
@@ -1312,7 +1359,26 @@ describe('locator fidelity: the scan is not vacuous', () => {
     // Same guard as the quotation floor, for the same reason: narrowing the
     // anchor rules until the bucket empties would turn this into the weak
     // check wearing the strong check's name.
-    expect(anchoredAll.length).toBeGreaterThan(1_000)
+    expect(
+      anchoredAll.length,
+      `identifier-anchored fell below the ${BASELINE.anchored} baseline`,
+    ).toBeGreaterThanOrEqual(atLeast(BASELINE.anchored))
+  })
+
+  /**
+   * The ratio, guarded separately from the counts, because they can fail
+   * apart. Adding two thousand weak citations while the strong buckets hold
+   * passes every count above and still leaves the tree's evidence thinner than
+   * it was -- the counts measure the numerator, this measures the claim.
+   */
+  it('does not let the proven share of its citations erode', () => {
+    const strong = strongByQuote.length + anchoredAll.length
+    const baselineRatio = (BASELINE.strongByQuote + BASELINE.anchored) / BASELINE.citations
+    expect(
+      strong / citations.length,
+      `the proven share fell below its ${(baselineRatio * 100).toFixed(1)}% baseline: ` +
+        `${strong} of ${citations.length}`,
+    ).toBeGreaterThanOrEqual(baselineRatio - 0.01)
   })
 
   it('reports the strong, weak and unproven split rather than averaging it', () => {
