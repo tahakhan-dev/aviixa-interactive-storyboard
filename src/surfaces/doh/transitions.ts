@@ -35,9 +35,10 @@
  * the platform's only actorless transition — L27933 and L7078 — while
  * L27868, also `SoW Fact`, gives two more. That contradiction is real, it is
  * not this task's to settle, and it is disclosed at
- * `CONTRADICTION_AUTOMATIC_TRANSITION_COUNT` rather than resolved by picking
- * whichever count made the code tidier. The COUNT is unchanged from wave 0's
- * reading; one of its two locators was wrong and is corrected there.
+ * `CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED`
+ * (`./modules/doh-06/matrix.ts`, in `RUN_CONTRADICTIONS`) rather than resolved
+ * by picking whichever count made the code tidier. The COUNT is unchanged from
+ * wave 0's reading; one of its two locators was wrong and is corrected there.
  *
  * ── NO ACTOR ───────────────────────────────────────────────────────────────
  * Every other write in this build carries an actor and an audit line naming
@@ -555,49 +556,30 @@ export const BRIEFED_TIMER_ROWS = [
 ] as const satisfies readonly TimerRowReading[]
 
 /**
- * The source contradicts itself about how many actorless transitions exist,
- * and both sides are marked `SoW Fact`. Preserved, not resolved.
+ * THE COUNT CONTRADICTION IS RECORDED ONCE, AND NOT HERE.
  *
- * ONE LOCATOR CORRECTED, THE CLAIM UNTOUCHED. Wave 0 cited the `SoW Fact`
- * side as L27854 and L7078. L7078 is tagged and stands. **L27854 is not
- * tagged at all** — it is §19.8's untagged "In simple words" paragraph,
- * which states the claim in plain words and carries no classification. The
- * `SoW Fact`-tagged restatement inside §19.8 is L27933, step 10 of the happy
- * path. `MOD-DOH-06` measured this against the frozen source
- * (`src/surfaces/doh/modules/doh-06/matrix.ts`,
- * `CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED`) and this record now
- * cites the same pair. Nothing about the CONTRADICTION changes: the source
- * still asserts exactly one actorless transition, twice and tagged, and
- * L27868 still gives two more.
+ * This file used to carry `CONTRADICTION_AUTOMATIC_TRANSITION_COUNT`: the
+ * source asserts, twice and tagged `SoW Fact` (L27933, L7078), that auto-close
+ * is the platform's only actorless transition, while L27868 — also `SoW Fact` —
+ * gives an alert at +15 and a cancellation at +30 with no actor in either
+ * sentence. The contradiction is real and stands; the RECORD of it was a
+ * duplicate.
  *
- * L27933 — "This is **the one automatic transition on the platform** — a
- * data-integrity rule, not a status change." `[SoW Fact — §2.4, §4.6.8]`
+ * WHY IT WAS DELETED RATHER THAN MOUNTED. `MOD-DOH-06` re-measured wave 0's
+ * citation against the frozen source, found one of its two locators wrong
+ * (L27854 is §19.8's untagged "In simple words" paragraph, not the tagged
+ * restatement — that is L27933), and raised the corrected record as
+ * `CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED` in
+ * `./modules/doh-06/matrix.ts`. That record carries the same id
+ * (`CONTRADICTION-AUTOCLOSE-ONLY`), sits in `RUN_CONTRADICTIONS`, is asserted
+ * by `tests/unit/doh-run.test.ts` and `tests/component/doh-run.test.tsx`, and
+ * RENDERS on `out/hub/run-scheduling-and-execution-oversight/index.html`.
  *
- * L7078 — "The finish window elapses and the run auto-close scheduler
- * finishes the record. This is the platform's one automatic transition".
- * `[SoW Fact — §2.4, §8.7.1]`
- *
- * L27854 says the same thing in plain words and is kept out of
- * `claimLocators` for the one reason that matters: a locator in that list is
- * offered as a tagged source claim, and that line is not one.
- *
- * Against L27868, which gives an alert at +15 and a cancellation at +30 with
- * no actor anywhere in the sentence. The +30 auto-cancel is unambiguously a
- * state change nobody decides, so the "one automatic transition" claim
- * cannot be literally true as written.
- *
- * This build implements what L27868 and L27880 SPECIFY and records the count
- * claim as contradicted, because the alternative — implementing the count —
- * means deleting a cancellation rule the source states in two places, or
- * inventing an actor for it. There is no third reading in which the counts
- * agree, and no card exists for this one: it is raised here.
+ * The record here had no reader at all — no screen, no test, no other module —
+ * and its text differed from the corrected one, so it could never satisfy the
+ * "every recorded contradiction renders somewhere" gate without putting two
+ * spellings of one contradiction on the page. Slice 6's post-verification pass
+ * widened that gate to every disclosure register in the surface and this is
+ * what it found: a second false-comfort record, superseded a wave earlier and
+ * never removed. One contradiction, one record, and it is the one that renders.
  */
-export const CONTRADICTION_AUTOMATIC_TRANSITION_COUNT = {
-  id: 'CONTRADICTION-AUTOCLOSE-ONLY',
-  claim: "This is the platform's one automatic transition.",
-  claimLocators: ['L27933', 'L7078'],
-  against:
-    'L27868 gives a supervisor alert at plus 15 minutes and an auto-cancellation at plus 30 minutes, neither of which any person decides.',
-  againstLocators: ['L27868', 'L7072'],
-  resolved: false,
-} as const

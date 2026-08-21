@@ -133,6 +133,19 @@ const AUDITED = {
       'compares against. Contrast registry-freshness, which compared committed artefacts to ' +
       'freshly generated ones and could only ever compare a directory to itself.',
   },
+  'citation-graph.test.ts': {
+    subject:
+      'registries/blueprint-locators.json (committed) and the frozen blueprint, plus ' +
+      'identifier-anchored citations under src/, app/, tests/ and scripts/',
+    rewrittenBy: null,
+    verdict:
+      'NOT VACUOUS. Neither subject is written by any verify step. `build:registries` writes ' +
+      'registries/generated/, a different directory; the blueprint is frozen and its sha256 is ' +
+      'asserted here. The locator index is regenerated only by an explicit ' +
+      '`node scripts/build-locator-index.mjs`, which requires the local knowledge graph and is ' +
+      'deliberately NOT part of verify -- a gate that rebuilt its own subject is exactly the ' +
+      'defect registry-freshness was repaired for.',
+  },
   'slice-2b-gates.test.ts': {
     subject: 'authored sources under src/ and app/',
     rewrittenBy: null,

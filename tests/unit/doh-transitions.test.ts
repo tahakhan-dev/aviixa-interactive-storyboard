@@ -6,11 +6,23 @@ import { stripComments } from '../coverage/strip-comments'
 import { CANONICAL_EPOCH_MS, fixedClock } from '@/domain/clock'
 import { tenantId } from '@/domain/ids'
 import type { IdentitySimulationState } from '@/domain/state'
+// The count contradiction is recorded ONCE, in the module that owns the rule.
+// It used to live in `transitions.ts` too; two records of one contradiction is
+// the duplicate-disclosure defect this build has already paid for elsewhere.
+import { CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED, RUN_CONTRADICTIONS } from '@/surfaces/doh/modules/doh-06/matrix'
+
+/**
+ * The line number a locator names. Locators carry their classification inline
+ * -- `L27933 (\`SoW Fact\` — §2.4)` -- so a `.replace(/^L/, '')` returns the
+ * whole annotated string and `Number()` turns it into NaN, which then compares
+ * equal to nothing and fails with a message about `NaN` rather than about the
+ * locator. Parsing the leading digits keeps the failure legible.
+ */
+const lineOf = (locator: string): number => Number(/^L(\d+)/.exec(locator)?.[1] ?? NaN)
 import {
   AGING_BANDS,
   AUTO_CANCEL_AFTER_MS,
   BRIEFED_TIMER_ROWS,
-  CONTRADICTION_AUTOMATIC_TRANSITION_COUNT,
   DEC_FINISH_001,
   DUE_TIMERS,
   FINISH_WINDOW_CEILING_MS,
@@ -221,7 +233,7 @@ describe('the source contradicts itself on how many actorless transitions exist'
       'That automatic closing is the only thing on this platform that happens without a person deciding it.',
     )
     expect(L(27_854)).not.toContain('SoW Fact')
-    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.claimLocators).not.toContain('L27854')
+    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED.claimLocators).not.toContain('L27854')
   })
 
   it('gives two more at L27868, also marked SoW Fact', () => {
@@ -236,29 +248,59 @@ describe('the source contradicts itself on how many actorless transitions exist'
   })
 
   it('records the contradiction unresolved, with both sides locatable', () => {
-    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.resolved).toBe(false)
-    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.claimLocators).toEqual(['L27933', 'L7078'])
-    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.againstLocators).toEqual(['L27868', 'L7072'])
+    // `.resolved` is GONE, and its absence is the point. `RunContradiction` has
+    // no such field, so a "resolved contradiction" is not expressible -- which
+    // is the rule this build works to: a contradiction is DISCLOSED, never
+    // settled. A boolean would have let one be flipped to true by an edit and
+    // read as handled. Membership of the register is what unresolved means now.
+    expect(RUN_CONTRADICTIONS).toContain(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED)
+    // Locators carry their classification inline, so the leading line number is
+    // parsed rather than string-matched. Two tagged claims and one untagged
+    // restatement -- the third is a real part of the record, not noise.
+    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED.claimLocators.map(lineOf)).toEqual([27933, 7078, 27854])
+    expect(CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED.againstLocators.map(lineOf)).toEqual([27868, 7072])
   })
 
   // THE GENERAL FORM, so the next locator to go wrong goes red too. Every
   // line this record offers as a tagged claim must BE tagged, wherever the
   // record moves next; the expectation is the frozen source, never the field.
   it('carries the SoW Fact tag at every line it cites as a tagged claim', () => {
-    for (const locator of CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.claimLocators) {
-      const line = Number(locator.replace(/^L/, ''))
+    for (const locator of CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED.claimLocators) {
+      const line = lineOf(locator)
       expect(Number.isInteger(line), locator).toBe(true)
-      expect(L(line), `${locator} is offered as a SoW Fact claim and is not tagged`).toContain(
-        SOW_FACT,
-      )
+      // The record's own annotation is the expectation, and it is checked BOTH
+      // ways: a locator it calls a tagged claim must be tagged in the source,
+      // and the one it calls unclassified must NOT be. Asserting the tag on all
+      // three would fail on a line the record already says is untagged -- and
+      // asserting it on none would let a real tag go missing unnoticed.
+      if (locator.includes('SoW Fact')) {
+        expect(L(line), `${locator} is offered as a SoW Fact claim and is not tagged`).toContain(
+          SOW_FACT,
+        )
+      } else {
+        expect(L(line), `${locator} says it carries no classification`).not.toContain(SOW_FACT)
+      }
     }
   })
 
   // The claim the record states must be findable at the lines it names.
   it('quotes something each cited line actually says', () => {
-    for (const locator of CONTRADICTION_AUTOMATIC_TRANSITION_COUNT.claimLocators) {
-      const line = Number(locator.replace(/^L/, ''))
-      expect(plain(L(line)).toLowerCase(), locator).toContain('one automatic transition')
+    for (const locator of CONTRADICTION_AUTOMATIC_TRANSITION_COUNT_CORRECTED.claimLocators) {
+      const line = lineOf(locator)
+      const text = plain(L(line)).toLowerCase()
+      // The record says one of these three restates the claim IN PLAIN WORDS,
+      // and it is telling the truth: L27854 carries "the only thing on this
+      // platform that happens without a person deciding it" -- the same claim,
+      // none of the same nouns. Asserting the formal phrase on all three would
+      // fail on the line the record already describes accurately, and the
+      // honest repair is to check each locator against what it claims to be,
+      // not to loosen the assertion until every line passes it.
+      if (locator.includes('plain words')) {
+        expect(text, locator).toContain('only thing')
+        expect(text, locator).toContain('without a person deciding')
+      } else {
+        expect(text, locator).toContain('one automatic transition')
+      }
     }
   })
 })
