@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { scannableRoutes } from '../e2e/exported-routes'
+import { ALLOWED_INCOMPLETE_ANYWHERE, WCAG_TAGS } from './axe-policy'
 
 // C1: this list used to be WRITTEN BY HAND, and its own comment claimed it
 // was "every route in the 25-page export (24 distinct paths)". It was last
@@ -43,19 +44,13 @@ test('the scanned route list is derived from the export, and is not a stub', () 
  * per-route exception existing — it is what catches a regression, not the
  * exception list.
  *
- * `color-contrast` is allowed EVERYWHERE, and this is the stated ceiling:
- * axe declines to compute a ratio for an element whose content is only
- * non-text characters (every `StatusPill` glyph is an `aria-hidden` `●`,
- * which is decorative by construction — the pill's meaning is in its
- * required sibling label) and for a text box it judges partly obscured by
- * or overlapping a neighbour. What backs the allowance is that the ratios
- * are computed NUMERICALLY elsewhere rather than assumed: the six status
- * tones are measured on the darkest surface they render on by
- * `tests/unit/token-contrast.test.ts`, and the ink tokens run 5.57:1
- * (`--color-ink-subtle` on `--color-surface-sunken`) to 17.85:1. The
- * ceiling that remains: a FUTURE colour pair that axe also declines to
- * compute would be allowed here too, and only the token measurement would
- * catch it.
+ * The allowance itself — `color-contrast`, and what backs it — is stated
+ * once, in `./axe-policy`, and imported by this file and by
+ * `axe-states.spec.ts` alike. It was written out twice for about an hour,
+ * which is how an exception list grows in one copy and not the other: the
+ * driven-state harness would have started allowing a rule this file still
+ * failed on, or the reverse, and the first anyone would know is a route
+ * passing in one harness and not the other.
  *
  * Everything else must be gone from the incomplete bucket or the route
  * goes red — including, as of this build, `aria-prohibited-attr` on
@@ -74,14 +69,10 @@ test('the scanned route list is derived from the export, and is not a stub', () 
  * where a prohibited ARIA attribute — or anything else undecided — shows
  * up unexplained, this one included.
  */
-const ALLOWED_INCOMPLETE_ANYWHERE: readonly string[] = ['color-contrast']
-
 for (const path of PATHS) {
   test(`${path} has no WCAG 2.2 A or AA violation`, async ({ page }) => {
     await page.goto(path)
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-      .analyze()
+    const results = await new AxeBuilder({ page }).withTags([...WCAG_TAGS]).analyze()
     expect(results.violations).toEqual([])
 
     // The undecided bucket. Unconditional: no route gets a pass here
