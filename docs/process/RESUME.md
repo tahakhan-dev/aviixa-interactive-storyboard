@@ -57,13 +57,47 @@ verify, not evidence**. Open the line it names and read it.
 the real line in the frozen source. That is what belongs in a comment or a test. A citation
 of a graph node is a citation of a guess about the source.
 
-**Its coverage is partial and its edges are labelled.** Every edge is tagged `EXTRACTED`
-(read from the source) or `INFERRED` (resolved), and an `INFERRED` edge is the graph's
-opinion. Star re-exports through a barrel do not resolve, so "who uses X" is incomplete for
-anything exported via `src/ui/primitives/index.ts`.
+**What it covers, measured rather than claimed.** 29,498 nodes and 45,565 edges: 6,799 from
+the code, the rest from all 746 slices of the frozen blueprint. No slice carrying an
+identifier is unread — the merge checks that against the manifest, and it found 21 that were
+missed on the first pass. Chapters 5 and 54 are parsed deterministically from their tables
+rather than read by a model: those are the author's own identifier-to-identifier relations,
+and asking a model to re-derive them would only add an error rate.
+
+**Its edges are labelled and its limits are real.** Every edge is tagged `EXTRACTED` (read
+from the source) or `INFERRED` (resolved), and an `INFERRED` edge is the graph's opinion.
+Star re-exports through a barrel do not resolve, so "who uses X" is incomplete for anything
+exported via `src/ui/primitives/index.ts`.
+
+**Extraction invents things, and three checks exist because it did.** One agent returned
+valid JSON having recorded 15% of the identifiers in front of it; one wrote `ch-8/` for a
+file in `ch-7/` (94 paths needed repair); one reported 100% coverage having never opened
+four of its nine files. All three passed every structural check and none errored. A fourth
+emitted twelve acceptance criteria that occur nowhere in the blueprint — it had seen a few
+real ones and continued the sequence. `scripts/check-extraction-coverage.mjs` and
+`scripts/merge-graph-chunks.mjs` catch all four classes; run both after any re-extraction.
+
+### `registries/blueprint-locators.json` — the committed residue
+
+The graph is ~30MB and git-ignored, so no gate may read it. The index is 869KB and committed:
+**19,897 identifiers at all 39,138 lines they appear on.** The identifiers come from the
+graph, which judged what is an entity; the line numbers come from scanning the frozen source,
+so a line is listed only because the identifier was found on it.
+
+This is what promotes a weak citation to a strong one. Of 1,203 identifier-anchored citations
+in the tree, 1,019 are now confirmed at the exact line — it was 37. The same scan found
+eleven citations that were simply wrong, including one 44,561 lines from its subject, and
+`tests/coverage/citation-graph.test.ts` holds the floor so they cannot come back.
+
+**A citation may name a line inside a section rather than the identifier's own line** — a
+permission row at L32637 sits within `20.2.7 MOD-STU-07`, which opens at L32574. That form is
+correct and the gate allows it. Five accurate citations were nearly "corrected" into
+inaccurate ones before this was understood.
 
 Rebuild after a slice lands: `graphify update .` re-extracts changed code with no LLM cost.
-The blueprint half never needs rebuilding — the source is frozen.
+The blueprint half never needs rebuilding — the source is frozen. If the graph is rebuilt,
+re-run `node scripts/map-graph-to-blueprint.mjs` then `node scripts/build-locator-index.mjs`;
+the gate is not part of that chain and must never rebuild its own subject.
 
 ## 3. Client authority — `docs/process/ledgers/approval-ledger.json`
 
