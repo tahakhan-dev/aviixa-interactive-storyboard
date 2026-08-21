@@ -252,7 +252,7 @@ describe('gate 1: count-scope honesty', () => {
     //
     // A registry count stands alone. A digit run touching a letter, a hyphen
     // or a dot belongs to something larger -- an identifier (MOD-SA-17,
-    // AC-SA-18-04, L1632), a date, a section number (S8.17) or a version --
+    // AC-SA-18-04, L46193), a date, a section number (S8.17) or a version --
     // and is never the count this gate is about. A comma followed by digits
     // is the thousands separator in a larger figure ('18,402'), so it is
     // excluded too -- but a bare comma is not, so "613, which is" still trips.

@@ -243,7 +243,7 @@ export function TenantMetricsScreen({
   return (
     <SaConsoleShell module={MODULE}>
       <p className="text-xs text-[var(--color-ink-subtle)]">
-        Screen annotated SCR-SA-16, with storyboard SB-SA-10 (L42808, L45160). Names are canonical;
+        Screen annotated SCR-SA-16, with storyboard SB-SA-10 (L45160, L45160). Names are canonical;
         the numbers are annotations only, and this route is keyed on the module slug.
       </p>
 

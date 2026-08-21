@@ -173,7 +173,7 @@ export function PlatformAdministrationScreen() {
     'view-platform-access-history',
     'view-platform-access-history',
     READING_STATUSES,
-    ['L29197', 'FUNC-DOH-13-1.1.1 L29222', 'SB-DOH-025 L29274'],
+    ['L29197', 'FUNC-DOH-13-1.1.1 L29242', 'SB-DOH-025 L29274'],
   )
   const bannerDecision = decide(
     role,
@@ -187,7 +187,7 @@ export function PlatformAdministrationScreen() {
     'end-a-support-session-from-the-banner',
     'end-a-support-session-from-the-banner',
     ACTING_STATUSES,
-    ['L29199', 'AC-DOH-13-3', 'FUNC-DOH-13-2.1.2 L29228'],
+    ['L29199', 'AC-DOH-13-3', 'FUNC-DOH-13-2.1.2 L29247'],
   )
   const announcementDecision = decide(
     role,

@@ -232,7 +232,7 @@ export function TenantsScreen() {
     <SaConsoleShell module={MODULE}>
       <p className="text-xs text-[var(--color-ink-subtle)]">
         Screen annotations only, never route keys (D1): SCR-SA-14 tenant list and SCR-SA-15 tenant
-        detail (L42806, L42807), SB-SA-09 (L44984), SB-31-01, SB-31-02 and SB-31-05 (L75180,
+        detail (L42806, L42807), SB-SA-09 (L44984), SB-31-01, SB-31-02 and SB-31-05 (L75604,
         L75309, L75604), SB-SA-TENANT-01 (L117966). A second numbering scheme calls the same two
         screens SCR-SA-11 and SCR-SA-12; the route is named, and neither number keys anything.
       </p>

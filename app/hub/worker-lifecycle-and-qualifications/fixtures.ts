@@ -1195,7 +1195,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin, and for the Supervisor within their own Area scope. Blocked for NEW workers in soft suspension, which is the write-class table’s answer and not a second rule stated here. ABSENT for the other three: no other role holds it in any scope and no other surface grants it, so nothing is drawn where it would sit.',
     effect:
       'Creates the record with its own platform identity, or edits one. Supervisor permission alone authorises the change and the audit trail is the control rather than a second approval — a deliberate design decision the source states outright.',
-    sourceRef: 'L27470, FUNC-DOH-04-1.1.1 L27546, AC-WF-WKR-001-04 L52800',
+    sourceRef: 'L27470, FUNC-DOH-04-1.1.1 L27539, AC-WF-WKR-001-04 L52800',
   },
   {
     id: 'view-worker',
@@ -1329,7 +1329,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin and the Supervisor, offering exactly three levels. A value outside them is refused and the record is held INCOMPLETE and can receive no assignment. ABSENT for the other three.',
     effect:
       'Selects which work-instruction difficulty variant the worker receives at execution. It reaches the device in the next work package; an in-flight run keeps the level pinned in its own package.',
-    sourceRef: 'L27475, FUNC-DOH-04-1.1.2 L27547, AC-WF-WKR-001-03 L52800 / FB-WKR-001 L52796',
+    sourceRef: 'L27475, FUNC-DOH-04-1.1.2 L27540, AC-WF-WKR-001-03 L52800 / FB-WKR-001 L52796',
   },
   {
     id: 'clear-expired-certification',
@@ -1458,7 +1458,7 @@ export const CONTROL_MATRIX = [
       'A TWO-STEP flow, and the two steps are two controls rather than one control with a confirmation: reassign the active and upcoming runs, then archive. The second stays disabled with the runs named while any remain, so the order is enforced by what is offered rather than by a warning. ABSENT for the other three.',
     effect:
       'Archives the record once no run is assigned. Open step executions close as abandoned with the reason "Worker departed." The record stays readable and reactivable.',
-    sourceRef: 'L27480, FUNC-DOH-04-1.1.3 L27548, AC-DOH-04-10 L27611, L27443',
+    sourceRef: 'L27480, FUNC-DOH-04-1.1.3 L27541, AC-DOH-04-10 L27611, L27443',
   },
   {
     id: 'reactivate-worker',
@@ -1484,7 +1484,7 @@ export const CONTROL_MATRIX = [
       'Live on an archived record only, and the re-validation prompt is MANDATORY rather than offered: reactivation always leaves the prompt standing, and there is no control anywhere that reactivates without it. ABSENT for the other three.',
     effect:
       'Reactivates the prior record with history intact and raises the prompt asking which prior qualifications still apply. Nothing is silently re-trusted.',
-    sourceRef: 'L27481, FUNC-DOH-04-1.1.4 L27549, AC-DOH-04-11 L27612',
+    sourceRef: 'L27481, FUNC-DOH-04-1.1.4 L27542, AC-DOH-04-11 L27612',
   },
   {
     id: 'bulk-import-workers',

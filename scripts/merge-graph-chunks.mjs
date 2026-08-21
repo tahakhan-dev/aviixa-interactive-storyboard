@@ -245,6 +245,56 @@ const ids = new Set(deduped.map((n) => n.id))
 const unresolved = edges.filter((e) => !ids.has(e.source) || !ids.has(e.target)).length
 
 /**
+ * DROP ANY IDENTIFIER THE FROZEN SOURCE DOES NOT CONTAIN.
+ *
+ * An agent extracting an authentication chapter emitted AC-AUTH-007 through
+ * AC-AUTH-015 and AC-SEC-002 through AC-SEC-004. None of those twelve strings
+ * occurs anywhere in the blueprint. The chapter names a few acceptance criteria
+ * and the agent continued the sequence -- a plausible enumeration, invented.
+ *
+ * This is the failure the whole build is organised against, arriving in the one
+ * place that would be hardest to notice: a fabricated identifier looks exactly
+ * like a real one, sorts beside its real siblings, and answers queries with
+ * total confidence. Somebody would eventually cite AC-AUTH-009 in code, and the
+ * citation would point at a line that says something else entirely.
+ *
+ * The check is the cheapest in the pipeline and the least escapable: open the
+ * frozen source, look for the string. An identifier the document does not
+ * contain is not an identifier, whatever confidence the extractor attached.
+ *
+ * Note the asymmetry with the SEQ-001..033 case, which is kept. That agent also
+ * inferred an enumeration -- but all thirty-four of those identifiers are IN the
+ * document. Inference is allowed; inventing the evidence is not.
+ */
+const sourceText = readFileSync(join(ROOT, '..', 'AVIIXA_Production_Product_Blueprint.md'), 'utf8')
+const IDENT_LABEL = new RegExp(`^(${IDENT_SOURCE.replace(PREFIXES.matching.leadingGuard, '')})`)
+const fabricated = new Set()
+for (const n of deduped) {
+  const m = IDENT_LABEL.exec(String(n.label ?? '').trim())
+  if (m === null) continue
+  if (!sourceText.includes(m[1])) fabricated.add(n.id)
+}
+if (fabricated.size > 0) {
+  for (const id of [...fabricated].slice(0, 15)) console.error(`  fabricated identifier dropped: ${id}`)
+}
+/*
+ * `deduped`, not `nodes`. The first version of this filter spliced `nodes`,
+ * which the writer no longer reads -- dedup has already copied out of it. The
+ * edges dropped and the twelve fabricated nodes sailed through, and the only
+ * reason it was caught is that the locator index re-derives the same fact from
+ * the frozen source and said 12 again.
+ */
+const beforeFab = deduped.length
+for (let i = deduped.length - 1; i >= 0; i -= 1) if (fabricated.has(deduped[i].id)) deduped.splice(i, 1)
+const beforeFabEdges = edges.length
+for (let i = edges.length - 1; i >= 0; i -= 1) {
+  const e = edges[i]
+  if (fabricated.has(e.source) || fabricated.has(e.target)) edges.splice(i, 1)
+}
+const droppedFabNodes = beforeFab - deduped.length
+const droppedFabEdges = beforeFabEdges - edges.length
+
+/**
  * EVERY SLICE MUST BE REPRESENTED SOMEWHERE.
  *
  * An agent reported "238/238 = 100%" for a nine-file batch and had never opened
@@ -298,4 +348,5 @@ console.log(`  source_file paths canonicalised against the manifest: ${repairedP
 console.log(`  illustrative-example nodes dropped: ${droppedNodes} (and ${droppedEdges} edges touching them)`)
 console.log(`  same-id duplicates dropped: ${nodes.length - deduped.length}`)
 console.log(`  edges awaiting a chunk not yet merged: ${unresolved}`)
+console.log(`  fabricated identifiers dropped: ${droppedFabNodes} (and ${droppedFabEdges} edges touching them)`)
 console.log(`  slices carrying identifiers that no chunk read: ${unreadSlices.length}`)

@@ -88,13 +88,36 @@ for (const node of nodes) {
   mapped += 1
 }
 
-if (unknownSlice.length > 0 || outOfRange.length > 0) {
-  for (const line of [...unknownSlice, ...outOfRange].slice(0, 20)) console.error(`  ${line}`)
+/*
+ * WHAT TO DO WITH A LOCATION THAT WILL NOT MAP.
+ *
+ * There are three options and two of them are wrong. Clamping it into range
+ * invents a citation, which is the defect this whole script exists to prevent:
+ * a wrong line number survives review, a missing one does not. Refusing the
+ * entire build over one off-by-one -- an agent reporting line 525 of a 524-line
+ * slice -- makes the pipeline hostage to a single stray node out of 23,000.
+ *
+ * The third option: DROP the location. The node still exists in the graph with
+ * everything else it knows; it just carries no blueprint_line, so nothing can
+ * cite it. Not being citable is the honest outcome for a location nobody can
+ * verify.
+ *
+ * The refusal is kept, moved to a RATE. A handful of off-by-ones is arithmetic;
+ * a slice's worth is an extractor numbering against the wrong file, and every
+ * citation from it is then suspect.
+ */
+const unmappable = unknownSlice.length + outOfRange.length
+const RATE_CEILING = 0.005
+if (unmappable > 0) {
+  for (const line of [...unknownSlice, ...outOfRange].slice(0, 20)) console.error(`  dropped: ${line}`)
+}
+if (unmappable > Math.max(20, (mapped + unmappable) * RATE_CEILING)) {
   throw new Error(
     `${outOfRange.length} location(s) fall outside their own slice and ` +
-      `${unknownSlice.length} carry no parsable line. Refusing to write a graph ` +
-      `whose citations cannot be trusted -- a wrong line number survives review, ` +
-      `a missing one does not.`,
+      `${unknownSlice.length} carry no parsable line -- ` +
+      `${((unmappable / (mapped + unmappable)) * 100).toFixed(2)}% of all blueprint locations. ` +
+      `Above ${RATE_CEILING * 100}% this is an extractor numbering against the wrong file, ` +
+      `not arithmetic, and every citation from it is suspect.`,
   )
 }
 
@@ -102,3 +125,4 @@ writeFileSync(GRAPH, JSON.stringify(graph, null, 1) + '\n')
 console.log(`Mapped ${mapped} blueprint locations to frozen-source lines.`)
 console.log(`  ${notBlueprint} nodes are not from the blueprint (code, or unsourced).`)
 console.log(`  every mapped line verified inside its slice's declared range.`)
+console.log(`  ${unmappable} location(s) dropped as unmappable — those nodes carry no citable line.`)

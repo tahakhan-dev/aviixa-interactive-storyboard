@@ -489,7 +489,7 @@ export function OverviewScreen() {
         <ProhibitionNotice
           rendering={{
             kind: 'absent',
-            note: 'No control to disable anonymisation exists on this console, for any account including the root (AC-SA-01-06, L97560). There is no off position, no approval path and no configuration key.',
+            note: 'No control to disable anonymisation exists on this console, for any account including the root (AC-SA-01-06, L43073). There is no off position, no approval path and no configuration key.',
           }}
         />
         <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">

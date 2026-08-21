@@ -68,35 +68,62 @@ const IDENT = new RegExp(
 
 const graph = JSON.parse(readFileSync(GRAPH, 'utf8'))
 
-const byIdentifier = new Map()
+/*
+ * ── THE DIVISION OF LABOUR, AND WHY IT CHANGED ─────────────────────────────
+ *
+ * The first version of this index took both halves from the graph: which
+ * identifiers exist, AND where they are. That gave each identifier exactly one
+ * line -- whichever line the extracting agent happened to be looking at -- and
+ * a citation naming any OTHER real occurrence of the same identifier could not
+ * be corroborated. `DEC-LANEB-001` is raised in one chapter and registered in
+ * another; the index knew one of those and shrugged at the other.
+ *
+ * The two halves come from different places now, each from the source that
+ * actually knows:
+ *
+ *   WHICH identifiers matter  <- the graph. It read the document and decided
+ *                                what is an entity rather than a passing
+ *                                mention. A regex cannot make that judgement.
+ *   WHERE each one appears    <- the frozen blueprint, scanned directly. Every
+ *                                occurrence, not a sample. Deterministic, free,
+ *                                and correct by construction: a line is listed
+ *                                because the identifier was found ON it.
+ *
+ * The self-verification that used to be the point of this script is now
+ * structural. There is no step that could produce a locator whose line does not
+ * carry its identifier, because the line number IS the result of finding the
+ * identifier there. The gate still re-checks independently -- a property you
+ * believe you have proved by construction is exactly the sort worth testing.
+ */
+const wanted = new Set()
 let considered = 0
-let rejected = 0
 for (const node of graph.nodes ?? []) {
-  const line = node.blueprint_line
-  if (typeof line !== 'number') continue
   const m = IDENT.exec(String(node.label ?? ''))
   if (m === null) continue
-  const ident = m[1]
   considered += 1
-
-  // THE CHECK. A permission-matrix row is labelled with its module id while the
-  // id itself sits in the table heading above, so a window is used rather than
-  // the single line -- but the window is small and its size is stated, not
-  // quietly widened until everything passes.
-  const from = Math.max(0, line - 12)
-  const window = lines.slice(from, line + 2).join('\n')
-  if (!window.includes(ident)) {
-    rejected += 1
-    continue
-  }
-  if (!byIdentifier.has(ident)) byIdentifier.set(ident, new Set())
-  byIdentifier.get(ident).add(line)
+  wanted.add(m[1])
 }
 
+const SCAN = new RegExp(IDENT.source, 'g')
 const index = {}
-for (const [ident, set] of [...byIdentifier].sort(([a], [b]) => (a < b ? -1 : 1))) {
-  index[ident] = [...set].sort((a, b) => a - b)
+let locators = 0
+for (let i = 0; i < lines.length; i += 1) {
+  const line = lines[i]
+  if (line === undefined || line.indexOf('-') === -1) continue
+  SCAN.lastIndex = 0
+  let m
+  const onThisLine = new Set()
+  while ((m = SCAN.exec(line)) !== null) onThisLine.add(m[1])
+  for (const ident of onThisLine) {
+    if (!wanted.has(ident)) continue
+    ;(index[ident] ??= []).push(i + 1)
+    locators += 1
+  }
 }
+
+const found = Object.keys(index).length
+const sorted = {}
+for (const k of Object.keys(index).sort()) sorted[k] = index[k]
 
 writeFileSync(
   OUT,
@@ -104,17 +131,22 @@ writeFileSync(
     {
       source: { sha256: EXPECTED_SHA, lines: lines.length },
       note:
-        'Identifier -> blueprint lines, distilled from the knowledge graph and RE-VERIFIED ' +
-        'against the frozen source. A line that does not carry its identifier is not listed.',
-      windowLines: 14,
-      identifiers: Object.keys(index).length,
-      locators: Object.values(index).reduce((n, a) => n + a.length, 0),
-      index,
+        'Identifier -> EVERY blueprint line carrying it. The set of identifiers comes from the ' +
+        'knowledge graph, which read the document and judged what is an entity rather than a ' +
+        'passing mention; the line numbers come from scanning the frozen source directly, so a ' +
+        'line is listed only because the identifier was found on it.',
+      // Zero, and that is the point: a locator is the line the identifier was
+      // found on. No window is needed to make it true.
+      windowLines: 0,
+      identifiers: found,
+      locators,
+      index: sorted,
     },
     null,
     1,
   ) + '\n',
 )
 
-console.log(`Wrote ${Object.keys(index).length} identifiers, ${Object.values(index).reduce((n, a) => n + a.length, 0)} verified locators`)
-console.log(`  considered: ${considered}   rejected (line does not carry the identifier): ${rejected}`)
+console.log(`Wrote ${found} identifiers, ${locators} locators (every occurrence, not a sample)`)
+console.log(`  identifier-bearing graph nodes considered: ${considered}`)
+console.log(`  identifiers the graph named but the source does not carry: ${wanted.size - found}`)

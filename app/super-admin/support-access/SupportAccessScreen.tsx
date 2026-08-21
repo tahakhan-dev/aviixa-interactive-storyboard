@@ -271,7 +271,7 @@ export function SupportAccessScreen({
     namedReason(openDecision, mode, supportRoleReason) ||
     (openFormComplete
       ? ''
-      : 'A ticket-linked reason class, a tenant and a ticket reference must all be supplied first (AC-SA-15-02, L45753).')
+      : 'A ticket-linked reason class, a tenant and a ticket reference must all be supplied first (AC-SA-15-02, L45832).')
   const openProps = openBlockedReason === '' ? {} : { disabledReason: openBlockedReason }
 
   // A closure or an escalation leaves the session in a terminal state, so
