@@ -133,6 +133,18 @@ const AUDITED = {
       'compares against. Contrast registry-freshness, which compared committed artefacts to ' +
       'freshly generated ones and could only ever compare a directory to itself.',
   },
+  'hook-config.test.ts': {
+    subject:
+      'docs/process/claude-hooks/{CLAUDE.md,settings.json} (committed copies) and the live ' +
+      'configuration at ../CLAUDE.md and ../.claude/settings.json',
+    rewrittenBy: null,
+    verdict:
+      'NOT VACUOUS. Neither subject is written by any verify step. The committed copies are ' +
+      'edited by hand when the live configuration changes; the live files sit OUTSIDE this ' +
+      'repository entirely, in a directory that is not a git repo, and nothing in the build ' +
+      'writes there. The drift comparison is skipped when the live files are absent (a fresh ' +
+      'clone, or CI) and says so on stderr rather than passing in silence.',
+  },
   'citation-graph.test.ts': {
     subject:
       'registries/blueprint-locators.json (committed) and the frozen blueprint, plus ' +

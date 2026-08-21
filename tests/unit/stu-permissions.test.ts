@@ -845,11 +845,35 @@ describe('the route registry and DEC-AUDSTU-001 (C16)', () => {
     expect(open!.why).toMatch(/AC-STU-157/)
   })
 
-  // FAILS IF: the open-decision field leaks into another surface or another
-  // role, which would turn a targeted disclosure into a general escape hatch.
-  it('records an open decision on exactly one surface and one role', () => {
+  // FAILS IF: the open-decision field leaks into a surface or a role whose
+  // question the source does not leave open, which would turn a targeted
+  // disclosure into a general escape hatch.
+  //
+  // IT WAS `toEqual(['SURF-STU/READONLY_AUDITOR'])` AND IT EXPIRED, not
+  // because the rule changed but because the build reached the second case
+  // the rule was always going to admit. Slice 7 records the Tenant Admin
+  // device session on `SURF-FL`: L39837 reads `Client Decision Required`
+  // with a basis of `Not specified in the Statement of Work`, and
+  // AC-FL-009-5 (L39948) forbids resolving it in either direction — the
+  // identical shape to AC-STU-157 here. Leaving the entry out is what would
+  // have been the defect, because an absence from `allowedRoles` reads as a
+  // refusal.
+  //
+  // The list is still asserted for EQUALITY, so a third entry still fails
+  // here and still has to be argued for; what is checked alongside it is the
+  // property that actually keeps this from being an escape hatch — every
+  // entry names a source identifier and a reason, and none of them grants
+  // anything, which `routesForRole` below is unchanged to prove.
+  it('records an open decision only where the source leaves the question open', () => {
     const all = ROUTES.flatMap((r) => r.openDecisionRoles.map((o) => `${r.surface}/${o.role}`))
-    expect(all).toEqual(['SURF-STU/READONLY_AUDITOR'])
+    expect(all).toEqual(['SURF-STU/READONLY_AUDITOR', 'SURF-FL/TENANT_ADMIN'])
+    for (const r of ROUTES) {
+      for (const o of r.openDecisionRoles) {
+        expect(o.decision, `${r.surface}/${o.role}`).toMatch(/^(DEC|AC)-[A-Z0-9-]+$/)
+        expect(o.why.length, `${r.surface}/${o.role}`).toBeGreaterThan(80)
+        expect(r.allowedRoles, `${r.surface}/${o.role}`).not.toContain(o.role)
+      }
+    }
     expect(routeOpenDecisionFor('SURF-DOH', 'READONLY_AUDITOR')).toBeNull()
     expect(routeOpenDecisionFor('SURF-STU', 'WORKER')).toBeNull()
   })

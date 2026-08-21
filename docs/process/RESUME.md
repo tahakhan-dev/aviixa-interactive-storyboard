@@ -41,7 +41,11 @@ local AST parsing for code and by extraction for the document. Query it with:
 
 ```
 graphify query "what governs closing a stuck run?"
-graphify path "MOD-DOH-08" "MOD-CC-13"     # the cross-surface trap class
+graphify path "MOD-DOH-08 — Execution Summary and Anomaly Register (Delivery Operations Hub module)" "MOD-CC-13"
+# `path` fuzzy-resolves a bare name and does not say when it picked the wrong node.
+# `MOD-DOH-08` also matches MOD_DOH_08_WRITE_ROWS in src/surfaces/doh/objects.ts; pick the
+# wrong one and it prints "No directed path found" for a pair three hops apart. `explain`
+# refuses and names both — resolve there first, then pass the full label or the node id.
 graphify explain "src_ui_writecontrol_writecontrol"
 ```
 

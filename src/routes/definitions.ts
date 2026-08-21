@@ -21,7 +21,19 @@ import { SURFACES, type SurfaceId } from '@/domain/surfaces'
  */
 export interface RouteOpenDecision {
   readonly role: RoleId
-  /** The source's own decision identifier. */
+  /**
+   * The source's own identifier for the open question. A `DEC-*` where the
+   * source names one; otherwise the source's own acceptance criterion that
+   * carries the question open.
+   *
+   * WIDENED, AND ONLY IN THE DOC COMMENT, BECAUSE THE SECOND CASE ARRIVED.
+   * `DEC-AUDSTU-001` is named by the source. The Tenant Admin device session
+   * below is not: L39837 classifies it `Not specified in the Statement of
+   * Work` and no `DEC-*` is attached to it anywhere. Minting one here would
+   * fabricate a source identifier, so the field carries `AC-FL-009-5`, which
+   * is the source's own identifier for the instruction to keep it open. What
+   * is never allowed is a blank or an invented `DEC-*`.
+   */
   readonly decision: string
   readonly why: string
 }
@@ -54,10 +66,11 @@ const PLATFORM_ROLES: readonly RoleId[] = [
 ]
 
 /**
- * The one open surface decision in the build. Kept to `SURF-STU` and to one
- * role on purpose: a general escape hatch from `allowedRoles` is how a
- * refusal quietly becomes a permission, so this names the decision that
- * justifies it and nothing else can be added without naming one too.
+ * TWO open surface decisions, not one, and the rule that kept it to one is
+ * unchanged: a general escape hatch from `allowedRoles` is how a refusal
+ * quietly becomes a permission, so an entry exists only where the SOURCE
+ * refuses to answer and names its refusal. Nothing can be added without
+ * naming one too.
  */
 const STUDIO_OPEN_DECISION_ROLES: readonly RouteOpenDecision[] = [
   {
@@ -65,6 +78,49 @@ const STUDIO_OPEN_DECISION_ROLES: readonly RouteOpenDecision[] = [
     decision: 'DEC-AUDSTU-001',
     why:
       'The §5.18 permission table enumerates five fixed roles and the Read-only Auditor is not one of them, so the Statement of Work states nothing about whether this role may open the Studio. AC-STU-157 (L34674) forbids assuming either answer, so this registry records the question rather than an answer: the role is not in allowedRoles, and its absence there is not a refusal.',
+  },
+]
+
+/**
+ * THE SECOND ONE, AND IT IS THE IDENTICAL CASE ON A DIFFERENT SURFACE.
+ *
+ * `SURF-FL` gives `allowedRoles: ['WORKER']`, and until now
+ * `openDecisionRoles: []` — so the Tenant Admin's absence from the list was
+ * the whole record, and an absence reads as "no". That is a REFUSAL, and it
+ * is the one thing `AC-FL-009-5` (L39948) forbids: "The Tenant Admin
+ * device-session question is carried as an open item and is not silently
+ * resolved in either direction by the implementation."
+ *
+ * The source's own tenant-role table for this surface (row at L39837) reads
+ * `Client Decision Required` in the "Session on the device" column, with the
+ * basis column reading `Not specified in the Statement of Work`.
+ *
+ * ELEVEN CELLS INHERIT THIS ANSWER, AND THEY WERE COUNTED, NOT ESTIMATED.
+ * Every `Client Decision Required` cell in the twelve Frontline permission
+ * matrices — all eleven of the 539 — sits in the Tenant Admin column:
+ * L40188, L40189, L40190, L40192 (`MOD-FL-A1`), L40361 (`MOD-FL-A2`),
+ * L40526, L40534 (`MOD-FL-A3`), L40722 (`MOD-FL-A4`), L41300
+ * (`MOD-FL-A7`), L41623, L41624 (`MOD-FL-B9`). Each of them defers to the
+ * same unanswered question, so recording it once here is what stops eleven
+ * cells being answered eleven times privately.
+ *
+ * IT ALSO CHANGES WHAT THE HUB SAYS. `crossSurfaceStatement` in
+ * `@/surfaces/doh/boundary` reads `routeOpenDecisionFor` for every boundary
+ * row, and row 8 of the §19.1.2 register — step execution and data capture,
+ * L25726 — is owned by `SURF-FL`. Before this, a Tenant Admin reading that
+ * row on a Hub screen was told the Frontline "is not a surface your role
+ * opens", which asserts exactly the refusal the criterion withholds. Now
+ * they are told the question is open.
+ *
+ * THIS GRANTS NOTHING. `routesForRole` is unchanged and does not consult
+ * this field, exactly as for `DEC-AUDSTU-001`.
+ */
+const FRONTLINE_OPEN_DECISION_ROLES: readonly RouteOpenDecision[] = [
+  {
+    role: 'TENANT_ADMIN',
+    decision: 'AC-FL-009-5',
+    why:
+      "The frozen source's tenant-role table for this surface (L39837) reads `Client Decision Required` for a Tenant Admin device session, with the basis column reading `Not specified in the Statement of Work` — the Statement of Work neither grants nor denies it. AC-FL-009-5 (L39948) requires the question to be carried as an open item and not resolved in either direction by the implementation, so this registry records the question rather than an answer: the role is not in allowedRoles, and its absence there is not a refusal. No DEC-* identifier is attached to this conflict anywhere in the source, which is why this names the criterion rather than inventing one.",
   },
 ]
 
@@ -93,7 +149,12 @@ export const ROUTES: readonly RouteDefinition[] = SURFACES.map((s) => {
     heading: s.name,
     purpose: s.purpose,
     allowedRoles,
-    openDecisionRoles: s.id === 'SURF-STU' ? STUDIO_OPEN_DECISION_ROLES : [],
+    openDecisionRoles:
+      s.id === 'SURF-STU'
+        ? STUDIO_OPEN_DECISION_ROLES
+        : s.id === 'SURF-FL'
+          ? FRONTLINE_OPEN_DECISION_ROLES
+          : [],
     sourceRefs: [s.id, 'L1089'],
   }
 })

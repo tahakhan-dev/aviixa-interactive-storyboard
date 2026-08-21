@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { HubShell, type HubShellUncataloguedScreen, type TenantRoleId } from '../HubShell'
 import { Button, Select, StatusPill, Table, type TableRow } from '@/ui/primitives'
+import { roleById } from '@/domain/roles'
 import { fallbackPattern } from '@/surfaces/doh/fallbacks'
+import { MOD_DOH_16_TENANT_ADMIN_CONTRADICTION } from '@/surfaces/doh/job-owner'
 import { DOH_UNCATALOGUED_SCREEN_NAMES } from '@/surfaces/doh/screens'
 import {
   ABSENT_BY_RULE,
@@ -241,6 +243,67 @@ export function PairedSchedulingScreen() {
           route is offered to {reaching.join(', ')}. The Worker is withheld because row 3 (L29615)
           marks it Unavailable. The module is not yet registered in the Hub module registry, so the
           rail offers this route to nobody; that is recorded debt and not a permission answer.
+        </p>
+      </section>
+
+      {/* ---------------- the Tenant Admin contradiction, mounted at page level ----------------
+       *
+       * THE DEFECT THIS CLOSES. `MOD_DOH_16_TENANT_ADMIN_CONTRADICTION` shipped
+       * with a bite site and no page mount: `jobOwnerGate` returns the
+       * `disclosed` kind only when the viewer is the Tenant Admin, and this
+       * screen opens as the Supervisor, so the record's own `statement` and its
+       * two readings appeared in the client chunk and in NO `index.html`. That
+       * is the false-comfort shape — the ledger reads disclosed and the static
+       * artefact carries nothing.
+       *
+       * THE FIX IS THE PATTERN THIS TREE ALREADY PROVED, not a change of
+       * opening persona. `DEC-STUCK-001` had the same shape on
+       * `RunSchedulingScreen` and was given a page-level mount that renders
+       * unconditionally, with the per-run bite site left exactly as it was.
+       * Nothing below relaxes `jobOwnerGate`: the matrix table above still
+       * decides, per persona and per Job, what the CELL says.
+       *
+       * IT RENDERS UNCONDITIONALLY, and that is the point. The source answers
+       * the Tenant Admin column twice whoever is looking at the screen; gating
+       * the disclosure on the viewer is what made it invisible in the first
+       * place. The only thing derived from state is the sentence naming which
+       * column it bites, and that is read off the record.
+       *
+       * IT SETTLES NOTHING. Both readings are rendered as the source's cells,
+       * in the record's own order, with no `adopted`, `winner` or `effective`
+       * field to read — `JobOwnerContradiction` has nowhere to put one.
+       * ------------------------------------------------------------------- */}
+      <section className="mt-8 space-y-3">
+        <h2 className="text-lg font-semibold text-[var(--color-ink)]">
+          The source answers the {roleById(MOD_DOH_16_TENANT_ADMIN_CONTRADICTION.column).name} column
+          twice
+        </h2>
+        <p
+          data-testid="tenant-admin-contradiction-statement"
+          className="max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          {MOD_DOH_16_TENANT_ADMIN_CONTRADICTION.statement}
+        </p>
+        <ul className="space-y-1">
+          {MOD_DOH_16_TENANT_ADMIN_CONTRADICTION.readings.map((reading) => (
+            <li
+              key={reading.rowId}
+              data-testid="tenant-admin-contradiction-reading"
+              className="max-w-prose text-xs text-[var(--color-ink-muted)]"
+            >
+              <span className="font-medium text-[var(--color-ink)]">{reading.sourceLine}</span>{' '}
+              {reading.cell}
+            </li>
+          ))}
+        </ul>
+        <p
+          data-testid="tenant-admin-contradiction-bites"
+          className="max-w-prose text-xs text-[var(--color-ink-subtle)]"
+        >
+          Where it bites: the table above draws both readings in place of one cell whenever the
+          selected persona is the {roleById(MOD_DOH_16_TENANT_ADMIN_CONTRADICTION.column).name}. It
+          is disclosed here whoever is selected, because the source contradicts itself whether or
+          not anyone is looking at that column.
         </p>
       </section>
 
