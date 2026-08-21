@@ -56,7 +56,7 @@ const IDENT =
  * The three that remain were each checked the same way: all appear under an
  * `Illustrative Example` heading, and Appendix A has no entry for any of them.
  */
-const ILLUSTRATIVE = /^(?:TAB|LOT|RB)-/
+const ILLUSTRATIVE = /^(?:TAB|LOT|RB|RUN|JOB|AREA|CELL|SITE)-/
 
 const idOf = (ident) => ident.toLowerCase().replace(/[^a-z0-9]+/g, '_')
 const cellsOf = (line) => line.replace(/^\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim())

@@ -115,6 +115,58 @@ if (NORMALISE && fragments.size > 0) {
 }
 
 /**
+ * DROP THE WORKED EXAMPLE, AT THE CHOKE POINT.
+ *
+ * The blueprint carries a fictional bicycle manufacturer as an `Illustrative
+ * Example`, and states outright that it creates no requirement. Its instance
+ * data is not requirement data: `JOB-REDBIKE`, `AREA-ASSY-A`,
+ * `RUN-2026-08-14-A`, one lot number mentioned 375 times. Left in, the graph's
+ * busiest neighbourhood is a worked example, and a reader asking what the
+ * product must do gets answers about a bike shop that does not exist.
+ *
+ * ── WHY THE FILTER LIVES HERE AND NOT ONLY IN THE PROMPT ───────────────────
+ * It was in the prompt. An agent read "filter TAB-, LOT-, RB-", noticed that
+ * JOB- and AREA- were not on the list, reasoned correctly from what it was
+ * given, and kept them. It was not wrong; the list was incomplete. Seventy-odd
+ * agents each making a defensible judgement from an incomplete instruction is
+ * not a policy, and re-running them is expensive and still leaves the next one
+ * free to decide differently.
+ *
+ * A deterministic filter at the single point every chunk passes through is the
+ * policy. The prompt now carries the full list too, but the prompt is advice
+ * and this is enforcement.
+ *
+ * ── HOW THE SET WAS ESTABLISHED, RATHER THAN GUESSED ───────────────────────
+ * Appendix A is the document's own allocation authority and states that an
+ * identifier outside it is a defect. None of these eight prefixes appears in
+ * it, and each was checked for an `Illustrative Example` heading at its first
+ * use. `ROLE-` was on this list once and is not any more -- Appendix A lists
+ * `ROLE-PLAT-` and `ROLE-TEN-` outright, and filtering them deleted the actors
+ * from a graph built to answer who-can-do-what.
+ */
+const ILLUSTRATIVE = /^(?:tab|lot|rb|run|job|area|cell|site)_/
+const isIllustrative = (n) =>
+  ILLUSTRATIVE.test(String(n.id ?? '')) &&
+  // A node whose LABEL is a real identifier is kept even if its id looks
+  // illustrative -- the label is the claim about what the node is, and this
+  // build has already shipped two defects from trusting the wrong field.
+  !/^(?:MOD|SCR|FEAT|SUB|FUNC|AC|TEST|DEC|WF|SB|OBJ|FB|SEQ|STATE|EVT|CMD|NOTIF|SCHED|UC|REQ|OFF|RISK|ASSUM)-/.test(
+    String(n.label ?? '').trim(),
+  )
+
+const illustrativeIds = new Set(nodes.filter(isIllustrative).map((n) => n.id))
+const droppedNodes = illustrativeIds.size
+for (let i = nodes.length - 1; i >= 0; i -= 1) {
+  if (illustrativeIds.has(nodes[i].id)) nodes.splice(i, 1)
+}
+const beforeEdges = edges.length
+for (let i = edges.length - 1; i >= 0; i -= 1) {
+  const e = edges[i]
+  if (illustrativeIds.has(e.source) || illustrativeIds.has(e.target)) edges.splice(i, 1)
+}
+const droppedEdges = beforeEdges - edges.length
+
+/**
  * SCHEMA REPAIR: an edge whose `source_file` is not a path.
  *
  * One chunk emitted `source_file: 1` on 48 edges -- a LINE NUMBER in the field
@@ -169,5 +221,6 @@ for (const line of perChunk) console.log(`  ${line}`)
 console.log(`Merged ${chunkFiles.length} chunks: ${deduped.length} nodes, ${edges.length} edges`)
 console.log(`  prefixed duplicates: ${fragments.size}${folded ? ` (folded ${folded})` : ''}`)
 console.log(`  edge source_file repaired: ${repairedEdgeFiles}`)
+console.log(`  illustrative-example nodes dropped: ${droppedNodes} (and ${droppedEdges} edges touching them)`)
 console.log(`  same-id duplicates dropped: ${nodes.length - deduped.length}`)
 console.log(`  edges awaiting a chunk not yet merged: ${unresolved}`)
