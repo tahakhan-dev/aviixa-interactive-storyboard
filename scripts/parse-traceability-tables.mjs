@@ -40,11 +40,23 @@ if (targets.length === 0) throw new Error('No slices marked tableParse in the ma
 const IDENT =
   /\b(?:MOD|SCR|FEAT|SUB|FUNC|AC|TEST|DEC|WF|SB|OBJ|FB|SEQ|STATE|EVT|CMD|NOTIF|SCHED|UC|REQ|OFF|RISK|ASSUM)-[A-Z0-9][A-Z0-9.-]*[A-Z0-9]\b/g
 
-/** Identifiers of the Bright Bikes illustrative set, which the blueprint marks
- *  `Illustrative Example` and states create no requirement. Left in, one fictional
- *  bike shop becomes 375 mentions of a single high-degree node and the graph's
- *  busiest neighbourhood is a worked example. */
-const ILLUSTRATIVE = /^(?:TAB|LOT|RB|ROLE)-/
+/**
+ * The Bright Bikes illustrative set, which the blueprint marks `Illustrative
+ * Example` and states creates no requirement. Left in, one fictional bike shop
+ * becomes the graph's busiest neighbourhood.
+ *
+ * `ROLE-` WAS IN THIS LIST AND SHOULD NEVER HAVE BEEN. An extracting agent
+ * pushed back, and it was right: Appendix A -- the document's own allocation
+ * authority, which states that an identifier outside it is a defect -- lists
+ * `ROLE-PLAT-` ("AVIIXA platform console role", four fixed values) and
+ * `ROLE-TEN-` ("Tenant role", five fixed values at V1). They are SoW Facts
+ * appearing in every permission matrix, and filtering them silently deleted
+ * the actors from a graph built to answer who-can-do-what.
+ *
+ * The three that remain were each checked the same way: all appear under an
+ * `Illustrative Example` heading, and Appendix A has no entry for any of them.
+ */
+const ILLUSTRATIVE = /^(?:TAB|LOT|RB)-/
 
 const idOf = (ident) => ident.toLowerCase().replace(/[^a-z0-9]+/g, '_')
 const cellsOf = (line) => line.replace(/^\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim())
