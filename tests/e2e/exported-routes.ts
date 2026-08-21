@@ -1,5 +1,6 @@
 import { readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { isForeignProbe, presentOrNull } from '../probe-paths'
 
 /**
  * EVERY ROUTE IN THE STATIC EXPORT, READ FROM THE EXPORT.
@@ -42,15 +43,6 @@ import { join } from 'node:path'
  * list derived from a directory that happens to be EMPTY is the same
  * family of defect as the hand list, so every caller pins a floor.
  */
-function presentOrNull<T>(read: () => T): T | null {
-  try {
-    return read()
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException | null)?.code === 'ENOENT') return null
-    throw err
-  }
-}
-
 export function exportedRoutes(root = 'out'): string[] {
   if (!existsSync(root)) throw new Error(`No static export at ${root} — run \`pnpm build\` first.`)
   const routes: string[] = []
@@ -82,6 +74,19 @@ export function exportedRoutes(root = 'out'): string[] {
     if (existsSync(join(dir, 'index.html'))) routes.push(prefix)
     for (const entry of entries) {
       if (entry === '_next') continue
+      // A CONCURRENT process's scratch probe is not a route, and this is the
+      // walk where that cost the most: `slice-05-gates` plants
+      // `out/studio/<probe>/index.html` to prove its own gate can fail, and
+      // without this the probe entered the DERIVED route population that
+      // `routes.spec.ts`, `axe.spec.ts` and `axe-states.spec.ts` all navigate
+      // -- observed as roughly seventy-six worker errors in one Playwright
+      // run. `tests/probe-paths.ts` carries the full account, including why
+      // the match is EXACT and never a prefix: a prefix form would also hide
+      // a real exported directory named `zz-probe` from every route scan.
+      //
+      // No `own` argument: nothing here plants a probe, so every probe is
+      // foreign and none of them is a route.
+      if (isForeignProbe(entry)) continue
       const child = join(dir, entry)
       const stat = presentOrNull(() => statSync(child))
       if (stat === null) continue

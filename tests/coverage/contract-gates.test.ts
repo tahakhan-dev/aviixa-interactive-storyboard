@@ -2,22 +2,14 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
+import { isForeignProbe } from '../probe-paths'
 
 /**
- * A scratch probe belonging to a CONCURRENT process. Other test files plant
- * one under `src/` to prove their own gate can fail and delete it the moment
- * the assertion finishes; this walk listing one and then touching it fails a
- * correct build on a race, not on a finding (reproduced: two `pnpm
- * test:release` runs at once, ENOENT on the other run's probe). Skipping them
- * removes the race rather than narrowing its window.
- * `tests/coverage/slice-2c-gates.test.ts` carries the full account.
- *
- * EXACT match, never a prefix: a prefix form would also hide a real source
- * file named `zz-probe.tsx` from every gate here -- a gate walkable past by
- * choosing a filename. A leading dot and a trailing pid are both required.
+ * The one probe convention, hoisted into `tests/probe-paths.ts` — a scratch
+ * probe belonging to a CONCURRENT process is skipped, so this scan is blind
+ * to every probe but the ones it plants itself. That file carries the full
+ * account, including why the match is EXACT and never a prefix.
  */
-const isForeignProbe = (entry: string): boolean => /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry)
-
 function walk(dir: string, acc: string[] = []): string[] {
   for (const e of readdirSync(dir)) {
     if (isForeignProbe(e)) continue

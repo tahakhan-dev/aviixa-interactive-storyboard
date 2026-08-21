@@ -8,11 +8,12 @@ import {
   mkdirSync,
   existsSync,
 } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 import { JSDOM } from 'jsdom'
 import { namesPersonBehaviouralMeasure } from './person-measure-keys'
+import { isForeignProbe as isForeign, ownProbeDir, withPlanted } from '../probe-paths'
 
 import { STU_MODULES, STU_PERSONAS, type StudioModuleId } from '@/studio/modules'
 import {
@@ -197,9 +198,8 @@ const OUT_STUDIO = join('out', 'studio')
  * segment, so a concurrent `pnpm typecheck` or `next build` can never see a
  * probe mid-lifetime.
  */
-const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
-const isForeignProbe = (entry: string): boolean =>
-  /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry) && entry !== OWN_PROBE_DIR
+const OWN_PROBE_DIR = ownProbeDir()
+const isForeignProbe = (entry: string): boolean => isForeign(entry, OWN_PROBE_DIR)
 
 function walk(dir: string, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
@@ -230,23 +230,6 @@ process.on('exit', () => {
   }
 })
 
-/**
- * Plant a violation on the real filesystem, prove the gate catches it, then
- * remove it. Creation and the write are inside the `try`, so a failure
- * partway through still cleans up; the `process.on('exit')` above is a
- * second, independent path for a crash that skips a pending `finally`.
- */
-function withPlanted(root: string, name: string, contents: string, assertCaught: () => void): void {
-  const dir = join(root, OWN_PROBE_DIR)
-  try {
-    mkdirSync(dir, { recursive: true })
-    writeFileSync(join(dir, name), contents)
-    assertCaught()
-  } finally {
-    rmSync(dir, { recursive: true, force: true })
-  }
-}
-
 /* -------------------------------------------------------------------- *
  * THE BUILT ARTEFACT.
  *
@@ -266,13 +249,39 @@ interface BuiltRoute {
 }
 
 /**
- * THE FLOOR IS A CONSTANT, AND THE MESSAGE QUOTES THE SAME CONSTANT THE
- * ASSERTION USES. One Studio route per module slug that exists, plus the
- * index, plus `/studio/sign-in` and `/studio/journey` which are routes
- * without a module slug. Seventeen is the count below which the export is
- * not a Studio export at all.
+ * THE ROUTE POPULATION, DERIVED — NOT A HAND-WRITTEN FLOOR.
+ *
+ * This was `BUILT_STUDIO_ROUTE_FLOOR = 17` against an actual 18, asserted
+ * with `toBeGreaterThanOrEqual`. Losing exactly one Studio route was
+ * therefore green, forever, on a build that had silently stopped exporting
+ * one — and the number was standing in for a fact the tree already knows.
+ *
+ * DERIVED FROM THE AUTHORED TREE, ASSERTED AGAINST THE BUILT ONE. The
+ * expectation comes from `app/studio/**\/page.tsx`; the subject is
+ * `out/studio/**\/index.html`. Two different artefacts from two different
+ * inputs — an expectation read out of `out/` would prove only that the
+ * export equals itself, which is a mistake this build has now made four
+ * times. Only step 5 (`build`) of `pnpm verify` rewrites `out/`, and nothing
+ * in `verify` rewrites `app/`, so neither side is authored by the other.
+ *
+ * IT IS A SET, NOT A COUNT, and the set is the cheaper of the two to get
+ * right: a route that stops building and a route that appears in the export
+ * with no author in `app/` are both named in the failure rather than
+ * cancelling out in a total.
+ *
+ * ONE LEVEL DEEP, deliberately and visibly: `readAllBuiltStudioRoutes` below
+ * reads `out/studio/<entry>/index.html` and no deeper, so a nested authored
+ * route (`app/studio/a/b/page.tsx`) appears on the authored side, never on
+ * the built side, and turns this red rather than being silently uncovered by
+ * every gate in this file.
  */
-const BUILT_STUDIO_ROUTE_FLOOR = 17
+function authoredStudioRoutes(): readonly string[] {
+  const pages = walk(STUDIO_APP_ROOT).filter((f) => basename(f) === 'page.tsx')
+  return pages
+    .map((f) => relative(STUDIO_APP_ROOT, dirname(f)))
+    .map((rel) => (rel === '' ? '/studio' : `/studio/${rel.split(sep).join('/')}`))
+    .sort()
+}
 
 /**
  * Parsed built routes, cached on the exact bytes they were parsed from.
@@ -328,12 +337,22 @@ function readAllBuiltStudioRoutes(): readonly BuiltRoute[] {
  */
 function builtStudioRoutes(): readonly BuiltRoute[] {
   const routes = readAllBuiltStudioRoutes()
+  // This process's OWN probe is excluded from the population and from
+  // nothing else. Six gates in this file plant
+  // `out/studio/<own probe>/index.html` and require the content scans below
+  // to see it; it is still not a route, and counting it would make every
+  // planted case fail this guard instead of the gate it is aimed at.
+  const population = routes
+    .map((r) => r.route)
+    .filter((r) => r !== `/studio/${OWN_PROBE_DIR}`)
+    .sort()
   expect(
-    routes.length,
-    `out/studio holds ${routes.length} built routes; at least ${BUILT_STUDIO_ROUTE_FLOOR} are ` +
-      'expected. Run `pnpm build` — a scan of an empty export passes every negative assertion ' +
-      'in this file.',
-  ).toBeGreaterThanOrEqual(BUILT_STUDIO_ROUTE_FLOOR)
+    population,
+    'the built Studio export no longer matches the routes authored under app/studio. Run ' +
+      '`pnpm build`. A route present on one side only is either a page that stopped ' +
+      'exporting or an export with no author — and a scan of an empty export passes every ' +
+      'negative assertion in this file.',
+  ).toEqual(authoredStudioRoutes())
   return routes
 }
 
@@ -608,19 +627,54 @@ describe('slice 5 gate 1: no bare Studio module count in the built tree', () => 
     return offenders
   }
 
-  /** Every built page in the export, not only the Studio's. `AC-STU-014` binds
-   *  every screen this programme produces, and the coverage pages are screens
-   *  this programme produces. */
+  /**
+   * Every built page in the export, not only the Studio's. `AC-STU-014` binds
+   * every screen this programme produces, and the coverage pages are screens
+   * this programme produces.
+   *
+   * MEMOISED ON THE BYTES, exactly as `readAllBuiltStudioRoutes` above is and
+   * for the same reason. Three cases call this, and each call was re-running
+   * JSDOM over all seventy built pages -- the project's own rule is that a
+   * test slow because it REPEATS ITSELF is made faster rather than handed a
+   * longer budget, and two of those three passes were pure repetition.
+   * Measured with four whole-suite processes on the box: the first call takes
+   * ~7.8s, so the two it saves were the difference between this gate fitting
+   * inside its budget and timing out.
+   *
+   * The key is the content, never a file list or an mtime: the planted case
+   * below rewrites a page in place, and a cache that plant could not
+   * invalidate would serve the pre-plant document and turn the one proof this
+   * gate exists to make green.
+   */
+  let parsedAllPages: { key: string; pages: readonly BuiltRoute[] } | null = null
+
   function allBuiltPages(): readonly BuiltRoute[] {
-    const pages: BuiltRoute[] = []
+    const raw: { file: string; html: string }[] = []
     for (const file of walk('out')) {
       if (!file.endsWith('.html')) continue
-      const html = readFileSync(file, 'utf8')
-      pages.push({ route: file, file, html, doc: new JSDOM(html).window.document })
+      raw.push({ file, html: readFileSync(file, 'utf8') })
     }
+    const digest = createHash('sha1')
+    for (const r of raw) digest.update(r.file).update('\u0000').update(r.html).update('\u0001')
+    const key = digest.digest('hex')
+    if (parsedAllPages?.key === key) return parsedAllPages.pages
+    const pages = raw.map((r) => ({
+      route: r.file,
+      file: r.file,
+      html: r.html,
+      doc: new JSDOM(r.html).window.document,
+    }))
+    parsedAllPages = { key, pages }
     return pages
   }
 
+  // Timeout, per-test rather than per-project, on the same measurement and the
+  // same rule as the planted case below: this reads and parses every built
+  // page once, and under four concurrent whole-suite processes that real work
+  // runs ~7.8s of REAL time for well under a second of USER time -- the
+  // wait-for-scheduler signature, with the work itself unchanged. The repeated
+  // half is fixed above by memoising; what is left is work, so it gets
+  // headroom. Every OTHER release gate stays on the tight default.
   it('the page scan is non-empty and reaches the Studio index', () => {
     const pages = allBuiltPages()
     expect(pages.length, 'out/ holds no built HTML — run `pnpm build`').toBeGreaterThan(50)
@@ -639,14 +693,14 @@ describe('slice 5 gate 1: no bare Studio module count in the built tree', () => 
     expect(MODULE_COUNT.test('the module template is identical for all eighteen')).toBe(false)
     expect(NAMES_THE_STUDIO.test('63 of 81 modules')).toBe(false)
     expect(NAMES_THE_STUDIO.test('the 18 Studio modules')).toBe(true)
-  })
+  }, 30_000)
 
   it('every rendered Studio module count carries its qualifier and DEC-STUDIO-001', () => {
     expect(
       moduleCountOffenders(allBuiltPages()),
       'a Studio module count renders without its qualifier',
     ).toEqual([])
-  })
+  }, 30_000)
 
   it('the count that DOES render is the registry length, so the gate is not passing on nothing', () => {
     const index = builtStudioRoutes().find((r) => r.route === '/studio')

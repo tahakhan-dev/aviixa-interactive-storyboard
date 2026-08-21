@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { isForeignProbe } from '../probe-paths'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { loadGeneratedRegistry } from '@/coverage/registry-loader'
@@ -79,7 +80,6 @@ describe('workflow registry', () => {
     // `tests/coverage/slice-2c-gates.test.ts` carries the full account. EXACT
     // match, never a prefix: a prefix form would also hide a real screen file
     // named `zz-probe.tsx` from this scan.
-    const isForeignProbe = (name: string): boolean => /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(name)
     const walk = (dir: string): void => {
       for (const e of readdirSync(dir, { withFileTypes: true })) {
         if (isForeignProbe(e.name)) continue

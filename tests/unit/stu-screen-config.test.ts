@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { isForeignProbe } from '../probe-paths'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -901,8 +902,15 @@ describe('the two frozen components this screen mounts', () => {
 describe('row 8 is a statement about another surface, never a control', () => {
   // RED IF: any Studio route grows an action-bundle editor.
   it('offers no action-bundle editor on any Studio route', () => {
+    // `app/studio` is a LIVE plant root -- `tests/coverage/slice-05-gates.test.ts`
+    // creates `app/studio/<probe>/` there and deletes it as soon as its own
+    // assertion finishes. This listing keeps DIRECTORY entries, so it admitted
+    // that probe and then read inside it: ENOENT on a correct build, on a race
+    // rather than on a finding. It is not recursive, which is why a rule about
+    // recursive walks alone would not have found it.
+    // `tests/probe-paths.ts` carries the full account.
     const routes = readdirSync(join(process.cwd(), 'app', 'studio'), { withFileTypes: true })
-      .filter((e) => e.isDirectory())
+      .filter((e) => e.isDirectory() && !isForeignProbe(e.name))
     expect(routes.length).toBeGreaterThan(5)
     const offenders: string[] = []
     for (const route of routes) {

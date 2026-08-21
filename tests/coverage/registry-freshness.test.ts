@@ -28,6 +28,7 @@ import { readFileSync, readdirSync, mkdtempSync, rmSync, statSync } from 'node:f
 import { execFileSync } from 'node:child_process'
 import { join, relative } from 'node:path'
 import { tmpdir } from 'node:os'
+import { isForeignProbe } from '../probe-paths'
 
 const GENERATORS = [
   'scripts/build-registries.mjs',
@@ -54,11 +55,32 @@ const COMMITTED = 'registries/generated'
  */
 const HAND_AUTHORED = ['source-reconciliation.json'] as const
 
-/** Every generated file, path-relative to the output root, recursively. */
+/**
+ * Every generated file, path-relative to the output root, recursively.
+ *
+ * THE FOREIGN-PROBE EXCLUSION IS LOAD-BEARING HERE IN A WAY IT IS NOWHERE
+ * ELSE, because this is the one walker that compares FILE SETS rather than
+ * scanning file contents. `slice-2c-gates.test.ts` plants a scratch registry
+ * `.zz-probe-<pid>.json` directly inside `registries/generated` — it must, to
+ * trip a gate that lists that directory one level deep and keys on the
+ * extension. A concurrent `pnpm test:release` therefore leaves a file in
+ * `committed` that is absent from the fresh `scratch` generation, and the set
+ * equality below goes red on a perfectly coherent tree.
+ *
+ * Note which tail is met here: the probe in THIS directory is the `.json`
+ * one, not a `.zz-probe-<pid>` DIRECTORY. A predicate covering only the
+ * directory shape would have left this hole exactly as it was — see
+ * `tests/probe-paths.ts`, which is why there is now one predicate and not
+ * two.
+ *
+ * No `own` argument: this file plants nothing, so it should see no probe at
+ * all, and the `scratch` side is a private temp directory no other process
+ * can reach.
+ */
 function walk(root: string, prefix = ''): readonly string[] {
-  return readdirSync(join(root, prefix), { withFileTypes: true }).flatMap((e) =>
-    e.isDirectory() ? walk(root, join(prefix, e.name)) : [join(prefix, e.name)],
-  )
+  return readdirSync(join(root, prefix), { withFileTypes: true })
+    .filter((e) => !isForeignProbe(e.name))
+    .flatMap((e) => (e.isDirectory() ? walk(root, join(prefix, e.name)) : [join(prefix, e.name)]))
 }
 
 describe('the registries on disk are what the current tree generates', () => {
@@ -114,8 +136,13 @@ describe('no test writes the artefacts it checks', () => {
 
   function testFiles(): readonly string[] {
     const out: string[] = []
+    // Same rule as every other recursive walk in `tests/`: ask the question
+    // rather than reason about whether this particular root can meet a probe.
+    // No plant site aims at `tests/` today; four walks were left unguarded on
+    // exactly that kind of reasoning.
     const visit = (dir: string): void => {
       for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (isForeignProbe(e.name)) continue
         const p = join(dir, e.name)
         if (e.isDirectory()) visit(p)
         else if (/\.(test|spec)\.tsx?$/.test(e.name)) out.push(p)

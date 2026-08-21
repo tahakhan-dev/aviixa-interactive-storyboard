@@ -2,9 +2,10 @@ import { describe, it, expect, afterAll } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { execFileSync } from 'node:child_process'
-import { writeFileSync, rmSync, mkdirSync, mkdtempSync, existsSync, readFileSync } from 'node:fs'
+import { rmSync, mkdtempSync, existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { ownProbeDir, withPlanted as plantProbe } from '../probe-paths'
 import { surfaceById } from '@/domain/surfaces'
 import { routeBySurface } from '@/routes/definitions'
 import type { PermissionOutcome } from '@/policy/decision'
@@ -809,7 +810,8 @@ describe('app/studio/page.tsx', () => {
  * entry that has already been deleted rather than crashing on it, which
  * removes the same race from the other side.
  */
-const PROBE_DIR = join('src', 'studio', `.zz-probe-stu-reach-${process.pid}`)
+const PROBE_ENTRY = ownProbeDir('stu-reach')
+const PROBE_DIR = join('src', 'studio', PROBE_ENTRY)
 const PROBE = join(PROBE_DIR, 'probe.ts')
 const clearProbe = () => rmSync(PROBE_DIR, { recursive: true, force: true })
 
@@ -817,13 +819,7 @@ clearProbe()
 process.on('exit', clearProbe)
 
 function withPlanted(contents: string, assert: () => void): void {
-  try {
-    mkdirSync(PROBE_DIR, { recursive: true })
-    writeFileSync(PROBE, contents)
-    assert()
-  } finally {
-    clearProbe()
-  }
+  plantProbe(join('src', 'studio'), 'probe.ts', contents, assert, PROBE_ENTRY)
 }
 
 // The generator writes its whole output tree wherever AVIIXA_REGISTRY_OUT
@@ -905,7 +901,7 @@ describe('scripts/build-stu-module-reach.mjs — the direction guard', () => {
           const planted = runGenerator()
           expect(planted.ok).toBe(false)
           expect(planted.output).toMatch(/VALUE-imports app\//)
-          expect(planted.output).toMatch(/zz-probe-stu-reach/)
+          expect(planted.output).toContain(PROBE_ENTRY)
         },
       )
 

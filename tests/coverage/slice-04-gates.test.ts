@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 import { JSDOM } from 'jsdom'
 import { stripComments } from './strip-comments'
+import { isForeignProbe as isForeign, ownProbeDir, withPlanted } from '../probe-paths'
 import { namesPersonBehaviouralMeasure } from './person-measure-keys'
 import {
   DOH_MODULES,
@@ -110,9 +111,8 @@ const OUT_HUB = join('out', 'hub')
  * shape and not the other. The dot and the trailing pid are still both
  * required, so `zz-probe.tsx` and `zz-probeHelpers.tsx` still match nothing.
  */
-const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
-const isForeignProbe = (entry: string): boolean =>
-  /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry) && entry !== OWN_PROBE_DIR
+const OWN_PROBE_DIR = ownProbeDir()
+const isForeignProbe = (entry: string): boolean => isForeign(entry, OWN_PROBE_DIR)
 
 function walk(dir: string, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
@@ -137,29 +137,6 @@ function hubSources(): { file: string; src: string }[] {
   return walk(HUB_ROOT)
     .filter((f) => /\.tsx?$/.test(f))
     .map((f) => ({ file: f, src: stripComments(readFileSync(f, 'utf8')) }))
-}
-
-/**
- * Plant a violation on the real filesystem, prove the gate catches it, then
- * remove it and prove the gate goes quiet again.
- *
- * Creation and the write are inside the `try`, so a failure partway through
- * still cleans up. The module-level `process.on('exit', ...)` below is a
- * second, independent path for a crash that skips a pending `finally`; a
- * hard kill bypasses both, and a probe orphaned that way is handled by the
- * two properties above instead of by cleanup — invisible to `tsc` and to
- * `next build`, and foreign to every later run's walk.
- */
-function withPlanted(root: string, name: string, contents: string, assertCaught: (probe: string) => void): void {
-  const dir = join(root, OWN_PROBE_DIR)
-  const probe = join(dir, name)
-  try {
-    mkdirSync(dir, { recursive: true })
-    writeFileSync(probe, contents)
-    assertCaught(probe)
-  } finally {
-    rmSync(dir, { recursive: true, force: true })
-  }
 }
 
 const PROBE_ROOTS = [HUB_ROOT, OUT_HUB, ...DOH_MODULES.map((m) => join(HUB_ROOT, m.slug))]

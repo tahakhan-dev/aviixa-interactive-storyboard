@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, statSync, writeFileSync, rmSync, mkdirSync, existsSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync, rmSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
+import { isForeignProbe as isForeign, ownProbeDir, withPlanted as plantProbe } from '../probe-paths'
 import { SA_MODULES } from '@/surfaces/sa/modules'
 import { SA_TENANTS } from '@/surfaces/sa/tenants'
 import { SA_FRESHNESS, saAggregateText, saFreshnessFor } from '@/surfaces/sa/freshness'
@@ -33,7 +34,7 @@ const SA_ROOT = join('app', 'super-admin')
 // it reports the error, no longer exists. `readdirSync` (what `walk` uses)
 // has no such blind spot, so `saSources()` still sees the probe exactly as
 // before; only external tooling that globs the tree loses sight of it.
-const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
+const OWN_PROBE_DIR = ownProbeDir()
 
 // The one predicate every SA_ROOT-listing site routes through -- walk() and
 // five other `readdirSync(SA_ROOT)` call sites each independently listed
@@ -50,7 +51,15 @@ const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
 // -- invisible to every gate, a safety gate walkable past by choosing a
 // filename. This matches only the exact directory name this code can ever
 // create.
-const isForeignProbe = (e: string): boolean => /^\.zz-probe-\d+$/.test(e) && e !== OWN_PROBE_DIR
+//
+// DISAGREEMENT RECONCILED, and the copy here was the WRONG one. This file's
+// predicate read `/^\.zz-probe-\d+$/`, with no optional middle group, so it
+// did NOT recognise `tests/component/stu-shell.test.tsx`'s
+// `.zz-probe-stu-reach-<pid>` -- and `walk()` below covers `src/ui/sa` and
+// `src/surfaces/sa`, both under a `src/` tree that suite plants into.
+// `slice-04-gates.test.ts` had already recorded that correction; this file
+// never received it. The corrected form now comes from one place.
+const isForeignProbe = (e: string): boolean => isForeign(e, OWN_PROBE_DIR)
 const saEntries = (): string[] => readdirSync(SA_ROOT).filter((e) => !isForeignProbe(e))
 
 function walk(dir: string, acc: string[] = []): string[] {
@@ -117,15 +126,7 @@ function saSources(): { file: string; src: string }[] {
  * re-enters a gate's scan.
  */
 function withPlanted(contents: string, assertCaught: (probe: string) => void): void {
-  const dir = join(SA_ROOT, OWN_PROBE_DIR)
-  const probe = join(dir, 'Probe.tsx')
-  try {
-    mkdirSync(dir, { recursive: true })
-    writeFileSync(probe, contents)
-    assertCaught(probe)
-  } finally {
-    rmSync(dir, { recursive: true, force: true })
-  }
+  plantProbe(SA_ROOT, 'Probe.tsx', contents, assertCaught, OWN_PROBE_DIR)
 }
 
 // Defend against pid reuse: if a PAST crashed run left OWN_PROBE_DIR behind
@@ -608,7 +609,7 @@ describe('slice 3 gate 10: one name per illustrative tenant', () => {
   it('PLANTED VIOLATION: a re-worded tenant name trips the gate', () => {
     withPlanted(
       'export const P = () => <p>Bright Bikes Manufacturing Ltd (TEN-BRIGHTBIKES)</p>\n',
-      () => {
+      (probe) => {
         const known = new Map(SA_TENANTS.map((t) => [t.id, t.name]))
         const wrong: string[] = []
         for (const { file, src } of saSources()) {
@@ -617,7 +618,10 @@ describe('slice 3 gate 10: one name per illustrative tenant', () => {
             if (canonical !== undefined && (m[1] ?? '').trim() !== canonical) wrong.push(file)
           }
         }
-        expect(wrong.join(' ')).toContain('zz-probe')
+        // The probe's OWN path, not the naming convention as a substring: the
+        // convention now lives in one place, and asserting on the exact file
+        // planted is the stronger claim anyway.
+        expect(wrong).toContain(probe)
       },
     )
   })

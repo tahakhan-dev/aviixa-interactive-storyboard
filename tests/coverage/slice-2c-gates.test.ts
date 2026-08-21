@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, statSync, existsSync, writeFileSync, rmSync, mkdirSync } from 'node:fs'
+import {
+  isForeignProbe as isForeign,
+  ownProbeDir,
+  presentOrNull,
+  withPlanted as withProbe,
+} from '../probe-paths'
+import { readFileSync, readdirSync, statSync, existsSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
 import { loadRegistry } from '@/registry/load'
@@ -43,31 +49,8 @@ import { REGISTRY_DESCRIPTORS, countByClass } from '@/coverage/descriptors'
  * `.zz-probe-stu-reach-<pid>`; a leading dot AND a trailing pid are both
  * still required, so `zz-probe.tsx` and `zz-probeHelpers.tsx` match nothing.
  */
-const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
-const isForeignProbe = (entry: string): boolean =>
-  /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry) && entry !== OWN_PROBE_DIR
-
-/**
- * ENOENT ON AN ENTRY THIS WALK ITSELF LISTED IS TOLERATED, and that is not
- * laziness -- it is the same rule `scripts/build-stu-module-reach.mjs` states
- * for the same reason. Part 3 above removes the probe race outright, but
- * `walk('out')` also runs while a sibling `pnpm build` is rewriting `out/`,
- * and a file that disappears between the listing and the touch is not a
- * finding. It cannot hide one either: only an ALREADY-DELETED path is
- * skipped, and a deleted file ships nothing and renders nothing.
- *
- * The ROOT is deliberately NOT covered -- `walk('out')` on a missing `out/`
- * must still fail loudly rather than scan zero files and pass, which is the
- * vacuous pass `prohibited-patterns.test.ts` already guards against.
- */
-function presentOrNull<T>(read: () => T): T | null {
-  try {
-    return read()
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException | null)?.code === 'ENOENT') return null
-    throw err
-  }
-}
+const OWN_PROBE_DIR = ownProbeDir()
+const isForeignProbe = (entry: string): boolean => isForeign(entry, OWN_PROBE_DIR)
 
 function walk(dir: string, acc: string[] = []): string[] {
   if (!existsSync(dir)) return acc
@@ -94,9 +77,14 @@ const REGISTRY_DIR = 'registries/generated'
  * keys on the extension -- a probe inside a subdirectory would be invisible to
  * the very gate it exists to trip.
  */
+//
+// SECOND PREDICATE RETIRED. This shape had its own private copy, and it was
+// the copy that mattered most: `registry-freshness.test.ts` walks this same
+// directory comparing FILE SETS, and a directory-only predicate would not
+// have recognised the probe it actually meets here. One predicate covers
+// both tails now -- see `tests/probe-paths.ts`.
 const OWN_PROBE_JSON = `${OWN_PROBE_DIR}.json`
-const isForeignProbeJson = (f: string): boolean =>
-  /^\.zz-probe-\d+\.json$/.test(f) && f !== OWN_PROBE_JSON
+const isForeignProbeJson = (f: string): boolean => isForeign(f, OWN_PROBE_JSON)
 
 /** Every root this file plants a probe under, cleared before and after the run. */
 const PROBE_ROOTS = [join('app', 'coverage'), join('app', 'workflows'), join('src', 'review'), 'out']
@@ -121,23 +109,6 @@ process.on('exit', () => {
     // Best-effort: nothing else can run once the process is exiting.
   }
 })
-
-/**
- * Plant a scratch file at this process's own probe path, prove the gate sees
- * it, then remove it. Creation and write are inside the `try`, so a failure
- * partway through still cleans up rather than only the success path doing so.
- */
-function withProbe(root: string, name: string, contents: string, assert: (probe: string) => void): void {
-  const dir = join(root, OWN_PROBE_DIR)
-  const probe = join(dir, name)
-  try {
-    mkdirSync(dir, { recursive: true })
-    writeFileSync(probe, contents)
-    assert(probe)
-  } finally {
-    rmSync(dir, { recursive: true, force: true })
-  }
-}
 
 /**
  * Walked fresh on every call (not cached at module load), same discipline

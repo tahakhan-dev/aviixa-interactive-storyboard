@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { isForeignProbe } from '../probe-paths'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { TENANT_STATES } from '@/surfaces/doh/tenant-state'
@@ -41,7 +42,6 @@ describe('TENANT_STATE_OPTIONS — the one place the Select list is built', () =
     // a finding. `tests/coverage/slice-2c-gates.test.ts` carries the full
     // account. EXACT match, never a prefix: a prefix form would also hide a
     // real screen file named `zz-probe.tsx` from this scan.
-    const isForeignProbe = (e: string): boolean => /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(e)
 
     const offenders: string[] = []
     const walk = (dir: string): void => {

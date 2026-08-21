@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
+import { isForeignProbe } from '../probe-paths'
 import { TrainingLibraryScreen } from '../../app/studio/training-library/TrainingLibraryScreen'
 import { STUDIO_PERSONA_COLUMNS } from '@/studio/access/evaluate'
 import { reachByStudioMatrix, STU_MODULES, stuModuleById } from '@/studio/modules'
@@ -70,8 +71,19 @@ const ROUTE_DIR = join(process.cwd(), 'app', 'studio', 'training-library')
 const APP_DIR = join(process.cwd(), 'app')
 const SRC_STUDIO_DIR = join(process.cwd(), 'src', 'studio')
 
+/**
+ * A CONCURRENT process's scratch probe is skipped, and this walk is one of
+ * the two that needed it most: it covers all of `src/studio`, which is
+ * exactly where `tests/component/stu-shell.test.tsx` plants
+ * `.zz-probe-stu-reach-<pid>` and deletes it again the moment its own
+ * assertion finishes. Listing it and then reading it fails a correct build on
+ * a race, not on a finding. `tests/probe-paths.ts` carries the full account.
+ *
+ * No `own` argument: this file plants nothing, so it should see no probe.
+ */
 function filesUnder(dir: string, match: RegExp, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (isForeignProbe(entry.name)) continue
     const full = join(dir, entry.name)
     if (entry.isDirectory()) filesUnder(full, match, acc)
     else if (match.test(entry.name)) acc.push(full)

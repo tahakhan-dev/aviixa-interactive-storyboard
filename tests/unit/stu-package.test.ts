@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { isForeignProbe } from '../probe-paths'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -75,8 +76,20 @@ import {
 const STU_14_DIR = join(process.cwd(), 'src', 'studio', 'modules', 'stu-14')
 const ROUTE_DIR = join(process.cwd(), 'app', 'studio', 'work-package')
 
+/**
+ * A CONCURRENT process's scratch probe is skipped. No plant site aims at
+ * either of these two directories TODAY — but "this one cannot meet a probe"
+ * is the reasoning that left four recursive walks unguarded, three of them
+ * missed by a written list, so every recursive walk under `tests/` now asks
+ * the question rather than each author deciding whether it needs to.
+ * `tests/probe-paths.ts` carries the full account. The rule is enforced by
+ * `tests/coverage/prohibited-patterns.test.ts`.
+ *
+ * No `own` argument: this file plants nothing, so it should see no probe.
+ */
 function filesUnder(dir: string, match: RegExp, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (isForeignProbe(entry.name)) continue
     const full = join(dir, entry.name)
     if (entry.isDirectory()) filesUnder(full, match, acc)
     else if (match.test(entry.name)) acc.push(full)

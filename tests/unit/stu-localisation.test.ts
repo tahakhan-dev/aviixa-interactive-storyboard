@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
+import { isForeignProbe } from '../probe-paths'
 import { LocalisationScreen } from '../../app/studio/localisation/LocalisationScreen'
 import { reachByStudioMatrix, STU_PERSONAS } from '@/studio/modules'
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
@@ -75,8 +76,20 @@ const APP_DIR = join(process.cwd(), 'app')
 const LOCALE_PACK_LIFECYCLE = /locale[-\s]pack\s+(management|versioning|governance)/i
 const LOCALE_PACK_MANAGEMENT = /manage\s+(a\s+|the\s+)?locale[-\s]pack/i
 
+/**
+ * A CONCURRENT process's scratch probe is skipped. This walk covers all of
+ * `app/`, so it meets every probe any sibling suite plants under any surface
+ * — `slice-04-gates` under `app/hub/`, `slice-05-gates` under `app/studio/`,
+ * `slice-2c-gates` under `app/coverage/` and `app/workflows/` — each deleted
+ * the moment its own assertion finishes. Listing one and then reading it
+ * fails a correct build on a race, not on a finding.
+ * `tests/probe-paths.ts` carries the full account.
+ *
+ * No `own` argument: this file plants nothing, so it should see no probe.
+ */
 function filesUnder(dir: string, match: RegExp, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (isForeignProbe(entry.name)) continue
     const full = join(dir, entry.name)
     if (entry.isDirectory()) filesUnder(full, match, acc)
     else if (match.test(entry.name)) acc.push(full)

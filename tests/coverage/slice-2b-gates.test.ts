@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { isForeignProbe as isForeign, ownProbeDir } from '../probe-paths'
 import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
@@ -15,9 +16,8 @@ import { stripComments } from './strip-comments'
  * named `zz-probe.tsx` from every gate in this file -- a safety gate walkable
  * past by choosing a filename.
  */
-const OWN_PROBE_DIR = `.zz-probe-${process.pid}`
-const isForeignProbe = (entry: string): boolean =>
-  /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(entry) && entry !== OWN_PROBE_DIR
+const OWN_PROBE_DIR = ownProbeDir()
+const isForeignProbe = (entry: string): boolean => isForeign(entry, OWN_PROBE_DIR)
 
 const PROBE_DIR = join('src', OWN_PROBE_DIR)
 

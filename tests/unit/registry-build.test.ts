@@ -3,6 +3,7 @@ import { readFileSync, existsSync, readdirSync, mkdtempSync, rmSync } from 'node
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { execFileSync } from 'node:child_process'
+import { isForeignProbe } from '../probe-paths'
 
 const SLUGS = [
   'modules', 'features', 'sub-features', 'functions', 'workflows',
@@ -229,7 +230,6 @@ describe('per-item status is computed from the built tree, not hardcoded', () =>
     // `tests/coverage/slice-2c-gates.test.ts` carries the full account. EXACT
     // match, never a prefix: a prefix form would also hide a real screen file
     // named `zz-probe.tsx` from this scan.
-    const isForeignProbe = (name: string): boolean => /^\.zz-probe-(?:[a-z0-9-]+-)?\d+$/.test(name)
     const walk = (dir: string): void => {
       for (const e of readdirSync(dir, { withFileTypes: true })) {
         if (isForeignProbe(e.name)) continue
