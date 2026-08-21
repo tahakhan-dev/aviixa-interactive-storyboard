@@ -147,22 +147,62 @@ export function evaluateFrontlineAccess(
   // the platform's own reading (`isRefusal` returns true for it, so this is
   // already handled above) — noted so the next reader does not add a branch.
 
-  if (ctx.online) {
-    if (req.forcesSyncFirst === true) {
-      return decide(
-        'allowedWithConditions',
-        'CONDITIONS_APPLY',
-        'This action needs current qualification information, so the device synchronises before it runs.',
-        {
-          stage: 'DEVICE_AND_CONNECTIVITY',
-          sourceRefs: [...req.sourceRefs, 'L48668'],
-          auditExpectation: 'RECORDED',
-          conditionToEnable: 'A synchronisation completes first.',
-        },
-      )
-    }
-    return base
+  /**
+   * THE FORCED SYNC IS ASKED BEFORE CONNECTIVITY, NOT INSIDE IT.
+   *
+   * This check sat inside the `ctx.online` branch below, so a permitted write
+   * taken offline fell through to the queue and came back `queuedOffline` —
+   * whatever the act was. For a designated high-risk act that is the wrong
+   * answer in the source's own words:
+   *
+   * The rule is stated at L40224: "Step-up for a forced-sync action does not
+   * proceed offline, because the whole point of forcing the sync is that the
+   * identities and authority those actions record are fresh, not stale
+   * cache."
+   *
+   * It is told as a story at L40307: "the sign-off does not proceed on stale
+   * cache; the step waits."
+   *
+   * `FUNC-B9-03-1-2` states it as a functionality at L41706, and `TEST-B9-7`
+   * at L41765 asks for a test asserting that NO PARTIAL SIGN-OFF RECORD IS
+   * CREATED — and a queued sign-off is exactly such a record.
+   *
+   * `MOD-FL-A1` and `MOD-FL-B9` found this independently, from different
+   * sections, while wave 0 was already committed.
+   *
+   * The outcome stays `allowedWithConditions` in both connectivity states,
+   * and that is the point rather than an oversight: a forced sync names a
+   * STEP, not a denial. What changes is which step, and whether the worker
+   * can take it now. Refusing offline instead would make connectivity a
+   * gate on authority, which is the shape L40948 exists to forbid.
+   */
+  if (req.forcesSyncFirst === true) {
+    return ctx.online
+      ? decide(
+          'allowedWithConditions',
+          'CONDITIONS_APPLY',
+          'This action needs current qualification information, so the device synchronises before it runs.',
+          {
+            stage: 'DEVICE_AND_CONNECTIVITY',
+            sourceRefs: [...req.sourceRefs, 'L48668'],
+            auditExpectation: 'RECORDED',
+            conditionToEnable: 'A synchronisation completes first.',
+          },
+        )
+      : decide(
+          'allowedWithConditions',
+          'CONDITIONS_APPLY',
+          'This action records who authorised it, so it needs a fresh check with the server first. The device has no connection, so the step waits rather than being recorded now.',
+          {
+            stage: 'DEVICE_AND_CONNECTIVITY',
+            sourceRefs: [...req.sourceRefs, 'L48668', 'L40224', 'L40307'],
+            auditExpectation: 'RECORDED',
+            conditionToEnable: 'The device reaches the server and the forced synchronisation completes.',
+          },
+        )
   }
+
+  if (ctx.online) return base
 
   // OFFLINE, AND PERMITTED. This is the whole of the layer.
   if (ctx.intent === 'write') {

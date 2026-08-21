@@ -114,24 +114,50 @@ export const FL_TOKEN_TALLY: Readonly<Record<string, number>> = {
 
 /**
  * All eleven `Client Decision Required` cells sit in the Tenant Admin
- * column, and every one of them defers to the same unanswered question —
- * whether a Tenant Admin holds a device session at all (L39837,
+ * column. **Ten of them defer to one question and the eleventh does not**,
+ * and this comment used to say all eleven did.
+ *
+ * The ten: whether a Tenant Admin holds a device session at all (L39837,
  * `AC-FL-009-5` at L39948). `src/routes/definitions.ts` records that
- * question once so these eleven are not answered eleven times privately.
+ * question once so the ten are not answered ten times privately.
+ *
+ * The eleventh is **L41300**, `MOD-FL-A7` row 4 — triggering a remote data
+ * wipe or de-authorisation. Its cell gives its own different reason in its
+ * own words: the Statement of Work places device wipe and de-authorisation
+ * in the platform critical class and does not grant it to a Tenant Admin.
+ * The source files it separately at L41368 and L41446. It is not a
+ * device-session question and answering the device-session question would
+ * not answer it.
+ *
+ * Marked below so a reader cannot inherit the wrong reason from the
+ * neighbours it sits among. `MOD-FL-A7` found this by transcribing the cell
+ * and noticing it argued.
  */
 export const TENANT_ADMIN_OPEN_CELLS = [
-  { module: 'MOD-FL-A1', sourceRef: 'L40188' },
-  { module: 'MOD-FL-A1', sourceRef: 'L40189' },
-  { module: 'MOD-FL-A1', sourceRef: 'L40190' },
-  { module: 'MOD-FL-A1', sourceRef: 'L40192' },
-  { module: 'MOD-FL-A2', sourceRef: 'L40361' },
-  { module: 'MOD-FL-A3', sourceRef: 'L40526' },
-  { module: 'MOD-FL-A3', sourceRef: 'L40534' },
-  { module: 'MOD-FL-A4', sourceRef: 'L40722' },
-  { module: 'MOD-FL-A7', sourceRef: 'L41300' },
-  { module: 'MOD-FL-B9', sourceRef: 'L41623' },
-  { module: 'MOD-FL-B9', sourceRef: 'L41624' },
-] as const
+  { module: 'MOD-FL-A1', sourceRef: 'L40188', defersTo: 'tenant-admin-device-session' },
+  { module: 'MOD-FL-A1', sourceRef: 'L40189', defersTo: 'tenant-admin-device-session' },
+  { module: 'MOD-FL-A1', sourceRef: 'L40190', defersTo: 'tenant-admin-device-session' },
+  { module: 'MOD-FL-A1', sourceRef: 'L40192', defersTo: 'tenant-admin-device-session' },
+  { module: 'MOD-FL-A2', sourceRef: 'L40361', defersTo: 'tenant-admin-device-session' },
+  { module: 'MOD-FL-A3', sourceRef: 'L40526', defersTo: 'tenant-admin-device-session' },
+  { module: 'MOD-FL-A3', sourceRef: 'L40534', defersTo: 'tenant-admin-device-session' },
+  { module: 'MOD-FL-A4', sourceRef: 'L40722', defersTo: 'tenant-admin-device-session' },
+  // The one cell of the eleven that is NOT the device-session question. See
+  // the note above: its own words give the platform critical class as the
+  // reason, and the source files it at L41368 and L41446.
+  { module: 'MOD-FL-A7', sourceRef: 'L41300', defersTo: 'platform-critical-class' },
+  { module: 'MOD-FL-B9', sourceRef: 'L41623', defersTo: 'tenant-admin-device-session' },
+  { module: 'MOD-FL-B9', sourceRef: 'L41624', defersTo: 'tenant-admin-device-session' },
+] as const satisfies readonly {
+  readonly module: string
+  readonly sourceRef: string
+  /**
+   * WHICH unanswered question the cell defers to. Ten defer to the
+   * device-session question; L41300 does not, and typing the field is what
+   * stops the next reader assuming a majority is a rule.
+   */
+  readonly defersTo: 'tenant-admin-device-session' | 'platform-critical-class'
+}[]
 
 /**
  * WHERE A ROW'S CAPABILITY IS MET. Four members, and the fourth is the one

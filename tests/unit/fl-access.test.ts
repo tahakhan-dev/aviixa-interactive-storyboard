@@ -141,6 +141,56 @@ describe('evaluateFrontlineAccess — the two offline outcomes', () => {
     expect(isRefusal(d)).toBe(false)
     expect(d.sourceRefs).toContain('L48668')
   })
+
+  // FAILS IF: a forced-sync act taken offline falls through to the queue.
+  //
+  // THE CASE ABOVE ASKS THIS QUESTION ONLY WITH `online: true`, AND THAT IS
+  // HOW THE DEFECT SHIPPED. `forcesSyncFirst` was tested inside the
+  // evaluator's `ctx.online` branch, so the same request offline reached the
+  // write queue and came back `queuedOffline` — a sign-off recorded as
+  // pending on stale cache. `MOD-FL-A1` and `MOD-FL-B9` each found it
+  // independently, from different sections, after wave 0 was committed.
+  //
+  // The source is explicit and says it three times. L40224: "Step-up for a
+  // forced-sync action does not proceed offline, because the whole point of
+  // forcing the sync is that the identities and authority those actions
+  // record are fresh, not stale cache." L40307 tells it as a story — "the
+  // sign-off does not proceed on stale cache; the step waits." `TEST-B9-7`
+  // (L41765) asks for a test asserting NO PARTIAL SIGN-OFF RECORD IS
+  // CREATED, and a queued sign-off is precisely such a record.
+  //
+  // It stays a CONDITION rather than becoming a refusal. Refusing it would
+  // make connectivity a gate on authority, which is the shape L40948 exists
+  // to forbid. What changes offline is which step the worker is waiting on.
+  //
+  // Planted: the check moved back inside the online branch — red here on
+  // `queuedOffline`, while the ordering assertion in `fl-b9.test.ts` catches
+  // the same move from the layout side. Restored.
+  it('does not queue a forced-synchronisation act taken offline', () => {
+    const req = {
+      ...CAPTURE,
+      action: 'Authorise a required supervisor sign-off',
+      forcesSyncFirst: true,
+      sourceRefs: ['L41623'],
+    }
+    const off = evaluateFrontlineAccess(
+      req,
+      ctx({ online: false, intent: 'write', servedFromLocalStore: false }),
+    )
+    expect(off.outcome).not.toBe('queuedOffline')
+    expect(off.outcome).toBe('allowedWithConditions')
+    expect(isRefusal(off)).toBe(false)
+    expect(off.sourceRefs).toContain('L40224')
+    expect(off.conditionToEnable ?? '').toMatch(/synchronisation/i)
+
+    // And the plain write that forces no sync still queues, so the fix did
+    // not turn the offline queue off for everything.
+    const plain = evaluateFrontlineAccess(
+      CAPTURE,
+      ctx({ online: false, intent: 'write', servedFromLocalStore: false }),
+    )
+    expect(plain.outcome).toBe('queuedOffline')
+  })
 })
 
 describe('the vocabulary this surface uses', () => {

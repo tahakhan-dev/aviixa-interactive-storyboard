@@ -154,7 +154,13 @@ describe('DEC-SYNC-001 — the reconnection order', () => {
     expect(ids).not.toContain('CMD-FL-WIPE')
     expect(ids).not.toContain('CMD-FL-DEAUTH')
     for (const g of STOP_CLASS_ITEMS_WITHOUT_A_COMMAND_CLASS) {
-      expect(g.openDecision, g.item).toBe('DEC-WIPE-001')
+      // `DEC-CMDCLASS-001`, not `DEC-WIPE-001`. The source raises this exact
+      // gap at L51551 and holds the two apart in the same line: DEC-WIPE-001
+      // "remains separate and unresolved: it concerns how long a wipe may
+      // remain pending". This assertion read DEC-WIPE-001 until MOD-FL-A7
+      // transcribed L41300, went looking for the decision behind it, and
+      // found the channel question has its own.
+      expect(g.openDecision, g.item).toBe('DEC-CMDCLASS-001')
       expect(g.whereTheActLives, g.item).toContain('L41300')
     }
   })

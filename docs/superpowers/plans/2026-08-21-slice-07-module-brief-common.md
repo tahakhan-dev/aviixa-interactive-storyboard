@@ -189,3 +189,54 @@ transcribed there.
 5. The command output for typecheck, lint, unit and component, verbatim tail.
 6. Anything you could not establish, marked unrecorded — never inferred, never filled with
    a plausible value.
+
+## The decision canon does not hold Frontline's decisions — known, measured, and not yours to fix
+
+`src/disclosure/decisions.ts` holds **29 records**, every one raised while `SURF-STU` and
+the platform surfaces were built. Wave 1's four modules each reached for it and each found
+its own decisions missing. The identifiers confirmed absent so far: `DEC-MSG-001`,
+`DEC-WIPELOGOUT-001`, `DEC-SUSP-001`, `DEC-DEVICE-001`, `DEC-STORE-001`, `DEC-AREA-001`,
+`DEC-SITE-001`, `DEC-PLUS-001`, `DEC-SCAN-001`, `DEC-PKGFIELD-001`, `DEC-GATE-001`,
+`DEC-NOSHIFT-001`, `DEC-CLOCKWIN-001` — **thirteen**, and twenty-five `DEC` records touch
+this slice.
+
+**Do not edit `src/disclosure/decisions.ts`.** One later task lifts all of them at once;
+thirteen modules each adding a record to one shared file is the path collision this build
+has recorded three times.
+
+**Do this instead, and do it the way wave 1 did**, so the lift is one edit rather than
+twelve reconciliations:
+
+1. Follow the shipped `Stu14LocalDisclosure` idiom — the canon's own record shape, with
+   `DecisionReading` **imported** rather than redeclared.
+2. Declare the gap on screen. A reader must not think the canon holds it.
+3. **Build the stand-in to expire.** Assert in your unit suite that every identifier you
+   carry locally is **absent** from the canon's exported union. The moment one is lifted,
+   your suite goes red and forces the switch. A stand-in with no expiry gate is how two
+   spellings of one decision ship.
+4. Never file a decision under a neighbouring identifier because that one happens to exist.
+
+## `AC-FL-011-1` has gaps in the source, and they are counted
+
+Twelve functionalities across wave 1's four modules name no `FB-FL-*` pattern, each on a
+stated ground the source itself gives ("an absent capability has no failure mode", "a
+non-configurable invariant has no fallback; its violation is a defect"). `AC-FL-011-1`
+(L40151) asks every functionality to name at least one.
+
+**Report yours; do not fill them.** An assigned pattern is indistinguishable from a real one
+forever afterwards, and the criterion then reads clean because nobody looked.
+
+## Three parts of the source disagree about every module's fallback set
+
+Measured on three modules so far and identical in shape each time: §22.9's module map, the
+module card's own Fallback identifier field, and the functionality clauses give **three
+different sets** — A1 2/3/4, A3 4/6/7, A5 3/4/7. `FB-FL-PKG-01`'s map row (L40132) does not
+list A5, and A5's card does. **Carry all three readings; reconcile none.** No `DEC`
+identifier is attached to this anywhere.
+
+## `C1`/`C2` in your brief is a build-plan grade, not a source value
+
+The source's module inventory has a **`Band`** column — header L39844, data L39846-L39857 —
+and the bands are not uniform: **A1 through A7 read `A`, B8 through B12 read `B`**. That is what
+the `A`/`B` in the module identifiers means. Find your own row; do not cite a neighbour's, and do
+not transcribe `C1` or `C2` into your module.

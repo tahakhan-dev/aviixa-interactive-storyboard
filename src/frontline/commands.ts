@@ -296,9 +296,24 @@ export const COMMAND_CLASS_PHASE: Readonly<
  * accept exactly five and reject anything else with a typed reason. The
  * matrix places the act on the platform side instead — `MOD-FL-A7` row 4
  * (L41300) reads `Client Decision Required` for the Tenant Admin and
- * `Allowed with conditions` for platform roles — and `DEC-WIPE-001` records
- * that the source states neither the pending lifetime nor the never-returns
- * behaviour.
+ * `Allowed with conditions` for platform roles.
+ *
+ * THE DECISION THAT RECORDS THIS IS `DEC-CMDCLASS-001`, AND IT IS NOT
+ * `DEC-WIPE-001`. The source raises it at L51551 in those words — "device
+ * wipe and de-authorisation is not one of the five named command-channel
+ * classes" — and states the alternatives: either the wipe travels on the
+ * channel, in which case the source's own table is incomplete at five, or it
+ * travels on a separate mechanism, in which case that mechanism is
+ * undocumented and unaudited by the channel's rules. The same line closes by
+ * separating the two explicitly: "`DEC-WIPE-001` remains separate and
+ * unresolved: it concerns how long a wipe may remain pending".
+ *
+ * This entry carried `DEC-WIPE-001` until `MOD-FL-A7` read L51551 and said
+ * so. Filing a gap under the nearest identifier that already exists is the
+ * error the module briefs forbid by name, and it is worth recording that
+ * wave 0 committed it in the file that defines the channel: the wrong
+ * identifier reads as a transcription, because a real decision is attached
+ * to a real question — just not to this one.
  *
  * So the ordering vocabulary and the class vocabulary are not the same
  * vocabulary, and this build does not pretend they are.
@@ -309,14 +324,14 @@ export const STOP_CLASS_ITEMS_WITHOUT_A_COMMAND_CLASS = [
     whyNoClass:
       'Named in the stop class at L39672 and in FB-FL-SEC-01 at L40120, but it is not one of the five classes at L39662-L39666, and AC-FL-007-1 (L39719) closes the device at exactly five. No sixth class is minted here.',
     whereTheActLives: 'MOD-FL-A7 row 4, L41300 — a platform critical-class act.',
-    openDecision: 'DEC-WIPE-001',
+    openDecision: 'DEC-CMDCLASS-001',
   },
   {
     item: 'Remote data wipe',
     whyNoClass:
-      'Same basis. L39672 orders it first on reconnection; the five classes do not carry it, and a wipe additionally requires a final synchronisation an offline device cannot perform.',
+      'Same basis. L39672 orders it first on reconnection; the five classes do not carry it, and a wipe additionally requires a final synchronisation an offline device cannot perform. How long that wipe may remain pending is DEC-WIPE-001, which L51551 states is a separate and unresolved question.',
     whereTheActLives: 'MOD-FL-A7 row 4, L41300 — a platform critical-class act.',
-    openDecision: 'DEC-WIPE-001',
+    openDecision: 'DEC-CMDCLASS-001',
   },
 ] as const satisfies readonly {
   readonly item: string
