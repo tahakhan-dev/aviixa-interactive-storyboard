@@ -6,7 +6,27 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   {
-    ignores: ['out/**', '.next/**', 'node_modules/**'],
+    // A CONCURRENT process's scratch probe. `eslint .` walks `src/` and `app/`
+    // from disk, so it lists a sibling test's probe directory and then ENOENTs
+    // on the file inside it the moment that sibling's `finally` removes it --
+    // a correct tree failing `pnpm lint` on a race, not on a finding. It is
+    // the same class as the test-side walkers, in a tool rather than a test:
+    // the category is anything that reads the tree from disk, not anything
+    // under `tests/`.
+    //
+    // The glob keeps the predicate's EXACT-match property, which is
+    // load-bearing rather than fussy: a leading dot AND a trailing digit are
+    // both required, so a real source file named `zz-probe.tsx` or
+    // `.zz-probe.tsx` is still linted. Only a directory this repo's probe
+    // convention can actually create is skipped. `tests/probe-paths.ts`
+    // carries the full account.
+    ignores: [
+      'out/**',
+      '.next/**',
+      'node_modules/**',
+      '**/.zz-probe-*[0-9]/**',
+      '**/.zz-probe-*[0-9].json',
+    ],
   },
   {
     files: ['**/*.ts', '**/*.tsx'],

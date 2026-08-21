@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
@@ -6,6 +6,21 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   test: {
+    // A CONCURRENT process's scratch probe, excluded from FILE DISCOVERY as
+    // well as from the walks inside the tests. Vitest reads the tree from
+    // disk like any other tool, and `tests/unit/**` descends into a
+    // dot-prefixed directory -- verified directly: a `probe.test.ts` planted
+    // inside one was collected and run. Nothing plants under `tests/` today,
+    // which is exactly the reasoning that left four walks unguarded, so the
+    // rule is uniform instead.
+    //
+    // The glob keeps the predicate's EXACT-match property: a leading dot AND
+    // a trailing digit are both required, so a real test file under a
+    // directory named `zz-probe` is still collected. `tests/probe-paths.ts`
+    // carries the full account. The defaults are spread rather than replaced
+    // -- dropping `**/node_modules/**` here would be a much larger change
+    // than the one intended.
+    exclude: [...configDefaults.exclude, '**/.zz-probe-*[0-9]/**'],
     projects: [
       {
         extends: true,
