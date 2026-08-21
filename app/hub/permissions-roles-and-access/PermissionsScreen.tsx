@@ -624,7 +624,41 @@ export function PermissionsScreen({
    * body would hide the very controls whose disabled reasons carry
    * the answer.
    * -------------------------------------------------------------- */
-  const stateTreatment = (
+  /**
+   * STATE-05 IS THE ONE STATE WHOSE TREATMENT CANNOT BE A BOUNDARY PAYLOAD
+   * ALONE, and this screen was the only one of the fourteen carrying a
+   * STATE-05 position that did not say so.
+   *
+   * `PermissionNotice` renders NOTHING for a fully `allowed` decision —
+   * there is no cause to account for, which is right where it sits beside a
+   * live control. But it is the WHOLE of the STATE-05 treatment here, and
+   * `create-or-edit-user-account` resolves to plain `allowed` for the
+   * Tenant Admin this screen loads in as. So selecting "STATE-05
+   * Permission-denied" rendered byte-identically to the default STATE-03,
+   * which is a state offered as its own position and rendered as another
+   * one — a state nobody can see (state contract, table at L48006, and
+   * `STATE-05` itself at L48012: "The control is not silently absent").
+   *
+   * The guard is `outcome === 'allowed'` and NOT `permitsAction`, because
+   * the condition being complemented is what `PermissionNotice` falls
+   * silent on, which is that one outcome exactly. `allowedWithConditions`
+   * permits the action AND renders its condition, so routing it down the
+   * paragraph arm would swallow a rendering that works.
+   *
+   * Same shape as `LocationConfigurationScreen`, `DevicesScreen`,
+   * `TenantLifecycleScreen` and the ten others: name the persona that is
+   * not refused, then name one that is, so the position is never blank.
+   */
+  const createDecision = controlDecision(matrixRow('create-or-edit-user-account'), role)
+  const stateTreatment = stateId === 'STATE-05' && createDecision.outcome === 'allowed' ? (
+    <p role="note" className="text-sm text-[var(--color-ink-muted)]">
+      {roleName} holds the account writes on this module, so no refusal renders for this persona.
+      Select the Supervisor, the Quality Manager, the Read-only Auditor or the Worker to meet the
+      refusal named rather than hidden behind a missing control — every one of the four is
+      explicitly prohibited from creating a tenant user account, which belongs to the Tenant Admin
+      alone (L28522).
+    </p>
+  ) : (
     <ScreenStateBoundary
       state={stateId}
       surface="SURF-DOH"
@@ -634,7 +668,7 @@ export function PermissionsScreen({
         fieldLabel: 'Work email address',
         rule: 'An address that cannot be read as one is refused rather than guessed at.',
         permittedFormat: 'The accepted form is name@domain.example.',
-        decision: controlDecision(matrixRow('create-or-edit-user-account'), role),
+        decision: createDecision,
         readOnlyCause: `Read-only for the ${roleName} view: the register is readable and no write row on it is held. The cause is named here once, and never shown as the bare words.`,
         asOfLabel: REGISTER_STALE_AS_OF,
         originLabel: REGISTER_ORIGIN,

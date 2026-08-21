@@ -445,10 +445,17 @@ describe('DOH_SEAMS — the three slice-4 seams slice 6 owns', () => {
     {
       id: 'qualification-gate',
       consumer: 'MOD-DOH-04',
-      owner: 'MOD-DOH-06 / MOD-DOH-07',
-      // AC-PROD-032 L1548: at assignment, at run start, at
-      // override-carrying screens. The first two are slice 6.
-      why: /run start/,
+      // RE-PINNED, AND THE OLD PIN WAS THE FALSE PRESENCE HELD IN PLACE.
+      // This read `'MOD-DOH-06 / MOD-DOH-07'` with the comment "the first
+      // two are slice 6", so the row's own overstatement was asserted rather
+      // than caught. AC-PROD-032 (L1548) names three enforcement points and
+      // MOD-DOH-07's Security row (L28112) says where they run: at
+      // assignment server-side, and "again at run start and at
+      // override-carrying screens on the device". One Hub point, one Hub
+      // owner. See the source assertion below, which is what makes this
+      // number a reading of the blueprint rather than a copy of the field.
+      owner: 'MOD-DOH-07',
+      why: /at assignment/,
     },
   ] as const
 
@@ -506,12 +513,52 @@ describe('DOH_SEAMS — the three slice-4 seams slice 6 owns', () => {
     expect(DOH_SEAMS.filter((s) => dohSeamStatus(s) === 'closed')).toHaveLength(3)
   })
 
-  it('records the qualification gate as two of the source’s three enforcement points', () => {
-    // The third — override-carrying screens — is Client Command Center
-    // action 10 (L22182 [J16]), another surface and never a Hub half.
+  /**
+   * THIS TEST USED TO ASSERT THE DEFECT. It required the description to say
+   * "two of the three" and required `ownerModule` to contain BOTH
+   * `MOD-DOH-06` and `MOD-DOH-07` — so the one row in the registry carrying
+   * two owners in one string was the one row a test insisted keep them.
+   *
+   * The reading is taken from the blueprint here rather than from the field,
+   * which is the whole reason the old pin could be wrong and green at once.
+   */
+  it('gives the qualification gate one Hub enforcement point and one owner', () => {
     const seam = dohSeamById('qualification-gate')
-    expect(seam.description).toMatch(/two of the three/)
-    expect(seam.ownerModule).toContain('MOD-DOH-06')
-    expect(seam.ownerModule).toContain('MOD-DOH-07')
+
+    // The source's own account of WHERE each of the three points runs.
+    // MOD-DOH-07's Security row and its workflow step 7 say the same thing
+    // twice: only the assignment point is server-side on this surface.
+    expect(sourceLine(28_112)).toContain('server-side at assignment')
+    expect(sourceLine(28_112)).toContain('at override-carrying screens on the device')
+    expect(sourceLine(28_136)).toContain('run start and at override-carrying screens on the device')
+    // And run start is a device act in MOD-DOH-06's own lifecycle, which is
+    // why it was never that module's half to build.
+    expect(SOURCE_LINES.join('\n')).toContain(
+      'InProgress : worker starts on the Frontline Worker Application',
+    )
+
+    expect(seam.ownerModule).toBe('MOD-DOH-07')
+    expect(seam.description).not.toMatch(/MOD-DOH-06/)
+    expect(dohSeamStatus(seam)).toBe('closed')
+  })
+
+  /**
+   * THE STRUCTURAL HALF OF THE SAME FIX. `ownerModule` was a bare `string`,
+   * which is what let one row name two modules; it is now
+   * `DohCanonicalModuleId`. A type cannot be asserted at run time, so this
+   * asserts the property the type exists to guarantee — one id per row,
+   * drawn from the surface's own nineteen — which also catches a widening
+   * of the field back to `string` followed by a second two-owner row.
+   */
+  it('names exactly one canonical module as each seam’s owner', () => {
+    const canonical = new Set<string>([
+      ...DOH_MODULES.map((m) => m.id),
+      ...DOH_OUT_OF_SLICE_MODULES.map((m) => m.id),
+    ])
+    expect(canonical.size).toBe(19)
+    for (const seam of DOH_SEAMS) {
+      expect(canonical.has(seam.ownerModule), `${seam.id}: ${seam.ownerModule}`).toBe(true)
+      expect(seam.ownerModule, seam.id).not.toMatch(/[/,]| and /)
+    }
   })
 })

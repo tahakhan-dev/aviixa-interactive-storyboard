@@ -1,4 +1,4 @@
-import type { DohModuleId } from './modules'
+import type { DohCanonicalModuleId, DohModuleId } from './modules'
 
 /**
  * The SURF-DOH spine, part 6 of 6: the cross-slice seam registry. Spec §5.
@@ -33,13 +33,27 @@ import type { DohModuleId } from './modules'
  *   archival completes. Jobs and the derived `paused` state are
  *   MOD-DOH-05's (L7197, L7206). RECORDED EXPECTATION CORRECT.
  * - `qualification-gate` — slice 4 recorded "two of the three enforcement
- *   points", MOD-DOH-07 at assignment and MOD-DOH-06 at run start. The
- *   source's three are "at assignment, at run start, and at
- *   override-carrying screens" (AC-PROD-032 L1548, restated L19444,
- *   L24028, L8423). The third is Client Command Center action 10 (L22182
- *   `[J16]`) — a different surface, never a Hub half of this seam, which
- *   is why slice 4 named two modules and not three. RECORDED EXPECTATION
- *   CORRECT, and the closure is total for the seam as recorded.
+ *   points", MOD-DOH-07 at assignment and MOD-DOH-06 at run start.
+ *   RECORDED EXPECTATION WRONG, AND IT WAS WRONG IN THE DIRECTION THAT
+ *   OVERSTATES. The source's three points are "at assignment, at run start,
+ *   and at override-carrying screens" (AC-PROD-032 L1548, restated L19444,
+ *   L24028, L8423) — but MOD-DOH-07's own Security row says where each one
+ *   runs, and it is not two Hub points and one elsewhere: "Qualification
+ *   validation runs server-side at assignment and again at run start and at
+ *   override-carrying screens ON THE DEVICE" (L28112), restated as step 7 of
+ *   its own workflow — "Validation runs again at run start and at
+ *   override-carrying screens on the device" (L28136). Run start is a device
+ *   act: MOD-DOH-06's own lifecycle has `Scheduled --> InProgress : worker
+ *   starts on the Frontline Worker Application`, its twelve matrix rows
+ *   (L27909-L27920) carry no gate action at all, and the validation is made
+ *   against requirements in the pinned work package (L83073).
+ *
+ *   SO THE HUB HAS ONE ENFORCEMENT POINT, NOT TWO, and MOD-DOH-07 holds it.
+ *   MOD-DOH-06 was never an owner of this seam and owes nothing on it; the
+ *   row said it did, and derived `closed` over the pair, which told three
+ *   screens that a slice-6 Hub module had delivered a run-start gate that is
+ *   not a Hub capability. The closure is total because the Hub half is one
+ *   half and it is built — not because two halves both landed.
  *
  * The other four rows are untouched: their `ownerSlice` is 10 and they stay
  * open, which is what a slice-6 build should say about them. The eighth row
@@ -61,8 +75,24 @@ export interface DohSeamDefinition {
   readonly id: DohSeamId
   /** The built module that needs the missing half. */
   readonly consumingModule: DohModuleId
-  /** The module that owns the missing half — not necessarily in slice 4. */
-  readonly ownerModule: string
+  /**
+   * The module that owns the missing half — not necessarily in slice 4.
+   *
+   * ONE OWNER, AND THE TYPE IS WHAT MAKES IT ONE. This was a bare `string`,
+   * and `qualification-gate` used the room that gave it to carry TWO module
+   * ids in one field: `'MOD-DOH-06 / MOD-DOH-07'`. `dohSeamStatus` derives
+   * one answer from one `ownerSlice`, so a row with two owners got a single
+   * verdict covering two halves and nothing anywhere could tell them apart —
+   * which is how this row came to render "closed at slice 6" over a half
+   * that MOD-DOH-06 was never going to build (see the header note above).
+   *
+   * `DohCanonicalModuleId` is the surface's whole nineteen-module inventory,
+   * so an owner outside this slice is still expressible — `MOD-DOH-10`,
+   * `MOD-DOH-11` and `MOD-DOH-17` all own open rows below — but two owners
+   * in one string is now a compile error rather than a sentence a reader has
+   * to notice. A seam with genuinely two owning halves is two seams.
+   */
+  readonly ownerModule: DohCanonicalModuleId
   readonly ownerSlice: number
   readonly description: string
 }
@@ -102,9 +132,21 @@ export const DOH_SEAMS = [
     consumingModule: 'MOD-DOH-01',
     ownerModule: 'MOD-DOH-07',
     ownerSlice: 6,
+    /**
+     * "STUBS THE INPUTS HERE" WAS THE HEADING'S OWN CONTRADICTION. The row
+     * reads under "Cross-slice seam — closed at slice 6", and said in the
+     * next line that the inputs are stubbed. Both cannot be true, and the
+     * one that stopped being true is the stub: MOD-DOH-07 landed in this
+     * slice and emits them (`SEAMS_CLOSED_HERE` in
+     * `@/surfaces/doh/modules/doh-07/rulings`). The description is written
+     * in the tense of the seam's own status from here rather than frozen at
+     * the moment the consumer was built.
+     */
     description:
       'Worker-Shift meter inputs are assignment events MOD-DOH-07 emits. MOD-DOH-01 ships the ' +
-      'meter as a state machine and stubs the inputs here.',
+      'meter as a state machine; MOD-DOH-07 landed in this slice and now supplies the inputs it ' +
+      'was built against, one per worker per calendar shift regardless of run count and one per ' +
+      'substituting worker who actually worked (AC-DOH-01-1, L27039).',
   },
   {
     id: 'archival-cascade',
@@ -137,12 +179,16 @@ export const DOH_SEAMS = [
   {
     id: 'qualification-gate',
     consumingModule: 'MOD-DOH-04',
-    ownerModule: 'MOD-DOH-06 / MOD-DOH-07',
+    ownerModule: 'MOD-DOH-07',
     ownerSlice: 6,
     description:
-      'MOD-DOH-04 owns the qualification record and its evaluator; the gate at assignment ' +
-      '(MOD-DOH-07) and at run start (MOD-DOH-06) is enforced in slice 6 — two of the three ' +
-      'enforcement points.',
+      'MOD-DOH-04 owns the qualification record and its evaluator; MOD-DOH-07 enforces the gate ' +
+      'at assignment, server-side, and that is the whole of the Hub half. The source names three ' +
+      'enforcement points — at assignment, at run start, and at override-carrying screens ' +
+      '(AC-PROD-032 L1548) — and puts the other two on the device, against the pinned work ' +
+      'package: "again at run start and at override-carrying screens on the device" (L28112, ' +
+      'restated L28136). One of the three is this surface’s; two of the three are SURF-FL’s and ' +
+      'were never a Hub half of this seam.',
   },
   {
     id: 'tenant-contact-email-delivery',

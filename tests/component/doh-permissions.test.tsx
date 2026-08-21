@@ -762,3 +762,98 @@ describe('MOD-DOH-09 — the standing panels the contract requires', () => {
     expect(screen.queryByRole('region', { name: /users, roles and scopes/i })).toBeNull()
   })
 })
+
+describe('MOD-DOH-09 — STATE-05 is a position a reader can actually see', () => {
+  /**
+   * THE E2E CHECK THIS DUPLICATES CANNOT REACH THE DEFECT IT WAS WRITTEN FOR.
+   *
+   * `tests/accessibility/axe-states.spec.ts` drives every position of the
+   * "Screen state" control and requires the nine renderings to be distinct.
+   * It found this screen rendering STATE-05 byte-identically to its STATE-03
+   * default, because `PermissionNotice` — the whole of the STATE-05 treatment
+   * — renders nothing for a fully `allowed` decision, and
+   * `create-or-edit-user-account` is plain `allowed` for the Tenant Admin the
+   * route loads in as.
+   *
+   * But that suite returns the VIEWER control to its default before driving
+   * the state control, so it only ever measures STATE-05 for ONE persona. A
+   * second persona falling silent the same way would be invisible to it.
+   *
+   * STATE-05 is in none of `CONNECTION_LOSS_STATES`, is not STATE-06 and is
+   * not STATE-12, so on this screen it drives NOTHING except the treatment. A
+   * text difference between the two renderings is therefore the treatment and
+   * nothing else — which is why this compares text rather than asserting on
+   * the paragraph's own words, whose wording is the field under test.
+   */
+
+  /**
+   * THE WORKER IS EXCLUDED, AND THE EXCLUSION IS PROVED HERE RATHER THAN
+   * ASSUMED IN THE LOOP BELOW. The first version of that loop ran all five
+   * and went red on the Worker; the cause was not the treatment. The Hub
+   * route registry admits no Worker, so the surface refuses the route before
+   * this module is consulted and the screen renders the surface's refusal
+   * with no module body and no state control at all. There is no position to
+   * drive, so there is nothing for a distinctness rule to be about. If that
+   * ever changes — a Worker Hub view is DEC-WKRVIEW-001, an OPEN client
+   * decision — this goes red and the loop below has to grow a fifth persona.
+   */
+  it('offers the state control to four of the five personas, and refuses the Worker at the surface', () => {
+    const reaching = TENANT_ROLE_ORDER.filter((role) => {
+      const { unmount } = render(<PermissionsScreen role={role} />)
+      const offered = screen.queryByLabelText(/^Screen state$/i) !== null
+      unmount()
+      return offered
+    })
+    expect(reaching).toEqual(['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER', 'READONLY_AUDITOR'])
+
+    render(<PermissionsScreen role="WORKER" screenState="STATE-05" />)
+    expect(screen.getByText(/route registry admits/i)).toBeDefined()
+  })
+
+  const PERSONAS_REACHING_THE_CONTROL = TENANT_ROLE_ORDER.filter((r) => r !== 'WORKER')
+
+  it('renders a STATE-05 treatment that differs from the STATE-03 default, for every persona', () => {
+    for (const role of PERSONAS_REACHING_THE_CONTROL) {
+      const success = render(<PermissionsScreen role={role} screenState="STATE-03" />)
+      const successText = success.container.textContent ?? ''
+      success.unmount()
+
+      const denied = render(<PermissionsScreen role={role} screenState="STATE-05" />)
+      const deniedText = denied.container.textContent ?? ''
+      denied.unmount()
+
+      expect(successText.length, role).toBeGreaterThan(200)
+      expect(
+        deniedText,
+        `${role}: STATE-05 renders byte-identically to the STATE-03 default — a state offered ` +
+          'as its own position and rendered as another one is a state nobody can see ' +
+          '(state contract, L48006 onwards; STATE-05 at L48012).',
+      ).not.toBe(successText)
+    }
+  })
+
+  /**
+   * The complement, and the reason the screen's guard reads
+   * `outcome === 'allowed'` rather than `permitsAction`: a persona the source
+   * refuses must meet the evaluator's own refusal, not a paragraph explaining
+   * that nobody is refused. Creating a tenant user account belongs to the
+   * Tenant Admin alone (L28522), so all three of the others are refused.
+   */
+  it('names the refusal itself for the personas the source refuses', () => {
+    for (const role of PERSONAS_REACHING_THE_CONTROL.filter((r) => r !== 'TENANT_ADMIN')) {
+      const { container, unmount } = render(
+        <PermissionsScreen role={role} screenState="STATE-05" />,
+      )
+      const notes = Array.from(container.querySelectorAll('[role="note"]'))
+        .map((n) => n.textContent ?? '')
+        .join(' ')
+      expect(notes, `${role}: no refusal rendered under STATE-05`).toMatch(
+        /prohibit|not carry|refus|no .* grant/i,
+      )
+      expect(notes, `${role}: told that no refusal renders, when this persona IS refused`).not.toMatch(
+        /no refusal renders for this persona/i,
+      )
+      unmount()
+    }
+  })
+})

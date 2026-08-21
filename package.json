@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "pnpm build:registries && rm -rf out && next build",
-    "serve:out": "serve out -p 4173 -L",
+    "serve:out": "rm -rf .serve-snapshot && cp -R out .serve-snapshot && serve .serve-snapshot -p 4173 -L",
     "build:registries": "node scripts/build-registries.mjs && node scripts/build-doh-module-reach.mjs && node scripts/build-stu-module-reach.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

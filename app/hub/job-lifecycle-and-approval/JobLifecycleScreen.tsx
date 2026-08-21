@@ -358,6 +358,55 @@ export function JobLifecycleScreen() {
               {DEC_AREA_001_POSITION.position} {DEC_AREA_001_POSITION.consequence}{' '}
               {DEC_AREA_001_POSITION.ifReversed}
             </p>
+            {/*
+              STATED AT THE CONTROL THAT SHOULD REFUSE, not only next door.
+              `AC-WF-ORG-002-04` was already disclosed on two MOD-DOH-03
+              screens, which is where the INPUT lives; this is where the
+              REFUSAL would live, and it said nothing. A gap disclosed only
+              beside the control it governs reads, from this screen, exactly
+              like no gap at all.
+
+              WHOSE CRITERION IT IS, precisely: the Area-creation workflow at
+              L52586 declares "Surface: Delivery Operations Hub · Module
+              `MOD-DOH-02`", so the criterion is MOD-DOH-02's and is none of
+              MOD-DOH-05's own eleven (`AC-DOH-05-1` to `-11`, L27815-L27825).
+              What binds MOD-DOH-05 is the ENFORCEMENT POINT: "cannot receive
+              a Job" can only be refused where Jobs are created, and that is
+              here. Both halves of the input exist — MOD-DOH-02 publishes the
+              `unbound` flag and MOD-DOH-03 the shift bindings behind it — and
+              the refusal is the part nothing builds.
+
+              THE WORKFLOW IS NAMED BY ITS LINE AND NOT BY ITS ID, AND THAT IS
+              LOAD-BEARING. Writing the bare workflow id — the `WF-ORG-NNN`
+              form, spelled with its real digits — anywhere in this directory
+              flips that workflow's row in
+              `registries/generated/workflows.json` from `not-represented` to
+              `demonstrated-in-storyboard`: `scripts/build-registries.mjs:342`
+              adds every identifier-shaped token a route screen names to
+              `citedTokens`, and its own `dedupRule` admits the hazard —
+              "Naming includes naming an identifier to record that the screen
+              does NOT act on it, which this build has no structural marker to
+              separate." Measured: adding the token moved the count from 80 to
+              81. A paragraph whose whole point is that the criterion is NOT
+              enforced must not be the reason a registry reports it as
+              demonstrated. `AC-WF-ORG-002-04` is safe — the token regex is
+              greedy from its capital, so it matches that id whole and never
+              the workflow id inside it.
+            */}
+            <p
+              data-testid="ac-wf-org-002-04-unbuilt"
+              className="mt-2 text-xs text-[var(--color-ink-subtle)]"
+            >
+              Not built here, and not scheduled elsewhere: `AC-WF-ORG-002-04` (L52600) states that
+              &ldquo;An Area with no bound Shift cannot receive a Job&rdquo;, and the Job editor
+              enforces no such check on the parent node. The criterion belongs to the
+              Area-creation workflow at L52586, whose module is `MOD-DOH-02`; the refusal would
+              land on this control,
+              because Job creation is where a Job is received. `MOD-DOH-02` already publishes the
+              `unbound` flag and `MOD-DOH-03` the shift bindings it derives from, so both halves of
+              the input are here and only the refusal is missing. This is an outstanding gap in
+              this build, owed by no module and waiting on nothing.
+            </p>
           </div>
 
           <div className="rounded-[var(--radius-surface)] border border-[var(--color-border)] p-4">

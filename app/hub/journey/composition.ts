@@ -18,6 +18,7 @@ import {
   stateIsGovernedByDecStuck,
   type ClosingPosition,
 } from '@/surfaces/doh/modules/doh-06/matrix'
+import type { DohModuleId } from '@/surfaces/doh/modules'
 import { dueTransitions, finishWindowVerdict } from '@/surfaces/doh/transitions'
 import { approveDecision } from '@/surfaces/doh/modules/doh-05/access'
 import { SEEDED_JOBS, type SeededJob } from '@/surfaces/doh/modules/doh-05/jobs'
@@ -77,17 +78,29 @@ import { ExecutionSummaryReviewScreen } from '../execution-summary-review/Execut
  * another Hub screen does not type-check, and the one statement this journey
  * draws names a registered boundary rather than an off-register one.
  *
- * ── THE MODULE REGISTRY GAP, REPORTED RATHER THAN WORKED AROUND ───────────
- * `href` below is a declared string and not `dohModuleById(id).slug`, because
- * none of `MOD-DOH-05` … `MOD-DOH-08` is in `DOH_MODULES` yet — they are still
- * in `DOH_OUT_OF_SLICE_MODULES`, and `DohModuleId` does not admit them, so the
- * registry read would not compile. `MODULE_REGISTRY_GAP` in
- * `@/surfaces/doh/modules/doh-06/matrix` records the same gap for the module
- * screens. The declared slug is not trusted: `tests/unit/doh-journey.test.ts`
+ * ── THE MODULE REGISTRY GAP HAS CLOSED, AND THIS IS WHAT IT COST ──────────
+ * This paragraph used to read: "`href` below is a declared string and not
+ * `dohModuleById(id).slug`, because none of `MOD-DOH-05` … `MOD-DOH-08` is in
+ * `DOH_MODULES` yet — they are still in `DOH_OUT_OF_SLICE_MODULES`, and
+ * `DohModuleId` does not admit them, so the registry read would not compile."
+ * Every clause of that is now false: all four are registered, and
+ * `ComposedRoute.moduleId` below is typed `DohModuleId`, so the compiler
+ * itself is the proof — an unregistered module id in this file stops the
+ * build. The condition the self-heal waited on came true, and the promise is
+ * cashed here rather than left standing as a description of a state that has
+ * passed.
+ *
+ * `slug` STAYS DECLARED, AND NOT BECAUSE THE REGISTRY CANNOT BE READ. The
+ * registry holds ONE slug per module and `MOD-DOH-05` composes TWO routes
+ * here — catalogue B gives its approval queue a navigation entry of its own
+ * (`@/surfaces/doh/modules/doh-05/routes`). A module's own route could read
+ * `dohModuleById(id).slug`; its second route has nothing to read. One rule
+ * for both is worth more than a registry read on four of the six.
+ *
+ * The declared slug is not trusted either way: `tests/unit/doh-journey.test.ts`
  * asserts every `href` names a directory that exists under `app/hub/` and whose
- * `page.tsx` renders the very component composed here, AND that the moment a
- * composed module appears in `DOH_MODULES` its registry slug equals the string
- * below. So this self-heals into a registry read and cannot drift meanwhile.
+ * `page.tsx` renders the very component composed here, AND that every
+ * registered composed module has a route at its registry slug.
  */
 
 export interface ComposedBase {
@@ -98,6 +111,15 @@ export interface ComposedBase {
 
 export interface ComposedRoute extends ComposedBase {
   readonly kind: 'route'
+  /**
+   * NARROWED FROM `ComposedBase`, and this is the registry read the header
+   * note above promised. Every route step is a Hub module this build serves,
+   * so its id must be one `DOH_MODULES` admits; an unregistered id here is a
+   * compile error rather than a string nobody checks. The cross-surface step
+   * keeps the base's bare `string` because its module is `MOD-FL-A3` —
+   * `SURF-FL`'s, and deliberately not in this surface's closed set.
+   */
+  readonly moduleId: DohModuleId
   readonly href: string
   /** The `app/hub/` directory the route lives in — checked against `href`. */
   readonly slug: string
@@ -116,7 +138,7 @@ export type JourneyComposition = ComposedRoute | ComposedCrossSurface
 
 function route(
   step: number,
-  moduleId: string,
+  moduleId: DohModuleId,
   slug: string,
   href: string,
   Screen: ComponentType,

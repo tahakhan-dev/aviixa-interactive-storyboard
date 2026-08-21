@@ -59,14 +59,44 @@ const SRC = walk('src').filter((f) => /\.tsx?$/.test(f))
 // live, recursive walk of the real tree, not a fixed snapshot.
 const GATEWAY_FILE = join('src', 'scenario', 'gateway.ts')
 
+const MUTATING_IMPORT =
+  /from\s+['"]@\/kernel\/reduce['"]|from\s+['"]@\/persistence\/coordinator['"]/
+
+/**
+ * THE PREFILTER IS A SPEED FIX AND IT CHANGES NO VERDICT, which is the only
+ * kind of speed fix worth making to a gate.
+ *
+ * MEASURED, AND THE MEASUREMENT IS WHY IT IS HERE. Under CPU oversubscription
+ * this file's four cases each ran 4.2s-5.2s against the release project's
+ * 5,000 ms default, and `no component imports reduce or commitTransition`
+ * TIMED OUT at 5,213 ms — real time far above user time, work unchanged, the
+ * scheduler-contention signature. This build's rule for that shape is stated
+ * in `vitest.config.ts`: a test slow because it is doing the work gets the
+ * headroom; a test slow because it REPEATS itself is made faster. This one
+ * repeats itself — four cases, four whole-tree walks, and every `.ts`/`.tsx`
+ * file under `src/` and `app/` handed to `stripComments`, which parses with
+ * the TypeScript compiler. So it is made faster rather than given time.
+ *
+ * SOUND, NOT MERELY QUICK. The raw text of a file is a SUPERSET of its
+ * comment-stripped text, so a file whose raw text cannot match the pattern
+ * cannot match it after stripping either: skipping it cannot hide an
+ * offender. Only a file that COULD offend is parsed, and the parse is still
+ * what decides — which is what keeps a mention inside a comment from
+ * counting, the whole reason `stripComments` is here. The same two-stage
+ * shape `slice-04-gates.test.ts`'s `quotedJobOwnerTokens` already ships.
+ *
+ * The walk itself stays fresh on every call (never cached at module load), so
+ * a case that plants a file mid-run still sees it.
+ */
 function gatewayOnlyOffenders(): string[] {
   const src = walk('src').filter((f) => /\.tsx?$/.test(f))
   const appFiles = walk('app').filter((f) => /\.tsx?$/.test(f))
   return [...src, ...appFiles]
     .filter((f) => f !== GATEWAY_FILE)
     .filter((f) => {
-      const s = stripComments(readFileSync(f, 'utf8'))
-      return /from\s+['"]@\/kernel\/reduce['"]|from\s+['"]@\/persistence\/coordinator['"]/.test(s)
+      const raw = readFileSync(f, 'utf8')
+      if (!MUTATING_IMPORT.test(raw)) return false
+      return MUTATING_IMPORT.test(stripComments(raw))
     })
 }
 

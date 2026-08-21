@@ -98,18 +98,36 @@ describe('MOD-DOH-04 — the shell contract and the screen identity', () => {
     expect(container.textContent ?? '').not.toMatch(/SCR-DOH-\d{3}/)
   })
 
-  // RE-PINNED. This asserted "not built here" over `qualification-gate`,
-  // whose `ownerSlice` is 6 — so the moment slice 6 shipped MOD-DOH-07 the
-  // pin was holding the screen to a false absence. The negative assertion is
-  // the one that matters: a closed seam may never wear the outstanding
-  // wording.
+  // RE-PINNED TWICE, AND THE SECOND TIME IS THE INTERESTING ONE.
+  //
+  // First: this asserted "not built here" over `qualification-gate`, whose
+  // `ownerSlice` is 6 — so the moment slice 6 shipped MOD-DOH-07 the pin was
+  // holding the screen to a false absence.
+  //
+  // Second: it then required the phrase "two of the three enforcement
+  // points", which was the seam's own overstatement written into an
+  // assertion. The registry recorded this seam as co-owned by MOD-DOH-06 and
+  // MOD-DOH-07, so a reader was told a slice-6 Hub module owed a gate at run
+  // start. MOD-DOH-07's own Security row says otherwise — validation runs
+  // "server-side at assignment and again at run start and at
+  // override-carrying screens ON THE DEVICE" (L28112, restated L28136) — so
+  // the Hub has ONE of the three and the other two are SURF-FL's. A pin
+  // written from the screen's wording rather than from the source is how the
+  // wrong count survived; this one asserts the count and the owner, both of
+  // which the source states.
   it('names the qualification gate as a cross-slice seam its owning slice has closed', () => {
     render(<WorkerLifecycleScreen />)
     const handoff = text('Clearance handoff')
     expect(handoff).toMatch(/Cross-slice seam — closed at slice 6/i)
     expect(handoff).not.toMatch(/not built here/i)
     expect(handoff).toMatch(/slice 6/i)
-    expect(handoff).toMatch(/two of the three\s+enforcement points|two of the three enforcement points/i)
+    // The Hub's share of the three, and who owns the seam's one Hub half.
+    expect(handoff).toMatch(/one of the three\s+is this surface|ONE OF THEM THIS SURFACE/i)
+    expect(handoff).toMatch(/Owned by MOD-DOH-07/i)
+    // And the claim that used to be here must be gone, not merely unasserted:
+    // MOD-DOH-06 owes nothing on this seam and must not be named as owing it.
+    expect(handoff).not.toMatch(/two of the three\s+enforcement points/i)
+    expect(handoff).not.toMatch(/MOD-DOH-06/)
   })
 
   it('states that audit is in the same transaction as the action', () => {

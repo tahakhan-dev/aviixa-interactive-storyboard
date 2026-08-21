@@ -270,3 +270,34 @@ describe('the Worker meets the surface’s refusal, not this module’s', () => 
     expect(screen.getByRole('heading', { name: /Unavailable for the Worker view/ })).toBeTruthy()
   })
 })
+
+describe('AC-WF-ORG-002-04 — the gap is stated at the control that would refuse', () => {
+  /**
+   * THE GAP WAS DISCLOSED NEXT DOOR AND NOT HERE. Two `MOD-DOH-03` screens
+   * name it, which is where the INPUT lives; this is where the REFUSAL would
+   * live and it said nothing, so a reader on the Job editor met a binding
+   * control with no sign that a criterion governs it.
+   *
+   * The assertion is not derived from the paragraph's own wording: it
+   * requires the criterion id, and requires the screen NOT to word the gap as
+   * a schedule — "a later slice", "not built here — owned by module X, slice
+   * N" — because nothing owns this half and no slice is waiting on it. That
+   * distinction is the whole reason the sentence was worth writing.
+   */
+  it('names the criterion and does not word it as a schedule', () => {
+    render(<JobLifecycleScreen />)
+    const stated = screen.getByTestId('ac-wf-org-002-04-unbuilt')
+    const text = stated.textContent ?? ''
+    expect(text).toContain('AC-WF-ORG-002-04')
+    expect(text).toMatch(/no bound Shift cannot receive a Job/)
+    expect(text).toMatch(/outstanding gap/i)
+    expect(text).not.toMatch(/later slice|slice \d/i)
+  })
+
+  it('sits in the Binding card, beside the parent node it governs', () => {
+    render(<JobLifecycleScreen />)
+    const stated = screen.getByTestId('ac-wf-org-002-04-unbuilt')
+    const card = stated.closest('div')
+    expect(card?.textContent ?? '').toMatch(/Parent node:/)
+  })
+})

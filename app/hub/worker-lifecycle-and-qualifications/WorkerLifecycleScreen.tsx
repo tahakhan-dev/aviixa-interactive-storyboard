@@ -1914,16 +1914,17 @@ export function WorkerLifecycleScreen() {
           <SeamNotice seamId="qualification-gate" />
         </div>
         <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-          THREE ENFORCEMENT POINTS, and this module owns one of them. The qualification RECORD and
+          THREE ENFORCEMENT POINTS, ONE OF THEM THIS SURFACE&rsquo;S. The qualification RECORD and
           its evaluator are built here. The gate at ASSIGNMENT is built too, in this slice, on the
-          Worker Assignment screen: it runs under the tenant&rsquo;s posture, so a failing check
-          blocks under strict and proceeds with notifications under notify-only. The gate at RUN
-          START is registered to the same slice and no control for it is drawn anywhere in this
-          build &mdash; stated as an outstanding gap rather than reported as shipped. The third
-          point &mdash; the on-device step-level gate &mdash; is enforced from the device&rsquo;s
-          own pinned work package, including offline, where a gate block parks the run and the
-          worker continues their other assigned runs. Naming the seam is the honest alternative to a
-          stub that would look built.
+          Worker Assignment screen: it runs server-side under the tenant&rsquo;s posture, so a
+          failing check blocks under strict and proceeds with notifications under notify-only. The
+          other two &mdash; at RUN START and at OVERRIDE-CARRYING SCREENS &mdash; are enforced on
+          the device against the pinned work package, including offline, where a gate block parks
+          the run and the worker continues their other assigned runs. That is stated by this
+          module&rsquo;s own source rather than inferred: &ldquo;again at run start and at
+          override-carrying screens on the device&rdquo; (L28112, restated L28136). Neither is a
+          Delivery Operations Hub half of this seam, so neither is an outstanding gap here.
+          Naming the seam is the honest alternative to a stub that would look built.
         </p>
         {handoffsTaken.length > 0 ? (
           <div className="mt-3">

@@ -28,8 +28,19 @@ import { dohSeamById, dohSeamStatus, type DohSeamId } from '@/surfaces/doh/seams
  * registry's own fact, and the line points a reader at the owning module for
  * what that slice carries. Overclaiming here — "built", "shipped", "now
  * available" — would trade a false absence for a false presence, which is
- * the worse of the two: `qualification-gate` is registered as co-owned by
- * `MOD-DOH-06` and `MOD-DOH-07`, and only `MOD-DOH-07`'s half is built.
+ * the worse of the two.
+ *
+ * THIS PARAGRAPH USED TO CITE `qualification-gate` AS THE EXAMPLE — "co-owned
+ * by `MOD-DOH-06` and `MOD-DOH-07`, and only `MOD-DOH-07`'s half is built".
+ * The observation was right and the diagnosis was wrong: the registry row
+ * carried two module ids in one `ownerModule` string, and MOD-DOH-06 never
+ * owed a half at all, because run start and override-carrying screens are
+ * both device points (L28112, L28136). The row now names one owner, the
+ * field is typed to one owner, and `closed` on it is true. The rule this
+ * paragraph states is unchanged and is why that row was worth fixing rather
+ * than restating here: this component reports a CALENDAR, and a seam whose
+ * owning slice landed without its half would still read `closed` — so a seam
+ * must never be registered with a half nobody owns.
  *
  * IT IS NOT `@/ui/doh/CrossSurfaceStatement`, and the difference is a claim
  * about the product rather than a difference of wording. The eight rows of

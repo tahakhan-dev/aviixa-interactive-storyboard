@@ -309,10 +309,11 @@ describe('the composition points at real module routes', () => {
   })
 
   it('reads the registry slug the moment the module registry carries the module', () => {
-    // The seven slice-6 Hub modules are not in `DOH_MODULES` yet. This test is
-    // the self-heal: it is silent today for the four modules this journey
-    // composes and starts asserting the instant a concurrent task registers
-    // one, so the declared slug cannot survive disagreeing with the registry.
+    // THE SELF-HEAL HAS FIRED, and this comment used to say the opposite:
+    // "The seven slice-6 Hub modules are not in `DOH_MODULES` yet ... it is
+    // silent today for the four modules this journey composes". They are all
+    // registered now, so this loop asserts rather than waits, and the
+    // non-vacuity check at the foot is what proves the difference.
     const composedIds = new Set(
       JOURNEY_COMPOSITION.filter((c) => c.kind === 'route').map((c) => c.moduleId),
     )

@@ -1540,3 +1540,134 @@ describe('slice 6 gate 9: no three-digit screen literal, and no blank matrix cel
     })
   }, SLOW)
 })
+
+/* ==================================================================== *
+ * ONE TENANT, SEVERAL VOCABULARIES — recorded here because nothing else
+ * can see it.
+ * ==================================================================== */
+
+/**
+ * THE DRIFT IS INVISIBLE INSIDE ANY ONE MODULE AND ONLY APPEARS WHEN A
+ * JOURNEY COMPOSES FIVE OF THEM. Every module's own fixtures are internally
+ * consistent, so every module's own suite is green, and `/hub/journey/`
+ * renders five of those fixtures whole — which is where one reader meets
+ * three different names for the same kind of thing.
+ *
+ * THIS GATE FIXES NOTHING AND IS NOT MEANT TO. Unifying the Area vocabulary
+ * means editing the seeded fixtures of six modules and re-pinning every suite
+ * that reads them, most of which live outside any one task's files; the
+ * hand-off report that first recorded this said "no task owns making them
+ * line up", and that is still true. What was missing was not a fix but a
+ * DETECTOR: the divergence was carried in prose in one module's debt note
+ * (`LOCATION_SCOPE_DEBT` in `doh-06/fixtures`) and nowhere a run could fail.
+ * Recorded drift that no check can see is drift that grows.
+ *
+ * COMPARED FOR EQUALITY IN BOTH DIRECTIONS, like the other pins in this file:
+ * red when a NEW lead appears, and red when one is unified away and its row
+ * is not deleted. An exception that cannot outlive its defect cannot rot.
+ */
+
+/** Every `AREA-…` id this surface seeds, from `app/hub/` and `src/surfaces/doh/`. */
+function seededAreaIds(): string[] {
+  const files = sourceFilesUnder([join(ROOT, 'app', 'hub'), join(SRC, 'surfaces', 'doh')])
+  const found = new Set<string>()
+  for (const file of files) {
+    // Comments are stripped first: several of these ids appear in prose
+    // EXPLAINING the divergence, and a detector that counted its own
+    // documentation would be reporting itself.
+    for (const m of stripComments(readFileSync(file, 'utf8')).matchAll(/AREA-[A-Z0-9]+(?:-[A-Z0-9]+)*/g)) {
+      found.add(m[0])
+    }
+  }
+  return [...found].sort()
+}
+
+/** The segment an Area id LEADS with — a place, an ordinal, or a function. */
+const areaLead = (id: string): string => id.slice('AREA-'.length).split('-')[0] ?? ''
+
+describe('one canonical tenant, several Area-id vocabularies', () => {
+  /**
+   * THE COUNT IN THE HAND-OFF REPORT WAS THREE AND IT IS NOT THREE. That
+   * report named `AREA-ARD-ASSY`, `AREA-ASSY-A` and `AREA-RIVERSIDE-ASSY`
+   * across five modules. Measured over both trees there are more, and they
+   * differ by CATEGORY rather than by spelling: some ids lead with a PLACE
+   * (a site code, or a site's full name), one leads with an ORDINAL, and the
+   * rest lead with the FUNCTION performed there — except one, which leads
+   * with neither and is minted at run time (see the `NEW` note below). That
+   * is the incompatibility: not that the names differ, but that they are not
+   * the same KIND of name, so no rule sorts, groups or matches them together.
+   */
+  const PLACE_LEADS = ['ARD', 'NORTHGATE', 'RIVERSIDE'] as const
+  const ORDINAL_LEAD = /^\d+$/
+
+  it('leads Area ids with a place, an ordinal or a function, and does all three', () => {
+    const ids = seededAreaIds()
+    // Non-vacuity first: a regex that matched nothing would make every
+    // partition below trivially equal to an empty list.
+    expect(ids.length).toBeGreaterThan(8)
+
+    const leads = [...new Set(ids.map(areaLead))].sort()
+    const places = leads.filter((l) => (PLACE_LEADS as readonly string[]).includes(l))
+    const ordinals = leads.filter((l) => ORDINAL_LEAD.test(l))
+    const functions = leads.filter(
+      (l) => !(PLACE_LEADS as readonly string[]).includes(l) && !ORDINAL_LEAD.test(l),
+    )
+
+    // EQUALITY, so a fourth kind of lead — or the retirement of one of these
+    // three — is red rather than silent.
+    expect(places).toEqual(['ARD', 'NORTHGATE', 'RIVERSIDE'])
+    expect(ordinals).toEqual(['001'])
+    // `NEW` is not a function and not a place — it is the lead the Area
+    // CREATION control mints at
+    // `app/hub/location-configuration/LocationConfigurationScreen.tsx:1019`,
+    // ``AREA-NEW-${current.length + 1}``. This gate found it; neither
+    // hand-off report names it. It is the worst member of the set, because
+    // every other lead here is a seeded fixture a reviewer only reads,
+    // while this one is minted by a control a reviewer can press — so the
+    // build does not merely SHIP several vocabularies, it GROWS one more at
+    // run time, in a scheme no module reads.
+    expect(functions).toEqual(['ASSY', 'BAY', 'NEW', 'PAINT'])
+
+    // And the finding itself, stated as the assertion: all three kinds are
+    // present at once. The day this build settles on one, this line is what
+    // goes red and sends a reader to delete this whole block.
+    expect(
+      [places.length > 0, ordinals.length > 0, functions.length > 0].filter(Boolean).length,
+      'the Area vocabulary has been unified — delete this block rather than relax it',
+    ).toBe(3)
+  }, SLOW)
+
+  /**
+   * THE SAME SHAPE, ON THE CLOCK, and the hand-off count was off here too. It
+   * read "four different fixture clocks", counting FILES. There are three
+   * distinct TIME BASES: one derived from the build's own
+   * `CANONICAL_EPOCH_MS`, one declared independently in August 2026 by two
+   * separate files that happen to land in the same week, and one module that
+   * carries no instant at all. Two files agreeing by coincidence is not one
+   * clock — nothing makes them move together — which is exactly why the
+   * distinction is worth a check.
+   */
+  it('sits one module fixture on the canonical epoch and lets the rest declare their own', () => {
+    const files = sourceFilesUnder([join(ROOT, 'app', 'hub'), join(SRC, 'surfaces', 'doh')])
+    const rel = (f: string) => f.slice(ROOT.length + 1)
+
+    const canonical = files.filter((f) => /CANONICAL_EPOCH_MS/.test(stripComments(readFileSync(f, 'utf8'))))
+    const ownInstant = files.filter((f) => {
+      const code = stripComments(readFileSync(f, 'utf8'))
+      return /Date\.UTC\(/.test(code) && !/CANONICAL_EPOCH_MS/.test(code)
+    })
+
+    expect(canonical.map(rel)).toEqual(['src/surfaces/doh/modules/doh-06/fixtures.ts'])
+    expect(ownInstant.map(rel).sort()).toEqual([
+      'app/hub/execution-summary-review/fixtures.ts',
+      'app/hub/journey/fixture.ts',
+    ])
+    // `@/domain/clock` really does publish the shared epoch, so "only one
+    // fixture uses it" is a choice this build made rather than a facility it
+    // lacks. Without this line the assertion above could pass on a build with
+    // no canonical clock at all.
+    expect(readFileSync(join(SRC, 'domain', 'clock.ts'), 'utf8')).toContain(
+      'export const CANONICAL_EPOCH_MS',
+    )
+  }, SLOW)
+})

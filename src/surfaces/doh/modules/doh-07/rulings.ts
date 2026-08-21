@@ -144,11 +144,17 @@ export const CATALOGUE_B_NARROWING = {
  * direction, so what each seam now carries is stated here and rendered on
  * the screen.
  *
- * `qualification-gate` is co-owned with `MOD-DOH-06`, which enforces the
- * same gate at run start. This module closes the ASSIGNMENT enforcement
- * point only; the seam's own description names two of the source's three,
- * and the third — override-carrying screens on the device — is `SURF-FL`'s
- * and was never a Hub half.
+ * `qualification-gate` IS THIS MODULE'S ALONE, and the co-ownership this
+ * note used to claim was the seam's false presence. It read "co-owned with
+ * `MOD-DOH-06`, which enforces the same gate at run start" — but this
+ * module's own Security row says where each of the source's three points
+ * runs: "server-side at assignment and again at run start and at
+ * override-carrying screens ON THE DEVICE" (L28112), restated as step 7
+ * below (L28136). Run start is a device act — MOD-DOH-06's lifecycle has the
+ * worker starting the run on the Frontline Worker Application, and its
+ * twelve matrix rows carry no gate action — so TWO of the three points are
+ * `SURF-FL`'s and only the assignment point is the Hub's. This module closes
+ * the seam entire, because the Hub half is one point and this is it.
  */
 export const SEAMS_CLOSED_HERE = [
   {
@@ -160,7 +166,7 @@ export const SEAMS_CLOSED_HERE = [
   {
     seamId: 'qualification-gate',
     whatItNowCarries:
-      'The gate runs at assignment, server-side, under the tenant’s posture: under strict a failing check blocks and the assign control is absent with the clearance path named, and under notify-only the assignment proceeds and raises immediate notifications to the supervisor and the Quality Manager plus audit and Summary flags (L28132). MOD-DOH-06 closes the run-start point; the third enforcement point is on the device and was never a Hub half.',
+      'The gate runs at assignment, server-side, under the tenant’s posture: under strict a failing check blocks and the assign control is absent with the clearance path named, and under notify-only the assignment proceeds and raises immediate notifications to the supervisor and the Quality Manager plus audit and Summary flags (L28132). This is the whole of the Hub half: the other two of the source’s three enforcement points — at run start and at override-carrying screens — run on the device against the pinned work package (L28112, L28136), and neither was ever MOD-DOH-06’s to build.',
     sourceRef: 'L28132, AC-DOH-07-2 L28227, SB-DOH-019 L28216, §4.4.2',
   },
 ] as const

@@ -91,18 +91,49 @@ const isWcagRule = (tags: readonly string[]): boolean =>
  * is deleted. An exception that cannot outlive its defect cannot rot.
  *
  * WHY THE PER-SCAN CHECK IS A SUBSET AND NOT AN EQUALITY, which is a real
- * weakening and is here for a measured reason. The defect is STATE-DEPENDENT:
- * `heading-order` fires on `/studio/training-library/` at its default state
- * and in most driven persona views, and does NOT fire in the
- * `read-only-auditor` view, because that persona's open-decision affordance
- * renders a `ProhibitionNotice` (`TrainingLibraryScreen.tsx:81`) in place of
- * part of the screen and the surviving heading run no longer skips a level.
- * A per-scan equality therefore goes red on a state where the defect is
+ * weakening and is here for a measured reason. The defect is STATE-DEPENDENT.
+ * All eight personas were scanned on the route, one fresh load each, and the
+ * heading run read off the DOM alongside the violations:
+ *
+ *     quality-manager                  heading-order:1   H1>H3>H3
+ *     supervisor-with-authoring-grant  heading-order:1   H1>H3>H3
+ *     supervisor-without-grant         heading-order:1   H1>H3>H3
+ *     plant-manager-persona            heading-order:1   H1>H3>H3
+ *     tenant-admin                     heading-order:1   H1>H3>H3
+ *     implementation-team              heading-order:1   H1>H3>H3
+ *     read-only-auditor                none              H1>H2>H3>H3
+ *     worker                           none              H1>H2
+ *
+ * A per-scan equality therefore goes red on two states where the defect is
  * genuinely absent, which teaches people to delete the assertion rather than
  * the defect. The equality lives at the route's default state instead, where
  * it is stable, and the per-scan check keeps its job of catching anything
  * NEW. Both directions are still covered; they are covered by two assertions
  * rather than by one.
+ *
+ * THE CAUSE WRITTEN HERE BEFORE WAS WRONG, AND ONLY A MEASUREMENT SHOWED IT.
+ * It read: "does NOT fire in the `read-only-auditor` view, because that
+ * persona's open-decision affordance renders a `ProhibitionNotice`
+ * (`TrainingLibraryScreen.tsx:81`) in place of part of the screen and the
+ * surviving heading run no longer skips a level." Three things are wrong with
+ * that. `ProhibitionNotice` renders no heading at all; its one call site on
+ * this screen (line 264) sits AFTER the first `h3`, so it could not repair a
+ * run that has already skipped; and it is two personas, not one.
+ *
+ * What actually happens is the opposite mechanism — a heading is ADDED, not
+ * removed, and by the SHELL rather than the screen. `StudioShell` renders an
+ * `h2` ahead of the module content for exactly these two personas:
+ * "An open client decision governs this view" (`DEC-AUDSTU-001`,
+ * `app/studio/StudioShell.tsx:285`) for the Read-only Auditor, and "Not a
+ * Studio user" (`AC-STU-150`, `:265`) for the Worker. That `h2` completes the
+ * ladder the screen's own `h3`s skip. The screen is equally broken in all
+ * eight views; in two of them something else happens to stand in the gap.
+ *
+ * WHICH MATTERS FOR THE FIX. Anyone reading the old cause would look for the
+ * repair in `TrainingLibraryScreen`'s persona branching. The repair is one
+ * `h3` becoming an `h2` at `TrainingLibraryScreen.tsx:219` — the file has no
+ * `h2` of its own anywhere, only three `h3`s (:219, :274, :307) under the
+ * shell's `h1`.
  *
  * Keyed by ROUTE PATH, so the pin holds in every driven state of that route
  * and nowhere else. A best-practice violation on any other path is red.
