@@ -16,6 +16,7 @@ import {
   fla4Affordance,
   fla4Row,
   type Fla4Column,
+  type Fla4Row,
 } from '@/frontline/modules/fl-a4/matrix'
 import {
   FLA4_CAPTURE_TYPE_RENDERING,
@@ -406,10 +407,39 @@ describe('what each cell draws', () => {
   // classifies as an invariant exclusion and classifies it as this screen's.
   // None of MOD-FL-A4's nine is one of those three acts, and asserting the
   // empty result is what keeps that true if a row is ever re-worded.
+  //
+  // THE RESOLVER IS PASSED BECAUSE THIS MATRIX PLACES PER COLUMN, AND THE
+  // GUARD FOUND THAT OUT THE HARD WAY. `controlsOnActsHeldElsewhere` had an
+  // unreachable second loop until `MOD-FL-B11` planted a misclassified row
+  // and watched it stay green. Repaired, it reads each cell's own words —
+  // and immediately reported this matrix's row 7, whose Quality Manager cell
+  // says "Allowed — Client Command Center action 7" on a row classified
+  // `screen`. THAT REPORT WAS RIGHT ABOUT THE ROW AND WRONG ABOUT THE SCREEN:
+  // this module resolves placement per column and folds through
+  // `fla4Affordance`, so it draws a cross-surface statement, not a control.
+  // What the guard could not see was a field private to this module.
+  //
+  // So the private knowledge is handed over rather than the check weakened.
+  // Passing nothing here would restore exactly the blindness B11 found.
   it('holds no EXCL-FL-06 invariant-excluded act, and the shared gate agrees', () => {
     expect(
-      controlsOnActsHeldElsewhere([...FLA4_MATRIX], [...FLA4_COLUMNS]),
+      controlsOnActsHeldElsewhere([...FLA4_MATRIX], [...FLA4_COLUMNS], (row, column) => {
+        const placed = (row as Fla4Row).placementByColumn[column]
+        return placed !== undefined && placed.where !== 'this-screen' ? 'elsewhere' : 'this-screen'
+      }),
     ).toEqual([])
+  })
+
+  // FAILS IF: the resolver above is silently doing all the work, which would
+  // make the case above pass for a reason that has nothing to do with this
+  // matrix being correct. Without the resolver the guard MUST report row 7 —
+  // that is the measure of how much the private field is carrying, and it is
+  // exactly one cell.
+  it('reports row 7 to a caller that cannot see this module’s per-column placement', () => {
+    const blind = controlsOnActsHeldElsewhere([...FLA4_MATRIX], [...FLA4_COLUMNS])
+    expect(blind).toHaveLength(1)
+    expect(blind[0]).toContain('mark-evidence-reviewed')
+    expect(blind[0]).toContain('Client Command Center')
   })
 })
 

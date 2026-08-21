@@ -473,6 +473,25 @@ export const INVARIANT_EXCLUDED_ACTS = [
   { act: 'Terminally complete a Run', sourceRef: 'L41954; EXCL-FL-06 L39489' },
 ] as const
 
+/**
+ * The other four surfaces, spelled as the source's cells spell them. These
+ * are the words a Frontline cell uses when it hands its act away, and they
+ * are matched against the cell's TRANSCRIBED NOTE — never against a label
+ * this build chose — so the check is over the source's own sentence.
+ *
+ * "platform console" is listed separately from the Super Admin surface name
+ * because cells use both forms (L40193 writes "the Super Admin platform
+ * console"; L40920 writes "no platform console role"), and a cell drawing a
+ * control while naming either is the same offence.
+ */
+const OTHER_SURFACE_NAMES: readonly string[] = [
+  'Delivery Operations Hub',
+  'Client Command Center',
+  'Standards and Operations Studio',
+  'Super Admin platform console',
+  'platform console',
+]
+
 const INVARIANT_ACT_TEXT: ReadonlySet<string> = new Set(
   INVARIANT_EXCLUDED_ACTS.map((a) => a.act),
 )
@@ -488,9 +507,38 @@ const INVARIANT_ACT_TEXT: ReadonlySet<string> = new Set(
  * classified by its token, and the button follows honestly from a wrong
  * classification.
  */
+/**
+ * OPTIONAL, AND THE REASON IT EXISTS IS A FINDING RATHER THAN A CONVENIENCE.
+ *
+ * Two matrices carry a row whose CELLS name different places — `MOD-FL-A4`
+ * row 6, where four of five cells go to two different surfaces and the
+ * Worker's stays here, and `MOD-FL-A6` row 5. The shared row type holds ONE
+ * `metElsewhere` for the whole row, so `MOD-FL-A4` built a per-column
+ * placement of its own and projects the row onto the column before folding.
+ * Its screen is right. What is wrong is that the projection is private: this
+ * guard, and anything else consuming that matrix through the shared fold,
+ * sees `surface: 'screen'` on a row whose Quality Manager cell reads
+ * "Allowed — Client Command Center action 7" and draws a control for it.
+ *
+ * So a caller that resolves placement per column passes that resolver here
+ * and the guard asks it. A caller that does not is unaffected, and the check
+ * over its cells' own words stands.
+ *
+ * THIS IS A PATCH AT THE GUARD AND THE REAL REPAIR IS AT THE FOLD: per-column
+ * placement belongs in `FrontlineMatrixRow` so `frontlineAffordance` consults
+ * it, and the two modules that need it stop being special. That is a wave-0
+ * contract change with twelve modules already built on it, so it is recorded
+ * as a wave-3 closure item rather than made while the tree is held.
+ */
+export type ColumnPlacementResolver<Id extends string, Column extends string> = (
+  row: FrontlineMatrixRow<Id, Column>,
+  column: Column,
+) => 'this-screen' | 'elsewhere'
+
 export function controlsOnActsHeldElsewhere<Id extends string, Column extends string>(
   rows: readonly FrontlineMatrixRow<Id, Column>[],
   columns: readonly Column[],
+  resolvePlacement?: ColumnPlacementResolver<Id, Column>,
 ): readonly string[] {
   const offenders: string[] = []
   for (const row of rows) {
@@ -499,11 +547,53 @@ export function controlsOnActsHeldElsewhere<Id extends string, Column extends st
         `${row.id}: "${row.control}" is an EXCL-FL-06 invariant exclusion and is classified \`${row.surface}\``,
       )
     }
+    /**
+     * THIS LOOP USED TO BE UNREACHABLE, AND THE GUARD READ AS IF IT WORKED.
+     *
+     * It was: skip anything that is not a `control`, then skip `screen` and
+     * `chrome` rows, then report. The surfaces left over are
+     * `another-surface` and `another-destination` — and `frontlineAffordance`
+     * answers those at questions 1 and 2 with `cross-surface` and
+     * `named-place`. It CANNOT return `control` for them. So the body could
+     * never run, and the only live check in this function was the
+     * `INVARIANT_ACT_TEXT` one above, covering three Action strings across
+     * the whole surface.
+     *
+     * `MOD-FL-B11` found it by planting: it classified row 7 (`Initiate a
+     * mid-Run substitution`, which is not one of the three) as `screen`, the
+     * panel drew two Delivery Operations Hub controls, and this guard stayed
+     * green. `MOD-FL-B12` reached the same conclusion from the other side and
+     * deleted its own use of the function as a test.
+     *
+     * The defect this function is named for is a row that BELONGS on another
+     * surface being classified `screen` — which is the direction the old loop
+     * could not look, because it started from the classification it was
+     * supposed to doubt. So it now starts from the CELL'S OWN WORDS: a cell
+     * that draws a control while its transcribed note places the act on
+     * another surface is the offence, whatever the row says about itself.
+     *
+     * WHAT IT STILL CANNOT SEE, stated rather than implied: the two cells
+     * whose note names a condition and no surface at all — L41100 (the
+     * clock-skew threshold) and L41622 (the clearance duration). A rule
+     * reading for a surface name misses them precisely because the note is
+     * silent, and no rule over these strings can do better. They are caught
+     * by their own modules' gates, and this comment is here so the next
+     * reader does not mistake this function's silence for their absence.
+     */
+    if (row.surface !== 'screen' && row.surface !== 'chrome') continue
     for (const column of columns) {
       const drawn = frontlineAffordance(row, column)
       if (drawn.kind !== 'control') continue
-      if (row.surface === 'screen' || row.surface === 'chrome') continue
-      offenders.push(`${row.id}: draws a control for ${column} on a \`${row.surface}\` row`)
+      // A caller with its own per-column placement gets asked. Absent one,
+      // the row's single classification is all there is to go on.
+      if (resolvePlacement?.(row, column) === 'elsewhere') continue
+      const note = row.cells[column].note
+      const named = OTHER_SURFACE_NAMES.find((n) => note.includes(n))
+      if (named !== undefined) {
+        offenders.push(
+          `${row.id}: draws a control for ${column} while that cell's own words place the act on the ${named} — "${note}"`,
+        )
+      }
     }
   }
   return offenders
