@@ -169,6 +169,10 @@ describe('gate 1: count-scope honesty', () => {
           sourceLineMeaning:
             'The first mention of the identifier anywhere in the frozen source, not the line ' +
             'that defines it.',
+          namedInSourceCount: 0,
+          namedInSourceMeaning:
+            'How many rows are named anywhere under src/ or app/ — weaker than a status and ' +
+            'deliberately not one.',
           reconciledCount: 432,
           rawCount: 725,
           dedupRule: 'x',

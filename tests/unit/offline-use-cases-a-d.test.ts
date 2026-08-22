@@ -619,9 +619,30 @@ describe('the registry join this module can and cannot make', () => {
     // One writer, and it is inside the walk rooted at `app/`.
     expect(generator.match(/citedTokens\.add\(/g)).toHaveLength(1)
     expect(generator).toContain("walkDirs(join(ROOT, 'app'))")
-    // The only `src/` read collects a filename this module does not ship.
+    // Every `src/` read in the generator, named — and what each one feeds.
+    //
+    // THIS LIST GREW AND THE GATE WAS RIGHT TO NOTICE. It first read
+    // `toEqual(['spineFiles'])`, on the reasoning that one src reader was the
+    // whole story. A second landed: `walk`, which collects identifiers named
+    // anywhere under `src/` and `app/` for the `namedInSourceCount` figure the
+    // coverage pages publish beside the demonstrated count.
+    //
+    // The claim this case makes is unchanged and still true — **nothing under
+    // `src/` reaches `citedTokens`**, which is what decides a status. `walk`
+    // feeds `NAMED_IN_SOURCE`, a separate set that is deliberately NOT a
+    // status: it is a weaker fact published as its own number, because 237
+    // rows read demonstrated while 663 are named and one number in front of a
+    // client reads as the whole truth.
+    //
+    // Kept as an exact list rather than widened to a floor: a third src reader
+    // should turn this red and be justified here, the same way this one is.
     const srcReads = [...generator.matchAll(/(\w+)\(join\(ROOT, 'src'\)\)/g)].map((m) => m[1])
-    expect(srcReads).toEqual(['spineFiles'])
+    expect(srcReads).toEqual(['spineFiles', 'walk'])
+    // And the one that matters: neither reader writes the set that decides a
+    // status. `citedTokens.add(` is asserted above to occur exactly once, and
+    // that occurrence sits inside the walk rooted at `app/`.
+    expect(generator).toContain('const NAMED_IN_SOURCE')
+    expect(generator).not.toMatch(/NAMED_IN_SOURCE[^\n]*citedTokens/)
     expect(generator).toContain("e.name === 'modules.ts'")
     expect(readdirSync(join(process.cwd(), 'src', 'offline', 'use-cases', 'group-a-d'))).not.toContain(
       'modules.ts',

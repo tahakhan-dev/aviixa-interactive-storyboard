@@ -99,6 +99,21 @@ export const GeneratedRegistrySchema = z
      * table, a diagram paragraph, or a neighbouring entry.
      */
     sourceLineMeaning: z.string().min(40),
+    /**
+     * How many rows are named anywhere under `src/` or `app/` — WEAKER than a
+     * status and deliberately not one.
+     *
+     * A status says a route screen demonstrates the row. This says only that
+     * some file in the build spells its identifier. Both are published because
+     * they differ by a lot: measured across the fourteen inventories, 237 rows
+     * read demonstrated and 663 are named, and `offline-scenarios` reads 0
+     * demonstrated against 70 named because two tasks transcribed all seventy
+     * use cases and no route names a `UC-OFF-*` identifier.
+     *
+     * One number in front of a client reads as the whole truth. Two do not.
+     */
+    namedInSourceCount: z.number().int().nonnegative(),
+    namedInSourceMeaning: z.string().min(40),
     reconciledCount: z.number().int().nonnegative().nullable(),
     rawCount: z.number().int().nonnegative(),
     dedupRule: z.string().min(1).nullable(),

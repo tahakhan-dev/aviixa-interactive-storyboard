@@ -108,7 +108,22 @@ const SOURCE_LINE_MEANING =
   'was opened and read against the source and is the stronger citation.'
 
 function writeRegistry(registry) {
-  const out = { ...registry, sourceLineMeaning: SOURCE_LINE_MEANING, rows: sortById(registry.rows) }
+  const rows = sortById(registry.rows)
+  const out = {
+    ...registry,
+    sourceLineMeaning: SOURCE_LINE_MEANING,
+    namedInSourceCount: namedInSourceCount(rows),
+    namedInSourceMeaning:
+      'How many rows this registry holds whose identifier is named anywhere under src/ or app/. ' +
+      'It is WEAKER than a status and deliberately not one: a status says a route screen ' +
+      'demonstrates the row, and this says only that some file in the build spells its ' +
+      'identifier. It is published because the two numbers can differ by a lot -- ' +
+      'offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all ' +
+      'seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text ' +
+      'label rather than an identifier (actionable-controls) cannot be counted this way and read ' +
+      'as unnamed here; that is a limit of the measure, not a gap in the build.',
+    rows,
+  }
   writeFileSync(join(OUT_DIR, `${out.slug}.json`), JSON.stringify(out, null, 2) + '\n')
   console.log(`Wrote ${out.rows.length} rows to ${out.slug}.json`)
   return out
@@ -694,6 +709,78 @@ if (ROUTE_EVIDENCE.declaresControlMatrix && ROUTE_EVIDENCE.declaredControlLabels
  */
 function statusForId(id) {
   return ROUTE_EVIDENCE.citedTokens.has(id) ? 'demonstrated-in-storyboard' : 'not-represented'
+}
+
+/* ====================================================================
+ * NAMED IN THE BUILD, WHICH IS A WEAKER FACT THAN DEMONSTRATED AND A
+ * STRONGER ONE THAN ABSENT.
+ *
+ * `statusForId` asks whether a ROUTE SCREEN names the identifier. That is the
+ * right question for a status and the wrong question for a coverage number,
+ * because measured across the fourteen inventories it reports **237 of 4,970
+ * rows demonstrated** while **663 are named somewhere under `src/` or `app/`**.
+ * The 426-row gap is not unbuilt work; it is work no route happens to spell.
+ *
+ * The sharpest case: `offline-scenarios` reads **0 of 70** demonstrated and
+ * **70 of 70** named. Two slice-8 tasks transcribed every one of the seventy
+ * use cases, and nothing under `app/` names a `UC-OFF-*` identifier, so the
+ * registry reports none. A true statement of the rule and a false impression
+ * of the build — and the coverage dashboard puts that number in front of a
+ * client.
+ *
+ * THIS IS DELIBERATELY NOT A STATUS. `mounted-in-another-screen` means a route
+ * imports the module DIRECTORY, which is structural. "Named in a file
+ * somewhere" is a weaker claim and gets a weaker word: a count beside the
+ * total, never a per-row verdict, so no row can read as demonstrated on the
+ * strength of a mention.
+ *
+ * The walk is `src/` and `app/`, whole-token matched, probe-aware for the same
+ * reason every other walk in this build is: a concurrent suite's scratch file
+ * must not add to a published number.
+ * ==================================================================== */
+const NAMED_IN_SOURCE = (() => {
+  const found = new Set()
+  const TOKEN = /[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g
+  const walk = (dir) => {
+    const entries = readIfPresentDir(dir)
+    if (entries === null) return
+    for (const e of entries) {
+      if (PROBE_DIR_RE.test(e.name) || /^\.zz-probe-/.test(e.name)) continue
+      const full = join(dir, e.name)
+      if (e.isDirectory()) walk(full)
+      else if (/\.(?:ts|tsx|mjs)$/.test(e.name)) {
+        const text = readIfPresentFile(full)
+        if (text === null) continue
+        for (const t of text.match(TOKEN) ?? []) found.add(t)
+      }
+    }
+  }
+  walk(join(ROOT, 'src'))
+  walk(join(ROOT, 'app'))
+  return found
+})()
+
+function readIfPresentDir(dir) {
+  try {
+    return readdirSync(dir, { withFileTypes: true })
+  } catch (err) {
+    if (err && (err.code === 'ENOENT' || err.code === 'ENOTDIR')) return null
+    throw err
+  }
+}
+
+function readIfPresentFile(path) {
+  try {
+    return readFileSync(path, 'utf8')
+  } catch (err) {
+    if (err && err.code === 'ENOENT') return null
+    throw err
+  }
+}
+
+/** How many of `rows` are named anywhere under `src/` or `app/`. */
+function namedInSourceCount(rows) {
+  return rows.filter((r) => NAMED_IN_SOURCE.has(r.id)).length
 }
 
 /**

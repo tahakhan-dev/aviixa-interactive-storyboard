@@ -90,6 +90,10 @@ export function RegistryIndex({ slug }: { slug: RegistrySlug }) {
     status: r.status,
   }))
 
+  const demonstrated = registry.rows.filter(
+    (r) => r.status === 'demonstrated-in-storyboard',
+  ).length
+
   return (
     <div>
       <p className="max-w-prose text-[var(--color-ink-muted)]">{registry.countedThing}</p>
@@ -103,6 +107,23 @@ export function RegistryIndex({ slug }: { slug: RegistrySlug }) {
           Reconciled count: {registry.reconciledCount}. Raw extracted count: {registry.rawCount}.
         </p>
       )}
+      {/*
+        TWO NUMBERS, BECAUSE ONE READS AS THE WHOLE TRUTH.
+
+        The status column says whether a ROUTE SCREEN demonstrates a row. That
+        is the right question for a status and an incomplete answer for a
+        reader: measured across the fourteen inventories, 237 rows read
+        demonstrated and 663 are named somewhere in the build. This inventory's
+        own pair is printed here so the gap is visible rather than inferred —
+        offline scenarios read 0 demonstrated against 70 named, because two
+        tasks transcribed all seventy use cases and no route spells a UC-OFF-*
+        identifier.
+      */}
+      <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
+        {demonstrated} of {registry.rows.length} rows are demonstrated by a shipped screen;{' '}
+        {registry.namedInSourceCount} are named somewhere in the build.{' '}
+        {registry.namedInSourceMeaning}
+      </p>
       {registry.dedupRule !== null ? (
         <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">{registry.dedupRule}</p>
       ) : null}

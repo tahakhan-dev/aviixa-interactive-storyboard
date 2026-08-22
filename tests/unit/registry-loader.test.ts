@@ -24,6 +24,9 @@ const SLUGS = [
 const FIXTURE_SOURCE_LINE_MEANING =
   'The first mention of the identifier anywhere in the frozen source, not the line that defines it.'
 
+const FIXTURE_NAMED_MEANING =
+  'How many rows are named anywhere under src/ or app/ — weaker than a status and not one.'
+
 describe('generated registry loading', () => {
   it('loads every one of the fourteen', () => {
     for (const slug of SLUGS) expect(loadGeneratedRegistry(slug).rows.length).toBeGreaterThan(0)
@@ -35,6 +38,8 @@ describe('generated registry loading', () => {
         slug: 'modules', countedThing: 'canonical modules', reconciledCount: 81,
         rawCount: 92, dedupRule: 'x', sourceFixesNoTotal: false, rows: [],
         sourceLineMeaning: FIXTURE_SOURCE_LINE_MEANING,
+        namedInSourceCount: 0,
+        namedInSourceMeaning: FIXTURE_NAMED_MEANING,
         unexpected: 'from a newer schema',
       }, 'generated registry'),
     ).toThrow(/unexpected|unrecognized/i)
@@ -46,6 +51,8 @@ describe('generated registry loading', () => {
         slug: 'modules', countedThing: 'canonical modules', reconciledCount: 81,
         rawCount: 92, dedupRule: 'x', sourceFixesNoTotal: false,
         sourceLineMeaning: FIXTURE_SOURCE_LINE_MEANING,
+        namedInSourceCount: 0,
+        namedInSourceMeaning: FIXTURE_NAMED_MEANING,
         rows: [{ id: 'MOD-SA-01', label: 'Overview' }],
       }, 'generated registry'),
     ).toThrow()
@@ -57,6 +64,8 @@ describe('generated registry loading', () => {
         slug: 'workflows', countedThing: 'extracted records', reconciledCount: 432,
         rawCount: 725, dedupRule: 'x', sourceFixesNoTotal: true, rows: [],
         sourceLineMeaning: FIXTURE_SOURCE_LINE_MEANING,
+        namedInSourceCount: 0,
+        namedInSourceMeaning: FIXTURE_NAMED_MEANING,
       }, 'generated registry'),
     ).toThrow(/no total|reconciledCount/i)
   })

@@ -715,3 +715,64 @@ describe('module status — mounted, demonstrated and absent are three different
     expect(status.get('MOD-FL-A3')).toBe('demonstrated-in-storyboard')
   })
 })
+
+/**
+ * TWO NUMBERS, BECAUSE ONE READS AS THE WHOLE TRUTH.
+ *
+ * `status` answers whether a ROUTE SCREEN names a row's identifier. That is
+ * the right question for a status and an incomplete answer for a reader:
+ * measured across the fourteen inventories, **237 rows read demonstrated and
+ * 663 are named somewhere under `src/` or `app/`.** The 426-row gap is not
+ * unbuilt work — it is work no route happens to spell.
+ *
+ * The sharpest case is `offline-scenarios`: **0 of 70 demonstrated, 70 of 70
+ * named.** Two slice-8 tasks transcribed every one of the seventy use cases,
+ * and nothing under `app/` names a `UC-OFF-*` identifier, so the registry
+ * reports none. True to the rule, false about the build — and the coverage
+ * dashboard puts that number in front of a client.
+ */
+describe('named-in-source — the weaker fact, published beside the stronger one', () => {
+  // FAILS IF: a registry stops carrying the pair, or the count stops being
+  // reachable from the rows. Planted: `namedInSourceCount` hard-coded to 0 in
+  // the generator; went red on every inventory that has any named row.
+  it.each(SLUGS)('%s publishes a named count and what it means', (slug) => {
+    const r = fresh(slug)
+    expect(typeof r.namedInSourceCount, slug).toBe('number')
+    expect(r.namedInSourceCount, slug).toBeLessThanOrEqual((r.rows as unknown[]).length)
+    expect(r.namedInSourceMeaning as string, slug).toMatch(/WEAKER than a status|weaker than a status/i)
+  })
+
+  // FAILS IF: named-in-source stops being a superset of demonstrated.
+  //
+  // It must be, by construction: a route file that names an identifier is a
+  // file under `app/`, and the named walk covers `app/`. If this ever fails,
+  // the two walks have diverged and the smaller number is the one to trust.
+  //
+  // Planted: the named walk narrowed to `src/` only; went red on `modules`,
+  // where route files name module ids that no src file does.
+  it.each(SLUGS)('%s never reports fewer named than demonstrated', (slug) => {
+    const r = fresh(slug)
+    const demonstrated = (r.rows as { status: string }[]).filter(
+      (x) => x.status === 'demonstrated-in-storyboard',
+    ).length
+    expect(r.namedInSourceCount as number, `${slug}: named must include demonstrated`).toBeGreaterThanOrEqual(
+      demonstrated,
+    )
+  })
+
+  // FAILS IF: the gap this exists to show closes silently — which would mean
+  // either every transcription gained a route, or the measure stopped
+  // measuring. Both are worth knowing about; neither should pass unnoticed.
+  it('shows a real gap today, so the pair is not decorative', () => {
+    const totals = SLUGS.map((s) => {
+      const r = fresh(s)
+      const d = (r.rows as { status: string }[]).filter(
+        (x) => x.status === 'demonstrated-in-storyboard',
+      ).length
+      return { demonstrated: d, named: r.namedInSourceCount as number }
+    })
+    const demonstrated = totals.reduce((a, t) => a + t.demonstrated, 0)
+    const named = totals.reduce((a, t) => a + t.named, 0)
+    expect(named, `named ${named} must exceed demonstrated ${demonstrated}`).toBeGreaterThan(demonstrated)
+  })
+})
