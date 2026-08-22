@@ -934,9 +934,12 @@ and L81763 (says four of a range of five).
 - **"27 in the class diagram" is right only after a stated subtraction.** L82261-L82288 carries
   **28** `+member` lines; `+identifier` is the class key, not a template field. A gate that counts
   the span and asserts 27 is wrong; one that counts members and subtracts explicitly is right.
-- **§33.4's bolded headings return 30, not 24.** The span L77526-L77582 contains **six group
-  headings** alongside the twenty-four fields. A heading scan that does not subtract them
-  over-reports by exactly the number of groups.
+- **§33.4's bolded headings over-report, and this correction got its own numbers wrong.** The
+  correction said 30 with six group headings; verification re-measured the named span and found
+  **29 with five**. The sixth group heading — "Identity and scope fields." — sits **above** the
+  span's first line. **The correction made the same span-versus-count error it was cataloguing**,
+  which is the most exact demonstration of that shape this slice produced. The substance stands:
+  a heading scan that does not subtract group headings over-reports by the number inside its span.
 
 ### The convergence table the tree actually transcribes is §36.7's, not §38's
 

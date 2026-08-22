@@ -5,8 +5,15 @@ set of ten.** Every one of the twenty-one dispatches reads this file first.
 
 ## The three lines every dispatch carries verbatim
 
-1. Of 1,203 identifier-anchored citations in the tree, 1,019 are confirmed at the exact line by
-   `registries/blueprint-locators.json`. That is a measured split, not a target.
+1. **19,358 citations across 500 files.** Of those, 1,058 are verbatim-quoted, **3,197 are
+   identifier-anchored and confirmed at the exact line**, 129 are anchored but unproven, and
+   15,103 are weak. And **all 39,138 identifier→line pairs in
+   `registries/blueprint-locators.json` were re-opened against the frozen source with zero
+   mismatches** — the whole index, not a sample. That is a measured split, not a target.
+
+   The line every slice-8 dispatch carried — "1,019 of 1,203 confirmed" — was **stale by roughly
+   three times** and nobody noticed for a whole slice, because a number quoted verbatim in twenty
+   briefs looks more authoritative each time it is repeated. **Re-measure it before you quote it.**
 2. **This brief is a hypothesis. Prove its quotations AND its locators against the frozen source
    before you build from them.** Slice 8's briefs carried **eleven** wrong assertions and every
    one was the controller's; agents found all eleven by opening the line. One was a quotation
@@ -89,16 +96,47 @@ columns in opposite orders is not evidence of anything.**
 
 ## Three things slice 8 hands this slice directly
 
-1. **`DEC-SYNC-006` is raised for the sync-conflict list cap and no file in this tree discloses
-   it.** The re-plan records the same gap under its own name, `DEC-CONFLICTCAP-001`. **Two
-   identifiers for one unrecorded decision** — settle which the source actually raises before
-   either is disclosed, because disclosing both invents a decision where the source has one.
+1. **`DEC-SYNC-006` — SUPERSEDED, and this is what a hand-off looks like when it goes stale.**
+   Slice 8's wave 4 disclosed it in `src/offline/decisions-37b.ts`, where it is row 6 of §37B's
+   own table. **Read that record; do not mint a second spelling.** What remains is narrower and
+   still open: the re-plan names what reads like the same gap as `DEC-CONFLICTCAP-001`, so settle
+   whether those are one decision or two — and **the panel body still owes the rendered cap.** The
+   storyboard's `50` is an illustration, not a value, and slice 8 recorded it as one.
 2. **§36.6 calls `SCR-CC-10` by a different identifier than the register does.** Two names for one
    screen. Settle it before it reads as a fourteenth screen against `AC-CC-040`.
 3. **`AC-OFF-702` (L78832) is recorded and not enforced**, and the same shape recurs here: it
    forbids a network call on the execution path of anything classified fully available offline,
    and a storyboard has no execution path to inspect. **Naming the criterion and what it governs
    is the deliverable; claiming enforcement would be false.**
+
+## NINETEEN SLICE-8 FILES REACH NO ROUTE, AND ONE OF THEM IS THIS SURFACE'S
+
+Slice 8's verification traced import reachability from all 164 files under `app/` and confirmed it
+independently against the built HTML. **Nineteen slice-8 source files are imported by no page.**
+`OFF-BLK-20`, `AC-37-002`, `DEC-SYNC-006`, `DEC-OFF-001`, `DEC-OFF-002`, the `FB-*` contracts and
+`AC-FB-125` appear on **zero built pages**.
+
+Most of those are offline-model files that no Frontline screen has been given yet. **One is this
+surface's and it matters here:**
+
+**`src/surfaces/cc/modules/cc-10-s366/SecondTreatmentDisclosure.tsx` has never been rendered by
+anything.** It is §36.6's nine-row `MOD-CC-10` treatment carrying all four divergences — the most
+valuable disclosure slice 8 produced — and it is imported by no page and no component test. Its
+own header says "the controller wires it beneath that treatment" and names
+`app/command-center/sync-conflict-review/`, **which is the wrong slug**; the route is
+`sync-conflict-review-panel`.
+
+**So the "disclosed on screen" obligation is met in the tree and on screen for none of it.** Task
+16 wires it. Until then, a client reviewing `SCR-CC-10` sees one treatment and is told nothing
+about the second.
+
+`cc-02`'s absence from any route is properly declared in `CC_SEAMS`. **`cc-10-s366`'s is not
+declared anywhere** — it is simply unreferenced, which is the difference between a stated
+abstention and an oversight.
+
+**The general lesson for every task in this slice: a component that compiles, passes its unit
+suite and is imported by nothing is not shipped.** Check your own reachability from `app/` before
+you report.
 
 ## The registry generator awards a route to ONE module, and only since slice 8
 
