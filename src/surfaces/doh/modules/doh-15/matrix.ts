@@ -683,7 +683,7 @@ export const MOD_DOH_15_UNSPECIFIED_IN_SOURCE = [
   {
     topic: 'The recurrence answer has no command of its own',
     whatIsMissing:
-      '`HUB_COMMAND_TYPES` in `@/domain/commands` minted twelve Hub commands and no clone was among them; `DOH_CLONE_JOB` now exists, so the audit line the source requires at L29543 has something to hang off and the clone goes through `hubAccessRequest` the way `DOH_APPROVE_JOB` does. The prompt at row 2 (L29478) still has none. That is deliberate rather than overlooked: the prompt is a SECOND act with its own role cells, and `FUNC-DOH-15-2.1.1` (L29524) names its allowed roles as "the cloning identity", which is a field of the act and not one of the five roles — so a command minted for it would have to name an actor the role model cannot express. `cloneDecision` reads the row`s own cells instead.',
+      '`HUB_COMMAND_TYPES` in `@/domain/commands` minted fifteen Hub commands and no clone was among them; `DOH_CLONE_JOB` now exists, so the audit line the source requires at L29543 has something to hang off and the clone goes through `hubAccessRequest` the way `DOH_APPROVE_JOB` does. The prompt at row 2 (L29478) still has none. That is deliberate rather than overlooked: the prompt is a SECOND act with its own role cells, and `FUNC-DOH-15-2.1.1` (L29524) names its allowed roles as "the cloning identity", which is a field of the act and not one of the five roles — so a command minted for it would have to name an actor the role model cannot express. `cloneDecision` reads the row`s own cells instead.',
     sourceRef: 'L29543; L29478; L29524; `HUB_COMMAND_TYPES`, `@/domain/commands`',
   },
   {

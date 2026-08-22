@@ -75,7 +75,7 @@ export type GatewayResult =
 function actionClassFor(command: ScenarioCommand): ActionClass | undefined {
   // SLICE 6. The switch's `default: return undefined` fails CLOSED, which is
   // right for a shape that bypassed the type system -- but every one of the
-  // twelve Hub commands is a well-formed member of `ScenarioCommand`, so
+  // fifteen Hub commands is a well-formed member of `ScenarioCommand`, so
   // falling into that default would have reported each of them as "not a
   // recognised action" and refused every Hub write on this branch. Each Hub
   // command's class is declared in `HUB_COMMAND_SPECS` alongside its access

@@ -101,7 +101,7 @@ export const COMMAND_CENTER_ACTION_8 = {
     'L28193 — "The Client Command Center’s reassign action calls these services and receives identical validation and identical errors."',
   ],
   noCommandExists:
-    'There is no `DOH_REASSIGN_RUN` in the Hub command set. The twelve Hub commands include `DOH_SUBSTITUTE_WORKER`, which is what the Command Center’s action calls; the absence of a Hub-side reassign command is the guarantee, not a gap.',
+    'There is no `DOH_REASSIGN_RUN` in the Hub command set. The fifteen Hub commands include `DOH_SUBSTITUTE_WORKER`, which is what the Command Center’s action calls; the absence of a Hub-side reassign command is the guarantee, not a gap.',
 } as const
 
 /* ==================================================================== *

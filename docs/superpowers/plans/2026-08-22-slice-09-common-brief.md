@@ -185,8 +185,8 @@ done and correctly changed nothing; that is the outcome to aim for, not a failur
 **Also already in the repo — do not rebuild:** the nine-token `PermissionOutcome` vocabulary
 covers every status these matrices use · the thirteen `ScreenStateId` states map onto §25.4's
 inventory exactly · `SUPERVISOR_AND_ABOVE` and `QUALITY_MANAGER_AND_ABOVE` already encode
-`DEC-PLUS-001`'s enumeration reading · `ScenarioCommandGateway` is already the sole mutation
-entry point and gives the one-transaction audit guarantee · `routeBySurface('SURF-CC')` already
+`DEC-PLUS-001`'s enumeration reading · **`dispatch` in `src/scenario/gateway.ts`** is already the
+sole mutation entry point and gives the one-transaction audit guarantee · `routeBySurface('SURF-CC')` already
 grants only Tenant Admin, Supervisor and Quality Manager, **which is the Auditor and Worker
 exclusion already satisfied at the route layer** · the fifteen command states in
 `src/surfaces/sa/command-state.ts`, bound to `src/frontline/commands.ts`'s by `SA_SPELLING`.
@@ -1200,3 +1200,110 @@ The four absent are `MOD-DOH-10`, `-11`, `-17` and `-18`.
 
 Planted by replacing the recursive descent with a single hop: the mounted count fell from 10 to 8
 and `MOD-CC-02` returned to `not-represented`.
+
+---
+
+## Wave 3 — the seams, and a phantom identifier this brief invented
+
+**Brief error 48 is the one to read first: `ScenarioCommandGateway` DOES NOT EXIST.** Zero
+occurrences across `src/`, `app/`, `tests/` and `scripts/`. This brief named it twice as "already
+the sole mutation entry point", and the dispatch repeated it. **The real entry point is `dispatch`
+in `src/scenario/gateway.ts`**, whose own banner says so. Corrected above.
+
+**A phantom identifier costs a task its search, not its work** — and this one was handed to the
+single task whose whole subject is proving that two callers reach one entry point.
+
+### Four more brief errors, and two are counts of the seam set itself
+
+**44 — "§26.8.1 carries seams 3 through 9 and all seven terminate on `SURF-CC`" is wrong twice.**
+Its own heading (**L49661**) reads *"Seams one to nine"* — **nine**. And **two of 3-9 run
+outward**: seam 3's Consumer row is `Frontline devices` (L49737) and seam 9's Producer row is
+`Client Command Center action 10` (L49870). **A registry built to the brief has this surface
+receiving the two seams it originates.**
+
+**45 — "Chapter 26 attaches seams 3, 4, 5, 6, 7, 8, 9, 21, 24 and 25" — fifteen name it**, under
+one derived rule: a seam belongs here when its own Producer or Consumer row names the Client
+Command Center. Thirteen as consumer, two as producer. The five the brief omits: **1, 10, 15, 17,
+20**.
+
+**46 — "L49593 and L49595 sit one row apart" appears in the task brief AND was already corrected in
+this file as error 42.** The common brief was fixed and the task brief was not. **"Correct every
+copy or none" recurring inside a single dispatch** — a document that contradicts itself is worse
+than one uniformly out of date, because a reader cannot tell which half is current.
+
+**47 — the task brief still called §26.7 "the fourth of four tables"** after this file had
+recorded six.
+
+**49 — the brief attributed the contract-equivalence demand to the seam's narrative heading.**
+That line introduces the seam and quotes "identical rules"; it demands nothing. The demand is
+**`AC-SEAM-21-01` at L50227**, its method **`TEST-SEAM-21-01` at L50228**. Citing the narrative
+instead of the criterion is the same class as citing a register row instead of the decision it
+indexes.
+
+**The wrong line's number is not spelled here, and the reason is that this paragraph went red.**
+A first draft quoted the brief's own false sentence beside that locator, and `locator-fidelity`
+read the quotation as a citation asserting those words sit there. **Quoting your own error is
+still making the claim** — the same rule that refuses a citation inside a sentence describing a
+planted defect.
+
+### How seam 21's equivalence was actually asserted
+
+Not a label match. Each caller is resolved through the `MOD-DOH-07` matrix row that states it, and
+**the union over both callers is asserted to have exactly one member** — with reference identity
+against the command registry, not deep equality.
+
+The Command Center side resolves to **zero** Hub-side reassign commands, **and the emptiness is
+the guarantee**: no such command exists because the act is the Hub's own substitution, called from
+elsewhere.
+
+**Three plants prove it and a label comparison survives all three**: a second entry point on the
+Command Center side, the same on the Hub side, and both at once.
+
+**The honest limit is recorded in the file**: no page imports `dispatch`, so this is asserted over
+the command registry the sole gateway routes through — where a second implementation would have to
+appear first. A gate fails the day a page imports the gateway, at which point the claim must be
+rewritten.
+
+### The finding neither surface could see alone
+
+**Seam 21's two callers disagree about the Quality Manager, and one service cannot satisfy both.**
+L28121 (the Hub's own substitution) reads `Explicitly prohibited`; L28122 (the Command Center's
+reassign) reads `Allowed with conditions — Supervisor and above`; **L50216 states the authority as
+"Supervisor and above, on both callers".** The built entry point admits `SUPERVISOR` and
+**explicitly denies `QUALITY_MANAGER`** — it follows the Hub row and refuses the Command Center's.
+
+Two readings, two fields each, neither adopted. **Neither module task can see this pair**, which is
+the entire argument for a seam task.
+
+### Three more measured findings
+
+- **§26.7 has a row for the escalation acknowledgement state and none for the resolution state.**
+  Recorded as a **missing row, not a contradiction** — a row keyed on one record type denies
+  nothing about one it does not carry. The brief framed it as a divergence; it is a gap.
+- **§26.7's Command Center column cannot be split on ` — `.** Twelve of twenty-six use a dash,
+  **one a comma** (L49590) and **three a bare space** (L49577, L49584, L49601). A dash split ships
+  four wrong tokens. The token is the first backticked span, compared for exact equality.
+- **Two `Read-only` cells grant an action in their note** (L49577, L49590) — the L38685 prefix trap
+  inverted: there the token prohibits and the note grants; here the token is read-only and the note
+  grants. **A screen built from the token alone renders neither.**
+
+### A prose count five shipping files carried, fixed
+
+**Five files said "twelve Hub commands"; `HUB_COMMAND_TYPES` has fifteen.** The prose was correct
+when written at slice 6 and the vocabulary grew past it. `src/domain/commands.ts` says fifteen
+correctly. All five corrected.
+
+**This is the shape nothing in the build checks**: a number in a comment that was true when written.
+`locator-fidelity` checks line numbers; the closed-vocabulary gate checks annotations; **nothing
+checks a count stated in prose against the constant beside it.**
+
+### And `seams.ts`'s `THIS_SLICE` is stale, with both its seams closed in substance
+
+`sync-state-chrome-host` is closed — the live shift board mounts `MOD-CC-01` and fills the shell's
+`chrome` prop with `MOD-CC-02`'s components — and **nobody had reported that one**, because the
+board's task and the chrome's task each saw one half. `operational-action-set` is closed by the
+rail.
+
+**Three suites now pin `THIS_SLICE = 8`**, so the fix must touch five files in one change. That is
+deliberate: the number moved the "second thing to keep in step" hazard one level up rather than
+removing it, and an atomic fix is the honest way to carry that.

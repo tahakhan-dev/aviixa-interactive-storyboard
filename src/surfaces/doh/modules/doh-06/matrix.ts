@@ -201,7 +201,7 @@ const ROW_4: DohControlMatrixRow<RunControlId> = {
     WORKER: BARE_PROHIBITION,
   },
   rendering:
-    'The cap is READ here and SET on another Hub screen (row 11). There is no `DOH_EXTEND_RUN` command in `@/domain/commands` — wave 0 minted twelve Hub commands and this act is not one of them, so the control renders its rule and its bound and dispatches nothing. Recorded rather than papered over.',
+    'The cap is READ here and SET on another Hub screen (row 11). There is no `DOH_EXTEND_RUN` command in `@/domain/commands` — wave 0 minted fifteen Hub commands and this act is not one of them, so the control renders its rule and its bound and dispatches nothing. Recorded rather than papered over.',
   effect: 'Extends the run end time, audited, within the tenant-configured cap.',
   sourceRef: 'L27912 · §4.6.6 · §2.4 Part IX',
 }
@@ -968,7 +968,7 @@ export const UNSPECIFIED_IN_SOURCE = [
   {
     topic: 'No command for row 4 or row 9',
     whatIsMissing:
-      'Wave 0 minted twelve Hub commands and neither an extend-run nor a close-stuck-run act is among them. For row 9 the absence is load-bearing rather than incidental — a command would have to name the state it writes, and that state is DEC-STUCK-001.',
+      'Wave 0 minted fifteen Hub commands and neither an extend-run nor a close-stuck-run act is among them. For row 9 the absence is load-bearing rather than incidental — a command would have to name the state it writes, and that state is DEC-STUCK-001.',
     sourceRef: '`@/domain/commands` HUB_COMMAND_TYPES',
   },
 ] as const satisfies readonly SourceSilence[]
