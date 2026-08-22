@@ -391,3 +391,43 @@ as an explicit marker. Both are real; only one says an open decision stays open.
 `TEST-PKG-405` occurs **zero times in all 122,241 lines**, measured. §35.3 and §35.5 both pair
 five with five, so the asymmetry is this section's and not a truncated transcription. Carry it
 as a source gap.
+
+## The source proposes the package manifest TWICE, and the second drops two enforcement fields
+
+Task 9 found this; neither brief carried it and the controller verified it by opening the lines.
+
+**§33.4, "The Complete Package Manifest", opens at L77510** and enumerates its fields as bolded
+headings across L77526-L77582. Its own at-a-glance table (L77611-L77631) holds **21 rows**,
+folding site/area/location into one and job/run into another.
+
+**§35.3's table holds 22 fields** — and **two of §33.4's are simply absent from it**, verified by
+searching all 22 rows for each:
+
+- **L77532** — "Location identifier where the tenant's hierarchy includes it. Justification: the
+  Location (Cell) is the workstation level and part of na…"
+- **L77544** — "Qualification gate posture and clearance duration. Justification: the posture is
+  strict blocking or notify-only and is a tenant setting…"
+
+**Neither is hygiene.** The first is a scope field — the same class the integrity table's
+"Manifest scope fields do not match the device assignment" row rejects a package on. The second
+is a **gate**: a manifest without the qualification posture and clearance duration cannot
+enforce the qualification gate on a device that is offline, which is the whole reason the gate
+is on the device.
+
+So the slice carries **three counts for one object** — 24 enumerated, 21 summarised, 22
+proposed — and the difference between the first and third is not a rounding of presentation but
+two fields that do work. **Record all three, name the two dropped fields at the lines §33.4
+states them, and choose none.**
+
+## §35.1 describes one machine four times
+
+**21 stages (L79049) · 18 diagram states (L79073-L79090) · 16 workflow steps (L79053-L79068) ·
+13 authority rows (L79126-L79138).**
+
+The 21-to-18 gap **reconciles exactly, in the source's own words**: signing folds into
+`Manifested` because L79078's label reads "manifest created and signed", and rollback and
+reconciliation are drawn nowhere. 21 − 1 fold − 2 unstated = 18.
+
+**The other two do not reconcile and must not be made to.** The workflow and the authority
+matrix join the stages on different seams — "Manifest creation and signing", "Activation and
+pinning" — so a count that agrees with them would be a count of something else.
