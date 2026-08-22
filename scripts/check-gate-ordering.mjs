@@ -133,6 +133,21 @@ const AUDITED = {
       'compares against. Contrast registry-freshness, which compared committed artefacts to ' +
       'freshly generated ones and could only ever compare a directory to itself.',
   },
+  'walkthrough-routes.test.ts': {
+    subject:
+      'the route paths named in docs/walkthroughs.md, compared against the route list ' +
+      'exportedRoutes() derives from out/',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and the asymmetry is the point. `build` writes ONE of the two sides -- ' +
+      'the export -- and runs first. It cannot write the other: nothing in `verify` edits ' +
+      'docs/walkthroughs.md, which is a hand-written document, and a hand-written document ' +
+      'compared against a derived list is exactly the shape this gate exists for. A build ' +
+      'that renames a route makes the document wrong and this gate says so; a build cannot ' +
+      'make the document right. Planted three ways and each went red: a renamed route in a ' +
+      'step, a built surface losing its only step, and the document losing its tables.',
+  },
   'rendered-text-sanity.test.ts': {
     subject: 'every index.html under out/, as text nodes',
     rewrittenBy: 'build',

@@ -268,10 +268,27 @@ describe('per-item status is computed from the built tree, not hardcoded', () =>
     }
   })
 
+  /**
+   * `mounted-in-another-screen` joined this vocabulary and this gate is what
+   * noticed. It belongs here for the same reason the other four do: it names
+   * the EVIDENCE rather than a claim about completeness. A module reads mounted
+   * because a route file imports its directory — a fact about the built tree,
+   * checkable, and falsified the moment the import is removed. "Implemented" is
+   * the word this list exists to keep out, because nothing can check it.
+   */
   it('every row carries one of the honest coverage statuses, never an "implemented" claim', () => {
     for (const slug of SLUGS) {
       for (const row of load(slug).rows) {
-        expect(['demonstrated-in-storyboard', 'decision-blocked', 'not-applicable', 'not-represented'], `${slug}/${row.id}`).toContain(row.status)
+        expect(
+          [
+            'demonstrated-in-storyboard',
+            'mounted-in-another-screen',
+            'decision-blocked',
+            'not-applicable',
+            'not-represented',
+          ],
+          `${slug}/${row.id}`,
+        ).toContain(row.status)
       }
     }
   })
@@ -589,5 +606,92 @@ describe('module route awards — ownership, not mention', () => {
     expect(slugs.get('MOD-CC-02')).toBeNull()
     const row = (fresh('modules').rows as { id: string; status: string }[]).find((r) => r.id === 'MOD-CC-02')
     expect(row?.status).toBe('not-represented')
+  })
+})
+
+/**
+ * MOUNTED IS NEITHER DEMONSTRATED NOR ABSENT.
+ *
+ * A module that owns no route can still be built and on screen — the source
+ * requires it. `MOD-CC-13`'s action rail and `MOD-CC-07` mount inside other
+ * modules' screens, and `MOD-CC-02` is chrome that `AC-CC-040` forbids a route.
+ * Until the third status existed every one of them read `not-represented`, the
+ * same word the inventory uses for a module with no code at all.
+ *
+ * It was understating the build by seven modules. Five are substantial:
+ * `MOD-FL-A4`, `A5`, `B8`, `B9` and `B11` are ninety-nine source files between
+ * them, all five imported by `app/frontline/run-player/page.tsx`, and every one
+ * read not-represented — because that route imports them by path and never
+ * names a module id in its text, so the mention scan could not see them.
+ */
+describe('module status — mounted, demonstrated and absent are three different facts', () => {
+  const rowsOf = () => fresh('modules').rows as { id: string; status: string }[]
+
+  // FAILS IF: the third status stops being produced at all — which is how the
+  // first implementation failed silently. It looked modules up in the map of
+  // DECLARED SLUGS, and the modules the rule exists for are exactly the ones
+  // that declare `slug: null`, so it reported seven mounted modules as zero and
+  // every other assertion here would have passed on an empty set.
+  it('produces all three statuses and nothing else', () => {
+    const seen = new Set(rowsOf().map((r) => r.status))
+    expect([...seen].sort()).toEqual([
+      'demonstrated-in-storyboard',
+      'mounted-in-another-screen',
+      'not-represented',
+    ])
+    expect(rowsOf().filter((r) => r.status === 'mounted-in-another-screen').length).toBeGreaterThan(0)
+  })
+
+  // FAILS IF: a module whose directory a route imports reads not-represented.
+  //
+  // Planted: the `importedModuleDirs` collection removed from the route walk in
+  // `scripts/build-registries.mjs`. Went red listing all seven. Restored
+  // byte-identically.
+  //
+  // Derived from the imports, not from a list of ids: a hand-written list is
+  // the enumeration this file's neighbours exist to kill.
+  it('never reports a module as absent when a route imports its directory', () => {
+    const imported = new Set<string>()
+    const walk = (dir: string): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (isForeignProbe(e.name)) continue
+        if (e.isDirectory()) walk(join(dir, e.name))
+        else if (/\.tsx?$/.test(e.name)) {
+          for (const m of readFileSync(join(dir, e.name), 'utf8').matchAll(
+            /from\s+'[^']*\/modules\/([a-z]+-[a-z]?\d+)(?:\/[^']*)?'/g,
+          )) {
+            const dirName = m[1]
+            if (dirName !== undefined) imported.add(`MOD-${dirName.toUpperCase()}`)
+          }
+        }
+      }
+    }
+    walk(join(process.cwd(), 'app'))
+    expect(imported.size, 'no route imports any module directory — the scan is broken').toBeGreaterThan(3)
+
+    const status = new Map(rowsOf().map((r) => [r.id, r.status]))
+    const wrong = [...imported]
+      .filter((id) => status.has(id))
+      .filter((id) => status.get(id) === 'not-represented')
+    expect(wrong, 'modules a route imports but the registry calls absent').toEqual([])
+  })
+
+  // FAILS IF: owning a route stops outranking being imported. A module that
+  // owns its screen is demonstrated whether or not something else also mounts
+  // it; reversing the precedence would demote a module for being reused.
+  //
+  // PLANTED AND IT NEVER REACHED THIS ASSERTION, which is worth recording
+  // rather than dressing up. Reversing the precedence in the generator makes it
+  // THROW — `slugClaimedButNotDemonstrated` refuses to write a registry in
+  // which a module declaring a slug whose route directory exists reads anything
+  // but demonstrated — so the whole suite skipped instead of this case going
+  // red. The precedence is genuinely protected, and by a stronger guard than
+  // this one: the generator will not produce the output at all. This case
+  // remains as the cheap statement of the same fact, and its honest status is
+  // that the generator's refusal is what enforces it.
+  it('keeps a module that owns a route demonstrated even when another route imports it', () => {
+    const status = new Map(rowsOf().map((r) => [r.id, r.status]))
+    // MOD-FL-A3 owns `/frontline/run-player/` by slug AND is imported by it.
+    expect(status.get('MOD-FL-A3')).toBe('demonstrated-in-storyboard')
   })
 })

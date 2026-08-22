@@ -312,6 +312,8 @@ if (orphanProbes.length > 0) {
 
 function walkRouteTree() {
   const ownedModuleIds = new Set()
+  /** Module directory names (`fl-b9`, `cc-02`) imported from a file under `app/`. */
+  const importedModuleDirs = new Set()
   /**
    * Argmax winners, RECORDED PER DIRECTORY and awarded below, for exactly the
    * reason ties are. This set used to be filled during the walk, which awarded
@@ -355,6 +357,30 @@ function walkRouteTree() {
         for (const token of text.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) {
           citedTokens.add(token)
         }
+        /**
+         * MOUNTING EVIDENCE, WHICH IS AN IMPORT AND NOT A MENTION.
+         *
+         * A module with no route of its own can still be built and on screen:
+         * the source requires it -- `MOD-CC-13`'s action rail and `MOD-CC-07`
+         * mount inside other modules' screens, and `MOD-CC-02` is chrome. Those
+         * modules used to read `not-represented`, which is the same word the
+         * inventory uses for a module with no code at all.
+         *
+         * It was understating the build by seven modules and five of them are
+         * substantial: `MOD-FL-A4`, `A5`, `B8`, `B9` and `B11` are ninety-nine
+         * source files between them, all five imported by
+         * `app/frontline/run-player/page.tsx`, and every one of them read
+         * not-represented -- because the route imports them BY PATH and never
+         * names a module id in its text, so the mention scan above cannot see
+         * them at all.
+         *
+         * An import is the stronger evidence anyway: a mention can be a
+         * cross-reference in a sentence, while an import is the screen actually
+         * mounting the thing.
+         */
+        for (const m of text.matchAll(/from\s+'[^']*\/modules\/([a-z]+-[a-z]?\d+)(?:\/[^']*)?'/g)) {
+          importedModuleDirs.add(m[1])
+        }
         if (text.includes('CONTROL_MATRIX')) declaresControlMatrix = true
         for (const m of text.matchAll(/\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g)) {
           declaredControlLabels.add(m[1].replace(/\\(.)/g, '$1'))
@@ -393,7 +419,7 @@ function walkRouteTree() {
     }
   }
   walkDirs(join(ROOT, 'app'))
-  return { ownedModuleIds, argmaxWinners, ambiguousRoutes, citedTokens, declaredControlLabels, declaresControlMatrix, routeDirsByName }
+  return { ownedModuleIds, argmaxWinners, importedModuleDirs, ambiguousRoutes, citedTokens, declaredControlLabels, declaresControlMatrix, routeDirsByName }
 }
 
 const ROUTE_EVIDENCE = walkRouteTree()
@@ -543,6 +569,46 @@ for (const { dir, name, a, b } of ROUTE_EVIDENCE.ambiguousRoutes) {
       `module more often than any it cross-references, or be claimed by a slug declaration.`,
   )
 }
+/* --------------------------------------------------------------------
+ * MOUNTED, WHICH IS NEITHER DEMONSTRATED NOR ABSENT.
+ *
+ * A module that owns no route can still be built and on screen. The source
+ * requires it: `MOD-CC-13`'s action rail and `MOD-CC-07` mount inside other
+ * modules' screens, and `MOD-CC-02` is surface chrome that `AC-CC-040`
+ * forbids a route. Until now every one of them read `not-represented` --
+ * the same word the inventory uses for a module with no code at all.
+ *
+ * Measured, that was understating the build by seven modules, and five of
+ * them are substantial: `MOD-FL-A4`, `A5`, `B8`, `B9` and `B11` are
+ * ninety-nine source files between them, ALL FIVE imported by
+ * `app/frontline/run-player/page.tsx`, and every one read not-represented.
+ * The mention scan could not see them because that route imports them by
+ * path and never names a module id in its text.
+ *
+ * THE EVIDENCE IS AN IMPORT, NOT A MENTION, and that is the stronger of the
+ * two: a mention can be a cross-reference in a sentence, an import is the
+ * screen mounting the thing. The directory convention is mechanical --
+ * `MOD-FL-B9` lives in `.../modules/fl-b9/` -- and `cc-10-s366` maps to no
+ * module because it matches no id, which is correct: it is a second
+ * treatment of `MOD-CC-10`, not a fourteenth module.
+ *
+ * PRECEDENCE IS DELIBERATE. A module that owns a route is `demonstrated`
+ * whether or not something else also imports it; `mounted-in-another-screen`
+ * is only for modules that own none. Reversing that would demote a module
+ * for being reused.
+ * ------------------------------------------------------------------ */
+const MOUNTED_MODULE_IDS = new Set()
+for (const dir of ROUTE_EVIDENCE.importedModuleDirs) {
+  // `fl-b9` -> `MOD-FL-B9`. Derived from the directory, NOT looked up in
+  // MODULE_SLUGS: that map holds only modules that DECLARE a slug, and the
+  // modules this rule exists for are exactly the ones that declare
+  // `slug: null`. Iterating it found nothing and reported seven mounted
+  // modules as zero -- a lookup keyed on the very field the subject lacks.
+  const id = `MOD-${dir.toUpperCase()}`
+  if (DEMONSTRATED_MODULE_IDS.has(id)) continue
+  MOUNTED_MODULE_IDS.add(id)
+}
+
 // A build that finds no shipped module is a broken walk, not an empty product:
 // nineteen SURF-SA routes exist on disk. Failing here beats writing a coverage
 // dashboard that quietly reports nothing is built.
@@ -602,9 +668,23 @@ function statusForId(id) {
  */
 function statusNote(rows, signal) {
   const n = rows.filter((r) => r.status === 'demonstrated-in-storyboard').length
+  const mounted = rows.filter((r) => r.status === 'mounted-in-another-screen').length
   return (
     `Status is computed from the built route tree, never from a list: ${n} of ${rows.length} rows ` +
-    `read demonstrated-in-storyboard because ${signal}; every other row reads not-represented. ` +
+    `read demonstrated-in-storyboard because ${signal}. ` +
+    (mounted > 0
+      ? `${mounted} read mounted-in-another-screen: they own no route and a route file IMPORTS ` +
+        'their module directory, which is what the source requires of a module with no screen of ' +
+        'its own -- an action rail or surface chrome mounted inside another module\'s screen. ' +
+        'The evidence is the import rather than a mention, because a mention can be a ' +
+        'cross-reference in a sentence while an import is the screen mounting the thing; five ' +
+        'Frontline modules of ninety-nine source files between them read not-represented until ' +
+        'this rule existed, all five mounted in the Run Player and none of them named in its ' +
+        'text. '
+      : '') +
+    'Every other row reads not-represented, which means no route demonstrates it AND no route ' +
+    'mounts it -- a module may be fully built and still read not-represented if nothing has ' +
+    'mounted it yet. ' +
     'Delete or rename the route that carries that evidence and those rows fall back on the next build.'
   )
 }
@@ -635,7 +715,11 @@ function buildModulesRegistry() {
       byId.set(m.id, {
         id: m.id,
         sourceLine: m.line,
-        status: DEMONSTRATED_MODULE_IDS.has(m.id) ? 'demonstrated-in-storyboard' : 'not-represented',
+        status: DEMONSTRATED_MODULE_IDS.has(m.id)
+          ? 'demonstrated-in-storyboard'
+          : MOUNTED_MODULE_IDS.has(m.id)
+            ? 'mounted-in-another-screen'
+            : 'not-represented',
         label: m.name,
         surface: m.surface,
         purpose: m.purpose,

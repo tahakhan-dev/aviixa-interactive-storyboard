@@ -60,19 +60,24 @@ route tree actually demonstrates. It is deliberately unflattering.
 ## What is NOT built, stated plainly
 
 The blueprint's fourteen inventories hold **4,970 rows**. **237 of them are demonstrated by a
-shipped screen today.** That number is low by design at this stage and it is not the whole
+shipped screen today**, and seven more modules are mounted inside another module's screen. That number is low by design at this stage and it is not the whole
 picture — a screen demonstrates a module without separately demonstrating each of its
 sub-features — but it is the honest measure, and it is computed rather than asserted.
 
 By surface:
 
-| surface | modules demonstrated | state |
-|---|---|---|
-| Super Admin platform console | 19 / 19 | complete |
-| Delivery Operations Hub | 15 / 19 | four modules unbuilt |
-| Standards and Operations Studio | 16 / 18 | two modules unbuilt |
-| Frontline Worker Application | 6 / 12 | six modules unbuilt |
-| **Client Command Center** | **1 / 13** | **twelve modules unbuilt** |
+| surface | owns a screen | mounted in another screen | of | state |
+|---|---|---|---|---|
+| Super Admin platform console | 19 | — | 19 | complete |
+| Delivery Operations Hub | 15 | — | 19 | four modules unbuilt |
+| Standards and Operations Studio | 16 | 1 | 18 | one module unbuilt |
+| Frontline Worker Application | 6 | **6** | 12 | **all twelve built** — six own a screen, six mount inside the Run Player |
+| **Client Command Center** | **1** | — | **13** | **twelve modules unbuilt** |
+
+**"Mounted in another screen" is not a lesser status.** Six Frontline modules — data capture,
+on-device detection, the offline engine, coaching, gates and sign-off, worker lifecycle — have no
+screen of their own because the blueprint gives them none. They mount inside the Run Player, which
+is where a worker meets them. Ninety-nine source files sit behind those six rows.
 
 **The Client Command Center is the surface to expect least from.** `/command-center/` is a
 placeholder and one screen — the sync-conflict review panel — is built. Its remaining twelve

@@ -27,22 +27,31 @@ server would stop being reviewable as a set of files.
 
 ## What is here
 
-| surface | modules demonstrated | route directories |
-|---|---|---|
-| Super Admin platform console (`SURF-SA`) | 19 / 19 | 20 |
-| Delivery Operations Hub (`SURF-DOH`) | 15 / 19 | 18 |
-| Standards and Operations Studio (`SURF-STU`) | 16 / 18 | 18 |
-| Frontline Worker Application (`SURF-FL`) | 6 / 12 | 7 |
-| Client Command Center (`SURF-CC`) | 1 / 13 | 2 |
-| **total** | **57 / 81** | **85 exported pages** |
+| surface | owns a screen | mounted in another screen | of | routes |
+|---|---|---|---|---|
+| Super Admin platform console (`SURF-SA`) | 19 | — | 19 | 20 |
+| Delivery Operations Hub (`SURF-DOH`) | 15 | — | 19 | 18 |
+| Standards and Operations Studio (`SURF-STU`) | 16 | 1 | 18 | 18 |
+| Frontline Worker Application (`SURF-FL`) | 6 | **6** | 12 | 7 |
+| Client Command Center (`SURF-CC`) | 1 | — | 13 | 2 |
+| **total** | **57** | **7** | **81** | **85 pages** |
 
 Plus `/coverage/` — fourteen inventory dashboards computed from the source — `/workflows/`, and
 `/review/`.
 
-**"Demonstrated" is computed from the built route tree, never from a list.** A module reads
-demonstrated because it declares a `slug` and a shipped route directory of that name exists, or —
-for a route no module claims by slug — because that route's files name it more often than any
-module they cross-reference. Delete the route and the row falls back on the next build. See
+**All three statuses are computed from the built route tree, never from a list.**
+
+- **Owns a screen** — the module declares a `slug` and a shipped route directory of that name
+  exists; or, for a route no module claims by slug, that route's files name it more often than any
+  module they cross-reference.
+- **Mounted in another screen** — the module owns no route and **a route file imports its module
+  directory.** The source requires this: an action rail or surface chrome has no screen of its own
+  and mounts inside another module's. The evidence is the import rather than a mention, because a
+  mention can be a cross-reference in a sentence while an import is the screen mounting the thing.
+- **Not represented** — no route demonstrates it and no route mounts it. **A module can be fully
+  built and still read this** if nothing has mounted it yet, which is true of `MOD-CC-02` today.
+
+Delete the route or the import and the row falls back on the next build. See
 `registries/generated/modules.json` for the rule in full.
 
 ## The frozen source
