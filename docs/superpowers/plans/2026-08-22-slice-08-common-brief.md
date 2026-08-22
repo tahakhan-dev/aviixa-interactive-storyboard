@@ -505,3 +505,43 @@ disagrees with the generator about the same question is wrong wherever they diff
 Narrowed to match, with both directions asserted: a planted `slug: 'sign-in'` still collides
 two-to-one against `app/frontline/sign-in` and `app/studio/sign-in` and is still caught —
 watched red, restored.
+
+## Splitting `MOD-CC-10` between two implementers found more than it protected
+
+The two treatments were given to different tasks so neither would reconcile disagreements the
+source does not settle. That worked — and it also found **two divergences neither brief named**,
+because two people transcribed the same module independently and header-keyed.
+
+**The Tenant Admin divergence is TWO rows wide, not one.** The brief named the panel-visibility
+row. The row below it diverges too: §36.6's L80550 gives the Tenant Admin
+`Allowed with conditions — as above` on reading a conflict entry, where chapter 21's L38085
+reads `Explicitly prohibited`. Swept independently on each side: §36.6 gives that role a
+non-refusal in exactly two rows; chapter 21 refuses it in all eight.
+
+**A fourth possible divergence, left open on purpose.** §36.6 splits "see the panel exists" from
+"read an entry" and gives the Supervisor `Allowed` then `Read-only`; chapter 21 gives
+`Read-only` twice. That may be a decomposition rather than a contradiction — **and saying which
+would be the choice**, so neither task took it.
+
+**And one that looks like a divergence and is not**, filed as checked so the next reader does
+not file it as a fifth: the skew rows. L38088 and L80553 contradict each other *positionally*
+and agree exactly on their own capability wordings — one asks about resolving a skew-flagged
+conflict individually, the other about including one in Resolve All.
+
+## Brief error: "the reviewer" is at L80496
+
+Both this brief and task 13's put the sentence at **L80497**. L80497 is the next bullet and a
+different rule — "Supervisors view the panel; resolution, including Resolve All, is Quality
+Manager and above" — and contains neither "reviewer" nor "flag". **L80496** is the sentence:
+"A reviewer who judges an automatic resolution wrong flags it…". Third time this slice an
+identifier or quotation was cited to a neighbouring line.
+
+## `DEC-SYNC-006` is raised and disclosed by nobody
+
+§36.6 raises it for the conflict-list cap and classifies it, and **no file in this tree carries
+a record for it.** It belongs to whoever builds the panel body, which is slice 9's. Recorded
+here so it is not discovered there.
+
+**And §36.6 calls the screen `SCR-CC-CONF-01` where the register calls it `SCR-CC-10`.** Two
+identifiers for one screen — not a fourteenth screen, and the controller wiring two treatments
+onto one route needs to know that before it looks like one.
