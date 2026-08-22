@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
 import { isForeignProbe } from '../probe-paths'
+import {
+  S366_COLUMNS,
+  S366_DIVERGENCES,
+} from '@/surfaces/cc/modules/cc-10-s366/matrix'
 import { CC_EXCLUDED_ROLES, isCcExcludedRole } from '@/surfaces/cc/access'
 import { ccScreen, ccScreenSlug, CC_NAV } from '@/surfaces/cc/screens'
 import {
@@ -16,11 +20,22 @@ import {
   type Cc10Column,
 } from '@/surfaces/cc/modules/cc-10/matrix'
 import {
+  CC10_ACTION_5_DIVERGENT_COLUMNS,
+  CC10_ACTION_5_NAME_SPELLINGS,
+  CC10_ACTION_5_STATEMENTS,
+  CC10_ACTION_RAIL_MOUNT,
+  CC10_CAP,
+  CC10_CAP_DISCLOSURE,
+  CC10_CLOCK_SKEW_LINK_OUT,
   CC10_DISCLOSURES,
+  CC10_FRESHNESS,
+  CC10_FRESHNESS_MET,
   CC10_IDENTITY,
   CC10_PATHNAME,
   CC10_RESOLVE_ALL_EXCLUSION,
+  CC10_SCREEN,
   CC10_SEAM,
+  CC10_SEAM_STATUS,
   CC10_SECOND_TREATMENT,
   CC10_SLUG,
   CC10_STORYBOARD,
@@ -283,10 +298,35 @@ describe('MOD-CC-10 — what the matrix decides, read off it rather than restate
 })
 
 describe('MOD-CC-10 — identity, storyboard and interconnection, each at its own line', () => {
-  it('the card opens at L38048 and the next module’s card opens at L38247', () => {
+  /**
+   * THE CARD SPAN IS MEASURED, AND THE OLD ONE ENDED ON A BLANK LINE.
+   * `cardSpan` read `L38048-L38246` and that line carries nothing at all —
+   * the fourth module card span in this build to stop on a blank, and the
+   * first one found in a shipping file rather than in a dispatch. The card's
+   * last line of content is the `**Source status.**` paragraph; below it are
+   * a blank, a horizontal rule and another blank before the next heading.
+   *
+   * The old gate asserted the span against a literal it also declared, so it
+   * could not tell a span from a typo. This one walks the source: forward
+   * from the heading to the line before the next `## 21.` heading, then back
+   * over every blank and rule. The dispatch's own span for this card,
+   * `L38048-L38079`, stops before the matrix, the storyboard, the
+   * functionalities and every acceptance criterion.
+   *
+   * FAILS IF: the span is moved to a blank line again. Planted by restoring
+   * `L38048-L38246`; red with the measured end line beside it.
+   */
+  it('the card runs from its heading to its last line of content, measured', () => {
     expect(L(38048)).toBe('## 21.13 Module `MOD-CC-10` — The Sync-Conflict Review Panel')
     expect(L(38247)).toContain('## 21.14 Module `MOD-CC-11`')
-    expect(CC10_IDENTITY.cardSpan).toBe('L38048-L38246')
+
+    let end = 38247 - 1
+    while (L(end).trim() === '' || L(end).trim() === '---') end -= 1
+    expect(CC10_IDENTITY.cardSpan).toBe(`L38048-L${end}`)
+    expect(L(end).trim()).not.toBe('')
+    expect(L(end)).toContain('**Source status.**')
+    // And the line the span used to name carries nothing.
+    expect(L(38246).trim()).toBe('')
   })
 
   it('identity, purpose and user benefit each match the line the record names', () => {
@@ -515,5 +555,652 @@ describe('MOD-CC-10 — the client boundary the slice-7 panels crossed', () => {
       'utf8',
     )
     expect(/^\s*['"]use client['"]/m.test(page)).toBe(false)
+  })
+})
+
+/* ==================================================================== *
+ * SLICE 9 — WHAT WAS COMPLETED, GATED.
+ * ==================================================================== */
+
+describe('SCR-CC-10 — reachability from `app/`, measured rather than assumed', () => {
+  /** Every file under `app/`, probes excluded. */
+  function appFiles(dir: string): string[] {
+    const out: string[] = []
+    for (const entry of readdirSync(dir)) {
+      if (isForeignProbe(entry)) continue
+      const full = join(dir, entry)
+      if (statSync(full).isDirectory()) out.push(...appFiles(full))
+      else out.push(full)
+    }
+    return out
+  }
+
+  /**
+   * A module is reachable when some file under `app/` imports it, directly or
+   * through a chain this walk follows.
+   *
+   * THE REGEX MATCHES `from '…'` ANYWHERE, NOT AT THE START OF A LINE, and
+   * that is the whole reason it can be trusted. `tests/unit/cc-live-model.test.ts`
+   * anchors its dependency scan with `^\s*(?:import|export)[^'"\n]*from`,
+   * which cannot see a multi-line import — and this page's own import of the
+   * disclosure component would have been invisible to it. A reachability check
+   * that under-reports goes green on a broken chain, which is the same defect
+   * as one that over-reports, arrived at from the safe side.
+   *
+   * Both specifier shapes are followed. A `@/`-only walk reads every module
+   * that reaches its neighbour through `./matrix` as unreachable.
+   */
+  function reachableFromApp(): Set<string> {
+    const seen = new Set<string>()
+    const queue = appFiles(join(process.cwd(), 'app'))
+    while (queue.length > 0) {
+      const file = queue.pop()
+      if (file === undefined || seen.has(file)) continue
+      seen.add(file)
+      const text = readFileSync(file, 'utf8')
+      for (const m of text.matchAll(/from\s+'((?:@\/|\.\.?\/)[^']+)'/g)) {
+        const spec = m[1]
+        if (spec === undefined) continue
+        const base = spec.startsWith('@/')
+          ? join(process.cwd(), 'src', spec.slice(2))
+          : resolve(dirname(file), spec)
+        for (const ext of ['.ts', '.tsx', '/index.ts', '/index.tsx']) {
+          if (existsSync(base + ext)) {
+            queue.push(base + ext)
+            break
+          }
+        }
+      }
+    }
+    return seen
+  }
+
+  const REACHED = reachableFromApp()
+  const reached = (rel: string): boolean => REACHED.has(join(process.cwd(), rel))
+
+  /**
+   * THE FINDING THIS TASK OPENED ON. Slice 8's best disclosure — §36.6's
+   * nine-row treatment with all four divergences — was imported by no page
+   * and no component test, so a client reviewing this screen saw one
+   * treatment and was told nothing about the second.
+   *
+   * FAILS IF: the import is dropped from the route, or the component is
+   * imported for its types only. Planted by deleting the import line and the
+   * element together; red on both assertions. Restored by index splice.
+   */
+  it('the second treatment is reachable from `app/`, and so is its matrix', () => {
+    expect(reached('src/surfaces/cc/modules/cc-10-s366/SecondTreatmentDisclosure.tsx')).toBe(true)
+    expect(reached('src/surfaces/cc/modules/cc-10-s366/matrix.ts')).toBe(true)
+    // Not vacuous: the walk answers `false` for a real file nothing under
+    // `app/` imports, so `true` above is a measurement rather than a default.
+    expect(reached('src/surfaces/cc/fallback/CcFallbackDisclosure.tsx')).toBe(false)
+  })
+
+  /**
+   * `MOD-CC-13` owns no path under `app/` and can only reach a client through
+   * a screen that is not its own. L38793 names this module for action 5.
+   *
+   * FAILS IF: the rail import is dropped, or the wave-0 module CARD is
+   * mounted in its place — the two are different components and the card
+   * renders no control at all.
+   */
+  it('the action rail this screen mounts is `MOD-CC-13`’s control rail, not wave 0’s card', () => {
+    expect(reached('src/surfaces/cc/modules/cc-13/Cc13ActionRail.tsx')).toBe(true)
+    expect(reached('src/surfaces/cc/modules/cc-13/rail.ts')).toBe(true)
+  })
+
+  /**
+   * IMPORTED IS NOT RENDERED, and a text check that cannot tell them apart is
+   * worth nothing — the lesson `cc-spine-completion` paid for when
+   * `toContain('CommandCenterShell')` stayed green against a bare `<main />`.
+   * So both are asked as ELEMENTS.
+   *
+   * FAILS IF: either element is removed while its import stays. Planted by
+   * deleting `<SecondTreatmentDisclosure />` alone, leaving the import: red
+   * here and green on the reachability gate above, which is exactly why both
+   * exist.
+   */
+  it('and both are rendered as elements, not merely imported', () => {
+    const page = readFileSync(
+      join(process.cwd(), 'app', 'command-center', CC10_SLUG, 'page.tsx'),
+      'utf8',
+    )
+    expect(page).toMatch(/<SecondTreatmentDisclosure\s*\/>/)
+    expect(page).toMatch(/<Cc13ActionRail\b/)
+    expect(page).toMatch(/<SyncConflictReviewPanel\s*\/>/)
+    // The wave-0 rail is a different component and is NOT what mounts here.
+    expect(page).not.toMatch(/<ActionRail\b/)
+  })
+
+  /**
+   * A module demonstrated by its slug claim alone can ship without ever
+   * saying what it is, and this page did until a registry gate went red.
+   *
+   * AND `page.includes('MOD-CC-10')` IS NOT THE CHECK. A file quoting a list
+   * of identifiers contains every identifier in that list, so the occurrence
+   * has to sit on a line naming no OTHER `MOD-CC-*`. This page names
+   * `MOD-CC-02` and `MOD-CC-13` in its own prose, both legitimately.
+   *
+   * FAILS IF: every solo mention is removed. Planted by rewriting
+   * `mountedOn="MOD-CC-10"` to a variable and stripping the three prose
+   * mentions; red with an empty array.
+   */
+  it('names its own module on a line naming no other `MOD-CC-*`', () => {
+    const page = readFileSync(
+      join(process.cwd(), 'app', 'command-center', CC10_SLUG, 'page.tsx'),
+      'utf8',
+    )
+    const solo = page
+      .split('\n')
+      .filter((line) => line.includes('MOD-CC-10'))
+      .filter((line) => (line.match(/MOD-CC-\d+/g) ?? []).every((id) => id === 'MOD-CC-10'))
+    expect(solo.length).toBeGreaterThan(0)
+
+    // NOT VACUOUS: the filter really rejects a shared line. The page carries
+    // one, and it must not be counted.
+    const shared = page
+      .split('\n')
+      .filter((line) => line.includes('MOD-CC-13') && line.includes('MOD-CC-10'))
+    expect(shared.every((line) => !solo.includes(line))).toBe(true)
+  })
+})
+
+describe('MOD-CC-10 — action 5 is stated three times and the three disagree', () => {
+  /**
+   * The dispatch named ONE cell of this — the Quality Manager's. Read
+   * header-keyed across all five persona columns, §25.4's row differs from
+   * §21.16's on four of the five.
+   *
+   * EVERY CELL IS COMPARED AGAINST ITS OWN LINE, KEYED ON THE COLUMN NAME
+   * PARSED FROM THAT TABLE'S OWN HEADER, never positionally: §21.1.2's and
+   * §21.16's headers run Tenant Admin first and §25.4's does too, but a
+   * positional read is what inverted a matrix elsewhere in this slice and the
+   * cost of keying by name is one lookup.
+   *
+   * FAILS IF: a cell is transcribed wrong or a locator is moved. Planted by
+   * changing §25.4's Tenant Admin cell from `Unavailable` to `Explicitly
+   * prohibited` — which is what a reconciliation would have written — and by
+   * moving L48448 to L48447; red on both.
+   */
+  it('every cell of all three statements matches its own line, header-keyed', () => {
+    const headerFor = (dataLine: number): string[] => {
+      for (let n = dataLine - 1; n > dataLine - 20; n -= 1) {
+        if (/^\s*\|\s*-{2,}/.test(L(n))) return cellsOf(n - 1)
+      }
+      throw new Error(`no separator above line ${dataLine}`)
+    }
+
+    for (const statement of CC10_ACTION_5_STATEMENTS) {
+      const line = Number(statement.sourceRef.slice(1))
+      const header = headerFor(line)
+      const cells = cellsOf(line)
+      expect(cells.length, statement.sourceRef).toBe(header.length)
+
+      // The action's own name, verbatim, in the row's FIRST cell. §21.16 puts
+      // an ordinal in column 1 and the action in column 2; the other two put
+      // the action first. Read off the header rather than assumed.
+      const actionColumn = header[0] === '#' ? 1 : 0
+      expect(cells[actionColumn], statement.sourceRef).toContain(statement.actionText)
+
+      for (const column of CC10_COLUMNS) {
+        const at = header.indexOf(column)
+        expect(at, `${statement.sourceRef} header has no ${column} column`).toBeGreaterThan(0)
+        expect(cells[at], `${statement.sourceRef} · ${column}`).toBe(statement.cells[column])
+      }
+    }
+  })
+
+  /**
+   * The divergent columns are COMPUTED from the three statements, so the
+   * constant cannot disagree with its own data. This gate re-derives the same
+   * answer from the SOURCE, which is the half a `for...of` over the constant
+   * would not have.
+   *
+   * FAILS IF: a statement is quietly aligned with its neighbours, which
+   * shrinks the constant and would shrink a self-referential check with it.
+   */
+  it('four of the five columns disagree, counted off the source', () => {
+    const divergent = CC10_COLUMNS.filter((column) => {
+      const values = new Set(
+        CC10_ACTION_5_STATEMENTS.map((s) => {
+          const line = Number(s.sourceRef.slice(1))
+          const header = (() => {
+            for (let n = line - 1; n > line - 20; n -= 1) {
+              if (/^\s*\|\s*-{2,}/.test(L(n))) return cellsOf(n - 1)
+            }
+            throw new Error(`no separator above line ${line}`)
+          })()
+          return cellsOf(line)[header.indexOf(column)]
+        }),
+      )
+      return values.size > 1
+    })
+    expect([...CC10_ACTION_5_DIVERGENT_COLUMNS].sort()).toEqual([...divergent].sort())
+    expect(divergent).toHaveLength(4)
+    // The Supervisor is the one column all three agree on: `Read-only`.
+    expect(divergent).not.toContain('Supervisor')
+  })
+
+  /**
+   * `Resolve-All` against `Resolve All` — a hyphen — is why the three rows
+   * cannot be joined by the action's name.
+   */
+  it('the three tables spell the action two ways, so a name join would drop one', () => {
+    expect([...CC10_ACTION_5_NAME_SPELLINGS].sort()).toEqual([
+      'Resolve or Resolve All sync conflicts',
+      'Resolve or Resolve-All sync conflicts',
+    ])
+  })
+
+  /**
+   * `Allowed` IS A PREFIX OF `Allowed with conditions`, and §25.4's Quality
+   * Manager cell is the long form. A `startsWith` classifier reads the single
+   * most safety-bearing statement in the slice as an unconditional grant.
+   *
+   * The comparison is anchored at BOTH ends, which is the rule an unanchored
+   * identifier pattern broke elsewhere in this slice by inventing members of
+   * the family it was counting.
+   */
+  it('the prefix trap is present, and an anchored read separates the two', () => {
+    const qm = CC10_ACTION_5_STATEMENTS.map((s) => s.cells['Quality Manager'])
+    expect(qm.filter((c) => c.startsWith('Allowed'))).toHaveLength(3)
+    expect(qm.filter((c) => /^Allowed$/.test(c))).toHaveLength(2)
+    expect(qm.filter((c) => /^Allowed with conditions — /.test(c))).toHaveLength(1)
+  })
+})
+
+describe('MOD-CC-10 — the cap is rendered as the question, and never as a number', () => {
+  /**
+   * THE SOURCE RAISES BOTH IDENTIFIERS AND MERGING THEM ERASES ONE.
+   * `DEC-CONFLICTCAP-001` is raised at L38076 in this module's own section
+   * and registered at L38955; `DEC-SYNC-006` carries its own card at L80504
+   * with three options, a recommendation and an owner, is the cap value's
+   * source status at L80587 and its traceability classification at L80601,
+   * and has a §37B register row at L81737. The source's own decision index
+   * records them as first raised in different chapters.
+   *
+   * FAILS IF: a locator is moved off the line that carries it. Planted by
+   * repointing the source-status assertion from L80587 to L80588; red.
+   */
+  it('both identifiers are raised by the frozen source, each at its own line', () => {
+    expect(L(38076)).toContain('`DEC-CONFLICTCAP-001`')
+    expect(L(38955)).toContain('`DEC-CONFLICTCAP-001`')
+    expect(L(80504)).toContain('`DEC-SYNC-006`')
+    expect(L(80587)).toContain('`DEC-SYNC-006`')
+    expect(L(80601)).toContain('`DEC-SYNC-006`')
+    expect(L(81737)).toContain('`DEC-SYNC-006`')
+    // Different chapters, on the source's own index.
+    expect(L(115407)).toContain('Chapter 21')
+    expect(L(115111)).toContain('Chapter 36')
+  })
+
+  /**
+   * L80504 is the CARD — question, options, recommendation, owner — and
+   * L81737 is a consolidated §37B register row. A build that cited only the
+   * row would be citing the index rather than the decision.
+   */
+  it('L80504 is the card and L81737 is the register row, and they are not each other', () => {
+    expect(L(80504)).toContain('**Options:**')
+    expect(L(80504)).toContain('**Recommendation:**')
+    expect(L(81737)).not.toContain('**Options:**')
+    expect(L(81722)).toContain('New Decisions and Open Items Raised by Chapters 36 and 37')
+  })
+
+  /**
+   * THE STORYBOARD PRINTS A NUMERAL AND SAYS IT IS NOT ONE.
+   *
+   * FAILS IF: fifty is read as a cap value anywhere this module renders.
+   * Planted by adding `capValue: 50` to `CC10_CAP`; red on the scan below.
+   */
+  it('the storyboard’s fifty is an illustration, and this module states no cap value', () => {
+    expect(L(80541)).toContain('Showing the 50 most recent of 912 conflicts')
+    expect(L(80541)).toContain('with the numeral standing for whatever `DEC-SYNC-006` settles')
+    // Chapter 21's own storyboard is a case where the cap does not bite.
+    expect(L(38146)).toContain('showing 3 of 3')
+
+    for (const file of ['service.ts', 'matrix.ts', 'SyncConflictReviewPanel.tsx']) {
+      const text = readFileSync(
+        join(process.cwd(), 'src', 'surfaces', 'cc', 'modules', 'cc-10', file),
+        'utf8',
+      )
+      expect(text, file).not.toMatch(/cap\w*\s*:\s*\d/i)
+    }
+  })
+
+  /**
+   * `DEC-SYNC-006`'S SPELLING IS NOT REPEATED, AND THAT IS A GATE ON A
+   * SIBLING'S GATE. `src/offline/decisions-37b.ts` holds the record and
+   * `tests/unit/offline-decisions-37b.test.ts` walks all of `src/` for the
+   * literal `decisionRef: 'DEC-SYNC-006'`, going red on any file that
+   * declares it without being named in that module's own array — an array
+   * this task does not own. So this module points and does not declare.
+   *
+   * FAILS IF: a later edit mints a second record here. Planted by adding
+   * `decisionRef: 'DEC-SYNC-006'` to `CC10_CAP`; red here AND red in the
+   * sibling suite, which is the pair working.
+   */
+  it('points at DEC-SYNC-006 and declares no second record for it', () => {
+    for (const dir of ['cc-10', 'cc-10-s366']) {
+      for (const file of readdirSync(
+        join(process.cwd(), 'src', 'surfaces', 'cc', 'modules', dir),
+      )) {
+        if (isForeignProbe(file)) continue
+        const text = readFileSync(
+          join(process.cwd(), 'src', 'surfaces', 'cc', 'modules', dir, file),
+          'utf8',
+        )
+        expect(text, `${dir}/${file}`).not.toContain("decisionRef: 'DEC-SYNC-006'")
+      }
+    }
+    expect(CC10_CAP.secondIdentifierHeldBy).toBe('src/offline/decisions-37b.ts')
+    expect(
+      readFileSync(join(process.cwd(), CC10_CAP.secondIdentifierHeldBy), 'utf8'),
+    ).toContain("decisionRef: 'DEC-SYNC-006'")
+  })
+
+  /**
+   * The rendered record is the SURFACE one, which carries both readings with
+   * both locators and has no field a winner could be marked in.
+   */
+  it('renders the surface record, which names both identifiers and chooses neither', () => {
+    expect(CC10_CAP_DISCLOSURE.decisionRef).toBe('DEC-CONFLICTCAP-001')
+    expect(CC10_CAP_DISCLOSURE.position.kind).toBe('open')
+    expect(CC10_CAP_DISCLOSURE.position.readings).toHaveLength(2)
+    const [first, second] = CC10_CAP_DISCLOSURE.position.readings
+    expect(first.locator).toContain('DEC-CONFLICTCAP-001')
+    expect(second.locator).toContain('DEC-SYNC-006')
+    expect(CC10_CAP.bothReadingsHeldBy).toBe('src/surfaces/cc/decisions/disclosure.ts')
+  })
+})
+
+describe('MOD-CC-10 — the freshness obligation is three timestamps, not two', () => {
+  /**
+   * THE DISPATCH TRUNCATED THIS CELL. It said the marker obligation is "both
+   * device timestamps"; L35888's own words are `Both device timestamps and
+   * server receipt`. A model built to the dispatch renders two of the three
+   * things the source requires and passes any check written from the same
+   * sentence.
+   *
+   * FAILS IF: the obligation is read as a prefix. The assertion is an exact
+   * equality on the whole cell, and the truncation is asserted NOT to be it.
+   */
+  it('L35888’s obligation is the whole cell, and the truncation is not it', () => {
+    const cells = cellsOf(35888)
+    expect(cells[0]).toBe('Sync-conflict event')
+    expect(cells[1]).toBe('MOD-CC-10')
+    expect(cells[2]).toBe('Pushed')
+    expect(cells[3]).toBe('Both device timestamps and server receipt')
+    expect(cells[3]).not.toBe('Both device timestamps')
+    expect(CC10_FRESHNESS.markerObligation).toBe(cells[3])
+    expect(CC10_FRESHNESS.classCell).toBe(cells[2])
+    expect(CC10_FRESHNESS.sourceRef).toBe('L35888')
+  })
+
+  /**
+   * The storyboard's own two version rows carry all three, so the obligation
+   * is MET rather than merely stated.
+   *
+   * FAILS IF: a version row loses its server receipt. Planted by blanking
+   * version A's `serverReceipt`; red.
+   */
+  it('and the storyboard’s two versions carry all three', () => {
+    expect(CC10_FRESHNESS_MET).toBe(true)
+    for (const v of CC10_STORYBOARD_VERSIONS) {
+      expect(v.deviceTimestamp).not.toBe('')
+      expect(v.serverReceipt).not.toBe('')
+    }
+  })
+})
+
+describe('MOD-CC-10 — the two treatments stay two, and their divergences stay open', () => {
+  /**
+   * A DIVERGENCE LOCATOR MUST PIN THE CAPABILITY WORDING, NEVER THE STATUS
+   * TOKEN. Most of §36.6's forty-five cells carry the same token, so a check
+   * that reads the token alone is satisfied by a locator moved one row — the
+   * plant that found this originally moved a chapter-21 locator from L38084
+   * to L38085 and left the gate green, because both rows give the Tenant
+   * Admin the same token.
+   *
+   * So every line a divergence cites is opened and its FIRST cell — the
+   * capability wording — is compared against the recorded wording.
+   *
+   * FAILS IF: any divergence locator moves a row. Planted by moving the
+   * two-rows-wide Tenant Admin divergence's chapter-21 locator from L38085 to
+   * L38086; red on the capability, where a token check stays green.
+   */
+  it('every divergence locator is pinned by its row’s capability wording', () => {
+    const linesIn = (locator: string): number[] =>
+      [...locator.matchAll(/L(\d{4,6})/g)].map((m) => Number(m[1]))
+
+    for (const d of S366_DIVERGENCES) {
+      const here = linesIn(d.here.locator)
+      const there = linesIn(d.chapter21.locator)
+      expect(here.length, d.id).toBe(d.hereCapabilities.length)
+      expect(there.length, d.id).toBe(d.chapter21Capabilities.length)
+      here.forEach((line, i) => {
+        expect(cellsOf(line)[0], `${d.id} · here · L${line}`).toBe(d.hereCapabilities[i])
+      })
+      there.forEach((line, i) => {
+        expect(cellsOf(line)[0], `${d.id} · chapter21 · L${line}`).toBe(
+          d.chapter21Capabilities[i],
+        )
+      })
+      // NOWHERE TO MARK A WINNER. `chosen` is typed `null`, not nullable.
+      expect(d.chosen).toBeNull()
+    }
+  })
+
+  /**
+   * A TOKEN CHECK WOULD NOT HAVE CAUGHT IT, and this is the measurement that
+   * says so rather than the claim. Counted off §36.6's own nine data lines.
+   */
+  it('and a token check could not have, because most cells carry one token', () => {
+    const tokens: string[] = []
+    for (let n = 80549; n <= 80557; n += 1) {
+      for (const cell of cellsOf(n).slice(1)) {
+        tokens.push(cell.split(' — ')[0] ?? '')
+      }
+    }
+    expect(tokens).toHaveLength(45)
+    const prohibited = tokens.filter((t) => t.startsWith('Explicitly prohibited')).length
+    expect(prohibited).toBeGreaterThan(tokens.length / 2)
+  })
+
+  /**
+   * THE TENANT ADMIN DIVERGENCE IS TWO ROWS WIDE, NOT ONE — panel visibility
+   * AND reading a conflict entry. One transcription plus one reconciliation
+   * produces a merged, plausible, wrong answer, and this is the row that
+   * would have been lost.
+   */
+  it('the Tenant Admin divergence is two rows wide, and both rows are recorded', () => {
+    const tenantAdmin = S366_DIVERGENCES.filter((d) => d.column === 'Tenant Admin')
+    expect(tenantAdmin).toHaveLength(2)
+    expect(tenantAdmin.map((d) => d.here.locator.match(/L\d+/)?.[0]).sort()).toEqual([
+      'L80549',
+      'L80550',
+    ])
+    // One was named by the dispatch and one was found by comparing the two
+    // matrices row by row. Both are carried the same way.
+    expect(tenantAdmin.map((d) => d.namedByTheBrief).sort()).toEqual([false, true])
+  })
+
+  /**
+   * THE DECOMPOSITION STAYS OPEN. §36.6 splits "see the panel exists" from
+   * "read an entry" and gives the Supervisor `Allowed` then `Read-only`;
+   * chapter 21 gives `Read-only` twice. Whether that is a contradiction or a
+   * finer-grained statement of the same rule IS the choice, and no task in
+   * this build has made it. This gate is what keeps a later reconciliation
+   * from quietly aligning the tokens and destroying the evidence for both.
+   *
+   * FAILS IF: the divergence is dropped, or the source settles it. The
+   * "settles it" half is asserted against the line the section would have to
+   * carry — L80497 says "Supervisors view the panel", which is the word both
+   * tokens are trying to render and is not an answer.
+   */
+  it('the Supervisor decomposition is recorded, open, and unsettled by the prose', () => {
+    const d = S366_DIVERGENCES.find((x) => x.id === 'supervisor-panel-visibility-token')
+    expect(d, 'the decomposition divergence is still recorded').toBeDefined()
+    expect(d?.chosen).toBeNull()
+    expect(d?.whyNeitherIsChosen).toContain('DECOMPOSITION')
+
+    // The source's own words, at their own line, answering neither.
+    expect(L(80497)).toContain('Supervisors view the panel')
+    expect(L(80549).split('|')[3]?.trim()).toBe('`Allowed`')
+    expect(L(80550).split('|')[3]?.trim()).toBe('`Read-only`')
+    expect(cellsOf(38084)[2]).toBe('Read-only')
+    expect(cellsOf(38085)[2]).toBe('Read-only')
+  })
+
+  /**
+   * THE SKEW ROWS ARE NOT A DIVERGENCE, filed as checked so the next reader
+   * does not count them as a fifth. They contradict positionally and agree
+   * exactly on their own capability wordings.
+   */
+  it('the skew rows agree on their capability wordings and are not counted', () => {
+    expect(cellsOf(38088)[0]).toBe('Resolve a skew-flagged conflict')
+    expect(cellsOf(80553)[0]).toBe('Include a skew-flagged entry in Resolve All')
+    expect(cellsOf(38088)[3]).toBe(
+      'Allowed with conditions — individually only; never through Resolve All',
+    )
+    expect(cellsOf(80553)[3]).toBe('Explicitly prohibited — no role may do this')
+    expect(S366_DIVERGENCES.map((d) => d.id)).not.toContain('skew-flagged')
+  })
+
+  /**
+   * The two matrices are DIFFERENT SHAPES and neither is merged into the
+   * other: eight rows against nine, and the persona columns in opposite
+   * orders. Both counts are taken by walking the source's own lines.
+   */
+  it('eight rows against nine, with the persona columns in opposite orders', () => {
+    const walk = (first: number): number => {
+      let n = first
+      while (/^\s*\|/.test(L(n))) n += 1
+      return n - first
+    }
+    expect(walk(38084)).toBe(8)
+    expect(walk(80549)).toBe(9)
+    expect(cellsOf(38082).slice(1)).toEqual([...CC10_COLUMNS])
+    expect(cellsOf(80547).slice(1)).toEqual([...S366_COLUMNS])
+    expect(cellsOf(38082).slice(1)).not.toEqual(cellsOf(80547).slice(1))
+    // Same five roles, opposite orders — which is what a positional read
+    // inverts silently, because both orderings are internally coherent.
+    expect([...cellsOf(38082).slice(1)].sort()).toEqual([...cellsOf(80547).slice(1)].sort())
+  })
+
+  /**
+   * ONE SCREEN, TWO IDENTIFIERS, AND NOT A FOURTEENTH SCREEN. §36.6's
+   * storyboard names this panel `SCR-CC-CONF-01`; the §25.5 register names
+   * the same screen `SCR-CC-10`. `AC-CC-040` forbids a fourteenth module
+   * route, so the two names have to be settled rather than left to look like
+   * two screens. The spine is keyed on the register and the storyboard
+   * identifier is carried as what it is.
+   */
+  it('the storyboard identifier is not a second screen, and the register’s is the key', () => {
+    expect(L(80541)).toContain('`SCR-CC-CONF-01`')
+    expect(L(48395)).toContain('SCR-CC-10')
+    expect(L(48395)).toContain('Sync-conflict review panel')
+    expect(L(35261)).toContain('no fourteenth module route exists')
+    expect(CC10_SCREEN.id).toBe('SCR-CC-10')
+    // ANCHORED AT BOTH ENDS. An unanchored `SCR-CC-\d+` invents members of
+    // the family it counts — the phantom `SCR-CC-001`..`005` were the tails
+    // of `AC-SCR-CC-00N` and `TEST-SCR-CC-00N`.
+    const anchored = /(^|[^A-Za-z0-9-])SCR-CC-\d+(?![A-Za-z0-9-])/g
+    const registerIds = new Set(
+      sourceLines
+        .flatMap((line) => [...line.matchAll(anchored)])
+        .map((m) => m[0].replace(/^[^S]/, '')),
+    )
+    expect(registerIds.size).toBe(13)
+    expect(registerIds.has('SCR-CC-CONF-01')).toBe(false)
+  })
+})
+
+describe('MOD-CC-10 — the action rail belongs on this screen, and the seam still reads open', () => {
+  /**
+   * L38793 enumerates the modules whose screens exercise one or more of the
+   * ten, and names this one for action 5.
+   *
+   * THE SENTENCE CONTRADICTS ITS OWN ENUMERATION and it is not repaired: it
+   * opens "Every other module on this surface", which is twelve, and then
+   * lists seven. Both readings recorded, neither adopted.
+   */
+  it('L38793 names this module for action 5, and lists seven where it says twelve', () => {
+    expect(L(38793)).toContain('`MOD-CC-10` for 5')
+    expect(L(38793)).toContain('Every other module on this surface')
+    const named = new Set((L(38793).match(/MOD-CC-\d+/g) ?? []))
+    expect(named.size).toBe(7)
+    expect(named.has('MOD-CC-10')).toBe(true)
+    expect(named.has('MOD-CC-01')).toBe(false)
+    expect(CC10_ACTION_RAIL_MOUNT.whyHereRef).toBe('L38793')
+  })
+
+  /**
+   * THE ABSENCE INVERSION, RECORDED AND NOT REPAIRED. `src/ui/WriteControl.tsx`
+   * draws `explicitlyProhibited` as absent and `notApplicable` as disabled;
+   * L20195 asks for the exact reverse on this rail, which is why the rail
+   * renders through `ProhibitionNotice` rather than through `WriteControl`.
+   * Neither is edited to match the other.
+   *
+   * FAILS IF: the rail is switched onto `WriteControl`, which would silently
+   * invert every absent and disabled control on this screen.
+   */
+  it('the rail renders through ProhibitionNotice, because L20195 inverts WriteControl', () => {
+    expect(L(20195)).toContain('absent only where the action is `Not applicable`')
+    const rail = readFileSync(
+      join(process.cwd(), 'src', 'surfaces', 'cc', 'modules', 'cc-13', 'Cc13ActionRail.tsx'),
+      'utf8',
+    )
+    expect(rail).toContain('ProhibitionNotice')
+    expect(rail).not.toContain('WriteControl')
+  })
+
+  /**
+   * THE SEAM REGISTRY IS STALE AND IT IS NOT THIS TASK'S TO CORRECT.
+   * `ccSeamStatus` derives from `ownerSlice <= THIS_SLICE`, and
+   * `src/surfaces/cc/seams.ts` still declares `THIS_SLICE = 8` while both of
+   * its rows name `ownerSlice: 9`. `MOD-CC-13` has landed — its rail is the
+   * component this screen mounts — so the seam reads `open` beside a closed
+   * seam's component. Reported rather than edited, and stated on screen so
+   * the contradiction is not rendered silently.
+   *
+   * THIS GATE GOES RED THE DAY THE SEAM FILE IS CORRECTED, which is the
+   * point: the note on screen must be removed in the same change.
+   */
+  it('the operational-action-set seam still reports open, and the panel says so', () => {
+    expect(CC10_SEAM.ownerSlice).toBe(9)
+    expect(CC10_SEAM_STATUS).toBe('open')
+    expect(
+      readFileSync(join(process.cwd(), 'src', 'surfaces', 'cc', 'seams.ts'), 'utf8'),
+    ).toContain('const THIS_SLICE = 8')
+    expect(CC10_ACTION_RAIL_MOUNT.seamStillReadsOpen).toContain('has landed')
+  })
+})
+
+describe('MOD-CC-10 — one cell needs a link rather than a control', () => {
+  /**
+   * Row 8's Tenant Admin cell refuses and then names a destination, and the
+   * build's one rendering rule draws nothing at all for it. `AC-CC-301`
+   * requires each such control to BE a link.
+   *
+   * The cell is wave-1's measured population-B row, looked up by id. A
+   * second reading of L38091 written here would be a second spelling.
+   */
+  it('row 8’s Tenant Admin cell is the measured population-B row, at its own line', () => {
+    expect(CC10_CLOCK_SKEW_LINK_OUT.moduleId).toBe('MOD-CC-10')
+    expect(CC10_CLOCK_SKEW_LINK_OUT.line).toBe(38091)
+    expect(CC10_CLOCK_SKEW_LINK_OUT.column).toBe('Tenant Admin')
+    expect(CC10_CLOCK_SKEW_LINK_OUT.writeControlWouldDraw).toBe('absent')
+    expect(CC10_CLOCK_SKEW_LINK_OUT.sourceRequires).toBe('link')
+    expect(L(37802)).toContain('each such control is a link')
+
+    // The cell text really is the one this matrix transcribes, and it really
+    // does name a place. Both halves: a prohibited cell that names nowhere
+    // needs no link, and this gate must not pass on one.
+    const cell = cc10Row(8).cells['Tenant Admin']
+    expect(cell.token).toBe('Explicitly prohibited')
+    expect(cell.note).toBe(
+      'a tenant setting in the Delivery Operations Hub tenant administration area',
+    )
+    expect(CC10_CLOCK_SKEW_LINK_OUT.rowText).toContain(cell.text)
   })
 })

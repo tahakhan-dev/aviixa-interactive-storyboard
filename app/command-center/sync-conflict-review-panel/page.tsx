@@ -1,6 +1,11 @@
+import { existsSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { CommandCenterShell } from '@/surfaces/cc/shell/CommandCenterShell'
+import { Cc13ActionRail } from '@/surfaces/cc/modules/cc-13/Cc13ActionRail'
 import { SyncConflictReviewPanel } from '@/surfaces/cc/modules/cc-10/SyncConflictReviewPanel'
+import { SecondTreatmentDisclosure } from '@/surfaces/cc/modules/cc-10-s366/SecondTreatmentDisclosure'
 import { CC10_SCREEN, CC10_SLUG } from '@/surfaces/cc/modules/cc-10/service'
 
 const SURFACE = surfaceById('SURF-CC')
@@ -64,36 +69,73 @@ export const metadata: Metadata = {
  *
  * ── WHAT THIS PAGE DOES NOT DO ──────────────────────────────────────────
  *
- * It renders no resolution control. The Command Center is a cockpit and owns
- * no operational record: resolving a sync conflict is action 5 of the closed
- * operational action set, executed against sync-conflict records on the
- * Delivery Operations Hub (L38175, L38669). The owning module of that set is
- * slice 9's and appears in no row of the screen register, so the seam is
- * declared rather than stubbed — `@/surfaces/cc/seams` carries it and the
- * panel renders it.
+ * It renders no resolution control of its own. The Command Center is a
+ * cockpit and owns no operational record: resolving a sync conflict is action
+ * 5 of the closed operational action set, executed against sync-conflict
+ * records on the Delivery Operations Hub (L38175, L38669).
  *
- * There is no shell here either. `MOD-CC-02` is the surface chrome and the
- * live shift board that hosts it is slice 9's; inventing a Command Center
- * shell now would be a second spelling of one slice 9 will write.
+ * ── AND IT NOW MOUNTS TWO THINGS IT DID NOT ─────────────────────────────
+ *
+ * **The second treatment.** §36.6 specifies this same module a second time,
+ * with a nine-row matrix whose persona columns run in the opposite order, and
+ * `cc-10-s366/SecondTreatmentDisclosure.tsx` transcribes it with all four
+ * divergences. It was imported by no page and no component test, so a client
+ * reviewing this screen saw one treatment and was told nothing about the
+ * second. It is mounted below chapter 21's, and the two are not merged. Note
+ * the distinction it cost this build a slice to learn: `MOD-CC-02`'s absence
+ * from any route is DECLARED in `CC_SEAMS`; that component's absence was
+ * declared nowhere and was simply unreferenced. A stated abstention and an
+ * oversight look identical from the outside.
+ *
+ * **The action rail.** L38793 enumerates the modules whose screens exercise
+ * one or more of the ten operational actions and names this one for action 5,
+ * so this screen mounts `MOD-CC-13`'s rail. `MOD-CC-13` owns no path under
+ * `app/` and can only reach a client through a screen that is not its own.
+ * The component mounted is `cc-13/Cc13ActionRail.tsx` — the control rail
+ * `SB-16-02` draws — and not `cc/actions/ActionRail.tsx`, which is the module
+ * CARD and renders the same module's two tables as data. Two rails exist
+ * deliberately and neither is the other's second spelling.
+ *
+ * `heldColumns` is a set rather than one role, and flattening it is the one
+ * thing a mounting screen must not do: the source's own worked example is a
+ * person holding Supervisor at an Area and Quality Manager at a Site with no
+ * dropdown asking which role he is using. It is a rendering input, never an
+ * access decision — `evaluateCCAccess` answers that at the door.
  */
+function builtSlugs(): readonly string[] {
+  const dir = join(process.cwd(), 'app', 'command-center')
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
+    .sort()
+}
+
 export default function Page() {
   return (
-    <main id="main" className="mx-auto max-w-5xl px-6 py-12">
-      <p className="text-sm font-medium tracking-wide text-[var(--color-ink-subtle)]">
-        {SURFACE.name}
-      </p>
-      <h1 className="mt-2 text-3xl font-semibold">{CC10_SCREEN.name}</h1>
-      <p className="mt-3 max-w-prose text-[var(--color-ink-muted)]">{CC10_SCREEN.purpose}</p>
-      <p className="mt-2 text-sm text-[var(--color-ink-subtle)]" data-testid="cc10-route">
+    <CommandCenterShell
+      screen={CC10_SCREEN}
+      builtSlugs={builtSlugs()}
+      actionRail={
+        <Cc13ActionRail
+          personName="Elena"
+          scopeFilter="Site"
+          heldColumns={['Quality Manager']}
+          mountedOn="MOD-CC-10"
+        />
+      }
+    >
+      <p className="text-sm text-[var(--color-ink-subtle)]" data-testid="cc10-route">
         {CC10_SCREEN.id} · /command-center/{CC10_SLUG} · register row {CC10_SCREEN.registerRef} ·
-        roles that can open it: {CC10_SCREEN.rolesColumn}
+        roles that can open it: {CC10_SCREEN.rolesColumn} · surface {SURFACE.id}
       </p>
-      <p className="mt-6 max-w-prose text-sm text-[var(--color-ink-subtle)]">
+      <p className="mt-4 max-w-prose text-sm text-[var(--color-ink-subtle)]">
         Simulated behaviour only. This surface is a client-validation storyboard, not a connected
         production system.
       </p>
 
       <SyncConflictReviewPanel />
-    </main>
+      <SecondTreatmentDisclosure />
+    </CommandCenterShell>
   )
 }

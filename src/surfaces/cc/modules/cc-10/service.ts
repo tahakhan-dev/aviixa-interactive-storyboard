@@ -1,8 +1,18 @@
 import type { DecisionReading } from '@/disclosure/decisions'
+import type { RoleId } from '@/domain/roles'
+import { CC_LOCAL_DISCLOSURES, type CcLocalDisclosure } from '@/surfaces/cc/decisions/disclosure'
+import { CC_LINK_OUT_CELLS, type CcLinkOutCell } from '@/surfaces/cc/decisions/link-outs'
+import { ccElementAssignment, ccPushedShowsBothTimes } from '@/surfaces/cc/live/model'
 import { ccModule } from '@/surfaces/cc/modules'
 import { ccScreen, ccScreenSlug, ccPathname } from '@/surfaces/cc/screens'
 import { ccSeam, ccSeamStatus, type CcSeamDefinition, type CcSeamStatus } from '@/surfaces/cc/seams'
-import { CC10_MATRIX, CC10_RESOLUTION_ROW_ORDINALS, cc10Row } from './matrix'
+import {
+  CC10_COLUMNS,
+  CC10_MATRIX,
+  CC10_RESOLUTION_ROW_ORDINALS,
+  cc10Row,
+  type Cc10Column,
+} from './matrix'
 
 /**
  * `MOD-CC-10` — The Sync-Conflict Review Panel, chapter 21. THE SERVER
@@ -89,7 +99,7 @@ export const CC10_IDENTITY = {
     'why, and can flag a wrong resolution into the correction path without work ever having ' +
     'stopped.',
   sourceSection: '§6.11',
-  cardSpan: 'L38048-L38246',
+  cardSpan: 'L38048-L38243',
   identityRef: 'L38054',
   purposeRef: 'L38056',
   userBenefitRef: 'L38058',
@@ -416,3 +426,293 @@ export function cc10ColumnsProhibitedThroughout(): readonly string[] {
       ),
   )
 }
+
+/* ==================================================================== *
+ * THE CAP, RENDERED — AND IT IS ASKED TWICE, UNDER TWO IDENTIFIERS.
+ * ==================================================================== */
+
+/**
+ * The panel body owed the rendered cap and did not carry it. It does now,
+ * and what it renders is the QUESTION rather than a number.
+ *
+ * TWO IDENTIFIERS, BOTH RAISED BY THE FROZEN SOURCE, NEITHER THIS BUILD'S.
+ * `DEC-CONFLICTCAP-001` is raised at L38076 inside this module's own section
+ * and registered at L38955. `DEC-SYNC-006` carries its own card — question,
+ * three options, recommendation, trade-offs and owner — at L80504 in §36.6,
+ * is carved out as the cap value's source status at L80587, repeated in the
+ * traceability paragraph at L80601, and gets a consolidated §37B register row
+ * at L81737. The source's own decision index records them as first raised in
+ * different chapters: L115407 gives `DEC-CONFLICTCAP-001` to chapter 21 and
+ * L115111 gives `DEC-SYNC-006` to chapter 36.
+ *
+ * NEITHER IDENTIFIER IS RESPELLED HERE, AND THAT IS A GATE RATHER THAN A
+ * PREFERENCE. `src/offline/decisions-37b.ts` holds `DEC-SYNC-006`'s record;
+ * `tests/unit/offline-decisions-37b.test.ts` walks all of `src/` looking for
+ * a `decisionRef` field bearing that identifier, and goes red on any file
+ * carrying one without being named in `DEC_37B_ALSO_DISCLOSED_IN`, which is
+ * that module's array and not this task's. NOTE FOR ANY LATER HAND EDITING
+ * THIS COMMENT: that scan is a plain substring test over the whole file, so a
+ * COMMENT spelling the field-and-value pair trips it exactly as a declaration
+ * does. Writing the pair out here once turned that suite red, which is why
+ * this paragraph describes it instead. So this module POINTS, and the
+ * surface record in `src/surfaces/cc/decisions/disclosure.ts` — which already
+ * carries both readings with both locators and chooses neither — is what the
+ * panel renders.
+ *
+ * THE STORYBOARD PRINTS A NUMERAL AND SAYS IT IS NOT ONE. L80541's overflow
+ * state reads "Showing the 50 most recent of 912 conflicts" and the same
+ * sentence ends "with the numeral standing for whatever `DEC-SYNC-006`
+ * settles". Fifty is an illustration. Chapter 21's own storyboard header
+ * (L38146) reads "3 conflicts · 1 skew-flagged · showing 3 of 3", where the
+ * cap does not bite at all — so neither storyboard can supply a value, and
+ * this build renders none.
+ */
+export const CC10_CAP = {
+  whatIsRendered:
+    'The list is capped and carries a total count. This panel renders the storyboard’s own ' +
+    'header, "3 conflicts · 1 skew-flagged · showing 3 of 3", in which the cap does not bite — so ' +
+    'nothing on this screen illustrates the cap, and nothing on it states a cap value.',
+  whatIsRenderedRef: 'L38146',
+  whyNoValue:
+    'No cap value is invented. The other storyboard of this same panel prints "Showing the 50 ' +
+    'most recent of 912 conflicts" and says in the same sentence that the numeral stands for ' +
+    'whatever the decision settles. A build that read fifty as the cap would be shipping a ' +
+    'contractual value the source explicitly declined to state.',
+  whyNoValueRef: 'L80541',
+  askedTwice:
+    'The same cap is asked twice, under two identifiers the source raises in two chapters, with ' +
+    'two owners and two recommendations that do not agree. Both readings are carried below and ' +
+    'neither is chosen.',
+  /** The surface record that carries both readings. Read, never rewritten. */
+  bothReadingsHeldBy: 'src/surfaces/cc/decisions/disclosure.ts',
+  /** `DEC-SYNC-006`'s own record. Pointed at; its spelling is not repeated. */
+  secondIdentifierHeldBy: 'src/offline/decisions-37b.ts',
+  sourceRefs: ['L38076', 'L38955', 'L80504', 'L80541', 'L80587', 'L80601', 'L81737'] as const,
+} as const
+
+/**
+ * The surface-level record for this panel's cap, READ from wave-1's file.
+ * Found by identifier rather than by index so a reordering of that array
+ * cannot silently hand this panel a different decision.
+ */
+export const CC10_CAP_DISCLOSURE: CcLocalDisclosure = (() => {
+  const found = CC_LOCAL_DISCLOSURES.find((d) => d.decisionRef === 'DEC-CONFLICTCAP-001')
+  if (found === undefined) {
+    throw new Error(
+      'src/surfaces/cc/decisions/disclosure.ts no longer carries DEC-CONFLICTCAP-001. That record ' +
+        'is the only place on this tree holding BOTH identifiers the source raises for this ' +
+        'panel’s cap with both locators and no winner; without it the panel would either render ' +
+        'one of the two as though it were the source’s answer, or mint a second spelling of the ' +
+        'other, and both are defects this build records by name.',
+    )
+  }
+  return found
+})()
+
+/* ==================================================================== *
+ * ACTION 5 IS STATED THREE TIMES AND THE THREE DISAGREE.
+ * ==================================================================== */
+
+/**
+ * This module's own capability is action 5 of the closed set of ten, and
+ * three tables in the frozen source answer who holds it. They do not agree,
+ * and no acceptance criterion in this build tests that they should.
+ *
+ * The DISPATCH named one cell of one disagreement — the Quality Manager's.
+ * Read header-keyed across all five persona columns, §25.4's row differs
+ * from §21.16's on FOUR of the five, and the Tenant Admin pair is the
+ * ABSENT-versus-DISABLED conflict this build has carried since slice 4:
+ * `src/ui/WriteControl.tsx` draws `explicitlyProhibited` as nothing at all
+ * and `unavailable` as a disabled control carrying its reason, so the two
+ * tables do not merely use different words, they render oppositely.
+ *
+ * The Supervisor is the one column all three agree on: `Read-only`, three
+ * times. It is recorded here for the same reason the skew near-miss is
+ * recorded in the second treatment — so the next reader does not rediscover
+ * the agreement and file it as a fifth divergence.
+ */
+export interface Cc10Action5Statement {
+  /** Which table, in the source's own section number. */
+  readonly table: string
+  /** That table's line for the action-5 row. */
+  readonly sourceRef: string
+  /** The row's own name for the action, verbatim. Three tables, three spellings. */
+  readonly actionText: string
+  /** The five persona cells, verbatim, keyed by this build's own column words. */
+  readonly cells: Readonly<Record<Cc10Column, string>>
+}
+
+export const CC10_ACTION_5_STATEMENTS = [
+  {
+    table: '§21.1.2 surface-level permission matrix',
+    sourceRef: 'L35011',
+    actionText: 'Resolve or Resolve All sync conflicts',
+    cells: {
+      'Tenant Admin': 'Explicitly prohibited',
+      Supervisor: 'Read-only',
+      'Quality Manager': 'Allowed',
+      'Read-only Auditor': 'Explicitly prohibited',
+      Worker: 'Explicitly prohibited',
+    },
+  },
+  {
+    table: '§21.16 MOD-CC-13 action matrix',
+    sourceRef: 'L38686',
+    actionText: 'Resolve or Resolve All sync conflicts',
+    cells: {
+      'Tenant Admin': 'Explicitly prohibited',
+      Supervisor: 'Read-only',
+      'Quality Manager': 'Allowed',
+      'Read-only Auditor': 'Explicitly prohibited',
+      Worker: 'Explicitly prohibited',
+    },
+  },
+  {
+    table: '§25.4 actions and permissions across the ten operational actions',
+    sourceRef: 'L48448',
+    actionText: 'Resolve or Resolve-All sync conflicts',
+    cells: {
+      'Tenant Admin': 'Unavailable',
+      Supervisor: 'Read-only',
+      'Quality Manager':
+        'Allowed with conditions — skew-flagged conflicts are excluded from Resolve All',
+      'Read-only Auditor': 'Not applicable — no Command Center access',
+      Worker: 'Not applicable — different surface',
+    },
+  },
+] as const satisfies readonly Cc10Action5Statement[]
+
+/**
+ * The columns on which the three statements do NOT all agree, computed off
+ * the statements rather than listed beside them — a hand-written list is a
+ * second thing to keep in step and it will not be kept in step.
+ */
+export const CC10_ACTION_5_DIVERGENT_COLUMNS: readonly Cc10Column[] = CC10_COLUMNS.filter(
+  (column) => new Set(CC10_ACTION_5_STATEMENTS.map((s) => s.cells[column])).size > 1,
+)
+
+/**
+ * `Resolve-All` against `Resolve All` — a hyphen — which is why the three
+ * rows above cannot be joined by their action name. Computed, so it states
+ * what the three `actionText` fields actually are.
+ */
+export const CC10_ACTION_5_NAME_SPELLINGS: readonly string[] = [
+  ...new Set(CC10_ACTION_5_STATEMENTS.map((s) => s.actionText)),
+]
+
+/* ==================================================================== *
+ * THE FRESHNESS CLASS, CONSUMED.
+ * ==================================================================== */
+
+/**
+ * `Sync-conflict event` is a **Pushed** element on the surface's class
+ * assignment table, and its marker obligation is `Both device timestamps and
+ * server receipt` — THREE times, not two. The dispatch for this task dropped
+ * `and server receipt`, which is the same shape as the `Report figures`
+ * error wave 0 recorded: a paraphrase true of the row and false of its words.
+ *
+ * The class and the obligation are READ from wave-0's assignment table
+ * rather than restated, and `ccPushedShowsBothTimes` is what checks the
+ * storyboard's own version table meets the obligation. No `LiveFreshnessMarker`
+ * is mounted: a marker needs a device count, an offline count and an age,
+ * this panel has none of the three, and inventing them would render an
+ * illustrative number as a value — which is the very defect the cap section
+ * above refuses.
+ */
+export const CC10_FRESHNESS = ccElementAssignment('Sync-conflict event')
+
+/** The storyboard's own two rows, checked against the obligation. */
+export const CC10_FRESHNESS_MET: boolean = CC10_STORYBOARD_VERSIONS.every((v) =>
+  ccPushedShowsBothTimes({ originTime: v.deviceTimestamp, receiptTime: v.serverReceipt }),
+)
+
+/* ==================================================================== *
+ * ONE CELL OF THIS MATRIX NEEDS A LINK RATHER THAN A CONTROL.
+ * ==================================================================== */
+
+/**
+ * Row 8's Tenant Admin cell is `Explicitly prohibited` and then names where
+ * the act lives — "a tenant setting in the Delivery Operations Hub tenant
+ * administration area" (L38091). `src/ui/WriteControl.tsx` renders
+ * `explicitlyProhibited` as nothing at all, so a faithful transcription
+ * produces an empty cell where the source names a destination, and
+ * `AC-CC-301` (L37802) requires each such control to BE a link.
+ *
+ * The cell is wave-1's measured population-B row, not a second reading of
+ * L38091 written here. It is looked up by id and the lookup throws rather
+ * than falling back, because a silent fallback is how the link disappears.
+ */
+export const CC10_CLOCK_SKEW_LINK_OUT: CcLinkOutCell = (() => {
+  const found = CC_LINK_OUT_CELLS.find((c) => c.id === 'cc-10-clock-skew-threshold')
+  if (found === undefined) {
+    throw new Error(
+      'CC_LINK_OUT_CELLS no longer carries cc-10-clock-skew-threshold. That row (L38091) is this ' +
+        "module's only population-B cell: prohibited, and naming the Delivery Operations Hub " +
+        'tenant administration area as the place the act lives. Without it the cell renders as ' +
+        'nothing at all, which is what AC-CC-301 forbids.',
+    )
+  }
+  return found
+})()
+
+/**
+ * The role the link-out model is asked about, STATED rather than inferred,
+ * and it is not an access decision — `evaluateCCAccess` answers that at the
+ * door on a real request. The register's own row for this screen (L48395)
+ * reads "Supervisor for viewing, Quality Manager for resolution", and the
+ * Quality Manager is the role this module's matrix grants the panel to
+ * outright, so it is the role the rendering is shown for.
+ */
+export const CC10_LINK_OUT_VIEWER_ROLE: RoleId = 'QUALITY_MANAGER'
+
+/* ==================================================================== *
+ * WHAT THIS SCREEN NOW MOUNTS, AND ONE SEAM THAT STILL READS OPEN.
+ * ==================================================================== */
+
+/**
+ * L38793 enumerates the modules whose screens exercise one or more of the
+ * ten operational actions and names `MOD-CC-10` for 5. So this screen mounts
+ * `MOD-CC-13`'s action rail, and does not implement resolution itself.
+ *
+ * THE SEAM REGISTRY STILL REPORTS THIS SEAM OPEN, AND IT IS NOT THIS TASK'S
+ * TO CLOSE. `ccSeamStatus` derives status from `ownerSlice <= THIS_SLICE`,
+ * and `src/surfaces/cc/seams.ts` still declares `THIS_SLICE = 8` while both
+ * seams name `ownerSlice: 9`. `MOD-CC-13` has now landed — its rail is the
+ * component mounted on this screen — so the derivation is stale rather than
+ * wrong, and the file is another task's path. Reported, not edited; and the
+ * panel says so on screen rather than rendering a contradiction silently.
+ */
+export const CC10_ACTION_RAIL_MOUNT = {
+  railComponent: 'src/surfaces/cc/modules/cc-13/Cc13ActionRail.tsx',
+  whyHere:
+    'The interconnection line for the closed action set names this module for action 5, so this ' +
+    'screen is one of the seven the rail mounts on. MOD-CC-13 owns no route of its own: AC-CC-040 ' +
+    'forbids a fourteenth module route and the spine gives it no slug, so the rail can only ever ' +
+    'reach a client by mounting inside another module’s screen.',
+  whyHereRef: 'L38793',
+  whyNotTheOtherRail:
+    'Two rails exist deliberately. src/surfaces/cc/actions/ActionRail.tsx is the module CARD and ' +
+    'renders the two §21.16 tables as data; this is the control rail SB-16-02 draws, ten controls ' +
+    'in three visual states. Neither is the other’s second spelling.',
+  seamStillReadsOpen:
+    'The seam registry still reports the operational-action-set seam OPEN, because it derives ' +
+    'status from a slice number that has not been advanced past 8 while both of its rows name ' +
+    'slice 9 as their owner. MOD-CC-13 has landed and its rail is mounted above. The seam file is ' +
+    'not this module’s to edit, so the staleness is stated here rather than corrected there.',
+} as const
+
+/**
+ * §36.6's treatment of this module is now rendered on this screen, beneath
+ * chapter 21's. It was imported by no page and no component test when this
+ * task opened it, which is the difference between a disclosure existing in
+ * the tree and a disclosure being made to a client.
+ */
+export const CC10_SECOND_TREATMENT_WIRED = {
+  component: 'src/surfaces/cc/modules/cc-10-s366/SecondTreatmentDisclosure.tsx',
+  statement:
+    'Both treatments are on this screen and neither is merged into the other. The chapter-21 ' +
+    'matrix above is eight rows with the persona columns running Tenant Admin first; the §36.6 ' +
+    'matrix below is nine rows with the same five columns running Worker first. They disagree on ' +
+    'four questions, all four are shown with both locators, and none of the four is answered here.',
+  wasReachableBefore: false,
+} as const

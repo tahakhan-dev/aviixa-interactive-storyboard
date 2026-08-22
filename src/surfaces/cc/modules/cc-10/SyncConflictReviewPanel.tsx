@@ -1,11 +1,23 @@
+import { CrossSurfaceLink } from '@/ui/CrossSurfaceLink'
+import { ccLinkOutModel } from '@/surfaces/cc/decisions/link-outs'
 import { CC10_COLUMNS, CC10_MATRIX, type Cc10Column } from './matrix'
 import {
+  CC10_ACTION_5_DIVERGENT_COLUMNS,
+  CC10_ACTION_5_NAME_SPELLINGS,
+  CC10_ACTION_5_STATEMENTS,
+  CC10_ACTION_RAIL_MOUNT,
+  CC10_CAP,
+  CC10_CAP_DISCLOSURE,
+  CC10_CLOCK_SKEW_LINK_OUT,
   CC10_DISCLOSURES,
+  CC10_FRESHNESS,
   CC10_IDENTITY,
+  CC10_LINK_OUT_VIEWER_ROLE,
   CC10_RESOLVE_ALL_EXCLUSION,
   CC10_SEAM,
   CC10_SEAM_STATUS,
   CC10_SECOND_TREATMENT,
+  CC10_SECOND_TREATMENT_WIRED,
   CC10_STORYBOARD,
   CC10_STORYBOARD_VERSIONS,
 } from './service'
@@ -112,6 +124,20 @@ export function SyncConflictReviewPanel() {
         {CC10_STORYBOARD.verdict}
       </p>
 
+      {/* ── The freshness class, consumed rather than restated ──────── */}
+      <p className="mt-3 max-w-prose text-sm" data-testid="cc10-freshness">
+        <span className="font-medium">
+          Freshness class: {CC10_FRESHNESS.classCell}. Marker obligation:{' '}
+          {CC10_FRESHNESS.markerObligation}.
+        </span>{' '}
+        The obligation is three timestamps, not two — both device timestamps{' '}
+        <em>and</em> the server receipt — and the table above carries all three for both versions.
+        No freshness marker is drawn: a marker states a device count, an offline count and an age,
+        this panel holds none of the three, and inventing them would put an illustrative number on
+        a client screen as a value.{' '}
+        <span className="text-[var(--color-ink-subtle)]">({CC10_FRESHNESS.sourceRef})</span>
+      </p>
+
       {/* ── The controls, quoted, never drawn ───────────────────────── */}
       <h3 className="mt-8 text-lg font-semibold">Controls</h3>
       <ul className="mt-2 space-y-1 text-sm" data-testid="cc10-controls">
@@ -126,6 +152,106 @@ export function SyncConflictReviewPanel() {
       >
         <span className="font-medium">{CC10_RESOLVE_ALL_EXCLUSION.rule}</span>{' '}
         {CC10_RESOLVE_ALL_EXCLUSION.whyNotHere}
+      </p>
+
+      {/* ── The cap, rendered — as the question, never as a number ──── */}
+      <h3 className="mt-8 text-lg font-semibold">The list is capped, and the cap has no value here</h3>
+      <p className="mt-2 max-w-prose text-sm" data-testid="cc10-cap">
+        {CC10_CAP.whatIsRendered}{' '}
+        <span className="text-[var(--color-ink-subtle)]">({CC10_CAP.whatIsRenderedRef})</span>{' '}
+        {CC10_CAP.whyNoValue}{' '}
+        <span className="text-[var(--color-ink-subtle)]">({CC10_CAP.whyNoValueRef})</span>
+      </p>
+      <p className="mt-2 max-w-prose text-sm" data-testid="cc10-cap-asked-twice">
+        {CC10_CAP.askedTwice}
+      </p>
+      <div
+        className="mt-3 max-w-prose rounded border border-[var(--color-rule)] p-3 text-sm"
+        data-testid={`cc10-cap-${CC10_CAP_DISCLOSURE.decisionRef}`}
+      >
+        <p className="font-medium">
+          {CC10_CAP_DISCLOSURE.decisionRef} — {CC10_CAP_DISCLOSURE.question}
+        </p>
+        <ul className="mt-2 space-y-2">
+          {CC10_CAP_DISCLOSURE.position.readings.map((r) => (
+            <li key={r.locator}>
+              <span className="text-[var(--color-ink-muted)]">{r.text}</span>{' '}
+              <span className="text-[var(--color-ink-subtle)]">[{r.locator}]</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-[var(--color-ink-subtle)]">{CC10_CAP_DISCLOSURE.canonNote}</p>
+        <p className="mt-2 text-[var(--color-ink-subtle)]">
+          Both readings are held in {CC10_CAP.bothReadingsHeldBy}; the second identifier&rsquo;s own
+          record is {CC10_CAP.secondIdentifierHeldBy}. Neither is respelled here.
+        </p>
+      </div>
+
+      {/* ── Action 5, stated three times ────────────────────────────── */}
+      <h3 className="mt-8 text-lg font-semibold">
+        This module&rsquo;s own act is stated three times, and the three disagree
+      </h3>
+      <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-subtle)]">
+        Resolving a sync conflict is action 5 of the closed set of ten. Three tables in the source
+        answer who holds it. They disagree on{' '}
+        {CC10_ACTION_5_DIVERGENT_COLUMNS.length === 1
+          ? 'one column'
+          : `${CC10_ACTION_5_DIVERGENT_COLUMNS.length} columns`}{' '}
+        — {CC10_ACTION_5_DIVERGENT_COLUMNS.join(', ')} — and cannot be joined by the action&rsquo;s
+        own name, which they spell {CC10_ACTION_5_NAME_SPELLINGS.length} ways. All three readings
+        are carried; none is chosen.
+      </p>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full text-left text-sm" data-testid="cc10-action5">
+          <caption className="sr-only">
+            Action 5 as three tables of the frozen source state it
+          </caption>
+          <thead>
+            <tr className="border-b border-[var(--color-rule)]">
+              <th scope="col" className="py-2 pr-4 font-medium">
+                Where it is stated
+              </th>
+              {CC10_COLUMNS.map((c) => (
+                <th
+                  scope="col"
+                  key={c}
+                  className="py-2 pr-4 font-medium"
+                  data-testid={`cc10-action5-col-${c}`}
+                >
+                  {c}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {CC10_ACTION_5_STATEMENTS.map((s) => (
+              <tr
+                key={s.sourceRef}
+                className="border-b border-[var(--color-rule)] align-top"
+                data-testid={`cc10-action5-row-${s.sourceRef}`}
+              >
+                <th scope="row" className="py-2 pr-4 font-normal">
+                  {s.table} · {s.sourceRef} · &ldquo;{s.actionText}&rdquo;
+                </th>
+                {CC10_COLUMNS.map((c: Cc10Column) => (
+                  <td
+                    key={c}
+                    className="py-2 pr-4"
+                    data-testid={`cc10-action5-cell-${s.sourceRef}-${c}`}
+                  >
+                    {s.cells[c]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        The Tenant Admin pair is not only a different word. This build renders an explicitly
+        prohibited cell as nothing at all and an unavailable one as a disabled control carrying its
+        reason, so those two tables render the same cell oppositely — absent against disabled.
+        Nothing here reconciles them.
       </p>
 
       {/* ── The permission matrix, header-keyed ─────────────────────── */}
@@ -181,6 +307,19 @@ export function SyncConflictReviewPanel() {
         </table>
       </div>
 
+      {/* ── One cell needs a link, not a control ─────────────────────── */}
+      <h3 className="mt-8 text-lg font-semibold">One cell needs a link, not a control</h3>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        Row 8&rsquo;s Tenant Admin cell refuses the act and then names where it lives. The write
+        control renders an explicitly prohibited cell as nothing at all, so a faithful
+        transcription would produce an empty cell where the source names a destination.
+      </p>
+      <div className="mt-3">
+        <CrossSurfaceLink
+          model={ccLinkOutModel(CC10_CLOCK_SKEW_LINK_OUT, CC10_LINK_OUT_VIEWER_ROLE)}
+        />
+      </div>
+
       {/* ── The seam ────────────────────────────────────────────────── */}
       <h3 className="mt-8 text-lg font-semibold">What this panel does not own</h3>
       <p className="mt-2 max-w-prose text-sm" data-testid="cc10-seam">
@@ -189,6 +328,13 @@ export function SyncConflictReviewPanel() {
           {CC10_SEAM_STATUS}.{' '}
         </span>
         {CC10_SEAM.whatIsMissing}
+      </p>
+      <p className="mt-2 max-w-prose text-sm" data-testid="cc10-action-rail-mount">
+        <span className="font-medium">{CC10_ACTION_RAIL_MOUNT.whyHere}</span>{' '}
+        <span className="text-[var(--color-ink-subtle)]">
+          ({CC10_ACTION_RAIL_MOUNT.whyHereRef})
+        </span>{' '}
+        {CC10_ACTION_RAIL_MOUNT.whyNotTheOtherRail} {CC10_ACTION_RAIL_MOUNT.seamStillReadsOpen}
       </p>
 
       {/* ── Open decisions ──────────────────────────────────────────── */}
@@ -224,6 +370,10 @@ export function SyncConflictReviewPanel() {
       <h3 className="mt-8 text-lg font-semibold">A second treatment of this module exists</h3>
       <p className="mt-2 max-w-prose text-sm" data-testid="cc10-second-treatment">
         {CC10_SECOND_TREATMENT.statement}
+      </p>
+      <p className="mt-2 max-w-prose text-sm" data-testid="cc10-second-treatment-wired">
+        {CC10_SECOND_TREATMENT_WIRED.statement} It is rendered on this screen by{' '}
+        {CC10_SECOND_TREATMENT_WIRED.component}, below.
       </p>
     </section>
   )

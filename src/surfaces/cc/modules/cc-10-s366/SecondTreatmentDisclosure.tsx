@@ -14,11 +14,25 @@ import {
 /**
  * `MOD-CC-10`'s §36.6 treatment, ON SCREEN, as the second of two.
  *
- * IT IS A COMPONENT AND NOT A SCREEN. The route is
- * `app/command-center/sync-conflict-review/` and it belongs to the
- * chapter-21 task; this exports a component and the controller wires it
- * beneath that treatment. Nothing here claims a slug, and
- * `src/surfaces/cc/modules.ts` already gives `MOD-CC-10` exactly one.
+ * IT IS A COMPONENT AND NOT A SCREEN, AND IT IS NOW MOUNTED ON ONE. The
+ * route is `app/command-center/sync-conflict-review-panel/` — the spine's
+ * own slug, and NOT the shorter `sync-conflict-review` this header carried
+ * until slice 9. That name was never on the tree: `src/surfaces/cc/modules.ts`
+ * declares `slug: 'sync-conflict-review-panel'`, `CC_NAV` publishes the
+ * pathname from it, and `scripts/build-registries.mjs` reads a declared slug
+ * with no directory of that name as "declared, not built". Nothing here
+ * claims a slug, and the spine already gives `MOD-CC-10` exactly one.
+ *
+ * IT WAS IMPORTED BY NOTHING, AND THAT WAS THE FINDING. Slice 8 traced
+ * import reachability from every file under `app/` and confirmed it against
+ * the built HTML: this component appeared on zero built pages. It carries
+ * §36.6's nine-row treatment and all four divergences, so a client reviewing
+ * this screen saw one treatment and was told nothing about the second. The
+ * page above now renders it beneath the chapter-21 panel. The lesson is kept
+ * beside the fix rather than deleted with it: `MOD-CC-02`'s absence from any
+ * route is DECLARED in `CC_SEAMS`; this component's was declared nowhere and
+ * was simply unreferenced, and a stated abstention and an oversight look
+ * identical from the outside.
  *
  * NOT A `'use client'` MODULE, DELIBERATELY. Four Run Player panels shipped
  * with `data-testid="fl-panel-undefined"` in the built HTML while every

@@ -5,9 +5,15 @@ import { render, screen, within } from '@testing-library/react'
 import { SyncConflictReviewPanel } from '@/surfaces/cc/modules/cc-10/SyncConflictReviewPanel'
 import { CC10_COLUMNS, CC10_MATRIX } from '@/surfaces/cc/modules/cc-10/matrix'
 import {
+  CC10_ACTION_5_STATEMENTS,
   CC10_DISCLOSURES,
   CC10_SECOND_TREATMENT,
 } from '@/surfaces/cc/modules/cc-10/service'
+import {
+  S366_DIVERGENCES,
+  S366_ROWS,
+} from '@/surfaces/cc/modules/cc-10-s366/matrix'
+import Page from '../../app/command-center/sync-conflict-review-panel/page'
 
 /**
  * `MOD-CC-10` RENDERED, against the frozen source parsed at run time.
@@ -213,5 +219,227 @@ describe('SCR-CC-10 — the second treatment is declared on screen and nowhere t
     // Counted off the DOM as well as off the constant, so a ninth row appearing
     // in one and not the other cannot pass.
     expect(screen.queryByTestId('cc10-row-9')).toBeNull()
+  })
+})
+
+/* ==================================================================== *
+ * THE SCREEN AS A CLIENT MEETS IT — the whole route, rendered.
+ * ==================================================================== */
+
+describe('SCR-CC-10 — both treatments and the action rail are on ONE screen', () => {
+  /**
+   * THE ROUTE ITSELF IS RENDERED, not the panel alone, and that is the only
+   * shape that can answer this question. A component suite that mounts
+   * `SyncConflictReviewPanel` proves nothing about what a client sees: slice
+   * 8's §36.6 disclosure passed its whole unit suite while being imported by
+   * no page at all, and the panel suite above would have stayed green through
+   * every day of it.
+   *
+   * FAILS IF: either element is dropped from the route. Planted by deleting
+   * `<SecondTreatmentDisclosure />`; red on `cc-10-s366` missing.
+   */
+  it('the route renders the chapter-21 panel, the §36.6 treatment and the rail', () => {
+    render(<Page />)
+    expect(screen.getByTestId('cc10-panel')).toBeTruthy()
+    expect(screen.getByTestId('cc-10-s366')).toBeTruthy()
+    expect(screen.getByTestId('cc13-rail')).toBeTruthy()
+  })
+
+  /**
+   * TWO MATRICES, NOT ONE MERGED ONE. The chapter-21 table is eight rows with
+   * Tenant Admin first; §36.6's is nine rows with Worker first. A merge would
+   * show one table of eight or nine, and every count below is read off the
+   * DOM rather than off a constant.
+   *
+   * FAILS IF: a later hand reconciles the two. Planted by pointing the
+   * disclosure's rows at `CC10_MATRIX`; red on the row count and on the
+   * column order at once.
+   */
+  it('and the two matrices keep their own row counts and opposite column orders', () => {
+    render(<Page />)
+    const ch21 = within(screen.getByTestId('cc10-matrix'))
+    expect(ch21.getAllByRole('row')).toHaveLength(1 + CC10_MATRIX.length)
+    expect(CC10_MATRIX).toHaveLength(8)
+
+    const s366 = within(screen.getByTestId('cc-10-s366-matrix'))
+    expect(s366.getAllByRole('row')).toHaveLength(1 + S366_ROWS.length)
+    expect(S366_ROWS).toHaveLength(9)
+
+    // The persona headers, in each table's own order, read off the source.
+    expect(CC10_COLUMNS.map((c) => screen.getByTestId(`cc10-col-${c}`).textContent)).toEqual(
+      cellsOf(38082).slice(1),
+    )
+    const s366Headers = s366
+      .getAllByRole('columnheader')
+      .map((h) => h.textContent?.trim() ?? '')
+    expect(s366Headers).toEqual(cellsOf(80547))
+    expect(s366Headers.slice(1)).not.toEqual([...CC10_COLUMNS])
+  })
+
+  /**
+   * ALL FOUR DIVERGENCES ARE ON THE SCREEN, each with BOTH locators and no
+   * winner. This is the disclosure the whole split exists to produce and it
+   * reached no client until this route mounted it.
+   *
+   * FAILS IF: a divergence is dropped, or one reading is rendered without its
+   * counterpart. Planted by rendering only `d.here`; red on the chapter-21
+   * locator.
+   */
+  it('all four divergences render with both locators and neither chosen', () => {
+    render(<Page />)
+    const list = within(screen.getByTestId('cc-10-s366-divergences'))
+    expect(S366_DIVERGENCES).toHaveLength(4)
+    for (const d of S366_DIVERGENCES) {
+      const item = within(screen.getByTestId(`cc-10-s366-divergence-${d.id}`))
+      expect(item.getByText(d.question)).toBeTruthy()
+      // Both locators, each on the screen, read through the item's own subtree
+      // so a neighbouring divergence's locator cannot satisfy this.
+      expect(item.getByText(`(${d.here.locator})`)).toBeTruthy()
+      expect(item.getByText(`(${d.chapter21.locator})`)).toBeTruthy()
+      expect(d.chosen).toBeNull()
+    }
+    expect(list.getAllByText('Not chosen.')).toHaveLength(4)
+  })
+
+  /**
+   * THE TENANT ADMIN DISAGREEMENT IS TWO ROWS WIDE AND BOTH ARE DRAWN. This
+   * is the row a single implementer would have merged away, and it is the
+   * reason the two treatments were built by two people who never reconciled.
+   */
+  it('the Tenant Admin divergence renders as two rows, not one', () => {
+    render(<Page />)
+    const tenantAdmin = S366_DIVERGENCES.filter((d) => d.column === 'Tenant Admin')
+    expect(tenantAdmin).toHaveLength(2)
+    for (const d of tenantAdmin) {
+      expect(screen.getByTestId(`cc-10-s366-divergence-${d.id}`)).toBeTruthy()
+    }
+  })
+
+  /**
+   * THE RAIL IS THE CONTROL RAIL, NOT THE MODULE CARD. Wave 0's
+   * `ActionRail.tsx` renders §21.16's two tables as data and draws no
+   * control; this one draws ten controls in three visual states. Mounting the
+   * wrong one puts a matrix where the source draws a rail.
+   *
+   * FAILS IF: the card is mounted instead. The card renders no
+   * `cc13-rail-controls` list at all.
+   */
+  it('the rail draws ten controls and names its mount, and it is not the module card', () => {
+    render(<Page />)
+    const rail = within(screen.getByTestId('cc13-rail'))
+    expect(rail.getAllByTestId(/^cc13-rail-control-\d+$/)).toHaveLength(10)
+    expect(screen.getByTestId('cc13-rail-mount').textContent).toContain('MOD-CC-10')
+    // L20195: the header carries the person and the scope and nothing else —
+    // no role indicator, because there is no active role.
+    const header = within(screen.getByTestId('cc13-rail-header'))
+    expect(header.getByTestId('cc13-rail-person')).toBeTruthy()
+    expect(header.getByTestId('cc13-rail-scope')).toBeTruthy()
+  })
+
+  /**
+   * THE CAP IS RENDERED AS THE QUESTION. Both identifiers, both locators, and
+   * no number anywhere that could be read as a cap value.
+   *
+   * FAILS IF: a cap value appears on the screen. The scan is over the cap
+   * section's own text, so an illustration elsewhere on the page cannot
+   * satisfy or defeat it.
+   */
+  it('the cap renders both identifiers and states no value', () => {
+    render(<Page />)
+    const cap = screen.getByTestId('cc10-cap-DEC-CONFLICTCAP-001')
+    const text = cap.textContent ?? ''
+    expect(text).toContain('DEC-CONFLICTCAP-001')
+    expect(text).toContain('DEC-SYNC-006')
+    expect(text).toContain('L38076')
+    expect(text).toContain('L81737')
+    expect(screen.getByTestId('cc10-cap').textContent).toContain('showing 3 of 3')
+    // The storyboard's fifty is named nowhere as this build's cap.
+    expect(text).not.toMatch(/\bcap(?:ped)? (?:is|of|value is) \d/i)
+  })
+
+  /**
+   * ACTION 5 IS DRAWN THREE TIMES AND THE THREE DISAGREE, cell by cell,
+   * through each cell's own `data-testid`. `textContent` welding is what a
+   * sweep over this table would fall to, and `Allowed` is a prefix of
+   * `Allowed with conditions` in its own Quality Manager column.
+   *
+   * EVERY CELL IS COMPARED AGAINST THE FROZEN SOURCE, NOT AGAINST THE
+   * CONSTANT IT RENDERS, and this gate was rewritten because a plant proved
+   * the first version could not fail. Aligning §25.4's Tenant Admin cell onto
+   * §21.16's token — the merge a single implementer would have written — moved
+   * the constant and the rendered cell together, and a comparison between them
+   * stayed green while the unit gate that reads the source went red. A check
+   * that reads its expectation out of the value under test is the same shape
+   * as a `for...of` over the constant it was meant to verify.
+   *
+   * The header for each row is parsed from that table's own separator, so the
+   * lookup is by column NAME. §21.16 puts an ordinal in column 1 and the other
+   * two tables do not.
+   */
+  it('action 5 renders three statements, cell by cell, against the frozen source', () => {
+    render(<Page />)
+    const headerFor = (dataLine: number): string[] => {
+      for (let n = dataLine - 1; n > dataLine - 20; n -= 1) {
+        if (/^\s*\|\s*-{2,}/.test(L(n))) return cellsOf(n - 1)
+      }
+      throw new Error(`no separator above line ${dataLine}`)
+    }
+
+    for (const s of CC10_ACTION_5_STATEMENTS) {
+      const line = Number(s.sourceRef.slice(1))
+      const header = headerFor(line)
+      const source = cellsOf(line)
+      for (const c of CC10_COLUMNS) {
+        const at = header.indexOf(c)
+        expect(at, `${s.sourceRef} header has no ${c} column`).toBeGreaterThan(0)
+        expect(
+          screen.getByTestId(`cc10-action5-cell-${s.sourceRef}-${c}`).textContent,
+          `${s.sourceRef} · ${c}`,
+        ).toBe(source[at])
+      }
+    }
+
+    const qm = screen.getByTestId('cc10-action5-cell-L48448-Quality Manager').textContent ?? ''
+    expect(/^Allowed$/.test(qm)).toBe(false)
+    expect(qm.startsWith('Allowed')).toBe(true)
+    expect(qm).toBe(cellsOf(48448)[3])
+  })
+
+  /**
+   * THE FRESHNESS OBLIGATION IS THREE TIMESTAMPS AND THE SCREEN SAYS SO. The
+   * dispatch for this task said two.
+   */
+  it('the freshness class and its whole obligation are on the screen', () => {
+    render(<Page />)
+    const text = screen.getByTestId('cc10-freshness').textContent ?? ''
+    expect(text).toContain('Both device timestamps and server receipt')
+    expect(text).toContain('Pushed')
+    expect(cellsOf(35888)[3]).toBe('Both device timestamps and server receipt')
+  })
+
+  /**
+   * ROW 8'S TENANT ADMIN CELL GETS A LINK RATHER THAN AN EMPTY SPACE. A
+   * faithful transcription of an explicitly prohibited cell draws nothing at
+   * all, and `AC-CC-301` requires each such control to BE a link.
+   */
+  it('the population-B cell renders a cross-surface link-out and not a control', () => {
+    render(<Page />)
+    const link = screen
+      .getAllByTestId('cc-cross-surface-link')
+      .find((el) => el.getAttribute('data-cell-id') === 'cc-10-clock-skew-threshold')
+    expect(link, 'the clock-skew link-out is on the screen').toBeTruthy()
+    expect(within(link as HTMLElement).getByText('Change the clock-skew threshold')).toBeTruthy()
+    expect(within(link as HTMLElement).queryByRole('button')).toBeNull()
+  })
+
+  /**
+   * NOTHING ON THIS SCREEN IS HIDDEN. A `hidden` attribute defeats every read
+   * above without changing a single string, which is one of this build's
+   * recorded gates-that-could-not-fail.
+   */
+  it('and nothing on the screen is hidden from view', () => {
+    const { container } = render(<Page />)
+    expect(container.querySelectorAll('[hidden]')).toHaveLength(0)
+    expect(container.querySelectorAll('[aria-hidden="true"]')).toHaveLength(0)
   })
 })

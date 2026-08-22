@@ -705,7 +705,11 @@ export const S366_FINDINGS = [
 export const S366_OUT_OF_SCOPE = {
   panelBody: 'L80541 — header, list, comparison cards, action region, empty and overflow states.',
   capValue: 'DEC-SYNC-006, raised at L80504 and classified at L80587. Not disclosed by this module.',
-  route: 'app/command-center/sync-conflict-review/ — the chapter-21 task’s.',
+  route:
+    'app/command-center/sync-conflict-review-panel/ — the chapter-21 task’s, and the spine’s own ' +
+    'slug. This field named the shorter sync-conflict-review until slice 9; no directory of that ' +
+    'name was ever built, and the registry generator reads a declared slug with no directory of ' +
+    'that name as "declared, not built".',
   ac36604Note:
     'AC-36-604 (L80596) is trivially true of this module because it draws no control for any role. That is not evidence about the panel.',
 } as const

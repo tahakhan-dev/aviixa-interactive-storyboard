@@ -102,15 +102,26 @@ columns in opposite orders is not evidence of anything.**
 
    The brief then said "disclosing both invents a decision the source raises once". **The source
    raises BOTH.** `DEC-CONFLICTCAP-001` is raised at **L38076** and registered at **L38955**
-   (§21.13); `DEC-SYNC-006` is raised at **L81737** and named as the cap's source status at
-   **L80587**. The source's own index records them as first raised in *different chapters*.
-   **Neither is this build's coinage, and merging them erases one.**
+   (§21.13); **`DEC-SYNC-006` is raised on its card at L80504** — "The cap, and why it is a design
+   feature", carrying the question, the options, the recommendation and the owner — and named as
+   the cap's source status at **L80587**. The source's own index records them as first raised in
+   *different chapters*. **Neither is this build's coinage, and merging them erases one.**
 
-   They are one panel's cap asked twice: same six-word section heading, **different scopes**
-   (one asks the cap value; the other adds reachability and Resolve All scope), **different
-   owners**, and **conflicting recommendations** — `DEC-SYNC-006` recommends what is
-   `DEC-CONFLICTCAP-001`'s option (c), which `DEC-CONFLICTCAP-001` does not recommend. Two
-   readings, two locators, no winner.
+   **This brief first cited L81737 as the raise. That is §37B's consolidated register ROW, not the
+   decision** — citing it cites the index rather than the thing indexed, which is the same class of
+   error as a module reaching a decision through a coverage map.
+
+   They are one panel's cap asked twice: **different scopes** (one asks the cap value; the other
+   adds reachability and Resolve All scope), **different owners**, and **recommendations that do
+   not agree**. (This brief also had the reason wrong: `DEC-SYNC-006` recommends its *own* option
+   (a), a single platform value at V1; what lines up with `DEC-CONFLICTCAP-001`'s option (c) is its
+   stated **conversion target**, not its recommendation.) Two readings, two locators, no winner.
+
+   **And their section headings are not "the same six words"** — an earlier draft said so and a
+   shipping file repeated it. §21.13 opens `Module MOD-CC-10 — The Sync-Conflict Review Panel`;
+   §36.6 opens `The Sync-Conflict Review Panel`. The shared phrase is four words and one heading
+   carries a module identifier the other does not. It mattered because that claim was the only
+   evidence offered that the two sections are about one subject.
 
    Still open: **the panel body owes the rendered cap.** The storyboard's `50` is an illustration,
    not a value.
@@ -469,9 +480,12 @@ place.** The record is elsewhere for all ten; the control is here for all ten.
 **Population B — module-matrix cells the source marks prohibited and then names a destination
 for.** L37671 and L37672 read `Explicitly prohibited` and their own text says "a Standards and
 Operations Studio action, **linked from here**"; `AC-CC-301` requires each such control to *be* a
-link. `src/ui/WriteControl.tsx` renders `explicitlyProhibited` as **nothing at all**, so a
-faithful transcription produces an empty cell where the source requires a link. **Measured: 13
-cells across 12 distinct rows.** These get a link **instead of** a control.
+link. `src/ui/WriteControl.tsx` renders `explicitlyProhibited` as a
+`<ProhibitionNotice rendering={{ kind: 'absent' }} />` — **a plain note where a control would be,
+no control and no link.** (This brief said "nothing at all" twice; the note is there. The material
+point is unchanged and `link-outs.ts`'s own header states it correctly.) So a faithful
+transcription produces a cell with no link where the source requires one. **Measured: 13 cells
+across 12 distinct rows.** These get a link **instead of** a control.
 
 **Consume task 5's `CrossSurfaceLink` for population B. Consume task 4's `CC13_OWNING_PLACES` for
 population A.** They are different shapes and the same component would be wrong for one of them.
@@ -746,3 +760,99 @@ dependency gate. **That regex cannot see a multi-line import** — `from` must s
 line. Two tasks independently wrote the same shape into reachability probes and both under-reported
 until they widened it. **A dependency or reachability check that under-reports goes green on a
 broken chain.**
+
+---
+
+## Wave 2 — the second treatment is on screen, and a marker obligation was missing a third of itself
+
+**`SecondTreatmentDisclosure.tsx` is rendered.** §36.6's nine-row `MOD-CC-10` treatment with all
+four divergences was imported by no page and no component test since slice 8; it now renders on
+`SCR-CC-10` beside the chapter-21 treatment, verified by grep from `app/` and by a transitive walk
+that answers `false` for a still-unwired sibling — **so the `true` is a measurement, not a
+default.**
+
+**Brief error 38, and it costs a third of a rendered obligation.** The brief gave `MOD-CC-10`'s
+marker obligation as "both device timestamps" (L35888). The cell reads **`Both device timestamps
+and server receipt`** — **three timestamps.** A model built to the brief renders two of three
+**and passes any check written from the same sentence**, which is the whole danger of a paraphrase
+travelling into both the code and its test.
+
+**Brief error 39: action 5 is not a one-cell divergence.** Read header-keyed, §25.4's row differs
+from §21.16's on **four of five columns**. Tenant Admin is `Explicitly prohibited` against
+`Unavailable` — the absent-versus-disabled pair, which render oppositely.
+
+**Brief error 40: a fourth card span ending on a blank line.** `MOD-CC-10`'s was given as ending
+196 lines before the card's last content line at L38243 — before the matrix, the storyboard, every
+functionality and every acceptance criterion. **Four of thirteen module card spans in this brief
+were taken from a table of starts rather than by reading to each section's close.**
+
+**And a hand-off that went stale inside one file.** Task 16's brief said `DEC-SYNC-006` "no file in
+this tree discloses it" while its own dispatch said the opposite — the common brief was corrected
+and the task brief's later section was not. **Correct every copy or none: a document that
+contradicts itself is worse than one that is uniformly out of date, because a reader cannot tell
+which half is current.**
+
+## Two more gate defects, both found by planting
+
+- **A component gate compared the rendered cell to the constant that renders it**, so a plant moved
+  both and the gate stayed green. Rewritten to parse each table's header off the frozen source.
+  **A gate whose expected value is produced by the code under test is a tautology.**
+- **A plant harness required the PLANTED text to be unique on reversal** and aborted mid-step on a
+  plant whose text legitimately occurs three times. **The offset is the guard, not the uniqueness
+  of what you wrote.** Splice by index; the anchor's uniqueness matters before planting, not after.
+
+## One scan that cannot tell code from prose
+
+`tests/unit/offline-decisions-37b.test.ts`'s `declarations()` is a plain substring test over whole
+file text, so **a comment quoting `decisionRef: '<id>'` trips it exactly as a declaration does.**
+Observed live: one explanatory comment turned that suite red. If you are writing prose about a
+declaration, do not spell the declaration.
+
+## "Prohibition with a note" is NOT the classifier — three cells, three different answers
+
+`MOD-CC-08` carries three cells with the identical shape — `Explicitly prohibited` plus a trailing
+note — and **the right rendering differs for each**:
+
+- **L37671** `— a Standards and Operations Studio action, linked from here` → a **link**, and the
+  destination is *checked* (the Supervisor is in `SURF-STU`'s allowed roles), not asserted.
+- **L37672** `— Studio or platform action` → the cell **names two owners and chooses neither**, so
+  **no link is drawn to either and both are named.** Choosing one would be this build deciding on
+  the source's behalf.
+- **L37673** `— platform-internal` → **a stated absence.** `AC-CC-303` (L37804) is "No Command
+  Center endpoint returns orchestrator reasoning internals", so the absence is what the source
+  asks for **and a link there is the opposite defect.**
+
+**A task classifying on "prohibition with a note" would have got all three wrong.** Read the note.
+
+## `MOD-CC-08` claims an action L38793 gives to another module
+
+**L37757 — this module's own Interconnections — reads "exercises action 9 of `MOD-CC-13`".**
+**L38793 gives action 9 to `MOD-CC-04` and does not name `MOD-CC-08` at all.** Both recorded,
+neither adopted, and **the rail is not mounted there** — mounting on a claim the enumeration
+contradicts is the drift the closed set exists to prevent.
+
+For the record, L38793's mapping in full, because a controller grep dropped one module mid-line
+and reported six: **`MOD-CC-04` for 1, 2, 4, 7 and 9; `MOD-CC-05` for 2; `MOD-CC-06` for 3;
+`MOD-CC-09` for 1 and 10; `MOD-CC-10` for 5; `MOD-CC-12` for 6; `MOD-CC-03` for 8.** Seven modules.
+**A `[^;]*` pattern that runs past its delimiter drops the clause after it** — the same
+unanchored-pattern error, arriving from the other end.
+
+## Brief error 41: "one of the four module rows granting the Tenant Admin more" — four is none of them
+
+Measured over all twelve chapter-21 module matrices: **17** rows carry a non-prohibition Tenant
+Admin cell. Dropping the report rows and the banner/marker rows that L35004 *does* admit leaves
+**5**. Under the narrowest reading — a Tenant-or-Site read-scope condition — **3**. **Four is not
+any of the three defensible numbers**, and the brief repeated it as if it were one.
+
+Also recorded: L35006's aggregate-board grant is **one word longer** than `MOD-CC-08`'s row 5
+(`a Tenant or Site read scope grant` against `Tenant or Site read scope`), so a gate keyed on
+equality between them asserts a sentence the source does not carry.
+
+## `AC-CC-090` fails on `MOD-CC-08`, in both directions
+
+Nine functionalities; **two name no `FB-CC-*` pattern at all** — `FUNC-CC-0803-1-2` (L37791,
+"Fallback: platform escalation fallback governs.") and `FUNC-CC-0804-1-1` (L37795, "Fallback: not
+applicable."). And L37772 declares four identifiers of which **`FB-CC-WRITE` is referenced by no
+functionality.** Declared set and referenced set differ **in both directions**, each counted
+separately. **Rendered, not repaired** — inventing a pattern for an escalation the platform routes
+server-side puts this build's answer where the source declines one.

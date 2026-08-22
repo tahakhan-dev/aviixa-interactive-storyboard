@@ -131,13 +131,24 @@ export const CC_LOCAL_DISCLOSURES = [
             'demands. Owner: the client product owner with the Command Center design owner. That ' +
             "recommendation is DEC-CONFLICTCAP-001's option (c), which DEC-CONFLICTCAP-001 does " +
             'not recommend.',
-          locator: 'DEC-SYNC-006 · L81737 · source status L80587 · §36.6 heading L80485',
+          // Raised on its CARD at L80504 — "The cap, and why it is a design
+          // feature" — with the question, the options, the recommendation and
+          // the owner. L81737 is §37B's consolidated register ROW, and the
+          // source's own index records this decision as first raised in
+          // chapter 36. Citing the register row as the raise cites the index
+          // rather than the decision, which is the same class of error as a
+          // module reaching a decision through a coverage map.
+          locator: 'DEC-SYNC-006 · card L80504 · register row L81737 · source status L80587',
         },
       ],
     },
     canonNote:
-      'BOTH IDENTIFIERS ARE RAISED BY THE FROZEN SOURCE, in two chapters, for two sections whose ' +
-      'headings are the same six words — the sync-conflict review panel. Neither identifier ' +
+      'BOTH IDENTIFIERS ARE RAISED BY THE FROZEN SOURCE, in two chapters, for two sections that ' +
+      'name the same panel. (An earlier note here said their headings were "the same six words"; ' +
+      'they are not. §21.13 opens `Module MOD-CC-10 — The Sync-Conflict Review Panel` and §36.6 ' +
+      'opens `The Sync-Conflict Review Panel`. The shared phrase is four words and one heading ' +
+      'carries a module identifier the other does not — a detail that matters because it is the ' +
+      'only evidence offered that the two sections are about one subject.) Neither identifier ' +
       "cites the other, and the source's own decision index records them as first raised in " +
       'different chapters (L115407 and L115111). So this is not one decision under two spellings ' +
       "and not two unrelated decisions: it is one panel's cap asked twice, with two owners and " +
