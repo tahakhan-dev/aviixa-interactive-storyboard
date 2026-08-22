@@ -286,78 +286,78 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-**Slice 8 wave 1 complete — 8 of 22 tasks done.** Wave 0 (Command Center spine, 28 modes and
-7 capability classes, honesty kernel, 70 fallback contracts) and wave 1 (five-surface matrices,
-the 37-step protocol, conflict authority, quarantine and convergence) have landed. `pnpm verify`
-green end to end: unit 3515/3515, component 2199/2199, release 580/580, build, 467/467
-Playwright. Wave 2's three package briefs are written and ready to dispatch.
+**Slice 8 is closed and verified. Slice 9 is at 19 of 21 tasks — every module built, gates and
+verification remain.** `pnpm verify` green end to end: **unit 4768, component 2482, release 676,
+e2e/axe 515, 96 exported pages.**
 
-**Nine brief errors found and verified across the two waves, every one the controller's.** The
-sharpest source finding: the hold-state claim is classified three different ways at three
-levels — `SoW Fact` on its own row at L80192, `Derived Clarification` for the table carrying it
-at L80233, and `DEC-FB-008` unresolved at L82477. That sentence decides whether a device write
-can lift a Severity 1 hold, so all three are carried and none is chosen.
+**77 of 81 modules are on screen** — 67 demonstrated by their own route, 10 mounted inside another
+module's screen, 4 not represented (`MOD-DOH-10`, `-11`, `-17`, `-18`). Across the fourteen
+inventories: **258 of 4,970 rows demonstrated, 813 named somewhere in the build.**
 
-**Superseded, kept one slice for continuity:**
+### The three findings worth carrying forward
 
-**Slice 8 running, branch `slice-05-studio-authoring`** — slices 5, 6, 7 and 8 share it and it
-has **not** been merged to `main` (78 commits ahead). Slices 5, 6 and 7 are shipped.
+**A defect only `pnpm build` could see, in six of seven panels.** `WriteControl`'s enabled branch
+renders `<Button onClick={onAct}>`, so a server component rendering an `allow(...)` decision hands
+a function across the client boundary. Every one of the six was green on its own unit and
+component suites — a component suite mounts the component, and the boundary exists only in a
+build. **The build stops at the first failing route**, so they were found by counting the shape
+across all seven rather than by rebuilding six times.
 
-**Slice 7 is CLOSED as a build.** All twenty of its build tasks landed: wave 0's six shared
-representations, twelve module transcriptions, the wiring into six destinations, the
-categorical-absence sweep over `out/`, and the slice gates. **539 cells across twelve
-matrices**, every cell parsed out of its own blueprint line by the suite that checks it.
-Task 21 — verification and whole-branch review — is running: an independent reviewer is over
-`git diff 717e2cd..HEAD` now.
+**Marking the shared control instead turns one broken route into seven**, because all seven panels
+pass `onAct` and those passes are server-to-server only while the control is a server component.
+The boundary belongs at the caller that needs interactivity — which three Hub screens and the
+fallback disclosure had each already worked out alone. **A trap solved one caller at a time is a
+trap nobody has named.**
 
-**`pnpm verify` is green end to end** on the current bytes: typecheck, lint, gate ordering
-(16 release gates, all audited), registry freshness, unit **3273/3273**, component
-**2199/2199**, release **548/548**, build, and **467/467** Playwright including all 365
-accessibility checks. That is the first end-to-end green of this session, and it required
-fixing six accessibility failures that only existed once the modules were composed onto
-routes.
+**Five tasks independently wrote a gate forbidding `'use client'` and all five were wrong.** The
+defect they meant to catch is a client module **exporting plain data** a server component reads,
+whose strings return `undefined` at prerender. Rewritten to check what a client file *exports*,
+the gate immediately caught a real one. **A gate that forbids a mechanism rather than a misuse of
+it will eventually forbid the fix.**
 
-**Slice 8 wave 0 is dispatched** — tasks 1 to 4 of 22. Task 5 is held until the slice-7 review
-returns, because it edits `src/frontline/commands.ts`, which slice 7 committed and three
-suites pin.
+**A component reachable from nothing is not shipped.** `SecondTreatmentDisclosure.tsx` — §36.6's
+`MOD-CC-10` treatment carrying all four divergences, the best disclosure slice 8 produced — was
+imported by no page and no component test from slice 8 until slice 9's wave 2. `cc-02`'s absence
+from any route was **declared** in `CC_SEAMS`; this one's was not. **A stated abstention and an
+oversight look identical from outside**, which is why the abstention has to be stated. Every task
+now reports its own reachability from `app/`.
 
-| slice 8 wave-0 task | owns |
-|---|---|
-| 1 `SURF-CC` spine | `src/surfaces/cc/**`, `tests/unit/cc-spine.test.ts` |
-| 2 modes and classes | `src/offline/modes.ts`, `capability.ts`, two unit suites |
-| 3 honesty kernel | `src/honesty/**`, `tests/coverage/offline-phrasing.test.ts`, one unit suite, its gate-ordering entry |
-| 4 fallback contracts | `src/fallbacks/**`, `tests/unit/fallback-contracts.test.ts` |
-| — reviewer | read-only over slice 7's whole diff |
+### Forty-three controller brief errors, and the four shapes they take
 
-Briefs: `docs/superpowers/plans/2026-08-22-slice-08-common-brief.md` (durable) and
-`.superpowers/sdd/2026-08-22-slice-08/briefs/` (working, git-ignored by design).
+Every one was found by an agent opening the line. They are recorded in the slice-8 and slice-9
+common briefs with the line each was checked against.
 
-**Remaining after slice 8: slices 9 to 13 — 21 + 15 + 22 + 24 + 22 = 104 dispatched tasks** —
-then the whole-build gap audit, then the closing blueprint-against-code audit repeated until
-nothing remains. **`SURF-CC` is the one surface with nothing built**, which is why slice 8's
-task 1 creates its spine.
+1. **Counts inferred from spans.** Five module card spans ended on a blank line, taken from a table
+   of starts rather than by reading to each section's close.
+2. **Paraphrases presented as quotations.** The costliest dropped a third of a sentence — "both
+   device timestamps" for "Both device timestamps **and server receipt**" — and a model built to it
+   renders two of three **and passes any check written from the same sentence.**
+3. **Wrong subject, right-looking identifier.** `DEC-CCFORM-001` was named as governing report
+   delivery; it is browser support and viewport. **`CCFORM` is form factor, not report format.**
+4. **Claims that contradicted their own evidence.** One sentence said "three different statuses"
+   above a list of two. One correction of a span error **committed the same span error**.
 
-**Coverage, measured from the generated registries — regenerate rather than quote this.**
+**Three times a controller check nearly overturned a correct agent finding by truncating a line.**
+The rule is not "usually read the whole line".
 
-```
-236 / 4,948 items demonstrated
-modules 56/81 · workflows 80/724 · ai-storyboards 68/613 · functions 14/990
-business-objects 7/99 · actionable-controls 4/608 · business-use-cases 2/330
-notifications 2/261 · scheduled-work 2/67 · features 1/534
-sub-features 0/526 · offline-scenarios 0/70 · events 0/28 · commands 0/17
-```
+### Where the source contradicts itself, at slice 9's scale
 
-**Six of the twelve Frontline modules are credited and the other six cannot be.** The registry
-awards a route to one module, by slug claim or by argmax over the module ids a route's files
-name. Five of the six Run Player modules own no route by construction — `AC-FL-010-2` (L40046)
-makes capture, coaching, deviation, handover and sign-off states of that route rather than
-destinations. **The registry has no way to say "demonstrated as a panel" and is not being
-taught one to flatter the number.** The evidence is in the built tree: all six panels render on
-`out/frontline/run-player/index.html` under their own module ids. That delta belongs in the
-§6.2 criterion 11 reconciliation, stated rather than closed.
+**Six tables answer the same permission question** — §21.1.2, §21.16, §25.4, §26.7, `MTX-TEN-02c`
+(chapter 17), and the module-to-actor concentration table, which answers **by omitting the Tenant
+Admin entirely**. The brief said four and said no decision identifier existed; **`DEC-TACC-001`
+exists**, with a card at L23069 and a register row saying eleven module cells depend on it. Three
+tasks found that table independently.
 
-`functions`, `features` and `sub-features` remain join floors as recorded before: a row scores
-only when a shipped route directory names its identifier as a whole token.
+**The source states a count beside an enumeration that contradicts it, four times**: L48368 says
+three prohibitions and lists four; `MOD-CC-13`'s matrix states four absolute exclusions and carries
+none; L81763 says "the four sync items" of a range of five; L85155 calls an eleven-column table
+"the nine-column coordination table". **When the source states a count next to an enumeration,
+count the enumeration.**
+
+**And one contradiction has a mechanism, which is worth more than the contradiction.**
+`FEAT-CC-0603` names three different things because §25's inventory allocates exactly three
+features per module (thirty-nine for thirteen) while §21.9 specifies five for one of them — so its
+names run one identifier ahead and two features get no row at all.
 
 ## 9. The closing obligation
 
