@@ -297,3 +297,38 @@ directory enumeration cannot pass on an empty scan. 15. Verification.
 the repo: `cachedReadOnlyOffline` (L100427, L73774) and `queuedOffline` (L73774-L73776). L31515 records
 why the distinction matters — where they appear they describe **"the Frontline consequence of a Studio
 configuration, not a Studio user's own experience."**
+
+## Controller pre-verification — seven locators opened before the first dispatch
+
+Forty-three brief errors were found by agents opening lines in slice 9, so these were opened first.
+**Verified, whole line read:**
+
+- **`SCR-DOH-19` admits the Tenant Admin alone** — L48113 reads
+  `| SCR-DOH-19 | Notification policy | … | Tenant Admin | MOD-DOH-10 all features | …`. The C2 trap
+  is real: four `MOD-DOH-10` rows grant all five roles an act whose only screen admits one of them.
+- **`SCR-DOH-20` admits Read-only Auditor, Tenant Admin, Quality Manager** — L48114, and the
+  **Supervisor is absent**, which is the fourth locator of `DEC-AUDITSUP-001` and agrees with the
+  Ch19.13 reading.
+- **`MOD-DOH-10`'s matrix has 12 data rows** — header L28687, separator L28688, body L28689-L28700.
+  The Read-only Auditor's `Read-only` on "Acknowledge a notification" is row 11, **L28699**, as
+  claimed, and the Worker's cell on the same row is `Allowed with conditions — own notifications`.
+- **The `MOD-DOH-11` audit trap is verbatim as described.** L28865 gives the Quality Manager
+  `` `Explicitly prohibited` — scoped to Summary and run-state events only `` and L28866 gives the
+  same actor `Read-only` on exactly those events. **The Supervisor reads `Unavailable` on both**, and
+  the Read-only Auditor's cell on L28865 is `` `Read-only` — the same access as the Tenant Admin ``.
+- **45A.7 Matrix A: ten columns — one operation column and nine actors, five of them non-human**
+  (Scheduler Controller, Scheduled Execution Worker, Data-pipeline identity,
+  Artificial-intelligence scheduler identity, Integration identity), header L99233, body
+  L99235-L99256, **22 rows `PER-SCHED-01`…`PER-SCHED-22`**. Matrix B opens immediately after with the
+  sentence "Tenant roles hold no authority over the scheduling machinery."
+- **The Integration identity column is entirely `Not applicable — no integration schedule exists at
+  V1`**, and `notApplicable` **is** a member of the nine-member `PermissionOutcome` union
+  (`src/policy/decision.ts:31`) with a REQUIRED stated reason. So the union claim holds against the
+  widest matrix in the slice: **the column type is the gap, not the outcome union.**
+- **The nineteen notification states are named inline on one line**, L51605, opening "Sending is not
+  delivery; delivery is not opening; opening is not acknowledgement; acknowledgement is not the
+  business action." **Read that line to its end** — the hypothesis in task 3's table truncates it.
+
+**Still hypotheses, not checked by the controller:** every count in the thirteen-matrix table beyond
+`MOD-DOH-10`'s twelve, the 87/25 notification register split, the 35/24 scheduled-work registers, the
+capture and command vocabularies, and all decision locators except the four named above.
