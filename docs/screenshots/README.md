@@ -3,6 +3,13 @@
 `manifest.json` records one full-page capture per route in the static export — what it
 shows, which identifiers it names, and how large the capture is.
 
+## It is not part of `pnpm verify`
+
+`pnpm test:e2e` runs `--project=chromium` explicitly. Bare `playwright test` runs **every**
+project, which briefly put this ninety-second artefact build inside `verify` — and its cleanup
+step deleted this file along with the PNGs. Both are fixed; the capture is `pnpm screenshots` and
+nothing else invokes it.
+
 ## Regenerating
 
 ```

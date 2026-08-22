@@ -14,7 +14,7 @@
     "test:unit": "vitest run --project unit",
     "test:component": "vitest run --project component",
     "test:release": "vitest run --project release",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --project=chromium",
     "test:freshness": "vitest run --project release tests/coverage/registry-freshness.test.ts",
     "check:gate-ordering": "node scripts/check-gate-ordering.mjs",
     "verify": "pnpm typecheck && pnpm lint && pnpm check:gate-ordering && pnpm test:freshness && pnpm test:unit && pnpm test:component && pnpm build && pnpm test:release && pnpm test:e2e",

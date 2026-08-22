@@ -51,7 +51,7 @@
       "file": "coverage.png",
       "heading": "Coverage Dashboard",
       "identifiersOnPage": [],
-      "bytes": 265394
+      "bytes": 269533
     },
     {
       "route": "/coverage/actionable-controls/",
@@ -60,14 +60,14 @@
       "identifiersOnPage": [
         "SCR-FL-BLOCK-01"
       ],
-      "bytes": 4989889
+      "bytes": 5000310
     },
     {
       "route": "/coverage/ai-storyboards/",
       "file": "coverage-ai-storyboards.png",
       "heading": "AI Storyboards",
       "identifiersOnPage": [],
-      "bytes": 7511785
+      "bytes": 7523170
     },
     {
       "route": "/coverage/business-objects/",
@@ -78,28 +78,28 @@
         "MOD-STU-15",
         "MOD-STU-17"
       ],
-      "bytes": 1024632
+      "bytes": 1032689
     },
     {
       "route": "/coverage/business-use-cases/",
       "file": "coverage-business-use-cases.png",
       "heading": "Business Use Cases",
       "identifiersOnPage": [],
-      "bytes": 1551195
+      "bytes": 1564328
     },
     {
       "route": "/coverage/commands/",
       "file": "coverage-commands.png",
       "heading": "Commands",
       "identifiersOnPage": [],
-      "bytes": 217343
+      "bytes": 228445
     },
     {
       "route": "/coverage/events/",
       "file": "coverage-events.png",
       "heading": "Events",
       "identifiersOnPage": [],
-      "bytes": 227074
+      "bytes": 240441
     },
     {
       "route": "/coverage/features/",
@@ -617,7 +617,7 @@
         "MOD-STU-17",
         "MOD-STU-18"
       ],
-      "bytes": 3186342
+      "bytes": 3197167
     },
     {
       "route": "/coverage/functions/",
@@ -1445,7 +1445,7 @@
         "MOD-FL-B8",
         "MOD-FL-B9"
       ],
-      "bytes": 5579881
+      "bytes": 5592504
     },
     {
       "route": "/coverage/modules/",
@@ -1535,7 +1535,7 @@
         "MOD-STU-17",
         "MOD-STU-18"
       ],
-      "bytes": 817101
+      "bytes": 883033
     },
     {
       "route": "/coverage/notifications/",
@@ -1561,21 +1561,21 @@
         "MOD-STU-17",
         "MOD-STU-18"
       ],
-      "bytes": 2698085
+      "bytes": 2711179
     },
     {
       "route": "/coverage/offline-scenarios/",
       "file": "coverage-offline-scenarios.png",
       "heading": "Offline Scenarios",
       "identifiersOnPage": [],
-      "bytes": 421861
+      "bytes": 433199
     },
     {
       "route": "/coverage/scheduled-work/",
       "file": "coverage-scheduled-work.png",
       "heading": "Scheduled Work",
       "identifiersOnPage": [],
-      "bytes": 472463
+      "bytes": 485823
     },
     {
       "route": "/coverage/sub-features/",
@@ -1595,14 +1595,14 @@
         "MOD-FL-B8",
         "MOD-FL-B9"
       ],
-      "bytes": 2851791
+      "bytes": 2863463
     },
     {
       "route": "/coverage/workflows/",
       "file": "coverage-workflows.png",
       "heading": "Workflows",
       "identifiersOnPage": [],
-      "bytes": 6473932
+      "bytes": 6487089
     },
     {
       "route": "/frontline/",

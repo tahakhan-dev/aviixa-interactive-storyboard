@@ -54,6 +54,26 @@ describe('generated registries', () => {
     expect(load(slug).rows.length, slug).toBeGreaterThan(0)
   })
 
+  /**
+   * FAILS IF: a registry stops saying what its `sourceLine` actually is.
+   *
+   * The field's name implies a definition and its value is the FIRST MENTION —
+   * `Math.min` over the identifier index. Measured on one sample of thirty
+   * offline use-case rows, eighteen point at a group table, a diagram-reuse
+   * paragraph, or a neighbouring entry rather than at the entry that defines
+   * the identifier.
+   *
+   * The coverage pages put this number in front of a client, so the artefact
+   * states its own meaning. Planted: SOURCE_LINE_MEANING emptied in the
+   * generator; went red on all fourteen.
+   */
+  it.each(SLUGS)('%s says what its sourceLine is, and does not imply a definition', (slug) => {
+    const meaning = fresh(slug).sourceLineMeaning as string
+    expect(typeof meaning, slug).toBe('string')
+    expect(meaning, slug).toMatch(/FIRST MENTION/)
+    expect(meaning, slug).toMatch(/NOT necessarily the line that defines/)
+  })
+
   it.each(SLUGS)('%s says what its number counts', (slug) => {
     const r = load(slug)
     expect(typeof r.countedThing, slug).toBe('string')

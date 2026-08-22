@@ -405,10 +405,47 @@ function readIfPresent(read, path) {
   }
 }
 
+/**
+ * A LIVE PROBE IS NOT A SOURCE FILE. Same defect and same fix as
+ * `build-stu-module-reach.mjs`, found there first: the inversion check below
+ * refused a build naming a scratch file another process had planted seconds
+ * earlier to prove its own gate could fail.
+ *
+ * The ENOENT tolerance handles a probe that VANISHES mid-walk and does nothing
+ * about one that is still there — and a probe deliberately containing the very
+ * shape this script refuses is read as the thing it imitates.
+ *
+ * Fixed here at the same time rather than left for the next concurrent wave to
+ * hit: the two scripts share the walk, and a race fixed in one of two identical
+ * walks is a race that reappears under a different name.
+ */
+const PROBE_ENTRY_RE = /^\.zz-probe-(?:[a-z0-9-]+-)?\d+(?:\.json)?$/
+
+/**
+ * ONE PROBE THIS RUN MUST READ, NAMED BY THE PROCESS THAT PLANTED IT.
+ *
+ * Skipping every probe fixes the false positive and breaks the gate that
+ * proves this guard can fail: that gate's plant IS a probe directory, because
+ * `tests/probe-paths.ts` is how a test plants anything without a concurrent
+ * sibling tripping over it. Skip them all and the plant goes unread and the
+ * guard reports clean on a real inversion — trading a false positive for a
+ * false negative, which is the worse of the two.
+ *
+ * The script cannot tell its own probe from a stranger's, because it did not
+ * plant either. So the caller says which one is its own. `isForeignProbe(entry,
+ * own)` in `tests/probe-paths.ts` makes exactly this distinction on the test
+ * side; this is the same distinction across a process boundary, and it is
+ * explicit rather than inferred — no heuristic on pids or timestamps could tell
+ * a planter's probe from a stranger's, and a wrong guess here either hides an
+ * inversion or refuses a correct build.
+ */
+const OWN_PROBE = process.env.AVIIXA_REACH_INCLUDE_PROBE ?? null
+
 function srcFiles(dir, acc = []) {
   const entries = readIfPresent((d) => readdirSync(d, { withFileTypes: true }), dir)
   if (entries === null) return acc
   for (const entry of entries) {
+    if (PROBE_ENTRY_RE.test(entry.name) && entry.name !== OWN_PROBE) continue
     const full = join(dir, entry.name)
     if (entry.isDirectory()) srcFiles(full, acc)
     else if (/\.tsx?$/.test(entry.name)) acc.push(full)

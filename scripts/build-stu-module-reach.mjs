@@ -204,10 +204,54 @@ function readIfPresent(read, path) {
   }
 }
 
+/**
+ * A LIVE PROBE IS NOT A SOURCE FILE, and this walk read one as a real
+ * violation.
+ *
+ * The inversion check below refused a build naming
+ * `src/studio/.zz-probe-stu-reach-50935/probe.ts -> ../../../app/studio/StudioShell`.
+ * That directory belonged to another process's plant campaign, running at the
+ * same moment: a scratch file that exists to prove a gate can fail, planted and
+ * removed within seconds.
+ *
+ * The ENOENT tolerance above handles a probe that VANISHES mid-walk. It does
+ * nothing about one that is still there — and a probe deliberately containing
+ * the very shape this script refuses will be read as the thing it is imitating.
+ * This is the exact race `tests/probe-paths.ts` was written to close, occurring
+ * in a script rather than a test, which is why it had not been closed here.
+ *
+ * The pattern is `tests/probe-paths.ts`'s `FOREIGN_PROBE_ENTRY` and
+ * `build-registries.mjs`'s `PROBE_DIR_RE`, restated because a `.mjs` script
+ * cannot import the TypeScript one. Kept identical on purpose; a third spelling
+ * that drifts is worse than the duplication.
+ */
+const PROBE_ENTRY_RE = /^\.zz-probe-(?:[a-z0-9-]+-)?\d+(?:\.json)?$/
+
+/**
+ * ONE PROBE THIS RUN MUST READ, NAMED BY THE PROCESS THAT PLANTED IT.
+ *
+ * Skipping every probe fixes the false positive and breaks the gate that
+ * proves this guard can fail: that gate's plant IS a probe directory, because
+ * `tests/probe-paths.ts` is how a test plants anything without a concurrent
+ * sibling tripping over it. Skip them all and the plant goes unread and the
+ * guard reports clean on a real inversion — trading a false positive for a
+ * false negative, which is the worse of the two.
+ *
+ * The script cannot tell its own probe from a stranger's, because it did not
+ * plant either. So the caller says which one is its own. `isForeignProbe(entry,
+ * own)` in `tests/probe-paths.ts` makes exactly this distinction on the test
+ * side; this is the same distinction across a process boundary, and it is
+ * explicit rather than inferred — no heuristic on pids or timestamps could tell
+ * a planter's probe from a stranger's, and a wrong guess here either hides an
+ * inversion or refuses a correct build.
+ */
+const OWN_PROBE = process.env.AVIIXA_REACH_INCLUDE_PROBE ?? null
+
 function sourceFiles(dir, acc = []) {
   const entries = readIfPresent((d) => readdirSync(d, { withFileTypes: true }), dir)
   if (entries === null) return acc
   for (const entry of entries) {
+    if (PROBE_ENTRY_RE.test(entry.name) && entry.name !== OWN_PROBE) continue
     const full = join(dir, entry.name)
     if (entry.isDirectory()) sourceFiles(full, acc)
     else if (/\.tsx?$/.test(entry.name)) acc.push(full)

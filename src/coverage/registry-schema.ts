@@ -88,6 +88,17 @@ export const GeneratedRegistrySchema = z
   .object({
     slug: z.string().min(1),
     countedThing: z.string().min(9),
+    /**
+     * What each row's `sourceLine` actually holds — the FIRST MENTION of the
+     * identifier anywhere in the frozen source, not the line that defines it.
+     *
+     * Required rather than optional, and stated in the artefact rather than
+     * only in a comment, because the coverage pages put that number in front
+     * of a client and the field's name implies a definition it does not
+     * carry. Measured on one sample of thirty rows, eighteen point at a group
+     * table, a diagram paragraph, or a neighbouring entry.
+     */
+    sourceLineMeaning: z.string().min(40),
     reconciledCount: z.number().int().nonnegative().nullable(),
     rawCount: z.number().int().nonnegative(),
     dedupRule: z.string().min(1).nullable(),

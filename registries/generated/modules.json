@@ -735,5 +735,6 @@
       "purpose": "Derived Studio module: authoring grant layered on Supervisor or Quality Manager.",
       "sourceClass": "derived"
     }
-  ]
+  ],
+  "sourceLineMeaning": "The FIRST MENTION of the identifier anywhere in the frozen source, computed as the minimum of registries/raw/identifier-index.json's line list for that id. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation."
 }

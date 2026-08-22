@@ -72,8 +72,43 @@ function sortById(rows) {
   return [...rows].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
 }
 
+/**
+ * WHAT `sourceLine` ACTUALLY HOLDS, SAID IN THE ARTEFACT ITSELF.
+ *
+ * It is `Math.min(...)` over the identifier index's line list — **the first
+ * mention of the identifier anywhere in the frozen source, not the line that
+ * defines it.** The name implies a definition and the value is not one.
+ *
+ * Measured on one sample of thirty offline use-case rows, **eighteen point at
+ * a group table, a diagram-reuse paragraph, or a neighbouring entry**:
+ * `UC-OFF-070`'s reads L81212, which is the reuse rule, and `UC-OFF-059`'s
+ * reads L81651, which is `UC-OFF-058`'s entry.
+ *
+ * This is not a wrong citation in the sense `locator-fidelity` catches — the
+ * line exists and does mention the identifier — but a reader who follows it
+ * lands somewhere that does not define what they looked up, and the coverage
+ * pages put this number in front of a client.
+ *
+ * NOT FIXED BY RENAMING THE FIELD, and that is a deliberate call rather than
+ * deferral: `sourceLine` appears 549 times across this tree and almost all of
+ * them are modules' own hand-verified locators, which are a different and
+ * stronger thing. A sweeping rename would cross into files other tasks own and
+ * would blur the one distinction worth keeping — a module's `sourceLine` was
+ * opened and read; a registry's was computed from an index.
+ *
+ * Fixed instead where a reader meets it: every generated registry now states
+ * what its own number is.
+ */
+const SOURCE_LINE_MEANING =
+  'The FIRST MENTION of the identifier anywhere in the frozen source, computed as the minimum ' +
+  'of registries/raw/identifier-index.json\'s line list for that id. It is NOT necessarily the ' +
+  'line that defines the identifier: a group table, a diagram, or a neighbouring entry that ' +
+  'cross-references it will often come first. Follow it as a starting point, not as a ' +
+  'definition. Where a module in src/ carries its own locator for the same identifier, that one ' +
+  'was opened and read against the source and is the stronger citation.'
+
 function writeRegistry(registry) {
-  const out = { ...registry, rows: sortById(registry.rows) }
+  const out = { ...registry, sourceLineMeaning: SOURCE_LINE_MEANING, rows: sortById(registry.rows) }
   writeFileSync(join(OUT_DIR, `${out.slug}.json`), JSON.stringify(out, null, 2) + '\n')
   console.log(`Wrote ${out.rows.length} rows to ${out.slug}.json`)
   return out

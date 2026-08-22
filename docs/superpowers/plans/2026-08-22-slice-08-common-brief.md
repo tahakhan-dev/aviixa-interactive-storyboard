@@ -838,3 +838,76 @@ the identifier — but **it is not the definition**, and a reader following it l
 does not define what they looked up. Every module in this build opens its own locators instead,
 which is why it has not bitten; it is recorded here as a known weakness of the generated
 inventories rather than of the modules.
+
+### Wave 4, task 18 — the twenty-first brief error, and two guards that hid each other
+
+**21. "Sum of ranges = 71" was right about the mechanism and wrong about the outcome.** Counted by
+**entry heading** rather than by span, **every one of the seven groups holds exactly ten and the
+catalogue holds seventy.** Group E's *span* mentions eleven identifiers; only ten have headings
+there, and the eleventh — `UC-OFF-036` at **L81532** — is named inside `UC-OFF-042`'s body and not
+even in its metadata clause. **There is no group that is not ten.**
+
+Both wave-4 tasks reached the same fact from opposite ends and neither had to be told. The lesson
+is the one the brief already carried and got wrong itself: **a span scan and a heading scan answer
+different questions, and only one of them is about ownership.**
+
+### TWO GUARDS THAT EACH HID THE OTHER — the sharpest vacuity finding of the slice
+
+`permissionStatusesIn` carried two protections: a **longest-first vocabulary** so `Allowed with
+conditions` is matched before `Allowed`, and an **exact comparison** rather than a prefix test.
+
+- Reordering the vocabulary to put `Allowed` first, **alone** — green. Exactness caught it.
+- Relaxing `===` to `startsWith`, **alone** — green. Ordering caught it.
+- Removing **both** — red, on the one entry that grants the conditional and the plain form on the
+  same line.
+
+**Each guard made the other's plant pass, so a single-defect plant proved neither.** The module's
+comment first named ordering as the guard and then named exactness; both were half right, and only
+the third plant told them apart.
+
+**This is a new shape for the catalogue and it generalises:** redundant protections against the
+same defect cannot be verified one at a time. If you write two, plant the removal of each **and**
+of both. And a comment naming one of two guards as "the" guard is a claim the code does not make.
+
+The same task caught its own overclaim the same way: a note said "no file under `src/` is read by
+the registry generator", and the generator **does** read `src/**/modules.ts` for slug claims. The
+gate found it; the note was narrowed to the claim that survives.
+
+### The source's own reuse paragraph under-counts itself
+
+**L81454** enumerates five reusers of the `UC-OFF-032` diagram — `UC-OFF-031`, `UC-OFF-033`
+through `UC-OFF-035`, and `UC-OFF-037`. **Six entries declare that reuse:** `UC-OFF-040`
+(**L81494**) declares it and is absent from the sentence. Groups A, B and C's equivalent
+paragraphs (**L81306**, **L81354**, **L81404**) each enumerate all nine of their reusers exactly.
+**Only D's is short**, which is what makes it a defect rather than a convention.
+
+### Three more, all carried and none resolved
+
+- **`UC-OFF-001` never declares its own representative status.** Its metadata clause (**L81308**)
+  carries neither a reuse nor a representative marker; the other four representatives all do.
+  Its status is stated only in the group paragraph and the group table. Kept as
+  `declaredInOwnMetadata: false` rather than smoothed.
+- **Three permission lines carry no status token at all** — L81408, L81410, L81422 read only
+  `as \`UC-OFF-021\`.` and similar. Two readings of `AC-37A-005`, neither chosen: a
+  cross-reference inherits the referenced statuses, or a line with no status **is** the blank cell
+  the criterion forbids. Two further lines defer *and* add a status of their own, which is what
+  makes the first reading arguable at all.
+- **Six artificial-intelligence lines carry a bare "not applicable" with no reason**, where six
+  others on the same field carry one. `AC-37A-005` governs only the *permission* line — **widening
+  a criterion to a line it never names would be this build choosing its own scope**, so it is
+  recorded and not repaired.
+
+### A census that read 90 where 95 are, and why
+
+`UC-OFF-036` is the one entry whose fields **do not sit on its heading line** — its own diagram
+interrupts it and the rest resumes at **L81486**. The first extractor never opened that line and
+dropped five permission cells silently. **A per-entry scan that assumes one entry is one line is
+wrong exactly once in seventy**, and silently.
+
+### Union of the storyboard screens outside the "same small set"
+
+L81266 names eleven screens and says "Every entry draws on the same small set". The two catalogue
+tasks each found three outside it, and **they are different threes**: `SCR-FL-LOGIN-01`,
+`SCR-CC-CLEAR-01`, `SCR-CC-ALERT-01` from groups A-D; `SCR-CC-CLEAR-01`, `SCR-DOH-BANNER-01`,
+`SCR-SA-LIFECYCLE-01` from E-G. **The union is five**, and `SCR-SA-LIFECYCLE-01` occurs exactly
+once in all 122,241 lines.

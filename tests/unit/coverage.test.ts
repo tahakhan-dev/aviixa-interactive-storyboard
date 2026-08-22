@@ -33,8 +33,15 @@ describe('coverage descriptors', () => {
   })
 
   // Honest status vocabulary: nothing here reads as a production guarantee.
-  it('offers four statuses and none of them claims production capability', () => {
-    expect(COVERAGE_STATUSES).toHaveLength(4)
+  //
+  // Five since `mounted-in-another-screen` joined it. That status names the
+  // EVIDENCE like the other four — a route file imports the module directory —
+  // rather than a claim about completeness, which is what this case exists to
+  // keep out. It was added because the four could not tell a module that is
+  // built and on screen apart from one with no code at all, and both read
+  // `not-represented`; measured, that understated the build by seven modules.
+  it('offers five statuses and none of them claims production capability', () => {
+    expect(COVERAGE_STATUSES).toHaveLength(5)
     const joined = COVERAGE_STATUSES.join(' ')
     expect(joined).not.toMatch(/\bimplemented\b/)
     expect(joined).not.toMatch(/\bcomplete\b/)

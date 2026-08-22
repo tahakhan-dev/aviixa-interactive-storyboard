@@ -18,6 +18,11 @@ export const metadata: Metadata = { title: 'Coverage Dashboard' }
 
 const STATUS_TONE: Record<CoverageStatus, StatusTone> = {
   'demonstrated-in-storyboard': 'ok',
+  // `ok`, like a module that owns a screen, because it IS on screen — it
+  // mounts inside another module's. The distinction the dashboard draws is in
+  // the label and the icon, not in the tone: a reader should not read
+  // "mounted" as a lesser degree of built.
+  'mounted-in-another-screen': 'ok',
   'decision-blocked': 'attention',
   'not-applicable': 'neutral',
   'not-represented': 'stale',
@@ -27,6 +32,7 @@ const STATUS_TONE: Record<CoverageStatus, StatusTone> = {
 // "done", and this application has no backend to be done with.
 const STATUS_ICON: Record<CoverageStatus, string> = {
   'demonstrated-in-storyboard': '◆',
+  'mounted-in-another-screen': '◈',
   'decision-blocked': '⏸',
   'not-applicable': '—',
   'not-represented': '○',
@@ -34,6 +40,7 @@ const STATUS_ICON: Record<CoverageStatus, string> = {
 
 const STATUS_LABEL: Record<CoverageStatus, string> = {
   'demonstrated-in-storyboard': 'Demonstrated in storyboard',
+  'mounted-in-another-screen': 'Mounted in another module’s screen',
   'decision-blocked': 'Decision blocked',
   'not-applicable': 'Not applicable',
   'not-represented': 'Not represented',

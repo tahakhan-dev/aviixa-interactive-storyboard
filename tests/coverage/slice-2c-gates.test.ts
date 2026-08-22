@@ -161,6 +161,14 @@ describe('gate 1: count-scope honesty', () => {
         {
           slug: 'workflows',
           countedThing: 'extracted workflow records',
+          // Required since the generated registries began stating what their
+          // own `sourceLine` holds. Without it this case still threw — on the
+          // missing field, not on the refinement it names — so it stayed red
+          // for a plausible reason while no longer testing its own claim. A
+          // green-to-red change can hide a gate as thoroughly as the reverse.
+          sourceLineMeaning:
+            'The first mention of the identifier anywhere in the frozen source, not the line ' +
+            'that defines it.',
           reconciledCount: 432,
           rawCount: 725,
           dedupRule: 'x',

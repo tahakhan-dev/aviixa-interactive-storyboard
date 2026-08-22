@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { mkdirSync, writeFileSync, statSync, rmSync, existsSync } from 'node:fs'
+import { mkdirSync, writeFileSync, statSync, rmSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { exportedRoutes } from '../e2e/exported-routes'
 
@@ -52,8 +52,18 @@ test('captures every exported route and writes the manifest', async ({ page }) =
 
   test.setTimeout(routes.length * 4_000 + 60_000)
 
-  if (existsSync(OUT_DIR)) rmSync(OUT_DIR, { recursive: true, force: true })
+  /**
+   * DELETE THE CAPTURES, NOT THE DIRECTORY. The first form of this was
+   * `rmSync(OUT_DIR, { recursive: true })` and it deleted `README.md` — a
+   * committed file explaining what this directory is — along with the PNGs it
+   * meant to clear. A cleanup step that removes a directory removes everything
+   * anyone else put in it, and the only reason it was noticed is that `git
+   * status` showed the deletion before the next commit.
+   */
   mkdirSync(OUT_DIR, { recursive: true })
+  for (const entry of readdirSync(OUT_DIR)) {
+    if (entry.endsWith('.png')) rmSync(join(OUT_DIR, entry), { force: true })
+  }
 
   const rows: Record<string, unknown>[] = []
 

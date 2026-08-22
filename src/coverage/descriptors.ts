@@ -16,6 +16,23 @@
  */
 export type CoverageStatus =
   | 'demonstrated-in-storyboard'
+  /**
+   * The module owns no route and a route file IMPORTS its module directory.
+   * The source requires this shape — an action rail or surface chrome has no
+   * screen of its own and mounts inside another module's.
+   *
+   * It exists because the four statuses above it could not tell a module that
+   * is built and on screen apart from one with no code at all, and both read
+   * `not-represented`. Measured, that understated the build by seven modules,
+   * five of them ninety-nine source files between them, all five mounted in
+   * the Run Player and none of them named in its text — the route imports them
+   * by path, so a mention scan cannot see them.
+   *
+   * Like the other four it names EVIDENCE, not completeness: a route file
+   * imports the directory, which is checkable and is falsified the moment the
+   * import is removed.
+   */
+  | 'mounted-in-another-screen'
   | 'decision-blocked'
   | 'not-applicable'
   | 'not-represented'
@@ -31,6 +48,7 @@ export type CoverageStatus =
 // while still verifying every element is a valid `CoverageStatus`.
 export const COVERAGE_STATUSES = [
   'demonstrated-in-storyboard',
+  'mounted-in-another-screen',
   'decision-blocked',
   'not-applicable',
   'not-represented',

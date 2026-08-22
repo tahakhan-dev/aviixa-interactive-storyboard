@@ -854,9 +854,29 @@ function runGenerator(): { ok: boolean; output: string } {
   try {
     return {
       ok: true,
+      /**
+       * `AVIIXA_REACH_INCLUDE_PROBE` names the one probe directory the
+       * generator must READ rather than skip. It skips them by default because
+       * another process's scratch file carrying an `app/` import was read as a
+       * real inversion and refused a correct build; this case's plant IS a
+       * probe directory, so without naming it the plant goes unread and this
+       * gate passes on a real inversion.
+       *
+       * THIS COMMENT LIVES ABOVE THE CALL, NOT INSIDE IT, and that is not
+       * style. `registry-freshness`'s gate 2 reads 400 characters forward from
+       * each `exec` call looking for `AVIIXA_REGISTRY_OUT`; written inside the
+       * options object this comment pushed the redirect past that window and
+       * the gate reported this file as writing the committed registries. The
+       * window is a documented limit of that gate — and this is what hitting
+       * it looks like from the other side.
+       */
       output: execFileSync('node', ['scripts/build-stu-module-reach.mjs'], {
         encoding: 'utf8',
-        env: { ...process.env, AVIIXA_REGISTRY_OUT: GENERATOR_OUT },
+        env: {
+          ...process.env,
+          AVIIXA_REGISTRY_OUT: GENERATOR_OUT,
+          AVIIXA_REACH_INCLUDE_PROBE: PROBE_ENTRY,
+        },
       }),
     }
   } catch (err) {
