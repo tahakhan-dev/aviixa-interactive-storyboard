@@ -1065,3 +1065,66 @@ false of `sign-in`, and false for the reason worth keeping: it has two, on Front
 and that is precisely why no Command Center route may take the name.** Generalising the fix would
 have deleted the fact the original line existed to record. The gate is now per-slug and derived:
 `sign-in` → 2 directories → the screen owns no route; `cell-view` → 1 → it does.
+
+## SIX TABLES, NOT FIVE — and the sixth answers by silence
+
+`MOD-CC-12` found a **sixth** statement on the Tenant Admin question: the **module-to-actor
+concentration table** (L35241-L35255). Its row (**L35254**) names Supervisor, Quality Manager, a
+Plant Manager persona, the Read-only Auditor and the Worker — **and the Tenant Admin nowhere at
+all.**
+
+**A table that lists every other role and omits one is not silent by accident**, but it is not a
+token either. Recorded as its own kind of statement rather than folded into the five.
+
+Running total on one question: §21.1.2, §21.16, §25.4, §26.7, `MTX-TEN-02c`, and the concentration
+table. **The brief said four.**
+
+## `DEC-TACC-001` is a nineteenth identifier, and its own impact statement is too narrow
+
+`src/surfaces/cc/decisions/register.ts` carries **eighteen**, with its header's arithmetic stated
+as "16 + 1 + 1 = 18". `DEC-TACC-001` is `foreign` in that file's own vocabulary — chapter 21 never
+names it, chapter 17 raises it, and it governs eleven `MTX-TEN-02c` cells.
+
+**And the decision under-states its own reach.** L23069 names its affected cells as
+"`MTX-TEN-01` Client Command Center row, `MTX-TEN-02c` Tenant Admin column". **L38488 is neither**
+— it is the one place the source grants that role a *scoped, in-module* capability rather than a
+whole-module read. **A decision's own impact list is a claim like any other.**
+
+## `AC-CC-090`'s cousin: a card that says it has no open decision while naming three
+
+**L60832** reads `Not applicable — no open decision on this module` for `MOD-CC-12`, while §21.15
+names **`DEC-ROLE-001`** (L38612, L38641), **`DEC-PLUS-001`** (L38469, L38641) and
+**`DEC-NOSHIFT-001`** (L38519). Reported, not repaired.
+
+## A gate that could not fail TWICE, and the second failure is the instructive one
+
+A statement gate checked only the recorded **line numbers**, so rewriting a statement's text to
+`Explicitly prohibited` — **the value that erases the entire divergence** — stayed green.
+
+It was then changed to a **substring** check and **stayed green a second time**, because
+`Explicitly prohibited` occurs on that same line **in two other columns**. Statements now carry
+`column` + `headerLine` and are held to **exact equality against the header-keyed cell**.
+
+**A substring check on a table row is a check against the whole row, not the cell.** Prose is the
+only place a substring is the right instrument.
+
+## "An L-number was checked by four gates and a § label by none"
+
+Two section labels were wrong — the landing table is §21.1.3 not §21.1.4, and the concentration
+table is §21.1.5, **§21.1.6 does not exist** — and they were found **by reading, not by a gate**.
+
+This build has built elaborate machinery for line numbers and none at all for section labels, and
+they are the same kind of claim. **Anything a comment asserts about the source is checkable; the
+ones nobody checks are the ones nobody thought to.**
+
+## Two more from `MOD-CC-12`
+
+- **§21.16's own two tables name action 6 differently** — L38670 "Acknowledge and annotate the
+  **shift** handoff brief", L38687 "Acknowledge and annotate the handoff brief". Wave 0's split
+  into `authorityAction` and `matrixAction` is why nothing joins them by name.
+- **Action 6 is one act in three tables and two rows in this module** — §21.15 splits acknowledge
+  (L38486) and annotate (L38487) under two sub-features. **Every cell agrees on every persona;
+  what changes is the number of affordances.** The §36.6 decomposition shape again, left open.
+- **Rows 7 and 8 put the whole rule in the Tenant Admin cell and leave the other four bare**, and
+  row 8's note says *no such capability exists for any role* — **a universal prohibition stated in
+  one persona's cell.** Reading it as scoped to its column loses the rule.
