@@ -1,6 +1,11 @@
 import type { ScenarioRunId, TenantId, ObjectId } from './ids'
 import type { RoleId } from './roles'
 import type { SurfaceId } from './surfaces'
+import type {
+  NotificationState,
+  ScheduleDefinitionState,
+  ScheduleOccurrenceState,
+} from './vocabularies'
 
 /** An append-only record. Nothing in the product story ever edits one. */
 export interface LedgerRecord {
@@ -20,6 +25,36 @@ export interface Ledgers {
   readonly schedules: readonly LedgerRecord[]
 }
 
+/**
+ * THE TWO LEDGERS THAT CARRIED A LIFECYCLE AND NO VOCABULARY.
+ *
+ * `notifications` and `schedules` above are plain `LedgerRecord[]`, whose
+ * `payload` is `Record<string, unknown>` -- so before slice 10 a state on
+ * either of them was a bare string, and `sent` could be written where
+ * `delivered` was meant with nothing to notice. These two narrowings give the
+ * lifecycle reducers their vocabulary; they do not give them their machine,
+ * which is why neither adds a field beyond the state itself.
+ *
+ * `@/domain/vocabularies` holds the unions and the reasoning. Both are closed
+ * with a compile-time exhaustiveness check in both directions, so a twentieth
+ * notification state cannot be written here without being declared there.
+ */
+export type NotificationLedgerRecord = LedgerRecord & {
+  readonly payload: { readonly state: NotificationState }
+}
+
+/**
+ * A schedule record is about EITHER the rule or one moment the rule produced,
+ * never both, and the discriminant is which state field is present. The
+ * separation is the source's: a paused rule has not deleted the moments it
+ * already planned, and a failed moment does not mean the rule is broken.
+ */
+export type ScheduleLedgerRecord = LedgerRecord & {
+  readonly payload:
+    | { readonly definitionState: ScheduleDefinitionState }
+    | { readonly occurrenceState: ScheduleOccurrenceState }
+}
+
 /** A tenant's subscription tier: the entitlements it carries. IMPORTANT 3. */
 export interface TierDefinition {
   readonly entitlements: readonly string[]
@@ -29,6 +64,17 @@ export interface TierDefinition {
 export interface PlatformPartition {
   readonly featureControls: Readonly<Record<string, boolean>>
   readonly tiers: Readonly<Record<string, TierDefinition>>
+  /**
+   * DEVIATION severity -- the platform-side catalogue of Severity 1,
+   * Severity 2, Severity 3 and below, with tenant action bundles above the
+   * floor. NOT notification severity, which is a THIRD vocabulary and is a
+   * recommendation rather than a fact: see `NotificationSeverity` in
+   * `@/domain/vocabularies`. L73143 requires the three severity vocabularies
+   * be kept "separate in every data structure and every screen label",
+   * because letting a tenant's deviation action bundles reach notification
+   * escalation behaviour is something no source sentence permits. A
+   * notification severity never goes in this array.
+   */
   readonly severityCatalog: readonly string[]
   /** DEC-TAX-002: the seeded catalogue ships empty. The names are owed. */
   readonly seededJobTypes: readonly string[]
