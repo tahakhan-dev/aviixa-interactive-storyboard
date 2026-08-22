@@ -220,6 +220,12 @@ as a lesson twice and violated three times:
    the permanent record.
 3. `tests/unit/doh-{locations,tenant-lifecycle}.test.ts` given to a route-coverage fix and a
    false-claims fix at once.
+4. **A different shape, and it is the controller's own tool rather than a dispatch.** Slice 8
+   wave 1: `git add -A`, run to commit a brief correction while four agents were writing, swept
+   all four of their source files into three commits titled `docs(slice-08): …`. `812e323` is
+   the commit whose message describes wave 1 and it carries three files. Nothing was lost and
+   the tree verified green, but three diffs are described by subjects that do not name most of
+   their bytes. **The step: `git add <path>` — never `-A` — while any agent is running.**
 
 None caused a defect. All three were caught only because the controller checked the tree
 rather than assuming. **A lesson recorded three times and violated three times is not a
@@ -279,6 +285,20 @@ figure the controller supplied and found it wrong. Twice an execution claim did 
 survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
+
+**Slice 8 wave 1 complete — 8 of 22 tasks done.** Wave 0 (Command Center spine, 28 modes and
+7 capability classes, honesty kernel, 70 fallback contracts) and wave 1 (five-surface matrices,
+the 37-step protocol, conflict authority, quarantine and convergence) have landed. `pnpm verify`
+green end to end: unit 3515/3515, component 2199/2199, release 580/580, build, 467/467
+Playwright. Wave 2's three package briefs are written and ready to dispatch.
+
+**Nine brief errors found and verified across the two waves, every one the controller's.** The
+sharpest source finding: the hold-state claim is classified three different ways at three
+levels — `SoW Fact` on its own row at L80192, `Derived Clarification` for the table carrying it
+at L80233, and `DEC-FB-008` unresolved at L82477. That sentence decides whether a device write
+can lift a Severity 1 hold, so all three are carried and none is chosen.
+
+**Superseded, kept one slice for continuity:**
 
 **Slice 8 running, branch `slice-05-studio-authoring`** — slices 5, 6, 7 and 8 share it and it
 has **not** been merged to `main` (78 commits ahead). Slices 5, 6 and 7 are shipped.
