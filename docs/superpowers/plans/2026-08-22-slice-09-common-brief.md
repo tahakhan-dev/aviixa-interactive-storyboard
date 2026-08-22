@@ -1307,3 +1307,65 @@ rail.
 **Three suites now pin `THIS_SLICE = 8`**, so the fix must touch five files in one change. That is
 deliberate: the number moved the "second thing to keep in step" hazard one level up rather than
 removing it, and an atomic fix is the honest way to carry that.
+
+## Task 20's gates were reviewed and TWO COULD NOT FAIL — both proven by planting
+
+An independent reviewer took `82fd305` and returned CHANGES REQUIRED with green-after-plant
+transcripts. The controller re-read both load-bearing findings against the files and confirms them.
+They are worth recording because **both are new shapes** for this build's catalogue.
+
+**1. A gate keyed on a constructor's NAME rather than on the decision it produces.** Gate 10's
+discriminator for "this component reaches `WriteControl`'s enabled branch" is the literal token
+`allow(`. But `src/policy/decision.ts:260` shows `allow` is a nine-line wrapper over
+`decide('allowed', 'ALLOWED', …)`, so **a server component building the byte-identical allowed
+decision through `decide(`, through `evaluateAccess`, or receiving it as a prop is invisible to the
+gate** — and that is exactly the build-only client-boundary defect six of seven panels shipped. The
+reviewer turned one `deny(...)` in `cc-04/DeviationWorkspace.tsx` into `decide('allowed', …)`: 2
+passed, 39 skipped. The `.toBe(6)` count guard did not move either, because the file never entered
+the population. **A gate that names a function is a gate on today's spelling.**
+
+**2. A whitelist that omits the field its own subject uses.** Gate 2's `ADOPTION_FIELD` anchors eight
+exact names onto `[ \t]*\??:` with **no suffix wildcard** — while the sibling predicate in the
+absence sweep does carry `[A-Za-z]*`. `adopted` is not among the eight, and **four shipped disclosure
+record types on this surface declare exactly that field**: `src/surfaces/cc/live/model.ts:1072`,
+`cc-10/service.ts:291`, `cc-02/matrix.ts:542`, `cc-03/readings.ts:171`. All four hold refusals today,
+so **the tree is clean in substance and the gate meant to keep it that way is blind.** The reviewer
+rewrote `cc-10/service.ts`'s `DEC-PLUS-001` note into an adopted position — "Reading one is adopted by
+this build" — and all 54 tests across both suites stayed green. **A resolved divergence standing in a
+shipping disclosure record, with every gate happy, is the single failure this slice's discipline
+exists to prevent.**
+
+And one honesty correction: the audit verdict and `82fd305`'s own commit message say "the eighteen
+transcribed permission matrices". **Fifteen are transcribed and 161 of the 179 rows are read
+cell-by-cell** — §26.3's five, ten of the surface matrix's twenty and three of §25.4's thirteen are
+row-counted only. The test file states this correctly at its own lines 482-484; the registry entry
+and the commit message did not.
+
+## Two brief instructions were REFUSED with measurements, and both refusals were right
+
+Task 22 was given three items and returned one built and two refused. The controller re-verified both
+refusals before accepting them; **the brief was wrong both times.**
+
+**`CC_CLAIMED_SLUGS`' `readonly string[]` annotation stays.** The brief called it an annotation that
+"widens what `.filter(...).map(...)` already types more precisely". Backwards. `.map((m) => m.slug as
+string)` erases the `as const` literals and infers a **mutable** `string[]` — a probe asserting
+`const p: string[] = CC_CLAIMED_SLUGS` fails with `TS4104` today and **compiles once the annotation is
+dropped.** The annotation is the only thing keeping an in-place `.sort()` by any of eleven test files
+and two source files from corrupting every later reader in the same module graph, which is defect
+shape 1's exact silhouette.
+
+**`THIS_SLICE = 8` was not a one-line bump, and the brief's stop condition named the wrong
+directory.** Flipping it turns five tests red across five files — four outside that task's ownership —
+and because `CommandCenterShell`'s local `SeamNotice` returns **`null`** for a closed seam, it empties
+`cc-chrome-slot` on twelve of thirteen routes and the rail slot on six. `cc-shell.test.tsx:120-122`
+names that outcome as the failure in its own words: *a reviewer must meet a stated absence naming the
+module that owes the missing half — not an empty frame.* **The refusal produced the better artefact:**
+a second finding that `spine-status.ts`'s own `fixTouches` list is short by three files, so anyone
+performing the fix from that list leaves three tests red. It is task 22c's now, with the real path
+list.
+
+**And ten copies of one function carried a rule that was never true.** Ten of the thirteen
+`builtSlugs()` notes said the hoist was blocked because "`src/` is deliberately free of `node:fs`".
+`src/coverage/registry-loader.ts:1` imports `readFileSync`, and its header states the real, narrower
+rule: keep the Node-only reader in a **separate file** from the pure data a client component may
+import. **A false constraint, repeated thirteen times, prevented a one-file fix for a whole slice.**
