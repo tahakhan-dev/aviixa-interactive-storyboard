@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { render, screen } from '@testing-library/react'
 import { CommandCenterShell } from '@/surfaces/cc/shell/CommandCenterShell'
 import { CC_NAV, ccScreen } from '@/surfaces/cc/screens'
 import { CC_SEAMS, ccSeamStatus } from '@/surfaces/cc/seams'
+import { CC_SPINE_SEAM_VERDICTS } from '@/surfaces/cc/seams/spine-status'
 
 /**
  * THE `SURF-CC` SHELL, RENDERED.
@@ -114,22 +117,50 @@ describe('the rail offers a link only for a route that exists', () => {
   })
 })
 
-describe('the two mount points render their seams until a module fills them', () => {
-  // FAILS IF: a mount point goes blank. Both seams are open and owned by
-  // slice 9, so a reviewer must meet a stated absence naming the module that
-  // owes the missing half — not an empty frame.
-  // PLANTED: changed `sync-state-chrome-host`'s `ownerSlice` from 9 to 8 in
-  //          `src/surfaces/cc/seams.ts` (wave 0's file — reported, restored,
-  //          not kept), which closes the seam and drops the notice.
-  // RED: sync-state-chrome-host is open: expected 'closed' to be 'open'.
-  it('renders an open seam in each slot, with the owing module named', () => {
+describe('the two mount points state an absence only while there is one', () => {
+  // WHAT THIS GATE USED TO SAY, AND WHY IT IS THE OPPOSITE NOW. Its
+  // predecessor asserted `ccSeamStatus(seam)).toBe('open')` and then read the
+  // notice, on the reasoning that "a reviewer must meet a stated absence
+  // naming the module that owes the missing half — not an empty frame". That
+  // reasoning holds for an OPEN seam and inverts for a closed one: slice 9
+  // built both owning halves, and the assertion kept "Until that board exists
+  // there is no host" on twelve of the thirteen Command Center pages, on the
+  // surface that ships the board. The notice on a closed seam is the empty
+  // frame's opposite defect — an absence asserted where there is none.
+  //
+  // FAILS IF: a seam whose owning half is built and reached renders its
+  // absence notice again. The verdict record is the substance check and
+  // `tests/unit/cc-seams.test.ts` opens each piece of its evidence; this gate
+  // is the rendered consequence of it.
+  // PLANTED: reverted `const THIS_SLICE = 9` to 8 in src/surfaces/cc/seams.ts.
+  // RED: sync-state-chrome-host: its owning half is built, so no absence may
+  //      be drawn for it: expected 'open' to be 'closed'.
+  it('draws no absence for a seam whose owning half is built', () => {
     render(<CommandCenterShell builtSlugs={ONE} />)
-    for (const seam of CC_SEAMS) {
-      expect(ccSeamStatus(seam), `${seam.id} is open`).toBe('open')
-      const notice = screen.getByTestId(`cc-seam-${seam.id}`)
-      expect(notice.textContent).toContain(seam.owningModule)
-      expect(notice.textContent).toContain(seam.consumingModule)
+    // NON-VACUITY, TWO WAYS. The verdicts cover every registered row, so the
+    // loop cannot be empty; and both mount points are asserted PRESENT, so
+    // "no notice" cannot be satisfied by the shell rendering no slots at all.
+    expect(CC_SPINE_SEAM_VERDICTS.length).toBe(CC_SEAMS.length)
+    expect(screen.getByTestId('cc-chrome-slot')).not.toBeNull()
+    expect(screen.getByTestId('cc-action-rail-slot')).not.toBeNull()
+    for (const verdict of CC_SPINE_SEAM_VERDICTS) {
+      const seam = CC_SEAMS.find((s) => s.id === verdict.id)!
+      expect(verdict.owningHalfBuilt, verdict.id).toBe(true)
+      expect(
+        ccSeamStatus(seam),
+        `${verdict.id}: its owning half is built, so no absence may be drawn for it`,
+      ).toBe('closed')
+      expect(screen.queryByTestId(`cc-seam-${seam.id}`), `${seam.id} still draws an absence`).toBeNull()
     }
+    // AND THE MECHANISM IS STILL THERE, so a silent slot means "closed" and
+    // not "the notice was deleted". Both the status guard and the fallback
+    // are read out of the shell's own source.
+    const shell = readFileSync(
+      join(process.cwd(), 'src', 'surfaces', 'cc', 'shell', 'CommandCenterShell.tsx'),
+      'utf8',
+    )
+    expect(shell).toContain("if (ccSeamStatus(seam) === 'closed') return null")
+    expect(shell).toContain('{seam.whatIsMissing}')
   })
 
   // FAILS IF: a supplied mount steps on the seam notice or is dropped. This is

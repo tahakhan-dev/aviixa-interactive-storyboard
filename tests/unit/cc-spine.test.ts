@@ -671,16 +671,37 @@ describe('the two roles excluded at the surface boundary', () => {
  * ==================================================================== */
 
 describe('the cross-slice seams', () => {
-  // FAILS IF: a seam is declared closed while its owner is still ahead of
-  // this slice, or a seam names a module that is not on the spine. `status`
-  // is derived from `ownerSlice`, so closing one means moving the slice
-  // number and nothing else.
-  // PLANTED: changed `operational-action-set`'s `ownerSlice` to 8.
-  // RED: operational-action-set -> expected 'closed' to be 'open'.
-  it('holds two open seams, both owned by slice 9', () => {
+  // FAILS IF: a row's owner slice has not been reached by the number the
+  // derivation compares against — which is what shipped: both rows named
+  // slice 9 and the number read 8, so both reported `open` on a tree where
+  // both owning halves had landed.
+  //
+  // ITS PREDECESSOR ASSERTED `.toBe('open')` FOR EVERY ROW. That was true
+  // when written and it is what held the defect in place, because it could
+  // only ever fail ON the correction. What is asserted here instead is that
+  // the derivation has reached both rows — `ownerSlice <= threshold`, with the
+  // threshold LOCATED by probing `ccSeamStatus` rather than spelled from the
+  // constant. Comparing the two sides of the same expression would be a
+  // tautology; comparing the rows against the threshold is not.
+  // PLANTED: reverted `const THIS_SLICE = 9` to 8 in src/surfaces/cc/seams.ts.
+  // RED: sync-state-chrome-host owns slice 9 and the derivation has only
+  //      reached 8, so it still reports open: expected 9 to be less than or
+  //      equal to 8.
+  it('holds two seams owned by slice 9, and the derivation has reached both', () => {
     expect(CC_SEAMS).toHaveLength(2)
+    // Where `ccSeamStatus` flips, asked rather than read.
+    const probe = CC_SEAMS[0]!
+    let threshold = 0
+    while (threshold < 30 && ccSeamStatus({ ...probe, ownerSlice: threshold + 1 }) === 'closed') {
+      threshold += 1
+    }
+    expect(threshold, 'ccSeamStatus closed nothing in 1..30').toBeGreaterThan(0)
+    expect(ccSeamStatus({ ...probe, ownerSlice: threshold + 1 }), 'not a threshold').toBe('open')
     for (const seam of CC_SEAMS) {
-      expect(ccSeamStatus(seam), seam.id).toBe('open')
+      expect(seam.ownerSlice, `${seam.id} is not reached by the derivation`).toBeLessThanOrEqual(
+        threshold,
+      )
+      expect(ccSeamStatus(seam), seam.id).toBe('closed')
       expect(seam.ownerSlice, seam.id).toBe(9)
       expect(() => ccModule(seam.consumingModule)).not.toThrow()
       expect(() => ccModule(seam.owningModule)).not.toThrow()

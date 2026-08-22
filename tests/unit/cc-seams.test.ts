@@ -47,6 +47,7 @@ import {
   SPINE_SEAMS_STALE,
   SPINE_SEAM_RULING,
 } from '@/surfaces/cc/seams/spine-status'
+import { CC_SEAMS, ccSeamStatus } from '@/surfaces/cc/seams'
 import { HUB_COMMAND_SPECS } from '@/surfaces/doh/objects'
 import { HUB_COMMAND_TYPES } from '@/domain/commands'
 import { DOH_MODULES } from '@/surfaces/doh/modules'
@@ -585,25 +586,130 @@ describe('seam 21 — one service, two callers', () => {
 })
 
 /* ==================================================================== *
- * THE SPINE'S SEAM REGISTRY — reported, not edited.
+ * THE SPINE'S SEAM REGISTRY — the derivation, not the number.
+ *
+ * ITS PREDECESSOR ASSERTED `toContain('const THIS_SLICE = 8')` AND THAT IS
+ * WHY THE DEFECT SHIPPED. The comment above it said it "FAILS THE DAY
+ * `THIS_SLICE` IS ADVANCED, which is the point" — the intent was right and a
+ * test that can only ever fail on the fix is not a gate, it is a lock. Four
+ * more assertions in four other files held the same shape, and between them
+ * they kept "Until that board exists there is no host" on twelve of thirteen
+ * Command Center pages for a whole slice, on the surface that ships the
+ * board.
+ *
+ * SO NOTHING BELOW NAMES THE CONSTANT'S VALUE. The threshold is LOCATED by
+ * probing the exported derivation, and what is asserted is the invariant the
+ * registry exists for: a seam whose owning half is built and reached may not
+ * report `open`. That statement is false the day the number falls behind
+ * again and true whatever the number is.
  * ==================================================================== */
 
-describe('the slice-8 seam registry still reports both its seams open', () => {
+/** The exported derivation, probed rather than read, so no literal is pinned. */
+function derivedThreshold(): number {
+  const row = CC_SEAMS[0]
+  const closedAt: number[] = []
+  for (let n = 1; n <= 30; n += 1) {
+    if (ccSeamStatus({ ...row, ownerSlice: n }) === 'closed') closedAt.push(n)
+  }
+  // A THRESHOLD, NOT A SET OF SPECIAL CASES: closed must be a prefix of 1..30,
+  // or `ccSeamStatus` is not the comparison it claims to be.
+  expect(closedAt, 'ccSeamStatus is not monotone in ownerSlice').toEqual(
+    closedAt.map((_, i) => i + 1),
+  )
+  expect(closedAt.length, 'ccSeamStatus closed nothing in 1..30').toBeGreaterThan(0)
+  return closedAt.length
+}
+
+describe('the seam registry reports a seam closed once its owning half is built', () => {
   /**
-   * FAILS THE DAY `THIS_SLICE` IS ADVANCED, which is the point: this file's
-   * ruling and the two on-screen notes must be removed in the same change
-   * that makes them false. `tests/unit/cc-10.test.ts` holds the same pin for
-   * the second seam; this one covers both and says why the first was never
-   * reported.
+   * THE INVARIANT, AND IT IS THE ONE THAT WAS BROKEN. Every verdict in the
+   * spine record names a seam whose owning half this build has and reaches;
+   * the test below opens each piece of that evidence. So every one of them
+   * must report `closed`, and `SPINE_SEAMS_STALE` — reported open while the
+   * half is built — must be empty.
+   *
+   * FAILS IF: the slice number falls behind any row's `ownerSlice` again, in
+   * either direction — a row closed before its owner slice arrives fails the
+   * threshold comparison, and a row still open after it fails this one.
    */
-  it('derives open from a slice number nobody advanced, and both owning halves are built', () => {
+  it('closes every seam whose owning half is built, and stales nothing', () => {
+    const threshold = derivedThreshold()
+    // NON-VACUITY: the verdicts cover every registered row, so "all of them
+    // are closed" cannot be satisfied by there being none to check.
+    expect(CC_SPINE_SEAM_VERDICTS.length).toBe(CC_SEAMS.length)
+    expect([...CC_SPINE_SEAM_VERDICTS].map((v) => v.id).sort()).toEqual(
+      [...CC_SEAMS].map((s) => s.id).sort(),
+    )
+    for (const verdict of CC_SPINE_SEAM_VERDICTS) {
+      const seam = CC_SEAMS.find((s) => s.id === verdict.id)!
+      expect(verdict.owningHalfBuilt, verdict.id).toBe(true)
+      expect(seam.ownerSlice, `${verdict.id} owner slice`).toBeLessThanOrEqual(threshold)
+      expect(ccSeamStatus(seam), `${verdict.id} reports`).toBe('closed')
+    }
+    expect(SPINE_SEAMS_REPORTING_OPEN).toEqual([])
+    expect(SPINE_SEAMS_STALE).toEqual([])
+    // AND THE DERIVATION IS STILL A DERIVATION. A stored status field is the
+    // hazard this registry removed once and this file exists because of.
     const spine = read('src', 'surfaces', 'cc', 'seams.ts')
-    expect(spine).toContain('const THIS_SLICE = 8')
     expect(spine).toContain('return seam.ownerSlice <= THIS_SLICE')
-    expect(SPINE_SEAM_RULING.declared).toBe(8)
-    expect(SPINE_SEAMS_REPORTING_OPEN).toEqual(['sync-state-chrome-host', 'operational-action-set'])
-    expect(SPINE_SEAMS_STALE).toEqual([...SPINE_SEAMS_REPORTING_OPEN])
-    expect(CC_SPINE_SEAM_VERDICTS.every((v) => v.owningHalfBuilt)).toBe(true)
+    expect(spine, 'status is stored beside ownerSlice again').not.toMatch(
+      /^\s*status: '(open|closed)'/m,
+    )
+  })
+
+  /**
+   * THE PROSE, WHICH IS THE HALF A ONE-CHARACTER BUMP LEAVES BEHIND. Both
+   * `whatIsMissing` strings were written in the present tense of an absent
+   * half, and `MOD-CC-10`'s panel prints its row's string unconditionally, so
+   * closing the seams without rewriting them swaps a false status for false
+   * prose under a true one. The phrases below are the exact clauses the rows
+   * carried while they were open.
+   *
+   * FAILS IF: a closed row still speaks of its half as absent — which is what
+   * shipped, and what a bump of the constant alone would have left shipping.
+   */
+  it('writes a closed row in the tense of its status rather than of its absence', () => {
+    const ABSENT_TENSE = [
+      'Until that board exists there is no host',
+      'has neither a module nor a screen in this slice',
+      'the chrome has nowhere to be',
+    ] as const
+    const registry = read('src', 'surfaces', 'cc', 'seams.ts')
+    // NON-VACUITY FOR A LIST OF ABSENCES: a `not.toContain` over a mistyped
+    // clause passes for the wrong reason, so the same matcher is first shown
+    // finding a clause this registry does carry.
+    expect(registry, 'the positive control is missing, so the absences prove nothing').toContain(
+      'landed in this slice',
+    )
+    for (const clause of ABSENT_TENSE) expect(registry).not.toContain(clause)
+    for (const seam of CC_SEAMS) {
+      const closed = ccSeamStatus(seam) === 'closed'
+      for (const clause of ABSENT_TENSE) {
+        expect(seam.whatIsMissing.includes(clause) && closed, `${seam.id}: "${clause}"`).toBe(false)
+      }
+      // The positive half: a closed row names what closed it.
+      if (closed) expect(seam.whatIsMissing, seam.id).toMatch(/landed in this slice/)
+    }
+  })
+
+  /** The record of the interval is kept, and marked historical rather than current. */
+  it('keeps the account of the slice both seams spent misreported', () => {
+    expect(SPINE_SEAM_RULING.declaredWhenReported).toBe(8)
+    expect(SPINE_SEAM_RULING.advancedTo).toBe(derivedThreshold())
+    expect(SPINE_SEAM_RULING.advancedTo).toBeGreaterThan(SPINE_SEAM_RULING.declaredWhenReported)
+    // The fix list was short by exactly three and the successor is the eight
+    // the fix touched. Each is a real path.
+    expect(SPINE_SEAM_RULING.fixTouches).toHaveLength(8)
+    for (const p of SPINE_SEAM_RULING.fixTouches) {
+      expect(statSync(join(REPO, p)).isFile(), p).toBe(true)
+    }
+    for (const late of [
+      'tests/unit/cc-spine.test.ts',
+      'tests/component/cc-shell.test.tsx',
+      'tests/component/cc-10.test.tsx',
+    ]) {
+      expect(SPINE_SEAM_RULING.fixTouches, `${late} was the omission`).toContain(late)
+    }
   })
 
   /** Each verdict's evidence opened, so neither is an assertion. */

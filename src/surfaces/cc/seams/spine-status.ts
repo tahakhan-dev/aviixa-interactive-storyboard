@@ -1,30 +1,46 @@
-import { CC_SEAMS, ccSeamStatus, type CcSeamId, type CcSeamStatus } from '@/surfaces/cc/seams'
+import { CC_SEAMS, ccSeamStatus, type CcSeamId } from '@/surfaces/cc/seams'
 
 /**
- * THE SPINE'S OWN SEAM REGISTRY REPORTS BOTH ITS SEAMS OPEN, AND BOTH ARE
- * NOW CLOSED IN SUBSTANCE. This file records that and changes nothing.
+ * BOTH SEAMS ARE CLOSED, AND THIS FILE IS THE RECORD OF THE SLICE THEY SPENT
+ * REPORTING OTHERWISE. It carried the finding while the number was stale; it
+ * carries the account now the number has moved. Nothing here is deleted on
+ * closure, because the interval is the whole thing worth keeping.
  *
- * `src/surfaces/cc/seams.ts` is slice 8's and this task owns no line of it.
- * Its `ccSeamStatus` derives status rather than storing it — `ownerSlice <=
- * THIS_SLICE` — which is the right shape and is the shape
- * `src/surfaces/doh/seams.ts` and `src/studio/seams.ts` already ship. What it
- * still has is one hand-maintained number: `THIS_SLICE`, declared 8, while
- * both of its rows name `ownerSlice: 9`. So both report `open`.
+ * ── WHAT WAS WRONG, IN ONE SENTENCE ───────────────────────────────────────
+ * `src/surfaces/cc/seams.ts` derives status rather than storing it —
+ * `ownerSlice <= THIS_SLICE` — which is the right shape and is the shape
+ * `src/surfaces/doh/seams.ts` and `src/studio/seams.ts` already ship. But it
+ * left one hand-maintained number, and for a whole slice that number read 8
+ * while both rows read `ownerSlice: 9`, so both reported `open` on a tree
+ * where both owning halves had shipped.
  *
- * ── THE VERDICT: STALE, NOT WRONG, AND NOT THIS TASK'S TO ADVANCE ─────────
- * The number is not a defect in the derivation; it is the derivation's one
- * input and the idiom is that the slice which closes a seam advances it. The
- * Hub's file shows the manoeuvre being performed: its `THIS_SLICE` reads 6
- * and its header walks each seam that closed at that number against what the
- * previous slice had recorded, because a seam closed without reading its
- * recorded expectation is a seam closed on a guess. Slice 9 closed both of
- * this surface's and no task in the slice owned the file, so nobody
- * performed it.
+ * REMOVING THE STORED `status` FIELD MOVED THE HAZARD RATHER THAN REMOVING
+ * IT. A second thing to keep in step will not be kept in step, and the slice
+ * number is a second thing to keep in step. What the derivation buys is that
+ * the number is ONE place and closing a seam is one edit — not that the edit
+ * makes itself. The idiom is that the slice which closes a seam advances it,
+ * the Hub's file shows the manoeuvre being performed at its own number, and
+ * no slice-9 task owned this surface's file, so nobody performed it.
  *
- * That is exactly the failure the file's own header warns about one level
- * down: a second thing to keep in step will not be kept in step. Removing
- * the stored `status` field and then storing the slice number moved the
- * hazard rather than removing it.
+ * ── THE COST, MEASURED ON THE EXPORT RATHER THAN INFERRED ─────────────────
+ * `CommandCenterShell`'s `SeamNotice` printed `whatIsMissing` for an open
+ * seam, and `whatIsMissing` is written in the present tense of an absent
+ * half. So "Until that board exists there is no host" printed on twelve of
+ * the thirteen Command Center pages — every one except the board that
+ * disproves it — and `MOD-CC-10`'s panel shipped one card saying the action
+ * set had neither a module nor a screen in this slice two sentences before
+ * saying this screen is one the rail mounts on. That is this build's defect
+ * shape 6: a state fold applied to one branch, so one card contradicts
+ * itself two paragraphs apart.
+ *
+ * ── WHY IT SURVIVED EVERY GATE, WHICH IS THE PART WORTH CARRYING ──────────
+ * Five files pinned the stale value, each by asserting either the literal
+ * source text `const THIS_SLICE = 8` or the literal status `open`.
+ * A test written that way can only ever fail ON THE FIX. The gate in
+ * `tests/unit/cc-seams.test.ts` said in its own comment that it "FAILS THE
+ * DAY `THIS_SLICE` IS ADVANCED, which is the point" — the intent was right
+ * and the implementation was the thing that hid the defect for a slice. The
+ * successors assert the derivation and the rendered consequence instead.
  *
  * ── WHY BOTH ARE CLOSED IN SUBSTANCE, EACH CHECKED SEPARATELY ─────────────
  * `sync-state-chrome-host` — `MOD-CC-02` is chrome with no screen of its
@@ -36,27 +52,26 @@ import { CC_SEAMS, ccSeamStatus, type CcSeamId, type CcSeamStatus } from '@/surf
  * `operational-action-set` — `MOD-CC-10` needed action 5 to belong to
  * `MOD-CC-13`'s closed set rather than to the panel. `MOD-CC-13` exists, its
  * control rail is `src/surfaces/cc/modules/cc-13/Cc13ActionRail.tsx`, and
- * the panel mounts it. `MOD-CC-10`'s own task reported this seam and pinned
- * the constant in `tests/unit/cc-10.test.ts` so its on-screen note cannot
- * outlive the condition it describes.
+ * the panel mounts it.
  *
- * THE SECOND SEAM WAS REPORTED BY THAT TASK; THE FIRST WAS NOT REPORTED BY
- * ANYONE, because the board's task and the chrome's task each saw only their
- * own half and neither had cause to read the registry's arithmetic. That is
- * the whole reason this file exists rather than a second copy of a note.
+ * THE SECOND SEAM WAS REPORTED BY `MOD-CC-10`'S OWN TASK; THE FIRST WAS
+ * REPORTED BY NOBODY, because the board's task and the chrome's task each saw
+ * only their own half and neither had cause to read the registry's
+ * arithmetic. That is the whole reason this file exists rather than a second
+ * copy of a note.
  *
- * ── WHAT WHOEVER FIXES IT HAS TO CHANGE IN THE SAME COMMIT ────────────────
- * Advancing `THIS_SLICE` to 9 turns both seams `closed`, stops
- * `CommandCenterShell`'s `SeamNotice` rendering either, and turns red both
- * the gate in `tests/unit/cc-10.test.ts` and the one in
- * `tests/unit/cc-seams.test.ts` that hold the constant at 8. That is the
- * design: the two on-screen notes and this record must be removed in the
- * same change that makes them false.
+ * ── THE ONE SHAPE THAT CHANGED HERE ──────────────────────────────────────
+ * A VERDICT USED TO STORE ITS OWN `reported: 'open'`, which is this file's
+ * whole subject committed one level down: it was a hand-written copy of an
+ * answer the registry already derives, and it would have gone on saying
+ * `open` after the fix with nothing to notice. The field is gone. A verdict
+ * now carries only what the registry cannot derive — whether the owning half
+ * is built, and the file that proves it — and the status comes from
+ * `ccSeamStatus`, through `SPINE_SEAMS_REPORTING_OPEN` and
+ * `SPINE_SEAMS_STALE`, which empty themselves.
  */
 export interface CcSpineSeamVerdict {
   readonly id: CcSeamId
-  /** What the registry reports today. */
-  readonly reported: CcSeamStatus
   /** Whether the owning half is built and reached, checked on its own terms. */
   readonly owningHalfBuilt: boolean
   /** The file that proves it, so the claim is openable. */
@@ -66,14 +81,12 @@ export interface CcSpineSeamVerdict {
 export const CC_SPINE_SEAM_VERDICTS = [
   {
     id: 'sync-state-chrome-host',
-    reported: 'open',
     owningHalfBuilt: true,
     evidence:
       'app/command-center/live-shift-board/page.tsx mounts MOD-CC-01 and fills the shell chrome prop with MOD-CC-02 components through src/surfaces/cc/modules/cc-01/BoardSyncChrome.tsx.',
   },
   {
     id: 'operational-action-set',
-    reported: 'open',
     owningHalfBuilt: true,
     evidence:
       'src/surfaces/cc/modules/cc-13/Cc13ActionRail.tsx exists and app/command-center/sync-conflict-review-panel/page.tsx mounts it, which is MOD-CC-10 exercising action 5 rather than implementing resolution.',
@@ -94,14 +107,27 @@ export const SPINE_SEAM_RULING = {
   file: 'src/surfaces/cc/seams.ts',
   ownedBy: 'slice 8',
   constant: 'THIS_SLICE',
-  declared: 8,
+  /** What the constant read while the finding stood. Historical, not current. */
+  declaredWhenReported: 8,
+  /** What it reads now, and the slice both rows name as their owner. */
+  advancedTo: 9,
   ruling:
-    'Stale, not wrong. The derivation is sound and its one input was never advanced, because the idiom is that the slice closing a seam advances the number and no slice-9 task owned the file. Reported, not edited.',
+    'Was stale, not wrong: the derivation was sound and its one input had never been advanced, because the idiom is that the slice closing a seam advances the number and no slice-9 task owned the file. Advanced to 9 in one change with the prose and the five pinning assertions, after each closure was checked against what the row had recorded rather than against the calendar alone.',
+  /**
+   * WHAT THE FIX ACTUALLY TOUCHED. This list held five files while the
+   * finding stood and was short by exactly three — `tests/unit/cc-spine.test.ts`,
+   * `tests/component/cc-shell.test.tsx` and `tests/component/cc-10.test.tsx`
+   * each pinned the stale value in their own form, so anyone performing the
+   * fix from the five left three suites red. Eight, measured by performing it.
+   */
   fixTouches: [
     'src/surfaces/cc/seams.ts',
     'src/surfaces/cc/modules/cc-10/service.ts',
-    'tests/unit/cc-10.test.ts',
     'src/surfaces/cc/seams/spine-status.ts',
     'tests/unit/cc-seams.test.ts',
+    'tests/unit/cc-spine.test.ts',
+    'tests/unit/cc-10.test.ts',
+    'tests/component/cc-shell.test.tsx',
+    'tests/component/cc-10.test.tsx',
   ],
 } as const

@@ -666,7 +666,7 @@ export const CC10_CLOCK_SKEW_LINK_OUT: CcLinkOutCell = (() => {
 export const CC10_LINK_OUT_VIEWER_ROLE: RoleId = 'QUALITY_MANAGER'
 
 /* ==================================================================== *
- * WHAT THIS SCREEN NOW MOUNTS, AND ONE SEAM THAT STILL READS OPEN.
+ * WHAT THIS SCREEN MOUNTS, AND THE SEAM THAT NOW AGREES WITH IT.
  * ==================================================================== */
 
 /**
@@ -674,31 +674,43 @@ export const CC10_LINK_OUT_VIEWER_ROLE: RoleId = 'QUALITY_MANAGER'
  * ten operational actions and names `MOD-CC-10` for 5. So this screen mounts
  * `MOD-CC-13`'s action rail, and does not implement resolution itself.
  *
- * THE SEAM REGISTRY STILL REPORTS THIS SEAM OPEN, AND IT IS NOT THIS TASK'S
- * TO CLOSE. `ccSeamStatus` derives status from `ownerSlice <= THIS_SLICE`,
- * and `src/surfaces/cc/seams.ts` still declares `THIS_SLICE = 8` while both
- * seams name `ownerSlice: 9`. `MOD-CC-13` has now landed — its rail is the
- * component mounted on this screen — so the derivation is stale rather than
- * wrong, and the file is another task's path. Reported, not edited; and the
- * panel says so on screen rather than rendering a contradiction silently.
+ * THE SEAM REGISTRY REPORTED THIS SEAM OPEN FOR A WHOLE SLICE WHILE THE RAIL
+ * WAS MOUNTED HERE. `ccSeamStatus` derives status from
+ * `ownerSlice <= THIS_SLICE`, and `src/surfaces/cc/seams.ts` declared the
+ * slice number one behind the slice both of its rows name as owner, so the
+ * derivation was stale rather than wrong. It has now been advanced, together
+ * with the row prose it made false and the five places that pinned the old
+ * value. The card below therefore says the seam agrees with the mount rather
+ * than that it contradicts it — which is what it said, two sentences after
+ * saying the action set had no screen in this slice.
+ *
+ * `seamStillReadsOpen` KEEPS ITS KEY NAME AND NO LONGER DESCRIBES ITS VALUE.
+ * The key is read by `SyncConflictReviewPanel.tsx`, which is not this
+ * change's file to edit; renaming it there and here is a rename, not a fix.
  */
 export const CC10_ACTION_RAIL_MOUNT = {
   railComponent: 'src/surfaces/cc/modules/cc-13/Cc13ActionRail.tsx',
   whyHere:
     'The interconnection line for the closed action set names this module for action 5, so this ' +
-    'screen is one of the seven the rail mounts on. MOD-CC-13 owns no route of its own: AC-CC-040 ' +
-    'forbids a fourteenth module route and the spine gives it no slug, so the rail can only ever ' +
-    'reach a client by mounting inside another module’s screen.',
+    'screen is one of the eight the rail mounts on. Eight screens, seven modules: the ' +
+    'interconnection line names seven modules, and MOD-CC-03 has two of these screens because ' +
+    'the cell view shows one of its features and is owned by no module at all. A count of ' +
+    'screens and a count of modules are different claims and this sentence used to make the ' +
+    'wrong one. MOD-CC-13 owns no route of its own: AC-CC-040 forbids a fourteenth module route ' +
+    'and the spine gives it no slug, so the rail can only ever reach a client by mounting inside ' +
+    'another module’s screen.',
   whyHereRef: 'L38793',
   whyNotTheOtherRail:
     'Two rails exist deliberately. src/surfaces/cc/actions/ActionRail.tsx is the module CARD and ' +
     'renders the two §21.16 tables as data; this is the control rail SB-16-02 draws, ten controls ' +
     'in three visual states. Neither is the other’s second spelling.',
   seamStillReadsOpen:
-    'The seam registry still reports the operational-action-set seam OPEN, because it derives ' +
-    'status from a slice number that has not been advanced past 8 while both of its rows name ' +
-    'slice 9 as their owner. MOD-CC-13 has landed and its rail is mounted above. The seam file is ' +
-    'not this module’s to edit, so the staleness is stated here rather than corrected there.',
+    'The seam registry now reports the operational-action-set seam CLOSED, and it agrees with ' +
+    'this screen: MOD-CC-13 has landed and its rail is mounted above. Status is derived from the ' +
+    'owning slice rather than stored, and for one slice the number it derives from was left one ' +
+    'behind, so this card read open beside the mounted rail. The interval is recorded in ' +
+    'src/surfaces/cc/seams/spine-status.ts rather than deleted, because a seam declared before ' +
+    'its half existed and then honoured is worth more than a row with no history.',
 } as const
 
 /**

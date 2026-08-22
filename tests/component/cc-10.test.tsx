@@ -1,12 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { render, screen, within } from '@testing-library/react'
+import { isForeignProbe } from '../probe-paths'
 import { SyncConflictReviewPanel } from '@/surfaces/cc/modules/cc-10/SyncConflictReviewPanel'
 import { CC10_COLUMNS, CC10_MATRIX } from '@/surfaces/cc/modules/cc-10/matrix'
 import {
   CC10_ACTION_5_STATEMENTS,
   CC10_DISCLOSURES,
+  CC10_SEAM,
   CC10_SECOND_TREATMENT,
 } from '@/surfaces/cc/modules/cc-10/service'
 import {
@@ -178,13 +180,83 @@ describe('SCR-CC-10 — open decisions and the seam are on screen, not only in a
     expect(L(14670)).toContain('the roles remain unordered and purely additive')
   })
 
-  it('names the owning module of the action set rather than resolving anything itself', () => {
+  /**
+   * ONE CARD, AND IT CONTRADICTED ITSELF TWO SENTENCES APART. Its predecessor
+   * asserted this paragraph contained `'open'`, which was true and was the
+   * thing that held the contradiction in place: the seam paragraph said the
+   * action set "has neither a module nor a screen in this slice" while the
+   * paragraph under it said this screen is one the rail mounts on — and the
+   * rail is mounted on this screen. This build's defect shape 6, rendered.
+   *
+   * SO THE TWO PARAGRAPHS ARE READ TOGETHER, which is how a client reads them.
+   * The status and the prose have to agree with the mount, and the clauses
+   * that only make sense while the half is absent may not appear at all.
+   *
+   * FAILS IF: the card reports the seam open beside the rail it mounts, or a
+   * closed row keeps prose written in the tense of an absent half.
+   * PLANTED: reverted `const THIS_SLICE = 9` to 8 in src/surfaces/cc/seams.ts.
+   * RED: the card reports the seam open beside the rail it mounts:
+   *      expected 'MOD-CC-10 → MOD-CC-13, slice 9, open. …' to contain
+   *      'closed'.
+   */
+  it('reports the seam as its status, agreeing with the rail it mounts', () => {
     render(<SyncConflictReviewPanel />)
     const seam = screen.getByTestId('cc10-seam').textContent ?? ''
+    const mount = screen.getByTestId('cc10-action-rail-mount').textContent ?? ''
     expect(seam).toContain('MOD-CC-13')
     expect(seam).toContain('slice 9')
-    expect(seam).toContain('open')
+    // The mount is the substance the status has to agree with, asserted first
+    // so the status check below is not the only side of the comparison.
+    expect(mount).toContain('the rail mounts on')
+    // THE STATUS, NOT THE WORD. `whatIsMissing` says "closed set of ten", so
+    // a bare `toContain('closed')` passes while the status reads open — the
+    // prefix the panel actually renders is what is asserted.
+    expect(seam, 'the card reports the seam open beside the rail it mounts').toContain(
+      `slice ${CC10_SEAM.ownerSlice}, closed.`,
+    )
+    for (const absentTense of [
+      'has neither a module nor a screen in this slice',
+      'still reports the operational-action-set seam OPEN',
+    ]) {
+      expect(seam + ' ' + mount, `a closed seam still says: "${absentTense}"`).not.toContain(
+        absentTense,
+      )
+    }
     expect(L(38175)).toContain('exercises action 5 of `MOD-CC-13`')
+
+    // THE OTHER STALE SENTENCE ON THIS CARD, AND IT IS A COUNT. It read "one
+    // of the seven the rail mounts on", which is true of MODULES and false of
+    // SCREENS: eight route directories mount the rail and MOD-CC-03 owns two
+    // of them, because the cell view shows one of its features and is owned by
+    // no module. Nothing checked the prose against the tree, which is how it
+    // stayed. THE COUNT IS MEASURED FROM DISK AND SPELLED FROM THE
+    // MEASUREMENT, never typed here: a ninth mounting route turns this red
+    // instead of quietly making the sentence wrong again.
+    const WORD = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+    const ccRoutes = join(process.cwd(), 'app', 'command-center')
+    const mounting = readdirSync(ccRoutes, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && !isForeignProbe(e.name))
+      .filter((e) => existsSync(join(ccRoutes, e.name, 'page.tsx')))
+      // COMMENTS STRIPPED, for the reason the slice-9 gate gives: several of
+      // these pages EXPLAIN in prose why the rail does or does not belong on
+      // them, and a check that cannot tell a mount from an explanation would
+      // force those explanations out of the tree.
+      .filter((e) =>
+        /<Cc13ActionRail\b/.test(
+          readFileSync(join(ccRoutes, e.name, 'page.tsx'), 'utf8')
+            .replace(/\/\*[\s\S]*?\*\//g, '')
+            .replace(/\/\/[^\n]*/g, ''),
+        ),
+      )
+    expect(mounting.length, 'no route mounts the rail, so the count proves nothing').toBeGreaterThan(
+      1,
+    )
+    expect(mounting.length, 'the measured count outran the number words here').toBeLessThan(
+      WORD.length,
+    )
+    expect(mount, `the card names a count other than the ${mounting.length} routes on disk`).toContain(
+      `one of the ${WORD[mounting.length]} the rail mounts on`,
+    )
   })
 })
 
