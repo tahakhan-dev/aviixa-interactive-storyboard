@@ -168,8 +168,25 @@ export const CC02_MARKER_STATES = [
  */
 export type Cc02PendingCaptures = number | 'unknown'
 
+/**
+ * WORD ORDER TAKEN FROM THE SOURCE, WHICH WROTE IT ONCE.
+ *
+ * This read `${pending} pending captures` and the source's only numeric
+ * example of it reads **`14 captures pending`** — the marker's own worked
+ * example in §21.3.2. `src/surfaces/cc/live/model.ts` transcribed the source's
+ * order; this file inverted it, and two spellings of one marker's numeric
+ * branch is exactly the drift a shared model exists to prevent.
+ *
+ * Found by the module that mounts both: its board renders the numeric text
+ * through the live model and the chrome's text beside it, so the disagreement
+ * was visible in one screen and invisible in either file alone.
+ *
+ * The unknown branch was never in doubt — both files agree on
+ * `pending captures unknown`, so the never-zero rule was unaffected and only
+ * the numeric branch moved.
+ */
 export const cc02PendingText = (pending: Cc02PendingCaptures): string =>
-  pending === 'unknown' ? 'pending captures unknown' : `${pending} pending captures`
+  pending === 'unknown' ? 'pending captures unknown' : `${pending} captures pending`
 
 /* ==================================================================== *
  * THE CONNECTIVITY STATES AND THEIR THRESHOLDS.

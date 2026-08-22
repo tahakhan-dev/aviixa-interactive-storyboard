@@ -560,3 +560,107 @@ baseline was right.**
 **`DEC-FINISH-001` is raised inside §21.3 at L36150** and the brief did not name it. It is already
 carried in `app/super-admin/tenant-configuration-registry/fixtures.ts`; point at it, do not
 respell it.
+
+---
+
+## THE ACTION RAIL MOUNTS ON SEVEN SCREENS, AND UNTIL NOW NO BRIEF SAID SO
+
+**Two wave-1 tasks found this independently and both refused to guess.** One owns `MOD-CC-13` and
+no path under `app/`; the other owns a screen and checked whether the rail belonged on it. Between
+them they exposed a **circular abstention**: `MOD-CC-04`'s route said the wiring "belongs to the
+task that owns `MOD-CC-13`", that task owns nothing under `app/`, and **no brief in this slice
+named `actionRail` at all.** The rail would have shipped mounted nowhere.
+
+**L38793 enumerates the seven modules whose screens exercise one or more of the ten:**
+
+```
+MOD-CC-03   MOD-CC-04   MOD-CC-05   MOD-CC-06   MOD-CC-09   MOD-CC-10   MOD-CC-12
+```
+
+**`MOD-CC-01` is not among them**, which agrees with L36278 ("no records. The board writes
+nothing"), L36280 ("read-only by construction") and a matrix carrying no action row. The board's
+task left `actionRail` unfilled and rendered the shell's declared seam — **correctly**, and it had
+already mounted the rail once before reading L38793.
+
+**So: tasks 6, 10, 11, 12, 15, 16 and 18 each mount the rail on their own screen.** One line:
+
+```tsx
+actionRail={<Cc13ActionRail personName={…} scopeFilter="Site" heldColumns={…} mountedOn="MOD-CC-0N" />}
+```
+
+**Every other module task leaves `actionRail` unfilled** and lets the shell render its seam. Do
+not mount it on a screen L38793 does not name.
+
+**Note the source contradicts itself here and it is not repaired:** L38793's own sentence opens
+"Every other module on this surface", which is twelve, and then enumerates seven. The enumeration
+is complete over the ten actions. Both readings recorded, neither adopted.
+
+## Two rails exist, deliberately
+
+`src/surfaces/cc/actions/ActionRail.tsx` (wave 0) is the **module card** — it renders the two
+tables as data. `src/surfaces/cc/modules/cc-13/Cc13ActionRail.tsx` (wave 1) is the **control
+rail** — ten controls in three visual states, from `SB-16-02`. **Mount the second, not the first.**
+
+**Chapter 16 specifies this rail and nothing in the repo had opened it.** Three lines no brief
+carried:
+
+- **L20195** — three visual states: enabled; disabled with an inline reason; **absent only where
+  the action is `Not applicable` to the selected object.** Also: the header carries "the person's
+  name and the current scope filter — Site or Area — and nothing else. **There is no role
+  indicator, because there is no active role.**"
+- **L20197** — "The action rail shows **all ten** actions", one person holding Supervisor at an
+  Area *and* Quality Manager at a Site with **no dropdown asking which role he is using**;
+  out-of-scope disables with **"Out of scope for your grants"**.
+- **L20238** — `TEST-16-13`, the source's own named test for the row-4 substitution.
+
+**THE ABSENCE INVERSION, and it is a real conflict this build has not settled.**
+`src/ui/WriteControl.tsx` draws `explicitlyProhibited` as **absent** and `notApplicable` as
+**disabled**. **L20195 asks for the exact reverse on this rail.** The rail therefore renders
+through `ProhibitionNotice` rather than `WriteControl`, and records the inversion instead of
+editing a control eight callers share. **Do not "fix" either one to match the other** — they are
+answering different questions and the source says so.
+
+**Row 4 is the live prefix trap and the source states its resolution three times.** L38685's
+Supervisor cell reads `Explicitly prohibited — may request with a note`: the token **prohibits**
+and the note **grants a different act**. L20195, L38738 and L20238 all say the rail draws
+**"Request release with a note", enabled — "not a disabled version of the Quality Manager
+control"**. Classified by token alone, the Supervisor gets nothing drawn.
+
+## Four more brief errors, and one defect fixed in a slice-8 file
+
+- **`MOD-CC-04`'s card span is wrong.** L36219-L36259 was given; **L36259 is blank** and §21.4 runs
+  **L36219 to L36423**. The span given stops before the matrix, the states, the functionalities,
+  the storyboard and every acceptance criterion.
+- **Two §25.4 cells were misquoted as paraphrases.** L48447 is `Allowed with conditions — request
+  only, **with a mandatory note**`; L48448 is `Allowed with conditions — skew-flagged **conflicts
+  are excluded from Resolve All**`. Both were shortened in the brief and presented as quotations.
+- **"disagree on six cells and use four different status tokens for the same cell" — measured.**
+  Over three action-keyed tables × 10 actions × 5 columns: **32 of 50 cells differ on the token,
+  33 of 50 on the full text, and no cell carries more than two readings.** "Six" is the count of
+  *named divergences* (five cells plus a ten-cell column counted as one); "four" is §21.16's
+  vocabulary size, not any cell's.
+- **Actions 2 and 3 are not the same pair.** Action 3's Supervisor cell is `Read-only` in §21.1.2
+  and §25.4 and `Explicitly prohibited` in §21.16 — **§21.16 alone.** Action 2's is `Explicitly
+  prohibited` in §21.1.2 and §21.16 and `Read-only` in §25.4 — **§25.4 alone.** Two-to-one in
+  opposite directions.
+
+**And a defect fixed in slice 8's `MOD-CC-02`:** `cc02PendingText` rendered `N pending captures`
+where the live model renders `N captures pending`. **The source writes this string once — `14
+captures pending`** — so the model matched it and the chrome inverted it. Found only because one
+screen mounted both; invisible in either file alone.
+
+## Two transcription traps in the cross-table joins
+
+- **The surface matrix has no `#` column and runs the ten OUT OF ORDINAL ORDER** — action 6 is its
+  last action row, below 7-10. It joins by exact capability wording; all ten match §21.16
+  character for character.
+- **§25.4 cannot join by name.** Three of ten differ, including `Resolve-All` against `Resolve
+  All` — **a hyphen.**
+
+## One more plant-harness rule, learned by a harness refusing a correct plant
+
+Requiring the **planted** text to be unique is wrong. A defect that looks exactly like nine
+correct rows is the one most worth planting, and `Supervisor: 'Explicitly prohibited',`
+legitimately occurs four times in one table. **Splice by index** — capture the offset, and reverse
+by slicing the same offset back. That restores correctly regardless of twins, which
+`String.replace` does not.

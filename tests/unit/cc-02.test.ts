@@ -577,7 +577,13 @@ describe('the marker and the connectivity protocol', () => {
     expect(srcLine(36483)).toContain('states unknown rather than zero')
     expect(cc02PendingText('unknown')).toBe('pending captures unknown')
     expect(cc02PendingText('unknown')).not.toContain('0')
-    expect(cc02PendingText(0)).toBe('0 pending captures')
+    // `0 captures pending`, not `0 pending captures`. The source writes this
+    // string once — `14 captures pending`, the marker's own worked example in
+    // §21.3.2 — and this file had the words the other way round while
+    // `src/surfaces/cc/live/model.ts` had them the source's way. Two spellings
+    // of one marker's numeric branch, invisible in either file alone and
+    // visible the moment a screen mounted both.
+    expect(cc02PendingText(0)).toBe('0 captures pending')
   })
 
   // FAILS IF: the banner is guessed when the elapsed time is unknown, or
