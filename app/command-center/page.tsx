@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { routeBySurface } from '@/routes/definitions'
+import { builtSlugs } from '@/surfaces/cc/built-slugs'
 import { CommandCenterShell } from '@/surfaces/cc/shell/CommandCenterShell'
 
 // M2: sourced from the route registry, not a second hand-typed string.
@@ -36,37 +35,22 @@ export const metadata: Metadata = { title: routeBySurface('SURF-CC').title }
  * scan reads file TEXT, and a value rendered from an import is not text. The
  * page shows every module identifier a reviewer needs and contains none.
  *
- * ── WHY THE BUILT ROUTES ARE READ HERE AND NOT IN THE SHELL ─────────────
+ * ── WHY THE BUILT ROUTES ARE READ BY THE ROUTE AND NOT BY THE SHELL ─────
  *
- * `CC_NAV` publishes twelve pathnames and the tree holds one directory. A
- * rail that offered all twelve would point eleven links at a 404. Which of
- * them exist is a fact about the tree, so the file that is IN the tree asks
- * it and hands the shell a finished answer — the division
- * `app/studio/StudioShell.tsx` states and the one that keeps `src/` free of
- * `node:fs`.
+ * `CC_NAV` publishes twelve pathnames and the tree holds whatever was built.
+ * A rail that offered all twelve would point the unbuilt ones at a 404.
+ * Which of them exist is a fact about the tree, so the route asks the tree
+ * and hands the shell a finished answer — the division
+ * `app/studio/StudioShell.tsx` states.
  *
- * ponytail: the listing is read at render, not written to a generated
- * registry. `tests/coverage/registry-freshness.test.ts` compares the whole of
- * `registries/generated` against a fresh run of three named generators, and a
- * fourth artefact there with no generator in that list turns a coherent tree
- * red — and neither that file nor `package.json` is this task's. If this
- * surface ever needs the answer at a second place, generate it there instead
- * of reading the directory twice.
+ * The reading itself now lives once, in `@/surfaces/cc/built-slugs`. It was
+ * spelled thirteen times — here and in every route directory below — with
+ * each author's `ponytail:` note saying the hoist was blocked because "`src/`
+ * is deliberately free of `node:fs`". That was never true:
+ * `src/coverage/registry-loader.ts` imports `node:fs` and its header states
+ * the real, narrower rule the shared module now follows. Thirteen authors
+ * each counted only the callers they could see.
  */
-function builtSlugs(): readonly string[] {
-  const dir = join(process.cwd(), 'app', 'command-center')
-  // `withFileTypes` rather than a `statSync` per entry: it answers
-  // "directory?" from the one readdir syscall, so a sibling suite deleting
-  // its scratch probe between the listing and the stat cannot ENOENT a
-  // correct build. The probes carry no `page.tsx` and are dropped by the
-  // second filter regardless.
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
-    .sort()
-}
-
 export default function CommandCenterHome() {
   return <CommandCenterShell builtSlugs={builtSlugs()} />
 }

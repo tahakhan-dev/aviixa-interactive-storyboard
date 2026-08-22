@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { builtSlugs } from '@/surfaces/cc/built-slugs'
 import { AlertEscalationFeed } from '@/surfaces/cc/modules/cc-09/AlertEscalationFeed'
 import { CC09_MODULE, CC09_SCREEN, CC09_SLUG } from '@/surfaces/cc/modules/cc-09/matrix'
 import { Cc13ActionRail } from '@/surfaces/cc/modules/cc-13/Cc13ActionRail'
@@ -80,22 +79,6 @@ export const metadata: Metadata = {
  * it is stated on screen. The matrix itself renders whole, for every role, in
  * every case.
  */
-
-/**
- * ponytail: this is the same four-line readdir `app/command-center/page.tsx`
- * and `app/command-center/deviation-workspace/page.tsx` perform. It is
- * duplicated a third time rather than hoisted because the shell's directory
- * is not this task's to edit and `src/` is deliberately free of `node:fs`.
- * The hoist is one file — `src/surfaces/cc/shell/` — for whoever owns it.
- */
-function builtSlugs(): readonly string[] {
-  const dir = join(process.cwd(), 'app', 'command-center')
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
-    .sort()
-}
 
 export default function Page() {
   return (

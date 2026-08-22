@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { builtSlugs } from '@/surfaces/cc/built-slugs'
 import { Cc06LearningReadView } from '@/surfaces/cc/modules/cc-06/LearningReadView'
 import { FeedbackSignalCapture } from '@/surfaces/cc/modules/cc-07/FeedbackSignalCapture'
 import { CC07_MODULE, CC07_SCREEN, CC07_SLUG } from '@/surfaces/cc/modules/cc-07/matrix'
@@ -76,23 +75,6 @@ export const metadata: Metadata = {
  * screen has none of. Inventing them would be the storyboard's illustrative
  * number rendered as a value.
  */
-
-/**
- * ponytail: the same four-line readdir `app/command-center/page.tsx` and the
- * deviation workspace's route both perform. It is spelled again rather than
- * hoisted because neither of those files nor the shell is this task's to edit
- * and `src/` is deliberately free of `node:fs`. Three callers is the point at
- * which it should move into the shell's own directory, and that is a change to
- * a file this task does not own.
- */
-function builtSlugs(): readonly string[] {
-  const dir = join(process.cwd(), 'app', 'command-center')
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
-    .sort()
-}
 
 export default function Page() {
   return (

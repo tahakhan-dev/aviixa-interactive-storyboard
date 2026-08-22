@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { builtSlugs } from '@/surfaces/cc/built-slugs'
 import { GovernanceGateQueue } from '@/surfaces/cc/modules/cc-05/GovernanceGateQueue'
 import { CC05_MODULE, CC05_SCREEN, CC05_SLUG } from '@/surfaces/cc/modules/cc-05/matrix'
 import { Cc13ActionRail } from '@/surfaces/cc/modules/cc-13/Cc13ActionRail'
@@ -91,22 +90,6 @@ export const metadata: Metadata = {
  * request; this storyboard holds no session. The matrix renders whole, for
  * every role, in every case, and the panel takes no role prop at all.
  */
-
-/**
- * ponytail: the same four-line readdir `app/command-center/page.tsx` and
- * `app/command-center/deviation-workspace/page.tsx` perform. It is spelled a
- * third time rather than hoisted because neither of those files nor the shell
- * is this task's to edit and `src/` is deliberately free of `node:fs`. If a
- * fourth caller appears, hoist it into the shell's own directory once.
- */
-function builtSlugs(): readonly string[] {
-  const dir = join(process.cwd(), 'app', 'command-center')
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
-    .sort()
-}
 
 export default function Page() {
   return (

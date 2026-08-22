@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { builtSlugs } from '@/surfaces/cc/built-slugs'
 import { CC11_MODULE, CC11_SCREEN, CC11_SLUG } from '@/surfaces/cc/modules/cc-11/matrix'
 import { ReportsAndBuilder } from '@/surfaces/cc/modules/cc-11/ReportsAndBuilder'
 import { CommandCenterShell } from '@/surfaces/cc/shell/CommandCenterShell'
@@ -66,22 +65,6 @@ export const metadata: Metadata = {
  * `src/surfaces/cc/decisions/link-outs.ts` registers thirteen such cells and
  * none is this one's.
  */
-
-/**
- * ponytail: the same four-line readdir `app/command-center/page.tsx` and the
- * deviation workspace's route each perform. Duplicated rather than hoisted
- * because neither that file nor the shell is this task's to edit and `src/`
- * is deliberately free of `node:fs`. It is now spelled three times; the
- * fourth caller should hoist it into the shell's own directory.
- */
-function builtSlugs(): readonly string[] {
-  const dir = join(process.cwd(), 'app', 'command-center')
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
-    .sort()
-}
 
 export default function Page() {
   return (

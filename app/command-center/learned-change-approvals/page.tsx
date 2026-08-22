@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { builtSlugs } from '@/surfaces/cc/built-slugs'
 import { LearnedChangeApprovals } from '@/surfaces/cc/modules/cc-06/LearnedChangeApprovals'
 import { CC06_MODULE, CC06_SCREEN, CC06_SLUG } from '@/surfaces/cc/modules/cc-06/matrix'
 import { Cc13ActionRail } from '@/surfaces/cc/modules/cc-13/Cc13ActionRail'
@@ -85,22 +84,6 @@ export const metadata: Metadata = {
  * `ccLinkOutModel` can check row 7's pointer against the route registry, and
  * it is stated on screen. The matrix itself renders whole, for every role.
  */
-
-/**
- * ponytail: the fourth spelling of the same four-line readdir — the other
- * three are `app/command-center/page.tsx` and the two module routes already
- * built. It is duplicated rather than hoisted because no shared home for it
- * is this task's to edit: `src/surfaces/cc/shell/` belongs to another task
- * and `src/` is deliberately free of `node:fs`. Reported rather than fixed.
- */
-function builtSlugs(): readonly string[] {
-  const dir = join(process.cwd(), 'app', 'command-center')
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
-    .sort()
-}
 
 export default function Page() {
   return (

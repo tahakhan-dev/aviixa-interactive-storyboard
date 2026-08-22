@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { builtSlugs } from '@/surfaces/cc/built-slugs'
 import { Cc13ActionRail } from '@/surfaces/cc/modules/cc-13/Cc13ActionRail'
 import { ShiftHandoffPanel } from '@/surfaces/cc/modules/cc-12/ShiftHandoffPanel'
 import { CC12_MODULE, CC12_SCREEN, CC12_SLUG } from '@/surfaces/cc/modules/cc-12/matrix'
@@ -71,23 +70,6 @@ export const metadata: Metadata = {
  * `owner-undecided` for every role and draws no link at all. The matrix
  * itself renders whole, for every role, in every case.
  */
-
-/**
- * ponytail: the same four-line readdir `app/command-center/page.tsx`,
- * `live-shift-board/page.tsx` and `deviation-workspace/page.tsx` already
- * perform. It is spelled a fourth time rather than hoisted because
- * `src/surfaces/cc/shell/` is not this task's path and `src/` is deliberately
- * free of `node:fs`. The hoist belongs to whoever owns the shell; four
- * copies is the point at which it should happen.
- */
-function builtSlugs(): readonly string[] {
-  const dir = join(process.cwd(), 'app', 'command-center')
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
-    .sort()
-}
 
 export default function Page() {
   return (

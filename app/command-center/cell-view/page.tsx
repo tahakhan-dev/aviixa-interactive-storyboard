@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { builtSlugs } from '@/surfaces/cc/built-slugs'
 import { DrillDown } from '@/surfaces/cc/modules/cc-03/DrillDown'
 import { CC03_CELL_SCREEN, CC03_CELL_SLUG, CC03_MODULE } from '@/surfaces/cc/modules/cc-03/matrix'
 import { Cc13ActionRail } from '@/surfaces/cc/modules/cc-13/Cc13ActionRail'
@@ -71,16 +70,6 @@ export const metadata: Metadata = {
  * number rendered as a value. The seam renders as an open seam naming its
  * owner.
  */
-
-/** ponytail: see the note on the sibling route; a fourth spelling of one readdir. */
-function builtSlugs(): readonly string[] {
-  const dir = join(process.cwd(), 'app', 'command-center')
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
-    .sort()
-}
 
 export default function Page() {
   const built = builtSlugs()

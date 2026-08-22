@@ -1,7 +1,6 @@
-import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
+import { builtSlugs } from '@/surfaces/cc/built-slugs'
 import { CommandCenterShell } from '@/surfaces/cc/shell/CommandCenterShell'
 import { LiveShiftBoard } from '@/surfaces/cc/modules/cc-01/LiveShiftBoard'
 import { BoardSyncChrome } from '@/surfaces/cc/modules/cc-01/BoardSyncChrome'
@@ -84,19 +83,12 @@ export const metadata: Metadata = {
  * consumers that ask a role-shaped question, not an access decision:
  * `evaluateCCAccess` answers that at the door on a real request.
  *
- * The built-route listing is read HERE rather than in the shell for the
- * reason `app/command-center/page.tsx` states: the file that is in the tree
- * asks the question about the tree and hands the shell a finished answer.
+ * The built-route listing is asked by the ROUTE rather than by the shell for
+ * the reason `app/command-center/page.tsx` states: the file that is in the
+ * tree asks the question about the tree and hands the shell a finished
+ * answer. The reading itself is `@/surfaces/cc/built-slugs`, one definition
+ * for all thirteen routes.
  */
-function builtSlugs(): readonly string[] {
-  const dir = join(process.cwd(), 'app', 'command-center')
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .filter((name) => existsSync(join(dir, name, 'page.tsx')))
-    .sort()
-}
-
 export default function Page() {
   return (
     <CommandCenterShell
