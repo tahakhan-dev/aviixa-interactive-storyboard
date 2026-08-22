@@ -683,7 +683,7 @@ decision evidence. A row in a coverage table is not implementation.
 | Events `EVT-*` | 28 | each emitted and traceable on the timeline |
 | Commands `CMD-*` | 17 | each with full per-device delivery and acknowledgement lifecycle |
 | Notifications `NOTIF-*` | 205 | each with trigger, recipients, channel, and its nineteen distinct states |
-| Offline scenarios `OFF-*` | 99 | each with five-surface knowledge, fallback, fallback failure, recovery |
+| Offline scenarios `UC-OFF-*` | 70 | each with five-surface knowledge, fallback, fallback failure, recovery. **Corrected from 99 on 2026-08-22.** Line 570 of this same document already said 70 and `registries/generated/offline-scenarios.json` computes 70 (`UC-OFF-001`…`070`, of which 12 carry their own diagram and 58 name a representative). The 99 was a stale census row contradicting this document's own reconciliation table, and it had to go before slice 8's coverage claims were computed against it. The identifier family is `UC-OFF-*`, not `OFF-*` |
 | Scheduled work `SCHED-*` | 67 (35 anchored timer rows) | each through normal, missed, duplicate, late, DST, failure, recovery |
 | Do-not-use-cron controls `DNC-*` | 22 | each rendered as a control that must not use a scheduler |
 | Fallbacks `FB-*` | 671 | each with owner, exit condition, recovery |
@@ -692,7 +692,7 @@ decision evidence. A row in a coverage table is not implementation.
 | Decisions `DEC-*` | 433 | each classified, none silently resolved |
 | Acceptance criteria `AC-*` | 5,709 | each with a test or a source-linked decision-blocked record |
 | Tests `TEST-*` | 5,700 | each mapped to a requirement |
-| Visual definitions `VD-*` | 31 | each an interactive, keyboard-operable, source-linked application view |
+| Validation dimensions `VD-*` | 31 | each a dimension an action is validated against — `VD-01` is "Required fields | Content | The action carries every field without which the record would be meaningless" (L71782). **Corrected from "Visual definitions … an interactive, keyboard-operable, source-linked application view" on 2026-08-22.** They are not views and nothing named "visual" should be built from this row; the interactive diagram catalogue is a separate obligation |
 | Risks `RISK-*` | 85 | each in the readiness registry |
 
 Two bidirectional closure gates run as automated tests:

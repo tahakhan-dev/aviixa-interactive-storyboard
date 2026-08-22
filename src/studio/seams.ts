@@ -304,7 +304,25 @@ export const STU_SEAMS = [
     // audited acts, and "if the audit write fails, the refusal is still
     // enforced because refusing is the safe direction" (L31599).
     consumingModules: STU_MODULES.map((m) => m.id),
-    owner: 'MOD-DOH-17 / MOD-DOH-18',
+    /**
+     * `MOD-DOH-11`, AND THIS READ `MOD-DOH-17 / MOD-DOH-18` UNTIL 2026-08-22.
+     *
+     * The source names the owner in the module's own identity card and says it
+     * three times: L28846 gives the identifier as `MOD-DOH-11`; L28850's
+     * Owning-surface line reads "one immutable log per tenant, which also
+     * ingests Studio publish events"; and L28857's Interconnections line reads
+     * "Consumes from all modules and all surfaces" and then names
+     * `MOD-DOH-18` as something this module FEEDS — data set 4 — rather than
+     * as its owner.
+     *
+     * That last line is how the wrong owner got here. `MOD-DOH-18` is genuinely
+     * present in the audit log's paragraph, as a CONSUMER of it, and a reading
+     * that takes the nearest module identifier for the owner finds the wrong
+     * one. The re-plan recorded the correction as owed and assigned it to slice
+     * 10; it is made here instead, because the reading that produced it is the
+     * same one that would make it again.
+     */
+    owner: 'MOD-DOH-11',
     ownerSlices: [10],
     contract:
       'The Studio keeps no audit log of its own. Read-through over a seeded fixture — the same pattern slice 4 adopted for Platform Access History, and for the same reason: a second store would be invisible until slice 10 tried to reconcile.',

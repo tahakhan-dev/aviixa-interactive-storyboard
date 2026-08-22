@@ -265,8 +265,14 @@ quotation is a convenience and the frozen source is the authority.
 
 **The source contradicts itself on ABSENT versus DISABLED, at named-test strength.** Do
 not settle it. `tests/coverage/slice-04-gates.test.ts` holds a fixture pinning each
-conflict with both locator sets. `Explicitly prohibited` carries **no** rendering
-anywhere; `Unavailable` is overloaded across two senses that render oppositely.
+conflict with both locator sets. **`Explicitly prohibited` HAS a source definition and a
+shipped rendering, and this section used to say it had neither.** L109081 defines it — "The
+action is offered nowhere and is refused if attempted by any route" — and slices 4 and 5
+shipped a derived two-branch rule that slice 7's twelve Frontline modules then consumed for
+332 of their 539 cells. What is genuinely unsettled is the ABSENT-versus-DISABLED question
+around it, which `tests/coverage/slice-04-gates.test.ts` pins with both locator sets.
+`Unavailable` remains overloaded across two senses that render oppositely — L42114 against
+L42120 and L41797 — and `MOD-FL-B12` holds both of them, five cells each.
 
 **Verify agents' numbers rather than accepting them.** Three times an agent checked a
 figure the controller supplied and found it wrong. Twice an execution claim did not
