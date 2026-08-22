@@ -365,8 +365,10 @@ describe('the skew flag after the clock is corrected', () => {
 describe('the findings, each measured against the frozen source', () => {
   // FAILS IF: a finding is dropped, or its locator names a blank line — the
   // off-by-one class this build has already shipped once. Planted: the first
-  // finding's locator moved to L80199, the blank line after the table. Went
-  // red.
+  // finding's locator moved onto the blank line immediately past the end of
+  // the table — spelled here without its number, because this gate's own
+  // sibling in `tests/coverage` reads any L-number in a comment as a citation
+  // and a blank line is one no comment may claim. Went red.
   it('records four findings, each anchored at a real line', () => {
     expect(CONFLICT_SOURCE_FINDINGS).toHaveLength(4)
     for (const f of CONFLICT_SOURCE_FINDINGS) {
@@ -434,10 +436,16 @@ describe('the findings, each measured against the frozen source', () => {
 
   // FAILS IF: the table-level classification is taken as each row's. The
   // section says Derived Clarification for the whole table in two places while
-  // seven of its rows open with SoW Fact — and the hold-state row is one of
-  // those seven, which is exactly what DEC-FB-008 disputes. Planted: the
-  // hold-state row's `why` cell rewritten to open with Derived Clarification.
-  // Went red on the seven-count and on the verbatim-cell gate.
+  // eight of its rows open with SoW Fact — and the hold-state row is one of
+  // those eight, which is exactly what DEC-FB-008 disputes.
+  //
+  // PLANTED TWICE, because the first version of this gate read only the frozen
+  // source and so no defect in a shipping file could reach it. Planted: the
+  // hold-state row's `why` cell rewritten to open with Derived Clarification —
+  // it went red on two OTHER gates and stayed green here, which is the
+  // gate-that-cannot-fail shape. The row-level assertion below was added, and
+  // the same plant then went red here. Planted again: this finding's locator
+  // moved off L80233. Went red.
   it('the section classifies the whole table Derived Clarification while eight rows say SoW Fact', () => {
     expect(CONFLICT_SOURCE_FINDINGS[3]?.sourceRef).toContain('L80233')
     expect(CONFLICT_SOURCE_FINDINGS[3]?.sourceRef).toContain('L80246')

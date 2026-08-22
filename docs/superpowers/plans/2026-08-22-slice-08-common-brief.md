@@ -297,3 +297,40 @@ is made and the record is owed — and it closes on sync.
 **A screen must not say the platform holds no record when the device is connected.** That is
 the inverse of the error the original warning was written against, and it is available to any
 module that took the four-states framing literally.
+
+## The hold-state claim is classified THREE different ways, at three levels
+
+Task 7 found the third level and the controller verified all three by opening the lines. This
+is the sharpest thing in the slice and it belongs in every later brief that touches conflict
+authority or Severity 1 holds:
+
+| level | line | what it says |
+|---|---|---|
+| the row itself | **L80192** | "The hold stands; no device write lifts it \| `SoW Fact — §3.3, §7.9.2`" |
+| the section's own Source status | **L80233** | "`Derived Clarification` **for the per-object authority table**" — the whole table, including that row |
+| chapter 38 | **L82477** | `DEC-FB-008`, and it **explicitly does not choose** |
+
+So the source states the claim as a fact, classifies the table carrying it as derived, and
+records the question as open — three readings of one sentence, none of which is a
+misprint. **Eight of the twelve rows open `SoW Fact`** (rows 1, 2, 4, 5, 6, 10, 11, 12) and four
+open `Derived Clarification`, so the section-level classification is wrong about two thirds of
+its own table.
+
+**Carry all three. Choose none.** A build that resolves this in either direction has decided
+whether a device write can lift a Severity 1 hold, which is not a decision this build is
+permitted to make.
+
+## Three more counted gaps in §36.4, all task 7's
+
+**The prose family list names eleven of twelve.** L80147 enumerates the families a record is
+identified as and stops at configuration and version state. The twelfth — server-side correction
+under the append-only path, L80198 — is absent, and it is the case §6.11.1 names in the source
+itself. A classifier written from the prose has no family for it.
+
+**Twelve per-family tests are promised and six exist.** L80231 says `TEST-36-401` through
+`TEST-36-412`, "one per object family row". The acceptance table names 401 to 406 and stops.
+**Measured over all 122,241 lines: 407 through 411 occur zero times, and 412 occurs once —
+inside the promise itself.**
+
+**Five diagram branches against twelve rows.** L80164-L80168. Containment checklist item, unit
+or lot binding, and qualification and clearance appear in no branch by name.

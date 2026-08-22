@@ -52,11 +52,12 @@
  * L80393's unresolvable-tenant-binding row is detected there. Recorded as
  * `STEPS_ABSENT_FROM_THE_DIAGRAM` rather than tidied.
  *
- * ── WHY THE STEP NUMBERS ARE CITED AND NOT IMPORTED ────────────────────────
- * Task 6's `src/offline/protocol.ts` had not landed when this was written, so
- * every step number is read off the frozen source and cited there. See
- * `PROTOCOL_STEPS_CITED_DIRECTLY`, which is the whole set to re-point at that
- * model when it lands.
+ * ── WHERE THE STEP NUMBERS COME FROM ───────────────────────────────────────
+ * The two the finding turns on are IMPORTED from task 6's step model, which
+ * landed while this was being written and had reached the same reading
+ * independently. The three that model does not name as constants are cited
+ * directly off the frozen source. `PROTOCOL_STEPS_CITED_DIRECTLY` is the whole
+ * set either way, and every line in it is opened by the suite.
  *
  * ── WHY NO `RuntimeEnvelope` IMPORT ────────────────────────────────────────
  * `@/frontline/capture` exports `RuntimeEnvelope`, and it is the wrong type
@@ -66,6 +67,7 @@
  * validated shape can never describe it. The retained payload is held opaque
  * and is never read by this module.
  */
+import { CAPTURE_UPLOAD_STEP, COMMAND_MANIFEST_READ_STEP } from '@/offline/protocol'
 import type { CommandState } from '@/surfaces/sa/command-state'
 
 /* ── the register ──────────────────────────────────────────────────────── */
@@ -227,9 +229,15 @@ export interface StepAnachronism {
 
 export const ENVELOPE_STEP_ANACHRONISM: StepAnachronism = {
   reason: 'envelope-incompleteness',
+  /**
+   * A LITERAL, DELIBERATELY, where `subjectArrivesAtStep` is imported. This is
+   * what the register's own cell says, not what step 21 is; the finding is
+   * that the two coincide when they should not, and sourcing both from one
+   * constant would erase the thing being recorded.
+   */
   registerSaysStep: 21,
   registerLocator: 'AVIIXA_Production_Product_Blueprint.md L80394',
-  subjectArrivesAtStep: 22,
+  subjectArrivesAtStep: CAPTURE_UPLOAD_STEP,
   subjectLocator: 'AVIIXA_Production_Product_Blueprint.md L79941',
   restatedAt: 'AVIIXA_Production_Product_Blueprint.md L80417',
   statement:
@@ -246,21 +254,24 @@ export const STEPS_ABSENT_FROM_THE_DIAGRAM: readonly number[] = [4]
 
 /**
  * THE STEP LEDGER. Every step number this module needs, with the frozen-source
- * line it was read off and what that line says. It exists in this shape for
- * two reasons.
+ * line it was read off and what that line says. Nothing else in this file
+ * carries a step number.
  *
- * First, the brief directs this task to take its step numbers from the
- * protocol model. `src/offline/protocol.ts` is task 6's file and HAD NOT
- * LANDED when this module was written — `src/offline/` held `capability.ts`
- * and `modes.ts` and nothing else — so every number here was read directly off
- * the frozen source and is cited there, per the brief's instruction to cite
- * the source and say so. This ledger is exactly the set to re-point at that
- * model when it lands; nothing else in this file carries a step number.
+ * THE TWO THE FINDING TURNS ON ARE IMPORTED, NOT SPELLED AGAIN. Task 6's
+ * `@/offline/protocol` was not on disk when this module was first written —
+ * `src/offline/` held `capability.ts` and `modes.ts` and nothing else — so
+ * both numbers were read straight off the frozen source, per the brief's
+ * instruction to cite the source and say so. It landed during the wave,
+ * carrying `COMMAND_MANIFEST_READ_STEP` and `CAPTURE_UPLOAD_STEP` and having
+ * reached the same reading independently, so they are taken from there now: 21
+ * and 22 disagreeing between two modules is the one disagreement this finding
+ * could not survive. The other three steps are not constants in that module
+ * and stay cited directly.
  *
- * Second, a step number with no line beside it is an unfalsifiable claim. With
- * the line here, `tests/unit/offline-quarantine.test.ts` reads each `line` at
- * test time and checks it really carries `what`, so a wrong number is a red
- * suite rather than a plausible-looking constant.
+ * A step number with no line beside it is an unfalsifiable claim, so every
+ * entry keeps its line and the words that line holds either way.
+ * `tests/unit/offline-quarantine.test.ts` opens all five at test time, which is
+ * what makes a wrong number a red suite rather than a plausible constant.
  */
 export interface CitedStep {
   readonly step: number
@@ -279,12 +290,12 @@ export type CitedStepKey =
 
 export const PROTOCOL_STEPS_CITED_DIRECTLY: Readonly<Record<CitedStepKey, CitedStep>> = {
   'stop-class command manifest read': {
-    step: 21,
+    step: COMMAND_MANIFEST_READ_STEP,
     line: 79940,
     what: 'the command manifest is read and the stop class is applied',
   },
   'captures upload': {
-    step: 22,
+    step: CAPTURE_UPLOAD_STEP,
     line: 79941,
     what: 'the captures upload',
   },
