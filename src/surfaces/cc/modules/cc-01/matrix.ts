@@ -18,10 +18,15 @@ import type { DecisionReading } from '@/disclosure/decisions'
  * and a positional read inverted every Worker and Tenant Admin cell
  * silently, because both readings were internally coherent.
  *
- * THE CARD IS L36219 TO L36423, NOT L36219 TO L36259. The dispatch gave the
- * shorter span; L36259 is inside the prose, three lines before the matrix
- * header, and the card runs to its `**Source status.**` paragraph at L36423.
- * Reported rather than quietly widened.
+ * THE CARD RUNS TO L36423, NOT TO THE LINE THE DISPATCH GAVE. That end line
+ * is blank — it sits inside the prose, three lines before the matrix header —
+ * and the card runs to its `**Source status.**` paragraph at L36423. Reported
+ * rather than quietly widened.
+ *
+ * The wrong end line is deliberately not spelled here: `locator-fidelity`
+ * lexes any L-number in a comment as a citation and refuses one naming a blank
+ * line, including inside a sentence explaining that the line is blank. It was
+ * red on these two lines and it was right.
  *
  * `Allowed` IS A PREFIX OF `Allowed with conditions` AND THIS CARD USES
  * BOTH. The qualifier is split at the em dash first and the head compared

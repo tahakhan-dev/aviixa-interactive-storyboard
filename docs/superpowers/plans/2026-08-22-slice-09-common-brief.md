@@ -628,8 +628,7 @@ control"**. Classified by token alone, the Supervisor gets nothing drawn.
 
 ## Four more brief errors, and one defect fixed in a slice-8 file
 
-- **`MOD-CC-04`'s card span is wrong.** L36219-L36259 was given; **L36259 is blank** and §21.4 runs
-  **L36219 to L36423**. The span given stops before the matrix, the states, the functionalities,
+- **`MOD-CC-01`'s card span is wrong.** Its stated end line is blank, and §21.4 runs to **L36423**. The span given stops before the matrix, the states, the functionalities,
   the storyboard and every acceptance criterion.
 - **Two §25.4 cells were misquoted as paraphrases.** L48447 is `Allowed with conditions — request
   only, **with a mandatory note**`; L48448 is `Allowed with conditions — skew-flagged **conflicts
@@ -664,3 +663,86 @@ correct rows is the one most worth planting, and `Supervisor: 'Explicitly prohib
 legitimately occurs four times in one table. **Splice by index** — capture the offset, and reverse
 by slicing the same offset back. That restores correctly regardless of twins, which
 `String.replace` does not.
+
+---
+
+## Wave 1 closed — and the controller relayed a wrong diagnosis of a real red
+
+**Two siblings reported `tests/unit/cc-04.test.ts` red, and the controller relayed a diagnosis
+with it: "the walk starts one line late, on the separator." That diagnosis was wrong.** The walk
+begins at `separatorLine + 1` and asserts its first row is L36834; it was correct the whole time.
+
+**The red was a live plant.** The owning task's harness had two bugs, both self-reported, and both
+corrupted a real shipping file:
+
+1. **`occurrences()` looped forever on an empty needle.** A deletion plant reverses by searching
+   for `""`, and `indexOf('', i)` returns `i` every time. Two runs spun at full CPU with **a matrix
+   row deleted for about fourteen minutes** — which is exactly what the siblings saw. The harness
+   now **refuses an empty replacement**: a deletion must be spelled as a unique marker so the
+   reversal is a reversal.
+2. **The baseline check ran per edit instead of per step**, so a three-edit plant aborted on its
+   second edit and left the first unreversed.
+
+**The lesson is about the diagnosis, not the bug.** A red in a file another task owns is a
+*symptom*, and relaying a guess about its cause alongside it gives the guess the authority of the
+observation. **Report the red and the command that produced it. Let the owner diagnose it.** The
+owner adjudicated this one correctly and said so.
+
+## Brief errors 33-37, and one is my own sentence contradicting my own list
+
+- **"Mark evidence reviewed carries three different statuses across three matrices" — it carries
+  TWO distinct tokens across three statements.** L36842 `Explicitly prohibited`, L38688 `Explicitly
+  prohibited`, L48450 `Unavailable`. **The brief's own list contradicts its own sentence**, and
+  nobody noticed until a task counted the distinct values. Recorded as `statements === 3`,
+  `distinct === 2`, both read off the source.
+- **The real three-token divergence is on release/request, not mark-evidence.** The Supervisor's
+  lot-hold release is stated four ways: L36838 `Explicitly prohibited` + L36839 `Allowed` (two
+  rows), L38685 `Explicitly prohibited — may request with a note`, L48447 `Allowed with conditions
+  — request only, with a mandatory note`, and L49579 agreeing with the split.
+- **"§25.4 grants the request half to the Supervisor only" is imprecise.** §25.4 carries **no
+  request row at all**; its single release row folds the request into the Supervisor's condition,
+  and its Quality Manager cell is bare `Allowed` — **silent on the request, not denying it.**
+- **"L36845, repeated at L49578" — it is not a repeat.** L36845 is a *role* row with five persona
+  columns; L49578 is a *record-type* row with six surface columns, and its header carries no
+  Tenant Admin or Quality Manager column at all. They share one reading and **L49578 does not
+  carry the destination.** Treating it as a repeat imports a surface-level token into a persona
+  column and loses the Hub anomaly record.
+- **`MOD-CC-04`'s card span ends on a blank line**, 196 lines short of the section. §21.7 runs
+  L36796 to L37025. **Three module card spans in this brief have now ended on a blank line** — the
+  spans were taken from a table of starts, not by reading to each section's close. The wrong end
+  lines are not spelled anywhere in this file: `locator-fidelity` refuses a citation of a blank
+  line even inside a sentence saying the line is blank, and it went red on exactly that.
+
+## Two more gates that could not fail, both found by planting
+
+- **`page.includes('MOD-CC-04')` was satisfied by the L38793 quotation**, which names seven module
+  ids. Deleting every sentence where the page named *its own* module left the check green. It now
+  requires an occurrence on a line naming no *other* `MOD-CC-*`. **A file that quotes a list of
+  identifiers contains every identifier in that list.**
+- **A name-keyed cell lookup was blind to column order.** Reversing the body's columns left every
+  `data-testid` sitting on its own value and the gate green, with every cell under the wrong
+  heading. A positional order gate now runs alongside the header-keyed one — **header-keying
+  protects the transcription and does not protect the render.**
+
+## The severity row, resolved
+
+Row 12 renders **two `CrossSurfaceLink`s and no control**. A faithful transcription would draw
+*nothing* for the Tenant Admin cell and a *live control* for the Quality Manager's; neither is what
+the row asks. Beside them, the boundary is rendered as **not a contradiction**: `AC-CC-221`
+(L37000) governs what this surface **displays** — and a Quality Manager at review time is neither a
+server-side nor an agent value — while L36845 governs an act on the **Hub anomaly record**,
+restated in prose at L36881. A gate asserts L37000 contains `displayed` and does **not** contain
+`reclassif`.
+
+**"Awaiting Quality Manager" is deliberately not computed.** The Quality Manager is `Allowed` on
+both the release row and the request row, and `FUNC-CC-0404-1-2` (L36990) lists them among
+requesters — so no count can separate an item awaiting another's authority from one raised to
+oneself. **A fabricated number on a client screen is worse than a named gap.**
+
+## One sibling gate worth knowing about
+
+`tests/unit/cc-live-model.test.ts` uses `/^\s*(?:import|export)[^'"\n]*from\s+['"]…/gm` for its
+dependency gate. **That regex cannot see a multi-line import** — `from` must sit on the `import`
+line. Two tasks independently wrote the same shape into reachability probes and both under-reported
+until they widened it. **A dependency or reachability check that under-reports goes green on a
+broken chain.**

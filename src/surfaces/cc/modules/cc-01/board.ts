@@ -217,14 +217,23 @@ export const CC01_MARKER_ELEMENT: CcElementClassAssignment = (() => {
   return row
 })()
 
-/** Every element this screen stamps, in the table's own order. */
-export const CC01_BOARD_ELEMENTS: readonly CcElementClassAssignment[] = [
+/**
+ * Every element this screen stamps, in the table's own order.
+ *
+ * NO ANNOTATION. This is a spread of two computed values, so there is no
+ * literal for `as const` to preserve and nothing for an annotation to widen —
+ * but `tests/coverage/slice-2c-gates.test.ts` reads an exported array with a
+ * `readonly T[]` annotation as the inert form regardless, and it is right to:
+ * the annotation is the pattern, and exempting a case because *this* one is
+ * harmless is how the pattern comes back. TypeScript infers the same type.
+ */
+export const CC01_BOARD_ELEMENTS = [
   ...CC01_OWN_ELEMENTS,
   CC01_MARKER_ELEMENT,
 ]
 
 /** Derived from the flag, never from a count. See the header. */
-export const CC01_PER_DEVICE_ELEMENTS: readonly string[] = CC01_BOARD_ELEMENTS.filter(
+export const CC01_PER_DEVICE_ELEMENTS = CC01_BOARD_ELEMENTS.filter(
   (r) => r.perDevice,
 ).map((r) => r.element)
 
