@@ -357,10 +357,31 @@ describe('route ownership', () => {
     // SCR-CC-01, and the two unowned keys are asserted by name below rather
     // than skipped by a filter.
     expect(CC_CLAIMED_SLUGS).toHaveLength(11)
-    const collisions = CC_CLAIMED_SLUGS.filter((slug) => byName.has(slug)).map(
-      (slug) => `${slug} collides with ${(byName.get(slug) ?? []).join(', ')}`,
-    )
+
+    // A COLLISION IS TWO DIRECTORIES, NOT ONE. This read `byName.has(slug)`,
+    // which is true the moment ANY directory of that name exists — including
+    // the module's OWN built route. It therefore held only while no Command
+    // Center route existed at all, and went red on the first one built.
+    //
+    // `scripts/build-registries.mjs` has the rule right and states it in the
+    // error it throws: it refuses on `dirs.length > 1` — "Which one
+    // demonstrates the module is a guess; refusing to make it" — and treats
+    // exactly one directory of the claimed name as what `demonstrated` MEANS.
+    // A gate that disagrees with the generator about the same question is
+    // wrong wherever they differ, and here the generator is right.
+    //
+    // The hardening the comment above describes is untouched: a planted
+    // `slug: 'sign-in'` still collides two-to-one against frontline and
+    // studio, and is still caught. Both directions are asserted below.
+    const collisions = CC_CLAIMED_SLUGS.filter(
+      (slug) => (byName.get(slug) ?? []).length > 1,
+    ).map((slug) => `${slug} collides with ${(byName.get(slug) ?? []).join(', ')}`)
     expect(collisions).toEqual([])
+
+    // The narrowing above must not have made the check vacuous. `sign-in` is
+    // the live two-directory case, so the predicate is run against it directly:
+    // if a module ever claimed it, this is the value the filter would see.
+    expect((byName.get('sign-in') ?? []).length > 1, 'the predicate still fires').toBe(true)
 
     expect(
       CC_SCREENS.filter((s) => s.unownedSlug !== null).map((s) => [s.id, s.unownedSlug]),

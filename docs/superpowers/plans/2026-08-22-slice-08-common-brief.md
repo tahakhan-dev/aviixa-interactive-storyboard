@@ -467,3 +467,41 @@ a *missing* workflow version. The ten are a closed set in `src/offline/quarantin
 is recorded as a gap rather than patched by widening someone else's vocabulary.
 
 **Also: `DEC-WIDIFF-001` is in the shared canon**, not only `DEC-LIB-001` as the brief said.
+
+## The brief told task 12 to read a span the same brief forbade it to read
+
+Task 12's own half gave its storyboard as `SCR-CC-CONF-01`, **L80541** — and L80541 sits inside
+**L80485-L80602**, the §36.6 span the same brief forbids that task to open, because task 13
+builds it and the two treatments must not be reconciled by one implementer. The identifier
+occurs nine times and **every occurrence is in chapter 36 or later**; none is in chapter 21.
+
+**Chapter 21's storyboard is `SB-CC-21` at L38144**, which occurs **exactly once in 122,241
+lines**. The agent found the contradiction, refused the locator, and transcribed the right one.
+
+A brief that quarantines a span and then cites into it is worse than one that simply cites
+wrongly: it puts the agent in the position of having to disobey one instruction or the other.
+
+## And the route slug is the spine's, not the brief's
+
+The brief wrote `/command-center/sync-conflict-review`. `src/surfaces/cc/modules.ts` declares
+**`sync-conflict-review-panel`**, and so do the screen register and the module inventory, both
+of which name the module "Sync-conflict review panel". The task derived its slug from the spine
+and made the directory name the only literal — so had it followed the brief, `CC_NAV` would have
+published a path for a directory that does not exist, and the failure would have shown up in a
+browser rather than a test.
+
+## A wave-0 gate that held only while nothing was built
+
+`tests/unit/cc-spine.test.ts`'s slug-collision check read `byName.has(slug)`, which is true the
+moment **any** directory of that name exists — including the module's own built route. It
+therefore passed only while the Command Center had no routes at all, and went red on the first
+one.
+
+`scripts/build-registries.mjs` has the rule right and says so in the error it throws: it refuses
+on `dirs.length > 1` — "Which one demonstrates the module is a guess; refusing to make it" — and
+treats exactly one directory of the claimed name as what *demonstrated* means. **A gate that
+disagrees with the generator about the same question is wrong wherever they differ.**
+
+Narrowed to match, with both directions asserted: a planted `slug: 'sign-in'` still collides
+two-to-one against `app/frontline/sign-in` and `app/studio/sign-in` and is still caught —
+watched red, restored.
