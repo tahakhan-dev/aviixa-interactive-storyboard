@@ -196,7 +196,6 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
 
   return (
     <div role="group" aria-label="The card at the step" className="space-y-3">
-    role="group"
       <Heading>The card at the step</Heading>
 
       <div className="flex flex-wrap gap-2">
@@ -354,7 +353,6 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
 function Card() {
   return (
     <div role="group" aria-label="Identity card">
-    role="group"
       <Heading>The module, in the source&rsquo;s own words</Heading>
       <dl className="mt-2 space-y-2">
         {B8_CARD.map((s) => (
@@ -388,7 +386,6 @@ function Card() {
 function States() {
   return (
     <div role="group" aria-label="States">
-    role="group"
       <Heading>The five states this module names</Heading>
       <ul className="mt-2 space-y-1">
         {B8_STATES.map((s) => (
@@ -408,7 +405,6 @@ function States() {
 function Storyboard() {
   return (
     <div role="group" aria-label="Storyboard">
-    role="group"
       <Heading>
         {SB_FL_017.id} — {SB_FL_017.title}
       </Heading>
@@ -428,7 +424,6 @@ function Storyboard() {
 function MatrixTable({ viewerRole }: { readonly viewerRole: FlB8Column }) {
   return (
     <div role="group" aria-label="Permission matrix">
-    role="group"
       <Heading>Who may do what, all {FL_B8_SHAPE.cells} cells</Heading>
       <div className="mt-2 overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
@@ -553,7 +548,6 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: FlB8Column }) {
 function Functionalities() {
   return (
     <div role="group" aria-label="Functionalities">
-    role="group"
       <Heading>
         The {B8_FUNCTIONALITIES.length} functionalities, and the fallback each one names
       </Heading>
@@ -599,7 +593,6 @@ function Functionalities() {
 function Notifications() {
   return (
     <div role="group" aria-label="Notifications">
-    role="group"
       <Heading>Who is told, and who is not</Heading>
       <ul className="mt-2 space-y-2">
         {B8_NOTIFICATIONS.map((n) => (
@@ -626,7 +619,6 @@ function Notifications() {
 function Disclosures() {
   return (
     <div role="group" aria-label="Open decisions">
-    role="group"
       <Heading>Open decisions, disclosed rather than settled</Heading>
       <div className="mt-2 space-y-3">
         {B8_LOCAL_DISCLOSURES.map((d) => (
@@ -701,7 +693,6 @@ export function CoachingView({
       <TheCard viewerRole={viewerRole} />
 
       <div role="group" aria-label="Happy path">
-      role="group"
         <Heading>The path the source describes</Heading>
         <ol className="mt-2 space-y-1">
           {B8_HAPPY_PATH.map((s) => (
@@ -722,7 +713,6 @@ export function CoachingView({
       <Notifications />
 
       <div role="group" aria-label="What this module never claims">
-      role="group"
         <Heading>What this module never claims</Heading>
         <ul className="mt-2 space-y-2">
           {B8_CLAIMS_NEVER_MADE.map((c) => (
@@ -736,7 +726,6 @@ export function CoachingView({
       </div>
 
       <div role="group" aria-label="What this surface never displays">
-      role="group"
         <Heading>What no screen of this application displays, in any state</Heading>
         <ul className="mt-2 space-y-2">
           {B8_EXCLUDED_DISPLAYS.map((e) => (
@@ -749,7 +738,6 @@ export function CoachingView({
       </div>
 
       <div role="group" aria-label="Acceptance criteria">
-      role="group"
         <Heading>What this module has to be true</Heading>
         <ul className="mt-2 space-y-1">
           {B8_ACCEPTANCE_CRITERIA.map((a) => (
@@ -773,7 +761,6 @@ export function CoachingView({
       <Disclosures />
 
       <div role="group" aria-label="Where this module surfaces">
-      role="group"
         <Heading>Where this module surfaces, and where it does not</Heading>
         <ul className="mt-2 space-y-1">
           {B8_WHERE_IT_SURFACES.map((w) => (
@@ -787,7 +774,6 @@ export function CoachingView({
       </div>
 
       <div role="group" aria-label="Findings recorded rather than closed">
-      role="group"
         <Heading>Findings, recorded rather than closed</Heading>
         <ul className="mt-2 space-y-2">
           {B8_SOURCE_FINDINGS.map((f) => (

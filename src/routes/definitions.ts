@@ -101,8 +101,16 @@ const STUDIO_OPEN_DECISION_ROLES: readonly RouteOpenDecision[] = [
  * L40188, L40189, L40190, L40192 (`MOD-FL-A1`), L40361 (`MOD-FL-A2`),
  * L40526, L40534 (`MOD-FL-A3`), L40722 (`MOD-FL-A4`), L41300
  * (`MOD-FL-A7`), L41623, L41624 (`MOD-FL-B9`). Each of them defers to the
- * same unanswered question, so recording it once here is what stops eleven
- * cells being answered eleven times privately.
+ * same unanswered question — TEN of them, not eleven. The eleventh is L41300,
+ * MOD-FL-A7's remote-wipe row, whose cell gives its own different reason: the
+ * Statement of Work places device wipe and de-authorisation in the platform
+ * critical class and does not grant it to a Tenant Admin. `TENANT_ADMIN_OPEN_CELLS`
+ * in `@/frontline/matrix` types that split as `defersTo`, and answering THIS
+ * question would not answer that one.
+ *
+ * So recording it once here is what stops ten cells being answered ten times
+ * privately. This comment said eleven and eleven until an independent review
+ * of slice 7 found the correction had reached `matrix.ts` and nowhere else.
  *
  * IT ALSO CHANGES WHAT THE HUB SAYS. `crossSurfaceStatement` in
  * `@/surfaces/doh/boundary` reads `routeOpenDecisionFor` for every boundary

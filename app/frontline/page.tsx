@@ -231,8 +231,13 @@ export default function FrontlineHome() {
             {tenantAdminOpen.why}
           </p>
           <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Eleven cells across this surface&rsquo;s permission tables defer to this one
-            question. None of them is answered here in either direction.
+            Eleven cells across this surface&rsquo;s permission tables read{' '}
+            <span className="text-[var(--color-ink)]">Client Decision Required</span>, and{' '}
+            <span className="text-[var(--color-ink)]">ten</span> of them defer to this
+            question. The eleventh does not: it asks whether a Tenant Admin may trigger a
+            remote wipe, and its own cell gives a different reason — the Statement of Work
+            places device wipe and de-authorisation in the platform critical class. None of
+            the eleven is answered here in either direction.
           </p>
         </section>
       ) : null}

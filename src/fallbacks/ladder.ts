@@ -1,6 +1,6 @@
 /**
- * THE EIGHT-RUNG FALLBACK LADDER — §38.2, L82069 (Level 0) to L82212 (the last
- * row of Level 7).
+ * THE EIGHT RUNGS OF THE FALLBACK LADDER — §38.2, L82069 (Level 0) to L82212
+ * (the last row of Level 7).
  *
  * Eight levels, each a `Attribute | Specification` table, transcribed
  * header-keyed rather than positionally.
@@ -20,8 +20,8 @@
  * Operations Hub as sole system of record, each with its own `SoW Fact`
  * citation, and states that none of them has an alternate.
  *
- * That row is the source admitting that Level 2 — "switch to an approved
- * alternate" — is mostly theoretical on this platform. Dropping it to make the
+ * That row is the source admitting that Level 2, approved alternate
+ * dependency, is mostly theoretical on this platform. Dropping it to make the
  * ladder uniform at thirteen would delete the admission and leave a ladder
  * whose second rung reads as a real option everywhere. So `attributeCount` is
  * per-rung and `DECLARED_LADDER_ATTRIBUTE_COUNT` is the claim, kept separate,
@@ -70,7 +70,7 @@ export const DECLARED_LADDER_ATTRIBUTE_COUNT = 13
  */
 export const LEVEL_2_EXTRA_ATTRIBUTE = 'Honest scope note'
 
-export const FALLBACK_LADDER: readonly LadderRung[] = [
+export const FALLBACK_LADDER = [
   {
     level: 0,
     name: "primary path",
@@ -248,7 +248,7 @@ export const FALLBACK_LADDER: readonly LadderRung[] = [
       { attribute: "Test", specification: "`TEST-FB-027` — after a simulated two-hour outage, assert that the count of committed-locally captures equals applied plus suppressed plus quarantined plus dead-lettered, with zero unaccounted.", line: 82212 },
     ],
   },
-]
+] as const satisfies readonly LadderRung[]
 
 const BY_LEVEL = new Map<FallbackLevel, LadderRung>(FALLBACK_LADDER.map((r) => [r.level, r]))
 

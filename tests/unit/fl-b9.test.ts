@@ -850,8 +850,21 @@ describe('the sign-off and the forced sync', () => {
     // scenario and identity fixtures the context needs. Importing them here to
     // re-answer the same question would be a second spelling of one gate. This
     // file keeps the ordering, which is what this module depends on.
+    // The finding is still recorded, and it now describes a CLOSED defect. This
+    // assertion asked only that a row mentioning `queuedOffline` exist, which
+    // meant it pinned the wording in place: after the controller fixed the
+    // evaluator, the module went on rendering "returns queuedOffline" as a live
+    // finding and this gate REQUIRED it to. An independent review found it.
+    //
+    // So it now asserts the row exists AND that it reads as an account rather
+    // than a live report — the two together are what stop it going stale in
+    // either direction.
     const finding = B9_SOURCE_FINDINGS.find((f) => f.what.includes('queuedOffline'))
     expect(finding, 'the finding is recorded').toBeDefined()
+    expect(finding?.notClosedBecause ?? '', 'the finding reads as closed').toMatch(
+      /^IT IS CLOSED\./,
+    )
+    expect(finding?.what ?? '', 'the finding is written in the past tense').toContain('fixed by')
   })
 })
 

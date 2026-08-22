@@ -135,7 +135,7 @@ export interface TemplateField {
  * The declared closed set. Twenty-six, no fewer; the source's own rule is that
  * a genuinely inapplicable field must say so rather than be left empty.
  */
-export const FALLBACK_TEMPLATE_FIELDS: readonly TemplateField[] = [
+export const FALLBACK_TEMPLATE_FIELDS = [
   {
     number: 1,
     field: "Normal path",
@@ -318,7 +318,7 @@ export const FALLBACK_TEMPLATE_FIELDS: readonly TemplateField[] = [
     whyMandatory: "Prevents a false claim of complete coverage.",
     line: 82340,
   },
-]
+] as const satisfies readonly TemplateField[]
 
 /** The declared count, from the closure rule. Never derived from the array. */
 export const DECLARED_TEMPLATE_FIELD_COUNT = 26

@@ -98,7 +98,8 @@ import type { FrontlineMatrixCell, FrontlineMatrixRow } from '@/frontline/matrix
  * ONE `Client Decision Required` CELL: row 1's Tenant Admin (L40361), which
  * is one of the eleven wave 0 enumerates in `TENANT_ADMIN_OPEN_CELLS` and
  * the only one this module carries. It defers to the same unanswered
- * device-session question every one of the eleven defers to, recorded ONCE
+ * device-session question TEN of the eleven defer to — the eleventh, L41300,
+ * defers to the platform critical class instead — recorded ONCE
  * as a `RouteOpenDecision` in `src/routes/definitions.ts`. `AC-FL-009-5`
  * (L39948) forbids resolving it in either direction, so `openDecision`
  * names the criterion and this file holds no answer.

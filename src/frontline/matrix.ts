@@ -20,13 +20,21 @@ import type { FrontlineSlug } from './screens'
  * ── THE ORDER OF QUESTIONS ─────────────────────────────────────────────
  *
  * A ROW DESCRIBING ANOTHER SURFACE IS NEVER AN ENABLED CONTROL HERE,
- * WHATEVER ITS TOKEN READS. Thirty-odd Frontline cells carry `Allowed`,
+ * WHATEVER ITS TOKEN READS. THIRTY Frontline cells carry `Allowed`,
  * `Allowed with conditions` or `Read-only` while their own text places the
- * act on the Hub, the Command Center, the Studio or the platform console.
- * Eight of them end in the words "not here" or "never here". Six of them are
- * run cancellation and terminal completion, and `EXCL-FL-06` (L39489) makes
- * that an INVARIANT exclusion — shipping the control is a broken guarantee,
- * not a misplacement.
+ * act on the Hub, the Command Center, the Studio or the platform console —
+ * counted over all 539, not estimated.
+ *
+ * SEVEN of them end in the words "not here" or "never here", at L40369 (twice),
+ * L40532, L40535 (twice), L41473 and L42115. This comment said eight until an
+ * independent review counted them; the earlier figure was carried from a brief
+ * and never measured.
+ *
+ * EIGHT are run cancellation and terminal completion — four rows, Supervisor
+ * and Quality Manager on each, at L40369, L40535, L41953 and L41954 — and
+ * `EXCL-FL-06` (L39489) makes that an INVARIANT exclusion, so shipping the
+ * control is a broken guarantee rather than a misplacement. The same comment
+ * said six, which was the row count read as a cell count.
  *
  * `frontlineAffordance` is handed the token DELIBERATELY and reaches it
  * last. It is one ordering, not a special case per row, because the traps

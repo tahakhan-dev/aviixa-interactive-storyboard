@@ -30,10 +30,11 @@
  *                   unless that exact run is a named disclosure.
  *
  * `synced` is `bare-claim` only, and that is measured rather than assumed: the
- * built tree renders twenty-five legitimate uses of the word — a last-synced
- * time, which is the age clause doing its job, and the Frontline sync inbox
- * saying there is no single state called synced. A rule that reported those
- * would be a rule somebody switched off.
+ * built tree renders the word twenty-eight times and not once as a lone state.
+ * It is a last-synced time, which is the age clause doing its job, and it is
+ * the Frontline run list saying there is no single state called synced. A rule
+ * that reported those would be a rule somebody switched off. `done` measures
+ * the same way — twenty-four uses, none of them a state name.
  *
  * ## THE NINTH RULE IS NOT A TABLE ROW AND SAYS SO
  *
@@ -70,7 +71,7 @@ export interface LexiconRow {
  * The eight rows, in source order. Column three is the half a developer
  * actually needs: it is the wording that ships instead.
  */
-export const LEXICON: readonly LexiconRow[] = [
+export const LEXICON = [
   {
     id: 'hold-released',
     prohibited: '"Hold released"',
@@ -129,7 +130,7 @@ export const LEXICON: readonly LexiconRow[] = [
     replacement: '"All devices acknowledged as at 11:31"',
     blueprintLine: 78407,
   },
-]
+] as const satisfies readonly LexiconRow[]
 
 export type PhrasingScope = 'bare-claim' | 'any-rendering'
 
@@ -159,7 +160,7 @@ export interface PhrasingRule {
 const COPULA = '(?:is |are |was |were |has been |have been |been )?'
 const DEVICE = '(?:device|devices|tablet|tablets)'
 
-export const PHRASING_RULES: readonly PhrasingRule[] = [
+export const PHRASING_RULES = [
   {
     id: 'hold-released',
     pattern: `holds? ${COPULA}released`,
@@ -196,7 +197,7 @@ export const PHRASING_RULES: readonly PhrasingRule[] = [
     quote: 'Implies erasure occurred',
   },
   {
-    // `bare-claim` because the word has twenty-five honest uses in the built
+    // `bare-claim` because the word has twenty-eight honest uses in the built
     // tree and one dishonest shape. See the header.
     id: 'synced-alone',
     pattern: 'synced',
@@ -226,7 +227,7 @@ export const PHRASING_RULES: readonly PhrasingRule[] = [
     blueprintLine: 78384,
     quote: 'must never draw a tick next to',
   },
-]
+] as const satisfies readonly PhrasingRule[]
 
 /**
  * The one normalisation both sides pass through, so a comparison between a

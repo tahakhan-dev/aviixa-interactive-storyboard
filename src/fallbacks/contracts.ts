@@ -8,7 +8,7 @@ import type { RenderedRow } from './template'
  * fourteen families and fallbacks is not one of them, so nothing downstream
  * could name a contract without inventing it. §38.4 is transcribed here whole:
  * the library index at L82412 (header) to L82429 (the last family row), and
- * the seventy contracts from L82503 (`FB-NET-001`) to L84810 (`FB-PLAT-004`).
+ * the seventy contracts from `FB-NET-001` at L82503 to `FB-PLAT-004` at L84810.
  *
  * ── SEVENTY, PROVED FROM BOTH SIDES ────────────────────────────────────────
  * This is one of the counts that DOES reconcile, and it reconciles because two
@@ -76,7 +76,7 @@ export interface FallbackFamily {
   readonly line: number
 }
 
-export const FALLBACK_FAMILIES: readonly FallbackFamily[] = [
+export const FALLBACK_FAMILIES = [
   {
     family: "Network and connectivity",
     prefix: "FB-NET",
@@ -189,7 +189,7 @@ export const FALLBACK_FAMILIES: readonly FallbackFamily[] = [
     highestCriticality: "Operationally critical",
     line: 82429,
   },
-]
+] as const satisfies readonly FallbackFamily[]
 
 export type FallbackContractId =
   | "FB-NET-001"
@@ -283,7 +283,7 @@ export interface FallbackContract {
   readonly tableLine: number
 }
 
-export const FALLBACK_CONTRACTS: readonly FallbackContract[] = [
+export const FALLBACK_CONTRACTS = [
   {
     id: "FB-NET-001",
     prefix: "FB-NET",
@@ -2664,7 +2664,7 @@ export const FALLBACK_CONTRACTS: readonly FallbackContract[] = [
       "Residual risk and source status": "Residual risk: `DEC-FEAT-001` through `DEC-FEAT-005` remain open on feature-control authority and precedence, so configuration authority is not fully settled. Status: `SoW Fact` for the register and rejection behaviour; `Client Decision Required` for the feature-control questions.",
     },
   },
-]
+] as const satisfies readonly FallbackContract[]
 
 /**
  * The seventy identifiers as a runtime value, so a gate can compare the array
@@ -2797,9 +2797,16 @@ export function contractLocator(contract: FallbackContract): string {
  * `FB-SCHED-009` reads as the ninth scheduled-work contract — and the library
  * has six. A later task that looks one of these up here will find nothing, and
  * the wrong repair is to mint a seventy-first contract. The right one is to go
- * to the chapter that raised it: these come from Chapter 41’s artificial-
- * intelligence register, Chapter 29’s identity work, and Chapter 43’s
- * scheduled-work register, not from Chapter 38.
+ * to the chapter that raised it, each of which was opened and read rather than
+ * guessed: the eight `FB-AI-1xx` belong to Chapter 41, Artificial Intelligence
+ * Object and Configuration Lifecycles; `FB-AUTH-005` to Chapter 30, Complete
+ * Storyboard Catalog; and the six `FB-SCHED-0xx` to Chapter 45A, Scheduled
+ * Jobs, Recurring Automation, Delayed Work, Expiry-Driven Work, and Cron
+ * Architecture. None of the fifteen is raised in Chapter 38.
+ *
+ * A FIRST DRAFT OF THIS COMMENT NAMED CHAPTERS 29 AND 43 AND WAS WRONG ON BOTH.
+ * Recorded because it is the defect this build keeps finding in itself: a
+ * plausible reference written from memory rather than from the line.
  *
  * Listed rather than described, because a reader who needs this list is
  * already looking at an identifier and asking why it is missing.

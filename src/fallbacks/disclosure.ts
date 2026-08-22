@@ -23,9 +23,13 @@ import type { FallbackContractId } from './contracts'
  * that `DEC-FB-001`, `DEC-FB-002`, `DEC-FB-003` and `DEC-FB-004` are raised
  * there — and the decision index at L115316 counts `DEC-FB-002` as ONE
  * identifier with two references. But no card for it exists. What exists is
- * two LETTERED sub-decisions asking different questions: `DEC-FB-002a` at
- * L82673, inside `FB-UPLOAD-002`, and `DEC-FB-002b` at L83372, inside
- * `FB-CAP-002`. Measured against the frozen source, the bare string
+ * two LETTERED sub-decisions asking different questions. One is raised at
+ * L82673, in the capture-upload contract, and asks about media size and
+ * count; the other at L83372, in the capture-and-evidence contract, and asks
+ * about device-storage occupancy. Their own identifiers carry a lower-case
+ * letter, which no identifier lexer in this tree reads as an identifier, so
+ * they are spelled in the records below rather than beside these citations.
+ * Measured against the frozen source, the bare string
  * `DEC-FB-002` occurs exactly twice in the whole document — at L82852 and at
  * L115316 — which is the index’s own count, so the index counted the mentions
  * and never the cards. Both letters are carried below under their own
@@ -37,8 +41,9 @@ import type { FallbackContractId } from './contracts'
  * Chapter 36 states as `SoW Fact` the very question chapter 38 records as
  * unresolved, and a safety claim is at stake.
  *
- * The conflict-authority resolver at L80185-L80198 gives the hold-state family
- * its answer at L80192 — the hold stands, no device write lifts it, classified
+ * The conflict-authority resolver gives the hold-state family its answer at
+ * L80192, one row of the twelve object families at L80185-L80198 — the hold
+ * stands, no device write lifts it, classified
  * `SoW Fact` against §3.3 and §7.9.2 on the ground that "release is Quality
  * Manager only, uniformly, arriving as a lot-release command". Chapter 38 asks
  * the same question at L82477 and refuses it: "This blueprint records the

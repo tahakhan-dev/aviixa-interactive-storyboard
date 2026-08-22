@@ -4,18 +4,26 @@ import { CC_MODULE_SPINE, ccModule, type CcModuleId } from './modules'
 /* ==================================================================== *
  * THE `SCR-CC-*` CATALOGUE — thirteen screens, one register.
  *
- * ONE REGISTER, NOT TWO, AND THAT WAS CHECKED RATHER THAN ASSUMED. The
+ * ONE REGISTER, NOT TWO, AND THAT WAS MEASURED RATHER THAN ASSUMED. The
  * Frontline needed RULING FL-1 because two registers both called themselves
- * "the screen register" and shared six tokens. The Command Center does not
- * have that problem: `SCR-CC-01` through `SCR-CC-13` each occur exactly
- * TWICE in the frozen source — once as a register row (L48386-L48398) and
- * once as a node of the navigation flowchart that follows it — and nothing
- * else in the chapter uses a numbered `SCR-CC-*` token. The chapter's other
- * ninety-odd `SCR-CC-*` tokens are storyboard identifiers in a different
- * shape entirely (`SCR-CC-BOARD-01`, `SCR-CC-CONF-01`, `SCR-CC-DEVWS-05`),
- * so they cannot collide with a numbered one. No ruling is needed here, and
- * writing one would be a second spelling of a decision the source already
- * makes.
+ * "the screen register" and shared six tokens, and five of the six named
+ * different screens. The Command Center has no rival register: across all
+ * 122,241 lines, exactly THIRTEEN table rows are keyed on a numbered
+ * `SCR-CC-*` token, and all thirteen are the rows of this one register
+ * (L48386-L48398). `cc-spine.test.ts` re-derives that count off the frozen
+ * source rather than trusting this sentence.
+ *
+ * THE COUNT OF OCCURRENCES IS NOT TWO, AND THE FIRST WRITING OF THIS COMMENT
+ * SAID IT WAS. Each numbered token appears in the register row and again as
+ * a node of the navigation flowchart below it, but `SCR-CC-02` also heads a
+ * state inventory and `SCR-CC-05` is named by a storyboard and by an
+ * illustrative example, so the totals run two to four. That is prose
+ * referring to a screen, not a second assignment of its name, which is why
+ * the claim above counts TABLE ROWS. The chapter's other ninety-odd
+ * `SCR-CC-*` tokens are storyboard identifiers in a different shape entirely
+ * (`SCR-CC-BOARD-01`, `SCR-CC-CONF-01`, `SCR-CC-DEVWS-05`) and cannot
+ * collide with a numbered one. No ruling is needed here, and writing one
+ * would be a second spelling of a decision the source already makes.
  *
  * THE IDENTIFIER IS STILL NOT A ROUTE KEY. That much DOES transfer, from
  * `src/studio/screens.ts` and `src/frontline/screens.ts` alike: routes are

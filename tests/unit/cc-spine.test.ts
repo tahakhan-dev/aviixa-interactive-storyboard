@@ -75,8 +75,15 @@ describe('the thirteen-module inventory', () => {
   // FAILS IF: the count stops being thirteen on either side. The expectation
   // is the SOURCE's own criterion read at test time, not a literal typed
   // here and not `CC_MODULE_SPINE.length` compared with itself.
-  // PLANTED: deleted the MOD-CC-05 record from `src/surfaces/cc/modules.ts`.
+  // PLANTED: deleted the MOD-CC-13 record from `src/surfaces/cc/modules.ts`.
   // RED: expected 12 to be 13.
+  // PLANTED FIRST, AND IT PROVED SOMETHING ELSE: deleting MOD-CC-05 instead
+  //   took the whole file down at IMPORT — `CC_NAV` derives every route key
+  //   eagerly, so a module SCR-CC-06 says it owns going missing throws
+  //   `Unknown Command Center module: MOD-CC-05` before a single test runs.
+  //   That is a louder failure than this gate, and it is why the plant moved
+  //   to the one module no screen owns: a gate proven only by a crash is a
+  //   gate whose own assertion was never exercised.
   it('carries the count the source fixes, read off the criterion', () => {
     expect(srcLine(35261)).toContain('AC-CC-040')
     expect(srcLine(35261)).toContain('exactly thirteen modules')
@@ -202,6 +209,35 @@ describe('the thirteen-screen register', () => {
     expect(cells(srcLine(48385)).every((c) => /^-+$/.test(c))).toBe(true)
   })
 
+  // FAILS IF: a second register of numbered SCR-CC tokens exists anywhere in
+  // the frozen source and this build has not seen it. That is not a
+  // hypothetical: the Frontline carries exactly that, two registers sharing
+  // six tokens with five naming different screens, and it needed a whole
+  // ruling. The claim here is measured over ALL 122,241 lines and it is
+  // counted on TABLE ROWS, not on occurrences — a numbered token appears two
+  // to four times each in prose, flowchart nodes, a state inventory and a
+  // storyboard, and the first writing of this file's comment asserted "each
+  // occurs exactly twice", which is false.
+  // PLANTED: the subject is the frozen source, which is read-only, so the
+  //   plant is in the pattern. Widening `SCR-CC-` to `SCR-[A-Z]+-` picks up
+  //   every other surface's register.
+  // RED: expected [ 39863, 39864, 39865, 39866, …(80) ] to deeply equal
+  //      [ 48386, 48387, 48388, 48389, …(9) ].
+  // A WIDENING THAT STAYED GREEN WAS TRIED FIRST and is recorded because it
+  //   is the more useful finding: broadening the numeric part to
+  //   `SCR-CC-[A-Z0-9-]+` changed nothing, which says the chapter's ninety-odd
+  //   storyboard tokens never head a table row. A plant whose result is
+  //   identical to the fix proves nothing about the gate, and this file has
+  //   now shipped one of those.
+  it('finds no second register of numbered screen identifiers anywhere', () => {
+    const rows = LINES.map((l, i) => [i + 1, l] as const).filter(([, l]) =>
+      /^\| *`?SCR-CC-(0[1-9]|1[0-3])`? *\|/.test(l),
+    )
+    expect(rows.map(([n]) => n)).toEqual(
+      Array.from({ length: 13 }, (_, i) => REGISTER_FIRST + i),
+    )
+  })
+
   // FAILS IF: a screen's `rolesThatCanOpen` stops agreeing with the words of
   // its own roles column. The check is a containment test against the column
   // TEXT, so a role added to the list without being in the column fails, and
@@ -289,8 +325,9 @@ describe('route ownership', () => {
   // bare "no collisions" check silently, which is the defect
   // `scripts/build-registries.mjs` calls out in its own words.
   // PLANTED: changed MOD-CC-01's `slug` to 'sign-in'.
-  // RED: sign-in collides with app/frontline/sign-in, app/studio/sign-in ->
-  //      expected [ 'sign-in collides with …' ] to deeply equal [].
+  // RED: expected [ 'sign-in collides with app/frontline/sign-in,
+  //      app/studio/sign-in' ] to deeply equal []. STAYED GREEN on the first
+  //      writing of this gate — see the note on the filter below.
   it('claims no slug that any surface already uses as a route directory', () => {
     const byName = new Map<string, string[]>()
     for (const surface of readdirSync('app')) {
@@ -311,15 +348,27 @@ describe('route ownership', () => {
       join('app', 'studio', 'sign-in'),
     ])
 
-    const keys: string[] = [
-      ...CC_CLAIMED_SLUGS,
-      ...CC_SCREENS.flatMap((s) => (s.unownedSlug === null ? [] : [s.unownedSlug])),
-    ]
-    expect(keys.length).toBeGreaterThan(11)
-    const collisions = keys
-      .filter((slug) => slug !== 'sign-in' && byName.has(slug))
-      .map((slug) => `${slug} collides with ${(byName.get(slug) ?? []).join(', ')}`)
+    // NO CLAIMED SLUG IS EXEMPT, AND THE EXEMPTION THAT USED TO SIT HERE WAS
+    // THE DEFECT. This filter read `slug !== 'sign-in' && byName.has(slug)`,
+    // so planting `slug: 'sign-in'` on MOD-CC-01 left it GREEN: the allowance
+    // took its allowed string from the value under test, which is one of the
+    // eleven shapes slice 7 recorded. A CLAIMED slug may never collide. The
+    // one route key that legitimately IS `sign-in` is declared UNOWNED by
+    // SCR-CC-01, and the two unowned keys are asserted by name below rather
+    // than skipped by a filter.
+    expect(CC_CLAIMED_SLUGS).toHaveLength(11)
+    const collisions = CC_CLAIMED_SLUGS.filter((slug) => byName.has(slug)).map(
+      (slug) => `${slug} collides with ${(byName.get(slug) ?? []).join(', ')}`,
+    )
     expect(collisions).toEqual([])
+
+    expect(
+      CC_SCREENS.filter((s) => s.unownedSlug !== null).map((s) => [s.id, s.unownedSlug]),
+    ).toEqual([
+      ['SCR-CC-01', 'sign-in'],
+      ['SCR-CC-03', 'cell-view'],
+    ])
+    expect(byName.has('cell-view'), 'cell-view is unbuilt and uncontested').toBe(false)
   })
 
   // FAILS IF: the navigation model stops being derived, or the sign-in screen
@@ -369,9 +418,17 @@ describe('MOD-CC-02 is chrome and MOD-CC-13 is uncatalogued', () => {
   // not satisfy this.
   // PLANTED: changed SCR-CC-10's `modulesShown` to
   //          'MOD-CC-10 all features, MOD-CC-13'.
-  // RED: MOD-CC-10 all features, MOD-CC-13 (L48395) names MOD-CC-13 ->
-  //      expected true to be false. (The cell-by-cell gate above went red on
-  //      the same plant, which is the pair working as intended.)
+  // RED: SCR-CC-10 modules column -> expected 'MOD-CC-10 all features' to be
+  //      'MOD-CC-10 all features, MOD-CC-13'. The cell-by-cell register gate
+  //      went red on the same plant, which is the pair working as intended.
+  // THIS NOTE FILED A FALSE CITATION ON ITS FIRST WRITING, and
+  //      `tests/coverage/locator-fidelity.test.ts` caught it. The note quoted
+  //      the planted cell verbatim and put SCR-CC-10's register line in
+  //      brackets after it, which reads as an identifier-anchored citation
+  //      of MOD-CC-13 at a line that carries MOD-CC-10. Rewriting it to
+  //      EXPLAIN the mistake reproduced it, because the explanation quoted
+  //      the offending pair. A planted defect described with a line number is
+  //      still a citation, and so is a post-mortem of one.
   it('finds MOD-CC-02 on the register and MOD-CC-13 nowhere on it', () => {
     const registerRows = Array.from({ length: 13 }, (_, i) => srcLine(REGISTER_FIRST + i))
     expect(registerRows.filter((r) => r.includes('MOD-CC-02'))).toHaveLength(1)
@@ -437,7 +494,27 @@ const ctxFor = (role: RoleId, online = true): AccessContext => ({
   actorOfRecord: 'USR-TEST',
 })
 
+/**
+ * THE TWO EXCLUDED ROLES, NAMED HERE AS LITERALS AND NOT READ OUT OF THE
+ * CONSTANT UNDER TEST. Every assertion below used to loop over
+ * `CC_EXCLUDED_ROLES`, and planting a shortened constant — dropping 'WORKER'
+ * — left the whole block GREEN, because the loop's subject shrank along with
+ * its subject. That is the `toEqual([...MY_CONSTANT])` tautology from slice 7
+ * wearing a `for...of`. These two are the SOURCE's, at L34963 and L34965, and
+ * the constant is checked AGAINST them rather than trusted to supply them.
+ */
+const EXCLUDED_BY_SOURCE = ['READONLY_AUDITOR', 'WORKER'] as const satisfies readonly RoleId[]
+
 describe('the two roles excluded at the surface boundary', () => {
+  // FAILS IF: the shipped exclusion list stops being those two — shortened,
+  // or widened to a role the source admits.
+  // PLANTED: removed 'WORKER' from `CC_EXCLUDED_ROLES`.
+  // RED: expected [ 'READONLY_AUDITOR' ] to deeply equal
+  //      [ 'READONLY_AUDITOR', 'WORKER' ].
+  it('excludes exactly the two the source excludes', () => {
+    expect([...CC_EXCLUDED_ROLES]).toEqual([...EXCLUDED_BY_SOURCE])
+  })
+
   // FAILS IF: an excluded role gets past the door. THE REQUEST EXPLICITLY
   // GRANTS THE ROLE IT IS ASKING ABOUT — `allowedRoles` names the auditor and
   // the worker — because an evaluator that consults the request first would
@@ -451,11 +528,11 @@ describe('the two roles excluded at the surface boundary', () => {
   //          `src/surfaces/cc/access.ts`.
   // RED: WORKER online=true -> expected 'allowed' to be 'explicitlyProhibited'.
   it('refuses them even when the request grants them, online or off', () => {
-    for (const role of CC_EXCLUDED_ROLES) {
+    for (const role of EXCLUDED_BY_SOURCE) {
       for (const online of [true, false]) {
         const req: AccessRequest = {
           action: 'cc.open-screen',
-          allowedRoles: [...CC_EXCLUDED_ROLES],
+          allowedRoles: [...EXCLUDED_BY_SOURCE],
           sourceRefs: ['L48386'],
         }
         const d = evaluateCCAccess(req, ctxFor(role, online))
@@ -503,7 +580,7 @@ describe('the two roles excluded at the surface boundary', () => {
     expect(listing).toEqual([])
 
     for (const s of CC_SCREENS) {
-      for (const role of CC_EXCLUDED_ROLES) {
+      for (const role of EXCLUDED_BY_SOURCE) {
         expect(ccScreenOpensFor(s.id, role), `${s.id} / ${role}`).toBe(false)
       }
       expect(ccScreenOpensFor(s.id, s.rolesThatCanOpen[0] as RoleId), s.id).toBe(true)

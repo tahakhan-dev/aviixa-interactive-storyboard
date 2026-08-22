@@ -162,6 +162,46 @@ export type CommandAlternativeState =
 
 export type CommandState = CommandAppliedState | CommandAlternativeState
 
+/**
+ * THE SAME FIFTEEN STATES AS `@/surfaces/sa/command-state`, SPELLED
+ * DIFFERENTLY, AND NOTHING BOUND THEM UNTIL NOW.
+ *
+ * Both vocabularies transcribe the source's fifteen command states. They
+ * differ in exactly one member: the platform console writes
+ * `'available for delivery'` and this file writes `'available-for-delivery'`,
+ * because these are used as object keys and record fields where the console's
+ * are prose labels. Neither spelling is wrong.
+ *
+ * What was wrong is that nothing said they were the same fifteen. A reader of
+ * either file had no way to know the other existed, and a state added to one
+ * would not appear in the other — which is how a "closed" vocabulary stops
+ * being closed. Slice 8's honesty-kernel task found it while consuming the
+ * console's union, and reported it rather than minting a third.
+ *
+ * `SA_SPELLING` is the whole binding: a total map from this file's members
+ * onto the console's, so adding a member here without deciding its console
+ * spelling does not compile, and `tests/unit/fl-commands.test.ts` asserts the
+ * image is exactly `COMMAND_STATES`. The two cannot drift apart in either
+ * direction without a red.
+ */
+export const SA_SPELLING: Readonly<Record<CommandState, string>> = {
+  created: 'created',
+  authorized: 'authorized',
+  queued: 'queued',
+  'available-for-delivery': 'available for delivery',
+  delivered: 'delivered',
+  downloaded: 'downloaded',
+  validated: 'validated',
+  applied: 'applied',
+  acknowledged: 'acknowledged',
+  rejected: 'rejected',
+  failed: 'failed',
+  expired: 'expired',
+  cancelled: 'cancelled',
+  superseded: 'superseded',
+  reconciled: 'reconciled',
+}
+
 export const COMMAND_APPLIED_LADDER = [
   'created',
   'authorized',

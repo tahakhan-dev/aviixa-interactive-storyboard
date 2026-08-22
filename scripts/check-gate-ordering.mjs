@@ -133,6 +133,20 @@ const AUDITED = {
       'compares against. Contrast registry-freshness, which compared committed artefacts to ' +
       'freshly generated ones and could only ever compare a directory to itself.',
   },
+  'rendered-text-sanity.test.ts': {
+    subject: 'every index.html under out/, as text nodes',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS. `build` writes the subject and runs first, and this gate reads nothing ' +
+      'else -- but it compares the built pages against SHAPES, not against anything the ' +
+      'build could satisfy by rewriting. An attribute assignment, a closing tag or an ' +
+      'orphaned brace-paren appearing as prose is a defect whatever produced it. The gate ' +
+      'was written because `role="group"` shipped fourteen times as visible text on the Run ' +
+      'Player while four independent harnesses stayed green, and it carries a third case ' +
+      'that runs its own predicate over that exact string and over this build\'s ordinary ' +
+      'prose, so it cannot quietly stop seeing either.',
+  },
   'slice-07-absence-sweep.test.ts': {
     subject:
       'out/frontline/**/index.html and out/_next/static/**, against the frozen blueprint and ' +

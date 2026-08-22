@@ -358,7 +358,9 @@ describe('what each cell draws', () => {
   // FAILS IF: the one open cell of this matrix stops disclosing that it is
   // open. `AC-FL-009-5` (L39948) forbids resolving the Tenant Admin device-
   // session question in either direction, and `src/routes/definitions.ts`
-  // records it once for all eleven cells that defer to it — this one being
+  // records it once for the TEN cells that defer to it — eleven cells carry the
+  // token and the eleventh, L41300, defers to the platform critical class
+  // instead, which `TENANT_ADMIN_OPEN_CELLS` types as `defersTo` — this one being
   // MOD-FL-A4's, at L40722.
   it('carries the one Client Decision Required cell as open, and it is the Tenant Admin’s', () => {
     const open = FLA4_MATRIX.flatMap((row) =>

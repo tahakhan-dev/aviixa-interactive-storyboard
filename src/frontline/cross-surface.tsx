@@ -197,7 +197,7 @@ export const FL_ACTS_HELD_ELSEWHERE = [
     capability: 'Cancelling a Run, and terminally completing one.',
     owningSurface: 'SURF-DOH',
     whatHappensThere:
-      'A Supervisor cancels in their own area and a Quality Manager in any area, both with a categorised reason. Six cells across three of this surface’s matrices read Allowed or Allowed with conditions for those two roles, and every one of them says "in the Delivery Operations Hub" or "not here". EXCL-FL-06 makes it an invariant exclusion, so a control here would be a broken guarantee rather than a misplaced button.',
+      'A Supervisor cancels in their own area and a Quality Manager in any area, both with a categorised reason. Eight cells across three of this surface’s matrices read Allowed or Allowed with conditions for those two roles — four rows, both roles on each. Seven of the eight name the Hub or end in "not here"; the eighth, the Quality Manager’s cell on the terminal-completion row, reads only "— same", which the row above it supplies. EXCL-FL-06 makes it an invariant exclusion, so a control here would be a broken guarantee rather than a misplaced button.',
     sourceRef: 'L40369, L40535, L41953, L41954; EXCL-FL-06 at L39489',
   },
   {

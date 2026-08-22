@@ -25,6 +25,7 @@ import {
   FALLBACK_CONTRACTS,
   FALLBACK_CONTRACT_IDS,
   FALLBACK_FAMILIES,
+  FB_IDS_OUTSIDE_THE_LIBRARY,
   contractsInFamily,
   fallbackContract,
 } from '@/fallbacks/contracts'
@@ -443,7 +444,13 @@ describe('the eight-rung ladder, and the fourteenth attribute at Level 2', () =>
       const rows = rowsForLevel(heading.line)
       expect(rung.attributes).toHaveLength(rows.length)
       rows.forEach((row, k) => {
-        const attr = at(rung.attributes, k, 'attribute')
+        // Spread because `FALLBACK_LADDER` is `as const satisfies` — the idiom
+        // `tests/coverage/slice-2c-gates.test.ts` gate 2 requires, and the one a
+        // leading `readonly LadderRung[]` annotation would defeat. That keeps
+        // `attributes` a tuple of distinct literal object types, which does not
+        // assign to a `readonly (A | B | …)[]` parameter. Widening the const back
+        // to silence it would put the rejected annotation straight back.
+        const attr = at([...rung.attributes], k, 'attribute')
         expect(attr.attribute).toBe(at(row.cells, 0, 'attribute'))
         expect(attr.specification).toBe(at(row.cells, 1, 'specification'))
         expect(L(attr.line)).toBe(row.text)
@@ -659,5 +666,38 @@ describe('every line number this build ships is a line that carries what is clai
     for (const family of FALLBACK_FAMILIES) {
       expect(L(family.line).startsWith(`| ${family.family} |`)).toBe(true)
     }
+  })
+})
+
+describe('FB-* is a wider namespace than this library, and the look-alikes are named', () => {
+  const declaredPrefixes = new Set(FALLBACK_FAMILIES.map((f) => f.prefix as string))
+
+  it('every look-alike is real, is shaped like a library identifier, and is not one', () => {
+    expect(FB_IDS_OUTSIDE_THE_LIBRARY.length).toBeGreaterThan(0)
+    const shipped = new Set<string>(FALLBACK_CONTRACT_IDS)
+    for (const id of FB_IDS_OUTSIDE_THE_LIBRARY) {
+      // Real: it is in the frozen source.
+      expect(sourceLines.some((line) => line.includes(id))).toBe(true)
+      // Shaped like one: a declared family prefix and a three-digit ordinal.
+      expect(id).toMatch(/^FB-[A-Z]+-\d{3}$/)
+      expect(declaredPrefixes.has(id.replace(/-\d{3}$/, ''))).toBe(true)
+      // And not one: absent from the seventy, and never a contract heading.
+      expect(shipped.has(id)).toBe(false)
+      expect(sourceHeadings.some((h) => h.id === id)).toBe(false)
+    }
+  })
+
+  it('is complete: no other identifier of that exact shape sits outside the seventy', () => {
+    const shipped = new Set<string>(FALLBACK_CONTRACT_IDS)
+    const found = new Set<string>()
+    for (const line of sourceLines) {
+      for (const m of line.matchAll(/(?<![A-Za-z0-9-])FB-[A-Z]+-\d{3}(?![A-Za-z0-9-])/g)) {
+        const id = m[0]
+        if (!shipped.has(id) && declaredPrefixes.has(id.replace(/-\d{3}$/, ''))) found.add(id)
+      }
+    }
+    // Derived from the source, then compared. A look-alike that appears later
+    // and is not listed turns this red rather than going unnoticed.
+    expect([...found].sort()).toEqual([...FB_IDS_OUTSIDE_THE_LIBRARY].sort())
   })
 })

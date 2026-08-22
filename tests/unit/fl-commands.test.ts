@@ -1,3 +1,4 @@
+import { COMMAND_STATES } from '@/surfaces/sa/command-state'
 import { describe, it, expect } from 'vitest'
 import {
   COMMAND_ALTERNATIVE_STATES,
@@ -6,6 +7,7 @@ import {
   COMMAND_STATE_ACTOR,
   DEC_SYNC_001_ORDER,
   FL_COMMAND_CLASSES,
+  SA_SPELLING,
   STOP_CLASS_ITEMS_WITHOUT_A_COMMAND_CLASS,
   admitCommandClass,
   commandsForPhase,
@@ -163,5 +165,30 @@ describe('DEC-SYNC-001 — the reconnection order', () => {
       expect(g.openDecision, g.item).toBe('DEC-CMDCLASS-001')
       expect(g.whereTheActLives, g.item).toContain('L41300')
     }
+  })
+})
+
+describe('the fifteen command states, bound to the platform console\u2019s spelling', () => {
+  // FAILS IF: this file's fifteen states and `@/surfaces/sa/command-state`'s
+  // fifteen stop being the same set.
+  //
+  // They differ in one member's spelling — `available-for-delivery` here,
+  // `available for delivery` there — because these are object keys and those
+  // are prose labels. Neither is wrong. What was wrong is that NOTHING SAID
+  // THEY WERE THE SAME FIFTEEN, so a state added to one would never appear in
+  // the other and a closed vocabulary would quietly stop being closed. Slice
+  // 8's honesty-kernel task found it while consuming the console's union.
+  //
+  // Planted: `SA_SPELLING['acknowledged']` changed to `'acknowledged '` with a
+  // trailing space. Went red on the set comparison. Restored.
+  it('maps onto exactly the console\u2019s fifteen, in both directions', () => {
+    const mine = [...COMMAND_APPLIED_LADDER, ...COMMAND_ALTERNATIVE_STATES]
+    expect(mine).toHaveLength(15)
+    expect(new Set(mine).size).toBe(15)
+    expect(new Set(COMMAND_STATES).size).toBe(15)
+    expect(new Set(mine.map((s) => SA_SPELLING[s]))).toEqual(new Set(COMMAND_STATES))
+    // and the map is total over this file's union, so a member added here
+    // without a console spelling does not compile rather than silently missing.
+    expect(Object.keys(SA_SPELLING)).toHaveLength(15)
   })
 })

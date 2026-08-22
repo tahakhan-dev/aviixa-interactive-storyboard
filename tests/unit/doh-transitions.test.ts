@@ -570,7 +570,7 @@ describe('an automatic transition has no actor', () => {
       'DEV-HUB-11',
       'SESS-77',
     ]) {
-      expect(emitted.join(' '), `identity fragment ${needle} leaked`).not.toContain(needle)
+      expect(emitted.join('\n'), `identity fragment ${needle} leaked`).not.toContain(needle)
     }
     // The identity really was reachable — otherwise the loop above proves
     // nothing about leakage, only that the fixture was unused.

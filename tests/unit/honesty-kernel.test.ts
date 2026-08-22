@@ -172,13 +172,14 @@ describe('honesty kernel: the prohibited-phrasing lexicon', () => {
 
   it('reads the table the header at L78398 introduces and nothing past its end', () => {
     expect(lineAt(78398)).toContain(fold('| Prohibited phrasing | Why it breaks the rule |'))
-    // One row past the last is the fenced diagram, not a ninth row.
+    // The line after the last row is blank, so the table ends where the
+    // transcription says it does and there is no ninth row to have missed.
     expect(sourceLines[78407] ?? 'x').toBe('')
   })
 
   it('gives every row a rule, and every rule its own words at its own line', () => {
     expect(PHRASING_RULES).toHaveLength(LEXICON.length + 1)
-    const ruleIds = new Set(PHRASING_RULES.map((r) => r.id))
+    const ruleIds = new Set<string>(PHRASING_RULES.map((r) => r.id))
     expect(LEXICON.filter((row) => !ruleIds.has(row.id)).map((row) => row.id)).toEqual([])
     const wrong = PHRASING_RULES.filter((r) => !lineAt(r.blueprintLine).includes(fold(r.quote))).map(
       (r) => `${r.id}: L${String(r.blueprintLine)} does not carry its quote`,
@@ -187,7 +188,7 @@ describe('honesty kernel: the prohibited-phrasing lexicon', () => {
   })
 
   it('carries exactly one rule with no table row of its own, and says which', () => {
-    const rowIds = new Set(LEXICON.map((row) => row.id))
+    const rowIds = new Set<string>(LEXICON.map((row) => row.id))
     const extra = PHRASING_RULES.filter((r) => !rowIds.has(r.id))
     expect(extra.map((r) => r.id)).toEqual(['tick-next-to-done'])
     expect(lineAt(78384)).toContain(fold('must never draw a tick next to'))

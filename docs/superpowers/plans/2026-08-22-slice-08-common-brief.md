@@ -76,17 +76,20 @@ single implementer holds both**, which is deliberate.
 
 ## The strongest false claim available in this slice
 
-**Chapter 36 states as `SoW Fact` the very question chapter 38 records as unresolved.** L80190
-reads "The hold stands; no device write lifts it | SoW Fact — §3.3, §7.9.2". L82477 records
-`DEC-FB-008` and explicitly does not choose. A safety claim is at stake, so **both readings
-and both locators are recorded and neither is chosen.**
+**Chapter 36 states as `SoW Fact` the very question chapter 38 records as unresolved.**
+**L80192** — not L80190, which this brief cited until task 4 opened it and found the
+evidence-object row — reads "The hold stands; no device write lifts it | `SoW Fact — §3.3,
+§7.9.2`". L82477 records `DEC-FB-008` and explicitly does not choose. A safety claim is at
+stake, so **both readings and both locators are recorded and neither is chosen.** A build that
+took the wrong line on trust would have cited a photograph-retention rule as its `SoW Fact` on
+Severity 1 holds.
 
 ## Nine count contradictions, all measured, none to be tidied
 
 | what | claimed | counted | locators |
 |---|---|---|---|
-| offline artefacts | 22 | **21** | enumeration L78386; "twenty-two" at L78442, L78452, L78458, L78950 |
-| fallback template fields | 26 | **24 rendered** | template L82313-L82340; closure rule L82242; 70 instances L82505-L84837 |
+| offline artefacts | 22 | **21** | enumeration L78386; "twenty-two" at L78442, L78452, L78458 and **L78951** — this brief cited L78950, which is the twenty-event matrix row, until task 3 opened it |
+| fallback template fields | 26 declared, 24 rendered, **27 in the class diagram** | the source reconciles the first two ITSELF at **L82431** — "Every contract below is rendered as a twenty-four-row table covering the twenty-six template fields" — and then lists the 24. The class diagram at L82260-L82288 gives 27, splitting a pair the prose table keeps | template L82313-L82340; closure rule L82242; reconciliation **L82431**; instances L82505-L84837 |
 | ladder attributes | 13 | **14 at Level 2** | claim L82067; Level 2 L82107-L82122, the extra being "Honest scope note" at L82122 |
 | convergence columns | 9 | **11** (14 rows) | claim L85123; header L85157; data L85159-L85172 |
 | 37B open decisions | 8 | **7 open** after DEC-SYNC-001 | table L81730-L81739; exemption L81728; "eight" L81761; "every item" L81763 |

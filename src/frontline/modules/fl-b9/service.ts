@@ -15,14 +15,22 @@ import { FL_COMMAND_CLASSES, effectiveOnThisDevice } from '@/frontline/commands'
  * the actor is rather than take acts. This module takes acts, so the
  * evaluator would be the right call — except for one of them.
  *
- * `evaluateFrontlineAccess` checks `forcesSyncFirst` INSIDE its `ctx.online`
+ * `evaluateFrontlineAccess` CHECKED `forcesSyncFirst` INSIDE its `ctx.online`
  * branch (`src/frontline/access.ts`), so a permitted WRITE taken offline
- * returns `queuedOffline` whether or not the act forces a sync first. For a
+ * returned `queuedOffline` whether or not the act forced a sync first. For a
  * supervisor sign-off that outcome is a false claim in the source's own
  * words: `FUNC-B9-03-1-2` (L41706) — "Offline: blocks the sign-off" — and
  * `TEST-B9-7` (L41765) asks a test to assert the forced sync blocks it and
  * NO PARTIAL SIGN-OFF RECORD IS CREATED. A queued sign-off is a partial
  * record of exactly that kind.
+ *
+ * THAT IS PAST TENSE NOW. The controller moved the check above the
+ * connectivity branch after this module and `MOD-FL-A1` reported it
+ * independently, and `tests/unit/fl-access.test.ts` gained the offline case
+ * wave 0's own test never asked. The reasoning below stands unchanged: this
+ * module still does not call the evaluator for the sign-off, because
+ * `signOffReadiness` answers a narrower question from the source's own two
+ * clauses, and that was never a workaround for the defect.
  *
  * That is a finding about wave 0, recorded in `B9_SOURCE_FINDINGS` below and
  * reported to the controller, NOT routed around: this module does not call
@@ -658,11 +666,11 @@ export const B9_SOURCE_FINDINGS = [
     sourceRef: 'L40952, L41072, L41502, L41596 — all four real, none in §22.18',
   },
   {
-    what: 'Wave 0’s access evaluator returns queuedOffline for a sign-off taken offline, which the source forbids.',
+    what: 'Wave 0’s access evaluator returned queuedOffline for a sign-off taken offline, which the source forbids. Reported here, fixed by the controller, and this record is kept as the account of it.',
     evidence:
-      'evaluateFrontlineAccess in src/frontline/access.ts tests forcesSyncFirst inside its online branch, so an offline permitted write returns queuedOffline regardless. FUNC-B9-03-1-2 (L41706) reads "Offline: blocks the sign-off", L41652 reads "A sign-off requiring a forced sync does not proceed", and TEST-B9-7 (L41765) asks for a test asserting no partial sign-off record is created.',
+      'evaluateFrontlineAccess in src/frontline/access.ts tested forcesSyncFirst INSIDE its online branch, so an offline permitted write returned queuedOffline whatever the act was. FUNC-B9-03-1-2 (L41706) reads "Offline: blocks the sign-off", L41652 reads "A sign-off requiring a forced sync does not proceed", and TEST-B9-7 (L41765) asks for a test asserting no partial sign-off record is created — a queued sign-off is exactly such a record. MOD-FL-A1 found the same defect independently from a different section.',
     notClosedBecause:
-      'src/frontline/access.ts is wave 0’s file and not this module’s to edit, and a local correction would be a second spelling of one ruling. This module does not call the evaluator for the sign-off and does not patch it; signOffReadiness answers the narrower question from the source’s own two clauses, and the divergence is reported.',
-    sourceRef: 'L41706, L41652, TEST-B9-7 L41765',
+      'IT IS CLOSED. The check now precedes the connectivity branch and both states reach it, so a forced-sync act offline returns allowedWithConditions with the step named rather than queuing. It stays a condition rather than becoming a refusal, because refusing would make connectivity a gate on authority — the shape L40948 exists to forbid. This module still does not call the evaluator for the sign-off: signOffReadiness answers the narrower question from the source’s own two clauses, which is a separate ruling and unaffected. The record is kept because the account of how a defect survived wave 0’s own test — which asked the question only with online: true — is worth more than the row it occupied.',
+    sourceRef: 'L41706, L41652, TEST-B9-7 L41765'
   },
 ] as const satisfies readonly B9SourceFinding[]
