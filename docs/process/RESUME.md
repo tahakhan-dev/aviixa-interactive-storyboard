@@ -280,39 +280,64 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-**Slice 7, branch `slice-05-studio-authoring`** — slices 5, 6 and 7 share that branch and
-it has not been merged to `main`. Slices 5 and 6 shipped and were verified
-(`docs/process/2026-08-21-slice-05-verification.md`,
-`docs/process/2026-08-22-slice-06-verification.md`). Slice 7's wave 0 — the six shared
-representations every Frontline module task consumes — landed at `32c9754`.
+**Slice 8 running, branch `slice-05-studio-authoring`** — slices 5, 6, 7 and 8 share it and it
+has **not** been merged to `main` (78 commits ahead). Slices 5, 6 and 7 are shipped.
 
-**Running now:** wave 1, tasks 7-10 — MOD-FL-A3, A4, A5 and A1. Live ledger and the
-path-list table are at `.superpowers/sdd/2026-08-21-slice-07/progress.md`; per-module
-briefs are in that directory's `briefs/`.
+**Slice 7 is CLOSED as a build.** All twenty of its build tasks landed: wave 0's six shared
+representations, twelve module transcriptions, the wiring into six destinations, the
+categorical-absence sweep over `out/`, and the slice gates. **539 cells across twelve
+matrices**, every cell parsed out of its own blueprint line by the suite that checks it.
+Task 21 — verification and whole-branch review — is running: an independent reviewer is over
+`git diff 717e2cd..HEAD` now.
 
-**Next:** wave 1 reviews and fix loop → wave 2, the eight remaining modules → wave 3, the
-`out/` categorical-absence sweep, the gates file, verification and whole-branch review →
-**slice 8 immediately, without stopping.**
+**`pnpm verify` is green end to end** on the current bytes: typecheck, lint, gate ordering
+(16 release gates, all audited), registry freshness, unit **3273/3273**, component
+**2199/2199**, release **548/548**, build, and **467/467** Playwright including all 365
+accessibility checks. That is the first end-to-end green of this session, and it required
+fixing six accessibility failures that only existed once the modules were composed onto
+routes.
+
+**Slice 8 wave 0 is dispatched** — tasks 1 to 4 of 22. Task 5 is held until the slice-7 review
+returns, because it edits `src/frontline/commands.ts`, which slice 7 committed and three
+suites pin.
+
+| slice 8 wave-0 task | owns |
+|---|---|
+| 1 `SURF-CC` spine | `src/surfaces/cc/**`, `tests/unit/cc-spine.test.ts` |
+| 2 modes and classes | `src/offline/modes.ts`, `capability.ts`, two unit suites |
+| 3 honesty kernel | `src/honesty/**`, `tests/coverage/offline-phrasing.test.ts`, one unit suite, its gate-ordering entry |
+| 4 fallback contracts | `src/fallbacks/**`, `tests/unit/fallback-contracts.test.ts` |
+| — reviewer | read-only over slice 7's whole diff |
+
+Briefs: `docs/superpowers/plans/2026-08-22-slice-08-common-brief.md` (durable) and
+`.superpowers/sdd/2026-08-22-slice-08/briefs/` (working, git-ignored by design).
+
+**Remaining after slice 8: slices 9 to 13 — 21 + 15 + 22 + 24 + 22 = 104 dispatched tasks** —
+then the whole-build gap audit, then the closing blueprint-against-code audit repeated until
+nothing remains. **`SURF-CC` is the one surface with nothing built**, which is why slice 8's
+task 1 creates its spine.
 
 **Coverage, measured from the generated registries — regenerate rather than quote this.**
-Stale at the time of writing: last generated before slices 6 and 7 landed.
 
 ```
-230 / 4,948 items demonstrated
-modules 50/81 · workflows 80/724 · ai-storyboards 68/613 · functions 14/990
+236 / 4,948 items demonstrated
+modules 56/81 · workflows 80/724 · ai-storyboards 68/613 · functions 14/990
 business-objects 7/99 · actionable-controls 4/608 · business-use-cases 2/330
 notifications 2/261 · scheduled-work 2/67 · features 1/534
 sub-features 0/526 · offline-scenarios 0/70 · events 0/28 · commands 0/17
 ```
 
-**`functions`, `features` and `sub-features` are join floors, not absences — and thin
-underneath the join.** A row reads demonstrated only when a shipped route directory under
-`app/` names its identifier as a whole token. The tree names **123** distinct `FUNC-*` ids
-in `src/` against **24** in `app/`, and the scorer credits **14**. So the reported figure
-understates what is built, and what is built is still 123 of 990 after six slices. This is
-the shape §6.2 criterion 11 of the re-plan anticipates: the census closes as **reconciled
-with a stated delta**, never as 100 %. `actionable-controls` is a floor for the separate
-reason already recorded — its join is on label text the modules reword.
+**Six of the twelve Frontline modules are credited and the other six cannot be.** The registry
+awards a route to one module, by slug claim or by argmax over the module ids a route's files
+name. Five of the six Run Player modules own no route by construction — `AC-FL-010-2` (L40046)
+makes capture, coaching, deviation, handover and sign-off states of that route rather than
+destinations. **The registry has no way to say "demonstrated as a panel" and is not being
+taught one to flatter the number.** The evidence is in the built tree: all six panels render on
+`out/frontline/run-player/index.html` under their own module ids. That delta belongs in the
+§6.2 criterion 11 reconciliation, stated rather than closed.
+
+`functions`, `features` and `sub-features` remain join floors as recorded before: a row scores
+only when a shipped route directory names its identifier as a whole token.
 
 ## 9. The closing obligation
 
