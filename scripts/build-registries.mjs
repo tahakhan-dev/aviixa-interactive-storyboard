@@ -42,7 +42,7 @@
  *
  * Run with: node scripts/build-registries.mjs
  */
-import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, statSync } from 'node:fs'
 import { join, dirname, basename, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -650,7 +650,83 @@ for (const { dir, name, a, b } of ROUTE_EVIDENCE.ambiguousRoutes) {
  * is only for modules that own none. Reversing that would demote a module
  * for being reused.
  * ------------------------------------------------------------------ */
+/**
+ * TRANSITIVE, BECAUSE A MODULE TWO HOPS FROM A ROUTE IS STILL ON SCREEN.
+ *
+ * The first version of this rule read only the import specifiers of files
+ * sitting directly inside a route directory. That saw `MOD-FL-A4` and its four
+ * neighbours, which the Run Player imports by name — and it did not see
+ * `MOD-CC-02`, which the live shift board's own chrome component imports.
+ * Chrome mounted inside a module mounted inside a route is exactly the shape
+ * this status exists for, and the direct-only rule reported it as absent.
+ *
+ * So the walk follows imports out of `app/` through `src/`, both `@/…` and
+ * relative, and collects every `.../modules/<dir>/` it can reach. Four
+ * independent agent reachability probes in this build reached the same design
+ * from the other side, and every one of them recorded that a walk which
+ * follows only `@/…`, or only single-line `import … from`, under-reports —
+ * and a reachability check that under-reports goes green on a broken chain.
+ */
 const MOUNTED_MODULE_IDS = new Set()
+
+const SPECIFIER = /from\s*['"]([^'"]+)['"]/g
+const reachedFiles = new Set()
+const resolveSpecifier = (fromFile, spec) => {
+  const base = spec.startsWith('@/')
+    ? join(ROOT, 'src', spec.slice(2))
+    : spec.startsWith('.')
+      ? join(dirname(fromFile), spec)
+      : null
+  if (base === null) return null
+  for (const cand of [
+    `${base}.ts`,
+    `${base}.tsx`,
+    join(base, 'index.ts'),
+    join(base, 'index.tsx'),
+    base,
+  ]) {
+    try {
+      if (statSync(cand).isFile()) return cand
+    } catch {
+      // Not this extension. The loop is the probe; a specifier that resolves
+      // to nothing is a type-only or package import and is not a defect here.
+    }
+  }
+  return null
+}
+const followImports = (file) => {
+  if (reachedFiles.has(file)) return
+  reachedFiles.add(file)
+  let text
+  try {
+    text = readFileSync(file, 'utf8')
+  } catch {
+    return // a probe removed mid-walk; the orphan guard has already refused on a dead one
+  }
+  const dirMatch = /[\\/]modules[\\/]([a-z]+-[a-z]?\d+)[\\/]/.exec(relative(ROOT, file))
+  if (dirMatch !== null) MOUNTED_MODULE_IDS.add(`MOD-${dirMatch[1].toUpperCase()}`)
+  for (const m of text.matchAll(SPECIFIER)) {
+    const target = resolveSpecifier(file, m[1])
+    if (target !== null) followImports(target)
+  }
+}
+const seedFromApp = (dir) => {
+  const entries = (() => {
+    try {
+      return readdirSync(dir, { withFileTypes: true })
+    } catch {
+      return []
+    }
+  })()
+  for (const e of entries) {
+    if (PROBE_DIR_RE.test(e.name) || /^\.zz-probe-/.test(e.name)) continue
+    const full = join(dir, e.name)
+    if (e.isDirectory()) seedFromApp(full)
+    else if (/\.tsx?$/.test(e.name)) followImports(full)
+  }
+}
+seedFromApp(join(ROOT, 'app'))
+
 for (const dir of ROUTE_EVIDENCE.importedModuleDirs) {
   // `fl-b9` -> `MOD-FL-B9`. Derived from the directory, NOT looked up in
   // MODULE_SLUGS: that map holds only modules that DECLARE a slug, and the

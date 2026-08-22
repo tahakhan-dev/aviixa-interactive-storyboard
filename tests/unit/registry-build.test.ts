@@ -616,6 +616,13 @@ describe('module route awards — ownership, not mention', () => {
 
   // FAILS IF: MOD-CC-02 ever gains a route. It is chrome; the source gives it
   // no screen and AC-CC-040 caps the surface at thirteen module routes.
+  //
+  // Its STATUS moved from not-represented to mounted-in-another-screen the day
+  // the live shift board mounted its chrome, and this case asserted the old
+  // value. That was right when written — nothing mounted it — and the claim
+  // worth holding was never "absent": it is "owns no route". A module can be
+  // slugless, routeless and on screen at the same time, which is the whole
+  // reason the third status exists.
   it('keeps MOD-CC-02 slugless and unrouted, because it is chrome', () => {
     const slugs = declaredSlugs()
     // `.get() ?? 'ABSENT'` cannot express this: `??` fires on the very null
@@ -625,7 +632,9 @@ describe('module route awards — ownership, not mention', () => {
     expect(slugs.has('MOD-CC-02'), 'MOD-CC-02 was not parsed from any modules.ts').toBe(true)
     expect(slugs.get('MOD-CC-02')).toBeNull()
     const row = (fresh('modules').rows as { id: string; status: string }[]).find((r) => r.id === 'MOD-CC-02')
-    expect(row?.status).toBe('not-represented')
+    // Not a route of its own, and not absent either.
+    expect(row?.status).toBe('mounted-in-another-screen')
+    expect(readdirSync(join(process.cwd(), 'app', 'command-center'))).not.toContain('sync-state')
   })
 })
 
@@ -774,5 +783,46 @@ describe('named-in-source — the weaker fact, published beside the stronger one
     const demonstrated = totals.reduce((a, t) => a + t.demonstrated, 0)
     const named = totals.reduce((a, t) => a + t.named, 0)
     expect(named, `named ${named} must exceed demonstrated ${demonstrated}`).toBeGreaterThan(demonstrated)
+  })
+})
+
+/**
+ * MOUNTING IS TRANSITIVE — a module two hops from a route is still on screen.
+ *
+ * The first version of the mounting rule read only the import specifiers of
+ * files sitting **directly inside** a route directory. That saw the five
+ * Frontline modules the Run Player imports by name, and it did not see
+ * `MOD-CC-02`, whose chrome is imported by the live shift board's own chrome
+ * component — one hop further out. Chrome mounted inside a module mounted
+ * inside a route is exactly the shape the status exists for, and the
+ * direct-only rule reported it absent.
+ *
+ * Four independent agent reachability probes in this build reached the same
+ * design from the other side, and every one recorded the same failure mode: a
+ * walk following only `@/…`, or only single-line `import … from`,
+ * under-reports — **and a reachability check that under-reports goes green on
+ * a broken chain.**
+ */
+describe('mounting is transitive', () => {
+  // FAILS IF: the walk stops following imports and falls back to direct-only.
+  //
+  // Planted: `followImports(target)` replaced with `reachedFiles.add(target)`,
+  // which visits each direct import and descends no further. Went red — the
+  // mounted count fell from 10 to 8 and `MOD-CC-02` returned to
+  // not-represented. Restored byte-identically.
+  it('reports a module reached only through another module as mounted', () => {
+    const rows = fresh('modules').rows as { id: string; status: string }[]
+    const status = new Map(rows.map((r) => [r.id, r.status]))
+
+    // MOD-CC-02 is chrome. No route imports it; `app/command-center/
+    // live-shift-board/` imports MOD-CC-01's board, which imports MOD-CC-02's.
+    // Two hops, and it is on screen.
+    expect(status.get('MOD-CC-02')).toBe('mounted-in-another-screen')
+
+    // And the rule has not collapsed into "everything is mounted": some
+    // modules are genuinely reached by nothing, which is what makes the
+    // status above a measurement.
+    const absent = rows.filter((r) => r.status === 'not-represented')
+    expect(absent.length, 'no module reads absent — the rule has stopped discriminating').toBeGreaterThan(0)
   })
 })

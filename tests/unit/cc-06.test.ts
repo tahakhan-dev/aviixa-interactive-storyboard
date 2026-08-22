@@ -535,6 +535,12 @@ describe('the boundary with SCR-CC-13, which is another module’s route', () =>
     const built = readdirSync(join(process.cwd(), 'app', 'command-center'), {
       withFileTypes: true,
     })
+      // `isForeignProbe` is required in every directory walk in this build:
+      // concurrent suites plant scratch probes on the real filesystem to prove
+      // their own gates can fail, and a walk that lists one either counts it as
+      // a route or ENOENTs on it the moment its owner's `finally` removes it.
+      // `tests/coverage/prohibited-patterns.test.ts` caught this walk.
+      .filter((e) => !isForeignProbe(e.name))
       .filter((e) => e.isDirectory())
       .map((e) => e.name)
     expect(built).toContain(CC06_SLUG)

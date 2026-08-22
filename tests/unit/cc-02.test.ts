@@ -283,7 +283,12 @@ describe('MOD-CC-02 owns no route', () => {
     // exemption list is where the next unclaimed directory would hide.
     const spineSlugs = [
       ...CC_CLAIMED_SLUGS,
-      ...CC_SCREENS.map((s) => s.unownedSlug).filter((v): v is string => v !== null),
+      // `flatMap`, not `filter` with a `v is string` predicate: `unownedSlug`
+      // is a literal union and a predicate widening it to `string` is not
+      // assignable to its own parameter. The first fix wrote the wider type
+      // and `tsc` refused it — correctly, because a predicate that claims less
+      // precision than the value has is a claim about the value that is false.
+      ...CC_SCREENS.flatMap((s) => (s.unownedSlug === null ? [] : [s.unownedSlug])),
     ]
     expect(dirs.filter((d) => !spineSlugs.includes(d))).toHaveLength(0)
     // And no directory answers to this module under any name it might take.

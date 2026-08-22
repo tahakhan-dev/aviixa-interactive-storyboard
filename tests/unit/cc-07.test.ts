@@ -1,3 +1,4 @@
+import { OWN_OUTSIDE_WRITE_ACTS } from '@/surfaces/cc/modules/cc-07/readings'
 import { describe, expect, it } from 'vitest'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
@@ -17,7 +18,7 @@ import {
   cc07Cell,
   cc07Row,
 } from '@/surfaces/cc/modules/cc-07/matrix'
-import { OWN_OUTSIDE_WRITE_ACTS } from '@/surfaces/cc/modules/cc-07/FeedbackSignalCapture'
+import { } from '@/surfaces/cc/modules/cc-07/FeedbackSignalCapture'
 import { CC07_DIVERGENCES, CC07_GAPS, cc07Divergence } from '@/surfaces/cc/modules/cc-07/readings'
 
 /**
@@ -961,11 +962,29 @@ describe('the disciplines this slice pays for', () => {
   // id in slice 7 exactly that way, invisible to every component test.
   // PLANTED: added `'use client'` to the head of matrix.ts.
   // RED: expected [ Array(1) ] to deeply equal []
-  it('no file here is a client module', () => {
-    const offenders = OWN_FILES.filter((f) =>
-      /^'use client'/m.test(readFileSync(join(process.cwd(), f), 'utf8')),
-    )
-    expect(offenders).toEqual([])
+  it('no client module here exports plain data a server component could read', () => {
+    // THE RULE IS NOT "no client modules". This asserted exactly that and went
+    // red the day `pnpm build` forced the panel to become one: it renders a
+    // `WriteControl` with an `allow(...)` decision, whose enabled branch is
+    // `<Button onClick={onAct}>`, and a SERVER component cannot pass a
+    // function to a client component. Six of the seven Command Center panels
+    // had it, all green on their own suites, because the boundary exists only
+    // in a build.
+    //
+    // What the slice-7 defect actually was: a `'use client'` file exporting a
+    // plain DATA object that a server component read, whose strings came back
+    // undefined at prerender. A client file exporting only components and
+    // types is correct and necessary. So the check is on what a client file
+    // EXPORTS, not on whether it is one.
+    const offenders: string[] = []
+    for (const f of OWN_FILES) {
+      const text = readFileSync(join(process.cwd(), f), 'utf8')
+      if (!/^'use client'/m.test(text)) continue
+      for (const m of text.matchAll(/^export const (\w+)/gm)) {
+        offenders.push(`${f}: ${m[1] ?? ''}`)
+      }
+    }
+    expect(offenders, 'a client module exports plain data — server reads of it are undefined at prerender').toEqual([])
   })
 
   // FAILS IF: a comment here spells a line number that does not carry what the

@@ -61,7 +61,32 @@ const OWN_PROBE_DIR = ownProbeDir()
 const isForeignProbe = (entry: string): boolean => isForeign(entry, OWN_PROBE_DIR)
 
 /** The three directories slice 8 authored. Walked, never listed file by file. */
-const SLICE_8_ROOTS = ['src/offline', 'src/fallbacks', 'src/surfaces/cc'] as const
+/**
+ * SLICE 8's OWN FILES, and the third root is narrowed from `src/surfaces/cc`.
+ *
+ * That root was correct when this sweep was written: slice 8 built the Command
+ * Center spine and its two modules, and nothing else lived there. Slice 9 then
+ * filled the same directory with twelve more modules and a chapter-21 decision
+ * register — and this sweep began reading slice 9's work as slice 8's,
+ * convicting `src/surfaces/cc/decisions/register.ts` for carrying
+ * `DEC-LANEB-001`, which it carries **because chapter 21 names it** and which
+ * the canon has held since the Studio slice.
+ *
+ * The gate was not wrong about its rule. It was wrong about whose files it was
+ * reading, which is the same defect as a hand-written enumeration falling
+ * behind what it covers — a directory root is an enumeration that grows
+ * without anyone editing it.
+ *
+ * Listed as paths rather than as one root so a slice-10 module under
+ * `src/surfaces/cc/` does not silently join slice 8's population either.
+ */
+const SLICE_8_ROOTS = [
+  'src/offline',
+  'src/fallbacks',
+  'src/surfaces/cc/modules/cc-02',
+  'src/surfaces/cc/modules/cc-10',
+  'src/surfaces/cc/modules/cc-10-s366',
+] as const
 
 interface Authored {
   /** Repo-relative path. */

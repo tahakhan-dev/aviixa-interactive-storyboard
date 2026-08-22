@@ -636,8 +636,15 @@ describe('SCR-CC-02 — reachability, measured from `app/` rather than assumed',
     // somebody wires it — which forces the note above to be corrected rather
     // than left stale.
     expect(reached('src/surfaces/cc/fallback/CcFallbackDisclosure.tsx')).toBe(false)
-    // `cc-10-s366` is task 16's to wire; recorded here so this suite is not
-    // read as a claim about the whole surface.
-    expect(reached('src/surfaces/cc/modules/cc-10-s366/SecondTreatmentDisclosure.tsx')).toBe(false)
+    // `cc-10-s366` WAS task 16's to wire, and task 16 wired it. This line
+    // asserted `false` and went red on their success — which is exactly what
+    // it said it would do, and the note above is now corrected rather than
+    // left stale.
+    //
+    // Kept rather than deleted, with the assertion inverted: the second
+    // treatment carries §36.6's four divergences and was rendered by nothing
+    // from slice 8 until slice 9's wave 2. If it ever becomes unreachable
+    // again, this is the line that says so.
+    expect(reached('src/surfaces/cc/modules/cc-10-s366/SecondTreatmentDisclosure.tsx')).toBe(true)
   })
 })

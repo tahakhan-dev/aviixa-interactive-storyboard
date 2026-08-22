@@ -1,3 +1,31 @@
+'use client'
+
+/**
+ * A CLIENT COMPONENT, AND ONLY `pnpm build` COULD SAY SO.
+ *
+ * This panel renders at least one `WriteControl` with an `allow(...)` decision,
+ * and that is the control's only branch reaching `<Button onClick={onAct}>`.
+ * `Button` is a client component, so a SERVER component passing `onAct` hands
+ * a function across the boundary and the static export refuses: "Event
+ * handlers cannot be passed to Client Component props."
+ *
+ * SIX OF THE SEVEN COMMAND CENTER PANELS HAD THIS, every one of them green on
+ * its own unit and component suites — a component suite mounts the component,
+ * and the server/client boundary exists only in a build. The build stops at
+ * the first failing route, so they were found by counting `allow(` across all
+ * seven rather than by rebuilding six times.
+ *
+ * Marking the shared `WriteControl` instead was tried and is worse: all seven
+ * panels pass `onAct`, so while the control is a server component those passes
+ * are server-to-server and only its own enabled branch crosses. Marking it
+ * client makes every one of the seven cross. The boundary belongs at the
+ * caller that needs interactivity.
+ *
+ * A `'use client'` file must not export a plain data object a server component
+ * reads — its strings come back undefined at prerender, which is how four
+ * panels shipped with an undefined module id in slice 7.
+ */
+
 import { allow } from '@/policy/decision'
 import { WriteControl } from '@/ui/WriteControl'
 import {

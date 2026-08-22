@@ -87,7 +87,7 @@ export const CC_SIGN_IN_SCREEN: CcScreen = ccScreen('SCR-CC-01')
  * recorded, and the Auditor cell is the sharp end: `Read-only` there, where
  * this surface excludes the role at the door.
  */
-export const CC_SIGN_IN_MOD_DOH_09_READINGS: readonly DecisionReading[] = [
+export const CC_SIGN_IN_MOD_DOH_09_READINGS = [
   {
     text: 'SCR-CC-01 | Sign-in | Authenticate and establish scope for the shift | Supervisor, Quality Manager, Tenant Admin | Reuses MOD-DOH-09 | Application entry',
     locator: '§25.5 screen register · L48386',
@@ -96,7 +96,7 @@ export const CC_SIGN_IN_MOD_DOH_09_READINGS: readonly DecisionReading[] = [
     text: 'MOD-DOH-09 | Permissions, Roles and Access | Allowed [H17] | Unavailable | Unavailable | Read-only | Explicitly prohibited [H18]',
     locator: 'MTX-TEN-02a · L22015',
   },
-]
+] as const satisfies readonly DecisionReading[]
 
 /* ==================================================================== *
  * 2. THE SURFACE EXCLUSION — VERIFIED, NEVER RE-IMPLEMENTED.
@@ -145,7 +145,7 @@ export const CC_SIGN_IN_EXCLUSION: CcSignInExclusionCheck = {
  * It renders none of them: this surface refuses the session, and that is
  * `FB-CC-AUTH` rather than a cell status.
  */
-export const CC_EXCLUSION_TOKEN_READINGS: readonly DecisionReading[] = [
+export const CC_EXCLUSION_TOKEN_READINGS = [
   {
     text: 'Open any Command Center route | Allowed with conditions — report and banner routes only | Allowed | Allowed | Explicitly prohibited | Explicitly prohibited',
     locator: '§21.1.2 surface matrix · L35004',
@@ -158,7 +158,7 @@ export const CC_EXCLUSION_TOKEN_READINGS: readonly DecisionReading[] = [
     text: 'the Read-only Auditor is Unavailable on the Client Command Center',
     locator: '§3.5 scope row · L3799',
   },
-]
+] as const satisfies readonly DecisionReading[]
 
 /* ==================================================================== *
  * 3. LANDING RESOLUTION — §21.1.3's OWN TABLE, AND WHAT THE REGISTER
@@ -292,7 +292,7 @@ export const CC_REGISTER_NAMED_LANDINGS: readonly CcScreenId[] = CC_SCREENS.filt
  * edited. No `DEC-*` identifier is attached to this conflict anywhere in the
  * source, so none is minted here.
  */
-export const CC_TENANT_ADMIN_READINGS: readonly DecisionReading[] = [
+export const CC_TENANT_ADMIN_READINGS = [
   {
     text: 'Open any Command Center route | Allowed with conditions — report and banner routes only',
     locator: '§21.1.2 surface matrix · L35004',
@@ -325,7 +325,7 @@ export const CC_TENANT_ADMIN_READINGS: readonly DecisionReading[] = [
     text: 'SCR-CC-11 | Reports and Custom Report Builder | Tenant Admin, Quality Manager | Main navigation',
     locator: '§25.5 screen register · L48396',
   },
-]
+] as const satisfies readonly DecisionReading[]
 
 /**
  * Why this is not resolved here, stated once so no reader has to reconstruct
@@ -365,7 +365,7 @@ export const CC_SIGN_IN_FALLBACK = ccFallbackPatternById('FB-CC-AUTH')
  * failed authorisation service opens NO session, and `TEST-CC-015` that
  * recovery opens a normal one with no pre-failure session restored.
  */
-export const CC_SIGN_IN_SOURCE_TESTS: readonly DecisionReading[] = [
+export const CC_SIGN_IN_SOURCE_TESTS = [
   {
     text: 'TEST-CC-014 (failure) — Fail the authorisation service; assert no session opens and an access-denial audit entry exists.',
     locator: 'TEST-CC-014 · L35048',
@@ -378,4 +378,4 @@ export const CC_SIGN_IN_SOURCE_TESTS: readonly DecisionReading[] = [
     text: 'TEST-CC-023 (denial) — Open a session as Read-only Auditor; assert no landing view resolves.',
     locator: 'TEST-CC-023 · L35119',
   },
-]
+] as const satisfies readonly DecisionReading[]

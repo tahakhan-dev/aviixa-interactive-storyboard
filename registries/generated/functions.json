@@ -3,7 +3,7 @@
   "countedThing": "Function identifiers (FUNC-*) from the identifier index (990 raw), each joined to its owning module band code or surface code where the id shape allows it. No names were extracted for this family in the frozen source.",
   "reconciledCount": null,
   "rawCount": 990,
-  "dedupRule": "20 of 990 FUNC-* ids have no reliable band or surface join (second segment not one of the twelve module bands or five surface codes) and are listed unjoined by id, never dropped: FUNC-PLAT-SURFGATE-01, FUNC-TEN-001, FUNC-TEN-002, FUNC-TEN-003, FUNC-TEN-004, FUNC-TEN-005, FUNC-TEN-006, FUNC-TEN-007, FUNC-TEN-008, FUNC-TEN-009, FUNC-TEN-010, FUNC-TEN-011, FUNC-TEN-012, FUNC-TEN-013, FUNC-TEN-014, FUNC-TEN-015, FUNC-TEN-016, FUNC-TEN-017, FUNC-TEN-018, FUNC-TEN-SETTINGS-01. Status is computed from the built route tree, never from a list: 14 of 990 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
+  "dedupRule": "20 of 990 FUNC-* ids have no reliable band or surface join (second segment not one of the twelve module bands or five surface codes) and are listed unjoined by id, never dropped: FUNC-PLAT-SURFGATE-01, FUNC-TEN-001, FUNC-TEN-002, FUNC-TEN-003, FUNC-TEN-004, FUNC-TEN-005, FUNC-TEN-006, FUNC-TEN-007, FUNC-TEN-008, FUNC-TEN-009, FUNC-TEN-010, FUNC-TEN-011, FUNC-TEN-012, FUNC-TEN-013, FUNC-TEN-014, FUNC-TEN-015, FUNC-TEN-016, FUNC-TEN-017, FUNC-TEN-018, FUNC-TEN-SETTINGS-01. Status is computed from the built route tree, never from a list: 16 of 990 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -1870,7 +1870,7 @@
     {
       "id": "FUNC-CC-0605-1-1",
       "sourceLine": 37434,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-CC"
     },
     {
@@ -1948,7 +1948,7 @@
     {
       "id": "FUNC-CC-0801-1-1",
       "sourceLine": 37780,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-CC"
     },
     {
@@ -6109,6 +6109,6 @@
     }
   ],
   "sourceLineMeaning": "The FIRST MENTION of the identifier anywhere in the frozen source, computed as the minimum of registries/raw/identifier-index.json's line list for that id. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation.",
-  "namedInSourceCount": 226,
+  "namedInSourceCount": 271,
   "namedInSourceMeaning": "How many rows this registry holds whose identifier is named anywhere under src/ or app/. It is WEAKER than a status and deliberately not one: a status says a route screen demonstrates the row, and this says only that some file in the build spells its identifier. It is published because the two numbers can differ by a lot -- offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text label rather than an identifier (actionable-controls) cannot be counted this way and read as unnamed here; that is a limit of the measure, not a gap in the build."
 }

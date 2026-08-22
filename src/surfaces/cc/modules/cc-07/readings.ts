@@ -340,3 +340,21 @@ export const CC07_GAPS = [
     sourceRefs: ['L35002', 'L35004', 'L35023', 'L35350', 'L37506', 'L37508'],
   },
 ] as const satisfies readonly Cc07Gap[]
+
+/**
+ * The two of `DEC-CCWRITE-001`'s four that are this module's, SELECTED from
+ * wave 0's register by act rather than re-typed.
+ *
+ * IT LIVES HERE AND NOT IN THE PANEL. The panel became a `'use client'` file
+ * when `pnpm build` refused a server component passing an event handler to
+ * `WriteControl`'s enabled branch — and a client module exporting a plain data
+ * object is the slice-7 defect: a server component reading it gets undefined
+ * strings at prerender, invisible to every component test.
+ *
+ * A gate in this module's suite now checks what a client file EXPORTS rather
+ * than whether it is one, and this constant is what it caught first.
+ */
+export const OWN_OUTSIDE_WRITE_ACTS = [
+  'Marking a prior case relevant or not relevant',
+  'Optional one-tap feedback on agent outputs',
+] as const satisfies readonly string[]

@@ -810,11 +810,29 @@ describe('the disciplines this slice pays for', () => {
   // PLANTED: added `'use client'` to the head of `feed.ts`.
   // RED: expected [ 'src/surfaces/cc/modules/cc-09/feed.ts' ] to deeply
   //      equal []
-  it('no file here is a client module', () => {
-    const offenders = [...OWN_FILES, join('app/command-center', CC09_SLUG, 'page.tsx')].filter(
-      (f) => /^'use client'/m.test(readFileSync(join(process.cwd(), f), 'utf8')),
-    )
-    expect(offenders).toEqual([])
+  it('no client module here exports plain data a server component could read', () => {
+    // THE RULE IS NOT "no client modules". This asserted exactly that and went
+    // red the day `pnpm build` forced the panel to become one: it renders a
+    // `WriteControl` with an `allow(...)` decision, whose enabled branch is
+    // `<Button onClick={onAct}>`, and a SERVER component cannot pass a
+    // function to a client component. Six of the seven Command Center panels
+    // had it, all green on their own suites, because the boundary exists only
+    // in a build.
+    //
+    // What the slice-7 defect actually was: a `'use client'` file exporting a
+    // plain DATA object that a server component read, whose strings came back
+    // undefined at prerender. A client file exporting only components and
+    // types is correct and necessary. So the check is on what a client file
+    // EXPORTS, not on whether it is one.
+    const offenders: string[] = []
+    for (const f of [...OWN_FILES, join('app/command-center', CC09_SLUG, 'page.tsx')]) {
+      const text = readFileSync(join(process.cwd(), f), 'utf8')
+      if (!/^'use client'/m.test(text)) continue
+      for (const m of text.matchAll(/^export const (\w+)/gm)) {
+        offenders.push(`${f}: ${m[1] ?? ''}`)
+      }
+    }
+    expect(offenders, 'a client module exports plain data — server reads of it are undefined at prerender').toEqual([])
   })
 
   // FAILS IF: a comment here spells a line number that does not carry what

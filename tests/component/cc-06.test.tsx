@@ -312,15 +312,25 @@ describe('the client boundary, which a component suite cannot see by mounting', 
   // acquire the directive. A directive is a STATEMENT, so the check is
   // anchored at both ends of a line — a comment mentioning it is prose and a
   // line that IS it is the defect.
-  it('has no `use client` directive on any file of this module', () => {
+  it('keeps the data files server-side, and no client file here exports data', () => {
+    // Narrowed from "no `use client` on any file of this module", which went
+    // red the day `pnpm build` forced the approvals panel to become a client
+    // module: it renders a `WriteControl` with an `allow(...)` decision, and
+    // that branch passes a handler to a client `Button`. A server component
+    // cannot do that, and no component suite can see it — the boundary exists
+    // only in a build.
+    //
+    // The real rule is about EXPORTS: a `'use client'` file must not export a
+    // plain data object a server component reads, whose strings come back
+    // undefined at prerender.
     const dir = join(process.cwd(), 'src', 'surfaces', 'cc', 'modules', 'cc-06')
-    const files = ['matrix.ts', 'lane-b.ts', 'LearnedChangeApprovals.tsx', 'LearningReadView.tsx']
-    for (const name of files) {
+    const isDirective = (l: string) => /^\s*(['"])use client\1;?\s*$/.test(l)
+    for (const name of ['matrix.ts', 'lane-b.ts', 'LearningReadView.tsx']) {
       const lines = readFileSync(join(dir, name), 'utf8').split('\n')
-      expect(
-        lines.filter((l) => /^\s*(['"])use client\1;?\s*$/.test(l)),
-        name,
-      ).toHaveLength(0)
+      expect(lines.filter(isDirective), name).toHaveLength(0)
     }
+    const panel = readFileSync(join(dir, 'LearnedChangeApprovals.tsx'), 'utf8')
+    expect(panel.split('\n').filter(isDirective), 'the panel is a client module').toHaveLength(1)
+    expect([...panel.matchAll(/^export const (\w+)/gm)].map((m) => m[1] ?? '')).toEqual([])
   })
 })

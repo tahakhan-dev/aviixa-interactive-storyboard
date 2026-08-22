@@ -1128,3 +1128,75 @@ ones nobody checks are the ones nobody thought to.**
 - **Rows 7 and 8 put the whole rule in the Tenant Admin cell and leave the other four bare**, and
   row 8's note says *no such capability exists for any role* — **a universal prohibition stated in
   one persona's cell.** Reading it as scoped to its column loses the rule.
+
+---
+
+## SIX OF SEVEN PANELS HAD A DEFECT ONLY `pnpm build` COULD SEE
+
+Wave 2 closed with every module suite green — and the build refused.
+
+```
+Error: Event handlers cannot be passed to Client Component props.
+  {onClick: function M, children: ...}
+Export encountered an error on /command-center/agent-activity-panel
+```
+
+`WriteControl`'s enabled branch is `<Button onClick={onAct}>`, and `Button` is a client component.
+**A server component rendering an enabled `WriteControl` hands a function across the boundary.**
+Every panel passes `onAct`; only the ones rendering an `allow(...)` decision reach that branch.
+
+**Six of the seven Command Center panels had it** — `cc-05`, `cc-06`, `cc-07`, `cc-08`, `cc-09`,
+`cc-11`; only `cc-04` renders no allow. **Each was green on its own unit and component suites**,
+because a component suite mounts the component and **the server/client boundary exists only in a
+build.** That is the fourth defect of this class in this build.
+
+**The build stops at the first failing route**, so fixing them one at a time would have taken six
+builds. They were found in one pass by counting `decision={allow` across all seven panels — **when
+a build fails on one instance of a shape, count the shape before rebuilding.**
+
+### Marking the shared control was tried and is worse
+
+Adding `'use client'` to `src/ui/WriteControl.tsx` looks like the general fix and **turns one
+broken route into seven**: all seven panels pass `onAct`, and while the control is a server
+component those passes are server-to-server, with only its own enabled branch crossing. Marking it
+client makes every one of the seven cross.
+
+**The boundary belongs at the caller that needs interactivity**, which is what the three Hub
+screens and the fallback disclosure had each already worked out for themselves — **a trap being
+solved one caller at a time is a trap nobody has named.**
+
+### Five gates asserted "no client modules" and every one was wrong
+
+Five tasks independently wrote a gate forbidding `'use client'` anywhere in their module. All five
+went red on the fix, and all five were over-broad: **the slice-7 defect was never "a client
+module". It was a client module EXPORTING A PLAIN DATA OBJECT a server component reads**, whose
+strings come back `undefined` at prerender.
+
+Rewritten to check what a client file **exports** rather than whether it is one — and **the new
+gate immediately caught a real one**: `cc-07`'s panel exported `OWN_OUTSIDE_WRITE_ACTS`, moved to
+`readings.ts`.
+
+**A gate that forbids a mechanism rather than a misuse of it will eventually forbid the fix.**
+
+## Two citation defects the fidelity gate caught in wave 2's own work
+
+- **A comment describing a PLANTED defect cited a blank line.** The gate refuses it and does not
+  care that the sentence is describing a defect — **a knowingly-false citation is still a false
+  citation**, and it went red on the comment explaining the plant.
+- **A quotation sat beside the wrong locator.** One sentence named two lines and quoted words from
+  the first while the second was nearer; the gate pairs a quotation with its nearest citation.
+  **Put each quotation beside its own locator, on its own line.**
+
+## Mounting is transitive now, and `MOD-CC-02` is the case that proved it
+
+The first mounting rule read only the imports of files sitting **directly inside** a route
+directory. It saw the five Frontline modules the Run Player names, and **it did not see
+`MOD-CC-02`**, whose chrome the live shift board's own chrome component imports — one hop further
+out. Chrome mounted inside a module mounted inside a route is exactly the shape the status exists
+for.
+
+Now: **67 demonstrated, 10 mounted, 4 not-represented** of 81 modules — **77 of 81 on screen**.
+The four absent are `MOD-DOH-10`, `-11`, `-17` and `-18`.
+
+Planted by replacing the recursive descent with a single hop: the mounted count fell from 10 to 8
+and `MOD-CC-02` returned to `not-represented`.

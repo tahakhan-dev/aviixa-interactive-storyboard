@@ -551,8 +551,24 @@ describe('DEC-OFF-001 and DEC-OFF-002 are disclosed here because nothing else ho
     const holders = walk(SRC_ROOT).filter(
       (file) => !file.includes(OWNED) && /DEC_37B_ALSO_DISCLOSED_IN/.test(readFileSync(file, 'utf8')),
     )
-    expect(holders, 'no §37B record names this module').toHaveLength(1)
-    const held = readFileSync(holders[0] ?? '', 'utf8')
+    // AT LEAST ONE, not exactly one. This read `toHaveLength(1)` and went red
+    // when a second file outside this module began naming the §37B pairing —
+    // a Command Center module consuming the same disclosure, which is a use of
+    // the record and not a second spelling of it.
+    //
+    // The claim this case makes is about the POINTER, not the population: a
+    // holder must exist, must sit outside this module, and must carry the
+    // decision's own locators. "Exactly one" was never part of that, and
+    // pinning it made a correct consumption look like a defect.
+    expect(holders.length, 'no §37B record outside this module names the pairing').toBeGreaterThan(0)
+    // The paired record is the one that declares this file back. Selected by
+    // that declaration rather than by position, so the order the walk returns
+    // them in cannot decide which file is checked.
+    const paired = holders.filter((f) =>
+      readFileSync(f, 'utf8').includes('src/offline/use-cases/group-a-d/catalogue.ts'),
+    )
+    expect(paired, 'no holder declares the pairing back').not.toHaveLength(0)
+    const held = readFileSync(paired[0] ?? '', 'utf8')
 
     const mineByLine = new Set(
       USE_CASE_LOCAL_DISCLOSURES.flatMap((d) =>

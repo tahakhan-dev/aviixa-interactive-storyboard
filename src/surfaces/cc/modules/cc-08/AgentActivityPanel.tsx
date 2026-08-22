@@ -1,3 +1,37 @@
+'use client'
+
+/**
+ * A CLIENT COMPONENT, AND THE BUILD IS WHAT SAID SO.
+ *
+ * This panel renders one `WriteControl` with an `allow(...)` decision — the
+ * Supervisor's live re-check at L37674 — and that is `WriteControl`'s only
+ * branch that reaches `<Button onClick={onAct}>`. `Button` is a client
+ * component, so a SERVER component passing `onAct` hands a function across the
+ * boundary and the static export refuses: "Event handlers cannot be passed to
+ * Client Component props."
+ *
+ * IT WAS 34 UNIT AND 15 COMPONENT TESTS GREEN. A component suite mounts the
+ * component; the server/client boundary only exists in a build, so nothing but
+ * `pnpm build` could see it. That is the fourth defect of this class in this
+ * build and the second on this surface.
+ *
+ * WHY NOT MARK `WriteControl` INSTEAD. Tried, and it is worse: the control is
+ * rendered by seven Command Center panels that are all server components and
+ * all pass `onAct`. While the control is a server component that pass is
+ * server-to-server and only its own enabled branch crosses; marking it client
+ * makes EVERY one of those seven passes cross the boundary, turning one broken
+ * route into seven. The boundary belongs at the caller that needs
+ * interactivity.
+ *
+ * The six sibling panels are one `allow()` away from this and only render
+ * refusals today. `tests/coverage/slice-09-gates.test.ts` should hold that.
+ *
+ * This file exports a props interface and a component and no data object — a
+ * `'use client'` file whose plain data a server component reads returns
+ * undefined strings at prerender, which is how four panels shipped with an
+ * undefined module id in slice 7.
+ */
+
 import type { RoleId } from '@/domain/roles'
 import { allow, deny } from '@/policy/decision'
 import { CrossSurfaceLink } from '@/ui/CrossSurfaceLink'

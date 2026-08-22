@@ -820,7 +820,13 @@ describe('MOD-CC-10 — the cap is rendered as the question, and never as a numb
    * records them as first raised in different chapters.
    *
    * FAILS IF: a locator is moved off the line that carries it. Planted by
-   * repointing the source-status assertion from L80587 to L80588; red.
+   * repointing the source-status assertion one line down, onto a blank line;
+   * red.
+   *
+   * The planted line's number is deliberately not spelled here.
+   * `locator-fidelity` refuses a citation of a blank line and does not care
+   * that the sentence is describing a defect — a knowingly-false citation is
+   * still a false citation, and it went red on this very comment.
    */
   it('both identifiers are raised by the frozen source, each at its own line', () => {
     expect(L(38076)).toContain('`DEC-CONFLICTCAP-001`')

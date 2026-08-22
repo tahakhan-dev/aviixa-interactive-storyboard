@@ -60,10 +60,18 @@ import { CC_DECISION_REGISTER } from '@/surfaces/cc/decisions/register'
  * §21.14 (L38269) recommends its option (a); §4.10.5 (L29892) recommends its
  * option (a) at V1 and its option (c) thereafter; the decision card (L113015)
  * recommends its Option C with Option A's wording as an interim build target.
- * The three option lists are not the same list — L38269's (c) is "replace the
- * set entirely with an outcome-flavoured set", L113014's Option C is "the
- * client supplies the final five" — so the three recommendations cannot be
- * compared cell for cell, let alone merged. All three are carried in
+ *
+ * The three option lists are not the same list, and the quotations below sit
+ * beside their own locators rather than in one sentence naming two — the
+ * fidelity gate pairs a quotation with the nearest citation, and an earlier
+ * wording put "replace the set entirely with an outcome-flavoured set" next to
+ * the card's line when the words are §21.14's.
+ *
+ * L38269 — "replace the set entirely with an outcome-flavoured set".
+ * L113014 — "the client supplies the final five".
+ *
+ * So the three recommendations cannot be compared cell for cell, let alone
+ * merged. All three are carried in
  * `CC11_DEC_REPORT_CARDS` with their own lines and none is adopted.
  */
 

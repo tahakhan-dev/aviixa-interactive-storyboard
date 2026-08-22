@@ -596,9 +596,9 @@ export const CC10_ACTION_5_DIVERGENT_COLUMNS: readonly Cc10Column[] = CC10_COLUM
  * rows above cannot be joined by their action name. Computed, so it states
  * what the three `actionText` fields actually are.
  */
-export const CC10_ACTION_5_NAME_SPELLINGS: readonly string[] = [
+export const CC10_ACTION_5_NAME_SPELLINGS = [
   ...new Set(CC10_ACTION_5_STATEMENTS.map((s) => s.actionText)),
-]
+] as const satisfies readonly string[]
 
 /* ==================================================================== *
  * THE FRESHNESS CLASS, CONSUMED.
