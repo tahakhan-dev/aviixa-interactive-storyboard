@@ -90,7 +90,7 @@ and both locators are recorded and neither is chosen.**
 | ladder attributes | 13 | **14 at Level 2** | claim L82067; Level 2 L82107-L82122, the extra being "Honest scope note" at L82122 |
 | convergence columns | 9 | **11** (14 rows) | claim L85123; header L85157; data L85159-L85172 |
 | 37B open decisions | 8 | **7 open** after DEC-SYNC-001 | table L81730-L81739; exemption L81728; "eight" L81761; "every item" L81763 |
-| offline capability classes | 7 | **8 tokens used** | classes L78721-L78729; eighth token L78799; `AC-OFF-701` L78827 |
+| offline capability classes | 7 | **8 tokens used** | classes L78723-L78729 (header L78721); eighth token L78799; `AC-OFF-701` **L78831** |
 | failure taxonomy families | 12 (diagram only) | 63 leaves vs a **74-row** table with no family column | diagram L84907-L84933; table L84934-L85009; `AC-FB-101` L85017 |
 | `DEC-FB-002` | one identifier | **two lettered sub-decisions with different questions** | L82852; `DEC-FB-002a` L82673; `DEC-FB-002b` L83372; index L115316 |
 | protocol phase 8 | "steps 34 to 36" | **step 37 sits inside it** | heading L79962; step 37 L79967; L79904 |
@@ -217,3 +217,33 @@ client references, so the string fields are gone when the page prerenders.
 **A component suite mounts the component; the client boundary only exists in a build.** If your
 task exports data from a `'use client'` file for a server component to read, build that data in
 a server module and send only the component across.
+
+## Two brief corrections already proved, and one finding they produced
+
+**`AC-OFF-701` is at L78831.** L78827 is the `**Acceptance criteria and tests.**` heading four
+lines above it. Task 2 found this and pinned both lines.
+
+**The 52-row register is keyed on `Function`, not on module id.** Its header (L78766) reads
+`Function | Module | Class | Reason | Data required locally | Expiry | Role and qualification
+restrictions | Artificial-intelligence availability | Fallback | Reconnect behaviour`. `Module`
+is an ordinary column and **four rows do not hold a single module id** — L78782 holds two
+(`MOD-FL-A3` and `MOD-FL-B9`) and L78817-L78819 each hold `Cross-module`. **A module-keyed
+lookup silently drops four rows.**
+
+**And the finding that follows from both:** `AC-OFF-701` reads "Every Frontline function
+carries exactly one of the seven classes, and no function is unclassified." **51 of the 52 rows
+do. One does not** — L78799's Conflict-resolution row carries the eighth token. The criterion
+is unsatisfiable against the source's own register, by exactly one row, and that is a number
+rather than a prose complaint.
+
+## The scratchpad is shared, so name your files after your task
+
+Concurrent agents write to one session scratchpad. In slice 8's first wave a generic
+`plant.py` was overwritten by a sibling between one agent's patch and its run, and that agent
+got the sibling's campaign output back — its `before.sha` check reported OK because the
+sibling's script had never touched its files. It was caught only because the output format was
+unfamiliar.
+
+**Prefix every scratchpad file with your task id** — `slice08-t04-plant.py`, not `plant.py` —
+and check the output you get back is about the files you patched.
+

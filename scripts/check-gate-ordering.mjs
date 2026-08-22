@@ -149,6 +149,24 @@ const AUDITED = {
       'what shipped, and the sweep was watched red against a real pnpm build with a pace ' +
       'figure injected into a module source.',
   },
+  'offline-phrasing.test.ts': {
+    subject:
+      'every out/**/index.html the export emits, against the prohibited-phrasing dictionary in ' +
+      'src/honesty/lexicon.ts and eight disclosures pinned to the frozen blueprint',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS. `build` writes the subject and runs first, the arrangement this audit exists ' +
+      'to catch, and what makes it safe is that no expectation is read back out of out/. The ' +
+      'dictionary is transcribed from the eight-row table at L78400-L78407 of the frozen ' +
+      'blueprint, whose sha256 this suite asserts, and tests/unit/honesty-kernel.test.ts checks ' +
+      'every cell of it against that line BEFORE build runs. Three of the eight disclosures are ' +
+      'pinned to a blueprint line and verified verbatim there; the other five are this build\'s ' +
+      'own sentences and are held at a fixed count instead. The build cannot satisfy this gate ' +
+      'by rewriting what the gate compares against. Reading the FRESH out/ is the whole point -- ' +
+      'the claim is about what a supervisor is shown, and the sweep was watched red against a ' +
+      'real pnpm build with a completion claim injected into a shipping module source.',
+  },
   'slice-07-gates.test.ts': {
     subject:
       'the frozen blueprint at run time, compared against src/frontline/** as authored -- the ' +
