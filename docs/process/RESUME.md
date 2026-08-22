@@ -139,6 +139,17 @@ Fourteen entries, APP-000 to APP-013. The four that govern behaviour now:
   slice 13, audit the whole build for gaps, fix them, then audit against the blueprint
   verified against the code, repeating until nothing remains. Only then may the claim
   *"nothing is remaining, ready to demo"* be made.
+- **APP-014** — APP-013 restated by the client **after being shown the measured position**
+  (4,712 of 4,948 census items outstanding, `SURF-CC` entirely unbuilt, six accessibility
+  failures live, 129 planned tasks across slices 7-13), with four clarifications:
+  **the fourteen inventories are named by the client and all fourteen are in scope**
+  (modules, workflows, ai-storyboards, functions, business-objects, actionable-controls,
+  business-use-cases, notifications, scheduled-work, features, sub-features,
+  offline-scenarios, events, commands); **self-correction is not a stop** — an error found
+  in this build's own work, briefs or gates is fixed and the run continues;
+  **production-level is the standard for the whole remainder**; and the `Workflow` tool
+  remains permitted. **Reading a measured report of what remains is not permission to
+  stop** — that is what APP-014 exists to settle.
 
 **Two limits survive the delegation, and they protect the client rather than constrain
 you.** An unresolved *source* decision is still disclosed on screen with its alternatives,
