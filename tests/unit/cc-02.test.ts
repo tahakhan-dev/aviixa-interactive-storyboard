@@ -30,6 +30,7 @@ import {
   cc02PendingText,
 } from '@/surfaces/cc/modules/cc-02/chrome'
 import { CC_CHROME_MODULES } from '@/surfaces/cc/screens'
+import { CC_SCREENS } from '@/surfaces/cc/screens'
 import { CC_CLAIMED_SLUGS, ccModule } from '@/surfaces/cc/modules'
 
 /**
@@ -272,7 +273,19 @@ describe('MOD-CC-02 owns no route', () => {
       .filter((e) => !isForeignProbe(e))
       .filter((e) => statSync(join(root, e)).isDirectory())
       .sort()
-    expect(dirs.filter((d) => !CC_CLAIMED_SLUGS.includes(d))).toHaveLength(0)
+    // A legitimate route directory answers either to a module's declared slug
+    // or to a screen's `unownedSlug` — the register carries thirteen screens
+    // and eleven module claims, so two screens are reached by a slug no module
+    // owns. This gate read only the module claims and went red the day
+    // `cell-view` shipped, which the register requires.
+    //
+    // Derived from the spine on both sides rather than exempting a name: an
+    // exemption list is where the next unclaimed directory would hide.
+    const spineSlugs = [
+      ...CC_CLAIMED_SLUGS,
+      ...CC_SCREENS.map((s) => s.unownedSlug).filter((v): v is string => v !== null),
+    ]
+    expect(dirs.filter((d) => !spineSlugs.includes(d))).toHaveLength(0)
     // And no directory answers to this module under any name it might take.
     expect(dirs).not.toContain('sync-state')
     expect(dirs).not.toContain('sync-state-and-connectivity')

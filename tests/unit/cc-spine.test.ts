@@ -389,7 +389,44 @@ describe('route ownership', () => {
       ['SCR-CC-01', 'sign-in'],
       ['SCR-CC-03', 'cell-view'],
     ])
-    expect(byName.has('cell-view'), 'cell-view is unbuilt and uncontested').toBe(false)
+    // `cell-view` is `SCR-CC-03`'s unowned slug, and this line used to assert
+    // it was UNBUILT. That was true when written and stopped being true the
+    // moment `MOD-CC-03` shipped its second screen — which the register
+    // requires, since `SCR-CC-03` and `SCR-CC-04` are two rows serving one
+    // module and only one of them is claimed by a module slug.
+    //
+    // The claim worth holding was never "unbuilt". It is UNCONTESTED: exactly
+    // one directory answers to that name, so no module can be awarded a route
+    // another module also answers to. That is what is asserted now, and it
+    // holds whether or not the screen has been built.
+    // Each unowned slug, and how many directories answer to it. This line
+    // used to assert `cell-view` was UNBUILT — true when written, false the
+    // moment `MOD-CC-03` shipped its second screen, which the register
+    // requires since `SCR-CC-03` and `SCR-CC-04` serve one module and only one
+    // is claimed by a module slug.
+    //
+    // A first repair asserted every name has fewer than two directories. That
+    // is false of `sign-in` and false for a reason worth keeping: it has two,
+    // on Frontline and Studio, and THAT IS WHY no Command Center route may
+    // take the name. Generalising the fix would have erased the fact the
+    // original line existed to record.
+    //
+    // So the claim is per-slug and derived: a screen whose unowned slug names
+    // one directory reaches it; a screen whose unowned slug names two cannot
+    // own either, and its abstention is the honest outcome.
+    const unowned = CC_SCREENS.filter((s) => s.unownedSlug !== null).map((s) => ({
+      id: s.id,
+      slug: s.unownedSlug as string,
+      directories: byName.get(s.unownedSlug as string) ?? [],
+    }))
+    expect(unowned.map((u) => [u.id, u.slug, u.directories.length])).toEqual([
+      ['SCR-CC-01', 'sign-in', 2],
+      ['SCR-CC-03', 'cell-view', 1],
+    ])
+    expect(
+      unowned.find((u) => u.slug === 'cell-view')?.directories,
+      'cell-view is reached by the Command Center and contested by nobody',
+    ).toEqual(['app/command-center/cell-view'])
   })
 
   // FAILS IF: the navigation model stops being derived, or the sign-in screen

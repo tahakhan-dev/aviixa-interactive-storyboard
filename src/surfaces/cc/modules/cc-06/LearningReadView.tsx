@@ -35,11 +35,26 @@ import {
  *
  * The register names `FEAT-CC-0603` and §21.9's own feature list calls that
  * **Aging** (L37420). The learning read view is `FEAT-CC-0605` (L37432), and
- * the register row's `Purpose` column — "Read what the platform has learned,
- * changing nothing" — is `FUNC-CC-0605-1-1`'s own purpose (L37434) word for
- * word. Two readings of one register cell, both locators on the record in
+ * the register row's `Purpose` column reads "**Read** what the platform has
+ * learned, changing nothing" where `FUNC-CC-0605-1-1`'s own purpose (L37434)
+ * reads "**show** what the platform has learned, changing nothing".
+ *
+ * NOT "WORD FOR WORD", WHICH IS WHAT THIS COMMENT SAID. Every word matches
+ * but the verb, and a sibling module reading the same pair caught the
+ * overstatement in its own file first. The near-identity is still the
+ * evidence — a register cell that reproduces a functionality's purpose in
+ * every word but one is describing that functionality — but "word for word"
+ * is a claim about the text, and it is false.
+ *
+ * Two readings of one register cell, both locators on the record in
  * `./lane-b.ts`, neither chosen: both features render, which costs one
  * section and makes the mount correct under either reading.
+ *
+ * WHY THE IDENTIFIERS DRIFT, established by a sibling and worth keeping here:
+ * §25's inventory declares "Thirteen source-stated modules, thirty-nine
+ * features" (L47518) — exactly three per module — while §21.9 specifies five
+ * for this module. Its names therefore run one identifier ahead from L47538
+ * on, and `FEAT-CC-0604` and `FEAT-CC-0605` get no inventory row at all.
  *
  * ══ IT IS READ-ONLY, AND THE ROW THAT SAYS SO IS DRAWN ═══════════════════
  *

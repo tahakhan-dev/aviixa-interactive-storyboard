@@ -191,16 +191,35 @@ grants only Tenant Admin, Supervisor and Quality Manager, **which is the Auditor
 exclusion already satisfied at the route layer** · the fifteen command states in
 `src/surfaces/sa/command-state.ts`, bound to `src/frontline/commands.ts`'s by `SA_SPELLING`.
 
-## FOUR TABLES ANSWER THE SAME PERMISSION QUESTION DIFFERENTLY, AND NO DECISION IDENTIFIER EXISTS
+## FIVE TABLES ANSWER THE SAME PERMISSION QUESTION DIFFERENTLY — AND FOR ONE OF THEM A DECISION IDENTIFIER DOES EXIST
 
-This is the slice's defining problem.
+This is the slice's defining problem, **and this heading was wrong on both halves until wave 2
+opened chapter 17.**
 
-| table | where | rows |
-|---|---|---|
-| the surface matrix | §21.1.2, L35002-L35023 | 20 |
-| `MOD-CC-13`'s action matrix | §21.16, L38680-L38691 | 10 |
-| §25.4's action matrix | L48442-L48456 | 13 |
-| §26.7's cross-surface matrix | L49574-L49601 | 26 |
+**The fifth table is `MTX-TEN-02c`** — header **L22056**, separator L22057, data
+**L22058-L22070**, thirteen rows — and it is **the only one of the five keyed on the module**
+rather than on a capability, an action or a record type. Its `MOD-CC-03` row (**L22060**) reads
+`Read-only` for Tenant Admin, Supervisor and Quality Manager, against **`Explicitly prohibited` in
+all eight rows** of §21.6's Tenant Admin column and `Allowed` in four of its Supervisor column.
+
+**And its Tenant Admin cell carries a footnote that names a decision.** `[K1]` at **L22072** is
+**`DEC-TACC-001`** — "report-format authoring places the Tenant Admin on this surface" — with a
+card at **L23069** and a register row at **L115232** attributing it to chapter 17. The register
+row's own "Affected cells" line says **eleven module cells depend on it**.
+
+**So the sentence "no decision identifier exists" was false**, and it was false in the one place
+this brief called the slice's defining problem. It held for the four tables inside chapters 21, 25
+and 26; **nobody had looked in chapter 17.** Any module task finding its Tenant Admin column
+contradicted should check `MTX-TEN-02c` and `DEC-TACC-001` before recording an unidentified
+divergence.
+
+| table | where | rows | keyed on |
+|---|---|---|---|
+| the surface matrix | §21.1.2, L35002-L35023 | 20 | capability |
+| `MOD-CC-13`'s action matrix | §21.16, L38680-L38691 | 10 | action |
+| §25.4's action matrix | L48442-L48456 | 13 | action |
+| §26.7's cross-surface matrix | L49574-L49601 | 26 | record type |
+| **`MTX-TEN-02c`** | **ch17, L22056-L22070** | **13** | **module** |
 
 **§25.4's and §21.16's disagree on six cells and use four different status tokens for the same
 cell.** The whole Tenant Admin column reads `Explicitly prohibited` in one and `Unavailable` in
@@ -928,3 +947,121 @@ entry has moved on and is still unclaimed.
   `Supervisor: cell(A),` legitimately occurs six times — leaving the file corrupted until it was
   restored by index. **Reverse at the offset the plant recorded, never by searching.** The anchor's
   uniqueness matters before planting; after planting, only the offset does.
+
+## THE SIGN-IN BRIEF ASKED FOR A ROUTE THAT CANNOT EXIST
+
+It granted `app/command-center/<slug from the spine>/**` **and** said the directory must not be
+named `sign-in`. **`ccScreenSlug(ccScreen('SCR-CC-01'))` returns `'sign-in'`** — it is the screen's
+`unownedSlug` and the only slug the spine offers it. **So "the slug from the spine" IS the
+forbidden name, and every other name is refused from the other side:**
+
+- `sign-in` turns `tests/unit/cc-spine.test.ts` red, which asserts that name maps to exactly
+  `app/frontline/sign-in` and `app/studio/sign-in`;
+- **any other name** makes `scripts/cc-reach.mjs` push an unnamed-directory problem and **exit
+  non-zero at module load**, taking the whole `cc-spine-completion` suite with it — for every
+  concurrent sibling.
+
+Both proved by planting. **No directory was authored**, the abstention is declared in five places
+including on screen, and a gate asserts zero importers so it goes red the day one appears.
+
+**The brief's stated mechanism was also wrong.** It said "the generator throws on a slug matching
+more than one route directory". `build-registries.mjs` throws only for a module that *declares* the
+slug, and **no module declares `sign-in`** — the refusal comes from two unit gates and the reach
+script. **Naming the wrong enforcer is its own error**: a task told to expect a throw looks for it
+in the wrong file.
+
+## `ccScreenSlug` returns a slug for BOTH unowned screens — do not speculate about `null`
+
+`SCR-CC-01` → `'sign-in'`, `SCR-CC-03` → `'cell-view'`, both via `unownedSlug` on the screen
+record, and `CC_NAV` has published `/command-center/cell-view` since slice 8. **A brief speculating
+"if `ccScreenSlug` returns `null`, choose the register's own name" invited a second spelling of a
+key the spine had already settled.** Read the spine; do not plan around what it might say.
+
+## The link-out vocabulary cannot express a third shape
+
+`CC_LINK_OUT_TOKENS` in `src/surfaces/cc/decisions/link-outs.ts` is a **closed two-member**
+vocabulary, so `MOD-CC-03`'s row 7 — two cells reading `Read-only — by link into the Delivery
+Operations Hub` — **cannot be constructed there**, and `CrossSurfaceLink`, which takes only a model
+built from one, cannot draw it. **The measured figure is 13 cells across 12 rows for the two known
+shapes, or 15 across 13 if this one counts.** The module drew its own anchor with the same
+route-registry guard and marked it `ponytail:` with the upgrade path. **Reported, not repaired —
+that file belongs to another task.**
+
+## `AC-CC-090` now fails on THREE modules, each in both directions
+
+`MOD-CC-08`, `MOD-CC-03` and counting. The shape is identical every time: some functionalities name
+no `FB-CC-*` pattern at all, **and** the card's module-level fallback line declares a pattern **no
+functionality names**. Declared set and referenced set differ in both directions and must be counted
+separately. **Rendered, never repaired** — inventing a pattern for a functionality whose own text
+says "not applicable — a prohibition has no degraded mode" puts this build's answer where the
+source declines one.
+
+## A WRAPPED QUOTATION IS STILL A QUOTATION — the third iteration of one gate
+
+The route-naming gate has now failed three times, each fix defeated by a subtler quotation:
+
+1. **v1** `page.includes('MOD-CC-04')` — satisfied by a quotation of L38793, **which names seven
+   module ids**. Fixed to require a line naming no *other* `MOD-CC-*`.
+2. **v2** — satisfied by a line quoting the screen register row `MOD-CC-09 all features`, **which
+   names exactly one module** and therefore passes a "no other module" rule while the page has said
+   nothing about itself. Fixed by additionally requiring the paragraph to interpolate the id from
+   the spine.
+3. **v3** — satisfied by a **wrapped** quotation. The file quotes the register cell
+   `MOD-CC-06 FEAT-CC-0603, MOD-CC-07` and the comment **wraps between the two identifiers**,
+   leaving `MOD-CC-07` alone on its own line. Fixed by requiring **both neighbouring lines** to name
+   no other module.
+
+**A line-oriented check on a wrapped comment sees a fragment, not the sentence.** The general
+lesson is the one this build keeps relearning from a different direction: **line boundaries are not
+semantic boundaries**, and a gate that reads one line of a paragraph is reading an artefact of
+formatting.
+
+## WHY `FEAT-CC-0603` NAMES THREE DIFFERENT THINGS — the mechanism, proved
+
+Two tasks found the divergence independently; the second found the cause.
+
+**§25's inventory declares "Thirteen source-stated modules, thirty-nine features" (L47518) —
+exactly three per module.** §21.9 specifies **five** for `MOD-CC-06`. So from L47538 on, that
+module's inventory names run **one identifier ahead of §21.9's**, and **`FEAT-CC-0604` and
+`FEAT-CC-0605` get no inventory row at all.** `MOD-CC-07`'s own three rows are not shifted.
+
+That is why `FEAT-CC-0603` is **Aging** in §21.9 (L37420), **The package test** in §25's inventory
+(L47539), and the register's name for a screen whose Purpose belongs to `FEAT-CC-0605`. **Three
+readings from one arithmetic mismatch**, and knowing the mechanism is what turns three
+contradictions into one.
+
+## And a quotation claim BOTH halves of one screen got wrong
+
+The register's `SCR-CC-13` Purpose is *"**Read** what the platform has learned, changing nothing"*
+(L48398). `FUNC-CC-0605-1-1`'s own purpose is *"**show** what the platform has learned, changing
+nothing"* (L37434). **Every word matches but the verb**, and both modules described it as "word for
+word" / "verbatim". One caught its own on the first run of its own gate; the other's has been
+corrected here.
+
+**The near-identity is still the evidence** — a register cell reproducing a functionality's purpose
+in every word but one is describing that functionality — **but "word for word" is a claim about the
+text, and it was false.**
+
+## Who may open `SCR-CC-13` — two-to-one against the register
+
+The register (L48398) names **`Quality Manager` alone**. `MOD-CC-07`'s row 6 (L37510) gives the
+Supervisor `Read-only — through the learning read view`, and `FUNC-CC-0605-1-1` (L37434) says
+"Roles allowed: Quality Manager, **Supervisor read-only**". **Two statements against one, and it
+lands on a route this slice built.** Carried, not adjudicated.
+
+## `MTX-TEN-02c` was found independently by two tasks
+
+`MOD-CC-03`'s row (L22060) and `MOD-CC-07`'s row (L22064) were reached from opposite ends of the
+slice, neither task having been told the table exists. **Its tokens are backticked** where chapter
+21's are bare, and it uses `Allowed with conditions [K11]` for a pair chapter 21 separates across
+three of seven rows. **Any module finding its Tenant Admin column contradicted should read
+chapter 17 before recording an unidentified divergence.**
+
+## One gate repair that would have erased the fact it was repairing
+
+`cc-spine`'s "cell-view is unbuilt and uncontested" went red the day `MOD-CC-03` shipped its second
+screen — correctly. **The first repair asserted that no slug names more than one directory. That is
+false of `sign-in`, and false for the reason worth keeping: it has two, on Frontline and Studio,
+and that is precisely why no Command Center route may take the name.** Generalising the fix would
+have deleted the fact the original line existed to record. The gate is now per-slug and derived:
+`sign-in` → 2 directories → the screen owns no route; `cell-view` → 1 → it does.
