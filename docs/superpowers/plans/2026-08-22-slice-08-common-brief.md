@@ -96,7 +96,7 @@ Severity 1 holds.
 | offline capability classes | 7 | **8 tokens used** | classes L78723-L78729 (header L78721); eighth token L78799; `AC-OFF-701` **L78831** |
 | failure taxonomy families | 12 (diagram only) | 63 leaves vs a **74-row** table with no family column | diagram L84907-L84933; table L84934-L85009; `AC-FB-101` L85017 |
 | `DEC-FB-002` | one identifier | **two lettered sub-decisions with different questions** | L82852; `DEC-FB-002a` L82673; `DEC-FB-002b` L83372; index L115316 |
-| protocol phase 8 | "steps 34 to 36" | **step 37 sits inside it** | heading L79962; step 37 L79967; L79904 |
+| protocol phase 8 | "steps 34 to 36" | **step 37 sits inside it**, and the source separates it in TWO places and folds it in at one | heading L79962; step 37 L79967; L79904 folds it in; and the step-to-obligation table at **L80001-L80012** splits it out again — L80011 is `34 to 36`, L80012 is a row of its own. Ten rows there, eight phase headings |
 
 **Counts that DO reconcile, confirmed, so a gate can rest on them:** 70 fallback contracts
 across 16 families; 70 use cases in 7 groups with 12 diagrams; 37 blockers and 37 protocol
@@ -250,3 +250,24 @@ unfamiliar.
 **Prefix every scratchpad file with your task id** — `slice08-t04-plant.py`, not `plant.py` —
 and check the output you get back is about the files you patched.
 
+## Two more brief corrections, both proved by task 6
+
+**`AC-36-101` is at L80048 and occurs exactly ONCE in 122,241 lines.** This brief and task 6's
+attributed it to **L80042**, which is the `Source status` bullet of fallback contract
+`FB-SYNC-01`, six lines above, carrying no identifier at all. Both claims are real and they are
+different claims — L80042 gives three source classifications, L80048 gives the ordering
+invariant. Same shape as the `AC-OFF-701` error recorded above: an identifier cited to a
+heading or bullet near it rather than to its own row.
+
+**The three classifications on L80042, each with what it governs:** the reconnection
+*obligations* are `SoW Fact`; the *thirty-seven-step enumeration* is a
+`User-Mandated Product Extension`; and the *ordering of the three transfer passes inside steps
+21 and 22* is a `Derived Clarification — adopted working position` under `DEC-SYNC-001`. Three
+classifications in one line is not a formatting accident — it is the source being precise about
+which part of the machine it is willing to call a fact.
+
+**And a paraphrase that would have shipped false.** Task 6's brief rendered step 1 as
+"a device-side observation, **not a server-side one**". L79908 reads "**not a server
+assertion**". Quoting the brief rather than the line would have failed the locator-fidelity
+strong check — or, worse, passed it as a weak one. **Every brief in this slice is a hypothesis
+including its quotations, not only its line numbers.**
