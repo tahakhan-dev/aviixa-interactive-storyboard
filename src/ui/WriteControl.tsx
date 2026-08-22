@@ -5,11 +5,19 @@ import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 /**
  * ONE rendering rule for every write control on a Hub module screen.
  *
- * Four branches, applied in the order the rules bind — the role first, then
+ * Five branches, applied in the order the rules bind — the role first, then
  * the evaluator's own refusal, then the tenant state gate, then the object's
- * own condition. Three module screens each carried a hand-inlined copy of
- * exactly this; two of them agreed on every branch and differed only in the
- * words, so those two now route through here.
+ * own condition, and last the item's own missing context. Three module
+ * screens each carried a hand-inlined copy of exactly this; two of them
+ * agreed on every branch and differed only in the words, so those two now
+ * route through here.
+ *
+ * THE FIFTH ARRIVED AFTER THE OTHER FOUR AND IS DELIBERATELY LAST. It is
+ * `FB-CC-QUEUE`'s not-decidable rendering (`missingElement`, documented on
+ * the prop). Appending rather than inserting is what keeps this a shared
+ * component: every input that reaches one of the four branches above renders
+ * exactly what it rendered before, so a Hub screen cannot be changed by a
+ * Command Center pattern it never mentions.
  *
  * THIS COMPONENT HOLDS NO POLICY AND CANNOT. The decision is HANDED IN,
  * never computed here: `@/policy/decision` is imported for its TYPE only
@@ -92,6 +100,28 @@ export interface WriteControlProps {
    * "because " and " (D7)". Required for the same reason as `refusalNote`.
    */
   readonly neverQueuedNote: string
+  /**
+   * `FB-CC-QUEUE` — the ONE element the item could not resolve, named. The
+   * Command Center's approval queue renders an item whose scope of impact or
+   * evidence is unresolvable as **not decidable**, "with the missing element
+   * named, and its decision controls are disabled" (L35670); the selection
+   * table gives the same row as `Item context incomplete` →
+   * `Disabled for that item only` (L35702).
+   *
+   * OPTIONAL, WHERE `gateReason` AND `objectReason` ARE REQUIRED-BUT-NULLABLE,
+   * and the difference is not a preference. Those two predate every caller;
+   * this arrives after eight of them, and none of them owns this file. An
+   * absent prop is the same statement as `null` — this item's context is
+   * complete — so nothing is silently defaulted the way `refusalNote` would
+   * be. It is the CONDITION that defaults, never a module's wording.
+   *
+   * ADDED LAST IN THE BRANCH ORDER, so no input that reaches one of the four
+   * existing branches today changes what it renders. A control this makes
+   * disabled was otherwise about to be actionable, which is exactly the case
+   * `FB-CC-QUEUE` exists for; a control already absent or already disabled
+   * keeps the statement it had, and stays disabled either way.
+   */
+  readonly missingElement?: string | undefined
   readonly onAct: () => void
 }
 
@@ -103,6 +133,7 @@ export function WriteControl({
   objectReason,
   refusalNote,
   neverQueuedNote,
+  missingElement,
   onAct,
 }: WriteControlProps) {
   if (decision.stage === 'BASE_ROLE' && decision.outcome === 'explicitlyProhibited') {
@@ -121,5 +152,14 @@ export function WriteControl({
   }
   if (gateReason !== null) return <Button disabledReason={gateReason}>{label}</Button>
   if (objectReason !== null) return <Button disabledReason={objectReason}>{label}</Button>
+  if (missingElement !== undefined) {
+    return (
+      <Button
+        disabledReason={`Not decidable — ${missingElement} could not be resolved. The waiting time keeps running and this item never expires on its own. Nothing here is queued — never queued, in any state — because ${neverQueuedNote} (D7).`}
+      >
+        {label}
+      </Button>
+    )
+  }
   return <Button onClick={onAct}>{label}</Button>
 }

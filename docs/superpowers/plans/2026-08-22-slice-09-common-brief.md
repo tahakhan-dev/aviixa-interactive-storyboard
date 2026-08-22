@@ -445,3 +445,118 @@ the whole difference.
 `textContent` welds the item note to the button's reason, so a check passes when **either** carries
 the missing element's name — and the gate that must catch a control rendering no reason passes on
 the note alone. Assert `reason.hidden === false` too.
+
+---
+
+## Wave 0 closed — `pnpm verify` green, and TWO LINK-OUT POPULATIONS THAT MUST NOT BE CONFLATED
+
+unit 4327 · component 2301 · release 676 · e2e/axe 471.
+
+**This is the most important thing on this page for every module task.** Two different sets of
+cells in this slice want a link, and they want it for opposite reasons:
+
+**Population A — `MOD-CC-13`'s ten operational actions. These get a control AND an audit link.**
+L38657 states the discipline: *"every action is a command against a Delivery Operations
+Hub-owned record, executed through the owning Delivery Operations Hub service, written to the
+Delivery Operations Hub audit trail — **the Command Center is the cockpit, never the engine**."*
+And L48437 makes the pointer an obligation: *"Audit or history link | Every action links to its
+Delivery Operations Hub audit entry."*
+
+**An earlier draft of this brief said "at least six cells need a link-out rather than a control".
+For these ten that is wrong, and building to it would remove the controls the module exists to
+place.** The record is elsewhere for all ten; the control is here for all ten.
+
+**Population B — module-matrix cells the source marks prohibited and then names a destination
+for.** L37671 and L37672 read `Explicitly prohibited` and their own text says "a Standards and
+Operations Studio action, **linked from here**"; `AC-CC-301` requires each such control to *be* a
+link. `src/ui/WriteControl.tsx` renders `explicitlyProhibited` as **nothing at all**, so a
+faithful transcription produces an empty cell where the source requires a link. **Measured: 13
+cells across 12 distinct rows.** These get a link **instead of** a control.
+
+**Consume task 5's `CrossSurfaceLink` for population B. Consume task 4's `CC13_OWNING_PLACES` for
+population A.** They are different shapes and the same component would be wrong for one of them.
+
+## Row 9 of the ten has no owning place, and an acceptance criterion says all ten do
+
+`Executes via` (L38673) reads only *"Re-runs the rule-based evaluation; an agent activates only if
+a trigger results"* — **no owning service named**. `AC-CC-401` (L38858) asserts an owning Hub
+service for all ten. The source does supply row 9's owner, **in a different table**: L35365 gives
+`EVT-CC-RECHECK-REQUESTED` as emitted by the Hub record service. Recorded structurally as
+`owningPlace: null` plus `owningPlaceElsewhere` — **not repaired by copying the other table's
+answer into the column that lacks it.**
+
+The brief's own enumeration of the executing services was also inexact: **there is no "run
+record"** among the ten. Rows 4, 6 and 8 are the lot record, the brief record and the Assignment
+service.
+
+## §25.4 already commits the drift `DEC-CCWRITE-001` warns about, in the source's own text
+
+Its table is headed *"Actions and permissions across the ten operational actions"* (L48440) and
+carries thirteen data rows. **Row 11 (L48454) is "Author or export a report format"** — outside
+write #1, sitting inside a table of the ten. Rows 12-13 are two of the absolute exclusions.
+
+And **option (b) of `DEC-CCWRITE-001` is "expand the closed set to fourteen"** — ten plus its
+four. **There are six.** Option (b) as written would leave two outside the expanded set. Evidence,
+not a choice.
+
+## Exactly three of the ten are command-bearing, and the source says so twice verbatim
+
+L35372: *"Of these the Command Center originates three: lot release (action 4), reassignment or
+substitution (action 8), and qualification clearance (action 10)."* L38719 restates it. They map
+onto `CMD-FL-LOTREL`, `CMD-FL-REASSIGN`, `CMD-FL-CLEAR`.
+
+**The command-class table puts the NAME in column 1 and the IDENTIFIER in column 2** — the reverse
+of what a reader expects, and a positional read inverts every row. A gate caught exactly that.
+
+## The propagation roll-up counts acknowledgements, not `effectiveOnThisDevice`
+
+`@/frontline/commands` exports `effectiveOnThisDevice = applied || acknowledged`, which is correct
+for the **device**. This is the **surface's** question and its only evidence is the acknowledgement
+returning. **A device at `applied` is unconfirmed here.** L2100 and `AC-FL-007-3` (L39721) both
+bind the surface.
+
+**No timeout, and no parameter one could be passed through.** `DEC-WIPE-001` leaves the horizon
+unstated, so an unreturned device holds `propagating` indefinitely. The three-token vocabulary
+(`AC-PROD-054`, L1680) has no way to say "stuck" and no fourth token was minted; the source's own
+remedy is the per-device list. **An empty device set answers `issued`** — `[].every(...)` is
+`true`, which would promote a command that reached nobody straight to the strongest state.
+
+## A RESTORE VERIFIED AGAINST A BASELINE TAKEN AFTER THE CORRUPTION
+
+The sharpest process finding of the wave, and it was self-reported.
+
+A plant campaign's restore used `String.replace(to, from)`, which matched the **first** occurrence
+of the planted string rather than the one it had written — moving a clause from row 10 into row 1.
+Every later plant then captured its baseline **from the already-corrupted file**, so three plants
+reported BYTE-IDENTICAL against a corrupted baseline and the checksum agreed every time.
+
+**What caught it was not the checksum. It was three test failures that persisted across unrelated
+plants and had nothing to do with the defect being planted.**
+
+Every plant harness in this slice must therefore: **require its anchor to occur exactly once
+before planting and before reversing**, capture the baseline **once, before the first plant**, and
+abort on mismatch. **A checksum that agrees proves the file matches the baseline, not that the
+baseline was right.**
+
+## Five more brief errors from wave 0
+
+- **"Two rows carry an obligation no other row does" — twelve do.** Only `As-of time` repeats
+  (6 rows); the other twelve obligation cells are each unique.
+- **Two rows are per-device, not one.** L35897 `Per-device timestamps` and **L35901
+  `Per-device last-seen time`**. A model making only the first per-device renders the marker's own
+  source data as one scope timestamp. And note the gate shape: **a count of two is also true of
+  the flags moved onto the wrong pair** — name the rows off the source.
+- **`Report figures`'s cell is `Refreshed with an explicit data-as-of stamp`** — the brief dropped
+  `stamp` — and the unusual cell is in the **Class** column, not the marker-obligation column.
+- **"Four states" is wrong: L36142 says "three distinct meanings"**, and L36182 says manual close
+  is drawn as an **entry into submitted**, not a state. The brief also missed a fourth diagram
+  node it does carry: **`InProgress` at L36170**.
+- **"a 30-second platform floor, quoted exactly from the numbers canon" — the canon says
+  per-tenant.** L12899: `Command Center board refresh | 60 seconds | Per-tenant floor 30 seconds`.
+  Source-wide: **3** occurrences of "platform floor of 30 seconds", **13** of "per-tenant floor of
+  30 seconds". **This is not cosmetic** — a platform floor is not a tenant's to cross; a per-tenant
+  floor is a bound a tenant sets within, which is precisely what `DEC-REFRESH-001` asks.
+
+**`DEC-FINISH-001` is raised inside §21.3 at L36150** and the brief did not name it. It is already
+carried in `app/super-admin/tenant-configuration-registry/fixtures.ts`; point at it, do not
+respell it.
