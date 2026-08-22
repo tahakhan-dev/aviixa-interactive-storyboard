@@ -431,3 +431,39 @@ reconciliation are drawn nowhere. 21 − 1 fold − 2 unstated = 18.
 **The other two do not reconcile and must not be made to.** The workflow and the authority
 matrix join the stages on different seams — "Manifest creation and signing", "Activation and
 pinning" — so a count that agrees with them would be a count of something else.
+
+## The integrity failure table has ELEVEN rows, and the controller's fifteen was invented
+
+Task 11 counted it: header L79579, separator L79580, **data L79581-L79591 — eleven rows**, six
+columns, and the line after the body is blank. **§35.6 contains the words "fifteen" and
+"eleven" zero times**, so the fifteen was not a source contradiction to preserve. It was the
+controller's arithmetic, and it had no basis anywhere.
+
+**Revocation is three rows with three device responses and TWO terminal safe states** — the two
+pre-flight rows both read "Run not enterable" and only the mid-run row reads "Run stopped, work
+preserved". The brief said three of each.
+
+**And two of the brief's cells were paraphrases rather than the source**: the scope row reads
+"Manifest scope fields **do not match the device assignment**", and the version row reads
+"Installed build below the **manifest** minimum".
+
+### The controller's counts have been wrong six times in this slice, and the cause is one thing
+
+`AC-OFF-701`'s line · the register's key column · the twenty-two-artefact line · `AC-36-101`'s
+line · the convergence table's row count · `DEC-STORE-001`'s option count and mention count ·
+this table's row count. **Every one came from reading the re-plan's span notation rather than
+counting the rows.** A span like `L79579-L79591` says where a table is, not how many rows it
+has, and the difference is the header, the separator, and wherever the body actually stops.
+
+**Count the rows. Do not infer them from a span.** Every per-task brief in this slice states its
+counts as hypotheses for that reason, and every one so far has been checked by the agent rather
+than by the controller who wrote it.
+
+## The quarantine register cannot express the mid-run revocation case
+
+L79588 quarantines captured work when a revocation arrives with the run in flight. **None of the
+ten quarantine reasons at L80389-L80398 names a revoked or withdrawn package** — the nearest is
+a *missing* workflow version. The ten are a closed set in `src/offline/quarantine.ts`, so this
+is recorded as a gap rather than patched by widening someone else's vocabulary.
+
+**Also: `DEC-WIDIFF-001` is in the shared canon**, not only `DEC-LIB-001` as the brief said.
