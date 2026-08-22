@@ -763,3 +763,78 @@ the protocol". Task 17 checked **every** step reference in §37.2-§37.6 — ste
 task 8's finding is real it is not in the blocker register's step citations.** Reporting a claim
 as unverified, rather than quietly dropping or repeating it, is the right handling of a
 second-hand finding and is recorded here as the pattern.
+
+### Wave 4, tasks 19 and 20 — the twentieth brief error, and a token that means its opposite
+
+**20. "The fourteen `DEC-FB-*` cards" attaches a chapter-38 set to a §37B task.** Measured:
+**`DEC-FB-` occurs zero times in §37B.** The section raises no `DEC-FB` item at all. Filing one
+there would be the `DEC-STUCK-001` error in the other direction — that one cited a decision to a
+section that never names it; this one would have *created* records in a section that raises none.
+
+**Task 20's brief was otherwise correct in every particular** — header, span, eight rows, the
+exemption line, both count lines, and which two rows open the table. **The first brief this slice
+whose counts held.**
+
+### `Allowed` IS USED AS A PROHIBITION, NINETEEN TIMES OUT OF FIFTY-THREE
+
+L81683: *"Worker `Allowed` to continue non-media capture; **nobody `Allowed` to evict unsynced
+evidence to make room**."*
+
+Nineteen of the fifty-three `Allowed` tokens in the offline use-case catalogue sit inside a
+negated clause like that one. **A renderer keyed on the token publishes nineteen grants the source
+refuses.** This is a sharper version of the prefix trap already in the catalogue — `Allowed` being
+a prefix of `Allowed with conditions` — and it defeats an anchored comparison too, because the
+token itself is exactly right and the sentence around it inverts it.
+
+**Read the clause, never the token alone.** Any permission transcription in this build that
+matches on a status token without reading what precedes it is suspect, and the count to check
+against is nineteen.
+
+### The source miscounts its own range, again
+
+**L81763** reads *"the **four** sync items `DEC-SYNC-002` through `DEC-SYNC-006`"*. That range is
+**five**, and §37B's own table carries all five as separate rows (L81733-L81737). The same line
+also describes the contradiction list as drawn from the canon's register *plus* `DEC-OFF-001`,
+`DEC-OFF-002` and the sync items — and **L81759's list holds thirteen identifiers, none of which
+is any of those seven.**
+
+That is the third instance of this exact shape in one slice: L48368 says three and lists four,
+L38700 says four and its own matrix carries none, and now L81763 says four of a range of five.
+**When the source states a count next to an enumeration, count the enumeration.**
+
+### More findings worth their tasks
+
+- **`DEC-SYNC-002` was disclosed by nobody**, the same gap as `DEC-SYNC-006`. Raised at L81588,
+  tabled at L81733, and named by no hand-written file until this wave. **Two tasks now name it
+  independently** — confirm the pairing is intended rather than a double-assignment, the same
+  check `DEC-OFF-001`/`DEC-OFF-002` needs.
+- **`DEC-OFF-002` is the only one of the eight with no card anywhere**, and **the §37B row asks a
+  wider question than the note that raised it**: L81460 raises the attempt count; L81739 asks the
+  count *and* the lockout duration. Both readings carried.
+- **The §37B diagram has nine source nodes for an eight-row table.** The extra is `DEC-STORE-001`
+  (L81754), which has no row.
+- **`AC-37A-005` holds for 29 of 30 entries and is vacuous on the thirtieth.** `UC-OFF-053`'s
+  entire permission line is `as \`UC-OFF-051\`.` — zero status tokens, so "all tokens are in the
+  closed set" passes on an empty set. **A criterion that quantifies over a set is satisfied by an
+  empty one**, which is the vacuity shape at source level rather than test level.
+- **Three storyboard screens sit outside the catalogue's own shared set of eleven** (L81266), and
+  **`SCR-SA-LIFECYCLE-01` occurs exactly once in all 122,241 lines** — at the entry that invokes
+  it.
+- **The E-group finding is confirmed and is exactly one row.** The eleventh identifier in E's span
+  is `UC-OFF-036` at **L81532**, group D's, reached by `UC-OFF-042`'s "as `UC-OFF-036` steps 7
+  through 9". The deferral idiom recurs five times across E, F and G and **only that one crosses a
+  group boundary.**
+
+### A registry weakness this wave surfaced, and it is systemic
+
+**`sourceLine` in the generated registries is `firstLine(...)` — the first mention of an
+identifier anywhere in the source, not the line that defines it.** Measured on one task's thirty
+rows: **eighteen point at a group table, a diagram-reuse paragraph, or a neighbouring entry.**
+`UC-OFF-070`'s reads L81212, which is the reuse rule; `UC-OFF-059`'s reads L81651, which is
+`UC-OFF-058`'s entry.
+
+It is not a wrong citation in the sense the fidelity gate catches — the line exists and mentions
+the identifier — but **it is not the definition**, and a reader following it lands somewhere that
+does not define what they looked up. Every module in this build opens its own locators instead,
+which is why it has not bitten; it is recorded here as a known weakness of the generated
+inventories rather than of the modules.
