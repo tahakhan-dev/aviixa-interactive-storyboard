@@ -1,10 +1,33 @@
 /**
- * The open-decision canon, for every surface: **twenty-nine records** today,
- * all of them raised while `SURF-STU` was built and none of them owned by it.
- * Slice 5 shipped this file under `src/studio/`; it moved here unchanged in
+ * The open-decision canon, for every surface: **forty-three records** today.
+ * Twenty-nine were raised while `SURF-STU` was built and none of them owned by
+ * it. Slice 5 shipped this file under `src/studio/`; it moved here unchanged in
  * substance because a decision is a property of the SOURCE, not of the screen
  * that happens to render it, and slice 6 cites four of these records from
  * `SURF-DOH`: `DEC-LANEB-001`, `DEC-WFROLL-001`, `DEC-LIB-001`, `DEC-TAX-002`.
+ *
+ * SLICE 10 ADDED FOURTEEN — notifications, schedules, audit and reports. Three
+ * of them are shapes this file had not carried before, and each is a shape
+ * rather than a special case:
+ *
+ *  - **Three readings, three renderings.** `DEC-AUDITSUP-001` is one question
+ *    answered by three tokens in three chapters -- `Read-only`, `Unavailable`
+ *    and `Client Decision Required` -- which render STATE-06, ABSENT and
+ *    DISABLED-with-the-identifier. `DEC-AUDITQM-001` is the same shape.
+ *    `DEC-SCHED-011` is the extreme of it: its three readings disagree about
+ *    whether the decision EXISTS, and nothing here settles that.
+ *  - **A second alias pair, and a third that is not one.** `DEC-SCHED-002` is
+ *    registered canonical with `DEC-SCHED-MISFIRE-001` as its alias, on the
+ *    same criterion `DEC-WFROLL-001` used: the card carrying options, a
+ *    recommendation, a trade-off and an owner wins. `S10-IDENT-SCHED-001`
+ *    registers the scheduler identity spellings the same way and MINTS NO
+ *    `DEC-*` IDENTIFIER, because the source raises no decision for it.
+ *  - **A record with NO readings at all.** `DEC-FINISH-002` occurs twice in
+ *    122,241 lines and neither occurrence says what the two readings are. The
+ *    absence IS the disclosure, so the record carries none and states that.
+ *    Inventing two would have been the worst outcome available. This is the
+ *    only record in the canon below the two-reading floor, and
+ *    `tests/unit/slice-10-decisions.test.ts` holds it to being the only one.
  *
  * THE RULE THIS FILE EXISTS TO ENFORCE, from `APP-012`: the client delegated
  * the decision, not the pretence that the source settled it. So a record holds
@@ -62,6 +85,21 @@ export type DecisionId =
   | 'DEC-EMBED-001'
   | 'DEC-ARCH-001'
   | 'D29'
+  // Slice 10 — notifications, schedules, audit, reports.
+  | 'DEC-AUDITSUP-001'
+  | 'DEC-AUDITQM-001'
+  | 'DEC-AUDITHASH-001'
+  | 'DEC-AUDITOFF-001'
+  | 'DEC-NOTIFCOUNT-001'
+  | 'DEC-NOTIFSEV-001'
+  | 'DEC-NOTIFPRI-001'
+  | 'DEC-NOTIFPREF-001'
+  | 'DEC-NOTIFACK-001'
+  | 'DEC-SCHED-002'
+  | 'DEC-SCHED-011'
+  | 'DEC-FINISH-002'
+  | 'DEC-CMDEXP-001'
+  | 'S10-IDENT-SCHED-001'
 
 /**
  * One reading of the source, and where it is. **Exactly two fields.** There is
@@ -94,13 +132,31 @@ export interface OpenDecision {
    */
   readonly decisionRef: string | null
   /**
-   * A second source identifier for the same question, or `null`. Only `DEC-WFROLL-001`
-   * has one: `DEC-VERROLL-001`. Required-and-nullable rather than optional, so
-   * every record carries the key and the whole array can take the
-   * `as const satisfies` form the closed-vocabulary gate requires.
+   * A second spelling of the same question, or `null`. Three records carry
+   * one: `DEC-WFROLL-001` (`DEC-VERROLL-001`), `DEC-SCHED-002`
+   * (`DEC-SCHED-MISFIRE-001`), and `S10-IDENT-SCHED-001`, whose subject is a
+   * non-human identity register rather than a decision identifier and which
+   * therefore lists the re-spellings rather than one.
+   *
+   * WHAT IT IS FOR, and it is not cosmetic: where the source asks one question
+   * under two identifiers and never cross-references them, dropping one makes
+   * the card unfindable by a client searching on the other. So the build
+   * registers one canonical, keeps the other as an alias, renders both, and
+   * says on screen that it registered an alias rather than dropping one.
+   *
+   * Required-and-nullable rather than optional, so every record carries the
+   * key and the whole array can take the `as const satisfies` form the
+   * closed-vocabulary gate requires.
    */
   readonly alias: string | null
   readonly question: string
+  /**
+   * Every reading, never only the one the build acted on. Two or more, with
+   * ONE exception the canon states rather than hides: `DEC-FINISH-002` carries
+   * none, because the source records none. An empty array is a disclosure of
+   * absence and `DecisionDisclosure` renders it as one; it is never a record
+   * whose readings were not written yet.
+   */
   readonly readings: readonly DecisionReading[]
   /** What this build does, and why. Never presented as the source's ruling. */
   readonly adopted: string
@@ -715,12 +771,330 @@ export const OPEN_DECISIONS = [
       'The per-locale reading. The Statement-of-Work sentence it reads is “an incomplete locale blocks publication in that locale” (L34359), and L34410 states the per-locale scope a second time as `FUNC-STU-17-03-A-2`. The source itself classes that scope a `Derived Clarification` rather than a `SoW Fact` (L34410, L34498), which is exactly why it renders as a reading here and never as a settled rule. MOD-STU-17 implements it: English publishes while Spanish is blocked and the missing element is named, and where the completeness check cannot run every declared locale is blocked, failing closed (`FUNC-STU-17-03-A-1` L34409, `AC-STU-149` L34487). The cost is stated rather than hidden: a version can reach the floor in one language while the other is still blocked, so a mixed-language site may run English screens for Spanish-speaking workers unless the Release Authority holds the release — which is what the card’s own example has Elena do (L34449). The whole-publication reading removes that risk and pays for it in the source’s own words: it would make a partially localised improvement impossible to ship.',
     pins: [],
   },
+
+  /* ================================================================== *
+   * SLICE 10 — notifications, schedules, audit, reports.
+   * ================================================================== */
+
+  {
+    id: 'DEC-AUDITSUP-001',
+    decisionRef: 'DEC-AUDITSUP-001',
+    alias: null,
+    question: 'May a Supervisor read the audit log, and of what?',
+    readings: [
+      {
+        text: 'Reading (a), chapter 17: the tenant role-to-module matrix gives the Supervisor `Read-only` on the Audit and Retention module, and its own condition note narrows that to held scope while calling the narrowing a recommendation over a stated silence — “Not specified in the Statement of Work whether audit reading is scope-narrowed for a Supervisor; recommendation: narrow to held scope, since the Read-only Auditor exists precisely to hold the tenant-wide read.” The note names no decision identifier. `Read-only` renders STATE-06 with the cause stated.',
+        locator: 'MOD-DOH-11 row L22017 · condition [H23] L22027',
+      },
+      {
+        text: 'Reading (b), chapter 19.13: the module’s own matrix reads `Unavailable` for the Supervisor on BOTH read rows and `Explicitly prohibited` on export. On the role axis `Unavailable` is sense B and renders ABSENT, so under this reading the Supervisor has no audit view at all. The screen register agrees and is a fourth locator rather than a restatement: the audit log explorer admits the Read-only Auditor, the Tenant Admin and the Quality Manager, and omits the Supervisor.',
+        locator: 'L28865-L28867 · SCR-DOH-20 L48114',
+      },
+      {
+        text: 'Reading (c), chapter 30D.4: the by-role audit matrix reads `Client Decision Required` and names this identifier, and the section states the options in words — “The options are no access, matching the literal source, scoped read as recommended, or read of the Supervisor’s own actions only.” The trade-off is “operational self-service against information exposure inside a plant”, and the flow diagram carries the same node rather than an invented answer. `Client Decision Required` renders DISABLED with the identifier named.',
+        locator: 'DEC-AUDITSUP-001 · L74217 · options and trade-off L74178 · flow node L74198',
+      },
+    ],
+    adopted:
+      'Reading (c)’s token, and it is chosen because it is the only one of the three that is not an answer: every Supervisor audit cell renders Client Decision Required, DISABLED, with DEC-AUDITSUP-001 named, and all three readings render beside it. Readings (a) and (b) are mutually exclusive answers to a question the source says twice it did not settle, so adopting either would present a guess as the source’s position. What this costs is stated rather than hidden: a Supervisor who grants clearances, requests releases, substitutes workers and cancels runs — all audited — cannot read their own trail, and the decision changes a route’s role list and not only a cell, because the audit log explorer does not admit the Supervisor at all. Measured, because the shape is unusual: nine references across the frozen source and NO card in section 51.9 — the options live in the prose of 30D.4 instead of in a card, which is why they are quoted here from L74178. Decision owner, L74178: the client’s product owner with the quality lead.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AUDITQM-001',
+    decisionRef: 'DEC-AUDITQM-001',
+    alias: null,
+    question:
+      'Is the Quality Manager’s audit read scoped to Summary and run-state events, and if so how do they read their own most consequential decisions?',
+    readings: [
+      {
+        text: 'Reading (a), chapter 17: the tenant role-to-module matrix gives the Quality Manager a bare `Read-only` on the Audit and Retention module with NO condition note of any kind — the only unqualified cell in that row — which read literally is the full tenant log, unscoped.',
+        locator: 'MOD-DOH-11 row L22017',
+      },
+      {
+        text: 'Reading (b), chapter 19.13: the module’s own matrix reads `Explicitly prohibited` on the full-log row and names a permission inside the same cell, “scoped to Summary and run-state events only”, while the very next row grants exactly those events `Read-only` and the export row reads `Allowed with conditions` within the Quality Manager’s audit scope.',
+        locator: 'L28865 · L28866 · L28867',
+      },
+      {
+        text: 'Reading (c), chapter 30D.4: `Allowed with conditions` — Summary and run-state events, with the extension pending this identifier. The source writes its own argument for the extension: a Quality Manager “releases holds, decides Lane B proposals, authorises never-held clearances, and approves Jobs, none of which are Summary or run-state events, so under the literal reading they cannot read their own most consequential decisions”, and the recommendation is to extend the read to the classes in which the Quality Manager is an actor or approver.',
+        locator: 'DEC-AUDITQM-001 · L74218 · the argument L74178 · flow node L74197',
+      },
+    ],
+    adopted:
+      'Reading (b) supplies the cells, because the module matrix governs a matrix cell on the inherited slice-4 ruling; the extension question stays open and every Quality Manager audit cell names DEC-AUDITQM-001. One consequence is worth being explicit about: the full-log cell is the routing branch and not a categorical prohibition, because the permission is named in the same cell and the immediately adjacent row grants exactly those events — so it renders DISABLED with the named reason, not ABSENT. Ten references and no card in section 51.9; the options and the recommendation are in the prose at L74178. The cost the source itself names is carried on screen: a Quality Manager cannot see their own hold release in the audit view, which is the anomaly this decision exists to resolve.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AUDITHASH-001',
+    decisionRef: 'DEC-AUDITHASH-001',
+    alias: null,
+    question:
+      'Is the audit hash in the Execution Summary footer a per-document integrity digest, or evidence of log integrity?',
+    readings: [
+      {
+        text: 'Reading (a), the source’s own recommendation: a per-document integrity digest, “which is implementable at V1 and does not imply a chained log”. The third option in the same sentence is to remove the footer hash until V2. The contradiction is that section 4.7.5 puts an audit hash in the per-run portable-document-format footer while sections 4.10.2 and 8.18 defer hash-chaining, and “the source uses the same word for both without reconciling them”.',
+        locator: 'DEC-AUDITHASH-001 · L73949',
+      },
+      {
+        text: 'Reading (b): it is intended as evidence of log integrity, “which would pull the deferred V2 hardening into V1”, at additional cost — the middle option is a minimal per-record hash chain at V1. The trade-off is “auditor confidence against V1 scope”. The export-capability matrix renders the open question directly, as a Client Decision Required row naming this identifier.',
+        locator: 'DEC-AUDITHASH-001 matrix cell L74759 · classification L73970',
+      },
+    ],
+    adopted:
+      'Reading (a), the per-document digest, and the export capability renders Client Decision Required with the identifier rather than as an available feature. The harder half of this is a claim this build may never make, and it is a limit rather than a preference: no screen may imply that a V1 audit log is cryptographically tamper-evident, because chained hashes and signed batches are deferred beyond V1 and what V1 delivers is “append-only with no delete or edit path on any surface, which is an access-control property rather than a cryptographic one”. The commercial consequence is the source’s own: an auditor asking whether the log was altered gets a different answer at V1 than at V2. Eight references, no card in section 51.9. Decision owner, L73949: the client’s quality lead with the JBS delivery lead.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AUDITOFF-001',
+    decisionRef: 'DEC-AUDITOFF-001',
+    alias: null,
+    question:
+      'How is the one-transaction guarantee honoured on a device that cannot reach the server?',
+    readings: [
+      {
+        text: 'Reading (a), the literal source: the one-transaction guarantee is stated for administrative and operational changes, and a full run executing offline with data syncing on reconnection is stated, and how the guarantee is honoured on a device with no server is stated nowhere. The section says why that cannot simply be left: “the alternative to answering it is either a device that silently records unaudited work or a device that cannot work offline, and both contradict stated positions”.',
+        locator: 'DEC-AUDITOFF-001 · L74372',
+      },
+      {
+        text: 'Reading (b), the proposed model, classified `Derived Clarification` with a client decision on its bounds: a local durable append-only queue that IS the device’s audit store, with business events and their audit events written into it together in one local transaction — the commit-together rule at device scope — and both the device timestamp and the server-receipt timestamp preserved on the way up. When the queue cannot preserve an action the device blocks the action and enters an upload-only state; the action-class register states the same in two rows, “Continue into the local durable append-only queue” for Frontline capture and “Halt, upload-only mode” when that queue is unwritable.',
+        // The two action-class rows are quoted above by their own words rather
+        // than by line number, deliberately: neither row carries an identifier,
+        // so a line number beside them would be a citation nothing anchors.
+        // `tests/unit/slice-10-decisions.test.ts` asserts both rows by content.
+        locator: 'DEC-AUDITOFF-001 classification L74438',
+      },
+    ],
+    adopted:
+      // THE STORAGE-FULL DECISION IS NAMED BY ITS SUBJECT, NOT BY ITS
+      // IDENTIFIER, AND THAT IS DELIBERATE. `MOD-FL-A2` and three other
+      // Frontline modules already disclose it locally, and four suites assert
+      // its identifier is absent from this file so that a lift turns them red
+      // rather than leaving two homes for one decision. Spelling it here would
+      // create the second home without moving the record.
+      'Reading (b), the proposed model, with its bounds left open — that is what the decision is about, and the model itself is what the source proposes rather than what it settles. Two things are held to regardless of the answer, because they are stated: an action that cannot be audited does not happen, and the storage-full case is deferred to the Frontline Functional Specification under its own open decision, which this record references and does not pre-empt beyond the invariant that no unaudited capture may be accepted. Four references and no card in section 51.9.',
+    pins: [],
+  },
+  {
+    id: 'DEC-NOTIFCOUNT-001',
+    decisionRef: 'DEC-NOTIFCOUNT-001',
+    alias: null,
+    question:
+      'Is the notification catalogue of eighty-seven categories in thirteen families the ratified catalogue?',
+    readings: [
+      {
+        text: 'Reading (a): ratify eighty-seven as stated. The reconciliation “produced exactly eighty-seven categories, organised into thirteen families”, and the number is `Derived Clarification`, not a source fact — “No canonical notification category count exists in the Statement of Work, in the same way that no canonical Studio module count exists.” The client must ratify before the Functional Specification fixes message identifiers, “because every category becomes a locale key pair, a routing rule, a preference row, and an audit class”.',
+        locator: 'DEC-NOTIFCOUNT-001 · L72927 · the reconciliation L72925',
+      },
+      {
+        text: 'Reading (b): merge families “where a tenant would experience two categories as one”, or expand “where a tenant’s quality system needs finer classification”. The trade-off in the source’s words: “fewer categories means less configuration burden and coarser routing; more categories means precise routing and a larger preference surface for the Tenant Admin to maintain.”',
+        locator: 'DEC-NOTIFCOUNT-001 · L72927 · catalogue L72950-L73096',
+      },
+    ],
+    adopted:
+      'The eighty-seven and the thirteen families are the counts this build renders, and every rendering of either carries the `Derived Clarification` label — the same treatment DEC-STUDIO-001 gets for the Studio module count, and for the same reason: a derived count presented bare reads as a source fact. One count in the same section is NOT safe to render and this build does not: the prose class distribution at L72929 claims “34 notifications, 9 alerts, 12 action-required notifications, 8 approval requests, 0 general tasks because no general task object exists, 6 reminders, 15 escalations, and 3 command-linked notifications”, and counting the catalogue itself yields no folding of its compound tokens that produces fifteen escalations or three command-linked. The eighty-seven total and the thirteen families reconcile; the distribution does not, and is disclosed as a contradiction rather than rendered as a breakdown. Decision owner, L72927: the client’s product owner with the JBS delivery lead.',
+    pins: [],
+  },
+  {
+    id: 'DEC-NOTIFSEV-001',
+    decisionRef: 'DEC-NOTIFSEV-001',
+    alias: null,
+    question:
+      'What are the notification severity levels, and how is notification severity kept apart from deviation severity and anomaly severity?',
+    readings: [
+      {
+        text: 'Reading (a), the literal source: it “does not fully specify notification severity”. It uses the word Critical for notifications in exactly one operative place — a Critical notification unacknowledged after 4 hours re-notifies the same audience on the same channels, tightening to 1 hour in Regulated-Industry mode — and “never enumerates the other levels, never states how a category is assigned a level, and never states a priority concept at all. Everything else in this section is proposal.”',
+        locator: 'DEC-NOTIFSEV-001 · L73141',
+      },
+      {
+        text: 'Reading (b), the proposed model, classified `Recommendation — R&D`: four levels, Critical, High, Medium and Informational. The decision exists in two parts and the second is the trap: three severity vocabularies already exist and are not the same thing — deviation severity, anomaly severity at review time, and notification severity — and “a Severity 1 deviation produces a Critical notification and a Critical anomaly, which makes the three vocabularies look identical at the top and diverge everywhere below”. Confusing them “would let a tenant’s configuration of deviation action bundles silently change notification escalation behaviour, which no source sentence permits”.',
+        locator: 'DEC-NOTIFSEV-001 · L73143 · the count L73147 · classification L73186',
+      },
+    ],
+    adopted:
+      'The four levels are modelled and the three vocabularies are kept in separate fields with separate screen labels, and NO screen presents a notification severity as a source-backed value — that is the limit this record exists to make checkable, and it follows from the source’s own classification line, which puts “the four severity levels, the three priority levels, the assignment table, and the unclassified fallback” in `Recommendation — R&D` rather than in `SoW Fact`. What is settled and does ship: the Critical re-notification rule and its Regulated-Industry tightening, which are `SoW Fact`. Measured, because the shape misleads: the level table is ONE table of seven data rows carrying both axes — four severity rows and three priority rows — not two tables, and a reader counting rows to count severity levels gets seven.',
+    pins: [],
+  },
+  {
+    id: 'DEC-NOTIFPRI-001',
+    decisionRef: 'DEC-NOTIFPRI-001',
+    alias: null,
+    question:
+      'Does a notification priority axis exist at all, separate from severity, and how many levels does it have?',
+    readings: [
+      {
+        text: 'Reading (a), the literal source: it “never states a priority concept at all”. Under this reading there is no priority axis and delivery behaviour is a function of severity alone.',
+        locator: 'DEC-NOTIFPRI-001 · L73147 · the silence L73141',
+      },
+      {
+        text: 'Reading (b), the proposed model, classified `Recommendation — R&D`: three levels — Immediate, Standard, Deferred — on a separate axis, “because severity answers how serious the underlying condition is while priority answers how the delivery behaves, and the two genuinely diverge: an allocation ladder event at 100 percent is commercially serious but does not need to interrupt a shift, while a shift handoff brief is operationally routine but is worthless if it arrives an hour late”. The three rows carry the same qualifier in every behaviour column: “Not applicable — priority governs presentation, not channel”.',
+        locator: 'DEC-NOTIFPRI-001 · L73147 · rows L73155-L73157 · classification L73186',
+      },
+    ],
+    adopted:
+      'The three priority levels are modelled as a separate axis and, exactly as with severity, no screen presents a notification priority as a source-backed value. The reason for modelling rather than omitting is the source’s own: priority governs presentation and severity governs seriousness, and folding them would make a routine-but-time-critical item indistinguishable from a serious-but-not-urgent one. Four references and no card in section 51.9; both counts sit in one sentence at L73147 with severity, which is why this record and DEC-NOTIFSEV-001 share locators without sharing a question.',
+    pins: [],
+  },
+  {
+    id: 'DEC-NOTIFPREF-001',
+    decisionRef: 'DEC-NOTIFPREF-001',
+    alias: null,
+    question:
+      'May a Tenant Admin disable any non-baseline notification category, including hold escalations, release notifications, approval requests and suspension notices?',
+    readings: [
+      {
+        text: 'Reading (a), the source permits it. The literal two-level model — the Tenant Admin sets which events fire and to which recipient roles, and each user sets channel preferences within that policy — “permits a Tenant Admin to disable any non-baseline category, and that includes hold escalations, release notifications, approval requests, and suspension notices, none of which are in the three baseline families as the source names them”.',
+        locator: 'DEC-NOTIFPREF-001 · L73674',
+      },
+      {
+        text: 'Reading (b), this blueprint’s implementation blocks it, treating the permission as “a defect of specification rather than an intended permission”, because disabling the notification that tells a Quality Manager a lot is frozen “would leave the tenant compliant with the letter of §4.9.2 and outside the intent of §3.3 and §3.4”. The extended non-disableable set is enumerated as identifier ranges — measured at 38 categories — and the options are to ratify it, to keep the source’s literal model and accept the risk, or to make the extended set a Regulated-Industry-mode constituent. The recommendation is to ratify.',
+        locator: 'DEC-NOTIFPREF-001 · L73674 · the set L73676 · AC-30C-1003 L73719',
+      },
+    ],
+    adopted:
+      'Reading (b), the extended set, with both readings on screen and the extension labelled a proposal rather than a source fact. One thing about the rendering is NOT a preference and is the reason this decision reaches a screen at all: the preference matrix reads `Explicitly prohibited` down whole columns, and the inherited categorical rule would send those cells to ABSENT — which would delete the Always-sent and Protected groups and leave a preferences screen showing only what can be switched off, the exact inversion of what the same section’s storyboard draws. The storyboard requires the opposite: three groups, with “every locked control” stating “its reason inline rather than showing a disabled control with no explanation”. So those cells render visible-and-locked-with-a-reason. Measured against the whole table rather than a span of it: of the five permission columns, exactly TWO read a prohibition in every cell — a truncation that stops at the third data row makes it look like three. Decision owner, L73674: the client’s product owner with the quality lead.',
+    pins: [],
+  },
+  {
+    id: 'DEC-NOTIFACK-001',
+    decisionRef: 'DEC-NOTIFACK-001',
+    alias: null,
+    question: 'How does an acknowledgement from an email notification authenticate?',
+    readings: [
+      {
+        text: 'Reading (a), deep-link-then-authenticate, recommended in the source: “the email control deep-links into the product and the acknowledgement is written only after a valid session exists”. What is stated and not open is that an escalation can be acknowledged in-app or from email and “either writes one acknowledgement state on the record”; what is not stated is how the email half authenticates. The blueprint “refuses to invent an unauthenticated acknowledgement path”.',
+        locator: 'DEC-NOTIFACK-001 · L73434',
+      },
+      {
+        text: 'Reading (b): a signed single-use acknowledgement link with a short lifetime, or removing email acknowledgement entirely. The trade-off is “security against speed on a factory floor”, and the reason both halves matter is stated: “a one-click email acknowledgement without authentication would be a security defect and a one-click acknowledgement with authentication is a slower experience the client should agree to knowingly”.',
+        locator: 'DEC-NOTIFACK-001 · L73434 · AC-30C-705 L73506',
+      },
+    ],
+    adopted:
+      'Reading (a). No unauthenticated acknowledgement path is built, and the acceptance criterion the source writes for it is carried as an obligation rather than as a setting: email acknowledgement occurs only after an authenticated session exists, pending this decision. The reason the click is expensive at all is worth stating on screen, because it looks like overhead: “A notification is a pointer to a business object, never a carrier of authority”, so the click re-runs authorisation from scratch — which matters most for email, where “an email link can be opened days later, on any device, by anyone holding the mailbox”. Five references, no card in section 51.9. Decision owner, L73434: the client’s product owner with the security reviewer.',
+    pins: [],
+  },
+  {
+    id: 'DEC-SCHED-002',
+    decisionRef: 'DEC-SCHED-002',
+    alias: 'DEC-SCHED-MISFIRE-001',
+    question:
+      'What happens when a scheduled run does not fire at its intended time — run late, skip, or a policy declared per schedule class?',
+    readings: [
+      {
+        text: 'Option A — run late, always. Option B — skip, always. The gap the card states plainly is that neither is right for every schedule: “A missed record-finish should run late, because the finish is a data-integrity rule. A missed 06:00 digest should probably be skipped or delivered late once, not delivered five times. A missed drift-canary run should run late.” The only stated behaviour in the source resembling a misfire policy is section 8.7.5’s emergency pause parking in-flight agent runs at their next stage boundary.',
+        locator: 'DEC-SCHED-002 card · L114327',
+      },
+      {
+        text: 'Option C, the recommendation — a per-class policy declared on the schedule definition, choosing among run-late, skip and backfill, “with run-late as the default for integrity-bearing schedules and skip-with-a-single-catch-up for notification-bearing schedules”, reasoned as “a single global policy is wrong for at least one important schedule under any choice”. The trade-off is that “each schedule definition carries a decision that someone must make correctly, and a wrong choice is discovered only during an incident”.',
+        locator: 'DEC-SCHED-002 card · L114327',
+      },
+      {
+        text: 'The same question under a second identifier, and the alias half of this record. Chapter 30A raises “Misfire, backfill and re-drive semantics for every scheduled behaviour, and specifically whether a missed shift-handoff brief is regenerated” as `DEC-SCHED-MISFIRE-001`, `Client Decision Required`, with no options, no recommendation, no owner and no cross-reference to the card above.',
+        locator: 'DEC-SCHED-MISFIRE-001 raised L66451 · registered L71650',
+      },
+    ],
+    adopted:
+      'DEC-SCHED-002 is registered as canonical and DEC-SCHED-MISFIRE-001 as its alias — the same ruling and the same criterion as DEC-WFROLL-001 and DEC-VERROLL-001: the identifier whose card carries options, a recommendation, a trade-off and a decision owner is the one a client can act on. The build registered an alias rather than dropping one, so a client searching on either identifier finds this card, and the question itself stays open. Why an alias and not a merge: the two identifiers are not two views of one register but two chapters that did not know about each other, and the measurement says so rather than an impression. DEC-SCHED-MISFIRE-001 occurs ZERO times inside the chapter that owns scheduled work, and DEC-SCHED-002 occurs zero times inside the chapter that mints DEC-SCHED-MISFIRE-001. Nothing in this build adopts a misfire policy: no scheduler affordance renders a run-late, skip or backfill outcome as settled behaviour. Decision owner, L114327: the JBS engineering lead, ratified by the client’s product owner for user-visible classes.',
+    pins: [],
+  },
+  {
+    id: 'DEC-SCHED-011',
+    decisionRef: 'DEC-SCHED-011',
+    alias: null,
+    question:
+      'Does DEC-SCHED-011 exist, is it open, or is it already closed? The three readings disagree about the decision itself rather than about its answer.',
+    readings: [
+      {
+        text: 'Reading (a), it does not exist. Chapter 27.5 bounds the band in words — misfire and catch-up “is governed by the scheduled-work decision band `DEC-SCHED-001` through `DEC-SCHED-010`, owned by the scheduled-work chapter” — and the card set in section 51.9 stops at DEC-SCHED-010, whose card is the last of the ten.',
+        locator: 'the band bounded L51002 · last card DEC-SCHED-010 L114479',
+      },
+      {
+        text: 'Reading (b), it is open, with nine references. The complete decision identifier index carries a row for it naming chapter 45A as its home chapter and counting nine references — the same shape and the same table as every other open identifier in the index.',
+        locator: 'DEC-SCHED-011 index row L115148',
+      },
+      {
+        text: 'Reading (c), it is closed, and the source says so twice in the same section: “That crosswalk closes `DEC-SCHED-011`, which recorded its absence”, and again in the section’s own classification and traceability paragraph as “This crosswalk closes `DEC-SCHED-011`, which recorded its absence”. One word differs between the two sentences and neither is a quotation of the other; both close it.',
+        locator: 'DEC-SCHED-011 closed L102392 · restated L102547',
+      },
+    ],
+    adopted:
+      'Nothing is settled here, and that is the position rather than a deferral of one. The three readings are mutually exclusive at the level of the decision’s existence — a decision cannot simultaneously not exist, be open with nine references, and have been closed — so any pick would be a claim about the source that the source contradicts on its own page. What the build does instead is procedural and checkable: all three readings render with their own locators, and no scheduler affordance is built whose behaviour depends on which of the three is true. Measured rather than assumed: DEC-SCHED-011 occurs eight times inside chapter 45A and once in the index, which is nine, so reading (b)’s count reconciles with reading (c)’s closure appearing inside that same count — the index counted the closure as a reference. That is the mechanism behind the contradiction and it is worth more than the contradiction.',
+    pins: [],
+  },
+  {
+    id: 'DEC-FINISH-002',
+    decisionRef: 'DEC-FINISH-002',
+    alias: null,
+    question:
+      'What does a manually closed run anchor its finish to? The source names this as a contradiction — “the manual-close anchor contradiction” — and never writes down what the sides of it are.',
+    // DELIBERATELY EMPTY, AND THIS IS THE DISCLOSURE. Two occurrences exist in
+    // the whole frozen source and neither states a reading: the naming inside
+    // chapter 45A's group-3 sweep, and the index row that gives it chapter 45A
+    // as its home and counts two references. There is no card in section 51.9
+    // and none anywhere else. Writing two readings here would have been
+    // inventing them, which is the one outcome this record exists to refuse.
+    readings: [],
+    adopted:
+      'The absence is what is disclosed. This build records the question and states plainly that NEITHER reading was recorded, and it invents none — a fabricated pair of readings would be indistinguishable on screen from a real pair and would be quoted back as the source’s. Measured, not estimated: DEC-FINISH-002 occurs exactly twice in 122,241 lines — the naming at L98703, where the source lists it as open beside DEC-FINISH-001 and points at the decision index for its home chapter, and the index row at L115082, which names chapter 45A and counts two references. The two references ARE those two lines, so the identifier is defined entirely by its own registration. The consequence for this slice is a limit and not a rendering: no screen presents a manual-close anchor as a source-backed value, and no gate may assert one, because there is nothing to assert it against.',
+    pins: [],
+  },
+  {
+    id: 'DEC-CMDEXP-001',
+    decisionRef: 'DEC-CMDEXP-001',
+    alias: null,
+    question:
+      'How long does a command remain valid, and what happens to one that is never delivered?',
+    readings: [
+      {
+        text: 'Option (a): no expiry for any class, “with supersession as the only replacement mechanism”. The gap is that the source “defines the command channel and its five classes but states no validity period for any class, and states no behaviour for a command that remains undelivered indefinitely”.',
+        locator: 'DEC-CMDEXP-001 · L50875',
+      },
+      {
+        text: 'Option (b), the recommendation: per-class expiry aligned to natural boundaries, “such as shift end for reassignment and clearance, and no expiry for suspension and lot release”, because it “matches the source’s existing shift-scoped semantics for clearances and assignments while preserving the indefinite persistence that suspension and lot release safety require”. Option (c) is a single platform-wide expiry. The trade-off: “per-class rules are more to specify and test.”',
+        locator: 'DEC-CMDEXP-001 · L50875 · register row L52186',
+      },
+    ],
+    adopted:
+      'Option (b) is modelled and no expiry duration is rendered as a source-backed value, because none exists — the classes “differ enormously in how they age: a version-change notice is harmless when stale, while a reassignment for a shift that ended six hours ago is actively wrong if applied”, and that asymmetry is the whole decision. Nine references, no card in section 51.9; the options, recommendation, trade-off and owner are in the prose at L50875 and the register row at L52186 states the gap in one line. Related and separate, in the source’s own words: DEC-WIPE-001 “already covers the unbounded-pending case for device wipe specifically”. Decision owner, L50875: the client’s platform team with the Frontline lead.',
+    pins: [],
+  },
+  {
+    id: 'S10-IDENT-SCHED-001',
+    // A BUILD-LOCAL KEY, AND THE `S10-` PREFIX IS DELIBERATE. The source raises
+    // NO decision for this collision, so `decisionRef` is null and no `DEC-*`
+    // identifier is minted -- minting one would put a decision identifier into
+    // a register the client would then search the source for and not find. The
+    // slice-5 `D1`..`D29` numbering is not reused because that scheme is a
+    // design-section number and collides across surfaces, which is the reason
+    // this file is keyed on source identifiers in the first place. `S10-` does
+    // not occur in the frozen source.
+    decisionRef: null,
+    alias: 'IDENT-SCHED-CTL / IDENT-SCHED-WRK / IDENT-SCHED-PLATFORM',
+    question:
+      'Under which spelling is the scheduler identity registered, when three chapters spell the same two non-human identities three different ways and no decision identifier is raised for the collision?',
+    readings: [
+      {
+        text: 'Spelling (a), chapters 13.4 and 14.5: `IDENT-SCHEDCTL`, the Scheduler Controller identity, and `IDENT-SCHEDWKR`, the Scheduled Execution Worker identity, both classified `User-Mandated Product Extension`. This is the only spelling carrying the full non-human identity contract — measured at seventeen field rows, covering purpose, owner, human sponsor, scope, credential type, provisioning, rotation, expiry, permissions, prohibited actions, tenant boundary, offline behaviour, audit, compromise response, fallback, recovery and reconciliation.',
+        locator: 'IDENT-SCHEDCTL L17887 · IDENT-SCHEDWKR L17888 · the contract table L18612',
+      },
+      {
+        text: 'Spelling (b), chapter 45A.5: `IDENT-SCHED-CTL`, “the non-human identity that materialises occurrences and marks them due”, whose “authority is deliberately tiny”, and `IDENT-SCHED-WRK`, which “claims occurrences and performs effects, always through the owning business service and always under a scope narrowed to the definition’s declared scope”. Same two identities, hyphenated differently, with the authority stated and the contract absent.',
+        locator: 'IDENT-SCHED-CTL L98883 · IDENT-SCHED-WRK L98885',
+      },
+      {
+        text: 'Spelling (c), chapter 27.4, proposed as `Derived Clarification` “because scheduled work cannot be audited without them”: `IDENT-SCHED-PLATFORM`, “the platform scheduler that owns intended execution times”, plus six per-purpose workers — the run auto-close worker, the per-shift digest worker, the qualification-expiry evaluation worker, the agent execution worker, the usage metering worker, and the on-device sync engine. This is a re-spelling of the controller AND a decomposition of the single worker identity into one identity per purpose, which is why only its scheduler half is aliased below.',
+        locator: 'seven identities proposed L51000',
+      },
+    ],
+    adopted:
+      'Spelling (a) is registered canonical and the re-spellings of the same two identities are registered as its aliases, so a search on any of them reaches this record; no `DEC-*` identifier is minted, because the source raises none and a build-minted decision identifier is worse than a build-local key. (a) wins on the same criterion the alias pairs use: it is the only spelling carrying the identity contract, and that contract is what an audit reader needs. Spelling (c)’s six per-purpose workers are disclosed and NOT aliased onto the single worker identity, because they are a decomposition rather than a second name — collapsing six identities into one alias would hide a real structural difference the client has to decide about. Why the collision is not cosmetic, in the source’s own rule: the audit “records identity and action, never ‘acting as role’”, so an audit row keyed on one spelling is unfindable by a search on another, and three spellings across three chapters is three unfindable populations.',
+    pins: [],
+  },
 ] as const satisfies readonly OpenDecision[]
 
 /**
  * The ids as a closed set in their own right, with the same real
  * exhaustiveness check every vocabulary in `@/studio/vocab` carries: adding a
- * thirtieth id to the union without listing it here stops `Exclude`
+ * forty-fourth id to the union without listing it here stops `Exclude`
  * resolving to `never` and fails the type-check.
  *
  * It is declared as its own literal list rather than mapped off
@@ -757,6 +1131,20 @@ export const OPEN_DECISION_IDS = [
   'DEC-EMBED-001',
   'DEC-ARCH-001',
   'D29',
+  'DEC-AUDITSUP-001',
+  'DEC-AUDITQM-001',
+  'DEC-AUDITHASH-001',
+  'DEC-AUDITOFF-001',
+  'DEC-NOTIFCOUNT-001',
+  'DEC-NOTIFSEV-001',
+  'DEC-NOTIFPRI-001',
+  'DEC-NOTIFPREF-001',
+  'DEC-NOTIFACK-001',
+  'DEC-SCHED-002',
+  'DEC-SCHED-011',
+  'DEC-FINISH-002',
+  'DEC-CMDEXP-001',
+  'S10-IDENT-SCHED-001',
 ] as const satisfies readonly DecisionId[]
 
 const _decisionIdsExhaustive: Exclude<DecisionId, (typeof OPEN_DECISION_IDS)[number]> extends never ? true : never = true
