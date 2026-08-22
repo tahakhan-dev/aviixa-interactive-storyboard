@@ -363,9 +363,10 @@ describe('the skew flag after the clock is corrected', () => {
  * ==================================================================== */
 
 describe('the findings, each measured against the frozen source', () => {
-  // FAILS IF: a finding is dropped, or its locator names a line that does not
-  // carry what it says. Planted: the eleven-of-twelve finding removed. Went
-  // red on the count.
+  // FAILS IF: a finding is dropped, or its locator names a blank line — the
+  // off-by-one class this build has already shipped once. Planted: the first
+  // finding's locator moved to L80199, the blank line after the table. Went
+  // red.
   it('records four findings, each anchored at a real line', () => {
     expect(CONFLICT_SOURCE_FINDINGS).toHaveLength(4)
     for (const f of CONFLICT_SOURCE_FINDINGS) {
@@ -393,10 +394,10 @@ describe('the findings, each measured against the frozen source', () => {
 
   // FAILS IF: the six missing acceptance tests are quietly assumed present, or
   // the six that exist are assumed to be twelve. Measured over the whole
-  // document, not over a span. Planted: the finding's claim of six changed to
-  // twelve — again not reachable from here, so the plant used was the
-  // finding's sourceRef moved off L80231. Went red on the anchor.
+  // document, not over a span. Planted: the finding's sourceRef moved off
+  // L80231. Went red on the anchor.
   it('twelve per-family tests are promised at L80231 and six exist', () => {
+    expect(CONFLICT_SOURCE_FINDINGS[1]?.sourceRef).toContain('L80231')
     expect(srcLine(80231)).toContain('`TEST-36-401` through `TEST-36-412`, one per object family row')
     // counted, so a failure prints a number rather than the whole document
     const occurrences = (id: string): number => SOURCE_TEXT.split(id).length - 1
@@ -414,10 +415,10 @@ describe('the findings, each measured against the frozen source', () => {
   })
 
   // FAILS IF: the flowchart is mistaken for a second statement of the table.
-  // Five branches, twelve rows. Planted: the finding deleted, caught by the
-  // count gate above; the plant for THIS gate was the branch span in its
-  // sourceRef widened to swallow the whole diagram. Went red on the count.
+  // Five branches, twelve rows. Planted: the branch span in the finding's
+  // sourceRef widened to swallow the whole diagram. Went red.
   it('the flowchart offers five family branches against twelve rows', () => {
+    expect(CONFLICT_SOURCE_FINDINGS[2]?.sourceRef).toContain('L80164-L80168')
     const branches: string[] = []
     for (let n = 80164; n <= 80168; n += 1) {
       expect(srcLine(n).trim().startsWith('F -->|'), `L${n}`).toBe(true)
@@ -438,6 +439,8 @@ describe('the findings, each measured against the frozen source', () => {
   // hold-state row's `why` cell rewritten to open with Derived Clarification.
   // Went red on the seven-count and on the verbatim-cell gate.
   it('the section classifies the whole table Derived Clarification while eight rows say SoW Fact', () => {
+    expect(CONFLICT_SOURCE_FINDINGS[3]?.sourceRef).toContain('L80233')
+    expect(CONFLICT_SOURCE_FINDINGS[3]?.sourceRef).toContain('L80246')
     expect(srcLine(80233)).toContain('`Derived Clarification` for the per-object authority table')
     expect(srcLine(80246)).toContain('The per-object authority table is `Derived Clarification`')
     const opensSowFact = CONFLICT_AUTHORITY.filter((r) =>
@@ -445,6 +448,9 @@ describe('the findings, each measured against the frozen source', () => {
     )
     expect(opensSowFact).toHaveLength(8)
     expect(opensSowFact.map((r) => r.id)).toContain('hold-state')
+    // and the row DEC-FB-008 turns on is one of the eight in this build's own
+    // reading of it, not only in the source's.
+    expect(leadClassificationOf(authorityFor('hold-state'))).toBe('SoW Fact')
   })
 })
 
@@ -541,13 +547,15 @@ describe('the DEC-FB-008 disclosure', () => {
   })
 
   // FAILS IF: the canon absorbs DEC-FB-008 and this local stand-in outlives
-  // the gap it was declared for. Built to expire. Planted: 'DEC-FB-008' added
-  // to the array this gate reads — done by editing the test's own copy of the
-  // canon list, since `src/disclosure/decisions.ts` is not this task's file.
-  // Went red.
+  // the gap it was declared for. Built to expire. The absence is asserted of
+  // the identifier THE MODULE declares, not of a literal this test owns, so
+  // the plant lands in a shipping file rather than in `decisions.ts`, which is
+  // another task's. Planted: `decisionRef` changed to an identifier the canon
+  // already carries. Went red.
   it('is still absent from the decision canon', () => {
     const canon = OPEN_DECISION_IDS as readonly string[]
     expect(canon.length).toBeGreaterThan(20)
+    expect(canon).not.toContain(DEC_FB_008_DISCLOSURE.decisionRef)
     expect(canon).not.toContain('DEC-FB-008')
   })
 })

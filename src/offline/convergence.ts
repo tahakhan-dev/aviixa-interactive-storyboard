@@ -30,9 +30,9 @@
  * divergence` — not as a lesser thing, and not as `converged`. This is the one
  * place a comparator would be tempted to be generous, and generosity here
  * produces exactly the defect the section exists to catch: a supervisor acting
- * on a picture that looks settled. L80683 states it as an invariant of the
- * fallback contract `FB-SYNC-06` (L80676): "every expected divergence is
- * actually displayed".
+ * on a picture that looks settled. The fallback contract `FB-SYNC-06` (L80676)
+ * states it as an invariant at L80683 — "every expected divergence is actually
+ * displayed".
  *
  * ── AND THE HUB HAS NO EXPECTED DIVERGENCE AT ALL ──────────────────────────
  * Its third cell (L80670) is `Not applicable`, because the Hub IS the
@@ -93,7 +93,7 @@ export const CONVERGENCE_OBLIGATIONS: readonly ConvergenceObligation[] = [
     line: 80671,
     cells: {
       Surface: 'Standards and Operations Studio',
-      'What it must agree on': 'The pinned version each run executed on',
+      'What it must agree on': 'The pinned version each run executed against',
       'Expected divergence, displayed':
         'A version published after the run started, which the run correctly does not adopt because it stays pinned',
       'Unexplained divergence, a defect':

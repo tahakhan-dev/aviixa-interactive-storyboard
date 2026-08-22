@@ -271,3 +271,29 @@ which part of the machine it is willing to call a fact.
 assertion**". Quoting the brief rather than the line would have failed the locator-fidelity
 strong check — or, worse, passed it as a weak one. **Every brief in this slice is a hypothesis
 including its quotations, not only its line numbers.**
+
+## A third pair of brief corrections, from task 5
+
+**`L80078` and `L82464` were transposed.** L80078 is a bare ` ```mermaid ` fence opening the
+`DEC-SYNC-001` Option C flowchart. **L82464 is the prose sentence** — "The command channel
+carries exactly five classes: lot release, reassignment or substitution, qualification
+clearance, suspension, and version change." The brief said each was the other. Cite L39658 and
+L39662-L39666 for the closure at five and L39672 for the order; slice 7 proved those.
+
+## `worker-finished` and `submitted` are ONE transition, not two states apart
+
+The slice-7 brief said, and this one repeated, that `worker-finished`, `submitted`, `complete`
+and `finished` are four different states. **They are four different names, and the first two are
+one instant when the device is connected.** L39045 reads "The worker declares their part
+finished (worker-finished), **which stands the Run as `submitted`** on the platform run
+lifecycle" `[SoW Fact — §7.7.5]`, and L40559 says the same.
+
+The real distinction, which `MOD-FL-A3` got right by opening the lines rather than trusting the
+brief, is **player state against run-record state**: `STATE-A3-WORKERFINISHED` is what the
+player holds, and `submitted` / `complete` / `finished` are run-record states "named here only
+to map onto them". The gap the brief was reaching for opens **offline** — where the declaration
+is made and the record is owed — and it closes on sync.
+
+**A screen must not say the platform holds no record when the device is connected.** That is
+the inverse of the error the original warning was written against, and it is available to any
+module that took the four-states framing literally.
