@@ -411,8 +411,11 @@ function walkRouteTree() {
          * MOUNTING EVIDENCE, WHICH IS AN IMPORT AND NOT A MENTION.
          *
          * A module with no route of its own can still be built and on screen:
-         * the source requires it -- `MOD-CC-13`'s action rail and `MOD-CC-07`
-         * mount inside other modules' screens, and `MOD-CC-02` is chrome. Those
+         * the source requires it -- `MOD-CC-13`'s action rail mounts inside the
+         * twelve module screens, and `MOD-CC-02` is chrome. (This comment used
+         * to name `MOD-CC-07` here too; it is wrong. That module IS named on
+         * SCR-CC-13 and DOES claim `slug: 'learning-read-view'`. `MOD-CC-13` is
+         * the only routeless Command Center module.) Those
          * modules used to read `not-represented`, which is the same word the
          * inventory uses for a module with no code at all.
          *
@@ -623,7 +626,7 @@ for (const { dir, name, a, b } of ROUTE_EVIDENCE.ambiguousRoutes) {
  * MOUNTED, WHICH IS NEITHER DEMONSTRATED NOR ABSENT.
  *
  * A module that owns no route can still be built and on screen. The source
- * requires it: `MOD-CC-13`'s action rail and `MOD-CC-07` mount inside other
+ * requires it: `MOD-CC-13`'s action rail mounts inside other
  * modules' screens, and `MOD-CC-02` is surface chrome that `AC-CC-040`
  * forbids a route. Until now every one of them read `not-represented` --
  * the same word the inventory uses for a module with no code at all.

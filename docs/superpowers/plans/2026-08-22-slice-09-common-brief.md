@@ -96,12 +96,24 @@ columns in opposite orders is not evidence of anything.**
 
 ## Three things slice 8 hands this slice directly
 
-1. **`DEC-SYNC-006` — SUPERSEDED, and this is what a hand-off looks like when it goes stale.**
-   Slice 8's wave 4 disclosed it in `src/offline/decisions-37b.ts`, where it is row 6 of §37B's
-   own table. **Read that record; do not mint a second spelling.** What remains is narrower and
-   still open: the re-plan names what reads like the same gap as `DEC-CONFLICTCAP-001`, so settle
-   whether those are one decision or two — and **the panel body still owes the rendered cap.** The
-   storyboard's `50` is an illustration, not a value, and slice 8 recorded it as one.
+1. **`DEC-SYNC-006` — SUPERSEDED, and the instruction that came with it was BACKWARDS.**
+   Slice 8's wave 4 disclosed it in `src/offline/decisions-37b.ts`, row 6 of §37B's table. **Read
+   that record; do not mint a second spelling.**
+
+   The brief then said "disclosing both invents a decision the source raises once". **The source
+   raises BOTH.** `DEC-CONFLICTCAP-001` is raised at **L38076** and registered at **L38955**
+   (§21.13); `DEC-SYNC-006` is raised at **L81737** and named as the cap's source status at
+   **L80587**. The source's own index records them as first raised in *different chapters*.
+   **Neither is this build's coinage, and merging them erases one.**
+
+   They are one panel's cap asked twice: same six-word section heading, **different scopes**
+   (one asks the cap value; the other adds reachability and Resolve All scope), **different
+   owners**, and **conflicting recommendations** — `DEC-SYNC-006` recommends what is
+   `DEC-CONFLICTCAP-001`'s option (c), which `DEC-CONFLICTCAP-001` does not recommend. Two
+   readings, two locators, no winner.
+
+   Still open: **the panel body owes the rendered cap.** The storyboard's `50` is an illustration,
+   not a value.
 2. **§36.6 calls `SCR-CC-10` by a different identifier than the register does.** Two names for one
    screen. Settle it before it reads as a fourteenth screen against `AC-CC-040`.
 3. **`AC-OFF-702` (L78832) is recorded and not enforced**, and the same shape recurs here: it
@@ -212,31 +224,58 @@ equivalent — read it, and note the guard `controlsOnActsHeldElsewhere` in
 `src/frontline/matrix.ts`, whose second loop was **unreachable by construction** until a slice-7
 module planted a misclassified row and watched it stay green.
 
-Specific traps of this shape: manual close of a stuck run · reclassifying severity, which
-`AC-CC-221` forbids outright — "Severity displayed always equals the on-device classification;
-no server-side or agent value overrides it" · two agent-panel cells whose required affordance is
-a link, not an absence.
+Specific traps of this shape: manual close of a stuck run · **reclassifying severity, and the
+brief's first framing of this was wrong** · two agent-panel cells whose required affordance is a
+link, not an absence.
+
+**On severity: `AC-CC-221` (L37000) does NOT forbid reclassification outright.** It forbids the
+**displayed** severity being overridden — "Severity displayed always equals the on-device
+classification; no server-side or agent value overrides it". A different act. L36845 grants the
+Quality Manager `Allowed with conditions — at review time on the anomaly record, with a recorded
+reason`, and the Tenant Admin cell on the same row says where: `reclassification is a review-time
+act on the Delivery Operations Hub anomaly record`. **Reading the criterion as a flat prohibition
+erases the link-out the matrix requires** — the same defect as rendering a prohibited cell where a
+link belongs, arrived at from the other side.
+
+**The measured figure is 13 link-out cells across 12 distinct rows**, not "at least six". Six was
+true as stated and is not the number.
 
 ## Thirteen module routes and thirteen screens are two different sets
 
 `AC-CC-040` forbids a fourteenth module route. But `SCR-CC-01` is `MOD-DOH-09`'s, `SCR-CC-03` and
 `SCR-CC-04` both serve `MOD-CC-03`, `SCR-CC-02` serves two modules, `SCR-CC-13` serves two, and
 **`MOD-CC-13` has no row in the register at all.** Its action rail must mount **inside** the
-twelve module screens. `MOD-CC-07` likewise has no screen of its own.
+twelve module screens.
 
-**56 distinct `SCR-CC-*` tokens exist across 176 occurrences; 13 are rows of the register.** The
-controller's first draft of this brief said 96 and that number had no basis — it is corrected
-here rather than quietly, because it is the seventh count error of this build and the discipline
-is the point: **count it yourself.**
+**`MOD-CC-07` DOES have a screen and DOES claim a route — the brief said otherwise and was
+wrong.** L48398 names it on `SCR-CC-13` beside `MOD-CC-06 FEAT-CC-0603`, and
+`src/surfaces/cc/modules.ts` gives it `slug: 'learning-read-view'`, which is in
+`CC_CLAIMED_SLUGS` with a published `CC_NAV` pathname. **`MOD-CC-13` is the only routeless
+module.** A task that builds `MOD-CC-07` as mount-only leaves a claimed slug with no directory,
+which the generator reads as "declared, not built", and leaves the action rail pointing at a route
+that does not exist. `scripts/build-registries.mjs` repeats the same error in its own comment.
 
-**Five of the 56 are a look-alike family.** `SCR-CC-001` through `SCR-CC-005` are three-digit and
-read exactly like the register's two-digit `SCR-CC-01`…`SCR-CC-13`. This is the `FB-SCHED-009`
-shape slice 8 found in the fallback library: a token that parses as the first member of a
-thirteen-row register and is not in it. **A regex keyed on `SCR-CC-\d+` collects all eighteen.**
-The remaining 38 are mnemonic (`SCR-CC-BOARD`, `SCR-CC-GATEQ`, `SCR-CC-ACTIONS` …), several of
-them two spellings of one screen — `SCR-CC-GATEQ` and `SCR-CC-GATEQUEUE`, `SCR-CC-AGENT` and
-`SCR-CC-AGENTPANEL`, `SCR-CC-CONF` and `SCR-CC-CONFLICT`. **Do not build a screen from a
-mnemonic; build from the register and cite the mnemonic as a reference.**
+**176 `SCR-CC-` occurrences. Left-anchored, `SCR-CC-\d+` yields exactly 13 — the register
+exactly.** Everything else is mnemonic.
+
+**This paragraph has now been wrong twice and both errors are instructive.**
+
+*First draft:* "96 distinct tokens". *First correction:* "56, and 96 had no basis." **Both numbers
+are real and neither is baseless.** 96 counts full-shape tokens (`SCR-CC-BOARD-01` kept whole); 56
+counts them truncated at the mnemonic. They measure the same 176 occurrences under two different
+regexes. **A count error committed inside the correction of a count error** — which is the whole
+argument for stating your regex beside your number.
+
+*Second correction:* "five three-digit look-alikes, `SCR-CC-001` through `SCR-CC-005`, the
+`FB-SCHED-009` shape." **There is no such family.** Standalone occurrences of `SCR-CC-00N`:
+**zero**. All ten are the tails of `AC-SCR-CC-001`–`005` and `TEST-SCR-CC-001`–`005`, which are
+acceptance-criterion and test identifiers. **The phantom was created by a regex with no left
+boundary**, and the fix is an anchor — `(^|[^A-Za-z0-9-])SCR-CC-\d+` — not an allowlist of five
+exceptions. An allowlist would have enshrined the phantom.
+
+**Do not build a screen from a mnemonic; build from the register.** And **anchor both ends of any
+identifier pattern you write**, because an unanchored one invents members of the family it is
+counting.
 
 ## Two decisions that are absent from the chapter's own register
 
@@ -254,6 +293,13 @@ distinct identifiers are referenced inside the chapter**, and with `DEC-CLEAR-00
 disclose **eighteen**.
 
 ## Mechanisms that must land before any module task
+
+**The shell provides mount points and mounts neither module.** `CC_SEAMS` names `MOD-CC-01` as
+`sync-state-chrome-host`'s owner, and L36503 says `MOD-CC-02` "supplies the banner to the
+**board**" — not to the shell. A `FreshnessMarker` needs a device count, an offline count and an
+age; the shell has none, and **inventing them is the storyboard's illustrative number rendered as
+a value.** `chrome` and `actionRail` are props; unfilled, each renders its declared open seam
+naming the owing module.
 
 **Session-freeze (`FB-CC-SESS`)** — a surface-wide frozen state labelling every element with its
 age, disabling every decision control with its reason, and **queueing nothing**.
