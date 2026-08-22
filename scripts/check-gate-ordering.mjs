@@ -209,6 +209,40 @@ const AUDITED = {
       'compared against an authored transcription, so `build` cannot satisfy it by rewriting ' +
       'anything. The route check lists app/frontline/ (authored), never out/frontline/ (built).',
   },
+  'slice-08-gates.test.ts': {
+    subject:
+      'the frozen blueprint at run time, compared against src/offline/**, src/fallbacks/**, ' +
+      'src/surfaces/cc/** and src/honesty/artefacts.ts as authored -- the transcribed tables, ' +
+      'the recorded count contradictions, and four module source files read as text',
+    rewrittenBy: null,
+    verdict:
+      'NOT VACUOUS. Neither end is written by any verify step: the blueprint is read-only input ' +
+      'and its sha256 is asserted here, and nothing in verify writes src/. This gate reads out/ ' +
+      'nowhere at all -- every count it makes is PARSED out of the frozen source and compared ' +
+      'against an authored transcription, so `build` cannot satisfy it by rewriting anything. ' +
+      'Three of its claims read only the frozen source and are named FREEZE assertions in the ' +
+      'file: that §38 calls its eleven-column table nine-column, that "six" occurs nowhere in ' +
+      '§37.1, and that §35.6 never writes "fifteen". Their subject is read-only input, so the ' +
+      'only thing that can turn them red is the source drifting, which is what they are for. ' +
+      'Every other assertion was watched red on a real plant into a real shipping file, and the ' +
+      'file restored byte-identically against a checksum taken before the plant.',
+  },
+  'slice-08-absence-sweep.test.ts': {
+    subject:
+      'src/offline/**, src/fallbacks/** and src/surfaces/cc/** as authored, swept for the ' +
+      'decision identifiers and answer-shaped fields slice 8 must NOT hold, compared against ' +
+      'the decision canon at src/disclosure/decisions.ts and the frozen blueprint',
+    rewrittenBy: null,
+    verdict:
+      'NOT VACUOUS, and this one is an ABSENCE claim, which is the shape most at risk of being ' +
+      'satisfied by finding nothing. Every population it sweeps is asserted non-empty and at or ' +
+      'above a measured floor before the absence is checked, and the sweep is derived from a ' +
+      'directory walk rather than a literal file list, so a slice-8 module added later is ' +
+      'covered without an edit here. No verify step writes src/, and the canon it compares ' +
+      'against is another task’s hand-written file that nothing in the build generates -- which ' +
+      'is exactly what makes "these identifiers are absent from the canon" go red on the day a ' +
+      'later task lifts them, rather than quietly staying true.',
+  },
   'hook-config.test.ts': {
     subject:
       'docs/process/claude-hooks/{CLAUDE.md,settings.json} (committed copies) and the live ' +

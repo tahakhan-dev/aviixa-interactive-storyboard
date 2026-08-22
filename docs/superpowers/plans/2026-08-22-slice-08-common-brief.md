@@ -911,3 +911,61 @@ tasks each found three outside it, and **they are different threes**: `SCR-FL-LO
 `SCR-CC-CLEAR-01`, `SCR-CC-ALERT-01` from groups A-D; `SCR-CC-CLEAR-01`, `SCR-DOH-BANNER-01`,
 `SCR-SA-LIFECYCLE-01` from E-G. **The union is five**, and `SCR-SA-LIFECYCLE-01` occurs exactly
 once in all 122,241 lines.
+
+### Task 21 — the twenty-second brief error, and the fourth self-miscount
+
+**22. The nine-column claim is at L85155, not L85123 — and BOTH briefs carried the wrong line.**
+L85123 reads, whole: `1. The failure is detected at its own detection point.` A narrative step
+carrying no count at all. The claim is **L85155** — *"**The nine-column coordination table.** Every
+cell carries an explicit status."* — restated at L85119 and as `AC-FB-125` at L85198.
+
+That is the sixth neighbouring-line error of the slice and the shape is now unmistakable: **the
+controller reads a section, finds the claim, and writes down a line from the wrong end of the
+paragraph it sits in.**
+
+**And the table is not nine columns.** Header **L85157** carries **eleven**; data
+**L85159-L85172** is **fourteen rows**. So the source names a count in the same sentence that
+introduces a table contradicting it — **the fourth instance of that exact shape in one slice**,
+after L48368 (says three, lists four), `MOD-CC-13`'s matrix (states four absolutes, carries none)
+and L81763 (says four of a range of five).
+
+### Two more count corrections, both the span-versus-count shape in miniature
+
+- **"27 in the class diagram" is right only after a stated subtraction.** L82261-L82288 carries
+  **28** `+member` lines; `+identifier` is the class key, not a template field. A gate that counts
+  the span and asserts 27 is wrong; one that counts members and subtracts explicitly is right.
+- **§33.4's bolded headings return 30, not 24.** The span L77526-L77582 contains **six group
+  headings** alongside the twenty-four fields. A heading scan that does not subtract them
+  over-reports by exactly the number of groups.
+
+### The convergence table the tree actually transcribes is §36.7's, not §38's
+
+The brief's "9 columns over 5 surface rows" **conflates two tables**. §38's coordination table has
+no surface rows — the five surfaces are its **columns**. The four-column, five-surface-row table is
+**§36.7's** convergence obligation table, header **L80668**, data **L80670-L80674**, and that is
+the one `src/offline/convergence.ts` transcribes.
+
+**Nothing in this tree transcribes §38's table**, so the 9-versus-11 contradiction can only be
+asserted against the frozen source directly. It is named as a freeze assertion in the gate and in
+the ordering audit rather than dressed as a transcription check.
+
+### Three gates that could not fail, and one that was right about a file it convicted
+
+- **`length >= 3` could not catch a merge.** Deleting one of four divergences still left three.
+  Replaced with a count derived from the frozen source at both ends — §36.6 gives the Tenant Admin
+  a non-refusal in exactly two rows and chapter 21 in none — so the number is measured rather than
+  chosen. **A floor is not a count.**
+- **A plant that replaced one of two occurrences** stayed green. Re-planted replacing both.
+- **A disclaimer plant removed one sentence from a file carrying four.** The per-file claim was
+  correct and the plant was under-powered — which is its own lesson: **a plant weaker than the
+  claim proves nothing about the claim.**
+
+And **`tests/coverage/prohibited-patterns.test.ts` went red on the new absence sweep, correctly**:
+the sweep had written a literal probe-directory name, which re-declares the probe convention
+instead of deriving it. Fixed on the sweep's side by deriving the name from `ownProbeDir()`.
+
+### The slice's gate position
+
+Release grew **583 → 676** — 74 gate cases and 19 absence sweeps. **Unit and component are
+unchanged at 4146 and 2238, which is itself evidence that no shipping file drifted**, and 20
+shipping files were re-hashed after the 47-plant campaign with zero drift.
