@@ -5,6 +5,15 @@ import { join } from 'node:path'
 import { HELD_ON_DEVICE_STATES } from '@/frontline/capture'
 import { SyncDetailSheetView } from '@/frontline/modules/fl-a6/SyncDetailSheet'
 import { A6_CARD, A6_CLAIMS_NEVER_MADE, A6_STATES } from '@/frontline/modules/fl-a6/charter'
+import {
+  A6_BOUNDED_SETTINGS,
+  A6_CLASSIFICATION_ROWS,
+  A6_DRIVERS,
+  A6_SITUATIONS,
+  A6_STATE_AXES,
+  A6_UNDRIVEN,
+  a6StateReading,
+} from '@/frontline/modules/fl-a6/offline'
 import { FL_A6_MATRIX } from '@/frontline/modules/fl-a6/matrix'
 import {
   A6_ACCEPTANCE_CRITERIA,
@@ -252,26 +261,37 @@ describe('the matrix, as the viewer sees it', () => {
 })
 
 describe('what the sheet says about itself', () => {
-  // FAILS IF: the module renders as though this slice built all of it. Half of
-  // this module is the next slice's and the sheet says which half. Planted:
-  // the SliceBoundary section removed from the view. Went red.
-  it('states which half of the module this slice built', () => {
+  // FAILS IF: the module renders as though it were finished when two of its
+  // twenty-eight functionalities are still not driven, or as though the
+  // offline half were still somebody else's. Planted twice: the SliceBoundary
+  // section removed from the view (red on the missing test id), and the
+  // undriven list dropped from OfflineHalf while the boundary prose stayed —
+  // which is a screen that admits the gap in one place and hides it in the
+  // other. Went red at 0 against 2.
+  it('states which half of the module was built when, and what is still undriven', () => {
     render(<SyncDetailSheetView />)
     const boundary = screen.getByTestId('fl-a6-slice-boundary')
     expect(boundary.textContent).toContain('the connected path')
-    expect(boundary.textContent).toContain('offline simulation')
-    // and the five states it only states are marked as such on screen.
+    expect(boundary.textContent).toContain('The offline half followed')
+    expect(boundary.textContent).toContain('DEC-STORE-001')
+    const undriven = screen.getAllByTestId('fl-a6-undriven')
+    expect(undriven).toHaveLength(A6_UNDRIVEN.length)
+    expect(undriven.map((u) => u.getAttribute('data-functionality'))).toEqual(
+      A6_UNDRIVEN.map((u) => u.id),
+    )
+    // and no state is now marked stated-but-not-driven, because none is.
     const stated = screen
       .getAllByTestId('fl-a6-state')
       .filter((s) => s.getAttribute('data-driven') === 'false')
-    expect(stated).toHaveLength(5)
+    expect(stated).toHaveLength(0)
     expect(screen.getAllByTestId('fl-a6-state')).toHaveLength(A6_STATES.length)
   })
 
   // FAILS IF: the card, the functionalities, the criteria or the disclosures
   // stop reaching the screen. A transcription nobody can read is a code
   // comment. Planted: the Functionalities section removed. Went red at 0
-  // against 28.
+  // against 28. Planted again once the offline half added two findings: the
+  // findings list sliced to six — red at 8 against 6.
   it('renders every transcribed record it holds', () => {
     render(<SyncDetailSheetView />)
     expect(screen.getAllByTestId('fl-a6-card-statement')).toHaveLength(A6_CARD.length)
@@ -282,7 +302,7 @@ describe('what the sheet says about itself', () => {
     expect(screen.getAllByTestId('fl-a6-never-claimed')).toHaveLength(
       A6_CLAIMS_NEVER_MADE.length,
     )
-    expect(screen.getAllByTestId('fl-a6-finding')).toHaveLength(6)
+    expect(screen.getAllByTestId('fl-a6-finding')).toHaveLength(8)
     expect(screen.getAllByTestId('fl-a6-denial-test')).toHaveLength(3)
     expect(screen.getAllByTestId('fl-a6-terminal-safe-state')).toHaveLength(8)
   })
@@ -331,6 +351,167 @@ describe('what the sheet says about itself', () => {
     ]) {
       for (const el of screen.getAllByTestId(id)) {
         expect(FORBIDDEN.test(el.textContent ?? ''), `${id}: ${el.textContent?.slice(0, 60)}`).toBe(
+          false,
+        )
+      }
+    }
+  })
+})
+
+/* ==================================================================== *
+ * THE OFFLINE HALF, ON THE SCREEN.
+ *
+ * The unit suite next door asks whether the mechanisms produce what they
+ * claim. This block asks the only question that cannot be answered there: does
+ * the offline half REACH the page. A state resolved and never drawn is a
+ * function nobody called, and the whole reason this module states its offline
+ * behaviour at all is that a screen showing only the connected path implies
+ * the safety layer needs a network.
+ * ==================================================================== */
+
+describe('the offline half, as the viewer sees it', () => {
+  // FAILS IF: a state this build claims to drive never appears on the page.
+  // Read off the elements' own `data-state` attributes rather than off the
+  // page text, because a page-text search for STATE-A6-OFFLINE also matches
+  // the States list above it, where the identifier is merely NAMED — so a
+  // text sweep here would pass with the whole offline section deleted.
+  //
+  // Planted: the OfflineHalf section removed from the view. Went red at 0
+  // against 7. Planted again: the three situations replaced with the connected
+  // one three times — the section still rendered, and this went red naming the
+  // four states nothing reached.
+  it('draws every one of the seven states, reached rather than listed', () => {
+    render(<SyncDetailSheetView />)
+    const drawn = new Set(
+      screen.getAllByTestId('fl-a6-held-state').map((el) => el.getAttribute('data-state')),
+    )
+    for (const s of A6_STATES) {
+      expect(drawn.has(s.id), `${s.id} is reached on the page`).toBe(true)
+    }
+    expect(screen.getAllByTestId('fl-a6-situation')).toHaveLength(A6_SITUATIONS.length)
+  })
+
+  // FAILS IF: a held state is drawn without the sentence that says what it
+  // means for the worker. Per element, because the sheet draws the same state
+  // more than once — STATE-A6-OFFLINE holds in two of the three situations —
+  // and a page-wide check passes when one of the two loses its line.
+  //
+  // Planted: the line span dropped from the held-state list item, leaving the
+  // identifier alone. Went red on the first element, naming its state.
+  it('prints each held state’s own sentence beside it, every time it holds', () => {
+    render(<SyncDetailSheetView />)
+    const seen: string[] = []
+    for (const el of screen.getAllByTestId('fl-a6-held-state')) {
+      const id = el.getAttribute('data-state') ?? ''
+      seen.push(id)
+      const text = el.textContent ?? ''
+      expect(text.length, id).toBeGreaterThan(id.length + 40)
+      expect(text.startsWith(id), id).toBe(true)
+    }
+    // and a state really is drawn more than once, which is what makes the
+    // per-element form of this check different from a page-wide one.
+    expect(seen.length).toBeGreaterThan(new Set(seen).size)
+  })
+
+  // FAILS IF: the refusal at 96 hours never reaches the page, or reaches it as
+  // an acceptance. TEST-A6-4 is a denial test and a denial nobody can read is
+  // not a denial. Planted: the value handed to the ruling changed from 96 to
+  // 24, so the paragraph still rendered and still read like a refusal notice —
+  // with nothing above the ceiling in it. Red on the missing 96, which is the
+  // number TEST-A6-4 names.
+  it('shows the platform refusing a 96-hour trust window, with both ceilings beside it', () => {
+    render(<SyncDetailSheetView />)
+    const refusal = screen.getByTestId('fl-a6-ceiling-refusal').textContent ?? ''
+    expect(refusal).toContain('96')
+    expect(refusal).toContain('above the platform ceiling')
+    // AND IT SAYS SO IN TEST-A6-4's OWN TERMS. The first version of this line
+    // asserted the word "accepted" was absent, and went red on the refusal's
+    // own sentence — "it is not accepted and noted" — which is precisely the
+    // thing the denial test asks to see. A word-absence check here would have
+    // had to be satisfied by softening the refusal, so what is asserted is the
+    // denial rather than the absence of a word inside it.
+    expect(refusal).toContain('not accepted and noted')
+    const settings = screen.getAllByTestId('fl-a6-bounded-setting')
+    expect(settings).toHaveLength(A6_BOUNDED_SETTINGS.length)
+    expect(settings.map((el) => el.getAttribute('data-setting'))).toEqual(
+      A6_BOUNDED_SETTINGS.map((b) => b.id),
+    )
+  })
+
+  // FAILS IF: a driver's evidence is drawn as prose about the mechanism rather
+  // than the mechanism's own output. Each evidence element is compared with
+  // what the module published, so a panel that summarised them would go red.
+  // Planted: the evidence span replaced with the driver's `what` sentence.
+  // Went red on the first driver.
+  it('draws every driver with the output its mechanism produced', () => {
+    render(<SyncDetailSheetView />)
+    const drivers = screen.getAllByTestId('fl-a6-driver')
+    expect(drivers).toHaveLength(A6_DRIVERS.length)
+    for (const d of A6_DRIVERS) {
+      const el = drivers.find((n) => n.getAttribute('data-driver') === d.id)
+      expect(el, d.id).toBeDefined()
+      expect(el?.textContent ?? '', d.id).toContain(d.evidence)
+    }
+    expect(screen.getAllByTestId('fl-a6-driver-evidence')).toHaveLength(A6_DRIVERS.length)
+  })
+
+  // FAILS IF: the four axes, the register rows, the reconnect outcome or the
+  // reconciliation obligation stop reaching the page. Each of the four is a
+  // finding or an obligation this module holds, and a record nobody can read
+  // is a code comment. Planted: the axes list sliced to its first two — red at
+  // 4 against 2, which a mere presence check would have passed.
+  it('renders the axes, the register rows, the resume point and the reconciliation row', () => {
+    render(<SyncDetailSheetView />)
+    expect(screen.getAllByTestId('fl-a6-axis')).toHaveLength(A6_STATE_AXES.length)
+    expect(screen.getAllByTestId('fl-a6-register-row')).toHaveLength(A6_CLASSIFICATION_ROWS.length)
+    expect(screen.getByTestId('fl-a6-eighth-token').textContent).toContain('AC-OFF-701')
+    const reconnect = screen.getByTestId('fl-a6-reconnect-outcome').textContent ?? ''
+    expect(reconnect).toContain('step 22')
+    expect(reconnect).toContain('carries on from that step rather than starting again')
+    expect(screen.getByTestId('fl-a6-reconciliation').textContent).toContain('unexplained divergence')
+  })
+
+  // FAILS IF: a source mode's Frontline-behaviour cell is drawn under a
+  // situation whose lever that mode does not belong to. The modes are what
+  // keeps device-dark and server-unreachable apart on screen after both
+  // collapse onto STATE-A6-OFFLINE, so drawing the wrong set silently undoes
+  // the distinction L78650 requires. Planted: every situation's mode list read
+  // off the FIRST situation's lever instead of its own — red at 21 modes
+  // expected against 3 drawn.
+  it('draws only the modes each situation’s own lever reproduces', () => {
+    render(<SyncDetailSheetView />)
+    const expected = A6_SITUATIONS.reduce(
+      (n, s) => n + a6StateReading(s.situation).modes.length,
+      0,
+    )
+    expect(screen.getAllByTestId('fl-a6-mode')).toHaveLength(expected)
+    const dark = a6StateReading(A6_SITUATIONS[1]?.situation ?? A6_SITUATIONS[0].situation)
+    const unreachable = a6StateReading(A6_SITUATIONS[2]?.situation ?? A6_SITUATIONS[0].situation)
+    expect(dark.modes.length).not.toBe(unreachable.modes.length)
+  })
+
+  // FAILS IF: the offline half carries a phrasing this build forbids. Swept
+  // over the new sections specifically, because the page-wide sweep above was
+  // written before they existed and a region nobody sweeps is where anything
+  // hides. Planted: "Synced" written as the label of a held state. Went red
+  // naming that element.
+  it('claims nothing synced, and no pace, timing or countdown word', () => {
+    const FORBIDDEN = /\b(pace|timer|countdown|ranking|leaderboard|productivity|synced)\b/i
+    render(<SyncDetailSheetView />)
+    for (const id of [
+      'fl-a6-held-state',
+      'fl-a6-axis',
+      'fl-a6-driver',
+      'fl-a6-undriven',
+      'fl-a6-bounded-setting',
+      'fl-a6-ceiling-refusal',
+      'fl-a6-reconnect-outcome',
+      'fl-a6-register-row',
+      'fl-a6-reconciliation',
+      'fl-a6-mode',
+    ]) {
+      for (const el of screen.getAllByTestId(id)) {
+        expect(FORBIDDEN.test(el.textContent ?? ''), `${id}: ${el.textContent?.slice(0, 70)}`).toBe(
           false,
         )
       }

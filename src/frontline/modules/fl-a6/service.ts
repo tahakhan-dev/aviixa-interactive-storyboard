@@ -78,10 +78,16 @@ export interface A6Functionality {
   /** Why `patterns` is empty, in the source's own words. `null` otherwise. */
   readonly patternsNote: string | null
   /**
-   * Whether this slice's screen exercises the functionality, or only states
-   * it. Slice 8 builds the offline simulation, package staging, the reconnect
-   * ladder and convergence; a module that rendered twenty-eight rows without
-   * saying which of them it drives would be claiming a slice it has not built.
+   * Whether THIS BUILD exercises the functionality, or only states it. Slice 7
+   * drove three and marked the other twenty-five stated-only; the offline half
+   * drives twenty-three of those twenty-five, and the two that remain are
+   * named in `A6_UNDRIVEN` with the reason each cannot be driven.
+   *
+   * THE FLAG IS NOT THE EVIDENCE. `A6_DRIVER_OF` in `./offline` binds every
+   * functionality to the mechanism that runs it, derived from the drivers'
+   * own lists rather than restated, and the covering suite asserts the two
+   * agree on all twenty-eight. A flag flipped without a driver goes red; a
+   * driver added without the flag goes red the same way.
    */
   readonly exercisedInThisSlice: boolean
   readonly sourceRef: string
@@ -98,7 +104,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: delivered. Offline: cannot be delivered; the Run stays not-yet-ready.',
     patterns: ['FB-FL-PKG-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-01-1-1 · L41162',
   },
   {
@@ -108,7 +114,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online and offline: identical execution.',
     patterns: ['FB-FL-CORE-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-01-1-2 · L41163',
   },
   {
@@ -118,7 +124,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online and offline: identical.',
     patterns: ['FB-FL-PKG-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-01-1-3 · L41164',
   },
   {
@@ -142,7 +148,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online and offline: identical durability.',
     patterns: ['FB-FL-UP-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-02-2-1 · L41169',
   },
   {
@@ -152,7 +158,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: resumes. Offline: waits.',
     patterns: ['FB-FL-UP-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-02-2-2 · L41170',
   },
   {
@@ -178,7 +184,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: pulls. Offline: nothing arrives, and no surface may imply otherwise.',
     patterns: ['FB-FL-CMD-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-03-1-1 · L41174',
   },
   {
@@ -189,7 +195,7 @@ export const A6_FUNCTIONALITIES = [
       'Online and offline: validation is local; acknowledgement requires connectivity.',
     patterns: ['FB-FL-CMD-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-03-1-2 · L41175',
   },
   {
@@ -199,7 +205,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: both present. Offline: server-receipt time absent until receipt.',
     patterns: ['FB-FL-TIME-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-04-1-1 · L41178',
   },
   {
@@ -209,7 +215,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: applied. Offline: Not applicable — ordering at sync occurs at sync.',
     patterns: ['FB-FL-TIME-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-04-1-2 · L41179',
   },
   {
@@ -221,7 +227,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online and offline: detection is local.',
     patterns: ['FB-FL-TIME-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-04-2-1 · L41181',
   },
   {
@@ -236,7 +242,7 @@ export const A6_FUNCTIONALITIES = [
       'Online: routing occurs. Offline: the flag is recorded and the routing happens at sync.',
     patterns: ['FB-FL-TIME-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-04-2-2 · L41182',
   },
   {
@@ -249,7 +255,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: refreshed. Offline: counts down.',
     patterns: ['FB-FL-AUTH-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-05-1-1 · L41185',
   },
   {
@@ -261,7 +267,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: proceeds. Offline: the action does not proceed and the step waits.',
     patterns: ['FB-FL-AUTH-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-05-2-1 · L41187',
   },
   {
@@ -274,7 +280,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online and offline: identical, because the evaluation is local.',
     patterns: ['FB-FL-GATE-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-05-3-1 · L41189',
   },
   {
@@ -285,7 +291,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: a new clearance can arrive. Offline: it cannot.',
     patterns: ['FB-FL-GATE-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-05-3-2 · L41190',
   },
   {
@@ -297,7 +303,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online and offline: identical.',
     patterns: ['FB-FL-PKG-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-06-1-1 · L41193',
   },
   {
@@ -310,7 +316,7 @@ export const A6_FUNCTIONALITIES = [
       'the command.',
     patterns: ['FB-FL-CMD-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-06-1-2 · L41194',
   },
   {
@@ -323,7 +329,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: arrives as a command. Offline: waits.',
     patterns: ['FB-FL-CMD-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-06-1-3 · L41195',
   },
   {
@@ -335,7 +341,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: eviction proceeds after confirmation. Offline: no eviction.',
     patterns: ['FB-FL-STORE-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-07-1-1 · L41198',
   },
   {
@@ -347,7 +353,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online: staging proceeds. Offline: no new staging.',
     patterns: ['FB-FL-PKG-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-07-1-2 · L41199',
   },
   {
@@ -359,7 +365,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online and offline: identical.',
     patterns: ['FB-FL-SEC-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-07-1-3 · L41200',
   },
   {
@@ -383,7 +389,7 @@ export const A6_FUNCTIONALITIES = [
       'Online: applied at sync. Offline: Not applicable — conflicts are detected at sync.',
     patterns: ['FB-FL-TIME-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-08-1-1 · L41204',
   },
   {
@@ -408,7 +414,7 @@ export const A6_FUNCTIONALITIES = [
     connectivity: 'Online and offline: identical.',
     patterns: ['FB-FL-CAP-01'],
     patternsNote: null,
-    exercisedInThisSlice: false,
+    exercisedInThisSlice: true,
     sourceRef: 'FUNC-A6-08-1-3 · L41206',
   },
   {
@@ -846,6 +852,41 @@ export const A6_SOURCE_FINDINGS = [
       'over the closed thirteen, so a sixth label cannot be introduced by either list being wrong. ' +
       'The eight rungs the sheet does not report are named on the sheet rather than left implied.',
     sourceRef: 'SB-FL-015 · L41235',
+  },
+  {
+    what: 'The seven states this module names are four independent axes, not one exclusive machine.',
+    evidence:
+      'L41112 lists STATE-A6-CONNECTED, STATE-A6-OFFLINE, STATE-A6-SYNCING, STATE-A6-INTERRUPTED, ' +
+      'STATE-A6-TRUSTVALID, STATE-A6-TRUSTEXPIRED and STATE-A6-SKEWFLAGGED in one flat sentence and ' +
+      'glosses exactly one of them — TRUSTVALID, as "inside the offline trust window", which is a ' +
+      'condition rather than a link posture. Read as one exclusive machine the list cannot express a ' +
+      'device that is offline AND inside its trust window, and the whole Offline behaviour paragraph ' +
+      'at L41129 describes exactly that device as the ordinary case. FUNC-A6-02-2-2 (L41170) puts ' +
+      'INTERRUPTED on a third axis: a mid-sync connection drop leaves the link gone and the transfer ' +
+      'half done at the same instant. SKEWFLAGGED has no opposite member at all.',
+    notClosedBecause:
+      'The source is not corrected and no eighth state is invented. The seven are transcribed as the ' +
+      'source lists them and the axes are carried beside them in offline.ts as this build’s reading, ' +
+      'with the axes proved to partition the seven exactly — none in two axes and none left out. A ' +
+      'build that had folded them into one machine would have had to drop a state or invent one.',
+    sourceRef: 'STATE-A6-TRUSTVALID · L41112',
+  },
+  {
+    what: 'The single register row AC-OFF-701 cannot account for is this module’s own.',
+    evidence:
+      'AC-OFF-701 (L78831) requires every Frontline function to carry exactly one of the seven ' +
+      'offline capability classes and leaves none unclassified. Fifty-one of the fifty-two rows of ' +
+      'the classification register do. One does not: L78799 classifies Conflict resolution as ' +
+      '`Explicitly prohibited on the device`, a token that is not one of the seven, and the Module ' +
+      'cell on that row reads MOD-FL-A6. Five register rows name this module and that is one of them.',
+    notClosedBecause:
+      'Nothing is widened and nothing is reclassified. The eighth token is @/offline/capability’s ' +
+      'RegisterOnlyClassToken and the contradiction is its DEC-OFFCLASS-001, read here rather than ' +
+      're-opened. What this module adds is the intersection: the row the criterion cannot account ' +
+      'for carries the same refusal row 5 of this module’s matrix already draws — the worker never ' +
+      'sees or resolves a conflict — so the eighth token is the register agreeing with section 22.15 ' +
+      'in a word section 34.7 closed itself out of.',
+    sourceRef: 'AC-OFF-701 · L78831',
   },
   {
     what: 'DEC-CLOCKWIN-001 now has two local stand-ins in this build.',

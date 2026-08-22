@@ -312,6 +312,19 @@ if (orphanProbes.length > 0) {
 
 function walkRouteTree() {
   const ownedModuleIds = new Set()
+  /**
+   * Argmax winners, RECORDED PER DIRECTORY and awarded below, for exactly the
+   * reason ties are. This set used to be filled during the walk, which awarded
+   * a route to its most-mentioned module EVEN WHERE A SLUG CLAIMED IT -- so a
+   * module merely MOUNTED inside another's screen read demonstrated by it. The
+   * header two hundred lines up says "ownership, not mention, so a screen
+   * cross-referencing a neighbour does not demonstrate it", and that sentence
+   * was false of this code: `MOD-CC-02` is chrome that owns no route, is named
+   * once inside `app/command-center/sync-conflict-review-panel/` -- a
+   * directory `MOD-CC-10` claims by slug -- and was awarded it outright,
+   * because it was the only id that route's file mentioned.
+   */
+  const argmaxWinners = []
   /** Ties, judged after slug claims are known. See the walk below. */
   const ambiguousRoutes = []
   const citedTokens = new Set()
@@ -367,7 +380,7 @@ function walkRouteTree() {
           // third sat one mention from it.
           ambiguousRoutes.push({ dir, name, a: ranked[0], b: ranked[1] })
         } else {
-          ownedModuleIds.add(ranked[0][0])
+          argmaxWinners.push({ dir, id: ranked[0][0] })
         }
       }
     }
@@ -380,20 +393,11 @@ function walkRouteTree() {
     }
   }
   walkDirs(join(ROOT, 'app'))
-  return { ownedModuleIds, ambiguousRoutes, citedTokens, declaredControlLabels, declaresControlMatrix, routeDirsByName }
+  return { ownedModuleIds, argmaxWinners, ambiguousRoutes, citedTokens, declaredControlLabels, declaresControlMatrix, routeDirsByName }
 }
 
 const ROUTE_EVIDENCE = walkRouteTree()
 const DEMONSTRATED_MODULE_IDS = ROUTE_EVIDENCE.ownedModuleIds
-
-// A build that finds no shipped module is a broken walk, not an empty product:
-// nineteen SURF-SA routes exist on disk. Failing here beats writing a coverage
-// dashboard that quietly reports nothing is built.
-if (DEMONSTRATED_MODULE_IDS.size === 0) {
-  throw new Error(
-    'No module route was found under app/. The route walk is broken -- refusing to write registries that would report every module as not-represented.',
-  )
-}
 
 /* ==================================================================== *
  * THE SLUG RULE (Phase 0.6 -- slice-5 finding F4).
@@ -504,6 +508,32 @@ for (const [id, { slug, file }] of MODULE_SLUGS) {
  * by one.
  * ==================================================================== */
 const SLUG_CLAIMED_DIRS = new Set(SLUG_DEMONSTRATED.values())
+
+/* --------------------------------------------------------------------
+ * THE ARGMAX AWARDS, JUDGED THE SAME WAY AND FOR THE SAME REASON.
+ *
+ * Argmax is the guess for a route NOBODY HAS CLAIMED. On a route a slug
+ * claims, the owner is already known and the mention count answers a question
+ * that is no longer open -- so awarding its winner as well hands one route to
+ * two modules, and the second of them by mention alone.
+ *
+ * That is not hypothetical: it shipped. `MOD-CC-02` is Command Center chrome
+ * that declares `slug: null` on purpose because it owns no route, and it read
+ * `demonstrated-in-storyboard` off `MOD-CC-10`'s screen, where it is named
+ * once as the chrome mounted inside it. The inventory then reported 58
+ * demonstrated modules where 57 are.
+ *
+ * Deliberately NOT a throw. A slug-claimed route naming a neighbour more
+ * often than its owner is the mounting pattern the source requires, not a
+ * defect. It is simply not evidence for the neighbour.
+ * ------------------------------------------------------------------ */
+const ARGMAX_DEMONSTRATED = new Map()
+for (const { dir, id } of ROUTE_EVIDENCE.argmaxWinners) {
+  if (SLUG_CLAIMED_DIRS.has(relative(ROOT, dir))) continue
+  DEMONSTRATED_MODULE_IDS.add(id)
+  if (!ARGMAX_DEMONSTRATED.has(id)) ARGMAX_DEMONSTRATED.set(id, relative(ROOT, dir))
+}
+
 for (const { dir, name, a, b } of ROUTE_EVIDENCE.ambiguousRoutes) {
   const claimed = SLUG_CLAIMED_DIRS.has(relative(ROOT, dir))
   if (claimed) continue
@@ -513,6 +543,20 @@ for (const { dir, name, a, b } of ROUTE_EVIDENCE.ambiguousRoutes) {
       `module more often than any it cross-references, or be claimed by a slug declaration.`,
   )
 }
+// A build that finds no shipped module is a broken walk, not an empty product:
+// nineteen SURF-SA routes exist on disk. Failing here beats writing a coverage
+// dashboard that quietly reports nothing is built.
+//
+// IT SITS HERE, not next to the walk, because BOTH award paths now run after
+// the walk: slug claims and -- since a slug-claimed route stopped awarding its
+// argmax winner too -- the argmax awards as well. Left where it was, it read a
+// set that is empty by construction and refused every run.
+if (DEMONSTRATED_MODULE_IDS.size === 0) {
+  throw new Error(
+    'No module route was found under app/. The route walk is broken -- refusing to write registries that would report every module as not-represented.',
+  )
+}
+
 console.log(
   `Route evidence: ${DEMONSTRATED_MODULE_IDS.size} modules demonstrated -- ` +
     `${SLUG_DEMONSTRATED.size} by a declared slug naming a built route directory, the rest by ` +

@@ -18,6 +18,25 @@ import {
   type A7Column,
 } from './matrix'
 import {
+  A7_COMPLETION_VERB_CLASSIFICATION,
+  A7_CROSS_MODULE_REACH,
+  A7_MODULE_FILTER_MEASUREMENT,
+  A7_PIN_RESET_ROLE_DIVERGENCE,
+  A7_REGISTER_CLASS_TALLY,
+  A7_REGISTER_ROWS,
+  A7_ROWS_OUTSIDE_THE_SEVEN,
+  A7_ROWS_UNDER_AC_OFF_702,
+  A7_STANDING_NOT_STATED,
+  A7_STATE_IDS,
+  A7_STORAGE_ROW_NOT_RESTATED,
+  A7_UNCLASSIFIED_FUNCTIONALITY,
+  A7_VERBS_WITHOUT_ONE_CLASS,
+  a7OfflineStanding,
+  a7VerbClasses,
+  registerLineOf,
+  type A7TrustWindow,
+} from './offline'
+import {
   A7_COMMAND_CLASS_GAP,
   A7_COMPLIANCE_LOCK,
   A7_DISCLOSURES,
@@ -452,6 +471,228 @@ function OfflineStanding() {
   )
 }
 
+/** A source cell's own words with the source's code ticks dropped. */
+const plain = (cell: string): string => cell.replace(/`/g, '')
+
+/**
+ * §34.7's CLASSIFICATION OF THIS MODULE'S FUNCTIONS, AND THE TWO ROWS A
+ * MODULE-LABELLED FILTER DOES NOT RETURN.
+ *
+ * Every row here is wave 0's transcription in `@/offline/capability`, read
+ * and never re-transcribed, and every locator is derived from the row's
+ * position in that array. What this section adds is the reconciliation: five
+ * rows labelled, two reached, seven functions against eleven functionalities,
+ * and the one functionality no Function cell in the register names.
+ */
+function OfflineClassification() {
+  return (
+    <div data-testid="fl-a7-offline-classification" className={`${CARD} space-y-4`}>
+      <h2 className="text-base font-semibold text-[var(--color-ink)]">
+        What §34.7 classifies this module&rsquo;s functions as, with no connection
+      </h2>
+      <p className="text-sm text-[var(--color-ink-muted)]">
+        The classification register is keyed on Function, not on module id. Module is an ordinary
+        column, and four of its fifty-two rows do not hold a single module id. So these rows are{' '}
+        <em>filtered</em> on the Module cell&rsquo;s own text and never looked up by it —{' '}
+        {A7_MODULE_FILTER_MEASUREMENT.byContainment} rows name this module by containment and{' '}
+        {A7_MODULE_FILTER_MEASUREMENT.byEquality} by equality, and the two filters part company on
+        {`L${A7_MODULE_FILTER_MEASUREMENT.whereTheyDiffer.join(', L')}`}, which writes two module ids
+        into one cell. <span className="text-xs text-[var(--color-ink-subtle)]">[L78766]</span>
+      </p>
+
+      <ul className="space-y-3">
+        {A7_REGISTER_ROWS.map((row) => (
+          <li
+            key={row.fn}
+            data-testid="fl-a7-register-row"
+            data-class={row.klass}
+            data-line={registerLineOf(row)}
+            className="text-sm"
+          >
+            <span className="font-medium text-[var(--color-ink)]">{row.fn}</span> —{' '}
+            <span className="text-[var(--color-ink)]">{row.klass}</span>
+            <br />
+            <span className="text-[var(--color-ink-muted)]">
+              {plain(row.reason)}. Held locally: {plain(row.dataRequiredLocally)}. Expiry:{' '}
+              {plain(row.expiry)}. Roles: {plain(row.roleAndQualificationRestrictions)}. Fallback:{' '}
+              {plain(row.fallback)}. On reconnection: {plain(row.reconnectBehaviour)}.
+            </span>{' '}
+            <span className="text-xs text-[var(--color-ink-subtle)]">{`[L${registerLineOf(row)}]`}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p data-testid="fl-a7-register-tally" className="text-sm text-[var(--color-ink-muted)]">
+        Counted off the rows rather than asserted beside them:{' '}
+        {Object.entries(A7_REGISTER_CLASS_TALLY)
+          .map(([klass, n]) => `${klass} ${n}`)
+          .join(', ')}
+        .{' '}
+        {`${A7_ROWS_OUTSIDE_THE_SEVEN.length} of them carries a class outside the seven AC-OFF-701 (L78831) names, and the rows AC-OFF-702 (L78832) governs are ${
+          A7_ROWS_UNDER_AC_OFF_702.length === 0
+            ? 'none'
+            : A7_ROWS_UNDER_AC_OFF_702.map((r) => `L${registerLineOf(r)}`).join(' and ')
+        }`}{' '}
+        — nothing classified fully available offline may make a network call on its execution path.
+      </p>
+
+      <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+        Two more rows are this module&rsquo;s and a module-labelled filter returns neither
+      </p>
+      <ul className="space-y-2">
+        {A7_CROSS_MODULE_REACH.map((r) => (
+          <li
+            key={r.line}
+            data-testid="fl-a7-cross-module-reach"
+            data-line={r.line}
+            className="text-sm"
+          >
+            <span className="font-medium text-[var(--color-ink)]">{r.fn}</span>, filed
+            Cross-module. <span className="text-[var(--color-ink-muted)]">{r.evidence}</span>{' '}
+            <span className="text-[var(--color-ink-muted)]">{r.bearsOn}</span>{' '}
+            <span className="text-xs text-[var(--color-ink-subtle)]">{`[L${r.line}]`}</span>
+          </li>
+        ))}
+        <li data-testid="fl-a7-storage-row-not-restated" className="text-sm">
+          <span className="font-medium text-[var(--color-ink)]">
+            {A7_STORAGE_ROW_NOT_RESTATED.fn}
+          </span>
+          , also Cross-module, is named and not restated.{' '}
+          <span className="text-[var(--color-ink-muted)]">
+            {A7_STORAGE_ROW_NOT_RESTATED.whyNotRestated}
+          </span>{' '}
+          <span className="text-xs text-[var(--color-ink-subtle)]">
+            {`[L${A7_STORAGE_ROW_NOT_RESTATED.line}]`}
+          </span>
+        </li>
+      </ul>
+
+      <div
+        role="note"
+        data-testid="fl-a7-unclassified-functionality"
+        data-functionality={A7_UNCLASSIFIED_FUNCTIONALITY.functionality}
+        className={DASHED}
+      >
+        <p className="font-medium text-[var(--color-ink)]">
+          One functionality of the eleven is classified by no row of the register
+        </p>
+        <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
+          {A7_UNCLASSIFIED_FUNCTIONALITY.question}
+        </p>
+        <ul className="mt-2 space-y-1">
+          {A7_UNCLASSIFIED_FUNCTIONALITY.readings.map((r) => (
+            <li key={r.locator} className="text-sm">
+              <span className="text-[var(--color-ink)]">{r.text}</span>{' '}
+              <span className="whitespace-nowrap text-xs text-[var(--color-ink-subtle)]">
+                [{r.locator}]
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-sm text-[var(--color-ink)]">
+          {A7_UNCLASSIFIED_FUNCTIONALITY.note}
+        </p>
+      </div>
+
+      <p data-testid="fl-a7-pin-reset-divergence" className="text-sm text-[var(--color-ink-muted)]">
+        {A7_PIN_RESET_ROLE_DIVERGENCE.divergence}{' '}
+        <span className="text-xs text-[var(--color-ink-subtle)]">
+          {`[L${A7_PIN_RESET_ROLE_DIVERGENCE.registerLine}, L${A7_PIN_RESET_ROLE_DIVERGENCE.matrixLine}]`}
+        </span>
+      </p>
+    </div>
+  )
+}
+
+/**
+ * ROW 9 AS A BEHAVIOUR RATHER THAN A TRANSCRIPTION.
+ *
+ * The five verbs of `AC-A7-6` (L41427) do not share one capability class in
+ * the register, and the seven states of L41315 do not share one answer.
+ * Both are computed and neither is asserted beside the data.
+ */
+function DeviceStanding({ trustWindow }: { readonly trustWindow: A7TrustWindow }) {
+  return (
+    <div data-testid="fl-a7-device-standing" data-trust-window={trustWindow} className={`${CARD} space-y-4`}>
+      <h2 className="text-base font-semibold text-[var(--color-ink)]">
+        What the device does under each state, on its last known state alone
+      </h2>
+      <p className="text-sm text-[var(--color-ink-muted)]">
+        There is no connectivity control here and that is the reading, not an omission: L41381 makes
+        the predicate whether the command <em>arrived</em>, and a command that has not arrived is
+        not part of the last known state. An offline device continues under that state, which no
+        surface may misrepresent.
+      </p>
+
+      <ul className="space-y-3">
+        {A7_STATE_IDS.map((id) => {
+          const standing = a7OfflineStanding(id, trustWindow)
+          return (
+            <li
+              key={id}
+              data-testid="fl-a7-standing"
+              data-state={id}
+              data-new-runs={standing.newRunsStart}
+              data-in-flight={standing.inFlightRunsContinue}
+              data-safe-stop={String(standing.safeStop)}
+              className="text-sm"
+            >
+              <span className="font-medium text-[var(--color-ink)]">{id}</span> — new Runs start:{' '}
+              {standing.newRunsStart}; in-flight Runs continue: {standing.inFlightRunsContinue}
+              <br />
+              <span className="text-[var(--color-ink-muted)]">{standing.what}</span>
+              <br />
+              <span className="text-[var(--color-ink-muted)]">{standing.expiryNote}</span>{' '}
+              <span className="text-xs text-[var(--color-ink-subtle)]">
+                [{standing.sourceRef}]
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+
+      <p data-testid="fl-a7-standing-not-stated" className="text-sm text-[var(--color-ink-muted)]">
+        {A7_STANDING_NOT_STATED.length} of the fourteen answers are not stated by the source and are
+        marked so rather than filled in: {A7_STANDING_NOT_STATED.join('; ')}.
+      </p>
+
+      <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+        Under hard suspension the five verbs do not share one class
+      </p>
+      <ul className="space-y-2">
+        {A7_COMPLETION_VERB_CLASSIFICATION.map((v) => (
+          <li
+            key={v.verb}
+            data-testid="fl-a7-verb"
+            data-verb={v.verb}
+            data-classes={a7VerbClasses(v.verb).join(' | ')}
+            className="text-sm"
+          >
+            <span className="font-medium text-[var(--color-ink)]">{v.verb}</span> —{' '}
+            {a7VerbClasses(v.verb).length === 0
+              ? 'classified by no row of the register'
+              : a7VerbClasses(v.verb).join(' and ')}
+            .{' '}
+            <span className="text-[var(--color-ink-muted)]">{v.basis}</span>{' '}
+            <span className="text-xs text-[var(--color-ink-subtle)]">
+              {v.registerLines.length === 0
+                ? '[measured over all fifty-two rows, L78768-L78819]'
+                : `[L${v.registerLines.join(', L')}]`}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p data-testid="fl-a7-verbs-without-one-class" className="text-sm text-[var(--color-ink)]">
+        {A7_VERBS_WITHOUT_ONE_CLASS.length} of the five carry no single class:{' '}
+        {A7_VERBS_WITHOUT_ONE_CLASS.join(', ')}. The mapping from verb to register row is this
+        build&rsquo;s reading — the source draws no line between L41305&rsquo;s verbs and §34.7&rsquo;s
+        Function cells — and the divergence is not, because the register classifies these acts
+        separately and gives them different answers whichever reasonable mapping is made.
+      </p>
+    </div>
+  )
+}
+
 function FallbackContract() {
   return (
     <div
@@ -572,9 +813,16 @@ function OpenDecisions() {
 export interface A7ProfileLiteViewProps {
   /** The persona column the reader is standing in. One of the header's six. */
   readonly column: A7Column
+  /**
+   * Whether the cached authority the device is standing on is still inside
+   * the offline trust window. Defaults to `valid`, because that is the state
+   * a device is in until L78817's window is reached; `expired` is the
+   * register's own safe stop and is a scenario, never a default.
+   */
+  readonly trustWindow?: A7TrustWindow
 }
 
-export function A7ProfileLiteView({ column }: A7ProfileLiteViewProps) {
+export function A7ProfileLiteView({ column, trustWindow = 'valid' }: A7ProfileLiteViewProps) {
   return (
     <div data-testid="fl-a7-profile-lite" className="space-y-6">
       <header className="space-y-1">
@@ -607,6 +855,8 @@ export function A7ProfileLiteView({ column }: A7ProfileLiteViewProps) {
       <SuspensionStates />
       <ComplianceLock />
       <OfflineStanding />
+      <OfflineClassification />
+      <DeviceStanding trustWindow={trustWindow} />
       <FallbackContract />
       <OpenDecisions />
     </div>

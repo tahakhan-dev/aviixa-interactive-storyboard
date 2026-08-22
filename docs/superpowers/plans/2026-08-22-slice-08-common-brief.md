@@ -545,3 +545,167 @@ here so it is not discovered there.
 **And §36.6 calls the screen `SCR-CC-CONF-01` where the register calls it `SCR-CC-10`.** Two
 identifiers for one screen — not a fourteenth screen, and the controller wiring two treatments
 onto one route needs to know that before it looks like one.
+
+---
+
+## Wave 3, verified — four more controller brief errors, and a defect in the registry generator
+
+**Every one of the four was found by an agent opening the line the brief cited.** The running
+total for this slice is **fifteen**, of which **seven are counts**.
+
+### The brief errors
+
+1. **A quotation that would have shipped false.** Task 15's brief paraphrased L78804's Reason as
+   "cached suspension state is trusted **on the device**". The source reads "Cached suspension
+   state is trusted **only within the cache-validity rule**." Those are different rules — one is
+   about where the state lives, the other about when it stops being good. A verbatim block in a
+   brief is still a hypothesis.
+2. **A four-row sample of a five-row set.** The same block showed four `MOD-FL-A7` register rows.
+   The register carries five; `Encrypted on-device store` (L78800) was absent from the brief and
+   is the row `AC-OFF-702` governs.
+3. **`L78766-L78819` is where the table is, not how many rows it has.** Header L78766, separator
+   L78767, data L78768-L78819 — fifty-two. The count was right and the notation was loose, which
+   is the shape that produced six of this slice's errors.
+4. **"Seven states carry `drivenHere: false`" — the file has five.** Slice 7 had already driven
+   `STATE-A6-CONNECTED` and `STATE-A6-SYNCING`, its own comment says "five of the seven", and its
+   panel printed "5 of the 7". The brief listed all seven anyway. The companion figure in the
+   same sentence — 25 of 28 functionalities — was correct and measured.
+
+### `AC-OFF-701` fails a second way, and the two halves are independent
+
+Wave 0 found that L78799's Conflict-resolution row carries an **eighth** class token, so one of
+fifty-two rows falls outside the seven the criterion fixes. Task 15 found the other half from the
+opposite side: **`FUNC-A7-04-1-1` is classified by no row at all.** Measured over all fifty-two
+Function cells — none names minimal scope, data scope or blast radius.
+
+So the criterion is unsatisfiable in both directions: a row outside the vocabulary, and a
+function outside the register. **Carry both readings; adopt neither.** L41376 states its own
+offline position ("Online and offline: identical"), which is why assigning it a class would make
+the criterion pass against a fact this build wrote down.
+
+**`AC-OFF-702` (L78832) is in no brief and governs the two `Fully available offline` rows** — it
+forbids a network call on their execution path. A storyboard has no execution path to inspect,
+so it is **recorded and not enforced**, and saying so is the deliverable.
+
+### THE REGISTRY GENERATOR AWARDED ONE ROUTE TO TWO MODULES
+
+Found while clearing wave 3's release failures, and it had been true for a whole slice.
+
+`scripts/build-registries.mjs` ran argmax over every route directory and awarded the winner
+**unconditionally**; the slug rule then awarded the claimant on top. A route claimed by a slug
+therefore demonstrated **both** its owner and whichever module its files happened to name most.
+
+`MOD-CC-02` is Command Center chrome. It declares `slug: null` on purpose — the source gives it
+no screen and `AC-CC-040` (L35261) forbids a fourteenth module route. It is named **once** inside
+`app/command-center/sync-conflict-review-panel/`, the route `MOD-CC-10` claims by slug, as the
+chrome mounted into that screen. Being the only id that file mentioned, it won the argmax and
+read `demonstrated-in-storyboard` off a route it does not have. **The inventory reported 58
+demonstrated modules where 57 are.**
+
+**The generator's own header said this could not happen** — "ownership, not mention, so a screen
+cross-referencing a neighbour does not demonstrate it". The sentence was false of the code
+beneath it, and nothing tested the award rule at all: the freshness gate compares the committed
+file to a fresh generation, so **a generator that is consistently wrong is consistently green.**
+
+Fixed by recording argmax winners during the walk and awarding them afterwards, filtered by the
+slug claims — exactly the treatment ties already got, and for the same stated reason. Gated in
+`tests/unit/registry-build.test.ts`.
+
+**Two things this cost, both worth carrying:**
+
+- A module that owns a route by slug claim could ship **without its own file ever naming it**.
+  `SCR-CC-10`'s page did. An older gate — "every demonstrated row is named by a file under app/"
+  — went red and was right to: a screen that never names the module it serves is thin, whatever
+  the slug rule infers. Name your module in your route file.
+- **The first two plants of the new gate stayed green**, because the fix for the point above
+  raised `MOD-CC-10`'s mention count above `MOD-CC-02`'s — so removing the guard changed nothing
+  and the plant proved a rule that was no longer reachable in this tree. The defect had to be
+  planted in its real shape: **a slug-claimed route mentioning a slugless neighbour more often
+  than its own owner.** Then it went red, and stayed green with the guard restored.
+- The gate's first form also **convicted `MOD-FL-A1` wrongly**. It declares no slug because
+  `sign-in` exists on two surfaces, and it is demonstrated by `app/frontline/sign-in/`, which
+  nothing claims — a legitimate argmax award. The failure message read "only mentioned inside",
+  a claim the check never established. **A gate whose message asserts more than its predicate
+  tests will convict something innocent.**
+
+### Two more shapes for the running vacuity catalogue
+
+- **A count check true of both the defect and the fix.** Task 15 planted a wrong class filter
+  three times; a name check passed it, then a **count** check passed it, because that module has
+  two rows of each class. It only went red once the check read the **lines**. If two categories
+  have the same size, the number is never the claim.
+- **A locator check satisfied by a token 36 of 45 cells carry.** Task 13's divergence check
+  verified the cited line's *token* appeared. Moving the locator one row left it green. Pin the
+  cell verbatim, not its status word.
+
+### Two items handed to slice 9
+
+- **`DEC-SYNC-006` is raised for the conflict-list cap and no file in this tree discloses it.**
+- **§36.6 calls `SCR-CC-10` by a different identifier than the register does** — two names for
+  one screen, which needs settling before it reads as a fourteenth.
+
+### Wave 3, continued — three more brief errors and one absolute the source miscounts
+
+**Eighteen controller brief errors this slice.** The three from task 16:
+
+5. **`DEC-STUCK-001` is not on L36459, and not anywhere in §21.5.** It occurs sixteen times in
+   the frozen source and **none of them falls between L36427 and L36616**. Both places `MOD-CC-02`
+   names a decision for the manual close — `FUNC-CC-0204-2-1` (L36551) and its Source status
+   (L36614) — name **`DEC-CCWRITE-001`**. The module reaches `DEC-STUCK-001` only through the
+   coverage map: `AC-COV-093` (L4371) puts it on the §6.2 row, and §6.2 is that card's Source
+   section (L36433). **A decision a module reaches through a coverage map is not a decision its
+   own section states**, and the brief presented the second as the first.
+6. **A state-inventory span short by one row.** `SCR-CC-02`'s inventory was given as L48462-L48475
+   and stops at `STATE-12`. `STATE-13` Recovery is at L48476 — the row carrying the audited
+   recompute that module's own recovery paragraph describes. Thirteen rows, not twelve.
+7. **A card span running past its content.** The card was given as ending three lines below its
+   last content line, which is L36614 — the Source status paragraph. What follows is blank and
+   then the section rule. The end line is not quoted here because it carries nothing, and
+   `locator-fidelity` is right to refuse a citation of it even inside a sentence saying so.
+
+**`AC-CC-407`'s absolutes are miscounted by the source itself.** L48368 reads *"Three
+prohibitions bind every screen absolutely: no gate override, no run pause or stop, no record or
+configuration edit, and no Job or run creation."* **It says three and lists four.** Every other
+statement of the same set says four — L13498, L38700 ("Four exclusions are absolute, for every
+role"), and the coverage rows. Carry the enumeration, record the miscount, adopt neither number
+as the source's intent.
+
+**And a reading discipline this cost an hour to relearn.** The controller checked that claim by
+printing `sed -n '48368p' | cut -c1-200` and read back a sentence about responsive web — then
+told the agent its finding was unsupported. **The agent was right.** L48368 carries eight
+sentences and the one in question is the eighth. **A truncated line is a fragment, not the line.**
+This source has lines over a thousand characters; `cut` is how a verification reports absence
+that is really truncation.
+
+### `MOD-CC-02`'s own divergences, all carried
+
+- **Row 4 grants the Tenant Admin what the functionality refuses him.** The matrix cell (L36455)
+  reads `Allowed` over as-of stamps **and** late-arrival flags; `FUNC-CC-0203-1-1` (L36542) allows
+  "all viewers" and `FUNC-CC-0203-1-2` (L36543) prohibits "Read-only Auditor, Worker, **Tenant
+  Admin**". Neither chosen.
+- **The card and its storyboard name four marker states each, and they are different fours.**
+  L36469 gives live-all-synced, partially-synced, unknown-pending, inventory-unavailable;
+  `SB-CC-13` (L36575) gives healthy, partial, site-wide, inventory-unavailable. `unknown-pending`
+  has no storyboard slot, and the storyboard's third slot is the banner (L36581), which is not a
+  state a marker takes. **Two fours, carried separately** — merging them loses the state
+  `FUNC-CC-0201-1-3` exists for.
+- **§21.5 pairs nine acceptance criteria with ten tests** — the same asymmetry as §35.4's five
+  with four, in the other direction.
+
+### Three more vacuity shapes, all found by planting
+
+- **A count gate proved by a defect that changes no count.** The row-count plant *renamed* a row
+  instead of deleting one, so the length stayed at 8 and the gate passed. Redone as a deletion.
+- **A classifier plant that was accidentally correct.** Swapping a `startsWith` classifier's keys
+  stayed green because `Object.keys` preserves insertion order and the literal happened to list
+  the longer key first. The plant had to invert the order to appear.
+- **A pointer that can point at itself is not a pointer.** A `heldBy` field naming the decision's
+  holder passed while pointing at the planting file, because that file names all three
+  identifiers. The gate now requires the holder to be outside the module directory and to carry
+  the decision's own locator.
+- **A gate red on the shipped tree for the wrong reason.** A text sweep for a forbidden field name
+  was red because the module's own comment *names the field it refuses to have*. Replaced with an
+  export-shape check.
+- **A route gate written against a literal listing.** It compared `app/command-center/`'s
+  directory listing with a hard-coded array, which would have gone red the day slice 9 builds the
+  other eleven. Now asserted against `CC_CLAIMED_SLUGS`.

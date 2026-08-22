@@ -24,6 +24,24 @@ import {
   type FlA6RowId,
 } from './matrix'
 import {
+  A6_BOUNDED_SETTINGS,
+  A6_CLASSIFICATION_ROWS,
+  A6_CONVERGENCE_ROW,
+  A6_CONVERGENCE_VERDICTS,
+  A6_DRIVEN_COUNT,
+  A6_DRIVERS,
+  A6_INTERRUPTED_OUTCOMES,
+  A6_ROWS_OUTSIDE_THE_SEVEN,
+  A6_SITUATIONS,
+  A6_STATE_AXES,
+  A6_STATE_LINES,
+  A6_UNDRIVEN,
+  a6LinkBasisCell,
+  a6Reconnect,
+  a6StateReading,
+  boundedSettingRuling,
+} from './offline'
+import {
   A6_ACCEPTANCE_CRITERIA,
   A6_CARD_PATTERNS,
   A6_DENIAL_TESTS,
@@ -281,7 +299,7 @@ function States() {
             <StatusPill
               tone={s.drivenHere ? 'info' : 'stale'}
               icon={s.drivenHere ? '•' : '~'}
-              label={s.drivenHere ? 'driven on this screen' : 'stated here, driven next slice'}
+              label={s.drivenHere ? 'driven on this screen' : 'stated here, not driven'}
             />{' '}
             <Ref text={s.sourceRef} />
           </li>
@@ -289,8 +307,8 @@ function States() {
       </ul>
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
         {STATES_THIS_SLICE_ONLY_STATES.length} of the {A6_STATES.length} states this module names
-        belong to the offline half, which the next slice builds. They are named here rather than
-        rendered as though this screen could reach them.
+        are stated without being driven. The rest are reached below, by running a device situation
+        through the resolver rather than by being written on a list.
       </p>
     </div>
   )
@@ -457,6 +475,199 @@ function ReconnectOrdering() {
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+/* ── the offline half ──────────────────────────────────────────────── */
+
+/**
+ * THE OFFLINE HALF, DRIVEN RATHER THAN DESCRIBED. Every number and every
+ * sentence below is the output of a mechanism that ran when this module
+ * loaded — the state resolver, the ceiling refusal, the protocol walk, the
+ * conflict router, the eviction rule, the gate. Nothing here is a claim about
+ * what would happen.
+ *
+ * THREE SITUATIONS RATHER THAN A CONTROL. This module owns no route and draws
+ * no connectivity switch; the three named situations are rendered side by side
+ * and between them they reach all seven states, which is what makes the
+ * charter's `drivenHere` checkable from the screen rather than from a list.
+ */
+function OfflineHalf() {
+  const reconnection = a6Reconnect(A6_INTERRUPTED_OUTCOMES)
+  const refused = boundedSettingRuling('offline-trust-window', 96)
+
+  return (
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+        The offline half, in three situations
+      </h3>
+
+      {A6_SITUATIONS.map((named) => {
+        const reading = a6StateReading(named.situation)
+        return (
+          <div key={named.label} data-testid="fl-a6-situation" className="mt-3">
+            <p className="text-sm font-medium text-[var(--color-ink)]">{named.label}</p>
+            <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+              On the {reading.connectivity} scenario lever, which the source reproduces as{' '}
+              {reading.modes.length} of its twenty-eight modes. The engine reads its own link
+              state from {a6LinkBasisCell(reading.connectivity)}.
+            </p>
+            <ul className="mt-1 space-y-1">
+              {reading.held.map((id) => (
+                <li key={id} data-testid="fl-a6-held-state" data-state={id} className="text-sm">
+                  <span className="text-[var(--color-ink)]">{id}</span>{' '}
+                  <span className="text-[var(--color-ink-muted)]">{A6_STATE_LINES[id].line}</span>{' '}
+                  <Ref text={A6_STATE_LINES[id].sourceRef} />
+                </li>
+              ))}
+            </ul>
+            <ul className="mt-1 space-y-1">
+              {reading.modes.map((m) => (
+                <li key={m.identifier} data-testid="fl-a6-mode" className="text-xs">
+                  <span className="text-[var(--color-ink-subtle)]">
+                    {m.identifier} {m.mode} — {m.frontlineBehaviour}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      })}
+
+      <div className="mt-4">
+        <p className="text-sm font-medium text-[var(--color-ink)]">
+          Why the seven are four axes and not one machine
+        </p>
+        <ul className="mt-1 space-y-1">
+          {A6_STATE_AXES.map((a) => (
+            <li key={a.axis} data-testid="fl-a6-axis" className="text-sm">
+              <span className="text-[var(--color-ink)]">
+                {a.axis}: {a.members.join(', ')}.
+              </span>{' '}
+              <span className="text-[var(--color-ink-muted)]">{a.why}</span>{' '}
+              <Ref text={a.sourceRef} />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-sm font-medium text-[var(--color-ink)]">
+          When a reconnection stops part-way
+        </p>
+        <p
+          data-testid="fl-a6-reconnect-outcome"
+          className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          {reconnection.line} It had reached {reconnection.passesReached.length} of the three
+          transfer passes: {reconnection.passesReached.map((p) => p.reconnectionPhase).join(', ')}.{' '}
+          <Ref text={reconnection.sourceRef} />
+        </p>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-sm font-medium text-[var(--color-ink)]">
+          The two settings a tenant may change, and the ceilings it may not pass
+        </p>
+        <ul className="mt-1 space-y-1">
+          {A6_BOUNDED_SETTINGS.map((b) => (
+            <li key={b.id} data-testid="fl-a6-bounded-setting" data-setting={b.id} className="text-sm">
+              <span className="text-[var(--color-ink)]">
+                {b.name} — {b.clause}.
+              </span>{' '}
+              <Ref text={b.sourceRef} />
+            </li>
+          ))}
+        </ul>
+        <p
+          data-testid="fl-a6-ceiling-refusal"
+          className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          {refused.accepted
+            ? 'A value above the ceiling was accepted, which the platform forbids.'
+            : refused.refusal}{' '}
+          <Ref text="TEST-A6-4 · L41265" />
+        </p>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-sm font-medium text-[var(--color-ink)]">
+          What runs each functionality, and what it produced
+        </p>
+        <ul className="mt-1 space-y-2">
+          {A6_DRIVERS.map((d) => (
+            <li key={d.id} data-testid="fl-a6-driver" data-driver={d.id} className="text-sm">
+              <span className="text-[var(--color-ink)]">{d.what}</span>{' '}
+              <span className="text-[var(--color-ink-muted)]">
+                Read from {d.from}. It exercises{' '}
+                {d.drives.length === 0 ? d.drivesCardField : d.drives.join(', ')}.
+              </span>{' '}
+              <span data-testid="fl-a6-driver-evidence" className="text-[var(--color-ink)]">
+                {d.evidence}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          {A6_DRIVEN_COUNT} of this module&rsquo;s {A6_FUNCTIONALITIES.length} functionalities are
+          exercised by a mechanism above. The other {A6_UNDRIVEN.length} are not, and neither is an
+          omission:
+        </p>
+        <ul className="mt-1 space-y-1">
+          {A6_UNDRIVEN.map((u) => (
+            <li key={u.id} data-testid="fl-a6-undriven" data-functionality={u.id} className="text-sm">
+              <span className="text-[var(--color-ink)]">{u.id}</span>{' '}
+              <span className="text-[var(--color-ink-muted)]">{u.why}</span>{' '}
+              <Ref text={u.sourceRef} />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-sm font-medium text-[var(--color-ink)]">
+          The register rows that classify this module, and the one the criterion cannot account for
+        </p>
+        <ul className="mt-1 space-y-1">
+          {A6_CLASSIFICATION_ROWS.map((r) => (
+            <li key={r.fn} data-testid="fl-a6-register-row" className="text-sm">
+              <span className="text-[var(--color-ink)]">
+                {r.fn} — {r.klass}.
+              </span>{' '}
+              <span className="text-[var(--color-ink-muted)]">
+                {r.reason}. Reconnect behaviour: {r.reconnectBehaviour}.
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p
+          data-testid="fl-a6-eighth-token"
+          className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          {A6_ROWS_OUTSIDE_THE_SEVEN.length} of those {A6_CLASSIFICATION_ROWS.length} rows carries a
+          class the seven do not contain, and it is the same refusal row 5 of the matrix above
+          already draws. <Ref text="AC-OFF-701 · L78831" />
+        </p>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-sm font-medium text-[var(--color-ink)]">
+          Reconciliation, which is what this device owes the record
+        </p>
+        <p
+          data-testid="fl-a6-reconciliation"
+          className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          It must agree on {A6_CONVERGENCE_ROW.cells['What it must agree on'].toLowerCase()}. The
+          difference this surface is allowed to show is{' '}
+          {A6_CONVERGENCE_ROW.cells['Expected divergence, displayed'].toLowerCase()}. The one that
+          is a defect is {A6_CONVERGENCE_ROW.cells['Unexplained divergence, a defect'].toLowerCase()}
+          . A comparison comes back as one of {A6_CONVERGENCE_VERDICTS.join(', ')}, and an expected
+          difference this surface does not actually display is the third rather than the second.{' '}
+          <Ref text="L41156" />
+        </p>
+      </div>
     </div>
   )
 }
@@ -629,6 +840,7 @@ export function SyncDetailSheetView({
       <States />
       <MatrixTable viewerRole={viewerRole} />
       <ReconnectOrdering />
+      <OfflineHalf />
       <Functionalities />
 
       <div>

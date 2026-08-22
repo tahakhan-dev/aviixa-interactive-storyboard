@@ -26,6 +26,34 @@ import {
   FL_A6_MATRIX,
   FL_A6_SHAPE,
 } from '@/frontline/modules/fl-a6/matrix'
+import { CONNECTIVITY_MODES } from '@/scenario/controls'
+import { OFFLINE_CLASSIFICATION } from '@/offline/capability'
+import { offMode } from '@/offline/modes'
+import { PROTOCOL_STEPS, type StepOutcome } from '@/offline/protocol'
+import {
+  A6_BOUNDED_SETTINGS,
+  A6_CLASSIFICATION_ROWS,
+  A6_CONVERGENCE_ROW,
+  A6_DRIVEN_COUNT,
+  A6_DRIVERS,
+  A6_DRIVER_OF,
+  A6_INTERRUPTED_OUTCOMES,
+  A6_LINK_BASIS,
+  A6_LINK_BY_CONNECTIVITY,
+  A6_ROWS_OUTSIDE_THE_SEVEN,
+  A6_SITUATIONS,
+  A6_STATES_REACHED,
+  A6_STATE_AXES,
+  A6_STATE_LINES,
+  A6_TRUST_EXPIRED_SITUATION,
+  A6_UNDRIVEN,
+  a6LinkBasisCell,
+  a6Reconnect,
+  a6StateReading,
+  boundedSetting,
+  boundedSettingRuling,
+  type A6StateId,
+} from '@/frontline/modules/fl-a6/offline'
 import {
   A6_ACCEPTANCE_CRITERIA,
   A6_CARD_PATTERNS,
@@ -167,6 +195,31 @@ function renderedStrings(): readonly { where: string; text: string }[] {
   }
   push('cached read treatment', CACHED_READ_OFFLINE.reason)
   for (const s of CAPTURE_STATES) push(`ladder ${s}`, captureStateLine(s))
+  // THE OFFLINE HALF. A sweep that walked a narrower list than the module
+  // renders is a sweep that passes the defect it was written for, and this
+  // file says so at the top; every string `OfflineHalf` draws is added here
+  // rather than being exempt by being newer.
+  for (const a of A6_STATE_AXES) push(`axis ${a.axis}`, `${a.axis} ${a.why}`)
+  for (const id of Object.keys(A6_STATE_LINES) as readonly A6StateId[]) {
+    push(`state line ${id}`, A6_STATE_LINES[id].line)
+  }
+  for (const b of A6_BOUNDED_SETTINGS) push(`bounded ${b.id}`, `${b.name} ${b.clause}`)
+  for (const d of A6_DRIVERS) push(`driver ${d.id}`, `${d.what} ${d.from} ${d.evidence}`)
+  for (const u of A6_UNDRIVEN) push(`undriven ${u.id}`, u.why)
+  for (const n of A6_SITUATIONS) {
+    push(`situation ${n.label}`, n.label)
+    for (const m of a6StateReading(n.situation).modes) {
+      push(`mode ${n.label} ${m.identifier}`, `${m.mode} ${m.frontlineBehaviour}`)
+    }
+  }
+  push('reconnect line', a6Reconnect(A6_INTERRUPTED_OUTCOMES).line)
+  const refused = boundedSettingRuling('offline-trust-window', 96)
+  push('ceiling refusal', refused.accepted ? 'accepted' : refused.refusal)
+  for (const r of A6_CLASSIFICATION_ROWS) push(`register ${r.fn}`, `${r.fn} ${r.reason}`)
+  push(
+    'reconciliation',
+    Object.values(A6_CONVERGENCE_ROW.cells).join(' '),
+  )
   return out
 }
 
@@ -191,6 +244,13 @@ function captureLabelStrings(): readonly { where: string; text: string }[] {
     }
   }
   for (const s of A6_STATES) out.push({ where: `state ${s.id}`, text: s.gloss ?? '' })
+  // The seven state lines are the offline half's own worker-facing sentences,
+  // and they are the strings most able to grow a capture label — three of them
+  // are about what did or did not reach the office.
+  for (const id of Object.keys(A6_STATE_LINES) as readonly A6StateId[]) {
+    out.push({ where: `state line ${id}`, text: A6_STATE_LINES[id].line })
+  }
+  out.push({ where: 'reconnect line', text: a6Reconnect(A6_INTERRUPTED_OUTCOMES).line })
   return out
 }
 
@@ -626,6 +686,16 @@ describe('the capture ladder, and the word that is not on it', () => {
       'word record FUNC-A6-07-1-2 · L41199',
       'word record SB-FL-015 · L41235',
     ])
+    // AND THE OFFLINE HALF ADDED NONE. Its first draft did: the eviction
+    // driver's own sentence said "a complete-and-synced Run", which is the
+    // source's condition described in this build's words rather than quoted at
+    // its line. That is a fourth occurrence with no entry in the record, and
+    // this gate is where it showed. It was reworded to name the condition
+    // instead; the verbatim phrase stays where it belongs, on FUNC-A6-07-1-2
+    // and in the word record.
+    for (const d of A6_DRIVERS) {
+      expect(/\bsynced\b/i.test(`${d.what} ${d.from} ${d.evidence}`), `driver ${d.id}`).toBe(false)
+    }
   })
 
   // FAILS IF: one of the two source-verbatim occurrences is not the source's
@@ -860,18 +930,28 @@ describe('the module card, transcribed', () => {
     }
   })
 
-  // FAILS IF: the slice boundary stops being stated, or the offline behaviour
-  // stops being on the card. This is the whole reason a half-built module ships
-  // its other half's words: a screen rendering only the connected path implies
-  // the safety layer needs a network. Planted: the Offline behaviour field
-  // deleted from A6_CARD. Went red at 21 against 22 and on the field list.
-  it('states the offline behaviour on the card, in this slice', () => {
+  // FAILS IF: the offline behaviour stops being on the card, or the boundary
+  // stops naming what is still undriven. The first slice shipped its other
+  // half's words because a screen rendering only the connected path implies
+  // the safety layer needs a network; this slice built that half, and the
+  // boundary now has to name the two functionalities that are still not
+  // driven rather than going quiet. Planted twice: the Offline behaviour
+  // field's name changed so the lookup misses it (red on `expected undefined
+  // to be defined`), and `DEC-STORE-001` softened out of builtLater to "a
+  // decision the client still owes" — which is the shape a finished module
+  // takes when it stops naming the decision it left open. Red on
+  // FUNC-A6-07-1-4's key.
+  it('states the offline behaviour on the card, and names what is still undriven', () => {
     const offline = A6_CARD.find((s) => s.field === 'Offline behaviour')
     expect(offline).toBeDefined()
     expect(offline?.text).toContain('A full Run executes offline from the pinned package.')
     expect(offline?.text).toContain('platform ceiling of 72 hours')
     expect(norm(srcLine(41129))).toContain(norm(offline?.text ?? 'x'))
-    expect(A6_SLICE_BOUNDARY.builtLater).toContain('offline simulation')
+    expect(A6_SLICE_BOUNDARY.builtHere).toContain('reconnect ladder')
+    for (const u of A6_UNDRIVEN) {
+      const key = u.id === 'FUNC-A6-07-1-4' ? 'DEC-STORE-001' : 'excluded capability'
+      expect(A6_SLICE_BOUNDARY.builtLater, u.id).toContain(key)
+    }
     expect(srcLine(39099)).toContain('AC-FL-000-4')
     expect(norm(srcLine(39099))).toContain(
       norm('The deterministic safety layer executes with the network interface disabled'),
@@ -904,17 +984,23 @@ describe('the seven states this module names', () => {
     expect([...new Set(line.match(/STATE-A6-[A-Z]+/g) ?? [])]).toHaveLength(7)
   })
 
-  // FAILS IF: this slice claims to drive a state it only states. Five of the
-  // seven belong to the offline half. Planted: STATE-A6-TRUSTEXPIRED marked
-  // `drivenHere: true` — the shape a half-built module takes when it starts
-  // implying it built the other half. Went red on both assertions.
-  it('drives two of the seven and says so about the other five', () => {
-    expect(A6_STATES.filter((s) => s.drivenHere).map((s) => s.id)).toEqual([
-      'STATE-A6-CONNECTED',
-      'STATE-A6-SYNCING',
-    ])
-    expect(STATES_THIS_SLICE_ONLY_STATES).toHaveLength(5)
-    expect(STATES_THIS_SLICE_ONLY_STATES.every((s) => !s.drivenHere)).toBe(true)
+  // FAILS IF: a state claims to be driven and nothing reaches it, or something
+  // reaches a state that claims not to be driven. `drivenHere` is a
+  // declaration on the charter and `A6_STATES_REACHED` is what the resolver
+  // ACTUALLY produced over the three named situations, so this compares a
+  // claim against a run rather than against a second list.
+  //
+  // Planted twice, one per direction, because a one-directional check here is
+  // the shape that passes the defect it was written for. First:
+  // `STATE-A6-SKEWFLAGGED` marked `drivenHere: false` while the third
+  // situation still reaches it — went red on the equality and on the
+  // stated-only length. Second: the third situation's `skew` set to `null`, so
+  // the flag is claimed and unreachable — went red on the equality, naming
+  // STATE-A6-SKEWFLAGGED as present in the declaration and absent from the run.
+  it('drives all seven, and proves it by reaching each one through the resolver', () => {
+    expect(A6_STATES.filter((s) => s.drivenHere).map((s) => s.id)).toEqual(A6_STATES_REACHED)
+    expect(A6_STATES_REACHED).toHaveLength(7)
+    expect(STATES_THIS_SLICE_ONLY_STATES).toHaveLength(0)
   })
 })
 
@@ -1054,16 +1140,30 @@ describe('the functionalities, and AC-FL-011-1', () => {
     expect(srcLine(40141)).not.toContain('MOD-FL-A6')
   })
 
-  // FAILS IF: this slice claims to exercise a functionality it only
-  // transcribes. Three of the twenty-eight are exercised and the sheet says
-  // which. Planted: FUNC-A6-01-1-2, the full offline Run, marked exercised.
-  // Went red — this slice does not build it.
-  it('exercises three of the twenty-eight and transcribes the rest', () => {
-    expect(A6_FUNCTIONALITIES.filter((f) => f.exercisedInThisSlice).map((f) => f.id)).toEqual([
-      'FUNC-A6-02-1-1',
-      'FUNC-A6-02-2-3',
-      'FUNC-A6-08-1-4',
-    ])
+  // FAILS IF: a functionality claims to be exercised with no mechanism bound
+  // to it, or a mechanism drives one that still claims not to be exercised.
+  // The flag lives in `service.ts` and the binding is derived in `offline.ts`
+  // from the drivers' own lists, so this is two independent spellings compared
+  // rather than a constant compared with itself.
+  //
+  // Planted twice. First: FUNC-A6-07-1-4, the storage-full functionality whose
+  // whole body is `Client Decision Required`, marked exercised — red,
+  // "FUNC-A6-07-1-4 flagged true". Second: FUNC-A6-05-3-2 removed from the
+  // `b9-gate` driver's `drives` list while its flag stayed true — red,
+  // "FUNC-A6-05-3-2 flagged true", which is the direction a flag-only check
+  // cannot see.
+  it('exercises twenty-six of the twenty-eight, each bound to a mechanism that ran', () => {
+    for (const f of A6_FUNCTIONALITIES) {
+      expect(A6_DRIVER_OF[f.id] !== null, `${f.id} flagged ${String(f.exercisedInThisSlice)}`).toBe(
+        f.exercisedInThisSlice,
+      )
+    }
+    expect(A6_FUNCTIONALITIES.filter((f) => f.exercisedInThisSlice)).toHaveLength(26)
+    expect(A6_DRIVEN_COUNT).toBe(26)
+    expect(A6_UNDRIVEN.map((u) => u.id)).toEqual(['FUNC-A6-07-1-4', 'FUNC-A6-08-1-2'])
+    expect(
+      A6_FUNCTIONALITIES.filter((f) => !f.exercisedInThisSlice).map((f) => f.id),
+    ).toEqual(A6_UNDRIVEN.map((u) => u.id))
   })
 })
 
@@ -1252,9 +1352,10 @@ describe('the four open decisions', () => {
 describe('what did not line up', () => {
   // FAILS IF: a finding's own locator is wrong, or a finding is dropped.
   // Planted: the register finding's locator moved off AC-FL-010-5. Went red on
-  // the anchor.
-  it('records six findings, each anchored at a real line', () => {
-    expect(A6_SOURCE_FINDINGS).toHaveLength(6)
+  // the anchor. Planted again when the offline half added two: the four-axes
+  // finding deleted outright — red at 7 against 8.
+  it('records eight findings, each anchored at a real line', () => {
+    expect(A6_SOURCE_FINDINGS).toHaveLength(8)
     for (const f of A6_SOURCE_FINDINGS) {
       const [n] = locatorsOf(f.sourceRef)
       expect(n, `${f.sourceRef} names a line`).toBeDefined()
@@ -1326,5 +1427,388 @@ describe('what nothing in this module may contain', () => {
     }
     expect(srcLine(39100)).toContain('AC-FL-000-5')
     expect(srcLine(48690)).toContain('AC-SCR-FL-002')
+  })
+})
+
+/* ==================================================================== *
+ * THE OFFLINE HALF.
+ *
+ * Slice 7 built the connected path and marked what it had not driven; this
+ * block is the covering suite for the half that drives it. Every gate below
+ * runs a mechanism rather than reading a flag, for the reason the flags
+ * themselves record: `exercisedInThisSlice` and `drivenHere` are declarations,
+ * and a declaration nobody checks against a run is a claim.
+ * ==================================================================== */
+
+describe('the four axes the seven states sit on', () => {
+  // FAILS IF: the axes do not partition the seven exactly — a state in two
+  // axes, or a state in none. Both directions, because a one-way containment
+  // check passes a duplicated member and a length check passes a swap.
+  //
+  // Planted twice. First: STATE-A6-SKEWFLAGGED added to the trust axis as well
+  // as the clock axis — red at eight against seven, and the duplicate check
+  // behind it. Second: the clock axis's `members` emptied — red at six against
+  // seven, which is the state declared by the charter and on no axis.
+  it('partitions the seven exactly, none twice and none left out', () => {
+    const onAnAxis = A6_STATE_AXES.flatMap((a) => a.members)
+    expect(onAnAxis).toHaveLength(A6_STATES.length)
+    expect(new Set(onAnAxis).size).toBe(onAnAxis.length)
+    expect([...onAnAxis].sort()).toEqual(A6_STATES.map((s) => s.id).sort())
+  })
+
+  // FAILS IF: an axis cites a line that does not carry what it says. The trust
+  // axis turns on the one gloss the source gives, and the transfer axis turns
+  // on the functionality that puts a device offline and half-transferred at
+  // the same instant. Planted: the transfer axis's locator moved to L41169,
+  // the durable-queue functionality, which says nothing about resuming — went
+  // red on the anchor.
+  it('anchors each axis at a line that carries its evidence', () => {
+    for (const a of A6_STATE_AXES) {
+      const [n] = locatorsOf(a.sourceRef)
+      expect(n, `${a.axis} names a line`).toBeDefined()
+      const anchor = anchorOf(a.sourceRef)
+      if (anchor !== null) expect(srcLine(n as number).includes(anchor), a.sourceRef).toBe(true)
+    }
+    // the trust axis's own evidence: L41112 glosses exactly this one member.
+    expect(srcLine(41112)).toContain('`STATE-A6-TRUSTVALID` inside the offline trust window')
+    // and the transfer axis's: a mid-sync drop, resumed rather than restarted.
+    expect(srcLine(41170)).toContain('Resume a mid-sync connection drop where it left off')
+  })
+})
+
+describe('the link axis, and the one answer the source settles for this engine', () => {
+  // FAILS IF: a scenario lever has no link answer, or the answer is read from
+  // a mode that does not correspond to it. Total over the six members, so a
+  // seventh lever cannot arrive without a decision.
+  //
+  // A lever REMOVED from either record does not compile, which is the point of
+  // the total `Record` and is why the plant is a wrong basis rather than a
+  // missing one: `A6_LINK_BASIS.flapping` moved to `OFF-MODE-04`, one tablet
+  // offline. Red — "flapping: expected 'offline' to be 'flapping'", because
+  // that mode's own `connectivity` is not the lever asking.
+  it('reads every lever’s answer off a source mode that names that lever', () => {
+    expect(Object.keys(A6_LINK_BY_CONNECTIVITY).sort()).toEqual([...CONNECTIVITY_MODES].sort())
+    expect(Object.keys(A6_LINK_BASIS).sort()).toEqual([...CONNECTIVITY_MODES].sort())
+    for (const lever of CONNECTIVITY_MODES) {
+      expect(offMode(A6_LINK_BASIS[lever]).connectivity, lever).toBe(lever)
+    }
+  })
+
+  // FAILS IF: this build decides for itself what a device does when the link
+  // is up and the backend is not answering. It does not decide: the source
+  // rules it for THIS ENGINE in OFF-MODE-08's own Frontline-behaviour cell.
+  // Planted: `dependency-down` mapped to STATE-A6-CONNECTED — went red against
+  // the cell the source writes.
+  //
+  // AND THE DISTINCTION THE SAME ROW DEMANDS IS NOT LOST. The row requires
+  // surfaces to distinguish device-dark from server-unreachable, and the two
+  // levers collapse onto one link state, so the reading carries the lever and
+  // the source modes beside the state. Planted: `modes` computed from a fixed
+  // `offline` lever rather than from the situation's own — red on the last
+  // assertion, because the two readings then carry identical mode sets.
+  it('treats a backend that stops answering as offline, because L78650 says the engine does', () => {
+    expect(srcLine(78650)).toContain('`OFF-MODE-08`')
+    expect(srcLine(78650)).toContain('engine treats it as offline for sync purposes')
+    expect(a6LinkBasisCell('dependency-down')).toContain('engine treats it as offline for sync purposes')
+    expect(A6_LINK_BY_CONNECTIVITY['dependency-down']).toBe('STATE-A6-OFFLINE')
+    expect(A6_LINK_BY_CONNECTIVITY.offline).toBe('STATE-A6-OFFLINE')
+    // and the two are still told apart on the reading.
+    const dark = a6StateReading({
+      connectivity: 'offline',
+      transfer: 'none',
+      hoursSinceLastSuccessfulSync: 1,
+      trustWindowHours: 24,
+      skew: null,
+    })
+    const unreachable = a6StateReading({
+      connectivity: 'dependency-down',
+      transfer: 'none',
+      hoursSinceLastSuccessfulSync: 1,
+      trustWindowHours: 24,
+      skew: null,
+    })
+    expect(dark.held).toEqual(unreachable.held)
+    expect(dark.connectivity).not.toBe(unreachable.connectivity)
+    expect(dark.modes.map((m) => m.identifier)).not.toEqual(
+      unreachable.modes.map((m) => m.identifier),
+    )
+  })
+})
+
+describe('the two bounded tenant settings, and TEST-A6-4', () => {
+  // FAILS IF: a value above the platform ceiling is accepted, or the refusal
+  // is not a refusal. TEST-A6-4 (L41265) asks for "platform rejection rather
+  // than a logged acceptance", so the ruling union has no member carrying both
+  // an acceptance and a note — this asserts the refused branch has no `value`.
+  //
+  // Planted: the comparison changed from `>` to `>=`. 96 was still refused, so
+  // the 96-hour half stayed green — and 72, the ceiling itself, went red,
+  // which is why the boundary is asserted on both sides rather than only above
+  // it. Planted again: `>` changed to `<`. That one reaches no assertion at
+  // all — the module throws while loading, because the resolver runs three
+  // situations at import to publish what it reaches and a 24-hour window is
+  // then refused. The whole file went red with "RangeError: 24 hours is above
+  // the platform ceiling of 72 hours".
+  it('refuses 96 hours, accepts the ceiling itself, and accepts the default', () => {
+    const refused = boundedSettingRuling('offline-trust-window', 96)
+    expect(refused.accepted).toBe(false)
+    expect('value' in refused).toBe(false)
+    if (!refused.accepted) expect(refused.refusal).toContain('72')
+    expect(boundedSettingRuling('offline-trust-window', 72).accepted).toBe(true)
+    expect(boundedSettingRuling('offline-trust-window', 24).accepted).toBe(true)
+    expect(boundedSettingRuling('clock-skew-threshold', 61).accepted).toBe(false)
+    expect(boundedSettingRuling('clock-skew-threshold', 60).accepted).toBe(true)
+    // the denial test really asks for this, and the criterion really states 72.
+    expect(srcLine(41265)).toContain('TEST-A6-4')
+    expect(srcLine(41265)).toContain('96 hours')
+    expect(srcLine(41265)).toContain('platform rejection rather than a logged acceptance')
+    expect(srcLine(41251)).toContain('cannot be set above 72 hours')
+  })
+
+  // FAILS IF: a ceiling or a default is not the number the source states, or a
+  // clause is not the source's words. Both settings are read against their own
+  // functionality line. Planted: the skew ceiling changed from 60 to 90 — went
+  // red against L41181.
+  it('takes both ceilings from the functionality that states them', () => {
+    expect(A6_BOUNDED_SETTINGS).toHaveLength(2)
+    for (const b of A6_BOUNDED_SETTINGS) {
+      const [n] = locatorsOf(b.sourceRef)
+      const line = srcLine(n as number)
+      expect(line.includes(anchorOf(b.sourceRef) as string), b.id).toBe(true)
+      expect(norm(line).includes(norm(b.clause)), `${b.id} clause`).toBe(true)
+      expect(line).toContain(String(b.ceiling))
+      expect(line).toContain(String(b.defaultValue))
+    }
+    expect(boundedSetting('offline-trust-window').ceiling).toBe(72)
+    expect(boundedSetting('clock-skew-threshold').ceiling).toBe(60)
+  })
+
+  // FAILS IF: a device situation carrying a window the platform would have
+  // refused is used to decide whether cached authority is still good. It is
+  // not clamped and it is not trusted; it throws. Planted: the throw replaced
+  // with a clamp to the platform ceiling, which is the tempting fix and the
+  // wrong one — it silently invents the tenant's intent. Red, "expected
+  // function to throw an error, but it didn't".
+  it('refuses to read a state from a window the platform would not have set', () => {
+    expect(() =>
+      a6StateReading({ ...A6_TRUST_EXPIRED_SITUATION, trustWindowHours: 96 }),
+    ).toThrow(RangeError)
+    expect(
+      a6StateReading({ ...A6_TRUST_EXPIRED_SITUATION, trustWindowHours: 72 }).trust,
+    ).toBe('STATE-A6-TRUSTVALID')
+    expect(A6_TRUST_EXPIRED_SITUATION.trustWindowHours).toBe(24)
+    expect(a6StateReading(A6_TRUST_EXPIRED_SITUATION).trust).toBe('STATE-A6-TRUSTEXPIRED')
+  })
+})
+
+describe('the reconnect ladder, walked over the thirty-seven steps', () => {
+  // FAILS IF: an interrupted reconnection restarts rather than resuming, or
+  // reports a transfer pass it never reached. The fixture stops at step 22, so
+  // pass one has run and passes two and three have not.
+  //
+  // Planted: `resumeAt.number - 1` changed to `resumeAt.number`, which counts
+  // the failed step as reached. Red on the pass count — 3 against 1 — and NOT
+  // on the resume step, which is identical either way, which is why the pass
+  // count is asserted beside it.
+  it('resumes at the step that failed and claims only the passes it reached', () => {
+    const r = a6Reconnect(A6_INTERRUPTED_OUTCOMES)
+    expect(r.completed).toBe(false)
+    expect(r.resumeAt?.number).toBe(22)
+    expect(r.passesReached).toHaveLength(1)
+    expect(r.passesReached[0]?.step).toBe(21)
+    expect(r.line).toContain('carries on from that step rather than starting again')
+    // and the criterion this build resumes under really says so.
+    expect(srcLine(41247)).toContain('AC-A6-3')
+    expect(srcLine(41247)).toContain('without restarting and without duplicating')
+  })
+
+  // FAILS IF: a completed pass reports a resume point, or claims fewer than
+  // the three passes it ran.
+  //
+  // AND THIS GATE IS WHERE A FIELD THAT COULD NOT BE FALSE WAS FOUND. The
+  // first version of `A6Reconnection` carried `ac36101` and `ac36102`,
+  // computed by handing `satisfiesAc36101` the steps this walk had executed —
+  // and this gate asserted both were true. The plant that should have caught a
+  // defect there, replacing the executed list with all thirty-seven steps,
+  // left the suite GREEN, because the executed list is always a prefix of 1 to
+  // 37 and on a prefix that criterion is true unconditionally. Both fields
+  // were removed rather than the gate being strengthened: they constrain an
+  // ORDER, `@/offline/protocol`'s own suite asserts them against real orders,
+  // and this walk is in order by construction.
+  //
+  // Planted after the removal, twice. `isSuccessfulFullPass` swapped for
+  // `outcomes.every(...)`, which drops the length requirement and calls a
+  // two-step run complete — red, "expected true to be false". And the step
+  // count taken from the protocol's own length rather than from the outcomes
+  // given — red at three passes against none, which is the defect this gate
+  // found in the first place.
+  it('reports a completed pass with no resume point, and all three passes', () => {
+    const full: readonly StepOutcome[] = PROTOCOL_STEPS.map(() => 'success')
+    const r = a6Reconnect(full)
+    expect(r.completed).toBe(true)
+    expect(r.resumeAt).toBeNull()
+    expect(r.passesReached).toHaveLength(3)
+    expect(r.line).toContain('thirty-seven')
+    // a short run of successes is NOT a completed pass: L80027's exit trigger
+    // is a full pass of all thirty-seven, which is why the length matters.
+    const short = a6Reconnect(['success', 'success'])
+    expect(short.completed).toBe(false)
+    expect(short.passesReached).toHaveLength(0)
+    expect(srcLine(80048)).toContain('AC-36-101')
+    expect(srcLine(80048)).toContain('before any manifest is exchanged')
+  })
+})
+
+describe('the register rows this module owns, and the row AC-OFF-701 cannot account for', () => {
+  // FAILS IF: the register is read as though its Module column were a key, or
+  // the row outside the seven is not this module's. Five rows name this module
+  // and exactly one of them carries the eighth token.
+  //
+  // Planted: the module filter loosened from an equality on the cell to
+  // `r.module.includes('MOD-FL-A')`, which is what reading the Module column as
+  // a key looks like when it is written carelessly. Red at 37 rows against 5 —
+  // it swept up every Frontline module's rows at once.
+  it('finds five rows for this module, and the one of them outside the seven', () => {
+    expect(A6_CLASSIFICATION_ROWS).toHaveLength(5)
+    expect(
+      OFFLINE_CLASSIFICATION.filter((r) => r.module === '`MOD-FL-A6`'),
+    ).toHaveLength(A6_CLASSIFICATION_ROWS.length)
+    expect(A6_ROWS_OUTSIDE_THE_SEVEN).toHaveLength(1)
+    expect(A6_ROWS_OUTSIDE_THE_SEVEN[0]?.fn).toBe('Conflict resolution')
+    expect(A6_ROWS_OUTSIDE_THE_SEVEN[0]?.klass).toBe('Explicitly prohibited on the device')
+    // the source really puts that class on that row, against this module.
+    const cells = srcLine(78799).split('|').map((c) => c.trim())
+    expect(cells[1]).toBe('Conflict resolution')
+    expect(cells[2]).toBe('`MOD-FL-A6`')
+    expect(cells[3]).toBe('Explicitly prohibited on the device')
+    // and the criterion really closes the set at seven.
+    expect(srcLine(78831)).toContain('AC-OFF-701')
+    expect(srcLine(78831)).toContain('exactly one of the seven classes')
+  })
+})
+
+describe('what runs each functionality', () => {
+  // FAILS IF: a driver's evidence is a sentence rather than the mechanism's
+  // output. Every one is re-run here from the same fixtures and compared, so a
+  // driver whose mechanism stops working cannot keep its claim.
+  //
+  // Planted three times, one per shape of mechanism, and EVERY PLANT IS IN
+  // THIS MODULE'S OWN FILES. Reaching into `@/offline/**` or `fl-b9` to break
+  // a mechanism would have been a sibling's red run for the seconds it took to
+  // restore, and four tasks are running: the fixtures are what get bent
+  // instead, which exercises the same call. The unconfirmed-media fixture
+  // flipped to confirmed on all three conditions — red, the storage driver
+  // then reported an eviction. The skewed conflict's flag removed — red, the
+  // conflict driver then read `automatic` on both halves. And
+  // `signOffReadiness(false)` changed to `(true)` inside the gate driver's own
+  // evidence — red.
+  it('re-runs every mechanism and finds the evidence it published', () => {
+    const byId = new Map(A6_DRIVERS.map((d) => [d.id, d]))
+    expect(byId.get('conflict-routing')?.evidence).toContain('individual review')
+    expect(byId.get('on-device-storage')?.evidence).toContain('An attempted upload is not receipt')
+    expect(byId.get('b9-gate')?.evidence).toContain('a sign-off proceeds: false')
+    expect(byId.get('b9-gate')?.evidence).toContain('STATE-B9-PARKED')
+    expect(byId.get('package-staging')?.evidence).toContain('STATE-A2-NOTREADY')
+    expect(byId.get('package-staging')?.evidence).toContain('enterable: false')
+    expect(byId.get('version-pinning')?.evidence).toContain('restaged nothing: false')
+    expect(byId.get('queue-durability')?.evidence).toContain('stays queued on the device')
+    expect(byId.get('skew-guard')?.evidence).toContain('deviation of 11 minutes')
+    expect(byId.get('reconciliation')?.evidence).toContain('unexplained divergence')
+    expect(byId.get('bounded-settings')?.evidence).toContain('above the platform ceiling')
+    expect(byId.get('reconnect-ladder')?.evidence).toBe(a6Reconnect(A6_INTERRUPTED_OUTCOMES).line)
+    expect(byId.get('device-state')?.evidence).toContain('STATE-A6-INTERRUPTED')
+  })
+
+  // FAILS IF: a driver drives nothing, two drivers drive the same
+  // functionality, or a driver names a functionality that does not exist.
+  // Planted: `FUNC-A6-02-2-1` added to the `reconnect-ladder` driver as well
+  // as to `queue-durability`. Went red on the duplicate — and `A6_DRIVER_OF`
+  // would have silently taken whichever driver came first.
+  it('binds every driver to something, and nothing to two drivers', () => {
+    const claimed = A6_DRIVERS.flatMap((d) => d.drives)
+    expect(new Set(claimed).size).toBe(claimed.length)
+    const ids = A6_FUNCTIONALITIES.map((f) => f.id)
+    for (const id of claimed) expect(ids, `${id} is a real functionality`).toContain(id)
+    for (const d of A6_DRIVERS) {
+      expect(
+        d.drives.length > 0 || d.drivesCardField !== null,
+        `${d.id} drives nothing`,
+      ).toBe(true)
+    }
+    expect(claimed).toHaveLength(A6_DRIVEN_COUNT)
+    expect(Object.values(A6_DRIVER_OF).filter((v) => v === null)).toHaveLength(
+      A6_UNDRIVEN.length,
+    )
+  })
+
+  // FAILS IF: one of the two undriven functionalities is driven, or its reason
+  // is not the source's. Neither is an omission: one is `Client Decision
+  // Required` under an open decision AC-FL-011-5 forbids closing silently, and
+  // the other states an excluded capability. Planted: FUNC-A6-07-1-4 bound to
+  // the `on-device-storage` driver — which is what closing DEC-STORE-001
+  // silently looks like from the inside. Went red.
+  it('leaves the two the source closes off, and gives each the source’s reason', () => {
+    for (const u of A6_UNDRIVEN) expect(A6_DRIVER_OF[u.id]).toBeNull()
+    expect(srcLine(40155)).toContain('AC-FL-011-5')
+    expect(srcLine(40155)).toContain('remain visibly open; no implementation may close them silently')
+    expect(srcLine(41201)).toContain('`Client Decision Required`')
+    expect(srcLine(41205)).toContain('concurrent same-record editing is out of scope')
+  })
+})
+
+describe('the three situations, and what the sheet says in each state', () => {
+  // FAILS IF: a state holds and the sheet has nothing to say about it. The
+  // record is total over the seven, so this is a check that each line is the
+  // source's claim for that state rather than that the key exists. Planted:
+  // STATE-A6-TRUSTEXPIRED's line moved to L41129, the Offline behaviour field,
+  // which says nothing about a window running out — went red on the words.
+  it('gives every state a line the source states at the line it cites', () => {
+    expect(Object.keys(A6_STATE_LINES)).toHaveLength(A6_STATES.length)
+    for (const s of A6_STATES) {
+      const entry = A6_STATE_LINES[s.id]
+      expect(entry, s.id).toBeDefined()
+      const [n] = locatorsOf(entry.sourceRef)
+      expect(srcLine(n as number).trim().length, entry.sourceRef).toBeGreaterThan(0)
+      const anchor = anchorOf(entry.sourceRef)
+      if (anchor !== null) expect(srcLine(n as number).includes(anchor), entry.sourceRef).toBe(true)
+    }
+    // THE THREE BINDINGS THAT MAKE THE ABOVE MORE THAN A NON-BLANK CHECK. Two
+    // of the seven cite a bare `L#####` with no identifier to anchor on, so
+    // the anchor loop cannot see a locator moved from one prose line to
+    // another — the first version of this gate claimed it could and it could
+    // not. Each line's own claim is asserted at the line the record cites,
+    // read through the record rather than at a fixed number.
+    const at = (id: A6StateId): string =>
+      srcLine(locatorsOf(A6_STATE_LINES[id].sourceRef)[0] as number)
+    expect(norm(at('STATE-A6-TRUSTEXPIRED'))).toContain(
+      norm('on trust-window expiry, no new session and no high-risk action, with all data preserved'),
+    )
+    expect(norm(at('STATE-A6-SKEWFLAGGED'))).toContain(norm('ordering follows server receipt'))
+    expect(norm(at('STATE-A6-OFFLINE'))).toContain(
+      norm('A full Run executes offline from the pinned package.'),
+    )
+    expect(norm(at('STATE-A6-CONNECTED'))).toContain(norm('Continuous bidirectional sync'))
+  })
+
+  // FAILS IF: the three situations stop reaching all seven between them, or a
+  // reading comes back with no state at all. Exactly one link member and one
+  // trust member always hold, so `held` can never be empty.
+  //
+  // Planted: the second situation's `transfer` changed to `none`, which drops
+  // STATE-A6-INTERRUPTED off the screen entirely. Went red on the reached set
+  // and, one gate over, on the charter's `drivenHere` equality.
+  it('reaches all seven, and never returns a device in no state at all', () => {
+    expect(A6_SITUATIONS).toHaveLength(3)
+    expect([...A6_STATES_REACHED].sort()).toEqual(A6_STATES.map((s) => s.id).sort())
+    for (const n of A6_SITUATIONS) {
+      const r = a6StateReading(n.situation)
+      expect(r.held.length, n.label).toBeGreaterThan(0)
+      expect(r.held).toContain(r.link)
+      expect(r.held).toContain(r.trust)
+      expect(r.modes.length, `${n.label} reproduces at least one source mode`).toBeGreaterThan(0)
+      // and `held` is in the order the source names them, not in axis order.
+      const order = A6_STATES.map((s) => s.id)
+      expect(r.held).toEqual(order.filter((id) => r.held.includes(id)))
+    }
   })
 })

@@ -168,7 +168,17 @@ describe('no test writes the artefacts it checks', () => {
   // generator is not mistaken for running one, and it also means this file
   // holds itself to the rule: the calls in gate 1 carry the redirect and pass.
   it('every generator invocation in a test redirects its output', () => {
-    const CALL = /\b(?:execFileSync|execSync|spawnSync|spawn|exec)\s*\(/g
+    // `exec` is the trap in this list, and it fired. `\bexec\s*\(` matches
+    // `RegExp.prototype.exec` — the `\b` is satisfied by the `.` in front of
+    // it — so `SLUG_RE.exec(body)` read as a child-process call, and any
+    // generator path named in the next 400 characters convicted the file. A
+    // registry test that parses `modules.ts` with a regex and explains which
+    // generator it is checking does both within one comment, and did.
+    //
+    // A member call is excluded by requiring no `.` or word character before
+    // the bare `exec`; the `child_process` names are distinctive enough to
+    // stay as they were.
+    const CALL = /\b(?:execFileSync|execSync|spawnSync|spawn)\s*\(|(?<![.\w])exec\s*\(/g
     const offenders: string[] = []
     for (const file of testFiles()) {
       const src = readFileSync(file, 'utf8')
@@ -176,6 +186,17 @@ describe('no test writes the artefacts it checks', () => {
         const at = match.index ?? 0
         // Far enough to clear the arguments and the options object of any
         // realistic call, short enough not to swallow the next statement.
+        //
+        // KNOWN LIMIT, measured rather than assumed: the window asks whether a
+        // redirect appears in the next 400 characters, not whether THIS call
+        // carries one. A bare call placed immediately above a redirected one
+        // is therefore masked by its neighbour — planting one there stayed
+        // green, and the same plant at the end of the file went red naming the
+        // file and the script. Narrowing it to the call's own argument list
+        // means parsing balanced parens; the exposure is one unredirected call
+        // written directly above a redirected one, which gate 1 catches
+        // anyway by comparing the committed artefacts with a fresh
+        // generation.
         const window = src.slice(at, at + 400)
         const script = GENERATORS.find((g) => window.includes(g))
         if (script && !window.includes('AVIIXA_REGISTRY_OUT')) {

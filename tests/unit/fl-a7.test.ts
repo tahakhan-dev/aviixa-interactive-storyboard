@@ -34,6 +34,36 @@ import {
   a7RowsFor,
 } from '@/frontline/modules/fl-a7/matrix'
 import {
+  A7_COMPLETION_VERBS,
+  A7_COMPLETION_VERB_CLASSIFICATION,
+  A7_CROSS_MODULE_REACH,
+  A7_FUNCTIONALITIES_THE_REGISTER_DOES_NOT_CLASSIFY,
+  A7_FUNCTIONALITY_TO_REGISTER_LINE,
+  A7_MODULE_FILTER_MEASUREMENT,
+  A7_PIN_RESET_ROLE_DIVERGENCE,
+  A7_REGISTER_CLASS_TALLY,
+  A7_REGISTER_ROWS,
+  A7_ROWS_OUTSIDE_THE_SEVEN,
+  A7_ROWS_UNDER_AC_OFF_702,
+  A7_STANDINGS,
+  A7_STANDING_NOT_STATED,
+  A7_STATE_IDS,
+  A7_STORAGE_ROW_NOT_RESTATED,
+  A7_UNCLASSIFIED_FUNCTIONALITY,
+  A7_VERBS_WITHOUT_ONE_CLASS,
+  REGISTER_FIRST_DATA_LINE,
+  TRUST_WINDOW_EXPIRY,
+  a7OfflineStanding,
+  a7RegisterRowsReaching,
+  a7Standing,
+  a7TrustWindowGoverns,
+  a7VerbClasses,
+  registerLineOf,
+  registerRowAtLine,
+  type A7Standing,
+} from '@/frontline/modules/fl-a7/offline'
+import { OFFLINE_CLASSIFICATION } from '@/offline/capability'
+import {
   A7_COMMAND_CLASS_GAP,
   A7_COMPLIANCE_LOCK,
   A7_DISCLOSURES,
@@ -213,6 +243,31 @@ function renderedStrings(): readonly { where: string; text: string }[] {
     'row 3 neighbour',
     `${A7_ROW_3_ALSO_TRANSCRIBED_BY.divergence} ${A7_ROW_3_ALSO_TRANSCRIBED_BY.whatOnlyThisMatrixHolds} ${A7_ROW_3_ALSO_TRANSCRIBED_BY.renderingNote}`,
   )
+  // Slice 8's records join the SAME collection rather than getting a sweep
+  // of their own. A second sweep is a second reach to keep in step, and the
+  // reason this one is shared is that a field added later cannot escape it.
+  for (const r of A7_CROSS_MODULE_REACH) push(`reach L${r.line}`, `${r.evidence} ${r.bearsOn}`)
+  push('storage row', A7_STORAGE_ROW_NOT_RESTATED.whyNotRestated)
+  push('module filter', A7_MODULE_FILTER_MEASUREMENT.note)
+  push('pin reset divergence', A7_PIN_RESET_ROLE_DIVERGENCE.divergence)
+  push(
+    'unclassified functionality',
+    `${A7_UNCLASSIFIED_FUNCTIONALITY.question} ${A7_UNCLASSIFIED_FUNCTIONALITY.note}`,
+  )
+  for (const r of A7_UNCLASSIFIED_FUNCTIONALITY.readings) push('unclassified reading', r.text)
+  for (const v of A7_COMPLETION_VERB_CLASSIFICATION) push(`verb ${v.verb}`, v.basis)
+  for (const trustWindow of ['valid', 'expired'] as const) {
+    for (const id of A7_STATE_IDS) {
+      const s = a7OfflineStanding(id, trustWindow)
+      push(`${id} ${trustWindow}`, `${s.what} ${s.expiryNote}`)
+    }
+  }
+  for (const row of a7RegisterRowsReaching()) {
+    push(
+      `register L${registerLineOf(row)}`,
+      `${row.fn} ${row.reason} ${row.dataRequiredLocally} ${row.expiry} ${row.roleAndQualificationRestrictions} ${row.fallback} ${row.reconnectBehaviour}`,
+    )
+  }
   for (const slug of ['profile-lite'] as const) {
     for (const row of a7RowsFor(slug)) {
       for (const column of A7_COLUMNS) {
@@ -1158,6 +1213,472 @@ describe('the compliance lock screen', () => {
     ])
     expect(A7_COMPLIANCE_LOCK.whyNotRenderedHere).toContain('Full-screen interrupt')
     expect(A7_COMPLIANCE_LOCK.description).toContain('The sync indicator is not shown')
+  })
+})
+
+/* ==================================================================== *
+ * SLICE 8 — §34.7's CLASSIFICATION OF THIS MODULE'S FUNCTIONS.
+ *
+ * Everything below parses the register out of L78766-L78819 at run time.
+ * NOTHING restates a class token, a row count or a line number as a literal
+ * for the shipped data to be compared against, except the two structural
+ * constants the parse itself needs — and both of those are checked against
+ * the source before anything reads a row.
+ * ==================================================================== */
+
+/** The ten header-keyed columns of the register, by index. Header L78766. */
+const REGISTER_COLUMN = {
+  fn: 0,
+  module: 1,
+  klass: 2,
+  reason: 3,
+  dataRequiredLocally: 4,
+  expiry: 5,
+  roles: 6,
+  ai: 7,
+  fallback: 8,
+  reconnect: 9,
+} as const
+
+const registerCell = (line: number, column: keyof typeof REGISTER_COLUMN): string =>
+  at(cellsOf(line), REGISTER_COLUMN[column], `L${line} ${column}`)
+
+/** Every data line of the register, found by walking from the separator. */
+function registerDataLines(): readonly number[] {
+  const lines: number[] = []
+  for (let n = REGISTER_FIRST_DATA_LINE; L(n).startsWith('|'); n += 1) lines.push(n)
+  return lines
+}
+
+/**
+ * The seven class names, PARSED out of the source's own defining table
+ * (header L78721, separator L78722, body from L78723). Reading them from
+ * wave 0's shipped constant instead would make the eighth-token check a
+ * tautology — the shipped constant is the thing under test.
+ */
+const OFFLINE_CAPABILITY_CLASS_NAMES: readonly string[] = (() => {
+  const names: string[] = []
+  for (let n = 78_723; L(n).startsWith('|'); n += 1) names.push(at(cellsOf(n), 0, `L${n} class`))
+  return names
+})()
+
+describe('the register this module’s offline classification is filtered out of', () => {
+  // FAILS IF: the register's header, separator or bounds are not where this
+  // module's derived locators assume. Every locator in `offline.ts` is
+  // REGISTER_FIRST_DATA_LINE plus an array index, so this is the one place
+  // the arithmetic touches the source and it is checked first.
+  // Planted: REGISTER_FIRST_DATA_LINE moved to 78769. Went red here and in
+  // four tests below.
+  it('is a ten-column table with fifty-two data rows, header-keyed from L78766', () => {
+    const header = cellsOf(78_766)
+    expect(header).toHaveLength(Object.keys(REGISTER_COLUMN).length)
+    expect(at(header, REGISTER_COLUMN.fn, 'header fn')).toBe('Function')
+    expect(at(header, REGISTER_COLUMN.module, 'header module')).toBe('Module')
+    expect(at(header, REGISTER_COLUMN.klass, 'header class')).toBe('Class')
+
+    // The separator is NOT counted as a data row: `|---|---|` splits into
+    // non-empty cells, which is exactly how a slice-7 shape check passed on
+    // one. So it is asserted to be the separator, by shape.
+    expect(L(78_767)).toMatch(/^\|(?:-+\|)+$/)
+    expect(L(REGISTER_FIRST_DATA_LINE - 1)).toBe(L(78_767))
+
+    const data = registerDataLines()
+    expect(data).toHaveLength(OFFLINE_CLASSIFICATION.length)
+    expect(data.at(-1)).toBe(78_819)
+    expect(L(78_820).startsWith('|')).toBe(false)
+  })
+
+  // FAILS IF: a derived locator names a line that does not carry that row.
+  // Checked over ALL fifty-two rows and not only this module's five, because
+  // the derivation is arithmetic over the whole array and a check confined to
+  // five would pass on an array that had drifted anywhere else.
+  // Planted: wave 0's row order is not this task's to touch, so the plant was
+  // on REGISTER_FIRST_DATA_LINE instead — see the test above.
+  it('derives every row’s locator from its position, and every one lands on its own row', () => {
+    for (const row of OFFLINE_CLASSIFICATION) {
+      const line = registerLineOf(row)
+      expect(registerCell(line, 'fn'), `L${line}`).toBe(row.fn)
+      expect(registerCell(line, 'klass'), `L${line}`).toBe(row.klass)
+      expect(registerRowAtLine(line)).toBe(row)
+    }
+    // The derivation can be wrong: a line one off carries a different row.
+    expect(registerCell(78_800, 'fn')).not.toBe(registerCell(78_801, 'fn'))
+  })
+})
+
+describe('MOD-FL-A7’s five rows of the fifty-two', () => {
+  // FAILS IF: the filter returns a row the source does not label MOD-FL-A7,
+  // or misses one it does. Both directions, and the expectation is PARSED —
+  // the set of lines is found by walking the Module column, never listed.
+  // Planted: the containment filter narrowed to 'MOD-FL-A' — went red with
+  // twelve rows against five.
+  it('is exactly the rows whose Module cell names it, in the source’s order', () => {
+    const fromSource = registerDataLines().filter((n) =>
+      registerCell(n, 'module').includes('MOD-FL-A7'),
+    )
+    expect(A7_REGISTER_ROWS.map(registerLineOf)).toEqual(fromSource)
+    expect(fromSource.length).toBeGreaterThan(0)
+    for (const line of fromSource) {
+      const row = registerRowAtLine(line)
+      expect(row.fn).toBe(registerCell(line, 'fn'))
+      expect(row.klass).toBe(registerCell(line, 'klass'))
+      expect(row.reason).toBe(registerCell(line, 'reason'))
+      expect(row.expiry).toBe(registerCell(line, 'expiry'))
+      expect(row.roleAndQualificationRestrictions).toBe(registerCell(line, 'roles'))
+      expect(row.fallback).toBe(registerCell(line, 'fallback'))
+      expect(row.reconnectBehaviour).toBe(registerCell(line, 'reconnect'))
+    }
+  })
+
+  // FAILS IF: the two filter forms are claimed to agree where the source
+  // makes them differ, or the differing row is not the one the source writes
+  // two module ids onto. Both numbers are computed and the difference is
+  // parsed out of the Module column rather than asserted.
+  // Planted: `byEquality` hard-coded to 5 — still green, so it was replaced
+  // by the parsed comparison below, which went red on the same plant.
+  it('measures the containment and equality filters against the parsed column', () => {
+    const byContainment = registerDataLines().filter((n) =>
+      registerCell(n, 'module').includes('MOD-FL-A7'),
+    )
+    // `strip` on the equality side and not the containment side: the source
+    // writes the Module cell inside code ticks, and a tick is markup rather
+    // than part of the identifier. Comparing the ticked cell to a bare id
+    // returns zero and would have looked like a real measurement.
+    const byEquality = registerDataLines().filter(
+      (n) => strip(registerCell(n, 'module')) === 'MOD-FL-A7',
+    )
+    expect(A7_MODULE_FILTER_MEASUREMENT.byContainment).toBe(byContainment.length)
+    expect(A7_MODULE_FILTER_MEASUREMENT.byEquality).toBe(byEquality.length)
+
+    // And the form matters for a module the source writes differently: the
+    // row that names two ids is dropped by equality and kept by containment.
+    const a3Containment = registerDataLines().filter((n) =>
+      registerCell(n, 'module').includes('MOD-FL-A3'),
+    )
+    const a3Equality = registerDataLines().filter(
+      (n) => strip(registerCell(n, 'module')) === 'MOD-FL-A3',
+    )
+    expect(a3Containment.length).toBeGreaterThan(a3Equality.length)
+    expect(A7_MODULE_FILTER_MEASUREMENT.whereTheyDiffer).toEqual(
+      a3Containment.filter((n) => !a3Equality.includes(n)),
+    )
+  })
+
+  // FAILS IF: this module's rows carry a class the source does not give
+  // them, or the tally is counted off anything but the rows. Parsed tally,
+  // built from the Class cells of the seven lines the module reaches.
+  // Planted: A7_REGISTER_CLASS_TALLY reduced over A7_REGISTER_ROWS instead of
+  // a7RegisterRowsReaching() — went red, missing the two Safe-stop rows.
+  it('carries three of the seven classes across five rows, and two more through the cross-module pair', () => {
+    const parsed: Record<string, number> = {}
+    for (const row of a7RegisterRowsReaching()) {
+      const klass = registerCell(registerLineOf(row), 'klass')
+      parsed[klass] = (parsed[klass] ?? 0) + 1
+    }
+    expect(A7_REGISTER_CLASS_TALLY).toEqual(parsed)
+    expect(Object.values(A7_REGISTER_CLASS_TALLY).reduce((a, b) => a + b, 0)).toBe(
+      a7RegisterRowsReaching().length,
+    )
+  })
+
+  // FAILS IF: an A7 row carries the eighth token, or the check for it cannot
+  // see one. The eighth exists in the register and is NOT this module's, so
+  // the same predicate is run against the row that does carry it.
+  // Planted: the Conflict-resolution row's line added to A7_CROSS_MODULE_REACH
+  // — went red on the first expectation.
+  it('carries no class outside AC-OFF-701’s seven, and the check can see one that does', () => {
+    expect(A7_ROWS_OUTSIDE_THE_SEVEN).toHaveLength(0)
+    const eighth = registerDataLines().filter(
+      (n) => !OFFLINE_CAPABILITY_CLASS_NAMES.includes(registerCell(n, 'klass')),
+    )
+    expect(eighth).toHaveLength(1)
+    expect(A7_REGISTER_ROWS.map(registerLineOf)).not.toContain(at(eighth, 0, 'eighth'))
+    expect(L(78_831)).toContain('AC-OFF-701')
+  })
+
+  // FAILS IF: AC-OFF-702's governed set is not the module's fully-available
+  // rows. Its statement is read from its own line rather than paraphrased.
+  // Planted: the filter changed to 'Blocked offline' — went red on the lines.
+  it('names the rows AC-OFF-702 governs, from its own line', () => {
+    expect(L(78_832)).toContain('AC-OFF-702')
+    expect(L(78_832)).toContain('fully available offline')
+    expect(A7_ROWS_UNDER_AC_OFF_702.map(registerLineOf)).toEqual(
+      A7_REGISTER_ROWS.filter(
+        (r) => registerCell(registerLineOf(r), 'klass') === 'Fully available offline',
+      ).map(registerLineOf),
+    )
+  })
+})
+
+describe('the two rows a module-labelled filter does not return', () => {
+  // FAILS IF: a reached row is not actually filed Cross-module, or the
+  // evidence claimed for it is not in the cells named. Every clause of the
+  // evidence is checked against a parsed cell, not against the prose.
+  // Planted: L78817's `bearsOn` claim kept but the expiry equality dropped
+  // from the check — replaced by the equality assertion below, which then
+  // went red when L78804's expiry was mutated in a scratch copy.
+  it('reaches them on evidence in the source’s own cells', () => {
+    for (const reach of A7_CROSS_MODULE_REACH) {
+      expect(registerCell(reach.line, 'module')).toBe('Cross-module')
+      expect(reach.fn).toBe(registerCell(reach.line, 'fn'))
+      expect(A7_REGISTER_ROWS.map(registerLineOf)).not.toContain(reach.line)
+    }
+
+    // L78817: its Reason names suspension states, and its Expiry cell is the
+    // same text L78804 carries. That equality is what makes the window govern.
+    expect(registerCell(78_817, 'reason')).toContain('suspension states')
+    expect(registerCell(78_817, 'expiry')).toBe(registerCell(78_804, 'expiry'))
+    expect(TRUST_WINDOW_EXPIRY).toBe(registerRowAtLine(78_817).expiry)
+
+    // L78818: its Fallback is this module's fixed message and its Reconnect
+    // is the dual-authorised path, which is the compliance exit A7 states.
+    expect(registerCell(78_818, 'fallback')).toContain('fixed worker-facing message')
+    expect(registerCell(78_818, 'reconnect')).toContain('dual-authorised path')
+  })
+
+  // FAILS IF: the storage row is restated rather than named, or a fifth
+  // DEC-STORE-001 record grows here. The option sets and the owner are what
+  // a restatement would carry, so their absence is what is asserted.
+  // Planted: the four option letters copied into `whyNotRestated` — went red.
+  it('names the third cross-module row and restates DEC-STORE-001 nowhere', () => {
+    expect(A7_STORAGE_ROW_NOT_RESTATED.fn).toBe(registerCell(78_819, 'fn'))
+    expect(registerCell(78_819, 'module')).toBe('Cross-module')
+    expect(registerCell(78_819, 'fallback')).toContain('DEC-STORE-001')
+
+    const OPTION_WORDS =
+      /(hard stop at a reserved-capacity threshold|degrade capture fidelity|refuse only optional content|block new run entry)/i
+    for (const s of renderedStrings()) {
+      expect(OPTION_WORDS.test(s.text), `${s.where}: ${s.text.slice(0, 80)}`).toBe(false)
+    }
+    // The sweep can see one: L79469 is where the four options are stated.
+    expect(OPTION_WORDS.test(L(79_469))).toBe(true)
+  })
+})
+
+describe('the eleven functionalities against the register’s Function column', () => {
+  // FAILS IF: a functionality is mapped to a line that is not one of this
+  // module's register rows, or the map stops being total over the eleven.
+  // Planted: 'FUNC-A7-04-1-1' mapped to 78_800 — went red on the count of
+  // unclassified functionalities and on the reading below.
+  it('maps ten onto this module’s own rows and one onto nothing', () => {
+    const ours = A7_REGISTER_ROWS.map(registerLineOf)
+    for (const f of A7_FUNCTIONALITIES) {
+      const line = A7_FUNCTIONALITY_TO_REGISTER_LINE[f.id]
+      if (line !== null) expect(ours, f.id).toContain(line)
+    }
+    expect(Object.keys(A7_FUNCTIONALITY_TO_REGISTER_LINE).sort()).toEqual(
+      A7_FUNCTIONALITIES.map((f) => f.id)
+        .slice()
+        .sort(),
+    )
+    expect(A7_FUNCTIONALITIES_THE_REGISTER_DOES_NOT_CLASSIFY).toEqual(['FUNC-A7-04-1-1'])
+  })
+
+  // FAILS IF: the register does in fact name the minimal-data-scope function
+  // and this build claimed otherwise. Measured over all fifty-two Function
+  // cells, not over this module's five.
+  // Planted: the word list narrowed to a term the register does carry
+  // ("storage") — went red, because L78787 and L78819 both name it.
+  it('finds no Function cell naming minimal on-device data scope, over all fifty-two', () => {
+    const SCOPE = /\b(minimal|data scope|blast radius)\b/i
+    const naming = registerDataLines().filter((n) => SCOPE.test(registerCell(n, 'fn')))
+    expect(naming).toEqual([])
+    // The sweep can see a Function cell: a term the register does carry.
+    expect(registerDataLines().filter((n) => /storage/i.test(registerCell(n, 'fn')))).not.toEqual(
+      [],
+    )
+    // And the functionality states its own offline position on its own line,
+    // which is the second reading this build carries and does not choose.
+    expect(L(41_376)).toContain('FUNC-A7-04-1-1')
+    expect(L(41_376)).toContain('Online and offline: identical')
+    expect(A7_UNCLASSIFIED_FUNCTIONALITY.adopted).toBeNull()
+    expect(A7_UNCLASSIFIED_FUNCTIONALITY.readings).toHaveLength(2)
+  })
+})
+
+describe('row 9 as a behaviour: the five verbs and their classes', () => {
+  // FAILS IF: the five verbs are not L41305's own, in its own order. Parsed
+  // out of the Worker cell rather than compared to a list written here.
+  // Planted twice. Singularising 'compute summaries' went red, but by
+  // THROWING at module load — `a7VerbClasses` has no record for an unknown
+  // verb — which is a real red and not this assertion's. So it was planted
+  // again by swapping 'capture' and 'sync' in the tuple, which changes only
+  // the order, and this went red on the cursor.
+  it('takes its five verbs from L41305’s Worker cell, in order', () => {
+    const worker = strip(at(cellsOf(41_305), 1, 'L41305 Worker'))
+    let cursor = 0
+    for (const verb of A7_COMPLETION_VERBS) {
+      const found = worker.indexOf(verb, cursor)
+      expect(found, `${verb} in ${worker}`).toBeGreaterThan(-1)
+      cursor = found + verb.length
+    }
+    expect(worker).toContain('no new Runs start')
+    // AC-A7-6 requires the same five, so the two lines are held together.
+    for (const verb of A7_COMPLETION_VERBS) expect(strip(L(41_427))).toContain(verb)
+  })
+
+  // FAILS IF: the classes are claimed to differ where the register agrees, or
+  // to agree where it differs. Every class is READ from the source line the
+  // verb is mapped to, so the divergence is the register's and not this file's.
+  // Planted: 'complete' mapped to [78_780] alone — went red, because
+  // A7_VERBS_WITHOUT_ONE_CLASS then held one member instead of two.
+  it('reads each verb’s class off the register, and two of the five carry no single one', () => {
+    for (const v of A7_COMPLETION_VERB_CLASSIFICATION) {
+      expect(a7VerbClasses(v.verb)).toEqual(
+        v.registerLines.map((line) => registerCell(line, 'klass')),
+      )
+    }
+    expect(A7_VERBS_WITHOUT_ONE_CLASS).toEqual(['complete', 'compute summaries'])
+
+    // The `complete` divergence is two different classes on two source lines.
+    const completeClasses = a7VerbClasses('complete')
+    expect(completeClasses).toHaveLength(2)
+    expect(at(completeClasses, 0, 'first')).not.toBe(at(completeClasses, 1, 'second'))
+
+    // And no verb is silently given a class the register does not carry.
+    expect(a7VerbClasses('compute summaries')).toEqual([])
+  })
+
+  // FAILS IF: this module prints the Function cell of L78781, which names a
+  // state L39622 says does not exist. The row is cited by line and class and
+  // its own words never reach a screen — checked over the shared collection,
+  // so a new field cannot let it in.
+  // Planted: L78781's Function cell pushed into a verb's `basis` — went red
+  // on the existing "never writes synced as a state" gate AND here.
+  it('cites L78781 by line and class and never prints its Function cell', () => {
+    const forbidden = registerCell(78_781, 'fn')
+    expect(forbidden).toMatch(/\bsynced\b/i)
+    for (const s of renderedStrings()) {
+      expect(s.text, s.where).not.toContain(forbidden)
+    }
+    expect(
+      A7_COMPLETION_VERB_CLASSIFICATION.find((v) => v.verb === 'complete')?.registerLines,
+    ).toContain(78_781)
+  })
+})
+
+describe('what the device does under each state, on its last known state alone', () => {
+  // FAILS IF: the state vocabulary here is not L41315's seven. `A7_STATES` is
+  // charter.ts's derivation from that line, so the two are held equal rather
+  // than the union being a second transcription.
+  // Planted: 'STATE-A7-WIPED' dropped from A7_STATE_IDS — the tuple stopped
+  // satisfying the exhaustiveness type AND this went red.
+  it('is total over L41315’s seven states, and holds them equal to the charter’s', () => {
+    expect([...A7_STATE_IDS]).toEqual([...A7_STATES])
+    expect(A7_STANDINGS.map((s) => s.state)).toEqual([...A7_STATE_IDS])
+    for (const id of A7_STATE_IDS) expect(strip(L(41_315))).toContain(id)
+  })
+
+  // FAILS IF: the trust window is applied blanket rather than read off each
+  // state's own register row. The boundary is PARSED: a state is governed
+  // exactly where its row's Expiry cell equals L78817's.
+  // Planted: a7TrustWindowGoverns changed to return true always — went red on
+  // the three states whose rows carry a different expiry.
+  it('lets the trust window govern exactly the states whose register row carries it', () => {
+    for (const id of A7_STATE_IDS) {
+      const line = a7Standing(id).registerLine
+      expect(a7TrustWindowGoverns(id), id).toBe(
+        registerCell(line, 'expiry') === registerCell(78_817, 'expiry'),
+      )
+    }
+    const governed = A7_STATE_IDS.filter(a7TrustWindowGoverns)
+    expect(governed.length).toBeGreaterThan(0)
+    expect(governed.length).toBeLessThan(A7_STATE_IDS.length)
+    // And the states it does not govern carry a different expiry, from the source.
+    for (const id of A7_STATE_IDS.filter((s) => !a7TrustWindowGoverns(s))) {
+      expect(registerCell(a7Standing(id).registerLine, 'expiry'), id).not.toBe(
+        registerCell(78_817, 'expiry'),
+      )
+    }
+  })
+
+  // FAILS IF: an expired trust window safe-stops a state the register does
+  // not put the window on, or fails to safe-stop one it does. The safe stop's
+  // own words come from L78817's Fallback and Reason cells, parsed.
+  // Planted: `safeStop` computed as `trustWindow === 'expired'` without the
+  // `governed` conjunct — went red on STATE-A7-PINLOCK.
+  it('safe-stops on an expired window only where the register puts the window', () => {
+    for (const id of A7_STATE_IDS) {
+      expect(a7OfflineStanding(id, 'valid').safeStop, id).toBe(false)
+      expect(a7OfflineStanding(id, 'expired').safeStop, id).toBe(a7TrustWindowGoverns(id))
+    }
+    const stopped = a7OfflineStanding('STATE-A7-HARDSUSP', 'expired')
+    expect(stopped.newRunsStart).toBe('no')
+    expect(stopped.inFlightRunsContinue).toBe('no')
+    expect(stopped.what).toContain(strip(registerCell(78_817, 'fallback')))
+    expect(registerCell(78_817, 'klass')).toBe('Safe-stop required')
+  })
+
+  // FAILS IF: hard suspension stops work already running, which is the
+  // inversion this whole task exists against. L41305 and AC-A7-6 both say
+  // otherwise and both are read.
+  // Planted: STATE-A7-HARDSUSP's inFlightRunsContinue set to 'no' — went red.
+  it('lets in-flight Runs continue under hard suspension and starts no new one', () => {
+    const hard = a7OfflineStanding('STATE-A7-HARDSUSP')
+    expect(hard.newRunsStart).toBe('no')
+    expect(hard.inFlightRunsContinue).toBe('yes')
+    // Soft suspension is the opposite pair, and compliance stops both, so the
+    // three are genuinely different rather than one severity number.
+    expect(a7OfflineStanding('STATE-A7-SOFTSUSP').newRunsStart).toBe('yes')
+    expect(a7OfflineStanding('STATE-A7-SOFTSUSP').inFlightRunsContinue).toBe('yes')
+    expect(a7OfflineStanding('STATE-A7-COMPLIANCELOCK').newRunsStart).toBe('no')
+    expect(a7OfflineStanding('STATE-A7-COMPLIANCELOCK').inFlightRunsContinue).toBe('no')
+    expect(strip(L(41_305))).toContain('no new Runs start')
+  })
+
+  // FAILS IF: an answer the source does not state is filled in, or a stated
+  // one is marked unstated. Six of fourteen, computed, and the three states
+  // that carry them are the three the register gives no completion answer for.
+  // Planted: STATE-A7-WIPED's pair changed to 'no'/'no' — went red on the
+  // count, which is why the count is computed rather than written.
+  it('marks six of the fourteen answers not-stated rather than inventing them', () => {
+    expect(A7_STANDING_NOT_STATED).toHaveLength(6)
+    expect(A7_STANDINGS).toHaveLength(A7_STATE_IDS.length)
+    // Widened to `A7Standing` deliberately. `A7_STANDINGS` is a literal
+    // tuple, so the `||` narrows the second operand's row away and TypeScript
+    // calls the comparison unreachable — which is the same consequence the
+    // `as const` idiom's own note warns about for `.includes()`.
+    const unstated = new Set(
+      A7_STANDINGS.filter(
+        (s: A7Standing) =>
+          s.newRunsStart === 'not-stated' || s.inFlightRunsContinue === 'not-stated',
+      ).map((s) => s.state),
+    )
+    expect([...unstated].sort()).toEqual(
+      ['STATE-A7-PINLOCK', 'STATE-A7-WIPEPENDING', 'STATE-A7-WIPED'].sort(),
+    )
+    // Every one of the three is a state whose register row is not the
+    // suspension-honouring row, so the source classifies it under a different
+    // function and states no Run answer for it.
+    for (const state of unstated) expect(a7Standing(state).registerLine).not.toBe(78_804)
+    // The wipe row's Expiry cell IS the open decision, in one line.
+    expect(registerCell(78_803, 'expiry')).toContain('DEC-WIPE-001')
+  })
+})
+
+describe('the register and this module’s own matrix row disagree about who may reset', () => {
+  // FAILS IF: the divergence is smoothed away in either direction. Both lines
+  // are parsed and the disagreement itself is asserted, so aligning them goes
+  // red rather than going quiet.
+  // Planted: A7_PIN_RESET_ROLE_DIVERGENCE.fromTheRegister rewritten to add the
+  // Quality Manager — went red on the equality with the parsed cell.
+  it('holds L78802’s two roles against L41299’s three, and corrects neither', () => {
+    const registerRoles = strip(registerCell(A7_PIN_RESET_ROLE_DIVERGENCE.registerLine, 'roles'))
+    expect(registerRoles).toBe(A7_PIN_RESET_ROLE_DIVERGENCE.fromTheRegister)
+    expect(registerRoles).toContain('Supervisor')
+    expect(registerRoles).toContain('Tenant Admin')
+    expect(registerRoles).not.toContain('Quality Manager')
+
+    // The matrix row grants three, and this module's transcription of it is
+    // unchanged: the row is read through the shipped cells, not re-parsed.
+    const row = a7RowById('pin-reset')
+    for (const column of ['Supervisor', 'Quality Manager', 'Tenant Admin'] as const) {
+      expect(row.cells[column].outcome, column).toBe('allowed')
+    }
+    const matrixCells = cellsOf(A7_PIN_RESET_ROLE_DIVERGENCE.matrixLine)
+    for (const index of [2, 3, 4]) {
+      expect(outcomeOf(at(matrixCells, index, `L41299 cell ${index}`))).toBe('allowed')
+    }
   })
 })
 

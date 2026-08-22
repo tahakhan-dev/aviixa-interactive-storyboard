@@ -5,15 +5,18 @@
  * Frozen source §22.15, which opens at L41074. Identity card L41080-L41088;
  * the remaining card fields carry their own lines and are cited individually.
  *
- * THE ONE THING A READER OF THIS FILE HAS TO CARRY AWAY. Slice 7 builds this
- * module's identity, its matrix, its refusals and the CONNECTED path. Slice 8
- * builds the offline simulation, package staging, the reconnect ladder and
- * convergence. The card states the OFFLINE behaviour anyway, now, because a
- * screen that renders only the connected path implies the safety layer needs a
- * network — the one claim chapter 22 exists to deny (L40948, L40954,
- * `AC-FL-000-4` L39099). `A6_SLICE_BOUNDARY` below is the standing form of
- * that: what this build drives, what it only states, and which slice owns the
- * rest, held as data so it renders rather than sitting in a comment.
+ * THE ONE THING A READER OF THIS FILE HAS TO CARRY AWAY. Slice 7 built this
+ * module's identity, its matrix, its refusals and the CONNECTED path, and
+ * marked what it had not driven. Slice 8 built the other half in `offline.ts`:
+ * the four axes the seven states sit on, the two bounded tenant settings, the
+ * reconnect ladder walked over the thirty-seven steps, and the binding from
+ * each functionality to the mechanism that now exercises it. The card stated
+ * the OFFLINE behaviour from the first slice regardless, because a screen that
+ * renders only the connected path implies the safety layer needs a network —
+ * the one claim chapter 22 exists to deny (L40948, L40954, `AC-FL-000-4`
+ * L39099). `A6_SLICE_BOUNDARY` below is the standing form of that: what this
+ * build drives, and what is left undriven with the reason, held as data so it
+ * renders rather than sitting in a comment.
  *
  * WHAT "TRANSCRIBED" MEANS HERE, EXACTLY — the same discipline `fl-a5`
  * settled. Each statement's `text` is the card field's own prose with the
@@ -318,8 +321,11 @@ export interface A6State {
   readonly gloss: string | null
   /**
    * Whether THIS build can be driven into the state from the screen. Slice 7
-   * builds the connected path; slice 8 builds the offline simulation, so five
-   * of the seven are STATED here and driven there.
+   * drove two and marked the other five stated-only; `offline.ts` drives all
+   * seven, and `a6StateReading` is the only place a device situation becomes
+   * one. The flag is a declaration and the covering suite proves it by
+   * REACHING each state through that resolver, so flipping one without a
+   * situation that produces it goes red.
    */
   readonly drivenHere: boolean
   readonly sourceRef: string
@@ -327,20 +333,26 @@ export interface A6State {
 
 export const A6_STATES = [
   { id: 'STATE-A6-CONNECTED', gloss: null, drivenHere: true, sourceRef: 'STATE-A6-CONNECTED · L41112' },
-  { id: 'STATE-A6-OFFLINE', gloss: null, drivenHere: false, sourceRef: 'STATE-A6-OFFLINE · L41112' },
+  { id: 'STATE-A6-OFFLINE', gloss: null, drivenHere: true, sourceRef: 'STATE-A6-OFFLINE · L41112' },
   { id: 'STATE-A6-SYNCING', gloss: null, drivenHere: true, sourceRef: 'STATE-A6-SYNCING · L41112' },
-  { id: 'STATE-A6-INTERRUPTED', gloss: null, drivenHere: false, sourceRef: 'STATE-A6-INTERRUPTED · L41112' },
+  { id: 'STATE-A6-INTERRUPTED', gloss: null, drivenHere: true, sourceRef: 'STATE-A6-INTERRUPTED · L41112' },
   {
     id: 'STATE-A6-TRUSTVALID',
     gloss: 'inside the offline trust window',
-    drivenHere: false,
+    drivenHere: true,
     sourceRef: 'STATE-A6-TRUSTVALID · L41112',
   },
-  { id: 'STATE-A6-TRUSTEXPIRED', gloss: null, drivenHere: false, sourceRef: 'STATE-A6-TRUSTEXPIRED · L41112' },
-  { id: 'STATE-A6-SKEWFLAGGED', gloss: null, drivenHere: false, sourceRef: 'STATE-A6-SKEWFLAGGED · L41112' },
+  { id: 'STATE-A6-TRUSTEXPIRED', gloss: null, drivenHere: true, sourceRef: 'STATE-A6-TRUSTEXPIRED · L41112' },
+  { id: 'STATE-A6-SKEWFLAGGED', gloss: null, drivenHere: true, sourceRef: 'STATE-A6-SKEWFLAGGED · L41112' },
 ] as const satisfies readonly A6State[]
 
-/** The five of seven this slice states rather than drives. Derived, never listed twice. */
+/**
+ * The states this build states rather than drives. Derived, never listed
+ * twice. It was five after slice 7 and is EMPTY now, and it is kept rather
+ * than deleted because an empty list is the assertion: a state added to the
+ * seven, or a state whose resolver branch is lost, lands here where the
+ * covering suite is looking.
+ */
 export const STATES_THIS_SLICE_ONLY_STATES: readonly A6State[] = A6_STATES.filter(
   (s) => !s.drivenHere,
 )
@@ -352,17 +364,21 @@ export const STATES_THIS_SLICE_ONLY_STATES: readonly A6State[] = A6_STATES.filte
  */
 export const A6_SLICE_BOUNDARY = {
   builtHere:
-    'This slice builds the identity, the permission matrix, every refusal the matrix carries, and ' +
-    'the connected path: the sync detail sheet, the manual sync convenience, and the capture states ' +
-    'the sheet reports.',
+    'This module is built in both halves. The identity, the permission matrix, every refusal the ' +
+    'matrix carries and the connected path came first: the sync detail sheet, the manual sync ' +
+    'convenience, and the capture states the sheet reports. The offline half followed: all seven ' +
+    'states on the four axes they sit on, the platform ceilings on the two bounded tenant settings, ' +
+    'the reconnect ladder walked over the thirty-seven-step protocol, package staging and pinning, ' +
+    'eviction, conflict routing under the skew guard, and reconciliation.',
   builtLater:
-    'The offline simulation, package staging, the reconnect ladder and convergence are the next ' +
-    'slice. Five of the seven states this module names are stated here and driven there, and this ' +
-    'sheet says which five rather than rendering seven and driving two.',
+    'Two of the twenty-eight functionalities are still not driven, and neither is an omission. ' +
+    'Storage-full behaviour is `Client Decision Required` under DEC-STORE-001 and no implementation ' +
+    'may close that silently; concurrent same-record editing is an excluded capability, so there is ' +
+    'nothing to run. Both are named on this sheet with the line that says so.',
   whyStatedNow:
     'Because a screen that renders only the connected path implies the safety layer needs a network, ' +
     'and that is the one claim this chapter exists to deny. The offline behaviour is on the card ' +
-    'above, in the source’s own words, in this slice.',
+    'above, in the source’s own words.',
   sourceRef: 'AC-FL-000-4 · L39099',
 } as const
 

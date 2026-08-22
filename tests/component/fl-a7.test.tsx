@@ -642,6 +642,251 @@ describe('the six persona columns on screen', () => {
   })
 })
 
+/* ==================================================================== *
+ * SLICE 8 — §34.7 ON SCREEN.
+ *
+ * The unit suite proves the classification matches the register. These
+ * prove the SCREEN does, and each expectation is parsed out of L78766-L78819
+ * at run time rather than compared to the shipped record.
+ * ==================================================================== */
+
+const registerCell = (line: number, index: number): string =>
+  at(cellsOf(line), index, `L${line} cell ${index}`)
+
+function nodesBy(testid: string): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>(`[data-testid="${testid}"]`))
+}
+
+/** The seven class names, parsed from the source's own table at L78723. */
+const CLASS_NAMES_FROM_SOURCE: readonly string[] = (() => {
+  const names: string[] = []
+  for (let n = 78_723; L(n).startsWith('|'); n += 1) names.push(at(cellsOf(n), 0, `L${n} class`))
+  return names
+})()
+
+describe('what §34.7 classifies this module’s functions as, on screen', () => {
+  // FAILS IF: a register row this module owns is missing from the screen, or
+  // one it does not own appears. The expected set of lines is found by
+  // walking the Module column of the source, never listed here.
+  //
+  // Planted: A7_REGISTER_ROWS sliced to four in the view's map. Went red
+  // naming the missing line.
+  it('renders every row whose Module cell names it, with its class and its own line', () => {
+    render(<A7ProfileLiteView column="Worker" />)
+    const rendered = nodesBy('fl-a7-register-row')
+
+    const expected: number[] = []
+    for (let n = 78_768; L(n).startsWith('|'); n += 1) {
+      if (registerCell(n, 1).includes('MOD-FL-A7')) expected.push(n)
+    }
+    expect(expected.length).toBeGreaterThan(0)
+    expect(rendered.map((node) => Number(node.dataset.line))).toEqual(expected)
+
+    for (const node of rendered) {
+      const line = Number(node.dataset.line)
+      const text = words(node)
+      expect(node.dataset.class, `L${line}`).toBe(registerCell(line, 2))
+      expect(text, `L${line} function`).toContain(registerCell(line, 0))
+      expect(text, `L${line} class`).toContain(registerCell(line, 2))
+      expect(text, `L${line} reason`).toContain(registerCell(line, 3))
+      expect(text, `L${line} locator`).toContain(`L${line}`)
+    }
+  })
+
+  // FAILS IF: the two rows filed Cross-module are not drawn, or the storage
+  // row is drawn as anything but named-and-not-restated. A module-labelled
+  // filter returns none of the three, so a screen that showed only the five
+  // would be a screen missing this module's own compliance stop.
+  //
+  // Planted: the DeviceStanding block rendered without OfflineClassification.
+  // Went red on the reach nodes.
+  it('draws the two rows it reaches and names the third without restating it', () => {
+    render(<A7ProfileLiteView column="Worker" />)
+    const reach = nodesBy('fl-a7-cross-module-reach')
+    expect(reach).toHaveLength(2)
+    for (const node of reach) {
+      const line = Number(node.dataset.line)
+      expect(registerCell(line, 1)).toBe('Cross-module')
+      expect(words(node)).toContain(registerCell(line, 0))
+      expect(words(node)).toContain(`L${line}`)
+    }
+    const storage = at(nodesBy('fl-a7-storage-row-not-restated'), 0, 'storage row')
+    expect(words(storage)).toContain(registerCell(78_819, 0))
+    // Named, and its four options are nowhere on this screen.
+    expect(words(document.body)).not.toContain('degrade capture fidelity')
+  })
+
+  // FAILS IF: the screen claims a class tally the register does not carry, or
+  // claims a row outside the seven. Both numbers come off the parsed rows.
+  //
+  // ONE PLANT, RUN THREE TIMES, GREEN TWICE. A7_ROWS_UNDER_AC_OFF_702
+  // filtered on 'Blocked offline' instead of 'Fully available offline':
+  //   1. the check asserted only that the two identifiers appeared — green;
+  //   2. the check asserted the COUNT — still green, because this module has
+  //      two rows of each class and the number was true of the defect and of
+  //      the fix alike, which is the position-check trap this build records;
+  //   3. the check asserts the LINES — red.
+  // The number was never the claim. Which rows they are is.
+  it('states the tally and the two criteria, with the rows each governs', () => {
+    render(<A7ProfileLiteView column="Worker" />)
+    const tally = words(at(nodesBy('fl-a7-register-tally'), 0, 'tally'))
+
+    const lines = [78_800, 78_801, 78_802, 78_803, 78_804, 78_817, 78_818]
+    const counts = new Map<string, number>()
+    for (const line of lines) {
+      const klass = registerCell(line, 2)
+      counts.set(klass, (counts.get(klass) ?? 0) + 1)
+    }
+    for (const [klass, n] of counts) expect(tally, klass).toContain(`${klass} ${n}`)
+
+    // The two criteria are about NUMBERS of rows, so the numbers are read.
+    const outsideTheSeven = lines.filter(
+      (n) => !CLASS_NAMES_FROM_SOURCE.includes(registerCell(n, 2)),
+    )
+    const fullyAvailable = lines.filter((n) => registerCell(n, 2) === 'Fully available offline')
+    expect(fullyAvailable.length).toBeGreaterThan(0)
+    expect(tally).toContain(`${outsideTheSeven.length} of them carries a class outside the seven`)
+    // THE LINES AND NOT THE COUNT. The first version of this check compared
+    // counts, and the plant that filtered AC-OFF-702's set on 'Blocked
+    // offline' stayed green: this module has two rows of each class, so the
+    // number was true of the defect and of the fix alike.
+    expect(tally).toContain(
+      `governs are ${fullyAvailable.map((n) => `L${n}`).join(' and ')}`,
+    )
+    const blocked = lines.filter((n) => registerCell(n, 2) === 'Blocked offline')
+    expect(blocked).toHaveLength(fullyAvailable.length)
+    expect(blocked).not.toEqual(fullyAvailable)
+    expect(L(78_832)).toContain('AC-OFF-702')
+  })
+
+  // FAILS IF: the one functionality the register classifies nowhere is not
+  // disclosed, or is disclosed with an answer. Both readings must be on the
+  // screen and neither may be marked the answer.
+  //
+  // Planted: the block's readings map sliced to one. Went red on the count.
+  it('discloses the functionality no register row classifies, with both readings', () => {
+    render(<A7ProfileLiteView column="Worker" />)
+    const block = at(nodesBy('fl-a7-unclassified-functionality'), 0, 'unclassified block')
+    expect(block.dataset.functionality).toBe('FUNC-A7-04-1-1')
+    const text = words(block)
+    expect(text).toContain('AC-OFF-701')
+    expect(text).toContain('L41376')
+    expect(text).toContain('Neither reading is chosen')
+    expect(text).not.toMatch(/\bthe answer is\b/i)
+  })
+})
+
+describe('row 9 as a behaviour, on screen', () => {
+  // FAILS IF: a state of L41315 is missing from the standing list, or hard
+  // suspension is drawn as a stop for work already running. The seven come
+  // from the source's own line and the pair of answers from the render.
+  //
+  // Planted: STATE-A7-HARDSUSP's in-flight answer flipped to 'no' in
+  // offline.ts. Went red here and in the unit suite.
+  it('draws all seven states, and hard suspension does not stop work already running', () => {
+    render(<A7ProfileLiteView column="Worker" />)
+    const standings = nodesBy('fl-a7-standing')
+    const states = standings.map((n) => n.dataset.state ?? '')
+    expect(states).toHaveLength(7)
+    for (const state of states) expect(cellsOf(41_315).join(' '), state).toContain(state)
+
+    const hard = at(
+      standings.filter((n) => n.dataset.state === 'STATE-A7-HARDSUSP'),
+      0,
+      'hard suspension',
+    )
+    expect(hard.dataset.newRuns).toBe('no')
+    expect(hard.dataset.inFlight).toBe('yes')
+    const soft = at(
+      standings.filter((n) => n.dataset.state === 'STATE-A7-SOFTSUSP'),
+      0,
+      'soft suspension',
+    )
+    expect(soft.dataset.newRuns).toBe('yes')
+    const lock = at(
+      standings.filter((n) => n.dataset.state === 'STATE-A7-COMPLIANCELOCK'),
+      0,
+      'compliance lock',
+    )
+    expect(lock.dataset.inFlight).toBe('no')
+  })
+
+  // FAILS IF: an expired trust window safe-stops a state the register does
+  // not put the window on. The boundary is parsed: a state's own register row
+  // carries L78817's expiry text, or it does not.
+  //
+  // Planted: the view rendered with a fixed trustWindow of 'expired'. Went
+  // red on the valid pass, where every safe-stop flag must be false.
+  it('safe-stops on an expired window only where the register puts the window', () => {
+    const window = registerCell(78_817, 5)
+    const governed = new Map<string, boolean>([
+      ['STATE-A7-NORMAL', registerCell(78_804, 5) === window],
+      ['STATE-A7-SOFTSUSP', registerCell(78_804, 5) === window],
+      ['STATE-A7-HARDSUSP', registerCell(78_804, 5) === window],
+      ['STATE-A7-COMPLIANCELOCK', registerCell(78_804, 5) === window],
+      ['STATE-A7-PINLOCK', registerCell(78_801, 5) === window],
+      ['STATE-A7-WIPEPENDING', registerCell(78_803, 5) === window],
+      ['STATE-A7-WIPED', registerCell(78_803, 5) === window],
+    ])
+    expect([...governed.values()].filter(Boolean)).toHaveLength(4)
+
+    const valid = render(<A7ProfileLiteView column="Worker" />)
+    for (const node of nodesBy('fl-a7-standing')) {
+      expect(node.dataset.safeStop, node.dataset.state).toBe('false')
+    }
+    valid.unmount()
+
+    render(<A7ProfileLiteView column="Worker" trustWindow="expired" />)
+    for (const node of nodesBy('fl-a7-standing')) {
+      const state = node.dataset.state ?? ''
+      expect(node.dataset.safeStop, state).toBe(String(governed.get(state)))
+    }
+    const stopped = at(
+      nodesBy('fl-a7-standing').filter((n) => n.dataset.state === 'STATE-A7-HARDSUSP'),
+      0,
+      'hard suspension expired',
+    )
+    expect(words(stopped)).toContain(registerCell(78_817, 8))
+  })
+
+  // FAILS IF: the five verbs are drawn as sharing one class, or a verb the
+  // register classifies nowhere is drawn with one. The classes come off the
+  // source lines each verb is mapped to.
+  //
+  // Planted: 'compute summaries' mapped to 78_780 in offline.ts. Went red on
+  // the "classified by no row" assertion.
+  it('shows that the five verbs do not share one class', () => {
+    render(<A7ProfileLiteView column="Worker" />)
+    const verbs = nodesBy('fl-a7-verb')
+    expect(verbs.map((n) => n.dataset.verb)).toEqual([
+      'complete',
+      'capture',
+      'sync',
+      'compute summaries',
+      'close',
+    ])
+
+    const complete = at(verbs.filter((n) => n.dataset.verb === 'complete'), 0, 'complete')
+    expect(complete.dataset.classes).toBe(
+      [registerCell(78_780, 2), registerCell(78_781, 2)].join(' | '),
+    )
+    expect(registerCell(78_780, 2)).not.toBe(registerCell(78_781, 2))
+
+    const summaries = at(
+      verbs.filter((n) => n.dataset.verb === 'compute summaries'),
+      0,
+      'compute summaries',
+    )
+    expect(summaries.dataset.classes).toBe('')
+    expect(words(summaries)).toContain('classified by no row of the register')
+
+    // And L78781's own Function cell never reaches the screen: it names a
+    // state L39622 says does not exist.
+    expect(registerCell(78_781, 0)).toMatch(/\bsynced\b/i)
+    expect(words(document.body)).not.toContain(registerCell(78_781, 0))
+  })
+})
+
 /** Referenced so a column rename fails to compile here too, not only in src. */
 const _columnTypeIsUsed: A7Column = 'Platform roles'
 void _columnTypeIsUsed

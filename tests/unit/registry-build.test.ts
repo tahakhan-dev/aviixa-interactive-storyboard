@@ -446,3 +446,148 @@ describe('D10 — both Studio feature schemes, mapped once, in one table', () =>
     expect(note()).toMatch(/absent from this build's identifier index/)
   })
 })
+
+/**
+ * OWNERSHIP, NOT MENTION — the sentence the header of `modules.json` has
+ * always carried, and which was FALSE OF THE GENERATOR for a whole slice.
+ *
+ * The dedup note says a route is awarded "ownership, not mention, so a screen
+ * cross-referencing a neighbour does not demonstrate it". The code did not do
+ * that. The walk ran argmax over every route directory and awarded its winner
+ * UNCONDITIONALLY; the slug rule then awarded the claimant on top. So a route
+ * claimed by a slug handed itself to two modules — its owner, and whichever
+ * module its files happened to name most.
+ *
+ * It shipped. `MOD-CC-02` is Command Center chrome. It declares `slug: null`
+ * deliberately, because the source gives it no screen of its own and
+ * `AC-CC-040` forbids a fourteenth module route. It is named once inside
+ * `app/command-center/sync-conflict-review-panel/`, the route `MOD-CC-10`
+ * claims by slug, as the chrome mounted into that screen. Being the only id
+ * that file mentioned, it won the argmax outright and read
+ * `demonstrated-in-storyboard` off a route it does not have. The inventory
+ * reported 58 demonstrated modules where 57 are.
+ *
+ * Nothing caught it because nothing tested the award rule at all — the
+ * freshness gate compares the committed file to a fresh generation, so a
+ * generator that is consistently wrong is consistently green.
+ */
+describe('module route awards — ownership, not mention', () => {
+  /** `MOD-* -> declared slug`, parsed the way the generator parses it. */
+  const declaredSlugs = (): Map<string, string | null> => {
+    const out = new Map<string, string | null>()
+    const walk = (dir: string): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (isForeignProbe(e.name)) continue
+        if (e.isDirectory()) walk(join(dir, e.name))
+        else if (e.name === 'modules.ts') {
+          const text = readFileSync(join(dir, e.name), 'utf8')
+          for (const m of text.matchAll(/\bid:\s*'(MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+))'([\s\S]*?)(?=\bid:\s*'MOD-|$)/g)) {
+            const [, id, body] = m
+            if (id === undefined || body === undefined) continue
+            const slug = /\bslug:\s*'([^'\\]+)'/.exec(body)
+            out.set(id, slug?.[1] ?? null)
+          }
+        }
+      }
+    }
+    walk(join(process.cwd(), 'src'))
+    return out
+  }
+
+  // FAILS IF: a module is demonstrated by a route that another module claims
+  // by slug and it does not claim itself.
+  //
+  // Planted: the `SLUG_CLAIMED_DIRS.has(...)` guard removed from the argmax
+  // award loop in `scripts/build-registries.mjs`, restoring the exact defect.
+  // Went red naming MOD-CC-02 and the route. Restored byte-identically.
+  it('does not award a slug-claimed route to a module merely mentioned inside it', () => {
+    const slugs = declaredSlugs()
+    expect(slugs.size, 'no modules.ts was parsed — the walk is broken').toBeGreaterThan(50)
+
+    const claimedDirs = new Map<string, string>() // route dir name -> claimant id
+    for (const [id, slug] of slugs) {
+      if (slug === null) continue
+      claimedDirs.set(slug, id)
+    }
+
+    const status = new Map<string, string>(
+      (fresh('modules').rows as { id: string; status: string }[]).map((r) => [r.id, r.status]),
+    )
+
+    /**
+     * Every route directory no slug claims. A slugless module can be
+     * demonstrated LEGITIMATELY by winning the argmax on one of these — which
+     * is the whole point of the argmax rule — so being mentioned inside a
+     * claimed route only convicts a module that has no unclaimed route of its
+     * own. `MOD-FL-A1` is the live case: it declares no slug because `sign-in`
+     * exists on two surfaces, and it is demonstrated by
+     * `app/frontline/sign-in/`, which nothing claims. The first form of this
+     * test flagged it, and its own failure message said "only mentioned
+     * inside", which the check never established.
+     */
+    const unclaimedMentions = new Set<string>()
+    const collectUnclaimed = (dir: string): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (isForeignProbe(e.name) || !e.isDirectory()) continue
+        const full = join(dir, e.name)
+        if (!claimedDirs.has(e.name)) {
+          for (const f of readdirSync(full, { withFileTypes: true })) {
+            if (f.isDirectory() || !/\.tsx?$/.test(f.name)) continue
+            for (const id of readFileSync(join(full, f.name), 'utf8').match(/MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+)/g) ?? []) {
+              unclaimedMentions.add(id)
+            }
+          }
+        }
+        collectUnclaimed(full)
+      }
+    }
+    collectUnclaimed(join(process.cwd(), 'app'))
+
+    const offenders: string[] = []
+    const walkRoutes = (dir: string): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (isForeignProbe(e.name)) continue
+        if (!e.isDirectory()) continue
+        const full = join(dir, e.name)
+        const claimant = claimedDirs.get(e.name)
+        if (claimant !== undefined) {
+          const mentioned = new Set<string>()
+          for (const f of readdirSync(full, { withFileTypes: true })) {
+            if (f.isDirectory() || !/\.tsx?$/.test(f.name)) continue
+            for (const id of readFileSync(join(full, f.name), 'utf8').match(/MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+)/g) ?? []) {
+              mentioned.add(id)
+            }
+          }
+          for (const id of mentioned) {
+            // Only a module that claims NO route of its own can have taken its
+            // status from here. One that declares a slug is demonstrated by
+            // its own directory and this route says nothing either way.
+            if (id === claimant) continue
+            if (slugs.get(id) != null) continue
+            if (unclaimedMentions.has(id)) continue
+            if (status.get(id) === 'demonstrated-in-storyboard') {
+              offenders.push(`${id} reads demonstrated and is only mentioned inside ${e.name}, which ${claimant} claims`)
+            }
+          }
+        }
+        walkRoutes(full)
+      }
+    }
+    walkRoutes(join(process.cwd(), 'app'))
+    expect(offenders).toEqual([])
+  })
+
+  // FAILS IF: MOD-CC-02 ever gains a route. It is chrome; the source gives it
+  // no screen and AC-CC-040 caps the surface at thirteen module routes.
+  it('keeps MOD-CC-02 slugless and unrouted, because it is chrome', () => {
+    const slugs = declaredSlugs()
+    // `.get() ?? 'ABSENT'` cannot express this: `??` fires on the very null
+    // the assertion is looking for, so a correctly-slugless module and an
+    // unparsed one read the same. Absence and `slug: null` are different
+    // facts and this checks both.
+    expect(slugs.has('MOD-CC-02'), 'MOD-CC-02 was not parsed from any modules.ts').toBe(true)
+    expect(slugs.get('MOD-CC-02')).toBeNull()
+    const row = (fresh('modules').rows as { id: string; status: string }[]).find((r) => r.id === 'MOD-CC-02')
+    expect(row?.status).toBe('not-represented')
+  })
+})

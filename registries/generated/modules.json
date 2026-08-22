@@ -3,7 +3,7 @@
   "countedThing": "canonical modules -- the 81-row inventory the frozen source fixes per surface (19 Super Admin + 19 Delivery Operations Hub + 18 Studio + 13 Command Center + 12 Frontline), never the raw extraction key count. 63 source-defined + 18 derived (DEC-STUDIO-001) = 81; the 18 Studio modules may never be presented as source-backed.",
   "reconciledCount": 81,
   "rawCount": 92,
-  "dedupRule": "92 raw MOD-* keys across the 36 extraction chunks -> 82 well-formed identifiers (matching /^MOD-(DOH|CC|FL|SA|STU)-(\\d{2}|[AB]\\d+)$/), excluding 6 placeholder \"unnumbered\"/\"unstated\" keys and 4 range-expression artefacts (\"MOD-SA-01..MOD-SA-19\" etc.) -> 81 canonical modules, excluding MOD-SA-20 -- an alias-by-denial for a diligence narrative the source explicitly says is not a module (source-reconciliation.json). Status is computed from the built route tree, never from a list: 56 of 81 rows read demonstrated-in-storyboard because the module declares a `slug` and a shipped route directory of that name exists under app/ (55 rows), or, for a route no module claims by slug, because the route directory names that module id more often than any other module id it mentions -- ownership, not mention, so a screen cross-referencing a neighbour does not demonstrate it, and a tie throws rather than resolving silently. The declared slug is read first because argmax alone awarded a shared screen to whichever module it mentioned most, so a module that owns a route and shares the screen with its host read not-represented while owning it; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
+  "dedupRule": "92 raw MOD-* keys across the 36 extraction chunks -> 82 well-formed identifiers (matching /^MOD-(DOH|CC|FL|SA|STU)-(\\d{2}|[AB]\\d+)$/), excluding 6 placeholder \"unnumbered\"/\"unstated\" keys and 4 range-expression artefacts (\"MOD-SA-01..MOD-SA-19\" etc.) -> 81 canonical modules, excluding MOD-SA-20 -- an alias-by-denial for a diligence narrative the source explicitly says is not a module (source-reconciliation.json). Status is computed from the built route tree, never from a list: 57 of 81 rows read demonstrated-in-storyboard because the module declares a `slug` and a shipped route directory of that name exists under app/ (56 rows), or, for a route no module claims by slug, because the route directory names that module id more often than any other module id it mentions -- ownership, not mention, so a screen cross-referencing a neighbour does not demonstrate it, and a tie throws rather than resolving silently. The declared slug is read first because argmax alone awarded a shared screen to whichever module it mentioned most, so a module that owns a route and shares the screen with its host read not-represented while owning it; every other row reads not-represented. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": false,
   "rows": [
     {
@@ -90,7 +90,7 @@
     {
       "id": "MOD-CC-10",
       "sourceLine": 2438,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "label": "The Sync-Conflict Review Panel",
       "surface": "SURF-CC",
       "purpose": "Reviews offline sync conflicts; the worker never sees or resolves a conflict.",
