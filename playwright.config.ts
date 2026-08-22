@@ -4,7 +4,13 @@ import { defineConfig, devices } from '@playwright/test'
 // Spec section 5.1 and master prompt section 4.2.
 export default defineConfig({
   testDir: './tests',
-  testMatch: ['e2e/**/*.spec.ts', 'accessibility/**/*.spec.ts'],
+  // Top-level testMatch is the union of every project's, because a file no
+  // project matches is silently not run. Per-project `testMatch` below is what
+  // decides which project runs which — the screenshot capture is deliberately
+  // NOT part of `pnpm test:e2e`, because it writes a deliverable rather than
+  // proving a property, and coupling a 90-second artefact build to the gate
+  // that must stay fast is how a gate stops being run.
+  testMatch: ['e2e/**/*.spec.ts', 'accessibility/**/*.spec.ts', 'screenshots/**/*.spec.ts'],
   fullyParallel: true,
   // Slice 3. Playwright's 30s default is sized for a page, not for an axe
   // sweep of a 724-row table under four parallel workers alongside nineteen
@@ -25,7 +31,18 @@ export default defineConfig({
     baseURL: 'http://localhost:4173',
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: ['e2e/**/*.spec.ts', 'accessibility/**/*.spec.ts'],
+    },
+    {
+      name: 'screenshots',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: ['screenshots/**/*.spec.ts'],
+    },
+  ],
   /**
    * SERVED FROM A SNAPSHOT, NOT FROM `out/`, AND THAT IS A CONCURRENCY FIX.
    *
