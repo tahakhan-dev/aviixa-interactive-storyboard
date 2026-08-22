@@ -356,3 +356,38 @@ Two consequences worth knowing before you hit them:
   than widening the constant back, which restores exactly what the gate rejects.
 - **A tuple of heterogeneous literal objects does not assign to a `readonly (A | B | …)[]`
   parameter.** Spread at the call site.
+
+## `DEC-STORE-001` has TWO option sets, in two chapters, and they disagree
+
+Task 10 found this and the controller verified it. It is the second decision in this slice
+whose own source states it more than one way, after the hold-state claim's three
+classifications — and it is a different failure: not three classifications of one reading, but
+**two different readings of what the options even are.**
+
+| where | how many | what |
+|---|---|---|
+| **L79469**, §35.5 | **four** — (a) hard stop at a reserved-capacity threshold, (b) degrade capture fidelity, (c) refuse only optional content, (d) block new run entry | recommended order layers (c) → (d) → (a) at L79470 |
+| **L40116**, `FB-FL-STORE-01` | **three** | recommends (b) + (c) with (a) terminal |
+| decision owner | **and they name different owners** | L40116 says the client through the Frontline Functional Specification; L79472 says the client's product owner with the Quality Manager function |
+
+**This brief said three and cited the wrong chapter for them.** Carry both sets with both
+locators, record that the option sets themselves diverge, and choose neither. A build that
+picks one has answered a question the source asks twice and never settles.
+
+**And `DEC-STORE-001` appears SIX times inside §35.5**, not three: L79439, L79466, L79488,
+L79490 (terminal safe state), L79500 (`AC-PKG-505`) and L79510 (source classification).
+**Four modules already hold a record for it** — `MOD-FL-A2`, `MOD-FL-A4`, `MOD-FL-A6` and
+`stu-14/rendering.ts` — so a fifth spelling is what a later task must not write.
+
+## The unresolved-marker rule is `AC-FL-011-5`, not `AC-FL-006-1`
+
+**L40155:** "`DEC-STORE-001` and `DEC-WIPE-001` remain visibly open; no implementation may close
+them silently." That is the rule this slice keeps invoking. **`AC-FL-006-1` (L39634) is a
+different rule** — it governs the nine-field capture envelope recording unresolved *provenance*
+as an explicit marker. Both are real; only one says an open decision stays open.
+
+## §35.4 pairs five acceptance criteria with four tests
+
+`TEST-PKG-405` occurs **zero times in all 122,241 lines**, measured. §35.3 and §35.5 both pair
+five with five, so the asymmetry is this section's and not a truncated transcription. Carry it
+as a source gap.
