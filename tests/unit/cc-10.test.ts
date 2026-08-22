@@ -1161,23 +1161,27 @@ describe('MOD-CC-10 — the action rail belongs on this screen, and the seam sti
   })
 
   /**
-   * THE SEAM REGISTRY IS STALE AND IT IS NOT THIS TASK'S TO CORRECT.
-   * `ccSeamStatus` derives from `ownerSlice <= THIS_SLICE`, and
-   * `src/surfaces/cc/seams.ts` still declares `THIS_SLICE = 8` while both of
-   * its rows name `ownerSlice: 9`. `MOD-CC-13` has landed — its rail is the
-   * component this screen mounts — so the seam reads `open` beside a closed
-   * seam's component. Reported rather than edited, and stated on screen so
-   * the contradiction is not rendered silently.
+   * THE FIFTH FILE THAT PINNED THE STALE SEAM VALUE, AND THE ONE THE FIX
+   * COULD NOT REACH. The predecessor asserted `THIS_SLICE = 8` as a literal
+   * string and `ccSeamStatus` as `'open'`, so it could only ever fail on the
+   * correction — which is precisely what it did, and why the seam read `open`
+   * beside its own landed component for a whole slice while four suites
+   * stayed green. Its doc comment said "THIS GATE GOES RED THE DAY THE SEAM
+   * FILE IS CORRECTED, which is the point": the intent was right and the
+   * implementation is what hid the defect.
    *
-   * THIS GATE GOES RED THE DAY THE SEAM FILE IS CORRECTED, which is the
-   * point: the note on screen must be removed in the same change.
+   * THE SUCCESSOR NAMES NO SLICE NUMBER. What is asserted is the derivation —
+   * a row whose owning half is built has been reached by it — and the
+   * rendered consequence on this screen. That is true whatever the constant
+   * reads and false whenever the constant and the row disagree, so it holds
+   * through slice 11 and beyond without another hand edit.
    */
-  it('the operational-action-set seam still reports open, and the panel says so', () => {
+  it('the operational-action-set seam is reached by the derivation, and the panel agrees', () => {
     expect(CC10_SEAM.ownerSlice).toBe(9)
-    expect(CC10_SEAM_STATUS).toBe('open')
+    expect(CC10_SEAM_STATUS).toBe('closed')
     expect(
       readFileSync(join(process.cwd(), 'src', 'surfaces', 'cc', 'seams.ts'), 'utf8'),
-    ).toContain('const THIS_SLICE = 8')
+    ).toContain('return seam.ownerSlice <= THIS_SLICE')
     expect(CC10_ACTION_RAIL_MOUNT.seamStillReadsOpen).toContain('has landed')
   })
 })

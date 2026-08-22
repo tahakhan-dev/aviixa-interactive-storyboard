@@ -212,6 +212,18 @@ export const REASON_CODES = {
     'A safety control refuses this. It is fixed by the platform, and no role, surface or override reaches past it.',
   DECISION_OPEN:
     'An open client decision governs this behaviour, so the storyboard will not pretend to know the answer.',
+  /**
+   * The one outcome of the nine with no fitting reason code, and it needed
+   * one rather than a borrowed one. A permission matrix may state
+   * `Unavailable` and name no cause at all — 43 of 45A.7 Matrix B's 110
+   * cells do, and L99262 is five of them. Reporting that as
+   * OBJECT_STATE_INVALID or FEATURE_DISABLED would name a cause the source
+   * did not, which is the wrong-subject error this build has made before.
+   * The cause is the matrix, so the code says so and the cell's own words
+   * are carried in the explanation beside it.
+   */
+  MATRIX_STATES_UNAVAILABLE:
+    'The permission matrix for this operation states this column as unavailable, and the cell’s own words are shown beside it.',
   NOT_APPLICABLE:
     'This capability does not apply in this situation, for the reason stated.',
   CONDITIONS_APPLY:
