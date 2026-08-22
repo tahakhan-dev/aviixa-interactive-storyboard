@@ -21,7 +21,14 @@
  * the two more often to win an argmax would have been manufacturing the
  * evidence, so the claim is declared here instead.
  *
- * SIX SLUGS FOR SIX DESTINATIONS, AND SIX MODULES THAT CLAIM NONE. §25.5's
+ * FIVE SLUGS FOR SIX DESTINATIONS, AND SEVEN MODULES THAT CLAIM NONE.
+ * This paragraph said "six and six" until `tests/coverage/slice-07-gates.test.ts`
+ * counted the declarations: five modules declare a slug and seven declare
+ * `null`. The sixth destination is Login, which `MOD-FL-A1` owns and cannot
+ * claim, because `sign-in` is a directory basename `app/studio/sign-in`
+ * already uses and the generator refuses a claim it cannot resolve. It is
+ * awarded by the argmax rule instead. Five claims, seven abstentions, six
+ * destinations, twelve modules. §25.5's
  * register (L48529-L48534) is what decides it, column by column, and the
  * `Modules and features shown` column is the one that matters:
  *

@@ -133,6 +133,35 @@ const AUDITED = {
       'compares against. Contrast registry-freshness, which compared committed artefacts to ' +
       'freshly generated ones and could only ever compare a directory to itself.',
   },
+  'slice-07-absence-sweep.test.ts': {
+    subject:
+      'out/frontline/**/index.html and out/_next/static/**, against the frozen blueprint and ' +
+      'the routes authored under app/frontline',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS. `build` writes the subject and runs first, which is the arrangement this ' +
+      'audit exists to catch. What makes it safe is that no expectation is read back out of ' +
+      'out/: every one of the twenty exempt strings is pinned to a line of the frozen ' +
+      'blueprint whose sha256 the suite asserts, and the route population comes from ' +
+      'app/frontline as authored. The build cannot satisfy this gate by rewriting what the ' +
+      'gate compares against. Reading the FRESH out/ is the whole point -- the claim is about ' +
+      'what shipped, and the sweep was watched red against a real pnpm build with a pace ' +
+      'figure injected into a module source.',
+  },
+  'slice-07-gates.test.ts': {
+    subject:
+      'the frozen blueprint at run time, compared against src/frontline/** as authored -- the ' +
+      'twelve module transcriptions, the wave-0 shared representations, the module spine, and ' +
+      'app/frontline/ as a route-directory listing',
+    rewrittenBy: null,
+    verdict:
+      'NOT VACUOUS. Neither end is written by any verify step: the blueprint is read-only input ' +
+      'and its sha256 is asserted here, and nothing in verify writes src/ or app/. This gate ' +
+      'reads out/ nowhere at all -- every count it makes is parsed out of the frozen source and ' +
+      'compared against an authored transcription, so `build` cannot satisfy it by rewriting ' +
+      'anything. The route check lists app/frontline/ (authored), never out/frontline/ (built).',
+  },
   'hook-config.test.ts': {
     subject:
       'docs/process/claude-hooks/{CLAUDE.md,settings.json} (committed copies) and the live ' +
