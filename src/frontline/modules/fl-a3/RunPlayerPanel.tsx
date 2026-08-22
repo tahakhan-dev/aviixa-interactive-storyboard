@@ -216,7 +216,7 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
       </p>
 
       {/* THE IDENTITY CARD. */}
-      <section aria-label="The module card" className="space-y-3">
+      <div className="space-y-3">
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">The module card</h4>
         <dl className="space-y-3">
           {A3_CARD.map((s) => (
@@ -231,10 +231,10 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
             </div>
           ))}
         </dl>
-      </section>
+      </div>
 
       {/* THE PLAYER STATES AND THE TWO INVENTORIES. */}
-      <section aria-label="Player states" className="space-y-2">
+      <div className="space-y-2">
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           The eight player states <Locator>L40545</Locator>
         </h4>
@@ -266,10 +266,10 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
             ))}
           </ul>
         </div>
-      </section>
+      </div>
 
       {/* THE FORWARD DRIVE. */}
-      <section aria-label="The forward drive" className="space-y-2">
+      <div className="space-y-2">
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           The forward drive <Locator>L40549-L40561</Locator>
         </h4>
@@ -287,10 +287,10 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
             </li>
           ))}
         </ol>
-      </section>
+      </div>
 
       {/* THE MATRIX, THROUGH THE FOLD. */}
-      <section aria-label="Permission matrix" className="space-y-3">
+      <div className="space-y-3">
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           What this screen draws for {A3_COLUMN_HEADINGS[column]}{' '}
           <Locator>{`header L${A3_SHAPE.headerLine} · rows L${A3_SHAPE.firstDataLine}-L${A3_SHAPE.lastDataLine}`}</Locator>
@@ -305,10 +305,10 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
             <MatrixRow key={row.id} row={row} column={column} />
           ))}
         </ul>
-      </section>
+      </div>
 
       {/* THE FINISH DECLARATION. */}
-      <section aria-label="The finish declaration" className={`${CARD} space-y-2`}>
+      <div className={`${CARD} space-y-2`}>
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           The finish declaration <Locator>SCR-FL-16 L39878</Locator>
         </h4>
@@ -327,10 +327,10 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
           {held.name} is a local event and happens with the network gone.{' '}
           {captureStateLine('queued')} {queued.reason} <Locator>{queued.sourceRef}</Locator>
         </p>
-      </section>
+      </div>
 
       {/* THE DIFFICULTY LEVEL AND ITS SUBSTITUTION NOTICE. */}
-      <section aria-label="Work-instruction difficulty level" className="space-y-3">
+      <div className="space-y-3">
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           The rendered difficulty level <Locator>FUNC-A3-04-1-1 L40622</Locator>
         </h4>
@@ -354,10 +354,10 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
             canon’s renderer. <Locator>L39889 · L39960 · L41162 · L41276</Locator>
           </p>
         </div>
-      </section>
+      </div>
 
       {/* THE CAPTURE-BEARING STEP. */}
-      <section aria-label="The capture-bearing step" className="space-y-3">
+      <div className="space-y-3">
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           The capture-bearing step <Locator>L40553 · FUNC-A3-01-1-1 L40600</Locator>
         </h4>
@@ -370,10 +370,10 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
           adopted position rather than a source ruling, and it is disclosed as one.
         </p>
         <DecisionDisclosure id="DEC-CAP-001" />
-      </section>
+      </div>
 
       {/* THE FALLBACK OBLIGATION. */}
-      <section aria-label="Fallback patterns" className="space-y-3">
+      <div className="space-y-3">
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           Fallback patterns <Locator>AC-FL-011-1 L40151</Locator>
         </h4>
@@ -405,10 +405,10 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
           prohibition has no failure mode. AC-FL-011-1 asks every functionality to name at
           least one pattern, so this is reported rather than resolved by assigning them one.
         </p>
-      </section>
+      </div>
 
       {/* THE EIGHTEEN FUNCTIONALITIES. */}
-      <section aria-label="Functionalities" className="space-y-2">
+      <div className="space-y-2">
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           The {A3_FUNCTIONALITIES.length} functionalities <Locator>L40598-L40634</Locator>
         </h4>
@@ -421,10 +421,10 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       {/* THE ACCEPTANCE CRITERIA. */}
-      <section aria-label="Acceptance criteria" className="space-y-2">
+      <div className="space-y-2">
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           Acceptance criteria <Locator>L40673-L40681</Locator>
         </h4>
@@ -436,7 +436,7 @@ export function RunPlayerSpine({ column = 'worker' }: { readonly column?: A3Colu
             </li>
           ))}
         </ul>
-      </section>
+      </div>
     </div>
   )
 }

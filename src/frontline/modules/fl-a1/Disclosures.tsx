@@ -40,10 +40,9 @@ export function A1DestinationCard({ viewing }: { readonly viewing: FrontlineSlug
   const d = flDestinationBySlug(viewing)
   const c = d.contested
   return (
-    <section
+    <div
       data-testid="fl-a1-destination"
       data-slug={d.slug}
-      aria-label={`${d.name} — destination and screen identifier`}
       className={`${CARD} space-y-2`}
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">{d.name}</h2>
@@ -68,7 +67,7 @@ export function A1DestinationCard({ viewing }: { readonly viewing: FrontlineSlug
           the plain name “{d.slug}”.
         </p>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -82,7 +81,7 @@ export function A1CharterCard({
   const statements =
     ids === undefined ? A1_CHARTER_STATEMENTS : ids.map((id) => a1CharterStatement(id))
   return (
-    <section data-testid="fl-a1-charter" aria-label={heading} className={`${CARD} space-y-3`}>
+    <div data-testid="fl-a1-charter" className={`${CARD} space-y-3`}>
       <h2 className="text-base font-semibold text-[var(--color-ink)]">{heading}</h2>
       <dl className="space-y-3">
         {statements.map((s) => (
@@ -97,7 +96,7 @@ export function A1CharterCard({
           </div>
         ))}
       </dl>
-    </section>
+    </div>
   )
 }
 
@@ -114,9 +113,8 @@ export function A1CharterCard({
  */
 export function A1ComplianceMessageReadings() {
   return (
-    <section
+    <div
       data-testid="fl-a1-compliance-message"
-      aria-label="The fixed compliance-suspension message, in both source wordings"
       className={`${DASHED} space-y-3`}
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -150,7 +148,7 @@ export function A1ComplianceMessageReadings() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
@@ -165,9 +163,8 @@ export function A1ComplianceMessageReadings() {
  */
 export function A1OpenDecisions() {
   return (
-    <section
+    <div
       data-testid="fl-a1-decisions"
-      aria-label="Open decisions this module discloses"
       className="space-y-4"
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -205,7 +202,7 @@ export function A1OpenDecisions() {
           </p>
         </div>
       ))}
-    </section>
+    </div>
   )
 }
 
@@ -216,9 +213,8 @@ export function A1OpenDecisions() {
  */
 export function A1FallbackContract() {
   return (
-    <section
+    <div
       data-testid="fl-a1-fallbacks"
-      aria-label="Fallback patterns and AC-FL-011-1"
       className={`${CARD} space-y-3`}
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -252,7 +248,7 @@ export function A1FallbackContract() {
           ? `All ${A1_FUNCTIONALITIES.length} functionalities of this module name at least one FB-FL-* pattern, which is what AC-FL-011-1 (L40151) requires.`
           : `AC-FL-011-1 (L40151) requires every functionality to name at least one FB-FL-* pattern. ${A1_FUNCTIONALITIES_NAMING_NO_PATTERN.join(', ')} names none: its Fallback clause reads “Not applicable — session preservation is a local invariant with no external dependency.” (L40279). Its neighbour FUNC-A1-03-1-3 opens with the same words and then names FB-FL-CORE-01 inside them (L40271), so the source supplies one from inside that construction where it has one to supply. Nothing is assigned here to close the gap, because assigning a plausible pattern would make the criterion pass against an invented fact.`}
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -273,9 +269,8 @@ export function A1OfflineStanding({ viewing }: { readonly viewing: FrontlineSlug
   const cachedRead = frontlineConnectivityTreatment({ kind: 'cached-read' })
 
   return (
-    <section
+    <div
       data-testid="fl-a1-offline"
-      aria-label="What this screen does with no connection"
       className={`${CARD} space-y-2`}
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -293,6 +288,6 @@ export function A1OfflineStanding({ viewing }: { readonly viewing: FrontlineSlug
         cached authority. That is a step named, not a denial.{' '}
         <span className="text-xs text-[var(--color-ink-subtle)]">[L40222, L40224, L40307]</span>
       </p>
-    </section>
+    </div>
   )
 }

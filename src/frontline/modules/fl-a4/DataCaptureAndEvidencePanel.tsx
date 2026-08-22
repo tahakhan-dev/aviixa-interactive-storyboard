@@ -177,7 +177,7 @@ export function DataCaptureAndEvidencePanel({
 
   return (
     <div className="space-y-8">
-      <section aria-label="What this module is">
+      <div>
         <dl className="space-y-3">
           {FLA4_CHARTER_STATEMENTS.map((s) => (
             <div key={s.id} data-testid="fla4-charter-statement">
@@ -189,9 +189,9 @@ export function DataCaptureAndEvidencePanel({
             </div>
           ))}
         </dl>
-      </section>
+      </div>
 
-      <section aria-label="The capture types this player renders">
+      <div>
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           The capture types this player renders
         </h4>
@@ -215,9 +215,9 @@ export function DataCaptureAndEvidencePanel({
         <div className="mt-3">
           <DecisionDisclosure id={FLA4_DECISION_IN_THE_SHARED_CANON} />
         </div>
-      </section>
+      </div>
 
-      <section aria-label="One capture, end to end">
+      <div>
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">One capture, end to end</h4>
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
           This record includes: {FLA4_WORKED_CAPTURE.workerIdentity},{' '}
@@ -253,9 +253,9 @@ export function DataCaptureAndEvidencePanel({
           {safety.reason}
           <Locator>{safety.sourceRef}</Locator>
         </p>
-      </section>
+      </div>
 
-      <section aria-label={`What this screen draws for the ${personaName}`}>
+      <div>
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           What this screen draws for the {personaName}
         </h4>
@@ -270,9 +270,9 @@ export function DataCaptureAndEvidencePanel({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="Fallback patterns">
+      <div>
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           What happens when this fails
         </h4>
@@ -292,9 +292,9 @@ export function DataCaptureAndEvidencePanel({
           {FLA4_FUNCTIONALITIES_NAMING_NO_PATTERN.join(', ')}.
           <Locator>AC-FL-011-1 L40151</Locator>
         </p>
-      </section>
+      </div>
 
-      <section aria-label="Open decisions">
+      <div>
         <h4 className="text-sm font-semibold text-[var(--color-ink)]">
           Questions this build does not answer
         </h4>
@@ -308,7 +308,6 @@ export function DataCaptureAndEvidencePanel({
             <li
               key={d.id}
               data-testid="fla4-open-decision"
-              role="note"
               className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] p-3 text-sm"
             >
               <p className="font-medium text-[var(--color-ink)]">Open decision {d.id}</p>
@@ -329,7 +328,7 @@ export function DataCaptureAndEvidencePanel({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
     </div>
   )
 }

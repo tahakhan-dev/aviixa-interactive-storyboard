@@ -253,11 +253,10 @@ function DeferredToNeighbour({ column }: { readonly column: A7Column }) {
 function MatrixSection({ column }: { readonly column: A7Column }) {
   const rows = a7RowsFor('profile-lite')
   return (
-    <section
+    <div
       data-testid="fl-a7-matrix"
       data-column={column}
       data-viewing="profile-lite"
-      aria-label={`What Profile-lite draws for the ${column} column`}
       className="space-y-4"
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -315,7 +314,7 @@ function MatrixSection({ column }: { readonly column: A7Column }) {
           )
         })}
       </ul>
-    </section>
+    </div>
   )
 }
 
@@ -329,7 +328,7 @@ function CharterCard({
   const statements =
     ids === undefined ? A7_CHARTER_STATEMENTS : ids.map((id) => a7CharterStatement(id))
   return (
-    <section data-testid="fl-a7-charter" aria-label={heading} className={`${CARD} space-y-3`}>
+    <div data-testid="fl-a7-charter" className={`${CARD} space-y-3`}>
       <h2 className="text-base font-semibold text-[var(--color-ink)]">{heading}</h2>
       <dl className="space-y-3">
         {statements.map((s) => (
@@ -344,7 +343,7 @@ function CharterCard({
           </div>
         ))}
       </dl>
-    </section>
+    </div>
   )
 }
 
@@ -356,9 +355,8 @@ function CharterCard({
  */
 function SuspensionStates() {
   return (
-    <section
+    <div
       data-testid="fl-a7-suspension-states"
-      aria-label="The three suspension states, as the device experiences them"
       className={`${CARD} space-y-3`}
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -376,7 +374,7 @@ function SuspensionStates() {
           </div>
         ))}
       </dl>
-    </section>
+    </div>
   )
 }
 
@@ -388,9 +386,8 @@ function SuspensionStates() {
  */
 function ComplianceLock() {
   return (
-    <section
+    <div
       data-testid="fl-a7-compliance-lock"
-      aria-label="The compliance lock screen, described and not rendered here"
       className={`${DASHED} space-y-3`}
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -423,7 +420,7 @@ function ComplianceLock() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
@@ -436,9 +433,8 @@ function OfflineStanding() {
   const destination = flDestinationBySlug('profile-lite')
   const safetyLayer = frontlineConnectivityTreatment({ kind: 'safety-layer' })
   return (
-    <section
+    <div
       data-testid="fl-a7-offline"
-      aria-label="What this screen does with no connection"
       className={`${CARD} space-y-2`}
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">With no connection</h2>
@@ -452,15 +448,14 @@ function OfflineStanding() {
       <p className="text-sm text-[var(--color-ink-muted)]">{A7_OFFLINE_HONESTY.whatStillWorks}</p>
       <p className="text-sm text-[var(--color-ink-muted)]">{safetyLayer.reason}</p>
       <p className="text-xs text-[var(--color-ink-subtle)]">{A7_OFFLINE_HONESTY.sourceRef}</p>
-    </section>
+    </div>
   )
 }
 
 function FallbackContract() {
   return (
-    <section
+    <div
       data-testid="fl-a7-fallbacks"
-      aria-label="Fallback patterns and AC-FL-011-1"
       className={`${CARD} space-y-3`}
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -500,15 +495,14 @@ function FallbackContract() {
           [{A7_LOCKOUT_THRESHOLD.sourceRef}]
         </span>
       </p>
-    </section>
+    </div>
   )
 }
 
 function OpenDecisions() {
   return (
-    <section
+    <div
       data-testid="fl-a7-decisions"
-      aria-label="Open decisions this module discloses"
       className="space-y-4"
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -571,7 +565,7 @@ function OpenDecisions() {
           {A7_COMMAND_CLASS_GAP.sourceRef}
         </p>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -584,9 +578,9 @@ export function A7ProfileLiteView({ column }: A7ProfileLiteViewProps) {
   return (
     <div data-testid="fl-a7-profile-lite" className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-lg font-semibold text-[var(--color-ink)]">
+        <h2 className="text-lg font-semibold text-[var(--color-ink)]">
           Profile-lite — MOD-FL-A7, Security and Data Protection
-        </h1>
+        </h2>
         <p className="text-sm text-[var(--color-ink-muted)]">
           The security positions this scope holds, on the destination §25.5 gives this module
           alongside MOD-FL-A1. The happy path for this module is invisibility, so nothing here is a

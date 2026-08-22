@@ -125,10 +125,10 @@ function TheSheet({ viewerRole }: { readonly viewerRole: FlA6Column }) {
   const noConnection = manualSync(false)
 
   return (
-    <section aria-label="The sync detail sheet">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The sync detail sheet
-      </h4>
+      </h3>
 
       <p
         data-testid="fl-a6-offline-statement"
@@ -202,7 +202,7 @@ function TheSheet({ viewerRole }: { readonly viewerRole: FlA6Column }) {
       <p data-testid="fl-a6-denial" className="mt-3 max-w-prose text-sm text-[var(--color-ink)]">
         {SB_FL_015_DENIAL} <Ref text="SB-FL-015 · L41235" />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -210,17 +210,17 @@ function TheSheet({ viewerRole }: { readonly viewerRole: FlA6Column }) {
 
 function SliceBoundary() {
   return (
-    <section aria-label="Which half of this module this slice builds">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Half of this module
-      </h4>
+      </h3>
       <p data-testid="fl-a6-slice-boundary" className="mt-2 max-w-prose text-sm text-[var(--color-ink)]">
         {A6_SLICE_BOUNDARY.builtHere} {A6_SLICE_BOUNDARY.builtLater}
       </p>
       <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
         {A6_SLICE_BOUNDARY.whyStatedNow} <Ref text={A6_SLICE_BOUNDARY.sourceRef} />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -228,10 +228,10 @@ function SliceBoundary() {
 
 function Card() {
   return (
-    <section aria-label="What the source says this module is">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The module card, transcribed
-      </h4>
+      </h3>
       <dl className="mt-2 space-y-3">
         {A6_CARD.map((s) => (
           <div key={s.field} data-testid="fl-a6-card-statement">
@@ -257,7 +257,7 @@ function Card() {
           </div>
         ))}
       </dl>
-    </section>
+    </div>
   )
 }
 
@@ -265,10 +265,10 @@ function Card() {
 
 function States() {
   return (
-    <section aria-label="The states this module names, and which of them this slice drives">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         States
-      </h4>
+      </h3>
       <ul className="mt-2 space-y-2">
         {A6_STATES.map((s) => (
           <li key={s.id} data-testid="fl-a6-state" data-driven={String(s.drivenHere)}>
@@ -292,7 +292,7 @@ function States() {
         belong to the offline half, which the next slice builds. They are named here rather than
         rendered as though this screen could reach them.
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -300,10 +300,10 @@ function States() {
 
 function MatrixTable({ viewerRole }: { readonly viewerRole: FlA6Column }) {
   return (
-    <section aria-label="Permission matrix">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Who may do what, all {FL_A6_SHAPE.cells} cells
-      </h4>
+      </h3>
       <div className="mt-2 overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
@@ -420,7 +420,7 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: FlA6Column }) {
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -428,10 +428,10 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: FlA6Column }) {
 
 function ReconnectOrdering() {
   return (
-    <section aria-label="The reconnection ordering">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         What happens when the connection comes back
-      </h4>
+      </h3>
       <ol className="mt-2 space-y-1">
         {A6_RECONNECT_ORDER.map((phase, i) => (
           <li key={phase.phase} data-testid="fl-a6-reconnect-phase" className="text-sm">
@@ -457,7 +457,7 @@ function ReconnectOrdering() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
@@ -467,10 +467,10 @@ function Functionalities() {
   const mapped = A6_MAPPED_PATTERNS.map((p) => p.id)
   const exercised = A6_FUNCTIONALITIES.filter((f) => f.exercisedInThisSlice)
   return (
-    <section aria-label="Functionalities and their fallback patterns">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The {A6_FUNCTIONALITIES.length} functionalities, and the pattern each one names
-      </h4>
+      </h3>
       <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
         This is the largest functionality count of the twelve modules, and this slice exercises{' '}
         {exercised.length} of them. The rest are transcribed and stated; the next slice drives
@@ -527,7 +527,7 @@ function Functionalities() {
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -535,10 +535,10 @@ function Functionalities() {
 
 function Findings() {
   return (
-    <section aria-label="Findings against the source">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         What did not line up, recorded rather than closed
-      </h4>
+      </h3>
       <ul className="mt-2 space-y-2">
         {A6_SOURCE_FINDINGS.map((f) => (
           <li key={f.sourceRef} data-testid="fl-a6-finding" className="text-sm">
@@ -564,16 +564,16 @@ function Findings() {
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
 function Disclosures() {
   return (
-    <section aria-label="Open decisions this module discloses">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Open decisions
-      </h4>
+      </h3>
       {A6_DISCLOSURES.map((d) => (
         <div
           key={d.decisionRef}
@@ -606,7 +606,7 @@ function Disclosures() {
           <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">{d.canonNote}</p>
         </div>
       ))}
-    </section>
+    </div>
   )
 }
 
@@ -631,10 +631,10 @@ export function SyncDetailSheetView({
       <ReconnectOrdering />
       <Functionalities />
 
-      <section aria-label="What this module never claims">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module never claims
-        </h4>
+        </h3>
         <ul className="mt-2 space-y-2">
           {A6_CLAIMS_NEVER_MADE.map((c) => (
             <li key={c.sourceRef} data-testid="fl-a6-never-claimed" className="text-sm">
@@ -648,14 +648,14 @@ export function SyncDetailSheetView({
           Every line this sheet prints for a capture comes from the closed thirteen-rung ladder:{' '}
           {captureStateLine('queued')}
         </p>
-      </section>
+      </div>
 
       <Findings />
 
-      <section aria-label="Acceptance criteria">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module has to be true
-        </h4>
+        </h3>
         <ul className="mt-2 space-y-1">
           {A6_ACCEPTANCE_CRITERIA.map((a) => (
             <li key={a.id} data-testid="fl-a6-acceptance" className="text-sm">
@@ -663,12 +663,12 @@ export function SyncDetailSheetView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="Where this module surfaces">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           Where this module surfaces, and where it does not
-        </h4>
+        </h3>
         <ul className="mt-2 space-y-1">
           {A6_WHERE_IT_SURFACES.map((w) => (
             <li key={w.sourceRef} data-testid="fl-a6-surfaces" className="text-sm">
@@ -678,7 +678,7 @@ export function SyncDetailSheetView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <Disclosures />
     </div>

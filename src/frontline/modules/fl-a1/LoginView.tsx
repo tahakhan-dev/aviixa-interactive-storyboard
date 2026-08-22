@@ -45,9 +45,9 @@ export function LoginView({ column, deviceMode = 'shared' }: LoginViewProps) {
   return (
     <div data-testid="fl-a1-login" data-device-mode={mode.id} className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-lg font-semibold text-[var(--color-ink)]">
+        <h2 className="text-lg font-semibold text-[var(--color-ink)]">
           Login — MOD-FL-A1, Identity, Authentication and Device Mode
-        </h1>
+        </h2>
         <p className="text-sm text-[var(--color-ink-muted)]">
           Who is using this tablet right now. The device confers no identity: a stolen device is not
           a stolen account, and permissions, qualifications and language all come from the person
@@ -63,9 +63,8 @@ export function LoginView({ column, deviceMode = 'shared' }: LoginViewProps) {
         ids={['identifier', 'purpose', 'user-benefit', 'owning-surface', 'roles', 'states']}
       />
 
-      <section
+      <div
         data-testid="fl-a1-device-mode"
-        aria-label="Device mode"
         className="rounded-[var(--radius-surface)] border border-[var(--color-border-strong)] p-4 space-y-3"
       >
         <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -87,11 +86,10 @@ export function LoginView({ column, deviceMode = 'shared' }: LoginViewProps) {
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section
+      <div
         data-testid="fl-a1-genuine-controls"
-        aria-label="The non-Worker controls this surface genuinely holds"
         className="rounded-[var(--radius-surface)] border border-[var(--color-border-strong)] p-4 space-y-3"
       >
         <h2 className="text-base font-semibold text-[var(--color-ink)]">
@@ -118,7 +116,7 @@ export function LoginView({ column, deviceMode = 'shared' }: LoginViewProps) {
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <A1MatrixSection
         viewing="sign-in"

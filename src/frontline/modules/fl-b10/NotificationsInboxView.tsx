@@ -123,10 +123,10 @@ function TheInbox({ viewerRole }: { readonly viewerRole: FlB10Column }) {
   )
 
   return (
-    <section aria-label="The identity-scoped inbox">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The inbox, for the identity that is logged in
-      </h4>
+      </h3>
 
       <p
         data-testid="fl-b10-offline-statement"
@@ -231,7 +231,7 @@ function TheInbox({ viewerRole }: { readonly viewerRole: FlB10Column }) {
         Throughout: {B10_HONESTY_RULE.text}. <Ref text={B10_HONESTY_RULE.sourceRef} />{' '}
         <Ref text={B10_HONESTY_RULE.platformRef} />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -239,11 +239,11 @@ function TheInbox({ viewerRole }: { readonly viewerRole: FlB10Column }) {
 
 function States() {
   return (
-    <section aria-label="The notification states">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         {B10_NOTIFICATION_STATES.length} notification states, and the{' '}
         {B10_DEVICE_OBSERVABLE_STATES.length} this device has
-      </h4>
+      </h3>
       <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
         The platform notification state vocabulary applies in full. On this surface the states the
         device can observe and write are {B10_DEVICE_OBSERVABLE_STATES.join(', ')}; the earlier
@@ -277,7 +277,7 @@ function States() {
         this device because the first clause is exhaustive, not because the source called them
         earlier. This build does not extend the gloss to cover them.
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -288,10 +288,10 @@ function ChangeNotice({ viewerRole }: { readonly viewerRole: FlB10Column }) {
   const [started, setStarted] = useState(false)
 
   return (
-    <section aria-label="Work-instruction change notices">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Work-instruction changes, in two tiers
-      </h4>
+      </h3>
       <ul className="mt-2 space-y-2">
         {B10_CHANGE_TIERS.map((t) => (
           <li key={t.tier} data-testid="fl-b10-change-tier" data-tier={t.tier} className="text-sm">
@@ -347,7 +347,7 @@ function ChangeNotice({ viewerRole }: { readonly viewerRole: FlB10Column }) {
           <Ref text={b10Row('dismiss-change-notice-unseen').sourceRef} />
         </p>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -355,10 +355,10 @@ function ChangeNotice({ viewerRole }: { readonly viewerRole: FlB10Column }) {
 
 function MatrixTable() {
   return (
-    <section aria-label="Permission matrix">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Who may do what, all {FL_B10_SHAPE.cells} cells
-      </h4>
+      </h3>
       <div className="mt-2 overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
@@ -452,7 +452,7 @@ function MatrixTable() {
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -460,10 +460,10 @@ function MatrixTable() {
 
 function Triggers() {
   return (
-    <section aria-label="Triggers, recipients and channels">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         What produces a notification here, and which states each one exercises
-      </h4>
+      </h3>
       <ul className="mt-2 space-y-2">
         {B10_NOTIFICATION_TABLE.map((t) => {
           const rungs = deviceRungsFor(t.id)
@@ -484,7 +484,7 @@ function Triggers() {
           )
         })}
       </ul>
-    </section>
+    </div>
   )
 }
 
@@ -492,10 +492,10 @@ function Triggers() {
 
 function Functionalities() {
   return (
-    <section aria-label="Functionalities and their fallback patterns">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The {B10_FUNCTIONALITIES.length} functionalities, and the pattern each one names
-      </h4>
+      </h3>
       <ul className="mt-2 space-y-2">
         {B10_FUNCTIONALITIES.map((f) => (
           <li key={f.id} data-testid="fl-b10-functionality" className="text-sm">
@@ -555,7 +555,7 @@ function Functionalities() {
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -563,10 +563,10 @@ function Functionalities() {
 
 function Card() {
   return (
-    <section aria-label="The module card">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The module card, in the source&rsquo;s own words
-      </h4>
+      </h3>
       <dl className="mt-2 space-y-2">
         {B10_CARD.map((s) => (
           <div key={s.sourceRef} data-testid="fl-b10-card-field" className="text-sm">
@@ -591,16 +591,16 @@ function Card() {
         {B10_RESIDUAL_RISK.id}: {B10_RESIDUAL_RISK.risk}. {B10_RESIDUAL_RISK.mitigation}{' '}
         <Ref text={B10_RESIDUAL_RISK.sourceRef} />
       </p>
-    </section>
+    </div>
   )
 }
 
 function Findings() {
   return (
-    <section aria-label="Findings against the source">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         What did not line up, recorded rather than closed
-      </h4>
+      </h3>
       <ul className="mt-2 space-y-2">
         {B10_SOURCE_FINDINGS.map((f) => (
           <li key={f.sourceRef} data-testid="fl-b10-finding" className="text-sm">
@@ -611,16 +611,16 @@ function Findings() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
 function Disclosures() {
   return (
-    <section aria-label="Open decisions this module discloses">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Open decisions
-      </h4>
+      </h3>
 
       <div className="mt-3">
         <DecisionDisclosure id="DEC-LANEB-001" />
@@ -676,7 +676,7 @@ function Disclosures() {
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -702,10 +702,10 @@ export function NotificationsInboxView({
       <Card />
       <Functionalities />
 
-      <section aria-label="What this module never claims">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module never claims
-        </h4>
+        </h3>
         <ul className="mt-2 space-y-2">
           {B10_CLAIMS_NEVER_MADE.map((c) => (
             <li key={c.sourceRef} data-testid="fl-b10-never-claimed" className="text-sm">
@@ -715,14 +715,14 @@ export function NotificationsInboxView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <Findings />
 
-      <section aria-label="Acceptance criteria">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module has to be true
-        </h4>
+        </h3>
         <ul className="mt-2 space-y-1">
           {B10_ACCEPTANCE_CRITERIA.map((a) => (
             <li key={a.id} data-testid="fl-b10-acceptance" className="text-sm">
@@ -730,12 +730,12 @@ export function NotificationsInboxView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="Where this module surfaces">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           Where this module surfaces, and whose sheet shares the destination
-        </h4>
+        </h3>
         <ul className="mt-2 space-y-1">
           {B10_WHERE_IT_SURFACES.map((w) => (
             <li key={w.sourceRef} data-testid="fl-b10-surfaces" className="text-sm">
@@ -745,7 +745,7 @@ export function NotificationsInboxView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <Disclosures />
     </div>

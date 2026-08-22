@@ -114,7 +114,7 @@ function affordanceWords(a: FrontlineAffordance): string {
 
 function Card() {
   return (
-    <section aria-label="What the source says this module is">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The module card, transcribed
       </h4>
@@ -143,13 +143,13 @@ function Card() {
           </div>
         ))}
       </dl>
-    </section>
+    </div>
   )
 }
 
 function States() {
   return (
-    <section aria-label="The states this module names, and which of them this device can hold">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         States
       </h4>
@@ -188,13 +188,13 @@ function States() {
         {STATES_THIS_DEVICE_CANNOT_HOLD.length} of the {A5_STATES.length} states listed
         under this module belongs to that rendering rather than to this device.
       </p>
-    </section>
+    </div>
   )
 }
 
 function MatrixTable({ viewerRole }: { readonly viewerRole: FlA5Column }) {
   return (
-    <section aria-label="Permission matrix">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Who may do what, all {FL_A5_SHAPE.cells} cells
       </h4>
@@ -290,7 +290,7 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: FlA5Column }) {
           </div>
         )
       })}
-    </section>
+    </div>
   )
 }
 
@@ -311,7 +311,7 @@ function SeverityOneMoment({ viewerRole }: { readonly viewerRole: FlA5Column }) 
   const offline = escalationDelivery(false)
 
   return (
-    <section aria-label="A Severity 1 moment">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         A Severity 1 moment
       </h4>
@@ -425,14 +425,14 @@ function SeverityOneMoment({ viewerRole }: { readonly viewerRole: FlA5Column }) 
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
 function Functionalities() {
   const mapped = A5_MAPPED_PATTERNS.map((p) => p.id)
   return (
-    <section aria-label="Functionalities and their fallback patterns">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The {A5_FUNCTIONALITIES.length} functionalities, and the pattern each one names
       </h4>
@@ -474,7 +474,7 @@ function Functionalities() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
@@ -488,7 +488,7 @@ function Functionalities() {
  */
 function Disclosures() {
   return (
-    <section aria-label="Open decisions this module discloses">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Open decisions
       </h4>
@@ -525,7 +525,7 @@ function Disclosures() {
           <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">{d.canonNote}</p>
         </div>
       ))}
-    </section>
+    </div>
   )
 }
 
@@ -548,7 +548,7 @@ export function DetectionAndContainmentView({
       <MatrixTable viewerRole={viewerRole} />
       <Functionalities />
 
-      <section aria-label="What this module never claims">
+      <div>
         <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module never claims
         </h4>
@@ -563,9 +563,9 @@ export function DetectionAndContainmentView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="Acceptance criteria">
+      <div>
         <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module has to be true
         </h4>
@@ -579,7 +579,7 @@ export function DetectionAndContainmentView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <Disclosures />
     </div>

@@ -40,9 +40,9 @@ export function ProfileLiteView({ column }: ProfileLiteViewProps) {
   return (
     <div data-testid="fl-a1-profile-lite" className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-lg font-semibold text-[var(--color-ink)]">
+        <h2 className="text-lg font-semibold text-[var(--color-ink)]">
           Profile-lite — MOD-FL-A1, Identity, Authentication and Device Mode
-        </h1>
+        </h2>
         <p className="text-sm text-[var(--color-ink-muted)]">
           Language preference and logout, for the identity currently signed in. Both work with no
           connection.{' '}

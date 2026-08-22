@@ -114,7 +114,7 @@ function GateBlock({ viewerRole }: { readonly viewerRole: B9Column }) {
   const drawn = frontlineAffordance(b9Row('be-blocked-at-gate'), viewerRole)
 
   return (
-    <section aria-label="A gate block, and the parked Run">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         A gate block, and the parked Run
       </h4>
@@ -215,7 +215,7 @@ function GateBlock({ viewerRole }: { readonly viewerRole: B9Column }) {
           })}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -229,7 +229,7 @@ function SignOff({ viewerRole }: { readonly viewerRole: B9Column }) {
   const offline = signOffReadiness(false)
 
   return (
-    <section aria-label="The sign-off, and who may authorise it">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The sign-off, and who may authorise it
       </h4>
@@ -343,13 +343,13 @@ function SignOff({ viewerRole }: { readonly viewerRole: B9Column }) {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
 function Card() {
   return (
-    <section aria-label="What the source says this module is">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The module card, transcribed
       </h4>
@@ -370,13 +370,13 @@ function Card() {
           </div>
         ))}
       </dl>
-    </section>
+    </div>
   )
 }
 
 function States() {
   return (
-    <section aria-label="The states this module names">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         States
       </h4>
@@ -400,13 +400,13 @@ function States() {
         the Client Command Center holds, so nothing on this timeline claims knowledge a
         pull-based device cannot have.
       </p>
-    </section>
+    </div>
   )
 }
 
 function MatrixTable({ viewerRole }: { readonly viewerRole: B9Column }) {
   return (
-    <section aria-label="Permission matrix">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Who may do what, all {B9_SHAPE.cells} cells
       </h4>
@@ -487,14 +487,14 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: B9Column }) {
           </div>
         )
       })}
-    </section>
+    </div>
   )
 }
 
 function Functionalities() {
   const gaps = B9_FUNCTIONALITIES.filter((f) => f.patterns.length === 0)
   return (
-    <section aria-label="Functionalities and their fallback patterns">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The {B9_FUNCTIONALITIES.length} functionalities, and the pattern each one names
       </h4>
@@ -537,13 +537,13 @@ function Functionalities() {
           [{B9_PATTERN_DIVERGENCE.sourceRef}]
         </span>
       </p>
-    </section>
+    </div>
   )
 }
 
 function Disclosures() {
   return (
-    <section aria-label="Open decisions this module discloses">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Open decisions
       </h4>
@@ -581,14 +581,14 @@ function Disclosures() {
           <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">{d.canonNote}</p>
         </div>
       ))}
-    </section>
+    </div>
   )
 }
 
 function Contradiction() {
   const c = CH4_AGAINST_CH22_ON_GATE_OVERRIDE
   return (
-    <section aria-label="A source contradiction with no decision identifier">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         A source contradiction, disclosed as a contradiction
       </h4>
@@ -625,7 +625,7 @@ function Contradiction() {
         <p className="mt-3 text-[var(--color-ink)]">{c.whatThisBuildDraws}</p>
         <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">{c.noDecisionIdentifier}</p>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -650,7 +650,7 @@ export function GatesAndSignOffView({
       <MatrixTable viewerRole={viewerRole} />
       <Functionalities />
 
-      <section aria-label="What this module never claims">
+      <div>
         <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module never claims
         </h4>
@@ -665,9 +665,9 @@ export function GatesAndSignOffView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="Acceptance criteria">
+      <div>
         <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module has to be true
         </h4>
@@ -681,12 +681,12 @@ export function GatesAndSignOffView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <Disclosures />
       <Contradiction />
 
-      <section aria-label="Findings recorded rather than closed">
+      <div>
         <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           Findings, recorded rather than closed
         </h4>
@@ -702,7 +702,7 @@ export function GatesAndSignOffView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
     </div>
   )
 }

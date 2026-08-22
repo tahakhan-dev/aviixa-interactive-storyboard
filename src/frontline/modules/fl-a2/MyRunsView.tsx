@@ -274,11 +274,10 @@ function RunRow({ run, column }: { readonly run: A2Run; readonly column: A2Colum
 
 function JobCard({ job, column }: { readonly job: A2Job; readonly column: A2Column }) {
   return (
-    <section
+    <div
       data-testid="fl-a2-job"
       data-job={job.id}
       data-shape={job.shape}
-      aria-label={job.name}
       className="space-y-3"
     >
       <h3 className="text-sm font-semibold text-[var(--color-ink)]">{job.name}</h3>
@@ -287,7 +286,7 @@ function JobCard({ job, column }: { readonly job: A2Job; readonly column: A2Colu
           <RunRow key={run.id} run={run} column={column} />
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
@@ -343,9 +342,8 @@ export function MyRunsView({
       </header>
 
       {/* ── The destination, and both readings of its identifier ── */}
-      <section
+      <div
         data-testid="fl-a2-destination"
-        aria-label="My Runs — destination and screen identifier"
         className={`${CARD} space-y-2`}
       >
         <h3 className={H2}>{destination.name}</h3>
@@ -373,10 +371,10 @@ export function MyRunsView({
             the plain name “{destination.slug}”. A client-delegated choice.
           </p>
         </div>
-      </section>
+      </div>
 
       {/* ── The module card ── */}
-      <section data-testid="fl-a2-card" aria-label="The module card" className={`${CARD} space-y-3`}>
+      <div data-testid="fl-a2-card" className={`${CARD} space-y-3`}>
         <h3 className={H2}>The module card</h3>
         <p className={REF}>
           The five statements of the identity card are L40347 to L40355; the rest of the card carries
@@ -402,13 +400,12 @@ export function MyRunsView({
           {A2_IDENTITY_CARD.length} of these {A2_CARD.length} statements are the identity card
           itself.
         </p>
-      </section>
+      </div>
 
       {/* ── The arriving-command banner ── */}
-      <section
+      <div
         role="note"
         data-testid="fl-a2-command-banner"
-        aria-label="A command has arrived"
         className={`${CARD} space-y-2`}
       >
         <h3 className={H2}>{ARRIVING_COMMAND_BANNER.example}</h3>
@@ -423,10 +420,10 @@ export function MyRunsView({
           A lot is released on this tablet when this tablet has applied the release command, not
           because someone created one. [L39670]
         </p>
-      </section>
+      </div>
 
       {/* ── The list ── */}
-      <section data-testid="fl-a2-list" aria-label="Your assigned work" className="space-y-4">
+      <div data-testid="fl-a2-list" className="space-y-4">
         <h3 className={H2}>Your assigned work</h3>
         <p className={MUTED}>
           Jobs with their Runs beneath them where runs exist, and the job alone where the job is one
@@ -443,12 +440,11 @@ export function MyRunsView({
         <p data-testid="fl-a2-storyboard" className={REF}>
           {SB_FL_011.id} — {SB_FL_011.title}. {SB_FL_011.text} [{SB_FL_011.sourceRef}]
         </p>
-      </section>
+      </div>
 
       {/* ── The sync detail sheet ── */}
-      <section
+      <div
         data-testid="fl-a2-sync-sheet"
-        aria-label="The sync detail sheet"
         className={`${CARD} space-y-3`}
       >
         <h3 className={H2}>What is still waiting to be sent</h3>
@@ -485,12 +481,11 @@ export function MyRunsView({
           The sheet itself: {frontlineAffordance(sheetRow, column).kind === 'control' ? 'open' : 'not drawn'} for the{' '}
           {A2_COLUMN_HEADINGS[column]} column. [{sheetRow.sourceRef}]
         </p>
-      </section>
+      </div>
 
       {/* ── Two words for the end of a Run, and four in the source ── */}
-      <section
+      <div
         data-testid="fl-a2-completion"
-        aria-label="Worker-finished and complete-and-synced"
         className={`${CARD} space-y-3`}
       >
         <h3 className={H2}>What the end of a Run is called, and by whom</h3>
@@ -515,12 +510,11 @@ export function MyRunsView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       {/* ── The categorical absence ── */}
-      <section
+      <div
         data-testid="fl-a2-no-pace"
-        aria-label="What this screen never displays"
         className={`${DASHED} space-y-2`}
       >
         <h3 className={H2}>What this screen never displays</h3>
@@ -534,24 +528,22 @@ export function MyRunsView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       {/* ── The package readiness detail ── */}
-      <section
+      <div
         data-testid="fl-a2-package-readiness"
-        aria-label="Package readiness detail"
         className={`${CARD} space-y-2`}
       >
         <h3 className={H2}>{PACKAGE_READINESS_DETAIL.name}</h3>
         <p className={MUTED}>{PACKAGE_READINESS_DETAIL.note}</p>
         <p className={REF}>{PACKAGE_READINESS_DETAIL.sourceRef}</p>
-      </section>
+      </div>
 
       {/* ── The matrix ── */}
-      <section
+      <div
         data-testid="fl-a2-matrix"
         data-column={column}
-        aria-label={`What My Runs draws for the ${A2_COLUMN_HEADINGS[column]} column`}
         className="space-y-4"
       >
         <h3 className={H2}>
@@ -599,12 +591,11 @@ export function MyRunsView({
         <p className={REF}>
           The other four columns are {A2_COLUMNS.filter((c) => c !== column).map((c) => A2_COLUMN_HEADINGS[c]).join(', ')}.
         </p>
-      </section>
+      </div>
 
       {/* ── Fallbacks and AC-FL-011-1 ── */}
-      <section
+      <div
         data-testid="fl-a2-fallbacks"
-        aria-label="Fallback patterns and AC-FL-011-1"
         className={`${CARD} space-y-3`}
       >
         <h3 className={H2}>Fallback patterns, and the criterion that every functionality names one</h3>
@@ -637,12 +628,11 @@ export function MyRunsView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       {/* ── Acceptance criteria ── */}
-      <section
+      <div
         data-testid="fl-a2-acceptance"
-        aria-label="Acceptance criteria"
         className={`${CARD} space-y-2`}
       >
         <h3 className={H2}>What this module is held to</h3>
@@ -653,12 +643,11 @@ export function MyRunsView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       {/* ── Open decisions ── */}
-      <section
+      <div
         data-testid="fl-a2-decisions"
-        aria-label="Open decisions this screen discloses"
         className="space-y-4"
       >
         <h3 className={H2}>Open decisions this screen discloses and does not settle</h3>
@@ -693,12 +682,11 @@ export function MyRunsView({
             <p className={`mt-1 ${REF}`}>{d.canonNote}</p>
           </div>
         ))}
-      </section>
+      </div>
 
       {/* ── Findings ── */}
-      <section
+      <div
         data-testid="fl-a2-findings"
-        aria-label="What this module found and did not close"
         className={`${DASHED} space-y-3`}
       >
         <h3 className={H2}>What this module found and did not close</h3>
@@ -710,7 +698,7 @@ export function MyRunsView({
             <p className={REF}>[{f.sourceRef}]</p>
           </div>
         ))}
-      </section>
+      </div>
     </div>
   )
 }

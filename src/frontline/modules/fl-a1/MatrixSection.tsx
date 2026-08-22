@@ -214,11 +214,10 @@ export function A1MatrixSection({ viewing, column, heading }: A1MatrixSectionPro
   const rows = a1RowsFor(viewing)
 
   return (
-    <section
+    <div
       data-testid="fl-a1-matrix"
       data-column={column}
       data-viewing={viewing}
-      aria-label={heading}
       className="space-y-4"
     >
       <h2 className="text-base font-semibold text-[var(--color-ink)]">{heading}</h2>
@@ -261,6 +260,6 @@ export function A1MatrixSection({ viewing, column, heading }: A1MatrixSectionPro
           )
         })}
       </ul>
-    </section>
+    </div>
   )
 }

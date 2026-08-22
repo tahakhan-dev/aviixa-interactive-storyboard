@@ -61,7 +61,7 @@ import {
  * A coaching card built as a modal that must be dismissed converts an advisory
  * into a gate, and it ships as ordinary competent interface work — a `<Dialog>`
  * would look like a considered choice in review. So there is no dialog here,
- * no overlay, no focus trap and no backdrop: the card is a `<section>` beside
+ * no overlay, no focus trap and no backdrop: the card is a `<div>` beside
  * the step, `SB-FL-017` frame 2 says "nothing that blocks the measurement
  * field", and the covering component suite asserts that the panel contains no
  * `role="dialog"`, no `aria-modal` and no `<dialog>` element in ANY card state.
@@ -195,7 +195,8 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
   const noCardForThisRole = !interactive
 
   return (
-    <section aria-label="The card at the step" className="space-y-3">
+    <div role="group" aria-label="The card at the step" className="space-y-3">
+    role="group"
       <Heading>The card at the step</Heading>
 
       <div className="flex flex-wrap gap-2">
@@ -220,8 +221,9 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
         page's, because the page states the rule elsewhere and legitimately —
         L41504 puts agent unavailability on the oversight surfaces.
       */}
-      <section
+      <div
         aria-label="Coaching card region"
+        role="group"
         data-testid="fl-b8-card-region"
         data-guidance={guidance.kind}
         data-card-state={cardState}
@@ -305,7 +307,7 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
             </p>
           </>
         )}
-      </section>
+      </div>
 
       {/*
         THE STEP, WHICH IS NEVER WAITING ON THE CARD. Present in every card
@@ -343,7 +345,7 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
       <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
         {B8_SAFETY_LAYER_UNTOUCHED.reason} <Ref text={B8_SAFETY_LAYER_UNTOUCHED.sourceRef} />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -351,7 +353,8 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
 
 function Card() {
   return (
-    <section aria-label="Identity card">
+    <div role="group" aria-label="Identity card">
+    role="group"
       <Heading>The module, in the source&rsquo;s own words</Heading>
       <dl className="mt-2 space-y-2">
         {B8_CARD.map((s) => (
@@ -378,13 +381,14 @@ function Card() {
           Not carried whole — {s.field}: {s.elision} <Ref text={s.sourceRef} />
         </p>
       ))}
-    </section>
+    </div>
   )
 }
 
 function States() {
   return (
-    <section aria-label="States">
+    <div role="group" aria-label="States">
+    role="group"
       <Heading>The five states this module names</Heading>
       <ul className="mt-2 space-y-1">
         {B8_STATES.map((s) => (
@@ -397,13 +401,14 @@ function States() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
 function Storyboard() {
   return (
-    <section aria-label="Storyboard">
+    <div role="group" aria-label="Storyboard">
+    role="group"
       <Heading>
         {SB_FL_017.id} — {SB_FL_017.title}
       </Heading>
@@ -416,13 +421,14 @@ function Storyboard() {
           </li>
         ))}
       </ol>
-    </section>
+    </div>
   )
 }
 
 function MatrixTable({ viewerRole }: { readonly viewerRole: FlB8Column }) {
   return (
-    <section aria-label="Permission matrix">
+    <div role="group" aria-label="Permission matrix">
+    role="group"
       <Heading>Who may do what, all {FL_B8_SHAPE.cells} cells</Heading>
       <div className="mt-2 overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
@@ -540,13 +546,14 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: FlB8Column }) {
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
 function Functionalities() {
   return (
-    <section aria-label="Functionalities">
+    <div role="group" aria-label="Functionalities">
+    role="group"
       <Heading>
         The {B8_FUNCTIONALITIES.length} functionalities, and the fallback each one names
       </Heading>
@@ -585,13 +592,14 @@ function Functionalities() {
         assigned to close it, because an assigned pattern is indistinguishable from a real one
         forever afterwards. <Ref text="AC-FL-011-1 · L40151; FUNC-B8-01-2-1 · L41534" />
       </p>
-    </section>
+    </div>
   )
 }
 
 function Notifications() {
   return (
-    <section aria-label="Notifications">
+    <div role="group" aria-label="Notifications">
+    role="group"
       <Heading>Who is told, and who is not</Heading>
       <ul className="mt-2 space-y-2">
         {B8_NOTIFICATIONS.map((n) => (
@@ -611,13 +619,14 @@ function Notifications() {
       >
         {B8_SOCIAL_CONTRACT.text} <Ref text={B8_SOCIAL_CONTRACT.sourceRef} />
       </p>
-    </section>
+    </div>
   )
 }
 
 function Disclosures() {
   return (
-    <section aria-label="Open decisions">
+    <div role="group" aria-label="Open decisions">
+    role="group"
       <Heading>Open decisions, disclosed rather than settled</Heading>
       <div className="mt-2 space-y-3">
         {B8_LOCAL_DISCLOSURES.map((d) => (
@@ -669,7 +678,7 @@ function Disclosures() {
           </div>
         ))}
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -691,7 +700,8 @@ export function CoachingView({
 
       <TheCard viewerRole={viewerRole} />
 
-      <section aria-label="Happy path">
+      <div role="group" aria-label="Happy path">
+      role="group"
         <Heading>The path the source describes</Heading>
         <ol className="mt-2 space-y-1">
           {B8_HAPPY_PATH.map((s) => (
@@ -702,7 +712,7 @@ export function CoachingView({
             </li>
           ))}
         </ol>
-      </section>
+      </div>
 
       <Card />
       <States />
@@ -711,7 +721,8 @@ export function CoachingView({
       <Functionalities />
       <Notifications />
 
-      <section aria-label="What this module never claims">
+      <div role="group" aria-label="What this module never claims">
+      role="group"
         <Heading>What this module never claims</Heading>
         <ul className="mt-2 space-y-2">
           {B8_CLAIMS_NEVER_MADE.map((c) => (
@@ -722,9 +733,10 @@ export function CoachingView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="What this surface never displays">
+      <div role="group" aria-label="What this surface never displays">
+      role="group"
         <Heading>What no screen of this application displays, in any state</Heading>
         <ul className="mt-2 space-y-2">
           {B8_EXCLUDED_DISPLAYS.map((e) => (
@@ -734,9 +746,10 @@ export function CoachingView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="Acceptance criteria">
+      <div role="group" aria-label="Acceptance criteria">
+      role="group"
         <Heading>What this module has to be true</Heading>
         <ul className="mt-2 space-y-1">
           {B8_ACCEPTANCE_CRITERIA.map((a) => (
@@ -755,11 +768,12 @@ export function CoachingView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <Disclosures />
 
-      <section aria-label="Where this module surfaces">
+      <div role="group" aria-label="Where this module surfaces">
+      role="group"
         <Heading>Where this module surfaces, and where it does not</Heading>
         <ul className="mt-2 space-y-1">
           {B8_WHERE_IT_SURFACES.map((w) => (
@@ -770,9 +784,10 @@ export function CoachingView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="Findings recorded rather than closed">
+      <div role="group" aria-label="Findings recorded rather than closed">
+      role="group"
         <Heading>Findings, recorded rather than closed</Heading>
         <ul className="mt-2 space-y-2">
           {B8_SOURCE_FINDINGS.map((f) => (
@@ -784,7 +799,7 @@ export function CoachingView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
     </div>
   )
 }

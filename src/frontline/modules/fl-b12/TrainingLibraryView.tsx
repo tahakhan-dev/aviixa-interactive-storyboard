@@ -127,10 +127,10 @@ function TheLibrary({
   const item = B12_ILLUSTRATIVE_ITEM
 
   return (
-    <section aria-label="The Training Library">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The Training Library
-      </h4>
+      </h3>
 
       <p
         data-testid="fl-b12-rendering"
@@ -204,7 +204,7 @@ function TheLibrary({
       <p data-testid="fl-b12-frames-not-built" className="mt-3 max-w-prose text-xs text-[var(--color-ink-subtle)]">
         {SB_FL_021_STATED_NOT_BUILT} <Ref text={SB_FL_021_FRAMES[0].sourceRef} />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -212,10 +212,10 @@ function TheLibrary({
 
 function OnlineOnlyScope() {
   return (
-    <section aria-label="What online-only means here, and what it does not">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Online-only, and what that does not mean
-      </h4>
+      </h3>
       <p data-testid="fl-b12-online-only" className="mt-2 max-w-prose text-sm text-[var(--color-ink)]">
         {B12_ONLINE_ONLY_SCOPE.whatIsOnlineOnly}{' '}
         <Ref text={B12_ONLINE_ONLY_SCOPE.whatIsOnlineOnlyRef} />
@@ -230,7 +230,7 @@ function OnlineOnlyScope() {
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
         {B12_ONLINE_ONLY_SCOPE.whyItIsSaidHere} <Ref text={B12_ONLINE_ONLY_SCOPE.whyRef} />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -238,10 +238,10 @@ function OnlineOnlyScope() {
 
 function Card() {
   return (
-    <section aria-label="What the source says this module is">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The module card, transcribed
-      </h4>
+      </h3>
       <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
         Band {B12_INVENTORY_ROW.band} — {B12_INVENTORY_ROW.oneLineScope}.{' '}
         <Ref text={B12_INVENTORY_ROW.sourceRef} />
@@ -271,7 +271,7 @@ function Card() {
           </div>
         ))}
       </dl>
-    </section>
+    </div>
   )
 }
 
@@ -279,10 +279,10 @@ function Card() {
 
 function States() {
   return (
-    <section aria-label="The states this module names">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         States
-      </h4>
+      </h3>
       <ul className="mt-2 space-y-2">
         {B12_STATES.map((s) => (
           <li key={s.id} data-testid="fl-b12-state" data-driven={String(s.drivenHere)}>
@@ -301,7 +301,7 @@ function States() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
@@ -309,10 +309,10 @@ function States() {
 
 function MatrixTable({ viewerRole }: { readonly viewerRole: FlB12Column }) {
   return (
-    <section aria-label="Permission matrix">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Who may do what, all {FL_B12_SHAPE.cells} cells
-      </h4>
+      </h3>
       <div className="mt-2 overflow-x-auto">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
@@ -451,7 +451,7 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: FlB12Column }) {
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -460,10 +460,10 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: FlB12Column }) {
 function Functionalities() {
   const mapped = B12_MAPPED_PATTERNS.map((p) => p.id)
   return (
-    <section aria-label="Functionalities and their fallback patterns">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The {B12_FUNCTIONALITIES.length} functionalities, and the pattern each one names
-      </h4>
+      </h3>
       <ul className="mt-2 space-y-2">
         {B12_FUNCTIONALITIES.map((f) => (
           <li
@@ -532,7 +532,7 @@ function Functionalities() {
           depends on the library. <Ref text="FB-FL-CORE-01 · L42167" />
         </p>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -540,10 +540,10 @@ function Functionalities() {
 
 function Findings() {
   return (
-    <section aria-label="Findings against the source">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         What did not line up, recorded rather than closed
-      </h4>
+      </h3>
       <ul className="mt-2 space-y-2">
         {B12_SOURCE_FINDINGS.map((f) => (
           <li key={f.sourceRef} data-testid="fl-b12-finding" className="text-sm">
@@ -554,16 +554,16 @@ function Findings() {
           </li>
         ))}
       </ul>
-    </section>
+    </div>
   )
 }
 
 function Disclosures() {
   return (
-    <section aria-label="Open decisions this module discloses">
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+    <div>
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Open decisions
-      </h4>
+      </h3>
 
       {B12_CANON_DECISIONS.map((d) => (
         <div key={d.id} data-testid="fl-b12-canon-decision" data-decision={d.id} className="mt-3">
@@ -608,7 +608,7 @@ function Disclosures() {
           <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">{t.noIdentifierNote}</p>
         </div>
       ))}
-    </section>
+    </div>
   )
 }
 
@@ -639,10 +639,10 @@ export function TrainingLibraryView({
       <MatrixTable viewerRole={viewerRole} />
       <Functionalities />
 
-      <section aria-label="What this module never claims">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module never claims
-        </h4>
+        </h3>
         <ul className="mt-2 space-y-2">
           {B12_CLAIMS_NEVER_MADE.map((c) => (
             <li key={c.sourceRef} data-testid="fl-b12-never-claimed" className="text-sm">
@@ -652,14 +652,14 @@ export function TrainingLibraryView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <Findings />
 
-      <section aria-label="Acceptance criteria">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module has to be true
-        </h4>
+        </h3>
         <ul className="mt-2 space-y-1">
           {B12_ACCEPTANCE_CRITERIA.map((a) => (
             <li key={a.id} data-testid="fl-b12-acceptance" className="text-sm">
@@ -667,12 +667,12 @@ export function TrainingLibraryView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="Where this module surfaces">
-        <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           Where this module surfaces
-        </h4>
+        </h3>
         <ul className="mt-2 space-y-1">
           {B12_WHERE_IT_SURFACES.map((w) => (
             <li key={w.sourceRef} data-testid="fl-b12-surfaces" className="text-sm">
@@ -682,7 +682,7 @@ export function TrainingLibraryView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <Disclosures />
     </div>

@@ -125,7 +125,7 @@ function DepartureSheet({ viewerRole }: { readonly viewerRole: FlB11Column }) {
   const paused = pause('device lock')
 
   return (
-    <section aria-label="Step away and hand back">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Leaving the station
       </h4>
@@ -183,7 +183,7 @@ function DepartureSheet({ viewerRole }: { readonly viewerRole: FlB11Column }) {
         {B11_SUPERVISOR_VISIBILITY.mitigation}.{' '}
         <Ref text={B11_SUPERVISOR_VISIBILITY.sourceRef} />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -191,7 +191,7 @@ function DepartureSheet({ viewerRole }: { readonly viewerRole: FlB11Column }) {
 
 function FourRunStates() {
   return (
-    <section aria-label="The four run states">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Four different states, and this device reaches one of them
       </h4>
@@ -210,7 +210,7 @@ function FourRunStates() {
         to cancel or terminally complete a Run, and a departure is not a completion.{' '}
         <Ref text="AC-B11-3 · L42070" />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -233,7 +233,7 @@ function HandoverState({ viewerRole }: { readonly viewerRole: FlB11Column }) {
   })
 
   return (
-    <section aria-label="The substitution handover state">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Picking up somebody else&rsquo;s work
       </h4>
@@ -312,7 +312,7 @@ function HandoverState({ viewerRole }: { readonly viewerRole: FlB11Column }) {
         {SB_FL_020.id} — {SB_FL_020.heading}. {SB_FL_020.frame1} {SB_FL_020.frame2}{' '}
         {SB_FL_020.frame3} {SB_FL_020.frame4} <Ref text={SB_FL_020.sourceRef} />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -324,7 +324,7 @@ function ExpiryEnforcement() {
   const blocked = atStepExpiry({ certificationExpired: true, atAGatedStep: true })
 
   return (
-    <section aria-label="At-step certification-expiry enforcement">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         When a certification runs out mid-Run
       </h4>
@@ -346,7 +346,7 @@ function ExpiryEnforcement() {
         variation. There is no worker override on this device.{' '}
         <Ref text="FUNC-B11-04-1-2 · L42030" />
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -354,7 +354,7 @@ function ExpiryEnforcement() {
 
 function Card() {
   return (
-    <section aria-label="What the source says this module is">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The module card, transcribed
       </h4>
@@ -375,7 +375,7 @@ function Card() {
           </div>
         ))}
       </dl>
-    </section>
+    </div>
   )
 }
 
@@ -383,7 +383,7 @@ function Card() {
 
 function States() {
   return (
-    <section aria-label="The states this module names">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         States
       </h4>
@@ -412,7 +412,7 @@ function States() {
         {B11_STATES.length} is stated here rather than driven, because the expiry block that reaches
         it depends on the tenant posture and the clearance channel the next slice builds.
       </p>
-    </section>
+    </div>
   )
 }
 
@@ -420,7 +420,7 @@ function States() {
 
 function MatrixTable({ viewerRole }: { readonly viewerRole: FlB11Column }) {
   return (
-    <section aria-label="Permission matrix">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Who may do what, all {FL_B11_SHAPE.cells} cells
       </h4>
@@ -554,7 +554,7 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: FlB11Column }) {
           a cell&rsquo;s wording.
         </p>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -562,7 +562,7 @@ function MatrixTable({ viewerRole }: { readonly viewerRole: FlB11Column }) {
 
 function Functionalities() {
   return (
-    <section aria-label="Functionalities and their fallback patterns">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         The {B11_FUNCTIONALITIES.length} functionalities, and the pattern each one names
       </h4>
@@ -620,7 +620,7 @@ function Functionalities() {
           ))}
         </ul>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -628,7 +628,7 @@ function Functionalities() {
 
 function Disclosures() {
   return (
-    <section aria-label="Open decisions this module discloses">
+    <div>
       <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
         Open decisions
       </h4>
@@ -667,7 +667,7 @@ function Disclosures() {
           <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">{d.canonNote}</p>
         </div>
       ))}
-    </section>
+    </div>
   )
 }
 
@@ -696,7 +696,7 @@ export function WorkerLifecycleView({
       <MatrixTable viewerRole={viewerRole} />
       <Functionalities />
 
-      <section aria-label="What this module never claims">
+      <div>
         <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module never claims
         </h4>
@@ -709,9 +709,9 @@ export function WorkerLifecycleView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-label="Acceptance criteria">
+      <div>
         <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           What this module has to be true
         </h4>
@@ -722,11 +722,11 @@ export function WorkerLifecycleView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
 
       <Disclosures />
 
-      <section aria-label="Findings recorded rather than closed">
+      <div>
         <h4 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
           Findings, recorded rather than closed
         </h4>
@@ -740,7 +740,7 @@ export function WorkerLifecycleView({
             </li>
           ))}
         </ul>
-      </section>
+      </div>
     </div>
   )
 }

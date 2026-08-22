@@ -177,16 +177,34 @@ describe('the card at the step is advisory and never a gate', () => {
     cleanup()
   })
 
-  // FAILS IF: the card region stops being a plain section, or the panel grows a
-  // backdrop or an inert wrapper — the three shapes that trap a reader without
-  // using the word dialog.
-  it('draws the card as a section with no backdrop and nothing inert', () => {
+  // FAILS IF: the card becomes a dialog, or the panel grows a backdrop or an
+  // inert wrapper — the three shapes that trap a reader without using the word
+  // dialog.
+  //
+  // THIS ASSERTED `tagName === 'SECTION'` AND THAT WAS THE WRONG PROPERTY. The
+  // claim is that coaching never gates (L41471); the element being a `section`
+  // rather than a `div` was one way to satisfy it, not the claim itself. When
+  // the Frontline modules moved off `<section>` for inner groupings — 128 of
+  // them were landmarks, so a composed page exposed about a hundred regions and
+  // axe's `landmark-unique` failed on four routes — this went red for a reason
+  // that had nothing to do with gating. A gate that fails on a correct change
+  // and passes on a `<section role="dialog" aria-modal="true">` is checking the
+  // wrong thing in both directions.
+  //
+  // It now asserts what it means, and it asserts MORE than it did: no dialog
+  // element, no dialog role, no modal flag, no backdrop, nothing inert.
+  it('draws the card as a plain grouping — never a dialog, a backdrop, or anything inert', () => {
     renderFor('WORKER')
     const region = screen.getByTestId('fl-b8-card-region')
-    expect(region.tagName).toBe('SECTION')
+    expect(region.tagName).not.toBe('DIALOG')
+    expect(region.getAttribute('role')).not.toBe('dialog')
+    expect(region.getAttribute('role')).not.toBe('alertdialog')
+    expect(region.getAttribute('aria-modal')).toBeNull()
+    expect(document.querySelectorAll('dialog')).toHaveLength(0)
+    expect(document.querySelectorAll('[role="dialog"], [role="alertdialog"]')).toHaveLength(0)
+    expect(document.querySelectorAll('[aria-modal]')).toHaveLength(0)
     expect(document.querySelectorAll('[inert]')).toHaveLength(0)
     expect(document.querySelectorAll('[data-backdrop]')).toHaveLength(0)
-    expect(region.getAttribute('aria-modal')).toBeNull()
     cleanup()
   })
 
