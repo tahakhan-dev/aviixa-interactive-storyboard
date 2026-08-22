@@ -327,3 +327,75 @@ test** · a check reading `sourceRef` alone, so a record naming a different row 
 `for...of` over the constant it was meant to verify, which shrank along with its subject · and a
 prefix trap whose stated claim was false of the data, because **all six `Yes` cells were bolded**
 and an anchored test found zero.
+
+---
+
+## Wave 0, verified — the first brief with no wrong locator, and one imprecise claim
+
+**All fourteen locators in task 3's brief proved at the exact line.** That is the first dispatch
+in this build to carry none wrong, and it is worth naming: the locators were opened before the
+brief was written rather than after it was challenged.
+
+**Brief error 23, and it is a precision error rather than a wrong line.** The brief said *"Seven of
+the nine rows say the surface queues **nothing**"*. Read against L35694-L35702:
+
+```
+FB-CC-STALE    Not applicable — nothing is written
+FB-CC-PUSH     Not applicable — nothing is written
+FB-CC-SESS     None, deliberately
+FB-CC-WRITE    None, deliberately
+FB-CC-CMD      Not applicable — the device queues, not the board
+FB-CC-AGENT    Not applicable — nothing is written
+FB-CC-AUTH     Not applicable — session denied
+FB-CC-REPORT   Not applicable — nothing is written
+FB-CC-QUEUE    Not applicable — nothing is written
+```
+
+**All nine refuse a client-side queue.** The 7/2 split is not "queues nothing versus queues
+something" — it is between two **shapes** of refusal, and `None, deliberately` is the **stronger**
+of the two: a write exists on that path and is still not queued.
+
+And **only five carry the exact words "nothing is written"**. A gate asserting that sentence across
+seven rows would assert a sentence the source does not carry and find five. Both numbers are now
+pinned separately, each derived from the source rather than written down twice.
+
+**The general shape, for every remaining task:** a paraphrase that is true of a set can be false of
+the words. Count what you are actually going to assert.
+
+## A frozen viewer session is NOT a seventh `ConnectivityMode` — settled, do not re-open
+
+`src/scenario/controls.ts` is untouched and stays untouched. `offline` there means a device holding
+captures it will sync later; **this surface holds nothing and has no device.** §21.2.3's own
+opening (L35489) is "Three different things can be disconnected, and they are not the same thing."
+
+The state is `CcSessionState = 'live' | 'frozen'` in `src/surfaces/cc/fallback/session.ts`. A unit
+gate pins the six connectivity modes and goes red the moment a seventh is added, **so a later slice
+that wants the mode is forced to reconcile rather than drift into a second spelling.**
+
+## `src/ui/WriteControl.tsx` now has FIVE branches and the fifth is last
+
+Order: `explicitlyProhibited` · outcome≠allowed · `gateReason` · `objectReason` · **`missingElement`**
+· enabled. **Last is the only placement under which no input reaching an existing branch renders
+differently**, and four component cases set `missingElement` alongside each existing trigger to
+hold that — moving the branch earlier turns five of them red.
+
+The prop is `readonly missingElement?: string | undefined`, not `string | null`, because
+`exactOptionalPropertyTypes` is on and eight existing callers are not this task's to edit.
+
+**A frozen session reaches it through `gateReason`, not a sixth branch** — a frozen session is a
+condition outside the person and outside the record that closes the control, which is what that
+branch already is.
+
+## Two things every remaining task must do, learned this wave
+
+**Declare your abstention or it reads as an oversight.** `src/surfaces/cc/fallback/**` reaches no
+route today, and the task said so in its own file header **and named the wiring**
+(`<CcFallbackLibrary />` inside `CommandCenterShell`, because `FB-CC-SESS` and `FB-CC-QUEUE` are
+surface-wide rather than module-scoped). That is the `cc-10-s366` lesson applied before it became a
+finding: `cc-02`'s absence is declared in `CC_SEAMS`; `cc-10-s366`'s was not, and the difference is
+the whole difference.
+
+**Read a disabled control's reason by resolving `aria-describedby`, never off `textContent`.**
+`textContent` welds the item note to the button's reason, so a check passes when **either** carries
+the missing element's name — and the gate that must catch a control rendering no reason passes on
+the note alone. Assert `reason.hidden === false` too.
