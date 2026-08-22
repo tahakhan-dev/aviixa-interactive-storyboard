@@ -646,9 +646,10 @@ describe('the registry join this module can and cannot make', () => {
     // The claim this case makes is unchanged and still true — **nothing under
     // `src/` reaches `citedTokens`**, which is what decides a status. `walk`
     // feeds `NAMED_IN_SOURCE`, a separate set that is deliberately NOT a
-    // status: it is a weaker fact published as its own number, because 237
-    // rows read demonstrated while 663 are named and one number in front of a
-    // client reads as the whole truth.
+    // status: it is a weaker fact published as its own number, because 258
+    // rows read demonstrated while 813 are named -- summed over the fourteen
+    // `registries/generated/*.json` -- and one number in front of a client
+    // reads as the whole truth.
     //
     // Kept as an exact list rather than widened to a floor: a third src reader
     // should turn this red and be justified here, the same way this one is.

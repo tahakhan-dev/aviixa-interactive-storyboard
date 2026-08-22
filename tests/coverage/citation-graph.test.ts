@@ -228,18 +228,66 @@ describe("the index corroborates this build's citations", () => {
     expect(citations.length, 'identifier-anchored citations found').toBeGreaterThan(800)
   })
 
+  it('prints the split it pins, so the next raise is a read rather than a guess', () => {
+    const uncorroborated = known.length - exact.length - withinSection.length
+    console.error(
+      `\n[citation-graph] ${citations.length} identifier-anchored citations in ${files.length} files` +
+        `\n  identifier known to the index  ${known.length}` +
+        `\n  confirmed at the exact line    ${exact.length}` +
+        `\n  within-section form (accepted) ${withinSection.length}` +
+        `\n  UNCORROBORATED                 ${uncorroborated}` +
+        `\n  identifier NOT in the index    ${citations.length - known.length}`,
+    )
+    // Not decoration: the four sub-counts must partition `known`, or a raise
+    // made from this print would be made from arithmetic that does not close.
+    expect(exact.length + withinSection.length + uncorroborated).toBe(known.length)
+  })
+
   it('corroborates the measured number of them, and the number is pinned', () => {
     /*
-     * PINNED JUST UNDER THE MEASUREMENT, not at a comfortable floor. Measured at
-     * the time of writing: 1,203 identifier-anchored citations, 1,053 whose
-     * identifier the index knows, 1,019 confirmed at the exact line.
+     * PINNED JUST UNDER THE MEASUREMENT, not at a comfortable floor.
      *
-     * A floor set far below the truth is a number that cannot fail, and this
-     * build has already had to repair three of those -- `> 250` guarding a real
-     * 744, `> 1_000` guarding 1,806, `toBe(9)` guarding a route count that grew.
+     * MEASURED 2026-08-23 on this tree, by the print above: 1,630
+     * identifier-anchored citations in 794 files, 1,478 whose identifier the
+     * index knows, 1,416 confirmed at the exact line.
+     *
+     * It was `>= 1_000` against both, written when the measurement was 1,053
+     * and 1,019. The tree then grew by four slices and the floor did not, so by
+     * slice 9 it guarded roughly two thirds of its subject and a third of the
+     * corroborated citations in the build could have been deleted green. A
+     * floor set far below the truth is a number that cannot fail, and this
+     * build has now had to repair four of those -- `> 250` guarding a real 744,
+     * `> 1_000` guarding 1,806, `toBe(9)` guarding a route count that grew, and
+     * this one.
+     *
+     * WHO RAISES IT, AND WHEN. Whichever task grows either number raises it in
+     * the same commit, to what the print above reports on its own run -- not
+     * to a rounder number and never to an equality, because these counts grow
+     * every slice and `toBe` would make every future citation a red gate.
+     * `EROSION_BAND` is the entire allowance and is the same half a per cent
+     * `locator-fidelity` measured: wide enough that rewording a comment can
+     * move a citation between grades, too narrow to hide a file.
      */
-    expect(known.length, 'citations whose identifier the index knows').toBeGreaterThanOrEqual(1_000)
-    expect(exact.length, 'citations confirmed at the exact line').toBeGreaterThanOrEqual(1_000)
+    // PLANTED, 2026-08-23, on the real filesystem, restored from a copy with
+    // sha256 compared before and after. Both plants were on
+    // `src/frontline/modules/fl-a4/service.ts`, the densest single file at 55
+    // index-known citations, all 55 exact:
+    //   citations stripped (`L<n>` -> `line <n>`): known 1478 -> 1423  RED
+    //   lines shifted by +100000, identifiers kept: exact 1416 -> 1361 RED
+    //     (and uncorroborated 12 -> 67, so the ceiling below fired too)
+    // Under the previous `>= 1_000` both plants were green, which is what a
+    // floor at two thirds of its subject buys.
+    const MEASURED = { known: 1_478, exact: 1_416 } as const
+    const EROSION_BAND = 0.005
+    const atLeast = (n: number): number => Math.floor(n * (1 - EROSION_BAND))
+    expect(
+      known.length,
+      `citations whose identifier the index knows fell below the ${MEASURED.known} measurement`,
+    ).toBeGreaterThanOrEqual(atLeast(MEASURED.known))
+    expect(
+      exact.length,
+      `citations confirmed at the exact line fell below the ${MEASURED.exact} measurement`,
+    ).toBeGreaterThanOrEqual(atLeast(MEASURED.exact))
   })
 
   it('leaves few uncorroborated, and that ceiling only comes down', () => {

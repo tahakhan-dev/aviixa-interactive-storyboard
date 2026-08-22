@@ -730,9 +730,14 @@ describe('module status — mounted, demonstrated and absent are three different
  *
  * `status` answers whether a ROUTE SCREEN names a row's identifier. That is
  * the right question for a status and an incomplete answer for a reader:
- * measured across the fourteen inventories, **237 rows read demonstrated and
- * 663 are named somewhere under `src/` or `app/`.** The 426-row gap is not
+ * measured across the fourteen inventories, **258 rows read demonstrated and
+ * 813 are named somewhere under `src/` or `app/`.** The 555-row gap is not
  * unbuilt work — it is work no route happens to spell.
+ *
+ * Both numbers are sums over the fourteen `registries/generated/*.json` that
+ * `pnpm build:registries` writes — the `demonstrated-in-storyboard` rows, and
+ * `namedInSourceCount`. Re-measure them there rather than quoting this comment;
+ * the pair it used to carry, 237 and 663, was true one slice earlier.
  *
  * The sharpest case is `offline-scenarios`: **0 of 70 demonstrated, 70 of 70
  * named.** Two slice-8 tasks transcribed every one of the seventy use cases,

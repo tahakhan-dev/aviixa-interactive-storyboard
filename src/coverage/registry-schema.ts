@@ -105,8 +105,10 @@ export const GeneratedRegistrySchema = z
      *
      * A status says a route screen demonstrates the row. This says only that
      * some file in the build spells its identifier. Both are published because
-     * they differ by a lot: measured across the fourteen inventories, 237 rows
-     * read demonstrated and 663 are named, and `offline-scenarios` reads 0
+     * they differ by a lot: measured across the fourteen inventories, 258 rows
+     * read demonstrated and 813 are named -- re-measure by summing the
+     * `demonstrated-in-storyboard` rows and `namedInSourceCount` over the
+     * fourteen `registries/generated/*.json` -- and `offline-scenarios` reads 0
      * demonstrated against 70 named because two tasks transcribed all seventy
      * use cases and no route names a `UC-OFF-*` identifier.
      *

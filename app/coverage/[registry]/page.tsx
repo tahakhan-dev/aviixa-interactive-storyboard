@@ -112,12 +112,19 @@ export function RegistryIndex({ slug }: { slug: RegistrySlug }) {
 
         The status column says whether a ROUTE SCREEN demonstrates a row. That
         is the right question for a status and an incomplete answer for a
-        reader: measured across the fourteen inventories, 237 rows read
-        demonstrated and 663 are named somewhere in the build. This inventory's
-        own pair is printed here so the gap is visible rather than inferred —
-        offline scenarios read 0 demonstrated against 70 named, because two
-        tasks transcribed all seventy use cases and no route spells a UC-OFF-*
-        identifier.
+        reader: measured across the fourteen inventories, 258 rows read
+        demonstrated and 813 are named somewhere in the build. Re-measure that
+        pair rather than trusting it: it is the sum of the
+        `demonstrated-in-storyboard` rows and of `namedInSourceCount` over the
+        fourteen `registries/generated/*.json`, which `pnpm build:registries`
+        rewrites. This inventory's own pair is printed here so the gap is
+        visible rather than inferred — offline scenarios read 0 demonstrated
+        against 70 named, because two tasks transcribed all seventy use cases
+        and no route spells a UC-OFF-* identifier.
+
+        NOTE FOR THE NEXT READER: this block is a JSX comment and renders
+        nowhere. The paragraph below it is what a client sees, and it prints
+        this registry's own live pair rather than any total written here.
       */}
       <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
         {demonstrated} of {registry.rows.length} rows are demonstrated by a shipped screen;{' '}

@@ -1258,10 +1258,27 @@ describe('locator fidelity: the scan is not vacuous', () => {
    * below the truth is a number that cannot fail, which is this build's most
    * repeated defect wearing its most respectable disguise.
    *
-   * Baseline measured 2026-08-21. When a bucket genuinely grows, raise the
-   * baseline in the same commit that grows it -- that is the ratchet, and it
-   * is deliberately a little annoying, because the alternative is a guard that
-   * quietly stops guarding.
+   * WHO RAISES IT, AND WHEN. The task that grows a bucket raises the baseline
+   * in the same commit, to the number IT measured by running this file alone
+   * with `--disable-console-intercept` and reading the print at the bottom of
+   * this describe. Not to a rounder number, not to a comfortable one, and
+   * never to an equality -- `EROSION_BAND` is the whole allowance, and an
+   * exact assertion would turn the next citation anyone writes into a red
+   * gate. If no task grew a bucket, nobody raises anything.
+   *
+   * It has gone stale twice, both times by drifting to roughly half its
+   * subject while every run stayed green: 2026-08-21 measured 11,899 citations
+   * against a tree that had reached 22,552 by slice 9, so a loss of ten
+   * thousand citations would have passed. That is this file's own named defect
+   * -- a number that cannot fail -- committed by the file that warns about it.
+   * The reason it drifted is that raising it was nobody's job in particular,
+   * which is what the paragraph above now settles.
+   *
+   * Only THREE of the five numbers below are asserted: `citations`,
+   * `strongByQuote` and `anchored`. `unproven` and `weak` are the rest of the
+   * measurement, recorded so the split is legible and deliberately not floors
+   * -- `unproven` falling is an improvement, and a `weak` floor would reward
+   * adding unproven citations.
    *
    * EROSION_BAND exists for real churn: rewording a comment can move one
    * citation between buckets without anything being wrong.
@@ -1277,12 +1294,29 @@ describe('locator fidelity: the scan is not vacuous', () => {
    * friendlier name, and the only way to find out which one you have is to
    * plant the regression you are trying to catch.
    */
+  // PLANTED, 2026-08-23, against these three numbers rather than reasoned
+  // about. `L<digits>` rewritten to `line <digits>` on the real filesystem in
+  // `src/studio/journey/effects.ts`, `src/frontline/modules/fl-b8/service.ts`
+  // and `src/frontline/modules/fl-a2/service.ts`, each restored from a copy
+  // and its sha256 compared before and after:
+  //   citations     22552 -> 22102, floor 22439  RED
+  //   strongByQuote  1157 -> 1147,  floor 1151   RED
+  //   anchored       3779 -> 3674,  floor 3760   RED
+  // The same plant was green on all three under the previous baselines
+  // (11,899 / 744 / 1,806), which is the whole reason they moved.
+  // `effects.ts` alone -- one real file, 188 citations -- reds `citations` on
+  // its own, so the floor does not need a campaign to fail.
+  //
+  // Measured 2026-08-23 on this tree, by running this file alone. `anchored`
+  // is `anchoredAll` -- every citation carrying an anchor at any grade, which
+  // is neither of the two anchor rows in the print and was the one bucket the
+  // print did not show until it was added below.
   const BASELINE = {
-    citations: 11_899,
-    strongByQuote: 744,
-    anchored: 1_806,
-    unproven: 100,
-    weak: 9_349,
+    citations: 22_552,
+    strongByQuote: 1_157,
+    anchored: 3_779,
+    unproven: 158, // recorded, not asserted
+    weak: 17_958, // recorded, not asserted
   } as const
   const EROSION_BAND = 0.005
   const atLeast = (n: number): number => Math.floor(n * (1 - EROSION_BAND))
@@ -1388,7 +1422,13 @@ describe('locator fidelity: the scan is not vacuous', () => {
         `\n  loose, absence checked only  ${looselyQuoted.length}` +
         `\n  strong, identifier anchor    ${strongByAnchor.length}` +
         `\n  anchored but unproven (weak) ${anchoredUnproven.length}` +
-        `\n  weak, plausibility only      ${citations.length - stronglyChecked}`,
+        `\n  weak, plausibility only      ${citations.length - stronglyChecked}` +
+        // The bucket BASELINE.anchored actually guards. It is not any of the
+        // rows above -- `anchoredAll` is every citation carrying an anchor,
+        // which includes the anchored ones already counted as strong by
+        // quotation -- and leaving it unprinted is why the last person raising
+        // the ratchet had to guess at it.
+        `\n  anchored, any grade (floor)   ${anchoredAll.length}`,
     )
     // The three buckets and the remainder must account for every citation.
     // Without this an edit could drop a bucket and leave the totals looking
