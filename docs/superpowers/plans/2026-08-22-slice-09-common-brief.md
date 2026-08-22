@@ -54,7 +54,69 @@ minting a route key.
 | seam registry | `src/surfaces/cc/seams.ts` | |
 | `MOD-CC-10`, both treatments | `src/surfaces/cc/modules/cc-10/`, `cc-10-s366/` | slice 8 built them **separately and on purpose** |
 | `MOD-CC-02` as chrome | `src/surfaces/cc/modules/cc-02/` | slice 8; **no route, and it must not gain one** |
-| `SCR-CC-10` route | `app/command-center/sync-conflict-review/` | slice 8 |
+| `SCR-CC-10` route | `app/command-center/sync-conflict-review-panel/` | slice 8 |
+
+The route directory is `sync-conflict-review-**panel**`, not the shorter path an earlier draft of
+this brief gave. The spine's `slug:` is what names a directory, `CC_NAV` publishes each pathname
+from it, and `scripts/build-registries.mjs` reads a declared slug with no directory of that name
+as "declared, not built". **Read the slug; do not infer the path from the screen's short name.**
+
+**So two of this slice's twenty-one tasks are already largely built.** Task 16 (`MOD-CC-10`
+conflict panel) has its matrix, its second §36.6 treatment and its route; task 8's `MOD-CC-02`
+half is done as chrome. **Read both before writing anything for either.** What remains on them is
+what slice 8 handed forward, below — not a rebuild.
+
+## What slice 8 proved about this surface, and what it left open
+
+**The `MOD-CC-10` split was run by two implementers who never reconciled**, one on chapter 21 and
+one on §36.6, and that is why it found what it found. **The Tenant Admin divergence between the
+two treatments is two rows wide, not one** — panel visibility *and* reading a conflict entry.
+Neither implementer could have found the second alone: one transcription plus one reconciliation
+produces a merged, plausible, wrong answer. **Every remaining divergence in this slice deserves
+the same treatment: transcribe, do not reconcile.**
+
+**One apparent divergence is a decomposition, and it was deliberately left open.** §36.6 splits
+"see the panel exists" from "read an entry" and gives the Supervisor `Allowed` then `Read-only`,
+where chapter 21 gives `Read-only` twice. Whether that is a contradiction or a finer-grained
+statement of the same rule **is the choice, and no task has made it.** If your module's tables
+show the same shape, say so and leave it open.
+
+**One that looks like a divergence is not**, and it is filed as *checked* so it is not counted
+twice: the skew rows contradict each other positionally and agree exactly on their own capability
+wordings, because one asks about resolving a skew-flagged conflict individually and the other
+about including one in Resolve All. **Positional disagreement between two tables that run their
+columns in opposite orders is not evidence of anything.**
+
+## Three things slice 8 hands this slice directly
+
+1. **`DEC-SYNC-006` is raised for the sync-conflict list cap and no file in this tree discloses
+   it.** The re-plan records the same gap under its own name, `DEC-CONFLICTCAP-001`. **Two
+   identifiers for one unrecorded decision** — settle which the source actually raises before
+   either is disclosed, because disclosing both invents a decision where the source has one.
+2. **§36.6 calls `SCR-CC-10` by a different identifier than the register does.** Two names for one
+   screen. Settle it before it reads as a fourteenth screen against `AC-CC-040`.
+3. **`AC-OFF-702` (L78832) is recorded and not enforced**, and the same shape recurs here: it
+   forbids a network call on the execution path of anything classified fully available offline,
+   and a storyboard has no execution path to inspect. **Naming the criterion and what it governs
+   is the deliverable; claiming enforcement would be false.**
+
+## The registry generator awards a route to ONE module, and only since slice 8
+
+Worth knowing before you claim a slug. `scripts/build-registries.mjs` used to run argmax over
+every route directory and award the winner **unconditionally**, with the slug claim added on top
+— so a slug-claimed route demonstrated both its owner and whichever module its files named most.
+`MOD-CC-02` read `demonstrated-in-storyboard` off `MOD-CC-10`'s screen, where it appears once as
+the chrome mounted into it, and the inventory reported 58 demonstrated modules where 57 are.
+
+Two consequences for every task here:
+
+- **Name your own module id in your own route file.** A module can be demonstrated by its slug
+  claim alone and never say what it is; `SCR-CC-10`'s page shipped that way and an older gate was
+  right to go red on it.
+- **Mounting one module's component inside another's screen is the pattern this surface requires**
+  — `MOD-CC-13`'s action rail and `MOD-CC-07` both have no route and must mount inside others. It
+  moves mention counts and it is not evidence of ownership. The generator now says so; do not
+  write a gate that assumes otherwise.
 
 **Read the spine before you write a line.** Two slice-8 tasks found their brief's work already
 done and correctly changed nothing; that is the outcome to aim for, not a failure.
@@ -124,7 +186,19 @@ a link, not an absence.
 **`MOD-CC-13` has no row in the register at all.** Its action rail must mount **inside** the
 twelve module screens. `MOD-CC-07` likewise has no screen of its own.
 
-**96 distinct `SCR-CC-*` tokens exist; 13 are routes.**
+**56 distinct `SCR-CC-*` tokens exist across 176 occurrences; 13 are rows of the register.** The
+controller's first draft of this brief said 96 and that number had no basis — it is corrected
+here rather than quietly, because it is the seventh count error of this build and the discipline
+is the point: **count it yourself.**
+
+**Five of the 56 are a look-alike family.** `SCR-CC-001` through `SCR-CC-005` are three-digit and
+read exactly like the register's two-digit `SCR-CC-01`…`SCR-CC-13`. This is the `FB-SCHED-009`
+shape slice 8 found in the fallback library: a token that parses as the first member of a
+thirteen-row register and is not in it. **A regex keyed on `SCR-CC-\d+` collects all eighteen.**
+The remaining 38 are mnemonic (`SCR-CC-BOARD`, `SCR-CC-GATEQ`, `SCR-CC-ACTIONS` …), several of
+them two spellings of one screen — `SCR-CC-GATEQ` and `SCR-CC-GATEQUEUE`, `SCR-CC-AGENT` and
+`SCR-CC-AGENTPANEL`, `SCR-CC-CONF` and `SCR-CC-CONFLICT`. **Do not build a screen from a
+mnemonic; build from the register and cite the mnemonic as a reference.**
 
 ## Two decisions that are absent from the chapter's own register
 
