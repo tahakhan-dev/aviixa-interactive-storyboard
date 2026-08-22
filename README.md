@@ -78,6 +78,7 @@ Individual steps: `pnpm test:unit`, `pnpm test:component`, `pnpm test:release`, 
 | what | where |
 |---|---|
 | how to review this as a client | `docs/client-review-guide.md` |
+| five guided click-paths | `docs/walkthroughs.md` |
 | how to deploy the export | `docs/deployment.md` |
 | screenshot manifest | `docs/screenshots/` |
 | coverage census against the source | `docs/census/` |
