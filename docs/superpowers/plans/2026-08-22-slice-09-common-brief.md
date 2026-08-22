@@ -856,3 +856,75 @@ applicable."). And L37772 declares four identifiers of which **`FB-CC-WRITE` is 
 functionality.** Declared set and referenced set differ **in both directions**, each counted
 separately. **Rendered, not repaired** — inventing a pattern for an escalation the platform routes
 server-side puts this build's answer where the source declines one.
+
+## THE SCREEN REGISTER NAMES THE WRONG FEATURE FOR `SCR-CC-13` — new, in no brief
+
+**L48398's Modules column reads `MOD-CC-06 FEAT-CC-0603, MOD-CC-07`.** But §21.9's own feature list
+calls **`FEAT-CC-0603` "Aging"** (L37420). **The learning read view is `FEAT-CC-0605`** (L37432).
+
+And the register row's own **Purpose** column gives it away: *"Read what the platform has learned,
+changing nothing"* — which is `FUNC-CC-0605-1-1`'s stated purpose (L37434), *"show what the
+platform has learned, changing nothing"*, almost word for word. **The register describes 0605 and
+cites 0603.**
+
+Both readings recorded, neither chosen, and the component **renders both features so the mount is
+correct under either.** That is the right shape for a divergence a task cannot settle: build the
+union, not the guess.
+
+## Brief error 42: "one row below" is two
+
+**L49595 sits TWO data rows below L49593, not one.** **L49594 is the `Sync conflicts` row** of the
+same table. The adjacency was the whole rhetorical force of that trap and it was overstated.
+
+## Brief error 43: two `Read-only` cells that are not the same string
+
+Wave 1's note said action 3's Supervisor cell "is `Read-only` in §21.1.2 and §25.4". **L35009 reads
+`Read-only — observe and annotate`; L48446 reads bare `Read-only`.** Reading them as one token
+**loses the annotation grant**, which §21.9's row 2 (L37295) states as its own `Allowed with
+conditions` cell. **There are four statements, not three** — the module decomposes into four rows
+what the surface matrix folds into one.
+
+## The filter rule has FOUR statements with THREE different standings
+
+The brief gave one. `MOD-CC-09` found four, and they are not interchangeable:
+
+| line | what it is |
+|---|---|
+| **L34881** | a `Recommendation — R&D`, about **persistence** — and its own last sentence says "Client decision needed: no" |
+| **L37993** | `FUNC-CC-0901-1-2`, stated as a **role prohibition** |
+| **L38027** | **`AC-CC-329`, an acceptance criterion** — "No filter can hide an item carrying an unacknowledged escalation from the actor responsible for it" |
+| **L38044** | §21.12's `**Source status.**` classifies the same rule a third way: **`Derived Clarification`** |
+
+**`AC-CC-329` is the widest** — *any* filter, not only a persisted one — and the module built to it,
+disclosing the persistence half as the recommendation it is. **The rescued entries are marked
+`forcedVisible` with the criterion named**, because a rescued item that did not say so would read
+as a match. Keyed on `acknowledged === null`, never on the ladder state: a *fallback delivered*
+entry has moved on and is still unclaimed.
+
+## Three more gates that could not fail — and the second is the sharpest yet
+
+- **A locator gate that only checked the line was non-blank.** Moving a filter statement's
+  `sourceRef` from L34881 to L34887 stayed **green**, because L34887 is not blank. **Non-blank is
+  not "carries what you say it carries."** Each locator is now *derived*: search the source for a
+  phrase, require the phrase to be unique, and require the record to point at the line the search
+  found.
+- **`page-never-names-itself` went green with every self-naming sentence removed** — because one
+  surviving line **quotes the screen register row**, `MOD-CC-09 all features`, which names exactly
+  one module and therefore satisfies a "names no *other* module" rule **while the page has said
+  nothing about itself.** This is the L38793-quotation defect one step subtler: the first version
+  failed because a quotation named seven modules, this one because a quotation named exactly the
+  right one. **A second gate now requires the route paragraph to interpolate the module id from the
+  spine**, which a quotation cannot do.
+- **A `use client` gate was red on the clean tree** because two files *explain* the directive in a
+  comment. A directive is a statement — anchor it at both ends of a line.
+
+## Two harness bugs worth passing on
+
+- **A probe filter went through a shell string and one test name contains backticks.** The shell
+  ran command substitution, the mangled filter matched no test, **and vitest exited 0 — reporting a
+  live plant as green.** Fixed with `execFileSync` and an args array, plus a `matched-nothing`
+  state so **a zero-test run can never earn a green.**
+- **A reversal that searched for the planted text aborted mid-step**, because
+  `Supervisor: cell(A),` legitimately occurs six times — leaving the file corrupted until it was
+  restored by index. **Reverse at the offset the plant recorded, never by searching.** The anchor's
+  uniqueness matters before planting; after planting, only the offset does.
