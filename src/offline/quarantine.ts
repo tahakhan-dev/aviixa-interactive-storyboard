@@ -128,7 +128,7 @@ const row = (
   detectedAtSteps: [...cells['Detected at step'].matchAll(/\d+/g)].map((m) => Number(m[0])),
 })
 
-export const QUARANTINE_REGISTER: readonly QuarantineRegisterRow[] = [
+export const QUARANTINE_REGISTER = [
   row('checksum-mismatch', 80389, {
     Reason: 'Checksum mismatch on a transferred object',
     'Detected at step': '16',
@@ -195,7 +195,7 @@ export const QUARANTINE_REGISTER: readonly QuarantineRegisterRow[] = [
       'Quality Manager, under the audited-recompute rule [SoW Fact — §2.4, §6.2.5]',
     Status: '`SoW Fact` for the recompute rule; quarantine routing is `Derived Clarification`',
   }),
-]
+] as const satisfies readonly QuarantineRegisterRow[]
 
 export function quarantineReason(id: QuarantineReasonId): QuarantineRegisterRow {
   const found = QUARANTINE_REGISTER.find((r) => r.id === id)
@@ -250,7 +250,7 @@ export const ENVELOPE_STEP_ANACHRONISM: StepAnachronism = {
  * diagram at L80417 lists. Step 4 is the difference: L80393 is detected there
  * and the diagram's non-acceptance list does not name it.
  */
-export const STEPS_ABSENT_FROM_THE_DIAGRAM: readonly number[] = [4]
+export const STEPS_ABSENT_FROM_THE_DIAGRAM = [4] as const satisfies readonly number[]
 
 /**
  * THE STEP LEDGER. Every step number this module needs, with the frozen-source

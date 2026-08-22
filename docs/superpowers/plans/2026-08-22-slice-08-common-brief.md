@@ -334,3 +334,25 @@ inside the promise itself.**
 
 **Five diagram branches against twelve rows.** L80164-L80168. Containment checklist item, unit
 or lot binding, and qualification and clearance appear in no branch by name.
+
+## The declaration idiom, stated because leaving it unstated has now cost fifteen edits
+
+**A closed vocabulary or a transcribed table is `as const satisfies readonly T[]`, never
+`export const X: readonly T[] = [...]`.**
+
+A leading annotation wins over `as const` and throws the literal members away, which is what
+lets a gate assert *which* rows a table holds rather than merely how many.
+`tests/coverage/slice-2c-gates.test.ts` gate 2 rejects the annotation form, and it has now
+caught it **fifteen times across two slices** — nine in slice 7's twelve modules, six in slice
+8's first two waves — every one found by the release gate rather than by the task that wrote it.
+
+**This paragraph is late.** The controller recorded after slice 7 that slice 8's brief must state
+the idiom, and then did not add it, so six more landed. It is stated here now.
+
+Two consequences worth knowing before you hit them:
+
+- **`.includes()` stops type-checking** on the narrowed result, because the array's element type
+  becomes its own members. Put a typed predicate beside the constant — `MOD-FL-B11` did — rather
+  than widening the constant back, which restores exactly what the gate rejects.
+- **A tuple of heterogeneous literal objects does not assign to a `readonly (A | B | …)[]`
+  parameter.** Spread at the call site.

@@ -75,7 +75,7 @@ export interface ConvergenceObligation {
   readonly cells: Readonly<Record<ConvergenceColumn, string>>
 }
 
-export const CONVERGENCE_OBLIGATIONS: readonly ConvergenceObligation[] = [
+export const CONVERGENCE_OBLIGATIONS = [
   {
     surface: 'SURF-DOH',
     line: 80670,
@@ -136,7 +136,7 @@ export const CONVERGENCE_OBLIGATIONS: readonly ConvergenceObligation[] = [
         "Telemetry contradicting the session's own recorded outcomes",
     },
   },
-]
+] as const satisfies readonly ConvergenceObligation[]
 
 export function convergenceObligation(surface: SurfaceId): ConvergenceObligation {
   const found = CONVERGENCE_OBLIGATIONS.find((o) => o.surface === surface)
