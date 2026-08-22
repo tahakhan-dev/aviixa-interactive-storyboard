@@ -243,6 +243,47 @@ const AUDITED = {
       'is exactly what makes "these identifiers are absent from the canon" go red on the day a ' +
       'later task lifts them, rather than quietly staying true.',
   },
+  'slice-09-gates.test.ts': {
+    subject:
+      'the frozen blueprint at run time, compared against src/surfaces/cc/**, app/command-center/** ' +
+      'and src/domain/commands.ts as authored -- the eighteen transcribed permission matrices, the ' +
+      'three-table divergence, the route/screen mapping, the client-boundary shapes, import ' +
+      'reachability from app/, and prose counts across all of src/ and app/. It also reads ' +
+      'registries/generated/modules.json and runs scripts/cc-reach.mjs.',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and the one subject `build` rewrites is named rather than glossed. Almost ' +
+      'every assertion here has the blueprint on one end and authored src/ or app/ on the other, ' +
+      'and no verify step writes either -- the blueprint is read-only input and its sha256 is ' +
+      'asserted in this file. TWO subjects are build products and both are safe for the same ' +
+      'reason as slice-06: registries/generated/modules.json is what the GENERATOR produces from ' +
+      'src/ and app/, and gate 15 asserts that the module statuses it derives agree with the ' +
+      'SPINE\'s own abstentions in src/surfaces/cc/modules.ts, which build never writes -- so ' +
+      'build cannot satisfy the gate by rewriting the side it owns. scripts/cc-reach.mjs is ' +
+      'invoked directly rather than read out of a generated artefact, and is checked against ' +
+      'CC_SCREENS and the app/command-center directory listing. This gate reads out/ nowhere at ' +
+      'all. Every assertion whose subject this build can change was watched red on a real plant ' +
+      'into a real shipping file, and each file restored byte-identically against a checksum ' +
+      'taken once before the first plant.',
+  },
+  'slice-09-absence-sweep.test.ts': {
+    subject:
+      'src/surfaces/cc/** and app/command-center/** as authored, swept for the decision ' +
+      'identifiers, adopted positions, route names, vocabulary members and fabricated answers ' +
+      'this surface must NOT hold, compared against the decision canon at ' +
+      'src/disclosure/decisions.ts, src/scenario/controls.ts and the frozen blueprint',
+    rewrittenBy: null,
+    verdict:
+      'NOT VACUOUS, and this one is an ABSENCE claim, the shape most at risk of being satisfied ' +
+      'by finding nothing. Every population it sweeps is asserted non-empty and at or above a ' +
+      'measured floor before the absence is checked, and every sweep is derived from a directory ' +
+      'walk or from a shipped constant rather than from a literal file list, so a slice-9 file ' +
+      'added later is covered without an edit here. No verify step writes src/ or app/, and the ' +
+      'canon it compares against is another task\'s hand-written file that nothing in the build ' +
+      'generates -- which is what makes "these identifiers are absent from the canon" go red on ' +
+      'the day a later slice lifts one, rather than quietly staying true.',
+  },
   'hook-config.test.ts': {
     subject:
       'docs/process/claude-hooks/{CLAUDE.md,settings.json} (committed copies) and the live ' +
