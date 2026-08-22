@@ -709,3 +709,57 @@ that is really truncation.
 - **A route gate written against a literal listing.** It compared `app/command-center/`'s
   directory listing with a hard-coded array, which would have gone red the day slice 9 builds the
   other eleven. Now asserted against `CC_CLAIMED_SLUGS`.
+
+### Wave 4, task 17 — the nineteenth brief error, and the register that writes its own exception
+
+**19. "The six authorisation limits" conflates two enumerations, and six is not the source's
+word.** §37.1's own text states **three** rules — L80781, "Three rules, each quoted from the
+source and each load-bearing for the whole register" — and **the word "six" occurs zero times
+anywhere in §37.1**, measured over the whole section rather than sampled. Six is the row count of a supporting table the source
+titles *"the offline authorization **values**"* (L80831), while the section heading says
+*Limits*. **The two lists are not the same list:** four of the six rows have no rule, and one of
+the three rules has no row. Carried as two constants with their own locators, neither chosen.
+
+That is the eighth count-shaped brief error of the slice, and the shape is now specific enough to
+name: **a section heading and a supporting table are not the same enumeration**, and taking the
+table's row count as the section's number is how the controller has been wrong eight times.
+
+### `OFF-BLK-20` contradicts `AC-37-002`, and the source names the exception itself
+
+**L81078**'s message text reads *"Any work not yet sent cannot be recovered from this tablet."*
+The same line calls it **"the register's one genuinely unrecoverable entry"**, and the index row
+(L81181) names the outcome *"Unrecoverable unsynced data, named explicitly"*.
+
+Against it: `AC-37-002` (**L80767**) — "No blocker deletes, truncates or renders unrecoverable any
+locally committed capture" — and governing rule 1 (**L80729**) — "A blocker never destroys local
+data."
+
+**The source writes the exception into the table beneath the absolute it states above it, and
+says so in words.** This is not a transcription ambiguity to reconcile: a build that resolved it
+would be deciding what a worker is told when their evidence is gone. Both readings, both
+locators, `adopted: null`.
+
+### Three more measured findings on the same register
+
+- **42 message texts, not 37.** L80725 requires every entry to define its message text "without
+  exception and without blanks" and `TEST-37-004` (L80769) calls itself "a string audit of all
+  thirty-seven messages". Thirty-three entries carry one; `OFF-BLK-12` carries **three** (soft,
+  hard and compliance suspension) and three others carry two — a worker-facing message plus an
+  operator or Tenant Admin one.
+- **The register names its own exception to its every-entry rule.** L81112: "This is the one
+  blocker in the register with no worker-facing message." `OFF-BLK-24` states none of its own
+  either, deferring to `OFF-BLK-08`'s.
+- **The family counts have three independent readings and all three agree** — the index's Family
+  column, which section carries each detail entry, and **the acceptance-criterion family each
+  section numbers itself in** (`AC-37-2xx` 12, `3xx` 10, `4xx` 8, `5xx` 3, `6xx` 4). The third is
+  the strong one: **nothing forces it**, so a dropped or duplicated row disagrees with a numbering
+  scheme the transcription never touched. A gate can rest on 12/10/8/4/3.
+
+### One brief claim reported UNCONFIRMED rather than accepted or dismissed
+
+The brief passed on task 8's finding that "the register's step numbers are not all consistent with
+the protocol". Task 17 checked **every** step reference in §37.2-§37.6 — steps 3, 4, 6, 7, 8, 11,
+12, 13, 14, 17, 18, 22, 23, 27, 30 — against `PROTOCOL_STEPS` and found no inconsistency. **If
+task 8's finding is real it is not in the blocker register's step citations.** Reporting a claim
+as unverified, rather than quietly dropping or repeating it, is the right handling of a
+second-hand finding and is recorded here as the pattern.
