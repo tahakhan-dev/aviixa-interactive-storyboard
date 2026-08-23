@@ -299,6 +299,22 @@ export const NOTIF_ABSENT_CONTROLS = [
     label: 'Open a tenant’s own record from a broadcast row',
     note: 'No such link exists. Record-level tenant content is reachable only inside a named session under one of the three access classes, and there is no ambient browsing anywhere on this console (AC-SA-000-07, AC-SEC-801). The row below resolves to a session-request form instead.',
   },
+  {
+    // SLICE 10, TASK 12v — THE ONE PERMISSIVE CELL OF THIS MODULE'S AGGREGATE
+    // COLUMN, WHICH THIS CONSOLE HAD DISCLOSED NOWHERE.
+    //
+    // The row's four platform cells all refuse, and its fifth column is an
+    // AGGREGATE — `MatrixColumn`'s third arm, `columnAttribution` =>
+    // `NOT_ATTRIBUTABLE`. The console never reads that column (no tenant role
+    // is selectable here and no control on this screen touches the act), so it
+    // never granted the act. But an abstention nobody states and an oversight
+    // look identical from outside, so it is stated, and the cell's own
+    // narrowing is what states it: `aggregateResolvesTo` on this cell returns
+    // the Tenant Admin alone, whose home is another surface entirely.
+    label: 'Author or override a tenant-internal notification',
+    note:
+      'No such control exists here for any account, including the root, and no tenant role is reachable on this console at all. Every platform column of this row refuses the act, and the fifth column — the aggregate headed L45653 “Any tenant role” — is the only permissive cell in the matrix: L45659 “Allowed with conditions — the Tenant Admin configures tenant notification preferences within the mandatory baseline”. An aggregate column names no actor, so no console session can act on it, and the cell narrows to one tenant role rather than to the header. The feature tree says the boundary outright: L45680 “Never author or override a tenant-internal notification; share delivery infrastructure only”, with nobody permitted to cross it and every console role prohibited. The act lives on the tenant surface — L28689 “Set notification policy — which events fire, to which recipient roles” — and its only screen is the Notification policy screen in the Delivery Operations Hub, L48113 “Set which events fire, to which roles, above the baseline”, which admits the Tenant Admin alone. This console shares delivery infrastructure with that model and authors nothing in it.',
+  },
 ] as const satisfies readonly AbsentControl[]
 
 /* ------------------------------------------------------------------ *
@@ -431,7 +447,7 @@ export const NOTIF_SOURCE_CONFLICTS = [
     conflict:
       'Seven module records name seven different sets: root and Admin (L11671, L60869, L98242), Admin alone (L2442), root, Admin and Support (L21091), all four platform roles (L42748, L45618), and an empty set (L116399).',
     resolution:
-      'D16 — module-level roles_allowed is authoritative nowhere. Every affordance here is driven by the per-control allowed-roles at L45614 through evaluateAccess, and all four roles read the screen.',
+      'D16 — module-level roles_allowed is authoritative nowhere. Every affordance here is driven through evaluateAccess by the controls the storyboard defines at L45614 and by the role sets this module’s own permission matrix states for them — L45656 and L45657 for composing and sending, L45658 for the all-tenant row. All four roles read the screen. Slice 10 named those three lines: the storyboard defines the controls and names no role, so a role set attributed to it alone was attributed to a line that does not carry it.',
   },
   {
     topic: 'Three notification state vocabularies',

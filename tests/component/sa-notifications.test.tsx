@@ -1,7 +1,20 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, within, fireEvent } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { saModuleById } from '@/surfaces/sa/modules'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import { roleById, type RoleId } from '@/domain/roles'
+import type { PermissionOutcome } from '@/policy/decision'
+import {
+  aggregateResolvesTo,
+  cellFromSource,
+  columnAttribution,
+  evaluateColumnAccess,
+  type AggregateColumn,
+  type ColumnCell,
+  type ColumnMatrixRow,
+} from '@/policy/columns'
 import { NotificationsScreen } from '../../app/super-admin/platform-notifications-and-tenant-communications/NotificationsScreen'
 import { BROADCAST_STATES, NOTIF_ABSENT_CONTROLS, NOTIF_CHANNELS, NOTIF_PLATFORM_ROLES, NOTIF_SOURCE_CONFLICTS, NOTIF_UNSPECIFIED_IN_SOURCE, NOTIF_WORKFLOWS, SEND_HISTORY } from '../../app/super-admin/platform-notifications-and-tenant-communications/fixtures'
 
@@ -470,5 +483,256 @@ describe('MOD-SA-14 — what the source does not define', () => {
       expect(within(panel).getByText(workflow.name), workflow.id).toBeDefined()
     }
     expect(within(panel).getAllByText(/Matched by/i).length).toBe(NOTIF_WORKFLOWS.length)
+  })
+})
+
+/* ==================================================================== *
+ * SLICE 10, TASK 12v — THE VERIFICATION GATE OVER SLICE-3 BYTES.
+ *
+ * This screen is slice 3's. Slice 10 verified it rather than rebuilt it. The
+ * question it was verified against: did a platform console render a TENANT
+ * preference editor, because the one permissive cell of this module's matrix
+ * grants an act whose real home is another surface? It did not — but it also
+ * disclosed the boundary nowhere, and a stated abstention and an oversight
+ * look identical from outside. This block holds both halves.
+ * ==================================================================== */
+
+const SOURCE_LINES = readFileSync(
+  join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md'),
+  'utf8',
+).split('\n')
+
+function sourceLine(n: number): string {
+  const line = SOURCE_LINES[n - 1]
+  if (line === undefined) throw new Error(`L${n} is beyond the frozen source`)
+  return line
+}
+
+/**
+ * The three permissive members of `PermissionOutcome`. Named rather than
+ * derived by negation: typed `readonly PermissionOutcome[]`, a member added to
+ * the union does not silently join this list, and a member REMOVED from it
+ * fails to compile here — which is the shape a membership list has to have to
+ * be worth more than a length.
+ */
+const PERMISSIVE: readonly PermissionOutcome[] = ['allowed', 'allowedWithConditions', 'queuedOffline']
+
+/** The actor columns of `MOD-SA-14`'s header, L45653, in source order. */
+const PLATFORM_COLUMNS: readonly RoleId[] = [
+  'ROOT_SUPER_ADMIN',
+  'ADMIN',
+  'PLATFORM_ENGINEER',
+  'SUPPORT',
+]
+
+/**
+ * The fifth actor column. `members` is TRANSCRIBED from the header's own words
+ * — every tenant role — and never derived from `rolesInDomain('TENANT')`, which
+ * would answer a question the header only implies. `narrowsTo` on the cell is
+ * what overrides it, and the test below proves the cell's own words are where
+ * that narrowing comes from.
+ */
+const ANY_TENANT_ROLE: AggregateColumn = {
+  kind: 'aggregate',
+  header: 'Any tenant role',
+  members: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER', 'READONLY_AUDITOR', 'WORKER'],
+  sourceRef: 'L45653',
+}
+
+/** Actor cells of one row, in header order: four platform, then the aggregate. */
+function rowCells(lineNumber: number): readonly ColumnCell[] {
+  const parts = sourceLine(lineNumber).split('|')
+  expect(parts).toHaveLength(PLATFORM_COLUMNS.length + 4)
+  return parts.slice(2, -1).map((text) => cellFromSource(text))
+}
+
+describe('MOD-SA-14 — the matrix as this build counts it', () => {
+  it('has six pipe columns at L45653: one action, four platform roles, one aggregate', () => {
+    const header = sourceLine(45653)
+      .split('|')
+      .map((s) => s.trim())
+      .filter((s) => s !== '')
+    expect(header).toEqual([
+      'Action',
+      'Root Super Admin',
+      'Admin',
+      'Platform Engineer',
+      'Support',
+      'Any tenant role',
+    ])
+    expect(header[5]).toBe(ANY_TENANT_ROLE.header)
+    for (const role of PLATFORM_COLUMNS) expect(roleById(role).domain).toBe('PLATFORM')
+  })
+
+  it('has SEVEN data rows, counted by reading to where the body stops — never from the span', () => {
+    expect(sourceLine(45654).replace(/[|\-\s]/g, '')).toBe('')
+    const body: number[] = []
+    for (let n = 45655; n < 45680; n += 1) {
+      if (!sourceLine(n).startsWith('|')) break
+      body.push(n)
+    }
+    expect(body).toEqual([45655, 45656, 45657, 45658, 45659, 45660, 45661])
+    // 7 rows x 5 actor columns.
+    expect(body.length * (PLATFORM_COLUMNS.length + 1)).toBe(35)
+    for (const n of body) expect(rowCells(n)).toHaveLength(5)
+  })
+
+  it('carries exactly ONE permissive cell in the aggregate column, and it is L45659', () => {
+    const permissive: number[] = []
+    for (let n = 45655; n <= 45661; n += 1) {
+      const aggregate = rowCells(n)[4]
+      if (aggregate !== undefined && PERMISSIVE.includes(aggregate.outcome)) permissive.push(n)
+    }
+    expect(permissive).toEqual([45659])
+  })
+})
+
+describe('MOD-SA-14 — the aggregate column is attributed to nothing, and this console reads none of it', () => {
+  it('refuses all four platform roles on L45659 and grants only the aggregate', () => {
+    const cells = rowCells(45659)
+    for (const [i, role] of PLATFORM_COLUMNS.entries()) {
+      expect(cells[i]?.outcome, `${roleById(role).name} on L45659`).toBe('explicitlyProhibited')
+    }
+    expect(cells[4]?.outcome).toBe('allowedWithConditions')
+  })
+
+  it('narrows to the Tenant Admin from the CELL’s own words, not from the header', () => {
+    const detail = rowCells(45659)[4]?.detail ?? ''
+    expect(detail).toBe(
+      'the Tenant Admin configures tenant notification preferences within the mandatory baseline',
+    )
+    // Derived: the cell names one tenant role and no other, so the header's
+    // five members are not what this cell covers.
+    const named = ANY_TENANT_ROLE.members.filter((r) => detail.includes(roleById(r).name))
+    expect(named).toEqual(['TENANT_ADMIN'])
+    const cell: ColumnCell = { outcome: 'allowedWithConditions', detail, narrowsTo: named }
+    expect(aggregateResolvesTo(ANY_TENANT_ROLE, cell)).toEqual(['TENANT_ADMIN'])
+    // Without the narrowing the header would answer for all five — which is the
+    // silent widening `narrowsTo` exists to prevent.
+    expect(aggregateResolvesTo(ANY_TENANT_ROLE, { outcome: 'allowed', detail })).toHaveLength(5)
+  })
+
+  it('names no actor, so no access decision may be keyed on it', () => {
+    expect(columnAttribution(ANY_TENANT_ROLE)).toBe('NOT_ATTRIBUTABLE')
+    const row: ColumnMatrixRow = {
+      id: 'MOD-SA-14-author-or-override-a-tenant-internal-notification',
+      operation: 'Author or override a tenant-internal notification',
+      cells: { 'aggregate:Any tenant role': rowCells(45659)[4] as ColumnCell },
+      sourceRef: 'L45659',
+    }
+    expect(() => evaluateColumnAccess(row, ANY_TENANT_ROLE, null, [ANY_TENANT_ROLE])).toThrow(
+      /aggregate and names no actor/,
+    )
+  })
+
+  it('offers no tenant role on this console at all, so the narrowed role cannot act here', () => {
+    expect(NOTIF_PLATFORM_ROLES.map((r) => r.id)).toEqual([...PLATFORM_COLUMNS])
+    for (const r of NOTIF_PLATFORM_ROLES) expect(roleById(r.id).domain).toBe('PLATFORM')
+    render(<NotificationsScreen />)
+    const options = [...document.querySelectorAll('option')].map((o) => o.getAttribute('value'))
+    // Non-vacuous: the four ARE there, so a fifth could not hide from this.
+    for (const r of PLATFORM_COLUMNS) expect(options).toContain(r)
+    expect(options).not.toContain('TENANT_ADMIN')
+  })
+})
+
+describe('MOD-SA-14 — the tenant-internal notification boundary is ABSENT and stated', () => {
+  it('renders the boundary as a note where a control would sit, for every role in every state', () => {
+    const boundary = NOTIF_ABSENT_CONTROLS.find(
+      (c) => c.label === 'Author or override a tenant-internal notification',
+    )
+    expect(boundary).toBeDefined()
+    for (const role of NOTIF_PLATFORM_ROLES) {
+      for (const state of SA_APPLICABLE_STATES) {
+        const view = render(<NotificationsScreen role={role.id} screenState={state.id} />)
+        // Positive control FIRST: the note is present. An absence loop over a
+        // screen that failed to render passes on nothing at all.
+        expect(document.body.textContent ?? '').toContain(boundary?.label ?? '')
+        const controls = interactiveText(view.container)
+        expect(controls.length).toBeGreaterThan(0)
+        for (const label of controls) {
+          expect(label).not.toMatch(/author|override|tenant[- ]internal|preference/i)
+        }
+        view.unmount()
+      }
+    }
+  })
+
+  it('quotes the source’s own boundary sentence verbatim, and the act’s real home', () => {
+    const boundary = NOTIF_ABSENT_CONTROLS.find(
+      (c) => c.label === 'Author or override a tenant-internal notification',
+    )
+    const note = boundary?.note ?? ''
+    expect(sourceLine(45680)).toContain(
+      'Never author or override a tenant-internal notification; share delivery infrastructure only',
+    )
+    expect(note).toContain(
+      'Never author or override a tenant-internal notification; share delivery infrastructure only',
+    )
+    expect(sourceLine(28689)).toContain(
+      'Set notification policy — which events fire, to which recipient roles',
+    )
+    expect(note).toContain('L28689')
+    // Its only screen admits the Tenant Admin alone.
+    expect(sourceLine(48113)).toContain('SCR-DOH-19')
+    expect(sourceLine(48113)).toContain('Tenant Admin')
+    expect(note).toContain('L48113')
+    render(<NotificationsScreen />)
+    expect(document.body.textContent ?? '').toContain(note)
+  })
+})
+
+describe('MOD-SA-14 — the send and submit holders come from the MATRIX, not the storyboard', () => {
+  it('derives the composing-and-sending holders from L45656 and L45657 and finds the same two rows', () => {
+    for (const line of [45656, 45657]) {
+      const cells = rowCells(line)
+      const allowed = PLATFORM_COLUMNS.filter((_, i) => cells[i]?.outcome === 'allowed')
+      expect(allowed, `L${line}`).toEqual(['ROOT_SUPER_ADMIN', 'ADMIN'])
+      // The other two are `Unavailable`, not `Explicitly prohibited`. The
+      // distinction is why this screen draws them an inert control with a named
+      // reason on these two rows.
+      expect(cells[2]?.outcome, `L${line}`).toBe('unavailable')
+      expect(cells[3]?.outcome, `L${line}`).toBe('unavailable')
+    }
+  })
+
+  it('renders the send control actionable for exactly the roles L45656 grants, and no others', () => {
+    const cells = rowCells(45656)
+    const actionable = new Set(PLATFORM_COLUMNS.filter((_, i) => cells[i]?.outcome === 'allowed'))
+    // Non-vacuous both ways: the set is neither empty nor all four.
+    expect(actionable.size).toBeGreaterThan(0)
+    expect(actionable.size).toBeLessThan(PLATFORM_COLUMNS.length)
+    for (const role of PLATFORM_COLUMNS) {
+      const view = render(<NotificationsScreen role={role} target="single-tenant" />)
+      const send = within(screen.getByRole('region', { name: /Composer/i })).getByRole('button', {
+        name: /Send notice/i,
+      })
+      expect(send.getAttribute('aria-disabled'), role).toBe(actionable.has(role) ? null : 'true')
+      view.unmount()
+    }
+  })
+
+  it('names L45656 and L45657 in the refusal, and L45658 in the submission refusal', () => {
+    const eng = render(<NotificationsScreen role="PLATFORM_ENGINEER" target="single-tenant" />)
+    const send = within(screen.getByRole('region', { name: /Composer/i })).getByRole('button', {
+      name: /Send notice/i,
+    })
+    const sendReason =
+      document.getElementById(send.getAttribute('aria-describedby') ?? '')?.textContent ?? ''
+    expect(sendReason).toContain('L45656')
+    expect(sendReason).toContain('L45657')
+    eng.unmount()
+
+    const sup = render(<NotificationsScreen role="SUPPORT" target="all-tenant" />)
+    const submit = within(screen.getByRole('region', { name: /Composer/i })).getByRole('button', {
+      name: /Submit for root approval/i,
+    })
+    const submitReason =
+      document.getElementById(submit.getAttribute('aria-describedby') ?? '')?.textContent ?? ''
+    expect(submitReason).toContain('L45658')
+    // And L45658 is where the Admin's conditional submission grant actually is.
+    expect(rowCells(45658)[1]?.outcome).toBe('allowedWithConditions')
+    expect(rowCells(45658)[1]?.detail).toBe('drafts; the root approves as critical class')
+    sup.unmount()
   })
 })

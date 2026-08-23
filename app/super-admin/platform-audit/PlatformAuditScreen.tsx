@@ -26,11 +26,21 @@ import { SaConsoleShell } from '../SaConsoleShell'
  * enforcement-parity view" (L20953), and SCR-SA-21 "Platform audit" in the
  * second, incompatible numbering scheme (L48750).
  *
- * The frozen source defines exactly TWO controls here (both L46121): the
- * filters, held by all four console roles, and the class-filtered export,
- * held by the Root Super Admin and the Admin. Everything else on this screen
- * is a readout of a state the source fixes, an acceptance criterion, or an
- * entry in the unspecified-in-source panel. No third control is invented.
+ * The frozen source defines exactly TWO controls here, both at L46121: the
+ * filters and the class-filtered export. Everything else on this screen is a
+ * readout of a state the source fixes, an acceptance criterion, or an entry in
+ * the unspecified-in-source panel. No third control is invented.
+ *
+ * SLICE 10, TASK 12v CORRECTED WHERE THE HOLDERS COME FROM. L46121 is the
+ * screen storyboard; it defines both controls and names NO role. The holders
+ * are this module's own permission matrix, header L46160, body L46162-L46169 —
+ * L46162 gives all four platform roles `Allowed` on searching and reading the
+ * log, and L46165 gives the Root Super Admin and the Admin `Allowed` on the
+ * class-filtered export against `Read-only` for the Platform Engineer and
+ * Support. Both lines are cited beside L46121 rather than replacing it: the
+ * control and its holder are two different claims about two different lines,
+ * and attributing the holder to the storyboard alone attributed it to a line
+ * that does not carry it.
  *
  * Method note for the reviewer: `controls`, `screens`, `objects`,
  * `state_vocabularies`, `business_rules` and `numeric_facts` were matched by
@@ -441,7 +451,12 @@ export interface ControlDefinition {
   readonly defaultRefusalReason: string
 }
 
-/** The two controls the frozen source defines for MOD-SA-18, both at L46121. */
+/**
+ * The two controls the frozen source defines for MOD-SA-18, both at L46121 —
+ * with their holders from the permission matrix, L46162 and L46165. See the
+ * module comment at the top of this file for why the storyboard line alone was
+ * the wrong citation for a role set.
+ */
 export const MODULE_CONTROLS = [
   {
     id: 'audit-filters',
@@ -449,9 +464,9 @@ export const MODULE_CONTROLS = [
     effect:
       'Searches the append-only log on event class, actor, tenant, object and date range. No edit or delete affordance anywhere, not even greyed (L46121).',
     allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'],
-    sourceRefs: ['L46121'],
+    sourceRefs: ['L46121', 'L46162'],
     defaultRefusalReason:
-      'All four console roles hold the filters (L46121); no refusal reason applies.',
+      'All four console roles hold the filters — the storyboard defines the control (L46121) and the matrix grants every platform column (L46162); no refusal reason applies.',
   },
   {
     id: 'class-filtered-export',
@@ -459,15 +474,15 @@ export const MODULE_CONTROLS = [
     effect:
       'Produces a file for external retention; the export action is itself audited (L46121).',
     allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
-    sourceRefs: ['L46121'],
+    sourceRefs: ['L46121', 'L46165'],
     refusalReasons: {
       PLATFORM_ENGINEER:
-        'The class-filtered export names the Root Super Admin and the Admin only (L46121). The Platform Engineer reads the log and exports nothing from it.',
+        'The matrix gives the class-filtered export to the Root Super Admin and the Admin and gives the Platform Engineer `Read-only` (L46165). The Platform Engineer reads the log and exports nothing from it.',
       SUPPORT:
-        'The class-filtered export names the Root Super Admin and the Admin only (L46121). The Support role reads its own session records and exports nothing.',
+        'The matrix gives the class-filtered export to the Root Super Admin and the Admin and gives Support `Read-only` (L46165). The Support role reads its own session records and exports nothing.',
     },
     defaultRefusalReason:
-      'The class-filtered export names the Root Super Admin and the Admin only (L46121).',
+      'The class-filtered export is the Root Super Admin’s and the Admin’s (L46165).',
   },
 ] as const satisfies readonly ControlDefinition[]
 
@@ -541,6 +556,116 @@ export const MODULE_WORKFLOWS = [
       'The STATE-12 failure treatment and the STATE-13 recovery treatment on the state strip above, plus the FB-SA-03 panel.',
   },
 ] as const satisfies readonly ModuleWorkflow[]
+
+/* ==================================================================== *
+ * SLICE 10, TASK 12v — THE SAME READ ON TWO SURFACES, DISCLOSED.
+ * ==================================================================== */
+
+/**
+ * THE FOUR CELLS OF THIS MODULE'S MATRIX THAT NAME ANOTHER SURFACE.
+ *
+ * `MOD-SA-18`'s matrix (header L46160, body L46162-L46169, 8 rows, 7 pipe
+ * columns — the four platform roles plus the Tenant Admin and the Read-only
+ * Auditor, 48 cells) is the only Super Admin matrix in the build with
+ * tenant-domain columns. Four of its cells put the act somewhere else, and all
+ * four belong to those two tenant actors:
+ *
+ *   Tenant Admin, L46163 — "Allowed — in the Delivery Operations Hub".
+ *   Read-only Auditor, L46163 — "Allowed — the auditor's primary surface".
+ *   ONE of those two names the Hub, not both.
+ *   Read-only Auditor, L46165 — "Allowed with conditions — same, within the tenant's own record".
+ *   The Tenant Admin's cell on the same row is the longer form of it: an export
+ *   of the tenant's own audit as CSV or JSON with date and entity filters.
+ *
+ * THIS CONSOLE ADMITS NEITHER ACTOR. `CONSOLE_ROLE_VIEWS` is the four platform
+ * columns of L46160 and nothing else, so no read on this screen is ever
+ * answered for a tenant role, and no cell above is a grant this screen honours.
+ * That is what keeps one fact readable on two surfaces from being one read
+ * enforced twice.
+ *
+ * WHICH SURFACE HOLDS THE AUTHORITATIVE READ OF A TENANT'S OWN STREAM: the
+ * Delivery Operations Hub. The source says so in the cell itself — the Tenant
+ * Admin's grant is qualified BY A PLACE, and the place is not this console.
+ * Slice 10 built that screen, `SCR-DOH-20` at `/hub/audit-and-retention`
+ * (L48114, admitting the Read-only Auditor, the Tenant Admin and the Quality
+ * Manager).
+ *
+ * AND THE TWO FILTERS DIFFER IN SHAPE. This is the divergence, disclosed
+ * rather than reconciled, because reconciling it would mean widening one:
+ *
+ *   The Hub applies TWO stages. The reader's own matrix cell licences a set of
+ *   event classes, then every referenced object is authorised with its OWN
+ *   tenant, which is `AC-30D-105` at
+ *   L74029 — "Audit reading never bypasses the authorisation of the objects it references."
+ *
+ *   This console applies ONE. The reading role's class bound
+ *   (`readableClassesFor`), plus an actor bound for Support alone (L74224).
+ *   There is no per-object tenant stage and there must not be one: a platform
+ *   role holds no tenant to be isolated against — `accessContext` sets
+ *   `identity.tenant` to null by construction — and record-level tenant content
+ *   is not reachable from this console at all, only an object REFERENCE is.
+ *
+ * NEITHER FILTER IS WIDENED TO MAKE THEM AGREE. Platform visibility of the
+ * platform log is not ambient authorisation over tenant data; if this console
+ * ever showed more than the source grants, the console would be the fix. The
+ * ceiling is stated rather than closed: this screen's read is NOT
+ * tenant-isolation checked, and it is correct that it is not, because there is
+ * no tenant on this side to check it against.
+ *
+ * NO DECISION IDENTIFIER IS MINTED HERE, and no build-local key either. The
+ * source raises no contradiction to record: it grants the platform read on this
+ * surface and locates the tenant read on the other, in the same cell. Minting
+ * a key would render a conflict the source resolves. Where a tenant actor's
+ * reach across matrices IS open, the canon already carries `DEC-TACC-001` with
+ * its card at L23069.
+ */
+export interface TenantActorCell {
+  /** The matrix column, verbatim from the header at L46160. */
+  readonly column: string
+  /** The action column of the row, verbatim. */
+  readonly action: string
+  /** The cell, verbatim. */
+  readonly cell: string
+  readonly sourceRef: string
+  /** Where the act is carried instead. Never blank. */
+  readonly carriedBy: string
+}
+
+export const TENANT_ACTOR_CELLS = [
+  {
+    column: 'Tenant Admin',
+    action: "Read the tenant's own mirrored stream",
+    cell: 'Allowed — in the Delivery Operations Hub',
+    sourceRef: 'L46163',
+    carriedBy:
+      'The audit log explorer in the Delivery Operations Hub. The cell names the place itself, so the Hub holds this read and this console does not answer it.',
+  },
+  {
+    column: 'Read-only Auditor',
+    action: "Read the tenant's own mirrored stream",
+    cell: "Allowed — the auditor's primary surface",
+    sourceRef: 'L46163',
+    carriedBy:
+      'The same Hub screen, which admits the Read-only Auditor first among its three roles. This cell names a surface by describing it rather than by naming the Hub, and it is the only other cell of this row that does either.',
+  },
+  {
+    column: 'Tenant Admin',
+    action: 'Class-filtered export',
+    cell:
+      'Allowed with conditions — the tenant exports its own audit as CSV or JSON with date and entity filters',
+    sourceRef: 'L46165',
+    carriedBy:
+      "The tenant's own export, over the tenant's own record. The export control on this screen is the platform log's, and its holders are the platform columns of the same row.",
+  },
+  {
+    column: 'Read-only Auditor',
+    action: 'Class-filtered export',
+    cell: "Allowed with conditions — same, within the tenant's own record",
+    sourceRef: 'L46165',
+    carriedBy:
+      'The same tenant-side export, bounded by the same words. The cell says only same, meaning the cell beside it, so the two conditions are one condition stated once.',
+  },
+] as const satisfies readonly TenantActorCell[]
 
 /* ------------------------------------------------------------------ *
  * D15 — what the source does not define. Named, never invented.
@@ -679,8 +804,18 @@ export function PlatformAuditScreen({
         ? 'The audit store could not be read, and an export writes its own audit entry in the same transaction. An action that cannot be audited does not happen (AC-SA-18-02, FB-SA-03 L46191), so nothing may be submitted from this state.'
         : null
 
-  // L74224: Support reads its OWN session records — the actor bound, not just
-  // the class bound. Every other role's scope is the class bound alone.
+  // SCOPE IS ENFORCED HERE, IN WHAT THE SCREEN READS. `tableRows` maps `rows`
+  // and `rows` maps `scoped`, so nothing this filter drops can be drawn — a
+  // screen that read every entry and drew fewer would be enforcing scope in
+  // what it DREW.
+  //
+  // ONE STAGE, AND THE SECOND STAGE'S ABSENCE IS DELIBERATE. L74224: Support
+  // reads its OWN session records — the actor bound, not just the class bound.
+  // Every other role's scope is the class bound alone. There is no per-object
+  // tenant stage of the kind the Hub's audit log explorer applies, because
+  // `accessContext` gives a platform role no tenant to be isolated against; see
+  // `TENANT_ACTOR_CELLS` above for the disclosure and for why widening either
+  // side to make the two filters match is the one repair that is forbidden.
   const scoped = [...AUDIT_ENTRIES, ...exportEntries].filter((e) => {
     if (!readableClassIds.has(e.classId)) return false
     if (roleId === 'SUPPORT') return e.actor === 'Sophia'
@@ -1044,7 +1179,59 @@ export function PlatformAuditScreen({
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
           AC-SA-18-05: every cross-tenant access event mirrors into the affected tenant’s own audit
           stream, shown in the Mirroring column. AC-SA-18-06: the tenant’s Platform Access History
-          reads these same records rather than a distinct view of them.
+          reads these same records rather than a distinct view of them. Both criteria are at L46193.
+          Because those are the same records, the read exists on two surfaces — see the boundary
+          below for which surface holds which read, and what filter each applies.
+        </p>
+      </Section>
+
+      <Section
+        id="sa18-tenant-side-read"
+        heading="The same records, read on two surfaces — where each read lives"
+      >
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          This console admits the four platform roles and no tenant role at all, so no read here is
+          ever answered for a tenant actor. Four cells of this module’s matrix belong to the Tenant
+          Admin and the Read-only Auditor, and every one of them puts the act on the tenant’s own
+          surface rather than on this one.
+        </p>
+        <ul className="mt-3 space-y-2">
+          {TENANT_ACTOR_CELLS.map((c) => (
+            <li
+              key={`${c.sourceRef}-${c.column}-${c.action}`}
+              className="rounded border border-[var(--color-border)] p-3 text-sm"
+            >
+              <p className="font-medium">
+                {c.action} · {c.column}
+              </p>
+              <p className="mt-1 text-[var(--color-ink-muted)]">{c.cell}</p>
+              <p className="mt-1 text-[var(--color-ink-muted)]">{c.carriedBy}</p>
+              <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">{c.sourceRef}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          The two reads apply filters of different shape, and that is disclosed here rather than
+          reconciled. The audit log explorer in the Delivery Operations Hub filters in two stages:
+          the reader’s own matrix cell licences a set of event classes, then every object a returned
+          event references is authorised with that object’s own tenant, so audit reading never
+          bypasses the authorisation of the objects it references (AC-30D-105, L74029). This screen
+          filters in one: the reading role’s permitted event classes, plus an actor bound for the
+          Support role alone (L74224).
+        </p>
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          Neither filter is widened to make the two agree. A platform role holds no tenant, so there
+          is no second stage for this screen to apply — and platform visibility of the platform log
+          is not authorisation over tenant data. This screen therefore reads without a
+          tenant-isolation check, which is stated rather than hidden: what it shows is an entry and
+          an object reference, and record-level tenant content stays unreachable from here without a
+          named access class.
+        </p>
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          No decision identifier is recorded for this, because the source raises no conflict to
+          record: the same cell that grants the tenant actor its read also names where that read
+          lives. Where a tenant actor’s reach across matrices genuinely is open, the decision canon
+          already carries DEC-TACC-001, whose card is at L23069.
         </p>
       </Section>
 

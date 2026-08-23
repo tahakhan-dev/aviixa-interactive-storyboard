@@ -103,13 +103,13 @@ function namedReason(
   }
   if (decision.reasonCode === 'ROLE_NOT_GRANTED') {
     if (control === 'submit') {
-      return 'Submitting an all-tenant broadcast for root approval is the Admin’s control (L45614). This role does not hold it.'
+      return 'Submitting an all-tenant broadcast for root approval is the Admin’s control — the storyboard defines the control (L45614) and the permission matrix names its holder (L45658). This role does not hold it.'
     }
     const who =
       role === 'PLATFORM_ENGINEER'
         ? 'The Platform Engineer holds no platform-to-tenant communication control on this module.'
         : 'Composing and sending a tenant communication sits outside Support’s grants on this console.'
-    return `Composing and sending is carried by the Root Super Admin and the Admin (L45614). ${who}`
+    return `Composing and sending is carried by the Root Super Admin and the Admin (L45656, L45657). ${who}`
   }
   if (availability === 'unavailable') {
     return 'The broadcast composer cannot be reached in this state, so nothing can be sent from it.'
@@ -203,14 +203,24 @@ export function NotificationsScreen({
     actorOfRecord: 'FIXTURE-CONSOLE-OPERATOR',
   }
 
-  // Per-control allowed roles from L45614 — never the module-level
-  // `roles_allowed`, which differs in all seven extractions of this module
-  // and which D16 makes authoritative nowhere.
+  // Per-control allowed roles — never the module-level `roles_allowed`, which
+  // differs in all seven extractions of this module and which D16 makes
+  // authoritative nowhere.
+  //
+  // SLICE 10, TASK 12v CORRECTED WHERE THE ROLE SETS COME FROM. L45614 is the
+  // screen storyboard: it defines these controls, and it names NO role. The
+  // role sets are this module's own permission matrix — L45656 and L45657 give
+  // the Root Super Admin and the Admin `Allowed` on composing and sending and
+  // the other two `Unavailable`; L45658 gives the Admin
+  // "Allowed with conditions — drafts; the root approves as critical class",
+  // which is the submission control below. Both lines are cited beside L45614
+  // rather than replacing it, because the control and its holder are two
+  // different claims about two different lines.
   const channelDecision = evaluateAccess(
     {
       action: 'MOD-SA-14:choose-channels',
       allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
-      sourceRefs: ['L45614', 'AC-SA-14-01 L45684'],
+      sourceRefs: ['L45614', 'L45656', 'AC-SA-14-01 L45684'],
     },
     context,
   )
@@ -220,7 +230,7 @@ export function NotificationsScreen({
       allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
       allowedObjectStates: ['available'],
       objectState: availability,
-      sourceRefs: ['L45614', 'AC-SA-14-03 L45684'],
+      sourceRefs: ['L45614', 'L45656', 'L45657', 'AC-SA-14-03 L45684'],
     },
     context,
   )
@@ -230,7 +240,7 @@ export function NotificationsScreen({
       allowedRoles: ['ADMIN'],
       allowedObjectStates: ['available'],
       objectState: availability,
-      sourceRefs: ['L45614', 'AC-SA-14-03 L45684'],
+      sourceRefs: ['L45614', 'L45658', 'AC-SA-14-03 L45684'],
     },
     context,
   )
@@ -400,10 +410,12 @@ export function NotificationsScreen({
       <Section id="sa14-composer" heading="Broadcast composer">
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
           An announcement carries a type, a severity, a body and an optional action link (L45586).
-          The source names the channel selector’s roles — Root Super Admin and Admin, L45614 — and
-          the Admin’s submission control, but never names who holds the send control separately.
-          This prototype applies the channel selector’s set to it and says so rather than choosing
-          quietly.
+          The storyboard defines the composer and the channel selector and names no role for either
+          (L45614); the permission matrix names the holders of composing and sending — the Root
+          Super Admin and the Admin, L45656 and L45657 — and the Admin’s submission control
+          (L45658), but never names who holds a channel-selection or a send control separately from
+          composing. This prototype applies the composing-and-sending set to both and says so rather
+          than choosing quietly.
         </p>
         <div className="mt-3 max-w-md">
           <Field label="Target" description={describe('One named tenant, or every tenant.')}>

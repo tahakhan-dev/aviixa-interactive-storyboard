@@ -1,8 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import type { ScreenStateId } from '@/ui/screen-state'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
-import { PlatformAuditScreen, CONSOLE_ROLE_VIEWS, AUDIT_EVENT_CLASSES, AUDIT_ENTRY_STATES, AUDIT_EXPORT_STATES, AUDIT_ENTRIES, MODULE_CONTROLS, UNSPECIFIED_IN_SOURCE, readableClassesFor, type SaConsoleRoleToken } from '../../app/super-admin/platform-audit/PlatformAuditScreen'
+import { roleById, type RoleId } from '@/domain/roles'
+import { cellFromSource } from '@/policy/columns'
+import { PlatformAuditScreen, CONSOLE_ROLE_VIEWS, AUDIT_EVENT_CLASSES, AUDIT_ENTRY_STATES, AUDIT_EXPORT_STATES, AUDIT_ENTRIES, MODULE_CONTROLS, TENANT_ACTOR_CELLS, UNSPECIFIED_IN_SOURCE, readableClassesFor, type SaConsoleRoleToken } from '../../app/super-admin/platform-audit/PlatformAuditScreen'
 
 /** D10 / spec §10 gate 4: these four words appear nowhere in SURF-SA copy. */
 const FORBIDDEN_WORDS = /\b(tamper-evident|chained|signed|verified)\b/i
@@ -267,7 +271,7 @@ describe('MOD-SA-18 — every affordance runs through evaluateAccess (D16)', () 
     ])
   })
 
-  it('gives all four roles the filter control (L46121)', () => {
+  it('gives all four roles the filter control, defined at L46121 and granted at L46162', () => {
     for (const role of ALL_ROLES) {
       const view = renderAs(role)
       expect(screen.getByLabelText(/event class/i)).toBeTruthy()
@@ -302,7 +306,11 @@ describe('MOD-SA-18 — every affordance runs through evaluateAccess (D16)', () 
       const btn = screen.getByRole('button', { name: /request .*export/i })
       expect(btn.getAttribute('aria-disabled')).toBe('true')
       expect(reasonTextOf(btn)).toMatch(/Root Super Admin|Admin/)
-      expect(reasonTextOf(btn)).toMatch(/L46121/)
+      // SLICE 10, TASK 12v: was `/L46121/`. L46121 is the screen storyboard and
+      // names no role at all; the holder of this control is the permission
+      // matrix row, L46165, which also gives these two roles `Read-only` — the
+      // reason the refusal is DISABLED-with-a-named-reason rather than ABSENT.
+      expect(reasonTextOf(btn)).toMatch(/L46165/)
       view.unmount()
     }
   })
@@ -530,5 +538,181 @@ describe('MOD-SA-18 — support-not-surveillance holds at the tenant', () => {
       expect(copy).not.toMatch(/per[- ]worker|per hour|per minute|\/hr|\bper day\b|\brates?\b/i)
       view.unmount()
     }
+  })
+})
+
+/* ==================================================================== *
+ * SLICE 10, TASK 12v — THE VERIFICATION GATE OVER SLICE-3 BYTES.
+ *
+ * This whole screen is slice 3's. Slice 10 verified it rather than rebuilt
+ * it, and this block is what keeps the two findings from silently reverting:
+ * that the holders of both controls are read from the permission matrix and
+ * not from the storyboard line, and that the same audit read existing on two
+ * surfaces is disclosed rather than reconciled by widening a filter.
+ * ==================================================================== */
+
+const SOURCE_LINES = readFileSync(
+  join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md'),
+  'utf8',
+).split('\n')
+
+/** The frozen source's line N, 1-indexed as every citation in this tree is. */
+function sourceLine(n: number): string {
+  const line = SOURCE_LINES[n - 1]
+  if (line === undefined) throw new Error(`L${n} is beyond the frozen source`)
+  return line
+}
+
+/**
+ * `MOD-SA-18`'s matrix header, L46160, in column order: the four platform
+ * roles, then the Tenant Admin and the Read-only Auditor. Six actors, not five
+ * and not the four this console admits — the two tenant-domain columns are the
+ * whole reason this module needed verifying.
+ */
+const MATRIX_ACTORS: readonly RoleId[] = [
+  'ROOT_SUPER_ADMIN',
+  'ADMIN',
+  'PLATFORM_ENGINEER',
+  'SUPPORT',
+  'TENANT_ADMIN',
+  'READONLY_AUDITOR',
+]
+
+/**
+ * One matrix row of the frozen source, actor by actor, parsed with task 1's
+ * `cellFromSource` so the nine source tokens are read by the one parser that
+ * knows them. NOT a transcription held in this file: a transcription can drift
+ * from the source and still agree with itself, which is how a count inferred
+ * from a span survives review.
+ */
+function matrixRow(lineNumber: number): ReadonlyMap<RoleId, string> {
+  const parts = sourceLine(lineNumber).split('|')
+  // ['', action, ...six actor cells, ''] — a pipe table's leading and trailing
+  // delimiters produce an empty first and last field.
+  expect(parts).toHaveLength(MATRIX_ACTORS.length + 3)
+  return new Map(MATRIX_ACTORS.map((role, i) => [role, cellFromSource(parts[i + 2] ?? '').outcome]))
+}
+
+describe('MOD-SA-18 — the two controls hold the roles the MATRIX gives them, not the storyboard', () => {
+  it('reads its own matrix header at L46160 and finds six actors, two of them tenant-domain', () => {
+    const header = sourceLine(46160)
+      .split('|')
+      .map((s) => s.trim())
+      .filter((s) => s !== '')
+    expect(header).toEqual([
+      'Action',
+      'Root Super Admin',
+      'Admin',
+      'Platform Engineer',
+      'Support',
+      'Tenant Admin',
+      'Read-only Auditor',
+    ])
+    expect(MATRIX_ACTORS.filter((r) => roleById(r).domain === 'TENANT')).toEqual([
+      'TENANT_ADMIN',
+      'READONLY_AUDITOR',
+    ])
+  })
+
+  it('derives the filter control’s holders from L46162 and they are the four platform columns', () => {
+    const row = matrixRow(46162)
+    const allowed = MATRIX_ACTORS.filter((r) => row.get(r) === 'allowed')
+    expect(allowed).toEqual(['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'])
+    const control = MODULE_CONTROLS.find((c) => c.id === 'audit-filters')
+    expect(control?.allowedRoles).toEqual(allowed)
+    expect(control?.sourceRefs).toContain('L46162')
+    // Both tenant columns refuse this read outright, which is why the console
+    // holding it is not the same fact as the Hub holding the mirrored-stream read.
+    expect(row.get('TENANT_ADMIN')).toBe('explicitlyProhibited')
+    expect(row.get('READONLY_AUDITOR')).toBe('explicitlyProhibited')
+  })
+
+  it('derives the export control’s holders from L46165 — allowed twice, Read-only twice', () => {
+    const row = matrixRow(46165)
+    const allowed = MATRIX_ACTORS.filter((r) => row.get(r) === 'allowed')
+    expect(allowed).toEqual(['ROOT_SUPER_ADMIN', 'ADMIN'])
+    const control = MODULE_CONTROLS.find((c) => c.id === 'class-filtered-export')
+    expect(control?.allowedRoles).toEqual(allowed)
+    expect(control?.sourceRefs).toContain('L46165')
+    expect(row.get('PLATFORM_ENGINEER')).toBe('readOnly')
+    expect(row.get('SUPPORT')).toBe('readOnly')
+    // The two cells no brief mentioned. `Allowed with conditions`, not `Allowed`:
+    // a prefix match reads them as unconditional grants.
+    expect(row.get('TENANT_ADMIN')).toBe('allowedWithConditions')
+    expect(row.get('READONLY_AUDITOR')).toBe('allowedWithConditions')
+  })
+
+  it('is answered by the source rather than by this file: every declared holder is an `allowed` cell', () => {
+    const byControl = new Map<string, number>([
+      ['audit-filters', 46162],
+      ['class-filtered-export', 46165],
+    ])
+    for (const control of MODULE_CONTROLS) {
+      const line = byControl.get(control.id)
+      expect(line).toBeDefined()
+      const row = matrixRow(line ?? 0)
+      for (const role of control.allowedRoles) expect(row.get(role)).toBe('allowed')
+    }
+  })
+})
+
+describe('MOD-SA-18 — the same read on two surfaces, disclosed and not reconciled', () => {
+  it('admits four platform roles and no tenant-domain actor, in any state', () => {
+    expect(CONSOLE_ROLE_VIEWS).toHaveLength(4)
+    for (const view of CONSOLE_ROLE_VIEWS) expect(roleById(view.roleId).domain).toBe('PLATFORM')
+    // And the switcher cannot offer one either: every option's value is a token
+    // of the four, so no tenant role is selectable on this screen.
+    renderAs(ROOT)
+    const options = [...document.querySelectorAll('option')].map((o) => o.getAttribute('value'))
+    for (const token of CONSOLE_ROLE_VIEWS.map((v) => v.token)) expect(options).toContain(token)
+    expect(options).not.toContain('TENANT_ADMIN')
+    expect(options).not.toContain('READONLY_AUDITOR')
+  })
+
+  it('renders all four tenant-actor cells VERBATIM from the two lines that carry them', () => {
+    expect(TENANT_ACTOR_CELLS).toHaveLength(4)
+    renderAs(ROOT)
+    const copy = renderedCopy()
+    for (const cell of TENANT_ACTOR_CELLS) {
+      // The cell text is a substring of the source line it cites — the check
+      // that catches a paraphrase, an em dash turned into a hyphen, or a
+      // typographic apostrophe substituted for the source's own.
+      const line = sourceLine(Number(cell.sourceRef.slice(1)))
+      expect(line).toContain(cell.cell)
+      expect(copy).toContain(cell.cell)
+      expect(cell.carriedBy.trim()).not.toBe('')
+    }
+    // Two on each line, and one of the two on L46163 names the Hub — not both,
+    // which is the correction task 1 made to the common brief.
+    expect(TENANT_ACTOR_CELLS.filter((c) => c.sourceRef === 'L46163')).toHaveLength(2)
+    expect(TENANT_ACTOR_CELLS.filter((c) => c.sourceRef === 'L46165')).toHaveLength(2)
+    expect(
+      TENANT_ACTOR_CELLS.filter((c) => c.cell.includes('Delivery Operations Hub')),
+    ).toHaveLength(1)
+  })
+
+  it('states BOTH filter shapes and never that they agree', () => {
+    renderAs(ROOT)
+    const copy = renderedCopy()
+    expect(copy).toMatch(/two stages/i)
+    expect(copy).toMatch(/L74029/)
+    expect(copy).toMatch(/in one:/i)
+    expect(copy).toMatch(/L74224/)
+    expect(copy).toMatch(/Neither filter is widened/i)
+    expect(copy).toMatch(/without a\s+tenant-isolation check|reads without a tenant-isolation check/i)
+    // The claim a reader could act on wrongly. If either of these ever appears,
+    // this screen is asserting a parity it does not have.
+    expect(copy).not.toMatch(/the same filter|filters (?:are|match)|identical (?:filter|scope)/i)
+  })
+
+  it('mints no decision identifier and cites the one that already exists', () => {
+    renderAs(ROOT)
+    const copy = renderedCopy()
+    expect(copy).toContain('DEC-TACC-001')
+    expect(copy).toContain('L23069')
+    // Positive control on the pattern itself: it finds DEC-TACC-001, so a
+    // second identifier could not hide from it.
+    expect(copy.match(/\bDEC-[A-Z]+-\d{3}\b/g)).toEqual(['DEC-TACC-001'])
+    expect(copy).not.toMatch(/\bS10-[A-Z]/)
   })
 })
