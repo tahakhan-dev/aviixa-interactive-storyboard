@@ -293,7 +293,44 @@ lint clean · gate-ordering 24/24 · freshness 2 · **unit 5139** · **component
 100/100 static pages** · **release 767** · **e2e/axe 535 in 7.7m**. The record is
 `docs/process/2026-08-23-slice-10-verification.md`.
 
-**Slice 11 is the next slice, and its re-plan scope note is stale in a way that changes the work.**
+**Slice 11 wave 0 is closed and verified.** Nine commits, chain exit 0 on a clean tree: typecheck
+and lint clean · unit **5346** · component **2622** · build **100/100 static pages** · release 767 ·
+e2e/axe 535. The five mechanisms measured absent at session entry now exist — the sixteen-mode
+machine, the six provenance classes, the thirteen abilities with their twelve prohibitions, the
+sixty-failure catalogue with its 21-item spine, and the twelve-state request machine — over the
+roster, canon and collision-aware fallback registry task 6 built first and alone.
+
+**Four wave-0 findings that outlast the code.**
+
+`AIMODE-13` and `AIMODE-14` are **byte-identical across all five contract columns** — same worker
+label, same invocation, same deterministic safety, same escalation, same classification. `AC-42-303`
+requires a paused platform to be distinguishable from an unreachable one on every surface that shows
+a state, so for that pair the distinction rests entirely on the identifier or the name. `AIMODE-03`
+/`-15` and `AIMODE-01`/`-16` collide the same way: sixteen modes, thirteen distinct labels. **Every
+renderer in waves 1-3 inherits this.**
+
+**The absolute rule is a sentence, at L89439**, not the column inference both briefs cited: cached
+approved guidance and deterministic rules are "never, on any surface, in any locale, under any
+failure condition, labelled or described as live artificial intelligence."
+
+**The prohibition diagram is short by four, not three.** Eight refusal edges for twelve rows; #12 is
+drawn as three dotted `does not alter` non-effects, and a non-effect is not a refusal. Counted by the
+agent rather than taken from the plan, and the shortfall is derived rather than transcribed.
+
+**Only two of seven uncanonised decisions are real gaps.** `DEC-AIEMBED-001` and
+`DEC-AIFALLBACK-001` appear nowhere in the build. The other five are disclosed locally in the
+slice-8 pattern — `DEC-STORE-001` in seventeen files, `DEC-WIPE-001` in eighteen — which is the open
+consolidation question, not a hole.
+
+**Two gates were caught not firing, both by planting rather than by reading.** Task 1's
+no-seeded-timing gate matched field names and a **defaulted parameter** walked past it; rewritten to
+assert the module holds no numeral but zero, it caught both plants. Task 3 caught its own plant being
+defective — it used a field the type does not have, went green, and was re-planted as a real
+reconciliation of diagram to table. **Nine controller brief locators were wrong and every one was
+found by an agent opening the line**; the costliest claimed the Studio column reads uniformly across
+twelve rows, which would have forced a gate to assert the wrong reason onto row one.
+
+**Slice 11's re-plan scope note is stale in a way that changes the work.**
 The re-plan calls wave 2 "modules (5)" and says `app/command-center` and `app/frontline` hold one
 `page.tsx` each with no module routes. Measured on this tree: slice 9 shipped all thirteen Command
 Center module routes including `cc-05` through `cc-08`, and slice 7 shipped `MOD-FL-B8`. **Slice 11
