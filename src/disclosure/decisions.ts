@@ -114,6 +114,22 @@ export type DecisionId =
   | 'DEC-CMDEXP-001'
   | 'S10-IDENT-SCHED-001'
   | 'S10-DOH10-AUDITWRITE-001'
+  // Slice 11 — the artificial-intelligence canon.
+  | 'DEC-AIHELP-001'
+  | 'DEC-ONDEVICE-001'
+  | 'DEC-REPLAY-001'
+  | 'DEC-COACHREPLAY-001'
+  | 'DEC-AIDISCLOSE-001'
+  | 'DEC-AIRETRY-001'
+  | 'DEC-AITIMEOUT-001'
+  | 'DEC-AICB-001'
+  | 'DEC-AIFAILOVER-001'
+  | 'DEC-AIQUEUE-001'
+  | 'DEC-AISTALE-001'
+  | 'DEC-AICONF-001'
+  | 'DEC-AIQUAR-001'
+  | 'DEC-AIREPLAY-001'
+  | 'DEC-AITOKEN-001'
 
 /**
  * One reading of the source, and where it is. **Exactly two fields.** There is
@@ -1128,6 +1144,437 @@ export const OPEN_DECISIONS = [
       'Neither reading is presented as the answer, and the build declines the one action that would decide it silently: no live write control renders for this role on those two rows. They render LOCKED — visible, inoperable, with both criteria named inline and the matrix cell quoted beside them — which is a client-delegated choice under APP-012 rather than a claim the source settled it. The asymmetry is deliberate and is the whole reason this is not a coin toss: rendering the control would ship a failure of two NAMED criteria, while withholding it contradicts a matrix cell that no criterion cites. The same two criteria also decide the opposite-shaped case on the same card — L28699 gives that role `Read-only` on acknowledgement, a token that would otherwise render as disabled-for-now over an act withheld always — so the pair is load-bearing in both directions and cannot be read as boilerplate.',
     pins: [],
   },
+  /* ── Slice 11 · the artificial-intelligence canon ──────────────────── *
+   *
+   * FIFTEEN RECORDS, AND ONE DELIBERATE OMISSION NAMED BELOW.
+   *
+   * TWO DUAL-IDENTITY PAIRS. `DEC-AIHELP-001`/`DEC-ASK-001` and
+   * `DEC-ONDEVICE-001`/`DEC-LOCALAI-001` each ask one question under two
+   * identifiers, and MEASURED: not one line in the frozen source carries both
+   * halves of either pair. They are not restatements — in the first pair the
+   * two recommended options are different options — so one is registered
+   * canonical, the other kept as its alias, and both render.
+   *
+   * THREE REPLAY IDENTIFIERS THAT ARE NOT A PAIR. `DEC-REPLAY-001`,
+   * `DEC-COACHREPLAY-001` and `DEC-AIREPLAY-001` overlap and no line carries
+   * any two of the three. They are three records. Merging them would answer
+   * three questions with one answer, and the three have three different owners.
+   *
+   * TEN GOVERNING VALUES AND NO VALUE. The open register names retry limits,
+   * timeouts, breaker thresholds, failover policy, queue ceilings, staleness
+   * horizons, confidence floors, quarantine, safe replay and token ceilings,
+   * and sets none of them. Every one carries the refusal rather than a number,
+   * and no code-level default exists that could apply silently.
+   *
+   * ONE CONTRADICTION AT EQUAL PROVENANCE. `DEC-AIDISCLOSE-001`. Both sides
+   * render; neither is adopted.
+   *
+   * `DEC-GATE-001` IS DELIBERATELY NOT HERE, AND THE OMISSION IS THE FINDING.
+   * It already has four module-local homes with their own readings —
+   * `src/frontline/modules/fl-b8/service.ts`, `src/frontline/modules/fl-a5/service.ts`,
+   * `src/studio/modules/stu-02/rendering.ts` and `src/surfaces/cc/decisions/register.ts`
+   * — and three of those disclose ON SCREEN that this canon holds no record for
+   * it. Registering it here without consolidating those four would make a fifth
+   * home and turn three rendered statements into false claims. Consolidating
+   * them is its own task with its own gate, not a side effect of this one.
+   */
+  {
+    id: 'DEC-AIHELP-001',
+    decisionRef: 'DEC-AIHELP-001',
+    alias: 'DEC-ASK-001',
+    question:
+      'Does worker-initiated help enter scope, and if it does, may the worker type free text?',
+    readings: [
+      {
+        text: 'Option (a): exclude worker-initiated help at V1 and keep steps 1 through 8 only. Option (b), recommended here: include it with picked reason codes and no free text. Option (c): include it in full with free text and guardrails. Decision owner: the client, with tenant Quality Managers consulted.',
+        locator: 'DEC-AIHELP-001 · L89588',
+      },
+      {
+        text: 'The same question under the other identifier, with different options. Option (a): no question channel — coaching stays agent-initiated, which is what the Statement of Work describes. Option (b), recommended there: a bounded show-me-help-for-this-step request that re-invokes the same coaching retrieval with the same metadata filter, adding no free text. Option (c): a full free-text question channel. Decision owner: the client’s product owner. Both cards recommend their own (b) and the two (b)s are not the same option: one keeps a compose step with picked reasons, the other has no compose step at all.',
+        locator: 'DEC-ASK-001 · L92732',
+      },
+      {
+        text: 'A third reading neither card offers. The offline help sheet storyboards a compose sheet with four picked reasons and a free-text field, which is neither recommended option — it is option (c) of the first card rendered as though it were option (b).',
+        locator: 'SB-42-501 · L89566',
+      },
+      {
+        text: 'Where the question binds on a surface: the worker’s own row of the worker-initiated-help permission matrix reads Allowed with conditions subject to this decision, so the capability is conditional on it rather than merely informed by it.',
+        locator: 'DEC-AIHELP-001 · L89576',
+      },
+    ],
+    adopted:
+      'Both identifiers render and neither is dropped. This build takes no position on scope and ' +
+      'constructs no question channel; the two recommended options differ, and adopting either ' +
+      'would settle a question the source asks twice and answers differently each time. Where a ' +
+      'surface would offer worker-initiated help, it renders the identifiers and the readings ' +
+      'instead. A client-delegated choice under APP-012.',
+    pins: [],
+  },
+  {
+    id: 'DEC-ONDEVICE-001',
+    decisionRef: 'DEC-ONDEVICE-001',
+    alias: 'DEC-LOCALAI-001',
+    question: 'Does any artificial-intelligence capability run on the device?',
+    readings: [
+      {
+        text: 'Option (a): explicitly out of scope at V1 and beyond. Option (b), recommended here: out of scope at V1 with a research track. Option (c): in scope for a pilot on a named device class once the device-profile decision lands. Decision owner: the client, with the Root Super Admin as approving authority for any subsequent distribution.',
+        locator: 'DEC-ONDEVICE-001 · L89794',
+      },
+      {
+        text: 'The same question under the other identifier, with different options. Option (a): no local model — cached curated assets only, which is what the Statement of Work describes. Option (b), recommended there: a small local retrieval index over already-approved cached assets, with no generative capability. Option (c): a full local model. Decision owner: the client’s platform team.',
+        locator: 'DEC-LOCALAI-001 · L92770',
+      },
+      {
+        text: 'What the answer decides, stated in the source rather than inferred: the offline-with-approved-local-artificial-intelligence mode is defined but never entered while this decision is undecided, and every offline device enters the no-local-capability mode instead.',
+        locator: 'DEC-ONDEVICE-001 · L89261',
+      },
+      {
+        text: 'The requirement areas the source says would all have to be answered first — devices, hardware, memory, storage, battery, compute, thermals, packaging, signing, checksums, encryption, isolation, model version, application compatibility, activation, confidence thresholds, knowledge boundaries, prohibited actions, corruption detection, resource exhaustion, offline telemetry, disablement, removal and rollback, and local-versus-cloud disagreement. Each is a question with a recommendation and an owner, and not one carries an invented contractual value.',
+        locator: 'DEC-ONDEVICE-001 · L89809',
+      },
+    ],
+    adopted:
+      'Both identifiers render and neither is dropped. No on-device capability is built and none ' +
+      'is configurable, which is the only behaviour consistent with either card while the ' +
+      'question is open. The mode that would depend on it is defined and unreachable, and any ' +
+      'surface showing it says so with the identifier rather than rendering it as a state a ' +
+      'device could be in. A client-delegated choice under APP-012.',
+    pins: [],
+  },
+  {
+    id: 'DEC-REPLAY-001',
+    decisionRef: 'DEC-REPLAY-001',
+    alias: null,
+    question:
+      'After an agentic-layer outage, which missed agent activations are replayed on restoration?',
+    readings: [
+      {
+        text: 'Option (a): replay every missed activation on restoration, marked as a late agent activation. Option (b), recommended: replay only deviation-class activations and never coaching, because coaching delivered after the worker has left the screen is noise. Option (c): replay nothing and record an explicit gap marker on each affected record. Decision owner: the client’s platform team, with the tenant’s Quality Manager consulted on the marking convention.',
+        locator: 'DEC-REPLAY-001 · L86052',
+      },
+      {
+        text: 'Where it bites operationally: when a platform-wide pause is resumed as a separate audited act, what happens to the runs parked during it is governed by this decision and by nothing else.',
+        locator: 'DEC-REPLAY-001 · L87856',
+      },
+      {
+        text: 'It is registered as new to the platform canon at the chapter 40 opening rather than inherited from an earlier chapter, which is why no earlier decision answers it.',
+        locator: 'DEC-REPLAY-001 · L88893',
+      },
+    ],
+    adopted:
+      'Registered as its own record and merged with neither of the other two replay identifiers. ' +
+      'No line in the frozen source carries any two of the three, they have three different ' +
+      'owners, and this one is about agent activations missed during an outage rather than about ' +
+      'coaching cards or about what is safe to re-run. This build replays nothing and marks no ' +
+      'record late. A client-delegated choice under APP-012.',
+    pins: [],
+  },
+  {
+    id: 'DEC-COACHREPLAY-001',
+    decisionRef: 'DEC-COACHREPLAY-001',
+    alias: null,
+    question:
+      'Are coaching opportunities missed while a device was offline replayed after reconnection?',
+    readings: [
+      {
+        text: 'Option (a), recommended: never replay, convert to a learning signal only. Option (b): replay only where the step execution is still open. Option (c): replay as a review item on the Command Center rather than to the worker. Decision owner: the client’s product owner, with the tenant’s Quality Manager consulted.',
+        locator: 'DEC-COACHREPLAY-001 · L91819',
+      },
+      {
+        text: 'The cost of the recommended option is stated rather than hidden: the intervention that might have prevented a deviation is genuinely lost, against the benefit that a worker is not coached on a step they finished hours ago.',
+        locator: 'DEC-COACHREPLAY-001 · L91815',
+      },
+      {
+        text: 'It is carried in the chapter register as a decision this chapter raises which the platform canon did not already hold.',
+        locator: 'DEC-COACHREPLAY-001 · L95379',
+      },
+    ],
+    adopted:
+      'Registered as its own record and merged with neither of the other two replay identifiers. ' +
+      'This build replays no coaching card after reconnection and converts nothing to a review ' +
+      'item, which is the behaviour the source specifies while the question is open. A ' +
+      'client-delegated choice under APP-012.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AIDISCLOSE-001',
+    decisionRef: 'DEC-AIDISCLOSE-001',
+    alias: null,
+    question:
+      'Does the worker’s own surface disclose that artificial intelligence is paused or unavailable?',
+    readings: [
+      {
+        text: 'Reading one, and it is a ruling rather than an option: on the worker surface the platform shows nothing at all about the pause, because a worker’s experience is unchanged except that no coaching appears and telling a worker that agents are paused would be noise about a system they do not operate.',
+        locator: 'SB-AI-015 · L87854',
+      },
+      {
+        text: 'Reading two, from the card that raises the decision. The pause must render as agent unavailability and never as silence, and the platform’s own honesty principle applies with equal force to the worker, who is the person deciding whether to walk to a better signal or wait. Without disclosure a worker cannot distinguish no coaching because nothing triggered from no coaching because the platform is paused, and will draw the wrong conclusion in both directions.',
+        locator: 'DEC-AIDISCLOSE-001 · L89396',
+      },
+      {
+        text: 'Reading two, corroborated at the mode definitions: during a tenant suspension and during a platform suspension the worker sees a mode chip reading that live coaching is paused by the platform, explicitly not offline, because the distinction matters to a worker deciding whether to walk to a better signal.',
+        locator: 'AIMODE-13 · L89289',
+      },
+      {
+        text: 'Reading two, corroborated again across five surfaces in one storyboard, where the worker’s tablet chip carries the paused-by-the-platform wording alongside the Command Center banner and the console’s resume control.',
+        locator: 'SB-42-301 · L89348',
+      },
+      {
+        text: 'And corroborated a third time in the mode matrix, whose worker-facing column carries the same wording for both suspension modes. The provenance is not symmetric here and the asymmetry is recorded rather than used: the two storyboard rulings are both marked Derived Clarification, while these two matrix rows are classified as a Statement of Work fact.',
+        locator: 'AIMODE-13 · L89368 · AIMODE-14 · L89369',
+      },
+      {
+        text: 'The status strip that would carry the chip is itself marked Derived Clarification and names this decision, because the Statement of Work requires honest rendering of agent unavailability in the Command Center and names no worker-facing indicator at all.',
+        locator: 'DEC-AIDISCLOSE-001 · L89046',
+      },
+    ],
+    adopted:
+      'Neither reading is adopted and this task builds neither. The two storyboard rulings ' +
+      'contradict each other about the same surface and carry the same provenance marking, so ' +
+      'neither outranks the other, and building one silently would be a false claim on the ' +
+      'surface where a person acts. Every locator on both sides is pinned here so that the task ' +
+      'that renders a worker-facing mode chip, or refuses to, has to face both. A ' +
+      'client-delegated choice under APP-012.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AIRETRY-001',
+    decisionRef: 'DEC-AIRETRY-001',
+    alias: null,
+    question: 'Retry limit and backoff for a failing model call: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: Fixed count; count with exponential backoff; deadline-based rather than count-based. Why it matters: Too few retries wastes a recoverable call; too many delays the fallback past the moment coaching is useful.',
+        locator: 'DEC-AIRETRY-001 · L89997',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Deadline-based, bounded by the coaching usefulness window, with jittered backoff inside it. Trade-off: A deadline is harder to reason about than a count in an incident. Decision owner: Client, advised by the platform team.',
+        locator: 'DEC-AIRETRY-001 · L89997',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AIRETRY-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AITIMEOUT-001',
+    decisionRef: 'DEC-AITIMEOUT-001',
+    alias: null,
+    question: 'Orchestrator loop timeout and max plan steps: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: Per-agent values; one platform value; tier-scaled values. Why it matters: An unbounded loop consumes tenant token ceilings and delays every queued request behind it.',
+        locator: 'DEC-AITIMEOUT-001 · L89998',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Per-agent values with a platform ceiling, because the Shift Handoff Agent and the Prevention Agent have very different latency budgets. Trade-off: Per-agent tuning is more configuration surface to govern. Decision owner: Client.',
+        locator: 'DEC-AITIMEOUT-001 · L89998',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AITIMEOUT-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AICB-001',
+    decisionRef: 'DEC-AICB-001',
+    alias: null,
+    question: 'Circuit-breaker open threshold, open duration, and half-open probe policy: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: Error-rate threshold; consecutive-failure threshold; combined. Why it matters: Without a breaker a failing provider is hammered and every tenant waits behind it.',
+        locator: 'DEC-AICB-001 · L89999',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Combined, per router role, with a bounded half-open probe. Trade-off: Combined thresholds are harder to explain to a tenant during an incident. Decision owner: Client.',
+        locator: 'DEC-AICB-001 · L89999',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AICB-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AIFAILOVER-001',
+    decisionRef: 'DEC-AIFAILOVER-001',
+    alias: null,
+    question: 'Approved alternate provider and model failover policy: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: Automatic silent failover; automatic failover with disclosure; manual failover only. Why it matters: The fallback router role exists but no policy governs when it is used, whether evaluations are re-asserted, and whether the tenant is told.',
+        locator: 'DEC-AIFAILOVER-001 · L90000',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Automatic with disclosure, and the evaluation gate re-asserted for the target model before it serves. Trade-off: Disclosure adds tenant-visible noise during transient events. Decision owner: Client, root approval where it is a critical-class settings change.',
+        locator: 'DEC-AIFAILOVER-001 · L90000',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AIFAILOVER-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AIQUEUE-001',
+    decisionRef: 'DEC-AIQUEUE-001',
+    alias: null,
+    question: 'Queue-depth ceiling and back-pressure policy for queued artificial-intelligence requests, per device and per tenant: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: Per-device cap; per-tenant cap; both. Why it matters: An unbounded queue on a device competes with evidence for storage, and an unbounded server queue turns a short outage into a long one.',
+        locator: 'DEC-AIQUEUE-001 · L90001',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Both, with evidence always outranking requests for storage under the fallback safety priority order. Trade-off: A cap means some questions are refused at ask time. Decision owner: Client.',
+        locator: 'DEC-AIQUEUE-001 · L90001',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AIQUEUE-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AISTALE-001',
+    decisionRef: 'DEC-AISTALE-001',
+    alias: null,
+    question: 'Answerable horizon and answer presentability horizon: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: Bind to the record-finish window; bind to the credential-trust window; independent tenant value. Why it matters: Raised in section 42.5; repeated here because the catalog depends on it.',
+        locator: 'DEC-AISTALE-001 · L90002',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Bind to the record-finish window. Trade-off: Tenants with a seven-day window inherit a seven-day horizon. Decision owner: Client.',
+        locator: 'DEC-AISTALE-001 · L90002',
+      },
+      {
+        text: 'The same question, carded separately in section 42.5 with its own options: (a) bind the horizon to the record-finish window, so a request dies when its run finishes; (b) bind it to the credential-trust window; (c) an independent tenant-set value. The recommendation there is (a). Neither card states a value and this build seeds none.',
+        locator: 'DEC-AISTALE-001 · L89590',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AISTALE-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AICONF-001',
+    decisionRef: 'DEC-AICONF-001',
+    alias: null,
+    question: 'Confidence or relevance floor for corpus retrieval, and the suppression rule below it: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: Platform-fixed floor; tenant floor above a platform minimum; per-screen floor. Why it matters: Without a floor, weak retrieval surfaces a wrong clip on a right screen.',
+        locator: 'DEC-AICONF-001 · L90003',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Tenant floor above a platform minimum, with suppression to `PROV-3` below it. Trade-off: A floor set too high suppresses useful coaching. Decision owner: Client, advised by the tenant’s Quality Manager.',
+        locator: 'DEC-AICONF-001 · L90003',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AICONF-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AIQUAR-001',
+    decisionRef: 'DEC-AIQUAR-001',
+    alias: null,
+    question: 'Model quarantine policy — entry criteria, scope, duration, exit criteria: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: No quarantine, rely on disable; quarantine per model; quarantine per model and tenant. Why it matters: Quarantine is not in the source at all; see section 43.4.',
+        locator: 'DEC-AIQUAR-001 · L90004',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Quarantine per model with a tenant-scoped variant. Trade-off: Quarantine is a new administered object with its own approval class. Decision owner: Client.',
+        locator: 'DEC-AIQUAR-001 · L90004',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AIQUAR-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AIREPLAY-001',
+    decisionRef: 'DEC-AIREPLAY-001',
+    alias: null,
+    question: 'Safe replay policy — what may be re-run after recovery, and what must never be: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: No replay; replay with revalidation; replay only of reasoning outputs never of action proposals. Why it matters: Re-running a stale agent request against a changed world is exactly the behaviour chapter 42 forbids.',
+        locator: 'DEC-AIREPLAY-001 · L90005',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Replay only of reasoning outputs, with revalidation, and never of action proposals. Trade-off: Reasoning-only replay leaves some work permanently unrecovered. Decision owner: Client.',
+        locator: 'DEC-AIREPLAY-001 · L90005',
+      },
+      {
+        text: 'The platform console’s failure-response authority matrix carries a Safe replay control whose permissive cells all read Client Decision Required under this identifier, so the control renders with the identifier rather than as a working control.',
+        locator: 'DEC-AIREPLAY-001 · L91294',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AIREPLAY-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
+  {
+    id: 'DEC-AITOKEN-001',
+    decisionRef: 'DEC-AITOKEN-001',
+    alias: null,
+    question: 'Per-tenant token ceiling values and the behaviour at breach: what value does the client set?',
+    readings: [
+      {
+        text: 'Options recorded in the source, none of them chosen: Hard stop; soft throttle; throttle then stop with tenant notification. Why it matters: The control is named in Model and Inference settings; no value or breach behaviour is stated, and the source notes token telemetry is the client’s cost telemetry.',
+        locator: 'DEC-AITOKEN-001 · L90006',
+      },
+      {
+        text: 'The source’s own recommendation, labelled a recommendation and not a value: Throttle then stop with tenant notification, because a silent hard stop looks identical to an outage. Trade-off: Throttling degrades coaching quality before anyone is told. Decision owner: Client.',
+        locator: 'DEC-AITOKEN-001 · L90006',
+      },
+    ],
+    adopted:
+      'Not yet set — client decision DEC-AITOKEN-001. This build seeds no value for it and holds no ' +
+      'code-level default that could apply silently, because a number written here would be read ' +
+      'as contractual and quoted back. A capability governed by this value renders the refusal ' +
+      'and the identifier instead of a figure. The recommendation above is the source’s own and ' +
+      'is labelled one.',
+    pins: [],
+  },
 ] as const satisfies readonly OpenDecision[]
 
 /**
@@ -1187,6 +1634,21 @@ export const OPEN_DECISION_IDS = [
   'DEC-CMDEXP-001',
   'S10-IDENT-SCHED-001',
   'S10-DOH10-AUDITWRITE-001',
+  'DEC-AIHELP-001',
+  'DEC-ONDEVICE-001',
+  'DEC-REPLAY-001',
+  'DEC-COACHREPLAY-001',
+  'DEC-AIDISCLOSE-001',
+  'DEC-AIRETRY-001',
+  'DEC-AITIMEOUT-001',
+  'DEC-AICB-001',
+  'DEC-AIFAILOVER-001',
+  'DEC-AIQUEUE-001',
+  'DEC-AISTALE-001',
+  'DEC-AICONF-001',
+  'DEC-AIQUAR-001',
+  'DEC-AIREPLAY-001',
+  'DEC-AITOKEN-001',
 ] as const satisfies readonly DecisionId[]
 
 const _decisionIdsExhaustive: Exclude<DecisionId, (typeof OPEN_DECISION_IDS)[number]> extends never ? true : never = true

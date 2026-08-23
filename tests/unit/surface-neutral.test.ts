@@ -159,6 +159,21 @@ const CANON_IDS: readonly DecisionId[] = [
   'DEC-CMDEXP-001',
   'S10-IDENT-SCHED-001',
   'S10-DOH10-AUDITWRITE-001',
+  'DEC-AIHELP-001',
+  'DEC-ONDEVICE-001',
+  'DEC-REPLAY-001',
+  'DEC-COACHREPLAY-001',
+  'DEC-AIDISCLOSE-001',
+  'DEC-AIRETRY-001',
+  'DEC-AITIMEOUT-001',
+  'DEC-AICB-001',
+  'DEC-AIFAILOVER-001',
+  'DEC-AIQUEUE-001',
+  'DEC-AISTALE-001',
+  'DEC-AICONF-001',
+  'DEC-AIQUAR-001',
+  'DEC-AIREPLAY-001',
+  'DEC-AITOKEN-001',
 ]
 
 /**
@@ -173,11 +188,14 @@ const CANON_IDS: readonly DecisionId[] = [
 const NO_READINGS_BY_DESIGN: readonly DecisionId[] = ['DEC-FINISH-002']
 
 /**
- * Every record carrying a second spelling of its own question. THREE, not one:
- * `DEC-WFROLL-001` (`DEC-VERROLL-001`), `DEC-SCHED-002`
- * (`DEC-SCHED-MISFIRE-001`), and `S10-IDENT-SCHED-001`, whose subject is a
- * non-human identity register rather than a decision and which therefore
- * carries the re-spellings rather than one. Where the source asks one question
+ * Every record carrying a second spelling of its own question, and the set is
+ * asserted in full rather than as a count of it: `DEC-WFROLL-001`
+ * (`DEC-VERROLL-001`), `DEC-SCHED-002` (`DEC-SCHED-MISFIRE-001`),
+ * `S10-IDENT-SCHED-001`, whose subject is a non-human identity register rather
+ * than a decision and which therefore carries the re-spellings rather than one,
+ * `DEC-AIHELP-001` (`DEC-ASK-001`) and `DEC-ONDEVICE-001` (`DEC-LOCALAI-001`),
+ * each of which is one question asked twice with no line in the frozen source
+ * carrying both identifiers. Where the source asks one question
  * under two identifiers and never cross-references them, dropping one makes
  * the card unfindable by a client searching on the other, so the set is
  * asserted in full rather than "the only alias on the surface".
@@ -186,6 +204,8 @@ const ALIAS_BEARING: readonly DecisionId[] = [
   'DEC-WFROLL-001',
   'DEC-SCHED-002',
   'S10-IDENT-SCHED-001',
+  'DEC-AIHELP-001',
+  'DEC-ONDEVICE-001',
 ]
 
 describe('the canon’s membership, asserted in exactly one place', () => {
@@ -245,7 +265,7 @@ describe('the canon’s membership, asserted in exactly one place', () => {
    *
    * Planted: `alias` nulled on `DEC-SCHED-002`. RED, naming the set.
    */
-  it('carries a second spelling on exactly the three records that have one', () => {
+  it('carries a second spelling on exactly the records that have one', () => {
     expect(OPEN_DECISIONS.filter((d) => d.alias !== null).map((d) => d.id)).toEqual(ALIAS_BEARING)
     expect(decisionRecord('DEC-WFROLL-001').alias).toBe('DEC-VERROLL-001')
     expect(decisionRecord('DEC-SCHED-002').alias).toBe('DEC-SCHED-MISFIRE-001')

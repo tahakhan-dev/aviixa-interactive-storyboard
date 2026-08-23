@@ -1,4 +1,10 @@
 import {
+  GOVERNANCE_BINDING_ALIAS,
+  type AgentKind,
+  type AiAgentId,
+  type GovernanceBinding as AiGovernanceBinding,
+} from '@/ai/agents/roster'
+import {
   WHEEL_BOLT_CONFIGURATION,
   configuredScreen,
   type ConfigurationDraft,
@@ -44,9 +50,23 @@ import type { ConfigurationSection } from '@/studio/vocab'
 
 /* ==================================================================== *
  * THE THREE STANDARD AGENTS — L31707-L31709, three data rows.
+ *
+ * THE STUDIO'S VIEW OF A CROSS-SURFACE ROSTER. Slice 11 moved the identity
+ * set and the governance-binding vocabulary to `@/ai/agents/roster`, because
+ * five surfaces render agent state and only one of them is this module. What
+ * stayed here is what is genuinely the Studio's: which parameters each agent
+ * needs from the Studio, and where each is authored.
+ *
+ * The two tables are not one table transcribed twice. Chapter 20's rows
+ * L31707-L31709 carry a Studio-must-supply column and a where-configured
+ * column; chapter 44's roster carries governance, availability and failure
+ * impact, and one more agent — the Vision Reasoning Agent, which is a later
+ * release with no Studio configuration to author. So this view is the three
+ * of the four the Studio has anything to say about, and the type says so by
+ * subtraction from the shared id set rather than by re-declaring it.
  * ==================================================================== */
 
-export type StandardAgentId = 'prevention' | 'deviation-and-containment' | 'shift-handoff'
+export type StandardAgentId = Exclude<AiAgentId, 'vision-reasoning'>
 
 export const STANDARD_AGENT_IDS = [
   'prevention',
@@ -63,8 +83,11 @@ void _agentIdsExhaustive
  * report, or summary — and changes no state, so it carries no per-event
  * approval gate. An action agent changes state or reaches a worker, and acts
  * only under governance."
+ *
+ * Shared with every other surface that renders an agent, so it is re-exported
+ * from `@/ai/agents/roster` rather than declared a second time here.
  */
-export type AgentKind = 'action agent' | 'reasoning agent'
+export type { AgentKind } from '@/ai/agents/roster'
 
 /**
  * `DEC-GATE-001`'s adopted working position (L31692), which "declares gating
@@ -84,8 +107,25 @@ export type AgentKind = 'action agent' | 'reasoning agent'
  * authoring-time approval and the Deviation and Containment Agent's runtime
  * gate identically, which is the exact misrepresentation the sentence
  * forbids.
+ *
+ * ### THE THIRD VALUE IS AN ALIAS, NOT A DIFFERENT VALUE
+ *
+ * The frozen source spells it two ways and both are its own words. L31709 —
+ * the row this module transcribes — spells it the way written below; the
+ * field's own declaration at L88109 spells it `none — reasoning agent`, and
+ * that is the spelling `@/ai/agents/roster` registers as canonical. This type
+ * is therefore the shared vocabulary with the alias substituted for the
+ * canonical in the third slot, rather than a second hand-written union: widen
+ * or narrow the shared vocabulary and this type moves with it, and the alias
+ * cannot drift from the pair that declares it.
+ *
+ * The spelling below is NOT corrected to the canonical one. It is what this
+ * module has always rendered and what `tests/unit/stu-agents.test.ts` asserts
+ * verbatim, and a check written against one literal fails on the other.
  */
-export type GovernanceBinding = 'authoring-time policy' | 'runtime human gate' | 'no governance gate'
+export type GovernanceBinding =
+  | Exclude<AiGovernanceBinding, typeof GOVERNANCE_BINDING_ALIAS.canonical>
+  | typeof GOVERNANCE_BINDING_ALIAS.alias
 
 export const GOVERNANCE_BINDINGS = [
   'authoring-time policy',

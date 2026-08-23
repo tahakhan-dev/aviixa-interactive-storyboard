@@ -634,18 +634,27 @@ const SLICE_10_DECISION_IDS: readonly DecisionId[] = [
 ]
 
 describe('slice 10 gate 4: the canon carries this slice, and nothing carries it twice', () => {
-  it('holds every slice-10 id, and the alias population is exactly three', () => {
+  it('holds every slice-10 id, and the whole alias population it shares a canon with', () => {
     const ids = new Set(OPEN_DECISIONS.map((d) => d.id))
     for (const id of SLICE_10_DECISION_IDS) {
       expect(ids.has(id), `the canon lost ${id}`).toBe(true)
     }
 
-    // BOTH ALIAS PAIRS, AND THE ONE THAT PRECEDES THIS SLICE, asserted as the
-    // whole population rather than as a count of this slice's share. An alias
-    // added anywhere is a second question folded into one record.
+    // EVERY ALIAS IN THE CANON, asserted as the whole population rather than
+    // as a count of this slice's share. An alias added anywhere is a second
+    // question folded into one record, so this list grows deliberately and
+    // never silently: slice 11 added `DEC-AIHELP-001` (`DEC-ASK-001`) and
+    // `DEC-ONDEVICE-001` (`DEC-LOCALAI-001`), each one question asked under
+    // two identifiers with no line in the frozen source carrying both.
     const aliased = OPEN_DECISIONS.filter((d) => d.alias !== null).map((d) => d.id)
     expect(aliased.sort()).toEqual(
-      ['DEC-SCHED-002', 'DEC-WFROLL-001', 'S10-IDENT-SCHED-001'].sort(),
+      [
+        'DEC-AIHELP-001',
+        'DEC-ONDEVICE-001',
+        'DEC-SCHED-002',
+        'DEC-WFROLL-001',
+        'S10-IDENT-SCHED-001',
+      ].sort(),
     )
     const bySchedule = OPEN_DECISIONS.find((d) => d.id === 'DEC-SCHED-002')!
     expect(bySchedule.alias).toContain('DEC-SCHED-MISFIRE-001')
