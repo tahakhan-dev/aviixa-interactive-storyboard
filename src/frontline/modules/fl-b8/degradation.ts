@@ -399,9 +399,12 @@ export const FL_B8_PAUSE_DISCLOSURE = {
  * second copy would be the closed-vocabulary defect; the covering test reads
  * this constant only to know WHICH record to check.
  */
-export const FL_B8_CANON_RECORDS_RENDERED_ON_THIS_SURFACE: readonly DecisionId[] = [
+export const FL_B8_CANON_RECORDS_RENDERED_ON_THIS_SURFACE = [
   AIMODE_WORKER_DISCLOSURE_DECISION,
-]
+  // `as const satisfies`, never an annotation: `readonly DecisionId[]` widens
+  // every member to the union and `slice-2c-gates` gate 2 refuses it, which is
+  // how this line was corrected rather than reviewed.
+] as const satisfies readonly DecisionId[]
 
 /* ==================================================================== *
  * 6. FINDINGS AND SEAMS. Recorded, owned, and not closed here.
