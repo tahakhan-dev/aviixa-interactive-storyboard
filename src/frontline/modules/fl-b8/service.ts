@@ -682,9 +682,8 @@ export const B8_SOURCE_TESTS = [
  * module's; that finding and this one were made independently and agree.
  *
  * WHY IT IS NOT RENDERED BY `@/disclosure/DecisionDisclosure`. That component
- * takes a `DecisionId`, and the canon in `src/disclosure/decisions.ts` holds
- * twenty-nine records of which none is `DEC-GATE-001` — every one of the
- * twenty-nine was raised while `SURF-STU` and the platform surfaces were built.
+ * takes a `DecisionId`, and `DEC-GATE-001` is not a member of the union the
+ * canon in `src/disclosure/decisions.ts` exports.
  * Adding it means editing that file, which this module does not own and which
  * one later task lifts all at once. So it is carried here in the canon's own
  * record shape, with `DecisionReading` IMPORTED rather than redeclared, and

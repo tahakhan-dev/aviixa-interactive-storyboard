@@ -595,9 +595,10 @@ export interface Doh08Contradiction {
 
 /**
  * NOT `@/disclosure/decisions`, and the difference is checkable rather than a
- * matter of taste. That canon holds twenty-nine records and neither of these
- * is among them, so there is no id to hand `DecisionDisclosure` and no record
- * for it to look up. Writing a second wording of an existing record would be
+ * matter of taste. Neither of these is a member of that canon's exported
+ * `DecisionId` union, so there is no id to hand `DecisionDisclosure` and no
+ * record for it to look up. Writing a second wording of an existing record
+ * would be
  * exactly the drift that component exists to stop; minting a record inside the
  * canon is an edit to a wave-0 file this task may not make. So the two are
  * recorded here, in the module that owns them, and reported upward.

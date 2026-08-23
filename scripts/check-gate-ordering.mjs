@@ -333,6 +333,12 @@ const AUDITED = {
     rewrittenBy: null,
     verdict: 'NOT VACUOUS.',
   },
+  'canon-size-literal.test.ts': {
+    subject: 'authored .ts/.tsx under src/ and app/, plus OPEN_DECISIONS.length read from src/',
+    rewrittenBy: null,
+    verdict:
+      'NOT VACUOUS. No verify step writes src/ or app/. Both ends of the comparison are authored: the forbidden literal is derived from OPEN_DECISIONS.length at run time and the scan is over the same authored tree, so nothing the pipeline produces can satisfy it. Carries a file-count floor so an empty walk cannot pass silently, and three self-plants (current size spelled and numeric, a wrong size, and the quoted-record exemption proved by convicting the same words unquoted).',
+  },
 }
 
 const HOW_TO_FIX =

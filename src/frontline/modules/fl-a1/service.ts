@@ -281,11 +281,10 @@ export const COMPLIANCE_MESSAGE_FRONTLINE_RENDERINGS = [
  * THE OPEN DECISIONS THIS MODULE DISCLOSES.
  *
  * WHY THEY ARE NOT RENDERED BY `@/disclosure/DecisionDisclosure`. That
- * component takes a `DecisionId`, and the canon in
- * `src/disclosure/decisions.ts` holds twenty-nine records of which NONE is
- * `DEC-MSG-001`, `DEC-WIPELOGOUT-001`, `DEC-SUSP-001` or `DEC-DEVICE-001` —
- * every one of the twenty-nine was raised while `SURF-STU` was built. Adding
- * them means editing that file, which this module does not own, so the four
+ * component takes a `DecisionId`, and the union the canon in
+ * `src/disclosure/decisions.ts` exports contains NONE of `DEC-MSG-001`,
+ * `DEC-WIPELOGOUT-001`, `DEC-SUSP-001` or `DEC-DEVICE-001`. Adding them
+ * means editing that file, which this module does not own, so the four
  * are carried here with the same three obligations the renderer discharges:
  * the identifier, EVERY reading with its own locator, and this build's
  * working position labelled a client-delegated choice. The precedent is

@@ -231,8 +231,9 @@ export const CC05_DIVERGENCES = [
 /**
  * The decision that governs divergence one. It is chapter 17's, it is `Client
  * Decision Required`, and it is carried in no file of this build — the canon
- * at `src/disclosure/decisions.ts` holds twenty-nine records and this is not
- * one of them, and task 5's surface register keys on a `CcDecisionId` that
+ * at `src/disclosure/decisions.ts` holds no record keyed to it, so it is not
+ * a member of that file's `DecisionId` union, and task 5's surface register
+ * keys on a `CcDecisionId` that
  * does not include it. It is recorded here as a POINTER with its own line,
  * which is what the build did with `DEC-FINISH-001` rather than mint a second
  * spelling.

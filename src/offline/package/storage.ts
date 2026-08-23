@@ -11,8 +11,9 @@ import type { PermissionOutcome } from '@/policy/decision'
  * FOUR local disclosure records already carry it, not three: `MOD-FL-A2`,
  * `MOD-FL-A4` and `MOD-FL-A6` under `src/frontline/modules/`, and
  * `src/studio/modules/stu-14/rendering.ts`. Every one exists because
- * `src/disclosure/decisions.ts` carries twenty-nine records and none of them
- * is this one. `MOD-FL-A2`'s record is READ below and re-exported, not
+ * `src/disclosure/decisions.ts` carries no record for it — it is not a member
+ * of that file's `DecisionId` union. `MOD-FL-A2`'s record is READ below and
+ * re-exported, not
  * retyped. `src/offline/capability.ts` and `src/offline/event-matrix.ts`
  * already carry the identifier too, as cells of transcribed registers rather
  * than as disclosures, so this file adds no register row either.

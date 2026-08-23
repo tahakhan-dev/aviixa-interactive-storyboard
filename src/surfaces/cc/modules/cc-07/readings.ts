@@ -28,7 +28,7 @@ import type { DecisionReading } from '@/disclosure/decisions'
  * It has exactly two fields, `text` and `locator`, so there is nowhere on a
  * reading to mark it the winner — not by a `preferred` flag, not by an
  * `adopted` field, not by anything a later hand could add without changing a
- * shared type twenty-nine canon records depend on. `readings` is a
+ * shared type every canon record depends on. `readings` is a
  * fixed-length pair, so a third reading is a type error rather than a review
  * comment.
  *

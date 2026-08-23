@@ -147,7 +147,8 @@ export const CC03_DIVERGENCES = [
  * column among its affected cells, which is this module's row.
  *
  * IT IS IN NEITHER REGISTER THIS BUILD HAS. `src/disclosure/decisions.ts`
- * holds twenty-nine canon records and none is this one, and
+ * carries no canon record for it — it is not a member of that file's exported
+ * `DecisionId` union. And
  * `src/surfaces/cc/decisions/register.ts` types `CcDecisionId` as an
  * eighteen-member union that does not carry it either. Neither file is
  * edited here. This follows the `Stu14LocalDisclosure` idiom: a local record

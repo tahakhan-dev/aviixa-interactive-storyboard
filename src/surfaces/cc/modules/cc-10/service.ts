@@ -274,8 +274,9 @@ export const CC10_SECOND_TREATMENT = {
 /* ==================================================================== *
  * LOCAL DISCLOSURE, in the canon's own shape.
  *
- * `src/disclosure/decisions.ts` holds twenty-nine records and neither of the
- * two below. `DecisionReading` is IMPORTED from it rather than redeclared, the
+ * `src/disclosure/decisions.ts` carries no record for either of the two
+ * below — neither is a member of its exported `DecisionId` union.
+ * `DecisionReading` is IMPORTED from it rather than redeclared, the
  * gap is declared on `canonNote`, and `tests/unit/cc-10.test.ts` asserts both
  * identifiers are ABSENT from the canon — so the moment a later task lifts
  * them in, this suite goes red and forces the switch rather than leaving two

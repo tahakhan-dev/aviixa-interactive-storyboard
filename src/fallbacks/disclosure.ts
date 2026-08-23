@@ -5,8 +5,9 @@ import type { FallbackContractId } from './contracts'
  * THE THREE FALLBACK DECISIONS THIS BUILD CARRIES, AND THE ONE IT MUST NOT
  * SETTLE.
  *
- * `src/disclosure/decisions.ts` holds twenty-nine records and not one of them
- * is a `DEC-FB-*`. That file is not this task’s to edit — one later task lifts
+ * `src/disclosure/decisions.ts` carries no `DEC-FB-*` record — no such
+ * identifier is in its `DecisionId` union. That file is not this task’s to
+ * edit — one later task lifts
  * the whole Chapter 38 set at once — so these are disclosed HERE, in the
  * canon’s own record shape, with `DecisionReading` IMPORTED rather than
  * redeclared so that the lift is a move rather than a rewrite. The gap itself

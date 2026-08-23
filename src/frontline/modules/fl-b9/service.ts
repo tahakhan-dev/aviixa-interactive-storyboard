@@ -472,11 +472,10 @@ export const B9_ACCEPTANCE_CRITERIA = [
  * THE OPEN DECISIONS THIS MODULE DISCLOSES.
  *
  * WHY THEY ARE NOT RENDERED BY `@/disclosure/DecisionDisclosure`. That
- * component takes a `DecisionId`, and the canon in
- * `src/disclosure/decisions.ts` holds twenty-nine records of which NONE is
- * `DEC-PLUS-001`, `DEC-SUBAUTH-001` or `DEC-PARK-001` — every one of the
- * twenty-nine was raised while `SURF-STU` and the platform surfaces were
- * built. Adding them means editing that file, which this module does not own
+ * component takes a `DecisionId`, and the union the canon in
+ * `src/disclosure/decisions.ts` exports contains NONE of `DEC-PLUS-001`,
+ * `DEC-SUBAUTH-001` or `DEC-PARK-001`.
+ * Adding them means editing that file, which this module does not own
  * and which one later task lifts all at once. So the three are carried here
  * with the same three obligations the renderer discharges: the identifier,
  * EVERY reading with its own locator, and this build's working position

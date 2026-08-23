@@ -4,8 +4,9 @@ import type { CcDecisionId } from './register'
 /**
  * FOUR DECISIONS THIS SURFACE CARRIES THAT THE CANON DOES NOT.
  *
- * `src/disclosure/decisions.ts` holds twenty-nine records and none of these
- * four. It is not edited here. This follows the `Stu14LocalDisclosure` idiom
+ * `src/disclosure/decisions.ts` carries no record for any of these four —
+ * not one is a member of its exported `DecisionId` union. It is not edited
+ * here. This follows the `Stu14LocalDisclosure` idiom
  * — a local record in the canon's own shape, plus a gate asserting the
  * identifier is ABSENT from the canon, so the day someone lifts one of these
  * into the canon the suite goes red and forces the switch instead of leaving
@@ -15,8 +16,8 @@ import type { CcDecisionId } from './register'
  * THAN RE-DECLARED. It has exactly two fields, `text` and `locator`, so
  * there is nowhere on a reading to mark it as the winner — not by a
  * `preferred` flag, not by an `adopted` field, not by anything a later hand
- * could add without changing a shared type that twenty-nine other records
- * depend on.
+ * could add without changing a shared type every other record in the canon
+ * depends on.
  *
  * ADOPTION IS A SEPARATE ARM, NOT A FIELD. `CcDecisionPosition` is a union
  * of two shapes and the open one has no slot for an adopted position at all.

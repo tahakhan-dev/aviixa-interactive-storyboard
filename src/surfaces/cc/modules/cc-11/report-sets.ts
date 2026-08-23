@@ -215,8 +215,9 @@ export const CC11_IDENTITY_GAP_STATEMENT: string =
 /* ==================================================================== *
  * `DEC-REPORT-001`, DISCLOSED LOCALLY IN THE CANON'S OWN SHAPE.
  *
- * `src/disclosure/decisions.ts` carries twenty-nine records and none for this
- * identifier. That file is another task's path and is read here, never
+ * `src/disclosure/decisions.ts` carries no record for this identifier — it is
+ * not a member of that file's `DecisionId` union. That file is another task's
+ * path and is read here, never
  * written. The `Stu14LocalDisclosure` idiom applies and the covering suite
  * asserts the identifier is ABSENT from the canon, so a later lift turns the
  * suite red and forces the switch rather than leaving two spellings alive.

@@ -154,10 +154,9 @@ export function A1ComplianceMessageReadings() {
 
 /**
  * The four decisions this module discloses. `DecisionDisclosure` renders a
- * `DecisionId`, and none of these four is in that canon — every one of its
- * twenty-nine records was raised while `SURF-STU` was built, and adding a
- * record means editing a file this module does not own. The three
- * obligations that component discharges are discharged here instead: the
+ * `DecisionId`, and none of these four is a member of that canon's exported
+ * union — adding a record means editing a file this module does not own.
+ * The three obligations that component discharges are discharged here: the
  * identifier, every reading with its own locator, and this build's working
  * position labelled a client-delegated choice.
  */
