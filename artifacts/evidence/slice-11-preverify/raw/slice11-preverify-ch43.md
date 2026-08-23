@@ -38,8 +38,8 @@ No writes made to the repository.
 | 9d | TEST-43-103 | At **L89981** | CONFIRMED | L89981 |
 | 9e | four bands Critical/Major/Minor/Informational at "spine item 2, L89937" | Spine item 2 **Severity** is at **L89927**. L89937 is spine item 12 **Roles**. Four bands confirmed | CORRECTED (−10) | L89927 |
 | 9f | AC-43-403 = "a PROV-1 element that cannot produce an agent run identifier renders PROV-6" | **NOT AC-43-403.** That text is **AC-42-403 at L89480**. `AC-43-403` at **L91373** reads about quarantine/failover/replay being marked beyond §8.7.1 | CORRECTED — wrong chapter; identifier collision 42 vs 43 | L89480 vs L91373 |
-| 10a | §43.1 at L89880–L90050 | Heading L89880 `## 43.1 The Artificial-Intelligence Failure Contract`; runs to L90050 (L90049 `---`, next heading `## 43.2` at L90051) | CONFIRMED | L89880 |
-| 10b | §43.4 at L91323–L91385 | Heading L91323 `## 43.4 Capabilities Beyond §8.7.1 — Correct Classification`; runs to L91385 (next heading `# 44.` at L91386) | CONFIRMED | L91323 |
+| 10a | §43.1 at L89880–L90050 | Heading L89880 `## 43.1 The Artificial-Intelligence Failure Contract`; runs to L90050, itself blank [cited-in-error: L90050] (L90049 `---`, next heading `## 43.2` at L90051) | CONFIRMED | L89880 |
+| 10b | §43.4 at L91323–L91385 | Heading L91323 `## 43.4 Capabilities Beyond §8.7.1 — Correct Classification`; runs to L91385, itself blank [cited-in-error: L91385] (next heading `# 44.` at L91386) | CONFIRMED | L91323 |
 
 ### §43.2 table map (18 blocks, measured)
 
@@ -275,7 +275,7 @@ Chapter-43 heading inventory (measured):
 | 91116 | `### 43.3.4 Frontline Worker Application` |
 | 91214 | `### 43.3.5 Super Admin platform console` |
 | 91323 | `## 43.4 Capabilities Beyond §8.7.1 — Correct Classification` |
-| 91386 | `# 44. Agent-Specific Failure and Fallback Behavior` (chapter 43 ends L91385) |
+| 91386 | `# 44. Agent-Specific Failure and Fallback Behavior` (chapter 43's last line, L91385, is blank [cited-in-error: L91385]) |
 
 ## SUMMARY OF DEFECTS TO CARRY INTO THE SLICE
 

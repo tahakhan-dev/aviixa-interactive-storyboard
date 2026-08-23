@@ -10,22 +10,22 @@ Note on method: `graphify query` was run first per the project hook. It returned
 
 | # | Claim | Measured | Verdict | Evidence line |
 |---|---|---|---|---|
-| **A1** | MOD-CC-08 card L37634–L37825 | starts L37634; content closes L37822 (`**Source status.**`); L37823 blank, L37824 `---`, L37825 blank | **CORRECTED** — claimed end is a blank line | L37822 / L37824 |
+| **A1** | MOD-CC-08 card L37634–L37825 | starts L37634; content closes L37822 (`**Source status.**`); L37823 blank [cited-in-error: L37823], L37824 `---`, L37825 blank [cited-in-error: L37825] | **CORRECTED** — claimed end is a blank line | L37822 / L37824 |
 | A1 | MOD-CC-08 identity block L37642 | `**Identity.**` is **L37640**; L37642 is `**Purpose.**` | **CORRECTED** | L37640 |
 | A1 | MOD-CC-08 matrix L37664–L37674, 9 rows | header L37664, sep L37665, data L37666–L37674 = **9 rows** | **CONFIRMED** | L37664 |
-| **A2** | MOD-CC-06 card L37251–L37470 | starts L37251; content closes L37467; L37469 `---`; L37470 blank | **CORRECTED** — claimed end is a blank line | L37467 / L37469 |
+| **A2** | MOD-CC-06 card L37251–L37470 | starts L37251; content closes L37467; L37469 `---`; L37470 blank [cited-in-error: L37470] | **CORRECTED** — claimed end is a blank line | L37467 / L37469 |
 | A2 | MOD-CC-06 identity block | `**Identity.**` L37257 (not claimed) | measured | L37257 |
 | A2 | MOD-CC-06 matrix L37292–L37301, 8 rows | header L37292, sep L37293, data L37294–L37301 = **8 rows** | **CONFIRMED** | L37292 |
-| **A3** | MOD-CC-05 card L37027–L37250 | starts L37027; content closes L37247; L37249 `---`; L37250 blank | **CORRECTED** — claimed end is a blank line | L37247 / L37249 |
+| **A3** | MOD-CC-05 card L37027–L37250 | starts L37027; content closes L37247; L37249 `---`; L37250 blank [cited-in-error: L37250] | **CORRECTED** — claimed end is a blank line | L37247 / L37249 |
 | A3 | MOD-CC-05 identity block | `**Identity.**` L37033 | measured | L37033 |
 | A3 | MOD-CC-05 matrix L37076–L37085, 8 rows | header L37076, sep L37077, data L37078–L37085 = **8 rows** | **CONFIRMED** | L37076 |
-| **A4** | MOD-CC-07 card L37471–L37633 | starts L37471; content closes L37630; L37632 `---`; L37633 blank | **CORRECTED** — claimed end is a blank line | L37630 / L37632 |
+| **A4** | MOD-CC-07 card L37471–L37633 | starts L37471; content closes L37630; L37632 `---`; L37633 blank [cited-in-error: L37633] | **CORRECTED** — claimed end is a blank line | L37630 / L37632 |
 | A4 | MOD-CC-07 identity block | `**Identity.**` L37477 | measured | L37477 |
 | A4 | MOD-CC-07 matrix L37503–L37511, 7 rows | header L37503, sep L37504, data L37505–L37511 = **7 rows** | **CONFIRMED** | L37503 |
-| **A5** | MOD-FL-B8 card L41448–L41597 | starts L41448; content closes L41596 (`**Source status.**`); L41597 blank; next heading L41598. **No `---` rule** in this chapter | **CORRECTED** — claimed end is a blank line | L41596 |
+| **A5** | MOD-FL-B8 card L41448–L41597 | starts L41448; content closes L41596 (`**Source status.**`); L41597 blank [cited-in-error: L41597]; next heading L41598. **No `---` rule** in this chapter | **CORRECTED** — claimed end is a blank line | L41596 |
 | A5 | MOD-FL-B8 identity block | no `**Identity.**` label; ch. 22 uses `**Identifier.** \`MOD-FL-B8\`. **Name.** Coaching Rendering.` at **L41454** | measured | L41454 |
 | A5 | MOD-FL-B8 matrix L41466–L41474, 7 rows | header L41466, sep L41467, data L41468–L41474 = **7 rows** | **CONFIRMED** | L41466 |
-| **A6** | MOD-SA-07 card L43988–L44698 | §23.7 starts L43988; last content L44696; L44697–L44698 blank; next heading L44699 | **CORRECTED** — claimed end is a blank line; true content end L44696 | L44696 |
+| **A6** | MOD-SA-07 card L43988–L44698 | §23.7 starts L43988; last content L44696; L44697–L44698 blank [cited-in-error: L44697] [cited-in-error: L44698]; next heading L44699 | **CORRECTED** — claimed end is a blank line; true content end L44696 | L44696 |
 | A6 | MOD-SA-07 has **no** role-per-column permission matrix | Whole span 43988–44698 scanned. Exactly **three** tables: L44534 (`Floor or ceiling / Value / Behaviour`, 8 rows), L44614 (`Setting group / Class / Approver`, 8 rows), L44631 (`Field / Value` module card, 30 rows). Exactly **one** line in the whole span carries a permission token — L44650, a prose cell in the Field/Value card. No role axis anywhere. | **CONFIRMED (absence real)** | L44614 / L44631 |
 | A6 | The 8-row Setting/Class/Approver table at L44614–L44623 | header L44614, sep L44615, data L44616–L44623 = **8 rows** | **CONFIRMED** | L44614 |
 | **B** | Tenant Admin `Explicitly prohibited` on "See agent health flags" at L37668 | that row is at **L37669**; L37668 is "Follow an evidence link from a log entry" | **CORRECTED** | L37669 |

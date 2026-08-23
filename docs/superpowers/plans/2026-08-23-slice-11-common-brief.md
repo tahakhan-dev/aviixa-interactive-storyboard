@@ -218,9 +218,9 @@ figure, no agent name" and that "the worker-facing surface carries no feedback c
 **C1 — the FB-AI namespace collision is four-deep, not two.** Chapter 40/41's register holds 25
 contracts at rows **L88915-L88939** using `FB-AI-00`, `FB-AI-01`…`-16`, `FB-AI-101`…`-108`; 44A.31's
 holds 13 rows at **L95359-L95371** whose last row is `FB-AI-01 to FB-AI-30`. The overlap is exactly
-sixteen literals. `FB-AI-01` means "Boundary violation attempt" (L88916), storyboard 1's contract
-(L92793), **"Artificial-intelligence degraded or unavailable, including the platform emergency pause"
-(L46951)** and **trace-store unavailability (L74495)**. And 44A.12's own card names `FB-AI-12`
+sixteen literals. `FB-AI-01` means "Boundary violation attempt" (L88916); storyboard 1's contract
+(L92793); at L46951, **"Artificial-intelligence degraded or unavailable, including the platform
+emergency pause"**; and trace-store unavailability (L74495). And 44A.12's own card names `FB-AI-12`
 (L93730), which the chapter-40/41 register calls "Trace and decision-record failure" (L88927) — **the
 collision is not confined to the FB-AI-01…16 range.** Key on a compound of chapter and identifier and
 render every owner of a colliding literal. **A gate keyed on thirteen asserts the wrong cardinality**,
