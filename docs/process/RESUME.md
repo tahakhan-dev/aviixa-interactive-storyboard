@@ -286,9 +286,14 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-**Slice 9 is closed and verified. Slice 10 wave 0 is closed, twelve commits, `pnpm verify`
-green end to end: typecheck, lint, gate-ordering 24/24, unit 4911, component 2496,
-build 96 pages, release 735, e2e/axe 515.**
+**Slice 9 is closed and verified. Slice 10 waves 0 and 1 are closed, fifteen commits,
+`pnpm verify` exit 0 end to end: typecheck, lint, gate-ordering 24/24, freshness 2,
+unit 4965, component 2496, build 96 pages, release 735, e2e/axe 515.**
+
+Wave 1 built the scheduled-work spine — six registers across four `SCHED-` key spaces —
+and the twenty-two-operation permission model, which is `src/policy/columns.ts`'s first
+production consumer and therefore the check on whether wave 0's column type shipped or
+was merely written.
 
 Slice 9's verification pass ran the whole chain on frozen bytes and opened twelve findings.
 The one that mattered was **defect shape 6 shipped again**: `src/surfaces/cc/seams.ts` declared
@@ -331,6 +336,45 @@ absence was, and the suites already measured it.
 identifiers to the canon and all three rewritten gates fired — which is what distinguishes a
 gate that tests membership from one that tests prose. And `cc-02.test.ts`'s absence loop had no
 positive control, so a failed parse made every absence pass (shape 9); it now carries one.
+
+### Wave 1: what the scheduled-work chapter actually contains
+
+**Six registers across four key spaces**, where L102392 says "two numbering schemes exist" —
+the source understates itself. §45A.2 Tables A and B (35 findings, one key space, two views,
+body L98341-L98375) · §45A.3's 22 `DNC-` controls (L98485-L98506) · §45A.4.1's anchored timers
+(35 rows, L98584-L98618) · §45A.17.1's 24 deployable mnemonics (L102396-L102419) · §54.7
+Matrix 14's `SCHED-01`-`SCHED-24` in three blocks (L117892-L117915) · §30A.3's seven
+`SCHED-*-001` narrative short forms, which L102537 rules non-authoritative. `SCHED-01` is a
+prefix of `SCHED-010` and both are real identifiers of different things, so the key is branded
+and key-space-first.
+
+**§45A.2 and §45A.4.1 both hold 35 rows**, so no count check distinguishes them. The
+discriminator is that not one anchored-timer line carries a `SCHED-` token — that register is
+keyed by timer name. A controller brief said ~46 and was wrong by eleven.
+
+**L102392 is the most valuable line in the chapter.** A numbered row is a finding, a mnemonic
+row is a commitment, neither supersedes the other, several findings map to none, and the
+crosswalk at §45A.17.2 closes `DEC-SCHED-011`. It dissolves the card-versus-crosswalk conflict
+two briefs called C1: there are 13 non-obligations and 25 cards, and the six "conflicts" are
+exactly the six non-obligations that carry a card at all. **Do not render a contradiction the
+source resolves.**
+
+**The real conflict is Matrix 14 against the crosswalk, with zero cross-reference either way** —
+measured: no line in 45A names §54.7, no line in §54.7 names 45A. Six Matrix-14 rows assert a
+full Schedule Definition for findings the crosswalk says need no timer. Both render, neither
+wins, no decision identifier minted because the source raises none.
+
+**A ceiling worth carrying:** a `readOnly` cell is answered by the cell alone, so
+`evaluateAccess` is never reached and a read-permissive answer has not been tenant-isolation
+checked. That is why `AC-30D-105` (**L74029**, not the L74032 two briefs carried — that is
+`TEST-30D-103`) needs a second stage rather than trusting the cell.
+
+**For task 13, the contamination story in both briefs was wrong.** The 24 two-digit rows in
+`scheduled-work.json` are not false positives from `PER-SCHED-NN` — whole-token counts show that
+pattern never yields a `SCHED-0N` — they are Matrix 14, a real register belonging in the file as
+its own key space. The one genuine false positive is `SCHED-0NN`, the source's own prose template
+token. And **zero of the 24 deployable mnemonics are in the file**, while its `dedupRule` claims
+it distinguishes them from the 35 findings.
 
 ### Two rulings recorded here because no file may hold them
 
