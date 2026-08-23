@@ -30,6 +30,7 @@ import type { RoleId } from '@/domain/roles'
 import { allow, deny } from '@/policy/decision'
 import { CrossSurfaceLink } from '@/ui/CrossSurfaceLink'
 import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
+import { ProvenanceMark } from '@/ui/shared/ProvenanceMark'
 import { WriteControl } from '@/ui/WriteControl'
 import {
   CC_LINK_OUT_CELLS,
@@ -60,6 +61,16 @@ import {
   CC06_XSURFACE_ROWS,
   ccLaneBApplication,
 } from './lane-b'
+import {
+  CC06_DEGRADATION,
+  CC06_DEGRADATION_STATEMENT,
+  CC06_LANEA_SEAM,
+  CC06_REVERSAL_CELL,
+  CC06_REVERSAL_CELL_TEXT,
+  CC06_REVERSE_CONTROL,
+  cc06DegradationProvenance,
+  cc06ReversalDecision,
+} from './degradation'
 
 /**
  * `MOD-CC-06` — LEARNED-CHANGE APPROVALS (LANE B), RENDERED.
@@ -525,6 +536,145 @@ export function LearnedChangeApprovals({ viewerRole }: LearnedChangeApprovalsPro
         </p>
         <p className={REF}>{CC06_PKGFIELD_DISCLOSURE.sourceRefs.join(' · ')}</p>
       </div>
+
+      {/* ══════════ THE ARTIFICIAL-INTELLIGENCE OVERLAY ═══════════════ */}
+      <section data-testid="cc-06-degradation">
+        <h2 className={H2}>When the agents are gone, and who may undo what they learned</h2>
+
+        <ProvenanceMark
+          classId={cc06DegradationProvenance()}
+          statement={CC06_DEGRADATION_STATEMENT}
+        />
+
+        {/* ── THE CONTRACT, RESOLVED ON A COMPOUND KEY ─────────────── */}
+        <p
+          data-testid="cc-06-fb-ai-01-resolved"
+          data-chapter={CC06_DEGRADATION.resolved.chapter}
+          className={NOTE}
+        >
+          <span className="font-medium">
+            {CC06_DEGRADATION.identifier}, as chapter {CC06_DEGRADATION.resolved.chapter} writes it
+            ({CC06_DEGRADATION.resolved.contractLocator}):{' '}
+          </span>
+          {CC06_DEGRADATION.resolved.contract} This module&rsquo;s register row{' '}
+          {CC06_DEGRADATION.registerRow} names that literal and no chapter, and the row sits under
+          the heading at {CC06_DEGRADATION.sectionHeadingRef}, which is what resolves it.
+        </p>
+        <p className={NOTE}>{CC06_DEGRADATION.whyTheCompoundKey}</p>
+        <div className="mt-3 overflow-x-auto">
+          <table data-testid="cc-06-fb-ai-01-owners" className="w-full text-left text-sm">
+            <thead>
+              <tr>
+                <th scope="col">Chapter</th>
+                <th scope="col">What {CC06_DEGRADATION.identifier} means there</th>
+                <th scope="col">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              {CC06_DEGRADATION.allOwnersOfTheBareLiteral.map((owner) => (
+                <tr
+                  key={owner.locator}
+                  data-testid={`cc-06-fb-ai-01-owner-${owner.chapter}`}
+                  data-resolved={String(owner.chapter === CC06_DEGRADATION.resolved.chapter)}
+                >
+                  <th scope="row" className="font-normal">
+                    {owner.chapter}
+                  </th>
+                  <td>{owner.contract}</td>
+                  <td className="text-[var(--color-ink-subtle)]">{owner.locator}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className={NOTE}>
+          <span className="font-medium">
+            What this module already does, and why the contract fits it (
+            {CC06_DEGRADATION.agreesWithTheModuleRef}):{' '}
+          </span>
+          {CC06_DEGRADATION.agreesWithTheModule}
+        </p>
+
+        {/* ── THE REVERSE CONTROL: DRAWN, AND DISABLED ─────────────── */}
+        <h2 className={H2}>{CC06_REVERSE_CONTROL.label}</h2>
+        <p className={NOTE}>
+          <span className="font-medium">{CC06_REVERSE_CONTROL.requirementRef}: </span>
+          {CC06_REVERSE_CONTROL.requirement}
+        </p>
+        <p className={NOTE}>
+          <span className="font-medium">Why it is drawn rather than omitted: </span>
+          {CC06_REVERSE_CONTROL.whyNotOmitted} The cell it is drawn from is{' '}
+          <code>{CC06_REVERSAL_CELL_TEXT}</code>.
+        </p>
+        <p className={NOTE}>
+          <span className="font-medium">Why it is disabled rather than granted: </span>
+          {CC06_REVERSE_CONTROL.whyNotEnabled}
+        </p>
+        <div data-testid="cc-06-lane-a-reversal" className="mt-3">
+          <WriteControl
+            label={CC06_REVERSE_CONTROL.label}
+            decision={cc06ReversalDecision(CC06_REVERSAL_CELL)}
+            roleName="any role on this surface"
+            gateReason={null}
+            objectReason={null}
+            refusalNote="Unused on this rendering: the reversal is not a role refusal but an undecided authority."
+            neverQueuedNote={NEVER_QUEUED}
+            onAct={NO_ACT}
+          />
+        </div>
+        <p className={NOTE}>
+          <span className="font-medium">
+            No matrix row on this module names this act.{' '}
+          </span>
+          The eight rows above were scanned for reversal, Lane A and an undo and none of them
+          matches, so this control stands on the two-lane contract table rather than on a
+          permission row — which is exactly why no role is named on it.
+        </p>
+
+        <div className="mt-4">
+          {CC06_REVERSE_CONTROL.readings.map((reading, i) => (
+            <p key={reading.locator} data-testid={`cc-06-lane-a-reading-${i}`} className={NOTE}>
+              {reading.text}{' '}
+              <span className="text-[var(--color-ink-subtle)]">[{reading.locator}]</span>
+            </p>
+          ))}
+          <p className={NOTE}>{CC06_REVERSE_CONTROL.whyNeitherIsObeyed}</p>
+          {CC06_REVERSE_CONTROL.alsoStatedAt.map((also) => (
+            <p key={also.locator} className={REF}>
+              {also.text} <span className="text-[var(--color-ink-subtle)]">[{also.locator}]</span>
+            </p>
+          ))}
+        </div>
+
+        {/* ── THE SEAM, ON THE SCREEN RATHER THAN IN A COMMENT ─────── */}
+        <div
+          role="note"
+          data-testid="cc-06-lane-a-seam"
+          className="mt-6 rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] p-4"
+        >
+          <p className="text-sm font-medium">
+            What this module could not close, and who can
+          </p>
+          <p className={NOTE}>
+            <span className="font-medium">
+              {CC06_LANEA_SEAM.criterion} ({CC06_LANEA_SEAM.criterionRef}):{' '}
+            </span>
+            {CC06_LANEA_SEAM.criterionText}
+          </p>
+          <p className={NOTE}>{CC06_LANEA_SEAM.theTension}</p>
+          <ul className="mt-2 list-disc pl-6 text-sm">
+            {CC06_LANEA_SEAM.owners.map((owner) => (
+              <li key={owner.path} className="mt-1 text-[var(--color-ink-muted)]">
+                <code>{owner.path}</code> — {owner.whatItMustDo}
+              </li>
+            ))}
+          </ul>
+          <p className={NOTE}>
+            <span className="font-medium">Not established: </span>
+            {CC06_LANEA_SEAM.unestablished}
+          </p>
+        </div>
+      </section>
 
       {/* ════════ THE OPERATIONAL ACTION THIS SCREEN EXERCISES ════════ */}
       <h2 className={H2}>Operational actions exercised here</h2>
