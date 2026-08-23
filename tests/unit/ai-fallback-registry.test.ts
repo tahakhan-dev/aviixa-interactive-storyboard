@@ -63,10 +63,23 @@ it('reads the frozen source these measurements were taken against', () => {
 
 /* ── the two registers, located and counted ────────────────────────────── */
 
-const CH_40_41_HEADER = linesCarrying('| Identifier | Contract | Section |')[0]!
-const CH_44A_HEADER = linesCarrying(
+/**
+ * Both headers are located by search and asserted UNIQUE before `[0]` is
+ * taken. Every row index in this file is derived from these two numbers, and
+ * a `[0]` on a multi-hit search silently anchors the whole file to whichever
+ * table came first — which, for a file whose entire subject is two registers
+ * that share sixteen literals, is the failure it exists to catch.
+ */
+const uniqueHeader = (header: string): number => {
+  const found = linesCarrying(header)
+  expect(found, `the header "${header}" occurs exactly once`).toHaveLength(1)
+  return found[0]!
+}
+
+const CH_40_41_HEADER = uniqueHeader('| Identifier | Contract | Section |')
+const CH_44A_HEADER = uniqueHeader(
   '| Identifier | Contract | Owning section | Terminal safe state |',
-)[0]!
+)
 
 describe('both registers are counted, never inferred from a span', () => {
   /**
@@ -172,11 +185,21 @@ describe('the compound key exists because the bare literal is not unique', () =>
    * silently picks the first is indistinguishable from a correct one until
    * the day it answers with the wrong chapter's contract.
    *
+   * AND THE LOOP CARRIES A POSITIVE CONTROL. `colliding` being empty makes
+   * the loop body run zero times and the test pass while proving nothing —
+   * which is exactly the state a registry that stopped registering colliding
+   * owners would be in. The sibling test above measures the same thing as a
+   * property of the registry; this one has to measure it for itself, because
+   * a control that lives in another `it` is a control this `it` does not have.
+   *
    * Planted: `ownersOf` changed to return the first match only. RED on every
    * colliding literal at once.
+   * Planted: `collidingLiterals` narrowed to return `[]`. RED on the control
+   * — GREEN before it existed.
    */
   it('returns every owner of a colliding literal, never the first', () => {
     const colliding = collidingLiterals()
+    expect(colliding.length, 'no literal collides, so this loop proves nothing').toBeGreaterThan(0)
     for (const id of colliding) {
       const owners = ownersOf(id)
       expect(owners.length, `${id} resolved to a single owner`).toBeGreaterThan(1)

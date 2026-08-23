@@ -162,11 +162,17 @@ export interface OpenDecision {
    */
   readonly decisionRef: string | null
   /**
-   * A second spelling of the same question, or `null`. Three records carry
-   * one: `DEC-WFROLL-001` (`DEC-VERROLL-001`), `DEC-SCHED-002`
-   * (`DEC-SCHED-MISFIRE-001`), and `S10-IDENT-SCHED-001`, whose subject is a
-   * non-human identity register rather than a decision identifier and which
-   * therefore lists the re-spellings rather than one.
+   * A second spelling of the same question, or `null`. One of the records
+   * carrying one — `S10-IDENT-SCHED-001` — is worth naming because its shape
+   * is different: its subject is a non-human identity register rather than a
+   * decision identifier, so it lists the re-spellings rather than one.
+   *
+   * WHICH records carry an alias is not written here. It was, as a count, and
+   * the count went stale the moment this slice added two more — the number was
+   * never a claim a reader could act on, and renumbering it would only reship
+   * the same defect with a fresh number. The population is asserted where it
+   * can go red: `tests/unit/surface-neutral.test.ts` and
+   * `tests/coverage/slice-10-gates.test.ts` both hold the full membership list.
    *
    * WHAT IT IS FOR, and it is not cosmetic: where the source asks one question
    * under two identifiers and never cross-references them, dropping one makes
@@ -1329,12 +1335,18 @@ export const OPEN_DECISIONS = [
       },
     ],
     adopted:
-      'Neither reading is adopted and this task builds neither. The two storyboard rulings ' +
-      'contradict each other about the same surface and carry the same provenance marking, so ' +
-      'neither outranks the other, and building one silently would be a false claim on the ' +
-      'surface where a person acts. Every locator on both sides is pinned here so that the task ' +
-      'that renders a worker-facing mode chip, or refuses to, has to face both. A ' +
-      'client-delegated choice under APP-012.',
+      'Neither reading is adopted and this task builds neither. The provenance is NOT symmetric ' +
+      'and this record no longer claims it is: the two storyboard rulings are both marked ' +
+      '`Derived Clarification` (L87854, L89348), but the mode-chip side is corroborated by two ' +
+      'further lines the source marks `SoW Fact — §8.7.5` (L89368, L89369) and the shows-nothing ' +
+      'side is corroborated by none. So the mode-chip side carries the heavier marking, and the ' +
+      'refusal to choose rests on something else: the two Derived Clarifications contradict each ' +
+      'other about the same surface at equal rank, a Statement of Work fact about what a mode ' +
+      'chip READS is not a ruling about whether the worker surface renders one, and the source ' +
+      'never reconciles them. Building one silently would be a false claim on the surface where ' +
+      'a person acts. Every locator on both sides is pinned here, with its marking, so that the ' +
+      'task that renders a worker-facing mode chip, or refuses to, has to face the asymmetry ' +
+      'rather than a claim that there is none. A client-delegated choice under APP-012.',
     pins: [],
   },
   {

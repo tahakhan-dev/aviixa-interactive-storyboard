@@ -265,6 +265,45 @@ describe('MOD-SA-03 — Core Agents and Composed-Agent Review', () => {
     expect(text).toMatch(/mirrored/)
   })
 
+  /**
+   * THE SCREEN HELD A PRIVATE ROSTER AND INVENTED A GOVERNANCE POSITION.
+   *
+   * Before slice 11 this file's component carried its own copy of the
+   * governance-binding vocabulary and its own four agents, and it gave the
+   * Vision Reasoning Agent `none — reasoning agent`. The frozen source states
+   * no binding for it anywhere: L43295 says only that the agent ships in a
+   * later release together with the vision atoms, and its roster row at L91466
+   * reads "Not specified beyond the roster entry".
+   *
+   * So the screen rendered a governance contract nobody wrote, on the one
+   * field where inventing one reads as a commitment. The roster is now the
+   * single source and this pair of assertions is what stops the private copy
+   * coming back: one proves the three V1 bindings reach the page from the
+   * roster, the other proves the fourth renders as a STATED ABSENCE rather
+   * than as a value, a blank, or an omitted agent.
+   */
+  it('renders each V1 binding from the shared roster and the Vision agent as a stated absence', () => {
+    render(<CoreAgentsScreen />)
+
+    const bindings = screen.getAllByTestId('agent-governance-binding').map((n) => n.textContent)
+    expect(bindings).toHaveLength(3)
+    expect(bindings.join(' | ')).toContain('authoring-time policy')
+    expect(bindings.join(' | ')).toContain('runtime human gate')
+    expect(bindings.join(' | ')).toContain('none — reasoning agent')
+
+    // The absence is rendered, singular, and carries the source's own words for
+    // why it is absent — not an empty cell and not a fourth binding. getByTestId
+    // throws on zero AND on more than one, so it carries the singularity itself.
+    const absence = screen.getByTestId('agent-governance-absence')
+    expect(absence.textContent).toContain('not stated')
+    expect(absence.textContent).toContain('Not specified beyond the roster entry')
+
+    // And no binding element anywhere claims a value for the Vision agent.
+    for (const b of bindings) {
+      expect(b).not.toContain('Not specified')
+    }
+  })
+
   it('records the source conflicts it resolved rather than resolving them silently', () => {
     render(<CoreAgentsScreen />)
     const panel = screen.getByTestId('source-conflicts')

@@ -7,6 +7,12 @@ import { scenarioRunId } from '@/domain/ids'
 import { emptyDomainState } from '@/domain/state'
 import { evaluateAccess, type AccessContext, type AccessRequest } from '@/policy/evaluate'
 import type { PermissionDecision } from '@/policy/decision'
+import {
+  AI_AGENT_ROSTER,
+  GOVERNANCE_BINDINGS,
+  GOVERNANCE_BINDING_ALIAS,
+  type AiAgentId,
+} from '@/ai/agents/roster'
 import { saModuleById } from '@/surfaces/sa/modules'
 import { SA_INVARIANTS, type SaInvariantId } from '@/surfaces/sa/invariants'
 import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
@@ -66,14 +72,6 @@ const AGENT_STATES = [
 const REVIEW_STATES = ['submitted', 'under review', 'approved', 'returned', 'mirrored'] as const
 type ReviewState = (typeof REVIEW_STATES)[number]
 
-/** The governance-binding field's three declared values (L88109). */
-const GOVERNANCE_BINDINGS = [
-  'authoring-time policy',
-  'runtime human gate',
-  'none — reasoning agent',
-] as const
-type GovernanceBinding = (typeof GOVERNANCE_BINDINGS)[number]
-
 /**
  * The agent-record schema as the source's fullest enumeration gives it
  * (L86757). The count is contradicted in the source itself — see
@@ -92,46 +90,44 @@ const AGENT_RECORD_FIELDS = [
   'version',
 ] as const
 
-interface AgentFixture {
-  readonly name: string
-  readonly kind: string
-  readonly governanceBinding: GovernanceBinding
-  readonly state: (typeof AGENT_STATES)[number]
-  readonly note: string
-}
-
-/** The three pre-built agents shipped at V1 (L43295), and nothing else. */
-const V1_AGENTS: readonly AgentFixture[] = [
-  {
-    name: 'Prevention Agent',
-    kind: 'Action agent',
-    governanceBinding: 'authoring-time policy',
+/**
+ * THE ROSTER IS NOT THIS SCREEN'S TO DECLARE, and it used to be.
+ *
+ * This file held a private copy of the governance-binding vocabulary and a
+ * private four-agent roster, and the copy had drifted: it gave the Vision
+ * Reasoning Agent `none — reasoning agent`. The source states no binding for
+ * that agent. The line this screen cites, L43295, says only that a Vision
+ * Reasoning Agent ships in a later release together with the vision atoms; the
+ * roster row at L91466 says "Not specified beyond the roster entry". So the
+ * screen was rendering a governance contract nobody wrote — on the one field
+ * L31692 forbids misrepresenting.
+ *
+ * The roster, the vocabulary and the alias pair now come from
+ * `src/ai/agents/roster.ts`, whose records are transcribed from the roster
+ * table and checked cell-by-cell against the frozen bytes in
+ * `tests/unit/ai-roster.test.ts`. What stays here is only what is genuinely
+ * this console's: the fixture record state each agent is shown in, and the
+ * console-facing note beside it.
+ */
+const CONSOLE_FIXTURE: Readonly<
+  Record<AiAgentId, { readonly state: (typeof AGENT_STATES)[number]; readonly note: string }>
+> = {
+  prevention: {
     state: 'enabled',
     note: 'Coaching interventions inside authored bounds. No per-event runtime gate (DEC-GATE-001, adopted working position).',
   },
-  {
-    name: 'Deviation and Containment Agent',
-    kind: 'Action agent',
-    governanceBinding: 'runtime human gate',
+  'deviation-and-containment': {
     state: 'enabled',
     note: 'Proposals beyond pre-authorised containment route to a runtime human gate.',
   },
-  {
-    name: 'Shift Handoff Agent',
-    kind: 'Reasoning agent',
-    governanceBinding: 'none — reasoning agent',
+  'shift-handoff': {
     state: 'enabled',
     note: 'Schedule-triggered handoff brief. Changes nothing and carries no gate.',
   },
-]
-
-/** Named in the source, explicitly NOT part of the V1 roster (L43295). */
-const NOT_AT_V1: AgentFixture = {
-  name: 'Vision Reasoning Agent',
-  kind: 'Reasoning agent',
-  governanceBinding: 'none — reasoning agent',
-  state: 'registered',
-  note: 'Later release, together with the vision atoms. Cannot be enabled at V1 — the evaluation gate has no passing scenario for it, and no account holds a control that would override that.',
+  'vision-reasoning': {
+    state: 'registered',
+    note: 'Later release, together with the vision atoms. Cannot be enabled at V1 — the evaluation gate has no passing scenario for it, and no account holds a control that would override that.',
+  },
 }
 
 interface ReviewFixture {
@@ -547,31 +543,50 @@ export function CoreAgentsScreen() {
         annotation="SCR-SA-03. Three pre-built agents ship at V1 (L43295). Agents are records, not code: one schema, one instance per agent."
       >
         <ul className="space-y-3">
-          {[...V1_AGENTS, NOT_AT_V1].map((a) => (
-            <li
-              key={a.name}
-              data-testid="agent-row"
-              className="rounded-[var(--radius-surface)] border border-[var(--color-border-strong)] p-4"
-            >
-              <p className="font-medium">{a.name}</p>
-              <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[var(--color-ink-muted)]">
-                <span>{a.kind}</span>
-                <StatusPill tone="neutral" icon="●" label={a.state} />
-                <span>governance binding: {a.governanceBinding}</span>
-              </p>
-              <p className="mt-1 text-sm text-[var(--color-ink-muted)]">{a.note}</p>
-              {a === NOT_AT_V1 ? (
-                <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
-                  Named in the source, outside the V1 roster.
+          {AI_AGENT_ROSTER.map((a) => {
+            const fixture = CONSOLE_FIXTURE[a.id]
+            return (
+              <li
+                key={a.id}
+                data-testid="agent-row"
+                className="rounded-[var(--radius-surface)] border border-[var(--color-border-strong)] p-4"
+              >
+                <p className="font-medium">{a.name}</p>
+                <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-[var(--color-ink-muted)]">
+                  <span>{a.kind}</span>
+                  <StatusPill tone="neutral" icon="●" label={fixture.state} />
+                  {a.governanceBinding !== null ? (
+                    <span data-testid="agent-governance-binding">
+                      governance binding: {a.governanceBinding}
+                    </span>
+                  ) : (
+                    <span data-testid="agent-governance-absence">
+                      governance binding: not stated — {a.governanceAbsence}
+                    </span>
+                  )}
                 </p>
-              ) : null}
-            </li>
-          ))}
+                <p className="mt-1 text-sm text-[var(--color-ink-muted)]">{fixture.note}</p>
+                {!a.availableAtV1 ? (
+                  <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
+                    Named in the source, outside the V1 roster. The source states no governance
+                    binding for this agent, so none is shown: its roster row records the governance
+                    as not specified beyond the entry itself, and a binding rendered here would be
+                    this build&rsquo;s invention on the one field the source forbids
+                    misrepresenting. It has no role matrix anywhere in the source either, which is
+                    why nothing on this console offers a control over it — never a greyed-out one.
+                  </p>
+                ) : null}
+              </li>
+            )
+          })}
         </ul>
         <p className="mt-3 text-xs text-[var(--color-ink-subtle)]">
           Agent record states: {AGENT_STATES.join(' · ')}. Governance binding takes exactly three
-          values: {GOVERNANCE_BINDINGS.join(' · ')} (L88109). Both are rendered vocabularies; this
-          module defines no control that moves a record between them.
+          values: {GOVERNANCE_BINDINGS.join(' · ')} (L88109), and the third is spelled two ways in
+          the source — “{GOVERNANCE_BINDING_ALIAS.canonical}” here and “
+          {GOVERNANCE_BINDING_ALIAS.alias}” in chapter 20&rsquo;s own agent table (L31709). Both are
+          the source&rsquo;s words for one value and neither is corrected. Both are rendered
+          vocabularies; this module defines no control that moves a record between them.
         </p>
       </Section>
 

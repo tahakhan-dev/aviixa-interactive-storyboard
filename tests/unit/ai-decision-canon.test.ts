@@ -27,8 +27,13 @@ import {
  *     no cross-reference between any pair in the whole source. Merging them
  *     would answer three questions with one answer, and each of the three has
  *     a different owner and a different recommendation.
- *   - ONE DECISION WHERE THE SOURCE CONTRADICTS ITSELF AT EQUAL PROVENANCE.
- *     `DEC-AIDISCLOSE-001`. Both sides render; neither is adopted.
+ *   - ONE DECISION WHERE THE SOURCE CONTRADICTS ITSELF AND THE PROVENANCE IS
+ *     NOT EVEN. `DEC-AIDISCLOSE-001`. Two `Derived Clarification` rulings
+ *     contradict each other, and one of the two is corroborated by two
+ *     `SoW Fact` matrix rows the other has no answer to. Both sides render;
+ *     neither is adopted; the asymmetry is stated rather than smoothed. This
+ *     entry used to read "at equal provenance", and the gate below used to
+ *     read only the two lines that made that true.
  *
  * Every measurement is taken from the frozen source at run time.
  */
@@ -156,9 +161,19 @@ describe('the canon carries this task’s records, under the source’s own iden
 
 /* ── the ten-value open register ───────────────────────────────────────── */
 
-const REGISTER_HEADER = linesCarrying(
-  '| ID | Value owed | Why it matters | Options | Recommendation | Trade-off | Decision owner |',
-)[0]!
+/**
+ * Located by search, and asserted UNIQUE before `[0]` is taken. A `[0]` on a
+ * multi-hit search silently picks the first table that happens to share a
+ * header shape, and every row index below is derived from this one number.
+ * `ai-roster.test.ts` asserts uniqueness on its own header; these did not.
+ */
+const REGISTER_HEADER = (() => {
+  const found = linesCarrying(
+    '| ID | Value owed | Why it matters | Options | Recommendation | Trade-off | Decision owner |',
+  )
+  expect(found, 'the open register’s header occurs exactly once').toHaveLength(1)
+  return found[0]!
+})()
 
 const REGISTER_ROWS = (() => {
   const rows: number[] = []
@@ -201,6 +216,65 @@ describe('the ten-value open register, counted and never given a default', () =>
       const withoutIdentifiers = record.adopted.split(id).join(' ')
       expect(withoutIdentifiers, `${id} adopted seeds a value`).not.toMatch(/\d/)
       expect(record.adopted, `${id} adopted names its identifier`).toContain(id)
+    }
+  })
+
+  /**
+   * THE SAME GATE, FOR THE SHAPE THE SOURCE ACTUALLY WRITES NUMBERS IN.
+   *
+   * The digit rule above catches `3 retries`. It does not catch `three
+   * retries`, and a seeded default is likelier to arrive spelled out, because
+   * spelled-out is this source's own idiom for exactly these values — "a
+   * seven-day window", "about thirty minutes". Measured escape, before this
+   * test existed: `adopted` on `DEC-AIRETRY-001` set to "Starting position
+   * adopted by this build: three retries with a five-second backoff. Not yet
+   * set — client decision DEC-AIRETRY-001 …" passed GREEN.
+   *
+   * AND IT READS `question` TOO. The digit rule reads only `adopted`, so a
+   * value seeded into the question a card renders above the refusal was
+   * unguarded on both spellings.
+   *
+   * WHAT IT MATCHES, and why it is narrower than "any number word": a spelled
+   * number ATTACHED TO A UNIT, hyphenated or spaced. A bare number word is not
+   * enough — these records legitimately say "labelled one" and "the two
+   * readings", and a rule that reddened on those would be turned off within a
+   * slice. THE CEILING, stated rather than hidden: a value seeded with no unit
+   * beside it ("Starting position: three.") escapes both rules. The unit list
+   * is the one this register's own ten questions use, and it grows when the
+   * register does.
+   *
+   * NOT WIDENED TO `readings[].text` ON PURPOSE. Those transcribe the source's
+   * own options and trade-offs, which legitimately carry the source's numbers;
+   * reddening on them would force the readings to be paraphrased, and a
+   * paraphrased reading is the thing this whole canon exists to avoid.
+   *
+   * Planted: the word-form default above, on `adopted`. RED, naming the record
+   * and the phrase. Planted again on `question`. RED. Restored.
+   */
+  it('seeds no spelled-out value either, in the adopted position or the question', () => {
+    const NUMBER_WORD =
+      'zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|' +
+      'fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|' +
+      'eighty|ninety|hundred|thousand'
+    const UNIT_WORD =
+      'millisecond|milliseconds|second|seconds|minute|minutes|hour|hours|day|days|week|weeks|' +
+      'month|months|retry|retries|attempt|attempts|step|steps|probe|probes|call|calls|' +
+      'request|requests|failure|failures|token|tokens|percent|times|item|items|entry|entries'
+    const SEEDED = new RegExp(`\\b(${NUMBER_WORD})[-\\s](${UNIT_WORD})\\b`, 'i')
+
+    // The rule is proved on the shape it is written for before it is trusted
+    // on the records — a matcher nobody checked is a matcher that matches
+    // nothing.
+    expect('three retries with a five-second backoff').toMatch(SEEDED)
+    expect('a seven-day window').toMatch(SEEDED)
+    expect('about thirty minutes').toMatch(SEEDED)
+    expect('the recommendation above is labelled one').not.toMatch(SEEDED)
+
+    for (const id of OPEN_REGISTER_IDS) {
+      const record = decisionRecord(id)
+      expect(record.adopted, `${id} adopted seeds a spelled-out value`).not.toMatch(SEEDED)
+      expect(record.question, `${id} question seeds a spelled-out value`).not.toMatch(SEEDED)
+      expect(record.question, `${id} question carries a digit`).not.toMatch(/\d/)
     }
   })
 
@@ -295,10 +369,21 @@ describe('three replay identifiers, none merged into another', () => {
    * one the other's alias. The build may not merge what the source keeps
    * apart, and the measurement is what says the source keeps them apart.
    *
+   * AND THE ABSENCE CARRIES A POSITIVE CONTROL. `shared` being empty is only
+   * evidence that the three are kept apart if each identifier occurs at all —
+   * an identifier present on zero lines makes every intersection empty and the
+   * loop pass while proving nothing. The sibling PAIRS block already asserted
+   * this; the REPLAY block did not.
+   *
    * Planted: `DEC-COACHREPLAY-001` registered as `DEC-REPLAY-001`'s alias and
    * its own record removed. RED on the alias check and on the record check.
+   * Planted: `DEC-AIREPLAY-001` mis-spelled to a literal the source does not
+   * carry. RED on the occurrence control — GREEN before it existed.
    */
   it('finds no line carrying any two of the three, and merges none of them', () => {
+    for (const a of REPLAY) {
+      expect(linesCarrying(a).length, `${a} occurs nowhere in the source`).toBeGreaterThan(0)
+    }
     for (const a of REPLAY) {
       for (const b of REPLAY) {
         if (a === b) continue
@@ -350,12 +435,47 @@ describe('DEC-AIDISCLOSE-001 renders both sides and adopts neither', () => {
 
   /**
    * FAILS IF: the provenance claim on the record stops matching the source.
-   * The shows-nothing side is marked `Derived Clarification` in the source and
-   * the record says so; if the marking ever moves, the record's reason for
-   * refusing to choose moves with it.
+   *
+   * AND IT USED TO SAMPLE ONLY THE LINES THAT AGREED WITH IT. This test read
+   * L87854 and L89348 — the two `Derived Clarification` storyboard rulings —
+   * and stopped, while the record's `adopted` said the two sides "carry the
+   * same provenance marking, so neither outranks the other". Two of the four
+   * pinned lines were never read: L89368 and L89369, the matrix rows, both
+   * marked `SoW Fact — §8.7.5`, and both corroborating the mode-chip side
+   * alone. A helper scoped to exclude the lines that contradict the claim it
+   * covers is the tenth defect shape this build has named, and it was in the
+   * gate for the record whose whole subject is provenance.
+   *
+   * So all four are read, each against the marking the source actually gives
+   * it, and the record's `adopted` is required to state the asymmetry rather
+   * than deny it — while still adopting neither side, which stays correct.
+   *
+   * Planted: `adopted` restored to the "same provenance marking" wording. RED
+   * on the asymmetry assertion. Planted: the L89369 expectation changed to
+   * `Derived Clarification`. RED, naming the line.
    */
-  it('measures the provenance marking that makes neither side outrank the other', () => {
-    expect(L(87_854)).toContain('`Derived Clarification`')
-    expect(L(89_348)).toContain('`Derived Clarification`')
+  it('measures all four pinned lines, including the two that break the symmetry', () => {
+    // The two storyboard rulings: equal rank, and they contradict each other.
+    expect(L(87_854), 'the shows-nothing ruling').toContain('`Derived Clarification`')
+    expect(L(89_348), 'the five-surface storyboard').toContain('`Derived Clarification`')
+    // The two matrix rows: a HEAVIER marking, and both on the mode-chip side.
+    for (const n of [89_368, 89_369]) {
+      expect(L(n), `L${n} marking`).toContain('`SoW Fact — §8.7.5`')
+      expect(L(n), `L${n} is not a Derived Clarification`).not.toContain('`Derived Clarification`')
+      expect(L(n), `L${n} carries the mode-chip wording`).toContain(
+        'Live coaching paused by the platform',
+      )
+    }
+
+    // And the record says so. A record claiming symmetry while its own
+    // readings record the asymmetry is the contradiction this catches.
+    const record = decisionRecord('DEC-AIDISCLOSE-001')
+    expect(record.adopted, 'the record still claims symmetric provenance').not.toMatch(
+      /same provenance marking/,
+    )
+    expect(record.adopted, 'the record names the asymmetry').toMatch(/NOT symmetric/)
+    for (const n of [87_854, 89_348, 89_368, 89_369]) {
+      expect(record.adopted, `L${n} is pinned in the adopted position`).toContain(`L${n}`)
+    }
   })
 })

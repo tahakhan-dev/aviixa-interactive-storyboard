@@ -149,17 +149,96 @@ describe('the roster is located by counting rows, never by trusting a span', () 
       expect(agent.failureImpactClass, `${agent.id} failure impact`).toBe(impact)
     }
   })
+
+  /**
+   * FAILS IF: a STRUCTURED field disagrees with the source cell it is derived
+   * from. The verbatim cells above are checked against the row; `kind` and
+   * `governanceBinding` are not verbatim — they are this build's reading of
+   * the Type and Governance cells — and nothing read their VALUES until this
+   * gate existed. A record could carry `kind: 'reasoning agent'` beside
+   * `typeWording: 'Action'`, and `governanceBinding: 'runtime human gate'`
+   * beside a governance cell declaring `authoring-time policy`, and the whole
+   * file stayed green. That second pairing is exactly what this module's own
+   * doc comment cites L31692 to forbid: pre-authorised policy presented as
+   * though it were a runtime human gate.
+   *
+   * The expectation needs no new data. The Type cell says Action or Reasoning
+   * and the Governance cell either declares a binding literal in backticks or
+   * declares none, so both structured fields are DERIVED from the source row
+   * here and compared with what the record claims.
+   *
+   * Planted: the controller's own defect — `kind: 'reasoning agent'` and
+   * `governanceBinding: 'runtime human gate'` on the Prevention Agent, whose
+   * cells say Action and `authoring-time policy`. RED on both fields, naming
+   * the agent. Restored.
+   */
+  it('derives kind and the governance binding from the cells, and the record agrees', () => {
+    for (const agent of AI_AGENT_ROSTER) {
+      const [, type, governance] = cells(L(Number(agent.sourceRef.replace(/^L/, ''))))
+
+      // Type cell → kind. The Vision row's cell is 'Reasoning at the roster
+      // level (§8.3.3)', so the cell is read by its opening word.
+      const firstWord = type!.split(' ')[0]
+      expect(['Action', 'Reasoning'], `${agent.id} type cell`).toContain(firstWord)
+      expect(agent.kind, `${agent.id} kind`).toBe(
+        firstWord === 'Action' ? 'action agent' : 'reasoning agent',
+      )
+
+      // Governance cell → binding. A backticked literal after the words
+      // 'Governance binding' is a declared binding; anything else is not one,
+      // and a record inventing a binding where the cell declares none is the
+      // Vision agent's defect rather than the Prevention Agent's.
+      const declared = governance!.match(/Governance binding `([^`]+)`/)?.[1] ?? null
+      expect(agent.governanceBinding, `${agent.id} governance binding`).toBe(
+        declared === null ? null : canonicalGovernanceBinding(declared),
+      )
+      if (declared !== null) {
+        expect(canonicalGovernanceBinding(declared), `${agent.id} declares a known binding`).not.
+          toBeNull()
+      }
+
+      // And the absence field is the exact complement of the binding field, so
+      // a record can never carry both or neither.
+      expect(agent.governanceAbsence === null, `${agent.id} governance absence`).toBe(
+        declared !== null,
+      )
+      if (agent.governanceAbsence !== null) {
+        expect(governance, `${agent.id} absence is the cell’s own words`).toContain(
+          agent.governanceAbsence,
+        )
+      }
+    }
+  })
 })
 
 /* ── the Vision agent: three stated absences, all measured ─────────────── */
 
-/** `## 44.4 …` through the line before the next `## ` heading. */
-const SECTION_44_4 = (() => {
-  const start = linesCarrying('## 44.4 Vision Reasoning Agent')[0]!
+/** The three permission tokens this build renders role matrices from. */
+const PERMISSION_TOKENS = ['Explicitly prohibited', 'Allowed with conditions', 'Read-only'] as const
+
+/** A `## ` heading through the line before the next `## ` heading. */
+const sectionSpan = (heading: string): { readonly start: number; readonly end: number } => {
+  const found = linesCarrying(heading)
+  expect(found, `${heading} occurs exactly once`).toHaveLength(1)
+  const start = found[0]!
   let end = start + 1
   while (!L(end).startsWith('## ')) end += 1
   return { start, end: end - 1 }
-})()
+}
+
+/**
+ * All four agent sections, not only the one with the absence. The claim is
+ * comparative — 44.4 is the ONLY one of the four with no permission table —
+ * and a sweep of 44.4 alone proves only half of it.
+ */
+const AGENT_SECTIONS = [
+  '## 44.1 Prevention Agent',
+  '## 44.2 Deviation and Containment Agent',
+  '## 44.3 Shift Handoff Agent',
+  '## 44.4 Vision Reasoning Agent',
+] as const
+
+const SECTION_44_4 = sectionSpan(AGENT_SECTIONS[3])
 
 describe('the Vision agent renders as a stated absence, never as a coming-soon placeholder', () => {
   /**
@@ -190,16 +269,48 @@ describe('the Vision agent renders as a stated absence, never as a coming-soon p
    * renders matrices from; the record's absence note may stand only while the
    * sweep finds none of them.
    *
+   * AND THE CLAIM IS COMPARATIVE, so both sides are measured. "44.4 is the
+   * only one of the four agent sections with no permission table" is two
+   * facts: 44.4 has none, and 44.1, 44.2 and 44.3 each have some. Sweeping
+   * only 44.4 proves the first and leaves the second an assertion — and a
+   * sweep that found nothing in ANY of the four (a mis-spelled token, a
+   * changed span helper) would have passed the half-measured version while
+   * proving nothing at all. So all four sections are swept and the zero is
+   * asserted to be unique among them.
+   *
    * Planted: the sweep narrowed to the section's first ten lines. RED — the
    * span no longer covers the section it claims to have swept.
+   * Planted: all three permission tokens mis-spelled, so the sweep can find
+   * nothing anywhere. The half-measured version of this test was GREEN on that
+   * plant — it only ever asked 44.4 for an empty result and got one. This
+   * version is RED, listing all four sections as empty.
    */
-  it('finds no permission token in the whole of the Vision agent’s section', () => {
+  it('finds no permission token in 44.4, and finds them in the other three', () => {
+    const sweepOf = (heading: string): readonly string[] => {
+      const span = sectionSpan(heading)
+      return LINES.slice(span.start, span.end + 1)
+    }
+    const hitLines = (swept: readonly string[]): readonly string[] =>
+      swept.filter((t) => PERMISSION_TOKENS.some((token) => t.includes(token)))
+
     const swept = LINES.slice(SECTION_44_4.start, SECTION_44_4.end + 1)
     expect(swept.length, 'the sweep covers the whole section').toBeGreaterThan(200)
-    for (const token of ['Explicitly prohibited', 'Allowed with conditions', 'Read-only']) {
+    for (const token of PERMISSION_TOKENS) {
       const hits = swept.filter((t) => t.includes(token))
       expect(hits, `${token} inside section 44.4`).toEqual([])
     }
+
+    // The other side of the same claim: the three sections that DO have a
+    // matrix carry permission tokens, so the zero above is a property of 44.4
+    // and not of the sweep.
+    const empty = AGENT_SECTIONS.filter((heading) => hitLines(sweepOf(heading)).length === 0)
+    expect(empty, 'exactly one agent section carries no permission token').toEqual([
+      AGENT_SECTIONS[3],
+    ])
+    for (const heading of AGENT_SECTIONS.slice(0, 3)) {
+      expect(hitLines(sweepOf(heading)).length, `${heading} permission rows`).toBeGreaterThan(0)
+    }
+
     const vision = aiRosterAgent(AI_AGENT_ROSTER, 'vision-reasoning')
     expect(vision.roleMatrixAbsence).not.toBeNull()
     for (const other of AI_AGENT_ROSTER) {
