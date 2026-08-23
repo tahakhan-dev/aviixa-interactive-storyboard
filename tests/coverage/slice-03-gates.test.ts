@@ -671,7 +671,23 @@ describe('slice 3 gate 12: one tab-title shape across the surface', () => {
       .filter((d) => statSync(join(SA_ROOT, d)).isDirectory())
       .map((d) => join(SA_ROOT, d, 'page.tsx'))
       .filter((f) => existsSync(f))
-    expect(pages.length, 'nineteen module routes').toBe(19)
+    // THE COUNT WAS THE LITERAL 19 AND IT WENT STALE THE FIRST TIME A ROUTE
+    // LANDED THAT NO MODULE OWNS. Slice 10's two scheduler screens are the
+    // first: `SCR-SA-SCHED-01` and `SCR-SA-SCHED-02` are named in the frozen
+    // source, carried by no screen register, and claimed by no `MOD-*`
+    // identifier, so they are authored under `app/super-admin/` without being
+    // module routes. A literal count made them a failure of a title gate they
+    // both satisfy.
+    //
+    // What this control actually needs is that the walk found the whole
+    // surface, and the registry states that. The missing-module direction is
+    // held by this file's own "every module route directory matches its
+    // registry slug" gate -- measured, by moving a module directory away and
+    // watching that gate go red while this floor stayed green -- so it is not
+    // restated here.
+    expect(pages.length, 'at least one page per registered module').toBeGreaterThanOrEqual(
+      SA_MODULES.length,
+    )
     const wrong = pages.filter(
       (f) => !/— Super Admin Platform Console/.test(readFileSync(f, 'utf8')),
     )
