@@ -286,14 +286,93 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-**Slice 8 is closed and verified. Slice 9 is at 19 of 21 tasks — every module built, gates and
-verification remain.** `pnpm verify` green end to end: **unit 4768, component 2482, release 676,
-e2e/axe 515, 96 exported pages.**
+**Slice 9 is closed and verified. Slice 10 wave 0 is closed, twelve commits, `pnpm verify`
+green end to end: typecheck, lint, gate-ordering 24/24, unit 4911, component 2496,
+build 96 pages, release 735, e2e/axe 515.**
 
-**77 of 81 modules are on screen** — 67 demonstrated by their own route, 10 mounted inside another
-module's screen, 4 not represented (`MOD-DOH-10`, `-11`, `-17`, `-18`). Across the fourteen
-inventories: **258 of 4,970 rows demonstrated, 813 named somewhere in the build.**
+Slice 9's verification pass ran the whole chain on frozen bytes and opened twelve findings.
+The one that mattered was **defect shape 6 shipped again**: `src/surfaces/cc/seams.ts` declared
+`THIS_SLICE = 8` while both its seams' owning modules had landed, so "Until that board exists
+there is no host" printed on 12 of 13 Command Center pages and one panel contradicted itself two
+sentences apart — green because five files in four suites pinned the stale value as a literal
+string. Fixed at the single input; no successor gate names the constant.
 
+Wave 0 built the slice-10 spine: the non-human matrix column type (391 cells across four
+matrices parse without a throw), the decision canon at 43 records, six closed vocabularies,
+`LockedControl`, and both notification registers at 112 keyed rows.
+
+### The canon-count class, and why it took five tasks
+
+One derived number — the canon's size — had **twenty-nine** hand-maintained copies across the
+tree. Eleven were assertions, eleven were rendered strings, and eighteen more were comments.
+Three tests pinned the stale phrase, so every suite was green while eleven screens told readers
+the canon holds twenty-nine records.
+
+The sequence is worth keeping because each step found the next: 2b consolidated the eleven
+assertions into one membership gate; 2c found the eleven rendered strings and that the pin was
+three tests rather than one; 2d cleared the eighteen comments and planted the class-closing gate;
+the controller planted into that gate and found it missed **double-quoted JSX attributes** —
+`aria-label`, `title`, `alt` — so a stale count could still reach a screen reader; 2e narrowed
+the exemption to comment prose only.
+
+**Three rules came out of it.**
+
+A membership gate is a literal list, not a length. The `DecisionId` union, `OPEN_DECISION_IDS`
+and the records are locked together *inside* the module at compile time, so a deletion from all
+three leaves nothing in there to notice it. Only a list declared outside can — and typed
+`readonly DecisionId[]` it catches that deletion twice, red at run time and a `tsc` error naming
+the id. `toHaveLength(43)` is satisfied by any 43 records at all.
+
+**Never renumber a stale count — remove it.** Changing twenty-nine to forty-three reships the
+identical defect with a fresh number. The count was never the claim a reader could act on; the
+absence was, and the suites already measured it.
+
+**A membership gate is proved by ADDING, not removing.** 2c's decisive plant added three
+identifiers to the canon and all three rewritten gates fired — which is what distinguishes a
+gate that tests membership from one that tests prose. And `cc-02.test.ts`'s absence loop had no
+positive control, so a failed parse made every absence pass (shape 9); it now carries one.
+
+### Two rulings recorded here because no file may hold them
+
+**`DEC-CMDEXP-001` and `DEC-SYNC-002` stay separate.** They are one question — command expiry
+horizons per class — and L80093 is the source's own evidence the two registers did not know
+about each other. But slice 8 discloses the second locally in `src/offline/decisions-37b.ts` and
+a gate pins its literal absence from the canon. Registering it there creates the second home
+`DecisionDisclosure` exists to prevent, and that trap already fired once this slice when task
+2's prose named `DEC-STORE-001`. Consolidating slice 8's local disclosures is its own task with
+its own gate, not a side effect.
+
+**`ColumnClass` and `TransitionCauserClass` are not duplicates.** The first answers what kind of
+column holds authority (platform, tenant, `NON_HUMAN`, `AGGREGATE`); the second what kind of
+actor causes a transition (`human`, `nonHumanIdentity`, `noHumanOnThisConsole`). `AGGREGATE` has
+no analogue in the second and `noHumanOnThisConsole` none in the first — it is a statement about
+where the cause lives, not which identity performs it. Do not unify them on the strength of the
+shared word.
+
+### Open from slice 9's verification, still open
+
+Screenshot manifest stale — 85 routes against a 96-route export; `pnpm screenshots` writes
+committed files, so it is the controller's. `CcFallbackLibrary` reachable from zero pages, a
+declared abstention with the wiring unbuilt. Four `MOD-DOH-*` unrepresented — `-10`, `-11`,
+`-17`, `-18` — of which wave 2 builds three. Twelve uncorroborated citations, all in slice 5-8
+files. And two generator defects measured but unrepaired, both task 13's:
+`notifications.json` blends two registers and silently drops 25 rows, and
+`SOURCE_CLASSIFICATIONS` claims to be the frozen-source vocabulary while omitting a label used
+on 391 lines and spelling one that occurs zero times.
+
+### Thirty-one brief errors in one wave, and the three that would have shipped
+
+Every one was the controller's and every one was found by an agent opening the line. Three would
+have changed behaviour: the **L99258 truncation** that stops mid-sentence and would have rendered
+Matrix B as 110 refusals instead of licensing its eight conditional grants; the **fourteen-state
+command vocabulary**, where L50792 says fifteen and `AC-27.3-02` requires the two that every
+fourteen-item statement folds to be held distinct — and the repo already shipped fifteen; and a
+**matrix span short by one data row**, where the missing row is the one that makes "three of five
+columns" false.
+
+The shapes repeat: a count inferred from a span, a paraphrase presented as a quotation, the wrong
+subject behind a right-looking identifier, and a claim contradicting its own evidence. Assume
+every count in a brief is a hypothesis.
 ### The three findings worth carrying forward
 
 **A defect only `pnpm build` could see, in six of seven panels.** `WriteControl`'s enabled branch
