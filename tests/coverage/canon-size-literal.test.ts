@@ -36,6 +36,8 @@ import { OPEN_DECISIONS } from '@/disclosure/decisions'
  * Comment text and string text are treated alike, because the defect shipped
  * in both and neither is more true than the other. Comment markers are
  * stripped so a claim wrapped across four ` * ` lines is still one sentence.
+ * The ONE place the two are not alike is exemption 1: quoting is something
+ * prose does, so only comment text can hold a quotation.
  *
  * IT IS NOT A GREP FOR "twenty-nine", AND THAT IS THE WHOLE POINT. A gate
  * that knew only the old number could not fail for the defect it is named
@@ -53,14 +55,29 @@ import { OPEN_DECISIONS } from '@/disclosure/decisions'
  * here is narrow — a STORED LITERAL standing in for a derived count — and
  * these five things are outside it on purpose:
  *
- *   1. A NUMBER INSIDE A QUOTATION. `"…"` and `“…”` spans are removed before
- *      matching. That is how a deliberate historical record spells the
- *      sentence it replaced: `src/surfaces/cc/live/model.ts` quotes
- *      `"its DecisionId union has twenty-nine members"` in the course of
- *      explaining why it is gone. Convicting that would delete the record of
- *      the defect to satisfy the gate against it. Case 4 proves the exemption
- *      is load-bearing rather than accidental: the same sentence with its
- *      quotes removed IS convicted.
+ *   1. A NUMBER INSIDE A QUOTATION **IN A COMMENT**. `"…"` and `“…”` spans
+ *      are removed before matching, but only in comment prose. That is how a
+ *      deliberate historical record spells the sentence it replaced:
+ *      `src/surfaces/cc/live/model.ts` quotes `"its DecisionId union has
+ *      twenty-nine members"` in the course of explaining why it is gone.
+ *      Convicting that would delete the record of the defect to satisfy the
+ *      gate against it. Case 4 proves the exemption is load-bearing rather
+ *      than accidental: the same sentence with its quotes removed IS
+ *      convicted.
+ *
+ *      IT WAS ONCE THE WHOLE FILE, AND A JSX ATTRIBUTE PROVED THAT WRONG.
+ *      As shipped, the strip ran over source text of every kind, so
+ *      `aria-label="The shared decision canon holds forty-three records."`
+ *      was spared while the same sentence as a rendered single-quoted string
+ *      was convicted — and an accessible name is user-facing text, so a
+ *      stale canon size could ship in one. `aria-label`, `title`, `alt` and
+ *      `placeholder` all reach the user. QUOTATION IS SOMETHING PROSE DOES:
+ *      a double-quoted span in code is content, not a quotation of anything.
+ *      So the exemption was narrowed to comment prose rather than deleted —
+ *      deleting it would convict the historical record, which is a gate
+ *      forbidding the fix — the failure RESUME §8 names, and the same one
+ *      cited above this list. Case 3 pins both halves: the attribute is
+ *      convicted, the record is not.
  *
  *   2. AN INTERPOLATED COUNT. `${OPEN_DECISIONS.length} records` is not a
  *      stored copy and cannot go stale, so it is not the defect — a numeral
@@ -88,11 +105,29 @@ import { OPEN_DECISIONS } from '@/disclosure/decisions'
  *      numbers, which is the record of it. A gate that scanned them would
  *      convict the account of the thing it exists to prevent.
  *
- * KNOWN CEILING. Exemption 4 is a noun list, so a canon-size claim phrased
- * with a noun outside it ("the canon has forty-three entries") walks past.
- * The two nouns are the two the defect actually used, twenty-six times, and
- * widening the list re-convicts the true counts above. Widen it only with a
- * measurement, not a guess.
+ * KNOWN CEILING, THREE PARTS.
+ *
+ *   Exemption 4 is a noun list, so a canon-size claim phrased with a noun
+ *   outside it ("the canon has forty-three entries") walks past. The two
+ *   nouns are the two the defect actually used, twenty-six times, and
+ *   widening the list re-convicts the true counts above. Widen it only with a
+ *   measurement, not a guess.
+ *
+ *   WHAT THE NARROWED EXEMPTION 1 STILL DOES NOT CATCH: a size literal in a
+ *   COMMENT, inside double quotes, asserted rather than quoted. `// the canon
+ *   "holds forty-three records" today` is green, and it is a live claim, not
+ *   a record of a dead one. Nothing distinguishes the two but intent, and
+ *   this gate reads text. What the narrowing bought is that the exemption no
+ *   longer covers the places text reaches a user — a JSX attribute, an
+ *   object field, a rendered string — which is where a stale count does
+ *   damage. A comment does not render.
+ *
+ *   AND ITS OTHER EDGE: comment prose is recognised only by a marker at the
+ *   START of a line, so a quotation in a TRAILING comment (`const x = 1 //
+ *   … "forty-three records"`) or in a block comment opened mid-line IS
+ *   convicted. Measured: no such line exists in `src/` or `app/` today. If
+ *   one is ever wanted, put the quotation on its own comment line — which is
+ *   how the historical record already writes it.
  *
  * ponytail: sentence-scoped proximity, not a parser. A canon reference and a
  * size claim in ADJACENT sentences is not caught. Reach for a real parse only
@@ -157,24 +192,42 @@ const SIZE_CLAIM = new RegExp(
 /** `CcDecisionId` must not count as a `DecisionId` reference. */
 const CANON_REFERENCE = /disclosure\/decisions|decisions\.ts|OPEN_DECISIONS|(?<![A-Za-z])DecisionId\b|\bcanon\b/i
 
-/** Quotation spans, removed before matching. Exemption 1. */
+/** Quotation spans, removed before matching. Exemption 1, comments only. */
 const stripQuotations = (s: string): string => s.replace(/"[^"]*"|\u201c[^\u201d]*\u201d/g, ' ')
+
+/**
+ * The source in runs of like lines, comment markers stripped, each run
+ * carrying whether it IS comment prose \u2014 which is what exemption 1 turns on.
+ * Runs rather than lines because the historical record's quotation opens on
+ * one `//` line and closes on the next, and a per-line strip would leave both
+ * halves unbalanced and so convict it.
+ */
+function proseRuns(source: string): { text: string; isComment: boolean }[] {
+  const runs: { text: string; isComment: boolean }[] = []
+  for (const line of source.split('\n')) {
+    const text = line.replace(/^\s*(?:\/\/+|\*+|\/\*+)\s?/, '')
+    const isComment = text !== line
+    const last = runs[runs.length - 1]
+    if (last !== undefined && last.isComment === isComment) last.text += `\n${text}`
+    else runs.push({ text, isComment })
+  }
+  return runs
+}
 
 /**
  * One violation, or `null`. Exported shape is the sentence and the matched
  * span, because "this file has a canon-size literal somewhere" is not a
- * message anyone can act on.
+ * message anyone can act on. The sentence is reported with its quotes intact
+ * even where the match ran against a stripped copy.
  */
 function canonSizeViolation(source: string): { sentence: string; match: string } | null {
-  const prose = source
-    .split('\n')
-    .map((line) => line.replace(/^\s*(?:\/\/+|\*+|\/\*+)\s?/, ''))
-    .join('\n')
-  for (const raw of prose.split(/(?<=[.?!:;])\s|\n\s*\n/)) {
-    const sentence = raw.replace(/\s+/g, ' ').trim()
-    if (!sentence || !CANON_REFERENCE.test(sentence)) continue
-    const match = stripQuotations(sentence).match(SIZE_CLAIM)?.[0]
-    if (match !== undefined) return { sentence, match }
+  for (const run of proseRuns(source)) {
+    for (const raw of run.text.split(/(?<=[.?!:;])\s|\n\s*\n/)) {
+      const sentence = raw.replace(/\s+/g, ' ').trim()
+      if (!sentence || !CANON_REFERENCE.test(sentence)) continue
+      const match = (run.isComment ? stripQuotations(sentence) : sentence).match(SIZE_CLAIM)?.[0]
+      if (match !== undefined) return { sentence, match }
+    }
   }
   return null
 }
@@ -221,17 +274,29 @@ describe('no stored copy of the canon size', () => {
     for (const src of acquitted) expect(canonSizeViolation(src), src).toBeNull()
   })
 
-  it('acquits a quoted historical record and convicts the same words unquoted', () => {
+  it('acquits a quoted historical record, convicts it unquoted, convicts a double-quoted attribute', () => {
     // Exemption 1, and the proof it is doing work rather than nothing. The
     // quoted form is `src/surfaces/cc/live/model.ts`'s canonNote comment as
-    // it stands. No blueprint L-number is spelled here: this subject is a
-    // source file, and `locator-fidelity` reads an `L<n>` as a citation of
-    // the frozen blueprint, where that line is blank.
+    // it stands — its quotation wrapped across two `//` lines, which is why
+    // the strip runs over a RUN of comment lines and not one line. No
+    // blueprint L-number is spelled here: this subject is a source file, and
+    // `locator-fidelity` reads an `L<n>` as a citation of the frozen
+    // blueprint, where that line is blank.
     const quoted =
       '// The membership count this sentence used to spell — "its DecisionId\n' +
       '// union has twenty-nine members" — was a stored copy of a derived answer'
     expect(canonSizeViolation(quoted)).toBeNull()
     expect(canonSizeViolation(quoted.replace(/"/g, ''))).not.toBeNull()
+
+    // And the blind spot that narrowed the exemption to comments. All four of
+    // these attributes become user-facing text; the single-quoted rendered
+    // string is the pair's control and was always convicted.
+    const claim = `The shared decision canon holds ${spellOut(CANON_SIZE)} records.`
+    expect(canonSizeViolation(`      <p>{'${claim}'}</p>`)).not.toBeNull()
+    for (const attr of ['aria-label', 'title', 'alt', 'placeholder']) {
+      const jsx = `      <p ${attr}="${claim}" />`
+      expect(canonSizeViolation(jsx), jsx).not.toBeNull()
+    }
   })
 
   it('finds no canon-size literal in src/ or app/', () => {
