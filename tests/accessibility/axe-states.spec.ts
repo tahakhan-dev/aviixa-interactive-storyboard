@@ -44,10 +44,19 @@ import { SCREEN_STATES } from '@/ui/screen-state'
  * '/studio/'))`, and every block below drove that list. So the 164 driven
  * scans it reported — every persona, every screen state, every simulation
  * toggle — covered THE STUDIO ALONE. There were ZERO driven browser scans
- * for any Hub or Super Admin route, on a build where the Hub carries
- * eighteen routes and the console twenty. The coverage was described in two
+ * for any Hub or Super Admin route, on a build where the Hub and the console
+ * carry most of the routes between them. The coverage was described in two
  * dispatches without that scope, which overstates a claim that goes in front
  * of a client.
+ *
+ * THE ROUTE COUNTS THAT USED TO BE WRITTEN HERE ARE GONE RATHER THAN
+ * CORRECTED. This comment said "the Hub carries eighteen routes and the
+ * console twenty"; both were true when written and both went stale when slice
+ * 10 added routes to each. Renumbering a stale count reships the identical
+ * defect with a fresher number, and the count was never the claim a reader
+ * could act on — the claim is that the driven set is the whole export, and
+ * `routesOf` derives it per surface on every run. There is no number here to
+ * go stale again.
  *
  * WIDENING THE FILTER ALONE WOULD HAVE ADDED NOTHING, AND THAT IS THE
  * TRAP. Every block below guards on `route.selects.find(isPersonaSelect)`
@@ -150,14 +159,22 @@ const PLATFORM_ROLE_IDS: readonly string[] = rolesInDomain('PLATFORM').map((r) =
  * THE SUPER ADMIN CONSOLE SHIPS ITS VIEWER CONTROL IN TWO ID SCHEMES, AND
  * THIS IS A FINDING, NOT A CONVENIENCE.
  *
- * Measured over the export: nine console routes give "View as platform role"
- * the canonical `RoleId` values from `@/domain/roles`
- * (`ROOT_SUPER_ADMIN`, `ADMIN`, `PLATFORM_ENGINEER`, `SUPPORT`), and nine
- * give it the blueprint annotation tokens instead (`ROLE-PLAT-ROOT`,
- * `ROLE-PLAT-ADMIN`, `ROLE-PLAT-ENG`, `ROLE-PLAT-SUP`). The two map one to
- * one — `app/super-admin/platform-audit/PlatformAuditScreen.tsx:71` carries
- * the mapping explicitly — so both are four positions on the same four
- * roles, and neither is an accessibility defect.
+ * Some console routes give "View as platform role" the canonical `RoleId`
+ * values from `@/domain/roles` (`ROOT_SUPER_ADMIN`, `ADMIN`,
+ * `PLATFORM_ENGINEER`, `SUPPORT`) and the rest give it the blueprint
+ * annotation tokens instead (`ROLE-PLAT-ROOT`, `ROLE-PLAT-ADMIN`,
+ * `ROLE-PLAT-ENG`, `ROLE-PLAT-SUP`). The two map one to one —
+ * `app/super-admin/platform-audit/PlatformAuditScreen.tsx:71` carries the
+ * mapping explicitly — so both are four positions on the same four roles, and
+ * neither is an accessibility defect.
+ *
+ * THE PER-SCHEME COUNTS THAT USED TO BE HERE ARE REMOVED, NOT UPDATED. This
+ * comment said "nine console routes ... and nine give the blueprint annotation
+ * tokens"; the split moved when slice 10 added console routes, and a renumber
+ * would only reship the same defect with a fresher pair of numbers. Neither
+ * number was ever load-bearing: what matters is that BOTH schemes are declared
+ * here, and the completeness test below is what measures the split on every
+ * run — and goes red if a THIRD scheme appears.
  *
  * There is no shared export for the token scheme: each screen that uses it
  * declares its own. That is the reason this list is written out here rather
@@ -378,13 +395,20 @@ const isRoleSelect = (surface: DrivenSurface, s: ExportedSelect): boolean =>
  * list of prose this file rejects everywhere else.
  *
  * FIRST IN DOCUMENT ORDER is the shell's, and that is a structural fact
- * rather than a guess: `HubShell`, `SaConsoleShell` and the Studio shell each
- * render their reviewer controls in the chrome ABOVE the screen body, and
- * `controlsInHtml` collects `<label for>` in document order. Verified on the
- * one ambiguous route: `View as tenant role` is index 0 and `Role to assign`
- * is index 7. The ambiguity itself is pinned per surface and compared for
- * equality, so a SECOND route growing one goes red and gets read rather than
- * absorbed.
+ * rather than a guess: `HubShell` and the Studio shell each render their
+ * reviewer control in the chrome ABOVE the screen body, and `controlsInHtml`
+ * collects `<label for>` in document order. Verified on the one ambiguous
+ * route: `View as tenant role` is index 0 and `Role to assign` is index 7. The
+ * ambiguity itself is pinned per surface and compared for equality, so a
+ * SECOND route growing one goes red and gets read rather than absorbed.
+ *
+ * `SaConsoleShell` USED TO BE NAMED IN THAT LIST AND IT DOES NOT BELONG
+ * THERE: it renders NO viewer control in either of its two modes, and each
+ * console screen declares its own. The same claim in the other direction is
+ * already written below — the `/super-admin/` entry in `unreachedRoutes` says
+ * the console index "carries no viewer control at all" — and that half is the
+ * correct one. Nothing on this surface is ambiguous, which is why
+ * `ambiguousRoutes` is empty for it; the reasoning above is about the Hub.
  */
 const viewerSelect = (surface: DrivenSurface, route: RouteControls): ExportedSelect | undefined =>
   route.selects.find((s) => isRoleSelect(surface, s))
@@ -648,10 +672,17 @@ async function proveLive(page: Page, roleSelect: ExportedSelect, where: string):
 
 /* ==================================================================== *
  * VIEWER ROLES — every non-default position of the viewer control, on every
- * route of every surface: eight Studio personas on eighteen Studio routes,
- * five tenant roles on eighteen Hub routes, four platform roles on eighteen
- * of the twenty console routes. The two console routes with no viewer
- * control are recorded in `unreachedRoutes` and asserted by equality above.
+ * route of every surface: eight Studio personas, five tenant roles on the Hub,
+ * four platform roles on the console. The routes are derived per surface by
+ * `routesOf` on every run, and the console routes with no viewer control are
+ * recorded in `unreachedRoutes` and asserted BY EQUALITY above — which is what
+ * makes "every route" a measurement instead of a count somebody maintains.
+ *
+ * THE PER-SURFACE ROUTE COUNTS ARE REMOVED RATHER THAN UPDATED. This header
+ * said "eighteen Hub routes" and "eighteen of the twenty console routes";
+ * slice 10 added routes to both surfaces and both figures went stale in the
+ * same commit. The equality assertion above already measures the difference and
+ * names the routes, so the numbers were never the claim.
  * ==================================================================== */
 
 for (const surface of SURFACES) {

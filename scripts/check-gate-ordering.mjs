@@ -267,6 +267,35 @@ const AUDITED = {
       'into a real shipping file, and each file restored byte-identically against a checksum ' +
       'taken once before the first plant.',
   },
+  'slice-10-gates.test.ts': {
+    subject:
+      'the frozen blueprint at run time, compared against src/** and app/** as authored -- the two ' +
+      'notification register bodies, the two command-state enumerations, the six closed ' +
+      'vocabularies, the decision canon at src/disclosure/decisions.ts, the matrix column type at ' +
+      'src/policy/columns.ts with the two schedule matrices, MOD-DOH-11\'s read-scope selector and ' +
+      'its seeded fixture, MOD-DOH-18\'s report sets, the scheduled-work census, and the ' +
+      'occurrence-outcome conflict record. NO ASSERTION READS A BUILD PRODUCT: not out/, and ' +
+      'not registries/generated. The plant log at the foot of the file NAMES registries/generated ' +
+      'once, as a cross-reference to a plant run against slice-09-gates\' subject, and check 2 ' +
+      'below rightly refuses to take that on trust — so this entry is filed as rewrittenBy ' +
+      '\'build\' and the verdict states what the mention is. Rewording the comment to slip past ' +
+      'the check would have weakened the check for the next gate.',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and nothing `verify` writes is on either end of any assertion here. Every ' +
+      'gate has the blueprint on one side -- read-only input whose sha256 this file asserts -- and ' +
+      'authored src/ or app/ on the other, and no verify step writes either. Unlike slice-06 and ' +
+      'slice-09 this gate reads NO build product at all: not registries/generated, not out/. The ' +
+      'ordering that matters for this file is the one its own header states and it is a ' +
+      'DEPENDENCY order rather than a verify-step one -- it is written strictly after the thirteen ' +
+      'build tasks, because a directory enumeration written before the directories exist passes ' +
+      'on an empty scan. Every derived list carries a floor whose failure message names what it ' +
+      'walked, and the floor instrument itself is exercised on each run. Every assertion whose ' +
+      'subject this build can change was watched red on a real plant into a real shipping file, ' +
+      'and each file restored byte-identically against a checksum taken once before the first ' +
+      'plant.',
+  },
   'slice-09-absence-sweep.test.ts': {
     subject:
       'src/surfaces/cc/** and app/command-center/** as authored, swept for the decision ' +

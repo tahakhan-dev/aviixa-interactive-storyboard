@@ -1579,8 +1579,19 @@ describe('slice 9 gate 15: the generator places all thirteen modules on a screen
         }[]
       }
     ).rows
-    expect(registry).toHaveLength(81)
+    // THIS WAS `toHaveLength(81)`, AND IT IS A PROPERTY NOW FOR THE SAME
+    // REASON AS THE FIGURE FURTHER DOWN THIS TEST. 81 is the whole build's
+    // module count — a derived number stored by hand, accurate on the day it
+    // was written and stale the next time any surface lands a module. What it
+    // was actually doing is establishing that the file this gate filters is
+    // the BUILD-WIDE registry rather than a Command Center one, so that
+    // `cc.length === 13` is a measurement over a filter and not a restatement
+    // of the file's own size. Two properties say that without a number, and
+    // neither goes stale: the registry spans more than one surface, and the
+    // Command Center rows are a strict subset of it.
+    expect(new Set(registry.map((m) => m.surface)).size).toBeGreaterThan(1)
     const cc = registry.filter((m) => m.id.startsWith('MOD-CC-'))
+    expect(cc.length).toBeLessThan(registry.length)
     expect(cc).toHaveLength(13)
     const byStatus = (s: string): string[] => cc.filter((m) => m.status === s).map((m) => m.id)
     expect(byStatus('not-represented')).toEqual([])
