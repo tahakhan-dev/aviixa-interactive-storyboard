@@ -199,12 +199,35 @@ describe('the absolute rule: cached guidance and rules are never called live', (
    * runtime translation layer: every rendered string is authored once, in
    * English, in the record. So the sweep is over every string the record
    * holds, and the Spanish half is not claimed.
+   *
+   * THE SWEEP IS THE RENDERING PATH, NOT A SUBSET OF IT. It read `name`,
+   * `markerText` and `meaning` while `ProvenanceMark` also renders
+   * `classification`, `sourceRef`, and — whenever the offline cell is not a
+   * plain `Allowed` — `permittedWhileOffline` and
+   * `permittedWhileOfflineSense`. A criterion about what an element RENDERS
+   * cannot be discharged over three of six rendered fields. Clean on both
+   * classes today; the two offline fields do not currently reach the screen
+   * for either, because both cells read `Allowed`, and they are swept anyway
+   * so that flipping a cell cannot open the hole silently.
    */
   it('puts no artificial-intelligence attribution in PROV-3 or PROV-4 strings', () => {
     const attribution = /\bAI\b|artificial intelligence|\bagent\b|\bmodel\b|assistant/i
+    // Every record field `ProvenanceMark` puts on the screen, plus `name`,
+    // which it does not render but which any surface reading the record may.
+    const rendered = [
+      'name',
+      'markerText',
+      'meaning',
+      'classification',
+      'sourceRef',
+      'permittedWhileOffline',
+      'permittedWhileOfflineSense',
+    ] as const
     for (const id of ['PROV-3', 'PROV-4'] as const) {
       const record = provenanceClass(id)
-      for (const field of ['name', 'markerText', 'meaning'] as const) {
+      for (const field of rendered) {
+        // Not vacuous over a field the record leaves empty.
+        expect(record[field].length, `${id}.${field} is empty`).toBeGreaterThan(0)
         expect(record[field], `${id}.${field}`).not.toMatch(attribution)
       }
       expect(contractPermits(id, 'carriesModelOrAgentIdentity')).toBe(false)
@@ -375,6 +398,28 @@ describe('AC-42-403 — PROV-1 fails closed to PROV-6', () => {
     expect(L(91373)).toContain('Model quarantine, provider failover policy, and safe replay')
     expect(L(91373)).not.toContain('PROV-')
     expect(L(89480)).not.toContain('quarantine')
+  })
+
+  /**
+   * THE THIRD SIDE OF THE SAME COLLISION, AND THE ONE THAT SHIPPED WRONG.
+   * `AC-42-401` (L89478) is the exactly-one rule; `AC-42-403` (L89480) is the
+   * fail-closed rule. `provenanceViolations` enforces the FIRST, and its
+   * unclassified-element sentence named the second — so a reader following the
+   * identifier out of a build failure landed on the wrong criterion. The
+   * function's own docstring had it right the whole time, which is how it
+   * survived review.
+   */
+  it('attributes the exactly-one message to AC-42-401, the rule that states it', () => {
+    expect(L(89478)).toContain('`AC-42-401`')
+    expect(L(89478)).toContain(
+      'resolves to exactly one of the six provenance classes, with no element unclassified and no element carrying two',
+    )
+    const contractSource = readFileSync(
+      new URL('../../src/ai/provenance/contract.ts', import.meta.url),
+      'utf8',
+    )
+    expect(contractSource).toContain("AC-42-401's contract needs exactly one of")
+    expect(contractSource).not.toContain("AC-42-403's contract needs exactly one of")
   })
 
   it('yields PROV-1 only when BOTH identifiers are present', () => {

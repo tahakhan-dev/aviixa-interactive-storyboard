@@ -154,7 +154,7 @@ export function provenanceViolations(root: ParentNode): readonly string[] {
     if (declared.length !== 1 || !known.includes(declared[0]!)) {
       violations.push(
         `A guidance element declares "${raw}" as its provenance class. `
-          + `AC-42-403's contract needs exactly one of ${known.join(', ')}.`,
+          + `AC-42-401's contract needs exactly one of ${known.join(', ')}.`,
       )
       continue
     }

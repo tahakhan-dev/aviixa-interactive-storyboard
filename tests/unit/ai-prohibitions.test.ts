@@ -179,22 +179,37 @@ describe('the prohibitions are absolute — there is no parameter that turns one
    * escape hatch is a SIGNATURE, not a field value, so no assertion over the
    * records could see one. Plant `override = false` on any exported function
    * and this goes red.
+   *
+   * BOTH SPELLINGS OF AN EXPORTED FUNCTION, because the gate's claim is about
+   * what a caller can pass and not about a keyword. A scan for
+   * `export function` only was measured 17/17 green against a planted
+   * `export const prohibitionWithEscape = (prohibitionNumber, override = false) => …`
+   * — an arrow export turns a prohibition off just as completely, and
+   * invisibly. So `export const … = (…) =>` is swept alongside, with or
+   * without a type annotation, `async`, or a single unparenthesised
+   * parameter. `export const` bindings that are not functions carry no `=>`
+   * straight after their parameter list and are not matched.
    */
   it('accepts nothing but a prohibition number in any exported function', () => {
-    const signatures = [...MODULE_TEXT.matchAll(/export function (\w+)\(([^)]*)\)/g)]
+    const signatures = [
+      ...MODULE_TEXT.matchAll(/export function (\w+)\(([^)]*)\)/g),
+      ...MODULE_TEXT.matchAll(
+        /export const (\w+)[^=\n]*=\s*(?:async\s+)?(?:\(([^)]*)\)|([\w$]+))\s*=>/g,
+      ),
+    ]
     expect(signatures.length).toBeGreaterThan(0)
-    const parameterLists = signatures.map(([, name, params]) => ({
-      name: name as string,
-      identifiers: (params ?? '')
+    const parameterLists = signatures.map((m) => ({
+      name: m[1] as string,
+      identifiers: (m[2] ?? m[3] ?? '')
         .split(',')
         .map((p) => (p.split(':')[0] ?? '').split('=')[0]?.trim() ?? '')
         .filter((p) => p.length > 0),
     }))
     for (const signature of parameterLists) {
-      expect(signature.identifiers, `export function ${signature.name}`).toEqual(
+      expect(signature.identifiers, `exported ${signature.name}`).toEqual(
         signature.identifiers.filter((i) => i === 'prohibitionNumber'),
       )
-      expect(signature.identifiers.length, `export function ${signature.name}`).toBeLessThan(2)
+      expect(signature.identifiers.length, `exported ${signature.name}`).toBeLessThan(2)
     }
     // Not vacuous: at least one exported function really does take the number,
     // so "every parameter is the prohibition number" is a claim about

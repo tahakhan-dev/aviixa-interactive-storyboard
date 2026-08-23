@@ -1,3 +1,4 @@
+import { type SurfaceId } from '@/domain/surfaces'
 import { type QueuedRequestStateId } from './states'
 
 /**
@@ -48,6 +49,21 @@ import { type QueuedRequestStateId } from './states'
  * optional note and `allowed with conditions` a required condition, and the two
  * cannot be spelled the same way.
  *
+ * ── THE FIVE COLUMNS ARE THE FIVE SURFACES, PROVED RATHER THAN NAMED ───────
+ * The column axis is bound to `SurfaceId` the way `@/ui/shared/journey`'s
+ * `JOURNEY_SURFACES` binds its own five-surface column axis: a short code per
+ * column, the canonical surface identifier beside it, and two compile-time
+ * `Exclude<…> extends never` checks — one that every column code is listed
+ * exactly once, one that every platform surface is represented. Declared as
+ * five bare strings instead, the columns are five strings that HAPPEN to match
+ * the five surfaces, and a sixth surface or a renamed one would leave this
+ * table silently short a column.
+ *
+ * The HEADINGS stay the source's own wording, which is not the canonical
+ * surface name in every case — the table writes `Super Admin platform
+ * console` where `SURFACES` writes `Super Admin Platform Console`. Only the
+ * identity is bound; the transcription is left alone.
+ *
  * This module is data and two lookups.
  */
 
@@ -58,23 +74,43 @@ export type QueuedRequestSurfaceId =
   | 'studio'
   | 'super-admin'
 
+export interface QueuedRequestSurfaceColumn {
+  readonly id: QueuedRequestSurfaceId
+  /** The platform surface this column IS, not a name that resembles one. */
+  readonly surfaceId: SurfaceId
+  /** The table's own column heading, verbatim. */
+  readonly heading: string
+}
+
+/** The columns, in the order the table writes them. */
+export const QUEUED_REQUEST_SURFACE_COLUMNS = [
+  { id: 'frontline', surfaceId: 'SURF-FL', heading: 'Frontline Worker Application' },
+  { id: 'command-center', surfaceId: 'SURF-CC', heading: 'Client Command Center' },
+  { id: 'hub', surfaceId: 'SURF-DOH', heading: 'Delivery Operations Hub' },
+  { id: 'studio', surfaceId: 'SURF-STU', heading: 'Standards and Operations Studio' },
+  { id: 'super-admin', surfaceId: 'SURF-SA', heading: 'Super Admin platform console' },
+] as const satisfies readonly QueuedRequestSurfaceColumn[]
+
+type MissingFromColumns = Exclude<
+  QueuedRequestSurfaceId,
+  (typeof QUEUED_REQUEST_SURFACE_COLUMNS)[number]['id']
+>
+const _columnsExhaustive: MissingFromColumns extends never ? true : never = true
+void _columnsExhaustive
+type MissingSurfaceId = Exclude<
+  SurfaceId,
+  (typeof QUEUED_REQUEST_SURFACE_COLUMNS)[number]['surfaceId']
+>
+const _everySurfaceIsAColumn: MissingSurfaceId extends never ? true : never = true
+void _everySurfaceIsAColumn
+
 /** Column order, as the table writes it. */
-export const QUEUED_REQUEST_SURFACE_IDS = [
-  'frontline',
-  'command-center',
-  'hub',
-  'studio',
-  'super-admin',
-] as const satisfies readonly QueuedRequestSurfaceId[]
+export const QUEUED_REQUEST_SURFACE_IDS: readonly QueuedRequestSurfaceId[] =
+  QUEUED_REQUEST_SURFACE_COLUMNS.map((c) => c.id)
 
 /** The table's own column headings, in the same order. */
-export const SURFACE_COLUMN_HEADINGS = [
-  'Frontline Worker Application',
-  'Client Command Center',
-  'Delivery Operations Hub',
-  'Standards and Operations Studio',
-  'Super Admin platform console',
-] as const
+export const SURFACE_COLUMN_HEADINGS: readonly string[] =
+  QUEUED_REQUEST_SURFACE_COLUMNS.map((c) => c.heading)
 
 /**
  * A cell. `reason` on a stated absence is REQUIRED — the reason is what makes

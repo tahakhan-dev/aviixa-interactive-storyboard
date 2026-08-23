@@ -19,7 +19,22 @@ import { contractPermits } from '@/ai/provenance/contract'
  * renders — L89469 reads `Explicitly prohibited` under "Carries model or agent
  * identity", and a prohibition enforced by asking callers to behave is
  * enforced nowhere. The same gate carries the content version and the human
- * identity, so five of the seven columns are behaviour rather than data.
+ * identity: each of those columns is enforced here as behaviour rather than
+ * carried as data. No count — the number was stale on arrival and this build
+ * removes a stale count rather than renumbering it, because a fresh number
+ * reships the identical defect and the count was never the claim a reader
+ * could act on. The columns themselves are `ContractColumn` in
+ * `@/ai/provenance/classes`, which is where a reader should go to enumerate
+ * them.
+ *
+ * ── IT IS REACHABLE FROM NO ROUTE, AND THAT IS STATED RATHER THAN LEFT ─────
+ * Measured: nothing under `app/` renders this component. Its only callers are
+ * `tests/component/provenance-mark.test.tsx` and the contract that names it.
+ * That is deliberate — this is wave 0, the mechanism half of the slice, and
+ * the surfaces that will mount it are waves 1 through 4. It is written down
+ * because a stated abstention and an oversight look identical from outside,
+ * and "a component reachable from nothing is not shipped" is this build's
+ * rule: whoever mounts the first one closes this paragraph.
  *
  * ── WHAT IT DELIBERATELY DOES NOT DO ───────────────────────────────────────
  * It does not draw the six SHAPES. `SB-42-401` (L89459) gives `PROV-1` a card,

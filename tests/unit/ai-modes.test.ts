@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import {
   AI_MODE_IDS,
   AI_MODE_ROWS,
@@ -17,6 +18,7 @@ import {
   enterMode,
   transitionsFrom,
 } from '@/ai/modes/machine'
+import { aiModesNamedByCatalogue } from '@/ai/failures/catalogue'
 import { OPEN_DECISION_IDS } from '@/disclosure/decisions'
 
 /**
@@ -177,6 +179,28 @@ describe('AC-42-301 — one sixteen-value vocabulary, drawn from the matrix', ()
 
   it('resolves every identifier through the one lookup', () => {
     for (const id of AI_MODE_IDS) expect(aiMode(id).id).toBe(id)
+  })
+
+  /**
+   * THE SEAM `@/ai/failures/catalogue` DECLARES AND NOBODY WAS PERFORMING.
+   * That module names mode identifiers inside its transcribed cells, returns
+   * them as opaque strings, and says in as many words that whoever owns the
+   * vocabulary is responsible for the membership check. This file is that
+   * owner and the check lived only in the comment: `grep -rl "@/ai/modes"`
+   * over `src`, `app`, `tests` and `scripts` returned this file alone, so the
+   * closed sixteen-value vocabulary never learned it had a consumer.
+   *
+   * Harmless when it was found — the catalogue names `AIMODE-06` and
+   * `AIMODE-07`, both members. It stops being harmless the moment a
+   * transcription carries a typo or a later chapter's identifier.
+   *
+   * NOT VACUOUS: the catalogue must name at least one mode, so an empty
+   * result is red rather than a subset assertion over nothing.
+   */
+  it('holds the catalogue to the vocabulary — every mode its cells name is one of the sixteen', () => {
+    const named = aiModesNamedByCatalogue()
+    expect(named.length).toBeGreaterThan(0)
+    for (const id of named) expect(AI_MODE_IDS, `the catalogue names ${id}`).toContain(id)
   })
 })
 
@@ -495,21 +519,32 @@ describe('TEST-42-303 — bounded liveness, and it never reads a network interfa
     expect(settled.length).toBeLessThan(AI_MODE_IDS.length)
   })
 
-  it('takes its window as a parameter — this module seeds no timing value', () => {
+  it('takes its window as a parameter — this MODULE DIRECTORY seeds no timing value', () => {
     // The first version of this gate matched two field names against a
     // default, and a planted `windowMs: number = 120_000` walked straight
     // past it: a default can be spelled a dozen ways and named anything. So
-    // the property asserted is the one that actually holds — the machine
+    // the property asserted is the one that actually holds — the module
     // contains NO numeric literal other than zero. The source fixes neither
     // the liveness window nor the settling period, and a number that is not
     // in the file cannot apply silently.
-    const source = readFileSync(new URL('../../src/ai/modes/machine.ts', import.meta.url), 'utf8')
-    const code = source
-      .replace(/\/\*[\s\S]*?\*\//g, ' ')
-      .replace(/\/\/[^\n]*/g, ' ')
-      .replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
-      .replace(/`(?:[^`\\]|\\.)*`/g, '``')
-    const numerals = code.match(/(?<![\w$.])\d[\d_]*(?:\.\d+)?/g) ?? []
+    //
+    // THE SECOND VERSION SCANNED ONE FILE OF THREE. A planted
+    // `export const DEFAULT_LIVENESS_WINDOW_MS = 120_000` in `vocabulary.ts`
+    // — same module, exported, importable by `machine.ts` — was measured
+    // 45/45 green. A seeded value one import away is seeded. The scan is the
+    // whole directory, and it enumerates rather than naming files, so a
+    // fourth file cannot arrive outside it.
+    const MODULE_DIR = new URL('../../src/ai/modes/', import.meta.url).pathname
+    const files = readdirSync(MODULE_DIR).filter((f) => f.endsWith('.ts'))
+    expect(files.length).toBeGreaterThan(1)
+    const numerals = files.flatMap((file) => {
+      const code = readFileSync(join(MODULE_DIR, file), 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, ' ')
+        .replace(/\/\/[^\n]*/g, ' ')
+        .replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
+        .replace(/`(?:[^`\\]|\\.)*`/g, '``')
+      return code.match(/(?<![\w$.])\d[\d_]*(?:\.\d+)?/g) ?? []
+    })
     expect(numerals.length).toBeGreaterThan(0) // `!== 0` is in there; never a vacuous pass
     expect(new Set(numerals)).toStrictEqual(new Set(['0']))
   })

@@ -57,20 +57,13 @@ import {
   type SpineItemNumber,
 } from './spine'
 import { severityAssignment, type SeverityAssignment } from './severity'
-
-/** The registry identifiers, in the register's own order. */
-const REGISTER_IDS: readonly string[] = [
-  'DEC-AIRETRY-001',
-  'DEC-AITIMEOUT-001',
-  'DEC-AICB-001',
-  'DEC-AIFAILOVER-001',
-  'DEC-AIQUEUE-001',
-  'DEC-AISTALE-001',
-  'DEC-AICONF-001',
-  'DEC-AIQUAR-001',
-  'DEC-AIREPLAY-001',
-  'DEC-AITOKEN-001',
-]
+// The register is DECLARED ONCE, in `./open-values`, typed to `DecisionId`.
+// This module used to hold a verbatim untyped second copy, and that copy was
+// what `pointsAtTheRegister` read — so corrupting a single identifier in it
+// silently changed which spine attributes resolve `owed` while the whole unit
+// suite stayed green. Same duplicate-vocabulary shape the governance-binding
+// union already shipped in once.
+import { AI_OPEN_REGISTER_IDS } from './open-values'
 
 export type CatalogueCellKey =
   | 'failureMode'
@@ -1732,7 +1725,7 @@ const BINDING = new Map<SpineItemNumber, SpineBinding>(SPINE_BINDINGS.map((b) =>
  */
 function pointsAtTheRegister(cell: string): boolean {
   if (/(^|[\s(])Register\b/.test(cell)) return true
-  return REGISTER_IDS.some((id) => cell.includes(id))
+  return AI_OPEN_REGISTER_IDS.some((id) => cell.includes(id))
 }
 
 export type SpineResolution = 'inherited' | 'deviated' | 'owed'

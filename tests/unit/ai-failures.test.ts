@@ -20,6 +20,7 @@ import {
   spineItem,
   type SpineItemNumber,
 } from '@/ai/failures/spine'
+import { AI_OPEN_REGISTER_IDS } from '@/ai/failures/open-values'
 import {
   OPERATIONAL_SEVERITY,
   OPERATIONAL_SEVERITY_BANDS,
@@ -357,6 +358,63 @@ describe('AC-43-101, the completeness lint TEST-43-101 asserts', () => {
     )
     expect([...fates].sort()).toEqual(['deviated', 'inherited', 'owed'])
   })
+
+  /**
+   * THE TEN-VALUE REGISTER, PINNED PER IDENTIFIER RATHER THAN PER FATE.
+   *
+   * `catalogueRow('FAIL-AI-01')` above pins ONE of the ten. The set-level fate
+   * check passes as long as one row of each fate survives. Between them they
+   * left eight of the register's identifiers unpinned: `catalogue.ts` carried
+   * a verbatim untyped second copy of `AI_OPEN_REGISTER_IDS`, a reviewer
+   * corrupted `DEC-AITOKEN-001` in it, and the whole unit suite stayed green
+   * at 5346.
+   *
+   * The copy is gone — `pointsAtTheRegister` now reads the one typed list —
+   * and this asserts the property that copy existed to provide, for every
+   * register identifier: a cell naming one resolves `owed`. Item 5 binds to
+   * `retryLimit`, so the cell is synthesised on a real row rather than waiting
+   * for the source to happen to spell each identifier somewhere.
+   *
+   * THE IDENTIFIERS COME OUT OF THE FROZEN SOURCE, not out of
+   * `AI_OPEN_REGISTER_IDS`. A population derived from the array it polices can
+   * only ever agree with it — corrupt one entry and the loop simply iterates
+   * the corrupted set. Read from §43.1.2's own register rows, a corruption on
+   * either side is red here.
+   */
+  it('resolves `owed` for a cell naming any one of the register’s identifiers', () => {
+    const template = FAILURE_CATALOGUE[0]!
+    const REGISTER_FIRST = 89_997
+    const REGISTER_LAST = 90_006
+    const fromSource: string[] = []
+    for (let n = REGISTER_FIRST; n <= REGISTER_LAST; n += 1) {
+      const cell = rowCells(n)[0] ?? ''
+      expect(cell, `L${String(n)} is not a register row`).toMatch(/^`DEC-AI[A-Z]+-\d+`$/)
+      fromSource.push(cell.replace(/`/g, ''))
+    }
+    expect(L(REGISTER_FIRST - 1), 'the line above the register is a row').not.toMatch(/^\| `DEC-/)
+    expect(L(REGISTER_LAST + 1), 'the line below the register is a row').not.toMatch(/^\| `DEC-/)
+    // The module's own list is held to the source's, so this file's population
+    // and `pointsAtTheRegister`'s are provably the same set.
+    expect([...AI_OPEN_REGISTER_IDS]).toEqual(fromSource)
+    for (const id of fromSource) {
+      const row = { ...template, cells: { ...template.cells, retryLimit: `Register \`${id}\`` } }
+      expect(spineResolution(row, 5), id).toBe('owed')
+    }
+    // Not vacuous by way of the bare `Register` token, which resolves `owed`
+    // on its own: the identifiers are asserted without it too.
+    for (const id of fromSource) {
+      const row = { ...template, cells: { ...template.cells, retryLimit: `Not set — ${id}` } }
+      expect(spineResolution(row, 5), id).toBe('owed')
+    }
+    // And a decision that is NOT in the register still does not resolve owed,
+    // so the assertion above is about the ten rather than about `DEC-`.
+    expect(
+      spineResolution(
+        { ...template, cells: { ...template.cells, retryLimit: 'Not set — DEC-AGENTLC-001' } },
+        5,
+      ),
+    ).not.toBe('owed')
+  })
 })
 
 /* ── AC-43-301 — the seam, from this side only ──────────────────────────── */
@@ -458,7 +516,16 @@ describe('AC-43-103 — operational severity shares nothing with the manufacturi
     expect(moduleFiles().length).toBeGreaterThan(0)
     for (const file of moduleFiles()) {
       const text = readFileSync(join(MODULE_DIR, file), 'utf8')
-      for (const m of text.matchAll(/(?:^|\n)\s*(?:import|export)\b[^\n]*?from '([^']+)'/g)) {
+      // `[^']*?` RATHER THAN `[^\n]*?`, and the difference is the whole gate.
+      // A line-bounded matcher cannot see a multi-line import, and this
+      // directory writes its own imports that way — `catalogue.ts` opens with
+      // one. A planted multi-line `import { SURFACES } from '@/domain/surfaces'`
+      // walked past the line-bounded form 21/21 green while the identical
+      // single-line import went red, so the module's house style defeated its
+      // own allowlist. `[^']` crosses newlines but stops at the first quote,
+      // so every `from '…'` is still paired with the nearest preceding
+      // `import`/`export` and no earlier specifier can be skipped over.
+      for (const m of text.matchAll(/(?:^|\n)\s*(?:import|export)\b[^']*?from '([^']+)'/g)) {
         expect(ALLOWED_IMPORTS, `${file} imports ${m[1]!}`).toContain(m[1])
       }
     }

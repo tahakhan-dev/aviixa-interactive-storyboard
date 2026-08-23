@@ -17,12 +17,14 @@ import {
   transitionsInto,
 } from '@/ai/requests/machine'
 import {
+  QUEUED_REQUEST_SURFACE_COLUMNS,
   QUEUED_REQUEST_SURFACE_IDS,
   QUEUED_REQUEST_SURFACE_MATRIX,
   SURFACE_COLUMN_HEADINGS,
   cellAt,
   cellText,
 } from '@/ai/requests/surface-matrix'
+import { SURFACES, surfaceById } from '@/domain/surfaces'
 import * as statesModule from '@/ai/requests/states'
 import * as machineModule from '@/ai/requests/machine'
 import * as matrixModule from '@/ai/requests/surface-matrix'
@@ -399,6 +401,31 @@ describe('the state-to-surface matrix is transcribed cell by cell', () => {
   it('ships the column headings the source writes', () => {
     expect([...SURFACE_COLUMN_HEADINGS]).toEqual(cellsOf(MATRIX_HEADER).slice(1))
     expect(QUEUED_REQUEST_SURFACE_IDS.length).toBe(SURFACE_COLUMN_HEADINGS.length)
+  })
+
+  /**
+   * THE FIVE COLUMNS ARE THE FIVE SURFACES, NOT FIVE STRINGS THAT MATCH THEM.
+   * The matrix used to declare its own five-value axis from scratch, which
+   * made it the third such vocabulary in the repo after `SurfaceId` and
+   * `JOURNEY_SURFACES`. It now carries the canonical identifier per column,
+   * with the same two compile-time exhaustiveness checks `journey.ts` uses;
+   * this is the runtime half — the binding is a bijection onto `SURFACES`, so
+   * neither a duplicate nor a missing surface can hide behind five columns.
+   *
+   * The HEADING is deliberately not asserted equal to the canonical surface
+   * name: the source writes `Super Admin platform console` where `SURFACES`
+   * writes `Super Admin Platform Console`, and the transcription wins.
+   */
+  it('binds each column to a platform surface, one column per surface', () => {
+    const bound = QUEUED_REQUEST_SURFACE_COLUMNS.map((c) => c.surfaceId)
+    expect(new Set(bound).size).toBe(bound.length)
+    expect([...bound].sort()).toEqual(SURFACES.map((s) => s.id).sort())
+    expect(QUEUED_REQUEST_SURFACE_COLUMNS.map((c) => c.id)).toEqual([
+      ...QUEUED_REQUEST_SURFACE_IDS,
+    ])
+    for (const column of QUEUED_REQUEST_SURFACE_COLUMNS) {
+      expect(surfaceById(column.surfaceId).id, column.id).toBe(column.surfaceId)
+    }
   })
 
   it('renders every cell back to the exact source text', () => {
