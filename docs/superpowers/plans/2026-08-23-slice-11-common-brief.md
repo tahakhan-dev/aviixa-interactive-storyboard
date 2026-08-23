@@ -213,7 +213,7 @@ omitted, and never granted to the Quality Manager by analogy with the Lane B row
 **C1 — SB-AI-003 versus storyboard 44A.12.** SB-AI-003 (L86398) rules the worker-facing coaching card
 carries "a replay control; a dismiss control; and nothing else — no rating request, no confidence
 figure, no agent name" and that "the worker-facing surface carries no feedback control at all".
-44A.12 (L93707-**L93792**) storyboards precisely that control. `DEC-SAFETY-001` at L95391.
+44A.12 (L93707-**L93792**) storyboards precisely that control. `DEC-SAFETY-001` at L92704, and again in 44A.12's own card.
 
 **C1 — the FB-AI namespace collision is four-deep, not two.** Chapter 40/41's register holds 25
 contracts at rows **L88915-L88939** using `FB-AI-00`, `FB-AI-01`…`-16`, `FB-AI-101`…`-108`; 44A.31's
@@ -304,7 +304,7 @@ permissive and undecided.
 renders the **same** component with the **same** locator set and must not re-adopt the hybrid position
 independently.
 
-**`DEC-VISION-001` … `-006`** (registered L95384-L95389). **MEASURED ABSENCE: §44.4 is the only one of
+**`DEC-VISION-001` … `-006`** (registered L95386-L95391 — L95384 and L95385 are `DEC-HANDOFF-003` and `-004`). **MEASURED ABSENCE: §44.4 is the only one of
 the four agent sections with no role matrix** — 44.1 has nine rows, 44.2 nine, 44.3 eight, 44.4 none;
 the whole span was swept for permission tokens. SB-AI-006 (L86781) rules the tenant sees nothing at
 all and that "the platform must not display a greyed-out 'coming soon' agent". **That ruling and the
