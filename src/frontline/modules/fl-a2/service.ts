@@ -616,10 +616,9 @@ export const PACKAGE_READINESS_DETAIL = {
  *
  * WHY THEY ARE NOT RENDERED BY `@/disclosure/DecisionDisclosure`, AND WHY
  * THAT IS A FINDING RATHER THAN A PREFERENCE. That component takes a
- * `DecisionId`, and the canon in `src/disclosure/decisions.ts` holds
- * twenty-nine records of which none is `DEC-PARK-001`, `DEC-NOSHIFT-001` or
- * `DEC-STORE-001` — every one of the twenty-nine was raised while `SURF-STU`
- * was built. That file is another task's path. `Stu14LocalDisclosure` in
+ * `DecisionId`, and the union the canon in `src/disclosure/decisions.ts`
+ * exports contains none of `DEC-PARK-001`, `DEC-NOSHIFT-001` or
+ * `DEC-STORE-001`. That file is another task's path. `Stu14LocalDisclosure` in
  * `@/studio/modules/stu-14/rendering` met exactly this and set the idiom
  * followed here: disclose locally IN THE CANON'S OWN SHAPE, declare the gap
  * on `canonNote`, and never file the decision under a neighbouring
@@ -654,7 +653,7 @@ export interface A2LocalDisclosure {
 
 const CANON_NOTE =
   'The shared decision canon at @/disclosure/decisions carries no record keyed to this identifier — ' +
-  'its DecisionId union has twenty-nine members and this is not one of them — and that file is ' +
+  'it is not a member of that file’s DecisionId union — and that file is ' +
   "another task's path. Disclosed here in the canon's own shape so it can be absorbed without a " +
   'rewrite, and declared as a gap rather than filed under a neighbouring identifier.'
 

@@ -893,8 +893,8 @@ export const A6_SOURCE_FINDINGS = [
     evidence:
       'MOD-FL-A5 discloses it locally because its classification is the act of record and both ' +
       'timestamps sit under a Severity 1 hold. This module discloses it because the threshold ' +
-      'itself is row 7 of its matrix. The shared canon at @/disclosure/decisions holds neither: its ' +
-      'DecisionId union has twenty-nine members and this is not one of them.',
+      'itself is row 7 of its matrix. The shared canon at @/disclosure/decisions holds neither: ' +
+      'DEC-CLOCKWIN-001 is not a member of that file’s DecisionId union.',
     notClosedBecause:
       'The canon file is one later task’s single edit and is not this task’s path; thirteen modules ' +
       'each adding a record to it is the path collision this build has recorded three times. Both ' +
@@ -912,8 +912,8 @@ export const A6_SOURCE_FINDINGS = [
  * WHY THEY ARE DISCLOSED HERE AND NOT THROUGH `DecisionDisclosure`, AND WHY
  * THAT IS A FINDING RATHER THAN A PREFERENCE. `@/disclosure/DecisionDisclosure`
  * is the only place an open decision is rendered on any surface, and it takes
- * a `DecisionId`. That union has twenty-nine members and none of them is
- * `DEC-SYNC-001`, `DEC-CLOCKWIN-001`, `DEC-STORE-001` or `DEC-WIPE-001`; the
+ * a `DecisionId`. That union contains none of `DEC-SYNC-001`,
+ * `DEC-CLOCKWIN-001`, `DEC-STORE-001` or `DEC-WIPE-001`; the
  * canon file is not this task's to edit. `Stu14LocalDisclosure` in
  * `@/studio/modules/stu-14/rendering` met exactly this and set the idiom
  * followed here: disclose locally IN THE CANON'S OWN SHAPE, declare the gap on
@@ -946,7 +946,7 @@ export interface FlA6LocalDisclosure {
 
 const CANON_NOTE =
   'The shared decision canon at @/disclosure/decisions carries no record keyed to this identifier — ' +
-  'its DecisionId union has twenty-nine members and this is not one of them — and that file is ' +
+  'it is not a member of that file’s DecisionId union — and that file is ' +
   'another task’s path. Disclosed here in the canon’s own shape so it can be absorbed without a ' +
   'rewrite, and declared as a gap rather than filed under a neighbouring identifier.'
 

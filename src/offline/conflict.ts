@@ -626,8 +626,9 @@ export const CONFLICT_SOURCE_FINDINGS = [
 /* ==================================================================== *
  * THE ONE QUESTION THIS BUILD MUST NOT ANSWER.
  *
- * `src/disclosure/decisions.ts` holds twenty-nine records and no `DEC-FB-*`
- * among them. That file is not this task's to edit — one later task lifts the
+ * `src/disclosure/decisions.ts` carries no `DEC-FB-*` record — no such
+ * identifier is in its `DecisionId` union. That file is not this task's to
+ * edit — one later task lifts the
  * whole Chapter 38 set at once — so this is disclosed here, in the canon's own
  * record shape, with `DecisionReading` IMPORTED rather than redeclared.
  *
@@ -693,8 +694,8 @@ export const DEC_FB_008_DISCLOSURE = {
   readings: DEC_FB_008_IN_FALLBACKS.readings,
   adopted: DEC_FB_008_IN_FALLBACKS.adopted,
   canonNote:
-    'The decision canon at @/disclosure/decisions carries no record for DEC-FB-008 — its ' +
-    'DecisionId union has twenty-nine members and this is not one of them — and that file is ' +
+    'The decision canon at @/disclosure/decisions carries no record for DEC-FB-008 — it is ' +
+    'not a member of that file’s DecisionId union — and that file is ' +
     'another task’s single edit. Disclosed here in the canon’s own shape so the lift is a move ' +
     'rather than a rewrite, and declared as a gap rather than filed under a neighbouring ' +
     'identifier. The readings are the array @/fallbacks/disclosure already carries, imported, so ' +

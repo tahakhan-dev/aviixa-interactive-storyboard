@@ -460,11 +460,10 @@ describe('DEC-SYNC-001, disclosed locally and built to expire', () => {
     }
     // The note's ABSENCE claim, not its count. This asserted `'twenty-nine'`
     // and so required the note to keep spelling a canon size that is now
-    // forty-three — a test holding a stale on-screen claim in place. The string
-    // itself lives in `src/offline/protocol.ts`, which this task does not own,
-    // and the count in it is reported as a finding; this assertion no longer
-    // pins it, and stays true when it is corrected.
-    expect(d?.canonNote).toContain('this is not one of them')
+    // forty-three — a test holding a stale on-screen claim in place. The count
+    // has since been removed from the note in `src/offline/protocol.ts`, and
+    // this pins the absence clause that replaced it.
+    expect(d?.canonNote).toContain('not a member of that file’s DecisionId union')
     expect(d?.adopted).toContain('APP-012')
     expect(d?.adopted).toContain('not a position the source settled')
   })

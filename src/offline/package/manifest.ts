@@ -525,9 +525,8 @@ export const SIGNING_IS_NOT_A_BASELINE =
 /* ── the three decisions, disclosed locally ────────────────────────────── */
 
 /**
- * WHY LOCALLY. `@/disclosure/decisions` holds twenty-nine records and its
- * `DecisionId` union contains none of these three — every one of the
- * twenty-nine was raised while `SURF-STU` was built. That file is another
+ * WHY LOCALLY. The `DecisionId` union `@/disclosure/decisions` exports
+ * contains none of these three. That file is another
  * task's path and one later task lifts the offline decisions all at once.
  * `Stu14LocalDisclosure` set the idiom and slice 7 and slice 8 followed it:
  * disclose in the canon's own shape, import `DecisionReading` rather than
@@ -563,7 +562,7 @@ export interface PackageManifestDisclosure {
 
 const CANON_NOTE =
   'The shared decision canon at @/disclosure/decisions carries no record keyed to this identifier — ' +
-  'its DecisionId union has twenty-nine members and this is not one of them — and that file is ' +
+  'it is not a member of that file’s DecisionId union — and that file is ' +
   'another task’s path. Disclosed here in the canon’s own shape so it can be absorbed without a ' +
   'rewrite, and declared as a gap rather than filed under a neighbouring identifier.'
 

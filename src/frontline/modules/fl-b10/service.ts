@@ -844,8 +844,8 @@ export const B10_EXPLANATORY_VIDEO_OPEN = {
  * WHERE THE DECISIONS THIS MODULE TOUCHES ARE ACTUALLY DISCLOSED.
  *
  * `DEC-LANEB-001` IS IN THE SHARED CANON, which is the uncommon case on this
- * surface: the canon holds twenty-nine records and thirteen Frontline
- * identifiers have been confirmed absent from it. This one is a member of the
+ * surface: thirteen Frontline identifiers have been confirmed absent from the
+ * shared canon. This one is a member of the
  * exported `DecisionId` union, so this module renders `DecisionDisclosure` and
  * writes no local stand-in and no second spelling of either reading. There is
  * nothing here to expire.

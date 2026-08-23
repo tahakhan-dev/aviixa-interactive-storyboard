@@ -620,8 +620,8 @@ export const A5_ACCEPTANCE_CRITERIA = [
  * WHY THEY ARE DISCLOSED HERE AND NOT THROUGH `DecisionDisclosure`, AND WHY
  * THAT IS A FINDING RATHER THAN A PREFERENCE. `@/disclosure/DecisionDisclosure`
  * is the only place an open decision is rendered on any surface, and it takes
- * a `DecisionId`. That union has twenty-nine members and none of them is
- * `DEC-GATE-001`, `DEC-NOSHIFT-001` or `DEC-CLOCKWIN-001`; the canon file is
+ * a `DecisionId`. That union contains none of `DEC-GATE-001`,
+ * `DEC-NOSHIFT-001` or `DEC-CLOCKWIN-001`; the canon file is
  * not this task's to edit. `Stu14LocalDisclosure` in
  * `@/studio/modules/stu-14/rendering` met exactly this and set the idiom
  * followed here: disclose locally IN THE CANON'S OWN SHAPE, declare the gap
@@ -647,7 +647,7 @@ export interface FlA5LocalDisclosure {
 
 const CANON_NOTE =
   'The shared decision canon at @/disclosure/decisions carries no record keyed to this identifier — ' +
-  'its DecisionId union has twenty-nine members and this is not one of them — and that file is ' +
+  'it is not a member of that file’s DecisionId union — and that file is ' +
   'another task’s path. Disclosed here in the canon’s own shape so it can be absorbed ' +
   'without a rewrite, and declared as a gap rather than filed under a neighbouring identifier.'
 

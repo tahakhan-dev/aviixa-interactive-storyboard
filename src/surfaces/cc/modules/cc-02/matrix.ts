@@ -517,9 +517,9 @@ export const CC02_MANUAL_CLOSE_LINK: Cc02LinkOut = {
  * by `CC02_DECISIONS_HELD_ELSEWHERE` below instead.
  *
  * `DEC-CCWRITE-001` IS ABSENT FROM EVERYTHING. Zero occurrences in `src/`,
- * `tests/` and `app/`, and absent from `@/disclosure/decisions` — its
- * `DecisionId` union has twenty-nine members and this is not one — and that
- * file is another task's path. The `Stu14LocalDisclosure` idiom applies: the
+ * `tests/` and `app/`, and absent from `@/disclosure/decisions` — it is not a
+ * member of that file's `DecisionId` union — and that file is another task's
+ * path. The `Stu14LocalDisclosure` idiom applies: the
  * canon's own record shape, `DecisionReading` IMPORTED rather than redeclared
  * so there is no field in which a reading could be marked the answer, the gap
  * declared on `canonNote`, and the unit suite asserting the absence so this
@@ -548,7 +548,7 @@ export interface Cc02Disclosure {
 
 const CANON_NOTE =
   'The shared decision canon at @/disclosure/decisions carries no record keyed to this identifier — ' +
-  'its DecisionId union has twenty-nine members and this is not one of them — and that file is ' +
+  'it is not a member of that file’s DecisionId union — and that file is ' +
   'another task’s path. Disclosed here in the canon’s own record shape so it can be absorbed ' +
   'without a rewrite, and declared as a gap rather than filed under a neighbouring identifier. ' +
   'This module’s unit suite asserts the absence, so the disclosure moves to the canon the moment ' +

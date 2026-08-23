@@ -576,9 +576,8 @@ export function firstNonSuccessStep(outcomes: readonly StepOutcome[]): ProtocolS
 /* ==================================================================== *
  * `DEC-SYNC-001`, DISCLOSED LOCALLY.
  *
- * WHY LOCALLY. `@/disclosure/decisions` holds twenty-nine records and its
- * `DecisionId` union does not contain `DEC-SYNC-001` — every one of the
- * twenty-nine was raised while `SURF-STU` was built. That file is another
+ * WHY LOCALLY. The `DecisionId` union `@/disclosure/decisions` exports does
+ * not contain `DEC-SYNC-001`. That file is another
  * task's path and one later task lifts the Frontline and offline decisions
  * all at once. `Stu14LocalDisclosure` set the idiom and slice 7 followed it:
  * disclose in the canon's own shape, import `DecisionReading` rather than
@@ -613,7 +612,7 @@ export interface ProtocolLocalDisclosure {
 
 const CANON_NOTE =
   'The shared decision canon at @/disclosure/decisions carries no record keyed to this identifier — ' +
-  'its DecisionId union has twenty-nine members and this is not one of them — and that file is ' +
+  'it is not a member of that file’s DecisionId union — and that file is ' +
   'another task’s path. Disclosed here in the canon’s own shape so it can be absorbed without a ' +
   'rewrite, and declared as a gap rather than filed under a neighbouring identifier.'
 

@@ -670,9 +670,11 @@ describe('DEC-PKGMAN-001, DEC-PKGSIGN-001 and DEC-SEC-015, disclosed locally', (
       for (const r of d.readings) expect(Object.keys(r).sort()).toEqual(['locator', 'text'])
       // The note's ABSENCE claim, not its count — see the comment on the
       // absence test above. `'twenty-nine'` here required the note to keep
-      // spelling a canon size that is now forty-three; the string lives in
-      // `src/offline/package/manifest.ts`, which this task does not own.
-      expect(d.canonNote, d.decisionRef).toContain('this is not one of them')
+      // spelling a canon size that is now forty-three; the count is gone from
+      // the note and this pins the absence clause that replaced it.
+      expect(d.canonNote, d.decisionRef).toContain(
+        'not a member of that file’s DecisionId union',
+      )
       expect(d.adopted, d.decisionRef).toContain('APP-012')
       expect(d.readings.length, d.decisionRef).toBeGreaterThanOrEqual(3)
     }

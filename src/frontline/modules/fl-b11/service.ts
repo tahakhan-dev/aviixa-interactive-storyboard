@@ -584,9 +584,9 @@ export const B11_ACCEPTANCE_CRITERIA = [
  *
  * WHY THEY ARE DISCLOSED HERE AND NOT THROUGH `DecisionDisclosure`.
  * `@/disclosure/DecisionDisclosure` is the only place an open decision is
- * rendered on any surface, and it takes a `DecisionId`. That union has
- * twenty-nine members and none of them is `DEC-STUCK-001`, `DEC-PARK-001`,
- * `DEC-NOSHIFT-001` or `DEC-PLUS-001`; the canon file is not this task's to
+ * rendered on any surface, and it takes a `DecisionId`. That union contains
+ * none of `DEC-STUCK-001`, `DEC-PARK-001`, `DEC-NOSHIFT-001` or
+ * `DEC-PLUS-001`; the canon file is not this task's to
  * edit. `Stu14LocalDisclosure` in `@/studio/modules/stu-14/rendering` met
  * exactly this and set the idiom followed here: disclose locally IN THE
  * CANON'S OWN SHAPE, declare the gap on `canonNote`, and never file the
@@ -622,7 +622,7 @@ export interface B11Disclosure {
 
 const CANON_NOTE =
   'The shared decision canon at @/disclosure/decisions carries no record keyed to this identifier — ' +
-  'its DecisionId union has twenty-nine members and this is not one of them — and that file is ' +
+  'it is not a member of that file’s DecisionId union — and that file is ' +
   'another task’s path. Disclosed here in the canon’s own record shape so it can be absorbed ' +
   'without a rewrite, and declared as a gap rather than filed under a neighbouring identifier. ' +
   'This module’s unit suite asserts the absence, so the disclosure moves to the canon the moment ' +

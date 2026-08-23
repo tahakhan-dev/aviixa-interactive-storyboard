@@ -428,10 +428,20 @@ describe('the decisions §21.5 names, and the one it does not', () => {
       expect(members.includes(`'${ref}'`)).toBe(false)
     }
     // The disclosures say so on their own records, so a reader of the file
-    // learns it too.
+    // learns it too. THIS ASSERTED A COUNT — `'twenty-nine members'` — and so
+    // required the rendered note to keep spelling a canon size that is now
+    // forty-three: a stored copy of a derived answer, held in place by the
+    // gate that was supposed to catch it going wrong. The claim a reader can
+    // act on is the ABSENCE, which is what the loop above measures.
     for (const d of CC02_DISCLOSURES) {
-      expect(d.canonNote).toContain('twenty-nine members')
+      expect(d.canonNote).toContain('not a member of that file’s DecisionId union')
     }
+    // THE POSITIVE CONTROL, WHICH IS WHAT THE COUNT WAS REALLY BUYING.
+    // `members` is parsed out of a file, and a failed parse makes every
+    // `includes` above false and the absences pass vacuously. `DEC-LIB-001` is
+    // in the canon, so the same lookup that reports absence is shown finding a
+    // presence — and that holds whatever the canon's size.
+    expect(members).toContain(`'DEC-LIB-001'`)
   })
 
   // FAILS IF: this module grows a spelling of a decision another module

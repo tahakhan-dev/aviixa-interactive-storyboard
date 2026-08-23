@@ -280,11 +280,10 @@ export const A7_MESSAGE_RENDERINGS = [
  * THE DECISIONS THIS MODULE DISCLOSES.
  *
  * WHY THEY ARE NOT RENDERED BY `@/disclosure/DecisionDisclosure`. That
- * component takes a `DecisionId`, and the canon in
- * `src/disclosure/decisions.ts` holds twenty-nine records of which NONE is
+ * component takes a `DecisionId`, and the union the canon in
+ * `src/disclosure/decisions.ts` exports contains NONE of
  * `DEC-MSG-001`, `DEC-WIPE-001`, `DEC-WIPELOGOUT-001`, `DEC-SUSP-001`,
- * `DEC-DEVICE-001` or `DEC-CMDCLASS-001` — every one of the twenty-nine was
- * raised while `SURF-STU` was built. Adding them means editing a file this
+ * `DEC-DEVICE-001` or `DEC-CMDCLASS-001`. Adding them means editing a file this
  * module does not own, and one later task lifts them all at once.
  *
  * `Stu14LocalDisclosure` in `@/studio/modules/stu-14/rendering` set the
@@ -322,7 +321,7 @@ export interface A7LocalDisclosure {
 
 const CANON_NOTE =
   'The shared decision canon at @/disclosure/decisions carries no record keyed to this identifier — ' +
-  'its DecisionId union has twenty-nine members and this is not one of them — and that file is ' +
+  'it is not a member of that file’s DecisionId union — and that file is ' +
   'another task’s path. Disclosed here in the canon’s own shape so it can be absorbed without a ' +
   'rewrite, and declared as a gap rather than filed under a neighbouring identifier.'
 

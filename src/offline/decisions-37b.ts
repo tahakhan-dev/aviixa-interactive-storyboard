@@ -357,8 +357,8 @@ export const DEC_37B_HOLD_STATE_IS_NOT_OURS = {
 /* ==================================================================== *
  * THE SEVEN RECORDS THIS BUILD IS THE FIRST TO WRITE.
  *
- * `src/disclosure/decisions.ts` holds twenty-nine records and not one of
- * these — its `DecisionId` union is entirely `SURF-STU`'s. That file is not
+ * `src/disclosure/decisions.ts` carries no record for any of these — not one
+ * of the seven is a member of its `DecisionId` union. That file is not
  * this task's to edit; one later task lifts the offline set at once. So these
  * are disclosed HERE, in the canon's own record shape, with `DecisionReading`
  * IMPORTED rather than redeclared, so the lift is a move and not a rewrite.
@@ -385,11 +385,10 @@ export interface Dec37bLocalDisclosure {
 }
 
 const canonNote = (ref: string, extra = ''): string =>
-  `The shared decision canon at @/disclosure/decisions carries no record for ${ref}. Its ` +
-  'DecisionId union has twenty-nine members, every one of them raised while SURF-STU was built, ' +
-  'and that file is another task’s path. Disclosed here in the canon’s own shape so it can ' +
-  'be absorbed without a rewrite, and declared as a gap rather than filed under a neighbouring ' +
-  `identifier.${extra}`
+  `The shared decision canon at @/disclosure/decisions carries no record for ${ref} — it is ` +
+  'not a member of that file’s DecisionId union — and that file is another task’s path. ' +
+  'Disclosed here in the canon’s own shape so it can be absorbed without a rewrite, and ' +
+  `declared as a gap rather than filed under a neighbouring identifier.${extra}`
 
 export const DEC_37B_LOCAL_DISCLOSURES = [
   {
