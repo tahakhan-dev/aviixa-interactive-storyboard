@@ -34,7 +34,10 @@
 
 import type { RoleId } from '@/domain/roles'
 import { allow, deny } from '@/policy/decision'
+import { crossMatrixContradiction } from '@/ai/agents/contracts'
 import { CrossSurfaceLink } from '@/ui/CrossSurfaceLink'
+import { DeterministicBoundary } from '@/ui/shared/DeterministicBoundary'
+import { ProvenanceMark } from '@/ui/shared/ProvenanceMark'
 import { WriteControl } from '@/ui/WriteControl'
 import {
   CC_LINK_OUT_CELLS,
@@ -64,6 +67,18 @@ import {
   CC08_DIVERGENCES,
   CC08_FUNCTIONALITIES,
 } from './readings'
+import {
+  CC08_DEGRADATION_PROVENANCE,
+  CC08_DEGRADATION_SEAMS,
+  CC08_NO_AI_CLAIMS,
+  CC08_PAUSE_BANNER_STATEMENTS,
+  cc08HealthFlagRollUpLeak,
+  cc08PauseDistinguishability,
+  cc08PauseStates,
+  distinctPauseBannerTexts,
+  modesSharingAPauseLabel,
+  scopelessPauseBannerStatements,
+} from './degradation'
 
 /**
  * `MOD-CC-08` — THE AGENT ACTIVITY PANEL, RENDERED.
@@ -223,6 +238,11 @@ export function AgentActivityPanel({ viewerRole }: AgentActivityPanelProps) {
   const sess = ccFallbackPatternById('FB-CC-SESS')
   const agentFb = ccFallbackPatternById('FB-CC-AGENT')
   const silentFunctionalities = ccFunctionalitiesNamingNoPattern(CC08_FUNCTIONALITIES)
+  const pauses = cc08PauseStates()
+  const tellApart = cc08PauseDistinguishability()
+  const leak = cc08HealthFlagRollUpLeak()
+  const degradationRow = crossMatrixContradiction('tenant-admin-and-the-ai-degradation-state')
+  const switchRow = crossMatrixContradiction('switch-an-agent-on-or-off')
 
   return (
     <section data-testid="cc-08-panel" data-module={CC08_MODULE.id}>
@@ -231,6 +251,117 @@ export function AgentActivityPanel({ viewerRole }: AgentActivityPanelProps) {
         {CC08_MODULE.specSection} · rendered on {CC08_SCREEN.id}, register row{' '}
         {CC08_SCREEN.registerRef}
       </p>
+
+      {/* ── THE PAUSE BANNER — AC-42-303, AND WHAT TELLS THE TWO APART ── */}
+      <h2 className={H2}>While the agents are paused</h2>
+      <p className={NOTE}>
+        SB-42-301 (L89348) names this panel as the Command Center surface that carries the pause
+        banner. Two of the sixteen operating modes are pauses, and a tenant reading one needs to
+        know which: a paused workspace and a paused platform call for different human responses.
+        The two are rendered separately, with the message taken from the failure catalogue&rsquo;s
+        own tenant-web cell and never spelled on this screen.
+      </p>
+      <div className="mt-4 space-y-4" data-testid="cc-08-pause-banners">
+        {pauses.map((pause) => (
+          <div
+            key={pause.mode.id}
+            data-testid={`cc-08-pause-${pause.scope}`}
+            data-mode={pause.mode.id}
+            data-failure={pause.failure.id}
+            className="rounded-[var(--radius-surface)] border border-[var(--color-border-strong)] p-4"
+          >
+            <p className="font-medium">{pause.tenantWebMessage}</p>
+            <p className={NOTE}>
+              {pause.mode.id} {pause.mode.name} · {pause.failure.id}{' '}
+              {pause.failure.cells.failureMode} · scope {pause.scope} · operational severity{' '}
+              {pause.operationalSeverity}, which is the response spine&rsquo;s own band and shares
+              no rendering with the manufacturing severity catalogue.
+            </p>
+            <p className={NOTE}>
+              Terminal safe state: {pause.failure.cells.terminalSafeState}. Recovery:{' '}
+              {pause.failure.cells.recovery}. Reconciliation: {pause.failure.cells.reconciliation}.
+              No control here resumes anything — a resume is a separate audited act on the Super
+              Admin platform console.
+            </p>
+            <p className={REF}>
+              Message {pause.failure.attributeLocators[0] === undefined ? '' : 'L'}
+              {pause.failure.attributeLocators[0]} · mode row {pause.mode.matrixLocator} ·{' '}
+              {pause.inference}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p data-testid="cc-08-ac-42-303" className={NOTE}>
+        <code>AC-42-303</code> requires a paused platform to be distinguishable from an
+        unreachable one wherever a state is shown. Measured on the two pause modes rather than
+        assumed: the mode contract matrix separates them on{' '}
+        {tellApart.modeContractColumnsThatDiffer.length === 0
+          ? 'no column at all'
+          : tellApart.modeContractColumnsThatDiffer.join(', ')}{' '}
+        — the two rows are identical across worker label, invocation, deterministic safety,
+        escalation delivery and classification. What separates them here is{' '}
+        {tellApart.distinguishedBy}. The worker label alone resolves to{' '}
+        {modesSharingAPauseLabel().join(', ')}, so nothing on this panel keys on it.
+      </p>
+      {/*
+        DECLARED A GUIDANCE ELEMENT, so the exactly-one lint has something to
+        inspect. A caller that renders a class without declaring the region is
+        caught by nobody, which is the half of `AC-42-401` a rendering path can
+        skip silently.
+      */}
+      <div
+        className="mt-4"
+        data-testid="cc-08-degradation-provenance"
+        data-guidance-element="MOD-CC-08 agent degradation state"
+      >
+        <ProvenanceMark
+          classId={CC08_DEGRADATION_PROVENANCE}
+          statement="Every statement on this panel about an agent not running is a record of absence. No model produced it, no approved asset carries it and no person instructed it, so it is not live artificial intelligence and is never described as any. The activity log below keeps rendering its historical entries throughout (L37753)."
+        />
+      </div>
+      <p className={NOTE}>
+        The banner&rsquo;s own claim is that deterministic safety is untouched, so the boundary is
+        rendered rather than asserted. It is drawn for the platform-wide pause; the deterministic
+        standing is the same under either, because the deterministic column reads{' '}
+        <code>Allowed</code> on all sixteen modes.
+      </p>
+      <div className="mt-4" data-testid="cc-08-deterministic-boundary">
+        <DeterministicBoundary mode="AIMODE-14" />
+      </div>
+      <div className="mt-6" data-testid="cc-08-pause-spellings">
+        <p className="font-medium">
+          The source spells this banner more than once, and not identically
+        </p>
+        <p className={NOTE}>
+          Every spelling below was opened by hand and the spans they sit in were swept, so a
+          spelling missing from this list reds the covering suite rather than going unnoticed. One
+          per scope sits under a table header (L90507) calling its own column an exact
+          user-visible message; the others do not, and none is corrected here. Distinct texts:{' '}
+          {distinctPauseBannerTexts().length} across {CC08_PAUSE_BANNER_STATEMENTS.length}{' '}
+          statements — every one different, and two of them differing only by a full stop.
+        </p>
+        <ul className="mt-2 space-y-2">
+          {CC08_PAUSE_BANNER_STATEMENTS.map((s) => (
+            <li key={s.line} data-testid={`cc-08-pause-spelling-${s.line}`}>
+              <p className={NOTE}>
+                &ldquo;{s.text}&rdquo;
+                {s.labelledExactBySource ? ' — labelled an exact user-visible message' : ''}
+              </p>
+              <p className={REF}>
+                L{s.line} · {s.where} · scope{' '}
+                {s.scope ?? 'not stated by this line, which is the distinction AC-42-303 protects'}
+              </p>
+            </li>
+          ))}
+        </ul>
+        <p data-testid="cc-08-scopeless-spelling" className={REF}>
+          {scopelessPauseBannerStatements().length === 0
+            ? 'Every spelling names its scope.'
+            : `Spellings naming no scope: ${scopelessPauseBannerStatements()
+                .map((s) => `L${s.line}`)
+                .join(', ')}. A reader cannot tell a paused workspace from a paused platform off that wording, and this build does not add a scope the line does not carry.`}
+        </p>
+      </div>
 
       {/* ─────────────── PER-AGENT LIVE STATUS, AC-CC-300 ──────────────── */}
       <h2 className={H2}>Per-agent live status</h2>
@@ -466,6 +597,80 @@ export function AgentActivityPanel({ viewerRole }: AgentActivityPanelProps) {
         Row {rollUp.ordinal} ({rollUp.sourceRef}) is the one cell of forty-five that grants the
         Tenant Admin anything: {rollUp.cells['Tenant Admin'].text}.
       </p>
+
+      {/* ── THE ROLL-UP LEAK — THE FLAGS REFUSED, THEIR AGGREGATE GRANTED ─ */}
+      <h2 className={H2}>
+        The {leak.column} is barred from the flags and granted their aggregate
+      </h2>
+      <p data-testid="cc-08-rollup-leak" data-tokens-differ={String(leak.tokensDiffer)} className={NOTE}>
+        Two adjacent rows of one matrix, one column, opposite answers about one class of fact.{' '}
+        {leak.flags.row.sourceRef} &ldquo;{leak.flags.row.capability}&rdquo; reads{' '}
+        <code>{leak.flags.cellText}</code>; {leak.rollUp.row.sourceRef} &ldquo;
+        {leak.rollUp.row.capability}&rdquo; reads <code>{leak.rollUp.cellText}</code>. Both cells
+        are read from the transcription through the header&rsquo;s own column word, never by
+        position — this matrix runs {leak.column} first where chapter 44 runs Worker first, and an
+        index carried between the two inverts both roles silently.
+      </p>
+      <p className={NOTE}>{leak.disclosure}</p>
+
+      {/* ── THE TWO CROSS-CHAPTER CONTRADICTIONS, CONSUMED NOT RESTATED ── */}
+      <h2 className={H2}>Where another chapter answers this module differently</h2>
+      <p className={NOTE}>
+        Both records live in the build&rsquo;s surface-neutral agent contracts and are cited here
+        by identifier rather than transcribed a second time, so a correction lands in one place.
+        Neither is adopted, and neither may be: the field a reading could be marked the answer in
+        does not exist.
+      </p>
+      <ul className="mt-4 space-y-6">
+        {[degradationRow, switchRow].map((record) => (
+          <li key={record.id} data-testid={`cc-08-contradiction-${record.id}`}>
+            <p className="font-medium">{record.question}</p>
+            <ul className="mt-2 space-y-1">
+              {record.readings.map((reading) => (
+                <li key={reading.sourceRef} className={NOTE}>
+                  <code>{reading.reading}</code> — {reading.where}{' '}
+                  <span className="text-[var(--color-ink-subtle)]">
+                    [{reading.sourceRef}
+                    {reading.cell === null
+                      ? ', prose rather than a matrix cell'
+                      : `, ${reading.cell.column} column of the header at ${reading.cell.headerRef}`}
+                    ]
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className={NOTE}>{record.disclosure}</p>
+            <p className={REF}>Adopted: {record.adopted === null ? 'nothing' : 'a reading'}.</p>
+          </li>
+        ))}
+      </ul>
+
+      {/* ── WHAT THE PANEL CLAIMS IT DOES WITH NO AGENTS AT ALL ────────── */}
+      <h2 className={H2}>With no agents at all</h2>
+      <p className={NOTE}>
+        The module&rsquo;s own claims, quoted rather than summarised, because{' '}
+        <code>AC-CC-304</code> (L37805) is about the words: an immediate plain-language flag
+        naming what was not produced.
+      </p>
+      <ul className="mt-4 space-y-3">
+        {CC08_NO_AI_CLAIMS.map((claim) => (
+          <li key={claim.id} data-testid={`cc-08-no-ai-${claim.id}`}>
+            <p className={NOTE}>&ldquo;{claim.claim}&rdquo;</p>
+            <p className={REF}>L{claim.line}</p>
+          </li>
+        ))}
+      </ul>
+
+      {/* ── SEAMS, EACH NAMING ITS OWNER ───────────────────────────────── */}
+      <h2 className={H2}>Left open by this overlay, and who closes each</h2>
+      <ul className="mt-4 space-y-3">
+        {CC08_DEGRADATION_SEAMS.map((seam) => (
+          <li key={seam.id} data-testid={`cc-08-degradation-seam-${seam.id}`}>
+            <p className={NOTE}>{seam.what}</p>
+            <p className={REF}>Owner: {seam.owner}</p>
+          </li>
+        ))}
+      </ul>
 
       {/* ─────────── FRESHNESS — TWO ELEMENTS, TWO CLASSES ─────────────── */}
       <h2 className={H2}>Freshness classes for this panel&rsquo;s elements</h2>
