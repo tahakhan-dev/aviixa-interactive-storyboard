@@ -278,63 +278,25 @@ describe('D21 -- the three states modelled as flags, each attached where the sou
   })
 })
 
-describe('the twenty-nine decision records', () => {
-  it('holds exactly twenty-nine, D1 through D29, in order', () => {
-    expect(OPEN_DECISION_IDS).toEqual([
-      'D1',
-      'D2',
-      'DEC-AUDSTU-001',
-      'D4',
-      'D5',
-      'D6',
-      'DEC-WFROLL-001',
-      'D8',
-      'D9',
-      'D10',
-      'D11',
-      'DEC-CAPAUTH-001',
-      'DEC-DELEG-001',
-      'DEC-LANEB-001',
-      'DEC-LIB-001',
-      'DEC-WIDIFF-001',
-      'DEC-LIBREV-001',
-      'DEC-LANEBAUTH-001',
-      'DEC-CAP-001',
-      'DEC-TAX-002',
-      'D21',
-      'D22',
-      'DEC-STUXREF-001',
-      'DEC-TENGRANT-001',
-      'DEC-ROLE-001',
-      'DEC-RELAUTH-001',
-      'DEC-EMBED-001',
-      'DEC-ARCH-001',
-      'D29',
-    ])
-    expect(OPEN_DECISIONS).toHaveLength(29)
-  })
-
-  /**
-   * The id list is declared independently of the records precisely so this
-   * can fail: drop a record and the two stop matching. A check derived from
-   * the array it polices could only ever pass -- shipped four times here.
-   */
-  it('has a record for every declared id, and no record for an undeclared one', () => {
-    expect(OPEN_DECISIONS.map((d) => d.id)).toEqual([...OPEN_DECISION_IDS])
-  })
-
-  it('gives every decision at least two readings, each with a locator and a question', () => {
-    for (const d of OPEN_DECISIONS) {
-      expect(d.readings.length, `${d.id} readings`).toBeGreaterThanOrEqual(2)
-      expect(d.question.length, `${d.id} question`).toBeGreaterThan(0)
-      expect(d.adopted.length, `${d.id} adopted`).toBeGreaterThan(0)
-      for (const r of d.readings) {
-        expect(r.locator, `${d.id} locator`).toMatch(/L\d{3,6}/)
-        expect(r.text.length, `${d.id} reading text`).toBeGreaterThan(0)
-      }
-    }
-  })
-
+/**
+ * WHAT THIS FILE NO LONGER ASSERTS, AND WHERE IT WENT.
+ *
+ * This describe used to open with a twenty-nine-element literal id list, a
+ * `toHaveLength(29)`, a records-against-declared-ids equality, and a
+ * canon-wide two-reading floor. None of that is this suite's business: this is
+ * the STUDIO closed-vocabulary suite, and its stake in the canon is `pins` —
+ * that a decision's prose names a live vocabulary member. Slice 10 registered
+ * fourteen records for notifications, schedules, audit and reports and turned
+ * a Studio vocabulary test red for it, which is the shape of a gate that gets
+ * edited every slice until someone edits it wrongly.
+ *
+ * Canon membership — both spellings against a list declared outside the module,
+ * the two-reading floor with its one named exception, and the alias set — is
+ * asserted in exactly one place, `tests/unit/surface-neutral.test.ts`, the
+ * suite that owns `src/disclosure/`. What stays here is the part that is
+ * genuinely about the Studio vocabulary.
+ */
+describe('the decision records, as far as the Studio vocabulary is concerned', () => {
   /**
    * The structural guarantee behind "neither reading is marked as the source's
    * answer": a reading carries exactly `text` and `locator` and nothing else,
@@ -370,9 +332,10 @@ describe('the twenty-nine decision records', () => {
     expect(d.alias).toBe('DEC-VERROLL-001')
   })
 
-  it('is the only alias on the surface', () => {
-    expect(OPEN_DECISIONS.filter((d) => d.alias !== null).map((d) => d.id)).toEqual(['DEC-WFROLL-001'])
-  })
+  // `is the only alias on the surface` used to live here. That sentence is
+  // false — `DEC-SCHED-002` and `S10-IDENT-SCHED-001` carry one too — and the
+  // set is now asserted in full in `surface-neutral.test.ts` alongside the rest
+  // of the canon's membership, rather than in a Studio vocabulary test.
 })
 
 describe('a disclosure cannot rot -- every pinned member is a live vocabulary member', () => {
@@ -443,11 +406,20 @@ describe('DecisionDisclosure -- the only place a decision is rendered', () => {
    * rendered a dangling "(also cited as )". The suite was green throughout,
    * because it only ever asserted that DEC-WFROLL-001 DOES render both identifiers.
    */
-  it('renders the alias fragment on DEC-WFROLL-001 and on nothing else', () => {
-    expect(render('DEC-WFROLL-001')).toContain('also cited as DEC-VERROLL-001')
-    for (const id of OPEN_DECISION_IDS) {
-      if (id === 'DEC-WFROLL-001') continue
-      expect(render(id), `${id} alias fragment`).not.toContain('also cited as')
+  it('renders the alias fragment on every record that has one and on nothing else', () => {
+    // The expectation is derived from each record's OWN `alias` field, which is
+    // the renderer's input — this asks whether the component honours it, in
+    // both directions, and is the one place deriving from the record is right.
+    // WHICH records carry an alias is asserted against a hand-declared set in
+    // `surface-neutral.test.ts`; the hard-coded skip list this replaces is why
+    // the second and third aliases rendered untested.
+    for (const d of OPEN_DECISIONS) {
+      const markup = render(d.id)
+      if (d.alias === null) {
+        expect(markup, `${d.id} alias fragment`).not.toContain('also cited as')
+      } else {
+        expect(markup, `${d.id} alias fragment`).toContain(`also cited as ${d.alias}`)
+      }
     }
   })
 

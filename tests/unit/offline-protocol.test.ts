@@ -435,8 +435,13 @@ describe('DEC-SYNC-001, disclosed locally and built to expire', () => {
     return [...block.matchAll(/'([^']+)'/g)].flatMap((m) => (m[1] === undefined ? [] : [m[1]]))
   })()
 
-  it('the canon holds twenty-nine records and DEC-SYNC-001 is not one of them', () => {
-    expect(canonIds).toHaveLength(29)
+  it('DEC-SYNC-001 is not one of the canon’s records', () => {
+    // A POSITIVE CONTROL, NOT A COUNT. `toHaveLength(29)` stood here: a stored
+    // copy of a derived answer, stale the moment slice 10 registered fourteen
+    // more records, in a suite whose only stake in the canon is one absence.
+    // What it was really buying — that a `not.toContain` over a failed parse
+    // cannot pass vacuously — is bought by an identifier the canon does hold.
+    expect(canonIds, 'the DecisionId union parsed').toContain('DEC-LIB-001')
     expect(canonIds).not.toContain('DEC-SYNC-001')
     // The expiry gate: the moment it is lifted, this goes red.
     for (const d of PROTOCOL_DISCLOSURES) {
@@ -453,7 +458,13 @@ describe('DEC-SYNC-001, disclosed locally and built to expire', () => {
     for (const r of d?.readings ?? []) {
       expect(Object.keys(r).sort()).toEqual(['locator', 'text'])
     }
-    expect(d?.canonNote).toContain('twenty-nine')
+    // The note's ABSENCE claim, not its count. This asserted `'twenty-nine'`
+    // and so required the note to keep spelling a canon size that is now
+    // forty-three — a test holding a stale on-screen claim in place. The string
+    // itself lives in `src/offline/protocol.ts`, which this task does not own,
+    // and the count in it is reported as a finding; this assertion no longer
+    // pins it, and stays true when it is corrected.
+    expect(d?.canonNote).toContain('this is not one of them')
     expect(d?.adopted).toContain('APP-012')
     expect(d?.adopted).toContain('not a position the source settled')
   })

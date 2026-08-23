@@ -918,7 +918,14 @@ describe('the three decisions this module discloses', () => {
     const block = canon.match(/export type DecisionId =([\s\S]*?)\n\n/)
     expect(block, 'the canon exports a DecisionId union').not.toBeNull()
     const members = [...(block?.[1] ?? '').matchAll(/'([^']+)'/g)].map((m) => m[1])
-    expect(members.length, 'the canon holds twenty-nine records').toBe(29)
+    // A POSITIVE CONTROL, NOT A COUNT. This asserted `members.length === 29`,
+    // which is a stored copy of a derived answer in a suite whose only stake in
+    // the canon is that these three identifiers are absent from it — and it
+    // went stale the moment slice 10 registered fourteen more records. What the
+    // count was buying is that a `not.toContain` over a failed parse cannot
+    // pass vacuously, and an identifier the canon does hold buys that without
+    // pinning a number.
+    expect(members, 'the DecisionId union parsed').toContain('DEC-LIB-001')
     for (const d of A2_DISCLOSURES) {
       expect(members, `${d.decisionRef} is absent from the canon`).not.toContain(d.decisionRef)
       expect(d.canonNote).toContain('DecisionId')

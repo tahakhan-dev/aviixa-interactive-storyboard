@@ -722,10 +722,16 @@ describe('the decisions this section raises', () => {
     const members = union.slice(0, union.indexOf('\n\n'))
     for (const d of CC_LIVE_DISCLOSURES) {
       expect(members.includes(`'${d.decisionRef}'`)).toBe(false)
-      expect(d.canonNote).toContain('twenty-nine members')
+      expect(d.canonNote).toContain('not a member of that file’s DecisionId union')
     }
-    // And the note's own count is true of the canon rather than remembered.
-    expect(members.match(/\|\s*'/g)).toHaveLength(29)
+    // THE POSITIVE CONTROL, WHICH REPLACED A COUNT. This used to assert the
+    // union had twenty-nine members, and the note used to spell that number —
+    // a stored copy of a derived answer in a suite whose only stake in the
+    // canon is that ONE identifier is absent from it. The count is gone; what
+    // it was really buying is kept, which is that a `not.toContain` over a
+    // failed parse cannot pass vacuously. `DEC-LIB-001` is in the canon, so
+    // the same lookup that reports absence is shown finding a presence.
+    expect(members).toContain(`'DEC-LIB-001'`)
   })
 
   // FAILS IF: a reading gains a field in which a winner could be marked. The

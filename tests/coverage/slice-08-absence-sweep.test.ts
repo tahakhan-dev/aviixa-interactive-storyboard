@@ -228,9 +228,20 @@ describe('slice 8 absence sweep: the sweep has a population to sweep', () => {
  * ==================================================================== */
 
 describe('slice 8 absence sweep: the canon holds none of these, and says so', () => {
-  it('the canon is the twenty-nine records slice 5 raised, untouched by this slice', () => {
-    expect(OPEN_DECISIONS.length).toBe(29)
-    expect(new Set(OPEN_DECISIONS.map((d) => d.id)).size).toBe(29)
+  /**
+   * WHAT THIS SWEEP ACTUALLY NEEDS FROM THE CANON, which is not its size. It
+   * builds `CANON_KEYS` above and then claims every slice-8 identifier is
+   * absent from it, so it needs the key set to be non-empty (or the claim is
+   * vacuous) and the keys to be UNIQUE (or a duplicated id would mask a
+   * collision). It asserted `29` twice instead, which is a stored copy of a
+   * derived answer and turned red when slice 10 registered fourteen records
+   * this sweep has no stake in.
+   */
+  it('has a non-empty canon of uniquely-keyed records to claim absence from', () => {
+    const ids = OPEN_DECISIONS.map((d) => d.id)
+    expect(ids.length, 'an absence claim over an empty canon claims nothing').toBeGreaterThan(0)
+    expect(new Set(ids).size, 'two records under one id').toBe(ids.length)
+    expect(CANON_KEYS.size).toBeGreaterThanOrEqual(ids.length)
   })
 
   it('every identifier slice 8 discloses locally is ABSENT from it', () => {

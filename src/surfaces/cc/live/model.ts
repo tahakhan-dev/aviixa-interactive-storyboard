@@ -1126,8 +1126,14 @@ export const CC_LIVE_DISCLOSURES = [
         'validating authority',
     ],
     canonNote:
+      // The membership count this sentence used to spell — "its DecisionId
+      // union has twenty-nine members" — was a stored copy of a derived answer
+      // and became a false on-screen claim the moment slice 10 registered
+      // fourteen more. What the disclosure needs to say is that the identifier
+      // is not in the union, which is what the suite measures; the size of the
+      // union is not this screen's business and no reader can act on it.
       'The shared decision canon at @/disclosure/decisions carries no record keyed to this ' +
-      'identifier — its DecisionId union has twenty-nine members and this is not one of them — ' +
+      'identifier — it is not a member of that file’s DecisionId union — ' +
       'and that file is another task’s path. Disclosed here in the canon’s own record shape, with ' +
       'DecisionReading imported rather than redeclared so no field exists in which a reading ' +
       'could be marked the answer. This model’s unit suite asserts the absence, so the disclosure ' +

@@ -93,7 +93,13 @@ describe('slice 9 absence sweep: the populations swept, before anything is claim
     expect(sourcesUnder('app/command-center').length).toBeGreaterThan(11)
     expect(CC_MODULE_SPINE).toHaveLength(13)
     expect(CC_SCREENS).toHaveLength(13)
-    expect(OPEN_DECISIONS).toHaveLength(29)
+    // A FLOOR, like everything else in this test, and it was the one exact
+    // count among them. `toHaveLength(29)` is a stored copy of a derived answer
+    // — this sweep's stake in the canon is only that it is not empty, because
+    // an absence claim over an empty canon reports safety it does not provide.
+    // Slice 10 registered fourteen records and turned an exact copy red; a
+    // floor never needs editing when the canon grows.
+    expect(OPEN_DECISIONS.length).toBeGreaterThan(0)
   })
 })
 

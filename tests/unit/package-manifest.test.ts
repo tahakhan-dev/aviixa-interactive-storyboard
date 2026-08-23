@@ -642,8 +642,12 @@ describe('DEC-PKGMAN-001, DEC-PKGSIGN-001 and DEC-SEC-015, disclosed locally', (
     return [...block.matchAll(/'([^']+)'/g)].flatMap((m) => (m[1] === undefined ? [] : [m[1]]))
   })()
 
-  it('the canon holds twenty-nine records and none of these three is one of them', () => {
-    expect(canonIds).toHaveLength(29)
+  it('none of these three is one of the canon’s records', () => {
+    // `toHaveLength(29)` stood here and is gone: a stored copy of a derived
+    // answer, stale the moment slice 10 registered fourteen more records, in a
+    // suite whose only stake in the canon is three absences. The positive
+    // control below is what the count was really buying, and it was already
+    // here — a failed parse cannot satisfy both it and the absences.
     // The expiry gate: the moment any is lifted, this goes red and forces the switch.
     for (const d of PACKAGE_MANIFEST_DISCLOSURES) {
       expect(canonIds, `${d.decisionRef} has been lifted into the canon`).not.toContain(
@@ -664,7 +668,11 @@ describe('DEC-PKGMAN-001, DEC-PKGSIGN-001 and DEC-SEC-015, disclosed locally', (
     ])
     for (const d of PACKAGE_MANIFEST_DISCLOSURES) {
       for (const r of d.readings) expect(Object.keys(r).sort()).toEqual(['locator', 'text'])
-      expect(d.canonNote, d.decisionRef).toContain('twenty-nine')
+      // The note's ABSENCE claim, not its count — see the comment on the
+      // absence test above. `'twenty-nine'` here required the note to keep
+      // spelling a canon size that is now forty-three; the string lives in
+      // `src/offline/package/manifest.ts`, which this task does not own.
+      expect(d.canonNote, d.decisionRef).toContain('this is not one of them')
       expect(d.adopted, d.decisionRef).toContain('APP-012')
       expect(d.readings.length, d.decisionRef).toBeGreaterThanOrEqual(3)
     }
