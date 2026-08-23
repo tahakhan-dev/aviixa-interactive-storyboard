@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { AuditAndRetentionScreen } from '../../app/hub/audit-and-retention/AuditAndRetentionScreen'
 import {
   AUDIT_FAILURE_GRADING,
@@ -49,9 +49,16 @@ function disabledReasonOf(button: HTMLElement): string {
 const ALL_TEXT = (): string => document.body.textContent ?? ''
 
 describe('MOD-DOH-11 — the screen names itself and derives its own reach', () => {
-  it('carries the module and catalogue-B identifiers and the route path', () => {
+  it('carries the module and catalogue-B identifiers, both out of the registry', () => {
     render(<AuditAndRetentionScreen />)
-    expect(screen.getByText(/MOD-DOH-11 · SCR-DOH-20 · \/hub\/audit-and-retention/)).toBeTruthy()
+    // The route path is no longer in the annotation and should not be: the
+    // shell derives `MOD-DOH-11` from `DOH_MODULES` and `SCR-DOH-20` from
+    // `@/surfaces/doh/screens`, and the route is keyed on the module slug (D1)
+    // rather than restated as text. This case used to assert the hand-written
+    // annotation a route carries while its module is unregistered.
+    expect(screen.getByText(/MOD-DOH-11 · SCR-DOH-20/)).toBeTruthy()
+    const rail = screen.getByRole('navigation', { name: 'Hub modules' })
+    expect(within(rail).getByRole('link', { name: 'Audit and Retention' })).toBeTruthy()
   })
 
   it('prints the reach derived from the matrix, and it is the three catalogue B admits', () => {

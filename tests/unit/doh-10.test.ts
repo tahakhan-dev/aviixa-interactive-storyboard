@@ -655,8 +655,13 @@ describe('the two catalogues disagree about who opens this screen', () => {
     }
     // The positive control the absence sweep needs: files in this walk DO
     // name a screen id, in the two-digit form, so the sweep is not passing
-    // over files that mention no screen at all.
-    expect(namingTheScreen).toBeGreaterThanOrEqual(3)
+    // over files that mention no screen at all. A FLOOR OF ONE, not of three:
+    // the third file was `app/hub/notifications/fixtures.ts`, whose
+    // hand-written `SCREEN_ANNOTATION` carried the id as literal text because
+    // the module had no registry row to derive it from. It has one now, the
+    // annotation is gone, and the number of files repeating an id is not what
+    // this control is about.
+    expect(namingTheScreen).toBeGreaterThan(0)
   })
 
   it('partitions every one of the twelve rows into exactly one half', () => {

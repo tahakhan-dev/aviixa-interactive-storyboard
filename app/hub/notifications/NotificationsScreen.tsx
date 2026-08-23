@@ -47,7 +47,7 @@ import {
   preferenceAffordance,
   togglableKeysFor,
 } from '@/surfaces/doh/modules/doh-10/rendering'
-import { SCREEN_ANNOTATION, SCREEN_PURPOSE, SCREEN_TITLE } from './fixtures'
+import { dohModuleById } from '@/surfaces/doh/modules'
 
 /**
  * `SCR-DOH-19` — the notification policy and preferences screen, at
@@ -78,13 +78,15 @@ import { SCREEN_ANNOTATION, SCREEN_PURPOSE, SCREEN_TITLE } from './fixtures'
  * cannot reach the setter. It throws rather than returning quietly, because a
  * silent no-op is a control that renders and does nothing.
  *
- * ── WHY THE SHELL IS GIVEN `screen` AND NOT `module` ──────────────────────
- * `MOD-DOH-10` is not a member of `DohModuleId` in `@/surfaces/doh/modules`,
- * and that registry, `@/surfaces/doh/screens`, and the module-reach generator
- * are all shared and outside this task's file list. So the shell cannot be
- * handed a `DohModuleDefinition` for this module, the rail offers no entry for
- * this route, and both facts are stated on screen rather than left to be
- * inferred. This is a stated abstention with a named owner, not an oversight.
+ * ── THE SHELL IS GIVEN `module`, AND IT WAS GIVEN `screen` FOR ONE WAVE ───
+ * `MOD-DOH-10` is a member of `DohModuleId` and a row of `DOH_MODULES`, so the
+ * shell gets the module and draws the module header, the breadcrumb and the
+ * rail entry. This file used to carry an abstention saying the opposite —
+ * "the rail offers no entry for this route" — because the registry was shared
+ * and outside the route task's file list; slice 10 task 12 registered it, and
+ * `HubShellUncataloguedScreen` is documented for a route that owns NO module,
+ * so keeping it here after the module was registered would have been a second
+ * false claim rather than a leftover.
  */
 
 const GROUP_HEADING: Readonly<Record<PreferenceGroupId, string>> = {
@@ -195,11 +197,7 @@ export function NotificationsScreen() {
 
   return (
     <HubShell
-      screen={{
-        title: SCREEN_TITLE,
-        annotation: SCREEN_ANNOTATION,
-        purpose: SCREEN_PURPOSE,
-      }}
+      module={dohModuleById('MOD-DOH-10')}
       role={role}
       onRoleChange={setRole}
       tenantState={tenantState}
@@ -253,10 +251,11 @@ export function NotificationsScreen() {
           asks whether the role opens the surface at all.
         </p>
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          This module is not a row in the Hub module registry, so this route draws no rail entry
-          and the shell prints the module id as an annotation rather than as a registered name.
-          That registry is shared and outside this screen&rsquo;s ownership; the gap is reported
-          rather than patched here.
+          This module is a row of the Hub module registry, so the rail offers this route to every
+          persona whose own matrix column holds something here and the header above is the
+          module&rsquo;s registered name. For one wave it was not, and this paragraph said so: the
+          route shipped before the shared registry could be edited, and the module index said
+          &ldquo;None is reachable from this build&rdquo; over a module a reader could already open.
         </p>
       </section>
 

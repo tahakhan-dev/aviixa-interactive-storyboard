@@ -440,18 +440,26 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
      * THE SCOPE NARROWED WHEN THE SLICE-6 SEVEN WERE REGISTERED, and it is
      * narrowed openly rather than by dropping the assertion. This is a
      * SLICE-4 gate: its own body reads `out/hub/<slug>/index.html` and
-     * asserts what those nine screens render. Pulling seven slice-6 screens
-     * under it would be a slice-6 gate wearing this one's name. The seven
-     * are named below so they cannot hide in the gap, and the slice-6 gates
-     * task owns them.
+     * asserts what those nine screens render. Pulling a later slice's screens
+     * under it would be that slice's gate wearing this one's name. The ones
+     * outside are NAMED below so they cannot hide in the gap, and their own
+     * slice's gates task owns them.
+     *
+     * THE PREDICATE IS "MATRIX UNDER `src/`", NOT "SLICE 6", and the local
+     * name said the latter until slice 10 registered `MOD-DOH-10` and
+     * `MOD-DOH-11`, whose matrices live there too. The derivation was right
+     * and the label was the thing that aged: what it separates is where a
+     * module keeps its matrix, which is exactly the line between this gate's
+     * subject and everyone else's.
      */
     const matrixInSrc = (id: string) =>
       existsSync(`src/surfaces/doh/modules/${id.replace('MOD-DOH-', 'doh-').toLowerCase()}/matrix.ts`)
     const sliceFour = DOH_MODULES.filter((m) => !matrixInSrc(m.id))
-    const sliceSix = DOH_MODULES.filter((m) => matrixInSrc(m.id))
+    const matrixUnderSrc = DOH_MODULES.filter((m) => matrixInSrc(m.id))
     expect(sliceFour).toHaveLength(8)
-    expect(sliceSix.map((m) => m.id)).toEqual([
+    expect(matrixUnderSrc.map((m) => m.id)).toEqual([
       'MOD-DOH-05', 'MOD-DOH-06', 'MOD-DOH-07', 'MOD-DOH-08',
+      'MOD-DOH-10', 'MOD-DOH-11',
       'MOD-DOH-15', 'MOD-DOH-16', 'MOD-DOH-19',
     ])
     const gated = new Set(HUB_MODULES_UNDER_GATE.map((m) => m.moduleId))

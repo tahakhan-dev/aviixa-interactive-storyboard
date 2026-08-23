@@ -55,10 +55,16 @@ const render = (id: DecisionId): string =>
   renderToStaticMarkup(createElement(DecisionDisclosure, { id }))
 
 /**
- * The fourteen this task added. Declared as a literal, NOT filtered off
+ * Slice 10's own records. Declared as a literal, NOT filtered off
  * `OPEN_DECISIONS` — a population derived from the array it polices shrinks
  * along with its subject and the gate goes on passing. That exact shape is in
  * this build's catalogue of gates that could not fail.
+ *
+ * It read "the fourteen" and it is fifteen: wave 2 added
+ * `S10-DOH10-AUDITWRITE-001`, the Read-only Auditor write two acceptance
+ * criteria refuse and `MOD-DOH-10`'s matrix grants. The word is gone rather
+ * than renumbered — the list below is the claim, and a number beside it is a
+ * second copy of a derived answer.
  */
 const SLICE_10_IDS: readonly DecisionId[] = [
   'DEC-AUDITSUP-001',
@@ -75,6 +81,7 @@ const SLICE_10_IDS: readonly DecisionId[] = [
   'DEC-FINISH-002',
   'DEC-CMDEXP-001',
   'S10-IDENT-SCHED-001',
+  'S10-DOH10-AUDITWRITE-001',
 ]
 
 describe('the population, before anything is claimed about it', () => {
@@ -89,13 +96,21 @@ describe('the population, before anything is claimed about it', () => {
   //
   // Planted: `DEC-CMDEXP-001` deleted from `OPEN_DECISIONS` and from
   // `OPEN_DECISION_IDS`. RED — "expected [ ... ] to include 'DEC-CMDEXP-001'".
-  it('holds a record for each of the fourteen, and the canon holds no other new one', () => {
-    expect(SLICE_10_IDS).toHaveLength(14)
+  it('holds a record for each of slice 10’s, and adds rather than replaces', () => {
     const canon = OPEN_DECISIONS.map((d): string => d.id)
     for (const id of SLICE_10_IDS) expect(canon, id).toContain(id)
-    // The canon's own count, so the fourteen are additions rather than
-    // replacements: twenty-nine slice-5 records plus these.
-    expect(OPEN_DECISIONS).toHaveLength(43)
+    // ADDITIONS RATHER THAN REPLACEMENTS, without a count. This used to assert
+    // `OPEN_DECISIONS` has 43 records, which is the canon's SIZE — a derived
+    // number that had twenty-nine hand-maintained copies in this tree before
+    // slice 10 consolidated it into ONE membership gate, in
+    // `tests/unit/surface-neutral.test.ts`, and asserting it again here is a
+    // second copy of exactly that. What this case is actually about is that
+    // slice 10's records did not displace the ones already there, and the
+    // slice-5 keys prove it directly.
+    for (const inherited of ['D1', 'DEC-LANEB-001', 'D29'] as const) {
+      expect(canon, inherited).toContain(inherited)
+    }
+    expect(canon.length).toBeGreaterThan(SLICE_10_IDS.length)
   })
 
   // FAILS IF: a new record pins a closed-vocabulary member. `pins` is checked
@@ -586,9 +601,14 @@ describe('every identifier-anchored locator in these records is true at its line
         }
       }
     }
-    expect(total).toBe(60)
-    expect(strong).toBe(45)
-    expect(weak).toBe(15)
+    // RE-MEASURED WHEN WAVE 2 ADDED `S10-DOH10-AUDITWRITE-001`, five
+    // citations: its two acceptance-criteria lines are strong (each names its
+    // own `AC-*` at the cited line) and its three matrix lines are weak by
+    // nature — a permission row carries no identifier for a nearest-left
+    // anchor to match, which is the case the split exists for.
+    expect(total).toBe(65)
+    expect(strong).toBe(47)
+    expect(weak).toBe(18)
     // NON-VACUITY: the split is a real split rather than one bucket and an
     // empty one, and the strong half is the majority — a lexer that stopped
     // matching identifiers would put everything in `weak` and still satisfy a

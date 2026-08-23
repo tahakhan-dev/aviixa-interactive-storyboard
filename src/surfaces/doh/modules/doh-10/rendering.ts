@@ -237,14 +237,14 @@ export type PreferenceAffordance =
 /**
  * The DOM-safe, register-qualified control id.
  *
- * `LockedControl.controlId` is a bare `string` and its own documentation
- * offers `NOTIF-059` as the example — which is precisely the unqualified
- * `NOTIF-*` literal `@/registry/signals` makes impossible to hold, because
- * both registers number from `NOTIF-001` and agree on none of the twenty-five
- * overlapping names. Passing the branded key straight through would be
- * correct and would put `#` and `.` in an HTML id. So the id is qualified by
- * hand here, and the fact that the prop cannot require the qualification is a
- * finding rather than a workaround; see the report.
+ * `LockedControl.controlId` is a bare `string` — passing the branded key
+ * straight through would be correct and would put `#` and `.` in an HTML id —
+ * so the id is qualified here. THE PROP NOW REQUIRES THE QUALIFICATION: this
+ * comment used to say it could not, and record that as a finding, and its own
+ * doc offered the unqualified `NOTIF-059` as the example. Slice 10 task 12
+ * stated the rule in that prop's doc and gated it, so a bare register
+ * identifier throws rather than colliding with the other register's row of the
+ * same number. The prefix here is what satisfies it.
  */
 function lockedControlId(category: PreferenceCategory): string {
   return `ch30c2-${category.id}`

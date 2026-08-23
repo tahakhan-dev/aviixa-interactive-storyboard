@@ -15,16 +15,12 @@ export const SCREEN_TITLE = 'Notification policy and preferences'
 
 export const ROUTE_SLUG = 'notifications'
 
-/**
- * Sits where a module's id and screen annotation would. This route uses
- * `HubShell`'s uncatalogued-screen mode, because `MOD-DOH-10` is not in
- * `DOH_MODULES` — a shared registry this task does not own. The annotation
- * therefore carries the module id and the catalogue-B screen id as text,
- * which is what the shell would print if the module were registered.
- */
-export const SCREEN_ANNOTATION =
-  'MOD-DOH-10 · SCR-DOH-19 · /hub/notifications — annotations, never route keys (D1). The module is not yet a row in the Hub module registry, so this route draws no rail entry; see the on-screen note.'
-
-/** The module's own Purpose field, verbatim from its identity card, L28672. */
-export const SCREEN_PURPOSE =
-  'Carry operational and administrative facts to the right people on two channels, with a mandatory floor that cannot be silenced.'
+/* `SCREEN_ANNOTATION` AND `SCREEN_PURPOSE` WERE HERE AND ARE GONE. Both
+ * existed only because this route was rendered in `HubShell`'s
+ * uncatalogued-screen mode while `MOD-DOH-10` was not a row of `DOH_MODULES`.
+ * It is one now, so the shell derives the annotation from
+ * `@/surfaces/doh/screens` and the purpose from the module row, and a second
+ * copy of either here would be a hand-maintained duplicate of a registered
+ * value — the annotation's own text asserted "this route draws no rail entry",
+ * which the rail now contradicts. `SCREEN_TITLE` stays because the browser tab
+ * is the one thing the shell does not name. */

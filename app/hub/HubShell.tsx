@@ -438,6 +438,21 @@ export function HubShell({
               </ul>
             </section>
 
+            {/* "None is reachable from this build" IS AN ABSENCE CLAIM AND IT
+                HAS BEEN FALSE ONCE. Wave 2 of slice 10 shipped
+                `/hub/notifications` and `/hub/audit-and-retention` while their
+                two modules were still rows of this register, so this paragraph
+                told every reader of `/hub/` that two modules they could open
+                did not exist here. (Neither module is named by id in this file
+                on purpose: `scripts/build-registries.mjs` reads `app/hub/` as a
+                route of its own and refuses a tie between two module ids
+                mentioned equally often on a route no slug claims.) It is not a
+                claim this component can check — it is about the whole authored
+                tree — so it is MEASURED rather than reviewed:
+                `tests/unit/doh-spine.test.ts` scans every authored `app/hub/`
+                route for a module id this register names, and carries a
+                positive control proving the scan finds one on a routed module.
+                Do not reword this sentence without reading that case. */}
             <section className="mt-8">
               <h2 className="text-lg font-semibold">Not in this slice</h2>
               <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">

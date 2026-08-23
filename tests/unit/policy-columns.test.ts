@@ -434,6 +434,39 @@ describe('the source token rule — `Allowed` is a prefix of `Allowed with condi
     )
   })
 
+  /**
+   * THE THIRD BACKTICK PLACEMENT, and the one that shipped a stray character
+   * into a rendered `detail`. A cell backticked as a WHOLE closes AFTER its
+   * stated reason, so stripping the leading backtick alone left the reason
+   * ending in a backtick — `MOD-DOH-11` met it on two deferral cells and
+   * normalised around it locally before the parser learned the rule.
+   *
+   * The interior-backtick guard is asserted here too, in the same case,
+   * because the two claims are one decision: a condition naming an identifier
+   * in backticks of its own must come through UNCHANGED, and an unwrap that
+   * ignored the interior would eat that identifier's closing delimiter.
+   */
+  it('unwraps a cell backticked as a whole, and leaves a backticked identifier inside one alone', () => {
+    expect(cellFromSource('`Not applicable — deferred beyond V1`')).toEqual({
+      outcome: 'notApplicable',
+      detail: 'deferred beyond V1',
+    })
+    // No interior backtick, no stated reason: still refused, and the refusal
+    // quotes the cell rather than the half-stripped form.
+    expect(() => cellFromSource('`Not applicable`')).toThrow(/no stated reason/)
+    expect(cellFromSource('`Explicitly prohibited`').detail).toBe(
+      'Explicitly prohibited, stated bare in the source',
+    )
+    // INTERIOR BACKTICKS: untouched, delimiters and all.
+    expect(cellFromSource('`Read-only` — see `OBJ-DOH-AUDIT`')).toEqual({
+      outcome: 'readOnly',
+      detail: 'see `OBJ-DOH-AUDIT`',
+    })
+    // And a bare backtick is not a wrapper: one character cannot open and
+    // close, so nothing is stripped and the token rule refuses it.
+    expect(() => cellFromSource('`')).toThrow(/not one of the nine source tokens/)
+  })
+
   it('refuses `Not applicable` with no stated reason', () => {
     expect(() => cellFromSource('Not applicable')).toThrow(/no stated reason/)
     expect(cellFromSource('Not applicable — tenant scope only').outcome).toBe('notApplicable')

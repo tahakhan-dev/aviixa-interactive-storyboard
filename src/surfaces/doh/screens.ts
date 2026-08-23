@@ -28,11 +28,16 @@ import { doh19Row } from './modules/doh-19/matrix'
  *
  * WHAT THIS REGISTERS. Slice 4 registered the twelve catalogue-B rows its
  * own eight modules use. Slice 6 adds the nine its seven modules use:
- * `SCR-DOH-06` and `SCR-DOH-10` through `SCR-DOH-17`. Still deliberately
- * partial — `SCR-DOH-19` (Notification policy, `MOD-DOH-10`) and
- * `SCR-DOH-20` (Audit log explorer, `MOD-DOH-11`) belong to slice 10, and
- * asserting a canonical row for a screen no built module claims is exactly
- * the invented catalogue row D4 refuses to mint. 21 of catalogue B's 23.
+ * `SCR-DOH-06` and `SCR-DOH-10` through `SCR-DOH-17`. Slice 10 adds the last
+ * two, `SCR-DOH-19` (Notification policy, `MOD-DOH-10`, L48113) and
+ * `SCR-DOH-20` (Audit log explorer, `MOD-DOH-11`, L48114), when and only
+ * when their modules acquired routes: asserting a canonical row for a screen
+ * no built module claims is the invented catalogue row D4 refuses to mint,
+ * and a row nothing reads is the same defect pointed the other way. Both are
+ * read the moment they land — `screenAnnotation` in `app/hub/HubShell.tsx`
+ * derives the module index's annotation from this register, so before these
+ * rows the two modules would have been the only rows of the index printing
+ * none. Every row of catalogue B is now registered.
  *
  * THIS REGISTRY CARRIES NO RAIL, AND THAT IS A C1 RULING RATHER THAN AN
  * OMISSION. `catalogueBRoles` is the source's own "Roles that can open it"
@@ -251,6 +256,30 @@ export const DOH_SCREENS = [
     catalogueBRoles: 'Tenant Admin',
     navigationEntry: 'Operations home, administration group',
     sourceRef: 'L48112',
+  },
+  {
+    id: 'SCR-DOH-19',
+    name: 'Notification policy',
+    moduleId: 'MOD-DOH-10',
+    alsoShows: [],
+    // "Tenant Admin" alone, and the screen renders more than that cell
+    // admits: catalogue A's row for the same module at L26070 is
+    // "Notification policy and preferences", primary role "Tenant Admin sets
+    // policy; each user sets preferences". The screen is the two halves and
+    // the name here is catalogue B's, verbatim, because catalogue B is the
+    // canonical register (D1) — not because it is the whole screen.
+    catalogueBRoles: 'Tenant Admin',
+    navigationEntry: 'Operations home, administration group',
+    sourceRef: 'L48113',
+  },
+  {
+    id: 'SCR-DOH-20',
+    name: 'Audit log explorer',
+    moduleId: 'MOD-DOH-11',
+    alsoShows: [],
+    catalogueBRoles: 'Read-only Auditor, Tenant Admin, Quality Manager',
+    navigationEntry: 'Operations home, administration group',
+    sourceRef: 'L48114',
   },
   {
     id: 'SCR-DOH-21',

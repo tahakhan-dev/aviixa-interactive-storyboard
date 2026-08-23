@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { NotificationsScreen } from '../../app/hub/notifications/NotificationsScreen'
 import {
   CONTROL_MATRIX,
@@ -80,22 +80,26 @@ function describedByText(el: HTMLElement): string {
 }
 
 describe('the screen names itself and states what it does not claim', () => {
-  it('carries the module id, the catalogue-B screen id and the route', () => {
+  it('carries the module id and the catalogue-B screen id, from the registry', () => {
     render(<NotificationsScreen />)
-    expect(
-      screen.getByText(/MOD-DOH-10 · SCR-DOH-19 · \/hub\/notifications/),
-    ).toBeTruthy()
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toContain(
-      'Notification policy and preferences',
-    )
+    // Derived, not printed as text: the shell reads `MOD-DOH-10`'s row and
+    // `screenAnnotation` reads `SCR-DOH-19` out of `@/surfaces/doh/screens`.
+    // This case used to assert a hand-written annotation string, which is what
+    // a route carries when its module is not registered.
+    expect(screen.getByText(/MOD-DOH-10 · SCR-DOH-19/)).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toContain('Notifications')
   })
 
-  it('states the registry gap and the missing rail rather than leaving it inferred', () => {
+  it('claims no registry gap and no missing rail, because there is neither', () => {
     render(<NotificationsScreen />)
-    expect(screen.getByText(/not yet a row in the Hub module registry/i)).toBeTruthy()
-    // Twice, deliberately: once in the shell's annotation slot where a reader
-    // looking for the module id will be, and once in the explanation.
-    expect(screen.getAllByText(/draws no rail entry/i)).toHaveLength(2)
+    // THE INVERSION OF WHAT THIS CASE USED TO ASSERT, and it is the defect
+    // it was pinning: it required "draws no rail entry" to appear TWICE on a
+    // route the rail now offers. Both phrasings are refused here.
+    expect(document.body.textContent).not.toMatch(/draws no rail entry/i)
+    expect(document.body.textContent).not.toMatch(/not yet a row in the Hub module registry/i)
+    // Non-vacuous: the rail is drawn on this route and offers this module.
+    const rail = screen.getByRole('navigation', { name: 'Hub modules' })
+    expect(within(rail).getByRole('link', { name: 'Notifications' })).toBeTruthy()
   })
 
   it('renders both catalogue rows, catalogue A by name and never by literal', () => {

@@ -446,6 +446,32 @@ const SOURCE_TOKENS = [
 const SEPARATORS = [',', ' —', ' -', ';', ':'] as const
 
 /**
+ * A CELL BACKTICKED AS A WHOLE, UNWRAPPED — the third backtick placement the
+ * source uses, and the one this parser used to leave half-stripped.
+ *
+ * The two it already handled: the whole cell opened with a backtick and the
+ * token closed with one (`` `Allowed`, when X ``), or no backticks at all. The
+ * third is `` `Not applicable — deferred beyond V1` `` — open at the start,
+ * close AFTER the stated reason — where stripping the leading backtick alone
+ * left the reason ending in a stray backtick, and `detail` is transcribed
+ * verbatim, so that character reached the screen. `MOD-DOH-11` hit it on two
+ * cells and normalised around it locally; this is the same rule, in the one
+ * place all 37 call sites route through.
+ *
+ * GUARDED THREE WAYS, and the third is the one that matters: the cell must
+ * open with a backtick, close with one, and hold NO INTERIOR backtick. A
+ * condition that names an identifier in backticks of its own —
+ * `` `Read-only` — see `OBJ-DOH-AUDIT` `` — is therefore untouched here and
+ * falls through to the token-backtick path exactly as before. Unwrapping it
+ * would strip a delimiter belonging to the identifier rather than to the cell.
+ */
+function unwrapWhollyBackticked(cell: string): string {
+  if (cell.length < 2 || !cell.startsWith('`') || !cell.endsWith('`')) return cell
+  const inner = cell.slice(1, -1)
+  return inner.includes('`') ? cell : inner
+}
+
+/**
  * One cell's source text to one cell. The transcriber's entry point, so
  * forty-four rows across two matrices do not each re-derive the token rule.
  *
@@ -456,7 +482,7 @@ const SEPARATORS = [',', ' —', ' -', ';', ':'] as const
  * requires one and `notApplicable` refuses to be built without one.
  */
 export function cellFromSource(text: string): ColumnCell {
-  const trimmed = text.trim()
+  const trimmed = unwrapWhollyBackticked(text.trim())
   // Some cells backtick the WHOLE cell, some backtick only the token and then
   // state a condition in plain text (L100426), and some carry no backticks at
   // all (L99235). Stripping every backtick would be shorter and wrong: a

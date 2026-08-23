@@ -158,6 +158,7 @@ const CANON_IDS: readonly DecisionId[] = [
   'DEC-FINISH-002',
   'DEC-CMDEXP-001',
   'S10-IDENT-SCHED-001',
+  'S10-DOH10-AUDITWRITE-001',
 ]
 
 /**

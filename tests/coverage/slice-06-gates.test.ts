@@ -91,11 +91,23 @@ import { CONTROL_MATRIX as MOD_DOH_19_MATRIX } from '@/surfaces/doh/modules/doh-
  *    Tailwind's `disabled:opacity-50` CLASS as sixty disabled controls.
  *    Parsing the DOM rather than the text is what makes its zero real.
  *
- * PER-MODULE ENUMERATION IS FROM THE DIRECTORY. `SLICE_SIX` below is built
- * by listing `src/surfaces/doh/modules/`, and gate 6 asserts that listing
- * is complete against `DOH_MODULES` in both directions. A module added to
- * the tree and not to this file fails gate 6 rather than acquiring a blind
- * spot, and an enumeration that finds nothing is red.
+ * PER-MODULE ENUMERATION IS SLICE SIX'S OWN SEVEN, AND IT USED TO BE THE
+ * DIRECTORY LISTING. `SLICE_SIX` below was built by listing
+ * `src/surfaces/doh/modules/`, which coupled a slice-6 gate to every slice
+ * that would ever add a module directory. It cost exactly what that shape
+ * costs: slice 10 landed `doh-10` and `doh-11`, neither of which this file
+ * binds a matrix to, and the enumeration THREW AT COLLECTION — so the whole
+ * file produced ZERO TESTS. A suite that cannot run cannot fail, which is
+ * worse than a failing assertion, and a third task was landing `doh-18` the
+ * same afternoon.
+ *
+ * So the enumeration is `SLICE_SIX_IDS`, declared, and gate 6 holds it
+ * against three independent things rather than one: `MATRIX_BY_ID`'s keys,
+ * `DOH_MODULES`, and the directories on disk. A slice-6 module dropped from
+ * the binding map is red; a slice-6 module whose directory is deleted is
+ * red; a slice-6 module missing from `DOH_MODULES` is red. A SIBLING SLICE
+ * ADDING A DIRECTORY IS INVISIBLE, which is the whole point — it is not this
+ * gate's subject, and coupling to "every directory that exists" made it one.
  * ==================================================================== */
 
 const ROOT = process.cwd()
@@ -300,9 +312,27 @@ const builtControls = (pages: readonly BuiltPage[]): BuiltControl[] => pages.fla
 
 type Slice6Row = DohControlMatrixRow<string>
 
+/**
+ * SLICE SIX'S SEVEN MODULES, DECLARED — the subject of every gate in this
+ * file. It is a literal list and not a directory listing, for the reason the
+ * header gives; it is not derived from `MATRIX_BY_ID` either, because a
+ * subject derived from the binding map cannot notice a module dropped from
+ * the binding map. Gate 6 holds the two against each other and against disk.
+ */
+const SLICE_SIX_IDS = [
+  'MOD-DOH-05',
+  'MOD-DOH-06',
+  'MOD-DOH-07',
+  'MOD-DOH-08',
+  'MOD-DOH-15',
+  'MOD-DOH-16',
+  'MOD-DOH-19',
+] as const
+
 /** The one place a module id is bound to its matrix. Gate 6 proves this map
- *  is complete against BOTH the directory listing and `DOH_MODULES`, so a
- *  new module cannot land with no entry here and no gate noticing. */
+ *  is complete against `SLICE_SIX_IDS`, `DOH_MODULES` and the directories on
+ *  disk, so a slice-6 module cannot lose its entry here with no gate
+ *  noticing. */
 const MATRIX_BY_ID: Readonly<Record<string, readonly Slice6Row[]>> = {
   'MOD-DOH-05': MOD_DOH_05_MATRIX as readonly Slice6Row[],
   'MOD-DOH-06': MOD_DOH_06_MATRIX as readonly Slice6Row[],
@@ -315,9 +345,17 @@ const MATRIX_BY_ID: Readonly<Record<string, readonly Slice6Row[]>> = {
 
 /** `doh-08` -> `MOD-DOH-08`. The directory name IS the module id, lowered. */
 const idOfDir = (dir: string): string => dir.replace(/^doh-/, 'MOD-DOH-').toUpperCase()
+/** And back: `MOD-DOH-08` -> `doh-08`. */
+const dirOfId = (id: string): string => id.replace(/^MOD-DOH-/, 'doh-').toLowerCase()
 
-/** THE ENUMERATION. Directory listing, never a list written here. */
+/** THE ENUMERATION — slice six's own ids, in directory-name form. */
 function enumeratedModuleDirs(): string[] {
+  return SLICE_SIX_IDS.map(dirOfId).sort()
+}
+
+/** Every module directory that exists, whichever slice owns it. Read only to
+ *  prove slice six's own seven are all there. */
+function moduleDirsOnDisk(): string[] {
   return entriesOf(MODULE_DIR)
     .filter((e) => statSync(join(MODULE_DIR, e)).isDirectory())
     .sort()
@@ -330,12 +368,20 @@ interface Slice6Module {
 }
 
 function slice6Modules(): Slice6Module[] {
+  const onDisk = new Set(moduleDirsOnDisk())
   return enumeratedModuleDirs().map((dir) => {
     const id = idOfDir(dir)
+    if (!onDisk.has(dir)) {
+      throw new Error(
+        `SLICE_SIX_IDS names ${id} and src/surfaces/doh/modules/${dir} is not on disk. A gate ` +
+          `whose subject has no matrix directory is testing nothing; move the id out of this ` +
+          `file's subject deliberately rather than leaving it pointing at nothing.`,
+      )
+    }
     const rows = MATRIX_BY_ID[id]
     if (rows === undefined) {
       throw new Error(
-        `src/surfaces/doh/modules/${dir} is on disk and this gate file binds no matrix to ${id}. ` +
+        `${id} is one of slice six's own modules and this gate file binds no matrix to it. ` +
           `Add it to MATRIX_BY_ID — an enumeration that silently skips a module is the blind spot ` +
           `these gates exist to prevent.`,
       )
@@ -450,11 +496,24 @@ describe('slice 6 gate 1: no Hub control for an act the source places elsewhere'
     // not see at all.
     expect(acts.filter((a) => a.axis === 'token').length).toBeGreaterThan(0)
     expect(acts.filter((a) => a.axis === 'divergence').length).toBeGreaterThan(0)
-    // Every recorded divergence resolves to at least one real row. A
-    // divergence that resolves to nothing is a register entry this gate is
-    // not reading, which is exactly how a pointer becomes decoration.
+    // Every recorded divergence ABOUT A SLICE-6 MODULE resolves to at least
+    // one real row. A divergence that resolves to nothing is a register entry
+    // this gate is not reading, which is exactly how a pointer becomes
+    // decoration.
+    //
+    // SCOPED TO SLICE SIX, because the register is not. It is the surface's
+    // register of row-token findings and slice 10 recorded one against
+    // `MOD-DOH-10`, whose rows this gate does not hold and should not: the
+    // subject is `SLICE_SIX`. Requiring every entry to resolve here would make
+    // a sibling's honest finding a slice-6 failure — the same coupling the
+    // enumeration above was just narrowed to remove. Which entries are slice
+    // six's is read off the entry's own `where`, so nothing here is a list.
     expect(MATRIX_ROW_SURFACE_DIVERGENCES.length).toBeGreaterThan(0)
-    for (const d of MATRIX_ROW_SURFACE_DIVERGENCES) {
+    const namesSliceSix = (d: { readonly where: string }): boolean =>
+      SLICE_SIX.some((m) => d.where.includes(m.id) || d.where.includes(m.dir))
+    const ours = MATRIX_ROW_SURFACE_DIVERGENCES.filter(namesSliceSix)
+    expect(ours.length, 'no recorded divergence names a slice-6 module').toBeGreaterThan(0)
+    for (const d of ours) {
       const locators = divergenceRowLocators(d.sourceRef)
       const hits = SLICE_SIX.flatMap((m) =>
         m.rows.filter((r) => locators.some((l) => r.sourceRef.includes(`L${l}`))),
@@ -1129,23 +1188,30 @@ const builtHubRoutes = (): string[] => builtHubPages().map((p) => p.slug).sort()
 const registeredSlugs = (): string[] => [...new Set(DOH_MODULES.map((m) => m.slug))].sort()
 
 describe('slice 6 gate 6: the enumeration is complete and the registry matches the built tree', () => {
-  it('the module enumeration is non-empty and complete in both directions', () => {
+  it('the module enumeration is non-empty and complete against the binding map, the registry and disk', () => {
     const dirs = enumeratedModuleDirs()
-    expect(dirs.length, 'src/surfaces/doh/modules/ enumerated nothing').toBeGreaterThan(0)
+    expect(dirs.length, 'SLICE_SIX_IDS enumerated nothing').toBeGreaterThan(0)
     expect(SLICE_SIX.map((m) => m.id)).toEqual(dirs.map(idOfDir))
-    // Every enumerated module is registered…
+    // Every slice-6 module is registered…
     for (const m of SLICE_SIX) {
       expect(DOH_MODULES.some((d) => d.id === m.id), `${m.id} is not in DOH_MODULES`).toBe(true)
     }
-    // …and every registered module WITH a matrix directory is enumerated.
-    const registeredWithMatrix = DOH_MODULES.filter((d) =>
-      existsSync(join(MODULE_DIR, d.id.replace('MOD-DOH-', 'doh-').toLowerCase())),
-    ).map((d) => d.id)
-    expect(registeredWithMatrix.sort()).toEqual(SLICE_SIX.map((m) => m.id).sort())
-    // And the id/matrix binding this file holds covers exactly the tree.
+    // …every one has a matrix directory on disk…
+    for (const m of SLICE_SIX) {
+      expect(existsSync(join(MODULE_DIR, m.dir)), `${m.id} -> ${m.dir}`).toBe(true)
+    }
+    // …and the id/matrix binding this file holds covers exactly them, in both
+    // directions, so neither a dropped binding nor a binding for a module this
+    // file no longer claims can pass.
     expect(Object.keys(MATRIX_BY_ID).sort()).toEqual(dirs.map(idOfDir).sort())
-    // DOH_MODULES grew from eight to fifteen when the slice-6 seven landed.
-    expect(DOH_MODULES.length).toBe(15)
+    // WHAT IS DELIBERATELY NOT ASSERTED. There is no count of `DOH_MODULES`
+    // here any more, and no claim that every registered module with a matrix
+    // directory is one of these seven. Both were true of a fifteen-module
+    // registry and neither was this gate's subject: the first went stale the
+    // moment slice 10 registered two more modules, and the second is what
+    // coupled the enumeration to a sibling slice's directory. The directories
+    // on disk may outnumber these seven, and that is not a defect here.
+    expect(moduleDirsOnDisk().length).toBeGreaterThanOrEqual(dirs.length)
   }, SLOW)
 
   it('every enumerated matrix has rows, and no two rows of one matrix share an id', () => {

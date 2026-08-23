@@ -130,21 +130,27 @@ describe('DOH_SCREENS — the slice-6 catalogue-B extension', () => {
     },
   )
 
-  it('registers 21 of catalogue B’s 23 rows, holding back only the two slice-10 screens', () => {
+  it('registers all 23 of catalogue B’s rows, the last two arriving with their modules', () => {
     // Catalogue B is L48095-L48117 — 23 data rows counted at the source.
-    expect(DOH_SCREENS).toHaveLength(21)
+    expect(DOH_SCREENS).toHaveLength(23)
     const ids: readonly string[] = DOH_SCREENS.map((s) => s.id)
     // SCR-DOH-19 is Notification policy (MOD-DOH-10) and SCR-DOH-20 is the
-    // audit log explorer (MOD-DOH-11) — L48113, L48114, both slice 10.
-    expect(ids).not.toContain('SCR-DOH-19')
-    expect(ids).not.toContain('SCR-DOH-20')
-    // And the ones held back are held back because their module is, not by
-    // accident: both modules are on the out-of-slice register as slice 10.
-    const slice10: readonly string[] = DOH_OUT_OF_SLICE_MODULES.filter(
-      (m) => m.ownedBy === 'Slice 10',
-    ).map((m) => m.id)
-    expect(slice10).toContain('MOD-DOH-10')
-    expect(slice10).toContain('MOD-DOH-11')
+    // audit log explorer (MOD-DOH-11) — L48113, L48114. Both were held back
+    // until their module had a route, and both landed with slice 10's.
+    expect(ids).toContain('SCR-DOH-19')
+    expect(ids).toContain('SCR-DOH-20')
+    // THE CONDITION THAT LICENSED THE ROW, asserted rather than assumed: a
+    // catalogue row may be registered only for a module this build routes.
+    // Held in both directions, so neither a row for an unrouted module nor a
+    // routed module left without its row passes.
+    const routed: readonly string[] = DOH_MODULES.map((m) => m.id)
+    const unrouted: readonly string[] = DOH_OUT_OF_SLICE_MODULES.map((m) => m.id)
+    expect(routed).toContain('MOD-DOH-10')
+    expect(routed).toContain('MOD-DOH-11')
+    expect(unrouted).not.toContain('MOD-DOH-10')
+    expect(unrouted).not.toContain('MOD-DOH-11')
+    expect(dohScreenById('SCR-DOH-19').moduleId).toBe('MOD-DOH-10')
+    expect(dohScreenById('SCR-DOH-20').moduleId).toBe('MOD-DOH-11')
   })
 
   it('mints no three-digit SCR-DOH literal, in an id or anywhere in the file (D1)', () => {

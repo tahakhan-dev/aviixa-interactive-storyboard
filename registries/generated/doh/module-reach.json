@@ -12,6 +12,8 @@
     "MOD-DOH-07": "src/surfaces/doh/modules/doh-07/matrix.ts",
     "MOD-DOH-08": "src/surfaces/doh/modules/doh-08/matrix.ts",
     "MOD-DOH-09": "app/hub/permissions-roles-and-access/fixtures.ts",
+    "MOD-DOH-10": "src/surfaces/doh/modules/doh-10/matrix.ts",
+    "MOD-DOH-11": "src/surfaces/doh/modules/doh-11/matrix.ts",
     "MOD-DOH-12": "app/hub/integration-surface/fixtures.ts",
     "MOD-DOH-13": "app/hub/tenant-view-of-platform-administration/fixtures.ts",
     "MOD-DOH-14": "app/hub/qualification-calendar/fixtures.ts",
@@ -70,6 +72,18 @@
     "MOD-DOH-09": [
       "TENANT_ADMIN",
       "SUPERVISOR",
+      "QUALITY_MANAGER",
+      "READONLY_AUDITOR"
+    ],
+    "MOD-DOH-10": [
+      "TENANT_ADMIN",
+      "SUPERVISOR",
+      "QUALITY_MANAGER",
+      "READONLY_AUDITOR",
+      "WORKER"
+    ],
+    "MOD-DOH-11": [
+      "TENANT_ADMIN",
       "QUALITY_MANAGER",
       "READONLY_AUDITOR"
     ],

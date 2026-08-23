@@ -11,10 +11,13 @@ export * from './PermissionNotice'
 // same known limitation: `graphify affected` does not resolve a star
 // re-export through this barrel, so "who imports LockedControl" is not
 // answerable from the graph and every consumer must be named by its own task.
-// Consumers today: `tests/component/slice-10-locked-control.test.tsx` only.
-// The first screen consumer is slice 10 task 8, `MOD-DOH-10` at
-// `/hub/notifications`, which draws the preference storyboard's Always-sent
-// and Protected groups.
+// Consumers today: `app/hub/notifications/NotificationsScreen.tsx`, whose
+// payloads are built by `src/surfaces/doh/modules/doh-10/rendering.ts`, and
+// `tests/component/slice-10-locked-control.test.tsx`. This line read
+// "Consumers today: the test only" while that screen was already importing it
+// through this barrel — a stale claim about the one thing the star re-export
+// makes unanswerable from the graph, which is exactly why it has to be
+// maintained by hand and exactly how it went stale.
 export * from './LockedControl'
 
 // Task 4: form and table primitives.

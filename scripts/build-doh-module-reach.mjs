@@ -224,15 +224,36 @@ function matrixCandidates(module) {
  * for the last three. Every export whose name ends `MATRIX` is a candidate;
  * exactly one must be a non-empty array, so a file carrying two matrices
  * fails here instead of having one of them picked by property order.
+ *
+ * AND THE NAME IS NOT ENOUGH ON ITS OWN, WHICH `MOD-DOH-10` IS THE FIRST
+ * MODULE TO SHOW. Its file exports two: `CONTROL_MATRIX`, the role-keyed
+ * permission matrix, and `PREFERENCE_MATRIX`, the 30C.10 preference matrix
+ * keyed on POLICY LEVEL rather than on role. Both are real data and neither
+ * is a mistake, so "exactly one array whose name ends MATRIX" refused a
+ * correct module.
+ *
+ * The discriminator is the one the RULE itself reads, not a second name list:
+ * `rolesReachingByMatrix` filters on `row.surface === 'screen'`, so an array
+ * whose rows carry no `surface` classification is not a subject of the rule at
+ * all -- it cannot answer clause one, and `readerFor` below would pick a cell
+ * reader off its `cells` key and read a policy level as a role. So a candidate
+ * must ALSO carry the classification on every row. Two role-keyed control
+ * matrices in one file still fail here, which is what the refusal was for.
  */
+const isControlMatrix = (value) =>
+  Array.isArray(value) &&
+  value.length > 0 &&
+  value.every((row) => typeof row === 'object' && row !== null && 'surface' in row)
+
 function matrixIn(namespace, where, moduleId) {
   const found = Object.entries(namespace).filter(
-    ([name, value]) => name.endsWith('MATRIX') && Array.isArray(value) && value.length > 0,
+    ([name, value]) => name.endsWith('MATRIX') && isControlMatrix(value),
   )
   if (found.length !== 1) {
     throw new Error(
-      `${where} exports ${found.length} non-empty *MATRIX arrays (${found.map(([n]) => n).join(', ') || 'none'}). ` +
-        `Exactly one is required. Refusing to write a reach map that would withhold ${moduleId} ` +
+      `${where} exports ${found.length} non-empty *MATRIX arrays whose rows carry the \`surface\` ` +
+        `classification (${found.map(([n]) => n).join(', ') || 'none'}). Exactly one is required. ` +
+        `Refusing to write a reach map that would withhold ${moduleId} ` +
         'from every role because its matrix could not be found, or pick one of two by chance.',
     )
   }

@@ -105,10 +105,30 @@ import { StatusPill } from './StatusPill'
  */
 export interface LockedControlProps {
   /**
-   * The setting's own identifier — a notification category id such as
-   * `NOTIF-059`, or a policy level. Used for `data-locked-control` and to
-   * derive the `aria-labelledby` / `aria-describedby` ids deterministically,
-   * so this stays renderable from a server component.
+   * The setting's own identifier, QUALIFIED, and the qualification is a rule
+   * the component enforces rather than a convention. Three HTML ids and a
+   * `data-` attribute are derived from it, so it must be document-unique and
+   * usable as an `id`.
+   *
+   * A BARE REGISTER IDENTIFIER IS REFUSED, and this doc used to offer one as
+   * its example. `NOTIF-059` names two different notifications: the two
+   * registers in `@/registry/signals` both number from `NOTIF-001` and agree
+   * on none of their twenty-five overlapping names, which is why that module
+   * makes a bare `NOTIF-*` literal unholdable and hands out a branded
+   * `NotificationKey` instead. Two callers reading different registers would
+   * emit one id twice into one document — two locked controls sharing one
+   * `aria-labelledby` target, which is a rendering defect and an
+   * accessibility one at the same time. So `AAA-999` throws below and the
+   * caller must say which register it read: `ch30c2-NOTIF-059` is the form
+   * `MOD-DOH-10`'s preference screen passes.
+   *
+   * IT IS STILL `string`, NOT `NotificationKey`, AND THAT IS A DECISION.
+   * Taking the branded key would couple a generic UI primitive to one domain
+   * register, and the brand's own value is `register#IDENT` — a `#` and a `.`
+   * that no HTML id may carry — so the component would have to RE-ENCODE it,
+   * which is a second spelling of the qualification and the collision back
+   * again by another route. The rule is stated here and checked at run time;
+   * the type cannot express it without importing the register.
    */
   readonly controlId: string
   /** The setting, in the source's own words. Never blank. */
@@ -156,6 +176,25 @@ export function LockedControl({
       `LockedControl \`${controlId}\` needs a label and an inline reason: a locked control that ` +
         'states no reason is the disabled-control-with-no-explanation the preference storyboard ' +
         'refuses.',
+    )
+  }
+  // THE ID RULE, ENFORCED — see `controlId`'s doc for why. Two checks, and
+  // they catch the two things the prop's type cannot: an id that is not a
+  // usable HTML id (which is what passing a branded `NotificationKey` through
+  // would be, `#` and `.` and all), and a BARE register identifier, which
+  // names two rows when two registers number alike.
+  if (!/^[A-Za-z][A-Za-z0-9_-]*$/.test(controlId)) {
+    throw new Error(
+      `LockedControl \`${controlId}\` is not usable as an HTML id, and three ids and a data ` +
+        'attribute are derived from it. A branded register key is not an id — qualify it into one.',
+    )
+  }
+  if (/^[A-Za-z]+-\d+$/.test(controlId)) {
+    throw new Error(
+      `LockedControl \`${controlId}\` is a bare register identifier and does not identify one ` +
+        'row: two registers numbering from the same start collide on it, and two locked controls ' +
+        'would then share one id and one aria-labelledby target. Qualify it with the register — ' +
+        '`ch30c2-NOTIF-059`, not `NOTIF-059`.',
     )
   }
   const labelId = `${controlId}-locked-label`

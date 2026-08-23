@@ -1,4 +1,5 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, it, expect } from 'vitest'
 import {
   DOH_MODULES,
@@ -27,22 +28,27 @@ import {
 } from '@/surfaces/doh/access-conditions'
 import { DOH_SCREENS, dohScreenById } from '@/surfaces/doh/screens'
 import { DOH_SEAMS, dohSeamById } from '@/surfaces/doh/seams'
+import { isForeignProbe, presentOrNull } from '../probe-paths'
 
-describe('DOH_MODULES — the fifteen built modules', () => {
-  it('carries exactly fifteen modules, slugged not numbered', () => {
-    expect(DOH_MODULES).toHaveLength(15)
+describe('DOH_MODULES — the built modules', () => {
+  it('slugs every module rather than numbering it', () => {
+    // No count here: the membership list in the next case is the gate, and a
+    // second copy of the number is the class this build has already paid for
+    // twice on this very register.
+    expect(DOH_MODULES.length).toBeGreaterThan(0)
     for (const m of DOH_MODULES) {
       expect(m.slug, m.id).not.toMatch(/^SCR-DOH-\d+$/i)
       expect(m.slug, m.id).toMatch(/^[a-z0-9-]+$/)
     }
   })
 
-  it('names every built module in id order — the slice-4 eight plus the slice-6 seven', () => {
+  it('names every built module in id order — the slice-4 eight, the slice-6 seven, and slice 10’s two', () => {
     expect(DOH_MODULES.map((m) => m.id)).toEqual([
       'MOD-DOH-01', 'MOD-DOH-02', 'MOD-DOH-03', 'MOD-DOH-04',
       'MOD-DOH-05', 'MOD-DOH-06', 'MOD-DOH-07', 'MOD-DOH-08',
-      'MOD-DOH-09', 'MOD-DOH-12', 'MOD-DOH-13', 'MOD-DOH-14',
-      'MOD-DOH-15', 'MOD-DOH-16', 'MOD-DOH-19',
+      'MOD-DOH-09', 'MOD-DOH-10', 'MOD-DOH-11', 'MOD-DOH-12',
+      'MOD-DOH-13', 'MOD-DOH-14', 'MOD-DOH-15', 'MOD-DOH-16',
+      'MOD-DOH-19',
     ])
   })
 
@@ -83,8 +89,16 @@ describe('DOH_MODULES — the fifteen built modules', () => {
  * finding describing a tree that no longer exists.
  */
 describe('MatrixRowSurface — `another-surface` means "not this module’s own screen"', () => {
-  it('registers all three divergences, each naming where it lives and why', () => {
-    expect(MATRIX_ROW_SURFACE_DIVERGENCES).toHaveLength(3)
+  it('registers every divergence by its ruling, each naming where it lives and why', () => {
+    // A literal list rather than a length: a length is satisfied by any four
+    // findings at all, and this register's whole job is that a finding is not
+    // silently dropped when the row it describes is edited.
+    expect(MATRIX_ROW_SURFACE_DIVERGENCES.map((d) => d.ruling)).toEqual([
+      'right-for-reach-wrong-name',
+      'right-for-rendering-wrong-for-reach',
+      'narrower-than-the-definition',
+      'per-row-token-for-a-per-cell-fact',
+    ])
     for (const d of MATRIX_ROW_SURFACE_DIVERGENCES) {
       expect(d.where.length, d.where).toBeGreaterThan(10)
       expect(d.why.length, d.where).toBeGreaterThan(80)
@@ -163,9 +177,11 @@ describe('MatrixRowSurface — `another-surface` means "not this module’s own 
   })
 })
 
-describe('DOH_OUT_OF_SLICE_MODULES — the other four, not built here', () => {
-  it('carries exactly four, none overlapping the fifteen in-slice ids', () => {
-    expect(DOH_OUT_OF_SLICE_MODULES).toHaveLength(4)
+describe('DOH_OUT_OF_SLICE_MODULES — the ones with no route, not built here', () => {
+  it('names exactly the modules with no route, none overlapping the in-slice ids', () => {
+    // A literal list, for the reason the module list above carries one: this
+    // register has now shrunk twice behind a length that was edited to match.
+    expect(DOH_OUT_OF_SLICE_MODULES.map((m) => m.id)).toEqual(['MOD-DOH-17', 'MOD-DOH-18'])
     const inSlice: ReadonlySet<string> = new Set(DOH_MODULES.map((m) => m.id))
     for (const m of DOH_OUT_OF_SLICE_MODULES) {
       expect(inSlice.has(m.id), m.id).toBe(false)
@@ -178,8 +194,88 @@ describe('DOH_OUT_OF_SLICE_MODULES — the other four, not built here', () => {
     }
   })
 
-  it('together with the fifteen in-slice modules accounts for all nineteen canonical Hub modules', () => {
+  it('together with the routed modules accounts for all nineteen canonical Hub modules', () => {
     expect(DOH_MODULES.length + DOH_OUT_OF_SLICE_MODULES.length).toBe(19)
+  })
+
+  /**
+   * THE CLAIM `app/hub/HubShell.tsx` PRINTS OVER THIS REGISTER, MEASURED.
+   * The module index says "None is reachable from this build" over every row
+   * here, and that sentence was FALSE for a whole wave: slice 10 shipped
+   * `/hub/notifications` and `/hub/audit-and-retention` while `MOD-DOH-10`
+   * and `MOD-DOH-11` were still rows of this register, because the two route
+   * tasks correctly declined to edit a shared file. Defect shape 4 — a screen
+   * asserting an absence the build contradicts — on every reader of `/hub/`.
+   *
+   * The overlap check above cannot see it: neither module was in `DOH_MODULES`,
+   * so nothing overlapped. What makes the sentence false is a ROUTE, and a
+   * route is a directory under `app/hub/` with a `page.tsx`. So the authored
+   * tree is scanned for a row of this register, and the scan carries its own
+   * positive control — it must find a ROUTED module's id the same way, or a
+   * scan that reads nothing would pass this silently.
+   */
+  it('no authored Hub route serves a module this register calls unreachable', () => {
+    const APP_HUB = join(process.cwd(), 'app', 'hub')
+    // PROBE-AWARE, and this case plants nothing, so it should see no probe at
+    // all: a sibling gate's scratch directory is not an authored route, and
+    // listing one is how a walk ENOENTs on a path the planter has since
+    // removed.
+    const routes = readdirSync(APP_HUB, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && !isForeignProbe(e.name))
+      .filter((e) => existsSync(join(APP_HUB, e.name, 'page.tsx')))
+      .map((e) => e.name)
+    expect(routes.length, 'no authored Hub route found — the scan is broken').toBeGreaterThan(10)
+
+    const sourceOf = (route: string): string => {
+      const dir = join(APP_HUB, route)
+      return readdirSync(dir)
+        .filter((f) => /\.tsx?$/.test(f) && !isForeignProbe(f))
+        .map((f) => presentOrNull(() => readFileSync(join(dir, f), 'utf8')) ?? '')
+        .join('\n')
+    }
+    const ALL_ROUTE_SOURCE = routes.map(sourceOf).join('\n')
+
+    /**
+     * TWO EXACT SIGNALS, AND A PROSE MENTION IS NEITHER. A route naming a
+     * module id in a sentence is not serving it — `app/hub/execution-summary-
+     * review/` names `MOD-DOH-17` because `MOD-DOH-08` row 14 reads its
+     * forced-on half, which is a citation and not a route. So what is checked
+     * is the two ways a route actually serves a module:
+     *
+     *   (a) a route directory named by the module's own canonical name, which
+     *       is how both of slice 10's shipped-early routes appeared —
+     *       `/hub/notifications` and `/hub/audit-and-retention`; and
+     *   (b) any file under `app/hub/` claiming the module from the registry,
+     *       which is the only way a route can be handed a `DohModuleDefinition`.
+     *
+     * (a) is the one with a limit worth stating: a route whose slug diverges
+     * from its module's name (`execution-summary-review` is one) would not be
+     * caught by it. (b) has no such gap and cannot be written at all for a
+     * module outside `DohModuleId`, which is exactly why (a) is here.
+     */
+    const offenders = DOH_OUT_OF_SLICE_MODULES.flatMap((m) => {
+      const nameSlug = m.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      const found: string[] = []
+      if (existsSync(join(APP_HUB, nameSlug, 'page.tsx'))) {
+        found.push(`app/hub/${nameSlug}/ is a route and ${m.id} is called unreachable`)
+      }
+      if (ALL_ROUTE_SOURCE.includes(`dohModuleById('${m.id}')`)) {
+        found.push(`a Hub route claims ${m.id} from the registry and it is called unreachable`)
+      }
+      return found
+    })
+    expect(offenders).toEqual([])
+
+    // BOTH SIGNALS ARE LIVE, or the two absences above are a scan that read
+    // nothing. Each is exercised against a module that IS routed.
+    const routedByName = DOH_MODULES.filter((m) =>
+      existsSync(join(APP_HUB, m.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'), 'page.tsx')),
+    ).map((m) => m.id)
+    expect(routedByName, 'signal (a) matches no routed module').toContain('MOD-DOH-10')
+    const claimed = DOH_MODULES.filter((m) =>
+      ALL_ROUTE_SOURCE.includes(`dohModuleById('${m.id}')`),
+    ).map((m) => m.id)
+    expect(claimed, 'signal (b) matches no routed module').toContain('MOD-DOH-11')
   })
 })
 

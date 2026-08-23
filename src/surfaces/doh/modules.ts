@@ -46,6 +46,8 @@ export type DohModuleId =
   | 'MOD-DOH-07'
   | 'MOD-DOH-08'
   | 'MOD-DOH-09'
+  | 'MOD-DOH-10'
+  | 'MOD-DOH-11'
   | 'MOD-DOH-12'
   | 'MOD-DOH-13'
   | 'MOD-DOH-14'
@@ -156,7 +158,7 @@ export type MatrixRowSurface = 'screen' | 'chrome' | 'another-surface'
  * reading gets averaged instead of settled.
  *
  * Each is a FINDING, not a permission: nothing may cite a row here as
- * precedent for a fifth reading.
+ * precedent for a further reading.
  */
 export interface MatrixRowSurfaceDivergence {
   /** The file, rows or fold that reads the token differently. */
@@ -169,6 +171,12 @@ export interface MatrixRowSurfaceDivergence {
     | 'right-for-rendering-wrong-for-reach'
     /** Reads a fact off the token that the token does not carry. */
     | 'narrower-than-the-definition'
+    /**
+     * The token classifies the ROW and the fact is per CELL, so no single
+     * member of the union can be right for every role in that row. Neither a
+     * misnaming nor a misreading: the union has no member that would fit.
+     */
+    | 'per-row-token-for-a-per-cell-fact'
   readonly why: string
   readonly sourceRef: string
 }
@@ -194,6 +202,15 @@ export const MATRIX_ROW_SURFACE_DIVERGENCES = [
     ruling: 'narrower-than-the-definition',
     why: 'Correct on this card, and only because both of its `another-surface` rows are Command Center acts: row 5 reclassification and row 8 the Severity 1 lot-hold release, which is Command Center action 4 (L28304, L28307, L49578). It is not the definition. The token says only "not this screen", so the same fold over `MOD-DOH-05` row 8 or `MOD-DOH-15` row 3 would offer a Command Center link for a capability met on a Hub screen — and a routing pointer is read as a verified fact. The target belongs on the row (`metElsewhere`, `metInstead`, `boundary`), never on the token.',
     sourceRef: 'L28304 and L28307 (the two rows); L1600-L1606 (the five surfaces)',
+  },
+  {
+    where: '`MOD-DOH-10` rows 2, 5 and 11 (`@/surfaces/doh/modules/doh-10/matrix`, `metByRole`)',
+    reads:
+      'The row token cannot answer the question at all, so the module keeps `surface: \'screen\'` for the reach rule and carries the real answer per CELL in `metByRole`. Row 11 is met on this screen for three roles, on SURF-FL for the Worker, and refused to the Read-only Auditor; rows 2 and 5 are met here for four roles and on no screen the source names for the Worker.',
+    ruling: 'per-row-token-for-a-per-cell-fact',
+    why: 'This is the reading the other three entries do not cover, and it is not a misclassification to correct: one row needs three answers and the union has three members, none of which can be right for more than one of the roles in that row. `screen` is the only member that keeps clause one honest — classifying the rows `another-surface` withholds them from the reach rule and deletes this module’s only permissive rows from its own reach, which would hand the Hub a Notifications route nobody reaches. The per-cell pointer also separates an act met elsewhere from an act met NOWHERE, and only the first may draw a link: a routing pointer reads as a verified fact, and for the Worker on rows 2 and 5 there is nothing to verify it against. Under the ruling above, a fourth member `another-screen` still would not settle this one, because the defect is the token’s ARITY rather than its name.',
+    sourceRef:
+      'L28690, L28693 and L28699 (the rows); L28681 and L28710 (the Frontline inbox and any-channel acknowledgement); L68775 and L69696 (the two storyboards, one of which draws no preference control); L48113 and L26070 (the two catalogue rows)',
   },
 ] as const satisfies readonly MatrixRowSurfaceDivergence[]
 
@@ -667,6 +684,32 @@ export const DOH_MODULES = [
     rolesReaching: reachOf('MOD-DOH-09'),
   },
   {
+    id: 'MOD-DOH-10',
+    name: 'Notifications',
+    slug: 'notifications',
+    purpose:
+      'Carry operational and administrative facts to the right people on two channels, with a mandatory floor that cannot be silenced.',
+    // L28689-L28700, twelve data rows (L28687 is the header). Every row is
+    // `screen`; two of them — L28690 and L28693 — read `Allowed` for the
+    // Read-only Auditor against AC-AUTH-003 (L10426) and AC-DOH-011-2
+    // (L25695), which is recorded as `S10-DOH10-AUDITWRITE-001` in
+    // `@/disclosure/decisions` and as a divergence above.
+    rolesReaching: reachOf('MOD-DOH-10'),
+  },
+  {
+    id: 'MOD-DOH-11',
+    name: 'Audit and Retention',
+    slug: 'audit-and-retention',
+    purpose:
+      "Produce the tenant's single immutable evidence trail and hold it under the platform's no-purge lifecycle.",
+    // L28865-L28874, ten data rows (L28863 is the header). Row 1 gives the
+    // Quality Manager `Explicitly prohibited` while naming a permission in
+    // the same cell, and the next row grants that actor exactly those
+    // events; the module's own fold refuses the rendering unless the named
+    // row is the immediately next one.
+    rolesReaching: reachOf('MOD-DOH-11'),
+  },
+  {
     id: 'MOD-DOH-12',
     name: 'Integration Surface (Tenant Side)',
     slug: 'integration-surface',
@@ -804,22 +847,29 @@ export interface DohOutOfSliceModule {
 }
 
 /**
- * The other four of the Hub's nineteen canonical modules (spec §1's
+ * The remaining canonical Hub modules with no route in this build (spec §1's
  * exclusion table, `registries/generated/modules.json` for the names).
  * Rendered by the module index as "not in this slice", never silently
  * dropped, so name-matching cannot pull one back into this slice by
  * accident.
  *
- * IT WAS ELEVEN AND IT IS FOUR. Seven rows moved into `DOH_MODULES` above
- * when slice 6 landed — `MOD-DOH-05`, `06`, `07`, `08`, `15`, `16` and `19`,
- * every one of which had a built route or a built mount and a control matrix
- * under `src/surfaces/doh/modules/` while this list still called it out of
- * slice. `MOD-DOH-19`'s row had also gone stale in the other direction: it
- * read "not yet scheduled", and slice 6 shipped it.
+ * IT WAS ELEVEN, THEN FOUR, AND IT IS TWO — and every shrink has been the
+ * same defect caught late rather than a plan. Seven rows moved into
+ * `DOH_MODULES` when slice 6 landed — `MOD-DOH-05`, `06`, `07`, `08`, `15`,
+ * `16` and `19`, every one of which had a built route or a built mount and a
+ * control matrix under `src/surfaces/doh/modules/` while this list still
+ * called it out of slice. `MOD-DOH-19`'s row had also gone stale in the other
+ * direction: it read "not yet scheduled", and slice 6 shipped it.
+ *
+ * `MOD-DOH-10` and `MOD-DOH-11` moved for exactly the same reason: slice 10
+ * built `/hub/notifications` and `/hub/audit-and-retention`, and the two
+ * route tasks correctly declined to reach into this shared file, so for one
+ * wave the module index printed "None is reachable from this build" over two
+ * modules a reader could open. THE ROW IS NOT THE CLAIM; THE ROUTE IS. A row
+ * whose `ownedBy` names the CURRENT slice is the shape to check first —
+ * `MOD-DOH-18` below is one, and stays only because it has no route.
  */
 export const DOH_OUT_OF_SLICE_MODULES = [
-  { id: 'MOD-DOH-10', name: 'Notifications', ownedBy: 'Slice 10' },
-  { id: 'MOD-DOH-11', name: 'Audit and Retention', ownedBy: 'Slice 10' },
   {
     id: 'MOD-DOH-17',
     name: 'Regulated-Industry Mode',
@@ -845,14 +895,16 @@ export const DOH_OUT_OF_SLICE_MODULES = [
  * nothing may appear in both. `DohOutOfSliceModule.id` is a bare string by
  * design (these are OUT of the closed set), so this is the only check that
  * can catch a module being listed twice — the exhaustiveness check above
- * covers the in-slice fifteen and cannot see these four at all.
+ * covers the in-slice rows and cannot see these at all. Neither side is
+ * counted here: the counts on both lists have gone stale three times, and
+ * `tests/unit/doh-spine.test.ts` is where the inventory total is measured.
  */
 type InSliceId = (typeof DOH_MODULES)[number]['id']
 type OutOfSliceId = (typeof DOH_OUT_OF_SLICE_MODULES)[number]['id']
 type OverlappingModuleIds = Extract<OutOfSliceId, InSliceId>
 
 /**
- * The four ids `DOH_OUT_OF_SLICE_MODULES` names, narrowed to literals by
+ * The ids `DOH_OUT_OF_SLICE_MODULES` names, narrowed to literals by
  * the `as const satisfies` above rather than widened to the interface's
  * deliberate bare `string`.
  *
@@ -867,7 +919,9 @@ export type DohOutOfSliceModuleId = OutOfSliceId
 
 /**
  * The surface's whole canonical nineteen-module inventory as one union: the
- * eight with a route and the eleven without. Read by the screen registry,
+ * ones with a route and the ones without. It said "the eight with a route and
+ * the eleven without" through two waves that moved nine rows across the line,
+ * which is why neither side is counted here any more. Read by the screen registry,
  * which must name a module for catalogue-B rows whose module is not built
  * here — `SCR-DOH-10` names `MOD-DOH-05` whether or not slice 6 has landed
  * it yet, and inventing a second spelling for the unbuilt half is how a

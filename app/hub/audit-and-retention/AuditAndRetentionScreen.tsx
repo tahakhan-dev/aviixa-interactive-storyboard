@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { HubShell, type TenantRoleId } from '../HubShell'
 import { roleById } from '@/domain/roles'
+import { dohModuleById } from '@/surfaces/doh/modules'
 import { Button, StatusPill, Table, type TableRow } from '@/ui/primitives'
 import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import {
@@ -41,14 +42,14 @@ import { auditContext, SEEDED_AUDIT_EVENTS } from '@/surfaces/doh/modules/doh-11
  * the selector's output is the only list it has. It never receives the full
  * seeded register.
  *
- * ── WHY THE SHELL IS GIVEN `screen` AND NOT `module` ──────────────────────
- * `MOD-DOH-11` is still a row of `DOH_OUT_OF_SLICE_MODULES`, so there is no
- * `DohModuleDefinition` to hand the shell and the Hub rail does not offer
- * this route. That registration is `src/surfaces/doh/modules.ts`, which this
- * task does not own; it is reported rather than edited, and stated here
- * rather than left to look like a rendering choice. The annotation carries the
- * module id, the catalogue-B screen id and the route path, which is more than
- * the shell's `module` header prints.
+ * ── THE SHELL IS GIVEN `module`, AND IT WAS GIVEN `screen` FOR ONE WAVE ───
+ * `MOD-DOH-11` is a row of `DOH_MODULES` and `SCR-DOH-20` is a row of
+ * `@/surfaces/doh/screens`, so the shell draws the module header, the
+ * breadcrumb and the rail entry. This doc used to say the opposite — that the
+ * module was still on the out-of-slice register and the rail offered nothing —
+ * because that registration was another task's file; slice 10 task 12 made it,
+ * and `HubShellUncataloguedScreen` is documented for a route that owns NO
+ * module, so it could not stay here once the module owned one.
  */
 
 export const SCREEN_TITLE = 'Audit log explorer'
@@ -208,12 +209,7 @@ export function AuditAndRetentionScreen() {
 
   return (
     <HubShell
-      screen={{
-        title: SCREEN_TITLE,
-        annotation: 'MOD-DOH-11 · SCR-DOH-20 · /hub/audit-and-retention',
-        purpose:
-          'Produce the tenant’s single immutable evidence trail and hold it under the platform’s no-purge lifecycle.',
-      }}
+      module={dohModuleById('MOD-DOH-11')}
       role={role}
       onRoleChange={setRole}
     >

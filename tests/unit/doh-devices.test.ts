@@ -84,8 +84,11 @@ describe('the device screen — uncatalogued, and claiming no module (D4, D5)', 
     const slugs: readonly string[] = DOH_MODULES.map((m) => m.slug)
     expect(slugs).not.toContain('devices')
     // Non-vacuity: the spine is populated, so "no module claims it" is a real
-    // answer rather than an empty registry answering itself.
-    expect(DOH_MODULES).toHaveLength(15)
+    // answer rather than an empty registry answering itself. A FLOOR, not the
+    // count: this line was the exact count and went stale the moment slice 10
+    // routed two more modules, which is a stale number in a test that has
+    // nothing to do with how many modules there are.
+    expect(DOH_MODULES.length).toBeGreaterThan(10)
     expect(DOH_SCREENS.length).toBeGreaterThan(10)
     // And the module-id scan is live: it finds one in a sibling directory.
     expect(

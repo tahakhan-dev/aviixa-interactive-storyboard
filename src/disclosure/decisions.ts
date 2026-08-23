@@ -1,5 +1,12 @@
 /**
- * The open-decision canon, for every surface: **forty-three records** today.
+ * The open-decision canon, for every surface. HOW MANY IS NOT WRITTEN HERE:
+ * this line said "forty-three records today", and a count of a list in the
+ * doc comment above the list is a hand-maintained copy of a derived answer —
+ * the class that reached twenty-nine copies in this tree before slice 10
+ * consolidated it into one membership gate in
+ * `tests/unit/surface-neutral.test.ts`. That gate is a literal list of ids and
+ * it is the only place the population is asserted.
+ *
  * Twenty-nine were raised while `SURF-STU` was built and none of them owned by
  * it. Slice 5 shipped this file under `src/studio/`; it moved here unchanged in
  * substance because a decision is a property of the SOURCE, not of the screen
@@ -22,6 +29,12 @@
  *    recommendation, a trade-off and an owner wins. `S10-IDENT-SCHED-001`
  *    registers the scheduler identity spellings the same way and MINTS NO
  *    `DEC-*` IDENTIFIER, because the source raises no decision for it.
+ *  - **A second build-local key, on a conflict between a matrix and a named
+ *    criterion.** `S10-DOH10-AUDITWRITE-001`: `MOD-DOH-10`'s matrix grants the
+ *    Read-only Auditor two writes (L28690, L28693) and `AC-AUTH-003` (L10426)
+ *    and `AC-DOH-011-2` (L25695) refuse the role any write anywhere in the Hub.
+ *    Same treatment and same reason -- `decisionRef: null`, no `DEC-*` minted,
+ *    because the source records the collision and raises no decision for it.
  *  - **A record with NO readings at all.** `DEC-FINISH-002` occurs twice in
  *    122,241 lines and neither occurrence says what the two readings are. The
  *    absence IS the disclosure, so the record carries none and states that.
@@ -100,6 +113,7 @@ export type DecisionId =
   | 'DEC-FINISH-002'
   | 'DEC-CMDEXP-001'
   | 'S10-IDENT-SCHED-001'
+  | 'S10-DOH10-AUDITWRITE-001'
 
 /**
  * One reading of the source, and where it is. **Exactly two fields.** There is
@@ -1089,13 +1103,40 @@ export const OPEN_DECISIONS = [
       'Spelling (a) is registered canonical and the re-spellings of the same two identities are registered as its aliases, so a search on any of them reaches this record; no `DEC-*` identifier is minted, because the source raises none and a build-minted decision identifier is worse than a build-local key. (a) wins on the same criterion the alias pairs use: it is the only spelling carrying the identity contract, and that contract is what an audit reader needs. Spelling (c)’s six per-purpose workers are disclosed and NOT aliased onto the single worker identity, because they are a decomposition rather than a second name — collapsing six identities into one alias would hide a real structural difference the client has to decide about. Why the collision is not cosmetic, in the source’s own rule: the audit “records identity and action, never ‘acting as role’”, so an audit row keyed on one spelling is unfindable by a search on another, and three spellings across three chapters is three unfindable populations.',
     pins: [],
   },
+  {
+    id: 'S10-DOH10-AUDITWRITE-001',
+    // A BUILD-LOCAL KEY, SAME GROUND AS `S10-IDENT-SCHED-001`. The source
+    // raises no decision for this collision, so `decisionRef` is null and no
+    // `DEC-*` identifier is minted -- minting one would put a decision
+    // identifier into a register the client would then search the source for
+    // and not find. `S10-` does not occur in the frozen source.
+    decisionRef: null,
+    alias: null,
+    question:
+      'May a Read-only Auditor write, when MOD-DOH-10’s permission matrix grants that role two writes and two acceptance criteria say the role writes nothing anywhere?',
+    readings: [
+      {
+        text: 'The matrix grants them. `MOD-DOH-10` row 2, "Set own channel preferences within policy", and row 5, "Mute a digest section", both read `Allowed` in the Read-only Auditor column — the same value they carry for all five roles. Both acts are writes; every one of the twelve acts on that card is a write, so neither cell can be read as a permissive value landing on a read.',
+        locator: 'MOD-DOH-10 row 2 · L28690 · row 5 · L28693 (header L28687)',
+      },
+      {
+        text: 'Two acceptance criteria refuse them, in both of the terms that matter — the capability and the rendering. `AC-AUTH-003`: "The Read-only Auditor holds no write capability anywhere and no Client Command Center access at all." `AC-DOH-011-2`: "A Read-only Auditor session renders no write control anywhere in the Hub, including in the tenant administration area." Neither carves out a preference, and the second is about what a session DRAWS, so it cannot be satisfied by permitting the act and hiding the control.',
+        locator: 'AC-AUTH-003 · L10426 · AC-DOH-011-2 · L25695',
+      },
+    ],
+    adopted:
+      'Neither reading is presented as the answer, and the build declines the one action that would decide it silently: no live write control renders for this role on those two rows. They render LOCKED — visible, inoperable, with both criteria named inline and the matrix cell quoted beside them — which is a client-delegated choice under APP-012 rather than a claim the source settled it. The asymmetry is deliberate and is the whole reason this is not a coin toss: rendering the control would ship a failure of two NAMED criteria, while withholding it contradicts a matrix cell that no criterion cites. The same two criteria also decide the opposite-shaped case on the same card — L28699 gives that role `Read-only` on acknowledgement, a token that would otherwise render as disabled-for-now over an act withheld always — so the pair is load-bearing in both directions and cannot be read as boilerplate.',
+    pins: [],
+  },
 ] as const satisfies readonly OpenDecision[]
 
 /**
  * The ids as a closed set in their own right, with the same real
- * exhaustiveness check every vocabulary in `@/studio/vocab` carries: adding a
- * forty-fourth id to the union without listing it here stops `Exclude`
- * resolving to `never` and fails the type-check.
+ * exhaustiveness check every vocabulary in `@/studio/vocab` carries: an id
+ * added to the union and not listed here stops `Exclude` resolving to `never`
+ * and fails the type-check. (It named an ordinal — "a forty-fourth id" — which
+ * is the canon's size wearing a different grammar, and went stale on the next
+ * record.)
  *
  * It is declared as its own literal list rather than mapped off
  * `OPEN_DECISIONS`, because a check derived from the array it is meant to
@@ -1145,6 +1186,7 @@ export const OPEN_DECISION_IDS = [
   'DEC-FINISH-002',
   'DEC-CMDEXP-001',
   'S10-IDENT-SCHED-001',
+  'S10-DOH10-AUDITWRITE-001',
 ] as const satisfies readonly DecisionId[]
 
 const _decisionIdsExhaustive: Exclude<DecisionId, (typeof OPEN_DECISION_IDS)[number]> extends never ? true : never = true

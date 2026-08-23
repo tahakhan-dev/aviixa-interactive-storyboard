@@ -59,11 +59,18 @@ interface Fixture {
  * The two locked groups `SB-PREF-01` draws. `NOTIF-059` is the category the
  * illustrative example locks by name; `NOTIF-009` is the first member of the
  * non-disableable set the same section enumerates.
+ *
+ * BOTH IDS CARRY THEIR REGISTER, and they used to be the bare `NOTIF-*`
+ * literals — the same unqualified form `LockedControl`'s own doc offered as
+ * its example. `@/registry/signals` holds two registers that both number from
+ * `NOTIF-001` and agree on none of their twenty-five overlapping names, so a
+ * bare literal names two rows; the component now refuses one, and these
+ * fixtures use the `ch30c2-` prefix `MOD-DOH-10`'s screen passes.
  */
 const FIXTURES: readonly Fixture[] = [
   {
     name: 'Always sent — nothing remains',
-    controlId: 'NOTIF-009',
+    controlId: 'ch30c2-NOTIF-009',
     label: 'Safety-critical notification',
     settingValue: 'Always sent',
     reason: ALWAYS_SENT_REASON,
@@ -71,7 +78,7 @@ const FIXTURES: readonly Fixture[] = [
   },
   {
     name: 'Protected — email frequency remains',
-    controlId: 'NOTIF-059',
+    controlId: 'ch30c2-NOTIF-059',
     label: 'Containment checklist incomplete',
     settingValue: 'Always sent, in-app and email',
     reason: PROTECTED_SENTENCE,
@@ -191,6 +198,32 @@ describe('LockedControl — visible, inoperable by construction, reason inline',
     expect(() => render(<LockedControl {...base} reason="" />)).toThrow(/inline reason/)
     cleanup()
     expect(() => render(<LockedControl {...base} label=" " />)).toThrow(/label/)
+  })
+
+  /**
+   * THE ID RULE, WHICH THE PROP'S TYPE CANNOT EXPRESS. `controlId` becomes
+   * three HTML ids and a data attribute, so it has to be a usable id AND
+   * document-unique. A bare `NOTIF-059` is neither: two registers in
+   * `@/registry/signals` both number from `NOTIF-001`, so two callers reading
+   * different registers emit one id twice — two locked controls sharing one
+   * `aria-labelledby` target. Refused at both ends, and the qualified form the
+   * fixtures use is asserted to pass, so this is a rule rather than a ban.
+   */
+  it('refuses a bare register identifier and an id no element could carry', () => {
+    const base = FIXTURES[0]!
+    expect(() => render(<LockedControl {...base} controlId="NOTIF-059" />)).toThrow(
+      /bare register identifier/,
+    )
+    // The branded key's own value, passed straight through: `#` and `.` are
+    // not id characters, and re-encoding it inside the component would be a
+    // second spelling of the qualification.
+    expect(() =>
+      render(<LockedControl {...base} controlId="ch-30c.2-categories#NOTIF-059" />),
+    ).toThrow(/not usable as an HTML id/)
+    // Non-vacuous: the qualified form renders, and its derived ids resolve.
+    const node = renderFixture(base)
+    expect(node.getAttribute('data-locked-control')).toBe('ch30c2-NOTIF-009')
+    expect(resolveIdRefs(node, 'aria-labelledby').length).toBeGreaterThan(0)
     cleanup()
   })
 
@@ -248,7 +281,7 @@ describe('LockedControl is none of the three renderings it sits beside', () => {
 
     const node = renderFixture(FIXTURES[0]!)
     expect(node.textContent).toContain('Locked')
-    expect(node.getAttribute('data-locked-control')).toBe('NOTIF-009')
+    expect(node.getAttribute('data-locked-control')).toBe('ch30c2-NOTIF-009')
   })
 
   it('needs no client runtime — the module declares no `use client`', () => {

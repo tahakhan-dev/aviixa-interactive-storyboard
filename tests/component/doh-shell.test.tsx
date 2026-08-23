@@ -457,9 +457,14 @@ describe('HubShell — the rail offers only the modules the persona actually rea
     const rail = screen.getByRole('navigation', { name: 'Hub modules' })
     const reached = dohModulesReachedBy('TENANT_ADMIN')
     expect(within(rail).getAllByRole('link')).toHaveLength(reached.length)
-    // Fourteen of the fifteen: only `MOD-DOH-08` withholds from this role,
-    // and it withholds by its own matrix rather than by anything here.
-    expect(reached).toHaveLength(14)
+    // Every registered module except `MOD-DOH-08`, which withholds from this
+    // role by its own matrix rather than by anything here. Named rather than
+    // counted: the count was `14` of a fifteen-module registry and went stale
+    // the moment slice 10 registered two more, while the fact it stood for —
+    // exactly one module withholds — is what this case is about.
+    expect(
+      DOH_MODULES.filter((m) => !reached.some((r) => r.id === m.id)).map((m) => m.id),
+    ).toEqual(['MOD-DOH-08'])
   })
 })
 
