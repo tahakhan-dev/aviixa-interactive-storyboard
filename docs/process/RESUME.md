@@ -286,10 +286,19 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-**Slice 9 is closed and verified. Slice 10 waves 0, 1 and 2 are closed, twenty-five commits.**
-Measured on the current tree, every figure from a run rather than recollection: typecheck and
-lint clean · gate-ordering 24/24 · freshness 2 · **unit 5124** · **component 2580** · **build
-100/100 static pages** · **release 735** · **e2e/axe 535**, with the axe-states spec alone at 111.
+**Slice 10 is closed and verified.** `pnpm verify` ran the whole chain to completion on frozen
+bytes and exited 0. The candidate is commit `4072d33`, tree `c934f45`, clean before and after.
+Measured on that candidate, every figure from that run rather than recollection: typecheck and
+lint clean · gate-ordering 24/24 · freshness 2 · **unit 5139** · **component 2600** · **build
+100/100 static pages** · **release 767** · **e2e/axe 535 in 7.7m**. The record is
+`docs/process/2026-08-23-slice-10-verification.md`.
+
+**Slice 11 is the next slice, and its re-plan scope note is stale in a way that changes the work.**
+The re-plan calls wave 2 "modules (5)" and says `app/command-center` and `app/frontline` hold one
+`page.tsx` each with no module routes. Measured on this tree: slice 9 shipped all thirteen Command
+Center module routes including `cc-05` through `cc-08`, and slice 7 shipped `MOD-FL-B8`. **Slice 11
+is an overlay slice.** What is genuinely absent is the five AI mechanisms — `grep -rl` over `src`
+and `app` returns nothing for `AIMODE`, nothing for `FAIL-AI`, nothing for `PROV-1`.
 
 Wave 2 put `MOD-DOH-10` on `/hub/notifications` and `MOD-DOH-11` on
 `/hub/audit-and-retention`, `MOD-DOH-18` as a routeless component, and the two uncatalogued
@@ -351,10 +360,15 @@ proved mechanically rather than argued.
 - **The occurrence outcome has two source vocabularies with no cross-reference** — 15
   lifecycle-diagram nodes, the set wave 0 shipped, against 12 inline at L102559, only four names
   common. Read strictly, `AC-SCHED-372` excludes the shipped set. Both render, neither preferred.
-- **`tests/accessibility/axe-states.spec.ts` carries a stale claim and three stale counts** in
-  its own comments: it says `SaConsoleShell` renders a reviewer control, which the same file's
-  `/super-admin/` exemption reason contradicts. Wants a controller pass.
-- The screenshot manifest, still 85 routes against a 100-route export.
+- The screenshot manifest, **85 rows against a 100-route export**, re-measured on the slice-10
+  candidate. Controller-owned, because `pnpm screenshots` writes committed files.
+
+**Two entries that stood here were already fixed, and this list was stale about both.** The
+`toHaveLength(81)` in `tests/coverage/slice-09-gates.test.ts` is a property test now (line 1582),
+and the `SaConsoleShell` claim in `tests/accessibility/axe-states.spec.ts` was corrected (line 405).
+Both were checked individually against the candidate rather than trusted. **Removed rather than
+renumbered** — a resume brief stale about its own outstanding list is the same defect class as a
+stale count on a screen.
 - The two generator defects for task 13, unchanged: `notifications.json` blends two registers and
   silently drops 25 rows, and `SOURCE_CLASSIFICATIONS` claims a frozen-source vocabulary while
   omitting a label used on 391 lines and spelling one that occurs zero times.
@@ -550,6 +564,53 @@ count the enumeration.**
 `FEAT-CC-0603` names three different things because §25's inventory allocates exactly three
 features per module (thirty-nine for thirteen) while §21.9 specifies five for one of them — so its
 names run one identifier ahead and two features get no row at all.
+
+### Slice 11 pre-verification — three agents, nineteen locator errors, before a line was written
+
+Every locator cluster in the slice-11 re-plan was opened by an independent agent before the common
+brief was written. **Every row count in the re-plan is correct.** Almost every line number is not,
+and the errors have one direction.
+
+**The systematic shape: nine of eleven single-row locators are short by one or two lines and name
+the row above the intended one**, and all six module-card end lines land on a blank line or a `---`
+rule past the last content line. An off-by-one locator still looks right, because the row above a
+permission row is usually another permission row — which is how a paraphrase of the wrong cell
+survives review. Corrected card content-ends: **37822 · 37467 · 37247 · 37630 · 41596 · 44696**.
+
+**Five findings that change what gets built.**
+
+1. **`AC-43-403` is a wrong-chapter citation.** The provenance fail-closed rule — a `PROV-1` element
+   that cannot produce an agent run identifier renders `PROV-6` — is **`AC-42-403` at L89480**. The
+   real `AC-43-403` (L91373) is about model quarantine and provider failover being beyond §8.7.1.
+   A 42/43 identifier collision, and the highest-risk locator in the slice.
+2. **`MOD-SA-07` appears nowhere in chapter 43.** Its 711-line card was swept: three tables, no role
+   axis anywhere, one permission token in the whole span and that one in prose. The 15-row matrix at
+   L91284-L91298 is captioned "Authority matrix for the console's failure-response controls" and its
+   axis is `Control`. **The module attribution is a build inference and renders as one.**
+3. **`FB-AI-01` carries four meanings, not two** — boundary violation (L88916), storyboard 1
+   (L92793), AI-degraded-or-paused (L46951), trace-store unavailability (L74495) — and the fourth
+   collides with `FB-AI-12`'s own definition (L88927). Storyboard 44A.12's card then claims
+   `FB-AI-12` itself (L93730). **The collision is not confined to the FB-AI-01…16 range.**
+4. **The worker-surface pause state is a blocker, not a trap.** §40.15 (L87854) rules the Frontline
+   surface shows nothing at all about the pause; §42.3 requires the chip to read "Live coaching
+   paused by the platform", corroborated three ways (L89289, L89348, L89368/L89369). **Both marked
+   `Derived Clarification`; neither outranks the other on provenance.** Disclose both, obey neither.
+5. **Four prohibitions lack a refusal edge, not three.** The re-plan names #3, #10 and #11 and misses
+   **#12, broaden permissions through failover**, modelled at L87985-L87987 as three dotted
+   `does not alter` non-effects rather than a refusal. The diagram is L87965-**L87988**; L87990 is
+   the caption, outside the fence.
+
+**And one alias pair the repo already half-shipped.** `DEC-GATE-001`'s third governance value is
+spelled `none — reasoning agent` on **21** lines and `no governance gate` on **4**. The repo's
+`GovernanceBinding` union member is the 4-occurrence spelling
+(`src/studio/modules/stu-02/agents.ts:88`). Both are real source literals for one value, so it is an
+alias pair on the slice-10 pattern — not a correction. The re-plan cites the adoption at L89448,
+which is a **Mermaid edge**; the adoption is at L9678, L21514, L21616, L22650, L22721, L25280, and
+the card is at L37041.
+
+**A process note on the graph.** `graphify query` returned `loc=L48386` for `MOD-CC-05`, `MOD-CC-06`
+*and* `MOD-CC-08` — three modules sharing one wrong line. It was discarded as evidence and every
+figure above came from the document, which is §2a's rule doing exactly what it exists to do.
 
 ## 9. The closing obligation
 
