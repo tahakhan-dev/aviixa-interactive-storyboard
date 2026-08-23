@@ -27,6 +27,7 @@
  */
 
 import { allow } from '@/policy/decision'
+import { ProvenanceMark } from '@/ui/shared/ProvenanceMark'
 import { WriteControl } from '@/ui/WriteControl'
 import { ccFallbackPatternById } from '@/surfaces/cc/fallback/patterns'
 import { CC_FROZEN_CONTROL_REASON } from '@/surfaces/cc/fallback/session'
@@ -65,6 +66,17 @@ import {
   type Cc05GateItem,
 } from './queue'
 import {
+  CC05_AI07,
+  CC05_AI07_ATTRIBUTES,
+  CC05_GATE_DECISION_NOTE,
+  CC05_GATE_DECISION_ROW,
+  CC05_PERSISTENCE_PROVENANCE,
+  CC05_PROPOSING_AGENT,
+  CC05_STATE_PROVENANCE,
+  cc05DegradationFold,
+  cc05EmptyQueueReading,
+} from './degradation'
+import {
   CC05_DIVERGENCES,
   CC05_FOREIGN_FALLBACK_NAMES,
   CC05_INVENTORY_ROW,
@@ -74,13 +86,17 @@ import {
 /**
  * `MOD-CC-05` — THE GOVERNANCE GATE QUEUE, RENDERED.
  *
- * A SERVER COMPONENT, AND IT MUST NOT ACQUIRE `'use client'`. Everything it
- * renders comes from `./matrix.ts`, `./queue.ts`, `./readings.ts` and four
- * wave-0 modules, every one of which exports plain data objects. A `'use
- * client'` directive on this file or on any of those would replace those
- * exports with client references and the strings would be gone by the time a
- * route prerenders — the defect that put an undefined module id into four
- * built pages in slice 7 while every component test stayed green.
+ * THIS BLOCK USED TO OPEN "A SERVER COMPONENT, AND IT MUST NOT ACQUIRE `'use
+ * client'`", WHICH LINE 1 OF THIS FILE CONTRADICTS. The panel is a client
+ * component, for the reason the block above line 1 gives at length, and the
+ * two paragraphs disagreed in one file. The rule the sentence was reaching for
+ * is real and it is about the DATA modules, not about this one: `./matrix.ts`,
+ * `./queue.ts`, `./readings.ts`, `./degradation.ts` and the wave-0 modules
+ * behind them export plain data objects and must not acquire `'use client'`
+ * themselves. A directive on any of those replaces their exports with client
+ * references, and their strings are gone by the time a route prerenders — the
+ * defect that put an undefined module id into four built pages in slice 7
+ * while every component test stayed green.
  *
  * ── THE ONE THING THIS SCREEN EXISTS TO GET RIGHT ────────────────────────
  *
@@ -239,6 +255,160 @@ function GateCard({ item }: { readonly item: Cc05GateItem }) {
         an optional note.
       </p>
     </article>
+  )
+}
+
+/**
+ * WHAT THE QUEUE IS WHEN THE AGENT THAT FILLS IT IS DEGRADED, PAUSED OR GONE.
+ *
+ * Every value here comes from `./degradation.ts`, which consumes `AI-07`'s own
+ * attribute row rather than restating it. Three things are drawn and each
+ * answers a question the rest of this panel does not:
+ *
+ *  1. `AI-07`'s human approval, validation gate, expiry and safe stop, whole.
+ *     The expiry is the one that decides the empty state below.
+ *  2. The pending item under all sixteen operating modes. The guarantee cell
+ *     is COMPOSED FROM the standing's own fields rather than written out, so a
+ *     field that ever changed would change the sentence on screen — a screen
+ *     printing "never expired" from a string constant would keep printing it.
+ *  3. What an empty queue means, which is two different things and depends on
+ *     whether the mode lets the agent raise anything.
+ *
+ * ONE PROVENANCE CLASS, AND THE ELEMENT DECLARES ITSELF SO THE LINT CAN SEE
+ * IT. Everything below is the source's own tables compared against a mode, so
+ * the class is the deterministic one; `data-guidance-element` puts this region
+ * into `provenanceViolations`' population, without which a component suite
+ * asserting "no violations" passes on a panel carrying no marks at all.
+ */
+function CellText({ flag, whenTrue, whenFalse }: {
+  readonly flag: boolean
+  readonly whenTrue: string
+  readonly whenFalse: string
+}) {
+  return <>{flag ? whenTrue : whenFalse}</>
+}
+
+function DegradationOverlay() {
+  const fold = cc05DegradationFold(CC05_STORYBOARD_ITEM)
+
+  return (
+    <section
+      data-testid="cc-05-degradation"
+      data-guidance-element={`${CC05_MODULE.id} under artificial-intelligence degradation`}
+    >
+      <h2 className={H2}>Under artificial-intelligence degradation</h2>
+
+      <ProvenanceMark
+        classId={CC05_PERSISTENCE_PROVENANCE}
+        statement={
+          'Everything in this section is the source’s own tables compared against an ' +
+          'operating mode. No model is in the path, so none of it is live artificial ' +
+          'intelligence and none of it may be labelled as such.'
+        }
+      />
+
+      {/* ───────────── AI-07'S OWN ROW, CONSUMED ───────────── */}
+      <p className={NOTE}>
+        The proposals in this queue are {CC05_AI07.id} &mdash; {CC05_AI07.title} &mdash; raised by{' '}
+        {CC05_PROPOSING_AGENT.name}, whose roster row binds it to{' '}
+        <code>{CC05_PROPOSING_AGENT.governanceBinding}</code> ({CC05_PROPOSING_AGENT.sourceRef}).
+        The ability register&rsquo;s own attributes are below, whole and unedited; this module
+        holds no second copy of them.
+      </p>
+      <dl data-testid="cc-05-ai07" className="mt-2 space-y-2">
+        {CC05_AI07_ATTRIBUTES.map((attribute) => (
+          <div key={attribute.attribute} data-testid={`cc-05-ai07-${attribute.attribute}`}>
+            <dt className="text-sm font-medium">{attribute.label}</dt>
+            <dd className={NOTE}>{attribute.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className={REF}>
+        {CC05_AI07.id} &middot; {CC05_AI07.sourceRef}. The gate never executes on its own, and no
+        failure state changes that.
+      </p>
+
+      {/* ───────────── THE SIXTEEN MODES ───────────── */}
+      <table data-testid="cc-05-degradation-table" className="mt-4 w-full text-left text-sm">
+        <caption className={`${NOTE} caption-bottom`}>
+          The same raised item under every operating mode the platform declares. The agent
+          invocation column is the only one that varies; the item&rsquo;s standing is the same
+          sentence on every row, and that repetition is the statement.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" className="pr-3">Mode</th>
+            <th scope="col" className="pr-3">Agent invocation</th>
+            <th scope="col" className="pr-3">A raised item</th>
+            <th scope="col">An empty queue</th>
+          </tr>
+        </thead>
+        <tbody>
+          {fold.map((standing) => (
+            <tr
+              key={standing.mode}
+              data-testid={`cc-05-persistence-row-${standing.mode}`}
+              className="align-top"
+            >
+              <th scope="row" className="pr-3 font-normal">
+                {standing.mode} &middot; {standing.modeName}
+              </th>
+              <td data-testid={`cc-05-invocation-${standing.mode}`} className="pr-3">
+                {standing.agentInvocation}
+              </td>
+              <td data-testid={`cc-05-standing-${standing.mode}`} className="pr-3">
+                <CellText
+                  flag={standing.stillInQueue}
+                  whenTrue="Stays in the queue"
+                  whenFalse="Leaves the queue"
+                />
+                {'; '}
+                <CellText
+                  flag={standing.selfApproved}
+                  whenTrue="self-approved"
+                  whenFalse="never self-approved"
+                />
+                {', '}
+                <CellText
+                  flag={standing.selfDeclined}
+                  whenTrue="self-declined"
+                  whenFalse="never self-declined"
+                />
+                {', '}
+                <CellText flag={standing.expired} whenTrue="expired" whenFalse="never expired" />
+                {'. The decision stays human: '}
+                {standing.humanApproval}
+              </td>
+              <td data-testid={`cc-05-empty-${standing.mode}`}>
+                {cc05EmptyQueueReading(standing.mode).statement}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* ───────────── DEC-GATE-001, BY REFERENCE ───────────── */}
+      <div data-testid="cc-05-gate-decision" className="mt-4">
+        <p className={NOTE}>
+          <code>{CC05_GATE_DECISION_ROW.id}</code> &mdash; {CC05_GATE_DECISION_ROW.status}.
+          Decision owner: {CC05_GATE_DECISION_ROW.owner}. Where it appears:{' '}
+          {CC05_GATE_DECISION_ROW.whereItAppears}.
+        </p>
+        <p className={REF}>{CC05_GATE_DECISION_NOTE}</p>
+      </div>
+
+      {/* ───────────── THE SEAM, NAMED WITH ITS OWNER ───────────── */}
+      <p data-testid="cc-05-live-mode-seam" className={REF}>
+        This storyboard holds no live operating mode, so no single degraded state is claimed here
+        and the table above speaks about all sixteen instead. A connected build&rsquo;s mode
+        source is the seam: whoever supplies the current mode to this surface also owes the
+        one-line state this panel would then draw, and that line carries{' '}
+        <code>{CC05_STATE_PROVENANCE}</code>, the class the agent degradation contract already
+        resolved for a degraded state &mdash; not the deterministic class the table above carries.
+        Drawing that line now, with nothing to derive it from, would assert a platform state this
+        build cannot observe.
+      </p>
+    </section>
   )
 }
 
@@ -507,6 +677,8 @@ export function GovernanceGateQueue() {
         Items already raised remain fully decidable, including during an emergency pause, because
         the human authority does not depend on the agent that raised the item (L37167).
       </p>
+
+      <DegradationOverlay />
 
       {/* ─────────────────── THE OPERATIONAL ACTIONS ────────────────────── */}
       <h2 className={H2}>Operational actions exercised here</h2>
