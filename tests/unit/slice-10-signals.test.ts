@@ -510,47 +510,75 @@ describe('the command catalogue — sixteen counted, and the source agrees', () 
   })
 })
 
-describe('the generated notification registry loses twenty-five rows', () => {
+describe('the generated notification registry holds both registers — 112, not 87', () => {
   /**
-   * REPORTED FOR TASK 13, and asserted here so the repair is measurable rather
-   * than remembered. `registries/generated/notifications.json` deduplicates on
-   * the identifier alone, so the twenty-five identifiers both registers claim
-   * appear ONCE. The surviving row takes the LOWEST locator, which is Chapter
-   * 27.7's — so the file's 87 plain `NOTIF-*` rows are 25 rows of one register
-   * blended with 62 of the other, and it reads as complete.
+   * REPORTED FOR TASK 13 AND NOW REPAIRED BY IT. This block asserted the
+   * DEFECT so the repair would be measurable rather than remembered:
+   * `registries/generated/notifications.json` deduplicated on the identifier
+   * alone, so the twenty-five identifiers both registers claim appeared ONCE,
+   * the surviving row took the LOWEST locator (Chapter 27.7's), and the file's
+   * 87 plain `NOTIF-*` rows were 25 rows of one register blended with 62 of
+   * the other while reading as complete.
    *
-   * When task 13 keys the registry on the register as well as the identifier,
-   * this block should be updated to 112 and the blend assertions dropped.
+   * Task 13 keyed it on (register, identifier). The three assertions below are
+   * the same three claims turned round: the count is 112, the blend is gone
+   * because BOTH registers' locator bands are fully present, and the `register`
+   * field now names the two chapters it used not to.
+   *
+   * WHY THIS IS NOT A COUNT CHECK THAT PASSES ON THE DEFECT TOO. 112 alone
+   * would be satisfied by any 112 rows, and this build's catalogue of gates
+   * that could not fail already holds "a count check true of both the defect
+   * and the fix". So the decisive assertion is the SECOND one, which counts
+   * each register's band separately: the defect scored 25 and 62, the fix
+   * scores 25 and 87, and no rearrangement of a blend reaches the second pair.
    */
-  const plain = notificationsRegistry.rows.filter((row) => /^NOTIF-\d+$/.test(row.id))
+  const plain = notificationsRegistry.rows.filter((row) => /^NOTIF-\d+(?:@L\d+)?$/.test(row.id))
 
-  it('holds 87 plain rows where the two registers hold 112 between them', () => {
-    expect(plain).toHaveLength(87)
-    expect(new Set(plain.map((row) => row.id)).size).toBe(87)
+  it('holds 112 plain rows — the union of the two registers, keyed by both', () => {
+    expect(plain).toHaveLength(112)
     expect(CH_27_7_CATALOG.length + CH_30C_2_CATEGORIES.length).toBe(112)
+    // The key is unique even though the identifier is not: fifty rows carry
+    // the composite spelling, two per shared identifier.
+    expect(new Set(plain.map((row) => row.id)).size).toBe(112)
+    expect(plain.filter((row) => row.id.includes('@L'))).toHaveLength(50)
   })
 
-  it('is a blend: the first twenty-five locators are Chapter 27.7s', () => {
+  it('is no longer a blend: both locator bands are present in full', () => {
     const from277 = plain.filter((row) => row.sourceLine >= 51_688 && row.sourceLine <= 51_712)
     const from30c2 = plain.filter((row) => row.sourceLine >= 72_950 && row.sourceLine <= 73_096)
     expect(from277).toHaveLength(25)
-    expect(from30c2).toHaveLength(62)
+    // 62 under the defect. This is the assertion a rearranged blend cannot pass.
+    expect(from30c2).toHaveLength(87)
     expect(from277.length + from30c2.length).toBe(plain.length)
-    // Every Chapter 30C.2 row for NOTIF-001..025 is absent from the file.
-    const lost = CH_30C_2_CATEGORIES.filter((row) =>
-      from277.some((present) => present.id === row.id),
-    )
-    expect(lost).toHaveLength(25)
+    // Every Chapter 30C.2 row is present, including the twenty-five the
+    // identifier-only key dropped, and each is findable by its own locator.
+    const bareOf = (id: string): string => id.replace(/@L\d+$/, '')
+    for (const row of CH_30C_2_CATEGORIES) {
+      const held = from30c2.filter((present) => bareOf(present.id) === row.id)
+      expect(held, row.id).toHaveLength(1)
+      expect(held[0]?.sourceLine, row.id).toBe(row.sourceLine)
+    }
+    for (const row of CH_27_7_CATALOG) {
+      const held = from277.filter((present) => bareOf(present.id) === row.id)
+      expect(held, row.id).toHaveLength(1)
+      expect(held[0]?.sourceLine, row.id).toBe(row.sourceLine)
+    }
   })
 
-  it('carries a second register field that does not describe this split', () => {
-    // The `register` field exists, which is what made this task's shape cheap,
-    // but it separates the identifier index from the derived Studio triggers —
-    // not Chapter 27.7 from Chapter 30C.2.
+  it('names both chapters in the register field it used not to describe', () => {
     const registers = new Set(notificationsRegistry.rows.map((row) => row.register))
-    expect(registers.size).toBe(2)
-    expect([...registers].some((label) => label.includes('27.7'))).toBe(false)
-    expect([...registers].some((label) => label.includes('30C'))).toBe(false)
+    // Four now: the two chapter registers, the mnemonic NOTIF-* identifiers,
+    // and the derived Studio module-card triggers.
+    expect(registers.size).toBe(4)
+    expect([...registers].some((label) => label.includes('27.7'))).toBe(true)
+    expect([...registers].some((label) => label.includes('30C'))).toBe(true)
+    // Every plain row is attributed to one of the two chapter registers, and
+    // to the one its locator falls in — a row tagged 27.7 carrying a 30C.2
+    // locator is the blend wearing a label, which is worse than the blend.
+    for (const row of plain) {
+      const in277 = row.sourceLine >= 51_688 && row.sourceLine <= 51_712
+      expect(row.register, row.id).toContain(in277 ? '27.7' : '30C.2')
+    }
   })
 })
 

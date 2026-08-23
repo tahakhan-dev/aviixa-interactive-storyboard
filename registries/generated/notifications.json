@@ -1,532 +1,680 @@
 {
   "slug": "notifications",
-  "countedThing": "NOTIF-* identifiers found in the identifier index -- a different scope from the source's 19 notification states, 87 categories in 13 families, or 2 channels. No names were extracted for this family. Plus 56 DERIVED Studio notification-trigger rows (R19), which are trigger behaviours the frozen source states on the eighteen MOD-STU-* module cards without giving any of them a NOTIF-* identifier; the two registers are tagged separately on every row and are never summed into one canonical total.",
+  "countedThing": "NOTIF-* identifiers found in the identifier index, keyed on (register, identifier) -- a different scope from the source's 19 notification states or 2 channels, and a HIGHER row count than the identifier count because the two catalogues share one key space and twenty-five identifiers name a different notification in each. No names were extracted for this family. Plus 56 DERIVED Studio notification-trigger rows (R19), which are trigger behaviours the frozen source states on the eighteen MOD-STU-* module cards without giving any of them a NOTIF-* identifier; the registers are tagged separately on every row and are never summed into one canonical total.",
   "reconciledCount": null,
-  "rawCount": 205,
-  "dedupRule": "This registry holds two registers, tagged per row and never summed. (1) 205 NOTIF-* identifier strings; the state, category and channel registers are separate and are not this number. (2) 56 DERIVED Studio notification triggers (R19), one per notifiable row of the `**Notifications.**` table on each of the eighteen MOD-STU-* module cards (Chapter 20, L31552-L34689). Every one of the eighteen cards states triggers; not one of those rows carries a NOTIF-* identifier, and no NOTIF-* identifier has any locator inside that band, so none is minted here -- each derived row is `sourceClass: derived`, keyed STU-TRIGGER-<card>-<row position>, and carries its own card locator. The cards hold 57 trigger rows in total; MOD-STU-01 position 3 (L31664) is EXCLUDED because the source itself makes it an absence -- \"Not applicable -- a refusal is audited, not notified; notifying every refusal would train users to ignore notifications\" -- leaving 56. Per card: MOD-STU-01 2, MOD-STU-02 4, MOD-STU-03 3, MOD-STU-04 2, MOD-STU-05 3, MOD-STU-06 2, MOD-STU-07 5, MOD-STU-08 2, MOD-STU-09 2, MOD-STU-10 2, MOD-STU-11 5, MOD-STU-12 4, MOD-STU-13 4, MOD-STU-14 3, MOD-STU-15 4, MOD-STU-16 4, MOD-STU-17 2, MOD-STU-18 3. Status is computed from the built route tree, never from a list: 4 of 261 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
-      "id": "NOTIF-001",
+      "id": "NOTIF-001@L51688",
       "sourceLine": 51688,
-      "status": "demonstrated-in-storyboard",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "status": "not-represented",
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-002",
+      "id": "NOTIF-001@L72950",
+      "sourceLine": 72950,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-002@L51689",
       "sourceLine": 51689,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-003",
+      "id": "NOTIF-002@L72951",
+      "sourceLine": 72951,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-003@L51690",
       "sourceLine": 51690,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-004",
+      "id": "NOTIF-003@L72952",
+      "sourceLine": 72952,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-004@L51691",
       "sourceLine": 51691,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-005",
+      "id": "NOTIF-004@L72953",
+      "sourceLine": 72953,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-005@L51692",
       "sourceLine": 51692,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-006",
+      "id": "NOTIF-005@L72954",
+      "sourceLine": 72954,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-006@L51693",
       "sourceLine": 51693,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-007",
+      "id": "NOTIF-006@L72955",
+      "sourceLine": 72955,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-007@L51694",
       "sourceLine": 51694,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-008",
+      "id": "NOTIF-007@L72956",
+      "sourceLine": 72956,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-008@L51695",
       "sourceLine": 51695,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-009",
+      "id": "NOTIF-008@L72957",
+      "sourceLine": 72957,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-009@L51696",
       "sourceLine": 51696,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-010",
+      "id": "NOTIF-009@L72958",
+      "sourceLine": 72958,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-010@L51697",
       "sourceLine": 51697,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-011",
+      "id": "NOTIF-010@L72959",
+      "sourceLine": 72959,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-011@L51698",
       "sourceLine": 51698,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-012",
+      "id": "NOTIF-011@L72960",
+      "sourceLine": 72960,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-012@L51699",
       "sourceLine": 51699,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-013",
+      "id": "NOTIF-012@L72961",
+      "sourceLine": 72961,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-013@L51700",
       "sourceLine": 51700,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-014",
+      "id": "NOTIF-013@L72967",
+      "sourceLine": 72967,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-014@L51701",
       "sourceLine": 51701,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-015",
+      "id": "NOTIF-014@L72968",
+      "sourceLine": 72968,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-015@L51702",
       "sourceLine": 51702,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-016",
+      "id": "NOTIF-015@L72969",
+      "sourceLine": 72969,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-016@L51703",
       "sourceLine": 51703,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-017",
+      "id": "NOTIF-016@L72970",
+      "sourceLine": 72970,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-017@L51704",
       "sourceLine": 51704,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-018",
+      "id": "NOTIF-017@L72971",
+      "sourceLine": 72971,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-018@L51705",
       "sourceLine": 51705,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-019",
+      "id": "NOTIF-018@L72977",
+      "sourceLine": 72977,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-019@L51706",
       "sourceLine": 51706,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-020",
+      "id": "NOTIF-019@L72978",
+      "sourceLine": 72978,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-020@L51707",
       "sourceLine": 51707,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-021",
+      "id": "NOTIF-020@L72984",
+      "sourceLine": 72984,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-021@L51708",
       "sourceLine": 51708,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-022",
+      "id": "NOTIF-021@L72985",
+      "sourceLine": 72985,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-022@L51709",
       "sourceLine": 51709,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-023",
+      "id": "NOTIF-022@L72986",
+      "sourceLine": 72986,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-023@L51710",
       "sourceLine": 51710,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-024",
+      "id": "NOTIF-023@L72987",
+      "sourceLine": 72987,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-024@L51711",
       "sourceLine": 51711,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
     },
     {
-      "id": "NOTIF-025",
+      "id": "NOTIF-024@L72988",
+      "sourceLine": 72988,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
+    },
+    {
+      "id": "NOTIF-025@L51712",
       "sourceLine": 51712,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the two registers by its own description at L51609, and NOT a subset: it reuses NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications"
+    },
+    {
+      "id": "NOTIF-025@L72989",
+      "sourceLine": 72989,
+      "status": "not-represented",
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-026",
       "sourceLine": 72990,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-027",
       "sourceLine": 72991,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-028",
       "sourceLine": 72992,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-029",
       "sourceLine": 72993,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-030",
       "sourceLine": 72994,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-031",
       "sourceLine": 72995,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-032",
       "sourceLine": 73001,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-033",
       "sourceLine": 73002,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-034",
       "sourceLine": 73003,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-035",
       "sourceLine": 73004,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-036",
       "sourceLine": 73005,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-037",
       "sourceLine": 73011,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-038",
       "sourceLine": 73012,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-039",
       "sourceLine": 73013,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-040",
       "sourceLine": 73014,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-041",
       "sourceLine": 73015,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-042",
       "sourceLine": 73016,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-043",
       "sourceLine": 73017,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-044",
       "sourceLine": 73018,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-045",
       "sourceLine": 73019,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-046",
       "sourceLine": 73025,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-047",
       "sourceLine": 73026,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-048",
       "sourceLine": 73027,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-049",
       "sourceLine": 73028,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-050",
       "sourceLine": 73029,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-051",
       "sourceLine": 73030,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-052",
       "sourceLine": 73031,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-053",
       "sourceLine": 73032,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-054",
       "sourceLine": 73038,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-055",
       "sourceLine": 73039,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-056",
       "sourceLine": 73040,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-057",
       "sourceLine": 73041,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-058",
       "sourceLine": 73042,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-059",
       "sourceLine": 73043,
       "status": "demonstrated-in-storyboard",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-060",
       "sourceLine": 73044,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-061",
       "sourceLine": 73045,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-062",
       "sourceLine": 73046,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-063",
       "sourceLine": 73052,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-064",
       "sourceLine": 73053,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-065",
       "sourceLine": 73054,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-066",
       "sourceLine": 73055,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-067",
       "sourceLine": 73061,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-068",
       "sourceLine": 73062,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-069",
       "sourceLine": 73063,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-070",
       "sourceLine": 73064,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-071",
       "sourceLine": 73065,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-072",
       "sourceLine": 73066,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-073",
       "sourceLine": 73072,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-074",
       "sourceLine": 73073,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-075",
       "sourceLine": 73074,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-076",
       "sourceLine": 73075,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-077",
       "sourceLine": 73076,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-078",
       "sourceLine": 73077,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-079",
       "sourceLine": 73078,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-080",
       "sourceLine": 73084,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-081",
       "sourceLine": 73085,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-082",
       "sourceLine": 73086,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-083",
       "sourceLine": 73087,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-084",
       "sourceLine": 73088,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-085",
       "sourceLine": 73089,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-086",
       "sourceLine": 73090,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-087",
       "sourceLine": 73096,
       "status": "not-represented",
-      "register": "NOTIF-* identifiers from the identifier index"
+      "register": "Chapter 30C.2 notification-category catalog (thirteen family tables, body L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous"
     },
     {
       "id": "NOTIF-DEV-SEV1",
@@ -1853,7 +2001,9 @@
       "sourceClass": "derived"
     }
   ],
+  "rawCount": 205,
+  "dedupRule": "This registry holds three registers, tagged per row and never summed. (1) 112 plain NOTIF-NNN rows keyed on (register, identifier), because TWO catalogues share this key space and both number from NOTIF-001: Chapter 27.7 (body L51688-L51712, 25 rows) and Chapter 30C.2's thirteen family tables (body L72950-L73096, 87 rows). 25 identifiers are claimed by both and NOT ONE of them names the same notification in each -- NOTIF-001 is \"Subscription or tier lifecycle change\" at L51688 and \"Tenant workspace activated\" at L72950 -- so the overlap is a different assignment of one key space, not a shorter version of one. Keying on the identifier alone produced 87 rows that read as complete and were a BLEND: NOTIF-001..025 resolved to Chapter 27.7's lines and NOTIF-026..087 to Chapter 30C.2's, so Chapter 30C.2's own first twenty-five rows were absent entirely. The 50 ambiguous rows carry the composite key NOTIF-NNN@L<line>, the same spelling and the same rule the workflow registry uses; the other 62 keep their bare identifier. A composite-keyed row reads not-represented on purpose -- a bare NOTIF-001 in a source file cannot say which of two notifications it means, so it demonstrates neither. (2) 118 mnemonic NOTIF-* identifier strings (NOTIF-DOH-01-1, NOTIF-DEV-SEV1 and so on), which key on no shared space and are unchanged. The 19 notification states and the 2 channels are separate registers again and are not any of these numbers. (3) 56 DERIVED Studio notification triggers (R19), one per notifiable row of the `**Notifications.**` table on each of the eighteen MOD-STU-* module cards (Chapter 20, L31552-L34689). Every one of the eighteen cards states triggers; not one of those rows carries a NOTIF-* identifier, and no NOTIF-* identifier has any locator inside that band, so none is minted here -- each derived row is `sourceClass: derived`, keyed STU-TRIGGER-<card>-<row position>, and carries its own card locator. The cards hold 57 trigger rows in total; MOD-STU-01 position 3 (L31664) is EXCLUDED because the source itself makes it an absence -- \"Not applicable -- a refusal is audited, not notified; notifying every refusal would train users to ignore notifications\" -- leaving 56. Per card: MOD-STU-01 2, MOD-STU-02 4, MOD-STU-03 3, MOD-STU-04 2, MOD-STU-05 3, MOD-STU-06 2, MOD-STU-07 5, MOD-STU-08 2, MOD-STU-09 2, MOD-STU-10 2, MOD-STU-11 5, MOD-STU-12 4, MOD-STU-13 4, MOD-STU-14 3, MOD-STU-15 4, MOD-STU-16 4, MOD-STU-17 2, MOD-STU-18 3. Status is computed from the built route tree, never from a list: 3 of 286 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceLineMeaning": "The FIRST MENTION of the identifier anywhere in the frozen source, computed as the minimum of registries/raw/identifier-index.json's line list for that id. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation.",
-  "namedInSourceCount": 91,
+  "namedInSourceCount": 66,
   "namedInSourceMeaning": "How many rows this registry holds whose identifier is named anywhere under src/ or app/. It is WEAKER than a status and deliberately not one: a status says a route screen demonstrates the row, and this says only that some file in the build spells its identifier. It is published because the two numbers can differ by a lot -- offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text label rather than an identifier (actionable-controls) cannot be counted this way and read as unnamed here; that is a limit of the measure, not a gap in the build."
 }

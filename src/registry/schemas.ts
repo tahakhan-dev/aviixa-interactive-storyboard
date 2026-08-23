@@ -8,17 +8,40 @@ import { z } from 'zod'
  */
 
 /**
- * The exact seven source classification labels (frozen source vocabulary).
- * No other string is a valid classification.
+ * The frozen source's own classification legend, plus one qualified form the
+ * source also writes. No other string is a valid classification.
+ *
+ * The legend is a seven-row table: intro L14-L15, header L17, separator L18,
+ * body L19-L25. Its seven labels are the first, second, fourth, fifth, sixth
+ * and seventh entries below plus `Recommendation — R&D`. The third entry,
+ * `Derived Clarification — adopted working position`, is NOT a legend row —
+ * it is a qualified form the source writes on 254 lines and the raw module
+ * extraction carries, so it is admitted and labelled as what it is.
+ *
+ * SLICE 10 TASK 13 — THIS ARRAY USED TO CALL ITSELF "the exact seven source
+ * classification labels (frozen source vocabulary)" AND WAS WRONG ABOUT TWO
+ * OF THEM, IN OPPOSITE DIRECTIONS. Measured whole-string in the frozen
+ * source: `Recommendation — Research and Development`, which this array
+ * listed, occurs on ZERO lines; `Recommendation — R&D`, which the legend
+ * writes, occurs on 957 and was absent here; `User-Mandated Product
+ * Extension`, a legend row, occurs on 391 and was absent here. The count of
+ * seven was the only part that survived, and it survived by accident — one
+ * legend row was missing and one non-legend string was present.
+ *
+ * `scripts/build-registries.mjs`'s `SOURCE_CLASSIFICATION_TO_SOURCE_CLASS`
+ * carried the identical pair of errors and is repaired to match; the two
+ * are asserted equal in `tests/unit/registry-build.test.ts` so they cannot
+ * drift apart again.
  */
 export const SOURCE_CLASSIFICATIONS = [
   'SoW Fact',
   'Derived Clarification',
   'Derived Clarification — adopted working position',
-  'Recommendation — Research and Development',
+  'Recommendation — R&D',
   'Assumption',
   'Client Decision Required',
   'Illustrative Example',
+  'User-Mandated Product Extension',
 ] as const
 
 export type SourceClassification = (typeof SOURCE_CLASSIFICATIONS)[number]

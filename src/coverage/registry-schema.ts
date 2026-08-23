@@ -105,12 +105,15 @@ export const GeneratedRegistrySchema = z
      *
      * A status says a route screen demonstrates the row. This says only that
      * some file in the build spells its identifier. Both are published because
-     * they differ by a lot: measured across the fourteen inventories, 258 rows
-     * read demonstrated and 813 are named -- re-measure by summing the
+     * they differ by a lot -- and by how much is not written here, because it
+     * moves on every build that adds a route or a row: this comment carried
+     * "258 rows read demonstrated and 813 are named" and both were stale
+     * within the same slice. Measure it by summing the
      * `demonstrated-in-storyboard` rows and `namedInSourceCount` over the
-     * fourteen `registries/generated/*.json` -- and `offline-scenarios` reads 0
-     * demonstrated against 70 named because two tasks transcribed all seventy
-     * use cases and no route names a `UC-OFF-*` identifier.
+     * fourteen `registries/generated/*.json`. The shape worth stating is
+     * `offline-scenarios`, which reads zero demonstrated against every row
+     * named, because two tasks transcribed all seventy use cases and no route
+     * names a `UC-OFF-*` identifier.
      *
      * One number in front of a client reads as the whole truth. Two do not.
      */

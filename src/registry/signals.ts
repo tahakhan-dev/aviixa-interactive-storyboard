@@ -849,10 +849,17 @@ export const COMMAND_REGISTRY_EXTRAS: readonly {
 /**
  * Every count this task measured, against the hypothesis it was given and
  * against what the generated registry holds. `classification` is the frozen
- * source's own label where the source states one, verbatim — note that
- * `User-Mandated Product Extension` is a label the source uses on 391 lines and
- * that `SOURCE_CLASSIFICATIONS` in `./schemas` does not list, which is why this
- * field is a plain string rather than a `SourceClassification`.
+ * source's own label where the source states one, verbatim.
+ *
+ * The field stays a plain string, and the reason has changed. It was a plain
+ * string because `SOURCE_CLASSIFICATIONS` in `./schemas` did not list
+ * `User-Mandated Product Extension`, a label the source uses on 391 lines;
+ * slice 10 task 13 measured that omission against the source's own
+ * classification legend and added it, so that reason is gone. It remains a
+ * plain string because the legend is a vocabulary for MATERIAL STATEMENTS and
+ * these rows classify COUNTS — a count is not a statement the legend was
+ * written to label, and typing it as `SourceClassification` would assert an
+ * equivalence the source does not make.
  */
 export interface SignalCount {
   readonly of: string
@@ -885,7 +892,7 @@ export const SIGNAL_COUNTS = [
     statedAt: 72923,
     inGeneratedRegistry: 87,
     classification: 'Derived Clarification',
-    note: 'Thirteen family tables, L72948-L73096. NOTIF-001 to NOTIF-087, contiguous. The generated registry also holds 87 plain NOTIF-* rows, but they are a BLEND of the two registers, not this one.',
+    note: 'Thirteen family tables, L72948-L73096. NOTIF-001 to NOTIF-087, contiguous. The generated registry now holds these 87 as their own register: slice 10 task 13 keyed it on (register, identifier), where it used to hold 87 plain rows that were a BLEND of the two registers and reported this register as complete while missing its first twenty-five.',
   },
   {
     of: 'Chapter 30C.2 family tables',
@@ -910,9 +917,9 @@ export const SIGNAL_COUNTS = [
     measured: 112,
     statedInSource: null,
     statedAt: null,
-    inGeneratedRegistry: 87,
+    inGeneratedRegistry: 112,
     classification: 'Derived Clarification',
-    note: '25 + 87. The generated registry deduplicates on the identifier alone and therefore loses twenty-five rows.',
+    note: '25 + 87. The generated registry agreed at 87 until slice 10 task 13, because it deduplicated on the identifier alone and lost twenty-five rows; it is now keyed on (register, identifier) and the two figures agree. The fifty rows for the twenty-five shared identifiers carry the composite key NOTIF-NNN@L<line>.',
   },
   {
     of: 'Chapter 27.7 mandatory-baseline rows',

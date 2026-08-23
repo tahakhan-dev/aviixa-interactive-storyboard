@@ -1,348 +1,553 @@
 {
   "slug": "scheduled-work",
-  "countedThing": "SCHED-* identifiers found in the identifier index -- mixes the 35 numbered discovery findings (45A.2 sweep), the Appendix K schedule definitions, and carried-schedule identifiers, which the source keeps as separate registers with no single combined total. No names were extracted for this family.",
+  "countedThing": "SCHED-* rows across the FOUR key spaces that share the prefix, tagged per row and never summed into a canonical scheduled-work total, because the source fixes none: L102392 states that a numbered row is a finding and a mnemonic row is a commitment, that neither supersedes the other, and that several findings map to no commitment at all. No names were extracted for this family.",
   "reconciledCount": null,
   "rawCount": 67,
-  "dedupRule": "The source explicitly separates the 35 SCHED-0NN discovery findings from the 24 deployable obligations they cross-walk to, and states both counts are true at different scopes (source-reconciliation.json, \"Anchored timer rows / scheduled work\"). This registry's raw count is neither of those two figures -- it is every SCHED-* identifier the extraction found, undifferentiated by sub-scope, and is not presented as a canonical scheduled-work total. Status is computed from the built route tree, never from a list: 2 of 67 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
+  "dedupRule": "67 raw SCHED-* keys in the identifier index -> 90 rows in four key spaces. ONE key was dropped: SCHED-0NN (L102465) is the source's own prose TEMPLATE token, and that line is the sentence defining the convention rather than a row of any register. TWENTY-FOUR rows were ADDED, transcribed from the source table at L102396-L102419: the identifier index holds not one of the deployable mnemonics (SCHED-RUN-AUTOCLOSE..SCHED-DB-MAINT), while this registry previously claimed to distinguish them from the 35 numbered findings. The four key spaces, per row: ch-45a.2-discovery 35, ch-54.7-matrix-14 24, ch-45a.17.1-deployable 24, ch-30a.3-carried 7. They are DISJOINT AS STRINGS, so no composite key is needed -- but SCHED-01 is a prefix of SCHED-010 and the two are different things (the per-shift digest against the schedule visibility horizon), so nothing here matches a SCHED-* identifier by prefix. The 24 two-digit rows are §54.7 Matrix 14 and are NOT false positives from PER-SCHED-NN, FB-SCHED-01/02 or SB-030A-SCHED-01: the extraction matches whole tokens and none of those patterns can yield a SCHED-0N. The §45A.3 do-not-use-cron register (DNC-01..DNC-22), the §45A.4.1 anchored timers (35 rows keyed by TIMER NAME, carrying no SCHED-* token at all), the thirteen candidate groups and the eight standing prohibitions are further registers of this chapter that key on no SCHED-* identifier; they are transcribed in src/scheduling/registers.ts and are not any of these numbers. Status is computed from the built route tree, never from a list: 3 of 90 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
       "id": "SCHED-001",
       "sourceLine": 98341,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-002",
       "sourceLine": 98342,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-003",
       "sourceLine": 98343,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-004",
       "sourceLine": 98344,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-005",
       "sourceLine": 98345,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-006",
       "sourceLine": 98346,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-007",
       "sourceLine": 98347,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-008",
       "sourceLine": 98348,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-009",
       "sourceLine": 98349,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-01",
       "sourceLine": 117883,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-010",
       "sourceLine": 98350,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-011",
       "sourceLine": 98351,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-012",
       "sourceLine": 98352,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-013",
       "sourceLine": 98353,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-014",
       "sourceLine": 98354,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-015",
       "sourceLine": 98355,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-016",
       "sourceLine": 98356,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-017",
       "sourceLine": 98357,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-018",
       "sourceLine": 98358,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-019",
       "sourceLine": 98359,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-02",
       "sourceLine": 117893,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-020",
       "sourceLine": 98360,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-021",
       "sourceLine": 98361,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-022",
       "sourceLine": 98362,
-      "status": "demonstrated-in-storyboard"
+      "status": "demonstrated-in-storyboard",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-023",
       "sourceLine": 98363,
-      "status": "demonstrated-in-storyboard"
+      "status": "demonstrated-in-storyboard",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-024",
       "sourceLine": 98364,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-025",
       "sourceLine": 98365,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-026",
       "sourceLine": 98366,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-027",
       "sourceLine": 98367,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-028",
       "sourceLine": 98368,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-029",
       "sourceLine": 98369,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-03",
       "sourceLine": 117894,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-030",
       "sourceLine": 98370,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-031",
       "sourceLine": 98371,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-032",
       "sourceLine": 98372,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-033",
       "sourceLine": 98373,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-034",
       "sourceLine": 98374,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-035",
       "sourceLine": 98375,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a FINDING: something the sweep identified as having time-based behaviour, including candidates that turned out not to be scheduled obligations at all"
     },
     {
       "id": "SCHED-04",
       "sourceLine": 117883,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-05",
       "sourceLine": 117896,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-06",
       "sourceLine": 117897,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-07",
       "sourceLine": 117898,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-08",
       "sourceLine": 117899,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-09",
       "sourceLine": 117900,
-      "status": "not-represented"
-    },
-    {
-      "id": "SCHED-0NN",
-      "sourceLine": 102465,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-10",
       "sourceLine": 117901,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-11",
       "sourceLine": 117902,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-12",
       "sourceLine": 117903,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-13",
       "sourceLine": 117904,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-14",
       "sourceLine": 117905,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-15",
       "sourceLine": 117906,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-16",
       "sourceLine": 117907,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-17",
       "sourceLine": 117908,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-18",
       "sourceLine": 117909,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-19",
       "sourceLine": 117910,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-20",
       "sourceLine": 117911,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-21",
       "sourceLine": 117912,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-22",
       "sourceLine": 117913,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-23",
       "sourceLine": 117914,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
     },
     {
       "id": "SCHED-24",
       "sourceLine": 117915,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A real register that does not know the other three exist: Chapter 45A never names §54.7 and §54.7 never names Chapter 45A. NOT false positives, which is what every brief before this repair recorded"
+    },
+    {
+      "id": "SCHED-ANONYMISE",
+      "sourceLine": 102413,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-BACKUP",
+      "sourceLine": 102418,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-COMMAND-AGE",
+      "sourceLine": 102416,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-CONNECTIVITY",
+      "sourceLine": 102407,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-CRIT-RENOTIFY",
+      "sourceLine": 102405,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-DB-MAINT",
+      "sourceLine": 102419,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-DIGEST",
+      "sourceLine": 102399,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-DRIFT-CANARY",
+      "sourceLine": 102414,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
     },
     {
       "id": "SCHED-ESCTIMER-001",
       "sourceLine": 66413,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§30A.3 the seven carried schedules (key space ch-30a.3-carried) -- body L66410-L66416. Real identifiers, and L102537 rules them narrative short forms: \"Chapters 27 and 30A use short mnemonic forms of the same obligations for narrative readability\", with the deployable register authoritative where they differ"
     },
     {
       "id": "SCHED-FINISH-001",
       "sourceLine": 66411,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§30A.3 the seven carried schedules (key space ch-30a.3-carried) -- body L66410-L66416. Real identifiers, and L102537 rules them narrative short forms: \"Chapters 27 and 30A use short mnemonic forms of the same obligations for narrative readability\", with the deployable register authoritative where they differ"
+    },
+    {
+      "id": "SCHED-GATE-TIMEOUT",
+      "sourceLine": 102404,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-HANDOFF",
+      "sourceLine": 102402,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
     },
     {
       "id": "SCHED-HANDOFF-001",
       "sourceLine": 66416,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§30A.3 the seven carried schedules (key space ch-30a.3-carried) -- body L66410-L66416. Real identifiers, and L102537 rules them narrative short forms: \"Chapters 27 and 30A use short mnemonic forms of the same obligations for narrative readability\", with the deployable register authoritative where they differ"
+    },
+    {
+      "id": "SCHED-HANDOFF-GRACE",
+      "sourceLine": 102403,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-NOSHOW-ALERT",
+      "sourceLine": 102400,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-NOSHOW-CANCEL",
+      "sourceLine": 102401,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
     },
     {
       "id": "SCHED-OFFTRUST-001",
       "sourceLine": 66414,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§30A.3 the seven carried schedules (key space ch-30a.3-carried) -- body L66410-L66416. Real identifiers, and L102537 rules them narrative short forms: \"Chapters 27 and 30A use short mnemonic forms of the same obligations for narrative readability\", with the deployable register authoritative where they differ"
+    },
+    {
+      "id": "SCHED-PILOT-EXPIRY",
+      "sourceLine": 102411,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
     },
     {
       "id": "SCHED-PLATMAINT-001",
       "sourceLine": 66412,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§30A.3 the seven carried schedules (key space ch-30a.3-carried) -- body L66410-L66416. Real identifiers, and L102537 rules them narrative short forms: \"Chapters 27 and 30A use short mnemonic forms of the same obligations for narrative readability\", with the deployable register authoritative where they differ"
+    },
+    {
+      "id": "SCHED-PROPOSAL-STALE",
+      "sourceLine": 102406,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-QUAL-ACK",
+      "sourceLine": 102398,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
     },
     {
       "id": "SCHED-QUAL-EXPIRY-001",
       "sourceLine": 66410,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§30A.3 the seven carried schedules (key space ch-30a.3-carried) -- body L66410-L66416. Real identifiers, and L102537 rules them narrative short forms: \"Chapters 27 and 30A use short mnemonic forms of the same obligations for narrative readability\", with the deployable register authoritative where they differ"
+    },
+    {
+      "id": "SCHED-QUAL-WARN",
+      "sourceLine": 102397,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
     },
     {
       "id": "SCHED-REPORT-001",
       "sourceLine": 66415,
-      "status": "not-represented"
+      "status": "not-represented",
+      "register": "§30A.3 the seven carried schedules (key space ch-30a.3-carried) -- body L66410-L66416. Real identifiers, and L102537 rules them narrative short forms: \"Chapters 27 and 30A use short mnemonic forms of the same obligations for narrative readability\", with the deployable register authoritative where they differ"
+    },
+    {
+      "id": "SCHED-REPORT-DELIVERY",
+      "sourceLine": 102415,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-RUN-AUTOCLOSE",
+      "sourceLine": 102396,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-SUSPEND-HARD",
+      "sourceLine": 102410,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-SUSPEND-SOFT",
+      "sourceLine": 102409,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-TIERING",
+      "sourceLine": 102412,
+      "status": "demonstrated-in-storyboard",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-TRACE-RETENTION",
+      "sourceLine": 102417,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
+    },
+    {
+      "id": "SCHED-USAGE-LADDER",
+      "sourceLine": 102408,
+      "status": "not-represented",
+      "register": "§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is actually built and run. Transcribed from the source table rather than taken from the identifier index, which holds none of them"
     }
   ],
   "sourceLineMeaning": "The FIRST MENTION of the identifier anywhere in the frozen source, computed as the minimum of registries/raw/identifier-index.json's line list for that id. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation.",
-  "namedInSourceCount": 66,
+  "namedInSourceCount": 90,
   "namedInSourceMeaning": "How many rows this registry holds whose identifier is named anywhere under src/ or app/. It is WEAKER than a status and deliberately not one: a status says a route screen demonstrates the row, and this says only that some file in the build spells its identifier. It is published because the two numbers can differ by a lot -- offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text label rather than an identifier (actionable-controls) cannot be counted this way and read as unnamed here; that is a limit of the measure, not a gap in the build."
 }

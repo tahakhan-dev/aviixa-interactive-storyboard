@@ -143,9 +143,18 @@ function firstLine(lines) {
  * filter on.
  */
 function idsWithPrefix(prefix) {
-  return Object.entries(identifierIndex)
-    .filter(([id]) => id.startsWith(prefix))
-    .map(([id, lines]) => ({ id, sourceLine: firstLine(lines) }))
+  return idsWithPrefixRaw(prefix).map(([id, lines]) => ({ id, sourceLine: firstLine(lines) }))
+}
+
+/**
+ * The same filter, keeping the WHOLE locator list rather than collapsing it
+ * to its minimum. `buildNotificationIdentifierRows` needs every locator,
+ * because which register a `NOTIF-NNN` row belongs to is decided by WHICH of
+ * its locators falls inside which chapter body — a question `firstLine`
+ * destroys the answer to.
+ */
+function idsWithPrefixRaw(prefix) {
+  return Object.entries(identifierIndex).filter(([id]) => id.startsWith(prefix))
 }
 
 function buildIdentifierOnlyRegistry({
@@ -232,23 +241,53 @@ function buildJoinedFamily({ slug, prefix, familyLabel, extraNote = null }) {
 const CANONICAL_MODULE_ID_RE = /^MOD-(DOH|CC|FL|SA|STU)-(\d{2}|[AB]\d+)$/
 
 /**
- * Task 10 / addendum §5: maps the raw extraction's seven-value
- * `classification` field (frozen-source vocabulary, see
- * `SOURCE_CLASSIFICATIONS` in `@/registry/schemas`) down to the five
- * `SourceClass` buckets (`@/coverage/descriptors`). Verified against this
- * build's own raw module data: only two classifications actually occur --
- * "SoW Fact" (63) and "Derived Clarification" (18, all MOD-STU-*) -- but
- * the other five are mapped too so this stays correct if a future
- * extraction wave adds a module under one of them.
+ * Task 10 / addendum §5: maps the raw extraction's `classification` field
+ * down to the five `SourceClass` buckets (`@/coverage/descriptors`). The
+ * keys are the frozen source's own classification legend, whose seven rows
+ * are `SoW Fact`, `Derived Clarification`, `Recommendation — R&D`,
+ * `Assumption`, `Client Decision Required`, `Illustrative Example` and
+ * `User-Mandated Product Extension`. The eighth key below is not a legend
+ * row: `Derived Clarification — adopted working position` is a qualified
+ * form the source also writes, and it is kept because the raw extraction
+ * carries it.
+ *
+ * SLICE 10 TASK 13 — TWO KEYS WERE WRONG ABOUT THE SOURCE IN BOTH
+ * DIRECTIONS, AND THE COMMENT HERE ASSERTED THE OPPOSITE.
+ * It used to read "the other five are mapped too so this stays correct if a
+ * future extraction wave adds a module under one of them." Measured in the
+ * frozen source: `Recommendation — Research and Development`, the key this
+ * map carried, occurs on ZERO lines; `Recommendation — R&D`, what the source
+ * actually writes, occurs on 957 and was NOT a key; `User-Mandated Product
+ * Extension` occurs on 391 and was NOT a key. So the claim was false for
+ * exactly the two labels a future wave was most likely to arrive under, and
+ * a row carrying either would have hit the `throw` in
+ * `buildModulesRegistry` and aborted the whole fourteen-registry build.
+ *
+ * WHAT ACTUALLY REACHES THIS MAP, MEASURED RATHER THAN CLAIMED. Only the
+ * first occurrence of each canonical `MOD-*` id is looked up, so 81 lookups
+ * happen and they carry exactly two values: "SoW Fact" (63) and "Derived
+ * Clarification" (18, all MOD-STU-*). Both repaired labels are therefore a
+ * LATENT defect today, not a live one — nothing currently carries them into
+ * a lookup. The wider fact worth stating: the raw `classification` field is
+ * free text, not a closed vocabulary. Across the 36 extraction chunks the
+ * modules carry 244 DISTINCT classification strings ("Statement of Work
+ * Fact", "unstated", "SoW Fact — §4.1.3, §4.2", …), and only two of them
+ * are keys here. This map is correct for what reaches it and is not a
+ * substitute for the extraction normalising that field.
  */
 const SOURCE_CLASSIFICATION_TO_SOURCE_CLASS = {
   'SoW Fact': 'source-defined',
   'Derived Clarification': 'derived',
   'Derived Clarification — adopted working position': 'derived',
-  'Recommendation — Research and Development': 'recommended',
+  'Recommendation — R&D': 'recommended',
   Assumption: 'unresolved',
   'Client Decision Required': 'unresolved',
   'Illustrative Example': 'illustrative',
+  // "Requested by the blueprint commission but not present in the Statement
+  // of Work" -- and the source's own reading rule adds "it needs client
+  // confirmation before it becomes scope", which is `unresolved`, the same
+  // bucket as `Assumption` and `Client Decision Required`.
+  'User-Mandated Product Extension': 'unresolved',
 }
 
 
@@ -795,16 +834,27 @@ function statusForId(id) {
  * STRONGER ONE THAN ABSENT.
  *
  * `statusForId` asks whether a ROUTE SCREEN names the identifier. That is the
- * right question for a status and the wrong question for a coverage number,
- * because measured across the fourteen inventories it reports **237 of 4,970
- * rows demonstrated** while **663 are named somewhere under `src/` or `app/`**.
- * The 426-row gap is not unbuilt work; it is work no route happens to spell.
+ * right question for a status and the wrong question for a coverage number:
+ * across the fourteen inventories the demonstrated count is a small fraction
+ * of the named count, and the gap is not unbuilt work — it is work no route
+ * happens to spell.
  *
- * The sharpest case: `offline-scenarios` reads **0 of 70** demonstrated and
- * **70 of 70** named. Two slice-8 tasks transcribed every one of the seventy
- * use cases, and nothing under `app/` names a `UC-OFF-*` identifier, so the
- * registry reports none. A true statement of the rule and a false impression
- * of the build — and the coverage dashboard puts that number in front of a
+ * NO DIGITS HERE, DELIBERATELY. This comment used to state "237 of 4,970 rows
+ * demonstrated" and "663 are named", with a "426-row gap" derived from them.
+ * Every one of the three was stale, and a reader had no way to tell. Both
+ * numbers move on every build that adds a route or a row, so they live in the
+ * artefacts that compute them and nowhere else: sum the
+ * `demonstrated-in-storyboard` rows and the `namedInSourceCount` field over
+ * the fourteen `registries/generated/*.json`. Four other sites in this tree
+ * were corrected the same way for the same reason in slice 10, and this is
+ * the fifth.
+ *
+ * The sharpest case is a SHAPE rather than a figure, so it is safe to state:
+ * `offline-scenarios` reads zero demonstrated against every one of its rows
+ * named. Two slice-8 tasks transcribed all seventy offline use cases, and
+ * nothing under `app/` names a `UC-OFF-*` identifier, so the registry reports
+ * none demonstrated. A true statement of the rule and a false impression of
+ * the build — and the coverage dashboard puts that number in front of a
  * client.
  *
  * THIS IS DELIBERATELY NOT A STATUS. `mounted-in-another-screen` means a route
@@ -1186,6 +1236,153 @@ const STU_TRIGGER_REGISTER =
   'for any of them)'
 const NOTIF_IDENTIFIER_REGISTER = 'NOTIF-* identifiers from the identifier index'
 
+/* ==================================================================== *
+ * SLICE 10 TASK 13 — TWO NOTIFICATION REGISTERS SHARE ONE `NOTIF-*` KEY
+ * SPACE, AND DEDUP-BY-IDENTIFIER SILENTLY DROPPED TWENTY-FIVE ROWS.
+ *
+ * The frozen source catalogues notifications twice and both catalogues
+ * number from `NOTIF-001`:
+ *
+ *   - Chapter 27.7's notification catalog. Header L51686, separator L51687,
+ *     body L51688-L51712. Twenty-five data rows.
+ *   - Chapter 30C.2's notification-category catalog, thirteen family tables
+ *     between L72948 and L73096. Eighty-seven data rows, `NOTIF-001`
+ *     through `NOTIF-087`, contiguous.
+ *
+ * IT IS NOT A SUBSET. All twenty-five of Chapter 27.7's identifiers exist in
+ * Chapter 30C.2 and not one of the twenty-five carries the same name in
+ * both: `NOTIF-001` is "Subscription or tier lifecycle change" at L51688 and
+ * "Tenant workspace activated" at L72950. `src/registry/signals.ts`
+ * transcribes both and measures the name agreement at zero.
+ *
+ * WHAT THIS FILE USED TO DO, MEASURED. `idsWithPrefix` keys on the
+ * identifier alone and `firstLine` takes the MINIMUM locator, so
+ * `NOTIF-001`..`025` resolved to Chapter 27.7's lines and `NOTIF-026`..`087`
+ * to Chapter 30C.2's. Eighty-seven plain rows — which reads as complete and
+ * is a BLEND of two different assignments, with Chapter 30C.2's own first
+ * twenty-five rows absent entirely.
+ *
+ * THE KEY IS NOW (register, identifier), which yields 25 + 87 = 112 plain
+ * rows with no leftovers: measured against this build's own identifier
+ * index, every one of the 87 plain identifiers has at least one locator
+ * inside one of the two bodies, exactly one locator inside each body it
+ * touches, and none falls outside both.
+ *
+ * THE COMPOSITE SPELLING REUSES `buildWorkflowsRegistry`'s, deliberately:
+ * `${id}@L${line}`, and ONLY where the bare id is genuinely ambiguous — the
+ * twenty-five that both registers claim. The other sixty-two keep their bare
+ * id, so a screen naming `NOTIF-030` still demonstrates it. That is the same
+ * rule and the same reason as the workflow keys: a bare `NOTIF-001` in a
+ * source file cannot tell you which of two different notifications it means,
+ * so it demonstrates neither, and the fifty composite rows read
+ * `not-represented` on purpose rather than by accident.
+ * ==================================================================== */
+const NOTIF_REGISTER_BODIES = [
+  {
+    label:
+      'Chapter 27.7 notification catalog (body L51688-L51712, 25 rows) -- the narrower of the ' +
+      'two registers by its own description at L51609, and NOT a subset: it reuses ' +
+      'NOTIF-001..NOTIF-025 for twenty-five DIFFERENT notifications',
+    first: 51_688,
+    last: 51_712,
+  },
+  {
+    label:
+      'Chapter 30C.2 notification-category catalog (thirteen family tables, body ' +
+      'L72950-L73096, 87 rows) -- NOTIF-001..NOTIF-087, contiguous',
+    first: 72_950,
+    last: 73_096,
+  },
+]
+
+const NOTIF_PLAIN_ID_RE = /^NOTIF-\d+$/
+
+/**
+ * One row per (register, identifier) pair for the plain `NOTIF-NNN`
+ * identifiers, plus the unchanged mnemonic `NOTIF-*` rows.
+ *
+ * Every figure below is DERIVED and then asserted, never restated from a
+ * brief: the per-register counts, the size of the overlap, and the total.
+ * The overlap assertion is what makes this repair measurable — 25 is both
+ * the number of rows the old key lost and the number of composite keys
+ * minted, and a check on the total alone would be satisfied by any 112.
+ */
+function buildNotificationIdentifierRows() {
+  const all = idsWithPrefixRaw('NOTIF-')
+  const plain = all.filter(([id]) => NOTIF_PLAIN_ID_RE.test(id))
+  const mnemonic = all.filter(([id]) => !NOTIF_PLAIN_ID_RE.test(id))
+
+  const perRegister = NOTIF_REGISTER_BODIES.map(() => 0)
+  const placements = []
+  const unplaced = []
+  for (const [id, lines] of plain) {
+    const hits = []
+    NOTIF_REGISTER_BODIES.forEach((body, index) => {
+      const inBody = lines.filter((l) => l >= body.first && l <= body.last)
+      if (inBody.length === 0) return
+      perRegister[index] += 1
+      hits.push({ index, body, sourceLine: Math.min(...inBody) })
+    })
+    if (hits.length === 0) {
+      unplaced.push(id)
+      continue
+    }
+    for (const hit of hits) {
+      placements.push({
+        // Ambiguous only when both registers claim it. Sixty-two of the
+        // eighty-seven are claimed by one register and keep their bare id.
+        id: hits.length > 1 ? `${id}@L${hit.sourceLine}` : id,
+        bareId: id,
+        sourceLine: hit.sourceLine,
+        register: hit.body.label,
+      })
+    }
+  }
+
+  if (unplaced.length > 0) {
+    throw new Error(
+      `${unplaced.length} plain NOTIF-* identifier(s) fall inside neither register body ` +
+        `(${unplaced.join(', ')}). The two bodies are the whole of this key space -- a row ` +
+        'outside both means a body range moved or a third register exists, and it must not be ' +
+        'assigned to a register by default.',
+    )
+  }
+
+  const EXPECTED_PER_REGISTER = [25, 87]
+  const EXPECTED_OVERLAP = 25
+  const overlap = placements.filter((p) => p.id !== p.bareId).length / 2
+  if (
+    perRegister[0] !== EXPECTED_PER_REGISTER[0] ||
+    perRegister[1] !== EXPECTED_PER_REGISTER[1] ||
+    overlap !== EXPECTED_OVERLAP ||
+    placements.length !== EXPECTED_PER_REGISTER[0] + EXPECTED_PER_REGISTER[1]
+  ) {
+    throw new Error(
+      `Notification register split: expected ${EXPECTED_PER_REGISTER[0]} Chapter 27.7 rows + ` +
+        `${EXPECTED_PER_REGISTER[1]} Chapter 30C.2 rows = ` +
+        `${EXPECTED_PER_REGISTER[0] + EXPECTED_PER_REGISTER[1]} plain rows with ` +
+        `${EXPECTED_OVERLAP} identifiers claimed by both, computed ${perRegister[0]} + ` +
+        `${perRegister[1]} = ${placements.length} with ${overlap} claimed by both`,
+    )
+  }
+
+  const rows = [
+    ...placements.map((p) => ({
+      id: p.id,
+      sourceLine: p.sourceLine,
+      status: statusForId(p.id),
+      register: p.register,
+    })),
+    ...mnemonic.map(([id, lines]) => ({
+      id,
+      sourceLine: firstLine(lines),
+      status: statusForId(id),
+      register: NOTIF_IDENTIFIER_REGISTER,
+    })),
+  ]
+  return { rows, plainCount: plain.length, mnemonicCount: mnemonic.length, overlap }
+}
+
 function buildStudioTriggerRows() {
   const rows = STU_NOTIFICATION_TRIGGERS.map((t) => {
     const id = `STU-TRIGGER-${t.mod}-${String(t.pos).padStart(2, '0')}`
@@ -1269,28 +1466,30 @@ function buildStudioTriggerRows() {
 }
 
 /**
- * `notifications.json` = the 205 `NOTIF-*` identifier rows this file has
- * always built, PLUS the 56 derived Studio trigger rows above, each tagged
- * with the `register` it belongs to so the two are never silently merged --
- * the same disclosure `actionable-controls` uses for the DNC-* register.
+ * `notifications.json` = the `NOTIF-*` identifier rows, keyed on (register,
+ * identifier) rather than on the identifier alone, PLUS the 56 derived
+ * Studio trigger rows above, each tagged with the `register` it belongs to
+ * so nothing is silently merged -- the same disclosure
+ * `actionable-controls` uses for the DNC-* register.
  *
- * `rawCount` stays the NOTIF-* extraction count and is NOT restated as the
- * row count: the count-scope rule at the head of this file forbids
- * presenting one scope's figure as another's.
+ * `rawCount` stays the NOTIF-* EXTRACTION count (205 distinct identifier
+ * strings) and is NOT restated as the row count, which is now higher than it
+ * because twenty-five identifiers stand for two notifications each. The
+ * count-scope rule at the head of this file forbids presenting one scope's
+ * figure as another's, and this is the sharpest case of it in the tree.
  */
 function buildNotificationsRegistry() {
-  const base = buildIdentifierOnlyRegistry({
-    slug: 'notifications',
-    prefix: 'NOTIF-',
-    countedThing:
-      'NOTIF-* identifiers found in the identifier index -- a different scope from the ' +
-      "source's 19 notification states, 87 categories in 13 families, or 2 channels. No names " +
-      'were extracted for this family. Plus 56 DERIVED Studio notification-trigger rows ' +
-      '(R19), which are trigger behaviours the frozen source states on the eighteen MOD-STU-* ' +
-      'module cards without giving any of them a NOTIF-* identifier; the two registers are ' +
-      'tagged separately on every row and are never summed into one canonical total.',
-  })
-  const identifierRows = base.rows.map((r) => ({ ...r, register: NOTIF_IDENTIFIER_REGISTER }))
+  const countedThing =
+    'NOTIF-* identifiers found in the identifier index, keyed on (register, identifier) -- a ' +
+    "different scope from the source's 19 notification states or 2 channels, and a HIGHER row " +
+    'count than the identifier count because the two catalogues share one key space and ' +
+    'twenty-five identifiers name a different notification in each. No names were extracted ' +
+    'for this family. Plus 56 DERIVED Studio notification-trigger rows (R19), which are ' +
+    'trigger behaviours the frozen source states on the eighteen MOD-STU-* module cards ' +
+    'without giving any of them a NOTIF-* identifier; the registers are tagged separately on ' +
+    'every row and are never summed into one canonical total.'
+  const split = buildNotificationIdentifierRows()
+  const identifierRows = split.rows
   const studioRows = buildStudioTriggerRows()
 
   // The claim "none of the eighteen cards' trigger rows carries a NOTIF-*
@@ -1317,15 +1516,37 @@ function buildNotificationsRegistry() {
   }
 
   const rows = [...identifierRows, ...studioRows]
+  const rawIdentifierCount = split.plainCount + split.mnemonicCount
   return {
-    ...base,
+    slug: 'notifications',
+    countedThing,
+    reconciledCount: null,
+    sourceFixesNoTotal: true,
     rows,
-    // Deliberately NOT rows.length: 205 is what the NOTIF-* extraction found.
-    rawCount: identifierRows.length,
+    // Deliberately NOT rows.length and deliberately not identifierRows.length
+    // either: 205 is what the NOTIF-* extraction found, and the register
+    // split turns 87 of those identifiers into 112 rows.
+    rawCount: rawIdentifierCount,
     dedupRule: appendNote(
-      `This registry holds two registers, tagged per row and never summed. (1) ` +
-        `${identifierRows.length} NOTIF-* identifier strings; the state, category and channel ` +
-        'registers are separate and are not this number. (2) ' +
+      `This registry holds three registers, tagged per row and never summed. (1) ` +
+        `${split.plainCount + split.overlap} plain NOTIF-NNN rows keyed on (register, ` +
+        'identifier), because TWO catalogues share this key space and both number from ' +
+        `NOTIF-001: Chapter 27.7 (body L51688-L51712, 25 rows) and Chapter 30C.2's thirteen ` +
+        `family tables (body L72950-L73096, 87 rows). ${split.overlap} identifiers are claimed ` +
+        'by both and NOT ONE of them names the same notification in each -- NOTIF-001 is ' +
+        '"Subscription or tier lifecycle change" at L51688 and "Tenant workspace activated" at ' +
+        'L72950 -- so the overlap is a different assignment of one key space, not a shorter ' +
+        `version of one. Keying on the identifier alone produced ${split.plainCount} rows that ` +
+        `read as complete and were a BLEND: NOTIF-001..025 resolved to Chapter 27.7's lines and ` +
+        "NOTIF-026..087 to Chapter 30C.2's, so Chapter 30C.2's own first twenty-five rows were " +
+        `absent entirely. The ${split.overlap * 2} ambiguous rows carry the composite key ` +
+        'NOTIF-NNN@L<line>, the same spelling and the same rule the workflow registry uses; the ' +
+        'other 62 keep their bare identifier. A composite-keyed row reads not-represented on ' +
+        'purpose -- a bare NOTIF-001 in a source file cannot say which of two notifications it ' +
+        `means, so it demonstrates neither. (2) ${split.mnemonicCount} mnemonic NOTIF-* ` +
+        'identifier strings (NOTIF-DOH-01-1, NOTIF-DEV-SEV1 and so on), which key on no shared ' +
+        'space and are unchanged. The 19 notification states and the 2 channels are separate ' +
+        'registers again and are not any of these numbers. (3) ' +
         `${studioRows.length} DERIVED Studio notification triggers (R19), one per notifiable ` +
         'row of the `**Notifications.**` table on each of the eighteen MOD-STU-* module cards ' +
         `(Chapter 20, L${STU_CARD_BAND.first}-L${STU_CARD_BAND.last}). Every one of the ` +
@@ -1803,6 +2024,264 @@ function buildWorkflowsRegistry() {
   }
 }
 
+/* ==================================================================== *
+ * SLICE 10 TASK 13 — SCHEDULED WORK: FOUR KEY SPACES, ONE PROSE
+ * TEMPLATE TOKEN TO DROP, AND A REGISTER THAT WAS NOT IN THE FILE AT ALL.
+ *
+ * WHAT THIS FILE USED TO SAY AND WHAT WAS MEASURED. Its `dedupRule` claimed
+ * it separated "the 35 SCHED-0NN discovery findings from the 24 deployable
+ * obligations", and it contained none of the 24. Its 67 rows were 35 + 24 +
+ * 1 + 7, and the plan this repair was written from attributed the 24
+ * two-digit rows to false positives from `PER-SCHED-NN`, `FB-SCHED-01/02`
+ * and `SB-030A-SCHED-01`. THAT ATTRIBUTION IS WRONG. The extractor matches
+ * whole tokens, so none of those three patterns can yield a `SCHED-0N`; the
+ * 24 two-digit rows are §54.7 Matrix 14, a real register with its own
+ * `SCHED-` definition, its own `REQ-*` requirement per row and its own
+ * non-human identity per row. They belong in this file as their own key
+ * space.
+ *
+ * THE ONE GENUINE FALSE POSITIVE IS `SCHED-0NN` — the source's own prose
+ * template token, and its only locator (L102465) is the sentence that
+ * DEFINES the numbering convention: "A numbered `SCHED-0NN` row is a
+ * finding". A template is not an identifier and it is the single row
+ * dropped here.
+ *
+ * FOUR KEY SPACES SHARE THE `SCHED-` PREFIX where L102392 says two
+ * numbering schemes exist. Read whole, that line is right about the two it
+ * names and is not the census: it reconciles §45A.2's numbered findings with
+ * §45A.17.1's mnemonic commitments — "a numbered row is a finding, a
+ * mnemonic row is a commitment", neither superseding the other, several
+ * findings mapping to none — and it rules Chapters 27 and 30A's short forms
+ * narrative. It never mentions §54.7, and §54.7 never mentions Chapter 45A.
+ * `src/scheduling/registers.ts` transcribes all four and is the denominator
+ * the inventory closure runs against; this file is now keyed the same way.
+ *
+ * `SCHED-01` IS A PREFIX OF `SCHED-010`, and both are real identifiers of
+ * different things — the per-shift digest against the schedule visibility
+ * horizon. The two key spaces are disjoint as STRINGS, so no composite key
+ * is needed here, but nothing in this file may ever match a `SCHED-*`
+ * identifier by prefix.
+ * ==================================================================== */
+const SCHED_KEY_SPACES = [
+  {
+    space: 'ch-45a.2-discovery',
+    label:
+      '§45A.2 Scheduled-Work Coverage and Gap Register, the DISCOVERY register (key space ' +
+      'ch-45a.2-discovery) -- SCHED-001..SCHED-035, body L98341-L98375. A numbered row is a ' +
+      'FINDING: something the sweep identified as having time-based behaviour, including ' +
+      'candidates that turned out not to be scheduled obligations at all',
+    matches: (id) => /^SCHED-\d{3}$/.test(id),
+    expected: 35,
+  },
+  {
+    space: 'ch-54.7-matrix-14',
+    label:
+      '§54.7 Matrix 14 Schedule Definitions (key space ch-54.7-matrix-14) -- ' +
+      'SCHED-01..SCHED-24, three blocks over one key space, block A body L117892-L117915. A ' +
+      'real register that does not know the other three exist: Chapter 45A never names §54.7 ' +
+      'and §54.7 never names Chapter 45A. NOT false positives, which is what every brief ' +
+      'before this repair recorded',
+    matches: (id) => /^SCHED-\d{2}$/.test(id),
+    expected: 24,
+  },
+  {
+    space: 'ch-45a.17.1-deployable',
+    label:
+      '§45A.17.1 the DEPLOYABLE register (key space ch-45a.17.1-deployable) -- keyed by ' +
+      'mnemonic, body L102396-L102419. A mnemonic row is a COMMITMENT: an obligation that is ' +
+      'actually built and run. Transcribed from the source table rather than taken from the ' +
+      'identifier index, which holds none of them',
+    matches: (id) => SCHED_DEPLOYABLE_IDS.has(id),
+    expected: 24,
+  },
+  {
+    space: 'ch-30a.3-carried',
+    label:
+      '§30A.3 the seven carried schedules (key space ch-30a.3-carried) -- body L66410-L66416. ' +
+      'Real identifiers, and L102537 rules them narrative short forms: "Chapters 27 and 30A ' +
+      'use short mnemonic forms of the same obligations for narrative readability", with the ' +
+      'deployable register authoritative where they differ',
+    matches: (id) => /^SCHED-[A-Z-]+-001$/.test(id),
+    expected: 7,
+  },
+]
+
+/**
+ * §45A.17.1's twenty-four deployable obligations, transcribed in source
+ * order with each row's own locator. The identifier index holds NOT ONE of
+ * them, which is why they are written here: this is the register the
+ * scheduled-work inventory closure must close against, and a file that
+ * claimed to distinguish it while containing none of it could not be that
+ * denominator.
+ *
+ * Same shape and same reason as `STU_NOTIFICATION_TRIGGERS` above — source
+ * content the extraction missed, transcribed with its locators and then
+ * asserted, never inferred. No `label` is carried: this registry states that
+ * no names were extracted for this family, and inventing twenty-four labels
+ * here would make that statement false.
+ */
+const SCHED_DEPLOYABLE = [
+  { id: 'SCHED-RUN-AUTOCLOSE', line: 102_396 },
+  { id: 'SCHED-QUAL-WARN', line: 102_397 },
+  { id: 'SCHED-QUAL-ACK', line: 102_398 },
+  { id: 'SCHED-DIGEST', line: 102_399 },
+  { id: 'SCHED-NOSHOW-ALERT', line: 102_400 },
+  { id: 'SCHED-NOSHOW-CANCEL', line: 102_401 },
+  { id: 'SCHED-HANDOFF', line: 102_402 },
+  { id: 'SCHED-HANDOFF-GRACE', line: 102_403 },
+  { id: 'SCHED-GATE-TIMEOUT', line: 102_404 },
+  { id: 'SCHED-CRIT-RENOTIFY', line: 102_405 },
+  { id: 'SCHED-PROPOSAL-STALE', line: 102_406 },
+  { id: 'SCHED-CONNECTIVITY', line: 102_407 },
+  { id: 'SCHED-USAGE-LADDER', line: 102_408 },
+  { id: 'SCHED-SUSPEND-SOFT', line: 102_409 },
+  { id: 'SCHED-SUSPEND-HARD', line: 102_410 },
+  { id: 'SCHED-PILOT-EXPIRY', line: 102_411 },
+  { id: 'SCHED-TIERING', line: 102_412 },
+  { id: 'SCHED-ANONYMISE', line: 102_413 },
+  { id: 'SCHED-DRIFT-CANARY', line: 102_414 },
+  { id: 'SCHED-REPORT-DELIVERY', line: 102_415 },
+  { id: 'SCHED-COMMAND-AGE', line: 102_416 },
+  { id: 'SCHED-TRACE-RETENTION', line: 102_417 },
+  { id: 'SCHED-BACKUP', line: 102_418 },
+  { id: 'SCHED-DB-MAINT', line: 102_419 },
+]
+
+const SCHED_DEPLOYABLE_IDS = new Set(SCHED_DEPLOYABLE.map((d) => d.id))
+
+/**
+ * The prose template token, and the one row this repair removes. Its only
+ * locator is the sentence defining the numbering convention.
+ */
+const SCHED_PROSE_TEMPLATE = { id: 'SCHED-0NN', line: 102_465 }
+
+function buildScheduledWorkRegistry() {
+  const indexed = idsWithPrefixRaw('SCHED-')
+  const rows = []
+  const unclassified = []
+  const perSpace = new Map(SCHED_KEY_SPACES.map((k) => [k.space, 0]))
+
+  for (const [id, lines] of indexed) {
+    if (id === SCHED_PROSE_TEMPLATE.id) continue
+    const space = SCHED_KEY_SPACES.find((k) => k.matches(id))
+    if (space === undefined) {
+      unclassified.push(id)
+      continue
+    }
+    perSpace.set(space.space, perSpace.get(space.space) + 1)
+    rows.push({ id, sourceLine: firstLine(lines), status: statusForId(id), register: space.label })
+  }
+
+  // The deployable register comes from the SOURCE TABLE, not the index --
+  // the index holds none of it. If a re-extraction ever adds them, that is a
+  // fact worth stopping on rather than silently deduplicating: the index's
+  // locator would be a first mention and this transcription's is the row.
+  const deployableSpace = SCHED_KEY_SPACES.find((k) => k.space === 'ch-45a.17.1-deployable')
+  const fromIndex = perSpace.get(deployableSpace.space)
+  if (fromIndex !== 0) {
+    throw new Error(
+      `The identifier index now holds ${fromIndex} of the 24 deployable mnemonics. They are ` +
+        'transcribed here from L102396-L102419 precisely because it held none -- reconcile the ' +
+        'two sources before either is registered.',
+    )
+  }
+  for (const d of SCHED_DEPLOYABLE) {
+    rows.push({
+      id: d.id,
+      sourceLine: d.line,
+      status: statusForId(d.id),
+      register: deployableSpace.label,
+    })
+  }
+  perSpace.set(deployableSpace.space, SCHED_DEPLOYABLE.length)
+
+  if (unclassified.length > 0) {
+    throw new Error(
+      `${unclassified.length} SCHED-* identifier(s) match no known key space ` +
+        `(${unclassified.join(', ')}). A fifth key space, a new prose token, or a changed ` +
+        'spelling -- classify it against the frozen source before it is registered, and never ' +
+        'let it fall into a default bucket.',
+    )
+  }
+  if (rows.some((r) => r.id === SCHED_PROSE_TEMPLATE.id)) {
+    throw new Error(
+      `${SCHED_PROSE_TEMPLATE.id} is the source's own prose template token (its only locator, ` +
+        `L${SCHED_PROSE_TEMPLATE.line}, is the sentence that defines the numbering convention) ` +
+        'and must never be registered as an identifier',
+    )
+  }
+  for (const space of SCHED_KEY_SPACES) {
+    if (perSpace.get(space.space) !== space.expected) {
+      throw new Error(
+        `Scheduled-work key space ${space.space}: expected ${space.expected} rows, computed ` +
+          `${perSpace.get(space.space)}`,
+      )
+    }
+  }
+  // Named rather than computed from the same array the check reads, so a
+  // plant cannot print "expected N ... computed N" while failing.
+  const EXPECTED_ROWS = 90
+  if (rows.length !== EXPECTED_ROWS) {
+    throw new Error(
+      `Expected ${EXPECTED_ROWS} scheduled-work rows across four key spaces (35 + 24 + 24 + 7), ` +
+        `computed ${rows.length}`,
+    )
+  }
+  const deployableLines = SCHED_DEPLOYABLE.map((d) => d.line)
+  if (
+    new Set(deployableLines).size !== SCHED_DEPLOYABLE.length ||
+    Math.min(...deployableLines) !== 102_396 ||
+    Math.max(...deployableLines) !== 102_419 ||
+    Math.max(...deployableLines) - Math.min(...deployableLines) + 1 !== SCHED_DEPLOYABLE.length
+  ) {
+    throw new Error(
+      'The deployable register must be twenty-four rows on twenty-four contiguous lines ' +
+        `L102396-L102419; computed ${SCHED_DEPLOYABLE.length} rows on ` +
+        `L${Math.min(...deployableLines)}-L${Math.max(...deployableLines)}`,
+    )
+  }
+  const ids = new Set(rows.map((r) => r.id))
+  if (ids.size !== rows.length) {
+    throw new Error(`Scheduled-work ids collide -- ${rows.length} rows, ${ids.size} ids`)
+  }
+
+  return {
+    slug: 'scheduled-work',
+    countedThing:
+      'SCHED-* rows across the FOUR key spaces that share the prefix, tagged per row and never ' +
+      'summed into a canonical scheduled-work total, because the source fixes none: L102392 ' +
+      'states that a numbered row is a finding and a mnemonic row is a commitment, that neither ' +
+      'supersedes the other, and that several findings map to no commitment at all. No names ' +
+      'were extracted for this family.',
+    reconciledCount: null,
+    rawCount: indexed.length,
+    dedupRule: appendNote(
+      `${indexed.length} raw SCHED-* keys in the identifier index -> ${rows.length} rows in ` +
+        `four key spaces. ONE key was dropped: ${SCHED_PROSE_TEMPLATE.id} ` +
+        `(L${SCHED_PROSE_TEMPLATE.line}) is the source's own prose TEMPLATE token, and that ` +
+        'line is the sentence defining the convention rather than a row of any register. ' +
+        'TWENTY-FOUR rows were ADDED, transcribed from the source table at L102396-L102419: ' +
+        'the identifier index holds not one of the deployable mnemonics ' +
+        '(SCHED-RUN-AUTOCLOSE..SCHED-DB-MAINT), while this registry previously claimed to ' +
+        'distinguish them from the 35 numbered findings. The four key spaces, per row: ' +
+        SCHED_KEY_SPACES.map((k) => `${k.space} ${perSpace.get(k.space)}`).join(', ') +
+        '. They are DISJOINT AS STRINGS, so no composite key is needed -- but SCHED-01 is a ' +
+        'prefix of SCHED-010 and the two are different things (the per-shift digest against ' +
+        'the schedule visibility horizon), so nothing here matches a SCHED-* identifier by ' +
+        'prefix. The 24 two-digit rows are §54.7 Matrix 14 and are NOT false positives from ' +
+        'PER-SCHED-NN, FB-SCHED-01/02 or SB-030A-SCHED-01: the extraction matches whole tokens ' +
+        'and none of those patterns can yield a SCHED-0N. The §45A.3 do-not-use-cron register ' +
+        '(DNC-01..DNC-22), the §45A.4.1 anchored timers (35 rows keyed by TIMER NAME, carrying ' +
+        'no SCHED-* token at all), the thirteen candidate groups and the eight standing ' +
+        'prohibitions are further registers of this chapter that key on no SCHED-* identifier; ' +
+        'they are transcribed in src/scheduling/registers.ts and are not any of these numbers.',
+      statusNote(rows, CITED_BY_A_SHIPPED_SCREEN),
+    ),
+    sourceFixesNoTotal: true,
+    rows,
+  }
+}
+
 // ---------------------------------------------------------------------
 // Build and write all fourteen.
 // ---------------------------------------------------------------------
@@ -1832,8 +2311,30 @@ const registries = [
     slug: 'events',
     prefix: 'EVT-',
     countedThing:
-      'EVT-* identifiers found in the identifier index; no closed event-count register exists ' +
-      'in the frozen source, and no names were extracted for this family.',
+      'EVT-* identifiers the identifier index holds -- which is neither a catalogue nor a ' +
+      'census of this build\'s events, and is stated that way because reporting the number as ' +
+      '"the events" overstates both. No names were extracted for this family.',
+    // SLICE 10 TASK 13. This registry had no dedupRule at all, so its
+    // twenty-eight rows read as an inventory. They are not one, in both
+    // directions, and both figures are measured rather than asserted.
+    dedupRule:
+      'THIS IS A SUBSET AND SAYS SO. The frozen source carries 378 DISTINCT whole-token EVT-* ' +
+      'identifiers; the identifier index holds 28 of them, so this file represents about one ' +
+      'in fourteen. The shortfall is not random and not a per-family gap: the index lists what ' +
+      'the graph judged an entity, so a family arrives as an arbitrary subset or not at all. ' +
+      'Whole EVT-* families have NO representation here -- EVT-TENCFG-* (25 in the source), ' +
+      'EVT-CC-* (23), EVT-SA-* (21), EVT-FL-* (21) -- and EVT-DOH-* is represented by 2 of its ' +
+      '30, EVT-DOH-NOSHOW-15 and EVT-DOH-NOSHOW-30, which are rows 7 and 8 of a ten-row ' +
+      'emission table at L26171-L26180 whose other eight rows appear in no registry. WHAT THE ' +
+      '28 DO CONTAIN: 25 rows of the two catalogued registers Chapter 27.5 states -- nine ' +
+      'capture-family events (EVT-CAP-001..009, body L51051-L51059, and L51045 states the nine ' +
+      'beside the enumeration, which agrees) and sixteen operational-and-server events (four ' +
+      'EVT-OPS-* and twelve EVT-SRV-*, body L51177-L51192) -- plus 3 identifiers from ' +
+      'elsewhere in the source: EVT-CONN-30MIN, EVT-DOH-NOSHOW-15 and EVT-DOH-NOSHOW-30. ' +
+      'src/registry/signals.ts transcribes the 25 as the catalogue and holds those 3 in ' +
+      'EVENT_REGISTRY_EXTRAS with their provenance, never merged into it. So: 25 catalogued, 3 ' +
+      'extras, 28 rows, 378 in the source, and no closed build-wide event count exists in the ' +
+      'frozen source to reconcile against.',
   }),
   buildIdentifierOnlyRegistry({
     slug: 'commands',
@@ -1862,22 +2363,7 @@ const registries = [
       'offline events) are separate registers and are not included here.',
   }),
   buildAiStoryboardsRegistry(),
-  buildIdentifierOnlyRegistry({
-    slug: 'scheduled-work',
-    prefix: 'SCHED-',
-    countedThing:
-      'SCHED-* identifiers found in the identifier index -- mixes the 35 numbered discovery ' +
-      'findings (45A.2 sweep), the Appendix K schedule definitions, and carried-schedule ' +
-      'identifiers, which the source keeps as separate registers with no single combined ' +
-      'total. No names were extracted for this family.',
-    dedupRule:
-      'The source explicitly separates the 35 SCHED-0NN discovery findings from the 24 ' +
-      "deployable obligations they cross-walk to, and states both counts are true at " +
-      'different scopes (source-reconciliation.json, "Anchored timer rows / scheduled ' +
-      'work"). This registry\'s raw count is neither of those two figures -- it is every ' +
-      'SCHED-* identifier the extraction found, undifferentiated by sub-scope, and is not ' +
-      'presented as a canonical scheduled-work total.',
-  }),
+  buildScheduledWorkRegistry(),
   buildActionableControlsRegistry(),
 ]
 

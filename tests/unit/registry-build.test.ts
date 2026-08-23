@@ -4,6 +4,27 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { execFileSync } from 'node:child_process'
 import { isForeignProbe } from '../probe-paths'
+import { SOURCE_CLASSIFICATIONS } from '@/registry/schemas'
+
+/**
+ * §45A.17.1's twenty-four deployable obligations, listed rather than counted.
+ * A row-count gate is proved by a defect that RENAMES a row rather than
+ * deleting one — this build's catalogue of gates that could not fail holds
+ * exactly that shape — and §54.7 Matrix 14 also holds twenty-four rows, so a
+ * count alone is true of the register and of its neighbour at once.
+ *
+ * Transcribed from the frozen source's own table (body L102396-L102419)
+ * independently of `scripts/build-registries.mjs`, which is the point: a list
+ * copied from the thing under test proves nothing.
+ */
+const DEPLOYABLE = new Set([
+  'SCHED-RUN-AUTOCLOSE', 'SCHED-QUAL-WARN', 'SCHED-QUAL-ACK', 'SCHED-DIGEST',
+  'SCHED-NOSHOW-ALERT', 'SCHED-NOSHOW-CANCEL', 'SCHED-HANDOFF', 'SCHED-HANDOFF-GRACE',
+  'SCHED-GATE-TIMEOUT', 'SCHED-CRIT-RENOTIFY', 'SCHED-PROPOSAL-STALE', 'SCHED-CONNECTIVITY',
+  'SCHED-USAGE-LADDER', 'SCHED-SUSPEND-SOFT', 'SCHED-SUSPEND-HARD', 'SCHED-PILOT-EXPIRY',
+  'SCHED-TIERING', 'SCHED-ANONYMISE', 'SCHED-DRIFT-CANARY', 'SCHED-REPORT-DELIVERY',
+  'SCHED-COMMAND-AGE', 'SCHED-TRACE-RETENTION', 'SCHED-BACKUP', 'SCHED-DB-MAINT',
+])
 
 const SLUGS = [
   'modules', 'features', 'sub-features', 'functions', 'workflows',
@@ -402,14 +423,196 @@ describe('R19 — the Studio notification triggers are registered as derived row
     expect(fresh('notifications').dedupRule).toContain('a refusal is audited, not notified')
   })
 
-  it('keeps the two registers separate — 205 stays the NOTIF-* count, never the row count', () => {
+  it('keeps the registers separate — 205 stays the NOTIF-* count, never the row count', () => {
     const n = fresh('notifications')
+    // 205 distinct NOTIF-* identifier strings. The row count is HIGHER than
+    // the identifier count and that is the whole point of the register split:
+    // twenty-five identifiers stand for two notifications each.
     expect(n.rawCount).toBe(205)
-    expect(n.rows).toHaveLength(261)
+    expect(n.rows).toHaveLength(286)
     const identifierRows = (n.rows as Row[]).filter((r) => !r.id.startsWith('STU-TRIGGER-'))
-    expect(identifierRows).toHaveLength(205)
-    for (const r of identifierRows) expect(r.register, r.id).toMatch(/identifier/i)
+    expect(identifierRows).toHaveLength(230)
+    expect(identifierRows.length - n.rawCount).toBe(25)
+    for (const r of identifierRows) expect(typeof r.register, r.id).toBe('string')
     expect(n.reconciledCount).toBeNull()
+  })
+})
+
+/* ====================================================================
+ * SLICE 10 TASK 13 — the three generator defects, each asserted against
+ * the FRESH generation so the check is on the code and not on a committed
+ * artefact that might lag it.
+ * ==================================================================== */
+describe('T13 — two notification registers share one key space and both are now held', () => {
+  const plain = (): Row[] =>
+    (fresh('notifications').rows as Row[]).filter((r) => /^NOTIF-\d+(?:@L\d+)?$/.test(r.id))
+
+  it('holds 112 plain rows, 25 + 87, where the identifier-only key held 87', () => {
+    const rows = plain()
+    expect(rows).toHaveLength(112)
+    const from277 = rows.filter((r) => r.sourceLine >= 51_688 && r.sourceLine <= 51_712)
+    const from30c2 = rows.filter((r) => r.sourceLine >= 72_950 && r.sourceLine <= 73_096)
+    // Per-band, not just the total: the defect scored 25 and 62 and also
+    // summed to its own row count, so a total alone told the two apart only
+    // by luck. 87 in the second band is the claim a blend cannot satisfy.
+    expect(from277).toHaveLength(25)
+    expect(from30c2).toHaveLength(87)
+    expect(from277.length + from30c2.length).toBe(rows.length)
+  })
+
+  it('composite-keys only the ambiguous twenty-five, leaving sixty-two bare', () => {
+    const rows = plain()
+    const composite = rows.filter((r) => r.id.includes('@L'))
+    expect(composite).toHaveLength(50)
+    expect(rows.filter((r) => !r.id.includes('@L'))).toHaveLength(62)
+    // Two rows per shared identifier, and the composite names its own line.
+    const bare = new Set(composite.map((r) => r.id.replace(/@L\d+$/, '')))
+    expect(bare.size).toBe(25)
+    for (const r of composite) expect(r.id, r.id).toBe(`${r.id.replace(/@L\d+$/, '')}@L${r.sourceLine}`)
+    // A composite-keyed row cannot be demonstrated by a bare citation, which
+    // is the point: `app/hub/notifications` names NOTIF-001 in order to say
+    // both registers number from it, and that names neither notification.
+    for (const r of composite) expect(r.status, r.id).toBe('not-represented')
+  })
+
+  it('tags every plain row with the chapter its own locator falls in', () => {
+    for (const r of plain()) {
+      const in277 = r.sourceLine >= 51_688 && r.sourceLine <= 51_712
+      expect(r.register, r.id).toContain(in277 ? '27.7' : '30C.2')
+    }
+  })
+
+  it('says in its dedupRule that the two registers are a different assignment, not a subset', () => {
+    const note = fresh('notifications').dedupRule as string
+    expect(note).toContain('L51688-L51712')
+    expect(note).toContain('L72950-L73096')
+    expect(note).toMatch(/NOT ONE of them names the same notification in each/)
+    expect(note).toMatch(/different assignment of one key space, not a shorter version of one/)
+  })
+})
+
+describe('T13 — scheduled work is four key spaces, one dropped token, one added register', () => {
+  const sw = () => fresh('scheduled-work')
+
+  it('holds 90 rows across four key spaces: 35 + 24 + 24 + 7', () => {
+    const rows = sw().rows as Row[]
+    expect(rows).toHaveLength(90)
+    const count = (re: RegExp): number => rows.filter((r) => re.test(r.id)).length
+    expect(count(/^SCHED-\d{3}$/)).toBe(35)
+    expect(count(/^SCHED-\d{2}$/)).toBe(24)
+    expect(count(/^SCHED-[A-Z-]+-001$/)).toBe(7)
+    // The mnemonics are what is left, and they are counted by NAME rather
+    // than by shape: 24 and 24 are the same number, so a shape count alone
+    // cannot tell the deployable register from Matrix 14.
+    expect(rows.filter((r) => DEPLOYABLE.has(r.id))).toHaveLength(24)
+    expect(new Set(rows.map((r) => r.register)).size).toBe(4)
+  })
+
+  it('holds every one of the twenty-four deployable mnemonics, each at its own row line', () => {
+    const byId = new Map((sw().rows as Row[]).map((r) => [r.id, r]))
+    // A row-count gate is proved by a defect that RENAMES a row rather than
+    // deleting one, so this names all twenty-four rather than counting them.
+    for (const id of DEPLOYABLE) expect(byId.has(id), id).toBe(true)
+    const lines = [...DEPLOYABLE].map((id) => byId.get(id)?.sourceLine ?? 0).sort((a, b) => a - b)
+    expect(lines[0]).toBe(102_396)
+    expect(lines[lines.length - 1]).toBe(102_419)
+    expect(new Set(lines).size).toBe(24)
+  })
+
+  it('drops SCHED-0NN, the source’s own prose template token, and says why', () => {
+    expect((sw().rows as Row[]).map((r) => r.id)).not.toContain('SCHED-0NN')
+    const note = sw().dedupRule as string
+    expect(note).toContain('SCHED-0NN')
+    expect(note).toMatch(/prose TEMPLATE token/)
+    // rawCount stays the index's 67 -- the dropped row and the twenty-four
+    // added ones are reconciled in prose, never by restating one as the other.
+    expect(sw().rawCount).toBe(67)
+    expect(sw().reconciledCount).toBeNull()
+  })
+
+  it('withdraws the false-positive story every earlier brief carried', () => {
+    const note = sw().dedupRule as string
+    expect(note).toMatch(/are §54\.7 Matrix 14 and are NOT false positives/)
+    for (const pattern of ['PER-SCHED-NN', 'FB-SCHED-01/02', 'SB-030A-SCHED-01']) {
+      expect(note, pattern).toContain(pattern)
+    }
+    expect(note).toMatch(/matches whole tokens/)
+  })
+
+  it('names the registers of this chapter that key on no SCHED-* identifier', () => {
+    const note = sw().dedupRule as string
+    expect(note).toContain('DNC-01..DNC-22')
+    expect(note).toMatch(/keyed by TIMER NAME/)
+    expect(note).toContain('src/scheduling/registers.ts')
+  })
+})
+
+describe('T13 — events.json states that it is a subset, in both directions', () => {
+  it('still holds 28 rows and no longer presents them as the events', () => {
+    const e = fresh('events')
+    expect(e.rows).toHaveLength(28)
+    expect(e.countedThing).toMatch(/neither a catalogue nor a census/)
+    const note = e.dedupRule as string
+    expect(note).toMatch(/THIS IS A SUBSET AND SAYS SO/)
+    expect(note).toContain('378')
+    expect(note).toContain('L51051-L51059')
+    expect(note).toContain('L51177-L51192')
+    expect(note).toContain('L26171-L26180')
+  })
+
+  it('names the families that have no representation at all', () => {
+    const note = fresh('events').dedupRule as string
+    for (const family of ['EVT-TENCFG-*', 'EVT-CC-*', 'EVT-SA-*', 'EVT-FL-*']) {
+      expect(note, family).toContain(family)
+    }
+    expect(note).toMatch(/EVT-DOH-\* is represented by 2 of its\s+30/)
+  })
+})
+
+describe('T13 — the classification map is the frozen source’s own legend', () => {
+  const generator = readFileSync('scripts/build-registries.mjs', 'utf8')
+  const mapKeys = (): string[] => {
+    const body = /const SOURCE_CLASSIFICATION_TO_SOURCE_CLASS = \{([\s\S]*?)\n\}/.exec(generator)
+    if (body === null || body[1] === undefined) {
+      throw new Error('SOURCE_CLASSIFICATION_TO_SOURCE_CLASS not found')
+    }
+    return [...body[1].matchAll(/^ {2}(?:'([^']+)'|([A-Za-z]+)):/gm)].flatMap((m) => {
+      const key = m[1] ?? m[2]
+      return key === undefined ? [] : [key]
+    })
+  }
+
+  it('finds the map at all, with eight keys — the regex is not vacuous', () => {
+    expect(mapKeys()).toHaveLength(8)
+  })
+
+  it('carries the two labels the source writes, and neither of the spellings it does not', () => {
+    const keys = mapKeys()
+    // The defect, in both directions, and asserted as membership rather than
+    // as a count: seven was the map's size before and after the repair of
+    // one label, so a count could not have caught it.
+    expect(keys).toContain('Recommendation — R&D')
+    expect(keys).toContain('User-Mandated Product Extension')
+    expect(keys).not.toContain('Recommendation — Research and Development')
+    expect(SOURCE_CLASSIFICATIONS).toContain('Recommendation — R&D')
+    expect(SOURCE_CLASSIFICATIONS).toContain('User-Mandated Product Extension')
+    expect(SOURCE_CLASSIFICATIONS as readonly string[]).not.toContain(
+      'Recommendation — Research and Development',
+    )
+  })
+
+  it('holds exactly the same label set as SOURCE_CLASSIFICATIONS, so the two cannot drift', () => {
+    expect([...mapKeys()].sort()).toEqual([...SOURCE_CLASSIFICATIONS].sort())
+  })
+
+  it('spells every label the way the frozen source spells it', () => {
+    const source = readFileSync(
+      join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md'),
+      'utf8',
+    )
+    for (const label of SOURCE_CLASSIFICATIONS) {
+      expect(source.includes(label), label).toBe(true)
+    }
   })
 })
 
