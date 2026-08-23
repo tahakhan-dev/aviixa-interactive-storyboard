@@ -649,6 +649,65 @@ the card is at L37041.
 *and* `MOD-CC-08` — three modules sharing one wrong line. It was discarded as evidence and every
 figure above came from the document, which is §2a's rule doing exactly what it exists to do.
 
+### Slice 11 waves 1 and 2 — closed, and three findings that outrank the code
+
+**Wave 1** (agent contracts, deterministic boundary) and **wave 2** (five module overlays) are
+closed, reviewed and green: typecheck and lint clean · unit **5587** · component **2712** · build
+**100/100** · release **770** · e2e/axe **535**, chain exit 0.
+
+**THE CITATION GATE WAS A NEIGHBOUR-DETECTOR AND ITS OWN COMMENT SAID OTHERWISE.** `locator-fidelity`
+convicted a wrong citation only when the wrong line happened to carry a SIBLING identifier.
+`SB-AI-011 (L87376)` changed to `(L99999)` left the release suite 91/91 green. The index could always
+have proved it wrong — it maps 19,897 identifiers to every line each occurs on, `windowLines: 0`.
+The strict check now ships, and the discipline around it matters more than the fix: **177 citations
+across 64 files would newly convict**, seven times the stop threshold, so nothing was mass-edited.
+The population is three different things and one of them is **documented as correct** — §2a's own
+worked examples `MOD-STU-07@32637` and `OBJ-036@8598` are in the 177. Convicting the list would have
+corrected accurate citations into inaccurate ones. `STRICT_ANCHOR_ALLOWANCE` is a literal list keyed
+on the claim, printed by name every run, and no allowance may go stale. **130 claims now stand in
+front of a reviewer instead of being invisible.** The erosion baseline was not raised.
+
+**`AC-42-303` CANNOT BE SATISFIED FROM THE MODE MATRIX FOR ONE PAIR.** `AIMODE-13` and `AIMODE-14`
+are byte-identical across all five contract columns. What separates a tenant pause from a platform
+pause is `FAIL-AI-41`/`-42`'s user-visible-message cells, and `MOD-CC-08` **computes** that rather
+than asserting it — the screen prints "no column at all" from a measurement.
+
+**NEITHER SIDE OF THE WORKER-FEEDBACK QUESTION IS A STATEMENT OF WORK FACT**, and both this brief and
+a review said otherwise. **L86398 carries two markings in one sentence**: "always optional and one
+tap, never required, never gating" is `[SoW Fact — §6.8.2]`; "the worker-facing surface carries no
+feedback control at all" is `Derived Clarification`. **The SoW half presupposes a control and
+constrains it; only the derived half abolishes it.** 44A.12's flag is a `User-Mandated Product
+Extension`. `MOD-FL-B8` demonstrates reading one and discloses five readings on both surfaces, with
+its reason given as an asymmetry in DECIDEDNESS rather than as evidence reading one is right.
+
+### Measured absences worth keeping
+
+`MOD-SA-07` appears nowhere in chapter 43 — twelve `MOD-*` tokens in the whole chapter, all
+`MOD-FL-*`. `MOD-CC-07` occurs **zero** times in L85974-L95408. **`APP-012` occurs zero times in the
+frozen source** — it is an approval-ledger entry, legitimate as a build label and never citable with
+a line number. `DEC-AIPAUSE-001` is not in the chapter-41 register at all; `DEC-KILL-001` is L88905
+and `DEC-PAUSE-001` L88906, not the L88903-L88904 this brief gave.
+
+### Gate limits found by planting, all live
+
+`provenanceViolations` catches nested provenance classes but **not two sibling marks in one region**.
+`locator-fidelity`'s strict check grades identifier-anchored citations only. A kill-switch row can
+defer in its **classification** while granting in every cell, so a check reading only cells ships it
+as settled — that is why four rows of §43.3.5 are undecided, not three.
+
+### Two controller process defects, recorded rather than tidied
+
+**A quiet window is not a finished agent.** Wave 2 was committed believing all five agents had
+finished; four had, and a two-minute file-stability probe sampled a pause in the fifth's work. The
+commit was internally consistent when verified and did not compile twenty minutes later. RESUME §6a
+records this shape four times for dispatched agents and twice now for the controller. The rule's
+third clause: wait for the report, or for a clean typecheck that is **still** clean a minute later.
+
+**Parallel heavyweight suites interfere.** A concurrent `pnpm build` (`rm -rf out`) wiped `out/`
+mid-verification for another agent, and a killed gate run left an orphaned `.zz-probe-` directory in
+the export that failed the next chain inside `cp` rather than inside any assertion. Two agents hit
+that independently. **Wave 3 runs at most three agents, with the build step serialised.**
+
 ## 9. The closing obligation
 
 After slice 13: audit the build for gaps, fix and re-test; then audit against the frozen
