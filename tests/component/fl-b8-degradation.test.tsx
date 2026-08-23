@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { AI_MODE_IDS, aiMode } from '@/ai/modes'
+import { decisionRecord } from '@/disclosure/decisions'
 import {
   GUIDANCE_ELEMENT_ATTRIBUTE,
   PROVENANCE_CLASS_ATTRIBUTE,
@@ -181,8 +182,22 @@ describe('the conflict is disclosed rather than resolved', () => {
   it('renders the pause decision through the shared canon and names no mode on the card', () => {
     const { container } = render(<CoachingView />)
     const pause = screen.getByTestId('fl-b8-pause-disclosure')
-    // The canon renderer, not a local copy: its own note landmark is present.
-    expect(within(pause).getByRole('note', { name: /DEC-AIDISCLOSE-001/ })).toBeTruthy()
+    /*
+      THE SHARED RENDERER, NOT A LOCAL COPY — checked by comparing what the
+      note carries against the record the canon holds, field for field. A local
+      re-typing would drift from it and this would go red; a rendering that
+      dropped a reading would too.
+    */
+    const record = decisionRecord('DEC-AIDISCLOSE-001')
+    const shown = within(pause).getByRole('note', { name: /DEC-AIDISCLOSE-001/ })
+    const text = shown.textContent ?? ''
+    expect(text).toContain(record.question)
+    expect(text).toContain(record.adopted)
+    for (const reading of record.readings) {
+      expect(text.includes(reading.text), reading.locator).toBe(true)
+      expect(text.includes(reading.locator), reading.locator).toBe(true)
+    }
+
     /*
       NO MODE IS NAMED ANYWHERE THE DISCLOSURE IS NOT — and the exclusion is
       the finding rather than a convenience. The canon record's own readings

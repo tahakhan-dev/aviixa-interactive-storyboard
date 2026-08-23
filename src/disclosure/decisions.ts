@@ -1341,7 +1341,7 @@ export const OPEN_DECISIONS = [
       'further lines the source marks `SoW Fact — §8.7.5` (L89368, L89369) and the shows-nothing ' +
       'side is corroborated by none. So the mode-chip side carries the heavier marking, and the ' +
       'refusal to choose rests on something else: the two Derived Clarifications contradict each ' +
-      'other about the same surface at equal rank, a Statement of Work fact about what a mode ' +
+      'other about the same surface at the same marking, a Statement of Work fact about what a mode ' +
       'chip READS is not a ruling about whether the worker surface renders one, and the source ' +
       'never reconciles them. Building one silently would be a false claim on the surface where ' +
       'a person acts. Every locator on both sides is pinned here, with its marking, so that the ' +

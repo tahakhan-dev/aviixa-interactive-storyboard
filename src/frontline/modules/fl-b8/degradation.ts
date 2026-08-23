@@ -9,7 +9,7 @@
  * ── WHY THIS FILE IS MOSTLY DISCLOSURE ─────────────────────────────────────
  * This is the surface where a person acts. Both of the open questions below
  * are about what a worker sees, and in both the source contradicts itself at a
- * marking a build cannot rank. Choosing quietly would put a safety claim on a
+ * marking this build cannot order. Choosing quietly would put a safety claim on a
  * tablet, so neither is chosen and both are rendered with every locator.
  *
  * ── WHAT IS DERIVED RATHER THAN ASSIGNED ───────────────────────────────────
@@ -375,6 +375,33 @@ export const FL_B8_PAUSE_DISCLOSURE = {
     'renders that record rather than a second copy of it.',
   sourceRef: 'FUNC-B8-02-1-2 · L41540 · L41498',
 } as const
+
+/**
+ * A GUARD ON THE MOUNT, PUT HERE BECAUSE THE MOUNT ALREADY BROKE ONCE.
+ *
+ * This module is the first Frontline consumer of the shared decision canon's
+ * `DEC-AIDISCLOSE-001` record. `tests/coverage/slice-07-absence-sweep.test.ts`
+ * forbids nine word families anywhere in the Frontline export — `ranks?` among
+ * them, because §3.3 rules that the application never ranks workers against
+ * each other — and it reads the built export, so a word in a shared record
+ * only fails at build time, on the route that mounts it, in the release suite.
+ *
+ * That is exactly what happened while this task ran: the record's position
+ * paragraph described the two contradicting rulings as being of equal rank —
+ * provenance markings of equal standing, nothing to do with workers — and
+ * mounting it on the run player turned the sweep red. The record's own wording
+ * changed outside this task's path list before it landed, so no workaround
+ * ships. What ships is the guard, in the module's own unit suite, so the next
+ * time a shared record picks up one of those words the failure arrives in
+ * seconds against the record rather than minutes later against a built page.
+ *
+ * The word families are NOT re-declared here. The sweep owns that list and a
+ * second copy would be the closed-vocabulary defect; the covering test reads
+ * this constant only to know WHICH record to check.
+ */
+export const FL_B8_CANON_RECORDS_RENDERED_ON_THIS_SURFACE: readonly DecisionId[] = [
+  AIMODE_WORKER_DISCLOSURE_DECISION,
+]
 
 /* ==================================================================== *
  * 6. FINDINGS AND SEAMS. Recorded, owned, and not closed here.

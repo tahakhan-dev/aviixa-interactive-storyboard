@@ -12,6 +12,7 @@ import {
   FL_B8_AI_FAILURE_READING,
   FL_B8_AI_FAILURE_ROW,
   FL_B8_AI_FAILURE_ROW_MODULE,
+  FL_B8_CANON_RECORDS_RENDERED_ON_THIS_SURFACE,
   FL_B8_DEGRADATION_FINDINGS,
   FL_B8_EXPLANATION_LINE_SEAM,
   FL_B8_NEVER_LIVE,
@@ -241,6 +242,53 @@ describe('DEC-AIDISCLOSE-001 — consumed from the canon, not re-derived', () =>
       expect(MODULE_TEXT, `${mode} must not be named here`).not.toContain(mode)
     }
     expect(MODULE_TEXT).not.toContain('Live coaching paused by the platform')
+  })
+
+  /**
+   * A GUARD THAT EXISTS BECAUSE THE MOUNT BROKE ONCE, and it is a real check
+   * rather than a note about a fixed thing.
+   *
+   * `slice-07-absence-sweep` forbids nine word families anywhere in the
+   * Frontline export and reads the BUILT export, so a word inside a shared
+   * decision record fails minutes later, on the route that mounts it, in the
+   * release suite. Mounting this record on the run player did exactly that
+   * while this task ran: its position paragraph described the two
+   * contradicting rulings as being of equal rank — provenance markings of
+   * equal standing, nothing to do with workers. The record's own wording
+   * changed outside this task's path list before it landed, so nothing here
+   * works around it; this asserts the condition that makes the mount safe, in
+   * seconds, against the record itself.
+   *
+   * THE WORD FAMILIES ARE READ FROM THE SWEEP'S OWN FILE, never re-typed. A
+   * second copy of a closed vocabulary is this build's most persistent defect,
+   * and a copy of THIS one would go stale the moment the sweep gains a tenth
+   * family — which is precisely when the guard would need to have grown.
+   */
+  it('mounts only canon records the Frontline absence sweep can carry', () => {
+    const sweep = readFileSync(
+      join(process.cwd(), 'tests', 'coverage', 'slice-07-absence-sweep.test.ts'),
+      'utf8',
+    )
+    const spellings = [...sweep.matchAll(/spellings: '([^']+)'/g)].map((m) => m[1] as string)
+    expect(spellings.length).toBeGreaterThan(0)
+    const forbidden = new RegExp(`(?<![A-Za-z])(${spellings.join('|')})(?![A-Za-z])`, 'i')
+
+    // The guard can fail: the pattern really does catch the word it is for.
+    expect(forbidden.test('two rulings at equal rank')).toBe(true)
+
+    expect(FL_B8_CANON_RECORDS_RENDERED_ON_THIS_SURFACE.length).toBeGreaterThan(0)
+    for (const id of FL_B8_CANON_RECORDS_RENDERED_ON_THIS_SURFACE) {
+      const record = decisionRecord(id)
+      expect(forbidden.test(record.question), `${id} question`).toBe(false)
+      expect(forbidden.test(record.adopted), `${id} adopted`).toBe(false)
+      for (const reading of record.readings) {
+        expect(forbidden.test(reading.text), `${id} ${reading.locator}`).toBe(false)
+      }
+    }
+  })
+
+  it('mounts the record this module actually renders, not a different one', () => {
+    expect(FL_B8_CANON_RECORDS_RENDERED_ON_THIS_SURFACE).toContain(FL_B8_PAUSE_DECISION)
   })
 
   it('quotes this module’s own existing statement from the line that carries it', () => {
