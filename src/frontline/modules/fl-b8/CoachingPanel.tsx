@@ -6,6 +6,7 @@ import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { CrossSurfaceAct, frontlineCrossSurfaceModel } from '@/frontline/cross-surface'
 import { frontlineAffordance, type FrontlineAffordance } from '@/frontline/matrix'
 import { FL_PLAYER_VIEWS } from '@/frontline/screens'
+import { ProvenanceMark } from '@/ui/shared/ProvenanceMark'
 import { Button, StatusPill } from '@/ui/primitives'
 import {
   B8_CARD,
@@ -16,6 +17,22 @@ import {
   B8_WHERE_IT_SURFACES,
   SB_FL_017,
 } from './charter'
+import {
+  AUTHORED_FALLBACK_PROVENANCE,
+  COACHING_ASSET_PROVENANCE,
+  FL_B8_AI_FAILURE_CELL,
+  FL_B8_AI_FAILURE_READING,
+  FL_B8_AI_FAILURE_ROW,
+  FL_B8_AI_FAILURE_ROW_MODULE,
+  FL_B8_DEGRADATION_FINDINGS,
+  FL_B8_EXPLANATION_LINE_SEAM,
+  FL_B8_NEVER_LIVE,
+  FL_B8_NO_CONTROL_RULE,
+  FL_B8_PAUSE_DISCLOSURE,
+  FL_B8_SAFETY_FLAG_DISCLOSURE,
+  NO_SELECTION_PROVENANCE,
+  uniformlyProhibitedRows,
+} from './degradation'
 import {
   B8_PLACES_NAMED,
   B8_ROWS,
@@ -194,6 +211,16 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
   const showCard = isCard && cardState !== 'dismissed' && interactive
   const noCardForThisRole = !interactive
 
+  /**
+   * WHETHER THIS REGION IS CARRYING GUIDANCE RIGHT NOW, derived from the same
+   * three values the branches below are, so the provenance declaration cannot
+   * drift from what is drawn. Two of the four reachable states render no
+   * guidance at all — the card waved away, and the column with no card — and
+   * marking the region a guidance element in those states would claim a class
+   * for an empty region, which is the fifth of this build's defect shapes.
+   */
+  const guidanceShown = interactive && (showCard || !isCard)
+
   return (
     <div role="group" aria-label="The card at the step" className="space-y-3">
       <Heading>The card at the step</Heading>
@@ -225,6 +252,7 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
         role="group"
         data-testid="fl-b8-card-region"
         data-guidance={guidance.kind}
+        {...(guidanceShown ? { 'data-guidance-element': 'MOD-FL-B8 coaching guidance' } : {})}
         data-card-state={cardState}
         className="rounded-[var(--radius-surface)] border border-[var(--color-border-strong)] p-4"
       >
@@ -306,6 +334,28 @@ function TheCard({ viewerRole }: { readonly viewerRole: FlB8Column }) {
             </p>
           </>
         )}
+
+        {/*
+          THE ONE PROVENANCE CLASS THIS REGION EMITS, AND WHY IT IS THE SAME
+          ONE IN BOTH GUIDANCE STATES. `PROV-3`'s own definition names "packaged
+          short coaching assets, and the replay of a card that was previously
+          delivered" alongside the authored Work Instructions, so the clip the
+          agent SELECTS and the instruction it falls back to are one class. The
+          agent selects; it does not produce. Labelling the clip as live is what
+          the absolute rule forbids, and this is the mark that makes the panel
+          say so rather than merely not say the opposite.
+        */}
+        {guidanceShown ? (
+          <div className="mt-3">
+            <ProvenanceMark
+              classId={isCard ? COACHING_ASSET_PROVENANCE : AUTHORED_FALLBACK_PROVENANCE}
+              statement={FL_B8_NEVER_LIVE.hereItMeans}
+            />
+            <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
+              <Ref text={FL_B8_NEVER_LIVE.sourceRef} />
+            </p>
+          </div>
+        ) : null}
       </div>
 
       {/*
@@ -616,6 +666,181 @@ function Notifications() {
   )
 }
 
+/* ── the artificial-intelligence degradation overlay ───────────────── */
+
+/**
+ * THE SECTION WHERE THIS MODULE FACES CHAPTERS 40 TO 44.
+ *
+ * Three things, and the third is the reason the section exists. What §43.3.4
+ * says this module does when the agent layer is gone; which provenance class
+ * each element it draws carries; and the two questions the source asks about
+ * this exact card and answers twice, differently. Neither question is settled
+ * here, and the panel says which reading it is demonstrating and why, because
+ * this is the surface where a person acts and a silent choice here is a safety
+ * claim on a tablet.
+ */
+function AiDegradation() {
+  const uniform = uniformlyProhibitedRows()
+
+  return (
+    <div role="group" aria-label="Artificial-intelligence degradation" className="space-y-6">
+      <Heading>When the agent layer is gone</Heading>
+
+      <p data-testid="fl-b8-ai-behaviour" className="max-w-prose text-sm text-[var(--color-ink)]">
+        {FL_B8_AI_FAILURE_ROW_MODULE} — <em>{FL_B8_AI_FAILURE_ROW.behaviourCell}</em>{' '}
+        {FL_B8_AI_FAILURE_ROW.classificationCell}. Read as an outcome:{' '}
+        <code data-testid="fl-b8-ai-outcome">{FL_B8_AI_FAILURE_CELL.outcome}</code>, stated as{' '}
+        &ldquo;{FL_B8_AI_FAILURE_CELL.detail}&rdquo;. {FL_B8_AI_FAILURE_READING.statement}{' '}
+        {FL_B8_AI_FAILURE_READING.alsoBinds} <Ref text={FL_B8_AI_FAILURE_READING.sourceRef} />
+      </p>
+
+      <div>
+        <Heading>What each thing on this panel is, and what it is not</Heading>
+        <p
+          data-testid="fl-b8-never-live"
+          className="mt-2 max-w-prose text-sm text-[var(--color-ink)]"
+        >
+          {FL_B8_NEVER_LIVE.rule} {FL_B8_NEVER_LIVE.hereItMeans}{' '}
+          <Ref text={FL_B8_NEVER_LIVE.sourceRef} />
+        </p>
+        <p
+          data-testid="fl-b8-absence-class"
+          className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          Where nothing is selected, the class the contract gives the absence is{' '}
+          <code>{NO_SELECTION_PROVENANCE}</code>. Its rendering treatment is a muted panel naming
+          the current operating mode, and this panel does not draw one, because whether the
+          worker&rsquo;s surface names that mode at all is the open decision below. The class is
+          named here; its treatment is not applied to the card.
+        </p>
+        <p
+          data-testid="fl-b8-version-seam"
+          className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          A seam, named rather than filled: the approved-guidance treatment asks for the content
+          version and the approval date beside the panel. This module holds neither. Both travel
+          in the released package the run is pinned to, which <code>MOD-FL-A6</code> owns and this
+          module reads, so the mark above carries no version rather than one invented here.{' '}
+          <Ref text="L41498" />
+        </p>
+        <p
+          data-testid="fl-b8-explanation-seam"
+          className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          {FL_B8_EXPLANATION_LINE_SEAM.element} {FL_B8_EXPLANATION_LINE_SEAM.unestablished}{' '}
+          {FL_B8_EXPLANATION_LINE_SEAM.notResolvedHere} Owner: {FL_B8_EXPLANATION_LINE_SEAM.owner}{' '}
+          <Ref text={FL_B8_EXPLANATION_LINE_SEAM.sourceRef} />
+        </p>
+      </div>
+
+      <div>
+        <Heading>Rows that draw no control for anybody</Heading>
+        <p
+          data-testid="fl-b8-no-control-rule"
+          className="mt-2 max-w-prose text-sm text-[var(--color-ink)]"
+        >
+          {FL_B8_NO_CONTROL_RULE.rule} {FL_B8_NO_CONTROL_RULE.why}{' '}
+          <Ref text={FL_B8_NO_CONTROL_RULE.sourceRef} />
+        </p>
+        <ul className="mt-2 space-y-1">
+          {uniform.map((row) => (
+            <li key={row.id} data-testid="fl-b8-no-control-row" className="text-sm">
+              <span className="text-[var(--color-ink)]">{row.control}</span>{' '}
+              <span className="text-[var(--color-ink-muted)]">
+                — prohibited in every column, so no control is drawn for any of them.
+              </span>{' '}
+              <Ref text={row.sourceRef} />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <Heading>The control this card is told both to omit and to offer</Heading>
+        <div
+          role="note"
+          data-testid="fl-b8-safety-flag-disclosure"
+          className="mt-2 rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4 text-sm"
+        >
+          <p className="font-medium text-[var(--color-ink)]">
+            Open decision {FL_B8_SAFETY_FLAG_DISCLOSURE.decisionRef}
+          </p>
+          <p className="mt-1 text-[var(--color-ink-muted)]">
+            {FL_B8_SAFETY_FLAG_DISCLOSURE.question}
+          </p>
+          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+            All readings stand. None is this build&rsquo;s to settle.
+          </p>
+          <ul className="mt-1 space-y-2">
+            {FL_B8_SAFETY_FLAG_DISCLOSURE.readings.map((r) => (
+              <li key={r.locator} data-testid="fl-b8-safety-flag-reading">
+                <span className="text-[var(--color-ink)]">{r.text}</span> <Ref text={r.locator} />
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+            What this build demonstrates, and why
+          </p>
+          <p data-testid="fl-b8-safety-flag-adopted" className="mt-1 text-[var(--color-ink)]">
+            {FL_B8_SAFETY_FLAG_DISCLOSURE.adopted}
+          </p>
+          <p
+            data-testid="fl-b8-safety-flag-consequence"
+            className="mt-2 text-[var(--color-ink-muted)]"
+          >
+            If it is ruled the other way:{' '}
+            {FL_B8_SAFETY_FLAG_DISCLOSURE.consequenceIfRuledOtherwise}
+          </p>
+          <p className="mt-2 text-[var(--color-ink-muted)]">
+            {FL_B8_SAFETY_FLAG_DISCLOSURE.whyHere}
+          </p>
+          <p
+            data-testid="fl-b8-safety-flag-canon-note"
+            className="mt-2 text-xs text-[var(--color-ink-subtle)]"
+          >
+            {FL_B8_SAFETY_FLAG_DISCLOSURE.canonNote}
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <Heading>Whether this surface says anything at all about a pause</Heading>
+        <div data-testid="fl-b8-pause-disclosure">
+          <DecisionDisclosure id={FL_B8_PAUSE_DISCLOSURE.id} />
+          <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
+            {FL_B8_PAUSE_DISCLOSURE.whyHere}
+          </p>
+          <p
+            data-testid="fl-b8-pause-existing-statement"
+            className="mt-2 max-w-prose text-sm text-[var(--color-ink)]"
+          >
+            {FL_B8_PAUSE_DISCLOSURE.thisModuleAlreadySaysSomething}{' '}
+            {FL_B8_PAUSE_DISCLOSURE.andTheGapInIt}{' '}
+            <Ref text={FL_B8_PAUSE_DISCLOSURE.sourceRef} />
+          </p>
+          <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+            {FL_B8_PAUSE_DISCLOSURE.notResolvedHere}
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <Heading>What was measured here and left open</Heading>
+        <ul className="mt-2 space-y-2">
+          {FL_B8_DEGRADATION_FINDINGS.map((f) => (
+            <li key={f.sourceRef} data-testid="fl-b8-degradation-finding" className="text-sm">
+              <span className="text-[var(--color-ink)]">{f.what}</span>{' '}
+              <span className="text-[var(--color-ink-muted)]">{f.evidence}</span>{' '}
+              <span className="text-[var(--color-ink-muted)]">Owner: {f.owner}</span>{' '}
+              <Ref text={f.sourceRef} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
 function Disclosures() {
   return (
     <div role="group" aria-label="Open decisions">
@@ -758,6 +983,7 @@ export function CoachingView({
         </ul>
       </div>
 
+      <AiDegradation />
       <Disclosures />
 
       <div role="group" aria-label="Where this module surfaces">

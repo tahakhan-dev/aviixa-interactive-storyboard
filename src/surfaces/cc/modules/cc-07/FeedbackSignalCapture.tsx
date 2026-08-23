@@ -48,6 +48,19 @@ import {
   type Cc07Column,
 } from './matrix'
 import { CC07_DIVERGENCES, CC07_GAPS } from './readings'
+import {
+  CC07_AI_ELEMENT_OBLIGATION,
+  CC07_AI_FAILURE_CELL,
+  CC07_AI_FAILURE_READING,
+  CC07_AI_FAILURE_ROW,
+  CC07_DEGRADATION_GAPS,
+  CC07_NEVER_LIVE,
+  CC07_NO_CONTROL_RULE,
+  CC07_RENDERED_ELEMENT_PROVENANCE,
+  CC07_SAFETY_FLAG_DISCLOSURE,
+  CC07_SIGNAL_PROVENANCE,
+  uniformlyProhibitedRows,
+} from './degradation'
 
 /**
  * `MOD-CC-07` — FEEDBACK SIGNAL CAPTURE, RENDERED.
@@ -410,6 +423,94 @@ export function FeedbackSignalCapture() {
         MOD-CC-12&rdquo;, naming this module among the producers where L37570 names MOD-CC-06.
         Both lists are four long and they are not the same four; neither is corrected here.
       </p>
+
+      {/* ──────────── THE ARTIFICIAL-INTELLIGENCE OVERLAY ──────────────── */}
+      <h2 className={H2}>When artificial intelligence fails on this surface</h2>
+      <p data-testid="cc-07-ai-behaviour" className={NOTE}>
+        The behaviour matrix of §43.3.3 keys its rows on module NAMES, not identifiers. The row
+        reading <code>{CC07_AI_FAILURE_ROW.moduleCell}</code> is attributed to{' '}
+        <code>{CC07_MODULE.id}</code> because that string is this module&rsquo;s registered name and
+        for no other reason. The behaviour cell reads{' '}
+        <code>{CC07_AI_FAILURE_ROW.behaviourCell}</code>, classification{' '}
+        {CC07_AI_FAILURE_ROW.classificationCell}; parsed as an outcome it is{' '}
+        <code data-testid="cc-07-ai-outcome">{CC07_AI_FAILURE_CELL.outcome}</code>.{' '}
+        {CC07_AI_FAILURE_READING.statement} {CC07_AI_FAILURE_READING.butTheThingRATEDMayBeGone}
+      </p>
+      <p data-testid="cc-07-ai-attribution" className={NOTE}>
+        {CC07_AI_FAILURE_READING.attributionCaveat}
+      </p>
+      <p className={REF}>Read at {CC07_AI_FAILURE_READING.sourceRef}</p>
+
+      <h2 className={H2}>What this module emits, and what it never claims</h2>
+      <p data-testid="cc-07-provenance" className={NOTE}>
+        Every element of this panel is a source table compared against a role and a module, which
+        the classification tree resolves to <code>{CC07_RENDERED_ELEMENT_PROVENANCE}</code>. A
+        signal, once a named person gives it, is attributed to that identity, which resolves to{' '}
+        <code>{CC07_SIGNAL_PROVENANCE}</code>. The two are held on separate elements and neither
+        is merged into the other. {CC07_NEVER_LIVE.hereItMeans}
+      </p>
+      <p className={REF}>{CC07_NEVER_LIVE.rule} Read at {CC07_NEVER_LIVE.sourceRef}</p>
+      <p data-testid="cc-07-ai-element-obligation" className={NOTE}>
+        {CC07_AI_ELEMENT_OBLIGATION.criterion} {CC07_AI_ELEMENT_OBLIGATION.hereItMeans}
+      </p>
+      <p className={REF}>Read at {CC07_AI_ELEMENT_OBLIGATION.sourceRef}</p>
+
+      <h2 className={H2}>Rows that draw no control for anybody</h2>
+      <p data-testid="cc-07-no-control-rule" className={NOTE}>
+        {CC07_NO_CONTROL_RULE.rule} {CC07_NO_CONTROL_RULE.whyThisRow}{' '}
+        {CC07_NO_CONTROL_RULE.andItIsAlreadyHeld}
+      </p>
+      <ul className="mt-2 space-y-1">
+        {uniformlyProhibitedRows().map((row) => (
+          <li key={row.ordinal} data-testid="cc-07-no-control-row" className="text-sm">
+            Row {row.ordinal} — {row.capability} — prohibited in every column, so no control is
+            drawn for any of them.{' '}
+            <span className="text-[var(--color-ink-subtle)]">{row.sourceRef}</span>
+          </li>
+        ))}
+      </ul>
+      <p className={REF}>Read at {CC07_NO_CONTROL_RULE.sourceRef}</p>
+
+      <h2 className={H2}>The safety flag this surface would receive</h2>
+      <div
+        role="note"
+        data-testid="cc-07-safety-flag-disclosure"
+        className="mt-2 rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4 text-sm"
+      >
+        <p className="font-medium">
+          Open decision {CC07_SAFETY_FLAG_DISCLOSURE.decisionRef}
+        </p>
+        <p className={NOTE}>{CC07_SAFETY_FLAG_DISCLOSURE.question}</p>
+        <ul className="mt-3 space-y-2">
+          {CC07_SAFETY_FLAG_DISCLOSURE.readings.map((r) => (
+            <li key={r.locator} data-testid="cc-07-safety-flag-reading">
+              {r.text} <span className="text-[var(--color-ink-subtle)]">[{r.locator}]</span>
+            </li>
+          ))}
+        </ul>
+        <p data-testid="cc-07-safety-flag-adopted" className={NOTE}>
+          {CC07_SAFETY_FLAG_DISCLOSURE.adopted}
+        </p>
+        <p className={NOTE}>{CC07_SAFETY_FLAG_DISCLOSURE.whyHere}</p>
+        <p data-testid="cc-07-safety-flag-co-discloser" className={NOTE}>
+          {CC07_SAFETY_FLAG_DISCLOSURE.coDiscloser}
+        </p>
+        <p data-testid="cc-07-safety-flag-canon-note" className={REF}>
+          {CC07_SAFETY_FLAG_DISCLOSURE.canonNote}
+        </p>
+      </div>
+
+      <h2 className={H2}>What chapters 40 to 44 do not say about this module</h2>
+      <ul className="mt-4 space-y-6">
+        {CC07_DEGRADATION_GAPS.map((g) => (
+          <li key={g.what} data-testid="cc-07-degradation-gap">
+            <p className="font-medium">{g.what}</p>
+            <p className={NOTE}>{g.measured}</p>
+            <p className={NOTE}>{g.notRepaired}</p>
+            <p className={REF}>Read at {g.sourceRefs.join(', ')}</p>
+          </li>
+        ))}
+      </ul>
 
       {/* ────── THE ACTION RAIL, WHICH THIS SCREEN DELIBERATELY LACKS ───── */}
       <h2 className={H2}>Operational actions exercised here: none</h2>
