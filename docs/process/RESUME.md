@@ -286,9 +286,78 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-**Slice 9 is closed and verified. Slice 10 waves 0 and 1 are closed, fifteen commits,
-`pnpm verify` exit 0 end to end: typecheck, lint, gate-ordering 24/24, freshness 2,
-unit 4965, component 2496, build 96 pages, release 735, e2e/axe 515.**
+**Slice 9 is closed and verified. Slice 10 waves 0, 1 and 2 are closed, twenty-five commits.**
+Measured on the current tree, every figure from a run rather than recollection: typecheck and
+lint clean · gate-ordering 24/24 · freshness 2 · **unit 5124** · **component 2580** · **build
+100/100 static pages** · **release 735** · **e2e/axe 535**, with the axe-states spec alone at 111.
+
+Wave 2 put `MOD-DOH-10` on `/hub/notifications` and `MOD-DOH-11` on
+`/hub/audit-and-retention`, `MOD-DOH-18` as a routeless component, and the two uncatalogued
+scheduler screens on `/super-admin/`. **Two of the four unrepresented Hub modules are now
+represented, not three** — `MOD-DOH-17` and `MOD-DOH-18` remain `not-represented`, and
+`MOD-DOH-18` has a directory on disk without a route, so its register row must move when it gets
+one. A gate now makes that automatic rather than a review item.
+
+### Wave 2: three defects, and two of them only one gate each could see
+
+**Two screens implied a tablet applied a clearance.** L78386 forbids it absolutely and the
+dictionary's second row is the exact case (L78401). Neither the unit nor the component suites
+can see it, because the violation is in emitted text — `offline-phrasing` reads the export. The
+two runs needed different answers: one was the build's own audit narrative and got the compliant
+record-then-device form; the other was the Chapter 30C.2 register's own **name for a
+notification type** (L72989), which this build may not rewrite, so it renders as a marked
+quotation. **Never add a run to `DISCLOSURES` to turn that gate green** — the list is for text
+describing the prohibition.
+
+**Two scheduler routes offered no viewer control.** Found only by `pnpm test:e2e`, and nearly
+missed by the controller: `pnpm test:e2e | tail -3` printed "532 passed" as its last line while
+the command exited 1. **A summary line is not a result; read the exit code.** The same lesson as
+the freshness gate stopping the chain at step four with every count above it green.
+
+**A stale hardcoded count, twice more.** `slice-09-gates` asserted four build-wide
+not-represented modules; wave 2 made it two. Removed rather than renumbered, per the rule this
+slice already produced twice. **One more of the same class is outstanding in that file:
+`toHaveLength(81)` over the build-wide module registry**, which goes stale the next time a
+module lands.
+
+### Four controller prescriptions that did not survive an agent opening the file
+
+These are worth more than the locator errors, because each would have shipped.
+
+1. **"Centrally evidentiary actions fail closed"** — that phrase occurs **zero** times in the
+   frozen source. It is the master prompt's vocabulary, passed into a brief as though it were the
+   blueprint's, which is exactly the boundary the prompt's own §2 draws. The source names seven
+   halt classes and **safety is the opposite of fail-closed**: `AC-30D-1403` (L74918) reads
+   "Deterministic safety mechanisms are unaffected by an audit outage."
+2. **"Give each module a `DohModuleId` member and a `DOH_MODULES` row."** The reach map is
+   generated and typed over the generated file, so widening the union without regenerating fails
+   `tsc` — and regenerating threw, because `doh-10` exports two matrices and the second is keyed
+   on policy level, not role. Unfixed, the reader would have read a policy level as a role. The
+   agent proved it by running the generator rather than reading it.
+3. **"`SaConsoleShell` renders the viewer control as chrome and has a non-module mode for a route
+   no module claims."** It renders none in either mode, and its non-module branch is the console
+   home, which drops `children`. `HubShell` has the third mode that reasoning belongs to; this
+   shell does not.
+4. **"The membership gate is the one place the canon count lives."** Wrong by five places,
+   including a `toHaveLength(43)` inside the very class §8 recorded as consolidated.
+
+**And a locator that contained the phrase but was not its subject:** L5998 carries "Clearance
+granted" as a storyboard *step label*, not the register name. Pinning a disclosure to it reds the
+gate that checks each disclosure quotes words verbatim at the line it names — the error was
+proved mechanically rather than argued.
+
+### Carried forward, owned by no current task
+
+- **The occurrence outcome has two source vocabularies with no cross-reference** — 15
+  lifecycle-diagram nodes, the set wave 0 shipped, against 12 inline at L102559, only four names
+  common. Read strictly, `AC-SCHED-372` excludes the shipped set. Both render, neither preferred.
+- **`tests/accessibility/axe-states.spec.ts` carries a stale claim and three stale counts** in
+  its own comments: it says `SaConsoleShell` renders a reviewer control, which the same file's
+  `/super-admin/` exemption reason contradicts. Wants a controller pass.
+- The screenshot manifest, still 85 routes against a 100-route export.
+- The two generator defects for task 13, unchanged: `notifications.json` blends two registers and
+  silently drops 25 rows, and `SOURCE_CLASSIFICATIONS` claims a frozen-source vocabulary while
+  omitting a label used on 391 lines and spelling one that occurs zero times.
 
 Wave 1 built the scheduled-work spine — six registers across four `SCHED-` key spaces —
 and the twenty-two-operation permission model, which is `src/policy/columns.ts`'s first
