@@ -289,7 +289,21 @@ export function preferenceAffordance(
   role: TenantRoleId,
 ): PreferenceAffordance {
   const controlId = lockedControlId(category)
-  const label = `${category.id} — ${category.name}`
+  /*
+   * QUOTED, AND WITH THE ROW IT IS QUOTED FROM, BECAUSE ONE OF THESE NAMES IS
+   * A PROHIBITED PHRASING.
+   *
+   * `NOTIF-025` is named "Clearance granted against an expired certification"
+   * at L72989, and printed bare as this screen's own words for a setting it is
+   * the phrasing L78401 refuses — the offline-phrasing sweep reported it, and
+   * it was right to. The register's name is not this build's to rewrite, so
+   * the fix is to render it as what it is: the Chapter 30C.2 row, in quotation
+   * marks, with the line it is transcribed from. That marking is on screen and
+   * not only in a test, which is the difference between a quotation and a
+   * display of the words. The locator is per category rather than special-cased
+   * for one row: a rule for one name is a rule nobody applies to the next.
+   */
+  const label = `${category.id} — “${category.name}” (Chapter 30C.2 register name, L${String(category.sourceLine)})`
 
   if (category.group === 'always-sent') {
     return {

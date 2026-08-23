@@ -63,10 +63,10 @@ import { fold, isBareClaim, phrasingMatches } from '@/honesty/lexicon'
  * 3. **PLURALS.** A singular pattern passed a planted plural. Every rule that
  *    names a noun carries its plural.
  *
- * 4. **THE WORDS APPEAR LEGITIMATELY, IN PROSE THAT DESCRIBES THE RULE.** Twelve
- *    rendered runs in this tree carry a prohibited phrasing honestly, and each
- *    is subtracted BY NAME as one exact run — never as a region, never as a
- *    page, never as a heuristic about prose that contains a negation. Three
+ * 4. **THE WORDS APPEAR LEGITIMATELY, IN PROSE THAT DESCRIBES THE RULE.** The
+ *    rendered runs in this tree that carry a prohibited phrasing honestly are
+ *    each subtracted BY NAME as one exact run — never as a region, never as a
+ *    page, never as a heuristic about prose that contains a negation. Four
  *    quote the frozen source and are pinned to the line whose words they carry.
  *    Nine are this build's own sentences and carry no line, because none
  *    exists; those nine are held at a fixed count that a tenth cannot join
@@ -304,21 +304,24 @@ interface Disclosure {
 }
 
 /**
- * TWELVE EXACT RUNS, EACH SUBTRACTED BY NAME.
+ * EXACT RUNS, EACH SUBTRACTED BY NAME.
  *
  * Not a region, not a page, not a component, not a heuristic about prose that
- * contains a qualifier — twelve whole rendered runs. A prohibited phrasing
- * appended to any of them changes the run, matches nothing here, and is
- * reported; that is the property a region-based exemption cannot have.
+ * contains a qualifier — whole rendered runs. A prohibited phrasing appended to
+ * any of them changes the run, matches nothing here, and is reported; that is
+ * the property a region-based exemption cannot have.
  *
  * Deleting one from a screen is also a failure rather than a silent shrink:
  * `is still reached, every entry` requires every one to be found in the built
  * tree, so this list cannot pre-authorise a violation that has not shipped yet.
  *
- * WHY THE LIST IS TWELVE AND NOT FOUR. Eight of these exist only because the
+ * WHY THE LIST IS AS LONG AS IT IS. A THIRD of these exist only because the
  * dictionary reads a claim written through a copula — `the hold HAS BEEN
- * released`, `the clearance IS granted` — and dropping the copula would take
- * the list to four in one edit. It is not dropped. The copula form is how a
+ * released`, `the clearance IS granted` — and dropping the copula would delete
+ * them from this list in one edit. (This paragraph used to say eight of twelve,
+ * with the copula, and four without. Measured against the list, it is the other
+ * way round and always was: four of the twelve matched only through a copula
+ * and eight matched without one.) It is not dropped. The copula form is how a
  * completion claim is written as a sentence rather than printed on a badge, and
  * it is exactly the form the compliant confirmation dialog at L78432 exists to
  * refuse. The costs are not symmetric: a false report costs one reviewed line
@@ -346,6 +349,12 @@ const DISCLOSURES: readonly Disclosure[] = [
       'A qualification block is lifted by a clearance granted by a Supervisor in the Client Command Center and delivered over the command channel',
     line: 2642,
     why: 'Quoted on the screen with its own locator beside it, and the delivery is named in the same clause as the grant.',
+  },
+  {
+    text: 'NOTIF-025 — “Clearance granted against an expired certification” (Chapter 30C.2 register name, L72989) 🔒 Locked — On, cannot be switched off',
+    anchor: 'Clearance granted against an expired certification',
+    line: 72989,
+    why: "The Chapter 30C.2 notification register's own name for a notification type, which is a row of a catalogue and not a claim about a device — the notification is the thing that fires when a clearance is granted against an expired certification, and the reader is being told they cannot switch it off. It is quoted on the screen as the register's name with the line it is transcribed from, which is what makes it a quotation rather than the screen's own words; unmarked and unlocated it was reported here, and correctly.",
   },
 
   /* --- this build's own sentences. FIXED AT NINE; see AUTHORED_BUDGET. --- */

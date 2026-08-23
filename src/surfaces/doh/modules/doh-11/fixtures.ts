@@ -86,7 +86,16 @@ export const SEEDED_AUDIT_EVENTS = [
     eventId: 'AUD-BB-000212',
     eventClass: 'clearance',
     resourceTenant: HUB_TENANT_ID,
-    sentence: 'A clearance was granted, used once, and lapsed.',
+    /* THE TWO HALVES KEPT APART. "A clearance was granted, used once, and
+       lapsed" said a tablet had the clearance on the strength of the grant
+       alone, which is the offline honesty rule's own example: the compliant
+       replacement column at L78401 answers "Clearance granted to Maya" with
+       the server's record and the device named separately. So this sentence
+       records centrally, then names the device that acknowledged, and only
+       then says where it was used. No timestamps — this fixture has no
+       clock, and the device's own report is what the rule asks for. */
+    sentence:
+      'A clearance was recorded, acknowledged by TAB-014, used once on that device, and lapsed.',
     sourceRef: 'L28961',
   },
   {

@@ -1566,9 +1566,17 @@ describe('slice 9 gate 14: all five report identities are open, not one', () => 
 
 describe('slice 9 gate 15: the generator places all thirteen modules on a screen', () => {
   it('eleven demonstrated, two mounted, none not-represented', () => {
-    const registry: readonly { readonly id: string; readonly status: string }[] = (
+    const registry: readonly {
+      readonly id: string
+      readonly status: string
+      readonly surface: string
+    }[] = (
       JSON.parse(readFileSync(join(ROOT, 'registries', 'generated', 'modules.json'), 'utf8')) as {
-        readonly rows: readonly { readonly id: string; readonly status: string }[]
+        readonly rows: readonly {
+          readonly id: string
+          readonly status: string
+          readonly surface: string
+        }[]
       }
     ).rows
     expect(registry).toHaveLength(81)
@@ -1585,9 +1593,38 @@ describe('slice 9 gate 15: the generator places all thirteen modules on a screen
         .map((m) => m.id)
         .sort(),
     )
-    // The build-wide split, which is what makes 'all thirteen' a measurement
-    // rather than a definition: four modules elsewhere are still absent.
-    expect(registry.filter((m) => m.status === 'not-represented')).toHaveLength(4)
+    // THE BUILD-WIDE SPLIT, WHICH IS WHAT MAKES 'ALL THIRTEEN' A MEASUREMENT
+    // RATHER THAN A DEFINITION — AND NOT AS A COUNT.
+    //
+    // This was `toHaveLength(4)`, and 4 was a stored copy of a derived answer:
+    // it went stale the moment slice 10 wave 2 represented MOD-DOH-10 and
+    // MOD-DOH-11, exactly as the canon count and `THIS_SLICE` did earlier this
+    // session. Renumbering it to 2 reships the same defect with a fresher
+    // number, and the intent it was serving never needed a number at all. The
+    // build-wide figure is a bystander here; what this gate is about is the
+    // thirteen Command Center modules. Two properties instead.
+    // THE POSITIVE CONTROL, WHICH IS THE HALF THE COUNT WAS REALLY DOING.
+    // `byStatus('not-represented')` above asserts an ABSENCE, and an absence
+    // measured over a status nothing in the file carries is vacuous: a
+    // generator that stopped emitting this status, or renamed it, leaves that
+    // line green while measuring nothing at all. So something, somewhere,
+    // still has to carry it. The surfaces are what is asserted rather than the
+    // ids, so a failure here names which surface still has absent modules
+    // instead of demanding a list somebody has to re-edit.
+    //
+    // AND NOTHING MORE THAN THAT, DELIBERATELY. A second line asserting that
+    // no absent module is a Command Center one would read well and could never
+    // fail: `byStatus('not-represented')` and `expect(cc).toHaveLength(13)`
+    // both fire before it on every input that would make it red.
+    //
+    // When the build genuinely represents every module this goes red. That is
+    // the moment to delete it, not to edit a number.
+    expect(
+      registry.filter((m) => m.status === 'not-represented').map((m) => m.surface),
+      'no module anywhere is not-represented, so the empty Command Center list above is the ' +
+        'generator being silent rather than a measurement. If every module really is represented ' +
+        'now, delete this assertion — do not weaken it.',
+    ).not.toEqual([])
   })
 
   it('the reach script agrees with the spine about which screens are authored here', () => {
