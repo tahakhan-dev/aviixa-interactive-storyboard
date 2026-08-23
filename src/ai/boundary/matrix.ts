@@ -1,6 +1,10 @@
 import { AI_AGENT_ROSTER, aiRosterAgent, type AiAgentId } from '@/ai/agents/roster'
 import { aiProhibition } from '@/ai/abilities/prohibitions'
+import { matrixCellProvenance } from '@/ai/agents/contracts'
 import { aiMode, type AiModeId, type AiModeRow } from '@/ai/modes'
+import type { ProvenanceClassId } from '@/ai/provenance/classes'
+import { cellFromSource } from '@/policy/columns'
+import type { PermissionOutcome } from '@/policy/decision'
 
 /**
  * THE DETERMINISTIC BOUNDARY — what may and may not touch the
@@ -123,11 +127,23 @@ export type BoundaryOutcome =
   | 'Not applicable'
 
 /**
- * What the text after the em dash IS. Without this, four cells that qualify a
- * permission, two that explain why a column does not apply, and one that
- * names an entirely different act all render as "the same kind of footnote"
- * — which is exactly how the Supervisor's release cell gets read as a
- * softened prohibition.
+ * What the text after the em dash IS. Without this, a cell that qualifies a
+ * permission, a cell that explains why a column does not apply, and the cell
+ * that names an entirely different act all render as "the same kind of
+ * footnote" — which is exactly how the Supervisor's release cell gets read as
+ * a softened prohibition.
+ *
+ * The counts that used to stand in this paragraph were inverted; they are
+ * removed rather than corrected, because a number in prose is a claim nobody
+ * re-measures and the tally was never the thing a reader could act on. The
+ * split is measured in `tests/unit/ai-boundary.test.ts` off the cells.
+ *
+ * IT IS DERIVED, NOT DECLARED. It used to be a third argument to `qualified`,
+ * unchecked by anything: flipping `HUMAN_NOT_RULE_ENGINE` from
+ * `reason-for-not-applicable` to `condition` passed all 26 unit and 13
+ * component tests while the screen rendered "Only where: a human does not
+ * execute the rule engine" — an inapplicability drawn as a conditional grant,
+ * the exact mis-rendering this type exists to prevent. See `kindOf`.
  */
 export type QualifierKind =
   /** Narrows the permission the outcome grants. */
@@ -163,38 +179,82 @@ export interface BoundaryCell {
 }
 
 /**
- * A cell that is nothing but its permission token.
+ * WHAT A QUALIFIER IS, READ OFF THE CELL RATHER THAN ASSERTED ABOUT IT.
+ *
+ * `Not applicable` grants nothing, so a clause after it cannot narrow a grant
+ * — it can only say why the column does not apply. Any other outcome carries
+ * a grant for the clause to narrow, so its clause is a condition. Those two
+ * exhaust every cell in this matrix, and neither is a judgement a transcriber
+ * has to get right a second time.
+ *
+ * `separate-act` is NOT derivable and is not derived: whether a clause names a
+ * different act is a reading of the source, so it is carried by the cell that
+ * makes it, and `SUPERVISOR_RELEASE` is written out in full for that reason.
+ *
+ * A PROHIBITION WITH A PLAIN REASON THROWS rather than guessing. None occurs
+ * in this matrix today. If one arrives, "why you may not" is neither a
+ * condition on a grant nor a separate act, and inventing a third answer here
+ * silently is how a footnote becomes a softened prohibition.
+ */
+const kindOf = (outcome: PermissionOutcome, qualifier: string): QualifierKind => {
+  if (outcome === 'notApplicable') return 'reason-for-not-applicable'
+  if (outcome === 'explicitlyProhibited' || outcome === 'unavailable') {
+    throw new Error(
+      `The boundary cell "${outcome} — ${qualifier}" qualifies a refusal. That is a reason or a ` +
+        'separate act, never a condition, and this matrix has no derivation for it. Write the ' +
+        'cell out with its own reading, as SUPERVISOR_RELEASE is.',
+    )
+  }
+  return 'condition'
+}
+
+/**
+ * ONE CELL, DECODED BY THE TREE'S PARSER RATHER THAN BY A SECOND ONE.
+ *
+ * `src/policy/columns.ts` `cellFromSource` is this tree's source-cell parser:
+ * the nine tokens of L10238 in its spelling, longest first, the separator
+ * requirement that is what actually stops `Allowed` swallowing
+ * `Allowed with conditions`, three backtick placements, the rule that
+ * `Not applicable` must state a reason, and a hard throw on anything else.
+ * This module used to re-derive the token-and-clause split with its own
+ * `BoundaryOutcome` union and its own `bare`/`qualified` pair. All 32 cells of
+ * this matrix were run through `cellFromSource` before it was adopted and all
+ * 32 parse identically, qualifiers included — there is no §40.1 shape it does
+ * not fit, so there is nothing here to abstain from.
+ *
+ * `outcome` STAYS THE SOURCE'S SPELLING and does not become a
+ * `PermissionOutcome`. The renderer prints this field, and `verbatim` is the
+ * cell — the parser is consumed for the SPLIT and the refusal, which is what
+ * was duplicated, not for a second vocabulary.
  *
  * The parameter is `token` rather than `outcome`, which is not a style
  * preference. `tests/coverage/contract-gates.test.ts` scans every file
  * declaring a permission matrix for an `outcome:` that could be empty, reads
- * the expression bound to it, and flagged this helper's PARAMETER LIST —
+ * the expression bound to it, and flagged an earlier helper's PARAMETER LIST —
  * `(outcome: BoundaryOutcome): BoundaryCell => ({ ... qualifier: null` — as a
  * nullable outcome. The field it is worried about is not nullable and never
  * was, but the gate cannot tell a parameter from a field and the fix belongs
- * in the name that collides, not in the gate. A gate narrowed to let this
- * through would stop seeing the defect it exists for.
+ * in the name that collides, not in the gate.
  */
-const bare = (token: BoundaryOutcome): BoundaryCell => ({
-  verbatim: token,
-  outcome: token,
-  qualifier: null,
-  qualifierKind: null,
-  separateAct: null,
-})
+const cellOf = (token: BoundaryOutcome, qualifier: string | null): BoundaryCell => {
+  const verbatim = qualifier === null ? token : `${token} — ${qualifier}`
+  const parsed = cellFromSource(verbatim)
+  const stated = qualifier === null ? null : parsed.detail
+  return {
+    verbatim,
+    outcome: token,
+    qualifier: stated,
+    qualifierKind: stated === null ? null : kindOf(parsed.outcome, stated),
+    separateAct: null,
+  }
+}
+
+/** A cell that is nothing but its permission token. */
+const bare = (token: BoundaryOutcome): BoundaryCell => cellOf(token, null)
 
 /** A cell whose clause qualifies or explains, and grants nothing new. */
-const qualified = (
-  token: BoundaryOutcome,
-  qualifier: string,
-  qualifierKind: 'condition' | 'reason-for-not-applicable',
-): BoundaryCell => ({
-  verbatim: `${token} — ${qualifier}`,
-  outcome: token,
-  qualifier,
-  qualifierKind,
-  separateAct: null,
-})
+const qualified = (token: BoundaryOutcome, qualifier: string): BoundaryCell =>
+  cellOf(token, qualifier)
 
 const PROHIBITED = 'Explicitly prohibited'
 const ALL_FOUR_PROHIBITED = {
@@ -207,13 +267,8 @@ const ALL_FOUR_PROHIBITED = {
 const HUMAN_NOT_RULE_ENGINE = qualified(
   'Not applicable',
   'a human does not execute the rule engine',
-  'reason-for-not-applicable',
 )
-const HOLD_IS_AUTOMATIC = qualified(
-  'Not applicable',
-  'the hold is automatic',
-  'reason-for-not-applicable',
-)
+const HOLD_IS_AUTOMATIC = qualified('Not applicable', 'the hold is automatic')
 
 /**
  * The Supervisor's release cell. Both halves, kept apart.
@@ -305,7 +360,6 @@ export const BOUNDARY_ROWS = [
       evaluateSpecificationRule: qualified(
         'Allowed with conditions',
         'confirmation and reconciliation only, never the trigger',
-        'condition',
       ),
       setSeverityBand: bare(PROHIBITED),
       placeSeverity1Hold: bare(PROHIBITED),
@@ -365,7 +419,6 @@ export const BOUNDARY_ROWS = [
       setSeverityBand: qualified(
         'Allowed with conditions',
         'reclassification at review time with a recorded reason',
-        'condition',
       ),
       placeSeverity1Hold: HOLD_IS_AUTOMATIC,
       releaseSeverity1Hold: bare('Allowed'),
@@ -456,8 +509,20 @@ export const DETERMINISTIC_SAFETY_STATEMENTS = [
   },
 ] as const satisfies readonly DeterministicSafetyStatement[]
 
-/** Section 42.4's class for everything in this module. Exactly one, always. */
-export const BOUNDARY_PROVENANCE_CLASS = 'PROV-4' as const
+/**
+ * Section 42.4's class for everything in this module. Exactly one, always.
+ *
+ * RESOLVED, NOT PINNED. Every element this module renders is the source's own
+ * table compared against a component — a packaged value producing an outcome
+ * by comparison, and no model in the path — which is what `PROV-4`,
+ * "Deterministic rules", is. It used to be the literal `'PROV-4'` with a test
+ * asserting the literal, which is a claim about itself: a change to the
+ * classification order of L89443-L89455 would leave the literal standing and
+ * the assertion green. `@/ai/agents/contracts` `matrixCellProvenance` already
+ * did this properly for chapter 44's cells and the facts are the same facts,
+ * so this consumes it rather than restating them.
+ */
+export const BOUNDARY_PROVENANCE_CLASS: ProvenanceClassId = matrixCellProvenance()
 
 export interface DeterministicStanding {
   readonly mode: AiModeId

@@ -24,9 +24,8 @@ import { join } from 'node:path'
  *     ellipsis range                1   a horizontal-ellipsis separator
  *     slash pair                    4   two citations, NOT a range
  *
- * 11,899 citations, in 262 files scanned. RE-DERIVED, never carried: the
- * figures in this comment were stale by 5,388 citations for two days because
- * they were copied forward from the run that first wrote them.
+ * RE-DERIVED, never carried. A total used to sit here and it was wrong twice,
+ * the second time by more than half; the run prints the live one.
  *
  * So the lexer scans for the STRUCTURE, not one spelling: a separator class of
  * hyphen / en dash / em dash / ellipsis, an optional second `L`, optional
@@ -43,12 +42,12 @@ import { join } from 'node:path'
  *
  * ── STRONG CHECKS vs WEAK CHECKS, AND WHY THE DIFFERENCE MATTERS ───────────
  * These are NOT the same claim and this file never lets one pass for the
- * other. Every count is asserted separately below, and the split is printed:
- *
- *     strong, verbatim quotation      744
- *     strong, identifier anchor     1,806
- *     anchored but unproven (weak)    100
- *     weak, plausibility only       9,349
+ * other. Every bucket is asserted separately below, and the split is PRINTED
+ * by the run rather than transcribed here — the figures that used to sit in
+ * this comment went stale by 5,388 citations for two days and then by twelve
+ * thousand more, because a number copied into prose is a number nobody
+ * re-measures. `reports the strong, weak and unproven split` prints the live
+ * one; `BASELINE` holds the only figures anything is asserted against.
  *
  * WEAK. A bare line number with no quotation and no identifier beside it
  * carries no checkable content — nothing says WHAT that line is supposed to
@@ -94,19 +93,38 @@ import { join } from 'node:path'
  * alarm first: `MOD-STU-01` quotes a fallback row that writes its own nested
  * quotation with double quotes where the citing comment used single ones.
  *
- * STRONG BY IDENTIFIER ANCHOR (1,153 citations). Most of this tree's bare line
- * numbers are not bare at all: they are written NEXT TO an identifier the
- * frozen source defines — `FB-STU-10`, `AC-STU-097`, `MOD-STU-13`,
- * `DEC-LANEB-001`, `SCR-STU-04`, `FUNC-STU-07-02-C-1`. That is a checkable
- * claim, and it was going unchecked. Where a citation is anchored to an
- * identifier, the cited line must be a line that identifier really occurs at.
- * `anchorOf` defines "next to" and says why it is leftwards only; `IDENTIFIER`
- * and `buildIdentifierIndex` say where the occurrences come from and why the
- * shipped index is not allowed to be the answer.
+ * STRONG BY IDENTIFIER ANCHOR. Most of this tree's bare line numbers are not
+ * bare at all: they are written NEXT TO an identifier the frozen source
+ * defines — `FB-STU-10`, `AC-STU-097`, `MOD-STU-13`, `DEC-LANEB-001`,
+ * `SCR-STU-04`, `FUNC-STU-07-02-C-1`. That is a checkable claim, and it was
+ * going unchecked. `anchorOf` defines "next to" and says why it is leftwards
+ * only; `IDENTIFIER` and `buildIdentifierIndex` say where the occurrences come
+ * from and why the shipped index is not allowed to be the answer.
  *
- * NO WINDOW IS ALLOWED ON THAT ONE. An identifier's line is a fact stated
+ * AND IT IS CHECKED IN TWO PLACES, WHICH IS NOT ONE CHECK STATED TWICE. This
+ * comment used to say only "the cited line must be a line that identifier
+ * really occurs at", and the implementation did not do that. Read the two
+ * apart:
+ *
+ *   `anchorVerdict` — the FAILING check, and a NEIGHBOUR DETECTOR. It convicts
+ *   a citation only when the cited line carries a SIBLING of the anchor, and
+ *   its own comment argues at length why: a citation INTO the record an
+ *   identifier heads is indistinguishable from a wrong line, `RESUME.md` §2a
+ *   certifies that form as correct, and convicting it would make this a
+ *   false-alarm generator. Measured cost of that narrowing: a locator rewritten
+ *   to a line 12,000 lines away left the release suite green, and the same
+ *   defect re-planted onto a sibling's line turned it red.
+ *
+ *   `STRICT_ANCHOR_ALLOWANCE` — the LITERAL check, on the same index, with the
+ *   population it inherited pinned by name. 177 citations, 130 claims, 64
+ *   files, measured before anything was converted and NOT edited to fit: they
+ *   are three different shapes and most of them need a blueprint line opened.
+ *   Pinned as a list rather than a count, so a NEW citation that does not land
+ *   on its identifier reds this gate whatever line it chose.
+ *
+ * NO WINDOW IS ALLOWED ON EITHER. An identifier's line is a fact stated
  * exactly, not a heading a sentence sits under — and every off-by-one in this
- * tree was inside a window of three. See `anchorVerdict`.
+ * tree was inside a window of three.
  *
  * ── WHY +/-3 AND NOT EXACT, FOR A QUOTATION ────────────────────────────────
  * Measured, not guessed: of the strong claims that resolve at all, the great
@@ -123,7 +141,9 @@ import { join } from 'node:path'
  *   content decision, never a new locator invented to fit.
  * ANCHOR-MISS — the cited line is not one of the identifier's, and it carries
  *   the identifier's NEIGHBOUR instead. The correct line is not guessed here
- *   either; it is read off the index and printed in the failure.
+ *   either; it is read off the index and printed in the failure. The cited
+ *   line not being one of the identifier's WITHOUT a neighbour on it is a
+ *   different and weaker finding, and it is `STRICT_ANCHOR_ALLOWANCE`.
  *
  * ── THIS GATE CAN FAIL ─────────────────────────────────────────────────────
  * Nine assertions on this branch were incapable of failing, two of them
@@ -1224,6 +1244,217 @@ const strongByAnchor = anchoredAll.filter(
 )
 const stronglyChecked = strongByQuote.length + strongByAnchor.length
 
+/* ── the strict anchor check ───────────────────────────────────────────── */
+
+/**
+ * WHAT `anchorVerdict` PROVES, AND THE HALF OF THE CLAIM IT LEAVES STANDING.
+ *
+ * `anchorVerdict` convicts a citation only when the cited line carries a
+ * SIBLING of the anchor. That is deliberate and it is argued in full there.
+ * But it means the check is a NEIGHBOUR DETECTOR rather than a line checker,
+ * and the difference is measurable rather than theoretical: rewriting one
+ * correct locator in `src/ai/agents/matrices.ts` to a line 12,000 lines away
+ * left the whole release suite green, and re-planting the SAME defect onto a
+ * line that happens to carry a sibling turned it red. A wrong citation was
+ * caught only when it landed next door to the right one.
+ *
+ * The index can say more than that. `IDENTIFIERS.lines` is built by scanning
+ * the frozen source, so it holds EVERY line an identifier occurs at — not a
+ * sample. When a citation is anchored to an identifier and no span of its run
+ * reaches any of those lines, the citation does not land on its identifier.
+ * Full stop, no window, no sibling required. That is this list.
+ *
+ * SO WHY IS THIS AN ALLOWANCE AND NOT A FAILURE? Because it was MEASURED
+ * before it was converted, and the measurement says the population is mixed:
+ * 177 citations in 64 files, 130 distinct claims. Three shapes share it.
+ *
+ *   1. A CITATION INTO THE RECORD AN IDENTIFIER HEADS, which `RESUME.md` §2a
+ *      certifies as CORRECT and warns has already been nearly "corrected"
+ *      into five inaccurate citations. `MOD-STU-07` opens `§20.2.7` and the
+ *      tree cites a permission row inside it; `OBJ-036` heads a record and
+ *      the tree cites one of its fields. Both are in this list. Convicting
+ *      them would make the gate a false-alarm generator, which is the exact
+ *      failure `anchorVerdict` narrowed itself to avoid.
+ *   2. THE CO-CITATION AND POSITIONAL FORMS the anchor binder does not fully
+ *      suppress. `slice-04-gates.test.ts` writes
+ *      `` `AC-PROD-043`/`TEST-PROD-043`, <line>, <line>, <range> `` — a slash
+ *      pair `CHAIN` does not read as a list, so an anchor is taken from the
+ *      nearer of two identifiers and the locators are positional.
+ *   3. WHAT LOOK LIKE REAL DEFECTS. `WF-QLT-006` is cited 40,000 lines from
+ *      any of its four occurrences; `SCR-DOH-18` at a storyboard for a
+ *      different screen. Each needs a blueprint line opened and read, and
+ *      122 of the 130 keys sit outside the path list of the task that
+ *      measured them, so not one was edited to make this green.
+ *
+ * WHAT THIS THEREFORE IS: the strict claim, turned ON, with the population it
+ * inherited pinned by name so it cannot grow. A LITERAL LIST AND NOT A
+ * LENGTH, and proved by ADDING rather than by removing — a new wrong citation
+ * of this shape is not in the list and reds this gate, whatever line it lands
+ * on and whether or not a sibling sits there. That is the property the
+ * neighbour detector never had.
+ *
+ * THE KEY IS THE CLAIM, NOT THE PLACE. `<identifier>@<span>` is the assertion
+ * being allowed — "this identifier is at this line" — so the same wrong claim
+ * repeated in four files is one entry, and moving a comment up a line does
+ * not red the gate. The `L` is dropped on purpose: this file is inside its own
+ * scan, and 130 literal locators written here would be lexed and graded like
+ * any other citation.
+ *
+ * AND IT MUST NOT ROT. Every entry is asserted to be still occurring. When a
+ * citation in here is corrected, its key stops matching and the gate says so —
+ * removing it is the closing step of that fix. `RESUME.md` §7: never renumber
+ * a stale count, remove it. A pinned list nobody prunes is the baseline defect
+ * this file already committed twice.
+ */
+const strictAnchorKey = (c: Citation): string => `${c.anchor}@${c.token.replace(/L/g, '')}`
+
+const strictAnchorMisses = graded
+  .map((g) => g.citation)
+  .filter((c) => {
+    if (c.anchor === undefined) return false
+    const at = IDENTIFIERS.lines.get(c.anchor)
+    if (at === undefined) return false
+    const spans = c.group ?? [[c.start, c.end]]
+    return !at.some((line) => spans.some(([lo, hi]) => line >= lo && line <= hi))
+  })
+
+/**
+ * Measured 2026-08-24 by running this file alone, printed by the assertion
+ * below rather than transcribed by hand. 130 claims, 177 citations, 64 files.
+ */
+const STRICT_ANCHOR_ALLOWANCE: ReadonlySet<string> = new Set([
+  'AC-30C-1003@73702',
+  'AC-30D-105@74032',
+  'AC-DOH-13-7@29172',
+  'AC-PROOF-024@111730',
+  'AC-SA-07-13-01@44548',
+  'AC-STU-049@31910',
+  'AC-STU-066@32523',
+  'ASSUM-006@3410',
+  'DEC-MSG-001@5265',
+  'DEC-NOTIFPREF-001@73672',
+  'DEC-NOTIFSEV-001@73141',
+  'DEC-OFF-001@80836',
+  'DEC-PKGMAN-001@61208',
+  'DEC-PLUS-001@28122',
+  'DEC-REPORT-001@38269',
+  'DEC-ROLE-001@37650',
+  'DEC-SAFETY-001@93782',
+  'DEC-SCHED-008@111870',
+  'DEC-STORE-001@79469',
+  'DEC-SUSPMSG-001@114674',
+  'DWG-A441@68168',
+  'FB-STU-01@30863',
+  'FB-STU-01@30871',
+  'FB-STU-05@32647',
+  'FB-STU-07@30772',
+  'FB-STU-07@30774',
+  'FB-SYNC-02@80215',
+  'MOD-CC-02@36452-36456',
+  'MOD-CC-04@36838',
+  'MOD-CC-04@36842',
+  'MOD-CC-05@37247',
+  'MOD-CC-06@37467',
+  'MOD-CC-07@37630',
+  'MOD-CC-08@37668',
+  'MOD-CC-08@37669',
+  'MOD-CC-08@37670',
+  'MOD-CC-08@37673',
+  'MOD-CC-08@37674',
+  'MOD-CC-08@37822',
+  'MOD-CC-09@37865',
+  'MOD-CC-09@37866',
+  'MOD-CC-09@37868',
+  'MOD-CC-10@38089',
+  'MOD-CC-11@38287-38297',
+  'MOD-CC-12@38483',
+  'MOD-CC-12@38488',
+  'MOD-CC-13@38682',
+  'MOD-CC-13@38683',
+  'MOD-CC-13@38684',
+  'MOD-CC-13@38688',
+  'MOD-CC-13@38690',
+  'MOD-DOH-10@28687',
+  'MOD-DOH-11@28863',
+  'MOD-DOH-18@29919',
+  'MOD-FL-A1@40361',
+  'MOD-FL-A1@40534',
+  'MOD-FL-A2@40526',
+  'MOD-FL-A2@40535',
+  'MOD-FL-A3@40722',
+  'MOD-FL-A3@41953',
+  'MOD-FL-A4@40724',
+  'MOD-FL-A4@40726',
+  'MOD-FL-A4@40727',
+  'MOD-FL-A4@40729',
+  'MOD-FL-A4@40730',
+  'MOD-FL-A4@41300',
+  'MOD-FL-A5@40948',
+  'MOD-FL-A7@41623',
+  'MOD-FL-B10@41790-41798',
+  'MOD-FL-B12@42114',
+  'MOD-FL-B8@41473',
+  'MOD-FL-B8@41596',
+  'MOD-FL-B9@41623',
+  'MOD-SA-07@44696',
+  'MOD-SA-10@107350',
+  'MOD-SA-11@45273',
+  'MOD-SA-12@45385',
+  'MOD-STU-07@32637',
+  'MOD-STU-07@32666',
+  'MOD-STU-18@34558',
+  'MOD-STU-18@34571',
+  'MTX-PLAT-01@21068',
+  'MTX-PLAT-02@21076-21096',
+  'MTX-TEN-01@21928',
+  'OBJ-036@8597',
+  'OBJ-036@8598',
+  'OBJ-037@8616',
+  'OBJ-039@8651',
+  'OBJ-039@8653',
+  'SB-030@65868',
+  'SB-25-05@48557-48570',
+  'SB-42-401@89451',
+  'SB-43-101@90040',
+  'SB-43-102@90045',
+  'SB-43-351@91300',
+  'SB-CC-12@36383',
+  'SB-CC-20@37930',
+  'SB-DOH-017@27840',
+  'SB-PREF-01@73684',
+  'SB-SEC-005@103830',
+  'SCR-DOH-18@23918',
+  'SCR-STU-04@33038',
+  'SEQ-004@61336',
+  'SEQ-010@67908',
+  'SEQ-012@68307',
+  'SEQ-013@68454-68461',
+  'SEQ-013@68455-68465',
+  'SEQ-013@68465',
+  'STATE-08@48007',
+  'STATE-13@48683',
+  'TC-13@98082',
+  'TEST-PROD-043@3799',
+  'WF-AUT-001@53365',
+  'WF-AUT-002@53397',
+  'WF-AUT-003@53435',
+  'WF-AUT-004@53468',
+  'WF-AUT-005@53505',
+  'WF-AUT-006@53540',
+  'WF-AUT-008@53607',
+  'WF-AUT-009@53644',
+  'WF-AUT-010@53679',
+  'WF-AUT-011@53711',
+  'WF-DVC-003@53152',
+  'WF-EXE-001@53791',
+  'WF-EXE-001@53798',
+  'WF-EXE-003@53864',
+  'WF-ORG-004@52658',
+  'WF-ORG-004@52667',
+  'WF-QLT-005@54202',
+  'WF-QLT-006@13423',
+])
+
 describe('locator fidelity: the frozen source', () => {
   it('is present where every citation in this tree points', () => {
     expect(existsSync(SOURCE_PATH), `frozen source not found at ${SOURCE_PATH}`).toBe(true)
@@ -1476,6 +1707,52 @@ describe('locator fidelity: strong checks — the identifier must be at the line
     // passed the weak check because L31453 exists, runs forwards and is not
     // blank. There is no locator to guess here: the index states the line.
     expect(offenders('anchor-miss')).toEqual([])
+  })
+})
+
+describe('locator fidelity: strong checks — the identifier must be AT the line', () => {
+  /**
+   * The claim `anchorVerdict` cannot make, made here against the same index.
+   * See `STRICT_ANCHOR_ALLOWANCE` for why the inherited population is pinned
+   * rather than convicted, and what each of its three shapes is.
+   */
+  it('lands every anchored citation on its identifier, or names the exception', () => {
+    const unlisted = strictAnchorMisses
+      .filter((c) => !STRICT_ANCHOR_ALLOWANCE.has(strictAnchorKey(c)))
+      .map(
+        (c) =>
+          `${c.file}:${c.line} cites ${c.token} for ${c.anchor}, which is at ` +
+          `${(IDENTIFIERS.lines.get(c.anchor as string) ?? []).slice(0, 6).join(', ')}`,
+      )
+      .sort()
+    if (unlisted.length > 0) {
+      console.error(`\n[locator-fidelity] strict anchor miss (${unlisted.length}):\n  ${unlisted.join('\n  ')}`)
+    }
+    // The fix is to correct the locator, never to add a key here. A key is
+    // added only for a citation this build has read and judged correct — the
+    // record-heading form of shape 1 — and the reading goes in the report.
+    expect(unlisted).toEqual([])
+  })
+
+  it('names every anchored citation it allows rather than counting them', () => {
+    // The same obligation `CORRECTION` carries: an exemption nobody can read
+    // is an exemption nobody audits. Printed with the file and the locator.
+    const allowed = strictAnchorMisses.filter((c) => STRICT_ANCHOR_ALLOWANCE.has(strictAnchorKey(c)))
+    console.error(
+      `\n[locator-fidelity] anchored off their identifier, allowed (${allowed.length} citations, ` +
+        `${new Set(allowed.map(strictAnchorKey)).size} claims, ${new Set(allowed.map((c) => c.file)).size} files):\n  ` +
+        [...new Set(allowed.map((c) => `${strictAnchorKey(c)}  ${c.file}:${c.line}`))].sort().join('\n  '),
+    )
+    // Not vacuous: the allowance is doing work, so the check it guards is on.
+    expect(allowed.length).toBeGreaterThan(100)
+  })
+
+  it('carries no allowance for a citation that no longer misses', () => {
+    // A pinned list nobody prunes drifts to fiction exactly the way this
+    // file's own baselines did. When one of these locators is corrected, its
+    // key stops occurring and removing it is the closing step of that fix.
+    const live = new Set(strictAnchorMisses.map(strictAnchorKey))
+    expect([...STRICT_ANCHOR_ALLOWANCE].filter((k) => !live.has(k)).sort()).toEqual([])
   })
 })
 

@@ -425,8 +425,13 @@ export const OPEN_SEAMS = [
       'holds two source files and two unit tests. This is an ABSTENTION, stated, because an ' +
       'abstention and an oversight look identical from outside.',
     owner:
-      'Slice 11 wave 1 task 8 (`src/ui/shared/DeterministicBoundary.tsx`) and wave 2 task 10 ' +
-      '(the `MOD-CC-08` overlay) are the declared consumers. If neither imports these modules, ' +
-      'this object graph ships unreachable and wave 5 task 21 should catch it.',
+      'Wave 2 task 10 (the `MOD-CC-08` overlay) is the declared consumer, and its brief asks ' +
+      'for it. This seam used to name slice 11 wave 1 task 8 as a second one, and that half ' +
+      'was invented: `src/ui/shared/DeterministicBoundary.tsx` exists and imports nothing from ' +
+      'either module here, its brief never asked it to, and it renders section 40.1\'s ' +
+      'boundary rather than chapter 44\'s matrices. A declared owner that was never told it ' +
+      'owned anything is worse than an unowned seam, because it reads as covered. If task 10 ' +
+      'does not import these modules, this object graph ships unreachable and wave 5 task 21 ' +
+      'should catch it.',
   },
 ] as const satisfies readonly OpenSeam[]

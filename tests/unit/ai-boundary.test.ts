@@ -14,7 +14,10 @@ import {
   uniformlyProhibitedRows,
 } from '@/ai/boundary/matrix'
 import { AI_AGENT_ROSTER } from '@/ai/agents/roster'
+import { matrixCellProvenance } from '@/ai/agents/contracts'
 import { AI_MODE_IDS } from '@/ai/modes'
+import { provenanceClass } from '@/ai/provenance/classes'
+import { cellFromSource } from '@/policy/columns'
 
 /**
  * Slice 11, wave 1, task 8 — the deterministic boundary as data.
@@ -183,6 +186,52 @@ describe('the agent rows that read the same in all four columns', () => {
 
 /* ── the cell whose own text grants what the cell forbids ──────────────── */
 
+/**
+ * WHAT A QUALIFIER IS, CHECKED AGAINST THE CELL RATHER THAN TAKEN ON TRUST.
+ *
+ * `qualifierKind` was a third argument nothing verified. Flipping
+ * `HUMAN_NOT_RULE_ENGINE` from `reason-for-not-applicable` to `condition`
+ * passed all 26 unit and 13 component tests, and the screen then rendered
+ * "Only where: a human does not execute the rule engine" — an inapplicability
+ * drawn as a conditional grant. It is derived now, and these are the two
+ * assertions that keep the derivation honest rather than merely present.
+ */
+describe('every qualifier kind is the one the cell’s own text implies', () => {
+  const cells = BOUNDARY_ROWS.flatMap((row) => BOUNDARY_COLUMN_IDS.map((id) => row.cells[id]))
+
+  it('reads every cell through the tree’s parser and agrees with it', () => {
+    // The consumption, asserted rather than claimed: `cellFromSource` splits
+    // token from clause for all 32 cells, and if this module ever grows a
+    // second parser again the two will disagree here.
+    expect(cells.length).toBeGreaterThan(0)
+    for (const cell of cells) {
+      const parsed = cellFromSource(cell.verbatim)
+      expect(parsed.detail, cell.verbatim).toBe(
+        cell.qualifier ?? `${cell.outcome}, stated bare in the source`,
+      )
+    }
+  })
+
+  it('never calls an inapplicability a condition, nor a grant a reason', () => {
+    // Both directions, because a rule stated one way is satisfiable by a
+    // derivation that returns the same answer for everything.
+    const notApplicable = cells.filter((c) => c.verbatim.startsWith('Not applicable'))
+    const granting = cells.filter((c) => c.verbatim.startsWith('Allowed'))
+    expect(notApplicable.length).toBeGreaterThan(0)
+    expect(granting.some((c) => c.qualifier !== null)).toBe(true)
+    for (const cell of notApplicable) {
+      expect(cell.qualifierKind, cell.verbatim).toBe('reason-for-not-applicable')
+    }
+    for (const cell of granting) {
+      expect(cell.qualifierKind, cell.verbatim).toBe(cell.qualifier === null ? null : 'condition')
+    }
+    // And a bare token qualifies nothing, so it names no kind at all.
+    for (const cell of cells.filter((c) => c.qualifier === null)) {
+      expect(cell.qualifierKind, cell.verbatim).toBeNull()
+    }
+  })
+})
+
 describe('the Supervisor’s release cell, both halves', () => {
   const supervisor = boundaryRow('supervisor-human')
   const cell = supervisor.cells.releaseSeverity1Hold
@@ -195,8 +244,11 @@ describe('the Supervisor’s release cell, both halves', () => {
   })
 
   it('is not the only qualified cell, and the others are NOT separate acts', () => {
-    // The discriminator has to discriminate. Four other cells in this matrix
-    // carry a clause after the em dash and none of them is a different act.
+    // The discriminator has to discriminate: other cells in this matrix carry
+    // a clause after the em dash and none of them is a different act. The
+    // count that used to stand in this comment was wrong by position; it is
+    // removed rather than renumbered, and the assertion below is what the
+    // reader can act on.
     const others = BOUNDARY_ROWS.flatMap((row) =>
       BOUNDARY_COLUMN_IDS.map((columnId) => row.cells[columnId]).filter(
         (c) => c.qualifier !== null && c !== cell,
@@ -294,7 +346,16 @@ describe('the standing the deterministic layer holds under any AI mode', () => {
   })
 
   it('emits the deterministic-rules provenance class and no other', () => {
-    expect(BOUNDARY_PROVENANCE_CLASS).toBe('PROV-4')
+    // RESOLVED ON BOTH SIDES. Asserting the literal against the literal is a
+    // claim about itself: reordering the classification tree of
+    // L89443-L89455 would leave both standing. Compared against
+    // `matrixCellProvenance`, which runs `resolveProvenance` over the same
+    // facts, a change to that order moves both and this still holds — while a
+    // module that quietly went back to a pinned string does not.
+    expect(BOUNDARY_PROVENANCE_CLASS).toBe(matrixCellProvenance())
+    // And it is the class the source names, so the pair cannot drift together
+    // into being right about each other and wrong about the document.
+    expect(provenanceClass(BOUNDARY_PROVENANCE_CLASS).name).toBe('Deterministic rules')
   })
 })
 

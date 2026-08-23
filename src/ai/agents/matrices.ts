@@ -1,5 +1,6 @@
 import { ROLES, roleById, type RoleId } from '@/domain/roles'
 import { surfaceById } from '@/domain/surfaces'
+import { cellFromSource, type ColumnCell } from '@/policy/columns'
 import type { PermissionOutcome } from '@/policy/decision'
 import { routeBySurface, routeOpenDecisionFor, routesForRole } from '@/routes/definitions'
 import type { LinkOutOwner, OwningSurface } from '@/surfaces/cc/decisions/link-outs'
@@ -464,30 +465,56 @@ export function cellTextOf(row: Chapter44Row, role: Chapter44Column): string {
 }
 
 /**
- * The token, as a member of the build's one closed permission vocabulary.
+ * THE ONE SHAPE CHAPTER 44 WRITES THAT `cellFromSource` DOES NOT ADMIT, and
+ * the whole of why this module keeps a parser at all.
  *
- * THERE IS NO DEFAULT AND NO FALLBACK MEMBER. An unrecognised cell throws.
- * Six of the nine members occur in these three tables; the three that do not
- * — `cachedReadOnlyOffline`, `queuedOffline` and `clientDecisionRequired` —
- * are absent from chapter 44's matrices and are not reachable from here.
- * Mapping an unknown spelling onto `notApplicable` or `unavailable` would
- * invent a permission position, which is the one thing a permission decoder
- * must never do.
+ * `src/policy/columns.ts` is this tree's source-cell parser: all nine tokens
+ * of L10238 in its spelling, longest first, a SEPARATOR REQUIREMENT that is
+ * the mechanism actually stopping `Allowed` from swallowing
+ * `Allowed with conditions`, three backtick placements, and a hard throw on
+ * text it does not understand. Every one of those is wanted here and none of
+ * it is re-derived below — `chapter44Cell` delegates.
  *
- * `Allowed with conditions` is tested BEFORE `Allowed`, because every
- * conditional cell begins with the word the unconditional one is.
+ * What it cannot take is a RUN-ON QUALIFIER. Five of chapter 44's 130 cells
+ * write `Read-only` and then a prepositional phrase with no separator at all:
+ * `Read-only through the Studio corpus` (§44.1), `Read-only via the Delivery
+ * Operations Hub record` (§44.2 and §44.3), `Read-only via the record`
+ * (§44.3). L10238's separator set is `,` `—` `-` `;` `:` and a space is
+ * deliberately not in it, because admitting one would let `Allowed` match
+ * `Allowed with conditions` and turn 41 conditioned grants elsewhere in the
+ * tree into unconditional ones. So the separator set must not widen, and this
+ * shape must be named here rather than there.
+ *
+ * It is named as narrowly as it occurs: `Read-only`, then `through` or `via`,
+ * then the phrase. Any other run-on still throws, and so does everything else
+ * `cellFromSource` refuses.
  */
+const READ_ONLY_RUN_ON = /^Read-only ((?:through|via) .+)$/
+
+/**
+ * One chapter-44 cell, decoded by the tree's parser.
+ *
+ * THERE IS NO DEFAULT AND NO FALLBACK MEMBER. An unrecognised cell throws,
+ * because mapping an unknown spelling onto `notApplicable` or `unavailable`
+ * would invent a permission position, which is the one thing a permission
+ * decoder must never do. This module used to make that promise with six
+ * `startsWith` tests and prefix matching, which kept none of L10238's other
+ * rules — including the one requiring `Not applicable` to state its reason,
+ * a rule `cellTextOf` cites L10238 for two functions above.
+ */
+export function chapter44Cell(cellText: string): ColumnCell {
+  try {
+    return cellFromSource(cellText)
+  } catch (refusal) {
+    const runOn = READ_ONLY_RUN_ON.exec(cellText.trim())
+    if (runOn === null) throw refusal
+    return { outcome: 'readOnly', detail: runOn[1] as string }
+  }
+}
+
+/** The token alone, for callers that only need the permission position. */
 export function outcomeOf(cellText: string): PermissionOutcome {
-  if (cellText.startsWith('Allowed with conditions')) return 'allowedWithConditions'
-  if (cellText.startsWith('Allowed')) return 'allowed'
-  if (cellText.startsWith('Read-only')) return 'readOnly'
-  if (cellText.startsWith('Explicitly prohibited')) return 'explicitlyProhibited'
-  if (cellText.startsWith('Not applicable')) return 'notApplicable'
-  if (cellText.startsWith('Unavailable')) return 'unavailable'
-  throw new Error(
-    `No permission outcome is declared for the chapter-44 cell "${cellText}". The closed set ` +
-      'is exhausted and nothing here may guess one.',
-  )
+  return chapter44Cell(cellText).outcome
 }
 
 const PERMISSIVE: readonly PermissionOutcome[] = ['allowed', 'allowedWithConditions']
@@ -614,9 +641,45 @@ export function decisionIdInCell(cellText: string): string | null {
   return /`(DEC-[A-Z0-9]+-\d+)`/.exec(cellText)?.[1] ?? null
 }
 
-/** Every record for one identifier — more than one where chapters collide. */
+/**
+ * Every record for one identifier — more than one where chapters collide.
+ *
+ * KEYED ON THE IDENTIFIER ALONE, ON PURPOSE, and this is the accessor a screen
+ * showing a cell should use: it returns every chapter that asks a question
+ * under this identifier, and the renderer shows them all. That is what
+ * actually protects §44.3 from being answered with chapter 30's question —
+ * not the key, the fact that nothing is dropped.
+ */
 export function chapter44Decisions(identifier: string): readonly Chapter44Decision[] {
   return CHAPTER_44_CELL_DECISIONS.filter((d) => d.identifier === identifier)
+}
+
+/**
+ * The compound key `Chapter44Decision`'s own comment credits, for a caller
+ * that has a chapter and wants THAT chapter's question rather than all of
+ * them.
+ *
+ * IT REFUSES RATHER THAN RETURNING THE OTHER CHAPTER'S. `DEC-HANDOFF-001` asks
+ * chapter 30 where an unacknowledged handoff brief escalates and chapter 44
+ * whether a deterministic pack is produced when the agent fails. Falling back
+ * to "the" record for an identifier is exactly how the wrong question reaches
+ * a screen, so an identifier this chapter does not ask is an error and not an
+ * empty answer.
+ */
+export function chapter44DecisionIn(identifier: string, chapter: string): Chapter44Decision {
+  const found = CHAPTER_44_CELL_DECISIONS.find(
+    (d) => d.identifier === identifier && d.chapter === chapter,
+  )
+  if (found === undefined) {
+    const held = chapter44Decisions(identifier).map((d) => d.chapter)
+    throw new Error(
+      `No chapter-44 decision record for ${identifier} in §${chapter}. ` +
+        (held.length === 0
+          ? 'This module holds no record for that identifier at all.'
+          : `It is held for §${held.join(', §')}, and that is a different question.`),
+    )
+  }
+  return found
 }
 
 /* ==================================================================== *
@@ -796,7 +859,30 @@ export function linkOutsWithoutSurfaceWords(): readonly string[] {
       continue
     }
     const text = cellTextOf(row, link.role)
-    if (link.owner.kind === 'unnamed') continue
+    if (link.owner.kind === 'unnamed') {
+      // NOT AN EXEMPTION — THE OPPOSITE ASSERTION, and it is structural. An
+      // `unnamed` owner is registered precisely BECAUSE its cell names no
+      // surface, so the check above would convict it every time and convict
+      // it for being what it says it is. What can go stale is the other way
+      // round: the row changes, the cell starts naming a surface, and the
+      // registration that says it names none outlives it. So that is what is
+      // checked here, along with the words the record quotes.
+      if (link.owner.words !== text) {
+        offenders.push(
+          `${link.rowId} · ${roleById(link.role).name}: registered unnamed quoting ` +
+            `"${link.owner.words}" and the cell now reads "${text}".`,
+        )
+        continue
+      }
+      const names = OWNING_SURFACE_WORDS.find((w) => text.includes(w))
+      if (names !== undefined) {
+        offenders.push(
+          `${link.rowId} · ${roleById(link.role).name}: registered as naming no surface, and ` +
+            `the cell names the ${names} — "${text}".`,
+        )
+      }
+      continue
+    }
     if (!OWNING_SURFACE_WORDS.some((w) => text.includes(w))) {
       offenders.push(
         `${link.rowId} · ${roleById(link.role).name}: registered as a link-out and its cell ` +

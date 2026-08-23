@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   AGENT_DEGRADATION_CONTRACTS,
@@ -394,4 +394,47 @@ it('names an owner for every seam it leaves open', () => {
   }
   expect(OPEN_SEAMS.map((s) => s.id)).toContain('dec-handoff-not-in-the-canon')
   expect(OPEN_SEAMS.map((s) => s.id)).toContain('nothing-renders-this-yet')
+})
+
+/**
+ * AND THE OWNER MUST BE A PLACE, NOT A PLAUSIBLE STRING.
+ *
+ * The assertion above checks the owner is non-empty and is not the word
+ * "someone". It cannot see a FICTIONAL owner, and one shipped:
+ * `nothing-renders-this-yet` named slice 11 wave 1 task 8's
+ * `DeterministicBoundary.tsx` as a declared consumer of these modules. The
+ * file is real; the ownership was not. Task 8 imports nothing from either
+ * module and its brief never asked it to, so half of that seam's ownership was
+ * covered by a component that had never heard of it — which reads exactly like
+ * a seam under control.
+ *
+ * THE RULE: every path an owner names must EXIST on disk. A path that does not
+ * exist yet is legitimate — a seam is often owned by a file a later wave
+ * writes — but it must say so, `future: <path>`, so a reader can tell a
+ * standing commitment from a claim about the tree as it is. The distinction is
+ * the whole point: an unmarked path asserts "this is here", and that assertion
+ * is now checked.
+ *
+ * A path is a backticked token carrying a slash and an extension, which is how
+ * this file writes one. `MOD-CC-08` is a bare identifier and is not a claim
+ * about the filesystem.
+ */
+it('names owners that are real places on disk, or says they are not yet', () => {
+  const PATHISH = /`(future:\s*)?((?:src|app|tests|scripts|docs)\/[^`\s]+\.[a-z]+)`/g
+  const missing: string[] = []
+  const future: string[] = []
+  let named = 0
+  for (const seam of OPEN_SEAMS) {
+    for (const [, marker, path] of seam.owner.matchAll(PATHISH)) {
+      named += 1
+      if (marker !== undefined) future.push(`${seam.id} ${path}`)
+      else if (!existsSync(path as string)) missing.push(`${seam.id} names ${path}, which is not on disk`)
+    }
+  }
+  // Not vacuous: the seams really do name paths, so the check has a subject.
+  expect(named).toBeGreaterThan(2)
+  expect(missing).toEqual([])
+  // A future path is allowed and is not silently equivalent to a real one; if
+  // one is ever written, it is listed here rather than absorbed.
+  expect(future).toEqual([])
 })

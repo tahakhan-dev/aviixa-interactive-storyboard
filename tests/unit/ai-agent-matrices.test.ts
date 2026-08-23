@@ -14,6 +14,8 @@ import {
   cellPermits,
   cellTextOf,
   chapter44Affordance,
+  chapter44Cell,
+  chapter44DecisionIn,
   chapter44Decisions,
   chapter44Header,
   chapter44Matrix,
@@ -25,6 +27,7 @@ import {
   rowsWithNoPermissiveCell,
   type Chapter44Row,
 } from '@/ai/agents/matrices'
+import { roleById } from '@/domain/roles'
 import { CC_MATRIX_COLUMNS } from '@/surfaces/cc/decisions/link-outs'
 import { PERMISSION_OUTCOMES } from '@/policy/decision'
 
@@ -86,10 +89,16 @@ it('reads the frozen source these measurements were taken against', () => {
 describe('the shared column axis', () => {
   it('rebuilds the header from the role registry and finds it verbatim', () => {
     const header = chapter44Header()
-    // The check that the axis is not a fourth private copy of five strings:
-    // this line is built from `roleById(...).name` and nothing else.
+    // DERIVED, NOT RE-TYPED. This assertion used to spell the five role names
+    // out as a literal — a second private copy of exactly the axis the
+    // production module went to the trouble of not writing down. Built from
+    // the column order and the role registry it says what it means: the
+    // header is those five names, in that order, and nothing else. What it
+    // does NOT prove is that they are the SOURCE's names; the line below,
+    // which reads the frozen bytes, is what proves that, and the two are only
+    // worth anything together.
     expect(header).toBe(
-      '| Capability | Worker | Supervisor | Quality Manager | Tenant Admin | Read-only Auditor |',
+      `| Capability | ${CHAPTER_44_COLUMN_ROLES.map((r) => roleById(r).name).join(' | ')} |`,
     )
     expect(CHAPTER_44_MATRICES.map((m) => m.headerLine)).toEqual([91_761, 92_028, 92_300])
     for (const line of CHAPTER_44_MATRICES.map((m) => m.headerLine)) expect(L(line)).toBe(header)
@@ -103,11 +112,17 @@ describe('the shared column axis', () => {
    * Locating chapter 44's matrices by header text alone therefore picks up a
    * matrix belonging to another surface and another slice.
    *
-   * The two are also decoded differently and would break a shared decoder:
-   * §36.6 backticks its tokens (`` `Explicitly prohibited` ``) where chapter
-   * 44 writes them bare, so `outcomeOf`, which anchors on the start of the
-   * cell, would throw on every §36.6 cell rather than mis-read one. That is
-   * the right failure, and it is pinned here so it stays a refusal.
+   * The two are also SPELLED differently — §36.6 backticks its tokens
+   * (`` `Explicitly prohibited` ``) where chapter 44 writes them bare — and
+   * that difference is not a safeguard. It used to be claimed as one here:
+   * while this module carried its own six-token `startsWith` decoder, a
+   * §36.6 cell threw, and the throw was pinned as the thing keeping the two
+   * tables apart. `outcomeOf` now routes through `cellFromSource`, which
+   * handles all three of the source's backtick placements on purpose, so it
+   * reads a §36.6 cell perfectly well. Nothing was lost: the discriminator
+   * was never the decoder, it is the HEADER LINE, asserted above — chapter 44
+   * owns three of the four tables carrying this header and §36.6 owns the
+   * fourth.
    */
   it('is not the only table on this axis — §36.6 shares the header', () => {
     const found = linesCarrying(chapter44Header())
@@ -115,8 +130,10 @@ describe('the shared column axis', () => {
     expect(L(80_545)).toContain('Supporting table — panel permissions')
     expect(L(80_549)).toContain('`Explicitly prohibited`')
     expect(L(91_769)).not.toContain('`Explicitly prohibited`')
-    expect(() => outcomeOf('`Explicitly prohibited` — the worker never sees a conflict')).toThrow(
-      /no permission outcome is declared/i,
+    // And it decodes, which is the point: the tables are told apart by the
+    // line they are at, never by whether the cell parses.
+    expect(outcomeOf('`Explicitly prohibited` — the worker never sees a conflict')).toBe(
+      'explicitlyProhibited',
     )
   })
 
@@ -203,7 +220,38 @@ describe('decoding a cell', () => {
   })
 
   it('refuses a cell it cannot decode rather than defaulting one', () => {
-    expect(() => outcomeOf('Probably fine')).toThrow(/no permission outcome is declared/i)
+    // The refusal is `cellFromSource`'s, and it names the line the closed
+    // vocabulary comes from rather than this module's opinion of it.
+    expect(() => outcomeOf('Probably fine')).toThrow(/not one of the nine source tokens \(L10238\)/)
+  })
+
+  /**
+   * THE HALF OF L10238 THIS MODULE USED TO QUOTE AND NOT APPLY. `cellTextOf`
+   * cites L10238 in its own error message for the no-blank-cell rule; the
+   * stated-reason rule sits on the same line and the local decoder did not
+   * carry it, so `Not applicable` with nothing after it decoded happily.
+   */
+  it('refuses a Not applicable cell that states no reason, which L10238 requires', () => {
+    expect(() => outcomeOf('Not applicable')).toThrow(/no stated reason \(L10238\)/)
+    expect(outcomeOf('Not applicable — a human does not execute the rule engine')).toBe(
+      'notApplicable',
+    )
+  })
+
+  /**
+   * THE ONE SHAPE THAT DOES NOT ROUTE THROUGH `cellFromSource`, asserted as
+   * the narrow exception it is rather than left to be discovered. Five cells
+   * write a prepositional phrase after `Read-only` with no separator, and
+   * L10238's separator set has no space in it — widening it there would let
+   * `Allowed` swallow `Allowed with conditions` across the whole tree.
+   */
+  it('reads the run-on Read-only qualifier chapter 44 writes without a separator', () => {
+    expect(outcomeOf('Read-only through the Studio corpus')).toBe('readOnly')
+    expect(chapter44Cell('Read-only via the Delivery Operations Hub record').detail).toBe(
+      'via the Delivery Operations Hub record',
+    )
+    // Narrow: it admits the two prepositions the source uses and nothing else.
+    expect(() => outcomeOf('Read-only whenever the corpus allows')).toThrow(/L10238/)
   })
 
   it('tests the conditional spelling before the unconditional one', () => {
@@ -380,6 +428,24 @@ describe('the two §44.3 cells that defer to an open decision', () => {
     expect(L(115_416)).toContain('`DEC-HANDOFF-001` | Chapter 30')
   })
 
+  /**
+   * THE COMPOUND KEY THE INTERFACE COMMENT CREDITS, now that there is one.
+   * `chapter44Decisions` keys on the identifier alone and the renderer showing
+   * both records is what protects §44.3 — but a caller that HAS a chapter had
+   * no way to say so, and the comment claimed it did.
+   */
+  it('answers by chapter, and refuses the other chapter’s question', () => {
+    expect(chapter44DecisionIn('DEC-HANDOFF-001', '44.3').question).not.toBe(
+      chapter44DecisionIn('DEC-HANDOFF-001', '30').question,
+    )
+    // Never a fallback: the identifier is held, the chapter is not, and that
+    // is an error rather than a shrug that hands back chapter 30's question.
+    expect(() => chapter44DecisionIn('DEC-HANDOFF-001', '44.1')).toThrow(
+      /held for §44.3, §30, and that is a different question/,
+    )
+    expect(() => chapter44DecisionIn('DEC-GHOST-999', '44.3')).toThrow(/no record for that identifier/)
+  })
+
   it('quotes every reading and every recommendation from the line it cites', () => {
     for (const decision of CHAPTER_44_CELL_DECISIONS) {
       if (decision.chapter === '30') continue
@@ -403,6 +469,29 @@ describe('link-outs', () => {
   it('covers every cell whose own words place the act on another surface', () => {
     expect(linkOutsMissingAnOwner()).toEqual([])
     expect(linkOutsWithoutSurfaceWords()).toEqual([])
+  })
+
+  /**
+   * THE `unnamed` OWNER IS CHECKED, IT IS JUST CHECKED THE OTHER WAY ROUND.
+   *
+   * `linkOutsWithoutSurfaceWords` skips `kind: 'unnamed'` before its surface-
+   * word test, which reads as an exemption and is not one: an unnamed owner is
+   * registered BECAUSE its cell names no surface, so that test would convict
+   * it for being what it says it is. What can rot is the inverse — the row
+   * changes and the cell starts naming a surface while the registration still
+   * says it names none — and that is now the assertion. Both halves planted
+   * here, because a branch nobody enters is a branch nobody has run.
+   */
+  it('holds the unnamed owner to the claim it actually makes', () => {
+    const unnamed = CHAPTER_44_LINK_OUTS.filter((l) => l.owner.kind === 'unnamed')
+    expect(unnamed.length).toBeGreaterThan(0)
+    for (const link of unnamed) {
+      const row = allChapter44Rows().find((r) => r.id === link.rowId) as Chapter44Row
+      const text = cellTextOf(row, link.role)
+      // Its quoted words are the cell's, and the cell really names no surface.
+      expect(link.owner.kind === 'unnamed' && link.owner.words).toBe(text)
+      expect(text).toBe('Read-only via the record')
+    }
   })
 
   /**
