@@ -1,9 +1,18 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { surfaceById } from '@/domain/surfaces'
+import { rolesInDomain, type RoleId } from '@/domain/roles'
+import { cellFor } from '@/policy/columns'
+import {
+  MATRIX_A,
+  operationEnumeratedAs,
+  scheduleRow,
+  type ScheduleOperationId,
+} from '@/policy/schedule-operations'
 import { Banner, Breadcrumbs, StatusPill } from '@/ui/primitives'
 import { PrototypeDisclosure } from '@/ui/sa/PrototypeDisclosure'
 import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
+import { ViewerRole, type ViewerRoleAnswer } from './ViewerRole'
 import {
   OFFLINE_IS_NOT_UNHEALTHY,
   SCHEDULER_SCREENS,
@@ -40,14 +49,99 @@ import {
  * cannot occur here: there is no `onAct` to hand across a boundary, and no
  * plain data is exported from a client module for a server component to read
  * back as `undefined`.
+ *
+ * ── AND IT DOES OFFER THE SURFACE'S VIEWER CONTROL ─────────────────────────
+ * `ViewerRole` is the one interactive element on either screen, and it is the
+ * CHROME's, rendered here above the screen body. It is the honest half of the
+ * accessibility gate's own name — offer the control, or record why not — and
+ * this is the first half: eighteen of this console's twenty other routes offer
+ * `View as platform role`, and the two that do not are recorded because they
+ * carry no viewer control at all rather than because a reviewer should not
+ * have one.
+ *
+ * NOTHING ABOUT THE MODULE ABSTENTION IS WEAKENED BY OFFERING IT. The rail
+ * entry, the band-and-module annotation and the claim that a module owns
+ * either screen are all still refused above, on the measurement that no
+ * `MOD-*` identifier occurs in either passage. That measurement argues against
+ * the console shell's MODULE MODE. It says nothing about whether a reviewer
+ * may look at an unowned screen as each of the four platform roles Matrix A
+ * declares, and withholding that would record an exemption the source gives no
+ * reason for.
+ *
+ * THE CONSOLE SHELL IS NOT THE HOME FOR IT, and that was checked rather than
+ * assumed: `SaConsoleShell` renders NO viewer control in either of its two
+ * modes, and its non-module mode is the console index itself — it drops
+ * `children` entirely and draws the nineteen-module rail. Wrapping either
+ * screen in it would render the module index instead of the screen, print the
+ * rail these two are deliberately absent from, and still offer no viewer
+ * control. `HubShell` has a third mode for an unowned route; this shell has
+ * two, and adding a third to it is not this task's file to change.
  */
 
 const SURFACE = surfaceById('SURF-SA')
+
+/** The four platform roles, in the role registry's own order. */
+const PLATFORM_ROLES = rolesInDomain('PLATFORM')
+
+/**
+ * The Matrix A column for a platform role. A throw rather than a fallback:
+ * every one of the four platform roles is a column of that matrix by
+ * transcription, so a miss is a transcription defect and a silent default
+ * would answer a permission question from the wrong column.
+ *
+ * Exported because the registry screen asks the same question of the same
+ * matrix for each of its seven governed controls, and two copies of this
+ * lookup would be two things to drift.
+ */
+export function platformColumn(role: RoleId) {
+  const column = MATRIX_A.columns.find((c) => c.kind === 'role' && c.role === role)
+  if (column === undefined) {
+    throw new Error(`Matrix A has no column for ${role}; its header declares four platform roles`)
+  }
+  return column
+}
+
+/**
+ * What each platform role's own Matrix A cell says about the read this screen
+ * IS, transcribed. Not a decision: `evaluateAccess` is never asked, because a
+ * read-permissive cell is answered by the cell alone and a decision rendered
+ * in the chrome would claim a tenant-isolation check neither screen makes.
+ *
+ * THE NON-EMPTY TUPLE IS THE POINT OF THE THROW. A viewer control offering
+ * one position proves nothing about a page, and an EMPTY option set classifies
+ * as a screen-state driver in the accessibility harness — `[].every(...)` is
+ * `true` — and would then drive nothing while reporting a pass.
+ */
+function answersFor(
+  operation: ScheduleOperationId,
+): readonly [ViewerRoleAnswer, ...ViewerRoleAnswer[]] {
+  const row = scheduleRow(MATRIX_A, operation)
+  const [head, ...rest] = PLATFORM_ROLES.map(
+    (role): ViewerRoleAnswer => ({
+      roleId: role.id,
+      roleName: role.name,
+      cellDetail: cellFor(row, platformColumn(role.id)).detail,
+    }),
+  )
+  if (head === undefined) {
+    throw new Error(
+      `the role registry declares no PLATFORM role, so ${operation} has no viewer position`,
+    )
+  }
+  return [head, ...rest]
+}
 
 export interface SchedulerScaffoldProps {
   readonly screen: UncataloguedScreen
   /** One sentence saying what this screen is for, in the source's own terms. */
   readonly purpose: string
+  /**
+   * The governed scheduling operation this screen is a view of — the read
+   * whose Matrix A row the viewer control reports per role. `PER-SCHED-01`
+   * view definition for the registry, `PER-SCHED-02` view occurrences and
+   * receipts for the occurrence detail.
+   */
+  readonly readOperation: ScheduleOperationId
   readonly children: ReactNode
 }
 
@@ -81,7 +175,12 @@ function AsymmetryNotice({ screen }: { readonly screen: UncataloguedScreen }) {
   )
 }
 
-export function SchedulerScaffold({ screen, purpose, children }: SchedulerScaffoldProps) {
+export function SchedulerScaffold({
+  screen,
+  purpose,
+  readOperation,
+  children,
+}: SchedulerScaffoldProps) {
   return (
     <main id="main" className="mx-auto max-w-5xl px-6 py-12">
       <Breadcrumbs
@@ -104,6 +203,13 @@ export function SchedulerScaffold({ screen, purpose, children }: SchedulerScaffo
         <StatusPill tone="attention" icon="◇" label={`Pending ${screen.pendingDecision}`} />
         <StatusPill tone="neutral" icon="○" label="No owning module" />
       </div>
+
+      <ViewerRole
+        answers={answersFor(readOperation)}
+        operation={readOperation}
+        operationName={operationEnumeratedAs(readOperation)}
+        sourceRef={scheduleRow(MATRIX_A, readOperation).sourceRef}
+      />
 
       <div className="mt-6">
         <AsymmetryNotice screen={screen} />

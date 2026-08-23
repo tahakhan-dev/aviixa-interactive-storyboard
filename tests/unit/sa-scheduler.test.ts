@@ -125,6 +125,7 @@ describe('no catalogue number is invented', () => {
   const OWNED = [
     'src/surfaces/sa/scheduler/registry.ts',
     'src/surfaces/sa/scheduler/SchedulerScaffold.tsx',
+    'src/surfaces/sa/scheduler/ViewerRole.tsx',
     'src/surfaces/sa/scheduler/SchedulerRegistryScreen.tsx',
     'src/surfaces/sa/scheduler/OccurrenceDetailScreen.tsx',
     'app/super-admin/scheduler-registry/page.tsx',
@@ -540,6 +541,7 @@ describe('the three unestablished items ship marked so', () => {
     const OWNED = [
       'src/surfaces/sa/scheduler/registry.ts',
       'src/surfaces/sa/scheduler/SchedulerScaffold.tsx',
+      'src/surfaces/sa/scheduler/ViewerRole.tsx',
       'src/surfaces/sa/scheduler/SchedulerRegistryScreen.tsx',
       'src/surfaces/sa/scheduler/OccurrenceDetailScreen.tsx',
       'app/super-admin/scheduler-registry/page.tsx',

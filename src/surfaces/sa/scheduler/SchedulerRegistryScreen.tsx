@@ -28,7 +28,7 @@ import {
   healthTone,
   telemetryReading,
 } from './registry'
-import { SchedulerScaffold } from './SchedulerScaffold'
+import { SchedulerScaffold, platformColumn } from './SchedulerScaffold'
 
 /**
  * `SCR-SA-SCHED-01`, the Scheduler Registry — "A table of every `SCHED-*`
@@ -168,19 +168,9 @@ function contextFor(role: RoleId): AccessContext {
   }
 }
 
-/**
- * The Matrix A column for a platform role. A throw rather than a fallback:
- * every one of the four platform roles is a column of that matrix by
- * transcription, so a miss is a transcription defect and a silent default
- * would answer a permission question from the wrong column.
- */
-function platformColumn(role: RoleId) {
-  const column = MATRIX_A.columns.find((c) => c.kind === 'role' && c.role === role)
-  if (column === undefined) {
-    throw new Error(`Matrix A has no column for ${role}; its header declares four platform roles`)
-  }
-  return column
-}
+/* `platformColumn` lives in the scaffold: the chrome's viewer control asks the
+   same question of the same matrix, and two copies of that lookup would be two
+   things to drift. */
 
 function liveFor(role: RoleId, operation: ScheduleOperationId) {
   return {
@@ -219,6 +209,7 @@ export function SchedulerRegistryScreen() {
     <SchedulerScaffold
       screen={screen}
       purpose="A table of every scheduled-work definition on the platform, with its owning surface, its authority class, its mechanism class and its trigger description. Everything shown is layer-1 named administration and telemetry: no tenant operational content appears here."
+      readOperation="PER-SCHED-01"
     >
       <section className="mt-10">
         <h2 className="text-lg font-semibold">The ten columns the source names</h2>

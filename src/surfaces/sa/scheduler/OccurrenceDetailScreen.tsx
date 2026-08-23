@@ -59,6 +59,7 @@ export function OccurrenceDetailScreen() {
     <SchedulerScaffold
       screen={screen}
       purpose="One occurrence of one scheduled-work definition, shown as identifier, definition, intended time, actual time, duration, outcome, attempt count and the reason class for any block or failure. It shows no tenant operational content."
+      readOperation="PER-SCHED-02"
     >
       <section className="mt-10">
         <h2 className="text-lg font-semibold">

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { rolesInDomain } from '@/domain/roles'
 import { SchedulerRegistryScreen } from '@/surfaces/sa/scheduler/SchedulerRegistryScreen'
 import { OccurrenceDetailScreen } from '@/surfaces/sa/scheduler/OccurrenceDetailScreen'
 import {
@@ -35,6 +36,38 @@ const FORBIDDEN_WORDS = /\b(tamper-evident|chained|signed|verified)\b/i
  * so the ban is on the phrase, not on the token.
  */
 const IMPLIES_A_DAEMON = /\bcron\s+(job|jobs|daemon|service|worker|entry|entries|table|tab)\b/i
+
+/**
+ * REMOVES THE CHROME'S REVIEWER CONTROL FROM THE RENDERED DOCUMENT, SO THAT
+ * EVERY "NO OPERABLE CONTROL" ASSERTION BELOW GOES ON MEASURING THE SCREEN
+ * BODY AND NOT THE SHELL.
+ *
+ * The viewer control the accessibility gate requires is a `combobox`, and it
+ * is the SHELL's: `SchedulerScaffold` renders it above the screen body so a
+ * reviewer can look at an unowned screen as each of the four platform roles.
+ * A whole-render `queryAllByRole('combobox')` would from now on be answered by
+ * that one control, which is the defect shape this build lists twice over — an
+ * assertion that stops measuring its subject while still passing.
+ *
+ * THE EXCISION IS ITSELF ASSERTED, in both directions, which is what stops
+ * this from being a helper scoped to exclude the defect it names (shape 10).
+ * The removed node must exist and must hold EXACTLY ONE select: if the control
+ * were ever moved down into the screen body, or a second one grown anywhere,
+ * this goes red here rather than quietly widening what the body may contain.
+ */
+function exciseReviewerChrome(): void {
+  const chrome = document.querySelector('[aria-label="Storyboard view switcher"]')
+  expect(chrome, 'the shell rendered no view switcher to excise').not.toBeNull()
+  expect(
+    chrome?.querySelectorAll('select').length,
+    'the excised chrome held no select, so removing it would measure nothing',
+  ).toBe(1)
+  expect(
+    document.querySelectorAll('select').length,
+    'a select renders outside the chrome — the body assertions below are about to pass on the wrong subject',
+  ).toBe(1)
+  chrome?.remove()
+}
 
 describe('SCR-SA-SCHED-01 — the Scheduler Registry', () => {
   it('renders, names its own identifier, and mints no catalogue number', () => {
@@ -125,8 +158,9 @@ describe('SCR-SA-SCHED-01 — the Scheduler Registry', () => {
     }
   })
 
-  it('offers no operable control at all', () => {
+  it('offers no operable control at all in the screen body', () => {
     render(<SchedulerRegistryScreen />)
+    exciseReviewerChrome()
     // Not "no enabled control" — NO control. With no scheduler behind the
     // screen there is nothing for one to act on, and a disabled control would
     // still assert that the act exists here.
@@ -220,10 +254,13 @@ describe('SCR-SA-SCHED-02 — Occurrence detail', () => {
     }
   })
 
-  it('offers no operable control either', () => {
+  it('offers no operable control in its screen body either', () => {
     render(<OccurrenceDetailScreen />)
+    exciseReviewerChrome()
     expect(screen.queryAllByRole('button')).toHaveLength(0)
+    expect(screen.queryAllByRole('switch')).toHaveLength(0)
     expect(screen.queryAllByRole('textbox')).toHaveLength(0)
+    expect(screen.queryAllByRole('combobox')).toHaveLength(0)
     expect(document.querySelectorAll('[aria-disabled]')).toHaveLength(0)
   })
 })
@@ -298,6 +335,80 @@ describe('the honesty constraints, on both screens', () => {
       expect(copy, name).not.toMatch(/Reading \(a\)/)
       // And it does not re-render the decision whose second home is the trap.
       expect(copy, name).not.toContain('DEC-SCHED-011')
+    }
+  })
+
+  /** The chrome's own copy, so a word that also occurs in the screen body
+   *  cannot answer for the reviewer control's readout. */
+  function chromeCopy(): string {
+    const chrome = document.querySelector('[aria-label="Storyboard view switcher"]')
+    expect(chrome, 'the shell rendered no view switcher').not.toBeNull()
+    return (chrome?.innerHTML ?? '').replace(/<[^>]*>/g, ' ')
+  }
+
+  it('offers the surface’s viewer control on both screens, over the role registry’s own four', () => {
+    // FROM THE REGISTRY, NEVER A HAND LIST — the same set
+    // `tests/accessibility/axe-states.spec.ts` compares the built export
+    // against. A route that filtered it, dropping Support because its column
+    // reads differently, would match no declared vocabulary there and land
+    // straight back in the missing list.
+    const PLATFORM_ROLE_IDS = rolesInDomain('PLATFORM').map((r) => r.id)
+    expect(PLATFORM_ROLE_IDS, 'the platform role vocabulary is empty or gutted').toHaveLength(4)
+
+    for (const [name, element] of screens) {
+      document.body.innerHTML = ''
+      render(element)
+
+      // ONE select on the whole screen, which is what keeps the harness's
+      // `ambiguous` arm empty: a second role-vocabulary select on either route
+      // would be absorbed silently there, because option-set equality cannot
+      // tell two of them apart and only document order would decide.
+      const selects = [...document.querySelectorAll('select')]
+      expect(selects, `${name}: this screen carries more than one select`).toHaveLength(1)
+      const select = screen.getByRole('combobox', { name: 'View as platform role' })
+      expect(select, name).toBe(selects[0])
+      expect(
+        [...select.querySelectorAll('option')].map((o) => o.getAttribute('value')),
+        name,
+      ).toEqual(PLATFORM_ROLE_IDS)
+
+      // ANTI-VACUITY, here as well as in the browser: a viewer control whose
+      // positions render identical markup is a control writing state nothing
+      // reads, which is the first defect shape in this build's own list.
+      const renderings = new Map<string, string>()
+      const quotedCell: string[] = []
+      for (const roleId of PLATFORM_ROLE_IDS) {
+        fireEvent.change(select, { target: { value: roleId } })
+        expect((select as HTMLSelectElement).value, `${name}: ${roleId} did not take`).toBe(roleId)
+        renderings.set(roleId, document.body.innerHTML)
+        // THE QUOTED CELL, NOT THE WHOLE CHROME. The paragraph beneath the
+        // readout explains that Allowed and Read-only make no difference to
+        // what is drawn, so a scan of the chrome's whole copy matched every
+        // role and answered for the readout — measured, and this is the
+        // narrowing. The readout is the only curly-quoted span in the chrome.
+        const quoted = /“([^”]+)”/.exec(chromeCopy())?.[1]
+        quotedCell.push(`${roleId}=${(quoted ?? 'NOTHING QUOTED').split(',')[0]}`)
+      }
+      expect(
+        new Set(renderings.values()).size,
+        `${name}: positions of the viewer control render byte-identical markup`,
+      ).toBe(PLATFORM_ROLE_IDS.length)
+
+      // AND THE DIFFERENCE IS THE MATRIX'S, not just a changed name. Both read
+      // rows of Matrix A give the three other platform columns `Allowed` and
+      // the Support column `Read-only`, so one position reports a different
+      // answer and the ordered list says which.
+      expect(quotedCell, `${name}: the Matrix A cell quoted for each role`).toEqual([
+        'ROOT_SUPER_ADMIN=Allowed',
+        'ADMIN=Allowed',
+        'PLATFORM_ENGINEER=Allowed',
+        'SUPPORT=Read-only',
+      ])
+
+      // The control says on screen that it gates nothing below it, because on
+      // these two screens it does not: there is no control for it to gate.
+      expect(chromeCopy(), name).toContain('Reviewer control — not part of the product')
+      expect(chromeCopy(), name).toContain('This screen offers no operable control to any')
     }
   })
 
