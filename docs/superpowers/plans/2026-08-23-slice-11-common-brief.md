@@ -127,16 +127,21 @@ rules, including **"no state may be inferred from the absence of another"** and 
 must transition into reconciled". The Studio column reads `Not applicable — authoring surface` on all
 twelve rows; that is a stated absence and renders as one, with the reason.
 
-## Three lifts, not three forks
+## One lift, not three — the re-plan is stale about the other two
 
-- **`DecisionDisclosure.tsx` and `decisions.ts`** already do the right thing — every reading with its
-  own locator, the build position labelled a client-delegated choice under APP-012 — but are typed to
-  `StudioDecisionId` and live under `src/studio/`. The lift and the id-namespace widening settle
-  **before** any task consumes them.
-- **`src/ui/stu/FiveSurfaceEffects.tsx`** value-imports `@/studio/journey/effects`. Every one of the
-  thirty 44A storyboards carries a five-row surface-reaction table, so a surface with no effect must
-  render "No direct effect" **with the reason**. Lift, do not fork.
-- **`src/studio/modules/stu-02/agents.ts`** holds `STANDARD_AGENTS` with a three-valued
+**Two of the re-plan's three lifts already happened and it does not know.** Measured on this tree:
+`DecisionDisclosure.tsx` and `decisions.ts` live at **`src/disclosure/`**, typed to a
+surface-neutral `DecisionId` with `OPEN_DECISION_IDS` as an external literal list — slice 10 moved
+them and consolidated the count class into one membership gate. `FiveSurfaceEffects.tsx` lives at
+**`src/ui/shared/`**, not `src/ui/stu/`. Neither needs lifting. **Both are consumed as they stand,
+and widening `DecisionId` for this slice's records is an addition to an existing union rather than a
+namespace migration.**
+
+The rule the two lifts existed to serve still binds: every one of the thirty 44A storyboards carries
+a five-row surface-reaction table, so a surface with no effect renders "No direct effect" **with the
+reason**.
+
+**The third lift is real.** **`src/studio/modules/stu-02/agents.ts`** holds `STANDARD_AGENTS` with a three-valued
   `GovernanceBinding` — genuine reuse. Two things settle first. It lives inside a Studio module
   directory while this slice spans five surfaces. And it holds **three** agents from chapter 20's
   table while chapter 44's roster at L91461-L91464 holds **four**, adding the Vision Reasoning Agent
@@ -352,8 +357,9 @@ Everything slices 7-10 required, unchanged, plus three this slice adds.
 4. The failure catalogue — sixty in six families, the 21-item spine, the four operational severity
    bands held separate, the ten-value open register and its refusal.
 5. The queued-request state machine and its 12×5 matrix.
-6. The three lifts + the AI decision canon + the collision-aware fallback registry keyed on chapter
-   and identifier.
+6. The agent-roster lift and the governance-binding alias pair + the AI decision canon + the
+   collision-aware fallback registry keyed on chapter and identifier. **First and alone**, because
+   every other wave-0 task discloses an open decision through the canon.
 
 *Wave 1 — the agents (2).* 7. The four degradation contracts and their three role matrices (9, 9, 8)
 plus the §40.1 boundary matrix — one object graph, not to be split. 8. The deterministic-boundary
