@@ -40,6 +40,25 @@ import { affected, noEffect } from '@/ui/shared/journey'
  * `DEC-HANDOFF-002`, `DEC-VISION-001`, `DEC-VISION-004`, `DEC-VISION-006`,
  * `DEC-PLUS-001` or `DEC-DIVERGE-001`. So they are disclosed locally, below,
  * in the slice-8 pattern — every reading, every locator, nothing adopted.
+ *
+ * ── THE RENDERED TEXT CARRIES NO MARKUP, AND THE NAME IS THE CELL ──────────
+ * Three decisions taken in the slice-11 audit round, enforced for all thirty
+ * cards by `tests/unit/ai-storyboard-contract-invariants.test.ts` and recorded
+ * at length in the head of `../sb-01-to-10/index.ts`:
+ *
+ * 1. `finalOfficialState.name` is the card's own `content.finalOfficialState`
+ *    cell, byte for byte — a transcription, never a restatement. Four of these
+ *    ten had drifted, and storyboard 23's was a changed CLAIM rather than a
+ *    changed punctuation: L94677 states the standing guarantee "Every class 1
+ *    and 2 item reaches the platform intact" and the name asserted "reached",
+ *    which is a report that it happened. All four are restored verbatim.
+ * 2. No markdown in any rendered string. `StoryboardCard` prints text, so a
+ *    backtick reaches the reader as a grave accent: 170 in these ten cards'
+ *    rendered fields and 22 more in their `reconstruction` prose, all removed.
+ *    The 11-to-20 band already carried none, so one policy fits all thirty.
+ * 3. An audit `sourceRef` must carry the whole statement. Six here did not and
+ *    are re-pointed, each with a comment at its own event saying what the old
+ *    line said and what it left out.
  */
 
 /* ====================================================================
@@ -946,7 +965,7 @@ export const SB_21_TO_30 = [
     cardHeaderRef: 'L94484',
     surfaceTableRef: 'L94508',
     content: {
-      identifier: '`SB-AI-21`; fallback contract `FB-AI-21`; conditional on `DEC-ASK-001`',
+      identifier: 'SB-AI-21; fallback contract FB-AI-21; conditional on DEC-ASK-001',
       preconditions: 'A help request queued offline; the step since completed',
       trigger: 'Reconnection with a queued request whose context has moved on',
       actorsAndRoles:
@@ -987,7 +1006,7 @@ export const SB_21_TO_30 = [
         + 'preserved, but the relationship is not, and only the aggregate request rate will show it',
       sourceStatus:
         'Stale-action prohibition is a blueprint honesty rule; the question channel is '
-        + '`DEC-ASK-001`; the freshness window is unspecified',
+        + 'DEC-ASK-001; the freshness window is unspecified',
     },
     surfaces: {
       DOH: affected(
@@ -1067,10 +1086,10 @@ export const SB_21_TO_30 = [
     },
     absentCapability: {
       statement:
-        'This storyboard presumes the question channel of `DEC-ASK-001`, and the freshness window '
+        'This storyboard presumes the question channel of DEC-ASK-001, and the freshness window '
         + 'that decides when a queued request is obsolete is not specified in the Statement of '
         + 'Work — it is carried under that decision. Stated before the behaviour is '
-        + 'described, as `AC-44A-005` requires.',
+        + 'described, as AC-44A-005 requires.',
       sourceRef: 'L94471',
     },
   },
@@ -1083,7 +1102,7 @@ export const SB_21_TO_30 = [
     cardHeaderRef: 'L94566',
     surfaceTableRef: 'L94590',
     content: {
-      identifier: '`SB-AI-22`; fallback contract `FB-AI-22`; instance of `FB-AGT-VIS-01`',
+      identifier: 'SB-AI-22; fallback contract FB-AI-22; instance of FB-AGT-VIS-01',
       preconditions:
         'A vision-assisted, proof-gated step in the later release; a photograph captured',
       trigger: 'Any inference failure or a below-threshold result',
@@ -1119,13 +1138,13 @@ export const SB_21_TO_30 = [
       audit:
         'Capture, inference attempt and outcome, human result, gate evaluation, any deviation, any '
         + 'reprocessing',
-      recoveryObjectives: '`TBD — Client Decision Required` — `DEC-AIRTO-001`',
+      recoveryObjectives: 'TBD — Client Decision Required — DEC-AIRTO-001',
       residualRisk:
         'If the inconclusive rate is high, workers do the same work with an extra wait; measuring '
         + 'the rate is what prevents the feature from becoming a net cost',
       sourceStatus:
-        'The agent’s existence is `SoW Fact` — §8.3.3; the behaviour is '
-        + '`Recommendation — R&D` with `DEC-VISION-001` through `DEC-VISION-006`',
+        'The agent’s existence is SoW Fact — §8.3.3; the behaviour is '
+        + 'Recommendation — R&D with DEC-VISION-001 through DEC-VISION-006',
     },
     surfaces: {
       DOH: affected(
@@ -1159,21 +1178,29 @@ export const SB_21_TO_30 = [
       {
         id: 'SB-AI-22-AUD-2',
         statement: 'Inference attempt and outcome, with model identity, version and confidence.',
-        sourceRef: 'L94583',
+        // C-40. This cited L94583, the Audit row, which names "inference
+        // attempt and outcome" and nothing else. L94563 carries the whole
+        // statement: "The failed inference is recorded against the photograph
+        // with its model identity, version, confidence where one exists, and
+        // time."
+        sourceRef: 'L94563',
       },
       { id: 'SB-AI-22-AUD-3', statement: 'Human result.', sourceRef: 'L94583' },
       { id: 'SB-AI-22-AUD-4', statement: 'Gate evaluation.', sourceRef: 'L94583' },
       {
         id: 'SB-AI-22-AUD-5',
         statement: 'Any deviation the human result triggered.',
-        sourceRef: 'L94583',
+        // C-40. L94583 lists "human result" and "any deviation" as two separate
+        // events and asserts no relation between them. L94578 is the line that
+        // states the relation: "any deviation the human result triggered".
+        sourceRef: 'L94578',
       },
       { id: 'SB-AI-22-AUD-6', statement: 'Any reprocessing.', sourceRef: 'L94583' },
     ],
     finalOfficialState: {
       name:
-        'The step’s outcome is the human’s captured result, gated deterministically; '
-        + 'inference records are additive context',
+        'The step’s outcome is the human’s captured result, gated deterministically. '
+        + 'Inference records are additive context',
       derivedFrom: [
         'SB-AI-22-AUD-1',
         'SB-AI-22-AUD-2',
@@ -1229,9 +1256,9 @@ export const SB_21_TO_30 = [
     },
     absentCapability: {
       statement:
-        'The Vision Reasoning Agent ships in a later release [`SoW Fact` — §8.3.3], and '
-        + 'everything about its behaviour is `Recommendation — R&D` or `Client Decision '
-        + 'Required`. This storyboard describes the runtime instance of a capability the Statement '
+        'The Vision Reasoning Agent ships in a later release [SoW Fact — §8.3.3], and '
+        + 'everything about its behaviour is Recommendation — R&D or Client Decision '
+        + 'Required. This storyboard describes the runtime instance of a capability the Statement '
         + 'of Work does not yet carry, and says so before describing it.',
       sourceRef: 'L94553',
     },
@@ -1245,9 +1272,9 @@ export const SB_21_TO_30 = [
     cardHeaderRef: 'L94661',
     surfaceTableRef: 'L94685',
     content: {
-      identifier: '`SB-AI-23`; fallback contract `FB-AI-23`',
+      identifier: 'SB-AI-23; fallback contract FB-AI-23',
       preconditions:
-        '`TAB-014` offline for an extended period; queue growing; storage approaching its warning '
+        'TAB-014 offline for an extended period; queue growing; storage approaching its warning '
         + 'level',
       trigger: 'Storage crosses the warning level',
       actorsAndRoles:
@@ -1263,7 +1290,7 @@ export const SB_21_TO_30 = [
         'The worker moves to coverage and syncs; the Supervisor swaps the device and reassigns '
         + 'runs through action 8',
       fallbackOfFallback:
-        '`Client Decision Required` — `DEC-STORE-001`. This blueprint states only the '
+        'Client Decision Required — DEC-STORE-001. This blueprint states only the '
         + 'prohibition: evidence is never discarded',
       safeStop: 'A controlled stop on new work rather than any loss of recorded work',
       localData:
@@ -1285,10 +1312,10 @@ export const SB_21_TO_30 = [
         + 'Recovery Point Objective for optional agent work, and should not pretend to',
       residualRisk:
         'An extended-offline site can reach storage pressure routinely; the device profile that '
-        + 'would tell us how likely that is remains owed [`DEC-DEVICE-001`]',
+        + 'would tell us how likely that is remains owed [DEC-DEVICE-001]',
       sourceStatus:
-        '`Client Decision Required` — `DEC-STORE-001` for device behaviour and '
-        + '`DEC-AIQUEUE-001` for server behaviour; the priority order is `Derived Clarification` '
+        'Client Decision Required — DEC-STORE-001 for device behaviour and '
+        + 'DEC-AIQUEUE-001 for server behaviour; the priority order is Derived Clarification '
         + 'from the fallback safety priority list',
     },
     surfaces: {
@@ -1308,7 +1335,7 @@ export const SB_21_TO_30 = [
         'L94690',
       ),
       SA: affected(
-        'Fleet storage telemetry; owns the eventual `DEC-STORE-001` behaviour and any server-side '
+        'Fleet storage telemetry; owns the eventual DEC-STORE-001 behaviour and any server-side '
         + 'queue policy',
         'L94691',
       ),
@@ -1318,18 +1345,23 @@ export const SB_21_TO_30 = [
       {
         id: 'SB-AI-23-AUD-2',
         statement: 'Evictions of reconstructible cached media.',
-        sourceRef: 'L94678',
+        // C-40. L94678 says only "evictions" — it never says WHAT is evicted,
+        // which is the whole safety content of the event. L94668: "Evict
+        // reconstructible cached media".
+        sourceRef: 'L94668',
       },
       {
         id: 'SB-AI-23-AUD-3',
         statement: 'Collection halts on optional agent requests.',
-        sourceRef: 'L94678',
+        // C-40. L94678 says only "collection halts". L94653: "Collection of new
+        // optional agent requests stops."
+        sourceRef: 'L94653',
       },
       { id: 'SB-AI-23-AUD-4', statement: 'Recovery.', sourceRef: 'L94678' },
     ],
     finalOfficialState: {
       name:
-        'Every class 1 and 2 item reached the platform intact; optional items may legitimately be '
+        'Every class 1 and 2 item reaches the platform intact; optional items may legitimately be '
         + 'absent, and their absence is recorded rather than invisible',
       derivedFrom: [
         'SB-AI-23-AUD-1',
@@ -1344,7 +1376,7 @@ export const SB_21_TO_30 = [
       + 'item an accounted-for absence rather than an invisible one; the recovery event marks the '
       + 'queue draining. Class 1 and 2 intactness follows because no event in the log can record '
       + 'their discard — discarding them is Explicitly prohibited (L94642, L94643) and '
-      + '`AC-44A-23-1` asserts no path does it — so the log holding evictions of classes 4 '
+      + 'AC-44A-23-1 asserts no path does it — so the log holding evictions of classes 4 '
       + 'and 5 only IS the reconstruction.',
     facts: {
       deviceAcknowledgement: 'noDeviceCommand',
@@ -1380,10 +1412,10 @@ export const SB_21_TO_30 = [
     absentCapability: {
       statement:
         'Storage-full behaviour on the device is explicitly deferred to the Frontline Functional '
-        + 'Specification and this blueprint may not invent it — `DEC-STORE-001`. Behaviour '
+        + 'Specification and this blueprint may not invent it — DEC-STORE-001. Behaviour '
         + 'beyond the warning level is not specified in the Statement of Work. What this '
         + 'storyboard states is the priority order any eventual answer must respect, and the '
-        + 'separate server-side question `DEC-AIQUEUE-001` that nobody has asked yet.',
+        + 'separate server-side question DEC-AIQUEUE-001 that nobody has asked yet.',
       sourceRef: 'L94636',
     },
   },
@@ -1396,7 +1428,7 @@ export const SB_21_TO_30 = [
     cardHeaderRef: 'L94741',
     surfaceTableRef: 'L94765',
     content: {
-      identifier: '`SB-AI-24`; fallback contract `FB-AI-24`',
+      identifier: 'SB-AI-24; fallback contract FB-AI-24',
       preconditions:
         'An agent outage has just ended; boards and derived views hold pre-recovery data',
       trigger: 'Recovery of the reasoning layer',
@@ -1426,12 +1458,12 @@ export const SB_21_TO_30 = [
         'The recovery time and any panel-level recomputation failures; ordinary refresh cycles are '
         + 'telemetry rather than audit',
       recoveryObjectives:
-        '`TBD — Client Decision Required` — `DEC-AIRTO-001`, specifically for the time '
+        'TBD — Client Decision Required — DEC-AIRTO-001, specifically for the time '
         + 'to full dashboard consistency after recovery',
       residualRisk:
         'A decision made from a stale panel during the catch-up window is the real risk; freshness '
         + 'markers reduce it but only if they are prominent rather than decorative',
-      sourceStatus: '`SoW Fact` — §1.3, §1.7, §6.2.2, §6.5.2',
+      sourceStatus: 'SoW Fact — §1.3, §1.7, §6.2.2, §6.5.2',
     },
     surfaces: {
       DOH: affected(
@@ -1524,9 +1556,9 @@ export const SB_21_TO_30 = [
     cardHeaderRef: 'L94823',
     surfaceTableRef: 'L94847',
     content: {
-      identifier: '`SB-AI-25`; fallback contract `FB-AI-25`',
+      identifier: 'SB-AI-25; fallback contract FB-AI-25',
       preconditions:
-        '`TAB-014` offline with queued captures; a suspension or wipe approved centrally',
+        'TAB-014 offline with queued captures; a suspension or wipe approved centrally',
       trigger: 'A suspension-class or device-wipe command issued to an offline device',
       actorsAndRoles:
         'Aisha, Root Super Admin — critical-class approval; Noah, Admin; Priya, Tenant Admin '
@@ -1545,7 +1577,7 @@ export const SB_21_TO_30 = [
       fallbackOfFallback:
         'Where the device never returns, the data on it is protected by device encryption and by '
         + 'the application’s encrypted store; the command is reported as undeliverable. What '
-        + 'more should happen is `DEC-WIPE-001`',
+        + 'more should happen is DEC-WIPE-001',
       safeStop:
         'The device is either locked or wiped after contact, or the command remains honestly '
         + 'pending. There is no third, ambiguous state',
@@ -1557,10 +1589,10 @@ export const SB_21_TO_30 = [
         + 'approval record',
       notifications:
         'Tenant Admin banner for soft suspension; mandatory notifications continue under hard '
-        + 'suspension [`SoW Fact` — §4.2.3]; the worker sees only the fixed message',
+        + 'suspension [SoW Fact — §4.2.3]; the worker sees only the fixed message',
       reconnection:
         'Ordering between a pending safety command and pending captures follows the adopted '
-        + '`DEC-SYNC-001` position: stop-class commands — suspension in all three states, '
+        + 'DEC-SYNC-001 position: stop-class commands — suspension in all three states, '
         + 'device de-authorisation, remote wipe and compliance stop — are pulled and applied '
         + 'in phase 1, ahead of the capture upload, and the platform’s sync-then-wipe '
         + 'discipline still requires a final sync attempt before erasure, so no unsynced evidence '
@@ -1581,11 +1613,11 @@ export const SB_21_TO_30 = [
         'An offline device holding unsynced evidence and a pending wipe is a genuine conflict '
         + 'between security and data integrity, and the source does not resolve it',
       sourceStatus:
-        'Suspension states and the fixed message are `SoW Fact` — §4.2.3; wipe as '
-        + 'critical class is `SoW Fact` — §8.8.3; the offline-wipe contradiction is '
-        + '`DEC-WIPE-001`, still open; soft-suspension release is the adopted `DEC-SUSP-001` '
+        'Suspension states and the fixed message are SoW Fact — §4.2.3; wipe as '
+        + 'critical class is SoW Fact — §8.8.3; the offline-wipe contradiction is '
+        + 'DEC-WIPE-001, still open; soft-suspension release is the adopted DEC-SUSP-001 '
         + 'position — an explicit operator signal in the Super Admin platform console, '
-        + '`Derived Clarification — adopted working position`',
+        + 'Derived Clarification — adopted working position',
     },
     surfaces: {
       DOH: affected(
@@ -1624,7 +1656,7 @@ export const SB_21_TO_30 = [
     ],
     finalOfficialState: {
       name:
-        'Locked, wiped and acknowledged, or pending and reported as undeliverable — never '
+        'Locked, wiped and acknowledged, or pending and reported as undeliverable. Never '
         + 'assumed',
       derivedFrom: [
         'SB-AI-25-AUD-1',
@@ -1642,7 +1674,7 @@ export const SB_21_TO_30 = [
       + 'delivery event followed by an acknowledgement event yields locked-or-wiped; a pendency '
       + 'event with no delivery yields pending-and-undeliverable. There is no third reading, '
       + 'because the log cannot hold an acknowledgement the device did not send — which is '
-      + 'the same fact `AC-44A-25-1` and `AC-44A-25-4` assert from the rendering side.',
+      + 'the same fact AC-44A-25-1 and AC-44A-25-4 assert from the rendering side.',
     facts: {
       // THE STRICTEST RULE IN THE BLUEPRINT (L93459) BITES HERE. The command is
       // created, authorised and queued while the device is offline, so the
@@ -1689,8 +1721,8 @@ export const SB_21_TO_30 = [
       statement:
         'The Statement of Work requires a final sync attempt before erasure, which an offline '
         + 'device cannot perform, and it does not state how long a wipe command may remain pending '
-        + 'nor what happens if the device never returns. That is `DEC-WIPE-001` and it is not '
-        + 'resolved here — stated before the behaviour is described, as `AC-44A-005` requires.',
+        + 'nor what happens if the device never returns. That is DEC-WIPE-001 and it is not '
+        + 'resolved here — stated before the behaviour is described, as AC-44A-005 requires.',
       sourceRef: 'L94810',
     },
   },
@@ -1709,8 +1741,8 @@ export const SB_21_TO_30 = [
       // says why. Chapter 40.4's `FB-AI-04` at L88919 is a different contract
       // and would look just as plausible here, which is the trap.
       identifier:
-        '`SB-AI-26`; fallback contract `FB-AI-26`; terminal case of `FB-AGT-PREV-01` and '
-        + '`FB-AI-04`',
+        'SB-AI-26; fallback contract FB-AI-26; terminal case of FB-AGT-PREV-01 and '
+        + 'FB-AI-04',
       preconditions:
         'Agent unreachable; no curated default for this screen and locale; no Work Instructions at '
         + 'the profile or standard level',
@@ -1725,7 +1757,7 @@ export const SB_21_TO_30 = [
       manualFallback: 'Supervisor assistance, physically or through the escalation record',
       fallbackOfFallback:
         'The nobody-on-shift default to the Quality Manager role, marked as a fallback delivery '
-        + '[`DEC-NOSHIFT-001`]',
+        + '[DEC-NOSHIFT-001]',
       safeStop:
         'The step parks. The run is not advanced. Other assigned runs remain available. Nothing is '
         + 'generated to fill the gap',
@@ -1749,10 +1781,10 @@ export const SB_21_TO_30 = [
       residualRisk:
         'This state is a publication defect that reached production; the locale-completeness check '
         + 'exists to prevent it, and its coverage across all three difficulty levels is exactly '
-        + 'what `DEC-WIDIFF-001` leaves open',
+        + 'what DEC-WIDIFF-001 leaves open',
       sourceStatus:
-        'Prohibition on invention is `SoW Fact` — §3.7; the terminal ladder is `Derived '
-        + 'Clarification`',
+        'Prohibition on invention is SoW Fact — §3.7; the terminal ladder is Derived '
+        + 'Clarification',
     },
     surfaces: {
       DOH: affected(
@@ -1789,8 +1821,8 @@ export const SB_21_TO_30 = [
     ],
     finalOfficialState: {
       name:
-        'The step is completed with valid proof after human assistance, or it remains parked — '
-        + 'never completed without proof',
+        'The step is completed with valid proof after human assistance, or it remains parked. '
+        + 'It is never completed without proof',
       derivedFrom: [
         'SB-AI-26-AUD-1',
         'SB-AI-26-AUD-2',
@@ -1807,7 +1839,7 @@ export const SB_21_TO_30 = [
       + 'for. Which of the two final readings holds is decided by the resolution event: present, '
       + 'with valid proof, means completed after human assistance; absent means still parked. '
       + '"Never completed without proof" is derivable because no completion event can exist '
-      + 'without the proof capture the gate requires — the gate did not relax (`AC-44A-26-5`).',
+      + 'without the proof capture the gate requires — the gate did not relax (AC-44A-26-5).',
     facts: {
       deviceAcknowledgement: 'noDeviceCommand',
       surfacesShowingApplied: [],
@@ -1851,9 +1883,9 @@ export const SB_21_TO_30 = [
     absentCapability: {
       statement:
         'The locale-completeness check exists to prevent this state, and its coverage across all '
-        + 'three difficulty levels is exactly what `DEC-WIDIFF-001` leaves open — so this '
+        + 'three difficulty levels is exactly what DEC-WIDIFF-001 leaves open — so this '
         + 'storyboard presumes difficulty-level packaging the Statement of Work does not fix. '
-        + 'Stated in the card’s own text, as `AC-44A-005` requires.',
+        + 'Stated in the card’s own text, as AC-44A-005 requires.',
       sourceRef: 'L94924',
     },
   },
@@ -1866,7 +1898,7 @@ export const SB_21_TO_30 = [
     cardHeaderRef: 'L94989',
     surfaceTableRef: 'L95013',
     content: {
-      identifier: '`SB-AI-27`; fallback contract `FB-AI-27`',
+      identifier: 'SB-AI-27; fallback contract FB-AI-27',
       preconditions:
         'An active Severity 1 hold; no Quality Manager on shift; escalation routing authored',
       trigger: 'Role resolution finds no holder of the required authority',
@@ -1874,7 +1906,7 @@ export const SB_21_TO_30 = [
         'Sam, Supervisor — may request, may not release; Elena, Quality Manager — '
         + 'unavailable; Priya, Tenant Admin — owns the role-coverage problem',
       workerVisibleExperience:
-        'The hold band persists on the device, unchanged: "Lot `LOT-WB-2291` is held. Release '
+        'The hold band persists on the device, unchanged: "Lot LOT-WB-2291 is held. Release '
         + 'requires a Quality Manager." The worker continues other assigned runs',
       automaticFallback:
         'Authored fallback tiers, then the nobody-on-shift default, then Critical re-notification',
@@ -1914,8 +1946,8 @@ export const SB_21_TO_30 = [
         + 'that a blocked line is preferable to an unauthorised release, and the client should '
         + 'understand that this is a deliberate commercial trade-off',
       sourceStatus:
-        '`SoW Fact` — §3.4, §3.5, §3.9, §6.5.6, §1.7; the '
-        + 'nobody-on-shift default is `DEC-NOSHIFT-001`',
+        'SoW Fact — §3.4, §3.5, §3.9, §6.5.6, §1.7; the '
+        + 'nobody-on-shift default is DEC-NOSHIFT-001',
     },
     surfaces: {
       DOH: affected(
@@ -1983,8 +2015,8 @@ export const SB_21_TO_30 = [
       + 'fallback delivery, every re-notification and every request-with-note is what makes the '
       + '"full record of every attempt" half of the state derivable — and, decisively, none '
       + 'of those event types can be mistaken for a release, because a request-with-note changes '
-      + 'no hold state (`AC-44A-27-3`) and no timeout, escalation exhaustion or re-notification '
-      + 'count releases anything (`AC-44A-27-1`). The reconstruction therefore needs no clock and '
+      + 'no hold state (AC-44A-27-3) and no timeout, escalation exhaustion or re-notification '
+      + 'count releases anything (AC-44A-27-1). The reconstruction therefore needs no clock and '
       + 'no counter, only the presence or absence of one identified event.',
     facts: {
       deviceAcknowledgement: 'noDeviceCommand',
@@ -2040,7 +2072,7 @@ export const SB_21_TO_30 = [
     cardHeaderRef: 'L95074',
     surfaceTableRef: 'L95098',
     content: {
-      identifier: '`SB-AI-28`; fallback contract `FB-AI-28`; extends `FB-AGT-SHA-01`',
+      identifier: 'SB-AI-28; fallback contract FB-AI-28; extends FB-AGT-SHA-01',
       preconditions:
         'Reasoning layer down since before the scheduled handoff; night shift ending; Day Shift '
         + 'arriving at 06:00',
@@ -2084,15 +2116,15 @@ export const SB_21_TO_30 = [
         'Misfire, no-brief state, pack or note production, acknowledgement with provenance, '
         + 'escalation, and recovery',
       recoveryObjectives:
-        '`TBD — Client Decision Required` — `DEC-AIRTO-001`; a shift boundary is the '
+        'TBD — Client Decision Required — DEC-AIRTO-001; a shift boundary is the '
         + 'natural unit for the Shift Handoff Agent’s objective',
       residualRisk:
         'The incoming shift inherits open Severity 1 holds and open deviations with less context '
         + 'than usual; the deterministic pack narrows the gap but does not close it, because '
         + 'pattern analysis is exactly what is missing',
       sourceStatus:
-        'Escalation on outlasting a shift is `SoW Fact` — §6.9.3; the pack and the note '
-        + 'are `Recommendation — R&D` under `DEC-HANDOFF-001` and `DEC-HANDOFF-002`',
+        'Escalation on outlasting a shift is SoW Fact — §6.9.3; the pack and the note '
+        + 'are Recommendation — R&D under DEC-HANDOFF-001 and DEC-HANDOFF-002',
     },
     surfaces: {
       DOH: affected(
@@ -2126,7 +2158,11 @@ export const SB_21_TO_30 = [
       {
         id: 'SB-AI-28-AUD-4',
         statement: 'Acknowledgement, with the provenance of the artifact acknowledged.',
-        sourceRef: 'L95091',
+        // C-40. L95091 says "acknowledgement with provenance" without binding
+        // it to an artifact. L95070 carries the binding, which is the point:
+        // "acknowledges whichever artifact exists, against that artifact, with
+        // its provenance recorded".
+        sourceRef: 'L95070',
       },
       { id: 'SB-AI-28-AUD-5', statement: 'Escalation.', sourceRef: 'L95091' },
       { id: 'SB-AI-28-AUD-6', statement: 'Recovery.', sourceRef: 'L95091' },
@@ -2152,7 +2188,7 @@ export const SB_21_TO_30 = [
       + 'incoming Supervisor to the artifact actually read, with its provenance, which is what '
       + 'makes "the shift proceeds" a recorded fact rather than an inference from silence; the '
       + 'escalation event records the failure outlasting a shift. Missed occurrences are recorded '
-      + 'as misfires and are never backfilled (L95072, `AC-44A-28-2`), so a later brief cannot '
+      + 'as misfires and are never backfilled (L95072, AC-44A-28-2), so a later brief cannot '
       + 'retroactively close the window in the log.',
     facts: {
       deviceAcknowledgement: 'noDeviceCommand',
@@ -2203,12 +2239,12 @@ export const SB_21_TO_30 = [
     absentCapability: {
       statement:
         'The deterministic handoff pack and the outgoing Supervisor’s manual note are '
-        + '`Recommendation — R&D` under `DEC-HANDOFF-001` and `DEC-HANDOFF-002`, so this '
-        + 'storyboard describes them conditionally — "Where `DEC-HANDOFF-001` is decided in '
-        + 'favour" (L95067), and the same for `DEC-HANDOFF-002` (L95069) — rather than as '
+        + 'Recommendation — R&D under DEC-HANDOFF-001 and DEC-HANDOFF-002, so this '
+        + 'storyboard describes them conditionally — "Where DEC-HANDOFF-001 is decided in '
+        + 'favour" (L95067), and the same for DEC-HANDOFF-002 (L95069) — rather than as '
         + 'capabilities the Statement of Work carries. The phrase §6.9.3 supplies for what '
         + 'this storyboard escalates to is "Plant Manager view" (L95060), and whether it is '
-        + 'backed by a role is `DEC-ROLE-001`, unresolved.',
+        + 'backed by a role is DEC-ROLE-001, unresolved.',
       sourceRef: 'L95094',
     },
   },
@@ -2228,7 +2264,7 @@ export const SB_21_TO_30 = [
       // table is an index, so the body's position is what renders here and the
       // glance-table attribution is disclosed as the conflicting reading in
       // `SB_21_TO_30_DECISION_CITATIONS`, with both locators and neither adopted.
-      identifier: '`SB-AI-29`; fallback contract `FB-AI-29`',
+      identifier: 'SB-AI-29; fallback contract FB-AI-29',
       preconditions:
         'Late-arriving captures and late-arriving agent output; the originating worker off shift; '
         + 'a different worker and supervisor now present',
@@ -2274,7 +2310,7 @@ export const SB_21_TO_30 = [
         'A late-arriving deviation about a departed worker can feel accusatory to the person now '
         + 'at the bench; the interface must be careful to attribute clearly rather than merely '
         + 'display',
-      sourceStatus: '`SoW Fact` — §1.3, §2.2, §2.8, §3.5',
+      sourceStatus: 'SoW Fact — §1.3, §2.2, §2.8, §3.5',
     },
     surfaces: {
       DOH: affected(
@@ -2329,7 +2365,7 @@ export const SB_21_TO_30 = [
       + 'capture attributed to the person who made it; every decision attributed to the person who '
       + 'made it". The substitution event with its reason places the boundary on the run record. '
       + 'The abandonment closures account for the departed worker’s open step executions. And '
-      + 'because the log records identity and action rather than "acting as role" (`AC-44A-29-5`), '
+      + 'because the log records identity and action rather than "acting as role" (AC-44A-29-5), '
       + 'the reconstruction cannot silently reassign responsibility — which L95146 names as '
       + 'the common and serious defect this storyboard exists to prevent.',
     facts: {
@@ -2393,7 +2429,7 @@ export const SB_21_TO_30 = [
       // this storyboard at L92722. Same treatment as storyboard 29: the body's
       // position renders, the index's attribution is disclosed as the
       // conflicting reading with both locators, and neither is adopted.
-      identifier: '`SB-AI-30`; fallback contract `FB-AI-30`',
+      identifier: 'SB-AI-30; fallback contract FB-AI-30',
       preconditions: 'An agent output and an authoritative record that disagree',
       trigger: 'Automatic field comparison or a human observation',
       actorsAndRoles:
@@ -2430,7 +2466,7 @@ export const SB_21_TO_30 = [
       residualRisk:
         'A high conflict rate erodes trust in agent output generally, including where it is '
         + 'correct; measuring and acting on the rate is the only remedy',
-      sourceStatus: '`SoW Fact` — §1.2, §1.4, §3.3, §6.5.4',
+      sourceStatus: 'SoW Fact — §1.2, §1.4, §3.3, §6.5.4',
     },
     surfaces: {
       DOH: affected(
@@ -2463,7 +2499,11 @@ export const SB_21_TO_30 = [
         statement:
           'The conflict, naming the field, the agent’s value, the record’s value, and '
           + 'the comparison time.',
-        sourceRef: 'L95266',
+        // C-40. L95266, the Audit row, names "the conflict, its marking" and
+        // none of the four particulars. L95243 carries all four: "a conflict
+        // marker naming the field, the agent's value, the record's value, and
+        // the comparison time".
+        sourceRef: 'L95243',
       },
       { id: 'SB-AI-30-AUD-2', statement: 'Its marking.', sourceRef: 'L95266' },
       {
@@ -2491,12 +2531,12 @@ export const SB_21_TO_30 = [
       + 'record’s value at the moment of disagreement is itself in the log. "The record '
       + 'unchanged" then follows from that recorded value together with the absence of any '
       + 'mutation event — and no mutation event can exist, because no agent output can '
-      + 'create, alter or delete any field of an authoritative record (`AC-44A-30-1`) and any '
+      + 'create, alter or delete any field of an authoritative record (AC-44A-30-1) and any '
       + 'legitimate correction appends rather than overwrites (L95246). The marking event gives '
       + '"retained and marked"; the annotation events give the human half with identity and time; '
       + 'the regression-candidate event closes the loop to the evaluation harness '
-      + '(`AC-44A-30-6`). "Permanently visible" is derivable because nothing is deleted at any '
-      + 'point (L95247, `AC-44A-30-4`), so no event can remove an earlier one from the log.',
+      + '(AC-44A-30-6). "Permanently visible" is derivable because nothing is deleted at any '
+      + 'point (L95247, AC-44A-30-4), so no event can remove an earlier one from the log.',
     facts: {
       deviceAcknowledgement: 'noDeviceCommand',
       surfacesShowingApplied: [],

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { ALL_THIRTY_STORYBOARDS } from '../../app/workflows/ai-and-its-absence/scope'
+import { SB_21_TO_30 } from '@/ai/storyboards/sb-21-to-30/storyboards'
 import {
   DETERMINISTIC_CONTROLS,
   RESERVED_AI_ACTS,
@@ -767,9 +768,21 @@ describe("the source's absence marker, across all thirty cards", () => {
    * typography, not meaning, and rewriting 74 characters inside single-quoted
    * literals is a different change from the one this gate exists for. Folded
    * here, reported there.
+   *
+   * THE THIRD DEPARTURE WAS CONVICTED, in the slice-11 audit round, and this
+   * comparison is what had to move for it. The source marks up its cells —
+   * `v2.1.0`, `TAB-014` — and `StoryboardCard` prints text, so a transcribed
+   * backtick reached the reader as a grave accent. Markup is now stripped from
+   * every rendered string on all thirty cards (see `NO MARKUP IN ANY RENDERED
+   * STRING`, below), which means the stored reason is the source's cell minus
+   * its markup. So both sides are normalised here rather than one: comparing a
+   * stripped reason against an unstripped source line would fail on the very
+   * fix that made the rendering honest.
    */
+  const unmarked = (text: string): string => text.replace(/`/g, '').replace(/\*\*/g, '')
+
   const asSource = (reason: string): string =>
-    reason.replace(/^it (has )?/, '').toLowerCase().replace(/’/g, "'")
+    unmarked(reason.replace(/^it (has )?/, '').toLowerCase().replace(/’/g, "'"))
 
   const ABSENT_CELLS = ALL_THIRTY_STORYBOARDS.flatMap((storyboard) =>
     JOURNEY_SURFACES.map((surface) => ({
@@ -796,7 +809,9 @@ describe("the source's absence marker, across all thirty cards", () => {
 
   it('stores the source line, never a shortened paraphrase of it', () => {
     for (const cell of ABSENT_CELLS) {
-      expect(reactionCell(cell.ref).toLowerCase(), cell.where).toContain(asSource(cell.reason))
+      expect(unmarked(reactionCell(cell.ref).toLowerCase()), cell.where).toContain(
+        asSource(cell.reason),
+      )
     }
   })
 
@@ -820,6 +835,267 @@ describe("the source's absence marker, across all thirty cards", () => {
       expect(cell, `no absent cell cites ${ref}`).toBeDefined()
       expect(markerOf(reactionCell(ref)), ref).toBe(marker)
       expect(effectStatement(noEffect(cell!.reason, ref)).toLowerCase()).toContain(marker)
+    }
+  })
+})
+
+describe('NO MARKUP IN ANY RENDERED STRING, and the name IS the cell — all thirty', () => {
+  /**
+   * THREE FINDINGS FROM THE SLICE-11 AUDIT ROUND, HELD HERE BECAUSE THEY ARE
+   * CLAIMS ABOUT WHAT A READER SEES.
+   *
+   * `src/ui/shared/StoryboardCard.tsx` prints text. No markdown renderer, no
+   * `dangerouslySetInnerHTML`. Measured on the tree this gate landed on: the
+   * thirty cards' rendered fields carried 206 backticks in the 01-10 band, ZERO
+   * in 11-20 and 170 in 21-30, plus 22 more in 21-30's `reconstruction` prose —
+   * one field type, three renderings — and four strings carried `**`. So
+   * `**not**` reached the worker as four asterisks and `` `v2.1.0` `` reached
+   * them as two grave accents. The policy chosen for all thirty is the one the
+   * contract already applies to `STORYBOARD_CARD_CLASSIFICATION` (L92766): the
+   * markup is dropped, because it renders as a sentence rather than as code.
+   * Both transcribed emphases were stripped too — asterisks on screen tell the
+   * reader this build failed to render markdown, which loses more than the
+   * emphasis does.
+   *
+   * `finalOfficialState.name` is presented as the card's own
+   * `content.finalOfficialState` cell. SEVEN of the thirty diverged from it,
+   * and one of the seven changed a claim rather than its punctuation:
+   * storyboard 23's name read "Every class 1 and 2 item REACHED the platform
+   * intact" where the cell and L94677 both read "reaches" — a standing
+   * guarantee reported as a completed fact. All seven are restored verbatim
+   * rather than relabelled as derived restatements, so the gate is equality.
+   *
+   * And nineteen audit citations across the thirty named a line that carried
+   * only part of the statement standing on it. The corrected ones are pinned
+   * below AGAINST THE FROZEN SOURCE, both ways: the new line must carry the
+   * statement's own phrase AND the line it was moved off must not. A revert
+   * turns the second half red, which a one-way check would not.
+   */
+  const BLUEPRINT_LINES = readFileSync(
+    join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md'),
+    'utf8',
+  ).split('\n')
+
+  const sourceLine = (locator: string): string =>
+    BLUEPRINT_LINES[Number(locator.replace(/^L/, '')) - 1] ?? ''
+
+  /** The comparison form: markup dropped, apostrophes and case normalised. */
+  const plain = (text: string): string =>
+    text.replace(/`/g, '').replace(/\*\*/g, '').replace(/’/g, "'").toLowerCase()
+
+  /** Every string `StoryboardCard` puts on screen, named by where it came from. */
+  function renderedStrings(storyboard: Storyboard): readonly (readonly [string, string])[] {
+    const out: [string, string][] = []
+    for (const [field, text] of Object.entries(storyboard.content)) {
+      out.push([`${storyboard.identifier} · content.${field}`, text])
+    }
+    if (storyboard.absentCapability !== null) {
+      out.push([
+        `${storyboard.identifier} · absentCapability.statement`,
+        storyboard.absentCapability.statement,
+      ])
+    }
+    out.push([
+      `${storyboard.identifier} · finalOfficialState.name`,
+      storyboard.finalOfficialState.name,
+    ])
+    for (const event of storyboard.audit) {
+      out.push([`${storyboard.identifier} · audit.${event.id}`, event.statement])
+    }
+    for (const surface of JOURNEY_SURFACES) {
+      const effect = storyboard.surfaces[surface.code]
+      out.push([
+        `${storyboard.identifier} · surfaces.${surface.code}`,
+        effect.kind === 'noDirectEffect' ? effect.reason : effect.statement,
+      ])
+    }
+    return out
+  }
+
+  /** The policy, as one function. Returns the markers found, never a boolean. */
+  const markupIn = (text: string): readonly string[] => [
+    ...(text.includes('`') ? ['backtick'] : []),
+    ...(text.includes('**') ? ['emphasis'] : []),
+  ]
+
+  const RENDERED = ALL_THIRTY_STORYBOARDS.flatMap((card) => renderedStrings(card))
+
+  it('has the whole rendered surface of thirty cards to check, not a subset', () => {
+    // A gate that passes on an empty sweep is not a gate. Nineteen fields, a
+    // final-state name and five surfaces are on every card, so the floor is a
+    // floor rather than a count: no number here has to be maintained.
+    expect(ALL_THIRTY_STORYBOARDS).toHaveLength(30)
+    expect(RENDERED.length).toBeGreaterThan(30 * 25)
+  })
+
+  it('renders no backtick and no markdown emphasis, in any of the thirty', () => {
+    for (const [where, text] of RENDERED) {
+      expect(markupIn(text), where).toEqual([])
+    }
+  })
+
+  it("carries no markup in 21-30's reconstruction prose either", () => {
+    // Not rendered by `StoryboardCard` today, and stripped anyway: it is card
+    // prose of the same shape, and a policy that stops at the current renderer
+    // is a policy that breaks the day the field is displayed.
+    for (const card of SB_21_TO_30) {
+      expect(markupIn(card.reconstruction), `${card.identifier} · reconstruction`).toEqual([])
+    }
+  })
+
+  it('is red on a planted backtick and on planted emphasis', () => {
+    // The policy is a function, so the plant is a value rather than a file
+    // edit. Both markers, because a check for one is a check for one.
+    const withBacktick = ALL_THIRTY_STORYBOARDS[0]!
+    const defect: Storyboard = {
+      ...withBacktick,
+      content: { ...withBacktick.content, preconditions: '`TAB-014` offline in the far bay' },
+    }
+    expect(
+      renderedStrings(defect).flatMap(([, text]) => markupIn(text)),
+    ).toContain('backtick')
+    const emphasised: Storyboard = {
+      ...withBacktick,
+      content: { ...withBacktick.content, preconditions: 'the indicator is **not** shown' },
+    }
+    expect(
+      renderedStrings(emphasised).flatMap(([, text]) => markupIn(text)),
+    ).toContain('emphasis')
+  })
+
+  it('keeps finalOfficialState.name byte-identical to the card cell, on all thirty', () => {
+    for (const card of ALL_THIRTY_STORYBOARDS) {
+      expect(card.finalOfficialState.name, card.identifier).toBe(card.content.finalOfficialState)
+    }
+  })
+
+  it('is red where the name restates the cell instead of transcribing it', () => {
+    // The exact shape of the seven that had drifted: a dropped attribution, a
+    // rewritten sentence break, a changed tense. One assertion catches all three
+    // because equality does not care which kind of edit it was.
+    const card = ALL_THIRTY_STORYBOARDS[22]!
+    const restated: Storyboard = {
+      ...card,
+      finalOfficialState: {
+        ...card.finalOfficialState,
+        name: card.content.finalOfficialState.replace('reaches', 'reached'),
+      },
+    }
+    expect(restated.finalOfficialState.name).not.toBe(restated.content.finalOfficialState)
+  })
+
+  it("reads storyboard 23's final official state off the frozen source, not off the card", () => {
+    // The finding that made C-39 a claim change rather than a typography one.
+    // Asserted against L94677 itself so that a card edited back to "reached"
+    // cannot agree with a stored copy of its own mistake.
+    const row = sourceLine('L94677')
+    expect(row).toContain('| Final official state |')
+    expect(row).toContain('Every class 1 and 2 item reaches the platform intact')
+    expect(row).not.toContain('reached the platform intact')
+    expect(ALL_THIRTY_STORYBOARDS[22]!.finalOfficialState.name).toContain(
+      'Every class 1 and 2 item reaches the platform intact',
+    )
+  })
+
+  /**
+   * THE CORRECTED AUDIT CITATIONS. `movedOffOf` is the line the entry used to
+   * name; it is asserted NOT to carry the phrase, which is what makes each row
+   * a two-sided claim rather than a restatement of the current data.
+   */
+  const CORRECTED_CITATIONS = [
+    // C-40 · storyboard 2. The Audit row names "breaker open and close" and
+    // states neither the threshold nor that the device stops calling.
+    { n: 2, id: 'breaker-open', at: 'L92861',
+      phrase: 'consecutive failures the device stops calling', movedOffOf: 'L92891' },
+    // C-40 · storyboard 4, SPLIT. One event asserted both routes on the row
+    // that states only the fallback one.
+    { n: 4, id: 'escalation', at: 'L93052',
+      phrase: 'the step-away escalation reaches the supervisor per the escalation record',
+      movedOffOf: 'L93048' },
+    { n: 4, id: 'escalation-fallback-route', at: 'L93048',
+      phrase: 'nobody-on-shift default routes to the tenant', movedOffOf: 'L93052' },
+    // C-40 · storyboard 5, SPLIT. The measured departure is the step BEFORE the
+    // classification, and 13.6 appeared nowhere on the cited line.
+    { n: 5, id: 'limits-evaluation', at: 'L93116',
+      phrase: '13.6 per cent below the lower limit', movedOffOf: 'L93117' },
+    { n: 5, id: 'classification', at: 'L93117',
+      phrase: 'classifies into severity 1 under the authored banding', movedOffOf: 'L93116' },
+    // C-40 · storyboard 6. L93212 states the timer and the one-state rule but
+    // not the distinction from resolution; `AC-44A-06-3` states all three.
+    { n: 6, id: 'acknowledgement', at: 'L93277',
+      phrase: 'distinct from resolution', movedOffOf: 'L93212' },
+    // C-40 · storyboard 6, SPLIT.
+    { n: 6, id: 'decision', at: 'L93235',
+      phrase: 'never closed by time', movedOffOf: 'L93217' },
+    { n: 6, id: 'no-auto-approval', at: 'L93217',
+      phrase: 'nothing auto-approves', movedOffOf: 'L93235' },
+    // C-40 · storyboard 8, SPLIT. One event fused walkthrough steps 3 and 5.
+    { n: 8, id: 'distribution', at: 'L93384',
+      phrase: 'queued for distribution and reaches nothing', movedOffOf: 'L93386' },
+    { n: 8, id: 'distribution-at-reconnection', at: 'L93386',
+      phrase: 'downloads the new package and stores it', movedOffOf: 'L93384' },
+    // C-40 · storyboard 9. The four-state sequence never names the channel.
+    { n: 9, id: 'queued', at: 'L93509',
+      phrase: 'written to the command channel', movedOffOf: 'L93465' },
+    // C-40 · storyboard 10. The two citations were crossed.
+    { n: 10, id: 'divergence', at: 'L93575',
+      phrase: 'both version identities', movedOffOf: 'L93560' },
+    { n: 10, id: 'suppression', at: 'L93560',
+      phrase: 'the card is not rendered', movedOffOf: 'L93575' },
+    // C-40 · storyboard 22. The Audit row names the event and none of its
+    // particulars. This is one of the three the brief named.
+    { n: 22, id: 'SB-AI-22-AUD-2', at: 'L94563',
+      phrase: 'model identity, version, confidence', movedOffOf: 'L94583' },
+    { n: 22, id: 'SB-AI-22-AUD-5', at: 'L94578',
+      phrase: 'any deviation the human result triggered', movedOffOf: 'L94583' },
+    // C-40 · storyboard 23. "evictions" without saying what is evicted is the
+    // whole safety content of the event missing.
+    { n: 23, id: 'SB-AI-23-AUD-2', at: 'L94668',
+      phrase: 'evict reconstructible cached media', movedOffOf: 'L94678' },
+    { n: 23, id: 'SB-AI-23-AUD-3', at: 'L94653',
+      phrase: 'collection of new optional agent requests stops', movedOffOf: 'L94678' },
+    // C-40 · storyboard 28. The acknowledgement is bound to a specific artifact.
+    { n: 28, id: 'SB-AI-28-AUD-4', at: 'L95070',
+      phrase: 'against that artifact, with its provenance recorded', movedOffOf: 'L95091' },
+    // C-40 · storyboard 30, the third the brief named.
+    { n: 30, id: 'SB-AI-30-AUD-1', at: 'L95243',
+      phrase: "conflict marker naming the field, the agent's value, the record's value, and the "
+        + 'comparison time', movedOffOf: 'L95266' },
+  ] as const
+
+  it('has every corrected entry still present under its own identifier', () => {
+    for (const row of CORRECTED_CITATIONS) {
+      const card = ALL_THIRTY_STORYBOARDS.find((entry) => entry.number === row.n)
+      expect(card, `storyboard ${row.n}`).toBeDefined()
+      expect(
+        card!.audit.map((event) => event.id),
+        `storyboard ${row.n} lost ${row.id}`,
+      ).toContain(row.id)
+    }
+  })
+
+  it('cites the line the frozen source states it on', () => {
+    for (const row of CORRECTED_CITATIONS) {
+      const card = ALL_THIRTY_STORYBOARDS.find((entry) => entry.number === row.n)!
+      const event = card.audit.find((entry) => entry.id === row.id)!
+      expect(event.sourceRef, `${card.identifier} · ${row.id}`).toBe(row.at)
+      expect(plain(sourceLine(row.at)), `${card.identifier} · ${row.id} · ${row.at}`).toContain(
+        plain(row.phrase),
+      )
+    }
+  })
+
+  it('proves the move was needed: the old line does not carry the phrase', () => {
+    // The half that makes a revert red. Without it this whole table would pass
+    // just as happily against the citations it was written to replace — which
+    // is the shape a verifier found in the C-33 fix, where planting the old
+    // string back left the chain green.
+    for (const row of CORRECTED_CITATIONS) {
+      expect(sourceLine(row.movedOffOf), `${row.id} · ${row.movedOffOf}`).not.toBe('')
+      expect(
+        plain(sourceLine(row.movedOffOf)),
+        `${row.id} · ${row.movedOffOf} would still satisfy this gate`,
+      ).not.toContain(plain(row.phrase))
     }
   })
 })

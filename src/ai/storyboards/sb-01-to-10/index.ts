@@ -59,6 +59,31 @@ import { affected, noEffect } from '@/ui/shared/journey'
  * The gap is real and it is `TEST-44A-004`'s (L92757) subject: the Spanish half
  * of every worker-facing message set in these ten is a client-supplied input.
  *
+ *
+ * ── THE RENDERED TEXT CARRIES NO MARKUP, AND THE NAME IS THE CELL ──────────
+ * Three decisions taken in the slice-11 audit round, enforced for all thirty
+ * cards by `tests/unit/ai-storyboard-contract-invariants.test.ts`:
+ *
+ * 1. `finalOfficialState.name` is a TRANSCRIPTION of the card's own
+ *    `content.finalOfficialState` cell, not a restatement of it. Seven of the
+ *    thirty had drifted — three dropped a `[SoW Fact — §N]` attribution, three
+ *    rewrote a sentence break, and storyboard 23 turned the source's standing
+ *    guarantee "reaches the platform intact" (L94677) into the past-tense claim
+ *    "reached". All seven are restored verbatim rather than relabelled derived,
+ *    because a field presented as the source's words has to be the source's
+ *    words; the gate now asserts byte equality on all thirty.
+ * 2. NO MARKDOWN IN ANY RENDERED STRING. `src/ui/shared/StoryboardCard.tsx`
+ *    prints text — no renderer, no `dangerouslySetInnerHTML` — so `**not**`
+ *    reached the reader as four asterisks and a backtick reached it as a grave
+ *    accent. Backticks and `**` are stripped from every rendered field,
+ *    including the two that transcribe the source's own emphasis: asterisks on
+ *    screen tell a reader this build failed to render markdown, which is a
+ *    worse loss than the emphasis. Same rule the contract already applies to
+ *    `STORYBOARD_CARD_CLASSIFICATION` at L92766.
+ * 3. AN AUDIT `sourceRef` MUST CARRY THE WHOLE STATEMENT. Where one line did
+ *    not, the event is re-pointed to the line that does, or split into two
+ *    events with one exact line each. Every such change is commented at its
+ *    own event with what the old line did and did not say.
  * This module is data. It computes nothing and decides nothing.
  */
 
@@ -76,13 +101,13 @@ const SB_AI_01: Storyboard = {
   cardHeaderRef: 'L92791',
   surfaceTableRef: 'L92815',
   content: {
-    identifier: '`SB-AI-01`; fallback contract `FB-AI-01`; extends `FB-AGT-PREV-01`',
+    identifier: 'SB-AI-01; fallback contract FB-AI-01; extends FB-AGT-PREV-01',
     preconditions:
-      '`TAB-014` offline in the far bay; `RUN-2026-08-14-A` in progress on pinned `v2.1.0`; the '
-      + 'question channel exists under `DEC-ASK-001`',
+      'TAB-014 offline in the far bay; RUN-2026-08-14-A in progress on pinned v2.1.0; the '
+      + 'question channel exists under DEC-ASK-001',
     trigger: 'The worker invokes the help control while the device is offline',
     actorsAndRoles:
-      'Maya, Worker (`ROLE-TEN-WKR`); no other actor participates at the time',
+      'Maya, Worker (ROLE-TEN-WKR); no other actor participates at the time',
     workerVisibleExperience:
       'Work Instructions expand; status line reads "Offline. Step instructions are shown. Your '
       + 'request for help has been saved and will be sent when this tablet reconnects."',
@@ -94,7 +119,7 @@ const SB_AI_01: Storyboard = {
       + 'flag and finds the Supervisor physically',
     fallbackOfFallback:
       'Where the profile difficulty level is absent from the package, render the standard level '
-      + 'and record a package-completeness defect [`DEC-WIDIFF-001`]',
+      + 'and record a package-completeness defect [DEC-WIDIFF-001]',
     safeStop:
       'The step remains incomplete with its gate unpassed; the worker moves to another assigned '
       + 'run rather than advancing without proof',
@@ -110,12 +135,12 @@ const SB_AI_01: Storyboard = {
       'Step execution proceeds or parks on its authored terms; one recorded help-request signal '
       + 'attached to it',
     audit: 'Help request created offline; upload; reconciliation. Three audit events',
-    recoveryObjectives: '`TBD — Client Decision Required` — `DEC-AIRTO-001`',
+    recoveryObjectives: 'TBD — Client Decision Required — DEC-AIRTO-001',
     residualRisk:
       'A worker who asked and got only static text may stop asking, so the signal decays exactly '
       + 'where guidance is weakest',
     sourceStatus:
-      '`User-Mandated Product Extension` — `DEC-ASK-001`; the fallback target is `SoW Fact` — '
+      'User-Mandated Product Extension — DEC-ASK-001; the fallback target is SoW Fact — '
       + '§7.12',
   },
   surfaces: {
@@ -175,7 +200,7 @@ const SB_AI_01: Storyboard = {
   absentCapability: {
     statement:
       'This storyboard presumes a worker-initiated question channel, which the Statement of Work '
-      + 'does not describe. Under `DEC-ASK-001` option (a) there is no button and this storyboard '
+      + 'does not describe. Under DEC-ASK-001 option (a) there is no button and this storyboard '
       + "reduces to section 44.1's coaching-unavailable behaviour.",
     sourceRef: 'L92778',
   },
@@ -219,9 +244,9 @@ const SB_AI_02: Storyboard = {
   surfaceTableRef: 'L92898',
   content: {
     identifier:
-      '`SB-AI-02`; fallback contract `FB-AI-02`; extends `FB-AGT-PREV-01` and `FB-AGT-DEV-01`',
+      'SB-AI-02; fallback contract FB-AI-02; extends FB-AGT-PREV-01 and FB-AGT-DEV-01',
     preconditions:
-      '`TAB-014` online with healthy sync; the reasoning layer unavailable or paused',
+      'TAB-014 online with healthy sync; the reasoning layer unavailable or paused',
     trigger:
       'A coaching opportunity, a deviation brief request, or a scheduled handoff assembly fails '
       + 'against a healthy network',
@@ -229,7 +254,7 @@ const SB_AI_02: Storyboard = {
       'Maya, Worker; Sam, Supervisor; Daniel, Platform Engineer, on the diagnosis side',
     workerVisibleExperience:
       '"Coaching help is unavailable. Step instructions are shown." The offline indicator is '
-      + '**not** shown, because the tablet is not offline',
+      + 'not shown, because the tablet is not offline',
     automaticFallback:
       'Curated default asset, then authored Work Instructions; circuit breaker opens after the '
       + 'configured consecutive failures',
@@ -238,7 +263,7 @@ const SB_AI_02: Storyboard = {
       + 'Supervisor works from the deterministic record in the Command Center',
     fallbackOfFallback:
       "Where the Supervisor is also unreachable, the escalation record's nobody-on-shift default "
-      + 'applies [`DEC-NOSHIFT-001`]',
+      + 'applies [DEC-NOSHIFT-001]',
     safeStop:
       'Work continues under authored instructions with every gate intact; no step advances '
       + 'without its proof',
@@ -259,13 +284,13 @@ const SB_AI_02: Storyboard = {
       'The run proceeds and completes on deterministic behaviour, with recorded evidence that '
       + 'agent assistance was unavailable for a stated window',
     audit: 'Degradation entry, each fallback render, breaker open and close, degradation exit',
-    recoveryObjectives: '`TBD — Client Decision Required` — `DEC-AIRTO-001`',
+    recoveryObjectives: 'TBD — Client Decision Required — DEC-AIRTO-001',
     residualRisk:
       'Sustained degradation with healthy connectivity erodes worker trust in every platform '
       + 'message, not only the coaching one',
     sourceStatus:
-      'Honest degradation display is `SoW Fact` — §6.9.3, §8.7.5; the circuit breaker is '
-      + '`Recommendation — R&D` under `DEC-AIRETRY-001`',
+      'Honest degradation display is SoW Fact — §6.9.3, §8.7.5; the circuit breaker is '
+      + 'Recommendation — R&D under DEC-AIRETRY-001',
   },
   surfaces: {
     DOH: affected(
@@ -312,7 +337,15 @@ const SB_AI_02: Storyboard = {
       statement:
         'The circuit breaker opens after the configured consecutive failures and the device stops '
         + 'calling the reasoning layer.',
-      sourceRef: 'L92891',
+      // C-40. This cited L92891, the card's own Audit row, which names
+      // "breaker open and close" and states NEITHER the threshold nor that the
+      // device stops calling. L92861 is the only line in the section that
+      // carries both clauses: "after the configured number of consecutive
+      // failures the device stops calling and shows the unavailable state
+      // immediately". L92881 (Automatic fallback) restates the threshold alone
+      // — "circuit breaker opens after the configured consecutive failures" —
+      // so it would leave the second clause uncited.
+      sourceRef: 'L92861',
     },
     {
       id: 'breaker-close',
@@ -337,9 +370,9 @@ const SB_AI_02: Storyboard = {
   },
   absentCapability: {
     statement:
-      'The circuit breaker\'s consecutive-failure count and cooling period are both **not '
-      + 'specified in the Statement of Work** and are carried under `DEC-AIRETRY-001`. The '
-      + 'breaker itself is a `Recommendation — R&D`, and no value for either is seeded here.',
+      'The circuit breaker\'s consecutive-failure count and cooling period are both not '
+      + 'specified in the Statement of Work and are carried under DEC-AIRETRY-001. The '
+      + 'breaker itself is a Recommendation — R&D, and no value for either is seeded here.',
     sourceRef: 'L92861',
   },
   facts: {
@@ -388,10 +421,10 @@ const SB_AI_03: Storyboard = {
   cardHeaderRef: 'L92958',
   surfaceTableRef: 'L92982',
   content: {
-    identifier: '`SB-AI-03`; fallback contract `FB-AI-03`; conditional on `DEC-LOCALAI-001`',
+    identifier: 'SB-AI-03; fallback contract FB-AI-03; conditional on DEC-LOCALAI-001',
     preconditions:
-      '`TAB-014` offline or the reasoning layer unreachable; the pinned `v2.1.0` package carries '
-      + "the screen's curated default for `es-MX`",
+      'TAB-014 offline or the reasoning layer unreachable; the pinned v2.1.0 package carries '
+      + "the screen's curated default for es-MX",
     trigger:
       'A local capability fails its check, or no local capability exists and the server is '
       + 'unreachable',
@@ -422,14 +455,14 @@ const SB_AI_03: Storyboard = {
       'Step completed or parked on its authored terms; the record shows which guidance the worker '
       + 'actually saw',
     audit: 'Local-capability failure; fallback selection with asset identity; fleet flag where raised',
-    recoveryObjectives: '`TBD — Client Decision Required` — `DEC-AIRTO-001`',
+    recoveryObjectives: 'TBD — Client Decision Required — DEC-AIRTO-001',
     residualRisk:
       'A curated default is generic by design; a floor running on curated defaults for weeks is '
       + 'receiving materially less prevention than the design intends, and only the fallback-rate '
       + 'metric will show it',
     sourceStatus:
-      'Curated default is `SoW Fact` — §5.2.1; local capability is `User-Mandated Product '
-      + 'Extension` — `DEC-LOCALAI-001`',
+      'Curated default is SoW Fact — §5.2.1; local capability is User-Mandated Product '
+      + 'Extension — DEC-LOCALAI-001',
   },
   surfaces: {
     DOH: affected(
@@ -489,10 +522,10 @@ const SB_AI_03: Storyboard = {
   },
   absentCapability: {
     statement:
-      '**Not specified in the Statement of Work.** The Statement of Work places the reasoning '
+      'Not specified in the Statement of Work. The Statement of Work places the reasoning '
       + 'layer server-side and online-only [SoW Fact — §7.9.1, layer (c)]; there is no local '
       + 'artificial intelligence at V1. This storyboard is therefore conditional on '
-      + '`DEC-LOCALAI-001`, and its behaviour is written so that it is correct under option (a) '
+      + 'DEC-LOCALAI-001, and its behaviour is written so that it is correct under option (a) '
       + '— no local model — with the local-capability language marked conditional.',
     sourceRef: 'L92946',
   },
@@ -541,10 +574,10 @@ const SB_AI_04: Storyboard = {
   cardHeaderRef: 'L93039',
   surfaceTableRef: 'L93063',
   content: {
-    identifier: '`SB-AI-04`; fallback contract `FB-AI-04`',
+    identifier: 'SB-AI-04; fallback contract FB-AI-04',
     preconditions:
-      'No agent reachable; no curated default for this screen and locale; `RUN-2026-08-14-A` on '
-      + 'pinned `v2.1.0`',
+      'No agent reachable; no curated default for this screen and locale; RUN-2026-08-14-A on '
+      + 'pinned v2.1.0',
     trigger: 'A coaching opportunity or help request with no guidance source available',
     actorsAndRoles:
       'Maya, Worker; Sam, Supervisor, as the manual escalation target; the screen\'s Studio '
@@ -559,7 +592,7 @@ const SB_AI_04: Storyboard = {
       + 'or reachable through the escalation record',
     fallbackOfFallback:
       "Where the Supervisor is unreachable, the nobody-on-shift default routes to the tenant's "
-      + 'Quality Manager role, marked as a fallback delivery [`DEC-NOSHIFT-001`]',
+      + 'Quality Manager role, marked as a fallback delivery [DEC-NOSHIFT-001]',
     safeStop:
       'The step parks; the worker continues other assigned runs; nothing advances without the '
       + 'authored proof',
@@ -582,7 +615,7 @@ const SB_AI_04: Storyboard = {
       + 'reached production; the locale-completeness check exists to prevent it and its coverage '
       + 'must be verified',
     sourceStatus:
-      'The guarantee is `SoW Fact` — §7.12; the empty-content path is `Derived Clarification`',
+      'The guarantee is SoW Fact — §7.12; the empty-content path is Derived Clarification',
   },
   surfaces: {
     DOH: affected(
@@ -625,11 +658,20 @@ const SB_AI_04: Storyboard = {
       sourceRef: 'L93050',
     },
     {
+      // C-40, SPLIT. One event asserted both routes and cited L93048, the
+      // Fallback-of-fallback row, which states only the second. The primary
+      // route is a different row, L93052, so a reader opening the citation
+      // found no Supervisor in it. Two events, one line each.
       id: 'escalation',
       statement:
-        'The step-away escalation reaches the Supervisor per the escalation record, or the '
-        + "nobody-on-shift default routes it to the tenant's Quality Manager role, marked as a "
-        + 'fallback delivery.',
+        'The step-away escalation reaches the Supervisor per the escalation record.',
+      sourceRef: 'L93052',
+    },
+    {
+      id: 'escalation-fallback-route',
+      statement:
+        'Where the Supervisor is unreachable, the nobody-on-shift default routes to the '
+        + "tenant's Quality Manager role, marked as a fallback delivery.",
       sourceRef: 'L93048',
     },
     {
@@ -650,7 +692,7 @@ const SB_AI_04: Storyboard = {
   absentCapability: {
     statement:
       'The trigger of this storyboard includes a help request the worker makes under '
-      + '`DEC-ASK-001`, a worker-initiated question channel the Statement of Work does not '
+      + 'DEC-ASK-001, a worker-initiated question channel the Statement of Work does not '
       + "describe. §44A's own head names storyboards 1, 3, 4 and 21 as the four the admission "
       + 'governs.',
     sourceRef: 'L93030',
@@ -700,15 +742,15 @@ const SB_AI_05: Storyboard = {
   cardHeaderRef: 'L93127',
   surfaceTableRef: 'L93151',
   content: {
-    identifier: '`SB-AI-05`; fallback contract `FB-AI-05`; extends `FB-AGT-DEV-01`',
+    identifier: 'SB-AI-05; fallback contract FB-AI-05; extends FB-AGT-DEV-01',
     preconditions:
-      '`TAB-014` offline; reasoning layer paused; `RUN-2026-08-14-A` on pinned `v2.1.0`; '
-      + "`LOT-WB-2291` in use by `TAB-014` and by Ahmed's device",
+      'TAB-014 offline; reasoning layer paused; RUN-2026-08-14-A on pinned v2.1.0; '
+      + "LOT-WB-2291 in use by TAB-014 and by Ahmed's device",
     trigger: 'A capture classifying into Severity 1 on-device',
     actorsAndRoles:
       'Maya, Worker; Sam, Supervisor; Elena, Quality Manager — the only person who can release',
     workerVisibleExperience:
-      'The deterministic verdict panel, then the non-dismissible hold band naming `LOT-WB-2291`, '
+      'The deterministic verdict panel, then the non-dismissible hold band naming LOT-WB-2291, '
       + 'then the containment checklist. A status line reads "This deviation is recorded on this '
       + 'tablet. It will reach your supervisor when this tablet reconnects."',
     automaticFallback:
@@ -736,8 +778,8 @@ const SB_AI_05: Storyboard = {
       'Captures walk their full state chain; the escalation delivers; propagation begins and is '
       + 'displayed per device',
     conflictResolution:
-      "If the server's mirror computation differs from the device's classification, the **device "
-      + 'wins** and a divergence flag is raised; the server never re-triggers [SoW Fact — §3.3, '
+      "If the server's mirror computation differs from the device's classification, the device "
+      + 'wins and a divergence flag is raised; the server never re-triggers [SoW Fact — §3.3, '
       + '§7.9.2]',
     finalOfficialState:
       'Severity 1 deviation officially recorded; Critical anomaly auto-entered in the Anomaly '
@@ -748,12 +790,12 @@ const SB_AI_05: Storyboard = {
       + 'delivery, mirror, propagation confirmations, disposition, release',
     recoveryObjectives:
       'Not applicable to the hold, which has no recovery objective because it never fails. For '
-      + 'brief assembly, `TBD — Client Decision Required` — `DEC-AIRTO-001`',
+      + 'brief assembly, TBD — Client Decision Required — DEC-AIRTO-001',
     residualRisk:
       'Sibling devices working the same lot continue until their next sync; this is disclosed '
       + 'rather than hidden, and propagation lag is metered',
     sourceStatus:
-      '`SoW Fact` throughout the safety path — §3.3, §3.4, §7.9.2, §7.9.3, §8.3.3',
+      'SoW Fact throughout the safety path — §3.3, §3.4, §7.9.2, §7.9.3, §8.3.3',
   },
   surfaces: {
     DOH: affected(
@@ -763,7 +805,7 @@ const SB_AI_05: Storyboard = {
     ),
     STU: noEffect(
       'the authored limits, banding, and checklist that produced this outcome are exactly as '
-        + 'published in `v2.1.0`',
+        + 'published in v2.1.0',
       'L93154',
     ),
     CC: affected(
@@ -789,20 +831,29 @@ const SB_AI_05: Storyboard = {
     {
       id: 'capture',
       statement:
-        'The capture of 38.0 Newton metres on `RB-0011` commits to the device\'s durable store '
+        'The capture of 38.0 Newton metres on RB-0011 commits to the device\'s durable store '
         + 'before evaluation.',
       sourceRef: 'L93115',
     },
     {
-      id: 'classification',
+      // C-40, SPLIT. One event carried the measured departure AND the
+      // classification and cited L93117, which is the classification step
+      // alone: a reader opening it found no 13.6 per cent anywhere. The number
+      // is the source's own, at L93116, the step before.
+      id: 'limits-evaluation',
       statement:
-        'The device evaluates against the pinned limits — out of specification by 13.6 per cent '
-        + 'below the lower limit — and classifies into Severity 1 under the authored banding.',
+        'The device evaluates against the pinned limits: out of specification, 13.6 per cent '
+        + 'below the lower limit.',
+      sourceRef: 'L93116',
+    },
+    {
+      id: 'classification',
+      statement: 'The device classifies into Severity 1 under the authored banding.',
       sourceRef: 'L93117',
     },
     {
       id: 'hold-placement',
-      statement: 'The device places the hold on `LOT-WB-2291` immediately and locally.',
+      statement: 'The device places the hold on LOT-WB-2291 immediately and locally.',
       sourceRef: 'L93118',
     },
     {
@@ -854,8 +905,8 @@ const SB_AI_05: Storyboard = {
   finalOfficialState: {
     name:
       'Severity 1 deviation officially recorded; Critical anomaly auto-entered in the Anomaly '
-      + 'Register with its containment record; hold in force; released only by the Quality '
-      + 'Manager after disposition',
+      + 'Register with its containment record [SoW Fact — §3.3]; hold in force; released only by '
+      + 'the Quality Manager after disposition',
     // Capture and classification give "Severity 1 deviation officially
     // recorded"; hold placement gives "hold in force"; the checklist items are
     // the containment record the Critical anomaly is entered with; disposition
@@ -921,7 +972,7 @@ const SB_AI_06: Storyboard = {
   cardHeaderRef: 'L93219',
   surfaceTableRef: 'L93243',
   content: {
-    identifier: '`SB-AI-06`; fallback contract `FB-AI-06`',
+    identifier: 'SB-AI-06; fallback contract FB-AI-06',
     preconditions:
       "Maya's run parked at a qualification gate; Sam not acknowledging; the tenant's escalation "
       + 'routing authored per severity level',
@@ -971,9 +1022,9 @@ const SB_AI_06: Storyboard = {
       + 'governing published value',
     residualRisk:
       'Depending on one role in one shift is a real operational risk; the nobody-on-shift default '
-      + 'reduces it but does not remove it, and it is unconfirmed [`DEC-NOSHIFT-001`]',
+      + 'reduces it but does not remove it, and it is unconfirmed [DEC-NOSHIFT-001]',
     sourceStatus:
-      '`SoW Fact` — §3.6, §3.9, §1.7; the ordering implied by "Supervisor+" is `DEC-PLUS-001`',
+      'SoW Fact — §3.6, §3.9, §1.7; the ordering implied by "Supervisor+" is DEC-PLUS-001',
   },
   surfaces: {
     DOH: affected(
@@ -1027,13 +1078,29 @@ const SB_AI_06: Storyboard = {
       statement:
         'Every acknowledgement is recorded as one state written by any channel, distinct from '
         + 'resolution.',
-      sourceRef: 'L93212',
+      // C-40. This cited L93212, which states the timer and "Acknowledgement is
+      // one state; any channel writes it" but NOT the distinction from
+      // resolution. `AC-44A-06-3` at L93277 carries the whole sentence:
+      // "acknowledgement is one state written by any channel and is distinct
+      // from resolution".
+      sourceRef: 'L93277',
     },
     {
+      // C-40, SPLIT. One event asserted the named identity, the no-auto-approval
+      // rule and the never-closed-by-time rule, and cited L93217, which carries
+      // only the second. The first and third are the card's Final official
+      // state row, L93235.
       id: 'decision',
       statement:
-        'The eventual decision is recorded with the identity that made it. Nothing auto-approves, '
-        + 'and no item is closed by time.',
+        'The eventual decision is recorded with the identity that made it, and the item is never '
+        + 'closed by time.',
+      sourceRef: 'L93235',
+    },
+    {
+      id: 'no-auto-approval',
+      statement:
+        'Where nobody acknowledges at any tier the work stays parked, held or blocked '
+        + 'indefinitely. Nothing auto-approves.',
       sourceRef: 'L93217',
     },
   ],
@@ -1104,9 +1171,9 @@ const SB_AI_07: Storyboard = {
   cardHeaderRef: 'L93303',
   surfaceTableRef: 'L93327',
   content: {
-    identifier: '`SB-AI-07`; fallback contract `FB-AI-07`',
+    identifier: 'SB-AI-07; fallback contract FB-AI-07',
     preconditions:
-      '`LOT-WB-2291` held from an offline Severity 1 classification at 10:02; `TAB-014` '
+      'LOT-WB-2291 held from an offline Severity 1 classification at 10:02; TAB-014 '
       + "reconnected; Ahmed's device still offline",
     trigger: 'Elena, as Quality Manager, releases the hold after disposition',
     actorsAndRoles:
@@ -1124,7 +1191,7 @@ const SB_AI_07: Storyboard = {
     fallbackOfFallback:
       "Where a device is lost or wiped, the hold on that device's scope is reconciled centrally "
       + "and the device's outstanding commands are recorded as undeliverable rather than as "
-      + 'applied [`DEC-WIPE-001`]',
+      + 'applied [DEC-WIPE-001]',
     safeStop:
       'The lot stays held on every device that has not acknowledged the release. A partial '
       + 'release is displayed as partial, never as complete',
@@ -1136,7 +1203,7 @@ const SB_AI_07: Storyboard = {
       'Release notified to the Supervisor and, where configured, the Quality Manager; '
       + 'notification is not the mechanism — the command channel is',
     reconnection:
-      'Ordering under the adopted `DEC-SYNC-001` position: a lot release is an enabling-class '
+      'Ordering under the adopted DEC-SYNC-001 position: a lot release is an enabling-class '
       + "command, so Ahmed's captures upload in phase 2 and the hold clears in phase 3 "
       + 'immediately afterwards. The superseded commands-first reading, under which the hold '
       + 'would have cleared before the upload, stays recorded in the decision card; the panels '
@@ -1157,8 +1224,8 @@ const SB_AI_07: Storyboard = {
       'A supervisor reading "released" may assume the floor is clear; the per-device panel is the '
       + 'only control against that assumption, so it must never be summarised optimistically',
     sourceStatus:
-      '`SoW Fact` — §1.3, §3.4, §3.5, §6.5.3, §7.2.2, §7.9.3; ordering is the adopted '
-      + '`DEC-SYNC-001` position, `Derived Clarification — adopted working position`',
+      'SoW Fact — §1.3, §3.4, §3.5, §6.5.3, §7.2.2, §7.9.3; ordering is the adopted '
+      + 'DEC-SYNC-001 position, Derived Clarification — adopted working position',
   },
   surfaces: {
     DOH: affected(
@@ -1218,7 +1285,7 @@ const SB_AI_07: Storyboard = {
   finalOfficialState: {
     name:
       'Hold released; deviation dispositioned; Critical anomaly moves toward Resolved with a '
-      + 'closure note',
+      + 'closure note [SoW Fact — §3.3]',
     // Disposition and release give "dispositioned" and "released"; the
     // per-device acknowledgements and reconciliation are what make "released"
     // mean released everywhere rather than released centrally.
@@ -1279,9 +1346,9 @@ const SB_AI_08: Storyboard = {
   cardHeaderRef: 'L93391',
   surfaceTableRef: 'L93415',
   content: {
-    identifier: '`SB-AI-08`; fallback contract `FB-AI-08`',
+    identifier: 'SB-AI-08; fallback contract FB-AI-08',
     preconditions:
-      '`RUN-2026-08-14-A` in flight on pinned `v2.1.0`; `TAB-014` offline; `v2.2.0` published '
+      'RUN-2026-08-14-A in flight on pinned v2.1.0; TAB-014 offline; v2.2.0 published '
       + 'centrally',
     trigger: 'A Studio publication or a Lane B auto-publish while a device is offline',
     actorsAndRoles:
@@ -1312,7 +1379,7 @@ const SB_AI_08: Storyboard = {
     reconnection: 'The new package downloads; adoption waits for the configured boundary',
     conflictResolution:
       'None between versions — the pinned version is authoritative for its run by definition. '
-      + 'The pointer-versus-pinned question is `DEC-LIB-001`',
+      + 'The pointer-versus-pinned question is DEC-LIB-001',
     finalOfficialState:
       "The run's record carries the version it executed on, which is the audit receipt stating "
       + 'which limits were in force [SoW Fact — §3.8]',
@@ -1323,8 +1390,8 @@ const SB_AI_08: Storyboard = {
       "A long-offline device can run several versions behind; the fleet view's package-version "
       + 'column is the control, and it must be watched',
     sourceStatus:
-      '`SoW Fact` — §2.4, §3.8, §5.12, §6.7.4; interactions are `DEC-LIB-001` and '
-      + '`DEC-LANEB-001`',
+      'SoW Fact — §2.4, §3.8, §5.12, §6.7.4; interactions are DEC-LIB-001 and '
+      + 'DEC-LANEB-001',
   },
   surfaces: {
     DOH: affected(
@@ -1362,11 +1429,22 @@ const SB_AI_08: Storyboard = {
       sourceRef: 'L93383',
     },
     {
+      // C-40, SPLIT. One event fused walkthrough steps 3 and 5 and cited
+      // L93384, which is step 3 alone. The reconnection half is step 5, L93386,
+      // and it carries the clause that matters most here — the device stores
+      // the package and does NOT apply it to the in-flight run.
       id: 'distribution',
       statement:
         'The new package is queued for distribution while the device is offline and reaches '
-        + 'nothing; at reconnection the device downloads and stores it.',
+        + 'nothing.',
       sourceRef: 'L93384',
+    },
+    {
+      id: 'distribution-at-reconnection',
+      statement:
+        'At reconnection the device downloads the new package and stores it. It does not apply '
+        + 'it to the in-flight run.',
+      sourceRef: 'L93386',
     },
     {
       id: 'per-device-adoption',
@@ -1386,7 +1464,7 @@ const SB_AI_08: Storyboard = {
   finalOfficialState: {
     name:
       "The run's record carries the version it executed on, which is the audit receipt stating "
-      + 'which limits were in force',
+      + 'which limits were in force [SoW Fact — §3.8]',
     // The publication event establishes that a newer version existed; the
     // adoption event establishes when it took effect; the version stamp is the
     // receipt itself. Together they identify which limits were in force
@@ -1464,7 +1542,7 @@ const SB_AI_09: Storyboard = {
   cardHeaderRef: 'L93472',
   surfaceTableRef: 'L93496',
   content: {
-    identifier: '`SB-AI-09`; fallback contract `FB-AI-09`',
+    identifier: 'SB-AI-09; fallback contract FB-AI-09',
     preconditions: "Ahmed's device offline; a run assigned to Maya that Sam wishes to reassign",
     trigger: 'Any of the five command-channel classes issued to an offline device',
     actorsAndRoles:
@@ -1481,7 +1559,7 @@ const SB_AI_09: Storyboard = {
       + 'still has to be recorded through a surface to become official',
     fallbackOfFallback:
       'Where the device never returns, the command is recorded as undeliverable and the intended '
-      + 'change is achieved through a different route with its own record [`DEC-WIPE-001` for the '
+      + 'change is achieved through a different route with its own record [DEC-WIPE-001 for the '
       + 'wipe case]',
     safeStop:
       'The pre-command arrangement remains in force and is displayed as in force; nothing is '
@@ -1497,7 +1575,7 @@ const SB_AI_09: Storyboard = {
       + 'notified when the command is applied, not when it is created',
     reconnection:
       'The device downloads pending commands in order; ordering relative to capture upload '
-      + 'follows the adopted `DEC-SYNC-001` three phases — stop-class commands, then the full '
+      + 'follows the adopted DEC-SYNC-001 three phases — stop-class commands, then the full '
       + 'capture upload, then the enabling classes',
     conflictResolution:
       'Where two commands of the same class target the same object, the later supersedes the '
@@ -1515,8 +1593,8 @@ const SB_AI_09: Storyboard = {
       + 'must therefore make the state impossible to miss, which is a design obligation rather '
       + 'than a training one',
     sourceStatus:
-      '`SoW Fact` — §1.3, §1.4, §7.2.2, §1.7; ordering is the adopted `DEC-SYNC-001` position, '
-      + '`Derived Clarification — adopted working position`',
+      'SoW Fact — §1.3, §1.4, §7.2.2, §1.7; ordering is the adopted DEC-SYNC-001 position, '
+      + 'Derived Clarification — adopted working position',
   },
   surfaces: {
     DOH: affected(
@@ -1567,7 +1645,11 @@ const SB_AI_09: Storyboard = {
     {
       id: 'queued',
       statement: 'The command is queued, written to the command channel.',
-      sourceRef: 'L93465',
+      // C-40. This cited L93465, the four-state sequence, which never names the
+      // command channel. L93509 — the state diagram's own transition — carries
+      // the whole statement: "Authorized --> Queued : written to the command
+      // channel".
+      sourceRef: 'L93509',
     },
     {
       id: 'available-for-delivery',
@@ -1643,9 +1725,9 @@ const SB_AI_10: Storyboard = {
   cardHeaderRef: 'L93564',
   surfaceTableRef: 'L93588',
   content: {
-    identifier: '`SB-AI-10`; fallback contract `FB-AI-10`; extends `FB-AGT-PREV-02`',
+    identifier: 'SB-AI-10; fallback contract FB-AI-10; extends FB-AGT-PREV-02',
     preconditions:
-      '`RUN-2026-08-14-A` pinned to `v2.1.0`; `v2.2.0` published centrally with a changed torque '
+      'RUN-2026-08-14-A pinned to v2.1.0; v2.2.0 published centrally with a changed torque '
       + 'instruction',
     trigger:
       "An agent response whose content derives from a workflow version other than the run's "
@@ -1688,8 +1770,8 @@ const SB_AI_10: Storyboard = {
       + 'produce many suppressions and few cards, which is why the suppression rate must be '
       + 'monitored as a quality metric rather than treated as a safety success',
     sourceStatus:
-      'Version pinning is `SoW Fact` — §2.4, §5.14; pointer propagation is `SoW Fact` — §5.7; '
-      + 'their interaction is `DEC-LIB-001`',
+      'Version pinning is SoW Fact — §2.4, §5.14; pointer propagation is SoW Fact — §5.7; '
+      + 'their interaction is DEC-LIB-001',
   },
   surfaces: {
     DOH: affected(
@@ -1714,18 +1796,25 @@ const SB_AI_10: Storyboard = {
   },
   audit: [
     {
+      // C-40, both of these. The two citations were crossed. L93560 states
+      // that the mismatched card is not rendered and what renders instead but
+      // says nothing about "both version identities"; L93575 — the Local data
+      // row — is the only line that states the divergence event carries both
+      // version identities and the suppressed asset's identity. Each event now
+      // cites the line carrying its own leading clause. The naming of the two
+      // versions is the card's Trigger row, L93568.
       id: 'divergence',
       statement:
         'The version-divergence event is recorded with both version identities — the run\'s '
         + "pinned version and the version the agent's content derives from.",
-      sourceRef: 'L93560',
+      sourceRef: 'L93575',
     },
     {
       id: 'suppression',
       statement:
         "The mismatched card is not rendered, and the suppressed asset's identity is recorded "
         + 'alongside the pinned content that rendered instead.',
-      sourceRef: 'L93575',
+      sourceRef: 'L93560',
     },
     {
       id: 'authoring-candidate',
