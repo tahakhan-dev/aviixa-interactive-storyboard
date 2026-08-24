@@ -151,6 +151,15 @@ Fourteen entries, APP-000 to APP-013. The four that govern behaviour now:
   remains permitted. **Reading a measured report of what remains is not permission to
   stop** — that is what APP-014 exists to settle.
 
+- **APP-015** — **slice 11 to full closure, then a repeating slice-11 audit loop, then STOP.** The
+  client volunteered this after being shown the wave-3 position. Run waves 3, 4 and 5 without stopping
+  between them; on closing wave 5, audit slice 11 against the frozen source **and** against the code
+  rather than treating a green chain as the audit; fix what the audit finds; re-verify on the corrected
+  bytes; repeat until a round finds nothing. Then the amendment in the same turn — *"after completing
+  the slice 11 then you will stop"* — **reinstates a stop at slice 11's close.** APP-013's
+  no-inter-slice-stop does not carry this run into slice 12; entering slice 12 needs a new
+  approval-ledger entry. `pending_gates` carries that gate.
+
 **Two limits survive the delegation, and they protect the client rather than constrain
 you.** An unresolved *source* decision is still disclosed on screen with its alternatives,
 and your pick labelled a client-delegated choice — the client delegated the decision, not
@@ -362,9 +371,10 @@ the freshness gate stopping the chain at step four with every count above it gre
 
 **A stale hardcoded count, twice more.** `slice-09-gates` asserted four build-wide
 not-represented modules; wave 2 made it two. Removed rather than renumbered, per the rule this
-slice already produced twice. **One more of the same class is outstanding in that file:
-`toHaveLength(81)` over the build-wide module registry**, which goes stale the next time a
-module lands.
+slice already produced twice. **The `toHaveLength(81)` this paragraph used to call outstanding is
+a property test now** — `tests/coverage/slice-09-gates.test.ts:1582` — and the claim was still
+standing here while the fix was recorded forty lines below it. Two live statements of one item,
+contradicting each other in one file, is the defect this section keeps naming.
 
 ### Four controller prescriptions that did not survive an agent opening the file
 
@@ -406,9 +416,16 @@ and the `SaConsoleShell` claim in `tests/accessibility/axe-states.spec.ts` was c
 Both were checked individually against the candidate rather than trusted. **Removed rather than
 renumbered** — a resume brief stale about its own outstanding list is the same defect class as a
 stale count on a screen.
-- The two generator defects for task 13, unchanged: `notifications.json` blends two registers and
-  silently drops 25 rows, and `SOURCE_CLASSIFICATIONS` claims a frozen-source vocabulary while
-  omitting a label used on 391 lines and spelling one that occurs zero times.
+- **The two generator defects recorded here for task 13 are BOTH REPAIRED**, and this list carried
+  them as outstanding for a third time. Measured 2026-08-24 by an independent agent, twice:
+  `notifications.json` now keys on `(register, identifier)` — 50 rows carry the `@L<line>` composite
+  key and 205 + 25 + 56 = 286 reconciles arithmetically, and the generator throws if the 25+87 split
+  breaks. `SOURCE_CLASSIFICATIONS` (`src/registry/schemas.ts:36-46`) now holds all eight labels; the
+  omitted one was `User-Mandated Product Extension` (391 source lines) and the invented spelling was
+  `Recommendation — Research and Development` (zero), and the real defect was three-part rather than
+  two — it also omitted `Recommendation — R&D`, which occurs on 957 lines. Gated three ways at
+  `tests/unit/registry-build.test.ts:597-617`, including a set-equality against
+  `SOURCE_CLASSIFICATION_TO_SOURCE_CLASS` so the two cannot drift. **Removed rather than renumbered.**
 
 Wave 1 built the scheduled-work spine — six registers across four `SCHED-` key spaces —
 and the twenty-two-operation permission model, which is `src/policy/columns.ts`'s first
@@ -515,14 +532,13 @@ shared word.
 
 ### Open from slice 9's verification, still open
 
-Screenshot manifest stale — 85 routes against a 96-route export; `pnpm screenshots` writes
-committed files, so it is the controller's. `CcFallbackLibrary` reachable from zero pages, a
-declared abstention with the wiring unbuilt. Four `MOD-DOH-*` unrepresented — `-10`, `-11`,
-`-17`, `-18` — of which wave 2 builds three. Twelve uncorroborated citations, all in slice 5-8
-files. And two generator defects measured but unrepaired, both task 13's:
-`notifications.json` blends two registers and silently drops 25 rows, and
-`SOURCE_CLASSIFICATIONS` claims to be the frozen-source vocabulary while omitting a label used
-on 391 lines and spelling one that occurs zero times.
+Screenshot manifest stale — **85 rows against a 100-route export**, not the 96 this paragraph used
+to say; `pnpm screenshots` writes committed files, so it is the controller's. `CcFallbackLibrary`
+reachable from zero pages, a declared abstention with the wiring unbuilt, gate-held at
+`tests/unit/cc-01.test.ts:638`. **Two** `MOD-DOH-*` unrepresented, not four — `-17` and `-18`, and
+they are precisely the two wave 2 did not build. Twelve uncorroborated citations, all in slice 5-8
+files, ceiling still `toBeLessThanOrEqual(20)` at `tests/coverage/citation-graph.test.ts:306`. **The
+two generator defects this paragraph also carried are repaired — see the corrected entry above.**
 
 ### Thirty-one brief errors in one wave, and the three that would have shipped
 
@@ -707,6 +723,100 @@ third clause: wait for the report, or for a clean typecheck that is **still** cl
 mid-verification for another agent, and a killed gate run left an orphaned `.zz-probe-` directory in
 the export that failed the next chain inside `cp` rather than inside any assertion. Two agents hit
 that independently. **Wave 3 runs at most three agents, with the build step serialised.**
+
+### Wave 3 pre-verification — three verifiers, and one finding outranks the wave
+
+**FIVE COMMITTED MODULES ARE REACHABLE FROM NOTHING, AND NONE OF THEM STATES AN ABSTENTION.** Measured
+2026-08-24 by transitive closure from the 182 files under `app/` — 583 files in `src`+`app`, 543
+reachable, 40 orphaned. Of the orphans, five are slice 11's own:
+
+- `src/ai/requests/{machine,states,surface-matrix}.ts` — **758 lines, 29 exports, zero importers
+  outside the cluster.** The whole queued-request mechanism: twelve states and the 12x5
+  state-to-surface matrix, wave 0 task 5, committed in `37f3ca7`. `states.ts`'s only importers are
+  the other two orphans, so it is a closed island.
+- `src/surfaces/sa/ai-failure-authority.ts` (496 lines, 19 exports) imported only by
+  `src/ui/sa/AiFailureAuthorityPanel.tsx` (261 lines), which nothing imports. Wave 2 task 9 shipped a
+  data module **and** its panel, both unreachable.
+
+`src/ai/agents/contracts.ts:420-434` stated its own seam — *"if task 10 does not import these modules,
+this object graph ships unreachable"* — and task 10 rescued it. **The five above state nothing**, which
+is exactly the shape §7 names: a stated abstention and an oversight look identical from outside. Wave 3
+task 14 mounts the panel; **the requests cluster is assigned to wave 3 task 15**, because the 12x5
+state-to-surface matrix IS a five-surface overlay and task 19 is too late for it.
+
+**Two mutually-unaware five-surface vocabularies, and one of them claims a binding it does not have.**
+`JourneySurfaceCode` in `src/ui/shared/journey.ts` is `'DOH'|'STU'|'CC'|'FL'|'SA'`;
+`QueuedRequestSurfaceId` at `src/ai/requests/surface-matrix.ts:70` is
+`'frontline'|'command-center'|'hub'|'studio'|'super-admin'`. Both are independently
+exhaustiveness-checked. `surface-matrix.ts:53-61` says its column axis "is bound to `SurfaceId` the way
+`@/ui/shared/journey`'s `JOURNEY_SURFACES` binds its own five-surface column axis" — **there is no join
+between them.** Whoever widens `JourneyStep` resolves this rather than shipping a third copy.
+
+**`JourneyStep` cannot carry slice 11 as it stands.** `src/ui/shared/journey.ts:90` has fields for
+number, title, workflow ref, source ref, owner module, acting surface, effects and note — and **no
+field for an AI mode, a failure, a request state or a provenance class.** There is no single shared
+fixture either: `app/hub/journey/effects.ts` holds 9 steps with **zero** AI mentions and
+`src/studio/journey/effects.ts` holds 22, over one surface-neutral spine. Task 19 widens the spine.
+
+**`AIMODE-*` (16 shipped), `FB-AI-*` (50), `DEC-AI*` (16) and `PROV-*` (6) are in NO generated
+inventory at all** — 88 identifiers. The fourteen inventories are fixed by `REGISTRY_DESCRIPTORS`
+(`src/coverage/descriptors.ts`) and `tests/coverage/slice-2c-gates.test.ts:657` asserts exactly 15
+files against it, so adding a fifteenth means editing both. **Task 20 decides explicitly whether that
+is the design or a gap** rather than leaving it unstated.
+
+**Only `SB-AI-*` can move in the registries, and it currently reads 0 of 48.** `ai-storyboards.json`
+holds 613 rows across four non-overlapping registers; the 48 `SB-AI-*` rows are all
+`not-represented`, and six of them are named in `src/` but **none in an `app/` route screen**, which is
+what the status computation requires. Commit `d4ea53a`'s message is true of `src/` and did not move the
+status.
+
+**Four of the fourteen registries compute a single status value for every row** — `commands` (0/17),
+`events` (0/28), `offline-scenarios` (0/70), `sub-features` (0/526). All four are **true zeros, not
+broken computations**: their identical `dedupRule` requires a shipped route screen under `app/` to name
+the identifier as a whole token, and no route screen names a `CMD-*`, `EVT-*`, `UC-OFF-*` or `SUB-*`.
+
+**A wrong number is regenerated into a committed artefact on every build.**
+`registries/generated/doh/module-reach.json`'s `doNotEdit` string still says "the eight module suites
+in `tests/unit`". There are **22**. Slice 6 measured nine and recorded it; it has drifted twice since.
+
+**The coverage page's prose count has now been renumbered twice and is wrong a third time.**
+`app/coverage/[registry]/page.tsx:114-116` reads "258 rows read demonstrated and 813 are named";
+measured across all fourteen inventories it is **266 and 1,041**. It sits in a JSX comment and does not
+render, which is why nothing caught it. The rule is remove, not renumber.
+
+**`slice-06-gates.test.ts:1386`'s `toHaveLength(64)` is NOT a stale count.** It is the length of a
+sha256 hex digest, re-asserted unchanged at line 1420. Three separate passes have nearly "fixed" it.
+
+**Three hardcoded counts are genuinely removable, and each already sits beside the membership
+assertion that replaces it:** `slice-09-gates.test.ts:1599` (`demonstrated` = 11, redundant against the
+`CC_MODULE_SPINE` derivation two lines below), `:653` and `:1656` (route dirs = 12, redundant against
+the `:655` membership form), and `slice-2c-gates.test.ts:657` (15 registry files, redundant against
+`REGISTRY_DESCRIPTORS`).
+
+**A new gate file is RED until it is declared.** `scripts/check-gate-ordering.mjs` holds an `AUDITED`
+map with exactly 25 entries against 25 files on disk. Entry 26 needs `subject`, `rewrittenBy` and
+`verdict`, and a gate whose text names `registries/generated` may not be filed `rewrittenBy: null`
+(enforced at L421).
+
+**Do not write a fourth private copy of the absence-sweep preamble.** `slice-07`, `slice-08` and
+`slice-09` each re-implement the non-vacuity floor, the frozen-source pin and the
+`as const satisfies` check, sharing only `../probe-paths`. Commit `018b390` shows the last of those
+already caught a slice-11 defect — through slice-09's CC-scoped copy, which is why its author found it
+and no gate did.
+
+**Task 22 must be alone, literally.** `pnpm verify` runs `build`, which rewrites the **committed**
+`registries/generated/**` and does `rm -rf out`. `test:release` runs 9 of 25 gate files that plant and
+delete probes inside `src/`, `app/`, `out/` and `registries/generated/` on the real filesystem, with
+`fileParallelism: false` because a probe's mid-lifetime existence crashed another gate's `readFileSync`
+in a concurrent run (`vitest.config.ts:61-89`). `pnpm screenshots` rewrites the **committed**
+`docs/screenshots/manifest.json`.
+
+**Slice 11 is the weakest-evidence slice by citation ratio and every strong claim it makes is
+correct.** 865 citations across the 55 files waves 0-2 added, 73 anchored, 99 strongly checked — 11.4%
+against the tree-wide 19.6%. **Zero strict-anchor misses and zero new allowance entries.** The cause is
+structural: these files write the identifier as a data field and the locator in a separate adjacent
+field, so the six-character `CONNECTIVE` adjacency never fires. Worth knowing before anyone treats the
+ratio as sloppiness.
 
 ## 9. The closing obligation
 

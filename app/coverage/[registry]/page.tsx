@@ -112,9 +112,12 @@ export function RegistryIndex({ slug }: { slug: RegistrySlug }) {
 
         The status column says whether a ROUTE SCREEN demonstrates a row. That
         is the right question for a status and an incomplete answer for a
-        reader: measured across the fourteen inventories, 258 rows read
-        demonstrated and 813 are named somewhere in the build. Re-measure that
-        pair rather than trusting it: it is the sum of the
+        reader: across the fourteen inventories, far more rows are named
+        somewhere in the build than any route screen demonstrates. THE PAIR OF
+        NUMBERS THAT STOOD HERE IS GONE RATHER THAN CORRECTED. It was
+        renumbered twice and was wrong a third time, and a build-wide figure
+        transcribed into a comment cannot be anything else. Measure it: it is
+        the sum of the
         `demonstrated-in-storyboard` rows and of `namedInSourceCount` over the
         fourteen `registries/generated/*.json`, which `pnpm build:registries`
         rewrites. This inventory's own pair is printed here so the gap is

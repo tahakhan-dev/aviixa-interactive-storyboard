@@ -63,6 +63,14 @@ to orient; never cite it.
 
 ## The five mechanisms — all verified absent, all shared across surfaces
 
+> **STALE AS OF 2026-08-24, AND READ THIS BEFORE THE SECTION BELOW.** "All verified absent" was true
+> when this brief was written and is now false: waves 0, 1 and 2 built all five. Re-measured on this
+> tree, `grep -rl` returns **AIMODE in 12 files, FAIL-AI in 3, PROV-1 in 4**. `MOD-AI-` is still zero,
+> so the module-inventory claim below still holds. The absence evidence is kept verbatim rather than
+> rewritten, because it is the measurement that justified building them — but **a reader taking it as
+> current would conclude the slice is unbuilt.** Two of the three lifts this brief calls real were
+> also already done before it was written; the third, the agent roster, shipped in wave 0 task 6.
+
 **1. The AI operating-mode machine.** Sixteen modes, **rows L89356-L89371** (L89354 is the header,
 L89355 the separator — the re-plan's span includes both). Sixteen transitions follow at L89375-L89392.
 `AIMODE-07` is at **L89362**, not the L89365 the re-plan gives — L89365 is `AIMODE-10`. `AIMODE-13`
