@@ -1475,6 +1475,14 @@ export const SB_21_TO_30 = [
     facts: {
       deviceAcknowledgement: 'noDeviceCommand',
       surfacesShowingApplied: [],
+      // `authored`, and it is least-wrong rather than right. What this card
+      // renders is dashboard panels: figures recomputed from records, each
+      // carrying its own freshness marker (L94737, L94750). No guidance
+      // element is rendered at all, and the union has no member saying so —
+      // the seam `SB_21_TO_30_CONTRACT_SEAMS` reports. The panels and the
+      // records behind them are authored artefacts and nothing here is
+      // model-generated, so `authored` is defensible; it is not the same
+      // claim as "no guidance element exists here".
       contentOrigin: 'authored',
       inference: 'noInference',
       gateOutcome: 'noGate',
@@ -2180,14 +2188,27 @@ export const SB_21_TO_30 = [
       // performed none of the five reserved acts.
       aiActs: [],
     },
+    // TWO QUOTATIONS, BOTH NOW THE SOURCE'S OWN, EACH WITH THE LINE IT IS ON.
+    // This element used to quote "where the decision is decided in favour",
+    // which the frozen source does not contain anywhere — `grep -c` returns 0.
+    // The source writes the condition twice and names a different decision each
+    // time: L95067 "Where `DEC-HANDOFF-001` is decided in favour" and L95069
+    // "where `DEC-HANDOFF-002` is decided in favour". One quoted clause with its
+    // own locator replaces the manufactured composite.
+    // It also used to attribute "plant-manager view" to §6.9.3. L95060 writes
+    // "Plant Manager view" — capitalised, unhyphenated — and L95058 quotes
+    // §6.9.3 the same way; the hyphenated lowercase form is the source's own
+    // NARRATIVE at L95068, not the phrase it attributes to §6.9.3. Quoting the
+    // narrative form as the §6.9.3 phrase is paraphrase-as-quotation.
     absentCapability: {
       statement:
         'The deterministic handoff pack and the outgoing Supervisor’s manual note are '
         + '`Recommendation — R&D` under `DEC-HANDOFF-001` and `DEC-HANDOFF-002`, so this '
-        + 'storyboard describes them conditionally — "where the decision is decided in '
-        + 'favour" — rather than as capabilities the Statement of Work carries. The '
-        + '"plant-manager view" this storyboard escalates to is the source’s own phrase in '
-        + '§6.9.3 and whether it is backed by a role is `DEC-ROLE-001`, unresolved.',
+        + 'storyboard describes them conditionally — "Where `DEC-HANDOFF-001` is decided in '
+        + 'favour" (L95067), and the same for `DEC-HANDOFF-002` (L95069) — rather than as '
+        + 'capabilities the Statement of Work carries. The phrase §6.9.3 supplies for what '
+        + 'this storyboard escalates to is "Plant Manager view" (L95060), and whether it is '
+        + 'backed by a role is `DEC-ROLE-001`, unresolved.',
       sourceRef: 'L95094',
     },
   },
@@ -2305,6 +2326,16 @@ export const SB_21_TO_30 = [
     facts: {
       deviceAcknowledgement: 'noDeviceCommand',
       surfacesShowingApplied: [],
+      // `authored`, and it is least-wrong rather than right. What this card
+      // renders is attribution — identity and action per event, the
+      // substitution boundary, the abandonment closures (L95176) — which is a
+      // record read back, not a guidance element with a provenance. The union
+      // has no member for "this storyboard renders no guidance, rule or
+      // threshold at all"; the seam `SB_21_TO_30_CONTRACT_SEAMS` reports that.
+      // Nothing here is model-generated: the one agent artefact in the
+      // storyboard attaches to the deviation as a marked reading with its own
+      // production timestamp (L95154) and is not what the card renders as
+      // the rule.
       contentOrigin: 'authored',
       inference: 'noInference',
       // L95165: the hold Maya's capture caused; L95169: outstanding decisions
