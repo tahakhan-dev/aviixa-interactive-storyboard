@@ -1082,7 +1082,7 @@ export const MODULE_REGISTRY_GAP = {
     'While it was absent the Hub module rail offered no link to /hub/run-scheduling-and-execution-oversight and `dohScreenReach(\'SCR-DOH-13\')` returned null rather than this module’s reach. Both now answer.',
   whyNotFixedHere:
     'The fix was in `src/surfaces/doh/modules.ts` and the reach generator — a shared spine file and a generated file that MOD-DOH-05, MOD-DOH-07 and MOD-DOH-08 needed identically and were editing concurrently, so it belonged to the one task that could make it once for all seven. It has been made, and the value below is now the generated value rather than a preview of it.',
-  reachThisModuleWouldGet: MOD_DOH_06_ROLES_REACHING,
+  reachThisModuleGets: MOD_DOH_06_ROLES_REACHING,
 } as const
 
 /** Convenience for the screen and the tests: the finish window's end, or null. */

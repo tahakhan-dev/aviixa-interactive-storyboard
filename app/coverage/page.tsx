@@ -13,6 +13,11 @@ import {
 } from '@/coverage/descriptors'
 import { Table, StatusPill, type StatusTone } from '@/ui/primitives'
 import { loadGeneratedRegistry, type GeneratedRegistry } from '@/coverage/registry-loader'
+import {
+  UNINVENTORIED_DECISION_LABEL,
+  UNINVENTORIED_FAMILIES,
+  UNINVENTORIED_IDENTIFIERS,
+} from '@/coverage/uninventoried'
 
 export const metadata: Metadata = { title: 'Coverage Dashboard' }
 
@@ -168,6 +173,88 @@ export default function CoveragePage() {
         ))}
       </ul>
 
+      {/*
+        WHAT THE FOURTEEN DO NOT COVER, SAID ON THE SCREEN RATHER THAN LEFT TO
+        INFERENCE.
+
+        The table above is the client's fourteen named inventories, and a reader
+        counting them will undercount what the build ships. Four identifier
+        families are in NO row of any of the fourteen. The decision that they
+        belong in none of them is a client-delegated choice under APP-012, and
+        the forbidden outcome was never "no fifteenth registry" -- it was
+        leaving shipped identifiers uncounted. So they are counted here.
+
+        Every number below is DERIVED from the register that holds the family,
+        at module load. None is a literal: this build spent five tasks on one
+        derived number that had twenty-nine hand-maintained copies, eleven of
+        them rendered on screens, and the rule that came out of it is that a
+        count which cannot move when its subject moves does not get written
+        down. `tests/unit/coverage-uninventoried.test.ts` sweeps `src/` and
+        `app/` and requires the declared set to EQUAL the shipped set, in both
+        directions, so this section cannot silently miss one.
+      */}
+      <h2 className="mt-8 text-xl font-semibold">
+        Shipped identifiers that are in none of the fourteen
+      </h2>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        The fourteen inventories above do not account for everything this build
+        ships. {UNINVENTORIED_IDENTIFIERS.length} identifiers across four
+        families sit in no row of any of them, and they are listed here rather
+        than left for a reader to discover by subtraction. This is a decision,
+        not an omission: these four are <strong>mechanisms</strong> — a state
+        vocabulary, a rendering contract, a fallback register and a register of
+        open client decisions — rather than inventories of things the product
+        would ship, so a status column asking whether a screen “demonstrates”
+        one would be a category error. {UNINVENTORIED_DECISION_LABEL}
+      </p>
+      <div className="mt-4">
+        <Table
+          caption="Identifier families this build ships that belong to none of the fourteen inventories, with the register that holds each and the reason a fifteenth inventory would be wrong rather than merely redundant."
+          columns={[
+            { key: 'family', header: 'Family' },
+            { key: 'count', header: 'Identifiers' },
+            { key: 'heldIn', header: 'Where it is actually held' },
+            { key: 'why', header: 'Why it is in no inventory' },
+          ]}
+          rows={UNINVENTORIED_FAMILIES.map((family) => ({
+            family: (
+              <>
+                <code>{family.prefix}</code> — {family.title}
+              </>
+            ),
+            count: (
+              <>
+                {family.identifiers.length} held
+                {family.alsoCitedWithoutARecord.length > 0 ? (
+                  <>
+                    ; {family.alsoCitedWithoutARecord.length} cited with no record of its own (
+                    {family.alsoCitedWithoutARecord.map((c) => c.id).join(', ')})
+                  </>
+                ) : null}
+                . {family.sizeMeaning}
+              </>
+            ),
+            heldIn: family.heldIn.map((path) => <code key={path}>{path} </code>),
+            why: (
+              <>
+                {family.whatItIs} {family.whyNotAnInventory}
+              </>
+            ),
+          }))}
+          emptyState={{
+            title: 'No uninventoried families declared',
+            whatCreatesIt: 'UNINVENTORIED_FAMILIES',
+          }}
+        />
+      </div>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        What this costs, said plainly: the fourteen rows above do not add up to
+        everything the build ships, and the number the client named stays
+        fourteen. That is the conservative half of a delegated choice — no
+        descriptor was added and no gate was renumbered — and the shortfall is
+        disclosed here instead of being silent.
+      </p>
+
       <h2 className="mt-8 text-xl font-semibold">Source classification</h2>
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
         Orthogonal to the status above: this says what the frozen source
@@ -194,14 +281,28 @@ export default function CoveragePage() {
         would set one, have not run), so every count below is honestly zero
         -- said so in words, not left implicit in an absent section.
       */}
+      {/*
+        THE REASON GIVEN HERE WAS STALE AND IS REMOVED RATHER THAN RENUMBERED.
+
+        It read "slices 3-13, which would set this, have not run". Slices 3
+        through 11 have run, so the sentence was false while the counts it
+        explained were correct -- a screen giving a true number for a wrong
+        reason, which is the shape this build keeps finding in itself. The
+        replacement states the CHECKABLE fact instead: measured across all
+        fourteen generated inventories, no row carries a `buildClass` at all.
+        That claim moves when the data moves; a claim about which slices have
+        run does not.
+      */}
       <h2 className="mt-8 text-xl font-semibold">Build classification</h2>
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
         Also orthogonal to status: this would say what THIS BUILD did with
         an item — demonstrated in the storyboard, not applicable, or
-        blocked on an open client decision. No item in any registry has
-        been classified for build status yet: slices 3-13, which would set
-        this, have not run, so every count below is honestly zero rather
-        than fabricated.
+        blocked on an open client decision. No row in any of the fourteen
+        generated inventories carries a build classification, so every count
+        below is honestly zero rather than fabricated. The status column in
+        the table above is what currently answers “what did this build do
+        with it”, and it answers from a shipped route screen rather than from
+        a classification anyone typed.
       </p>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink-muted)]">
         {BUILD_CLASSES.map((buildClass) => (

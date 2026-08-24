@@ -622,21 +622,42 @@ export interface AuthoritySeam {
 export const CONSOLE_AUTHORITY_SEAMS = [
   {
     id: 'canon-record-site-scoped-pause',
+    // ANSWERED by slice 11 wave 5 registry closure, and the answer is NOT a
+    // registration. This seam's plan was sound — write no local readings here,
+    // so that wave 5 could register the decision in the canon without creating
+    // a second home. It was defeated by a second local home landing first:
+    // `src/ai/controls/decisions.ts` holds the readings and THROWS at module
+    // load if the identifier becomes a canon member, so the registration and
+    // the deletion of that record are one atomic change, and its other half is
+    // in a wave-3 module outside wave 5's path list. Handed back as a paired
+    // change rather than shipped as half of one. The verdict and its reason
+    // live in `src/coverage/uninventoried.ts`.
     whatIsMissing:
-      '`DEC-AIPAUSE-001` is named by the site-scoped pause row and the decision canon does not ' +
-      'hold it. Until it does, this panel renders the row inoperable and prints the identifier ' +
-      'and the row verbatim, and writes no local readings — a second home for one decision is ' +
-      'the defect the canon exists to prevent.',
+      'OPEN, WITH A RECORDED VERDICT. `DEC-AIPAUSE-001` is named by the site-scoped pause row ' +
+      'and the decision canon does not hold it. This panel therefore renders the row inoperable ' +
+      'and prints the identifier and the row verbatim, and writes no local readings — a second ' +
+      'home for one decision is the defect the canon exists to prevent. Wave 5 examined it and ' +
+      'declined to register it, because the readings now live in ' +
+      '`src/ai/controls/decisions.ts` and registering without deleting them there would create ' +
+      'exactly that second home. See `CANON_CONSOLIDATION_VERDICTS` in ' +
+      '`src/coverage/uninventoried.ts`, which gates the non-membership this row asserts.',
     owner: 'src/disclosure/decisions.ts',
-    ownerTask: 'slice 11 wave 5, registry closure',
+    ownerTask:
+      'examined by slice 11 wave 5 registry closure and handed back as a paired change with ' +
+      'src/ai/controls/decisions.ts, which must drop LOCAL_OPEN_DECISIONS in the same commit',
   },
   {
     id: 'canon-record-kill-switch',
+    // Same answer, same reason. See the note above.
     whatIsMissing:
-      '`DEC-KILL-001` governs the kill switch through section 40.15 rather than through this ' +
-      'matrix, and the canon does not hold it either. Same treatment, same reason.',
+      'OPEN, WITH A RECORDED VERDICT. `DEC-KILL-001` governs the kill switch through section ' +
+      '40.15 rather than through this matrix, and the canon does not hold it either. Same ' +
+      'treatment, same reason, and the same wave-5 verdict: handed back rather than registered, ' +
+      'because its readings are held locally by a module outside that task\'s path list.',
     owner: 'src/disclosure/decisions.ts',
-    ownerTask: 'slice 11 wave 5, registry closure',
+    ownerTask:
+      'examined by slice 11 wave 5 registry closure and handed back as a paired change with ' +
+      'src/ai/controls/decisions.ts, which must drop LOCAL_OPEN_DECISIONS in the same commit',
   },
   {
     id: 'console-mount',

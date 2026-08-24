@@ -62,13 +62,31 @@ import type { AiModeId } from '@/ai/modes'
  * where this build learned to put it after marking a shared control turned
  * one broken route into seven.
  *
- * ── IT IS REACHABLE FROM NO ROUTE, AND THAT IS STATED ──────────────────────
- * Measured: nothing under `app/` renders this component. Its only caller is
- * `tests/component/deterministic-boundary.test.tsx`. That is deliberate —
- * this is the agent half of the slice and the surfaces that will mount it are
- * waves 2 through 4, which own the route directories this task may not touch.
- * It is written down because a stated abstention and an oversight look
- * identical from outside; whoever mounts the first one closes this paragraph.
+ * ── IT IS REACHABLE FROM A ROUTE, AND THAT PARAGRAPH IS NOW CLOSED ─────────
+ * This paragraph used to read "Measured: nothing under `app/` renders this
+ * component. Its only caller is
+ * `tests/component/deterministic-boundary.test.tsx`." Both halves were true
+ * when they were written and both are now false, so they are corrected here
+ * rather than left standing: a stale absence claim is the defect shape this
+ * build keeps naming, and this file asked whoever mounted the first one to
+ * close it.
+ *
+ * Measured on this tree: `src/surfaces/cc/modules/cc-08/AgentActivityPanel.tsx`
+ * imports this component and renders `<DeterministicBoundary mode="AIMODE-14" />`
+ * under the pause banner, and that panel is mounted by
+ * `app/command-center/agent-activity-panel/page.tsx` — so the component is
+ * reachable from `app/` through exactly one route. `MOD-CC-08` is the reason
+ * it mounts there: SB-42-301's own sentence is that deterministic safety
+ * checks are unaffected by the pause, so a screen showing a paused platform
+ * has to show what still runs.
+ *
+ * The abstention that stood here was DELIBERATE and was followed up, which is
+ * why it is recorded as closed rather than deleted — the seam
+ * `deterministic-boundary-had-no-route` in
+ * `src/surfaces/cc/modules/cc-08/degradation.ts` predicted this paragraph
+ * would go stale, named the file it could not edit, and assigned the close to
+ * slice 11 wave 5. Deleting the record would leave a reader unable to tell a
+ * mounted component from one that was never seamed.
  */
 export interface DeterministicBoundaryProps {
   /** The state being spoken about. It reaches the banner and nothing else. */

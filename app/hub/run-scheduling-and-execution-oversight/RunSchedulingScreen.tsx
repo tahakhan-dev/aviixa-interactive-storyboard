@@ -247,7 +247,7 @@ export function RunSchedulingScreen() {
         {MODULE_REGISTRY_GAP.what} {MODULE_REGISTRY_GAP.consequence} {MODULE_REGISTRY_GAP.whyNotFixedHere}{' '}
         Reach below is derived from this module&rsquo;s own matrix through the same function the
         generator uses, so it is the same answer by the same rule:{' '}
-        {MODULE_REGISTRY_GAP.reachThisModuleWouldGet.map((r) => roleById(r).name).join(', ')}.
+        {MODULE_REGISTRY_GAP.reachThisModuleGets.map((r) => roleById(r).name).join(', ')}.
       </p>
     </div>
   )

@@ -2,6 +2,10 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import CoveragePage from '../../app/coverage/page'
 import { REGISTRY_DESCRIPTORS } from '@/coverage/descriptors'
+import {
+  UNINVENTORIED_FAMILIES,
+  UNINVENTORIED_IDENTIFIERS,
+} from '@/coverage/uninventoried'
 
 // Regression guard for `registryStatus` (app/coverage/page.tsx): wraps the
 // real `loadGeneratedRegistry` so exactly one registry's rows ('modules')
@@ -93,6 +97,61 @@ describe('coverage dashboard', () => {
     for (const label of ['Demonstrated in storyboard', 'Not applicable', 'Decision blocked']) {
       expect(text, label).toMatch(new RegExp(`${label}: 0 of 81 modules`))
     }
+  })
+
+  /**
+   * THE UNINVENTORIED SECTION MUST REACH THE SCREEN, NOT JUST THE MODULE.
+   *
+   * `src/coverage/uninventoried.ts` carries slice 11 wave 5's decision that
+   * four identifier families belong in none of the fourteen inventories. The
+   * decision's whole point is that a reader SEES the shortfall instead of
+   * inferring it, so a decision that renders nowhere is the same defect as no
+   * decision — and this file's seven other tests all predate the section and
+   * pass whether it renders or not.
+   *
+   * Deliberately NOT asserted through `container.textContent`: it concatenates
+   * across element boundaries with no separator, which has made a count gate
+   * unable to fail, collided two ARIA regions and hidden ten of thirty
+   * identifiers in this slice alone. Each family is looked up as its own cell,
+   * so a row that silently stopped rendering cannot be covered by a neighbour's
+   * text.
+   */
+  it('renders every uninventoried family, its count and its home, as real cells', () => {
+    render(<CoveragePage />)
+    expect(
+      screen.getByRole('heading', { name: /in none of the fourteen/i }),
+    ).toBeDefined()
+
+    for (const family of UNINVENTORIED_FAMILIES) {
+      // The prefix as its own element, so a dropped row is visible.
+      const cells = screen.getAllByText(new RegExp(`^${family.prefix}$`))
+      expect(cells.length, `${family.prefix} renders no cell of its own`).toBeGreaterThan(0)
+
+      // Its home paths render, each as its own element for the same reason.
+      for (const path of family.heldIn) {
+        expect(
+          screen.getAllByText(new RegExp(`^${path}\\s*$`)).length,
+          `${family.prefix} does not render its home ${path}`,
+        ).toBeGreaterThan(0)
+      }
+    }
+
+    // And the derived total is on the page as a number, not as prose about a
+    // number. A literal here would be the very defect the section avoids, so
+    // it is compared against the module's own derivation.
+    expect(
+      screen.getByText(new RegExp(`${UNINVENTORIED_IDENTIFIERS.length}\\s+identifiers`)),
+    ).toBeDefined()
+  })
+
+  /**
+   * AND THE DECISION MUST SAY IT IS A DECISION. A section that lists the
+   * families without saying the omission was chosen reads as an oversight,
+   * which is exactly the ambiguity this build keeps paying for.
+   */
+  it('names the delegated approval the choice was made under', () => {
+    const { container } = render(<CoveragePage />)
+    expect(container.textContent ?? '').toContain('APP-012')
   })
 
   // Mutation proof, kept as a live regression test rather than a one-off

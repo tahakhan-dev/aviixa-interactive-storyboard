@@ -398,9 +398,22 @@ export const OPEN_SEAMS = [
       'different questions under one identifier, chapter 30\'s at L61210 and chapter 44\'s at ' +
       'L92360, and the whole-document index at L115416 attributes it to chapter 30 alone — so ' +
       'a single canon record keyed on the bare identifier would answer §44.3 with chapter 30.',
+    // ANSWERED by slice 11 wave 5 registry closure, and the answer is a
+    // deliberate NO rather than a deferral. The second reason above turned out
+    // to be decisive: the canon has no compound key, so a record keyed on the
+    // bare `DEC-HANDOFF-001` would answer §44.3 with chapter 30's question.
+    // Registering it would be a wrong answer where there is currently a
+    // correct disclosure, which is worse than an open seam. `-002` is
+    // registered with `-001` or not at all, per this seam's own pairing, so
+    // neither is. Recorded in `CANON_CONSOLIDATION_VERDICTS`
+    // (`src/coverage/uninventoried.ts`), which gates the non-membership.
     owner:
-      '`src/disclosure/decisions.ts` and `tests/unit/surface-neutral.test.ts`, neither of which ' +
-      'is on this task\'s path list. Wave 5 task 20 (registry closure) is the natural place.',
+      'EXAMINED AND DECLINED by slice 11 wave 5 task 20 (registry closure). It reached ' +
+      '`src/disclosure/decisions.ts` and `tests/unit/surface-neutral.test.ts` and registered ' +
+      'neither identifier, for the compound-key reason stated above rather than for a path-list ' +
+      'reason. Reopening this means giving the canon a compound key first; until then ' +
+      '`./matrices` is the correct home, because it is the one that knows which chapter it is ' +
+      'in. Verdict and reason: `src/coverage/uninventoried.ts`.',
   },
   {
     id: 'affordance-fold-is-not-shared',
@@ -419,19 +432,31 @@ export const OPEN_SEAMS = [
   },
   {
     id: 'nothing-renders-this-yet',
+    // CLOSED by slice 11 wave 5 task 20. This seam read "Neither module on
+    // this task's path list is reachable from `app/`" and that stopped being
+    // true when wave 2 task 10 imported them. The row is kept rather than
+    // deleted, on the pattern `console-mount` in
+    // `src/surfaces/sa/ai-failure-authority.ts` uses: a closed seam is the
+    // record that the abstention was deliberate and was followed up, and
+    // deleting it leaves a reader unable to tell a consumed module from one
+    // that was never seamed.
     what:
-      'Neither module on this task\'s path list is reachable from `app/`. Both are data and ' +
-      'folds with no component and no route, and this task may not add one — its path list ' +
-      'holds two source files and two unit tests. This is an ABSTENTION, stated, because an ' +
-      'abstention and an oversight look identical from outside.',
+      'CLOSED. This seam recorded that neither module here was reachable from `app/`, as a ' +
+      'stated ABSTENTION rather than an oversight, because the two look identical from ' +
+      'outside. Measured on this tree, `@/ai/agents/contracts` now has four importers — ' +
+      '`src/ai/boundary/matrix.ts`, `src/surfaces/cc/modules/cc-05/degradation.ts`, ' +
+      '`src/surfaces/cc/modules/cc-08/degradation.ts` and ' +
+      '`src/surfaces/cc/modules/cc-08/AgentActivityPanel.tsx` — and that panel is mounted by ' +
+      '`app/command-center/agent-activity-panel/page.tsx`, so the object graph is reachable ' +
+      'from a route rather than shipping unreachable.',
     owner:
-      'Wave 2 task 10 (the `MOD-CC-08` overlay) is the declared consumer, and its brief asks ' +
-      'for it. This seam used to name slice 11 wave 1 task 8 as a second one, and that half ' +
-      'was invented: `src/ui/shared/DeterministicBoundary.tsx` exists and imports nothing from ' +
-      'either module here, its brief never asked it to, and it renders section 40.1\'s ' +
-      'boundary rather than chapter 44\'s matrices. A declared owner that was never told it ' +
-      'owned anything is worse than an unowned seam, because it reads as covered. If task 10 ' +
-      'does not import these modules, this object graph ships unreachable and wave 5 task 21 ' +
-      'should catch it.',
+      'Closed by wave 2 task 10 (the `MOD-CC-08` overlay), which was the declared consumer and ' +
+      'whose brief asked for it. The abstention was honoured as written and needed no wave-5 ' +
+      'rescue. This seam used to name slice 11 wave 1 task 8 as a second owner, and that half ' +
+      'was invented: `src/ui/shared/DeterministicBoundary.tsx` imports nothing from either ' +
+      'module here, its brief never asked it to, and it renders section 40.1\'s boundary ' +
+      'rather than chapter 44\'s matrices. A declared owner that was never told it owned ' +
+      'anything is worse than an unowned seam, because it reads as covered — that correction ' +
+      'stands, and it is the reason this row names its real consumer by path.',
   },
 ] as const satisfies readonly OpenSeam[]
