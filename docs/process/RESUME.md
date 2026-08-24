@@ -875,11 +875,15 @@ inventory at all** — 88 identifiers. The fourteen inventories are fixed by `RE
 files against it, so adding a fifteenth means editing both. **Task 20 decides explicitly whether that
 is the design or a gap** rather than leaving it unstated.
 
-**Only `SB-AI-*` can move in the registries, and it currently reads 0 of 48.** `ai-storyboards.json`
-holds 613 rows across four non-overlapping registers; the 48 `SB-AI-*` rows are all
-`not-represented`, and six of them are named in `src/` but **none in an `app/` route screen**, which is
-what the status computation requires. Commit `d4ea53a`'s message is true of `src/` and did not move the
-status.
+**Only `SB-AI-*` can move in the registries, and at wave 3's entry it read 0 of 48.**
+`ai-storyboards.json` holds 613 rows across four non-overlapping registers; at that point the 48
+`SB-AI-*` rows were all `not-represented`, and six of them were named in `src/` but **none in an
+`app/` route screen**, which is what the status computation requires. Commit `d4ea53a`'s message was
+true of `src/` and did not move the status. **Superseded — it reads 30 of 48 today** (18
+`not-represented`, all of them the chapter-40/41 `SB-AI-NNN` register), measured on the current tree.
+This paragraph stated the 0 as live while its correction stood 120 lines below it, and the neighbouring
+stale figure in this same section was annotated as a record while this one was not — audit C-22's
+fourth instance, and the fourth is the one nobody found until the disposition pass.
 
 **Four of the fourteen registries compute a single status value for every row** — `commands` (0/17),
 `events` (0/28), `offline-scenarios` (0/70), `sub-features` **(1/526 — `SUB-SA-0703`, named by task 19 at `app/workflows/ai-and-its-absence/scope.ts`; this line said 0 and the conclusion it drew from four zeros no longer holds as written)**. The first three are **true zeros, not
@@ -1041,16 +1045,16 @@ statement folds to be held distinct, and this repo already ships fifteen. The so
 its own diagram is short by one. **Where the source states a count beside an enumeration, count the
 enumeration — and then check whether a third statement settles it.**
 
-### Carried into wave 5
+### Carried into wave 5 — a wave-entry RECORD, not the live open list
 
-- **Seven decision identifiers the thirty cards cite are not members of the exported `DecisionId` union**, `DEC-AIRTO-001` among them at 51 references in the chapter-44 span and the entire content of every card's recovery-objective row. Five have no canon record at all; two are aliases needing wiring. Each local record carries a `canonicalId` so wave 5 can wire rather than re-read, and the suites assert all seven **absent** from `OPEN_DECISION_IDS` so a lift turns them red and forces the switch.
-- **Ninety-one identifiers slice 11 shipped are in no inventory at all** — `AIMODE-*` 16, `FB-AI-*` 50, `DEC-AI*` **19**, `PROV-*` 6. This bullet said eighty-eight and sixteen while `src/coverage/uninventoried.ts:33` said ninety-one and the correction stood thirty-one lines below it. **And the slice-11 audit found the closure itself is short by 85 more:** `FAIL-AI-*` 60, the abilities `AI-01…AI-13` 13, and `FB-AGT-*` 12 are in no inventory AND in none of the four declared families. Task 20 decides explicitly and records it; leaving them silently uncounted is the one forbidden outcome.
-- **`PINNED_WORKER_MESSAGES` covers one screen** while five storyboards quote fixed worker strings the source does not rule unparaphrasable.
-- **`contentOrigin` has no member for a storyboard that renders no guidance at all** — four cards took `'authored'` as least-wrong, each with per-card reasoning.
-- **`notShippableLock` is named in prose as being in a token list it is not in**, and was deliberately not added: two files render it, so a token sweep would convict two legitimate readers. The question is open in the comment.
-- `SA_MATRIX_ATTRIBUTION` renders "twelve Frontline ones" and no gate polices it. **The reason given here was wrong**: the tree's only spelled-numeral size gate is `SIZE_CLAIM` in `canon-size-literal.test.ts`, whose noun alternation is `(?:records|members)`, so "twelve modules" would have escaped it too. The string is unpoliced; the explanation of why was not. Task 14's shipped string, flagged rather than decided.
+**Read `### Still open at wave 5's close` below for what is actually outstanding.** Five items
+were carried in both lists at once (audit C-25) and the two copies of one had drifted into
+disagreeing with each other, so the duplicates are struck from this section: this is what wave 5
+was handed, and the later section is what survived it.
+
+- **Seven decision identifiers the thirty cards cite are not members of the exported `DecisionId` union**, `DEC-AIRTO-001` among them at 51 references in the chapter-44 span and the entire content of every card's recovery-objective row. Each local record carries a `canonicalId` so wave 5 could wire rather than re-read, and the suites assert all seven **absent** from `OPEN_DECISION_IDS` so a lift turns them red and forces the switch. **The "five with no record, two aliases needing wiring" clause this bullet used to carry was measured false** (audit C-24): the two aliases were wired by wave 0 — `src/disclosure/decisions.ts:1190,1222` — and four of the five are members of chapter 21's own sixteen-row register at `src/surfaces/cc/decisions/register.ts:99,140,156,166`, where registering them again would put one source register row in two typed unions. **Only `DEC-AIRTO-001` is homeless**, and it is the sole `canonicalId: null` of the seven (`src/ai/storyboards/sb-01-to-10/decisions.ts:165`).
+- **Ninety-one identifiers slice 11 shipped are in no inventory at all** — `AIMODE-*` 16, `FB-AI-*` 50, `DEC-AI*` **19**, `PROV-*` 6. This bullet said eighty-eight and sixteen while the correction stood thirty-one lines below it. **It also cited `src/coverage/uninventoried.ts:33` as the place saying ninety-one; that file contains no spelled numeral at all** (audit C-24 — and the citation was inherited by the very correction that was fixing the count) — 91 is derivable from `UNINVENTORIED_IDENTIFIERS` and written nowhere. **And the slice-11 audit found the closure itself is short by 85 more:** `FAIL-AI-*` 60, the abilities `AI-01…AI-13` 13, and `FB-AGT-*` 12 are in no inventory AND in none of the four declared families. Task 20 decides explicitly and records it; leaving them silently uncounted is the one forbidden outcome.
 - **`locator-fidelity`'s blank-span check requires the WHOLE span to be blank**, so a blank range endpoint is not convicted. Two such citations were found by other means this slice.
-- **`build-registries`' `MOD-*` ownership heuristic is a source-text scan**, so an attribution reached through a constant is invisible to it.
 - **`provenanceViolations` does not convict two sibling marks under one guidance element** — found by planting, not by reading.
 
 ### Wave 5 — closed, and the gate limits it measured rather than papered over
@@ -1139,7 +1143,7 @@ came from the assertion you meant is a separate step from watching it go red.**
 - **`contentOrigin` has no member for a storyboard that renders no guidance at all** — four cards took `'authored'` as least-wrong, each with reasoning.
 - **`StoryboardCardContent` admits `''` on any of nineteen fields**, checked only on one fixture and inside each content task's own test.
 - **`notShippableLock`** is named in prose as being in a token list it is not in, deliberately not added because two files render it.
-- **`SA_MATRIX_ATTRIBUTION` renders "twelve Frontline ones"**, escaping the widened numeral gate because it reads `twelve Frontline` rather than `twelve modules`.
+- **`SA_MATRIX_ATTRIBUTION` renders "twelve Frontline ones" and no gate polices it.** The reason once given here — that it escapes the widened numeral gate by reading `twelve Frontline` rather than `twelve modules` — is wrong (audit C-24): the tree's only spelled-numeral gate is `SIZE_CLAIM` in `canon-size-literal.test.ts`, whose noun alternation is `(?:records|members)`, so `twelve modules` would have escaped it too. The string is unpoliced; the explanation of why was not.
 - **The proven-share margin is ~74 citations.**
 - **On-screen locator marking for the thirty storyboard index entries** — the honest completion of one offline-phrasing remedy — needs a build to be visible.
 
