@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { ownersOf } from '@/ai/fallbacks/registry'
 import { cellFromSource } from '@/policy/columns'
@@ -36,7 +37,7 @@ import {
  * retyped from the same place the code got it.
  */
 
-const BLUEPRINT = '/Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Production_Product_Blueprint.md'
+const BLUEPRINT = join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md')
 
 /** The frozen source, split once. Eighteen megabytes per call is not free. */
 let lines: readonly string[] | null = null

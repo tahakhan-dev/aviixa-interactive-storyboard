@@ -2293,7 +2293,16 @@ export const SB_21_TO_30 = [
         + 're-addresses another worker’s coaching to them',
         'L95188',
       ),
-      SA: noEffect('identity handling is a tenant record matter', 'L95189'),
+      // L95189 writes "No involvement IN TENANT PERSONNEL; identity handling is
+      // a tenant record matter". The scope qualifier was dropped here, and
+      // `effectStatement` then rendered a blanket "No direct effect —" the
+      // source does not state. It is now carried in the reason, in the same
+      // subject-restored form the other two informative markers use
+      // (L93499, L93928).
+      SA: noEffect(
+        'it has no involvement in tenant personnel; identity handling is a tenant record matter',
+        'L95189',
+      ),
     },
     audit: [
       {

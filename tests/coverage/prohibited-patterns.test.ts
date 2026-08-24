@@ -430,3 +430,69 @@ describe('every directory walk under tests/ that can admit a probe skips a forei
     expect(walkers.map((w) => w.where)).toContain(PROBE_AWARENESS_EXEMPT[0])
   })
 })
+
+/* -------------------------------------------------------------------- *
+ * THE AUTHOR-MACHINE PATH SCAN COVERED `out/` ONLY, AND THE CANDIDATE IS
+ * LARGER THAN `out/`.
+ *
+ * `leaks no absolute author path into the release artifact` above walks the
+ * static export, which is the right scan for §4.3's confidentiality rule and
+ * is not the rule master prompt §30 states: the scan is over "this execution
+ * and every delivered artifact". Tests, fixtures and committed registries are
+ * the Product Candidate (§23.2 item 1) and never reach `out/`, so they were
+ * outside every author-path check in the tree — measured at the moment this
+ * gate was written: 20 unit tests and 19 committed extract records carried
+ * `/<home>/<user>/Desktop/...` as a string literal, 39 occurrences. Every one
+ * of the 20 tests reads the frozen source, and five of them already used the
+ * portable form two lines from a sibling that did not, so this was drift
+ * rather than a decision.
+ *
+ * WHAT IS EXEMPT, AND WHY IT IS NAMED RATHER THAN PATTERNED. `docs/` is the
+ * Evidence Envelope, not the Product Candidate: a source-reading ledger, a
+ * verification record and a controller brief each record WHERE the frozen
+ * source was read on the machine that read it, and that is provenance. 22
+ * occurrences live there deliberately. The exemption is a directory list
+ * asserted as a set equality below, so a 23rd location — a fixture, a script,
+ * a generated registry — reds instead of joining a widened pattern.
+ *
+ * THE NEEDLE IS ASSEMBLED SO THIS FILE DOES NOT CONVICT ITSELF. Spelling the
+ * literal here would make the one file that polices the class its own only
+ * offender, which is the blind spot the probe-token gate below already
+ * documents. Proved by planting: writing the literal into a real shipping
+ * test turns the first case red naming that file.
+ * -------------------------------------------------------------------- */
+
+const HOME_PREFIXES = ['Users', 'home'] as const
+const AUTHOR_PATH = new RegExp(`/(?:${HOME_PREFIXES.join('|')})/[A-Za-z0-9._-]+/`)
+
+/** Where a home-directory path is legitimate provenance rather than a leak. */
+const EVIDENCE_DIRS = ['docs'] as const
+
+describe('no author-machine path in the product candidate', () => {
+  const candidate = [
+    ...walk('src'),
+    ...walk('app'),
+    ...walk('tests'),
+    ...walk('scripts'),
+    ...walk('registries'),
+  ]
+
+  it('scans a non-empty candidate', () => {
+    expect(candidate.length).toBeGreaterThan(100)
+  })
+
+  it('carries no absolute home-directory path', () => {
+    const offenders = candidate.filter((f) => AUTHOR_PATH.test(readFileSync(f, 'utf8')))
+    expect(offenders).toEqual([])
+  })
+
+  // The exemption stated as an EQUALITY, so it retires itself: if `docs/`
+  // stops carrying one, this reds and the exemption is deleted rather than
+  // left to rot; and a SECOND evidence directory cannot be added silently.
+  it('the exempt directories are exactly the ones that need the exemption', () => {
+    const carrying = EVIDENCE_DIRS.filter((d) =>
+      walk(d).some((f) => AUTHOR_PATH.test(readFileSync(f, 'utf8'))),
+    )
+    expect(carrying).toEqual([...EVIDENCE_DIRS])
+  })
+})

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import {
   STORYBOARD_CARD_FIELDS,
@@ -40,7 +41,7 @@ import {
  */
 
 const BLUEPRINT = readFileSync(
-  '/Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Production_Product_Blueprint.md',
+  join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md'),
   'utf8',
 ).split('\n')
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { SURFACES, type SurfaceId } from '@/domain/surfaces'
 import { JOURNEY_SURFACES, type JourneySurfaceCode } from '@/ui/shared/journey'
@@ -45,7 +46,7 @@ import {
 /* ── the frozen source ─────────────────────────────────────────────────── */
 
 const SOURCE_PATH =
-  '/Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Production_Product_Blueprint.md'
+  join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md')
 const LINES: readonly string[] = [
   '',
   ...readFileSync(SOURCE_PATH, 'utf8').replace(/\n$/, '').split('\n'),

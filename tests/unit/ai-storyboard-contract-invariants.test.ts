@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
+import { ALL_THIRTY_STORYBOARDS } from '../../app/workflows/ai-and-its-absence/scope'
 import {
   DETERMINISTIC_CONTROLS,
   RESERVED_AI_ACTS,
@@ -691,6 +694,132 @@ describe('the invariant set', () => {
     const defect = withFacts({ contentOrigin: 'modelGenerated' })
     for (const violation of storyboardViolations(defect)) {
       expect(violation.storyboard).toBe(1)
+    }
+  })
+})
+
+describe("the source's absence marker, across all thirty cards", () => {
+  /**
+   * WHAT THIS CATCHES THAT THE TENTH INVARIANT CANNOT.
+   *
+   * `everySurfaceStatesWhatChanges` convicts a BLANK reason. It cannot convict
+   * a reason that is present, plausible and shorter than the cell it was
+   * transcribed from — and storyboard 29 shipped exactly that. L95189 reads
+   *
+   *   `| Super Admin platform console | No involvement in tenant personnel; identity handling is a tenant record matter |`
+   *
+   * and the card stored only "identity handling is a tenant record matter", so
+   * `effectStatement` rendered "No direct effect — identity handling is a
+   * tenant record matter": a BLANKET absence where the source scoped it to
+   * tenant personnel. Nothing was red. The reason was non-empty, the locator
+   * was right, and the field cell above it still showed the source's own
+   * wording, so a reader met two versions of one claim.
+   *
+   * So this reads the frozen source rather than the card, for every one of the
+   * twenty absent cells in the thirty, and asserts two things:
+   *
+   *   1. the stored reason really is the source's own words — the cell at the
+   *      cited line contains it, allowing only the subject this build restores
+   *      when the source's marker is itself the sentence ("Receives nothing" →
+   *      "it receives nothing");
+   *   2. where the source's marker says MORE than "this surface is unaffected"
+   *      — the whole of what `effectStatement`'s label conveys — the reason
+   *      carries that too. Three markers do: "Receives nothing" (L93928), "No
+   *      role in commands" (L93499) and "No involvement in tenant personnel"
+   *      (L95189). The bare six below say nothing the label does not.
+   *
+   * Proved by planting: restoring storyboard 29's shortened reason turns case
+   * 2 red naming `SB-AI-29 · SA`.
+   */
+  const BARE_ABSENCE_MARKERS = [
+    'no change',
+    'not applicable',
+    'no involvement',
+    'no platform action',
+    'no intervention',
+    'unaffected',
+  ] as const
+
+  const BLUEPRINT = readFileSync(
+    join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md'),
+    'utf8',
+  ).split('\n')
+
+  /** The reaction cell of a `| Surface | Reaction |` row, without its pipes. */
+  function reactionCell(locator: string): string {
+    const line = BLUEPRINT[Number(locator.replace(/^L/, '')) - 1] ?? ''
+    return (line.split('|')[2] ?? '').trim()
+  }
+
+  /** The cell's leading absence marker: everything before its first break. */
+  const markerOf = (cell: string): string => (cell.split(/;|—|\.\s/)[0] ?? '').trim().toLowerCase()
+
+  /**
+   * The reason as the source would have written it: this build restores a
+   * subject where the source's marker is a sentence of its own, and that
+   * inserted subject is the one departure allowed here.
+   *
+   * THE SECOND DEPARTURE, NORMALISED RATHER THAN CONVICTED. Chapter 44A holds
+   * 282 straight apostrophes and ZERO curly ones (measured over L92596-L95408),
+   * while `sb-11-to-20/index.ts` and `sb-21-to-30/storyboards.ts` transcribe
+   * with 28 and 46 curly ones respectively and `sb-01-to-10/index.ts` with
+   * none. That is a real drift — one field type, two renderings — but it is
+   * typography, not meaning, and rewriting 74 characters inside single-quoted
+   * literals is a different change from the one this gate exists for. Folded
+   * here, reported there.
+   */
+  const asSource = (reason: string): string =>
+    reason.replace(/^it (has )?/, '').toLowerCase().replace(/’/g, "'")
+
+  const ABSENT_CELLS = ALL_THIRTY_STORYBOARDS.flatMap((storyboard) =>
+    JOURNEY_SURFACES.map((surface) => ({
+      where: `${storyboard.identifier} · ${surface.code}`,
+      effect: storyboard.surfaces[surface.code],
+    })),
+  ).flatMap((entry) =>
+    entry.effect.kind === 'noDirectEffect'
+      ? [{ where: entry.where, reason: entry.effect.reason, ref: entry.effect.sourceRef }]
+      : [],
+  )
+
+  it('finds absent cells to check at all', () => {
+    // A gate that passes on an empty set is not a gate. This is not a count of
+    // twenty: it is the refusal to run on nothing.
+    expect(ABSENT_CELLS.length).toBeGreaterThan(0)
+  })
+
+  it('cites a five-surface reaction row for every absent cell', () => {
+    for (const cell of ABSENT_CELLS) {
+      expect(reactionCell(cell.ref), cell.where).not.toBe('')
+    }
+  })
+
+  it('stores the source line, never a shortened paraphrase of it', () => {
+    for (const cell of ABSENT_CELLS) {
+      expect(reactionCell(cell.ref).toLowerCase(), cell.where).toContain(asSource(cell.reason))
+    }
+  })
+
+  it('keeps any marker that says more than the rendered label does', () => {
+    for (const cell of ABSENT_CELLS) {
+      const marker = markerOf(reactionCell(cell.ref))
+      if ((BARE_ABSENCE_MARKERS as readonly string[]).includes(marker)) continue
+      expect(cell.reason.toLowerCase(), `${cell.where} · marker "${marker}"`).toContain(marker)
+    }
+  })
+
+  it('renders the whole of the source cell for the three informative markers', () => {
+    // Named, so that a marker silently becoming bare is a change to this list
+    // rather than to nothing.
+    for (const [ref, marker] of [
+      ['L93499', 'no role in commands'],
+      ['L93928', 'receives nothing'],
+      ['L95189', 'no involvement in tenant personnel'],
+    ] as const) {
+      const cell = ABSENT_CELLS.find((entry) => entry.ref === ref)
+      expect(cell, `no absent cell cites ${ref}`).toBeDefined()
+      expect(markerOf(reactionCell(ref)), ref).toBe(marker)
+      expect(effectStatement(noEffect(cell!.reason, ref)).toLowerCase()).toContain(marker)
     }
   })
 })

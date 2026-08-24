@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { join } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { aiMode } from '@/ai/modes'
@@ -53,7 +54,7 @@ import {
 /* ── the frozen source ─────────────────────────────────────────────────── */
 
 const SOURCE_PATH =
-  '/Users/tahakhan/Desktop/JBS-AMPLIFY-NIGHT/Ron-project1/AVIIXA_Production_Product_Blueprint.md'
+  join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md')
 const SOURCE_SHA = '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27'
 const SOURCE_BYTES = readFileSync(SOURCE_PATH)
 const LINES: readonly string[] = ['', ...SOURCE_BYTES.toString('utf8').replace(/\n$/, '').split('\n')]

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join, relative } from 'node:path'
+import { isForeignProbe } from '../probe-paths'
 
 /**
  * `src/ui/shared/StoryboardCard.tsx` IS MOUNTED, AND ITS OWN FILE HAS TO SAY SO.
@@ -54,6 +55,11 @@ const IMPORT_RE = /from '@\/ui\/shared\/StoryboardCard'/
 function tsxFilesUnder(dir: string): string[] {
   const out: string[] = []
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    // A CONCURRENT process's scratch probe is not this walk's subject. Without
+    // this the walk can catch another test file's planted probe mid-existence
+    // and report it as an unaccounted mount, or throw when the owner deletes
+    // it. `tests/probe-paths.ts` carries the convention and the reasoning.
+    if (isForeignProbe(entry.name)) continue
     const path = join(dir, entry.name)
     if (entry.isDirectory()) out.push(...tsxFilesUnder(path))
     else if (/\.tsx?$/.test(entry.name)) out.push(path)

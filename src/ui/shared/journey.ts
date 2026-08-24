@@ -101,6 +101,27 @@ export const noEffect = (reason: string, sourceRef: string): SurfaceEffect => ({
  * cannot fail: it reads as coverage. Non-storyboard callers of this module —
  * the journey screens — are policed by their own panels' tests, not by that
  * invariant.
+ *
+ * WHAT THIS TEMPLATE COLLAPSES, STATED RATHER THAN LEFT TO BE NOTICED. The
+ * §44A storyboards carry 20 absent cells out of 150. The frozen source writes
+ * "No direct effect" nowhere in that chapter: it writes eight distinct absence
+ * markers — "No change;", "Not applicable —", "No involvement;", "No platform
+ * action;", "No intervention.", "Unaffected;", "Receives nothing;", "No role
+ * in commands;" — and each card stores the REMAINDER of its cell as the
+ * reason. This function renders all twenty under one label. That is a
+ * deliberate presentation choice: a marker's job is to say the surface is
+ * unaffected, which the label now says, and the reason carries the source's
+ * own words for why.
+ *
+ * IT IS ONLY SAFE WHERE THE MARKER SAYS NOTHING THE LABEL DOES NOT. Two of the
+ * source's markers carry content — "Receives nothing" (L93928) and "No role in
+ * commands" (L93499) — and both are kept, restored into the reason with a
+ * subject ("it receives nothing…"). A third, "No involvement in tenant
+ * personnel" (L95189), SCOPES the absence, and dropping it made storyboard 29
+ * render a blanket no-effect the source never stated; it is now carried the
+ * same way. `tests/unit/ai-storyboard-contract-invariants.test.ts` holds all
+ * twenty against their own source lines, so a fourth cannot be dropped
+ * silently.
  */
 export function effectStatement(effect: SurfaceEffect): string {
   return effect.kind === 'affected' ? effect.statement : `No direct effect — ${effect.reason}`
