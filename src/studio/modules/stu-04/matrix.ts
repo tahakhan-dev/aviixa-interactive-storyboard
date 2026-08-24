@@ -7,7 +7,16 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
 
 /**
  * `MOD-STU-04`'s own permission matrix — the source's table at **L32059
- * (header) and L32060-L32070 (ten data rows)**, transcribed cell by cell.
+ * (header), L32060 (separator) and L32061-L32070 (ten data rows)**,
+ * transcribed cell by cell.
+ *
+ * The span used to read `L32060-L32070 (ten data rows)`, which is eleven
+ * lines: it started on the SEPARATOR. Corrected by walking the source from
+ * the separator down to the first line that is not a table row, which is how
+ * the ten was obtained rather than by subtracting the ends of a span. The
+ * sibling cards state their spans correctly — `MOD-STU-05` writes
+ * `L32259-L32267` off a separator at L32258 — so this was one file's slip and
+ * not a convention.
  *
  * TWO THINGS READ THIS FILE, exactly as they read `MOD-STU-07`'s:
  * `scripts/build-stu-module-reach.mjs` derives which personas are offered
@@ -368,3 +377,99 @@ function MISSING_ROW(id: Stu04CapabilityId): Stu04MatrixRow {
     }),
   }
 }
+
+/* ==================================================================== *
+ * `MTX-TEN-02b`'S ROW FOR THIS MODULE, AND THE CONDITION ON IT THAT
+ * AGREES WITH THIS CARD AGAINST ITS OWN TOKEN.
+ * ==================================================================== */
+
+/**
+ * TWO SOURCE TABLES ANSWER "IS THE TENANT ADMIN OFFERED THE WORKFLOW
+ * BUILDER" AND THEY DISAGREE. DISCLOSED, NOT RESOLVED.
+ *
+ * ── THE ROW ──────────────────────────────────────────────────────────────
+ * Under the header at line 22031, `MTX-TEN-02b`'s row for this module gives
+ * the Tenant Admin `Unavailable` under condition `[Y6]`. The card below gives
+ * that persona `Read-only` on two rows — opening the canvas read-only for a
+ * Published version (line 32062) and previewing the sequence (line 32070) —
+ * so `reachByStudioMatrix` answers `offered` and the route is served.
+ *
+ * ── THE CONDITION IS ON THE CARD'S SIDE, WHICH IS THE WHOLE FINDING ──────
+ * `[Y6]` is not a bare token. Its own sentence (L22052) is that the Tenant
+ * Admin "administers Studio capacities and reads published content; no
+ * authoring capacity is assigned". Reading published content is EXACTLY what
+ * the two cells grant, and refusing authoring is exactly what the other eight
+ * rows do. So the row's CONDITION agrees with this card and the row's TOKEN
+ * does not — a table disagreeing with itself inside one cell, which is a
+ * narrower and better-evidenced disagreement than a bare token clash.
+ *
+ * That is why this build serves the route and why the disagreement is still
+ * recorded rather than explained away: `Unavailable` has a defined rendering
+ * on this surface, and nothing here has authority to read a token as a
+ * shorthand for its condition.
+ *
+ * **NOTHING HERE RESOLVES IT.** The record has no field on which a reading
+ * could be marked the answer. No `DEC-*` identifier names this cell —
+ * `DEC-STUDIO-001` governs the eighteen-module COUNT this table enumerates,
+ * not any cell in it, and the two decisions the table does raise on other
+ * rows (`DEC-AUDSTU-001`, `DEC-DELEG-001`) are about the Read-only Auditor
+ * and the Agent Author delegation.
+ */
+export const STU_04_MODULE_ROW_TENSION = {
+  question:
+    'Is the Tenant Admin offered the Workflow Builder route? The chapter-22 row says ' +
+    '`Unavailable`; the module’s own card gives that persona a read on two of its ten rows.',
+  moduleRow: { matrix: 'MTX-TEN-02b', line: 22036, headerLine: 22031 },
+  cardRows: { firstLine: 32061, lastLine: 32070, headerLine: 32059 },
+  readings: [
+    {
+      text:
+        'Unavailable. The tenant-role-to-module matrix states the Tenant Admin’s standing on ' +
+        'this module in one token, and the token has a rendering: a control present and ' +
+        'disabled with its reason, not a route.',
+      locator: 'MTX-TEN-02b row for this module · L22036, under the header at L22031',
+    },
+    {
+      text:
+        'Offered, read-only. The card gives the Tenant Admin `Read-only` on the published-' +
+        'version canvas and on the sequence preview, and refuses every authoring row — which ' +
+        'is what the row’s own condition `[Y6]` describes in words.',
+      locator: 'MOD-STU-04 §20.2.4 permission matrix · L32062 and L32070, header L32059',
+    },
+  ],
+  /**
+   * Every statement of the question found in the source, verbatim, with the
+   * line and the column it is a cell of. Held to EXACT equality against that
+   * table's own header-keyed cell by `tests/unit/stu-permissions.test.ts`. The
+   * condition is included as a prose statement — `column: null` — because it
+   * is the half of the row that agrees with the card.
+   */
+  statements: [
+    { text: '`Unavailable` `[Y6]`', line: 22036, column: 'Tenant Admin', headerLine: 22031 },
+    { text: 'Read-only', line: 32062, column: 'Tenant Admin', headerLine: 32059 },
+    { text: 'Read-only', line: 32070, column: 'Tenant Admin', headerLine: 32059 },
+    {
+      text:
+        'The Tenant Admin administers Studio capacities and reads published content; no ' +
+        'authoring capacity is assigned',
+      line: 22052,
+      column: null,
+      headerLine: null,
+    },
+  ],
+  derivedFrom:
+    'The card, through reachByStudioMatrix. The Studio rule has no withholding clause: a ' +
+    'persona holding any screen cell that lets it read or act is offered the route.',
+  derivedReach: { 'tenant-admin': 'offered' },
+  notResolved:
+    'Both readings are recorded and neither is adopted. Nothing here rules that a row’s ' +
+    'condition may override its token, which is what treating this as settled would require.',
+  wouldChange:
+    'A client ruling for the row’s token would remove the Studio rail entry and the route for ' +
+    'the Tenant Admin, and with it the read of published Workflow content that `[Y6]` says that ' +
+    'persona has. The eight authoring rows would not change: they already refuse it.',
+  decisionRef: null,
+  decisionSearch:
+    'No `DEC-*` identifier names this cell. `DEC-STUDIO-001` governs this table’s ' +
+    'eighteen-module count, not its cells.',
+} as const

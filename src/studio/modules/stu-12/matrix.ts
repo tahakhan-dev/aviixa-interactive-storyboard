@@ -601,3 +601,129 @@ const BY_ID = new Map<StudioVersionCapabilityId, StudioVersionMatrixRow>(
 export function versionRow(id: StudioVersionCapabilityId): StudioVersionMatrixRow {
   return BY_ID.get(id) ?? STU_12_MATRIX[10]
 }
+
+/* ==================================================================== *
+ * `MTX-TEN-02b`'S ROW FOR THIS MODULE — THE ONLY ROW IN THAT TABLE THAT
+ * PROHIBITS TWO PERSONAS THIS BUILD SERVES.
+ * ==================================================================== */
+
+/**
+ * TWO SOURCE TABLES ANSWER "WHO IS OFFERED VERSIONING AND PUBLICATION" AND
+ * THEY DISAGREE ON TWO COLUMNS AT ONCE. DISCLOSED, NOT RESOLVED.
+ *
+ * ── THE ROW ──────────────────────────────────────────────────────────────
+ * Under the header at line 22031, `MTX-TEN-02b`'s row gives the Tenant Admin
+ * `Explicitly prohibited` under `[Y13]` AND the Supervisor `Explicitly
+ * prohibited` under `[Y16]`. Both are served. This is the versioning-and-
+ * publication module — where a version is classified, described, published
+ * and archived — so it is the row where a wrong answer costs most.
+ *
+ * ── WHAT THE CARD ACTUALLY GIVES THEM, AND THEY ARE NOT THE SAME SHAPE ───
+ * The two disagreements are different in kind and are recorded apart.
+ *
+ * The TENANT ADMIN's holding is four reads: the version history and approval
+ * log (line 33464), the screen-level diff, the Job and Run linkage, and the
+ * portable-document-format export, whose cell reads `Read-only — may generate
+ * the read-only export` (line 33468). Every write on the card refuses it.
+ * That is the same read-only shape `MOD-STU-11`'s row 10 has.
+ *
+ * The SUPERVISOR's is not a read. The card heads TWO Supervisor columns —
+ * with the authoring grant and without it — where the chapter-22 row heads
+ * one, and the with-grant column carries `Allowed — as Author` on selecting
+ * the bump classification (line 33458), on validating it against the diff and
+ * on writing the mandatory republish description. Those are WRITES, and
+ * `[Y16]`'s own sentence is narrower than the token it qualifies: it says the
+ * Supervisor cannot approve or release, and the card agrees — publish, decide
+ * adoption and archive all refuse the with-grant column. So the row prohibits
+ * the whole module on a reason that only reaches three of its eleven rows.
+ *
+ * ── ONE COLUMN IN THE ROW, TWO IN THE CARD ───────────────────────────────
+ * A single `Explicitly prohibited` in a Supervisor column cannot say which of
+ * the card's two Supervisor personas it means, and the two are not equal
+ * here: without the grant the persona holds the same four reads as the Tenant
+ * Admin and none of the writes. That ambiguity is part of the disagreement
+ * rather than a separate finding, and it is why `readings` names the columns
+ * it is talking about.
+ *
+ * **NOTHING HERE RESOLVES ANY OF IT.** No `DEC-*` identifier names either
+ * cell. `DEC-LANEB-001`, which `[Y17]` raises one column to the right, is
+ * about Lane B auto-publication against the three-stage rule.
+ */
+export const STU_12_MODULE_ROW_TENSION = {
+  question:
+    'Who is offered the Versioning and Publication route? The chapter-22 row prohibits both the ' +
+    'Tenant Admin and the Supervisor; the card gives the Tenant Admin four reads and gives the ' +
+    'Supervisor with the authoring grant three writes.',
+  moduleRow: { matrix: 'MTX-TEN-02b', line: 22044, headerLine: 22031 },
+  cardRows: { firstLine: 33458, lastLine: 33469, headerLine: 33456 },
+  readings: [
+    {
+      text:
+        'Neither is offered. The tenant-role-to-module matrix prohibits both outright, and on ' +
+        'this surface a prohibition at base role draws nothing rather than a disabled control — ' +
+        'so the route does not open for either persona.',
+      locator: 'MTX-TEN-02b row for this module · L22044, under the header at L22031',
+    },
+    {
+      text:
+        'Both are offered, and not alike. The card gives the Tenant Admin and the Supervisor ' +
+        'without the grant four reads each — version history and approval log, screen-level ' +
+        'diff, Job and Run linkage, export — and gives the Supervisor WITH the grant three ' +
+        'authoring writes as Author, while refusing publication, adoption and archival to both ' +
+        'Supervisor columns and every write to the Tenant Admin.',
+      locator: 'MOD-STU-12 §20.2.12 permission matrix · L33458 and L33464, header L33456',
+    },
+  ],
+  statements: [
+    {
+      text: '`Explicitly prohibited` `[Y13]`',
+      line: 22044,
+      column: 'Tenant Admin',
+      headerLine: 22031,
+    },
+    {
+      text: '`Explicitly prohibited` `[Y16]`',
+      line: 22044,
+      column: 'Supervisor',
+      headerLine: 22031,
+    },
+    { text: 'Read-only', line: 33464, column: 'Tenant Admin', headerLine: 33456 },
+    {
+      text: 'Read-only — may generate the read-only export',
+      line: 33468,
+      column: 'Tenant Admin',
+      headerLine: 33456,
+    },
+    {
+      text: 'Allowed — as Author',
+      line: 33458,
+      column: 'Supervisor with grant',
+      headerLine: 33456,
+    },
+    { text: 'Read-only', line: 33464, column: 'Supervisor without grant', headerLine: 33456 },
+    { text: 'Cannot approve or release', line: 22052, column: null, headerLine: null },
+  ],
+  derivedFrom:
+    'The card, through reachByStudioMatrix over its own eight persona columns — which is also ' +
+    'why the answer is per-column and the row’s single Supervisor cell cannot be mapped onto it.',
+  derivedReach: {
+    'tenant-admin': 'offered',
+    'supervisor-with-authoring-grant': 'offered',
+    'supervisor-without-grant': 'offered',
+  },
+  notResolved:
+    'Three readings would each be defensible and the build takes none of them as settled: that ' +
+    'the row governs, that the card governs, or that the row’s one Supervisor cell governs only ' +
+    'the without-grant column. The record carries two readings because two is what the source ' +
+    'states; the third is a reconciliation and is named here rather than adopted.',
+  wouldChange:
+    'A client ruling for the row would close this route to both personas. For the Tenant Admin ' +
+    'that removes four reads and no controls. For the Supervisor with the authoring grant it ' +
+    'removes the three writes an author needs to republish at all — classifying the bump, ' +
+    'validating it against the diff, and writing the mandatory description — which would leave ' +
+    'the authoring grant able to author and unable to version what it authored.',
+  decisionRef: null,
+  decisionSearch:
+    'No `DEC-*` identifier names either cell. `DEC-LANEB-001` is raised by `[Y17]` on the ' +
+    'Quality Manager column of the same row and is about Lane B auto-publication.',
+} as const

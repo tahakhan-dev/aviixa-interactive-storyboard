@@ -420,3 +420,108 @@ const BY_ID = new Map<StudioApprovalCapabilityId, StudioApprovalMatrixRow>(
 export function approvalRow(id: StudioApprovalCapabilityId): StudioApprovalMatrixRow {
   return BY_ID.get(id) ?? STU_11_MATRIX[8]
 }
+
+/* ==================================================================== *
+ * `MTX-TEN-02b`'S ROW FOR THIS MODULE, AND THE ONE CELL THAT CONTRADICTS
+ * IT WHILE STATING ITS REASON.
+ * ==================================================================== */
+
+/**
+ * TWO SOURCE TABLES ANSWER "IS THE TENANT ADMIN OFFERED THE APPROVAL
+ * WORKFLOW" AND THEY DISAGREE. DISCLOSED, NOT RESOLVED.
+ *
+ * ── THE ROW, AND THE SINGLE CELL THAT ANSWERS IT ────────────────────────
+ * Under the header at line 22031, `MTX-TEN-02b`'s row gives the Tenant Admin
+ * `Explicitly prohibited` under `[Y13]` — the separation-of-duties statement
+ * that the Tenant Admin holds no stage of the approval chain. Nine of this
+ * card's ten rows agree with that word for word: `Explicitly prohibited` in
+ * the Tenant Admin column on submit, review, edit-while-reviewing, return,
+ * advance, release, the override, the assignment and the bypass.
+ *
+ * ONE ROW DOES NOT, AND IT IS THE READ. Row 10, reading the approval log
+ * (line 33279), gives the Tenant Admin `Read-only — holds no stage of the
+ * chain`. That single cell is the whole of the disagreement, and it is the
+ * strongest form this shape takes anywhere in this fix stream: the CELL
+ * ITSELF RESTATES `[Y13]`'s reason in the same breath as granting a read. The
+ * card is not contradicting the condition — it is applying it and concluding
+ * that holding no stage is compatible with reading the log.
+ *
+ * `reachByStudioMatrix` therefore answers `offered` off one cell of ten. That
+ * is not a defect in the rule: a persona with a legitimate read has a screen
+ * to be on, and the other nine cells decide that the screen shows a log and
+ * no controls.
+ *
+ * **NOTHING HERE RESOLVES IT.** No `DEC-*` identifier names this cell. The
+ * decisions this module does carry — `DEC-RELAUTH-001` on the override row and
+ * `DEC-AUDSTU-001` on the Auditor column — are about other personas.
+ */
+export const STU_11_MODULE_ROW_TENSION = {
+  question:
+    'Is the Tenant Admin offered the Approval Workflow route? The chapter-22 row says ' +
+    '`Explicitly prohibited`; one of the card’s ten rows gives that persona a read of the ' +
+    'approval log, and states the row’s own reason inside the cell that grants it.',
+  moduleRow: { matrix: 'MTX-TEN-02b', line: 22043, headerLine: 22031 },
+  cardRows: { firstLine: 33270, lastLine: 33279, headerLine: 33268 },
+  readings: [
+    {
+      text:
+        'Explicitly prohibited, and therefore absent. The Tenant Admin holds no stage of the ' +
+        'approval chain by separation of duties, and on this surface a prohibition at base role ' +
+        'draws nothing at all rather than a disabled control.',
+      locator: 'MTX-TEN-02b row for this module · L22043, under the header at L22031',
+    },
+    {
+      text:
+        'Offered, read-only, on one row. The card gives the Tenant Admin `Read-only` on the ' +
+        'approval log and prohibits it on the other nine, and the granting cell’s own words are ' +
+        'that the persona holds no stage of the chain — so the read is offered BECAUSE of the ' +
+        'separation of duties rather than in spite of it.',
+      locator: 'MOD-STU-11 §20.2.11 permission matrix · L33279, header L33268',
+    },
+  ],
+  statements: [
+    {
+      text: '`Explicitly prohibited` `[Y13]`',
+      line: 22043,
+      column: 'Tenant Admin',
+      headerLine: 22031,
+    },
+    {
+      text: 'Read-only — holds no stage of the chain',
+      line: 33279,
+      column: 'Tenant Admin',
+      headerLine: 33268,
+    },
+    { text: 'Explicitly prohibited', line: 33270, column: 'Tenant Admin', headerLine: 33268 },
+    { text: 'Explicitly prohibited', line: 33278, column: 'Tenant Admin', headerLine: 33268 },
+    {
+      text:
+        'The Tenant Admin holds no stage of the approval chain, by separation of duties',
+      line: 22052,
+      column: null,
+      headerLine: null,
+    },
+  ],
+  derivedFrom:
+    'The card, through reachByStudioMatrix. One `readOnly` cell on a row classified `screen` is ' +
+    'enough for clause one, and there is no withholding clause on this surface.',
+  derivedReach: { 'tenant-admin': 'offered' },
+  /**
+   * MEASURED, and the number that makes this finding what it is: ONE of the
+   * card's ten rows disagrees with the row, and it is a read. Pinned in
+   * `tests/unit/stu-permissions.test.ts`.
+   */
+  measured: { cardRows: 10, tenantAdminHoldsRows: 1, tenantAdminProhibitedRows: 9 },
+  notResolved:
+    'Both readings are recorded and neither is adopted. Nothing here rules on whether reading ' +
+    'the log of a chain is a stage of it.',
+  wouldChange:
+    'A client ruling for the row would remove the route and the rail entry, and the approval ' +
+    'log would become unreadable to the persona who administers the grants that decide who may ' +
+    'author. No control would appear or disappear: the Tenant Admin already holds none of the ' +
+    'nine.',
+  decisionRef: null,
+  decisionSearch:
+    'No `DEC-*` identifier names this cell. `DEC-RELAUTH-001` is on the override row and ' +
+    '`DEC-AUDSTU-001` on the Read-only Auditor column; neither reaches the Tenant Admin.',
+} as const

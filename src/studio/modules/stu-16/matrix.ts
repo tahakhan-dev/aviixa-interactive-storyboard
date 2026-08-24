@@ -441,3 +441,120 @@ export function stu16Row(id: Stu16RowId): Stu16MatrixRow {
 export const STU_16_OTHER_SURFACE_ROW_IDS: readonly Stu16RowId[] = STU_16_MATRIX.filter(
   (row) => row.surface === 'another-surface',
 ).map((row) => row.id)
+
+/* ==================================================================== *
+ * `MTX-TEN-02b`'S ROW FOR THIS MODULE — THE ONE IN THIS FIX STREAM WHERE
+ * THE ROW GRANTS AND THE BUILD WITHHOLDS.
+ * ==================================================================== */
+
+/**
+ * TWO SOURCE TABLES ANSWER "IS THE TENANT ADMIN OFFERED THE LEARNING VIEW"
+ * AND THEY DISAGREE. DISCLOSED, NOT RESOLVED.
+ *
+ * ── THE DIRECTION IS THE OPPOSITE OF THE OTHER STUDIO ROWS ──────────────
+ * Under the header at line 22031, `MTX-TEN-02b`'s row gives the Tenant Admin
+ * `Read-only` — a grant, with no condition marker at all, the only unmarked
+ * cell in that column on any of the five rows this fix stream covers. The
+ * card refuses that persona on every row it classifies `screen`, and
+ * `reachByStudioMatrix` answers `withheld`. So here the source grants and the
+ * build withholds, where the other four grant nothing and the build serves.
+ *
+ * ── AND THE PERSONA DOES HOLD SOMETHING. TWICE. ─────────────────────────
+ * The Tenant Admin's only two holdings on this card are `Allowed with
+ * conditions` — the retention bound on memory (line 34198) and the
+ * personal-information policy on profile memory (line 34199) — and both cells
+ * place the act in the tenant administration area in their own words, so both
+ * are classified `another-surface` and neither reaches clause one. Its cell on
+ * the learning view itself (line 34194) is `Explicitly prohibited`.
+ *
+ * THIS IS EXACTLY `MOD-DOH-11`'S SUPERVISOR, ON A DIFFERENT SURFACE. There,
+ * the module row admitted a role that held nothing on any control row and the
+ * build withheld the route; here the row admits a persona whose entire
+ * holding is performed somewhere else. Both are the classification deciding
+ * the answer rather than the token, and both are recorded rather than
+ * reconciled — the same reading, arrived at twice, is worth more than one
+ * rule stated once.
+ *
+ * ── WHY THE BUILD WITHHOLDS, STATED AS A CHOICE ─────────────────────────
+ * Offering the route would put the Tenant Admin on a screen whose own read is
+ * `Explicitly prohibited` for it — a page with nothing on it, above two
+ * settings it changes in the tenant administration area. The `another-surface`
+ * classification is what says so, and this module declines to add a reading of
+ * that classification: it is `MOD-DOH-06`'s and `MOD-DOH-05`'s disagreement,
+ * recorded in `MATRIX_ROW_SURFACE_DIVERGENCES`, and inventing a third here
+ * would settle by fiat what two modules already disagree about.
+ *
+ * **NOTHING HERE RESOLVES IT.** No `DEC-*` identifier names this cell.
+ * `[Y23]`, which qualifies the Quality Manager cell of the same row, is about
+ * the learning read view and Lane B decisions being taken in the Client
+ * Command Center.
+ */
+export const STU_16_MODULE_ROW_TENSION = {
+  question:
+    'Is the Tenant Admin offered the Learning route? The chapter-22 row gives that persona ' +
+    '`Read-only` with no condition; the card prohibits it on every screen row and grants it ' +
+    'two settings it changes on another surface.',
+  moduleRow: { matrix: 'MTX-TEN-02b', line: 22048, headerLine: 22031 },
+  cardRows: { firstLine: 34194, lastLine: 34202, headerLine: 34192 },
+  readings: [
+    {
+      text:
+        'Offered, read-only. The tenant-role-to-module matrix grants it outright and attaches no ' +
+        'condition, which on that table is the plainest form a grant takes — and the persona ' +
+        'does own two of this module’s settings, so a read of what those settings govern is not ' +
+        'an odd thing for the source to have meant.',
+      locator: 'MTX-TEN-02b row for this module · L22048, under the header at L22031',
+    },
+    {
+      text:
+        'Withheld. The card prohibits the Tenant Admin on the learning view itself and on every ' +
+        'other row it classifies `screen`; the two cells that grant it place the act in the ' +
+        'tenant administration area in their own words, so nothing it holds is a capability of ' +
+        'this screen.',
+      locator: 'MOD-STU-16 §20.2.16 permission matrix · L34194, L34198 and L34199, header L34192',
+    },
+  ],
+  statements: [
+    { text: '`Read-only`', line: 22048, column: 'Tenant Admin', headerLine: 22031 },
+    { text: 'Explicitly prohibited', line: 34194, column: 'Tenant Admin', headerLine: 34192 },
+    {
+      text: 'Allowed with conditions — in the tenant administration area, within platform bounds',
+      line: 34198,
+      column: 'Tenant Admin',
+      headerLine: 34192,
+    },
+    {
+      text: 'Allowed with conditions — in the tenant administration area',
+      line: 34199,
+      column: 'Tenant Admin',
+      headerLine: 34192,
+    },
+  ],
+  derivedFrom:
+    'The card, through reachByStudioMatrix over the rows classified `screen`. Clause one finds ' +
+    'nothing for this persona, clause two finds no deferral, so the route is withheld.',
+  derivedReach: { 'tenant-admin': 'withheld' },
+  /**
+   * MEASURED over the live matrix and pinned in
+   * `tests/unit/stu-permissions.test.ts`: the persona's whole holding is two
+   * `another-surface` rows, which is the entire reason the answer is
+   * `withheld` rather than `offered`.
+   */
+  measured: {
+    tenantAdminHoldsScreenRows: 0,
+    tenantAdminHoldsAnotherSurfaceRows: 2,
+  },
+  notResolved:
+    'Both readings are recorded and neither is adopted. Nothing here decides whether owning a ' +
+    'setting on another surface is standing on the module the setting governs.',
+  wouldChange:
+    'A client ruling for the row would offer the Tenant Admin the Studio rail entry and the ' +
+    'route, and what it would open is a page whose own read cell refuses it — so the ruling ' +
+    'would also have to change line 34194, or the screen would render the withholding it was ' +
+    'meant to end. That is the shape of this finding: the row cannot be honoured by routing ' +
+    'alone.',
+  decisionRef: null,
+  decisionSearch:
+    'No `DEC-*` identifier names this cell. `[Y23]` qualifies the Quality Manager cell of the ' +
+    'same row and raises no decision.',
+} as const

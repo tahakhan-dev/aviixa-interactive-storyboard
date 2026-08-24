@@ -480,3 +480,132 @@ export const CC09_PUSHED_LATENCY_RULE = {
   ruleRefs: ['L35835', 'L37951'],
   criterionRef: 'L35909',
 } as const
+
+/* ==================================================================== *
+ * `DEC-TACC-001` — THE TENANT ADMIN'S PRESENCE ON THIS MODULE, DISCLOSED
+ * LOCALLY BECAUSE NOTHING IN THIS BUILD HOLDS THE DECISION.
+ *
+ * This file's divergence records are about the Supervisor and the Quality
+ * Manager. The Tenant Admin column was read as settled because all ten of
+ * this card's cells refuse it, and a column that says the same thing ten
+ * times reads as an answer rather than as one side of a disagreement.
+ *
+ * IT IS ONE SIDE OF A DISAGREEMENT. `MTX-TEN-02c`'s row for this module
+ * gives the Tenant Admin `Read-only` under condition `[K1]`, and `[K1]` IS
+ * `DEC-TACC-001` — a registered open decision with three options, a
+ * recommendation, a decision owner and a stated interim position. Eleven of
+ * that matrix's thirteen Tenant Admin cells carry it, this module's among
+ * them. Of the twelve Command Center screens that are not the sign-in, this
+ * build serves the Tenant Admin three and withholds nine; this module's is
+ * one of the nine.
+ *
+ * AND ON THIS MODULE THE ROW ALSO NAMES A TOKEN THE CARD NEVER USES. Not
+ * one of the fifty cells of this card reads `Read-only` for any role: this
+ * is the alert feed, where reads are `Allowed` and refusals are
+ * `Explicitly prohibited`. So the row is not granting a weaker form of what
+ * the card grants — it is granting a status this module does not have.
+ *
+ * WHY THE BUILD WITHHOLDS IT, AND WHY THAT IS SOURCE-VERSUS-SOURCE. The
+ * thirteen-screen register's row for `SCR-CC-09` names the roles that can
+ * open it, and it names two — the Supervisor and the Quality Manager. The
+ * transcription in `src/surfaces/cc/screens.ts` is that cell, read
+ * verbatim. So the matrix row and the screen register disagree, the
+ * register decides who opens a route on this surface, and the disagreement
+ * was resolved silently in its favour until this record.
+ *
+ * THE INTERIM POSITION IS NOT AN ADOPTION. L22072 states it as what the
+ * build serves until decided; there is no `adopted` arm on the record below.
+ *
+ * ABSENT FROM BOTH REGISTERS AND NOT LIFTED INTO EITHER.
+ * `src/disclosure/decisions.ts` carries no canon record for it and
+ * `CcDecisionId` in `src/surfaces/cc/decisions/register.ts` cannot express
+ * it. Neither file is edited here; `tests/unit/cc-09.test.ts` asserts the
+ * ABSENCE, so a later lift turns this suite red rather than leaving two
+ * spellings of one decision alive.
+ * ==================================================================== */
+
+export const CC09_TACC_DISCLOSURE = {
+  decisionRef: 'DEC-TACC-001',
+  module: 'MOD-CC-09',
+  question:
+    'Does the Tenant Admin reach the alert and escalation feed read-only, as this module’s ' +
+    '`MTX-TEN-02c` row grants under `[K1]`, or not at all, as this module’s own ten-row matrix ' +
+    'and the thirteen-screen register both say?',
+  readings: [
+    {
+      text:
+        'Read-only across the module. The tenant-role-to-module matrix grants it under `[K1]`, ' +
+        'whose own words are that report-format authoring places the Tenant Admin on this ' +
+        'surface, that the source does not state whether that person sees the monitoring ' +
+        'modules, and that until decided read-only monitoring access is served.',
+      locator: 'MTX-TEN-02c row for this module · L22066; condition [K1] · L22072',
+    },
+    {
+      text:
+        'Not present at all. Every one of this card’s ten capability cells reads `Explicitly ' +
+        'prohibited` for the Tenant Admin — the acknowledgement row saying in its own words ' +
+        'that the persona is not an in-shift actor — and the thirteen-screen register’s row for ' +
+        'this module’s screen names the Supervisor and the Quality Manager and names no Tenant ' +
+        'Admin.',
+      locator: 'MOD-CC-09 §21.12 matrix · L37862-L37871; SCR-CC-09 register row · L48394',
+    },
+  ],
+  statements: [
+    { text: '`Read-only` `[K1]`', line: 22066, column: 'Tenant Admin', headerLine: 22056 },
+    { text: 'Explicitly prohibited', line: 37862, column: 'Tenant Admin', headerLine: 37860 },
+    {
+      text: 'Explicitly prohibited — not an in-shift actor',
+      line: 37865,
+      column: 'Tenant Admin',
+      headerLine: 37860,
+    },
+    {
+      text: 'Supervisor, Quality Manager',
+      line: 48394,
+      column: 'Roles that can open it',
+      headerLine: 48384,
+    },
+  ],
+  options: [
+    'report builder only',
+    'report builder plus read-only monitoring',
+    'full read-only Command Center',
+  ],
+  recommendation: 'report builder plus read-only monitoring',
+  workingPosition: 'read-only monitoring access is served and no operational action is granted',
+  workingPositionRef: 22072,
+  adopted: false,
+  cardLine: 23069,
+  registerRowLine: 115232,
+  derivedFrom:
+    'The thirteen-screen register, transcribed into src/surfaces/cc/screens.ts. The route does ' +
+    'not open for the Tenant Admin, and every cell of this module’s own matrix agrees.',
+  notResolved:
+    'Both readings are recorded and neither is adopted. This is source against source — a ' +
+    'matrix row against a screen register and a capability matrix — and nothing here rules ' +
+    'which of the two states a role’s presence on a surface.',
+  wouldChange:
+    'A client ruling for the matrix row would open this route to the Tenant Admin, and the feed ' +
+    'it opened would be one whose every cell refuses that persona, including the row that says ' +
+    'in its own words why. The ruling would therefore have to change the card too. It would ' +
+    'also have to say what `Read-only` means here, because no cell of this card uses that ' +
+    'token for any role.',
+  canonNote:
+    'Absent from src/disclosure/decisions.ts and absent from CcDecisionId in ' +
+    'src/surfaces/cc/decisions/register.ts. Neither file is edited here, and minting a second ' +
+    'spelling of a decision the source raises once is the failure this idiom exists to prevent. ' +
+    'The gate asserts the absence rather than the presence, so a later lift turns this suite red.',
+} as const
+
+/**
+ * THE READINGS ABOVE ARE THE CANON'S OWN READING SHAPE, CHECKED AT COMPILE
+ * TIME RATHER THAN CLAIMED IN PROSE. `DecisionReading` has exactly `text` and
+ * `locator`, so there is nowhere on a reading to mark it the winner, and the
+ * fixed-length pair makes a third reading a type error rather than a review
+ * comment. `tests/coverage/slice-08-absence-sweep.test.ts` requires every
+ * module that carries readings to IMPORT this type rather than redeclare it,
+ * so a lift into the canon is a move and not a rewrite.
+ */
+const _cc09TaccReadingsAreCanonShape: readonly [DecisionReading, DecisionReading] =
+  CC09_TACC_DISCLOSURE.readings
+void _cc09TaccReadingsAreCanonShape

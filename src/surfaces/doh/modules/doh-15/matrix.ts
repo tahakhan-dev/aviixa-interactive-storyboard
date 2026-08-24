@@ -699,3 +699,109 @@ export const MOD_DOH_15_UNSPECIFIED_IN_SOURCE = [
     sourceRef: 'L29471 against L29530',
   },
 ] as const satisfies readonly Doh15Silence[]
+
+/* ==================================================================== *
+ * `MTX-TEN-02a`'S ROW FOR THIS MODULE, AND THE TWO COLUMNS WHERE IT AND
+ * THIS CARD SAY OPPOSITE THINGS.
+ * ==================================================================== */
+
+/**
+ * TWO SOURCE TABLES ANSWER "WHO REACHES `MOD-DOH-15`" AND THEY DISAGREE ON
+ * TWO ROLES, IN OPPOSITE DIRECTIONS. DISCLOSED, NOT RESOLVED.
+ *
+ * ── THIS IS NOT THE TENSION THIS FILE ALREADY CARRIES ─────────────────────
+ * `DOH_CATALOGUE_B_REACH_NARROWER` (`@/surfaces/doh/screens`) records that
+ * catalogue B's "Roles that can open it" cell is NARROWER than the control
+ * matrix on five rows. That is a third table, it is about a SCREEN row, and
+ * it is already disclosed — which is precisely why the disagreement below
+ * reads as covered and is not. The row at issue here is the tenant-role-to-
+ * MODULE matrix in chapter 22, which that record never mentions.
+ *
+ * ── THE ROW, READ OFF THE LINE ────────────────────────────────────────────
+ * Under the header at line 22005, the row for this module gives the Tenant
+ * Admin `Unavailable` and the Read-only Auditor `Read-only`. Six data rows
+ * of THIS card, L29477-L29482, say the reverse on both: the Tenant Admin is
+ * `Allowed with conditions` on the clone and `Allowed` on the recurrence
+ * prompt, and the Read-only Auditor is `Explicitly prohibited` on all six.
+ *
+ * ── WHAT THE BUILD DOES, AND WHY ──────────────────────────────────────────
+ * Reach is derived from the finer-grained card by `rolesReachingByMatrix`,
+ * the same convention every other Hub module follows, and the answer is
+ * `TENANT_ADMIN, SUPERVISOR` — measured, and pinned in
+ * `registries/generated/doh/module-reach.json`. The card wins because it is
+ * the table that says what a person can DO here: serving the Auditor a panel
+ * whose every row refuses them would render an empty screen and imply an
+ * authority the six rows deny, and withholding the panel from the Tenant
+ * Admin would withhold a capability the card grants outright.
+ *
+ * **NOTHING HERE RESOLVES THE SOURCE'S DISAGREEMENT.** The record below
+ * carries both readings with their own locators and has no field on which
+ * either could be marked the answer. No decision identifier governs it: the
+ * conditions paragraph at line 22027 attaches `[H29]` to this row's
+ * Supervisor and Quality Manager cells and raises nothing about the Tenant
+ * Admin or the Auditor, and no `DEC-*` identifier in the source names this
+ * row.
+ */
+export const DOH_15_MODULE_ROW_TENSION = {
+  question:
+    'Who reaches Job Cloning — the four roles the tenant-role-to-module row admits, or the two ' +
+    'the module’s own six-row card grants?',
+  /** The chapter-22 row and its header, as line numbers rather than citations. */
+  moduleRow: { matrix: 'MTX-TEN-02a', line: 22021, headerLine: 22005 },
+  /** The card this file transcribes. */
+  cardRows: { firstLine: 29477, lastLine: 29482, headerLine: 29475 },
+  readings: [
+    {
+      text:
+        'The module row. Job Cloning is unavailable to the Tenant Admin and read-only for the ' +
+        'Read-only Auditor, which is how the tenant-role-to-module matrix reads every Hub ' +
+        'module’s standing in one line per module.',
+      locator: 'MTX-TEN-02a row for this module · L22021, under the header at L22005',
+    },
+    {
+      text:
+        'The module’s own card. The Tenant Admin clones and answers the recurrence prompt; the ' +
+        'Read-only Auditor is refused on every one of the six rows, so there is no capability ' +
+        'here for that role to hold read-only.',
+      locator: 'MOD-DOH-15 §19.17 permission matrix · L29477-L29482, header L29475',
+    },
+  ],
+  /**
+   * Every statement of the question found in the source, verbatim, with the
+   * line and the column it is a cell of. Held to EXACT equality against that
+   * table's own header-keyed cell by `tests/unit/doh-permissions.test.ts`, so
+   * a text rewritten to the value that would erase the disagreement reds
+   * rather than passing.
+   */
+  statements: [
+    { text: '`Unavailable`', line: 22021, column: 'Tenant Admin', headerLine: 22005 },
+    { text: '`Read-only`', line: 22021, column: 'Read-only Auditor', headerLine: 22005 },
+    {
+      text: '`Allowed with conditions` — blocked in every suspension state as new-Job creation',
+      line: 29477,
+      column: 'Tenant Admin',
+      headerLine: 29475,
+    },
+    { text: '`Explicitly prohibited`', line: 29477, column: 'Read-only Auditor', headerLine: 29475 },
+    { text: '`Allowed`', line: 29478, column: 'Tenant Admin', headerLine: 29475 },
+    { text: '`Explicitly prohibited`', line: 29478, column: 'Read-only Auditor', headerLine: 29475 },
+  ],
+  derivedFrom:
+    'The card. rolesReachingByMatrix over the rows above, which is the convention for every ' +
+    'Hub module and the only implementation of the rule.',
+  /** The derived answer, so a gate can pin the disclosure to the live value. */
+  derivedReach: ['TENANT_ADMIN', 'SUPERVISOR'],
+  notResolved:
+    'Both readings are recorded and neither is adopted. This build derives from the card ' +
+    'because the card is the table that states capabilities, not because the source settles it.',
+  wouldChange:
+    'A client ruling for the module row would withhold this panel from the Tenant Admin, who ' +
+    'holds two of its rows outright, and offer it to the Read-only Auditor, for whom every one ' +
+    'of the six rows reads `Explicitly prohibited` — an offered route with nothing on it. Both ' +
+    'directions change what renders, not only who is listed.',
+  decisionRef: null,
+  decisionSearch:
+    'No `DEC-*` identifier in the frozen source names this row. `[H29]`, the only condition on ' +
+    'it, qualifies the Supervisor and Quality Manager cells and is silent on the two columns ' +
+    'that disagree.',
+} as const

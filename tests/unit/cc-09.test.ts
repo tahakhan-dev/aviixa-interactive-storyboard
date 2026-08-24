@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { CC_SCREENS, ccScreen } from '@/surfaces/cc/screens'
+import { CC09_TACC_DISCLOSURE } from '@/surfaces/cc/modules/cc-09/readings'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { isForeignProbe } from '../probe-paths'
@@ -858,5 +860,184 @@ describe('the disciplines this slice pays for', () => {
       }
     }
     expect(offenders).toEqual([])
+  })
+})
+
+/* The frozen source, under one name for the round-3 gate below, so the 
+ * helper does not depend on which spelling this file already uses. */
+const TACC_LINES: readonly string[] = LINES
+
+/* ==================================================================== *
+ * FIX STREAM H, ROUND 3 — `DEC-TACC-001` ON MOD-CC-09, GATED.
+ *
+ * The decision is the source's own, raised under its own identifier, and it
+ * governs this module's `MTX-TEN-02c` cell through condition `[K1]`. Until
+ * `CC09_TACC_DISCLOSURE` landed, this module carried no record of it — the Tenant Admin
+ * column of its own card reads `Explicitly prohibited` on every row, and a
+ * column that repeats itself 10 times reads as an answer rather than as
+ * one side of a disagreement.
+ *
+ * WHAT IS ASSERTED. Every statement is held to EXACT EQUALITY against the
+ * frozen source's own header-keyed cell, read at test time, with the column
+ * resolved BY NAME off that table's own header line. So a statement rewritten
+ * to the value that would erase the divergence fails here — the defect the
+ * `MOD-CC-12` readings file records as brief error 33 — and `Read-only`
+ * cannot satisfy an assertion about `Read-only — observe`.
+ *
+ * AND THE IDENTIFIER IS ASSERTED ABSENT FROM BOTH REGISTERS, never present.
+ * That is the `Stu14LocalDisclosure` idiom `MOD-CC-03`, `MOD-CC-05`,
+ * `MOD-CC-07` and `MOD-CC-12` already follow: the day someone lifts
+ * `DEC-TACC-001` into `src/disclosure/decisions.ts` or into `CcDecisionId`,
+ * this suite goes red and forces the switch instead of leaving two spellings
+ * of one decision alive.
+ * ==================================================================== */
+
+/** Cells with backticks INTACT: chapter 22 tickets its tokens and the module
+ *  cards do not, so folding the two would let a statement quote the wrong
+ *  dialect and pass. */
+const taccCells = (n: number): readonly string[] =>
+  (TACC_LINES[n - 1] ?? '')
+    .replace(/^\s*\|/, '')
+    .replace(/\|\s*$/, '')
+    .split('|')
+    .map((c) => c.trim())
+
+function taccColumn(headerLine: number, name: string): number {
+  const index = taccCells(headerLine).indexOf(name)
+  if (index < 0) {
+    throw new Error(
+      `L${headerLine} has no column "${name}"; its header is ` +
+        `${JSON.stringify(taccCells(headerLine))}.`,
+    )
+  }
+  return index
+}
+
+describe('fix stream H round 3: DEC-TACC-001 on MOD-CC-09', () => {
+  // FAILS IF: any quoted cell stops being what the frozen source carries at
+  // that line and column.
+  // PLANTED: changed the `MTX-TEN-02c` statement's text from
+  // '`Read-only` `[K1]`' to '`Explicitly prohibited`', the value that would erase the divergence.
+  // RED: L22066 column "Tenant Admin" is not what the record quotes —
+  // expected '`Read-only` `[K1]`' to be '`Explicitly prohibited`'
+  it('quotes every statement verbatim, cell by cell and column by name', () => {
+    const statements: readonly {
+      readonly text: string
+      readonly line: number
+      readonly column: string | null
+      readonly headerLine: number | null
+    }[] = CC09_TACC_DISCLOSURE.statements
+    expect(statements.length).toBeGreaterThan(0)
+    for (const s of statements) {
+      if (s.column === null) {
+        expect(s.headerLine).toBeNull()
+        expect(TACC_LINES[s.line - 1] ?? '').toContain(s.text)
+        continue
+      }
+      expect(s.headerLine).not.toBeNull()
+      const index = taccColumn(s.headerLine as number, s.column)
+      expect(
+        taccCells(s.line)[index],
+        `L${s.line} column "${s.column}" is not what the record quotes`,
+      ).toBe(s.text)
+    }
+  })
+
+  // FAILS IF: the module row moves under the record, or the card's Tenant
+  // Admin column stops being uniformly prohibitive — the premise of the
+  // second reading.
+  // PLANTED: changed the record's `module` from 'MOD-CC-09' to 'MOD-CC-01'.
+  // RED: expected '`MOD-CC-01`' to be '`MOD-CC-09`'
+  it('cites its own MTX-TEN-02c row, and the whole card column that answers it', () => {
+    expect(taccCells(22_056)[0]).toBe('#')
+    expect(taccCells(22066)[0]).toBe('`MOD-CC-09`')
+    expect(CC09_TACC_DISCLOSURE.module).toBe('MOD-CC-09')
+    const ta = taccColumn(37860, 'Tenant Admin')
+    const first = 37860 + 2
+    const column: string[] = []
+    for (let n = first; (TACC_LINES[n - 1] ?? '').trimStart().startsWith('|'); n += 1) {
+      column.push(taccCells(n)[ta] ?? '')
+    }
+    expect(column.length).toBe(10)
+    expect(column.every((c) => c.startsWith('Explicitly prohibited'))).toBe(true)
+  })
+
+  // FAILS IF: the register row this build transcribes stops being the one the
+  // record cites, or starts naming the Tenant Admin. The register is the
+  // reading the build derives from, so this is the assertion that the
+  // derivation still has a source.
+  // PLANTED: changed the record's second reading locator line from L48394
+  // to L48391.
+  // RED: expected 'SCR-CC-06' to be 'SCR-CC-09'
+  it('the screen register row names no Tenant Admin, and this build agrees', () => {
+    expect(taccCells(48394)[0]).toBe('SCR-CC-09')
+    const roles = taccCells(48394)[taccColumn(48_384, 'Roles that can open it')] ?? ''
+    expect(roles).not.toContain('Tenant Admin')
+    expect(CC09_TACC_DISCLOSURE.readings[1]?.locator).toContain('L48394')
+    expect(ccScreen('SCR-CC-09').rolesThatCanOpen as readonly string[]).not.toContain(
+      'TENANT_ADMIN',
+    )
+
+    // The population the disclosure's prose states: of the twelve screens
+    // that are not the sign-in, three are served to the Tenant Admin and nine
+    // are withheld. Counted here, never carried.
+    const notSignIn = CC_SCREENS.filter((s) => s.id !== 'SCR-CC-01')
+    expect(notSignIn.length).toBe(12)
+    expect(notSignIn.filter((s) => (s.rolesThatCanOpen as readonly string[]).includes('TENANT_ADMIN')).length).toBe(3)
+    expect(notSignIn.filter((s) => !(s.rolesThatCanOpen as readonly string[]).includes('TENANT_ADMIN')).length).toBe(9)
+  })
+
+  // FAILS IF: `DEC-TACC-001` stops being the source's own identifier for this
+  // question, is quietly lifted into either register, or has its working
+  // position promoted to an adoption. A recommendation is not an adoption
+  // either, and both are read off the source rather than off the record.
+  // PLANTED: changed `cardLine` from 23069 to 23070.
+  // RED: expected '' to contain 'DEC-TACC-001'
+  it('DEC-TACC-001 is real, is open, and is in neither register', () => {
+    const raised = TACC_LINES[CC09_TACC_DISCLOSURE.cardLine - 1] ?? ''
+    expect(raised).toContain('DEC-TACC-001')
+    expect(raised).toContain("the Tenant Admin's Client Command Center presence")
+    for (const option of CC09_TACC_DISCLOSURE.options) {
+      expect(raised, `option "${option}" is not on the card line`).toContain(option)
+    }
+    expect(raised).toContain(CC09_TACC_DISCLOSURE.recommendation)
+    expect(CC09_TACC_DISCLOSURE.adopted).toBe(false)
+    expect(taccCells(CC09_TACC_DISCLOSURE.registerRowLine)[0]).toBe('`DEC-TACC-001`')
+
+    const working = TACC_LINES[CC09_TACC_DISCLOSURE.workingPositionRef - 1] ?? ''
+    expect(working).toContain('DEC-TACC-001')
+    expect(working).toContain(CC09_TACC_DISCLOSURE.workingPosition)
+
+    // Eleven of the thirteen Tenant Admin cells carry [K1], COUNTED off the
+    // matrix rather than believed, and this module's row is one of them.
+    const ta = taccColumn(22_056, 'Tenant Admin')
+    const rows: { line: number; cell: string }[] = []
+    for (let n = 22_058; (TACC_LINES[n - 1] ?? '').trimStart().startsWith('|'); n += 1) {
+      rows.push({ line: n, cell: taccCells(n)[ta] ?? '' })
+    }
+    expect(rows.length).toBe(13)
+    const underK1 = rows.filter((r) => r.cell.includes('[K1]'))
+    expect(underK1.length).toBe(11)
+    expect(underK1.map((r) => r.line)).toContain(22066)
+
+    const canon = readFileSync(join(process.cwd(), 'src/disclosure/decisions.ts'), 'utf8')
+    const ccRegister = readFileSync(
+      join(process.cwd(), 'src/surfaces/cc/decisions/register.ts'),
+      'utf8',
+    )
+    expect(canon.includes('DEC-TACC-001')).toBe(false)
+    expect(ccRegister.includes('DEC-TACC-001')).toBe(false)
+  })
+
+  // FAILS IF: a reading grows a field on which it could be marked the winner,
+  // or the pair becomes a single.
+  it('carries two readings and no verdict', () => {
+    expect(CC09_TACC_DISCLOSURE.readings.length).toBe(2)
+    for (const reading of CC09_TACC_DISCLOSURE.readings) {
+      expect(Object.keys(reading).sort()).toEqual(['locator', 'text'])
+      expect(reading.text.length).toBeGreaterThan(80)
+    }
+    expect(CC09_TACC_DISCLOSURE.notResolved.length).toBeGreaterThan(40)
+    expect(CC09_TACC_DISCLOSURE.wouldChange.length).toBeGreaterThan(40)
   })
 })

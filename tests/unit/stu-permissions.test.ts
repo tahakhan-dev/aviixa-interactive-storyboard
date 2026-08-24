@@ -1,10 +1,18 @@
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 import { ROUTES, routesForRole, routeOpenDecisionFor } from '@/routes/definitions'
 import { STUDIO_PERSONA_COLUMNS, type StudioPersonaColumn } from '@/studio/access/evaluate'
-import { STU_PERSONAS, reachByStudioMatrix, type StudioPersonaId } from '@/studio/modules'
+import {
+  STU_PERSONAS,
+  reachByStudioMatrix,
+  type StudioMatrixRowSurface,
+  type StudioPersonaId,
+} from '@/studio/modules'
+import type { PermissionOutcome } from '@/policy/decision'
 import { STU_APPLICABLE_STATES, screenRendersState } from '@/studio/state/screen-states'
 import { decisionRecord } from '@/disclosure/decisions'
 
@@ -41,6 +49,11 @@ import {
   UNSPECIFIED_IN_SOURCE,
 } from '@/studio/modules/stu-18/restatements'
 import { STUDIO_GRANT_DEFINITIONS } from '@/studio/access/grants'
+import { STU_04_MATRIX, STU_04_MODULE_ROW_TENSION } from '@/studio/modules/stu-04/matrix'
+import { STU_05_MATRIX, STU_05_MODULE_ROW_TENSION } from '@/studio/modules/stu-05/matrix'
+import { STU_11_MATRIX, STU_11_MODULE_ROW_TENSION } from '@/studio/modules/stu-11/matrix'
+import { STU_12_MATRIX, STU_12_MODULE_ROW_TENSION } from '@/studio/modules/stu-12/matrix'
+import { STU_16_MATRIX, STU_16_MODULE_ROW_TENSION } from '@/studio/modules/stu-16/matrix'
 
 import { PermissionsScreen } from '../../app/studio/permissions-and-grants/PermissionsScreen'
 import { SignInScreen } from '../../app/studio/sign-in/SignInScreen'
@@ -1181,5 +1194,228 @@ describe('standing constraints', () => {
       expect(stripped, file).not.toMatch(/\bnew Date\b/)
       expect(stripped, file).not.toMatch(/\bMath\.random\b/)
     }
+  })
+})
+
+/* ==================================================================== *
+ * FIX STREAM H, ROUND 3 — THE FIVE STUDIO MODULE-ROW TENSIONS, GATED.
+ *
+ * `MTX-TEN-02b` is the tenant-role-to-module matrix for the eighteen derived
+ * Studio modules, and it is THIS module's subject: `MOD-STU-18` is
+ * Permissions and Roles in the Studio, and the question of which persona is
+ * offered which route is what it exists to answer. Five of that matrix's rows
+ * disagree with the module card underneath them, and all five disclosures are
+ * gated here rather than in five files — a gate copied five times is a gate
+ * that rots in four of them, and three of these modules have no unit suite
+ * whose subject is reach.
+ *
+ * WHAT IS ASSERTED. Every `statements` entry is held to EXACT EQUALITY
+ * against the frozen source's own header-keyed cell, read at test time, with
+ * the column resolved by NAME off that table's own header line. So a
+ * statement rewritten to the value that would ERASE the disagreement fails
+ * here, reordering a column cannot move a claim, and `Allowed` cannot satisfy
+ * an assertion about `Allowed with conditions`. Statements that are prose
+ * rather than cells carry `column: null` and are checked as substrings of
+ * their own line — which is how the CONDITIONS on these rows get checked,
+ * and the conditions are the half of this finding that agrees with the cards.
+ *
+ * The reach each record states is re-derived from the LIVE matrix with the
+ * LIVE rule, never read off `registries/generated/stu/module-reach.json`:
+ * that file is a build artefact, and comparing a record against it would be
+ * comparing this build with its own output.
+ * ==================================================================== */
+
+const STU_TENSION_SOURCE = join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md')
+const STU_TENSION_LINES: readonly string[] = readFileSync(STU_TENSION_SOURCE, 'utf8').split('\n')
+
+const stuTensionLine = (n: number): string => {
+  const line = STU_TENSION_LINES[n - 1]
+  if (line === undefined) throw new Error(`frozen source has no line ${n}`)
+  return line
+}
+
+/**
+ * A markdown row split into its cells. BACKTICKS ARE NOT STRIPPED: chapter
+ * 22 writes its tokens inside backticks and the Studio module cards do not,
+ * so the two are different verbatim texts and folding them would let a
+ * statement quote the wrong dialect and pass.
+ */
+const stuTensionCells = (n: number): readonly string[] =>
+  stuTensionLine(n)
+    .replace(/^\s*\|/, '')
+    .replace(/\|\s*$/, '')
+    .split('|')
+    .map((c) => c.trim())
+
+function stuTensionColumn(headerLine: number, name: string): number {
+  const index = stuTensionCells(headerLine).indexOf(name)
+  if (index < 0) {
+    throw new Error(
+      `L${headerLine} has no column "${name}"; its header is ` +
+        `${JSON.stringify(stuTensionCells(headerLine))}.`,
+    )
+  }
+  return index
+}
+
+interface StuTensionStatement {
+  readonly text: string
+  readonly line: number
+  readonly column: string | null
+  readonly headerLine: number | null
+}
+
+function expectStuStatement(where: string, s: StuTensionStatement): void {
+  if (s.column === null) {
+    expect(s.headerLine, `${where}: prose statement carries a header line`).toBeNull()
+    expect(stuTensionLine(s.line), `${where}: prose statement is not on L${s.line}`).toContain(
+      s.text,
+    )
+    return
+  }
+  expect(s.headerLine, `${where}: cell statement carries no header line`).not.toBeNull()
+  const index = stuTensionColumn(s.headerLine as number, s.column)
+  expect(
+    stuTensionCells(s.line)[index],
+    `${where}: L${s.line} column "${s.column}" is not what the record quotes`,
+  ).toBe(s.text)
+}
+
+/**
+ * The narrowest row shape the rule and this gate both need, so five matrices
+ * with five different row unions go through ONE reader rather than five. The
+ * reader is the same expression `MOD-STU-18`'s own reach gate uses above.
+ */
+type StudioReachRow = {
+  readonly surface: StudioMatrixRowSurface
+  readonly cells: Readonly<Record<string, { readonly outcome: PermissionOutcome }>>
+}
+
+const studioOutcome = (row: StudioReachRow, persona: StudioPersonaId): PermissionOutcome => {
+  const cell = row.cells[persona]
+  if (cell === undefined) {
+    throw new Error(`a matrix row carries no cell for the persona column "${persona}"`)
+  }
+  return cell.outcome
+}
+
+const STUDIO_TENSIONS: readonly {
+  readonly where: string
+  readonly record: {
+    readonly moduleRow: { readonly matrix: string; readonly line: number; readonly headerLine: number }
+    readonly readings: readonly { readonly text: string; readonly locator: string }[]
+    readonly statements: readonly StuTensionStatement[]
+    readonly derivedReach: Readonly<Record<string, string>>
+    readonly decisionRef: null
+    readonly notResolved: string
+    readonly wouldChange: string
+  }
+  readonly matrix: readonly StudioReachRow[]
+}[] = [
+  { where: 'MOD-STU-04', record: STU_04_MODULE_ROW_TENSION, matrix: STU_04_MATRIX },
+  { where: 'MOD-STU-05', record: STU_05_MODULE_ROW_TENSION, matrix: STU_05_MATRIX },
+  { where: 'MOD-STU-11', record: STU_11_MODULE_ROW_TENSION, matrix: STU_11_MATRIX },
+  { where: 'MOD-STU-12', record: STU_12_MODULE_ROW_TENSION, matrix: STU_12_MATRIX },
+  { where: 'MOD-STU-16', record: STU_16_MODULE_ROW_TENSION, matrix: STU_16_MATRIX },
+]
+
+describe('fix stream H round 3: MTX-TEN-02b against five module cards', () => {
+  // FAILS IF: any quoted cell or condition stops being what the frozen source
+  // carries there — the mislocated-locator class, and the rewritten-statement
+  // class the MOD-CC-12 readings file records as brief error 33.
+  // PLANTED: changed MOD-STU-11's L33279 Tenant Admin statement from
+  // 'Read-only — holds no stage of the chain' to 'Explicitly prohibited', the
+  // value that would erase the finding.
+  // RED: the failure named MOD-STU-11 and then L33279 column "Tenant Admin"
+  // is not what the record quotes — expected 'Read-only — holds no stage of
+  // the chain' to be 'Explicitly prohibited'. (Words between the identifier
+  // and the number on purpose: `locator-fidelity` reads `<ID>: L<n>` as an
+  // anchored citation and holds the line to being one the identifier occurs
+  // at, which L33279 is not — it is a row of that module's card.)
+  it.each(STUDIO_TENSIONS)('$where quotes every statement verbatim', ({ where, record }) => {
+    expect(record.statements.length).toBeGreaterThan(0)
+    for (const statement of record.statements) expectStuStatement(where, statement)
+  })
+
+  // FAILS IF: a record's module row moves, or the header it resolves its
+  // columns against stops being MTX-TEN-02b's. The row is identified by the
+  // module id in its own first cell, so a row inserted above cannot shift a
+  // citation silently.
+  // PLANTED: changed MOD-STU-12's moduleRow.line from 22044 to 22045.
+  // RED: expected '`MOD-STU-13`' to be '`MOD-STU-12`'
+  it.each(STUDIO_TENSIONS)('$where cites its own MTX-TEN-02b row', ({ where, record }) => {
+    expect(record.moduleRow.matrix).toBe('MTX-TEN-02b')
+    expect(record.moduleRow.headerLine).toBe(22_031)
+    expect(stuTensionCells(22_031)[1]).toBe('Derived module')
+    expect(stuTensionCells(record.moduleRow.line)[0]).toBe(`\`${where}\``)
+    expect(stuTensionLine(22_032)).toMatch(/^\|-/)
+    expect(record.moduleRow.line).toBeGreaterThan(22_032)
+  })
+
+  // FAILS IF: a record's `readings` stops being exactly two, or grows a field
+  // on which one could be marked the answer — a `decisionRef` on a cell the
+  // source raises no decision for is a verdict wearing an identifier.
+  // PLANTED: changed MOD-STU-04's `decisionRef` from null to 'DEC-FAKE-001'.
+  // RED: expected 'DEC-FAKE-001' to be null
+  it.each(STUDIO_TENSIONS)('$where carries two readings and no verdict', ({ record }) => {
+    expect(record.readings.length).toBe(2)
+    for (const reading of record.readings) {
+      expect(Object.keys(reading).sort()).toEqual(['locator', 'text'])
+      expect(reading.text.length).toBeGreaterThan(80)
+      expect(reading.locator).toMatch(/L\d{5}/)
+    }
+    expect(record.decisionRef).toBeNull()
+    expect(record.notResolved.length).toBeGreaterThan(40)
+    expect(record.wouldChange.length).toBeGreaterThan(40)
+  })
+
+  // FAILS IF: the reach a disclosure states stops being the reach the live
+  // rule derives from the live matrix. Every persona the record names is
+  // checked, so MOD-STU-12's three-column answer cannot decay to one.
+  // PLANTED: changed MOD-STU-16's derivedReach['tenant-admin'] from
+  // 'withheld' to 'offered'.
+  // RED: MOD-STU-16 tenant-admin: expected 'withheld' to be 'offered'
+  it.each(STUDIO_TENSIONS)('$where states the reach the live rule derives', ({ where, record, matrix }) => {
+    const reach = reachByStudioMatrix(matrix, studioOutcome)
+    const claimed = record.derivedReach
+    expect(Object.keys(claimed).length).toBeGreaterThan(0)
+    for (const [persona, state] of Object.entries(claimed)) {
+      expect(reach[persona as StudioPersonaId], `${where} ${persona}`).toBe(state)
+    }
+  })
+
+  /**
+   * The counts two of these disclosures turn on, re-derived. `MOD-STU-11`'s
+   * says in words that ONE of ten rows disagrees with the module row and that
+   * the one is a read; `MOD-STU-16`'s says the Tenant Admin's whole holding is
+   * two rows performed on another surface. Both are only worth writing if a
+   * cell edit can falsify them.
+   */
+  // PLANTED: changed MOD-STU-16's measured.tenantAdminHoldsAnotherSurfaceRows
+  // from 2 to 1.
+  // RED: expected 2 to be 1
+  it('measures the two records that state counts', () => {
+    const HOLDS = ['allowed', 'allowedWithConditions', 'readOnly']
+    const stu11 = STU_11_MODULE_ROW_TENSION.measured
+    expect(STU_11_MATRIX.length).toBe(stu11.cardRows)
+    const eleven = STU_11_MATRIX.map((r) => studioOutcome(r, 'tenant-admin'))
+    expect(eleven.filter((o) => HOLDS.includes(o)).length).toBe(stu11.tenantAdminHoldsRows)
+    expect(eleven.filter((o) => o === 'explicitlyProhibited').length).toBe(
+      stu11.tenantAdminProhibitedRows,
+    )
+
+    const stu16 = STU_16_MODULE_ROW_TENSION.measured
+    const onScreen = STU_16_MATRIX.filter((r) => r.surface === 'screen').map((r) =>
+      studioOutcome(r, 'tenant-admin'),
+    )
+    const elsewhere = STU_16_MATRIX.filter((r) => r.surface === 'another-surface').map((r) =>
+      studioOutcome(r, 'tenant-admin'),
+    )
+    expect(onScreen.filter((o) => HOLDS.includes(o)).length).toBe(
+      stu16.tenantAdminHoldsScreenRows,
+    )
+    expect(elsewhere.filter((o) => HOLDS.includes(o)).length).toBe(
+      stu16.tenantAdminHoldsAnotherSurfaceRows,
+    )
   })
 })

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import { namesPersonBehaviouralMeasure } from '../coverage/person-measure-keys'
 import { stripComments } from '../coverage/strip-comments'
 import { rolesInDomain, type RoleId } from '@/domain/roles'
@@ -12,7 +13,18 @@ import {
 } from '@/surfaces/doh/access-conditions'
 import { DEFERRED_DOH_SCOPES, DOH_SCOPES } from '@/surfaces/doh/scope'
 import { TENANT_STATES, writeAllowed } from '@/surfaces/doh/tenant-state'
-import { dohModuleById } from '@/surfaces/doh/modules'
+import {
+  cellStatus,
+  dohModuleById,
+  outcomeCellStatus,
+  rolesReachingByMatrix,
+  type ControlStatus,
+} from '@/surfaces/doh/modules'
+import { CONTROL_MATRIX as DOH_08_MATRIX, DOH_08_MODULE_ROW_TENSION } from '@/surfaces/doh/modules/doh-08/matrix'
+import { DOH_09_MODULE_ROW_TENSION } from '@/surfaces/doh/modules/doh-09/readings'
+import { DOH_13_MODULE_ROW_TENSION } from '@/surfaces/doh/modules/doh-13/readings'
+import { MOD_DOH_15_MATRIX as DOH_15_MATRIX, DOH_15_MODULE_ROW_TENSION } from '@/surfaces/doh/modules/doh-15/matrix'
+import { CONTROL_MATRIX as DOH_13_MATRIX } from '../../app/hub/tenant-view-of-platform-administration/fixtures'
 import { DOH_SEAMS } from '@/surfaces/doh/seams'
 import {
   SEEDED_SSO_CONNECTION,
@@ -746,5 +758,240 @@ describe('the cross-slice claim this screen makes', () => {
     // above while meaning something entirely different.
     expect(DOH_SEAMS.length).toBeGreaterThan(0)
     expect(consumers).toContain('MOD-DOH-01')
+  })
+})
+
+/* ==================================================================== *
+ * FIX STREAM H, ROUND 3 — THE FOUR HUB MODULE-ROW TENSIONS, GATED.
+ *
+ * `MTX-TEN-02a` is the tenant-role-to-module matrix in chapter 17's RBAC
+ * neighbourhood, and it is THIS module's subject: it is the table that says
+ * what each of the five fixed roles holds on each of the nineteen Hub
+ * modules. Four of its rows disagree with the module card underneath them
+ * about who reaches the module, and every one of those four disclosures is
+ * gated here rather than in four places — `MOD-DOH-13` has no unit suite of
+ * its own at all, and a gate copied four times is a gate that rots in three
+ * of them.
+ *
+ * WHAT IS ASSERTED, AND WHY IT IS NOT A COMPARISON OF THIS BUILD WITH
+ * ITSELF. Every `statements` entry is held to EXACT EQUALITY against the
+ * frozen source's own header-keyed cell, read at test time: the column is
+ * resolved by NAME off the table's own header line, so reordering a column
+ * cannot move a claim, and the text is compared whole, so `Allowed` cannot
+ * satisfy an assertion about `Allowed with conditions`. A statement rewritten
+ * to the value that would ERASE the disagreement fails here — which is the
+ * defect the `MOD-CC-12` readings file records as brief error 33 and the
+ * reason its statements carry a column and a header line rather than a line
+ * alone.
+ *
+ * The measured counts are re-derived from the LIVE matrices with the LIVE
+ * rule, never read off the record, so a cell edited in either direction reds
+ * the disclosure instead of leaving a stale sentence beside it.
+ * ==================================================================== */
+
+const TENSION_SOURCE_PATH = join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md')
+const TENSION_LINES: readonly string[] = readFileSync(TENSION_SOURCE_PATH, 'utf8').split('\n')
+
+const tensionLine = (n: number): string => {
+  const line = TENSION_LINES[n - 1]
+  if (line === undefined) throw new Error(`frozen source has no line ${n}`)
+  return line
+}
+
+/**
+ * A markdown row split into its cells. BACKTICKS ARE NOT STRIPPED: chapter
+ * 22 writes its tokens inside backticks and the module cards do not, so the
+ * two dialects are different verbatim texts and folding them would let a
+ * statement quote the wrong one.
+ */
+const tensionCells = (n: number): readonly string[] =>
+  tensionLine(n)
+    .replace(/^\s*\|/, '')
+    .replace(/\|\s*$/, '')
+    .split('|')
+    .map((c) => c.trim())
+
+function tensionColumn(headerLine: number, name: string): number {
+  const index = tensionCells(headerLine).indexOf(name)
+  if (index < 0) {
+    throw new Error(
+      `L${headerLine} has no column "${name}"; its header is ` +
+        `${JSON.stringify(tensionCells(headerLine))}.`,
+    )
+  }
+  return index
+}
+
+interface TensionStatement {
+  readonly text: string
+  readonly line: number
+  readonly column: string | null
+  readonly headerLine: number | null
+}
+
+/**
+ * The one check every statement gets. A statement naming a COLUMN is a claim
+ * about one cell and is held to exact equality; a statement with
+ * `column: null` is prose and is held to being a substring of its own line.
+ * The pair is required to be both-or-neither, because a column with no header
+ * line cannot be resolved and a header line with no column names nothing.
+ */
+function expectStatementVerbatim(where: string, s: TensionStatement): void {
+  if (s.column === null) {
+    expect(s.headerLine, `${where}: prose statement carries a header line`).toBeNull()
+    expect(tensionLine(s.line), `${where}: prose statement is not on L${s.line}`).toContain(s.text)
+    return
+  }
+  expect(s.headerLine, `${where}: cell statement carries no header line`).not.toBeNull()
+  const index = tensionColumn(s.headerLine as number, s.column)
+  expect(
+    tensionCells(s.line)[index],
+    `${where}: L${s.line} column "${s.column}" is not what the record quotes`,
+  ).toBe(s.text)
+}
+
+const HUB_TENSIONS = [
+  { where: 'MOD-DOH-08', record: DOH_08_MODULE_ROW_TENSION },
+  { where: 'MOD-DOH-09', record: DOH_09_MODULE_ROW_TENSION },
+  { where: 'MOD-DOH-13', record: DOH_13_MODULE_ROW_TENSION },
+  { where: 'MOD-DOH-15', record: DOH_15_MODULE_ROW_TENSION },
+] as const
+
+describe('fix stream H round 3: MTX-TEN-02a against four module cards', () => {
+  // FAILS IF: any quoted cell stops being what the frozen source carries at
+  // that line and column — the mislocated-locator class, and the
+  // rewritten-statement class the CC-12 readings file records.
+  // PLANTED: changed MOD-DOH-08's L28301 Tenant Admin statement from
+  // '`Unavailable`' to '`Read-only`', the value that would erase the finding.
+  // RED: the failure named MOD-DOH-08 and then L28301 column "Tenant Admin"
+  // is not what the record quotes — expected '`Unavailable`' to be
+  // '`Read-only`'. (Written with words between the identifier and the number
+  // on purpose: `locator-fidelity` treats `<ID>: L<n>` as an anchored
+  // citation and holds the line to being one the identifier occurs at, which
+  // L28301 is not — it is a row of that module's card, not its heading.)
+  it.each(HUB_TENSIONS)('$where quotes every statement verbatim', ({ where, record }) => {
+    expect(record.statements.length).toBeGreaterThan(0)
+    for (const statement of record.statements) expectStatementVerbatim(where, statement)
+  })
+
+  // FAILS IF: a record's module row moves, or the header it resolves its
+  // columns against stops being MTX-TEN-02a's. The row is identified by the
+  // module id in its own first cell, so a row inserted above cannot shift a
+  // citation silently.
+  // PLANTED: changed MOD-DOH-15's moduleRow.line from 22021 to 22022.
+  // RED: expected '`MOD-DOH-16`' to be '`MOD-DOH-15`'
+  it.each(HUB_TENSIONS)('$where cites its own MTX-TEN-02a row', ({ where, record }) => {
+    expect(record.moduleRow.matrix).toBe('MTX-TEN-02a')
+    expect(record.moduleRow.headerLine).toBe(22_005)
+    expect(tensionCells(22_005)[0]).toBe('#')
+    expect(tensionCells(record.moduleRow.line)[0]).toBe(`\`${where}\``)
+    // Not the separator, and not past the end of the body.
+    expect(tensionLine(22_006)).toMatch(/^\|-/)
+    expect(record.moduleRow.line).toBeGreaterThan(22_006)
+  })
+
+  // FAILS IF: a record's `readings` stops being exactly two, or grows a field
+  // on which one could be marked the answer. Two is the floor and the ceiling
+  // for a disclosure that resolves nothing, and a `decisionRef` on a row the
+  // source raises no decision for is a verdict wearing an identifier.
+  // PLANTED: changed MOD-DOH-15's `decisionRef` from null to 'DEC-FAKE-001'.
+  // RED: expected 'DEC-FAKE-001' to be null
+  it.each(HUB_TENSIONS)('$where carries two readings and no verdict', ({ record }) => {
+    expect(record.readings.length).toBe(2)
+    for (const reading of record.readings) {
+      expect(Object.keys(reading).sort()).toEqual(['locator', 'text'])
+      expect(reading.text.length).toBeGreaterThan(80)
+      expect(reading.locator).toMatch(/L\d{5}/)
+    }
+    expect(record.decisionRef).toBeNull()
+    expect(record.notResolved.length).toBeGreaterThan(40)
+    expect(record.wouldChange.length).toBeGreaterThan(40)
+  })
+
+  // FAILS IF: the derived reach the disclosure states stops being the reach
+  // the LIVE rule produces from the LIVE matrix. Re-derived here, never read
+  // off the generated map — the map is a build artefact and comparing a
+  // record against it would compare this build with its own output.
+  // PLANTED: changed MOD-DOH-13's derivedReach to add 'SUPERVISOR'.
+  // RED: expected [ 'TENANT_ADMIN', 'READONLY_AUDITOR' ] to deeply equal
+  // [ 'TENANT_ADMIN', 'READONLY_AUDITOR', 'SUPERVISOR' ]
+  it('states the reach the live rule derives, for all four', () => {
+    expect([...rolesReachingByMatrix(DOH_08_MATRIX, cellStatus)]).toEqual([
+      ...DOH_08_MODULE_ROW_TENSION.derivedReach,
+    ])
+    expect([...rolesReachingByMatrix(PERMISSION_MATRIX, outcomeCellStatus)]).toEqual([
+      ...DOH_09_MODULE_ROW_TENSION.derivedReach,
+    ])
+    expect([...rolesReachingByMatrix(DOH_13_MATRIX, cellStatus)]).toEqual([
+      ...DOH_13_MODULE_ROW_TENSION.derivedReach,
+    ])
+    expect([...rolesReachingByMatrix(DOH_15_MATRIX, cellStatus)]).toEqual([
+      ...DOH_15_MODULE_ROW_TENSION.derivedReach,
+    ])
+  })
+
+  /**
+   * The counts the prose turns on, re-derived. `MOD-DOH-08`'s disclosure says
+   * in words that its two granted roles do NOT reach nothing — that they hold
+   * four screen rows and one respectively and are withheld by clause two —
+   * and that sentence is only worth writing if a cell edit can falsify it.
+   */
+  // PLANTED, twice: MOD-DOH-08's measured.TENANT_ADMIN.holdsScreenRows from 4
+  // to 3, and MOD-DOH-13's reachIsIndependentOfChromeClassification from true
+  // to false. The second is planted separately because the chrome-independence
+  // claim is measured by re-running the rule rather than by counting, and a
+  // count gate cannot cover it.
+  // RED: expected 4 to be 3; and expected false to be true
+  it('measures the holdings and the withholding cells off the live matrices', () => {
+    const HOLDING: readonly ControlStatus[] = ['allowed', 'allowed-with-conditions', 'read-only']
+    const tenantRole = (name: string): (typeof TENANT_ROLE_ORDER)[number] => {
+      const role = TENANT_ROLE_ORDER.find((r) => r === name)
+      if (role === undefined) throw new Error(`"${name}" is not one of the five tenant roles`)
+      return role
+    }
+
+    for (const [name, claim] of Object.entries(DOH_08_MODULE_ROW_TENSION.measured)) {
+      const role = tenantRole(name)
+      const column = DOH_08_MATRIX.filter((r) => r.surface === 'screen').map((r) =>
+        cellStatus(r, role),
+      )
+      expect(column.filter((s) => HOLDING.includes(s)).length).toBe(claim.holdsScreenRows)
+      expect(column.filter((s) => s === 'unavailable').length).toBe(claim.unavailableScreenRows)
+    }
+
+    for (const [name, claim] of Object.entries(DOH_09_MODULE_ROW_TENSION.measured)) {
+      const role = tenantRole(name)
+      const column = PERMISSION_MATRIX.filter((r) => r.surface === 'screen').map((r) =>
+        outcomeCellStatus(r, role),
+      )
+      expect(column.filter((s) => HOLDING.includes(s)).length).toBe(claim.holdsScreenRows)
+      expect(column.filter((s) => s === 'unavailable').length).toBe(claim.unavailableScreenRows)
+    }
+
+    const doh13 = DOH_13_MODULE_ROW_TENSION.measured
+    expect(DOH_13_MATRIX.filter((r) => r.surface === 'screen').length).toBe(doh13.screenRows)
+    for (const name of ['SUPERVISOR', 'QUALITY_MANAGER'] as const) {
+      const role = tenantRole(name)
+      const claim = doh13[name]
+      const screen = DOH_13_MATRIX.filter((r) => r.surface === 'screen').map((r) =>
+        cellStatus(r, role),
+      )
+      const chrome = DOH_13_MATRIX.filter((r) => r.surface === 'chrome').map((r) =>
+        cellStatus(r, role),
+      )
+      expect(screen.filter((s) => HOLDING.includes(s)).length).toBe(claim.holdsScreenRows)
+      expect(chrome.filter((s) => HOLDING.includes(s)).length).toBe(claim.holdsChromeRows)
+      expect(screen.filter((s) => s === 'unavailable').length).toBe(claim.unavailableScreenRows)
+    }
+
+    // MEASURED, NOT ASSERTED: the claim that reclassifying every `chrome` row
+    // as `screen` would not move MOD-DOH-13's answer. Run it and compare.
+    expect(doh13.reachIsIndependentOfChromeClassification).toBe(true)
+    const reclassified = DOH_13_MATRIX.map((row) =>
+      row.surface === 'chrome' ? { ...row, surface: 'screen' as const } : row,
+    )
+    expect([...rolesReachingByMatrix(reclassified, cellStatus)]).toEqual([
+      ...DOH_13_MODULE_ROW_TENSION.derivedReach,
+    ])
   })
 })

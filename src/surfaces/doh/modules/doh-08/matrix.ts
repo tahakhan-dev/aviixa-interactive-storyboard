@@ -708,3 +708,124 @@ export const UNSPECIFIED_IN_SOURCE = [
     locator: 'L28300 · L28301 · L28306 · L28311',
   },
 ] as const satisfies readonly Doh08Silence[]
+
+/* ==================================================================== *
+ * `MTX-TEN-02a`'S ROW FOR THIS MODULE, AND WHY TWO GRANTED ROLES REACH
+ * NO ROUTE.
+ * ==================================================================== */
+
+/**
+ * TWO SOURCE TABLES ANSWER "WHO REACHES `MOD-DOH-08`" AND THEY DISAGREE ON
+ * TWO ROLES. DISCLOSED, NOT RESOLVED.
+ *
+ * ── THE ROW, AND WHAT THE CARD ACTUALLY HOLDS ─────────────────────────────
+ * Under the header at line 22005, this module's row gives the Tenant Admin
+ * and the Supervisor `Read-only`. Derived reach is `QUALITY_MANAGER,
+ * READONLY_AUDITOR`: neither granted role is offered the route.
+ *
+ * **AND THE REASON IS NOT THAT THEY HOLD NOTHING.** That is the obvious
+ * reading and it is wrong, measured over the live matrix: on the thirteen
+ * rows classified `screen`, the Tenant Admin holds FOUR — `Allowed` on
+ * viewing a Summary (L28300), `Allowed` on the Anomaly Register (L28306),
+ * `Allowed` on the export (L28311) and `Allowed with conditions` on the
+ * review toggle (L28313) — and the Supervisor holds ONE, `Allowed with
+ * conditions` on viewing a Summary. Three of the Tenant Admin's four are
+ * `Allowed`, which is STRONGER than the row's `Read-only`, not weaker.
+ *
+ * What withholds both routes is clause two of `rolesReachingByMatrix`: a
+ * single `Unavailable` cell anywhere in a role's screen column withholds the
+ * whole module. The Tenant Admin has one, on working the review queue
+ * (L28301); the Supervisor has two, that row and the Anomaly Register
+ * (L28306). So the disagreement is not the row granting where the card
+ * refuses. It is the row granting a read, the card granting writes AND one
+ * `Unavailable`, and the rule reading that one `Unavailable` as the module's
+ * answer.
+ *
+ * ── WHAT THE BUILD DOES, AND WHY ──────────────────────────────────────────
+ * Reach comes from the card, by the one implementation of the rule, and the
+ * value is pinned in `registries/generated/doh/module-reach.json`. The rule's
+ * second clause is the deliberate part: a role told `Unavailable` on a
+ * capability of this module has been told the module is not theirs, and
+ * offering the rail link anyway would put a person on a screen the source
+ * withholds one row of.
+ *
+ * **NOTHING HERE RESOLVES THE SOURCE'S DISAGREEMENT**, and no `DEC-*`
+ * identifier governs it. `[H15]` qualifies the Supervisor cell — the Summary
+ * is computed at completion and reviewed by the Quality Manager — and raises
+ * no decision; `[H16]` does the same for the Quality Manager.
+ */
+export const DOH_08_MODULE_ROW_TENSION = {
+  question:
+    'Who reaches Execution Summary Review — the four roles the tenant-role-to-module row admits, ' +
+    'or the two the module’s own fifteen-row card leaves without an `Unavailable` cell?',
+  moduleRow: { matrix: 'MTX-TEN-02a', line: 22014, headerLine: 22005 },
+  cardRows: { firstLine: 28300, lastLine: 28314, headerLine: 28298 },
+  readings: [
+    {
+      text:
+        'The module row. The Tenant Admin and the Supervisor both hold this module read-only, ' +
+        'which is the standing the tenant-role-to-module matrix states for them in one line.',
+      locator: 'MTX-TEN-02a row for this module · L22014, under the header at L22005',
+    },
+    {
+      text:
+        'The module’s own card, read by the rule the build applies to every Hub module. Both ' +
+        'roles hold real capabilities here — the Tenant Admin four screen rows, three of them ' +
+        '`Allowed` — and both also carry an `Unavailable` cell, which withholds the route ' +
+        'whatever else the column holds.',
+      locator: 'MOD-DOH-08 §19.10 permission matrix · L28300-L28314, header L28298',
+    },
+  ],
+  statements: [
+    { text: '`Read-only`', line: 22014, column: 'Tenant Admin', headerLine: 22005 },
+    { text: '`Read-only` `[H15]`', line: 22014, column: 'Supervisor', headerLine: 22005 },
+    { text: '`Allowed`', line: 28300, column: 'Tenant Admin', headerLine: 28298 },
+    {
+      text: '`Allowed with conditions` — own Area scope',
+      line: 28300,
+      column: 'Supervisor',
+      headerLine: 28298,
+    },
+    { text: '`Unavailable`', line: 28301, column: 'Tenant Admin', headerLine: 28298 },
+    { text: '`Unavailable`', line: 28301, column: 'Supervisor', headerLine: 28298 },
+    { text: '`Unavailable`', line: 28306, column: 'Supervisor', headerLine: 28298 },
+    { text: '`Allowed`', line: 28306, column: 'Tenant Admin', headerLine: 28298 },
+    {
+      text:
+        '`Allowed with conditions` — tenant-wide only; forced on and not disableable in ' +
+        'Regulated-Industry mode',
+      line: 28313,
+      column: 'Tenant Admin',
+      headerLine: 28298,
+    },
+  ],
+  derivedFrom:
+    'The card, through rolesReachingByMatrix. Clause one finds capabilities for both roles; ' +
+    'clause two withholds both routes on the `Unavailable` cells named above.',
+  derivedReach: ['QUALITY_MANAGER', 'READONLY_AUDITOR'],
+  /**
+   * MEASURED, NOT ASSERTED, and the number the disclosure turns on: how many
+   * screen rows each role actually holds, and how many `Unavailable` cells
+   * withhold the route. Pinned against the live matrix in
+   * `tests/unit/doh-permissions.test.ts`, so a cell edited in either direction
+   * reds the record instead of leaving a stale sentence.
+   */
+  measured: {
+    TENANT_ADMIN: { holdsScreenRows: 4, unavailableScreenRows: 1 },
+    SUPERVISOR: { holdsScreenRows: 1, unavailableScreenRows: 2 },
+  },
+  notResolved:
+    'Both readings are recorded and neither is adopted. Nothing here decides whether a single ' +
+    '`Unavailable` capability is the source’s statement about the whole module or about that ' +
+    'one row.',
+  wouldChange:
+    'A client ruling for the module row would offer both roles the rail link and the screen. ' +
+    'What they would meet is already written in the card: the Tenant Admin gets the Summary, ' +
+    'the Anomaly Register, the export and the review toggle, and no review queue; the ' +
+    'Supervisor gets the Summary in own-Area scope and neither the queue nor the register. ' +
+    'Neither is an empty screen, which is what makes this reading arguable rather than absurd.',
+  decisionRef: null,
+  decisionSearch:
+    'No `DEC-*` identifier in the frozen source names this row. `[H15]` and `[H16]` are the ' +
+    'only conditions on it and neither raises a decision.',
+} as const

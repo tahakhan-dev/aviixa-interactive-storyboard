@@ -52,6 +52,7 @@ import {
 } from '@/studio/modules/stu-16/learning'
 import {
   STU_16_MATRIX,
+  STU_16_MODULE_ROW_TENSION,
   STU_16_OTHER_SURFACE_ROW_IDS,
   STU_16_ROW_IDS,
   STU_16_SOURCE_ROW_COUNT,
@@ -1095,16 +1096,59 @@ describe('the open decisions render through the one disclosure component', () =>
     expect(cell.openDecision).toBe('DEC-LANEBAUTH-001')
   })
 
-  it('writes no second disclosure of its own — the prose lives in the canon', () => {
+  /**
+   * NARROWED, AND STRONGER FOR IT (fix stream H, round 3).
+   *
+   * This gate used to forbid the SHAPE — any `readings: [` and any `locator:`
+   * anywhere in the corpus — as a proxy for the thing it actually protects: a
+   * second, local spelling of a decision the canon already owns. The proxy
+   * was doing two jobs and only one of them was the claim. `MOD-STU-16` now
+   * carries `STU_16_MODULE_ROW_TENSION`, a disclosure of a source-versus-
+   * source disagreement (`MTX-TEN-02b`'s row against this module's own card)
+   * that mints and re-spells NO `DEC-*` identifier at all, because the source
+   * raises none for that row. Forbidding its shape would have forced that
+   * finding out of the file a reader meets it in, to protect a claim it does
+   * not touch.
+   *
+   * So the claim is now asserted directly, three ways, and each is tighter
+   * than the shape scan was:
+   *
+   *  - no local record may name a canon decision in a `decisionRef` field —
+   *    which is the field a second spelling would have to use;
+   *  - the canon's own reading TEXT is nowhere in the corpus, unchanged;
+   *  - and the one `readings:` block that does exist is pinned: it belongs to
+   *    the module-row tension and its `decisionRef` is `null`. A second block
+   *    appearing tomorrow reds this on the count.
+   *
+   * PLANTED TWICE, because a narrowing that cannot fail is a deletion.
+   * First: `STU_16_MODULE_ROW_TENSION.decisionRef` from `null` to
+   * `'DEC-LANEBAUTH-001'`, the exact defect the old shape scan was standing in
+   * for — RED on `decisionRef: 'DEC-` and on the null count. Second: a second
+   * `readings: []` block added to the same record — RED on the block count of
+   * one. Both restored byte-identically.
+   */
+  it('writes no second disclosure of a canon decision — the prose lives in the canon', () => {
     const corpus = taskCorpus()
-    // The structure a second disclosure has: readings with locators, and an
-    // adopted position. Scanned as a shape, not as a component name.
-    expect(corpus).not.toMatch(/readings\s*:\s*\[/)
-    expect(corpus).not.toMatch(/locator\s*:\s*['"]/)
-    // And the canon's own copy of the text is not duplicated here.
+
+    // No local record claims a `DEC-*` identifier. That is the field a second
+    // spelling of a canon decision would have to occupy, and this is the
+    // assertion the shape scan was standing in for.
+    expect(corpus).not.toMatch(/decisionRef\s*:\s*['"]DEC-/)
+
+    // The canon's own copy of the text is not duplicated here. Unchanged.
     for (const reading of decisionRecord('DEC-LANEB-001').readings) {
       expect(corpus).not.toContain(reading.text.slice(0, 60))
     }
+    for (const reading of decisionRecord('DEC-LANEBAUTH-001').readings) {
+      expect(corpus).not.toContain(reading.text.slice(0, 60))
+    }
+
+    // Exactly ONE `readings:` block in the corpus, and it is the module-row
+    // tension, which names no decision. A second one reds this.
+    expect([...corpus.matchAll(/readings\s*:\s*\[/g)].length).toBe(1)
+    expect(STU_16_MODULE_ROW_TENSION.decisionRef).toBeNull()
+    expect(STU_16_MODULE_ROW_TENSION.readings.length).toBe(2)
+    expect([...corpus.matchAll(/decisionRef\s*:\s*null/g)].length).toBe(1)
   })
 
   it('discloses DEC-PKGFIELD-001 through MOD-STU-14’s existing record, and says the canon has none', () => {

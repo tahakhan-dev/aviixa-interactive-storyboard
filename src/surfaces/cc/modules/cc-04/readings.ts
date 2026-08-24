@@ -266,3 +266,144 @@ export const CC04_UNCOMPUTED_COUNT = {
     'Each request record with its requester and its mandatory note, unaggregated, and this ' +
     'statement beside them.',
 } as const
+
+/* ==================================================================== *
+ * `DEC-TACC-001` — THE TENANT ADMIN'S PRESENCE ON THIS MODULE, DISCLOSED
+ * LOCALLY BECAUSE NOTHING IN THIS BUILD HOLDS THE DECISION.
+ *
+ * `CC04_DIVERGENCES` above carries three divergences and none of them is
+ * this one: all three are about the Supervisor and the Quality Manager.
+ * The Tenant Admin column was read as settled because every one of this
+ * card's twelve cells refuses it, and a column that says the same thing
+ * twelve times reads as an answer rather than as one side of a
+ * disagreement.
+ *
+ * IT IS ONE SIDE OF A DISAGREEMENT. `MTX-TEN-02c`'s row for this module
+ * gives the Tenant Admin `Read-only` under condition `[K1]`, and `[K1]` IS
+ * `DEC-TACC-001` — a registered open decision with three options, a
+ * recommendation, a decision owner and a stated interim position. Eleven of
+ * that matrix's thirteen Tenant Admin cells carry it, this module's among
+ * them. Of the twelve Command Center screens that are not the sign-in, this
+ * build serves the Tenant Admin THREE and withholds NINE; this module's is
+ * one of the nine.
+ *
+ * WHY THE BUILD WITHHOLDS THIS ONE, AND WHY THAT IS SOURCE-VERSUS-SOURCE
+ * RATHER THAN A CHOICE ABOUT A TOKEN. The thirteen-screen register's own
+ * row for `SCR-CC-05` names the roles that can open it, and it names two —
+ * the Supervisor and the Quality Manager. The transcription in
+ * `src/surfaces/cc/screens.ts` is that cell, read verbatim. So the matrix
+ * row and the screen register disagree, the register decides who opens a
+ * route on this surface, and the disagreement was resolved silently in its
+ * favour until this record.
+ *
+ * THE INTERIM POSITION IS NOT AN ADOPTION AND IS NOT PROMOTED TO ONE.
+ * L22072 states it as what the build serves until decided. There is no
+ * `adopted` arm on the record below and no field on which one could be
+ * written.
+ *
+ * ABSENT FROM BOTH REGISTERS, AND NOT LIFTED INTO EITHER.
+ * `src/disclosure/decisions.ts` carries no canon record for `DEC-TACC-001`
+ * and `src/surfaces/cc/decisions/register.ts` types `CcDecisionId` as a
+ * union that does not carry it. Neither file is edited here; this follows
+ * the same local-disclosure idiom `MOD-CC-03`, `MOD-CC-05`, `MOD-CC-07` and
+ * `MOD-CC-12` already use, and `tests/unit/cc-04.test.ts` asserts the
+ * ABSENCE, so a later lift turns this suite red rather than leaving two
+ * spellings of one decision alive.
+ * ==================================================================== */
+
+export const CC04_TACC_DISCLOSURE = {
+  decisionRef: 'DEC-TACC-001',
+  module: 'MOD-CC-04',
+  question:
+    'Does the Tenant Admin reach the deviation workspace read-only, as this module’s ' +
+    '`MTX-TEN-02c` row grants under `[K1]`, or not at all, as this module’s own twelve-row ' +
+    'matrix and the thirteen-screen register both say?',
+  readings: [
+    {
+      text:
+        'Read-only across the module. The tenant-role-to-module matrix grants it under `[K1]`, ' +
+        'whose own words are that report-format authoring places the Tenant Admin on this ' +
+        'surface, that the source does not state whether that person sees the monitoring ' +
+        'modules, and that until decided read-only monitoring access is served.',
+      locator: 'MTX-TEN-02c row for this module · L22061; condition [K1] · L22072',
+    },
+    {
+      text:
+        'Not present at all. Every one of this card’s twelve capability cells reads ' +
+        '`Explicitly prohibited` for the Tenant Admin, and the thirteen-screen register’s row ' +
+        'for this module’s screen names the Supervisor and the Quality Manager as the roles ' +
+        'that can open it and names no Tenant Admin.',
+      locator: 'MOD-CC-04 §21.7 matrix · L36834-L36845; SCR-CC-05 register row · L48390',
+    },
+  ],
+  /**
+   * Every statement of the question found in the source, verbatim, with the
+   * line and the column it is a cell of. Held to EXACT equality against that
+   * table's own header-keyed cell by `tests/unit/cc-04.test.ts`, so a text
+   * rewritten to the value that would erase the divergence reds rather than
+   * passing.
+   */
+  statements: [
+    { text: '`Read-only` `[K1]`', line: 22061, column: 'Tenant Admin', headerLine: 22056 },
+    { text: 'Explicitly prohibited', line: 36834, column: 'Tenant Admin', headerLine: 36832 },
+    {
+      text:
+        'Explicitly prohibited — reclassification is a review-time act on the Delivery ' +
+        'Operations Hub anomaly record',
+      line: 36845,
+      column: 'Tenant Admin',
+      headerLine: 36832,
+    },
+    {
+      text: 'Supervisor, Quality Manager',
+      line: 48390,
+      column: 'Roles that can open it',
+      headerLine: 48384,
+    },
+  ],
+  /** The card's own options, verbatim, in its own order. Never reordered. */
+  options: [
+    'report builder only',
+    'report builder plus read-only monitoring',
+    'full read-only Command Center',
+  ],
+  recommendation: 'report builder plus read-only monitoring',
+  /** `MTX-TEN-02c`'s condition [K1] — what the build serves until decided. */
+  workingPosition: 'read-only monitoring access is served and no operational action is granted',
+  workingPositionRef: 22072,
+  adopted: false,
+  cardLine: 23069,
+  registerRowLine: 115232,
+  derivedFrom:
+    'The thirteen-screen register, transcribed into src/surfaces/cc/screens.ts. The route does ' +
+    'not open for the Tenant Admin, and every cell of this module’s own matrix agrees with that.',
+  notResolved:
+    'Both readings are recorded and neither is adopted. This is source against source — a ' +
+    'matrix row against a screen register and a capability matrix — and nothing here rules ' +
+    'which of the two states a role’s presence on a surface.',
+  wouldChange:
+    'A client ruling for the matrix row would open this route to the Tenant Admin, and what it ' +
+    'would open is a workspace whose twelve capability cells all refuse that persona — so the ' +
+    'ruling would have to change the card as well, or the screen would render the exclusion it ' +
+    'was meant to end. Read-only monitoring of a deviation record is a token this card carries ' +
+    'nowhere: no cell in it reads `Read-only` for any role, so the row’s grant names a status ' +
+    'the module never uses.',
+  canonNote:
+    'Absent from src/disclosure/decisions.ts and absent from CcDecisionId in ' +
+    'src/surfaces/cc/decisions/register.ts. Neither file is edited here, and minting a second ' +
+    'spelling of a decision the source raises once is the failure this idiom exists to prevent. ' +
+    'The gate asserts the absence rather than the presence, so a later lift turns this suite red.',
+} as const
+
+/**
+ * THE READINGS ABOVE ARE THE CANON'S OWN READING SHAPE, CHECKED AT COMPILE
+ * TIME RATHER THAN CLAIMED IN PROSE. `DecisionReading` has exactly `text` and
+ * `locator`, so there is nowhere on a reading to mark it the winner, and the
+ * fixed-length pair makes a third reading a type error rather than a review
+ * comment. `tests/coverage/slice-08-absence-sweep.test.ts` requires every
+ * module that carries readings to IMPORT this type rather than redeclare it,
+ * so a lift into the canon is a move and not a rewrite.
+ */
+const _cc04TaccReadingsAreCanonShape: readonly [DecisionReading, DecisionReading] =
+  CC04_TACC_DISCLOSURE.readings
+void _cc04TaccReadingsAreCanonShape

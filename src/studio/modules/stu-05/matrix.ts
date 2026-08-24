@@ -432,3 +432,88 @@ export function stu05Row(id: Stu05RowId): Stu05MatrixRow {
   if (found === undefined) throw new Error(`MOD-STU-05: no matrix row named "${id}".`)
   return found
 }
+
+/* ==================================================================== *
+ * `MTX-TEN-02b`'S ROW FOR THIS MODULE, AND THE CONDITION ON IT THAT
+ * AGREES WITH THIS CARD AGAINST ITS OWN TOKEN.
+ * ==================================================================== */
+
+/**
+ * TWO SOURCE TABLES ANSWER "IS THE TENANT ADMIN OFFERED SCREEN AUTHORING"
+ * AND THEY DISAGREE. DISCLOSED, NOT RESOLVED.
+ *
+ * ── THE ROW, AND THE SAME CONDITION `MOD-STU-04`'S ROW CARRIES ───────────
+ * Under the header at line 22031, `MTX-TEN-02b`'s row for this module gives
+ * the Tenant Admin `Unavailable` under condition `[Y6]` — the SAME condition,
+ * on the same table, as `MOD-STU-04`'s row. Its sentence at L22052 is that
+ * that persona administers Studio capacities and reads published content and
+ * is assigned no authoring capacity, which is what this card's cells do:
+ * `Read-only` on the five authoring rows that have a read at all — choosing
+ * the input type (line 32261), the proof gate (line 32262), the band-to-level
+ * mapping and the qualification override — and prohibition on the panel-open
+ * row and on both platform-gate rows. `reachByStudioMatrix` answers `offered`.
+ *
+ * ── AND THIS CARD ADDS ONE THING `MOD-STU-04`'S DOES NOT ────────────────
+ * Row 8, editing a tenant action bundle (line 32266), gives the Tenant Admin
+ * `Allowed` — a WRITE, and the strongest token on this persona's column
+ * anywhere in the Studio. It is classified `another-surface` because the
+ * cell's own words put the act in the tenant administration area, so it
+ * contributes nothing to reach under clause one. Recorded here because a
+ * reader comparing the row's `Unavailable` against this card should meet that
+ * cell rather than discover it: the row and the card disagree about a read,
+ * and the card separately grants that persona a write it performs elsewhere.
+ *
+ * **NOTHING HERE RESOLVES IT.** No `DEC-*` identifier names this cell.
+ */
+export const STU_05_MODULE_ROW_TENSION = {
+  question:
+    'Is the Tenant Admin offered the Screen Authoring route? The chapter-22 row says ' +
+    '`Unavailable`; the card gives that persona `Read-only` on five of its nine rows.',
+  moduleRow: { matrix: 'MTX-TEN-02b', line: 22037, headerLine: 22031 },
+  cardRows: { firstLine: 32259, lastLine: 32267, headerLine: 32257 },
+  readings: [
+    {
+      text:
+        'Unavailable. The tenant-role-to-module matrix states this persona’s standing on the ' +
+        'module in one token, and that token renders as a disabled control with its reason ' +
+        'rather than as a route.',
+      locator: 'MTX-TEN-02b row for this module · L22037, under the header at L22031',
+    },
+    {
+      text:
+        'Offered, read-only. The card gives the Tenant Admin `Read-only` on every authoring row ' +
+        'that carries a read, and refuses it the panel-open row and both platform-gate rows — ' +
+        'which is the shape the row’s own condition `[Y6]` describes in words.',
+      locator: 'MOD-STU-05 §20.2.5 permission matrix · L32261 and L32262, header L32257',
+    },
+  ],
+  statements: [
+    { text: '`Unavailable` `[Y6]`', line: 22037, column: 'Tenant Admin', headerLine: 22031 },
+    { text: 'Read-only', line: 32261, column: 'Tenant Admin', headerLine: 32257 },
+    { text: 'Read-only', line: 32262, column: 'Tenant Admin', headerLine: 32257 },
+    {
+      text:
+        'The Tenant Admin administers Studio capacities and reads published content; no ' +
+        'authoring capacity is assigned',
+      line: 22052,
+      column: null,
+      headerLine: null,
+    },
+  ],
+  derivedFrom:
+    'The card, through reachByStudioMatrix over the rows classified `screen`. The ' +
+    '`another-surface` write at line 32266 is excluded by clause one and contributes nothing.',
+  derivedReach: { 'tenant-admin': 'offered' },
+  notResolved:
+    'Both readings are recorded and neither is adopted. Nothing here rules that a row’s ' +
+    'condition may override its token.',
+  wouldChange:
+    'A client ruling for the row’s token would remove the route and the rail entry for the ' +
+    'Tenant Admin, and with it the read of the nine configuration sections on published ' +
+    'content. The tenant-action-bundle write would be untouched either way: it is performed in ' +
+    'the tenant administration area, not here.',
+  decisionRef: null,
+  decisionSearch:
+    'No `DEC-*` identifier names this cell. `DEC-STUDIO-001` governs this table’s ' +
+    'eighteen-module count, not its cells.',
+} as const
