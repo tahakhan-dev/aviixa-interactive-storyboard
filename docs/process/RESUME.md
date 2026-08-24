@@ -304,6 +304,70 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
+### Slice 11's round-1 audit is closed and the slice is verified — `c6ae6df`
+
+**The verification record slice 11 never had now exists**: `docs/process/2026-08-24-slice-11-verification.md`.
+Its absence was audit C-00, and the wave-5 close reported a chain that omitted `pnpm test:e2e`
+altogether. Measured on `c6ae6df`, tree `11167db6aadb`, clean before and after, every figure from
+that run rather than recollection: typecheck 0 · lint 0 · gate-ordering **27 of 27 audited** ·
+freshness 2/2 · unit **6187** in 179 files · component **3032** in 108 · build **102/102** ·
+release **856** in 27 · e2e/axe **545** in 8.4m. Chain exit 0 — measured as `grep -c ELIFECYCLE`
+over the whole log, not read off a tail line.
+
+**The register had 42 findings and no verdicts, which is how eight commits closed findings it
+still listed as open.** Five read-only streams dispositioned every band by opening the file or
+running the command: `docs/process/audits/2026-08-24-slice-11-audit-dispositions.md`. Then all
+eight OPEN/PARTIAL findings were closed by four fix streams and the controller. **Round 2 is
+owed** — APP-016 item 1 repeats the loop until a round finds nothing, and round 1 found 42.
+
+### The one shape worth carrying out of round 1
+
+**Five of the eight PARTIAL verdicts were one defect: the fix landed and its gate did not, or the
+gate landed and the fix did not.** C-38's gate shipped without its card fix. C-13's hoist reached
+two of three consumers. C-15 closed the quote class and left the traversal limit as prose. C-18
+closed six of eight and left a case that cannot fire. C-32 corrected the generator and not the
+note it publishes. **A finding is closed when the change and the thing that reds without it both
+exist.** Six closes in round 1 are held by nothing but a comment and the register names them.
+
+### Three defects this session's own work introduced or exposed
+
+1. **A gate convicted a file for documenting its compliance.** `prohibited-patterns`'
+   `dangerouslySetInnerHTML` scan read raw bytes and red on the first file to explain in a comment
+   why it does not use the property. Strips comments now, with a control asserting it convicts in
+   code and not in prose — so a future red cannot be closed by moving the property into a comment.
+2. **I committed after verifying unit, component, typecheck and lint, and NOT release.** That
+   shipped the red gate above, and a concurrent stream found it rather than me. The chain has nine
+   steps for a reason.
+3. **A disclosure outlived its subject.** Restoring the source's classification marking to
+   storyboard 7's final-state name collapsed two rendered runs into one, so the unmarked run's
+   `DISCLOSURES` entry had nothing left to disclose. **Deleted rather than widened** — the
+   instruction in the gate's own failure message, and the answer to the question §7 raises about
+   that list.
+
+### 39 author-machine paths were inside the Product Candidate
+
+The author-path scan walked `out/` only — correct for §4.3's confidentiality rule, and not the
+rule §30 states ("every delivered artifact"). Twenty unit tests and nineteen committed extract
+records carried an absolute home-directory path; five of the twenty already used the portable
+form, once two lines from a sibling that did not. `docs/` keeps its 22 as provenance, named as an
+equality-asserted exemption so a twenty-third location reds rather than joining a widened pattern.
+The needle is assembled from parts so the gate is not its own only offender.
+
+### The screenshot manifest, and why nothing could see it
+
+85 rows against a 102-route export, last written at slice 8 — seventeen real screens uncaptured.
+Regenerated to 102/102. **An assertion that the manifest covers every route already existed, and
+it lived in the writer**: `tests/screenshots/capture.spec.ts` compares rows to routes AFTER
+writing them, under a Playwright project `verify` does not run. A writer checking its own output
+cannot detect that it was never run. The comparison is now a read-only release gate.
+
+### Nine controller locator errors, every one found by an agent opening the line
+
+Including two file paths that do not exist, and a citation offered in a brief (L92881) that
+carries half the clause it was offered for where L92861 carries both. The rate is unchanged from
+previous slices. **Assume every locator in a brief is a hypothesis.**
+
+
 **Slice 10 is closed and verified.** `pnpm verify` ran the whole chain to completion on frozen
 bytes and exited 0. The candidate is commit `4072d33`, tree `c934f45`, clean before and after.
 Measured on that candidate, every figure from that run rather than recollection: typecheck and
