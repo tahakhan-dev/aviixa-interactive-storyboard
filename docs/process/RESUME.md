@@ -304,6 +304,75 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
+### Rounds 1 and 2 of the slice-11 audit loop are closed — candidate `eb75092`
+
+**62 findings, all dispositioned and fixed.** Round 1: 42 (register:
+`docs/process/audits/2026-08-24-slice-11-audit-dispositions.md`). Round 2: 20 (register:
+`docs/process/audits/2026-08-24-slice-11-audit-round-2-findings.md`). Round 3 is running. The loop
+closes when a round finds nothing, so **the slice is not closed.**
+
+Chain on `eb75092`, clean tree before and after, every figure from that run: typecheck 0 · lint 0 ·
+gate-ordering **27/27** · freshness 3/3 · unit **6193** in 179 files · component **3032** in 108 ·
+build **102/102** · release **863** in 27 · e2e/axe **545** in 8.9m. Exit 0 measured as
+`grep -c ELIFECYCLE` over the whole log.
+
+### The one finding to carry forward above all others
+
+**A widened gate population found a permission error no auditor did.** The only general gate on Hub
+module reach covered seven of nineteen modules. Widening it to all nineteen — audit R2-P04 —
+convicted `MOD-DOH-11` on the first run: the delivered reach map **granted `SUPERVISOR`, who is
+`Unavailable` or `Explicitly prohibited` in all ten rows of that module's own matrix, and omitted
+`READONLY_AUDITOR`, who holds `Read-only` on the full tenant audit log.** The audit role, dropped
+from the audit module, in a delivered artefact, behind a green chain.
+
+**Round 2's shape, and it is sharper than round 1's:** a population control that verifies a SUBSET, a
+PREFIX or an AGGREGATE where the claim is every member. All four of round 2's gate findings are that,
+and so was the seven-of-nineteen population. The remedy each time was an equality over a named
+literal list, never a bigger number.
+
+**And the source disagrees with itself about one role there**, so `doh-11/matrix.ts` now carries the
+worked example of disclosing rather than resolving: `MTX-TEN-02a`'s module row admits the Supervisor,
+every control row refuses them, the build derives reach from the finer-grained matrix, and the
+paragraph says a client ruling could go the other way.
+
+### Round 1's shape, still worth stating
+
+**The fix landed and its gate did not, or the gate landed and the fix did not** — five of round 1's
+eight PARTIAL verdicts. A finding is closed when the change and the thing that reds without it both
+exist. Six of round 1's closes are held by nothing but a comment and the register names them.
+
+### Four controller defects this session, recorded because they repeat
+
+1. **I committed after verifying four steps of nine** — unit, component, typecheck, lint, not
+   release — and shipped a red gate that a concurrent stream found rather than me.
+2. **I cited a blank line in the round-2 register**, and `locator-fidelity` — the gate widened
+   earlier in that same round — convicted it.
+3. **The correction named the blank line again, in prose, and was convicted again.** An `L`-prefixed
+   number is a citation to that gate WHEREVER it appears, which is exactly why stream E wrote its
+   allowance entries as `{ id, line }`. I had read that reasoning and still walked into it.
+4. **Nine wrong brief locators**, every one found by an agent opening the line, including two paths
+   that do not exist and a citation carrying half the clause it was offered for.
+
+### Gate hardening that landed, and the traps inside it
+
+- **`offline-phrasing`'s guard was an aggregate.** 92 of 102 pages could render nothing and every
+  absence assertion stayed green; its own docblock claimed that case was covered. Now a per-page
+  floor of 40 — chosen from the gap in the measurement, since the thinnest page WITH a body renders
+  53 and every page without one renders 4-29 — plus six thin routes pinned individually as an
+  equality.
+- **The citation scan covered no `docs` and no `.md`**, leaving 290 citations — 16% of the build's
+  evidence — measured by nothing. Widened, and uncorroborated went 12 to 31 against a ceiling of 20.
+  **The ceiling was not raised and no citation was edited:** the `<= 20` claim is scoped to the
+  population it was measured over, and the 19 prose misses are a named allowance of 18 distinct
+  claims asserted as an equality in both directions, so it retires itself as each is read.
+- **The screenshot manifest's only coverage check lived in the writer**, comparing rows to routes
+  after writing them, under a Playwright project `verify` does not run. A writer cannot detect that
+  it was never run. Now a read-only release gate; 85 rows became 102.
+- **No gate convicts a wrong identifier-anchored citation of the quote form.** Proved by planting a
+  wrong locator back: `locator-fidelity` 94/94 and `citation-graph` 10/10 both stayed green. Round
+  2's three citation fixes each carry their own gate for this reason.
+
+
 ### Slice 11's round-1 audit is closed and the slice is verified — `c6ae6df`
 
 **The verification record slice 11 never had now exists**: `docs/process/2026-08-24-slice-11-verification.md`.
