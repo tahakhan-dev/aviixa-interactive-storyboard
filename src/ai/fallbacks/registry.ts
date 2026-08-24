@@ -167,6 +167,23 @@ export const FALLBACK_IDENTIFIER_RANGES = [
   },
 ] as const satisfies readonly FallbackIdentifierRange[]
 
+/**
+ * THE COMPOUND KEY AS A TYPE, so a caller can hold one rather than pass two
+ * loose strings side by side.
+ *
+ * Added by slice 11 wave 4 task 15A for the thirty §44A storyboard cards. No
+ * row was added or changed: the thirty storyboard owners were already
+ * registered here, which is why the storyboard contract consumes this registry
+ * instead of standing up a parallel one. The key exists because a `FB-AI-*`
+ * literal on its own does not identify a contract — sixteen of them name two —
+ * and a signature taking `(chapter, identifier)` lets a caller swap the
+ * arguments silently, while a record does not.
+ */
+export interface FallbackContractKey {
+  readonly chapter: string
+  readonly identifier: string
+}
+
 /** The compound key. Chapter first, because that is what disambiguates. */
 export function fallbackKey(chapter: string, identifier: string): string {
   return `${chapter}::${identifier}`

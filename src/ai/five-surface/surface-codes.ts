@@ -75,39 +75,42 @@ const nameOf = (id: SurfaceId): string => {
 }
 
 /**
- * The join, in the order `JOURNEY_SURFACES` writes its codes. The order is the
- * journey's rather than the matrix's because the journey's is the one a
- * five-row surface-reaction table renders in, and that table is the shape
- * thirty storyboards will consume.
+ * THE TUPLES ARE DECLARED ONCE, HERE, AND BOTH THE JOIN AND THE THREE
+ * EXHAUSTIVENESS CHECKS READ THEM.
+ *
+ * They were written twice when this module landed -- once inside
+ * `FIVE_SURFACE_JOIN` and again as a second `JOIN_TUPLES` literal below the
+ * checks -- and the only thing that caught it was `no-unused-vars` noticing the
+ * second copy was consumed in type position alone. Two copies of five tuples is
+ * the duplicate-vocabulary shape this module exists to remove from the build; a
+ * divergence between them would have made the checks certify a table nothing
+ * renders. The literal type is what the checks need, so it is declared `as
+ * const` and the join is derived from it rather than the other way round.
  */
-export const FIVE_SURFACE_JOIN: readonly FiveSurfaceJoinRow[] = (
-  [
-    ['SURF-DOH', 'DOH', 'hub'],
-    ['SURF-STU', 'STU', 'studio'],
-    ['SURF-CC', 'CC', 'command-center'],
-    ['SURF-FL', 'FL', 'frontline'],
-    ['SURF-SA', 'SA', 'super-admin'],
-  ] as const satisfies readonly (readonly [
-    SurfaceId,
-    JourneySurfaceCode,
-    QueuedRequestSurfaceId,
-  ])[]
-).map(([surfaceId, journeyCode, queuedRequestId]) => ({
-  surfaceId,
-  journeyCode,
-  queuedRequestId,
-  name: nameOf(surfaceId),
-}))
-
-/* ── the three exhaustiveness checks ───────────────────────────────────── */
-
 const JOIN_TUPLES = [
   ['SURF-DOH', 'DOH', 'hub'],
   ['SURF-STU', 'STU', 'studio'],
   ['SURF-CC', 'CC', 'command-center'],
   ['SURF-FL', 'FL', 'frontline'],
   ['SURF-SA', 'SA', 'super-admin'],
-] as const
+] as const satisfies readonly (readonly [SurfaceId, JourneySurfaceCode, QueuedRequestSurfaceId])[]
+
+/**
+ * The join, in the order `JOURNEY_SURFACES` writes its codes. The order is the
+ * journey's rather than the matrix's because the journey's is the one a
+ * five-row surface-reaction table renders in, and that table is the shape
+ * thirty storyboards will consume.
+ */
+export const FIVE_SURFACE_JOIN: readonly FiveSurfaceJoinRow[] = JOIN_TUPLES.map(
+  ([surfaceId, journeyCode, queuedRequestId]) => ({
+    surfaceId,
+    journeyCode,
+    queuedRequestId,
+    name: nameOf(surfaceId),
+  }),
+)
+
+/* ── the three exhaustiveness checks ───────────────────────────────────── */
 
 type MissingSurfaceId = Exclude<SurfaceId, (typeof JOIN_TUPLES)[number][0]>
 const _everySurfaceJoined: MissingSurfaceId extends never ? true : never = true
