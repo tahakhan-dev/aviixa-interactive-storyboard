@@ -131,6 +131,71 @@ const SLICE_11_FILES: readonly string[] = [
   ...SLICE_11_LEAVES,
 ]
 
+/**
+ * THE POPULATION IS HAND-MAINTAINED, SO SOMETHING HAS TO GRADE IT.
+ *
+ * `SLICE_11_ROOTS` plus `SLICE_11_LEAVES` is a list a person keeps current,
+ * and a grading population narrower than its subject is defect shape 10 —
+ * a helper scoped to exclude the defect it names. The audit found four files
+ * outside it; measured properly there are ten, and the difference is the
+ * point: the number was never the claim, the reconciliation is.
+ *
+ * The subject is defined by the identifiers rather than by a diff, because a
+ * test may not run `git`: any file naming an `AIMODE-`, `PROV-`, `FB-AI-`,
+ * `FAIL-AI-` or `SB-AI-` token is slice-11 subject matter wherever it lives.
+ *
+ * Files outside the population are listed as an EQUALITY, not a membership,
+ * so this reds twice — when a new identifier-bearing file lands outside, and
+ * when one of these is folded into the population and the entry goes stale.
+ * That is the shape this slice adopted for `KNOWN_PARAPHRASE` and
+ * `KNOWN_UNREACHABLE` after a membership exemption was found rotting.
+ */
+const SLICE_11_IDENTIFIER = /(?<![A-Za-z0-9-])(?:AIMODE-\d+|PROV-\d|FB-AI-\d+|FAIL-AI-\d+|SB-AI-\d+)(?![A-Za-z0-9-])/
+
+/**
+ * Carries a slice-11 identifier and is NOT graded by this file's sweeps.
+ * Each is another slice's module wearing a slice-11 overlay, or a registry
+ * that names the identifiers to account for them. Folding them in would
+ * subject another slice's code to this slice's prose rules.
+ */
+const IDENTIFIER_BEARING_OUTSIDE_POPULATION: readonly string[] = [
+  'src/coverage/descriptors.ts',
+  'src/disclosure/decisions.ts',
+  'src/fallbacks/contracts.ts',
+  'src/frontline/modules/fl-b8/CoachingPanel.tsx',
+  'src/frontline/modules/fl-b8/degradation.ts',
+  'src/surfaces/cc/modules/cc-05/degradation.ts',
+  'src/surfaces/cc/modules/cc-06/degradation.ts',
+  'src/surfaces/cc/modules/cc-07/degradation.ts',
+  'src/surfaces/cc/modules/cc-08/AgentActivityPanel.tsx',
+  'src/surfaces/cc/modules/cc-08/degradation.ts',
+]
+
+describe('the slice-11 grading population is reconciled against its own subject', () => {
+  const bearing = (): readonly string[] =>
+    [...sweptSources('src'), ...sweptSources('app')]
+      .filter((f) => SLICE_11_IDENTIFIER.test(readFileSync(f, 'utf8')))
+      .sort()
+
+  it('finds identifier-bearing files at all', () => {
+    // The positive control. An empty sweep would satisfy the equality below
+    // by vacuity, which is defect shape 9 and has shipped here before.
+    expect(bearing().length, 'no file in src or app names a slice-11 identifier').toBeGreaterThan(20)
+  })
+
+  it('accounts for every identifier-bearing file, in the population or by name', () => {
+    const outside = bearing().filter((f) => !SLICE_11_FILES.includes(f))
+    expect(outside).toEqual([...IDENTIFIER_BEARING_OUTSIDE_POPULATION].sort())
+  })
+
+  it('lists nothing that is already inside the population', () => {
+    // The half that makes it an equality rather than an allowlist: fixing a
+    // named file by folding it in must red until its entry is removed.
+    const stale = IDENTIFIER_BEARING_OUTSIDE_POPULATION.filter((f) => SLICE_11_FILES.includes(f))
+    expect(stale, 'an entry naming a file that is now graded').toEqual([])
+  })
+})
+
 /** Backticks and markdown emphasis, dropped from both sides of a comparison. */
 const flat = (s: string): string => s.replace(/[`*]/g, '').replace(/\s+/g, ' ').trim()
 

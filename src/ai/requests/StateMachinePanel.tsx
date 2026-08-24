@@ -106,8 +106,9 @@ export function StateMachinePanel({ mountedOn }: StateMachinePanelProps) {
         </h3>
         <p className="text-sm text-[var(--color-ink-muted)]">
           Rendered on {mountedOn}, beside the states themselves. The six rules are transcribed from
-          L89641 to L89646 and the nineteen labelled edges from the state diagram fenced between
-          L89648 and L89683. This panel offers no control: it renders the machine and operates
+          L89641 to L89646 and the labelled edges from the state diagram fenced between L89648 and
+          L89683 — {QUEUED_REQUEST_TRANSITIONS.length} of them, counted from the transitions rather
+          than written here. This panel offers no control: it renders the machine and operates
           nothing.
         </p>
         <ProvenanceMark
@@ -180,7 +181,7 @@ export function StateMachinePanel({ mountedOn }: StateMachinePanelProps) {
 
       <div>
         <h4 className="text-base font-medium text-[var(--color-ink)]">
-          The nineteen transitions, by the state they leave
+          The {QUEUED_REQUEST_TRANSITIONS.length} transitions, by the state they leave
         </h4>
         <ul className="mt-2 space-y-2 text-sm" data-testid="transitions-by-state">
           {QUEUED_REQUEST_STATE_IDS.map((id) => {
