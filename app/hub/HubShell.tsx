@@ -476,6 +476,53 @@ export function HubShell({
                 ))}
               </ul>
             </section>
+
+            {/* THE ROUTES ON THIS SURFACE THAT CLAIM NO MODULE, LISTED HERE
+                BECAUSE OTHERWISE NOTHING LISTS THEM.
+
+                Audit finding R3-06 measured the built export: `/hub/devices/`
+                had no inbound link from any page in the whole build, so a
+                client could reach it only by typing the URL. It is not in
+                either register above and cannot be — its screen identifier
+                occurs once in the frozen source and in neither screen
+                catalogue, so nothing states which module owns it, and filing
+                it among the modules would invent the catalogue row the source
+                withholds. Listed separately and labelled instead.
+
+                Deliberately NOT the same treatment as the journeys. The two
+                composed walkthroughs (`/hub/journey/` and `/studio/journey/`)
+                are linked from `/` under the guided-story mode, which is where
+                a reader looking for a walkthrough goes; this is a screen, and
+                a screen belongs with its surface. One inbound link each, so
+                no route has two entry points. */}
+            <section className="mt-8">
+              <h2 className="text-lg font-semibold">
+                Screens that claim no module{' '}
+                <span className="font-normal text-[var(--color-ink-subtle)]">
+                  — and for which no module identifier is minted
+                </span>
+              </h2>
+              <ul className="mt-3 space-y-3">
+                <li>
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <Link
+                      href="/hub/devices/"
+                      className="text-[var(--color-primary)] underline"
+                    >
+                      Device enrollment
+                    </Link>
+                  </div>
+                  <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
+                    Enrolling a tablet, binding it to a location, and the device
+                    inventory with its last-seen and mode. The frozen source
+                    names this screen once and places it in neither screen
+                    catalogue, so it states no owning module and no navigation
+                    entry point for it either — this entry is a build decision,
+                    made so the route is not one only its author can find.
+                  </p>
+                </li>
+              </ul>
+            </section>
           </>
         )}
       </HubChrome>

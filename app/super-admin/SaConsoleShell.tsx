@@ -27,15 +27,25 @@ const SURFACE = surfaceById('SURF-SA')
 /**
  * Routes on this surface that are NOT modules.
  *
- * Measured before this list existed: `app/super-admin/occurrence-detail/` is
- * already reached from `src/surfaces/sa/scheduler/SchedulerScaffold.tsx`, so it
- * is not listed here — a second link would be a second entry point to one
- * screen. The incident console had no inbound link at all, which is what this
- * list exists for.
+ * THE MEASUREMENT THAT USED TO STAND HERE WAS TRUE AND INCOMPLETE, and it is
+ * corrected rather than deleted. It read: `app/super-admin/occurrence-detail/`
+ * "is already reached from `src/surfaces/sa/scheduler/SchedulerScaffold.tsx`,
+ * so it is not listed here — a second link would be a second entry point to
+ * one screen." The link is real. What it did not check is whether the page
+ * DOING the linking is itself reachable, and it was not: audit finding R3-06
+ * walked the built export's own hrefs from `/` and found
+ * `/super-admin/scheduler-registry/` and `/super-admin/occurrence-detail/`
+ * linking ONLY to each other — a closed island of two pages with no inbound
+ * edge from anywhere in the whole export. Reachability is transitive, so
+ * "something links it" is not the question; "is that something reached" is.
  *
- * `attribution` is not decoration. The incident console's slug is this build's
- * own — the frozen source carries no URL notation for the surface — and a
- * reader arriving from this index should learn that before the screen loads.
+ * So the scheduler registry is listed, and occurrence detail still is not:
+ * one inbound edge into the island is what the island needed, and the second
+ * entry point the old note warned against is still a thing to avoid.
+ *
+ * `attribution` is not decoration. Neither slug is a source fact — the frozen
+ * source carries no URL notation for this surface at all — and a reader
+ * arriving from this index should learn that before the screen loads.
  */
 const NON_MODULE_ROUTES = [
   {
@@ -43,6 +53,13 @@ const NON_MODULE_ROUTES = [
     name: 'Artificial-intelligence incident console',
     storyboard: 'SB-43-351, L91276',
     attribution: 'route slug is a build decision under APP-012, not a source fact',
+  },
+  {
+    href: '/super-admin/scheduler-registry/',
+    name: 'Scheduler Registry',
+    storyboard: 'SCR-SA-SCHED-01, L99687',
+    attribution:
+      'a User-Mandated Product Extension with DEC-SCHED-005 open; no screen register carries a row for it, so no SCR-SA-NN number is minted and the slug is the screen name',
   },
 ] as const
 

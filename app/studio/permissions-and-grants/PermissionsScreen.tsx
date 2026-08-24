@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { StudioShell } from '../StudioShell'
 import { CapabilityPanel } from './CapabilityPanel'
 import { STU_MODULES, stuModuleById, type StudioPersonaId } from '@/studio/modules'
@@ -207,6 +208,48 @@ export function PermissionsScreen(props: PermissionsScreenProps) {
       persona={persona as StudioPersonaId}
       onPersonaChange={(next) => setPersona(next as StudioPersonaColumn)}
     >
+      <>
+      {/* THE MODULE'S OTHER SCREEN, AND THE ONLY PAGE THAT NAMES IT.
+         *
+         * `MOD-STU-18` has ONE slug and TWO catalogue-B screens: this one,
+         * `SCR-STU-15` (L48273), and `SCR-STU-01` Sign-in (L48259). The
+         * Studio index links the module by its slug, which reaches this
+         * screen; nothing in the whole build linked the other. Audit finding
+         * R3-06 walked the built export's own hrefs from `/` and measured
+         * `/studio/sign-in/` reachable only by typing the URL, while
+         * `/frontline/sign-in/` — the same shape on another surface — is
+         * offered by its own surface chrome.
+         *
+         * IT IS HERE AND NOT ON THE STUDIO INDEX. Two reasons, and the second
+         * is the load-bearing one. It is a screen OF THIS MODULE, so the
+         * module's own screen is where a reader looking for it would look.
+         * And `tests/component/stu-shell.test.tsx` asserts by EQUALITY that
+         * the index offers exactly the module routes the persona reaches and
+         * no others — a `/studio/*` link there is a surplus element by
+         * construction, and it should be: an index of module routes that
+         * quietly grew a screen route is the drift that assertion exists to
+         * catch. Measured, not assumed: the link was placed there first and
+         * that case went red on the surplus.
+         *
+         * OUTSIDE THE SCREEN-STATE BOUNDARY DELIBERATELY. Inside it, the one
+         * inbound edge into `/studio/sign-in/` would exist only in the states
+         * whose treatment renders children — a route reachable in some
+         * screen states and not others is a route a reviewer can lose by
+         * moving a selector. The persona gate still applies: this whole page
+         * renders inside `StudioShell`, which renders no module content at
+         * all for a Worker (AC-STU-150) and none while DEC-AUDSTU-001 is
+         * open. */}
+      <p className="mt-6 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        <span className="font-medium text-[var(--color-ink)]">
+          This module&rsquo;s other screen:{' '}
+        </span>
+        <Link href="/studio/sign-in/" className="text-[var(--color-primary)] underline">
+          Sign-in
+        </Link>{' '}
+        — SCR-STU-01, the same module on its own route. One module, one slug,
+        two catalogue-B screens; the slug keys this screen, so the sign-in
+        screen is registered on the screen rather than on the module (D1).
+      </p>
       <ScreenStateBoundary
         state={stateId}
         surface="SURF-STU"
@@ -390,6 +433,7 @@ export function PermissionsScreen(props: PermissionsScreenProps) {
           />
         </>
       </ScreenStateBoundary>
+      </>
     </StudioShell>
   )
 }
