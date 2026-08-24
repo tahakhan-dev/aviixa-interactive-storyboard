@@ -1,5 +1,9 @@
 import { affected, noEffect, type JourneyStep } from '@/ui/shared/journey'
 import {
+  aiDegradationForSteps,
+  type StepAiDegradation,
+} from '@/ai/five-surface/journey-overlay'
+import {
   INITIAL_RUN,
   JOURNEY_INSTANTS,
   MET,
@@ -467,3 +471,30 @@ export const JOURNEY_REFUSALS = [
     sourceRef: 'L27920, AC-RUN-002 L7126',
   },
 ] as const satisfies readonly JourneyRefusal[]
+
+/* ==================================================================== *
+ * SLICE 11 — THE ARTIFICIAL-INTELLIGENCE DEGRADATION OVERLAY.
+ * ==================================================================== */
+
+/**
+ * What each step of this journey does when artificial intelligence fails.
+ *
+ * THE SECOND OF TWO REGISTERS, AND BOTH ARE OVERLAID. This build has two step
+ * registers on opposite sides of the `src/`/`app/` boundary — the twenty-two-step
+ * Studio journey in `src/studio/journey/effects.ts` and these nine operational
+ * steps. Overlaying one and not the other would leave a journey with no stated
+ * degradation behaviour, and from outside that is indistinguishable from a
+ * considered abstention. Both carry this export, derived by the same function.
+ *
+ * DERIVED FROM `actingSurface`, never written down, for the same reason the
+ * Studio's is: the step already names the acting surface and the surface already
+ * has exactly one overlay, so there is no second place a step could be filed
+ * under the wrong surface's behaviour.
+ *
+ * NO STEP WAS ADDED. This journey's nine steps are pinned by number in
+ * `tests/unit/doh-journey.test.ts` and `tests/component/doh-journey.test.tsx`,
+ * and those pins are right: a degradation behaviour is a property OF a step, not
+ * another step. Nothing here renumbers anything, because nothing was added.
+ */
+export const AI_DEGRADATION_BY_STEP: readonly StepAiDegradation[] =
+  aiDegradationForSteps(JOURNEY_STEPS)

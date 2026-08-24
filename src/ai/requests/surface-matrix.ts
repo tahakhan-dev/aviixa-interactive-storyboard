@@ -50,14 +50,29 @@ import { type QueuedRequestStateId } from './states'
  * cannot be spelled the same way.
  *
  * ── THE FIVE COLUMNS ARE THE FIVE SURFACES, PROVED RATHER THAN NAMED ───────
- * The column axis is bound to `SurfaceId` the way `@/ui/shared/journey`'s
- * `JOURNEY_SURFACES` binds its own five-surface column axis: a short code per
- * column, the canonical surface identifier beside it, and two compile-time
+ * The column axis is bound to `SurfaceId`: a short code per column, the
+ * canonical surface identifier beside it, and two compile-time
  * `Exclude<…> extends never` checks — one that every column code is listed
  * exactly once, one that every platform surface is represented. Declared as
  * five bare strings instead, the columns are five strings that HAPPEN to match
  * the five surfaces, and a sixth surface or a renamed one would leave this
  * table silently short a column.
+ *
+ * ── AND WHAT THIS PARAGRAPH USED TO CLAIM, CORRECTED ───────────────────────
+ * It used to say the axis is bound "the way `@/ui/shared/journey`'s
+ * `JOURNEY_SURFACES` binds its own five-surface column axis". That was true of
+ * the MANNER and misleading about the RESULT: both modules bound themselves to
+ * `SurfaceId` and NEITHER bound to the other, so `QueuedRequestSurfaceId` and
+ * `JourneySurfaceCode` were five surfaces under two spellings with two
+ * independent exhaustiveness checks and no join between them. A reader took the
+ * sentence as licence to line a `studio` column up against an `STU` column,
+ * which nothing in the build supported.
+ *
+ * The join now exists and is `@/ai/five-surface/surface-codes` — a total
+ * mapping both directions with a compile-time exhaustiveness check on each
+ * side, pivoting on the `SurfaceId` both modules already carry. Neither union
+ * was widened and no third spelling was added. Cross-vocabulary callers go
+ * through it; this module still knows only its own column ids.
  *
  * The HEADINGS stay the source's own wording, which is not the canonical
  * surface name in every case — the table writes `Super Admin platform

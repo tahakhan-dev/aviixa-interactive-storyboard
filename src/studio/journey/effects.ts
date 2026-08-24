@@ -6,6 +6,10 @@ import {
   type SurfaceEffect,
 } from '@/ui/shared/journey'
 import {
+  aiDegradationForSteps,
+  type StepAiDegradation,
+} from '@/ai/five-surface/journey-overlay'
+import {
   JOURNEY_AS_OF,
   MET,
   notMet,
@@ -927,3 +931,29 @@ export const JOURNEY_REFUSALS = [
     sourceRef: 'L53602',
   },
 ] as const
+
+/* ==================================================================== *
+ * SLICE 11 — THE ARTIFICIAL-INTELLIGENCE DEGRADATION OVERLAY.
+ * ==================================================================== */
+
+/**
+ * What each step of this journey does when artificial intelligence fails.
+ *
+ * DERIVED FROM `actingSurface`, never written down: the step already names the
+ * surface the act happens on, the five-surface join already turns that code
+ * into a surface, and the surface already has exactly one overlay. A
+ * hand-written map here would be a second place the Studio's step 9 could be
+ * filed under another surface's behaviour.
+ *
+ * NO STEP WAS ADDED. This journey's step population is pinned by number in
+ * `tests/unit/stu-publish-checks.test.ts` and `tests/component/stu-journey.test.tsx`,
+ * and those pins are right: an AI-degradation behaviour is a property OF a step,
+ * not another step. Nothing here renumbers anything, because nothing was added.
+ *
+ * `app/hub/journey/effects.ts` carries the same export over ITS nine steps.
+ * Overlaying one register and not the other would leave a journey with no
+ * degradation behaviour, and from outside that is indistinguishable from a
+ * considered abstention.
+ */
+export const AI_DEGRADATION_BY_STEP: readonly StepAiDegradation[] =
+  aiDegradationForSteps(JOURNEY_STEPS)

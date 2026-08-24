@@ -5,6 +5,9 @@ import { Cc13ActionRail } from '@/surfaces/cc/modules/cc-13/Cc13ActionRail'
 import { ShiftHandoffPanel } from '@/surfaces/cc/modules/cc-12/ShiftHandoffPanel'
 import { CC12_MODULE, CC12_SCREEN, CC12_SLUG } from '@/surfaces/cc/modules/cc-12/matrix'
 import { CommandCenterShell } from '@/surfaces/cc/shell/CommandCenterShell'
+import { AiDegradationOverlay } from '@/ai/five-surface/AiDegradationOverlay'
+import { CC_AI_OVERLAY } from '@/surfaces/cc/ai-degradation'
+import { ShiftHandoffRoleMatrix } from '@/ai/five-surface/ShiftHandoffRoleMatrix'
 
 const SURFACE = surfaceById('SURF-CC')
 
@@ -96,6 +99,17 @@ export default function Page() {
         access decision.
       </p>
       <ShiftHandoffPanel viewerRole="SUPERVISOR" />
+
+      {/* THE SECTION 44.3 ROLE MATRIX, WHOSE AXIS IS A CAPABILITY BY FIVE
+          TENANT ROLES AND NOT A SURFACE. Four of its permissive cells are
+          undecided across two rows, and each renders inoperable with both
+          readings rather than enabled. */}
+      <ShiftHandoffRoleMatrix />
+
+      <AiDegradationOverlay
+        overlay={CC_AI_OVERLAY}
+        mountedOn={`${CC12_MODULE.id} — ${CC12_MODULE.name}`}
+      />
     </CommandCenterShell>
   )
 }

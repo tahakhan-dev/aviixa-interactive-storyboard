@@ -7,6 +7,8 @@ import { stu02Scenario } from '@/studio/modules/stu-02/rendering'
 import { AgentBuilderView } from '@/studio/modules/stu-15/AgentBuilderView'
 import { stu15Scenario } from '@/studio/modules/stu-15/rendering'
 import { StudioShell } from '../StudioShell'
+import { AiDegradationOverlay } from '@/ai/five-surface/AiDegradationOverlay'
+import { STU_AI_OVERLAY } from '@/studio/ai-degradation'
 
 /**
  * `SCR-STU-13` — "Agent configuration and Agent Builder" (L48271). ONE
@@ -40,6 +42,17 @@ export function AgentsScreen() {
       <div className="space-y-8">
         <AgentConfigurationView scenario={stu02Scenario({ persona })} />
         <AgentBuilderView scenario={stu15Scenario({ persona })} />
+        {/* THE STUDIO'S OWN OVERLAY, AND ITS AXIS IS `Capability` NOT A MODULE.
+            Section 43.3.2 names no `MOD-STU-` anywhere, so this table is not
+            module coverage of either module this route carries and is not
+            offered as any. It renders here because the two capabilities it
+            names for the Agent Builder — composition and submission, and
+            fallback-readiness validation — are this screen's, not because the
+            source filed the table under a module. */}
+        <AiDegradationOverlay
+          overlay={STU_AI_OVERLAY}
+          mountedOn="MOD-STU-02 and MOD-STU-15 — Agent configuration and Agent Builder"
+        />
       </div>
     </StudioShell>
   )

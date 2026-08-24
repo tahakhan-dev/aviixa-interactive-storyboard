@@ -732,8 +732,11 @@ component 2749 in 100 files.** Both counts matched the implementer's figures exa
 first time in this slice that all reported numbers survived checking unchanged.
 
 **Every locator in the task-14 brief held, and the six the controller had corrected were correct
-corrections** — each rejected line was independently confirmed to carry different content (L87796 is
-blank; L90040 is `AC-43-113`; L90045 is `TEST-43-112`; L91288 is the platform-wide pause row).
+corrections** — each rejected line was independently confirmed to carry different content:
+[cited-in-error: L87796] is blank; L90040 is `AC-43-113`; L90045 is `TEST-43-112`; L91288 is the
+platform-wide pause row. The first of those needs the `[cited-in-error:]` marker because
+`locator-fidelity` lexes any `L`-number in a file as a citation and refuses one landing on a blank
+line — this paragraph tripped its own gate while recording the defect it names.
 
 **Three findings the brief did not carry, all from the implementer opening lines:**
 
