@@ -73,6 +73,145 @@ export interface FallbackIdentifierRange {
   readonly locator: string
 }
 
+/**
+ * ── THE SOURCE'S OWN WORDS, AT EVERY LINE THIS MODULE CITES ────────────────
+ *
+ * Every locator above is a data field and every identifier is a separate data
+ * field beside it, so nothing in the record puts the two next to each other in
+ * one run of text. That is a real cost rather than a cosmetic one: a reader of
+ * this file cannot tell a right line from a wrong one without opening 18MB of
+ * frozen source, and `tests/coverage/locator-fidelity.test.ts` grades a
+ * citation strong only where a double-quoted verbatim excerpt sits beside it.
+ * Both problems have the same answer, and it is not a weaker gate.
+ *
+ * So the lines are quoted here, and EXTRACTED MECHANICALLY RATHER THAN TYPED.
+ * Each excerpt is the longest quotation-free run of its own line under the
+ * gate's own `normalise` — lower-cased, backticks and emphasis dropped,
+ * dashes folded, whitespace collapsed — which is why they read as lower case
+ * and why every one of them is a substring of the line it names by
+ * construction rather than by care. A hand-typed quotation is the shape this
+ * build has already shipped as a paraphrase presented as a quotation.
+ *
+ * BLOCK A CARRIES ITS IDENTIFIER AND BLOCK B DELIBERATELY DOES NOT, and the
+ * difference is a claim rather than a formatting choice. A register row and a
+ * storyboard card's identifier row both CONTAIN the literal, so writing the
+ * literal beside the line asserts something true and checkable. A section
+ * HEADING does not contain the literal at all — it says what the contract is
+ * for, in words — so prefixing one with its identifier would assert that the
+ * identifier is at a line it is not at. Block B is prefixed with the section
+ * number instead, which is what the heading really carries.
+ *
+ * TWO HEADINGS CARRY NO USABLE EXCERPT and are named rather than quietly
+ * dropped, because a silent gap in a mechanical extraction is the shape that
+ * has returned valid JSON over 15% of its subject in this build. They are
+ * storyboard 6's and storyboard 22's: both are four-word headings shorter than
+ * the thirty-two-character floor, so there is nothing to fix at either. A
+ * lower floor would start admitting fragments that are not claims — the gate's
+ * own minimum is thirty, and a four-word heading is under it either way.
+ *
+ * BLOCK A — the row where each chapter claims the literal.
+ *
+ * FB-AI-00 L88915 "fb-ai-00 | total loss of the agentic layer | chapter 40 opening"
+ * FB-AI-01 L88916 "fb-ai-01 | boundary violation attempt | 40.1"
+ * FB-AI-02 L88917 "fb-ai-02 | orchestrator loop failure | 40.2"
+ * FB-AI-03 L88918 "fb-ai-03 | coaching retrieval and delivery failure | 40.3"
+ * FB-AI-04 L88919 "fb-ai-04 | deviation brief assembly and gate delivery failure | 40.4"
+ * FB-AI-05 L88920 "fb-ai-05 | shift handoff brief failure | 40.5"
+ * FB-AI-06 L88921 "fb-ai-06 | vision scope-creep guard | 40.6"
+ * FB-AI-07 L88922 "fb-ai-07 | atom failure and evaluation regression | 40.7"
+ * FB-AI-08 L88923 "fb-ai-08 | memory store failure | 40.8"
+ * FB-AI-09 L88924 "fb-ai-09 | model and provider failure | 40.9"
+ * FB-AI-10 L88925 "fb-ai-10 | governance gate delivery and decision failure | 40.10"
+ * FB-AI-11 L88926 "fb-ai-11 | evaluation harness failure | 40.11"
+ * FB-AI-12 L88927 "fb-ai-12 | trace and decision-record failure | 40.12"
+ * FB-AI-13 L88928 "fb-ai-13 | isolation and quota failure | 40.13"
+ * FB-AI-14 L88929 "fb-ai-14 | learning pipeline and publication failure | 40.14"
+ * FB-AI-15 L88930 "fb-ai-15 | pause, kill and rollback failure | 40.15"
+ * FB-AI-16 L88931 "fb-ai-16 | authority and prohibition failure | 40.16"
+ * FB-AI-101 L88932 "fb-ai-101 | agent definition and policy lifecycle failure | 41.1"
+ * FB-AI-102 L88933 "fb-ai-102 | prompt, model and provider configuration failure | 41.2"
+ * FB-AI-103 L88934 "fb-ai-103 | tool permission, memory configuration and retrieval source failure | 41.3"
+ * FB-AI-104 L88935 "fb-ai-104 | evaluation suite, routing policy and quota failure | 41.4"
+ * FB-AI-105 L88936 "fb-ai-105 | request, recommendation, draft, output and feedback failure | 41.5"
+ * FB-AI-106 L88937 "fb-ai-106 | composed-agent lifecycle failure | 41.6"
+ * FB-AI-107 L88938 "fb-ai-107 | incident, package and rollback-version failure | 41.7"
+ * FB-AI-108 L88939 "fb-ai-108 | evidence and audit integrity failure | 41.8"
+ * FB-AGT-PREV-01 L95359 "fb-agt-prev-01 | coaching selection unavailable | 44.1 | authored work instructions, gates intact"
+ * FB-AGT-PREV-02 L95360 "fb-agt-prev-02 | stale, withdrawn or mismatched asset | 44.1 | pinned asset rendered, divergence recorded"
+ * FB-AGT-PREV-03 L95361 "fb-agt-prev-03 | duplicate intervention prevention | 44.1 | single render per idempotency key"
+ * FB-AGT-DEV-01 L95362 "fb-agt-dev-01 | deviation brief cannot be assembled | 44.2 | deterministic record rendered, hold in force"
+ * FB-AGT-DEV-02 L95363 "fb-agt-dev-02 | classification divergence | 44.2 | deterministic band in force, divergence flagged"
+ * FB-AGT-DEV-03 L95364 "fb-agt-dev-03 | escalation delivery failure | 44.2 | hold persists, item ages visibly"
+ * FB-AGT-SHA-01 L95365 "fb-agt-sha-01 | no handoff brief produced | 44.3 | shift starts on time, honest no-brief state"
+ * FB-AGT-SHA-02 L95366 "fb-agt-sha-02 | incomplete source data | 44.3 | partial brief that states it is partial"
+ * FB-AGT-SHA-03 L95367 "fb-agt-sha-03 | duplicate or conflicting briefs | 44.3 | multiple honest artifacts, none merged"
+ * FB-AGT-VIS-01 L95368 "fb-agt-vis-01 | vision inference unavailable or inconclusive | 44.4 | human inspection, gate unpassed until proof"
+ * FB-AGT-VIS-02 L95369 "fb-agt-vis-02 | model rollback and withdrawn versions | 44.4 | previous version in force, outputs marked"
+ * FB-AGT-VIS-03 L95370 "fb-agt-vis-03 | one device with a corrupt model | 44.4 | feature disabled on that device only"
+ * FB-AI-01 L92793 "identifier | sb-ai-01; fallback contract fb-ai-01; extends fb-agt-prev-01"
+ * FB-AI-02 L92876 "identifier | sb-ai-02; fallback contract fb-ai-02; extends fb-agt-prev-01 and fb-agt-dev-01"
+ * FB-AI-03 L92960 "identifier | sb-ai-03; fallback contract fb-ai-03; conditional on dec-localai-001"
+ * FB-AI-04 L93041 "identifier | sb-ai-04; fallback contract fb-ai-04"
+ * FB-AI-05 L93129 "identifier | sb-ai-05; fallback contract fb-ai-05; extends fb-agt-dev-01"
+ * FB-AI-06 L93221 "identifier | sb-ai-06; fallback contract fb-ai-06"
+ * FB-AI-07 L93305 "identifier | sb-ai-07; fallback contract fb-ai-07"
+ * FB-AI-08 L93393 "identifier | sb-ai-08; fallback contract fb-ai-08"
+ * FB-AI-09 L93474 "identifier | sb-ai-09; fallback contract fb-ai-09"
+ * FB-AI-10 L93566 "identifier | sb-ai-10; fallback contract fb-ai-10; extends fb-agt-prev-02"
+ * FB-AI-11 L93645 "identifier | sb-ai-11; fallback contract fb-ai-11; conditional on dec-localai-001"
+ * FB-AI-12 L93730 "identifier | sb-ai-12; fallback contract fb-ai-12"
+ * FB-AI-13 L93816 "identifier | sb-ai-13; fallback contract fb-ai-13"
+ * FB-AI-14 L93901 "identifier | sb-ai-14; fallback contract fb-ai-14"
+ * FB-AI-15 L93992 "identifier | sb-ai-15; fallback contract fb-ai-15; shares dec-aidup-001 with fb-agt-prev-03"
+ * FB-AI-16 L94073 "identifier | sb-ai-16; fallback contract fb-ai-16; extends fb-agt-vis-02"
+ * FB-AI-17 L94157 "identifier | sb-ai-17; fallback contract fb-ai-17; extends fb-agt-vis-03; conditional on dec-localai-001 and dec-vision-004"
+ * FB-AI-18 L94240 "identifier | sb-ai-18; fallback contract fb-ai-18"
+ * FB-AI-19 L94325 "identifier | sb-ai-19; fallback contract fb-ai-19"
+ * FB-AI-20 L94405 "identifier | sb-ai-20; fallback contract fb-ai-20"
+ * FB-AI-21 L94486 "identifier | sb-ai-21; fallback contract fb-ai-21; conditional on dec-ask-001"
+ * FB-AI-22 L94568 "identifier | sb-ai-22; fallback contract fb-ai-22; instance of fb-agt-vis-01"
+ * FB-AI-23 L94663 "identifier | sb-ai-23; fallback contract fb-ai-23"
+ * FB-AI-24 L94743 "identifier | sb-ai-24; fallback contract fb-ai-24"
+ * FB-AI-25 L94825 "identifier | sb-ai-25; fallback contract fb-ai-25"
+ * FB-AI-26 L94907 "identifier | sb-ai-26; fallback contract fb-ai-26; terminal case of fb-agt-prev-01 and fb-ai-04"
+ * FB-AI-27 L94991 "identifier | sb-ai-27; fallback contract fb-ai-27"
+ * FB-AI-28 L95076 "identifier | sb-ai-28; fallback contract fb-ai-28; extends fb-agt-sha-01"
+ * FB-AI-29 L95161 "identifier | sb-ai-29; fallback contract fb-ai-29"
+ * FB-AI-30 L95251 "identifier | sb-ai-30; fallback contract fb-ai-30"
+ * FB-AI-01 L46951 "fb-ai-01 | artificial-intelligence degraded or unavailable, including the platform emergency pause. fallback is authored content and deterministic behaviour, never silence"
+ * FB-AI-01 L74495 "failure, first fallback, fallback failure, terminal safe state, recovery, reconciliation. fb-ai-01. failure: the trace store is unavailable while an agent is running. first fallback: the decision record, which is small and operationally"
+ *
+ * BLOCK B — the heading that carries the contract in words.
+ *
+ * 44A.1 L92772 "44a.1 worker asks artificial intelligence while offline"
+ * 44A.2 L92855 "44a.2 worker online but cloud artificial intelligence is down"
+ * 44A.3 L92940 "44a.3 local artificial intelligence unavailable but cached guidance exists"
+ * 44A.4 L93020 "44a.4 no artificial intelligence and no cached guidance"
+ * 44A.5 L93105 "44a.5 severity 1 deviation while artificial intelligence is unavailable"
+ * 44A.7 L93283 "44a.7 quality manager releases a hold after reconnection"
+ * 44A.8 L93370 "44a.8 studio publishes while the tablet is offline"
+ * 44A.9 L93453 "44a.9 command center issues an action to an offline device"
+ * 44A.10 L93543 "44a.10 artificial intelligence uses an outdated work instruction"
+ * 44A.11 L93625 "44a.11 local and cloud artificial intelligence disagree"
+ * 44A.12 L93707 "44a.12 worker flags an unsafe response"
+ * 44A.13 L93794 "44a.13 an agent action partially succeeds"
+ * 44A.14 L93879 "44a.14 an approved artificial-intelligence action expires"
+ * 44A.15 L93969 "44a.15 a retry risks a duplicate action"
+ * 44A.16 L94050 "44a.16 a bad model is rolled back"
+ * 44A.17 L94134 "44a.17 one device has a corrupt model"
+ * 44A.18 L94217 "44a.18 artificial intelligence is disabled for one tenant"
+ * 44A.19 L94302 "44a.19 platform-wide artificial-intelligence outage"
+ * 44A.20 L94384 "44a.20 reconnection fails midway"
+ * 44A.21 L94463 "44a.21 a queued question is obsolete"
+ * 44A.23 L94630 "44a.23 storage fills with queued artificial-intelligence work"
+ * 44A.24 L94722 "44a.24 artificial intelligence recovers but dashboards remain stale"
+ * 44A.25 L94802 "44a.25 an offline tablet is suspended or wiped"
+ * 44A.26 L94886 "44a.26 the primary artificial-intelligence fallback also fails"
+ * 44A.27 L94968 "44a.27 no authorized human is available"
+ * 44A.28 L95052 "44a.28 an outage crosses a shift"
+ * 44A.29 L95138 "44a.29 recovery occurs after a personnel change"
+ * 44A.30 L95221 "44a.30 artificial intelligence conflicts with the official record"
+ */
 export const FALLBACK_CONTRACT_OWNERS = [
   // A: chapter 40 and 41 register, L88915-L88939. Twenty-five data rows under the
   // header at L88913 and the separator at L88914.

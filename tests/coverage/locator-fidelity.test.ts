@@ -1319,8 +1319,14 @@ const strictAnchorMisses = graded
   })
 
 /**
- * Measured 2026-08-24 by running this file alone, printed by the assertion
- * below rather than transcribed by hand. 130 claims, 177 citations, 64 files.
+ * NO SIZE IS WRITTEN HERE, and that is the correction rather than an omission.
+ * This paragraph used to carry the claim, citation and file counts of the run
+ * that first measured the list; two entries were added after it and the three
+ * numbers were stale immediately, in the one file whose subject is stale
+ * numbers. `names every anchored citation it allows rather than counting them`
+ * prints all three on every run from the list itself, and `carries no
+ * allowance for a citation that no longer misses` proves every key below is
+ * still occurring. Removed rather than renumbered, per RESUME §7.
  */
 const STRICT_ANCHOR_ALLOWANCE: ReadonlySet<string> = new Set([
   'AC-30C-1003@73702',
@@ -1343,6 +1349,28 @@ const STRICT_ANCHOR_ALLOWANCE: ReadonlySet<string> = new Set([
   'DEC-SCHED-008@111870',
   'DEC-STORE-001@79469',
   'DEC-SUSPMSG-001@114674',
+  // SHAPE 1, and all four lines were opened before these keys were written.
+  // NO `L` PREFIX ANYWHERE IN THIS NOTE, for the reason the header gives: this
+  // file is inside its own scan, so a spelled locator here would be lexed,
+  // anchored to the identifier beside it, and convicted by the very check
+  // below. Line numbers are therefore written bare.
+  //
+  // Section 36.2, "The Ordering Question — `DEC-SYNC-001` and Its Companions",
+  // heads at 80059 and the decision's own record opens at 80067 with
+  // "**`DEC-SYNC-001` — Capture-upload versus command-download ordering.**".
+  // The four cited lines are that record's own bullets, in order: 80069
+  // "- **The ambiguity.**", 80070 "- **Interpretation A — commands first.**",
+  // 80071 "- **Interpretation B — captures first.**", and 80073
+  // "- **Adopted position — Option C, split by urgency ...**". Each reading in
+  // `src/ai/storyboards/sb-01-to-10/decisions.ts` paraphrases the bullet it
+  // names, so these are citations INTO the record the identifier heads — the
+  // form RESUME §2a certifies as correct and warns has already nearly been
+  // "corrected" into five inaccurate citations. The locators are right; the
+  // plain rule cannot see a record heading, so the claim is listed here.
+  'DEC-SYNC-001@80069',
+  'DEC-SYNC-001@80070',
+  'DEC-SYNC-001@80071',
+  'DEC-SYNC-001@80073',
   'DWG-A441@68168',
   'FB-STU-01@30863',
   'FB-STU-01@30871',

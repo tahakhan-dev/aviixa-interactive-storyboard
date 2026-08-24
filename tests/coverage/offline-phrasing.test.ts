@@ -66,8 +66,12 @@ import { fold, isBareClaim, phrasingMatches } from '@/honesty/lexicon'
  * 4. **THE WORDS APPEAR LEGITIMATELY, IN PROSE THAT DESCRIBES THE RULE.** The
  *    rendered runs in this tree that carry a prohibited phrasing honestly are
  *    each subtracted BY NAME as one exact run — never as a region, never as a
- *    page, never as a heuristic about prose that contains a negation. Four
- *    quote the frozen source and are pinned to the line whose words they carry.
+ *    page, never as a heuristic about prose that contains a negation. Those
+ *    that quote the frozen source are pinned to the line whose words they
+ *    carry, and no number is written here for them: each one is PROVED against
+ *    that line on every run, so a count would be a second, unchecked claim
+ *    about a population the gate below already measures — and this paragraph
+ *    has already carried one stale count of exactly that kind.
  *    Nine are this build's own sentences and carry no line, because none
  *    exists; those nine are held at a fixed count that a tenth cannot join
  *    without turning this file red and forcing the decision, the same idiom
@@ -315,13 +319,14 @@ interface Disclosure {
  * `is still reached, every entry` requires every one to be found in the built
  * tree, so this list cannot pre-authorise a violation that has not shipped yet.
  *
- * WHY THE LIST IS AS LONG AS IT IS. A THIRD of these exist only because the
+ * WHY THE LIST IS AS LONG AS IT IS. Some of these exist only because the
  * dictionary reads a claim written through a copula — `the hold HAS BEEN
  * released`, `the clearance IS granted` — and dropping the copula would delete
- * them from this list in one edit. (This paragraph used to say eight of twelve,
- * with the copula, and four without. Measured against the list, it is the other
- * way round and always was: four of the twelve matched only through a copula
- * and eight matched without one.) It is not dropped. The copula form is how a
+ * them from this list in one edit. (This paragraph carried two different
+ * counts of that split, one after the other, and the second was stale within a
+ * wave of being written. Removed rather than renumbered, per RESUME §7: the
+ * count was never the claim a reader could act on, and every entry below is
+ * readable in full.) The copula is not dropped. That form is how a
  * completion claim is written as a sentence rather than printed on a badge, and
  * it is exactly the form the compliant confirmation dialog at L78432 exists to
  * refuse. The costs are not symmetric: a false report costs one reviewed line
@@ -355,6 +360,30 @@ const DISCLOSURES: readonly Disclosure[] = [
     anchor: 'Clearance granted against an expired certification',
     line: 72989,
     why: "The Chapter 30C.2 notification register's own name for a notification type, which is a row of a catalogue and not a claim about a device — the notification is the thing that fires when a clearance is granted against an expired certification, and the reader is being told they cannot switch it off. It is quoted on the screen as the register's name with the line it is transcribed from, which is what makes it a quotation rather than the screen's own words; unmarked and unlocated it was reported here, and correctly.",
+  },
+  {
+    text: 'SB-AI-25 44A.25 · FB-AI-25 — An offline tablet is suspended or wiped',
+    anchor: 'An offline tablet is suspended or wiped',
+    line: 94802,
+    why: "Storyboard 25's own name, and the source's. It is the section heading verbatim at L94802 and the glance-table cell verbatim at L92717, and `src/ai/fallbacks/registry.ts` already records L94802 as this contract's locator. Same shape as the Chapter 30C.2 register name above: a catalogue entry naming a scenario, rendered inside an index of thirty entries all built as identifier, section, literal and title, not a claim that a particular tablet applied a suspension. The build may not rewrite a title the source writes.",
+  },
+  {
+    text: 'The shift starts on time with degraded awareness, honestly stated. No run is blocked and no hold is released',
+    anchor: 'No run is blocked and no hold is released',
+    line: 95084,
+    why: "Storyboard 28's Safe stop cell, verbatim at L95084 — the source's own words, which this build may not rewrite. It is also honest on the rule's own terms twice over: L78386 forbids a display implying an offline tablet HAS received or applied a hold release, and this sentence states that no hold was released at all. A negation of the prohibited claim is the one thing that cannot be the prohibited claim, and it is the same shape the device-wiped refusal below is exempted for.",
+  },
+  {
+    text: 'Hold released; deviation dispositioned; Critical anomaly moves toward Resolved with a closure note',
+    anchor: 'Hold released; deviation dispositioned; Critical anomaly moves toward Resolved with a closure note',
+    line: 93319,
+    why: "Storyboard 7's Final official state, transcribed cell for cell from L93319. It is not a live status: the card's own facts record every relevant device as acknowledged at this state, which is the only condition L12782 leaves open — it prohibits the claim as a GLOBAL one BEFORE all acknowledgements, and L12785 allows a claim that states exactly what is known. The build may not rewrite the source's cell, and rewording it would also delete the reconciled end state the storyboard exists to name.",
+  },
+  {
+    text: 'Hold released; deviation dispositioned; Critical anomaly moves toward Resolved with a closure note [SoW Fact — §3.3]',
+    anchor: 'Hold released; deviation dispositioned; Critical anomaly moves toward Resolved with a closure note',
+    line: 93319,
+    why: "The same cell rendered with the source's own classification marking, which L93319 carries inside the cell. Two runs rather than one because the card renders the field text with the marking and the reconstructed final-state name without it; both are subtracted by name, and a prohibited phrasing appended to either would land outside the anchor and be reported.",
   },
 
   /* --- this build's own sentences. FIXED AT NINE; see AUTHORED_BUDGET. --- */

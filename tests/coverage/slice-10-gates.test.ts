@@ -836,20 +836,66 @@ describe('slice 10 gate 5: the column type has three arms and the aggregate has 
     // satisfied by the name of the thing it was meant to find reached.
     const callers = (name: string): readonly string[] =>
       files.filter((f) => new RegExp(`\\b${name}\\s*\\(`).test(code(f)))
-    const direct = callers('evaluateColumnAccess').filter((f) => f !== 'src/policy/columns.ts')
-    expect(
-      direct,
-      `nothing outside src/policy/columns.ts calls evaluateColumnAccess; the sweep walked ` +
-        `${files.length} files and a column type nothing evaluates is written, not shipped`,
-    ).toEqual(['src/policy/schedule-operations.ts'])
-    const transitive = callers('scheduleDecision').filter(
-      (f) => f !== 'src/policy/schedule-operations.ts',
+    //
+    // ── AND THE CALLER LIST IS DERIVED, NEVER PINNED AS AN EXACT ARRAY ─────
+    // This assertion used to read `.toEqual(['src/policy/schedule-operations
+    // .ts'])`. Task 14 then routed all four agent-initiation refusals through
+    // this same mechanism — which is the reuse the message below asks for — and
+    // the gate went red on the mechanism SUCCEEDING. That is this build's
+    // stale-count class in a different costume: an exact list of a population
+    // that is supposed to grow goes stale every time it legitimately does, and
+    // the rule is remove, never renumber. So the three properties the gate
+    // actually means are asserted, each derived from the sweep on this run:
+    //
+    //   1. REUSE HAPPENED. At least one caller outside the owning module —
+    //      the non-vacuity floor and the claim in one, because "written, not
+    //      shipped" is exactly the zero case.
+    //   2. EVERY CALLER ROUTES THROUGH THE ONE MODULE, by import, rather than
+    //      re-deriving the decision locally. Fix once, where all callers route.
+    //   3. NO CALLER IS A DEAD END. Something else imports each of them, so
+    //      the chain does not stop one hop short of a screen — the same claim
+    //      the old `scheduleDecision` hop made, generalised to every caller
+    //      instead of to the one that happened to exist when it was written.
+    //
+    // And the list is PRINTED by name every run, which is what makes "a reader
+    // can find every caller" true without transcribing them anywhere.
+    const OWNER = 'src/policy/columns.ts'
+    const direct = callers('evaluateColumnAccess').filter((f) => f !== OWNER)
+    console.error(
+      `\n[slice-10 gate 5] evaluateColumnAccess called outside ${OWNER} (${direct.length}):\n  ` +
+        direct.join('\n  '),
     )
     expect(
-      transitive.length,
-      'the only caller of evaluateColumnAccess is itself called by nothing, so the chain stops ' +
-        'one hop short of a screen',
+      direct.length,
+      `nothing outside ${OWNER} calls evaluateColumnAccess; the sweep walked ` +
+        `${files.length} files and a column type nothing evaluates is written, not shipped`,
     ).toBeGreaterThan(0)
+
+    /** True when `f`'s own code imports from a module specifier ending in `/<base>`. */
+    const importsModule = (f: string, base: string): boolean =>
+      new RegExp(`from\\s*['"](?:[^'"]*/)?${base}['"]`).test(code(f))
+
+    expect(
+      direct.filter((f) => !importsModule(f, 'columns')),
+      `a caller of evaluateColumnAccess that does not import it from ${OWNER} has either ` +
+        'shadowed the name or re-derived the decision locally, which is the second home this ' +
+        'evaluator exists to prevent',
+    ).toEqual([])
+
+    /** The `@/`-style and relative specifier tail a file under `src/` is imported by. */
+    const specifierTail = (f: string): string => f.replace(/^src\//, '').replace(/\.tsx?$/, '')
+    const importersOf = (f: string): readonly string[] =>
+      files.filter(
+        (g) =>
+          g !== f &&
+          new RegExp(`from\\s*['"][^'"]*${specifierTail(f)}['"]`).test(code(g)),
+      )
+
+    expect(
+      direct.filter((f) => importersOf(f).length === 0),
+      'a caller of evaluateColumnAccess that nothing else imports, so the chain stops one hop ' +
+        'short of a screen and the column type is still reached by nothing a reader can open',
+    ).toEqual([])
   })
 })
 

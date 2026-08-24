@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { isForeignProbe } from '../probe-paths'
 import {
   AI_AND_ITS_ABSENCE_ROUTE,
   ALL_THIRTY_STORYBOARDS,
@@ -73,13 +74,31 @@ const MODULE_TOKEN = /MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+)/g
  * gathered the way the script gathers it: files directly in the directory, no
  * descent, `.ts` and `.tsx` alike, raw text including comments. A gate that
  * scanned a different shape would be green on evidence the build cannot see.
+ *
+ * THE SKIP IS THE SHARED PREDICATE, IMPORTED AND NEVER RE-DECLARED. Five
+ * files in this slice wrote a narrower inline form and were corrected for it.
+ * This listing keeps DIRECTORY entries, which is exactly the shape a probe
+ * arrives as, so a concurrent gate's probe would be listed here and then
+ * ENOENT the moment that process's `finally` removes it — or be read as a
+ * finding. The prose lives OUT here on purpose: the gate that polices this
+ * reads each function's body text WITH its comments, so a note about the
+ * predicate written inside the body would satisfy the gate on its own and the
+ * skip below could then be deleted without turning anything red.
  */
-function citedTokensOfRouteDir(): Set<string> {
-  const tokens = new Set<string>()
+function routeDirSources(): { readonly name: string; readonly text: string }[] {
+  const out: { name: string; text: string }[] = []
   for (const entry of readdirSync(ROUTE_DIR, { withFileTypes: true })) {
+    if (isForeignProbe(entry.name)) continue
     if (entry.isDirectory()) continue
     if (!/\.tsx?$/.test(entry.name)) continue
-    const text = readFileSync(join(ROUTE_DIR, entry.name), 'utf8')
+    out.push({ name: entry.name, text: readFileSync(join(ROUTE_DIR, entry.name), 'utf8') })
+  }
+  return out
+}
+
+function citedTokensOfRouteDir(): Set<string> {
+  const tokens = new Set<string>()
+  for (const { text } of routeDirSources()) {
     for (const token of text.match(CITED_TOKEN) ?? []) tokens.add(token)
   }
   return tokens
@@ -139,12 +158,9 @@ describe('reachability: every one of the thirty is a whole token in the route di
     // identifier at all. A reader still sees the pause feature's
     // source-attributed module, rendered from `PAUSE_FEATURE_ATTRIBUTION`.
     const offenders: string[] = []
-    for (const entry of readdirSync(ROUTE_DIR, { withFileTypes: true })) {
-      if (entry.isDirectory()) continue
-      if (!/\.tsx?$/.test(entry.name)) continue
-      const text = readFileSync(join(ROUTE_DIR, entry.name), 'utf8')
+    for (const { name, text } of routeDirSources()) {
       for (const token of text.match(MODULE_TOKEN) ?? []) {
-        offenders.push(`${entry.name}: ${token}`)
+        offenders.push(`${name}: ${token}`)
       }
     }
     expect(offenders, 'a module mention read as ownership of a route no module claims').toEqual([])

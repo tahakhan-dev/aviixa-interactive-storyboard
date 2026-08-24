@@ -202,7 +202,7 @@ export const DOH_MANUAL_WORKFLOW_RULE = {
  * NO COUNT IS STORED. The source states none and every brief's number was
  * wrong.
  */
-export const DOH_AI_FLOOR_MODULE_IDS: readonly DohCanonicalModuleId[] = [
+export const DOH_AI_FLOOR_MODULE_IDS = [
   'MOD-DOH-04',
   'MOD-DOH-05',
   'MOD-DOH-06',
@@ -211,7 +211,7 @@ export const DOH_AI_FLOOR_MODULE_IDS: readonly DohCanonicalModuleId[] = [
   'MOD-DOH-09',
   'MOD-DOH-10',
   'MOD-DOH-11',
-]
+] as const satisfies readonly DohCanonicalModuleId[]
 
 /** The appositive's own words, in the order the line writes them, for the join. */
 export const DOH_AI_FLOOR_PHRASES: readonly {
@@ -309,7 +309,13 @@ const DERIVED_DRAFT_ES =
   + 'propuestas, nunca registros — se le aplica por el mismo razonamiento.'
 
 export const DOH_MODULE_AI_ROWS: readonly DohModuleAiRow[] = ALL_HUB_MODULES.map((module) => {
-  const named = DOH_AI_FLOOR_MODULE_IDS.includes(module.id)
+  // The widening belongs HERE and not on the declaration. `.includes` on a
+  // literal tuple narrows its own parameter to the tuple's members, so asking
+  // whether a NON-member is in the list is a compile error rather than the
+  // `false` this row needs. Widening the declaration instead would reopen the
+  // hole the `as const satisfies` form closes — a closed vocabulary that has
+  // been widened is no longer closed.
+  const named = (DOH_AI_FLOOR_MODULE_IDS as readonly DohCanonicalModuleId[]).includes(module.id)
   return {
     moduleId: module.id,
     moduleName: module.name,

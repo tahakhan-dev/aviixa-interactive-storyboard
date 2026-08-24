@@ -337,7 +337,7 @@ export interface SourceNote {
  * its. All four render, because implementing one pair and citing the other is
  * how a criterion ships unimplemented behind a correct-looking citation.
  */
-export const FIVE_SURFACE_OBLIGATIONS: readonly OverlayObligation[] = [
+export const FIVE_SURFACE_OBLIGATIONS = [
   {
     id: 'AC-43-005',
     sourceRef: 'L89868',
@@ -402,7 +402,7 @@ export const FIVE_SURFACE_OBLIGATIONS: readonly OverlayObligation[] = [
       + 'vocabulary table, in both English and Spanish authored variants.',
     withheld: null,
   },
-]
+] as const satisfies readonly OverlayObligation[]
 
 /**
  * §43.3's own classification of the five-surface obligations, verbatim. It is

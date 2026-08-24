@@ -68,13 +68,13 @@ import { type SurfaceAiOverlay } from './overlay'
  * effect: never an empty statement, always a reason.
  */
 
-export const FIVE_SURFACE_OVERLAYS: readonly SurfaceAiOverlay[] = [
+export const FIVE_SURFACE_OVERLAYS = [
   DOH_AI_OVERLAY,
   STU_AI_OVERLAY,
   CC_AI_OVERLAY,
   FL_AI_OVERLAY,
   SA_AI_OVERLAY,
-]
+] as const satisfies readonly SurfaceAiOverlay[]
 
 /**
  * Compile-time: every joined surface has an overlay. Adding a sixth surface to

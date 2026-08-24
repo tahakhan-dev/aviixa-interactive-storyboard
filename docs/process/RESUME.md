@@ -1003,7 +1003,7 @@ Eighteen controller brief errors across waves 3 and 4. The shapes repeat, and tw
 
 - **Storyboard locators off by 24 to 75 lines**, each landing on real, plausible content — `AC-43-113` where a storyboard was claimed. A locator that "looks consistent" is not verified.
 - **Every section-span end line in chapter 44A is blank**, the separator before the next heading, with the content end one earlier. Confirmed independently across all three ten-storyboard ranges.
-- `AC-42-303` cited as a range whose endpoint L89412 is blank, and paraphrased into a rule it does not state, in four doc sites and two user-visible throw messages.
+- `AC-42-303` cited as a range whose endpoint [cited-in-error: L89412] is blank, and paraphrased into a rule it does not state, in four doc sites and two user-visible throw messages.
 - `AC-43-356` is L91309; L91306 is `AC-43-353`. Spine item 13 is L89938; L89934 is item 9. The head's own sentence is L92648, its reading list L92660-L92669, its deterministic rule L92650. The glance rows for storyboards 29 and 30 are L92721 and L92722.
 - **Two identifiers the controller called absent from the canon are members of it** — `DEC-ROLE-001` and `DEC-COACHREPLAY-001`.
 - The Hub's informal module list is **eight**, and the source states no number.

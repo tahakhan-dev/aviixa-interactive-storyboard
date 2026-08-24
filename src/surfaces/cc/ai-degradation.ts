@@ -126,7 +126,7 @@ const ccRow = (
   moduleId: resolveByName(moduleName),
 })
 
-export const CC_AI_BEHAVIOUR_ROWS: readonly CcAiBehaviourRow[] = [
+export const CC_AI_BEHAVIOUR_ROWS = [
   ccRow(
     'Live shift board',
     'Allowed — deterministic, with freshness markers',
@@ -175,7 +175,7 @@ export const CC_AI_BEHAVIOUR_ROWS: readonly CcAiBehaviourRow[] = [
     '`SoW Fact — §3.5, §6.14.2`',
     'L91094',
   ),
-]
+] as const satisfies readonly CcAiBehaviourRow[]
 
 export const CC_AI_BEHAVIOUR_TABLE: OverlayTable = {
   caption: 'Behaviour matrix by module.',
@@ -379,7 +379,7 @@ const handoffRow = (
   invertedPolarity,
 })
 
-export const SHIFT_HANDOFF_ROLE_MATRIX: readonly ShiftHandoffMatrixRow[] = [
+export const SHIFT_HANDOFF_ROLE_MATRIX = [
   handoffRow(
     'Receive the full brief',
     [
@@ -463,7 +463,7 @@ export const SHIFT_HANDOFF_ROLE_MATRIX: readonly ShiftHandoffMatrixRow[] = [
     ],
     'L92309',
   ),
-]
+] as const satisfies readonly ShiftHandoffMatrixRow[]
 
 export const SHIFT_HANDOFF_MATRIX_HEADINGS = [
   'Capability',

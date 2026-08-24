@@ -96,11 +96,11 @@ export const STORYBOARD_IDENTIFIER_ORDER = [
  * `StoryboardCard` renders in an alert. Filtering it out would silence the one
  * paraphrase prohibition the source actually states, at L94876.
  */
-export const ALL_THIRTY_STORYBOARDS: readonly Storyboard[] = [
+export const ALL_THIRTY_STORYBOARDS = [
   ...STORYBOARDS_01_TO_10,
   ...STORYBOARDS_11_TO_20,
   ...SB_21_TO_30,
-]
+] as const satisfies readonly Storyboard[]
 
 /**
  * THE FOURTH OWNER OF THIS PAGE'S FIRST FALLBACK LITERAL, NAMED.
