@@ -724,6 +724,38 @@ mid-verification for another agent, and a killed gate run left an orphaned `.zz-
 the export that failed the next chain inside `cp` rather than inside any assertion. Two agents hit
 that independently. **Wave 3 runs at most three agents, with the build step serialised.**
 
+### Wave 3 task 14 — closed and verified on this tree
+
+**Candidate `df749c9`** (controller repairs at `0de7950` immediately before it). Verified by the
+controller rather than taken from the report: **typecheck 0 · lint 0 · unit 5673 in 168 files ·
+component 2749 in 100 files.** Both counts matched the implementer's figures exactly, which is the
+first time in this slice that all reported numbers survived checking unchanged.
+
+**Every locator in the task-14 brief held, and the six the controller had corrected were correct
+corrections** — each rejected line was independently confirmed to carry different content (L87796 is
+blank; L90040 is `AC-43-113`; L90045 is `TEST-43-112`; L91288 is the platform-wide pause row).
+
+**Three findings the brief did not carry, all from the implementer opening lines:**
+
+- **`DEC-AIRTO-001` is a fourth non-canon decision**, not merely a trap. It is as absent from
+  `OPEN_DECISION_IDS` as `DEC-AIPAUSE-001`, `DEC-KILL-001` and `DEC-PAUSE-001`. All four disclose
+  locally in the slice-8 pattern; **wave 5 owns the consolidation, and it is now four, not three.**
+- **L87833 carries no bare `PAUSE -->` edge** — it declares the root node inline. A matcher written
+  from "sixteen `PAUSE -->` edges" is green on fifteen lines and red on the first.
+- The graph returned `DEC-KILL-001 loc=L86247`, wrong by about 1,550 lines. Not cited. §2a's rule
+  again doing exactly what it exists for.
+
+**And one shape worth carrying past this slice: an ambiguous module ownership throw from the registry
+builder.** An earlier unit run printed "5531 passed" as its last line **while exiting 1** — the fifth
+recorded instance of a summary line contradicting an exit code in this build. The cause was two route
+files each naming one module once, which the builder reads as an ownership claim. The route is owned by
+no module; the identifier now renders from a `PAUSE_FEATURE_ATTRIBUTION` record instead of a literal,
+held there by a gate.
+
+**`FEAT-SA-0702` names two different features on two lines** — the global severity catalog at L47802
+and "emergency pause proposal" in the Platform Engineer's role card at L15945. Both owners render as an
+alias pair on the slice-10 pattern and **no gate asserts a single meaning for it.**
+
 ### Wave 3 pre-verification — three verifiers, and one finding outranks the wave
 
 **FIVE COMMITTED MODULES ARE REACHABLE FROM NOTHING, AND NONE OF THEM STATES AN ABSTENTION.** Measured
