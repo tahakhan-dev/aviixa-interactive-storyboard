@@ -191,9 +191,31 @@ export function WorkflowIndex() {
         same source line, extracted twice.
       </p>
       <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">
-        No workflow has been demonstrated in this build yet: every row below
-        reads &ldquo;not represented&rdquo; because slices 3-13, which build
-        the module screens that would demonstrate one, have not run.
+        A row reads &ldquo;demonstrated in storyboard&rdquo; when a shipped
+        route screen under <code>app/</code> names that workflow identifier as
+        a whole token, and &ldquo;not represented&rdquo; when none does. That is
+        a narrower claim than &ldquo;this build demonstrates the workflow&rdquo;:
+        a workflow can be fully built and still read not represented if nothing
+        has named it on a route yet. THE SENTENCE THAT STOOD HERE SAID NO
+        WORKFLOW HAD BEEN DEMONSTRATED AT ALL, AND IT WAS STILL SAYING SO AFTER
+        EIGHTY ROWS HAD MOVED. It is replaced by the rule rather than by a
+        fresh count, because a count transcribed into prose is what went stale.
+      </p>
+
+      {/* Reachability by navigation and not only by URL. The storyboard page is
+          a sibling route under this one, and a route nothing links to is a page
+          only its author can find. */}
+      <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">
+        <Link
+          href="/workflows/ai-and-its-absence/"
+          className="text-[var(--color-primary)] underline"
+        >
+          Artificial intelligence and its absence
+        </Link>{' '}
+        &mdash; section 44A&rsquo;s required artificial-intelligence and fallback storyboards, all
+        thirty on one page, each with its five-surface reaction and the audit events its final
+        official state is reconstructed from. Not a workflow row: the frozen source names no screen
+        that holds them together, so the page is a derived one and states that above the fold.
       </p>
 
       <div className="mt-6 flex flex-wrap items-end gap-4">
