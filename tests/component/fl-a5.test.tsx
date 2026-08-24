@@ -2,10 +2,14 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import {
-  DetectionAndContainmentView,
-  FL_A5_PANEL,
-} from '@/frontline/modules/fl-a5/DetectionAndContainmentPanel'
+import { DetectionAndContainmentView } from '@/frontline/modules/fl-a5/DetectionAndContainmentPanel'
+// THE PANEL THE ROUTE ACTUALLY MOUNTS, from the SERVER module. This suite used
+// to read `FL_A5_PANEL` out of the `'use client'` file above -- a duplicate that
+// `app/frontline/run-player/page.tsx` never imported, so the module id and
+// heading a client sees on /frontline/run-player/ were asserted by nothing and
+// the assertion below could not fail. See `./panel.tsx`'s own comment for the
+// slice-7 defect this shape shipped once.
+import { FL_A5_ROUTE_PANEL } from '@/frontline/modules/fl-a5/panel'
 import { A5_CARD, A5_STATES } from '@/frontline/modules/fl-a5/charter'
 import { FL_A5_MATRIX } from '@/frontline/modules/fl-a5/matrix'
 import { A5_ACCEPTANCE_CRITERIA, A5_FUNCTIONALITIES } from '@/frontline/modules/fl-a5/service'
@@ -54,9 +58,9 @@ describe('MOD-FL-A5 — the panel contract', () => {
   // to SCR-FL-12, dropping the deviation capture screen. Went red at 1
   // against 2.
   it('exports a RunPlayerPanel naming its own module and its own two views', () => {
-    expect(FL_A5_PANEL.module).toBe('MOD-FL-A5')
-    expect(FL_A5_PANEL.heading).toBe('On-Device Detection and Containment')
-    expect(FL_A5_PANEL.rendersViews).toEqual([
+    expect(FL_A5_ROUTE_PANEL.module).toBe('MOD-FL-A5')
+    expect(FL_A5_ROUTE_PANEL.heading).toBe('On-Device Detection and Containment')
+    expect(FL_A5_ROUTE_PANEL.rendersViews).toEqual([
       'Deviation capture screen',
       'Containment checklist',
     ])
@@ -65,7 +69,7 @@ describe('MOD-FL-A5 — the panel contract', () => {
   // FAILS IF: the panel body is not the view. Planted: body replaced with a
   // placeholder paragraph. Went red on the cell count.
   it('mounts the view as its body', () => {
-    render(<>{FL_A5_PANEL.body}</>)
+    render(<>{FL_A5_ROUTE_PANEL.body}</>)
     expect(screen.getAllByTestId('fl-a5-cell')).toHaveLength(45)
   })
 })

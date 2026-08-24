@@ -29,14 +29,26 @@ import AxeBuilder from '@axe-core/playwright'
  * tagged `best-practice` only. The headers are fixed; the blindness was not,
  * until this change.
  *
- * MEASURED BEFORE THE CHANGE, NOT ASSUMED. Every one of the 79 scannable
- * routes was scanned once with no tag restriction at all. The whole build
- * carries exactly ONE violation that the filter was hiding —
+ * MEASURED BEFORE THE CHANGE, NOT ASSUMED, AND RE-MEASURED ON EVERY RUN SINCE.
+ * Every scannable route was scanned once with no tag restriction at all. The
+ * whole build carries exactly ONE violation that the filter was hiding —
  * `heading-order`, one node, on `/studio/training-library/` — and the
  * undecided bucket gained nothing: untagged `incomplete` is still
  * `color-contrast` and nothing else. The blindness was real and wide; what
  * was hiding behind it was one defect. Both halves of that sentence are the
  * finding.
+ *
+ * THE ROUTE COUNT THAT USED TO BE IN THAT PARAGRAPH IS GONE RATHER THAN
+ * RENUMBERED. It read "every one of the 79 scannable routes", which was three
+ * slices stale — re-measured at 103 — and it was never the claim: nothing in
+ * this file or either harness reads it, and a reader cannot tell a correct
+ * number from a stale one. What keeps the sentence honest is that both halves
+ * are ASSERTED on every run over whatever the export now holds:
+ * `PINNED_BEST_PRACTICE` is compared for EQUALITY at each pinned route's
+ * default state by `axe.spec.ts`, so the "exactly ONE" goes red if the defect is
+ * fixed and the row kept, and `scanHere` fails any route carrying a
+ * best-practice violation or an undecided rule beyond the pin. The number was
+ * decorative; the assertions are the measurement.
  *
  * AND THE BLINDNESS ITSELF IS PROVEN, not inferred from the count. Three
  * best-practice-only rules — `empty-table-header`, `heading-order`,

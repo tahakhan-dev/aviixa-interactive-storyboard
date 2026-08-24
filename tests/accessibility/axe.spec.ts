@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test'
 import { scannableRoutes } from '../e2e/exported-routes'
 import { PINNED_BEST_PRACTICE, pinnedFor, runAxe, scanHere } from './axe-policy'
+import { SA_MODULES } from '@/surfaces/sa/modules'
+import { STU_MODULES } from '@/studio/modules'
+import { DOH_MODULES } from '@/surfaces/doh/modules'
 
 // C1: this list used to be WRITTEN BY HAND, and its own comment claimed it
 // was "every route in the 25-page export (24 distinct paths)". It was last
@@ -16,23 +19,90 @@ import { PINNED_BEST_PRACTICE, pinnedFor, runAxe, scanHere } from './axe-policy'
 // emits it, with no edit here.
 const PATHS = scannableRoutes()
 
-test('the scanned route list is derived from the export, and is not a stub', () => {
-  // The vacuity guard this whole change turns on: a list derived from a
-  // directory that happens to be empty scans nothing and passes, which is
-  // the hand list's defect wearing a walk. `tests/e2e/routes.spec.ts` holds
-  // the planted-probe proof that the derivation actually grows; this pins
-  // the floor at the scale the export has had since slice 3.
-  //
-  // 79 paths today: 78 exported `index.html` directories plus the
-  // unexported `/no-such-place/` the host answers from `404.html`. Split
-  // 18 Studio / 18 Hub / 20 Super Admin / 23 elsewhere. The comment used to
-  // say 54, which was three slices stale — the number is restated here
-  // because the driven sweep in `axe-states.spec.ts` now claims all three
-  // module surfaces and a floor nobody can date is a floor nobody trusts.
-  expect(PATHS.length).toBeGreaterThan(70)
-  expect(PATHS.filter((p) => p.startsWith('/studio/')).length).toBeGreaterThan(15)
-  expect(PATHS.filter((p) => p.startsWith('/hub/')).length).toBeGreaterThan(15)
-  expect(PATHS.filter((p) => p.startsWith('/super-admin/')).length).toBeGreaterThan(19)
+/**
+ * THE PER-SURFACE FLOORS ARE DERIVED FROM THE MODULE REGISTERS, AND THE NUMBERS
+ * THAT USED TO BE HERE ARE GONE RATHER THAN RENUMBERED.
+ *
+ * WHAT WAS WRONG. This block asserted `> 70` overall and `> 15` / `> 15` /
+ * `> 19` per surface, above a comment reading "79 paths today … 18 Studio /
+ * 18 Hub / 20 Super Admin / 23 elsewhere". Measured: 103 scannable — 102
+ * exported `index.html` directories plus the unexported `/no-such-place/` —
+ * split 18 Studio / 20 Hub / 23 Super Admin / 42 elsewhere. Three slices stale,
+ * and the same comment's own argument is the finding: "a floor nobody can date
+ * is a floor nobody trusts". Worse than stale prose, the floors carried 32
+ * routes of slack, so NINE Hub, Studio and console routes could vanish from the
+ * export with every one of them still green — a floor that cannot notice the
+ * loss it exists to notice.
+ *
+ * WHY DERIVED AND NOT RESTATED. Restating four numbers reships the identical
+ * defect with a fresher set, which is the reasoning `tests/e2e/sa-console.spec.ts`
+ * and `axe-states.spec.ts` both already record. So the expectation is derived
+ * from the two things that decide it: each surface's MODULE REGISTER, which
+ * says which routes the build owes, and the export, which is the field under
+ * test. Every routed module must have a scanned route, named individually when
+ * it does not. A module added to a register is scanned on the next build with no
+ * edit here; a route disappearing from the export names the module that lost it
+ * rather than sliding under a threshold.
+ *
+ * WHAT IT DOES NOT ASSERT, deliberately. Not an equality: each surface also
+ * carries routes no module register names — `/studio/journey/`,
+ * `/studio/sign-in/`, `/hub/journey/`, `/super-admin/ai-incidents/` and the rest
+ * — and every one of them is still scanned by the sweep below, because that
+ * sweep is over the export and not over this list. This is the floor, derived;
+ * the coverage is the export.
+ *
+ * `slug` is nullable on the Studio register alone: two modules the source
+ * renders inside another module's screen carry `slug: null` and a
+ * `noRouteReason`, so they owe no route and are excluded rather than expected.
+ * Two Studio modules and two Hub modules share a slug with a sibling, which is
+ * why the derivation goes through a `Set`.
+ */
+const ROUTED_MODULES: readonly { readonly id: string; readonly paths: readonly string[] }[] = [
+  {
+    id: 'Studio',
+    paths: [
+      ...new Set(
+        STU_MODULES.filter((m) => m.slug !== null).map((m) => `/studio/${String(m.slug)}/`),
+      ),
+    ],
+  },
+  { id: 'Hub', paths: [...new Set(DOH_MODULES.map((m) => `/hub/${m.slug}/`))] },
+  { id: 'Super Admin', paths: [...new Set(SA_MODULES.map((m) => `/super-admin/${m.slug}/`))] },
+]
+
+test('every routed module has a scanned route, and the derivation is not a stub', () => {
+  // C17, and it is the guard the whole change turns on twice over: a list
+  // derived from a directory that happens to be empty scans nothing and
+  // passes, and so does a list derived from a register that has been renamed
+  // out from under this file. `tests/e2e/routes.spec.ts` holds the
+  // planted-probe proof that the ROUTE derivation actually grows; these floors
+  // are over the REGISTER derivation, and they are the only bare numbers left
+  // in this file — floors on emptiness, not on scale, so nothing here goes
+  // stale when a surface grows.
+  for (const surface of ROUTED_MODULES) {
+    expect(surface.paths.length, `${surface.id}: its module register is empty or was renamed`).toBeGreaterThan(0)
+  }
+  const expected = ROUTED_MODULES.flatMap((s) => s.paths)
+  expect(new Set(expected).size, 'two surfaces derive one route path').toBe(expected.length)
+  expect(PATHS.length, 'the export walk found fewer routes than the registers owe').toBeGreaterThan(
+    expected.length,
+  )
+
+  // THE ASSERTION THE FOUR FLOORS COULD NOT MAKE. Named individually, per
+  // surface, so a route lost from the export reports WHICH MODULE lost it.
+  for (const surface of ROUTED_MODULES) {
+    expect(
+      surface.paths.filter((p) => !PATHS.includes(p)),
+      `${surface.id}: its module register owes these routes and the export does not carry them. ` +
+        'A route that vanishes from the export is scanned by nothing, and a per-surface count ' +
+        'floor cannot tell that from a surface that never had it.',
+    ).toEqual([])
+  }
+
+  console.log(
+    `[axe] ${PATHS.length} scannable routes (${PATHS.length - 1} exported + /no-such-place/); ` +
+      ROUTED_MODULES.map((s) => `${s.id} owes ${s.paths.length}`).join(', '),
+  )
 })
 
 /**

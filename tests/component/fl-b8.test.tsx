@@ -2,7 +2,14 @@ import { describe, it, expect } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { CoachingView, FL_B8_PANEL } from '@/frontline/modules/fl-b8/CoachingPanel'
+import { CoachingView } from '@/frontline/modules/fl-b8/CoachingPanel'
+// THE PANEL THE ROUTE ACTUALLY MOUNTS, from the SERVER module. This suite used
+// to read `FL_B8_PANEL` out of the `'use client'` file above -- a duplicate that
+// `app/frontline/run-player/page.tsx` never imported, so the module id and
+// heading a client sees on /frontline/run-player/ were asserted by nothing and
+// the assertion below could not fail. See `./panel.tsx`'s own comment for the
+// slice-7 defect this shape shipped once.
+import { FL_B8_ROUTE_PANEL } from '@/frontline/modules/fl-b8/panel'
 import { B8_CARD, B8_STATES, SB_FL_017 } from '@/frontline/modules/fl-b8/charter'
 import {
   FL_B8_COLUMNS,
@@ -616,9 +623,9 @@ describe('the Run Player panel', () => {
   // FAILS IF: the panel claims another module's identity or another state's
   // name. `SCR-FL-13` is §22.7's own name for this state.
   it('claims MOD-FL-B8 and the coaching-card state, and nothing else', () => {
-    expect(FL_B8_PANEL.module).toBe('MOD-FL-B8')
-    expect(FL_B8_PANEL.rendersViews).toEqual(['Coaching card'])
-    expect(FL_B8_PANEL.heading).toBe('Coaching Rendering')
+    expect(FL_B8_ROUTE_PANEL.module).toBe('MOD-FL-B8')
+    expect(FL_B8_ROUTE_PANEL.rendersViews).toEqual(['Coaching card'])
+    expect(FL_B8_ROUTE_PANEL.heading).toBe('Coaching Rendering')
     expect(srcLine(39875)).toContain('Coaching card')
     expect(srcLine(39875)).toContain('MOD-FL-B8')
   })
@@ -627,7 +634,7 @@ describe('the Run Player panel', () => {
   // through the route's own value rather than through the view directly.
   it('renders its body with no modal and the step unaffected', () => {
     cleanup()
-    render(<div>{FL_B8_PANEL.body}</div>)
+    render(<div>{FL_B8_ROUTE_PANEL.body}</div>)
     expect(modalElements()).toEqual([])
     expect(isShown(screen.getByTestId('fl-b8-step-unaffected'))).toBe(true)
     expect(screen.getAllByTestId('fl-b8-cell')).toHaveLength(35)

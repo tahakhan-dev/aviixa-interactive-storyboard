@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import type { RunPlayerPanel } from '../../../../app/frontline/run-player/RunPlayerRoute'
 import { CrossSurfaceAct, frontlineCrossSurfaceModel } from '@/frontline/cross-surface'
 import { frontlineAffordance, type FrontlineAffordance } from '@/frontline/matrix'
 import { Button, StatusPill } from '@/ui/primitives'
@@ -40,7 +39,6 @@ import {
   B11_SOURCE_FINDINGS,
   B11_SUBSTITUTE_NEVER_RECEIVES,
   B11_SUBSTITUTION_COMMAND,
-  B11_VIEW_NAMES,
   applySubstitution,
   atStepExpiry,
   departureFlag,
@@ -746,13 +744,15 @@ export function WorkerLifecycleView({
 }
 
 /**
- * The value the Run Player route mounts. The route file is the spine task's
- * and is not edited here; this module exports a panel and the controller wires
- * it in.
+ * NO PANEL OBJECT IS EXPORTED FROM THIS FILE, AND THAT IS THE FIX RATHER THAN
+ * A TIDY-UP. It carries `'use client'`, so an object exported here becomes a
+ * client reference in a build and a server component reading its string fields
+ * gets nothing -- the slice-7 defect that shipped `data-testid=
+ * "fl-panel-undefined"` for four of six Run Player modules. The panel the route
+ * mounts is built in the server module `./panel.tsx`, which is what
+ * `app/frontline/run-player/page.tsx` imports and what the component suite
+ * asserts on. A duplicate here, imported by nothing but that suite, is how the
+ * assertion that looked like it guarded the mounted id stopped being able to
+ * fail; `tests/coverage/slice-09-gates.test.ts` gate 11 now convicts the shape
+ * across `src` and `app` rather than on the Command Center alone.
  */
-export const FL_B11_PANEL: RunPlayerPanel = {
-  module: 'MOD-FL-B11',
-  heading: 'Worker Lifecycle on Device',
-  rendersViews: B11_VIEW_NAMES,
-  body: <WorkerLifecycleView />,
-}

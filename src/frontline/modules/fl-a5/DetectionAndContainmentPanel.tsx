@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import type { RunPlayerPanel } from '../../../../app/frontline/run-player/RunPlayerRoute'
 import { surfaceById } from '@/domain/surfaces'
 import {
   CrossSurfaceAct,
@@ -9,7 +8,6 @@ import {
 } from '@/frontline/cross-surface'
 import type { UnitOrLotBinding } from '@/frontline/capture'
 import { frontlineAffordance, type FrontlineAffordance } from '@/frontline/matrix'
-import { FL_PLAYER_VIEWS } from '@/frontline/screens'
 import { Button, StatusPill } from '@/ui/primitives'
 import {
   A5_CARD,
@@ -72,11 +70,6 @@ import {
 const ROW_BY_ID: Readonly<Record<FlA5RowId, FlA5MatrixRow>> = Object.fromEntries(
   FL_A5_MATRIX.map((r) => [r.id, r]),
 ) as Readonly<Record<FlA5RowId, FlA5MatrixRow>>
-
-/** §22.7's own names for the two rows whose Module column reads `MOD-FL-A5`. */
-const A5_VIEW_NAMES: readonly string[] = FL_PLAYER_VIEWS.filter(
-  (v) => v.id === 'SCR-FL-11' || v.id === 'SCR-FL-12',
-).map((v) => v.name)
 
 /** The Illustrative Example's own capture, L41038. */
 const EXAMPLE = {
@@ -587,13 +580,15 @@ export function DetectionAndContainmentView({
 }
 
 /**
- * The value the Run Player route mounts. The route file is the spine task's
- * and is not edited here; this module exports a panel and the controller
- * wires it in.
+ * NO PANEL OBJECT IS EXPORTED FROM THIS FILE, AND THAT IS THE FIX RATHER THAN
+ * A TIDY-UP. It carries `'use client'`, so an object exported here becomes a
+ * client reference in a build and a server component reading its string fields
+ * gets nothing -- the slice-7 defect that shipped `data-testid=
+ * "fl-panel-undefined"` for four of six Run Player modules. The panel the route
+ * mounts is built in the server module `./panel.tsx`, which is what
+ * `app/frontline/run-player/page.tsx` imports and what the component suite
+ * asserts on. A duplicate here, imported by nothing but that suite, is how the
+ * assertion that looked like it guarded the mounted id stopped being able to
+ * fail; `tests/coverage/slice-09-gates.test.ts` gate 11 now convicts the shape
+ * across `src` and `app` rather than on the Command Center alone.
  */
-export const FL_A5_PANEL: RunPlayerPanel = {
-  module: 'MOD-FL-A5',
-  heading: 'On-Device Detection and Containment',
-  rendersViews: A5_VIEW_NAMES,
-  body: <DetectionAndContainmentView />,
-}

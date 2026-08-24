@@ -3,10 +3,14 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { FL_OVERLAY_ON_ANY_DESTINATION } from '@/frontline/screens'
-import {
-  FL_B9_PANEL,
-  GatesAndSignOffView,
-} from '@/frontline/modules/fl-b9/GatesAndSignOffPanel'
+import { GatesAndSignOffView } from '@/frontline/modules/fl-b9/GatesAndSignOffPanel'
+// THE PANEL THE ROUTE ACTUALLY MOUNTS, from the SERVER module. This suite used
+// to read `FL_B9_PANEL` out of the `'use client'` file above -- a duplicate that
+// `app/frontline/run-player/page.tsx` never imported, so the module id and
+// heading a client sees on /frontline/run-player/ were asserted by nothing and
+// the assertion below could not fail. See `./panel.tsx`'s own comment for the
+// slice-7 defect this shape shipped once.
+import { FL_B9_ROUTE_PANEL } from '@/frontline/modules/fl-b9/panel'
 import { B9_CARD, B9_STATES, SB_FL_018 } from '@/frontline/modules/fl-b9/charter'
 import { B9_COLUMNS, B9_MATRIX, type B9Column } from '@/frontline/modules/fl-b9/matrix'
 import {
@@ -112,9 +116,9 @@ describe('MOD-FL-B9 — the panel contract', () => {
   // widened to include SCR-FL-16, the worker-finished completion screen,
   // which is MOD-FL-A3's. Went red at 3 against 2.
   it('exports a RunPlayerPanel naming its own module and its own two views', () => {
-    expect(FL_B9_PANEL.module).toBe('MOD-FL-B9')
-    expect(FL_B9_PANEL.heading).toBe('Gates and Sign-Off Authority')
-    expect(FL_B9_PANEL.rendersViews).toEqual([
+    expect(FL_B9_ROUTE_PANEL.module).toBe('MOD-FL-B9')
+    expect(FL_B9_ROUTE_PANEL.heading).toBe('Gates and Sign-Off Authority')
+    expect(FL_B9_ROUTE_PANEL.rendersViews).toEqual([
       'Gate block and parked-run notice',
       'Supervisor sign-off screen with step-up',
     ])
@@ -126,7 +130,7 @@ describe('MOD-FL-B9 — the panel contract', () => {
   // FAILS IF: the panel body is not the view. Planted: body replaced with a
   // placeholder paragraph. Went red on the cell count.
   it('mounts the view as its body, all forty-five cells', () => {
-    render(<>{FL_B9_PANEL.body}</>)
+    render(<>{FL_B9_ROUTE_PANEL.body}</>)
     expect(screen.getAllByTestId('fl-b9-cell')).toHaveLength(45)
     expect(screen.getAllByTestId('fl-b9-row')).toHaveLength(9)
   })

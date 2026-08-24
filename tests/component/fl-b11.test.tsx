@@ -2,10 +2,14 @@ import { describe, it, expect, afterEach } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import {
-  FL_B11_PANEL,
-  WorkerLifecycleView,
-} from '@/frontline/modules/fl-b11/WorkerLifecyclePanel'
+import { WorkerLifecycleView } from '@/frontline/modules/fl-b11/WorkerLifecyclePanel'
+// THE PANEL THE ROUTE ACTUALLY MOUNTS, from the SERVER module. This suite used
+// to read `FL_B11_PANEL` out of the `'use client'` file above -- a duplicate that
+// `app/frontline/run-player/page.tsx` never imported, so the module id and
+// heading a client sees on /frontline/run-player/ were asserted by nothing and
+// the assertion below could not fail. See `./panel.tsx`'s own comment for the
+// slice-7 defect this shape shipped once.
+import { FL_B11_ROUTE_PANEL } from '@/frontline/modules/fl-b11/panel'
 import { B11_CARD, B11_FOUR_RUN_STATES, B11_STATES } from '@/frontline/modules/fl-b11/charter'
 import {
   B11_ELSEWHERE_PERMISSIVE_CELLS,
@@ -454,10 +458,10 @@ describe('the Run Player panel this module exports', () => {
   // route is a shared file six modules mount into. Planted: `module` changed
   // to 'MOD-FL-B9'. Went red.
   it('claims its own module and the two views the register gives it', () => {
-    expect(FL_B11_PANEL.module).toBe('MOD-FL-B11')
-    expect(FL_B11_PANEL.heading).toBe('Worker Lifecycle on Device')
-    expect(FL_B11_PANEL.rendersViews).toEqual([...B11_VIEW_NAMES])
-    expect(FL_B11_PANEL.rendersViews).toEqual([
+    expect(FL_B11_ROUTE_PANEL.module).toBe('MOD-FL-B11')
+    expect(FL_B11_ROUTE_PANEL.heading).toBe('Worker Lifecycle on Device')
+    expect(FL_B11_ROUTE_PANEL.rendersViews).toEqual([...B11_VIEW_NAMES])
+    expect(FL_B11_ROUTE_PANEL.rendersViews).toEqual([
       'Step-away and hand-back sheet',
       'Substitution handover state',
     ])
@@ -465,7 +469,7 @@ describe('the Run Player panel this module exports', () => {
     expect(srcLine(39884)).toContain('`MOD-FL-B11`')
     expect(srcLine(39885)).toContain('`MOD-FL-B11`')
     // and the panel body renders.
-    render(<div>{FL_B11_PANEL.body}</div>)
+    render(<div>{FL_B11_ROUTE_PANEL.body}</div>)
     expect(screen.getAllByTestId('fl-b11-row')).toHaveLength(10)
   })
 })

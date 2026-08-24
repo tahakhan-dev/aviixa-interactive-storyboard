@@ -1237,13 +1237,30 @@ const HAS_USE_CLIENT = /^\s*['"]use client['"]\s*;?\s*$/m
 
 describe('slice 9 gate 10: no server component renders a WriteControl with an allow', () => {
   it('every file that renders one and constructs an allow is a client component', () => {
-    const files = [...sourcesUnder('src/surfaces/cc'), ...sourcesUnder('app/command-center')]
+    // THE POPULATION IS THE WHOLE TREE, AND IT USED TO BE ONE SURFACE. It read
+    // `sourcesUnder('src/surfaces/cc')` plus `sourcesUnder('app/command-center')`
+    // — 8 of the tree's 84 client files — while this and gate 11 below are the
+    // only build-wide gates for the client-boundary defect they name. A defect
+    // shape convicted on one surface of five is a defect shape that ships on
+    // the other four. MEASURED across `src` and `app`: 11 files render a
+    // `WriteControl`, up from 8, and the enabled six are the same six.
+    const files = [...sourcesUnder('src'), ...sourcesUnder('app')]
     const renders = files.filter((f) => /<WriteControl\b/.test(read(f)))
     // NON-VACUITY: the population is asserted before the property is. A
     // sweep over zero files proves nothing at all.
     expect(renders.length).toBeGreaterThan(0)
     const withAnAllow = renders.filter((f) => /\ballow\s*\(/.test(stripComments(read(f))))
-    expect(withAnAllow.length, 'no Command Center file renders an enabled WriteControl').toBe(6)
+    // `toBe(6)` HERE WOULD NOW BE A CEILING RATHER THAN A FLOOR. Scoped to the
+    // Command Center it was a real count; over the whole tree the same literal
+    // reds the day another surface ships its first enabled WriteControl, which
+    // is a legitimate change and not this gate's business. The six are still
+    // the floor, so the sweep can never quietly shrink back below the
+    // population it had when it was narrow, and the PROPERTY below is what
+    // this gate exists for.
+    expect(
+      withAnAllow.length,
+      'fewer files render an enabled WriteControl than the Command Center alone did',
+    ).toBeGreaterThanOrEqual(6)
 
     const serverSide = withAnAllow.filter((f) => !HAS_USE_CLIENT.test(read(f)))
     expect(
@@ -1276,21 +1293,172 @@ describe('slice 9 gate 10: no server component renders a WriteControl with an al
  * Four panels shipped an undefined module id that way in slice 7.
  * ==================================================================== */
 
+const PLAIN_DATA_EXPORT = /^export const \w+[^=\n]*= *[[{]/m
+
+/**
+ * CLIENT FILES THAT EXPORT PLAIN DATA, CONVICTED BY THE WIDENED POPULATION AND
+ * RECORDED RATHER THAN SILENCED.
+ *
+ * Widening this gate from `src/surfaces/cc` + `app/command-center` (8 of the
+ * tree's 84 client files) to the whole tree convicted NINE files. Four were
+ * `FL_A5_PANEL`, `FL_B8_PANEL`, `FL_B9_PANEL` and `FL_B11_PANEL` — the exact
+ * defect this gate names, imported by nothing but the four component suites that
+ * were asserting on them instead of on the panels the Run Player mounts. Those
+ * four are DELETED, not recorded: the fix was available, so the fix was taken.
+ *
+ * These five are the remainder, and every one of them is a screen's own fixture
+ * and vocabulary data sitting in the same file as the `'use client'` component
+ * that draws it. Compared for EQUALITY in both directions: a sixth file goes red
+ * until it is fixed or entered here with a reason, and a fixed one goes red until
+ * its row is deleted. An exception list that cannot outlive its defect cannot
+ * rot — the rule `PINNED_BEST_PRACTICE` and `unreachedRoutes` are already held
+ * to elsewhere in this build.
+ *
+ * WHY RECORDED AND NOT FIXED HERE. The fix is the one
+ * `app/super-admin/devices-and-fleet/` already shipped: move the data to a
+ * sibling server module (`./fixtures.ts`) and leave the component behind. Doing
+ * it means moving every named export and re-pointing each screen's own component
+ * suite — `tests/component/sa-atom-registry.test.tsx` and its four siblings, each
+ * of which imports these data names directly — and those five files are outside
+ * the file list of the task that widened this gate. The finding is recorded with
+ * its fix named rather than absorbed, and the assertion below is what stops the
+ * record standing in for the fix.
+ *
+ * NONE CAUSES LIVE HARM TODAY, AND THAT IS ASSERTED RATHER THAN CLAIMED. Each
+ * console `page.tsx` imports only the component from its screen file, never a
+ * data export, so nothing reads a client reference across the boundary. The test
+ * below measures that on every run, which is what keeps this list from becoming
+ * a permission to ship the defect it describes.
+ */
+const CLIENT_DATA_EXPORT_OFFENDERS: readonly { readonly file: string; readonly reason: string }[] = [
+  {
+    file: 'app/super-admin/atom-registry/AtomRegistryScreen.tsx',
+    reason:
+      'Five exports — CONSOLE_ROLES, ATOM_STATES, EVAL_VERDICTS, ATOM_FIXTURES and ' +
+      'UNSPECIFIED_IN_SOURCE — are the module vocabulary and the seeded atoms this screen draws ' +
+      'and its component suite reads. `page.tsx` imports the component alone, so no server ' +
+      'component crosses the boundary for them. Fix: a sibling `fixtures.ts` server module, the ' +
+      'shape `app/super-admin/devices-and-fleet/` already uses.',
+  },
+  {
+    file: 'app/super-admin/jbs-access/JbsAccessScreen.tsx',
+    reason:
+      'CONSOLE_ROLE_VIEWS, JBS_GRANT_STATES, JBS_GRANTS, RECONCILIATION_CHECKS and ' +
+      'UNSPECIFIED_IN_SOURCE — the role views, the grant-state vocabulary and the seeded grants ' +
+      'this screen draws and its component suite reads. `page.tsx` imports the component alone. ' +
+      'Fix: a sibling `fixtures.ts` server module.',
+  },
+  {
+    file: 'app/super-admin/memory-architecture/MemoryArchitectureScreen.tsx',
+    reason:
+      'MEMORY_STORES, SA_04_ROLE_VIEWS, SA_04_ABSENT_ACTIONS, SA_04_UNSPECIFIED_AFFORDANCES and ' +
+      'SA_04_INVARIANT_IDS — the store inventory and the four per-role records this screen draws ' +
+      'and its component suite reads. `page.tsx` imports the component alone. Fix: a sibling ' +
+      '`fixtures.ts` server module.',
+  },
+  {
+    file: 'app/super-admin/platform-audit/PlatformAuditScreen.tsx',
+    reason:
+      'Nine exports, the largest of these five: the console role views, the audit entry, export ' +
+      'and event-class vocabularies, the seeded entries, and the module control, workflow and ' +
+      'tenant-actor tables this screen draws and its component suite reads. `page.tsx` imports the ' +
+      'component alone. Fix: a sibling `fixtures.ts` server module.',
+  },
+  {
+    file: 'app/super-admin/tiers-entitlements-and-caps/TiersScreen.tsx',
+    reason:
+      'Nine exports: the console role views, the tier-version, grandfathering and field-group ' +
+      'vocabularies, and the seeded bands, records, assignments and overrides this screen draws ' +
+      'and its component suite reads. `page.tsx` imports the component alone. Fix: a sibling ' +
+      '`fixtures.ts` server module.',
+  },
+]
+
+/** The names a file exports as plain data — the bindings a server component
+ *  must not read across the boundary. */
+const dataExportsOf = (rel: string): readonly string[] =>
+  [...stripComments(read(rel)).matchAll(/^export const (\w+)[^=\n]*= *[[{]/gm)].map((m) => m[1]!)
+
+/** A NAMED, VALUE-LEVEL import. `import type` is erased before the boundary
+ *  exists, so a type read across it is not this defect. */
+const NAMED_VALUE_IMPORT =
+  /(?:^|\n)[ \t]*import\s+(?!type[\s{])\{([^}]*)\}[^;]{0,400}?from\s*['"]([^'"]+)['"]/g
+
 describe('slice 9 gate 11: a client file exports components, never plain data', () => {
-  it('no client file on this surface exports an object or array', () => {
-    const files = [...sourcesUnder('src/surfaces/cc'), ...sourcesUnder('app/command-center')]
+  it('the client files in this tree that export an object or array are the ones recorded', () => {
+    // THE POPULATION IS THE WHOLE TREE, AND IT USED TO BE ONE SURFACE. Measured
+    // before widening: 84 client files in `src` + `app`, 8 of them in the old
+    // scope and 76 outside it, and the old scope convicted nobody. The nine the
+    // widened sweep convicts are triaged above, not silenced.
+    const files = [...sourcesUnder('src'), ...sourcesUnder('app')]
     const clients = files.filter((f) => HAS_USE_CLIENT.test(read(f)))
-    expect(clients.length, 'this surface has no client components at all').toBeGreaterThan(0)
-    const plainData = /^export const \w+[^=\n]*= *[[{]/m
-    const offenders = clients.filter((f) => plainData.test(stripComments(read(f))))
-    expect(offenders).toEqual([])
-    // Every one of them exports at least one function, so the sweep is over
+    expect(clients.length, 'this tree has no client components at all').toBeGreaterThan(50)
+    const offenders = clients.filter((f) => PLAIN_DATA_EXPORT.test(stripComments(read(f))))
+    // EQUALITY, both directions. A new offender is red until it is fixed or
+    // recorded; a fixed one is red until its row goes.
+    expect(
+      [...offenders].sort(),
+      'the client files exporting plain data are not the ones recorded in ' +
+        'CLIENT_DATA_EXPORT_OFFENDERS. A client export becomes a client reference in a build, so ' +
+        'a server component reading its string fields gets nothing — the defect that shipped four ' +
+        'anonymous Run Player panels in slice 7.',
+    ).toEqual(CLIENT_DATA_EXPORT_OFFENDERS.map((o) => o.file).sort())
+    for (const o of CLIENT_DATA_EXPORT_OFFENDERS) {
+      expect(o.reason.length, `${o.file}: a recorded offender must say WHAT and name its fix`).toBeGreaterThan(120)
+    }
+    // Every client file exports at least one function, so the sweep is over
     // components rather than over an empty set that trivially satisfies it.
     for (const f of clients) expect(read(f)).toMatch(/^export (?:default )?function \w+/m)
     // NON-VACUITY, on this run: the predicate fires on both shapes it names.
-    expect(plainData.test('export const OWN_ACTS = [\n')).toBe(true)
-    expect(plainData.test('export const CFG: Shape = {\n')).toBe(true)
-    expect(plainData.test('export function Panel() {\n')).toBe(false)
+    expect(PLAIN_DATA_EXPORT.test('export const OWN_ACTS = [\n')).toBe(true)
+    expect(PLAIN_DATA_EXPORT.test('export const CFG: Shape = {\n')).toBe(true)
+    expect(PLAIN_DATA_EXPORT.test('export function Panel() {\n')).toBe(false)
+  })
+
+  it('nothing outside the client boundary reads a data export from a recorded offender', () => {
+    // THE ASSERTION THAT KEEPS THE RECORD ABOVE FROM BEING A PERMISSION. The
+    // shape is only harmful when a SERVER component reads one of those exports;
+    // that is the whole defect, and it is what is measured here rather than
+    // asserted in the prose above.
+    const files = [...sourcesUnder('src'), ...sourcesUnder('app')]
+    const servers = files.filter((f) => !HAS_USE_CLIENT.test(read(f)))
+    expect(servers.length, 'every file in this tree is a client file').toBeGreaterThan(100)
+
+    const crossings: string[] = []
+    let importsSeen = 0
+    for (const o of CLIENT_DATA_EXPORT_OFFENDERS) {
+      const names = dataExportsOf(o.file)
+      expect(names.length, `${o.file}: its data exports could not be parsed`).toBeGreaterThan(0)
+      const target = join(ROOT, o.file)
+      for (const f of servers) {
+        for (const m of read(f).matchAll(NAMED_VALUE_IMPORT)) {
+          if (resolveSpecifier(join(ROOT, f), m[2]!) !== target) continue
+          importsSeen += 1
+          for (const raw of m[1]!.split(',')) {
+            const binding = raw.trim().split(/\s+as\s+/)[0]?.trim() ?? ''
+            if (names.includes(binding)) crossings.push(`${f} reads ${binding} from ${o.file}`)
+          }
+        }
+      }
+    }
+    // NON-VACUITY: every recorded offender IS imported by a server file (its own
+    // `page.tsx`), so a resolver that stopped resolving would be caught here
+    // rather than reporting a clean sweep over nothing.
+    expect(
+      importsSeen,
+      'no server file was seen importing any recorded offender — the resolver or the record moved',
+    ).toBeGreaterThanOrEqual(CLIENT_DATA_EXPORT_OFFENDERS.length)
+    expect(
+      crossings.sort(),
+      'a server component reads a plain-data export out of a client module. Its string fields are ' +
+        'a client reference at prerender, so they are simply absent in the built HTML — invisible ' +
+        'to every component test, which is why this is a tree gate and not a suite.',
+    ).toEqual([])
+    // NON-VACUITY, on this run: the import matcher sees the shapes it must, and
+    // skips the one it must not.
+    expect([...`import { A, B as C } from './x'`.matchAll(NAMED_VALUE_IMPORT)]).toHaveLength(1)
+    expect([...`import {\n  A,\n} from './x'`.matchAll(NAMED_VALUE_IMPORT)]).toHaveLength(1)
+    expect([...`import type { A } from './x'`.matchAll(NAMED_VALUE_IMPORT)]).toHaveLength(0)
   })
 })
 

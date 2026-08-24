@@ -751,7 +751,23 @@ describe('MOD-SA-13 — the twelve applicable screen states', () => {
     advance(REACHED_ADVANCE)
     expect(within(region('Wipe on a device that returns')).getByText('authorized')).toBeDefined()
     selectRole('ROLE-PLAT-ROOT')
-    expect(screen.getByRole('button', { name: /approve the critical-class request/i })).toBeDefined()
+    // OPERABLE, NOT MERELY PRESENT, and that distinction is a measured finding
+    // rather than a style note. `Button` marks an inert control with
+    // `aria-disabled` rather than the bare `disabled` attribute (its own
+    // comment says why), so an inert control KEEPS its role and its accessible
+    // name. `getByRole(...).toBeDefined()` therefore passed with the module's
+    // one root-only critical-class action made inert in exactly the state this
+    // criterion is named for -- 35/35 green on the planted defect. The
+    // criterion is about OPERABILITY, so the attribute is read and then the
+    // control is acted on and its result read, which is the idiom this file
+    // already uses thirty-odd lines below.
+    const approve = screen.getByRole('button', { name: /approve the critical-class request/i })
+    expect(approve.getAttribute('aria-disabled'), 'the approval is inert with the AI unavailable').not.toBe('true')
+    fireEvent.click(approve)
+    expect(
+      within(region('Wipe and de-authorisation')).getByRole('status').textContent ?? '',
+      'the approval was clicked and recorded nothing',
+    ).toMatch(/approval is recorded/i)
   })
 })
 

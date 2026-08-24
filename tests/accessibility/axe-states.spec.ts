@@ -33,8 +33,21 @@ import { SCREEN_STATES } from '@/ui/screen-state'
  * `/studio/content-libraries/` — one of the eleven, on a screen no composed
  * journey step reaches. Component coverage and route coverage cover
  * DIFFERENT SETS, and this build has a real defect demonstrating the
- * difference. This file covers the union: every exported route, every
- * derived control position.
+ * difference.
+ *
+ * WHAT THIS FILE COVERS, AND THE CLAIM THAT USED TO BE HERE WAS WRONG. It read
+ * "this file covers the union: every exported route, every derived control
+ * position", and nothing asserted it. MEASURED: the three `SURFACES` prefixes
+ * below match 61 of the 103 scannable routes and 255 of the 261 derived control
+ * positions. `/command-center/` (13 routes) and `/frontline/` (7) match no
+ * prefix at all, and `/review/` and `/workflows/` carry six drivable controls
+ * between them that nothing here drives or axe-scans in a driven state. The
+ * claim is now the narrower true one: every route a `SURFACES` row claims is
+ * driven, and every route NO row claims either carries no drivable control or
+ * is recorded, by equality, in `UNDRIVEN_CONTROL_ROUTES` below. A prefix-less
+ * route growing a control goes red rather than silently emitting no test —
+ * which is the rule this file already applies one level down, to states and to
+ * viewer controls.
  *
  * ===================================================================
  * THE SECOND GAP, AND WHY THIS FILE IS NO LONGER STUDIO-ONLY.
@@ -124,9 +137,15 @@ const CONTROLS: readonly RouteControls[] = drivableControls()
  * as the id did — `exported-controls.ts` already returns it — so this is not
  * the hand list of prose that this file rejects elsewhere. A relabelled
  * control changes the export and the locator together, in one build.
- * Measured before relying on it: across all 78 exported routes there is not
- * one duplicated control label and not one empty one, so the label is a
- * unique handle on every route it is used on.
+ * THE COUNT THAT USED TO BE IN THIS PARAGRAPH IS NOW AN ASSERTION. It said
+ * "measured before relying on it: across all 78 exported routes there is not
+ * one duplicated control label and not one empty one" — a measurement taken by
+ * hand, three slices ago, published as prose and checked by nothing. The
+ * property still holds, re-measured at 102 exported routes and 261 control
+ * positions with zero duplicate and zero empty labels, and it is asserted on
+ * every run by `the derived control enumeration is not a stub` below. So the
+ * paragraph no longer carries a number that can go stale while the claim it
+ * supports stays quoted: the run is the measurement.
  *
  * AND IT IS SCOPED TO THE CONTROL'S ROLE, which the first version was not.
  * A plain `getByLabel('Screen state')` matched TWO elements on three routes —
@@ -368,6 +387,67 @@ const SURFACES: readonly DrivenSurface[] = [
 const routesOf = (surface: DrivenSurface): readonly RouteControls[] =>
   CONTROLS.filter((c) => c.path.startsWith(surface.prefix))
 
+const claimedBySomeSurface = (path: string): boolean =>
+  SURFACES.some((s) => path.startsWith(s.prefix))
+
+/**
+ * ROUTES NO `SURFACES` ROW CLAIMS, WHICH NONETHELESS CARRY A DRIVABLE CONTROL.
+ *
+ * The same record, for the same reason, as `unreachedRoutes` one level down,
+ * and compared for EQUALITY in both directions by the test below. A route that
+ * grows its first control goes red until it is either claimed by a surface or
+ * entered here with a written reason; a route that loses its last one goes red
+ * until its row is deleted. Neither can become a silent skip, which is the one
+ * failure mode this file exists to end.
+ *
+ * `controls` is pinned as well as `path`, so a NEW control appearing on a route
+ * that is already recorded is red too. That is the direction a bare path list
+ * would miss: `/workflows/` gaining a fifth filter is exactly the change that
+ * should be read rather than absorbed.
+ *
+ * NEITHER IS ADDED AS A FOURTH AND FIFTH `SURFACES` ROW, and that is a decision
+ * rather than an omission. Every block below needs a viewer control it can
+ * prove re-renders the page (`proveLive`) and a declared state model to check
+ * the enumeration against. These two routes are single screens on no module
+ * surface: they publish no role vocabulary and no applicable-state model, so a
+ * row for either would emit zero driven tests while the completeness assertions
+ * went red for the wrong reason — the trap the second header block above
+ * describes, in the form it would take today. Both ARE axe-scanned at their
+ * default state by `axe.spec.ts`; what is missing is a driven scan, and it is
+ * recorded here rather than implied by a prefix that matches nothing.
+ */
+interface UndrivenControlRoute {
+  readonly path: string
+  /** Selects plus checkboxes, pinned so a new control cannot arrive quietly. */
+  readonly controls: number
+  readonly reason: string
+}
+
+const UNDRIVEN_CONTROL_ROUTES: readonly UndrivenControlRoute[] = [
+  {
+    path: '/review/',
+    controls: 2,
+    reason:
+      'The client review form: a surface select and a severity select. Both are inputs to a note ' +
+      'this build records, not viewer switches over a module surface, so there is no role ' +
+      'vocabulary or applicable-state model to check an enumeration against and no control whose ' +
+      'positions this harness could prove live. Its controls ARE proven keyboard-reachable and ' +
+      'operable, and the route axe-scanned at its default state, by `axe.spec.ts`; what is absent ' +
+      'is an axe scan taken with a select driven off its default position.',
+  },
+  {
+    path: '/workflows/',
+    controls: 4,
+    reason:
+      'The 724-row workflow index and its four filters — Surface, Actor, Status and Collapsed. The ' +
+      'Actor select alone offers 428 positions, which is more than every driven position on the ' +
+      'Studio put together, and none of the four is driven or axe-scanned here. They are screen ' +
+      'filters rather than viewer switches, so they classify as neither a role nor a state control ' +
+      'under any vocabulary declared above. Recorded as the largest single undriven control space ' +
+      'in this build, and named in the task report as the next thing to drive.',
+  },
+]
+
 /**
  * A control is a STATE driver if every position it offers is drawn from the
  * surface's state vocabulary, and the VIEWER control if the set of positions
@@ -428,6 +508,67 @@ test('the derived control enumeration is not a stub', () => {
   for (const surface of SURFACES) {
     expect(routesOf(surface).length, `${surface.id}: no routes`).toBeGreaterThan(15)
   }
+
+  // THE LABEL IS THE LOCATOR (see `control` above), so the property that makes
+  // it one is asserted rather than described. This used to be a hand
+  // measurement published as prose — "across all 78 exported routes" — which
+  // is a claim a reader cannot date and the suite cannot check.
+  const duplicated: string[] = []
+  const empty: string[] = []
+  for (const route of CONTROLS) {
+    const labels = [...route.selects, ...route.checkboxes].map((c) => c.label)
+    for (const l of labels) if (l === '') empty.push(route.path)
+    if (new Set(labels).size !== labels.length) duplicated.push(route.path)
+  }
+  expect(duplicated, 'two controls on one route share a label, so `control` cannot address either').toEqual([])
+  expect(empty, 'a control was parsed with an empty label, which addresses nothing').toEqual([])
+})
+
+test('every exported route is claimed by a driven surface, or carries no control to drive', () => {
+  // THE ASSERTION THE HEADER'S "UNION" CLAIM NEVER HAD. Nothing checked that
+  // the three prefixes above reach every route the export carries, so two
+  // whole surfaces — `/command-center/` and `/frontline/` — matched no prefix
+  // and emitted no driven test, silently, while the file said it covered the
+  // union.
+  const unclaimed = CONTROLS.filter((c) => !claimedBySomeSurface(c.path))
+
+  // C17, both directions. A prefix that stopped matching would put every route
+  // in `unclaimed` and a walk that found nothing would put none there, and the
+  // message must name which.
+  expect(unclaimed.length, 'every exported route matches a SURFACES prefix — has a prefix been widened without a row?').toBeGreaterThan(0)
+  expect(
+    CONTROLS.length - unclaimed.length,
+    'no exported route matches any SURFACES prefix — the prefixes or the export moved',
+  ).toBeGreaterThan(50)
+
+  const withControls = unclaimed
+    .filter((c) => c.selects.length + c.checkboxes.length > 0)
+    .map((c) => ({ path: c.path, controls: c.selects.length + c.checkboxes.length }))
+
+  // EQUALITY, both directions, on the path AND on the control count. A
+  // prefix-less route growing its first control is red until it is claimed or
+  // recorded; a recorded one growing another control is red until the number
+  // is read and updated.
+  expect(
+    [...withControls].sort((a, b) => a.path.localeCompare(b.path)),
+    'the prefix-less routes carrying drivable controls are not the ones recorded in ' +
+      'UNDRIVEN_CONTROL_ROUTES. A route no SURFACES row claims and nothing records is a route ' +
+      'this harness silently emits no test for.',
+  ).toEqual(
+    [...UNDRIVEN_CONTROL_ROUTES]
+      .map((r) => ({ path: r.path, controls: r.controls }))
+      .sort((a, b) => a.path.localeCompare(b.path)),
+  )
+
+  for (const r of UNDRIVEN_CONTROL_ROUTES) {
+    expect(r.reason.length, `${r.path}: an undriven control-bearing route must say WHY`).toBeGreaterThan(120)
+  }
+
+  console.log(
+    `[axe-states] prefix coverage — ${CONTROLS.length - unclaimed.length} of ${CONTROLS.length} ` +
+      `exported routes claimed by a SURFACES row; ${unclaimed.length} not claimed, of which ` +
+      `${withControls.length} carry a control (${withControls.reduce((n, r) => n + r.controls, 0)} positions)`,
+  )
 })
 
 test('every surface offers its viewer control on every route, or records why not', () => {

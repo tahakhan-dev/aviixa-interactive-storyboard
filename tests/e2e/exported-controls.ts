@@ -43,10 +43,18 @@ import { exportedRoutes } from './exported-routes'
  * SO THE LABEL IS THE HANDLE, and `tests/accessibility/axe-states.spec.ts`
  * locates by it. That is not a retreat to hand-written prose: the label is
  * parsed from the SAME export as the id, in the same pass, so a relabelled
- * control moves the export and the locator together in one build. Measured
- * across all 78 exported routes there is not one duplicated control label and
- * not one empty one. The `id` is still returned — it is what proves two
- * parsed controls are distinct, and it still names the element in a report.
+ * control moves the export and the locator together in one build. The `id` is
+ * still returned — it is what proves two parsed controls are distinct, and it
+ * still names the element in a report.
+ *
+ * THE PROPERTY THAT MAKES A LABEL A LOCATOR IS NOW ASSERTED, NOT PUBLISHED. This
+ * paragraph used to end "measured across all 78 exported routes there is not one
+ * duplicated control label and not one empty one" — a hand measurement, three
+ * slices stale by the time it was read (re-measured: 102 exported routes, 261
+ * control positions, still zero duplicated and zero empty), checked by nothing.
+ * `axe-states.spec.ts`'s `the derived control enumeration is not a stub` now
+ * asserts both halves over whatever this function returns on the run, so the
+ * claim cannot outlive the property and there is no number here to go stale.
  *
  * WHAT THIS DOES NOT DO. It reports what a control OFFERS. It says nothing
  * about whether driving it changes anything — that is the driver's

@@ -1,11 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import type { RunPlayerPanel } from '../../../../app/frontline/run-player/RunPlayerRoute'
 import { DecisionDisclosure } from '@/disclosure/DecisionDisclosure'
 import { CrossSurfaceAct, frontlineCrossSurfaceModel } from '@/frontline/cross-surface'
 import { frontlineAffordance, type FrontlineAffordance } from '@/frontline/matrix'
-import { FL_PLAYER_VIEWS } from '@/frontline/screens'
 import { ProvenanceMark } from '@/ui/shared/ProvenanceMark'
 import { Button, StatusPill } from '@/ui/primitives'
 import {
@@ -1017,14 +1015,15 @@ export function CoachingView({
 }
 
 /**
- * The value the Run Player route mounts. The route file is the spine task's
- * and is not edited here; this module exports a panel and the controller wires
- * it in. `SCR-FL-13` is §22.7's own name for this state and `AC-FL-010-2`
- * (L40046) is why it is a state rather than a destination.
+ * NO PANEL OBJECT IS EXPORTED FROM THIS FILE, AND THAT IS THE FIX RATHER THAN
+ * A TIDY-UP. It carries `'use client'`, so an object exported here becomes a
+ * client reference in a build and a server component reading its string fields
+ * gets nothing -- the slice-7 defect that shipped `data-testid=
+ * "fl-panel-undefined"` for four of six Run Player modules. The panel the route
+ * mounts is built in the server module `./panel.tsx`, which is what
+ * `app/frontline/run-player/page.tsx` imports and what the component suite
+ * asserts on. A duplicate here, imported by nothing but that suite, is how the
+ * assertion that looked like it guarded the mounted id stopped being able to
+ * fail; `tests/coverage/slice-09-gates.test.ts` gate 11 now convicts the shape
+ * across `src` and `app` rather than on the Command Center alone.
  */
-export const FL_B8_PANEL: RunPlayerPanel = {
-  module: 'MOD-FL-B8',
-  heading: 'Coaching Rendering',
-  rendersViews: FL_PLAYER_VIEWS.filter((v) => v.id === 'SCR-FL-13').map((v) => v.name),
-  body: <CoachingView />,
-}

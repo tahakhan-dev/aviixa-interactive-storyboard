@@ -1,13 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import type { RunPlayerPanel } from '../../../../app/frontline/run-player/RunPlayerRoute'
 import {
   CrossSurfaceAct,
   frontlineCrossSurfaceModel,
 } from '@/frontline/cross-surface'
 import { frontlineAffordance, type FrontlineAffordance } from '@/frontline/matrix'
-import { FL_OVERLAY_ON_ANY_DESTINATION, FL_PLAYER_VIEWS } from '@/frontline/screens'
+import { FL_OVERLAY_ON_ANY_DESTINATION } from '@/frontline/screens'
 import { Button, StatusPill } from '@/ui/primitives'
 import {
   B9_CARD,
@@ -70,10 +69,6 @@ import {
  * locally exactly as online. Slice 7 does not simulate offline; a panel that
  * waited for slice 8 would spend a slice implying the gate needs a network.
  */
-
-const B9_VIEW_NAMES: readonly string[] = FL_PLAYER_VIEWS.filter(
-  (v) => v.id === 'SCR-FL-14' || v.id === 'SCR-FL-15',
-).map((v) => v.name)
 
 /** One-word summaries of what the fold returned, for the cell's own pill. */
 const KIND_LABEL: Readonly<Record<FrontlineAffordance['kind'], string>> = {
@@ -708,13 +703,15 @@ export function GatesAndSignOffView({
 }
 
 /**
- * The value the Run Player route mounts. The route file is the spine task's
- * and is not edited here; this module exports a panel and the controller
- * wires it in.
+ * NO PANEL OBJECT IS EXPORTED FROM THIS FILE, AND THAT IS THE FIX RATHER THAN
+ * A TIDY-UP. It carries `'use client'`, so an object exported here becomes a
+ * client reference in a build and a server component reading its string fields
+ * gets nothing -- the slice-7 defect that shipped `data-testid=
+ * "fl-panel-undefined"` for four of six Run Player modules. The panel the route
+ * mounts is built in the server module `./panel.tsx`, which is what
+ * `app/frontline/run-player/page.tsx` imports and what the component suite
+ * asserts on. A duplicate here, imported by nothing but that suite, is how the
+ * assertion that looked like it guarded the mounted id stopped being able to
+ * fail; `tests/coverage/slice-09-gates.test.ts` gate 11 now convicts the shape
+ * across `src` and `app` rather than on the Command Center alone.
  */
-export const FL_B9_PANEL: RunPlayerPanel = {
-  module: 'MOD-FL-B9',
-  heading: 'Gates and Sign-Off Authority',
-  rendersViews: B9_VIEW_NAMES,
-  body: <GatesAndSignOffView />,
-}
