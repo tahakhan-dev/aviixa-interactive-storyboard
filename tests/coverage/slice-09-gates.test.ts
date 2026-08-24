@@ -111,6 +111,22 @@ const SOURCE_SHA = '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d
 const SOURCE_LINE_COUNT = 122_241
 
 const SOURCE_BYTES = readFileSync(SOURCE)
+
+/**
+ * The Command Center route directories on disk, sorted, probe-aware.
+ *
+ * ONE DERIVATION FOR TWO CASES, because they used to be two literal twelves in
+ * two places and a route directory landing or leaving moved both. Probe-aware
+ * because nine release gates plant scratch directories on the real filesystem
+ * and a listing that keeps DIRECTORY entries admits one directly.
+ */
+function ccRouteDirectories(): readonly string[] {
+  return readdirSync(join(ROOT, 'app/command-center'), { withFileTypes: true })
+    .filter((e) => e.isDirectory() && !isForeignProbe(e.name))
+    .map((e) => e.name)
+    .sort()
+}
+
 const SOURCE_LINES = SOURCE_BYTES.toString('utf8').split('\n')
 
 /** One WHOLE line of the frozen source, 1-indexed, or a throw. Never a slice. */
@@ -642,18 +658,19 @@ describe('slice 9 gate 3: thirteen modules, thirteen screens, and the mapping', 
     expect(line(35_268)).toContain('`TEST-CC-040`')
   })
 
-  it('counts thirteen modules, thirteen register rows and twelve route directories', () => {
+  it('thirteen modules, thirteen register rows, and the route directories by name', () => {
     expect(CC_MODULE_SPINE).toHaveLength(13)
     expect(tableBody(48_384)).toHaveLength(13)
     expect(CC_SCREENS).toHaveLength(13)
-    const dirs = readdirSync(join(ROOT, 'app/command-center'), { withFileTypes: true })
-      .filter((e) => e.isDirectory() && !isForeignProbe(e.name))
-      .map((e) => e.name)
-      .sort()
-    expect(dirs).toHaveLength(12)
-    // Twelve directories under thirteen screens is not an error and the
-    // difference is named: one screen authors no directory at all, and one
-    // directory is claimed by no module.
+    const dirs = ccRouteDirectories()
+    // THE COUNT THAT STOOD HERE WAS `toHaveLength(12)`, AND IT IS A
+    // MEMBERSHIP NOW. Twelve directories under thirteen screens is not an
+    // error and the difference is named: one screen authors no directory at
+    // all, and one directory is claimed by no module. A length was satisfied
+    // by any twelve directories, and slice 11's overlays or a regeneration
+    // could move it; this equality names every one, so it is proved by ADDING
+    // a directory as well as by removing one. Removed rather than renumbered.
+    expect(dirs).toEqual([...CC_CLAIMED_SLUGS, 'cell-view'].sort())
     expect(dirs.filter((d) => !CC_CLAIMED_SLUGS.includes(d))).toEqual(['cell-view'])
   })
 
@@ -1565,7 +1582,7 @@ describe('slice 9 gate 14: all five report identities are open, not one', () => 
  * ==================================================================== */
 
 describe('slice 9 gate 15: the generator places all thirteen modules on a screen', () => {
-  it('eleven demonstrated, two mounted, none not-represented', () => {
+  it('the demonstrated set and the mounted set, each by membership, none not-represented', () => {
     const registry: readonly {
       readonly id: string
       readonly status: string
@@ -1596,7 +1613,18 @@ describe('slice 9 gate 15: the generator places all thirteen modules on a screen
     const byStatus = (s: string): string[] => cc.filter((m) => m.status === s).map((m) => m.id)
     expect(byStatus('not-represented')).toEqual([])
     expect(byStatus('mounted-in-another-screen').sort()).toEqual(['MOD-CC-02', 'MOD-CC-13'])
-    expect(byStatus('demonstrated-in-storyboard')).toHaveLength(11)
+    // THIS WAS `toHaveLength(11)` AND IT IS A MEMBERSHIP NOW, derived from the
+    // spine's own abstentions exactly as the mounted pair below it already
+    // was. Eleven was a stored copy of a derived answer -- thirteen modules
+    // less the two that claim no slug -- and slice 11's overlays or a
+    // regeneration could move it. The list names every module, so it is proved
+    // by ADDING one as well as by removing one, and it never needs editing
+    // when the spine grows. Removed rather than renumbered.
+    expect(byStatus('demonstrated-in-storyboard').sort()).toEqual(
+      CC_MODULE_SPINE.filter((m) => m.slug !== null)
+        .map((m) => m.id)
+        .sort(),
+    )
     // The two mounted are exactly the two that claim no slug, so the status
     // is reached from the spine's own abstentions rather than from a list.
     expect(byStatus('mounted-in-another-screen').sort()).toEqual(
@@ -1653,7 +1681,12 @@ describe('slice 9 gate 15: the generator places all thirteen modules on a screen
       readonly routeDirectories: { readonly onDisk: number; readonly namedByNoRegisterRow: readonly string[] }
     }
     expect(report.mapping).toHaveLength(13)
-    expect(report.routeDirectories.onDisk).toBe(12)
+    // `toBe(12)` STOOD HERE AND THE NUMBER WAS NEVER THE CLAIM. What this case
+    // is about is that the reach SCRIPT and this suite agree about the tree, so
+    // the script's figure is compared against the directory listing this file
+    // derives for itself -- two independent measurements of one thing, neither
+    // a stored copy of the other. Removed rather than renumbered.
+    expect(report.routeDirectories.onDisk).toBe(ccRouteDirectories().length)
     expect(report.routeDirectories.namedByNoRegisterRow).toEqual([])
     const unauthored = report.mapping.filter((m) => !m.authoredHere)
     expect(unauthored.map((m) => m.screen)).toEqual(['SCR-CC-01'])

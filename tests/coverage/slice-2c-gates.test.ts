@@ -652,12 +652,22 @@ describe('gate 4: nothing reads as an approval (confirming the existing gate)', 
 // reading the legacy workflow-registry.json, reaching no screen.
 // ===========================================================================
 describe('gate 5: one registry per inventory', () => {
-  it('exactly the fourteen inventory registries plus the reconciliation report -- no legacy duplicate', () => {
-    const files = generatedRegistryFiles()
-    expect(files).toHaveLength(15)
-    expect(files).not.toContain('workflow-registry.json')
-    const slugs = files.filter((f) => f !== 'source-reconciliation.json').map((f) => f.replace(/\.json$/, ''))
-    expect([...slugs].sort()).toEqual([...REGISTRY_DESCRIPTORS.map((d) => d.slug)].sort())
+  /**
+   * THE EXPECTED FILE SET, DERIVED. `toHaveLength(15)` stood here beside the
+   * membership form below and was redundant against it -- and worse than
+   * redundant: any fifteen files at all satisfied a length, while the slug
+   * comparison FILTERED OUT `source-reconciliation.json` and so could not
+   * notice it going missing. One list covers both, and it moves on its own the
+   * day `REGISTRY_DESCRIPTORS` gains an inventory. Removed rather than
+   * renumbered: a fresh number reships the identical defect.
+   */
+  const expectedRegistryFiles = (): readonly string[] =>
+    [...REGISTRY_DESCRIPTORS.map((d) => `${d.slug}.json`), 'source-reconciliation.json'].sort()
+
+  it('exactly the inventory registries plus the reconciliation report -- no legacy duplicate', () => {
+    expect(REGISTRY_DESCRIPTORS.length, 'the descriptor list is empty').toBeGreaterThan(0)
+    expect([...generatedRegistryFiles()].sort()).toEqual([...expectedRegistryFiles()])
+    expect(generatedRegistryFiles()).not.toContain('workflow-registry.json')
   })
 
   it('PLANTED VIOLATION: a second file for an already-covered inventory trips the gate', () => {
@@ -666,11 +676,13 @@ describe('gate 5: one registry per inventory', () => {
     try {
       const files = generatedRegistryFiles()
       expect(files).toContain('workflow-registry.json')
-      expect(files.length).not.toBe(15)
+      // MEMBERSHIP, NOT A LENGTH, so the plant proves the assertion the gate
+      // actually ships rather than a count that no longer stands beside it.
+      expect([...files].sort()).not.toEqual([...expectedRegistryFiles()])
     } finally {
       rmSync(probe)
     }
-    expect(generatedRegistryFiles()).toHaveLength(15)
+    expect([...generatedRegistryFiles()].sort()).toEqual([...expectedRegistryFiles()])
   })
 })
 

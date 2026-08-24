@@ -368,6 +368,37 @@ const AUDITED = {
     verdict:
       'NOT VACUOUS. No verify step writes src/ or app/. Both ends of the comparison are authored: the forbidden literal is derived from OPEN_DECISIONS.length at run time and the scan is over the same authored tree, so nothing the pipeline produces can satisfy it. Carries a file-count floor so an empty walk cannot pass silently, and three self-plants (current size spelled and numeric, a wrong size, and the quoted-record exemption proved by convicting the same words unquoted).',
   },
+  'slice-11-gates.test.ts': {
+    subject:
+      'every out/**/index.html, parsed, against the provenance contract and the six class ' +
+      'records in src/; plus the frozen blueprint at run time; plus authored .ts/.tsx under ' +
+      'src/ and app/ for the severity separation, the reachability closure and the ' +
+      'widening-annotation sweep',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS. `build` writes one end and runs first -- the arrangement this audit exists ' +
+      'to catch -- and what makes it safe is that no expectation is read back out of out/. ' +
+      'Every expectation comes from src/ as authored, from the frozen blueprint whose sha256 ' +
+      'and line count this file asserts, or from the checker `src/ai/provenance/contract.ts` ' +
+      'exports: the class vocabulary, the exactly-one-per-guidance-element rule, and the two ' +
+      'forbidden live-inference labels read off the PROV-1 and PROV-2 records. The build turns ' +
+      'src/ into out/ and this gate asserts properties of that transformation, so the build ' +
+      'cannot satisfy it by rewriting what it compares against. Reading the FRESH out/ is the ' +
+      'whole point -- L89439 is a rule about what a person is SHOWN, and fifty provenance ' +
+      'marks across sixteen exported pages are the only place that claim can be checked. ' +
+      'Contrast registry-freshness, which compared committed artefacts to freshly generated ' +
+      'ones and could only ever compare a directory to itself. ' +
+      'IT WRITES TO out/ ONCE, DELIBERATELY: one case splices a second sibling provenance mark ' +
+      'into a real exported page, asserts the checker convicts, restores the bytes in a ' +
+      '`finally` and then asserts the restoration byte-for-byte. That plant is why this gate ' +
+      'is known to be able to fail, and it is the reason `test:release` runs with ' +
+      'fileParallelism: false. It touches no committed artefact: nothing under ' +
+      'registries/generated, src/ or app/ is written by this file. ' +
+      'The three authored-tree halves are NOT VACUOUS anywhere in verify: no step writes src/ ' +
+      'or app/, and the severity check is asserted disjoint over two non-empty component sets ' +
+      'rather than over an empty one.',
+  },
 }
 
 const HOW_TO_FIX =

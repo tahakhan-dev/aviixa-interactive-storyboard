@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, existsSync } from 'node:fs'
-import { createHash } from 'node:crypto'
-import { join, relative, resolve } from 'node:path'
+import { join, relative } from 'node:path'
 import { isForeignProbe as isForeign, ownProbeDir, withPlanted } from '../probe-paths'
+import {
+  describeClosedVocabularyAnnotations,
+  describeFrozenSourcePin,
+} from './absence-sweep'
 
 import { OPEN_DECISIONS } from '@/disclosure/decisions'
 import { OFFLINE_CLASS_CONTRADICTION } from '@/offline/capability'
@@ -53,9 +56,14 @@ import { DEC_STORE_001_SHIPPED_RECORDS } from '@/offline/package/storage'
  * ==================================================================== */
 
 const ROOT = process.cwd()
-const SOURCE = resolve(ROOT, '..', 'AVIIXA_Production_Product_Blueprint.md')
-const SOURCE_SHA = '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27'
-const SOURCE_LINE_COUNT = 122_241
+
+/**
+ * OBLIGATION 2 IS SHARED NOW. The sha256 and the line count used to be three
+ * private constants and three private assertions, once per absence sweep;
+ * `./absence-sweep` holds the one copy and this file was one of the three it
+ * was hoisted out of. The floors and the roots below stay here, because they
+ * are measurements of slice 8.
+ */
 
 const OWN_PROBE_DIR = ownProbeDir()
 const isForeignProbe = (entry: string): boolean => isForeign(entry, OWN_PROBE_DIR)
@@ -170,14 +178,9 @@ const SHIPPED_READINGS: readonly { readonly where: string; readonly reading: obj
  * THE SWEEP CAN SEE.
  * ==================================================================== */
 
-describe('slice 8 absence sweep: the sweep has a population to sweep', () => {
-  it('reads the frozen source this slice was built against', () => {
-    expect(existsSync(SOURCE)).toBe(true)
-    const bytes = readFileSync(SOURCE)
-    expect(createHash('sha256').update(bytes).digest('hex')).toBe(SOURCE_SHA)
-    expect(bytes.toString('utf8').split('\n').length - 1).toBe(SOURCE_LINE_COUNT)
-  })
+describeFrozenSourcePin('slice 8')
 
+describe('slice 8 absence sweep: the sweep has a population to sweep', () => {
   it('walks all three slice-8 roots and finds the modules this slice authored', () => {
     for (const root of SLICE_8_ROOTS) {
       expect(existsSync(join(ROOT, root)), `${root} is missing`).toBe(true)
@@ -505,3 +508,18 @@ describe('slice 8 absence sweep: the file itself', () => {
     }
   })
 })
+
+/**
+ * OBLIGATION 3, from the shared preamble, over slice 8's OWN roots.
+ *
+ * This file never had a copy of it. The three sweeps each covered only the
+ * directories they owned, which is exactly why commit `018b390`'s slice-11
+ * widening defect was found by slice-09's author rather than by a gate — no
+ * scope reached it. One implementation called once per slice closes that by
+ * addition rather than by widening anyone's scope.
+ */
+describeClosedVocabularyAnnotations(
+  'slice 8 absence sweep',
+  AUTHORED.map((f) => f.path),
+  20,
+)

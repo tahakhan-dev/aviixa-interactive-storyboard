@@ -1,9 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { JSDOM } from 'jsdom'
 import { isForeignProbe, ownProbeDir, withPlanted } from '../probe-paths'
+import {
+  describeClosedVocabularyAnnotations,
+  describeFrozenSourcePin,
+  frozenSourceLines as sourceLines,
+  sweptSources,
+} from './absence-sweep'
 
 /**
  * # THE RENDERED-TEXT CATEGORICAL-ABSENCE SWEEP OVER THE BUILT FRONTLINE TREE
@@ -96,23 +101,11 @@ import { isForeignProbe, ownProbeDir, withPlanted } from '../probe-paths'
 /* ── the frozen source ──────────────────────────────────────────────────── */
 
 /**
- * Resolved from the repository rather than written absolute:
- * `prohibited-patterns.test.ts` bans an author path from the release
- * artifact and there is no reason to type one here either.
+ * OBLIGATION 2 IS SHARED NOW — the path, the sha256, the line count and the
+ * trailing-newline correction live in `./absence-sweep`, and this file was one
+ * of the three private copies it was hoisted out of. Imported under this
+ * file's own names so nothing below it changed.
  */
-const SOURCE_PATH = join(process.cwd(), '..', 'AVIIXA_Production_Product_Blueprint.md')
-const SOURCE_SHA256 = '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27'
-const SOURCE_LINE_COUNT = 122_241
-
-const sourceBytes = existsSync(SOURCE_PATH) ? readFileSync(SOURCE_PATH) : Buffer.alloc(0)
-
-/**
- * The trailing newline yields one extra empty element that is not a line.
- * Leaving it in makes the count 122,242 and lets an exemption one past the
- * end pass the range check.
- */
-const sourceLines = ((lines: readonly string[]) =>
-  lines.at(-1) === '' ? lines.slice(0, -1) : lines)(sourceBytes.toString('utf8').split('\n'))
 
 /**
  * The one normalisation both sides pass through, so a comparison between a
@@ -541,19 +534,21 @@ const describeOffence = (o: Offence): string =>
 
 /* ── the gates ──────────────────────────────────────────────────────────── */
 
-describe('slice 7: the frozen source these exemptions are checked against', () => {
-  it('is present where every exemption points', () => {
-    expect(existsSync(SOURCE_PATH), `frozen source not found at ${SOURCE_PATH}`).toBe(true)
-  })
+describeFrozenSourcePin('slice 7')
 
-  it('is the frozen bytes and not a drifted copy', () => {
-    expect(createHash('sha256').update(sourceBytes).digest('hex')).toBe(SOURCE_SHA256)
-  })
-
-  it('has the line count the exemptions are numbered against', () => {
-    expect(sourceLines.length).toBe(SOURCE_LINE_COUNT)
-  })
-})
+/**
+ * OBLIGATION 3, from the shared preamble, over the Frontline's own roots.
+ *
+ * This sweep is about RENDERED TEXT and never had a source-declaration check
+ * of its own; the widening shape it covers is a different failure on the same
+ * surface, and the scope gap between the three private copies is exactly what
+ * let a slice-11 widening defect reach a commit.
+ */
+describeClosedVocabularyAnnotations(
+  'slice 7 absence sweep',
+  [...sweptSources('src/frontline'), ...sweptSources('app/frontline')],
+  40,
+)
 
 describe('slice 7: the sweep reads rendered text, and finds words to read', () => {
   it('covers every authored Frontline destination', () => {

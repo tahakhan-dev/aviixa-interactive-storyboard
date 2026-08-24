@@ -1,8 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { createHash } from 'node:crypto'
-import { join, resolve, relative } from 'node:path'
+import { readFileSync, readdirSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { isForeignProbe } from '../probe-paths'
+import {
+  describeClosedVocabularyAnnotations,
+  describeFrozenSourcePin,
+  expectPopulationFloor,
+  sourceLine as line,
+  sweptSources,
+} from './absence-sweep'
 
 import { OPEN_DECISIONS, OPEN_DECISION_IDS } from '@/disclosure/decisions'
 import { CC_LOCAL_DISCLOSURES } from '@/surfaces/cc/decisions/disclosure'
@@ -44,33 +50,16 @@ import { CONNECTIVITY_MODES } from '@/scenario/controls'
  *  5. NO ANSWER IS FABRICATED WHERE THE SOURCE DECLINES ONE.
  * ==================================================================== */
 
+/**
+ * THE PREAMBLE IS SHARED NOW, and this file is one of the three copies it was
+ * hoisted out of. `./absence-sweep` carries the frozen-source pin, the
+ * probe-aware walk, the population floor and the widening-annotation check;
+ * what stays here is this surface's own ROOTS and its own FLOORS, which are
+ * measurements of the Command Center and belong to nobody else.
+ */
 const ROOT = process.cwd()
-const SOURCE = resolve(ROOT, '..', 'AVIIXA_Production_Product_Blueprint.md')
-const SOURCE_SHA = '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27'
-const SOURCE_BYTES = readFileSync(SOURCE)
-const SOURCE_LINES = SOURCE_BYTES.toString('utf8').split('\n')
 
-const line = (n: number): string => {
-  const text = SOURCE_LINES[n - 1]
-  if (text === undefined) throw new Error(`the frozen source has no line ${n}`)
-  return text
-}
-
-function walk(dir: string, out: string[] = []): string[] {
-  for (const entry of readdirSync(dir)) {
-    if (isForeignProbe(entry)) continue
-    const full = join(dir, entry)
-    if (statSync(full).isDirectory()) walk(full, out)
-    else out.push(full)
-  }
-  return out
-}
-
-const sourcesUnder = (rel: string): readonly string[] =>
-  walk(join(ROOT, rel))
-    .filter((f) => /\.(?:ts|tsx)$/.test(f))
-    .map((f) => relative(ROOT, f))
-    .sort()
+const sourcesUnder = sweptSources
 
 const read = (rel: string): string => readFileSync(join(ROOT, rel), 'utf8')
 
@@ -80,17 +69,15 @@ const SURFACE_FILES: readonly string[] = [
   ...sourcesUnder('app/command-center'),
 ]
 
-describe('slice 9 absence sweep: the populations swept, before anything is claimed absent', () => {
-  it('reads the frozen source this slice was built against', () => {
-    expect(createHash('sha256').update(SOURCE_BYTES).digest('hex')).toBe(SOURCE_SHA)
-  })
+describeFrozenSourcePin('slice 9')
 
+describe('slice 9 absence sweep: the populations swept, before anything is claimed absent', () => {
   it('sweeps a real surface, not an empty one', () => {
     // FLOORS, not existence checks. An absence claim over a population that
     // silently shrank to nothing reports safety it does not provide.
-    expect(SURFACE_FILES.length).toBeGreaterThan(75)
-    expect(sourcesUnder('src/surfaces/cc/modules').length).toBeGreaterThan(40)
-    expect(sourcesUnder('app/command-center').length).toBeGreaterThan(11)
+    expectPopulationFloor(SURFACE_FILES, 75, 'the Command Center surface')
+    expectPopulationFloor(sourcesUnder('src/surfaces/cc/modules'), 40, 'the module directories')
+    expectPopulationFloor(sourcesUnder('app/command-center'), 11, 'the route directories')
     expect(CC_MODULE_SPINE).toHaveLength(13)
     expect(CC_SCREENS).toHaveLength(13)
     // A FLOOR, like everything else in this test, and it was the one exact
@@ -318,23 +305,12 @@ describe('slice 9 absence sweep: the closed vocabularies are still closed', () =
     ])
     expect([...CC_SESSION_STATES]).toEqual(['live', 'frozen'])
   })
-
-  it('every closed vocabulary on this surface is `as const satisfies`, never a leading annotation', () => {
-    // A LEADING `readonly T[]` ANNOTATION WIDENS THE LITERALS BACK TO THE
-    // UNION and the release gate has caught that shape repeatedly. The
-    // population is asserted before the property, and a COMPUTED array is
-    // held to the same rule.
-    const declarations: { readonly file: string; readonly text: string }[] = []
-    for (const f of SURFACE_FILES) {
-      for (const m of read(f).matchAll(/^export const [A-Z][A-Z0-9_]*(?::[^=\n]*)? = \[/gm)) {
-        declarations.push({ file: f, text: m[0]! })
-      }
-    }
-    expect(declarations.length).toBeGreaterThan(40)
-    const annotated = declarations.filter((d) => /: *readonly /.test(d.text))
-    expect(annotated.map((d) => `${d.file}: ${d.text.trim()}`)).toEqual([])
-  })
 })
+
+// Obligation 3, from the shared preamble. It used to be a private copy here,
+// scoped to this surface — which is why commit `018b390`'s slice-11 defect was
+// caught by this file's author rather than by a gate that covered slice 11.
+describeClosedVocabularyAnnotations('slice 9 absence sweep', SURFACE_FILES, 40)
 
 /* ==================================================================== *
  * 5. NO ANSWER IS FABRICATED WHERE THE SOURCE DECLINES ONE.

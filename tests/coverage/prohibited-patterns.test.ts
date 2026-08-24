@@ -221,18 +221,35 @@ interface NamedBody {
   readonly body: string
 }
 
-/** Every named function or const in the file, with its body text. */
+/**
+ * Every named function or const in the file, with its body text, COMMENTS
+ * STRIPPED.
+ *
+ * A GATE LIMIT CLOSED HERE, AND THE PLANT THAT FOUND IT IS NOT THIS FILE'S.
+ * The awareness scan below asks whether a walker's body MENTIONS a
+ * probe-aware name. `node.body.getText()` returns the source text of the
+ * range, comments included, so an explanatory note naming `isForeignProbe`
+ * inside a function made that function "aware" with the actual probe skip
+ * stripped out — proved by planting exactly that, and the gate stayed green.
+ * A comment is prose about the walk, not the walk.
+ *
+ * The `mentions` walk over `aware` is a positive test, so stripping can only
+ * make this gate stricter, never blinder. Measured before it landed:
+ * stripping convicts exactly ONE walker tree-wide, and that one is
+ * deliberate — see `PROBE_AWARENESS_EXEMPT`. Nothing else in `tests/` relies
+ * on a comment to be probe-aware.
+ */
 function namedBodies(sf: ts.SourceFile): NamedBody[] {
   const out: NamedBody[] = []
   const visit = (node: ts.Node): void => {
     if (ts.isFunctionDeclaration(node) && node.name && node.body) {
-      out.push({ name: node.name.text, body: node.body.getText(sf) })
+      out.push({ name: node.name.text, body: stripComments(node.body.getText(sf)) })
     } else if (
       ts.isVariableDeclaration(node) &&
       ts.isIdentifier(node.name) &&
       node.initializer !== undefined
     ) {
-      out.push({ name: node.name.text, body: node.initializer.getText(sf) })
+      out.push({ name: node.name.text, body: stripComments(node.initializer.getText(sf)) })
     }
     ts.forEachChild(node, visit)
   }
@@ -323,6 +340,26 @@ function recursiveWalkers(file: string): WalkerVerdict[] {
     }))
 }
 
+/**
+ * THE ONE WALKER THAT MUST NOT SKIP A PROBE, NAMED ONE AT A TIME.
+ *
+ * `static-export.test.ts`'s scan of `out/` exists to FIND the probes every
+ * other scan hides — an orphan left in the export ships. Skipping foreign
+ * probes there would be the gate refusing to look at its own subject, so it
+ * asks `isOrphanProbe` instead: a live sibling's plant passes, a probe nobody
+ * owns does not.
+ *
+ * It surfaced the moment comments stopped counting as awareness (see
+ * `namedBodies`) — its skip-nothing decision is written in prose beside the
+ * loop. Exempting the FILE by name rather than exempting "walks over out/"
+ * follows this build's rule: exempt the named false alarms, never the class of
+ * syntax. Asserted as an EQUALITY, so a second unaware walker turns this red
+ * rather than joining a widened exception, and so the exemption retires itself
+ * the day that walk becomes probe-aware.
+ */
+const PROBE_AWARENESS_EXEMPT_FILE = join('tests', 'coverage', 'static-export.test.ts')
+const PROBE_AWARENESS_EXEMPT = [`${PROBE_AWARENESS_EXEMPT_FILE} -> allExportEntries()`]
+
 describe('every directory walk under tests/ that can admit a probe skips a foreign one', () => {
   const walkers = testSources().flatMap(recursiveWalkers)
 
@@ -377,6 +414,19 @@ describe('every directory walk under tests/ that can admit a probe skips a forei
         "process's scratch probe. It will list one and then ENOENT on it the moment that " +
         'process deletes it, or worse, treat it as a finding. Route the walk through ' +
         'isForeignProbe from tests/probe-paths.',
-    ).toEqual([])
+    ).toEqual(PROBE_AWARENESS_EXEMPT)
+  })
+
+  /**
+   * THE EXEMPTION IS A STATEMENT, NOT A SILENCE. A named file could stop
+   * being the deliberate case and keep its exemption, which is the shape this
+   * build has shipped before. So the reason is asserted rather than trusted:
+   * the one walker that skips nothing must reach for the ORPHAN predicate,
+   * which is the different question it exists to ask.
+   */
+  it('the one exempt walker asks the orphan question instead', () => {
+    const text = readFileSync(PROBE_AWARENESS_EXEMPT_FILE, 'utf8')
+    expect(text).toMatch(/\bisOrphanProbe\b/)
+    expect(walkers.map((w) => w.where)).toContain(PROBE_AWARENESS_EXEMPT[0])
   })
 })
