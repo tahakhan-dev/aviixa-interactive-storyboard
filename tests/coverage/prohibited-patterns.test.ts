@@ -470,7 +470,7 @@ describe('every directory walk under tests/ that can admit a probe skips a forei
  * static export, which is the right scan for §4.3's confidentiality rule and
  * is not the rule master prompt §30 states: the scan is over "this execution
  * and every delivered artifact". Tests, fixtures and committed registries are
- * the Product Candidate (§23.2 item 1) and never reach `out/`, so they were
+ * the Product Candidate (master prompt §23.2 item 1) and never reach `out/`, so they were
  * outside every author-path check in the tree — measured at the moment this
  * gate was written: 20 unit tests and 19 committed extract records carried
  * `/<home>/<user>/Desktop/...` as a string literal, 39 occurrences. Every one

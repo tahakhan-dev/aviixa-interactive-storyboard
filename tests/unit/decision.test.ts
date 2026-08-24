@@ -76,7 +76,7 @@ describe('permission decision', () => {
   //    SURF-SA vocabulary gate fired on ordinary authentication wording.
   // 2. More importantly, "signed in" asserts a capability this build does not
   //    have. There is no authentication anywhere: the role selector is a
-  //    view-switcher, and §29.4 forbids claiming a production capability that
+  //    view-switcher, and master prompt §29.4 forbids claiming a production capability that
   //    is only simulated.
   //
   // So the fix is the copy, not the gate. `ALLOWED` already said "The current
