@@ -8,6 +8,10 @@ import { ownerAt, ownersOf } from '@/ai/fallbacks/registry'
 import { PAUSE_FEATURE_ATTRIBUTION } from '@/ai/controls/decisions'
 import { StoryboardCard } from '@/ui/shared/StoryboardCard'
 import {
+  SB_01_TO_10_CANON_BACKED_DECISIONS,
+  SB_01_TO_10_LOCAL_DISCLOSURES,
+} from '@/ai/storyboards/sb-01-to-10/decisions'
+import {
   AI_AND_ITS_ABSENCE_ROUTE,
   ALL_THIRTY_STORYBOARDS,
   PAUSE_FEATURE_IDENTIFIERS,
@@ -49,10 +53,23 @@ import {
  * `STORYBOARD_CARD_FACTS` rather than pinned. No card is nested inside another
  * element carrying a provenance class, which is its own violation under
  * `AC-42-401`. The chrome below &mdash; the scope statement, the criteria, the
- * index and the collision listing &mdash; carries NO provenance class, because
- * it is documentation about a frozen document rather than guidance shown to a
- * worker, and putting a class on it would classify something the contract does
- * not classify.
+ * index, the collision listing and the decision disclosures &mdash; carries NO
+ * provenance class, because it is documentation about a frozen document rather
+ * than guidance shown to a worker, and putting a class on it would classify
+ * something the contract does not classify.
+ *
+ * ── THE DECISION DISCLOSURES, AND WHY THEY ARE ON THIS PAGE ────────────────
+ * `src/ai/storyboards/sb-01-to-10/decisions.ts` held local decision records
+ * that reached a gate and no screen: measured by transitive closure from `app/`, it
+ * had zero importers anywhere under `src/` or `app/`, and the only thing naming
+ * it was a COMMENT in `src/coverage/uninventoried.ts`. A comment is not an
+ * importer, and a record that discloses nothing to anyone is the shape this
+ * slice has already been corrected for twice. They are rendered rather than
+ * deleted because they disclose something no card on this page carries: most of
+ * their readings are read from lines OUTSIDE section 44A, which each reading now
+ * says on screen. The other two ranges hold no such records, and the section
+ * states that asymmetry with its measurable basis rather than leaving a reader
+ * to notice it.
  *
  * ── NO CONTROL, AND NOTHING TO ACT THROUGH ─────────────────────────────────
  * A server component. There is no button, no input, no filter and no retry
@@ -63,6 +80,27 @@ import {
  */
 
 const anchorFor = (identifier: string): string => identifier.toLowerCase()
+
+/**
+ * SECTION 44A'S OWN BOUNDS, READ FROM THE ROUTE RECORD RATHER THAN RETYPED.
+ * The two numbers exist once, in `./scope`, where the chapter span is already
+ * declared and already held against the source by the route suite.
+ */
+const [FIRST_44A_LINE, LAST_44A_LINE] = (
+  AI_AND_ITS_ABSENCE_ROUTE.chapterSpan.match(/\d+/g) ?? []
+).map(Number) as [number, number]
+
+/**
+ * Whether a reading's line sits outside section 44A. Derived per reading and
+ * never counted into a sentence: a stated total is a stored copy of a derived
+ * answer, and this build removes stale counts rather than renumbering them.
+ */
+function readingIsOutside44A(locator: string): boolean {
+  const line = /L(\d{4,6})/.exec(locator)
+  if (line === null) return false
+  const at = Number(line[1])
+  return at < FIRST_44A_LINE || at > LAST_44A_LINE
+}
 
 const INDEX_ANCHOR = 'storyboard-index'
 
@@ -234,6 +272,101 @@ export function AiAndItsAbsenceScreen() {
             {PAUSE_FEATURE_ATTRIBUTION.sourceRef}.
           </span>{' '}
           {PAUSE_FEATURE_ATTRIBUTION.whatItDoesNotLicense}
+        </p>
+      </section>
+
+      <section
+        aria-label="The decisions storyboards 1 to 10 name, disclosed"
+        data-testid="sb-01-to-10-decisions"
+        className="mt-8"
+      >
+        <h2 className="text-xl font-semibold text-[var(--color-ink)]">
+          The decisions storyboards 1 to 10 name
+        </h2>
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          The <code>DEC-*</code> identifiers of storyboards 1 to 10 travel inside the transcribed
+          field text of the cards, because that is where the source puts them. Some have a record in
+          the platform canon and are cited from the cards rather than restated:{' '}
+          {SB_01_TO_10_CANON_BACKED_DECISIONS.join(', ')}. The rest are not members of the
+          canon&rsquo;s exported union, so there is no identifier to cite them by &mdash; and their
+          readings sit on lines the cards do not transcribe. Those are below, every reading with its
+          own line, none of them named as the source&rsquo;s answer.
+        </p>
+        <dl className="mt-4 space-y-6 text-sm">
+          {SB_01_TO_10_LOCAL_DISCLOSURES.map((record) => (
+            <div key={record.decisionRef} data-local-decision={record.decisionRef}>
+              <dt className="font-medium text-[var(--color-ink)]">
+                {record.decisionRef}
+                {record.canonicalId === null ? (
+                  <span className="ml-2 text-xs font-normal text-[var(--color-ink-subtle)]">
+                    the canon holds no record of this question under any spelling
+                  </span>
+                ) : (
+                  <span className="ml-2 text-xs font-normal text-[var(--color-ink-subtle)]">
+                    the canon holds this question canonically as {record.canonicalId} and carries
+                    this spelling as its alias
+                  </span>
+                )}
+              </dt>
+              <dd className="mt-1 text-[var(--color-ink-muted)]">
+                <p className="text-[var(--color-ink)]">{record.question}</p>
+                <p className="mt-2 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+                  Every reading. None is the answer.
+                </p>
+                <ul className="mt-1 space-y-2">
+                  {record.readings.map((reading) => (
+                    <li key={reading.locator} data-reading-locator={reading.locator}>
+                      <span className="text-[var(--color-ink)]">{reading.text}</span>{' '}
+                      <span className="whitespace-nowrap text-xs text-[var(--color-ink-subtle)]">
+                        [{reading.locator}]
+                      </span>
+                      {readingIsOutside44A(reading.locator) ? (
+                        <span
+                          data-outside-44a="true"
+                          className="ml-1 whitespace-nowrap text-xs text-[var(--color-ink-subtle)]"
+                        >
+                          read from outside section 44A
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+                  Why the disclosure is here rather than a pointer into the canon
+                </p>
+                <p className="mt-1">{record.canonNote}</p>
+                <p className="mt-2 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+                  What these cards do under the open question
+                </p>
+                <p className="mt-1">{record.behaviour}</p>
+                <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
+                  Named by {record.namedBy.join(', ')}.
+                </p>
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-4 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+          The other two ranges, 44A.11-20 and 44A.21-30, hold no local decision records at all, on
+          the reasoning that the source&rsquo;s own cells already carry every reading and the
+          identifier, so a local record would be a second home for the same thing. That reasoning
+          does not reach these seven, and the difference is marked on each reading above rather than
+          argued here: the readings tagged &ldquo;read from outside section 44A&rdquo; come from
+          chapter 21&rsquo;s scope and escalation clauses, §36&rsquo;s reconnection ordering, the
+          offline device-wipe entry and chapter 40&rsquo;s separate statement of the
+          recovery-objective question, and no card on this page transcribes any of them. The two
+          that are inside the chapter are its own decision-register rows, which no card transcribes
+          either. What the cards carry is the identifier; what is above is the readings it stands
+          for.
+        </p>
+        <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+          Several of these questions also have a register home elsewhere in this build and this page
+          is not it: the escalation fallback, the &ldquo;Supervisor and above&rdquo; ordering, the
+          reconnection order and the device-wipe question are all rows of the Client Command
+          Center&rsquo;s own chapter-21 decision register, and the reconnection question carries a
+          fuller record still on the offline protocol. Those registers hold the row; what is above is
+          what these ten cards need a reader to know where the identifier appears in a field, and it
+          names the canonical spelling wherever there is one to name.
         </p>
       </section>
 

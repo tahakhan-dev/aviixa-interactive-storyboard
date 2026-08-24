@@ -35,13 +35,15 @@ import { contractPermits } from '@/ai/provenance/contract'
  * truth — which is the same defect class as a stale count on a screen, in the
  * one kind of paragraph written specifically to prevent it. A gate found it.
  *
- * Measured on the current export: sixteen of the 102 exported pages carry a
- * total of fifty marks. No count is written here on purpose — the number moves
- * every time a surface mounts one, and `tests/coverage/slice-11-gates.test.ts`
- * measures it from `out/` on every release run, which is the only place a
- * figure like that can be true. What matters to a reader of this file is that
- * it is reached from routes at all, and that the reachability claim is now
- * made by a gate rather than by a sentence nobody re-measures.
+ * NO COUNT IS WRITTEN HERE, and the first attempt at this paragraph wrote one
+ * anyway — in the very sentence saying it would not. A later mount made that
+ * figure stale within the hour, which is the whole argument in miniature. The
+ * number moves every time a surface mounts a mark, and
+ * `tests/coverage/slice-11-gates.test.ts` measures it from `out/` on every
+ * release run, which is the only place a figure like that can be true. What
+ * matters to a reader of this file is that it is reached from routes at all,
+ * and that the reachability claim is made by a gate rather than by a sentence
+ * nobody re-measures.
  *
  * ── WHAT IT DELIBERATELY DOES NOT DO ───────────────────────────────────────
  * It does not draw the six SHAPES. `SB-42-401` (L89459) gives `PROV-1` a card,

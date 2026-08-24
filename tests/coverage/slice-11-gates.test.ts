@@ -1235,24 +1235,52 @@ describe('slice 11 gate 11: three transcribed, two derived, and no borrowed capt
  * stated an abstention. A stated abstention and an oversight look identical
  * from outside, which is why the abstention has to be written down.
  *
- * THE TWO BELOW ARE REAL AND OPEN, AND THIS GATE IS WHERE THEY STAND RATHER
- * THAN BEING INVISIBLE. Neither is fixed here: editing a build task's source
- * to turn a gate green is the one thing this task may not do. They are
- * reported to their owners, and the list is an EQUALITY, so a third orphan
- * turns this red and either entry becoming reachable retires itself.
+ * BOTH ENTRIES ARE CLOSED AND THIS LIST IS EMPTY, WHICH IS THE EXEMPTION DOING
+ * WHAT IT WAS BUILT FOR. It named two files and was declared as an EQUALITY
+ * rather than a membership precisely so that resolving either one would red it
+ * and force this paragraph to be rewritten:
+ *
+ *   `src/ai/requests/machine.ts` — wave 0 task 5's transition function and the
+ *   six rules that bind the state set. Its two siblings were rescued by wave 3
+ *   task 15, whose own comment claimed all three; measured, `machine.ts` had
+ *   ZERO importers anywhere under `src/` or `app/`, so the twelve states
+ *   rendered on `app/hub/execution-summary-review/` and the rules governing
+ *   movement between them did not. Now mounted, on that same route and beside
+ *   those same states, by `src/ai/requests/StateMachinePanel.tsx`. Rendering the
+ *   edges alone would have been a picture, so the six rules render as the
+ *   source's own sentences with their own lines, rule 5 is DERIVED from the
+ *   edges, and rules 1, 4 and 6 are named on screen as quoted-not-demonstrated
+ *   rather than left to be inferred. Covered by
+ *   `tests/component/ai-requests-state-machine-panel.test.tsx`.
+ *
+ *   `src/ai/storyboards/sb-01-to-10/decisions.ts` — wave 4's seven local
+ *   decision records, named in a COMMENT by `src/coverage/uninventoried.ts` and
+ *   imported by nothing. A comment is not an importer. Now rendered on
+ *   `app/workflows/ai-and-its-absence/`, which already discloses per card.
+ *   Rendered rather than deleted because most of their readings are read from
+ *   lines OUTSIDE section 44A — chapter 21, §36, the offline register, chapter
+ *   40 — which no card on that page transcribes, so they are not a second home
+ *   for the card text. Covered by
+ *   `tests/component/ai-and-its-absence-route.test.tsx`.
+ *
+ * THE EMPTY LIST STAYS, WITH ITS FLOOR BELOW IT, BECAUSE THE EMPTY LIST IS THE
+ * ASSERTION: no file this slice shipped is reached from nothing. Deleting the
+ * case would delete the claim. A new orphan reds it, and so would deleting a
+ * mount.
  * ==================================================================== */
 
-const KNOWN_UNREACHABLE: readonly string[] = [
-  // Wave 0 task 5's queued-request state machine. `states.ts` and
-  // `surface-matrix.ts` were rescued by wave 3 task 15, which mounts the 12x5
-  // matrix; `machine.ts` — the transition function over those states — was
-  // not, and states no abstention. Owner: wave 3 task 15.
+const KNOWN_UNREACHABLE: readonly string[] = []
+
+/**
+ * The two that used to be named, kept as their own case below rather than
+ * folded into the sweep: a resolved orphan is the one claim in this gate with a
+ * history, and the sweep above would pass if either file vanished from the
+ * tree entirely.
+ */
+const FORMERLY_UNREACHABLE = [
   'src/ai/requests/machine.ts',
-  // Wave 4's storyboard 1-10 decision citations. Named in a COMMENT by
-  // `src/coverage/uninventoried.ts` and imported by no route. A comment is not
-  // an importer. Owner: wave 4 task 16.
   'src/ai/storyboards/sb-01-to-10/decisions.ts',
-]
+] as const
 
 describe('slice 11 gate 12: reachability from app/', () => {
   const sources = allSources()
@@ -1283,21 +1311,32 @@ describe('slice 11 gate 12: reachability from app/', () => {
     expect(reachable.has('src/ai/provenance/contract.ts')).toBe(true)
   })
 
-  it('every slice-11 file is reached from a route, except the two named above', () => {
+  it('every slice-11 file is reached from a route, and the exemption list is empty', () => {
     const orphaned = SLICE_11_FILES.filter((f) => !reachable.has(f)).sort()
     expect(
       orphaned,
       'a slice-11 module no route reaches. It is not shipped, and a stated abstention and an '
         + 'oversight look identical from outside — so either mount it or say in the file why not.',
     ).toEqual([...KNOWN_UNREACHABLE].sort())
+    expect(KNOWN_UNREACHABLE, 'the exemption list grew; read the paragraph above it').toEqual([])
   })
 
-  it('and the two named are still exactly the shape they were named for', () => {
-    for (const file of KNOWN_UNREACHABLE) {
-      expect(known.has(file), `${file} is named unreachable and does not exist`).toBe(true)
-      expect(SLICE_11_FILES, `${file} is named unreachable and is not a slice-11 file`)
-        .toContain(file)
+  it('and the two that used to be exempt are now graded like the rest', () => {
+    // NOT a loop over `KNOWN_UNREACHABLE`, which is empty and would execute
+    // zero times — a vacuous case that passes on anything is how an exemption
+    // rots into decoration. These two are named, so the day a mount is removed
+    // this reds beside the sweep rather than only the sweep noticing.
+    for (const file of FORMERLY_UNREACHABLE) {
+      expect(known.has(file), `${file} no longer exists`).toBe(true)
+      expect(SLICE_11_FILES, `${file} is no longer a slice-11 file`).toContain(file)
+      expect(reachable.has(file), `${file} is reached from no route again`).toBe(true)
     }
+    // And each is reached through the mount that closed it, so a file made
+    // reachable by some unrelated import does not read as this gate's closure.
+    expect(importsOf('src/ai/requests/StateMachinePanel.tsx', known))
+      .toContain('src/ai/requests/machine.ts')
+    expect(importsOf('app/workflows/ai-and-its-absence/AiAndItsAbsenceScreen.tsx', known))
+      .toContain('src/ai/storyboards/sb-01-to-10/decisions.ts')
   })
 })
 
@@ -1419,6 +1458,34 @@ describe('slice 11 gate 12: reachability from app/', () => {
  *      nothing — the ADDING direction
  *      RED  a slice-11 module no route reaches …
  *           + Received "src/ai/zz-plant-orphan.ts"
+ *
+ * GATE 12 AGAIN, AFTER BOTH EXEMPTIONS WERE RESOLVED AND THE LIST EMPTIED.
+ * P16  the `StateMachinePanel` IMPORT EDGE removed from
+ *      `app/hub/execution-summary-review/page.tsx`, which is what un-mounting
+ *      actually looks like to an import closure
+ *      RED  twice, and both are the right red:
+ *           'expected [ …(2) ] to deeply equal []' on the sweep — TWO files,
+ *           because the panel and the machine orphan together; and
+ *           'src/ai/requests/machine.ts is reached from no route again:
+ *           expected false to be true' on the formerly-exempt case.
+ * P17  a WIDENED exemption: `KNOWN_UNREACHABLE` given back the two entries AND
+ *      the import edge removed, so the sweep's own equality is satisfied and
+ *      only the emptiness assertion can convict. This is the shape the empty
+ *      list exists to catch.
+ *      RED  'the exemption list grew; read the paragraph above it: expected
+ *           [ 'src/ai/requests/machine.ts', …(1) ] to deeply equal []'
+ *
+ * AND ONE PLANT WAS DEFECTIVE, WHICH IS THE MORE USEFUL HALF OF THE RECORD.
+ * P18  the `<StateMachinePanel …/>` JSX removed from the route while the import
+ *      was LEFT IN PLACE — the panel off the page, the edge still there.
+ *      GREEN, 54/54. This gate walks the IMPORT closure, so an import edge is
+ *      not a mount and this gate cannot tell the difference. The limit is
+ *      reported rather than papered over: what closes it is a bytes-level
+ *      assertion in the mounting route's own suite, and
+ *      `tests/component/ai-requests-state-machine-panel.test.tsx` now carries
+ *      one ('is MOUNTED on the Hub route, not merely imported by it'), which
+ *      the same plant reds. The sibling overlay suite already asserted its own
+ *      mount that way; this gate's closure is unchanged.
  *
  * WHAT IS NOT PLANTED, STATED RATHER THAN LEFT. Gate 1's five other membership
  * lists, gate 11's transcribed-header comparison and gate 12's closure-sanity

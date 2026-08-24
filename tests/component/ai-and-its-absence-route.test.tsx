@@ -7,6 +7,7 @@ import {
 } from '../../app/workflows/ai-and-its-absence/scope'
 import { WorkflowIndex } from '../../app/workflows/page'
 import { provenanceViolations } from '@/ai/provenance/contract'
+import { SB_01_TO_10_LOCAL_DISCLOSURES } from '@/ai/storyboards/sb-01-to-10/decisions'
 
 /**
  * THE RENDERED ROUTE, WHICH IS THE HALF THE TOKEN SCAN CANNOT SEE.
@@ -284,3 +285,146 @@ describe('the page is driven by its literal index, so a missing card is visible'
     expect(sections).toEqual([...EXPECTED_IDENTIFIERS])
   })
 })
+
+/* ==================================================================== *
+ * THE SEVEN LOCAL DECISION DISCLOSURES, WHICH USED TO REACH NO SCREEN.
+ *
+ * `src/ai/storyboards/sb-01-to-10/decisions.ts` was reached from nothing:
+ * measured by transitive closure from `app/`, zero importers under `src/` or
+ * `app/`, named only in a COMMENT in `src/coverage/uninventoried.ts`. It
+ * reached a gate — `tests/unit/ai-storyboards-01-10-decisions.test.ts` — and no
+ * reader. These cases cover the mount.
+ * ==================================================================== */
+
+/** The seven, as a literal list in this file. Never mapped from the value under test. */
+const EXPECTED_LOCAL_DECISIONS = [
+  'DEC-ASK-001',
+  'DEC-LOCALAI-001',
+  'DEC-AIRTO-001',
+  'DEC-NOSHIFT-001',
+  'DEC-PLUS-001',
+  'DEC-SYNC-001',
+  'DEC-WIPE-001',
+] as const
+
+/** The four the canon holds a record for, likewise literal. */
+const EXPECTED_CANON_BACKED = [
+  'DEC-AIRETRY-001',
+  'DEC-LANEB-001',
+  'DEC-LIB-001',
+  'DEC-WIDIFF-001',
+] as const
+
+/**
+ * Section 44A's own bounds, declared here rather than read from the screen's
+ * parse of them. `## 44A.` at L92596 to the chapter's closing rule at L95408.
+ */
+const SECTION_44A = { first: 92_596, last: 95_408 } as const
+
+describe('the decisions storyboards 1 to 10 name are disclosed on the page', () => {
+  it('renders all seven local records, by membership and not by count', () => {
+    const { container } = render(<AiAndItsAbsenceScreen />)
+    const rendered = [...container.querySelectorAll('[data-local-decision]')].map((el) =>
+      el.getAttribute('data-local-decision'),
+    )
+    // AN EQUALITY OVER A LITERAL LIST. An eighth record turns this red instead
+    // of passing with a bigger number, and a substituted identifier reds too.
+    expect(rendered).toEqual([...EXPECTED_LOCAL_DECISIONS])
+  })
+
+  it('renders every reading of every record, with the line it was read from', () => {
+    const { container } = render(<AiAndItsAbsenceScreen />)
+    const text = renderedRuns(container)
+    for (const record of SB_01_TO_10_LOCAL_DISCLOSURES) {
+      expect(text, `${record.decisionRef}: its question is not on screen`).toContain(
+        record.question,
+      )
+      expect(text, `${record.decisionRef}: its canon note is not on screen`).toContain(
+        record.canonNote,
+      )
+      expect(text, `${record.decisionRef}: what the cards do is not on screen`).toContain(
+        record.behaviour,
+      )
+      for (const reading of record.readings) {
+        expect(text, `${record.decisionRef}: a reading is not on screen`).toContain(reading.text)
+        expect(text, `${record.decisionRef}: ${reading.locator} is not named`).toContain(
+          reading.locator,
+        )
+      }
+    }
+    // And the four the canon holds are named as whole tokens rather than
+    // silently omitted because they need no local record.
+    for (const id of EXPECTED_CANON_BACKED) {
+      expect(wholeTokenCount(text, id), `${id} is not named on the page`).toBeGreaterThan(0)
+    }
+  })
+
+  it('marks exactly the readings that come from outside section 44A', () => {
+    const { container } = render(<AiAndItsAbsenceScreen />)
+    // THE EXPECTED SET IS COMPUTED HERE FROM THE RECORDS AND THE SPAN, not
+    // read off the page: the asymmetry with the other two storyboard ranges is
+    // the reason these records are rendered at all, so the claim carrying it
+    // has to be checked against the lines rather than against the rendering.
+    const expected = SB_01_TO_10_LOCAL_DISCLOSURES.flatMap((record) =>
+      record.readings
+        .filter((reading) => {
+          const line = Number(/L(\d{4,6})/.exec(reading.locator)?.[1] ?? '0')
+          return line < SECTION_44A.first || line > SECTION_44A.last
+        })
+        .map((reading) => reading.locator),
+    )
+    const tagged = [...container.querySelectorAll('[data-outside-44a]')].map(
+      (el) => el.closest('[data-reading-locator]')?.getAttribute('data-reading-locator') ?? '',
+    )
+    expect(tagged.sort()).toEqual([...expected].sort())
+    // A FLOOR AND A CEILING, because an empty tag set and a fully-tagged one
+    // would both make the claim meaningless.
+    expect(tagged.length).toBeGreaterThan(0)
+    expect(tagged.length).toBeLessThan(
+      SB_01_TO_10_LOCAL_DISCLOSURES.reduce((n, r) => n + r.readings.length, 0),
+    )
+  })
+
+  it('adds no provenance class and no alert to the chrome', () => {
+    const { container } = render(<AiAndItsAbsenceScreen />)
+    const section = container.querySelector('[data-testid="sb-01-to-10-decisions"]')!
+    expect(section.querySelectorAll('[data-provenance-class]')).toHaveLength(0)
+    expect(section.querySelectorAll('[data-guidance-element]')).toHaveLength(0)
+    expect(section.querySelectorAll('[role="alert"]')).toHaveLength(0)
+    expect(provenanceViolations(container)).toEqual([])
+  })
+})
+
+/* ==================================================================== *
+ * THE PLANT CAMPAIGN FOR THE THREE CASES ABOVE, AS RUN.
+ *
+ * Each plant was spliced into a real shipping file, the suite run, and the file
+ * restored and asserted byte-identical against a sha256 taken before the plant.
+ * The harness required its anchor to occur exactly once and refused an empty
+ * replacement. The message each produced is recorded, because "it went red"
+ * without the message does not say which assertion fired.
+ *
+ *  P5  AN EIGHTH RECORD ADDED to `SB_01_TO_10_LOCAL_DISCLOSURES` — the ADD
+ *      direction, which is the one a count cannot see.
+ *      RED  at 'renders all seven local records, by membership and not by
+ *           count': expected [ 'DEC-ASK-001', …(7) ] to deeply equal
+ *           [ 'DEC-ASK-001', …(6) ]
+ *
+ *  P6  THE OUTSIDE-44A COMPARISON INVERTED in the screen, so the tag lands on
+ *      exactly the wrong readings while the page still looks complete.
+ *      RED  at 'marks exactly the readings that come from outside section 44A':
+ *           expected [ 'DEC-ASK-001 · L92732', …(6) ] to deeply equal
+ *           [ 'DEC-AIRTO-001 · L87880', …(15) ]
+ *           — the complement, which is why this case computes its expected set
+ *           from the lines rather than reading the page's own marking back.
+ *
+ *  P7  THE FIRST READING OF EVERY RECORD DROPPED from the rendering
+ *      (`record.readings.slice(1)`), which is the shape that discloses most of
+ *      a question and looks like a full disclosure.
+ *      RED  twice, and both are the right red:
+ *           'renders every reading of every record' — DEC-ASK-001: a reading is
+ *           not on screen: expected '…' to contain 'Option (a) — no question
+ *           channel. Coa…'; and
+ *           'marks exactly the readings that come from outside section 44A' —
+ *           expected […(10)] to deeply equal […(15)].
+ * ==================================================================== */
