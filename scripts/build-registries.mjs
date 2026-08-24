@@ -98,13 +98,50 @@ function sortById(rows) {
  *
  * Fixed instead where a reader meets it: every generated registry now states
  * what its own number is.
+ *
+ * ── AND THE SENTENCE ITSELF WAS WRONG, FOR A ROW IT NAMED (round 1, item 2) ─
+ * The published text said the value IS `Math.min` over the identifier index's
+ * line list, with no exception. `ai-storyboards.json` contradicts it: after the
+ * C-29 fix `SB-AI-01` ships `92693`, not the list minimum `74479`, because a
+ * BANDED register takes the first occurrence inside its own chapter rather than
+ * the first occurrence anywhere — that being the whole point of the fix, since
+ * L74479 is chapter 30D's Command Center panel and the row belongs to §44A.
+ * One row of 613, and the artefact was describing itself wrongly for it.
+ *
+ * A SECOND CLASS OF ROW WAS ALSO MISDESCRIBED, and it is much larger than one
+ * row: `modules`, `business-objects`, `actionable-controls`, `workflows`, the
+ * `notifications` placement rows, the Studio trigger rows and the deployable
+ * half of `scheduled-work` take `sourceLine` from the EXTRACTION RECORD's own
+ * line (`m.line`, `o.line`, `c.line`, `wf.line`, `t.line`, `d.line`) or from a
+ * chapter-body minimum, never from the identifier index at all. Checked one by
+ * one rather than assumed: `events` and `commands` DO use the index minimum,
+ * because they are `buildIdentifierOnlyRegistry` calls. So the fix is not a
+ * carve-out for one registry: the
+ * sentence now states the general contract — a line that mentions the
+ * identifier, a starting point and not a definition — and names all three ways
+ * it is computed, so no registry publishes a claim its own rows break.
+ *
+ * `tests/unit/registry-build.test.ts` requires the phrases `FIRST MENTION` and
+ * `NOT necessarily the line that defines` to survive any rewording; both do,
+ * and both are still true of the default computation.
  */
 const SOURCE_LINE_MEANING =
-  'The FIRST MENTION of the identifier anywhere in the frozen source, computed as the minimum ' +
-  'of registries/raw/identifier-index.json\'s line list for that id. It is NOT necessarily the ' +
-  'line that defines the identifier: a group table, a diagram, or a neighbouring entry that ' +
-  'cross-references it will often come first. Follow it as a starting point, not as a ' +
-  'definition. Where a module in src/ carries its own locator for the same identifier, that one ' +
+  'A frozen-source line that MENTIONS the identifier, published so a reader can open it. It is ' +
+  'NOT necessarily the line that defines the identifier: a group table, a diagram, or a ' +
+  'neighbouring entry that cross-references it will often come first. Follow it as a starting ' +
+  'point, not as a definition. It is computed one of three ways, and which one depends on the ' +
+  'register the row came from. (1) By default, the FIRST MENTION of the identifier anywhere in ' +
+  'the frozen source — the minimum of registries/raw/identifier-index.json\'s line list for ' +
+  'that id. (2) Where the row belongs to a CHAPTER-BANDED register, the first occurrence inside ' +
+  'that register\'s own chapter, which is deliberately NOT the minimum of the list: SB-AI-01 in ' +
+  'ai-storyboards.json ships L92693 and not its list minimum L74479, because L74479 is chapter ' +
+  '30D and the row belongs to section 44A. A register label that claims a chapter is asserted ' +
+  'against every one of its rows at build time, so a row outside its band is a build failure. ' +
+  '(3) Where a register was TRANSCRIBED by the extraction rather than derived from the ' +
+  'identifier index — modules, business objects, actionable controls, workflows, the ' +
+  'notification placement rows, the Studio triggers and the deployable scheduled-work rows — ' +
+  'the line the extraction recorded for that row. Where a module in src/ carries its own ' +
+  'locator for the same identifier, that one ' +
   'was opened and read against the source and is the stronger citation.'
 
 function writeRegistry(registry) {

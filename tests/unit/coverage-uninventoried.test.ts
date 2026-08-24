@@ -12,6 +12,7 @@ import {
   decAiInTheCanon,
   fbAiLiteralsWithMoreThanOneOwner,
 } from '@/coverage/uninventoried'
+import { AI_MODE_ROWS } from '@/ai/modes/vocabulary'
 import { REGISTRY_DESCRIPTORS } from '@/coverage/descriptors'
 import { loadGeneratedRegistry } from '@/coverage/registry-loader'
 import { OPEN_DECISION_IDS } from '@/disclosure/decisions'
@@ -104,7 +105,11 @@ const TOKEN_PATTERNS: Readonly<Record<string, RegExp>> = Object.fromEntries(
   UNINVENTORIED_FAMILIES.map((f) => [f.prefix, tokenPattern(f.prefix)]),
 )
 
-function sourceFiles(): readonly string[] {
+/**
+ * One walker, used by all three scans in this file. It was written out three
+ * times, and a third copy is how a scan quietly stops matching the other two.
+ */
+function walkRoots(roots: readonly string[]): readonly string[] {
   const out: string[] = []
   const walk = (dir: string): void => {
     for (const entry of readdirSync(join(REPO, dir))) {
@@ -121,11 +126,34 @@ function sourceFiles(): readonly string[] {
       else if (/\.(ts|tsx)$/.test(entry)) out.push(rel)
     }
   }
-  for (const root of SWEPT_ROOTS) walk(root)
-  return out.filter((f) => f !== DECLARING_MODULE)
+  for (const root of roots) walk(root)
+  return out
+}
+
+function sourceFiles(): readonly string[] {
+  return walkRoots(SWEPT_ROOTS).filter((f) => f !== DECLARING_MODULE)
 }
 
 const FILES = sourceFiles()
+
+/**
+ * A THIRD ROOT, FOR ONE CLAIM THAT NAMES THREE (round 1, item 4).
+ *
+ * The chapter-44 abstention in `NAMESPACES_ACCOUNTED_ELSEWHERE` says this build
+ * cites no `AC-44-*` and no `TEST-44-*` identifier "in src/, app/ or tests/".
+ * `SWEPT_ROOTS` is two of those three, so a third of the sentence was ungated:
+ * the claim was true when it was written and nothing would have said so if a
+ * test file started citing one. Measured before widening — zero occurrences
+ * across all three roots — so the sentence is kept and the sweep is widened to
+ * match it, rather than the sentence narrowed to match the sweep.
+ *
+ * Only the abstention uses this list. Widening `SWEPT_ROOTS` itself would drag
+ * every suite's fixtures and plant literals into the declared-equals-swept
+ * equality above, which is a claim about what the BUILD ships and not about
+ * what its tests mention.
+ */
+const ABSTENTION_ROOTS = [...SWEPT_ROOTS, 'tests'] as const
+const ABSTENTION_FILES = walkRoots(ABSTENTION_ROOTS)
 
 /** Every token of every shape, with the files it was found in. */
 function sweep(): ReadonlyMap<string, readonly string[]> {
@@ -166,31 +194,61 @@ describe('the sweep itself can see the tree', () => {
   it('excludes the declaring module and nothing else', () => {
     expect(existsSync(join(REPO, DECLARING_MODULE))).toBe(true)
     expect(FILES).not.toContain(DECLARING_MODULE)
-    const allFiles: string[] = []
-    const walk = (dir: string): void => {
-      for (const entry of readdirSync(join(REPO, dir))) {
-        if (isForeignProbe(entry)) continue
-        if (entry === 'node_modules' || entry === '.next' || entry.startsWith('.')) continue
-        const rel = join(dir, entry)
-        let stats
-        try {
-          stats = statSync(join(REPO, rel))
-        } catch {
-          continue
-        }
-        if (stats.isDirectory()) walk(rel)
-        else if (/\.(ts|tsx)$/.test(entry)) allFiles.push(rel)
-      }
-    }
-    for (const root of SWEPT_ROOTS) walk(root)
+    const allFiles = walkRoots(SWEPT_ROOTS)
     expect(allFiles.filter((f) => !FILES.includes(f))).toEqual([DECLARING_MODULE])
   })
 
+  /**
+   * THIS CASE COULD NOT FIRE, TWICE OVER, AND ITS MESSAGE NAMED THE REGEX
+   * (round 1, item 6). It read
+   *
+   *   `[...SWEPT.keys()].filter((id) => pattern.test(id) || id.startsWith(prefix))`
+   *
+   * and neither half of that could convict a broken pattern:
+   *
+   *   - `pattern` carries the `g` flag from `tokenPattern`, so `.test()` is
+   *     STATEFUL — `lastIndex` survives each call. Demonstrated over
+   *     ['AI-01','AI-02','AI-03','AI-04']: the shipped filter returns
+   *     ['AI-01','AI-03'] where an un-flagged clone returns all four. On a
+   *     one-element result that alternation is the difference between a hit and
+   *     a miss, and nothing here reset it.
+   *   - `|| id.startsWith(prefix)` satisfied every prefix even with the regex
+   *     replaced by /ZZZ/, so the message "so its regex is broken" was
+   *     unreachable by construction. The disjunct also made the case ask a
+   *     different question from the one it claims: `SWEPT`'s keys were produced
+   *     BY these patterns, so "does a key start with the prefix" is nearly a
+   *     tautology, while "does the pattern still match its own key" is the
+   *     property that catches a pattern edited into uselessness.
+   *
+   * Non-global clone, no disjunct. Planted /ZZZ-\d+/ in `tokenPattern` and this
+   * case went red on all seven prefixes; restored byte-identically after.
+   */
   it('finds at least one token of every declared shape', () => {
     for (const [prefix, pattern] of Object.entries(TOKEN_PATTERNS)) {
-      const hits = [...SWEPT.keys()].filter((id) => pattern.test(id) || id.startsWith(prefix))
+      const stateless = new RegExp(pattern.source)
+      const hits = [...SWEPT.keys()].filter((id) => stateless.test(id))
       expect(hits.length, `the ${prefix} sweep found nothing, so its regex is broken`).toBeGreaterThan(0)
     }
+  })
+
+  /**
+   * And the property the fix above rests on, asserted rather than trusted: the
+   * clone must be stateless. A future edit that dropped `new RegExp(...)` and
+   * went back to `pattern.test` would reintroduce exactly the defect, silently,
+   * because a stateful match still passes whenever the tree is healthy.
+   */
+  it('matches with a stateless clone, not the swept pattern itself', () => {
+    const pattern = TOKEN_PATTERNS['AI-']
+    expect(pattern?.global, 'the sweep patterns are global by design').toBe(true)
+    const stateless = new RegExp(pattern?.source ?? '')
+    expect(stateless.global).toBe(false)
+    const four = ['AI-01', 'AI-02', 'AI-03', 'AI-04']
+    expect(four.filter((id) => stateless.test(id))).toEqual(four)
+    // The shipped bug, kept as the control. On a private global clone rather
+    // than on TOKEN_PATTERNS' own object: `.test` advances `lastIndex`, and a
+    // case that leaves shared state behind it is a different defect.
+    const stateful = new RegExp(pattern?.source ?? '', 'g')
+    expect(four.filter((id) => stateful.test(id))).toEqual(['AI-01', 'AI-03'])
   })
 })
 
@@ -465,18 +523,101 @@ describe('nothing in the artificial-intelligence area is counted nowhere', () =>
    * that this build cites no chapter-44 acceptance criterion and no chapter-44
    * test identifier. The day one is cited, the abstention is false and this
    * says so.
+   *
+   * SCOPED TO THE THREE ROOTS THE SENTENCE NAMES, which it was not (round 1,
+   * item 4): the reason text claims "src/, app/ or tests/" and this ran over
+   * `FILES`, which is `SWEPT_ROOTS` — src and app. A third of the claim was
+   * ungated. The declaring module is NOT excluded here, unlike the equality
+   * sweep: the exclusion exists so a declaration cannot justify itself, and an
+   * abstention is the opposite shape — a citation written into the declaring
+   * module would falsify it exactly as a citation anywhere else would.
    */
   it('holds the chapter-44 abstention the AC- and TEST- entries claim', () => {
-    const cited = FILES.flatMap((file) => {
+    // Non-vacuity first: an empty walk would make the absence below pass.
+    expect(ABSTENTION_FILES.length).toBeGreaterThan(FILES.length)
+    expect(ABSTENTION_FILES.some((f) => f.startsWith('tests'))).toBe(true)
+    expect(ABSTENTION_FILES).toContain(DECLARING_MODULE)
+    const cited = ABSTENTION_FILES.flatMap((file) => {
       const text = readFileSync(join(REPO, file), 'utf8')
       return [...text.matchAll(/\b(?:AC|TEST)-44-\d+\b/g)].map((m) => `${m[0]} (${file})`)
     })
     expect(
       cited,
-      'a chapter-44 AC-44-* or TEST-44-* identifier is now cited under src/ or app/. The '
+      'a chapter-44 AC-44-* or TEST-44-* identifier is now cited under src/, app/ or tests/. The '
         + 'abstention recorded in NAMESPACES_ACCOUNTED_ELSEWHERE says the build enforces none of '
         + 'them; either the citation is wrong or the record is. Fix one of the two.',
     ).toEqual([])
+  })
+})
+
+describe('the mode-matrix claim the AIMODE family makes about itself', () => {
+  /**
+   * WHY THIS EXISTS: THE CLAIM DRIFTED BECAUSE NOTHING CHECKED IT (round 1,
+   * item 3). `AIMODE-`'s `sizeMeaning` said `AIMODE-13`/`-14`, `-03`/`-15` and
+   * `-01`/`-16` were "byte-identical across all five contract columns". Only
+   * the first pair is. It is two copies of one claim with one drifted:
+   * `src/surfaces/cc/modules/cc-08/degradation.ts` states it of the one pair
+   * and is right; this module had widened it to three, apparently by fusing it
+   * with `src/ai/modes/vocabulary.ts`'s separate and correct claim that three
+   * pairs share a worker-visible LABEL.
+   *
+   * So both halves are now derived from `AI_MODE_ROWS`, which
+   * `tests/unit/ai-modes.test.ts` asserts verbatim against the frozen bytes.
+   * A prose sentence and a measurement cannot drift apart when the measurement
+   * is what convicts the sentence.
+   */
+  const CONTRACT_COLUMNS = [
+    'workerLabel',
+    'agentInvocation',
+    'deterministicSafety',
+    'escalationDelivery',
+    'classification',
+  ] as const
+
+  const contractOf = (id: string): string => {
+    const row = AI_MODE_ROWS.find((r) => r.id === id)
+    if (row === undefined) throw new Error(`no matrix row for ${id}`)
+    return JSON.stringify(CONTRACT_COLUMNS.map((c) => row[c]))
+  }
+
+  it('finds exactly one pair identical across all five contract columns', () => {
+    const identical: string[] = []
+    for (let i = 0; i < AI_MODE_ROWS.length; i += 1) {
+      for (let j = i + 1; j < AI_MODE_ROWS.length; j += 1) {
+        const a = AI_MODE_ROWS[i]
+        const b = AI_MODE_ROWS[j]
+        if (a === undefined || b === undefined) continue
+        if (contractOf(a.id) === contractOf(b.id)) identical.push(`${a.id}/${b.id}`)
+      }
+    }
+    expect(
+      identical,
+      'the byte-identical pairs across all five contract columns. The AIMODE- family\'s '
+        + 'sizeMeaning names this set and cc-08/degradation.ts names it too; if this changes, '
+        + 'both sentences are now wrong and must move with it.',
+    ).toEqual(['AIMODE-13/AIMODE-14'])
+  })
+
+  it('finds three pairs that share a worker-visible label and are not otherwise identical', () => {
+    const byLabel = new Map<string, string[]>()
+    for (const row of AI_MODE_ROWS) {
+      byLabel.set(row.workerLabel, [...(byLabel.get(row.workerLabel) ?? []), row.id])
+    }
+    const shared = [...byLabel.values()].filter((ids) => ids.length > 1).map((ids) => ids.join('/'))
+    expect(shared.sort()).toEqual([
+      'AIMODE-01/AIMODE-16',
+      'AIMODE-03/AIMODE-15',
+      'AIMODE-13/AIMODE-14',
+    ])
+    expect(byLabel.size, 'sixteen modes, thirteen distinct labels').toBe(13)
+    // And the two that are NOT byte-identical differ on the columns the family's
+    // sizeMeaning names, so the correction is measured and not merely softened.
+    const col = (id: string, c: (typeof CONTRACT_COLUMNS)[number]): unknown =>
+      AI_MODE_ROWS.find((r) => r.id === id)?.[c]
+    expect(col('AIMODE-03', 'agentInvocation')).not.toBe(col('AIMODE-15', 'agentInvocation'))
+    expect(col('AIMODE-03', 'classification')).not.toBe(col('AIMODE-15', 'classification'))
+    expect(col('AIMODE-01', 'classification')).not.toBe(col('AIMODE-16', 'classification'))
+    expect(col('AIMODE-01', 'agentInvocation')).toBe(col('AIMODE-16', 'agentInvocation'))
   })
 })
 

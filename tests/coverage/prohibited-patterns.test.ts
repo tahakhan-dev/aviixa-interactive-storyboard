@@ -27,6 +27,9 @@ const SOURCE_FILES = [...walk('src'), ...walk('app')].filter((f) =>
   /\.(ts|tsx|css)$/.test(f),
 )
 
+/** Declared once so the scan and its prose control cannot drift apart. */
+const PROPERTY = /dangerouslySetInnerHTML/
+
 describe('no runtime backend', () => {
   it('declares no Server Action', () => {
     const offenders = SOURCE_FILES.filter((f) =>
@@ -53,11 +56,39 @@ describe('no runtime backend', () => {
     expect(offenders).toEqual([])
   })
 
+  /*
+   * READ AS CODE, NOT AS PROSE.
+   *
+   * This case scanned raw bytes, so it convicted the first file that explained
+   * in a comment WHY it does not use the property: `StoryboardCard` prints
+   * text, no renderer and no `dangerouslySetInnerHTML`, which is exactly the
+   * reasoning that made the thirty storyboards strip their markdown. A gate
+   * that reds on a file for documenting its own compliance teaches people to
+   * delete the documentation.
+   *
+   * Same fix as this file's other scans and for the same stated reason —
+   * `stripComments` first. It removes comments only, so a real usage in code or
+   * in a string literal still convicts; the hiding place a reader would worry
+   * about is not opened. The prose case below is the control that keeps this
+   * honest: it asserts the gate DOES read a code occurrence and DOES NOT read a
+   * commented one, so nobody can "fix" a future red by moving the property into
+   * a comment.
+   */
   it('uses no dangerouslySetInnerHTML', () => {
     const offenders = SOURCE_FILES.filter((f) =>
-      /dangerouslySetInnerHTML/.test(readFileSync(f, 'utf8')),
+      PROPERTY.test(stripComments(readFileSync(f, 'utf8'))),
     )
     expect(offenders).toEqual([])
+  })
+
+  it('reads that property as code and not as prose', () => {
+    const asCode = 'const x = { dangerouslySetInnerHTML: { __html: y } }'
+    const asProse = '/* this file uses no dangerouslySetInnerHTML at all */'
+    expect(PROPERTY.test(stripComments(asCode)), 'a real usage must convict').toBe(true)
+    expect(PROPERTY.test(stripComments(asProse)), 'a comment must not convict').toBe(false)
+    // And the population is real: a scan over nothing would make the case above
+    // pass on an empty set.
+    expect(SOURCE_FILES.length).toBeGreaterThan(100)
   })
 })
 

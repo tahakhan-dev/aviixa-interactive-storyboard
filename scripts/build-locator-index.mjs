@@ -24,7 +24,7 @@
  *
  * Usage:  node scripts/build-locator-index.mjs
  */
-import { readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -145,6 +145,85 @@ const found = Object.keys(index).length
 const sorted = {}
 for (const k of Object.keys(index).sort()) sorted[k] = index[k]
 
+/*
+ * ── THE "NOT EXHAUSTIVE" FIGURE IS NOW MEASURED HERE (round 1, item 5) ──────
+ *
+ * The note below used to carry a hand-typed 210 for "identifiers under src/ and
+ * app/ that the frozen source carries and this index has no key for". Nobody
+ * could reproduce it: an independent measurement got 166 under the token shape
+ * that reproduces the note's OTHER figure (the src/ai/ one) exactly, 173 under
+ * the loosest word-boundary variant, and 542 with the source-presence filter
+ * dropped. A figure whose shape is unstated is not a measurement, and this
+ * build's rule is remove, never renumber — so it is computed and interpolated,
+ * the way the generated registries already do for their counts.
+ *
+ * THE SHAPE, STATED SO THE NUMBER CAN BE REPRODUCED. Deliberately NOT `IDENT`
+ * above: `IDENT` is keyed on Appendix A's registered prefixes and needs a
+ * two-character tail, so it cannot see `PROV-4` at all — and the whole PROV-*
+ * family is the note's own worked example of what the graph missed. The shape
+ * used is the one `tests/unit/coverage-uninventoried.test.ts` sweeps `src/ai/`
+ * with, character for character: an uppercase prefix of two or more, any number
+ * of uppercase segments, a numeric tail of one to four digits, and a leading
+ * guard so a match cannot start mid-identifier. That is why the src/ai/ figure
+ * this script prints agrees with that suite's own sweep.
+ */
+const TREE_IDENT = /(?<![A-Za-z0-9-])[A-Z][A-Z0-9]+(?:-[A-Z0-9]+)*-\d{1,4}\b/g
+
+function treeFiles(root) {
+  const out = []
+  const walk = (dir) => {
+    for (const entry of readdirSync(join(ROOT, dir))) {
+      if (entry === 'node_modules' || entry === '.next' || entry.startsWith('.')) continue
+      const rel = join(dir, entry)
+      let stats
+      try {
+        stats = statSync(join(ROOT, rel))
+      } catch {
+        continue
+      }
+      if (stats.isDirectory()) walk(rel)
+      else if (/\.(ts|tsx)$/.test(entry)) out.push(rel)
+    }
+  }
+  if (existsSync(join(ROOT, root))) walk(root)
+  return out
+}
+
+function tokensUnder(roots) {
+  const tokens = new Set()
+  for (const root of roots) {
+    for (const file of treeFiles(root)) {
+      const text = readFileSync(join(ROOT, file), 'utf8')
+      for (const m of text.matchAll(TREE_IDENT)) tokens.add(m[0])
+    }
+  }
+  return tokens
+}
+
+const SOURCE_TOKENS = new Set()
+for (const m of raw.toString('utf8').matchAll(TREE_IDENT)) SOURCE_TOKENS.add(m[0])
+
+/**
+ * How many distinct tokens of that shape under `roots` the frozen source also
+ * carries and this index has no key for. The source-presence filter is the
+ * load-bearing half: without it the number counts every identifier this build
+ * mints for itself, which is a different and much larger claim (reported too,
+ * so the two cannot be confused again).
+ */
+function unindexed(roots) {
+  const tokens = [...tokensUnder(roots)]
+  const inSource = tokens.filter((t) => SOURCE_TOKENS.has(t))
+  return {
+    scanned: tokens.length,
+    inSource: inSource.length,
+    missing: inSource.filter((t) => sorted[t] === undefined).length,
+    missingIgnoringSource: tokens.filter((t) => sorted[t] === undefined).length,
+  }
+}
+
+const TREE = unindexed(['src', 'app'])
+const AI = unindexed([join('src', 'ai')])
+
 writeFileSync(
   OUT,
   JSON.stringify(
@@ -157,13 +236,21 @@ writeFileSync(
         'line is listed only because the identifier was found on it. ' +
         'NOT EXHAUSTIVE OVER IDENTIFIERS, AND THAT IS THE HALF A VERIFIER GETS WRONG. The LINES ' +
         'for an identifier that IS here are every one of them. The SET OF IDENTIFIERS is the ' +
-        'graph\'s judgement, and the graph missed some. Measured this session: of the distinct ' +
-        'identifier-shaped tokens under src/ and app/ that also occur in the frozen source, 210 ' +
-        'have no key here at all; narrowing to src/ai/ alone, 11 do. The whole PROV-* family is ' +
-        'among them — all six provenance classes — although PROV-4 occurs at L89439, in the ' +
-        'sentence carrying this build\'s absolute rule. So "not in this index" means "the graph ' +
-        'did not name it as an entity", NEVER "not in the source". A verifier who reads absence ' +
-        'here as disproof of a citation will be wrong; open the frozen source and grep it.',
+        'graph\'s judgement, and the graph missed some. MEASURED BY THIS GENERATOR, NOT TYPED: ' +
+        'the token shape is /(?<![A-Za-z0-9-])[A-Z][A-Z0-9]+(?:-[A-Z0-9]+)*-\\d{1,4}\\b/ over ' +
+        `every .ts and .tsx file under src/ and app/, which finds ${TREE.scanned} distinct ` +
+        `tokens; ${TREE.inSource} of them also occur in the frozen source, and ${TREE.missing} ` +
+        'of THOSE have no key here at all. Narrowing the same scan to src/ai/ alone: ' +
+        `${AI.scanned} distinct, ${AI.inSource} also in the source, ${AI.missing} of those ` +
+        'unindexed. The source-presence filter is load-bearing and its absence is the commonest ' +
+        `way this figure is overstated — drop it and the src/+app/ number is ${TREE.missingIgnoringSource}, ` +
+        'because it then counts every identifier this build mints for itself. The predecessor of ' +
+        'this sentence carried a hand-typed 210 that no shape reproduced; it is computed here so ' +
+        'it cannot be typed wrong again. The whole PROV-* family is among them — all six ' +
+        'provenance classes — although PROV-4 occurs at L89439, in the sentence carrying this ' +
+        'build\'s absolute rule. So "not in this index" means "the graph did not name it as an ' +
+        'entity", NEVER "not in the source". A verifier who reads absence here as disproof of a ' +
+        'citation will be wrong; open the frozen source and grep it.',
       // Zero, and that is the point: a locator is the line the identifier was
       // found on. No window is needed to make it true.
       windowLines: 0,
@@ -179,3 +266,8 @@ writeFileSync(
 console.log(`Wrote ${found} identifiers, ${locators} locators (every occurrence, not a sample)`)
 console.log(`  identifier-bearing graph nodes considered: ${considered}`)
 console.log(`  identifiers the graph named but the source does not carry: ${wanted.size - found}`)
+console.log(
+  `  src+app tokens in the source with no key here: ${TREE.missing} ` +
+    `(of ${TREE.inSource} in-source, ${TREE.scanned} scanned; ${TREE.missingIgnoringSource} without the source filter)`,
+)
+console.log(`  the same over src/ai/ alone: ${AI.missing} (of ${AI.inSource} in-source, ${AI.scanned} scanned)`)

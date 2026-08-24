@@ -287,9 +287,22 @@ export const UNINVENTORIED_FAMILIES = [
     alsoCitedWithoutARecord: [],
     sizeMeaning:
       'Modes in the machine, from AI_MODE_IDS. Every AIMODE-* token in the tree is a member, so '
-      + 'nothing in this family is cited without a record. The modes carry fewer distinct labels '
-      + 'than identifiers — AIMODE-13/-14, -03/-15 and -01/-16 are byte-identical across all '
-      + 'five contract columns — so this counts identifiers and not distinguishable states.',
+      + 'nothing in this family is cited without a record. The modes carry thirteen distinct '
+      + 'WORKER-VISIBLE LABELS and sixteen identifiers, because three pairs share a label: '
+      + 'AIMODE-13/-14 read "Live coaching paused by the platform", AIMODE-03/-15 read "Live '
+      + 'coaching unavailable" and AIMODE-01/-16 read "Live coaching available". SHARING A LABEL '
+      + 'IS NOT BEING THE SAME ROW, and this sentence used to say it was — it claimed all three '
+      + 'pairs are byte-identical across all five columns of the mode contract matrix, which is '
+      + 'true of ONE of them. Measured against the matrix in the frozen source and against '
+      + 'AI_MODE_REGISTER in src/ai/modes/vocabulary.ts, which transcribes it cell by cell: only '
+      + 'AIMODE-13 (L89368) and AIMODE-14 (L89369) match on all five. AIMODE-03 (L89358) and '
+      + 'AIMODE-15 (L89370) differ on Agent invocation — Unavailable against Allowed with '
+      + 'conditions — and on Classification. AIMODE-01 (L89356) and AIMODE-16 (L89371) differ on '
+      + 'Classification. The byte-identical claim belongs to the one pair, and '
+      + 'src/surfaces/cc/modules/cc-08/degradation.ts states it correctly for that pair; THIS '
+      + 'was the drifted copy of the two, having widened one pair to three. So this counts '
+      + 'identifiers, which is the only key a surface may use: a surface keyed on the label '
+      + 'collapses a tenant pause into a platform pause and a rollback into an outage.',
   },
   {
     prefix: 'PROV-',
@@ -555,13 +568,30 @@ export const NAMESPACES_ACCOUNTED_ELSEWHERE = [
       + 'where it is. DEC-AI* is the subset this module declares as a family, on reason 4.',
   },
   {
-    prefixes: ['FB-'],
-    title: 'Section 38.4 fallback contracts outside the AI families',
-    accountedIn: 'src/fallbacks/contracts.ts',
+    prefixes: ['FB-CONF-', 'FB-CORE-', 'FB-SYNC-'],
+    title: 'Per-chapter fallback registers named in transcribed prose, outside the AI families',
+    accountedIn:
+      'the transcribed prose that names each one, and src/fallbacks/contracts.ts for why §38.4 '
+      + 'does not own the FB-* namespace',
     why:
-      'The §38.4 library, transcribed as typed data with its own union and its own two-sided '
-      + 'count proof — reason 3 above. Its FB-AI family is declared as a family here; the rest '
-      + 'of the library is counted by the file that holds it.',
+      'THIS ENTRY USED TO READ `FB-` AND THAT WAS A HOLE, NOT A CONVENIENCE. Matched with '
+      + 'startsWith, a bare FB- absorbs every FB-AGT-* and FB-AI-* token too — so the general '
+      + 'sweep, the one written to catch a family nobody declared, could not have seen the '
+      + 'FB-AGT-* register that audit C-27 called the sharpest of the three it found. Measured: '
+      + 'delete the FB-AGT- family declaration outright and the remainder was still empty, which '
+      + 'means the declaration was load-bearing for nothing. The entry now names the namespaces '
+      + 'it actually answers for, so a new FB-* register lands in the remainder instead of under '
+      + 'a rubber stamp. Those namespaces are three, and all three are cited rather than '
+      + 'registered, and all three are rows of one chapter-24 table of fallback contract '
+      + 'FAMILIES rather than of numbered contracts — FB-CORE-01 at L46949, FB-SYNC-01 at '
+      + 'L46950, FB-CONF-01 at L46954. That table is why a bare FB-AI-01 cannot be a key: its '
+      + 'own FB-AI-01 row (L46951) is a family and not the same KIND of object as the three '
+      + 'numbered contracts sharing that literal. None of the three is a §38.4 '
+      + 'library member: that library is a closed seventy, and src/fallbacks/contracts.ts '
+      + 'measures the frozen source as carrying roughly seven hundred distinct FB-* identifiers '
+      + 'across per-chapter registers with incompatible shapes. Its own FB-AI family is declared '
+      + 'as a family here — reason 3 above — and chapter 44\'s FB-AGT-* register as a second, so '
+      + 'neither is answered by this entry.',
   },
   {
     prefixes: ['SB-AI-'],
