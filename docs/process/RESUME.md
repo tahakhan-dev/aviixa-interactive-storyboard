@@ -1029,6 +1029,96 @@ enumeration — and then check whether a third statement settles it.**
 - **`build-registries`' `MOD-*` ownership heuristic is a source-text scan**, so an attribution reached through a constant is invisible to it.
 - **`provenanceViolations` does not convict two sibling marks under one guidance element** — found by planting, not by reading.
 
+### Wave 5 — closed, and the gate limits it measured rather than papered over
+
+**Candidate `0b937aa`.** Controller-measured: typecheck 0 · lint 0 · gate-ordering **26 of 26 audited** ·
+freshness 2/2 · unit **6159** in 179 files · component **3017** in 107 · **release 837 in 26 files**.
+Task 19 `0487046` · task 20 `16d785c` · the eight-gate fix round `1ca7a03` · task 21 `6010a59` · the four
+convictions `a73b608` and `0b937aa`.
+
+**THE FIRST FULL `test:release` AFTER WAVES 3-5 WAS RED IN SIX FILES — EIGHT FAILURES — AND THE CONTROLLER
+HAD REPORTED THE BASE CLEAN ON HAVING RUN ONLY THE FRESHNESS GATE FROM THAT PROJECT.** Two of the eight
+were the gates succeeding: `slice-10` gate 5 pinned `evaluateColumnAccess`'s callers as an exact
+one-element array and task 14 legitimately reused the mechanism, and four `locator-fidelity` "anchored
+misses" were **correct citations** into the `DEC-SYNC-001` record headed at L80067 — the form §2a documents
+as correct and warns has nearly been "corrected" into wrongness five times.
+
+**The proven share was restored by making citations checkable, never by moving the baseline.** 97
+quotations extracted mechanically, verified twice by separate scripts, 69 anchored and 28 prefixed by
+section number only — because a heading does not contain the literal and prefixing one would assert a
+falsehood. Two headings yield no quote-free run and are **named** rather than dropped. 20.641% → 21.176%
+against a 20.887% threshold, baseline untouched at 21.887%. **The margin is ~74 citations. The next wave of
+weak citations re-opens it.**
+
+### Registry closure: 91, not 88, and they belong in no inventory
+
+`DEC-AI*` is **19** distinct tokens, not 16. AIMODE 16 · FB-AI 50 · PROV 6 · DEC-AI 19. The decision is
+**option (a)** — `REGISTRY_DESCRIPTORS` stays at fourteen — rendered on the coverage dashboard with every
+count derived at module load. Four measured reasons, and the strongest is that a flat inventory would be
+**wrong rather than absent**: `FALLBACK_CONTRACT_OWNERS` holds 69 owner rows over 39 distinct literals,
+sixteen with more than one owner, and the register's thirteenth row is a **range** standing for thirty
+contracts. `AIMODE-04`'s absence from every screen **is** the requirement (L89261, its only occurrence), so
+a `not-represented` row would be actively false.
+
+**A FIFTH `FB-AI-` REGISTER, IN A SECOND ZERO-PADDING CONVENTION.** `src/fallbacks/contracts.ts` holds
+`FB-AI-001`…`-010`, disjoint from the collision registry's `FB-AI-00`/`-01`…`-30`/`-101`…`-108`.
+39 + 10 + 1 = 50 reconciles exactly. The collision is not four-way on one literal; it spans two padding
+conventions in two mutually-unaware modules.
+
+**Two of the controller's canon premises were wrong and the task checked rather than acted.** The two
+"aliases needing wiring" were wired by wave 0. The four decisions called un-homed are members of **chapter
+21's own sixteen-row register** in `src/surfaces/cc/decisions/register.ts` — registering them would put one
+source register row in two typed unions. And **`DEC-HANDOFF-001` asks two different questions under one
+identifier** (L61210 and L92360, with the index at L115416 attributing it to chapter 30 alone), so a record
+on the bare identifier would answer §44.3 with chapter 30's question. **Five registrations are handed back
+as atomic requests**, because `src/ai/controls/decisions.ts` throws at load on registration and instructs
+the local record be deleted in the same change — verified by planting.
+
+### Three gate limits, each measured rather than asserted
+
+- **`prohibited-patterns` read each function body WITH its comments — CLOSED.** A note merely naming `isForeignProbe` made any walker "aware" while the real skip was stripped. Stripping convicts **exactly one** walker tree-wide, `static-export`'s, legitimately — the one scan whose subject *is* the probes every other scan hides — exempted **by name as an equality**, with a second case asserting the exempt file still reaches the orphan check, so the exemption retires itself.
+- **`locator-fidelity`'s blank-span check — MEASURED, LEFT OPEN.** Convicting a blank *range endpoint* rather than only a wholly-blank span convicts **321 citations**, dominated by legitimate section spans whose end line is the separator before the next heading. Narrowing to spans under twenty lines still convicts 27, and **no threshold reaches zero**. Above any mass-edit threshold, so it stands with the number.
+- **`provenanceViolations` sibling marks — THE FIX WAS WRITTEN AND OVERTURNED BY THE SUITE THAT CAUGHT IT.** A four-sibling-mark fixture went red, and **the fixture is right**: L89461 is headed *"Illustrative Example — one screen, four provenance classes at once"* and describes the contract **holding**, while `AC-42-401` (L89478) binds the guidance **element**, not the region. `data-guidance-element` cannot tell a leaf that must carry one class from a region that legitimately holds four. The contract module was restored byte-identically and **the limit is now a live expectation**, so the day someone closes it that case reds and sends them to the paragraph.
+- **AND A FOURTH, FOUND BY PLANTING: an import edge is not a mount.** Removing a panel's JSX while leaving its import left the reachability gate **green at 54 of 54**, because it walks the import closure. Closed for that one file by a bytes assertion; the gate's shape is named, not silently patched.
+
+### An abstention has to red when it stops being true, or it rots
+
+**`ProvenanceMark`'s stated abstention outlived its own truth for three waves.** Its header read "Measured:
+nothing under `app/` renders this component… whoever mounts the first one closes this paragraph". Waves 2, 3
+and 4 mounted it; none came back. **A gate found it, not a reader.** This is the strongest evidence in the
+build that the abstention pattern §7 relies on is only as good as something that reds — and the controller's
+own replacement then wrote a count in the sentence saying no count is written, which a later mount made
+stale within the hour.
+
+`KNOWN_PARAPHRASE` and `KNOWN_UNREACHABLE` are the corrected shape: **equalities, not memberships**, so a
+second offender reds instead of joining a widened exception **and** fixing the named one reds too. Both
+retired themselves on the run after their findings were closed, and both are kept **empty with their
+floors**, because the empty list is the assertion. `KNOWN_UNREACHABLE`'s companion case had been a
+`for (const file of …)` loop — **vacuous, since an empty loop passes on anything** — and is now an
+assertion that each formerly-orphaned file is reached *through the specific mount that closed it*.
+
+### Task 21's own plant discipline, worth copying
+
+Every plant was spliced into a real shipping file by a harness that required its anchor to occur **exactly
+once**, refused an empty replacement, **treated a zero-test run as a failure**, and asserted restoration
+byte-identical by sha256. **Four plants were defective and all four are recorded rather than quietly
+replaced**: one green because the gate's pattern was case-sensitive and the plant was not; one red for the
+wrong reason because an unclosed array produced a zero-test run; one red from the test's own lookup firing
+before the assertion under test; one green because an import edge is not a mount. **Checking that the red
+came from the assertion you meant is a separate step from watching it go red.**
+
+### Still open at wave 5's close, and owned by no task
+
+- **`build-registries`' `MOD-*` ownership heuristic is a source-text scan.** An attribution reached through a constant is invisible to it, so it cannot tell a deliberate non-module route from one hiding its identifier behind an indirection. Task 20 ruled it belongs to the route or to the status rule's evidence class, not to a gate.
+- **`registries/generated/doh/module-reach.json`'s `doNotEdit` names a mechanism that does not fire.** The count is gone, but **zero files under `tests/unit` reference that file** — its real enforcement is `src/surfaces/doh/modules.ts`'s import plus load-time role validation. Controller-owned text.
+- **`PINNED_WORKER_MESSAGES` covers one screen** while five storyboards quote fixed worker strings the source does not rule unparaphrasable.
+- **`contentOrigin` has no member for a storyboard that renders no guidance at all** — four cards took `'authored'` as least-wrong, each with reasoning.
+- **`StoryboardCardContent` admits `''` on any of nineteen fields**, checked only on one fixture and inside each content task's own test.
+- **`notShippableLock`** is named in prose as being in a token list it is not in, deliberately not added because two files render it.
+- **`SA_MATRIX_ATTRIBUTION` renders "twelve Frontline ones"**, escaping the widened numeral gate because it reads `twelve Frontline` rather than `twelve modules`.
+- **The proven-share margin is ~74 citations.**
+- **On-screen locator marking for the thirty storyboard index entries** — the honest completion of one offline-phrasing remedy — needs a build to be visible.
+
 ## 9. The closing obligation
 
 After slice 13: audit the build for gaps, fix and re-test; then audit against the frozen
