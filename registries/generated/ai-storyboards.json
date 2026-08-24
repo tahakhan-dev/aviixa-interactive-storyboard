@@ -3,7 +3,7 @@
   "countedThing": "every SB-* identifier in the identifier index (613), split across four separate, clearly labelled registers -- never scoped down to just one of them. No names were extracted for this family.",
   "reconciledCount": null,
   "rawCount": 613,
-  "dedupRule": "SB-* splits into four non-overlapping registers by id shape: 30 platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 490 storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 45 further-nested storyboard identifiers (4-segment SB-*, 45 total); 48 AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total). Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and SB-AI-01..30 AI storyboards) plus SB-031..033 and sub-panel/mnemonic overflow; the source does not fix one combined total across all four. Status is computed from the built route tree, never from a list: 109 of 613 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Per register: 1 of 30 in the platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 68 of 490 in the storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 10 of 45 in the further-nested storyboard identifiers (4-segment SB-*, 45 total); 30 of 48 in the AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total). Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
+  "dedupRule": "SB-* splits into four non-overlapping registers by id shape: 30 platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 490 storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 45 further-nested storyboard identifiers (4-segment SB-*, 45 total); 18 agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build; 30 AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total). Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and SB-AI-01..30 AI storyboards) plus SB-031..033 and sub-panel/mnemonic overflow; the source does not fix one combined total across all four. Status is computed from the built route tree, never from a list: 109 of 613 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Per register: 1 of 30 in the platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 68 of 490 in the storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 10 of 45 in the further-nested storyboard identifiers (4-segment SB-*, 45 total); 0 of 18 in the agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build; 30 of 30 in the AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total). Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -1336,289 +1336,307 @@
       "id": "SB-AI-000",
       "sourceLine": 86026,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-001",
       "sourceLine": 86130,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-002",
       "sourceLine": 86233,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-003",
       "sourceLine": 86398,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-004",
       "sourceLine": 86526,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-005",
       "sourceLine": 86667,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-006",
       "sourceLine": 86781,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-007",
       "sourceLine": 86893,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-008",
       "sourceLine": 87029,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-009",
       "sourceLine": 87143,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-01",
-      "sourceLine": 74479,
+      "sourceLine": 92693,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-010",
       "sourceLine": 87292,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-011",
       "sourceLine": 87376,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-012",
       "sourceLine": 87494,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-013",
       "sourceLine": 87611,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-014",
       "sourceLine": 87729,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-015",
       "sourceLine": 87854,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-016",
       "sourceLine": 87992,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-02",
       "sourceLine": 92694,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-03",
       "sourceLine": 92695,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-04",
       "sourceLine": 92696,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-05",
       "sourceLine": 92697,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-06",
       "sourceLine": 92698,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-07",
       "sourceLine": 92699,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-08",
       "sourceLine": 92700,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-09",
       "sourceLine": 92701,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-10",
       "sourceLine": 92702,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-100",
       "sourceLine": 88075,
       "status": "not-represented",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build",
+      "statusReason": "Chapters 40 and 41, a different register from the thirty section-44A storyboards this build transcribed. No route names one, and none was in scope: slice 11 built §44A. The row is here so the register is visible, not because a screen was expected to demonstrate it."
     },
     {
       "id": "SB-AI-11",
       "sourceLine": 92703,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-12",
       "sourceLine": 92704,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-13",
       "sourceLine": 92705,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-14",
       "sourceLine": 92706,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-15",
       "sourceLine": 92707,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-16",
       "sourceLine": 92708,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-17",
       "sourceLine": 92709,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-18",
       "sourceLine": 92710,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-19",
       "sourceLine": 92711,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-20",
       "sourceLine": 92712,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-21",
       "sourceLine": 92713,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-22",
       "sourceLine": 92714,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-23",
       "sourceLine": 92715,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-24",
       "sourceLine": 92716,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-25",
       "sourceLine": 92717,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-26",
       "sourceLine": 92718,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-27",
       "sourceLine": 92719,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-28",
       "sourceLine": 92720,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-29",
       "sourceLine": 92721,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-AI-30",
       "sourceLine": 92722,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
     },
     {
       "id": "SB-ARCH-001",
@@ -3686,6 +3704,6 @@
     }
   ],
   "sourceLineMeaning": "The FIRST MENTION of the identifier anywhere in the frozen source, computed as the minimum of registries/raw/identifier-index.json's line list for that id. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation.",
-  "namedInSourceCount": 161,
+  "namedInSourceCount": 163,
   "namedInSourceMeaning": "How many rows this registry holds whose identifier is named anywhere under src/ or app/. It is WEAKER than a status and deliberately not one: a status says a route screen demonstrates the row, and this says only that some file in the build spells its identifier. It is published because the two numbers can differ by a lot -- offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text label rather than an identifier (actionable-controls) cannot be counted this way and read as unnamed here; that is a limit of the measure, not a gap in the build."
 }

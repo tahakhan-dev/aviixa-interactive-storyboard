@@ -214,7 +214,13 @@ export const REGISTRY_DESCRIPTORS = [
     sourceNote:
       'Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and ' +
       'SB-AI-01..30 AI/fallback storyboards) plus SB-031..033; the source does not fix one ' +
-      'combined count.',
+      'combined count. AND THE SB-AI PREFIX IS ITSELF TWO REGISTERS IN TWO PLACES, which this ' +
+      'note did not say and the generated file got wrong (audit C-28): the two-digit ' +
+      'SB-AI-01..30 are section 44A of chapter 44, while the three-digit SB-AI-000..016 and ' +
+      'SB-AI-100 are chapters 40 and 41 — a separate register of agent and ' +
+      'configuration-lifecycle storyboards that this build does not transcribe. Every row in ' +
+      'registries/generated/ai-storyboards.json carried "Chapter 44" until that split was made, ' +
+      'over 19 rows that are not in chapter 44.',
   },
   {
     slug: 'scheduled-work',

@@ -60,6 +60,16 @@ if (sha !== EXPECTED_SHA) {
 const lines = raw.toString('utf8').split('\n')
 
 /*
+ * `split('\n')` on a file that ends in a newline yields a trailing empty
+ * element, so `lines.length` was 122,242 against a document of 122,241 lines
+ * (`wc -l` agrees at 122,241). This file's whole job is to be the artefact a
+ * verifier trusts about the frozen source, and it was off by one about the
+ * simplest fact it publishes — audit C-32. Counted here rather than corrected
+ * at the call site, so nothing downstream can pick up the raw length again.
+ */
+const SOURCE_LINE_COUNT = lines.length - (lines[lines.length - 1] === '' ? 1 : 0)
+
+/*
  * Prefixes from `registries/blueprint-prefixes.json`, derived from Appendix A,
  * the blueprint's own allocation authority. Four tools each carried a
  * hand-written copy of this list and all four were missing the same nine
@@ -139,12 +149,21 @@ writeFileSync(
   OUT,
   JSON.stringify(
     {
-      source: { sha256: EXPECTED_SHA, lines: lines.length },
+      source: { sha256: EXPECTED_SHA, lines: SOURCE_LINE_COUNT },
       note:
         'Identifier -> EVERY blueprint line carrying it. The set of identifiers comes from the ' +
         'knowledge graph, which read the document and judged what is an entity rather than a ' +
         'passing mention; the line numbers come from scanning the frozen source directly, so a ' +
-        'line is listed only because the identifier was found on it.',
+        'line is listed only because the identifier was found on it. ' +
+        'NOT EXHAUSTIVE OVER IDENTIFIERS, AND THAT IS THE HALF A VERIFIER GETS WRONG. The LINES ' +
+        'for an identifier that IS here are every one of them. The SET OF IDENTIFIERS is the ' +
+        'graph\'s judgement, and the graph missed some. Measured this session: of the distinct ' +
+        'identifier-shaped tokens under src/ and app/ that also occur in the frozen source, 210 ' +
+        'have no key here at all; narrowing to src/ai/ alone, 11 do. The whole PROV-* family is ' +
+        'among them — all six provenance classes — although PROV-4 occurs at L89439, in the ' +
+        'sentence carrying this build\'s absolute rule. So "not in this index" means "the graph ' +
+        'did not name it as an entity", NEVER "not in the source". A verifier who reads absence ' +
+        'here as disproof of a citation will be wrong; open the frozen source and grep it.',
       // Zero, and that is the point: a locator is the line the identifier was
       // found on. No window is needed to make it true.
       windowLines: 0,

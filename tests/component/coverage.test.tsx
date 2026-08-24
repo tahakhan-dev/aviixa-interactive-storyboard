@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import CoveragePage from '../../app/coverage/page'
 import { REGISTRY_DESCRIPTORS } from '@/coverage/descriptors'
 import {
+  NAMESPACES_ACCOUNTED_ELSEWHERE,
   UNINVENTORIED_FAMILIES,
   UNINVENTORIED_IDENTIFIERS,
 } from '@/coverage/uninventoried'
@@ -102,8 +103,10 @@ describe('coverage dashboard', () => {
   /**
    * THE UNINVENTORIED SECTION MUST REACH THE SCREEN, NOT JUST THE MODULE.
    *
-   * `src/coverage/uninventoried.ts` carries slice 11 wave 5's decision that
-   * four identifier families belong in none of the fourteen inventories. The
+   * `src/coverage/uninventoried.ts` carries slice 11 wave 5's decision that a
+   * set of identifier families belongs in none of the fourteen inventories —
+   * four when this test was written, seven since audit C-27 found three more,
+   * which is why the loop below reads the module rather than a number. The
    * decision's whole point is that a reader SEES the shortfall instead of
    * inferring it, so a decision that renders nowhere is the same defect as no
    * decision — and this file's seven other tests all predate the section and
@@ -142,6 +145,26 @@ describe('coverage dashboard', () => {
     expect(
       screen.getByText(new RegExp(`${UNINVENTORIED_IDENTIFIERS.length}\\s+identifiers`)),
     ).toBeDefined()
+  })
+
+  /**
+   * AND SO MUST THE REST OF THE ACCOUNTING (C-31). The chapter-44 abstention
+   * is only worth recording if a reader can reach it; a record that renders
+   * nowhere is the "citation true and unreachable" defect this build has
+   * already shipped twice. Each namespace is looked up as its own cell.
+   */
+  it('renders every accounted-elsewhere namespace, including the chapter-44 abstention', () => {
+    render(<CoveragePage />)
+    for (const namespace of NAMESPACES_ACCOUNTED_ELSEWHERE) {
+      for (const prefix of namespace.prefixes) {
+        expect(
+          screen.getAllByText(new RegExp(`^${prefix}\\s*$`)).length,
+          `${prefix} renders no cell of its own`,
+        ).toBeGreaterThan(0)
+      }
+    }
+    expect(screen.getAllByText(/AC-44-\*/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/TEST-44-\*/).length).toBeGreaterThan(0)
   })
 
   /**

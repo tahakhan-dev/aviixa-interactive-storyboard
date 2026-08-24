@@ -1,6 +1,8 @@
 import { AI_MODE_IDS } from '@/ai/modes'
 import { PROVENANCE_CLASS_IDS } from '@/ai/provenance/classes'
 import { FALLBACK_CONTRACT_OWNERS, FALLBACK_IDENTIFIER_RANGES } from '@/ai/fallbacks/registry'
+import { AI_ABILITY_IDS } from '@/ai/abilities/register'
+import { FAILURE_CATALOGUE } from '@/ai/failures/catalogue'
 import { contractsInFamily } from '@/fallbacks/contracts'
 import { OPEN_DECISION_IDS } from '@/disclosure/decisions'
 import { LOCAL_OPEN_DECISIONS } from '@/ai/controls/decisions'
@@ -12,32 +14,47 @@ import { STU_UNCANONISED_DECISIONS } from '@/studio/ai-degradation'
  *
  * `REGISTRY_DESCRIPTORS` in `./descriptors` fixes the fourteen inventories the
  * master prompt names, and `registries/generated/` holds one generated file per
- * slug. Slice 11 shipped four identifier families that appear in no row of any
- * of them: `AIMODE-*`, `PROV-*`, `FB-AI-*` and `DEC-AI*`. How many that is, is
- * DERIVED below and rendered on the dashboard, and is deliberately written
- * nowhere in this comment: a build-wide figure transcribed into prose has been
- * renumbered and wrong three times in this repository already, and the rule
- * that came out of it is remove, never renumber.
+ * slug. Slice 11 shipped a set of identifier families that appear in no row of
+ * any of them. WHICH families, and how many identifiers that is, are both
+ * derived from `UNINVENTORIED_FAMILIES` below and rendered on the dashboard
+ * from it; neither the family count nor the identifier count is written in
+ * prose here or on the screen. A build-wide figure transcribed into prose has
+ * been renumbered and wrong three times in this repository already, and the
+ * rule that came out of it is remove, never renumber.
  *
- * `tests/unit/coverage-uninventoried.test.ts` sweeps `src/` and `app/` for all
- * four prefixes as whole tokens and asserts the swept set EQUALS the set
- * declared here. So this module cannot silently miss an identifier the build
- * ships, and it cannot silently keep one the build dropped — which is the
- * property that makes "uncounted" impossible going forward rather than merely
- * unlikely today.
+ * ── THREE FAMILIES WERE MISSING, AND THE GATE COULD NOT SEE THEM (C-27) ────
+ * The slice-11 audit found `FAIL-AI-*` (the failure catalogue), `AI-NN` (the
+ * agent abilities) and `FB-AGT-*` (chapter 44's agent fallback register) in
+ * NO row of any of the fourteen AND in none of the families declared here.
+ * They are declared below now. The reason they were invisible is the more
+ * important half: the covering suite keyed its token sweep on the prefixes
+ * THIS FILE declares, so its declared-equals-swept assertion was true by
+ * construction for any family outside them — defect shape 10, a gate scoped to
+ * exclude the thing it is named for. The suite now runs a SECOND sweep whose
+ * shape is general (`PREFIX-…-NN`, any prefix) over `src/ai/`, subtracts what
+ * the fourteen inventories and these families account for, and requires the
+ * remainder to be empty. A family nobody declared lands in that remainder.
+ *
+ * `tests/unit/coverage-uninventoried.test.ts` still also sweeps `src/` and
+ * `app/` for each declared family's own token shape — patterns DERIVED from
+ * the prefixes below rather than hand-keyed beside them — and asserts the
+ * swept set EQUALS the set declared here. So this module cannot silently miss
+ * an identifier in a family it names, and it cannot silently keep one the
+ * build dropped.
  *
  * ── THE DECISION, AND IT IS DELEGATED RATHER THAN INHERITED ────────────────
  * The choice was between (a) these are MECHANISMS rather than inventory items
  * and belong in no registry, and (b) they warrant a fifteenth inventory. Under
  * `APP-012` the choice is delegated to the build, so it is made here, in one
- * place, with its reason — leaving ninety-one shipped identifiers silently
- * uncounted is the one outcome that was forbidden.
+ * place, with its reason — leaving a shipped identifier silently uncounted is
+ * the one outcome that was forbidden, and how many there are is derived below
+ * rather than written here.
  *
  * **OPTION (a). They belong in no registry, and this module is the place a
- * reader is told so rather than left to infer it.** Four reasons, every one
+ * reader is told so rather than left to infer it.** Five reasons, every one
  * measured rather than argued:
  *
- *   1. THE FOURTEEN ARE INVENTORIES OF DELIVERABLES; THESE FOUR ARE NOT.
+ *   1. THE FOURTEEN ARE INVENTORIES OF DELIVERABLES; THESE ARE NOT.
  *      A row in `modules.json` or `features.json` names a thing the product
  *      would ship, and its status answers "does a screen demonstrate it".
  *      `AIMODE-*` is the state vocabulary of ONE machine, `PROV-*` is a
@@ -89,6 +106,33 @@ import { STU_UNCANONISED_DECISIONS } from '@/studio/ai-degradation'
  *      remainder are disclosed locally and named by
  *      `decAiDisclosedLocally`, so the family is fully accounted for across
  *      two homes and needs no third.
+ *
+ *   5. THE THREE FAMILIES THE AUDIT FOUND ARE THE SAME KIND OF THING, AND ONE
+ *      OF THEM WAS EXCLUDED BY A PREFIX RATHER THAN BY A REASON.
+ *      `FAIL-AI-*` is chapter 43's failure catalogue: one row per way the
+ *      reasoning layer can fail, each carrying detection, fallback, terminal
+ *      safe state and recovery. A failure is not a deliverable and a screen
+ *      does not "demonstrate" one; what a screen owes it is the right
+ *      behaviour when it happens. `AI-NN` is the thirteen agent ABILITIES
+ *      with their attribute rows — a permission and governance vocabulary,
+ *      consumed by the screens that must obey it, and `MOD-CC-05`'s
+ *      degradation overlay consumes `AI-07`'s attributes cell by cell rather
+ *      than claiming to demonstrate the identifier.
+ *
+ *      `FB-AGT-*` is the sharpest of the three and the one the audit was
+ *      right to single out: it lives in `src/ai/fallbacks/registry.ts`, the
+ *      very file the `FB-AI-` row names as its home, and it was excluded
+ *      because the `FB-AI-` row filters that register on the literal prefix
+ *      `FB-AI-`. IT IS NOT FOLDED INTO THAT ROW, and the reason is not
+ *      tidiness. `FB-AI-*` and `FB-AGT-*` are two DIFFERENT registers that
+ *      happen to be transcribed into one file: `FB-AI-*` is collision-ridden
+ *      across four chapters and is the whole basis of reason 2, while
+ *      `FB-AGT-*` is chapter 44's own twelve-row agent register at
+ *      L95359-L95370, section-scoped (`44.1`-`44.4`), one owner each, and no
+ *      collisions at all. Folding them would attach reason 2's compound-key
+ *      argument to twelve identifiers it is not true of, and would put a
+ *      `FB-AGT-PREV-01` under a row labelled `FB-AI-`. Two registers, two
+ *      rows, and the shared home is stated on both.
  *
  * ── WHAT OPTION (a) COSTS, SAID PLAINLY ────────────────────────────────────
  * It means the coverage dashboard's fourteen rows do not add up to everything
@@ -173,6 +217,21 @@ const FB_AI_COLLISION_LITERALS = [...new Set(FB_AI_COLLISION_OWNERS.map((o) => o
 /** §38.4's own AI family, three-digit and a DIFFERENT register from the above. */
 const FB_AI_LIBRARY_LITERALS = contractsInFamily('FB-AI').map((c) => c.id)
 
+/**
+ * Chapter 44's agent fallback register, from the SAME file as
+ * `FB_AI_COLLISION_OWNERS` and deliberately a separate row — reason 5.
+ */
+const FB_AGT_LITERALS = [
+  ...new Set(
+    FALLBACK_CONTRACT_OWNERS.filter((o) => o.identifier.startsWith('FB-AGT-')).map(
+      (o) => o.identifier,
+    ),
+  ),
+].sort()
+
+/** Chapter 43's failure catalogue, one row per failure. */
+const FAIL_AI_IDS = [...new Set(FAILURE_CATALOGUE.map((r) => r.id))].sort()
+
 const DEC_AI_IN_CANON = OPEN_DECISION_IDS.filter((id) => id.startsWith('DEC-AI')).slice().sort()
 
 /**
@@ -214,9 +273,16 @@ export const UNINVENTORIED_FAMILIES = [
       'There is no deliverable to demonstrate. What a screen owes a mode is that it renders the '
       + 'mode it is in and distinguishes a paused platform from an unreachable one (AC-42-303), '
       + 'which is a property of the rendering and is gated as one. A row reading '
-      + '"AIMODE-04: not-represented" would be actively misleading: AIMODE-04 is "defined but '
-      + 'never entered" (L89261) and may not be entered by any device while DEC-ONDEVICE-001 is '
-      + 'undecided, so its absence from every screen is the requirement rather than a shortfall.',
+      + '"AIMODE-04: not-represented" would be misleading — but NOT because the source wants the '
+      + 'mode hidden, which is what this sentence used to claim. L89261 argues the opposite in as '
+      + 'many words: "Stating the mode and marking it unreachable is more honest than omitting '
+      + 'it, because it fixes the vocabulary in advance of the decision rather than after it." '
+      + 'The source then gives AIMODE-04 its own surface contract (L89271) and its own row in the '
+      + 'mode/surface matrix (L89359). The requirement is not absence from screens, it is '
+      + 'unreachability by configuration: AC-42-305 (L89404) says AIMODE-04 "cannot be entered by '
+      + 'any device while DEC-ONDEVICE-001 remains undecided, enforced by configuration rather '
+      + 'than by convention", which src/ai/modes/machine.ts enforces by refusing the transition. '
+      + 'That is a property of the machine, and no status column over a mode can express it.',
     identifiers: AI_MODE_IDS.slice().sort(),
     alsoCitedWithoutARecord: [],
     sizeMeaning:
@@ -343,7 +409,199 @@ export const UNINVENTORIED_FAMILIES = [
       + 'consolidation note below. It is fewer than the DEC-AI* tokens in the tree by exactly '
       + 'the four listed beside it.',
   },
+  {
+    prefix: 'FAIL-AI-',
+    title: 'Artificial-intelligence failure catalogue',
+    heldIn: ['src/ai/failures/catalogue.ts'],
+    whatItIs:
+      'Chapter 43\'s catalogue of the ways the reasoning layer can fail. Each row carries its '
+      + 'detection signal, its operational severity, the message each surface shows, the first '
+      + 'fallback, the fallback of the fallback, the terminal safe state, recovery and '
+      + 'reconciliation — every cell transcribed from the source\'s own attribute tables.',
+    whyNotAnInventory:
+      'A failure is not a deliverable. A row reading "FAIL-AI-01: demonstrated" would claim the '
+      + 'build ships a cloud provider outage, and a row reading "not-represented" would claim it '
+      + 'is missing one. What a screen owes a failure is the BEHAVIOUR the row prescribes when '
+      + 'it happens, which is a property of the fallback path and is gated as one. This family '
+      + 'was in no row of any of the fourteen and in none of the four families this module '
+      + 'declared, which the slice-11 audit found as C-27; it is declared here, not inventoried.',
+    identifiers: FAIL_AI_IDS,
+    alsoCitedWithoutARecord: [],
+    sizeMeaning:
+      'Rows in the catalogue, from FAILURE_CATALOGUE\'s own ids. Every FAIL-AI-* token in the '
+      + 'tree is a member, so nothing in this family is cited without a record. The source '
+      + 'spreads these across five registers in two zero-padding conventions; the catalogue '
+      + 'holds one row per failure, and the register split is recorded where the transcription '
+      + 'lives rather than by splitting this count.',
+  },
+  {
+    prefix: 'AI-',
+    title: 'Agent abilities',
+    heldIn: ['src/ai/abilities/register.ts'],
+    whatItIs:
+      'The thirteen abilities an agent may hold, each with the source\'s own attribute rows — '
+      + 'human approval, validation gate, expiry, safe stop and the rest. A permission and '
+      + 'governance vocabulary, not a feature list.',
+    whyNotAnInventory:
+      'An ability is a rule the surfaces obey, and the obeying is what is checkable: MOD-CC-05\'s '
+      + 'degradation overlay consumes AI-07\'s human-approval, validation-gate, expiry and '
+      + 'safe-stop attributes cell by cell rather than claiming to demonstrate the identifier, '
+      + 'and it throws at load if an attribute it needs is absent from the register. A status '
+      + 'column would report "demonstrated" for whichever abilities a screen happens to name and '
+      + 'would say nothing about whether the prohibition attached to them is honoured, which is '
+      + 'the only question worth asking. Found by the slice-11 audit (C-27) in no row of any of '
+      + 'the fourteen and in none of the declared families.',
+    identifiers: AI_ABILITY_IDS.slice().sort(),
+    alsoCitedWithoutARecord: [],
+    sizeMeaning:
+      'Abilities in the register, from AI_ABILITY_IDS. Every bare AI-NN token in the tree is a '
+      + 'member. The token shape is the trap here and the sweep is written for it: AI-01 occurs '
+      + 'inside FAIL-AI-01, FB-AI-01 and SB-AI-01, so a word-boundary match alone would count '
+      + 'three other families as this one.',
+  },
+  {
+    prefix: 'FB-AGT-',
+    title: 'Agent fallback contracts, chapter 44',
+    heldIn: ['src/ai/fallbacks/registry.ts'],
+    whatItIs:
+      'Chapter 44\'s own twelve-row fallback register at L95359-L95370: three contracts for each '
+      + 'of the four agent sections (44.1 coaching, 44.2 deviation, 44.3 shift handover, 44.4 '
+      + 'vision), each with a named terminal safe state.',
+    whyNotAnInventory:
+      'Same reason as FB-AI-*: a fallback contract is what the platform DOES when a capability is '
+      + 'unavailable, not a thing a screen shows. It is a SEPARATE row from FB-AI-* rather than '
+      + 'folded into it, and reason 5 above states why: the two are different registers that '
+      + 'happen to share a transcription file. FB-AI-* is collision-ridden across four chapters '
+      + 'and is what reason 2 rests on; these twelve are section-scoped, single-owner and '
+      + 'collision-free, so filing them under the FB-AI- row would attach an argument to them '
+      + 'that is not true of them. The audit found them (C-27) excluded from the FB-AI- row\'s '
+      + 'identifier list by a literal prefix filter, while living in the file that row names as '
+      + 'its home.',
+    identifiers: FB_AGT_LITERALS,
+    alsoCitedWithoutARecord: [],
+    sizeMeaning:
+      'Distinct FB-AGT-* literals in the collision-aware registry, derived by filtering '
+      + 'FALLBACK_CONTRACT_OWNERS. Owners and literals are equal here, unlike FB-AI-*: every one '
+      + 'of the twelve has exactly one owning section, which is the measurable difference '
+      + 'between the two registers and the reason they are two rows.',
+  },
 ] as const satisfies readonly UninventoriedFamily[]
+
+/* ==================================================================== *
+ * THE REST OF THE AI AREA'S IDENTIFIER SHAPES, AND WHERE EACH IS ANSWERED.
+ * ==================================================================== */
+
+/**
+ * ONE NAMESPACE THAT APPEARS IN `src/ai/` AND IS NEITHER INVENTORIED NOR A
+ * FAMILY ABOVE, WITH THE PLACE THAT DOES ANSWER FOR IT.
+ *
+ * This exists because of the gate, and the gate exists because of C-27. The
+ * covering suite now sweeps `src/ai/` for identifier-shaped tokens with NO
+ * knowledge of which prefixes this module declares, subtracts the rows of the
+ * fourteen generated inventories and the families above, and requires the
+ * remainder to be EMPTY. Every entry below is one line of that remainder,
+ * accounted for on purpose. A namespace nobody has thought about does not get
+ * a default: it lands in the remainder and turns the suite red.
+ *
+ * That is the difference between this and the check it replaced, which keyed
+ * its sweep on the four prefixes the module already declared and so could
+ * only ever confirm what it was told.
+ */
+export interface AccountedElsewhere {
+  /** Token prefixes this entry answers for. */
+  readonly prefixes: readonly string[]
+  readonly title: string
+  /** Where the question "is this counted" is actually answered. */
+  readonly accountedIn: string
+  readonly why: string
+}
+
+export const NAMESPACES_ACCOUNTED_ELSEWHERE = [
+  {
+    prefixes: ['AC-'],
+    title: 'Acceptance criteria',
+    accountedIn: 'the module that enforces each one, beside the rule it governs',
+    why:
+      'The master prompt names no acceptance-criteria inventory and none of the fourteen holds '
+      + 'one. An AC is a condition on behaviour, and this build cites it where the behaviour is '
+      + 'implemented — AC-42-305 beside the AIMODE-04 refusal in src/ai/modes/machine.ts, for '
+      + 'one — so the citation is checkable at the point it matters. CHAPTER 44 IS AN EXPLICIT '
+      + 'ABSTENTION, RECORDED HERE RATHER THAN LEFT SILENT (audit C-31): the frozen source '
+      + 'carries an AC-44-* register and this build cites NO member of it in src/, app/ or '
+      + 'tests/, while it does consume chapter 44\'s FB-AGT-* register. Chapter 44\'s acceptance '
+      + 'criteria bind the AGENT RUNTIME — evaluation gates, retry ceilings, provider failover — '
+      + 'and this storyboard ships no agent runtime to bind, so citing them would claim an '
+      + 'enforcement that does not exist. They are named in registries/blueprint-locators.json '
+      + 'and registries/raw/identifier-index.json, so a reader can find them; what is stated '
+      + 'here is that the build deliberately enforces none of them.',
+  },
+  {
+    prefixes: ['TEST-'],
+    title: 'Source-side test identifiers',
+    accountedIn: 'the suite that covers the behaviour, named in the test file',
+    why:
+      'Same shape as AC-*: the frozen source numbers its own tests and none of the fourteen '
+      + 'inventories them. The same chapter-44 abstention applies and for the same reason — no '
+      + 'TEST-44-* identifier occurs in src/, app/ or tests/, because the runtime those tests '
+      + 'describe is not built here.',
+  },
+  {
+    prefixes: ['DEC-'],
+    title: 'Open client decisions outside the DEC-AI* family',
+    accountedIn: 'src/disclosure/decisions.ts and the per-surface local registers',
+    why:
+      'The decision canon holds these and renders them through DecisionDisclosure; the local '
+      + 'registers hold the rest and CANON_CONSOLIDATION_VERDICTS below records why each stays '
+      + 'where it is. DEC-AI* is the subset this module declares as a family, on reason 4.',
+  },
+  {
+    prefixes: ['FB-'],
+    title: 'Section 38.4 fallback contracts outside the AI families',
+    accountedIn: 'src/fallbacks/contracts.ts',
+    why:
+      'The §38.4 library, transcribed as typed data with its own union and its own two-sided '
+      + 'count proof — reason 3 above. Its FB-AI family is declared as a family here; the rest '
+      + 'of the library is counted by the file that holds it.',
+  },
+  {
+    prefixes: ['SB-AI-'],
+    title: 'Audit-trail row keys inside a storyboard card',
+    accountedIn: 'the card that mints them, src/ai/storyboards/sb-21-to-30/storyboards.ts',
+    why:
+      'The SB-AI-NN-AUD-N shape is NOT a source identifier and is not in the source: it is a key '
+      + 'this build mints for one row of one card\'s audit-trail table, so the row can be '
+      + 'referenced from a test. The plain SB-AI-NN identifiers are inventoried in '
+      + 'registries/generated/ai-storyboards.json and never reach this list.',
+  },
+  {
+    prefixes: ['SCR-'],
+    title: 'Screen identifiers',
+    accountedIn: 'registries/generated/ and the surface module that owns the screen',
+    why:
+      'Screen identifiers belong to their surface. Nearly all of them are already inventory '
+      + 'rows; the ones cited from src/ai/ are cited as the screen a storyboard card takes '
+      + 'place on, which is a pointer to another surface\'s register rather than a claim here.',
+  },
+  {
+    prefixes: ['APP-'],
+    title: 'Build approval ledger entries',
+    accountedIn: 'UNINVENTORIED_DECISION_LABEL, above',
+    why:
+      'APP-012 is an approval-ledger entry and occurs zero times in the frozen source. It is a '
+      + 'legitimate build label and is never citable with a line number, which is exactly what '
+      + 'the decision label says.',
+  },
+  {
+    prefixes: ['TAB-', 'RUN-', 'LOT-', 'RB-'],
+    title: 'The source\'s own fixture cast and its record numbers',
+    accountedIn: 'the transcribed card text that names them',
+    why:
+      'TAB-014 is a tablet, LOT-WB-2291 a lot, RUN-2026-08-14 a run and RB-0011 a record — the '
+      + 'frozen source\'s fixture cast, appearing inside card text this build transcribed rather '
+      + 'than in any register. There is nothing to inventory: they are the worked example, not '
+      + 'the vocabulary.',
+  },
+] as const satisfies readonly AccountedElsewhere[]
 
 /** Members of the canon's exported union carrying this prefix. Derived. */
 export const decAiInTheCanon: readonly string[] = DEC_AI_IN_CANON

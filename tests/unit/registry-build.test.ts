@@ -252,6 +252,74 @@ describe('ai-storyboards discloses every SB-* register, not only SB-AI-*', () =>
     const ai = r.rows.filter((row: { id: string }) => row.id.startsWith('SB-AI-'))
     expect(ai).toHaveLength(48)
   })
+
+  /**
+   * C-28 AND C-29, HELD AS A MEASUREMENT RATHER THAN A LABEL.
+   *
+   * Every SB-AI-* row read "Chapter 44, 48 total" while 19 of the 48 are not
+   * in chapter 44 — 17 in chapter 40, 1 in chapter 41, and SB-AI-01 in
+   * chapter 30D because `sourceLine` is the FIRST occurrence anywhere and
+   * SB-AI-01 has three. A register label naming a chapter is a claim about
+   * every row under it, so it is checked as one, against the chapter bands
+   * the generator uses. The bands are the frozen source's `^# N\.` heading
+   * lines: ch 30 L60895-L66117, ch 40-41 L85974-L88992, ch 44 L91386-L95409.
+   *
+   * The generator throws on the same condition. This is the independent
+   * recomputation, because a generator that checked itself and got the check
+   * wrong would ship exactly the row that started this.
+   */
+  it('puts every chapter-claiming register\'s rows inside the chapter it claims', () => {
+    const bands: readonly { readonly match: RegExp; readonly first: number; readonly last: number }[] =
+      [
+        { match: /^SB-\d{3}$/, first: 60895, last: 66117 },
+        { match: /^SB-AI-\d{2}$/, first: 91386, last: 95409 },
+        { match: /^SB-AI-\d{3}$/, first: 85974, last: 88992 },
+      ]
+    const rows = load('ai-storyboards').rows
+    const strays: string[] = []
+    let checked = 0
+    for (const row of rows) {
+      const band = bands.find((b) => b.match.test(row.id))
+      if (band === undefined) continue
+      checked += 1
+      if (row.sourceLine < band.first || row.sourceLine > band.last) {
+        strays.push(`${row.id}@L${row.sourceLine} (${row.register})`)
+      }
+    }
+    // Non-vacuity: 30 + 30 + 18. A regex that matched nothing would make the
+    // loop above pass on an empty set, which is defect shape 9.
+    expect(checked).toBe(78)
+    expect(strays, 'rows citing a line outside the chapter their register names').toEqual([])
+  })
+
+  it('splits SB-AI-* into its two real registers rather than merging them', () => {
+    const rows: Row[] = load('ai-storyboards').rows
+    const twoDigit = rows.filter((r) => /^SB-AI-\d{2}$/.test(r.id))
+    const threeDigit = rows.filter((r) => /^SB-AI-\d{3}$/.test(r.id))
+    expect(twoDigit).toHaveLength(30)
+    expect(threeDigit).toHaveLength(18)
+    expect(new Set(twoDigit.map((r) => r.register)).size).toBe(1)
+    expect(new Set(threeDigit.map((r) => r.register)).size).toBe(1)
+    expect(twoDigit[0]?.register).not.toBe(threeDigit[0]?.register)
+    // C-29: SB-AI-01 must point at its own register's home, not at the
+    // chapter-30D panel that happens to mention it first.
+    expect(rows.find((r) => r.id === 'SB-AI-01')?.sourceLine).toBeGreaterThanOrEqual(91386)
+  })
+
+  /**
+   * C-32: a bare `not-represented` beside 30 transcribed siblings reads as a
+   * shortfall. These 18 belong to a different register and the row says so.
+   */
+  it('gives every not-represented SB-AI row a stated reason', () => {
+    const rows = (load('ai-storyboards').rows as Row[]).filter(
+      (r) => r.id.startsWith('SB-AI-') && r.status === 'not-represented',
+    )
+    expect(rows).toHaveLength(18)
+    for (const row of rows) {
+      expect(row.statusReason, `${row.id} carries no reason for not-represented`).toBeDefined()
+      expect(row.statusReason?.length ?? 0).toBeGreaterThan(40)
+    }
+  })
 })
 
 // Every registry's status used to be the literal `'not-represented'`, written
@@ -359,6 +427,7 @@ type Row = {
   purpose?: string
   moduleId?: string
   register?: string
+  statusReason?: string
   sourceClass?: string
 }
 

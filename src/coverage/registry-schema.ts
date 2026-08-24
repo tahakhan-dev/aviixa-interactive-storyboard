@@ -61,6 +61,14 @@ export const RegistryRowSchema = z
     collapsedFrom: z.number().int().positive().optional(),
     idIsPlaceholder: z.boolean().optional(),
     register: z.string().min(1).optional(),
+    /**
+     * Why this row carries the status it does, where the status alone would
+     * read as a shortfall and is not one. Audit C-32: the 18 chapter-40/41
+     * `SB-AI-NNN` rows read `not-represented` beside 30 transcribed siblings
+     * with nothing saying they belong to a different register — a bare status
+     * where the build's standard elsewhere is a stated reason.
+     */
+    statusReason: z.string().min(40).optional(),
     // Workflow-only extension fields (fix round 2, §0).
     primaryActor: z.string().min(1).optional(),
     trigger: z.string().min(1).optional(),

@@ -1,9 +1,9 @@
 {
  "source": {
   "sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
-  "lines": 122242
+  "lines": 122241
  },
- "note": "Identifier -> EVERY blueprint line carrying it. The set of identifiers comes from the knowledge graph, which read the document and judged what is an entity rather than a passing mention; the line numbers come from scanning the frozen source directly, so a line is listed only because the identifier was found on it.",
+ "note": "Identifier -> EVERY blueprint line carrying it. The set of identifiers comes from the knowledge graph, which read the document and judged what is an entity rather than a passing mention; the line numbers come from scanning the frozen source directly, so a line is listed only because the identifier was found on it. NOT EXHAUSTIVE OVER IDENTIFIERS, AND THAT IS THE HALF A VERIFIER GETS WRONG. The LINES for an identifier that IS here are every one of them. The SET OF IDENTIFIERS is the graph's judgement, and the graph missed some. Measured this session: of the distinct identifier-shaped tokens under src/ and app/ that also occur in the frozen source, 210 have no key here at all; narrowing to src/ai/ alone, 11 do. The whole PROV-* family is among them — all six provenance classes — although PROV-4 occurs at L89439, in the sentence carrying this build's absolute rule. So \"not in this index\" means \"the graph did not name it as an entity\", NEVER \"not in the source\". A verifier who reads absence here as disproof of a citation will be wrong; open the frozen source and grep it.",
  "windowLines": 0,
  "identifiers": 19897,
  "locators": 39138,

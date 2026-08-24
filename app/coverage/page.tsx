@@ -14,6 +14,7 @@ import {
 import { Table, StatusPill, type StatusTone } from '@/ui/primitives'
 import { loadGeneratedRegistry, type GeneratedRegistry } from '@/coverage/registry-loader'
 import {
+  NAMESPACES_ACCOUNTED_ELSEWHERE,
   UNINVENTORIED_DECISION_LABEL,
   UNINVENTORIED_FAMILIES,
   UNINVENTORIED_IDENTIFIERS,
@@ -104,6 +105,13 @@ const RECONCILIATION_SUMMARY = countByStatus(REGISTRY_STATUS_ENTRIES)
  * scanned one other, unrelated file. Both `TOTAL_MODULES` and the source-
  * class counts are now derived from the same loaded registry every render.
  */
+/**
+ * The families' own titles, lower-cased and joined — derived, so the prose
+ * cannot list four kinds of thing while the table renders seven. It listed
+ * four while the build shipped seven, which is audit finding C-27.
+ */
+const FAMILY_KINDS = UNINVENTORIED_FAMILIES.map((f) => f.title.toLowerCase()).join('; ')
+
 const MODULES_REGISTRY = REGISTRIES.modules
 const MODULES_CLASS_COUNTS = countByClass(MODULES_REGISTRY.rows)
 const TOTAL_MODULES = MODULES_REGISTRY.rows.length
@@ -178,11 +186,20 @@ export default function CoveragePage() {
         INFERENCE.
 
         The table above is the client's fourteen named inventories, and a reader
-        counting them will undercount what the build ships. Four identifier
+        counting them will undercount what the build ships. Some identifier
         families are in NO row of any of the fourteen. The decision that they
         belong in none of them is a client-delegated choice under APP-012, and
         the forbidden outcome was never "no fifteenth registry" -- it was
         leaving shipped identifiers uncounted. So they are counted here.
+
+        HOW MANY FAMILIES THERE ARE IS NOT WRITTEN HERE OR BELOW, and that is
+        the fix for audit finding C-27 rather than a style choice. This comment
+        and the paragraph under it both said "four" while the build shipped
+        three more -- `FAIL-AI-*`, the `AI-NN` abilities and `FB-AGT-*` -- so
+        the sentence was false in the one direction the section exists to
+        prevent. Both the family count and the identifier count now come from
+        `UNINVENTORIED_FAMILIES`, and so does the list of what kind of thing
+        each family is.
 
         Every number below is DERIVED from the register that holds the family,
         at module load. None is a literal: this build spent five tasks on one
@@ -198,14 +215,14 @@ export default function CoveragePage() {
       </h2>
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
         The fourteen inventories above do not account for everything this build
-        ships. {UNINVENTORIED_IDENTIFIERS.length} identifiers across four
-        families sit in no row of any of them, and they are listed here rather
-        than left for a reader to discover by subtraction. This is a decision,
-        not an omission: these four are <strong>mechanisms</strong> — a state
-        vocabulary, a rendering contract, a fallback register and a register of
-        open client decisions — rather than inventories of things the product
-        would ship, so a status column asking whether a screen “demonstrates”
-        one would be a category error. {UNINVENTORIED_DECISION_LABEL}
+        ships. {UNINVENTORIED_IDENTIFIERS.length} identifiers across{' '}
+        {UNINVENTORIED_FAMILIES.length} families sit in no row of any of them,
+        and they are listed here rather than left for a reader to discover by
+        subtraction. This is a decision, not an omission: every one of them is a{' '}
+        <strong>mechanism</strong> — {FAMILY_KINDS} — rather than an inventory of
+        things the product would ship, so a status column asking whether a
+        screen “demonstrates” one would be a category error.{' '}
+        {UNINVENTORIED_DECISION_LABEL}
       </p>
       <div className="mt-4">
         <Table
@@ -254,6 +271,55 @@ export default function CoveragePage() {
         descriptor was added and no gate was renumbered — and the shortfall is
         disclosed here instead of being silent.
       </p>
+
+      {/*
+        AND THE REST OF THE AI AREA'S IDENTIFIER SHAPES, SO "COUNTED NOWHERE"
+        HAS NO REMAINING HIDING PLACE.
+
+        Audit finding C-31: chapter 44's AC-* and TEST-* registers are cited by
+        nothing this build ships, while the build DOES consume chapter 44's
+        FB-AGT-* register. Silence there is the same defect as the silence the
+        section above exists to end, so the abstention is stated with its
+        reason instead. `tests/unit/coverage-uninventoried.test.ts` sweeps
+        `src/ai/` for identifier-shaped tokens with no knowledge of what this
+        module declares and requires every one to be an inventory row, a family
+        member, or a row below.
+      */}
+      <h2 className="mt-8 text-xl font-semibold">
+        The other identifier shapes in the artificial-intelligence area
+      </h2>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        Not every identifier shape that appears in the code is an inventory item
+        or a family above. These are the rest, each with the place that does
+        answer for it — including the two chapter-44 registers this build
+        deliberately cites nowhere.
+      </p>
+      <div className="mt-4">
+        <Table
+          caption="Identifier namespaces in the artificial-intelligence area that belong to neither the fourteen inventories nor an uninventoried family, and where each is answered."
+          columns={[
+            { key: 'namespace', header: 'Namespace' },
+            { key: 'accountedIn', header: 'Answered by' },
+            { key: 'why', header: 'Why it is not inventoried' },
+          ]}
+          rows={NAMESPACES_ACCOUNTED_ELSEWHERE.map((n) => ({
+            namespace: (
+              <>
+                {n.prefixes.map((p) => (
+                  <code key={p}>{p} </code>
+                ))}
+                — {n.title}
+              </>
+            ),
+            accountedIn: n.accountedIn,
+            why: n.why,
+          }))}
+          emptyState={{
+            title: 'No namespaces declared',
+            whatCreatesIt: 'NAMESPACES_ACCOUNTED_ELSEWHERE',
+          }}
+        />
+      </div>
 
       <h2 className="mt-8 text-xl font-semibold">Source classification</h2>
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">

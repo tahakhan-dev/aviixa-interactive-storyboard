@@ -461,6 +461,27 @@ export const TENANT_ROLE_ORDER: readonly TenantRoleId[] = rolesInDomain('TENANT'
 )
 
 /**
+ * THE TWO CELL COUNTS, DERIVED AT MODULE LOAD AND NEVER TYPED.
+ *
+ * This file shipped "Thirty-eight of the sixty cells" in UNSPECIFIED_IN_SOURCE
+ * from slice 6 onward. Re-measured against the frozen source table
+ * L27909-L27920 — 12 data rows x 5 role columns = 60 cells, 45 carrying
+ * `Explicitly prohibited`, of which 37 are bare and 8 carry a qualifying
+ * clause — and against this file's own transcription, which holds 37
+ * `BARE_PROHIBITION` details. The rendered thirty-eight was wrong by one
+ * against both. Renumbering reships the same defect with a fresh number, so
+ * both figures are now counted from the matrix itself: they cannot disagree
+ * with the data beside them, and adding or removing a row moves them.
+ */
+export const MATRIX_CELL_COUNT = MOD_DOH_06_MATRIX.length * TENANT_ROLE_ORDER.length
+
+/** Cells whose `detail` is the one bare-token wording, counted not typed. */
+export const BARE_PROHIBITION_CELL_COUNT = MOD_DOH_06_MATRIX.reduce(
+  (n, row) => n + TENANT_ROLE_ORDER.filter((role) => row.detail[role] === BARE_PROHIBITION).length,
+  0,
+)
+
+/**
  * WHO REACHES THIS MODULE, derived by the one implementation of the rule and
  * never hand-written — the brief's standing instruction, and the reason
  * catalogue B's narrower cell for SCR-DOH-13 (L48107, three roles) is
@@ -950,7 +971,7 @@ export const UNSPECIFIED_IN_SOURCE = [
   {
     topic: 'The bare `Explicitly prohibited` cells',
     whatIsMissing:
-      'Thirty-eight of the sixty cells carry the token with no qualifying clause. The screen renders the token and states the silence rather than inventing a cause — a blank cell is "an unanswered question that an implementer will answer privately and inconsistently" (L10238).',
+      `${BARE_PROHIBITION_CELL_COUNT} of the ${MATRIX_CELL_COUNT} cells carry the token with no qualifying clause — both counted from the matrix at module load, not typed. The screen renders the token and states the silence rather than inventing a cause — a blank cell is "an unanswered question that an implementer will answer privately and inconsistently" (L10238).`,
     sourceRef: 'L27909-L27920',
   },
   {

@@ -1859,26 +1859,144 @@ function buildActionableControlsRegistry() {
 // registers it belongs to (verified exhaustive and non-overlapping: 30 + 48
 // + 490 + 45 = 613).
 // ---------------------------------------------------------------------
-function classifyStoryboardRegister(id) {
-  if (/^SB-\d{3}$/.test(id)) return 'platform storyboard catalogue (SB-NNN, Chapter 30, 30 total)'
-  if (id.startsWith('SB-AI-')) return 'AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)'
-  if (id.split('-').length === 3) {
-    return 'storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)'
-  }
-  return 'further-nested storyboard identifiers (4-segment SB-*, 45 total)'
+/*
+ * ── THE CHAPTER IN A REGISTER LABEL IS NOW MEASURED, NOT ASSERTED (C-28) ───
+ *
+ * Every `SB-AI-*` row shipped the label "Chapter 44, 48 total" and 19 of the
+ * 48 are not in chapter 44: binding each row's `sourceLine` to its enclosing
+ * `^# N\.` heading gives 17 in chapter 40, 1 in chapter 41, 1 in chapter 30D
+ * and 29 in chapter 44. Two separate defects produced that:
+ *
+ *   1. `SB-AI-*` is TWO registers, not one. The two-digit `SB-AI-NN` ids are
+ *      section 44A's thirty storyboards; the three-digit `SB-AI-NNN` ids are
+ *      chapter 40/41's agent and configuration-lifecycle storyboards. One
+ *      `startsWith('SB-AI-')` test merged them and then labelled all 48 with
+ *      one chapter.
+ *   2. `SB-AI-01`'s row pointed at L74479, chapter 30D's Command Center
+ *      agent-activity panel, because `sourceLine` is the FIRST occurrence
+ *      anywhere and `SB-AI-01` has three (74479, 92693, 92793). Its 29
+ *      siblings point at the §44A index table. That is C-29, and a flat
+ *      inventory silently committing to one of several homes is the exact
+ *      failure `src/coverage/uninventoried.ts` reason 2 argues against.
+ *
+ * Both are fixed by giving a register a BAND as well as a label, and the band
+ * does the work of both fixes: the row's line is the first occurrence INSIDE
+ * its own register's chapter, and `assertStoryboardBands` below throws if any
+ * row lands outside the chapter its label claims. So the label can no longer
+ * drift from the data — a wrong chapter is a build failure, not a rendered
+ * sentence nobody rechecks.
+ *
+ * The bands are chapter heading lines in the frozen source
+ * (sha256 47bd18db…, 122,241 lines), each the `^# N\.` line for the chapter
+ * and the line before the next chapter's heading:
+ *   ch 30 L60895 (next: 30A at L66118) · ch 40 L85974 · ch 41 L88020
+ *   (next: 42 at L88993) · ch 44 L91386 (next: 45 at L95410).
+ * They are literals because this script may not read the blueprint: it runs
+ * from `registries/raw/` alone, on a clean clone where the frozen source is
+ * not present. The invariant below is what keeps them honest.
+ */
+const STORYBOARD_REGISTERS = [
+  {
+    match: (id) => /^SB-\d{3}$/.test(id),
+    label: 'platform storyboard catalogue (SB-NNN, Chapter 30, 30 total)',
+    band: { first: 60895, last: 66117 },
+  },
+  {
+    match: (id) => /^SB-AI-\d{2}$/.test(id),
+    label: 'AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)',
+    band: { first: 91386, last: 95409 },
+  },
+  {
+    match: (id) => /^SB-AI-\d{3}$/.test(id),
+    label:
+      'agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a ' +
+      'DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by ' +
+      'this build',
+    band: { first: 85974, last: 88992 },
+  },
+  {
+    match: (id) => id.split('-').length === 3,
+    label:
+      'storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)',
+    band: null,
+  },
+  {
+    match: () => true,
+    label: 'further-nested storyboard identifiers (4-segment SB-*, 45 total)',
+    band: null,
+  },
+]
+
+function storyboardRegister(id) {
+  const found = STORYBOARD_REGISTERS.find((r) => r.match(id))
+  if (found === undefined) throw new Error(`No storyboard register matches ${id}`)
+  return found
 }
 
+/**
+ * The row's line, preferring the first occurrence inside its own register's
+ * chapter over the first occurrence anywhere. Falls back to the global first
+ * when the register has no band or the id occurs nowhere inside it; the
+ * invariant below then reports the fallback rather than hiding it.
+ */
+function storyboardSourceLine(register, lines) {
+  if (register.band === null) return firstLine(lines)
+  const inBand = lines.filter((l) => l >= register.band.first && l <= register.band.last)
+  return inBand.length === 0 ? firstLine(lines) : Math.min(...inBand)
+}
+
+/** A label claiming a chapter must be a label whose rows are in it. */
+function assertStoryboardBands(rows) {
+  const strays = rows.filter((r) => {
+    const band = storyboardRegister(r.id).band
+    return band !== null && (r.sourceLine < band.first || r.sourceLine > band.last)
+  })
+  if (strays.length > 0) {
+    throw new Error(
+      `${strays.length} SB-* row(s) cite a line outside the chapter their register label ` +
+        'claims, which is how "Chapter 44, 48 total" shipped over 19 rows that were not in ' +
+        'chapter 44: ' +
+        strays.map((r) => `${r.id}@L${r.sourceLine} (${r.register})`).join('; '),
+    )
+  }
+}
+
+/**
+ * The 18 chapter-40/41 rows read `not-represented` and, until C-32, carried no
+ * reason for it — while `SB-AI-*`'s sibling thirty are transcribed card by
+ * card. The reason is structural rather than a shortfall, so it is stated.
+ */
+const STORYBOARD_STATUS_REASONS = new Map([
+  [
+    'agent and configuration-lifecycle storyboards',
+    'Chapters 40 and 41, a different register from the thirty section-44A storyboards this ' +
+      'build transcribed. No route names one, and none was in scope: slice 11 built §44A. The ' +
+      'row is here so the register is visible, not because a screen was expected to demonstrate ' +
+      'it.',
+  ],
+])
+
 function buildAiStoryboardsRegistry() {
-  const raw = idsWithPrefix('SB-')
-  const rows = raw.map(({ id, sourceLine }) => ({
-    id,
-    sourceLine,
-    status: statusForId(id),
-    register: classifyStoryboardRegister(id),
-  }))
+  const raw = idsWithPrefixRaw('SB-')
+  const rows = raw.map(([id, lines]) => {
+    const register = storyboardRegister(id)
+    const status = statusForId(id)
+    const reason =
+      status === 'not-represented'
+        ? STORYBOARD_STATUS_REASONS.get(register.label.split(' (')[0])
+        : undefined
+    return {
+      id,
+      sourceLine: storyboardSourceLine(register, lines),
+      status,
+      register: register.label,
+      ...(reason === undefined ? {} : { statusReason: reason }),
+    }
+  })
   if (rows.length !== 613) {
     throw new Error(`Expected 613 SB-* identifiers, found ${rows.length}`)
   }
+  assertStoryboardBands(rows)
   const byRegister = new Map()
   for (const r of rows) byRegister.set(r.register, (byRegister.get(r.register) ?? 0) + 1)
   return {

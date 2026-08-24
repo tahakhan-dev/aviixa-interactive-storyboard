@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { isForeignProbe } from '../probe-paths'
 import {
   CANON_CONSOLIDATION_VERDICTS,
+  NAMESPACES_ACCOUNTED_ELSEWHERE,
   UNINVENTORIED_DECISION_LABEL,
   UNINVENTORIED_FAMILIES,
   UNINVENTORIED_IDENTIFIERS,
@@ -12,19 +13,27 @@ import {
   fbAiLiteralsWithMoreThanOneOwner,
 } from '@/coverage/uninventoried'
 import { REGISTRY_DESCRIPTORS } from '@/coverage/descriptors'
+import { loadGeneratedRegistry } from '@/coverage/registry-loader'
 import { OPEN_DECISION_IDS } from '@/disclosure/decisions'
 
 /**
  * THE GATE THAT MAKES "SILENTLY UNCOUNTED" IMPOSSIBLE.
  *
- * Slice 11 wave 5 task 20 decided that four identifier families belong in none
- * of the fourteen inventories (`src/coverage/uninventoried.ts` carries the
+ * Slice 11 wave 5 task 20 decided that a set of identifier families belongs in
+ * none of the fourteen inventories (`src/coverage/uninventoried.ts` carries the
  * decision and its reasons). A decision like that is worth exactly as much as
  * the check behind it: the forbidden outcome was never "no fifteenth registry",
  * it was leaving shipped identifiers uncounted, and a hand-written list of
- * families is uncounted again the first time someone ships a fifth one.
+ * families is uncounted again the first time someone ships another one.
  *
- * So the load-bearing assertion here is a SET EQUALITY, in both directions,
+ * IT HAPPENED. Three families — `FAIL-AI-*`, the `AI-NN` abilities and
+ * `FB-AGT-*`, 85 identifiers — shipped past this file green, because the sweep
+ * below was keyed on the prefixes the module already declared. That is audit
+ * finding C-27 and defect shape 10, and the second block near the end of this
+ * file is the answer to it: a sweep over `src/ai/` whose token shape is
+ * general and which asks the module nothing.
+ *
+ * So the first load-bearing assertion is a SET EQUALITY, in both directions,
  * between what the tree ships and what the module declares:
  *
  *   - a token in `src/` or `app/` that no family accounts for turns this red,
@@ -36,7 +45,7 @@ import { OPEN_DECISION_IDS } from '@/disclosure/decisions'
  *
  * WHAT IS DELIBERATELY NOT ASSERTED: a count. Not one number in this file is a
  * literal standing for the size of anything the module derives. The family list
- * is held by MEMBERSHIP on its four prefixes, so a deletion is caught by name
+ * is held by MEMBERSHIP on its prefixes, so a deletion is caught by name
  * rather than by a length that any substitution satisfies — and per this
  * build's rule, membership is proved by ADDING. The floors below are
  * non-vacuity floors, which is a different thing from a count: they exist so
@@ -75,13 +84,25 @@ const SWEPT_ROOTS = ['src', 'app'] as const
  */
 const DECLARING_MODULE = join('src', 'coverage', 'uninventoried.ts')
 
-/** The four token shapes, as whole tokens. Keyed by the family prefix. */
-const TOKEN_PATTERNS: Readonly<Record<string, RegExp>> = {
-  'AIMODE-': /\bAIMODE-\d+\b/g,
-  'PROV-': /\bPROV-\d+\b/g,
-  'FB-AI-': /\bFB-AI-\d+\b/g,
-  'DEC-AI': /\bDEC-AI[A-Z]*-\d+\b/g,
-}
+/**
+ * ONE TOKEN SHAPE, DERIVED FROM EACH FAMILY'S OWN PREFIX. Never a table keyed
+ * beside the declaration: the previous version of this file held four literal
+ * patterns for the four prefixes the module declared, so the equality below
+ * was true by construction for any family outside them and three shipped
+ * families — `FAIL-AI-*`, `AI-NN` and `FB-AGT-*` — were invisible to it (audit
+ * C-27, defect shape 10). Deriving the pattern means a family added to the
+ * module is swept the moment it is declared.
+ *
+ * The leading lookbehind is load-bearing for `AI-`: `\bAI-01\b` matches inside
+ * `FAIL-AI-01`, `FB-AI-01` and `SB-AI-01`, so a word boundary alone would file
+ * three other families' identifiers under the abilities.
+ */
+const tokenPattern = (prefix: string): RegExp =>
+  new RegExp(`(?<![A-Za-z0-9-])${prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[A-Z]*-?\\d+\\b`, 'g')
+
+const TOKEN_PATTERNS: Readonly<Record<string, RegExp>> = Object.fromEntries(
+  UNINVENTORIED_FAMILIES.map((f) => [f.prefix, tokenPattern(f.prefix)]),
+)
 
 function sourceFiles(): readonly string[] {
   const out: string[] = []
@@ -165,7 +186,7 @@ describe('the sweep itself can see the tree', () => {
     expect(allFiles.filter((f) => !FILES.includes(f))).toEqual([DECLARING_MODULE])
   })
 
-  it('finds at least one token of every one of the four shapes', () => {
+  it('finds at least one token of every declared shape', () => {
     for (const [prefix, pattern] of Object.entries(TOKEN_PATTERNS)) {
       const hits = [...SWEPT.keys()].filter((id) => pattern.test(id) || id.startsWith(prefix))
       expect(hits.length, `the ${prefix} sweep found nothing, so its regex is broken`).toBeGreaterThan(0)
@@ -173,7 +194,7 @@ describe('the sweep itself can see the tree', () => {
   })
 })
 
-describe('every shipped identifier in these four families is accounted for', () => {
+describe('every shipped identifier in these declared families is accounted for', () => {
   /**
    * THE ONE THAT MATTERS. Both directions, and the failure message names the
    * identifiers rather than printing two numbers, because "expected 91 to be
@@ -234,9 +255,19 @@ describe('the decision is recorded, not merely implied', () => {
    * plant that closed this gate added a fifth family and a matching token, and
    * the equality above convicted it.
    */
-  it('declares all four families the decision covers', () => {
+  it('declares every family the decision covers', () => {
     const prefixes = UNINVENTORIED_FAMILIES.map((f) => f.prefix)
-    for (const expectedPrefix of ['AIMODE-', 'PROV-', 'FB-AI-', 'DEC-AI']) {
+    for (const expectedPrefix of [
+      'AIMODE-',
+      'PROV-',
+      'FB-AI-',
+      'DEC-AI',
+      // The three the slice-11 audit found shipped and declared nowhere
+      // (C-27). Held by name, so a deletion is caught by name.
+      'FAIL-AI-',
+      'AI-',
+      'FB-AGT-',
+    ]) {
       expect(prefixes).toContain(expectedPrefix)
     }
   })
@@ -290,6 +321,162 @@ describe('the decision is recorded, not merely implied', () => {
         expect(readFileSync(join(REPO, cited.citedBy), 'utf8')).toContain(cited.id)
       }
     }
+  })
+})
+
+/* ==================================================================== *
+ * THE SWEEP THAT KNOWS NOTHING ABOUT THE DECLARATION.
+ * ==================================================================== */
+
+/**
+ * WHY THIS SECOND SWEEP EXISTS, AND WHAT THE FIRST ONE COULD NOT DO.
+ *
+ * The equality above is a strong check inside a family and a vacuous one
+ * outside it: its patterns come from the prefixes the module declares, so a
+ * family the module has never heard of is not swept for and the two sets stay
+ * equal. That is defect shape 10 — a gate scoped to exclude what it is named
+ * for — and it is how `FAIL-AI-*` (60), the `AI-NN` abilities (13) and
+ * `FB-AGT-*` (12) shipped in no inventory row, in no declared family, and past
+ * a green suite whose module header claimed it "cannot silently miss an
+ * identifier the build ships".
+ *
+ * So this one is written the other way round. It matches an identifier SHAPE —
+ * an uppercase prefix and a numeric tail, any prefix — over `src/ai/`, and then
+ * subtracts, in this order:
+ *
+ *   1. every row id of the fourteen generated inventories (read from the
+ *      files, not from `idPrefix`, so a registry that holds more shapes than
+ *      its descriptor names still accounts for them);
+ *   2. every identifier the families above declare;
+ *   3. every namespace `NAMESPACES_ACCOUNTED_ELSEWHERE` answers for.
+ *
+ * The remainder must be empty. Nothing in that computation asks the module
+ * which prefixes it knows about, so a family nobody has declared lands in the
+ * remainder by construction rather than by anyone remembering to look.
+ *
+ * SCOPE, STATED RATHER THAN IMPLIED: `src/ai/`, where every register in this
+ * disclosure's subject area is transcribed. It is not the whole tree, and the
+ * whole tree would not be honest here — `src/` and `app/` carry 3,300 distinct
+ * identifiers across a hundred namespaces belonging to twelve other slices,
+ * and an allowlist that long would be a rubber stamp. The per-family sweep
+ * above still runs over `src/` and `app/`, so a declared family's identifier
+ * cited outside `src/ai/` is still caught.
+ */
+const AI_ROOT = join('src', 'ai')
+
+/** `PREFIX-…-NN`: two or more leading uppercase characters, numeric tail. */
+const IDENTIFIER_SHAPE = /(?<![A-Za-z0-9-])[A-Z][A-Z0-9]+(?:-[A-Z0-9]+)*-\d{1,4}\b/g
+
+function aiAreaTokens(): ReadonlyMap<string, readonly string[]> {
+  const found = new Map<string, string[]>()
+  for (const file of FILES) {
+    if (!file.startsWith(AI_ROOT)) continue
+    const text = readFileSync(join(REPO, file), 'utf8')
+    for (const match of text.matchAll(IDENTIFIER_SHAPE)) {
+      const list = found.get(match[0]) ?? []
+      if (!list.includes(file)) list.push(file)
+      found.set(match[0], list)
+    }
+  }
+  return found
+}
+
+/**
+ * Every row id of the fourteen, read from the generated files. `@L`-suffixed
+ * composite keys are split back to the bare identifier: a composite key is the
+ * registry disambiguating two owners, not a different identifier.
+ */
+function inventoryRowIds(): ReadonlySet<string> {
+  const ids = new Set<string>()
+  for (const descriptor of REGISTRY_DESCRIPTORS) {
+    for (const row of loadGeneratedRegistry(descriptor.slug).rows) {
+      ids.add(row.id.split('@')[0] ?? row.id)
+    }
+  }
+  return ids
+}
+
+const AI_AREA_TOKENS = aiAreaTokens()
+const INVENTORY_IDS = inventoryRowIds()
+
+describe('nothing in the artificial-intelligence area is counted nowhere', () => {
+  /**
+   * THE POSITIVE CONTROLS. Every assertion in this block is a subtraction, so
+   * an empty sweep or an empty inventory read would make it pass on nothing.
+   */
+  it('reads the AI area and the fourteen inventories', () => {
+    expect(FILES.filter((f) => f.startsWith(AI_ROOT)).length).toBeGreaterThan(20)
+    expect(AI_AREA_TOKENS.size).toBeGreaterThan(300)
+    expect(INVENTORY_IDS.size).toBeGreaterThan(1000)
+    expect(REGISTRY_DESCRIPTORS.length).toBe(14)
+  })
+
+  /**
+   * THE ONE THAT REPLACES A GATE THAT COULD NOT FAIL. Proved by planting: a
+   * file under `src/ai/` carrying a token of an undeclared namespace turns
+   * this red and names the token and the file.
+   */
+  it('accounts for every identifier-shaped token in src/ai/', () => {
+    const declared = new Set(UNINVENTORIED_IDENTIFIERS)
+    const accountedPrefixes = NAMESPACES_ACCOUNTED_ELSEWHERE.flatMap((n) => n.prefixes)
+
+    const unaccounted = [...AI_AREA_TOKENS.keys()]
+      .filter((id) => !INVENTORY_IDS.has(id))
+      .filter((id) => !declared.has(id))
+      .filter((id) => !UNINVENTORIED_FAMILIES.some((f) => id.startsWith(f.prefix)))
+      .filter((id) => !accountedPrefixes.some((p) => id.startsWith(p)))
+      .sort()
+
+    expect(
+      unaccounted,
+      'these identifier-shaped tokens are shipped under src/ai/ and are in NO row of the '
+        + 'fourteen generated inventories, NO declared uninventoried family and NO namespace '
+        + 'NAMESPACES_ACCOUNTED_ELSEWHERE answers for. That is the outcome APP-012 forbade. '
+        + 'Declare the family in src/coverage/uninventoried.ts, or record where it is answered '
+        + `— never leave it uncounted. Found in: ${unaccounted
+          .map((id) => `${id} (${AI_AREA_TOKENS.get(id)?.join(', ')})`)
+          .join(' | ')}`,
+    ).toEqual([])
+  })
+
+  /**
+   * An accounted-elsewhere entry is a claim that something else answers for
+   * the namespace. A claim nothing matches is a rubber stamp growing in the
+   * dark, so each entry must still be earning its place.
+   */
+  it('keeps every accounted-elsewhere entry matched and reasoned', () => {
+    for (const entry of NAMESPACES_ACCOUNTED_ELSEWHERE) {
+      expect(entry.prefixes.length, `${entry.title} names no prefix`).toBeGreaterThan(0)
+      expect(entry.why.length, `${entry.title} has no reason`).toBeGreaterThan(80)
+      expect(entry.accountedIn.length).toBeGreaterThan(10)
+      const matched = [...AI_AREA_TOKENS.keys()].filter((id) =>
+        entry.prefixes.some((p) => id.startsWith(p)),
+      )
+      expect(
+        matched.length,
+        `${entry.prefixes.join('/')} matches nothing under src/ai/ any more. Remove the entry `
+          + 'rather than leaving an exemption for a namespace the build no longer carries.',
+      ).toBeGreaterThan(0)
+    }
+  })
+
+  /**
+   * C-31, held as a measurement rather than a sentence. The AC-* entry states
+   * that this build cites no chapter-44 acceptance criterion and no chapter-44
+   * test identifier. The day one is cited, the abstention is false and this
+   * says so.
+   */
+  it('holds the chapter-44 abstention the AC- and TEST- entries claim', () => {
+    const cited = FILES.flatMap((file) => {
+      const text = readFileSync(join(REPO, file), 'utf8')
+      return [...text.matchAll(/\b(?:AC|TEST)-44-\d+\b/g)].map((m) => `${m[0]} (${file})`)
+    })
+    expect(
+      cited,
+      'a chapter-44 AC-44-* or TEST-44-* identifier is now cited under src/ or app/. The '
+        + 'abstention recorded in NAMESPACES_ACCOUNTED_ELSEWHERE says the build enforces none of '
+        + 'them; either the citation is wrong or the record is. Fix one of the two.',
+    ).toEqual([])
   })
 })
 
