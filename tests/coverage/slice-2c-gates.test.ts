@@ -392,14 +392,22 @@ describe('gate 1: count-scope honesty', () => {
 // Gate 2: no closed vocabulary uses the inert annotation form.
 // `export const X: readonly T[] = [...] as const` WIDENS the const, making
 // any exhaustiveness check below it vacuous. The safe form is
-// `as const satisfies readonly T[]`. Exempt the three deliberate subsets and
-// ROUTES (derived via .map()).
-// ===========================================================================
-const EXEMPT_CLOSED_VOCAB_NAMES = new Set([
+// `as const satisfies readonly T[]`.
+//
+// THE EXEMPTIONS ARE AN EQUALITY, NOT A FILTER, and that is a correction.
+// This set used to be subtracted from the offender list, which is a
+// membership allowlist: it can only grow, a second offender joins it by
+// being added, and FIXING one of the three named leaves the entry standing
+// for ever. Asserted as an equality below, a stale exemption reds and has to
+// be removed. `ROUTES` was one: it is `= SURFACES.map(...)` and can never
+// match `DECL_RE`'s `=\s*\[`, so its exemption was unreachable from the day
+// it was written and could never have retired itself. A COMPUTED array is
+// out of scope by construction — it has no literals to widen — so it needs
+// no name here at all.
+const DELIBERATE_SUBSETS = new Set([
   'SUPERVISOR_AND_ABOVE',
   'QUALITY_MANAGER_AND_ABOVE',
   'FRONTLINE_ONLY_STATES',
-  'ROUTES',
 ])
 
 /**
@@ -424,9 +432,20 @@ const EXEMPT_CLOSED_VOCAB_NAMES = new Set([
  * exemption list).
  *
  * ponytail: does not follow a type annotation split across multiple lines
- * (`const X:\n  readonly T[] = [...]`) -- a real gap, but verified zero
- * live instances of that formatting exist in this codebase today. Upgrade
- * to a small multi-line-aware scan if that style is ever introduced.
+ * (`const X:\n  readonly T[] = [...]`) -- a real gap, and the claim this
+ * note used to make about it ("verified zero live instances of that
+ * formatting exist in this codebase today") IS FALSE. Measured over src/
+ * and app/: EIGHT exported array heads carry an annotation wrapped across
+ * lines, four of them slice-11 files. All eight annotate an inline
+ * `readonly { ... }[]` object table over data rows -- no union, so nothing
+ * an exhaustiveness check below them would depend on -- which is why the
+ * scanner is still line-bounded rather than widened to convict them. That
+ * property is no longer a claim in a comment: `absence-sweep.ts`'s
+ * `describeClosedVocabularyAnnotations` asserts it, so a wrapped
+ * `ReadonlyArray<SomeUnion>` reds there.
+ *
+ * RETURNS EVERY MATCH, EXEMPT OR NOT. Subtracting the exemptions in here is
+ * what made the exemption list unretirable; the caller compares the two.
  */
 function inertAnnotationOffenders(strippedSrc: string): string[] {
   const lines = strippedSrc.split('\n')
@@ -436,8 +455,7 @@ function inertAnnotationOffenders(strippedSrc: string): string[] {
   for (const line of lines) {
     const m = DECL_RE.exec(line)
     if (!m) continue
-    const name = m[1]!
-    if (!EXEMPT_CLOSED_VOCAB_NAMES.has(name)) offenders.push(name)
+    offenders.push(m[1]!)
   }
   return offenders
 }
@@ -455,11 +473,22 @@ describe('gate 2: no closed vocabulary uses the inert annotation form', () => {
   // where a sudden slowdown is still a signal rather than absorbed noise.
   it('no exported closed vocabulary in src/ or app/ uses the widening annotation', () => {
     const files = [...walk('src'), ...walk('app')].filter((f) => /\.tsx?$/.test(f))
-    const offenders = files.flatMap((f) => {
-      const names = inertAnnotationOffenders(stripComments(readFileSync(f, 'utf8')))
-      return names.map((n) => `${f}: ${n}`)
-    })
-    expect(offenders).toEqual([])
+    const found = files.flatMap((f) =>
+      inertAnnotationOffenders(stripComments(readFileSync(f, 'utf8'))).map(
+        (n) => [f, n] as const,
+      ),
+    )
+    expect(
+      found.filter(([, n]) => !DELIBERATE_SUBSETS.has(n)).map(([f, n]) => `${f}: ${n}`),
+    ).toEqual([])
+    // AND THE EXEMPTIONS, AS AN EQUALITY. A membership allowlist only grows:
+    // a second offender joins it, and fixing a named one leaves its entry
+    // standing for ever. This reds in BOTH directions -- a deliberate subset
+    // that is repaired, renamed or deleted has to leave the set above.
+    expect(
+      found.filter(([, n]) => DELIBERATE_SUBSETS.has(n)).map(([, n]) => n).sort(),
+      'the deliberate-subset exemptions no longer match what the tree declares',
+    ).toEqual([...DELIBERATE_SUBSETS].sort())
   }, 30_000)
 
   it('PROVEN: fires on the exact defect pattern', () => {
@@ -508,11 +537,24 @@ describe('gate 2: no closed vocabulary uses the inert annotation form', () => {
     ).toEqual([])
   })
 
-  it('exempts the three deliberate subsets and ROUTES by name', () => {
-    for (const name of ['SUPERVISOR_AND_ABOVE', 'QUALITY_MANAGER_AND_ABOVE', 'FRONTLINE_ONLY_STATES', 'ROUTES']) {
+  it('convicts a deliberate subset like any other name, and the caller exempts it', () => {
+    // The scanner is name-blind: an exemption that lived inside it could not
+    // be told apart from a pattern that had stopped matching.
+    for (const name of DELIBERATE_SUBSETS) {
       const planted = `export const ${name}: readonly T[] = [\n  'a',\n] as const\n`
-      expect(inertAnnotationOffenders(planted), name).toEqual([])
+      expect(inertAnnotationOffenders(planted), name).toEqual([name])
     }
+  })
+
+  it('needs no exemption for a computed array, which is why ROUTES has none', () => {
+    // `ROUTES` was exempt for four commits and the exemption was unreachable:
+    // `= SURFACES.map(` can never match `=\s*\[`. Asserted rather than
+    // deleted silently, so the day someone rewrites it as a literal the
+    // exemption question is raised by a red case instead of by nobody.
+    expect(inertAnnotationOffenders('export const ROUTES: readonly R[] = SURFACES.map((s) => {\n'))
+      .toEqual([])
+    expect(readFileSync(join('src', 'routes', 'definitions.ts'), 'utf8'))
+      .toContain('export const ROUTES: readonly RouteDefinition[] = SURFACES.map(')
   })
 })
 

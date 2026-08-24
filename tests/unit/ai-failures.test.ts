@@ -4,6 +4,10 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { isForeignProbe } from '../probe-paths'
 import {
+  MANUFACTURING_SEVERITY_SYMBOLS,
+  expectEverySymbolExists,
+} from '../coverage/absence-sweep'
+import {
   FAILURE_CATALOGUE,
   FAILURE_FAMILIES,
   SPINE_BINDINGS,
@@ -483,37 +487,45 @@ describe('AC-43-301, the operating-mode identifiers this catalogue names', () =>
  */
 describe('AC-43-103 — operational severity shares nothing with the manufacturing catalogue', () => {
   const MODULE_DIR = new URL('../../src/ai/failures/', import.meta.url).pathname
+  /**
+   * WHAT THE DIRECTORY IMPORTS, AS AN EQUALITY.
+   *
+   * This was a membership allowlist -- every specifier had to be `toContain`ed
+   * in it -- and a membership allowlist can only grow. It carried
+   * `'./catalogue'`, imported by NOTHING in the directory: a dead entry that
+   * nothing could ever retire, and a pre-approved edge for an import that does
+   * not exist. Asserted as an equality, an unused entry reds and has to go,
+   * and a new import still reds exactly as before.
+   *
+   * The list is the reason this gate catches the import nobody predicted --
+   * including a manufacturing severity import -- so it is the half that must
+   * not be allowed to rot.
+   */
   const ALLOWED_IMPORTS: readonly string[] = [
     '@/disclosure/decisions',
+    './open-values',
     './severity',
     './spine',
-    './open-values',
-    './catalogue',
   ]
   const moduleFiles = (): readonly string[] => readdirSync(MODULE_DIR).filter((f) => f.endsWith('.ts'))
 
-  /**
-   * The manufacturing severity symbols measured in this tree, by name. Held
-   * HERE and not in the module directory: declaring them beside the code they
-   * police put the forbidden names inside the text the scan reads, and the
+  /*
+   * The manufacturing severity symbols are IMPORTED from
+   * `tests/coverage/absence-sweep.ts`, not restated here. Three copies of this
+   * list existed and all three had drifted; this one held seven and the
+   * TREE-WIDE copy held six. Held outside the module directory for the
+   * original reason, which still stands: declaring the forbidden names beside
+   * the code they police puts them inside the text the scan reads, and the
    * gate reddened on its own expectation on the first run.
    *
    * A LIST OF NAMES RATHER THAN A PATTERN. `/severity/i` would match this
    * task's own identifiers and would be weakened until it matched nothing. The
-   * import allowlist above is what covers a symbol nobody thought to list.
+   * import equality above is what covers a symbol nobody thought to list.
    */
-  const MANUFACTURING_SEVERITY_SYMBOLS: readonly string[] = [
-    'SEEDED_SEVERITY_BANDS',
-    'severityBand',
-    'severityBands',
-    'severityCatalogLevels',
-    'AnomalySeverity',
-    'ANOMALY_SEVERITIES',
-    'CcSeverityCounts',
-  ]
 
-  it('imports nothing outside its allowlist', () => {
+  it('imports exactly its allowlist -- nothing outside it, and no dead entry', () => {
     expect(moduleFiles().length).toBeGreaterThan(0)
+    const imported = new Set<string>()
     for (const file of moduleFiles()) {
       const text = readFileSync(join(MODULE_DIR, file), 'utf8')
       // `[^']*?` RATHER THAN `[^\n]*?`, and the difference is the whole gate.
@@ -527,8 +539,15 @@ describe('AC-43-103 — operational severity shares nothing with the manufacturi
       // `import`/`export` and no earlier specifier can be skipped over.
       for (const m of text.matchAll(/(?:^|\n)\s*(?:import|export)\b[^']*?from '([^']+)'/g)) {
         expect(ALLOWED_IMPORTS, `${file} imports ${m[1]!}`).toContain(m[1])
+        imported.add(m[1]!)
       }
     }
+    // AND THE OTHER DIRECTION. An entry no file imports is an approval nobody
+    // asked for and nothing can retire.
+    expect(
+      [...imported].sort(),
+      'an allowlisted import that this directory does not make -- remove the entry',
+    ).toEqual([...ALLOWED_IMPORTS].sort())
   })
 
   /**
@@ -536,8 +555,19 @@ describe('AC-43-103 — operational severity shares nothing with the manufacturi
    * that forbids ghosts forbids nothing, and a typo in a forbidden name is
    * invisible from inside the scan that uses it.
    */
+  /**
+   * FAILS IF: the shared list above names a symbol this tree does not have. A
+   * gate that forbids ghosts forbids nothing, and a typo in a forbidden name
+   * is invisible from inside the scan that uses it.
+   *
+   * `app/` AS WELL AS `src/`, and that is not tidiness. The shared list
+   * carries `SEVERITY_CATALOG_DISTRIBUTION`, which lives in
+   * `app/super-admin/platform-settings/`; a `src/`-only corpus would have
+   * reported it as a ghost and pushed the next reader to delete it from the
+   * list rather than to widen the corpus.
+   */
   it('forbids only symbols that exist, somewhere other than here', () => {
-    const SRC = new URL('../../src/', import.meta.url).pathname
+    const ROOT = new URL('../../', import.meta.url).pathname
     // Probe-aware, per `tests/coverage/prohibited-patterns.test.ts`: a
     // recursive walk that does not skip another process's scratch directory
     // will ENOENT on it the moment that process cleans up.
@@ -545,15 +575,11 @@ describe('AC-43-103 — operational severity shares nothing with the manufacturi
       readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
         isForeignProbe(e.name) ? [] : e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)],
       )
-    const elsewhere = walk(SRC)
+    const elsewhere = [...walk(join(ROOT, 'src')), ...walk(join(ROOT, 'app'))]
       .filter((f) => /\.tsx?$/.test(f) && !f.startsWith(MODULE_DIR))
       .map((f) => readFileSync(f, 'utf8'))
       .join('\n')
-    for (const symbol of MANUFACTURING_SEVERITY_SYMBOLS) {
-      expect(elsewhere, `${symbol} is forbidden but exists nowhere`).toMatch(
-        new RegExp(`\\b${symbol}\\b`),
-      )
-    }
+    expectEverySymbolExists(elsewhere, MANUFACTURING_SEVERITY_SYMBOLS)
   })
 
   it('names no manufacturing severity symbol anywhere in the module directory', () => {

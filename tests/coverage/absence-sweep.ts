@@ -47,6 +47,64 @@ import { isForeignProbe } from '../probe-paths'
  * them as its own.
  * ==================================================================== */
 
+/* ==================================================================== *
+ * THE MANUFACTURING SEVERITY VOCABULARY, ONE COPY.
+ *
+ * Not an absence-sweep obligation; here because this is the only module
+ * `tests/coverage/` and `tests/unit/` already share, and the alternative was a
+ * FOURTH private copy. Three had already drifted:
+ *
+ *   - `tests/coverage/slice-11-gates.test.ts` held SIX and was the TREE-WIDE
+ *     scan, the one whose scope is `src/` plus `app/`. It omitted
+ *     `severityBand` and `SEVERITY_CATALOG_DISTRIBUTION`.
+ *   - `tests/unit/ai-failures.test.ts` held SEVEN — the six plus
+ *     `severityBand` — over one data directory.
+ *   - `tests/component/ai-degradation-overlays.test.tsx` held TWO, one of
+ *     which (`SEVERITY_CATALOG_DISTRIBUTION`) was in neither of the others.
+ *
+ * The omissions were real rather than subsumed: `\bseverityBand\b` does not
+ * match `severityBands`, and two live components carry the two omitted names
+ * while scoring zero hits on the tree-wide six —
+ * `src/frontline/modules/fl-a5/DetectionAndContainmentPanel.tsx` (measured:
+ * `severityBand: 1` at its `EXAMPLE_RESULT`) and
+ * `app/super-admin/platform-settings/PlatformSettingsScreen.tsx`
+ * (`SEVERITY_CATALOG_DISTRIBUTION`, imported from its own fixtures).
+ *
+ * `AC-43-103` (L89975) is what all three police: operational severity and the
+ * manufacturing catalogue never share a rendering component.
+ * ==================================================================== */
+export const MANUFACTURING_SEVERITY_SYMBOLS: readonly string[] = [
+  'SEEDED_SEVERITY_BANDS',
+  'severityBand',
+  'severityBands',
+  'severityCatalogLevels',
+  'SEVERITY_CATALOG_DISTRIBUTION',
+  'AnomalySeverity',
+  'ANOMALY_SEVERITIES',
+  'CcSeverityCounts',
+]
+
+export const OPERATIONAL_SEVERITY_SYMBOLS: readonly string[] = [
+  'OPERATIONAL_SEVERITY',
+  'OPERATIONAL_SEVERITY_BANDS',
+  'OperationalSeverityBand',
+  'operationalSeverity',
+]
+
+/**
+ * FORBIDS ONLY SYMBOLS THAT EXIST. A gate that polices a ghost polices
+ * nothing, and a typo in a forbidden name is invisible from inside the scan
+ * that uses it. Called by every suite that consumes the list, over its own
+ * corpus, because "exists" is relative to the scope each one sweeps.
+ */
+export function expectEverySymbolExists(corpus: string, symbols: readonly string[]): void {
+  for (const symbol of symbols) {
+    expect(corpus, `${symbol} is policed but exists nowhere in the corpus swept`).toMatch(
+      new RegExp(`\\b${symbol}\\b`),
+    )
+  }
+}
+
 /* ── obligation 2: the frozen source ───────────────────────────────────── */
 
 /**
@@ -162,15 +220,34 @@ export interface VocabularyDeclaration {
  * (`= SOMETHING.map(...)`) is deliberately outside the match: it has no
  * literals to widen.
  */
+const HEAD_RE = /^export const [A-Z][A-Z0-9_]*(?::[^=\n]*)? = \[/gm
+
+/** The same head, with the annotation allowed to wrap. Stops at the first `=`. */
+const MULTILINE_HEAD_RE = /^export const [A-Z][A-Z0-9_]*(?::[^=]*)? = \[/gm
+
+/**
+ * ANY LEADING ANNOTATION ON AN ARRAY LITERAL WIDENS IT — a declared type
+ * always wins over inference from the initializer, `as const` or not — so the
+ * spellings are named rather than the concept, and the four here are the ones
+ * this tree can write. A bare alias (`: GrantRegister`) widens too and is
+ * deliberately outside: measured, exactly one exists in the tree today
+ * (`src/studio/modules/stu-18/grant-admin.ts`), it is outside every sweep
+ * these obligations are called with, and convicting an alias needs the type
+ * resolved rather than the text matched.
+ */
+const WIDENING_ANNOTATION = /:\s*(?:readonly\b|ReadonlyArray\s*<|Array\s*<|[\w.]+(?:<[^=]*>)?\[\])/
+
+const headsOf = (src: string, re: RegExp = HEAD_RE): readonly string[] =>
+  [...src.matchAll(re)].map((m) => m[0]!.trim())
+
 export function vocabularyDeclarations(
   files: readonly string[],
   cwd: string = process.cwd(),
 ): readonly VocabularyDeclaration[] {
   const found: VocabularyDeclaration[] = []
   for (const file of files) {
-    const text = readFileSync(join(cwd, file), 'utf8')
-    for (const m of text.matchAll(/^export const [A-Z][A-Z0-9_]*(?::[^=\n]*)? = \[/gm)) {
-      found.push({ file, text: m[0]!.trim() })
+    for (const text of headsOf(readFileSync(join(cwd, file), 'utf8'))) {
+      found.push({ file, text })
     }
   }
   return found
@@ -199,26 +276,78 @@ export function describeClosedVocabularyAnnotations(
     })
 
     it('none of them widens its literals back to the union', () => {
-      const annotated = declarations.filter((d) => /: *readonly /.test(d.text))
+      const annotated = declarations.filter((d) => WIDENING_ANNOTATION.test(d.text))
       expect(
         annotated.map((d) => `${d.file}: ${d.text}`),
-        'a leading `readonly T[]` annotation widens the literals back to the union, so the '
+        'a leading array-type annotation widens the literals back to the union, so the '
           + 'exhaustiveness the declaration looks like it provides is gone and a missing member '
           + 'is a type-checked no-op. Declare it `as const satisfies readonly T[]` instead.',
       ).toEqual([])
     })
 
-    // RED when: the matcher stops matching. Both directions, on this run, so
-    // the scan cannot quietly stop seeing either shape.
-    it('its matcher fires on the widening shape and is silent on the correct one', () => {
-      const head = (src: string): readonly string[] =>
-        [...src.matchAll(/^export const [A-Z][A-Z0-9_]*(?::[^=\n]*)? = \[/gm)].map((m) => m[0]!)
-      const widened = head('export const IDS: readonly Id[] = [\n')
-      expect(widened).toHaveLength(1)
-      expect(/: *readonly /.test(widened[0]!)).toBe(true)
-      const correct = head('export const IDS = [\n')
+    // RED when: the matcher stops matching. Every spelling on this run, so
+    // the scan cannot quietly stop seeing one of them.
+    //
+    // COVERAGE LOST IN THE HOIST, RESTORED HERE. The private copy this
+    // supersedes (`slice-2c-gates.test.ts`) matched `readonly T[]` AND
+    // `ReadonlyArray<T>`, and its own comment calls them "two forms of the
+    // identical defect". The hoisted filter was `/: *readonly /`, so
+    // `export const AI_MODE_IDS: ReadonlyArray<AiModeId> = [` widened the
+    // union and reported zero offenders. `Array<T>` and a bare `T[]` widen
+    // it just the same: a DECLARED type always wins over inference from the
+    // initializer, `as const` or not.
+    it('its matcher fires on every widening spelling and is silent on the correct one', () => {
+      for (const spelling of [
+        'export const IDS: readonly Id[] = [\n',
+        'export const IDS: ReadonlyArray<Id> = [\n',
+        'export const IDS: Array<Id> = [\n',
+        'export const IDS: Id[] = [\n',
+        'export const IDS: readonly (Id | Other)[] = [\n',
+      ]) {
+        const widened = headsOf(spelling)
+        expect(widened, spelling).toHaveLength(1)
+        expect(WIDENING_ANNOTATION.test(widened[0]!), spelling).toBe(true)
+      }
+      const correct = headsOf('export const IDS = [\n')
       expect(correct).toHaveLength(1)
-      expect(/: *readonly /.test(correct[0]!)).toBe(false)
+      expect(WIDENING_ANNOTATION.test(correct[0]!)).toBe(false)
+    })
+
+    /**
+     * THE LIMIT, ASSERTED AS A LIMIT rather than left as the prose claim it
+     * was. `slice-2c-gates.test.ts`'s `ponytail:` note says a multi-line
+     * annotation is "a real gap, but verified zero live instances of that
+     * formatting exist in this codebase today". THAT IS FALSE. Measured over
+     * `src/` and `app/`: EIGHT exported array heads carry an annotation
+     * wrapped across lines, four of them slice-11 files.
+     *
+     * They are all the same benign shape — an inline `readonly { … }[]`
+     * object-table type over data rows, with no union to widen and no
+     * exhaustiveness the declaration pretends to provide — which is why the
+     * head matcher is left single-line rather than widened to convict them.
+     * What this case asserts is exactly that: every multi-line-annotated head
+     * in the swept files annotates an inline object shape. A wrapped
+     * `ReadonlyArray<SomeUnion>` — the defect the gap could hide — reds it,
+     * and no count is stored anywhere for the number to go stale.
+     */
+    it('and the multi-line annotations its head matcher skips are all object tables', () => {
+      const offenders: string[] = []
+      for (const file of files) {
+        const text = readFileSync(join(process.cwd(), file), 'utf8')
+        const singleLine = new Set(headsOf(text))
+        for (const head of headsOf(text, MULTILINE_HEAD_RE)) {
+          if (singleLine.has(head)) continue
+          if (/:\s*readonly \{/.test(head)) continue
+          offenders.push(`${file}: ${head.replaceAll('\n', ' ')}`)
+        }
+      }
+      expect(
+        offenders,
+        'an exported array literal whose type annotation is wrapped across lines and is NOT an '
+          + 'inline object table. The head matcher cannot cross a newline, so this declaration is '
+          + 'outside the widening check above — unwrap the annotation, or declare it '
+          + '`as const satisfies`.',
+      ).toEqual([])
     })
   })
 }

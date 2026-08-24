@@ -1,11 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname, resolve, relative } from 'node:path'
 import { JSDOM } from 'jsdom'
 import { isForeignProbe } from '../probe-paths'
 import {
+  MANUFACTURING_SEVERITY_SYMBOLS,
+  OPERATIONAL_SEVERITY_SYMBOLS,
   describeClosedVocabularyAnnotations,
   describeFrozenSourcePin,
+  expectEverySymbolExists,
   expectPopulationFloor,
   sourceLine,
   sweptSources,
@@ -218,6 +221,20 @@ const EVERY_STORYBOARD: readonly StoryboardNumber[] = Array.from(
   (_, i) => (i + 1) as StoryboardNumber,
 )
 
+/**
+ * Twenty-one, WRITTEN OUT HERE. This is the one closed vocabulary gate 1 held
+ * by a bare `toHaveLength(21)` beside `RESPONSE_SPINE.map(...)` compared to
+ * `SPINE_ITEM_NUMBERS` — one export of a module compared to another export of
+ * the same module, which is a self-comparison and stays green when the two
+ * are deleted together. This gate's own headline rule is A LITERAL LIST,
+ * NEVER A LENGTH, and the spine was the one member of the slice that did not
+ * get one: a length passes on a renumbered item, a reordered list and a
+ * duplicate alike.
+ */
+const EVERY_SPINE_ITEM: readonly number[] = [
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+]
+
 describe('slice 11 gate 1: every closed vocabulary, by membership', () => {
   it('sixteen operating modes, and the matrix holds one row for each', () => {
     expect([...AI_MODE_IDS]).toEqual([...EVERY_AI_MODE])
@@ -242,8 +259,11 @@ describe('slice 11 gate 1: every closed vocabulary, by membership', () => {
     expect([...AI_AGENT_IDS]).toEqual([...EVERY_AI_AGENT])
     expect(AI_AGENT_ROSTER.map((a) => a.id)).toEqual([...EVERY_AI_AGENT])
     expect([...OPERATIONAL_SEVERITY_BANDS]).toEqual([...EVERY_SEVERITY_BAND])
-    expect(RESPONSE_SPINE.map((s) => s.item)).toEqual([...SPINE_ITEM_NUMBERS])
-    expect(SPINE_ITEM_NUMBERS).toHaveLength(21)
+    // BOTH EXPORTS AGAINST THE LITERAL, not against each other. The pair used
+    // to be compared to one another and then measured with `toHaveLength(21)`,
+    // which is satisfied by any twenty-one numbers in any order.
+    expect([...SPINE_ITEM_NUMBERS]).toEqual([...EVERY_SPINE_ITEM])
+    expect(RESPONSE_SPINE.map((s) => s.item)).toEqual([...EVERY_SPINE_ITEM])
   })
 
   it('sixty failures in six families, and each family holds the rows its title names', () => {
@@ -612,6 +632,62 @@ describe('slice 11 gate 4: the absolute rule of L89439, over the export', () => 
     ).window.document.querySelector(`[${PROVENANCE_CLASS_ATTRIBUTE}]`)!
     expect(LIVE_LABELS.some((l) => (clean.textContent ?? '').includes(l))).toBe(false)
   })
+
+  /**
+   * THE LIMIT, ASSERTED AS A LIMIT, in the shape gate 5 uses below. L89439
+   * forbids cached guidance and deterministic rules being "labelled OR
+   * DESCRIBED as live artificial intelligence … IN ANY LOCALE". This gate
+   * enforces LABELLED, in English, in exact case. Three narrowings, all
+   * deliberate, none of them previously written down — and an unstated
+   * narrowing and an oversight look identical from outside.
+   *
+   *  1. EXACT CASE. The tree writes the phrase lowercase inside running
+   *     prose, overwhelmingly as a negation — "…is never labelled as live
+   *     artificial intelligence". Case-insensitive matching convicts those,
+   *     which is why it is not used; the case below MEASURES that rather than
+   *     asserting it, so the justification cannot rot into a claim.
+   *  2. ENGLISH ONLY. `src/surfaces/doh/ai-degradation.ts` ships rendered
+   *     Spanish, and `LIVE_LABELS` comes from `provenanceClass(...).markerText`,
+   *     which has one spelling. A Spanish live-AI label on a `PROV-4` element
+   *     would ship past this gate.
+   *  3. LABELLED, NOT DESCRIBED. A paraphrase that describes a deterministic
+   *     rule as live inference without using the marker text is outside the
+   *     predicate entirely. Closing that needs a claim classifier, not a
+   *     string match.
+   *
+   * What would close 1 and 2 is a per-locale marker vocabulary carried on the
+   * provenance classes themselves, so the label a surface renders and the
+   * label this gate forbids are the same record in every locale. That is a
+   * records change, not a gate's to make.
+   */
+  it('and does NOT convict lowercase, Spanish, or a description — the three open limits', () => {
+    const convicts = (text: string): boolean => LIVE_LABELS.some((l) => text.includes(l))
+    expect(sourceLine(89_439)).toContain('in any locale')
+    expect(sourceLine(89_439)).toContain('labelled or described')
+
+    expect(convicts('Live artificial intelligence is monitoring this step'), 'the exact label')
+      .toBe(true)
+    expect(convicts('live artificial intelligence is monitoring this step'), 'lowercase')
+      .toBe(false)
+    expect(convicts('Inteligencia artificial en vivo'), 'the Spanish label').toBe(false)
+    expect(convicts('An agent evaluated this worker’s situation just now'), 'a description')
+      .toBe(false)
+
+    // Narrowing 1 is load-bearing rather than arbitrary, MEASURED on what
+    // shipped: a case-insensitive predicate convicts marks that are compliant
+    // today, so relaxing the case would turn this gate into one people widen.
+    const lowered = LIVE_LABELS.map((l) => l.toLowerCase())
+    const overConvicted = shippedMarks()
+      .filter((m) => NEVER_LIVE.includes(m.classId))
+      .filter((m) => lowered.some((l) => m.text.toLowerCase().includes(l)))
+    expect(
+      overConvicted.length,
+      'a case-insensitive predicate now convicts nothing, so narrowing 1 has no cost and the '
+        + 'gate should be widened to close it',
+    ).toBeGreaterThan(0)
+    // Narrowing 2 is live too: the tree really does render another locale.
+    expect(read('src/surfaces/doh/ai-degradation.ts')).toContain('inteligencia artificial')
+  })
 })
 
 /* ==================================================================== *
@@ -730,34 +806,43 @@ describe('slice 11 gate 5: what shipped obeys the exactly-one-class contract', (
     expect(sourceLine(89_478)).toContain('resolves to exactly one of the six provenance classes')
   })
 
-  it('PLANTED: a nested mark written into a real exported page convicts', () => {
+  /**
+   * PLANTED INTO THE REAL BYTES, IN MEMORY, NOT ONTO THE REAL FILE.
+   *
+   * This case used to `writeFileSync` the plant into a real `out/**` page and
+   * restore it in a `finally`. Between those two writes the SHIPPED export was
+   * corrupt on disk: a crash, a `process.exit`, a hard kill or a `pnpm build`
+   * running in the same tree left a page with an extra `PROV-5` mark in it,
+   * and two agents in this build have already had `out/` change under them
+   * mid-run. Nothing about the plant needed the filesystem — the checker takes
+   * a `Document` — so the mutation is gone and the property it proved is not:
+   * the plant is spliced into the bytes that actually shipped, read from the
+   * page they shipped in.
+   */
+  it('PLANTED: a nested mark spliced into a real exported page convicts', () => {
     const page = exportedPages().find((p) => read(p).includes(PROVENANCE_CLASS_ATTRIBUTE))
     expect(page, 'no exported page carries a provenance mark to plant into').toBeDefined()
-    const path = join(ROOT, page!)
-    const before = readFileSync(path, 'utf8')
+    const shipped = read(page!)
     // Splice a mark INSIDE an existing one, which is the shape the checker
     // does see, against the bytes that actually shipped.
     const anchor = `<div ${PROVENANCE_CLASS_ATTRIBUTE}=`
-    const at = before.indexOf(anchor)
+    const at = shipped.indexOf(anchor)
     expect(at, 'the anchor this plant splices at is not in the page').toBeGreaterThan(-1)
-    const open = before.indexOf('>', at) + 1
+    const open = shipped.indexOf('>', at) + 1
     const planted =
-      before.slice(0, open)
+      shipped.slice(0, open)
       + `<div ${PROVENANCE_CLASS_ATTRIBUTE}="PROV-5"></div>`
-      + before.slice(open)
-    try {
-      writeFileSync(path, planted)
-      const found = provenanceViolations(new JSDOM(readFileSync(path, 'utf8')).window.document)
-      expect(
-        found.join(' '),
-        'the plant produced no violation at all',
-      ).toContain('carries two provenance classes')
-    } finally {
-      writeFileSync(path, before)
-    }
-    // Restored, and asserted restored rather than assumed.
-    expect(readFileSync(path, 'utf8')).toBe(before)
-    expect(provenanceViolations(new JSDOM(before).window.document)).toEqual([])
+      + shipped.slice(open)
+    expect(planted).not.toBe(shipped)
+    const found = provenanceViolations(new JSDOM(planted).window.document)
+    expect(found.join(' '), 'the plant produced no violation at all').toContain(
+      'carries two provenance classes',
+    )
+    // And the unplanted bytes are clean, so the conviction came from the
+    // splice rather than from something the page already carried. Read from
+    // disk a second time: an unchanged page is what this asserts.
+    expect(read(page!)).toBe(shipped)
+    expect(provenanceViolations(new JSDOM(shipped).window.document)).toEqual([])
   })
 })
 
@@ -781,23 +866,15 @@ describe('slice 11 gate 5: what shipped obeys the exactly-one-class contract', (
  * duplicated — the opposite of the rule.
  * ==================================================================== */
 
-/** The manufacturing severity symbols measured in this tree, by name. */
-const MANUFACTURING_SEVERITY_SYMBOLS: readonly string[] = [
-  'SEEDED_SEVERITY_BANDS',
-  'severityBands',
-  'severityCatalogLevels',
-  'AnomalySeverity',
-  'ANOMALY_SEVERITIES',
-  'CcSeverityCounts',
-]
-
-const OPERATIONAL_SEVERITY_SYMBOLS: readonly string[] = [
-  'OPERATIONAL_SEVERITY',
-  'OPERATIONAL_SEVERITY_BANDS',
-  'OperationalSeverityBand',
-  'operationalSeverity',
-]
-
+/*
+ * THE SYMBOL LISTS ARE IMPORTED, NOT RESTATED. This file's private copy held
+ * SIX and was the TREE-WIDE scan; `tests/unit/ai-failures.test.ts` held SEVEN
+ * over one data directory, and `tests/component/ai-degradation-overlays.test.tsx`
+ * held TWO, one of which was in neither. The omissions were real:
+ * `\bseverityBand\b` does not match `severityBands`, and two live components
+ * carry the two names this copy omitted while scoring zero hits on its six.
+ * See `absence-sweep.ts` for the measurement.
+ */
 const namesAny = (text: string, symbols: readonly string[]): boolean =>
   symbols.some((s) => new RegExp(`\\b${s}\\b`).test(text))
 
@@ -828,15 +905,39 @@ function resolveImport(from: string, spec: string, known: ReadonlySet<string>): 
  * line-bounded matcher cannot see a multi-line import, and this tree writes
  * many of them that way. A planted multi-line import walked past the
  * line-bounded form of exactly this pattern in another gate, 21/21 green.
+ *
+ * `['"]` AND NOT `'`, AND THE DIRECTION IS WHY IT MATTERED. The specifier
+ * class used to exclude the double quote. For gate 12 a missed edge only
+ * makes a file look unreachable, which REDS — fail-safe. For gate 6 a missed
+ * edge SHRINKS the component closure, so the offender list empties and the
+ * gate goes GREEN on the defect it exists to catch. Measured on this tree:
+ * 2,877 single-quoted import specifiers and ZERO double-quoted ones today, so
+ * the hole is latent rather than live — which is exactly the kind that
+ * survives, since nothing reds when someone hand-writes one quote character.
+ * The sibling resolver at `tests/component/ai-incidents-console.test.tsx`
+ * already used `['"]`.
  */
 function importsOf(from: string, known: ReadonlySet<string>): readonly string[] {
   const specs = [
-    ...read(from).matchAll(/(?:^|\n)\s*(?:import|export)\b[^'";]*?from\s*'([^']+)'/g),
+    ...read(from).matchAll(/(?:^|\n)\s*(?:import|export)\b[^'";]*?from\s*['"]([^'"]+)['"]/g),
   ].map((m) => m[1]!)
   return specs.map((s) => resolveImport(from, s, known)).filter((s): s is string => s !== null)
 }
 
-/** The `.tsx`-only import closure of `entry` — the components it mounts. */
+/**
+ * The `.tsx`-only import closure of `entry` — the components it mounts.
+ *
+ * ONLY `.tsx` IS ENQUEUED, AND THAT IS A LIMIT, not just a filter. A component
+ * re-exported through a `.ts` barrel is reached by an edge this traversal
+ * refuses to follow, so it is outside EVERY closure this gate builds — the
+ * same shape as the star-re-export gap already recorded against
+ * `src/ui/primitives/index.ts`. Enqueuing `.ts` too would follow every data
+ * import and convict the transitive data reuse the paragraph above explains
+ * must not be convicted; separating "a barrel that re-exports a component"
+ * from "a module that exports data" needs the export resolved rather than the
+ * extension matched. Stated rather than widened, because an unstated limit
+ * and an oversight look identical from outside.
+ */
 function componentClosure(entry: string, known: ReadonlySet<string>): ReadonlySet<string> {
   const seen = new Set([entry])
   const queue = [entry]
@@ -871,11 +972,10 @@ describe('slice 11 gate 6: AC-43-103 — the two severity worlds share no render
     // And every forbidden symbol exists somewhere, so the scan is not
     // policing ghosts — a typo in a forbidden name is invisible from inside.
     const everything = sources.map((f) => read(f)).join('\n')
-    for (const symbol of [...MANUFACTURING_SEVERITY_SYMBOLS, ...OPERATIONAL_SEVERITY_SYMBOLS]) {
-      expect(everything, `${symbol} is policed but exists nowhere`).toMatch(
-        new RegExp(`\\b${symbol}\\b`),
-      )
-    }
+    expectEverySymbolExists(everything, [
+      ...MANUFACTURING_SEVERITY_SYMBOLS,
+      ...OPERATIONAL_SEVERITY_SYMBOLS,
+    ])
   })
 
   it('no component names both vocabularies', () => {
@@ -1129,12 +1229,45 @@ describe('slice 11 gate 10: thirty cards, and the one violation that stands', ()
     expect(sourceLine(92_750)).toContain('before describing behaviour')
   })
 
-  it('AC-44A-004 holds: every card reconstructs its final state from the audit alone', () => {
+  /**
+   * A WEAKER CASE USED TO WEAR THIS TITLE. It asserted a non-empty audit
+   * trail and a non-blank final-state name and called that `AC-44A-004`,
+   * which is "the final official state is derivable from the audit log
+   * ALONE". Derivability is enforced — by `finalStateDerivableFromAuditAlone`
+   * through the violations case below — so the title was not false about the
+   * build, only about this case. What nothing checked is that the invariant
+   * enforcing it CAN FIRE: a checker silent on everything passes every
+   * absence made with it. So the populations stay, and the predicate is run
+   * against a synthesised card in both directions.
+   */
+  it('AC-44A-004 holds, and its checker convicts a state the audit cannot reconstruct', () => {
     for (const board of THIRTY_STORYBOARDS) {
       expectPopulationFloor(board.audit, 0, `storyboard ${board.number}'s audit trail`)
       expect(board.finalOfficialState.name.trim().length, `storyboard ${board.number}`)
         .toBeGreaterThan(0)
     }
+    const clean = THIRTY_STORYBOARDS[0]!
+    const violationsOf = (board: Storyboard): readonly string[] =>
+      storyboardViolations(board)
+        .filter((v) => v.invariant === 'finalStateDerivableFromAuditAlone')
+        .map((v) => v.message)
+
+    // Silent on a real card, so it is not convicting everything.
+    expect(violationsOf(clean), `storyboard ${clean.number}`).toEqual([])
+    // And convicting on each of the three shapes L92749 rules out.
+    expect(
+      violationsOf({ ...clean, finalOfficialState: { ...clean.finalOfficialState, derivedFrom: [] } })
+        .join(' '),
+    ).toContain('names no audit event')
+    expect(
+      violationsOf({
+        ...clean,
+        finalOfficialState: { ...clean.finalOfficialState, derivedFrom: ['AUD-NOT-IN-THE-LOG'] },
+      }).join(' '),
+    ).toContain('which the audit log does not hold')
+    expect(
+      violationsOf({ ...clean, audit: [...clean.audit, clean.audit[0]!] }).join(' '),
+    ).toContain('more than one event under')
   })
 
   it('exactly one violation stands across the thirty, and it is storyboard 25 of one invariant', () => {

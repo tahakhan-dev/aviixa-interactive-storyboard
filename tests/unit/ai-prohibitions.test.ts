@@ -262,7 +262,25 @@ describe('the diagram, and where it falls short of the table', () => {
 
   it('maps each refusal edge onto exactly one prohibition, and none twice', () => {
     const mapped = AI_PROHIBITIONS.filter((p) => p.refusalEdge !== null)
-    expect(new Set(mapped.map((p) => p.number)).size).toBe(mapped.length)
+    expect(mapped.length, 'the prohibitions carrying a refusal edge').toBeGreaterThan(0)
+    // THE EDGE IS WHAT MUST NOT REPEAT, AND THE EDGE IS WHAT THIS NOW READS.
+    // The superseded assertion was
+    // `new Set(mapped.map(p => p.number)).size === mapped.length` — the
+    // prohibition NUMBERS, which are already pinned one-for-one to the
+    // source's own rows above. It could not fail for the reason its title
+    // gives: two prohibitions claiming ONE diagram edge left it green.
+    const claimed = mapped.map((p) => `${p.refusalEdge!.sourceRef} "${p.refusalEdge!.label}"`)
+    expect(
+      new Set(claimed).size,
+      `two prohibitions claim one refusal edge: ${claimed.join(' · ')}`,
+    ).toBe(claimed.length)
+    // And the claimed edges are exactly the edges the flowchart draws, so the
+    // mapping is a bijection rather than an injection into a larger set.
+    expect([...claimed].sort()).toEqual(
+      measuredRefusalEdges()
+        .map((e) => `L${String(e.line)} "${e.label}"`)
+        .sort(),
+    )
     for (const prohibition of mapped) {
       expect(prohibition.refusalEdgeMapping, prohibition.testId).not.toBe('')
       expect(prohibition.diagramAbsence, prohibition.testId).toBeNull()

@@ -197,8 +197,23 @@ describe('SB-43-351 — every part of the one screen the storyboard names', () =
     expect(lineAt(89_965)).toContain(
       'The page cannot be closed while any reconciliation item is outstanding.',
     )
-    // Drawn and inert, for the root as much as for anyone: the storyboard's own
-    // close control is disabled, and the reason is on screen.
+    // DRAWN AND INERT, ASSERTED TOGETHER, and that pairing is the case.
+    // Asserting only the absence of an operable close control is satisfied by
+    // DELETING the control — which removed the one thing L91276 requires be
+    // drawn and made the absence EASIER to satisfy. `LockedControl` is the
+    // only assertion of `RECONCILIATION_CLOSE_CONTROL` in the suite, so
+    // nothing else noticed either.
+    const drawn = checklist.querySelector('[data-locked-control="incident-reconciliation-close"]')
+    expect(drawn, "the storyboard's disabled close control is not drawn at all").not.toBeNull()
+    // Its label reaches the screen, not merely the DOM: a control whose name
+    // is not announced is a lock over an unnamed setting.
+    expect(drawn!.textContent ?? '').toContain(RECONCILIATION_CLOSE_CONTROL.label)
+    expect(drawn!.textContent ?? '').toContain(RECONCILIATION_CLOSE_CONTROL.reason)
+    // And it is not an operable element — not a disabled button, not a button
+    // at all. `operableElements()` is the same reader every other inertness
+    // claim on this console uses.
+    expect(operableElements(), 'the operable population').not.toHaveLength(0)
+    expect(operableElements()).not.toContain(drawn)
     for (const el of operableElements()) {
       expect(el.textContent ?? '', 'an operable close control').not.toMatch(/close (the )?incident/i)
     }
@@ -248,9 +263,27 @@ describe('the rollback taxonomy — eight forms, and no control that says "rollb
     for (const role of ROLES) {
       document.body.innerHTML = ''
       render(<AiIncidentConsoleScreen role={role} />)
-      for (const el of interactiveElements()) {
+      // THE POPULATION FIRST, AND IT IS NOT THE ONE THE TITLE SUGGESTS.
+      // Measured on this screen: `interactiveElements()` returns THREE, and
+      // all three belong to `SaConsoleShell` — two navigation links and the
+      // role select. The console itself draws no operable control at all,
+      // which is the whole point of it, so a loop over the operable
+      // population alone examines the shell's chrome and nothing this screen
+      // renders. The inert controls it DOES draw are swept beside them, so a
+      // `LockedControl` named "Rollback" is convicted here rather than
+      // falling between two gates.
+      const locked = Array.from(document.body.querySelectorAll('[data-locked-control]'))
+      expect(interactiveElements().length, `${role}: the interactive population`)
+        .toBeGreaterThan(0)
+      expect(locked.length, `${role}: the locked-control population`).toBeGreaterThan(0)
+      for (const el of [...interactiveElements(), ...locked]) {
         expect((el.textContent ?? '').trim(), role).not.toMatch(/^roll ?back$/i)
         expect(el.getAttribute('aria-label') ?? '', role).not.toMatch(/^roll ?back$/i)
+        // A locked control's name is its label span, not its whole subtree —
+        // the reason paragraph below it would otherwise swallow the match.
+        for (const label of el.querySelectorAll('[id$="-locked-label"]')) {
+          expect((label.textContent ?? '').trim(), role).not.toMatch(/^roll ?back$/i)
+        }
       }
     }
   })
@@ -740,16 +773,128 @@ describe('provenance', () => {
 
   it('labels nothing on this console as live artificial intelligence', () => {
     render(<AiIncidentConsoleScreen role="ROOT_SUPER_ADMIN" />)
-    const text = document.body.textContent ?? ''
-    // §42.4's absolute rule. Everything here is a transcribed deterministic
-    // rule, so a "live" label anywhere would be false by construction.
-    for (const [sentence] of text.matchAll(/[^.]*\./g)) {
-      if (/\blive artificial intelligence\b/i.test(sentence)) {
-        expect(sentence, 'a live-AI label on a deterministic rule').toMatch(/never|not|no/i)
-      }
+    // L89439, quoted rather than paraphrased, so the gate is anchored to the
+    // sentence and not to a column inference: "Cached approved guidance
+    // (`PROV-3`) and deterministic rules (`PROV-4`) are never, on any surface,
+    // in any locale, under any failure condition, labelled or described as
+    // live artificial intelligence."
+    expect(lineAt(89_439)).toContain(
+      'are never, on any surface, in any locale, under any failure condition, labelled or '
+        + 'described as live artificial intelligence',
+    )
+    const readable = readableRuns()
+    // THE FLOOR FIRST. A predicate over an empty corpus makes every absence.
+    expect(readable.length, 'the readable runs on this console').toBeGreaterThan(50)
+    expect(
+      readable.flatMap((run) => sentencesOf(run.text)).length,
+      'the sentences this console renders',
+    ).toBeGreaterThan(50)
+
+    const offenders = readable.flatMap((run) =>
+      sentencesOf(run.text)
+        .filter(livesUnqualified)
+        .map((sentence) => `${run.where}: ${sentence}`),
+    )
+    expect(
+      offenders,
+      'L89439 — cached approved guidance and deterministic rules are never, on any surface, in '
+        + 'any locale, under any failure condition, labelled or described as live artificial '
+        + 'intelligence. Every cell on this console is a transcribed deterministic rule.',
+    ).toEqual([])
+  })
+
+  /**
+   * RED when: the predicate stops firing. The console renders no live-AI
+   * sentence today, so the case above is an absence over a corpus in which
+   * the forbidden shape never occurs — which is exactly the state in which an
+   * absence check quietly stops being a check.
+   *
+   * THE FIRST STRING IS THE ONE THE OLD GATE PASSED ON. It was
+   * `expect(sentence).toMatch(/never|not|no/i)`, and `no` unbounded is
+   * satisfied by "now" — and by "nothing", "note", "known", "normal",
+   * "diagnostic" and "announce". The word boundary is the whole fix.
+   */
+  it('its predicate convicts the exact sentence the unbounded form passed on', () => {
+    for (const forbidden of [
+      'Live artificial intelligence is now monitoring this incident.',
+      'A diagnostic runs on live artificial intelligence here.',
+      'This is a known live artificial intelligence reading.',
+      // No trailing period: the `[^.]*\.` splitter dropped a final run
+      // outright, so a label written last on a screen was never examined.
+      'Live artificial intelligence is monitoring this incident',
+    ]) {
+      expect(sentencesOf(forbidden).some(livesUnqualified), forbidden).toBe(true)
+    }
+    // And silent on the compliant treatments, so it is not convicting
+    // everything: these are the shapes the console actually writes.
+    for (const compliant of [
+      'This is never labelled as live artificial intelligence.',
+      'No live artificial intelligence runs behind this screen.',
+      'Cached approved guidance is not live artificial intelligence.',
+      'Nothing here is live artificial intelligence',
+      'A deterministic rule cannot be live artificial intelligence.',
+      // And a sentence that names neither, which must not be examined at all.
+      'The page cannot be closed while any reconciliation item is outstanding.',
+    ]) {
+      expect(sentencesOf(compliant).some(livesUnqualified), compliant).toBe(false)
     }
   })
 })
+
+/* ── the absolute rule's predicate, and the text it reads ──────────────── */
+
+/** `\blive artificial intelligence\b`, the phrase L89439 forbids as a label. */
+const LIVE_AI = /\blive artificial intelligence\b/i
+
+/**
+ * WORD-BOUNDED, and that is the whole correction. The superseded form was
+ * `/never|not|no/i`, which "now", "nothing", "note", "known", "normal",
+ * "diagnostic" and "announce" all satisfy — so the gate on the absolute rule
+ * passed on `Live artificial intelligence is now monitoring this incident.`
+ */
+const NEGATION = /\b(?:never|not|no|none|nothing|neither|nor|cannot|without|instead)\b|n't\b/i
+
+/**
+ * Sentences, keeping a FINAL RUN WITH NO TRAILING PERIOD. `/[^.]*\./g` drops
+ * it, and a label is exactly the kind of text a screen writes without one —
+ * a heading, a pill, an `aria-label`.
+ */
+const sentencesOf = (text: string): readonly string[] =>
+  text
+    .split(/(?<=\.)\s+/)
+    .map((s) => s.trim())
+    .filter((s) => s !== '')
+
+const livesUnqualified = (sentence: string): boolean =>
+  LIVE_AI.test(sentence) && !NEGATION.test(sentence)
+
+/**
+ * Every run of text a reader can reach — the rendered text AND the attribute
+ * text a screen reader announces. `document.body.textContent` cannot see
+ * `aria-label`, `title`, `alt` or `placeholder`, and this build has already
+ * recorded that blindness once against a stale-count gate, where the stale
+ * count could still reach a screen reader through an attribute.
+ */
+const READABLE_ATTRIBUTES = ['aria-label', 'aria-description', 'title', 'alt', 'placeholder']
+
+function readableRuns(): readonly { readonly where: string; readonly text: string }[] {
+  const runs: { where: string; text: string }[] = []
+  // Leaf text nodes rather than one body-wide string: a body-wide `textContent`
+  // concatenates adjacent elements into a run that reads as one sentence, and
+  // a negation borrowed from the neighbouring paragraph would acquit a label.
+  const walker = document.createTreeWalker(document.body, 4 /* SHOW_TEXT */)
+  for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
+    const text = (node.textContent ?? '').trim()
+    if (text !== '') runs.push({ where: 'rendered text', text })
+  }
+  for (const el of document.body.querySelectorAll('*')) {
+    for (const name of READABLE_ATTRIBUTES) {
+      const value = el.getAttribute(name)
+      if (value !== null && value.trim() !== '') runs.push({ where: name, text: value })
+    }
+  }
+  return runs
+}
 
 /**
  * THE IMPORT GRAPH, NOT ONE DIRECTORY. Hoisted to module scope because two

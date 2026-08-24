@@ -67,11 +67,22 @@ import {
  *
  * ── REACHABILITY, STATED ───────────────────────────────────────────────────
  * MEASURED ON THIS TREE, AND WRITTEN DOWN BECAUSE A STATED ABSTENTION AND AN
- * OVERSIGHT LOOK IDENTICAL FROM OUTSIDE. There is no Frontline route among the
- * eight route directories this task extends, and there is no `app/frontline`
- * module route to hang a surface overlay on — so nothing under `app/` mounts
- * `AiDegradationOverlay` with this overlay directly, and no route will until a
- * Frontline module route exists.
+ * OVERSIGHT LOOK IDENTICAL FROM OUTSIDE. No file under `app/frontline/` mounts
+ * `AiDegradationOverlay`, so no Frontline route renders this overlay directly.
+ * That is a choice about where the FIVE-SURFACE overlay component is mounted,
+ * and nothing more.
+ *
+ * WHAT THIS PARAGRAPH USED TO SAY, AND WHY IT WAS FALSE. It read "There is no
+ * Frontline route among the eight route directories this task extends, and
+ * there is no `app/frontline` module route to hang a surface overlay on".
+ * Measured: `app/frontline/` holds SEVEN `page.tsx` routes, all of them
+ * predating this task, and this task itself hung Frontline AI-degradation
+ * content on one of them —
+ * `app/frontline/run-player/page.tsx` mounts `FL_B8_ROUTE_PANEL`, whose
+ * `src/frontline/modules/fl-b8/CoachingPanel.tsx` renders its own
+ * `<AiDegradation />` from `src/frontline/modules/fl-b8/degradation.ts`. So a
+ * route to hang this on plainly exists; it is not hung there, which is a
+ * different and much smaller statement.
  *
  * It is NOT unreachable. `FL_AI_OVERLAY` is a member of `FIVE_SURFACE_OVERLAYS`
  * and is resolved by `overlayForSurfaceCode('FL')`, and the Hub journey

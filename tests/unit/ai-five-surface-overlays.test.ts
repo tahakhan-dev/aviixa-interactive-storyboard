@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
+import { isForeignProbe } from '../probe-paths'
 import { CC_MODULE_SPINE } from '@/surfaces/cc/modules'
 import { DOH_MODULES, DOH_OUT_OF_SLICE_MODULES } from '@/surfaces/doh/modules'
 import { SA_MODULES } from '@/surfaces/sa/modules'
@@ -736,18 +738,61 @@ describe.each([
   })
 })
 
-describe('the Frontline overlay, whose surface has no route directory', () => {
+/*
+ * THE TITLE USED TO READ "whose surface has no route directory". It has one:
+ * `app/frontline/` holds SEVEN `page.tsx` routes, all of them older than this
+ * task. The true, narrower claim is that no file under `app/frontline/` mounts
+ * the five-surface `AiDegradationOverlay`, and that is what is asserted here.
+ */
+describe('the Frontline overlay, which no Frontline route mounts directly', () => {
   it('is reached from app/ through the Hub register, which acts on FL at one step', () => {
     const fl = HUB_AI_DEGRADATION.filter((d) => d.actingSurface === 'FL')
     expect(fl.map((d) => d.step).length).toBeGreaterThan(0)
     for (const entry of fl) expect(entry.overlay).toBe(FL_AI_OVERLAY)
   })
 
-  it('states that reachability in the module, because an abstention and an oversight look alike', () => {
+  /**
+   * THE CLAIM, NOT THE BANNER. This case asserted only that
+   * `src/frontline/ai-degradation.ts` contains the string
+   * `REACHABILITY, STATED` — which passes on ANY prose under that heading,
+   * true or false, and is exactly how a false paragraph shipped: the module
+   * claimed "there is no `app/frontline` module route to hang a surface
+   * overlay on" while seven of them existed, one of them already carrying
+   * this task's own Frontline AI-degradation content.
+   *
+   * A banner check cannot fail on the thing it is a banner for. This one reds
+   * the day a Frontline route mounts the overlay — which is the day the
+   * paragraph would need rewriting.
+   */
+  it('and no file under app/frontline mounts AiDegradationOverlay', () => {
+    const routes = walkFrontline('app/frontline')
+    // THE FLOOR FIRST, and it is the measurement the old paragraph got wrong:
+    // this directory is not empty and never was.
+    expect(routes.filter((f) => f.endsWith('page.tsx')).length, 'the app/frontline routes')
+      .toBeGreaterThan(0)
+    const mounts = routes.filter((f) => readFileSync(f, 'utf8').includes('AiDegradationOverlay'))
+    expect(
+      mounts,
+      'a Frontline route now mounts the five-surface overlay, so the REACHABILITY, STATED '
+        + 'paragraph in src/frontline/ai-degradation.ts is out of date',
+    ).toEqual([])
+    // The paragraph exists and states the reachability it does have.
     const text = readFileSync('src/frontline/ai-degradation.ts', 'utf8')
     expect(text).toContain('REACHABILITY, STATED')
+    expect(text).toContain('No file under `app/frontline/` mounts')
   })
 })
+
+/** Every file under a repository-relative root, probe-aware. */
+function walkFrontline(root: string): readonly string[] {
+  return readdirSync(root, { withFileTypes: true }).flatMap((entry) =>
+    isForeignProbe(entry.name)
+      ? []
+      : entry.isDirectory()
+        ? walkFrontline(join(root, entry.name))
+        : [join(root, entry.name)],
+  )
+}
 
 /* ==================================================================== *
  * NO STRING THESE OVERLAYS RENDER IS BLANK.

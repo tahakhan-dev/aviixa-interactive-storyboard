@@ -120,14 +120,32 @@ describe('the rollback table, as the frozen bytes write it', () => {
 /**
  * A CONTROL WHOSE VISIBLE NAME IS JUST "ROLLBACK", IN EVERY SPELLING JSX ALLOWS.
  *
- * `label="X"`, `label={'X'}`, `label={"X"}`, `label={`X`}`, the same four for
- * `aria-label`, and a bare JSX text child. React renders all of them
- * identically and a reader cannot tell them apart on screen, so a pattern that
- * lists three of them is a pattern a future edit walks past by changing a quote
- * character. Declared once, probed below.
+ * React renders all of them identically and a reader cannot tell them apart on
+ * screen, so a pattern that lists some of them is a pattern a future edit
+ * walks past by changing a quote character. Declared once, probed below.
+ *
+ * TWO GAPS BETWEEN THAT CLAIM AND WHAT THIS PATTERN USED TO DO:
+ *
+ *  1. THE JSX EXPRESSION CHILD. `>{'Rollback'}<` renders exactly what
+ *     `>Rollback<` renders, and no branch matched it. Prettier writes that
+ *     form whenever a child begins or ends with whitespace or a brace.
+ *  2. THE OTHER NAMING ATTRIBUTES. Only `label` and `aria-label` were read.
+ *     `title` is announced, `value` is the visible name of a submit input,
+ *     `alt` is the accessible name of an image button, and `placeholder` is
+ *     read where nothing else names a field.
+ *
+ * `aria-labelledby` IS DELIBERATELY OUTSIDE, and that is the one limit here.
+ * It carries an ID REFERENCE, not text: convicting it means resolving the
+ * target element's own content across files, which a text scan cannot do. The
+ * case below asserts that limit rather than leaving it implied.
  */
-const LABELLED_ROLLBACK =
-  /(?:aria-label|label)=(?:"([^"]*)"|\{"([^"]*)"\}|\{'([^']*)'\}|\{`([^`$]*)`\})|>\s*(Roll ?back)\s*</gi
+const NAME_ATTRIBUTE = 'aria-label|label|title|value|alt|placeholder'
+const LABELLED_ROLLBACK = new RegExp(
+  `(?:${NAME_ATTRIBUTE})=(?:"([^"]*)"|'([^']*)'|\\{"([^"]*)"\\}|\\{'([^']*)'\\}|\\{\`([^\`$]*)\`\\})`
+    + '|>\\s*(Roll ?back)\\s*<'
+    + '|>\\s*\\{\\s*(?:"([^"]*)"|\'([^\']*)\'|`([^`$]*)`)\\s*\\}\\s*<',
+  'gi',
+)
 
 describe('L87803 — the forms may not be conflated', () => {
   it('quotes the rule from the line that carries it', () => {
@@ -170,8 +188,18 @@ describe('L87803 — the forms may not be conflated', () => {
       '<Button label={`Rollback`} />',
       '<Button aria-label="Rollback" />',
       '<Button aria-label={`Roll back`} />',
+      "<Button label='Rollback' />",
       '<button>Rollback</button>',
       '<button> Roll back </button>',
+      // The JSX expression child — identical on screen, previously unmatched.
+      "<button>{'Rollback'}</button>",
+      '<button>{"Roll back"}</button>',
+      '<button>{`Rollback`}</button>',
+      // The other attributes that become a control's announced name.
+      '<button title="Rollback" />',
+      '<input type="submit" value="Rollback" />',
+      '<img alt="Rollback" />',
+      '<input placeholder="Rollback" />',
     ]) {
       expect(spelling, `a rollback label spelled: ${spelling}`).toSatisfy(convicts)
     }
@@ -184,6 +212,32 @@ describe('L87803 — the forms may not be conflated', () => {
     ]) {
       expect(innocent, `a false alarm on: ${innocent}`).not.toSatisfy(convicts)
     }
+  })
+
+  /**
+   * THE LIMIT, ASSERTED AS A LIMIT. `aria-labelledby` names another element
+   * by id and carries no text of its own, so a control accessibly named
+   * "Rollback" through a referenced heading passes this scan. Closing it
+   * needs the reference resolved — the target may be in another component and
+   * its text may be composed at run time — which is a rendered-DOM check, not
+   * a source scan. Written as a live expectation so that the day someone
+   * closes it, this case reds and sends them to the paragraph above rather
+   * than to a comment that has quietly gone stale.
+   */
+  it('and does NOT convict a name reached through aria-labelledby, which is the open limit', () => {
+    const convicts = (source: string): boolean =>
+      [...source.matchAll(LABELLED_ROLLBACK)].some((match) =>
+        /^roll ?back$/i.test((match.slice(1).find((g) => g !== undefined) ?? '').trim()),
+      )
+    // Named "Rollback" on screen, and invisible to a text scan: the id
+    // reference is not followed, and the referenced element's own text is a
+    // binding rather than a literal. The referenced element is commonly in
+    // another file as well, which no per-file scan can join.
+    expect(convicts('<button aria-labelledby="rb" /><h2 id="rb">{ROLLBACK_HEADING}</h2>'))
+      .toBe(false)
+    // The direct spelling of the same control IS convicted, so the gap is the
+    // indirection and not the phrase.
+    expect(convicts('<button aria-label="Rollback" />')).toBe(true)
   })
 })
 
