@@ -398,8 +398,17 @@ export const FIVE_SURFACE_OBLIGATIONS = [
     id: 'TEST-42-301',
     sourceRef: 'L89408',
     text:
-      'Mode-parity test asserting the rendered label on all five surfaces matches the mode '
-      + 'vocabulary table, in both English and Spanish authored variants.',
+      // WAS A PARAPHRASE PRESENTED AS A QUOTATION, and a gate convicted it. The
+      // old text spliced the middle out of L89408's sentence -- 'drive each of
+      // the sixteen modes in a staging tenant and assert' -- and rejoined the
+      // ends with 'asserting', a word the source does not use. What it dropped
+      // was the METHOD. This field is documented as trimmed to the clause;
+      // trimming a leading or trailing clause is honest, removing the middle
+      // and rewriting the seam is not. Now the source's own words, from the
+      // em-dash to the full stop.
+      'Mode-parity test: drive each of the sixteen modes in a staging tenant and assert the '
+      + 'rendered label on all five surfaces matches the mode vocabulary table, in both '
+      + 'English and Spanish authored variants.',
     withheld: null,
   },
 ] as const satisfies readonly OverlayObligation[]

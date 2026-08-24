@@ -353,19 +353,21 @@ function locatedClaims(): readonly LocatedClaim[] {
  *
  * `OverlayObligation.text` is documented as "the
  * obligation in the source's own words, trimmed to the clause"; a trim removes
- * a clause from an end, and this removes the middle and rewrites the seam. What
- * it drops is the half that says the test drives all SIXTEEN modes in a STAGING
- * TENANT — the method, not decoration. Its seven siblings in the same array,
- * `TEST-43-002` and `TEST-43-301` included, are exact.
+ * a clause from an end, and the old text removed the middle and rewrote the
+ * seam. What it dropped was the half saying the test drives all SIXTEEN modes
+ * in a STAGING TENANT -- the method, not decoration. Its seven siblings in the
+ * same array, `TEST-43-002` and `TEST-43-301` included, were always exact.
  *
- * IT IS NAMED HERE RATHER THAN CORRECTED, because a gate task may not edit a
- * build task's source to turn its own gate green. Owner: wave 3 task 15,
- * `src/ai/five-surface/overlay.ts`, the `TEST-42-301` entry of
- * `FIVE_SURFACE_OBLIGATIONS`. Asserted as an EQUALITY, so a SECOND paraphrase
- * turns this red instead of joining a widened exception, and so the entry
- * retires itself the day the record is corrected.
+ * THE FINDING IS CLOSED AND THIS LIST IS EMPTY, WHICH IS THE EXEMPTION DOING
+ * WHAT IT WAS BUILT FOR. It was declared as an EQUALITY rather than a
+ * membership so that a second paraphrase would red it instead of joining a
+ * widened exception -- and so that correcting the record would red it too. The
+ * record was corrected in `src/ai/five-surface/overlay.ts` and this list went
+ * red on the very next run. It stays here, empty, with the floor below it,
+ * because the empty list is the assertion: no record in the slice pairs a
+ * quotation with a line that does not carry it.
  */
-const KNOWN_PARAPHRASE: readonly string[] = ['TEST-42-301']
+const KNOWN_PARAPHRASE: readonly string[] = []
 
 describe('slice 11 gate 2: every quoted claim reads at the line it names', () => {
   const claims = locatedClaims()
@@ -389,13 +391,16 @@ describe('slice 11 gate 2: every quoted claim reads at the line it names', () =>
       'a record pairs a quotation with a line that does not carry it. Open the line. '
         + wrong.map((c) => `${c.what} claims L${c.line} carries "${c.text}"`).join(' | '),
     ).toEqual([...KNOWN_PARAPHRASE].sort())
-    // AND THE ONE EXCEPTION IS STILL THE ONE IT WAS NAMED FOR: right line,
-    // wrong words. An exception that quietly became a wrong LINE would be a
-    // different defect wearing the same name.
-    const named = claims.find((c) => c.what === KNOWN_PARAPHRASE[0])!
+    // AND THE RECORD THAT USED TO BE THE EXCEPTION IS NOW GRADED LIKE THE REST.
+    // Kept as its own case rather than folded into the sweep above, because a
+    // corrected paraphrase is the one claim in this file with a history: the
+    // sweep would pass if this record vanished, and this will not.
+    const named = claims.find((c) => c.what === 'TEST-42-301')!
     expect(named.line).toBe(89_408)
     expect(sourceLine(89_408)).toContain('`TEST-42-301`')
-    expect(flat(sourceLine(89_408))).toContain(flat('Mode-parity test'))
+    // The method is the half the old text dropped, so it is the half asserted.
+    expect(flat(named.text)).toContain(flat('drive each of the sixteen modes in a staging tenant'))
+    expect(flat(sourceLine(89_408))).toContain(flat(named.text))
   })
 
   // RED when: the comparison stops comparing. `flat` folding two different

@@ -27,14 +27,21 @@ import { contractPermits } from '@/ai/provenance/contract'
  * `@/ai/provenance/classes`, which is where a reader should go to enumerate
  * them.
  *
- * ── IT IS REACHABLE FROM NO ROUTE, AND THAT IS STATED RATHER THAN LEFT ─────
- * Measured: nothing under `app/` renders this component. Its only callers are
- * `tests/component/provenance-mark.test.tsx` and the contract that names it.
- * That is deliberate — this is wave 0, the mechanism half of the slice, and
- * the surfaces that will mount it are waves 1 through 4. It is written down
- * because a stated abstention and an oversight look identical from outside,
- * and "a component reachable from nothing is not shipped" is this build's
- * rule: whoever mounts the first one closes this paragraph.
+ * ── IT IS MOUNTED NOW, AND THIS PARAGRAPH IS THE CLOSURE IT ASKED FOR ──────
+ * This paragraph used to read "Measured: nothing under `app/` renders this
+ * component", state that as a deliberate wave-0 abstention, and end with
+ * "whoever mounts the first one closes this paragraph". Waves 2, 3 and 4
+ * mounted it and none of them came back, so the abstention outlived its own
+ * truth — which is the same defect class as a stale count on a screen, in the
+ * one kind of paragraph written specifically to prevent it. A gate found it.
+ *
+ * Measured on the current export: sixteen of the 102 exported pages carry a
+ * total of fifty marks. No count is written here on purpose — the number moves
+ * every time a surface mounts one, and `tests/coverage/slice-11-gates.test.ts`
+ * measures it from `out/` on every release run, which is the only place a
+ * figure like that can be true. What matters to a reader of this file is that
+ * it is reached from routes at all, and that the reachability claim is now
+ * made by a gate rather than by a sentence nobody re-measures.
  *
  * ── WHAT IT DELIBERATELY DOES NOT DO ───────────────────────────────────────
  * It does not draw the six SHAPES. `SB-42-401` (L89459) gives `PROV-1` a card,
