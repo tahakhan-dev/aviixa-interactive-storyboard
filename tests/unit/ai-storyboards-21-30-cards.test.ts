@@ -430,12 +430,65 @@ describe('storyboards 44A.21 to 44A.30 — the decisions, disclosed locally', ()
    * `DEC-*` these ten sections name is disclosed in this task's own directory,
    * in the slice-8 pattern: every reading, every locator, nothing adopted.
    */
+  /**
+   * THIS GATE WAS INERT, AND A CORRECT FIX ELSEWHERE IS WHAT EMPTIED IT.
+   *
+   * It matched `` `DEC-XXX-000` `` — backtick-delimited — and swept only
+   * `storyboardCardRows()`, which is `STORYBOARD_CARD_FIELDS` and excludes
+   * `audit`, `surfaces` and `absentCapability`. Audit C-41 then removed every
+   * backtick from every rendered string in these ten cards, for the right
+   * reason: `StoryboardCard` prints text, so a backtick reached the reader as a
+   * grave accent. **The population went to zero and the loop stopped
+   * executing.** Measured at the time of this repair: 20 bare `DEC-` ids named
+   * across the ten cards, 0 backtick-wrapped, and the body ran no assertion at
+   * all. Audit round 3, `R3-U01`.
+   *
+   * The shape is worth more than the repair: **a correct fix in one place can
+   * silently empty a gate in another**, and nothing reds when it happens —
+   * the suite simply keeps passing with less to say. It is the inverse of the
+   * abstention that rots, and the same remedy applies: assert the population,
+   * not only the offenders.
+   *
+   * So this now (a) matches the bare token, the idiom
+   * `ai-storyboards-01-10-decisions.test.ts` already uses on the same data
+   * family, (b) sweeps every string surface of the card rather than the field
+   * rows alone, and (c) **floors the population**, so emptying it again is a
+   * failure rather than a silence.
+   *
+   * Widening it convicted nothing: every decision these cards name is
+   * disclosed for its own storyboard. The artefact was correct; the gate over
+   * it was not.
+   */
+  const DEC_TOKEN = /DEC-[A-Z]+-\d{3}/g
+
+  /** Every string a reader can see on the card, not only the field rows. */
+  function cardStrings(storyboard: (typeof SB_21_TO_30)[number]): readonly string[] {
+    return [
+      ...storyboardCardRows(storyboard).map((row) => row.content),
+      storyboard.finalOfficialState.name,
+      ...storyboard.audit.map((event) => event.statement),
+      ...Object.values(storyboard.surfaces).map((effect) =>
+        effect.kind === 'affected' ? effect.statement : effect.reason,
+      ),
+      storyboard.absentCapability?.statement ?? '',
+    ]
+  }
+
+  it('names decisions in these cards at all, so the disclosure check has a subject', () => {
+    // THE FLOOR THIS GATE DID NOT HAVE. Without it the check below is satisfied
+    // by a card family that mentions no decision — which is exactly the state
+    // C-41 put it in, silently.
+    const named = SB_21_TO_30.flatMap((storyboard) =>
+      cardStrings(storyboard).flatMap((text) => [...text.matchAll(DEC_TOKEN)].map((m) => m[0])),
+    )
+    expect(named.length, 'no DEC-* id found in any of the ten cards').toBeGreaterThan(10)
+  })
+
   it('discloses every DEC-* literal these ten cards name', () => {
     for (const storyboard of SB_21_TO_30) {
-      const text = storyboardCardRows(storyboard)
-        .map((row) => row.content)
-        .join(' ')
-      const named = new Set([...text.matchAll(/`(DEC-[A-Z]+-\d+)`/g)].map((match) => match[1]!))
+      const named = new Set(
+        cardStrings(storyboard).flatMap((text) => [...text.matchAll(DEC_TOKEN)].map((m) => m[0])),
+      )
       const disclosed = new Set(
         SB_21_TO_30_DECISION_CITATIONS.filter((entry) => entry.storyboard === storyboard.number).map(
           (entry) => entry.decision,
