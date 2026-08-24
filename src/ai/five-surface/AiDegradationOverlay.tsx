@@ -15,6 +15,26 @@ import {
 /**
  * ONE SURFACE'S AI-DEGRADATION OVERLAY, RENDERED.
  *
+ * ── IT OPENS AT `h2`, AND THAT IS A FACT ABOUT ITS TEN MOUNTS ─────────────
+ * It used to open at `h3` with its inner headings at `h4`, which assumes an
+ * `h2` somewhere above it. Nothing guarantees one: `grep -rn
+ * "<AiDegradationOverlay"` returns TEN mounts and every one of them is a
+ * PAGE-LEVEL SIBLING of a screen — eight render it as a direct child of the
+ * page's fragment or shell, and the two journey screens render it in a
+ * `<div className="mt-6">` alongside the step's own panels. Not one nests it
+ * inside a section that owns an `h2`. So on any host whose screen renders no
+ * `h2` in the role being read, the document went `h1` → `h3`, which is the
+ * `heading-order` violation axe caught on `/hub/execution-summary-review/` in
+ * role `WORKER`.
+ *
+ * THE FIX IS THE LEVEL, NOT A HEADING ADDED TO A HOST. Propping the wrong
+ * level up with an `h2` on ten screens would be nine more edits and would make
+ * the overlay's level depend on every future host remembering. A page-level
+ * sibling of the screen is a second-level section of the document, so the
+ * overlay opens at `h2` and every heading below it — one per table caption,
+ * plus the source notes, the stated absences and the obligations — sits at
+ * `h3`.
+ *
  * ── EXACTLY ONE PROVENANCE MARK, AND IT IS THE ONLY PATH TO A CLASS ───────
  * `ProvenanceMark` renders once, from `overlay.provenance`. No other path in
  * this component emits a class, and there is no branch that emits a second one:
@@ -185,7 +205,7 @@ function Table({
 }) {
   return (
     <section className="space-y-3" data-overlay-table={table.kind}>
-      <h4 className="text-sm font-semibold text-[var(--color-ink)]">{table.caption}</h4>
+      <h3 className="text-sm font-semibold text-[var(--color-ink)]">{table.caption}</h3>
 
       {/* THE DERIVATION STATEMENT COMES BEFORE THE TABLE, UNCONDITIONALLY. */}
       {table.whyDerived === null ? (
@@ -310,9 +330,9 @@ export function AiDegradationOverlay({ overlay, mountedOn }: AiDegradationOverla
       className="space-y-6"
     >
       <header className="space-y-2">
-        <h3 className="text-lg font-semibold text-[var(--color-ink)]">
+        <h2 className="text-lg font-semibold text-[var(--color-ink)]">
           Behaviour during an artificial-intelligence failure
-        </h3>
+        </h2>
         <p className="text-sm text-[var(--color-ink-muted)]">
           Rendered on {mountedOn}. The obligation is one shared mode label across the five
           surfaces, not one shared sentence: &ldquo;One event, five distinct obligations, one
@@ -339,9 +359,9 @@ export function AiDegradationOverlay({ overlay, mountedOn }: AiDegradationOverla
         data-testid="overlay-source-notes"
         className="space-y-2 text-xs"
       >
-        <h4 className="text-sm font-semibold text-[var(--color-ink)]">
+        <h3 className="text-sm font-semibold text-[var(--color-ink)]">
           What this build had to decide about the source, and what it decided
-        </h4>
+        </h3>
         <ul className="space-y-2">
           {overlay.sourceNotes.map((note) => (
             <Note key={note.heading} note={note} />
@@ -374,9 +394,9 @@ export function AiDegradationOverlay({ overlay, mountedOn }: AiDegradationOverla
         data-testid="overlay-stated-absences"
         className="space-y-2 text-xs"
       >
-        <h4 className="text-sm font-semibold text-[var(--color-ink)]">
+        <h3 className="text-sm font-semibold text-[var(--color-ink)]">
           What this surface renders no state for, and why
-        </h4>
+        </h3>
         <ul className="space-y-2">
           {overlay.statedAbsences.map((absence) => (
             <li
@@ -398,9 +418,9 @@ export function AiDegradationOverlay({ overlay, mountedOn }: AiDegradationOverla
         data-testid="overlay-obligations"
         className="space-y-2 text-xs"
       >
-        <h4 className="text-sm font-semibold text-[var(--color-ink)]">
+        <h3 className="text-sm font-semibold text-[var(--color-ink)]">
           The criteria this overlay must not break
-        </h4>
+        </h3>
         <ul className="space-y-1">
           {overlay.obligations.map((obligation) => (
             <li

@@ -60,12 +60,32 @@ import { JOURNEY_SURFACES, effectStatement } from '@/ui/shared/journey'
  * component with no control at all. Nothing to act through means no state and
  * no handler, so this is a server component and carries no `'use client'`.
  *
- * ── REACHABILITY, STATED ───────────────────────────────────────────────────
- * Measured on this tree: nothing under `app/` renders this component. That is
- * deliberate and it is written down because a stated abstention and an
- * oversight look identical from outside. This task builds the contract; tasks
- * 16, 17 and 18 build the thirty storyboards, and the first route to mount a
- * storyboard closes this paragraph.
+ * ── IT IS MOUNTED NOW, AND THIS PARAGRAPH IS THE CLOSURE IT ASKED FOR ──────
+ * This paragraph used to record, as a deliberate wave-0 abstention, that no
+ * route rendered this component, and it ended by asking whoever mounted the
+ * first storyboard to close it. Tasks 16, 17 and 18 mounted it and none of
+ * them came back, so the abstention outlived its own truth — the same defect
+ * class as a stale count on a screen, in the one kind of paragraph written
+ * specifically to prevent it, and the SECOND time this build has shipped it:
+ * `src/ui/shared/ProvenanceMark.tsx` carried the identical shape and was
+ * closed earlier in this slice.
+ *
+ * THE MOUNT IS `app/workflows/ai-and-its-absence/AiAndItsAbsenceScreen.tsx`,
+ * which renders one card per storyboard on `/workflows/ai-and-its-absence/`.
+ * `app/workflows/WorkflowIndex.tsx` links that route, so the cards are
+ * reachable by navigation and not only by typing a URL.
+ *
+ * NO COUNT IS WRITTEN HERE, deliberately: the number of cards on that page is
+ * the length of a register that moves, and a figure transcribed into prose is
+ * what goes stale. What matters to a reader of this file is that it is reached
+ * from a route at all — and that the claim is made by a gate rather than by a
+ * sentence nobody re-measures.
+ * `tests/component/storyboard-card-reachability.test.tsx` sweeps `app/` for the
+ * MOUNT rather than for the import edge, and requires every mounting file it
+ * finds to be named in this paragraph — so the next task to mount a card on a
+ * second route goes red here until it writes the path above. An import edge is
+ * not a mount: this build planted the deletion of a panel's JSX with its
+ * import left in place and the import-closure gate stayed green at 54 of 54.
  */
 export interface StoryboardCardProps {
   readonly storyboard: Storyboard
@@ -158,7 +178,18 @@ export function StoryboardCard({ storyboard }: StoryboardCardProps) {
         ))}
       </dl>
 
-      <section aria-label="Five-surface reaction" className="mt-4">
+      {/* DELIBERATELY UNNAMED, AND SO DELIBERATELY NOT A LANDMARK. These two
+          blocks used to carry `aria-label="Five-surface reaction"` and
+          `aria-label="Audit trail and reconstruction"`. A NAMED `<section>` is
+          a `region` landmark, so on the thirty-card index at
+          `/workflows/ai-and-its-absence/` each of those names appeared thirty
+          times and axe `landmark-unique` fired. Making them unique per card
+          was the wrong repair: it would have kept sixty extra landmarks in the
+          landmark list of one page for no reader benefit. The `<h3>` below
+          already labels the group, and the enclosing
+          `<article aria-label="Storyboard SB-AI-NN">` is what a reader
+          navigates by. One edit here covers all thirty cards. */}
+      <section className="mt-4">
         <h3 className="text-sm font-semibold text-[var(--color-ink)]">Five-surface reaction</h3>
         <dl className="mt-2 space-y-3">
           {JOURNEY_SURFACES.map((surface) => {
@@ -189,7 +220,7 @@ export function StoryboardCard({ storyboard }: StoryboardCardProps) {
           audit log alone, so the audit events it is reconstructed from are
           rendered as identified events rather than folded into the prose row
           above. A reader can do the reconstruction the criterion describes. */}
-      <section aria-label="Audit trail and reconstruction" className="mt-4">
+      <section className="mt-4">
         <h3 className="text-sm font-semibold text-[var(--color-ink)]">
           Final official state, reconstructed
         </h3>

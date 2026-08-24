@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import type { RoleId } from '@/domain/roles'
 import { BLAST_RADIUS_NO_COUNT, BLAST_RADIUS_NODES, PAUSE_CONTROL_TABLE, PAUSE_DOES_NOT_TABLE } from '@/ai/controls/blast-radius'
@@ -29,7 +32,7 @@ import {
   consoleAuthorityRow,
 } from '@/surfaces/sa/ai-failure-authority'
 import { AiFailureAuthorityPanel } from '@/ui/sa/AiFailureAuthorityPanel'
-import { LockedControl, StatusPill, Table } from '@/ui/primitives'
+import { LockedControl, Select, StatusPill, Table } from '@/ui/primitives'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { PrototypeDisclosure } from '@/ui/sa/PrototypeDisclosure'
 import { ProvenanceMark } from '@/ui/shared/ProvenanceMark'
@@ -56,8 +59,32 @@ import {
  * today — or undecided, in which case there is no behaviour to build. So this
  * screen draws STATES and links to where an act lives. It builds no second
  * pause, which is what a route holding its own propose-and-approve pair would
- * be, and it therefore needs no client boundary: there is no state and no
- * handler anywhere below.
+ * be. No product state and no product handler exists anywhere below.
+ *
+ * ── THE ONE PIECE OF STATE IS THE REVIEWER'S VIEWER CONTROL ────────────────
+ * This file used to end that sentence "and it therefore needs no client
+ * boundary", and the route shipped with the viewer role HARDCODED in
+ * `page.tsx`. Every other Super Admin route offers `View as platform role`;
+ * this one offered nothing, so a reviewer could reach only one of the four
+ * columns of the authority matrix below, and
+ * `tests/accessibility/axe-states.spec.ts` — which compares the set of routes
+ * with no viewer control against a recorded list, by EQUALITY in both
+ * directions — was right to go red. The resolution is the control, not a row
+ * in that list: the wave-2 finding of the same shape on the two scheduler
+ * routes resolved by shipping `src/surfaces/sa/scheduler/ViewerRole.tsx`.
+ *
+ * IT IS NOT A CONTROL OVER THE PRODUCT. It is a view switcher: it performs no
+ * act, changes no business state, alters no audit actor and authenticates
+ * nobody. What it changes is which column of `CONSOLE_AUTHORITY_ROWS` the
+ * response panel is answered from — which is a difference in what is READ, and
+ * the read is the whole of this screen.
+ *
+ * ITS POSITIONS ARE DERIVED, from `CONSOLE_AUTHORITY_COLUMNS`, which is itself
+ * resolved off the matrix header against `@/domain/roles`. A hand list of four
+ * role ids here would be one more copy of a vocabulary the source already
+ * fixes, and `axe-states.spec.ts` classifies a select as the viewer control by
+ * exact option-set equality against the platform role register — so a filtered
+ * or re-keyed list would silently stop being the viewer control.
  *
  * ── NOTHING OPERATIONAL, FOR ANY ROLE INCLUDING ROOT ───────────────────────
  * L91276's last sentence and L91296 make reaching tenant operational content a
@@ -124,7 +151,12 @@ const UNSET_VALUES_BEHIND_UNSHIPPABLE_ROWS = UNSET_GOVERNING_VALUES.filter((valu
 )
 
 export interface AiIncidentConsoleScreenProps {
-  /** The console role reading the screen. Defaults to the least-privileged. */
+  /**
+   * The console role the screen OPENS on. Defaults to the least-privileged.
+   * It is the initial position of the viewer control, not a fixed reading: the
+   * control below moves off it, and `page.tsx` no longer decides for a reader
+   * which of the four columns they may see.
+   */
   readonly role?: RoleId
 }
 
@@ -156,10 +188,11 @@ function Locator({ refs }: { readonly refs: readonly string[] }) {
 }
 
 export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleScreenProps) {
+  const [viewerRole, setViewerRole] = useState<RoleId>(role)
   // The column this operator reads, resolved once from the matrix's own header
   // rather than keyed here. A role with no column on this matrix reads none,
   // which is the honest answer for a tenant role that cannot reach the console.
-  const column = CONSOLE_AUTHORITY_COLUMNS.find((candidate) => candidate.role === role)
+  const column = CONSOLE_AUTHORITY_COLUMNS.find((candidate) => candidate.role === viewerRole)
   const airto = localDecision('DEC-AIRTO-001')
 
   return (
@@ -210,6 +243,42 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
           ))}
         </ul>
       </section>
+
+      {/* THE VIEWER CONTROL, AFTER THE ATTRIBUTION AND BEFORE ANY READING.
+          A plain `<div>` and not a named `<section>`: a named section is a
+          `region` landmark, and every `Section` below already emits one. No
+          count of them is written here — a landmark tally in a comment is a
+          number that goes stale the next time a section is added, and the
+          claim a reader can act on is that this block adds none. The positions
+          come off the matrix's own header, so there is no further hand-written
+          copy of the platform role list. */}
+      <div className="mt-6 flex flex-wrap items-end gap-6 rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4">
+        <Select
+          label="View as platform role"
+          value={viewerRole}
+          options={CONSOLE_AUTHORITY_COLUMNS.map((candidate) => ({
+            value: candidate.role,
+            label: candidate.header,
+          }))}
+          onChange={(value) => {
+            const chosen = CONSOLE_AUTHORITY_COLUMNS.find(
+              (candidate) => candidate.role === value,
+            )
+            if (chosen !== undefined) setViewerRole(chosen.role)
+          }}
+        />
+        <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
+          <span className="font-medium text-[var(--color-ink)]">
+            Viewing as {column?.header ?? viewerRole}.{' '}
+          </span>
+          A view switcher, not a login: nothing in this build authenticates anybody, and choosing a
+          role performs no act, changes no business state and alters no audit actor. What it
+          changes is which column of the failure-response matrix the response panel below is
+          answered from. Every other reading on this screen is a transcribed rule and is the same
+          for all four roles, which is the honest answer rather than a difference invented to make
+          the control look busier.
+        </p>
+      </div>
 
       {/* ── 1. THE DISAMBIGUATION ─────────────────────────────────────── */}
       <Section id="incident-disambiguation-section" heading="Which incident is this?">
@@ -629,7 +698,9 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
         <div data-testid="incident-response-panel" className="space-y-3 text-sm">
           <p className="max-w-prose text-[var(--color-ink-muted)]">
             Each control below is answered for{' '}
-            <span className="font-medium text-[var(--color-ink)]">{column?.header ?? role}</span>{' '}
+            <span className="font-medium text-[var(--color-ink)]">
+              {column?.header ?? viewerRole}
+            </span>{' '}
             from that row&rsquo;s own cell and its own classification — never from a rule about the
             role, and never from a count of how many rows are open.
           </p>
@@ -637,7 +708,7 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
             <ProhibitionNotice
               rendering={{
                 kind: 'absent',
-                note: `This matrix has four columns and none of them is ${role}. A role with no column on it reads no authority here, which is the honest answer rather than a default.`,
+                note: `This matrix has four columns and none of them is ${viewerRole}. A role with no column on it reads no authority here, which is the honest answer rather than a default.`,
               }}
             />
           ) : (

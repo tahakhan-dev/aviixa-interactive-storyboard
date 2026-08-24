@@ -26,6 +26,16 @@ export const metadata: Metadata = {
   title: `${INCIDENT_ROUTE.title} — Super Admin Platform Console`,
 }
 
+// NO ROLE IS PINNED HERE, AND THAT IS THE FIX TO A REAL DEFECT. This line read
+// `<AiIncidentConsoleScreen role="ROOT_SUPER_ADMIN" />`, which decided for every
+// reader of this route that they saw the root column of the failure-response
+// matrix and offered no way off it. Every other Super Admin route ships a
+// `View as platform role` control; this one shipped none, and
+// `tests/accessibility/axe-states.spec.ts` compares the set of routes with no
+// viewer control against a recorded list by equality in both directions, so it
+// went red and was right to. The screen now owns the control and opens on its
+// own stated default — the least-privileged role — so the route hands a reader
+// a switch rather than a decision already made for them.
 export default function AiIncidentsPage() {
-  return <AiIncidentConsoleScreen role="ROOT_SUPER_ADMIN" />
+  return <AiIncidentConsoleScreen />
 }
