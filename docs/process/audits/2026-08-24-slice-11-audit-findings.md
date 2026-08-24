@@ -286,3 +286,175 @@ is a quotation of what the client was shown, so it stands as a record.
   **FB-AI**.
 - `expectPopulationFloor(x, 0)` is `toBeGreaterThan`, exclusive — floor 0 asserts non-empty,
   so several cases that read as vacuous are sound.
+
+## Round-1 findings, audit A — source-side representation
+
+**The representation layer is clean, and that is the audit's most valuable result.** Strict
+whole-token sweep, source against `src/` + `app/` + `registries/generated/`, both directions:
+
+| family | source | build | source-only | build-only |
+|---|---|---|---|---|
+| AIMODE | 16 | 16 | — | — |
+| FB-AI | 50 | 50 | — | — |
+| PROV | 6 | 6 | — | — |
+| DEC-AI | 19 | 19 | — | — |
+| SB-AI | 48 | 48 | — | — |
+| FAIL-AI | 60 | 60 | — | — |
+| AI-NN abilities | 13 | 13 | — | — |
+| FB-AGT | 12 | 12 | — | — |
+
+**Zero invented identifiers. Zero missing ones. 197 strict 1:1 citations checked, 195 with
+the identifier literally at the cited line and the 2 exceptions correct on inspection —
+zero wrong citations.** `registry.ts`'s claim that its 97 excerpts were extracted
+mechanically rather than typed: 97 checked, 0 failures. Against this build's history that is
+worth recording as such.
+
+Every defect below is in the **accounting** layer.
+
+### C-27 · Important · 85 shipped identifiers are counted nowhere, and the gate cannot see them
+
+`FAIL-AI-01…-60` (60), `AI-01…AI-13` abilities (13) and `FB-AGT-*` (12) are typed data in
+`src/ai/`, appear in **zero** rows of any of the fourteen generated inventories, and are in
+none of the four declared uninventoried families. Controller-verified: `grep -l "FAIL-AI"
+registries/generated/*.json` returns nothing, and `src/coverage/uninventoried.ts` declares
+exactly `AIMODE-`, `PROV-`, `FB-AI-`, `DEC-AI`.
+
+`FB-AGT-*` is the worst of the three: it lives in the very file the `FB-AI-` row names as its
+home and is excluded from that row's identifiers.
+
+**The gate is shape 10.** `tests/unit/coverage-uninventoried.test.ts:79-84` keys
+`TOKEN_PATTERNS` on the four prefixes the module already declares, so its
+declared-equals-swept assertion is true by construction for any family outside the four —
+while the module's header claims it "cannot silently miss an identifier the build ships".
+
+### C-28 · Important · 19 of 48 storyboard registry rows carry the wrong chapter
+
+Every row in `registries/generated/ai-storyboards.json` says
+`"AI / fallback storyboards (SB-AI-*, Chapter 44, 48 total)"`. Binding each row's
+`sourceLine` to its enclosing `^# N\.` heading: 17 rows are chapter 40, 1 is chapter 41, 1 is
+chapter 30D, 29 are chapter 44. This is finding C3 of the slice-11 common brief, predicted
+before the wave and shipped anyway.
+
+### C-29 · Important · `SB-AI-01`'s registry row points into a different chapter from its 29 siblings
+
+Controller-verified: the row ships `sourceLine: 74479`, which is chapter 30D's Command
+Center agent-activity panel. Its siblings point at the §44A index table; `SB-AI-01`'s row
+there is L92693. The generator picks the first blueprint occurrence, and `SB-AI-01` has
+three. A flat inventory silently committing to one of several homes is the exact failure
+`src/coverage/uninventoried.ts` reason 2 argues against for `FB-AI-*` — it committed it for
+`SB-AI-*`.
+
+### C-30 · Moderate · the `AIMODE-04` disclosure asserts what the source argues against
+
+`src/coverage/uninventoried.ts:217-219` renders "its absence from every screen is the
+requirement". L89261 opened: "…`AIMODE-04` is defined but never entered… **Stating the mode
+and marking it unreachable is more honest than omitting it**". The source also gives it a
+surface contract (L89271) and a matrix row (L89359). The requirement is unreachability by
+configuration (`AC-42-305`, L89404), which the build enforces correctly at
+`src/ai/modes/machine.ts:143-148`. It is the sentence that overstates — and the controller's
+brief repeated it.
+
+### C-31 · Moderate · chapter 44's 81 acceptance and test identifiers are cited nowhere, with no abstention recorded
+
+`AC-44-*` 42 and `TEST-44-*` 39, none occurring anywhere in the repo, while the build
+consumes chapter 44's `FB-AGT-*` register rows. `SB-AI-*` gets a per-identifier
+`not-represented` status for its uncovered members; these get nothing. The inconsistency is
+the finding — silent absence where a sibling family gets a disclosed one.
+
+### C-32 · Minor · three accounting details
+
+The 18 `not-represented` `SB-AI-*` rows carry no reason field, where the build's standard
+elsewhere is a stated one · `registries/blueprint-locators.json` records `lines: 122242`
+against a measured 122,241 (a `split('\n')` artefact) · the locator index is graph-derived
+and **not exhaustive** — 20 identifiers cited in slice-11 source are absent from it,
+including `PROV-4`, which occurs at L89439. A verifier treating "not in the index" as "not
+in the source" will be wrong, and the file's note should say so.
+
+## Round-1 findings, audit D — the thirty 44A storyboards
+
+**370 structural citations resolved against the frozen source: 370 confirmed, 0 wrong.**
+1,002 cited-line lookups, **0 blank, 0 out of range**. 570 field cells: 485 byte-identical to
+their source row, 85 differing only by backtick removal or curly quotes, **0 differing in a
+word**. No paraphrase-as-quotation in any card body. L89439 honoured thirty for thirty — all
+thirty resolve to `PROV-3`, whose `mayBeCalledLive` cell is `Explicitly prohibited`.
+
+### C-33 · Important · `SB-AI-28` renders a quotation the source does not contain
+
+`sb-21-to-30/storyboards.ts:2186-2188` renders `"where the decision is decided in favour"` in
+quote marks. `grep -c` over the frozen source: **0**. The source writes two specific clauses,
+L95067 and L95069, each naming its own decision identifier.
+
+### C-34 · Important · the attributed phrase is not the phrase the source attributes
+
+Same element, `:2188-2190`: `The "plant-manager view" … is the source's own phrase in §6.9.3`.
+L95060 writes **"Plant Manager view"** — capitalised, unhyphenated — and L95058 quotes §6.9.3
+the same way. The element also under-cites: its `sourceRef` L95094 carries the first
+sentence's evidence, not the second's, which is at the uncited L95060.
+
+### C-35 · Important · a seam record states reasoning that is absent on half its subjects
+
+`storyboards.ts:136-137` claims `authored` was taken "with the reasoning in a comment beside
+each" for cards 24, 28, 29 and 30. Measured: **24 and 29 are bare `contentOrigin: 'authored',`
+lines.** Six further `authored` cards outside the seam also carry no reasoning.
+
+### C-36 · Important · that seam record has no consumer
+
+`grep -rn "SB_21_TO_30_CONTRACT_SEAMS" app tests src` returns its own declaration and nothing
+else. It is the build's only disclosure of the missing sixth `contentOrigin` member and no
+reader can reach it — the "citation true and unreachable" defect `contract.ts:99-102` names.
+
+### C-37 · Important · the four-way `FB-AI-01` collision is recorded in a comment and rendered nowhere
+
+The page's collision section lists FB-AI-01's other owners and FB-AI-12's owner in two
+separate list items; that L74495's subject **is** FB-AI-12's subject under the FB-AI-01
+literal is stated only in `src/ai/fallbacks/registry.ts:13-14`. A reader must notice the
+coincidence unaided. The section's intro prose is also narrower than its own list — it says
+"chapter 40 and 41" while the first item names owners in chapters 24 and 30D.
+
+### C-38 · Moderate · twenty five-surface absence cells are re-worded, and four change meaning
+
+`noEffect(reason)` collapses the source's eight distinct absence phrasings into one template.
+Four go further: `SB-AI-09` and `SB-AI-14` gain an "it" the source does not have;
+`SB-AI-27` drops the source's first sentence; and **`SB-AI-29` drops the scope qualifier "in
+tenant personnel"**, so the render claims a blanket no-effect the source did not.
+
+### C-39 · Moderate · seven final-state names are restatements shown beside the verbatim cell
+
+Three drop a `[SoW Fact — §3.3]` attribution. **`SB-AI-23` changes tense** — the source's
+"Every class 1 and 2 item **reaches** the platform intact" is a stated guarantee; the card's
+"reached" asserts that it happened. Three rewrite a sentence break.
+
+### C-40 · Moderate · thirteen audit-event citations name a line carrying only part of their statement
+
+The detail is real in every case and sits at an uncited line — `SB-AI-02`'s "after the
+configured consecutive failures" is L92881, not the cited L92891; `SB-AI-22`'s "model
+identity, version and confidence" is L94563, not L94583; `SB-AI-30`'s field-naming clause is
+L95243, not L95266.
+
+### C-41 · Moderate · four rendered strings ship raw markdown, and backtick handling differs across the thirty
+
+`StoryboardCard` prints text, so `**not**` reaches the reader as asterisks. Two are the
+source's own emphasis; two are this build's additions. Separately: cards 1-10 and 21-30
+render the source's backticks literally, cards **11-20 strip them all**. One field type,
+three renderings.
+
+## Brief corrections from audits A and D
+
+- **The AIMODE collision claim is wrong for two of three pairs, and it came from the
+  controller.** Only `AIMODE-13`/`-14` are byte-identical across all five columns.
+  `-03`/`-15` differ on *Agent invocation* and *Classification*; `-01`/`-16` differ on
+  *Classification*. "Thirteen distinct labels" is right — three duplicate *Worker-visible
+  label* cells give 16 − 3. The build's matrix is byte-faithful; only the characterisation
+  was wrong, and it was inherited from RESUME §8.
+- **`DEC-AI-*` does not exist.** `grep -oE "DEC-AI-[A-Za-z0-9]+"` returns zero; the family is
+  `DEC-AI<MNEMONIC>-001`, 19 members. A stream taking the brief literally would have reported
+  the family absent.
+- **The FB-AI range runs to `-31`, not `-30`.** `FB-AI-31` is the one literal in neither
+  register, and its absence is correctly documented in three places — L95353 calls it an
+  `Illustrative Example` creating no requirement. So 39 + 10 + 1 = 50 reconciles, but the
+  "+1" is an abstention, not a shipped row: **49 ship.**
+- **`src/fallbacks/contracts.ts` holds 10 register entries, not 18.** Its other eight
+  `FB-AI-*` literals are `FB_IDS_OUTSIDE_THE_LIBRARY`, an explicit exclusion list. A naive
+  grep of that file returns 18 and would be misread.
+- **L88916 is FB-AI-01's register row; the boundary-violation contract is defined at L86147.**
+  Both true, the definition line is the stronger citation.
