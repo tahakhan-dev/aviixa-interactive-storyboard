@@ -253,13 +253,65 @@ const probePages = (): readonly BuiltPage[] =>
 const FIVE_SURFACES = ['/hub', '/studio', '/command-center', '/frontline', '/super-admin']
 
 /**
+ * THIN PAGES, NAMED, EACH WITH THE FLOOR IT CLEARS.
+ *
+ * R2-01. The population guard below floored the AGGREGATE run total at 10,000
+ * over 102 pages measuring 55,834 runs. An aggregate floor cannot see one page
+ * collapse: only 10 pages carry a `DISCLOSURES` run, so rendering NOTHING on the
+ * other 92 leaves ~15,613 runs, and the guard, the disclosure-reachability case
+ * and the cross-file route equality all pass. The docblock claimed this exact
+ * case — "an export that still emits every route but renders almost nothing on
+ * them is the same vacuous sweep with a page count that looks healthy" — and the
+ * floor it sat over could not detect it.
+ *
+ * THE DESIGN DECISION, WHICH IS THE WHOLE OF THIS FIX. The thin end of the
+ * measured range is real: `/404` renders four runs and is CORRECT to. So a
+ * single low floor every page clears would have to sit at 4, which is not a
+ * floor, it is the shape of a 404 page. Both halves instead:
+ *
+ *   - `PAGE_FLOOR` for every page, at 40. Measured: the thinnest page with a
+ *     body renders 53 (`/hub/job-approval-queue`), and every page WITHOUT one
+ *     renders 4-29. 40 sits between those, so it is a floor on "did this page
+ *     render its content", not a number that happens to pass today.
+ *   - `THIN_PAGES` names the six pages below that line, each pinned at what it
+ *     measures. They are an EQUALITY, not a pattern: the set of routes under
+ *     `PAGE_FLOOR` must be exactly these six, so a seventh thin page turns this
+ *     file red and forces the decision instead of joining a widened rule. And
+ *     each is pinned at its own measurement rather than at a shared low number,
+ *     so `/command-center` collapsing from 20 runs to its shell is a failure
+ *     too — the same idiom AUTHORED_BUDGET already uses in this file.
+ *
+ * A pinned figure going UP is legitimate growth and passes; a pinned figure
+ * going DOWN is a page that stopped rendering something, which is exactly the
+ * decision that should be forced onto a reader rather than absorbed.
+ *
+ * MEASURED on this tree, 2026-08-24: 102 pages, 55,834 runs, range 4 … 6,257.
+ */
+const PAGE_FLOOR = 40
+const THIN_PAGES: ReadonlyMap<string, number> = new Map([
+  // The 404 body in full: skip link, heading, the sentence, the way back.
+  ['/404', 4],
+  ['/_not-found', 4],
+  // The entry page: brand, title, one paragraph, three destinations.
+  ['/', 7],
+  // Surface index pages — a title, an ownership sentence and one row per screen.
+  ['/command-center', 20],
+  ['/super-admin', 29],
+  // The review form: labels and controls, and its table is client-rendered.
+  ['/review', 24],
+])
+
+/**
  * THE NON-EMPTY GUARD, called by every gate that goes on to make a negative
  * assertion. A sweep of zero pages passes every `toEqual([])` that can be
  * written, which is how a gate reports safety over nothing.
  *
- * The floor is on RUNS rather than on pages: an export that still emits every
- * route but renders almost nothing on them is the same vacuous sweep with a
- * page count that looks healthy.
+ * The floor is on RUNS rather than on pages, and PER PAGE rather than in
+ * aggregate: an export that still emits every route but renders almost nothing
+ * on them is the same vacuous sweep with a page count that looks healthy, and
+ * an aggregate total is met by a handful of dense pages while the rest go
+ * blank. The aggregate floor is kept as well — it is free, and it catches the
+ * whole export thinning at once.
  *
  * PARSED ONCE, AT MODULE LOAD, AND HELD. Eighty-four documents through JSDOM
  * is 2.8s warm and was measured at 5.4s against a freshly written `out/` — over
@@ -283,6 +335,38 @@ function sweptPages(): readonly BuiltPage[] {
     'a surface L78386 names exports no page at all. Run `pnpm build`. A sweep of an absent ' +
       'export reports zero prohibited phrasings over zero pages.',
   ).toEqual([])
+
+  // The route of every page is the empty string at the export root; a floor
+  // keyed on `p.route` needs the same name the map uses.
+  const routeOf = (p: BuiltPage): string => (p.route === '' ? '/' : p.route)
+
+  // THE EQUALITY. Which pages are allowed to be thin is a list, not a pattern,
+  // so a seventh joins it deliberately or not at all.
+  expect(
+    pages
+      .filter((p) => p.runs.length < PAGE_FLOOR)
+      .map(routeOf)
+      .sort(),
+    `pages rendering fewer than ${PAGE_FLOOR} runs are no longer the six named in THIN_PAGES. A ` +
+      'route that has ARRIVED here rendered almost nothing: read the page before adding it. A ' +
+      'route that has LEFT now renders a body and its exemption should go.',
+  ).toEqual([...THIN_PAGES.keys()].sort())
+
+  // THE FLOOR, per page: the named figure for a thin page, PAGE_FLOOR for
+  // everything else. An export that emits every route and renders nothing on
+  // them is reported here rather than passing every `toEqual([])` below.
+  const thin = pages
+    .filter((p) => p.runs.length < (THIN_PAGES.get(routeOf(p)) ?? PAGE_FLOOR))
+    .map((p) => `${routeOf(p)}: ${p.runs.length} runs, floor ${THIN_PAGES.get(routeOf(p)) ?? PAGE_FLOOR}`)
+    .sort()
+  expect(
+    thin,
+    'a built page contributed almost no rendered text. This sweep reports prohibited phrasings ' +
+      'in what a page RENDERS, so a page that renders nothing is swept clean by definition — ' +
+      'the vacuous case this file exists to refuse. Run `pnpm build`; if the page really has ' +
+      'lost content, that is the decision this floor forces.',
+  ).toEqual([])
+
   const runs = pages.reduce((total, p) => total + p.runs.length, 0)
   expect(runs, 'the built export contributed almost no rendered text').toBeGreaterThan(10_000)
   return pages
@@ -524,8 +608,23 @@ describe('slice 8: the frozen source these disclosures are checked against', () 
 })
 
 describe('slice 8: the sweep reads rendered runs, and finds phrasings to read', () => {
-  it('covers every built page, and the five surfaces are among them', () => {
-    expect(sweptPages().length).toBeGreaterThan(0)
+  // R2-01: the title read "covers every built page, and the five surfaces are
+  // among them" over a body that asserted a page count above ZERO. Neither
+  // half of the title was in the body — the five surfaces are checked inside
+  // `sweptPages()`, and "every built page" was a property of the walk that
+  // nothing measured. The title now says what runs here, and the guard it
+  // calls carries the rest: the five surfaces, the thin-page equality and the
+  // per-page run floor.
+  //
+  // The count is floored at 100 against a measured 102. The export has grown
+  // every slice and has never shrunk, so a page count below three figures is a
+  // walk that lost a subtree, not a build that got smaller.
+  it('walks a whole export, and every page it sweeps carries rendered text', () => {
+    expect(
+      sweptPages().length,
+      'fewer than 100 built pages (measured 102). A sweep of a partial export reports zero ' +
+        'prohibited phrasings over the pages it did not read',
+    ).toBeGreaterThanOrEqual(100)
   })
 
   // RED when: the matcher stops matching. A sweep whose dictionary fires on

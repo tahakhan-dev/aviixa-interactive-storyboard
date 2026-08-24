@@ -42,7 +42,9 @@ function walk(dir: string, acc: string[] = []): string[] {
   }
   return acc
 }
-const SRC = walk('src').filter((f) => /\.tsx?$/.test(f))
+// R2-03 removed the one reader of a module-load `SRC` snapshot. Every walk in
+// this file is now fresh per call, so a file planted mid-run is seen by the
+// gate that plants it — the property the review gate did not have.
 
 // Final review BLOCKING 3: this used to be an ALLOWLIST of three directories
 // (`src/ui/`, `src/coverage/`, `app/`) rather than an EXEMPTION of the one
@@ -146,14 +148,115 @@ describe('slice 2b gates', () => {
     }
   })
 
-  // A review action creates a ReviewEvent and nothing else.
+  /**
+   * A review action creates a ReviewEvent and nothing else.
+   *
+   * R2-03. This was `SRC.filter(f => f.includes('src/review/'))` — a population
+   * of three files, no floor, and alone among the six gates in this file with no
+   * planted-violation companion. It was proved permeable in the round-2 audit:
+   * the same violation written under `src/reviews/` gives a population of ZERO
+   * and a green pass, and `SRC` is captured at module load so a file planted
+   * mid-run was invisible to it anyway.
+   *
+   * The rule this file already states in BLOCKING 3 above is the fix: walk ALL
+   * of `src/` and `app/` and exempt BY NAME, never narrow the walk to a subset
+   * of directories. So the population is every authored `.ts`/`.tsx` under both
+   * trees whose PATH carries `review` in any segment, case-insensitively —
+   * `src/reviews/`, `app/review/`, `src/ui/ReviewCard.tsx` and
+   * `SyncConflictReviewPanel.tsx` are all in it, where the old filter saw none
+   * of them.
+   *
+   * THE DECISION, STATED: this population is deliberately wider than the review
+   * metadata module. It includes product screens that merely have `review` in
+   * their name (`app/hub/execution-summary-review/`), none of which imports the
+   * kernel today — measured, 12 files, 0 offenders. If one legitimately needs to,
+   * the fix is a name in `EXEMPT` below and a line saying why; a red there is the
+   * decision being forced, which is the whole point of a walk-everything gate.
+   * Narrowing the walk back to a directory prefix is what this finding was.
+   */
+  const REVIEW_PATH = /(^|\/)[^/]*review[^/]*(\/|\.tsx?$)/i
+  const LEDGER_WRITER = /commitTransition|from\s+['"]@\/kernel\//
+
+  /**
+   * By NAME, and asserted to still exist in the population below, so an
+   * exemption for a file that has been renamed or deleted turns red instead of
+   * standing for ever. Empty today: nothing in the review population needs it.
+   */
+  const EXEMPT: readonly string[] = []
+
+  /** Walked fresh on every call, so a file planted mid-run is seen. */
+  function reviewPopulation(): string[] {
+    return [...walk('src'), ...walk('app')].filter(
+      (f) => /\.tsx?$/.test(f) && REVIEW_PATH.test(f),
+    )
+  }
+
+  function ledgerWritingReviewFiles(): string[] {
+    return reviewPopulation()
+      .filter((f) => !EXEMPT.includes(f))
+      .filter((f) => {
+        const raw = readFileSync(f, 'utf8')
+        // Same two-stage shape as `gatewayOnlyOffenders`: the raw text is a
+        // superset of the stripped text, so a file that cannot match raw cannot
+        // match stripped, and the parse is still what decides.
+        if (!LEDGER_WRITER.test(raw)) return false
+        return LEDGER_WRITER.test(stripComments(raw))
+      })
+  }
+
+  // The floor the finding named. Zero files pass `toEqual([])` for ever, and a
+  // rename is all it took. MEASURED on this tree: 12 files across src/review/,
+  // app/review/, three hub and super-admin screens and one CC module panel.
+  it('reads a review population to police', () => {
+    const population = reviewPopulation()
+    expect(
+      population.length,
+      'the review population collapsed. A directory rename is enough to do this, and an empty ' +
+        'population reports no ledger writer over no files',
+    ).toBeGreaterThanOrEqual(10)
+    expect(
+      EXEMPT.filter((f) => !population.includes(f)),
+      'an exemption naming a file that is no longer in the population. Delete it',
+    ).toEqual([])
+  })
+
   it('review modules import no product ledger writer', () => {
-    const review = SRC.filter((f) => f.includes(`${'src'}/review/`))
-    const offenders = review.filter((f) => {
-      const s = stripComments(readFileSync(f, 'utf8'))
-      return /commitTransition|from\s+['"]@\/kernel\//.test(s)
-    })
-    expect(offenders).toEqual([])
+    expect(ledgerWritingReviewFiles()).toEqual([])
+  })
+
+  // The planted-violation companion the other five gates in this file have and
+  // this one did not. Planted under a directory the OLD filter could not see —
+  // `src/<probe>/reviews/` — which is the exact permeability the finding
+  // demonstrated: this is red now and was green before.
+  it('fires on a ledger writer in a review directory this gate does not special-case today', () => {
+    const dir = join(PROBE_DIR, 'reviews')
+    const probeFile = join(dir, 'store.ts')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(probeFile, "import { reduce } from '@/kernel/reduce'\nexport const x = reduce\n")
+    try {
+      expect(reviewPopulation()).toContain(probeFile)
+      expect(ledgerWritingReviewFiles()).toContain(probeFile)
+    } finally {
+      rmSync(PROBE_DIR, { recursive: true, force: true })
+    }
+  })
+
+  // And the other half, so the gate is known to read code rather than prose:
+  // a comment naming the forbidden import does not convict.
+  it('does not fire on a review file whose comment names the forbidden import', () => {
+    const dir = join(PROBE_DIR, 'review')
+    const probeFile = join(dir, 'records.ts')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(
+      probeFile,
+      "// A review action must never import commitTransition from '@/kernel/reduce'.\nexport const x = 1\n",
+    )
+    try {
+      expect(reviewPopulation()).toContain(probeFile)
+      expect(ledgerWritingReviewFiles()).not.toContain(probeFile)
+    } finally {
+      rmSync(PROBE_DIR, { recursive: true, force: true })
+    }
   })
 
   // Memory has no export path at V1. Minor (final review): this used to

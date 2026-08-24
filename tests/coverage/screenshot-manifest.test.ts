@@ -62,10 +62,18 @@ describe('the screenshot manifest describes the export it ships beside', () => {
    * means this case can only be an assertion about a LOCAL capture run, never
    * about the committed tree. Skipped rather than weakened when they are absent,
    * so it cannot pass by finding nothing.
+   *
+   * R2-05: the body was `if (present.length === 0) return`, which vitest reports
+   * as a PASS — the docblock above claimed a skip and the report said "passed"
+   * over zero PNGs, which is the same green a real check gives. `ctx.skip()`
+   * makes the report say what this comment says. The note is printed with the
+   * skip, so a reader who sees the line knows why it was not run.
    */
-  it('every row names a file that exists, where the captures are present locally', () => {
+  it('every row names a file that exists, where the captures are present locally', (ctx) => {
     const present = existsSync(SHOTS) ? readdirSync(SHOTS).filter((f) => f.endsWith('.png')) : []
-    if (present.length === 0) return
+    if (present.length === 0) {
+      ctx.skip(`no PNGs under ${SHOTS}: run \`pnpm screenshots\` to make this case meaningful`)
+    }
     expect(
       manifest.rows.map((r) => r.file).filter((f) => !present.includes(f)),
       'manifest rows with no PNG beside them',

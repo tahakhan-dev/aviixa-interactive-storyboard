@@ -335,7 +335,8 @@ const AUDITED = {
   'citation-graph.test.ts': {
     subject:
       'registries/blueprint-locators.json (committed) and the frozen blueprint, plus ' +
-      'identifier-anchored citations under src/, app/, tests/ and scripts/',
+      'identifier-anchored citations under src/, app/, tests/, scripts/ and docs/ ' +
+      '(.ts/.tsx/.mjs/.js and .md)',
     rewrittenBy: null,
     verdict:
       'NOT VACUOUS. Neither subject is written by any verify step. `build:registries` writes ' +

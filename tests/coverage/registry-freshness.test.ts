@@ -132,7 +132,26 @@ describe('the registries on disk are what the current tree generates', () => {
 })
 
 describe('no test writes the artefacts it checks', () => {
-  const TEST_ROOTS = ['tests/unit', 'tests/component', 'tests/coverage', 'tests/e2e', 'tests/accessibility']
+  /**
+   * R2-04. This was five roots under `tests/`, each in a `try/catch` that
+   * SWALLOWED a missing one, filtered to `/\.(test|spec)\.tsx?$/`. Both halves
+   * could take the population to zero with nothing red:
+   *
+   *   - the catch meant a `tests/` restructure — one directory renamed — moved
+   *     files out of the walk and reported nothing, and
+   *   - the filter excluded `tests/helpers/*.ts`, `tests/setup.ts` and the six
+   *     other non-`.test` modules under `tests/`, which is exactly where a call
+   *     hoisted out of a test file would land. A generator invocation moved into
+   *     a helper left the gate green.
+   *
+   * ONE ROOT, EVERY `.ts`/`.tsx` UNDER IT, AND NO CATCH. `readdirSync` throws
+   * on a missing `tests/`, which is the correct report for "the subject is
+   * gone" — the same choice `builtPageFiles()` in offline-phrasing.test.ts
+   * makes about a missing `out/`. Widening from 320 files to 330 changed no
+   * verdict: the three call sites and zero offenders are the same either way,
+   * measured below.
+   */
+  const TEST_ROOT = 'tests'
 
   function testFiles(): readonly string[] {
     const out: string[] = []
@@ -145,65 +164,104 @@ describe('no test writes the artefacts it checks', () => {
         if (isForeignProbe(e.name)) continue
         const p = join(dir, e.name)
         if (e.isDirectory()) visit(p)
-        else if (/\.(test|spec)\.tsx?$/.test(e.name)) out.push(p)
+        else if (/\.tsx?$/.test(e.name)) out.push(p)
       }
     }
-    for (const root of TEST_ROOTS) {
-      try {
-        if (statSync(root).isDirectory()) visit(root)
-      } catch {
-        // A root that does not exist yet is not a failure; the gate covers
-        // whichever of them do.
-      }
-    }
+    if (!statSync(TEST_ROOT).isDirectory()) throw new Error(`${TEST_ROOT} is not a directory`)
+    visit(TEST_ROOT)
     return out.sort()
   }
 
-  // RED when: any test shells out to a generator without AVIIXA_REGISTRY_OUT.
-  //
   // The scan walks CALL SITES, not mentions. A first pass keyed on "the file
   // names this script somewhere" flagged three false positives -- a doc comment
   // explaining the generator, and this gate's own list of the scripts it
   // polices. Reading forward from each exec call instead means prose about a
   // generator is not mistaken for running one, and it also means this file
   // holds itself to the rule: the calls in gate 1 carry the redirect and pass.
-  it('every generator invocation in a test redirects its output', () => {
-    // `exec` is the trap in this list, and it fired. `\bexec\s*\(` matches
-    // `RegExp.prototype.exec` — the `\b` is satisfied by the `.` in front of
-    // it — so `SLUG_RE.exec(body)` read as a child-process call, and any
-    // generator path named in the next 400 characters convicted the file. A
-    // registry test that parses `modules.ts` with a regex and explains which
-    // generator it is checking does both within one comment, and did.
-    //
-    // A member call is excluded by requiring no `.` or word character before
-    // the bare `exec`; the `child_process` names are distinctive enough to
-    // stay as they were.
-    const CALL = /\b(?:execFileSync|execSync|spawnSync|spawn)\s*\(|(?<![.\w])exec\s*\(/g
-    const offenders: string[] = []
+  //
+  // `exec` is the trap in this list, and it fired. `\bexec\s*\(` matches
+  // `RegExp.prototype.exec` — the `\b` is satisfied by the `.` in front of
+  // it — so `SLUG_RE.exec(body)` read as a child-process call, and any
+  // generator path named in the next 400 characters convicted the file. A
+  // registry test that parses `modules.ts` with a regex and explains which
+  // generator it is checking does both within one comment, and did.
+  //
+  // A member call is excluded by requiring no `.` or word character before
+  // the bare `exec`; the `child_process` names are distinctive enough to
+  // stay as they were.
+  const CALL = /\b(?:execFileSync|execSync|spawnSync|spawn)\s*\(|(?<![.\w])exec\s*\(/g
+
+  // Far enough to clear the arguments and the options object of any realistic
+  // call, short enough not to swallow the next statement.
+  //
+  // KNOWN LIMIT, measured rather than assumed: the window asks whether a
+  // redirect appears in the next 400 characters, not whether THIS call carries
+  // one. A bare call placed immediately above a redirected one is therefore
+  // masked by its neighbour — planting one there stayed green, and the same
+  // plant at the end of the file went red naming the file and the script.
+  // Narrowing it to the call's own argument list means parsing balanced parens;
+  // the exposure is one unredirected call written directly above a redirected
+  // one, which gate 1 catches anyway by comparing the committed artefacts with
+  // a fresh generation.
+  const CALL_WINDOW = 400
+
+  /**
+   * The two counts that were unasserted, and either of which at zero passes the
+   * `toEqual([])` below over nothing.
+   *
+   * MEASURED on this tree: 330 files, 3 generator call sites. The file floor is
+   * pinned under the measurement with room for a slice's worth of churn; the
+   * call-site floor is pinned AT the measurement, because the three sites are
+   * named and enumerable and losing one is a fact worth a red rather than a
+   * silence. If a call site is legitimately removed, this number comes down in
+   * the same commit — that is the decision being forced, not a failure.
+   */
+  const MEASURED = { files: 330, callSites: 3 } as const
+  const FILE_FLOOR = 300
+
+  /**
+   * Every generator call site in the test tree, each with whether its own
+   * window carries the redirect. One walk, both claims: the floor below counts
+   * these and the gate after it convicts the ones that are not redirected, so
+   * the population the floor guarantees is the same population the gate reads.
+   */
+  function generatorCallSites(): readonly { readonly site: string; readonly redirected: boolean }[] {
+    const sites: { site: string; redirected: boolean }[] = []
     for (const file of testFiles()) {
       const src = readFileSync(file, 'utf8')
       for (const match of src.matchAll(CALL)) {
         const at = match.index ?? 0
-        // Far enough to clear the arguments and the options object of any
-        // realistic call, short enough not to swallow the next statement.
-        //
-        // KNOWN LIMIT, measured rather than assumed: the window asks whether a
-        // redirect appears in the next 400 characters, not whether THIS call
-        // carries one. A bare call placed immediately above a redirected one
-        // is therefore masked by its neighbour — planting one there stayed
-        // green, and the same plant at the end of the file went red naming the
-        // file and the script. Narrowing it to the call's own argument list
-        // means parsing balanced parens; the exposure is one unredirected call
-        // written directly above a redirected one, which gate 1 catches
-        // anyway by comparing the committed artefacts with a fresh
-        // generation.
-        const window = src.slice(at, at + 400)
+        const window = src.slice(at, at + CALL_WINDOW)
         const script = GENERATORS.find((g) => window.includes(g))
-        if (script && !window.includes('AVIIXA_REGISTRY_OUT')) {
-          offenders.push(`${relative(process.cwd(), file)} -> ${script}`)
+        if (script !== undefined) {
+          sites.push({
+            site: `${relative(process.cwd(), file)} -> ${script}`,
+            redirected: window.includes('AVIIXA_REGISTRY_OUT'),
+          })
         }
       }
     }
+    return sites
+  }
+
+  it('reads the tests it polices, and finds generator calls to police', () => {
+    expect(
+      testFiles().length,
+      `fewer than ${FILE_FLOOR} test-tree files scanned (measured ${MEASURED.files}): the walk ` +
+        'has lost a subtree, and a scan of nothing reports no offender',
+    ).toBeGreaterThanOrEqual(FILE_FLOOR)
+    expect(
+      generatorCallSites().length,
+      'no generator call site found at all. The scan below then convicts nobody by construction; ' +
+        'a call moved, renamed or hoisted out of the population is the failure this floor names',
+    ).toBeGreaterThanOrEqual(MEASURED.callSites)
+  })
+
+  // RED when: any test shells out to a generator without AVIIXA_REGISTRY_OUT.
+  it('every generator invocation in a test redirects its output', () => {
+    const offenders = generatorCallSites()
+      .filter((c) => !c.redirected)
+      .map((c) => c.site)
     expect(
       offenders,
       'a test that runs a generator into registries/generated rewrites the committed artefacts',
