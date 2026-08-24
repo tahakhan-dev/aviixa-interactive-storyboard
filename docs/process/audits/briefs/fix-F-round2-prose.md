@@ -129,3 +129,22 @@ registers they mean.
   both `shasum -a 256` values in the report.
 - Report exact counts from the unit, component and release projects, `npx tsc --noEmit`, and
   `pnpm build`.
+
+## R2-P09 · Important · added after dispatch — the warrant for R2-P01's abstention cites a file that refuses
+
+`src/surfaces/cc/modules/cc-13/Cc13ActionRail.tsx:67-70` reads: "THE EXACT MOUNT, WHICH ALREADY
+EXISTS FOR THE OTHER TREATMENT. `app/command-center/live-shift-board/page.tsx` — another task's
+file — already passes `actionRail={<ActionRail viewerRole={…} />}` to `CommandCenterShell`."
+
+Measured by a second auditor: that file imports no `ActionRail`, and its own comment at `:57-79`
+says the opposite — "`MOD-CC-13`'S ACTION RAIL IS DELIBERATELY NOT MOUNTED HERE … So `actionRail`
+is left unfilled and the shell renders its declared `operational-action-set` seam." `<ActionRail`
+occurs in no file under `app/` at all.
+
+This sentence is the *warrant* for R2-P01's abstention — the evidence that the mount is one line
+away — and it points a reader at a refusal. Point it at one of the eight pages that does fill
+`actionRail`, and drop the `<ActionRail>` spelling, which names a different component
+(`src/surfaces/cc/actions/ActionRail.tsx`) that another stream is fixing.
+
+**Two independent round-2 streams found R2-P01 and R2-P07 separately**, which is why those two are
+the highest-confidence items in this brief.
