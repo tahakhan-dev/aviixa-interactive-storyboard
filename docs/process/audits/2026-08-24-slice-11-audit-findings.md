@@ -207,16 +207,24 @@ unscanned.
 
 ## Round-1 findings, audit E — the build's own record of what is outstanding
 
+**Notation.** `L<n>` in this build means a line in the FROZEN SOURCE and nothing else. This
+section originally used it for `RESUME.md` line numbers, and `locator-fidelity` convicted
+three of the twenty-eight — the three that happened to land on a blank blueprint line. The
+other twenty-five were indistinguishable from real citations, because 192 legitimate
+citations in this tree name a blueprint line below 2,000, so no numeric bound separates the
+two. A file's own lines are named `path:line` from here on; the notation is the fix, because
+a gate cannot be.
+
 Of 34 open claims in `RESUME.md`, **8 are already fixed and 7 more carry a wrong figure.**
 Eleven of those fifteen have their correction *already written elsewhere in the same file* —
-L1113 corrects L868, L1053 corrects L1023, L1069 corrects L1022, L1034 corrects L886. The
+RESUME.md:1113 corrects RESUME.md:868, RESUME.md:1053 corrects RESUME.md:1023, RESUME.md:1069 corrects RESUME.md:1022, RESUME.md:1034 corrects RESUME.md:886. The
 pattern is not drift: corrections are appended as new paragraphs while the superseded
 sentence is left standing. That is the "renumber instead of remove" failure the file itself
 names three times, applied to the sentences that state the rule.
 
 ### C-20 · Critical · `RESUME.md` §3 omits APP-016 and states the wrong entry count
 
-§3 (L130) reads "Fourteen entries, APP-000 to APP-013"; the ledger holds **17**, APP-000 to
+§3 (RESUME.md:130) reads "Fourteen entries, APP-000 to APP-013"; the ledger holds **17**, APP-000 to
 APP-016. §3's APP-015 bullet still tells the next session that entering slice 12 needs a new
 approval entry. It exists — APP-016, written this session.
 
@@ -229,18 +237,18 @@ slices have merged since.
 
 ### C-22 · Critical · three RESUME paragraphs describe finished work as owed
 
-`DEC-AIEMBED-001` and `DEC-AIFALLBACK-001` are recorded at L329 as appearing "nowhere in the
+`DEC-AIEMBED-001` and `DEC-AIFALLBACK-001` are recorded at RESUME.md:329 as appearing "nowhere in the
 build" and named as the slice's only two real gaps — both ship
 (`src/ai/failures/catalogue.ts:495,504`, `src/studio/ai-degradation.ts:201`, first in
-`53b1c97`). L974-985 says `SB-AI-*` reads 0 of 48 and the three `SA-0703` rows read
+`53b1c97`). RESUME.md:974-985 says `SB-AI-*` reads 0 of 48 and the three `SA-0703` rows read
 `not-represented` — measured 30 of 48 and all three demonstrated, closed by `0487046`.
-L880-884 names three hardcoded counts as "genuinely removable" — all three were removed in
+RESUME.md:880-884 names three hardcoded counts as "genuinely removable" — all three were removed in
 `0de7950`, each with the removal recorded at the cited line. A session trusting §8 rebuilds
 work that is done.
 
 ### C-23 · Important · the export is 102 routes, and the screenshot manifest is older than three slices
 
-Both L410 and L535 say "a 100-route export". Measured with `exportedRoutes()`'s own walk:
+Both RESUME.md:410 and RESUME.md:535 say "a 100-route export". Measured with `exportedRoutes()`'s own walk:
 **102**. The manifest holds 85 rows and 85 PNGs, so the gap is **17**, not 15, and every
 missing route is a real screen — eleven Command Center module routes, `/hub/notifications`,
 `/hub/audit-and-retention`, three `/super-admin/` scheduler and AI-incident routes, and
@@ -250,28 +258,28 @@ renumbered"; it renumbered to 100, and 100 is now wrong too.
 
 ### C-24 · Important · four wrong figures and one wrong reason, each corrected elsewhere in the file
 
-L1023's "eighty-eight … DEC-AI 16" is **91 and 19** (`src/coverage/uninventoried.ts:33`
-already says ninety-one) · L1022's "two aliases needing wiring" are wired at
+RESUME.md:1023's "eighty-eight … DEC-AI 16" is **91 and 19** (`src/coverage/uninventoried.ts:33`
+already says ninety-one) · RESUME.md:1022's "two aliases needing wiring" are wired at
 `src/disclosure/decisions.ts:1190,1222` and four of its "five with no canon record" are
 members of `src/surfaces/cc/decisions/register.ts` — only `DEC-AIRTO-001` is homeless ·
-L539's "all in slice 5-8 files" is false, at least five of the twelve are slice-03, -04 and
--06 files · L863's `sub-features (0/526)` is **1/526** (`SUB-SA-0703`) · L886's "25 entries
-against 25 files" is **26 and 26** · and L1027's stated escape reason for
+RESUME.md:539's "all in slice 5-8 files" is false, at least five of the twelve are slice-03, -04 and
+-06 files · RESUME.md:863's `sub-features (0/526)` is **1/526** (`SUB-SA-0703`) · RESUME.md:886's "25 entries
+against 25 files" is **26 and 26** · and RESUME.md:1027's stated escape reason for
 `SA_MATRIX_ATTRIBUTION` is wrong: the tree's only spelled-numeral gate polices
 `records|members`, so "twelve modules" would have escaped it too. The string is unpoliced;
 the explanation of why was not.
 
 ### C-25 · Moderate · five items are carried in two "open" lists at once
 
-`build-registries` (L1029/L1112) · `PINNED_WORKER_MESSAGES` (L1024/L1114) · `contentOrigin`
-(L1025/L1115) · `notShippableLock` (L1026/L1117) · `SA_MATRIX_ATTRIBUTION` (L1027/L1118).
+`build-registries` (RESUME.md:1029/RESUME.md:1112) · `PINNED_WORKER_MESSAGES` (RESUME.md:1024/RESUME.md:1114) · `contentOrigin`
+(RESUME.md:1025/RESUME.md:1115) · `notShippableLock` (RESUME.md:1026/RESUME.md:1117) · `SA_MATRIX_ATTRIBUTION` (RESUME.md:1027/RESUME.md:1118).
 The later list reads as superseding the earlier, but the earlier was never removed, so its
 resolved entries still read as owed.
 
 ### C-26 · Moderate · two dated measurements have drifted
 
-L820's "583 files in `src`+`app`, 543 reachable, 40 orphaned" measures **612 / 579 / 33**
-today, and it is presented as a live measurement rather than a record. L143's census figure
+RESUME.md:820's "583 files in `src`+`app`, 543 reachable, 40 orphaned" measures **612 / 579 / 33**
+today, and it is presented as a live measurement rather than a record. RESUME.md:143's census figure
 is a quotation of what the client was shown, so it stands as a record.
 
 ## Further brief corrections from audits C and E

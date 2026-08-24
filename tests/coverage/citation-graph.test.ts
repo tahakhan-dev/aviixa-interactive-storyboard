@@ -161,7 +161,20 @@ describe('the locator index describes the frozen source it claims to', () => {
   it('is built against the blueprint this repository actually has', () => {
     const sha = createHash('sha256').update(sourceBytes).digest('hex')
     expect(sha, 'the frozen source has changed since the index was built').toBe(index.source.sha256)
-    expect(sourceLines.length).toBe(index.source.lines)
+    /*
+     * THE INDEX PUBLISHES THE DOCUMENT'S LINE COUNT, NOT THE SPLIT ARRAY'S.
+     * `split('\n')` on a file ending in a newline yields a trailing empty
+     * element, so `sourceLines.length` is 122,242 for a document of 122,241
+     * (`wc -l` agrees). `build-locator-index.mjs` was off by one about the
+     * simplest fact it publishes — audit C-32 — and was corrected to drop that
+     * element. THIS assertion was not, so the corrected generator turned its
+     * own verifier red: the gate had pinned the wrong convention as the
+     * expectation. Both counts are asserted, so a silent flip back — either
+     * side — reds rather than passing on a coincidence.
+     */
+    const trailingEmpty = sourceLines[sourceLines.length - 1] === '' ? 1 : 0
+    expect(trailingEmpty, 'the frozen source ends in a newline').toBe(1)
+    expect(sourceLines.length - trailingEmpty).toBe(index.source.lines)
   })
 
   it('is not a stub', () => {
