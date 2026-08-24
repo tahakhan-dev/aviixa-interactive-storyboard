@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { isForeignProbe } from '../probe-paths'
 import { createHash } from 'node:crypto'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
@@ -116,6 +117,18 @@ describe('the rollback table, as the frozen bytes write it', () => {
   })
 })
 
+/**
+ * A CONTROL WHOSE VISIBLE NAME IS JUST "ROLLBACK", IN EVERY SPELLING JSX ALLOWS.
+ *
+ * `label="X"`, `label={'X'}`, `label={"X"}`, `label={`X`}`, the same four for
+ * `aria-label`, and a bare JSX text child. React renders all of them
+ * identically and a reader cannot tell them apart on screen, so a pattern that
+ * lists three of them is a pattern a future edit walks past by changing a quote
+ * character. Declared once, probed below.
+ */
+const LABELLED_ROLLBACK =
+  /(?:aria-label|label)=(?:"([^"]*)"|\{"([^"]*)"\}|\{'([^']*)'\}|\{`([^`$]*)`\})|>\s*(Roll ?back)\s*</gi
+
 describe('L87803 — the forms may not be conflated', () => {
   it('quotes the rule from the line that carries it', () => {
     expect(lineAt(87_803)).toContain(
@@ -133,14 +146,44 @@ describe('L87803 — the forms may not be conflated', () => {
     for (const file of walk('src').concat(walk('app'))) {
       if (!/\.tsx$/.test(file)) continue
       const text = readFileSync(file, 'utf8')
-      for (const match of text.matchAll(
-        /(?:aria-label|label)=(?:"([^"]*)"|\{'([^']*)'\})|>\s*(Roll ?back)\s*</gi,
-      )) {
-        const value = (match[1] ?? match[2] ?? match[3] ?? '').trim()
+      for (const match of text.matchAll(LABELLED_ROLLBACK)) {
+        const value = (match.slice(1).find((group) => group !== undefined) ?? '').trim()
         if (/^roll ?back$/i.test(value)) offenders.push(`${file}: ${value}`)
       }
     }
     expect(offenders, 'a single control labelled "rollback" (L87803)').toEqual([])
+  })
+
+  it('catches every JSX spelling of that label, not the three it happened to list', () => {
+    // The pattern used to accept `label="Rollback"`, `aria-label="Rollback"` and
+    // `>Rollback<` and MISS `label={"Rollback"}` and the backtick form — two
+    // spellings React treats identically and a reader cannot tell apart on
+    // screen. Proved by probe rather than by reading the regex.
+    const convicts = (source: string): boolean =>
+      [...source.matchAll(LABELLED_ROLLBACK)].some((match) =>
+        /^roll ?back$/i.test((match.slice(1).find((g) => g !== undefined) ?? '').trim()),
+      )
+    for (const spelling of [
+      '<Button label="Rollback" />',
+      "<Button label={'Rollback'} />",
+      '<Button label={"Rollback"} />',
+      '<Button label={`Rollback`} />',
+      '<Button aria-label="Rollback" />',
+      '<Button aria-label={`Roll back`} />',
+      '<button>Rollback</button>',
+      '<button> Roll back </button>',
+    ]) {
+      expect(spelling, `a rollback label spelled: ${spelling}`).toSatisfy(convicts)
+    }
+    // And the prose this build needs everywhere is untouched.
+    for (const innocent of [
+      '<p>Rollback appears in eight distinct forms.</p>',
+      '<Button label="Rollback of a model version" />',
+      '// Rollback is not one control.',
+      '<Button label={`Rollback — ${form.form}`} />',
+    ]) {
+      expect(innocent, `a false alarm on: ${innocent}`).not.toSatisfy(convicts)
+    }
   })
 })
 
@@ -210,7 +253,7 @@ function walk(root: string): string[] {
   const out: string[] = []
   const visit = (dir: string) => {
     for (const entry of readdirSync(dir)) {
-      if (/^\.zz-probe-\d+$/.test(entry)) continue
+      if (isForeignProbe(entry)) continue
       const path = join(dir, entry)
       if (statSync(path).isDirectory()) visit(path)
       else out.push(path)

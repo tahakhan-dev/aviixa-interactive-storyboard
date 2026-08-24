@@ -73,15 +73,55 @@ describe('the four are disclosed locally because the canon does not hold them', 
     }
   })
 
+  /**
+   * THE FOUR LOCATORS THAT DO NOT CARRY THEIR DECISION'S IDENTIFIER, AND WHAT
+   * EACH ONE MUST CARRY INSTEAD.
+   *
+   * Measured, not assumed: of the twenty locators these four records name,
+   * sixteen carry the identifier they are cited for on the cited line. The
+   * remaining four are cited for something the line says WITHOUT naming the
+   * decision — a role card's approval row, a role card's feature list, the
+   * §43.3.5 narrative item, and the authority matrix row. Each is pinned to a
+   * verbatim fragment of its own line, so a locator moved off it goes red.
+   *
+   * This list is the reason the check is not "the identifier is on the line":
+   * that rule would convict four correct citations, and a gate that cries wolf
+   * gets loosened until it convicts nothing. Which is what happened here — the
+   * assertion this replaces was `expect(line).not.toBe('')`, and a locator off
+   * by thousands of lines passed it.
+   */
+  const ANCHORS_FOR_LINES_WITHOUT_THE_IDENTIFIER: Readonly<Record<string, string>> = {
+    'DEC-PAUSE-001/L15939': 'None. The role approves nothing; it submits.',
+    'DEC-PAUSE-001/L15945': 'emergency pause proposal (`FEAT-SA-0702`)',
+    'DEC-KILL-001/L91231': 'The runaway-loop kill switch is a named Orchestration control',
+    'DEC-KILL-001/L91290': '| Runaway-loop kill switch |',
+  }
+
   it('opens every locator of every reading and finds the decision it is cited for', () => {
+    // THE CHECK, AND IT IS NOT "THE LINE IS NON-BLANK". A blank-line check
+    // convicts one failure mode — the off-by-one onto a separator — and passes
+    // every other wrong line in the file. All twenty-three locators here
+    // resolve correctly today; this rewrite is so that they can be known to.
+    let checked = 0
     for (const decision of LOCAL_OPEN_DECISIONS) {
-      for (const locator of decision.locators) {
+      const locators = [
+        ...decision.locators,
+        ...decision.readings.map((reading) => reading.locator),
+      ]
+      for (const locator of new Set(locators)) {
         const line = lineAt(Number(locator.replace(/^L/, '')))
-        expect(line, `${decision.id} cites ${locator}`).not.toBe('')
-      }
-      for (const reading of decision.readings) {
-        const line = lineAt(Number(reading.locator.replace(/^L/, '')))
-        expect(line, `${decision.id} reading at ${reading.locator}`).not.toBe('')
+        const where = `${decision.id} cites ${locator}`
+        expect(line, where).not.toBe('')
+        const anchor = ANCHORS_FOR_LINES_WITHOUT_THE_IDENTIFIER[`${decision.id}/${locator}`]
+        if (anchor === undefined) {
+          expect(line, `${where} and that line does not name it`).toContain(decision.id)
+        } else {
+          expect(line, `${where} on the strength of a fragment it does not carry`).toContain(anchor)
+          // And the identifier really is absent, so an anchor entry cannot be
+          // added to excuse a line that would have passed the plain rule.
+          expect(line, `${where} — this anchor entry is unnecessary`).not.toContain(decision.id)
+        }
+        checked += 1
       }
       // Every locator a reading names is also in the record's locator set, so
       // a reader following the record reaches every line it rests on.
@@ -89,6 +129,8 @@ describe('the four are disclosed locally because the canon does not hold them', 
         expect(decision.locators, `${decision.id} ${reading.locator}`).toContain(reading.locator)
       }
     }
+    // Not a pinned count — a floor, so the loop cannot silently check nothing.
+    expect(checked).toBeGreaterThan(Object.keys(ANCHORS_FOR_LINES_WITHOUT_THE_IDENTIFIER).length)
   })
 
   it('labels every adopted position a build approval under APP-012', () => {

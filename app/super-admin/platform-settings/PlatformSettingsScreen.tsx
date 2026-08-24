@@ -21,18 +21,6 @@ import {
   enablementRefusal,
 } from '@/ai/failures/open-values'
 
-/**
- * `AC-43-111`'s refusal for this screen's own capability, computed once at
- * module scope because it has no inputs that vary per render: every value in
- * the register is unset, so the answer is the same for every role and every
- * screen state. `enablementRefusal` returns `null` for a capability the
- * register governs nothing about, and that branch is rendered rather than
- * assumed away — see the panel below.
- */
-const AI_CAPABILITY_REFUSAL = enablementRefusal(
-  'An artificial-intelligence capability on this platform',
-  AI_OPEN_REGISTER_IDS,
-)
 import {
   Banner,
   Button,
@@ -72,6 +60,19 @@ import {
   SEVERITY_CATALOG_DISTRIBUTION,
   type SettingsCategoryId,
 } from './fixtures'
+
+/**
+ * `AC-43-111`'s refusal for this screen's own capability, computed once at
+ * module scope because it has no inputs that vary per render: every value in
+ * the register is unset, so the answer is the same for every role and every
+ * screen state. `enablementRefusal` returns `null` for a capability the
+ * register governs nothing about, and that branch is rendered rather than
+ * assumed away — see the panel below.
+ */
+const AI_CAPABILITY_REFUSAL = enablementRefusal(
+  'An artificial-intelligence capability on this platform',
+  AI_OPEN_REGISTER_IDS,
+)
 
 const MODULE = saModuleById('MOD-SA-07')
 

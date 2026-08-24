@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import { isForeignProbe } from '../probe-paths'
 import { render, screen } from '@testing-library/react'
-import { readFileSync, readdirSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { dirname, join, relative } from 'node:path'
 import { ROLLBACK_FORMS } from '@/ai/controls/rollback'
 import { BLAST_RADIUS_NODES, PAUSE_DOES_NOT_TABLE } from '@/ai/controls/blast-radius'
 import { LOCAL_OPEN_DECISIONS } from '@/ai/controls/decisions'
@@ -10,6 +11,7 @@ import { UNSET_GOVERNING_VALUES } from '@/ai/failures/open-values'
 import {
   CONSOLE_AUTHORITY_ROWS,
   NOT_SHIPPABLE_AUTHORITY_ROWS,
+  NOT_SHIPPABLE_CITED_DECISIONS,
   SHIPPABLE_AUTHORITY_ROWS,
 } from '@/surfaces/sa/ai-failure-authority'
 import { AiIncidentConsoleScreen } from '../../app/super-admin/ai-incidents/AiIncidentConsoleScreen'
@@ -341,19 +343,41 @@ describe('the blast radius renders as an enumeration and never as a count', () =
         .replaceAll(/§[\d.]+/g, '')
         .replaceAll(/\bL\d{4,6}/g, '')
         .replaceAll(/\b(?:AC|TEST|SB|DEC|FAIL-AI|AIMODE|PROV|MOD|FEAT|SUB|FUNC|SCR|FB)[A-Z0-9-]*\b/g, '')
+    // CONTEXT, NOT SHAPE, AND THAT IS THE CORRECTION. This assertion used to
+    // accept any matched phrase matching `/Six things stop|nine continue/i`
+    // wherever on the page it appeared, which made it BLIND TO THE DEFECT IT
+    // EXISTS FOR: a screen printing "nine continue" in its own voice matched
+    // the exemption and passed. The quotation is now marked in the DOM, and the
+    // page's matches must be exactly the quotation's matches — once each. That
+    // fails on a second copy of the quoted sentence as well as on a phrase this
+    // build coined.
+    const COUNT_PHRASE =
+      /\b(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|\d+)\b(?:\s+\w+){0,2}\s+(?:stops?|continues?)\b/gi
+    // TEXT NODES JOINED, NOT `textContent`, AND THIS IS A MEASURED CORRECTION.
+    // `textContent` concatenates sibling nodes with no separator, so a planted
+    // paragraph reading "Nine continue…" arrived as `…L87848Nine continue…` and
+    // the leading `\b` never matched. The gate was unfailable for a second
+    // reason nobody had looked for. Joining on a space restores the boundary.
+    const nodeText = (root: Node): string => {
+      const walker = document.createTreeWalker(root, 4 /* SHOW_TEXT */)
+      const parts: string[] = []
+      while (walker.nextNode()) parts.push(walker.currentNode.nodeValue ?? '')
+      return parts.join(' ')
+    }
+    const phrasesIn = (text: string): string[] =>
+      [...scrub(text).matchAll(COUNT_PHRASE)].map(([phrase]) => phrase.toLowerCase())
     for (const role of ROLES) {
       document.body.innerHTML = ''
       render(<AiIncidentConsoleScreen role={role} />)
-      const text = scrub(document.body.textContent ?? '')
-      for (const [phrase] of text.matchAll(
-        /\b(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|\d+)\b(?:\s+\w+){0,2}\s+(?:stops?|continues?)\b/gi,
-      )) {
-        // The source's own quoted sentence is disclosure; anything else is
-        // this build picking a side of a disagreement the source leaves open.
-        expect(phrase, 'a rendered count of stopping or continuing behaviours').toMatch(
-          /Six things stop|nine continue/i,
-        )
-      }
+      const quoted = nodeText(screen.getByTestId('blast-radius-source-quotation'))
+      expect(quoted, role).toContain('Six things stop and nine continue.')
+      const onQuotation = phrasesIn(quoted)
+      // The quoted sentence supplies exactly two matches and no more.
+      expect(onQuotation, role).toEqual(['six things stop', 'nine continue'])
+      expect(
+        phrasesIn(nodeText(document.body)),
+        `${role}: a rendered count of stopping or continuing behaviours`,
+      ).toEqual(onQuotation)
     }
   })
 })
@@ -421,6 +445,38 @@ describe('AC-AI-015-7 is rendered, not merely enforced', () => {
     expect(panel.textContent).toContain('AC-AI-015-7')
     expect(panel.textContent).toMatch(/audit/i)
   })
+
+  it('claims no audit trail this build does not write, and says so explicitly', () => {
+    // MEASURED, AND THE MEASUREMENT IS WHY THIS ASSERTION EXISTS.
+    // `refuseAgentInitiation` is called by nothing but this module's own
+    // constant and its tests; `auditRecord` is a string field with no consumer;
+    // there is no audit sink under `src/ai/`; and there is no pause, resume,
+    // kill or rollback ACT anywhere for a refusal to guard. `TEST-AI-015-7`
+    // (L87904) requires "refusal and audit", so the obligation is real and the
+    // build does not meet it — which makes the present-tense sentence this
+    // panel used to carry ("every refusal is written to the audit trail") a
+    // production capability claimed on the strength of a simulation.
+    render(<AiIncidentConsoleScreen role="ROOT_SUPER_ADMIN" />)
+    const text = screen.getByTestId('incident-agent-refusal').textContent ?? ''
+    expect(text, 'a present-tense audit-writing claim').not.toMatch(
+      /is written to the audit trail|are written to the audit trail/i,
+    )
+    // The honest rendering: what the record carries, and the limit stated.
+    expect(text).toMatch(/does not write an audit trail|writes no audit trail/i)
+    expect(text).toMatch(/carr(?:y|ies)/i)
+    // And no act exists for the refusal to guard, which the panel also states.
+    expect(text).toMatch(/no pause, resume, kill or rollback act/i)
+  })
+
+  it('takes no act — nothing in this cluster writes an audit record anywhere', () => {
+    // The claim above, checked against the tree rather than trusted. If a wave
+    // later adds a sink, this goes red and the panel's wording is revisited
+    // deliberately instead of drifting back into a false present tense.
+    for (const file of walk('src/ai/controls').concat(walk('app/super-admin/ai-incidents'))) {
+      const body = readFileSync(file, 'utf8')
+      expect(body, file).not.toMatch(/\b(?:writeAudit|appendAudit|auditSink|recordAudit)\b/)
+    }
+  })
 })
 
 describe('the four decisions this console may not register', () => {
@@ -455,26 +511,168 @@ describe('the four decisions this console may not register', () => {
   it('renders every unset governing value with its decision identifier', () => {
     // AC-43-113 (L90040). The panel that owns them is platform settings; this
     // console names the refusal that governs its own response controls.
+    //
+    // DERIVED, NOT LISTED. This assertion carried the same hand-typed trio of
+    // identifiers the screen did, so the two agreed with each other and neither
+    // agreed with the matrix. Both sides come off the rows now, and a sixth
+    // unshippable row citing a fourth open value fails here without an edit.
     render(<AiIncidentConsoleScreen role="ROOT_SUPER_ADMIN" />)
     const text = document.body.textContent ?? ''
     const governing = UNSET_GOVERNING_VALUES.filter((value) =>
-      ['DEC-AIFAILOVER-001', 'DEC-AIQUAR-001', 'DEC-AIREPLAY-001'].includes(value.id),
+      NOT_SHIPPABLE_CITED_DECISIONS.includes(value.id),
     )
+    expect(governing.length).toBeGreaterThan(0)
     for (const value of governing) {
       expect(text, value.id).toContain(value.id)
     }
   })
 })
 
+describe('the Frontline conflict is disclosed on the console, not left implicit', () => {
+  it('names DEC-AIDISCLOSE-001, both criteria, and what this task does not own', () => {
+    // A stated abstention and an oversight are indistinguishable from outside,
+    // and this conflict was disclosed nowhere in the diff that built the
+    // console. It points at the canon record rather than restating it.
+    render(<AiIncidentConsoleScreen role="ROOT_SUPER_ADMIN" />)
+    const note = screen.getByTestId('incident-frontline-disclosure-abstention')
+    const text = note.textContent ?? ''
+    expect(text).toContain('DEC-AIDISCLOSE-001')
+    expect(text).toContain('AC-AI-015-4')
+    expect(text).toContain('SB-AI-015')
+    expect(text).toMatch(/Frontline/)
+    expect(text).toMatch(/neither/i)
+    expect(text).toContain('src/disclosure/decisions.ts')
+    for (const locator of ['L87889', 'L87854', 'L89368', 'L89369']) {
+      expect(text, locator).toContain(locator)
+    }
+  })
+})
+
+describe('no locked control on this page contradicts itself', () => {
+  it('never prints "No authority settled" over a reason saying the authority is settled', () => {
+    // THE DEFECT. `provider-or-model-failover` (L91291) reads `Allowed` for
+    // Root and grants the other three; its refusal reason is "the authority is
+    // settled and the governing policy is an open decision". Both call sites —
+    // the response panel here and `AiFailureAuthorityPanel`, which this screen
+    // mounts — stamped one literal `settingValue` onto every unshippable row,
+    // so the failover card asserted and denied the same fact inches apart, and
+    // the two cards disagreed with each other as well. Checked per CARD rather
+    // than per page, because the contradiction is within one card.
+    for (const role of ROLES) {
+      document.body.innerHTML = ''
+      render(<AiIncidentConsoleScreen role={role} />)
+      const cards = Array.from(document.body.querySelectorAll('[data-locked-control]'))
+      expect(cards.length, role).toBeGreaterThan(0)
+      for (const card of cards) {
+        const text = card.textContent ?? ''
+        const id = card.getAttribute('data-locked-control') ?? '?'
+        if (/the authority is settled/i.test(text)) {
+          expect(text, `${role} / ${id}`).not.toMatch(/No authority settled/i)
+        }
+      }
+    }
+  })
+
+  it('says the same thing about one control on both cards that draw it', () => {
+    // The site-scoped pause is drawn by the response panel AND by the mounted
+    // authority panel. Two cards for one control with two different locked
+    // values is a reader-facing contradiction whether or not either is
+    // operable, so the value is asserted equal across them.
+    render(<AiIncidentConsoleScreen role="ROOT_SUPER_ADMIN" />)
+    for (const row of NOT_SHIPPABLE_AUTHORITY_ROWS) {
+      const cards = Array.from(
+        document.body.querySelectorAll(`[data-locked-control$="${row.id}"]`),
+      )
+      expect(cards.length, row.id).toBeGreaterThan(1)
+      // `LockedControl` prints its value as `Locked — <settingValue>`. Every
+      // card for one row must carry the row's own derived value, so two cards
+      // cannot state two different locked values for one control.
+      const expected = `Locked — ${row.notShippableLock?.settingValue ?? ''}`
+      for (const card of cards) {
+        expect(card.textContent, `${row.id}: one control, two locked values`).toContain(expected)
+      }
+    }
+  })
+})
+
 describe('operational severity shares no rendering with manufacturing severity', () => {
-  it('imports no severity component from an earlier slice', () => {
+  /**
+   * THE IMPORT GRAPH, NOT ONE DIRECTORY.
+   *
+   * This swept `app/super-admin/ai-incidents/` only, so a severity component
+   * reached through `src/ui/sa/AiFailureAuthorityPanel.tsx` — which this screen
+   * mounts — or through a barrel like `src/ui/primitives/index.ts` was invisible
+   * to it. The rule holds today (`src/ui/primitives/index.ts` exports no
+   * `Severity*`), but the gate could not have said so. It follows the graph now.
+   *
+   * A TYPE-ONLY IMPORT IS NOT A RENDERING COMPONENT, and that exemption is the
+   * whole reason this can be strict: `src/ai/failures/catalogue.ts` imports
+   * `type SeverityAssignment` from the OPERATIONAL severity module
+   * (`src/ai/failures/severity.ts`, which contains no JSX at all), and
+   * `AC-43-103` forbids a shared rendering component rather than a shared type
+   * name. So the convictable shape is a VALUE binding whose name carries
+   * `Severity` — which is what a component import looks like and what a type
+   * import never is.
+   */
+  const closureFrom = (entry: string): string[] => {
+    const resolve = (spec: string, from: string): string | null => {
+      const base = spec.startsWith('@/')
+        ? join(process.cwd(), 'src', spec.slice(2))
+        : spec.startsWith('.')
+          ? join(process.cwd(), dirname(from), spec)
+          : null
+      if (base === null) return null
+      for (const candidate of [
+        `${base}.ts`,
+        `${base}.tsx`,
+        join(base, 'index.ts'),
+        join(base, 'index.tsx'),
+      ]) {
+        if (existsSync(candidate)) return relative(process.cwd(), candidate)
+      }
+      return null
+    }
+    const seen = new Set<string>()
+    const stack = [entry]
+    while (stack.length > 0) {
+      const file = stack.pop()
+      if (file === undefined || seen.has(file)) continue
+      seen.add(file)
+      for (const [, spec] of readFileSync(file, 'utf8').matchAll(
+        /from\s+['"]([^'"]+)['"]/g,
+      )) {
+        const next = resolve(spec ?? '', file)
+        if (next !== null && !seen.has(next)) stack.push(next)
+      }
+    }
+    return [...seen]
+  }
+
+  it('imports no severity component from an earlier slice, anywhere it can reach', () => {
     // AC-43-103 (L89975) / TEST-43-103 (L89981): separate fields, separate
     // vocabularies, no shared rendering component.
     expect(lineAt(89_975)).toContain('AC-43-103')
-    for (const file of walk('app/super-admin/ai-incidents')) {
-      const text = readFileSync(file, 'utf8')
-      expect(text, file).not.toMatch(/import[^;]*Severity[A-Za-z]*\s*(,|\}|from)/)
+    const closure = [
+      ...new Set(
+        walk('app/super-admin/ai-incidents').flatMap((file) =>
+          closureFrom(relative(process.cwd(), file)),
+        ),
+      ),
+    ]
+    // A floor, so a resolver that silently resolves nothing cannot pass.
+    expect(closure.length).toBeGreaterThan(20)
+    expect(closure).toContain(join('src', 'ui', 'sa', 'AiFailureAuthorityPanel.tsx'))
+    const offenders: string[] = []
+    for (const file of closure) {
+      for (const [clause] of readFileSync(file, 'utf8').matchAll(/import\s+[^;]*?from\s+['"][^'"]+['"]/g)) {
+        // Every binding in the clause, with its `type` marker if it has one.
+        for (const [, isType, name] of clause.matchAll(/(\btype\s+)?\b([A-Z][A-Za-z0-9_]*)\b/g)) {
+          if (isType !== undefined) continue
+          if (/Severity/.test(name ?? '')) offenders.push(`${file}: ${name ?? ''}`)
+        }
+      }
     }
+    expect(offenders, 'a severity rendering component reachable from this console').toEqual([])
   })
 })
 
@@ -505,7 +703,7 @@ function walk(root: string): string[] {
   const out: string[] = []
   const visit = (dir: string) => {
     for (const entry of readdirSync(dir)) {
-      if (/^\.zz-probe-\d+$/.test(entry)) continue
+      if (isForeignProbe(entry)) continue
       const path = join(dir, entry)
       if (statSync(path).isDirectory()) visit(path)
       else out.push(path)

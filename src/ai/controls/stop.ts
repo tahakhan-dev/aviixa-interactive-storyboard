@@ -63,6 +63,14 @@ import { APP_012_LABEL, localDecision } from './decisions'
  * answered from whoever is looking at the screen. A second bespoke check here
  * would be a second vocabulary; this is the one that already exists.
  *
+ * WHAT "ENFORCED" MEANS HERE, PRECISELY. There is no pause, resume, kill or
+ * rollback ACT in this build, so there is nothing for the refusal to intercept:
+ * `refuseAgentInitiation` composes the refusal and its record, and the incident
+ * console renders both. `TEST-AI-015-7` (L87904) asks for refusal AND audit;
+ * the audit half has no sink anywhere under `src/` and is owed rather than
+ * built. The console says so on screen instead of letting a present tense imply
+ * a capability that is only composed.
+ *
  * The refusal is AUDITED, because `TEST-AI-015-7` (L87904) asserts "refusal and
  * audit in every case" and a refusal nobody records is indistinguishable from
  * an attempt that never happened.
@@ -332,9 +340,16 @@ export interface AuditedRefusal {
   readonly identity: IdentityColumn
   readonly decision: PermissionDecision
   /**
-   * What the audit trail records. `TEST-AI-015-7` (L87904) asserts "refusal and
-   * audit in every case", and a refusal nobody records is indistinguishable
-   * from an attempt that never happened.
+   * What an audit record for this refusal WOULD CARRY. `TEST-AI-015-7` (L87904)
+   * asks for "refusal and audit in every case", and a refusal nobody records is
+   * indistinguishable from an attempt that never happened.
+   *
+   * IT IS NOT WRITTEN ANYWHERE, AND THE FIELD NAME SHOULD NOT BE READ AS IF IT
+   * WERE. There is no audit sink in this build; this is a composed string with
+   * no consumer beyond the screen that prints it, and there is no pause,
+   * resume, kill or rollback ACT here for the refusal to guard either. The
+   * audit half of `TEST-AI-015-7` is owed, not met, and the incident console
+   * states that in its own words rather than implying otherwise by tense.
    */
   readonly auditRecord: string
   readonly sourceRefs: readonly string[]
@@ -367,6 +382,56 @@ export function refuseAgentInitiation(act: StopAct, identity: IdentityColumn): A
 export const AGENT_INITIATION_REFUSALS: readonly AuditedRefusal[] = STOP_ACTS.flatMap((act) =>
   AGENT_IDENTITY_COLUMNS.map((identity) => refuseAgentInitiation(act, identity)),
 )
+
+/* ==================================================================== *
+ * THE FRONTLINE SIDE OF THE PAUSE — A STATED ABSTENTION.
+ * ==================================================================== */
+
+/**
+ * THE CONFLICT THIS TASK WAS ASSIGNED AND DISCLOSED NOWHERE.
+ *
+ * `AC-AI-015-4` (L87889): "The affected tenant's Command Center renders an
+ * explicit paused state; no surface renders silence." `SB-AI-015`'s second
+ * clause (L87854), marked `Derived Clarification` on the same line, rules that
+ * the Frontline Worker Application surface shows nothing at all about the pause.
+ * §42.3 requires the worker's mode chip to read "Live coaching paused by the
+ * platform" — corroborated at L89289, L89348 and the matrix rows L89368/L89369,
+ * two of which the source marks `SoW Fact — §8.7.5`.
+ *
+ * The task brief assigns the pause's side of this to task 14, and the diff that
+ * built this module disclosed it nowhere and stated no abstention. From outside,
+ * a stated abstention and an oversight are indistinguishable, which is the whole
+ * reason this record exists rather than nothing at all.
+ *
+ * IT POINTS RATHER THAN RESTATES. The canon already holds every reading and
+ * every locator as `DEC-AIDISCLOSE-001` in `src/disclosure/decisions.ts` — a
+ * file this task may not edit — and writing local readings here would be the
+ * second home `DecisionDisclosure` exists to prevent. So this names the record,
+ * names the two criteria, and says which half of the surface this task builds.
+ */
+export const FRONTLINE_PAUSE_DISCLOSURE = {
+  decision: 'DEC-AIDISCLOSE-001',
+  canonHome: 'src/disclosure/decisions.ts',
+  conflict:
+    '`AC-AI-015-4` (L87889) requires that no surface renders silence during a pause. ' +
+    "`SB-AI-015`'s second clause (L87854), marked `Derived Clarification` on that same line, " +
+    'rules that the Frontline Worker Application surface shows nothing at all about it. §42.3 ' +
+    'requires the worker chip to read "Live coaching paused by the platform" rather than ' +
+    '"offline", because the distinction decides whether a worker walks to a better signal.',
+  whatThisTaskOwns:
+    'The Super Admin platform console side: the pause and resume controls, their approval states, ' +
+    'the blast-radius enumeration and the incident console that renders them. Every one of those ' +
+    'renders the paused state explicitly, so nothing this task builds renders silence.',
+  whatThisTaskDoesNotOwn:
+    'The Frontline Worker Application chip. No file under `src/frontline/` or `app/frontline/` is ' +
+    'on this task\'s path list, this task changes none of them, and it therefore neither builds ' +
+    'nor suppresses a worker-facing indicator. The overlay that would is a later task.',
+  adopted:
+    'Neither reading is adopted here and this task builds neither. The one thing the source does ' +
+    'settle is carried: L87826 rules that a missing scheduled artifact is shown as ' +
+    'unavailability, not silence, and the pause/resume workflow transcribes that step verbatim.',
+  locators: ['L87889', 'L87854', 'L89289', 'L89348', 'L89368', 'L89369', 'L87826'],
+} as const
 
 /* ==================================================================== *
  * PROVENANCE.

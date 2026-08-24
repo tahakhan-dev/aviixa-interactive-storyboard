@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest'
+import { isForeignProbe } from '../probe-paths'
 import { createHash } from 'node:crypto'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { isRefusal, permitsAction } from '@/policy/decision'
+import { AI_AGENT_ROSTER, type AiAgentId } from '@/ai/agents/roster'
+import { OPEN_DECISION_IDS } from '@/disclosure/decisions'
 import {
   AGENT_IDENTITY_COLUMNS,
   AGENT_INITIATION_REFUSALS,
+  FRONTLINE_PAUSE_DISCLOSURE,
   KILL_SWITCH,
   PAUSE_RESUME_WORKFLOW,
   PAUSE_SEMANTICS,
@@ -155,8 +159,20 @@ describe('resume is a separate act, and there is no automatic one', () => {
     // resume that fires on a clock is the defect; a resume that fires on an
     // approval is the feature, so the scan hunts scheduling primitives rather
     // than the word "resume".
+    // THE SCOPE INCLUDES THE SCREEN THAT ACTUALLY HOLDS THE PAUSE PAIR, and it
+    // did not. `app/super-admin/platform-settings/` is where the propose and
+    // approve rows for the pause live — `PAUSE_STATES`, `PauseRequested`,
+    // `ResumeRequested`, all of it — and it was outside this sweep entirely.
+    // The claim held (tree-wide there are zero hits for these tokens today),
+    // but the gate could not see the one directory where an auto-resume would
+    // be written. Proved by planting a timer in platform-settings and watching
+    // this go red.
     const offenders: string[] = []
-    for (const file of walk('src/ai/controls').concat(walk('src/ai/join'), walk('app/super-admin/ai-incidents'))) {
+    for (const file of walk('src/ai/controls').concat(
+      walk('src/ai/join'),
+      walk('app/super-admin/ai-incidents'),
+      walk('app/super-admin/platform-settings'),
+    )) {
       const text = readFileSync(file, 'utf8')
       // Comment lines are stripped: this file's own prose explains the rule.
       const code = text
@@ -190,6 +206,40 @@ describe('the pause and resume workflow, ten numbered steps (L87820-L87829)', ()
   })
 })
 
+/**
+ * THE AGENT ROSTER, AS A LITERAL LIST OUTSIDE THE MODULE — ids AND names.
+ *
+ * `src/ai/controls/stop.ts` says a hand-assembled identity list "would be short
+ * by exactly the agent nobody remembered", and the covering assertion was
+ * `expect(AGENT_IDENTITY_COLUMNS.length).toBeGreaterThan(0)`. A silent loss of
+ * one stayed green in the exact place the module warns about it.
+ *
+ * TWO HALVES, AND EACH CATCHES WHAT THE OTHER CANNOT. The id list is typed to
+ * `AiAgentId`, so an ADDITION to that union is a `tsc` error here — the
+ * `Exclude` check below names the missing member. The name list is compared with
+ * `toEqual`, so a deletion, a re-order or a re-worded name is red at run time.
+ * The Vision Reasoning Agent is the fourth on purpose: it is the roster row with
+ * "Not specified" governance and no role matrix anywhere, which is exactly the
+ * one a build drops.
+ */
+const AGENT_IDENTITY_ROSTER_IDS = [
+  'prevention',
+  'deviation-and-containment',
+  'shift-handoff',
+  'vision-reasoning',
+] as const satisfies readonly AiAgentId[]
+
+type MissingFromAgentRoster = Exclude<AiAgentId, (typeof AGENT_IDENTITY_ROSTER_IDS)[number]>
+const _agentRosterExhaustive: MissingFromAgentRoster extends never ? true : never = true
+void _agentRosterExhaustive
+
+const AGENT_IDENTITY_ROSTER_NAMES = [
+  'Prevention Agent',
+  'Deviation and Containment Agent',
+  'Shift Handoff Agent',
+  'Vision Reasoning Agent',
+] as const
+
 describe('AC-AI-015-7 — no agent initiates any of the four acts', () => {
   it('names the four acts the criterion names, and no others', () => {
     expect(STOP_ACTS).toEqual(['pause', 'resume', 'kill', 'rollback'])
@@ -199,10 +249,47 @@ describe('AC-AI-015-7 — no agent initiates any of the four acts', () => {
   })
 
   it('builds one identity column per roster agent, keyed on the agent and not on a role', () => {
-    expect(AGENT_IDENTITY_COLUMNS.length).toBeGreaterThan(0)
+    // A LITERAL LIST, DECLARED OUTSIDE THE MODULE, IN THE ROSTER'S OWN ORDER.
+    // This asserted `toBeGreaterThan(0)` in the one place `src/ai/controls/
+    // stop.ts` says a hand-assembled identity list "would be short by exactly
+    // the agent nobody remembered" — so a silent loss of one stayed green, and
+    // the Vision Reasoning Agent is precisely the one a build drops. The list
+    // fails on a DELETION, on an ADDITION, and on a re-order, and `tsc` fails
+    // too if a name stops being a member of the roster's own union.
+    expect(AGENT_IDENTITY_COLUMNS.map((column) => column.header)).toEqual(
+      AGENT_IDENTITY_ROSTER_NAMES,
+    )
+    // The id half, used at run time as well as by the `Exclude` check above —
+    // so the roster's ids and its names both have to line up with this file.
+    expect(AI_AGENT_ROSTER.map((agent) => agent.id)).toEqual([...AGENT_IDENTITY_ROSTER_IDS])
     for (const column of AGENT_IDENTITY_COLUMNS) {
       expect(column.kind).toBe('identity')
       expect(column.identitySourceRefs.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('reads that roster off the frozen source, one line per agent', () => {
+    // The four rows of chapter 44's roster, counted from the header down. The
+    // header is L91461, the separator L91462, and the data runs L91463-L91466.
+    //
+    // THE LINE AFTER THE LAST ROW IS ASSERTED NOT TO BE A TABLE ROW, so the
+    // roster cannot run long — and that line is NOT cited by number here,
+    // deliberately. It is blank, and a citation of a blank line is always wrong
+    // because a blank line states nothing: `tests/coverage/locator-fidelity.
+    // test.ts` convicts exactly that shape and it convicted this comment. The
+    // boundary is stated relative to the last row instead, and the assertion
+    // below is what actually establishes it.
+    AGENT_IDENTITY_ROSTER_NAMES.forEach((name, index) => {
+      expect(lineAt(91_463 + index), name).toContain(`| ${name} |`)
+    })
+    expect(lineAt(91_463 + AGENT_IDENTITY_ROSTER_NAMES.length).trim().startsWith('|')).toBe(false)
+    // And every column's locator lands on the row that names it.
+    for (const column of AGENT_IDENTITY_COLUMNS) {
+      for (const ref of column.identitySourceRefs) {
+        expect(lineAt(Number(ref.replace(/^L/, ''))), `${column.header} at ${ref}`).toContain(
+          column.header,
+        )
+      }
     }
   })
 
@@ -233,6 +320,48 @@ describe('AC-AI-015-7 — no agent initiates any of the four acts', () => {
   })
 })
 
+describe('the Frontline side of the pause — an abstention, stated', () => {
+  /**
+   * THE BRIEF ASSIGNS THIS CONFLICT TO TASK 14 AND THE DIFF DISCLOSED IT
+   * NOWHERE. `AC-AI-015-4` (L87889) requires that "no surface renders silence".
+   * `SB-AI-015`'s second clause (L87854), marked `Derived Clarification`, rules
+   * the Frontline surface shows nothing at all about the pause. Both readings
+   * are real and neither outranks the other on provenance; the canon already
+   * holds all of it as `DEC-AIDISCLOSE-001`.
+   *
+   * A stated abstention and an oversight look identical from outside, which is
+   * the whole reason this record exists rather than nothing. It POINTS at the
+   * canon record — `src/disclosure/decisions.ts` is read-only to this task and
+   * a second home for one decision is what `DecisionDisclosure` exists to
+   * prevent — and says which half of the conflict this task builds.
+   */
+  it('names the conflict, both criteria, and the canon record that holds it', () => {
+    expect(FRONTLINE_PAUSE_DISCLOSURE.decision).toBe('DEC-AIDISCLOSE-001')
+    expect(FRONTLINE_PAUSE_DISCLOSURE.decision).toSatisfy((id: string) =>
+      (OPEN_DECISION_IDS as readonly string[]).includes(id),
+    )
+    expect(FRONTLINE_PAUSE_DISCLOSURE.canonHome).toBe('src/disclosure/decisions.ts')
+    // Both sides, each pinned to the line that carries it.
+    expect(lineAt(87_889)).toContain('`AC-AI-015-4`')
+    expect(lineAt(87_889)).toContain('no surface renders silence')
+    expect(lineAt(87_854)).toContain('`SB-AI-015`')
+    expect(lineAt(87_854)).toContain('Derived Clarification')
+    for (const locator of FRONTLINE_PAUSE_DISCLOSURE.locators) {
+      expect(lineAt(Number(locator.replace(/^L/, ''))), locator).not.toBe('')
+    }
+    expect(FRONTLINE_PAUSE_DISCLOSURE.locators).toContain('L87889')
+    expect(FRONTLINE_PAUSE_DISCLOSURE.locators).toContain('L87854')
+  })
+
+  it('says what this task owns and what it does not, and adopts neither reading', () => {
+    expect(FRONTLINE_PAUSE_DISCLOSURE.whatThisTaskOwns).toMatch(/Super Admin|platform console/i)
+    expect(FRONTLINE_PAUSE_DISCLOSURE.whatThisTaskDoesNotOwn).toMatch(/Frontline/i)
+    expect(FRONTLINE_PAUSE_DISCLOSURE.adopted).toMatch(/neither/i)
+    // The one thing that IS settled, per L87826, is carried rather than lost.
+    expect(lineAt(87_826)).toContain('the absence is shown as unavailability, not silence')
+  })
+})
+
 describe('provenance', () => {
   it('emits exactly one class, and it is the deterministic-rule one', () => {
     expect(STOP_CONTROLS_PROVENANCE).toBe('PROV-4')
@@ -243,7 +372,7 @@ function walk(root: string): string[] {
   const out: string[] = []
   const visit = (dir: string) => {
     for (const entry of readdirSync(dir)) {
-      if (/^\.zz-probe-\d+$/.test(entry)) continue
+      if (isForeignProbe(entry)) continue
       const path = join(dir, entry)
       if (statSync(path).isDirectory()) visit(path)
       else out.push(path)

@@ -9,22 +9,30 @@ import type { ProvenanceClassId } from '@/ai/provenance/classes'
  * honest-rendering obligation at L87848. L87849 is a separate pair —
  * `RESUME --> RESTART` — and hangs off nothing this control governs.
  *
- * No population figure appears in this file, including in this comment. The
- * covering gate convicted an earlier draft of this paragraph for writing one,
- * and the spans above already carry the answer: a stored copy of a derived
- * count is the defect whether it sits in a rendered string or in prose.
+ * No population figure appears in this file, including in this comment. THAT
+ * SENTENCE WAS FALSE FOR A WHILE, AND AN ORDINAL IS WHY IT SURVIVED REVIEW.
+ * This paragraph and the rendered `whyNoCount` string below both used to place
+ * `HONEST` at an ordinal position among the continuing behaviours. An ordinal
+ * IS a population figure — it asserts the larger of the two readings — and it
+ * escaped the covering sweep because the sweep looks for cardinals. It also
+ * contradicted `kindOf('HONEST')` below, which answers `honest-rendering`
+ * rather than `continues` on purpose, and the table the incident console
+ * renders beneath it, which says the same. Removed, not renumbered. The spans
+ * above carry the enumeration; a stored copy of a derived count is the defect
+ * whether it sits in a rendered string, in an ordinal, or in prose.
  *
  * ── WHY THERE IS NO COUNT ON THIS RECORD, AND NONE ON ANY SCREEN ───────────
  * The narrative at L87852 says "Six things stop and nine continue". It is
- * defensible: the tenth continue-side node, `HONEST`, is a state the platform
- * must SHOW rather than a behaviour that carries on. But "nine continue" and
- * "ten continue" are both readings of one diagram, and a screen that prints
- * either has picked a side of a disagreement the source does not resolve. This
- * build's rule is that a contested count is REMOVED rather than renumbered —
- * changing a number reships the identical defect with a fresh one, and the count
- * was never the claim a reader could act on. So the enumeration renders and no
- * count does, and `tests/unit/ai-controls-blast-radius.test.ts` sweeps this
- * directory and the incident route for a count sentence.
+ * defensible: `HONEST` is a state the platform must SHOW rather than a
+ * behaviour that carries on, so whether it belongs on the continuing side at
+ * all is a reading. But "nine continue" and "ten continue" are both readings of
+ * one diagram, and a screen that prints either has picked a side of a
+ * disagreement the source does not resolve. This build's rule is that a
+ * contested count is REMOVED rather than renumbered — changing a number reships
+ * the identical defect with a fresh one, and the count was never the claim a
+ * reader could act on. So the enumeration renders and no count does, and
+ * `tests/unit/ai-controls-blast-radius.test.ts` sweeps this directory and the
+ * incident route for a count sentence.
  *
  * `HONEST`'s own `kind` is what makes the ambiguity legible rather than hidden:
  * it is neither `stops` nor `continues`, so a caller asking for either list
@@ -149,15 +157,23 @@ export function blastRadiusNodes(kind: BlastRadiusKind): readonly BlastRadiusNod
  * sentence is disclosure and restating it as fact is the defect.
  */
 export const BLAST_RADIUS_NO_COUNT = {
-  sourceRefs: ['L87852', 'L87848'],
+  /**
+   * ONE LOCATOR, AND IT IS THE LINE THAT CARRIES THE SENTENCE. `L87848` used to
+   * sit beside it and does not carry it: opened, that line reads
+   * `PAUSE --> HONEST["Client Command Center shows agents paused by the
+   * platform"]`. It is the HONEST node's own edge, it is cited on the node's own
+   * record where it belongs, and it is not evidence for this quotation.
+   */
+  sourceRefs: ['L87852'],
   quotation: 'Six things stop and nine continue.',
   whyNoCount:
-    "The narrative's reading is defensible: the tenth node on the continuing side is the " +
-    'honest-rendering obligation, a state the platform must show rather than a behaviour that ' +
-    'carries on. Two readings of one diagram are both arguable, so this build renders the ' +
-    'enumeration and no number at all. A stale or contested count is removed rather than ' +
-    'renumbered — a fresh number reships the identical defect, and the number was never the claim ' +
-    'a reader could act on.',
+    "The narrative's reading is defensible: the honest-rendering node is a state the platform " +
+    'must show rather than a behaviour that carries on, so whether it belongs among the ' +
+    'continuing behaviours at all is a reading rather than a fact. Both readings of the one ' +
+    'diagram are arguable, this build takes neither, and it renders the enumeration and no ' +
+    'number at all. A stale or contested count is removed rather than renumbered — a fresh ' +
+    'number reships the identical defect, and the number was never the claim a reader could ' +
+    'act on.',
 } as const
 
 /* ==================================================================== *

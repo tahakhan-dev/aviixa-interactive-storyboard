@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { isForeignProbe } from '../probe-paths'
 import { createHash } from 'node:crypto'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
@@ -19,9 +20,11 @@ import {
  * Sixteen nodes hang off `PAUSE`: six STOP (L87833-L87838), nine KEEP
  * (L87839-L87847), and `HONEST` (L87848), which is a rendering obligation
  * rather than a continuing behaviour. The narrative at L87852 says "Six things
- * stop and nine continue" and is defensible under exactly that reading — the
- * tenth continue-side node is a state the platform must SHOW, not a behaviour
- * that carries on.
+ * stop and nine continue" and is defensible under exactly that reading —
+ * `HONEST` is a state the platform must SHOW, not a behaviour that carries on.
+ * This paragraph placed it at an ordinal position among the continuing
+ * behaviours, which asserts the larger reading; the ordinal is removed rather
+ * than restated, here as well as in the module.
  *
  * WHAT EACH CASE BELOW IS FOR:
  *
@@ -149,15 +152,93 @@ describe('no count of stopping or continuing behaviours is rendered anywhere', (
     expect(BLAST_RADIUS_NO_COUNT.whyNoCount).toMatch(/renumber|removed/i)
   })
 
+  it('cites the quotation to the line that carries it, and to no other', () => {
+    // L87852 is the narrative paragraph and carries the sentence. L87848 was
+    // cited beside it and does NOT: opened, it reads
+    // `PAUSE --> HONEST["Client Command Center shows agents paused by the
+    // platform"]` — the HONEST node's own edge. It is a real line about a real
+    // node and it is not evidence for this quotation, so it is not cited for
+    // it. The node keeps that locator on its own record.
+    expect(lineAt(87_852)).toContain(BLAST_RADIUS_NO_COUNT.quotation)
+    expect(lineAt(87_848)).not.toContain(BLAST_RADIUS_NO_COUNT.quotation)
+    expect(lineAt(87_848)).toContain('PAUSE --> HONEST')
+    expect(BLAST_RADIUS_NO_COUNT.sourceRefs).toEqual(['L87852'])
+  })
+
+  it('states no population figure — including as an ordinal, and including in prose', () => {
+    // THE DEFECT THIS REPLACES. The module's own comment opened with "No
+    // population figure appears in this file, including in this comment" and
+    // then wrote one seven lines later — "the tenth continue-side node,
+    // `HONEST`" — and the RENDERED `whyNoCount` string said "the tenth node on
+    // the continuing side is the honest-rendering obligation". An ordinal is a
+    // count: "tenth on the continuing side" asserts the ten-continue reading,
+    // which is one side of a disagreement the source does not resolve. It also
+    // contradicted this module's own `kindOf('HONEST')`, which deliberately
+    // answers `honest-rendering` and not `continues`, and the table the
+    // incident console renders directly beneath it, which labels HONEST "a
+    // state to show, not a behaviour that carries on".
+    const ORDINALS = /\b(?:sixth|seventh|eighth|ninth|tenth|eleventh|sixteenth)\b/i
+    const moduleText = readFileSync(
+      join(process.cwd(), 'src/ai/controls/blast-radius.ts'),
+      'utf8',
+    )
+    expect(moduleText, 'an ordinal population figure in the module').not.toMatch(ORDINALS)
+    expect(BLAST_RADIUS_NO_COUNT.whyNoCount, 'a rendered population figure').not.toMatch(ORDINALS)
+    // And the rendered string may not assert which side HONEST sits on, since
+    // the module's own classifier refuses to.
+    expect(BLAST_RADIUS_NO_COUNT.whyNoCount).not.toMatch(/on the continuing side/i)
+    expect(kindOfHonest()).toBe('honest-rendering')
+  })
+
+  /**
+   * IT SCRUBS THE IDENTIFIERS, NOT THE LITERALS, AND THAT IS THE WHOLE POINT.
+   *
+   * This gate used to blank every `'…'` and `"…"` before scanning. Every
+   * rendered string in these data modules IS a quoted literal, so the gate
+   * could only see comments, JSX text and backticks — it was blind to the exact
+   * thing it exists to police. Measured both ways over the same two roots:
+   * **0 offenders with the strip, 12 without.** One of the twelve was
+   * `quotation: 'Six things stop and nine continue.'`, the register's own
+   * rendered field.
+   *
+   * The strip was added for a reason, though: some of those twelve are the
+   * SOURCE'S numbers, not this build's. So the source's own identifiers are
+   * scrubbed instead — the same list the component test scrubs — and the
+   * remaining exemptions are named one at a time rather than swept away by a
+   * class of syntax.
+   */
+  const scrubIdentifiers = (text: string): string =>
+    text
+      // Operational severity bands. `Severity 1` is an identifier, not a count.
+      .replaceAll(/Severity \d+/g, 'Severity')
+      // Section references and frozen-source locators.
+      .replaceAll(/§[\d.]+/g, '')
+      .replaceAll(/\bL\d{4,6}\b/g, '')
+      // Every register identifier family this cluster names.
+      .replaceAll(
+        /\b(?:AC|TEST|SB|DEC|FAIL-AI|AIMODE|PROV|MOD|FEAT|SUB|FUNC|SCR|FB|APP|CC)[A-Z0-9-]*\b/g,
+        '',
+      )
+      // JSX/attribute values are markup rather than prose, and one of them was
+      // the twelfth offender: a `data-testid="incident-stop-mechanisms"` div
+      // whose `className="space-y-3 text-sm"` supplied the digit.
+      .replaceAll(/\b(?:className|data-testid|id|key|controlId|aria-label)="[^"]*"/g, '')
+      // THE SOURCE'S OWN CONTESTED SENTENCE, quoted with its locator, is
+      // disclosure. The exemption is the WHOLE sentence, not either half of it,
+      // so "nine continue" standing alone is still convicted.
+      .replaceAll(/Six things stop and nine continue\.?/g, '')
+      // And the two competing readings, named AS readings inside quote marks.
+      // Disclosing both is required; asserting one is the defect. Again the
+      // exemption carries the quote marks, so an unquoted phrase is convicted.
+      .replaceAll(/"(?:nine|ten) continue"/g, '')
+
   it('carries no count sentence in the module or in the route that renders it', () => {
-    // The gate. A number adjacent to a stopping or continuing word is the
-    // defect; the source's OWN sentence quoted with its locator is not, so a
-    // quoted span is exempted exactly as `canon-size-literal` exempts one.
+    // A number adjacent to a stopping or continuing word is the defect. The
+    // scan runs over the file with its LITERALS INTACT — see
+    // `scrubIdentifiers` for why the previous strip made this gate unfailable.
     const offenders: string[] = []
     for (const file of walk('src/ai/controls').concat(walk('app/super-admin/ai-incidents'))) {
-      const text = readFileSync(file, 'utf8')
-        .replaceAll(/'[^'\n]*'/g, "''")
-        .replaceAll(/"[^"\n]*"/g, '""')
+      const text = scrubIdentifiers(readFileSync(file, 'utf8'))
       for (const [sentence] of text.matchAll(/[^.\n]*[.\n]/g)) {
         if (
           /\b(six|seven|eight|nine|ten|eleven|sixteen|\d+)\b/i.test(sentence) &&
@@ -168,6 +249,38 @@ describe('no count of stopping or continuing behaviours is rendered anywhere', (
       }
     }
     expect(offenders, 'a rendered count of stopping or continuing behaviours').toEqual([])
+  })
+
+  it('would convict a rendered count — the exemptions are sentence-shaped, not syntax-shaped', () => {
+    // The gate proved against itself rather than against a planted file. Each
+    // string below is what a screen picking a side would actually say, and
+    // every one of them survives `scrubIdentifiers` and trips the predicate.
+    const convicts = (text: string): boolean => {
+      const scrubbed = scrubIdentifiers(text)
+      return [...scrubbed.matchAll(/[^.\n]*[.\n]/g)].some(
+        ([sentence]) =>
+          /\b(six|seven|eight|nine|ten|eleven|sixteen|\d+)\b/i.test(sentence) &&
+          /\b(stop|stops|stopping|continue|continues|continuing)\b/i.test(sentence),
+      )
+    }
+    // A rendered literal — the shape the old strip was blind to.
+    expect(convicts("  summary: 'Nine behaviours continue.',\n")).toBe(true)
+    expect(convicts("  quotation: 'Six things stop and nine continue.',\n")).toBe(false)
+    // Half the quoted sentence, standing on its own, in the build's voice.
+    expect(convicts('  <p>Ten continue while agents are paused.</p>\n')).toBe(true)
+    // The two readings named as readings stay exempt; unquoted does not.
+    expect(convicts(' * Both "nine continue" and "ten continue" are readings.\n')).toBe(false)
+    expect(convicts(' * The build adopts ten continue as its reading.\n')).toBe(true)
+    // And the real false alarms stay quiet.
+    expect(convicts("{ key: 'KEEP4', label: 'Automatic Severity 1 lot freeze continues' },\n")).toBe(
+      false,
+    )
+    expect(convicts("'| Stop specification gates | no off switch `[SoW Fact — §8.7.5]` |',\n")).toBe(
+      false,
+    )
+    expect(convicts('<div data-testid="incident-stop-mechanisms" className="space-y-3 text-sm">\n')).toBe(
+      false,
+    )
   })
 })
 
@@ -236,11 +349,16 @@ describe('provenance', () => {
   })
 })
 
+/** HONEST's own kind, read off the module rather than restated. */
+function kindOfHonest(): string {
+  return BLAST_RADIUS_NODES.find((node) => node.key === 'HONEST')?.kind ?? 'missing'
+}
+
 function walk(root: string): string[] {
   const out: string[] = []
   const visit = (dir: string) => {
     for (const entry of readdirSync(dir)) {
-      if (/^\.zz-probe-\d+$/.test(entry)) continue
+      if (isForeignProbe(entry)) continue
       const path = join(dir, entry)
       if (statSync(path).isDirectory()) visit(path)
       else out.push(path)

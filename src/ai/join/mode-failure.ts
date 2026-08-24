@@ -30,9 +30,40 @@ import type { ProvenanceClassId } from '@/ai/provenance/classes'
  * Both halves name their own scope in their own words: the mode row's `name`
  * against the catalogue row's `failureMode` cell. `joinModeToFailure` reads the
  * scope off each side and THROWS where they disagree or where either side names
- * none. `AC-42-303` is the criterion behind the throw — `AIMODE-13`/`14` must
- * be distinguishable on every surface that shows a state, because a paused
- * tenant and a paused platform call for different human responses.
+ * none.
+ *
+ * THE CRITERION BEHIND THAT THROW IS `AC-42-301` (L89400), AND NAMING
+ * `AC-42-303` FOR IT WAS WRONG. `AC-42-303` (L89402) reads "`AIMODE-13` and
+ * `AIMODE-14` are distinguishable from `AIMODE-03` and `AIMODE-05` on every
+ * surface that shows a state, because a paused platform and an unreachable one
+ * call for different human responses." That distinguishes PAUSE modes from
+ * OUTAGE modes, and the source names it so itself: its own test, `TEST-42-302`
+ * at L89409, is titled "Pause-versus-outage test". It says nothing about telling
+ * one pause scope from the other, and it could not: the §42.3 matrix rows for
+ * the two pause modes, L89368 and L89369, are BYTE-IDENTICAL in all five
+ * columns after the mode name — worker label, agent invocation, deterministic
+ * safety, escalation delivery and classification alike. The mode matrix cannot
+ * settle tenant-versus-platform.
+ *
+ * WHAT SETTLES IT IS THE FAILURE CATALOGUE, AND THE SPLIT IS PER SURFACE.
+ * `FAIL-AI-41` (L90513) and `FAIL-AI-42` (L90514) carry BYTE-IDENTICAL Frontline
+ * message cells — both "Live coaching paused by the platform." — while their
+ * tenant-web cells differ: "Agents paused by the platform. Deterministic checks
+ * are unaffected." against "Agents paused by the platform for this workspace."
+ * Their operational bands differ too, `Critical` against `Major`. So the Client
+ * Command Center CAN tell the two pause scopes apart and the worker's device
+ * CANNOT, by the source's own design. That is the measured basis for refusing a
+ * mismatched pair rather than rendering one: the scope is only recoverable from
+ * the catalogue row, so a join that guessed it would be the single point where a
+ * platform-wide pause reaches a tenant surface as that tenant's own, with no
+ * other cell able to contradict it. It is why `MOD-CC-08` computes this
+ * distinction off the two records rather than asserting it, and why this join
+ * does the same.
+ *
+ * The criterion the throw legitimately leans on is `AC-42-301` (L89400) —
+ * "every surface that displays an artificial-intelligence availability state for
+ * a given tenant displays the same mode" — because a pair whose halves disagree
+ * about scope is a surface showing a state for the wrong tenant scope.
  *
  * `pauseScopeOf` is deliberately not a classifier over a whole sentence. It
  * looks for the source's own two scope words and returns `null` rather than
@@ -133,9 +164,10 @@ export interface ModeFailureJoin {
  * Join one mode to one failure on the scope each states for itself.
  *
  * Throws where the two halves disagree, and where either names no scope. Both
- * are refusals rather than fallbacks: `AC-42-303` requires the two pause modes
- * to be distinguishable on every surface that shows a state, and a join that
- * picked a side would be the one place that distinction is lost.
+ * are refusals rather than fallbacks: `AC-42-301` (L89400) requires every
+ * surface showing an availability state for a given tenant to show the same
+ * mode, and a join that picked a side would be the one place a platform-wide
+ * state gets rendered as one tenant's, or the reverse.
  */
 export function joinModeToFailure(modeId: AiModeId, failureId: string): ModeFailureJoin {
   const mode = aiMode(modeId)
@@ -147,8 +179,9 @@ export function joinModeToFailure(modeId: AiModeId, failureId: string): ModeFail
       `${modeId} ("${mode.name}") cannot be joined to ${failureId} ` +
         `("${failure.cells.failureMode}") on scope. The mode side reads ${String(fromMode)} and ` +
         `the failure side reads ${String(fromFailure)}. A pause whose two halves disagree about ` +
-        'whether it is one tenant or the whole platform is the exact distinction `AC-42-303` ' +
-        'exists for, and it is refused rather than rendered.',
+        'whether it is one tenant or the whole platform would render one scope as the other, ' +
+        'which is what `AC-42-301` forbids: every surface showing an availability state for a ' +
+        'given tenant shows the same mode. It is refused rather than rendered.',
     )
   }
   return {
@@ -176,7 +209,7 @@ export const PAUSE_MODE_FAILURE_PAIRS = [
  * The pause joins, built and checked. Every pair is joined through
  * `joinModeToFailure`, so a disagreeing pair throws; and the resolved scopes
  * must be distinct, because two rows carrying one scope means one screen for
- * both, which is what `AC-42-303` forbids by another route.
+ * both, which is what `AC-42-301` forbids by another route.
  */
 export function pauseJoins(): readonly ModeFailureJoin[] {
   const joins = PAUSE_MODE_FAILURE_PAIRS.map((pair) =>
@@ -186,7 +219,7 @@ export function pauseJoins(): readonly ModeFailureJoin[] {
   if (scopes.size !== joins.length) {
     throw new Error(
       'The pause joins resolved onto fewer scopes than there are joins. Two rows carrying one ' +
-        'scope means one screen for both, which is what `AC-42-303` forbids.',
+        'scope means one screen for both, which is what `AC-42-301` forbids.',
     )
   }
   return joins

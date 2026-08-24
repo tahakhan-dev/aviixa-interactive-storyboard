@@ -54,9 +54,14 @@ import {
  * ── EVERY ROW IS RENDERED, INCLUDING THE PERMISSIVE ONES ───────────────────
  * The table draws all fifteen with every cell's outcome and every stated
  * condition. A panel that drew only the undecided rows would be a list of
- * problems rather than an authority matrix, and `AC-43-353` (L91306) — every
- * critical-class response requiring root approval with no path around it — is
- * a claim about the granted rows.
+ * problems rather than an authority matrix. `AC-43-353` (L91306) reads, in
+ * full: "Every critical-class response requires root approval, with no path
+ * around it for any account." It is a rule about the APPROVAL of a response,
+ * not a statement about which rows are granted — this comment used to call it
+ * "a claim about the granted rows", which reads more into it than the line
+ * says. What follows from it here is narrower and enough: a matrix that drew
+ * only the unshippable rows would render no critical-class response at all, so
+ * the criterion would have nothing on screen to bind to.
  *
  * ── PROVENANCE, ONE CLASS, STATED ON SCREEN ────────────────────────────────
  * `PROV-4`. Everything here is a deterministic rule transcribed from the
@@ -201,18 +206,21 @@ export function AiFailureAuthorityPanel() {
           question — and each row states which of those it is. The row is printed as the source
           writes it rather than summarised, so a reader can see both readings.
         </p>
+        {/* THE LOCK'S OWN WORDS COME OFF THE ROW, ALL THREE OF THEM. This
+            block used to pass `settingValue="No authority settled"` to every
+            row while printing the row's own reason below it, and on the
+            provider-or-model-failover row that reason says the authority IS
+            settled — one card contradicting itself two paragraphs apart. The
+            incident console spelled the same three props again with a different
+            label. Both now read one derived field, so neither can choose. */}
         {NOT_SHIPPABLE_AUTHORITY_ROWS.map((row) => (
           <LockedControl
             key={row.id}
             controlId={`sa-ai-failure-${row.id}`}
             label={row.operation}
-            settingValue="No authority settled"
-            reason={`Cannot ship as an enabled control: ${row.notShippableReason ?? ''}. The row, verbatim: ${row.verbatim}`}
-            remains={
-              row.citedDecisions.length === 0
-                ? `Undecided in the classification column rather than in a role cell, at ${row.sourceRef}.`
-                : `Open decisions named on this row: ${row.citedDecisions.join(', ')}.`
-            }
+            settingValue={row.notShippableLock?.settingValue ?? ''}
+            reason={row.notShippableLock?.reason ?? ''}
+            remains={row.notShippableLock?.remains ?? null}
           />
         ))}
       </section>

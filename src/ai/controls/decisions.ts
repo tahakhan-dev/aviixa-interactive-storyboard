@@ -221,9 +221,19 @@ export const LOCAL_OPEN_DECISIONS = [
         locator: 'L91289',
       },
       {
+        // CORRECTED. This reading used to say the §43.3.5
+        // source-classification paragraph "files the site-scoped pause among
+        // the items that are `Recommendation — R&D`". Opened, L91319 does not:
+        // the items it puts in that bracket are "Incident disambiguation, the
+        // incident console, and the reconciliation-gated closure", and its only
+        // clause about the site-scoped pause assigns it a DECISION IDENTIFIER —
+        // "Site-scoped pause is `DEC-AIPAUSE-001`". The classification claim
+        // belongs to L91229 and L91341, both already cited above.
         text:
-          'The §43.3.5 source-classification paragraph files the site-scoped pause among the items ' +
-          'that are `Recommendation — R&D` rather than `SoW Fact`.',
+          'The §43.3.5 source-classification paragraph assigns the site-scoped pause its decision ' +
+          'identifier — it reads "Site-scoped pause is `DEC-AIPAUSE-001`" — and does not classify ' +
+          'the scope itself there. The `Recommendation — R&D` classification is stated at L91229 ' +
+          'and in the §43.4 row at L91341.',
         locator: 'L91319',
       },
       {

@@ -243,8 +243,11 @@ export interface ConsoleAuthorityRow extends ColumnMatrixRow {
    * `Allowed` for the root and grants the other three, and its classification
    * names no client-decision token, so `undecided` is FALSE for it. But its
    * classification carries `Recommendation — R&D`, `DEC-AIFAILOVER-001`: the
-   * AUTHORITY is settled and the POLICY is not, and the source's own §43.4
-   * (L91337, L91335) puts failover among the capabilities beyond §8.7.1. A
+   * AUTHORITY is settled and the POLICY is not, and the source's own §43.4 row
+   * for failover — **L91335**, opened, and it is the only one of the three —
+   * puts it among the capabilities beyond §8.7.1. This cited "(L91337, L91335)"
+   * and L91337 is the SAFE REPLAY row, a different capability with a different
+   * decision (`DEC-AIREPLAY-001`); L91336 between them is model quarantine. A
    * working failover button is a control with no written rule for when it
    * fires, whether the substitute must pass its evaluation scenarios first, or
    * whether the tenant is told.
@@ -264,38 +267,88 @@ export interface ConsoleAuthorityRow extends ColumnMatrixRow {
    */
   readonly shippable: boolean
   /**
-   * WHICH of the three mechanisms refused it, in the row's own terms, or
+   * WHICH of the four mechanisms refused it, in the row's own terms, or
    * `null` where none did. The reason differs per row and a single flag would
-   * tell an operator three different situations were one.
+   * tell an operator four different situations were one.
    */
   readonly notShippableReason: string | null
+  /**
+   * The whole of what a locked control says about this row, or `null` where the
+   * row ships.
+   *
+   * ── WHY THE LABEL IS DERIVED AND NOT PASSED IN ────────────────────────────
+   * Both call sites used to apply ONE literal to every unshippable row — the
+   * panel "No authority settled", the incident console "Not available to
+   * anyone" — beside a `reason` read off the row. On the
+   * `provider-or-model-failover` row (L91291) that reason reads "the authority
+   * is settled and the governing policy is an open decision", so one card
+   * printed "No authority settled" over its own statement that the authority IS
+   * settled, two paragraphs apart, and the two call sites disagreed with each
+   * other on top of that. A fold applied to one branch is the defect shape;
+   * the fix is that the label is not a caller's to choose.
+   *
+   * All three fields are produced in the same breath as `notShippableReason`,
+   * off the same refusal, so they cannot part company with it or with each
+   * other. A caller passes `controlId` and nothing else.
+   */
+  readonly notShippableLock: NotShippableLock | null
 }
 
 /**
- * The three ways a row can fail to be shippable, in the order they are checked.
+ * What a locked control says about an unshippable row, in the row's own terms.
+ * Exactly the three text props `LockedControl` takes beyond its label and id.
+ */
+export interface NotShippableLock {
+  /** The state the control is fixed AT — the honest one for THIS refusal. */
+  readonly settingValue: string
+  /** Why it is locked, with the row printed verbatim rather than summarised. */
+  readonly reason: string
+  /** What is still open, named by identifier where the row names one. */
+  readonly remains: string
+}
+
+/**
+ * The four ways a row can fail to be shippable, in the order they are checked.
  * A row can trip more than one — the kill switch trips two — and the first that
  * applies is the one reported, because it is the most specific statement about
  * that row.
+ *
+ * `settingValue` travels WITH the reason rather than beside it. These are not
+ * four spellings of one state: on three of the four the authority itself is
+ * unsettled, and on the fourth it is settled and only the policy is open.
  */
-function shippabilityRefusal(row: {
+const SHIPPABILITY_REFUSALS = [
+  {
+    applies: (row: RefusalInput) => row.undecidedCells.length > 0,
+    reason: 'a role cell defers to the client',
+    settingValue: 'No authority settled',
+  },
+  {
+    applies: (row: RefusalInput) => row.permissiveCellsDeferring.length > 0,
+    reason: 'a cell grants and defers in the same breath, and the classification defers with it',
+    settingValue: 'Authority granted; the emergency path undecided',
+  },
+  {
+    applies: (row: RefusalInput) => row.undecidedInClassification,
+    reason: 'the classification defers while every role cell grants',
+    settingValue: 'Authority granted; classification undecided',
+  },
+  {
+    applies: (row: RefusalInput) => row.citedDecisions.length > 0,
+    reason: 'the authority is settled and the governing policy is an open decision',
+    settingValue: 'Authority settled; governing policy undecided',
+  },
+] as const
+
+interface RefusalInput {
   readonly undecidedCells: readonly ColumnKey[]
   readonly permissiveCellsDeferring: readonly ColumnKey[]
   readonly undecidedInClassification: boolean
   readonly citedDecisions: readonly string[]
-}): string | null {
-  if (row.undecidedCells.length > 0) {
-    return 'a role cell defers to the client'
-  }
-  if (row.permissiveCellsDeferring.length > 0) {
-    return 'a cell grants and defers in the same breath, and the classification defers with it'
-  }
-  if (row.undecidedInClassification) {
-    return 'the classification defers while every role cell grants'
-  }
-  if (row.citedDecisions.length > 0) {
-    return 'the authority is settled and the governing policy is an open decision'
-  }
-  return null
+}
+
+function shippabilityRefusal(row: RefusalInput): (typeof SHIPPABILITY_REFUSALS)[number] | null {
+  return SHIPPABILITY_REFUSALS.find((refusal) => refusal.applies(row)) ?? null
 }
 
 /**
@@ -380,7 +433,7 @@ function parseRow(line: string, lineNumber: number): ConsoleAuthorityRow {
   const undecidedInClassification =
     undecidedCells.length === 0 && backtickedFragments(classification).some(parsesAsClientDecision)
 
-  const notShippableReason = shippabilityRefusal({
+  const refusal = shippabilityRefusal({
     undecidedCells,
     permissiveCellsDeferring,
     undecidedInClassification,
@@ -405,8 +458,20 @@ function parseRow(line: string, lineNumber: number): ConsoleAuthorityRow {
       undecidedCells.length > 0 ||
       undecidedInClassification ||
       permissiveCellsDeferring.length > 0,
-    shippable: notShippableReason === null,
-    notShippableReason,
+    shippable: refusal === null,
+    notShippableReason: refusal?.reason ?? null,
+    notShippableLock:
+      refusal === null
+        ? null
+        : {
+            settingValue: refusal.settingValue,
+            reason:
+              `Cannot ship as an enabled control: ${refusal.reason}. The row, verbatim: ${line}`,
+            remains:
+              citedDecisions.length === 0
+                ? `Undecided in the classification column rather than in a role cell, at ${sourceRef}.`
+                : `Open decisions named on this row: ${citedDecisions.join(', ')}.`,
+          },
   }
 }
 
@@ -437,6 +502,23 @@ export const UNDECIDED_AUTHORITY_ROWS: readonly ConsoleAuthorityRow[] =
  */
 export const NOT_SHIPPABLE_AUTHORITY_ROWS: readonly ConsoleAuthorityRow[] =
   CONSOLE_AUTHORITY_ROWS.filter((row) => !row.shippable)
+
+/**
+ * Every `DEC-*` the unshippable rows name, deduplicated and in row order.
+ *
+ * DERIVED HERE RATHER THAN AT THE SCREEN THAT PRINTS IT. The incident console
+ * needs this list to say which of the governing values behind those rows are
+ * themselves unset, and it used to carry a hand-typed array of three
+ * identifiers with the word "Three" in the sentence beside it — inside the same
+ * sentence claiming no number is written anywhere. Deriving it here also keeps
+ * `citedDecisions` from being read outside this module, which is what
+ * `tests/unit/ai-controls-authority-shippability.test.ts` sweeps for.
+ */
+export const NOT_SHIPPABLE_CITED_DECISIONS: readonly string[] = Array.from(
+  new Set(
+    CONSOLE_AUTHORITY_ROWS.filter((row) => !row.shippable).flatMap((row) => row.citedDecisions),
+  ),
+)
 
 /** Every row that MAY render as an enabled control. The counterweight. */
 export const SHIPPABLE_AUTHORITY_ROWS: readonly ConsoleAuthorityRow[] =

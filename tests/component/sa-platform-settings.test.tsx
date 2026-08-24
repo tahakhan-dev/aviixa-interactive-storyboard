@@ -9,6 +9,28 @@ import { UNSET_GOVERNING_VALUES } from '@/ai/failures/open-values'
 
 const MODULE = saModuleById('MOD-SA-07')
 
+/**
+ * A GOVERNING VALUE SPELLED OUT IN WORDS.
+ *
+ * `AC-43-112` (L90039) forbids a code-level default that would apply silently,
+ * and `TEST-43-112` (L90045) is the scan. A digit rule alone misses the word
+ * form, and the word list that used to sit inline missed most of the words:
+ * `one|two|three|five|ten|fifteen|thirty|sixty|ninety` — no `four` in a list
+ * holding `five`, and no `six`, `eight`, `twelve`, `twenty`, `forty`, hyphenated
+ * compound, or fraction phrase either. Declared here as one pattern with a probe
+ * beside it, rather than a regex nobody re-reads.
+ */
+const NUMBER_WORD =
+  '(?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|' +
+  'fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|' +
+  'ninety|hundred|half|quarter)'
+const UNIT_WORD = '(?:second|minute|hour|day|week|attempt|retry|retries|step|token|percent)'
+const SPELLED_OUT_VALUE = new RegExp(
+  // `forty-five minutes`, `four attempts`, `half an hour`, `a quarter of an hour`.
+  `\\b${NUMBER_WORD}(?:-${NUMBER_WORD})?(?:\\s+(?:of|an|a))*\\s+${UNIT_WORD}s?\\b`,
+  'i',
+)
+
 /** The twelve applicable screen states: all thirteen less frontline-only STATE-07. */
 
 function interactiveElements(container: HTMLElement): Element[] {
@@ -601,9 +623,39 @@ describe('MOD-SA-07 — SB-43-102, the open-values panel inside platform setting
       .replaceAll(/§[\d.]+/g, '')
       .replaceAll(/\bL\d{4,6}/g, '')
     expect(scrubbed, 'a seeded governing value').not.toMatch(/\d/)
-    expect(scrubbed, 'a spelled-out governing value').not.toMatch(
-      /\b(one|two|three|five|ten|fifteen|thirty|sixty|ninety)\s+(second|minute|hour|attempt|retry|step)/i,
-    )
+    expect(scrubbed, 'a spelled-out governing value').not.toMatch(SPELLED_OUT_VALUE)
+  })
+
+  it('would catch a spelled-out default the old word list let through', () => {
+    // THE LIST WAS INCOMPLETE AND ITS GAPS WERE NOT RANDOM. It ran
+    // `one|two|three|five|ten|fifteen|thirty|sixty|ninety` — `four` missing
+    // from a list that had `five`, and `six`, `eight`, `twelve`, `twenty`,
+    // `forty`, `forty-five` and the fraction words missing too. Any of those
+    // seeds a governing value in plain English and passed. Proved by probe
+    // rather than by reading the regex, and every string below is a value this
+    // register exists to refuse.
+    for (const seeded of [
+      'four attempts',
+      'six minutes',
+      'eight hours',
+      'twelve retries',
+      'twenty seconds',
+      'forty-five minutes',
+      'half an hour',
+      'a quarter of an hour',
+      'two steps',
+      'ninety seconds',
+    ]) {
+      expect(seeded, `a spelled-out default the scan misses: ${seeded}`).toMatch(SPELLED_OUT_VALUE)
+    }
+    // And it stays quiet on prose that names no quantity.
+    for (const clean of [
+      'Not yet set — client decision DEC-AIRETRY-001',
+      'The retry ceiling is a client decision.',
+      'no minute is written here',
+    ]) {
+      expect(clean, `a false alarm: ${clean}`).not.toMatch(SPELLED_OUT_VALUE)
+    }
   })
 
   it('offers no enablement control while a governing value is unset (AC-43-111)', () => {

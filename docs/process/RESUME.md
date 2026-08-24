@@ -731,7 +731,8 @@ that independently. **Wave 3 runs at most three agents, with the build step seri
 **`AC-42-303` IS A PAUSE-VERSUS-OUTAGE RULE AND THE SOURCE NAMES IT SO.** `TEST-42-302` at **L89409**
 is called "**Pause-versus-outage test**". Two briefs and one module had restated the criterion as
 distinguishing the two pause *scopes* from each other; it distinguishes `AIMODE-13`/`-14` from
-`AIMODE-03`/`-05`, at **L89402**, its only occurrence. **L89412, cited as a range endpoint, is blank.**
+`AIMODE-03`/`-05`, at **L89402**, its only occurrence. **[cited-in-error: L89412], cited as a range endpoint, is blank** — and this sentence needs the
+marker for the same reason the paragraph below it does.
 
 **And the tenant-versus-platform distinction has a basis that is measured rather than asserted.**
 `FAIL-AI-41` and `FAIL-AI-42`'s **Frontline** message cells are byte-identical while their

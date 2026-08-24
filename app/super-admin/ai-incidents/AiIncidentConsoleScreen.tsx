@@ -9,6 +9,7 @@ import {
 } from '@/ai/controls/decisions'
 import { ROLLBACK_FORMS, ROLLBACK_MAY_NEVER, ROLLBACK_NO_SINGLE_CONTROL, ROLLBACK_PROVENANCE } from '@/ai/controls/rollback'
 import {
+  FRONTLINE_PAUSE_DISCLOSURE,
   KILL_SWITCH,
   PAUSE_RESUME_WORKFLOW,
   PAUSE_SEMANTICS,
@@ -18,12 +19,14 @@ import {
   STOP_MECHANISMS,
   AGENT_IDENTITY_COLUMNS,
 } from '@/ai/controls/stop'
-import { governingValue } from '@/ai/failures/open-values'
+import { UNSET_GOVERNING_VALUES } from '@/ai/failures/open-values'
 import { pauseJoins } from '@/ai/join/mode-failure'
 import {
   CONSOLE_AUTHORITY_COLUMNS,
   CONSOLE_AUTHORITY_ROWS,
   CONSOLE_AUTHORITY_PROVENANCE,
+  NOT_SHIPPABLE_CITED_DECISIONS,
+  consoleAuthorityRow,
 } from '@/surfaces/sa/ai-failure-authority'
 import { AiFailureAuthorityPanel } from '@/ui/sa/AiFailureAuthorityPanel'
 import { LockedControl, StatusPill, Table } from '@/ui/primitives'
@@ -84,8 +87,10 @@ import {
  * `AC-43-103` (L89975) forbids sharing a rendering component with the
  * manufacturing severity catalogue. The operational band arrives as a STRING on
  * the mode-to-failure join and is printed as text; no severity component from
- * slice 6 or 9 is imported here, and the covering test sweeps this directory
- * for one.
+ * slice 6 or 9 is reachable from here, and the covering test walks this
+ * screen's whole import graph rather than one directory — a component reached
+ * through the mounted authority panel or through a barrel was invisible to the
+ * directory scan it replaces.
  */
 
 /**
@@ -102,6 +107,21 @@ const TRANSCRIBED_REGISTER_EMPTY_STATE = {
     'Each row is a line of the blueprint carried verbatim, so an empty table here would mean the ' +
     'transcription itself was lost rather than that there is nothing to show.',
 } as const
+
+/**
+ * The open governing values that the unshippable authority rows themselves
+ * name. BOTH SIDES DERIVED: the identifiers come off the rows
+ * (`NOT_SHIPPABLE_CITED_DECISIONS`) and the membership test is the open
+ * register, so a sixth unshippable row citing a fourth decision appears here
+ * without anyone editing a list. Nothing states how many there are.
+ *
+ * `DEC-AIPAUSE-001` and `DEC-KILL-001` are cited by unshippable rows and are
+ * correctly absent: they are open decisions about authority, not values in the
+ * ten-row governing-value register, and the register is the membership test.
+ */
+const UNSET_VALUES_BEHIND_UNSHIPPABLE_ROWS = UNSET_GOVERNING_VALUES.filter((value) =>
+  NOT_SHIPPABLE_CITED_DECISIONS.includes(value.id),
+)
 
 export interface AiIncidentConsoleScreenProps {
   /** The console role reading the screen. Defaults to the least-privileged. */
@@ -370,13 +390,61 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
             <Locator refs={RESUME_IS_SEPARATE.sourceRefs} />
           </p>
 
+          {/* THE ABSTENTION, RENDERED. Both readings live in the canon as
+              `DEC-AIDISCLOSE-001` and are pointed at rather than restated —
+              `src/disclosure/decisions.ts` is not on this task's path list and
+              a second home for one decision is the defect that pointer avoids. */}
+          <div
+            role="note"
+            data-testid="incident-frontline-disclosure-abstention"
+            className="space-y-2 rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4"
+          >
+            <p className="font-medium text-[var(--color-ink)]">
+              What the worker&rsquo;s own surface shows is an open decision, and this console does
+              not settle it — {FRONTLINE_PAUSE_DISCLOSURE.decision}
+            </p>
+            <p className="text-[var(--color-ink-muted)]">{FRONTLINE_PAUSE_DISCLOSURE.conflict}</p>
+            <p className="text-[var(--color-ink-muted)]">
+              {FRONTLINE_PAUSE_DISCLOSURE.whatThisTaskOwns}
+            </p>
+            <p className="text-[var(--color-ink-muted)]">
+              {FRONTLINE_PAUSE_DISCLOSURE.whatThisTaskDoesNotOwn}
+            </p>
+            <p className="text-[var(--color-ink)]">{FRONTLINE_PAUSE_DISCLOSURE.adopted}</p>
+            <p className="text-xs text-[var(--color-ink-subtle)]">
+              Every reading is held in {FRONTLINE_PAUSE_DISCLOSURE.canonHome} and pointed at from
+              here rather than restated.
+              <Locator refs={FRONTLINE_PAUSE_DISCLOSURE.locators} />
+            </p>
+          </div>
+
           <p className="font-medium text-[var(--color-ink)]">
             A third scope the source names and does not grant
           </p>
+          {/* THREE CARDS DRAW THIS ONE CONTROL ON THIS ONE PAGE, DELIBERATELY,
+              AND THEY NOW SAY THE SAME THING ABOUT IT.
+
+              Each answers a different question a reader arrives with, which is
+              why none is deleted:
+                · HERE — §40.15's pause record. The reader is being told the
+                  source names a third scope and does not grant it, and this is
+                  the only place its READINGS are printed.
+                · The response panel below — §43.3.5 filtered to the operator's
+                  own role, one row of fifteen. Removing it would leave a
+                  response panel that silently omits a control the matrix names.
+                · `AiFailureAuthorityPanel` — the matrix itself, whole and
+                  unfiltered, which is that component's own contract.
+
+              What was NOT deliberate: two of the three said "No authority
+              settled" and one said "Not available to anyone". One control, two
+              locked values, on one page. The value now comes off the matrix row
+              at the single input in every case, so the three cannot disagree. */}
           <LockedControl
             controlId="incident-site-scoped-pause"
             label={SITE_SCOPED_PAUSE.label}
-            settingValue="No authority settled"
+            settingValue={
+              consoleAuthorityRow('site-scoped-pause').notShippableLock?.settingValue ?? ''
+            }
             reason={SITE_SCOPED_PAUSE.buildPosition}
             remains={`Open decision ${SITE_SCOPED_PAUSE.decision}, at ${SITE_SCOPED_PAUSE.locators.join(', ')}.`}
           />
@@ -455,8 +523,17 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
         <div data-testid="incident-blast-radius" className="space-y-3 text-sm">
           <p className="max-w-prose text-[var(--color-ink-muted)]">
             The enumeration below is the whole of it, and no figure appears beside it.{' '}
-            {BLAST_RADIUS_NO_COUNT.whyNoCount} The source&rsquo;s own sentence, quoted:
-            &ldquo;{BLAST_RADIUS_NO_COUNT.quotation}&rdquo;
+            {BLAST_RADIUS_NO_COUNT.whyNoCount} The source&rsquo;s own sentence, quoted:{' '}
+            {/* THE QUOTED SPAN IS MARKED, because the covering gate needs to
+                tell a quotation from this build's own voice. Its count-phrase
+                assertion used to exempt either half of the quoted sentence
+                wherever it appeared on the page, so a screen printing one of
+                those halves as its own claim passed. The gate now asserts the
+                page's matches are exactly the ones inside this element — which
+                is also why neither half is written out in this comment. */}
+            <q data-testid="blast-radius-source-quotation">
+              {BLAST_RADIUS_NO_COUNT.quotation}
+            </q>
             <Locator refs={BLAST_RADIUS_NO_COUNT.sourceRefs} />
           </p>
           <Table
@@ -570,16 +647,16 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
                 if (!row.shippable) {
                   return (
                     <li key={row.id}>
+                      {/* All three text props come off the row. They used to
+                          be spelled here AND in
+                          `src/ui/sa/AiFailureAuthorityPanel.tsx` with two
+                          different `settingValue`s for the same control. */}
                       <LockedControl
                         controlId={`incident-authority-${row.id}`}
                         label={row.operation}
-                        settingValue="Not available to anyone"
-                        reason={`Cannot ship as an enabled control: ${row.notShippableReason ?? ''}. The row, verbatim: ${row.verbatim}`}
-                        remains={
-                          row.citedDecisions.length === 0
-                            ? `Undecided in the classification column rather than in a role cell, at ${row.sourceRef}.`
-                            : `Open decisions named on this row: ${row.citedDecisions.join(', ')}.`
-                        }
+                        settingValue={row.notShippableLock?.settingValue ?? ''}
+                        reason={row.notShippableLock?.reason ?? ''}
+                        remains={row.notShippableLock?.remains ?? null}
                       />
                     </li>
                   )
@@ -612,13 +689,21 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
               })}
             </ul>
           )}
+          {/* NO COUNT, INCLUDING IN THE SENTENCE THAT CLAIMS THERE IS NONE.
+              This paragraph read "Three governing values the unshippable rows
+              name are themselves unset" over a hand-typed array of three
+              identifiers and an `as` cast — a literal count inside the sentence
+              denying one, and a list that would not notice a sixth unshippable
+              row citing a fourth decision. Both halves are derived now:
+              `NOT_SHIPPABLE_CITED_DECISIONS` comes off the rows, and the
+              intersection with the open governing-value register is computed. */}
           <p className="max-w-prose text-xs text-[var(--color-ink-subtle)]">
             Which rows cannot ship is derived from each row&rsquo;s own cells and classification at a
-            single input, and no number of them is written anywhere. Three governing values the
-            unshippable rows name are themselves unset:{' '}
-            {['DEC-AIFAILOVER-001', 'DEC-AIQUAR-001', 'DEC-AIREPLAY-001']
-              .map((id) => `${id} — ${governingValue(id as 'DEC-AIFAILOVER-001').state}`)
-              .join('; ')}
+            single input, and no number of them is written anywhere. The governing values the
+            unshippable rows name that are themselves unset:{' '}
+            {UNSET_VALUES_BEHIND_UNSHIPPABLE_ROWS.map(
+              (value) => `${value.id} — ${value.state}`,
+            ).join('; ')}
             .
             <Locator refs={['L90038', 'L90039', 'L90040']} />
           </p>
@@ -695,12 +780,34 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
       {/* ── 12. THE AGENT REFUSAL ────────────────────────────────────── */}
       <Section id="incident-agent-refusal-section" heading="No agent initiates any of these">
         <div data-testid="incident-agent-refusal" className="space-y-2 text-sm">
+          {/* WHAT THE RECORD CARRIES, NOT WHAT THIS BUILD DOES. This paragraph
+              used to read "every refusal is written to the audit trail" in the
+              present tense. Measured: `refuseAgentInitiation` is called by
+              nothing but its own module constant and its tests, `auditRecord`
+              is a string with no consumer, there is no audit sink anywhere
+              under `src/`, and there is no pause, resume, kill or rollback ACT
+              in this build for a refusal to guard. `TEST-AI-015-7` (L87904)
+              requires "refusal and audit", so the obligation is real and
+              unmet — and the standing limit is that no production capability
+              may be claimed that is only simulated. The obligation is stated,
+              the record's contents are stated, and the gap is stated. */}
           <p className="max-w-prose text-[var(--color-ink-muted)]">
             AC-AI-015-7 — &ldquo;No agent can initiate a pause, a resume, a kill, or any
             rollback.&rdquo; All four acts — {STOP_ACTS.join(', ')} — route through one refusal, and
-            every refusal is written to the audit trail with the identity, the act and the criterion.
-            A refusal nobody records cannot be told from an attempt that never happened.
+            each refusal record carries the identity, the act and the criterion, because a refusal
+            nobody records cannot be told from an attempt that never happened.
             <Locator refs={['L87892', 'L87904']} />
+          </p>
+          <p
+            data-testid="incident-agent-refusal-limit"
+            className="max-w-prose text-[var(--color-ink)]"
+          >
+            What this storyboard does and does not do: it composes the refusal record for every act
+            against every agent identity and renders it. It writes no audit trail — there is no
+            audit sink in this build — and there is no pause, resume, kill or rollback act here for
+            the refusal to guard. TEST-AI-015-7 asks for refusal <em>and</em> audit; the audit half
+            is owed and is not claimed as built.
+            <Locator refs={['L87904']} />
           </p>
           <p className="max-w-prose text-[var(--color-ink-muted)]">
             The identities it is enforced against are the whole agent roster:{' '}
