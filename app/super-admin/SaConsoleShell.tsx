@@ -24,6 +24,28 @@ const SURFACE = surfaceById('SURF-SA')
  * (D1) — module directories under `app/super-admin/<slug>/` are what each
  * later task creates.
  */
+/**
+ * Routes on this surface that are NOT modules.
+ *
+ * Measured before this list existed: `app/super-admin/occurrence-detail/` is
+ * already reached from `src/surfaces/sa/scheduler/SchedulerScaffold.tsx`, so it
+ * is not listed here — a second link would be a second entry point to one
+ * screen. The incident console had no inbound link at all, which is what this
+ * list exists for.
+ *
+ * `attribution` is not decoration. The incident console's slug is this build's
+ * own — the frozen source carries no URL notation for the surface — and a
+ * reader arriving from this index should learn that before the screen loads.
+ */
+const NON_MODULE_ROUTES = [
+  {
+    href: '/super-admin/ai-incidents/',
+    name: 'Artificial-intelligence incident console',
+    storyboard: 'SB-43-351, L91276',
+    attribution: 'route slug is a build decision under APP-012, not a source fact',
+  },
+] as const
+
 export interface SaConsoleShellProps {
   readonly module?: SaModuleDefinition
   readonly children?: ReactNode
@@ -67,6 +89,42 @@ export function SaConsoleShell({ module, children }: SaConsoleShellProps) {
               <ModuleList modules={modulesInBand(band.id)} />
             </section>
           ))}
+
+          {/* THE NON-MODULE ROUTES, LISTED SEPARATELY AND LABELLED.
+             *
+             * `SA_MODULES` is the module inventory and these routes are not in
+             * it — no `MOD-*` identifier claims either screen, so listing them
+             * among the modules would file them under an identifier the source
+             * never assigns. They are reached from here because a route
+             * nothing links to is a route only a URL-typist finds, and this
+             * build's rule is that a component reachable from nothing is not
+             * shipped.
+             *
+             * The incident console closes the `console-mount` seam in
+             * `src/surfaces/sa/ai-failure-authority.ts`, which named this file
+             * as the mount point. Its slug is this build's own: the frozen
+             * source carries no URL notation for the surface at all, and the
+             * screen says so above the fold. */}
+          <section className="mt-8">
+            <h2 className="text-lg font-semibold">
+              Cross-module screens{' '}
+              <span className="font-normal text-[var(--color-ink-subtle)]">
+                — not module routes, and no module identifier is minted for them
+              </span>
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {NON_MODULE_ROUTES.map((route) => (
+                <li key={route.href} className="flex flex-wrap items-baseline gap-2">
+                  <Link href={route.href} className="text-[var(--color-primary)] underline">
+                    {route.name}
+                  </Link>
+                  <span className="text-xs text-[var(--color-ink-subtle)]">
+                    {route.storyboard} · {route.attribution}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
         </>
       ) : (
         <>

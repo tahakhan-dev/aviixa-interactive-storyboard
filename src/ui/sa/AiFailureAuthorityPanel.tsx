@@ -10,8 +10,8 @@ import {
   CONSOLE_AUTHORITY_PROVENANCE,
   CONSOLE_AUTHORITY_ROWS,
   CONSOLE_AUTHORITY_SEAMS,
+  NOT_SHIPPABLE_AUTHORITY_ROWS,
   UNCANONISED_DECISIONS,
-  UNDECIDED_AUTHORITY_ROWS,
 } from '@/surfaces/sa/ai-failure-authority'
 
 /**
@@ -20,20 +20,29 @@ import {
  * Fifteen controls against four console roles, plus the classification column,
  * plus the three things a plain table would silently get wrong.
  *
- * ── IT IS REACHABLE FROM NO ROUTE, AND THAT IS STATED, NOT LEFT ────────────
- * Measured: nothing under `app/` imports this component. Its only callers are
- * `tests/component/sa-ai-failure-authority.test.tsx` and this file's own
- * module. The route that would carry it is the incident console, and it does
- * not exist yet; the abstention is carried as the `console-mount` row of
- * `CONSOLE_AUTHORITY_SEAMS` with the file that owns it named and openable,
- * because a stated abstention and an oversight look identical from outside.
+ * ── IT IS NOW REACHABLE, AND THE PARAGRAPH THAT SAID OTHERWISE IS GONE ─────
+ * This paragraph used to read "Measured: nothing under `app/` imports this
+ * component", and it was true when it was written. It is not now:
+ * `app/super-admin/ai-incidents/AiIncidentConsoleScreen.tsx` mounts this panel,
+ * that screen is rendered by the route of the same name, and the console index
+ * in `app/super-admin/SaConsoleShell.tsx` links to it. The `console-mount` row
+ * of `CONSOLE_AUTHORITY_SEAMS` is marked closed rather than deleted, because a
+ * closed seam is the record that the abstention was deliberate and followed up.
  *
- * ── AN UNDECIDED ROW IS DRAWN, INOPERABLE, WITH ITS READINGS ───────────────
- * Four rows are undecided and none of them may render as a working control or
- * as an absent one. The site-scoped pause is the sharp case: it is a third
- * pause scope the client has not agreed to, so drawing a working control
- * invents a capability and drawing nothing tells a reader the scope does not
- * exist. `LockedControl` is the shipped answer to exactly that — visible,
+ * ── AN UNSHIPPABLE ROW IS DRAWN, INOPERABLE, WITH ITS READINGS ─────────────
+ * The rows that may not render as working controls are
+ * `NOT_SHIPPABLE_AUTHORITY_ROWS`, and NOT the count that used to stand in this
+ * paragraph — it said "Four rows are undecided", which was a stored copy of a
+ * derived answer and went stale the moment shippability separated from
+ * undecidedness. The population is a superset of the undecided rows by the
+ * provider-or-model-failover row, whose cells all grant and whose governing
+ * policy is an open decision; the module's `shippable` doc explains why the two
+ * are not one flag. Nothing here states how many there are.
+ *
+ * The site-scoped pause is the sharp case: it is a third pause scope the client
+ * has not agreed to, so drawing a working control invents a capability and
+ * drawing nothing tells a reader the scope does not exist. `LockedControl` is
+ * the shipped answer to exactly that — visible,
  * inoperable BY CONSTRUCTION rather than by a guard, with the reason inline
  * and in the accessibility tree. Its props carry no handler, so there is
  * nothing for a caller to pass and nothing for a later edit to re-enable.
@@ -141,7 +150,12 @@ export function AiFailureAuthorityPanel() {
           </thead>
           <tbody>
             {CONSOLE_AUTHORITY_ROWS.map((row) => (
-              <tr key={row.id} data-authority-row={row.id} data-undecided={String(row.undecided)}>
+              <tr
+                key={row.id}
+                data-authority-row={row.id}
+                data-undecided={String(row.undecided)}
+                data-shippable={String(row.shippable)}
+              >
                 <th
                   scope="row"
                   className="border-b border-[var(--color-border)] p-2 font-medium text-[var(--color-ink)]"
@@ -177,22 +191,23 @@ export function AiFailureAuthorityPanel() {
         </table>
       </div>
 
-      <section aria-label="Controls the client has not decided" className="space-y-3">
+      <section aria-label="Controls that cannot ship as enabled" className="space-y-3">
         <h3 className="text-base font-semibold text-[var(--color-ink)]">
-          Controls the client has not decided
+          Controls that cannot ship as enabled
         </h3>
         <p className="text-sm text-[var(--color-ink-muted)]">
           Each of these is drawn and inoperable. Not absent, because the source names the control;
-          not working, because the authority behind it is an open question. The row is printed as
-          the source writes it rather than summarised, so a reader can see both readings.
+          not working, because either the authority behind it or the policy governing it is an open
+          question — and each row states which of those it is. The row is printed as the source
+          writes it rather than summarised, so a reader can see both readings.
         </p>
-        {UNDECIDED_AUTHORITY_ROWS.map((row) => (
+        {NOT_SHIPPABLE_AUTHORITY_ROWS.map((row) => (
           <LockedControl
             key={row.id}
             controlId={`sa-ai-failure-${row.id}`}
             label={row.operation}
             settingValue="No authority settled"
-            reason={row.verbatim}
+            reason={`Cannot ship as an enabled control: ${row.notShippableReason ?? ''}. The row, verbatim: ${row.verbatim}`}
             remains={
               row.citedDecisions.length === 0
                 ? `Undecided in the classification column rather than in a role cell, at ${row.sourceRef}.`

@@ -16,6 +16,24 @@ import { CommandStateBadge } from '@/ui/sa/CommandStateBadge'
 import { RootUnavailableFreeze } from '@/ui/sa/RootUnavailableFreeze'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import {
+  AI_OPEN_REGISTER_IDS,
+  UNSET_GOVERNING_VALUES,
+  enablementRefusal,
+} from '@/ai/failures/open-values'
+
+/**
+ * `AC-43-111`'s refusal for this screen's own capability, computed once at
+ * module scope because it has no inputs that vary per render: every value in
+ * the register is unset, so the answer is the same for every role and every
+ * screen state. `enablementRefusal` returns `null` for a capability the
+ * register governs nothing about, and that branch is rendered rather than
+ * assumed away — see the panel below.
+ */
+const AI_CAPABILITY_REFUSAL = enablementRefusal(
+  'An artificial-intelligence capability on this platform',
+  AI_OPEN_REGISTER_IDS,
+)
+import {
   Banner,
   Button,
   FreshnessLabel,
@@ -943,13 +961,97 @@ export function PlatformSettingsScreen({
           ))}
           <div>
             <p className="text-sm font-medium">The runaway-loop kill switch</p>
+            {/* THE CLAIM HERE WAS STALE AND IS REMOVED RATHER THAN REWORDED
+               *
+               * It said "Not built in this slice, for any account", which
+               * stopped being true when the artificial-intelligence incident
+               * console began naming the mechanism, its settings category and
+               * its four unstated attributes. What has NOT changed is that no
+               * control exists for it anywhere: DEC-KILL-001 leaves its scope,
+               * threshold, initiating authority and approval class all
+               * unstated, so there is no behaviour to build. The reason it is
+               * absent is now the decision rather than the slice boundary,
+               * which is a reason a reader can act on. */}
             <ProhibitionNotice
               rendering={{
                 kind: 'absent',
-                note: 'Not built in this slice, for any account. The frozen source describes it beside the emergency pause and warns that the two must never be conflated — one stops a loop, the other suspends agent activity under approval. Two controls described in one paragraph become one control the moment somebody builds them together, so this one is left out and named here instead (D8).',
+                note: 'No control, for any account, and the reason is DEC-KILL-001 rather than a slice boundary: the frozen source leaves the kill switch’s scope, threshold, initiating authority and approval class all unstated (L87795, L87797), so there is no behaviour to build. It is a different mechanism from the emergency pause — an Orchestration setting against a Governance and Safety one — and the source requires that the two are never conflated on a screen (L91231). The mechanism, its unstated attributes and every reading of the decision are named on the artificial-intelligence incident console.',
               }}
             />
           </div>
+        </div>
+      </Section>
+
+      {/* ---------------- SB-43-102: the open governing values ----------------
+        *
+        * L90030 puts this panel HERE and not on a console of its own: "Inside
+        * platform settings, the Model and Inference and Orchestration
+        * categories render each unset value with an explicit 'Not yet set —
+        * client decision `DEC-*`' state rather than a silent default, and the
+        * platform refuses to enable a capability whose governing value is
+        * unset."
+        *
+        * THE REFUSAL IS THE FEATURE, AND THERE IS NO OTHER BRANCH. Every row
+        * comes from `UNSET_GOVERNING_VALUES`, which holds the question and no
+        * value — there is no field on those records for a number, so a default
+        * cannot be added here without adding one there first, and that module
+        * is scanned for a digit and for a spelled-out value. AC-43-112 (L90039)
+        * is why: "a silent default is how an invented number becomes a
+        * contractual one."
+        *
+        * IT IS A CROSS-CUTTING SECTION RATHER THAN AN ELEVENTH TAB. The
+        * navigable category set is closed at ten (D21) and these values belong
+        * to two of those ten; a tab for them would be an eleventh category the
+        * source does not have. */}
+      <Section id="sa07-open-values" heading="Governing values not yet set">
+        <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
+          The Model and Inference and Orchestration categories are governed by values the frozen
+          source names as controls and fixes for none of them. Each renders its own question and its
+          own decision identifier. No value has a code-level default here, because a default written
+          in a build is read back as a value the client chose (AC-43-112, L90039).
+        </p>
+        <Table
+          caption="Each governing value the open register owes, its decision identifier and its state"
+          emptyState={{
+            title: 'The register is transcribed from the frozen source and cannot be empty',
+            whatCreatesIt:
+              'Each row is a line of §43.1.2 carried verbatim, so an empty table would mean the transcription was lost rather than that every value is now set.',
+          }}
+          columns={[
+            { key: 'value', header: 'Value owed' },
+            { key: 'state', header: 'State' },
+            { key: 'decision', header: 'Client decision' },
+            { key: 'ref', header: 'Source' },
+          ]}
+          rows={UNSET_GOVERNING_VALUES.map((value) => ({
+            key: value.id,
+            value: value.valueOwed,
+            state: value.state,
+            decision: value.id,
+            ref: value.locator,
+          }))}
+        />
+        <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          {AI_CAPABILITY_REFUSAL === null
+            ? 'Every governing value for this capability is set.'
+            : AI_CAPABILITY_REFUSAL.refusal}
+        </p>
+        <div className="mt-3 space-y-3">
+          <div>
+            <p className="text-sm font-medium">Enable an artificial-intelligence capability</p>
+            <ProhibitionNotice
+              rendering={{
+                kind: 'absent',
+                note: 'No enablement control is drawn, for any account. AC-43-111 (L90038) forbids enabling any artificial-intelligence capability while any governing value in the register is unset, and every value in it is unset. A greyed-out toggle here would invite the belief that a sufficiently privileged account could switch one on, so nothing is drawn and the refusal is stated instead.',
+              }}
+            />
+          </div>
+          <p className="max-w-prose text-xs text-[var(--color-ink-subtle)]">
+            Each value is rendered with its decision identifier, which is what AC-43-113 (L90040)
+            asks of this console. The default-scan is TEST-43-112 (L90045), and this panel is
+            covered by it: the component test strips the register&rsquo;s own identifiers and
+            section references and then refuses any remaining numeral.
+          </p>
         </div>
       </Section>
 

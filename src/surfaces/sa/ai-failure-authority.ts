@@ -233,6 +233,69 @@ export interface ConsoleAuthorityRow extends ColumnMatrixRow {
   readonly permissiveCellsDeferring: readonly ColumnKey[]
   /** Any of the three above. Derived; never stored beside them. */
   readonly undecided: boolean
+  /**
+   * Whether this control may render as an ENABLED affordance.
+   *
+   * ── WHY IT IS NOT `!undecided`, AND WHY THAT MATTERS BY EXACTLY ONE ROW ───
+   * `undecided` answers "is the authority unsettled". Shippability answers a
+   * different question — "may a working control be drawn" — and the two part
+   * company on the provider-or-model-failover row (L91291). That row reads
+   * `Allowed` for the root and grants the other three, and its classification
+   * names no client-decision token, so `undecided` is FALSE for it. But its
+   * classification carries `Recommendation — R&D`, `DEC-AIFAILOVER-001`: the
+   * AUTHORITY is settled and the POLICY is not, and the source's own §43.4
+   * (L91337, L91335) puts failover among the capabilities beyond §8.7.1. A
+   * working failover button is a control with no written rule for when it
+   * fires, whether the substitute must pass its evaluation scenarios first, or
+   * whether the tenant is told.
+   *
+   * So the answer is derived from BOTH halves of the row: its cells and its
+   * classification. It is computed HERE, at the one input, and never at a call
+   * site — `tests/unit/ai-controls-authority-shippability.test.ts` sweeps
+   * `src/` and `app/` for any other file reading `undecidedCells`,
+   * `permissiveCellsDeferring` or `undecidedInClassification`, because a
+   * shippability re-derived per screen is a shippability that disagrees with
+   * itself on the fifth screen.
+   *
+   * NOTHING ANYWHERE STATES HOW MANY ROWS ARE UNSHIPPABLE. The population is
+   * `NOT_SHIPPABLE_AUTHORITY_ROWS` and its membership is asserted as a literal
+   * list of row ids outside this module. A gate keyed on a number goes stale
+   * the moment a row changes, and this build has shipped that defect twice.
+   */
+  readonly shippable: boolean
+  /**
+   * WHICH of the three mechanisms refused it, in the row's own terms, or
+   * `null` where none did. The reason differs per row and a single flag would
+   * tell an operator three different situations were one.
+   */
+  readonly notShippableReason: string | null
+}
+
+/**
+ * The three ways a row can fail to be shippable, in the order they are checked.
+ * A row can trip more than one — the kill switch trips two — and the first that
+ * applies is the one reported, because it is the most specific statement about
+ * that row.
+ */
+function shippabilityRefusal(row: {
+  readonly undecidedCells: readonly ColumnKey[]
+  readonly permissiveCellsDeferring: readonly ColumnKey[]
+  readonly undecidedInClassification: boolean
+  readonly citedDecisions: readonly string[]
+}): string | null {
+  if (row.undecidedCells.length > 0) {
+    return 'a role cell defers to the client'
+  }
+  if (row.permissiveCellsDeferring.length > 0) {
+    return 'a cell grants and defers in the same breath, and the classification defers with it'
+  }
+  if (row.undecidedInClassification) {
+    return 'the classification defers while every role cell grants'
+  }
+  if (row.citedDecisions.length > 0) {
+    return 'the authority is settled and the governing policy is an open decision'
+  }
+  return null
 }
 
 /**
@@ -317,6 +380,13 @@ function parseRow(line: string, lineNumber: number): ConsoleAuthorityRow {
   const undecidedInClassification =
     undecidedCells.length === 0 && backtickedFragments(classification).some(parsesAsClientDecision)
 
+  const notShippableReason = shippabilityRefusal({
+    undecidedCells,
+    permissiveCellsDeferring,
+    undecidedInClassification,
+    citedDecisions,
+  })
+
   return {
     id: rowId(operation),
     operation,
@@ -335,6 +405,8 @@ function parseRow(line: string, lineNumber: number): ConsoleAuthorityRow {
       undecidedCells.length > 0 ||
       undecidedInClassification ||
       permissiveCellsDeferring.length > 0,
+    shippable: notShippableReason === null,
+    notShippableReason,
   }
 }
 
@@ -357,6 +429,18 @@ export function consoleAuthorityRow(id: string): ConsoleAuthorityRow {
 /** Every row a reader must not be shown a working control for. Derived. */
 export const UNDECIDED_AUTHORITY_ROWS: readonly ConsoleAuthorityRow[] =
   CONSOLE_AUTHORITY_ROWS.filter((row) => row.undecided)
+
+/**
+ * Every row that may not render as an enabled control. A superset of
+ * `UNDECIDED_AUTHORITY_ROWS` by exactly the failover row — see `shippable` for
+ * why the two are not one flag. Derived, and nothing states its size.
+ */
+export const NOT_SHIPPABLE_AUTHORITY_ROWS: readonly ConsoleAuthorityRow[] =
+  CONSOLE_AUTHORITY_ROWS.filter((row) => !row.shippable)
+
+/** Every row that MAY render as an enabled control. The counterweight. */
+export const SHIPPABLE_AUTHORITY_ROWS: readonly ConsoleAuthorityRow[] =
+  CONSOLE_AUTHORITY_ROWS.filter((row) => row.shippable)
 
 /**
  * Every `DEC-*` this matrix names that the canon does not hold, deduplicated
@@ -474,12 +558,19 @@ export const CONSOLE_AUTHORITY_SEAMS = [
   },
   {
     id: 'console-mount',
+    // CLOSED. This seam read "No route mounts this panel" and that stopped
+    // being true when `app/super-admin/ai-incidents/` shipped. The row is kept
+    // rather than deleted because a closed seam is the record that the
+    // abstention was deliberate and was followed up — deleting it leaves a
+    // reader unable to tell a mounted panel from one that was never seamed.
     whatIsMissing:
-      'No route mounts this panel. The Super Admin console shell exists and the incident route ' +
-      'that would carry it does not; building it here would put a second agent inside a path ' +
-      'this task does not own.',
+      'CLOSED. This panel is mounted by `app/super-admin/ai-incidents/AiIncidentConsoleScreen.tsx`, ' +
+      'reached from the route of the same name and linked from the console index in the file named ' +
+      'below. The route slug itself is a build decision — the frozen source carries no URL ' +
+      'notation for this surface at all — and the screen renders that as a client-delegated choice ' +
+      'under APP-012 above its first control.',
     owner: 'app/super-admin/SaConsoleShell.tsx',
-    ownerTask: 'slice 11 wave 3, the pause / kill / rollback console and its incident route',
+    ownerTask: 'closed by slice 11 wave 3, the pause / kill / rollback console and its incident route',
   },
 ] as const satisfies readonly AuthoritySeam[]
 

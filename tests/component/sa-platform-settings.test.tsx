@@ -4,7 +4,8 @@ import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { saModuleById } from '@/surfaces/sa/modules'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { PlatformSettingsScreen } from '../../app/super-admin/platform-settings/PlatformSettingsScreen'
-import { SETTINGS_CATEGORIES, CROSS_CUTTING_SECTIONS, FLOOR_REGISTER_ROWS, GOVERNED_SETTINGS_COUNT, SETTING_STATES, PAUSE_STATES, LOCALE_PACK_STATES, SA07_PLATFORM_ROLES, SA07_UNSPECIFIED_IN_SOURCE, EXTENSION_LABEL } from '../../app/super-admin/platform-settings/fixtures'
+import { SETTINGS_CATEGORIES, CROSS_CUTTING_SECTIONS, FLOOR_REGISTER_ROWS, GOVERNED_SETTINGS_COUNT, SETTING_STATES, PAUSE_STATES, LOCALE_PACK_STATES, SA07_PLATFORM_ROLES, SA07_UNSPECIFIED_IN_SOURCE, EXTENSION_LABEL, type PauseState } from '../../app/super-admin/platform-settings/fixtures'
+import { UNSET_GOVERNING_VALUES } from '@/ai/failures/open-values'
 
 const MODULE = saModuleById('MOD-SA-07')
 
@@ -263,8 +264,30 @@ describe('MOD-SA-07 — the emergency pause, D8', () => {
     }
   })
 
-  it('carries the five pause states as a named vocabulary', () => {
-    expect(PAUSE_STATES).toHaveLength(5)
+  // THE LENGTH PIN IS GONE, AND IT WAS REMOVED RATHER THAN RENUMBERED.
+  // `expect(PAUSE_STATES).toHaveLength(5)` stood here. A length is green over a
+  // RENAMED member, green over a member swapped for a duplicate, and it goes
+  // stale the moment the vocabulary grows \u2014 at which point the fix looks like
+  // changing five to six, which reships the identical defect with a fresh
+  // number. The count was never the claim a reader could act on; the
+  // MEMBERSHIP is.
+  //
+  // WHY IT IS DECLARED HERE AND TYPED. The literal list lives outside the
+  // module it polices, so it cannot agree with the module by construction, and
+  // it is typed to the state union so a DELETION fails twice: red at run time
+  // on the comparison below, and a `tsc` error on this very line naming the
+  // member that no longer exists. An ADDITION fails once, here, which is the
+  // direction a membership gate must be proved in.
+  const EXPECTED_PAUSE_STATES: readonly PauseState[] = [
+    'AgentsRunning',
+    'PauseRequested',
+    'Checkpointing',
+    'Paused',
+    'ResumeRequested',
+  ]
+
+  it('carries the pause states as a named vocabulary, by membership and in order', () => {
+    expect(PAUSE_STATES).toEqual(EXPECTED_PAUSE_STATES)
     render(<PlatformSettingsScreen />)
     expect(screen.getByText(PAUSE_STATES.join(' \u2192 '), { exact: false })).toBeDefined()
   })
@@ -526,6 +549,89 @@ describe('MOD-SA-07 — unspecified in source', () => {
     expect(panel).not.toBeNull()
     for (const u of SA07_UNSPECIFIED_IN_SOURCE) {
       expect((panel as HTMLElement).textContent ?? '').toContain(u.affordance)
+    }
+  })
+})
+
+describe('MOD-SA-07 — SB-43-102, the open-values panel inside platform settings', () => {
+  // L90030: "Inside platform settings, the Model and Inference and Orchestration
+  // categories render each unset value with an explicit 'Not yet set — client
+  // decision `DEC-*`' state rather than a silent default, and the platform
+  // refuses to enable a capability whose governing value is unset."
+  //
+  // WHAT THESE CASES CATCH: a value seeded with a default (AC-43-112, the
+  // defect the whole register exists to prevent), a value rendered without its
+  // decision identifier (AC-43-113), and an enablement control offered while a
+  // governing value is unset (AC-43-111).
+
+  it('renders every value of the open register, in the register\'s own order', () => {
+    render(<PlatformSettingsScreen role="ROOT_SUPER_ADMIN" />)
+    const panel = document.getElementById('sa07-open-values')
+    expect(panel).not.toBeNull()
+    const text = (panel as HTMLElement).textContent ?? ''
+    let cursor = -1
+    for (const value of UNSET_GOVERNING_VALUES) {
+      const at = text.indexOf(value.valueOwed)
+      expect(at, value.id).toBeGreaterThan(-1)
+      // Order, not merely presence: the register's own sequence is what
+      // AC-43-113 asks a console to render.
+      expect(at, `${value.id} out of register order`).toBeGreaterThan(cursor)
+      cursor = at
+    }
+  })
+
+  it('renders each value with its decision identifier and its Not-yet-set state (AC-43-113)', () => {
+    render(<PlatformSettingsScreen role="ROOT_SUPER_ADMIN" />)
+    const text = (document.getElementById('sa07-open-values') as HTMLElement).textContent ?? ''
+    for (const value of UNSET_GOVERNING_VALUES) {
+      expect(text, value.id).toContain(value.id)
+      expect(text, value.id).toContain(value.state)
+    }
+  })
+
+  it('carries no seeded value in any spelling (AC-43-112, TEST-43-112)', () => {
+    render(<PlatformSettingsScreen role="ROOT_SUPER_ADMIN" />)
+    const text = (document.getElementById('sa07-open-values') as HTMLElement).textContent ?? ''
+    // The register's own identifiers and the acceptance-criteria references are
+    // the source's numbers; anything else numeric here is a default this build
+    // wrote, which is exactly what the register exists to refuse.
+    const scrubbed = text
+      .replaceAll(/DEC-[A-Z0-9]+-\d+/g, '')
+      .replaceAll(/\b(?:AC|TEST|SB)-[\d-]+/g, '')
+      .replaceAll(/§[\d.]+/g, '')
+      .replaceAll(/\bL\d{4,6}/g, '')
+    expect(scrubbed, 'a seeded governing value').not.toMatch(/\d/)
+    expect(scrubbed, 'a spelled-out governing value').not.toMatch(
+      /\b(one|two|three|five|ten|fifteen|thirty|sixty|ninety)\s+(second|minute|hour|attempt|retry|step)/i,
+    )
+  })
+
+  it('offers no enablement control while a governing value is unset (AC-43-111)', () => {
+    render(<PlatformSettingsScreen role="ROOT_SUPER_ADMIN" />)
+    const panel = document.getElementById('sa07-open-values') as HTMLElement
+    expect(panel.textContent ?? '').toMatch(/cannot be enabled/i)
+    for (const el of Array.from(panel.querySelectorAll('button, a, input, select, [role=switch]'))) {
+      const operable = el.getAttribute('aria-disabled') !== 'true' && !el.hasAttribute('disabled')
+      if (!operable) continue
+      expect(el.textContent ?? '', 'an operable enablement control').not.toMatch(/enable/i)
+    }
+  })
+})
+
+describe('MOD-SA-07 — the kill switch is no longer claimed unbuilt', () => {
+  it('points at the console that now names it instead of saying it is absent from this slice', () => {
+    render(<PlatformSettingsScreen role="ROOT_SUPER_ADMIN" />)
+    const text = document.body.textContent ?? ''
+    // The stale claim, removed. It said "Not built in this slice, for any
+    // account" and that stopped being true the moment the incident console
+    // named the mechanism.
+    expect(text).not.toMatch(/Not built in this slice/i)
+    expect(text).toContain('DEC-KILL-001')
+    // Still not a control here, and still never beside the pause as one.
+    for (const el of Array.from(
+      document.body.querySelectorAll('button, a, input, select, [role=switch]'),
+    )) {
+      expect(el.textContent ?? '').not.toMatch(/kill switch/i)
     }
   })
 })
