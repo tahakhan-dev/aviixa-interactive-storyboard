@@ -88,11 +88,24 @@ export interface StoryboardFieldDefinition {
 export const STORYBOARD_CARD_SCHEMA_REF = 'L92791'
 
 /**
- * The chapter's classification of the field set, verbatim from its own row.
- * `User-Mandated Product Extension` in its completeness, each field a
- * `Derived Clarification` of a stated behaviour.
+ * The chapter's classification of the field set, and the row it is read from.
+ *
+ * L92766, verbatim: "| The storyboard field set | `User-Mandated Product
+ * Extension` in its completeness; each field is `Derived Clarification` of a
+ * stated behaviour | Commission requirement; fields map to §1.3, §3.3, §3.9,
+ * §6.5, §7.10 |". The middle cell is transcribed below with the source's
+ * backticks dropped, because it renders as a sentence rather than as code.
+ *
+ * IT IS RENDERED, NOT MERELY DECLARED. `StoryboardCard` prints both, in the
+ * card head. A locator whose only consumer is its own declaration is a record
+ * nobody can act on: the citation would be true and unreachable, which is the
+ * same defect as a gate that cannot fail.
  */
 export const STORYBOARD_CARD_CLASSIFICATION_REF = 'L92766'
+
+export const STORYBOARD_CARD_CLASSIFICATION =
+  'User-Mandated Product Extension in its completeness; each field is a Derived Clarification '
+  + 'of a stated behaviour'
 
 /**
  * THE FIELD ORDER, AS A LITERAL LIST OUTSIDE EVERY CONSUMER.

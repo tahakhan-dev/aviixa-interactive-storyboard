@@ -10,6 +10,7 @@ import {
   STORYBOARD_INVARIANTS,
   artificialIntelligenceIsAdvisoryOnly,
   deterministicLayerUnaffected,
+  everySurfaceStatesWhatChanges,
   failedInferenceIsNeverAPass,
   finalStateDerivableFromAuditAlone,
   fixedMessageIsNotParaphrased,
@@ -19,20 +20,32 @@ import {
   noTheatre,
   storyboardViolations,
 } from '@/ai/storyboards/invariants'
+import { COMPLIANCE_MESSAGE_READINGS } from '@/frontline/modules/fl-a1/service'
+import {
+  JOURNEY_SURFACES,
+  affected,
+  effectStatement,
+  noEffect,
+  type JourneySurfaceCode,
+  type SurfaceEffect,
+} from '@/ui/shared/journey'
 import { FIXTURE_STORYBOARD } from './ai-storyboard-contract-fixture.test'
 
 /**
- * Slice 11, wave 4, task 15A — the six render-time prohibitions and the two
- * rules that bind the set, one assertion each.
+ * Slice 11, wave 4, task 15A — the six render-time prohibitions, the two rules
+ * that bind the set, `AC-44A-004`, and the five-surface rendering rule the
+ * contract originally left to three transcription tasks to reinterpret. One
+ * assertion each.
  *
  * EVERY CASE HERE PLANTS A DEFECT AND WATCHES IT GO RED. The baseline is
  * asserted clean in `ai-storyboard-contract-fixture.test.ts`, so a red here is
  * the planted defect and not the fixture. A gate that cannot fail is worse
  * than no gate: it is a gate that reads as coverage.
  *
- * The membership lists — the nine invariants, the three collapsed state names,
- * the four deterministic controls, the five reserved acts — are each proved by
- * ADDING a member, never by a length. A length agrees with any substitution.
+ * The membership lists — `STORYBOARD_INVARIANTS`, the collapsed state names,
+ * the deterministic controls, the reserved acts — are each proved by ADDING a
+ * member, never by a length. A length agrees with any substitution. No count
+ * is written here for the same reason.
  */
 
 /** One field of `facts` overridden. Everything else stays the clean baseline. */
@@ -218,6 +231,94 @@ describe('prohibition 6 — SCR-FL-LOCK-01\'s message is fixed', () => {
     // The source contains no Spanish anywhere, so there is nothing to pin
     // against and this build does not invent one.
     expect(lock!.spanish).toBeNull()
+  })
+
+  it('discloses DEC-MSG-001 rather than claiming one source wording', () => {
+    // "Fixed by the source" is not "the source says it once". L5263 registers
+    // the divergence itself: Reading A at L5265 (§4.2.3, repeated at §7.11),
+    // Reading B at L5266 (§8.9.2). Both are real source strings under an open
+    // `Client Decision Required`.
+    const lock = PINNED_WORKER_MESSAGES.find((message) => message.screen === 'SCR-FL-LOCK-01')!
+    expect(lock.collision).not.toBeNull()
+    expect(lock.collision!.decision).toBe('DEC-MSG-001')
+    expect(lock.collision!.decisionRef).toBe('L5263')
+    expect(lock.collision!.adoptedReadingRef).toBe('L5265')
+    expect(lock.collision!.otherReadingRef).toBe('L5266')
+    expect(lock.collision!.otherReadingText).toBe('Operation suspended — your work has been saved.')
+    // Which reading §44A fixes, and why — L94829 is the wording the chapter
+    // itself writes and AC-44A-25-2 is at L94880.
+    expect(lock.collision!.whyAdopted).toContain('L94829')
+    expect(lock.collision!.whyAdopted).toContain('AC-44A-25-2')
+  })
+
+  it('agrees with the disclosure this build already carries, string for string', () => {
+    // `COMPLIANCE_MESSAGE_READINGS` (§22, MOD-FL-A1) transcribed the same two
+    // readings from the same register. Two transcriptions of one pair drift;
+    // this is the gate that catches it. Compared here rather than imported
+    // into the module, because a §44A contract has no business depending on a
+    // Frontline module's service at run time.
+    const [readingA, readingB] = COMPLIANCE_MESSAGE_READINGS
+    const lock = PINNED_WORKER_MESSAGES.find((message) => message.screen === 'SCR-FL-LOCK-01')!
+    expect(lock.english).toBe(readingA.text)
+    expect(lock.collision!.otherReadingText).toBe(readingB.text)
+    expect(readingA.locator).toContain(lock.collision!.adoptedReadingRef)
+    expect(readingB.locator).toContain(lock.collision!.otherReadingRef)
+  })
+
+  it('reports Reading B as a source string under an open decision, not as an invention', () => {
+    const defect = withFacts({
+      fixedMessages: [
+        {
+          screen: 'SCR-FL-LOCK-01',
+          english: 'Operation suspended — your work has been saved.',
+          spanish: 'Operación suspendida.',
+          sourceRef: 'L5266',
+        },
+      ],
+    })
+    const violations = fixedMessageIsNotParaphrased(defect)
+    expect(violations).toHaveLength(1)
+    const { message } = violations[0]!
+    expect(message).toContain('DEC-MSG-001')
+    expect(message).toContain('L5265')
+    expect(message).toContain('L5266')
+    expect(message).toContain('Reading B')
+    expect(message).toContain('NOT an invented paraphrase')
+    expect(message).not.toContain('so it is a paraphrase')
+  })
+
+  it('still reports a wording that is neither reading as a paraphrase', () => {
+    const defect = withFacts({
+      fixedMessages: [
+        {
+          screen: 'SCR-FL-LOCK-01',
+          english: 'Operation suspended. Your work is safe.',
+          spanish: 'Operación suspendida.',
+          sourceRef: 'L94829',
+        },
+      ],
+    })
+    const { message } = fixedMessageIsNotParaphrased(defect)[0]!
+    expect(message).toContain('renders neither reading, so it is a paraphrase')
+    // The pair is still disclosed, so a reader is never told there is one
+    // wording when the source writes two.
+    expect(message).toContain('DEC-MSG-001')
+  })
+
+  it('says why the Spanish violation stands rather than reading as a forgotten defect', () => {
+    const defect = withFacts({
+      fixedMessages: [
+        {
+          screen: 'SCR-FL-LOCK-01',
+          english: 'Operation suspended. Contact your supervisor. Your work has been saved.',
+          spanish: null,
+          sourceRef: 'L94829',
+        },
+      ],
+    })
+    const { message } = fixedMessageIsNotParaphrased(defect)[0]!
+    expect(message).toContain('DEC-MSG-001')
+    expect(message).toContain('STANDS')
   })
 
   it('is red on a paraphrase', () => {
@@ -410,8 +511,131 @@ describe('AC-44A-004 — the final official state is derivable from the audit lo
   })
 })
 
+describe('every surface states what changes — the tenth invariant', () => {
+  /**
+   * WHY THIS EXISTS, AND WHY NOT IN THE TYPE.
+   *
+   * `journey.ts:57-59` types the absent arm with a REQUIRED `reason: string`,
+   * and `reason: string` admits `''`. `noEffect('', ref)` compiles and
+   * `effectStatement` then returns "No direct effect — " with nothing after the
+   * dash: a blank cell wearing a label. TypeScript has no non-empty-string
+   * type, so the requiredness of the field is not the requiredness of its
+   * CONTENT, and the nine invariants never read `storyboard.surfaces` at all.
+   * A consumer task's own test caught this before the contract did, which is
+   * exactly the failure L92648 warns about — the one chapter rule left to each
+   * of three transcription tasks to reinterpret.
+   *
+   * THE CROSS-CHECK. `kind: 'noDirectEffect'` is legal. `reason: ''` is a legal
+   * string. Together they are a violation and neither says so alone — the same
+   * shape as `deviceAcknowledgement` against `surfacesShowingApplied`.
+   *
+   * THE SOURCE. L92664: "**The five-surface reaction** states, for each
+   * surface, what changes." Measured for this test across the thirty tables at
+   * `STORYBOARD_SURFACE_TABLE_REFS`: 150 reaction cells, 0 blank. Where a
+   * surface changes nothing the source still writes the reason — L92818 "No
+   * change; after reconnection the signal contributes to...", L94688 "Not
+   * applicable — the Studio has no device storage role". "No direct effect"
+   * itself appears NOWHERE in the chapter: it is this build's rendering of the
+   * source's rule, which is why the reason is what carries the source's
+   * content and a blank one renders nothing the source wrote.
+   */
+
+  /** One surface's effect replaced. Everything else stays the clean baseline. */
+  function withSurface(code: JourneySurfaceCode, effect: SurfaceEffect): Storyboard {
+    return {
+      ...FIXTURE_STORYBOARD,
+      surfaces: { ...FIXTURE_STORYBOARD.surfaces, [code]: effect },
+    }
+  }
+
+  // The five codes as a literal list declared HERE, outside the module. A sixth
+  // surface in `JOURNEY_SURFACES` that this invariant did not police would be
+  // caught by the tuple assertion below rather than by a count.
+  const SURFACE_CODES = ['DOH', 'STU', 'CC', 'FL', 'SA'] as const
+
+  it('polices the same five surfaces the source tuple names', () => {
+    expect(JOURNEY_SURFACES.map((surface) => surface.code)).toEqual([...SURFACE_CODES])
+  })
+
+  it('is red on a blank reason, on each of the five surfaces one at a time', () => {
+    for (const code of SURFACE_CODES) {
+      const defect = withSurface(code, noEffect('', 'L92817'))
+      const violations = everySurfaceStatesWhatChanges(defect)
+      expect(violations, code).toHaveLength(1)
+      expect(violations[0]!.invariant).toBe('everySurfaceStatesWhatChanges')
+      expect(violations[0]!.sourceRef).toBe('L92664')
+      expect(violations[0]!.storyboard).toBe(1)
+      const name = JOURNEY_SURFACES.find((surface) => surface.code === code)!.name
+      expect(violations[0]!.message, code).toContain(name)
+    }
+  })
+
+  it('is red on a whitespace-only reason, which renders identically to a blank one', () => {
+    const defect = withSurface('STU', noEffect('   \t\n ', 'L92818'))
+    expect(everySurfaceStatesWhatChanges(defect)).toHaveLength(1)
+  })
+
+  it('is red on a blank statement on an AFFECTED arm', () => {
+    // The affected arm has the same gap: `statement: string` admits `''`, and
+    // an affected surface rendering nothing is a blank cell too.
+    const defect = withSurface('DOH', affected('', 'L92817'))
+    const violations = everySurfaceStatesWhatChanges(defect)
+    expect(violations).toHaveLength(1)
+    expect(violations[0]!.message).toContain('Delivery Operations Hub')
+  })
+
+  it('is red on a whitespace-only statement on an affected arm', () => {
+    expect(everySurfaceStatesWhatChanges(withSurface('CC', affected('  ', 'L92819')))).toHaveLength(
+      1,
+    )
+  })
+
+  it('names every blank surface rather than the first', () => {
+    const defect: Storyboard = {
+      ...FIXTURE_STORYBOARD,
+      surfaces: {
+        ...FIXTURE_STORYBOARD.surfaces,
+        DOH: affected('', 'L92817'),
+        STU: noEffect(' ', 'L92818'),
+        SA: noEffect('', 'L92821'),
+      },
+    }
+    expect(everySurfaceStatesWhatChanges(defect)).toHaveLength(3)
+  })
+
+  it('quotes what the reader would have seen, so the dangling dash is visible', () => {
+    // The whole point of the defect: the rendering does not look empty, it
+    // looks like a label. The violation has to show that.
+    const defect = withSurface('SA', noEffect('', 'L92821'))
+    expect(everySurfaceStatesWhatChanges(defect)[0]!.message).toContain(
+      effectStatement(noEffect('', 'L92821')),
+    )
+  })
+
+  it('is green on the clean baseline, where all five carry text', () => {
+    expect(everySurfaceStatesWhatChanges(FIXTURE_STORYBOARD)).toEqual([])
+  })
+
+  it('is green once the reason is restored', () => {
+    const restored = withSurface('STU', noEffect('the fixture states no Studio effect', 'L92818'))
+    expect(everySurfaceStatesWhatChanges(restored)).toEqual([])
+  })
+
+  it('reports through the runner, not only when called directly', () => {
+    const defect = withSurface('FL', noEffect('  ', 'L92820'))
+    const reported = storyboardViolations(defect).map((violation) => violation.invariant)
+    expect(reported).toContain('everySurfaceStatesWhatChanges')
+  })
+})
+
 describe('the invariant set', () => {
-  it('is a literal list of nine, each with its own source line', () => {
+  it('is this literal list, in this order, each with its own source line', () => {
+    // Proved by ADDING: registering `everySurfaceStatesWhatChanges` in the
+    // module reddened this assertion before the member below existed, and
+    // reddened the "runs every one of them" case with it. The nine that came
+    // first are neither renamed nor reordered — a content task asserts a
+    // violation by identifier, and renaming one would break that instead of
+    // this.
     expect(STORYBOARD_INVARIANTS.map((invariant) => invariant.id)).toEqual([
       'noImpliedReceiptOrApplication',
       'noInventedContent',
@@ -422,14 +646,16 @@ describe('the invariant set', () => {
       'deterministicLayerUnaffected',
       'artificialIntelligenceIsAdvisoryOnly',
       'finalStateDerivableFromAuditAlone',
+      'everySurfaceStatesWhatChanges',
     ])
   })
 
   it('runs every one of them, so a new invariant cannot be declared and skipped', () => {
-    // One defect per invariant, all at once. The runner must report nine.
+    // One defect per invariant, all at once. The runner must report every one.
     const defect: Storyboard = {
       ...FIXTURE_STORYBOARD,
       finalOfficialState: { name: '', derivedFrom: [] },
+      surfaces: { ...FIXTURE_STORYBOARD.surfaces, STU: noEffect('', 'L92818') },
       facts: {
         ...FIXTURE_STORYBOARD.facts,
         deviceAcknowledgement: 'notAcknowledged',

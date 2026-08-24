@@ -4,10 +4,13 @@ import type { SurfaceId } from '@/domain/surfaces'
  * The render model behind `FiveSurfaceEffects`, for every surface's journey.
  *
  * The rule it exists to hold: an action's effect is visible on **every surface
- * it touches, and honestly absent on the ones it does not**. So there is no
- * blank cell here and no empty string -- a surface with no effect carries
- * `kind: 'noDirectEffect'` **and a reason**, exactly as a blank matrix cell is
- * a build-blocking defect elsewhere in this build.
+ * it touches, and honestly absent on the ones it does not**. A surface with no
+ * effect carries `kind: 'noDirectEffect'` **and a reason**, exactly as a blank
+ * matrix cell is a build-blocking defect elsewhere in this build.
+ *
+ * The ARM is enforced by this type; the CONTENT of the reason is not, and
+ * cannot be — see `effectStatement` below for what that costs and which
+ * invariant pays it.
  *
  * It lives here rather than under `src/studio/` because the effects panel is
  * not the Studio's. Slice 5 built the twenty-two-step Studio journey against
@@ -53,6 +56,12 @@ void _everySurfaceRepresented
 /**
  * An effect either happened on this surface or it did not. The second case
  * carries a REASON: "no direct effect" is a rendering, not an omission.
+ *
+ * `reason` and `statement` are `string`, which admits `''`. Nothing here
+ * narrows that, deliberately: no non-empty-string type exists, and inventing a
+ * branded one would change a type two journey screens and four test files
+ * already depend on. Blank content is caught as a violation, not as a type
+ * error — `everySurfaceStatesWhatChanges` in `@/ai/storyboards/invariants`.
  */
 export type SurfaceEffect =
   | { readonly kind: 'affected'; readonly statement: string; readonly sourceRef: string }
@@ -72,9 +81,26 @@ export const noEffect = (reason: string, sourceRef: string): SurfaceEffect => ({
 })
 
 /**
- * The one sentence a surface row renders. Never empty for either case,
- * which is what makes an empty string structurally impossible rather than
- * merely discouraged.
+ * The one sentence a surface row renders.
+ *
+ * WHAT THIS DOES NOT GUARANTEE, corrected in place. This comment used to claim
+ * the shape made an empty string "structurally impossible rather than merely
+ * discouraged". IT DOES NOT. `reason: string` and `statement: string` both
+ * admit `''`, TypeScript has no non-empty-string type, and `noEffect('', ref)`
+ * compiles — after which this function returns "No direct effect — " with
+ * nothing after the dash: a blank cell wearing a label, which reads downstream
+ * as a rendering. Requiring the FIELD is not requiring its CONTENT. That gap
+ * shipped a blank Studio reason in a §44A storyboard before any check caught
+ * it.
+ *
+ * WHERE THE CHECK ACTUALLY LIVES. `everySurfaceStatesWhatChanges` in
+ * `@/ai/storyboards/invariants` (L92664) convicts a blank or whitespace-only
+ * reason or statement on any of the five surfaces. It is an invariant rather
+ * than a type because the type cannot express it, and a comment asserting an
+ * impossibility the type does not deliver is the same defect as a gate that
+ * cannot fail: it reads as coverage. Non-storyboard callers of this module —
+ * the journey screens — are policed by their own panels' tests, not by that
+ * invariant.
  */
 export function effectStatement(effect: SurfaceEffect): string {
   return effect.kind === 'affected' ? effect.statement : `No direct effect — ${effect.reason}`

@@ -2,13 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
 import { StoryboardCard } from '@/ui/shared/StoryboardCard'
 import {
+  STORYBOARD_CARD_CLASSIFICATION,
+  STORYBOARD_CARD_CLASSIFICATION_REF,
   STORYBOARD_CARD_FIELDS,
   STORYBOARD_CARD_FACTS,
   storyboardCardProvenance,
   type Storyboard,
 } from '@/ai/storyboards/contract'
 import { PROVENANCE_CLASS_ATTRIBUTE, provenanceViolations } from '@/ai/provenance/contract'
-import { JOURNEY_SURFACES } from '@/ui/shared/journey'
+import { JOURNEY_SURFACES, noEffect } from '@/ui/shared/journey'
 import { FIXTURE_STORYBOARD } from '../unit/ai-storyboard-contract-fixture.test'
 
 /**
@@ -91,6 +93,36 @@ describe('the five-surface reaction', () => {
     const studio = container.querySelector('[data-storyboard-surface="STU"] dd')
     expect(studio!.textContent).toContain('No direct effect')
     expect(studio!.textContent).toContain('the fixture states no Studio effect')
+  })
+
+  it('renders the breach where a reason is blank, rather than a label alone', () => {
+    // The defect the tenth invariant exists for, seen the way a reader sees
+    // it: `noEffect('', ref)` compiles and renders "No direct effect — " with
+    // nothing after the dash. A rendered tree is the only place this looks
+    // like what it is.
+    const storyboard: Storyboard = {
+      ...FIXTURE_STORYBOARD,
+      surfaces: { ...FIXTURE_STORYBOARD.surfaces, STU: noEffect('', 'L92818') },
+    }
+    const { container } = render(<StoryboardCard storyboard={storyboard} />)
+    const studio = container.querySelector('[data-storyboard-surface="STU"] dd')
+    expect(studio!.textContent).toContain('No direct effect')
+    const alert = container.querySelector('[role="alert"]')
+    expect(alert, 'a blank reason must render as a breach, not as a label').not.toBeNull()
+    expect(alert!.textContent).toContain('Standards and Operations Studio')
+    expect(alert!.textContent).toContain('L92664')
+  })
+})
+
+describe('the field set\'s classification, L92766', () => {
+  it('renders the chapter\'s own classification and the row it is read from', () => {
+    // The citation is reachable by a reader rather than exported and unread.
+    const { container } = render(<StoryboardCard storyboard={FIXTURE_STORYBOARD} />)
+    const line = container.querySelector('[data-testid="storyboard-field-set-classification"]')
+    expect(line).not.toBeNull()
+    expect(line!.textContent).toContain(STORYBOARD_CARD_CLASSIFICATION)
+    expect(line!.textContent).toContain(STORYBOARD_CARD_CLASSIFICATION_REF)
+    expect(STORYBOARD_CARD_CLASSIFICATION_REF).toBe('L92766')
   })
 })
 

@@ -1,4 +1,6 @@
 import {
+  STORYBOARD_CARD_CLASSIFICATION,
+  STORYBOARD_CARD_CLASSIFICATION_REF,
   storyboardCardProvenance,
   storyboardCardRows,
   type Storyboard,
@@ -44,8 +46,10 @@ import { JOURNEY_SURFACES, effectStatement } from '@/ui/shared/journey'
  * line it was read from.
  *
  * ── A BREACH RENDERS ───────────────────────────────────────────────────────
- * The nine invariants run at render time and their violations render in an
- * alert above the card. This is a storyboard-rendering surface: a contract
+ * Every invariant in `STORYBOARD_INVARIANTS` runs at render time — the whole
+ * list, never a chosen subset — and their violations render in an alert above
+ * the card. No count is written here, so a tenth invariant renders the day it
+ * is registered. This is a storyboard-rendering surface: a contract
  * breach that shows nothing is the one thing it must not do, and a check whose
  * only consumer is a test suite is a check that stops at the suite.
  *
@@ -92,6 +96,15 @@ export function StoryboardCard({ storyboard }: StoryboardCardProps) {
         </p>
         <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
           {storyboard.cardHeaderRef} · five-surface reaction {storyboard.surfaceTableRef}
+        </p>
+        {/* L92766, the chapter's own classification of the field set. Rendered
+            rather than only exported: a citation nobody can reach is a record
+            whose only consumer is its own declaration. */}
+        <p
+          data-testid="storyboard-field-set-classification"
+          className="mt-1 text-xs text-[var(--color-ink-subtle)]"
+        >
+          Field set — {STORYBOARD_CARD_CLASSIFICATION} {STORYBOARD_CARD_CLASSIFICATION_REF}
         </p>
       </header>
 

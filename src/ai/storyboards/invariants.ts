@@ -1,4 +1,4 @@
-import { JOURNEY_SURFACES, type JourneySurfaceCode } from '@/ui/shared/journey'
+import { JOURNEY_SURFACES, effectStatement, type JourneySurfaceCode } from '@/ui/shared/journey'
 import {
   DETERMINISTIC_CONTROLS,
   RESERVED_AI_ACTS,
@@ -34,9 +34,16 @@ import {
  * ── EVERY ILLEGAL VALUE IS REPRESENTABLE, ON PURPOSE ───────────────────────
  * `DeterministicStandingClaim` admits `'relaxed'` and `contentOrigin` admits
  * `'modelGenerated'`. Narrowing them to their legal members would move the
- * check into the type system and leave nine functions that cannot go red. A
- * gate that cannot fail reads as coverage and is worse than no gate, so the
- * illegal value stays writable and the check stays a check.
+ * check into the type system and leave functions that cannot go red. A gate
+ * that cannot fail reads as coverage and is worse than no gate, so the illegal
+ * value stays writable and the check stays a check.
+ *
+ * ── AND WHERE A TYPE *CLAIMED* TO DO IT AND DID NOT ────────────────────────
+ * `everySurfaceStatesWhatChanges` is the tenth, and it exists because the
+ * opposite mistake also shipped here: `@/ui/shared/journey` requires a `reason`
+ * on the absent arm and its comment called an empty string "structurally
+ * impossible", but `reason: string` admits `''`. Requiring a field is not
+ * requiring its content. See that invariant's own note.
  *
  * ── NO COUNTS ──────────────────────────────────────────────────────────────
  * Nothing here stores how many invariants, controls, acts or names there are.
@@ -44,8 +51,8 @@ import {
  * `COLLAPSED_STATE_NAMES` are literal lists, and the tests prove them by
  * ADDING a member. A length assertion agrees with any substitution.
  *
- * This module is nine pure functions and three literal lists. It renders
- * nothing and reads no I/O.
+ * This module is pure functions and literal lists. It renders nothing and reads
+ * no I/O.
  */
 
 export type StoryboardInvariantId =
@@ -58,6 +65,7 @@ export type StoryboardInvariantId =
   | 'deterministicLayerUnaffected'
   | 'artificialIntelligenceIsAdvisoryOnly'
   | 'finalStateDerivableFromAuditAlone'
+  | 'everySurfaceStatesWhatChanges'
 
 export interface StoryboardViolation {
   readonly invariant: StoryboardInvariantId
@@ -293,7 +301,64 @@ export const noTheatre: StoryboardInvariant = (storyboard) => {
  * A rendered fixed message naming a screen this list does not pin is reported
  * too. Silence there would let a second fixed message ship unpoliced, which is
  * the same defect one level up.
+ *
+ * ── "FIXED BY THE SOURCE" IS NOT "THE SOURCE SAYS IT ONCE" ─────────────────
+ * THE ENGLISH WORDING EXISTS TWICE IN THE FROZEN DOCUMENT, AND THE DOCUMENT
+ * SAYS SO ITSELF. `DEC-MSG-001` is registered at L5263 — "the fixed
+ * worker-facing compliance-suspension message is worded differently in two
+ * Parts" — with Reading A at L5265 (`SoW Fact` — §4.2.3, repeated verbatim at
+ * §7.11) and Reading B at L5266 (`SoW Fact` — §8.9.2, "Operation suspended —
+ * your work has been saved."). Both are real source strings under an open
+ * `Client Decision Required`; the register's own recommendation is Option 1,
+ * adopt Reading A, because it appears twice and carries the actionable
+ * instruction. This build already discloses the pair at
+ * `src/frontline/modules/fl-a1/service.ts:257,262` and
+ * `src/frontline/modules/fl-a7/service.ts:335,339`.
+ *
+ * This invariant pins READING A, and the reason is local to §44A rather than a
+ * preference: L94829 is the wording §44A itself writes in `SB-AI-25`'s
+ * Worker-visible experience row, and `AC-44A-25-2` (L94880) requires "the
+ * compliance-suspension worker message is exactly the source's wording, in
+ * both supported languages, with no paraphrase". So within this chapter the
+ * wording is fixed — but a card supplying Reading B is supplying a real source
+ * string under an open decision, NOT inventing a paraphrase, and the violation
+ * says which of the two it is. That distinction is the whole point of the
+ * disclosure: tasks 16-18 must not read "fixed by the source" as "the source
+ * says this once".
+ *
+ * THE SPANISH IS THE SECOND HALF OF THE SAME DECISION, and it is not in the
+ * document at all — measured independently by two tasks, including zero
+ * occurrences of `Operación`/`suspendida` in 18MB. `DEC-MSG-001`'s trade-off
+ * line (L5270) calls for "a locale-file update in English and Spanish", which
+ * is the client's editorial act rather than this build's. So the Spanish
+ * violation on `SB-AI-25` STANDS BY DESIGN: the only way to silence it is to
+ * omit the fixed message, and omitting it would silence the one paraphrase
+ * prohibition the source actually states. A reader seeing that violation is
+ * seeing the open half of `DEC-MSG-001`, not a defect somebody forgot.
  * ==================================================================== */
+
+/**
+ * A second source wording for the same fixed message, registered as an open
+ * decision. `null` on a message the source writes one way only.
+ */
+export interface WordingCollision {
+  /** The decision the source registers the pair under, e.g. `DEC-MSG-001`. */
+  readonly decision: string
+  /** Where the decision is registered. */
+  readonly decisionRef: string
+  /** The register's label for the reading this invariant pins. */
+  readonly adoptedReading: string
+  /** Where the register writes the adopted reading. */
+  readonly adoptedReadingRef: string
+  /** The register's label for the other reading. */
+  readonly otherReading: string
+  /** The other reading, verbatim. A real source string, not a paraphrase. */
+  readonly otherReadingText: string
+  /** Where the register writes the other reading. */
+  readonly otherReadingRef: string
+  /** Why THIS chapter fixes the adopted one. Local, not a global preference. */
+  readonly whyAdopted: string
+}
 
 export interface PinnedWorkerMessage {
   readonly screen: string
@@ -305,6 +370,8 @@ export interface PinnedWorkerMessage {
   readonly englishRef: string
   /** The line prohibiting the paraphrase. */
   readonly prohibitionRef: string
+  /** The open decision the wording sits under, or `null` where there is none. */
+  readonly collision: WordingCollision | null
 }
 
 export const PINNED_WORKER_MESSAGES = [
@@ -314,8 +381,53 @@ export const PINNED_WORKER_MESSAGES = [
     spanish: null,
     englishRef: 'L94829',
     prohibitionRef: 'L94876',
+    collision: {
+      decision: 'DEC-MSG-001',
+      decisionRef: 'L5263',
+      adoptedReading: 'Reading A',
+      adoptedReadingRef: 'L5265',
+      otherReading: 'Reading B',
+      otherReadingText: 'Operation suspended — your work has been saved.',
+      otherReadingRef: 'L5266',
+      whyAdopted:
+        '§44A writes Reading A itself, in SB-AI-25\'s Worker-visible experience row at L94829, '
+        + 'and AC-44A-25-2 (L94880) requires exactly the source\'s wording with no paraphrase. '
+        + 'The register\'s own recommendation is the same reading, because it appears twice and '
+        + 'carries the actionable instruction Reading B drops.',
+    },
   },
 ] as const satisfies readonly PinnedWorkerMessage[]
+
+/**
+ * Why the rendered English is wrong — and, where the source writes two
+ * readings, WHICH of the two ways it is wrong. A card supplying the other
+ * reading has supplied a real source string under an open decision; a card
+ * supplying neither has paraphrased. Reporting both as "not the source's
+ * wording" is what let a source string be filed as an invention.
+ */
+function describeEnglishDivergence(rendered: string, pinned: PinnedWorkerMessage): string {
+  const { collision } = pinned
+  if (collision === null) {
+    return `Its wording is fixed by the source at ${pinned.englishRef} and must not be `
+      + 'paraphrased or localised into a different meaning.'
+  }
+  const base =
+    `The source writes this message TWO ways and registers the divergence itself as `
+    + `${collision.decision} (${collision.decisionRef}): ${collision.adoptedReading} at `
+    + `${collision.adoptedReadingRef}, "${pinned.english}", and ${collision.otherReading} at `
+    + `${collision.otherReadingRef}, "${collision.otherReadingText}". §44A fixes `
+    + `${collision.adoptedReading}: ${collision.whyAdopted} `
+  return rendered === collision.otherReadingText
+    ? base
+      + `This card renders ${collision.otherReading} — a real source string under an open `
+      + 'Client Decision Required, NOT an invented paraphrase. It is still a violation here, '
+      + `because ${pinned.englishRef} is the wording this chapter writes and `
+      + `${pinned.prohibitionRef} forbids rendering a different meaning; it resolves when `
+      + `${collision.decision} is decided, not by editing this card.`
+    : base
+      + 'This card renders neither reading, so it is a paraphrase. Neither reading may be '
+      + 'paraphrased or localised into a different meaning.'
+}
 
 export const fixedMessageIsNotParaphrased: StoryboardInvariant = (storyboard) => {
   const out: StoryboardViolation[] = []
@@ -340,9 +452,8 @@ export const fixedMessageIsNotParaphrased: StoryboardInvariant = (storyboard) =>
           'fixedMessageIsNotParaphrased',
           storyboard,
           pinned.prohibitionRef,
-          `${message.screen}'s message renders as "${message.english}". Its wording is fixed `
-            + `by the source at ${pinned.englishRef} and must not be paraphrased or localised `
-            + 'into a different meaning.',
+          `${message.screen}'s message renders as "${message.english}". `
+            + describeEnglishDivergence(message.english, pinned),
         ),
       )
     }
@@ -354,8 +465,15 @@ export const fixedMessageIsNotParaphrased: StoryboardInvariant = (storyboard) =>
           'L92757',
           `${message.screen}'s message set has no Spanish rendering. Every storyboard's `
             + "worker-facing message set exists complete in both English and Spanish before "
-            + 'release. The source writes no Spanish string for it, so the approved '
-            + 'translation is a client-supplied input rather than something this build derives.',
+            + 'release. The source writes no Spanish string for it anywhere, so the approved '
+            + 'translation is a client-supplied input rather than something this build derives'
+            + (pinned.collision === null
+              ? '.'
+              : ` — it is the open second half of ${pinned.collision.decision} `
+                + `(${pinned.collision.decisionRef}), whose trade-off line calls for a locale-file `
+                + 'update in English and Spanish. This violation therefore STANDS rather than '
+                + 'being fixed: the only way to silence it is to omit the fixed message, and '
+                + 'omitting it would silence the one paraphrase prohibition the source states.'),
         ),
       )
     }
@@ -488,6 +606,64 @@ export const finalStateDerivableFromAuditAlone: StoryboardInvariant = (storyboar
 }
 
 /* ====================================================================
+ * EVERY SURFACE STATES WHAT CHANGES.
+ *
+ * L92664: "**The five-surface reaction** states, for each surface, what
+ * changes." Measured across the thirty tables at
+ * `STORYBOARD_SURFACE_TABLE_REFS`: 150 reaction cells, 0 blank. Where a
+ * surface changes nothing the source still writes WHY — L92818 "No change;
+ * after reconnection the signal contributes to instruction-review candidates
+ * for the screen's author", L94688 "Not applicable — the Studio has no device
+ * storage role". Measured too: the string "No direct effect" appears NOWHERE in
+ * L92596-L95408. It is this build's rendering of the source's rule, so the
+ * reason is the half that carries what the source actually wrote, and a blank
+ * reason renders a label the source never wrote and nothing else.
+ *
+ * ── WHY THE TYPE DOES NOT ALREADY DO THIS ──────────────────────────────────
+ * `@/ui/shared/journey`'s absent arm requires `reason: string`, and
+ * `reason: string` admits `''`. `noEffect('', ref)` compiles, and
+ * `effectStatement` then returns "No direct effect — " with nothing after the
+ * dash: a blank cell wearing a label, which reads as a rendering to everything
+ * downstream. TypeScript has no non-empty-string type, so requiring the FIELD
+ * is not requiring its CONTENT, and the nine invariants above never read
+ * `storyboard.surfaces` at all. That gap was found by a content task's own
+ * test before this contract found it — the precise failure L92648 names, on
+ * the one chapter rule this module had left to three transcription tasks to
+ * reinterpret.
+ *
+ * ── THE CROSS-CHECK ────────────────────────────────────────────────────────
+ * `kind: 'noDirectEffect'` is legal. `reason: ''` is a legal string. Together
+ * they are a violation and neither field says so alone — the same shape as
+ * `deviceAcknowledgement` against `surfacesShowingApplied`. The surface set is
+ * `JOURNEY_SURFACES`, the literal list declared outside this module, so a
+ * sixth surface is policed the day it is added rather than the day someone
+ * remembers to widen a count.
+ * ==================================================================== */
+
+export const everySurfaceStatesWhatChanges: StoryboardInvariant = (storyboard) => {
+  const out: StoryboardViolation[] = []
+  for (const surface of JOURNEY_SURFACES) {
+    const effect = storyboard.surfaces[surface.code]
+    const supplied = effect.kind === 'affected' ? effect.statement : effect.reason
+    if (supplied.trim() !== '') continue
+    out.push(
+      violation(
+        'everySurfaceStatesWhatChanges',
+        storyboard,
+        'L92664',
+        `The ${surface.name} row renders as "${effectStatement(effect)}" — `
+          + (effect.kind === 'affected'
+            ? 'an affected surface stating nothing about what changed. '
+            : 'an absent surface with no reason, which is a blank cell wearing a label. ')
+          + 'The five-surface reaction states, for each surface, what changes, and every one '
+          + "of the 150 reaction cells in the chapter's thirty tables carries text.",
+      ),
+    )
+  }
+  return out
+}
+
+/* ====================================================================
  * THE SET, AND THE RUNNER.
  * ==================================================================== */
 
@@ -499,9 +675,15 @@ export interface StoryboardInvariantDefinition {
 }
 
 /**
- * The nine, as a literal list. Tasks 16, 17 and 18 run `storyboardViolations`
+ * The set, as a literal list. Tasks 16, 17 and 18 run `storyboardViolations`
  * over their ten cards; nothing consumes them one at a time except the tests
  * that prove each can go red.
+ *
+ * No count is written here. Adding `everySurfaceStatesWhatChanges` to this list
+ * reddened the membership assertion in
+ * `tests/unit/ai-storyboard-contract-invariants.test.ts` before that test's own
+ * literal list was widened, and reddened the "runs every one of them" case with
+ * it — which is what proves the gate is a list and not a length.
  */
 export const STORYBOARD_INVARIANTS = [
   { id: 'noImpliedReceiptOrApplication', check: noImpliedReceiptOrApplication, sourceRef: 'L93459' },
@@ -520,6 +702,11 @@ export const STORYBOARD_INVARIANTS = [
     id: 'finalStateDerivableFromAuditAlone',
     check: finalStateDerivableFromAuditAlone,
     sourceRef: 'L92749',
+  },
+  {
+    id: 'everySurfaceStatesWhatChanges',
+    check: everySurfaceStatesWhatChanges,
+    sourceRef: 'L92664',
   },
 ] as const satisfies readonly StoryboardInvariantDefinition[]
 
