@@ -724,6 +724,60 @@ mid-verification for another agent, and a killed gate run left an orphaned `.zz-
 the export that failed the next chain inside `cp` rather than inside any assertion. Two agents hit
 that independently. **Wave 3 runs at most three agents, with the build step serialised.**
 
+### Wave 3 task 15 — closed, and the tenant-versus-platform pause has a measured basis
+
+**Candidate `fecaa39`.** The five-surface AI-degradation overlays, and the orphan wave 0 left behind.
+
+**`AC-42-303` IS A PAUSE-VERSUS-OUTAGE RULE AND THE SOURCE NAMES IT SO.** `TEST-42-302` at **L89409**
+is called "**Pause-versus-outage test**". Two briefs and one module had restated the criterion as
+distinguishing the two pause *scopes* from each other; it distinguishes `AIMODE-13`/`-14` from
+`AIMODE-03`/`-05`, at **L89402**, its only occurrence. **L89412, cited as a range endpoint, is blank.**
+
+**And the tenant-versus-platform distinction has a basis that is measured rather than asserted.**
+`FAIL-AI-41` and `FAIL-AI-42`'s **Frontline** message cells are byte-identical while their
+**tenant-web** cells differ, at **L90513** and **L90514**. So the Command Center can tell a tenant
+pause from a platform pause and **the device cannot** — which is why `MOD-CC-08` computes that
+distinction instead of asserting it, and why the join's scope-disagreement throw should lean here
+rather than on `AC-42-303`.
+
+**Two of the five surfaces have no source table at all.** Studio (12 rows, L90989, `Capability` axis,
+zero `MOD-STU-` tokens), Command Center (13 rows, L91080, module by NAME, zero `MOD-CC` tokens) and
+Frontline (12 rows, L91179, the only one with real module identifiers) are transcribed. **The Hub and
+the Super Admin console are derived**: §43.3.1's only table is by failure family (L90905) and §43.3.5's
+is `Control` by role (L91282), with zero `MOD-SA` tokens in L91214-L91282.
+
+**The Hub's informal module list holds EIGHT items, not nine, and the source states no number.**
+L90861's appositive: worker lifecycle · job lifecycle and approval · run scheduling · assignment ·
+execution summary review · permissions · notifications · audit and retention → `MOD-DOH-04` through
+`-11`, contiguous in registry order. "Nine" was a brief's, not the source's. **Whether "Every Hub
+module" is universal or enumerative cannot be established**; both readings render and the build sits on
+the enumerative one, because a build may not upgrade its own inference into a source fact.
+
+**Four more brief locator errors, every one found by an agent opening the line:** spine item 13 is
+**L89938** (L89934 is item 9, Human fallback) · `AC-43-356` is **L91309** (L91306 is `AC-43-353`) · the
+common brief's queued-matrix rows were **+1** (measured L89697-L89708; the task brief had it right) ·
+`SB-42-301`'s title in the brief was a paraphrase — L89348 reads "the same mode, five surfaces, one
+vocabulary".
+
+**A route-level mounting rule, learned the hard way.** Mounting the overlays inside the module screens
+turned **six shipped suites red on the overlay's mere existence** — `getByRole('table')` and
+`getByText(/named access class/i)` became ambiguous and row-enumerating assertions absorbed the new
+rows. Those suites assert each module's own contract and are not an overlay task's to edit. **Overlays
+mount at route level.** For the same reason **no step was added to either journey register**: four
+shipped tests pin the populations by step number, and an AI-degradation behaviour is a property of a
+step rather than another step.
+
+**A rule collision disclosed rather than resolved.** `AC-43-356`'s verbatim tail uses one of the four
+words the support-not-surveillance rule forbids in Super Admin copy, in an unrelated sense. The
+criterion's substance renders and the clause is withheld with the reason on screen, rather than
+paraphrasing a criterion or dropping it. Neither rule weakened.
+
+**How a proven-share ratchet was satisfied honestly.** `locator-fidelity` grades a citation strong only
+when a **double-quoted** verbatim excerpt sits beside it, and this task's 252 locators used single
+quotes, so all 252 graded weak. Raising the baseline is forbidden and padding the metric is worse;
+**57 verbatim quotations were extracted programmatically from the frozen bytes**, each placed beside its
+own line, every one machine-checked.
+
 ### Wave 3 task 14 — closed and verified on this tree
 
 **Candidate `df749c9`** (controller repairs at `0de7950` immediately before it). Verified by the
