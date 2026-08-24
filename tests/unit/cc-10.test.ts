@@ -698,12 +698,35 @@ describe('SCR-CC-10 — reachability from `app/`, measured rather than assumed',
       .filter((line) => (line.match(/MOD-CC-\d+/g) ?? []).every((id) => id === 'MOD-CC-10'))
     expect(solo.length).toBeGreaterThan(0)
 
-    // NOT VACUOUS: the filter really rejects a shared line. The page carries
-    // one, and it must not be counted.
-    const shared = page
-      .split('\n')
-      .filter((line) => line.includes('MOD-CC-13') && line.includes('MOD-CC-10'))
-    expect(shared.every((line) => !solo.includes(line))).toBe(true)
+    /*
+     * THE NON-VACUITY CHECK WAS ITSELF THE VACUOUS THING, TWICE OVER.
+     *
+     * It read `shared.every((line) => !solo.includes(line))`, and that is a
+     * TAUTOLOGY for any page content whatsoever: `shared` is filtered to lines
+     * containing `MOD-CC-13`, so every member's match list holds an id that is
+     * not `MOD-CC-10`, so every member fails `solo`'s second filter. No member
+     * of `shared` can ever be a member of `solo`. Nothing about this page was
+     * being tested.
+     *
+     * And its comment claimed "The page carries one". Measured: `MOD-CC-10`
+     * appears on four lines of the shipped page and `MOD-CC-13` on one, with no
+     * line carrying both — so `shared` is empty and `.every()` over it is
+     * unconditionally true for the second reason as well. Audit round 3,
+     * `R3-U02`. **This is the second time in this build a comment asserting
+     * non-vacuity was itself the vacuous thing**, which is why the discrimination
+     * is now asserted on a constructed line rather than hoped for from the page.
+     */
+    const bothNamed = '  // MOD-CC-10 hands the resolution to MOD-CC-13'
+    const isSolo = (line: string): boolean =>
+      line.includes('MOD-CC-10') &&
+      (line.match(/MOD-CC-\d+/g) ?? []).every((id) => id === 'MOD-CC-10')
+
+    expect(isSolo(bothNamed), 'a line naming both modules is not a solo mention').toBe(false)
+    expect(isSolo('  // MOD-CC-10 owns the queue'), 'the predicate still finds a real solo').toBe(
+      true,
+    )
+    // And the predicate under test is the one the page was filtered with.
+    expect(page.split('\n').filter(isSolo)).toEqual(solo)
   })
 })
 

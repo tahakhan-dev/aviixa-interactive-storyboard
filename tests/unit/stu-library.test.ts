@@ -464,8 +464,34 @@ describe('the classification taxonomy', () => {
   it('ships an empty seeded taxonomy and names no starter type as canonical', () => {
     expect(SEEDED_JOB_TYPES).toEqual([])
     expect(SEEDED_SERVICE_TYPE_TAGS).toEqual([])
-    expect(SEEDED_LIBRARY.jobTypes.every((t) => t.origin === 'tenant-created')).toBe(true)
-    expect(SEEDED_LIBRARY.serviceTypeTags.every((t) => t.origin === 'tenant-created')).toBe(true)
+
+    /*
+     * ONE OF THESE TWO WAS VACUOUS AND THE OTHER WAS NOT, WHICH IS WHY BOTH ARE
+     * NOW STATED AS POPULATIONS FIRST.
+     *
+     * Audit round 3 reported both `.every()` receivers as empty on every call.
+     * Measured: `SEEDED_LIBRARY.jobTypes` holds ONE element — the composed
+     * library is `[...SEEDED_JOB_TYPES, ...TENANT_JOB_TYPES]` and the tenant
+     * side is non-empty — so that assertion was doing real work.
+     * `serviceTypeTags` really is empty, so its `.every()` was
+     * unconditionally true and said nothing the `toEqual([])` above had not
+     * already said.
+     *
+     * Asserting the population before the property is what tells the two apart,
+     * and it is the remedy this build arrived at twice in one round: a gate
+     * whose population can silently become empty reports success without
+     * looking. So the composed counts are pinned, and the origin claim is a set
+     * equality over what is actually there rather than a predicate over what
+     * might be nothing.
+     */
+    expect(SEEDED_LIBRARY.jobTypes.length, 'the composed library carries the tenant Job Type').toBe(
+      TENANT_JOB_TYPES.length,
+    )
+    expect([...new Set(SEEDED_LIBRARY.jobTypes.map((t) => t.origin))]).toEqual(['tenant-created'])
+    expect(
+      SEEDED_LIBRARY.serviceTypeTags,
+      'no seeded tag and no tenant tag, so there is no origin to assert',
+    ).toEqual([])
   })
 
   // FAILS IF: the tenant vocabulary is emptied, so the assertion above stops
