@@ -25,6 +25,8 @@ import {
   DEC_FINISH_001_MOUNTED,
   DEC_RUNSTATE_001,
   DEC_STUCK_001,
+  BARE_PROHIBITION_CELL_COUNT,
+  MATRIX_CELL_COUNT,
   MATRIX_FIRST_DATA_LINE,
   MATRIX_LAST_DATA_LINE,
   MOD_DOH_06_MATRIX,
@@ -871,5 +873,56 @@ describe('the restated location scope agrees with the module that owns it', () =
   it('records the restatement as debt rather than leaving it to be found', () => {
     expect(LOCATION_SCOPE_DEBT.why).toContain('may not value-import')
     expect(LOCATION_SCOPE_DEBT.fix).toContain('src')
+  })
+})
+
+/* ==================================================================== *
+ * THE TWO DERIVED CELL COUNTS, AGAINST THE FROZEN SOURCE.
+ *
+ * The screen used to render "Thirty-eight of the sixty cells carry the token
+ * with no qualifying clause". The source carries 37. Both figures now derive
+ * from `MOD_DOH_06_MATRIX` at module load, so the sentence can no longer
+ * disagree with the data beside it — but nothing asserted that the matrix
+ * still agrees with L27909-L27920, and a transcription may drift from its
+ * source without either derived number moving. This is that assertion, and it
+ * re-parses the source rather than trusting the transcription.
+ *
+ * RED when: a role column is dropped from the matrix, a row is lost, or a
+ * `BARE_PROHIBITION` cell is transcribed with a qualifying clause it does not
+ * have in the source (or gains one it does).
+ * ==================================================================== */
+describe('the run matrix agrees with the frozen source it transcribes', () => {
+  const cellsFromSource = (): readonly string[] => {
+    const cells: string[] = []
+    for (let n = MATRIX_FIRST_DATA_LINE; n <= MATRIX_LAST_DATA_LINE; n += 1) {
+      const parts = L(n)
+        .trim()
+        .replace(/^\|/, '')
+        .replace(/\|$/, '')
+        .split('|')
+        .map((c) => c.trim())
+      // column 0 is the Action; the five role columns follow.
+      cells.push(...parts.slice(1, 6))
+    }
+    return cells
+  }
+
+  it('parses the same number of cells the matrix declares', () => {
+    const cells = cellsFromSource()
+    // The floor is the positive control: a mis-parse that yields nothing would
+    // otherwise satisfy every count below by vacuity.
+    expect(cells.length, 'no cell parsed out of the source table at all').toBeGreaterThan(0)
+    expect(cells.length).toBe(MATRIX_CELL_COUNT)
+  })
+
+  it('carries exactly the source\'s count of bare prohibitions', () => {
+    const bare = cellsFromSource().filter((c) => c === '`Explicitly prohibited`')
+    const qualified = cellsFromSource().filter(
+      (c) => c.startsWith('`Explicitly prohibited`') && c !== '`Explicitly prohibited`',
+    )
+    expect(bare.length + qualified.length, 'no prohibition parsed at all').toBeGreaterThan(0)
+    // 45 cells carry the token; 8 of them qualify it. The build must transcribe
+    // the 37 that do not, and no more.
+    expect(bare.length).toBe(BARE_PROHIBITION_CELL_COUNT)
   })
 })
