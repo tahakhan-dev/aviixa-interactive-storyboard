@@ -374,16 +374,10 @@ const DISCLOSURES: readonly Disclosure[] = [
     why: "Storyboard 28's Safe stop cell, verbatim at L95084 — the source's own words, which this build may not rewrite. It is also honest on the rule's own terms twice over: L78386 forbids a display implying an offline tablet HAS received or applied a hold release, and this sentence states that no hold was released at all. A negation of the prohibited claim is the one thing that cannot be the prohibited claim, and it is the same shape the device-wiped refusal below is exempted for.",
   },
   {
-    text: 'Hold released; deviation dispositioned; Critical anomaly moves toward Resolved with a closure note',
-    anchor: 'Hold released; deviation dispositioned; Critical anomaly moves toward Resolved with a closure note',
-    line: 93319,
-    why: "Storyboard 7's Final official state, transcribed cell for cell from L93319. It is not a live status: the card's own facts record every relevant device as acknowledged at this state, which is the only condition L12782 leaves open — it prohibits the claim as a GLOBAL one BEFORE all acknowledgements, and L12785 allows a claim that states exactly what is known. The build may not rewrite the source's cell, and rewording it would also delete the reconciled end state the storyboard exists to name.",
-  },
-  {
     text: 'Hold released; deviation dispositioned; Critical anomaly moves toward Resolved with a closure note [SoW Fact — §3.3]',
     anchor: 'Hold released; deviation dispositioned; Critical anomaly moves toward Resolved with a closure note',
     line: 93319,
-    why: "The same cell rendered with the source's own classification marking, which L93319 carries inside the cell. Two runs rather than one because the card renders the field text with the marking and the reconstructed final-state name without it; both are subtracted by name, and a prohibited phrasing appended to either would land outside the anchor and be reported.",
+    why: "Storyboard 7's Final official state, transcribed cell for cell from L93319 including the source's own classification marking, which that line carries inside the cell. It is not a live status: the card's own facts record every relevant device as acknowledged at this state, which is the only condition L12782 leaves open — it prohibits the claim as a GLOBAL one BEFORE all acknowledgements, and L12785 allows a claim that states exactly what is known. The build may not rewrite the source's cell, and rewording it would also delete the reconciled end state the storyboard exists to name. ONE RUN, WHERE THERE USED TO BE TWO: the second was the same cell WITHOUT the marking, because the reconstructed final-state name had dropped it. Audit C-39 restored the attribution — a field presented as the source's own cell has to be the source's own cell — so the unmarked run stopped existing and this gate convicted its disclosure on the next full chain. That is the gate doing its job: the entry was deleted rather than the list widened, and a prohibited phrasing appended to this run would still land outside the anchor and be reported.",
   },
 
   /* --- this build's own sentences. FIXED AT NINE; see AUTHORED_BUDGET. --- */
