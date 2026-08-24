@@ -908,6 +908,127 @@ structural: these files write the identifier as a data field and the locator in 
 field, so the six-character `CONNECTIVE` adjacency never fires. Worth knowing before anyone treats the
 ratio as sloppiness.
 
+### Waves 3 and 4 — closed, reviewed, fixed, green
+
+**Candidate `f56a050`.** Measured by the controller on a quiet tree, every figure from that run:
+typecheck 0 · lint 0 · gate-ordering **25 of 25 audited** · registry freshness 2 of 2 · unit **6096** in
+177 files · component **2984** in 105 files.
+
+Wave 3: task 14 (`df749c9`) + its fix round (`803b4ca`) + a second fix round (`d3a7b5c`); task 15
+(`fecaa39`) + its fix round (`4461fe9`). Wave 4: the contract (`9f48855`) + its fix round (`b160d4c`);
+storyboards 1-10 (`efe424a`), 11-20 (`910fdf0`), 21-30 (`1553c2d`). Two independent reviews, both
+CHANGES REQUIRED, both closed. `REV-S11-W3-14` and `REV-S11-W3-ABC` in the review ledger.
+
+### Eleven gates in this slice could not fail on the defect they named
+
+Not one was found by a suite. Every one was found by a reviewer or a fix agent, and the catalogue is worth
+more than the fixes:
+
+- one **exempted the exact phrase** the prohibition was about, so a screen printing it in its own voice passed;
+- **the same gate also could not fail for a second reason nobody looked for** — `document.body.textContent` concatenates siblings with no separator, so a planted paragraph arrived glued to a locator and a leading `\b` never matched;
+- one **stripped every quoted string literal** before scanning for the literal it policed: 0 offenders with the strip, 12 without, and every rendered string in those modules is a quoted literal;
+- one asserted `line !== ''` across twenty source locators, so a plant 5,000 lines off walked past;
+- one gated a four-agent roster with `toBeGreaterThan(0)`, green on both a deletion and an addition;
+- one scanned three directories for a resume timer and **excluded the one holding the pause**;
+- one scanned a directory for a severity import and **could not see the panel that directory mounts**;
+- one's spelled-out-duration list held `five` and not `four`;
+- one was **satisfied by an identifier's presence in a file read as text**, so "both journey registers overlaid" was true in data and false on every screen;
+- and a storyboard task found **three of its own** weak — an absent-surface check using `toContain` on a value true of any blank, an absence check asserting presence only, and one whose planted defect never landed so its green was a no-op rather than a pass.
+
+**The shape underneath most of them: a gate scoped, stripped or exempted to exclude the defect it names.**
+This build's rule — exempt the named false alarms, never the class of syntax — is what closed them.
+
+### Four claims of structural impossibility that the types do not deliver
+
+`src/ui/shared/journey.ts` claimed a required `reason: string` made an empty string *"structurally
+impossible rather than merely discouraged"*. **Requiring a field is not requiring its content**, and
+TypeScript has no non-empty-string type. The same claim was in `src/ai/five-surface/overlay.ts` twice and
+in its component once. All four corrected in place, no type changed, and paid for with a tenth storyboard
+invariant plus a gate over every string the five overlays render.
+
+**Its authority is measured, not argued:** L92664 says the five-surface reaction *"states, for each
+surface, what changes"*; all thirty source tables carry **150 reaction cells, zero blank**; and
+`"No direct effect"` occurs **zero** times in L92596-L95408 — that phrase is this build's rendering of the
+source's rule, which is why the reason is the half carrying source content.
+
+**A second seam of the same shape is open and named:** `StoryboardCardContent` is a mapped type over
+nineteen fields and admits `''` on any of them, checked today only on one fixture and inside each content
+task's own test.
+
+### A false absence is as bad as a false presence
+
+The fix that made task 14's audit sentence honest overshot into *"there is no audit sink in this build"*.
+**Its own gate's predicate hits 25 files tree-wide** — `src/studio/access/refusal.ts`, fifteen `stu-*`
+modules, nine `app/studio` screens, one of them headed **"THE ONE AUDIT PATH"** and calling `writeAudit`
+before it mutates. The gate meant to hold the sentence honest scanned exactly the two directories where the
+contradiction does not live, and **that narrow scope is what allowed the false claim to stand.**
+
+Now: the import closure of the incident route is **53 files with zero audit-write tokens**, so the narrowed
+claim is checkable; the gate is tree-wide with 25 exemptions **named one at a time**; and a plant in the
+directory where the old gate ran green convicts. Both halves of the sentence have a gate, so their scopes
+cannot drift apart again.
+
+### The registry's evidence class is narrower than "the build demonstrates it"
+
+`ai-storyboards.json` read 76 demonstrated where a fresh generation yields **79** — stale-low, not
+stale-high; the three are `SB-43-101` and `SB-43-351`, which task 14's console names. **`SB-AI-*` still
+reads 0 of 48** and that is correct: the status computation requires a shipped route screen under `app/` to
+name the identifier as a whole token, and nothing mounts the thirty yet.
+
+**The same rule has a second consequence, and it costs three earned rows.** Task 14 bound the pause to
+`FEAT-SA-0703`, `SUB-SA-0703` and `FUNC-SA-0703` — real source identifiers at **L47803**, claimable rather
+than derived. All three read `not-represented`, because all three live only in
+`src/ai/controls/decisions.ts` and none appears in any `app/` file: the route renders the attribution from
+a constant. **That is the same indirection that defeats `build-registries`' module-ownership heuristic**,
+now costing three rows in three of the client's fourteen named inventories. Task 19 or task 20 closes it —
+either the route names them honestly, or the status rule's evidence class is stated as narrower than it
+reads.
+
+### One violation stands on purpose, and it must keep standing
+
+Storyboard 25 reports `fixedMessageIsNotParaphrased`. **The Spanish rendering of `SCR-FL-LOCK-01`'s fixed
+message does not exist anywhere in the frozen source** — measured independently by three agents, including
+zero occurrences of `Operación`/`suspendida` and exactly one `ó` in 18MB. `TEST-44A-004` (L92757) requires
+both locales. The only way to silence the violation is to omit the fixed message, and that would silence
+the one paraphrase prohibition the source states here (L94876). So it is declared by identifier, asserted
+exactly, and a tenth still goes red. **Nine cards report none. Do not "fix" the tenth.**
+
+Related and separate: `DEC-MSG-001` at **L5263** records that this message is worded differently in two
+Parts — Reading A at L5265, Reading B at L5266 — so a card supplying Reading B, a real source string, was
+being reported as a paraphrase. Both readings now carry their locators.
+
+### Locator errors this pair of waves, and every one found by an agent opening the line
+
+Eighteen controller brief errors across waves 3 and 4. The shapes repeat, and two are new:
+
+- **Storyboard locators off by 24 to 75 lines**, each landing on real, plausible content — `AC-43-113` where a storyboard was claimed. A locator that "looks consistent" is not verified.
+- **Every section-span end line in chapter 44A is blank**, the separator before the next heading, with the content end one earlier. Confirmed independently across all three ten-storyboard ranges.
+- `AC-42-303` cited as a range whose endpoint L89412 is blank, and paraphrased into a rule it does not state, in four doc sites and two user-visible throw messages.
+- `AC-43-356` is L91309; L91306 is `AC-43-353`. Spine item 13 is L89938; L89934 is item 9. The head's own sentence is L92648, its reading list L92660-L92669, its deterministic rule L92650. The glance rows for storyboards 29 and 30 are L92721 and L92722.
+- **Two identifiers the controller called absent from the canon are members of it** — `DEC-ROLE-001` and `DEC-COACHREPLAY-001`.
+- The Hub's informal module list is **eight**, and the source states no number.
+- The 44A test figure is 46 for storyboards 1-10, not the 43 a measuring agent's own summary line gave — its per-section table was right and its arithmetic over it was wrong.
+
+### A stated count that resolves rather than standing
+
+Storyboard 9's prose says "Fifteen distinct states" twice while its own diagram declares fourteen. **The
+missing one is `failed`**: L50792 says fifteen, `AC-27.3-02` requires the two that a fourteen-item
+statement folds to be held distinct, and this repo already ships fifteen. The source's count is right and
+its own diagram is short by one. **Where the source states a count beside an enumeration, count the
+enumeration — and then check whether a third statement settles it.**
+
+### Carried into wave 5
+
+- **Seven decision identifiers the thirty cards cite are not members of the exported `DecisionId` union**, `DEC-AIRTO-001` among them at 51 references in the chapter-44 span and the entire content of every card's recovery-objective row. Five have no canon record at all; two are aliases needing wiring. Each local record carries a `canonicalId` so wave 5 can wire rather than re-read, and the suites assert all seven **absent** from `OPEN_DECISION_IDS` so a lift turns them red and forces the switch.
+- **Eighty-eight identifiers slice 11 shipped are in no inventory at all** — `AIMODE-*` 16, `FB-AI-*` 50, `DEC-AI*` 16, `PROV-*` 6. Task 20 decides explicitly and records it; leaving them silently uncounted is the one forbidden outcome.
+- **`PINNED_WORKER_MESSAGES` covers one screen** while five storyboards quote fixed worker strings the source does not rule unparaphrasable.
+- **`contentOrigin` has no member for a storyboard that renders no guidance at all** — four cards took `'authored'` as least-wrong, each with per-card reasoning.
+- **`notShippableLock` is named in prose as being in a token list it is not in**, and was deliberately not added: two files render it, so a token sweep would convict two legitimate readers. The question is open in the comment.
+- `SA_MATRIX_ATTRIBUTION` renders "twelve Frontline ones", which escapes the widened numeral gate because it reads `twelve Frontline` rather than `twelve modules`. Task 14's shipped string, flagged rather than decided.
+- **`locator-fidelity`'s blank-span check requires the WHOLE span to be blank**, so a blank range endpoint is not convicted. Two such citations were found by other means this slice.
+- **`build-registries`' `MOD-*` ownership heuristic is a source-text scan**, so an attribution reached through a constant is invisible to it.
+- **`provenanceViolations` does not convict two sibling marks under one guidance element** — found by planting, not by reading.
+
 ## 9. The closing obligation
 
 After slice 13: audit the build for gaps, fix and re-test; then audit against the frozen
