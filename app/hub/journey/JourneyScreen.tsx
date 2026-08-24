@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import { CrossSurfaceStatement } from '@/ui/doh/CrossSurfaceStatement'
 import { FiveSurfaceEffects } from '@/ui/shared/FiveSurfaceEffects'
+import { AiDegradationOverlay } from '@/ai/five-surface/AiDegradationOverlay'
+import { aiDegradationForStep } from '@/ai/five-surface/journey-overlay'
 import type { ClosingPosition } from '@/surfaces/doh/modules/doh-06/matrix'
-import { JOURNEY_STEPS, journeyStep } from './effects'
+import { AI_DEGRADATION_BY_STEP, JOURNEY_STEPS, journeyStep } from './effects'
 import { INSTANT_LABEL, JOURNEY_RUN_ID, type HubJourneyState } from './fixture'
 import {
   BLANK_CLOSURE_NOTE_VALIDATION,
@@ -168,6 +170,13 @@ export function JourneyScreen({ initialStep = FIRST_STEP }: JourneyScreenProps) 
   const [openDecisions, setOpenDecisions] = useState(false)
 
   const step = journeyStep(stepNumber) ?? JOURNEY_STEPS[0]!
+  // Total: the register is derived from this file's own `JOURNEY_STEPS`, and
+  // the fallback derives the same answer for a step the register somehow does
+  // not hold rather than rendering nothing, which is the blank the overlay
+  // contract exists to make unspellable.
+  const degradation =
+    AI_DEGRADATION_BY_STEP.find((entry) => entry.step === step.number)
+    ?? aiDegradationForStep(step)
   const composed = compositionForStep(step.number)
   const refusal = refusalForStep(step.number)
   const after = JOURNEY_STATES[step.number]
@@ -259,6 +268,20 @@ export function JourneyScreen({ initialStep = FIRST_STEP }: JourneyScreenProps) 
 
         <div className="mt-6">
           <FiveSurfaceEffects step={step} />
+        </div>
+
+        {/* WHAT THIS STEP'S ACTING SURFACE DOES WHEN ARTIFICIAL INTELLIGENCE
+            FAILS. Read from `AI_DEGRADATION_BY_STEP`, which is derived from
+            this register's own steps — it used to be exported and consumed by
+            nothing, so both journeys rendered no artificial-intelligence
+            degradation at all while `journey-overlay.ts` said BOTH were
+            overlaid. This is a panel and not a step: no step is added to
+            either register and nothing is renumbered. */}
+        <div className="mt-6" data-testid="step-ai-degradation">
+          <AiDegradationOverlay
+            overlay={degradation.overlay}
+            mountedOn={`journey step ${String(step.number)}, acting on ${degradation.actingSurface}`}
+          />
         </div>
 
         {refusal === null ? null : (

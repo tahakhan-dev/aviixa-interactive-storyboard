@@ -47,8 +47,11 @@ import {
  * `DEC-AIFALLBACK-001`. That identifier is NOT a member of the exported
  * `DecisionId` union, and `src/disclosure/decisions.ts` is wave 5's. So it is
  * disclosed LOCALLY, in the slice-8 pattern, through `STU_UNCANONISED_DECISIONS`
- * below, and reported as a seam rather than added to a module this task does
- * not own. The row still renders whole, classification included: dropping the
+ * below — which is RENDERED, through `sourceNotes` on the overlay, and was not
+ * when this sentence was first written: the record had exactly one occurrence
+ * in the tree, its own declaration, while this comment said it was disclosed.
+ * It is reported as a seam rather than added to a module this task does not
+ * own. The row still renders whole, classification included: dropping the
  * classification because the canon cannot hold the identifier would delete the
  * one thing telling a reader the row is unsettled.
  *
@@ -174,13 +177,13 @@ export const STU_AXIS_ATTRIBUTION = {
     'No Studio module. Section 43.3.2 was swept end to end and contains zero occurrences of '
     + '`MOD-STU-`. The table names capabilities, and a capability is not a module.',
   whyNoModuleColumnMayBeAdded:
-    'Part V publishes no module inventory, so the eighteen-module Studio registry this build '
-    + 'carries is itself a `Derived Clarification` under `DEC-STUDIO-001` (L4036). Joining a '
+    'Part V publishes no module inventory, so the Studio module registry this build carries '
+    + 'is itself a `Derived Clarification` under `DEC-STUDIO-001` (L4036). Joining a '
     + 'derived registry to a table that names no module would manufacture a key the source has '
     + 'nowhere, and any coverage figure computed from it would measure nothing.',
   soNoGateMayReadItAsModuleCoverage:
-    'Twelve capabilities and eighteen modules are two populations. This table is not coverage '
-    + 'of `SURF-STU` module behaviour and is not offered as any.',
+    'Capabilities and modules are two different populations. This table is not coverage of '
+    + '`SURF-STU` module behaviour and is not offered as any.',
   delegatedChoice: APP_012_DELEGATED_CHOICE,
 } as const
 
@@ -217,6 +220,27 @@ export const STU_AI_OVERLAY: SurfaceAiOverlay = {
   tables: [STU_AI_BEHAVIOUR_TABLE],
   provenance: OVERLAY_PROVENANCE,
   obligations: FIVE_SURFACE_OBLIGATIONS,
+  sourceNotes: [
+    {
+      heading: 'This table\u2019s axis is a capability, and it is not module coverage.',
+      body: [
+        STU_AXIS_ATTRIBUTION.whatTheSourceAssigns,
+        STU_AXIS_ATTRIBUTION.whyNoModuleColumnMayBeAdded,
+        STU_AXIS_ATTRIBUTION.soNoGateMayReadItAsModuleCoverage,
+        STU_AXIS_ATTRIBUTION.delegatedChoice,
+      ].join(' '),
+      sourceRef: 'L90989',
+      readings: [],
+      adopted: null,
+    },
+    ...STU_UNCANONISED_DECISIONS.map((decision) => ({
+      heading: `${decision.id} is not a member of the exported \`DecisionId\` union, so it is disclosed here.`,
+      body: `${decision.question} The canon is wave 5\u2019s; this is the slice-8 local pattern and it is reported as a seam.`,
+      sourceRef: decision.sourceRef,
+      readings: [],
+      adopted: null,
+    })),
+  ],
   statedAbsences: [
     {
       what: 'A queued-request runtime state.',

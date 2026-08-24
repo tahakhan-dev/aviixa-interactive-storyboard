@@ -64,6 +64,22 @@ import {
  * means for row `MOD-FL-B8`: cached approved guidance is `PROV-3`, never
  * `PROV-1`, and this overlay's own marker is `PROV-4` because it renders the
  * RULE about the cache rather than the cached content.
+ *
+ * ── REACHABILITY, STATED ───────────────────────────────────────────────────
+ * MEASURED ON THIS TREE, AND WRITTEN DOWN BECAUSE A STATED ABSTENTION AND AN
+ * OVERSIGHT LOOK IDENTICAL FROM OUTSIDE. There is no Frontline route among the
+ * eight route directories this task extends, and there is no `app/frontline`
+ * module route to hang a surface overlay on — so nothing under `app/` mounts
+ * `AiDegradationOverlay` with this overlay directly, and no route will until a
+ * Frontline module route exists.
+ *
+ * It is NOT unreachable. `FL_AI_OVERLAY` is a member of `FIVE_SURFACE_OVERLAYS`
+ * and is resolved by `overlayForSurfaceCode('FL')`, and the Hub journey
+ * register acts on `FL` at one of its steps — so `app/hub/journey/JourneyScreen`
+ * renders this overlay whenever that step is open. That is the path, it is
+ * asserted by name in `tests/unit/ai-five-surface-overlays.test.ts`, and it is
+ * the whole of it. This is the surface where a contradiction costs the most, so
+ * the reachability is stated rather than assumed.
  */
 
 const flRow = (
@@ -224,6 +240,27 @@ export const FL_AI_OVERLAY: SurfaceAiOverlay = {
         'Delivery states are rendered distinctly; no surface presents queued or sent as '
         + 'delivered, or delivered as read.',
       withheld: null,
+    },
+  ],
+  sourceNotes: [
+    {
+      heading:
+        'Three cells of an artificial-intelligence-failure table describe connectivity, and '
+        + 'neither reading is dropped.',
+      body:
+        'The table is headed "Behaviour during an artificial-intelligence failure" and the '
+        + 'cells for Coaching Rendering, Notifications and the Training Library Viewer describe '
+        + 'something else — cached-while-offline, queued-while-offline, and online-only by '
+        + 'design, which is an architectural boundary true at full artificial-intelligence '
+        + 'health. Each renders under the heading it has AND with its other reading, on the row '
+        + 'itself, each with its own locator. The source is not corrected by moving a row, and a '
+        + 'connectivity behaviour is not silently filed under an artificial-intelligence '
+        + 'heading: a worker reading "unavailable during an artificial-intelligence failure" '
+        + 'would walk to a better signal, and online-only-by-design is not fixed by walking '
+        + 'anywhere.',
+      sourceRef: 'L91179',
+      readings: [],
+      adopted: null,
     },
   ],
   statedAbsences: [

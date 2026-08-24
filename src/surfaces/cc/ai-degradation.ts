@@ -40,8 +40,11 @@ import {
  * ── TWO ROWS NAME A DECISION THE CANON DOES NOT HOLD ─────────────────────
  * L91092's classification cell carries `DEC-REPORT-001` — "identity of the
  * five sets open under" — and it is not a member of the exported `DecisionId`
- * union. Disclosed locally in `CC_UNCANONISED_DECISIONS` and reported as a
- * seam. The cell renders verbatim, classification included.
+ * union. Disclosed locally in `CC_UNCANONISED_DECISIONS`, which is RENDERED
+ * through `sourceNotes` on the overlay below, and reported as a seam. It was
+ * not rendered when this sentence was first written: the record had exactly one
+ * occurrence in the tree, its own declaration, while this comment said it was
+ * disclosed. The cell renders verbatim, classification included.
  *
  * ── THIS SURFACE DOES DISPLAY AN AVAILABILITY STATE, SO PARITY BINDS ─────
  * Unlike the Studio, the Command Center is IN scope for `AC-42-301` (L89400):
@@ -208,8 +211,8 @@ export const CC_IDENTIFIER_ATTRIBUTION = {
     + '`MOD-CC`.',
   whatThisBuildSupplies:
     'The identifier. It is resolved by exact string equality against the module registry at '
-    + 'L35186-L35198, whose thirteen names match this table verbatim and in the same order, so '
-    + 'the join is a checked one rather than a hand-written pairing.',
+    + 'L35186-L35198, whose names match this table verbatim and in the same order, so the join '
+    + 'is a checked one rather than a hand-written pairing.',
   registryRef: 'L35186-L35198',
 } as const
 
@@ -233,6 +236,26 @@ export const CC_AI_OVERLAY: SurfaceAiOverlay = {
   tables: [CC_AI_BEHAVIOUR_TABLE],
   provenance: OVERLAY_PROVENANCE,
   obligations: FIVE_SURFACE_OBLIGATIONS,
+  sourceNotes: [
+    {
+      heading: 'The identifier beside each row is this build\u2019s, not the source\u2019s.',
+      body: [
+        `The axis heading is \`${CC_IDENTIFIER_ATTRIBUTION.axisHeading}\`.`,
+        `What the source states: ${CC_IDENTIFIER_ATTRIBUTION.whatTheSourceStates}`,
+        `What this build supplies: ${CC_IDENTIFIER_ATTRIBUTION.whatThisBuildSupplies}`,
+      ].join(' '),
+      sourceRef: CC_IDENTIFIER_ATTRIBUTION.registryRef,
+      readings: [],
+      adopted: null,
+    },
+    ...CC_UNCANONISED_DECISIONS.map((decision) => ({
+      heading: `${decision.id} is not a member of the exported \`DecisionId\` union, so it is disclosed here.`,
+      body: `${decision.question} The canon is wave 5\u2019s; this is the slice-8 local pattern and it is reported as a seam.`,
+      sourceRef: decision.sourceRef,
+      readings: [],
+      adopted: null,
+    })),
+  ],
   statedAbsences: [
     {
       what: 'A reconciliation control.',

@@ -1,5 +1,6 @@
 import { ProvenanceMark } from '@/ui/shared/ProvenanceMark'
 import {
+  APP_012_DELEGATED_CHOICE,
   DRAFT_APPROVAL_NOTICE,
   DRAFT_STRING_RULE,
   FIVE_SURFACE_CLASSIFICATION,
@@ -7,6 +8,7 @@ import {
   NO_FIVE_COLUMN_STRING_TABLE,
   type OverlayRow,
   type OverlayTable,
+  type SourceNote,
   type SurfaceAiOverlay,
 } from './overlay'
 
@@ -30,14 +32,25 @@ import {
  * ── `transcribed` AND `derived` ARE VISUALLY DIFFERENT, ROW BY ROW ─────────
  * A derived table draws its `whyDerived` before the table, unconditionally, so
  * a reader who scrolls straight to a behaviour cell cannot reach it without
- * passing the statement that this build wrote the row. Every row also carries
- * `data-overlay-kind`, so the distinction is in the accessibility tree and in
- * the DOM rather than in a colour a screen reader cannot see.
+ * passing the statement that this build wrote the row. It also joins the
+ * table's own `<caption>`, so the statement is in the accessible name and not
+ * only in a sibling block. Every row carries `data-overlay-kind`, so the
+ * distinction is in the DOM rather than in a colour a screen reader cannot see.
  *
- * The type makes the honest case the only expressible one: `whyDerived` is
- * REQUIRED non-null on a derived table, so "derived with no stated reason" —
- * which is what a build inference passing as a source claim looks like — has
- * no spelling.
+ * THAT BLOCK CARRIES NO `role="note"`, AND THE REASON IS NOT AESTHETIC. Two
+ * journey screens mount this component beside components that already own that
+ * role — `StudioSeamNotice` on the Studio's seam step — and a shipped gate
+ * there resolves THE note by role. A second `note` on the page turns a
+ * singular query into an ambiguous one, so the disclosure is carried by the
+ * caption, the visible text and `data-testid` instead of by a role it was
+ * competing for.
+ *
+ * The type narrows the dishonest case rather than eliminating it: `whyDerived`
+ * is REQUIRED non-null on a derived table, so "derived, reason omitted" has no
+ * spelling — but requiring a field is not requiring its content, and `''`
+ * still type-checks. What forbids the blank is a gate, in
+ * `tests/unit/ai-five-surface-overlays.test.ts`, over every string these
+ * overlays render.
  *
  * ── A CELL THAT READS TWO WAYS RENDERS BOTH READINGS, NEVER A CHOICE ──────
  * Section 43.3.4's table is headed for artificial-intelligence failure and
@@ -101,8 +114,12 @@ function Row({ row, headings }: { readonly row: OverlayRow; readonly headings: r
               className="border-b border-[var(--color-border)] p-2 align-top font-medium text-[var(--color-ink)]"
             >
               {cell}
+              {/* A DERIVED ROW'S LOCATOR IS A BASIS, AND SAYS SO. `[L90861]`
+                  beside a derived Hub row was visually identical to `[L91082]`
+                  beside a transcribed Command Center one, which reads as the
+                  line the row IS. */}
               <span className="ml-2 whitespace-nowrap text-xs text-[var(--color-ink-subtle)]">
-                [{row.sourceRef}]
+                {row.kind === 'derived' ? `derived from ${row.sourceRef}` : `[${row.sourceRef}]`}
               </span>
             </th>
           ) : (
@@ -159,7 +176,13 @@ function Row({ row, headings }: { readonly row: OverlayRow; readonly headings: r
   )
 }
 
-function Table({ table }: { readonly table: OverlayTable }) {
+function Table({
+  table,
+  mountedOn,
+}: {
+  readonly table: OverlayTable
+  readonly mountedOn: string
+}) {
   return (
     <section className="space-y-3" data-overlay-table={table.kind}>
       <h4 className="text-sm font-semibold text-[var(--color-ink)]">{table.caption}</h4>
@@ -172,8 +195,6 @@ function Table({ table }: { readonly table: OverlayTable }) {
         </p>
       ) : (
         <div
-          role="note"
-          aria-label="Why the rows below are derived rather than transcribed"
           data-testid="overlay-derivation"
           className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-3 text-xs"
         >
@@ -184,9 +205,25 @@ function Table({ table }: { readonly table: OverlayTable }) {
         </div>
       )}
 
-      <div className="overflow-x-auto">
+      {/* A HORIZONTALLY SCROLLABLE REGION IS FOCUSABLE, ROLLED AND NAMED.
+          axe cannot see it in jsdom — there is no layout — so it is asked
+          structurally by `tests/component/doh-journey.test.tsx`, and a scroller
+          with no focusable content inside it is a serious violation that has
+          shipped in this slice once already. The name carries the mount because
+          one page can hold two overlays for the same surface. */}
+      <div
+        className="overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-label={`${table.caption} — ${mountedOn}`}
+      >
         <table className="w-full border-collapse text-left text-sm">
-          <caption className="sr-only">{table.caption}</caption>
+          <caption className="sr-only">
+            {table.caption}
+            {table.whyDerived === null
+              ? ' Transcribed from the frozen source.'
+              : ` The rows are this build's, not the source's. ${table.whyDerived}`}
+          </caption>
           <thead>
             <tr>
               {table.headings.map((heading) => (
@@ -211,19 +248,69 @@ function Table({ table }: { readonly table: OverlayTable }) {
   )
 }
 
+/**
+ * One decision this build had to take about its own source. Where a line reads
+ * two ways BOTH readings render, each with its own locator, and the build's
+ * pick renders beneath them labelled a client-delegated choice under APP-012 —
+ * never one reading silently obeyed and the other kept in a module.
+ */
+function Note({ note }: { readonly note: SourceNote }) {
+  return (
+    <li
+      data-source-note={note.sourceRef}
+      className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] p-2"
+    >
+      <p className="font-medium text-[var(--color-ink)]">{note.heading}</p>
+      <p className="mt-1 text-[var(--color-ink-muted)]">{note.body}</p>
+
+      {note.readings.map((reading) => (
+        <p key={reading.reading} className="mt-1 text-[var(--color-ink-muted)]">
+          <span className="font-medium text-[var(--color-ink)]">Reading {reading.reading}:</span>{' '}
+          {reading.text} <span className="text-[var(--color-ink-subtle)]">[{reading.sourceRef}]</span>
+        </p>
+      ))}
+
+      {note.adopted === null ? null : (
+        <p className="mt-1 text-[var(--color-ink)]">
+          <span className="font-medium">This build built on reading {note.adopted.reading}.</span>{' '}
+          {note.adopted.why} {APP_012_DELEGATED_CHOICE}
+        </p>
+      )}
+
+      <p className="mt-1 text-[var(--color-ink-subtle)]">Read from {note.sourceRef}.</p>
+    </li>
+  )
+}
+
 export function AiDegradationOverlay({ overlay, mountedOn }: AiDegradationOverlayProps) {
-  const headingId = `ai-degradation-${overlay.surfaceId.toLowerCase()}-heading`
+  /**
+   * EVERY ACCESSIBLE NAME IN HERE CARRIES THE MOUNT, AND THERE IS NO `id`.
+   *
+   * ONE PAGE REALLY DOES HOLD TWO OVERLAYS FOR ONE SURFACE. A journey screen
+   * renders the open step's degradation AND embeds the step's composed module
+   * route, and that route carries its own surface overlay — Studio step 15
+   * composes `app/studio/agents`, which mounts this component for `SURF-STU`.
+   * The first version used a fixed `id` and fixed `aria-label`s, so that page
+   * went red on axe's `duplicate-id-aria` and `landmark-unique`: two regions
+   * with one name is two things a screen-reader user cannot tell apart, which
+   * on this component means two DIFFERENT mounts reading as one.
+   *
+   * So the heading `id` is gone — an `aria-labelledby` target is a duplicate
+   * waiting to happen — and every region name is suffixed with `mountedOn`,
+   * which is the prop that already says which mount this is.
+   */
+  const named = (label: string): string => `${label} — ${mountedOn}`
 
   return (
     <section
-      aria-labelledby={headingId}
+      aria-label={named('Behaviour during an artificial-intelligence failure')}
       data-testid={`ai-degradation-${overlay.surfaceId}`}
       data-surface={overlay.surfaceId}
       data-journey-surface={overlay.journeyCode}
       className="space-y-6"
     >
       <header className="space-y-2">
-        <h3 id={headingId} className="text-lg font-semibold text-[var(--color-ink)]">
+        <h3 className="text-lg font-semibold text-[var(--color-ink)]">
           Behaviour during an artificial-intelligence failure
         </h3>
         <p className="text-sm text-[var(--color-ink-muted)]">
@@ -239,13 +326,32 @@ export function AiDegradationOverlay({ overlay, mountedOn }: AiDegradationOverla
       </header>
 
       {overlay.tables.map((table) => (
-        <Table key={table.headerRef + table.caption} table={table} />
+        <Table key={table.caption} table={table} mountedOn={mountedOn} />
       ))}
+
+      {/* WHAT THIS BUILD HAD TO DECIDE ABOUT THE SOURCE. Outside every
+          conditional: a disclosure rendered only on some branch is a
+          disclosure a reader can miss, and thirteen records of exactly this
+          kind reached no screen at all in the first version of these five
+          overlays. */}
+      <section
+        aria-label={named('What this build had to decide about the source')}
+        data-testid="overlay-source-notes"
+        className="space-y-2 text-xs"
+      >
+        <h4 className="text-sm font-semibold text-[var(--color-ink)]">
+          What this build had to decide about the source, and what it decided
+        </h4>
+        <ul className="space-y-2">
+          {overlay.sourceNotes.map((note) => (
+            <Note key={note.heading} note={note} />
+          ))}
+        </ul>
+      </section>
 
       {/* WHY THERE IS NO PER-SURFACE STRING TABLE. */}
       <section
-        role="note"
-        aria-label="Why there is no five-column per-surface string table"
+        aria-label={named('Why there is no five-column per-surface string table')}
         data-testid="overlay-no-string-table"
         className="rounded-[var(--radius-surface)] border border-[var(--color-border)] p-3 text-xs"
       >
@@ -264,7 +370,7 @@ export function AiDegradationOverlay({ overlay, mountedOn }: AiDegradationOverla
       {/* WHAT THIS SURFACE RENDERS NO STATE FOR, AND WHY. Never omitted: a
           stated abstention and an oversight look identical from outside. */}
       <section
-        aria-label="What this surface renders no state for"
+        aria-label={named('What this surface renders no state for')}
         data-testid="overlay-stated-absences"
         className="space-y-2 text-xs"
       >
@@ -288,7 +394,7 @@ export function AiDegradationOverlay({ overlay, mountedOn }: AiDegradationOverla
 
       {/* THE OBLIGATIONS, AS OPENABLE CITATIONS RATHER THAN PROSE ABOUT THEM. */}
       <section
-        aria-label="The acceptance criteria this overlay must not break"
+        aria-label={named('The acceptance criteria this overlay must not break')}
         data-testid="overlay-obligations"
         className="space-y-2 text-xs"
       >

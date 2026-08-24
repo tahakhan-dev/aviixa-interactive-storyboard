@@ -190,16 +190,36 @@ export interface OverlayRow {
 export interface OverlayTable {
   /** The source's own caption, verbatim, or this build's for a derived table. */
   readonly caption: string
-  readonly captionRef: string
+  /**
+   * The line the caption sits on — and `null` on a derived table, which has no
+   * caption line and no header line in the source at all.
+   *
+   * IT IS NULLABLE FOR THE SAME REASON `whyDerived` IS NON-NULL. That field
+   * narrows "derived with no stated reason" to a blank string a gate catches;
+   * these two remove "derived, and here is where its caption is" outright.
+   * The Hub's derived table used to give L90861 for both, and L90861 is
+   * required-behaviour PROSE; the console's gave L91304, which is an acceptance
+   * criterion. Neither line carries the caption or the headings the table
+   * renders — they are the derivation's BASIS, and a basis locator belongs in
+   * `whyDerived`, where it is labelled one.
+   */
+  readonly captionRef: string | null
   /** The header row's cells, verbatim, including the axis heading. */
   readonly headings: readonly string[]
-  readonly headerRef: string
+  readonly headerRef: string | null
   readonly rows: readonly OverlayRow[]
   readonly kind: OverlayProvenance
   /**
-   * REQUIRED non-null on a derived table and null on a transcribed one — the
-   * type cannot express "derived with no stated reason", which is the shape of
-   * a build inference passing as a source claim.
+   * REQUIRED non-null on a derived table and null on a transcribed one, so
+   * "derived, reason omitted" has no spelling.
+   *
+   * IT IS NOT THE WHOLE GUARANTEE AND SAYING SO WOULD BE THE SAME DEFECT IT
+   * GUARDS. Requiring a field is not requiring its content: `whyDerived: ''`
+   * type-checks and would render a derived table with an empty statement, which
+   * is a build inference passing as a source claim with the label removed. What
+   * closes that is a gate — `tests/unit/ai-five-surface-overlays.test.ts`
+   * refuses a blank or whitespace-only string anywhere these overlays render,
+   * this field included.
    */
   readonly whyDerived: string | null
 }
@@ -228,6 +248,12 @@ export interface SurfaceAiOverlay {
    * out of scope for parity rather than in breach of it.
    */
   readonly statedAbsences: readonly StatedAbsence[]
+  /**
+   * What this build had to decide about the source, disclosed on screen with
+   * its alternatives. Empty on a surface with nothing unresolved and nothing
+   * attributed, never absent — see `SourceNote`.
+   */
+  readonly sourceNotes: readonly SourceNote[]
 }
 
 export interface OverlayObligation {
@@ -259,6 +285,47 @@ export interface StatedAbsence {
   readonly what: string
   readonly reason: string
   readonly sourceRef: string
+}
+
+/** One reading a source line supports, and the line it is read from. */
+export interface SourceReading {
+  /** How this reading is referred to on screen, e.g. `A — universal`. */
+  readonly reading: string
+  readonly text: string
+  readonly sourceRef: string
+}
+
+/**
+ * SOMETHING THIS BUILD HAD TO DECIDE ABOUT ITS OWN SOURCE, ON SCREEN.
+ *
+ * IT EXISTS BECAUSE THE FIRST VERSION OF THESE FIVE OVERLAYS WROTE THIRTEEN
+ * SUCH RECORDS INTO MODULES AND RENDERED NONE OF THEM. Measured: each had
+ * exactly one occurrence across `src`, `app` and `tests` — its own declaration
+ * — while two doc comments said the content was "disclosed LOCALLY, in the
+ * slice-8 pattern" and one record carried a boolean literally named
+ * `bothRender`, set true. A record that discloses something and is consumed by
+ * nothing is not a disclosure, and a boolean asserting a rendering is the
+ * self-certifying shape these modules' own headers reject.
+ *
+ * This build's standing limit is that an unresolved SOURCE decision is
+ * disclosed ON SCREEN, with its alternatives, and with this build's pick
+ * labelled a client-delegated choice under APP-012. So there is one slot, it is
+ * required on every overlay, and `AiDegradationOverlay` renders it outside
+ * every conditional.
+ *
+ * `readings` is empty on a note that settles nothing — an attribution, or a
+ * decision identifier the canon does not hold. `adopted` is null there too,
+ * and non-null exactly where this build chose between the readings; the
+ * component prints the APP-012 label on precisely those.
+ */
+export interface SourceNote {
+  readonly heading: string
+  readonly body: string
+  readonly sourceRef: string
+  /** Both readings where a line reads two ways. Empty, never absent. */
+  readonly readings: readonly SourceReading[]
+  /** Which reading this build built on, and why. Null where it chose nothing. */
+  readonly adopted: { readonly reading: string; readonly why: string } | null
 }
 
 /* ==================================================================== *

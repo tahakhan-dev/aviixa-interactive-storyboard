@@ -16,18 +16,48 @@ import {
   type OverlayTable,
   type SurfaceAiOverlay,
 } from '@/ai/five-surface/overlay'
-import { STU_AI_BEHAVIOUR_TABLE, STU_AI_OVERLAY } from '@/studio/ai-degradation'
-import { CC_AI_BEHAVIOUR_TABLE, CC_AI_OVERLAY, ccAiBehaviour } from '@/surfaces/cc/ai-degradation'
+import {
+  STU_AI_BEHAVIOUR_TABLE,
+  STU_AI_OVERLAY,
+  STU_AXIS_ATTRIBUTION,
+  STU_UNCANONISED_DECISIONS,
+} from '@/studio/ai-degradation'
+import {
+  CC_AI_BEHAVIOUR_TABLE,
+  CC_AI_OVERLAY,
+  CC_IDENTIFIER_ATTRIBUTION,
+  CC_UNCANONISED_DECISIONS,
+  ccAiBehaviour,
+} from '@/surfaces/cc/ai-degradation'
 import { FL_AI_BEHAVIOUR_TABLE, FL_AI_OVERLAY } from '@/frontline/ai-degradation'
 import {
   DOH_AI_FLOOR_MODULE_IDS,
   DOH_AI_FLOOR_PHRASES,
   DOH_AI_OVERLAY,
+  DOH_EVERY_MODULE_READINGS,
   DOH_FAILURE_FAMILY_TABLE,
+  DOH_MANUAL_WORKFLOW_RULE,
   DOH_MODULE_AI_ROWS,
   DOH_MODULE_AI_TABLE,
+  DOH_READING_ADOPTED,
 } from '@/surfaces/doh/ai-degradation'
-import { SA_AI_OVERLAY, SA_MODULE_AI_ROWS, SA_MODULE_AI_TABLE } from '@/surfaces/sa/ai-degradation'
+import {
+  SA_AI_OVERLAY,
+  SA_DERIVATION_RULE,
+  SA_MATRIX_ATTRIBUTION,
+  SA_MATRIX_CAPTION_REF,
+  SA_MODULE_AI_ROWS,
+  SA_MODULE_AI_TABLE,
+} from '@/surfaces/sa/ai-degradation'
+import { fiveSurfaceByJourneyCode } from '@/ai/five-surface/surface-codes'
+import {
+  AI_DEGRADATION_BY_STEP as STUDIO_AI_DEGRADATION,
+  JOURNEY_STEPS as STUDIO_JOURNEY_STEPS,
+} from '@/studio/journey/effects'
+import {
+  AI_DEGRADATION_BY_STEP as HUB_AI_DEGRADATION,
+  JOURNEY_STEPS as HUB_JOURNEY_STEPS,
+} from '../../app/hub/journey/effects'
 
 /**
  * Slice 11, wave 3, task 15 — THE FIVE-SURFACE AI-DEGRADATION OVERLAYS.
@@ -100,6 +130,16 @@ const transcribed: readonly (readonly [string, OverlayTable])[] = [
   ['Delivery Operations Hub failure families (§43.3.1)', DOH_FAILURE_FAMILY_TABLE],
 ]
 
+/**
+ * A transcribed table's two locators are non-null BY THE TYPE'S OWN INVARIANT
+ * — they are `string | null` so a derived table can carry neither — so this
+ * asserts the invariant rather than assuming it, and then narrows.
+ */
+const ref = (value: string | null): string => {
+  expect(value).not.toBeNull()
+  return value ?? ''
+}
+
 describe.each(transcribed)('%s — transcribed', (_name, table) => {
   it('declares itself transcribed and claims no derivation', () => {
     expect(table.kind).toBe('transcribed')
@@ -108,15 +148,15 @@ describe.each(transcribed)('%s — transcribed', (_name, table) => {
   })
 
   it('carries the header line verbatim, heading for heading', () => {
-    expect(cells(L(lineOf(table.headerRef)))).toEqual([...table.headings])
+    expect(cells(L(lineOf(ref(table.headerRef))))).toEqual([...table.headings])
   })
 
   it('carries the caption verbatim', () => {
-    expect(L(lineOf(table.captionRef))).toBe(`**${table.caption}**`)
+    expect(L(lineOf(ref(table.captionRef)))).toBe(`**${table.caption}**`)
   })
 
   it('has exactly the rows the source has beneath that header, COUNTED not spanned', () => {
-    const counted = contentRowNumbers(lineOf(table.headerRef))
+    const counted = contentRowNumbers(lineOf(ref(table.headerRef)))
     expect(table.rows.map((row) => lineOf(row.sourceRef))).toEqual([...counted])
   })
 
@@ -263,6 +303,17 @@ describe.each(derivedTables)('%s — derived', (_name, table) => {
     expect(table.whyDerived ?? '').toContain('APP-012')
     for (const row of table.rows) expect(row.kind).toBe('derived')
     expect(derivedRows(table)).toEqual(table.rows)
+  })
+
+  it('names no caption line and no header line, because a derived table has neither', () => {
+    // `OverlayTable` made `whyDerived` nullable so the type could not express
+    // "derived with no stated reason". These two are the same shape: L90861 is
+    // required-behaviour PROSE and L91304 is an acceptance criterion, and
+    // neither carries the caption or the headings the table renders. A derived
+    // table's basis locator belongs in `whyDerived`, labelled a basis.
+    expect(table.captionRef).toBeNull()
+    expect(table.headerRef).toBeNull()
+    expect(table.whyDerived ?? '').toMatch(/L\d+/)
   })
 
   it('does NOT claim a chapter-43 line states its rows — the line it cites is the basis', () => {
@@ -541,5 +592,227 @@ describe('AC-42-303, read for what it says', () => {
       const blankEndpoint = `L${String(LINES.findIndex((t) => t.includes('TEST-42-304')) + 1)}`
       expect(text, path).not.toContain(blankEndpoint)
     }
+  })
+})
+
+/* ==================================================================== *
+ * THE DISCLOSURES REACH A READER, AND NOTHING ASSERTS THAT THEY DO.
+ *
+ * DEFECT SHAPE 1: state written, never read. A record that discloses an
+ * unresolved source decision, consumed by nothing, is not a disclosure — this
+ * build's standing limit is that an unresolved SOURCE decision is disclosed ON
+ * SCREEN with its alternatives and the build's pick labelled a client-delegated
+ * choice, and a record in a module satisfies none of that.
+ *
+ * So every disclosure record this task declares is a member of some overlay's
+ * `sourceNotes`, which the component renders unconditionally. The membership is
+ * a LITERAL LIST declared here, outside the modules, so ADDING a record without
+ * routing it to a screen fails by name.
+ * ==================================================================== */
+
+const DISCLOSURE_RECORDS: readonly (readonly [string, SurfaceAiOverlay, readonly string[]])[] = [
+  ['DOH_EVERY_MODULE_READINGS', DOH_AI_OVERLAY, DOH_EVERY_MODULE_READINGS.map((r) => r.text)],
+  ['DOH_READING_ADOPTED', DOH_AI_OVERLAY, [DOH_READING_ADOPTED.why]],
+  ['DOH_MANUAL_WORKFLOW_RULE', DOH_AI_OVERLAY, [DOH_MANUAL_WORKFLOW_RULE.statement]],
+  ['CC_IDENTIFIER_ATTRIBUTION', CC_AI_OVERLAY, [CC_IDENTIFIER_ATTRIBUTION.whatThisBuildSupplies]],
+  ['CC_UNCANONISED_DECISIONS', CC_AI_OVERLAY, CC_UNCANONISED_DECISIONS.map((d) => d.question)],
+  [
+    'STU_AXIS_ATTRIBUTION',
+    STU_AI_OVERLAY,
+    [
+      STU_AXIS_ATTRIBUTION.whatTheSourceAssigns,
+      STU_AXIS_ATTRIBUTION.whyNoModuleColumnMayBeAdded,
+      STU_AXIS_ATTRIBUTION.soNoGateMayReadItAsModuleCoverage,
+    ],
+  ],
+  ['STU_UNCANONISED_DECISIONS', STU_AI_OVERLAY, STU_UNCANONISED_DECISIONS.map((d) => d.question)],
+  ['SA_DERIVATION_RULE', SA_AI_OVERLAY, [SA_DERIVATION_RULE.statement]],
+  [
+    'SA_MATRIX_ATTRIBUTION',
+    SA_AI_OVERLAY,
+    [SA_MATRIX_ATTRIBUTION.whyThatReachIsNotTheSource, SA_MATRIX_CAPTION_REF],
+  ],
+]
+
+const noteTextOf = (overlay: SurfaceAiOverlay): string =>
+  overlay.sourceNotes
+    .flatMap((note) => [
+      note.heading,
+      note.body,
+      note.sourceRef,
+      ...note.readings.flatMap((r) => [r.reading, r.text, r.sourceRef]),
+      ...(note.adopted === null ? [] : [note.adopted.reading, note.adopted.why]),
+    ])
+    .join('\n')
+
+describe.each(DISCLOSURE_RECORDS)('%s reaches a reader', (_name, overlay, fragments) => {
+  it('is carried by its own surface overlay, where the component renders it', () => {
+    const text = noteTextOf(overlay)
+    for (const fragment of fragments) expect(text).toContain(fragment)
+  })
+})
+
+describe('no record in this task asserts its own rendering', () => {
+  it('declares no boolean claiming a disclosure happens', () => {
+    for (const path of [
+      'src/ai/five-surface/overlay.ts',
+      'src/studio/ai-degradation.ts',
+      'src/surfaces/cc/ai-degradation.ts',
+      'src/surfaces/doh/ai-degradation.ts',
+      'src/surfaces/sa/ai-degradation.ts',
+      'src/frontline/ai-degradation.ts',
+    ]) {
+      const text = readFileSync(path, 'utf8')
+      // A DECLARATION, not the word: a comment recording that the field was
+      // removed and why is the opposite of the defect.
+      expect(text, path).not.toMatch(/\bbothRender\s*:/)
+    }
+  })
+
+  it('leaves no exported record of this task consumed by nothing', () => {
+    // Every `export const` in the five per-surface modules, checked for a
+    // reference outside its own declaration. A record read by neither a screen
+    // nor a gate is defect shape 1 regardless of what its comment says.
+    const modules = [
+      'src/studio/ai-degradation.ts',
+      'src/surfaces/cc/ai-degradation.ts',
+      'src/surfaces/doh/ai-degradation.ts',
+      'src/surfaces/sa/ai-degradation.ts',
+      'src/frontline/ai-degradation.ts',
+    ]
+    const corpus = [
+      ...modules,
+      'src/ai/five-surface/overlay.ts',
+      'src/ai/five-surface/journey-overlay.ts',
+      'src/ai/five-surface/AiDegradationOverlay.tsx',
+      'src/ai/five-surface/QueuedRequestSurfaceMatrix.tsx',
+      'src/ai/five-surface/ShiftHandoffRoleMatrix.tsx',
+      'tests/unit/ai-five-surface-overlays.test.ts',
+      'tests/component/ai-degradation-overlays.test.tsx',
+    ]
+      .map((p) => readFileSync(p, 'utf8'))
+      .join('\n')
+    const orphans: string[] = []
+    for (const path of modules) {
+      for (const match of readFileSync(path, 'utf8').matchAll(
+        /^export const ([A-Z][A-Z0-9_]+)\b/gm,
+      )) {
+        const name = match[1] ?? ''
+        const uses = corpus.match(new RegExp(`\\b${name}\\b`, 'g'))?.length ?? 0
+        if (uses < 2) orphans.push(`${path} ${name}`)
+      }
+    }
+    expect(orphans).toEqual([])
+  })
+})
+
+/* ==================================================================== *
+ * BOTH JOURNEY REGISTERS, OVERLAID BY VALUE.
+ *
+ * The gate this replaces read the two register files as TEXT and asserted the
+ * identifier appeared in them, which is satisfied by the identifier's presence
+ * and cannot fail on the defect that matters: a register overlaid in data that
+ * nothing renders. These assertions are over the VALUE — every step number
+ * present, and every overlay matched to its step's acting surface.
+ * ==================================================================== */
+
+describe.each([
+  ['the Studio register', STUDIO_AI_DEGRADATION, STUDIO_JOURNEY_STEPS],
+  ['the Hub register', HUB_AI_DEGRADATION, HUB_JOURNEY_STEPS],
+] as const)('%s is overlaid', (_name, degradation, steps) => {
+  it('carries every step of the register, by number, in order', () => {
+    expect(degradation.map((d) => d.step)).toEqual(steps.map((s) => s.number))
+  })
+
+  it('gives each step the overlay of its own acting surface', () => {
+    for (const entry of degradation) {
+      const step = steps.find((s) => s.number === entry.step)
+      expect(step, `step ${String(entry.step)}`).toBeDefined()
+      expect(entry.actingSurface).toBe(step?.actingSurface)
+      expect(entry.overlay.surfaceId).toBe(
+        fiveSurfaceByJourneyCode(step?.actingSurface ?? 'DOH').surfaceId,
+      )
+    }
+  })
+})
+
+describe('the Frontline overlay, whose surface has no route directory', () => {
+  it('is reached from app/ through the Hub register, which acts on FL at one step', () => {
+    const fl = HUB_AI_DEGRADATION.filter((d) => d.actingSurface === 'FL')
+    expect(fl.map((d) => d.step).length).toBeGreaterThan(0)
+    for (const entry of fl) expect(entry.overlay).toBe(FL_AI_OVERLAY)
+  })
+
+  it('states that reachability in the module, because an abstention and an oversight look alike', () => {
+    const text = readFileSync('src/frontline/ai-degradation.ts', 'utf8')
+    expect(text).toContain('REACHABILITY, STATED')
+  })
+})
+
+/* ==================================================================== *
+ * NO STRING THESE OVERLAYS RENDER IS BLANK.
+ *
+ * `whyDerived` is typed `string | null` and REQUIRED non-null on a derived
+ * table, and its comment used to call that "the type cannot express derived
+ * with no stated reason". It cannot express `null`; it expresses `''` fine —
+ * requiring a field is not requiring its content, which is the same claim
+ * `src/ui/shared/journey.ts` carried about its own required `reason: string`
+ * and had corrected. So the blank is closed here, over EVERY string these five
+ * overlays put on a screen, rather than asserted in a comment.
+ *
+ * A blank reason is never faithful to the source: across L92596-L95408 the
+ * thirty five-surface reaction tables carry 150 reaction cells and ZERO blank.
+ * ==================================================================== */
+
+describe.each(overlays)('%s renders no blank string', (_name, overlay) => {
+  const stringsOf = (o: SurfaceAiOverlay): readonly (readonly [string, string])[] => [
+    ...o.tables.flatMap((table) => [
+      ['caption', table.caption] as const,
+      ...(table.whyDerived === null ? [] : [['whyDerived', table.whyDerived] as const]),
+      ...table.headings.map((h) => ['heading', h] as const),
+      ...table.rows.flatMap((row) => [
+        ['sourceRef', row.sourceRef] as const,
+        ...row.cells.map((c) => ['cell', c] as const),
+        ...row.readings.flatMap((r) => [
+          ['reading.asHeaded', r.asHeaded] as const,
+          ['reading.alsoReads', r.alsoReads] as const,
+          ['reading.sourceRef', r.sourceRef] as const,
+        ]),
+      ]),
+    ]),
+    ...o.obligations.flatMap((ob) => [
+      ['obligation.id', ob.id] as const,
+      ['obligation.sourceRef', ob.sourceRef] as const,
+      ['obligation.text', ob.text] as const,
+      ...(ob.withheld === null ? [] : [['obligation.withheld', ob.withheld] as const]),
+    ]),
+    ...o.statedAbsences.flatMap((a) => [
+      ['absence.what', a.what] as const,
+      ['absence.reason', a.reason] as const,
+      ['absence.sourceRef', a.sourceRef] as const,
+    ]),
+    ...o.sourceNotes.flatMap((n) => [
+      ['note.heading', n.heading] as const,
+      ['note.body', n.body] as const,
+      ['note.sourceRef', n.sourceRef] as const,
+      ...n.readings.flatMap((r) => [
+        ['note.reading.reading', r.reading] as const,
+        ['note.reading.text', r.text] as const,
+        ['note.reading.sourceRef', r.sourceRef] as const,
+      ]),
+      ...(n.adopted === null
+        ? []
+        : [
+            ['note.adopted.reading', n.adopted.reading] as const,
+            ['note.adopted.why', n.adopted.why] as const,
+          ]),
+    ]),
+  ]
+
+  it('carries no empty or whitespace-only value in any field it puts on a screen', () => {
+    const blank = stringsOf(overlay)
+      .filter(([, value]) => value.trim().length === 0)
+      .map(([field]) => field)
+    expect(blank).toEqual([])
   })
 })

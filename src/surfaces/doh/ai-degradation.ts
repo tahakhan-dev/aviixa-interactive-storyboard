@@ -241,28 +241,37 @@ export const DOH_EVERY_MODULE_READINGS: readonly {
   {
     reading: 'A — universal',
     text:
-      '`Every Hub module` is universal, so the sentence states the behaviour of all nineteen '
-      + 'canonical modules and the comma-separated list is illustrative.',
+      '`Every Hub module` is universal, so the sentence states the behaviour of every '
+      + 'canonical module and the comma-separated list is illustrative.',
     sourceRef: 'L90861',
   },
   {
     reading: 'B — enumerative',
     text:
-      'The appositive enumerates the modules meant, so the eight it names are source-stated '
+      'The appositive enumerates the modules meant, so the modules it names are source-stated '
       + 'and the remainder are not stated at all.',
     sourceRef: 'L90861',
   },
 ]
 
-/** Which reading this build built on, and why it is the weaker one. */
+/**
+ * Which reading this build built on, and why it is the weaker one.
+ *
+ * IT USED TO CARRY A BOOLEAN NAMED `bothRender`, SET TRUE, AND IT WAS FALSE.
+ * Neither
+ * reading reached a screen — both records had exactly one occurrence in the
+ * tree, their own declarations — so the field asserted a rendering that no path
+ * performed. A boolean claiming its own module is disclosed is the
+ * self-certifying shape this file's header rejects; what replaces it is the
+ * rendering itself, through `sourceNotes` on the overlay below.
+ */
 export const DOH_READING_ADOPTED = {
   adopted: 'B — enumerative',
   why:
-    'Derived is the weaker claim. Building on A would let this overlay present eleven rows '
-    + 'this build wrote as behaviour the source stated, and a build may not upgrade its own '
+    'Derived is the weaker claim. Building on A would let this overlay present rows this '
+    + 'build wrote as behaviour the source stated, and a build may not upgrade its own '
     + 'inference into a source fact. Reading A renders beside it because it is the more '
     + 'natural reading of `Every` and a reader who takes it is not mistaken.',
-  bothRender: true,
 } as const
 
 export interface DohModuleAiRow extends OverlayRow {
@@ -329,13 +338,16 @@ export const DOH_MODULE_AI_ROWS: readonly DohModuleAiRow[] = ALL_HUB_MODULES.map
 export const DOH_MODULE_AI_TABLE: OverlayTable = {
   caption:
     'Per-module behaviour during an artificial-intelligence failure — derived, not transcribed.',
-  captionRef: 'L90861',
+  // NO CAPTION LINE AND NO HEADER LINE. L90861 is required-behaviour PROSE and
+  // carries neither this caption nor these headings; it is the derivation's
+  // BASIS and is cited as one, in `whyDerived` and on every row.
+  captionRef: null,
   headings: [
     'Delivery Operations Hub module',
     'Behaviour during an artificial-intelligence failure',
     'Classification',
   ],
-  headerRef: 'L90861',
+  headerRef: null,
   kind: 'derived',
   whyDerived:
     'Chapter 43 carries no per-module artificial-intelligence-failure table for this surface. '
@@ -345,10 +357,6 @@ export const DOH_MODULE_AI_TABLE: OverlayTable = {
     + "build's, derived from that rule. " + APP_012_DELEGATED_CHOICE,
   rows: DOH_MODULE_AI_ROWS,
 }
-
-/** Modules whose row rests on this build's reasoning rather than the appositive. */
-export const DOH_DERIVED_ONLY_MODULE_IDS: readonly DohCanonicalModuleId[] =
-  DOH_MODULE_AI_ROWS.filter((row) => !row.namedInSourceFloor).map((row) => row.moduleId)
 
 export const DOH_AI_OVERLAY: SurfaceAiOverlay = {
   surfaceId: 'SURF-DOH',
@@ -370,6 +378,27 @@ export const DOH_AI_OVERLAY: SurfaceAiOverlay = {
       sourceRef: 'L91110',
       text: 'Staleness-rendering test asserting dated history rather than current presentation.',
       withheld: null,
+    },
+  ],
+  sourceNotes: [
+    {
+      heading: 'The rule every derived row below is derived by, in the source\u2019s own words.',
+      body: `${DOH_MANUAL_WORKFLOW_RULE.statement} Classified ${DOH_MANUAL_WORKFLOW_RULE.classification}. `
+        + 'The Hub is the tenant system of record, so an artificial-intelligence failure can '
+        + 'cost it commentary and can never cost it a record.',
+      sourceRef: DOH_MANUAL_WORKFLOW_RULE.sourceRef,
+      readings: [],
+      adopted: null,
+    },
+    {
+      heading: '`Every Hub module` reads two ways, and the source authorises both.',
+      body:
+        'The line names its modules in a comma-separated appositive and states no number. '
+        + 'Neither reading is presented as the source\u2019s answer, because this build has no '
+        + 'authority to settle it.',
+      sourceRef: 'L90861',
+      readings: DOH_EVERY_MODULE_READINGS,
+      adopted: { reading: DOH_READING_ADOPTED.adopted, why: DOH_READING_ADOPTED.why },
     },
   ],
   statedAbsences: [

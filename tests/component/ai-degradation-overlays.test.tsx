@@ -11,6 +11,9 @@ import {
   SHIFT_HANDOFF_ROLE_MATRIX,
   SHIFT_HANDOFF_UNDECIDED_CELLS,
 } from '@/surfaces/cc/ai-degradation'
+import { JourneyScreen as StudioJourneyScreen } from '../../app/studio/journey/JourneyScreen'
+import { JourneyScreen as HubJourneyScreen } from '../../app/hub/journey/JourneyScreen'
+import { AI_DEGRADATION_BY_STEP as HUB_AI_DEGRADATION } from '../../app/hub/journey/effects'
 
 /**
  * Slice 11, wave 3, task 15 — the rendered overlays.
@@ -258,6 +261,48 @@ describe('the section 44.3 role matrix', () => {
  * NO COUNT, AND NO MANUFACTURING SEVERITY, ANYWHERE.
  * ==================================================================== */
 
+/**
+ * THE SPELLED NUMERALS THIS GATE CONVICTS ON, AS A LIST RATHER THAN AS A
+ * SAMPLE. The first version of this list held `two|three|four|five|six|eight|
+ * nine|ten|twelve|thirteen|fifteen|nineteen|twenty-two` — the numerals that
+ * happened to be live when it was written — and was blind to `seven`,
+ * `eleven`, `fourteen`, `sixteen`, `seventeen`, `EIGHTEEN`, `twenty` and
+ * `thirty`. `eighteen` was the live one: eighteen is the Studio's real module
+ * figure, and the sentence this build wanted to print was "Twelve capabilities
+ * and eighteen modules are two populations" — of which only the first half
+ * would have been caught. Commit `803b4ca` fixed this identical shape one
+ * directory over ("no `four` in a list holding `five`").
+ *
+ * So the list is written out to thirty, in one place, and the gate is proved by
+ * PLANTING a sentence carrying each of the numerals that used to be absent.
+ */
+const SPELLED_NUMERALS = [
+  'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+  'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
+  'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-two', 'thirty',
+] as const
+
+const COUNT_OF_OWN_POPULATION = new RegExp(
+  `\\b(?:\\d+|${SPELLED_NUMERALS.join('|')})\\s+(?:rows?|modules?|capabilit)`,
+  'i',
+)
+
+describe('the widened numeral gate can actually fail', () => {
+  // Proved by ADDING, one plant per numeral the first list was blind to.
+  it.each(['seven', 'eleven', 'fourteen', 'sixteen', 'seventeen', 'eighteen', 'twenty', 'thirty'])(
+    'convicts a rendered "%s modules"',
+    (numeral) => {
+      expect(`Twelve capabilities and ${numeral} modules are two populations.`).toMatch(
+        COUNT_OF_OWN_POPULATION,
+      )
+    },
+  )
+
+  it('leaves a spelled numeral governing something that is not a population alone', () => {
+    expect('the single sixteen-mode vocabulary').not.toMatch(COUNT_OF_OWN_POPULATION)
+  })
+})
+
 describe('the prohibitions, checked against the rendered tree and the source files', () => {
   /**
    * THIS GATE IS DELIBERATELY NARROWER THAN ITS FIRST DRAFT, AND THE REASON
@@ -283,7 +328,7 @@ describe('the prohibitions, checked against the rendered tree and the source fil
       // is a count, so both are stripped before the scan.
       const text = (container.textContent ?? '').replace(/L\d+/g, '').replace(/§[\d.]+/g, '')
       expect(text).not.toMatch(
-        /\b(?:\d+|two|three|four|five|six|eight|nine|ten|twelve|thirteen|fifteen|nineteen|twenty-two)\s+(?:rows?|modules?|capabilit)/i,
+        COUNT_OF_OWN_POPULATION,
       )
       expect(text).not.toMatch(/\b\d+\s*(?:of|\/)\s*\d+\b/)
     }
@@ -374,11 +419,116 @@ describe('reachability', () => {
     expect(text).toContain('<ShiftHandoffRoleMatrix')
   })
 
-  it('overlays BOTH journey registers, not one', () => {
-    for (const path of ['src/studio/journey/effects.ts', 'app/hub/journey/effects.ts']) {
-      const text = readFileSync(path, 'utf8')
-      expect(text, path).toContain('AI_DEGRADATION_BY_STEP')
-      expect(text, path).toContain('aiDegradationForSteps(JOURNEY_STEPS)')
+  // THE TEXT SCAN THAT USED TO SIT HERE IS GONE. It read the two register
+  // files as text and asserted `AI_DEGRADATION_BY_STEP` appeared in them,
+  // which the identifier's presence satisfies — so it passed while both
+  // journeys rendered no artificial-intelligence degradation at all. The
+  // register is now asserted over its VALUE in
+  // `tests/unit/ai-five-surface-overlays.test.ts` and over its RENDERING at
+  // the bottom of this file.
+})
+
+/* ==================================================================== *
+ * THE DISCLOSURES ARE ON SCREEN.
+ *
+ * Defect shape 1 — state written, never read. Each of these records existed
+ * and was reachable from nothing, while two doc comments and one boolean said
+ * the disclosure was happening. `sourceNotes` is the slot and the component
+ * renders it unconditionally; these assertions are over the RENDERED TEXT, so
+ * a record routed into the data but dropped by the component still fails.
+ * ==================================================================== */
+
+describe('every unresolved source decision is disclosed on screen', () => {
+  const textOf = (overlay: Parameters<typeof AiDegradationOverlay>[0]['overlay']): string => {
+    const { container } = render(<AiDegradationOverlay overlay={overlay} mountedOn="a test mount" />)
+    return container.textContent ?? ''
+  }
+
+  it.each(FIVE_SURFACE_OVERLAYS.map((o) => [o.surfaceId, o] as const))(
+    '%s renders the source-notes section',
+    (_id, overlay) => {
+      render(<AiDegradationOverlay overlay={overlay} mountedOn="a test mount" />)
+      expect(screen.getByTestId('overlay-source-notes')).toBeTruthy()
+    },
+  )
+
+  it.each(
+    FIVE_SURFACE_OVERLAYS.flatMap((overlay) =>
+      overlay.sourceNotes.map((note) => [overlay.surfaceId, note.heading, note] as const),
+    ),
+  )('%s renders the note %s', (surfaceId, _heading, note) => {
+    const overlay = FIVE_SURFACE_OVERLAYS.find((o) => o.surfaceId === surfaceId)
+    const text = textOf(overlay!)
+    expect(text).toContain(note.heading)
+    expect(text).toContain(note.body)
+    for (const reading of note.readings) {
+      expect(text).toContain(reading.reading)
+      expect(text).toContain(reading.text)
     }
+    if (note.adopted !== null) {
+      expect(text).toContain(note.adopted.why)
+      // The build's pick is labelled a client-delegated choice, on screen.
+      expect(text).toContain('APP-012')
+    }
+  })
+
+  it('discloses both readings of `Every Hub module`, neither presented as settled', () => {
+    const doh = FIVE_SURFACE_OVERLAYS.find((o) => o.surfaceId === 'SURF-DOH')!
+    const text = textOf(doh)
+    expect(text).toContain('A — universal')
+    expect(text).toContain('B — enumerative')
+  })
+
+  it('names the locally disclosed decisions the canon does not hold', () => {
+    const stu = textOf(FIVE_SURFACE_OVERLAYS.find((o) => o.surfaceId === 'SURF-STU')!)
+    expect(stu).toContain('DEC-AIFALLBACK-001')
+    expect(stu).toContain('DEC-STUDIO-001')
+    const cc = textOf(FIVE_SURFACE_OVERLAYS.find((o) => o.surfaceId === 'SURF-CC')!)
+    expect(cc).toContain('DEC-REPORT-001')
+  })
+
+  it('says on screen that this table is not `SURF-STU` module coverage', () => {
+    expect(textOf(FIVE_SURFACE_OVERLAYS.find((o) => o.surfaceId === 'SURF-STU')!)).toContain(
+      'is not coverage of `SURF-STU` module behaviour',
+    )
+  })
+})
+
+/* ==================================================================== *
+ * A DERIVED ROW'S LOCATOR DOES NOT LOOK LIKE A TRANSCRIBED ONE.
+ * ==================================================================== */
+
+describe('the row locator says which kind of citation it is', () => {
+  it('marks a derived row locator as a basis and a transcribed one as the line itself', () => {
+    const doh = FIVE_SURFACE_OVERLAYS.find((o) => o.surfaceId === 'SURF-DOH')!
+    const { container } = render(<AiDegradationOverlay overlay={doh} mountedOn="a test mount" />)
+    const derived = container.querySelector('tr[data-overlay-kind="derived"]')
+    const transcribed = container.querySelector('tr[data-overlay-kind="transcribed"]')
+    expect(derived?.textContent ?? '').toContain('derived from L90861')
+    expect(transcribed?.textContent ?? '').toContain('[L90907]')
+    expect(transcribed?.textContent ?? '').not.toContain('derived from')
+  })
+})
+
+/* ==================================================================== *
+ * THE TWO JOURNEY REGISTERS RENDER THEIR OVERLAY.
+ *
+ * The gate this replaces read the two register FILES as text. Both journeys
+ * still rendered no artificial-intelligence degradation, which is exactly what
+ * `journey-overlay.ts` said could not happen.
+ * ==================================================================== */
+
+describe('both journey screens render the step\'s degradation', () => {
+  it('the Studio journey does, on a Studio-acting step', () => {
+    render(<StudioJourneyScreen initialStep={1} />)
+    expect(screen.getByTestId('step-ai-degradation')).toBeTruthy()
+    expect(screen.getByTestId('ai-degradation-SURF-STU')).toBeTruthy()
+  })
+
+  it('the Hub journey does, and reaches the Frontline overlay on its FL step', () => {
+    const flStep = HUB_AI_DEGRADATION.find((d) => d.actingSurface === 'FL')
+    render(<HubJourneyScreen initialStep={flStep?.step ?? 1} />)
+    expect(screen.getByTestId('step-ai-degradation')).toBeTruthy()
+    expect(screen.getByTestId('ai-degradation-SURF-FL')).toBeTruthy()
   })
 })

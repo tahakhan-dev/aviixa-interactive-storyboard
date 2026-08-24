@@ -2,8 +2,6 @@ import { SA_MODULES, type SaModuleId } from '@/surfaces/sa/modules'
 import {
   CONSOLE_AUTHORITY_ATTRIBUTION,
   CONSOLE_AUTHORITY_CAPTION_REF,
-  CONSOLE_AUTHORITY_PROVENANCE,
-  CONSOLE_AUTHORITY_ROWS,
 } from '@/surfaces/sa/ai-failure-authority'
 import {
   APP_012_DELEGATED_CHOICE,
@@ -30,15 +28,19 @@ import {
  * `@/surfaces/sa/ai-failure-authority` already holds it, wave 2 built it, task
  * 14 extended it, and `AiFailureAuthorityPanel` already renders it from
  * `app/super-admin/ai-incidents`. It is consumed READ-ONLY: this module imports
- * its rows to cross-check that the console's failure-response vocabulary and
- * this overlay's do not diverge, and transcribes not one cell of it. A second
+ * its attribution and its caption locator so the console has ONE answer about
+ * where that matrix comes from, and transcribes not one cell of it. A second
  * transcription of one table is two things that can disagree about it, which is
  * the defect `src/surfaces/cc/modules/cc-08/degradation.ts` warns about.
  *
- * Its provenance class is imported rather than re-declared, and the covering
- * test asserts the two are the same class — if the authority matrix ever moved
- * off `PROV-4`, this overlay would have to move with it or the console would
- * emit two classes for one subject.
+ * `SA_FAILURE_RESPONSE_CONTROLS` used to sit here too — the matrix's control
+ * names, re-derived "so this overlay cannot drift from it" — and nothing read
+ * it, which makes it a drift check that never ran. It is deleted rather than
+ * rendered: the controls are the authority matrix's own content and
+ * `AiFailureAuthorityPanel` already renders them. `SA_AUTHORITY_PROVENANCE`
+ * went the same way; the covering test asserts this overlay's class against
+ * `CONSOLE_AUTHORITY_PROVENANCE` directly, so a re-export in between was one
+ * more name for the same fact.
  *
  * ── THE CONSOLE'S AXIS IS `Control`, WHICH IS WHY THE MODULE OVERLAY IS NEW
  * The matrix's own caption is "Authority matrix for the console's
@@ -46,7 +48,7 @@ import {
  * not modules. Attributing the matrix to `MOD-SA-07` is a build inference and
  * `CONSOLE_AUTHORITY_ATTRIBUTION` already renders it as one — that attribution
  * is re-exported here rather than restated, so the console has one answer to
- * the question and not two.
+ * the question and not two, and it renders through `sourceNotes` below.
  *
  * ── THERE IS NO SOURCE-STATED FLOOR FOR THIS SURFACE, UNLIKE THE HUB ──────
  * The Hub at least has required behaviour 3 (L90861) naming eight of its
@@ -108,14 +110,6 @@ export const SA_FLOOR_ABSENCE = {
 export const SA_MATRIX_ATTRIBUTION = CONSOLE_AUTHORITY_ATTRIBUTION
 export const SA_MATRIX_CAPTION_REF = CONSOLE_AUTHORITY_CAPTION_REF
 
-/**
- * The console's own failure-response vocabulary, read from the shipped matrix
- * so this overlay cannot drift from it. Derived, and nothing states its size.
- */
-export const SA_FAILURE_RESPONSE_CONTROLS: readonly string[] = CONSOLE_AUTHORITY_ROWS.map(
-  (row) => row.verbatim,
-)
-
 /* ==================================================================== *
  * THE DERIVED PER-MODULE OVERLAY.
  * ==================================================================== */
@@ -165,13 +159,16 @@ export const SA_MODULE_AI_ROWS: readonly SaModuleAiRow[] = SA_MODULES.map((modul
 export const SA_MODULE_AI_TABLE: OverlayTable = {
   caption:
     'Per-module behaviour during an artificial-intelligence failure — derived, not transcribed.',
-  captionRef: 'L91304',
+  // NO CAPTION LINE AND NO HEADER LINE. L91304 is `AC-43-351`, an acceptance
+  // criterion, and carries neither this caption nor these headings. It is the
+  // derivation's BASIS and is cited as one, in `whyDerived` and on every row.
+  captionRef: null,
   headings: [
     'Super Admin platform console module',
     'Behaviour during an artificial-intelligence failure',
     'Classification',
   ],
-  headerRef: 'L91304',
+  headerRef: null,
   kind: 'derived',
   whyDerived:
     "Section 43.3.5's only table is the control x platform-role authority matrix at "
@@ -218,6 +215,29 @@ export const SA_AI_OVERLAY: SurfaceAiOverlay = {
         + 'is missing, and the line is openable at L91309.',
     },
   ],
+  sourceNotes: [
+    {
+      heading: 'The rule every derived row below is derived by, and the criteria it rests on.',
+      body: `${SA_DERIVATION_RULE.statement} It rests on `
+        + SA_DERIVATION_RULE.restsOn.map((ac) => `${ac.id} (${ac.sourceRef})`).join(' and ')
+        + '.',
+      sourceRef: SA_DERIVATION_RULE.restsOn[0]?.sourceRef ?? 'L91304',
+      readings: [],
+      adopted: null,
+    },
+    {
+      heading: `The authority matrix is filed under no module, and \`${SA_MATRIX_ATTRIBUTION.theIdentifierABuildWouldReachFor}\` is the reach this build did not take.`,
+      body: [
+        `Caption: ${SA_MATRIX_ATTRIBUTION.caption}, at ${SA_MATRIX_CAPTION_REF}.`,
+        `What the source assigns: ${SA_MATRIX_ATTRIBUTION.whatTheSourceAssigns}`,
+        SA_MATRIX_ATTRIBUTION.whyThatReachIsNotTheSource,
+        SA_MATRIX_ATTRIBUTION.howThisBuildRendersIt,
+      ].join(' '),
+      sourceRef: SA_MATRIX_CAPTION_REF,
+      readings: [],
+      adopted: null,
+    },
+  ],
   statedAbsences: [
     {
       what: 'Any access at all for the Read-only Auditor.',
@@ -242,9 +262,3 @@ export const SA_AI_OVERLAY: SurfaceAiOverlay = {
   ],
 }
 
-/**
- * The class the authority matrix emits, re-exported so the covering test can
- * assert the two are the same and the console cannot emit two classes for one
- * subject.
- */
-export const SA_AUTHORITY_PROVENANCE = CONSOLE_AUTHORITY_PROVENANCE

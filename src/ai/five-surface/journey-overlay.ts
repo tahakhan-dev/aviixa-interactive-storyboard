@@ -23,6 +23,19 @@ import { type SurfaceAiOverlay } from './overlay'
  * there is one answer to "what does this step do when artificial intelligence
  * fails" and not two that can drift.
  *
+ * AND "OVERLAID" MEANS RENDERED, WHICH IS WHAT THIS SENTENCE DID NOT MEAN WHEN
+ * IT WAS FIRST WRITTEN. Both registers exported `AI_DEGRADATION_BY_STEP` and
+ * nothing consumed either; the only gate read the two files as TEXT and
+ * asserted the identifier appeared in them, which the identifier's presence
+ * satisfies. So from outside, both journeys still rendered no
+ * artificial-intelligence degradation — the exact shape this paragraph claimed
+ * was impossible. The two screens now read the register and mount
+ * `AiDegradationOverlay` for the open step:
+ * `app/studio/journey/JourneyScreen.tsx` and `app/hub/journey/JourneyScreen.tsx`,
+ * each under `data-testid="step-ai-degradation"`, and the gate asserts the
+ * register's VALUE — every step number, and every overlay matched to its step's
+ * acting surface — rather than the presence of a name.
+ *
  * ── NO STEP IS ADDED TO EITHER REGISTER, AND THAT IS DELIBERATE ───────────
  * Four shipped tests pin the two registers' step populations — not merely their
  * lengths but their step NUMBERS: `tests/unit/stu-publish-checks.test.ts` and
