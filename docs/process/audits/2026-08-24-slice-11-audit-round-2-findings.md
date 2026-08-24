@@ -50,7 +50,13 @@ predates a matrix correction and nothing was watching that module.
 **A source tension to disclose rather than resolve silently.** `MTX-TEN-02a` at **L22017** gives
 `MOD-DOH-11` at module level `Read-only | Read-only | Read-only | Allowed with conditions |
 Unavailable` — so the module row admits the Supervisor, while every control row in the module's own
-matrix refuses them. Header order confirmed at L22004. The build's convention is that the
+matrix refuses them. Header order confirmed at L22005.
+
+**This paragraph cited the line above that one, which is blank, and `locator-fidelity` convicted
+it** — the gate widened earlier in this same round, firing on its author. The correction cited the
+blank line a second time, in prose, and was convicted again: an `L`-prefixed number is a citation to
+that gate wherever it appears, which is precisely why stream E wrote its allowance entries as
+`{ id, line }` and not in citation form. Named here without the token. The build's convention is that the
 finer-grained matrix governs reach, so regenerating is correct; the disagreement itself must be
 disclosed where a reader meets the module, not dropped.
 

@@ -276,9 +276,14 @@ export default function CoveragePage() {
         AND THE REST OF THE AI AREA'S IDENTIFIER SHAPES, SO "COUNTED NOWHERE"
         HAS NO REMAINING HIDING PLACE.
 
-        Audit finding C-31: chapter 44's AC-* and TEST-* registers are cited by
-        nothing this build ships, while the build DOES consume chapter 44's
-        FB-AGT-* register. Silence there is the same defect as the silence the
+        Audit finding C-31: chapter 44's `AC-44-*` and `TEST-44-*` registers are
+        cited by nothing this build ships, while the build DOES consume chapter
+        44's FB-AGT-* register. NARROWED to those two register names, which is
+        what `src/coverage/uninventoried.ts` claims and what measures 0: chapter
+        44 also holds the §44A registers, and `AC-44A-*` and `TEST-44A-*` are
+        cited throughout this tree (74 and 57 distinct tokens across src/, app/
+        and tests/), so "chapter 44's AC-* and TEST-*" was a true claim about
+        two registers generalised into a false one about the chapter. Silence there is the same defect as the silence the
         section above exists to end, so the abstention is stated with its
         reason instead. `tests/unit/coverage-uninventoried.test.ts` sweeps
         `src/ai/` for identifier-shaped tokens with no knowledge of what this
@@ -291,8 +296,10 @@ export default function CoveragePage() {
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
         Not every identifier shape that appears in the code is an inventory item
         or a family above. These are the rest, each with the place that does
-        answer for it — including the two chapter-44 registers this build
-        deliberately cites nowhere.
+        answer for it — including <code>AC-44-*</code> and{' '}
+        <code>TEST-44-*</code>, the two chapter-44 registers this build
+        deliberately cites nowhere. Chapter 44&rsquo;s §44A registers are not
+        those two and are cited throughout.
       </p>
       <div className="mt-4">
         <Table

@@ -98,6 +98,44 @@ export interface Doh11Row extends DohControlMatrixRow<Doh11RowId> {
 }
 
 /**
+ * TWO SOURCE MATRICES ANSWER "WHO REACHES THIS MODULE" AND THEY DISAGREE ABOUT
+ * ONE ROLE. DISCLOSED, NOT RESOLVED.
+ *
+ * `MTX-TEN-02a` — the tenant-role-to-module matrix, this module's row at
+ * L22017 under the header at L22005 — reads
+ *
+ *   Tenant Admin `Read-only` · Supervisor `Read-only` · Quality Manager
+ *   `Read-only` · Read-only Auditor `Allowed with conditions` · Worker
+ *   `Unavailable`
+ *
+ * so the module row admits **four** roles including the Supervisor. The control
+ * matrix below is finer-grained, and across all ten of its rows the Supervisor
+ * is `Unavailable` or `Explicitly prohibited` in every cell: they reach no
+ * control in this module at all. Derived reach is therefore three —
+ * `TENANT_ADMIN`, `QUALITY_MANAGER`, `READONLY_AUDITOR`.
+ *
+ * The build derives reach from the finer-grained matrix, which is the existing
+ * convention and the safer direction: granting a role a module it can do
+ * nothing in would render an empty screen and imply an authority the control
+ * rows refuse. **Nothing here resolves the source's disagreement**, and a
+ * client ruling could go the other way — a Supervisor read of the audit log
+ * that the control matrix simply never enumerated.
+ *
+ * ── WHY THIS PARAGRAPH EXISTS AT ALL (audit round 2, R2-P10) ───────────────
+ * The generated reach map shipped `TENANT_ADMIN, SUPERVISOR, QUALITY_MANAGER`
+ * for this module: it granted the Supervisor, who reaches nothing here, and
+ * **omitted the Read-only Auditor, who holds `Read-only` on the full tenant
+ * audit log** — the audit role, dropped from the audit module. It survived
+ * because the only general gate on reach derivation had a population of seven
+ * module ids and this module was not among them. Widening that population to
+ * every Delivery Operations Hub module convicted it on the first run.
+ *
+ * The lesson is the round's shape: a population control that verifies a subset
+ * where the claim is every member. The gate is
+ * `tests/coverage/slice-06-gates.test.ts` gate 5.
+ */
+
+/**
  * The ten body lines of L28865-L28874, verbatim. Row i's locator is
  * `28865 + i`, because the body is contiguous — asserted line by line in the
  * unit suite against the frozen file.

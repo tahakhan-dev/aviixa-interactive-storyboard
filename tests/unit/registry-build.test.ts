@@ -919,11 +919,12 @@ describe('module route awards — ownership, not mention', () => {
  * Until the third status existed every one of them read `not-represented`, the
  * same word the inventory uses for a module with no code at all.
  *
- * It was understating the build by seven modules. Five are substantial:
- * `MOD-FL-A4`, `A5`, `B8`, `B9` and `B11` are ninety-nine source files between
- * them, all five imported by `app/frontline/run-player/page.tsx`, and every one
- * read not-represented — because that route imports them by path and never
- * names a module id in its text, so the mention scan could not see them.
+ * It was understating the build by seven modules. The five that matter are
+ * `MOD-FL-A4`, `A5`, `B8`, `B9` and `B11`: all five are imported by
+ * `app/frontline/run-player/page.tsx` and every one read not-represented —
+ * because that route imports them by path and names none of the five in its
+ * text, so the mention scan could not see them. (This comment said the five
+ * were "ninety-nine source files between them"; measured they are 25.)
  */
 describe('module status — mounted, demonstrated and absent are three different facts', () => {
   const rowsOf = () => fresh('modules').rows as { id: string; status: string }[]

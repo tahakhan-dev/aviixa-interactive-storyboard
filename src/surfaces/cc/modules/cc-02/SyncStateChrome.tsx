@@ -19,10 +19,29 @@ import { CC02_MANUAL_CLOSE_LINK, cc02Affordance, cc02Row } from './matrix'
 /* ==================================================================== *
  * `MOD-CC-02` RENDERED. CHROME, ON SOMEBODY ELSE'S SCREEN.
  *
- * NO `'use client'`, AND NO ROUTE. This module owns no screen; these are the
- * elements it supplies to every other module (L36503) and to every tile and
- * drill view (L36443). There is no page here, no `app/command-center/`
- * directory, and nothing in this file registers anything.
+ * NO `'use client'`, AND NO SCREEN OF ITS OWN — BUT IT IS MOUNTED. This module
+ * owns no screen; these are the elements it supplies to every other module
+ * (L36503) and to every tile and drill view (L36443). This file authors no
+ * route and registers nothing.
+ *
+ * IT IS ON A ROUTE ALL THE SAME, AND THIS SENTENCE IS THE THIRD REWRITING OF
+ * A SHAPE THIS BUILD HAS PAID FOR TWICE. It used to read "There is no page
+ * here, no `app/command-center/` directory, and nothing in this file registers
+ * anything." Measured: `app/command-center/` holds twelve route directories
+ * and its own `page.tsx`; `MOD-CC-01`'s `LiveShiftBoard.tsx` renders
+ * `<SyncStateChrome>` and `app/command-center/live-shift-board/page.tsx`
+ * mounts that board, so this file is reachable from `app/` through exactly one
+ * chain. The clause about the directory was true of the tree it was written
+ * against and false of this one — the `DeterministicBoundary.tsx` and
+ * `ProvenanceMark.tsx` shape, arrived at a third time.
+ *
+ * WHICH IS WHY THE MOUNT IS A GATE AND NOT A SENTENCE. `tests/unit/cc-01.test.ts`
+ * asserts `reached('src/surfaces/cc/modules/cc-02/SyncStateChrome.tsx')`, over
+ * a walk of import specifiers from every file under `app/`, so the day the
+ * board stops rendering this chrome the assertion reds and the paragraph above
+ * is corrected rather than left standing. "This module owns no screen" is the
+ * part that is a claim about the register and cannot rot; the mount is the
+ * part that can, so the mount is the part that is measured.
  *
  * EVERY ELEMENT GOES THROUGH `HonestElement`, WHICH IS THE POINT. L36435
  * says this module renders §21.3's honesty rule "as concrete interface

@@ -36,7 +36,10 @@ import { COVERAGE_STATUSES, SOURCE_CLASSES, BUILD_CLASSES } from '@/coverage/des
  *    the three required fields -- the frozen source extraction never named
  *    these identifiers;
  *  - a file that honestly holds more than one distinct sub-inventory
- *    (`ai-storyboards`: four separate SB-* registers; `actionable-controls`:
+ *    (`ai-storyboards`: five separate SB-* registers — audit C-28's repair
+ *    split `SB-AI-*` by id width, and the generator interpolates the count
+ *    into the published `countedThing` rather than spelling it;
+ *    `actionable-controls`:
  *    the 608-row UI-control catalogue plus the separate 22-row DNC-*
  *    do-not-use-cron register) tags every row with `register`, naming which
  *    sub-inventory it belongs to, so nothing is silently merged or dropped;

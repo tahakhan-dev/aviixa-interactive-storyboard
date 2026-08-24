@@ -647,4 +647,24 @@ describe('SCR-CC-02 — reachability, measured from `app/` rather than assumed',
     // again, this is the line that says so.
     expect(reached('src/surfaces/cc/modules/cc-10-s366/SecondTreatmentDisclosure.tsx')).toBe(true)
   })
+
+  it('records the CARD of `MOD-CC-13` as unmounted, which its header used to deny', () => {
+    // `src/surfaces/cc/actions/ActionRail.tsx` is wave 0's module CARD, not
+    // `cc-13/Cc13ActionRail.tsx`, which is `SB-16-02`'s control rail and is
+    // mounted by eight route files. The card's header asserted in the present
+    // tense that it "mounts inside the twelve module screens"; it mounts on
+    // none, and cc-03 through cc-12 carry eleven assertions forbidding exactly
+    // that import. This is the line that makes the corrected header a gate:
+    // the day the surface index fills `CommandCenterShell`'s `actionRail` prop
+    // with it, this reds and the header has to be rewritten rather than left
+    // stale — the `DeterministicBoundary`/`ProvenanceMark` lesson applied to
+    // the third instance of the shape.
+    expect(reached('src/surfaces/cc/actions/ActionRail.tsx')).toBe(false)
+    // Not vacuous by accident: the three data modules the card renders ARE
+    // reached, through the eight screens that mount the control rail. So the
+    // `false` above is about this component and not about its directory.
+    expect(reached('src/surfaces/cc/actions/action-set.ts')).toBe(true)
+    expect(reached('src/surfaces/cc/actions/outside-writes.ts')).toBe(true)
+    expect(reached('src/surfaces/cc/actions/propagation.ts')).toBe(true)
+  })
 })

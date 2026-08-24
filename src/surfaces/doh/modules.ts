@@ -530,13 +530,29 @@ export interface DohModuleDefinition {
    * A GENERATED FILE SOMEBODY CAN OPEN IS NOT A HAND-MAINTAINED FIELD HERE,
    * and four separate things stop it becoming one. `pnpm build` re-runs the
    * generator, so an edit survives only until the next build. Until then the
-   * eight module suites in `tests/unit` compare this field against their own
-   * live matrices and go red on the edited entry — each non-vacuously,
-   * pinning the exact role set AND its size, so neither a widened nor a
-   * narrowed list passes. A module id deleted from the file fails `tsc` on
-   * the annotation below rather than becoming a module nobody reaches. And
-   * `reachOf` refuses any token that is not a tenant role, so a typo throws
-   * at import rather than quietly shrinking a rail.
+   * GATE that compares this field against every module's own live matrix is
+   * `tests/coverage/slice-06-gates.test.ts` gate 5, which re-derives the reach
+   * with `rolesReachingByMatrix` over the real rows and pins the exact role
+   * set AND its size, so neither a widened nor a narrowed list passes. A
+   * module id deleted from the file fails `tsc` on the annotation below rather
+   * than becoming a module nobody reaches. And `reachOf` refuses any token
+   * that is not a tenant role, so a typo throws at import rather than quietly
+   * shrinking a rail.
+   *
+   * THIS PARAGRAPH USED TO NAME THE WRONG MECHANISM, and audit round 2
+   * (R2-P04) measured the gap. It said "the eight module suites in `tests/unit`
+   * compare this field against their own live matrices and go red on the
+   * edited entry — each non-vacuously". Measured: eleven DOH suites in
+   * `tests/unit` mention `rolesReaching` at all and exactly TWO compare it
+   * against a live matrix — `doh-cloning.test.ts` for `MOD-DOH-15` and
+   * `doh-sso.test.ts` for `MOD-DOH-12`. The others compare matrix against
+   * matrix with this generated file on neither side, so an edit to it cannot
+   * red them. Gate 5's population was slice six's seven, which left
+   * `MOD-DOH-10` and `MOD-DOH-11` outside every gate: swapping one valid
+   * tenant role for another in either entry survived the whole suite. That
+   * gate's subject is now `DOH_MODULES` — all of them — and this comment names
+   * the gate that actually holds the field rather than the suites that look as
+   * though they do.
    */
   readonly rolesReaching: readonly RoleId[]
 }

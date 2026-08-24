@@ -24,9 +24,11 @@ export type CoverageStatus =
    * It exists because the four statuses above it could not tell a module that
    * is built and on screen apart from one with no code at all, and both read
    * `not-represented`. Measured, that understated the build by seven modules,
-   * five of them ninety-nine source files between them, all five mounted in
-   * the Run Player and none of them named in its text — the route imports them
-   * by path, so a mention scan cannot see them.
+   * five of them mounted in the Run Player with none of the five named in its
+   * text — the route imports them by path, so a mention scan cannot see them.
+   * (This comment claimed the five were "ninety-nine source files between
+   * them"; they are 25. The count was decoration on a claim that stands
+   * without it and is not restated here.)
    *
    * Like the other four it names EVIDENCE, not completeness: a route file
    * imports the directory, which is checkable and is falsified the moment the

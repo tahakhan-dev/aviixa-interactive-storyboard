@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   CC13_ACTIONS,
@@ -37,6 +37,7 @@ import {
   cc13SitesForAction,
 } from '@/surfaces/cc/modules/cc-13/rail'
 import { CC_CLAIMED_SLUGS, CC_MODULE_SPINE, ccModule } from '@/surfaces/cc/modules'
+import { dohModuleById } from '@/surfaces/doh/modules'
 import { CC_NAV, CC_SCREENS } from '@/surfaces/cc/screens'
 
 /**
@@ -466,9 +467,24 @@ describe('where it mounts, and the route it must not have', () => {
     expect(line(35261)).toContain(CC13_ROUTELESSNESS.forbiddenByText)
   })
 
-  it('is the ONLY routeless module: MOD-CC-07 claims a slug and MOD-CC-02 is chrome', () => {
+  /**
+   * RENAMED TO WHAT IT CHECKS. This case was titled "is the ONLY routeless
+   * module" and its body asserted membership -- the set contains `MOD-CC-13`
+   * and not `MOD-CC-07` -- which is not uniqueness, and the surface has TWO
+   * routeless modules. A title claiming more than the body checks is how the
+   * false exclusivity claim survived at four other sites; the set is now
+   * pinned WHOLE, so a third routeless module reds here.
+   */
+  it('is one of exactly two routeless modules, and the only one that is an action rail', () => {
     const routeless = CC_MODULE_SPINE.filter((m) => m.slug === null).map((m) => m.id)
-    expect(routeless).toContain('MOD-CC-13')
+    // The whole set, not a membership probe. MOD-CC-02 is the other, and it is
+    // chrome -- which is what makes "the only routeless ACTION module" true and
+    // "the only routeless module" false.
+    expect(routeless).toEqual(['MOD-CC-02', 'MOD-CC-13'])
+    expect([...CC13_ROUTELESSNESS.routelessModules]).toEqual(routeless)
+    expect(CC13_ROUTELESSNESS.onlyRoutelessActionModule).toContain('ACTION module')
+    expect(ccModule('MOD-CC-02').noRouteReason ?? '').toContain('chrome')
+    // And MOD-CC-07, which the claim used to be confused with, is not routeless.
     expect(routeless).not.toContain('MOD-CC-07')
     expect(ccModule('MOD-CC-07').slug).toBe('learning-read-view')
     expect(CC_CLAIMED_SLUGS).toContain('learning-read-view')
@@ -493,10 +509,45 @@ describe('the two findings this module owes and does not repair', () => {
     expect(rail).toContain('ProhibitionNotice')
   })
 
-  it('states the audit obligation and does not fabricate a destination for it', () => {
+  /**
+   * THE ABSTENTION GATE, AND WHY IT IS NOT A PINNED BOOLEAN ANY MORE.
+   *
+   * This case used to read `expect(destinationBuilt).toBe(false)`. Slice 11
+   * wave 2 built `SCR-DOH-20` at `/hub/audit-and-retention` and the pointer
+   * kept telling eight Command Center pages that no such route exists -- and
+   * this assertion is what held it there, because a pinned literal cannot
+   * tell "correct" from "unchanged". So the claim is DERIVED from the route:
+   *
+   *  - the slug comes from the DOH spine, so a renamed Hub route moves it;
+   *  - existence is read off `app/hub/<slug>/page.tsx` on disk;
+   *  - `destinationBuilt` must EQUAL that existence, which reds in BOTH
+   *    directions -- an abstention standing after the route lands, and a link
+   *    still drawn after the route is deleted.
+   *
+   * FAILS IF: the route is deleted and the rail still links it; the route
+   * exists and the rail still abstains; or the spine's slug and the rail's
+   * href stop agreeing.
+   */
+  it('derives the audit destination from the route the Hub ships, never from a pinned boolean', () => {
     expect(line(48437)).toContain(CC13_AUDIT_POINTER.obligation)
     expect(line(38657)).toContain('the Command Center is the cockpit, never the engine')
-    expect(CC13_AUDIT_POINTER.destinationBuilt).toBe(false)
+
+    const slug = dohModuleById('MOD-DOH-11').slug
+    const routeExists = existsSync(join(process.cwd(), 'app', 'hub', slug, 'page.tsx'))
+    // The premise, asserted rather than assumed: a false here would make the
+    // comparison below pass on two wrongs.
+    expect(routeExists, `app/hub/${slug}/page.tsx is the audit route this pointer claims`).toBe(
+      true,
+    )
+    expect(CC13_AUDIT_POINTER.destinationBuilt).toBe(routeExists)
+    expect(CC13_AUDIT_POINTER.destinationRoute).toBe(`/hub/${slug}`)
+
+    // And the destination is the screen the source calls the audit view.
+    expect(CC13_AUDIT_POINTER.destinationScreen).toBe('SCR-DOH-20')
+    expect(line(Number(CC13_AUDIT_POINTER.destinationScreenRef.slice(1)))).toContain(
+      'Audit log explorer',
+    )
+
     // L48437 is a row of SB-25-03, and the precision is carried.
     expect(line(48421)).toContain('SB-25-03')
     expect(CC13_AUDIT_POINTER.obligationContext).toContain('SB-25-03')
@@ -506,6 +557,30 @@ describe('the two findings this module owes and does not repair', () => {
     for (const f of CC13_MOUNT_FINDINGS) {
       for (const ref of f.sourceRefs) expect(line(Number(ref.slice(1))).trim()).not.toBe('')
     }
-    expect(CC13_MOUNT_FINDINGS.some((f) => f.finding.includes('imported by no page'))).toBe(true)
+  })
+
+  /**
+   * THE SECOND MOUNT FINDING IS CLOSED, AND THE CLOSURE IS COUNTED OFF THE
+   * TREE. It read "MOD-CC-13 has no route and its rail is imported by no
+   * page" long after eight pages had wired it, and the only assertion on it
+   * checked that the phrase "imported by no page" was still THERE -- a test
+   * pinning the stale sentence rather than the fact.
+   *
+   * FAILS IF: the last page unmounts the rail while the finding still says the
+   * wiring landed, or the finding reverts to claiming no page imports it.
+   */
+  it('counts the pages that mount the rail, and the closed finding agrees with the count', () => {
+    const dir = join(process.cwd(), 'app', 'command-center')
+    const mounts = readdirSync(dir).filter((entry) => {
+      const page = join(dir, entry, 'page.tsx')
+      return existsSync(page) && readFileSync(page, 'utf8').includes('Cc13ActionRail')
+    })
+    expect(mounts.length).toBeGreaterThan(0)
+    const closed = CC13_MOUNT_FINDINGS[1].finding
+    expect(closed).toContain('CLOSED')
+    expect(closed).toContain('now import and render Cc13ActionRail')
+    // The routelessness is NOT what was repaired, and the finding still says so.
+    expect(closed).toContain('AC-CC-040')
+    expect(ccModule('MOD-CC-13').slug).toBeNull()
   })
 })

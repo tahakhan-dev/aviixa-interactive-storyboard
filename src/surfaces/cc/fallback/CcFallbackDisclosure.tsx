@@ -19,11 +19,29 @@ import {
  *
  * ── A STATED ABSTENTION, NOT AN OVERSIGHT ──────────────────────────────
  *
- * AT THE TIME OF WRITING NO ROUTE MOUNTS THIS FILE. Measured, not assumed:
- * `grep -rn "cc/fallback" src app tests` returns this directory and the two
- * test files, and nothing under `app/`. That is the exact shape slice 8
- * shipped `cc-10-s366/SecondTreatmentDisclosure.tsx` in, and the difference
- * between an abstention and an oversight is that the abstention says so.
+ * NO ROUTE MOUNTS THIS FILE. Measured, not assumed, and the command is
+ * narrowed to one whose output is still the claim:
+ *
+ *     grep -rln "cc/fallback" app       # → no output
+ *
+ * THE WIDE COMMAND THAT USED TO STAND HERE HAD ROTTED, AND ONLY IT HAD.
+ * It read `grep -rn "cc/fallback" src app tests` and said that returns "this
+ * directory and the two test files". It now answers over 28 files — 14 under
+ * `src/` and 14 under `tests/`, because a dozen module components and half the
+ * Command Center suites came to read `./patterns` — and none of them is under
+ * `app/`. So the operative claim never moved; the evidence offered for it did,
+ * which is the rot this build has already corrected in
+ * `DeterministicBoundary.tsx` and `ProvenanceMark.tsx`. A sentence containing
+ * the word "Measured" is not measured.
+ *
+ * THE ABSENCE IS ALSO A GATE, WHICH IS WHY THE OPERATIVE CLAIM CANNOT ROT THE
+ * SAME WAY. `tests/unit/cc-01.test.ts` and `tests/unit/cc-10.test.ts` both
+ * assert `reached('src/surfaces/cc/fallback/CcFallbackDisclosure.tsx')` is
+ * `false`, over a walk of import specifiers from every file under `app/`, and
+ * the second uses it as the not-vacuous control for a `true`. That is the
+ * exact shape slice 8 shipped `cc-10-s366/SecondTreatmentDisclosure.tsx` in,
+ * and the difference between an abstention and an oversight is that the
+ * abstention says so — and reds when it stops being true.
  *
  * This is a wave-0 mechanism task and it owns no route file. `MOD-CC-02`'s
  * comparable absence is declared in `CC_SEAMS`; this one is declared here,

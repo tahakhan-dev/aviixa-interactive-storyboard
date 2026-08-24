@@ -614,13 +614,25 @@ export const CC08_DEGRADATION_SEAMS = [
   {
     id: 'deterministic-boundary-had-no-route',
     what:
-      "`src/ui/shared/DeterministicBoundary.tsx` records that nothing under `app/` renders it " +
-      'and asks whoever mounts the first one to close that paragraph. This panel mounts it, ' +
-      'under the pause banner, because SB-42-301\'s own sentence is that deterministic safety ' +
-      'checks are unaffected. The paragraph in that file is now stale and this task may not ' +
-      'edit it.',
+      'CLOSED, AND KEPT RATHER THAN DELETED, BECAUSE THE INTERVAL IS THE PART WORTH HAVING. ' +
+      "As reported: `src/ui/shared/DeterministicBoundary.tsx` RECORDED that nothing under " +
+      '`app/` rendered it and asked whoever mounted the first one to close that paragraph. This ' +
+      "panel mounted it, under the pause banner, because SB-42-301's own sentence is that " +
+      'deterministic safety checks are unaffected — so the paragraph in that file WAS stale, and ' +
+      'this task could not edit it.\n\n' +
+      'AS IT STANDS NOW: that paragraph reads "IT IS REACHABLE FROM A ROUTE, AND THAT PARAGRAPH ' +
+      'IS NOW CLOSED", names `src/surfaces/cc/modules/cc-08/AgentActivityPanel.tsx` as its ' +
+      'importer and `app/command-center/agent-activity-panel/page.tsx` as its route, and cites ' +
+      'this seam as what predicted the staleness. The prediction was the value: the seam named a ' +
+      'file it could not edit, said what would go wrong in it, and assigned the close — and the ' +
+      'close was performed and recorded there rather than discovered later by a reader.\n\n' +
+      'WHAT KEEPS THIS ROW FROM ROTTING THE WAY THE PARAGRAPH DID. Past tense is prose and prose ' +
+      'is not a gate, so the closure is asserted rather than stated: ' +
+      '`tests/unit/cc-08.test.ts` walks import specifiers from every file under `app/` and ' +
+      'requires `src/ui/shared/DeterministicBoundary.tsx` to be reachable. Unmount it and this ' +
+      'row goes red, which is the direction the original defect could not.',
     owner:
-      '`src/ui/shared/DeterministicBoundary.tsx`, which is import-only for this task. Wave 5 ' +
-      'task 20 or task 21 closes the paragraph.',
+      'CLOSED — no owner outstanding. Was `src/ui/shared/DeterministicBoundary.tsx`, import-only ' +
+      'for this task, assigned to wave 5 task 20 or task 21; one of them performed it.',
   },
 ] as const satisfies readonly Cc08DegradationSeam[]

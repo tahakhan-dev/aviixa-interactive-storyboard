@@ -21,8 +21,15 @@ import type { DohControlMatrixRow } from '@/surfaces/doh/modules'
  * `MOD-DOH-18` in its "Modules and features shown" cell. The only row that
  * covers it covers it by range: `SCR-DOH-02`, Operations home, whose cell
  * reads "The module rail across MOD-DOH-01 to MOD-DOH-19" (L48096). So there
- * is no route, no `page.tsx` and no rail entry of its own — the same shape as
- * `MOD-DOH-15`, which catalogue B mounts inside `SCR-DOH-11` (L48105).
+ * is no route, no `page.tsx` and no rail entry of its own.
+ *
+ * AND, SEPARATELY, NO HOST — WHICH `MOD-DOH-15` IS THE CONTRAST TO AND NOT
+ * THE PRECEDENT FOR. That module also has no row of its own; catalogue B names
+ * it inside `SCR-DOH-11` (L48105) and `app/hub/job-lifecycle-and-approval/`
+ * mounts its panel there. This module's component is imported by nothing under
+ * `app/`. `MOD_DOH_18_MOUNT` below carries that as its own claim, with the
+ * intended host named, because reading it off the screen claim is what made
+ * "the same shape as MOD-DOH-15" say the opposite of this module's condition.
  *
  * The other half of the rendering is not this surface's at all. L29906: the
  * Hub "owns the data; the Client Command Center renders it", and `MOD-CC-11`
@@ -384,14 +391,66 @@ export const MOD_DOH_18_CARD = {
  * NO `SCR-DOH-*` ROW NAMES THIS MODULE, and this is the record of that rather
  * than a note in a comment: the component prints it, so the abstention is
  * visible from outside instead of looking like an oversight.
+ *
+ * TWO CLAIMS, NOT ONE, AND ONLY THE FIRST WAS EVER TRUE. Having no SCREEN is
+ * a fact about catalogue B and cannot rot. Having no HOST is a fact about this
+ * tree, and this record used to state the first and imply the second was
+ * handled by naming `MOD-DOH-15` as "the same shape" — a module catalogue B
+ * mounts inside the Job editor. `MOD-DOH-15`'s panel IS mounted, so the named
+ * precedent told the reader the opposite of this component's condition: that
+ * a screenless module of this shape gets a host. This one has none, so this
+ * module's half of `DEC-REPORT-001` — which sets are blocked, and their two
+ * candidate names — reaches no reader.
+ * `MOD_DOH_18_MOUNT` carries the second claim separately and
+ * `tests/unit/doh-18.test.ts` measures both halves of the contrast, so the
+ * day this module gets a host the record goes red instead of going stale.
  */
 export const MOD_DOH_18_HAS_NO_SCREEN = {
   statement:
-    'Catalogue B holds 23 screen rows and none of them names MOD-DOH-18 in its "Modules and features shown" cell. The one row that covers this module covers it by range — SCR-DOH-02, Operations home, "The module rail across MOD-DOH-01 to MOD-DOH-19". So this is a component with no screen of its own, the same shape as MOD-DOH-15, which catalogue B mounts inside the Job editor.',
+    'Catalogue B holds 23 screen rows and none of them names MOD-DOH-18 in its "Modules and features shown" cell. The one row that covers this module covers it by range — SCR-DOH-02, Operations home, "The module rail across MOD-DOH-01 to MOD-DOH-19". So this is a component with no screen of its own — and, measured on this tree, with no host either: nothing under app/ imports it, so nothing here reaches a reader. MOD-DOH-15 is the contrast and not the precedent: it also has no row of its own, catalogue B names it inside SCR-DOH-11 the Job editor, and app/hub/job-lifecycle-and-approval/JobLifecycleScreen.tsx mounts its panel there — which is what a screenless module looks like once it is hosted, and the opposite of this one.',
   catalogueSpan: 'L48095-L48117',
   railRow: 'L48096',
-  precedent: 'L48105',
+  /**
+   * `SCR-DOH-11`, the Job editor — the row that names `MOD-DOH-15`. Named
+   * `contrast` and not `precedent`, because that module's panel is mounted
+   * and this one's is not; calling it a precedent is what pointed a reader
+   * the wrong way.
+   */
+  contrast: 'L48105',
   rendersElsewhere:
     'The rendering half is not this surface\'s: the Hub owns the data and the Client Command Center renders it, which MOD-CC-11 already ships.',
   rendersElsewhereRef: 'L29906',
+} as const
+
+/**
+ * THE MISSING MOUNT, STATED SEPARATELY FROM THE MISSING SCREEN, AND THE HOST
+ * NAMED. `DOH_OUT_OF_SLICE_MODULES` in `src/surfaces/doh/modules.ts` already
+ * records that this module has no route; what nothing recorded is that its
+ * component is imported by no file under `app/` either, which is a different
+ * and worse thing — a route can be absent by design, but a component that
+ * renders a blocked-decision statement and is hosted nowhere states it to
+ * nobody.
+ *
+ * THE HOST FOLLOWS FROM CATALOGUE B RATHER THAN FROM TASTE. The only cell
+ * covering this module is `SCR-DOH-02`'s module rail (L48096), and the
+ * `MOD-DOH-15` contrast is the rule being applied: a module with no row of
+ * its own mounts inside the screen whose row covers it. For this module that
+ * screen is the operations home, `app/hub/page.tsx`. The Command Center is not
+ * the alternative it looks like — L29906 gives it the RENDERING of the data,
+ * and `MOD-CC-11` already ships that; this component is the Hub's own control
+ * matrix over Hub tenant roles, so it belongs on a Hub screen.
+ *
+ * Neither `app/hub/page.tsx` nor `app/hub/HubShell.tsx` is this task's file,
+ * so this is a named host rather than a mount.
+ */
+export const MOD_DOH_18_MOUNT = {
+  /** Measured with `grep -rln doh-18 app`, which returns no output. */
+  hostToday: null,
+  intendedHost: 'app/hub/page.tsx',
+  intendedHostScreen: 'SCR-DOH-02',
+  intendedHostRow: 'L48096',
+  whyThatOne:
+    'SCR-DOH-02 Operations home is the only catalogue B row that covers MOD-DOH-18, and it covers it through the module rail across MOD-DOH-01 to MOD-DOH-19. MOD-DOH-15 shows the rule: a module with no row of its own is mounted inside the screen whose row names it, which for that module is SCR-DOH-11 the Job editor.',
+  whatIsUnreachableUntilThen:
+    "This module's own rendering of the decision: the five-set control matrix over the Hub's five tenant roles, the two decision-blocked sets, and set 4's and set 5's two candidate names beside them. DEC-REPORT-001 itself is not unreachable — MOD-CC-11 discloses it and app/command-center/reports-and-report-builder/page.tsx mounts that. What no reader can reach is the Hub half, which is the half that says which sets are blocked and what the two spellings are.",
 } as const

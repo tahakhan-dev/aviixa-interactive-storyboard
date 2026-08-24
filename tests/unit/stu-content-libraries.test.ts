@@ -1126,6 +1126,29 @@ describe('reuse impact, shown before the edit is made', () => {
 describe('immutability of published content', () => {
   const PUBLISHED = 'CHK-TORQUE-RESPONSE'
 
+  // FAILS IF: `writes.ts` cites the wrong line for the clause it quotes. It
+  // cited `FUNC-STU-07-04-B-1 (L32656)` and quoted "does not block any
+  // Workflow, because the prior published item remains in force"; L32656 is
+  // `FUNC-STU-07-01-B-1`, about a launched checklist, and both the identifier
+  // and the quote are at L32678 — which is also where `stu-11/chain.ts`
+  // already cited it. Read off the frozen bytes, because no gate in
+  // tests/coverage/ convicts this citation form: `locator-fidelity` and
+  // `citation-graph` both stayed green with the wrong line planted back in.
+  it('cites FUNC-STU-07-04-B-1 at the line that carries it and its clause', () => {
+    const LINES = readFileSync('../AVIIXA_Production_Product_Blueprint.md', 'utf8').split('\n')
+    const CLAUSE = 'does not block any Workflow, because the prior published item remains in force'
+    expect(LINES[32678 - 1]).toContain('`FUNC-STU-07-04-B-1`')
+    expect(LINES[32678 - 1]).toContain(CLAUSE)
+    // One occurrence each, so no section reading makes another line the anchor.
+    expect(LINES.filter((l) => l.includes('`FUNC-STU-07-04-B-1`'))).toHaveLength(1)
+    expect(LINES.filter((l) => l.includes(CLAUSE))).toHaveLength(1)
+    // L32656 is a different functionality about a different act.
+    expect(LINES[32656 - 1]).toContain('`FUNC-STU-07-01-B-1`')
+    const writes = readFileSync('src/studio/modules/stu-07/writes.ts', 'utf8')
+    expect(writes).toContain('`FUNC-STU-07-04-B-1`\n * (L32678)')
+    expect(writes).not.toContain('(L32656)')
+  })
+
   // FAILS IF: an edit to a Published item mutates it in place. The source
   // grants no in-place edit of published content: the prior published item
   // remains in force until review completes, so the correction is a LINKED

@@ -51,9 +51,12 @@ import type { DecisionReading } from '@/disclosure/decisions'
  *
  * The refusal is the part that matters. `FUNC-CC-0604-3-1` (L37431) renders a
  * proposal NOT DECIDABLE where the affected field's package assignment is not
- * enumerated, and calls it "a deliberate refusal to invent a contractual
- * behaviour". A path that guessed a landing for an unenumerated field would
- * be exactly the invention the decision is open about.
+ * enumerated, and states its own reason on that line: "Purpose: refuse to
+ * invent a contractual behaviour." A path that guessed a landing for an
+ * unenumerated field would be exactly the invention the decision is open
+ * about. Those quotation marks previously held a paraphrase of that clause
+ * rather than the clause — same identifier, same substance, this comment's
+ * own words — which is how a comment comes to be quoted as the source.
  */
 
 /* ==================================================================== *
@@ -283,8 +286,8 @@ export function ccLaneBApplication(packageTest: Cc06PackageTest): Cc06LaneBAppli
         'The package test cannot be executed deterministically for this field. The source states ' +
         'that the authoritative field-by-field assignment is carried in the package contract of ' +
         'the Frontline Worker Application Part, and that Part does not enumerate it. The ' +
-        'decision is withheld rather than guessed, which the source calls a deliberate refusal ' +
-        'to invent a contractual behaviour.',
+        'decision is withheld rather than guessed, and the source gives that refusal its own ' +
+        'reason at L37431: "Purpose: refuse to invent a contractual behaviour."',
       sourceRef: 'L37286 · L37331 · L37431',
     }
   }

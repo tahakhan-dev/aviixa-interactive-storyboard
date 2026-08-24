@@ -208,7 +208,7 @@ function impactRefusal(register: LibraryRegister, itemId: string, shown: ReuseIm
  * edit of the original.
  *
  * The source grants no in-place edit of published content. `FUNC-STU-07-04-B-1`
- * (L32656) states the consequence directly: a library edit waiting on review
+ * (L32678) states the consequence directly: a library edit waiting on review
  * *"does not block any Workflow, because the prior published item remains in
  * force"* — which is only true if the published record still exists,
  * unchanged, and every pointer still resolves to it. `DEC-LIBREV-001` leaves

@@ -346,8 +346,12 @@ describe('the Lane B application path itself', () => {
   })
 
   // FAILS IF: an unenumerated field is given a landing. The refusal is
-  // `FUNC-CC-0604-3-1` and `AC-CC-268`, and the source calls it a deliberate
-  // refusal to invent a contractual behaviour.
+  // `FUNC-CC-0604-3-1` and `AC-CC-268`. The source's own words for the reason
+  // are "Purpose: refuse to invent a contractual behaviour." — this comment
+  // used to render them as "a deliberate refusal to invent a contractual
+  // behaviour", which is a paraphrase, and `lane-b.ts` carried the same
+  // paraphrase inside quotation marks. Both now quote the line, and the
+  // assertion below is what keeps them quoting it.
   // PLANTED: made the 'not-enumerated' branch fall through to the
   // server-only arm. RED — `kind` was 'applies'.
   it('refuses a landing where DEC-PKGFIELD-001 leaves the field unassigned', () => {
@@ -358,6 +362,16 @@ describe('the Lane B application path itself', () => {
     expect(out.missingElement.trim().length).toBeGreaterThan(0)
     expect(srcLine(37431)).toContain('FUNC-CC-0604-3-1')
     expect(srcLine(37431)).toContain('not decidable')
+    // The words `lane-b.ts` puts in quotation marks are on the line it cites.
+    const PURPOSE = 'Purpose: refuse to invent a contractual behaviour.'
+    expect(srcLine(37431)).toContain(PURPOSE)
+    // Block-comment continuations unwrapped, so a quote broken across two
+    // comment lines is compared as the sentence a reader sees.
+    const laneB = readFileSync(join(process.cwd(), 'src/surfaces/cc/modules/cc-06/lane-b.ts'), 'utf8')
+      .replace(/\n \* /g, ' ')
+    expect(laneB).toContain(PURPOSE)
+    // And no longer the paraphrase, in quotes or out of them.
+    expect(laneB).not.toContain('a deliberate refusal to invent')
     expect(srcLine(37449)).toContain('`AC-CC-268`')
     expect(srcLine(37286)).toContain('`DEC-PKGFIELD-001`')
     // The vocabulary is closed and the third member is not a third landing.

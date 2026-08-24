@@ -753,6 +753,20 @@ describe('reachability, measured from `app/` rather than assumed', () => {
     expect(reached('src/surfaces/cc/live/model.ts')).toBe(true)
   })
 
+  // FAILS IF: `DeterministicBoundary` stops being reachable from `app/`. The
+  // seam `deterministic-boundary-had-no-route` in `./degradation.ts` reports
+  // CLOSED — that component's own header no longer says nothing renders it —
+  // and a closure written in the past tense is prose. This is the assertion
+  // that makes the closure red-able: unmount the boundary and the seam row is
+  // wrong and this line says so, which is the direction the original defect
+  // (a present-tense absence claim on a mounted component) could not fail in.
+  // PLANTED: deleted the `<DeterministicBoundary mode="AIMODE-14" />` element
+  // and its import from `AgentActivityPanel.tsx`.
+  // RED: expected false to be true // Object.is equality
+  it('the boundary this panel mounts is reached, so the closed seam can red', () => {
+    expect(reached('src/ui/shared/DeterministicBoundary.tsx')).toBe(true)
+  })
+
   // FAILS IF: `MOD-CC-13`'s control rail becomes reachable FROM THIS ROUTE.
   // It is reachable from the surface, through the six screens L38793 names
   // that are built; this asserts only that this route does not reach it, which

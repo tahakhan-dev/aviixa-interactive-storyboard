@@ -46,8 +46,12 @@ import {
  *    registered at all — reach the same refusal.
  * 2. **ACTIVE WORK STAYS PINNED TO ITS APPROVED VERSION.** `publish` never
  *    touches `register.runs`, and `swapPinnedPackage` has no permitted path
- *    for any actor or agent. L33517 / `AC-STU-108`: "an in-flight Run's pinned
- *    package is never swapped by any publication."
+ *    for any actor or agent. `AC-STU-108` (L33586): "An in-flight Run's
+ *    pinned package is never swapped by any publication." The publication
+ *    sequence states the same rule as its step 7 at L33517 — "In-flight Runs
+ *    continue on their pinned versions regardless" — and that line was cited
+ *    here for the criterion's own words, which are twenty-two lines further
+ *    on and occur at L33586 only.
  * 3. **THE TWO VOCABULARIES STAY APART (D5).** `Superseded` is a VERSION
  *    state; `Outdated` is a per-JOB adoption state, and it is DERIVED from the
  *    update window rather than stored, so it cannot drift from the decision.

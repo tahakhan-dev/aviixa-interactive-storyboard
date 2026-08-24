@@ -780,8 +780,12 @@ describe('the version state machine — all 16 origin x transition pairs', () =>
 // ===========================================================================
 
 describe('the pinning guarantee', () => {
-  // FAILS IF: a publication rebases an in-flight run. L33517 / AC-STU-108 —
+  // FAILS IF: a publication rebases an in-flight run. `AC-STU-108` (L33586) —
   // "An in-flight Run's pinned package is never swapped by any publication."
+  // The criterion's own line, not L33517: that is step 7 of the publication
+  // sequence ("In-flight Runs continue on their pinned versions regardless"),
+  // which states the same rule in different words and carries neither the
+  // identifier nor the quote above.
   it('leaves every in-flight run on the version it started, across a publication', () => {
     const before = FIXTURE_REGISTER.runs.map((r: PinnedRun) => `${r.runId}@${r.pinnedVersion}`)
     const result = publish(
@@ -798,6 +802,30 @@ describe('the pinning guarantee', () => {
     const inFlight = result.register.runs.filter((r) => r.inFlight)
     expect(inFlight.length).toBeGreaterThan(0)
     expect(inFlight.every((r) => r.pinnedVersion !== 'v2.2.0')).toBe(true)
+  })
+
+  // FAILS IF: the pinning citation drifts back off the criterion's own line.
+  // `versions.ts` rule 2 quotes `AC-STU-108` verbatim; it cited L33517 for
+  // those words, which is publication step 7 and carries neither the
+  // identifier nor the quote. Checked against the frozen bytes rather than
+  // asserted, because nothing in tests/coverage/ convicts this citation form:
+  // both `locator-fidelity` and `citation-graph` stayed green with the wrong
+  // line planted back in a sibling file.
+  it('cites AC-STU-108 at the line that carries it', () => {
+    const LINES = readFileSync('../AVIIXA_Production_Product_Blueprint.md', 'utf8').split('\n')
+    const srcLine = (n: number): string => LINES[n - 1] ?? ''
+    const QUOTE = "An in-flight Run's pinned package is never swapped by any publication."
+    expect(srcLine(33586)).toContain('`AC-STU-108`')
+    expect(srcLine(33586)).toContain(QUOTE)
+    // The identifier occurs on exactly one line, so no section/row reading
+    // makes another line a legitimate anchor for these words.
+    expect(LINES.filter((l) => l.includes('`AC-STU-108`'))).toHaveLength(1)
+    // L33517 is the sequence step that states the same rule in other words.
+    expect(srcLine(33517)).toContain('In-flight Runs continue on their pinned versions regardless')
+    expect(srcLine(33517)).not.toContain('AC-STU-108')
+    const versions = readFileSync('src/studio/modules/stu-12/versions.ts', 'utf8')
+    expect(versions).toContain('`AC-STU-108` (L33586)')
+    expect(versions).not.toContain('L33517 / `AC-STU-108`')
   })
 
   // FAILS IF: `swapPinnedPackage` becomes reachable for anyone. Row 12 is the

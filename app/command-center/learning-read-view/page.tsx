@@ -31,7 +31,10 @@ export const metadata: Metadata = {
  * and `CC_NAV` publishes its pathname. A claimed slug with no directory of
  * that name is what `scripts/build-registries.mjs` reads as "declared, not
  * built", which leaves the module honestly not-represented and the rail
- * offering no link. `MOD-CC-13` is the only routeless module on this surface.
+ * offering no link. `MOD-CC-13` is the only routeless ACTION module on this
+ * surface — `MOD-CC-02` is routeless too and is chrome, which audit R2-P06
+ * measured after this sentence said "the only routeless module" with no
+ * qualifier at all. `tests/coverage/slice-09-gates.test.ts` asserts the pair.
  * `CC07_SLUG` is derived from the spine rather than typed here, so this
  * directory's name has exactly one spelling in the build.
  *

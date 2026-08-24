@@ -21,9 +21,9 @@ import {
  * that could drift from the first.
  *
  * ── THE ATTRIBUTION IS A BUILD INFERENCE AND IS RENDERED AS ONE ────────────
- * Chapter 43 was swept whole — it runs from the section heading at L89880 to
- * the last content line before chapter 44 opens, L91585 — and the only module
- * identifiers anywhere inside it are twelve `MOD-FL-*` tokens, all of them in
+ * Chapter 43 was swept whole — it runs from its own chapter heading at L89813
+ * to L91384, the last content line before chapter 44 opens at L91386 — and the
+ * only module identifiers anywhere inside it are twelve `MOD-FL-*` tokens, all of them in
  * section 43.3.4's Frontline matrix. There is no `MOD-SA-*`, no `MOD-CC-*`, no
  * `MOD-STU-*` and no `MOD-DOH-*` token in the chapter at all. **The source
  * assigns this matrix to no module.**

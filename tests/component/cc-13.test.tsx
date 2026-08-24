@@ -5,6 +5,7 @@ import { render, screen, within } from '@testing-library/react'
 import { Cc13ActionRail } from '@/surfaces/cc/modules/cc-13/Cc13ActionRail'
 import { CC13_SUPERVISOR_SUBSTITUTION } from '@/surfaces/cc/modules/cc-13/rail'
 import { CC13_ACTIONS, CC13_COLUMNS } from '@/surfaces/cc/actions/action-set'
+import { dohModuleById } from '@/surfaces/doh/modules'
 import { ROLES } from '@/domain/roles'
 import { isForeignProbe } from '../probe-paths'
 
@@ -189,18 +190,30 @@ describe('the three visual states, read off the tree', () => {
   })
 })
 
-describe('the audit pointer, named and not fabricated', () => {
-  // FAILS IF: any of the ten loses its pointer, or a href is invented for one.
-  it('every one of the ten names where its record lives, and none draws a link', () => {
+describe('the audit pointer, named and linked', () => {
+  /**
+   * THIS CASE USED TO ASSERT THE ABSENCE OF THE LINK -- `data-audit-linked`
+   * is `no`, no anchor anywhere -- which pinned an abstention that had
+   * stopped being true: `SCR-DOH-20` ships at `/hub/audit-and-retention` and
+   * L48437 makes the link an obligation for every one of the ten.
+   *
+   * It now derives from the same place the rail does, so it cannot pin a
+   * stale answer in either direction. FAILS IF: any of the ten loses its
+   * pointer or its anchor, or the href stops matching the DOH spine's slug.
+   */
+  it('every one of the ten names where its record lives and links the audit explorer', () => {
     render(<Cc13ActionRail personName="Elena" scopeFilter="Site" {...QM} />)
+    const href = `/hub/${dohModuleById('MOD-DOH-11').slug}`
     for (const action of CC13_ACTIONS) {
       const pointer = screen.getByTestId(`cc13-rail-audit-${action.ordinal}`)
-      expect(pointer.getAttribute('data-audit-linked')).toBe('no')
+      expect(pointer.getAttribute('data-audit-linked')).toBe('yes')
       expect(pointer.textContent).toContain('L48437')
-      expect(within(pointer).queryByRole('link')).toBeNull()
+      const anchor = within(pointer).getByRole('link')
+      expect(anchor.getAttribute('href')).toBe(href)
     }
-    expect(screen.queryAllByRole('link')).toHaveLength(0)
+    expect(screen.queryAllByRole('link')).toHaveLength(CC13_ACTIONS.length)
     expect(line(48437)).toContain('Every action links to its Delivery Operations Hub audit entry')
+    expect(line(48114)).toContain('Audit log explorer')
   })
 
   it('row nine says its column names no owner rather than borrowing another table-s answer', () => {

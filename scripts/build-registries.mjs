@@ -491,17 +491,27 @@ function walkRouteTree() {
          * twelve module screens, and `MOD-CC-02` is chrome. (This comment used
          * to name `MOD-CC-07` here too; it is wrong. That module IS named on
          * SCR-CC-13 and DOES claim `slug: 'learning-read-view'`. `MOD-CC-13` is
-         * the only routeless Command Center module.) Those
+         * the only routeless Command Center ACTION module -- not the only
+         * routeless one: `src/surfaces/cc/modules.ts` gives `slug: null` to
+         * two modules and `MOD-CC-02` is the other, which is chrome.) Those
          * modules used to read `not-represented`, which is the same word the
          * inventory uses for a module with no code at all.
          *
-         * It was understating the build by seven modules and five of them are
-         * substantial: `MOD-FL-A4`, `A5`, `B8`, `B9` and `B11` are ninety-nine
-         * source files between them, all five imported by
-         * `app/frontline/run-player/page.tsx`, and every one of them read
-         * not-represented -- because the route imports them BY PATH and never
-         * names a module id in its text, so the mention scan above cannot see
-         * them at all.
+         * It was understating the build by seven modules, and the five that
+         * matter are `MOD-FL-A4`, `A5`, `B8`, `B9` and `B11`: all five are
+         * imported by `app/frontline/run-player/page.tsx` and every one of
+         * them read not-represented -- because the route imports them BY PATH
+         * and names none of the five in its text, so the mention scan above
+         * cannot see them at all.
+         *
+         * NO FILE COUNT IS CLAIMED HERE ANY MORE. This comment said the five
+         * were "ninety-nine source files between them"; measured they are 25
+         * (4/5/6/5/5, 12,173 lines), and no reading of the tree reproduces 99
+         * -- all twelve `fl-*` directories are 58 files, all of
+         * `src/frontline` is 67, and the import closure from the five panels
+         * is 18. The number was decoration on a claim that stands without it,
+         * so it is gone rather than replaced by a second number nothing
+         * checks.
          *
          * An import is the stronger evidence anyway: a mention can be a
          * cross-reference in a sentence, while an import is the screen actually
@@ -707,12 +717,13 @@ for (const { dir, name, a, b } of ROUTE_EVIDENCE.ambiguousRoutes) {
  * forbids a route. Until now every one of them read `not-represented` --
  * the same word the inventory uses for a module with no code at all.
  *
- * Measured, that was understating the build by seven modules, and five of
- * them are substantial: `MOD-FL-A4`, `A5`, `B8`, `B9` and `B11` are
- * ninety-nine source files between them, ALL FIVE imported by
- * `app/frontline/run-player/page.tsx`, and every one read not-represented.
- * The mention scan could not see them because that route imports them by
- * path and never names a module id in its text.
+ * Measured, that was understating the build by seven modules, and the five
+ * that matter are `MOD-FL-A4`, `A5`, `B8`, `B9` and `B11`: ALL FIVE are
+ * imported by `app/frontline/run-player/page.tsx` and every one read
+ * not-represented. The mention scan could not see them because that route
+ * imports them by path and names none of the five in its text. (This comment
+ * said "ninety-nine source files between them"; they are 25 -- see the note
+ * at the import scan above.)
  *
  * THE EVIDENCE IS AN IMPORT, NOT A MENTION, and that is the stronger of the
  * two: a mention can be a cross-reference in a sentence, an import is the
@@ -966,9 +977,8 @@ function statusNote(rows, signal) {
         'its own -- an action rail or surface chrome mounted inside another module\'s screen. ' +
         'The evidence is the import rather than a mention, because a mention can be a ' +
         'cross-reference in a sentence while an import is the screen mounting the thing; five ' +
-        'Frontline modules of ninety-nine source files between them read not-represented until ' +
-        'this rule existed, all five mounted in the Run Player and none of them named in its ' +
-        'text. '
+        'Frontline modules read not-represented until this rule existed, all five mounted in ' +
+        'the Run Player and none of the five named in its text. '
       : '') +
     'Every other row reads not-represented, which means no route demonstrates it AND no route ' +
     'mounts it -- a module may be fully built and still read not-represented if nothing has ' +
@@ -2038,18 +2048,25 @@ function buildAiStoryboardsRegistry() {
   for (const r of rows) byRegister.set(r.register, (byRegister.get(r.register) ?? 0) + 1)
   return {
     slug: 'ai-storyboards',
+    // THE REGISTER COUNT IS INTERPOLATED, NEVER TYPED. It read "four" while
+    // STORYBOARD_REGISTERS held five and the rows below grouped into five --
+    // audit C-28's repair split SB-AI-* by id width and this summary line did
+    // not follow, so the sentence and the table under it on
+    // `app/coverage/[registry]/page.tsx` gave different answers on one page.
+    // A count typed beside a derived list is the defect, not the number.
     countedThing:
-      'every SB-* identifier in the identifier index (613), split across four separate, ' +
-      'clearly labelled registers -- never scoped down to just one of them. No names were ' +
-      'extracted for this family.',
+      `every SB-* identifier in the identifier index (${rows.length}), split across ` +
+      `${byRegister.size} separate, clearly labelled registers -- never scoped down to just one ` +
+      'of them. No names were extracted for this family.',
     reconciledCount: null,
     rawCount: rows.length,
     dedupRule: appendNote(
-      'SB-* splits into four non-overlapping registers by id shape: ' +
+      `SB-* splits into ${byRegister.size} non-overlapping registers by id shape: ` +
         [...byRegister.entries()].map(([register, count]) => `${count} ${register}`).join('; ') +
         '. Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and ' +
-        'SB-AI-01..30 AI storyboards) plus SB-031..033 and sub-panel/mnemonic overflow; the ' +
-        'source does not fix one combined total across all four.',
+        'SB-AI-01..30 AI storyboards), and audit C-28 split SB-AI-* by id width, which is what ' +
+        'makes the count above what it is rather than four; the source fixes no combined total ' +
+        'across them.',
       statusNote(
         rows,
         `${CITED_BY_A_SHIPPED_SCREEN}. Per register: ` +

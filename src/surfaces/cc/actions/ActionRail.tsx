@@ -34,13 +34,64 @@ import {
  * component suite mounts the component and the client boundary only exists in
  * a build.
  *
- * IT HAS NO ROUTE, AND MOUNTING IT INSIDE ANOTHER MODULE'S SCREEN IS THE
- * PATTERN THIS SURFACE REQUIRES. `MOD-CC-13` has no row in the thirteen-screen
- * register; `src/surfaces/cc/modules.ts` records that abstention with its
- * reasons. `AC-CC-040` forbids a fourteenth module route, so this rail mounts
- * inside the twelve module screens rather than owning one. Appearing on
- * another module's screen moves that screen's mention counts and is not
- * evidence of ownership.
+ * IT HAS NO ROUTE, AND — MEASURED — NO MOUNT EITHER. `MOD-CC-13` has no row
+ * in the thirteen-screen register; `src/surfaces/cc/modules.ts` records that
+ * abstention with its reasons, and `AC-CC-040` (L35261) is why: "The surface
+ * exposes exactly thirteen modules; no fourteenth module route exists."
+ *
+ * WHAT THIS PARAGRAPH USED TO CLAIM NEXT WAS THE OPPOSITE OF THE TREE. It
+ * said "this rail mounts inside the twelve module screens rather than owning
+ * one", present tense, as though the absence of a route were evidence of a
+ * mount. It mounts on zero screens, and three separate measurements say so:
+ *
+ *     grep -rln "cc/actions/ActionRail" app     # → no output
+ *     grep -rn  "<ActionRail" app               # → no output
+ *
+ * and ten of the twelve module suites — `tests/unit/cc-03.test.ts` through
+ * `cc-12.test.ts` — carry eleven assertions that positively FORBID their
+ * page importing or rendering it. Nothing was broken; a stated abstention had
+ * been written as an assertion of the thing it was abstaining from, which is
+ * strictly worse than the `SecondTreatmentDisclosure` shape it resembles,
+ * because that one at least said it was not mounted.
+ *
+ * THE EIGHT-SCREEN MOUNT IS A DIFFERENT COMPONENT, AND THE TWO ARE NOT
+ * INTERCHANGEABLE. `src/surfaces/cc/modules/cc-13/Cc13ActionRail.tsx` is
+ * `SB-16-02`'s CONTROL rail and eight route files under `app/command-center/`
+ * mount it. This file is the module's CARD — §21.16's two tables, the four
+ * absolute exclusions, the `AC-CC-407` coverage gap, the writes outside the
+ * ten and the propagation roll-up — which `cc-13/rail.ts`'s own header says
+ * it reads here and deliberately does not rebuild.
+ *
+ * SO IT SHOULD EXIST, AND THE HOST IS THE SURFACE INDEX. The card is the only
+ * rendering anywhere in the tree of `CC13_EXCLUSION_MISCOUNT` and
+ * `CC13_AC_407_COVERAGE`; deleting it would delete the only reader-facing
+ * form of two findings while leaving the data modules — which eight mounted
+ * screens do read — untouched, so deletion buys nothing and costs the two
+ * findings. The host is `CommandCenterShell`'s `actionRail` prop on
+ * `app/command-center/page.tsx`, the surface index, which is the one Command
+ * Center page owning no module of its own: appearing on another module's
+ * screen moves that screen's mention counts and is not evidence of ownership,
+ * and the eleven forbidding assertions are ten of those screens saying the
+ * same thing from the other side. That file is not this task's, which is why this
+ * is a named host rather than a mount.
+ *
+ * AND THE ONE TRAP ON THAT PATH, NAMED SO WHOEVER TAKES IT DOES NOT MEET IT
+ * BLIND. `app/command-center/page.tsx` must name no `MOD-CC-*` identifier in
+ * its own TEXT — the route-evidence generator does argmax over the module
+ * identifiers a route file's text contains, and a tie throws the build. This
+ * component renders `MOD-CC-13` from imported data rather than from the page's
+ * bytes, and that page's own header records the rule it relies on: a value
+ * rendered from an import is not text. So `actionRail={<ActionRail … />}` adds
+ * no identifier to the page. Prose about `MOD-CC-13` beside it would.
+ *
+ * AND THE ABSTENTION IS REGISTERED WHERE THE SURFACE KEEPS THEM, NOT ONLY
+ * WRITTEN HERE. `tests/unit/cc-01.test.ts` holds this surface's reachability
+ * register — the `reached(...)` walk over import specifiers from `app/`, where
+ * `CcFallbackDisclosure` is recorded `false` and `SecondTreatmentDisclosure`
+ * was flipped to `true` on the day it was wired — and it now asserts
+ * `reached('src/surfaces/cc/actions/ActionRail.tsx') === false`. The day
+ * somebody fills that prop the assertion reds and this paragraph has to be
+ * corrected rather than left standing. A comment is not a gate; that line is.
  *
  * IT DRAWS NO LINK ITSELF. The cockpit rule (L38657) puts every one of the
  * ten controls here and every one of the ten RECORDS somewhere else, and

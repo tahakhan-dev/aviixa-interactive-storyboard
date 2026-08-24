@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { isForeignProbe } from '../probe-paths'
 import {
   DOH_18_CONTROL_IDS,
   MOD_DOH_18_CARD,
   MOD_DOH_18_HAS_NO_SCREEN,
   MOD_DOH_18_MATRIX,
+  MOD_DOH_18_MOUNT,
   doh18Row,
   type Doh18ControlId,
   type Doh18Row,
@@ -557,6 +559,51 @@ describe('the module has no screen of its own, and says so', () => {
   it('prints the abstention rather than keeping it in a comment', () => {
     expect(MOD_DOH_18_HAS_NO_SCREEN.statement).toContain('SCR-DOH-02')
     expect(MOD_DOH_18_HAS_NO_SCREEN.catalogueSpan).toBe('L48095-L48117')
+  })
+
+  /**
+   * THE MISSING MOUNT, MEASURED, AND THE CONTRAST MEASURED WITH IT.
+   *
+   * `MOD_DOH_18_HAS_NO_SCREEN` used to call `MOD-DOH-15` "the same shape",
+   * which pointed a reader at a module whose panel IS mounted — so the record
+   * described this module's condition as the opposite of what it is. Both
+   * halves are asserted here rather than described, because a hand-written
+   * `hostToday: null` is the same rot one level down: the day somebody mounts
+   * this component the first assertion reds, and the day `MOD-DOH-15`'s panel
+   * is unmounted the second one does, and either way the record is corrected
+   * instead of going quietly stale.
+   *
+   * PLANTED (on a /tmp copy of the two files, since `app/` is not this task's
+   * to write): an `import { StandardReportDataSets } from
+   * '@/surfaces/doh/modules/doh-18/StandardReportDataSets'` line added to a
+   * copy of `app/hub/page.tsx`, and the `doh-15/JobCloningPanel` import
+   * removed from a copy of `JobLifecycleScreen.tsx`. Both reds recorded in the
+   * report; both copies discarded.
+   */
+  it('has no host under `app/`, while the module it names as a contrast does', () => {
+    const appFiles = (dir: string): string[] =>
+      readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+        isForeignProbe(e.name)
+          ? []
+          : e.isDirectory()
+            ? appFiles(join(dir, e.name))
+            : [join(dir, e.name)],
+      )
+    const importers = (needle: string): string[] =>
+      appFiles(join(process.cwd(), 'app')).filter((f) =>
+        [...readFileSync(f, 'utf8').matchAll(/from\s+'([^']+)'/g)].some((m) =>
+          (m[1] ?? '').includes(needle),
+        ),
+      )
+
+    expect(MOD_DOH_18_MOUNT.hostToday).toBe(null)
+    expect(importers('doh-18')).toEqual([])
+    // The contrast, measured on the same walk: MOD-DOH-15 has no catalogue B
+    // row of its own either, and its panel is mounted inside SCR-DOH-11.
+    expect(importers('doh-15/JobCloningPanel').length).toBeGreaterThan(0)
+    // And the host named for this module is a real file, so the instruction
+    // is followable rather than aspirational.
+    expect(existsSync(join(process.cwd(), MOD_DOH_18_MOUNT.intendedHost))).toBe(true)
   })
 
   it('the identity card’s own claims are the source’s', () => {

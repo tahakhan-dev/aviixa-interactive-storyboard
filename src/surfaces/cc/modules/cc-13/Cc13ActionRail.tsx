@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { CC13_OWNING_PLACES } from '@/surfaces/cc/actions/action-set'
 import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
 import { Button } from '@/ui/primitives'
@@ -58,25 +59,35 @@ import type { CcModuleId } from '@/surfaces/cc/modules'
  * directly, and passes its own module id as `mountedOn` so the rail can say
  * which of the ten that screen is the context for.
  *
- * THIS TASK OWNS NO FILE UNDER `app/` AND NO MODULE SCREEN, SO IT CANNOT
- * WIRE ITSELF, and that is declared here rather than left to look like an
+ * THIS TASK OWNED NO FILE UNDER `app/` AND NO MODULE SCREEN, SO IT COULD NOT
+ * WIRE ITSELF, and that was declared here rather than left to look like an
  * oversight — the `cc-10-s366` lesson, which slice 8 paid for by shipping
  * its best disclosure to no page at all. The seven screens are task 6's,
- * 10's, 11's, 12's, 15's, 16's and 18's.
+ * 10's, 11's, 12's, 15's, 16's and 18's, and THEY HAVE SINCE WIRED IT.
  *
- * THE EXACT MOUNT, WHICH ALREADY EXISTS FOR THE OTHER TREATMENT.
- * `app/command-center/live-shift-board/page.tsx` — another task's file —
- * already passes `actionRail={<ActionRail viewerRole={…} />}` to
- * `CommandCenterShell`. One line of the same shape mounts this:
+ * THE EXACT MOUNT, AS A PAGE IN THIS TREE ALREADY WRITES IT.
+ * `app/command-center/deviation-workspace/page.tsx` — `MOD-CC-04`'s screen,
+ * another task's file — passes this component to `CommandCenterShell`, with
+ * the module id read off the spine rather than typed:
  *
  *     actionRail={
  *       <Cc13ActionRail
  *         personName={…}
  *         scopeFilter="Site"
  *         heldColumns={…}
- *         mountedOn="MOD-CC-01"
+ *         mountedOn={CC04_MODULE.id}
  *       />
  *     }
+ *
+ * THE FILE THIS PARAGRAPH USED TO NAME WAS THE ONE PAGE THAT REFUSES.
+ * It cited `app/command-center/live-shift-board/page.tsx` as passing
+ * `actionRail={<ActionRail viewerRole={…} />}`; that file imports no action
+ * rail at all and its own comment says the opposite — L38793 does not name
+ * `MOD-CC-01` among the seven, so it leaves `actionRail` unfilled on purpose.
+ * The spelling `<ActionRail>` also named the CARD in
+ * `src/surfaces/cc/actions/ActionRail.tsx`, which is a different component,
+ * and no file under `app/` renders it. A warrant is only worth as much as the
+ * file it points at, so it now points at a page that actually fills the prop.
  *
  * `heldColumns` is a set rather than one role on purpose, and that is the
  * one thing a mounting screen must not flatten: L20197's own worked example
@@ -192,8 +203,9 @@ export function Cc13ActionRail({
                 </p>
               )}
               {/* THE AUDIT POINTER. L48437 makes it an obligation for every
-                  one of the ten; no route under app/hub/ is an audit view,
-                  so the place is NAMED and no anchor is drawn. */}
+                  one of the ten, and SCR-DOH-20 (L48114) is the Hub route
+                  that answers it. The place is named AND the explorer is
+                  linked; the href comes from the DOH spine's own slug. */}
               <p
                 data-testid={`cc13-rail-audit-${r.ordinal}`}
                 data-audit-linked={CC13_AUDIT_POINTER.destinationBuilt ? 'yes' : 'no'}
@@ -202,7 +214,15 @@ export function Cc13ActionRail({
                 Audit entry:{' '}
                 {place?.owningPlace ??
                   'the Executes via column names no owning record for this action'}
-                . {CC13_AUDIT_POINTER.obligationRef} · {r.sourceRef}
+                {' — '}
+                <Link
+                  href={CC13_AUDIT_POINTER.destinationRoute}
+                  className="underline text-[var(--color-ink)]"
+                >
+                  {CC13_AUDIT_POINTER.destinationScreen} audit log explorer
+                </Link>
+                . {CC13_AUDIT_POINTER.obligationRef} ·{' '}
+                {CC13_AUDIT_POINTER.destinationScreenRef} · {r.sourceRef}
               </p>
             </li>
           )
@@ -214,7 +234,7 @@ export function Cc13ActionRail({
         data-testid="cc13-rail-audit-note"
         className="mt-4 max-w-prose rounded-[var(--radius-surface)] border border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-3 text-sm"
       >
-        {CC13_AUDIT_POINTER.whyNotLinked}
+        {CC13_AUDIT_POINTER.whyLinked}
       </p>
     </section>
   )

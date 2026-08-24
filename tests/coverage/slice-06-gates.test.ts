@@ -25,9 +25,12 @@ import {
   DOH_MODULES,
   MATRIX_ROW_SURFACE_DIVERGENCES,
   cellStatus,
+  outcomeCellStatus,
   rolesReachingByMatrix,
+  titleCaseCellStatus,
   type ControlStatus,
   type DohControlMatrixRow,
+  type MatrixRowSurface,
 } from '@/surfaces/doh/modules'
 import {
   DOH_CATALOGUE_AB_SWAP,
@@ -62,6 +65,22 @@ import {
   CONTROL_MATRIX as MOD_DOH_16_MATRIX,
 } from '@/surfaces/doh/modules/doh-16/matrix'
 import { CONTROL_MATRIX as MOD_DOH_19_MATRIX } from '@/surfaces/doh/modules/doh-19/matrix'
+
+/* THE OTHER TEN MODULES' LIVE MATRICES, imported for gate 5 alone -- see the
+ * population note there. `MOD-DOH-10` and `MOD-DOH-11` keep theirs under
+ * `src/`; the slice-4 eight keep theirs in `app/hub/<slug>/fixtures.ts`, which
+ * is where `scripts/build-doh-module-reach.mjs` reads them from, so the gate
+ * re-asks the question of the same rows the generator answered it from. */
+import { CONTROL_MATRIX as MOD_DOH_10_MATRIX } from '@/surfaces/doh/modules/doh-10/matrix'
+import { CONTROL_MATRIX as MOD_DOH_11_MATRIX } from '@/surfaces/doh/modules/doh-11/matrix'
+import { CONTROL_MATRIX as MOD_DOH_01_MATRIX } from '../../app/hub/tenant-lifecycle-and-tier-operations/fixtures'
+import { CONTROL_MATRIX as MOD_DOH_02_MATRIX } from '../../app/hub/location-configuration/fixtures'
+import { CONTROL_MATRIX as MOD_DOH_03_MATRIX } from '../../app/hub/shift-management/fixtures'
+import { CONTROL_MATRIX as MOD_DOH_04_MATRIX } from '../../app/hub/worker-lifecycle-and-qualifications/fixtures'
+import { PERMISSION_MATRIX as MOD_DOH_09_MATRIX } from '../../app/hub/permissions-roles-and-access/fixtures'
+import { CONTROL_MATRIX as MOD_DOH_12_MATRIX } from '../../app/hub/integration-surface/fixtures'
+import { CONTROL_MATRIX as MOD_DOH_13_MATRIX } from '../../app/hub/tenant-view-of-platform-administration/fixtures'
+import { CONTROL_MATRIX as MOD_DOH_14_MATRIX } from '../../app/hub/qualification-calendar/fixtures'
 
 /* ==================================================================== *
  * SLICE 6 GATES — Delivery Operations Hub: Job, Run, Assignment,
@@ -1065,20 +1084,109 @@ describe('slice 6 gate 4: no matrix-axis capability renders as a disabled contro
  * the fifth, where L48100 names two roles against the four L30074 admits.
  * The count below is DERIVED from the register, so it is the corrected
  * number that has to hold rather than the plan's.
+ *
+ * ── THE POPULATION IS EVERY DOH MODULE, AND IT USED TO BE SEVEN ─────────
+ *
+ * This is the ONLY general gate on the derivation — audit round 2, R2-P04
+ * measured that and it is why the population moved. The spine's own comment
+ * claimed "the eight module suites in `tests/unit` compare this field against
+ * their own live matrices and go red on the edited entry — each
+ * non-vacuously". Measured: eleven DOH suites in `tests/unit` mention
+ * `rolesReaching` at all and exactly TWO compare it against a live matrix
+ * (`doh-cloning.test.ts` for `MOD-DOH-15`, `doh-sso.test.ts` for
+ * `MOD-DOH-12`). The rest compare matrix against matrix with the generated
+ * file on neither side, so a hand edit to
+ * `registries/generated/doh/module-reach.json` cannot red them.
+ *
+ * With this gate over slice six's seven and those two suites over two more,
+ * `MOD-DOH-10` and `MOD-DOH-11` sat outside every gate population: swapping
+ * one valid tenant role for another in either entry survived the whole suite.
+ * So the subject here is `DOH_MODULES` — all of them — and `UNBOUND_REACH`
+ * below is what makes that real rather than aspirational: a module in the
+ * spine with no live matrix bound here is REPORTED BY AN ASSERTION, not by an
+ * exception at collection time. Throwing at module scope is how this file once
+ * produced zero tests (see the header), and a gate that cannot run cannot
+ * fail.
  * ==================================================================== */
 
 const roleNameOf = (id: string): string =>
   rolesInDomain('TENANT').find((r) => r.id === id)?.name ?? id
 
+/** Every DOH module's live matrix — slice six's seven plus the other ten. */
+const LIVE_MATRIX_BY_ID: Readonly<Record<string, readonly { readonly surface: MatrixRowSurface }[]>> =
+  {
+    ...MATRIX_BY_ID,
+    'MOD-DOH-01': MOD_DOH_01_MATRIX,
+    'MOD-DOH-02': MOD_DOH_02_MATRIX,
+    'MOD-DOH-03': MOD_DOH_03_MATRIX,
+    'MOD-DOH-04': MOD_DOH_04_MATRIX,
+    'MOD-DOH-09': MOD_DOH_09_MATRIX,
+    'MOD-DOH-10': MOD_DOH_10_MATRIX,
+    'MOD-DOH-11': MOD_DOH_11_MATRIX,
+    'MOD-DOH-12': MOD_DOH_12_MATRIX,
+    'MOD-DOH-13': MOD_DOH_13_MATRIX,
+    'MOD-DOH-14': MOD_DOH_14_MATRIX,
+  }
+
+/** A module in the spine that this gate binds no live matrix to. Asserted
+ *  empty rather than thrown, so a new module widens the gate instead of
+ *  silencing the file. */
+const UNBOUND_REACH: readonly string[] = DOH_MODULES.filter(
+  (m) => LIVE_MATRIX_BY_ID[m.id] === undefined,
+).map((m) => m.id)
+
+type AnyMatrixRow = { readonly surface: MatrixRowSurface }
+type ByRoleRow = AnyMatrixRow & Parameters<typeof titleCaseCellStatus>[0]
+type CellsRow = AnyMatrixRow & Parameters<typeof outcomeCellStatus>[0]
+
+/**
+ * THE ONE RULE, APPLIED TO WHICHEVER CELL SPELLING THE MATRIX USES. The
+ * spelling is chosen by the SHAPE of the row rather than by a table mapping
+ * module to spelling — the same discrimination
+ * `scripts/build-doh-module-reach.mjs` makes — so a fourth spelling returns
+ * `null` and reds this gate instead of being skipped. `rolesReachingByMatrix`
+ * itself is never reimplemented here.
+ */
+function liveReach(rows: readonly AnyMatrixRow[]): readonly TenantRoleId[] | null {
+  const first = rows[0]
+  if (first === undefined) return null
+  if ('status' in first) {
+    return rolesReachingByMatrix(rows as readonly DohControlMatrixRow[], cellStatus)
+  }
+  if ('byRole' in first) return rolesReachingByMatrix(rows as readonly ByRoleRow[], titleCaseCellStatus)
+  if ('cells' in first) return rolesReachingByMatrix(rows as readonly CellsRow[], outcomeCellStatus)
+  return null
+}
+
 describe('slice 6 gate 5: reach is derived from the matrix, never hand-written', () => {
-  it('every registered slice-6 module reaches exactly whom its own matrix admits', () => {
+  /**
+   * FAILS IF: any module's `rolesReaching` stops equalling what its own live
+   * matrix admits — including `MOD-DOH-10` and `MOD-DOH-11`, which no gate
+   * covered before R2-P04. Verified by planting: swapping SUPERVISOR for
+   * WORKER in `MOD-DOH-10`'s entry of the generated file used to survive the
+   * whole suite and now reds here.
+   */
+  it('every module in the spine reaches exactly whom its own live matrix admits', () => {
+    expect(UNBOUND_REACH, 'DOH modules this gate binds no live matrix to').toEqual([])
+    expect(DOH_MODULES.length).toBeGreaterThan(SLICE_SIX.length)
+    for (const registered of DOH_MODULES) {
+      const rows = LIVE_MATRIX_BY_ID[registered.id]
+      // Non-vacuity, per this file's rule 2: a zero-row matrix would satisfy
+      // every comparison below.
+      expect(rows?.length ?? 0, `${registered.id} live matrix is empty`).toBeGreaterThan(0)
+      const derived = liveReach(rows ?? [])
+      expect(derived, `${registered.id} matrix carries no known cell spelling`).not.toBeNull()
+      expect([...registered.rolesReaching], `${registered.id} reach`).toEqual([...(derived ?? [])])
+      expect(derived?.length ?? 0, `${registered.id} reaches nobody`).toBeGreaterThan(0)
+    }
+  }, SLOW)
+
+  it('slice six\'s own seven are all in that population and all registered', () => {
     expect(SLICE_SIX.length).toBeGreaterThan(0)
     for (const m of SLICE_SIX) {
       const registered = DOH_MODULES.find((d) => d.id === m.id)
       expect(registered, `${m.id} is enumerated on disk and absent from DOH_MODULES`).toBeDefined()
-      const derived = rolesReachingByMatrix(m.rows, cellStatus)
-      expect([...(registered?.rolesReaching ?? [])], `${m.id} reach`).toEqual([...derived])
-      expect(derived.length, `${m.id} reaches nobody`).toBeGreaterThan(0)
+      expect(LIVE_MATRIX_BY_ID[m.id], `${m.id} live matrix`).toBe(m.rows)
     }
   }, SLOW)
 

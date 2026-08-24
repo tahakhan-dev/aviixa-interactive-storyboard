@@ -7,7 +7,8 @@ import {
   type Cc13Ordinal,
   type Cc13Token,
 } from '@/surfaces/cc/actions/action-set'
-import { CC_CLAIMED_SLUGS, ccModule, type CcModuleId } from '@/surfaces/cc/modules'
+import { CC_CLAIMED_SLUGS, CC_MODULE_SPINE, ccModule, type CcModuleId } from '@/surfaces/cc/modules'
+import { dohModuleById } from '@/surfaces/doh/modules'
 
 /* ==================================================================== *
  * `MOD-CC-13` — THE MODULE TREATMENT: HOW THE TEN ARE RENDERED, AND
@@ -223,8 +224,9 @@ export function cc13ActionsOnModule(module: CcModuleId): readonly Cc13Ordinal[] 
  * THE ROUTELESSNESS, ASSERTED AGAINST THE SPINE AND NOT AGAINST A
  * DIRECTORY LISTING.
  *
- * `MOD-CC-13` is the ONLY routeless module on this surface. `MOD-CC-02` is
- * the other abstention on the spine and it is chrome, not a rail;
+ * `MOD-CC-13` is the only routeless ACTION module on this surface, and that
+ * qualifier is load-bearing: TWO modules claim no slug, not one. `MOD-CC-02`
+ * is the other abstention on the spine and it is chrome, not a rail;
  * `MOD-CC-07` DOES claim a route — L48398 names it on `SCR-CC-13` and the
  * navigation diagram at L48412 draws `SCR-CC-13 Learning read view` — and
  * `src/surfaces/cc/modules.ts` gives it `slug: 'learning-read-view'`.
@@ -252,12 +254,22 @@ export const CC13_ROUTELESSNESS = {
   forbiddenByRef: 'L35261',
   forbiddenByText:
     'The surface exposes exactly thirteen modules; no fourteenth module route exists.',
-  onlyRoutelessModule:
-    "MOD-CC-02 is the spine's other abstention and it is chrome mounted into a board, not a rail. MOD-CC-07 is not routeless: L48398 names it on SCR-CC-13 and the spine gives it slug 'learning-read-view'.",
+  /**
+   * THE ROUTELESS SET, READ OFF THE SPINE RATHER THAN COUNTED IN A SENTENCE.
+   * Two modules, and the sentence below says "action module" because of it —
+   * a bare "the only routeless module" was false the day `MOD-CC-02` landed
+   * and no gate could see it, because the claim was prose.
+   */
+  routelessModules: CC_MODULE_SPINE.filter((m) => m.slug === null).map((m) => m.id),
+  onlyRoutelessActionModule:
+    "The only routeless ACTION module, not the only routeless module: MOD-CC-02 is the spine's other abstention and it is chrome mounted into a board, not a rail. MOD-CC-07 is not routeless at all: L48398 names it on SCR-CC-13 and the spine gives it slug 'learning-read-view'.",
 } as const
 
 /* ==================================================================== *
- * TWO FINDINGS THIS MODULE OWES, NEITHER OF THEM REPAIRED HERE.
+ * TWO FINDINGS THIS MODULE OWED. ONE IS STILL OPEN; THE SECOND IS CLOSED
+ * AND SAYS SO, WHICH IS THE PART THAT WENT WRONG LAST TIME — a finding whose
+ * subject was repaired by somebody else and which kept asserting the old
+ * state reads as a live defect and is worse than no finding at all.
  * ==================================================================== */
 
 /**
@@ -304,12 +316,29 @@ export const CC13_ABSENCE_INVERSION = {
  * using it for these ten would delete the ten controls the module exists to
  * place.
  *
- * THE POINTER IS NAMED AND NOT LINKED, AND THE REASON IS ON THE RECORD. No
- * route under `app/hub/` is an audit view — checked against the tree rather
- * than assumed — so a href here would point at a 404, which is the defect
- * shape `CommandCenterShell`'s own rail fails closed on. The place is named
- * from wave 0's `CC13_OWNING_PLACES`, which reads the `Executes via` column,
- * and row 9's is `null` there because that column names no owner.
+ * THE POINTER IS NAMED **AND** LINKED, AND THE LINK REPLACED AN ABSTENTION
+ * THAT HAD STOPPED BEING TRUE. This block used to read "no route under
+ * `app/hub/` is an audit view, so a href here would point at a 404" and set
+ * `destinationBuilt: false`. Slice 11 wave 2 built that route:
+ * `SCR-DOH-20`, the audit log explorer (L48114), is `MOD-DOH-11`'s screen and
+ * ships at `app/hub/audit-and-retention/`. The abstention's own closing
+ * sentence promised "a link is offered the day a Hub audit route exists";
+ * that day arrived and the sentence did not come back, on eight Command
+ * Center pages, with `tests/unit/cc-13.test.ts` asserting the stale `false`.
+ *
+ * SO THE HREF IS DERIVED AND THE CLAIM IS GATED, because a comment is not a
+ * gate and this is the third abstention in this build to rot. The route is
+ * `/hub/` plus `dohModuleById('MOD-DOH-11').slug` — the DOH spine's own field,
+ * so the segment has one spelling in this tree and a renamed Hub route moves
+ * this href with it. And `destinationBuilt` is no longer a boolean anything
+ * can pin: `tests/unit/cc-13.test.ts` asserts it EQUALS whether that route's
+ * `page.tsx` is on disk, so it reds in BOTH directions — a deleted route with
+ * the link still drawn, and a built route with the abstention still standing.
+ *
+ * The place is still named beside the link, from wave 0's
+ * `CC13_OWNING_PLACES`, which reads the `Executes via` column; row 9's is
+ * `null` there because that column names no owner, and a link to the audit
+ * explorer does not invent one.
  *
  * ONE PRECISION ON L48437. Its sentence is general — "Every action links to
  * its Delivery Operations Hub audit entry" — but it is a row of storyboard
@@ -324,9 +353,16 @@ export const CC13_AUDIT_POINTER = {
   obligationContext:
     "A panel-field row of storyboard SB-25-03, the deviation workspace SCR-CC-05 (L48421). The sentence is general; its filing is one screen's storyboard.",
   disciplineRef: 'L38657',
-  destinationBuilt: false,
-  whyNotLinked:
-    'No route under app/hub/ is an audit view, so an anchor would point at a route that does not exist. The owning place is named instead, from the Executes via column, and a link is offered the day a Hub audit route exists.',
+  /**
+   * The Hub audit view, as a route rather than as a promise. Derived from the
+   * DOH spine's own slug for `MOD-DOH-11`; never typed here.
+   */
+  destinationRoute: `/hub/${dohModuleById('MOD-DOH-11').slug}`,
+  destinationScreen: 'SCR-DOH-20',
+  destinationScreenRef: 'L48114',
+  destinationBuilt: true,
+  whyLinked:
+    "Every action links to the Delivery Operations Hub audit entry through SCR-DOH-20, the audit log explorer (L48114) -- MOD-DOH-11's own screen, and the one place this build searches, filters and exports the immutable audit record. The link carries no record identifier, because no Hub service exists here to name one; it points at the explorer, and the owning place is named beside it from the Executes via column.",
 } as const
 
 export const CC13_MOUNT_FINDINGS = [
@@ -337,7 +373,7 @@ export const CC13_MOUNT_FINDINGS = [
   },
   {
     finding:
-      "MOD-CC-13 has no route and its rail is imported by no page. The mount is the actionRail prop of CommandCenterShell, filled by a screen under app/. This module owns no file under app/ and no module screen, so it cannot wire itself; the seven screens L38793 names are each another task's path.",
+      "CLOSED, and left on the record rather than deleted. MOD-CC-13 has no route -- AC-CC-040 (L35261) forbids a fourteenth -- and when this finding was written its rail was imported by no page: the mount is the actionRail prop of CommandCenterShell, filled by a screen under app/, and this module owns no file there. The wiring landed afterwards. Command Center pages under app/ now import and render Cc13ActionRail -- the count is deliberately not written here, because tests/unit/cc-13.test.ts counts them off the tree -- and registries/generated/modules.json derives this module's mounted-in-another-screen status from precisely those imports, so the routelessness stands and the unmounted half does not.",
     sourceRefs: ['L35261', 'L38793'],
   },
 ] as const satisfies readonly {
