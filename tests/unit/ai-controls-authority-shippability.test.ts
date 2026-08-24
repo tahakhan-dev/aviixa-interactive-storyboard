@@ -204,9 +204,17 @@ describe('which controls cannot ship as enabled, and why each cannot', () => {
  * ternary and the `reason` template of the same locked control, spelled twice.
  * The list is declared here so the prose and the regex are one thing.
  *
- * `notShippableReason` and `notShippableLock` are in it for the same reason:
- * they are the row's own answer, and a consumer that re-words either has taken
- * a second position on a fact the module already settled.
+ * `notShippableReason` is in it for the same reason: it is the row's own
+ * answer, and a consumer that re-words it has taken a second position on a
+ * fact the module already settled.
+ *
+ * `notShippableLock` IS NOT IN IT, and the prose here used to claim it was —
+ * the same prose-says-one-thing-regex-says-another defect that left
+ * `citedDecisions` unchecked, stated about a different field. It is left out
+ * deliberately: `src/ui/sa/AiFailureAuthorityPanel.tsx` and
+ * `app/super-admin/ai-incidents/AiIncidentConsoleScreen.tsx` both RENDER the
+ * lock, so a token sweep would convict two legitimate readers. Whether reading
+ * it counts as reasoning over it is a live question, not one this gate settles.
  */
 const ROW_FIELDS_NO_CONSUMER_MAY_REASON_OVER = [
   'undecidedCells',
@@ -218,21 +226,44 @@ const ROW_FIELDS_NO_CONSUMER_MAY_REASON_OVER = [
 
 describe('shippability is derived once, at the single input', () => {
   it('is re-derived at no call site anywhere in src/ or app/', () => {
-    // SCOPED TO THE FILES THAT ACTUALLY CONSUME THIS MODULE, and that is the
-    // precise claim rather than a looser one. A bare token sweep convicts
-    // `src/ai/failures/catalogue.ts`, which declares a `citedDecisions` field
-    // of its own on an unrelated register — a false alarm, and false alarms are
-    // how a token gets dropped from a regex in the first place.
+    // ONE FALSE ALARM, NAMED — NOT A CLASS OF CALL SITE EXEMPTED.
+    //
+    // This sweep briefly short-circuited on `if (!text.includes(
+    // 'surfaces/sa/ai-failure-authority')) continue`, which made the title
+    // above false: every consumer that imports the module by path was checked,
+    // and a consumer HANDED PRE-RESOLVED ROWS AS PROPS — the very shape
+    // `tests/coverage/contract-gates.test.ts` pushes `src/ui/` components
+    // toward — was skipped entirely, re-derivation and all.
+    //
+    // The stated reason for the narrowing was a single file:
+    // `src/ai/failures/catalogue.ts` declares a `citedDecisions` field of its
+    // own on an unrelated register. So that one file is named. Measured with
+    // the filter removed: it is the ONLY offender tree-wide.
+    const NOT_A_CONSUMER = [
+      // Its own `citedDecisions`, on the failure catalogue's register.
+      join('ai', 'failures', 'catalogue.ts'),
+      // The single input itself, which is where the derivation belongs.
+      join('surfaces', 'sa', 'ai-failure-authority.ts'),
+    ]
     const tokens = new RegExp(ROW_FIELDS_NO_CONSUMER_MAY_REASON_OVER.join('|'))
     const offenders: string[] = []
     for (const file of walk('src').concat(walk('app'))) {
-      if (file.endsWith(join('surfaces', 'sa', 'ai-failure-authority.ts'))) continue
+      if (NOT_A_CONSUMER.some((exempt) => file.endsWith(exempt))) continue
       if (!/\.tsx?$/.test(file)) continue
-      const text = readFileSync(file, 'utf8')
-      if (!text.includes('surfaces/sa/ai-failure-authority')) continue
-      if (tokens.test(text)) offenders.push(file)
+      if (tokens.test(readFileSync(file, 'utf8'))) offenders.push(file)
     }
     expect(offenders, 'shippability re-derived away from its single input').toEqual([])
+  })
+
+  it('would convict a consumer handed the rows as props, with no import to key on', () => {
+    // The shape the removed short-circuit was blind to, run through the same
+    // predicate: a component that never names the module path at all.
+    const tokens = new RegExp(ROW_FIELDS_NO_CONSUMER_MAY_REASON_OVER.join('|'))
+    const asProps =
+      'export const Panel = ({ rows }: { rows: readonly Row[] }) =>\n' +
+      '  rows.map((row) => (row.undecidedCells > 0 ? "not shippable" : "shippable"))\n'
+    expect(asProps.includes('surfaces/sa/ai-failure-authority')).toBe(false)
+    expect(tokens.test(asProps)).toBe(true)
   })
 
   it('sweeps every field its own documentation names — the list is typed to the row', () => {

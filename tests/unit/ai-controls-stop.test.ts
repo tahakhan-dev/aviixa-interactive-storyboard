@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isForeignProbe } from '../probe-paths'
+import { isForeignProbe, ownProbeDir, withPlanted } from '../probe-paths'
 import { createHash } from 'node:crypto'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
@@ -159,31 +159,41 @@ describe('resume is a separate act, and there is no automatic one', () => {
     // resume that fires on a clock is the defect; a resume that fires on an
     // approval is the feature, so the scan hunts scheduling primitives rather
     // than the word "resume".
-    // THE SCOPE INCLUDES THE SCREEN THAT ACTUALLY HOLDS THE PAUSE PAIR, and it
-    // did not. `app/super-admin/platform-settings/` is where the propose and
-    // approve rows for the pause live — `PAUSE_STATES`, `PauseRequested`,
-    // `ResumeRequested`, all of it — and it was outside this sweep entirely.
-    // The claim held (tree-wide there are zero hits for these tokens today),
-    // but the gate could not see the one directory where an auto-resume would
-    // be written. Proved by planting a timer in platform-settings and watching
-    // this go red.
-    const offenders: string[] = []
-    for (const file of walk('src/ai/controls').concat(
-      walk('src/ai/join'),
-      walk('app/super-admin/ai-incidents'),
-      walk('app/super-admin/platform-settings'),
-    )) {
-      const text = readFileSync(file, 'utf8')
-      // Comment lines are stripped: this file's own prose explains the rule.
-      const code = text
-        .split('\n')
-        .filter((line) => !/^\s*(\*|\/\/|\/\*)/.test(line))
-        .join('\n')
-      if (/setTimeout|setInterval|autoResume|resumeAfter|resumeTimer|resumeWindow/i.test(code)) {
-        offenders.push(file)
-      }
-    }
-    expect(offenders, 'an automatic resume path (AC-AI-015-5, L87890)').toEqual([])
+    // TREE-WIDE, BECAUSE A DIRECTORY LIST IS A LIST OF DIRECTORIES SOMEONE
+    // THOUGHT OF. This sweep first missed `app/super-admin/platform-settings/`
+    // — where the propose and approve rows for the pause live, `PAUSE_STATES`,
+    // `PauseRequested`, `ResumeRequested`, all of it — and the fix was to add
+    // that one directory, which leaves an `autoResume` in `src/ai/failures/`,
+    // a new `src/ai/resume/`, or any other console screen just as invisible.
+    // `tests/unit/ai-rollback-taxonomy.test.ts` scans `walk('src')` plus
+    // `walk('app')` for its own prohibition, so the tree-wide form was to hand.
+    // Measured over the whole tree with comments stripped: ZERO offenders, so
+    // no exemption is needed and none is granted.
+    const own = ownProbeDir('resume')
+    const scan = (): string[] =>
+      walk('src', own)
+        .concat(walk('app', own))
+        // Comment lines are stripped: this file's own prose explains the rule.
+        .filter((file) =>
+          /setTimeout|setInterval|autoResume|resumeAfter|resumeTimer|resumeWindow/i.test(
+            readFileSync(file, 'utf8')
+              .split('\n')
+              .filter((line) => !/^\s*(\*|\/\/|\/\*)/.test(line))
+              .join('\n'),
+          ),
+        )
+    expect(scan(), 'an automatic resume path (AC-AI-015-5, L87890)').toEqual([])
+    // And the widened scope convicts a timer planted where the old four-
+    // directory list could not see it.
+    withPlanted(
+      join(process.cwd(), 'src', 'ai', 'failures'),
+      'probe.ts',
+      'export const autoResume = (): void => {\n  setTimeout(() => undefined, 1)\n}\n',
+      (probe) => {
+        expect(scan()).toContain(probe)
+      },
+      own,
+    )
   })
 })
 
@@ -368,11 +378,11 @@ describe('provenance', () => {
   })
 })
 
-function walk(root: string): string[] {
+function walk(root: string, own?: string): string[] {
   const out: string[] = []
   const visit = (dir: string) => {
     for (const entry of readdirSync(dir)) {
-      if (isForeignProbe(entry)) continue
+      if (isForeignProbe(entry, own)) continue
       const path = join(dir, entry)
       if (statSync(path).isDirectory()) visit(path)
       else out.push(path)

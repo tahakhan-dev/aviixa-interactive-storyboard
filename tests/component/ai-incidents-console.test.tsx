@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { isForeignProbe } from '../probe-paths'
+import { isForeignProbe, ownProbeDir, withPlanted } from '../probe-paths'
 import { render, screen } from '@testing-library/react'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
-import { dirname, join, relative } from 'node:path'
+import { dirname, join, relative, sep } from 'node:path'
 import { ROLLBACK_FORMS } from '@/ai/controls/rollback'
 import { BLAST_RADIUS_NODES, PAUSE_DOES_NOT_TABLE } from '@/ai/controls/blast-radius'
 import { LOCAL_OPEN_DECISIONS } from '@/ai/controls/decisions'
@@ -466,16 +466,107 @@ describe('AC-AI-015-7 is rendered, not merely enforced', () => {
     expect(text).toMatch(/carr(?:y|ies)/i)
     // And no act exists for the refusal to guard, which the panel also states.
     expect(text).toMatch(/no pause, resume, kill or rollback act/i)
+    // THE SENTENCE MAY NOT OUTRUN THE GATE. It briefly read "there is no audit
+    // sink in this build", which twenty-five Studio files contradict. The
+    // claim this build can defend is scoped to this cluster and this route.
+    expect(text, 'a build-wide absence the Studio surfaces contradict').not.toMatch(
+      /no audit sink in this build|no audit sink anywhere/i,
+    )
+    expect(text).toMatch(/no audit sink is reachable from this console/i)
   })
 
-  it('takes no act — nothing in this cluster writes an audit record anywhere', () => {
-    // The claim above, checked against the tree rather than trusted. If a wave
-    // later adds a sink, this goes red and the panel's wording is revisited
-    // deliberately instead of drifting back into a false present tense.
-    for (const file of walk('src/ai/controls').concat(walk('app/super-admin/ai-incidents'))) {
-      const body = readFileSync(file, 'utf8')
-      expect(body, file).not.toMatch(/\b(?:writeAudit|appendAudit|auditSink|recordAudit)\b/)
-    }
+  /**
+   * THE GATE'S SCOPE AND THE SENTENCE'S SCOPE MUST BE ONE CLAIM.
+   *
+   * This gate swept `src/ai/controls` plus `app/super-admin/ai-incidents` and
+   * the panel it guards said "there is no audit sink in this build". Run the
+   * gate's own predicate over `src/` and `app/` and it hits TWENTY-FIVE files:
+   * `src/studio/access/refusal.ts`, thirteen `src/studio/modules/stu-*`
+   * modules, nine `app/studio/**` screens. `src/studio/modules/stu-06/writes.ts`
+   * is headed "THE ONE AUDIT PATH" and its `commit()` calls
+   * `input.writeAudit({…})` before mutating. The sentence was false, and the
+   * narrow scope is what let it stand — measured: a `writeAudit` planted in
+   * `src/ai/failures/` left the old form GREEN.
+   *
+   * Two halves now, and they are the two halves of the narrowed sentence:
+   *
+   *   1. NO SINK IS REACHABLE FROM THIS CONSOLE — followed through the import
+   *      graph rather than asserted, the same closure the severity sweep uses.
+   *   2. NO SINK EXISTS ANYWHERE IN `src/` OR `app/` BEYOND THE STUDIO PORTS —
+   *      tree-wide, with those ports named one at a time. The principle
+   *      `scrubIdentifiers` states in the blast-radius gate: exempt the named
+   *      false alarms, never the class.
+   *
+   * The token list is wider than the four it started with. `emitAudit`,
+   * `persistAudit`, `AuditWriter` and `auditLog.append` all passed the old one
+   * (all four are absent from the tree today, so widening added no offenders).
+   */
+  const AUDIT_WRITE =
+    /\b(?:writeAudit|appendAudit|auditSink|recordAudit|emitAudit|persistAudit|AuditWriter)\b|\bauditLog\.append\b/
+
+  /**
+   * THE STUDIO AUDIT PORTS, NAMED ONE AT A TIME. A Studio surface writing an
+   * audit record is not this console's business and is not a false claim
+   * anywhere — but it is a real audit sink in this build, which is why the
+   * panel may not say the build has none.
+   */
+  const STUDIO_AUDIT_PORTS = [
+    'app/studio/builder/BuilderScreen.tsx',
+    'app/studio/content-libraries/ContentLibrariesScreen.tsx',
+    'app/studio/instruction-blocks/InstructionBlocksScreen.tsx',
+    'app/studio/learning/LearningView.tsx',
+    'app/studio/localisation/LocalisationScreen.tsx',
+    'app/studio/permissions-and-grants/PermissionsScreen.tsx',
+    'app/studio/screen-configuration/ScreenConfigurationScreen.tsx',
+    'app/studio/training-library/TrainingLibraryScreen.tsx',
+    'app/studio/workflow-library/WorkflowLibraryScreen.tsx',
+    'src/studio/access/refusal.ts',
+    'src/studio/modules/stu-01/service.ts',
+    'src/studio/modules/stu-03/library.ts',
+    'src/studio/modules/stu-04/writes.ts',
+    'src/studio/modules/stu-05/sections.ts',
+    'src/studio/modules/stu-06/writes.ts',
+    'src/studio/modules/stu-07/writes.ts',
+    'src/studio/modules/stu-08/training.ts',
+    'src/studio/modules/stu-09/levels.ts',
+    'src/studio/modules/stu-10/seam.ts',
+    'src/studio/modules/stu-15/builder.ts',
+    'src/studio/modules/stu-16/learning.ts',
+    'src/studio/modules/stu-16/rendering.ts',
+    'src/studio/modules/stu-17/locales.ts',
+    'src/studio/modules/stu-17/rendering.ts',
+    'src/studio/modules/stu-18/grant-admin.ts',
+  ]
+
+  it('reaches no audit sink from this console — the import graph, not one directory', () => {
+    const closure = consoleClosure()
+    expect(closure.length).toBeGreaterThan(20)
+    expect(closure).toContain(join('src', 'ui', 'sa', 'AiFailureAuthorityPanel.tsx'))
+    const offenders = closure.filter((file) => AUDIT_WRITE.test(readFileSync(file, 'utf8')))
+    expect(offenders, 'an audit sink reachable from this console').toEqual([])
+  })
+
+  it('adds no audit sink anywhere in src/ or app/ beyond the named Studio ports', () => {
+    const own = ownProbeDir('audit')
+    const sinks = (): string[] =>
+      walk('src', own)
+        .concat(walk('app', own))
+        .filter((file) => AUDIT_WRITE.test(readFileSync(file, 'utf8')))
+        .map((file) => relative(process.cwd(), file).split(sep).join('/'))
+        .sort()
+    // The exact set, not "no offenders": a new sink is caught, and so is an
+    // exemption that has gone stale and is now over-exempting.
+    expect(sinks(), 'the audit sinks in this build').toEqual([...STUDIO_AUDIT_PORTS].sort())
+    // And the widened scope convicts a sink planted OUTSIDE the old one.
+    withPlanted(
+      join(process.cwd(), 'src', 'ai', 'failures'),
+      'probe.ts',
+      'export const probe = (writeAudit: (e: string) => void): void => {\n  writeAudit("x")\n}\n',
+      (probe) => {
+        expect(sinks()).toContain(relative(process.cwd(), probe).split(sep).join('/'))
+      },
+      own,
+    )
   })
 })
 
@@ -614,51 +705,12 @@ describe('operational severity shares no rendering with manufacturing severity',
    * `Severity` — which is what a component import looks like and what a type
    * import never is.
    */
-  const closureFrom = (entry: string): string[] => {
-    const resolve = (spec: string, from: string): string | null => {
-      const base = spec.startsWith('@/')
-        ? join(process.cwd(), 'src', spec.slice(2))
-        : spec.startsWith('.')
-          ? join(process.cwd(), dirname(from), spec)
-          : null
-      if (base === null) return null
-      for (const candidate of [
-        `${base}.ts`,
-        `${base}.tsx`,
-        join(base, 'index.ts'),
-        join(base, 'index.tsx'),
-      ]) {
-        if (existsSync(candidate)) return relative(process.cwd(), candidate)
-      }
-      return null
-    }
-    const seen = new Set<string>()
-    const stack = [entry]
-    while (stack.length > 0) {
-      const file = stack.pop()
-      if (file === undefined || seen.has(file)) continue
-      seen.add(file)
-      for (const [, spec] of readFileSync(file, 'utf8').matchAll(
-        /from\s+['"]([^'"]+)['"]/g,
-      )) {
-        const next = resolve(spec ?? '', file)
-        if (next !== null && !seen.has(next)) stack.push(next)
-      }
-    }
-    return [...seen]
-  }
-
   it('imports no severity component from an earlier slice, anywhere it can reach', () => {
     // AC-43-103 (L89975) / TEST-43-103 (L89981): separate fields, separate
     // vocabularies, no shared rendering component.
     expect(lineAt(89_975)).toContain('AC-43-103')
-    const closure = [
-      ...new Set(
-        walk('app/super-admin/ai-incidents').flatMap((file) =>
-          closureFrom(relative(process.cwd(), file)),
-        ),
-      ),
-    ]
+    // `closureFrom` is hoisted to module scope: the audit-sink gate uses it too.
+    const closure = consoleClosure()
     // A floor, so a resolver that silently resolves nothing cannot pass.
     expect(closure.length).toBeGreaterThan(20)
     expect(closure).toContain(join('src', 'ui', 'sa', 'AiFailureAuthorityPanel.tsx'))
@@ -699,11 +751,59 @@ describe('provenance', () => {
   })
 })
 
-function walk(root: string): string[] {
+/**
+ * THE IMPORT GRAPH, NOT ONE DIRECTORY. Hoisted to module scope because two
+ * gates need it now: the severity sweep below and the audit-sink reachability
+ * claim the refusal panel makes in prose.
+ */
+function closureFrom(entry: string): string[] {
+  const resolve = (spec: string, from: string): string | null => {
+    const base = spec.startsWith('@/')
+      ? join(process.cwd(), 'src', spec.slice(2))
+      : spec.startsWith('.')
+        ? join(process.cwd(), dirname(from), spec)
+        : null
+    if (base === null) return null
+    for (const candidate of [
+      `${base}.ts`,
+      `${base}.tsx`,
+      join(base, 'index.ts'),
+      join(base, 'index.tsx'),
+    ]) {
+      if (existsSync(candidate)) return relative(process.cwd(), candidate)
+    }
+    return null
+  }
+  const seen = new Set<string>()
+  const stack = [entry]
+  while (stack.length > 0) {
+    const file = stack.pop()
+    if (file === undefined || seen.has(file)) continue
+    seen.add(file)
+    for (const [, spec] of readFileSync(file, 'utf8').matchAll(/from\s+['"]([^'"]+)['"]/g)) {
+      const next = resolve(spec ?? '', file)
+      if (next !== null && !seen.has(next)) stack.push(next)
+    }
+  }
+  return [...seen]
+}
+
+/** The import closure of every file on this console's route. */
+function consoleClosure(): string[] {
+  return [
+    ...new Set(
+      walk('app/super-admin/ai-incidents').flatMap((file) =>
+        closureFrom(relative(process.cwd(), file)),
+      ),
+    ),
+  ]
+}
+
+function walk(root: string, own?: string): string[] {
   const out: string[] = []
   const visit = (dir: string) => {
     for (const entry of readdirSync(dir)) {
-      if (isForeignProbe(entry)) continue
+      if (isForeignProbe(entry, own)) continue
       const path = join(dir, entry)
       if (statSync(path).isDirectory()) visit(path)
       else out.push(path)

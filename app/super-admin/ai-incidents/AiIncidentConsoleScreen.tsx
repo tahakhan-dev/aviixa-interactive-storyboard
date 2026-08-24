@@ -784,9 +784,16 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
               used to read "every refusal is written to the audit trail" in the
               present tense. Measured: `refuseAgentInitiation` is called by
               nothing but its own module constant and its tests, `auditRecord`
-              is a string with no consumer, there is no audit sink anywhere
-              under `src/`, and there is no pause, resume, kill or rollback ACT
-              in this build for a refusal to guard. `TEST-AI-015-7` (L87904)
+              is a string with no consumer, no audit sink is reachable from this
+              console (the import closure of this route holds none), and there
+              is no pause, resume, kill or rollback ACT in this build for a
+              refusal to guard. THE BUILD DOES HAVE AUDIT SINKS — twenty-five
+              files under `src/studio/` and `app/studio/` write one, and
+              `src/studio/modules/stu-06/writes.ts` is headed "THE ONE AUDIT
+              PATH" — so "there is no audit sink in this build" would be a
+              second false claim in place of the first. The claim is scoped to
+              this cluster and this route, which is what the gate now measures
+              tree-wide. `TEST-AI-015-7` (L87904)
               requires "refusal and audit", so the obligation is real and
               unmet — and the standing limit is that no production capability
               may be claimed that is only simulated. The obligation is stated,
@@ -803,10 +810,11 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
             className="max-w-prose text-[var(--color-ink)]"
           >
             What this storyboard does and does not do: it composes the refusal record for every act
-            against every agent identity and renders it. It writes no audit trail — there is no
-            audit sink in this build — and there is no pause, resume, kill or rollback act here for
-            the refusal to guard. TEST-AI-015-7 asks for refusal <em>and</em> audit; the audit half
-            is owed and is not claimed as built.
+            against every agent identity and renders it. This cluster writes no audit trail, and no
+            audit sink is reachable from this console — the Studio surfaces carry audit ports of
+            their own, and nothing on this route imports one — and there is no pause, resume, kill
+            or rollback act here for the refusal to guard. TEST-AI-015-7 asks for refusal{' '}
+            <em>and</em> audit; the audit half is owed and is not claimed as built.
             <Locator refs={['L87904']} />
           </p>
           <p className="max-w-prose text-[var(--color-ink-muted)]">

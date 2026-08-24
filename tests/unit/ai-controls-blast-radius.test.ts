@@ -15,6 +15,29 @@ import {
 } from '@/ai/controls/blast-radius'
 
 /**
+ * EVERY POSITION IN A SIXTEEN-NODE DIAGRAM, SPELLED. `first` is absent by
+ * name — see the case that uses this — and its absence is the one exemption,
+ * checked a narrower way rather than dropped.
+ */
+const ORDINALS_BANNED_OUTRIGHT = [
+  'second',
+  'third',
+  'fourth',
+  'fifth',
+  'sixth',
+  'seventh',
+  'eighth',
+  'ninth',
+  'tenth',
+  'eleventh',
+  'twelfth',
+  'thirteenth',
+  'fourteenth',
+  'fifteenth',
+  'sixteenth',
+] as const
+
+/**
  * THE BLAST RADIUS — THE ENUMERATION, AND NO COUNT ANYWHERE.
  *
  * Sixteen nodes hang off `PAUSE`: six STOP (L87833-L87838), nine KEEP
@@ -177,17 +200,63 @@ describe('no count of stopping or continuing behaviours is rendered anywhere', (
     // answers `honest-rendering` and not `continues`, and the table the
     // incident console renders directly beneath it, which labels HONEST "a
     // state to show, not a behaviour that carries on".
-    const ORDINALS = /\b(?:sixth|seventh|eighth|ninth|tenth|eleventh|sixteenth)\b/i
+    // EVERY ORDINAL IN THE RUN, NOT THE PLAUSIBLE ONES. This list held sixth,
+    // seventh, eighth, ninth, tenth, eleventh and sixteenth — the ordinals a
+    // six/nine/one split makes likely — so `twelfth` through `fifteenth` and
+    // every low ordinal named a position in this sixteen-node diagram that the
+    // gate could not see. That is the same M10 shape the sweeps in the sibling
+    // suites were widened for, and the list was one line from complete.
+    //
+    // `first` IS THE ONE NAMED EXEMPTION from the blanket ban, and it is named
+    // rather than the class dropped: it is an ordinary adverb and the module
+    // uses it three times that way — "declared INLINE on the first edge",
+    // "red on the first", "The first node's line" — none of them a population
+    // figure. So `first` is convicted only in a sentence that also carries the
+    // diagram's stopping or continuing vocabulary, which is exactly how the
+    // cardinal sweep below decides. Every other ordinal stays a blanket ban.
+    const ORDINALS = new RegExp(`\\b(?:${ORDINALS_BANNED_OUTRIGHT.join('|')})\\b`, 'i')
     const moduleText = readFileSync(
       join(process.cwd(), 'src/ai/controls/blast-radius.ts'),
       'utf8',
     )
     expect(moduleText, 'an ordinal population figure in the module').not.toMatch(ORDINALS)
     expect(BLAST_RADIUS_NO_COUNT.whyNoCount, 'a rendered population figure').not.toMatch(ORDINALS)
+    for (const text of [moduleText, BLAST_RADIUS_NO_COUNT.whyNoCount]) {
+      for (const [sentence] of text.matchAll(/[^.\n]*[.\n]/g)) {
+        if (/\bfirst\b/i.test(sentence)) {
+          expect(sentence, 'a "first" naming a stopping or continuing position').not.toMatch(
+            /\b(?:stop|stops|stopping|continue|continues|continuing)\b/i,
+          )
+        }
+      }
+    }
     // And the rendered string may not assert which side HONEST sits on, since
     // the module's own classifier refuses to.
     expect(BLAST_RADIUS_NO_COUNT.whyNoCount).not.toMatch(/on the continuing side/i)
     expect(kindOfHonest()).toBe('honest-rendering')
+  })
+
+  it('would convict every ordinal in the run, and the four that were missing', () => {
+    // The widening proved through the real predicate, not against a reading of
+    // the regex. `twelfth` … `fifteenth` and `second` … `fifth` were the
+    // ordinals the old list could not see.
+    const ORDINALS = new RegExp(`\\b(?:${ORDINALS_BANNED_OUTRIGHT.join('|')})\\b`, 'i')
+    for (const ordinal of ORDINALS_BANNED_OUTRIGHT) {
+      expect(ORDINALS.test(`the ${ordinal} continue-side node, \`HONEST\``), ordinal).toBe(true)
+    }
+    for (const missing of ['twelfth', 'thirteenth', 'fourteenth', 'fifteenth']) {
+      expect([...ORDINALS_BANNED_OUTRIGHT], missing).toContain(missing)
+    }
+    // `first` is exempt from the blanket ban and NOT from the rule.
+    expect(ORDINALS.test('declared INLINE on the first edge')).toBe(false)
+    const firstIsAPosition = (text: string): boolean =>
+      [...text.matchAll(/[^.\n]*[.\n]/g)].some(
+        ([sentence]) =>
+          /\bfirst\b/i.test(sentence) &&
+          /\b(?:stop|stops|stopping|continue|continues|continuing)\b/i.test(sentence),
+      )
+    expect(firstIsAPosition('The first continuing behaviour is the honest one.\n')).toBe(true)
+    expect(firstIsAPosition("The first node's line. Each locator is derived.\n")).toBe(false)
   })
 
   /**
@@ -241,7 +310,7 @@ describe('no count of stopping or continuing behaviours is rendered anywhere', (
       const text = scrubIdentifiers(readFileSync(file, 'utf8'))
       for (const [sentence] of text.matchAll(/[^.\n]*[.\n]/g)) {
         if (
-          /\b(six|seven|eight|nine|ten|eleven|sixteen|\d+)\b/i.test(sentence) &&
+          /\b(six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|\d+)\b/i.test(sentence) &&
           /\b(stop|stops|stopping|continue|continues|continuing)\b/i.test(sentence)
         ) {
           offenders.push(`${file}: ${sentence.trim()}`)
@@ -259,7 +328,7 @@ describe('no count of stopping or continuing behaviours is rendered anywhere', (
       const scrubbed = scrubIdentifiers(text)
       return [...scrubbed.matchAll(/[^.\n]*[.\n]/g)].some(
         ([sentence]) =>
-          /\b(six|seven|eight|nine|ten|eleven|sixteen|\d+)\b/i.test(sentence) &&
+          /\b(six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|\d+)\b/i.test(sentence) &&
           /\b(stop|stops|stopping|continue|continues|continuing)\b/i.test(sentence),
       )
     }
