@@ -127,7 +127,9 @@ The blueprint half never needs rebuilding — the source is frozen.
 
 ## 3. Client authority — `docs/process/ledgers/approval-ledger.json`
 
-Fourteen entries, APP-000 to APP-013. The four that govern behaviour now:
+Seventeen entries, APP-000 to APP-016. The count in this sentence has been wrong once
+already — it read "fourteen" while the ledger held seventeen — so read the ledger rather than
+this line if the two disagree. The five that govern behaviour now:
 
 - **APP-003 / APP-006** — full census closure and enterprise-SaaS product quality, both
   standing reinforcements the client attached to design approvals.
@@ -158,7 +160,14 @@ Fourteen entries, APP-000 to APP-013. The four that govern behaviour now:
   bytes; repeat until a round finds nothing. Then the amendment in the same turn — *"after completing
   the slice 11 then you will stop"* — **reinstates a stop at slice 11's close.** APP-013's
   no-inter-slice-stop does not carry this run into slice 12; entering slice 12 needs a new
-  approval-ledger entry. `pending_gates` carries that gate.
+  approval-ledger entry. **That entry now exists — APP-016 — so this bullet is history rather
+than a live constraint.**
+
+- **APP-016** — **the owed slice-11 audit loop, then slices 12 and 13 and the closing
+  obligation, with no inter-slice stops.** The client re-issued the master prompt, was shown
+  the measured position, and released APP-015's stop. It did NOT release APP-015's audit
+  obligation: no audit commit existed after wave 5 and no slice-11 verification record was
+  written, so the loop is carried forward as APP-016 item 1. Slice 11 is **not** closed.
 
 **Two limits survive the delegation, and they protect the client rather than constrain
 you.** An unresolved *source* decision is still disclosed on screen with its alternatives,
@@ -326,9 +335,12 @@ failure condition, labelled or described as live artificial intelligence."
 drawn as three dotted `does not alter` non-effects, and a non-effect is not a refusal. Counted by the
 agent rather than taken from the plan, and the shortfall is derived rather than transcribed.
 
-**Only two of seven uncanonised decisions are real gaps.** `DEC-AIEMBED-001` and
-`DEC-AIFALLBACK-001` appear nowhere in the build. The other five are disclosed locally in the
-slice-8 pattern — `DEC-STORE-001` in seventeen files, `DEC-WIPE-001` in eighteen — which is the open
+**Of seven uncanonised decisions, NONE is now a missing identifier.** This paragraph named
+`DEC-AIEMBED-001` and `DEC-AIFALLBACK-001` as appearing nowhere in the build and called them the
+only two real gaps. Both ship — `src/ai/failures/catalogue.ts:495,504` and
+`src/studio/ai-degradation.ts:47,162,201`, first landed in `53b1c97` — and the stale sentence stood
+here while the work was done. **Removed rather than renumbered.** The five others are disclosed
+locally in the slice-8 pattern — `DEC-STORE-001` in seventeen files, `DEC-WIPE-001` in eighteen — which is the open
 consolidation question, not a hole.
 
 **Two gates were caught not firing, both by planting rather than by reading.** Task 1's
@@ -407,7 +419,14 @@ proved mechanically rather than argued.
 - **The occurrence outcome has two source vocabularies with no cross-reference** — 15
   lifecycle-diagram nodes, the set wave 0 shipped, against 12 inline at L102559, only four names
   common. Read strictly, `AC-SCHED-372` excludes the shipped set. Both render, neither preferred.
-- The screenshot manifest, **85 rows against a 100-route export**, re-measured on the slice-10
+- The screenshot manifest, **85 rows and 85 PNGs against a 102-route export — a gap of 17**,
+  measured this session with `exportedRoutes()`'s own walk. "100" was itself a renumbering of "96"
+  in `0de7950`, whose commit message claims the figure was removed rather than renumbered; it was
+  renumbered, and 100 is now wrong too. The artefact is older than three slices: `git log -1 --
+  docs/screenshots/manifest.json` is `8ed171b`, 2026-08-22, slice-08 wave 4. The missing routes are
+  real screens — eleven Command Center module routes, `/hub/notifications`,
+  `/hub/audit-and-retention`, three `/super-admin/` scheduler and AI-incident routes, and
+  `/workflows/ai-and-its-absence`. Re-measured on the slice-10
   candidate. Controller-owned, because `pnpm screenshots` writes committed files.
 
 **Two entries that stood here were already fixed, and this list was stale about both.** The
@@ -532,11 +551,13 @@ shared word.
 
 ### Open from slice 9's verification, still open
 
-Screenshot manifest stale — **85 rows against a 100-route export**, not the 96 this paragraph used
+Screenshot manifest stale — **85 rows against a 102-route export**, recorded once above rather than
+twice here; this line said 100 and the line before it said 96, which is the two-live-statements shape
+this file keeps naming. Not the 96 this paragraph used
 to say; `pnpm screenshots` writes committed files, so it is the controller's. `CcFallbackLibrary`
 reachable from zero pages, a declared abstention with the wiring unbuilt, gate-held at
 `tests/unit/cc-01.test.ts:638`. **Two** `MOD-DOH-*` unrepresented, not four — `-17` and `-18`, and
-they are precisely the two wave 2 did not build. Twelve uncorroborated citations, all in slice 5-8
+they are precisely the two wave 2 did not build. Twelve uncorroborated citations — the count and the ceiling line are exact, but **NOT all in slice 5-8
 files, ceiling still `toBeLessThanOrEqual(20)` at `tests/coverage/citation-graph.test.ts:306`. **The
 two generator defects this paragraph also carried are repaired — see the corrected entry above.**
 
@@ -817,7 +838,7 @@ alias pair on the slice-10 pattern and **no gate asserts a single meaning for it
 ### Wave 3 pre-verification — three verifiers, and one finding outranks the wave
 
 **FIVE COMMITTED MODULES ARE REACHABLE FROM NOTHING, AND NONE OF THEM STATES AN ABSTENTION.** Measured
-2026-08-24 by transitive closure from the 182 files under `app/` — 583 files in `src`+`app`, 543
+2026-08-24 by transitive closure from the files under `app/`. **Re-measured at the slice-11 audit: 612 files in `src`+`app`, 579 reachable, 33 orphaned.** The figures below are the earlier run and are kept only as its record — 583 files in `src`+`app`, 543
 reachable, 40 orphaned. Of the orphans, five are slice 11's own:
 
 - `src/ai/requests/{machine,states,surface-matrix}.ts` — **758 lines, 29 exports, zero importers
@@ -861,30 +882,33 @@ what the status computation requires. Commit `d4ea53a`'s message is true of `src
 status.
 
 **Four of the fourteen registries compute a single status value for every row** — `commands` (0/17),
-`events` (0/28), `offline-scenarios` (0/70), `sub-features` (0/526). All four are **true zeros, not
+`events` (0/28), `offline-scenarios` (0/70), `sub-features` **(1/526 — `SUB-SA-0703`, named by task 19 at `app/workflows/ai-and-its-absence/scope.ts`; this line said 0 and the conclusion it drew from four zeros no longer holds as written)**. The first three are **true zeros, not
 broken computations**: their identical `dedupRule` requires a shipped route screen under `app/` to name
 the identifier as a whole token, and no route screen names a `CMD-*`, `EVT-*`, `UC-OFF-*` or `SUB-*`.
 
-**A wrong number is regenerated into a committed artefact on every build.**
-`registries/generated/doh/module-reach.json`'s `doNotEdit` string still says "the eight module suites
-in `tests/unit`". There are **22**. Slice 6 measured nine and recorded it; it has drifted twice since.
+**The wrong number in `module-reach.json`'s `doNotEdit` is GONE, and this paragraph outlived it.**
+`0de7950` replaced the count with "every module suite in tests/unit". The stale claim stood here while
+§8 stated the corrected position 245 lines below it — two live statements of one item, contradicting
+each other in one file, which is the defect this section keeps naming. What remains open is a
+different thing and is recorded once, below: that `doNotEdit` names an enforcement mechanism no file
+under `tests/unit` actually performs.
 
-**The coverage page's prose count has now been renumbered twice and is wrong a third time.**
-`app/coverage/[registry]/page.tsx:114-116` reads "258 rows read demonstrated and 813 are named";
-measured across all fourteen inventories it is **266 and 1,041**. It sits in a JSX comment and does not
-render, which is why nothing caught it. The rule is remove, not renumber.
+**The coverage page's prose count is GONE, and this paragraph outlived it.** `0de7950` removed the
+pair; `app/coverage/[registry]/page.tsx` now says so in place of the numbers. Removed rather than
+renumbered — which is what the entry above it asked for and then failed to apply to itself.
 
 **`slice-06-gates.test.ts:1386`'s `toHaveLength(64)` is NOT a stale count.** It is the length of a
 sha256 hex digest, re-asserted unchanged at line 1420. Three separate passes have nearly "fixed" it.
 
-**Three hardcoded counts are genuinely removable, and each already sits beside the membership
-assertion that replaces it:** `slice-09-gates.test.ts:1599` (`demonstrated` = 11, redundant against the
-`CC_MODULE_SPINE` derivation two lines below), `:653` and `:1656` (route dirs = 12, redundant against
-the `:655` membership form), and `slice-2c-gates.test.ts:657` (15 registry files, redundant against
-`REGISTRY_DESCRIPTORS`).
+**The three removable hardcoded counts are ALL REMOVED**, in `0de7950`, each with the removal
+recorded in a comment at the line that held it — `slice-09-gates.test.ts:1616` and `:666`,
+`slice-2c-gates.test.ts:656`. No `toHaveLength(<digit>` survives in `slice-2c-gates` at all. This
+paragraph carried them as owed for a third time; **removed rather than renumbered.**
 
 **A new gate file is RED until it is declared.** `scripts/check-gate-ordering.mjs` holds an `AUDITED`
-map with exactly 25 entries against 25 files on disk. Entry 26 needs `subject`, `rewrittenBy` and
+map whose entry count must equal the number of gate files on disk — **26 and 26 as measured
+today**, not the 25 and 25 this line carried while §8 recorded "gate-ordering 26 of 26 audited" forty
+lines away. A new entry needs `subject`, `rewrittenBy` and
 `verdict`, and a gate whose text names `registries/generated` may not be filed `rewrittenBy: null`
 (enforced at L421).
 
@@ -970,19 +994,19 @@ cannot drift apart again.
 
 ### The registry's evidence class is narrower than "the build demonstrates it"
 
-`ai-storyboards.json` read 76 demonstrated where a fresh generation yields **79** — stale-low, not
-stale-high; the three are `SB-43-101` and `SB-43-351`, which task 14's console names. **`SB-AI-*` still
-reads 0 of 48** and that is correct: the status computation requires a shipped route screen under `app/` to
-name the identifier as a whole token, and nothing mounts the thirty yet.
+`ai-storyboards.json` read 76 demonstrated where a fresh generation yields 79 — the file reads **109**
+today. **The "`SB-AI-*` still reads 0 of 48" this paragraph asserted is 30 of 48**, closed by task 19
+(`0487046`) when the thirty cards were mounted on `/workflows/ai-and-its-absence/`. The rule the paragraph
+states is still the right rule — a status needs a route screen naming the identifier as a whole token —
+and the thirty now satisfy it. **Removed rather than renumbered.**
 
 **The same rule has a second consequence, and it costs three earned rows.** Task 14 bound the pause to
 `FEAT-SA-0703`, `SUB-SA-0703` and `FUNC-SA-0703` — real source identifiers at **L47803**, claimable rather
-than derived. All three read `not-represented`, because all three live only in
-`src/ai/controls/decisions.ts` and none appears in any `app/` file: the route renders the attribution from
-a constant. **That is the same indirection that defeats `build-registries`' module-ownership heuristic**,
-now costing three rows in three of the client's fourteen named inventories. Task 19 or task 20 closes it —
-either the route names them honestly, or the status rule's evidence class is stated as narrower than it
-reads.
+than derived. **All three now read `demonstrated-in-storyboard`** — task 19 closed this by having
+`app/workflows/ai-and-its-absence/scope.ts` name them, so the paragraph's "all three read
+`not-represented`" is history. The mechanism it describes is not: an attribution reached through a
+constant is invisible to `build-registries`' source-text ownership heuristic, and that limit is real and
+recorded once, below.
 
 ### One violation stands on purpose, and it must keep standing
 
@@ -1020,11 +1044,11 @@ enumeration — and then check whether a third statement settles it.**
 ### Carried into wave 5
 
 - **Seven decision identifiers the thirty cards cite are not members of the exported `DecisionId` union**, `DEC-AIRTO-001` among them at 51 references in the chapter-44 span and the entire content of every card's recovery-objective row. Five have no canon record at all; two are aliases needing wiring. Each local record carries a `canonicalId` so wave 5 can wire rather than re-read, and the suites assert all seven **absent** from `OPEN_DECISION_IDS` so a lift turns them red and forces the switch.
-- **Eighty-eight identifiers slice 11 shipped are in no inventory at all** — `AIMODE-*` 16, `FB-AI-*` 50, `DEC-AI*` 16, `PROV-*` 6. Task 20 decides explicitly and records it; leaving them silently uncounted is the one forbidden outcome.
+- **Ninety-one identifiers slice 11 shipped are in no inventory at all** — `AIMODE-*` 16, `FB-AI-*` 50, `DEC-AI*` **19**, `PROV-*` 6. This bullet said eighty-eight and sixteen while `src/coverage/uninventoried.ts:33` said ninety-one and the correction stood thirty-one lines below it. **And the slice-11 audit found the closure itself is short by 85 more:** `FAIL-AI-*` 60, the abilities `AI-01…AI-13` 13, and `FB-AGT-*` 12 are in no inventory AND in none of the four declared families. Task 20 decides explicitly and records it; leaving them silently uncounted is the one forbidden outcome.
 - **`PINNED_WORKER_MESSAGES` covers one screen** while five storyboards quote fixed worker strings the source does not rule unparaphrasable.
 - **`contentOrigin` has no member for a storyboard that renders no guidance at all** — four cards took `'authored'` as least-wrong, each with per-card reasoning.
 - **`notShippableLock` is named in prose as being in a token list it is not in**, and was deliberately not added: two files render it, so a token sweep would convict two legitimate readers. The question is open in the comment.
-- `SA_MATRIX_ATTRIBUTION` renders "twelve Frontline ones", which escapes the widened numeral gate because it reads `twelve Frontline` rather than `twelve modules`. Task 14's shipped string, flagged rather than decided.
+- `SA_MATRIX_ATTRIBUTION` renders "twelve Frontline ones" and no gate polices it. **The reason given here was wrong**: the tree's only spelled-numeral size gate is `SIZE_CLAIM` in `canon-size-literal.test.ts`, whose noun alternation is `(?:records|members)`, so "twelve modules" would have escaped it too. The string is unpoliced; the explanation of why was not. Task 14's shipped string, flagged rather than decided.
 - **`locator-fidelity`'s blank-span check requires the WHOLE span to be blank**, so a blank range endpoint is not convicted. Two such citations were found by other means this slice.
 - **`build-registries`' `MOD-*` ownership heuristic is a source-text scan**, so an attribution reached through a constant is invisible to it.
 - **`provenanceViolations` does not convict two sibling marks under one guidance element** — found by planting, not by reading.

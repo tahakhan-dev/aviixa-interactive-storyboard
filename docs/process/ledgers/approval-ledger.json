@@ -240,8 +240,8 @@
  "pending_gates": [
   {
    "gate": "Slice 4 whole-branch independent review before merge",
-   "status": "NOT_YET_REQUESTED",
-   "blocker": "Tasks 11 and 12."
+   "status": "SATISFIED",
+   "blocker": "Closed at c65536a 'fix(slice-04): the whole-branch review's two Criticals, and twenty-eight routes nobody had scanned'. The review ran, its two Criticals were fixed, and slices 5-11 have merged since. This row read NOT_YET_REQUESTED with a blocker naming tasks 11 and 12 of a slice closed seven slices ago — the ledger equivalent of a stale count on a screen, found by the slice-11 audit."
   },
   {
    "gate": "Per-slice design and specification approval, slices 5-13",
