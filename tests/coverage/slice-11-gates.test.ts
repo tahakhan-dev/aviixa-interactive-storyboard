@@ -975,18 +975,30 @@ function resolveImport(from: string, spec: string, known: ReadonlySet<string>): 
  * class used to exclude the double quote. For gate 12 a missed edge only
  * makes a file look unreachable, which REDS — fail-safe. For gate 6 a missed
  * edge SHRINKS the component closure, so the offender list empties and the
- * gate goes GREEN on the defect it exists to catch. Measured on this tree:
- * 2,877 single-quoted import specifiers and ZERO double-quoted ones today, so
- * the hole is latent rather than live — which is exactly the kind that
- * survives, since nothing reds when someone hand-writes one quote character.
- * The sibling resolver at `tests/component/ai-incidents-console.test.tsx`
- * already used `['"]`.
+ * gate goes GREEN on the defect it exists to catch. Every specifier in this
+ * tree is single-quoted today and none is double-quoted, so the hole is latent
+ * rather than live — which is exactly the kind that survives, since nothing
+ * reds when someone hand-writes one quote character. The sibling resolver at
+ * `tests/component/ai-incidents-console.test.tsx` already used `['"]`.
+ *
+ * NO SPECIFIER COUNT IS WRITTEN DOWN HERE ANY MORE, and that is the fix rather
+ * than a tidy-up. This paragraph said "2,877 single-quoted" and the measured
+ * figure was 2,880 by the time it was audited — a number that drifts with
+ * every import anyone adds, restated as evidence for a property. The property
+ * is what matters and it is asserted directly instead, on every run, by
+ * `its specifier matcher reads both quote styles and a multi-line import` in
+ * gate 6 below.
  */
+const IMPORT_FROM = /(?:^|\n)\s*(?:import|export)\b[^'";]*?from\s*['"]([^'"]+)['"]/g
+
+/** Every `from '…'` specifier in `text`, in order. Both quote styles. */
+const specifiersIn = (text: string): readonly string[] =>
+  [...text.matchAll(IMPORT_FROM)].map((m) => m[1]!)
+
 function importsOf(from: string, known: ReadonlySet<string>): readonly string[] {
-  const specs = [
-    ...read(from).matchAll(/(?:^|\n)\s*(?:import|export)\b[^'";]*?from\s*['"]([^'"]+)['"]/g),
-  ].map((m) => m[1]!)
-  return specs.map((s) => resolveImport(from, s, known)).filter((s): s is string => s !== null)
+  return specifiersIn(read(from))
+    .map((s) => resolveImport(from, s, known))
+    .filter((s): s is string => s !== null)
 }
 
 /**
@@ -1002,6 +1014,16 @@ function importsOf(from: string, known: ReadonlySet<string>): readonly string[] 
  * from "a module that exports data" needs the export resolved rather than the
  * extension matched. Stated rather than widened, because an unstated limit
  * and an oversight look identical from outside.
+ *
+ * AND THE LIMIT IS NOW LIVE RATHER THAN PROSE. A paragraph nothing checks is
+ * true until it silently is not: this one was a written-down claim and the day
+ * a `.ts` barrel re-exported a severity component the gate would have gone
+ * green on a real shared rendering with nothing to say so. `barrelComponentEdges`
+ * below enumerates every `.ts` module in the tree that re-exports a `.tsx` one
+ * — the exact edge this traversal refuses — and gate 6 asserts that none of
+ * them re-exports a component in either severity world. So the gap stays open
+ * and unwidened, but the moment it becomes REACHABLE the case reds and names
+ * this paragraph.
  */
 function componentClosure(entry: string, known: ReadonlySet<string>): ReadonlySet<string> {
   const seen = new Set([entry])
@@ -1015,6 +1037,36 @@ function componentClosure(entry: string, known: ReadonlySet<string>): ReadonlySe
     }
   }
   return seen
+}
+
+const BARREL_EXPORT_FROM = /(?:^|\n)\s*export\b[^'";]*?from\s*['"]([^'"]+)['"]/g
+
+/**
+ * Every `<a `.ts` module, the `.tsx` module it RE-EXPORTS>` edge in the tree.
+ *
+ * `export … from` and not `import … from`: a `.ts` file that IMPORTS a
+ * component is using it, which is a `.tsx`-to-`.tsx` question the closure
+ * already answers through its own file. What the closure cannot see is the
+ * re-export — the barrel that makes someone else's component available under
+ * its own path, so an importer names the `.ts` and mounts the `.tsx`.
+ *
+ * `IMPORT_FROM`'s specifier class is reused rather than a second pattern
+ * written, narrowed to `export`. Both halves of that matter: the `[^'";]*?`
+ * body crosses newlines, and twelve of this tree's re-exports are written
+ * across lines.
+ */
+function barrelComponentEdges(
+  known: ReadonlySet<string>,
+): readonly (readonly [string, string])[] {
+  const edges: (readonly [string, string])[] = []
+  for (const file of known) {
+    if (!file.endsWith('.ts')) continue
+    for (const spec of [...read(file).matchAll(BARREL_EXPORT_FROM)].map((m) => m[1]!)) {
+      const target = resolveImport(file, spec, known)
+      if (target?.endsWith('.tsx')) edges.push([file, target])
+    }
+  }
+  return edges
 }
 
 describe('slice 11 gate 6: AC-43-103 — the two severity worlds share no rendering', () => {
@@ -1064,6 +1116,80 @@ describe('slice 11 gate 6: AC-43-103 — the two severity worlds share no render
       }
     }
     expect(offenders).toEqual([])
+  })
+
+  /**
+   * THE `.tsx`-ONLY LIMIT, AS A LIVE EXPECTATION.
+   *
+   * `componentClosure` enqueues `.tsx` only, so a component re-exported
+   * through a `.ts` barrel is outside every closure this gate builds. That was
+   * written down at the head of the function and NOTHING RED IF IT STOPPED
+   * BEING TRUE — a limit stated in prose is a limit until it is a hole.
+   *
+   * This is the narrowest live form of it: not "no barrel re-exports a
+   * component", which the tree does eighteen times through
+   * `src/ui/primitives/index.ts` alone, but "no barrel re-exports a component
+   * in EITHER severity world". That is exactly the state in which the gap
+   * becomes reachable — an operational component naming the barrel would mount
+   * a manufacturing component along an edge the traversal refuses to follow,
+   * and the offender list would stay empty. Whoever reds this case either
+   * widens the traversal and pays the transitive-data cost the paragraph above
+   * describes, or shows the re-export is not a rendering. Both are decisions;
+   * silence was not.
+   *
+   * DERIVED, WITH NO LIST OF PERMITTED BARRELS. An allowlist here would be
+   * nineteen entries of derived data with a hand-maintained copy, which is the
+   * shape this slice has already had rot on it twice.
+   */
+  it('and no `.ts` barrel re-exports a component of either severity world', () => {
+    const edges = barrelComponentEdges(known)
+    // The population floor. Zero edges means the re-export matcher stopped
+    // matching, and an empty offender list over an empty population is the
+    // vacuous green this whole file is written against. A FLOOR, not a count:
+    // measured nineteen today and it moves with every barrel anyone adds.
+    expectPopulationFloor(edges, 10, 'the `.ts`-barrel component re-export edges')
+    // And the recorded one is among them, so the scan is demonstrably looking
+    // at the gap this build already knows about rather than at nineteen
+    // accidents.
+    expect(
+      edges.map(([barrel]) => barrel),
+      'the star-re-export barrel already recorded as a known gap is not in the edge set',
+    ).toContain('src/ui/primitives/index.ts')
+
+    const offenders = edges
+      .filter(([, target]) => operational.includes(target) || manufacturing.includes(target))
+      .map(
+        ([barrel, target]) =>
+          `${barrel} re-exports the severity component ${target}, which no closure this gate `
+          + 'builds can reach',
+      )
+    expect(
+      offenders,
+      'a `.ts` barrel re-exports a severity-naming component. `componentClosure` enqueues `.tsx` '
+        + 'only, so this component is outside EVERY closure this gate builds and the disjointness '
+        + 'above is now claimed over an edge nobody walks. Read the limit paragraph at the head of '
+        + '`componentClosure`: either widen the traversal — and prove the transitive-data '
+        + 'convictions it causes are handled — or show this re-export is not a rendering.',
+    ).toEqual([])
+  })
+
+  // RED when: the specifier class narrows back to one quote style, or the
+  // body stops crossing newlines. Both have shipped here: the double quote
+  // was missing until this round, and a planted multi-line import walked past
+  // the line-bounded form of this pattern 21/21 green in another gate. This
+  // replaces a measured specifier COUNT that used to sit in `importsOf`'s
+  // comment as evidence for the same property and was three low when audited.
+  it('its specifier matcher reads both quote styles and a multi-line import', () => {
+    expect(specifiersIn("import { A } from '@/a'\n")).toEqual(['@/a'])
+    expect(specifiersIn('import { A } from "@/a"\n')).toEqual(['@/a'])
+    expect(specifiersIn('import {\n  A,\n  B,\n} from "@/a"\n')).toEqual(['@/a'])
+    expect(specifiersIn("export * from './b'\n")).toEqual(['./b'])
+    expect(specifiersIn("export {\n  C,\n} from './c'\n")).toEqual(['./c'])
+    // And the barrel matcher, which shares the specifier class, does NOT read
+    // a plain import as a re-export.
+    const barrelSpecs = (t: string) => [...t.matchAll(BARREL_EXPORT_FROM)].map((m) => m[1]!)
+    expect(barrelSpecs("export {\n  C,\n} from './c'\n")).toEqual(['./c'])
+    expect(barrelSpecs("import { C } from './c'\n")).toEqual([])
   })
 
   // RED when: the closure stops closing. A `componentClosure` that returned
@@ -1684,6 +1810,47 @@ describe('slice 11 gate 12: reachability from app/', () => {
  *      one ('is MOUNTED on the Hub route, not merely imported by it'), which
  *      the same plant reds. The sibling overlay suite already asserted its own
  *      mount that way; this gate's closure is unchanged.
+ *
+ * GATE 6 AGAIN — THE `.tsx`-ONLY LIMIT, ONCE IT WAS A LIVE EXPECTATION.
+ * P19  `'ToastProps'` added to `MANUFACTURING_SEVERITY_SYMBOLS` in
+ *      `tests/coverage/absence-sweep.ts`, which puts exactly ONE file in the
+ *      manufacturing world — `src/ui/primitives/Toast.tsx`, the identifier
+ *      occurs nowhere else in `src/`+`app/` (measured) — and that file is
+ *      re-exported by `src/ui/primitives/index.ts`. This is the defect the
+ *      limit describes, planted rather than described: a component reachable
+ *      only through a `.ts` barrel.
+ *      RED  1 failed | 60 passed, and the ONE failure is the new case:
+ *           'src/ui/primitives/index.ts re-exports the severity component
+ *           src/ui/primitives/Toast.tsx, which no closure this gate builds can
+ *           reach'
+ *      THE 60 GREENS ARE THE PROOF, not the red. Every other case in gate 6 —
+ *      including 'and no component in either world mounts one from the other',
+ *      the one this defect belongs to — walked past it. Before this case the
+ *      whole file was green on a shared rendering.
+ *      A FIRST PLANT WAS DISCARDED as insufficiently isolated rather than
+ *      wrong: `'StatusPillProps'` reds the same case AND the mounts-one-from-
+ *      the-other case, because `AiIncidentConsoleScreen.tsx` imports
+ *      `StatusPill.tsx` DIRECTLY as well — a `.tsx` edge the closure does
+ *      follow. It proves the gate works; it does not isolate the barrel hole.
+ *      Toast is reached from no operational component by any `.tsx` path
+ *      (measured over every operational closure), so only the barrel edge can
+ *      convict it.
+ *      Restored byte-identically, sha256 compared before and after.
+ * P20  `IMPORT_FROM` narrowed back to its pre-fix form — the single-quote-only
+ *      specifier class AND the line-bounded body, both of which this file has
+ *      shipped.
+ *      RED  3 failed | 58 passed. The intended one is the matcher case:
+ *           'its specifier matcher reads both quote styles and a multi-line
+ *           import: expected [] to deeply equal [ "@/a" ]'. Gate 12 reds
+ *           alongside it with ten orphans, which is the fail-SAFE direction
+ *           the `importsOf` paragraph describes — a narrowed matcher makes
+ *           files look unreachable there, while for gate 6 it would have gone
+ *           green. Both reds are correct; the matcher case is the one that
+ *           says WHY.
+ *      This case replaces a measured specifier COUNT that sat in `importsOf`'s
+ *      comment as evidence for the same property and was three low (2,877
+ *      written, 2,880 measured) when it was audited. A count restated as
+ *      evidence drifts; the property does not.
  *
  * WHAT IS NOT PLANTED, STATED RATHER THAN LEFT. Gate 1's five other membership
  * lists, gate 11's transcribed-header comparison and gate 12's closure-sanity

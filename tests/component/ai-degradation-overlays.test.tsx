@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { isForeignProbe } from '../probe-paths'
+import {
+  MANUFACTURING_SEVERITY_SYMBOLS,
+  OPERATIONAL_SEVERITY_SYMBOLS,
+} from '../coverage/absence-sweep'
 import { PROVENANCE_CLASS_ATTRIBUTE, provenanceViolations } from '@/ai/provenance/contract'
 import { AiDegradationOverlay } from '@/ai/five-surface/AiDegradationOverlay'
 import { QueuedRequestSurfaceMatrix } from '@/ai/five-surface/QueuedRequestSurfaceMatrix'
@@ -346,23 +351,145 @@ describe('the prohibitions, checked against the rendered tree and the source fil
     }
   })
 
+  /*
+   * THE SCANNED SET IS DERIVED, AND THE HAND LIST IS NOW AN ASSERTION ABOUT
+   * THE DIRECTORY RATHER THAN THE SCAN'S ONLY INPUT.
+   *
+   * It used to be eleven hard-coded paths and nothing compared them to the
+   * tree. `src/ai/five-surface/` held exactly six files and all six were
+   * listed, so the gap was latent — and a latent gap in a prohibition scan is
+   * the kind that survives, because nothing reds when someone adds a file.
+   * PROVED: a seventh file in that directory naming both forbidden symbols
+   * left this suite 95/95 green, silently unscanned.
+   *
+   * So the directory half is read from disk and its BASENAMES are compared to
+   * the six named below — the `KNOWN_UNREACHABLE`/`STANDING_VIOLATION`
+   * equality shape this slice already uses, which reds in both directions: a
+   * new file that nobody folded in, and a named file that has been deleted or
+   * renamed. Basenames and not full paths, so the equality is a claim about
+   * the directory's contents and not about the string used to reach it.
+   *
+   * The five `ai-degradation.ts` modules stay written out: they are one file
+   * each in five unrelated surface directories, and a `readdir` wide enough to
+   * find them would pull in those surfaces' whole module trees.
+   *
+   * The probe skip is `isForeignProbe` and not a private predicate: nine
+   * release gates plant `.zz-probe-<pid>` entries on the real filesystem, and
+   * a concurrent run's probe appearing here would red the equality with
+   * another process's scratch file. The skip is EXACT, so a real file with an
+   * ordinary name — which is what a twelfth module looks like — is never
+   * skipped by it.
+   */
+  /*
+   * THE PLANTS THAT CLOSED THE TWO FINDINGS ABOVE. Neither writes to `src/`:
+   * `FIVE_SURFACE_DIR` was pointed at a copy of the six real files under
+   * `/tmp`, so the planted bytes are read by the real suite through the real
+   * predicates. Restored byte-identically, sha256 compared before and after
+   * (f31c7927…).
+   *
+   *  A  the copy's `overlay.ts` with `// plant: severityBand
+   *     SEEDED_SEVERITY_BANDS CcSeverityCounts` appended — the plant the audit
+   *     ran, which was 95/95 GREEN against the two-name regex.
+   *     RED  1 failed | 96 passed, and the one failure is the intended case:
+   *          'overlay.ts: expected … not to match
+   *          /SEEDED_SEVERITY_BANDS|severityBand|…/'. The directory equality
+   *          stayed green, because the copy holds the same six basenames —
+   *          which is why the equality compares basenames rather than paths.
+   *  B  a seventh file, `plant-probe.ts`, in the copy, naming both symbols —
+   *     the audit's twelfth-file plant, which was 95/95 GREEN.
+   *     RED  TWICE, and both halves are the close: the equality reports
+   *          '+ "plant-probe.ts"', and the prohibition scan convicts the file
+   *          itself. A new file now either joins the scan or reds the list.
+   *  C  a seventh entry, `'renamed-away.ts'`, added to the list below with the
+   *     real directory in place — the stale-entry direction.
+   *     RED  'expected [ …(5) ] to deeply equal [ …(6) ]', - "renamed-away.ts"
+   */
+  const FIVE_SURFACE_DIR = 'src/ai/five-surface'
+
+  const FIVE_SURFACE_ENTRIES: readonly string[] = [
+    'AiDegradationOverlay.tsx',
+    'QueuedRequestSurfaceMatrix.tsx',
+    'ShiftHandoffRoleMatrix.tsx',
+    'journey-overlay.ts',
+    'overlay.ts',
+    'surface-codes.ts',
+  ]
+
+  const AI_DEGRADATION_MODULES: readonly string[] = [
+    'src/studio/ai-degradation.ts',
+    'src/surfaces/cc/ai-degradation.ts',
+    'src/surfaces/doh/ai-degradation.ts',
+    'src/surfaces/sa/ai-degradation.ts',
+    'src/frontline/ai-degradation.ts',
+  ]
+
+  const fiveSurfaceEntries = (): readonly string[] =>
+    readdirSync(FIVE_SURFACE_DIR)
+      .filter((entry) => !isForeignProbe(entry) && /\.tsx?$/.test(entry))
+      .sort()
+
+  /** Every file of this task, the directory half read from disk. */
+  const taskFiles = (): readonly string[] => [
+    ...fiveSurfaceEntries().map((entry) => `${FIVE_SURFACE_DIR}/${entry}`),
+    ...AI_DEGRADATION_MODULES,
+  ]
+
+  /*
+   * THE FORBIDDEN NAMES ARE IMPORTED, NOT RESTATED. This file held TWO of the
+   * eight — and one of those two was in neither of the other two copies. It
+   * was the third consumer of the hoisted list and the only one that had
+   * never been converted. PROVED: appending
+   * `// plant: severityBand SEEDED_SEVERITY_BANDS CcSeverityCounts` to
+   * `src/ai/five-surface/overlay.ts`, a file this gate's own list scans, left
+   * the suite 95/95 green — three manufacturing symbols walked past.
+   *
+   * SUBSTRING AND NOT `\b`-BOUNDED, deliberately, and this is the one place
+   * this consumer diverges from `namesAny`'s word-bounded form. The regex it
+   * replaces was a bare substring alternation, so bounding it would have
+   * NARROWED a prohibition while claiming to widen it —
+   * `\bANOMALY_SEVERITIES\b` does not match `SEEDED_ANOMALY_SEVERITIES`. On
+   * eleven files this build owns, over-strict is the correct direction: a
+   * false positive is a red a human resolves in one reading, and a missed
+   * import is `AC-43-103` broken in the shipped tree.
+   */
+  const FORBIDDEN_MANUFACTURING_SEVERITY = new RegExp(
+    MANUFACTURING_SEVERITY_SYMBOLS.join('|'),
+  )
+
+  it('scans exactly the files of this task, derived from the directory', () => {
+    expect(fiveSurfaceEntries()).toEqual([...FIVE_SURFACE_ENTRIES].sort())
+    // The positive control. An equality against a literal list cannot pass
+    // over an empty sweep, but the composed list is what the scan below
+    // iterates and a floor here names the failure instead of leaving the next
+    // reader to work out why a prohibition swept nothing.
+    expect(taskFiles().length, 'the task file set collapsed').toBeGreaterThan(10)
+  })
+
+  // RED when: the alternation stops matching one of the names it is built
+  // from — a symbol given a regex metacharacter, or the join changed. A FLOOR
+  // and not an exact count, because an exact count is a stored copy of
+  // another file's list and this build already maintains twenty-nine of those.
+  // The silence half is asserted too: P8a in `slice-11-gates.test.ts` is the
+  // recorded case of a case-sensitive pattern reading a plant as clean, and a
+  // pattern that matched the operational vocabulary as well would convict the
+  // wrong world.
+  it('its forbidden-name pattern fires on every manufacturing symbol and no operational one', () => {
+    expect(
+      MANUFACTURING_SEVERITY_SYMBOLS.length,
+      'the hoisted manufacturing vocabulary collapsed',
+    ).toBeGreaterThan(4)
+    for (const symbol of MANUFACTURING_SEVERITY_SYMBOLS) {
+      expect(FORBIDDEN_MANUFACTURING_SEVERITY.test(symbol), symbol).toBe(true)
+    }
+    for (const symbol of OPERATIONAL_SEVERITY_SYMBOLS) {
+      expect(FORBIDDEN_MANUFACTURING_SEVERITY.test(symbol), symbol).toBe(false)
+    }
+  })
+
   it('imports no manufacturing-severity component into any file of this task', () => {
-    const mine = [
-      'src/ai/five-surface/overlay.ts',
-      'src/ai/five-surface/surface-codes.ts',
-      'src/ai/five-surface/journey-overlay.ts',
-      'src/ai/five-surface/AiDegradationOverlay.tsx',
-      'src/ai/five-surface/QueuedRequestSurfaceMatrix.tsx',
-      'src/ai/five-surface/ShiftHandoffRoleMatrix.tsx',
-      'src/studio/ai-degradation.ts',
-      'src/surfaces/cc/ai-degradation.ts',
-      'src/surfaces/doh/ai-degradation.ts',
-      'src/surfaces/sa/ai-degradation.ts',
-      'src/frontline/ai-degradation.ts',
-    ]
-    for (const path of mine) {
+    for (const path of taskFiles()) {
       const text = readFileSync(path, 'utf8')
-      expect(text, path).not.toMatch(/ANOMALY_SEVERITIES|SEVERITY_CATALOG_DISTRIBUTION/)
+      expect(text, path).not.toMatch(FORBIDDEN_MANUFACTURING_SEVERITY)
       expect(text, path).not.toMatch(/from '@\/ui\/.*Severity/)
       // And no severity PROP of either vocabulary: the first component taking
       // one typed loosely enough to accept either IS the violation.
