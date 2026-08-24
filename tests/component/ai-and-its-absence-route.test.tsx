@@ -8,6 +8,8 @@ import {
 import { WorkflowIndex } from '../../app/workflows/page'
 import { provenanceViolations } from '@/ai/provenance/contract'
 import { SB_01_TO_10_LOCAL_DISCLOSURES } from '@/ai/storyboards/sb-01-to-10/decisions'
+import { SB_21_TO_30_CONTRACT_SEAMS } from '@/ai/storyboards/sb-21-to-30/storyboards'
+import { ownersOf } from '@/ai/fallbacks/registry'
 
 /**
  * THE RENDERED ROUTE, WHICH IS THE HALF THE TOKEN SCAN CANNOT SEE.
@@ -217,6 +219,50 @@ describe('the compound key is rendered, and so is what a bare literal hides', ()
     }
   })
 
+  it('the intro names the claimants its own list holds, not only chapter 40 and 41', () => {
+    // C-37(b). The prose used to read "Chapter 40 and 41 hold a
+    // fallback-contract register of their own" while the first item of its own
+    // list names owners in chapter 24 and section 30D.8 -- and chapter 41
+    // overlaps nothing here at all, since its literals run FB-AI-101 upward.
+    //
+    // The expected claimants are read off the REGISTRY, not off the prose: the
+    // section's list is generated from `ownersOf`, so that is the same source
+    // the list itself draws from, and the equality below pins it so this case
+    // cannot quietly start asserting about an empty array.
+    const { container } = render(<AiAndItsAbsenceScreen />)
+    const section = container.querySelector('[data-testid="fallback-key-collisions"]')!
+    const intro = section.querySelector('p')!.textContent ?? ''
+    const others = ownersOf('FB-AI-01')
+      .filter((owner) => owner.chapter !== '44A.1')
+      .map((owner) => owner.chapter)
+    expect(others, 'the four-way collision the intro has to describe').toEqual([
+      '40.1',
+      '24',
+      '30D.8',
+    ])
+    for (const chapter of others) {
+      expect(intro, `the intro does not name chapter ${chapter}, which its own list does`)
+        .toContain(chapter)
+    }
+  })
+
+  it('states that 30D.8 and 40.12 are one subject under two literals, citing both lines', () => {
+    // C-37(a). `src/ai/fallbacks/registry.ts` states this in a comment: 30D.8's
+    // `FB-AI-01` subject and chapter 40.12's `FB-AI-12` subject are the same
+    // failure under two literals. The list above renders them as two unrelated
+    // items, so a reader had to notice the coincidence unaided.
+    render(<AiAndItsAbsenceScreen />)
+    const text = screen.getByTestId('fb-ai-01-and-12-one-subject').textContent ?? ''
+    expect(wholeTokenCount(text, 'FB-AI-01'), 'FB-AI-01').toBe(1)
+    expect(wholeTokenCount(text, 'FB-AI-12'), 'FB-AI-12').toBe(1)
+    // Both lines, because a claim about two register rows that cites one of
+    // them is a claim a reader cannot check.
+    expect(text, "30D.8's line").toContain('L74495')
+    expect(text, "40.12's line").toContain('L88927')
+    expect(text).toContain('30D.8')
+    expect(text).toContain('40.12')
+  })
+
   it('names the emergency-pause feature triple that claims the first literal', () => {
     render(<AiAndItsAbsenceScreen />)
     const text = screen.getByTestId('emergency-pause-attribution').textContent ?? ''
@@ -396,13 +442,122 @@ describe('the decisions storyboards 1 to 10 name are disclosed on the page', () 
 })
 
 /* ==================================================================== *
- * THE PLANT CAMPAIGN FOR THE THREE CASES ABOVE, AS RUN.
+ * THE THREE CONTRACT SEAMS, WHICH LIKEWISE REACHED NO SCREEN.
+ *
+ * `SB_21_TO_30_CONTRACT_SEAMS` was measured reachable from nothing: a grep for
+ * it over `app`, `src` and `tests` returned its own declaration, two comments
+ * inside the same file and the findings register. No screen rendered it and no
+ * test asserted it, which made the build's only disclosure of the missing sixth
+ * `contentOrigin` member -- the case where a storyboard renders no guidance
+ * element at all -- unreachable by any reader of the four cards it is about.
+ * ==================================================================== */
+
+/** The three, as a literal list in this file. Never mapped from the value under test. */
+const EXPECTED_CONTRACT_SEAMS = [
+  'StoryboardRenderFacts.contentOrigin',
+  'PINNED_WORKER_MESSAGES',
+  'TEST-44A-004 and the Spanish message set',
+] as const
+
+describe('the seams storyboards 21 to 30 left in the shared contract are disclosed', () => {
+  it('renders all three seam records, by equality and not by a floor', () => {
+    const { container } = render(<AiAndItsAbsenceScreen />)
+    const rendered = [...container.querySelectorAll('[data-contract-seam]')].map((el) =>
+      el.getAttribute('data-contract-seam'),
+    )
+    // AN EQUALITY OVER A LITERAL LIST, on C-18.4's reasoning: a floor of one
+    // does not catch a drop from three. A fourth record turns this red instead
+    // of passing with a bigger number, and a dropped one reds too.
+    expect(rendered).toEqual([...EXPECTED_CONTRACT_SEAMS])
+    // And the exported array is that same list, so the literal above cannot
+    // drift into agreement with a rendering that has silently lost a record
+    // from the data it iterates.
+    expect(SB_21_TO_30_CONTRACT_SEAMS.map((seam) => seam.subject)).toEqual([
+      ...EXPECTED_CONTRACT_SEAMS,
+    ])
+  })
+
+  it('renders each seam’s finding, what was done instead, and the storyboards it concerns', () => {
+    const { container } = render(<AiAndItsAbsenceScreen />)
+    const text = renderedRuns(container)
+    for (const seam of SB_21_TO_30_CONTRACT_SEAMS) {
+      // Verbatim, because these are the record's own words about four cards on
+      // this page and a re-wording would be this page's claim rather than the
+      // record's.
+      expect(text, `${seam.subject}: its finding is not on screen`).toContain(seam.finding)
+      expect(text, `${seam.subject}: what the transcription did is not on screen`).toContain(
+        seam.whatThisTaskDid,
+      )
+      const record = container.querySelector(`[data-contract-seam="${seam.subject}"]`)
+      expect(record, seam.subject).not.toBeNull()
+      expect(
+        record!.getAttribute('data-seam-storyboards'),
+        `${seam.subject}: the storyboards it concerns are not the record's own`,
+      ).toBe(seam.storyboards.join(' '))
+    }
+  })
+
+  it('adds no provenance class and no alert to the chrome', () => {
+    const { container } = render(<AiAndItsAbsenceScreen />)
+    const section = container.querySelector('[data-testid="sb-21-to-30-contract-seams"]')!
+    expect(section.querySelectorAll('[data-provenance-class]')).toHaveLength(0)
+    expect(section.querySelectorAll('[data-guidance-element]')).toHaveLength(0)
+    expect(section.querySelectorAll('[role="alert"]')).toHaveLength(0)
+    expect(provenanceViolations(container)).toEqual([])
+  })
+})
+
+/* ==================================================================== *
+ * THE PLANT CAMPAIGN, AS RUN.
  *
  * Each plant was spliced into a real shipping file, the suite run, and the file
  * restored and asserted byte-identical against a sha256 taken before the plant.
  * The harness required its anchor to occur exactly once and refused an empty
  * replacement. The message each produced is recorded, because "it went red"
  * without the message does not say which assertion fired.
+ *
+ * P5 to P7 belong to the seven local decision disclosures; P8 to P14 to the
+ * three contract seams and the two collision-section statements below them.
+ *
+ *  P8  A SEAM RECORD REMOVED from `SB_21_TO_30_CONTRACT_SEAMS` — the
+ *      `PINNED_WORKER_MESSAGES` record, 19 lines, deleted from the exported
+ *      array. This is the direction the equality exists for, and the direction
+ *      a floor of one cannot see (audit C-18.4).
+ *      RED  at 'renders all three seam records, by equality and not by a
+ *           floor': expected [ …(2) ] to deeply equal [ …(3) ]
+ *
+ *  P9  A FOURTH SEAM RECORD ADDED to the same array — the other direction.
+ *      RED  same case: expected [ …(4) ] to deeply equal [ …(3) ]
+ *
+ * P10  THE SEAM `finding` DROPPED FROM THE RENDERING (`<p />` in place of
+ *      `{seam.finding}`), which leaves three headed records, three subjects
+ *      and three storyboard lists on screen and looks like a full disclosure.
+ *      RED  at 'renders each seam’s finding, what was done instead, and the
+ *           storyboards it concerns': StoryboardRenderFacts.contentOrigin: its
+ *           finding is not on screen: expected '…' to contain 'The union has
+ *           no member meaning "this…'
+ *
+ * P11  THE WHOLE ONE-SUBJECT SENTENCE REMOVED from the collision section.
+ *      RED  at 'states that 30D.8 and 40.12 are one subject under two
+ *           literals, citing both lines': Unable to find an element by:
+ *           [data-testid="fb-ai-01-and-12-one-subject"]
+ *
+ * P12  THE SENTENCE KEPT AND ONE OF ITS TWO LINES DROPPED (`L88927`), which
+ *      is the shape that states a true thing a reader cannot check.
+ *      RED  same case: 40.12's line: expected 'Two of the rows above are one
+ *           subject…' to contain 'L88927'
+ *
+ * P13  THE INTRO REVERTED to its exact pre-fix wording, "Chapter 40 and 41
+ *      hold a fallback-contract register of their own".
+ *      RED  at 'the intro names the claimants its own list holds, not only
+ *           chapter 40 and 41': the intro does not name chapter 40.1, which
+ *           its own list does
+ *
+ * P14  ONLY CHAPTER 24'S CLAUSE DROPPED from the widened intro, leaving 40.1
+ *      to 40.16 and 30D.8 named — because a substring as short as "24" could
+ *      have been satisfied by a neighbouring line number by accident.
+ *      RED  same case: the intro does not name chapter 24, which its own list
+ *           does
  *
  *  P5  AN EIGHTH RECORD ADDED to `SB_01_TO_10_LOCAL_DISCLOSURES` — the ADD
  *      direction, which is the one a count cannot see.

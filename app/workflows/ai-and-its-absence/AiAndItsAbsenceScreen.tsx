@@ -11,6 +11,7 @@ import {
   SB_01_TO_10_CANON_BACKED_DECISIONS,
   SB_01_TO_10_LOCAL_DISCLOSURES,
 } from '@/ai/storyboards/sb-01-to-10/decisions'
+import { SB_21_TO_30_CONTRACT_SEAMS } from '@/ai/storyboards/sb-21-to-30/storyboards'
 import {
   AI_AND_ITS_ABSENCE_ROUTE,
   ALL_THIRTY_STORYBOARDS,
@@ -53,7 +54,8 @@ import {
  * `STORYBOARD_CARD_FACTS` rather than pinned. No card is nested inside another
  * element carrying a provenance class, which is its own violation under
  * `AC-42-401`. The chrome below &mdash; the scope statement, the criteria, the
- * index, the collision listing and the decision disclosures &mdash; carries NO
+ * index, the collision listing, the decision disclosures and the contract
+ * seams &mdash; carries NO
  * provenance class, because it is documentation about a frozen document rather
  * than guidance shown to a worker, and putting a class on it would classify
  * something the contract does not classify.
@@ -70,6 +72,17 @@ import {
  * says on screen. The other two ranges hold no such records, and the section
  * states that asymmetry with its measurable basis rather than leaving a reader
  * to notice it.
+ *
+ * ── THE CONTRACT SEAMS, FOR THE SAME REASON ────────────────────────────────
+ * `SB_21_TO_30_CONTRACT_SEAMS` was the same shape: measured, a grep for it
+ * across `app`, `src` and `tests` returned its own declaration, two comments
+ * inside it and nothing else. It is the build's ONLY disclosure of the missing
+ * sixth `contentOrigin` member — the case where a storyboard renders no
+ * guidance element at all, for which storyboards 24, 28, 29 and 30 took
+ * `authored` as least-wrong — so leaving it unrendered made a true statement
+ * about four cards ON THIS PAGE reachable by no reader of it. It is rendered
+ * verbatim: the strings are the record's own words, quoted rather than
+ * re-worded, on the same rule the cards follow.
  *
  * ── NO CONTROL, AND NOTHING TO ACT THROUGH ─────────────────────────────────
  * A server component. There is no button, no input, no filter and no retry
@@ -223,10 +236,15 @@ export function AiAndItsAbsenceScreen() {
           Why every key on this page carries its section number
         </h2>
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          Chapter 40 and 41 hold a fallback-contract register of their own, and its literals overlap
-          this chapter&rsquo;s. Where they overlap, one literal names two unrelated contracts, so a
-          flat key would silently merge a storyboard contract into an agentic-layer one. Each card
-          renders the compound form. The overlapping literals, and who else claims them:
+          Three other places in the frozen source claim the literals this chapter uses, and they are
+          not all a register: chapter 40&rsquo;s numbered register, 40.1 to 40.16 at L88916 to
+          L88931; chapter 24&rsquo;s table of contract FAMILIES at L46951, which is not even the
+          same kind of object as a numbered contract; and section 30D.8 at L74495, which names one
+          inline in a fallback paragraph. Chapter 41&rsquo;s register shares the prefix and overlaps
+          nothing on this page &mdash; it runs FB-AI-101 to FB-AI-108, at L88932 to L88939. Where
+          the literals do overlap, one names two unrelated contracts, so a flat key would silently
+          merge a storyboard contract into an agentic-layer one. Each card renders the compound
+          form. The overlapping literals, and who else claims them:
         </p>
         <ul className="mt-3 space-y-2 text-sm">
           {ALL_THIRTY_STORYBOARDS.map((storyboard) => {
@@ -254,6 +272,18 @@ export function AiAndItsAbsenceScreen() {
             )
           })}
         </ul>
+
+        <p
+          data-testid="fb-ai-01-and-12-one-subject"
+          className="mt-4 max-w-prose text-sm text-[var(--color-ink-muted)]"
+        >
+          Two of the rows above are one subject under two literals, and neither register says so:
+          section 30D.8 claims FB-AI-01 for &ldquo;Failure: the trace store is unavailable while an
+          agent is running&rdquo; (L74495), while chapter 40.12 claims FB-AI-12 for &ldquo;Trace and
+          decision-record failure&rdquo; (L88927) &mdash; one failure, a trace that cannot be
+          written, registered twice under two different numbers, so neither literal on its own tells
+          a reader how many contracts cover it.
+        </p>
 
         <p
           data-testid="emergency-pause-attribution"
@@ -368,6 +398,50 @@ export function AiAndItsAbsenceScreen() {
           what these ten cards need a reader to know where the identifier appears in a field, and it
           names the canonical spelling wherever there is one to name.
         </p>
+      </section>
+
+      <section
+        aria-label="What the shared storyboard contract has no member for"
+        data-testid="sb-21-to-30-contract-seams"
+        className="mt-8"
+      >
+        <h2 className="text-xl font-semibold text-[var(--color-ink)]">
+          What the shared storyboard contract has no member for
+        </h2>
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          Transcribing storyboards 21 to 30 against the shared contract found places where the
+          frozen source says something the contract has no member for. Each was recorded rather than
+          worked around, and each is disclosed here because each is a claim about cards on this page
+          that no card itself carries. The sharpest is the missing sixth <code>contentOrigin</code>{' '}
+          member &mdash; the case where a storyboard renders no guidance element at all &mdash; for
+          which four cards above carry a value that is least-wrong rather than true.
+        </p>
+        <dl className="mt-4 space-y-6 text-sm">
+          {SB_21_TO_30_CONTRACT_SEAMS.map((seam) => (
+            <div
+              key={seam.subject}
+              data-contract-seam={seam.subject}
+              data-seam-storyboards={seam.storyboards.join(' ')}
+            >
+              <dt className="font-medium text-[var(--color-ink)]">
+                {seam.subject}{' '}
+                <span className="ml-1 text-xs font-normal text-[var(--color-ink-subtle)]">
+                  storyboards {seam.storyboards.join(', ')}
+                </span>
+              </dt>
+              <dd className="mt-1 text-[var(--color-ink-muted)]">
+                <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+                  The finding
+                </p>
+                <p className="mt-1">{seam.finding}</p>
+                <p className="mt-2 text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+                  What the transcription did instead, and why it is least-wrong rather than right
+                </p>
+                <p className="mt-1">{seam.whatThisTaskDid}</p>
+              </dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       <div className="mt-10 space-y-10">
