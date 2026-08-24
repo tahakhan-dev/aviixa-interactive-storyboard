@@ -1,6 +1,6 @@
 {
   "countedThing": "one full-page screenshot per route in the static export, captured from the served snapshot rather than from src/, so the manifest describes what a reviewer sees. The route list is derived from the export by exportedRoutes(); it is never hand-written.",
-  "capturedRoutes": 85,
+  "capturedRoutes": 102,
   "viewport": {
     "width": 1280,
     "height": 720
@@ -31,27 +31,542 @@
       "route": "/command-center/",
       "file": "command-center.png",
       "heading": "Client Command Center",
-      "identifiersOnPage": [],
-      "bytes": 46263
+      "identifiersOnPage": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 148722
+    },
+    {
+      "route": "/command-center/agent-activity-panel/",
+      "file": "command-center-agent-activity-panel.png",
+      "heading": "Agent activity panel",
+      "identifiersOnPage": [
+        "AC-CC-090",
+        "AC-CC-300",
+        "AC-CC-301",
+        "AC-CC-303",
+        "AC-CC-304",
+        "AC-CC-502",
+        "FUNC-CC-0801-1-1",
+        "FUNC-CC-0803-1-2",
+        "FUNC-CC-0804-1-1",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 2764643
+    },
+    {
+      "route": "/command-center/alert-and-escalation-feed/",
+      "file": "command-center-alert-and-escalation-feed.png",
+      "heading": "Alert and escalation feed",
+      "identifiersOnPage": [
+        "AC-CC-072",
+        "AC-CC-112",
+        "AC-CC-323",
+        "AC-CC-324",
+        "AC-CC-325",
+        "AC-CC-329",
+        "AC-CC-502",
+        "FUNC-CC-0901-1-2",
+        "FUNC-CC-0903-1-1",
+        "FUNC-CC-0903-1-2",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 1835169
+    },
+    {
+      "route": "/command-center/cell-view/",
+      "file": "command-center-cell-view.png",
+      "heading": "Cell view",
+      "identifiersOnPage": [
+        "AC-CC-090",
+        "AC-CC-200",
+        "AC-CC-201",
+        "AC-CC-203",
+        "AC-CC-206",
+        "AC-CC-207",
+        "AC-CC-400",
+        "FEAT-CC-0301",
+        "FEAT-CC-0302",
+        "FEAT-CC-0303",
+        "FUNC-CC-0302-1-1",
+        "FUNC-CC-0302-1-2",
+        "FUNC-CC-0302-2-1",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 1385740
+    },
+    {
+      "route": "/command-center/deviation-workspace/",
+      "file": "command-center-deviation-workspace.png",
+      "heading": "Deviation workspace and evidence review",
+      "identifiersOnPage": [
+        "AC-CC-221",
+        "AC-CC-223",
+        "AC-CC-227",
+        "AC-CC-502",
+        "FUNC-CC-0402-1-2",
+        "FUNC-CC-0403-2-2",
+        "FUNC-CC-0404-1-2",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 1480360
+    },
+    {
+      "route": "/command-center/governance-gate-queue/",
+      "file": "command-center-governance-gate-queue.png",
+      "heading": "Governance gate queue",
+      "identifiersOnPage": [
+        "AC-CC-090",
+        "AC-CC-246",
+        "AC-CC-247",
+        "AC-CC-248",
+        "FUNC-CC-0501-1-1",
+        "FUNC-CC-0501-1-2",
+        "FUNC-CC-0501-1-3",
+        "FUNC-CC-0502-1-1",
+        "FUNC-CC-0502-2-1",
+        "FUNC-CC-0502-2-2",
+        "FUNC-CC-0502-2-3",
+        "FUNC-CC-0502-3-1",
+        "FUNC-CC-0503-1-1",
+        "FUNC-CC-0503-1-2",
+        "FUNC-CC-0503-1-3",
+        "FUNC-CC-0504-1-1",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 2539140
+    },
+    {
+      "route": "/command-center/learned-change-approvals/",
+      "file": "command-center-learned-change-approvals.png",
+      "heading": "Learned-change approvals",
+      "identifiersOnPage": [
+        "AC-AI-014-8",
+        "AC-CC-060",
+        "AC-CC-502",
+        "AC-STU-097",
+        "AC-STU-104",
+        "AC-STU-138",
+        "AC-STU-143",
+        "FUNC-CC-0605-1-1",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-STU-16",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 2430973
+    },
+    {
+      "route": "/command-center/learning-read-view/",
+      "file": "command-center-learning-read-view.png",
+      "heading": "Learning read view",
+      "identifiersOnPage": [
+        "AC-CC-110",
+        "AC-CC-263",
+        "AC-CC-269",
+        "AC-CC-502",
+        "FEAT-CC-0602",
+        "FEAT-CC-0603",
+        "FEAT-CC-0604",
+        "FEAT-CC-0605",
+        "FUNC-CC-0603-1-1",
+        "FUNC-CC-0603-1-2",
+        "FUNC-CC-0605-1-1",
+        "FUNC-CC-0605-1-2",
+        "FUNC-CC-0702-2-1",
+        "FUNC-CC-0702-3-1",
+        "FUNC-CC-0703-1-1",
+        "FUNC-CC-0703-1-2",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-FL-B8",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-CC-SAFETY-01"
+      ],
+      "bytes": 2737611
+    },
+    {
+      "route": "/command-center/live-shift-board/",
+      "file": "command-center-live-shift-board.png",
+      "heading": "Live shift board",
+      "identifiersOnPage": [
+        "AC-CC-165",
+        "AC-CC-502",
+        "MOD-CC-01",
+        "MOD-CC-02",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 1049573
+    },
+    {
+      "route": "/command-center/reports-and-report-builder/",
+      "file": "command-center-reports-and-report-builder.png",
+      "heading": "Reports and Custom Report Builder",
+      "identifiersOnPage": [
+        "AC-CC-410",
+        "MOD-CC-01",
+        "MOD-CC-02",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-DOH-01",
+        "MOD-DOH-02",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-09",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 1510752
+    },
+    {
+      "route": "/command-center/run-drill-down/",
+      "file": "command-center-run-drill-down.png",
+      "heading": "Run drill-down",
+      "identifiersOnPage": [
+        "AC-CC-090",
+        "AC-CC-200",
+        "AC-CC-201",
+        "AC-CC-203",
+        "AC-CC-204",
+        "AC-CC-206",
+        "AC-CC-207",
+        "AC-CC-400",
+        "FEAT-CC-0301",
+        "FEAT-CC-0302",
+        "FEAT-CC-0303",
+        "FUNC-CC-0302-1-1",
+        "FUNC-CC-0302-1-2",
+        "FUNC-CC-0302-2-1",
+        "FUNC-CC-0303-1-1",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 1471850
+    },
+    {
+      "route": "/command-center/shift-handoff-panel/",
+      "file": "command-center-shift-handoff-panel.png",
+      "heading": "Shift handoff panel",
+      "identifiersOnPage": [
+        "AC-CC-383",
+        "AC-CC-502",
+        "FUNC-CC-1201-1-2",
+        "FUNC-CC-1203-1-1",
+        "FUNC-CC-1203-1-2",
+        "FUNC-CC-1203-2-1",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "bytes": 2259100
     },
     {
       "route": "/command-center/sync-conflict-review-panel/",
       "file": "command-center-sync-conflict-review-panel.png",
       "heading": "Sync-conflict review panel",
       "identifiersOnPage": [
+        "AC-CC-040",
         "FUNC-CC-1003-2-1",
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
         "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
         "MOD-CC-13",
-        "SCR-CC-10"
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-CC-CONF-01"
       ],
-      "bytes": 719148
+      "bytes": 2600891
     },
     {
       "route": "/coverage/",
       "file": "coverage.png",
       "heading": "Coverage Dashboard",
-      "identifiersOnPage": [],
-      "bytes": 269533
+      "identifiersOnPage": [
+        "MOD-CC-05"
+      ],
+      "bytes": 1519069
     },
     {
       "route": "/coverage/actionable-controls/",
@@ -60,14 +575,14 @@
       "identifiersOnPage": [
         "SCR-FL-BLOCK-01"
       ],
-      "bytes": 5000310
+      "bytes": 5066714
     },
     {
       "route": "/coverage/ai-storyboards/",
       "file": "coverage-ai-storyboards.png",
       "heading": "AI Storyboards",
       "identifiersOnPage": [],
-      "bytes": 7523170
+      "bytes": 7918967
     },
     {
       "route": "/coverage/business-objects/",
@@ -78,28 +593,28 @@
         "MOD-STU-15",
         "MOD-STU-17"
       ],
-      "bytes": 1032689
+      "bytes": 1098241
     },
     {
       "route": "/coverage/business-use-cases/",
       "file": "coverage-business-use-cases.png",
       "heading": "Business Use Cases",
       "identifiersOnPage": [],
-      "bytes": 1564328
+      "bytes": 1630156
     },
     {
       "route": "/coverage/commands/",
       "file": "coverage-commands.png",
       "heading": "Commands",
       "identifiersOnPage": [],
-      "bytes": 228445
+      "bytes": 294084
     },
     {
       "route": "/coverage/events/",
       "file": "coverage-events.png",
       "heading": "Events",
       "identifiersOnPage": [],
-      "bytes": 240441
+      "bytes": 453651
     },
     {
       "route": "/coverage/features/",
@@ -617,7 +1132,7 @@
         "MOD-STU-17",
         "MOD-STU-18"
       ],
-      "bytes": 3197167
+      "bytes": 3272344
     },
     {
       "route": "/coverage/functions/",
@@ -1445,7 +1960,7 @@
         "MOD-FL-B8",
         "MOD-FL-B9"
       ],
-      "bytes": 5592504
+      "bytes": 5693062
     },
     {
       "route": "/coverage/modules/",
@@ -1535,7 +2050,7 @@
         "MOD-STU-17",
         "MOD-STU-18"
       ],
-      "bytes": 883033
+      "bytes": 964482
     },
     {
       "route": "/coverage/notifications/",
@@ -1561,21 +2076,21 @@
         "MOD-STU-17",
         "MOD-STU-18"
       ],
-      "bytes": 2711179
+      "bytes": 4190175
     },
     {
       "route": "/coverage/offline-scenarios/",
       "file": "coverage-offline-scenarios.png",
       "heading": "Offline Scenarios",
       "identifiersOnPage": [],
-      "bytes": 433199
+      "bytes": 498792
     },
     {
       "route": "/coverage/scheduled-work/",
       "file": "coverage-scheduled-work.png",
       "heading": "Scheduled Work",
       "identifiersOnPage": [],
-      "bytes": 485823
+      "bytes": 3254215
     },
     {
       "route": "/coverage/sub-features/",
@@ -1595,14 +2110,14 @@
         "MOD-FL-B8",
         "MOD-FL-B9"
       ],
-      "bytes": 2863463
+      "bytes": 2938306
     },
     {
       "route": "/coverage/workflows/",
       "file": "coverage-workflows.png",
       "heading": "Workflows",
       "identifiersOnPage": [],
-      "bytes": 6487089
+      "bytes": 6553426
     },
     {
       "route": "/frontline/",
@@ -1633,7 +2148,7 @@
         "SCR-FL-02",
         "SCR-FL-05"
       ],
-      "bytes": 2609135
+      "bytes": 2607871
     },
     {
       "route": "/frontline/notifications-and-sync-inbox/",
@@ -1668,7 +2183,7 @@
         "SCR-FL-04",
         "SCR-FL-06"
       ],
-      "bytes": 8205067
+      "bytes": 8201826
     },
     {
       "route": "/frontline/profile-lite/",
@@ -1694,7 +2209,7 @@
         "SCR-FL-06",
         "SCR-FL-21"
       ],
-      "bytes": 4267060
+      "bytes": 4261194
     },
     {
       "route": "/frontline/run-player/",
@@ -1722,6 +2237,7 @@
         "AC-STU-104",
         "AC-STU-138",
         "AC-STU-143",
+        "MOD-CC-07",
         "MOD-FL-A1",
         "MOD-FL-A2",
         "MOD-FL-A3",
@@ -1733,11 +2249,13 @@
         "MOD-FL-B11",
         "MOD-FL-B8",
         "MOD-FL-B9",
+        "SCR-CC-SAFETY-01",
         "SCR-FL-03",
         "SCR-FL-13",
-        "SCR-FL-16"
+        "SCR-FL-16",
+        "SCR-FL-COACH-07"
       ],
-      "bytes": 16091658
+      "bytes": 17242521
     },
     {
       "route": "/frontline/sign-in/",
@@ -1820,11 +2338,23 @@
         "SCR-DOH-16",
         "SCR-DOH-17",
         "SCR-DOH-18",
+        "SCR-DOH-19",
+        "SCR-DOH-20",
         "SCR-DOH-21",
         "SCR-DOH-22",
         "SCR-DOH-NN"
       ],
-      "bytes": 579160
+      "bytes": 595163
+    },
+    {
+      "route": "/hub/audit-and-retention/",
+      "file": "hub-audit-and-retention.png",
+      "heading": "Audit and Retention",
+      "identifiersOnPage": [
+        "MOD-DOH-11",
+        "SCR-DOH-20"
+      ],
+      "bytes": 1683998
     },
     {
       "route": "/hub/devices/",
@@ -1847,12 +2377,29 @@
         "AC-DOH-014-2",
         "AC-WF-QLT-006-02",
         "MOD-CC-13",
+        "MOD-DOH-01",
+        "MOD-DOH-02",
+        "MOD-DOH-03",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
         "MOD-DOH-08",
+        "MOD-DOH-09",
+        "MOD-DOH-10",
+        "MOD-DOH-11",
+        "MOD-DOH-12",
+        "MOD-DOH-13",
+        "MOD-DOH-14",
+        "MOD-DOH-15",
+        "MOD-DOH-16",
         "MOD-DOH-17",
+        "MOD-DOH-18",
+        "MOD-DOH-19",
         "SCR-DOH-16",
         "SCR-DOH-17"
       ],
-      "bytes": 1124677
+      "bytes": 3442277
     },
     {
       "route": "/hub/integration-surface/",
@@ -1867,7 +2414,7 @@
         "SCR-DOH-03",
         "SCR-DOH-21"
       ],
-      "bytes": 2103731
+      "bytes": 2106316
     },
     {
       "route": "/hub/job-approval-queue/",
@@ -1902,7 +2449,7 @@
         "SCR-DOH-12",
         "SCR-DOH-23"
       ],
-      "bytes": 3122826
+      "bytes": 3122993
     },
     {
       "route": "/hub/journey/",
@@ -1915,17 +2462,31 @@
         "AC-WF-ORG-002-04",
         "FUNC-DOH-05-2",
         "FUNC-DOH-15-2",
+        "MOD-DOH-01",
         "MOD-DOH-02",
         "MOD-DOH-03",
         "MOD-DOH-04",
         "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-08",
+        "MOD-DOH-09",
+        "MOD-DOH-10",
+        "MOD-DOH-11",
+        "MOD-DOH-12",
+        "MOD-DOH-13",
+        "MOD-DOH-14",
         "MOD-DOH-15",
+        "MOD-DOH-16",
+        "MOD-DOH-17",
+        "MOD-DOH-18",
+        "MOD-DOH-19",
         "SCR-DOH-10",
         "SCR-DOH-11",
         "SCR-DOH-12",
         "SCR-DOH-23"
       ],
-      "bytes": 3324095
+      "bytes": 4963004
     },
     {
       "route": "/hub/location-configuration/",
@@ -1936,7 +2497,7 @@
         "MOD-DOH-05",
         "SCR-DOH-04"
       ],
-      "bytes": 1779664
+      "bytes": 1782741
     },
     {
       "route": "/hub/multi-area-job-pairing/",
@@ -1950,6 +2511,19 @@
         "MOD-DOH-16"
       ],
       "bytes": 1076686
+    },
+    {
+      "route": "/hub/notifications/",
+      "file": "hub-notifications.png",
+      "heading": "Notifications",
+      "identifiersOnPage": [
+        "AC-DOH-011-2",
+        "MOD-DOH-03",
+        "MOD-DOH-10",
+        "MOD-DOH-17",
+        "SCR-DOH-19"
+      ],
+      "bytes": 7774239
     },
     {
       "route": "/hub/parts-registry/",
@@ -1975,7 +2549,7 @@
         "SCR-DOH-ROLE-04",
         "SCR-DOH-ROLE-05"
       ],
-      "bytes": 3035139
+      "bytes": 3038233
     },
     {
       "route": "/hub/qualification-calendar/",
@@ -1989,7 +2563,7 @@
         "SCR-DOH-09",
         "SCR-DOH-NN"
       ],
-      "bytes": 1998519
+      "bytes": 2000257
     },
     {
       "route": "/hub/run-scheduling-and-execution-oversight/",
@@ -2010,7 +2584,7 @@
         "SCR-DOH-15",
         "SCR-DOH-23"
       ],
-      "bytes": 2765540
+      "bytes": 2769349
     },
     {
       "route": "/hub/shift-management/",
@@ -2028,7 +2602,7 @@
         "SCR-DOH-05",
         "SCR-TEN-SHIFT-01"
       ],
-      "bytes": 2409005
+      "bytes": 2411969
     },
     {
       "route": "/hub/tenant-lifecycle-and-tier-operations/",
@@ -2043,7 +2617,7 @@
         "MOD-DOH-07",
         "SCR-DOH-03"
       ],
-      "bytes": 1980229
+      "bytes": 1982079
     },
     {
       "route": "/hub/tenant-view-of-platform-administration/",
@@ -2057,7 +2631,7 @@
         "SCR-DOH-NN",
         "SCR-DOH-PAH-02"
       ],
-      "bytes": 2706805
+      "bytes": 2709369
     },
     {
       "route": "/hub/worker-assignment/",
@@ -2083,7 +2657,7 @@
         "MOD-DOH-07",
         "SCR-DOH-15"
       ],
-      "bytes": 2507599
+      "bytes": 2506860
     },
     {
       "route": "/hub/worker-lifecycle-and-qualifications/",
@@ -2107,7 +2681,7 @@
         "SCR-DOH-07",
         "SCR-DOH-08"
       ],
-      "bytes": 4107466
+      "bytes": 4109305
     },
     {
       "route": "/review/",
@@ -2190,7 +2764,7 @@
         "MOD-STU-18",
         "SCR-STU-13"
       ],
-      "bytes": 2339682
+      "bytes": 2825526
     },
     {
       "route": "/studio/approvals/",
@@ -2330,7 +2904,7 @@
         "SCR-STU-02",
         "SCR-STU-NEWWF"
       ],
-      "bytes": 2048227
+      "bytes": 2531120
     },
     {
       "route": "/studio/learning/",
@@ -2569,7 +3143,27 @@
         "MOD-SA-18",
         "MOD-SA-19"
       ],
-      "bytes": 142292
+      "bytes": 162578
+    },
+    {
+      "route": "/super-admin/ai-incidents/",
+      "file": "super-admin-ai-incidents.png",
+      "heading": "Artificial-intelligence incident console",
+      "identifiersOnPage": [
+        "AC-AI-015-4",
+        "AC-AI-015-5",
+        "AC-AI-015-7",
+        "FEAT-SA-0702",
+        "FEAT-SA-0703",
+        "FUNC-SA-0703",
+        "MOD-SA-07",
+        "SCR-SA-08",
+        "SCR-SA-INCIDENT",
+        "SCR-SA-INCIDENT-01",
+        "SCR-SA-PAUSE",
+        "SCR-SA-PAUSE-01"
+      ],
+      "bytes": 4266246
     },
     {
       "route": "/super-admin/atom-registry/",
@@ -2586,15 +3180,32 @@
         "AC-SA-02-07",
         "AC-SA-INV-003",
         "AC-SEC-801",
+        "MOD-SA-01",
         "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
         "MOD-SA-08",
+        "MOD-SA-09",
         "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19",
         "SCR-SA-02",
+        "SCR-SA-08",
         "SCR-SA-ATOM-ENABLE",
         "SCR-SA-ATOMDETAIL",
         "SCR-SA-ATOMS"
       ],
-      "bytes": 625018
+      "bytes": 2177716
     },
     {
       "route": "/super-admin/console-users-roles-and-change-approvals/",
@@ -2633,12 +3244,13 @@
         "MOD-SA-18",
         "MOD-SA-19",
         "SCR-SA-01",
+        "SCR-SA-08",
         "SCR-SA-09",
         "SCR-SA-10",
         "SCR-SA-12",
         "SCR-SA-13"
       ],
-      "bytes": 3129209
+      "bytes": 4685169
     },
     {
       "route": "/super-admin/core-agents-and-composed-agent-review/",
@@ -2646,13 +3258,31 @@
       "heading": "Core Agents and Composed-Agent Review",
       "identifiersOnPage": [
         "MOD-SA-01",
+        "MOD-SA-02",
         "MOD-SA-03",
+        "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19",
         "SCR-SA-03",
         "SCR-SA-04",
+        "SCR-SA-08",
         "SCR-SA-AGENTDETAIL",
         "SCR-SA-MODELS"
       ],
-      "bytes": 816005
+      "bytes": 2401794
     },
     {
       "route": "/super-admin/data-lifecycle-and-archival/",
@@ -2712,12 +3342,31 @@
         "AC-SA-05-06",
         "AC-SA-05-09",
         "AC-SEC-801",
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-04",
         "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19",
         "SCR-SA-06",
+        "SCR-SA-08",
         "SCR-SA-EVALGATE",
         "SCR-SA-EVALS"
       ],
-      "bytes": 954290
+      "bytes": 2506710
     },
     {
       "route": "/super-admin/jbs-access/",
@@ -2761,12 +3410,42 @@
         "AC-SA-04-05",
         "AC-SA-INV-003",
         "AC-SEC-801",
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
         "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19",
         "SCR-SA-05",
+        "SCR-SA-08",
         "SCR-SA-FOOTPRINT",
         "SCR-SA-MEMORY"
       ],
-      "bytes": 812112
+      "bytes": 2364768
+    },
+    {
+      "route": "/super-admin/occurrence-detail/",
+      "file": "super-admin-occurrence-detail.png",
+      "heading": "Occurrence detail",
+      "identifiersOnPage": [
+        "MOD-SA-07",
+        "SCR-SA-SCHED-01",
+        "SCR-SA-SCHED-02"
+      ],
+      "bytes": 1119520
     },
     {
       "route": "/super-admin/platform-audit/",
@@ -2796,7 +3475,7 @@
         "SCR-SA-21",
         "SCR-SA-25"
       ],
-      "bytes": 1078358
+      "bytes": 1313961
     },
     {
       "route": "/super-admin/platform-notifications-and-tenant-communications/",
@@ -2823,7 +3502,7 @@
         "SCR-SA-17",
         "SCR-SA-20"
       ],
-      "bytes": 1168826
+      "bytes": 1296070
     },
     {
       "route": "/super-admin/platform-overview-and-health/",
@@ -2875,7 +3554,18 @@
         "SCR-SA-10",
         "SCR-SA-11"
       ],
-      "bytes": 1779323
+      "bytes": 2134311
+    },
+    {
+      "route": "/super-admin/scheduler-registry/",
+      "file": "super-admin-scheduler-registry.png",
+      "heading": "Scheduler Registry",
+      "identifiersOnPage": [
+        "MOD-SA-07",
+        "SCR-SA-SCHED-01",
+        "SCR-SA-SCHED-02"
+      ],
+      "bytes": 1503623
     },
     {
       "route": "/super-admin/support-access/",
@@ -3048,7 +3738,19 @@
         "MOD-CC-02",
         "MOD-SA-01"
       ],
-      "bytes": 16712994
+      "bytes": 16784437
+    },
+    {
+      "route": "/workflows/ai-and-its-absence/",
+      "file": "workflows-ai-and-its-absence.png",
+      "heading": "Artificial intelligence and its absence",
+      "identifiersOnPage": [
+        "FEAT-SA-0703",
+        "FUNC-SA-0703",
+        "MOD-SA-07",
+        "SCR-FL-LOCK-01"
+      ],
+      "bytes": 12096495
     }
   ]
 }

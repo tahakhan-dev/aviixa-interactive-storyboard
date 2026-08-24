@@ -90,6 +90,13 @@ const AUDITED = {
     rewrittenBy: null,
     verdict: 'NOT VACUOUS. Carries its own explicit non-vacuity guard.',
   },
+  'screenshot-manifest.test.ts': {
+    subject: 'out/ as built, compared against the committed docs/screenshots/manifest.json',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and it runs in the release project BECAUSE build rewrites half its subject. The manifest side is written only by `pnpm screenshots`, which verify does not run -- which is exactly the staleness this gate exists to catch (audit C-23: 85 rows against a 102-route export, three slices old). The pre-existing check lived in the WRITER, tests/screenshots/capture.spec.ts, and compared rows to routes after writing them, so it could not fail for being unrun.',
+  },
   'registry-freshness.test.ts': {
     subject:
       'gate 1 compares registries/generated/** against a fresh generation into scratch; gate 2 walks tests/** for generator call sites',
