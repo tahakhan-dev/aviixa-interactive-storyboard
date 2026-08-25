@@ -215,4 +215,175 @@ is writing; the dotted-form gaps row 14 declares.
 
 ## Stream A — the new gates and the derivations round 4 introduced
 
-_Pending — agent running._
+Eight findings. Two Critical, four Important, one Moderate, one Minor.
+
+### R5-A01 · Critical · R4-01's class is four instances wider, and the gate written to stop it recurring cannot see any of them
+
+**Controller-verified.** Four rendered abstentions say the build cannot know content the frozen
+source states in full:
+
+| page | what it says is unknowable | what the cited line carries |
+|---|---|---|
+| `platform-audit` | `SB-RBAC-04` "named as a screen of this module and never described. No layout, no columns, no controls" | line 20953 describes it: a per-release divergence panel, counts by surface and action identifier, zero the only passing value, a four-role access line, and "No write control exists on the panel." |
+| `platform-audit` | three acceptance criteria "never extracted … unknown to this build" | line 46193 carries all ten `AC-SA-18-01…-10` with complete text. One of the three is a completeness rule requiring every one of the twenty named event classes to be recorded, including attempts on locked settings. |
+| `platform-audit` | nine functionalities "with no definition anywhere in the extract" | lines 46175–46189 define all nine, each with Purpose, Allowed, Prohibited, Online, Offline and Fallback. |
+| `trace-viewer` | five acceptance criteria "not carried by the extraction … their content is unknown here" | lines 43962–43969 carry all eight `AC-SA-06-01…-08` in a table. **`-07` is the criterion requiring the trace-viewer absence to be stated in the console — the very subject of the page abstaining from it.** |
+
+Nineteen source-stated obligations reported as unbuildable.
+
+**Why the round-4 gate cannot see them**, replayed in node: its run detector requires bare `-NN`
+continuations and these enumerations spell every identifier in full, so it returns an empty run; and
+**none of its eight absence markers matches any of the four phrasings** — "not carried by the
+extraction", "never extracted", "never described", "no definition anywhere in the extract", "unknown
+to this build". A wider marker sweep over `app/` and `src/` returns exactly these four and nothing
+else, so the class is four, not more.
+
+R4-01 was graded Critical for precisely this, and its gate was built to stop it recurring. **The gate
+holds the wording the fixer happened to have in front of it, not the class.**
+
+### R5-A02 · Critical · 17 drill-down links point at a page whose only mention of the item is a source comment
+
+**Controller-verified.** Every registry index prints "N of M rows link to the screen that
+demonstrates them" and renders the id as an anchor. 304 rows carry a route. **26 of the 304 point at
+a page whose rendered text never names the item; for 17 of those, the route directory's only mention
+of the identifier is inside a comment.**
+
+The worked example, verified end to end: `out/coverage/ai-storyboards/index.html` renders
+`<a href="/hub/shift-management/">SB-STU-03</a>`. The whole of `app/hub/shift-management/` names
+`SB-STU-03` once — in a JSDoc line about numbering style: *"Spelled up to twelve, then numeric — the
+same shape `SB-STU-03` uses."* **A Studio storyboard is linked to a Hub shift screen.**
+
+The same comment text is what set `status: demonstrated-in-storyboard`, so the census over-counts by
+the same rows.
+
+R4-B10's gate asserts every link resolves to a real page, and they all do. **What no gate asks is
+whether the page demonstrates the row.** The build already owns the fix: `strip-comments.ts` exists
+and is used elsewhere; the `citedTokens` scan does not call it.
+
+### R5-A03 · Important · five of six census groups can vanish and the gate passes
+
+`tests/coverage/census-closure.test.ts` asserts the per-surface census by
+`expect(CONTROLS_PAGE).toContain(surface)` for the five surface tokens. Those tokens occur 330, 308,
+322, 168 and 100 times on that page — in the 630-row table below, never in the census block.
+
+**Plant, real:** deleted five of the six rows from the census-by-surface table body — 1,595 bytes,
+100 characters of rendered text — keeping one. Replayed every assertion in the block: **real passes,
+planted passes**, and the page still says "6 surface groups". The 181-row census-by-module table
+beside it, and both captions, are asserted by nothing at all.
+
+Those two tables are R4-B04's whole deliverable. The round-4 brief records this exact shape being
+caught by a plant on the Workflow Index columns — **it survived one file over.**
+
+### R5-A04 · Important · thirteen of the eighteen reconciliation rows can be deleted and the gate passes
+
+`tests/coverage/reconciliation-table.test.ts` checks the rendered table by substring, with a comment
+reasoning that "each inventory name is unique in the artefact, so one occurrence per row in the table
+body". It is unique in the artefact and **not on the page**: every inventory name occurs two or four
+times, because each is also a registry name in the fourteen-row table above.
+
+**Plant, real:** deleted the Events row from the reconciliation table body — 1,869 bytes, 1,409
+characters of rendered text. **Real passes, planted passes**, and the page still reads "18 rows,
+covering all 14 registries". Thirteen of eighteen are droppable this way.
+
+R4-B02 was Critical because a table headed "reconciliation" reads as complete. The equality that
+closed it is over the artefact, not over what the page renders.
+
+### R5-A05 · Important · 61 of 110 promised drill-downs can disappear and both the sentence and the gate stay green
+
+`tests/coverage/registry-index-figures.test.ts` asks whether each row's route string appears
+*anywhere* in the file. Rows share routes heavily — 110 linked rows over 49 distinct routes on one
+index.
+
+**Plant, real:** on the ai-storyboards index, replaced the anchor with plain text on every row whose
+route another row already carried. 61 of 110 unlinked, anchor count 111 → 50. The assertion reports
+"110 of 110" and passes.
+
+### R5-A06 · Important · the evidence line cited for 22 not-applicable rows says the register does render
+
+`registries/authored/census-status-overrides.json` holds one override covering the 22
+do-not-use-cron rows. It carries reason, owner and evidence as master prompt §9.2 requires, its
+register bounds are exact, and its quotation is verbatim on the cited line.
+
+**But the cited line is one paragraph and its first sentence reads: "In the Super Admin extension
+screen of section 45A.2, every row in this register renders as a locked entry that cannot be given a
+schedule."** The override's reason is that asking whether a rendered control demonstrates a
+do-not-use-cron row is "a category error". The build renders none of them — no page in `out/` names a
+`DNC` id.
+
+These 22 are the only occupants of `not-applicable`, the escape hatch R4-B05 built. The gate asserts
+the quotation is on the line; it cannot see that the same line refutes the classification. **What the
+line actually describes is a screen this build owes.**
+
+### R5-A07 · Moderate · the corrected control-label figure is four too high
+
+The page publishes 271 declared labels (83 under `app/`, 188 only in `src/`). Four of the 271 come
+from `Record<Kind, string>` affordance maps where `control` is a **union-member key** and the string
+is a pill caption or a tone token — `"ok"`, `"Control"`, `"a live control"`, `"Control drawn here"`
+across ten sites. The honest figures are **267 total, 80 under `app/`, 187 src-only**.
+
+The page then says of the non-census labels that "the rest are the same control re-worded for a
+reader", which is false of all four — `ok` is a tone token.
+
+**The gate transcribes the generator's regex deliberately**, so it reproduces the four false
+positives and asserts the artefact against them by equality. It can never convict them. This is the
+figure R4-B03 was raised to correct, republished four too high, and it is R4-B05 direction one's
+denominator.
+
+### R5-A08 · Minor · the one obligation nothing asserts is the one about not overstating a guarantee
+
+`tests/coverage/master-prompt.ts` declares eight obligations and seven are called. The uncalled one
+is `checksumNotAuthenticity` — master prompt §21.1's requirement that the package checksum be
+labelled corruption detection rather than a signature. **The substance is currently met** and the
+review page renders the disclaimer verbatim; the obligation is simply unheld, so a future edit can
+remove the disclaimer with nothing red.
+
+### What reproduced clean
+
+**The five new reconciliation counts, re-derived independently a second time:** FEAT 723, SUB 947,
+UC 782, FUNC 1335, and 608 from 759 raw across 36 chunks. Every per-family distribution reproduces.
+
+**The Functions +1 remains unresolved by a second auditor.** Six tokenisations all return 1335
+against Appendix L's 1336, and the row's own disproof of the bare-prefix theory checks out. Reported
+as unreproduced, not as wrong.
+
+**Participating roles: no false positive.** Of 650 derived assignments, the only matches abutting a
+letter are seven plurals; the consume rule holds and zero rows credit the platform Admin off the word
+inside "Tenant Admin" — where the naive rule would mis-credit sixty. Thirteen sampled assignments
+opened at their source lines and each fairly read. The column is labelled on screen as roles
+occurring in the extracted text, never as the source's role-result mapping.
+
+**A stale figure in a fix report, caught:** the participating-roles fill was reported as 373 of 724
+with 63 multi-role. Measured: **464 and 154**. The build is self-consistent — the page computes the
+number from the data and reads 464 — so nothing rendered is wrong. Only the report was stale.
+
+**R4-C03's corrected 28 independently re-derived**, per-module distribution identical, and the twelve
+service arrays sum to 181. **R4-C02's six and ten** confirmed a second time.
+
+**`moduleId` on 268 rows:** a nearest-preceding-heading heuristic flagged 132, five were opened and
+three were unambiguously correct with the heuristic at fault, so none could be convicted. Only 2 of
+268 rows have a surface contradicting their moduleId's surface, and both are legitimate
+cross-surface cases.
+
+**All 304 linked routes exist in `out/`**, none carries a dynamic segment, and `routeResolvedCount`
+equals the row count on all fourteen registries. **The review package** passes the real reconciliation
+rows and census into the export. **The master prompt artefact** hashes to its pinned value and no
+rendered page leaks its text.
+
+### Not reached
+
+`tests/coverage/citation-graph.test.ts` and `tests/unit/routes.test.ts` — both mid-edit by fix stream
+N, so R4-C06's three narrowings and the metadata gate are unaudited this round. The four
+`app/super-admin/` directories N owns. Master prompt §29.1 and §29.4 bullet-by-bullet against the
+committed artefact. Playwright/axe and `out/_next/**`.
+
+---
+
+## Round 5 totals
+
+**18 findings: 10 (stream B) + 8 (stream A).** Three Critical. The loop does not close.
+
+**The through-line of both streams: a gate that holds the wording it was written against rather than
+the class it was written for.** R5-A01's gate misses four instances because their phrasing differs.
+R5-A03, R5-A04 and R5-A05 are three separate substring-or-aggregate checks standing in for equality —
+the shape round 2 named, round 4 caught once by a plant, and which shipped three more times in the
+same wave. Every one of them was found by planting a real defect and watching the suite stay green.
