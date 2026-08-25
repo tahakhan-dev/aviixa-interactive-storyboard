@@ -378,9 +378,54 @@ committed artefact. Playwright/axe and `out/_next/**`.
 
 ---
 
+## Found by a fixer, not an auditor — and both are repo-wide
+
+### R5-Q01 · Critical · the shared rendered-text helper does not strip the RSC flight payload
+
+`tests/coverage/rendered-text.ts` strips tags and HTML comments but **not**
+`<script>self.__next_f.push(…)</script>`. On the actionable-controls page that payload is **790KB of
+1.3MB**, and it carries every sentence a gate asserts.
+
+**Fix stream Q's first plant for R5-B03 went green because of it** — the figure was changed in the
+DOM and the payload still carried the old one. Q rewrote its three gates to strip scripts and styles
+first, re-ran every existing assertion in them, and found none was living off the payload. **Then it
+stopped**, because the helper is shared with gates two other streams were editing.
+
+**Every other gate that calls `renderedText` on an `out/` page is potentially satisfiable by the
+payload alone.** That is the vacuity shape at repo scale, and it is the mechanism behind R5-B03's own
+near-dismissal — the controller's raw grep found two figures that were React row keys in that same
+payload.
+
+**Smallest fix:** strip `<script>` and `<style>` in the shared helper, then re-run every gate that
+calls it and check whether any assertion that was passing now fails. An assertion that only ever
+passed on the payload was never testing the page.
+
+### R5-Q02 · Important · the locator gate does not scan the artefact densest in locators
+
+`tests/coverage/locator-fidelity.test.ts` scans `src`, `app`, `tests`, `scripts` and `docs`.
+**`registries/` is not among them** — and `registries/generated/source-reconciliation.json` is the one
+authored artefact dense with frozen-source locators, every one of which renders on the coverage
+dashboard.
+
+That is why R5-B07 and R5-B08 shipped, and why fix stream Q found **two more of the same blank-line
+class the audit never named** while correcting them: a decisions-row locator off by one, and an
+Assembled range whose first two lines are a header and a separator.
+
+Q held the artefact locally in `reconciliation-table.test.ts` rather than widening `SCAN_ROOTS`
+mid-wave, which would have pulled `registries/raw/**` into the population. **Reported as an open gap.**
+
+---
+
 ## Round 5 totals
 
-**18 findings: 10 (stream B) + 8 (stream A).** Three Critical. The loop does not close.
+**20 findings: 10 (stream B) + 8 (stream A) + 2 found by a fixer.** Three Critical. The loop does not close.
+
+**And the fixers corrected the auditors twice more, in the direction that matters.** The
+numeral-plus-workflows sweep returns **twelve** lines, not the audit's nine — all twelve opened, all
+twelve closed subsets. The control-label figure had **six** false positives, not four, **and nine real
+labels the single-quote regex could never see** because they contain an apostrophe and are therefore
+double-quoted. The honest figures are 274 / 79 / 195, not the audit's 267 / 80 / 187 and not the
+build's 271 / 83 / 188. Neither number was taken on trust in either direction.
 
 **The through-line of both streams: a gate that holds the wording it was written against rather than
 the class it was written for.** R5-A01's gate misses four instances because their phrasing differs.
