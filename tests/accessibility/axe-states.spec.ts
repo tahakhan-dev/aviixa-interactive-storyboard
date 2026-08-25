@@ -437,14 +437,21 @@ const UNDRIVEN_CONTROL_ROUTES: readonly UndrivenControlRoute[] = [
   },
   {
     path: '/workflows/',
-    controls: 4,
+    controls: 8,
     reason:
-      'The 724-row workflow index and its four filters — Surface, Actor, Status and Collapsed. The ' +
-      'Actor select alone offers 428 positions, which is more than every driven position on the ' +
-      'Studio put together, and none of the four is driven or axe-scanned here. They are screen ' +
-      'filters rather than viewer switches, so they classify as neither a role nor a state control ' +
-      'under any vocabulary declared above. Recorded as the largest single undriven control space ' +
-      'in this build, and named in the task report as the next thing to drive.',
+      'The 724-row workflow index and its EIGHT filters — Surface, Actor, Status, Collapsed, and ' +
+      'the four master prompt §10.5 dimensions audit round 4 finding R4-B07 added: Participating ' +
+      'role, Owning module, Primary object and Variant coverage. It was four until that finding; ' +
+      '§10.5 requires the index to be filterable by each of the eight dimensions it names, and ' +
+      'four of them had neither a column nor a filter. The Actor select alone offers 428 ' +
+      'positions, which is more than every driven position on the Studio put together, and none ' +
+      'of the eight is driven or axe-scanned here. They are screen filters rather than viewer ' +
+      'switches, so they classify as neither a role nor a state control under any vocabulary ' +
+      'declared above. Recorded as the largest single undriven control space in this build, and ' +
+      'named in the task report as the next thing to drive. Three of the four new ones offer only ' +
+      'their "(not extracted)" sentinel today, because the workflow extraction carries no module, ' +
+      'object or variant field — which is disclosed on the page rather than hidden by dropping ' +
+      'the column.',
   },
 ]
 

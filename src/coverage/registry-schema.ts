@@ -72,11 +72,42 @@ export const RegistryRowSchema = z
      * where the build's standard elsewhere is a stated reason.
      */
     statusReason: z.string().min(40).optional(),
+    /**
+     * R4-B10: the shipped route that demonstrates this row, or absent when
+     * nothing resolves one. Always a trailing-slash absolute path under the
+     * static export, never a dynamic segment — see `routeUrlFor` in
+     * `scripts/build-registries.mjs` for why a `[param]` directory resolves
+     * to nothing rather than to one of the URLs it stands for.
+     */
+    route: z.string().regex(/^\/(?:[A-Za-z0-9._-]+\/)*$/).optional(),
+    /**
+     * R4-B04: the two §13.1 census dimensions the extraction can answer for
+     * an actionable control, normalised, with the extraction's own wording
+     * kept beside each wherever normalisation changed it. `surface` above
+     * carries the canonical `SURF-*` id or the literal `cross-surface`;
+     * `moduleId` carries a canonical `MOD-*` id only. A module cell the
+     * extraction wrote in prose, or that names several modules at once, is
+     * NOT guessed into an id — it is carried verbatim here.
+     */
+    moduleDescriptor: z.string().min(1).optional(),
+    surfaceDescriptor: z.string().min(1).optional(),
     // Workflow-only extension fields (fix round 2, §0).
     primaryActor: z.string().min(1).optional(),
     trigger: z.string().min(1).optional(),
     surfacesTouched: z.array(z.string()).optional(),
     terminalStates: z.array(z.string()).optional(),
+    /**
+     * R4-B07, both workflow-only. `participatingRoles` is DERIVED — the
+     * canonical nine role names that occur in this row's own extracted
+     * `primaryActor` and `trigger` text, longest name first with each match
+     * consumed so "Tenant Admin" is not also counted as "Admin". It is not
+     * the source's role-result mapping, which master prompt §10.5 also
+     * requires and which the extraction does not carry. `exercisedBy` is
+     * carried straight through: the use cases the extraction recorded for
+     * this workflow, which is §9.2's trace chain and was being dropped.
+     */
+    participatingRoles: z.array(z.string()).optional(),
+    exercisedBy: z.array(z.string()).optional(),
     // Task 10: orthogonal to `status`; see doc comment above.
     sourceClass: z.enum(SOURCE_CLASSES).optional(),
     buildClass: z.enum(BUILD_CLASSES).optional(),
@@ -130,6 +161,14 @@ export const GeneratedRegistrySchema = z
      */
     namedInSourceCount: z.number().int().nonnegative(),
     namedInSourceMeaning: z.string().min(40),
+    /**
+     * R4-B10: how many of this registry's rows carry a `route`, published
+     * beside the rows so an index can state the resolvable fraction rather
+     * than leaving a reader to count em dashes. `routeMeaning` says what the
+     * field is and, more importantly, what its absence means.
+     */
+    routeResolvedCount: z.number().int().nonnegative(),
+    routeMeaning: z.string().min(40),
     reconciledCount: z.number().int().nonnegative().nullable(),
     rawCount: z.number().int().nonnegative(),
     dedupRule: z.string().min(1).nullable(),

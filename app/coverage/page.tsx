@@ -13,6 +13,8 @@ import {
 } from '@/coverage/descriptors'
 import { Table, StatusPill, type StatusTone } from '@/ui/primitives'
 import { loadGeneratedRegistry, type GeneratedRegistry } from '@/coverage/registry-loader'
+import { loadReconciliation } from '@/registry/load'
+import sourceReconciliationRaw from '../../registries/generated/source-reconciliation.json'
 import {
   NAMESPACES_ACCOUNTED_ELSEWHERE,
   UNINVENTORIED_DECISION_LABEL,
@@ -77,11 +79,80 @@ const REGISTRIES: Record<RegistrySlug, GeneratedRegistry> = Object.fromEntries(
   REGISTRY_DESCRIPTORS.map((d) => [d.slug, loadGeneratedRegistry(d.slug)]),
 ) as Record<RegistrySlug, GeneratedRegistry>
 
+/**
+ * R4-B12: THIS FUNCTION COULD RETURN TWO OF THE FIVE STATUSES, AND THE LEGEND
+ * BELOW RENDERS ALL FIVE.
+ *
+ * It read "any row is not not-represented" and returned demonstrated, so a
+ * registry whose only evidence is a MOUNTED module — a screen that is on
+ * screen, with no route of its own — was reported under the word for a screen
+ * that owns one. `mounted-in-another-screen` was unreachable here even though
+ * ten rows carry it. It now returns the strongest status any of the registry's
+ * own rows actually holds, in the order below, which makes three of the five
+ * reachable and leaves the honest position visible: a registry with no
+ * demonstrated row and a mounted one says mounted.
+ *
+ * The remaining two — `decision-blocked` and `not-applicable` — are TERMINAL
+ * states for an individual row and are deliberately NOT promoted to a whole
+ * registry: "this registry is not applicable" is a claim about an inventory
+ * the master prompt requires, and nothing in the source supports it. The
+ * paragraph under the legend states which of the five no registry currently
+ * holds and why, rather than leaving a legend row a reader cannot account for.
+ */
+const REGISTRY_STATUS_PRECEDENCE = [
+  'demonstrated-in-storyboard',
+  'mounted-in-another-screen',
+  'not-represented',
+] as const satisfies readonly CoverageStatus[]
+
+/** The two the rule above will never return, with the reason, rendered. */
+const REGISTRY_LEVEL_UNASSIGNABLE: readonly { status: CoverageStatus; why: string }[] = [
+  {
+    status: 'decision-blocked',
+    why:
+      'A terminal state for one row, never for a whole inventory. It is emittable per row from ' +
+      'registries/authored/census-status-overrides.json and no row holds it today; that file ' +
+      'records why, measured rather than assumed.',
+  },
+  {
+    status: 'not-applicable',
+    why:
+      'Also a per-row terminal state. Twenty-two rows hold it — the do-not-use-cron register ' +
+      'inside actionable controls — and no whole registry does: saying an inventory the master ' +
+      'prompt requires does not apply is a claim nothing in the frozen source supports.',
+  },
+]
+
 function registryStatus(slug: RegistrySlug): CoverageStatus {
-  return REGISTRIES[slug].rows.some((r) => r.status !== 'not-represented')
-    ? 'demonstrated-in-storyboard'
-    : 'not-represented'
+  const held = new Set(REGISTRIES[slug].rows.map((r) => r.status))
+  return REGISTRY_STATUS_PRECEDENCE.find((s) => held.has(s)) ?? 'not-represented'
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+ * R4-B11 — THE ITEM-LEVEL POSITION, BESIDE THE REGISTRY-LEVEL ONE.
+ *
+ * The only aggregate this page carried was registry-level: "Demonstrated in
+ * storyboard: 11 of 14". The rule behind it is disclosed a paragraph above and
+ * it is not a falsehood — but 11 of 14 reads as about 79 per cent to a client,
+ * and the item-level figure is a small fraction of that. Neither 5,018 nor the
+ * not-represented count appeared anywhere in the built page.
+ *
+ * Every figure below is summed over the fourteen loaded registries at module
+ * load. None is a literal, for the reason this file already gives twice: a
+ * count that cannot move when its subject moves does not get written down.
+ * ──────────────────────────────────────────────────────────────────────── */
+const ALL_ROWS = REGISTRY_DESCRIPTORS.flatMap((d) => REGISTRIES[d.slug].rows)
+const ITEM_SUMMARY = countByStatus(ALL_ROWS)
+const TOTAL_ITEMS = ALL_ROWS.length
+
+/**
+ * R4-B01/B02: the master prompt §9.6 reconciliation table, which held all six
+ * of its required columns in `registries/generated/source-reconciliation.json`
+ * and reached no reader at all — `grep -rl "prompt_candidate" out/` returned
+ * zero files. Its only consumer was the Workflow Index, for one scalar.
+ */
+const RECONCILIATION = loadReconciliation(sourceReconciliationRaw)
+const RECONCILIATION_ROWS = RECONCILIATION.reconciliation.reconciliation_rows
 
 const REGISTRY_STATUS_ENTRIES: readonly { status: CoverageStatus }[] = REGISTRY_DESCRIPTORS.map(
   (d) => ({ status: registryStatus(d.slug) }),
@@ -176,10 +247,132 @@ export default function CoveragePage() {
       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink-muted)]">
         {COVERAGE_STATUSES.map((status) => (
           <li key={status}>
-            {STATUS_LABEL[status]}: {RECONCILIATION_SUMMARY[status]} of {REGISTRY_DESCRIPTORS.length}
+            {STATUS_LABEL[status]}: {RECONCILIATION_SUMMARY[status]} of {REGISTRY_DESCRIPTORS.length}{' '}
+            registries — {ITEM_SUMMARY[status]} of {TOTAL_ITEMS} items
           </li>
         ))}
       </ul>
+      {/*
+        R4-B11. The two denominators, side by side and at equal prominence,
+        because one of them reads as the whole truth and is not. Both figures
+        are summed at module load from the same fourteen files the table above
+        renders, so neither can go stale against the other.
+      */}
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        <strong>Two denominators, and the smaller number is the honest one.</strong> A registry
+        counts as demonstrated the moment any one of its rows does, so the registry-level figure
+        answers &ldquo;has this build touched this inventory at all&rdquo;. The item-level figure
+        answers &ldquo;how much of it&rdquo;, and it is the one to read: across all fourteen
+        inventories this build holds {TOTAL_ITEMS} rows, of which{' '}
+        {ITEM_SUMMARY['demonstrated-in-storyboard']} are demonstrated by a shipped screen,{' '}
+        {ITEM_SUMMARY['mounted-in-another-screen']} are mounted inside another module&rsquo;s
+        screen, {ITEM_SUMMARY['not-applicable']} carry an authored not-applicable record,{' '}
+        {ITEM_SUMMARY['decision-blocked']} carry an authored decision-blocked record, and{' '}
+        {ITEM_SUMMARY['not-represented']} are not represented. Read the registry-level row as a
+        presence check and the item-level row as the coverage.
+      </p>
+      {/*
+        R4-B12. Two of the five legend statuses are per-row terminal states
+        that `registryStatus` will never return. Saying so beats leaving a
+        reader to wonder why a legend row never appears.
+      */}
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        <strong>Two of the five statuses never appear in the registry column above</strong>, and
+        that is a rule rather than an accident.{' '}
+        {REGISTRY_LEVEL_UNASSIGNABLE.map((u) => `${STATUS_LABEL[u.status]}: ${u.why}`).join(' ')}
+      </p>
+
+      {/*
+        ─────────────────────────────────────────────────────────────────────
+        R4-B01 / R4-B02 — THE MASTER PROMPT §9.6 RECONCILIATION TABLE, ON A
+        SCREEN.
+
+        `registries/generated/source-reconciliation.json` has carried all six
+        of §9.6's required columns since slice 1 and reached no reader:
+        `grep -rl "prompt_candidate" --include='*.html' out/` returned zero
+        files, and this page did not import the artefact at all. Eighty
+        kilobytes of the build's best reconciliation analysis — including the
+        one place that settles the 81-modules-against-81-workflows conflation
+        with its locators — was invisible to the person it was written for.
+
+        §9.6 requires the table in the coverage dashboard AND the review
+        package. It is now in both.
+
+        THE COLUMN NAMES ARE §9.6'S OWN WORDS, not this build's paraphrase of
+        them: candidate, extracted count, count scope, deduplication rule,
+        delta, resolution.
+        ───────────────────────────────────────────────────────────────────── */}
+      <h2 className="mt-8 text-xl font-semibold">
+        Source reconciliation — candidate against extracted count
+      </h2>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        One row per inventory: what the master prompt offered as a validation candidate, what a
+        read of the frozen source actually found, the scope each figure is counted in, the rule
+        that gets from the raw extraction to the reconciled figure, the delta, and how it was
+        resolved. Where the two disagree the frozen source wins and the delta is recorded rather
+        than the count silently substituted. {RECONCILIATION_ROWS.length} rows, covering all{' '}
+        {REGISTRY_DESCRIPTORS.length} registries above —{' '}
+        {RECONCILIATION_ROWS.filter((r) => r.registry_slug === null).length} further rows reconcile
+        counts that none of the fourteen indexes, and each says why in its own scope column.
+      </p>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        This is the one artefact in the build that is authored rather than generated, and it sits
+        in <code>registries/generated/</code> beside thirteen files that are not. It is the single
+        named exception in <code>tests/coverage/registry-freshness.test.ts</code> for that reason:
+        a freshness check that regenerated it would have nothing to regenerate it from. The
+        absence of a freshness check on this file is deliberate, not an oversight — what holds it
+        instead is <code>tests/coverage/reconciliation-table.test.ts</code>, which requires its
+        row set to cover every registry slug by equality.
+      </p>
+      <div
+        className="mt-4 overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-label="Source reconciliation table, scrollable horizontally"
+      >
+        <Table
+          caption={`${RECONCILIATION_ROWS.length} reconciliation rows, each with the master prompt candidate, the count extracted from the frozen source, the count scope, the deduplication rule, the delta and the resolution.`}
+          columns={[
+            { key: 'inventory', header: 'Inventory' },
+            { key: 'prompt_candidate', header: 'Candidate' },
+            { key: 'extracted_count', header: 'Extracted count' },
+            { key: 'count_scope', header: 'Count scope' },
+            { key: 'dedup_rule', header: 'Deduplication rule' },
+            { key: 'delta', header: 'Delta' },
+            { key: 'resolution', header: 'Resolution' },
+          ]}
+          rows={RECONCILIATION_ROWS.map((r) => ({
+            /*
+              PLAIN TEXT, NOT A SECOND LINK. The table at the top of this page
+              already links every one of the fourteen indexes by the same
+              name, and a second anchor with identical text and target adds a
+              duplicate link name to the accessibility tree for no navigation
+              a reader did not already have. The row that indexes none of the
+              fourteen carries its reason instead.
+            */
+            inventory:
+              r.registry_slug === null ? (
+                <>
+                  {r.inventory}
+                  <br />
+                  <span className="text-xs">{r.whyNoRegistrySlug}</span>
+                </>
+              ) : (
+                r.inventory
+              ),
+            prompt_candidate: r.prompt_candidate,
+            extracted_count: r.extracted_count,
+            count_scope: r.count_scope,
+            dedup_rule: r.dedup_rule,
+            delta: r.delta,
+            resolution: r.resolution,
+          }))}
+          emptyState={{
+            title: 'No reconciliation rows',
+            whatCreatesIt: 'registries/generated/source-reconciliation.json',
+          }}
+        />
+      </div>
 
       {/*
         WHAT THE FOURTEEN DO NOT COVER, SAID ON THE SCREEN RATHER THAN LEFT TO

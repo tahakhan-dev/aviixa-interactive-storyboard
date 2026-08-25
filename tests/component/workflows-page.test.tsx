@@ -60,7 +60,13 @@ describe('/workflows/ spec §7 columns restored', () => {
     const idCell = screen.getByText('WF-VALUESTREAM', { selector: 'td' })
     const row = idCell.closest('tr')
     if (row === null) throw new Error('fixture bug: "WF-VALUESTREAM" cell has no parent row')
-    expect(within(row).getByText(/Quality Manager/)).toBeTruthy()
+    // R4-B07 added a derived "Participating roles" cell, which names the
+    // same nine-role vocabulary this row's primary actor is written in, so
+    // "Quality Manager" now legitimately appears twice in the row. The claim
+    // under test is that the PRIMARY ACTOR cell renders real per-row data,
+    // and it is asserted on that cell rather than on the row.
+    const actorCell = within(row).getAllByRole('cell')[2]
+    expect(actorCell?.textContent).toMatch(/Quality Manager/)
   }, 15000)
 
   it('renders the surfaces touched for a real row', () => {
@@ -76,5 +82,13 @@ describe('/workflows/ spec §7 columns restored', () => {
     expect(screen.getByRole('columnheader', { name: /primary actor/i })).toBeTruthy()
     expect(screen.getByRole('columnheader', { name: /surfaces touched/i })).toBeTruthy()
     expect(screen.getByRole('columnheader', { name: /terminal states/i })).toBeTruthy()
+    // R4-B07: the four master prompt §10.5 dimensions the index did not ship.
+    // Held here as well as in tests/coverage/workflow-index.test.ts, because
+    // this file is the one that renders the component rather than reading the
+    // export, so a column lost in a refactor reds before the build runs.
+    expect(screen.getByRole('columnheader', { name: /participating roles/i })).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: /owning module/i })).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: /primary objects/i })).toBeTruthy()
+    expect(screen.getByRole('columnheader', { name: /variant coverage summary/i })).toBeTruthy()
   })
 })

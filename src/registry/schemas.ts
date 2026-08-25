@@ -112,6 +112,20 @@ export type RoleRecord = z.infer<typeof RoleRecordSchema>
 export const ReconciliationRowSchema = z
   .object({
     inventory: z.string(),
+    /**
+     * R4-B02: which of the fourteen registry indexes this row reconciles, or
+     * `null` for a row that reconciles something the fourteen do not index.
+     * Required rather than optional, and nullable rather than absent, so the
+     * gate in `tests/coverage/reconciliation-table.test.ts` can compare the
+     * set of non-null slugs against `REGISTRY_DESCRIPTORS` BY EQUALITY. A
+     * table headed "reconciliation" reads as complete, and five of the
+     * fourteen inventories — functions, actionable controls, business use
+     * cases, features and sub-features, 3,010 of the build's 5,018 census
+     * rows — had no row at all while it did.
+     */
+    registry_slug: z.string().min(1).nullable(),
+    /** Required exactly when `registry_slug` is null; see the refine below. */
+    whyNoRegistrySlug: z.string().min(60).optional(),
     prompt_candidate: z.string(),
     extracted_count: z.string(),
     count_scope: z.string(),
@@ -120,6 +134,12 @@ export const ReconciliationRowSchema = z
     resolution: z.string(),
   })
   .strict()
+  .refine((r) => (r.registry_slug === null) === (r.whyNoRegistrySlug !== undefined), {
+    message:
+      'A reconciliation row that indexes none of the fourteen registries must say why, and a ' +
+      'row that indexes one must not carry a reason for not indexing one.',
+    path: ['whyNoRegistrySlug'],
+  })
 
 export type ReconciliationRow = z.infer<typeof ReconciliationRowSchema>
 

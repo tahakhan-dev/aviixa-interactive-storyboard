@@ -1,0 +1,46 @@
+{
+  "what": "Authored terminal-status records for census rows, read by scripts/build-registries.mjs. Master prompt section 13.1 requires the actionable-item census to close both ways, and names exactly two escape hatches for a row no rendered control demonstrates: an explicit decision-blocked record, or an explicit not-applicable record. Until audit round 4 finding R4-B05 the generator could emit NEITHER string, so 4,704 rows sat in not-represented, which is neither of the two permitted terminal states, and the escape hatch the section names was unreachable by construction. This file is that hatch.",
+  "whyAuthoredRatherThanDerived": "A terminal status is a judgement about the source, not a fact the route tree can compute. Derivation is what produces the other three statuses (demonstrated-in-storyboard, mounted-in-another-screen, not-represented) and it is deliberately left alone. What is added here is a record a human wrote, with the four things master prompt section 9.2 requires before a Not applicable classification may stand at all: a reason, an owner, source or decision evidence, and the rows it applies to named one by one.",
+  "whatThisFileMayNeverBecome": "The number this hatch exists beside is 4,704 rows in not-represented, and the way to make that number small is to relabel it. That is expressly forbidden: an override is legitimate only where the frozen source itself says the row is not a thing a rendered control can demonstrate, or where a named open decision blocks it. After this file, the honest position is still a large not-represented count, and the coverage dashboard publishes it beside the overrides rather than instead of them. tests/coverage/census-closure.test.ts holds both halves.",
+  "evidenceLineMeaning": "A one-based line number in the frozen source ../AVIIXA_Production_Product_Blueprint.md, sha256 47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27. Recorded as a bare number with a verbatim quotation beside it so a reader checks the line rather than the record.",
+  "overrides": [
+    {
+      "registry": "actionable-controls",
+      "ids": [
+        "DNC-01",
+        "DNC-02",
+        "DNC-03",
+        "DNC-04",
+        "DNC-05",
+        "DNC-06",
+        "DNC-07",
+        "DNC-08",
+        "DNC-09",
+        "DNC-10",
+        "DNC-11",
+        "DNC-12",
+        "DNC-13",
+        "DNC-14",
+        "DNC-15",
+        "DNC-16",
+        "DNC-17",
+        "DNC-18",
+        "DNC-19",
+        "DNC-20",
+        "DNC-21",
+        "DNC-22"
+      ],
+      "status": "not-applicable",
+      "reason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence.",
+      "owner": "JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed).",
+      "evidenceLine": 98508,
+      "evidenceQuote": "On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.",
+      "registerBodyFirstLine": 98485,
+      "registerBodyLastLine": 98506
+    }
+  ],
+  "decisionBlockedOccupancy": {
+    "count": 0,
+    "whyZeroRatherThanUnwritten": "The status is emittable by exactly the same mechanism as not-applicable above, and no census row qualifies for it today. Measured rather than assumed: the build's decision canon at src/disclosure/decisions.ts carries every open source decision this build met, and each one renders its readings with an adopted, client-delegated position under APP-012 rather than blocking a row. The one item genuinely held rather than adopted is DEC-REPORT-001, which blocks two of MOD-DOH-18's five standard report data sets, and those two are ordinals inside a module rather than identifier-keyed census rows, so no row of the fourteen inventories carries them. Writing an override for a row that is not blocked would be the same defect in the other direction. The coverage dashboard states this occupancy on screen rather than leaving a legend entry that nothing can reach."
+  }
+}

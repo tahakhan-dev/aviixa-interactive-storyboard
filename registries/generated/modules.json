@@ -13,7 +13,8 @@
       "label": "The Live Shift Board",
       "surface": "SURF-CC",
       "purpose": "Live board showing cells and lines with freshness markers; never a default per-worker wall.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/live-shift-board/"
     },
     {
       "id": "MOD-CC-02",
@@ -31,7 +32,8 @@
       "label": "Run and Exception Drill-Down",
       "surface": "SURF-CC",
       "purpose": "Drill-down into runs and exceptions; the only route to worker-level detail.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/run-drill-down/"
     },
     {
       "id": "MOD-CC-04",
@@ -40,7 +42,8 @@
       "label": "Deviation Workspace and Evidence Review",
       "surface": "SURF-CC",
       "purpose": "Holds deviation evidence for review; display only, never edit.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/deviation-workspace/"
     },
     {
       "id": "MOD-CC-05",
@@ -49,7 +52,8 @@
       "label": "The Governance Gate Queue",
       "surface": "SURF-CC",
       "purpose": "Queue of governance gate items for human decision.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/governance-gate-queue/"
     },
     {
       "id": "MOD-CC-06",
@@ -58,7 +62,8 @@
       "label": "Learned-Change Approvals (Lane B)",
       "surface": "SURF-CC",
       "purpose": "Human approval of Lane B learned changes; agents propose and never apply.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/learned-change-approvals/"
     },
     {
       "id": "MOD-CC-07",
@@ -67,7 +72,8 @@
       "label": "Feedback Signal Capture",
       "surface": "SURF-CC",
       "purpose": "Captures supervisor feedback signals used to detect north-star breaches.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/learning-read-view/"
     },
     {
       "id": "MOD-CC-08",
@@ -76,7 +82,8 @@
       "label": "The Agent Activity Panel",
       "surface": "SURF-CC",
       "purpose": "Shows what the agents contributed and where they were unavailable.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/agent-activity-panel/"
     },
     {
       "id": "MOD-CC-09",
@@ -85,7 +92,8 @@
       "label": "The Alert and Escalation Feed",
       "surface": "SURF-CC",
       "purpose": "Feed of alerts and escalations for acknowledgement.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/alert-and-escalation-feed/"
     },
     {
       "id": "MOD-CC-10",
@@ -94,7 +102,8 @@
       "label": "The Sync-Conflict Review Panel",
       "surface": "SURF-CC",
       "purpose": "Reviews offline sync conflicts; the worker never sees or resolves a conflict.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/sync-conflict-review-panel/"
     },
     {
       "id": "MOD-CC-11",
@@ -103,7 +112,8 @@
       "label": "Standard Reports and the Custom Report Builder",
       "surface": "SURF-CC",
       "purpose": "Renders the five standard report data sets owned by the Delivery Operations Hub; builder scope open.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/reports-and-report-builder/"
     },
     {
       "id": "MOD-CC-12",
@@ -112,7 +122,8 @@
       "label": "The Shift Handoff Panel",
       "surface": "SURF-CC",
       "purpose": "Displays the Shift Handoff Agent's brief on Studio-configured timing.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/command-center/shift-handoff-panel/"
     },
     {
       "id": "MOD-CC-13",
@@ -130,7 +141,8 @@
       "label": "Tenant Lifecycle and Tier Operations",
       "surface": "SURF-DOH",
       "purpose": "Band A backbone module for tenant lifecycle and tier operations inside the per-tenant operational system of record.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/tenant-lifecycle-and-tier-operations/"
     },
     {
       "id": "MOD-DOH-02",
@@ -139,7 +151,8 @@
       "label": "Location Configuration",
       "surface": "SURF-DOH",
       "purpose": "Band A module configuring the location hierarchy; timezone is anchored at Site.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/location-configuration/"
     },
     {
       "id": "MOD-DOH-03",
@@ -148,7 +161,8 @@
       "label": "Shift Management",
       "surface": "SURF-DOH",
       "purpose": "Band A module for shift definition and timings.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/shift-management/"
     },
     {
       "id": "MOD-DOH-04",
@@ -157,7 +171,8 @@
       "label": "Worker Lifecycle and Qualifications",
       "surface": "SURF-DOH",
       "purpose": "Band A module holding worker records and supervisor-entered qualifications with full audit.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/worker-lifecycle-and-qualifications/"
     },
     {
       "id": "MOD-DOH-05",
@@ -166,7 +181,8 @@
       "label": "Job Lifecycle and Approval",
       "surface": "SURF-DOH",
       "purpose": "Band A module for defining and approving Jobs; the creator of a Job cannot approve that same Job.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/job-lifecycle-and-approval/"
     },
     {
       "id": "MOD-DOH-06",
@@ -175,7 +191,8 @@
       "label": "Run Scheduling and Execution Oversight",
       "surface": "SURF-DOH",
       "purpose": "Band A module scheduling runs and overseeing execution.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/run-scheduling-and-execution-oversight/"
     },
     {
       "id": "MOD-DOH-07",
@@ -184,7 +201,8 @@
       "label": "Worker Assignment",
       "surface": "SURF-DOH",
       "purpose": "Band A module assigning workers; qualification validated at assignment, availability is not.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/worker-assignment/"
     },
     {
       "id": "MOD-DOH-08",
@@ -193,7 +211,8 @@
       "label": "Execution Summary Review and Distribution",
       "surface": "SURF-DOH",
       "purpose": "Band A module for Execution Summary review and distribution.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/execution-summary-review/"
     },
     {
       "id": "MOD-DOH-09",
@@ -202,7 +221,8 @@
       "label": "Permissions, Roles and Access",
       "surface": "SURF-DOH",
       "purpose": "Band A module for tenant permissions, roles and access.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/permissions-roles-and-access/"
     },
     {
       "id": "MOD-DOH-10",
@@ -211,7 +231,8 @@
       "label": "Notifications",
       "surface": "SURF-DOH",
       "purpose": "Band A module delivering the tenant notification model over in-app and email.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/notifications/"
     },
     {
       "id": "MOD-DOH-11",
@@ -220,7 +241,8 @@
       "label": "Audit and Retention",
       "surface": "SURF-DOH",
       "purpose": "Band A module holding the one append-only audit log per tenant and the retention horizon.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/audit-and-retention/"
     },
     {
       "id": "MOD-DOH-12",
@@ -229,7 +251,8 @@
       "label": "Integration Surface (Tenant Side)",
       "surface": "SURF-DOH",
       "purpose": "Band A module carrying the tenant-side integration surface; V1 scaffolding only.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/integration-surface/"
     },
     {
       "id": "MOD-DOH-13",
@@ -238,7 +261,8 @@
       "label": "Tenant View of Platform Administration",
       "surface": "SURF-DOH",
       "purpose": "Band A module giving the tenant a read-only view of platform administration affecting it.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/tenant-view-of-platform-administration/"
     },
     {
       "id": "MOD-DOH-14",
@@ -247,7 +271,8 @@
       "label": "Qualification Calendar",
       "surface": "SURF-DOH",
       "purpose": "Band B module giving the Quality Manager a 60-day workforce-wide certification-expiry planning view.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/qualification-calendar/"
     },
     {
       "id": "MOD-DOH-15",
@@ -256,7 +281,8 @@
       "label": "Job Cloning",
       "surface": "SURF-DOH",
       "purpose": "Band B module for cloning Jobs.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/job-lifecycle-and-approval/"
     },
     {
       "id": "MOD-DOH-16",
@@ -265,7 +291,8 @@
       "label": "Multi-Area Job Pairing",
       "surface": "SURF-DOH",
       "purpose": "Band B module pairing Jobs across areas.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/multi-area-job-pairing/"
     },
     {
       "id": "MOD-DOH-17",
@@ -292,7 +319,8 @@
       "label": "Parts Registry",
       "surface": "SURF-DOH",
       "purpose": "Band B module holding parts master data plus Studio inline add.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/hub/parts-registry/"
     },
     {
       "id": "MOD-FL-A1",
@@ -301,7 +329,8 @@
       "label": "Identity, Authentication and Device Mode",
       "surface": "SURF-FL",
       "purpose": "Band A execution backbone; the login is the credential and identity travels with the worker.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/frontline/sign-in/"
     },
     {
       "id": "MOD-FL-A2",
@@ -310,7 +339,8 @@
       "label": "My Runs",
       "surface": "SURF-FL",
       "purpose": "Band A; shows the Job with Runs beneath it, scoped to the logged-in identity's own work.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/frontline/my-runs/"
     },
     {
       "id": "MOD-FL-A3",
@@ -319,7 +349,8 @@
       "label": "Run Player",
       "surface": "SURF-FL",
       "purpose": "Band A; one screen at a time with instruction and input, no pace, timer or comparison.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/frontline/run-player/"
     },
     {
       "id": "MOD-FL-A4",
@@ -355,7 +386,8 @@
       "label": "Security and Data Protection",
       "surface": "SURF-FL",
       "purpose": "Band A; encrypted local storage and evidence protection on device.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/frontline/profile-lite/"
     },
     {
       "id": "MOD-FL-B10",
@@ -364,7 +396,8 @@
       "label": "Notifications",
       "surface": "SURF-FL",
       "purpose": "Band B; Frontline inbox, no operating-system push at launch.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/frontline/notifications-and-sync-inbox/"
     },
     {
       "id": "MOD-FL-B11",
@@ -382,7 +415,8 @@
       "label": "Training Library Viewer",
       "surface": "SURF-FL",
       "purpose": "Band B; renders Studio-authored training content, online only.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/frontline/training-library-viewer/"
     },
     {
       "id": "MOD-FL-B8",
@@ -409,7 +443,8 @@
       "label": "Platform Overview and Health",
       "surface": "SURF-SA",
       "purpose": "Console capability section §8.1 for platform overview and health.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/platform-overview-and-health/"
     },
     {
       "id": "MOD-SA-02",
@@ -418,7 +453,8 @@
       "label": "Atom Registry",
       "surface": "SURF-SA",
       "purpose": "§8.2; the catalog is the registry, registration is a record not orchestrator code.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/atom-registry/"
     },
     {
       "id": "MOD-SA-03",
@@ -427,7 +463,8 @@
       "label": "Core Agents and Composed-Agent Review",
       "surface": "SURF-SA",
       "purpose": "§8.3; core agent administration and composed-agent review.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/core-agents-and-composed-agent-review/"
     },
     {
       "id": "MOD-SA-04",
@@ -436,7 +473,8 @@
       "label": "Memory Architecture",
       "surface": "SURF-SA",
       "purpose": "§8.4; five typed memory stores administered with per-type retention.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/memory-architecture/"
     },
     {
       "id": "MOD-SA-05",
@@ -445,7 +483,8 @@
       "label": "Eval Harness",
       "surface": "SURF-SA",
       "purpose": "§8.5; scenario-first evaluation harness and the hard enablement gate with no off position.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/eval-harness/"
     },
     {
       "id": "MOD-SA-06",
@@ -454,7 +493,8 @@
       "label": "Trace Viewer",
       "surface": "SURF-SA",
       "purpose": "§8.6; traces as day-one backend artifacts with replans first-class.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/trace-viewer/"
     },
     {
       "id": "MOD-SA-07",
@@ -463,7 +503,8 @@
       "label": "Platform Settings",
       "surface": "SURF-SA",
       "purpose": "§8.7; renders six invariants locked with no off position for any account including the root.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/platform-settings/"
     },
     {
       "id": "MOD-SA-08",
@@ -472,7 +513,8 @@
       "label": "Console Users, Roles and Change Approvals",
       "surface": "SURF-SA",
       "purpose": "§8.8; maker-checker, root-only actions and the critical change class.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/console-users-roles-and-change-approvals/"
     },
     {
       "id": "MOD-SA-09",
@@ -481,7 +523,8 @@
       "label": "Tenants, Lifecycle and Pilots",
       "surface": "SURF-SA",
       "purpose": "§8.9; tenant onboarding, lifecycle states and pilot management.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/tenants-lifecycle-and-pilots/"
     },
     {
       "id": "MOD-SA-10",
@@ -490,7 +533,8 @@
       "label": "Tenant Metrics and Aggregates",
       "surface": "SURF-SA",
       "purpose": "§8.10; anonymised cross-tenant aggregates enforced as an invariant.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/tenant-metrics-and-aggregates/"
     },
     {
       "id": "MOD-SA-11",
@@ -499,7 +543,8 @@
       "label": "Tiers, Entitlements and Caps",
       "surface": "SURF-SA",
       "purpose": "§8.11; versioned approvable tier records carrying no price metadata.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/tiers-entitlements-and-caps/"
     },
     {
       "id": "MOD-SA-12",
@@ -508,7 +553,8 @@
       "label": "Usage and Metering",
       "surface": "SURF-SA",
       "purpose": "§8.12; Worker-Shift meter, usage ledger and ledger export.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/usage-and-metering/"
     },
     {
       "id": "MOD-SA-13",
@@ -517,7 +563,8 @@
       "label": "Devices and Fleet",
       "surface": "SURF-SA",
       "purpose": "§8.13; device enrollment and fleet management.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/devices-and-fleet/"
     },
     {
       "id": "MOD-SA-14",
@@ -526,7 +573,8 @@
       "label": "Platform Notifications and Tenant Communications",
       "surface": "SURF-SA",
       "purpose": "§8.14; platform notifications and communications to tenants.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/platform-notifications-and-tenant-communications/"
     },
     {
       "id": "MOD-SA-15",
@@ -535,7 +583,8 @@
       "label": "Support Access",
       "surface": "SURF-SA",
       "purpose": "§8.15; read-only, reason-required, ticket-linked sessions with a two-hour default time box.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/support-access/"
     },
     {
       "id": "MOD-SA-16",
@@ -544,7 +593,8 @@
       "label": "JBS Access",
       "surface": "SURF-SA",
       "purpose": "§8.16; scoped, time-boxed, reason-linked, audited, mirrored grants to JBS; no standing access.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/jbs-access/"
     },
     {
       "id": "MOD-SA-17",
@@ -553,7 +603,8 @@
       "label": "Data Lifecycle and Archival",
       "surface": "SURF-SA",
       "purpose": "§8.17; no-purge tiering, retention horizon and legal hold as a managed object.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "MOD-SA-18",
@@ -562,7 +613,8 @@
       "label": "Platform Audit",
       "surface": "SURF-SA",
       "purpose": "§8.18; one-transaction audit guarantee for platform-side actions.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/platform-audit/"
     },
     {
       "id": "MOD-SA-19",
@@ -571,7 +623,8 @@
       "label": "The Tenant-Configuration Registry",
       "surface": "SURF-SA",
       "purpose": "§8.19; holds platform default, bound and current tenant value for every setting; rejects out-of-bound writes.",
-      "sourceClass": "source-defined"
+      "sourceClass": "source-defined",
+      "route": "/super-admin/tenant-configuration-registry/"
     },
     {
       "id": "MOD-STU-01",
@@ -580,7 +633,8 @@
       "label": "Charter and Position",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: the surface's charter and position.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/capabilities/"
     },
     {
       "id": "MOD-STU-02",
@@ -589,7 +643,8 @@
       "label": "Agent Configuration",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: configures the platform's intelligent agents.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/agents/"
     },
     {
       "id": "MOD-STU-03",
@@ -598,7 +653,8 @@
       "label": "Workflow Library and Tenant Workspace",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: the workflow library and tenant workspace.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/workflow-library/"
     },
     {
       "id": "MOD-STU-04",
@@ -607,7 +663,8 @@
       "label": "Workflow Builder",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: builds Workflows, the authored unit of truth.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/builder/"
     },
     {
       "id": "MOD-STU-05",
@@ -616,7 +673,8 @@
       "label": "Screen Authoring across the nine configuration sections",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: authors screens across nine configuration sections including specification limits and severity mapping.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/screen-configuration/"
     },
     {
       "id": "MOD-STU-06",
@@ -625,7 +683,8 @@
       "label": "Shared Instruction Blocks",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: shared instruction blocks.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/instruction-blocks/"
     },
     {
       "id": "MOD-STU-07",
@@ -634,7 +693,8 @@
       "label": "Content Libraries",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: content libraries.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/content-libraries/"
     },
     {
       "id": "MOD-STU-08",
@@ -643,7 +703,8 @@
       "label": "Training Library",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: training content with upload, versioning and audit.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/training-library/"
     },
     {
       "id": "MOD-STU-09",
@@ -670,7 +731,8 @@
       "label": "Approval Workflow",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: Author, then Reviewer, then Release Authority chain.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/approvals/"
     },
     {
       "id": "MOD-STU-12",
@@ -679,7 +741,8 @@
       "label": "Versioning and Publication",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: semantic versioning, mandatory republish description, version classification.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/versions/"
     },
     {
       "id": "MOD-STU-13",
@@ -688,7 +751,8 @@
       "label": "Qualification Requirements",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: authors qualification requirements.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/qualification-requirements/"
     },
     {
       "id": "MOD-STU-14",
@@ -697,7 +761,8 @@
       "label": "Offline Package",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: produces work packages pinned per run at assignment.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/work-package/"
     },
     {
       "id": "MOD-STU-15",
@@ -706,7 +771,8 @@
       "label": "Agent Builder",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: tenant-composed reasoning agents only; tier-gated to Growth and Enterprise.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/agents/"
     },
     {
       "id": "MOD-STU-16",
@@ -715,7 +781,8 @@
       "label": "Memory and the Two-Lane Learning Loop",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: memory and the two-lane learning loop record.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/learning/"
     },
     {
       "id": "MOD-STU-17",
@@ -724,7 +791,8 @@
       "label": "Localisation",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: versioned locale files; nothing machine-translated at runtime.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/localisation/"
     },
     {
       "id": "MOD-STU-18",
@@ -733,10 +801,13 @@
       "label": "Permissions and Roles in the Studio",
       "surface": "SURF-STU",
       "purpose": "Derived Studio module: authoring grant layered on Supervisor or Quality Manager.",
-      "sourceClass": "derived"
+      "sourceClass": "derived",
+      "route": "/studio/permissions-and-grants/"
     }
   ],
   "sourceLineMeaning": "A frozen-source line that MENTIONS the identifier, published so a reader can open it. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. It is computed one of three ways, and which one depends on the register the row came from. (1) By default, the FIRST MENTION of the identifier anywhere in the frozen source — the minimum of registries/raw/identifier-index.json's line list for that id. (2) Where the row belongs to a CHAPTER-BANDED register, the first occurrence inside that register's own chapter, which is deliberately NOT the minimum of the list: SB-AI-01 in ai-storyboards.json ships L92693 and not its list minimum L74479, because L74479 is chapter 30D and the row belongs to section 44A. A register label that claims a chapter is asserted against every one of its rows at build time, so a row outside its band is a build failure. (3) Where a register was TRANSCRIBED by the extraction rather than derived from the identifier index — modules, business objects, actionable controls, workflows, the notification placement rows, the Studio triggers and the deployable scheduled-work rows — the line the extraction recorded for that row. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation.",
   "namedInSourceCount": 81,
+  "routeResolvedCount": 69,
+  "routeMeaning": "The shipped screen whose evidence set this row's status: for a module, the route directory its declared slug names or the one whose files name it more often than any other module; for an actionable control, the route directory declaring a control-matrix row with exactly this label; for every other inventory, the route directory that spells this identifier as a whole token. Where several routes qualify, the lexicographically first is recorded, so two independent generations agree. A row carries no route when no route demonstrates it, when the evidence was an import rather than a route file (mounted-in-another-screen), when the row is an authored not-applicable or decision-blocked record, or when the only directory found holds a dynamic segment -- app/coverage/[registry] is one directory standing for fourteen URLs and choosing one of them for a row would be a guess. Those rows render their id as plain text with the reason beside it, never as a link to nowhere.",
   "namedInSourceMeaning": "How many rows this registry holds whose identifier is named anywhere under src/ or app/. It is WEAKER than a status and deliberately not one: a status says a route screen demonstrates the row, and this says only that some file in the build spells its identifier. It is published because the two numbers can differ by a lot -- offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text label rather than an identifier (actionable-controls) cannot be counted this way and read as unnamed here; that is a limit of the measure, not a gap in the build."
 }

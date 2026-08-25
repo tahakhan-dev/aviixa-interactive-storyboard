@@ -3,7 +3,7 @@
   "countedThing": "608 distinct actionable UI controls (labelled actions like \"End-session\", \"Resolve All\", \"Request release with a note\"), deduped by exact label text from 759 raw extraction entries -- matches spec §2.10. Also discloses, under its own register tag, the separate DNC-01..DNC-22 do-not-use-cron register (22): scheduling policy, never an actionable control, and never merged into this count.",
   "reconciledCount": 608,
   "rawCount": 759,
-  "dedupRule": "759 raw controls[] entries across the 36 extraction chunks deduped by exact label text (first occurrence, chunk order, wins) -> 608 distinct actionable controls, matching spec §2.10. Worst collapse: 14 raw entries sharing one label (\"Request release with a note\"). DNC-01..DNC-22 (verified unique, zero delta) is a SEPARATE inventory -- scheduling policy, not an actionable control -- and is listed under the \"do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)\" register tag rather than mixed into this count. Status is computed from the built route tree, never from a list: 4 of 630 rows read demonstrated-in-storyboard because a shipped route screen declares a control-matrix row whose `control:` label is EXACTLY this source label (the 608 control rows), or names the identifier as a whole token (the DNC-* rows). This is the weakest of the fourteen signals and says so: the built screens declare 83 control-matrix labels, of which 4 are word-for-word a source label and the rest are the same control re-worded for a reader. The frozen source gives these actions no identifier -- the label IS the key -- so there is nothing else to join on, and a looser match was rejected: the 608 labels include \"Add\", \"Next\", \"Return\" and \"Filter\", which occur in unrelated prose and chrome across the tree and would have inflated this number by dozens. Read this figure as \"controls the build labelled identically to the source\", never as \"controls the build demonstrates\". Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
+  "dedupRule": "759 raw controls[] entries across the 36 extraction chunks deduped by exact label text (first occurrence, chunk order, wins) -> 608 distinct actionable controls, matching spec §2.10. Worst collapse: 14 raw entries sharing one label (\"Request release with a note\"). DNC-01..DNC-22 (verified unique, zero delta) is a SEPARATE inventory -- scheduling policy, not an actionable control -- and is listed under the \"do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)\" register tag rather than mixed into this count. THE FOUR CENSUS DIMENSIONS MASTER PROMPT §13.1 ASKS FOR, AND WHICH OF THEM THIS EXTRACTION CAN ANSWER. Surface: 608 of 608 rows carry a normalised surface (1 of them cross-surface), and 15 of those were prose in the extraction and are normalised here with the raw wording kept beside them. Module: 268 rows carry a canonical MOD-* id; 257 name their module in prose or name several at once, and carry that text verbatim rather than a guessed id; 83 record no module at all. Implementation status: every row. CONTROL TYPE: NO ROW, AND NOT BECAUSE THE GENERATOR DROPS IT. The frozen source classifies none of these 608 controls by type -- the extraction records label, surface, module, allowed roles, effect and line, and the source names no type for any of them. A type column here would be this build's own taxonomy presented in a source-derived census, so the dimension is declared absent instead of invented, and the reconciliation row for this inventory carries it as its delta. Status is computed from the built route tree, never from a list: 16 of 630 rows read demonstrated-in-storyboard because a shipped route screen declares a control-matrix row whose `control:` label is EXACTLY this source label (the 608 control rows), or names the identifier as a whole token (the DNC-* rows). This is the weakest of the fourteen signals and says so: the built screens declare 271 control-matrix labels (83 in a route file under app/ and 188 only in the module components under src/ that those routes mount -- the scan behind this figure read app/ alone until audit round 4 finding R4-B03, and published 83 and 4 where the two trees together hold what is printed here), of which 16 are word-for-word a source label and the rest are the same control re-worded for a reader. The frozen source gives these actions no identifier -- the label IS the key -- so there is nothing else to join on, and a looser match was rejected: the 608 labels include \"Add\", \"Next\", \"Return\" and \"Filter\", which occur in unrelated prose and chrome across the tree and would have inflated this number by dozens. Read this figure as \"controls the build labelled identically to the source\", never as \"controls the build demonstrates\". Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": false,
   "rows": [
     {
@@ -12,6 +12,7 @@
       "sourceLine": 42209,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -20,6 +21,7 @@
       "sourceLine": 98970,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "MOD-SA-SCHED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -28,6 +30,7 @@
       "sourceLine": 38157,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -36,6 +39,7 @@
       "sourceLine": 14977,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated (§8.8 Users pane)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -44,6 +48,7 @@
       "sourceLine": 4342,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -58,8 +63,9 @@
       "id": "Acknowledge a notification",
       "label": "Acknowledge a notification",
       "sourceLine": 28699,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -68,6 +74,7 @@
       "sourceLine": 11401,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -75,7 +82,9 @@
       "label": "Acknowledge and annotate the shift handoff brief",
       "sourceLine": 58821,
       "status": "not-represented",
-      "surface": "Client Command Center",
+      "surface": "SURF-CC",
+      "surfaceDescriptor": "Client Command Center",
+      "moduleId": "MOD-CC-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -84,6 +93,7 @@
       "sourceLine": 11406,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -92,6 +102,7 @@
       "sourceLine": 38561,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -100,6 +111,7 @@
       "sourceLine": 48431,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -108,6 +120,7 @@
       "sourceLine": 75180,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -116,6 +129,7 @@
       "sourceLine": 33178,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -124,6 +138,7 @@
       "sourceLine": 48308,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -132,6 +147,7 @@
       "sourceLine": 40663,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A3",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -156,6 +172,7 @@
       "sourceLine": 34912,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "MOD-CC-03 / MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -164,14 +181,16 @@
       "sourceLine": 17720,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-NOTIF-ESC",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "Adjust and approve",
       "label": "Adjust and approve",
       "sourceLine": 37153,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -180,6 +199,7 @@
       "sourceLine": 20428,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -188,6 +208,7 @@
       "sourceLine": 24907,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -196,6 +217,7 @@
       "sourceLine": 71013,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -204,6 +226,7 @@
       "sourceLine": 77923,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -212,6 +235,7 @@
       "sourceLine": 53601,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -220,6 +244,7 @@
       "sourceLine": 24907,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "Studio approval queue",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -228,6 +253,7 @@
       "sourceLine": 54411,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -244,6 +270,7 @@
       "sourceLine": 48163,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -252,6 +279,7 @@
       "sourceLine": 24521,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -260,14 +288,16 @@
       "sourceLine": 24234,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "Approve",
       "label": "Approve",
       "sourceLine": 20428,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -276,6 +306,7 @@
       "sourceLine": 43339,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -284,6 +315,7 @@
       "sourceLine": 103411,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -292,6 +324,7 @@
       "sourceLine": 4326,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -308,6 +341,7 @@
       "sourceLine": 104547,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -315,7 +349,9 @@
       "label": "Approve / adjust-within-bounds and approve / decline with a categorised reason",
       "sourceLine": 59217,
       "status": "not-represented",
-      "surface": "Client Command Center gate queue and learned-change queue",
+      "surface": "SURF-CC",
+      "surfaceDescriptor": "Client Command Center gate queue and learned-change queue",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -324,6 +360,7 @@
       "sourceLine": 48793,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -332,6 +369,7 @@
       "sourceLine": 48792,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -340,6 +378,7 @@
       "sourceLine": 48793,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -348,6 +387,7 @@
       "sourceLine": 65940,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Archival execution",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -364,6 +404,7 @@
       "sourceLine": 48309,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -372,6 +413,7 @@
       "sourceLine": 11403,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -380,6 +422,7 @@
       "sourceLine": 15783,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated (SCR-SA-APPR-01)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -388,6 +431,7 @@
       "sourceLine": 48793,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -396,6 +440,7 @@
       "sourceLine": 65490,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Atom registry",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -404,6 +449,7 @@
       "sourceLine": 22349,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -412,6 +458,7 @@
       "sourceLine": 11402,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -420,6 +467,7 @@
       "sourceLine": 23918,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -428,6 +476,7 @@
       "sourceLine": 112908,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Delivery Operations Hub module 2",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -436,6 +485,7 @@
       "sourceLine": 33546,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -444,6 +494,7 @@
       "sourceLine": 67417,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Location configuration",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -452,6 +503,7 @@
       "sourceLine": 76761,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -460,6 +512,7 @@
       "sourceLine": 47506,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -468,6 +521,7 @@
       "sourceLine": 89566,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -476,6 +530,7 @@
       "sourceLine": 89566,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -484,6 +539,7 @@
       "sourceLine": 19523,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-DENY-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -492,6 +548,7 @@
       "sourceLine": 34631,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "MOD-STU-18 grant administration",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -500,14 +557,16 @@
       "sourceLine": 112572,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Delivery Operations Hub module 9",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "Author and export report formats",
       "label": "Author and export report formats",
       "sourceLine": 117313,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-18",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -516,6 +575,7 @@
       "sourceLine": 64827,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Compliance-emergency authorisation",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -524,6 +584,7 @@
       "sourceLine": 89566,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -540,6 +601,7 @@
       "sourceLine": 104695,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -556,6 +618,7 @@
       "sourceLine": 100503,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -564,6 +627,7 @@
       "sourceLine": 64573,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Audit log",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -572,6 +636,7 @@
       "sourceLine": 14264,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -580,6 +645,7 @@
       "sourceLine": 14264,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -588,6 +654,7 @@
       "sourceLine": 25686,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -596,6 +663,7 @@
       "sourceLine": 33178,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -604,6 +672,7 @@
       "sourceLine": 1808,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -628,6 +697,7 @@
       "sourceLine": 41894,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -644,6 +714,7 @@
       "sourceLine": 113716,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Super Admin module 9 — suspension state control",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -652,6 +723,7 @@
       "sourceLine": 57083,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -660,6 +732,7 @@
       "sourceLine": 29486,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-15",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -668,6 +741,7 @@
       "sourceLine": 53862,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A3",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -676,6 +750,7 @@
       "sourceLine": 89394,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A3",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -684,6 +759,7 @@
       "sourceLine": 51393,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -692,6 +768,7 @@
       "sourceLine": 54342,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -700,6 +777,7 @@
       "sourceLine": 54228,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -708,6 +786,7 @@
       "sourceLine": 53798,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -716,6 +795,7 @@
       "sourceLine": 25830,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "cross-module",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -724,13 +804,14 @@
       "sourceLine": 48648,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "Configure severity action bundles",
       "label": "Configure severity action bundles",
       "sourceLine": 61338,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-SA",
       "register": "actionable controls (surface action catalogue)"
     },
@@ -740,6 +821,7 @@
       "sourceLine": 95476,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -748,6 +830,7 @@
       "sourceLine": 42058,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -764,6 +847,7 @@
       "sourceLine": 65808,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Change notice",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -772,6 +856,7 @@
       "sourceLine": 48648,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -780,6 +865,7 @@
       "sourceLine": 14571,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "unstated (SCR-FL-DENY-01)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -796,6 +882,7 @@
       "sourceLine": 72496,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -804,6 +891,7 @@
       "sourceLine": 100500,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -812,6 +900,7 @@
       "sourceLine": 118001,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -820,6 +909,7 @@
       "sourceLine": 112461,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Delivery Operations Hub module 9",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -828,6 +918,7 @@
       "sourceLine": 66809,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Console users",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -836,6 +927,7 @@
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -844,13 +936,14 @@
       "sourceLine": 66959,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Tenant list",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "Create a Job",
       "label": "Create a Job",
       "sourceLine": 61357,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH",
       "register": "actionable controls (surface action catalogue)"
     },
@@ -860,14 +953,16 @@
       "sourceLine": 48432,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "Create a run",
       "label": "Create a run",
       "sourceLine": 65163,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Hard-suspension banner",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -884,6 +979,7 @@
       "sourceLine": 52400,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -892,6 +988,7 @@
       "sourceLine": 76133,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -900,6 +997,7 @@
       "sourceLine": 23707,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -908,139 +1006,162 @@
       "sourceLine": 14978,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "DNC-01",
       "sourceLine": 98485,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-02",
       "sourceLine": 98486,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-03",
       "sourceLine": 98487,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-04",
       "sourceLine": 98488,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-05",
       "sourceLine": 98489,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-06",
       "sourceLine": 98490,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-07",
       "sourceLine": 98491,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-08",
       "sourceLine": 98492,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-09",
       "sourceLine": 98493,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-10",
       "sourceLine": 98494,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-11",
       "sourceLine": 98495,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-12",
       "sourceLine": 98496,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-13",
       "sourceLine": 98497,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-14",
       "sourceLine": 98498,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-15",
       "sourceLine": 98499,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-16",
       "sourceLine": 98500,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-17",
       "sourceLine": 98501,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-18",
       "sourceLine": 98502,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-19",
       "sourceLine": 98503,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-20",
       "sourceLine": 98504,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-21",
       "sourceLine": 98505,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "DNC-22",
       "sourceLine": 98506,
-      "status": "not-represented",
-      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)"
+      "status": "not-applicable",
+      "register": "do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)",
+      "statusReason": "A do-not-use-cron row is a scheduling prohibition, not an actionable UI control. The register names a platform functionality and states why a scheduled sweeper is the wrong mechanism for it; the thing the row describes is what the platform refuses to automate. Asking whether a rendered control demonstrates one is a category error, and answering not-represented implies a screen this build owes and does not owe. The registry's own countedThing has said as much since the register was first split out: scheduling policy, never an actionable control, and never merged into the 608. The status now agrees with the sentence. Recorded as an authored not-applicable census record in registries/authored/census-status-overrides.json. Owner: JBS build controller, under client approval APP-012 (standing autonomous authority to census closure across all fourteen inventories; where a choice is open, pick what is best for the business and proceed). Evidence, frozen source line 98508: \"On tenant surfaces nothing from this register is visible, because the register describes what the platform refuses to do rather than something a tenant configures.\""
     },
     {
       "id": "Date and entity filters (audit export)",
@@ -1048,6 +1169,7 @@
       "sourceLine": 54544,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1056,6 +1178,7 @@
       "sourceLine": 97783,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1064,6 +1187,7 @@
       "sourceLine": 16933,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-AUD-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1072,6 +1196,7 @@
       "sourceLine": 18286,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-DEV-DETAIL",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1080,6 +1205,7 @@
       "sourceLine": 117495,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1088,6 +1214,7 @@
       "sourceLine": 33357,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1096,6 +1223,7 @@
       "sourceLine": 87213,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1104,14 +1232,16 @@
       "sourceLine": 20428,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "Decline with reason",
       "label": "Decline with reason",
       "sourceLine": 24907,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1120,6 +1250,7 @@
       "sourceLine": 48309,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1136,6 +1267,7 @@
       "sourceLine": 65614,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Emergency pause control",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1152,6 +1284,7 @@
       "sourceLine": 48163,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1160,6 +1293,7 @@
       "sourceLine": 65941,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Archival execution",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1168,6 +1302,7 @@
       "sourceLine": 54850,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1184,6 +1319,7 @@
       "sourceLine": 112905,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Delivery Operations Hub module 2",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1192,6 +1328,7 @@
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1208,6 +1345,7 @@
       "sourceLine": 65490,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Atom registry / Platform settings",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1224,6 +1362,7 @@
       "sourceLine": 41566,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1232,6 +1371,7 @@
       "sourceLine": 65039,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Soft-suspension banner",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1240,6 +1380,7 @@
       "sourceLine": 108982,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1255,7 +1396,9 @@
       "label": "ENFORCED badge (locked invariants)",
       "sourceLine": 60704,
       "status": "not-represented",
-      "surface": "Super Admin platform console",
+      "surface": "SURF-SA",
+      "surfaceDescriptor": "Super Admin platform console",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1264,6 +1407,7 @@
       "sourceLine": 103982,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1272,6 +1416,7 @@
       "sourceLine": 87376,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1280,6 +1425,7 @@
       "sourceLine": 44041,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1296,6 +1442,7 @@
       "sourceLine": 48163,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1304,6 +1451,7 @@
       "sourceLine": 48308,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1312,6 +1460,7 @@
       "sourceLine": 48432,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1320,6 +1469,7 @@
       "sourceLine": 48649,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1336,6 +1486,7 @@
       "sourceLine": 100559,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1352,6 +1503,7 @@
       "sourceLine": 54979,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1360,6 +1512,7 @@
       "sourceLine": 87854,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1368,6 +1521,7 @@
       "sourceLine": 104586,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1376,6 +1530,7 @@
       "sourceLine": 113588,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Super Admin module 5 (eval harness gate view panel 4)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1384,6 +1539,7 @@
       "sourceLine": 86893,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1392,6 +1548,7 @@
       "sourceLine": 30751,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-15",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1400,6 +1557,7 @@
       "sourceLine": 65490,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Atom registry",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1408,6 +1566,7 @@
       "sourceLine": 9709,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1416,6 +1575,7 @@
       "sourceLine": 1476,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1424,6 +1584,7 @@
       "sourceLine": 4599,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1432,6 +1593,7 @@
       "sourceLine": 10902,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1440,6 +1602,7 @@
       "sourceLine": 44272,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-SA-15",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1448,6 +1611,7 @@
       "sourceLine": 48720,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-22",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1456,7 +1620,8 @@
       "sourceLine": 61357,
       "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH",
-      "register": "actionable controls (surface action catalogue)"
+      "register": "actionable controls (surface action catalogue)",
+      "route": "/hub/devices/"
     },
     {
       "id": "Enter a supervisor code",
@@ -1472,6 +1637,7 @@
       "sourceLine": 15544,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated (SCR-SA-CLASS-01)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1480,6 +1646,7 @@
       "sourceLine": 97663,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1488,6 +1655,7 @@
       "sourceLine": 28959,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1496,6 +1664,7 @@
       "sourceLine": 3884,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1504,6 +1673,7 @@
       "sourceLine": 104114,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1512,6 +1682,7 @@
       "sourceLine": 64572,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Audit log",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1520,6 +1691,7 @@
       "sourceLine": 20728,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1528,6 +1700,7 @@
       "sourceLine": 54544,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1536,6 +1709,7 @@
       "sourceLine": 48162,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1544,6 +1718,7 @@
       "sourceLine": 1903,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1552,6 +1727,7 @@
       "sourceLine": 28030,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1560,6 +1736,7 @@
       "sourceLine": 11133,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1568,6 +1745,7 @@
       "sourceLine": 64699,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Support-session banner",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1576,6 +1754,7 @@
       "sourceLine": 113715,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Super Admin module 9 tenant detail page",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1584,6 +1763,7 @@
       "sourceLine": 4340,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1592,6 +1772,7 @@
       "sourceLine": 64572,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Audit log",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1600,6 +1781,7 @@
       "sourceLine": 37863,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1608,6 +1790,7 @@
       "sourceLine": 104111,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1616,6 +1799,7 @@
       "sourceLine": 29318,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-14",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1624,6 +1808,7 @@
       "sourceLine": 1903,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1632,6 +1817,7 @@
       "sourceLine": 43158,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1640,6 +1826,7 @@
       "sourceLine": 25016,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1648,6 +1835,7 @@
       "sourceLine": 18185,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-IDENT",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1656,6 +1844,7 @@
       "sourceLine": 52740,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-14",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1672,6 +1861,7 @@
       "sourceLine": 80541,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1680,6 +1870,7 @@
       "sourceLine": 38157,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1688,6 +1879,7 @@
       "sourceLine": 64572,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Audit log",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1704,6 +1896,7 @@
       "sourceLine": 26293,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "cross-module",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1712,6 +1905,7 @@
       "sourceLine": 35931,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1720,6 +1914,7 @@
       "sourceLine": 1668,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1728,6 +1923,7 @@
       "sourceLine": 108982,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1736,6 +1932,7 @@
       "sourceLine": 117304,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1744,6 +1941,7 @@
       "sourceLine": 47206,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "n/a — navigation shell",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1752,6 +1950,7 @@
       "sourceLine": 41736,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B9",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1760,6 +1959,7 @@
       "sourceLine": 27431,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-DOH-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1774,8 +1974,9 @@
       "id": "Grant a qualification clearance",
       "label": "Grant a qualification clearance",
       "sourceLine": 11410,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1784,6 +1985,7 @@
       "sourceLine": 2496,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1800,6 +2002,7 @@
       "sourceLine": 64699,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Support-session banner",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1808,6 +2011,7 @@
       "sourceLine": 42058,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1815,7 +2019,9 @@
       "label": "Handoff state chip",
       "sourceLine": 25129,
       "status": "not-represented",
-      "surface": "all surfaces rendering a handoff",
+      "surface": "cross-surface",
+      "surfaceDescriptor": "all surfaces rendering a handoff",
+      "moduleDescriptor": "cross-surface",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1824,6 +2030,7 @@
       "sourceLine": 64699,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Support-session banner",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1832,6 +2039,7 @@
       "sourceLine": 113375,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Frontline module A2 — My Runs",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1840,6 +2048,7 @@
       "sourceLine": 73228,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "preferences",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1848,6 +2057,7 @@
       "sourceLine": 113109,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "Studio module 5, section 2 of the nine-section panel",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1856,6 +2066,7 @@
       "sourceLine": 54815,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1864,6 +2075,7 @@
       "sourceLine": 112907,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Job definition screen, Delivery Operations Hub module 5",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1872,6 +2084,7 @@
       "sourceLine": 42380,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "22.23 Localisation — Profile-lite",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1880,6 +2093,7 @@
       "sourceLine": 41412,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A7",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1888,6 +2102,7 @@
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1896,6 +2111,7 @@
       "sourceLine": 117354,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1904,6 +2120,7 @@
       "sourceLine": 4142,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1912,6 +2129,7 @@
       "sourceLine": 113112,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "Studio module 7 / screen configuration panel",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1920,6 +2138,7 @@
       "sourceLine": 37781,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1928,6 +2147,7 @@
       "sourceLine": 40305,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A1",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1936,6 +2156,7 @@
       "sourceLine": 42380,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Profile-lite",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1944,6 +2165,7 @@
       "sourceLine": 36551,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "MOD-CC-02 / MOD-CC-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1952,6 +2174,7 @@
       "sourceLine": 100928,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1960,6 +2183,7 @@
       "sourceLine": 3981,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1968,6 +2192,7 @@
       "sourceLine": 50611,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Sync engine",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1976,6 +2201,7 @@
       "sourceLine": 4448,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A6",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -1992,6 +2218,7 @@
       "sourceLine": 85073,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2000,6 +2227,7 @@
       "sourceLine": 86526,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2008,6 +2236,7 @@
       "sourceLine": 89568,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2016,14 +2245,16 @@
       "sourceLine": 103830,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "Mark evidence reviewed",
       "label": "Mark evidence reviewed",
       "sourceLine": 4245,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2032,6 +2263,7 @@
       "sourceLine": 48431,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2039,7 +2271,9 @@
       "label": "Mark relevant / not relevant (prior case relevance)",
       "sourceLine": 58955,
       "status": "not-represented",
-      "surface": "Client Command Center deviation workspace",
+      "surface": "SURF-CC",
+      "surfaceDescriptor": "Client Command Center deviation workspace",
+      "moduleId": "MOD-CC-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2048,6 +2282,7 @@
       "sourceLine": 72496,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2056,6 +2291,7 @@
       "sourceLine": 48162,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2072,6 +2308,7 @@
       "sourceLine": 97784,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2086,8 +2323,9 @@
       "id": "Mute a digest section",
       "label": "Mute a digest section",
       "sourceLine": 28693,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2096,6 +2334,7 @@
       "sourceLine": 64827,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Compliance-emergency authorisation",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2104,6 +2343,7 @@
       "sourceLine": 35102,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SURF-CC-wide",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2112,6 +2352,7 @@
       "sourceLine": 34096,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-15",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2120,6 +2361,7 @@
       "sourceLine": 75180,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2128,6 +2370,7 @@
       "sourceLine": 31976,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2136,6 +2379,7 @@
       "sourceLine": 91615,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Gates and Sign-Off Authority",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2152,6 +2396,7 @@
       "sourceLine": 96696,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2160,6 +2405,7 @@
       "sourceLine": 95576,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2168,6 +2414,7 @@
       "sourceLine": 97037,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2176,6 +2423,7 @@
       "sourceLine": 96422,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2184,6 +2432,7 @@
       "sourceLine": 97239,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2192,6 +2441,7 @@
       "sourceLine": 97560,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2200,6 +2450,7 @@
       "sourceLine": 95478,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2216,6 +2467,7 @@
       "sourceLine": 113242,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "work package delivery",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2224,6 +2476,7 @@
       "sourceLine": 4321,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2232,6 +2485,7 @@
       "sourceLine": 104252,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2240,6 +2494,7 @@
       "sourceLine": 19760,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-EMERG",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2248,6 +2503,7 @@
       "sourceLine": 64572,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Audit log",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2256,6 +2512,7 @@
       "sourceLine": 48629,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2264,6 +2521,7 @@
       "sourceLine": 36763,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2280,6 +2538,7 @@
       "sourceLine": 14573,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2288,6 +2547,7 @@
       "sourceLine": 48630,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2296,6 +2556,7 @@
       "sourceLine": 48629,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2304,6 +2565,7 @@
       "sourceLine": 65162,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Hard-suspension banner",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2312,6 +2574,7 @@
       "sourceLine": 14265,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2320,6 +2583,7 @@
       "sourceLine": 65489,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Atom registry",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2328,6 +2592,7 @@
       "sourceLine": 65808,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Change notice",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2336,6 +2601,7 @@
       "sourceLine": 113110,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "Studio module 5",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2344,6 +2610,7 @@
       "sourceLine": 48432,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2360,6 +2627,7 @@
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "MOD-SA-SCHED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2368,6 +2636,7 @@
       "sourceLine": 65613,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Emergency pause control",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2376,6 +2645,7 @@
       "sourceLine": 65614,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Emergency pause control",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2384,6 +2654,7 @@
       "sourceLine": 18606,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-SET-SYS",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2392,6 +2663,7 @@
       "sourceLine": 65614,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Emergency pause control",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2400,6 +2672,7 @@
       "sourceLine": 48432,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2416,6 +2689,7 @@
       "sourceLine": 99436,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2424,6 +2698,7 @@
       "sourceLine": 100759,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "MOD-SA-SCHED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2432,6 +2707,7 @@
       "sourceLine": 12256,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A6",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2440,6 +2716,7 @@
       "sourceLine": 48611,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2448,6 +2725,7 @@
       "sourceLine": 48630,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2455,7 +2733,9 @@
       "label": "Platform Access History",
       "sourceLine": 58075,
       "status": "not-represented",
-      "surface": "Delivery Operations Hub",
+      "surface": "SURF-DOH",
+      "surfaceDescriptor": "Delivery Operations Hub",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2464,6 +2744,7 @@
       "sourceLine": 115575,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2472,6 +2753,7 @@
       "sourceLine": 95832,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2480,6 +2762,7 @@
       "sourceLine": 41566,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2488,6 +2771,7 @@
       "sourceLine": 32144,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2504,6 +2788,7 @@
       "sourceLine": 24907,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "Studio approval queue",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2512,6 +2797,7 @@
       "sourceLine": 15544,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated (SCR-SA-CLASS-01)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2520,6 +2806,7 @@
       "sourceLine": 98835,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2528,6 +2815,7 @@
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "MOD-SA-SCHED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2536,6 +2824,7 @@
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "MOD-SA-SCHED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2544,6 +2833,7 @@
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "MOD-SA-SCHED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2560,6 +2850,7 @@
       "sourceLine": 4079,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2576,6 +2867,7 @@
       "sourceLine": 48309,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2592,6 +2884,7 @@
       "sourceLine": 31877,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2600,6 +2893,7 @@
       "sourceLine": 3978,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2608,6 +2902,7 @@
       "sourceLine": 4102,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "MOD-STU-14 / MOD-FL-A6",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2616,6 +2911,7 @@
       "sourceLine": 65808,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Change notice",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2624,6 +2920,7 @@
       "sourceLine": 38355,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2632,6 +2929,7 @@
       "sourceLine": 19014,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-PERM-USER",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2640,6 +2938,7 @@
       "sourceLine": 38767,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2648,7 +2947,9 @@
       "sourceLine": 27123,
       "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH",
-      "register": "actionable controls (surface action catalogue)"
+      "moduleId": "MOD-DOH-02",
+      "register": "actionable controls (surface action catalogue)",
+      "route": "/hub/location-configuration/"
     },
     {
       "id": "Reassign a run (Command Center action 8)",
@@ -2656,6 +2957,7 @@
       "sourceLine": 2304,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2664,6 +2966,7 @@
       "sourceLine": 11408,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2672,6 +2975,7 @@
       "sourceLine": 53601,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2680,6 +2984,7 @@
       "sourceLine": 48162,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2688,6 +2993,7 @@
       "sourceLine": 40855,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A4",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2696,6 +3002,7 @@
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "MOD-SA-SCHED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2704,6 +3011,7 @@
       "sourceLine": 89212,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2712,6 +3020,7 @@
       "sourceLine": 52383,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2720,6 +3029,7 @@
       "sourceLine": 75604,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2736,6 +3046,7 @@
       "sourceLine": 13820,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2744,6 +3055,7 @@
       "sourceLine": 4248,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2752,6 +3064,7 @@
       "sourceLine": 20019,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2760,6 +3073,7 @@
       "sourceLine": 11404,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2768,6 +3082,7 @@
       "sourceLine": 99159,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "MOD-SA-SCHED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2776,6 +3091,7 @@
       "sourceLine": 20338,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2784,6 +3100,7 @@
       "sourceLine": 117489,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2792,6 +3109,7 @@
       "sourceLine": 73636,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2799,7 +3117,9 @@
       "label": "Release hold control (rendered disabled for Supervisor with the message \"Lot release is Quality Manager only. Request release with a note.\")",
       "sourceLine": 61024,
       "status": "not-represented",
-      "surface": "Client Command Center",
+      "surface": "SURF-CC",
+      "surfaceDescriptor": "Client Command Center",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2808,6 +3128,7 @@
       "sourceLine": 72004,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2816,6 +3137,7 @@
       "sourceLine": 24234,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2824,6 +3146,7 @@
       "sourceLine": 48649,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2832,6 +3155,7 @@
       "sourceLine": 48431,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2840,6 +3164,7 @@
       "sourceLine": 1643,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2848,6 +3173,7 @@
       "sourceLine": 37554,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "MOD-CC-04 / MOD-CC-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2864,6 +3190,7 @@
       "sourceLine": 86398,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2872,6 +3199,7 @@
       "sourceLine": 4450,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2880,6 +3208,7 @@
       "sourceLine": 93780,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Coaching Rendering",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2888,6 +3217,7 @@
       "sourceLine": 47507,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2896,6 +3226,7 @@
       "sourceLine": 95577,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2904,7 +3235,9 @@
       "sourceLine": 26891,
       "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH",
-      "register": "actionable controls (surface action catalogue)"
+      "moduleId": "MOD-DOH-01",
+      "register": "actionable controls (surface action catalogue)",
+      "route": "/hub/tenant-lifecycle-and-tier-operations/"
     },
     {
       "id": "Request a tier upgrade",
@@ -2912,14 +3245,18 @@
       "sourceLine": 26890,
       "status": "demonstrated-in-storyboard",
       "surface": "SURF-DOH",
-      "register": "actionable controls (surface action catalogue)"
+      "moduleId": "MOD-DOH-01",
+      "register": "actionable controls (surface action catalogue)",
+      "route": "/hub/tenant-lifecycle-and-tier-operations/"
     },
     {
       "id": "Request agent re-check",
       "label": "Request agent re-check",
       "sourceLine": 58821,
       "status": "not-represented",
-      "surface": "Client Command Center",
+      "surface": "SURF-CC",
+      "surfaceDescriptor": "Client Command Center",
+      "moduleId": "MOD-CC-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2928,6 +3265,7 @@
       "sourceLine": 37674,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "MOD-CC-08 / MOD-CC-13 (action 9)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2936,6 +3274,7 @@
       "sourceLine": 11409,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2944,6 +3283,7 @@
       "sourceLine": 103412,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2960,6 +3300,7 @@
       "sourceLine": 72004,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2968,6 +3309,7 @@
       "sourceLine": 1670,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2976,6 +3318,7 @@
       "sourceLine": 15544,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated (SCR-SA-CLASS-01)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2984,6 +3327,7 @@
       "sourceLine": 15793,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated (§8.8 approval queue)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -2992,6 +3336,7 @@
       "sourceLine": 75604,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3000,6 +3345,7 @@
       "sourceLine": 4342,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3008,6 +3354,7 @@
       "sourceLine": 1678,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3016,6 +3363,7 @@
       "sourceLine": 38157,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3024,6 +3372,7 @@
       "sourceLine": 48162,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3032,6 +3381,7 @@
       "sourceLine": 11405,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3040,6 +3390,7 @@
       "sourceLine": 76908,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3048,6 +3399,7 @@
       "sourceLine": 16740,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "Sync-conflict panel",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3056,6 +3408,7 @@
       "sourceLine": 23955,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "sync-conflict review panel",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3064,6 +3417,7 @@
       "sourceLine": 54850,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3072,6 +3426,7 @@
       "sourceLine": 21588,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3096,6 +3451,7 @@
       "sourceLine": 34293,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-16",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3104,6 +3460,7 @@
       "sourceLine": 114117,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Super Admin module 17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3112,6 +3469,7 @@
       "sourceLine": 55918,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3120,6 +3478,7 @@
       "sourceLine": 48792,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3128,6 +3487,7 @@
       "sourceLine": 21050,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3136,6 +3496,7 @@
       "sourceLine": 24907,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "Studio approval queue",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3144,6 +3505,7 @@
       "sourceLine": 23707,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3152,6 +3514,7 @@
       "sourceLine": 43339,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3160,6 +3523,7 @@
       "sourceLine": 87729,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3168,6 +3532,7 @@
       "sourceLine": 65941,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Archival execution",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3176,6 +3541,7 @@
       "sourceLine": 34293,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-16",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3184,6 +3550,7 @@
       "sourceLine": 48648,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3192,6 +3559,7 @@
       "sourceLine": 20338,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3200,6 +3568,7 @@
       "sourceLine": 18185,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-IDENT",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3208,6 +3577,7 @@
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3216,6 +3586,7 @@
       "sourceLine": 23918,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3224,6 +3595,7 @@
       "sourceLine": 55552,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3232,6 +3604,7 @@
       "sourceLine": 15544,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated (SCR-SA-CLASS-01)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3240,6 +3613,7 @@
       "sourceLine": 87338,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3248,6 +3622,7 @@
       "sourceLine": 13538,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated (run drill-down)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3256,6 +3631,7 @@
       "sourceLine": 18606,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-SET-SYS",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3264,6 +3640,7 @@
       "sourceLine": 43706,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3272,6 +3649,7 @@
       "sourceLine": 43706,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3280,6 +3658,7 @@
       "sourceLine": 65489,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Atom registry",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3288,6 +3667,7 @@
       "sourceLine": 48308,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3312,6 +3692,7 @@
       "sourceLine": 14355,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3320,6 +3701,7 @@
       "sourceLine": 100618,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3328,6 +3710,7 @@
       "sourceLine": 23918,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3336,6 +3719,7 @@
       "sourceLine": 116778,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3344,6 +3728,7 @@
       "sourceLine": 47362,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3352,6 +3737,7 @@
       "sourceLine": 4443,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "MOD-FL-A1 / MOD-FL-B9",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3360,6 +3746,7 @@
       "sourceLine": 35396,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3368,6 +3755,7 @@
       "sourceLine": 48308,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3376,6 +3764,7 @@
       "sourceLine": 2199,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3400,6 +3789,7 @@
       "sourceLine": 91697,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Coaching Rendering",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3408,6 +3798,7 @@
       "sourceLine": 95832,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3416,6 +3807,7 @@
       "sourceLine": 95829,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3424,6 +3816,7 @@
       "sourceLine": 48610,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3432,6 +3825,7 @@
       "sourceLine": 48611,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3456,6 +3850,7 @@
       "sourceLine": 65941,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Archival execution",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3464,6 +3859,7 @@
       "sourceLine": 48649,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-03",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3472,6 +3868,7 @@
       "sourceLine": 65809,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Change notice",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3488,14 +3885,16 @@
       "sourceLine": 100617,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
       "id": "Start",
       "label": "Start",
       "sourceLine": 41894,
-      "status": "not-represented",
+      "status": "demonstrated-in-storyboard",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3512,6 +3911,7 @@
       "sourceLine": 12496,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A3",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3520,6 +3920,7 @@
       "sourceLine": 65489,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Atom registry",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3528,6 +3929,7 @@
       "sourceLine": 15922,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated (Band A sections §8.2–§8.7)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3536,6 +3938,7 @@
       "sourceLine": 4078,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3544,6 +3947,7 @@
       "sourceLine": 45614,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-14",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3552,6 +3956,7 @@
       "sourceLine": 12027,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-15",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3560,6 +3965,7 @@
       "sourceLine": 43158,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3568,6 +3974,7 @@
       "sourceLine": 43158,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3576,6 +3983,7 @@
       "sourceLine": 14574,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated (SCR-SA-DENY-01)",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3584,6 +3992,7 @@
       "sourceLine": 28030,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3592,6 +4001,7 @@
       "sourceLine": 108982,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3600,6 +4010,7 @@
       "sourceLine": 49721,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Work package delivery, seam 2",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3608,6 +4019,7 @@
       "sourceLine": 1808,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3616,6 +4028,7 @@
       "sourceLine": 1808,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3624,6 +4037,7 @@
       "sourceLine": 116274,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3640,6 +4054,7 @@
       "sourceLine": 74273,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3656,6 +4071,7 @@
       "sourceLine": 18185,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-IDENT",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3664,6 +4080,7 @@
       "sourceLine": 19014,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-PERM-USER",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3672,6 +4089,7 @@
       "sourceLine": 19268,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-IDENT",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3688,6 +4106,7 @@
       "sourceLine": 96010,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3696,6 +4115,7 @@
       "sourceLine": 47767,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3704,6 +4124,7 @@
       "sourceLine": 29121,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3712,6 +4133,7 @@
       "sourceLine": 14979,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3720,6 +4142,7 @@
       "sourceLine": 40855,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A4",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3728,6 +4151,7 @@
       "sourceLine": 100761,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "MOD-SA-SCHED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3744,6 +4168,7 @@
       "sourceLine": 41235,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A6",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3752,6 +4177,7 @@
       "sourceLine": 78432,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3760,6 +4186,7 @@
       "sourceLine": 71925,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3768,6 +4195,7 @@
       "sourceLine": 30148,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-19",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3776,6 +4204,7 @@
       "sourceLine": 64573,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "Audit log",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3784,6 +4213,7 @@
       "sourceLine": 37554,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-07",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3792,6 +4222,7 @@
       "sourceLine": 89459,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3800,6 +4231,7 @@
       "sourceLine": 19996,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3808,6 +4240,7 @@
       "sourceLine": 18286,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-DEV-DETAIL",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3816,6 +4249,7 @@
       "sourceLine": 76626,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3824,6 +4258,7 @@
       "sourceLine": 95829,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3832,6 +4267,7 @@
       "sourceLine": 6963,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3840,6 +4276,7 @@
       "sourceLine": 93095,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "alert feed",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3848,6 +4285,7 @@
       "sourceLine": 54411,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3856,6 +4294,7 @@
       "sourceLine": 108570,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "first screen of the next execution",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3863,7 +4302,9 @@
       "label": "action 10 (grant a qualification clearance)",
       "sourceLine": 58260,
       "status": "not-represented",
-      "surface": "Client Command Center",
+      "surface": "SURF-CC",
+      "surfaceDescriptor": "Client Command Center",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3871,7 +4312,9 @@
       "label": "action 4 (release a lot hold)",
       "sourceLine": 59490,
       "status": "not-represented",
-      "surface": "Client Command Center",
+      "surface": "SURF-CC",
+      "surfaceDescriptor": "Client Command Center",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3879,7 +4322,9 @@
       "label": "action 8 (reassignment)",
       "sourceLine": 58865,
       "status": "not-represented",
-      "surface": "Client Command Center",
+      "surface": "SURF-CC",
+      "surfaceDescriptor": "Client Command Center",
+      "moduleId": "MOD-CC-13",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3888,6 +4333,7 @@
       "sourceLine": 52542,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3896,6 +4342,7 @@
       "sourceLine": 16736,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-GATE-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3904,6 +4351,7 @@
       "sourceLine": 69540,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-GATEQUEUE",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3912,6 +4360,7 @@
       "sourceLine": 95298,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "deviation workspace",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3928,6 +4377,7 @@
       "sourceLine": 69540,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-GATEQUEUE",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3936,6 +4386,7 @@
       "sourceLine": 44774,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3944,6 +4395,7 @@
       "sourceLine": 7187,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3952,6 +4404,7 @@
       "sourceLine": 71086,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3960,6 +4413,7 @@
       "sourceLine": 68317,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-RELEASE",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3968,6 +4422,7 @@
       "sourceLine": 54032,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-04",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3976,6 +4431,7 @@
       "sourceLine": 52542,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -3984,6 +4440,7 @@
       "sourceLine": 89046,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A3",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4000,6 +4457,7 @@
       "sourceLine": 73401,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4032,6 +4490,7 @@
       "sourceLine": 45614,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-14",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4040,6 +4499,7 @@
       "sourceLine": 46121,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-18",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4048,6 +4508,7 @@
       "sourceLine": 93782,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "safety flag queue",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4072,6 +4533,7 @@
       "sourceLine": 107949,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "incident view",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4088,6 +4550,7 @@
       "sourceLine": 44984,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4104,6 +4567,7 @@
       "sourceLine": 92484,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Data Capture and Evidence",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4112,6 +4576,7 @@
       "sourceLine": 46246,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-19",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4120,6 +4585,7 @@
       "sourceLine": 71086,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4128,6 +4594,7 @@
       "sourceLine": 44774,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4136,6 +4603,7 @@
       "sourceLine": 93867,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "gate queue",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4144,6 +4612,7 @@
       "sourceLine": 69540,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-GATEQUEUE",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4152,6 +4621,7 @@
       "sourceLine": 16736,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-GATE-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4176,6 +4646,7 @@
       "sourceLine": 79995,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4184,6 +4655,7 @@
       "sourceLine": 68317,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-QUEUE",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4192,6 +4664,7 @@
       "sourceLine": 73702,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "preferences",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4208,6 +4681,7 @@
       "sourceLine": 108486,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "rollback decision record",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4216,6 +4690,7 @@
       "sourceLine": 70467,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-HANDOFF",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4224,6 +4699,7 @@
       "sourceLine": 9815,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4232,6 +4708,7 @@
       "sourceLine": 45385,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4240,6 +4717,7 @@
       "sourceLine": 70623,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-AUDIT",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4248,6 +4726,7 @@
       "sourceLine": 73393,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "notification centre",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4256,6 +4735,7 @@
       "sourceLine": 73397,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "alert and escalation feed",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4264,6 +4744,7 @@
       "sourceLine": 69696,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-FEED",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4272,6 +4753,7 @@
       "sourceLine": 44774,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-08",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4280,6 +4762,7 @@
       "sourceLine": 46121,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-18",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4288,6 +4771,7 @@
       "sourceLine": 44984,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4296,6 +4780,7 @@
       "sourceLine": 45997,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-17",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4304,6 +4789,7 @@
       "sourceLine": 81649,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4312,6 +4798,7 @@
       "sourceLine": 70160,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-CONFLICT",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4320,6 +4807,7 @@
       "sourceLine": 68929,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "SCR-FL-PLAYER",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4328,6 +4816,7 @@
       "sourceLine": 108407,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "rollout view",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4336,6 +4825,7 @@
       "sourceLine": 8318,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4344,6 +4834,7 @@
       "sourceLine": 93273,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "alert feed",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4352,6 +4843,7 @@
       "sourceLine": 17502,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-PERM-USER",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4360,6 +4852,7 @@
       "sourceLine": 16772,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-QCAL-01 / SCR-DOH-QUALCAL",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4368,6 +4861,7 @@
       "sourceLine": 92782,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Run Player",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4376,6 +4870,7 @@
       "sourceLine": 45273,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4384,6 +4879,7 @@
       "sourceLine": 70623,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-SUMMARY",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4392,6 +4888,7 @@
       "sourceLine": 68467,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-VERSIONS",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4400,6 +4897,7 @@
       "sourceLine": 8172,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4416,6 +4914,7 @@
       "sourceLine": 53742,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-A6",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4424,6 +4923,7 @@
       "sourceLine": 6961,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4432,6 +4932,7 @@
       "sourceLine": 16767,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-DEV-01",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4440,6 +4941,7 @@
       "sourceLine": 9237,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4448,6 +4950,7 @@
       "sourceLine": 53095,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-06",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4456,6 +4959,7 @@
       "sourceLine": 79342,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4464,6 +4968,7 @@
       "sourceLine": 8775,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4472,6 +4977,7 @@
       "sourceLine": 108748,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4480,6 +4986,7 @@
       "sourceLine": 107697,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "agent activity panel",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4488,6 +4995,7 @@
       "sourceLine": 107350,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Tenant Metrics and Aggregates module",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4504,6 +5012,7 @@
       "sourceLine": 81116,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "MOD-CC-DEV",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4512,6 +5021,7 @@
       "sourceLine": 82694,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-10",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4551,7 +5061,9 @@
       "label": "pause (session-level idle)",
       "sourceLine": 60008,
       "status": "not-represented",
-      "surface": "Frontline Worker Application",
+      "surface": "SURF-FL",
+      "surfaceDescriptor": "Frontline Worker Application",
+      "moduleId": "MOD-FL-A3",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4560,6 +5072,7 @@
       "sourceLine": 107618,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "scheduler health view",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4568,6 +5081,7 @@
       "sourceLine": 52740,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleId": "MOD-FL-B11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4576,6 +5090,7 @@
       "sourceLine": 54411,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleId": "MOD-CC-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4584,6 +5099,7 @@
       "sourceLine": 70467,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-HANDOFF",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4592,6 +5108,7 @@
       "sourceLine": 68317,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-PREVIEW",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4600,6 +5117,7 @@
       "sourceLine": 68775,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-DIGEST",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4624,6 +5142,7 @@
       "sourceLine": 108344,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "compatibility view",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4632,6 +5151,7 @@
       "sourceLine": 68467,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-PUBLISH",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4640,6 +5160,7 @@
       "sourceLine": 70623,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-REPORTS",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4648,6 +5169,7 @@
       "sourceLine": 53334,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleId": "MOD-STU-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4655,7 +5177,9 @@
       "label": "read-only PDF export of a version",
       "sourceLine": 59686,
       "status": "not-represented",
-      "surface": "Standards and Operations Studio",
+      "surface": "SURF-STU",
+      "surfaceDescriptor": "Standards and Operations Studio",
+      "moduleId": "MOD-STU-12",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4664,6 +5188,7 @@
       "sourceLine": 68467,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "SCR-STU-VERSIONS",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4672,6 +5197,7 @@
       "sourceLine": 72241,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4680,6 +5206,7 @@
       "sourceLine": 8040,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4688,6 +5215,7 @@
       "sourceLine": 93463,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "command list",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4696,6 +5224,7 @@
       "sourceLine": 71013,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4704,6 +5233,7 @@
       "sourceLine": 77923,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleId": "MOD-DOH-05",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4712,6 +5242,7 @@
       "sourceLine": 80435,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4720,6 +5251,7 @@
       "sourceLine": 93782,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "safety flag queue",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4728,6 +5260,7 @@
       "sourceLine": 93297,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "deviation workspace",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4736,6 +5269,7 @@
       "sourceLine": 16768,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "SCR-CC-HOLD-02",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4744,6 +5278,7 @@
       "sourceLine": 72420,
       "status": "not-represented",
       "surface": "SURF-STU",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4752,6 +5287,7 @@
       "sourceLine": 80435,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4760,6 +5296,7 @@
       "sourceLine": 7331,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4768,6 +5305,7 @@
       "sourceLine": 9113,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4775,7 +5313,9 @@
       "label": "replay or dismiss (coaching card)",
       "sourceLine": 60142,
       "status": "not-represented",
-      "surface": "Frontline Worker Application",
+      "surface": "SURF-FL",
+      "surfaceDescriptor": "Frontline Worker Application",
+      "moduleId": "MOD-FL-B8",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4784,6 +5324,7 @@
       "sourceLine": 107618,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "scheduler health view",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4792,6 +5333,7 @@
       "sourceLine": 6963,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4800,6 +5342,7 @@
       "sourceLine": 107350,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Tenant Metrics and Aggregates module",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4816,6 +5359,7 @@
       "sourceLine": 7331,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4824,6 +5368,7 @@
       "sourceLine": 107618,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "scheduler health view",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4832,6 +5377,7 @@
       "sourceLine": 67861,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-DEVICES",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4840,6 +5386,7 @@
       "sourceLine": 45871,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-16",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4848,6 +5395,7 @@
       "sourceLine": 68624,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "SCR-DOH-SCHEDULE",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4856,6 +5404,7 @@
       "sourceLine": 108407,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "rollout view",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4872,6 +5421,7 @@
       "sourceLine": 107777,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Observability settings category",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4880,6 +5430,7 @@
       "sourceLine": 70933,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-PAUSE",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4888,6 +5439,7 @@
       "sourceLine": 70933,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "SCR-SA-PAUSE",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4896,6 +5448,7 @@
       "sourceLine": 72789,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4903,7 +5456,9 @@
       "label": "step away / hand back flag",
       "sourceLine": 60008,
       "status": "not-represented",
-      "surface": "Frontline Worker Application",
+      "surface": "SURF-FL",
+      "surfaceDescriptor": "Frontline Worker Application",
+      "moduleId": "MOD-FL-B11",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4912,6 +5467,7 @@
       "sourceLine": 93093,
       "status": "not-represented",
       "surface": "SURF-FL",
+      "moduleDescriptor": "Run Player",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4920,6 +5476,7 @@
       "sourceLine": 108180,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Schedule Definition editor",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4928,6 +5485,7 @@
       "sourceLine": 94040,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "sync state and connectivity module",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4944,6 +5502,7 @@
       "sourceLine": 71242,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4952,6 +5511,7 @@
       "sourceLine": 71398,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Data Lifecycle and Archival",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4960,6 +5520,7 @@
       "sourceLine": 45753,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-15",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4968,6 +5529,7 @@
       "sourceLine": 44984,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-09",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4976,6 +5538,7 @@
       "sourceLine": 7181,
       "status": "not-represented",
       "surface": "SURF-DOH",
+      "moduleDescriptor": "unstated",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4984,6 +5547,7 @@
       "sourceLine": 107697,
       "status": "not-represented",
       "surface": "SURF-CC",
+      "moduleDescriptor": "agent activity panel",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -4992,6 +5556,7 @@
       "sourceLine": 107423,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleDescriptor": "Devices and Fleet",
       "register": "actionable controls (surface action catalogue)"
     },
     {
@@ -5000,10 +5565,13 @@
       "sourceLine": 45498,
       "status": "not-represented",
       "surface": "SURF-SA",
+      "moduleId": "MOD-SA-13",
       "register": "actionable controls (surface action catalogue)"
     }
   ],
   "sourceLineMeaning": "A frozen-source line that MENTIONS the identifier, published so a reader can open it. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. It is computed one of three ways, and which one depends on the register the row came from. (1) By default, the FIRST MENTION of the identifier anywhere in the frozen source — the minimum of registries/raw/identifier-index.json's line list for that id. (2) Where the row belongs to a CHAPTER-BANDED register, the first occurrence inside that register's own chapter, which is deliberately NOT the minimum of the list: SB-AI-01 in ai-storyboards.json ships L92693 and not its list minimum L74479, because L74479 is chapter 30D and the row belongs to section 44A. A register label that claims a chapter is asserted against every one of its rows at build time, so a row outside its band is a build failure. (3) Where a register was TRANSCRIBED by the extraction rather than derived from the identifier index — modules, business objects, actionable controls, workflows, the notification placement rows, the Studio triggers and the deployable scheduled-work rows — the line the extraction recorded for that row. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation.",
   "namedInSourceCount": 24,
+  "routeResolvedCount": 4,
+  "routeMeaning": "The shipped screen whose evidence set this row's status: for a module, the route directory its declared slug names or the one whose files name it more often than any other module; for an actionable control, the route directory declaring a control-matrix row with exactly this label; for every other inventory, the route directory that spells this identifier as a whole token. Where several routes qualify, the lexicographically first is recorded, so two independent generations agree. A row carries no route when no route demonstrates it, when the evidence was an import rather than a route file (mounted-in-another-screen), when the row is an authored not-applicable or decision-blocked record, or when the only directory found holds a dynamic segment -- app/coverage/[registry] is one directory standing for fourteen URLs and choosing one of them for a row would be a guess. Those rows render their id as plain text with the reason beside it, never as a link to nowhere.",
   "namedInSourceMeaning": "How many rows this registry holds whose identifier is named anywhere under src/ or app/. It is WEAKER than a status and deliberately not one: a status says a route screen demonstrates the row, and this says only that some file in the build spells its identifier. It is published because the two numbers can differ by a lot -- offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text label rather than an identifier (actionable-controls) cannot be counted this way and read as unnamed here; that is a limit of the measure, not a gap in the build."
 }

@@ -330,8 +330,28 @@ describe('ai-storyboards discloses every SB-* register, not only SB-AI-*', () =>
 // recompute the evidence independently of the generator, so a generator that
 // started inventing statuses fails here rather than agreeing with itself.
 describe('per-item status is computed from the built tree, not hardcoded', () => {
-  const namedByAShippedScreen = (): Set<string> => {
+  /**
+   * R4-B03 WIDENED THIS WALK, AND IT IS A REAL WIDENING RATHER THAN A
+   * WEAKENING — read the two halves it now returns before changing either.
+   *
+   * The generator's IDENTIFIER scan reads route directories under `app/`, and
+   * that has not changed: a status saying "a shipped route screen names this"
+   * must still be evidenced by a file under `app/`. What DID change is the
+   * `control:` LABEL scan, which read `app/` alone and published "the built
+   * screens declare 83 control-matrix labels, of which 4 are word-for-word a
+   * source label" while `src/` held 188 more that appear in no `app/` file at
+   * all. A module's screen lives in `src/…/modules/<dir>/` and its control
+   * matrix lives there with it; the route file that mounts it declares no
+   * `control:` of its own.
+   *
+   * So the two evidence classes are returned SEPARATELY and each demonstrated
+   * row is checked against the one that actually set it. Merging them into one
+   * set would have made this gate unable to catch an identifier status awarded
+   * off a `src/` mention, which is a defect the generator must never commit.
+   */
+  const namedByAShippedScreen = (): { identifiers: Set<string>; controlLabels: Set<string> } => {
     const named = new Set<string>()
+    const controlLabels = new Set<string>()
     // A scratch probe belonging to a CONCURRENT process: the release gates
     // plant one under `app/` and delete it as soon as their own assertion
     // finishes, so this walk can list one and then read a path that no longer
@@ -345,16 +365,23 @@ describe('per-item status is computed from the built tree, not hardcoded', () =>
         if (e.isDirectory()) walk(`${dir}/${e.name}`)
         else if (/\.tsx?$/.test(e.name)) {
           const text = readFileSync(`${dir}/${e.name}`, 'utf8')
-          for (const t of text.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) named.add(t)
+          if (identifiersHere) {
+            for (const t of text.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) named.add(t)
+          }
           for (const m of text.matchAll(/\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g)) {
             const label = m[1]
-            if (label !== undefined) named.add(label.replace(/\\(.)/g, '$1'))
+            if (label !== undefined) controlLabels.add(label.replace(/\\(.)/g, '$1'))
           }
         }
       }
     }
+    let identifiersHere = true
     walk('app')
-    return named
+    // Control labels only from here: an identifier mentioned in src/ is not a
+    // route screen naming it, and must not become a demonstrated status.
+    identifiersHere = false
+    walk('src')
+    return { identifiers: named, controlLabels }
   }
 
   it('at least one registry has a demonstrated row — a build with 27 module screens reporting fourteen zeros is a broken measurement', () => {
@@ -366,15 +393,54 @@ describe('per-item status is computed from the built tree, not hardcoded', () =>
     expect(demonstrated.some((n) => n > 0)).toBe(true)
   })
 
-  it('every demonstrated row is named by a file under app/ — no status without evidence', () => {
-    const named = namedByAShippedScreen()
-    expect(named.size).toBeGreaterThan(0)
+  it('every demonstrated row is named by a shipped file — no status without evidence', () => {
+    const { identifiers, controlLabels } = namedByAShippedScreen()
+    // Both populations, not just the one the loop below happens to reach:
+    // either going empty would make this assertion pass over nothing.
+    expect(identifiers.size, 'identifier tokens under app/').toBeGreaterThan(0)
+    expect(controlLabels.size, 'control: labels under app/ and src/').toBeGreaterThan(200)
     for (const slug of SLUGS) {
       for (const row of load(slug).rows) {
         if (row.status !== 'demonstrated-in-storyboard') continue
-        expect(named.has(row.id), `${slug}/${row.id}`).toBe(true)
+        // A control row's id IS its label text and its evidence is a declared
+        // control-matrix row; every other row's evidence is a route screen
+        // naming its identifier. Checked against the right one, so neither
+        // class can borrow the other's evidence.
+        const evidence =
+          slug === 'actionable-controls' && !/^DNC-\d+$/.test(row.id) ? controlLabels : identifiers
+        expect(evidence.has(row.id), `${slug}/${row.id}`).toBe(true)
       }
     }
+  })
+
+  /**
+   * R4-B03's fix, held from the other side: the published figure must be the
+   * union of both trees, and the app/-only figure must no longer be what a
+   * reader sees. Recomputed here rather than read off the artefact.
+   */
+  it('the published control-label figure counts both trees', () => {
+    const { controlLabels } = namedByAShippedScreen()
+    const appOnly = new Set<string>()
+    const walkApp = (dir: string): void => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (isForeignProbe(e.name)) continue
+        if (e.isDirectory()) walkApp(`${dir}/${e.name}`)
+        else if (/\.tsx?$/.test(e.name)) {
+          for (const m of readFileSync(`${dir}/${e.name}`, 'utf8').matchAll(
+            /\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g,
+          )) {
+            const label = m[1]
+            if (label !== undefined) appOnly.add(label.replace(/\\(.)/g, '$1'))
+          }
+        }
+      }
+    }
+    walkApp('app')
+    expect(appOnly.size, 'app/ half').toBeGreaterThan(50)
+    expect(controlLabels.size, 'both trees').toBeGreaterThan(appOnly.size)
+    const rule = load('actionable-controls').dedupRule as string
+    expect(rule).toContain(`declare ${controlLabels.size} control-matrix labels`)
+    expect(rule).toContain(`(${appOnly.size} in a route file under app/`)
   })
 
   /**

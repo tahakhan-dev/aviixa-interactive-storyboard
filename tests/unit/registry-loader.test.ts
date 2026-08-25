@@ -27,6 +27,25 @@ const FIXTURE_SOURCE_LINE_MEANING =
 const FIXTURE_NAMED_MEANING =
   'How many rows are named anywhere under src/ or app/ — weaker than a status and not one.'
 
+/**
+ * Added with `routeResolvedCount`/`routeMeaning` when R4-B10 made both
+ * required, and for exactly the reason the paragraph above gives about
+ * `sourceLineMeaning`: without them the reconciledCount case below stopped
+ * failing on its own refinement and started failing on two missing fields —
+ * still red, still plausible, and no longer testing the thing it names.
+ */
+const FIXTURE_ROUTE_MEANING =
+  'The shipped screen whose evidence set this row’s status, or absent when nothing resolves one.'
+
+/** The five fields every fixture needs before it can exercise a refinement. */
+const REQUIRED_META = {
+  sourceLineMeaning: FIXTURE_SOURCE_LINE_MEANING,
+  namedInSourceCount: 0,
+  namedInSourceMeaning: FIXTURE_NAMED_MEANING,
+  routeResolvedCount: 0,
+  routeMeaning: FIXTURE_ROUTE_MEANING,
+}
+
 describe('generated registry loading', () => {
   it('loads every one of the fourteen', () => {
     for (const slug of SLUGS) expect(loadGeneratedRegistry(slug).rows.length).toBeGreaterThan(0)
@@ -37,9 +56,7 @@ describe('generated registry loading', () => {
       loadRegistry(GeneratedRegistrySchema, {
         slug: 'modules', countedThing: 'canonical modules', reconciledCount: 81,
         rawCount: 92, dedupRule: 'x', sourceFixesNoTotal: false, rows: [],
-        sourceLineMeaning: FIXTURE_SOURCE_LINE_MEANING,
-        namedInSourceCount: 0,
-        namedInSourceMeaning: FIXTURE_NAMED_MEANING,
+        ...REQUIRED_META,
         unexpected: 'from a newer schema',
       }, 'generated registry'),
     ).toThrow(/unexpected|unrecognized/i)
@@ -50,9 +67,7 @@ describe('generated registry loading', () => {
       loadRegistry(GeneratedRegistrySchema, {
         slug: 'modules', countedThing: 'canonical modules', reconciledCount: 81,
         rawCount: 92, dedupRule: 'x', sourceFixesNoTotal: false,
-        sourceLineMeaning: FIXTURE_SOURCE_LINE_MEANING,
-        namedInSourceCount: 0,
-        namedInSourceMeaning: FIXTURE_NAMED_MEANING,
+        ...REQUIRED_META,
         rows: [{ id: 'MOD-SA-01', label: 'Overview' }],
       }, 'generated registry'),
     ).toThrow()
@@ -63,9 +78,7 @@ describe('generated registry loading', () => {
       loadRegistry(GeneratedRegistrySchema, {
         slug: 'workflows', countedThing: 'extracted records', reconciledCount: 432,
         rawCount: 725, dedupRule: 'x', sourceFixesNoTotal: true, rows: [],
-        sourceLineMeaning: FIXTURE_SOURCE_LINE_MEANING,
-        namedInSourceCount: 0,
-        namedInSourceMeaning: FIXTURE_NAMED_MEANING,
+        ...REQUIRED_META,
       }, 'generated registry'),
     ).toThrow(/no total|reconciledCount/i)
   })

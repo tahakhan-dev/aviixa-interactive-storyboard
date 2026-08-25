@@ -11,6 +11,14 @@ import {
   type ReviewRecord,
 } from '@/review/records'
 import { putReviewRecord, putReviewEvent, listReviewRecords } from '@/review/store'
+import {
+  exportReviewPackage,
+  importReviewPackage,
+  MAX_PACKAGE_BYTES,
+  PACKAGE_FORMAT_VERSION,
+  type PackageImportPreview,
+} from '@/review/package'
+import { FROZEN_SOURCE_SHA256, MASTER_PROMPT_SHA256 } from '@/review/artefact-hashes'
 import { bootstrapStorage } from '@/persistence/bootstrap'
 import { openDatabase } from '@/persistence/schema'
 import { fixedClock } from '@/domain/clock'
@@ -55,6 +63,45 @@ type StorageMode =
   | { readonly kind: 'durable'; readonly db: IDBDatabase }
   | { readonly kind: 'not-durable'; readonly reason: string }
 
+/* ────────────────────────────────────────────────────────────────────────
+ * R4-B06 — A CLIENT COULD NOT PRODUCE A REVIEW PACKAGE.
+ *
+ * `exportReviewPackage` and `importReviewPackage` had thirty-five test
+ * references and zero references under `app/`: the shipped review screen held
+ * four buttons and no export or import control at all. Master prompt §21
+ * lists "local export/import of a versioned review package" as a review-mode
+ * element, and §9.6 and §13.1 both require publication "in the review
+ * package" — so both obligations were unmeetable through the product whatever
+ * the package type contained.
+ *
+ * MASTER PROMPT §4.1: NO NETWORK. Export is a Blob the browser hands the user
+ * through an object URL; import is a file the user picks. Neither touches
+ * `fetch`, `XMLHttpRequest` or any URL. The coverage payloads are pulled in
+ * with a DYNAMIC import inside the click handler rather than at module scope,
+ * so the fourteen generated registries land in their own lazily-loaded static
+ * chunk instead of the review page's initial bundle — a same-origin read of a
+ * file in the export manifest, which is the one thing §4.1 allows.
+ *
+ * MASTER PROMPT §21.1: IMPORT PREVIEWS, IT NEVER APPLIES. `importReviewPackage`
+ * validates size, format version, shape, source and build compatibility,
+ * per-entry hashes and the non-self-referential manifest checksum, in that
+ * order, and quarantines on the first failure naming the failing entry with
+ * its expected and actual values. This screen renders that outcome and stops:
+ * nothing here writes an imported record to the store, and nothing here can
+ * touch Scenario Domain State.
+ * ──────────────────────────────────────────────────────────────────────── */
+type PackageState =
+  | { readonly kind: 'idle' }
+  | { readonly kind: 'exported'; readonly filename: string; readonly bytes: number }
+  | { readonly kind: 'preview'; readonly preview: PackageImportPreview }
+  | {
+      readonly kind: 'quarantined'
+      readonly reason: string
+      readonly failingEntry: string | null
+      readonly expected: string | null
+      readonly actual: string | null
+    }
+
 export default function ReviewPage() {
   // Review-record timestamps are deliberately outside the kernel's
   // determinism constraint (see `createReviewRecord`'s doc comment in
@@ -68,6 +115,7 @@ export default function ReviewPage() {
   const [records, setRecords] = useState<readonly ReviewRecord[]>([])
   const [error, setError] = useState<string | undefined>(undefined)
   const [storage, setStorage] = useState<StorageMode>({ kind: 'checking' })
+  const [packageState, setPackageState] = useState<PackageState>({ kind: 'idle' })
 
   // Runs once, client-side only (never during the static-export prerender
   // pass, which has no `indexedDB`). Opens the SAME database the gateway
@@ -199,6 +247,133 @@ export default function ReviewPage() {
     )
   }
 
+  /**
+   * The two coverage payloads master prompt §9.6 and §13.1 require in the
+   * package, loaded only when the reviewer actually exports. Dynamic so the
+   * fourteen registries are a separate static chunk rather than part of this
+   * page's initial bundle.
+   */
+  async function coveragePayloads() {
+    const [{ buildCensusSnapshot }, { loadRegistry }, { GeneratedRegistrySchema }, { REGISTRY_DESCRIPTORS }] =
+      await Promise.all([
+        import('@/review/census'),
+        import('@/registry/load'),
+        import('@/coverage/registry-schema'),
+        import('@/coverage/descriptors'),
+      ])
+    const reconciliationRaw = (await import('../../registries/generated/source-reconciliation.json')).default
+    const { loadReconciliation } = await import('@/registry/load')
+    const rawBySlug: Record<string, unknown> = {
+      modules: (await import('../../registries/generated/modules.json')).default,
+      features: (await import('../../registries/generated/features.json')).default,
+      'sub-features': (await import('../../registries/generated/sub-features.json')).default,
+      functions: (await import('../../registries/generated/functions.json')).default,
+      workflows: (await import('../../registries/generated/workflows.json')).default,
+      'business-use-cases': (await import('../../registries/generated/business-use-cases.json')).default,
+      'business-objects': (await import('../../registries/generated/business-objects.json')).default,
+      events: (await import('../../registries/generated/events.json')).default,
+      commands: (await import('../../registries/generated/commands.json')).default,
+      notifications: (await import('../../registries/generated/notifications.json')).default,
+      'offline-scenarios': (await import('../../registries/generated/offline-scenarios.json')).default,
+      'ai-storyboards': (await import('../../registries/generated/ai-storyboards.json')).default,
+      'scheduled-work': (await import('../../registries/generated/scheduled-work.json')).default,
+      'actionable-controls': (await import('../../registries/generated/actionable-controls.json')).default,
+    }
+    // Keyed off REGISTRY_DESCRIPTORS rather than off the object above, so a
+    // fifteenth registry throws here instead of silently exporting thirteen.
+    const registries = REGISTRY_DESCRIPTORS.map((d) => {
+      const raw = rawBySlug[d.slug]
+      if (raw === undefined) {
+        throw new Error(
+          `No generated registry is bundled for "${d.slug}", so the census in this package ` +
+            'would be missing an inventory the master prompt requires. Refusing to export a ' +
+            'partial census rather than exporting one that looks complete.',
+        )
+      }
+      return loadRegistry(GeneratedRegistrySchema, raw, `generated registry "${d.slug}"`)
+    })
+    return {
+      reconciliation: loadReconciliation(reconciliationRaw).reconciliation.reconciliation_rows,
+      census: buildCensusSnapshot(registries),
+    }
+  }
+
+  async function exportPackage(): Promise<void> {
+    setPackageState({ kind: 'idle' })
+    try {
+      const { reconciliation, census } = await coveragePayloads()
+      const pkg = await exportReviewPackage({
+        sourceHash: FROZEN_SOURCE_SHA256,
+        promptHash: MASTER_PROMPT_SHA256,
+        buildHash: 'not-wired-in-this-storyboard',
+        scenarioVersion: 'not-wired-in-this-storyboard',
+        scenarioSeed: 'not-wired-in-this-storyboard',
+        fixtureRefs: [],
+        records,
+        decisions: [],
+        bookmarks: [],
+        coverageSnapshot: { takenAtLogical: clock.now(), byStatus: census.byStatus },
+        reconciliation,
+        census,
+        screenshotRefs: [],
+      })
+      const text = JSON.stringify(pkg, null, 2)
+      const filename = `aviixa-review-package-v${PACKAGE_FORMAT_VERSION}.json`
+      // A local Blob handed to the browser. No network, no server, no upload.
+      const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }))
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = filename
+      anchor.click()
+      URL.revokeObjectURL(url)
+      setPackageState({
+        kind: 'exported',
+        filename,
+        bytes: new TextEncoder().encode(text).length,
+      })
+    } catch (e) {
+      setPackageState({
+        kind: 'quarantined',
+        reason: e instanceof Error ? e.message : 'The review package could not be exported.',
+        failingEntry: null,
+        expected: null,
+        actual: null,
+      })
+    }
+  }
+
+  async function importPackage(file: File): Promise<void> {
+    setPackageState({ kind: 'idle' })
+    let raw: unknown
+    try {
+      raw = JSON.parse(await file.text())
+    } catch {
+      setPackageState({
+        kind: 'quarantined',
+        reason: `"${file.name}" is not valid JSON, so it is not a review package. The original bytes are untouched.`,
+        failingEntry: file.name,
+        expected: 'a JSON review package',
+        actual: 'unparseable bytes',
+      })
+      return
+    }
+    const outcome = await importReviewPackage(raw, {
+      sourceHash: FROZEN_SOURCE_SHA256,
+      buildHash: 'not-wired-in-this-storyboard',
+    })
+    if (outcome.ok) {
+      setPackageState({ kind: 'preview', preview: outcome.preview })
+      return
+    }
+    setPackageState({
+      kind: 'quarantined',
+      reason: outcome.reason,
+      failingEntry: outcome.failingEntry,
+      expected: outcome.expected,
+      actual: outcome.actual,
+    })
+  }
+
   return (
     <main id="main" className="mx-auto max-w-3xl px-6 py-12">
       <p className="text-sm font-medium tracking-wide text-[var(--color-ink-subtle)]">AVIIXA</p>
@@ -287,6 +462,78 @@ export default function ReviewPage() {
             </Button>
           ))}
         </div>
+      </div>
+
+      {/* R4-B06: the export/import pair master prompt §21 requires. */}
+      <div className="mt-10 border-t border-[var(--color-border)] pt-6">
+        <h2 className="text-xl font-semibold">Review package</h2>
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          The exported package — not this browser&rsquo;s storage — is the portable client-review
+          record. It carries the notes below, the frozen-source hash, the master-prompt hash, the
+          master prompt section 9.6 reconciliation table and the section 13.1 item census, plus a
+          manifest recording each payload&rsquo;s byte length and SHA-256.{' '}
+          <strong>
+            That checksum detects accidental corruption in transit — a truncated download, a bad
+            copy-paste. It is not a signature:
+          </strong>{' '}
+          it says nothing about who produced the package, or whether what it says is true. Export
+          writes a file this browser hands you and import reads a file you pick; neither uses the
+          network, and importing never changes any product or scenario state.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button variant="secondary" onClick={() => void exportPackage()}>
+            Export review package
+          </Button>
+          <Field
+            label="Import a review package"
+            description={`A JSON package of up to ${MAX_PACKAGE_BYTES} bytes. It is validated and previewed; nothing is merged.`}
+          >
+            <input
+              type="file"
+              accept="application/json,.json"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file !== undefined) void importPackage(file)
+              }}
+              className="text-sm text-[var(--color-ink)]"
+            />
+          </Field>
+        </div>
+
+        {packageState.kind === 'exported' ? (
+          <div className="mt-4">
+            <Banner
+              tone="ok"
+              heading="Review package exported"
+              body={`${packageState.filename}, ${packageState.bytes} bytes, format version ${PACKAGE_FORMAT_VERSION}. Your browser has saved it wherever it saves downloads. Nothing was sent anywhere.`}
+            />
+          </div>
+        ) : null}
+
+        {packageState.kind === 'preview' ? (
+          <div className="mt-4">
+            <Banner
+              tone="ok"
+              heading="Package validated — this is a preview, nothing has been merged"
+              body={`${packageState.preview.recordCount} review records, ${packageState.preview.reconciliationRowCount} reconciliation rows and a census of ${packageState.preview.censusTotalRows} items, exported against source hash ${packageState.preview.sourceHash} and build ${packageState.preview.buildHash}, scenario version ${packageState.preview.scenarioVersion}. This storyboard previews an import and stops there: merging an imported package into a review workspace is not wired in this build, so nothing below has changed and neither has any product or scenario state.`}
+            />
+          </div>
+        ) : null}
+
+        {packageState.kind === 'quarantined' ? (
+          <div className="mt-4">
+            <Banner
+              tone="attention"
+              heading="Package quarantined — the original bytes are untouched"
+              body={
+                `${packageState.reason}` +
+                (packageState.failingEntry === null ? '' : ` Failing entry: ${packageState.failingEntry}.`) +
+                (packageState.expected === null ? '' : ` Expected: ${packageState.expected}.`) +
+                (packageState.actual === null ? '' : ` Actual: ${packageState.actual}.`)
+              }
+            />
+          </div>
+        ) : null}
       </div>
 
       {records.length > 0 ? (

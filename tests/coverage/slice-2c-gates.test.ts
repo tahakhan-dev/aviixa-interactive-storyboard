@@ -173,6 +173,15 @@ describe('gate 1: count-scope honesty', () => {
           namedInSourceMeaning:
             'How many rows are named anywhere under src/ or app/ — weaker than a status and ' +
             'deliberately not one.',
+          // Same reason as `sourceLineMeaning` above, one audit round later:
+          // R4-B10 made these two required so each index can state how many of
+          // its rows link to the screen that demonstrates them. Without them
+          // here this case throws on two missing fields instead of on the
+          // refinement it names.
+          routeResolvedCount: 0,
+          routeMeaning:
+            'The shipped screen whose evidence set this row’s status, or absent when nothing ' +
+            'resolves one.',
           reconciledCount: 432,
           rawCount: 725,
           dedupRule: 'x',

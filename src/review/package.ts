@@ -5,6 +5,8 @@ import {
   REVIEW_STATUSES, REVIEW_SEVERITIES, REVIEW_DISPOSITIONS,
   type ReviewRecord, type ReviewStatus, type ReviewSeverity, type ReviewDisposition,
 } from './records'
+import { CensusSnapshotSchema, type CensusSnapshot } from './census'
+import { ReconciliationRowSchema, type ReconciliationRow } from '@/registry/schemas'
 
 // Failure-signalling convention (documented in full at the top of
 // `@/review/store`): `importReviewPackage` below is the IO/parsing boundary
@@ -24,8 +26,18 @@ import {
  * reordering in `importReviewPackage` below) -- so an old package reports a
  * version mismatch by name, rather than quarantining as "does not match the
  * expected shape" the way a pre-e690e30, formatVersion-1 package used to.
+ *
+ * Bumped to 3 in audit round 4 (R4-B06). Master prompt §9.6 requires the
+ * reconciliation table published "in the coverage dashboard and the review
+ * package", and §13.1 requires the actionable-item census published in the
+ * dashboard, the §9.6 indexes AND the review package. The package carried
+ * neither — its whole coverage payload was a bare `byStatus` map — so both
+ * obligations were unmeetable through the shipped product whatever the client
+ * did. Two required top-level elements were added to a `.strict()` schema, so
+ * the version moves with them, which is the rule the version-2 note below
+ * records being broken once already.
  */
-export const PACKAGE_FORMAT_VERSION = 2
+export const PACKAGE_FORMAT_VERSION = 3
 
 export interface PackageManifestEntry {
   readonly path: string
@@ -54,6 +66,19 @@ export interface ExportReviewPackageInput {
   readonly decisions: readonly string[]
   readonly bookmarks: readonly string[]
   readonly coverageSnapshot: CoverageSnapshot
+  /**
+   * R4-B06. Master prompt §9.6 requires its reconciliation table published
+   * "in the coverage dashboard and the review package"; §13.1 requires the
+   * actionable-item census published in the dashboard, the §9.6 indexes AND
+   * the review package. Both were absent, so both obligations were
+   * unmeetable through the shipped product whatever a client did with it.
+   *
+   * REQUIRED, NOT OPTIONAL, and that is the whole point: an optional
+   * obligation is one a caller forgets, which is how these came to be
+   * missing. A caller that cannot supply them cannot export.
+   */
+  readonly reconciliation: readonly ReconciliationRow[]
+  readonly census: CensusSnapshot
   readonly screenshotRefs: readonly string[]
 }
 
@@ -77,6 +102,8 @@ export interface ReviewPackage {
   readonly decisions: readonly string[]
   readonly bookmarks: readonly string[]
   readonly coverageSnapshot: CoverageSnapshot
+  readonly reconciliation: readonly ReconciliationRow[]
+  readonly census: CensusSnapshot
   readonly screenshotRefs: readonly string[]
   readonly manifest: readonly PackageManifestEntry[]
   readonly manifestChecksum: string
@@ -107,6 +134,18 @@ function packageFiles(input: ExportReviewPackageInput): Readonly<Record<string, 
       screenshotRefs: input.screenshotRefs,
     }),
     'records.json': canonicalSerialize(input.records),
+    /**
+     * A THIRD logical file rather than two more keys in `meta.json`, for the
+     * reason `records.json` is already separate: the manifest reports one
+     * hash per file, so a corrupted coverage payload is distinguishable from
+     * corrupted metadata instead of failing them both together. It is inside
+     * the manifest hash scope like the other two, so the package's content
+     * still cannot change without its checksum changing.
+     */
+    'coverage.json': canonicalSerialize({
+      reconciliation: input.reconciliation,
+      census: input.census,
+    }),
   }
 }
 
@@ -165,6 +204,8 @@ export async function exportReviewPackage(input: ExportReviewPackageInput): Prom
     decisions: input.decisions,
     bookmarks: input.bookmarks,
     coverageSnapshot: input.coverageSnapshot,
+    reconciliation: input.reconciliation,
+    census: input.census,
     screenshotRefs: input.screenshotRefs,
     manifest,
     manifestChecksum,
@@ -261,6 +302,8 @@ const ReviewPackageSchema = z
     decisions: z.array(z.string()),
     bookmarks: z.array(z.string()),
     coverageSnapshot: CoverageSnapshotSchema,
+    reconciliation: z.array(ReconciliationRowSchema),
+    census: CensusSnapshotSchema,
     screenshotRefs: z.array(z.string()),
     manifest: z.array(PackageManifestEntrySchema),
     manifestChecksum: z.string().regex(/^[0-9a-f]{64}$/),
@@ -326,6 +369,14 @@ export interface PackageImportPreview {
   readonly sourceHash: string
   readonly buildHash: string
   readonly scenarioVersion: string
+  /**
+   * R4-B06: master prompt §21.1 requires import to PREVIEW before it offers
+   * merge or replace. A package now carries the §9.6 table and the §13.1
+   * census, so the preview says how much of each arrived rather than letting
+   * two payloads a reviewer never saw ride in behind a record count.
+   */
+  readonly reconciliationRowCount: number
+  readonly censusTotalRows: number
 }
 
 export type ImportOutcome =
@@ -505,6 +556,8 @@ export async function importReviewPackage(
       sourceHash: pkg.sourceHash,
       buildHash: pkg.buildHash,
       scenarioVersion: pkg.scenarioVersion,
+      reconciliationRowCount: pkg.reconciliation.length,
+      censusTotalRows: pkg.census.totalRows,
     },
   }
 }

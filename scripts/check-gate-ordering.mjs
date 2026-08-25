@@ -366,9 +366,96 @@ const AUDITED = {
       'MOSTLY VACUOUS AND HARMLESS. Its two existence checks assert that build produced files build just produced -- smoke checks, disclosed rather than removed. Its one content check is real.',
   },
   'workflow-index.test.ts': {
-    subject: 'authored workflow sources',
-    rewrittenBy: null,
-    verdict: 'NOT VACUOUS.',
+    subject:
+      'out/workflows/index.html and out/coverage/**, compared against ' +
+      'registries/generated/workflows.json, registries/generated/source-reconciliation.json ' +
+      'and the committed master-prompt artefact',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and the entry was widened when R4-B07 and R4-B08 were added -- it used to ' +
+      'read "authored workflow sources", which stopped being the whole subject the moment the ' +
+      'file started reading out/. `build` writes one end and runs first, and what makes that ' +
+      'safe is the other end: the generated workflows registry and the hand-authored ' +
+      'reconciliation report are INPUTS to the page, and the master prompt artefact is a ' +
+      'committed document no verify step writes. Every figure the page is held to is recomputed ' +
+      'from one of those three, never read back out of out/, so build cannot satisfy the gate ' +
+      'by rewriting what it compares against.',
+  },
+  'reconciliation-table.test.ts': {
+    subject:
+      'out/coverage/index.html, compared against registries/generated/source-reconciliation.json, ' +
+      'the fourteen registries/generated/*.json, src/coverage/descriptors.ts and the committed ' +
+      'master-prompt artefact',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS. `build` writes the page and runs first, which is the arrangement this audit ' +
+      'exists to catch, and what makes it safe is that every expectation is an INPUT to that ' +
+      'page rather than a product of it: the reconciliation report is hand-authored and nothing ' +
+      'in verify writes it, the registries are the generator\'s output which the page consumes, ' +
+      'and the descriptor list is authored src/. The registry-slug coverage check is an ' +
+      'EQUALITY against REGISTRY_DESCRIPTORS in both directions rather than a containment, ' +
+      'because a thirteen-row table missing five inventories passed containment for eleven ' +
+      'slices. Every population is asserted non-empty and at its measured size first.',
+  },
+  'census-closure.test.ts': {
+    subject:
+      'out/coverage/**, compared against the app/ and src/ trees scanned for control-matrix ' +
+      'labels, the fourteen registries/generated/*.json, ' +
+      'registries/authored/census-status-overrides.json, the frozen blueprint and the committed ' +
+      'master-prompt artefact',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS. `build` writes out/ and rewrites registries/generated, and both are named ' +
+      'here rather than glossed. What makes it safe is that the two figures under test are ' +
+      'RECOMPUTED from the authored trees -- this file carries its own transcribed copy of the ' +
+      'generator\'s `control:` regex and walks app/ and src/ itself, so a generator whose scan ' +
+      'narrows again diverges from this one and goes red rather than moving both ends together. ' +
+      'The override records are checked against the frozen blueprint, read-only input, at the ' +
+      'exact line each cites. The gate deliberately does NOT assert either direction is at ' +
+      'zero: neither is, and a gate that could only pass at zero would be satisfied by ' +
+      'relabelling 4,670 rows, which is the outcome the finding warns against. It asserts the ' +
+      'distances are measured, published and unchanged.',
+  },
+  'registry-index-figures.test.ts': {
+    subject:
+      'every out/coverage/<slug>/index.html, compared against the fourteen ' +
+      'registries/generated/*.json and the committed master-prompt artefact, plus an existence ' +
+      'check of every linked route against out/',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and one assertion has BOTH ends inside build\'s output by design: a linked ' +
+      'route is checked against out/ on disk, because the claim under test is precisely that ' +
+      'the export contains the page the row links to. That is reading the transformation, not ' +
+      'comparing a directory to itself -- the route comes from the generated registry and the ' +
+      'page from the Next export, and a renamed route breaks one without breaking the other. ' +
+      'Every other expectation is recomputed from the generated registries, which are the ' +
+      'page\'s input. Populations are floored: fourteen indexes, at least eight with a linked ' +
+      'row, over 250 linked rows, so a fix that resolved one route could not pass.',
+  },
+  'rendered-absence-claims.test.ts': {
+    subject:
+      'the frozen blueprint at run time, compared against (a) authored .ts/.tsx under app/ and ' +
+      'src/ swept for rendered claims that the source lacks a named identifier, and (b) every ' +
+      'sourceLine field and every @L composite id under registries/generated',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and half its subject is the COMMITTED artefact build rewrites, which is the ' +
+      'arrangement this audit exists to catch. What makes it safe is that the other end is the ' +
+      'frozen blueprint -- read-only input whose sha256 and line count this file asserts -- and ' +
+      'no expectation is read back out of registries/generated. `build` regenerates the ' +
+      'registries from registries/raw and cannot make a blank line non-blank, so it cannot ' +
+      'satisfy this gate by rewriting what the gate compares against; reading the FRESH ' +
+      'registries is the point, because the claim is about the artefact that ships. The app/ ' +
+      'and src/ half is authored and no verify step writes it. Both halves carry a population ' +
+      'floor and a detector self-test on real data -- the four disclosures as they shipped, and ' +
+      'three real blank lines against the three heading lines above them -- because closing ' +
+      'R4-01 removes most of the absence claims from the tree and a sweep over nothing would ' +
+      'otherwise be indistinguishable from a clean one.',
   },
   'canon-size-literal.test.ts': {
     subject: 'authored .ts/.tsx under src/ and app/, plus OPEN_DECISIONS.length read from src/',

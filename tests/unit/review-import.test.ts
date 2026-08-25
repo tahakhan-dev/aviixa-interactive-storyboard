@@ -11,11 +11,48 @@ const rec = () => createReviewRecord({
   sourceFingerprint: '47bd18db', scenarioVersion: '1', buildHash: 'abc',
 }, fixedClock(CANONICAL_EPOCH_MS))
 
+/**
+ * R4-B06: master prompt §9.6's reconciliation table and §13.1's census are
+ * now required elements of the package, so every fixture carries a small,
+ * well-formed one. Kept minimal on purpose -- the round-trip and corruption
+ * claims below are about the manifest, not about the payload's content, and
+ * the real payloads are asserted against the real artefacts in
+ * tests/unit/review-package-payload.test.ts.
+ */
+const reconciliation = [
+  {
+    inventory: 'Modules',
+    registry_slug: 'modules',
+    prompt_candidate: '81 modules',
+    extracted_count: '81 canonical modules',
+    count_scope: 'Canonical module inventory the source names per surface',
+    dedup_rule: 'Exact identifier string',
+    delta: '0',
+    resolution: 'CONFIRMED',
+  },
+]
+const census = {
+  totalRows: 81,
+  byStatus: { 'demonstrated-in-storyboard': 69, 'not-represented': 12 },
+  registries: [
+    {
+      slug: 'modules',
+      rows: 81,
+      byStatus: { 'demonstrated-in-storyboard': 69, 'not-represented': 12 },
+      bySurface: { 'SURF-DOH': 19 },
+      byModule: {},
+    },
+  ],
+  denominatorMeaning:
+    'Item-level, never registry-level: a registry counts as demonstrated the moment any one of its own rows does, so the registry-level figure answers only whether the build has touched an inventory at all.',
+}
+
 const good = () => exportReviewPackage({
   sourceHash: '47bd18db', promptHash: 'p-1', buildHash: 'abc', scenarioVersion: '1',
   scenarioSeed: 'seed-1', fixtureRefs: [], records: [rec()],
   decisions: [], bookmarks: [],
   coverageSnapshot: { takenAtLogical: CANONICAL_EPOCH_MS, byStatus: {} },
+  reconciliation, census,
   screenshotRefs: [],
 })
 const expected = { sourceHash: '47bd18db', buildHash: 'abc' }
@@ -191,6 +228,7 @@ describe('review package import', () => {
       scenarioSeed: 'seed-1', fixtureRefs: [], records: [rec()],
       decisions: [], bookmarks: [],
       coverageSnapshot: { takenAtLogical: -1, byStatus: {} },
+      reconciliation, census,
       screenshotRefs: [],
     })
     const r = await importReviewPackage(negativeTimestampPackage, expected)
@@ -213,6 +251,7 @@ describe('review package import', () => {
       scenarioSeed: 'seed-1', fixtureRefs: [], records: [badRecord],
       decisions: [], bookmarks: [],
       coverageSnapshot: { takenAtLogical: CANONICAL_EPOCH_MS, byStatus: {} },
+      reconciliation, census,
       screenshotRefs: [],
     })
     const r = await importReviewPackage(p, expected)

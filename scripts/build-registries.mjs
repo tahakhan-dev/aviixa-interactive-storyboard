@@ -144,12 +144,196 @@ const SOURCE_LINE_MEANING =
   'locator for the same identifier, that one ' +
   'was opened and read against the source and is the stronger citation.'
 
+/* ====================================================================
+ * R4-B05 / R4-B12 — THE TWO TERMINAL STATUSES THE GENERATOR COULD NOT EMIT.
+ *
+ * Master prompt §13.1 closes the actionable-item census both ways: zero
+ * rendered controls outside the census, and zero census rows without either a
+ * rendered control or an explicit decision-blocked / not-applicable record.
+ * Neither string occurred anywhere in this file, so the second half was
+ * unreachable by construction — 4,704 of 5,018 rows sat in `not-represented`,
+ * which is neither of the two terminal states the section permits, and no
+ * amount of authoring could have moved one.
+ *
+ * The record is authored rather than derived, because a terminal status is a
+ * judgement about the source and not something the route tree can compute.
+ * `registries/authored/census-status-overrides.json` holds it, and master
+ * prompt §9.2 fixes what it must carry: a `Not applicable` classification
+ * without reason, owner and source/decision evidence is a validator failure,
+ * so all three are required here and a record missing any of them throws.
+ *
+ * TWO GUARDS, BOTH AGAINST THIS MECHANISM BEING USED TO MOVE A NUMBER:
+ *
+ *   1. An override may only be applied to a row whose DERIVED status is
+ *      `not-represented`. Overriding a demonstrated row would hide real
+ *      evidence behind an authored sentence.
+ *   2. An override naming a row no registry holds throws. A record that
+ *      matches nothing is how a population silently empties, which is the
+ *      round-3 shape this build already paid for once.
+ *
+ * What it does NOT do is make the not-represented count small. After this
+ * file the count moves by 22 rows out of 4,704, and the coverage dashboard
+ * publishes both figures side by side.
+ * ==================================================================== */
+const OVERRIDE_FILE = join(ROOT, 'registries', 'authored', 'census-status-overrides.json')
+const AUTHORED_OVERRIDE_STATUSES = ['decision-blocked', 'not-applicable']
+
+/** `"<registry-slug> <row id>" -> the authored record`, validated on load. */
+const CENSUS_OVERRIDES = (() => {
+  const raw = JSON.parse(readFileSync(OVERRIDE_FILE, 'utf8'))
+  const byKey = new Map()
+  if (!Array.isArray(raw.overrides)) {
+    throw new Error(`${OVERRIDE_FILE} has no overrides array.`)
+  }
+  for (const record of raw.overrides) {
+    const where = `${OVERRIDE_FILE} record for ${record.registry}`
+    if (!AUTHORED_OVERRIDE_STATUSES.includes(record.status)) {
+      throw new Error(
+        `${where}: status "${record.status}" is not one of ${AUTHORED_OVERRIDE_STATUSES.join(' / ')}. ` +
+          'An authored override may only record one of master prompt §13.1\'s two terminal ' +
+          'states; the other three are derived from the built route tree and may not be typed.',
+      )
+    }
+    // Master prompt §9.2: reason, owner and source/decision evidence, all
+    // three, or the classification does not stand.
+    for (const [field, min] of [['reason', 80], ['owner', 20], ['evidenceQuote', 20]]) {
+      if (typeof record[field] !== 'string' || record[field].trim().length < min) {
+        throw new Error(
+          `${where}: "${field}" must be at least ${min} characters. Master prompt §9.2 fails a ` +
+            'Not applicable classification that carries no reason, owner and source evidence.',
+        )
+      }
+    }
+    if (!Number.isInteger(record.evidenceLine) || record.evidenceLine <= 0) {
+      throw new Error(`${where}: "evidenceLine" must be a positive frozen-source line number.`)
+    }
+    if (!Array.isArray(record.ids) || record.ids.length === 0) {
+      throw new Error(`${where}: "ids" must name at least one census row.`)
+    }
+    for (const id of record.ids) {
+      const key = `${record.registry} ${id}`
+      if (byKey.has(key)) throw new Error(`${where}: ${id} is overridden twice.`)
+      byKey.set(key, record)
+    }
+  }
+  return byKey
+})()
+
+/** Every override key an actual row consumed, so an unmatched record throws. */
+const OVERRIDES_APPLIED = new Set()
+
+/**
+ * Applies any authored override to `rows` in place of the derived status, and
+ * records WHY in `statusReason` so the row carries its own justification into
+ * the artefact rather than pointing at a file the reader has to find.
+ */
+function applyCensusOverrides(slug, rows) {
+  return rows.map((row) => {
+    const key = `${slug} ${row.id}`
+    const override = CENSUS_OVERRIDES.get(key)
+    if (override === undefined) return row
+    if (row.status !== 'not-represented') {
+      throw new Error(
+        `Authored override for ${slug}/${row.id} would replace a derived status of ` +
+          `"${row.status}". An override may only record a terminal state for a row nothing ` +
+          'demonstrates; overriding derived evidence hides it behind a sentence.',
+      )
+    }
+    OVERRIDES_APPLIED.add(key)
+    return {
+      ...row,
+      status: override.status,
+      statusReason:
+        `${override.reason} Recorded as an authored ${override.status} census record in ` +
+        `registries/authored/census-status-overrides.json. Owner: ${override.owner} Evidence, ` +
+        `frozen source line ${override.evidenceLine}: "${override.evidenceQuote}"`,
+    }
+  })
+}
+
+/* ====================================================================
+ * R4-B10 — THE ROUTE THAT MADE A ROW `demonstrated`, PUT ON THE ROW.
+ *
+ * Fourteen index screens rendered 5,018 rows with zero in-row links, so a
+ * reader shown "demonstrated in storyboard" had no way to reach the screen
+ * that demonstrates it. Master prompt §9.6 requires each index to drill into
+ * the item's card, and no per-item route exists or can exist: a second
+ * dynamic segment is refused by `tests/coverage/static-export.test.ts`,
+ * correctly, because master prompt §4.2 requires a finite build-time route
+ * inventory.
+ *
+ * The resolvable half needs no new route at all. The evidence that set the
+ * status already names a directory -- a slug claim, an argmax award, or the
+ * route file that spells the identifier -- and this generator was discarding
+ * it one line after computing it. So the row carries the route it was
+ * demonstrated BY, and the index renders the id as a link to that screen.
+ *
+ * A row nothing resolves carries no `route` and the index says so in the row
+ * rather than rendering a dead id -- master prompt §13 forbids a control that
+ * does nothing, and a link to nowhere is one.
+ *
+ * A DIRECTORY WITH A DYNAMIC SEGMENT RESOLVES TO NOTHING, deliberately.
+ * `app/coverage/[registry]` is one route directory standing for fourteen
+ * URLs; picking one of them for a row would be a guess dressed as evidence.
+ * ==================================================================== */
+function routeUrlFor(relDir) {
+  if (typeof relDir !== 'string' || relDir === '') return null
+  const segments = relDir.split(/[\\/]/)
+  if (segments[0] !== 'app') return null
+  const rest = segments
+    .slice(1)
+    // Next.js route groups contribute no URL segment.
+    .filter((s) => !(s.startsWith('(') && s.endsWith(')')))
+  if (rest.some((s) => s.includes('[') || s.includes(']'))) return null
+  return `/${rest.map((s) => `${s}/`).join('')}`
+}
+
+/**
+ * `MOD-* -> route directory`, slug claim first because it is the stronger
+ * evidence: the module DECLARED the route, where argmax only counted
+ * mentions. Both maps are built above this point.
+ */
+function moduleRouteDir(id) {
+  return SLUG_DEMONSTRATED.get(id) ?? ARGMAX_DEMONSTRATED.get(id) ?? null
+}
+
+function resolveRowRoute(slug, row) {
+  if (slug === 'modules') return routeUrlFor(moduleRouteDir(row.id))
+  if (slug === 'actionable-controls') {
+    return routeUrlFor(ROUTE_EVIDENCE.controlLabelRoutes.get(row.id) ?? null)
+  }
+  return routeUrlFor(ROUTE_EVIDENCE.citedTokenRoutes.get(row.id) ?? null)
+}
+
 function writeRegistry(registry) {
-  const rows = sortById(registry.rows)
+  const withRoutes = applyCensusOverrides(registry.slug, registry.rows).map((row) => {
+    const route = resolveRowRoute(registry.slug, row)
+    return route === null ? row : { ...row, route }
+  })
+  const rows = sortById(withRoutes)
   const out = {
     ...registry,
     sourceLineMeaning: SOURCE_LINE_MEANING,
     namedInSourceCount: namedInSourceCount(rows),
+    /**
+     * R4-B10. How many rows carry a `route`, and what the absence means on
+     * the rest, published in the artefact so the index can say it rather
+     * than a reader inferring it from a column of em dashes.
+     */
+    routeResolvedCount: rows.filter((r) => r.route !== undefined).length,
+    routeMeaning:
+      'The shipped screen whose evidence set this row\'s status: for a module, the route ' +
+      'directory its declared slug names or the one whose files name it more often than any ' +
+      'other module; for an actionable control, the route directory declaring a control-matrix ' +
+      'row with exactly this label; for every other inventory, the route directory that spells ' +
+      'this identifier as a whole token. Where several routes qualify, the lexicographically ' +
+      'first is recorded, so two independent generations agree. A row carries no route when no ' +
+      'route demonstrates it, when the evidence was an import rather than a route file ' +
+      '(mounted-in-another-screen), when the row is an authored not-applicable or ' +
+      'decision-blocked record, or when the only directory found holds a dynamic segment -- ' +
+      'app/coverage/[registry] is one directory standing for fourteen URLs and choosing one of ' +
+      'them for a row would be a guess. Those rows render their id as plain text with the ' +
+      'reason beside it, never as a link to nowhere.',
     namedInSourceMeaning:
       'How many rows this registry holds whose identifier is named anywhere under src/ or app/. ' +
       'It is WEAKER than a status and deliberately not one: a status says a route screen ' +
@@ -456,7 +640,40 @@ function walkRouteTree() {
   /** Ties, judged after slug claims are known. See the walk below. */
   const ambiguousRoutes = []
   const citedTokens = new Set()
+  /** R4-B10: identifier token -> the route directory that names it. */
+  const citedTokenRoutes = new Map()
+  /** R4-B10: control label -> the app/ directory that declares it. */
+  const controlLabelRoutes = new Map()
+  /**
+   * ── R4-B03: THE CONTROL SCAN NOW READS `src/` TOO, AND IT READS BOTH TREES
+   *    WHOLE RATHER THAN ONLY THE DIRECTORIES THAT HOLD A `page.tsx`. ────────
+   *
+   * This scan used to live INSIDE the route walk below, so it saw only files
+   * sitting directly in a route directory under `app/`. Measured with the
+   * script's own regex: `app/` yields 83 distinct labels — exactly the figure
+   * `/coverage/actionable-controls/` published — and `src/` yields 188 more
+   * that appear in no `app/` file at all. Twelve of those are word-for-word
+   * rows of the 608-label census (`Mark evidence reviewed`, `Create a Job`,
+   * `Approve`, `Decline with reason`, `Grant a qualification clearance`, …),
+   * so the published "4 are word-for-word a source label" understated the
+   * build in the direction a reader is harmed by.
+   *
+   * This build already knew the failure mode. The MODULE walk was widened
+   * with `importedModuleDirs` (see the mounting-evidence comment below) after
+   * five Frontline modules read not-represented because their route imports
+   * them by path and names none of them in its text. The `control:` scan sixty
+   * lines under that comment was never widened with it. A module's screen
+   * lives in `src/…/modules/<dir>/`; its control matrix lives there with it,
+   * and the route file that mounts it declares no `control:` of its own.
+   *
+   * Deliberately SEPARATE from `walkRouteTree`'s route logic rather than
+   * folded into it: widening the route walk itself to `src/` would let any
+   * `src/` directory holding a `page.tsx` mint a route owner, which is a
+   * different and much worse defect. Only the label set is widened.
+   */
   const declaredControlLabels = new Set()
+  /** The `app/`-only half, kept so the published figure can name both. */
+  const appDeclaredControlLabels = new Set()
   /** Route directory basename -> every directory carrying it. See the slug rule below. */
   const routeDirsByName = new Map()
   let declaresControlMatrix = false
@@ -471,7 +688,8 @@ function walkRouteTree() {
     const hasPage = entries.some((e) => e.isFile() && e.name === 'page.tsx')
     if (hasPage) {
       const name = basename(dir)
-      routeDirsByName.set(name, [...(routeDirsByName.get(name) ?? []), relative(ROOT, dir)])
+      const relDir = relative(ROOT, dir)
+      routeDirsByName.set(name, [...(routeDirsByName.get(name) ?? []), relDir])
       const counts = new Map()
       for (const e of entries) {
         if (e.isDirectory()) continue // a nested route owns itself
@@ -482,6 +700,20 @@ function walkRouteTree() {
         }
         for (const token of text.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) {
           citedTokens.add(token)
+          /**
+           * R4-B10: WHICH route named it, not only that one did. The status
+           * said a shipped screen demonstrates the row and no artefact said
+           * which screen, so fourteen index pages rendered 5,018 ids with
+           * zero in-row links. The evidence for the status already knows the
+           * answer; it was being thrown away one line above this one.
+           *
+           * LEXICOGRAPHICALLY SMALLEST, not first-seen. `readdirSync` order
+           * is filesystem order and this file is a determinism contract --
+           * two generations must diff clean. A token named by several routes
+           * resolves to the same one on every machine this way.
+           */
+          const prior = citedTokenRoutes.get(token)
+          if (prior === undefined || relDir < prior) citedTokenRoutes.set(token, relDir)
         }
         /**
          * MOUNTING EVIDENCE, WHICH IS AN IMPORT AND NOT A MENTION.
@@ -520,10 +752,6 @@ function walkRouteTree() {
         for (const m of text.matchAll(/from\s+'[^']*\/modules\/([a-z]+-[a-z]?\d+)(?:\/[^']*)?'/g)) {
           importedModuleDirs.add(m[1])
         }
-        if (text.includes('CONTROL_MATRIX')) declaresControlMatrix = true
-        for (const m of text.matchAll(/\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g)) {
-          declaredControlLabels.add(m[1].replace(/\\(.)/g, '$1'))
-        }
       }
       const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1])
       if (ranked.length > 0) {
@@ -558,7 +786,46 @@ function walkRouteTree() {
     }
   }
   walkDirs(join(ROOT, 'app'))
-  return { ownedModuleIds, argmaxWinners, importedModuleDirs, ambiguousRoutes, citedTokens, declaredControlLabels, declaresControlMatrix, routeDirsByName }
+
+  /**
+   * The widened label scan (R4-B03). Same regex, same unescaping, same
+   * probe-awareness as every other walk in this file; the only difference is
+   * that it descends the whole of both trees instead of stopping at route
+   * directories.
+   */
+  const CONTROL_LABEL = /\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g
+  const collectLabels = (dir, into) => {
+    const entries = readIfPresentDir(dir)
+    if (entries === null) return
+    const relDir = relative(ROOT, dir)
+    for (const e of entries) {
+      if (PROBE_DIR_RE.test(e.name) || /^\.zz-probe-/.test(e.name)) continue
+      const full = join(dir, e.name)
+      if (e.isDirectory()) {
+        collectLabels(full, into)
+        continue
+      }
+      if (!/\.tsx?$/.test(e.name)) continue
+      const text = readIfPresentFile(full)
+      if (text === null) continue
+      if (text.includes('CONTROL_MATRIX')) declaresControlMatrix = true
+      for (const m of text.matchAll(CONTROL_LABEL)) {
+        const label = m[1].replace(/\\(.)/g, '$1')
+        declaredControlLabels.add(label)
+        into?.add(label)
+        // R4-B10, same rule and same reason as `citedTokenRoutes`:
+        // lexicographically smallest, so two generations diff clean.
+        if (into !== null) {
+          const prior = controlLabelRoutes.get(label)
+          if (prior === undefined || relDir < prior) controlLabelRoutes.set(label, relDir)
+        }
+      }
+    }
+  }
+  collectLabels(join(ROOT, 'app'), appDeclaredControlLabels)
+  collectLabels(join(ROOT, 'src'), null)
+
+  return { ownedModuleIds, argmaxWinners, importedModuleDirs, ambiguousRoutes, citedTokens, citedTokenRoutes, controlLabelRoutes, declaredControlLabels, appDeclaredControlLabels, declaresControlMatrix, routeDirsByName }
 }
 
 const ROUTE_EVIDENCE = walkRouteTree()
@@ -1818,6 +2085,97 @@ function studioFeatureSchemeNote() {
 const ACTIONABLE_CONTROLS_REGISTER = 'actionable controls (surface action catalogue)'
 const DO_NOT_USE_CRON_REGISTER = 'do-not-use-cron controls (DNC-01..DNC-22, scheduling policy)'
 
+/* ====================================================================
+ * R4-B04 — THE TWO DIMENSIONS MASTER PROMPT §13.1 ASKS THE CENSUS TO COUNT
+ * BY, CARRIED THROUGH INSTEAD OF DISCARDED.
+ *
+ * Master prompt §13.1 requires "counts by surface, module, control type, and
+ * implementation status". Before this change the census could compute two of
+ * the four: `moduleId` was present on 0 of the 630 rows and `surface` was the
+ * extraction's raw free text.
+ *
+ * The data was never missing upstream. `registries/raw/extract/CHK-*.json`
+ * carries `module_id` on 653 of its 759 control entries and the generator
+ * simply dropped the field on the way into the row.
+ *
+ * WHAT IS AND IS NOT NORMALISED, measured rather than asserted.
+ *
+ *   module_id — 759 raw entries carry 202 distinct values. 349 are exactly a
+ *   canonical `MOD-<SURFACE>-<NN|AN>` id; 14 more name two or three modules in
+ *   one cell ("MOD-CC-02 / MOD-CC-03"); the remaining 290 are prose ("Audit
+ *   log", "Conflict-review panel", "Frontline module A2 — My Runs"). Only an
+ *   EXACT single canonical id becomes `moduleId`. A cell naming several is
+ *   ambiguous and a prose cell is not an id at all, so both are carried
+ *   verbatim in `moduleDescriptor` instead — disclosed, never dropped, and
+ *   never guessed into a canonical id the extraction did not write.
+ *
+ *   surface — 736 of 759 raw entries already carry a canonical `SURF-*` code.
+ *   The other 23 are prose or a qualified code, and every one of them is
+ *   mapped by the table below, which is EXHAUSTIVE: a value it does not cover
+ *   throws rather than falling through to a guess or to `null`. Two of them
+ *   genuinely name more than one surface and normalise to `cross-surface`,
+ *   which is a real value in this vocabulary and not a bucket for the
+ *   unmatched.
+ *
+ * CONTROL TYPE IS NOT DERIVED, AND THAT IS THE FINDING RATHER THAN A GAP IN
+ * THE FIX. The raw extraction's control entries carry exactly six fields —
+ * label, surface, module_id, allowed_roles, effect, line — and none of them
+ * is a type. Master prompt §13.1 names two dozen control kinds (search,
+ * filters, sorts, tabs, pagination, drill-down, breadcrumbs, chart points,
+ * timeline entries, notification rows, cards, table rows, menu items, context
+ * actions, drag-and-drop, import/export, reset, role switch, locale/theme
+ * switch, simulated connectivity, failure injection, story navigation, review
+ * controls) and the frozen source classifies none of the 608 against them.
+ * Inventing a taxonomy and running the 608 labels through a keyword guess
+ * would produce a column that looks like source truth and is this build's own
+ * opinion — the exact defect the census exists to prevent. So the absence is
+ * published on the index page and recorded as the delta in the
+ * actionable-controls reconciliation row.
+ * ==================================================================== */
+const CONTROL_SURFACE_NORMALISATION = new Map([
+  ['Client Command Center', 'SURF-CC'],
+  ['Client Command Center sync-conflict review panel', 'SURF-CC'],
+  ['Client Command Center deviation workspace', 'SURF-CC'],
+  ['Client Command Center gate queue and learned-change queue', 'SURF-CC'],
+  ['Frontline Worker Application', 'SURF-FL'],
+  ['Delivery Operations Hub', 'SURF-DOH'],
+  ['SURF-DOH (tenant banner)', 'SURF-DOH'],
+  ['SURF-DOH / tenant-visible support access control', 'SURF-DOH'],
+  ['Super Admin platform console', 'SURF-SA'],
+  ['Standards and Operations Studio', 'SURF-STU'],
+  ['SURF-CC-wide', 'SURF-CC'],
+  // The two that genuinely name more than one surface. `cross-surface` is a
+  // value the source supports here -- a handoff is rendered by every surface
+  // that participates in it -- not a bucket for what did not match.
+  ['all surfaces rendering a handoff', 'cross-surface'],
+  [
+    'Delivery Operations Hub (tenant banner); also Studio and Client Command Center',
+    'cross-surface',
+  ],
+])
+const CANONICAL_SURFACE_ID_RE = /^SURF-(DOH|CC|FL|SA|STU)$/
+
+function normaliseControlSurface(raw) {
+  if (typeof raw !== 'string' || raw.trim() === '') return null
+  if (CANONICAL_SURFACE_ID_RE.test(raw)) return raw
+  const mapped = CONTROL_SURFACE_NORMALISATION.get(raw)
+  if (mapped === undefined) {
+    throw new Error(
+      `Unmapped control surface "${raw}". The normalisation table in build-registries.mjs is ` +
+        'exhaustive by design: add the mapping rather than letting the row fall through to a ' +
+        'guess or to no surface at all.',
+    )
+  }
+  return mapped
+}
+
+function normaliseControlModule(raw) {
+  if (typeof raw !== 'string' || raw.trim() === '') return { moduleId: null, descriptor: null }
+  const trimmed = raw.trim()
+  if (CANONICAL_MODULE_ID_RE.test(trimmed)) return { moduleId: trimmed, descriptor: null }
+  return { moduleId: null, descriptor: trimmed }
+}
+
 function buildActionableControlsRegistry() {
   const rawControls = []
   for (const chunk of chunks) {
@@ -1826,6 +2184,8 @@ function buildActionableControlsRegistry() {
   const byLabel = new Map()
   for (const c of rawControls) {
     if (byLabel.has(c.label)) continue // first occurrence (chunk order) wins
+    const surface = normaliseControlSurface(c.surface)
+    const { moduleId, descriptor } = normaliseControlModule(c.module_id)
     byLabel.set(c.label, {
       id: c.label,
       // Minor (final review): `label` was never set, only `id` -- every
@@ -1841,7 +2201,12 @@ function buildActionableControlsRegistry() {
       status: ROUTE_EVIDENCE.declaredControlLabels.has(c.label)
         ? 'demonstrated-in-storyboard'
         : 'not-represented',
-      surface: c.surface,
+      // R4-B04: normalised, never the extraction's raw free text, and the
+      // raw text is kept beside it wherever normalisation changed it.
+      ...(surface !== null && { surface }),
+      ...(surface !== null && surface !== c.surface && { surfaceDescriptor: c.surface }),
+      ...(moduleId !== null && { moduleId }),
+      ...(descriptor !== null && { moduleDescriptor: descriptor }),
       register: ACTIONABLE_CONTROLS_REGISTER,
     })
   }
@@ -1875,13 +2240,36 @@ function buildActionableControlsRegistry() {
         'controls, matching spec §2.10. Worst collapse: 14 raw entries sharing one label ' +
         '("Request release with a note"). DNC-01..DNC-22 (verified unique, zero delta) is a ' +
         'SEPARATE inventory -- scheduling policy, not an actionable control -- and is listed ' +
-        `under the "${DO_NOT_USE_CRON_REGISTER}" register tag rather than mixed into this count.`,
+        `under the "${DO_NOT_USE_CRON_REGISTER}" register tag rather than mixed into this count. ` +
+        // R4-B04, measured on the written rows rather than asserted.
+        `THE FOUR CENSUS DIMENSIONS MASTER PROMPT §13.1 ASKS FOR, AND WHICH OF THEM THIS ` +
+        `EXTRACTION CAN ANSWER. Surface: ${controlRows.filter((r) => r.surface !== undefined).length} ` +
+        `of 608 rows carry a normalised surface (` +
+        `${controlRows.filter((r) => r.surface === 'cross-surface').length} of them cross-surface), ` +
+        `and ${controlRows.filter((r) => r.surfaceDescriptor !== undefined).length} of those were ` +
+        'prose in the extraction and are normalised here with the raw wording kept beside them. ' +
+        `Module: ${controlRows.filter((r) => r.moduleId !== undefined).length} rows carry a ` +
+        `canonical MOD-* id; ${controlRows.filter((r) => r.moduleDescriptor !== undefined).length} ` +
+        'name their module in prose or name several at once, and carry that text verbatim rather ' +
+        `than a guessed id; ${controlRows.filter((r) => r.moduleId === undefined && r.moduleDescriptor === undefined).length} ` +
+        'record no module at all. Implementation status: every row. CONTROL TYPE: NO ROW, AND ' +
+        'NOT BECAUSE THE GENERATOR DROPS IT. The frozen source classifies none of these 608 ' +
+        'controls by type -- the extraction records label, surface, module, allowed roles, ' +
+        'effect and line, and the source names no type for any of them. A type column here ' +
+        'would be this build\'s own taxonomy presented in a source-derived census, so the ' +
+        'dimension is declared absent instead of invented, and the reconciliation row for this ' +
+        'inventory carries it as its delta.',
       statusNote(
         [...controlRows, ...dncRows],
         'a shipped route screen declares a control-matrix row whose `control:` label is EXACTLY ' +
           'this source label (the 608 control rows), or names the identifier as a whole token ' +
           `(the DNC-* rows). This is the weakest of the fourteen signals and says so: the built ` +
-          `screens declare ${ROUTE_EVIDENCE.declaredControlLabels.size} control-matrix labels, of ` +
+          `screens declare ${ROUTE_EVIDENCE.declaredControlLabels.size} control-matrix labels ` +
+          `(${ROUTE_EVIDENCE.appDeclaredControlLabels.size} in a route file under app/ and ` +
+          `${ROUTE_EVIDENCE.declaredControlLabels.size - ROUTE_EVIDENCE.appDeclaredControlLabels.size} ` +
+          'only in the module components under src/ that those routes mount -- the scan behind ' +
+          'this figure read app/ alone until audit round 4 finding R4-B03, and published 83 and ' +
+          '4 where the two trees together hold what is printed here), of ' +
           `which ${[...ROUTE_EVIDENCE.declaredControlLabels].filter((l) => byLabel.has(l)).length} ` +
           'are word-for-word a source label and the rest are the same control re-worded for a ' +
           'reader. The frozen source gives these actions no identifier -- the label IS the key -- ' +
@@ -2090,10 +2478,40 @@ function buildAiStoryboardsRegistry() {
 // ---------------------------------------------------------------------
 const PLACEHOLDER_WORKFLOW_IDS = new Set(['unnumbered', 'unstated'])
 
+/**
+ * A CITATION OF A BLANK LINE IS ALWAYS WRONG (audit round 4, finding R4-06).
+ *
+ * The workflow extractor records the line a passage BEGINS on, and for a
+ * passage introduced by a bold heading it recorded the blank line between the
+ * heading and step 1. Three of the 5,018 `sourceLine` fields the seventeen
+ * generated registries carry landed on a blank line that way, and two of the
+ * three were then printed to a reader as the workflow's identity, because a
+ * placeholder-id row is keyed `${id}@L${sourceLine}`.
+ *
+ * `locator-fidelity`'s doctrine already calls this wrong; it could not see it,
+ * because it scans `src`/`app`/`tests`/`scripts` and these are bare numbers in
+ * `registries/generated`. So the fix is at the extractor, and the assertion
+ * that keeps it fixed is in `tests/coverage/rendered-absence-claims.test.ts`.
+ *
+ * Walking UP rather than down: the line that names a passage is the heading
+ * above it, never the first step below it. All three cases are exactly one
+ * blank line under their heading -- L101682, L34885, L95238.
+ */
+const BLUEPRINT_LINES = readFileSync(
+  join(ROOT, '..', 'AVIIXA_Production_Product_Blueprint.md'),
+  'utf8',
+).split('\n')
+
+function anchorToHeading(line) {
+  let n = line
+  while (n > 1 && (BLUEPRINT_LINES[n - 1] ?? '').trim() === '') n -= 1
+  return n
+}
+
 function collectRawWorkflows() {
   const raw = []
   for (const chunk of chunks) {
-    for (const wf of chunk.workflows ?? []) raw.push(wf)
+    for (const wf of chunk.workflows ?? []) raw.push({ ...wf, line: anchorToHeading(wf.line) })
   }
   return raw
 }
@@ -2115,6 +2533,68 @@ function collectRawWorkflows() {
  * `idIsPlaceholder` reports whether the ORIGINAL extractor id was a
  * placeholder, independent of the composite key now used as this row's id.
  */
+/* ====================================================================
+ * R4-B07 — THE FOUR §10.5 DIMENSIONS THE WORKFLOW INDEX DID NOT SHIP.
+ *
+ * Master prompt §10.5 requires the Workflow Index to list every workflow with
+ * its ID, plain-language name, owning surface and module, initiating and
+ * participating roles, primary objects, implementation status and variant
+ * coverage summary, filterable by each. The index shipped four of the eight.
+ *
+ * ONE OF THE FOUR IS DERIVABLE AND THREE ARE NOT, and the difference is
+ * measured rather than assumed. The extraction's workflow records carry
+ * exactly eight fields -- id, name, primary_actor, trigger, surfaces_touched,
+ * terminal_states, line, and exercised_by on 57 of 725 -- and no others.
+ *
+ *   participating roles — DERIVED, from a closed vocabulary and from the
+ *   extraction's own text. `primary_actor` is prose and routinely names more
+ *   than one role ("Quality Manager with an authoring grant, then Supervisor,
+ *   then Worker, then Quality Manager"), so the nine canonical role names are
+ *   matched inside `primary_actor` and `trigger` and the matches are the
+ *   cell. Longest name first, with each match consumed, because "Admin" is a
+ *   substring of both "Tenant Admin" and "Root Super Admin" and a naive scan
+ *   would report the platform Admin on every tenant-admin workflow. This is
+ *   labelled on the screen as roles NAMED IN the extracted text, never as the
+ *   source's own role-result mapping, which §10.5 also requires and which the
+ *   extraction does not carry.
+ *
+ *   owning module, primary objects, variant coverage — NOT EXTRACTED, and
+ *   rendered as exactly that rather than dropped or synthesised. There is no
+ *   module field on a workflow record; there is no object field; and
+ *   `terminal_states` is a list of end states, not §10.5's seven variant
+ *   classes (branch, denied, failure, first-fallback, fallback-failure,
+ *   terminal-safe, recovery). Deriving a variant summary from terminal states
+ *   would be this build's opinion printed in a source-derived column.
+ *
+ *   exercisedBy — carried through because it is real and was being dropped.
+ *   §10.5's first bullet requires the trace chain to link a workflow to its
+ *   use cases, and 57 rows carry exactly that.
+ * ==================================================================== */
+const CANONICAL_ROLE_NAMES = [
+  'Root Super Admin',
+  'Platform Engineer',
+  'Read-only Auditor',
+  'Quality Manager',
+  'Tenant Admin',
+  'Supervisor',
+  'Support',
+  'Worker',
+  'Admin',
+]
+
+function rolesNamedIn(...texts) {
+  let haystack = texts.filter((t) => typeof t === 'string').join('   ')
+  const found = []
+  // Longest first, each match consumed, so "Tenant Admin" is not also counted
+  // as the platform "Admin" role.
+  for (const name of [...CANONICAL_ROLE_NAMES].sort((a, b) => b.length - a.length)) {
+    if (!haystack.includes(name)) continue
+    found.push(name)
+    haystack = haystack.split(name).join(' ')
+  }
+  return found.sort()
+}
+
 function buildWorkflowsRegistry() {
   const raw = collectRawWorkflows()
 
@@ -2154,6 +2634,14 @@ function buildWorkflowsRegistry() {
       trigger: wf.trigger,
       surfacesTouched: wf.surfaces_touched ?? [],
       terminalStates: wf.terminal_states ?? [],
+      // R4-B07. `participatingRoles` is derived; `exercisedBy` is carried
+      // straight through. Owning module, primary objects and variant coverage
+      // are absent from the extraction and are absent here too -- the index
+      // renders the column and says "not extracted" rather than dropping it.
+      participatingRoles: rolesNamedIn(wf.primary_actor, wf.trigger),
+      ...(Array.isArray(wf.exercised_by) && wf.exercised_by.length > 0
+        ? { exercisedBy: wf.exercised_by }
+        : {}),
     })
   }
 
@@ -2560,7 +3048,36 @@ if (demonstratedByRegistry.every(([, n]) => n === 0)) {
   )
 }
 
-for (const registry of registries) writeRegistry(registry)
+const written = registries.map((registry) => writeRegistry(registry))
+
+/**
+ * R4-B05 guard 2: an authored override that matched no row is how a
+ * population silently empties -- 20 ids named, 0 matched, no assertion run,
+ * suite green. Every key must have been consumed by a real row.
+ */
+const unmatchedOverrides = [...CENSUS_OVERRIDES.keys()].filter((k) => !OVERRIDES_APPLIED.has(k))
+if (unmatchedOverrides.length > 0) {
+  throw new Error(
+    `${unmatchedOverrides.length} authored census override(s) matched no row in the registry ` +
+      `they name:\n  ${unmatchedOverrides.join('\n  ')}\n` +
+      'An override that matches nothing is indistinguishable, in the output, from one that was ' +
+      'never written -- refusing to ship a census whose escape hatch quietly does nothing.',
+  )
+}
+
+const statusTally = {}
+for (const registry of written) {
+  for (const row of registry.rows) statusTally[row.status] = (statusTally[row.status] ?? 0) + 1
+}
+console.log(
+  'Census status tally across the fourteen registries: ' +
+    Object.entries(statusTally)
+      .sort()
+      .map(([s, n]) => `${s} ${n}`)
+      .join(', ') +
+    `, total ${Object.values(statusTally).reduce((a, b) => a + b, 0)}.`,
+)
+
 console.log(
   'Demonstrated-in-storyboard rows: ' +
     demonstratedByRegistry.map(([slug, n]) => `${slug} ${n}`).join(', '),

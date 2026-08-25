@@ -73,13 +73,23 @@ test('the workflow index renders and states its reconciled count honestly', asyn
  * them. It is an EQUALITY now, against the row count of the very JSON the page
  * is built from, so a truncated table, a filtered one, or a paginated one is red
  * and names the shortfall.
+ *
+ * SCOPED TO THE ROW TABLE, because the page grew a second one. R4-B04 added
+ * the per-surface and per-module census master prompt §13.1 requires, which is
+ * two more tables on any index whose rows carry those dimensions — so a count
+ * of every `row` on the page stopped being a count of the registry's rows. The
+ * equality is kept; what changed is which table it is an equality over. The
+ * scroll region's accessible name is the stable handle, and it is the same
+ * name `RegistryIndex` gives it in `app/coverage/[registry]/page.tsx`.
  */
 test('every registry index renders every row it owes, not an empty placeholder', async ({
   page,
 }) => {
   for (const s of SLUGS) {
     await page.goto(`/coverage/${s}/`)
-    const rowCount = await page.getByRole('row').count()
+    const table = page.getByRole('region', { name: /table, scrollable horizontally$/ })
+    await expect(table, `${s}: the registry's own row table is on the page`).toHaveCount(1)
+    const rowCount = await table.getByRole('row').count()
     expect(rowCount, `${s}: rendered rows against its generated registry plus one header`).toBe(
       rowsOwed(s) + 1,
     )

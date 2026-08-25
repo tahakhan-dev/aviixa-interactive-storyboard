@@ -3,7 +3,7 @@
   "countedThing": "every SB-* identifier in the identifier index (613), split across 5 separate, clearly labelled registers -- never scoped down to just one of them. No names were extracted for this family.",
   "reconciledCount": null,
   "rawCount": 613,
-  "dedupRule": "SB-* splits into 5 non-overlapping registers by id shape: 30 platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 490 storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 45 further-nested storyboard identifiers (4-segment SB-*, 45 total); 18 agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build; 30 AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total). Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and SB-AI-01..30 AI storyboards), and audit C-28 split SB-AI-* by id width, which is what makes the count above what it is rather than four; the source fixes no combined total across them. Status is computed from the built route tree, never from a list: 109 of 613 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Per register: 1 of 30 in the platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 68 of 490 in the storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 10 of 45 in the further-nested storyboard identifiers (4-segment SB-*, 45 total); 0 of 18 in the agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build; 30 of 30 in the AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total). Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
+  "dedupRule": "SB-* splits into 5 non-overlapping registers by id shape: 30 platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 490 storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 45 further-nested storyboard identifiers (4-segment SB-*, 45 total); 18 agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build; 30 AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total). Two distinct thirty-item registers exist (SB-001..030 platform walkthroughs and SB-AI-01..30 AI storyboards), and audit C-28 split SB-AI-* by id width, which is what makes the count above what it is rather than four; the source fixes no combined total across them. Status is computed from the built route tree, never from a list: 110 of 613 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Per register: 1 of 30 in the platform storyboard catalogue (SB-NNN, Chapter 30, 30 total); 69 of 490 in the storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total); 10 of 45 in the further-nested storyboard identifiers (4-segment SB-*, 45 total); 0 of 18 in the agent and configuration-lifecycle storyboards (SB-AI-NNN, Chapters 40-41, 18 total) -- a DIFFERENT register from the thirty section-44A storyboards above, and not transcribed by this build; 30 of 30 in the AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total). Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -616,7 +616,8 @@
       "id": "SB-030",
       "sourceLine": 61119,
       "status": "demonstrated-in-storyboard",
-      "register": "platform storyboard catalogue (SB-NNN, Chapter 30, 30 total)"
+      "register": "platform storyboard catalogue (SB-NNN, Chapter 30, 30 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-030-01",
@@ -802,7 +803,8 @@
       "id": "SB-16-02",
       "sourceLine": 20195,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/command-center/alert-and-escalation-feed/"
     },
     {
       "id": "SB-16-03",
@@ -868,13 +870,15 @@
       "id": "SB-31-01",
       "sourceLine": 75180,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/tenants-lifecycle-and-pilots/"
     },
     {
       "id": "SB-31-02",
       "sourceLine": 75309,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/tenants-lifecycle-and-pilots/"
     },
     {
       "id": "SB-31-03",
@@ -892,7 +896,8 @@
       "id": "SB-31-05",
       "sourceLine": 75604,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/tenants-lifecycle-and-pilots/"
     },
     {
       "id": "SB-31-06",
@@ -916,13 +921,15 @@
       "id": "SB-31-09",
       "sourceLine": 76038,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/devices-and-fleet/"
     },
     {
       "id": "SB-31-10",
       "sourceLine": 76133,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/console-users-roles-and-change-approvals/"
     },
     {
       "id": "SB-32-01",
@@ -1102,13 +1109,15 @@
       "id": "SB-43-101",
       "sourceLine": 89965,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/ai-incidents/"
     },
     {
       "id": "SB-43-102",
       "sourceLine": 90030,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-settings/"
     },
     {
       "id": "SB-43-201",
@@ -1180,7 +1189,8 @@
       "id": "SB-43-351",
       "sourceLine": 91276,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/"
     },
     {
       "id": "SB-43-401",
@@ -1234,7 +1244,8 @@
       "id": "SB-45-08-01",
       "sourceLine": 96540,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/usage-and-metering/"
     },
     {
       "id": "SB-45-09-01",
@@ -1258,7 +1269,8 @@
       "id": "SB-45-12-01",
       "sourceLine": 97034,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/usage-and-metering/"
     },
     {
       "id": "SB-45-13-01",
@@ -1276,25 +1288,29 @@
       "id": "SB-45-15-01",
       "sourceLine": 97339,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-45-16-01",
       "sourceLine": 97449,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-45-17-01",
       "sourceLine": 97555,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-45-18-01",
       "sourceLine": 97661,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-45-19-01",
@@ -1406,7 +1422,8 @@
       "id": "SB-AI-01",
       "sourceLine": 92693,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-010",
@@ -1461,55 +1478,64 @@
       "id": "SB-AI-02",
       "sourceLine": 92694,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-03",
       "sourceLine": 92695,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-04",
       "sourceLine": 92696,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-05",
       "sourceLine": 92697,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-06",
       "sourceLine": 92698,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-07",
       "sourceLine": 92699,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-08",
       "sourceLine": 92700,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-09",
       "sourceLine": 92701,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-10",
       "sourceLine": 92702,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-100",
@@ -1522,121 +1548,141 @@
       "id": "SB-AI-11",
       "sourceLine": 92703,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-12",
       "sourceLine": 92704,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-13",
       "sourceLine": 92705,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-14",
       "sourceLine": 92706,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-15",
       "sourceLine": 92707,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-16",
       "sourceLine": 92708,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-17",
       "sourceLine": 92709,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-18",
       "sourceLine": 92710,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-19",
       "sourceLine": 92711,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-20",
       "sourceLine": 92712,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-21",
       "sourceLine": 92713,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-22",
       "sourceLine": 92714,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-23",
       "sourceLine": 92715,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-24",
       "sourceLine": 92716,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-25",
       "sourceLine": 92717,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-26",
       "sourceLine": 92718,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-27",
       "sourceLine": 92719,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-28",
       "sourceLine": 92720,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-29",
       "sourceLine": 92721,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-AI-30",
       "sourceLine": 92722,
       "status": "demonstrated-in-storyboard",
-      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)"
+      "register": "AI / fallback storyboards (SB-AI-NN, Chapter 44 section 44A, 30 total)",
+      "route": "/workflows/ai-and-its-absence/"
     },
     {
       "id": "SB-ARCH-001",
@@ -1756,7 +1802,8 @@
       "id": "SB-AUD-01",
       "sourceLine": 74017,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/audit-and-retention/"
     },
     {
       "id": "SB-AUD-02",
@@ -1768,13 +1815,15 @@
       "id": "SB-AUD-03",
       "sourceLine": 74153,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-audit/"
     },
     {
       "id": "SB-AUD-04",
       "sourceLine": 74210,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/audit-and-retention/"
     },
     {
       "id": "SB-AUD-05",
@@ -1786,7 +1835,8 @@
       "id": "SB-BG-01",
       "sourceLine": 74622,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/support-access/"
     },
     {
       "id": "SB-CAP-01",
@@ -1888,13 +1938,15 @@
       "id": "SB-CC-14",
       "sourceLine": 36757,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/command-center/run-drill-down/"
     },
     {
       "id": "SB-CC-15",
       "sourceLine": 36905,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/command-center/deviation-workspace/"
     },
     {
       "id": "SB-CC-16",
@@ -1948,7 +2000,8 @@
       "id": "SB-CC-24",
       "sourceLine": 38765,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/command-center/cell-view/"
     },
     {
       "id": "SB-CC-ALERT-01",
@@ -2134,7 +2187,8 @@
       "id": "SB-DEC-03",
       "sourceLine": 112905,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/location-configuration/"
     },
     {
       "id": "SB-DEC-04",
@@ -2206,7 +2260,8 @@
       "id": "SB-DOH-005",
       "sourceLine": 25924,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/execution-summary-review/"
     },
     {
       "id": "SB-DOH-006",
@@ -2254,31 +2309,36 @@
       "id": "SB-DOH-013",
       "sourceLine": 27029,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/tenant-lifecycle-and-tier-operations/"
     },
     {
       "id": "SB-DOH-014",
       "sourceLine": 27217,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/location-configuration/"
     },
     {
       "id": "SB-DOH-015",
       "sourceLine": 27377,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/shift-management/"
     },
     {
       "id": "SB-DOH-016",
       "sourceLine": 27592,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/worker-lifecycle-and-qualifications/"
     },
     {
       "id": "SB-DOH-017",
       "sourceLine": 27805,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/job-approval-queue/"
     },
     {
       "id": "SB-DOH-018",
@@ -2290,7 +2350,8 @@
       "id": "SB-DOH-019",
       "sourceLine": 28216,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/worker-assignment/"
     },
     {
       "id": "SB-DOH-020",
@@ -2314,25 +2375,29 @@
       "id": "SB-DOH-023",
       "sourceLine": 28959,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/audit-and-retention/"
     },
     {
       "id": "SB-DOH-024",
       "sourceLine": 29121,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/integration-surface/"
     },
     {
       "id": "SB-DOH-025",
       "sourceLine": 29274,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/tenant-view-of-platform-administration/"
     },
     {
       "id": "SB-DOH-026",
       "sourceLine": 29413,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/qualification-calendar/"
     },
     {
       "id": "SB-DOH-027",
@@ -2344,7 +2409,8 @@
       "id": "SB-DOH-028",
       "sourceLine": 29681,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/multi-area-job-pairing/"
     },
     {
       "id": "SB-DOH-029",
@@ -2998,13 +3064,15 @@
       "id": "SB-PREF-01",
       "sourceLine": 73702,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/notifications/"
     },
     {
       "id": "SB-RBAC-01",
       "sourceLine": 20728,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/console-users-roles-and-change-approvals/"
     },
     {
       "id": "SB-RBAC-02",
@@ -3022,13 +3090,15 @@
       "id": "SB-RBAC-04",
       "sourceLine": 20953,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-audit/"
     },
     {
       "id": "SB-RBAC-05",
       "sourceLine": 21050,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/console-users-roles-and-change-approvals/"
     },
     {
       "id": "SB-RBAC-06",
@@ -3046,7 +3116,8 @@
       "id": "SB-RBAC-08",
       "sourceLine": 21588,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-settings/"
     },
     {
       "id": "SB-RBAC-09",
@@ -3082,13 +3153,15 @@
       "id": "SB-RET-01",
       "sourceLine": 74820,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-RISK-01",
       "sourceLine": 115553,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-overview-and-health/"
     },
     {
       "id": "SB-ROUTE-01",
@@ -3106,25 +3179,29 @@
       "id": "SB-SA-01",
       "sourceLine": 42971,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-overview-and-health/"
     },
     {
       "id": "SB-SA-02",
       "sourceLine": 43158,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/atom-registry/"
     },
     {
       "id": "SB-SA-03",
       "sourceLine": 43339,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/core-agents-and-composed-agent-review/"
     },
     {
       "id": "SB-SA-04",
       "sourceLine": 43528,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/memory-architecture/"
     },
     {
       "id": "SB-SA-05",
@@ -3136,109 +3213,127 @@
       "id": "SB-SA-06",
       "sourceLine": 43885,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/trace-viewer/"
     },
     {
       "id": "SB-SA-07",
       "sourceLine": 44041,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-settings/"
     },
     {
       "id": "SB-SA-08",
       "sourceLine": 44774,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/console-users-roles-and-change-approvals/"
     },
     {
       "id": "SB-SA-09",
       "sourceLine": 44984,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/tenants-lifecycle-and-pilots/"
     },
     {
       "id": "SB-SA-10",
       "sourceLine": 45160,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/tenant-metrics-and-aggregates/"
     },
     {
       "id": "SB-SA-11",
       "sourceLine": 45273,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/tiers-entitlements-and-caps/"
     },
     {
       "id": "SB-SA-12",
       "sourceLine": 45385,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/usage-and-metering/"
     },
     {
       "id": "SB-SA-13",
       "sourceLine": 45498,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/devices-and-fleet/"
     },
     {
       "id": "SB-SA-14",
       "sourceLine": 45614,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-notifications-and-tenant-communications/"
     },
     {
       "id": "SB-SA-15",
       "sourceLine": 45753,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/support-access/"
     },
     {
       "id": "SB-SA-16",
       "sourceLine": 45871,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/jbs-access/"
     },
     {
       "id": "SB-SA-17",
       "sourceLine": 45997,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-SA-18",
       "sourceLine": 46121,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-audit/"
     },
     {
       "id": "SB-SA-19",
       "sourceLine": 46246,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/tenant-configuration-registry/"
     },
     {
       "id": "SB-SA-DEVICE-01",
       "sourceLine": 117496,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/devices-and-fleet/"
     },
     {
       "id": "SB-SA-RETENTION-01",
       "sourceLine": 117498,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-SA-TENANT-01",
       "sourceLine": 117966,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/tenants-lifecycle-and-pilots/"
     },
     {
       "id": "SB-SA-USAGE-01",
       "sourceLine": 117965,
       "status": "demonstrated-in-storyboard",
-      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)"
+      "register": "further-nested storyboard identifiers (4-segment SB-*, 45 total)",
+      "route": "/super-admin/usage-and-metering/"
     },
     {
       "id": "SB-SCHED-01",
@@ -3340,7 +3435,8 @@
       "id": "SB-SCHED-17",
       "sourceLine": 102004,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/platform-overview-and-health/"
     },
     {
       "id": "SB-SCHED-18",
@@ -3370,7 +3466,8 @@
       "id": "SB-SCHED-22",
       "sourceLine": 102117,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-SCHED-23",
@@ -3382,13 +3479,15 @@
       "id": "SB-SCHED-24",
       "sourceLine": 102158,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/data-lifecycle-and-archival/"
     },
     {
       "id": "SB-SCHED-25",
       "sourceLine": 99639,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/super-admin/eval-harness/"
     },
     {
       "id": "SB-SCHED-26",
@@ -3454,7 +3553,8 @@
       "id": "SB-SEC-005",
       "sourceLine": 103828,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/devices/"
     },
     {
       "id": "SB-SEC-006",
@@ -3537,8 +3637,9 @@
     {
       "id": "SB-STU-03",
       "sourceLine": 31304,
-      "status": "not-represented",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "status": "demonstrated-in-storyboard",
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/hub/shift-management/"
     },
     {
       "id": "SB-STU-04",
@@ -3556,7 +3657,8 @@
       "id": "SB-STU-06",
       "sourceLine": 31976,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/studio/workflow-library/"
     },
     {
       "id": "SB-STU-07",
@@ -3586,7 +3688,8 @@
       "id": "SB-STU-11",
       "sourceLine": 32887,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/studio/training-library/"
     },
     {
       "id": "SB-STU-12",
@@ -3604,25 +3707,29 @@
       "id": "SB-STU-14",
       "sourceLine": 33357,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/studio/approvals/"
     },
     {
       "id": "SB-STU-15",
       "sourceLine": 33546,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/studio/versions/"
     },
     {
       "id": "SB-STU-16",
       "sourceLine": 33725,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/studio/qualification-requirements/"
     },
     {
       "id": "SB-STU-17",
       "sourceLine": 33905,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/studio/work-package/"
     },
     {
       "id": "SB-STU-18",
@@ -3634,19 +3741,22 @@
       "id": "SB-STU-19",
       "sourceLine": 34293,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/studio/learning/"
     },
     {
       "id": "SB-STU-20",
       "sourceLine": 34447,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/studio/localisation/"
     },
     {
       "id": "SB-STU-21",
       "sourceLine": 34631,
       "status": "demonstrated-in-storyboard",
-      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)"
+      "register": "storyboard sub-panels and mnemonic identifiers (SB-*-NN, 3-segment, non-AI, 490 total)",
+      "route": "/studio/permissions-and-grants/"
     },
     {
       "id": "SB-STU-APPROVAL-01",
@@ -3705,5 +3815,7 @@
   ],
   "sourceLineMeaning": "A frozen-source line that MENTIONS the identifier, published so a reader can open it. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. It is computed one of three ways, and which one depends on the register the row came from. (1) By default, the FIRST MENTION of the identifier anywhere in the frozen source — the minimum of registries/raw/identifier-index.json's line list for that id. (2) Where the row belongs to a CHAPTER-BANDED register, the first occurrence inside that register's own chapter, which is deliberately NOT the minimum of the list: SB-AI-01 in ai-storyboards.json ships L92693 and not its list minimum L74479, because L74479 is chapter 30D and the row belongs to section 44A. A register label that claims a chapter is asserted against every one of its rows at build time, so a row outside its band is a build failure. (3) Where a register was TRANSCRIBED by the extraction rather than derived from the identifier index — modules, business objects, actionable controls, workflows, the notification placement rows, the Studio triggers and the deployable scheduled-work rows — the line the extraction recorded for that row. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation.",
   "namedInSourceCount": 163,
+  "routeResolvedCount": 110,
+  "routeMeaning": "The shipped screen whose evidence set this row's status: for a module, the route directory its declared slug names or the one whose files name it more often than any other module; for an actionable control, the route directory declaring a control-matrix row with exactly this label; for every other inventory, the route directory that spells this identifier as a whole token. Where several routes qualify, the lexicographically first is recorded, so two independent generations agree. A row carries no route when no route demonstrates it, when the evidence was an import rather than a route file (mounted-in-another-screen), when the row is an authored not-applicable or decision-blocked record, or when the only directory found holds a dynamic segment -- app/coverage/[registry] is one directory standing for fourteen URLs and choosing one of them for a row would be a guess. Those rows render their id as plain text with the reason beside it, never as a link to nowhere.",
   "namedInSourceMeaning": "How many rows this registry holds whose identifier is named anywhere under src/ or app/. It is WEAKER than a status and deliberately not one: a status says a route screen demonstrates the row, and this says only that some file in the build spells its identifier. It is published because the two numbers can differ by a lot -- offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text label rather than an identifier (actionable-controls) cannot be counted this way and read as unnamed here; that is a limit of the measure, not a gap in the build."
 }
