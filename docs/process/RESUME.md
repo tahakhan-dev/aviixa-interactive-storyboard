@@ -252,10 +252,10 @@ until the new path list has been diffed against every row in it.
 
 | agent | path list | status |
 |---|---|---|
-| fix stream R (round-5 repo-wide) | `tests/coverage/rendered-text.ts` · `tests/coverage/locator-fidelity.test.ts` · any gate those two convict | running |
-| round-6 audit A (round 5's newly built content) | read-only; `/tmp` scratch | running |
-| round-6 audit B (master prompt §29.1 and §29.4) | read-only; `/tmp` scratch | running |
-| controller | `docs/process/**` | running |
+| fix stream S (round 6) | `docs/process/ledgers/**` · `docs/process/audits/**` disposition tables · `tests/coverage/process-evidence.test.ts` · `scripts/check-gate-ordering.mjs` | running |
+| fix stream T (round 6) | `app/super-admin/{platform-audit,trace-viewer}/**` · `registries/authored/**` · `scripts/build-registries.mjs` · `tests/coverage/census-closure.test.ts` · matching `sa-*` tests | running |
+| fix stream U (round 6) | `app/{coverage,workflows,review}/**` · `src/{coverage,registry,review}/**` · `registries/generated/**` · four `tests/coverage/` files · `tests/unit/registry-*` · `tests/component/{coverage,workflows-page}` · `tests/e2e/coverage.spec.ts` · `docs/screenshots/**` | running |
+| controller | `docs/process/RESUME.md` · one registry regeneration and one manifest reseal after all three land | running |
 
 **When a collision happens anyway:** do not rewrite history to tidy it. Verify the tree is
 correct, commit with the attribution stated plainly, and tell any reviewer reading that diff
