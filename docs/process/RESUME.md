@@ -252,10 +252,13 @@ until the new path list has been diffed against every row in it.
 
 | agent | path list | status |
 |---|---|---|
-| fix stream S (round 6) | `docs/process/ledgers/**` · `docs/process/audits/**` disposition tables · `tests/coverage/process-evidence.test.ts` · `scripts/check-gate-ordering.mjs` | running |
-| fix stream T (round 6) | `app/super-admin/{platform-audit,trace-viewer}/**` · `registries/authored/**` · `scripts/build-registries.mjs` · `tests/coverage/census-closure.test.ts` · matching `sa-*` tests | running |
-| fix stream U (round 6) | `app/{coverage,workflows,review}/**` · `src/{coverage,registry,review}/**` · `registries/generated/**` · four `tests/coverage/` files · `tests/unit/registry-*` · `tests/component/{coverage,workflows-page}` · `tests/e2e/coverage.spec.ts` · `docs/screenshots/**` | running |
-| controller | `docs/process/RESUME.md` · one registry regeneration and one manifest reseal after all three land | running |
+| — | — | nothing running. Fix streams S, T and U (round 6) were interrupted mid-flight when their session ended; their work was measured and committed by the controller in the next session, and the seven sites they left stale are named in §8. |
+
+**A dead agent's work is not a landed agent's work.** Three streams stopped mid-file with nothing
+committed and no report. What made the difference was that the controller measured the tree rather
+than reading the briefs: six of the seven stale dependents were caught by the chain, and the seventh
+by grepping for the figure that had moved. **When a wave is interrupted, diff the working tree
+against the briefs' intent before trusting either.**
 
 **When a collision happens anyway:** do not rewrite history to tidy it. Verify the tree is
 correct, commit with the attribution stated plainly, and tell any reviewer reading that diff
@@ -307,54 +310,62 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-### Rounds 1-5 of the slice-11 audit loop are closed — candidate `5efb133`
+### Round 6 of the slice-11 audit loop is closed — candidate `SLICE11-3ee592fe2eac068e`
 
-**127 findings recorded. Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30. Round 5: 20.**
+**144 findings declared across six rounds. Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30.
+Round 5: 20. Round 6: 17.** The disposition record
+`docs/process/audits/2026-08-25-slice-11-audit-dispositions-rounds-1-6.md` enumerates **141 rows —
+140 CLOSED and one PARTIAL (`C-18`, reason and owner recorded), none OPEN** — and the gap between
+144 and 141 is stated there rather than reconciled away: round 3 declares fifteen and only eight ids
+are recoverable, round 4 declares thirty and enumerates twenty-nine, and round 2 declares twenty
+while twenty-five rows exist for twenty-four distinct findings. **Counted from the tables, not from
+the headers** — which is the arithmetic mistake round 6 caught three times in one register. That file is round 6's own deliverable —
+finding `R6-B06` was that no such record existed — and `tests/coverage/process-evidence.test.ts` is
+the first gate in this repository that reads the evidence layer at all.
 
-**This line used to read "all dispositioned and fixed" and that claim is not reproducible from
-disk.** Round 6 convicted it, and the correction is the point rather than the embarrassment. The only
-disposition table in the tree covers round 1, records **7 OPEN and 6 PARTIAL** at a head seven
-commits back, and ten of those thirteen are named in no later register. Rounds 2 and 3 are prose:
-ten recoverable ids for twenty declared findings, three for fifteen. Rounds 4 and 5 have no
-disposition record at all. An auditor spot-checked one of the thirteen and found it genuinely
-closed — **so the record is stale rather than the findings open, and nothing on disk lets a reader
-tell the two apart.** That is `R6-B06`, and until it is closed no round of this loop can be declared
-closed either.
+**The slice is still not closed.** The loop ends when a round finds nothing, and round 6 found
+seventeen. Round 7 is owed.
 
-**The slice is not closed** — the loop ends when a round finds nothing, and round 6 found fourteen.
+**The round-6 wave was interrupted mid-flight and that is the shape worth carrying.** The session
+running fix streams S, T and U ended while all three were writing: no stream wrote a report, nothing
+was committed, and their work sat uncommitted on disk. A later session measured it rather than
+trusting it, and found what the interruption had left behind. **Stream U's census change from 608 to
+605 landed in the generator and in its own gate and left seven dependent sites stale** — three
+literals in `tests/unit/registry-build.test.ts`, `expectedCount` in `src/coverage/descriptors.ts`
+(rendered on `/coverage/` as the expected column), a comment in `src/coverage/registry-schema.ts`,
+the actionable-controls row of `registries/generated/source-reconciliation.json`, and the
+`slice-2c-gates` forbidden-count list where 630 became 627 and took two planted-violation probes with
+it. The chain caught six; the seventh was a comment no gate reads. **Round 3's shape, at wave scale:
+a correct fix that leaves a figure stale somewhere nobody is looking.**
 
-Chain measured on `5efb133`, clean tree: typecheck 0 · lint 0 · gate-ordering **31/31** · unit
-**6280**/182 files · component **3046**/108 · build **102/102** · release **960**/31 · e2e/axe **548**.
-Registries regenerated once after all three fix streams landed; two further generations
-byte-identical. Titles carrying a thrown error: 0. Titles with an empty module name: 0.
+**And closing the record produced a new shape: a gate that reds on success.**
+`tests/coverage/process-evidence.test.ts` asserted the verdict vocabulary was fully *exercised* and
+planted its ownerless-owner probe on "the first OPEN row" — so the first time every finding was
+closed, one case failed on an equality and one threw `undefined.id`. Both are repaired: the
+vocabulary is a subset for `verdict` (which legitimately empties) and an equality for `basis` and
+`severity` (which cannot), and the plant now manufactures its own OPEN row from a named closed one.
+**An assertion whose subject is the defect it exists to prevent will fail the moment the defect is
+gone.** Look for the shape.
 
-Registers: rounds 1-3 as before, plus `2026-08-25-slice-11-audit-round-4-findings.md` and
-`2026-08-25-slice-11-audit-round-5-findings.md`.
+**Two other closes worth knowing.** `R6-C01` was settled WITHOUT settling the ABSENT-versus-DISABLED
+question this build has ruled unsettled: the 22 `DNC-` rows keep `not-applicable` on the ground that
+§45A.3 is a scheduling-policy register whose seven columns hold no control label, and the reading
+that a locked entry is an absence is withdrawn and cross-referenced to
+`tests/coverage/slice-04-gates.test.ts` rather than relied on. `R6-B05` was closed as a RECORDED
+LIMITATION rather than a built capability — `LIM-VISUAL-01` on `/coverage/` states what master prompt
+§26.2 and §27.2 require, what exists today, and what a reader must not conclude. Building it is
+slice-13 scope.
 
-**Round 5 in one line each.** The dashboard told a reader the source is silent about a count it
-fixes in ten places, three columns from its own row saying `5, closed, CONFIRMED`. Seventeen
-drill-down links pointed at a page whose only mention of the item was a source comment. Three gates
-could not fail — five of six census groups could vanish, thirteen of eighteen reconciliation rows
-could be deleted, 61 of 110 anchors could be unlinked. And the class of pages telling a reader the
-source is silent turned out to be six, not the four the audit found, with the round-4 gate written
-to convict exactly that class unable to see any of them.
+Chain measured on these exact bytes, one uninterrupted sequential run, exit 0: typecheck 0 · lint 0 ·
+gate-ordering **33/33** · freshness 3/3 · unit **6280**/182 files · component **3054**/108 · build
+**102/102** · release **1000**/33 · e2e/axe **548**. Registries regenerate byte-identically. Both
+manifests are sealed on these bytes by `scripts/seal-manifests.mjs`, and the verification block in
+`product-candidate-manifest.json` was written from that run rather than carried forward.
 
-**The two findings that outlive round 5, both made by fix streams rather than auditors, and both
-repo-wide** — `R5-Q01`, the shared rendered-text helper leaving 790KB of React flight payload inside
-the string every gate greps, discovered when a fixer's own plant went green; and `R5-Q02`, the
-locator gate not scanning the one artefact dense with locators. Fix stream R is on both.
+Registers: rounds 1-6, all six under `docs/process/audits/`. **`tests/coverage/process-evidence.test.ts`
+holds the six-register map by EQUALITY, so filing round 7's register reds the gate until the map is
+extended and its findings are dispositioned.** That is deliberate.
 
-**Round 5's standing lesson: a gate holds the wording it was written against, not the class it was
-written for.** The absence-claim gate held a phrase list. Three population controls held a substring
-where the claim was every member — the shape round 2 named and round 4 caught by a plant, shipped
-three more times in the wave that caught it. **Every one was found by planting a real defect and
-watching the suite stay green.**
-
-**And the fixers corrected the auditors four times across the two rounds**, in both directions:
-twelve numeral-plus-workflows lines rather than nine; six control-label false positives rather than
-four, *plus nine real labels the single-quote regex could never see*; twenty-eight rather than the
-audit's twelve or the brief's thirty-nine; six absence-claim pages rather than four. **No number
-survives into a gate on the strength of who reported it.**
 
 ### The four findings to carry above all others
 

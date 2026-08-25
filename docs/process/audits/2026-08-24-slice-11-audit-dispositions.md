@@ -59,7 +59,16 @@ than counted as safe.
 | C-40 | OPEN | — | three citations confirmed off; the register's count of thirteen could not be reproduced |
 | C-41 | OPEN | — | four `**` strings reach the reader as asterisks; backticks render three ways across the thirty |
 
-Counted: **26 CLOSED · 8 PARTIAL · 8 OPEN**, of 42.
+Counted: **29 CLOSED · 6 PARTIAL · 7 OPEN**, of 42.
+
+**This line read "26 CLOSED · 8 PARTIAL · 8 OPEN" and none of the three numbers matched the table
+above it** — the same defect as `R6-A01`, `R6-A02` and round 5's "Three Critical": a stated split
+that does not match the enumeration beside it, in the file whose whole subject is that the record
+must reproduce from disk. Counted from the rows: 29 `CLOSED`, 6 `PARTIAL` (`C-00`, `C-13`, `C-15`,
+`C-18`, `C-24`, `C-32`), 7 `OPEN` (`C-19`, `C-25`, `C-36`, `C-37`, `C-39`, `C-40`, `C-41`). The
+verdicts themselves are unchanged; only the arithmetic is corrected. The thirteen are re-verified in
+`2026-08-25-slice-11-audit-dispositions-rounds-1-6.md`, and
+`tests/coverage/process-evidence.test.ts` now re-derives this split rather than reading it.
 
 ## Corrections to the register itself, each measured
 

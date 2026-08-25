@@ -418,7 +418,13 @@ mid-wave, which would have pulled `registries/raw/**` into the population. **Rep
 
 ## Round 5 totals
 
-**20 findings: 10 (stream B) + 8 (stream A) + 2 found by a fixer.** Three Critical. The loop does not close.
+**20 findings: 10 (stream B) + 8 (stream A) + 2 found by a fixer.** Four Critical. The loop does not close.
+
+**Arithmetic corrected, findings untouched.** This line read "Three Critical" and the register
+carries four Critical headings: `R5-B01`, `R5-A01`, `R5-A02` and `R5-Q01`. Round 6's `R6-B06` named
+this as the defect it was looking for; it is corrected here rather than re-litigated, and
+`tests/coverage/process-evidence.test.ts` now re-derives the severity split from the headings so the
+next copy of it reds.
 
 **And the fixers corrected the auditors twice more, in the direction that matters.** The
 numeral-plus-workflows sweep returns **twelve** lines, not the audit's nine — all twelve opened, all
