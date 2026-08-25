@@ -444,8 +444,25 @@ describe('MOD-SA-09 — what the source does not define', () => {
   it('carries the unresolved source questions rather than resolving them silently', () => {
     render(<TenantsScreen />)
     const panel = region('Unresolved in source')
-    for (const ref of [/eighth tab/i, /DEC-SUSP-001/, /DEC-MSG-001/, /AC-SA-09-07/]) {
+    for (const ref of [/eighth tab/i, /DEC-SUSP-001/, /DEC-MSG-001/]) {
       expect(panel.textContent, String(ref)).toMatch(ref)
     }
+    // R5-A01's class, found here by the widened gate in
+    // `tests/coverage/rendered-absence-claims.test.ts` rather than by an
+    // auditor. This panel said AC-SA-09-07 and AC-SA-09-09 "do not appear
+    // anywhere in the extraction"; the frozen source carries both, at L45098
+    // and L45100. Neither is an unresolved question, so neither belongs here.
+    expect(panel.textContent).not.toMatch(/AC-SA-09-0[79]/)
+  })
+
+  it('states AC-SA-09-07 and AC-SA-09-09 rather than reporting them as absent', () => {
+    render(<TenantsScreen />)
+    const copy = document.body.textContent ?? ''
+    expect(copy).toContain('AC-SA-09-07')
+    expect(copy).toContain('AC-SA-09-09')
+    // -07 is what makes compliance suspension critical-class; -09 is the
+    // state-history-and-audit obligation on every suspension transition.
+    expect(copy).toMatch(/critical-class and cannot be applied on an Admin/i)
+    expect(copy).toMatch(/writes tenant state history and is\s+audited/i)
   })
 })

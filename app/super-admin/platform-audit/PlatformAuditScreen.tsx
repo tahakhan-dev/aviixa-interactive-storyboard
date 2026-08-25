@@ -16,6 +16,7 @@ import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
 import { roleById, type RoleId } from '@/domain/roles'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import { JOURNEY_SURFACES } from '@/ui/shared/journey'
 import { SaConsoleShell } from '../SaConsoleShell'
 
 /**
@@ -685,16 +686,8 @@ export const UNSPECIFIED_IN_SOURCE = [
     why: 'L74223 grants the Platform Engineer a read of the platform log "for engineering classes" and never says which classes those are. This prototype does not guess the boundary; the Platform Engineer sees the whole provisional list with this gap named.',
   },
   {
-    what: 'SB-RBAC-04, the enforcement-parity view',
-    why: 'Named as a screen of this module at L20953 and never described. No layout, no columns, no controls and no acceptance criteria were extracted for it, so nothing is drawn for it.',
-  },
-  {
-    what: 'AC-SA-18-03, AC-SA-18-07 and AC-SA-18-09',
-    why: 'Indexed in the module’s acceptance set and never extracted (census C24). Three of this module’s ten criteria are therefore unknown to this build.',
-  },
-  {
-    what: 'FUNC-SA-18-01-A1 through FUNC-SA-18-04-A4',
-    why: 'Nine function identifiers are listed on the module row (L46125) with no definition anywhere in the extract. Nine unknown functions is not nine controls, and none was drawn.',
+    what: 'How a release is identified on the enforcement-parity panel',
+    why: 'L20953 requires the panel to list divergence counts per release, and L20878 requires them counted per surface per release. What a release is called on that panel is settled at L108619 only as a concept — “the release identifier and its version streams” on the deployment’s own audit record — with no format given. The seeded releases below are therefore labelled by position, the current release and the one before it, and no identifier format is invented for them.',
   },
   {
     what: 'An audit-entry detail view on this surface',
@@ -709,6 +702,326 @@ export const UNSPECIFIED_IN_SOURCE = [
     why: 'AC-SA-18-08 requires audit retention never to be shorter than the tenant data it evidences, and names FB-SA-10 as the enforcement point — but no retention value and no retention control belongs to this module. Retention-value changes are a critical-class action elsewhere on this console.',
   },
 ] as const satisfies readonly UnspecifiedItem[]
+
+/* ------------------------------------------------------------------ *
+ * THE TEN ACCEPTANCE CRITERIA, ALL OF THEM, FROM L46193.
+ *
+ * This table replaces an entry in the panel above that reported three of this
+ * module's ten criteria as unknowable -- the three the run 01..10 skipped.
+ * L46193 carries all ten in one paragraph with complete text. Where a
+ * criterion is a backend obligation with no screen — an atomicity rule over a
+ * write path this prototype does not have — the row says that with its
+ * citation, which is a different statement from the source being silent.
+ * ------------------------------------------------------------------ */
+interface AcceptanceCriterion {
+  readonly id: string
+  /** The criterion as L46193 states it. */
+  readonly criterion: string
+  /** Where the obligation is borne, and whether a screen is involved. */
+  readonly borneBy: string
+}
+
+const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
+  {
+    id: 'AC-SA-18-01',
+    criterion:
+      'No code path exists where an administrative change commits and its audit event does not.',
+    borneBy:
+      'Backend obligation with no screen — it constrains a write path this prototype does not hold. Its ENFORCED invariant chip is rendered under “What this module is” above, and its enforcement point is Platform Settings (MOD-SA-07).',
+  },
+  {
+    id: 'AC-SA-18-02',
+    criterion: 'An audit-write failure refuses the action and the operator is told.',
+    borneBy:
+      'This screen, in STATE-12: the failure path renders the refusal with FB-SA-03 named and states that nothing was written (L46191).',
+  },
+  {
+    id: 'AC-SA-18-03',
+    criterion:
+      'Every one of the named event classes is recorded, including attempts on locked settings.',
+    borneBy:
+      'This screen, as far as it can go. The locked-setting attempt is the first row of the event-class filter and it carries its own citation (AC-SEC-602, L104033). The completeness half is a backend obligation. The criterion’s own figure for how many classes there are is the one thing omitted from the row above: L46178 and L47835 give two irreconcilable figures and no size is stated anywhere on this screen (D4), which the panel below still names.',
+  },
+  {
+    id: 'AC-SA-18-04',
+    criterion: 'No edit or delete path exists on any surface for any account.',
+    borneBy:
+      'This screen. Edit and delete render ABSENT for every console role including the root — no control, not even greyed (L46121, AC-SEC-701 L104169).',
+  },
+  {
+    id: 'AC-SA-18-05',
+    criterion:
+      'Every cross-tenant access event mirrors into the affected tenant’s audit stream.',
+    borneBy:
+      'This screen: the Mirroring column of the results table carries it per entry, and the three named access classes are listed below.',
+  },
+  {
+    id: 'AC-SA-18-06',
+    criterion: 'Platform Access History reads the same records rather than a separate view.',
+    borneBy:
+      'This screen states it; the tenant-side rendering belongs to the Delivery Operations Hub, whose row in the tenant-actor table names it.',
+  },
+  {
+    id: 'AC-SA-18-07',
+    criterion: 'Class-filtered export exists and is itself audited.',
+    borneBy:
+      'This screen. The export control is one of the module’s two defined controls (L46121), and requesting it writes an Audit export entry of its own — which is why that class is in the filter list.',
+  },
+  {
+    id: 'AC-SA-18-08',
+    criterion: 'Audit retention is never shorter than the tenant data it evidences.',
+    borneBy:
+      'Backend obligation with no screen, and no retention control belongs to this module. FB-SA-10 is the enforcement point, at the point of configuration (L46188); the panel below records that no retention value is stated here.',
+  },
+  {
+    id: 'AC-SA-18-09',
+    criterion: 'The log follows the no-purge tiering model.',
+    borneBy:
+      'Backend obligation with no screen — a storage-tiering rule with no affordance anywhere on this console. Its functionality FUNC-SA-18-04-A3 states the same rule with FB-SA-10 as its fallback (L46188).',
+  },
+  {
+    id: 'AC-SA-18-10',
+    criterion:
+      'The deferred hardening of the immutability guarantee is rendered as a version-two item and is not claimed at V1.',
+    borneBy:
+      'This screen, by omission on purpose. The two terms the criterion names the hardening by are the ones D10 and AC-SCOPE-033 (L2612) keep out of every SURF-SA rendering, so the row above states the criterion and not its vocabulary; the append-only property is stated as a design property rather than a cryptographic guarantee.',
+  },
+]
+
+/* ------------------------------------------------------------------ *
+ * THE NINE FUNCTIONALITIES, FROM L46175-L46189.
+ *
+ * This block replaces an entry that said the nine were listed "with no
+ * definition anywhere in the extract". Each is defined in full at its own
+ * line, under its feature and sub-feature, with Purpose, Allowed, Prohibited,
+ * Online, Offline and Fallback. Nine definitions are still not nine controls
+ * — the source defines exactly two controls for this module (L46121) — so
+ * these render as the obligations they are, not as affordances.
+ * ------------------------------------------------------------------ */
+interface ModuleFunctionality {
+  readonly id: string
+  readonly feature: string
+  readonly subFeature: string
+  readonly statement: string
+  readonly purpose: string
+  readonly allowed: string
+  readonly prohibited: string
+  readonly online: string
+  readonly offline: string
+  readonly fallback: string
+  readonly sourceRef: string
+}
+
+const MODULE_FUNCTIONALITIES: readonly ModuleFunctionality[] = [
+  {
+    id: 'FUNC-SA-18-01-A1',
+    feature: 'FEAT-SA-18-01 — The one-transaction guarantee',
+    subFeature: 'SUB-SA-18-01-A — Atomic commitment',
+    statement:
+      'Commit the change and its audit event in one transaction, with no code path where a change lands and its audit row does not.',
+    purpose: 'An action that cannot be audited does not happen.',
+    allowed: 'Automatic and universal.',
+    prohibited: 'Every account from bypassing, including the root; any queued-audit design.',
+    online: 'Identical — there is no offline write path.',
+    offline: 'Identical — there is no offline write path.',
+    fallback: 'FB-SA-03, whose terminal safe state is refusal.',
+    sourceRef: 'L46175',
+  },
+  {
+    id: 'FUNC-SA-18-02-A1',
+    feature: 'FEAT-SA-18-02 — Event classes',
+    subFeature: 'SUB-SA-18-02-A — The named classes',
+    statement: 'Record all the named classes, including attempts on locked settings. (The source’s own figure is omitted under D4: L46178 and L47835 disagree.)',
+    purpose:
+      'Completeness, and specifically the recording of refused attempts, which is where a governance failure first becomes visible.',
+    allowed: 'Automatic.',
+    prohibited: 'Suppressing any class.',
+    online: 'Recorded.',
+    offline: 'Platform-side classes are unaffected by device connectivity.',
+    fallback: 'FB-SA-03.',
+    sourceRef: 'L46178',
+  },
+  {
+    id: 'FUNC-SA-18-02-A2',
+    feature: 'FEAT-SA-18-02 — Event classes',
+    subFeature: 'SUB-SA-18-02-A — The named classes',
+    statement:
+      'Record clearance grants as the command-channel delivery record, with the decision itself living in the tenant’s audit.',
+    purpose: 'One owner per fact — the platform owns delivery, the tenant owns the decision.',
+    allowed: 'Automatic.',
+    prohibited: 'Duplicating the tenant’s decision record into the platform log.',
+    online: 'Recorded.',
+    offline:
+      'Delivery to an offline device is recorded at its actual states, never as applied.',
+    fallback: 'FB-SA-04 for the delivery itself.',
+    sourceRef: 'L46179',
+  },
+  {
+    id: 'FUNC-SA-18-03-A1',
+    feature: 'FEAT-SA-18-03 — Cross-tenant mirroring',
+    subFeature: 'SUB-SA-18-03-A — One audit truth per tenant',
+    statement:
+      'Mirror every cross-tenant access event into the affected tenant’s audit stream.',
+    purpose: 'The tenant holds its own copy of every event that touched it.',
+    allowed: 'Automatic.',
+    prohibited: 'Any unmirrored cross-tenant access.',
+    online: 'Real-time.',
+    offline: 'Not applicable.',
+    fallback: 'FB-SA-03 — an action that cannot be mirrored does not happen.',
+    sourceRef: 'L46182',
+  },
+  {
+    id: 'FUNC-SA-18-03-A2',
+    feature: 'FEAT-SA-18-03 — Cross-tenant mirroring',
+    subFeature: 'SUB-SA-18-03-A — One audit truth per tenant',
+    statement: 'Serve Platform Access History from the same records.',
+    purpose: 'No separate, divergent tenant-facing view.',
+    allowed: 'Every tenant role with access to the tenant’s audit record.',
+    prohibited: 'Constructing Platform Access History from a different source.',
+    online: 'Live.',
+    offline: 'Not applicable.',
+    fallback: 'FB-SA-01.',
+    sourceRef: 'L46183',
+  },
+  {
+    id: 'FUNC-SA-18-04-A1',
+    feature: 'FEAT-SA-18-04 — Invariant-grade protections',
+    subFeature: 'SUB-SA-18-04-A — Immutability and retention',
+    statement: 'Append-only with no delete or edit path on any surface.',
+    purpose: 'The log’s value is entirely its immutability.',
+    allowed: 'Nobody may edit or delete.',
+    prohibited: 'Every account including the root.',
+    online: 'Identical.',
+    offline: 'Identical.',
+    fallback: 'Not applicable — no mutation path exists to fail.',
+    sourceRef: 'L46186',
+  },
+  {
+    id: 'FUNC-SA-18-04-A2',
+    feature: 'FEAT-SA-18-04 — Invariant-grade protections',
+    subFeature: 'SUB-SA-18-04-A — Immutability and retention',
+    statement: 'Class-filtered export for external retention.',
+    purpose: 'Satisfy external retention obligations without exporting everything.',
+    allowed: 'Admin and root.',
+    prohibited: 'Exporting without the export itself being audited.',
+    online: 'Generates.',
+    offline: 'Not applicable.',
+    fallback: 'FB-SA-08; a failed export regenerates rather than patching.',
+    sourceRef: 'L46187',
+  },
+  {
+    id: 'FUNC-SA-18-04-A3',
+    feature: 'FEAT-SA-18-04 — Invariant-grade protections',
+    subFeature: 'SUB-SA-18-04-A — Immutability and retention',
+    statement:
+      'Follow the no-purge tiering model and never be shorter-lived than the tenant data it evidences.',
+    purpose: 'An orphaned record with no audit trail is worse than no record.',
+    allowed: 'Automatic.',
+    prohibited: 'Setting audit retention below the evidenced data’s horizon.',
+    online: 'Enforced.',
+    offline: 'Not applicable.',
+    fallback: 'FB-SA-10 at the point of configuration.',
+    sourceRef: 'L46188',
+  },
+  {
+    id: 'FUNC-SA-18-04-A4',
+    feature: 'FEAT-SA-18-04 — Invariant-grade protections',
+    subFeature: 'SUB-SA-18-04-A — Immutability and retention',
+    statement: 'State that the deferred hardening of the immutability guarantee is a version-two item. (Its two source terms are omitted under D10 and AC-SCOPE-033, L2612.)',
+    purpose:
+      'Do not let the immutability guarantee be read as a cryptographic one at V1.',
+    allowed: 'Rendered on the screen and in every derived artifact.',
+    prohibited: 'Claiming a cryptographic guarantee at V1.',
+    online: 'Identical.',
+    offline: 'Identical.',
+    fallback: 'Not applicable.',
+    sourceRef: 'L46189',
+  },
+]
+
+/* ------------------------------------------------------------------ *
+ * SB-RBAC-04 — THE ENFORCEMENT-PARITY VIEW, FROM L20953.
+ *
+ * This panel replaces an entry that reported the storyboard as named and
+ * undescribed -- no layout, no columns, no controls. L20953 describes it in
+ * one paragraph: a panel within Platform Audit listing, PER RELEASE, the
+ * count of divergence events BY SURFACE and BY ACTION IDENTIFIER, with ZERO
+ * AS THE ONLY PASSING VALUE. It reads the audit log rather than a separate
+ * telemetry store, so it cannot disagree with the record of truth. Access is
+ * read for all four console roles -- "Platform Engineer and Admin read; Root
+ * Super Admin read; Support read" -- and "No write control exists on the
+ * panel" (L20953).
+ *
+ * L20878 supplies the rule the counts are judged by: divergence events are
+ * counted per surface per release, and a NON-ZERO count is a release-blocking
+ * defect rather than a monitored tolerance. L20872 and AC-RBAC-104 (L20891)
+ * say what a divergence event is: a capability list and an authorisation
+ * decision produced from different configuration versions.
+ *
+ * The counts are a SEEDED FIXTURE. There is no telemetry behind this screen,
+ * exactly as there is no audit store behind the table above.
+ * ------------------------------------------------------------------ */
+interface ParityCount {
+  /** Labelled by position: no release-identifier format is stated for this panel. */
+  readonly release: string
+  readonly subject: string
+  readonly divergences: number
+}
+
+const PARITY_FIXTURE_LABEL =
+  'SEEDED FIXTURE — there is no telemetry store behind this panel, and a real one would read the audit log rather than a separate store (L20953). The two releases are labelled by position because no release-identifier format is stated for this panel; the counts demonstrate the rule at L20878, where a non-zero count is a release-blocking defect rather than a monitored tolerance.'
+
+const PARITY_CURRENT = 'Current release'
+const PARITY_PRECEDING = 'Preceding release'
+
+const PARITY_BY_SURFACE: readonly ParityCount[] = JOURNEY_SURFACES.flatMap((s) => [
+  { release: PARITY_CURRENT, subject: `${s.name} (${s.surfaceId})`, divergences: 0 },
+  {
+    release: PARITY_PRECEDING,
+    subject: `${s.name} (${s.surfaceId})`,
+    divergences: s.code === 'DOH' ? 1 : 0,
+  },
+])
+
+/**
+ * Action identifiers, each one an action the frozen source names rather than
+ * a shape invented to fill a column. CMD-ASG-001 is the seeded divergence
+ * because the source's own worked example at L20955 turns on the RELEASE
+ * action identifier reading zero, and seeding a non-zero there would
+ * contradict the example this panel is drawn from.
+ */
+const PARITY_BY_ACTION: readonly ParityCount[] = [
+  { release: PARITY_CURRENT, subject: 'CMD-REL-001 — release a Severity 1 automatic lot hold (L51387)', divergences: 0 },
+  { release: PARITY_CURRENT, subject: 'CMD-ASG-001 — reassign a run mid-shift (L51390)', divergences: 0 },
+  { release: PARITY_CURRENT, subject: 'Class-filtered audit export, this module’s own (L46121)', divergences: 0 },
+  { release: PARITY_PRECEDING, subject: 'CMD-REL-001 — release a Severity 1 automatic lot hold (L51387)', divergences: 0 },
+  { release: PARITY_PRECEDING, subject: 'CMD-ASG-001 — reassign a run mid-shift (L51390)', divergences: 1 },
+  { release: PARITY_PRECEDING, subject: 'Class-filtered audit export, this module’s own (L46121)', divergences: 0 },
+]
+
+/** Zero is the only passing value (L20953). */
+function parityOutcome(divergences: number): string {
+  return divergences === 0
+    ? 'Pass — zero is the only passing value'
+    : 'Release-blocking — a non-zero count is a defect, not a tolerance (L20878)'
+}
+
+/**
+ * The panel's own read, evaluated per-control like every other affordance on
+ * this screen (D16) rather than from a module-level role list. All four
+ * console roles read it; none writes, because no write control exists on the
+ * panel (L20953).
+ */
+const PARITY_PANEL_READ = {
+  id: 'enforcement-parity-read',
+  label: 'Read the enforcement-parity panel',
+  effect:
+    'Reads divergence counts per release, by surface and by action identifier, from the audit log (L20953).',
+  allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'],
+  sourceRefs: ['L20953'],
+  defaultRefusalReason:
+    'L20953 grants the read to all four console roles: Platform Engineer and Admin read, Root Super Admin read, Support read. No refusal reason applies.',
+} as const satisfies ControlDefinition
 
 /* ------------------------------------------------------------------ *
  * Rendering.
@@ -1335,6 +1648,162 @@ export function PlatformAuditScreen({
             }}
           />
         </div>
+      </Section>
+
+      <Section id="sa18-parity" heading="SB-RBAC-04 — the enforcement-parity view">
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          A panel within Platform Audit listing, per release, the count of divergence events by
+          surface and by action identifier, with zero as the only passing value (L20953). It reads
+          the audit log rather than a separate telemetry store, so it cannot disagree with the
+          record of truth. A divergence event is a capability list and an authorisation decision
+          produced from different configuration versions (AC-RBAC-104, L20891); the mismatch is
+          detected by the configuration-version identifier carried on both (L20872). Counting is
+          per surface per release, and a non-zero count is a release-blocking defect rather than a
+          monitored tolerance (L20878).
+        </p>
+        <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          The storyboard is a <em>User-Mandated Product Extension</em> rather than a screen the
+          Statement of Work describes — proposed because parity is otherwise unobservable in
+          production (L20953).
+        </p>
+        <p className="mt-3 max-w-prose text-xs text-[var(--color-ink-subtle)]">{PARITY_FIXTURE_LABEL}</p>
+        <div className="mt-4">
+          <Table
+            caption="Divergence events by surface, per release"
+            columns={[
+              { key: 'release', header: 'Release' },
+              { key: 'subject', header: 'Surface' },
+              { key: 'divergences', header: 'Divergence events' },
+              { key: 'outcome', header: 'Outcome' },
+            ]}
+            rows={PARITY_BY_SURFACE.map((r) => ({
+              release: r.release,
+              subject: r.subject,
+              divergences: String(r.divergences),
+              outcome: parityOutcome(r.divergences),
+            }))}
+            emptyState={{
+              title: 'No releases are recorded on this panel.',
+              whatCreatesIt: 'A release closes with a divergence count per surface.',
+            }}
+          />
+        </div>
+        <div className="mt-6">
+          <Table
+            caption="Divergence events by action identifier, per release"
+            columns={[
+              { key: 'release', header: 'Release' },
+              { key: 'subject', header: 'Action identifier' },
+              { key: 'divergences', header: 'Divergence events' },
+              { key: 'outcome', header: 'Outcome' },
+            ]}
+            rows={PARITY_BY_ACTION.map((r) => ({
+              release: r.release,
+              subject: r.subject,
+              divergences: String(r.divergences),
+              outcome: parityOutcome(r.divergences),
+            }))}
+            emptyState={{
+              title: 'No action identifiers are recorded on this panel.',
+              whatCreatesIt: 'A release closes with a divergence count per action identifier.',
+            }}
+          />
+        </div>
+        <div className="mt-4">
+          <Table
+            caption="Who reads the enforcement-parity panel"
+            columns={[
+              { key: 'role', header: 'Console role' },
+              { key: 'read', header: 'This panel' },
+            ]}
+            rows={CONSOLE_ROLE_VIEWS.map((view) => {
+              const decision = decisionFor(PARITY_PANEL_READ, view.roleId)
+              return {
+                role: `${view.label} — ${view.token}`,
+                read: permitsAction(decision)
+                  ? 'Read — divergence counts per release, by surface and by action identifier'
+                  : `Not read — ${decision.explanation}`,
+              }
+            })}
+            emptyState={{
+              title: 'No console roles are defined.',
+              whatCreatesIt: 'The platform role registry defines them.',
+            }}
+          />
+        </div>
+        <div className="mt-4">
+          <ProhibitionNotice
+            rendering={{
+              kind: 'absent',
+              note: 'No write control exists on the panel (L20953). Nothing here is drawn as a disabled control either, because a disabled control would imply the write exists for somebody.',
+            }}
+          />
+        </div>
+      </Section>
+
+      <Section id="sa18-acceptance" heading="Acceptance criteria — MOD-SA-18">
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          All ten, from the source’s own paragraph at L46193. Four are borne by this screen, one by
+          omission on purpose, and three are backend obligations over a write path a browser-only
+          prototype does not have — each row says which, because “the console draws nothing for this
+          because it is not a screen” is a different statement from the source being silent about
+          it.
+        </p>
+        <div className="mt-4">
+          <Table
+            caption="The ten acceptance criteria of MOD-SA-18 and where each is borne"
+            columns={[
+              { key: 'id', header: 'Identifier' },
+              { key: 'criterion', header: 'Criterion' },
+              { key: 'borneBy', header: 'Where it is borne' },
+            ]}
+            rows={MODULE_ACCEPTANCE_CRITERIA.map((a) => ({
+              id: a.id,
+              criterion: a.criterion,
+              borneBy: a.borneBy,
+            }))}
+            emptyState={{
+              title: 'No acceptance criteria are recorded.',
+              whatCreatesIt: 'The module’s acceptance paragraph in the frozen source records them.',
+            }}
+          />
+        </div>
+      </Section>
+
+      <Section id="sa18-functionalities" heading="The nine functionalities of this module">
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          Four features, four sub-features and nine functionalities, defined at L46175–L46189 with
+          Purpose, Allowed, Prohibited, Online, Offline and Fallback apiece. Nine functionalities
+          are not nine controls: the source defines exactly two controls for this module (L46121),
+          and no affordance was drawn from any row below.
+        </p>
+        <ul className="mt-4 space-y-3">
+          {MODULE_FUNCTIONALITIES.map((f) => (
+            <li key={f.id} className="rounded border border-[var(--color-border)] p-3 text-sm">
+              <p className="font-medium">
+                {f.id} <span className="font-normal text-[var(--color-ink-subtle)]">{f.sourceRef}</span>
+              </p>
+              <p className="text-xs text-[var(--color-ink-subtle)]">
+                {f.feature} · {f.subFeature}
+              </p>
+              <p className="mt-1 text-[var(--color-ink-muted)]">{f.statement}</p>
+              <dl className="mt-2 grid gap-x-4 gap-y-1 text-[var(--color-ink-muted)] sm:grid-cols-[max-content_1fr]">
+                <dt className="font-medium text-[var(--color-ink)]">Purpose</dt>
+                <dd>{f.purpose}</dd>
+                <dt className="font-medium text-[var(--color-ink)]">Allowed</dt>
+                <dd>{f.allowed}</dd>
+                <dt className="font-medium text-[var(--color-ink)]">Prohibited</dt>
+                <dd>{f.prohibited}</dd>
+                <dt className="font-medium text-[var(--color-ink)]">Online</dt>
+                <dd>{f.online}</dd>
+                <dt className="font-medium text-[var(--color-ink)]">Offline</dt>
+                <dd>{f.offline}</dd>
+                <dt className="font-medium text-[var(--color-ink)]">Fallback</dt>
+                <dd>{f.fallback}</dd>
+              </dl>
+            </li>
+          ))}
+        </ul>
       </Section>
 
       <Section id="sa18-workflows" heading="The workflows this module carries">

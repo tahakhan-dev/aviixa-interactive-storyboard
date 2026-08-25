@@ -134,7 +134,27 @@ describe('MOD-SA-06 Trace Viewer — the honest absence (D9)', () => {
     expect(text).toContain('DEC-RETRIEVE-001')
     expect(text).toContain('DEC-DELETE-001')
     expect(text).toContain('DEC-TRACE-001')
-    expect(text).toMatch(/AC-SA-06-01/)
+    // R5-A01. This panel used to say AC-SA-06-01, -02, -05, -06 and -07 were
+    // "not carried by the extraction" and their content unknown. L43962-L43969
+    // carry all eight, so none of the five may be named as a silence here.
+    for (const n of ['01', '02', '05', '06', '07']) {
+      expect(text).not.toContain(`AC-SA-06-${n}`)
+    }
+  })
+
+  it('renders all eight acceptance criteria and says where each is borne', () => {
+    const { container } = render(<TraceViewerAbsence />)
+    const text = textOf(container)
+    for (let n = 1; n <= 8; n += 1) {
+      const id = `AC-SA-06-0${n}`
+      expect(text, `${id} is not rendered`).toContain(id)
+    }
+    // Seven of the eight are backend obligations with no screen, and saying so
+    // is a different statement from the source being silent about them.
+    expect(text).toMatch(/Backend obligation with no screen/i)
+    // AC-SA-06-07 requires the absence to be stated in the console. This route
+    // IS that statement -- the page was abstaining from its own obligation.
+    expect(text).toMatch(/THIS SCREEN IS THIS CRITERION/i)
   })
 
   it('states plainly that it renders no aggregate rather than rendering a zero', () => {

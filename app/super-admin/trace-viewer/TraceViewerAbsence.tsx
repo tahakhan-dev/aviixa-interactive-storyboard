@@ -128,24 +128,102 @@ const SOURCE_DEFINITIONS: readonly { readonly heading: string; readonly body: st
     ref: 'L43837, L47800',
   },
   {
-    heading: 'AC-SA-06-03 — traces are immutable once closed',
-    body: 'No account can edit or delete one. Edit and delete are therefore ABSENT on this surface for every role including the root — there is no control to disable.',
-    ref: 'L43964',
-  },
-  {
-    heading: 'AC-SA-06-04 — the Tier-1-internal boundary',
-    body: 'No tenant surface exposes orchestrator internal reasoning. A tenant receives a plain-language activity log and an evidence list only.',
-    ref: 'L43965',
-  },
-  {
-    heading: 'AC-SA-06-08 — an unwritable trace is not a success',
-    body: 'A run whose trace or decision record cannot be written is recorded as failed or incomplete, never as a successful run.',
-    ref: 'L43969',
-  },
-  {
     heading: 'The one workflow this module carries',
     body: '"From an agent run to a fifteen-year-old explanation" — the orchestrator opens a trace when a run begins, and the decision record answers years later with the approver named. It runs end to end in the backend and reaches no console screen at V1. Matched to this module by name and line proximity (L43839, beside the module record at L43893 and OBJ-SA-TRACE at L43904); no extracted workflow carries module_id MOD-SA-06.',
     ref: 'L43839',
+  },
+]
+
+/**
+ * THE MODULE'S EIGHT ACCEPTANCE CRITERIA, ALL OF THEM, FROM THE TABLE THE
+ * FROZEN SOURCE CARRIES AT L43962-L43969.
+ *
+ * This panel replaces a sentence that reported five of the eight as unknowable
+ * -- the five the run 01..08 skipped, leaving only -03, -04 and -08 stated.
+ * The source states all eight in one table, one row each, and
+ * `-07` is the criterion requiring exactly what this screen is — the absence
+ * of a trace viewer at V1, stated in the console and in every derived
+ * artifact. The build was abstaining from the obligation it was discharging.
+ *
+ * SEVEN OF THE EIGHT ARE BACKEND OBLIGATIONS WITH NO SCREEN, and that is
+ * stated per row rather than glossed. "The console draws nothing for this
+ * because the obligation is not a screen" is a different statement from "the
+ * source does not carry it", and only the first one is true here. The
+ * distinction is why each row names WHERE the obligation lives.
+ */
+interface AcceptanceCriterion {
+  readonly id: string
+  /** The criterion, as the source's own table row states it. */
+  readonly criterion: string
+  /** The line of the frozen source carrying that row. */
+  readonly ref: string
+  /** Where the obligation is discharged, and whether a screen is involved. */
+  readonly borneBy: string
+}
+
+const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
+  {
+    id: 'AC-SA-06-01',
+    criterion:
+      'Every agent run produces a trace covering plan, act, observe, reflect, and replan where replanning occurred.',
+    ref: 'L43962',
+    borneBy:
+      'Backend obligation with no screen. The orchestrator writes the trace when a run begins; trace inspection is backend tooling at V1 and no console screen reads it (L42799, L86043). The event sequence itself is named under "What the source does define" below.',
+  },
+  {
+    id: 'AC-SA-06-02',
+    criterion:
+      'Replanning appears in the trace as a first-class event, distinguishable from a new plan.',
+    ref: 'L43963',
+    borneBy:
+      'Backend obligation with no screen. It constrains the trace record, not a rendering; the one passage that describes a screen for it (L57772) is one of the four this page shows against the six that say no screen exists.',
+  },
+  {
+    id: 'AC-SA-06-03',
+    criterion: 'Traces are immutable once closed; no account can edit or delete one.',
+    ref: 'L43964',
+    borneBy:
+      'This screen. Edit and delete render ABSENT for every console role including the root — there is no control to disable, so none is drawn.',
+  },
+  {
+    id: 'AC-SA-06-04',
+    criterion:
+      'No tenant surface exposes orchestrator internal reasoning; tenants receive a plain-language activity log and an evidence list only.',
+    ref: 'L43965',
+    borneBy:
+      'This screen, and every tenant surface. Nothing here links to a tenant record and no drill-through is offered — see "The tenant boundary" below.',
+  },
+  {
+    id: 'AC-SA-06-05',
+    criterion:
+      'Full traces are retained 24 months and then tier to lower-cost storage, remaining retrievable; none is purged.',
+    ref: 'L43966',
+    borneBy:
+      'Backend obligation with no screen. It is a retention and tiering rule over a store this prototype does not hold; no retrieval affordance is drawn, and DEC-RETRIEVE-001 leaves the beyond-horizon behaviour open.',
+  },
+  {
+    id: 'AC-SA-06-06',
+    criterion:
+      'Every trace yields a decision record carrying plan summary, atoms invoked, gate outcome, and approver, retained for the operational record’s full term.',
+    ref: 'L43967',
+    borneBy:
+      'Backend obligation, and its rendering belongs elsewhere. The decision record attaches to the tenant-facing operational record (L34883), never to this console, so no console-side affordance for it is drawn here.',
+  },
+  {
+    id: 'AC-SA-06-07',
+    criterion:
+      'The absence of a trace-viewer screen at V1 is stated in the console and in every derived artifact, and no artifact depicts a viewer as shipping at V1.',
+    ref: 'L43968',
+    borneBy:
+      'THIS SCREEN IS THIS CRITERION. The route exists so the console states the absence rather than omitting it, and no artifact of this build depicts a viewer as shipping at V1.',
+  },
+  {
+    id: 'AC-SA-06-08',
+    criterion:
+      'A run whose trace or decision record cannot be written is recorded as failed or incomplete, never as a successful run.',
+    ref: 'L43969',
+    borneBy:
+      'Backend obligation with no screen. Whether such a run’s output is withheld from the operator is the open half, carried as DEC-TRACE-001 below.',
   },
 ]
 
@@ -185,7 +263,6 @@ const UNSPECIFIED_IN_SOURCE: readonly string[] = [
   'DEC-TRACE-001 (L9482) — what happens when trace writing fails during an agent run. AC-SA-06-08 states the run is recorded failed or incomplete; whether its output is withheld is unanswered.',
   'DEC-RETRIEVE-001 — retrieval behaviour beyond the hot-retrievability horizon. Open. No retrieval affordance is drawn.',
   'DEC-DELETE-001 — deletion behaviour under the no-purge model. Open, and moot on this screen: AC-SA-06-03 makes deletion absent for every account.',
-  'AC-SA-06-01, AC-SA-06-02, AC-SA-06-05, AC-SA-06-06 and AC-SA-06-07 are not carried by the extraction; only -03, -04 and -08 were extracted. Their content is unknown here and is not guessed at.',
   'No console-side affordance for the derived decision record. The source places it on the tenant-facing operational record (L34883), never on this console, so none is drawn here.',
 ]
 
@@ -333,6 +410,38 @@ export function TraceViewerAbsence({ aiModelsUnavailable = false }: TraceViewerA
           traces would be an aggregate over tenant operational content, so none is offered —
           rather than a zero or a blank standing in for one (AC-SA-01-03).
         </p>
+      </Section>
+
+      <Section heading="Acceptance criteria — MOD-SA-06">
+        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          All eight, from the source’s own table at L43962–L43969. Seven are obligations on the
+          backend trace store and carry no screen at V1, which is a different statement from the
+          source being silent about them — each row names where the obligation is borne.{' '}
+          <strong className="font-medium text-[var(--color-ink)]">AC-SA-06-07 is this screen</strong>
+          : it requires the absence of a trace viewer at V1 to be stated in the console and in every
+          derived artifact, and this route is that statement.
+        </p>
+        <div className="mt-4">
+          <Table
+            caption="The eight acceptance criteria of MOD-SA-06 and where each is borne"
+            columns={[
+              { key: 'id', header: 'Identifier' },
+              { key: 'criterion', header: 'Criterion' },
+              { key: 'ref', header: 'Source' },
+              { key: 'borneBy', header: 'Where it is borne' },
+            ]}
+            rows={MODULE_ACCEPTANCE_CRITERIA.map((a) => ({
+              id: a.id,
+              criterion: a.criterion,
+              ref: a.ref,
+              borneBy: a.borneBy,
+            }))}
+            emptyState={{
+              title: 'No acceptance criteria are recorded.',
+              whatCreatesIt: 'The module’s acceptance table in the frozen source records them.',
+            }}
+          />
+        </div>
       </Section>
 
       <Section heading="What the source does define for this module">

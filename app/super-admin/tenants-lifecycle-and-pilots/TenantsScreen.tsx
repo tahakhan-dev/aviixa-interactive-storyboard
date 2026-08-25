@@ -565,7 +565,11 @@ export function TenantsScreen() {
             <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
               A Band B routine change: it applies and is audited, with the transition and its audit
               record committing in one transaction. It is not the critical class, and it is not the
-              compliance suspension below.
+              compliance suspension below. AC-SA-09-09 (L45100) holds for every suspension
+              transition on this screen, this one included: each writes tenant state history and is
+              audited. AC-SA-09-07 (L45098) is what separates the two — compliance suspension is
+              critical-class and cannot be applied on an Admin&rsquo;s authority alone, which is why
+              the control below opens a request rather than acting.
             </p>
           </div>
         </div>

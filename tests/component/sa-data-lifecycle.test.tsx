@@ -792,3 +792,29 @@ describe('MOD-SA-17 — what the source does not define', () => {
     }
   })
 })
+
+describe('MOD-SA-17 — the three criteria this screen used to report as unknowable', () => {
+  it('states AC-SA-17-03, AC-SA-17-10 and AC-SA-17-12 rather than abstaining from them', () => {
+    render(<DataLifecycleScreen />)
+    const copy = document.body.textContent ?? ''
+    // R5-A01's class, found by the widened gate in
+    // `tests/coverage/rendered-absence-claims.test.ts` after the five the
+    // round-5 register named. L46074 carries all twelve AC-SA-17 criteria;
+    // the panel said 03 and 10 were "unknown to this build" while this very
+    // screen already enforced both.
+    expect(copy).toContain('AC-SA-17-03')
+    expect(copy).toContain('AC-SA-17-10')
+    expect(copy).toContain('AC-SA-17-12')
+    // -12 asks for the retrieval expectation to be rendered as unresolved
+    // rather than as an invented figure. DEC-RETRIEVE-001 is that expectation.
+    expect(copy).toContain('DEC-RETRIEVE-001')
+    expect(copy).toMatch(/renders it as unresolved and states no figure/i)
+  })
+
+  it('names none of the twelve as absent from the source', () => {
+    render(<DataLifecycleScreen />)
+    const copy = document.body.textContent ?? ''
+    expect(copy).not.toMatch(/unknown to this build/i)
+    expect(copy).not.toMatch(/absent from the extraction/i)
+  })
+})

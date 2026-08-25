@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { ScreenStateId } from '@/ui/screen-state'
@@ -504,16 +504,64 @@ describe('MOD-SA-18 — the invariant is a status chip, never a control', () => 
 })
 
 describe('MOD-SA-18 — the unspecified-in-source panel names each gap (D15)', () => {
-  it('names the event class list, the enforcement-parity view and the missing criteria', () => {
+  it('names the gaps that are real and no longer names three that were not', () => {
     renderAs(ROOT)
     const joined = UNSPECIFIED_IN_SOURCE.map((u) => `${u.what} ${u.why}`).join(' ')
     expect(joined).toMatch(/event class list/i)
-    expect(joined).toMatch(/SB-RBAC-04/)
-    expect(joined).toMatch(/AC-SA-18-03/)
-    expect(joined).toMatch(/FUNC-SA-18/)
+    expect(UNSPECIFIED_IN_SOURCE.length).toBeGreaterThan(3)
     for (const item of UNSPECIFIED_IN_SOURCE) {
       expect(screen.getAllByText(new RegExp(item.what.slice(0, 24), 'i')).length).toBeGreaterThan(0)
     }
+    // R5-A01. Three rows here reported source-stated content as unknowable:
+    // SB-RBAC-04 (L20953), three of the ten acceptance criteria (L46193) and
+    // the nine functionalities (L46175-L46189). All three are built now, so
+    // none of the three may return to a panel headed "Unspecified in source".
+    expect(joined).not.toMatch(/SB-RBAC-04/)
+    expect(joined).not.toMatch(/AC-SA-18-0[379]/)
+    expect(joined).not.toMatch(/FUNC-SA-18/)
+  })
+
+  it('builds SB-RBAC-04 from L20953 rather than abstaining from it', () => {
+    renderAs(ROOT)
+    const copy = renderedCopy()
+    expect(copy).toMatch(/enforcement-parity view/i)
+    expect(copy).toMatch(/zero is the only passing value/i)
+    expect(copy).toMatch(/by surface and by action identifier/i)
+    // "No write control exists on the panel" (L20953), rendered as ABSENT.
+    expect(copy).toMatch(/No write control exists on the panel/i)
+    // All four console roles read it, and the read goes through the evaluator.
+    const parity = screen.getByRole('table', { name: /Who reads the enforcement-parity panel/i })
+    expect(within(parity).getAllByText(/^Read —/).length).toBe(CONSOLE_ROLE_VIEWS.length)
+    // A non-zero count is release-blocking, not a tolerance (L20878).
+    expect(copy).toMatch(/Release-blocking/i)
+  })
+
+  it('renders all ten acceptance criteria and all nine functionalities', () => {
+    renderAs(ROOT)
+    const copy = renderedCopy()
+    for (let n = 1; n <= 10; n += 1) {
+      const id = `AC-SA-18-${String(n).padStart(2, '0')}`
+      expect(copy, `${id} is not rendered`).toContain(id)
+    }
+    for (const id of [
+      'FUNC-SA-18-01-A1',
+      'FUNC-SA-18-02-A1',
+      'FUNC-SA-18-02-A2',
+      'FUNC-SA-18-03-A1',
+      'FUNC-SA-18-03-A2',
+      'FUNC-SA-18-04-A1',
+      'FUNC-SA-18-04-A2',
+      'FUNC-SA-18-04-A3',
+      'FUNC-SA-18-04-A4',
+    ]) {
+      expect(copy, `${id} is not rendered`).toContain(id)
+    }
+    // A backend obligation is SAID to be one, with its citation. That is a
+    // different statement from the source being silent, and the difference is
+    // the whole of R5-A01.
+    expect(copy).toMatch(/Backend obligation with no screen/i)
+    // Nine functionalities are not nine controls: the source defines two.
+    expect(copy).toMatch(/Nine functionalities\s+are not nine controls/i)
   })
 
   it('invents no control to fill a gap', () => {

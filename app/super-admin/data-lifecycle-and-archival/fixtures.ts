@@ -438,11 +438,6 @@ export const LIFECYCLE_UNSPECIFIED_IN_SOURCE = [
     note:
       'AC-SA-17-09 requires the export to run at no charge before archival, and the offboarding storyboard SB-030 puts it in the sequence — but no control and no holder is named for the step itself.',
   },
-  {
-    affordance: 'AC-SA-17-03 and AC-SA-17-10',
-    note:
-      'The acceptance criteria for this module are extracted as 01, 02, 04, 05, 06, 07, 08, 09 and 11. Two identifiers in the run are absent from the extraction, so whatever they require is unknown to this build. They are named here rather than passed over in silence.',
-  },
 ] as const satisfies readonly UnspecifiedAffordance[]
 
 export interface SourceConflict {

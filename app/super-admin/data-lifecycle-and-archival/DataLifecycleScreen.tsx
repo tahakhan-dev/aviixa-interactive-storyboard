@@ -557,9 +557,10 @@ export function DataLifecycleScreen({
           )}
         </div>
         <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-          A retention-value change is one of the eleven critical-class actions (L55942). For every
-          role but the root the action bar here is the class badge and nothing else, so no control on
-          this screen can be mistaken for an approval path (L23707).
+          A retention-value change is one of the eleven critical-class actions (L55942), which is
+          AC-SA-17-03 (L46074) and is enforced here rather than merely stated. For every role but
+          the root the action bar here is the class badge and nothing else, so no control on this
+          screen can be mistaken for an approval path (L23707).
         </p>
       </Section>
 
@@ -753,6 +754,15 @@ export function DataLifecycleScreen({
             </li>
           ))}
         </ul>
+        <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
+          The three bands above are AC-SA-17-10 (L46074): the three reactivation windows, enforced
+          as stated. AC-SA-17-12 (L46074) governs the one figure they do not carry — how quickly
+          archived data can be produced. That expectation is unresolved in the frozen source:
+          DEC-RETRIEVE-001 (L5130) leaves &ldquo;minutes, hours, or next business day&rdquo;
+          undecided, and the source&rsquo;s own instruction is to promise a retrieval time to
+          nobody. This console therefore renders it as unresolved and states no figure, which is
+          what the criterion asks for rather than a gap in it.
+        </p>
         <div className="mt-3">
           <ProhibitionNotice
             rendering={{

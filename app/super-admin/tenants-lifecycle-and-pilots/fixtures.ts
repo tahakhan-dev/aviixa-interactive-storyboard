@@ -343,7 +343,7 @@ export const LIFECYCLE_TRANSITIONS = [
     rendering: 'Critical class. The control opens a request and never acts: the Admin the source names as drafter holds it, and so does the root. The Platform Engineer and Support, whom the control entry does not name, see the class badge in place of the action bar.',
     reversibility: 'reversible',
     reversibilityNote: 'Lifted only by controlled restoration under WF-PLT-005, with the root approving.',
-    sourceRef: 'L44984, AC-SA-09-06 L45097, WF-PLT-005 L55147',
+    sourceRef: 'L44984, AC-SA-09-06 L45097, AC-SA-09-07 L45098, AC-SA-09-09 L45100, WF-PLT-005 L55147',
   },
   {
     id: 'TRN-13',
@@ -540,6 +540,5 @@ export const UNRESOLVED_IN_SOURCE = [
   'DEC-SUSP-001 — soft-suspension exit. §4.2.4 lifts it on the operator’s signal; §8.9.2 and Part IX say it clears automatically on payment; §4.2.1 and §8.12 state there is no payment integration on the platform. The adopted working position is the operator signal. No release control is drawn here at all — the source defines none — and the decision is named where one would sit.',
   'DEC-MSG-001 — the worker-facing compliance-suspension message. §4.2.3 and §8.9.2 give two wordings; both are preserved and neither is rendered as canonical on this console.',
   'The screen numbering. This module’s screens appear as SCR-SA-14 and SCR-SA-15 in one scheme and as SCR-SA-11 and SCR-SA-12 in another. Per D1 the names are canonical and the numbers are annotations; no route is keyed on either.',
-  'AC-SA-09-07 and AC-SA-09-09 do not appear anywhere in the extraction. The criteria for this module run 01 to 06, 08, and 10 to 14 — two identifiers in the middle of the run are simply absent, and nothing here fills the gap.',
   'The module’s own roles_allowed list differs across seven separate extraction chunks, from the two-role list to all four. Per D16 the module-level list is authoritative nowhere; every affordance below is decided by its own control entry.',
 ] as const
