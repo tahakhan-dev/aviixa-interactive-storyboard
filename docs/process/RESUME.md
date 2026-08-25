@@ -252,10 +252,10 @@ until the new path list has been diffed against every row in it.
 
 | agent | path list | status |
 |---|---|---|
-| fix stream N (round-4 leftovers) | `app/super-admin/{core-agents-and-composed-agent-review,platform-settings,platform-overview-and-health,usage-and-metering}/**` · `tests/unit/{routes,stu-content-libraries}.test.ts` · `tests/coverage/citation-graph.test.ts` · two docs files | running |
-| fix stream P (round 5) | `app/super-admin/{platform-audit,trace-viewer}/**` · `tests/coverage/rendered-absence-claims.test.ts` · matching `sa-*` tests | running |
-| fix stream Q (round 5) | `app/{coverage,review,workflows}/**` · `src/{coverage,review,registry}/**` · `scripts/build-registries.mjs` · `registries/**` · four `tests/coverage/` files · `tests/unit/{registry-*,review-*}` · `tests/component/{coverage,workflows-page}` · `tests/e2e/coverage.spec.ts` | running |
-| controller | `docs/process/**` · one registry regeneration after all three land | running |
+| fix stream R (round-5 repo-wide) | `tests/coverage/rendered-text.ts` · `tests/coverage/locator-fidelity.test.ts` · any gate those two convict | running |
+| round-6 audit A (round 5's newly built content) | read-only; `/tmp` scratch | running |
+| round-6 audit B (master prompt §29.1 and §29.4) | read-only; `/tmp` scratch | running |
+| controller | `docs/process/**` | running |
 
 **When a collision happens anyway:** do not rewrite history to tidy it. Verify the tree is
 correct, commit with the attribution stated plainly, and tell any reviewer reading that diff
@@ -307,41 +307,44 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-### Rounds 1-4 of the slice-11 audit loop are closed — candidate `27a96d7`
+### Rounds 1-5 of the slice-11 audit loop are closed — candidate `5efb133`
 
-**107 findings, all dispositioned and fixed.** Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30.
-**The slice is not closed** — the loop ends when a round finds nothing, and round 5 is running.
+**127 findings, all dispositioned and fixed.** Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30.
+Round 5: 20. **The slice is not closed** — the loop ends when a round finds nothing, and round 6 is
+running.
 
-Chain measured on `27a96d7`, clean tree, every figure from that run: typecheck 0 · lint 0 ·
-gate-ordering **31/31** · freshness 3/3 · unit **6272**/182 files · component **3040**/108 · build
-**102/102** · release **931**/31 · e2e/axe **548**. Registries regenerated once after all three fix
-streams landed; census tally reproduced identically.
+Chain measured on `5efb133`, clean tree: typecheck 0 · lint 0 · gate-ordering **31/31** · unit
+**6280**/182 files · component **3046**/108 · build **102/102** · release **960**/31 · e2e/axe **548**.
+Registries regenerated once after all three fix streams landed; two further generations
+byte-identical. Titles carrying a thrown error: 0. Titles with an empty module name: 0.
 
-Registers: `docs/process/audits/2026-08-24-slice-11-audit-dispositions.md` (round 1),
-`…-round-2-findings.md`, `2026-08-25-slice-11-audit-round-3-findings.md`,
-`2026-08-25-slice-11-audit-round-4-findings.md`.
+Registers: rounds 1-3 as before, plus `2026-08-25-slice-11-audit-round-4-findings.md` and
+`2026-08-25-slice-11-audit-round-5-findings.md`.
 
-**Round 4 in one line each.** The §9.6 reconciliation table existed and reached no reader, and five
-of the fourteen inventories had no row in it. Three Hub pages shipped a thrown React error as their
-browser tab title, and a fourth ships an empty one. Six Super Admin pages told a reader the source is
-silent about twelve acceptance criteria it states. A published control count read 83 where 271 are
-declared. The citation gate had narrowed its own population three times.
+**Round 5 in one line each.** The dashboard told a reader the source is silent about a count it
+fixes in ten places, three columns from its own row saying `5, closed, CONFIRMED`. Seventeen
+drill-down links pointed at a page whose only mention of the item was a source comment. Three gates
+could not fail — five of six census groups could vanish, thirteen of eighteen reconciliation rows
+could be deleted, 61 of 110 anchors could be unlinked. And the class of pages telling a reader the
+source is silent turned out to be six, not the four the audit found, with the round-4 gate written
+to convict exactly that class unable to see any of them.
 
-**Round 4's own process lessons, and both were the controller's.**
+**The two findings that outlive round 5, both made by fix streams rather than auditors, and both
+repo-wide** — `R5-Q01`, the shared rendered-text helper leaving 790KB of React flight payload inside
+the string every gate greps, discovered when a fixer's own plant went green; and `R5-Q02`, the
+locator gate not scanning the one artefact dense with locators. Fix stream R is on both.
 
-1. **A finding that exists only in a context window has not been made.** Round 4's first run lost two
-   of three streams' findings to compaction, and a count reached this file that nothing on disk could
-   reproduce. The register is now written **before** the fix brief, always.
-2. **Every count in a brief is a hypothesis, including the ones the controller copied from an
-   auditor.** The regex `FB-FL-[A-Z]+-[0-9]+` cannot match `FB-FL-SEV1-01`; the audit said 12, the
-   brief said 39, the answer is 28, and the build's own sibling pages had been right all along. It
-   survived an auditor, a controller and a register before an implementer re-derived it.
+**Round 5's standing lesson: a gate holds the wording it was written against, not the class it was
+written for.** The absence-claim gate held a phrase list. Three population controls held a substring
+where the claim was every member — the shape round 2 named and round 4 caught by a plant, shipped
+three more times in the wave that caught it. **Every one was found by planting a real defect and
+watching the suite stay green.**
 
-**And the pattern worth keeping: two of round 4's findings were made by fix streams, not auditors.**
-A fixer building the gate its brief asked for found three more instances of its own class; another
-found a fourth broken title in a file it did not own. A gate written to convict a class convicts the
-class, which is why one stream was right to write outside its file list rather than neuter the gate
-to fit.
+**And the fixers corrected the auditors four times across the two rounds**, in both directions:
+twelve numeral-plus-workflows lines rather than nine; six control-label false positives rather than
+four, *plus nine real labels the single-quote regex could never see*; twenty-eight rather than the
+audit's twelve or the brief's thirty-nine; six absence-claim pages rather than four. **No number
+survives into a gate on the strength of who reported it.**
 
 ### The four findings to carry above all others
 
