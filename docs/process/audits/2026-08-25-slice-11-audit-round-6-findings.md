@@ -286,7 +286,14 @@ frozen registries.
 
 ## Round 6 totals
 
-**15 findings: 7 (stream A) + 8 (stream B). Three Critical.** The loop does not close.
+**15 findings: 7 (stream A) + 8 (stream B). Two Critical.** The loop does not close.
+
+**And the Critical count was the round's own shape a third time.** This line read "Three Critical".
+The register carries two Critical headings, `R6-B04` and `R6-B06`, and stream B's own verdict
+paragraph already said "Eight findings, two Critical" three screens above. The header was copied
+rather than counted — for the third time in one register, after the fifteen-versus-fourteen
+correction below and stream A's six-versus-seven. Corrected here;
+`tests/coverage/process-evidence.test.ts` now re-derives it.
 
 **A count correction, and it is the round's own shape.** Stream A's report headed itself "Six
 findings" and listed seven — `R6-A01` … `-A05`, `R6-C01`, `R6-C02` — and this register copied the
@@ -298,3 +305,42 @@ list, not from the header.**
 **Stream A's shape was a fixer's recorded reasoning refuted by measurement. Stream B's is larger: the
 process-evidence layer is the one part of this build that has never been audited, and it is the part
 the closing obligation depends on.**
+
+
+---
+
+## Found by a fixer during the round-6 wave — carried to round 7
+
+### R6-T01 · Important · a gate that times out under concurrent load
+
+`tests/coverage/rendered-absence-claims.test.ts` scans roughly 784 identifiers against the 18MB
+frozen source and takes about **9.6 seconds**. The project's default `testTimeout` is **5 seconds**.
+It passes when run alone and reds under three-stream load; `--testTimeout=60000` gives 16 of 16.
+
+**A gate whose verdict depends on machine load is not a gate.** It is also the gate that convicts the
+absence-claim class — the one round 5 had to widen twice — so a timeout reads exactly like a pass
+would if the file were deleted. Give it an explicit per-file timeout, or move the source scan behind
+a cached derivation.
+
+### R6-T02 · Moderate · a gate that reds when another process rebuilds `out/` beneath it
+
+`tests/coverage/slice-04-gates.test.ts` passes alone at 78 of 78 and reds when a concurrent stream
+runs `pnpm build` under it. Real for a wave, harmless for a single-writer chain — but it means the
+suite cannot honestly be run concurrently with a build, and nothing says so.
+
+### Two more of the register's own figures corrected by the fixer
+
+The `R6-C02` entry above reports the ownership tally as `mounted 8 → 9`. **Measured by replaying the
+real generator twice: `10 → 11`.** The direction and the single affected module are right; the
+absolute figures are not.
+
+And this register called the argmax tie "the real obstacle". **It is not the only one.** Stripping
+comments from the ownership scan also downgrades `MOD-FL-A1` from demonstrated to
+`mounted-in-another-screen`, which is independently wrong — that module's own record says it owns the
+screen and declares no slug only because the basename collides across two surfaces. The tie cannot be
+settled by picking a winner either: the route in question states under its own decision record that
+it composes module routes and is not one, and both candidate modules are already demonstrated from
+their own slug-claimed routes. **Awarding it would invent an ownership the source refuses.**
+
+**That is four times across rounds 5 and 6 that a fix stream has corrected a figure or a framing this
+register published.** The register is not the authority; the measurement is.
