@@ -253,8 +253,9 @@ until the new path list has been diffed against every row in it.
 | agent | path list | status |
 |---|---|---|
 | fix stream K (round 4) | `app/super-admin/**` · `src/surfaces/sa/**` · `app/command-center/{cell-view,deviation-workspace,governance-gate-queue,learning-read-view,run-drill-down}/**` · `scripts/build-registries.mjs` · `registries/generated/**` · `tests/unit/sa-*.test.ts` · `tests/component/sa-*.test.tsx` · one new `tests/coverage` gate · `scripts/check-gate-ordering.mjs` | running |
-| audit stream B (round 4) | read-only; `/tmp` scratch | running |
-| audit stream C (round 4) | read-only; `/tmp` scratch | running |
+| fix stream M (round 4) | `app/hub/{audit-and-retention,multi-area-job-pairing,parts-registry,shift-management,worker-lifecycle-and-qualifications,permissions-roles-and-access}/**` · `src/frontline/modules/fl-a7/**` · `src/studio/modules/stu-0{5,6}/**` · `tests/unit/routes.test.ts` · `tests/coverage/citation-graph.test.ts` · `tests/component/fl-a7.test.tsx` · `tests/{unit,component}/{hub,studio}-*` | running |
+| audit stream B (round 4) | read-only; `/tmp` scratch | reported, 13 findings |
+| audit stream C (round 4) | read-only; `/tmp` scratch | reported, 7 findings |
 | controller | `docs/process/RESUME.md` · `docs/process/ledgers/**` · `docs/process/audits/**` | running |
 
 **When a collision happens anyway:** do not rewrite history to tidy it. Verify the tree is
