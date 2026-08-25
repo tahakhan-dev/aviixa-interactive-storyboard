@@ -57,10 +57,17 @@ is round 1's substantive-clause condition exactly.
 
 ## R2-C06 · Important · the identifier and the quote both name a line carrying neither
 
-`src/studio/modules/stu-07/writes.ts:210` cites `FUNC-STU-07-04-B-1 (L32656)` and quotes "does not
+`src/studio/modules/stu-07/writes.ts:210` cites id `FUNC-STU-07-04-B-1` against line 32656 and quotes "does not
 block any Workflow, because the prior published item remains in force". L32656 is
 `FUNC-STU-07-01-B-1`, about a launched checklist. Both the identifier and the quote are at
 **L32678**, and that phrase occurs at L32678 only.
+
+> **[Corrected 2026-08-25, round 4 leftovers.]** The bad pair above was originally written here in
+> the `<id> (L<n>)` citation form. That is itself a citation as far as `citation-graph` and
+> `locator-fidelity` are concerned — a wrong line number does not become inert by being quoted in a
+> report about it — and it was one of the ten uncorroborated claims round 4 surfaced. The finding is
+> unchanged; only its notation is. The identifier and the wrong line are now separate fields. The
+> fix `writes.ts` actually carries, L32678, was correct then and is correct now.
 
 ## R2-C07 · Moderate · a disclosure reachable from nothing, whose precedent points the other way
 

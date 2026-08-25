@@ -501,9 +501,10 @@ export function OverviewScreen() {
       <section aria-label="Security posture" className="mt-6">
         <h2 className="text-lg font-semibold">Security posture</h2>
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          The six ENFORCED invariants, as this module&rsquo;s security-posture panel renders them
-          (SB-SEC-013-S1, L105076). Status chips, not controls: no off position exists for any
-          account including the root, so nothing here is pressable, focusable or approvable.
+          The six ENFORCED invariants, as this module&rsquo;s security-posture panel renders them.
+          The storyboard is SB-SEC-013 (L105074) and this panel is its screen 1 (L105076). Status
+          chips, not controls: no off position exists for any account including the root, so
+          nothing here is pressable, focusable or approvable.
         </p>
         <div className="mt-3 space-y-3">
           {SA_INVARIANTS.map((invariant) => (

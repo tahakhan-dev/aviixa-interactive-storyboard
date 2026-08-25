@@ -212,8 +212,8 @@ const SECTION_REACH = 120
  * FAMILY IS THE IDENTIFIER MINUS ITS LAST SEGMENT, which is what makes
  * `FUNC-DOH-04-1.2.1` and `FUNC-DOH-04-2.2.1` siblings and leaves
  * `FEAT-STU-05-02` and `FUNC-STU-05-02-A-1` unrelated. MEASURED on this tree
- * after round 4's citation fixes landed: 65 within-section citations, 0
- * withdrawn -- the predicate convicts none of the documented-correct cases. It
+ * after round 4's citation fixes and its leftovers landed: 65 within-section
+ * citations, 0 withdrawn -- the predicate convicts none of the documented-correct cases. It
  * was proved to convict by planting one of the twelve back; see the report.
  */
 const familyOf = (identifier: string): string => {
@@ -324,10 +324,14 @@ const ALLOWED_CLAIMS = new Set(DOCS_UNCORROBORATED.map((a) => claimKey(a.id, a.l
  * The index is not the only authority available. The frozen source is right
  * here, already read into `sourceLines` for the assertions above. So an
  * unindexed citation is graded against the SOURCE by the same three grades:
- * exact, within-section, uncorroborated -- including the sibling predicate,
- * which convicts one instance of round 4's C04 shape that lives outside the
- * index (`FUNC-STU-07-04-B-1` cited six lines short of itself, on a line
- * carrying `FUNC-STU-07-01-B-1`).
+ * exact, within-section, uncorroborated -- including the sibling predicate.
+ * That surfaced one instance of round 4's C04 shape living outside the index:
+ * `FUNC-STU-07-04-B-1` was named against a line twenty-two short of itself,
+ * one carrying `FUNC-STU-07-01-B-1`. Both of its sites were narrating that
+ * defect rather than committing it, and both are now written as separate id
+ * and line fields -- see R4-N in the report. A wrong citation quoted inside a
+ * comment about it is still a wrong citation to every gate that reads this
+ * tree, which is why the grade was correct and the notation was the fix.
  *
  * WHY THE IDENTIFIERS ARE MISSING FROM THE INDEX AT ALL. The index's
  * identifier set comes from the knowledge graph, which judged what is an
@@ -379,38 +383,63 @@ const unindexedUncorroborated = unindexed.filter((c) => !unindexedGraded.has(c))
  */
 const UNINDEXED_UNCORROBORATED: readonly { readonly file: string; readonly id: string; readonly line: number }[] =
   [
-    // The identifier occurs NOWHERE in the frozen source. The strongest grade
-    // this gate has, and both belong to the concurrent Super Admin fix stream,
-    // which was told about them rather than reached across for.
-    {
-      file: 'app/super-admin/platform-overview-and-health/OverviewScreen.tsx',
-      id: 'SB-SEC-013-S1',
-      line: 105076,
-    },
-    { file: 'app/super-admin/usage-and-metering/fixtures.ts', id: 'WF-LEDGER-EXPORT', line: 2765 },
-    { file: 'docs/census/2026-08-17-surf-sa-build-map.md', id: 'SB-SEC-013-S1', line: 105076 },
+    /*
+     * THE FOUR THAT WERE READ AND LEFT, EACH WITH THE READING THAT LEFT IT.
+     *
+     * The five entries that used to sit above these are gone because the
+     * claims are closed, not because the list was tidied: two identifiers the
+     * frozen source does not contain (`SB-SEC-013-S1`, `WF-LEDGER-EXPORT`) and
+     * a thirteenth instance of R4-C04's shape (`FUNC-STU-07-04-B-1`, cited at a
+     * line carrying a different functionality).
+     *
+     * These four are the forward form of the documented-correct section idiom.
+     * `withinSection` looks BACKWARD only -- from an occurrence of the
+     * identifier down to the cited line -- so a citation that names a chapter
+     * or contract identifier and then a line inside that chapter, where the
+     * nearest occurrence is either further than SECTION_REACH behind or a
+     * little way ahead, cannot be graded here. Each was opened against the
+     * frozen source and each is accurate. Round 2 nearly "corrected" five
+     * accurate citations of this family; these are not corrected.
+     */
 
-    // ROUND 4's C04 SHAPE, OUTSIDE THE INDEX. The cited line carries
-    // `FUNC-STU-07-01-B-1`; the identifier's own line is twenty-two later.
-    // Two call sites, one claim, neither file this stream's.
-    {
-      file: 'tests/unit/stu-content-libraries.test.ts',
-      id: 'FUNC-STU-07-04-B-1',
-      line: 32656,
-    },
-    {
-      file: 'docs/process/audits/briefs/fix-G-round2-reachability.md',
-      id: 'FUNC-STU-07-04-B-1',
-      line: 32656,
-    },
-
-    // The identifier occurs LATER than the cited line, so the backward-looking
-    // window cannot reach it. Each may be the forward form of the section
-    // idiom -- a table header cited for a row inside it -- and each needs its
-    // own read. Measured positions are in the round-4 report.
+    // The `sourceRef` in that file is a RANGE -- id `FB-STU-01`, lines 31443
+    // through 31454 plus 31481 -- and only its FIRST number survives this
+    // file's extractor. Line 31443 is the header row of the
+    // ten-Studio-fallback-contracts table and the row for that contract is
+    // line 31445, inside the cited range. A table header cited for a row
+    // inside it is the idiom this gate's own comment names as
+    // documented-correct. (Written as separate id and line fields: an
+    // L-prefixed number beside an identifier is a citation to both citation
+    // gates even inside a comment explaining one.)
     { file: 'src/studio/journey/effects.ts', id: 'FB-STU-01', line: 31443 },
+
+    // L32647 is the `**States.**` line of the MOD-STU-07 card and carries the
+    // rendered claim verbatim -- "retrievable only by metadata filter, not by
+    // semantic ranking, and the screen's curated default carries coaching
+    // until indexing completes". `FB-STU-05` is the contract governing exactly
+    // that behaviour and is named fifteen lines later at L32662, inside the
+    // same module card. The line states the claim; the identifier attributes
+    // it. Renumbering to L32662 would move the citation OFF the sentence it
+    // supports.
     { file: 'src/studio/modules/stu-07/writes.ts', id: 'FB-STU-05', line: 32647 },
+
+    // L35014 is the `Request an agent re-check` row of the Client Command
+    // Center chapter's own surface-level permission matrix (header L35002,
+    // rule row L35003), and its Tenant Admin column reads `Explicitly
+    // prohibited`, which is precisely what the site renders. The chapter
+    // declares itself `SURF-CC` at L34805 -- 209 lines back, so beyond
+    // SECTION_REACH, which is why this grades uncorroborated. A surface
+    // identifier cited at a row of that surface's matrix is the idiom, at
+    // chapter scale.
     { file: 'src/surfaces/cc/modules/cc-08/AgentActivityPanel.tsx', id: 'SURF-CC', line: 35014 },
+
+    // L31910 is the `Edit or delete a platform-seeded starter type` row, which
+    // reads `Explicitly prohibited` in all seven role columns -- including the
+    // Quality Manager, which is the half of the rendered sentence that ONLY
+    // this row carries. `AC-STU-049` states the same rule in prose at L32014,
+    // 104 lines ahead and inside the same MOD-STU-03 section. The reader who
+    // follows this citation lands on the matrix row that proves the sentence,
+    // not on a neighbouring rule.
     { file: 'app/studio/workflow-library/WorkflowLibraryScreen.tsx', id: 'AC-STU-049', line: 31910 },
   ]
 const UNINDEXED_KEY = (file: string, id: string, line: number): string =>
@@ -589,7 +618,16 @@ describe("the index corroborates this build's citations", () => {
     // exact and added citations of their own. MEASURED 2026-08-25 by the print
     // above: 2,135 identifier-anchored citations (plus 6 range-shorthand
     // captures now excluded) in 1,024 files, 1,972 index-known, 1,880 exact.
-    const MEASURED = { known: 1_972, exact: 1_880 } as const
+    //
+    //
+    // RAISED AGAIN for round 4's leftovers (R4-N). Two citations of an
+    // identifier the source does not carry, `SB-SEC-013-S1`, became
+    // `SB-SEC-013` at the line that identifier really sits on, so they moved
+    // out of the unindexed half into this one and landed exact. MEASURED
+    // 2026-08-25 after that change: 2,131 identifier-anchored citations (plus
+    // the same 6 range-shorthand captures) in 1,035 files, 1,974 index-known,
+    // 1,882 exact.
+    const MEASURED = { known: 1_974, exact: 1_882 } as const
     const EROSION_BAND = 0.005
     const atLeast = (n: number): number => Math.floor(n * (1 - EROSION_BAND))
     expect(
@@ -720,11 +758,13 @@ describe('the frozen source grades the citations the index does not know', () =>
     // Non-vacuity in both directions. An empty `unindexed` would satisfy every
     // assertion below, and that is exactly the state this gate was in: it
     // filtered the population away and then asserted nothing about it.
-    // MEASURED 2026-08-25: 1,024 files, 2,135 identifier-anchored citations
-    // (6 range-shorthand captures excluded), 1,972 index-known / 1,880 exact /
-    // 65 within-section / 27 uncorroborated (8 code, 19 prose); and on this
-    // half, 163 unindexed citations -- 149 exact against the source, 4
-    // within-section, 10 uncorroborated over 9 distinct claims.
+    // MEASURED 2026-08-25, after R4-N closed five of the nine claims: 1,035
+    // files, 2,131 identifier-anchored citations (6 range-shorthand captures
+    // excluded), 1,974 index-known / 1,882 exact / 65 within-section / 27
+    // uncorroborated (8 code, 19 prose); and on this half, 157 unindexed
+    // citations -- 149 exact against the source, 4 within-section, 4
+    // uncorroborated over 4 distinct claims. The previous measurement on this
+    // line read 163 / 149 / 4 / 10 over 9 claims.
     expect(unindexed.length, 'citations whose identifier the index does not carry').toBeGreaterThan(
       100,
     )
@@ -775,9 +815,11 @@ describe('the frozen source grades the citations the index does not know', () =>
      * extraction agent produced twelve of, by continuing a sequence -- was
      * simply filtered out as "not in the index" and never looked at.
      *
-     * Two such claims are live, both under `app/super-admin/**` plus one copy
-     * in a census document, and all three belong to another stream. They are
-     * named, not absorbed: this asserts the exact set, so a third reds.
+     * Two such claims WERE live -- `SB-SEC-013-S1` (the source names the
+     * storyboard `SB-SEC-013` and numbers its screens in prose, minting no
+     * `-S1` identifier) and `WF-LEDGER-EXPORT` (minted by the extraction for
+     * the workflow the source introduces unnamed at L2765). Both are closed,
+     * so the asserted set is now EMPTY and any new one reds on its first run.
      */
     const present = new Set<string>()
     const SCAN = new RegExp(CITED_IDENT.source, 'g')
@@ -792,12 +834,9 @@ describe('the frozen source grades the citations the index does not know', () =>
       ),
     ].sort()
     expect(present.size, 'identifiers found in the frozen source').toBeGreaterThan(15_000)
-    expect(fabricated, 'a citation names an identifier the frozen source does not contain').toEqual(
-      [
-        'app/super-admin/platform-overview-and-health/OverviewScreen.tsx: SB-SEC-013-S1 at line 105076',
-        'app/super-admin/usage-and-metering/fixtures.ts: WF-LEDGER-EXPORT at line 2765',
-        'docs/census/2026-08-17-surf-sa-build-map.md: SB-SEC-013-S1 at line 105076',
-      ],
-    )
+    expect(
+      fabricated,
+      'a citation names an identifier the frozen source does not contain',
+    ).toEqual([])
   })
 })

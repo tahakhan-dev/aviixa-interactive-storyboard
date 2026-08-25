@@ -224,12 +224,23 @@ export function PlatformSettingsScreen({
     },
     context,
   )
+  // R4-K01. This cited a pair that carries neither half of what is rendered
+  // beside it. The line with id 65401 is the `Submit an engineering-class
+  // change` row of the platform-console authority matrix, not the pause row;
+  // the line with id 20740 is the role-register row for `ROLE-PLAT-ENG`, which
+  // says nothing about pausing at all. The two lines that DO carry the claim
+  // are cited instead: L65404 is that matrix's `Trigger an emergency pause`
+  // row, which reads `Explicitly prohibited` for the Platform Engineer — that
+  // is why this control is inert — and L15945 is the role card listing
+  // "emergency pause proposal (`FEAT-SA-0702`)" among the role's available
+  // features, which is why it is drawn at all rather than removed. Both are
+  // readings DEC-PAUSE-001 carries and neither is obeyed as a grant.
   const engineerPauseDecision = evaluateAccess(
     {
       action: 'MOD-SA-07:propose-emergency-pause-engineer',
       allowedRoles: ['PLATFORM_ENGINEER'],
       openDecision: 'DEC-PAUSE-001',
-      sourceRefs: ['L65401', 'L20740', 'DEC-PAUSE-001', 'D8'],
+      sourceRefs: ['L65404', 'L15945', 'DEC-PAUSE-001', 'D8'],
     },
     context,
   )

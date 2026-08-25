@@ -238,28 +238,17 @@ describe('every route page ships a usable browser tab title', () => {
   })
 
   /**
-   * A FIFTH PAGE WITH THE SAME CAUSE, FOUND BY WIDENING THIS GATE AND NOT
-   * FIXED HERE BECAUSE IT IS ANOTHER STREAM'S FILE.
+   * THE FIFTH PAGE OF THIS CAUSE IS FIXED AND ITS QUARANTINE IS GONE.
    *
-   * `app/super-admin/core-agents-and-composed-agent-review/page.tsx` writes
-   * `title: ${MODULE.name} — Super Admin Platform Console` where `MODULE`
-   * comes from a `'use client'` module. The proxy does not throw on a property
-   * read the way it does on a call, so instead of the visible error text the
-   * three Hub pages shipped, the built page ships an EMPTY module name:
-   *
-   *     $ grep -o '<title>[^<]*</title>' \
-   *         out/super-admin/core-agents-and-composed-agent-review/index.html
-   *     <title> — Super Admin Platform Console · AVIIXA Interactive Storyboard</title>
-   *
-   * That file belongs to the concurrent Super Admin fix stream, so this stream
-   * reports it rather than reaching across. THIS LIST IS ASSERTED BY EQUALITY
-   * AND SO RETIRES ITSELF: the moment that page stops reading a client binding
-   * in its metadata, this test goes red and the entry must be deleted. It is a
-   * handover, not an allowance.
+   * `app/super-admin/core-agents-and-composed-agent-review/page.tsx` used to
+   * write `title: ${MODULE.name} — Super Admin Platform Console` where
+   * `MODULE` came from a `'use client'` module. The proxy does not throw on a
+   * property read the way it does on a call, so instead of the visible error
+   * text the three Hub pages shipped, that page shipped an EMPTY module name.
+   * It now reads the module registry directly, like every sibling page in its
+   * directory, and this gate asserts an EMPTY violation set: the equality is
+   * the whole point, so a sixth site of the cause reds it immediately.
    */
-  const OUTSIDE_THIS_STREAM = [
-    '../../app/super-admin/core-agents-and-composed-agent-review/page.tsx: metadata reads `MODULE` from client module ./CoreAgentsScreen',
-  ]
 
   /**
    * THE CAUSE, CHECKED STATICALLY -- this is the assertion that reds on the
@@ -335,6 +324,6 @@ describe('every route page ships a usable browser tab title', () => {
     // stops matching `export const metadata` would otherwise empty this gate
     // and leave it green with nothing to say (round 3's shape).
     expect(metadataBlocksRead).toBeGreaterThanOrEqual(84)
-    expect(violations).toEqual(OUTSIDE_THIS_STREAM)
+    expect(violations).toEqual([])
   })
 })

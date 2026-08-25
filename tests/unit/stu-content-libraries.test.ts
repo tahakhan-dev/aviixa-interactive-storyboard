@@ -1127,11 +1127,15 @@ describe('immutability of published content', () => {
   const PUBLISHED = 'CHK-TORQUE-RESPONSE'
 
   // FAILS IF: `writes.ts` cites the wrong line for the clause it quotes. It
-  // cited `FUNC-STU-07-04-B-1 (L32656)` and quoted "does not block any
-  // Workflow, because the prior published item remains in force"; L32656 is
-  // `FUNC-STU-07-01-B-1`, about a launched checklist, and both the identifier
-  // and the quote are at L32678 — which is also where `stu-11/chain.ts`
-  // already cited it. Read off the frozen bytes, because no gate in
+  // used to name that identifier against a line it does not sit on — id
+  // `FUNC-STU-07-04-B-1`, line 32656 — while quoting "does not block any
+  // Workflow, because the prior published item remains in force". The bad pair
+  // is written as separate id and line fields and never in the `<id> (L<n>)`
+  // citation form, because a wrong citation is still a citation when it
+  // appears inside a comment describing it, and both citation gates read this
+  // file. Line 32656 carries `FUNC-STU-07-01-B-1`, about a launched checklist;
+  // both the identifier and the quote are at L32678 — which is also where
+  // `stu-11/chain.ts` already cited it. Read off the frozen bytes, because no gate in
   // tests/coverage/ convicts this citation form: `locator-fidelity` and
   // `citation-graph` both stayed green with the wrong line planted back in.
   it('cites FUNC-STU-07-04-B-1 at the line that carries it and its clause', () => {

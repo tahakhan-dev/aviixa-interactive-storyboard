@@ -369,7 +369,7 @@ export interface AbsentControl {
 export const USAGE_ABSENT_CONTROLS = [
   {
     label: 'Invoicing, payment execution and pricing',
-    note: 'No invoicing, payment execution or pricing capability exists anywhere on the platform, for any account including the root (AC-SA-12-02, L45456). The tier record carries no price metadata (L56912). Pricing and collection happen outside the platform (WF-LEDGER-EXPORT, L2765).',
+    note: 'No invoicing, payment execution or pricing capability exists anywhere on the platform, for any account including the root (AC-SA-12-02, L45456). The tier record carries no price metadata (L56912). Pricing and collection happen outside the platform (§4.6, L2773).',
   },
   {
     label: 'A breakdown of Worker-Shifts below the tenant',
@@ -499,7 +499,14 @@ export const USAGE_WORKFLOWS = [
       'screen co-location — the SB-SA-USAGE-01 storyboard at the same line, L117965, does carry module_id MOD-SA-12',
   },
   {
-    id: 'WF-LEDGER-EXPORT (L2765)',
+    // R4-N: this row used to carry the identifier `WF-LEDGER-EXPORT`, which
+    // the frozen source does not carry at any line. It was minted by the extraction
+    // (`registries/raw/extract/CHK-001.json`) for the workflow the source
+    // introduces unnamed at L2765 as “Numbered workflow — from execution to
+    // the client’s commercial system”. A build-invented identifier presented
+    // as a source citation is worse than no identifier, so the row takes the
+    // same unnumbered form as the §23.12 row above.
+    id: 'unnumbered — §4.6 from execution to the client’s commercial system (L2765)',
     name: 'From execution to the client’s commercial system',
     actor: 'The client’s platform team',
     trigger: 'Workers execute and consumption meters',
@@ -507,7 +514,7 @@ export const USAGE_WORKFLOWS = [
       'ledger exported; pricing, invoicing and collection happen outside the platform',
     ],
     matchedBy:
-      'name — the export control this module owns (L45385) is the SURF-SA half of this workflow’s two surfaces',
+      'name — the export control this module owns (L45385) is the SURF-SA half of this workflow’s two surfaces. The extraction keys it WF-LEDGER-EXPORT, a name it minted rather than read: the frozen source introduces this workflow under no identifier at all',
   },
   {
     id: 'WF-SA-TIER-ASSIGN (L15838)',

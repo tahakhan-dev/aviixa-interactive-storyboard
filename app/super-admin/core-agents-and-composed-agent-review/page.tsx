@@ -1,7 +1,17 @@
 import type { Metadata } from 'next'
-import { CoreAgentsScreen, MODULE } from './CoreAgentsScreen'
+import { saModuleById } from '@/surfaces/sa/modules'
+import { CoreAgentsScreen } from './CoreAgentsScreen'
 import { AiDegradationOverlay } from '@/ai/five-surface/AiDegradationOverlay'
 import { SA_AI_OVERLAY } from '@/surfaces/sa/ai-degradation'
+
+// R4-M01: this read the screen's own `MODULE` export, and the screen carries
+// `'use client'`. On the server that binding is a client-reference proxy; a
+// PROPERTY read off it does not throw the way a call does, so the built page
+// shipped an empty module name in its `<title>` rather than a visible error.
+// The module registry is a plain server module and is the same source the
+// screen reads, so both sides still agree — this is the shape every sibling
+// page in this directory already uses.
+const MODULE = saModuleById('MOD-SA-03')
 
 export const metadata: Metadata = { title: `${MODULE.name} — Super Admin Platform Console` }
 
