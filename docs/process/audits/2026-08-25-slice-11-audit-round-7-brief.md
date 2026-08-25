@@ -2,8 +2,11 @@
 
 Authority APP-016 item 1: the loop repeats until a round finds nothing. Rounds 1-6 found
 42 + 20 + 15 + 30 + 20 + 17 = **144**. Every one of them now carries a verdict in
-`docs/process/audits/2026-08-25-slice-11-audit-dispositions-rounds-1-6.md`: 143 CLOSED,
-one PARTIAL (`C-18`, reason and owner recorded), none OPEN. **That record is round 6's own
+`docs/process/audits/2026-08-25-slice-11-audit-dispositions-rounds-1-6.md`: **141 enumerated rows,
+140 CLOSED and one PARTIAL** (`C-18`, reason and owner recorded), none OPEN. **This line read "143
+CLOSED" when the brief was dispatched** — back-derived from the declared 144 rather than counted
+from the table, which is round 6's own arithmetic shape. Stream A convicted it as `R7-A7` and it is
+corrected here rather than in the register alone. **That record is round 6's own
 deliverable and has never been audited by anyone but its author.**
 
 Candidate `SLICE11-3ee592fe2eac068e`, tree clean. Chain measured this session on exactly these bytes:
