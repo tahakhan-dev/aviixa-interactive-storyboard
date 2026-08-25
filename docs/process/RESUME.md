@@ -252,12 +252,10 @@ until the new path list has been diffed against every row in it.
 
 | agent | path list | status |
 |---|---|---|
-| fix stream K (round 4) — REPORTED, changes uncommitted on disk | `app/super-admin/**` · `src/surfaces/sa/**` · `app/command-center/{cell-view,deviation-workspace,governance-gate-queue,learning-read-view,run-drill-down}/**` · `scripts/build-registries.mjs` · `registries/generated/**` · `tests/unit/sa-*.test.ts` · `tests/component/sa-*.test.tsx` · one new `tests/coverage` gate · `scripts/check-gate-ordering.mjs` | running |
-| fix stream M (round 4) | `app/hub/{audit-and-retention,multi-area-job-pairing,parts-registry,shift-management,worker-lifecycle-and-qualifications,permissions-roles-and-access}/**` · `src/frontline/modules/fl-a7/**` · `src/studio/modules/stu-0{5,6}/**` · `tests/unit/routes.test.ts` · `tests/coverage/citation-graph.test.ts` · `tests/component/fl-a7.test.tsx` · `tests/{unit,component}/{hub,studio}-*` | running |
-| fix stream L (round 4) | `app/{coverage,review,workflows}/**` · `src/{coverage,review,registry}/**` · `scripts/build-registries.mjs` · `registries/{generated,authored}/**` · `tests/unit/{registry-build,review-*}.test.ts` · `tests/coverage/workflow-index.test.ts` · new gates | running |
-| audit stream B (round 4) | read-only; `/tmp` scratch | reported, 13 findings |
-| audit stream C (round 4) | read-only; `/tmp` scratch | reported, 7 findings |
-| controller | `docs/process/RESUME.md` · `docs/process/ledgers/**` · `docs/process/audits/**` | running |
+| fix stream N (round-4 leftovers) | `app/super-admin/{core-agents-and-composed-agent-review,platform-settings,platform-overview-and-health,usage-and-metering}/**` · `tests/unit/{routes,stu-content-libraries}.test.ts` · `tests/coverage/citation-graph.test.ts` · two docs files | running |
+| round-5 audit A (gates and derivations) | read-only; `/tmp` scratch | running |
+| round-5 audit B (reconciliation claims) | read-only; `/tmp` scratch | running |
+| controller | `docs/process/**` · registry regeneration between waves | running |
 
 **When a collision happens anyway:** do not rewrite history to tidy it. Verify the tree is
 correct, commit with the attribution stated plainly, and tell any reviewer reading that diff
@@ -309,25 +307,41 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-### Rounds 1-3 of the slice-11 audit loop are closed — candidate `522b7cc`
+### Rounds 1-4 of the slice-11 audit loop are closed — candidate `27a96d7`
 
-**77 findings, all dispositioned and fixed.** Round 1: 42. Round 2: 20. Round 3: 15. **The slice is
-not closed** — the loop ends when a round finds nothing, and round 4 has found things.
+**107 findings, all dispositioned and fixed.** Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30.
+**The slice is not closed** — the loop ends when a round finds nothing, and round 5 is running.
 
-**Round 4, and a controller defect in how it was run.** Its first stream produced `R4-01`…`R4-07`,
-dispositioned into `docs/process/audits/briefs/fix-K-round4-rendered.md` and committed at `f162511`.
-Its other two streams reported in-context and **their findings were never written to a register**, so
-they did not survive the session. A count was carried in this file — "31 across two of its three
-streams" — that nothing on disk can reproduce. **A finding that exists only in a context window is a
-finding that has not been made.** The two streams are therefore re-run rather than trusted from
-recollection, and the register is written before the fix brief from here on.
+Chain measured on `27a96d7`, clean tree, every figure from that run: typecheck 0 · lint 0 ·
+gate-ordering **31/31** · freshness 3/3 · unit **6272**/182 files · component **3040**/108 · build
+**102/102** · release **931**/31 · e2e/axe **548**. Registries regenerated once after all three fix
+streams landed; census tally reproduced identically.
 
 Registers: `docs/process/audits/2026-08-24-slice-11-audit-dispositions.md` (round 1),
-`…-round-2-findings.md`, `2026-08-25-slice-11-audit-round-3-findings.md`.
+`…-round-2-findings.md`, `2026-08-25-slice-11-audit-round-3-findings.md`,
+`2026-08-25-slice-11-audit-round-4-findings.md`.
 
-Chain on `522b7cc`, clean tree, every figure from that run: typecheck 0 · lint 0 · gate-ordering
-**27/27** · freshness 3/3 · unit **6249**/179 files · component **3032**/108 · build **102/102** ·
-release **864**/27 · e2e/axe **548**. Exit 0 measured as `grep -c ELIFECYCLE` over the whole log.
+**Round 4 in one line each.** The §9.6 reconciliation table existed and reached no reader, and five
+of the fourteen inventories had no row in it. Three Hub pages shipped a thrown React error as their
+browser tab title, and a fourth ships an empty one. Six Super Admin pages told a reader the source is
+silent about twelve acceptance criteria it states. A published control count read 83 where 271 are
+declared. The citation gate had narrowed its own population three times.
+
+**Round 4's own process lessons, and both were the controller's.**
+
+1. **A finding that exists only in a context window has not been made.** Round 4's first run lost two
+   of three streams' findings to compaction, and a count reached this file that nothing on disk could
+   reproduce. The register is now written **before** the fix brief, always.
+2. **Every count in a brief is a hypothesis, including the ones the controller copied from an
+   auditor.** The regex `FB-FL-[A-Z]+-[0-9]+` cannot match `FB-FL-SEV1-01`; the audit said 12, the
+   brief said 39, the answer is 28, and the build's own sibling pages had been right all along. It
+   survived an auditor, a controller and a register before an implementer re-derived it.
+
+**And the pattern worth keeping: two of round 4's findings were made by fix streams, not auditors.**
+A fixer building the gate its brief asked for found three more instances of its own class; another
+found a fourth broken title in a file it did not own. A gate written to convict a class convicts the
+class, which is why one stream was right to write outside its file list rather than neuter the gate
+to fit.
 
 ### The four findings to carry above all others
 
