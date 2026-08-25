@@ -504,9 +504,9 @@ export const UNSPECIFIED_IN_SOURCE = [
       'L43158 states the disabled-for-Admin / absent-for-Support split for the TENANT enablement control only. This screen honours that split exactly where it is stated, and falls back to the default disabled-with-a-named-reason rendering for the platform control.',
   },
   {
-    what: 'Acceptance criteria AC-SA-02-02, AC-SA-02-04 and AC-SA-02-05',
+    what: 'Four of this module’s ten acceptance criteria are not drawn as affordances here',
     detail:
-      'The extraction carries AC-SA-02-01, -03, -06 and -07. The gaps in the numbering are not represented anywhere this build can read, and nothing on this screen stands in for them.',
+      'MOD-SA-02 carries TEN criteria, AC-SA-02-01 to -10, in the table at L43253-L43262. An earlier version of this entry told a reader the document does not carry six of them. It carries all ten; this build was reading a partial extraction and reported the extraction’s gap as the document’s. Two of the six are in fact met on this screen: -02 (L43254), no atom record field is editable from the console, holds on the read-only detail list above, though it renders three fields rather than fourteen and the field list is the separate gap named earlier in this panel; and -04 (L43256), a Platform Engineer’s submission leaves enablement unchanged until an Admin approves, is what the two submit controls and the refused approve-own-submission control render. Four are not drawn and are named rather than mocked up: -05 (L43257), enabling a capability for a tenant switches the matching Workflow Builder configuration surface on and off in that tenant’s Studio — a TENANT-side consequence with no platform-console affordance; -08 (L43260), the anti-overclaim statement with no permanent dismissal; -09 (L43261), the working-set figures of roughly 10 to 15 and 15 to 25 rendered as context rather than as a target; and -10 (L43262), the explicit illustrative marking on the fourteen illustrative atoms — and -08, -09 and -10 all describe a registry rendering the source’s own catalogue, which this screen deliberately does not show (see the entry above: the catalogue is "illustrative, not a committed set", and the rows here are state placeholders).',
   },
   {
     what: 'Where atom-registration validation is seen (AC-SA-02-06)',

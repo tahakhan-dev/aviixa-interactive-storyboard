@@ -47,7 +47,24 @@ export interface Cc03Divergence {
    * and collapsing statements into readings is how a count of statements
    * gets written down as a count of readings.
    */
-  readonly statements: readonly { readonly text: string; readonly line: number }[]
+  /**
+   * Each statement as the cited line WRITES it, plus `of` — this build's own
+   * word for which row or matrix the cell came from.
+   *
+   * `of` EXISTS BECAUSE IT USED TO LIVE INSIDE `text` (audit R4-01..R4-07,
+   * finding R4-07). The renderer prints `L<line> "<text>"`, so a parenthetical
+   * appended to `text` was rendered inside the quotation marks and read as the
+   * source's own words: `"Explicitly prohibited (row 1, drill from board to
+   * cell view)"` where the cell reads only the token. Fifteen statements
+   * across cc-03, cc-04 and cc-05 carried the convention. `text` is now
+   * verifiable against its line character for character, and `of` renders
+   * outside the quotes.
+   */
+  readonly statements: readonly {
+    readonly text: string
+    readonly line: number
+    readonly of?: string
+  }[]
   /** What a client actually sees under each reading. Never a paraphrase. */
   readonly renderedConsequence: string
   /** The decision identifier that governs it, or `null` where none does. */
@@ -83,8 +100,8 @@ export const CC03_DIVERGENCES = [
       },
     ],
     statements: [
-      { text: 'Explicitly prohibited (row 1, drill from board to cell view)', line: 36654 },
-      { text: 'Explicitly prohibited (row 7, view history older than the current shift)', line: 36660 },
+      { text: 'Explicitly prohibited', of: 'row 1, drill from board to cell view', line: 36654 },
+      { text: 'Explicitly prohibited', of: 'row 7, view history older than the current shift', line: 36660 },
       { text: 'Read-only [K1]', line: 22060 },
     ],
     renderedConsequence:
@@ -122,8 +139,8 @@ export const CC03_DIVERGENCES = [
       },
     ],
     statements: [
-      { text: 'Allowed (row 1)', line: 36654 },
-      { text: 'Allowed (row 4)', line: 36657 },
+      { text: 'Allowed', of: 'row 1', line: 36654 },
+      { text: 'Allowed', of: 'row 4', line: 36657 },
       { text: 'Read-only [K2]', line: 22060 },
     ],
     renderedConsequence:

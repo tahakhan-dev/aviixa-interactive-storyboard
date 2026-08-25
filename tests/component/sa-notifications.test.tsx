@@ -471,9 +471,32 @@ describe('MOD-SA-14 — what the source does not define', () => {
     render(<NotificationsScreen />)
     const panel = screen.getByRole('region', { name: /Conflicts in the source/i })
     expect(NOTIF_SOURCE_CONFLICTS.length).toBeGreaterThan(0)
-    for (const phrase of [/AC-SA-14-05/, /SCR-SA-17/, /roles_allowed/]) {
+    for (const phrase of [/SCR-SA-17/, /roles_allowed/]) {
       expect(within(panel).getAllByText(phrase).length).toBeGreaterThan(0)
     }
+  })
+
+  /**
+   * R4-01. This panel used to carry "AC-SA-14-05 is missing" and this test
+   * used to assert it was there. L45684 states the criterion in full -- "this
+   * module never authors or overrides a tenant-internal notification" -- so
+   * the conflict was not a conflict, it was a partial extraction reported as
+   * the document. It is now a prohibition rendered ABSENT, which is what a
+   * criterion saying a module never does something is.
+   */
+  it('renders AC-SA-14-05 as a prohibition, and no longer as a gap in the source', () => {
+    render(<NotificationsScreen />)
+    const absences = screen.getByRole('region', { name: /Controls that do not exist/i })
+    expect(
+      within(absences).getAllByText(/AC-SA-14-05, L45684/).length,
+      'AC-SA-14-05 must be cited where the prohibition is drawn',
+    ).toBeGreaterThan(0)
+    expect(
+      within(absences).getAllByText(/never authors or overrides a tenant-internal notification/i)
+        .length,
+    ).toBeGreaterThan(0)
+    const conflicts = screen.getByRole('region', { name: /Conflicts in the source/i })
+    expect(within(conflicts).queryAllByText(/AC-SA-14-05 is missing/)).toEqual([])
   })
 
   it('says how each workflow was matched to this module', () => {

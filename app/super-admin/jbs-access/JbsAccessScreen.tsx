@@ -627,9 +627,9 @@ export const UNSPECIFIED_IN_SOURCE = [
       'Reconciliation is a terminal state of workflow 23.16 (L45848) and the recovery step of FB-PLT-003 (L55080) and FB-ROLE-029 (L56216). No actor, no trigger and no control is named for it anywhere, so the readings are rendered and no control claims to run a reconciliation.',
   },
   {
-    what: 'Acceptance criteria AC-SA-16-03, AC-SA-16-04 and AC-SA-16-05',
+    what: 'Where the tenant sees a JBS session, as against where this console does',
     detail:
-      'The extraction carries AC-SA-16-01, -02 and -06 at L45938. The three gaps in between are not represented anywhere this build can read, and no affordance on this screen stands in for them.',
+      'AC-SA-16-05 (L45938) constrains a TENANT screen — Platform Access History — and this build renders no tenant surface for it. The constraint is stated in the mirroring section above and no depiction of that screen is drawn here, because drawing a tenant screen on a platform console would misplace it.',
   },
   {
     what: 'The seven FUNC-SA-16 function identifiers',
@@ -938,6 +938,12 @@ export function JbsAccessScreen({
               and both halves are the source&rsquo;s own rows (L45913, L45914) — not the workflow
               paragraphs, which run every step in the passive and name nobody.
             </p>
+            <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+              A grant is an approvable object under the change-approval discipline (AC-SA-16-03,
+              L45938), which is why the lifecycle above has a pending-approval state at all and why
+              nothing is issued from the draft directly. What that criterion does NOT settle is the
+              approval CLASS — routine or critical — and that is the open decision named below.
+            </p>
             <div data-testid="issue-grant-action-bar" className="mt-3">
               <ActionControl
                 control={ISSUE_GRANT}
@@ -982,8 +988,8 @@ export function JbsAccessScreen({
           <section aria-label="Expiry and extension" className="mt-8">
             <h2 className="text-lg font-semibold">Expiry</h2>
             <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-              A grant expires at its time box, and the expiry job is the actor — no console role is
-              (WF-ROLE-029, L56211). Where a grant expires mid-task the first fallback is a fresh
+              A grant expires AUTOMATICALLY at its time box (AC-SA-16-07, L45938), and the expiry
+              job is the actor — no console role is (WF-ROLE-029, L56211). Where a grant expires mid-task the first fallback is a fresh
               scoped grant; where that fails, the client’s own platform team performs the work, and
               the terminal safe state is no access, work paused, and the request visible in the
               approval queue (FB-PLT-003, L55080). Where the expiry job does not run, expiry happens
@@ -1023,8 +1029,25 @@ export function JbsAccessScreen({
               A JBS session carries its own named platform audit event class and is mirrored into
               every affected tenant’s own audit stream and its Platform Access History screen
               (OBJ-SA-JBSSESSION, L45890; L4627; L6983). Both streams, every time — a class cannot be
-              omitted from a filter or an export. The platform audit stream is rendered in MOD-SA-18;
-              the tenant’s own stream and its Platform Access History belong to the tenant.
+              omitted from a filter or an export. Every JBS session is recorded under its own audit
+              event class and mirrors into affected tenants&rsquo; streams (AC-SA-16-04, L45938). The
+              platform audit stream is rendered in MOD-SA-18; the tenant&rsquo;s own stream and its
+              Platform Access History belong to the tenant.
+            </p>
+            <p
+              data-testid="jbs-visibility-parity"
+              className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]"
+            >
+              In that tenant&rsquo;s Platform Access History a JBS session is INDISTINGUISHABLE IN
+              VISIBILITY from an ordinary support session and DISTINGUISHABLE IN CLASS
+              (AC-SA-16-05, L45938). The two halves are one criterion and they pull opposite ways:
+              a tenant may never have to look harder to find a JBS session than a support one, and
+              may never be left unable to tell which it was looking at. A rendering that hid the
+              class would break the second half; one that filed JBS sessions in a quieter place, or
+              behind a different retention or export rule, would break the first. Nothing on THIS
+              console renders that screen — it is a tenant surface — so this is stated as the
+              constraint the tenant-side rendering is held to, not depicted here as though it were
+              built.
             </p>
           </section>
 

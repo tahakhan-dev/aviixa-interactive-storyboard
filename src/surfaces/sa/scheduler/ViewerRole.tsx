@@ -38,7 +38,21 @@ import type { RoleId } from '@/domain/roles'
 export interface ViewerRoleAnswer {
   readonly roleId: RoleId
   readonly roleName: string
-  /** The Matrix A cell's own words for this role, verbatim. */
+  /**
+   * What Matrix A's cell says for this role, as `ColumnCell.detail` holds it.
+   *
+   * NOT PRESENTED AS A QUOTATION, and that is the whole of R4-05. `detail` is
+   * required never to be blank (L10238), so `cellFromSource` fills a BARE cell
+   * — and all four platform cells of `PER-SCHED-01` and `PER-SCHED-02` are
+   * bare — with a sentence of its own, `Allowed, stated bare in the source`.
+   * This screen used to print that after the verb "reads" and inside quotation
+   * marks, which put the build's annotation into the source's mouth. The
+   * sentence now introduces it with a colon and no quotes: a description of
+   * the cell, which it is, rather than a transcription of it, which it is not.
+   * `src/surfaces/sa/ai-failure-authority.ts` solves the same problem the
+   * other way, by carrying the row's verbatim text; that costs a field on
+   * every cell and this screen prints four of them.
+   */
   readonly cellDetail: string
 }
 
@@ -90,8 +104,7 @@ export function ViewerRole({ answers, operation, operationName, sourceRef }: Vie
             Viewing as {current.roleName}.{' '}
           </span>
           This screen is a view, and the read it is a view of is {operation} — {operationName}.
-          Matrix A&rsquo;s cell for {current.roleName} reads &ldquo;{current.cellDetail}&rdquo; (
-          {sourceRef}).
+          Matrix A&rsquo;s cell for {current.roleName}: {current.cellDetail} ({sourceRef}).
         </p>
       </div>
       <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">

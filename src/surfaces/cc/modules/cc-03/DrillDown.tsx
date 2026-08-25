@@ -314,7 +314,9 @@ export function DrillDown({ screen, viewerRole, builtSlugs }: DrillDownProps) {
             ))}
             <p className={NOTE}>{d.renderedConsequence}</p>
             <p className={REF}>
-              Stated at {d.statements.map((s) => `L${s.line} "${s.text}"`).join(' · ')} ·{' '}
+              Stated at {d.statements
+                .map((s) => `L${s.line} "${s.text}"${'of' in s ? ` — ${s.of}` : ''}`)
+                .join(' · ')} ·{' '}
               {d.decisionRef === null
                 ? 'no decision identifier governs this one'
                 : `governed by ${d.decisionRef}`}

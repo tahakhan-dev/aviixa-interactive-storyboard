@@ -186,8 +186,15 @@ describe('MOD-SA-15 — D17: the Platform Engineer never enters tenant context',
   it('renders the prohibition as an absence naming both sides of the conflict', () => {
     render(<SupportAccessScreen role="PLATFORM_ENGINEER" />)
     const note = region(/Platform Engineer/i)
-    expect(within(note).getByText(/L20740/)).toBeDefined()
-    expect(within(note).getByText(/L65401/)).toBeDefined()
+    // R4-02: the note used to name a role-register row that states neither
+    // half of the conflict, and a matrix row six lines above the one it
+    // quoted. Both sides are now the rows that actually carry the tokens.
+    expect(within(note).getByText(/L21166/)).toBeDefined()
+    expect(within(note).getByText(/L65407/)).toBeDefined()
+    // And it must say the tenant-context prohibition is this build's reading
+    // rather than the document's sentence, because `grep -c "enter tenant
+    // context"` over the frozen source returns 0.
+    expect(within(note).getByText(/Derived Clarification, not a stated rule/)).toBeDefined()
     expect(note.querySelectorAll('button, input, select')).toHaveLength(0)
   })
 

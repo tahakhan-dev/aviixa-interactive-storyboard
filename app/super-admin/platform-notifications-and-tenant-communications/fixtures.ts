@@ -288,6 +288,10 @@ export const NOTIF_ABSENT_CONTROLS = [
     note: 'No such control exists anywhere, on this console or on a tenant surface: in-app banners cannot be muted by any tenant user (AC-SA-14-02, L45684). A muted banner would make a notification optional, and the in-app channel is what remains when email fails.',
   },
   {
+    label: 'Author, edit or override a tenant-internal notification',
+    note: 'No such control exists here for any account, including the root. This module never authors or overrides a tenant-internal notification (AC-SA-14-05, L45684): a tenant’s own notifications are configured inside that tenant, within its mandatory baseline, and this console addresses tenants from the outside rather than reaching into what they send themselves. Nothing is greyed out, because nothing was ever drawn — an inert override control would assert that the capability exists somewhere on this surface.',
+  },
+  {
     label: 'Take a fresh audience snapshot for a re-send',
     note: 'No such control exists. A re-send after partial failure uses the stored snapshot rather than a fresh one (AC-SA-14-07, L45684), so the set of tenants a message was addressed to cannot change after the fact.',
   },
@@ -434,13 +438,6 @@ export const NOTIF_SOURCE_CONFLICTS = [
       'This module’s screen carries one number at L42812 and L45614, and a different one, SCR-SA-17, at L48746 — the two incompatible SCR-SA numbering schemes the spec records at D1. SCR-SA-17 is also MOD-SA-11’s number in the other scheme.',
     resolution:
       'Names are canonical; numbers are annotations only. This route is keyed on the module slug and never on a number (D1).',
-  },
-  {
-    topic: 'AC-SA-14-05 is missing',
-    conflict:
-      'The acceptance criteria extracted at L45684 run AC-SA-14-01, -02, -03, -04, -06 and -07. There is no AC-SA-14-05 in the frozen source’s extraction.',
-    resolution:
-      'The gap is stated and left empty. Nothing was written to fill the number, because an invented criterion reads back as a requirement.',
   },
   {
     topic: 'roles_allowed differs in every extraction of this module',

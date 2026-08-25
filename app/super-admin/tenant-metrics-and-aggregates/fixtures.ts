@@ -364,7 +364,7 @@ export const SA10_CONFLICTS = [
   {
     topic: 'Who holds the two onward actions from a measure',
     conflict:
-      'L107350 attributes both onward actions — open the tenant’s own audit log view, and request a support session — to the Platform Engineer. The same source puts tenant operational content in that role’s may-not list on this very surface (L97154), and D17 records the direct conflict between L20740, which forbids the Platform Engineer a support session, and L65401, which allows one.',
+      'L107350 attributes both onward actions — open the tenant’s own audit log view, and request a support session — to the Platform Engineer. The same source puts tenant operational content in that role’s may-not list on this very surface (L97154), and D17 records the direct conflict between L21166, which refuses the Platform Engineer a support session as `Explicitly prohibited`, and L65407, which grants the same role `Allowed with conditions`.',
     resolution:
       'D17 holds: the prohibition wins, because Band A / Band B separation is the more restated principle and the narrower grant is the safer prototype. The two actions then part company. L107350 attributes the session request to the Platform Engineer AND to Support, so with the Platform Engineer held shut it still exists for one role: it renders drawn-and-inert, with its reason named, for every other role. L107350 attributes the audit-log view to the Platform Engineer alone, so with that role held shut it exists for nobody at all, and §3 reserves absence for exactly that — it is drawn as a note where a control would be. Neither action is attributed to the root or to the platform Admin anywhere in the source, so neither is granted to them here.',
   },

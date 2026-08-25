@@ -715,3 +715,66 @@ describe('MOD-SA-16 — the screen asserts no role split those lines do not stat
     }
   })
 })
+
+/**
+ * R4-01. This screen reported `AC-SA-16-03`, `-04` and `-05` as gaps in the
+ * frozen source and abstained; L45938 states all seven criteria, `-07`
+ * included, which the disclosure's own run silently dropped as well. Four
+ * real criteria, and three of them were already RENDERED here under other
+ * citations -- the approval lifecycle, the mirroring section and the expiry
+ * section. So this is what the fix had to prove: each criterion cited where
+ * the screen carries it, and the gap disclosure gone.
+ */
+describe('MOD-SA-16 — the four criteria this screen reported as absent', () => {
+  function copyOf(regionName: RegExp): string {
+    return (screen.getByRole('region', { name: regionName }).textContent ?? '').replace(/\s+/g, ' ')
+  }
+
+  it('cites AC-SA-16-03 where the approval lifecycle is rendered', () => {
+    const view = renderAs('ROLE-PLAT-ROOT')
+    const copy = copyOf(/Approve and issue/i)
+    expect(copy).toMatch(/AC-SA-16-03, L45938/)
+    expect(copy).toMatch(/approvable object under the change-approval discipline/i)
+    // And it must not be read as settling the class, which DEC-JBSAUTH-001
+    // leaves open two paragraphs below.
+    expect(copy).toMatch(/does NOT settle is the approval CLASS/)
+    view.unmount()
+  })
+
+  it('cites AC-SA-16-04 and builds AC-SA-16-05 in the mirroring section', () => {
+    const view = renderAs('ROLE-PLAT-ROOT')
+    const copy = copyOf(/Mirroring/i)
+    expect(copy).toMatch(/AC-SA-16-04, L45938/)
+    expect(copy).toMatch(/own audit event class and mirrors into affected tenants/i)
+    expect(copy).toMatch(/AC-SA-16-05, L45938/)
+    // BOTH HALVES, because the criterion is a pair that pulls two ways and
+    // half of it rendered alone is the wrong requirement.
+    expect(copy).toMatch(/INDISTINGUISHABLE IN VISIBILITY/)
+    expect(copy).toMatch(/DISTINGUISHABLE IN CLASS/)
+    view.unmount()
+  })
+
+  it('cites AC-SA-16-07 where expiry is rendered', () => {
+    const view = renderAs('ROLE-PLAT-ROOT')
+    const copy = copyOf(/Expiry/i)
+    expect(copy).toMatch(/AC-SA-16-07, L45938/)
+    expect(copy).toMatch(/expires AUTOMATICALLY at its time box/)
+    view.unmount()
+  })
+
+  it('no longer tells a reader the source is silent on any of the four', () => {
+    const view = renderAs('ROLE-PLAT-ROOT')
+    const panel = screen.getByRole('region', { name: /Unspecified in source/i })
+    const copy = (panel.textContent ?? '').replace(/\s+/g, ' ')
+    expect(copy).not.toMatch(/not represented anywhere this build can read/)
+    for (const id of ['AC-SA-16-03', 'AC-SA-16-04', 'AC-SA-16-07']) {
+      expect(copy, `${id} must not be named as a gap`).not.toContain(id)
+    }
+    // -05 is still named here, and truthfully: it constrains a TENANT screen
+    // this console does not render, which is a different statement from
+    // "the source does not carry it".
+    expect(copy).toMatch(/AC-SA-16-05 \(L45938\) constrains a TENANT screen/)
+    expect(UNSPECIFIED_IN_SOURCE.every((e) => !/gaps in between/.test(e.detail))).toBe(true)
+    view.unmount()
+  })
+})

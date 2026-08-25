@@ -87,7 +87,7 @@ function metricTone(state: MetricState): StatusTone {
 function namedReason(decision: PermissionDecision, role: RoleId): string {
   if (decision.outcome === 'allowed') return ''
   if (role === 'PLATFORM_ENGINEER') {
-    return 'Not available to the Platform Engineer. D17 records the direct conflict — L20740 forbids this role a support session, L65401 allows one — and resolves it by holding the prohibition, while L97154 puts tenant operational content in this role’s may-not list on this surface. L107350 attributes the onward action to this role; that attribution is not honoured here, and the conflict is stated in full below.'
+    return 'Not available to the Platform Engineer. D17 records the direct conflict — L21166 refuses this role a support session, L65407 grants it — and resolves it by holding the prohibition, while L97154 puts tenant operational content in this role’s may-not list on this surface. L107350 attributes the onward action to this role; that attribution is not honoured here, and the conflict is stated in full below.'
   }
   return `Not available to this role. L107350 attributes the session request to the Platform Engineer and to Support, and to no other console role — the root and the platform Admin are named for it nowhere. D17 holds the prohibition for the Platform Engineer, which leaves Support as the one role that carries it here. Reading a measure carries no session with it. (${decision.explanation})`
 }
@@ -175,7 +175,7 @@ export function TenantMetricsScreen({
     {
       action: 'MOD-SA-10:request-support-session',
       allowedRoles: ['SUPPORT'],
-      sourceRefs: ['L107350', 'L97155', 'DEC — D17', 'L20740', 'L65401'],
+      sourceRefs: ['L107350', 'L97155', 'DEC — D17', 'L21166', 'L65407'],
     },
     context,
   )
@@ -535,7 +535,7 @@ export function TenantMetricsScreen({
             // under any access class -- is a Derived Clarification, not a
             // source sentence. No line of the frozen source says it in those
             // words, and it is not quoted here as though one did. D17 reaches
-            // it from the Band A / Band B separation (L20740, L65401), and
+            // it from the Band A / Band B separation, and
             // the source's own per-control rows carry it on two of the three
             // named access classes: the compliance-emergency path is
             // Explicitly prohibited to this role (L45798), and the console-function
@@ -555,7 +555,7 @@ export function TenantMetricsScreen({
             <ProhibitionNotice
               rendering={{
                 kind: 'absent',
-                note: 'Nothing is drawn here for the Platform Engineer. Derived Clarification, not a stated rule: no line of the frozen source says this role may not enter tenant context under any access class, and nothing here quotes one as though it did. D17 reads it that way from the Band A / Band B separation (L20740, L65401), and the source carries the prohibition itself on two of the three named access classes — the compliance-emergency path is Explicitly prohibited to this role (L45798) and the console-function permission matrix refuses it one (L21166). The competing reading is the third class: MOD-SA-15’s own matrix row allows this role a support session (L45794), and under that reading this control would be drawn inert with its reason instead of absent. D17 holds the prohibition, and a session request is a request to enter tenant context. That makes it a categorical prohibition rather than an ungranted permission, so no control appears — a disabled one would imply an enabled state exists for this role somewhere. MOD-SA-15 renders the same prohibition identically.',
+                note: 'Nothing is drawn here for the Platform Engineer. Derived Clarification, not a stated rule: no line of the frozen source says this role may not enter tenant context under any access class, and nothing here quotes one as though it did. D17 reads it that way from the Band A / Band B separation, and the source carries the prohibition itself on two of the three named access classes — the compliance-emergency path is Explicitly prohibited to this role (L45798) and the console-function permission matrix refuses it one (L21166). The competing reading is the third class: MOD-SA-15’s own matrix row allows this role a support session (L45794), and under that reading this control would be drawn inert with its reason instead of absent. D17 holds the prohibition, and a session request is a request to enter tenant context. That makes it a categorical prohibition rather than an ungranted permission, so no control appears — a disabled one would imply an enabled state exists for this role somewhere. MOD-SA-15 renders the same prohibition identically.',
               }}
             />
           ) : (

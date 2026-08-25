@@ -297,7 +297,9 @@ export function DeviationWorkspace({ viewerRole }: DeviationWorkspaceProps) {
             <p className={NOTE}>{d.renderedConsequence}</p>
             <p className={REF}>
               Stated at{' '}
-              {d.statements.map((s) => `L${s.line} "${s.text}"`).join(' · ')}
+              {d.statements
+                .map((s) => `L${s.line} "${s.text}"${'of' in s ? ` — ${s.of}` : ''}`)
+                .join(' · ')}
             </p>
           </li>
         ))}

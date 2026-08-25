@@ -376,7 +376,8 @@ export function UsageMeteringScreen({
 
       <Section id="sa12-ledger" heading={`Per-tenant ledger — ${LEDGER_TENANT_LABEL}, July 2026`}>
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          The five metering dimensions of the event-sourced usage ledger (L45352, L45404). Late
+          The five metering dimensions of the event-sourced usage ledger, reconstructable end to end
+          (AC-SA-12-01, L45456; L45352, L45404). Late
           events are attributed to their event time, not their arrival time (AC-SA-12-07, L45456),
           which is why a month’s figures can still move after the month ends.
         </p>
@@ -407,8 +408,8 @@ export function UsageMeteringScreen({
 
       <Section id="sa12-storage" heading="Storage dimensions">
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          Storage is metered across four dimensions (L96973, storyboard SB-45-12-01), each as a
-          volume for the tenant-month.
+          Storage is metered across four dimensions, with training content separate (AC-SA-12-06,
+          L45456; L96973, storyboard SB-45-12-01), each as a volume for the tenant-month.
         </p>
         <Aggregate label="the storage dimension series">
           <Table
@@ -527,7 +528,8 @@ export function UsageMeteringScreen({
         <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
           The ladder is tunable per tenant (L2197). The source names the platform Admin as the
           holder of threshold-setting (L57277, FUNC-SA-SET-THRESHOLDS); the root operates the
-          console in full (L1347). The three defaults are 80, 100 and 125 per cent.
+          console in full (L1347). Thresholds are per-tenant configurable and the three defaults are
+          80, 100 and 125 per cent (AC-SA-12-05, L45456).
         </p>
         {screenState === 'STATE-04' ? (
           <p role="alert" className="mt-2 max-w-prose text-sm text-[var(--color-status-blocked)]">

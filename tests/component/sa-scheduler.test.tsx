@@ -381,13 +381,21 @@ describe('the honesty constraints, on both screens', () => {
         fireEvent.change(select, { target: { value: roleId } })
         expect((select as HTMLSelectElement).value, `${name}: ${roleId} did not take`).toBe(roleId)
         renderings.set(roleId, document.body.innerHTML)
-        // THE QUOTED CELL, NOT THE WHOLE CHROME. The paragraph beneath the
+        // THE REPORTED CELL, NOT THE WHOLE CHROME. The paragraph beneath the
         // readout explains that Allowed and Read-only make no difference to
         // what is drawn, so a scan of the chrome's whole copy matched every
         // role and answered for the readout — measured, and this is the
-        // narrowing. The readout is the only curly-quoted span in the chrome.
-        const quoted = /“([^”]+)”/.exec(chromeCopy())?.[1]
-        quotedCell.push(`${roleId}=${(quoted ?? 'NOTHING QUOTED').split(',')[0]}`)
+        // narrowing.
+        //
+        // NOT A QUOTATION ANY MORE, and that is R4-05: `ColumnCell.detail`
+        // for a BARE cell is a sentence the parser supplies to satisfy
+        // L10238's no-blank-cells rule, and printing it inside quotation
+        // marks after the verb "reads" put "Allowed, stated bare in the
+        // source" into the source's mouth. All four platform cells of both
+        // read rows are bare. The readout introduces the cell with a colon
+        // now, so this reads up to the locator instead of between quotes.
+        const reported = /Matrix A’s cell for [^:<]+: ([^(<]+)\(/.exec(chromeCopy())?.[1]
+        quotedCell.push(`${roleId}=${((reported ?? 'NOTHING QUOTED').split(',')[0] ?? '').trim()}`)
       }
       expect(
         new Set(renderings.values()).size,

@@ -326,7 +326,7 @@ export const SUPPORT_SOURCE_CONFLICTS = [
   {
     topic: 'The Platform Engineer and tenant context (D17)',
     conflict:
-      'L20740 states the Platform Engineer may not enter tenant context under any access class and may not open a support session. L65401 lists "Open a read-only support session (Allowed with conditions)" among the same role’s permissions. The two cannot both hold.',
+      'Four matrices answer "Open a read-only support session" for the Platform Engineer and they do not agree. L21166 refuses it — `Explicitly prohibited` on FUNC-SA-015. L48810 gives the same act `Unavailable` in that column, which is the overloaded token, not a second prohibition. L65407 grants it `Allowed with conditions`, and this module’s own matrix at L45794 grants it bare `Allowed`. The compliance-emergency path is separately refused to this role at L45798. No line of the frozen source says this role may not enter tenant context under any access class; that is a reading taken from the Band A and Band B separation, and it is named here as a reading rather than quoted as a rule.',
     resolution:
       'The prohibition holds. Band A and Band B separation is the stronger and more restated principle, and the narrower grant is the safer prototype. The control renders ABSENT for the Platform Engineer, with the conflict named where the control would sit.',
   },

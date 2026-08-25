@@ -615,7 +615,9 @@ export function GovernanceGateQueue() {
             ))}
             <p className={NOTE}>{d.renderedConsequence}</p>
             <p className={REF}>
-              Stated at {d.statements.map((s) => `L${s.line} "${s.text}"`).join(' · ')} · decision
+              Stated at {d.statements
+                .map((s) => `L${s.line} "${s.text}"${'of' in s ? ` — ${s.of}` : ''}`)
+                .join(' · ')} · decision
               identifier: {d.decisionRef ?? 'none'}
             </p>
           </li>

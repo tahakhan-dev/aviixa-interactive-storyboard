@@ -295,7 +295,7 @@ const CELL_EXCEPTIONS: ReadonlyArray<{
     role: 'PLATFORM_ENGINEER',
     cell: {
       outcome: 'explicitlyProhibited',
-      cause: 'support sessions are refused to this role; the conflict at L20740 against L65401 resolves to the prohibition (D17)',
+      cause: 'support sessions are refused to this role; the conflict between L21166 (`Explicitly prohibited`) and L65407 (`Allowed with conditions`) resolves to the prohibition (D17)',
     },
   },
 ]
@@ -857,8 +857,8 @@ export const SA08_UNSPECIFIED_IN_SOURCE = [
     note: 'Decline is defined for the root on a critical request only (L56011). The engineering class has Return and nothing else, so no Decline is drawn on an engineering row.',
   },
   {
-    affordance: 'Acceptance criteria AC-SA-08-02, -03, -04 and -11',
-    note: 'The extraction carries AC-SA-08-01, -05, -06, -07, -08, -09, -10 and -12 for this module and no others. Four identifiers in the run are absent from the frozen extract, so nothing was built to satisfy them.',
+    affordance: 'Two halves of two acceptance criteria that no control on this screen carries',
+    note: 'MOD-SA-08 carries twelve criteria, AC-SA-08-01 to -12, in the table at L44875-L44886. An earlier version of this entry told a reader that four of them — -02, -03, -04 and -11 — were absent and that nothing had been built for them; the document states all four, and this build was reporting its own extraction’s gap as the document’s. Three are in fact carried here. AC-SA-08-02 (L44876) requires account creation, role assignment and disablement to be root-only with the controls ABSENT rather than disabled for other roles, which is what the absence panel above renders and what the L44774-against-L76133 conflict below is about. AC-SA-08-04 (L44878) — a Platform Engineer’s mutating change never applies before an Admin approves it — is the maker-checker the whole approval queue is built on. AC-SA-08-03 (L44877) is carried in half: self-registration exists for no account, and that is drawn; the other half, that no password-only sign-in path exists for any console account, is not rendered anywhere, because this prototype authenticates nobody and has no sign-in path of any kind to make an assertion about. AC-SA-08-11 (L44885) — the backend creation of the root account is itself an audit event — describes an event raised by a backend migration before any console exists, so no affordance here stands in for it and none is invented.',
   },
   {
     affordance: 'The console access screen',

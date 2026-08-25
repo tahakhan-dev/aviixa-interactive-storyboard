@@ -4,7 +4,7 @@ import type { ScreenStateId } from '@/ui/screen-state'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
-import { TiersScreen, TIER_BANDS, TIER_RECORDS, TIER_FIELD_GROUPS, TENANT_TIER_ASSIGNMENTS, FEATURE_OVERRIDES, CONSOLE_ROLE_VIEWS, UNSPECIFIED_IN_SOURCE, type SaConsoleRoleToken } from '../../app/super-admin/tiers-entitlements-and-caps/TiersScreen'
+import { TiersScreen, TIER_BANDS, TIER_RECORDS, TIER_FIELD_GROUPS, WORKER_SHIFT_DEFINITION, TENANT_TIER_ASSIGNMENTS, FEATURE_OVERRIDES, CONSOLE_ROLE_VIEWS, UNSPECIFIED_IN_SOURCE, type SaConsoleRoleToken } from '../../app/super-admin/tiers-entitlements-and-caps/TiersScreen'
 
 /** D10 / spec §10 gate 4: these four words appear nowhere in SURF-SA copy. */
 const FORBIDDEN_WORDS = /\b(tamper-evident|chained|signed|verified)\b/i
@@ -561,5 +561,58 @@ describe('MOD-SA-11 — unspecified in source (D15)', () => {
       }
       view.unmount()
     }
+  })
+})
+
+/**
+ * R4-01. `AC-SA-11-05` (L45342) — "the Worker-Shift definition appears in
+ * every tier record" — was reported on this screen as a gap in the frozen
+ * source and left unbuilt. The source states it, and L2193 says why: the
+ * metric is written into the tier record so the meter is contractually
+ * visible per tenant.
+ *
+ * EVERY RECORD, and that is what the loop is for. A block rendered only for
+ * the default selection would satisfy a test that opened one record, and
+ * "appears in every tier record" is the criterion.
+ */
+describe('MOD-SA-11 — AC-SA-11-05, the Worker-Shift definition on the record', () => {
+  it('renders the definition on every one of the four tier records', () => {
+    const view = renderAs('ROLE-PLAT-ROOT')
+    expect(TIER_RECORDS.length).toBe(4)
+    for (const record of TIER_RECORDS) {
+      fireEvent.click(screen.getByRole('button', { name: `Open ${record.id}` }))
+      const recordView = screen.getByRole('region', { name: /Tier record view/i })
+      expect(
+        within(recordView).getByText(new RegExp(`Record view — ${record.id}`)),
+        record.id,
+      ).toBeDefined()
+      const block = recordView.querySelector('[data-testid="tier-worker-shift-definition"]')
+      expect(block, `${record.id} renders no Worker-Shift definition`).not.toBeNull()
+      expect(block?.textContent ?? '', record.id).toContain(WORKER_SHIFT_DEFINITION)
+      expect(block?.textContent ?? '', record.id).toMatch(/AC-SA-11-05, L45342/)
+    }
+    view.unmount()
+  })
+
+  it('no longer reports the criterion as missing from the source', () => {
+    const view = renderAs('ROLE-PLAT-ROOT')
+    const region = screen.getByRole('region', { name: /unspecified in source/i })
+    expect(within(region).queryAllByText(/AC-SA-11-05/)).toEqual([])
+    expect(UNSPECIFIED_IN_SOURCE.some((e) => /AC-SA-11-05/.test(e.what + e.detail))).toBe(false)
+    view.unmount()
+  })
+
+  /**
+   * R4-04. The abstention on effective dates rested on a quotation that
+   * occurs nowhere and on workflow 23.11 "ending at" its own step six. L45248
+   * runs to nine steps; the abstention survives, and now says so against the
+   * whole workflow.
+   */
+  it('states workflow 23.11 to its ninth step, not its sixth', () => {
+    const entry = UNSPECIFIED_IN_SOURCE.find((e) => /publication and the effective date/i.test(e.what))
+    expect(entry).toBeDefined()
+    expect(entry?.detail ?? '').toMatch(/NINE steps/)
+    expect(entry?.detail ?? '').toMatch(/conformance check/)
+    expect(entry?.detail ?? '').not.toMatch(/ends at/)
   })
 })

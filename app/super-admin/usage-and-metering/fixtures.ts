@@ -458,13 +458,6 @@ export const USAGE_SOURCE_CONFLICTS = [
     resolution:
       'D16 — module-level roles_allowed is authoritative nowhere. All four roles read every panel here; each control names its own holders from the line that defines it.',
   },
-  {
-    topic: 'The stated count of acceptance criteria',
-    conflict:
-      'The extraction carries AC-SA-12-02, -03, -04 and -07 for this module and no others; the numbering implies at least three more that were never captured.',
-    resolution:
-      'No count of acceptance criteria is rendered anywhere on this screen. The four that exist are cited where they bind.',
-  },
 ] as const satisfies readonly SourceConflict[]
 
 /* ------------------------------------------------------------------ *

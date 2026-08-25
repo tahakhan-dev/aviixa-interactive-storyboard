@@ -83,7 +83,24 @@ export interface Cc05Divergence {
    * and collapsing statements into readings is how "five different statuses"
    * gets written down for a question that carries two.
    */
-  readonly statements: readonly { readonly text: string; readonly line: number }[]
+  /**
+   * Each statement as the cited line WRITES it, plus `of` — this build's own
+   * word for which row or matrix the cell came from.
+   *
+   * `of` EXISTS BECAUSE IT USED TO LIVE INSIDE `text` (audit R4-01..R4-07,
+   * finding R4-07). The renderer prints `L<line> "<text>"`, so a parenthetical
+   * appended to `text` was rendered inside the quotation marks and read as the
+   * source's own words: `"Explicitly prohibited (row 1, drill from board to
+   * cell view)"` where the cell reads only the token. Fifteen statements
+   * across cc-03, cc-04 and cc-05 carried the convention. `text` is now
+   * verifiable against its line character for character, and `of` renders
+   * outside the quotes.
+   */
+  readonly statements: readonly {
+    readonly text: string
+    readonly line: number
+    readonly of?: string
+  }[]
   /** What a client actually sees under each reading. Never a paraphrase. */
   readonly renderedConsequence: string
   /** The `DEC-*` identifier covering it, or `null` where none exists. */
@@ -163,13 +180,13 @@ export const CC05_DIVERGENCES = [
       },
     ],
     statements: [
-      { text: 'Read-only — visibility without decision authority (see the queue)', line: 37078 },
-      { text: 'Read-only (open an item)', line: 37079 },
-      { text: 'Explicitly prohibited (approve)', line: 37080 },
-      { text: 'Explicitly prohibited (gate-item decision, surface matrix)', line: 35008 },
-      { text: 'Explicitly prohibited (gate-item decision, §21.16)', line: 38683 },
-      { text: 'Read-only (decide a gate item, §25.4)', line: 48445 },
-      { text: 'Read-only (module-keyed)', line: 22062 },
+      { text: 'Read-only — visibility without decision authority', of: 'see the queue', line: 37078 },
+      { text: 'Read-only', of: 'open an item', line: 37079 },
+      { text: 'Explicitly prohibited', of: 'approve', line: 37080 },
+      { text: 'Explicitly prohibited', of: 'gate-item decision, surface matrix', line: 35008 },
+      { text: 'Explicitly prohibited', of: 'gate-item decision, §21.16', line: 38683 },
+      { text: 'Read-only', of: 'decide a gate item, §25.4', line: 48445 },
+      { text: 'Read-only', of: 'module-keyed', line: 22062 },
     ],
     renderedConsequence:
       'Under the decomposition the Supervisor gets a readable queue with every decision control ' +

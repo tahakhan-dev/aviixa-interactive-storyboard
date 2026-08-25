@@ -50,7 +50,24 @@ export interface Cc04Divergence {
    * readings, and collapsing statements into readings is how "three different
    * statuses" gets written down for a cell that carries two.
    */
-  readonly statements: readonly { readonly text: string; readonly line: number }[]
+  /**
+   * Each statement as the cited line WRITES it, plus `of` — this build's own
+   * word for which row or matrix the cell came from.
+   *
+   * `of` EXISTS BECAUSE IT USED TO LIVE INSIDE `text` (audit R4-01..R4-07,
+   * finding R4-07). The renderer prints `L<line> "<text>"`, so a parenthetical
+   * appended to `text` was rendered inside the quotation marks and read as the
+   * source's own words: `"Explicitly prohibited (row 1, drill from board to
+   * cell view)"` where the cell reads only the token. Fifteen statements
+   * across cc-03, cc-04 and cc-05 carried the convention. `text` is now
+   * verifiable against its line character for character, and `of` renders
+   * outside the quotes.
+   */
+  readonly statements: readonly {
+    readonly text: string
+    readonly line: number
+    readonly of?: string
+  }[]
   /** What a client actually sees under each reading. Never a paraphrase. */
   readonly renderedConsequence: string
 }
@@ -121,8 +138,8 @@ export const CC04_DIVERGENCES = [
       },
     ],
     statements: [
-      { text: 'Explicitly prohibited (release)', line: 36838 },
-      { text: 'Allowed (request with a note)', line: 36839 },
+      { text: 'Explicitly prohibited', of: 'release', line: 36838 },
+      { text: 'Allowed', of: 'request with a note', line: 36839 },
       { text: 'Explicitly prohibited — may request with a note', line: 38685 },
       { text: 'Allowed with conditions — request only, with a mandatory note', line: 48447 },
     ],
@@ -159,8 +176,8 @@ export const CC04_DIVERGENCES = [
       },
     ],
     statements: [
-      { text: 'Reclassify severity (role matrix, five persona columns)', line: 36845 },
-      { text: 'Deviation classification (record-type matrix, six surface columns)', line: 49578 },
+      { text: 'Reclassify severity', of: 'role matrix, five persona columns', line: 36845 },
+      { text: 'Deviation classification', of: 'record-type matrix, six surface columns', line: 49578 },
     ],
     renderedConsequence:
       'The dispatch that commissioned this module called L49578 a REPEAT of L36845. It is not ' +

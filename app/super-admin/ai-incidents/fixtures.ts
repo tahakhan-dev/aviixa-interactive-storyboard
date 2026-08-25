@@ -28,7 +28,7 @@
  * classify, so the three render as the vocabulary they are, beside the rule
  * L91227 states for computing them — "A failure showing artificial-intelligence
  * errors on devices that are syncing normally is unambiguously an
- * artificial-intelligence incident" — which is computed rather than judged.
+ * artificial-intelligence outage" — which is computed rather than judged.
  */
 
 export const INCIDENT_ROUTE = {
@@ -98,13 +98,24 @@ export const DISAMBIGUATION_BANNERS = [
 
 export const DISAMBIGUATION_RULE = {
   sourceRef: 'L91227',
+  // VERBATIM, and the word is OUTAGE. This build printed "incident" here
+  // under a label telling the reader not to check, on the one screen whose
+  // subject is classifying incidents -- and L91227 uses "incident" three
+  // clauses earlier for the OTHER member of the distinction ("a connectivity
+  // incident means the floor is working offline"), so the substitution
+  // collapsed the source's own two words into one. Both clauses are carried
+  // now: the source states each direction and quoting half of a two-way rule
+  // is how the half gets read as the whole.
   quotation:
     'A failure showing artificial-intelligence errors on devices that are syncing normally is ' +
-    'unambiguously an artificial-intelligence incident.',
+    'unambiguously an artificial-intelligence outage; a failure showing devices not syncing with ' +
+    'healthy providers is unambiguously connectivity.',
   whyItMatters:
     'The two problems have opposite responses, so the console must separate them explicitly. The ' +
     'rule is computed from two signals that already exist independently and is never a judgement ' +
-    'the operator makes for the platform.',
+    'the operator makes for the platform. The source keeps two words in play on this one line — ' +
+    'the failure is an artificial-intelligence OUTAGE, while a connectivity INCIDENT is what means ' +
+    'the floor is working offline — and neither is rewritten into the other here.',
 } as const
 
 /**

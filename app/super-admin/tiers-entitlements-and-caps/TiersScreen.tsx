@@ -169,6 +169,27 @@ export const TIER_FIELD_GROUPS = [
   },
 ] as const satisfies readonly TierFieldGroup[]
 
+/**
+ * `AC-SA-11-05` (L45342): "the Worker-Shift definition appears in every tier
+ * record". It is a criterion this build reported as ABSENT from the frozen
+ * source for three rounds; the source states it, and L2193 states why — the
+ * metric is "written into the tier record itself so the meter is
+ * contractually visible per tenant".
+ *
+ * It is NOT a seventh field group. L2195 closes the record at six, and the
+ * definition rides in every record beside them rather than as one of them, so
+ * it is rendered as its own block and `TIER_FIELD_GROUPS` is left at six.
+ *
+ * The words below are the source's own, from L2193. `tests/component/sa-tiers.test.tsx`
+ * asserts the block renders for EVERY member of `TIER_RECORDS` — "every tier
+ * record" is the criterion, and a block rendered for the default selection
+ * only would satisfy a test that opened one record and nothing else.
+ */
+export const WORKER_SHIFT_DEFINITION =
+  'One worker attached to work — a run, or a run-less job — within one calendar shift counts ' +
+  'once, regardless of how many runs they touch; where a substitution occurs, each worker who ' +
+  'actually performed work counts one. The allocation period is monthly.'
+
 /* ------------------------------------------------------------------ *
  * Fixtures. There is no clock on this surface and no ambient `Date.now()`
  * anywhere in the build, so every time value below is a seeded string and
@@ -622,7 +643,7 @@ export const UNSPECIFIED_IN_SOURCE = [
   {
     what: 'What happens between publication and the effective date',
     detail:
-      'Effective dates are a field group on the record (L2195), and workflow 23.11 (L45248) ends at "published with its audit event in one transaction; tenants grandfathered or migrated per the declared treatment". No notice period, no scheduled-activation state and no pre-effective state is defined, so none is drawn.',
+      'Effective dates are a field group on the record (L2195). Workflow 23.11 (L45248) runs to NINE steps and does not stop at publication: step 5 commits the version and its audit event together, step 6 grandfathers or migrates existing tenants per the declared treatment, step 7 propagates entitlement changes to tenant surfaces, step 8 propagates caps to the usage ladder and the tenant-configuration registry, and step 9 runs a per-tenant entitlement conformance check. What none of the nine steps names is a notice period, a scheduled-activation state or a pre-effective state, so none of those three is drawn. Read against the whole workflow rather than a summary of its middle: an earlier draft of this entry quoted a compression of steps 5 and 6 as the workflow\'s ending and rested this abstention on a workflow that stopped three steps early.',
   },
   {
     what: 'What supersedes a published version, and when',
@@ -633,11 +654,6 @@ export const UNSPECIFIED_IN_SOURCE = [
     what: 'The eight FUNC-SA-11 function identifiers',
     detail:
       'L45277 names FUNC-SA-11-01-A1, -01-A2, -01-A3, -02-A1, -03-A1, -03-B1, -03-B2 and -04-A1 as this module’s key functions and describes none of them. Eight named-but-undescribed functions are not eight controls, and nothing on this screen stands in for them.',
-  },
-  {
-    what: 'Acceptance criterion AC-SA-11-05',
-    detail:
-      'The extraction carries AC-SA-11-01, -02, -03, -04 and -06 at L45342. The gap at -05 is not represented anywhere this build can read, and no affordance on this screen stands in for it.',
   },
   {
     what: 'Which of the tier and the override wins when they disagree',
@@ -923,6 +939,18 @@ export function TiersScreen({
                 }}
               />
             </div>
+
+            <h3 className="mt-6 text-base font-semibold">The Worker-Shift definition</h3>
+            <p
+              data-testid="tier-worker-shift-definition"
+              className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]"
+            >
+              {WORKER_SHIFT_DEFINITION} It is carried on this record, and on every other tier
+              record, because the meter has to be contractually visible per tenant (L2193) — the
+              definition appears in every tier record (AC-SA-11-05, L45342). It is a definition,
+              not a reading: no consumption figure for any tenant is shown here, and the meter
+              itself is rendered in MOD-SA-12.
+            </p>
 
             <h3 className="mt-6 text-base font-semibold">
               The mandatory grandfathering declaration
