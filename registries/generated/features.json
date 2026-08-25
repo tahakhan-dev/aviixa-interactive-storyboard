@@ -3,7 +3,7 @@
   "countedThing": "Feature identifiers (FEAT-*) from the identifier index (534 raw), each joined to its owning module band code or surface code where the id shape allows it. No names were extracted for this family in the frozen source.",
   "reconciledCount": null,
   "rawCount": 534,
-  "dedupRule": "All 534 FEAT-* ids joined to a module band or surface code; none unjoined. Status is computed from the built route tree, never from a list: 7 of 534 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build. Studio feature schemes (D10), mapped once, here, and nowhere else. The Studio module count used throughout this note is a DERIVED COUNT, not stated in the Statement of Work: L30897 records that the Statement of Work provides no canonical module count for this surface, and the eighteen come from one stated derivation rule under DEC-STUDIO-001 [Derived Clarification]. AC-STU-014 binds this note as much as it binds a screen. The frozen source runs TWO numbering schemes over the same Studio features: Chapter 20's three-part scheme inside the eighteen module cards (FEAT-STU-01-01 style, 69 ids, L31552-L34689), and the four-digit traceability catalogue at L47378-L47431 (FEAT-STU-0101 style, 54 ids, exactly three per module across all 18 modules). THE FOUR-DIGIT CATALOGUE IS THE TRACEABILITY KEY (same ruling and reason as slice 4's D20); the two are never mixed in one ticket. They are NOT positionally equivalent -- 10 of the 18 modules (MOD-STU-01, MOD-STU-05, MOD-STU-07, MOD-STU-08, MOD-STU-10, MOD-STU-11, MOD-STU-13, MOD-STU-15, MOD-STU-16, MOD-STU-18) disagree on how many features they hold, so reading FEAT-STU-05-02 as FEAT-STU-0502 retargets the reference. The map: MOD-STU-01 ch20 [01-01 01-02] -> catalogue [0101 0102 0103]; MOD-STU-02 ch20 [02-01 02-02 02-03] -> catalogue [0201 0202 0203]; MOD-STU-03 ch20 [03-01 03-02 03-03] -> catalogue [0301 0302 0303]; MOD-STU-04 ch20 [04-01 04-02 04-03] -> catalogue [0401 0402 0403]; MOD-STU-05 ch20 [05-01 05-02 05-03 05-04 05-05 05-06 05-07 05-08 05-09 05-10] -> catalogue [0501 0502 0503]; MOD-STU-06 ch20 [06-01 06-02 06-03] -> catalogue [0601 0602 0603]; MOD-STU-07 ch20 [07-01 07-02 07-03 07-04] -> catalogue [0701 0702 0703]; MOD-STU-08 ch20 [08-01 08-02 08-03 08-04] -> catalogue [0801 0802 0803]; MOD-STU-09 ch20 [09-01 09-02 09-03] -> catalogue [0901 0902 0903]; MOD-STU-10 ch20 [10-01 10-02] -> catalogue [1001 1002 1003]; MOD-STU-11 ch20 [11-01 11-02 11-03 11-04 11-05 11-06] -> catalogue [1101 1102 1103]; MOD-STU-12 ch20 [12-01 12-02 12-03] -> catalogue [1201 1202 1203]; MOD-STU-13 ch20 [13-01 13-02 13-03 13-04 13-05] -> catalogue [1301 1302 1303]; MOD-STU-14 ch20 [14-01 14-02 14-03] -> catalogue [1401 1402 1403]; MOD-STU-15 ch20 [15-01 15-02 15-03 15-04] -> catalogue [1501 1502 1503]; MOD-STU-16 ch20 [16-01 16-02 16-03 16-04] -> catalogue [1601 1602 1603]; MOD-STU-17 ch20 [17-01 17-02 17-03] -> catalogue [1701 1702 1703]; MOD-STU-18 ch20 [18-01 18-02 18-03 18-04] -> catalogue [1801 1802 1803]. The SUB-/FUNC- halves of the three-part scheme (SUB-STU-01-01-A, FUNC-STU-01-01-A-1) are in the frozen source but absent from this build's identifier index, which carries only their four-digit forms; that extraction gap is declared here, not hidden, and the map covers FEAT-* only until the extraction is widened.",
+  "dedupRule": "All 534 FEAT-* ids joined to a module band or surface code; none unjoined. Status is computed from the built route tree, never from a list: 6 of 534 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build. Studio feature schemes (D10), mapped once, here, and nowhere else. The Studio module count used throughout this note is a DERIVED COUNT, not stated in the Statement of Work: L30897 records that the Statement of Work provides no canonical module count for this surface, and the eighteen come from one stated derivation rule under DEC-STUDIO-001 [Derived Clarification]. AC-STU-014 binds this note as much as it binds a screen. The frozen source runs TWO numbering schemes over the same Studio features: Chapter 20's three-part scheme inside the eighteen module cards (FEAT-STU-01-01 style, 69 ids, L31552-L34689), and the four-digit traceability catalogue at L47378-L47431 (FEAT-STU-0101 style, 54 ids, exactly three per module across all 18 modules). THE FOUR-DIGIT CATALOGUE IS THE TRACEABILITY KEY (same ruling and reason as slice 4's D20); the two are never mixed in one ticket. They are NOT positionally equivalent -- 10 of the 18 modules (MOD-STU-01, MOD-STU-05, MOD-STU-07, MOD-STU-08, MOD-STU-10, MOD-STU-11, MOD-STU-13, MOD-STU-15, MOD-STU-16, MOD-STU-18) disagree on how many features they hold, so reading FEAT-STU-05-02 as FEAT-STU-0502 retargets the reference. The map: MOD-STU-01 ch20 [01-01 01-02] -> catalogue [0101 0102 0103]; MOD-STU-02 ch20 [02-01 02-02 02-03] -> catalogue [0201 0202 0203]; MOD-STU-03 ch20 [03-01 03-02 03-03] -> catalogue [0301 0302 0303]; MOD-STU-04 ch20 [04-01 04-02 04-03] -> catalogue [0401 0402 0403]; MOD-STU-05 ch20 [05-01 05-02 05-03 05-04 05-05 05-06 05-07 05-08 05-09 05-10] -> catalogue [0501 0502 0503]; MOD-STU-06 ch20 [06-01 06-02 06-03] -> catalogue [0601 0602 0603]; MOD-STU-07 ch20 [07-01 07-02 07-03 07-04] -> catalogue [0701 0702 0703]; MOD-STU-08 ch20 [08-01 08-02 08-03 08-04] -> catalogue [0801 0802 0803]; MOD-STU-09 ch20 [09-01 09-02 09-03] -> catalogue [0901 0902 0903]; MOD-STU-10 ch20 [10-01 10-02] -> catalogue [1001 1002 1003]; MOD-STU-11 ch20 [11-01 11-02 11-03 11-04 11-05 11-06] -> catalogue [1101 1102 1103]; MOD-STU-12 ch20 [12-01 12-02 12-03] -> catalogue [1201 1202 1203]; MOD-STU-13 ch20 [13-01 13-02 13-03 13-04 13-05] -> catalogue [1301 1302 1303]; MOD-STU-14 ch20 [14-01 14-02 14-03] -> catalogue [1401 1402 1403]; MOD-STU-15 ch20 [15-01 15-02 15-03 15-04] -> catalogue [1501 1502 1503]; MOD-STU-16 ch20 [16-01 16-02 16-03 16-04] -> catalogue [1601 1602 1603]; MOD-STU-17 ch20 [17-01 17-02 17-03] -> catalogue [1701 1702 1703]; MOD-STU-18 ch20 [18-01 18-02 18-03 18-04] -> catalogue [1801 1802 1803]. The SUB-/FUNC- halves of the three-part scheme (SUB-STU-01-01-A, FUNC-STU-01-01-A-1) are in the frozen source but absent from this build's identifier index, which carries only their four-digit forms; that extraction gap is declared here, not hidden, and the map covers FEAT-* only until the extraction is widened.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -449,23 +449,20 @@
     {
       "id": "FEAT-CC-0301",
       "sourceLine": 36724,
-      "status": "demonstrated-in-storyboard",
-      "surface": "SURF-CC",
-      "route": "/command-center/cell-view/"
+      "status": "not-represented",
+      "surface": "SURF-CC"
     },
     {
       "id": "FEAT-CC-0302",
       "sourceLine": 36732,
-      "status": "demonstrated-in-storyboard",
-      "surface": "SURF-CC",
-      "route": "/command-center/cell-view/"
+      "status": "not-represented",
+      "surface": "SURF-CC"
     },
     {
       "id": "FEAT-CC-0303",
       "sourceLine": 36738,
-      "status": "demonstrated-in-storyboard",
-      "surface": "SURF-CC",
-      "route": "/command-center/cell-view/"
+      "status": "not-represented",
+      "surface": "SURF-CC"
     },
     {
       "id": "FEAT-CC-0401",
@@ -530,9 +527,8 @@
     {
       "id": "FEAT-CC-0603",
       "sourceLine": 37420,
-      "status": "demonstrated-in-storyboard",
-      "surface": "SURF-CC",
-      "route": "/command-center/learning-read-view/"
+      "status": "not-represented",
+      "surface": "SURF-CC"
     },
     {
       "id": "FEAT-CC-0604",
@@ -543,9 +539,8 @@
     {
       "id": "FEAT-CC-0605",
       "sourceLine": 37432,
-      "status": "demonstrated-in-storyboard",
-      "surface": "SURF-CC",
-      "route": "/command-center/learning-read-view/"
+      "status": "not-represented",
+      "surface": "SURF-CC"
     },
     {
       "id": "FEAT-CC-0701",
@@ -2454,26 +2449,30 @@
     {
       "id": "FEAT-SA-18-01",
       "sourceLine": 46173,
-      "status": "not-represented",
-      "surface": "SURF-SA"
+      "status": "demonstrated-in-storyboard",
+      "surface": "SURF-SA",
+      "route": "/super-admin/platform-audit/"
     },
     {
       "id": "FEAT-SA-18-02",
       "sourceLine": 46176,
-      "status": "not-represented",
-      "surface": "SURF-SA"
+      "status": "demonstrated-in-storyboard",
+      "surface": "SURF-SA",
+      "route": "/super-admin/platform-audit/"
     },
     {
       "id": "FEAT-SA-18-03",
       "sourceLine": 46180,
-      "status": "not-represented",
-      "surface": "SURF-SA"
+      "status": "demonstrated-in-storyboard",
+      "surface": "SURF-SA",
+      "route": "/super-admin/platform-audit/"
     },
     {
       "id": "FEAT-SA-18-04",
       "sourceLine": 46184,
-      "status": "not-represented",
-      "surface": "SURF-SA"
+      "status": "demonstrated-in-storyboard",
+      "surface": "SURF-SA",
+      "route": "/super-admin/platform-audit/"
     },
     {
       "id": "FEAT-SA-1801",
@@ -3275,8 +3274,8 @@
     }
   ],
   "sourceLineMeaning": "A frozen-source line that MENTIONS the identifier, published so a reader can open it. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. It is computed one of three ways, and which one depends on the register the row came from. (1) By default, the FIRST MENTION of the identifier anywhere in the frozen source — the minimum of registries/raw/identifier-index.json's line list for that id. (2) Where the row belongs to a CHAPTER-BANDED register, the first occurrence inside that register's own chapter, which is deliberately NOT the minimum of the list: SB-AI-01 in ai-storyboards.json ships L92693 and not its list minimum L74479, because L74479 is chapter 30D and the row belongs to section 44A. A register label that claims a chapter is asserted against every one of its rows at build time, so a row outside its band is a build failure. (3) Where a register was TRANSCRIBED by the extraction rather than derived from the identifier index — modules, business objects, actionable controls, workflows, the notification placement rows, the Studio triggers and the deployable scheduled-work rows — the line the extraction recorded for that row. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation.",
-  "namedInSourceCount": 21,
-  "routeResolvedCount": 7,
-  "routeMeaning": "The shipped screen whose evidence set this row's status: for a module, the route directory its declared slug names or the one whose files name it more often than any other module; for an actionable control, the route directory declaring a control-matrix row with exactly this label; for every other inventory, the route directory that spells this identifier as a whole token. Where several routes qualify, the lexicographically first is recorded, so two independent generations agree. A row carries no route when no route demonstrates it, when the evidence was an import rather than a route file (mounted-in-another-screen), when the row is an authored not-applicable or decision-blocked record, or when the only directory found holds a dynamic segment -- app/coverage/[registry] is one directory standing for fourteen URLs and choosing one of them for a row would be a guess. Those rows render their id as plain text with the reason beside it, never as a link to nowhere.",
+  "namedInSourceCount": 25,
+  "routeResolvedCount": 6,
+  "routeMeaning": "The shipped screen whose evidence set this row's status: for a module, the route directory its declared slug names or the one whose files name it more often than any other module; for an actionable control, the route directory declaring a control-matrix row with exactly this label; for every other inventory, the route directory that spells this identifier as a whole token. Where several routes qualify, the lexicographically first is recorded, so two independent generations agree. A row carries no route when no route demonstrates it, when the evidence was an import rather than a route file (mounted-in-another-screen), when the row is an authored not-applicable or decision-blocked record, when the only directory found holds a dynamic segment -- app/coverage/[registry] is one directory standing for fourteen URLs and choosing one of them for a row would be a guess -- or, and this is the fifth case and the one the list used to omit, when the evidence is a control matrix declared in a module component under src/ that a route mounts: the row reads demonstrated-in-storyboard and route resolution reads app/ only, so there is no route directory to name. Those rows render their id as plain text with the reason beside it, never as a link to nowhere.",
   "namedInSourceMeaning": "How many rows this registry holds whose identifier is named anywhere under src/ or app/. It is WEAKER than a status and deliberately not one: a status says a route screen demonstrates the row, and this says only that some file in the build spells its identifier. It is published because the two numbers can differ by a lot -- offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text label rather than an identifier (actionable-controls) cannot be counted this way and read as unnamed here; that is a limit of the measure, not a gap in the build."
 }

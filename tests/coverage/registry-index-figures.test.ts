@@ -37,6 +37,29 @@ import { renderedText } from './rendered-text'
  */
 const OUT = join(process.cwd(), 'out')
 
+/**
+ * THE FLIGHT PAYLOAD IS NOT RENDERED TEXT (R5-B03's measurement warning).
+ *
+ * `renderedText` strips tags and HTML comments. It does NOT strip
+ * `<script>self.__next_f.push(...)</script>`, and on this page that payload is
+ * 790KB of the 1.3MB file — every prop of every server component, including
+ * every sentence this gate asserts and every row id as a React key. A gate
+ * that measures with `renderedText` alone can be satisfied by a page whose
+ * visible content has been deleted, which is the exact trap the round-5 audit
+ * caught the controller in. Scripts and styles are removed first here, so what
+ * is measured is what a reader sees.
+ *
+ * Local rather than folded into `tests/coverage/rendered-text.ts`: that helper
+ * is shared with gates two other fix streams are editing right now. The hazard
+ * is repo-wide and is reported as such.
+ */
+function readerText(html: string): string {
+  return renderedText(
+    html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, ' '),
+  )
+}
+
+
 interface Registry {
   slug: string
   rows: { id: string; status: string; route?: string }[]
@@ -71,7 +94,7 @@ describe('R4-B09: the figure in the caption is what is listed below', () => {
   it('every index prints its own rendered row count in that sentence', () => {
     for (const registry of REGISTRIES) {
       if (!registry.sourceFixesNoTotal) continue
-      const text = renderedText(indexHtml(registry.slug))
+      const text = readerText(indexHtml(registry.slug))
       expect(text, `/coverage/${registry.slug}/`).toContain(
         `${registry.rows.length} records are listed below`,
       )
@@ -87,7 +110,7 @@ describe('R4-B09: the figure in the caption is what is listed below', () => {
     )
     expect(divergent.length, 'registries whose two counts differ').toBeGreaterThan(0)
     for (const registry of divergent) {
-      const text = renderedText(indexHtml(registry.slug))
+      const text = readerText(indexHtml(registry.slug))
       expect(text).toContain(`${registry.rows.length} records are listed below`)
       expect(text).toContain(`from ${registry.rawCount} raw extraction keys`)
     }
@@ -137,21 +160,127 @@ describe('R4-B10: an index row links to the screen that demonstrates it', () => 
     }
   })
 
-  it('each index renders an anchor for every row that resolved one', () => {
+  /* ──────────────────────────────────────────────────────────────────────
+   * R5-A05 — "DOES THIS STRING APPEAR ANYWHERE IN THE FILE" IS NOT "DOES THIS
+   * ROW LINK".
+   *
+   * This asked whether each row's route STRING occurs somewhere in the page.
+   * Rows share routes heavily — 110 linked rows over 49 distinct routes on one
+   * index — so one surviving anchor answered for every row carrying the same
+   * route. Replacing the anchor with plain text on every row whose route
+   * another row already carried unlinked 61 of 110, took the anchor count from
+   * 111 to 50, and the assertion still reported "110 of 110" and passed.
+   *
+   * Each anchor is now matched to ITS OWN ROW: the pair of (href, link text)
+   * inside the index table's `<tbody>`, compared by equality against the pairs
+   * the artefact says should be there. An unlinked row is a missing pair and a
+   * row linked that should not be is a surplus one; both are red and both name
+   * the row.
+   * ────────────────────────────────────────────────────────────────────── */
+  const anchorPairs = (slug: string): string[] => {
+    const html = indexHtml(slug)
+    const tables = [...html.matchAll(/<table\b[^>]*>.*?<\/table>/gs)]
+      .map((m) => m[0])
+      .filter((t) => {
+        const caption = /<caption\b[^>]*>(.*?)<\/caption>/s.exec(t)
+        return (
+          caption !== null &&
+          renderedText(caption[1] ?? '').includes(
+            'index, by id, name, join/register, source line and status',
+          )
+        )
+      })
+    if (tables.length !== 1) {
+      throw new Error(
+        `Expected exactly one row table on /coverage/${slug}/; found ${tables.length}. ` +
+          'A gate that cannot find its own table asserts nothing.',
+      )
+    }
+    const body = /<tbody\b[^>]*>(.*?)<\/tbody>/s.exec(tables[0] as string)
+    if (body === null) throw new Error(`/coverage/${slug}/ row table has no <tbody>.`)
+    return [...(body[1] ?? '').matchAll(/<a\b[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/gs)].map(
+      (m) => `${m[1]} ${renderedText(m[2] ?? '').trim()}`,
+    )
+  }
+
+  it('each index renders an anchor for every row that resolved one, matched row by row', () => {
     for (const registry of REGISTRIES) {
       if (registry.routeResolvedCount === 0) continue
-      const html = indexHtml(registry.slug)
       const linkedRows = registry.rows.filter((r) => r.route !== undefined)
-      const rendered = linkedRows.filter((r) => html.includes(`href="${r.route}"`))
-      expect(rendered.length, `linked rows rendered on /coverage/${registry.slug}/`).toBe(
-        linkedRows.length,
+      const expected = linkedRows.map((r) => `${r.route} ${r.id}`).sort()
+      // The population, before the comparison: an index whose linked-row set
+      // went empty would otherwise agree with a page holding no anchors.
+      expect(expected.length, `${registry.slug} linked rows`).toBe(registry.routeResolvedCount)
+      expect(anchorPairs(registry.slug).sort(), `anchors on /coverage/${registry.slug}/`).toEqual(
+        expected,
       )
+    }
+  })
+
+  it('the anchor count in the row table equals the linked-row count on every index', () => {
+    // The same claim by a second, cruder route, which is what would have
+    // caught the plant on its own: 111 anchors became 50 and nothing noticed.
+    for (const registry of REGISTRIES) {
+      const anchors = registry.routeResolvedCount === 0 ? [] : anchorPairs(registry.slug)
+      expect(anchors.length, `anchors in the /coverage/${registry.slug}/ row table`).toBe(
+        registry.routeResolvedCount,
+      )
+    }
+  })
+
+  /* ──────────────────────────────────────────────────────────────────────
+   * R5-B06 — "WITH THE REASON BESIDE IT", ON ROWS THAT CARRIED NONE.
+   *
+   * All fourteen indexes promise a routeless row renders "its id as plain text
+   * with the reason beside it, never as a link to nowhere". 4,714 rows had no
+   * route and not one rendered a reason. The enumeration of reasons was also
+   * incomplete: twelve actionable-control rows read demonstrated-in-storyboard
+   * with NO route, because their evidence is a control matrix in a `src/`
+   * module component and route resolution reads `app/` only, and none of the
+   * four reasons the page listed covered that.
+   * ────────────────────────────────────────────────────────────────────── */
+  it('R5-B06: the fifth reason — src/-only evidence — is named in routeMeaning', () => {
+    for (const registry of REGISTRIES) {
+      const text = readerText(indexHtml(registry.slug))
+      expect(text, `/coverage/${registry.slug}/`).toContain(
+        'when the evidence is a control matrix declared in a module component under src/',
+      )
+    }
+    // The case is occupied, so the sentence is a disclosure rather than a
+    // hypothetical: demonstrated rows that resolved no route.
+    const orphans = REGISTRIES.flatMap((r) =>
+      r.rows.filter((row) => row.status === 'demonstrated-in-storyboard' && row.route === undefined),
+    )
+    expect(orphans.length, 'demonstrated rows with no resolved route').toBeGreaterThan(0)
+  })
+
+  it('R5-B06: every routeless row renders a reason beside its id', () => {
+    for (const registry of REGISTRIES) {
+      const routeless = registry.rows.filter((r) => r.route === undefined)
+      if (routeless.length === 0) continue
+      const text = readerText(indexHtml(registry.slug))
+      // One reason per status the routeless population actually holds,
+      // derived from the rows rather than from a list, so a status that
+      // stops being rendered is red.
+      const held = new Set(routeless.map((r) => r.status))
+      expect(held.size, `${registry.slug} routeless statuses`).toBeGreaterThan(0)
+      for (const status of held) {
+        const phrase =
+          status === 'mounted-in-another-screen'
+            ? 'Mounted inside another module’s screen and owns no route of its own'
+            : status === 'demonstrated-in-storyboard'
+              ? 'Demonstrated by a module component under src/'
+              : status === 'not-represented'
+                ? 'No shipped route demonstrates this row'
+                : 'Recorded as an authored'
+        expect(text, `/coverage/${registry.slug}/ reason for ${status}`).toContain(phrase)
+      }
     }
   })
 
   it('each index states how many of its rows link, so an unlinked row is explained', () => {
     for (const registry of REGISTRIES) {
-      const text = renderedText(indexHtml(registry.slug))
+      const text = readerText(indexHtml(registry.slug))
       expect(text, `/coverage/${registry.slug}/`).toContain(
         `${registry.routeResolvedCount} of ${registry.rows.length} rows link to the screen that demonstrates them`,
       )

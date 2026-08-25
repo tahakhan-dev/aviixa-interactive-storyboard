@@ -45,6 +45,16 @@
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, statSync } from 'node:fs'
 import { join, dirname, basename, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
+/**
+ * R5-A02. The ONE comment stripper this repository has, reused rather than
+ * re-implemented: three hand-rolled tokenizers were defeated in three
+ * different ways before it was rewritten on the TypeScript parser, and a
+ * second copy here would be a fourth. Node strips the type annotations off
+ * this import itself, so no build step is added.
+ */
+import { stripComments } from '../tests/coverage/strip-comments.ts'
+/** R5-A07: the control-label scan asks the parser what a `control:` is. */
+import ts from 'typescript'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const EXTRACT_DIR = join(ROOT, 'registries', 'raw', 'extract')
@@ -196,7 +206,27 @@ const CENSUS_OVERRIDES = (() => {
     }
     // Master prompt §9.2: reason, owner and source/decision evidence, all
     // three, or the classification does not stand.
-    for (const [field, min] of [['reason', 80], ['owner', 20], ['evidenceQuote', 20]]) {
+    /* ────────────────────────────────────────────────────────────────────
+     * R5-A06: THE WHOLE CITED LINE, NOT A SENTENCE CHOSEN OUT OF IT.
+     *
+     * The one override in this file quotes line 98508's third sentence,
+     * which supports the classification, and that line's FIRST sentence
+     * describes a Super Admin screen where all 22 rows render. Nothing could
+     * see it: the check asked only whether the quotation is on the line.
+     * `evidenceLineVerbatim` must now carry the entire line (compared
+     * byte-for-byte against the frozen source by
+     * tests/coverage/census-closure.test.ts) and `whatElseThisLineSays`
+     * must answer whatever else is on it. A short excerpt of a long line can
+     * support almost any classification; a transcription of the whole line
+     * puts the counter-evidence in the record and in the diff.
+     * ──────────────────────────────────────────────────────────────────── */
+    for (const [field, min] of [
+      ['reason', 80],
+      ['owner', 20],
+      ['evidenceQuote', 20],
+      ['evidenceLineVerbatim', 20],
+      ['whatElseThisLineSays', 80],
+    ]) {
       if (typeof record[field] !== 'string' || record[field].trim().length < min) {
         throw new Error(
           `${where}: "${field}" must be at least ${min} characters. Master prompt §9.2 fails a ` +
@@ -246,7 +276,11 @@ function applyCensusOverrides(slug, rows) {
       statusReason:
         `${override.reason} Recorded as an authored ${override.status} census record in ` +
         `registries/authored/census-status-overrides.json. Owner: ${override.owner} Evidence, ` +
-        `frozen source line ${override.evidenceLine}: "${override.evidenceQuote}"`,
+        `frozen source line ${override.evidenceLine}: "${override.evidenceQuote}" ` +
+        // R5-A06: the rest of the cited line travels with the quotation, so a
+        // reader of the row sees what the record had to answer rather than
+        // only the sentence that supports it.
+        `What else that line says: ${override.whatElseThisLineSays}`,
     }
   })
 }
@@ -330,10 +364,13 @@ function writeRegistry(registry) {
       'first is recorded, so two independent generations agree. A row carries no route when no ' +
       'route demonstrates it, when the evidence was an import rather than a route file ' +
       '(mounted-in-another-screen), when the row is an authored not-applicable or ' +
-      'decision-blocked record, or when the only directory found holds a dynamic segment -- ' +
+      'decision-blocked record, when the only directory found holds a dynamic segment -- ' +
       'app/coverage/[registry] is one directory standing for fourteen URLs and choosing one of ' +
-      'them for a row would be a guess. Those rows render their id as plain text with the ' +
-      'reason beside it, never as a link to nowhere.',
+      'them for a row would be a guess -- or, and this is the fifth case and the one the list ' +
+      'used to omit, when the evidence is a control matrix declared in a module component under ' +
+      'src/ that a route mounts: the row reads demonstrated-in-storyboard and route resolution ' +
+      'reads app/ only, so there is no route directory to name. Those rows render their id as ' +
+      'plain text with the reason beside it, never as a link to nowhere.',
     namedInSourceMeaning:
       'How many rows this registry holds whose identifier is named anywhere under src/ or app/. ' +
       'It is WEAKER than a status and deliberately not one: a status says a route screen ' +
@@ -695,10 +732,37 @@ function walkRouteTree() {
         if (e.isDirectory()) continue // a nested route owns itself
         if (!/\.tsx?$/.test(e.name)) continue
         const text = readFileSync(join(dir, e.name), 'utf8')
+        /* ================================================================ *
+         * R5-A02: A COMMENT IS NOT A DEMONSTRATION.
+         *
+         * `out/coverage/ai-storyboards/index.html` rendered
+         * `<a href="/hub/shift-management/">SB-STU-03</a>` -- a Studio
+         * storyboard linked to a Hub shift screen -- because the whole of
+         * `app/hub/shift-management/` names `SB-STU-03` exactly once, in a
+         * JSDoc line about numbering style: "the same shape SB-STU-03 uses."
+         * The same mention set `status: demonstrated-in-storyboard`, so the
+         * census over-counted by the same rows. 17 of the 26 links whose
+         * target page never names the item in rendered text were this.
+         *
+         * WHY THE `MOD-*` COUNT ABOVE STILL READS THE RAW TEXT. Measured
+         * both ways: stripping there changes exactly one module,
+         * `MOD-FL-A1`, from demonstrated to not-represented.
+         * `app/frontline/sign-in/` IS that module's screen -- it imports
+         * `@/frontline/modules/fl-a1/LoginView` and `src/frontline/modules.ts`
+         * declares `slug: null` with a written reason saying argmax awards
+         * this route without a claim -- and its only spelling of the id is
+         * the file's header comment. Ownership argmax and a citation are
+         * different questions: a citation asks whether a screen NAMES the
+         * item, which a comment cannot answer, while ownership asks which
+         * module a built directory belongs to, where the header comment is
+         * a statement about the directory rather than about its output.
+         * Stripping there would report a built screen as absent.
+         * ================================================================ */
+        const code = stripComments(text)
         for (const id of text.match(/MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+)/g) ?? []) {
           counts.set(id, (counts.get(id) ?? 0) + 1)
         }
-        for (const token of text.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) {
+        for (const token of code.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) {
           citedTokens.add(token)
           /**
            * R4-B10: WHICH route named it, not only that one did. The status
@@ -749,7 +813,10 @@ function walkRouteTree() {
          * cross-reference in a sentence, while an import is the screen actually
          * mounting the thing.
          */
-        for (const m of text.matchAll(/from\s+'[^']*\/modules\/([a-z]+-[a-z]?\d+)(?:\/[^']*)?'/g)) {
+        // R5-A02, same rule: a commented-out import mounts nothing. Measured
+        // on this tree the two readings agree exactly (50 directories either
+        // way), so this changes no output today and closes the hole.
+        for (const m of code.matchAll(/from\s+'[^']*\/modules\/([a-z]+-[a-z]?\d+)(?:\/[^']*)?'/g)) {
           importedModuleDirs.add(m[1])
         }
       }
@@ -788,12 +855,64 @@ function walkRouteTree() {
   walkDirs(join(ROOT, 'app'))
 
   /**
-   * The widened label scan (R4-B03). Same regex, same unescaping, same
-   * probe-awareness as every other walk in this file; the only difference is
-   * that it descends the whole of both trees instead of stopping at route
-   * directories.
+   * The widened label scan (R4-B03), NOW ASKING THE PARSER RATHER THAN A
+   * REGEX WHAT A `control:` IS (R5-A07).
+   *
+   * A regex for `control:\s*'...'` matches any property spelled `control`,
+   * and this tree has three shapes that are not a declared control at all:
+   *
+   *   1. `Record<Kind, string>` affordance maps, where `control` is a
+   *      UNION-MEMBER KEY and the string is a caption or a tone token --
+   *      `control: 'ok'` (a `StatusTone`), `control: 'Control'`,
+   *      `control: 'a live control'`, `control: 'Control drawn here'` across
+   *      ten sites, and `control: 'border-[var(--color-border-strong)]'`,
+   *      which is a Tailwind class.
+   *   2. A TYPE, not a value: `control: 'send' | 'submit' | ...` in a type
+   *      literal. The regex read `'send'` as a label.
+   *   3. Nothing at all where the label is DOUBLE-quoted because it contains
+   *      an apostrophe -- "View another identity's inbox" and eight more.
+   *      Nine real declared labels were invisible to the single-quote regex.
+   *
+   * The rule now: a string-literal `control` property of an OBJECT LITERAL
+   * that also carries one of the control-matrix sibling keys below. Every
+   * real declaration in this tree carries at least one --
+   * `CONTROL_MATRIX` rows carry `id` and `sourceRef`, `CC05_CONTROL_SPELLINGS`
+   * carries `matrixRef`, `SB_FL_019` carries `sourceRef` -- and not one of
+   * the kind maps carries any, because a kind map's siblings are the other
+   * members of its union.
+   *
+   * Measured: 271 -> 274 (79 under app/, 195 only under src/), being the six
+   * false positives above removed and the nine double-quoted labels added.
+   * `tests/coverage/census-closure.test.ts` runs the loose regex as well and
+   * requires the difference to be exactly that named list, so a silent
+   * re-widening or a silent narrowing both go red.
    */
-  const CONTROL_LABEL = /\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g
+  const CONTROL_MATRIX_SIBLINGS = ['id', 'sourceRef', 'matrixRef']
+  const controlMatrixLabels = (text) => {
+    const found = []
+    const source = ts.createSourceFile('control-scan.tsx', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+    const visit = (node) => {
+      if (ts.isObjectLiteralExpression(node)) {
+        const props = new Map()
+        for (const p of node.properties) {
+          if (ts.isPropertyAssignment(p) && (ts.isIdentifier(p.name) || ts.isStringLiteral(p.name))) {
+            props.set(p.name.text, p.initializer)
+          }
+        }
+        const control = props.get('control')
+        if (
+          control !== undefined &&
+          ts.isStringLiteralLike(control) &&
+          CONTROL_MATRIX_SIBLINGS.some((k) => props.has(k))
+        ) {
+          found.push(control.text)
+        }
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+    return found
+  }
   const collectLabels = (dir, into) => {
     const entries = readIfPresentDir(dir)
     if (entries === null) return
@@ -809,8 +928,11 @@ function walkRouteTree() {
       const text = readIfPresentFile(full)
       if (text === null) continue
       if (text.includes('CONTROL_MATRIX')) declaresControlMatrix = true
-      for (const m of text.matchAll(CONTROL_LABEL)) {
-        const label = m[1].replace(/\\(.)/g, '$1')
+      // Cheap gate before an expensive parse: a file with no `control:` at
+      // all cannot declare one, and only ~105 of the 618 files in the two
+      // trees do.
+      if (!text.includes('control:')) continue
+      for (const label of controlMatrixLabels(text)) {
         declaredControlLabels.add(label)
         into?.add(label)
         // R4-B10, same rule and same reason as `citedTokenRoutes`:
@@ -2271,8 +2393,37 @@ function buildActionableControlsRegistry() {
           'this figure read app/ alone until audit round 4 finding R4-B03, and published 83 and ' +
           '4 where the two trees together hold what is printed here), of ' +
           `which ${[...ROUTE_EVIDENCE.declaredControlLabels].filter((l) => byLabel.has(l)).length} ` +
-          'are word-for-word a source label and the rest are the same control re-worded for a ' +
-          'reader. The frozen source gives these actions no identifier -- the label IS the key -- ' +
+          'are word-for-word a source label. ' +
+          /* ────────────────────────────────────────────────────────────────
+           * R5-B03 — THE TWO-WAY CLOSURE, MEASURED IN BOTH DIRECTIONS AND
+           * RENDERED, BECAUSE THE RECONCILIATION ROW USED TO DECLARE IT MET.
+           *
+           * `reconciliation_rows[17]` read "The census closes both ways as
+           * master prompt §13.1 requires". It does not close in either
+           * direction, and neither distance was rendered anywhere -- a
+           * `grep -c` for both numbers over the built page returns 1 each and
+           * both hits are React row keys inside the flight payload, which is
+           * not something a reader sees. Both figures are DERIVED here rather
+           * than written into the authored reconciliation row, so neither can
+           * go stale, and the row now points at them instead of claiming the
+           * closure.
+           *
+           * R5-A07 also lands in this sentence: it used to say the non-census
+           * labels are "the same control re-worded for a reader", which was
+           * false of the four `Record<Kind, string>` captions the scan was
+           * miscounting and is a claim this build cannot make about the rest
+           * either. It states the distance instead of characterising it.
+           * ──────────────────────────────────────────────────────────────── */
+          'THE §13.1 CENSUS DOES NOT CLOSE IN EITHER DIRECTION, and the two distances are ' +
+          `published here rather than claimed. Direction one, rendered controls outside the ` +
+          `census: ${[...ROUTE_EVIDENCE.declaredControlLabels].filter((l) => !byLabel.has(l)).length} ` +
+          'of the declared labels above match no census row word for word. Some are the same ' +
+          'control re-worded for a reader and this build does not claim that all of them are -- ' +
+          'the join is exact label text and nothing weaker is available. Direction two, census ' +
+          `rows with neither a rendered control nor a terminal record: ` +
+          `${controlRows.filter((r) => r.status === 'not-represented').length} of the 608. ` +
+          `The ${dncRows.length} DNC-* rows carry an authored terminal record and are counted in ` +
+          'neither direction. The frozen source gives these actions no identifier -- the label IS the key -- ' +
           'so there is nothing else to join on, and a looser match was rejected: the 608 labels ' +
           'include "Add", "Next", "Return" and "Filter", which occur in unrelated prose and ' +
           'chrome across the tree and would have inflated this number by dozens. Read this ' +

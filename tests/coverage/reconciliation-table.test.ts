@@ -43,7 +43,30 @@ import { renderedText } from './rendered-text'
  */
 const OUT = join(process.cwd(), 'out')
 
-const DASHBOARD = renderedText(readFileSync(join(OUT, 'coverage', 'index.html'), 'utf8'))
+/**
+ * THE FLIGHT PAYLOAD IS NOT RENDERED TEXT (R5-B03's measurement warning).
+ *
+ * `renderedText` strips tags and HTML comments. It does NOT strip
+ * `<script>self.__next_f.push(...)</script>`, and on this page that payload is
+ * 790KB of the 1.3MB file — every prop of every server component, including
+ * every sentence this gate asserts and every row id as a React key. A gate
+ * that measures with `renderedText` alone can be satisfied by a page whose
+ * visible content has been deleted, which is the exact trap the round-5 audit
+ * caught the controller in. Scripts and styles are removed first here, so what
+ * is measured is what a reader sees.
+ *
+ * Local rather than folded into `tests/coverage/rendered-text.ts`: that helper
+ * is shared with gates two other fix streams are editing right now. The hazard
+ * is repo-wide and is reported as such.
+ */
+function readerText(html: string): string {
+  return renderedText(
+    html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, ' '),
+  )
+}
+
+
+const DASHBOARD = readerText(readFileSync(join(OUT, 'coverage', 'index.html'), 'utf8'))
 
 const REPORT = loadReconciliation(
   JSON.parse(readFileSync('registries/generated/source-reconciliation.json', 'utf8')),
@@ -114,12 +137,60 @@ describe('the master prompt §9.6 reconciliation table reaches a reader', () => 
     }
   })
 
-  it('the dashboard renders every reconciliation row — count by EQUALITY', () => {
-    // Counted off the `inventory` cell of each row rather than off `<tr`,
-    // which the page's other five tables also emit. Each inventory name is
-    // unique in the artefact, so one occurrence per row in the table body.
-    const rendered = ROWS.filter((r) => DASHBOARD.includes(r.inventory))
-    expect(rendered.length, 'reconciliation rows rendered on /coverage/').toBe(ROWS.length)
+  /* ──────────────────────────────────────────────────────────────────────
+   * R5-A04 — THE SUBSTRING THAT WAS NEVER ABOUT THIS TABLE.
+   *
+   * This check read `DASHBOARD.includes(r.inventory)` and reasoned, in its own
+   * comment, that "each inventory name is unique in the artefact, so one
+   * occurrence per row in the table body". Unique in the artefact and NOT on
+   * the page: every inventory name is also a REGISTRY name in the fourteen-row
+   * table above, so each occurs two or four times. Deleting the Events row
+   * from the reconciliation body — 1,869 bytes, 1,409 characters of rendered
+   * text — left every assertion passing and the page still reading "18 rows,
+   * covering all 14 registries". Thirteen of the eighteen were droppable that
+   * way.
+   *
+   * It is the reconciliation table's OWN `<tbody>` now, found by its own
+   * caption, counted by equality and matched row by row in order. Transcribed
+   * rather than shared with the sibling gate that does the same thing, for the
+   * same reason every scan in this directory is transcribed.
+   * ────────────────────────────────────────────────────────────────────── */
+  const reconciliationBody = (): string[] => {
+    const html = readFileSync(join(OUT, 'coverage', 'index.html'), 'utf8')
+    const tables = [...html.matchAll(/<table\b[^>]*>.*?<\/table>/gs)]
+      .map((m) => m[0])
+      .filter((t) => {
+        const caption = /<caption\b[^>]*>(.*?)<\/caption>/s.exec(t)
+        return (
+          caption !== null &&
+          renderedText(caption[1] ?? '').includes(
+            'reconciliation rows, each with the master prompt candidate',
+          )
+        )
+      })
+    if (tables.length !== 1) {
+      throw new Error(
+        `Expected exactly one reconciliation table on /coverage/; found ${tables.length}. ` +
+          'A gate that cannot find its own table asserts nothing.',
+      )
+    }
+    const body = /<tbody\b[^>]*>(.*?)<\/tbody>/s.exec(tables[0] as string)
+    if (body === null) throw new Error('The reconciliation table has no <tbody>.')
+    return [...(body[1] ?? '').matchAll(/<tr\b[^>]*>(.*?)<\/tr>/gs)].map((m) => {
+      const cell = /<t[dh]\b[^>]*>(.*?)<\/t[dh]>/s.exec(m[1] ?? '')
+      return renderedText(cell?.[1] ?? '').trim()
+    })
+  }
+
+  it('the dashboard renders every reconciliation row — count by EQUALITY, inside the table', () => {
+    const inventories = reconciliationBody()
+    expect(ROWS.length, 'the authored population').toBeGreaterThanOrEqual(18)
+    expect(inventories.length, '<tr> elements in the reconciliation tbody').toBe(ROWS.length)
+    // Row by row and in order, so a deleted row, a duplicated one and a
+    // reordered one are each red and each say which.
+    inventories.forEach((cell, i) => {
+      expect(cell, `reconciliation row ${i}`).toContain(ROWS[i]!.inventory)
+    })
     // And the page states the row count it rendered, so a silently truncated
     // table is caught by the number as well as by the names.
     expect(DASHBOARD).toContain(`${ROWS.length} rows, covering all 14 registries`)
@@ -183,22 +254,284 @@ describe('the dashboard publishes the item-level position beside the registry-le
   })
 })
 
-describe('R4-B12: the statuses no registry can hold are named on the page', () => {
-  it('decision-blocked and not-applicable are declared unassignable at registry level', () => {
-    expect(DASHBOARD).toContain('Two of the five statuses never appear in the registry column')
-    expect(DASHBOARD).toContain('Decision blocked')
-    expect(DASHBOARD).toContain('Not applicable')
+describe('R4-B12 / R5-B05: the statuses no registry holds are named on the page — all of them', () => {
+  /**
+   * R4-B12 named THREE statuses that never appear in the registry column and
+   * the fix explained two, so the page read "Two of the five statuses" three
+   * inches below a legend showing three at 0 of 14. The count is now the
+   * derived list's own length.
+   *
+   * WHICH statuses are unheld is recomputed here from the same fourteen
+   * registries the page reads, so this gate does not transcribe the answer
+   * — it transcribes the RULE (`registryStatus`'s precedence) and derives.
+   */
+  const registries = REGISTRY_DESCRIPTORS.map(
+    (d) =>
+      JSON.parse(readFileSync(`registries/generated/${d.slug}.json`, 'utf8')) as {
+        rows: { status: string }[]
+      },
+  )
+  const PRECEDENCE = ['demonstrated-in-storyboard', 'mounted-in-another-screen', 'not-represented']
+  const registryStatuses = registries.map((r) => {
+    const held = new Set(r.rows.map((row) => row.status))
+    return PRECEDENCE.find((s) => held.has(s)) ?? 'not-represented'
+  })
+  const unheld = COVERAGE_STATUSES.filter((s) => !registryStatuses.includes(s))
+
+  it('the count in the sentence equals the number of statuses no registry holds', () => {
+    expect(registries.length).toBe(14)
+    expect(unheld.length, 'statuses at 0 of 14').toBeGreaterThan(0)
+    expect(DASHBOARD).toContain(
+      `${unheld.length} of the ${COVERAGE_STATUSES.length} statuses never appear in the registry column above`,
+    )
   })
 
-  it('mounted-in-another-screen is now reachable, and reached', () => {
-    // It was unreachable: `registryStatus` returned demonstrated for any row
-    // that was not not-represented. Ten rows carry the status, so a registry
-    // whose only evidence is a mounted module must be able to report it.
+  it('every unheld status is named with a reason — none is left for a reader to account for', () => {
+    // Named by their rendered LABEL, which is what a reader sees.
+    const LABELS: Record<string, string> = {
+      'decision-blocked': 'Decision blocked',
+      'not-applicable': 'Not applicable',
+      'mounted-in-another-screen': 'Mounted in another module',
+      'demonstrated-in-storyboard': 'Demonstrated in storyboard',
+      'not-represented': 'Not represented',
+    }
+    for (const status of unheld) {
+      expect(DASHBOARD, `${status} named in the unassignable paragraph`).toContain(LABELS[status]!)
+    }
+    // The third one R4-B12's fix missed, asserted by name so a regression to
+    // "two of the five" cannot pass by dropping it again.
+    expect(unheld, 'mounted-in-another-screen is unheld at registry level').toContain(
+      'mounted-in-another-screen',
+    )
+    expect(DASHBOARD).toContain('Reachable in the rule and unreachable in this data')
+    // No unheld status may be left without a written reason.
+    expect(DASHBOARD).not.toContain('no reason has been written for this one yet')
+  })
+
+  it('mounted-in-another-screen is held at ITEM level, which is why it is in the legend at all', () => {
     const modules = JSON.parse(readFileSync('registries/generated/modules.json', 'utf8')) as {
       rows: { status: string }[]
     }
     const mounted = modules.rows.filter((r) => r.status === 'mounted-in-another-screen')
     expect(mounted.length, 'mounted module rows').toBeGreaterThan(0)
     expect(DASHBOARD).toContain('Mounted in another module')
+  })
+})
+
+describe('R5-B02: the row that settles the 81/81 conflation states a method that reproduces', () => {
+  /**
+   * Clause (a) of the Workflows row read: "The source states NO workflow count
+   * anywhere — grep for any numeral-plus-'workflows' phrase returns nothing."
+   * It returns twelve, and the row's own clause (c) cites one of them ("8
+   * critical workflows"). The CONCLUSION was sound and reproduces
+   * independently; only the stated method was false, and a reader who runs the
+   * grep the row names stops trusting a conclusion that is correct.
+   *
+   * The non-conflation gate elsewhere in this suite does not read this clause,
+   * which is why a false method survived inside the one row master prompt §9.6
+   * singles out. This one reads it, and it re-derives BOTH halves against the
+   * frozen source rather than transcribing the answer.
+   */
+  const SOURCE = readFileSync('../AVIIXA_Production_Product_Blueprint.md', 'utf8')
+  const WORKFLOWS_ROW = ROWS.find((r) => r.registry_slug === 'workflows')!
+
+  it('no numeral is attached to a TOTAL of the WF-* namespace', () => {
+    expect((SOURCE.match(/eighty-one workflows/gi) ?? []).length).toBe(0)
+    expect((SOURCE.match(/\b81 workflows/gi) ?? []).length).toBe(0)
+  })
+
+  it('numeral-plus-workflows phrases DO occur, and the row says so with their lines', () => {
+    const lines = SOURCE.split('\n')
+    const NUMERAL_WORKFLOWS =
+      /\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d+)[- ](critical )?workflows\b/i
+    const hits = lines
+      .map((line, i) => (NUMERAL_WORKFLOWS.test(line) ? i + 1 : 0))
+      .filter((n) => n > 0)
+    // The population, asserted before it is used: the old clause claimed this
+    // set is empty, so a gate that let it be empty would restate the defect.
+    expect(hits.length, 'numeral-plus-workflows phrases in the frozen source').toBeGreaterThan(0)
+    expect(WORKFLOWS_ROW.count_scope).not.toContain('returns nothing')
+    for (const line of hits) {
+      expect(WORKFLOWS_ROW.count_scope, `line ${line} is named in clause (a)`).toContain(String(line))
+    }
+  })
+
+  it('the corrected clause is on the dashboard, where the row renders', () => {
+    expect(DASHBOARD).toContain('The source attaches NO numeral to a TOTAL of the WF-* namespace')
+  })
+})
+
+describe('R5-B09: the sentence about rows outside the fourteen is a sentence, and true', () => {
+  it('it has a verb and does not claim those rows render nowhere', () => {
+    const unslugged = ROWS.filter((r) => r.registry_slug === null)
+    expect(unslugged.length, 'rows with no registry slug').toBeGreaterThan(0)
+    expect(DASHBOARD).toContain(
+      `${unslugged.length} further rows carry no registry slug of their own`,
+    )
+    expect(DASHBOARD).toContain('or its rows render inside another index as a sub-register')
+    // The truncated original, gone.
+    expect(DASHBOARD).not.toContain('reconcile counts that none of the fourteen indexes,')
+  })
+
+  it('the row it was wrong about still says its 22 rows render, and they do', () => {
+    const dnc = ROWS.find((r) => r.inventory === 'Do-not-use-cron controls')!
+    expect(dnc.registry_slug).toBeNull()
+    expect(dnc.whyNoRegistrySlug).toContain('/coverage/actionable-controls/')
+    const controls = JSON.parse(
+      readFileSync('registries/generated/actionable-controls.json', 'utf8'),
+    ) as { rows: { id: string }[] }
+    const dncRows = controls.rows.filter((r) => /^DNC-\d\d$/.test(r.id))
+    expect(dncRows.length, 'DNC rows on the actionable-controls index').toBe(22)
+    const page = renderedText(
+      readFileSync(join(OUT, 'coverage', 'actionable-controls', 'index.html'), 'utf8'),
+    )
+    for (const row of dncRows) expect(page, `${row.id} renders`).toContain(row.id)
+  })
+})
+
+describe('R5-B01: the registry table never tells a reader the source is silent where it is not', () => {
+  /**
+   * `out/coverage/index.html` rendered "Commands — No single closed count in
+   * the frozen source — Not represented". The source fixes the count in ten
+   * places, Appendix L publishes it, and row 6 of the reconciliation table on
+   * the same page and three columns to the right reads "5, closed", delta 0,
+   * CONFIRMED. One generic sentence stood for ten different situations and was
+   * false of one of them.
+   *
+   * The cell now renders the descriptor's own `sourceNote`, which is a
+   * statement about the DESCRIPTOR — "5 classes, 16 instances and 57
+   * identifiers are three registers and this descriptor asserts no count
+   * across them" — rather than about the document.
+   */
+  const NULL_COUNT = REGISTRY_DESCRIPTORS.filter((d) => d.expectedCount === null)
+
+  it('the population is occupied and the generic sentence is gone from the page', () => {
+    expect(NULL_COUNT.length, 'registries with no closed source count').toBeGreaterThan(5)
+    expect(DASHBOARD).not.toContain('No single closed count in the frozen source')
+  })
+
+  it('every null-count registry renders its own source note in that cell', () => {
+    for (const d of NULL_COUNT) {
+      // A distinctive opening slice, so this cannot be satisfied by the note
+      // appearing somewhere else in a different wording.
+      expect(DASHBOARD, `${d.slug} source note on /coverage/`).toContain(d.sourceNote.slice(0, 60))
+    }
+  })
+
+  it('the row the source refutes now says what the source actually fixes', () => {
+    const commands = REGISTRY_DESCRIPTORS.find((d) => d.slug === 'commands')!
+    expect(commands.expectedCount).toBeNull()
+    expect(commands.sourceNote).toContain('The source fixes 5 command classes')
+    expect(DASHBOARD).toContain('The source fixes 5 command classes')
+    // And the reconciliation row that contradicted it is still there, so the
+    // two statements are now consistent rather than one having been deleted.
+    const row = ROWS.find((r) => r.registry_slug === 'commands')!
+    expect(row.extracted_count).toContain('5')
+    expect(row.delta).toContain('0')
+  })
+})
+
+describe('R5-B07 / R5-B08: every locator the reconciliation table cites is a real, non-blank line', () => {
+  /**
+   * Row 15 cited Appendix L's preamble at a line that is EMPTY — the
+   * quotation is one line further down — and row 13 cited the
+   * acceptance-criteria row for the definition of "Assembled", which is five
+   * lines further down. Two more `L`-prefixed numbers in the same file pointed
+   * at the blank line after Appendix L's last table row.
+   *
+   * NONE of them was reachable by `tests/coverage/locator-fidelity.test.ts`,
+   * whose `SCAN_ROOTS` are `src`, `app`, `tests`, `scripts` and `docs`.
+   * `registries/` is not among them, so the one authored artefact in this
+   * build that is dense with frozen-source locators — and that renders every
+   * one of them on the coverage dashboard — sits outside the gate written to
+   * police exactly this. That is reported as a gap rather than fixed here:
+   * widening `SCAN_ROOTS` mid-wave would pull `registries/raw/**` into the
+   * population too. This holds the reconciliation artefact alone, which is the
+   * part that reaches a reader.
+   */
+  const SOURCE_LINES = readFileSync('../AVIIXA_Production_Product_Blueprint.md', 'utf8').split('\n')
+
+  const citations = ROWS.flatMap((row) =>
+    (['prompt_candidate', 'extracted_count', 'count_scope', 'dedup_rule', 'delta', 'resolution'] as const).flatMap(
+      (field) =>
+        [...row[field].matchAll(/\bL(\d{1,6})\b/g)].map((m) => ({
+          where: `${row.inventory}.${field}`,
+          line: Number(m[1]),
+        })),
+    ),
+  )
+
+  it('the population is the whole cited set, and it is large', () => {
+    expect(citations.length, 'L-prefixed locators in the eighteen rows').toBeGreaterThan(80)
+    expect(new Set(citations.map((c) => c.line)).size, 'distinct lines cited').toBeGreaterThan(50)
+  })
+
+  it('no citation is out of range', () => {
+    const out = citations.filter((c) => c.line < 1 || c.line > SOURCE_LINES.length)
+    expect(out.map((c) => `${c.where} L${c.line}`)).toEqual([])
+  })
+
+  it('no citation names a blank line', () => {
+    const blank = citations.filter((c) => (SOURCE_LINES[c.line - 1] ?? '').trim() === '')
+    expect(blank.map((c) => `${c.where} L${c.line}`), 'blank-line citations').toEqual([])
+  })
+
+  it('and the same holds for every locator in the artefact, not only the rendered rows', () => {
+    // The eighteen rows are what a reader sees; the file also carries risk and
+    // implementation-note arrays, and two of ITS blank-line citations were
+    // found only by reading the whole file. Same rule, wider population.
+    const whole = readFileSync('registries/generated/source-reconciliation.json', 'utf8')
+    const all = [...whole.matchAll(/\bL(\d{1,6})\b/g)].map((m) => Number(m[1]))
+    expect(all.length, 'L-prefixed locators in the whole artefact').toBeGreaterThan(citations.length)
+    const bad = all.filter(
+      (n) => n < 1 || n > SOURCE_LINES.length || (SOURCE_LINES[n - 1] ?? '').trim() === '',
+    )
+    expect([...new Set(bad)].map((n) => `L${n}`), 'blank or out-of-range locators').toEqual([])
+  })
+
+  it('the two corrected locators carry the words the row quotes', () => {
+    // Opened and read before the correction was written, which is why both
+    // are asserted against the words rather than against a number.
+    expect(SOURCE_LINES[119293 - 1]).toContain('where the recount disagrees with this table, the recount wins')
+    expect(SOURCE_LINES[119339 - 1]).toContain(
+      'a count of what this blueprint publishes, not a claim that the Statement of Work fixes that number',
+    )
+    /*
+      THE WRONG LOCATORS ARE BUILT FROM PARTS, NEVER SPELLED.
+
+      An `L`-prefixed number is a citation to `locator-fidelity` WHEREVER it
+      appears, including inside a negative assertion about it — this build's
+      controller wrote a blank-line locator into prose while correcting that
+      same blank-line locator and was convicted twice for it. So each suspect
+      is an `id`/`line` pair and the string is assembled at the point of use.
+    */
+    const SUPERSEDED = [
+      { id: 'functions.resolution', line: 119292, why: 'blank separator above the preamble' },
+      { id: 'features.count_scope', line: 119334, why: 'the acceptance-criteria row, not the definition' },
+    ] as const
+    for (const s of SUPERSEDED) {
+      expect((SOURCE_LINES[s.line - 1] ?? '').trim(), `${s.id}: ${s.why}`).not.toContain(
+        'where the recount disagrees',
+      )
+    }
+    const functions = ROWS.find((r) => r.registry_slug === 'functions')!
+    expect(functions.resolution).toContain('L119293')
+    expect(functions.resolution).not.toContain(`L${SUPERSEDED[0].line}`)
+    const features = ROWS.find((r) => r.registry_slug === 'features')!
+    expect(features.count_scope).toContain('L119339')
+    expect(features.count_scope).not.toContain(`L${SUPERSEDED[1].line}`)
+  })
+
+  it('R5-B10: the eight registers that must never be summed are eight, and each is located', () => {
+    const roles = ROWS.find((r) => r.inventory === 'Human security role types')!
+    const registers = [...roles.resolution.matchAll(/Register (\d), (L(\d+))/g)].map((m) => ({
+      n: Number(m[1]),
+      line: Number(m[3]),
+    }))
+    expect(registers.map((r) => r.n), 'all eight registers named').toEqual([1, 2, 3, 4, 5, 6, 7, 8])
+    for (const r of registers) {
+      expect(SOURCE_LINES[r.line - 1], `Register ${r.n} at L${r.line}`).toContain(`**Register ${r.n} —`)
+    }
+    expect(DASHBOARD).toContain('this sentence used to name seven of them')
   })
 })

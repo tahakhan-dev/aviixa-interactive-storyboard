@@ -105,23 +105,42 @@ const REGISTRY_STATUS_PRECEDENCE = [
   'not-represented',
 ] as const satisfies readonly CoverageStatus[]
 
-/** The two the rule above will never return, with the reason, rendered. */
-const REGISTRY_LEVEL_UNASSIGNABLE: readonly { status: CoverageStatus; why: string }[] = [
-  {
-    status: 'decision-blocked',
-    why:
-      'A terminal state for one row, never for a whole inventory. It is emittable per row from ' +
-      'registries/authored/census-status-overrides.json and no row holds it today; that file ' +
-      'records why, measured rather than assumed.',
-  },
-  {
-    status: 'not-applicable',
-    why:
-      'Also a per-row terminal state. Twenty-two rows hold it — the do-not-use-cron register ' +
-      'inside actionable controls — and no whole registry does: saying an inventory the master ' +
-      'prompt requires does not apply is a claim nothing in the frozen source supports.',
-  },
-]
+/* ────────────────────────────────────────────────────────────────────────
+ * R5-B05 — "TWO OF THE FIVE", WHERE THE LEGEND ABOVE SHOWS THREE.
+ *
+ * R4-B12 named three statuses that never appear in the registry column and
+ * the fix explained two — this build's defect shape 3, a fix reaching some of
+ * the call sites its own finding named. The third is
+ * `mounted-in-another-screen`, and its absence is structural rather than
+ * accidental: `registryStatus` returns it only for a registry holding a
+ * mounted row and no demonstrated row, and the only registry holding mounted
+ * rows (modules) also holds sixty-nine demonstrated ones, so the precedence
+ * order can never reach it.
+ *
+ * WHICH STATUSES ARE UNHELD IS NOW MEASURED, NOT LISTED. `UNHELD_AT_REGISTRY_
+ * LEVEL` is derived from the same tally the legend renders, and the sentence
+ * counts that list rather than spelling a number, so the two cannot drift
+ * apart again. A status that becomes held disappears from the paragraph on
+ * the next build; one that becomes unheld appears in it, with a stated reason
+ * if this map has one and an explicit "not yet explained" if it does not —
+ * never silently.
+ * ──────────────────────────────────────────────────────────────────────── */
+const WHY_UNASSIGNABLE: Partial<Record<CoverageStatus, string>> = {
+  'decision-blocked':
+    'A terminal state for one row, never for a whole inventory. It is emittable per row from ' +
+    'registries/authored/census-status-overrides.json and no row holds it today; that file ' +
+    'records why, measured rather than assumed.',
+  'not-applicable':
+    'Also a per-row terminal state. Twenty-two rows hold it — the do-not-use-cron register ' +
+    'inside actionable controls — and no whole registry does: saying an inventory the master ' +
+    'prompt requires does not apply is a claim nothing in the frozen source supports.',
+  'mounted-in-another-screen':
+    'Reachable in the rule and unreachable in this data, which is a structural fact rather ' +
+    'than an accident. A registry reports it only when it holds a mounted row and no ' +
+    'demonstrated row; the only registry holding mounted rows is Modules, which also holds ' +
+    'demonstrated ones, and demonstrated wins the precedence. The status is not empty at ' +
+    'ITEM level — the item counts above show how many rows hold it.',
+}
 
 function registryStatus(slug: RegistrySlug): CoverageStatus {
   const held = new Set(REGISTRIES[slug].rows.map((r) => r.status))
@@ -158,6 +177,11 @@ const REGISTRY_STATUS_ENTRIES: readonly { status: CoverageStatus }[] = REGISTRY_
   (d) => ({ status: registryStatus(d.slug) }),
 )
 const RECONCILIATION_SUMMARY = countByStatus(REGISTRY_STATUS_ENTRIES)
+
+/** R5-B05: the statuses no registry holds, read off the tally the legend renders. */
+const UNHELD_AT_REGISTRY_LEVEL: readonly CoverageStatus[] = COVERAGE_STATUSES.filter(
+  (status) => RECONCILIATION_SUMMARY[status] === 0,
+)
 
 /**
  * Task 10 / addendum §5: source-defined and derived are counted from
@@ -217,10 +241,27 @@ export default function CoveragePage() {
                 {d.title}
               </Link>
             ),
-            expected:
-              d.expectedCount === null
-                ? 'No single closed count in the frozen source'
-                : `${d.expectedCount}`,
+            /*
+              R5-B01 — THE CELL THAT TOLD A READER THE SOURCE IS SILENT,
+              THREE COLUMNS FROM THE ROW SAYING IT IS CLOSED.
+
+              Every registry with a null `expectedCount` printed one generic
+              sentence: "No single closed count in the frozen source". That is
+              a claim about the DOCUMENT, and for Commands the document
+              refutes it — the source fixes five command classes in ten places,
+              Appendix L publishes them, and row 6 of the reconciliation table
+              on this same page reads "5, closed", delta 0, CONFIRMED.
+
+              What is actually true is the descriptor's own note: five classes,
+              sixteen instances and fifty-seven identifiers are three separate
+              registers and this build asserts no single count ACROSS them.
+              Each descriptor already says that in its own words, so the cell
+              renders that instead of a sentence that generalises ten different
+              situations into one false one. The other nine notes were read
+              against the source as well; Commands was the only one the
+              generic sentence misrepresented.
+            */
+            expected: d.expectedCount === null ? d.sourceNote : `${d.expectedCount}`,
             status: (
               <StatusPill
                 tone={STATUS_TONE[registryStatus(d.slug)]}
@@ -272,14 +313,23 @@ export default function CoveragePage() {
         presence check and the item-level row as the coverage.
       </p>
       {/*
-        R4-B12. Two of the five legend statuses are per-row terminal states
-        that `registryStatus` will never return. Saying so beats leaving a
-        reader to wonder why a legend row never appears.
+        R4-B12, corrected by R5-B05. The count comes from the derived list's
+        own length, so it cannot say "two" beside a legend showing three
+        again.
       */}
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-        <strong>Two of the five statuses never appear in the registry column above</strong>, and
-        that is a rule rather than an accident.{' '}
-        {REGISTRY_LEVEL_UNASSIGNABLE.map((u) => `${STATUS_LABEL[u.status]}: ${u.why}`).join(' ')}
+        <strong>
+          {UNHELD_AT_REGISTRY_LEVEL.length} of the {COVERAGE_STATUSES.length} statuses never appear
+          in the registry column above
+        </strong>
+        , and that is a rule rather than an accident.{' '}
+        {UNHELD_AT_REGISTRY_LEVEL.map(
+          (status) =>
+            `${STATUS_LABEL[status]}: ${
+              WHY_UNASSIGNABLE[status] ??
+              'no reason has been written for this one yet, which is itself the finding — a legend row a reader cannot account for.'
+            }`,
+        ).join(' ')}
       </p>
 
       {/*
@@ -312,9 +362,23 @@ export default function CoveragePage() {
         resolved. Where the two disagree the frozen source wins and the delta is recorded rather
         than the count silently substituted. {RECONCILIATION_ROWS.length} rows, covering all{' '}
         {REGISTRY_DESCRIPTORS.length} registries above —{' '}
-        {RECONCILIATION_ROWS.filter((r) => r.registry_slug === null).length} further rows reconcile
-        counts that none of the fourteen indexes, and each says why in its own scope column.
+        {RECONCILIATION_ROWS.filter((r) => r.registry_slug === null).length} further rows carry no
+        registry slug of their own, and each states beside its own name why: either nothing among
+        the fourteen indexes holds that count, or its rows render inside another index as a
+        sub-register.
       </p>
+      {/*
+        R5-B09. This sentence read "…further rows reconcile counts that none of
+        the fourteen indexes, and each says why in its own scope column." Three
+        things were wrong with fourteen words. A verb was missing. The reason
+        renders under the Inventory cell, not the scope column. And the claim
+        was false of one of the four: row 11's own whyNoRegistrySlug, three
+        columns to the right, says its 22 do-not-use-cron rows DO render on the
+        actionable-controls index — and they do. The replacement states the
+        disjunction instead of asserting the half that is wrong, and names no
+        split count, because a split nothing derives is the next figure to go
+        stale.
+      */}
       <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
         This is the one artefact in the build that is authored rather than generated, and it sits
         in <code>registries/generated/</code> beside thirteen files that are not. It is the single

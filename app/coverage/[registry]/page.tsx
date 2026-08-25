@@ -95,6 +95,37 @@ function tallyBy(
     .sort((a, b) => (a.group < b.group ? -1 : 1))
 }
 
+/* ────────────────────────────────────────────────────────────────────────
+ * R5-B06 — "WITH THE REASON BESIDE IT", ON 4,714 ROWS THAT CARRIED NONE.
+ *
+ * All fourteen indexes promise that a routeless row renders "its id as plain
+ * text with the reason beside it, never as a link to nowhere". No reason was
+ * rendered. `statusReason` exists on the rows that carry an authored terminal
+ * record and was not shown; every other routeless row had nothing at all.
+ *
+ * The enumerated reasons were also incomplete, and the missing one is the
+ * interesting case: twelve actionable-control rows read
+ * `demonstrated-in-storyboard` WITH NO ROUTE, because their evidence is a
+ * control matrix declared in a module component under `src/` and route
+ * resolution reads `app/` only. None of the four reasons the page listed
+ * covers that, so the page named a status a reader could not account for.
+ *
+ * DERIVED FROM THE ROW, never a per-row literal: an authored record states
+ * its own reason and that is what renders; the other three cases are read off
+ * the status the generator computed, so a row that changes status changes its
+ * reason on the next build.
+ * ──────────────────────────────────────────────────────────────────────── */
+function routelessReason(row: GeneratedRegistry['rows'][number]): string {
+  if (row.statusReason !== undefined) return row.statusReason
+  if (row.status === 'mounted-in-another-screen') {
+    return 'Mounted inside another module’s screen and owns no route of its own — the evidence is a route file importing its module directory, not a route that demonstrates it.'
+  }
+  if (row.status === 'demonstrated-in-storyboard') {
+    return 'Demonstrated by a module component under src/ that a route mounts, rather than by a file in the route directory itself — route resolution reads app/ only, so there is no directory to link to.'
+  }
+  return 'No shipped route demonstrates this row and no route mounts its module, so there is no screen to link to.'
+}
+
 function CensusByDimension({ registry }: { registry: GeneratedRegistry }) {
   const bySurface = tallyBy(registry.rows, (r) => r['surface'] as string | undefined)
   const byModule = tallyBy(registry.rows, (r) =>
@@ -126,19 +157,52 @@ function CensusByDimension({ registry }: { registry: GeneratedRegistry }) {
   return (
     <div className="mt-6">
       <h2 className="text-xl font-semibold">Census by surface and by module</h2>
+      {/*
+        R5-B04 — A CONTROL-SCOPED DISCLOSURE RENDERED ON SIX INVENTORIES THAT
+        HOLD NO CONTROLS.
+
+        This block reaches seven index pages and six of them list no controls
+        at all — modules, features, sub-features, functions, business objects,
+        notifications. On the modules page it read "master prompt section 13.1
+        requires THIS INVENTORY counted by ... control type", which is false:
+        §13.1's census is generated from the `ControlDefinition` registry, not
+        from the module inventory. It then said "81 record no module" of an
+        inventory whose rows ARE modules, and cross-referenced a dashboard
+        delta that carries nothing about control type.
+
+        The control-type paragraph and its cross-reference are the
+        actionable-controls page's, and now render only there. The
+        surface/module counts are true of any inventory whose rows carry those
+        dimensions, so they stay on all seven.
+      */}
       <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
-        Master prompt section 13.1 requires this inventory counted by surface, by module, by
-        control type and by implementation status. Three of the four are below.{' '}
-        {noSurface > 0
-          ? `${noSurface} of ${registry.rows.length} rows record no surface. `
-          : 'Every row records a surface. '}
-        {noModule > 0
-          ? `${noModule} record no module, and a module cell the extraction wrote in prose, or that names several modules at once, is shown as that text rather than guessed into a canonical identifier. `
-          : 'Every row records a module. '}
-        <strong>Control type is counted nowhere and that is not an omission:</strong> the frozen
-        source classifies none of these controls by type, so a type column would be this
-        build&rsquo;s own taxonomy inside a source-derived census. The reconciliation row for this
-        inventory on the coverage dashboard carries it as the delta.
+        {registry.slug === 'actionable-controls'
+          ? 'Master prompt section 13.1 requires this inventory counted by surface, by module, by control type and by implementation status. Three of the four are below. '
+          : 'This inventory’s rows carry a surface, a module, or both, so they are counted by each below. Master prompt section 13.1’s four-dimension census is the actionable-controls inventory’s, not this one’s. '}
+        {/*
+          R5-B04, second half: each sentence renders only where its own table
+          does. The modules index counted no module dimension at all and still
+          printed "81 record no module" — of an inventory whose rows are the
+          modules.
+        */}
+        {bySurface.length === 0
+          ? ''
+          : noSurface > 0
+            ? `${noSurface} of ${registry.rows.length} rows record no surface. `
+            : 'Every row records a surface. '}
+        {byModule.length === 0
+          ? ''
+          : noModule > 0
+            ? `${noModule} record no module, and a module cell the extraction wrote in prose, or that names several modules at once, is shown as that text rather than guessed into a canonical identifier. `
+            : 'Every row records a module. '}
+        {registry.slug === 'actionable-controls' ? (
+          <>
+            <strong>Control type is counted nowhere and that is not an omission:</strong> the
+            frozen source classifies none of these controls by type, so a type column would be
+            this build&rsquo;s own taxonomy inside a source-derived census. The reconciliation row
+            for this inventory on the coverage dashboard carries it as the delta.
+          </>
+        ) : null}
       </p>
       {bySurface.length > 0 ? (
         <div className="mt-4 overflow-x-auto" tabIndex={0} role="region" aria-label="Census by surface, scrollable horizontally">
@@ -212,7 +276,11 @@ export function RegistryIndex({ slug }: { slug: RegistrySlug }) {
     */
     id:
       r.route === undefined ? (
-        r.id
+        <>
+          {r.id}
+          <br />
+          <span className="text-xs text-[var(--color-ink-subtle)]">{routelessReason(r)}</span>
+        </>
       ) : (
         <Link href={r.route} className="text-[var(--color-primary)] underline">
           {r.id}

@@ -4,6 +4,8 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { execFileSync } from 'node:child_process'
 import { isForeignProbe } from '../probe-paths'
+import { stripComments } from '../coverage/strip-comments'
+import ts from 'typescript'
 import { SOURCE_CLASSIFICATIONS } from '@/registry/schemas'
 
 /**
@@ -34,6 +36,46 @@ const SLUGS = [
 ] as const
 
 const load = (s: string) => JSON.parse(readFileSync(`registries/generated/${s}.json`, 'utf8'))
+
+/**
+ * R5-A07 — WHAT COUNTS AS A DECLARED CONTROL, ASKED OF THE PARSER.
+ *
+ * The published figure was 271 declared control-matrix labels and four of
+ * them were `Record<Kind, string>` entries where `control` is a union-member
+ * KEY: `control: 'ok'` (a StatusTone), `'Control'`, `'a live control'`,
+ * `'Control drawn here'`. Two more were a Tailwind class and a member of a
+ * union inside a TYPE literal. In the other direction the single-quote regex
+ * could not see nine real labels written in double quotes because they
+ * contain an apostrophe.
+ *
+ * TRANSCRIBED, never imported from the generator: a gate that imports its
+ * subject's own scanner moves with it silently, which is how the app/-only
+ * scan survived as long as it did.
+ */
+const CONTROL_MATRIX_SIBLINGS = ['id', 'sourceRef', 'matrixRef']
+function controlMatrixLabels(text: string): string[] {
+  if (!text.includes('control:')) return []
+  const found: string[] = []
+  const source = ts.createSourceFile('gate.tsx', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const visit = (node: ts.Node): void => {
+    if (ts.isObjectLiteralExpression(node)) {
+      const props = new Map<string, ts.Expression>()
+      for (const p of node.properties) {
+        if (ts.isPropertyAssignment(p) && (ts.isIdentifier(p.name) || ts.isStringLiteral(p.name))) {
+          props.set(p.name.text, p.initializer)
+        }
+      }
+      const control = props.get('control')
+      if (control !== undefined && ts.isStringLiteralLike(control) && CONTROL_MATRIX_SIBLINGS.some((k) => props.has(k))) {
+        found.push(control.text)
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  return found
+}
+
 
 /**
  * Two FRESH generations, both redirected with AVIIXA_REGISTRY_OUT so this
@@ -349,8 +391,13 @@ describe('per-item status is computed from the built tree, not hardcoded', () =>
    * set would have made this gate unable to catch an identifier status awarded
    * off a `src/` mention, which is a defect the generator must never commit.
    */
-  const namedByAShippedScreen = (): { identifiers: Set<string>; controlLabels: Set<string> } => {
+  const namedByAShippedScreen = (): {
+    identifiers: Set<string>
+    identifiersIncludingComments: Set<string>
+    controlLabels: Set<string>
+  } => {
     const named = new Set<string>()
+    const namedIncludingComments = new Set<string>()
     const controlLabels = new Set<string>()
     // A scratch probe belonging to a CONCURRENT process: the release gates
     // plant one under `app/` and delete it as soon as their own assertion
@@ -366,12 +413,15 @@ describe('per-item status is computed from the built tree, not hardcoded', () =>
         else if (/\.tsx?$/.test(e.name)) {
           const text = readFileSync(`${dir}/${e.name}`, 'utf8')
           if (identifiersHere) {
-            for (const t of text.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) named.add(t)
+            // R5-A02: comments stripped. A screen that NAMES an identifier in
+            // a doc comment does not demonstrate it, and seventeen rows were
+            // linked to a page whose only mention of them was one.
+            for (const t of stripComments(text).match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) named.add(t)
+            for (const t of text.match(/[A-Z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+/g) ?? []) namedIncludingComments.add(t)
           }
-          for (const m of text.matchAll(/\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g)) {
-            const label = m[1]
-            if (label !== undefined) controlLabels.add(label.replace(/\\(.)/g, '$1'))
-          }
+          // R5-A07: the parser, not the regex. `control: 'ok'` in a
+          // Record<Kind, string> is a tone token, not a declared control.
+          for (const label of controlMatrixLabels(text)) controlLabels.add(label)
         }
       }
     }
@@ -381,7 +431,7 @@ describe('per-item status is computed from the built tree, not hardcoded', () =>
     // route screen naming it, and must not become a demonstrated status.
     identifiersHere = false
     walk('src')
-    return { identifiers: named, controlLabels }
+    return { identifiers: named, identifiersIncludingComments: namedIncludingComments, controlLabels }
   }
 
   it('at least one registry has a demonstrated row — a build with 27 module screens reporting fourteen zeros is a broken measurement', () => {
@@ -394,20 +444,36 @@ describe('per-item status is computed from the built tree, not hardcoded', () =>
   })
 
   it('every demonstrated row is named by a shipped file — no status without evidence', () => {
-    const { identifiers, controlLabels } = namedByAShippedScreen()
-    // Both populations, not just the one the loop below happens to reach:
-    // either going empty would make this assertion pass over nothing.
-    expect(identifiers.size, 'identifier tokens under app/').toBeGreaterThan(0)
-    expect(controlLabels.size, 'control: labels under app/ and src/').toBeGreaterThan(200)
+    const { identifiers, identifiersIncludingComments, controlLabels } = namedByAShippedScreen()
+    // Every population, not just the one the loop below happens to reach:
+    // any of them going empty would make this assertion pass over nothing.
+    expect(identifiers.size, 'identifier tokens under app/, comments stripped').toBeGreaterThan(0)
+    expect(identifiersIncludingComments.size, 'identifier tokens including comments').toBeGreaterThan(
+      identifiers.size,
+    )
+    expect(controlLabels.size, 'declared control-matrix labels under app/ and src/').toBeGreaterThan(200)
     for (const slug of SLUGS) {
       for (const row of load(slug).rows) {
         if (row.status !== 'demonstrated-in-storyboard') continue
-        // A control row's id IS its label text and its evidence is a declared
-        // control-matrix row; every other row's evidence is a route screen
-        // naming its identifier. Checked against the right one, so neither
-        // class can borrow the other's evidence.
+        /*
+          THREE EVIDENCE CLASSES, AND R5-A02 SPLIT THE THIRD OFF THE FIRST.
+
+          A control row's id IS its label text and its evidence is a declared
+          control-matrix row. A MODULE's evidence is OWNERSHIP — a declared
+          slug, or the route directory whose files name it more often than any
+          other — and a route file's header comment stating which module the
+          directory belongs to is a legitimate part of that, so the module half
+          reads the raw text. Every OTHER row's evidence is a CITATION: a route
+          screen naming the identifier, which a comment cannot do. Seventeen
+          rows linked to a page whose only mention was a JSDoc line before that
+          distinction existed, so it is asserted here rather than assumed.
+        */
         const evidence =
-          slug === 'actionable-controls' && !/^DNC-\d+$/.test(row.id) ? controlLabels : identifiers
+          slug === 'actionable-controls' && !/^DNC-\d+$/.test(row.id)
+            ? controlLabels
+            : slug === 'modules'
+              ? identifiersIncludingComments
+              : identifiers
         expect(evidence.has(row.id), `${slug}/${row.id}`).toBe(true)
       }
     }
@@ -426,11 +492,8 @@ describe('per-item status is computed from the built tree, not hardcoded', () =>
         if (isForeignProbe(e.name)) continue
         if (e.isDirectory()) walkApp(`${dir}/${e.name}`)
         else if (/\.tsx?$/.test(e.name)) {
-          for (const m of readFileSync(`${dir}/${e.name}`, 'utf8').matchAll(
-            /\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g,
-          )) {
-            const label = m[1]
-            if (label !== undefined) appOnly.add(label.replace(/\\(.)/g, '$1'))
+          for (const label of controlMatrixLabels(readFileSync(`${dir}/${e.name}`, 'utf8'))) {
+            appOnly.add(label)
           }
         }
       }
@@ -1168,5 +1231,143 @@ describe('mounting is transitive', () => {
     // status above a measurement.
     const absent = rows.filter((r) => r.status === 'not-represented')
     expect(absent.length, 'no module reads absent — the rule has stopped discriminating').toBeGreaterThan(0)
+  })
+})
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * R5-A02 — A COMMENT IS NOT A DEMONSTRATION, AND IT IS NOT A DRILL-DOWN.
+ *
+ * `out/coverage/ai-storyboards/index.html` rendered
+ * `<a href="/hub/shift-management/">SB-STU-03</a>`. The whole of
+ * `app/hub/shift-management/` names `SB-STU-03` exactly once, in a JSDoc line
+ * about numbering style: "Spelled up to twelve, then numeric — the same shape
+ * `SB-STU-03` uses." A Studio storyboard, linked to a Hub shift screen. The
+ * same mention set `status: demonstrated-in-storyboard`, so the census
+ * over-counted by the same rows — seventeen of them.
+ *
+ * R4-B10's gate asserts every link resolves to a real page, and they all did.
+ * What nothing asked is whether the page DEMONSTRATES the row. This does.
+ *
+ * THE ROUTE-URL MAPPING IS TRANSCRIBED, not imported: a route directory under
+ * a Next.js route group contributes no URL segment, so `app/(x)/foo` serves
+ * `/foo/` and the reverse mapping is not a string operation. The gate walks
+ * `app/` itself and computes the URL for every directory holding a `page.tsx`,
+ * the same rule `routeUrlFor` uses, so a change to that rule diverges here
+ * rather than being followed silently.
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+describe('R5-A02: a row links only to a page whose non-comment source names it', () => {
+  /**
+   * One probe-aware listing for both walks below. A concurrent suite's scratch
+   * probe is skipped here rather than in each caller, so neither can forget.
+   */
+  const readDir = (dir: string) =>
+    readdirSync(dir, { withFileTypes: true }).filter((e) => !isForeignProbe(e.name))
+
+  /** `/url/` -> every app directory serving it. */
+  const dirsByUrl = new Map<string, string[]>()
+  const walkApp = (dir: string): void => {
+    if (readDir(dir).some((e) => e.isFile() && e.name === 'page.tsx')) {
+      const rest = dir
+        .slice(join(process.cwd(), 'app').length + 1)
+        .split('/')
+        .filter((s) => s !== '' && !(s.startsWith('(') && s.endsWith(')')))
+      if (!rest.some((s) => s.includes('[') || s.includes(']'))) {
+        const url = `/${rest.map((s) => `${s}/`).join('')}`
+        dirsByUrl.set(url, [...(dirsByUrl.get(url) ?? []), dir])
+      }
+    }
+    for (const e of readDir(dir)) {
+      if (e.isDirectory()) walkApp(join(dir, e.name))
+    }
+  }
+  walkApp(join(process.cwd(), 'app'))
+
+  /**
+   * The comment-stripped text of the files a route directory owns itself.
+   * MEMOISED: 287 linked rows over 49 distinct routes means the same directory
+   * is asked about six times on average, and a TypeScript parse per file is
+   * not free — unmemoised this test spent past its 5s budget under a full
+   * parallel run, which is a flaky red rather than a finding.
+   */
+  const codeCache = new Map<string, string>()
+  const codeOf = (dir: string): string => {
+    const cached = codeCache.get(dir)
+    if (cached !== undefined) return cached
+    const source = readDir(dir)
+      .filter((e) => e.isFile() && /\.tsx?$/.test(e.name))
+      .map((e) => stripComments(readFileSync(join(dir, e.name), 'utf8')))
+      .join('\n')
+    codeCache.set(dir, source)
+    return source
+  }
+
+  /**
+   * The thirteen inventories whose status and route come from a TOKEN scan.
+   * `modules` resolves by slug declaration or mention argmax and
+   * `actionable-controls` by exact control-matrix label, so neither is a
+   * token citation and neither is in scope here.
+   */
+  const TOKEN_SLUGS = SLUGS.filter((s) => s !== 'modules' && s !== 'actionable-controls')
+
+  it('the app route tree is readable and the linked population is not empty', () => {
+    expect(dirsByUrl.size, 'route URLs found under app/').toBeGreaterThan(50)
+    const linked = TOKEN_SLUGS.flatMap((s) =>
+      (fresh(s).rows as { route?: string }[]).filter((r) => r.route !== undefined),
+    )
+    expect(linked.length, 'token-inventory rows carrying a route').toBeGreaterThan(100)
+  })
+
+  it('every linked row is named in the route directory OUTSIDE its comments', () => {
+    const wrong: string[] = []
+    for (const slug of TOKEN_SLUGS) {
+      for (const row of fresh(slug).rows as { id: string; route?: string }[]) {
+        if (row.route === undefined) continue
+        const dirs = dirsByUrl.get(row.route) ?? []
+        if (dirs.length === 0) {
+          wrong.push(`${slug}/${row.id} -> ${row.route} (no app directory serves that URL)`)
+          continue
+        }
+        const token = new RegExp(`(?<![A-Za-z0-9-])${row.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9-])`)
+        if (!dirs.some((d) => token.test(codeOf(d)))) {
+          wrong.push(`${slug}/${row.id} -> ${row.route} (named only in a comment, or not at all)`)
+        }
+      }
+    }
+    expect(wrong, 'rows linked to a page whose non-comment source never names them').toEqual([])
+  })
+
+  it('the same rule holds for the STATUS, not only for the link', () => {
+    // The link and the status come from the same evidence; a fix that
+    // stripped comments for one and not the other would leave the census
+    // over-counted while the anchors looked right.
+    const appCode = [...dirsByUrl.values()].flat().map(codeOf).join('\n')
+    const wrong: string[] = []
+    for (const slug of TOKEN_SLUGS) {
+      for (const row of fresh(slug).rows as { id: string; status: string }[]) {
+        if (row.status !== 'demonstrated-in-storyboard') continue
+        const token = new RegExp(`(?<![A-Za-z0-9-])${row.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9-])`)
+        if (!token.test(appCode)) wrong.push(`${slug}/${row.id}`)
+      }
+    }
+    expect(wrong, 'rows read demonstrated off a comment').toEqual([])
+  })
+
+  it('the worked example is closed: SB-STU-03 does not link to the Hub shift screen', () => {
+    // The one this finding was found by. Named explicitly so a re-widening
+    // that happens to leave the aggregate counts plausible is still red.
+    const row = (fresh('ai-storyboards').rows as { id: string; route?: string }[]).find(
+      (r) => r.id === 'SB-STU-03',
+    )
+    expect(row, 'SB-STU-03').toBeDefined()
+    expect(row!.route, 'SB-STU-03 must not link to a Hub screen that only mentions it in a comment').not.toBe(
+      '/hub/shift-management/',
+    )
+    // And the comment that caused it is still there, so this is a live test
+    // rather than one satisfied by the evidence having been deleted.
+    const raw = readFileSync('app/hub/shift-management/fixtures.ts', 'utf8')
+    expect(raw, 'the JSDoc mention that caused R5-A02').toContain('SB-STU-03')
+    expect(stripComments(raw), 'and it is only in a comment').not.toContain('SB-STU-03')
   })
 })

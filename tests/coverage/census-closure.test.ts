@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import ts from 'typescript'
 import { isForeignProbe } from '../probe-paths'
 import { REGISTRY_DESCRIPTORS, COVERAGE_STATUSES } from '../../src/coverage/descriptors'
 import { masterPromptObligation } from './master-prompt'
@@ -41,33 +42,184 @@ import { renderedText } from './rendered-text'
 const OUT = join(process.cwd(), 'out')
 
 /**
- * The generator's own `control:` regex, transcribed here rather than
+ * THE FLIGHT PAYLOAD IS NOT RENDERED TEXT (R5-B03's measurement warning).
+ *
+ * `renderedText` strips tags and HTML comments. It does NOT strip
+ * `<script>self.__next_f.push(...)</script>`, and on this page that payload is
+ * 790KB of the 1.3MB file — every prop of every server component, including
+ * every sentence this gate asserts and every row id as a React key. A gate
+ * that measures with `renderedText` alone can be satisfied by a page whose
+ * visible content has been deleted, which is the exact trap the round-5 audit
+ * caught the controller in. Scripts and styles are removed first here, so what
+ * is measured is what a reader sees.
+ *
+ * Local rather than folded into `tests/coverage/rendered-text.ts`: that helper
+ * is shared with gates two other fix streams are editing right now. The hazard
+ * is repo-wide and is reported as such.
+ */
+function readerText(html: string): string {
+  return renderedText(
+    html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, ' '),
+  )
+}
+
+
+/**
+ * The generator's own loose `control:` regex, transcribed here rather than
  * imported, BECAUSE it is transcribed: if the generator's scan narrows, this
  * one does not, and the two figures diverge and go red. A gate that imported
  * the scanner would move with it silently — which is exactly how the app/-only
  * scan survived for as long as it did.
+ *
+ * R5-A07: THIS REGEX IS NO LONGER THE POPULATION, IT IS THE CONTROL GROUP.
+ * The generator used to scan with exactly this pattern and the gate
+ * reproduced its four false positives by construction — `control: 'ok'` and
+ * three siblings are `Record<Kind, string>` entries where `control` is a
+ * union-member KEY and the value is a caption or a tone token, and the gate
+ * could never convict them because it made the same mistake in the same way.
+ * The generator now asks the TypeScript parser for a string-literal `control`
+ * property of an object literal that also carries a control-matrix sibling
+ * key; this file keeps the loose scan and requires the DIFFERENCE between the
+ * two to be exactly the named list below. A silent re-widening and a silent
+ * narrowing are both red, and neither can hide behind a bigger number.
  */
 const CONTROL_LABEL = /\bcontrol:\s*(?:\r?\n\s*)?'((?:[^'\\]|\\.)*)'/g
 
-function collectLabels(dir: string, into: Set<string>): Set<string> {
+/**
+ * The strict rule, TRANSCRIBED rather than imported for the same reason the
+ * loose one is. Every real declaration in this tree carries at least one of
+ * these siblings; no `Record<Kind, string>` does, because a kind map's
+ * siblings are the other members of its union.
+ */
+const CONTROL_MATRIX_SIBLINGS = ['id', 'sourceRef', 'matrixRef']
+
+function declaredIn(text: string): string[] {
+  const found: string[] = []
+  const source = ts.createSourceFile('gate.tsx', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const visit = (node: ts.Node): void => {
+    if (ts.isObjectLiteralExpression(node)) {
+      const props = new Map<string, ts.Expression>()
+      for (const p of node.properties) {
+        if (ts.isPropertyAssignment(p) && (ts.isIdentifier(p.name) || ts.isStringLiteral(p.name))) {
+          props.set(p.name.text, p.initializer)
+        }
+      }
+      const control = props.get('control')
+      if (
+        control !== undefined &&
+        ts.isStringLiteralLike(control) &&
+        CONTROL_MATRIX_SIBLINGS.some((k) => props.has(k))
+      ) {
+        found.push(control.text)
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  return found
+}
+
+function collectLabels(dir: string, loose: Set<string>, strict: Set<string>): void {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (isForeignProbe(entry.name)) continue
     const full = join(dir, entry.name)
     if (entry.isDirectory()) {
-      collectLabels(full, into)
+      collectLabels(full, loose, strict)
       continue
     }
     if (!/\.tsx?$/.test(entry.name)) continue
-    for (const m of readFileSync(full, 'utf8').matchAll(CONTROL_LABEL)) {
-      into.add((m[1] ?? '').replace(/\\(.)/g, '$1'))
+    const text = readFileSync(full, 'utf8')
+    for (const m of text.matchAll(CONTROL_LABEL)) {
+      loose.add((m[1] ?? '').replace(/\\(.)/g, '$1'))
     }
+    if (!text.includes('control:')) continue
+    for (const label of declaredIn(text)) strict.add(label)
   }
-  return into
 }
 
-const APP_LABELS = collectLabels(join(process.cwd(), 'app'), new Set<string>())
-const ALL_LABELS = collectLabels(join(process.cwd(), 'src'), new Set(APP_LABELS))
+const APP_LOOSE = new Set<string>()
+const APP_LABELS = new Set<string>()
+collectLabels(join(process.cwd(), 'app'), APP_LOOSE, APP_LABELS)
+const ALL_LOOSE = new Set(APP_LOOSE)
+const ALL_LABELS = new Set(APP_LABELS)
+collectLabels(join(process.cwd(), 'src'), ALL_LOOSE, ALL_LABELS)
 const SRC_ONLY = [...ALL_LABELS].filter((l) => !APP_LABELS.has(l))
+
+/**
+ * The exact strings the loose scan counted as declared controls and that are
+ * not controls at all, named one by one rather than summarised as a count.
+ * `ok` is a `StatusTone`; `Control`, `a live control` and `Control drawn here`
+ * are pill captions on affordance-kind maps; `border-[…]` is a Tailwind class;
+ * `send` is the first member of a union in a TYPE literal, which is not a
+ * value at all.
+ */
+const NOT_CONTROLS = [
+  'Control',
+  'Control drawn here',
+  'a live control',
+  'border-[var(--color-border-strong)]',
+  'ok',
+  'send',
+]
+
+/**
+ * And the other direction: real declared labels the single-quote regex could
+ * never see, because they contain an apostrophe and are therefore written in
+ * double quotes. Nine of them, and every one is a control-matrix row.
+ */
+const APOSTROPHE_LABELS = [
+  "Carry the source Job's approval forward",
+  "Carry the source Job's recurrence forward silently",
+  "Read the application's encrypted store outside the application",
+  "Reclassify an anomaly's severity",
+  "See another worker's coaching history",
+  "View another identity's inbox",
+  "View another identity's session or work",
+  "View another tenant's material",
+  "View another worker's assigned work",
+]
+
+/* ────────────────────────────────────────────────────────────────────────
+ * R5-A03 — READING A TABLE BODY, BECAUSE `toContain(surface)` READ THE PAGE.
+ *
+ * The per-surface census was asserted with `expect(CONTROLS_PAGE).toContain
+ * (surface)` for the five surface tokens. Those tokens occur 330, 308, 322,
+ * 168 and 100 times on that page — all of them in the 630-row table below,
+ * never in the census block. Deleting five of the six census rows left every
+ * assertion passing and the caption still reading "6 surface groups". The
+ * 181-row census-by-module table beside it, and both captions, were asserted
+ * by nothing at all.
+ *
+ * These three helpers are transcribed rather than shared, the same doctrine
+ * the two label scans above follow: a gate that imports its subject's own
+ * reader moves with it silently.
+ * ──────────────────────────────────────────────────────────────────────── */
+function tableWithCaption(html: string, needle: string): string {
+  const found = [...html.matchAll(/<table\b[^>]*>.*?<\/table>/gs)]
+    .map((m) => m[0])
+    .filter((t) => {
+      const caption = /<caption\b[^>]*>(.*?)<\/caption>/s.exec(t)
+      return caption !== null && renderedText(caption[1] ?? '').includes(needle)
+    })
+  if (found.length !== 1) {
+    throw new Error(
+      `Expected exactly one table whose caption contains "${needle}"; found ${found.length}. ` +
+        'A gate that cannot find its own table asserts nothing.',
+    )
+  }
+  return found[0] as string
+}
+
+function bodyRows(table: string): string[] {
+  const body = /<tbody\b[^>]*>(.*?)<\/tbody>/s.exec(table)
+  if (body === null) throw new Error('That table has no <tbody> at all.')
+  return [...(body[1] ?? '').matchAll(/<tr\b[^>]*>(.*?)<\/tr>/gs)].map((m) => m[1] ?? '')
+}
+
+function firstCell(row: string): string {
+  const cell = /<t[dh]\b[^>]*>(.*?)<\/t[dh]>/s.exec(row)
+  return renderedText(cell?.[1] ?? '').trim()
+}
 
 interface Row {
   id: string
@@ -90,7 +242,7 @@ const REGISTRIES: Registry[] = REGISTRY_DESCRIPTORS.map(
 )
 const CONTROLS = REGISTRIES.find((r) => r.slug === 'actionable-controls')!
 const CONTROL_ROWS = CONTROLS.rows.filter((r) => r.register?.startsWith('actionable controls'))
-const CONTROLS_PAGE = renderedText(
+const CONTROLS_PAGE = readerText(
   readFileSync(join(OUT, 'coverage', 'actionable-controls', 'index.html'), 'utf8'),
 )
 
@@ -99,6 +251,45 @@ describe('R4-B03: the control-label scan reads both trees', () => {
     expect(APP_LABELS.size, 'control: labels declared under app/').toBeGreaterThan(50)
     expect(SRC_ONLY.length, 'labels declared only under src/').toBeGreaterThan(100)
     expect(ALL_LABELS.size).toBe(APP_LABELS.size + SRC_ONLY.length)
+  })
+
+  it('R5-A07: the difference between the loose scan and the strict one is exactly the named list', () => {
+    // Both populations first, so a scan that went empty cannot read as
+    // agreement. This is the round-3 shape and it is asserted before the
+    // difference, not after it.
+    expect(ALL_LOOSE.size, 'the loose `control:` regex population').toBeGreaterThan(200)
+    expect(ALL_LABELS.size, 'the parsed control-matrix population').toBeGreaterThan(200)
+
+    // What the regex counts and the parser refuses: not a count, the strings.
+    const looseOnly = [...ALL_LOOSE].filter((l) => !ALL_LABELS.has(l)).sort()
+    expect(looseOnly, 'strings the loose scan calls a control and that are not one').toEqual(
+      [...NOT_CONTROLS].sort(),
+    )
+
+    // And what the parser finds that the regex cannot see: nine real labels
+    // written in double quotes because they contain an apostrophe.
+    const strictOnly = [...ALL_LABELS].filter((l) => !ALL_LOOSE.has(l)).sort()
+    expect(strictOnly, 'declared labels the single-quote regex misses').toEqual(
+      [...APOSTROPHE_LABELS].sort(),
+    )
+
+    // The arithmetic, stated so a reader can check the published figure by
+    // hand: loose - 6 + 9 = strict.
+    expect(ALL_LABELS.size).toBe(ALL_LOOSE.size - NOT_CONTROLS.length + APOSTROPHE_LABELS.length)
+  })
+
+  it('R5-A07: no `Record<Kind, string>` caption is published as a declared control', () => {
+    // The assertion the old gate could not make, because it reproduced the
+    // generator's regex and therefore its false positives. Held against the
+    // ARTEFACT, so it convicts the published figure rather than a scan.
+    for (const notAControl of NOT_CONTROLS) {
+      expect(ALL_LABELS.has(notAControl), `"${notAControl}" is not a declared control`).toBe(false)
+    }
+    // A tone token is the sharpest of them: `ok` is a StatusTone, and the
+    // page used to describe it as "the same control re-worded for a reader".
+    // The unqualified claim, gone. The page still says SOME of them are a
+    // re-wording, which is true and is not a claim about all of them.
+    expect(CONTROLS_PAGE).not.toContain('and the rest are the same control re-worded for a reader')
   })
 
   it('the published declared-label figure is the union of both trees, not app/ alone', () => {
@@ -161,10 +352,57 @@ describe('R4-B04: the census has the dimensions §13.1 asks it to count by', () 
 
   it('the index publishes the per-surface and per-module counts and says control type is absent', () => {
     expect(CONTROLS_PAGE).toContain('Census by surface and by module')
-    for (const surface of ['SURF-CC', 'SURF-DOH', 'SURF-SA', 'SURF-FL', 'SURF-STU']) {
-      expect(CONTROLS_PAGE, `${surface} group`).toContain(surface)
-    }
     expect(CONTROLS_PAGE).toContain('Control type is counted nowhere and that is not an omission')
+  })
+
+  it('R5-A03: the census-by-surface table body holds every group, by EQUALITY', () => {
+    const html = readFileSync(join(OUT, 'coverage', 'actionable-controls', 'index.html'), 'utf8')
+    const expected = [
+      ...new Set(
+        CONTROLS.rows.map((r) => r.surface).filter((s): s is string => s !== undefined),
+      ),
+    ].sort()
+    // Population before comparison: an empty expectation is satisfied by an
+    // empty table, which is the plant this assertion exists to catch.
+    expect(expected.length, 'distinct surface groups in the census').toBeGreaterThan(1)
+    const rendered = bodyRows(tableWithCaption(html, 'surface groups, with rows, demonstrated'))
+    expect(rendered.map(firstCell).sort()).toEqual(expected)
+    // The caption states its own row count, so a truncated body is caught by
+    // the number as well as by the names.
+    expect(CONTROLS_PAGE).toContain(`${expected.length} surface groups, with rows`)
+  })
+
+  it('R5-A03: the census-by-module table body holds every group, by EQUALITY', () => {
+    const html = readFileSync(join(OUT, 'coverage', 'actionable-controls', 'index.html'), 'utf8')
+    const expected = [
+      ...new Set(
+        CONTROLS.rows
+          .map((r) => r.moduleId ?? r.moduleDescriptor)
+          .filter((s): s is string => s !== undefined),
+      ),
+    ].sort()
+    expect(expected.length, 'distinct module groups in the census').toBeGreaterThan(50)
+    const rendered = bodyRows(tableWithCaption(html, 'module groups, with rows, demonstrated'))
+    expect(rendered.map(firstCell).sort()).toEqual(expected)
+    expect(CONTROLS_PAGE).toContain(`${expected.length} module groups, with rows`)
+  })
+
+  it('R5-B04: the control-type disclosure renders on the controls index and nowhere else', () => {
+    // It reached seven index pages and six list no controls at all. On the
+    // modules index it claimed §13.1 requires THAT inventory counted by
+    // control type, then said "81 record no module" of an inventory whose
+    // rows are modules.
+    const claim = 'Control type is counted nowhere and that is not an omission'
+    const elsewhere = REGISTRY_DESCRIPTORS.filter((d) => d.slug !== 'actionable-controls').filter(
+      (d) =>
+        renderedText(
+          readFileSync(join(OUT, 'coverage', d.slug, 'index.html'), 'utf8'),
+        ).includes(claim),
+    )
+    expect(elsewhere.map((d) => d.slug), 'indexes wrongly carrying the control-type paragraph').toEqual([])
+    // And it is still on the one page it belongs to — an "assert the
+    // population" guard, so deleting the paragraph outright cannot pass.
+    expect(CONTROLS_PAGE).toContain(claim)
   })
 
   it('no control-type field was invented anywhere in the census', () => {
@@ -196,8 +434,62 @@ describe('R4-B05 direction 1: rendered controls measured against the census', ()
     const inside = [...ALL_LABELS].filter((l) => censusLabels.has(l))
     expect(inside.length + outside.length).toBe(ALL_LABELS.size)
     expect(inside.filter((l) => outside.includes(l))).toEqual([])
-    // The page states the same distance, in the same words the artefact does.
-    expect(CONTROLS_PAGE).toContain('the rest are the same control re-worded for a reader')
+    /*
+      R5-B03: THE NUMBER, ON THE PAGE, not a sentence that characterises it.
+      The page used to say "the rest are the same control re-worded for a
+      reader" — a claim, unmeasured, and false of the four Record<Kind,
+      string> captions the scan was miscounting. It now prints the distance,
+      and this asserts the exact figure a reader sees.
+    */
+    expect(CONTROLS_PAGE).toContain(
+      `${outside.length} of the declared labels above match no census row word for word`,
+    )
+  })
+})
+
+describe('R5-B03: the two-way closure is measured in both directions, and rendered', () => {
+  /**
+   * `reconciliation_rows[17]` declared this closure MET. Neither direction is
+   * at zero, and neither figure reached a reader: a `grep -c` for both numbers
+   * over the built page returns 1 each and both hits are React row keys inside
+   * the flight payload. Everything here reads `renderedText`, which strips the
+   * payload, so a number that exists only as a row key cannot satisfy it.
+   */
+  const censusLabels = new Set(CONTROL_ROWS.map((r) => r.id))
+  const directionOne = [...ALL_LABELS].filter((l) => !censusLabels.has(l)).length
+  const directionTwo = CONTROL_ROWS.filter((r) => r.status === 'not-represented').length
+
+  it('both distances are non-zero, so neither may be reported as closed', () => {
+    expect(CONTROL_ROWS.length, 'the 608-row control census').toBe(608)
+    expect(directionOne, 'declared controls outside the census').toBeGreaterThan(0)
+    expect(directionTwo, 'census rows with neither a rendered control nor a terminal record').toBeGreaterThan(0)
+  })
+
+  it('the index renders both figures as rendered text, not as a flight-payload row key', () => {
+    expect(CONTROLS_PAGE).toContain('THE §13.1 CENSUS DOES NOT CLOSE IN EITHER DIRECTION')
+    expect(CONTROLS_PAGE).toContain(
+      `${directionOne} of the declared labels above match no census row word for word`,
+    )
+    expect(CONTROLS_PAGE).toContain(
+      `census rows with neither a rendered control nor a terminal record: ${directionTwo} of the 608`,
+    )
+  })
+
+  it('the reconciliation row no longer declares the closure met', () => {
+    const reconciliation = JSON.parse(
+      readFileSync('registries/generated/source-reconciliation.json', 'utf8'),
+    ) as { reconciliation: { reconciliation_rows: { registry_slug: string | null; resolution: string }[] } }
+    const row = reconciliation.reconciliation.reconciliation_rows.find(
+      (r) => r.registry_slug === 'actionable-controls',
+    )
+    expect(row, 'the actionable-controls reconciliation row').toBeDefined()
+    // The row now QUOTES its own retracted sentence, so the check is on the
+    // claim it used to make rather than on the words it used to make it in.
+    expect(row!.resolution).not.toContain('and both directions are published rather than claimed')
+    expect(row!.resolution).toContain('DOES NOT CLOSE IN EITHER DIRECTION')
+    // And the row is on the dashboard, so the correction reaches a reader.
+    const dashboard = renderedText(readFileSync(join(OUT, 'coverage', 'index.html'), 'utf8'))
+    expect(dashboard).toContain('DOES NOT CLOSE IN EITHER DIRECTION')
   })
 })
 
@@ -214,6 +506,8 @@ describe('R4-B05 direction 2: every census row has a terminal state or a measure
       owner: string
       evidenceLine: number
       evidenceQuote: string
+      evidenceLineVerbatim: string
+      whatElseThisLineSays: string
     }[]
     decisionBlockedOccupancy: { count: number; whyZeroRatherThanUnwritten: string }
   }
@@ -254,7 +548,58 @@ describe('R4-B05 direction 2: every census row has a terminal state or a measure
       expect(line, `line ${record.evidenceLine} carries the quoted words`).toContain(
         record.evidenceQuote,
       )
+      /* ────────────────────────────────────────────────────────────────────
+       * R5-A06 — THE WHOLE LINE, NOT THE SENTENCE THAT SUITS THE RECORD.
+       *
+       * This gate asserted only that the quotation is somewhere on the cited
+       * line. The one override in this file quotes line 98508's THIRD
+       * sentence; that line's FIRST sentence describes a Super Admin screen
+       * where all 22 rows render as locked entries — the classification's own
+       * evidence line refuting the classification, and nothing could see it.
+       *
+       * The record now transcribes the entire line, compared byte-for-byte,
+       * and answers whatever else is on it. An author may still make the
+       * wrong call. They can no longer make it with the contradicting
+       * sentence out of the record and out of the diff.
+       * ──────────────────────────────────────────────────────────────────── */
+      expect(
+        record.evidenceLineVerbatim,
+        `line ${record.evidenceLine} is transcribed whole, byte for byte`,
+      ).toBe(line)
+      expect(
+        record.evidenceLineVerbatim.includes(record.evidenceQuote),
+        'the quotation is an excerpt of the transcribed line',
+      ).toBe(true)
+      // The population guard for this check: a record whose quotation IS the
+      // whole line needs no remainder answered, and one whose quotation is a
+      // fragment does. Only the fragment case can hide a contradiction, and
+      // this is the case in front of us.
+      if (record.evidenceLineVerbatim.trim() !== record.evidenceQuote.trim()) {
+        expect(
+          record.whatElseThisLineSays.length,
+          `${record.registry} record answers the rest of line ${record.evidenceLine}`,
+        ).toBeGreaterThan(80)
+      }
     }
+  })
+
+  it('R5-A06: the remainder of the cited line reaches the row and the screen', () => {
+    // The disclosure is worth nothing in a file nobody opens. It travels on
+    // the row's own statusReason and, since R5-B06, renders beside the id.
+    const controls = REGISTRIES.find((r) => r.slug === 'actionable-controls')!
+    for (const record of OVERRIDES.overrides) {
+      if (record.registry !== 'actionable-controls') continue
+      for (const id of record.ids) {
+        const row = controls.rows.find((r) => r.id === id)!
+        expect(row.statusReason, `${id} carries the remainder`).toContain('What else that line says')
+      }
+    }
+    const page = renderedText(
+      readFileSync(join(OUT, 'coverage', 'actionable-controls', 'index.html'), 'utf8'),
+    )
+    expect(page, 'the owed §45A.2 screen is disclosed on the index').toContain(
+      'Super Admin extension screen',
+    )
   })
 
   it('every overridden row exists, holds the authored status, and carries its reason', () => {

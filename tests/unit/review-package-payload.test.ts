@@ -7,6 +7,8 @@ import { GeneratedRegistrySchema } from '@/coverage/registry-schema'
 import { REGISTRY_DESCRIPTORS } from '@/coverage/descriptors'
 import { FROZEN_SOURCE_SHA256, MASTER_PROMPT_SHA256 } from '@/review/artefact-hashes'
 import { CANONICAL_EPOCH_MS } from '@/domain/clock'
+import { masterPromptObligation } from '../coverage/master-prompt'
+import { stripComments } from '../coverage/strip-comments'
 
 /**
  * R4-B06 — the review package now carries what master prompt §9.6 and §13.1
@@ -147,5 +149,56 @@ describe('the review package carries the real §9.6 table and §13.1 census', ()
   it('the census states what its denominator means rather than shipping bare counts', () => {
     expect(census.denominatorMeaning).toContain('Item-level, never registry-level')
     expect(census.denominatorMeaning).toContain('not-represented')
+  })
+})
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * R5-A08 — THE ONE OBLIGATION NOTHING ASSERTED WAS THE ONE ABOUT NOT
+ * OVERSTATING A GUARANTEE.
+ *
+ * `tests/coverage/master-prompt.ts` declares eight obligations and seven were
+ * called. The uncalled one was `checksumNotAuthenticity`: master prompt §21.1
+ * requires the package checksum be labelled accidental-corruption and
+ * integrity detection, NOT cryptographic authenticity, signer identity or
+ * non-repudiation. The substance was already met and the review page already
+ * rendered the disclaimer — so nothing was broken, and a future edit could
+ * have deleted the disclaimer with nothing red. An unheld obligation is a
+ * gate that cannot fail, which this build treats as worse than no gate.
+ *
+ * ASSERTED ON THE SOURCE WITH COMMENTS STRIPPED, not on the raw file: a
+ * disclaimer commented out is a disclaimer no reader sees, and a raw
+ * substring search cannot tell the two apart. `checksumNotAuthenticity` names
+ * three things the label may not claim, and each is checked separately —
+ * "not a signature" alone answers authenticity and leaves signer identity and
+ * non-repudiation unanswered.
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+describe('R5-A08: master prompt §21.1 — the checksum is corruption detection, not a signature', () => {
+  const PAGE = stripComments(readFileSync('app/review/page.tsx', 'utf8'))
+
+  it('the obligation is verbatim in the committed prompt artefact', () => {
+    const sentence = masterPromptObligation('checksumNotAuthenticity')
+    expect(sentence).toContain('accidental-corruption and integrity detection')
+    expect(sentence).toContain('not cryptographic authenticity, signer identity, or non-repudiation')
+  })
+
+  it('the review page labels it as corruption detection', () => {
+    expect(PAGE).toContain('detects accidental corruption in transit')
+  })
+
+  it('the review page refuses all three of the claims §21.1 forbids', () => {
+    // Authenticity.
+    expect(PAGE, 'not cryptographic authenticity').toContain('It is not a signature')
+    // Signer identity.
+    expect(PAGE, 'not signer identity').toContain('says nothing about who produced the package')
+    // Non-repudiation — the package's contents are not warranted by it.
+    expect(PAGE, 'not non-repudiation').toContain('whether what it says is true')
+  })
+
+  it('the page never claims the checksum proves authenticity', () => {
+    for (const forbidden of [/cryptographically signed/i, /proves authenticity/i, /tamper-proof/i]) {
+      expect(PAGE, `forbidden claim ${forbidden}`).not.toMatch(forbidden)
+    }
   })
 })
