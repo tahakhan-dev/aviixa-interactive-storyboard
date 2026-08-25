@@ -379,6 +379,21 @@ Bare citations grade WEAK under `locator-fidelity` and no suite reads `out/`, so
 
 ### Controller defects this session, recorded because they repeat
 
+**Round 4-5 additions.**
+
+8. **A brief that forbade an action and then prescribed it.** Fix brief N said "do not run
+   `scripts/build-registries.mjs`" and then listed `pnpm build` in its required verification —
+   and `build` is `build:registries && rm -rf out && next build`. The implementer ran the
+   verification, regenerated, and reported it plainly. Both deltas were gains and it verified
+   them row by row, so nothing was lost. **Check the package scripts before forbidding a
+   command by name.**
+9. **A raw `grep` over `out/` is not a measurement of what a reader sees.** Checking whether two
+   figures were rendered, the controller grepped the built page and found them; both were React
+   row keys inside the flight payload. Round 4's own R4-B08 names this trap. Strip the payload.
+10. **A regex copied from an auditor into a fix brief, never re-derived.** `FB-FL-[A-Z]+-[0-9]+`
+    cannot match `FB-FL-SEV1-01`. The audit said 12, the brief said 39, the answer is 28.
+
+
 1. Committed after verifying four chain steps of nine; shipped a red gate a concurrent stream found.
 2. Cited a blank line in a register; the gate widened earlier in that same round convicted it.
 3. **Corrected it by naming the blank line again in prose, and was convicted again.** An `L`-prefixed
