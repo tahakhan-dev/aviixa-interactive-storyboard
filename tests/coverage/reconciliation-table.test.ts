@@ -1,10 +1,18 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { REGISTRY_DESCRIPTORS, COVERAGE_STATUSES } from '../../src/coverage/descriptors'
 import { loadReconciliation } from '../../src/registry/load'
 import { masterPromptObligation } from './master-prompt'
 import { renderedText } from './rendered-text'
+import { isForeignProbe } from '../probe-paths'
+import {
+  AC_CITED_IN_PRODUCT_NOT_IN_TESTS,
+  CONTRADICTIONS_DISCLOSED_ELSEWHERE,
+  KNOWN_LIMITATIONS,
+  contradictionIdentifier,
+  contradictionsDisclosedNowhereElse,
+} from '../../src/coverage/disclosure-gaps'
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -534,5 +542,622 @@ describe('R5-B07 / R5-B08: every locator the reconciliation table cites is a rea
       expect(SOURCE_LINES[r.line - 1], `Register ${r.n} at L${r.line}`).toContain(`**Register ${r.n} —`)
     }
     expect(DASHBOARD).toContain('this sentence used to name seven of them')
+  })
+})
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * R6-B03 item 1 — THE 66 SOURCE INVARIANTS, AND WHERE EACH ONE IS CITED.
+ *
+ * `source-reconciliation.json` carries five registers beyond the
+ * reconciliation rows — 66 invariants, 32 closed action sets, 42 state
+ * vocabularies, 45 residual contradictions, 25 implementation risks, 210
+ * records in all. Exactly one thing in the tree read any of them: the zod
+ * schema in `@/registry/schemas`, which validates their shape and asks
+ * nothing about their content. Verbatim presence in the payload-stripped
+ * export: 2 of the 66 invariants, 0 of the other 144.
+ *
+ * Master prompt §29.1's bullet that no source rule is weakened by role,
+ * feature control, offline, artificial intelligence, notification, schedule,
+ * fallback or failure is the bullet these 66 exist to answer, and NOTHING IN
+ * THE TREE FAILED IF A RULE STOPPED BEING HONOURED.
+ *
+ * ── WHAT THIS GATE ASSERTS, AND WHAT IT DELIBERATELY DOES NOT ────────────
+ * It asserts that each invariant's own source line is cited somewhere under
+ * `src/` or `app/`, OR appears in `INVARIANT_CITATION_EXEMPT` — compared BY
+ * EQUALITY, so the exemption list cannot quietly grow and cannot quietly
+ * shrink either. Measured when it landed: 15 of 66 cited, 51 exempt.
+ *
+ * IT DOES NOT ASSERT THAT A RULE IS HONOURED. No gate can: "no artificial-
+ * intelligence model sits in the deviation-triggering path" is a claim about
+ * a system, not about a string. What this gate buys is that the fifty-one
+ * become a LIST A READER CAN ARGUE WITH instead of fifty-one records nothing
+ * opens. That is the whole of the claim being made here.
+ *
+ * ── THE THREE EXEMPTION KINDS, AND WHY ONE OF THEM IS MACHINE-CHECKED ────
+ *  `restated`  the same rule is stated by ANOTHER invariant in this same
+ *              register whose line IS cited. Twelve entries, and each names
+ *              that sibling in `alsoAt`. THE GATE CHECKS `alsoAt` IS IN THE
+ *              CITED SET — an excuse that stops being true goes red, which
+ *              is the difference between an exemption and a shrug.
+ *  `backend`   the rule governs a transaction, an append-only store or a
+ *              retention job. A browser-only static export has no such path,
+ *              so there is no product line at which to cite it. Five entries.
+ *  `uncited`   THE OPEN BUCKET, and the honest one. The rule has product
+ *              screens, and no file under `src/` or `app/` cites this line at
+ *              any of them. Thirty-four entries. This number falling is the
+ *              only way this finding actually closes, and it is published
+ *              rather than absorbed into the other two.
+ *
+ * ── LINE NUMBERS ARE NUMBERS HERE, NOT `L`-PREFIXED CITATIONS ────────────
+ * Deliberate. An `L`-prefixed number is a citation to `locator-fidelity`
+ * wherever it appears, and minting fifty-one new bare weak citations to
+ * restate locators the register already carries would move that gate's
+ * measured bands for no gain. The keys below are parsed from the register's
+ * own `(Lnnnnn)` and compared as integers.
+ *
+ * SUBJECT AND ORDERING: `registries/generated/source-reconciliation.json`
+ * (rewritten by `build:registries`, which `build` chains) against `src/**`
+ * and `app/**` as authored, which no verify step writes.
+ * ═════════════════════════════════════════════════════════════════════════ */
+describe('R6-B03: the 66 source invariants each reach a product citation or a stated exemption', () => {
+  type ExemptKind = 'restated' | 'backend' | 'uncited'
+
+  interface InvariantExemption {
+    /** The invariant's own source line, as the register writes it. */
+    readonly line: number
+    readonly kind: ExemptKind
+    /**
+     * For `restated` only: the line of the sibling invariant stating the same
+     * rule, which must itself be cited. Asserted, not asserted-about.
+     */
+    readonly alsoAt?: number
+    readonly why: string
+  }
+
+  const INVARIANT_CITATION_EXEMPT: readonly InvariantExemption[] = [
+    {
+      line: 42883,
+      kind: 'restated',
+      alsoAt: 2143,
+      why: 'An attempt on a locked setting fails and is written to the platform audit log. The rendered half of that rule — the six settings drawn locked with no off position — is the sibling invariant, which is cited.',
+    },
+    {
+      line: 10805,
+      kind: 'backend',
+      why: 'One-transaction audit guarantee: a change and its audit event commit together. A browser-only export has no transaction to bind them in, so there is no product line at which to cite it.',
+    },
+    {
+      line: 13565,
+      kind: 'backend',
+      why: 'The audit log is immutable and append-only and no surface may mutate it. An append-only store is a property of a store this build does not have.',
+    },
+    {
+      line: 18111,
+      kind: 'backend',
+      why: 'The same one-transaction guarantee for non-human identities. Same absent transaction, same absent product line.',
+    },
+    {
+      line: 16726,
+      kind: 'uncited',
+      why: 'Lot release is Quality Manager only with no exception by work type, risk class or tag. The rule has shipped screens; no file under src/ or app/ cites this line, and none of the register’s four statements of it is cited anywhere.',
+    },
+    {
+      line: 3798,
+      kind: 'uncited',
+      why: 'The same rule with the Supervisor request-with-a-note branch. The branch is shipped; this line is cited nowhere.',
+    },
+    {
+      line: 14945,
+      kind: 'uncited',
+      why: 'Absolute rule 12, the Severity 1 form of the same rule: no platform role, no Tenant Admin and no agent may release a Severity 1 hold. Cited nowhere.',
+    },
+    {
+      line: 10428,
+      kind: 'uncited',
+      why: 'The fourth statement of the same rule, this one about how every matrix, card and interface must resolve it. Cited nowhere.',
+    },
+    {
+      line: 3797,
+      kind: 'uncited',
+      why: 'The platform-fixed Severity 1 floor: automatic freeze, Quality-Manager-only release, escalation, on-device classification including offline. Cited nowhere.',
+    },
+    {
+      line: 8833,
+      kind: 'uncited',
+      why: 'The same floor with the tenant rule beside it — tenants may add and may never weaken, and the platform rejects rather than logs a weakening bundle. Cited nowhere.',
+    },
+    {
+      line: 7311,
+      kind: 'uncited',
+      why: 'A Severity 1 deviation always produces both a Deviation and a Hold; a Severity 2 produces a Deviation and no Hold. Cited nowhere.',
+    },
+    {
+      line: 3795,
+      kind: 'uncited',
+      why: 'Specification gates hard and always, the evaluation gate hard including for the root, the qualification gate the only configurable one. Cited nowhere.',
+    },
+    {
+      line: 9660,
+      kind: 'uncited',
+      why: 'No atom or agent may be enabled while a gating scenario is pending or failing, for any account including the root. Cited nowhere.',
+    },
+    {
+      line: 4616,
+      kind: 'uncited',
+      why: 'Enabling a capability with pending or failing evaluation scenarios is Explicitly prohibited for every account. Cited nowhere.',
+    },
+    {
+      line: 1307,
+      kind: 'uncited',
+      why: 'The creator of a Job cannot approve that same Job. Cited nowhere, and neither is either of the register’s two other statements of it.',
+    },
+    {
+      line: 3962,
+      kind: 'uncited',
+      why: 'The same segregation of duties, with the second-approver routing rule beside it. Cited nowhere.',
+    },
+    {
+      line: 52513,
+      kind: 'uncited',
+      why: 'The same rule with the Job Owner clarification — a field, not a role. Cited nowhere.',
+    },
+    {
+      line: 7382,
+      kind: 'uncited',
+      why: 'No worker may override a gate that blocks them, and the worker never sees a release control. Cited nowhere.',
+    },
+    {
+      line: 25188,
+      kind: 'uncited',
+      why: 'No timer, escalation tier, fallback delivery, agent, scheduled job, tenant configuration, tier entitlement, platform setting or account may cause an approval, release, adoption, publication or clearance; the permitted chain is escalation, controlled hold, safe stop, and there is no fourth step. Cited nowhere.',
+    },
+    {
+      line: 117930,
+      kind: 'uncited',
+      why: 'A timed-out gate item remains open and human-decidable and never auto-approves, auto-declines or auto-adjusts. Cited nowhere.',
+    },
+    {
+      line: 12810,
+      kind: 'uncited',
+      why: 'A notification is never the sole mechanism enforcing a hold, qualification, authorisation, approval, suspension or device command. Cited nowhere, and neither is the register’s restatement of it.',
+    },
+    {
+      line: 22823,
+      kind: 'uncited',
+      why: 'The restatement of the same rule over holds, gates, approvals, suspensions and device commands. Cited nowhere.',
+    },
+    {
+      line: 3796,
+      kind: 'uncited',
+      why: 'No artificial-intelligence model sits in the deviation-triggering path; detection is rule-based and runs on the worker’s device against packaged limits. Cited nowhere.',
+    },
+    {
+      line: 18672,
+      kind: 'uncited',
+      why: 'The same rule stated as detection deterministic, interpretation agentic, agents activating only after a deterministic trigger. Cited nowhere.',
+    },
+    {
+      line: 4511,
+      kind: 'uncited',
+      why: 'Evidence is immutable at creation and bound to step, unit, identity, device and both timestamps, and media never touches the device gallery. Cited nowhere.',
+    },
+    {
+      line: 16739,
+      kind: 'uncited',
+      why: 'Evidence immutability with the append-only correction rule beside it. Cited nowhere.',
+    },
+    {
+      line: 1500,
+      kind: 'uncited',
+      why: 'A tenant cannot reach another tenant’s data by any route and the control has no off position for any account. Cited nowhere.',
+    },
+    {
+      line: 35737,
+      kind: 'uncited',
+      why: 'Tenant isolation absolute, nothing becomes external training data, encryption at rest and in transit enforced with no off position. Cited nowhere. Its encryption half is also a backend property, and it is filed here rather than under `backend` because its isolation half is not.',
+    },
+    {
+      line: 16421,
+      kind: 'restated',
+      alsoAt: 3606,
+      why: 'The tenant-configuration registry rejects a looser-than-floor value at point of entry and stores nothing. The sibling invariant states the same rejection-rather-than-logging rule and is cited.',
+    },
+    {
+      line: 20755,
+      kind: 'restated',
+      alsoAt: 14476,
+      why: 'Deny by default, never fail open, never authorise from a stale cached decision. The sibling deny-by-default invariant is cited.',
+    },
+    {
+      line: 1357,
+      kind: 'restated',
+      alsoAt: 78442,
+      why: 'No surface displays an action as applied on a device that has not acknowledged it. The sibling invariant states the same rule over the twenty-two enumerated artefacts and is cited.',
+    },
+    {
+      line: 7515,
+      kind: 'restated',
+      alsoAt: 78442,
+      why: 'The same no-false-applied rule with the expiry clause beside it. Same cited sibling.',
+    },
+    {
+      line: 6984,
+      kind: 'uncited',
+      why: 'The hold lifecycle renders as issued, propagating and in force per device, never as a single released state, with each device’s confirmation timestamp listed. Cited nowhere, and neither is the register’s restatement.',
+    },
+    {
+      line: 52025,
+      kind: 'uncited',
+      why: 'The restatement of the per-device hold rendering rule. Cited nowhere.',
+    },
+    {
+      line: 7430,
+      kind: 'restated',
+      alsoAt: 1680,
+      why: 'No real-time remote control of a worker mid-run, and a command channel closed at five classes. The sibling invariant states the no-remote-control half and is cited.',
+    },
+    {
+      line: 6732,
+      kind: 'uncited',
+      why: 'Rule one, one producer per record: exactly one surface creates each record type and every other surface commands a change through the owning service. Cited nowhere.',
+    },
+    {
+      line: 2312,
+      kind: 'uncited',
+      why: 'The one-producer rule restated against the seam map. Cited nowhere.',
+    },
+    {
+      line: 6734,
+      kind: 'uncited',
+      why: 'Rule two, definition pinned and execution bound: a run pins its work package at assignment and the pin is immutable. Cited nowhere.',
+    },
+    {
+      line: 4522,
+      kind: 'uncited',
+      why: 'Package pinning stated as an outcome — a run finishes on the version it started on and in-flight runs are never re-based. Cited nowhere.',
+    },
+    {
+      line: 4531,
+      kind: 'uncited',
+      why: 'Interrupting an in-flight run with a work-instruction change notice is Explicitly prohibited; the notified tier waits for the next execution. Cited nowhere.',
+    },
+    {
+      line: 3973,
+      kind: 'uncited',
+      why: 'Exactly two in-flight run modifications are permitted: worker substitution and capped end-time extension. Cited nowhere.',
+    },
+    {
+      line: 11707,
+      kind: 'restated',
+      alsoAt: 44875,
+      why: 'Exactly one Root Super Admin account exists and no user interface creates a second. The sibling invariant states the same rule and is cited.',
+    },
+    {
+      line: 23771,
+      kind: 'restated',
+      alsoAt: 9966,
+      why: 'A support session is read-only without exception and a data repair goes through the compliance-emergency path. The sibling read-only invariant is cited.',
+    },
+    {
+      line: 9965,
+      kind: 'restated',
+      alsoAt: 4612,
+      why: 'Exactly three platform access classes and no ambient browsing. The sibling invariant names the three and is cited.',
+    },
+    {
+      line: 4800,
+      kind: 'backend',
+      why: 'Nothing is purged; the retention value is a hot-retrievability horizon. Retention and tiering are jobs against a store this build does not have.',
+    },
+    {
+      line: 10650,
+      kind: 'backend',
+      why: 'Every retention row resolves to tiering, supersession, anonymisation or a named-standard exception. Same absent store, same absent product line.',
+    },
+    {
+      line: 4801,
+      kind: 'restated',
+      alsoAt: 8368,
+      why: 'Anonymisation is the platform’s one irreversible act, at twenty-four months and never in Regulated-Industry mode. The sibling invariant states what anonymisation does and does not touch and is cited.',
+    },
+    {
+      line: 2044,
+      kind: 'restated',
+      alsoAt: 8368,
+      why: 'The twenty-four-month anonymisation rule restated. Same cited sibling.',
+    },
+    {
+      line: 3052,
+      kind: 'uncited',
+      why: 'Emergency pause never suppresses gates, specification checks, severity classification or the Severity 1 hold. Cited nowhere.',
+    },
+    {
+      line: 3255,
+      kind: 'restated',
+      alsoAt: 856,
+      why: 'No cell in any coverage table is blank; a non-applicable cell carries a specific reason. The sibling invariant states the same rule for permission-matrix cells and is cited.',
+    },
+    {
+      line: 852,
+      kind: 'uncited',
+      why: 'Every material claim carries exactly one classification from the closed set of seven. A rule about how the frozen source classifies itself; this build honours it in `SOURCE_CLASSIFICATIONS` and cites the legend rather than this line.',
+    },
+  ]
+
+  const INVARIANTS = REPORT.reconciliation.invariants
+
+  /** Every `Lnnnnn` written in any `.ts`/`.tsx` under `src/` or `app/`. */
+  const CITED_LINES: ReadonlySet<number> = (() => {
+    const cited = new Set<number>()
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir)) {
+        const full = join(dir, entry)
+        if (statSync(full).isDirectory()) walk(full)
+        else if (/\.tsx?$/.test(entry)) {
+          for (const m of readFileSync(full, 'utf8').matchAll(/\bL(\d{2,6})\b/g)) {
+            cited.add(Number(m[1]))
+          }
+        }
+      }
+    }
+    walk(join(process.cwd(), 'src'))
+    walk(join(process.cwd(), 'app'))
+    return cited
+  })()
+
+  const lineOf = (invariant: string): number => {
+    const m = invariant.match(/\bL(\d{2,6})\b/)
+    if (m?.[1] === undefined) throw new Error(`invariant carries no locator: ${invariant.slice(0, 80)}`)
+    return Number(m[1])
+  }
+
+  // FAILS IF: the register empties, shrinks, or starts carrying an invariant
+  // with no locator — any of which would make the partition below pass by
+  // having nothing to partition. Round 3's shape was a correct fix elsewhere
+  // emptying a gate's population and the suite going green with less to say.
+  it('reads all 66 invariants, each carrying exactly one distinct locator', () => {
+    expect(INVARIANTS.length).toBe(66)
+    const lines = INVARIANTS.map(lineOf)
+    expect(new Set(lines).size).toBe(66)
+    for (const line of lines) expect(line).toBeLessThanOrEqual(122241)
+    expect(CITED_LINES.size).toBeGreaterThan(500)
+  })
+
+  // FAILS IF: an invariant is neither cited under src//app/ nor exempt, or an
+  // exemption names a line that IS cited and so no longer needs one.
+  // Equality, in both directions, over a named literal list — the shape round
+  // 2 named and round 4 caught by a plant.
+  //
+  // Planted: `{ line: 4511, kind: 'uncited', ... }` (evidence immutability)
+  // removed from the array. Went red naming 4511 as uncovered. Restored, and
+  // the file checksummed against the pre-plant bytes.
+  it('partitions all 66 into cited and exempt, by equality over a named list', () => {
+    const uncovered = INVARIANTS.map(lineOf).filter((line) => !CITED_LINES.has(line))
+    expect(uncovered.sort((a, b) => a - b)).toEqual(
+      INVARIANT_CITATION_EXEMPT.map((e) => e.line).sort((a, b) => a - b),
+    )
+  })
+
+  // FAILS IF: a `restated` exemption's sibling stops being cited. This is the
+  // half that makes the excuse checkable rather than decorative: twelve
+  // entries claim "the same rule is cited at another line", and if that stops
+  // being true the entry has to move to the open bucket.
+  it('holds every restatement excuse to a sibling that is actually cited', () => {
+    const restated = INVARIANT_CITATION_EXEMPT.filter((e) => e.kind === 'restated')
+    expect(restated.length).toBeGreaterThan(0)
+    const registerLines = new Set(INVARIANTS.map(lineOf))
+    for (const e of restated) {
+      expect(e.alsoAt, `restated exemption L${e.line} must name its sibling`).toBeDefined()
+      expect(registerLines.has(e.alsoAt!), `L${e.alsoAt} must be an invariant in this register`).toBe(true)
+      expect(CITED_LINES.has(e.alsoAt!), `L${e.alsoAt}, cited sibling of L${e.line}`).toBe(true)
+    }
+    for (const e of INVARIANT_CITATION_EXEMPT) {
+      if (e.kind !== 'restated') expect(e.alsoAt, `L${e.line} is ${e.kind} and needs no sibling`).toBeUndefined()
+      expect(e.why.length, `L${e.line} needs a reason`).toBeGreaterThan(60)
+    }
+  })
+
+  // FAILS IF: the open bucket is quietly reclassified. `uncited` is the only
+  // bucket whose entries represent work still owed, so its size is published
+  // here as a CEILING: an entry moved out of it because a citation landed is
+  // an improvement and passes; entries moved into `backend` or `restated` to
+  // make the number look better cannot happen without editing this literal,
+  // which is the deliberate act the brief asked for.
+  it('publishes the open bucket as a ceiling that can only be lowered deliberately', () => {
+    const byKind = (k: ExemptKind): number => INVARIANT_CITATION_EXEMPT.filter((e) => e.kind === k).length
+    expect(byKind('uncited')).toBeLessThanOrEqual(34)
+    expect(byKind('backend')).toBeLessThanOrEqual(5)
+    expect(byKind('restated') + byKind('backend') + byKind('uncited')).toBe(
+      INVARIANT_CITATION_EXEMPT.length,
+    )
+  })
+})
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * R6-B03 item 2, R6-B07 and R6-B05 — THE THREE GAPS THE DASHBOARD PUBLISHES.
+ *
+ * All three are the same shape: a claim about something a Server Component
+ * cannot measure — what `tests/` contains, what other pages render, what the
+ * suite does not do — held as a named literal in `@/coverage/disclosure-gaps`
+ * and checked here against a fresh measurement BY EQUALITY.
+ *
+ * Equality in BOTH directions is the load-bearing part. R6-B07 can be
+ * "closed" by narrowing what counts as a citation, or by sprinkling
+ * identifiers into test names; a floor on a count would reward both. A list
+ * compared by equality rewards neither: dropping a product citation removes
+ * an entry and reds, adding a bare identifier to a `describe` string removes
+ * an entry and reds. The only edit that goes green is a deliberate one to the
+ * literal, which is what "a floor that can only be lowered deliberately"
+ * means.
+ *
+ * SUBJECT AND ORDERING: `out/coverage/index.html` and `out/**` (written by
+ * `build`) against `src/**`, `app/**` and `tests/**` as authored, none of
+ * which any verify step writes.
+ * ═════════════════════════════════════════════════════════════════════════ */
+describe('R6-B03/B05/B07: the gaps the coverage dashboard publishes about itself', () => {
+  const AC_TOKEN = /(?<![A-Za-z0-9-])AC-[A-Z0-9]+(?:-[A-Z0-9]+)*(?![A-Za-z0-9-])/g
+
+  function sourceFiles(dir: string, acc: string[] = []): string[] {
+    for (const entry of readdirSync(dir)) {
+      if (isForeignProbe(entry)) continue
+      const full = join(dir, entry)
+      if (statSync(full).isDirectory()) sourceFiles(full, acc)
+      else if (/\.tsx?$/.test(entry)) acc.push(full)
+    }
+    return acc
+  }
+
+  const tokensIn = (dirs: readonly string[]): ReadonlySet<string> => {
+    const found = new Set<string>()
+    for (const dir of dirs) {
+      for (const file of sourceFiles(join(process.cwd(), dir))) {
+        for (const m of readFileSync(file, 'utf8').matchAll(AC_TOKEN)) found.add(m[0])
+      }
+    }
+    return found
+  }
+
+  // ── R6-B07 ────────────────────────────────────────────────────────────
+
+  // FAILS IF: either population empties, which would make the equality below
+  // pass on two empty sets — vacuous-subset shape number 9 in RESUME §7.
+  it('has both acceptance-criterion populations to compare', () => {
+    expect(tokensIn(['src', 'app']).size).toBeGreaterThan(500)
+    expect(tokensIn(['tests']).size).toBeGreaterThan(200)
+    expect(AC_CITED_IN_PRODUCT_NOT_IN_TESTS.length).toBeGreaterThan(0)
+  })
+
+  // FAILS IF: the published list disagrees with a fresh measurement in either
+  // direction — a criterion that gained a test naming it, or a newly cited
+  // criterion with no test.
+  //
+  // Planted: `'AC-DOC-002'` appended to `AC_CITED_IN_PRODUCT_NOT_IN_TESTS`.
+  // Went red naming it as listed-but-not-measured. Removed; file checksummed
+  // against the pre-plant bytes.
+  it('R6-B07: the published untested list equals the measured one, both ways', () => {
+    const product = tokensIn(['src', 'app'])
+    const tested = tokensIn(['tests'])
+    const measured = [...product].filter((id) => !tested.has(id)).sort()
+    expect([...AC_CITED_IN_PRODUCT_NOT_IN_TESTS].sort()).toEqual(measured)
+  })
+
+  // FAILS IF: the dashboard stops publishing the figure, or publishes one
+  // that disagrees with the list behind it. The finding is that the ratio
+  // reaches no reader; a green list with an unrendered figure would not close
+  // it.
+  it('R6-B07: the dashboard renders the figure the list holds', () => {
+    expect(DASHBOARD).toContain(
+      `${AC_CITED_IN_PRODUCT_NOT_IN_TESTS.length} distinct acceptance-criterion identifiers are cited`,
+    )
+    // The escape hatch this finding must not be closed through, named on the
+    // page so a reader can hold the build to it.
+    expect(DASHBOARD).toContain('no traceability chain')
+  })
+
+  // ── R6-B03 item 2 ─────────────────────────────────────────────────────
+
+  const RESIDUAL = REPORT.reconciliation.residual_contradictions
+
+  /** Every built page's reader text, payload stripped. */
+  const EXPORT_PAGES: readonly { readonly page: string; readonly text: string }[] = (() => {
+    const acc: string[] = []
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir)) {
+        if (entry === '_next' || isForeignProbe(entry)) continue
+        const full = join(dir, entry)
+        if (statSync(full).isDirectory()) walk(full)
+        else if (entry.endsWith('.html')) acc.push(full)
+      }
+    }
+    walk(OUT)
+    return acc.map((page) => ({ page, text: renderedText(readFileSync(page, 'utf8')) }))
+  })()
+
+  const COVERAGE_INDEX = join(OUT, 'coverage', 'index.html')
+
+  it('reads all 45 residual contradictions and a built export to compare them against', () => {
+    expect(RESIDUAL.length).toBe(45)
+    expect(EXPORT_PAGES.length).toBeGreaterThanOrEqual(100)
+  })
+
+  // FAILS IF: a contradiction the build claims is disclosed elsewhere is
+  // rendered on no page but the coverage dashboard, or one this page renders
+  // was already disclosed elsewhere and is therefore duplication.
+  //
+  // The split is derived from `out/` here and from a named literal in
+  // `@/coverage/disclosure-gaps` at render time; this gate is what keeps the
+  // two honest. Measured when it landed: 32 elsewhere, 13 here.
+  //
+  // Planted: `'DEC-STORE-001'` removed from
+  // `CONTRADICTIONS_DISCLOSED_ELSEWHERE`, then `pnpm build`. Went red — the
+  // record became a fourteenth entry on the page while still being disclosed
+  // on seven other pages. Restored, rebuilt, green, file checksummed.
+  it('R6-B03: renders exactly the contradictions no other page discloses', () => {
+    const elsewhere = (record: string): boolean => {
+      const id = contradictionIdentifier(record)
+      if (id === null) return false
+      return EXPORT_PAGES.some((p) => p.page !== COVERAGE_INDEX && p.text.includes(id))
+    }
+    const measuredHere = RESIDUAL.filter((r) => !elsewhere(r))
+    expect(contradictionsDisclosedNowhereElse(RESIDUAL)).toEqual(measuredHere)
+
+    // And every one of them is on the page a reader can open, in full.
+    for (const record of measuredHere) {
+      expect(DASHBOARD, `contradiction not rendered: ${record.slice(0, 60)}`).toContain(
+        record.slice(0, 120),
+      )
+    }
+    expect(DASHBOARD).toContain(
+      `${RESIDUAL.length - measuredHere.length} of them are already disclosed in full`,
+    )
+  })
+
+  // FAILS IF: an identifier on the disclosed-elsewhere list stops being
+  // rendered anywhere. Without this the list is an unchecked excuse for not
+  // rendering thirty-two records.
+  it('R6-B03: every identifier claimed disclosed elsewhere is actually rendered somewhere else', () => {
+    expect(CONTRADICTIONS_DISCLOSED_ELSEWHERE.length).toBeGreaterThan(0)
+    const unrendered = CONTRADICTIONS_DISCLOSED_ELSEWHERE.filter(
+      (id) => !EXPORT_PAGES.some((p) => p.page !== COVERAGE_INDEX && p.text.includes(id)),
+    )
+    expect(unrendered).toEqual([])
+  })
+
+  // ── R6-B05 ────────────────────────────────────────────────────────────
+
+  // FAILS IF: the visual-regression limitation stops being reachable by a
+  // reader, or the absence it records stops being true.
+  //
+  // The second half matters more than it looks. This build is required by
+  // master prompt §29.4 not to claim a capability it only simulates; it is
+  // equally required not to keep declaring an absence it has since filled.
+  // R5-A01's whole shape was a screen asserting an absence the build
+  // contradicted, so the assertion runs in both directions: the record is on
+  // the page AND the four screenshot-comparison APIs are still absent from
+  // the suite. Build one and this goes red, which is the correct time to
+  // rewrite the record.
+  it('R6-B05: the visual-regression limitation is on a page and is still true', () => {
+    const limitation = KNOWN_LIMITATIONS.find((l) => l.id === 'LIM-VISUAL-01')
+    expect(limitation, 'LIM-VISUAL-01 must exist').toBeDefined()
+    expect(DASHBOARD).toContain('LIM-VISUAL-01')
+    expect(DASHBOARD).toContain('No visual-regression capability exists')
+    expect(DASHBOARD).toContain('no baseline exists to regenerate')
+
+    const suite = [
+      ...sourceFiles(join(process.cwd(), 'tests')),
+      join(process.cwd(), 'playwright.config.ts'),
+    ]
+      .map((f) => readFileSync(f, 'utf8'))
+      .join('\n')
+    // The four APIs the audit measured at zero. A hit here means the
+    // capability now partly exists and the record is stale.
+    for (const api of ['toHaveScreenshot', 'toMatchSnapshot', 'pixelmatch', 'maxDiffPixel']) {
+      // `sourceFiles` skips this file's own quoted names by reading `tests/`
+      // wholesale, so the strings above appear here too -- compare against
+      // the count this file contributes rather than against zero.
+      const occurrences = suite.split(api).length - 1
+      const inThisFile = readFileSync(__filename, 'utf8').split(api).length - 1
+      expect(occurrences - inThisFile, `${api} now exists; LIM-VISUAL-01 is stale`).toBe(0)
+    }
   })
 })

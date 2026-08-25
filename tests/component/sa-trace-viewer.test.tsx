@@ -3,7 +3,12 @@ import { render, screen, within } from '@testing-library/react'
 import { ROLES } from '@/domain/roles'
 import { saModuleById } from '@/surfaces/sa/modules'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
-import { TraceViewerAbsence } from '../../app/super-admin/trace-viewer/TraceViewerAbsence'
+import {
+  TraceViewerAbsence,
+  MODULE_ACCEPTANCE_CRITERIA,
+  acceptanceCriteriaSplit,
+  acceptanceCriteriaSplitSentence,
+} from '../../app/super-admin/trace-viewer/TraceViewerAbsence'
 
 const MODULE = saModuleById('MOD-SA-06')
 const PLATFORM_ROLES = ROLES.filter((r) => r.domain === 'PLATFORM')
@@ -149,12 +154,69 @@ describe('MOD-SA-06 Trace Viewer — the honest absence (D9)', () => {
       const id = `AC-SA-06-0${n}`
       expect(text, `${id} is not rendered`).toContain(id)
     }
-    // Seven of the eight are backend obligations with no screen, and saying so
-    // is a different statement from the source being silent about them.
+    // A backend obligation is SAID to be one, and saying so is a different
+    // statement from the source being silent about it. This match is presence
+    // only -- one occurrence used to be the whole gate on the split, and one
+    // occurrence satisfies a claim of five as readily as a claim of seven.
+    // The split itself is held by the three assertions below.
     expect(text).toMatch(/Backend obligation with no screen/i)
     // AC-SA-06-07 requires the absence to be stated in the console. This route
     // IS that statement -- the page was abstaining from its own obligation.
     expect(text).toMatch(/THIS SCREEN IS THIS CRITERION/i)
+  })
+
+  /* ================================================================ *
+   * R6-A02 / R6-A03 — THE SPLIT SENTENCE AND THE COLUMN IT COUNTS.
+   *
+   * The page shipped "Seven are obligations on the backend trace store and
+   * carry no screen at V1" over an array holding five backend and three borne
+   * by this screen -- including -03 and -04, which this page discharges. It
+   * told a reader that two criteria rendered in front of them have no screen
+   * anywhere: the inverse of the defect R5-A01 built this table to close. The
+   * block comment above the array said the same wrong thing.
+   *
+   * It shipped green because the only assertion on the classification column
+   * was a single regex match on "Backend obligation with no screen" -- one
+   * occurrence satisfies a claim of five, and satisfied the claim of seven.
+   * A change to ONE row's category now reds all three assertions below.
+   * ================================================================ */
+  it('classifies every one of the eight criteria, by equality over the whole map', () => {
+    expect(
+      Object.fromEntries(MODULE_ACCEPTANCE_CRITERIA.map((a) => [a.id, a.category])),
+    ).toEqual({
+      'AC-SA-06-01': 'backend',
+      'AC-SA-06-02': 'backend',
+      'AC-SA-06-03': 'this-screen',
+      'AC-SA-06-04': 'this-screen',
+      'AC-SA-06-05': 'backend',
+      'AC-SA-06-06': 'backend',
+      'AC-SA-06-07': 'this-screen',
+      'AC-SA-06-08': 'backend',
+    })
+  })
+
+  it('counts the split over the array, and the parts total the whole', () => {
+    const split = acceptanceCriteriaSplit()
+    expect(split).toEqual({ 'this-screen': 3, backend: 5, total: 8 })
+    expect(split['this-screen'] + split.backend).toBe(split.total)
+    expect(split.total).toBe(MODULE_ACCEPTANCE_CRITERIA.length)
+  })
+
+  it('renders the split sentence BUILT from those counts, not a literal beside them', () => {
+    const { container } = render(<TraceViewerAbsence />)
+    const text = textOf(container)
+    expect(text).toContain(
+      'Five are obligations on the backend trace store and carry no screen at V1',
+    )
+    expect(text).toContain('the other three are borne by this screen')
+    // ...and the page renders the derived string, so the two cannot diverge.
+    expect(text).toContain(acceptanceCriteriaSplitSentence())
+    // The two criteria the shipped sentence disowned are rendered as borne here.
+    for (const id of ['AC-SA-06-03', 'AC-SA-06-04']) {
+      const row = MODULE_ACCEPTANCE_CRITERIA.find((a) => a.id === id)
+      expect(row?.category, id).toBe('this-screen')
+      expect(row?.borneBy, id).toMatch(/^This screen/)
+    }
   })
 
   it('states plainly that it renders no aggregate rather than rendering a zero', () => {

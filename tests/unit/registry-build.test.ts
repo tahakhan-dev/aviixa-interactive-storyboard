@@ -240,30 +240,33 @@ describe('composite keys stop distinct workflows collapsing', () => {
 // Fix round 1: actionable-controls was keyed on DNC-* (the do-not-use-cron
 // register — scheduling policy). The real actionable controls are the
 // semantic `controls[]` extraction (759 raw entries: label/surface/
-// module_id/allowed_roles/effect/line), deduped by label to 608 per spec
-// §2.10. DNC-* is a real, separate, reconciled inventory (22) that gets its
+// module_id/allowed_roles/effect/line), deduped by label to 605 per spec
+// §2.10 -- 608 until round 6's R6-B01 excluded the three deduped labels the
+// frozen source describes as rendered messages rather than actions (L13538,
+// L41894, L42209); the generator asserts that exclusion by line, so this
+// figure moves only when those three do. DNC-* is a real, separate, reconciled inventory (22) that gets its
 // own clearly labelled section on the same index, not the whole slug.
 describe('actionable controls is the UI-action catalogue, not the do-not-cron register', () => {
-  it('counts the semantic controls extraction (608 of 759), not DNC-*', () => {
+  it('counts the semantic controls extraction (605 of 759), not DNC-*', () => {
     const r = load('actionable-controls')
-    expect(r.reconciledCount).toBe(608)
+    expect(r.reconciledCount).toBe(605)
     expect(r.rawCount).toBe(759)
   })
 
-  it('discloses the DNC-01..DNC-22 register separately, labelled, never merged into the 608', () => {
+  it('discloses the DNC-01..DNC-22 register separately, labelled, never merged into the 605', () => {
     const r = load('actionable-controls')
     const dnc = r.rows.filter((row: { id: string }) => row.id.startsWith('DNC-'))
     const controls = r.rows.filter((row: { id: string }) => !row.id.startsWith('DNC-'))
     expect(dnc).toHaveLength(22)
-    expect(controls).toHaveLength(608)
+    expect(controls).toHaveLength(605)
     for (const row of dnc) expect(row.register, row.id).toMatch(/do-not-use-cron/i)
     for (const row of controls) expect(row.register, row.id).not.toMatch(/do-not-use-cron/i)
   })
 
-  // Minor (final review): every one of the 608 control rows set `id:
+  // Minor (final review): every one of the control rows set `id:
   // c.label` but never `label: c.label` -- so the ID column rendered the
-  // label text and the Name column rendered "—" for all 608 rows.
-  it('each of the 608 control rows carries the same text as both id and label', () => {
+  // label text and the Name column rendered "—" for every row.
+  it('each of the 605 control rows carries the same text as both id and label', () => {
     const r = load('actionable-controls')
     const controls = r.rows.filter((row: { id: string }) => !row.id.startsWith('DNC-'))
     for (const row of controls) expect(row.label, row.id).toBe(row.id)

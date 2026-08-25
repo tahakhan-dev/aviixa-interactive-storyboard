@@ -506,6 +506,59 @@ const AUDITED = {
       'or app/, and the severity check is asserted disjoint over two non-empty component sets ' +
       'rather than over an empty one.',
   },
+  'rendered-disclosure.test.ts': {
+    subject:
+      'every .html under out/ (404.html included), as payload-stripped rendered text, against ' +
+      'the accepted-statement list and the exemption list authored in the gate itself',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS. `build` writes the subject and runs first, which is the arrangement this ' +
+      'audit exists to catch, and what makes it safe is that neither expectation is read back ' +
+      'out of out/: `NOT_REAL_STATEMENTS` and `DISCLOSURE_EXEMPT` are authored literals in the ' +
+      'gate, and the missing-page list is compared to the exemption list BY EQUALITY rather ' +
+      'than by a count or a floor. Reading the FRESH out/ is the whole point -- master prompt ' +
+      '§29.4\'s last condition is about what a reader is SHOWN, and the export is the only ' +
+      'place it can be checked. Three non-vacuity controls: a page-population floor with ' +
+      '404.html asserted by name, an every-accepted-statement-is-earned equality so the list ' +
+      'cannot grow unused members, and a case running the real predicate over a page whose ' +
+      'disclosure survives only in the React flight payload -- the R5-Q01 state a raw grep ' +
+      'cannot tell from a real disclosure. Planted by deleting the disclosure paragraph from ' +
+      'app/coverage/[registry]/page.tsx and rebuilding: red naming all fourteen registry index ' +
+      'pages, restored and checksummed. ' +
+      'ENTRY WRITTEN BY FIX STREAM S, which owns this file for the round-6 wave, over stream ' +
+      'U\'s gate as landed. The verdict is derived from reading the gate, not from stream U\'s ' +
+      'report; stream U should confirm it.',
+  },
+  'process-evidence.test.ts': {
+    subject:
+      'the two candidate manifests under docs/process/ledgers/, the file list git reports for ' +
+      'the whole repository, and the six audit registers plus the disposition record under ' +
+      'docs/process/audits/',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and the dependency on `build` is indirect but real, so it is filed honestly ' +
+      'rather than as null. Nothing in `verify` writes docs/process/ — the manifests and the ' +
+      'registers are hand-written and this gate is the only reader of either. But the product ' +
+      'manifest hashes EVERY file in the candidate scope, and that scope includes ' +
+      'registries/generated, which `build` rewrites in place at step 5 and which this gate then ' +
+      'hashes at step 6. Reading the FRESH bytes is the point: the claim is that the sealed ' +
+      'candidate is the candidate that shipped, so a regeneration that changed a committed ' +
+      'registry MUST red here. `build` cannot satisfy the gate by rewriting what it compares ' +
+      'against — the other end is a hand-sealed hash list that no verify step touches, which is ' +
+      'the same asymmetry walkthrough-routes relies on. ' +
+      'THE DISPOSITION HALF IS NOT VACUOUS ANYWHERE: both ends are hand-written documents under ' +
+      'docs/process/audits/ and no step of verify writes either. ' +
+      'IT WRITES TO docs/process/ FOUR TIMES, DELIBERATELY, and never to a product path: two ' +
+      'plants drift and drop an entry in the product manifest, two remove a disposition row and ' +
+      'empty an owner cell. Each restores in a `finally` and then asserts the restoration by ' +
+      'sha256 taken before the write. This is why `test:release` runs with fileParallelism: ' +
+      'false. ' +
+      'AND IT IS NOT SATISFIABLE BY RESEALING: `scripts/seal-manifests.mjs` makes the five ' +
+      'manifest cases green by construction, which is what a seal is for, and cannot touch the ' +
+      'seven disposition cases — it never reads a register.',
+  },
 }
 
 const HOW_TO_FIX =

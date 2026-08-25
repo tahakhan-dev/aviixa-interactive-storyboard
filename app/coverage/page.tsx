@@ -16,6 +16,11 @@ import { loadGeneratedRegistry, type GeneratedRegistry } from '@/coverage/regist
 import { loadReconciliation } from '@/registry/load'
 import sourceReconciliationRaw from '../../registries/generated/source-reconciliation.json'
 import {
+  AC_CITED_IN_PRODUCT_NOT_IN_TESTS,
+  KNOWN_LIMITATIONS,
+  contradictionsDisclosedNowhereElse,
+} from '@/coverage/disclosure-gaps'
+import {
   NAMESPACES_ACCOUNTED_ELSEWHERE,
   UNINVENTORIED_DECISION_LABEL,
   UNINVENTORIED_FAMILIES,
@@ -210,6 +215,63 @@ const FAMILY_KINDS = UNINVENTORIED_FAMILIES.map((f) => f.title.toLowerCase()).jo
 const MODULES_REGISTRY = REGISTRIES.modules
 const MODULES_CLASS_COUNTS = countByClass(MODULES_REGISTRY.rows)
 const TOTAL_MODULES = MODULES_REGISTRY.rows.length
+
+/* ────────────────────────────────────────────────────────────────────────
+ * R6-B02 — A COVERAGE PAGE UNDERSTATING ITS OWN COVERAGE.
+ *
+ * The paragraph below used to end "No other registry has been classified
+ * against the source yet." Measured over the fourteen loaded registries at
+ * the moment the audit ran: modules 81 of 81 AND notifications 56 of 286
+ * carry a `sourceClass` — 137 rows, written by `scripts/build-registries.mjs`
+ * from the raw extraction's own classification field. The sentence was false
+ * about a whole registry, on the page whose subject is what this build can
+ * honestly claim.
+ *
+ * It is the same shape the BUILD-classification paragraph two blocks below
+ * already had removed from it, and that block's comment says why: a claim
+ * about which slices have run does not move when the data moves, and a claim
+ * derived from the data does. This one was not converted at the time. It is
+ * now: the set of registries carrying a classification, and how much of each
+ * is classified, is summed over the same fourteen loaded registries every
+ * render, so the sentence cannot understate — or overstate — the coverage
+ * again. `tests/coverage/registry-index-figures.test.ts` compares the
+ * rendered set against the measured one BY EQUALITY, in both directions.
+ * ──────────────────────────────────────────────────────────────────────── */
+const CLASSIFICATION_COVERAGE: readonly {
+  readonly slug: RegistrySlug
+  readonly title: string
+  readonly classified: number
+  readonly total: number
+}[] = REGISTRY_DESCRIPTORS.map((d) => ({
+  slug: d.slug,
+  title: d.title,
+  classified: REGISTRIES[d.slug].rows.filter((r) => r.sourceClass !== undefined).length,
+  total: REGISTRIES[d.slug].rows.length,
+})).filter((r) => r.classified > 0)
+
+const CLASSIFIED_ROW_TOTAL = CLASSIFICATION_COVERAGE.reduce((n, r) => n + r.classified, 0)
+const UNCLASSIFIED_REGISTRY_COUNT = REGISTRY_DESCRIPTORS.length - CLASSIFICATION_COVERAGE.length
+
+/* ────────────────────────────────────────────────────────────────────────
+ * R6-B03 item 2 — THE RESIDUAL SOURCE CONTRADICTIONS THAT REACH NO READER.
+ *
+ * The reconciliation artefact carries 45 of them and rendered none. Most are
+ * already disclosed, in full and in place, by `@/disclosure/decisions` on the
+ * screens where the question bites — measured over the built export, 32 of
+ * the 45 are. Rendering all 45 here would restate those 32 in a worse place
+ * than they already appear, which is duplication rather than coverage.
+ *
+ * So the set is DERIVED: the register minus the identifiers a reader can
+ * already find. A decision record added later removes its contradiction from
+ * this block without anyone editing this file, and a rendering that
+ * disappears puts one back.
+ * ──────────────────────────────────────────────────────────────────────── */
+const RESIDUAL_CONTRADICTIONS = RECONCILIATION.reconciliation.residual_contradictions
+const CONTRADICTIONS_HERE = contradictionsDisclosedNowhereElse(RESIDUAL_CONTRADICTIONS)
+const CONTRADICTIONS_ELSEWHERE_COUNT = RESIDUAL_CONTRADICTIONS.length - CONTRADICTIONS_HERE.length
+
+/* R6-B07 — the traceability ratio, published rather than narrowed. */
+const AC_UNTESTED = AC_CITED_IN_PRODUCT_NOT_IN_TESTS.length
 
 export default function CoveragePage() {
   return (
@@ -592,8 +654,12 @@ export default function CoveragePage() {
         the {TOTAL_MODULES} modules, {MODULES_CLASS_COUNTS.source['source-defined']} are
         source-defined (SoW Fact) and {MODULES_CLASS_COUNTS.source.derived} are derived
         (Derived Clarification, DEC-STUDIO-001) — the {MODULES_CLASS_COUNTS.source.derived}{' '}
-        Studio modules may never be presented as source-backed. No other
-        registry has been classified against the source yet.
+        Studio modules may never be presented as source-backed.{' '}
+        {CLASSIFICATION_COVERAGE.length} of the {REGISTRY_DESCRIPTORS.length} inventories carry a
+        source classification on at least one row — {CLASSIFIED_ROW_TOTAL} rows in total across{' '}
+        {CLASSIFICATION_COVERAGE.map((r) => `${r.title.toLowerCase()} ${r.classified} of ${r.total}`).join(', ')}
+        . The remaining {UNCLASSIFIED_REGISTRY_COUNT} carry none, so this build classifies{' '}
+        {CLASSIFIED_ROW_TOTAL} of its {TOTAL_ITEMS} census rows against the source and no more.
       </p>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink-muted)]">
         {SOURCE_CLASSES.map((sourceClass) => (
@@ -642,6 +708,106 @@ export default function CoveragePage() {
           </li>
         ))}
       </ul>
+
+      {/*
+        R6-B03 item 2. 45 residual contradictions sat in
+        `registries/generated/source-reconciliation.json` and reached no
+        reader at all. They are source disagreements a client is entitled to
+        see, and the reason they are not all here is measured rather than
+        asserted: see `@/coverage/disclosure-gaps`.
+      */}
+      <h2 className="mt-8 text-xl font-semibold">
+        Source contradictions disclosed nowhere else
+      </h2>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        The frozen source disagrees with itself in {RESIDUAL_CONTRADICTIONS.length} recorded
+        places that it never resolves.{' '}
+        {CONTRADICTIONS_ELSEWHERE_COUNT} of them are already disclosed in full on the screens
+        where the question bites, through this build&rsquo;s open-decision records — every
+        reading preserved, none settled. The {CONTRADICTIONS_HERE.length} below reach a reader
+        nowhere else, so those are stated here and the other {CONTRADICTIONS_ELSEWHERE_COUNT}{' '}
+        are not restated — a second rendering of a disagreement a reader can already read in
+        full is noise, not coverage. None of these is this build&rsquo;s to settle either.
+      </p>
+      <ol
+        data-testid="undisclosed-contradictions"
+        className="mt-3 list-decimal space-y-2 pl-5 text-sm text-[var(--color-ink-muted)]"
+      >
+        {CONTRADICTIONS_HERE.map((record) => (
+          <li key={record}>{record}</li>
+        ))}
+      </ol>
+
+      {/*
+        R6-B07. The ratio, not a narrowed definition of what counts as a
+        citation, and not identifiers sprinkled into test names. The list
+        behind it is a named literal in `@/coverage/disclosure-gaps`, compared
+        against a fresh measurement by equality in both directions by
+        `tests/coverage/reconciliation-table.test.ts`.
+      */}
+      <h2 className="mt-8 text-xl font-semibold">
+        Acceptance criteria cited in the product and in no test
+      </h2>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        Master prompt §9.2 requires a traceability chain from a source
+        acceptance criterion to the test that covers it, and §29.4 forbids a
+        completion claim while a criterion lacks a test.{' '}
+        {AC_UNTESTED} distinct acceptance-criterion identifiers are cited in this build&rsquo;s
+        screens and modules and appear in no test file. Read that as
+        &ldquo;no traceability chain&rdquo; rather than &ldquo;not tested&rdquo;: a criterion
+        can be covered by a test that never names it, and then no chain exists for it either,
+        which is the separate obligation. The number is held against a named list of all{' '}
+        {AC_UNTESTED} identifiers, so it can only fall by a criterion genuinely gaining a test
+        that names it.
+      </p>
+
+      {/*
+        R6-B05. A capability master prompt §26.2 and §27.2 require and this
+        build does not have, recorded rather than partially built. The
+        reasoning is in `@/coverage/disclosure-gaps`; what a reader needs is
+        here.
+      */}
+      <h2 className="mt-8 text-xl font-semibold">Known limitations</h2>
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
+        Capabilities the governing document requires that this build does not
+        have. Each states what is owed, what exists today, and what a reader
+        must not conclude from its absence being disclosed.
+      </p>
+      <dl data-testid="known-limitations" className="mt-3 space-y-4 text-sm">
+        {KNOWN_LIMITATIONS.map((limitation) => (
+          <div key={limitation.id} data-limitation={limitation.id}>
+            <dt className="font-medium text-[var(--color-ink)]">
+              {limitation.id} — {limitation.title}
+            </dt>
+            <dd className="mt-1 space-y-1 text-[var(--color-ink-muted)]">
+              <p>
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+                  Owed:
+                </span>{' '}
+                {limitation.owed}
+              </p>
+              <p>
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+                  Today:
+                </span>{' '}
+                {limitation.today}
+              </p>
+              <p>
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+                  Consequence:
+                </span>{' '}
+                {limitation.consequence}
+              </p>
+              <p>
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--color-ink-subtle)]">
+                  Disposition:
+                </span>{' '}
+                {limitation.disposition}
+              </p>
+            </dd>
+          </div>
+        ))}
+      </dl>
     </main>
   )
 }

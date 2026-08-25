@@ -6,7 +6,7 @@ import type { ScreenStateId } from '@/ui/screen-state'
 import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
 import { roleById, type RoleId } from '@/domain/roles'
 import { cellFromSource } from '@/policy/columns'
-import { PlatformAuditScreen, CONSOLE_ROLE_VIEWS, AUDIT_EVENT_CLASSES, AUDIT_ENTRY_STATES, AUDIT_EXPORT_STATES, AUDIT_ENTRIES, MODULE_CONTROLS, TENANT_ACTOR_CELLS, UNSPECIFIED_IN_SOURCE, readableClassesFor, type SaConsoleRoleToken } from '../../app/super-admin/platform-audit/PlatformAuditScreen'
+import { PlatformAuditScreen, CONSOLE_ROLE_VIEWS, AUDIT_EVENT_CLASSES, AUDIT_ENTRY_STATES, AUDIT_EXPORT_STATES, AUDIT_ENTRIES, MODULE_CONTROLS, TENANT_ACTOR_CELLS, UNSPECIFIED_IN_SOURCE, MODULE_ACCEPTANCE_CRITERIA, acceptanceCriteriaSplit, acceptanceCriteriaSplitSentence, readableClassesFor, type SaConsoleRoleToken } from '../../app/super-admin/platform-audit/PlatformAuditScreen'
 
 /** D10 / spec §10 gate 4: these four words appear nowhere in SURF-SA copy. */
 const FORBIDDEN_WORDS = /\b(tamper-evident|chained|signed|verified)\b/i
@@ -562,6 +562,90 @@ describe('MOD-SA-18 — the unspecified-in-source panel names each gap (D15)', (
     expect(copy).toMatch(/Backend obligation with no screen/i)
     // Nine functionalities are not nine controls: the source defines two.
     expect(copy).toMatch(/Nine functionalities\s+are not nine controls/i)
+  })
+
+  /* ================================================================ *
+   * R6-A01 / R6-A03 — THE SPLIT SENTENCE AND THE COLUMN IT COUNTS.
+   *
+   * The page shipped "Four are borne by this screen, one by omission on
+   * purpose, and three are backend obligations" over an array holding
+   * six/one/three: four plus one plus three is eight, and a reader totalling
+   * the split lost two criteria. It shipped green because the only assertion
+   * on the classification column was a SINGLE regex match on "Backend
+   * obligation with no screen" -- one occurrence satisfies a claim of three,
+   * and would have satisfied a claim of seven. Nothing asserted the sentence
+   * at all.
+   *
+   * Three assertions now hold it, and a change to ONE row's category reds all
+   * three: an equality over the whole category map against a named literal
+   * list, an equality over the counts, and the rendered sentence checked both
+   * for the literal words those counts produce AND for being the derived
+   * string rather than a fresh literal.
+   * ================================================================ */
+  it('classifies every one of the ten criteria, by equality over the whole map', () => {
+    expect(
+      Object.fromEntries(MODULE_ACCEPTANCE_CRITERIA.map((a) => [a.id, a.category])),
+    ).toEqual({
+      'AC-SA-18-01': 'backend',
+      'AC-SA-18-02': 'this-screen',
+      'AC-SA-18-03': 'this-screen',
+      'AC-SA-18-04': 'this-screen',
+      'AC-SA-18-05': 'this-screen',
+      'AC-SA-18-06': 'this-screen',
+      'AC-SA-18-07': 'this-screen',
+      'AC-SA-18-08': 'backend',
+      'AC-SA-18-09': 'backend',
+      'AC-SA-18-10': 'by-omission',
+    })
+  })
+
+  it('counts the split over the array, and the three parts total the whole', () => {
+    const split = acceptanceCriteriaSplit()
+    expect(split).toEqual({ 'this-screen': 6, 'by-omission': 1, backend: 3, total: 10 })
+    // The arithmetic the shipped sentence failed: four plus one plus three is
+    // eight, against a table of ten.
+    expect(split['this-screen'] + split['by-omission'] + split.backend).toBe(split.total)
+    expect(split.total).toBe(MODULE_ACCEPTANCE_CRITERIA.length)
+  })
+
+  it('renders the split sentence BUILT from those counts, not a literal beside them', () => {
+    renderAs(ROOT)
+    const copy = renderedCopy()
+    // The words the counts produce. A category change moves these.
+    expect(copy).toContain(
+      'Six are borne by this screen, one by omission on purpose, and three are backend obligations',
+    )
+    // ...and the page renders the derived string, so the two cannot diverge.
+    expect(copy).toContain(acceptanceCriteriaSplitSentence())
+    // The eight-for-ten shape, in general: no split in this paragraph may fail
+    // to total the table.
+    expect(copy).toContain(`All ten, from the source\u2019s own paragraph at L46193.`)
+  })
+
+  it('R6-A04: the three backend rows carry three reasons, not one shared clause', () => {
+    renderAs(ROOT)
+    const copy = renderedCopy()
+    const backend = MODULE_ACCEPTANCE_CRITERIA.filter((a) => a.category === 'backend')
+    expect(backend.map((a) => a.id)).toEqual(['AC-SA-18-01', 'AC-SA-18-08', 'AC-SA-18-09'])
+    // Only -01 is an obligation over a write path. -08 is retention and -09 is
+    // storage tiering, and both would still have no screen in a build that had
+    // a write path -- so the intro may not offer the write-path reason for all
+    // three.
+    expect(acceptanceCriteriaSplitSentence()).not.toMatch(/write path/i)
+    expect(copy).toMatch(/it constrains a write path this prototype does not hold/i)
+    expect(copy).toMatch(/no retention control belongs to this module/i)
+    expect(copy).toMatch(/a storage-tiering rule with no affordance/i)
+  })
+
+  it('R6-A05: the contested figure is disclosed as 2:1, with the criterion on the majority side', () => {
+    renderAs(ROOT)
+    const copy = renderedCopy()
+    // The criterion's OWN line must be named, or a reader infers a tie from two
+    // cited lines. L46193 and L46178 agree; L47835 is the single dissenter.
+    expect(copy).toMatch(/two lines to one, with the criterion on the majority side/i)
+    expect(copy).toMatch(/the criterion\u2019s own line \(L46193\)/)
+    expect(copy).toMatch(/FUNC-SA-18-02-A1 \(L46178\) state the same figure/)
+    expect(copy).toMatch(/only the module matrix row \(L47835\) differs/)
   })
 
   it('invents no control to fill a gap', () => {

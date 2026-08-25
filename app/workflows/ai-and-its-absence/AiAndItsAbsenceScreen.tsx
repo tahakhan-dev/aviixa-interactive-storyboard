@@ -141,6 +141,24 @@ export function AiAndItsAbsenceScreen() {
       <h1 className="text-3xl font-semibold text-[var(--color-ink)]">
         Artificial intelligence and its absence
       </h1>
+
+      {/*
+        R6-B08 — THE LARGEST PAGE IN THE EXPORT CARRIED NO NOT-REAL STATEMENT.
+
+        155,695 characters of artificial-intelligence prose, and nothing on it
+        told a reader that no model runs here. That is the one page in the
+        export where the omission costs most: master prompt §29.4's last
+        blocking condition names an "artificial-intelligence provider that was
+        only simulated" explicitly. The sentence is first in the reading order
+        rather than in a footer, and `tests/coverage/rendered-disclosure.test.ts`
+        walks `out/` for it rather than trusting a per-screen query.
+      */}
+      <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
+        Simulated behaviour only. No artificial-intelligence model, agent or
+        provider runs anywhere in this build: every storyboard, agent output
+        and fallback below is seeded fixture content read from the frozen
+        source, not something a model produced.
+      </p>
       <p className="mt-2 max-w-prose text-[var(--color-ink-muted)]">
         Section 44A of the frozen source: the required artificial-intelligence and fallback
         storyboards. Every one of the thirty is here in full &mdash; the nineteen fields the card

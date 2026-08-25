@@ -242,13 +242,17 @@ export const REGISTRY_DESCRIPTORS = [
     // keyed on their exact label text, because the frozen source never gave
     // these actions an id at all.
     idPrefix: '',
-    expectedCount: 608,
+    // R6-B01 (round 6): 608 until the three deduped labels the frozen source
+    // calls rendered messages rather than actions were excluded by the
+    // generator, which asserts them by source line.
+    expectedCount: 605,
     sourceNote:
-      '608 distinct actionable UI controls, deduped by exact label text from 759 raw ' +
-      'extraction entries (spec §2.10). The separate DNC-01..DNC-22 do-not-use-cron register ' +
+      '605 distinct actionable UI controls, deduped by exact label text from 759 raw ' +
+      'extraction entries and less the three the frozen source describes as rendered ' +
+      'messages rather than actions (spec §2.10). The separate DNC-01..DNC-22 do-not-use-cron register ' +
       '(22, verified unique, zero delta) — controls that must always remain a live human ' +
       'decision and may never be enforced by a scheduled sweep — is disclosed on this same ' +
-      'index under its own register label, never merged into the 608 ' +
+      'index under its own register label, never merged into the 605 ' +
       '(source-reconciliation.json).',
   },
 ] as const satisfies readonly RegistryDescriptor[]

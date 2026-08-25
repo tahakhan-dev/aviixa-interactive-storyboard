@@ -40,17 +40,26 @@ import { COVERAGE_STATUSES, SOURCE_CLASSES, BUILD_CLASSES } from '@/coverage/des
  *    split `SB-AI-*` by id width, and the generator interpolates the count
  *    into the published `countedThing` rather than spelling it;
  *    `actionable-controls`:
- *    the 608-row UI-control catalogue plus the separate 22-row DNC-*
+ *    the 605-row UI-control catalogue plus the separate 22-row DNC-*
  *    do-not-use-cron register) tags every row with `register`, naming which
  *    sub-inventory it belongs to, so nothing is silently merged or dropped;
  *  - `sourceClass`/`buildClass` (Task 10) classify what the frozen source
  *    claims about a row and what this build did with it, ORTHOGONALLY to
  *    `status` -- see `SourceClass`/`BuildClass` in `@/coverage/descriptors`.
- *    Only `modules` populates `sourceClass` today, taken straight from each
- *    raw module record's own `classification` field (a STRUCTURED source,
- *    never parsed out of `RegistryDescriptor.sourceNote` prose): addendum
- *    §5 requires the 18 Studio modules render as `derived`, never
- *    `source-defined`, under DEC-STUDIO-001.
+ *    `sourceClass` is taken straight from a raw record's own
+ *    `classification` field (a STRUCTURED source, never parsed out of
+ *    `RegistryDescriptor.sourceNote` prose): addendum §5 requires the 18
+ *    Studio modules render as `derived`, never `source-defined`, under
+ *    DEC-STUDIO-001.
+ *
+ *    R6-B02: THIS COMMENT USED TO READ "Only `modules` populates
+ *    `sourceClass` today" AND SO DID THE COVERAGE DASHBOARD. Measured over
+ *    the generated files: modules 81 of 81 and NOTIFICATIONS 56 of 286, 137
+ *    rows in all. Which registries carry one is not written down here any
+ *    more -- `app/coverage/page.tsx` derives it from the loaded rows, and
+ *    `tests/coverage/registry-index-figures.test.ts` compares the rendered
+ *    set against the measured one by equality, so no prose anywhere has to
+ *    be kept in step by hand.
  */
 export const RegistryRowSchema = z
   .object({

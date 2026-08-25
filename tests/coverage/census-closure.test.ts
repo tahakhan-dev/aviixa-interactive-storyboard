@@ -6,6 +6,7 @@ import { isForeignProbe } from '../probe-paths'
 import { REGISTRY_DESCRIPTORS, COVERAGE_STATUSES } from '../../src/coverage/descriptors'
 import { masterPromptObligation } from './master-prompt'
 import { renderedText } from './rendered-text'
+import { stripComments } from './strip-comments'
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -171,7 +172,7 @@ const APOSTROPHE_LABELS = [
  *
  * The per-surface census was asserted with `expect(CONTROLS_PAGE).toContain
  * (surface)` for the five surface tokens. Those tokens occur 330, 308, 322,
- * 168 and 100 times on that page — all of them in the 630-row table below,
+ * 168 and 100 times on that page — all of them in the 627-row table below,
  * never in the census block. Deleting five of the six census rows left every
  * assertion passing and the caption still reading "6 surface groups". The
  * 181-row census-by-module table beside it, and both captions, were asserted
@@ -293,7 +294,7 @@ describe('R4-B03: the control-label scan reads both trees', () => {
   it('the word-for-word figure counts declared labels against the census, by equality', () => {
     const censusLabels = new Set(CONTROL_ROWS.map((r) => r.id))
     const wordForWord = [...ALL_LABELS].filter((l) => censusLabels.has(l))
-    expect(censusLabels.size, 'the 608-label census population').toBe(608)
+    expect(censusLabels.size, 'the 605-label census population').toBe(605)
     expect(wordForWord.length, 'declared labels that are word-for-word a census row').toBeGreaterThan(0)
     expect(CONTROLS.dedupRule).toContain(`which ${wordForWord.length} `)
     // And every one of them reads demonstrated, so the figure and the
@@ -326,7 +327,7 @@ describe('R4-B04: the census has the dimensions §13.1 asks it to count by', () 
   it('module is carried through, canonical where the extraction wrote one and verbatim where it did not', () => {
     const canonical = CONTROL_ROWS.filter((r) => r.moduleId !== undefined)
     const descriptive = CONTROL_ROWS.filter((r) => r.moduleDescriptor !== undefined)
-    // It was 0 before this fix, on all 630 rows.
+    // It was 0 before this fix, on all rows.
     expect(canonical.length, 'rows carrying a canonical MOD-* id').toBeGreaterThan(200)
     expect(descriptive.length, 'rows carrying the extraction prose instead').toBeGreaterThan(100)
     for (const r of canonical) {
@@ -447,7 +448,7 @@ describe('R5-B03: the two-way closure is measured in both directions, and render
   const directionTwo = CONTROL_ROWS.filter((r) => r.status === 'not-represented').length
 
   it('both distances are non-zero, so neither may be reported as closed', () => {
-    expect(CONTROL_ROWS.length, 'the 608-row control census').toBe(608)
+    expect(CONTROL_ROWS.length, 'the 605-row control census').toBe(605)
     expect(directionOne, 'declared controls outside the census').toBeGreaterThan(0)
     expect(directionTwo, 'census rows with neither a rendered control nor a terminal record').toBeGreaterThan(0)
   })
@@ -458,7 +459,7 @@ describe('R5-B03: the two-way closure is measured in both directions, and render
       `${directionOne} of the declared labels above match no census row word for word`,
     )
     expect(CONTROLS_PAGE).toContain(
-      `census rows with neither a rendered control nor a terminal record: ${directionTwo} of the 608`,
+      `census rows with neither a rendered control nor a terminal record: ${directionTwo} of the 605`,
     )
   })
 
@@ -480,6 +481,85 @@ describe('R5-B03: the two-way closure is measured in both directions, and render
   })
 })
 
+/* ═════════════════════════════════════════════════════════════════════ *
+ * R6-C02 — THE TWO MEASURED FACTS THE OWNERSHIP-SCAN COMMENT RESTS ON.
+ *
+ * `scripts/build-registries.mjs` explains why the `MOD-*` ownership count
+ * still reads raw text after R5-A02 stripped comments from the CITATION
+ * scan. The explanation said "measured both ways" and named a consequence
+ * the measurement does not produce -- one module moving to
+ * `not-represented`, "a built screen reported as absent". Replayed, the
+ * module moves to `mounted-in-another-screen` and nothing reaches
+ * not-represented, and the comment did not record the second obstacle at
+ * all: stripping puts two Studio modules into an argmax tie the ambiguity
+ * check throws on.
+ *
+ * The corrected comment now rests on two checkable facts, and these are
+ * them. Neither is a re-run of the generator -- this reads the same files
+ * with the same stripper and asserts the two conditions that make the
+ * conclusion true. If a header comment is rewritten into code, or a file
+ * gains a mention, this reds and the comment gets re-derived rather than
+ * quietly rotting.
+ * ═════════════════════════════════════════════════════════════════════ */
+describe('R6-C02: the ownership scan reads raw text, for the reasons it now states', () => {
+  const MOD_ID = /MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+)/g
+
+  /** The generator's own population: files directly in a route directory. */
+  function routeFileText(dir: string): { raw: string; code: string } {
+    let raw = ''
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (isForeignProbe(e.name)) continue
+      if (e.isDirectory() || !/\.tsx?$/.test(e.name)) continue
+      raw += readFileSync(join(dir, e.name), 'utf8') + '\n'
+    }
+    return { raw, code: stripComments(raw) }
+  }
+
+  function counts(text: string): Map<string, number> {
+    const m = new Map<string, number>()
+    for (const id of text.match(MOD_ID) ?? []) m.set(id, (m.get(id) ?? 0) + 1)
+    return m
+  }
+
+  it('MOD-FL-A1 owns its route on a COMMENT mention alone, and claims no slug', () => {
+    const { raw, code } = routeFileText(join(process.cwd(), 'app', 'frontline', 'sign-in'))
+    expect(counts(raw).get('MOD-FL-A1'), 'raw mentions').toBeGreaterThan(0)
+    expect(counts(code).get('MOD-FL-A1'), 'mentions surviving stripComments').toBeUndefined()
+    // ...and the route is still mounted, which is why stripping downgrades it
+    // to mounted-in-another-screen rather than to not-represented.
+    expect(code).toMatch(/modules\/fl-a1\//)
+    // No slug claim to fall back on: the basename collides across surfaces.
+    expect(readFileSync('src/frontline/modules.ts', 'utf8')).toContain(
+      'the argmax rule awards it without one',
+    )
+  })
+
+  it('stripping would tie app/studio/journey, a directory D1 gives to no module', () => {
+    const { raw, code } = routeFileText(join(process.cwd(), 'app', 'studio', 'journey'))
+    const rank = (t: string): [string, number][] =>
+      [...counts(t).entries()].sort((a, b) => b[1] - a[1])
+    const rawTop = rank(raw)
+    expect(rawTop[0]![1], 'raw has a strict winner').toBeGreaterThan(rawTop[1]![1])
+    expect(rawTop[0]![0]).toBe('MOD-STU-12')
+    const codeTop = rank(code)
+    expect([codeTop[0]![0], codeTop[1]![0]].sort()).toEqual(['MOD-STU-04', 'MOD-STU-12'])
+    expect(codeTop[0]![1], 'stripped ties the top two').toBe(codeTop[1]![1])
+    // The tie is unresolvable by award: the route is not a module route.
+    expect(readFileSync('app/studio/journey/page.tsx', 'utf8')).toContain(
+      'THIS ROUTE IS NOT A MODULE ROUTE AND MINTS NO SCREEN ID (D1)',
+    )
+  })
+
+  it('the generator states the measured consequence, not the refuted one', () => {
+    const generator = readFileSync('scripts/build-registries.mjs', 'utf8')
+    expect(generator, 'the refuted sentence is gone').not.toContain(
+      'Stripping there would report a built screen as absent',
+    )
+    expect(generator).toContain('demonstrated-in-storyboard -> mounted-in-another-screen')
+    expect(generator).toContain('Ambiguous module ownership for route app/studio/journey')
+  })
+})
+
 describe('R4-B05 direction 2: every census row has a terminal state or a measured absence', () => {
   const ALL_ROWS = REGISTRIES.flatMap((r) => r.rows)
   const OVERRIDES = JSON.parse(
@@ -495,6 +575,12 @@ describe('R4-B05 direction 2: every census row has a terminal state or a measure
       evidenceQuote: string
       evidenceLineVerbatim: string
       whatElseThisLineSays: string
+      renderedIdentifierClaim: {
+        claim: string
+        everyPageNamingAnIdIsUnder: string
+        indexNamingEveryId: string
+        howToCheck: string
+      }
     }[]
     decisionBlockedOccupancy: { count: number; whyZeroRatherThanUnwritten: string }
   }
@@ -587,6 +673,101 @@ describe('R4-B05 direction 2: every census row has a terminal state or a measure
     expect(page, 'the owed §45A.2 screen is disclosed on the index').toContain(
       'Super Admin extension screen',
     )
+  })
+
+  /* ══════════════════════════════════════════════════════════════════ *
+   * R6-C01 — THE RECORD'S OWN FACTUAL CLAIMS, CHECKED AGAINST `out/`.
+   *
+   * R5-A06 made this gate read the whole evidence LINE. It still could not
+   * see the other half of the same shape: the record's own assertions about
+   * this build. `whatElseThisLineSays` claimed "No page in out/ names a DNC-
+   * identifier", and the page rendering that sentence names all 22 of them.
+   * Self-refuted in one viewport, and nothing in `tests/` was looking.
+   *
+   * A claim of the form "no page renders X" is checkable, so the record now
+   * carries the checkable residue in `renderedIdentifierClaim` and this
+   * asserts it against the export, both ways:
+   *
+   *   - the population is non-empty, so the check cannot pass vacuously;
+   *   - EVERY page naming an overridden identifier sits under the declared
+   *     prefix, which is what "no shipped route renders the §45A.2 register
+   *     screen" reduces to once the false absolute claim is gone;
+   *   - the index the record names does name every one of the ids.
+   *
+   * Reader text, not markup: the flight payload carries every row id as a
+   * React key, so a raw grep over the HTML measures the payload. That is
+   * RESUME §8's controller defect 9 and R5-Q01 both.
+   * ══════════════════════════════════════════════════════════════════ */
+  const EXPORTED_PAGES = ((): readonly string[] => {
+    const found: string[] = []
+    const walk = (dir: string, prefix: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        if (isForeignProbe(entry.name)) continue
+        const rel = prefix === '' ? entry.name : `${prefix}/${entry.name}`
+        if (entry.isDirectory()) walk(join(dir, entry.name), rel)
+        else if (entry.name.endsWith('.html')) found.push(rel)
+      }
+    }
+    walk(OUT, '')
+    return found
+  })()
+
+  it('the record\u2019s own claim about `out/` holds, and holds non-vacuously', () => {
+    expect(EXPORTED_PAGES.length, 'exported html pages').toBeGreaterThan(50)
+    for (const record of OVERRIDES.overrides) {
+      const claim = record.renderedIdentifierClaim
+      expect(claim, `${record.registry} carries a checkable rendered-identifier claim`).toBeDefined()
+      expect(claim.claim.length).toBeGreaterThan(80)
+      expect(claim.howToCheck).toMatch(/script/i)
+
+      const ids = new RegExp(
+        `\\b(?:${record.ids.map((i) => i.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`,
+      )
+      const naming = EXPORTED_PAGES.filter((rel) =>
+        ids.test(renderedText(readFileSync(join(OUT, rel), 'utf8'))),
+      )
+      // Non-vacuous: the retracted claim was that this set is empty, and a
+      // gate that passed on an empty set would be the same abstention twice.
+      expect(naming.length, `pages naming a ${record.registry} overridden id`).toBeGreaterThan(0)
+      expect(
+        naming.filter((rel) => !rel.startsWith(claim.everyPageNamingAnIdIsUnder)),
+        `pages outside ${claim.everyPageNamingAnIdIsUnder} naming an overridden id`,
+      ).toEqual([])
+      expect(naming, 'the index the record names is among them').toContain(claim.indexNamingEveryId)
+
+      const index = renderedText(readFileSync(join(OUT, claim.indexNamingEveryId), 'utf8'))
+      expect(
+        record.ids.filter((id) => !new RegExp(`\\b${id}\\b`).test(index)),
+        `ids the record says ${claim.indexNamingEveryId} names, and it does not`,
+      ).toEqual([])
+    }
+  })
+
+  it('R6-C01: the record leaves ABSENT-versus-DISABLED open rather than settling it', () => {
+    /**
+     * The record used to argue "a locked entry that refuses a schedule is the
+     * ABSENCE of a control", which settles at a stroke what RESUME §7 records
+     * as unsettled at named-test strength -- and settles it in the direction
+     * that keeps these rows in the escape hatch they are the only occupants
+     * of. The status now rests on §45A.3 being scheduling policy, a ground
+     * that holds under EITHER reading, and the question is cross-referenced
+     * to the fixture that pins it rather than answered here.
+     */
+    for (const record of OVERRIDES.overrides) {
+      const prose = `${record.reason} ${record.whatElseThisLineSays}`
+      expect(prose, 'the settling sentence is gone').not.toMatch(
+        /is the ABSENCE of a control/i,
+      )
+      expect(prose, 'the question is named as open').toMatch(/ABSENT or DISABLED|ABSENT-versus-DISABLED/i)
+      expect(prose, 'and cross-referenced to the fixture that pins it').toContain(
+        'tests/coverage/slice-04-gates.test.ts',
+      )
+    }
+    // ...and that fixture is where it says it is, still pinning both readings.
+    const fixture = readFileSync('tests/coverage/slice-04-gates.test.ts', 'utf8')
+    expect(fixture).toContain('ABSENT versus DISABLED-with-a-named-reason')
+    expect(fixture).toContain('readingA')
+    expect(fixture).toContain('readingB')
   })
 
   it('every overridden row exists, holds the authored status, and carries its reason', () => {

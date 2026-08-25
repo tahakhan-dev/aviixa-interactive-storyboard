@@ -58,7 +58,7 @@ const ROW_COLUMNS: readonly TableColumn[] = [
  * 9.6 registry indexes, and the review package."
  *
  * Before this the census had nothing to compute itself from: `moduleId` was
- * present on 0 of the 630 actionable-control rows and `surface` was the
+ * present on 0 of the 627 actionable-control rows and `surface` was the
  * extraction's raw free text, absent on 22 and prose on 15. The generator was
  * discarding a `module_id` the raw extraction carries on 653 of its 759
  * control entries.
@@ -393,6 +393,27 @@ export default async function RegistryIndexPage({
         </Link>
       </p>
       <h1 className="mt-2 text-3xl font-semibold">{descriptor.title}</h1>
+
+      {/*
+        R6-B08 — THE NOT-REAL STATEMENT, WHERE THESE PAGES ACTUALLY RENDER.
+
+        Eighteen of the 103 exported pages carried no not-real statement in
+        payload-stripped rendered text, and fourteen of them were these
+        registry indexes: the disclosure lived one level up on
+        `app/coverage/page.tsx` and a reader who arrives here from a
+        drill-down link never passes through it. Six of master prompt §29.4's
+        eight capability categories rest on this convention alone, eighteen
+        component tests assert it, and every one of the eighteen is a
+        per-screen query -- nothing walked `out/`.
+        `tests/coverage/rendered-disclosure.test.ts` does now, over every
+        built page, with its exemption list asserted by equality and empty.
+      */}
+      <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">
+        Simulated behaviour only. This index reconciles what the frozen source
+        names against what this client-validation storyboard shows today; no
+        row here is a record read from a connected production system.
+      </p>
+
       <p className="mt-4 max-w-prose text-[var(--color-ink-muted)]">{descriptor.sourceNote}</p>
 
       {descriptor.slug === 'workflows' ? (

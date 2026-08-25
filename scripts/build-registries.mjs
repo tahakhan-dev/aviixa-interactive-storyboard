@@ -585,7 +585,7 @@ const SOURCE_CLASSIFICATION_TO_SOURCE_CLASS = {
  *    row a shipped screen declares. `actionable-controls` rows are keyed on
  *    frozen-source label TEXT (the source gives those actions no identifier),
  *    so a token scan cannot reach them and a substring scan is worse than
- *    useless: the 608 labels include "Add", "Next", "Return" and "Filter",
+ *    useless: the 605 labels include "Add", "Next", "Return" and "Filter",
  *    which match dashboard chrome in `app/coverage` and `app/workflows` and
  *    would have inflated that inventory by dozens of rows that no module
  *    declares. Exact equality against a declared control-matrix label is the
@@ -690,7 +690,7 @@ function walkRouteTree() {
    * script's own regex: `app/` yields 83 distinct labels — exactly the figure
    * `/coverage/actionable-controls/` published — and `src/` yields 188 more
    * that appear in no `app/` file at all. Twelve of those are word-for-word
-   * rows of the 608-label census (`Mark evidence reviewed`, `Create a Job`,
+   * rows of the 605-label census (`Mark evidence reviewed`, `Create a Job`,
    * `Approve`, `Decline with reason`, `Grant a qualification clearance`, …),
    * so the published "4 are word-for-word a source label" understated the
    * build in the direction a reader is harmed by.
@@ -744,19 +744,60 @@ function walkRouteTree() {
          * census over-counted by the same rows. 17 of the 26 links whose
          * target page never names the item in rendered text were this.
          *
-         * WHY THE `MOD-*` COUNT ABOVE STILL READS THE RAW TEXT. Measured
-         * both ways: stripping there changes exactly one module,
-         * `MOD-FL-A1`, from demonstrated to not-represented.
-         * `app/frontline/sign-in/` IS that module's screen -- it imports
-         * `@/frontline/modules/fl-a1/LoginView` and `src/frontline/modules.ts`
-         * declares `slug: null` with a written reason saying argmax awards
-         * this route without a claim -- and its only spelling of the id is
-         * the file's header comment. Ownership argmax and a citation are
-         * different questions: a citation asks whether a screen NAMES the
-         * item, which a comment cannot answer, while ownership asks which
-         * module a built directory belongs to, where the header comment is
-         * a statement about the directory rather than about its output.
-         * Stripping there would report a built screen as absent.
+         * WHY THE `MOD-*` COUNT ABOVE STILL READS THE RAW TEXT.
+         *
+         * R6-C02 CORRECTED THIS PARAGRAPH. It said "measured both ways" and
+         * gave a consequence the measurement does not produce: stripping
+         * would move `MOD-FL-A1` "from demonstrated to not-represented" and
+         * so "report a built screen as absent". Re-measured by replaying this
+         * generator with `code` in place of `text` on the line below and
+         * diffing `modules.json` (`AVIIXA_REGISTRY_OUT` writes the run
+         * anywhere, so neither pass touches the committed registries):
+         *
+         *   raw       demonstrated 69  mounted 10  not-represented 2
+         *   stripped  demonstrated 68  mounted 11  not-represented 2
+         *   the single row that moves: MOD-FL-A1
+         *     demonstrated-in-storyboard -> mounted-in-another-screen
+         *   rows moving to not-represented: NONE.
+         *
+         * "Exactly one module" was right. The consequence was not: the module
+         * lands on `mounted-in-another-screen`, caught by the mounting rule
+         * two hundred lines below, because `app/frontline/sign-in/page.tsx`
+         * imports `@/frontline/modules/fl-a1/LoginView` whatever its comments
+         * say. THAT IS STILL A WRONG ANSWER, AND IT IS WHY THIS SCAN READS
+         * `text`: `MOD-FL-A1` OWNS that route. `src/frontline/modules.ts`
+         * declares `slug: null` for it -- the basename `sign-in` exists under
+         * two surfaces, so the generator refuses a claim it cannot resolve --
+         * and states in its own reason that "the argmax rule awards it
+         * without one". Strip the comments and the argmax has nothing left to
+         * award on, so a module that owns its screen is reported as mounted
+         * inside somebody else's. Wrong in a quieter way than "absent", and
+         * a status this build deliberately distinguishes.
+         *
+         * AND THERE IS A SECOND OBSTACLE THE OLD PARAGRAPH DID NOT RECORD.
+         * Stripping creates an unresolved argmax tie that the ambiguity check
+         * below throws on, so the generator does not merely misclassify, it
+         * refuses to run:
+         *
+         *   Ambiguous module ownership for route app/studio/journey:
+         *   MOD-STU-04 and MOD-STU-12 are both mentioned 5 times, and no
+         *   module declares slug "journey".
+         *
+         * Raw, that directory is 6 / 7 and `MOD-STU-12` takes it. THE TIE
+         * CANNOT BE SETTLED BY PICKING A WINNER, because the source gives the
+         * directory to neither: `app/studio/journey/page.tsx` states under D1
+         * that the route composes module routes and is not one, and `journey`
+         * is deliberately no module's slug. Both modules are already
+         * `demonstrated` from their own slug-claimed routes (`/studio/builder/`
+         * and `/studio/versions/`), so nothing is gained by awarding it and an
+         * ownership the source refuses would be invented by awarding it.
+         *
+         * So the scan is unchanged and the reason is now the measured one.
+         * Ownership argmax and a citation remain different questions: a
+         * citation asks whether a screen NAMES the item, which a comment
+         * cannot answer, while ownership asks which module a built directory
+         * belongs to, where the header comment is a statement about the
+         * directory rather than about its output.
          * ================================================================ */
         const code = stripComments(text)
         for (const id of text.match(/MOD-[A-Z]{2,3}-(?:\d{2}|[AB]\d+)/g) ?? []) {
@@ -2197,7 +2238,7 @@ function studioFeatureSchemeNote() {
 // category -- 759 raw entries, each carrying `label`/`surface`/`module_id`/
 // `allowed_roles`/`effect`/`line` and NO `id` field at all -- is the real
 // actionable-control catalogue, deduped by exact label text (first
-// occurrence, chunk order, wins) to 608 distinct controls, matching spec
+// occurrence, chunk order, wins) to 605 distinct controls, matching spec
 // §2.10. `DNC-*` (the do-not-use-cron register, 22, identifier-index only)
 // is a real, separate, reconciled inventory -- scheduling policy, never an
 // actionable control -- and is disclosed on the same index under its own
@@ -2213,7 +2254,7 @@ const DO_NOT_USE_CRON_REGISTER = 'do-not-use-cron controls (DNC-01..DNC-22, sche
  *
  * Master prompt §13.1 requires "counts by surface, module, control type, and
  * implementation status". Before this change the census could compute two of
- * the four: `moduleId` was present on 0 of the 630 rows and `surface` was the
+ * the four: `moduleId` was present on 0 of the 627 rows and `surface` was the
  * extraction's raw free text.
  *
  * The data was never missing upstream. `registries/raw/extract/CHK-*.json`
@@ -2247,8 +2288,8 @@ const DO_NOT_USE_CRON_REGISTER = 'do-not-use-cron controls (DNC-01..DNC-22, sche
  * timeline entries, notification rows, cards, table rows, menu items, context
  * actions, drag-and-drop, import/export, reset, role switch, locale/theme
  * switch, simulated connectivity, failure injection, story navigation, review
- * controls) and the frozen source classifies none of the 608 against them.
- * Inventing a taxonomy and running the 608 labels through a keyword guess
+ * controls) and the frozen source classifies none of the 605 against them.
+ * Inventing a taxonomy and running the 605 labels through a keyword guess
  * would produce a column that looks like source truth and is this build's own
  * opinion — the exact defect the census exists to prevent. So the absence is
  * published on the index page and recorded as the delta in the
@@ -2298,14 +2339,67 @@ function normaliseControlModule(raw) {
   return { moduleId: null, descriptor: trimmed }
 }
 
+/* ──────────────────────────────────────────────────────────────────────
+ * R6-B01 — a census row must be a CONTROL, and three of them were not.
+ *
+ * The extraction lifted three sentence-shaped runs that the frozen source
+ * describes as RENDERED MESSAGES rather than actions, and the census
+ * counted them as actionable controls. All three source lines were opened:
+ *
+ *   L13538  "Run interruption is a floor action and is not available from
+ *           this surface." -- the panel "carries a short line", in a
+ *           passage whose whole point is that the Command Center run
+ *           drill-down "offers no pause, stop, or edit control anywhere".
+ *   L41894  "Changed in this version." -- "a small in-situ flag reads ...".
+ *           (The audit missed this one; the same storyboard's real control,
+ *           the single "Start", stays.)
+ *   L42209  "The Training Library needs a connection. It is not needed for
+ *           any of your runs." -- the destination "shows a single line
+ *           reading ...", explicitly "not an empty list, and not an error
+ *           code".
+ *
+ * The rule is deterministic and deliberately narrow: strip the quotes ONLY
+ * where the label is WHOLLY quoted, then exclude what ends in a period. A
+ * label is a control label, and control labels do not end in full stops.
+ *
+ * WHY NOT A NAIVE TRAILING-QUOTE STRIP: it catches a fourth row,
+ * `In-app locked control with the text "Always on. In-app notifications
+ * cannot be turned off."` (L73228), and excluding that one would be wrong.
+ * The source's own word there is "control" -- "In-app renders as a locked
+ * control with the text ..." -- master prompt §13.1 names notification rows
+ * as census members, and round 6's R6-C01 settled that a locked entry whose
+ * attempt fails with a stated reason is this build's canonical DISABLED
+ * rendering, which is a control and not an absence. The label is not wholly
+ * quoted, so the rule leaves it where it belongs: in the census.
+ *
+ * The count is asserted at exactly 3 below, so the rule cannot quietly grow
+ * into a heuristic that eats real controls.
+ * ────────────────────────────────────────────────────────────────────── */
+const CONTROL_EXCLUSION_LINES = [13538, 41894, 42209]
+
+function isRenderedMessageNotAControl(label) {
+  if (typeof label !== 'string') return false
+  const trimmed = label.trim()
+  const unquoted =
+    trimmed.length > 1 && trimmed.startsWith('"') && trimmed.endsWith('"')
+      ? trimmed.slice(1, -1)
+      : trimmed
+  return unquoted.endsWith('.')
+}
+
 function buildActionableControlsRegistry() {
   const rawControls = []
   for (const chunk of chunks) {
     for (const c of chunk.controls ?? []) rawControls.push(c)
   }
   const byLabel = new Map()
+  const excludedMessages = new Map()
   for (const c of rawControls) {
     if (byLabel.has(c.label)) continue // first occurrence (chunk order) wins
+    if (isRenderedMessageNotAControl(c.label)) {
+      if (!excludedMessages.has(c.label)) excludedMessages.set(c.label, c.line)
+      continue
+    }
     const surface = normaliseControlSurface(c.surface)
     const { moduleId, descriptor } = normaliseControlModule(c.module_id)
     byLabel.set(c.label, {
@@ -2333,8 +2427,24 @@ function buildActionableControlsRegistry() {
     })
   }
   const controlRows = [...byLabel.values()]
-  if (controlRows.length !== 608) {
-    throw new Error(`Expected 608 distinct actionable controls, computed ${controlRows.length}`)
+  // R6-B01: the exclusion is asserted, not trusted -- by count AND by the
+  // three source lines it is allowed to remove. A fourth sentence-shaped
+  // label appearing in the extraction reds the build rather than silently
+  // shrinking the §13.1 denominator.
+  const excludedLines = [...excludedMessages.values()].sort((a, b) => a - b)
+  if (
+    excludedMessages.size !== 3 ||
+    excludedLines.join(',') !== CONTROL_EXCLUSION_LINES.join(',')
+  ) {
+    throw new Error(
+      `Expected exactly 3 rendered-message exclusions at lines ` +
+        `${CONTROL_EXCLUSION_LINES.join(', ')}, computed ${excludedMessages.size} at ` +
+        `${excludedLines.join(', ') || 'none'}: ` +
+        `${[...excludedMessages.keys()].map((l) => JSON.stringify(l)).join(' | ')}`,
+    )
+  }
+  if (controlRows.length !== 605) {
+    throw new Error(`Expected 605 distinct actionable controls, computed ${controlRows.length}`)
   }
 
   const dncRows = idsWithPrefix('DNC-').map((r) => ({
@@ -2349,24 +2459,37 @@ function buildActionableControlsRegistry() {
   return {
     slug: 'actionable-controls',
     countedThing:
-      '608 distinct actionable UI controls (labelled actions like "End-session", "Resolve ' +
+      '605 distinct actionable UI controls (labelled actions like "End-session", "Resolve ' +
       'All", "Request release with a note"), deduped by exact label text from 759 raw ' +
-      'extraction entries -- matches spec §2.10. Also discloses, under its own register tag, ' +
+      'extraction entries and less the three rendered messages the source describes as lines ' +
+      'rather than actions -- matches spec §2.10. Also discloses, under its own register tag, ' +
       'the separate DNC-01..DNC-22 do-not-use-cron register (22): scheduling policy, never an ' +
       'actionable control, and never merged into this count.',
-    reconciledCount: 608,
+    reconciledCount: 605,
     rawCount: rawControls.length,
     dedupRule: appendNote(
       `${rawControls.length} raw controls[] entries across the 36 extraction chunks deduped ` +
-        'by exact label text (first occurrence, chunk order, wins) -> 608 distinct actionable ' +
+        'by exact label text (first occurrence, chunk order, wins) -> 605 distinct actionable ' +
         'controls, matching spec §2.10. Worst collapse: 14 raw entries sharing one label ' +
-        '("Request release with a note"). DNC-01..DNC-22 (verified unique, zero delta) is a ' +
+        '("Request release with a note"). R6-B01: THREE DEDUPED LABELS ARE EXCLUDED BECAUSE ' +
+        'THE FROZEN SOURCE DESCRIBES THEM AS RENDERED MESSAGES RATHER THAN ACTIONS, so the ' +
+        'census counts controls and not the lines a screen prints -- L13538 "Run interruption ' +
+        'is a floor action and is not available from this surface." (the panel "carries a ' +
+        'short line", where the drill-down "offers no pause, stop, or edit control anywhere"), ' +
+        'L41894 "Changed in this version." ("a small in-situ flag reads"), and L42209 "The ' +
+        'Training Library needs a connection. It is not needed for any of your runs." (the ' +
+        'destination "shows a single line reading"). The rule strips enclosing quotes only ' +
+        'where a label is wholly quoted and then drops what ends in a period, and the ' +
+        'generator throws unless it removes exactly those three lines. The L73228 in-app ' +
+        'locked control is NOT excluded: the source calls it a control, and a locked entry ' +
+        'whose attempt fails with a stated reason is a DISABLED rendering rather than an ' +
+        'absence. DNC-01..DNC-22 (verified unique, zero delta) is a ' +
         'SEPARATE inventory -- scheduling policy, not an actionable control -- and is listed ' +
         `under the "${DO_NOT_USE_CRON_REGISTER}" register tag rather than mixed into this count. ` +
         // R4-B04, measured on the written rows rather than asserted.
         `THE FOUR CENSUS DIMENSIONS MASTER PROMPT §13.1 ASKS FOR, AND WHICH OF THEM THIS ` +
         `EXTRACTION CAN ANSWER. Surface: ${controlRows.filter((r) => r.surface !== undefined).length} ` +
-        `of 608 rows carry a normalised surface (` +
+        `of 605 rows carry a normalised surface (` +
         `${controlRows.filter((r) => r.surface === 'cross-surface').length} of them cross-surface), ` +
         `and ${controlRows.filter((r) => r.surfaceDescriptor !== undefined).length} of those were ` +
         'prose in the extraction and are normalised here with the raw wording kept beside them. ' +
@@ -2375,7 +2498,7 @@ function buildActionableControlsRegistry() {
         'name their module in prose or name several at once, and carry that text verbatim rather ' +
         `than a guessed id; ${controlRows.filter((r) => r.moduleId === undefined && r.moduleDescriptor === undefined).length} ` +
         'record no module at all. Implementation status: every row. CONTROL TYPE: NO ROW, AND ' +
-        'NOT BECAUSE THE GENERATOR DROPS IT. The frozen source classifies none of these 608 ' +
+        'NOT BECAUSE THE GENERATOR DROPS IT. The frozen source classifies none of these 605 ' +
         'controls by type -- the extraction records label, surface, module, allowed roles, ' +
         'effect and line, and the source names no type for any of them. A type column here ' +
         'would be this build\'s own taxonomy presented in a source-derived census, so the ' +
@@ -2384,7 +2507,7 @@ function buildActionableControlsRegistry() {
       statusNote(
         [...controlRows, ...dncRows],
         'a shipped route screen declares a control-matrix row whose `control:` label is EXACTLY ' +
-          'this source label (the 608 control rows), or names the identifier as a whole token ' +
+          'this source label (the 605 control rows), or names the identifier as a whole token ' +
           `(the DNC-* rows). This is the weakest of the fourteen signals and says so: the built ` +
           `screens declare ${ROUTE_EVIDENCE.declaredControlLabels.size} control-matrix labels ` +
           `(${ROUTE_EVIDENCE.appDeclaredControlLabels.size} in a route file under app/ and ` +
@@ -2421,10 +2544,10 @@ function buildActionableControlsRegistry() {
           'control re-worded for a reader and this build does not claim that all of them are -- ' +
           'the join is exact label text and nothing weaker is available. Direction two, census ' +
           `rows with neither a rendered control nor a terminal record: ` +
-          `${controlRows.filter((r) => r.status === 'not-represented').length} of the 608. ` +
+          `${controlRows.filter((r) => r.status === 'not-represented').length} of the 605. ` +
           `The ${dncRows.length} DNC-* rows carry an authored terminal record and are counted in ` +
           'neither direction. The frozen source gives these actions no identifier -- the label IS the key -- ' +
-          'so there is nothing else to join on, and a looser match was rejected: the 608 labels ' +
+          'so there is nothing else to join on, and a looser match was rejected: the 605 labels ' +
           'include "Add", "Next", "Return" and "Filter", which occur in unrelated prose and ' +
           'chrome across the tree and would have inflated this number by dozens. Read this ' +
           'figure as "controls the build labelled identically to the source", never as "controls ' +

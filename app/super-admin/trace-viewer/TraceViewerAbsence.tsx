@@ -145,14 +145,26 @@ const SOURCE_DEFINITIONS: readonly { readonly heading: string; readonly body: st
  * of a trace viewer at V1, stated in the console and in every derived
  * artifact. The build was abstaining from the obligation it was discharging.
  *
- * SEVEN OF THE EIGHT ARE BACKEND OBLIGATIONS WITH NO SCREEN, and that is
- * stated per row rather than glossed. "The console draws nothing for this
- * because the obligation is not a screen" is a different statement from "the
- * source does not carry it", and only the first one is true here. The
- * distinction is why each row names WHERE the obligation lives.
+ * R6-A02. This comment used to read "SEVEN OF THE EIGHT ARE BACKEND
+ * OBLIGATIONS WITH NO SCREEN", and the sentence it seeded said the same. The
+ * `category` column below counts FIVE backend and THREE borne by this screen
+ * -- -03, -04 and -07 -- so the claim told a reader that two criteria this
+ * page discharges have no screen anywhere. That is the inverse of the defect
+ * R5-A01 built this table to close. The split is now DERIVED from `category`
+ * and appears as a literal nowhere, here or in the rendered sentence.
+ *
+ * A backend obligation is still SAID to be one, per row rather than glossed.
+ * "The console draws nothing for this because the obligation is not a screen"
+ * is a different statement from "the source does not carry it", and only the
+ * first one is true here. The distinction is why each row names WHERE the
+ * obligation lives.
  */
-interface AcceptanceCriterion {
+export type BorneByCategory = 'this-screen' | 'backend'
+
+export interface AcceptanceCriterion {
   readonly id: string
+  /** The classification the intro sentence's split is counted over. */
+  readonly category: BorneByCategory
   /** The criterion, as the source's own table row states it. */
   readonly criterion: string
   /** The line of the frozen source carrying that row. */
@@ -161,9 +173,10 @@ interface AcceptanceCriterion {
   readonly borneBy: string
 }
 
-const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
+export const MODULE_ACCEPTANCE_CRITERIA = [
   {
     id: 'AC-SA-06-01',
+    category: 'backend',
     criterion:
       'Every agent run produces a trace covering plan, act, observe, reflect, and replan where replanning occurred.',
     ref: 'L43962',
@@ -172,6 +185,7 @@ const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
   },
   {
     id: 'AC-SA-06-02',
+    category: 'backend',
     criterion:
       'Replanning appears in the trace as a first-class event, distinguishable from a new plan.',
     ref: 'L43963',
@@ -180,6 +194,7 @@ const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
   },
   {
     id: 'AC-SA-06-03',
+    category: 'this-screen',
     criterion: 'Traces are immutable once closed; no account can edit or delete one.',
     ref: 'L43964',
     borneBy:
@@ -187,6 +202,7 @@ const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
   },
   {
     id: 'AC-SA-06-04',
+    category: 'this-screen',
     criterion:
       'No tenant surface exposes orchestrator internal reasoning; tenants receive a plain-language activity log and an evidence list only.',
     ref: 'L43965',
@@ -195,6 +211,7 @@ const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
   },
   {
     id: 'AC-SA-06-05',
+    category: 'backend',
     criterion:
       'Full traces are retained 24 months and then tier to lower-cost storage, remaining retrievable; none is purged.',
     ref: 'L43966',
@@ -203,6 +220,7 @@ const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
   },
   {
     id: 'AC-SA-06-06',
+    category: 'backend',
     criterion:
       'Every trace yields a decision record carrying plan summary, atoms invoked, gate outcome, and approver, retained for the operational record’s full term.',
     ref: 'L43967',
@@ -211,6 +229,7 @@ const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
   },
   {
     id: 'AC-SA-06-07',
+    category: 'this-screen',
     criterion:
       'The absence of a trace-viewer screen at V1 is stated in the console and in every derived artifact, and no artifact depicts a viewer as shipping at V1.',
     ref: 'L43968',
@@ -219,13 +238,50 @@ const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
   },
   {
     id: 'AC-SA-06-08',
+    category: 'backend',
     criterion:
       'A run whose trace or decision record cannot be written is recorded as failed or incomplete, never as a successful run.',
     ref: 'L43969',
     borneBy:
       'Backend obligation with no screen. Whether such a run’s output is withheld from the operator is the open half, carried as DEC-TRACE-001 below.',
   },
-]
+] as const satisfies readonly AcceptanceCriterion[]
+/* ------------------------------------------------------------------ *
+ * R6-A02 — the split, COUNTED, never written.
+ * ------------------------------------------------------------------ */
+export function acceptanceCriteriaSplit(
+  criteria: readonly AcceptanceCriterion[] = MODULE_ACCEPTANCE_CRITERIA,
+): Record<BorneByCategory | 'total', number> {
+  return {
+    'this-screen': criteria.filter((a) => a.category === 'this-screen').length,
+    backend: criteria.filter((a) => a.category === 'backend').length,
+    total: criteria.length,
+  }
+}
+
+const SMALL_NUMBER_WORDS = [
+  'zero', 'one', 'two', 'three', 'four', 'five',
+  'six', 'seven', 'eight', 'nine', 'ten',
+] as const
+
+function numberWord(n: number): string {
+  return SMALL_NUMBER_WORDS[n] ?? String(n)
+}
+
+/** The intro sentence of the acceptance-criteria section, built from the array. */
+export function acceptanceCriteriaSplitSentence(
+  criteria: readonly AcceptanceCriterion[] = MODULE_ACCEPTANCE_CRITERIA,
+): string {
+  const split = acceptanceCriteriaSplit(criteria)
+  const backend = numberWord(split.backend)
+  return (
+    `All ${numberWord(split.total)}, from the source’s own table at L43962–L43969. ` +
+    `${backend.charAt(0).toUpperCase()}${backend.slice(1)} are obligations on the backend trace ` +
+    `store and carry no screen at V1, which is a different statement from the source being ` +
+    `silent about them; the other ${numberWord(split['this-screen'])} are borne by this screen. ` +
+    `Each row names where the obligation is borne.`
+  )
+}
 
 /**
  * The twelve applicable screen states (STATE-07 is frontline-only and no
@@ -414,9 +470,7 @@ export function TraceViewerAbsence({ aiModelsUnavailable = false }: TraceViewerA
 
       <Section heading="Acceptance criteria — MOD-SA-06">
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          All eight, from the source’s own table at L43962–L43969. Seven are obligations on the
-          backend trace store and carry no screen at V1, which is a different statement from the
-          source being silent about them — each row names where the obligation is borne.{' '}
+          {acceptanceCriteriaSplitSentence()}{' '}
           <strong className="font-medium text-[var(--color-ink)]">AC-SA-06-07 is this screen</strong>
           : it requires the absence of a trace viewer at V1 to be stated in the console and in every
           derived artifact, and this route is that statement.

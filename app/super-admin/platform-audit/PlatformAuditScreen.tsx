@@ -709,21 +709,33 @@ export const UNSPECIFIED_IN_SOURCE = [
  * This table replaces an entry in the panel above that reported three of this
  * module's ten criteria as unknowable -- the three the run 01..10 skipped.
  * L46193 carries all ten in one paragraph with complete text. Where a
- * criterion is a backend obligation with no screen — an atomicity rule over a
- * write path this prototype does not have — the row says that with its
- * citation, which is a different statement from the source being silent.
+ * criterion is a backend obligation with no screen the row says that with its
+ * citation, which is a different statement from the source being silent — and
+ * each such row gives its OWN reason. R6-A04: the three are not one reason.
+ * -01 is an atomicity rule over a write path this prototype does not have;
+ * -08 is a retention rule; -09 is a storage-tiering rule. The last two would
+ * still have no screen in a build that had a write path.
+ *
+ * R6-A01: the intro sentence's split is DERIVED from `category` below and is
+ * never written as a literal. The literal it replaced said four/one/three
+ * against an array holding six/one/three.
  * ------------------------------------------------------------------ */
-interface AcceptanceCriterion {
+export type BorneByCategory = 'this-screen' | 'by-omission' | 'backend'
+
+export interface AcceptanceCriterion {
   readonly id: string
+  /** The classification the intro sentence's split is counted over. */
+  readonly category: BorneByCategory
   /** The criterion as L46193 states it. */
   readonly criterion: string
   /** Where the obligation is borne, and whether a screen is involved. */
   readonly borneBy: string
 }
 
-const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
+export const MODULE_ACCEPTANCE_CRITERIA = [
   {
     id: 'AC-SA-18-01',
+    category: 'backend',
     criterion:
       'No code path exists where an administrative change commits and its audit event does not.',
     borneBy:
@@ -731,25 +743,29 @@ const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
   },
   {
     id: 'AC-SA-18-02',
+    category: 'this-screen',
     criterion: 'An audit-write failure refuses the action and the operator is told.',
     borneBy:
       'This screen, in STATE-12: the failure path renders the refusal with FB-SA-03 named and states that nothing was written (L46191).',
   },
   {
     id: 'AC-SA-18-03',
+    category: 'this-screen',
     criterion:
       'Every one of the named event classes is recorded, including attempts on locked settings.',
     borneBy:
-      'This screen, as far as it can go. The locked-setting attempt is the first row of the event-class filter and it carries its own citation (AC-SEC-602, L104033). The completeness half is a backend obligation. The criterion’s own figure for how many classes there are is the one thing omitted from the row above: L46178 and L47835 give two irreconcilable figures and no size is stated anywhere on this screen (D4), which the panel below still names.',
+      'This screen, as far as it can go. The locked-setting attempt is the first row of the event-class filter and it carries its own citation (AC-SEC-602, L104033). The completeness half is a backend obligation. The criterion’s own figure for how many classes there are is the one thing omitted from the row above, and the disagreement behind that omission is NOT a tie: the criterion’s own line (L46193) and FUNC-SA-18-02-A1 (L46178) state the same figure, and only the module matrix row (L47835) differs — two lines to one, with the criterion on the majority side. The figure is still omitted rather than picked, because the source enumerates the classes nowhere and D4 keeps any size off this screen, which the panel below still names.',
   },
   {
     id: 'AC-SA-18-04',
+    category: 'this-screen',
     criterion: 'No edit or delete path exists on any surface for any account.',
     borneBy:
       'This screen. Edit and delete render ABSENT for every console role including the root — no control, not even greyed (L46121, AC-SEC-701 L104169).',
   },
   {
     id: 'AC-SA-18-05',
+    category: 'this-screen',
     criterion:
       'Every cross-tenant access event mirrors into the affected tenant’s audit stream.',
     borneBy:
@@ -757,36 +773,87 @@ const MODULE_ACCEPTANCE_CRITERIA: readonly AcceptanceCriterion[] = [
   },
   {
     id: 'AC-SA-18-06',
+    category: 'this-screen',
     criterion: 'Platform Access History reads the same records rather than a separate view.',
     borneBy:
       'This screen states it; the tenant-side rendering belongs to the Delivery Operations Hub, whose row in the tenant-actor table names it.',
   },
   {
     id: 'AC-SA-18-07',
+    category: 'this-screen',
     criterion: 'Class-filtered export exists and is itself audited.',
     borneBy:
       'This screen. The export control is one of the module’s two defined controls (L46121), and requesting it writes an Audit export entry of its own — which is why that class is in the filter list.',
   },
   {
     id: 'AC-SA-18-08',
+    category: 'backend',
     criterion: 'Audit retention is never shorter than the tenant data it evidences.',
     borneBy:
       'Backend obligation with no screen, and no retention control belongs to this module. FB-SA-10 is the enforcement point, at the point of configuration (L46188); the panel below records that no retention value is stated here.',
   },
   {
     id: 'AC-SA-18-09',
+    category: 'backend',
     criterion: 'The log follows the no-purge tiering model.',
     borneBy:
       'Backend obligation with no screen — a storage-tiering rule with no affordance anywhere on this console. Its functionality FUNC-SA-18-04-A3 states the same rule with FB-SA-10 as its fallback (L46188).',
   },
   {
     id: 'AC-SA-18-10',
+    category: 'by-omission',
     criterion:
       'The deferred hardening of the immutability guarantee is rendered as a version-two item and is not claimed at V1.',
     borneBy:
       'This screen, by omission on purpose. The two terms the criterion names the hardening by are the ones D10 and AC-SCOPE-033 (L2612) keep out of every SURF-SA rendering, so the row above states the criterion and not its vocabulary; the append-only property is stated as a design property rather than a cryptographic guarantee.',
   },
-]
+] as const satisfies readonly AcceptanceCriterion[]
+/* ------------------------------------------------------------------ *
+ * R6-A01 — the split, COUNTED, never written.
+ *
+ * The sentence above the table used to carry the literal "Four … one …
+ * three" against an array of six/one/three: four plus one plus three is
+ * eight, and a reader totalling the split lost two criteria. A corrected
+ * literal is the next figure to go stale, so the sentence is now built from
+ * these counts and `tests/component/sa-platform-audit.test.tsx` asserts both
+ * the category map and the rendered sentence against the array.
+ * ------------------------------------------------------------------ */
+export function acceptanceCriteriaSplit(
+  criteria: readonly AcceptanceCriterion[] = MODULE_ACCEPTANCE_CRITERIA,
+): Record<BorneByCategory | 'total', number> {
+  return {
+    'this-screen': criteria.filter((a) => a.category === 'this-screen').length,
+    'by-omission': criteria.filter((a) => a.category === 'by-omission').length,
+    backend: criteria.filter((a) => a.category === 'backend').length,
+    total: criteria.length,
+  }
+}
+
+const SMALL_NUMBER_WORDS = [
+  'zero', 'one', 'two', 'three', 'four', 'five',
+  'six', 'seven', 'eight', 'nine', 'ten',
+] as const
+
+function numberWord(n: number): string {
+  return SMALL_NUMBER_WORDS[n] ?? String(n)
+}
+
+/** The intro sentence of the acceptance-criteria section, built from the array. */
+export function acceptanceCriteriaSplitSentence(
+  criteria: readonly AcceptanceCriterion[] = MODULE_ACCEPTANCE_CRITERIA,
+): string {
+  const split = acceptanceCriteriaSplit(criteria)
+  const borne = numberWord(split['this-screen'])
+  return (
+    `All ${numberWord(split.total)}, from the source’s own paragraph at L46193. ` +
+    `${borne.charAt(0).toUpperCase()}${borne.slice(1)} are borne by this screen, ` +
+    `${numberWord(split['by-omission'])} by omission on purpose, and ` +
+    `${numberWord(split.backend)} are backend obligations — each row says which, and each ` +
+    `backend row gives its own reason rather than sharing one, because “the console draws ` +
+    `nothing for this because it is not a screen” is a different statement from the source ` +
+    `being silent about it.`
+  )
+}
 
 /* ------------------------------------------------------------------ *
  * THE NINE FUNCTIONALITIES, FROM L46175-L46189.
@@ -1743,11 +1810,7 @@ export function PlatformAuditScreen({
 
       <Section id="sa18-acceptance" heading="Acceptance criteria — MOD-SA-18">
         <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          All ten, from the source’s own paragraph at L46193. Four are borne by this screen, one by
-          omission on purpose, and three are backend obligations over a write path a browser-only
-          prototype does not have — each row says which, because “the console draws nothing for this
-          because it is not a screen” is a different statement from the source being silent about
-          it.
+          {acceptanceCriteriaSplitSentence()}
         </p>
         <div className="mt-4">
           <Table

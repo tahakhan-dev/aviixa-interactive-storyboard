@@ -85,6 +85,24 @@ export default defineConfig({
           // to parallelise against each other at all, so this project runs
           // its files sequentially.
           fileParallelism: false,
+          // R6-T01 (audit round 6): the 5000ms default was wrong for this
+          // project and it made one gate's verdict depend on machine load.
+          // `rendered-absence-claims.test.ts` scans ~784 identifiers across
+          // the 18MB frozen source and takes ~9.6s: it passed run alone and
+          // went red under concurrent load, and a timeout on the gate that
+          // convicts the absence-claim class reads exactly like the file
+          // having been deleted. These gates read the 18MB source and the
+          // whole 103-page export by design, so the headroom is the honest
+          // fix rather than a retry; the rule from the component project
+          // still applies -- slow because it reads the real artefact gets
+          // time, slow because it re-reads the same file gets made fast.
+          testTimeout: 60_000,
+          // R6-T02: these gates read `out/`, so the suite is a single writer
+          // against it. `slice-04-gates.test.ts` passes 78/78 alone and reds
+          // when another process runs `pnpm build` underneath it -- correct
+          // behaviour reported as a failure. `pnpm verify` is sequential and
+          // safe; running `test:release` beside a build is not, and that
+          // constraint went unstated until round 6.
         },
       },
     ],

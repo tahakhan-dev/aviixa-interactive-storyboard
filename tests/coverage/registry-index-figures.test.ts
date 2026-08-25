@@ -274,3 +274,94 @@ describe('R4-B10: an index row links to the screen that demonstrates it', () => 
     }
   })
 })
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * R6-B02 — THE COVERAGE DASHBOARD'S CLAIM ABOUT ITS OWN CLASSIFICATION
+ * COVERAGE, HELD BY EQUALITY IN BOTH DIRECTIONS.
+ *
+ * `/coverage/` rendered "No other registry has been classified against the
+ * source yet." Measured over the generated files at round 6: modules 81 of 81
+ * AND notifications 56 of 286 carry a `sourceClass` — 137 rows the generator
+ * itself wrote. The sentence was false about a whole registry, on the page
+ * whose entire subject is what this build can honestly claim, and the
+ * paragraph two blocks below it carried a comment celebrating the removal of
+ * exactly this shape of stale prose.
+ *
+ * The page derives the set now. This gate is what stops the derivation being
+ * quietly narrowed back to a literal: the set of registries the page NAMES as
+ * carrying a classification is compared BY EQUALITY against the set measured
+ * from the generated rows, and the per-registry figures are checked in the
+ * rendered text with the flight payload stripped. A subset assertion here
+ * would pass on the sentence that was wrong.
+ *
+ * SUBJECT AND ORDERING: `out/coverage/index.html` (written by `build`)
+ * against `registries/generated/**` (also written by `build`, one step
+ * earlier, and the page's INPUT rather than its output).
+ * ═════════════════════════════════════════════════════════════════════════ */
+describe('R6-B02: source-classification coverage is measured, not asserted', () => {
+  interface ClassifiedRegistry {
+    readonly slug: string
+    readonly title: string
+    readonly classified: number
+    readonly total: number
+  }
+
+  const MEASURED: readonly ClassifiedRegistry[] = REGISTRY_DESCRIPTORS.map((d, i) => {
+    const registry = REGISTRIES[i]
+    if (registry === undefined) throw new Error(`no generated registry for ${d.slug}`)
+    return {
+      slug: d.slug,
+      title: d.title,
+      classified: (registry.rows as { sourceClass?: string }[]).filter(
+        (r) => r.sourceClass !== undefined,
+      ).length,
+      total: registry.rows.length,
+    }
+  }).filter((r) => r.classified > 0)
+
+  const dashboard = (): string => renderedText(readFileSync(join(OUT, 'coverage', 'index.html'), 'utf8'))
+
+  // FAILS IF: no registry carries a classification at all, which would make
+  // every assertion below pass by having nothing to compare. This is the
+  // R3-shaped emptied-population check, not decoration: a generator change
+  // that stopped writing `sourceClass` would otherwise turn this whole block
+  // green and silent.
+  it('has a classified population to measure', () => {
+    expect(MEASURED.length).toBeGreaterThan(0)
+    expect(MEASURED.reduce((n, r) => n + r.classified, 0)).toBeGreaterThan(0)
+  })
+
+  // FAILS IF: the page names a different set of classified registries from
+  // the one the data holds, in EITHER direction — a registry that gained a
+  // classification and is not named, or one named that no longer carries one.
+  //
+  // Planted: `CLASSIFICATION_COVERAGE` in `app/coverage/page.tsx` filtered to
+  // `slug === 'modules'`, restoring the false claim in derived clothing, then
+  // `pnpm build`. Went red naming notifications. Restored, rebuilt, green,
+  // and the restored file checksummed against the pre-plant bytes.
+  it('names exactly the registries that carry a source classification, with their figures', () => {
+    const text = dashboard()
+    const named = MEASURED.filter((r) =>
+      text.includes(`${r.title.toLowerCase()} ${r.classified} of ${r.total}`),
+    )
+    expect(named.map((r) => r.slug)).toEqual(MEASURED.map((r) => r.slug))
+
+    const unclassified = REGISTRY_DESCRIPTORS.filter(
+      (d) => !MEASURED.some((m) => m.slug === d.slug),
+    )
+    expect(
+      text,
+      'the dashboard must state how many inventories carry no classification',
+    ).toContain(`The remaining ${unclassified.length} carry none`)
+    expect(text).toContain(
+      `${MEASURED.length} of the ${REGISTRY_DESCRIPTORS.length} inventories carry a source classification`,
+    )
+  })
+
+  // FAILS IF: the sentence this finding is about comes back in any form.
+  // A derived sentence can still be replaced by a literal by the next author,
+  // and the literal that was here is the one worth naming.
+  it('no longer claims that no other registry has been classified', () => {
+    expect(dashboard()).not.toContain('No other registry has been classified against the source')
+  })
+})

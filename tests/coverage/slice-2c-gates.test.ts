@@ -211,7 +211,7 @@ describe('gate 1: count-scope honesty', () => {
   // hand-written list of numbers. Round 2, MAJOR: that list itself was an
   // enumeration -- the workflow-collapse lesson repeating inside a gate.
   // Nine of the fourteen live registry row counts were absent from it
-  // (17/28/67/70/205/330/526/534/630), so a hardcoded "The same 630 rows
+  // (17/28/67/70/205/330/526/534/627), so a hardcoded "The same 627 rows
   // also render below." kept the gate green. Computed FRESH from the
   // registries' own data on every call instead: every registry's
   // `rows.length`, `rawCount` and `reconciledCount`, PLUS the modules
@@ -305,8 +305,11 @@ describe('gate 1: count-scope honesty', () => {
   it('the forbidden-count set is computed from live data, not a hand-written list', () => {
     const forbidden = liveRegistryCounts()
     // The nine counts a prior hand-written list omitted -- restoring a
-    // hardcoded "630" (or any of these) used to keep the gate green.
-    for (const n of [17, 28, 67, 70, 205, 330, 526, 534, 630]) {
+    // hardcoded "627" (or any of these) used to keep the gate green. The
+    // last figure read 630 until round 6's R6-B01 took three rendered
+    // messages out of the control census: 605 controls plus the 22-row DNC
+    // register is 627 rows, and this list is the count the gate forbids.
+    for (const n of [17, 28, 67, 70, 205, 330, 526, 534, 627]) {
       expect(forbidden.has(n), String(n)).toBe(true)
     }
     // The modules source-class breakdown, computed the same way
@@ -325,7 +328,7 @@ describe('gate 1: count-scope honesty', () => {
     ['sentence end', 'export const C = () => <p>The registry holds 990.</p>\n'],
     ['before a hyphen', 'export const C = () => <p>an 81-module inventory</p>\n'],
     ['after a colon', 'export const C = () => <p>Functions indexed: 990</p>\n'],
-    ['before a bare comma', 'export const C = () => <p>holds 630, and more</p>\n'],
+    ['before a bare comma', 'export const C = () => <p>holds 627, and more</p>\n'],
   ])('PLANTED VIOLATION: a count %s trips the gate', (_where, body) => {
     withProbe(join('app', 'coverage'), 'Probe.tsx', body, (probe) => {
       expect(hardcodedCountOffenders().join(' ')).toContain(probe)
@@ -345,8 +348,8 @@ describe('gate 1: count-scope honesty', () => {
   })
 
   it('PLANTED VIOLATION: a hardcoded count in ANY app/ file trips the gate, including outside app/coverage/', () => {
-    withProbe(join('app', 'workflows'), 'Probe.tsx', 'export const total = 630\n', (probe) => {
-      expect(hardcodedCountOffenders()).toContain(`${probe}: hardcodes 630`)
+    withProbe(join('app', 'workflows'), 'Probe.tsx', 'export const total = 627\n', (probe) => {
+      expect(hardcodedCountOffenders()).toContain(`${probe}: hardcodes 627`)
     })
     expect(hardcodedCountOffenders()).toEqual([])
   })
