@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync, rmSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './strip-comments'
+import { renderedText } from './rendered-text'
 import { isForeignProbe as isForeign, ownProbeDir, withPlanted as plantProbe } from '../probe-paths'
 import { SA_MODULES } from '@/surfaces/sa/modules'
 import { SA_TENANTS } from '@/surfaces/sa/tenants'
@@ -504,7 +505,10 @@ describe('slice 3 gate 9: every critical-class action discloses its freeze', () 
     expect(declaring.length, 'no screen declares a critical action').toBeGreaterThan(0)
     const silent = declaring.filter((slug) => {
       const page = join('out', 'super-admin', slug, 'index.html')
-      return !existsSync(page) || !readFileSync(page, 'utf8').includes('Critical class frozen')
+      // R5-Q01: `renderedText`, never the raw file. Next inlines the whole
+      // page again as its flight payload, so a raw `includes` over the bytes
+      // is satisfied by a page that renders the freeze nowhere.
+      return !existsSync(page) || !renderedText(readFileSync(page, 'utf8')).includes('Critical class frozen')
     })
     expect(silent, 'screens that declare the freeze and render none').toEqual([])
   })

@@ -44,24 +44,11 @@ const OUT = join(process.cwd(), 'out')
 /**
  * THE FLIGHT PAYLOAD IS NOT RENDERED TEXT (R5-B03's measurement warning).
  *
- * `renderedText` strips tags and HTML comments. It does NOT strip
- * `<script>self.__next_f.push(...)</script>`, and on this page that payload is
- * 790KB of the 1.3MB file — every prop of every server component, including
- * every sentence this gate asserts and every row id as a React key. A gate
- * that measures with `renderedText` alone can be satisfied by a page whose
- * visible content has been deleted, which is the exact trap the round-5 audit
- * caught the controller in. Scripts and styles are removed first here, so what
- * is measured is what a reader sees.
- *
- * Local rather than folded into `tests/coverage/rendered-text.ts`: that helper
- * is shared with gates two other fix streams are editing right now. The hazard
- * is repo-wide and is reported as such.
+ * The local `readerText` that used to sit here — stripping <script> and
+ * <style> before calling `renderedText` — is gone: R5-Q01 moved the strip
+ * into the shared helper, where every caller gets it. `renderedText` IS
+ * reader text now. See tests/coverage/rendered-text.ts.
  */
-function readerText(html: string): string {
-  return renderedText(
-    html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, ' '),
-  )
-}
 
 
 /**
@@ -242,7 +229,7 @@ const REGISTRIES: Registry[] = REGISTRY_DESCRIPTORS.map(
 )
 const CONTROLS = REGISTRIES.find((r) => r.slug === 'actionable-controls')!
 const CONTROL_ROWS = CONTROLS.rows.filter((r) => r.register?.startsWith('actionable controls'))
-const CONTROLS_PAGE = readerText(
+const CONTROLS_PAGE = renderedText(
   readFileSync(join(OUT, 'coverage', 'actionable-controls', 'index.html'), 'utf8'),
 )
 

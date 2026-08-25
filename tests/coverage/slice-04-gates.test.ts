@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, statSync, writeFileSync, rmSync, mkdirSync, 
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
-import { JSDOM } from 'jsdom'
+import { readerDocument } from './rendered-text'
 import { stripComments } from './strip-comments'
 import { isForeignProbe as isForeign, ownProbeDir, withPlanted } from '../probe-paths'
 import { namesPersonBehaviouralMeasure } from './person-measure-keys'
@@ -377,7 +377,7 @@ function builtHubPages(): { slug: string; doc: Document }[] {
     .filter(({ page }) => existsSync(page))
     .map(({ slug, page }) => ({
       slug,
-      doc: new JSDOM(readFileSync(page, 'utf8')).window.document,
+      doc: readerDocument(readFileSync(page, 'utf8')),
     }))
 }
 
@@ -490,7 +490,7 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
         out.push(`${slug}: no built page`)
         continue
       }
-      const doc = new JSDOM(readFileSync(page, 'utf8')).window.document
+      const doc = readerDocument(readFileSync(page, 'utf8'))
       const controls = [...doc.querySelectorAll(CONTROL_SEMANTICS)].map((el) => ({
         tag: el.tagName.toLowerCase(),
         text: el.textContent ?? '',
@@ -525,7 +525,7 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
     const textBySlug = new Map<string, string>()
     for (const { slug, label, rowId } of heldByNobody()) {
       if (!textBySlug.has(slug)) {
-        const doc = new JSDOM(readFileSync(join(OUT_HUB, slug, 'index.html'), 'utf8')).window.document
+        const doc = readerDocument(readFileSync(join(OUT_HUB, slug, 'index.html'), 'utf8'))
         textBySlug.set(slug, doc.body.textContent ?? '')
       }
       if (!textBySlug.get(slug)!.includes(label)) silent.push(`${slug}/${rowId}`)
@@ -637,9 +637,9 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
     ],
   ])('PLANTED VIOLATION: an inert control with %s trips the gate', (_what, html) => {
     withPlanted(OUT_HUB, 'index.html', html, () => {
-      const { document: doc } = new JSDOM(
+      const doc = readerDocument(
         readFileSync(join(OUT_HUB, OWN_PROBE_DIR, 'index.html'), 'utf8'),
-      ).window
+      )
       expect(unreasonedInertControls([{ slug: OWN_PROBE_DIR, doc }])).not.toEqual([])
     })
     expect(unreasonedInertControls(builtHubPages())).toEqual([])
@@ -655,9 +655,9 @@ describe('slice 4 gate 1: absent for nonexistence, and no unreasoned refusal', (
         '<span id="why-role">Your role does not hold this.</span>' +
         '<span id="why-state">The workspace is suspended.</span></body></html>',
       () => {
-        const { document: doc } = new JSDOM(
+        const doc = readerDocument(
           readFileSync(join(OUT_HUB, OWN_PROBE_DIR, 'index.html'), 'utf8'),
-        ).window
+        )
         expect(unreasonedInertControls([{ slug: OWN_PROBE_DIR, doc }])).toEqual([])
       },
     )

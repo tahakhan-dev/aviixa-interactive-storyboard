@@ -51,7 +51,10 @@ describe('workflow index is reachable from the built site', () => {
   it('/workflows/ renders real rows, not an empty table', () => {
     const html = readFileSync(join(OUT, 'workflows', 'index.html'), 'utf8')
     // A stable-id-shaped row from the generated registry, not fabricated.
-    expect(html).toMatch(/SB-001/)
+    // R5-Q01: the CONTENT half reads rendered text, because the flight payload
+    // carries every row id as a React key; the markup half below stays raw
+    // because `<tr` is markup and there is nothing to strip it from.
+    expect(renderedText(html)).toMatch(/SB-001/)
     // Fix round 1 (defect 3): 724 composite-keyed rows now, not the retired
     // 432-row registry.
     expect((html.match(/<tr/g) ?? []).length).toBeGreaterThan(700)
@@ -70,14 +73,21 @@ describe('workflow index is reachable from the built site', () => {
   // legacy id-only-deduped registry was retired in favour of Task 7's
   // composite-keyed one.)
   it('the 724 count sits directly next to the "no workflow total" disclaimer', () => {
-    const html = readFileSync(join(OUT, 'workflows', 'index.html'), 'utf8')
+    // R5-Q01: PROXIMITY IS A CLAIM ABOUT WHAT A READER SEES, so it is measured
+    // on rendered text. Over the raw bytes, `indexOf('725')` can land in the
+    // flight payload and then "the disclaimer is 400 characters away" is a
+    // statement about a serialised prop, not about the page.
+    const html = renderedText(readFileSync(join(OUT, 'workflows', 'index.html'), 'utf8'))
     const idx = html.indexOf('725')
     expect(idx).toBeGreaterThan(-1)
     const nearby = html.slice(idx, idx + 400)
     expect(nearby).toMatch(/MODULE count/)
     expect(nearby).toMatch(/724/)
-    expect(html).not.toMatch(/724\s+workflows\b/i)
-    expect(html).not.toMatch(/725\s+workflows\b/i)
+    // The two absence claims stay on the WHOLE file deliberately: an absence
+    // is only stronger for being asserted over more text.
+    const raw = readFileSync(join(OUT, 'workflows', 'index.html'), 'utf8')
+    expect(raw).not.toMatch(/724\s+workflows\b/i)
+    expect(raw).not.toMatch(/725\s+workflows\b/i)
   })
 })
 

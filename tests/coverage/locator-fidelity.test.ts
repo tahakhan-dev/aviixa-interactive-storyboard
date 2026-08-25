@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, sep } from 'node:path'
 
 /**
  * LOCATOR FIDELITY — are this build's frozen-source citations real?
@@ -334,9 +334,47 @@ const IDENTIFIERS = buildIdentifierIndex(sourceRaw, VOCABULARY)
  * produced rather than a claim about the source -- `44712` sitting in one of
  * them is correct as it stands, and scanning it would report a defect nobody
  * committed.
+ *
+ * `registries` IS NOW A SCAN ROOT, AND ITS CLAIMS ARE IN JSON (R5-Q02).
+ *
+ * `registries/generated/source-reconciliation.json` is the artefact densest in
+ * frozen-source locators in this tree, and every one of them renders on the
+ * coverage dashboard, where a client reads it. It was outside this scan until
+ * this line changed, which is why two wrong locators shipped through a round-5
+ * audit and two more of the same class were found by hand while correcting
+ * them. So `registries` joins the roots and `.json` is scanned THERE AND
+ * NOWHERE ELSE -- a JSON file under `src` or `docs` is still out, for the
+ * reason the paragraph above gives about `docs/census/*-raw-maps.json`.
+ *
+ * TWO EXCLUSIONS, both stated rather than implied, because an exclusion that
+ * swallows the subject reads exactly like compliance:
+ *
+ *   - `registries/raw/**` -- 5.4MB of raw extractor output across 37 files. It
+ *     is a record of what an extractor produced, not a claim this build makes
+ *     about the source, and nothing in it reaches a reader. Same reasoning as
+ *     `docs/census/*-raw-maps.json`, which this file already excludes.
+ *   - `registries/blueprint-locators.json` -- the committed identifier index.
+ *     Its line numbers are not citations at all: they are the OUTPUT of
+ *     scanning the frozen source for each identifier, so grading them against
+ *     the frozen source would be asking the scan to agree with itself.
+ *
+ * `SCANNED_REGISTRY_FILES` below asserts what survived the two exclusions, by
+ * name and by count, so neither can quietly grow until the subject is gone.
  */
-const SCAN_ROOTS = ['src', 'app', 'tests', 'scripts', 'docs']
+const SCAN_ROOTS = ['src', 'app', 'tests', 'scripts', 'docs', 'registries']
 const SCANNED_EXT = /\.(ts|tsx|mjs|js|jsx|md)$/
+
+/** `.json` is scanned under this root only. See the note above. */
+const JSON_SCAN_ROOT = 'registries'
+
+/**
+ * Paths dropped from the `registries` walk, relative to the repository root.
+ * A directory here drops its whole subtree.
+ */
+const REGISTRY_EXCLUSIONS: readonly string[] = [
+  join('registries', 'raw'),
+  join('registries', 'blueprint-locators.json'),
+]
 
 /**
  * Another test file's scratch probe, planted on the real filesystem and
@@ -350,15 +388,32 @@ const isForeignProbe = (entry: string): boolean =>
 
 function walk(dir: string, acc: string[] = []): string[] {
   if (!existsSync(dir)) return acc
+  const jsonHere = dir === JSON_SCAN_ROOT || dir.startsWith(JSON_SCAN_ROOT + sep)
   for (const entry of readdirSync(dir)) {
     if (entry === 'node_modules' || entry === '.next') continue
     if (isForeignProbe(entry)) continue
     const full = join(dir, entry)
+    if (REGISTRY_EXCLUSIONS.includes(full)) continue
     if (statSync(full).isDirectory()) walk(full, acc)
-    else if (SCANNED_EXT.test(entry)) acc.push(full)
+    else if (SCANNED_EXT.test(entry) || (jsonHere && entry.endsWith('.json'))) acc.push(full)
   }
   return acc
 }
+
+/**
+ * WHAT THE TWO EXCLUSIONS LEFT BEHIND, BY NAME.
+ *
+ * Asserted rather than counted, and asserted as the POPULATION rather than as
+ * a floor: this file's own recorded defect is a number set far enough below
+ * its subject that it cannot fail. A widening that dropped
+ * `source-reconciliation.json` -- the artefact R5-Q02 is about -- would leave
+ * every grading assertion below green with the subject gone.
+ */
+const scannedRegistryFiles = (): readonly string[] =>
+  walk(JSON_SCAN_ROOT)
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => f.split(sep).join('/'))
+    .sort()
 
 /* ── the lexer ─────────────────────────────────────────────────────────── */
 
@@ -1337,6 +1392,39 @@ const STRICT_ANCHOR_ALLOWANCE: ReadonlySet<string> = new Set([
   'AC-STU-049@31910',
   'AC-STU-066@32523',
   'ASSUM-006@3410',
+  // ── R5-Q02: the three the registries widening inherited ──────────────
+  //
+  // SHAPE 1 IN ITS OTHER FORM, and every one of the three source lines was
+  // opened and read before these keys were written. No spelled locator in
+  // this note, for the reason the header gives; line numbers are bare.
+  //
+  // `registries/generated/source-reconciliation.json` writes an open decision
+  // as `<DEC-id> (<line>) — UNRESOLVED: <what the source says>`, and the line
+  // it names is the EVIDENCE — the row or paragraph the decision is about —
+  // not the paragraph the decision id was raised in. Both are correct
+  // citations of the frozen source; only the second is a citation AT the
+  // identifier, and the plain rule can see only the second.
+  //
+  //   DEC-CMDCLASS-001 at 51494. That line is the `CMD-SUSP-005` row of the
+  //   command table and carries the reconciliation row's own quoted words,
+  //   "reaches the device but is not one of the five named classes", verbatim.
+  //   The decision is raised at 51551.
+  //
+  //   DEC-SUBAUTH-001 at 14668. That line carries both phrases the row quotes
+  //   — "higher authority" and "resolved from the Hub, within the platform's
+  //   five fixed roles and the authority matrix of Part III" — as the source's
+  //   own words. The decision is named at 14685, 14731 and 16653.
+  //
+  //   DEC-ROOTSOD-001 at 55989. The row cites one line for a PAIR,
+  //   `DEC-ROOTSUCC-001 / DEC-ROOTSOD-001`, and 55989 is where the source says
+  //   approving one's own critical action is permitted only because the root
+  //   is the sole critical approver. It names the first of the pair at that
+  //   line; the binder takes the nearer identifier, which is the second.
+  //   DEC-ROOTSOD-001 itself is at 21048, 21127 and 21146.
+  //
+  // These three sit in `registries/`, which this stream does not own. Nothing
+  // was edited there: the locators are right, so there is nothing to correct.
+  'DEC-CMDCLASS-001@51494',
   'DEC-MSG-001@5265',
   'DEC-NOTIFPREF-001@73672',
   'DEC-NOTIFSEV-001@73141',
@@ -1345,9 +1433,13 @@ const STRICT_ANCHOR_ALLOWANCE: ReadonlySet<string> = new Set([
   'DEC-PLUS-001@28122',
   'DEC-REPORT-001@38269',
   'DEC-ROLE-001@37650',
+  // R5-Q02. Its reading is in the note at the head of this list.
+  'DEC-ROOTSOD-001@55989',
   'DEC-SAFETY-001@93782',
   'DEC-SCHED-008@111870',
   'DEC-STORE-001@79469',
+  // R5-Q02. Its reading is in the note at the head of this list.
+  'DEC-SUBAUTH-001@14668',
   'DEC-SUSPMSG-001@114674',
   // SHAPE 1, and all four lines were opened before these keys were written.
   // NO `L` PREFIX ANYWHERE IN THIS NOTE, for the reason the header gives: this
@@ -1508,6 +1600,53 @@ describe('locator fidelity: the scan is not vacuous', () => {
   })
 
   /**
+   * R5-Q02, THE POPULATION RATHER THAN THE OFFENDERS.
+   *
+   * The two exclusions above are the risk in this widening: `registries/raw`
+   * drops 37 files and 5.4MB, and one more entry in that array could drop the
+   * subject. So the surviving set is asserted BY NAME and by equality, not as
+   * a count and not as a floor. Planted both ways: adding
+   * `registries/generated` to `REGISTRY_EXCLUSIONS` reds here naming fifteen
+   * lost files, and removing `registries/raw` from it reds here naming the
+   * extractor dumps.
+   */
+  it('scans the authored and generated registry artefacts, and neither raw dump nor index', () => {
+    expect(scannedRegistryFiles()).toEqual([
+      'registries/authored/census-status-overrides.json',
+      'registries/blueprint-prefixes.json',
+      'registries/generated/actionable-controls.json',
+      'registries/generated/ai-storyboards.json',
+      'registries/generated/business-objects.json',
+      'registries/generated/business-use-cases.json',
+      'registries/generated/commands.json',
+      'registries/generated/doh/module-reach.json',
+      'registries/generated/events.json',
+      'registries/generated/features.json',
+      'registries/generated/functions.json',
+      'registries/generated/modules.json',
+      'registries/generated/notifications.json',
+      'registries/generated/offline-scenarios.json',
+      'registries/generated/scheduled-work.json',
+      'registries/generated/source-reconciliation.json',
+      'registries/generated/stu/module-reach.json',
+      'registries/generated/sub-features.json',
+      'registries/generated/workflows.json',
+    ])
+  })
+
+  /**
+   * And the artefact the finding is ABOUT carries a real load of citations,
+   * so a generator that stopped writing locators cannot leave this widening
+   * green with nothing to grade. Measured 2026-08-25: 335.
+   */
+  it('grades a real load of citations from the reconciliation artefact', () => {
+    const fromReconciliation = citations.filter((c) =>
+      c.file.split(sep).join('/') === 'registries/generated/source-reconciliation.json',
+    )
+    expect(fromReconciliation.length).toBeGreaterThan(300)
+  })
+
+  /**
    * THE RATCHET, and why the three floors it replaced were not one.
    *
    * They read `> 5_000` citations, `> 250` strong-by-quotation and `> 1_000`
@@ -1570,12 +1709,31 @@ describe('locator fidelity: the scan is not vacuous', () => {
   // is `anchoredAll` -- every citation carrying an anchor at any grade, which
   // is neither of the two anchor rows in the print and was the one bucket the
   // print did not show until it was added below.
+  // RAISED 2026-08-25 BY R5-Q02, and the raise is larger than the widening
+  // that prompted it because the previous figures had already gone stale for
+  // the third time. Measured on this tree by running this file alone with
+  // `--disable-console-intercept`, before and after adding `registries` to
+  // the scan roots:
+  //   citations     27441 -> 28471   (the widening: +1030, in 15 files)
+  //   strongByQuote  1454 ->  1454   (no quotation in the JSON binds)
+  //   anchored       4327 ->  4345   (+18, all in the reconciliation artefact)
+  // The previous entries read 22552 / 1157 / 3779 and had not moved since
+  // 2026-08-23, so before this raise the tree could have lost 4,889
+  // citations, 297 quotation-proven ones and 548 anchors and stayed green.
+  // That is the drift this block's own header warns about, found by the task
+  // that widened the population rather than by a task that grew a bucket —
+  // which is the gap in "whoever grows a bucket raises the baseline".
+  //
+  // The ratio guard below is derived from these three, so raising them is
+  // also what re-arms it: the widening added 1,030 citations that grade weak
+  // (a JSON locator has no prose around it to bind a quotation to), and the
+  // proven share therefore fell from 21.2% to 20.4% with nothing wrong.
   const BASELINE = {
-    citations: 22_552,
-    strongByQuote: 1_157,
-    anchored: 3_779,
-    unproven: 158, // recorded, not asserted
-    weak: 17_958, // recorded, not asserted
+    citations: 28_471,
+    strongByQuote: 1_454,
+    anchored: 4_345,
+    unproven: 176, // recorded, not asserted
+    weak: 23_119, // recorded, not asserted
   } as const
   const EROSION_BAND = 0.005
   const atLeast = (n: number): number => Math.floor(n * (1 - EROSION_BAND))

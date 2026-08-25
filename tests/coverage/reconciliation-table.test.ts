@@ -46,27 +46,14 @@ const OUT = join(process.cwd(), 'out')
 /**
  * THE FLIGHT PAYLOAD IS NOT RENDERED TEXT (R5-B03's measurement warning).
  *
- * `renderedText` strips tags and HTML comments. It does NOT strip
- * `<script>self.__next_f.push(...)</script>`, and on this page that payload is
- * 790KB of the 1.3MB file — every prop of every server component, including
- * every sentence this gate asserts and every row id as a React key. A gate
- * that measures with `renderedText` alone can be satisfied by a page whose
- * visible content has been deleted, which is the exact trap the round-5 audit
- * caught the controller in. Scripts and styles are removed first here, so what
- * is measured is what a reader sees.
- *
- * Local rather than folded into `tests/coverage/rendered-text.ts`: that helper
- * is shared with gates two other fix streams are editing right now. The hazard
- * is repo-wide and is reported as such.
+ * The local `readerText` that used to sit here — stripping <script> and
+ * <style> before calling `renderedText` — is gone: R5-Q01 moved the strip
+ * into the shared helper, where every caller gets it. `renderedText` IS
+ * reader text now. See tests/coverage/rendered-text.ts.
  */
-function readerText(html: string): string {
-  return renderedText(
-    html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, ' '),
-  )
-}
 
 
-const DASHBOARD = readerText(readFileSync(join(OUT, 'coverage', 'index.html'), 'utf8'))
+const DASHBOARD = renderedText(readFileSync(join(OUT, 'coverage', 'index.html'), 'utf8'))
 
 const REPORT = loadReconciliation(
   JSON.parse(readFileSync('registries/generated/source-reconciliation.json', 'utf8')),
@@ -439,15 +426,29 @@ describe('R5-B07 / R5-B08: every locator the reconciliation table cites is a rea
    * lines further down. Two more `L`-prefixed numbers in the same file pointed
    * at the blank line after Appendix L's last table row.
    *
-   * NONE of them was reachable by `tests/coverage/locator-fidelity.test.ts`,
-   * whose `SCAN_ROOTS` are `src`, `app`, `tests`, `scripts` and `docs`.
-   * `registries/` is not among them, so the one authored artefact in this
-   * build that is dense with frozen-source locators — and that renders every
-   * one of them on the coverage dashboard — sits outside the gate written to
-   * police exactly this. That is reported as a gap rather than fixed here:
-   * widening `SCAN_ROOTS` mid-wave would pull `registries/raw/**` into the
-   * population too. This holds the reconciliation artefact alone, which is the
-   * part that reaches a reader.
+   * NONE of them was reachable by `tests/coverage/locator-fidelity.test.ts`
+   * when they shipped: its `SCAN_ROOTS` were `src`, `app`, `tests`, `scripts`
+   * and `docs`, and `registries/` was not among them, so the one authored
+   * artefact in this build dense with frozen-source locators — and that
+   * renders every one of them on the coverage dashboard — sat outside the gate
+   * written to police exactly this.
+   *
+   * THAT GAP IS CLOSED (R5-Q02). `locator-fidelity` now scans `registries/`,
+   * excluding `registries/raw/**` and the committed identifier index, and it
+   * asserts the surviving file list by name. IT DID NOT REPLACE THIS BLOCK,
+   * and the reason is the width of the net rather than territory:
+   *
+   *   - its lexer reads `L\d{3,6}`; this reads `L\d{1,6}`, so a two-digit
+   *     locator in this artefact is caught here and nowhere else;
+   *   - it exempts a locator marked as quoted-in-order-to-correct; this
+   *     artefact is not a correction record and gets no exemption here;
+   *   - it grades a FILE. The first three cases below grade the eighteen
+   *     RENDERED rows, field by field, and name the row and the field —
+   *     which is what a reader meets, and what R5-B07 and R5-B08 were.
+   *
+   * The fourth case is the whole-file one and is the true duplicate of the
+   * shared gate. It stays as the narrower-regex half of the pair; if it ever
+   * disagrees with `locator-fidelity`, the disagreement is the finding.
    */
   const SOURCE_LINES = readFileSync('../AVIIXA_Production_Product_Blueprint.md', 'utf8').split('\n')
 

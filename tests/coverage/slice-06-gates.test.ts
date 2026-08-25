@@ -12,7 +12,7 @@ import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { createHash } from 'node:crypto'
 import { join } from 'node:path'
-import { JSDOM } from 'jsdom'
+import { readerDocument } from './rendered-text'
 import { isForeignProbe as isForeign, ownProbeDir, withPlanted } from '../probe-paths'
 import { stripComments } from './strip-comments'
 
@@ -269,7 +269,7 @@ function builtHubPages(): BuiltPage[] {
       const hash = createHash('sha256').update(html).digest('hex')
       const hit = PAGE_CACHE.get(file)
       if (hit !== undefined && hit.hash === hash) return hit.page
-      const doc = new JSDOM(html).window.document
+      const doc = readerDocument(html)
       const page: BuiltPage = { slug, file, doc, text: norm(doc.body.textContent ?? '') }
       PAGE_CACHE.set(file, { hash, page })
       return page

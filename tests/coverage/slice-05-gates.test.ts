@@ -11,7 +11,7 @@ import {
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
-import { JSDOM } from 'jsdom'
+import { readerDocument } from './rendered-text'
 import { namesPersonBehaviouralMeasure } from './person-measure-keys'
 import { isForeignProbe as isForeign, ownProbeDir, withPlanted } from '../probe-paths'
 
@@ -324,7 +324,7 @@ function readAllBuiltStudioRoutes(): readonly BuiltRoute[] {
   for (const r of raw) digest.update(r.file).update('\u0000').update(r.html).update('\u0001')
   const key = digest.digest('hex')
   if (parsedRoutes?.key === key) return parsedRoutes.routes
-  const routes = raw.map((r) => ({ ...r, doc: new JSDOM(r.html).window.document }))
+  const routes = raw.map((r) => ({ ...r, doc: readerDocument(r.html) }))
   parsedRoutes = { key, routes }
   return routes
 }
@@ -662,7 +662,7 @@ describe('slice 5 gate 1: no bare Studio module count in the built tree', () => 
       route: r.file,
       file: r.file,
       html: r.html,
-      doc: new JSDOM(r.html).window.document,
+      doc: readerDocument(r.html),
     }))
     parsedAllPages = { key, pages }
     return pages

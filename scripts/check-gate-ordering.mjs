@@ -81,9 +81,21 @@ const AUDITED = {
     verdict: 'NOT VACUOUS. No verify step writes src/.',
   },
   'locator-fidelity.test.ts': {
-    subject: 'the frozen blueprint at run time, plus src/, app/, tests/, docs/, registries/raw',
-    rewrittenBy: null,
-    verdict: 'NOT VACUOUS. The blueprint is read-only input; nothing in verify writes registries/raw.',
+    subject:
+      'the frozen blueprint at run time, plus src/, app/, tests/, scripts/, docs/ and, since R5-Q02, ' +
+      'the authored and generated JSON under registries/ (registries/raw and the committed identifier ' +
+      'index excluded, and the surviving file list asserted by name)',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and the asymmetry is the same one walkthrough-routes relies on. `build` chains ' +
+      '`build:registries` and so rewrites ONE side of the comparison -- registries/generated -- and ' +
+      'runs first. It cannot write the other: the other side is the frozen blueprint, whose sha256 ' +
+      'this file asserts on every run and which is read-only input by the standing rule. A ' +
+      'regeneration that emitted a wrong locator makes the artefact wrong and this gate says so; a ' +
+      'regeneration cannot make a wrong locator right. Reading the FRESH registries/generated is the ' +
+      'point -- the claim is about what the dashboard renders -- and it was watched red against a real ' +
+      'blank-line locator planted in source-reconciliation.json and restored byte-exact.',
   },
   'prohibited-patterns.test.ts': {
     subject: 'a fixed literal set, scanned over authored sources',

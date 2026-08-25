@@ -40,24 +40,11 @@ const OUT = join(process.cwd(), 'out')
 /**
  * THE FLIGHT PAYLOAD IS NOT RENDERED TEXT (R5-B03's measurement warning).
  *
- * `renderedText` strips tags and HTML comments. It does NOT strip
- * `<script>self.__next_f.push(...)</script>`, and on this page that payload is
- * 790KB of the 1.3MB file — every prop of every server component, including
- * every sentence this gate asserts and every row id as a React key. A gate
- * that measures with `renderedText` alone can be satisfied by a page whose
- * visible content has been deleted, which is the exact trap the round-5 audit
- * caught the controller in. Scripts and styles are removed first here, so what
- * is measured is what a reader sees.
- *
- * Local rather than folded into `tests/coverage/rendered-text.ts`: that helper
- * is shared with gates two other fix streams are editing right now. The hazard
- * is repo-wide and is reported as such.
+ * The local `readerText` that used to sit here — stripping <script> and
+ * <style> before calling `renderedText` — is gone: R5-Q01 moved the strip
+ * into the shared helper, where every caller gets it. `renderedText` IS
+ * reader text now. See tests/coverage/rendered-text.ts.
  */
-function readerText(html: string): string {
-  return renderedText(
-    html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, ' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, ' '),
-  )
-}
 
 
 interface Registry {
@@ -94,7 +81,7 @@ describe('R4-B09: the figure in the caption is what is listed below', () => {
   it('every index prints its own rendered row count in that sentence', () => {
     for (const registry of REGISTRIES) {
       if (!registry.sourceFixesNoTotal) continue
-      const text = readerText(indexHtml(registry.slug))
+      const text = renderedText(indexHtml(registry.slug))
       expect(text, `/coverage/${registry.slug}/`).toContain(
         `${registry.rows.length} records are listed below`,
       )
@@ -110,7 +97,7 @@ describe('R4-B09: the figure in the caption is what is listed below', () => {
     )
     expect(divergent.length, 'registries whose two counts differ').toBeGreaterThan(0)
     for (const registry of divergent) {
-      const text = readerText(indexHtml(registry.slug))
+      const text = renderedText(indexHtml(registry.slug))
       expect(text).toContain(`${registry.rows.length} records are listed below`)
       expect(text).toContain(`from ${registry.rawCount} raw extraction keys`)
     }
@@ -241,7 +228,7 @@ describe('R4-B10: an index row links to the screen that demonstrates it', () => 
    * ────────────────────────────────────────────────────────────────────── */
   it('R5-B06: the fifth reason — src/-only evidence — is named in routeMeaning', () => {
     for (const registry of REGISTRIES) {
-      const text = readerText(indexHtml(registry.slug))
+      const text = renderedText(indexHtml(registry.slug))
       expect(text, `/coverage/${registry.slug}/`).toContain(
         'when the evidence is a control matrix declared in a module component under src/',
       )
@@ -258,7 +245,7 @@ describe('R4-B10: an index row links to the screen that demonstrates it', () => 
     for (const registry of REGISTRIES) {
       const routeless = registry.rows.filter((r) => r.route === undefined)
       if (routeless.length === 0) continue
-      const text = readerText(indexHtml(registry.slug))
+      const text = renderedText(indexHtml(registry.slug))
       // One reason per status the routeless population actually holds,
       // derived from the rows rather than from a list, so a status that
       // stops being rendered is red.
@@ -280,7 +267,7 @@ describe('R4-B10: an index row links to the screen that demonstrates it', () => 
 
   it('each index states how many of its rows link, so an unlinked row is explained', () => {
     for (const registry of REGISTRIES) {
-      const text = readerText(indexHtml(registry.slug))
+      const text = renderedText(indexHtml(registry.slug))
       expect(text, `/coverage/${registry.slug}/`).toContain(
         `${registry.routeResolvedCount} of ${registry.rows.length} rows link to the screen that demonstrates them`,
       )
