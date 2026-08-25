@@ -592,7 +592,7 @@ export const CONTROL_MATRIX = [
       'A multi-select over the parent Site’s active Areas only, so a Shift can never be made to span Sites. Refused with the rule stated when a chosen Area already holds an overlapping Shift. ABSENT for the other four.',
     effect:
       'Binds the Shift to one or more Areas. Cardinality beyond the overlap refusal is DEFERRED: DEC-SHIFT-001 is open, so no minimum and no maximum count is enforced here.',
-    sourceRef: 'L27294, FUNC-DOH-03-1.2.1 L27349, AC-51-13 L113055, DEC-SHIFT-001',
+    sourceRef: 'L27294, FUNC-DOH-03-1.2.1 L27345, AC-51-13 L113055, DEC-SHIFT-001',
   },
   {
     id: 'set-digest-time',
@@ -617,7 +617,7 @@ export const CONTROL_MATRIX = [
       'One time field, pre-filled 06:00, with the platform default and the timezone it is bound to rendered beside it. ABSENT for the other four. No send control, no delivery status and no recipient list is drawn for anybody, including the Tenant Admin — delivery is another slice’s.',
     effect:
       'Registers one delivery preference on this Shift. Suppressing the digest SERVICE is explicitly prohibited for every role: a reader mutes a section, never a service.',
-    sourceRef: 'L27295, FUNC-DOH-03-2.1.1 L27351, L9336, SCR-TEN-SHIFT-01 L118001',
+    sourceRef: 'L27295, FUNC-DOH-03-2.1.1 L27349, L9336, SCR-TEN-SHIFT-01 L118001',
   },
   {
     id: 'override-timezone',
@@ -642,7 +642,7 @@ export const CONTROL_MATRIX = [
       'ABSENT for all five, the Tenant Admin included, and absent structurally rather than by a rule this screen applies: a Shift carries no timezone field for a control to write to. A disabled control would imply an enabled state exists for somebody, and for this one it exists for nobody.',
     effect:
       'No override path exists. The timezone is applied on read from the parent Site, and the effective timezone travels in the device’s pinned work package.',
-    sourceRef: 'L27296, FUNC-DOH-03-1.2.2 L27350, AC-WF-ORG-003-01 L52637, AC-SCOPE-034 L2612',
+    sourceRef: 'L27296, FUNC-DOH-03-1.2.2 L27346, AC-WF-ORG-003-01 L52637, AC-SCOPE-034 L2612',
   },
   {
     id: 'view-shifts',
@@ -868,8 +868,61 @@ export const UNSPECIFIED_IN_SOURCE = [
   'What a Shift bound to zero Areas means operationally. It is reachable here because cardinality is deferred, and the only consequence the source states is one an Area feels rather than the Shift: an Area with no bound Shift cannot receive a Job.',
 ] as const satisfies readonly string[]
 
+/**
+ * `MOD-DOH-03`'s OWN acceptance criteria and its own verifying tests, LISTED
+ * so the figures in `UNRESOLVED_IN_SOURCE` below are derived from a set the
+ * reader can check rather than typed by hand.
+ *
+ * R4-C02. That sentence read "not in the NINE acceptance criteria" against a
+ * chapter carrying six. Nothing in the tree held the criteria, so there was no
+ * set for the figure to disagree with and no gate that could notice.
+ * `tests/unit/hub-shift-management-counts.test.ts` now holds both lists to the
+ * committed locator index, which is itself a scan of the frozen source, so a
+ * seventh criterion appearing changes the sentence and a wrong list reds.
+ *
+ * Measured whole-source, so no second block exists:
+ *
+ *     grep -oE '\bAC-DOH-03-[0-9]+\b'      ../AVIIXA_Production_Product_Blueprint.md | sort -u   # 6
+ *     grep -oE '\bTEST-DOH-03-[A-Z0-9]+\b' ../AVIIXA_Production_Product_Blueprint.md | sort -u   # 10
+ *
+ * The six are one contiguous frozen table, `AC-DOH-03-1` at L27387 through
+ * `AC-DOH-03-6` at L27392.
+ */
+export const MODULE_ACCEPTANCE_CRITERIA = [
+  'AC-DOH-03-1',
+  'AC-DOH-03-2',
+  'AC-DOH-03-3',
+  'AC-DOH-03-4',
+  'AC-DOH-03-5',
+  'AC-DOH-03-6',
+] as const satisfies readonly string[]
+
+export const MODULE_TESTS = [
+  'TEST-DOH-03-D1',
+  'TEST-DOH-03-D2',
+  'TEST-DOH-03-D3',
+  'TEST-DOH-03-F1',
+  'TEST-DOH-03-F2',
+  'TEST-DOH-03-N1',
+  'TEST-DOH-03-N2',
+  'TEST-DOH-03-O1',
+  'TEST-DOH-03-R1',
+  'TEST-DOH-03-R2',
+] as const satisfies readonly string[]
+
+/** Small cardinals, spelled, because this page's prose spells them. */
+const CARDINALS = [
+  'zero', 'one', 'two', 'three', 'four', 'five', 'six',
+  'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
+] as const satisfies readonly string[]
+
+/** Spelled up to twelve, then numeric — the same shape `SB-STU-03` uses. */
+export function spelled(n: number): string {
+  return CARDINALS[n] ?? String(n)
+}
+
 export const UNRESOLVED_IN_SOURCE = [
-  'The overlap refusal is simultaneously an asserted acceptance criterion with a verifying test (AC-51-13, L113055, TEST-51-13) and one option of an open decision (DEC-SHIFT-001, Option A). It appears nowhere in this module’s own chapter — not in the matrix, not in the feature list, not in the nine acceptance criteria, not in the ten tests. This build ships it as the criterion it is stated to be, and renders the decision as open.',
+  `The overlap refusal is simultaneously an asserted acceptance criterion with a verifying test (AC-51-13, L113055, TEST-51-13) and one option of an open decision (DEC-SHIFT-001, Option A). It appears nowhere in this module’s own chapter — not in the matrix, not in the feature list, not in the ${spelled(MODULE_ACCEPTANCE_CRITERIA.length)} acceptance criteria, not in the ${spelled(MODULE_TESTS.length)} tests. This build ships it as the criterion it is stated to be, and renders the decision as open.`,
   'DEC-SHIFT-001 is absent from the source-reconciliation artefact entirely, including from its residual-contradictions list, which does carry five sibling decisions. The one blocking decision for this module is the one the reconciliation under-reports, so an implementer reading the module chapter and the reconciliation — the two most authoritative-looking places — would never learn the question is open.',
   '"The platform default and the bound" beside the digest-time field. This build reads "the bound" as the timezone anchor the delivery time is bound to, because a scheduled behaviour is required to carry a timezone anchor and a calendar trigger must be evaluated in the Site’s timezone. The competing reading is a permitted window for the value; the source states no earliest and no latest anywhere, so none is enforced rather than one being invented.',
   'The Worker holds a scoped read on this module’s View Shifts row — the only cell in the whole matrix granting a Worker anything — while the surface decision withholds every Hub route from the Worker. The two cannot both be honoured. This build honours the surface decision and states the cost: a worker cannot see their own shift times on the web, and meets them on the device instead.',

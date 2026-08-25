@@ -33,15 +33,15 @@ import type { StudioMatrixRowSurface } from '@/studio/modules'
  *   Plant Manager column and reads differently, the divergence is stated on
  *   the cell rather than smoothed away — see F2.
  * - **Implementation team** is transcribed from the card's OWN function
- *   lines, which name it in so many words: `FUNC-STU-05-02-A-1` (L32284),
+ *   lines, which name it in so many words: `FUNC-STU-05-02-A-1` (L32286),
  *   "Roles allowed: Quality Manager, Supervisor with the grant, implementation
  *   team grant", and every later functionality that says "as above". The
  *   consolidated matrix corroborates it — "Author all nine configuration
- *   sections | … | `GRANT-STU-IMPL` | Allowed with conditions" (L34546).
+ *   sections | … | `GRANT-STU-IMPL` | Allowed with conditions" (L34545).
  *
  * ### FINDING F2 — the card and the consolidated matrix use different tokens
  *
- * For the same capability the consolidated matrix (L34546) reads
+ * For the same capability the consolidated matrix (L34545) reads
  * `Explicitly prohibited` in the Supervisor-without-grant, Plant Manager,
  * Tenant Admin and Read-only Auditor columns, while this card (L32260) reads
  * `Read-only on published content only` in the first three and
@@ -161,16 +161,16 @@ const PLANT_MANAGER_MIRRORS =
 
 const PLANT_MANAGER_MIRRORS_WITH_DIVERGENCE =
   `${PLANT_MANAGER_MIRRORS} FINDING: the consolidated matrix heads its own Plant Manager column and ` +
-  'reads `Explicitly prohibited` on the authoring row (L34546) where this card’s without-grant cell ' +
+  'reads `Explicitly prohibited` on the authoring row (L34545) where this card’s without-grant cell ' +
   'reads `Read-only on published content only` (L32260). Both refuse authoring; they differ on what ' +
   'else the persona may do, and the module’s own card governs its own matrix.'
 
 const IMPL_TEAM_FROM_FUNCTIONS =
   'MOD-STU-05’s table heads no `GRANT-STU-IMPL` column; the card’s own functionality lines name it — ' +
-  'FUNC-STU-05-02-A-1 (L32284): "Roles allowed: Quality Manager, Supervisor with the grant, ' +
+  'FUNC-STU-05-02-A-1 (L32286): "Roles allowed: Quality Manager, Supervisor with the grant, ' +
   'implementation team grant", with every later functionality reading "as above". The consolidated ' +
   'matrix corroborates: "Author all nine configuration sections | … | `GRANT-STU-IMPL` | Allowed with ' +
-  'conditions" (L34546). Derived Clarification.'
+  'conditions" (L34545). Derived Clarification.'
 
 const IMPL_TEAM_UNIVERSAL_REFUSAL =
   'A universal refusal: this row’s own cell prohibits the Quality Manager, and no column the card ' +
@@ -287,7 +287,7 @@ export const STU_05_MATRIX = [
       implementationNote:
         `${IMPL_TEAM_FROM_FUNCTIONS} Opening the panel is the prerequisite of authoring in it, and ` +
         'the consolidated matrix reads "Read drafts and in-review versions | … | `GRANT-STU-IMPL` | ' +
-        'Allowed with conditions" (L34544).',
+        'Allowed with conditions" (L34543).',
       plantManagerNote: PLANT_MANAGER_MIRRORS,
     },
   ),

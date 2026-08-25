@@ -1,6 +1,19 @@
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
-import { AuditAndRetentionScreen, SCREEN_TITLE } from './AuditAndRetentionScreen'
+import { AuditAndRetentionScreen } from './AuditAndRetentionScreen'
+
+// R4-C01. THIS LITERAL IS NOT A DUPLICATE OF ANYTHING, AND IT USED TO BE AN
+// IMPORT FROM THE `'use client'` SCREEN MODULE. Next replaces a client export
+// read on the server with a throwing client-reference proxy, and the template
+// literal below stringified that proxy straight into the browser tab: this
+// page shipped `function(){throw Error("Attempted to call SCREEN_TITLE() from
+// the server but SCREEN_TITLE is on the client. ...")} — Delivery Operations
+// Hub` as its `<title>`. The screen component never read the constant, so
+// there is nothing to share and no second copy to drift — `app/hub/devices`
+// keeps its title out of the client module the same way, in `fixtures.ts`.
+// `tests/unit/routes.test.ts` now rejects any page whose metadata reads a
+// binding from a client module, over all 87 pages rather than five.
+const SCREEN_TITLE = 'Audit log explorer'
 
 // No module id in the title: an id is an annotation and never a name (D1),
 // and `HubShell` is the one place that prints it. The title carries catalogue

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
-import { PartsRegistryScreen, SCREEN_TITLE } from './PartsRegistryScreen'
+import { PartsRegistryScreen } from './PartsRegistryScreen'
+import { SCREEN_TITLE } from './title'
 
 // The module id is NOT in this title, deliberately, and the reason is no
 // longer a registration gap — `MOD-DOH-19` is in `DOH_MODULES` now. No Hub

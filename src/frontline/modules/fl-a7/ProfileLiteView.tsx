@@ -48,6 +48,7 @@ import {
   A7_PATTERNS_FROM_MAP,
   A7_PATTERN_DIVERGENCE,
   A7_SUSPENSION_STATES,
+  CHAPTER_NAMING_NO_PATTERN_ELSEWHERE,
 } from './service'
 
 /**
@@ -726,7 +727,7 @@ function FallbackContract() {
 
       <p data-testid="fl-a7-ac-fl-011-1" className="text-sm text-[var(--color-ink)]">
         {A7_FUNCTIONALITIES_NAMING_NO_PATTERN.length === 0
-          ? `All ${A7_FUNCTIONALITIES.length} functionalities of this module name at least one FB-FL-* pattern, which is what AC-FL-011-1 (L40151) requires. Twelve functionalities elsewhere in this chapter name none; none of them is this module’s.`
+          ? `All ${A7_FUNCTIONALITIES.length} functionalities of this module name at least one FB-FL-* pattern, which is what AC-FL-011-1 (L40151) requires. ${CHAPTER_NAMING_NO_PATTERN_ELSEWHERE} functionalities elsewhere in this chapter name none; none of them is this module’s.`
           : `AC-FL-011-1 (L40151) requires every functionality to name at least one FB-FL-* pattern. ${A7_FUNCTIONALITIES_NAMING_NO_PATTERN.join(', ')} names none, and nothing is assigned here to close the gap — an assigned pattern would make the criterion pass against an invented fact.`}
       </p>
 

@@ -1675,7 +1675,7 @@ export const UNSPECIFIED_IN_SOURCE = [
   },
   {
     affordance: 'What "own scope" means when the record is a person, not a place',
-    note: 'The register row for the Supervisor and the Quality Manager reads "Read-only, own scope" (L28532). A scope names a Site or an Area; a user account sits in neither, and the source never says whether a person falls inside a scope by the Sites their grants name, by their account, or not at all. The scope this pass enforces is therefore applied where the source does define it — the location nodes a view reaches, resolved through the evaluator — and the register itself is not filtered on a reading nobody wrote.',
+    note: 'The register row for the Supervisor and the Quality Manager reads "Read-only — own scope" (L28532). A scope names a Site or an Area; a user account sits in neither, and the source never says whether a person falls inside a scope by the Sites their grants name, by their account, or not at all. The scope this pass enforces is therefore applied where the source does define it — the location nodes a view reaches, resolved through the evaluator — and the register itself is not filtered on a reading nobody wrote.',
   },
   {
     affordance: 'Whether a scope survives its role being removed and assigned again',

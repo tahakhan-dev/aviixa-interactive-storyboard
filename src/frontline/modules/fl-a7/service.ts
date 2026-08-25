@@ -147,6 +147,57 @@ export const A7_FUNCTIONALITIES_NAMING_NO_PATTERN =
   functionalitiesNamingNoPattern(A7_FUNCTIONALITIES)
 
 /**
+ * THE CHAPTER-WIDE COUNT `ProfileLiteView` REPORTS BESIDE THIS MODULE'S ZERO,
+ * ONE ENTRY PER MODULE AND NOT ONE NUMBER TYPED BY HAND.
+ *
+ * R4-C03. The view said "TWELVE functionalities elsewhere in this chapter name
+ * none". Twelve was `MOD-FL-A5`'s figure produced by a regex that could not see
+ * `FB-FL-SEV1-01` — `FB-FL-[A-Z]+-[0-9]+` does not match a family segment
+ * carrying a digit, so eleven A5 functionalities that DO name a pattern were
+ * counted as naming none. Measured with the family segment allowed digits, the
+ * chapter figure is TWENTY-EIGHT and A5's own is ONE, which is what
+ * `fl-a5/service.ts` has always disclosed:
+ *
+ *     node -e "…/^\s+- \`FUNC-(A[1-7]|B(?:8|9|1[0-2]))-/ … !/FB-FL-/…"
+ *     total 181  withoutFB 28
+ *     A1:1 A2:3 A3:2 A4:8 A5:1 A6:2 A7:0 B8:1 B9:1 B10:4 B11:2 B12:3
+ *
+ * WHY A TABLE HERE RATHER THAN ELEVEN IMPORTS. Every sibling module owns the
+ * same computation over its own functionalities — `functionalitiesNamingNoPattern`
+ * in `src/frontline/fallbacks.ts` — so the honest derivation is to sum theirs.
+ * Doing it in this file would pull eleven whole service modules into this
+ * screen's client bundle for one integer. So the sum is asserted instead, in
+ * `tests/unit/hub-source-figures.test.ts`, which imports all twelve arrays and
+ * holds this table to them BY EQUALITY, entry by entry. A drifting sibling
+ * reds; so does a thirteenth module appearing.
+ *
+ * This module's own entry is not a literal at all — it is the live value.
+ */
+export const CHAPTER_FUNCTIONALITIES_NAMING_NO_PATTERN = {
+  'MOD-FL-A1': 1,
+  'MOD-FL-A2': 3,
+  'MOD-FL-A3': 2,
+  'MOD-FL-A4': 8,
+  'MOD-FL-A5': 1,
+  'MOD-FL-A6': 2,
+  'MOD-FL-A7': A7_FUNCTIONALITIES_NAMING_NO_PATTERN.length,
+  'MOD-FL-B8': 1,
+  'MOD-FL-B9': 1,
+  'MOD-FL-B10': 4,
+  'MOD-FL-B11': 2,
+  'MOD-FL-B12': 3,
+} as const satisfies Readonly<Record<string, number>>
+
+/** Twenty-eight, summed — never typed. */
+export const CHAPTER_NAMING_NO_PATTERN_TOTAL = Object.values(
+  CHAPTER_FUNCTIONALITIES_NAMING_NO_PATTERN,
+).reduce((a, b) => a + b, 0)
+
+/** The same total with this module's own contribution removed: "elsewhere". */
+export const CHAPTER_NAMING_NO_PATTERN_ELSEWHERE =
+  CHAPTER_NAMING_NO_PATTERN_TOTAL - A7_FUNCTIONALITIES_NAMING_NO_PATTERN.length
+
+/**
  * `FUNC-A7-03-1-1` STATES AN OPEN VALUE AND NAMES NO NUMBER, SO NEITHER
  * DOES THIS MODULE. L41371: "the exact failure count and any lockout
  * duration are `Not specified in the Statement of Work` and are `TBD —

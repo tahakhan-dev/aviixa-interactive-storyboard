@@ -143,10 +143,27 @@ interface Citation {
   readonly identifier: string
   readonly line: number
 }
+/**
+ * RANGE SHORTHAND IS NOT AN IDENTIFIER. `SCR-CC-01..13` and `SPOF-INF-001..007`
+ * are a writer's abbreviation for a run of identifiers; the capture group
+ * accepts `.` (real identifiers carry it -- `AC-28.4-01`, `FUNC-DOH-03-1.2.1`)
+ * and so swallows the `..` too. Six captures, six distinct forms, all in plans
+ * and briefs, and every one reports "absent from the frozen source" because the
+ * string genuinely is. Grading them would fill the named lists below with six
+ * entries that can never be fixed, which is how a curated list turns into
+ * noise nobody reads.
+ *
+ * The count is asserted, not just the filter: an exclusion that silently grows
+ * is a hole, and this one would swallow a real identifier the day a `..` form
+ * appears in one.
+ */
+const RANGE_SHORTHAND = /\.\./
+const excludedRanges: Citation[] = []
 const citations: Citation[] = []
 for (const file of files) {
   for (const m of readFileSync(file, 'utf8').matchAll(CITED)) {
-    citations.push({ file, identifier: m[1] as string, line: Number(m[2]) })
+    const c = { file, identifier: m[1] as string, line: Number(m[2]) }
+    ;(RANGE_SHORTHAND.test(c.identifier) ? excludedRanges : citations).push(c)
   }
 }
 
@@ -173,8 +190,48 @@ const exact = known.filter((c) => locatorsOf(c).includes(c.line))
  * not a citation.
  */
 const SECTION_REACH = 120
+
+/**
+ * R4-C06 HOLE 1 — THE REACH WINDOW WAS ACCEPTING THE DEFECT IT WAS BUILT TO
+ * TELL APART FROM A CORRECT CITATION.
+ *
+ * `withinSection` passed anything up to 120 lines after an occurrence of its
+ * identifier. Round 4's audit found twelve citations that are NOT the section
+ * idiom at all: the cited line carries a DIFFERENT member of the same register,
+ * with a sibling sitting between the identifier and the cited line. Seven of
+ * the twelve were one to six lines out, comfortably inside the window, so this
+ * gate graded them "within-section (accepted)" and printed them as evidence.
+ *
+ * ONE PREDICATE SEPARATES THE TWO FORMS. The documented-correct form cites a
+ * line that carries no identifier of its own -- a permission row, a table row,
+ * a paragraph inside a long card. The defect cites a line that carries a
+ * SIBLING: another identifier in the same family. So a within-section grade is
+ * withdrawn when the cited line itself names a different identifier sharing the
+ * citation's family.
+ *
+ * FAMILY IS THE IDENTIFIER MINUS ITS LAST SEGMENT, which is what makes
+ * `FUNC-DOH-04-1.2.1` and `FUNC-DOH-04-2.2.1` siblings and leaves
+ * `FEAT-STU-05-02` and `FUNC-STU-05-02-A-1` unrelated. MEASURED on this tree
+ * after round 4's citation fixes landed: 65 within-section citations, 0
+ * withdrawn -- the predicate convicts none of the documented-correct cases. It
+ * was proved to convict by planting one of the twelve back; see the report.
+ */
+const familyOf = (identifier: string): string => {
+  const cut = identifier.lastIndexOf('-')
+  return cut < 0 ? identifier : identifier.slice(0, cut)
+}
+const IDENT_ON_LINE = new RegExp(CITED_IDENT.source, 'g')
+const identifiersOn = (line: number): string[] => [
+  ...String(sourceLines[line - 1] ?? '').matchAll(IDENT_ON_LINE),
+].map((m) => m[0] as string)
+
+/** The cited line names a different member of the citation's own family. */
+const siblingSitsOnCitedLine = (c: Citation): boolean =>
+  identifiersOn(c.line).some((id) => id !== c.identifier && familyOf(id) === familyOf(c.identifier))
+
 const withinSection = known.filter((c) => {
   if (locatorsOf(c).includes(c.line)) return false
+  if (siblingSitsOnCitedLine(c)) return false
   const opensAt = locatorsOf(c).filter((l) => l <= c.line).pop()
   return opensAt !== undefined && c.line - opensAt <= SECTION_REACH
 })
@@ -253,6 +310,114 @@ const DOCS_UNCORROBORATED: readonly { readonly id: string; readonly line: number
   { id: 'MOD-FL-B8', line: 41596 },
 ]
 const ALLOWED_CLAIMS = new Set(DOCS_UNCORROBORATED.map((a) => claimKey(a.id, a.line)))
+
+/* ------------------------------------------------------------------ *
+ * R4-C06 HOLE 3 — THE HALF THIS GATE USED TO DROP ON THE FLOOR.
+ *
+ * `known` is the citations whose identifier the locator index carries.
+ * Everything else was filtered out and never graded: 169 citations, 155 of
+ * them in `src/` and `app/`. Not checked and not reported -- the print called
+ * them "identifier NOT in the index" and stopped there. Two of them named
+ * identifiers that occur NOWHERE in the frozen source, which is the strongest
+ * defect this gate can detect, and it was passing over them.
+ *
+ * The index is not the only authority available. The frozen source is right
+ * here, already read into `sourceLines` for the assertions above. So an
+ * unindexed citation is graded against the SOURCE by the same three grades:
+ * exact, within-section, uncorroborated -- including the sibling predicate,
+ * which convicts one instance of round 4's C04 shape that lives outside the
+ * index (`FUNC-STU-07-04-B-1` cited six lines short of itself, on a line
+ * carrying `FUNC-STU-07-01-B-1`).
+ *
+ * WHY THE IDENTIFIERS ARE MISSING FROM THE INDEX AT ALL. The index's
+ * identifier set comes from the knowledge graph, which judged what is an
+ * entity. `FB-STU-01`, `SURF-CC` and `AC-STU-049` are real and are in the
+ * source; the graph simply did not mint nodes for them. That is a reason to
+ * check them against the source, not a reason to skip them.
+ * ------------------------------------------------------------------ */
+const unindexed = citations.filter((c) => index.index[c.identifier] === undefined)
+
+/** Every line of the frozen source carrying this identifier. Memoised: the
+ *  naive form rescans 18MB per identifier. */
+const occurrenceCache = new Map<string, readonly number[]>()
+const occurrencesOf = (identifier: string): readonly number[] => {
+  const hit = occurrenceCache.get(identifier)
+  if (hit !== undefined) return hit
+  const found: number[] = []
+  for (let i = 0; i < sourceLines.length; i += 1) {
+    if ((sourceLines[i] as string).includes(identifier)) found.push(i + 1)
+  }
+  occurrenceCache.set(identifier, found)
+  return found
+}
+
+const unindexedExact = unindexed.filter((c) => occurrencesOf(c.identifier).includes(c.line))
+const unindexedWithinSection = unindexed.filter((c) => {
+  if (occurrencesOf(c.identifier).includes(c.line)) return false
+  if (siblingSitsOnCitedLine(c)) return false
+  const opensAt = occurrencesOf(c.identifier)
+    .filter((l) => l <= c.line)
+    .pop()
+  return opensAt !== undefined && c.line - opensAt <= SECTION_REACH
+})
+const unindexedGraded = new Set([...unindexedExact, ...unindexedWithinSection])
+const unindexedUncorroborated = unindexed.filter((c) => !unindexedGraded.has(c))
+
+/**
+ * THE UNGRADED CLAIMS THIS HOLE HAD BEEN HIDING, NAMED — none of them fixable
+ * by the stream that opened the hole, all of them reported.
+ *
+ * Same shape and same rules as `DOCS_UNCORROBORATED` above: an equality in both
+ * directions, so the list retires itself as each claim is read, and NONE of
+ * these is asserted to be correct. Each carries the reading measured when it
+ * was surfaced. Read the line against the frozen source before touching it.
+ *
+ * `WF-LEDGER-EXPORT` appears twice: two citations, one claim, two call sites in
+ * one file. The list is keyed on file AND claim here rather than on the claim
+ * alone, because unlike the prose half these are not the same paragraph copied
+ * between documents.
+ */
+const UNINDEXED_UNCORROBORATED: readonly { readonly file: string; readonly id: string; readonly line: number }[] =
+  [
+    // The identifier occurs NOWHERE in the frozen source. The strongest grade
+    // this gate has, and both belong to the concurrent Super Admin fix stream,
+    // which was told about them rather than reached across for.
+    {
+      file: 'app/super-admin/platform-overview-and-health/OverviewScreen.tsx',
+      id: 'SB-SEC-013-S1',
+      line: 105076,
+    },
+    { file: 'app/super-admin/usage-and-metering/fixtures.ts', id: 'WF-LEDGER-EXPORT', line: 2765 },
+    { file: 'docs/census/2026-08-17-surf-sa-build-map.md', id: 'SB-SEC-013-S1', line: 105076 },
+
+    // ROUND 4's C04 SHAPE, OUTSIDE THE INDEX. The cited line carries
+    // `FUNC-STU-07-01-B-1`; the identifier's own line is twenty-two later.
+    // Two call sites, one claim, neither file this stream's.
+    {
+      file: 'tests/unit/stu-content-libraries.test.ts',
+      id: 'FUNC-STU-07-04-B-1',
+      line: 32656,
+    },
+    {
+      file: 'docs/process/audits/briefs/fix-G-round2-reachability.md',
+      id: 'FUNC-STU-07-04-B-1',
+      line: 32656,
+    },
+
+    // The identifier occurs LATER than the cited line, so the backward-looking
+    // window cannot reach it. Each may be the forward form of the section
+    // idiom -- a table header cited for a row inside it -- and each needs its
+    // own read. Measured positions are in the round-4 report.
+    { file: 'src/studio/journey/effects.ts', id: 'FB-STU-01', line: 31443 },
+    { file: 'src/studio/modules/stu-07/writes.ts', id: 'FB-STU-05', line: 32647 },
+    { file: 'src/surfaces/cc/modules/cc-08/AgentActivityPanel.tsx', id: 'SURF-CC', line: 35014 },
+    { file: 'app/studio/workflow-library/WorkflowLibraryScreen.tsx', id: 'AC-STU-049', line: 31910 },
+  ]
+const UNINDEXED_KEY = (file: string, id: string, line: number): string =>
+  `${file}: ${claimKey(id, line)}`
+const ALLOWED_UNINDEXED = new Set(
+  UNINDEXED_UNCORROBORATED.map((a) => UNINDEXED_KEY(a.file, a.id, a.line)),
+)
 
 describe('the locator index describes the frozen source it claims to', () => {
   it('is built against the blueprint this repository actually has', () => {
@@ -357,11 +522,23 @@ describe("the index corroborates this build's citations", () => {
         `\n  UNCORROBORATED                 ${uncorroborated.length}` +
         `\n    in code                      ${uncorroborated.length - prose.length}` +
         `\n    in prose (named, pinned)     ${prose.length}` +
-        `\n  identifier NOT in the index    ${citations.length - known.length}`,
+        `\n  identifier NOT in the index    ${unindexed.length}` +
+        `\n    graded against the SOURCE:` +
+        `\n      exact                      ${unindexedExact.length}` +
+        `\n      within-section (accepted)  ${unindexedWithinSection.length}` +
+        `\n      UNCORROBORATED             ${unindexedUncorroborated.length}` +
+        `\n  range shorthand, not graded    ${excludedRanges.length}`,
     )
-    // Not decoration: the four sub-counts must partition `known`, or a raise
+    // Not decoration: the three sub-counts must partition `known`, or a raise
     // made from this print would be made from arithmetic that does not close.
     expect(exact.length + withinSection.length + uncorroborated.length).toBe(known.length)
+    // And the same for the half this gate used to drop: every citation is now
+    // in exactly one of the two populations, and every member of each is
+    // graded. A citation that falls out of both is a citation nothing checks.
+    expect(known.length + unindexed.length).toBe(citations.length)
+    expect(
+      unindexedExact.length + unindexedWithinSection.length + unindexedUncorroborated.length,
+    ).toBe(unindexed.length)
   })
 
   it('corroborates the measured number of them, and the number is pinned', () => {
@@ -406,7 +583,13 @@ describe("the index corroborates this build's citations", () => {
     // newly-scanned prose half contributes 290 citations, 277 known and 236
     // exact. The previous pins (1,478 / 1,416, measured 2026-08-23 over
     // 1,630 citations in 794 files) guarded 84% of the evidence.
-    const MEASURED = { known: 1_952, exact: 1_848 } as const
+    //
+    // RAISED for round 4's citation fixes (R4-C04, R4-C05, R4-C07) and the new
+    // gate code, which together moved fifteen citations from non-exact to
+    // exact and added citations of their own. MEASURED 2026-08-25 by the print
+    // above: 2,135 identifier-anchored citations (plus 6 range-shorthand
+    // captures now excluded) in 1,024 files, 1,972 index-known, 1,880 exact.
+    const MEASURED = { known: 1_972, exact: 1_880 } as const
     const EROSION_BAND = 0.005
     const atLeast = (n: number): number => Math.floor(n * (1 - EROSION_BAND))
     expect(
@@ -419,26 +602,81 @@ describe("the index corroborates this build's citations", () => {
     ).toBeGreaterThanOrEqual(atLeast(MEASURED.exact))
   })
 
-  it('leaves few uncorroborated, and that ceiling only comes down', () => {
-    /*
-     * A CEILING, NOT A FLOOR, because the honest direction of travel here is
-     * downward. Sixteen were uncorroborated when the full index first landed;
-     * eleven were real defects and were fixed, five were the within-section form
-     * and are now understood by the check above.
-     *
-     * It does not assert zero. Twelve remain, and each is a citation whose
-     * identifier occurs far from the cited line -- some are long module cards
-     * that outrun SECTION_REACH. Asserting zero would either be false or would
-     * push someone to widen the window until it stopped meaning anything.
-     *
-     * R2-02: THE CEILING IS UNCHANGED AT 20 AND ITS POPULATION IS UNCHANGED —
-     * the code half, which still measures 12. Widening the scan to `docs` and
-     * `.md` added 19 more, and they are named in `DOCS_UNCORROBORATED` and
-     * asserted as an equality below rather than absorbed here. Raising this
-     * number to 31 would have retired the only claim it makes.
-     */
+  /**
+   * R4-C06 HOLE 2 — THE CODE POPULATION IS NAMED, THE WAY THE PROSE ONE IS.
+   *
+   * This used to read `expect(code.length).toBeLessThanOrEqual(20)` with an
+   * occupancy of 12, and it named none of its members. Eight wrong citations
+   * could therefore land and stay green -- and round 4 measured that FOUR of
+   * the twelve occupants were real defects sitting inside the allowance,
+   * unread because nothing made anybody read them. The comment beside it
+   * argued the ceiling should not be raised, which was the right instinct
+   * applied to the wrong instrument: a ceiling with headroom is a threshold,
+   * and this build's round-2 lesson is that a threshold cannot express "every
+   * member".
+   *
+   * So it is an equality in both directions over a literal list, exactly like
+   * the prose half twenty lines below. NONE of these is asserted correct.
+   * Reading one ends either in a corrected citation or in a deleted key, and
+   * a key that no longer misses reds just as loudly as a miss that is not
+   * keyed.
+   */
+  const CODE_UNCORROBORATED: readonly { readonly file: string; readonly id: string; readonly line: number }[] =
+    [
+      { file: 'src/disclosure/decisions.ts', id: 'SEQ-012', line: 68307 },
+      { file: 'src/disclosure/decisions.ts', id: 'SEQ-013', line: 68455 },
+      { file: 'src/surfaces/doh/modules/doh-16/matrix.ts', id: 'NOTIF-DOH-16-2', line: 29674 },
+      {
+        file: 'app/super-admin/atom-registry/AtomRegistryScreen.tsx',
+        id: 'MOD-SA-10',
+        line: 107350,
+      },
+      {
+        file: 'app/super-admin/console-users-roles-and-change-approvals/fixtures.ts',
+        id: 'SCR-SA-13',
+        line: 42804,
+      },
+      {
+        file: 'app/super-admin/console-users-roles-and-change-approvals/fixtures.ts',
+        id: 'SCR-SA-10',
+        line: 48738,
+      },
+      { file: 'app/super-admin/tenant-metrics-and-aggregates/fixtures.ts', id: 'MOD-SA-12', line: 45385 },
+      { file: 'app/super-admin/tiers-entitlements-and-caps/TiersScreen.tsx', id: 'MOD-SA-11', line: 45273 },
+    ]
+  const ALLOWED_CODE = new Set(
+    CODE_UNCORROBORATED.map((a) => UNINDEXED_KEY(a.file, a.id, a.line)),
+  )
+  const codeKeyOf = (c: Citation): string =>
+    UNINDEXED_KEY(c.file.replace(`${ROOT}/`, ''), c.identifier, c.line)
+
+  it('names every uncorroborated code citation rather than counting them', () => {
     const code = uncorroborated.filter((c) => !isProse(c.file))
-    expect(code.length, 'uncorroborated citations in code must not grow').toBeLessThanOrEqual(20)
+    // Non-vacuity: the population this equality is drawn from must exist.
+    expect(known.length, 'index-known citations').toBeGreaterThan(1_000)
+    const unlisted = code
+      .filter((c) => !ALLOWED_CODE.has(codeKeyOf(c)))
+      .map(codeKeyOf)
+      .sort()
+    if (unlisted.length > 0) {
+      console.error(
+        `\n[citation-graph] uncorroborated code citations (${unlisted.length}):\n  ${unlisted.join('\n  ')}`,
+      )
+    }
+    expect(
+      unlisted,
+      'a code citation names a line the index cannot corroborate. READ IT AGAINST THE FROZEN ' +
+        'SOURCE FIRST, then either fix the citation or add the claim to CODE_UNCORROBORATED with ' +
+        'the reading in the report — never raise a threshold to absorb it.',
+    ).toEqual([])
+  })
+
+  it('carries no allowance for a code claim that no longer misses', () => {
+    const live = new Set(uncorroborated.filter((c) => !isProse(c.file)).map(codeKeyOf))
+    expect(
+      [...ALLOWED_CODE].filter((k) => !live.has(k)).sort(),
+      'an allowance for a code citation that is no longer uncorroborated. Delete it',
+    ).toEqual([])
   })
 
   /*
@@ -474,5 +712,92 @@ describe("the index corroborates this build's citations", () => {
       [...ALLOWED_CLAIMS].filter((k) => !live.has(k)).sort(),
       'an allowance for a prose citation that is no longer uncorroborated. Delete it',
     ).toEqual([])
+  })
+})
+
+describe('the frozen source grades the citations the index does not know', () => {
+  it('has an unindexed population to grade, and grades all of it', () => {
+    // Non-vacuity in both directions. An empty `unindexed` would satisfy every
+    // assertion below, and that is exactly the state this gate was in: it
+    // filtered the population away and then asserted nothing about it.
+    // MEASURED 2026-08-25: 1,024 files, 2,135 identifier-anchored citations
+    // (6 range-shorthand captures excluded), 1,972 index-known / 1,880 exact /
+    // 65 within-section / 27 uncorroborated (8 code, 19 prose); and on this
+    // half, 163 unindexed citations -- 149 exact against the source, 4
+    // within-section, 10 uncorroborated over 9 distinct claims.
+    expect(unindexed.length, 'citations whose identifier the index does not carry').toBeGreaterThan(
+      100,
+    )
+    expect(unindexedExact.length, 'unindexed citations exact against the source').toBeGreaterThan(
+      100,
+    )
+    expect(excludedRanges.length, 'range-shorthand captures excluded from grading').toBe(6)
+  })
+
+  it('names every unindexed citation the source cannot corroborate', () => {
+    const unlisted = unindexedUncorroborated
+      .map((c) => UNINDEXED_KEY(c.file.replace(`${ROOT}/`, ''), c.identifier, c.line))
+      .filter((k) => !ALLOWED_UNINDEXED.has(k))
+      .sort()
+    if (unlisted.length > 0) {
+      console.error(
+        `\n[citation-graph] unindexed citations the source cannot corroborate (${unlisted.length}):\n  ${unlisted.join('\n  ')}`,
+      )
+    }
+    expect(
+      unlisted,
+      'a citation names a line the FROZEN SOURCE does not corroborate, and its identifier is not ' +
+        'in the locator index either. Open the line. If the identifier occurs nowhere in the ' +
+        'source, the citation is fabricated and the claim beside it needs rewriting, not ' +
+        'renumbering.',
+    ).toEqual([])
+  })
+
+  it('carries no allowance for an unindexed claim that no longer misses', () => {
+    const live = new Set(
+      unindexedUncorroborated.map((c) =>
+        UNINDEXED_KEY(c.file.replace(`${ROOT}/`, ''), c.identifier, c.line),
+      ),
+    )
+    expect(
+      [...ALLOWED_UNINDEXED].filter((k) => !live.has(k)).sort(),
+      'an allowance for an unindexed citation that is no longer uncorroborated. Delete it',
+    ).toEqual([])
+  })
+
+  it('reports every identifier cited but absent from the frozen source', () => {
+    /*
+     * THE STRONGEST GRADE THIS GATE HAS, AND IT HAD NO ASSERTION AT ALL.
+     *
+     * `indexes no identifier the frozen source does not contain` above holds
+     * the INDEX to the source. Nothing held the BUILD's citations to it, so a
+     * citation naming an identifier that exists nowhere -- the shape an
+     * extraction agent produced twelve of, by continuing a sequence -- was
+     * simply filtered out as "not in the index" and never looked at.
+     *
+     * Two such claims are live, both under `app/super-admin/**` plus one copy
+     * in a census document, and all three belong to another stream. They are
+     * named, not absorbed: this asserts the exact set, so a third reds.
+     */
+    const present = new Set<string>()
+    const SCAN = new RegExp(CITED_IDENT.source, 'g')
+    for (let m = SCAN.exec(sourceText); m !== null; m = SCAN.exec(sourceText)) {
+      present.add(m[0])
+    }
+    const fabricated = [
+      ...new Set(
+        citations
+          .filter((c) => !present.has(c.identifier) && occurrencesOf(c.identifier).length === 0)
+          .map((c) => `${c.file.replace(`${ROOT}/`, '')}: ${claimOf(c)}`),
+      ),
+    ].sort()
+    expect(present.size, 'identifiers found in the frozen source').toBeGreaterThan(15_000)
+    expect(fabricated, 'a citation names an identifier the frozen source does not contain').toEqual(
+      [
+        'app/super-admin/platform-overview-and-health/OverviewScreen.tsx: SB-SEC-013-S1 at line 105076',
+        'app/super-admin/usage-and-metering/fixtures.ts: WF-LEDGER-EXPORT at line 2765',
+        'docs/census/2026-08-17-surf-sa-build-map.md: SB-SEC-013-S1 at line 105076',
+      ],
+    )
   })
 })

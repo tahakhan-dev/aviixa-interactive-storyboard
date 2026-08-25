@@ -31,6 +31,7 @@ import {
   scopeVerdict,
   type PairedJobs,
 } from '@/surfaces/doh/modules/doh-16/pairing'
+import { SCREEN_TITLE } from './title'
 
 /**
  * The paired scheduling view — `SB-DOH-028` (L29681), at
@@ -61,7 +62,6 @@ if (UNCATALOGUED === undefined) {
   throw new Error('MOD-DOH-16 has no registered uncatalogued screen name')
 }
 
-export const SCREEN_TITLE = 'Multi-Area Job Pairing — the paired scheduling view'
 
 /** Card L29595 for the name; card L29596 for the purpose, quoted. */
 const SHELL_SCREEN: HubShellUncataloguedScreen = {

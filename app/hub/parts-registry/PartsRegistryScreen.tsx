@@ -18,6 +18,7 @@ import {
   doh19RolesReaching,
   type Doh19Affordance,
 } from '@/surfaces/doh/modules/doh-19/rendering'
+import { SCREEN_TITLE } from './title'
 
 /**
  * `SCR-DOH-06` — the parts registry, at `/hub/parts-registry`. Catalogue B
@@ -49,7 +50,6 @@ import {
  * over this module's own matrix and is printed below.
  */
 
-export const SCREEN_TITLE = 'Parts registry'
 
 /** Seeded master data. Deterministic: no clock, no counter, no randomness. */
 interface SeededPart {

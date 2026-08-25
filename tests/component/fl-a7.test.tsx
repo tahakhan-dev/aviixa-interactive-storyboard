@@ -537,6 +537,16 @@ describe('what this screen says about suspension and about being offline', () =>
     expect(words(screen.getByTestId('fl-a7-ac-fl-011-1'))).toContain(
       'All 11 functionalities of this module name at least one FB-FL-* pattern',
     )
+    // R4-C03. This assertion stopped at the first clause, so the SECOND
+    // clause -- a figure about the whole chapter -- shipped wrong for as long
+    // as the page has existed: "Twelve functionalities elsewhere in this
+    // chapter name none", where the measured figure is twenty-eight. Twelve
+    // was MOD-FL-A5's count produced by a regex blind to `FB-FL-SEV1-01`.
+    // `tests/unit/hub-source-figures.test.ts` holds the number to all twelve
+    // modules' own data; this holds the RENDERED sentence to that number.
+    expect(words(screen.getByTestId('fl-a7-ac-fl-011-1'))).toContain(
+      '28 functionalities elsewhere in this chapter name none; none of them is this module\u2019s.',
+    )
     const divergence = words(screen.getByTestId('fl-a7-pattern-divergence'))
     expect(divergence).toContain('names three patterns')
     expect(divergence).toContain('names four')

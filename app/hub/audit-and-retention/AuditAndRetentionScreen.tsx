@@ -52,7 +52,6 @@ import { auditContext, SEEDED_AUDIT_EVENTS } from '@/surfaces/doh/modules/doh-11
  * module, so it could not stay here once the module owned one.
  */
 
-export const SCREEN_TITLE = 'Audit log explorer'
 
 /**
  * THE GRADED AUDIT-FAILURE STATE, and it is three answers rather than one

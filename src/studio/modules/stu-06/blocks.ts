@@ -239,7 +239,7 @@ export function blockText(
  * A block with no authored rendering for this locale and level does NOT
  * vanish from the composition. It renders a stated gap, because a silently
  * shorter Section 1 is exactly the blank safety advisory
- * `FUNC-STU-06-03-A-1` (L32493) exists to prevent, and publish check 6 is
+ * `FUNC-STU-06-03-A-1` (L32489) exists to prevent, and publish check 6 is
  * what refuses the publication.
  */
 export function composeSection1(
@@ -266,7 +266,7 @@ export interface CoverageState {
 }
 
 /**
- * `FUNC-STU-06-03-A-1` (L32493) — block content is included in the
+ * `FUNC-STU-06-03-A-1` (L32489) — block content is included in the
  * publish-time locale-completeness check, *"since a block is worker-facing
  * Workflow content"*.
  */

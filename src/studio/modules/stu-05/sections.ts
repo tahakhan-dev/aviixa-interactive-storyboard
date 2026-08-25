@@ -981,7 +981,7 @@ export function setInstruction(
     return refuse(input.draft, 'Instruction text is the worker’s actual instruction and cannot be blank. Nothing was written.')
   }
   return commit(
-    { ...input, rowId: 'author-sections-one-through-nine', action: 'author-screen-content', section: 'Screen content', sourceRefs: ['L32228', 'FUNC-STU-05-02-A-1 L32284'] },
+    { ...input, rowId: 'author-sections-one-through-nine', action: 'author-screen-content', section: 'Screen content', sourceRefs: ['L32228', 'FUNC-STU-05-02-A-1 L32286'] },
     (screen) => ({
       ...screen,
       content: {

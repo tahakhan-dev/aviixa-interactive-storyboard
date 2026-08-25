@@ -1251,7 +1251,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin and the Supervisor with full audit. ABSENT for the other three, and for the Worker absent ABSOLUTELY and by construction rather than by a permission check: no worker-role path reaches qualification entry, on any surface, through any interface. The Quality Manager’s absence here is the deliberate half of the authority split — the role that may clear a block may not enter the certificate that creates one.',
     effect:
       'Records the certificate with its type, its per-Area scope which may span Sites, its certification date and its expiry date. Committed with its audit entry in one transaction.',
-    sourceRef: 'L27472, FUNC-DOH-04-2.1.1 L27551, AC-DOH-04-1 L27602, AC-28.4-01 L52774',
+    sourceRef: 'L27472, FUNC-DOH-04-2.1.1 L27547, AC-DOH-04-1 L27602, AC-28.4-01 L52773',
   },
   {
     id: 'record-recertification',
@@ -1277,7 +1277,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin and the Supervisor, refused with the rule stated when the new expiry does not postdate the old, and STAYS OPEN in soft suspension while creation does not. Under HARD suspension it is closed with its consequence named (D16). ABSENT for the other three.',
     effect:
       'Replaces the expiry and lifts any active block at the device’s next sync. Both the certification date and the entry date are recorded, so a late entry creates no apparent gap.',
-    sourceRef: 'L27473, FUNC-DOH-04-2.1.2 L27552, AC-DOH-04-9 L27610, FB-CONFIG-003 L61522',
+    sourceRef: 'L27473, FUNC-DOH-04-2.1.2 L27548, AC-DOH-04-9 L27610, FB-CONFIG-003 L61522',
   },
   {
     id: 'back-date-issue-date',
@@ -1355,7 +1355,7 @@ export const CONTROL_MATRIX = [
       'No grant control exists in the Hub for anybody (D23): what renders is the cross-surface handoff to the Client Command Center, where action number 10 actually grants. It is live for the Supervisor with a mandatory categorised reason and for the Quality Manager, and DISABLED WITH ITS REASON for the Tenant Admin (D10) — the most privileged tenant role sits deliberately outside the safety-exception path, and the disabled control is where that rule teaches itself. ABSENT for the Auditor, whose read-only cause is named once for the whole screen.',
     effect:
       'Routes to the surface that grants. The Hub owns the clearance RECORD and its enforcement and grants nothing itself; the Quality Manager is notified on grant.',
-    sourceRef: 'L27476, FUNC-DOH-04-3.1.1 L27556, the clearance-register row of catalogue A, L26059, FB-QUAL-005 L64415',
+    sourceRef: 'L27476, FUNC-DOH-04-3.1.1 L27557, the clearance-register row of catalogue A, L26059, FB-QUAL-005 L64415',
   },
   {
     id: 'clear-never-held',
@@ -1381,7 +1381,7 @@ export const CONTROL_MATRIX = [
       'The canonical DISABLED-WITH-A-NAMED-REASON case. For the Supervisor the handoff renders greyed carrying "requires Quality Manager authorisation", because FB-QUAL-005 names the primary failure as a supervisor believing they can authorise and the first fallback as the disabled control with its reason, "which teaches the rule at the moment it binds". Disabled with its reason for the Tenant Admin too, for the same reason and a different rule. ABSENT for the Auditor.',
     effect:
       'Routes to the Quality Manager, who grants with a reason code plus authorisation. A refused attempt through a service path is itself recorded, because an attempted authority escalation is worth recording.',
-    sourceRef: 'L27477, FUNC-DOH-04-3.1.2 L27557, AC-DOH-04-6 L27607, FB-QUAL-005 L64415',
+    sourceRef: 'L27477, FUNC-DOH-04-3.1.2 L27558, AC-DOH-04-6 L27607, FB-QUAL-005 L64415',
   },
   {
     id: 'clear-second-in-area-on-shift',
@@ -1407,7 +1407,7 @@ export const CONTROL_MATRIX = [
       'Live for the Quality Manager only where the chosen Area and Shift already hold a clearance, and disabled with the reason otherwise — a first clearance is not a second one. Disabled with "routes to the Quality Manager" for the Supervisor, and with the authority rule for the Tenant Admin.',
     effect:
       'The escalation keys on the pairing of Area and Shift and never on a person: repeated exceptions in one Area are a signal about the Area, and the rule fires regardless of which worker is involved.',
-    sourceRef: 'L27478, FUNC-DOH-04-3.1.3 L27558, AC-DOH-04-7 L27608, L27437',
+    sourceRef: 'L27478, FUNC-DOH-04-3.1.3 L27559, AC-DOH-04-7 L27608, L27437',
   },
   {
     id: 'set-gate-posture-or-duration',
@@ -1432,7 +1432,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin in this module’s own section of the tenant administration area, which is a screen GROUP rather than a surface and is owned by no single module (D2). Never below the notify-only floor: no third posture exists to select, so the floor is held by the closed vocabulary rather than by a check. ABSENT for the other four.',
     effect:
       'Selects strict blocking, the platform default, or notify-only, under which execution proceeds and the same events raise notifications and audit flags. Sets how long a granted clearance runs before it lapses — a tenant setting, not a fixed per-shift expiry.',
-    sourceRef: 'L27479, FUNC-DOH-04-2.3.1 L27554, TEST-DOH-04-D4 L27626, AC-PROD-040 / D2',
+    sourceRef: 'L27479, FUNC-DOH-04-2.3.1 L27553, TEST-DOH-04-D4 L27626, AC-PROD-040 / D2',
   },
   {
     id: 'archive-worker',
@@ -1510,7 +1510,7 @@ export const CONTROL_MATRIX = [
       'Live for the Tenant Admin and, from the canonical template only, for the Supervisor. One template exists and no mapping control is drawn for anybody: per-tenant column mapping is the client’s onboarding operation, outside the platform. ABSENT for the other three.',
     effect:
       'All-or-nothing per file. A file that fails validation on any row writes nothing at all, reports the row and the rule, and leaves every existing record untouched.',
-    sourceRef: 'L27482, FUNC-DOH-04-1.2.1 L27550, TEST-DOH-04-F3 L27632, L26707',
+    sourceRef: 'L27482, FUNC-DOH-04-1.2.1 L27544, TEST-DOH-04-F3 L27632, L26707',
   },
   {
     id: 'view-own-certification-alerts',
@@ -1568,7 +1568,7 @@ export const CONTROL_MATRIX = [
       'READ-ONLY for four roles with the cause named, scope-filtered for the Supervisor, and UNAVAILABLE for the Worker — the only `Unavailable` cell in this whole matrix, and therefore the one cell that decides which roles the module rail offers this route to at all.',
     effect:
       'A read of every clearance with its full metadata. No control edits a recorded clearance, for any role: the corpus is evidence, and evidence that can be edited is not evidence.',
-    sourceRef: 'L27484, FUNC-DOH-04-3.2.2 L27561, the clearance-register row of catalogue A, L26059',
+    sourceRef: 'L27484, FUNC-DOH-04-3.2.2 L27562, the clearance-register row of catalogue A, L26059',
   },
 ] as const satisfies readonly ControlMatrixRow[]
 

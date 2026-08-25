@@ -287,7 +287,7 @@ function BlockRow({
       <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
         {coverage.complete
           ? `Locale and difficulty coverage complete across ${scope.declaredLocales.join(' and ')} and all ${DIFFICULTY_LEVELS.length} difficulty levels.`
-          : `Coverage incomplete — nothing authored for ${coverage.missing.join(', ')}. Publication in a declared locale is refused until every one is authored (FUNC-STU-06-03-A-1, L32493).`}
+          : `Coverage incomplete — nothing authored for ${coverage.missing.join(', ')}. Publication in a declared locale is refused until every one is authored (FUNC-STU-06-03-A-1, L32489).`}
       </p>
       {onSelect === undefined ? null : (
         <div className="mt-2">

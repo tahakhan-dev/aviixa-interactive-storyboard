@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
-import { PairedSchedulingScreen, SCREEN_TITLE } from './PairedSchedulingScreen'
+import { PairedSchedulingScreen } from './PairedSchedulingScreen'
+import { SCREEN_TITLE } from './title'
 
 // No screen identifier in this title, deliberately and twice over. Catalogue B
 // carries no row for this view, so there is no id to print; catalogue A's row
