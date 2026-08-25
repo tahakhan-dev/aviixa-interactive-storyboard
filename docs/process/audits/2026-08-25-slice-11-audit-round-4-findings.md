@@ -351,7 +351,34 @@ contents; per-cell permission-matrix content, swept in rounds 2 and 3.
 
 ---
 
+## Found by a fixer, not an auditor — carried into round 5
+
+### R4-K01 · Important · a fourth site for R4-02's bad pair, deliberately left
+
+Fix stream K re-pointed the false D17 evidence at four sites and **left a fifth standing**:
+`app/super-admin/platform-settings/PlatformSettingsScreen.tsx` still cites the pair `65401` and
+`20740`. K's reasoning is defensible and is recorded rather than accepted: the action there is the
+Platform Engineer's *proposal* of an emergency pause, and both lines do support "maker only, submits
+into the approval cycle". But **`65404`, not `65401`, is the emergency-pause row, and it reads
+`Explicitly prohibited` for that column.** The file was outside K's list and outside R4-02's finding.
+
+This is the second time a fix stream has found a defect no auditor did. Round 2's was the same shape:
+a widened population convicting something the audit missed.
+
+### R4-01's class was three instances wider than the audit found
+
+K wrote a mechanical run-gap detector for its new gate and found **six** pages disclosing acceptance
+criteria the source states, not three. The three the audit missed:
+`app/super-admin/atom-registry/` (six criteria), `app/super-admin/console-users-roles-and-change-approvals/`
+(four), `app/super-admin/usage-and-metering/` (three, all already built and simply not cited). K wrote
+outside its file list to close two of them, deliberately and reported plainly: the gate the brief asked
+for convicts the class, so it could not ship green while those stood, and neutering it would have made
+it worthless. **That was the right call** — a gate weakened to fit an incomplete file list is the
+build's own defect shape 10.
+
+---
+
 ## Round 4 totals
 
-**27 findings: 7 (stream A) + 13 (stream B) + 7 (stream C).** Three Critical in stream B, one in
-stream C, two in stream A. The loop does not close on this round.
+**28 findings: 7 (stream A) + 13 (stream B) + 7 (stream C) + 1 found by a fixer.** Three Critical in
+stream B, one in stream C, two in stream A. The loop does not close on this round.
