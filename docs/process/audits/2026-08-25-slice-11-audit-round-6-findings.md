@@ -130,4 +130,163 @@ tamper-evidence vocabulary off the page is honoured: those words occur zero time
 
 ## Stream B — master prompt §29.1 and §29.4, bullet by bullet
 
-_Pending — agent running._
+**This is the first time the build has been read against the two sections that govern whether it may
+ever claim to be done.** Rounds 4 and 5 both listed it as not reached. Eight findings, two Critical,
+and a verdict.
+
+### The verdict, before the findings
+
+**Master prompt §29.1 is not passed and cannot honestly be claimed passed today.** Thirteen bullets:
+five satisfied and held by a gate, three split or partial, **four fail outright** — every frozen-source
+id classified (137 of 5,018 rows carry a classification), every function carrying its thirteen
+required attributes (functions.json rows carry five fields, none of the thirteen), a reviewer able to
+follow one continuous story (two journeys exist, neither spanning bootstrap to closure), and the
+Workflow Index / census closure pair.
+
+**What is worth saying plainly: the build publishes most of these failures rather than hiding them.**
+`/coverage/` states 299 of 5,018 items demonstrated. The census gate reds if either closure distance
+is ever reported as zero. Three of the four failing bullets are slice-12 and slice-13 scope that has
+not been built yet, not defects in what was built.
+
+**Master prompt §29.4 — six of nine conditions that block a completion claim are currently TRUE.**
+Two are satisfied and gated: no external request occurred, and no count is claimed outside the frozen
+registries. One cannot be evaluated in either direction, which is its own finding.
+
+### R6-B04 · Critical · both candidate manifests name a candidate that no longer exists
+
+**Controller-verified.** `docs/process/ledgers/product-candidate-manifest.json` declares candidate
+`SLICE04-b82f66e93567c0a5`. Re-hashing its own 365 entries against the tree:
+
+```
+entries=365  match=180  drifted=185  missing=0
+```
+
+**Half the bytes it certifies have moved.** Its verification block reads "unit 892 · component 1661 ·
+release 189 · e2e 95" against a measured 6,280 · 3,046 · 960 · 548 — seven slices stale.
+
+The evidence envelope is worse: it names slice **2b**, three of its seven payload entries have
+drifted, and one no longer exists at all, having been retired by a schema change.
+
+Master prompt §29.5 requires the final response to state exact Candidate IDs and hashes, and §29.4
+forbids a claim when the candidate changed after verification. **The only two artefacts that could
+supply a Candidate ID both name one that no longer exists. A completion response quoting either
+would ship a false hash to the client.**
+
+### R6-B06 · Critical · the disposition record the honesty gate depends on is stale, partial, and read by nothing
+
+**Controller-verified.** The only disposition table in the tree covers **round 1**. Rounds 2, 3, 4 and
+5 have no disposition record of any kind:
+
+```
+grep -rlE '^\| *[A-Za-z0-9-]+ *\| *(CLOSED|OPEN|PARTIAL)' docs/process/audits/
+  → 2026-08-24-slice-11-audit-dispositions.md      (one file)
+```
+
+That one table records **7 OPEN and 6 PARTIAL** — two Critical, four Important — measured at a head
+seven commits back. Ten of the thirteen are named in no later register. Rounds 2 and 3 are prose and
+cannot be enumerated: ten recoverable ids for twenty declared findings, three for fifteen.
+
+**The auditor spot-checked one of the thirteen and found it genuinely closed — the record is stale,
+not the finding open. That is exactly the problem: nothing on disk lets a reader tell the two apart.**
+
+Master prompt §29.4 conditions 5 and 6 are the two the closing obligation turns on, and neither can
+be evaluated.
+
+**This convicts a claim of the controller's own.** `RESUME` §8 has read "all dispositioned and fixed"
+since round 4, and the round-4 brief said "all 77 are closed and verified". **No artefact on disk
+reproduces either claim.** It is corrected in the same commit as this register.
+
+### R6-B03 · Important · 210 source-derived records that reach nothing
+
+`source-reconciliation.json` carries five registers beyond the reconciliation rows: **66 invariants,
+32 closed action sets, 42 state vocabularies, 45 residual contradictions, 25 implementation risks.**
+One reader exists in the whole tree — a zod schema that nothing imports.
+
+Verbatim presence in the payload-stripped export: **2 of 66 invariants, 0 of the other 144.**
+
+Master prompt §29.1's bullet that no source rule is weakened by role, feature control, offline,
+artificial intelligence, notification, schedule, fallback or failure **is the bullet these 66
+invariants exist to answer.** Nothing in the tree fails if a rule stops being honoured, and the 45
+residual contradictions reach no reader at all.
+
+### R6-B05 · Important · there is no visual-regression capability
+
+```
+grep -rn "toHaveScreenshot\|toMatchSnapshot\|pixelmatch\|maxDiffPixel" tests/ playwright.config.ts
+  → 0
+```
+
+Master prompt §26.2 requires screenshot comparison with three baseline tiers and a retained diff
+report. The screenshots project captures 102 single-state PNGs and **is not inside `pnpm verify`**.
+The manifest §27.2 requires keyed by sixteen fields carries five, of which one is on the required
+list.
+
+**§29.4's second condition — "a baseline was regenerated during final verification" — cannot be
+evaluated in either direction, because no baseline exists to regenerate.** This is slice-13 scope.
+
+### R6-B08 · Moderate · the not-real disclosure is absent from eighteen pages and held by nothing over the export
+
+85 of 103 exported pages carry a not-real statement in rendered text; **18 carry none** — the fourteen
+registry indexes, the three 404 variants, and `/workflows/ai-and-its-absence/`, **the largest page in
+the export at 155,695 characters of artificial-intelligence prose.**
+
+Eighteen component tests assert the banner, every one a per-screen query; nothing walks `out/`.
+Six of §29.4's eight capability categories rest on this convention alone.
+
+### R6-B01 · Moderate · three of the 608 census controls are not controls
+
+Three rows are sentence-shaped runs the source describes as rendered messages, not actions — one is
+a status line reading "The Training Library needs a connection." **608 is the denominator both §13.1
+closure directions are measured against**, and nothing asserts that a census row is a control.
+
+### R6-B02 · Important · a coverage page understating its own classification coverage
+
+`/coverage/` renders "No other registry has been classified against the source yet." Measured:
+modules 81 of 81 **and** notifications 56 of 286 carry a source classification — 137 rows, written by
+the generator. The paragraph two blocks below carries a comment celebrating the replacement of
+exactly this shape of stale prose with a checkable claim; this one was not converted.
+
+### R6-B07 · Moderate · 451 acceptance criteria cited in the product appear in no test
+
+804 distinct `AC-*` identifiers are cited across `src/` and `app/`; 395 appear under `tests/`;
+**451 appear in no test file**, and each of the 451 was verified to be a real frozen-source
+identifier. A criterion can be tested without its identifier appearing in the test — but then no
+traceability chain exists for it either, which master prompt §9.2 requires separately.
+
+### The single most important thing this round found
+
+```
+grep -rn "process/ledgers\|process/audits" tests/ scripts/ src/ app/ package.json
+  → 0
+```
+
+**Nothing in the tree reads the process-evidence layer.** Candidate identity, verification binding,
+review disposition, TDD and debug evidence — the whole apparatus master prompt §29.3 and §29.4 rest
+on — is held by prose alone, and four of its artefacts are frozen at slices 2b and 4 while the build
+is at slice 11.
+
+Every gate this build has written points at the product. **None points at the evidence that the
+product was reviewed.**
+
+### What reproduced clean
+
+Source fingerprint stable and pinned by 40 test files, each throwing on drift. The count-scope
+separation across all 18 reconciliation rows, held by equality. Five surfaces and nine roles, both
+closed vocabularies asserted by equality. Screen reachability — a BFS walk from `/` compared against
+the route list in **both directions**, with four unreached routes recorded with reasons. No open
+decision counted as resolved: 59 decisions, type-level exhaustiveness, every record rendering all
+readings and its outstanding-ratification note, and two build-coined identifiers declared as
+coinages with gates asserting their absence from the source. Ownership boundaries across six gates.
+Two of the three collapse-words prohibited export-wide with floors and a plant campaign. No external
+request, static and runtime. And every headline count on the dashboard reproduced exactly from the
+frozen registries.
+
+---
+
+## Round 6 totals
+
+**14 findings: 6 (stream A) + 8 (stream B). Three Critical.** The loop does not close.
+
+**Stream A's shape was a fixer's recorded reasoning refuted by measurement. Stream B's is larger: the
+process-evidence layer is the one part of this build that has never been audited, and it is the part
+the closing obligation depends on.**
