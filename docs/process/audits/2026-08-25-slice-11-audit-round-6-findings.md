@@ -286,7 +286,13 @@ frozen registries.
 
 ## Round 6 totals
 
-**15 findings: 7 (stream A) + 8 (stream B). Two Critical.** The loop does not close.
+**17 findings: 7 (stream A) + 8 (stream B) + 2 found by a fixer during the wave. Two Critical.**
+The loop does not close.
+
+**And the count moved twice, both times upward and both times by counting rather than copying.**
+It read fourteen, was corrected to fifteen below, and read fifteen again after `R6-T01` and
+`R6-T02` were appended to this register — so the totals line was stale against its own list a
+second time. Seventeen is counted from the headings.
 
 **And the Critical count was the round's own shape a third time.** This line read "Three Critical".
 The register carries two Critical headings, `R6-B04` and `R6-B06`, and stream B's own verdict
@@ -344,3 +350,31 @@ their own slug-claimed routes. **Awarding it would invent an ownership the sourc
 
 **That is four times across rounds 5 and 6 that a fix stream has corrected a figure or a framing this
 register published.** The register is not the authority; the measurement is.
+
+
+### Two more of this register's figures corrected, both by fix stream U
+
+**`R6-B01`'s membership was wrong, though its count was right.** U opened all three named source
+lines *and the raw extraction record behind each*, and found a fourth the audit missed while
+defending one the audit wanted removed:
+
+| line | verdict | the source's own word |
+|---|---|---|
+| 13538 | exclude | the panel "carries a short line", in a passage whose point is that it offers no pause, stop or edit control anywhere |
+| 41894 | **exclude — the audit missed this one** | "a small in-situ flag reads …" |
+| 42209 | exclude | the destination "shows a single line reading …" |
+| 73228 | **keep — the audit was wrong to want it out** | "In-app **renders as a locked control** with the text …" |
+
+Keeping the locked control is the right call for a reason this round supplied itself: `R6-C01`
+settled that a locked entry whose attempt fails with a stated reason is this build's canonical
+**disabled** rendering — a control, not an absence. Master prompt §13.1 names notification rows as
+census members. **Three excluded, one defended, count coincidentally unchanged.**
+
+**`R6-B07`'s ratio is 799 / 440, not 804 / 451.** U's scan anchors the token trailing edge; without
+that, the scan also matches the *stem* of a longer identifier and counts the truncated stem of a
+real criterion as a criterion in its own right. U kept the wider `AC-` shape in every other respect
+and noted that the canonical digit-suffixed shape alone would report 790 — **reporting the smaller
+number is what the brief forbids**, and it did not.
+
+**That is six times across rounds 5 and 6 that a fix stream has corrected a figure or a framing this
+register published.** Every one was found by an implementer opening the line.
