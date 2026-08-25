@@ -253,9 +253,9 @@ until the new path list has been diffed against every row in it.
 | agent | path list | status |
 |---|---|---|
 | fix stream N (round-4 leftovers) | `app/super-admin/{core-agents-and-composed-agent-review,platform-settings,platform-overview-and-health,usage-and-metering}/**` · `tests/unit/{routes,stu-content-libraries}.test.ts` · `tests/coverage/citation-graph.test.ts` · two docs files | running |
-| round-5 audit A (gates and derivations) | read-only; `/tmp` scratch | running |
-| round-5 audit B (reconciliation claims) | read-only; `/tmp` scratch | running |
-| controller | `docs/process/**` · registry regeneration between waves | running |
+| fix stream P (round 5) | `app/super-admin/{platform-audit,trace-viewer}/**` · `tests/coverage/rendered-absence-claims.test.ts` · matching `sa-*` tests | running |
+| fix stream Q (round 5) | `app/{coverage,review,workflows}/**` · `src/{coverage,review,registry}/**` · `scripts/build-registries.mjs` · `registries/**` · four `tests/coverage/` files · `tests/unit/{registry-*,review-*}` · `tests/component/{coverage,workflows-page}` · `tests/e2e/coverage.spec.ts` | running |
+| controller | `docs/process/**` · one registry regeneration after all three land | running |
 
 **When a collision happens anyway:** do not rewrite history to tidy it. Verify the tree is
 correct, commit with the attribution stated plainly, and tell any reviewer reading that diff
