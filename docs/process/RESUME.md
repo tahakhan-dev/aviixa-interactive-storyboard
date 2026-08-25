@@ -309,9 +309,19 @@ survive checking while the underlying work was correct.
 
 ### Rounds 1-5 of the slice-11 audit loop are closed — candidate `5efb133`
 
-**127 findings, all dispositioned and fixed.** Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30.
-Round 5: 20. **The slice is not closed** — the loop ends when a round finds nothing, and round 6 is
-running.
+**127 findings recorded. Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30. Round 5: 20.**
+
+**This line used to read "all dispositioned and fixed" and that claim is not reproducible from
+disk.** Round 6 convicted it, and the correction is the point rather than the embarrassment. The only
+disposition table in the tree covers round 1, records **7 OPEN and 6 PARTIAL** at a head seven
+commits back, and ten of those thirteen are named in no later register. Rounds 2 and 3 are prose:
+ten recoverable ids for twenty declared findings, three for fifteen. Rounds 4 and 5 have no
+disposition record at all. An auditor spot-checked one of the thirteen and found it genuinely
+closed — **so the record is stale rather than the findings open, and nothing on disk lets a reader
+tell the two apart.** That is `R6-B06`, and until it is closed no round of this loop can be declared
+closed either.
+
+**The slice is not closed** — the loop ends when a round finds nothing, and round 6 found fourteen.
 
 Chain measured on `5efb133`, clean tree: typecheck 0 · lint 0 · gate-ordering **31/31** · unit
 **6280**/182 files · component **3046**/108 · build **102/102** · release **960**/31 · e2e/axe **548**.
