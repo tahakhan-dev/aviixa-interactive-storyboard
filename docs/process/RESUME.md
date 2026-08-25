@@ -252,7 +252,10 @@ until the new path list has been diffed against every row in it.
 
 | agent | path list | status |
 |---|---|---|
-| _(update at each dispatch; clear on report)_ | | |
+| fix stream K (round 4) | `app/super-admin/**` · `src/surfaces/sa/**` · `app/command-center/{cell-view,deviation-workspace,governance-gate-queue,learning-read-view,run-drill-down}/**` · `scripts/build-registries.mjs` · `registries/generated/**` · `tests/unit/sa-*.test.ts` · `tests/component/sa-*.test.tsx` · one new `tests/coverage` gate · `scripts/check-gate-ordering.mjs` | running |
+| audit stream B (round 4) | read-only; `/tmp` scratch | running |
+| audit stream C (round 4) | read-only; `/tmp` scratch | running |
+| controller | `docs/process/RESUME.md` · `docs/process/ledgers/**` · `docs/process/audits/**` | running |
 
 **When a collision happens anyway:** do not rewrite history to tidy it. Verify the tree is
 correct, commit with the attribution stated plainly, and tell any reviewer reading that diff
@@ -306,9 +309,16 @@ survive checking while the underlying work was correct.
 
 ### Rounds 1-3 of the slice-11 audit loop are closed — candidate `522b7cc`
 
-**77 findings, all dispositioned and fixed.** Round 1: 42. Round 2: 20. Round 3: 15. Round 4 is
-running and has already returned 31 across two of its three streams, so **the slice is not closed**
-— the loop ends when a round finds nothing.
+**77 findings, all dispositioned and fixed.** Round 1: 42. Round 2: 20. Round 3: 15. **The slice is
+not closed** — the loop ends when a round finds nothing, and round 4 has found things.
+
+**Round 4, and a controller defect in how it was run.** Its first stream produced `R4-01`…`R4-07`,
+dispositioned into `docs/process/audits/briefs/fix-K-round4-rendered.md` and committed at `f162511`.
+Its other two streams reported in-context and **their findings were never written to a register**, so
+they did not survive the session. A count was carried in this file — "31 across two of its three
+streams" — that nothing on disk can reproduce. **A finding that exists only in a context window is a
+finding that has not been made.** The two streams are therefore re-run rather than trusted from
+recollection, and the register is written before the fix brief from here on.
 
 Registers: `docs/process/audits/2026-08-24-slice-11-audit-dispositions.md` (round 1),
 `…-round-2-findings.md`, `2026-08-25-slice-11-audit-round-3-findings.md`.
