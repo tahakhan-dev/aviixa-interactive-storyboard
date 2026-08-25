@@ -376,9 +376,55 @@ for convicts the class, so it could not ship green while those stood, and neuter
 it worthless. **That was the right call** — a gate weakened to fit an incomplete file list is the
 build's own defect shape 10.
 
+### R4-M01 · Critical · a fourth broken title, and the measurement could not see it
+
+**Controller-verified.** `out/super-admin/core-agents-and-composed-agent-review/index.html` ships:
+
+```
+<title> — Super Admin Platform Console · AVIIXA Interactive Storyboard</title>
+```
+
+An empty module name. Same cause as R4-C01 — the page reads a binding from a `'use client'` module —
+but a **different failure mode**: R4-C01 *called* the proxy and the call threw a string into the tab;
+this page reads a *property* off the proxy, which does not throw, so it renders empty. The C01
+measurement (`grep -c Attempted` over every `<title>`) cannot see it, and neither can a value-read
+assertion, because `'use client'` is inert under Vitest — the same bytes that shipped the error
+return the correct title in a unit test.
+
+Fix stream M proved that empirically before writing its gate, and added a **static cause check**: no
+page's `metadata` or `generateMetadata` may reference a binding imported from a `'use client'`
+module. Scanned across all 87 `app/**/page.tsx`: **4 sites before, 1 after** — this one, which is
+outside M's path list. It is quarantined in `tests/unit/routes.test.ts` by equality, so the gate reds
+when it is fixed until the quarantine entry is deleted.
+
+### The brief's own figure for R4-C03 was wrong, and so was the audit's
+
+The audit reported twelve where the page should read 39. **Both are wrong; the answer is 28.**
+
+**Controller-verified.** The regex both the auditor and this controller used —
+`FB-FL-[A-Z]+-[0-9]+` — **cannot match `FB-FL-SEV1-01`**, because that family segment carries a
+digit. `FB-FL-SEV1` is one of fourteen real families in the frozen source. Matching on the plain
+prefix `FB-FL-` instead:
+
+```
+brief regex   39
+plain FB-FL-  28      # over 181 FUNC entries
+```
+
+The corrected per-module figure for the module the audit blamed is **1, not 12** — which is exactly
+what that module's own page has always disclosed ("One of this module's twenty-one"). The build was
+self-consistent; the audit's regex was not, and the controller propagated it into a fix brief without
+re-deriving it.
+
+**The lesson is the one already recorded and violated again: every count in a brief is a hypothesis.**
+This one survived an auditor, a controller and a register before an implementer re-derived it. It is
+recorded here rather than quietly corrected because the corrected number is now load-bearing in a
+gate.
+
 ---
 
 ## Round 4 totals
 
-**28 findings: 7 (stream A) + 13 (stream B) + 7 (stream C) + 1 found by a fixer.** Three Critical in
-stream B, one in stream C, two in stream A. The loop does not close on this round.
+**30 findings: 7 (stream A) + 13 (stream B) + 7 (stream C) + 2 found by fixers + 1 defective brief
+figure.** Three Critical in stream B, one in stream C, one found by a fixer. The loop does not close
+on this round.
