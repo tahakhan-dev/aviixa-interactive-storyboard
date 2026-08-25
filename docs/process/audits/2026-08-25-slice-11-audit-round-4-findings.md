@@ -210,4 +210,148 @@ freshness check reaches it either.
 
 ## Stream C — the rendered product on the other four surfaces
 
-_Pending — agent running._
+Seven findings. Coverage: the visible text of all 102 built pages extracted, the 75 in scope audited
+— Hub 20, Studio 18, Frontline 7, Command Center 8 (the pages fix stream K does not own), coverage
+15, workflows 2, review/root/404/not-found 4. Super Admin's 22 and K's five Command Center pages
+excluded by instruction.
+
+### R4-C01 · Critical · three Hub pages ship a React error message as their browser tab title
+
+**Controller-verified.** Three of the 102 built pages carry this as their `<title>`:
+
+> `function(){throw Error("Attempted to call SCREEN_TITLE() from the server but SCREEN_TITLE is on
+> the client. …")} — Delivery Operations Hub · AVIIXA Interactive Storyboard`
+
+`out/hub/audit-and-retention/`, `out/hub/multi-area-job-pairing/`, `out/hub/parts-registry/`.
+Measured by extracting `<title>` from every `index.html` under `out/` and counting the ones
+containing `Attempted` — **3**.
+
+Cause: each `page.tsx` imports `SCREEN_TITLE` from a sibling module whose first line is
+`'use client'`, so Next substitutes a throwing client-reference proxy and the template literal
+stringifies it. `app/hub/devices/page.tsx` does the same thing correctly by importing the title from
+a non-client `fixtures.ts`. The correct titles exist and are unused: *Audit log explorer*,
+*Multi-Area Job Pairing — the paired scheduling view*, *Parts registry*.
+
+**Nothing reds:** `tests/unit/routes.test.ts` asserts `metadata.title` for the five surface index
+pages only — a subset population over 102 route pages, which is round 2's shape exactly.
+
+The first bytes a client reads on three Hub pages name a framework bug. It is in the tab, the
+bookmark, the history entry and every share preview. **Smallest fix:** move `SCREEN_TITLE` out of
+the client module, and widen the metadata check from five pages to every route in the registry.
+
+### R4-C02 · Important · "nine acceptance criteria" against a chapter that has six
+
+**Controller-verified.** `/hub/shift-management/` tells a reader that an overlap refusal "appears
+nowhere in this module's own chapter — not in the matrix, not in the feature list, not in the nine
+acceptance criteria, not in the ten tests." MOD-DOH-03's chapter carries **six** acceptance criteria
+(`AC-DOH-03-1` … `-6`, whole-source unique) and **ten** tests. The tests figure is right; the
+criteria figure is not.
+
+The sentence is the page's evidence that the source under-reports its own blocking decision. A
+reader who opens the chapter to check finds six rows and stops trusting a disclosure that is
+otherwise correct.
+
+### R4-C03 · Important · a chapter-wide gap understated by 27
+
+`/frontline/profile-lite/` states that "Twelve functionalities elsewhere in this chapter name no
+`FB-FL-*` pattern". Measured over the chapter's 181 `FUNC` entries: **39**, distributed A1 1 · A2 3 ·
+A3 2 · A4 8 · A5 12 · A6 2 · A7 0 · B8 1 · B9 1 · B10 4 · B11 2 · B12 3. Twelve is A5's count alone.
+
+**The tree contradicts itself:** the eleven sibling module pages each disclose their own number
+correctly ("3 of this module's 11", "4 of the 13", …), summing to 39. The figure is a hardcoded
+literal in a template string, and the component test asserts only the sentence's first clause.
+
+The page's whole point is that the criterion has real gaps elsewhere and this module is not one of
+them. Understating the gap by 27 makes the criterion look nearly met.
+
+### R4-C04 · Important · twelve rendered citations name a sibling of their own family
+
+Every identifier/line pair rendered on the 75 in-scope pages was checked against the frozen source:
+673 distinct pairs, 638 exact, 35 within 120 lines, 0 beyond, 0 phantom. Twelve of the 35 are not the
+section idiom — **the cited line carries a different member of the same register**, with a sibling
+sitting between the identifier and the cited line:
+
+| id | cited | actual | what the cited line carries |
+|---|---|---|---|
+| FUNC-DOH-03-1.2.1 | 27349 | 27345 | FUNC-DOH-03-2.1.1 |
+| FUNC-DOH-03-1.2.2 | 27350 | 27346 | SUB-DOH-03-2.2 header |
+| FUNC-DOH-03-2.1.1 | 27351 | 27349 | FUNC-DOH-03-2.2.1 |
+| FUNC-DOH-04-1.2.1 | 27550 | 27544 | FUNC-DOH-04-2.2.1 |
+| FUNC-DOH-04-2.1.1 | 27551 | 27547 | FUNC-DOH-04-2.2.2 |
+| FUNC-DOH-04-2.1.2 | 27552 | 27548 | SUB-DOH-04-2.3 header |
+| FUNC-DOH-04-2.3.1 | 27554 | 27553 | FUNC-DOH-04-2.3.2 |
+| FUNC-DOH-04-3.1.1 | 27556 | 27557 | SUB-DOH-04-3.1 header |
+| FUNC-DOH-04-3.1.2 | 27557 | 27558 | FUNC-DOH-04-3.1.1 |
+| FUNC-DOH-04-3.1.3 | 27558 | 27559 | FUNC-DOH-04-3.1.2 |
+| FUNC-DOH-04-3.2.2 | 27561 | 27562 | FUNC-DOH-04-3.2.1 |
+| AC-28.4-01 | 52774 | 52773 | AC-28.4-02 |
+
+All twelve render in the `sourceRef` line under a control card. A reader following one lands on a
+neighbouring functionality with a different actor and a different rule — *enter a qualification*
+points at *escalate an unacknowledged expiry*. That is worse than no citation. The other 44
+citations in those two files are exact.
+
+### R4-C05 · Important · three Studio citations whose lines carry neither the identifier nor the quoted words
+
+- `FUNC-STU-06-03-A-1` cited at 32493; the rendered sentence is at **32489**. Line 32493 is a
+  happy-path step. Ships in `out/studio/instruction-blocks/`.
+- `FUNC-STU-05-02-A-1` cited at 32284; the quoted roles string is verbatim at **32286**. Line 32284
+  is the feature header and contains none of it.
+- A bare-locator quotation attributed to 34546; the quoted row is at **34545**. Line 34546 is a
+  different row whose final cell is also `Allowed with conditions`, which is why the substitution
+  reads correctly.
+
+All three corroborate a Derived Clarification about who holds an implementation grant and who may
+block a publication. The evidence a reader is pointed at does not say it.
+
+### R4-C06 · Important · the citation gate narrowed its own population three times, and C04 and C05 are what fit through
+
+Replaying `tests/coverage/citation-graph.test.ts` exactly reproduces its figures: 2,129 citations,
+1,960 known, 1,856 exact, 73 within-section, 31 uncorroborated, 12 uncorroborated in code. Three
+holes, each measured:
+
+1. **`withinSection` passes any citation up to 120 lines after an occurrence of its identifier.**
+   Seven of C04's twelve are one to six lines after, and are absolved by it. Adding one predicate —
+   reject when the cited line itself carries a different identifier sharing the citation's family
+   prefix — convicts all seven and convicts none of the documented-correct section/row cases.
+2. **The code population is capped at ≤20 and named nowhere**, where the prose population is named
+   exhaustively. Occupancy is 12, so eight wrong citations can land silently — and four of the twelve
+   current occupants are C04 defects sitting inside the allowance right now.
+3. **A citation whose identifier is absent from `blueprint-locators.json` is dropped, not checked.**
+   In `src/` and `app/` alone that is 75 wholly ungraded claims: 64 exact, 9 non-exact, and **two
+   naming identifiers that occur nowhere in the frozen source** (in `app/super-admin/**`, so handed
+   to fix stream K rather than reported here). Both of C05's citations are in this unchecked set.
+
+The gate reports a strong number over a population it silently narrowed three times.
+
+### R4-C07 · Minor · an em dash becomes a comma inside quotation marks
+
+`/hub/permissions-roles-and-access/` renders: `The register row … reads "Read-only, own scope"`. The
+row reads `` `Read-only` — own scope ``. Not the markdown-stripping the earlier fix accounts for —
+backtick removal alone yields the em dash. Same shape fix stream K is correcting on Super Admin.
+
+### What reproduced clean — no finding
+
+- **Citations:** 673 distinct pairs across 75 pages; 0 beyond reach, 0 naming an absent identifier.
+- **Quotations:** 742 distinct quoted strings verbatim-checked; of 25 flagged pairs, 22 were the
+  auditor's own extractor mis-pairing a citation list, and 3 are C05/C07.
+- **Line-range and row-count claims:** 178 extracted; every matrix claim reproduced by counting body
+  rows off the cited header.
+- **Big figures:** 378 distinct event tokens with their per-family splits; both notification
+  registers; 19+19+18+13+12 = 81 modules; 15 Hub commands; and the abstention that a test family is
+  cited zero times, confirmed at zero.
+- **Abstentions:** 429 candidate absence claims; the 14 asserting an identifier is absent were each
+  opened at the cited line and all 14 are correct.
+- **The export:** 0 dangling internal hrefs across 102 pages; 0 `NaN`, `[object Object]`, unresolved
+  template literals or placeholder text; 102/102 correct meta descriptions; 73 of 73 rendered file
+  paths resolve on disk.
+
+**Not reached:** Super Admin and K's five Command Center pages (by instruction); `out/_next/**` chunk
+contents; per-cell permission-matrix content, swept in rounds 2 and 3.
+
+---
+
+## Round 4 totals
+
+**27 findings: 7 (stream A) + 13 (stream B) + 7 (stream C).** Three Critical in stream B, one in
+stream C, two in stream A. The loop does not close on this round.
