@@ -10,7 +10,8 @@ Rounds 1–5 found 127 and all are closed. **The loop ends when a round finds no
 
 ## Stream A — the content round 5 newly built, and the reasoning it recorded
 
-Six findings. **Two of them are a fix stream's own recorded reasoning, refuted by measurement.** That
+Seven findings — the agent's own header said six and listed seven; counted from the list. **Two of
+them are a fix stream's own recorded reasoning, refuted by measurement.** That
 is a shape neither round 4 nor round 5 produced, and it is the one worth carrying: when a fixer
 declines to change something and writes down why, the *why* is a claim like any other and nothing
 was checking it.
@@ -285,7 +286,14 @@ frozen registries.
 
 ## Round 6 totals
 
-**14 findings: 6 (stream A) + 8 (stream B). Three Critical.** The loop does not close.
+**15 findings: 7 (stream A) + 8 (stream B). Three Critical.** The loop does not close.
+
+**A count correction, and it is the round's own shape.** Stream A's report headed itself "Six
+findings" and listed seven — `R6-A01` … `-A05`, `R6-C01`, `R6-C02` — and this register copied the
+header rather than counting the list. That is precisely `R6-B06`'s complaint about round 5's
+register declaring three Critical while carrying four headings, and precisely `R6-A01`'s and
+`R6-A02`'s defect: a stated split that does not match the enumeration beside it. **Counted from the
+list, not from the header.**
 
 **Stream A's shape was a fixer's recorded reasoning refuted by measurement. Stream B's is larger: the
 process-evidence layer is the one part of this build that has never been audited, and it is the part
