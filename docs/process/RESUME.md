@@ -19,6 +19,60 @@ claiming a production capability it only simulates.
 The governing instruction is the master prompt in the client's first message. The single
 source of **product facts** is the frozen blueprint.
 
+## 1a. THE PIVOT — read before anything below it, because it re-orders the whole run
+
+**On 2026-08-26 the client re-issued the master prompt with six materially new sections, and
+none of the seventeen prior approvals was given against them.** They are §2.3
+live-verification-only testing, §8.6.2 product fidelity, §10.6 the guided-tour engine, §12.6 the
+JSON-file database, §24.2 workflow-driven shipping, and §24.3 remediation of a prior partial
+build. §24.3 requires the existing routes be audited against §8.6.2 **before anything new is
+added**, so it re-orders this run ahead of §8's position below.
+
+**The §24.3 audit was run and it convicts the shipped presentation layer.** Measured across
+`app/`: **107 of 154 components render blueprint line locators as page content**, 76 carry
+narrative paragraphs as their body, 23 carry bullet lists. The rendered Tenants page opens with
+`Screen annotations only, never route keys (D1): SCR-SA-14 … (L42806, L42807)` above a
+screen-state radio group used as page furniture. It fails all three §8.6.2 litmus tests.
+
+**The second measurement reframes the work and is the number to carry.** The fourteen registries
+hold **5,015 census rows: 4,684 not-represented, 299 demonstrated, 22 not-applicable, 10
+mounted-elsewhere.** 79 of 81 modules have a route and **21 of 990 functions do**. This is not a
+restyle of 107 screens — it is building the product, with the 102 routes as scaffolding.
+
+**Two new approvals govern.** **APP-017** — approach A, the product-shell swap: keep the domain,
+policy evaluators, state machines and all fourteen registries; rebuild every screen body as real
+product user interface over a §12.6 JSON collection set behind one repository; relocate every
+rendered locator into the registry and §10.6 tour narration rather than deleting it. And the
+testing pivot: **no new test case is written anywhere**, the 324 existing suites are retained but
+**demoted** — they are no longer release evidence — and a suite asserting a deleted document-style
+rendering is deleted with its screen rather than repaired. Release evidence is the
+**Live-Verification Ledger**: real Chrome through the Chrome MCP server.
+**APP-018** — the client withdrew themselves as a decision-maker for the remainder. **Ask them
+nothing.** Every open choice is the controller's, on the standard of what is best for production.
+Research order, named by the client and binding: **blueprint first; only if it does not answer,
+internet R&D; never back to the client.** This released the spec-review gate and the S3
+execution-mode question. It did **not** release independent review or fresh verification.
+
+The two limits that survive every delegation are unchanged and are not the controller's to waive:
+an unresolved **source** decision is disclosed on screen with its alternatives and the
+controller's pick labelled a client-delegated choice, and **no production capability is claimed
+that is only simulated.**
+
+**Where the pivot lives.** Design: `docs/superpowers/specs/2026-08-26-product-fidelity-rebuild-design.md`.
+Runway plan (nineteen tasks): `docs/superpowers/plans/2026-08-26-runway.md`. Ledger and preflight
+rulings R1-R9: `.superpowers/sdd/2026-08-26-runway/progress.md`.
+
+**What the pivot does NOT cancel:** the owed slice-11 audit round 8, slices 12 and 13, and the
+closing obligation of §9. §24.3 puts the fidelity rebuild in front of them; it removes nothing.
+
+**And a finding recorded on the way in.** §8 below states round 7's chain was "recorded in
+`docs/process/2026-08-25-slice-11-round-7-verification.md` with exact commands and counts". **That
+file does not exist.** The newest verification record on disk is round 2's. §8 is left as found so
+the discrepancy stays visible, and it is carried into the round-8 register. Session entry also
+found 35 modified files and one untracked gate uncommitted — fix streams V, W and X, whose session
+ended mid-flight — preserved at `76a0da2` with typecheck and lint verified on those bytes and
+everything else explicitly not re-driven.
+
 ## 2. The frozen source — verify this before trusting anything derived from it
 
 ```
