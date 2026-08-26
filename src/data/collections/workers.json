@@ -1,7 +1,7 @@
 [
   {
     "id": "WRK-MAYA",
-    "userId": "USR-MAYA",
+    "userId": "USR-BB-WKR-01",
     "tenantId": "TEN-BRIGHTBIKES",
     "workerType": "employee",
     "instructionDifficultyProfile": "standard",
