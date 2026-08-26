@@ -14,10 +14,21 @@
 // `lintText` runs every case in-process against the real production config
 // in well under a second combined.
 //
-// This rule has needed two review rounds already (task-8-report.md, "Fix
-// round 1" and "Fix round 2") and every later task depends on it holding.
-// This script is what keeps it holding going forward: it's wired into
-// `pnpm verify` (see package.json, "check:boundary-rules").
+// This rule has needed three review rounds already (task-8-report.md, "Fix
+// round 1", "Fix round 2", "Fix round 3") and every later task depends on
+// it holding. This script is what keeps it holding going forward: it's
+// wired into `pnpm verify` (see package.json, "check:boundary-rules").
+//
+// Fix round 3: every case is checked with `ESLint#isPathIgnored` before
+// `lintText` runs. Without this, a case whose virtual file path happens to
+// fall under a global `ignores` glob (eslint.config.mjs's top block:
+// out/**, .next/**, node_modules/**, graphify-out/**, the .zz-probe-*
+// globs) would come back from `lintText` with no messages carrying our
+// rule id -- indistinguishable, to the old check, from "the rule correctly
+// stayed silent." That is a vacuous pass: the file was never actually
+// linted. This is the exact defect class this whole task exists to guard
+// against, and it was latent (untriggered, since no case's path matched a
+// current global ignore) in the harness meant to prevent it.
 import { ESLint } from 'eslint'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -104,6 +115,12 @@ const cases = [
     code: `export { DemoChrome } from '../demo/DemoChrome'\n`,
     mustFail: true,
   },
+  {
+    name: 'src/data/** importing demo tree must fail (fix round 3)',
+    file: 'src/data/demo_relay.ts',
+    code: `export { DemoChrome } from '../ui/demo/DemoChrome'\n`,
+    mustFail: true,
+  },
 
   // --- collections restriction, nested path outside src/data ---
   {
@@ -125,6 +142,12 @@ const cases = [
     name: 'src/data importing its own collections is allowed',
     file: 'src/data/boot.ts',
     code: `import tenants from './collections/tenants.json'\nexport { tenants }\n`,
+    mustFail: false,
+  },
+  {
+    name: 'src/data/** (nested) importing its own collections is still allowed after the split (fix round 3)',
+    file: 'src/data/nested/z.ts',
+    code: `import tenants from '../collections/tenants.json'\nexport { tenants }\n`,
     mustFail: false,
   },
 
@@ -154,8 +177,28 @@ for (const c of cases) {
   const filePath = path.join(ROOT, c.file)
   // Sequential (not Promise.all) for readable failure output in case order;
   // total cost is well under a second either way.
+
+  // Guard against a vacuous pass: a case whose path happens to fall under a
+  // global `ignores` glob would never actually be linted, and a
+  // `mustFail: false` case would then "pass" for the wrong reason -- the
+  // rule wasn't silent, the file was never checked. isPathIgnored answers
+  // this directly rather than inferring it from lintText's messages.
+  const ignored = await eslint.isPathIgnored(filePath)
+  if (ignored) {
+    failures++
+    console.error(
+      `FAIL  [config] ${c.name} (${c.file}) -- path is ignored by eslint.config.mjs; ESLint never linted it, so this case proves nothing`,
+    )
+    continue
+  }
+
   const results = await eslint.lintText(c.code, { filePath })
-  const messages = results[0]?.messages ?? []
+  if (results.length === 0) {
+    failures++
+    console.error(`FAIL  [config] ${c.name} (${c.file}) -- lintText returned zero results; no lint actually ran`)
+    continue
+  }
+  const messages = results[0].messages
   const fired = messages.some((m) => m.ruleId === RULE)
   const ok = fired === c.mustFail
   const label = c.mustFail ? 'must fail' : 'must pass'

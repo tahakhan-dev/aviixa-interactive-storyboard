@@ -22,20 +22,38 @@
 // -- one AST walk covers all of these, which a string-pattern rule cannot
 // do in one place.
 //
-// Case sensitivity (fix round 2): `path.relative`/`path.resolve` are pure
-// string operations and do not know whether the underlying filesystem
-// treats `Demo/` and `demo/` as the same directory. macOS (this team's
-// platform) and Windows default to case-INsensitive filesystems, where
-// `@/ui/Demo/DemoChrome` resolves to the exact same file as
-// `@/ui/demo/DemoChrome` and must be caught; Linux is case-sensitive by
+// Case sensitivity (fix round 2, hardened in fix round 3): `path.relative`/
+// `path.resolve` are pure string operations and do not know whether the
+// underlying filesystem treats `Demo/` and `demo/` as the same directory.
+// macOS (this team's platform) and Windows default to case-INsensitive
+// filesystems, where `@/ui/Demo/DemoChrome` resolves to the exact same file
+// as `@/ui/demo/DemoChrome` and must be caught; Linux is case-sensitive by
 // default, where they are genuinely different directories and conflating
 // them could wrongly block a legitimate import. Rather than assume from
 // `process.platform` (a mounted case-sensitive APFS volume on macOS, or a
 // case-sensitive bind mount on Windows, would make that assumption wrong),
 // this probes the ACTUAL filesystem once at module load: does this very
 // file resolve under an upper-cased and a lower-cased version of its own
-// path? Only if both do is the comparison lower-cased; otherwise it stays
-// exact, so Linux keeps `Demo/` and `demo/` distinct.
+// path?
+//
+// Fix round 3: the probe fails CLOSED, not open. The only outcome that
+// turns OFF the stricter lower-cased comparison is POSITIVE PROOF this
+// filesystem distinguishes case -- the lower-cased variant resolves (it's
+// this file's own actual path, lower-cased) while the upper-cased variant
+// does not. Every other outcome -- both resolve, neither resolves, or the
+// probe itself throws (a thrown `existsSync`, or the rule file having been
+// bundled/relocated so `THIS_FILE` no longer resolves at either case) --
+// is treated as case-INsensitive, i.e. the STRICTER comparison stays on.
+// That direction is deliberate: guessing case-insensitive when the
+// filesystem is actually case-sensitive costs a false positive on Linux --
+// blocking an import into a genuinely distinct `Demo/` directory, a
+// situation that does not arise anywhere in this repository today and
+// would be loud (a lint error) if it ever did. Guessing case-sensitive
+// when the filesystem is actually case-insensitive costs a silent hole: it
+// turns off lowercasing and reopens the exact case-variant evasion this
+// round exists to close, quietly, on precisely the platforms (macOS,
+// Windows CI) where the team actually runs `pnpm lint`. When the probe
+// can't answer, the safe answer is the strict one.
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -45,9 +63,15 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const THIS_FILE = fileURLToPath(import.meta.url)
 const CASE_INSENSITIVE_FS = (() => {
   try {
-    return fs.existsSync(THIS_FILE.toUpperCase()) && fs.existsSync(THIS_FILE.toLowerCase())
+    const upperExists = fs.existsSync(THIS_FILE.toUpperCase())
+    const lowerExists = fs.existsSync(THIS_FILE.toLowerCase())
+    // Proven case-sensitive iff the actual-case (lower-cased) path resolves
+    // while the differently-cased (upper-cased) variant does not. Anything
+    // short of that proof fails toward case-insensitive -- see header.
+    const provenCaseSensitive = lowerExists && !upperExists
+    return !provenCaseSensitive
   } catch {
-    return false
+    return true
   }
 })()
 
