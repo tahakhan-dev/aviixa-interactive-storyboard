@@ -1,0 +1,971 @@
+/**
+ * Task 7 (`src/data/repository.ts`) — the only door to business truth.
+ * Master prompt §12.6: replacing the JSON database with a real API later
+ * changes this one file, not the 154 screens that read through it.
+ *
+ * Write order, exactly as the brief states it, extended by Fix round 1 for
+ * §12.4: truth-store authority (`@/data/truth-stores`) → `evaluateAccess`
+ * (`@/policy/evaluate`, never a second permission check) → the
+ * `PersistenceCapability` action-class gate (`@/persistence/capability`,
+ * blocking every durable action class outright unless storage is
+ * `ready-durable`) → state-machine legality (`stateMachineLegality` below,
+ * delegating to the real tables in `@/frontline/capture` and
+ * `@/domain/vocabularies` rather than inventing one) → commit the next
+ * collection snapshot plus the new audit/event rows in ONE IndexedDB
+ * transaction (`commitToPersistence`, reusing `openDatabase`/`STORES`/
+ * `errorMessage` from `@/persistence/schema` — the same low-level bridge
+ * `boot.ts` already opens through `bootstrapStorage`, not a second
+ * persistence path) → only once that transaction's `oncomplete` fires does
+ * the in-memory store mutate and `notify()` fire. A denial or a persistence
+ * failure at any stage returns `{ ok: false }` and mutates nothing.
+ *
+ * `create`/`update`/`transition` are therefore `Promise`-returning — that is
+ * the one interface change Fix round 1 makes, because "commit, then
+ * publish" cannot be expressed synchronously and the brief's original
+ * synchronous signature made §12.4's commit contract unimplementable. Reads
+ * (`list`/`get`) stay synchronous: they serve rendering and must not force
+ * every screen to await.
+ *
+ * READS run a lighter, deliberately different check (`withinScope`, below)
+ * rather than `evaluateAccess` itself, and this is unchanged from the
+ * original cut — Fix round 1 confirms it rather than revising it.
+ * `evaluateAccess`'s suspension stage denies EVERY action for a tenant
+ * whose lifecycle is suspended, and its own reason text says why: "so
+ * actions that create or change work are refused" — reads are not an
+ * action in that sense. This matches what the build already established
+ * two tasks ago for the Hub surface: hard suspension gates WRITES and lets
+ * the floor keep READING (`@/surfaces/doh/tenant-state.ts` and the access
+ * evaluator's own `TENANT_SUSPENDED` reason text agree on exactly this
+ * split). `TEN-NORTHFORGE` (soft-suspended in the seed) still needing to
+ * see its own tenant's rows is exactly the case that split describes.
+ * `withinScope` reuses the SAME two questions `evaluateAccess`'s own
+ * TENANT_ISOLATION and SCOPE stages ask — does this row's tenant match the
+ * actor's, does this row's site/area sit inside the actor's declared scope
+ * — without also asking the action-shaped questions (suspension,
+ * entitlement, safety, segregation of duties) that a plain list/get was
+ * never going to need answered.
+ */
+import { z } from 'zod'
+import { COLLECTIONS, type CollectionName } from './schemas'
+import type { Event as EventRow, Audit as AuditRow } from './schemas/crosscutting'
+import type { CollectionData, Store } from './store'
+import { truthStoreFor, writableThroughRepository, type TruthStoreAuthority } from './truth-stores'
+import { roleById, type RoleId } from '@/domain/roles'
+import type { SurfaceId } from '@/domain/surfaces'
+import {
+  emptyDomainState,
+  type ScenarioDomainState,
+  type TenantPartition,
+} from '@/domain/state'
+import { scenarioRunId, tenantId as brandTenantId } from '@/domain/ids'
+import { evaluateAccess, type AccessContext, type AccessRequest } from '@/policy/evaluate'
+import { deny, permitsAction, type PermissionDecision } from '@/policy/decision'
+import { captureTransition, type CaptureState } from '@/frontline/capture'
+import {
+  SCHEDULE_DEFINITION_TRANSITIONS,
+  SCHEDULE_OCCURRENCE_TRANSITIONS,
+  type ScheduleDefinitionState,
+  type ScheduleOccurrenceState,
+} from '@/domain/vocabularies'
+import { errorMessage, openDatabase, STORES } from '@/persistence/schema'
+import { permittedUnder, type ActionClass } from '@/persistence/capability'
+import type { StorageBootstrapState } from '@/persistence/bootstrap'
+
+export type { AccessContext } from '@/policy/evaluate'
+
+/** The row shape for one collection, derived from its own zod schema — never redeclared. */
+export type RowOf<N extends CollectionName> = z.infer<(typeof COLLECTIONS)[N]['schema']>
+
+/**
+ * Reused, not redrawn: OBJ-024/OBJ-083's own folded schema
+ * (`@/data/schemas/crosscutting#Event`) IS the domain-event row shape, and
+ * OBJ-084's own schema (`#Audit`) IS the audit-event row shape. A
+ * `WriteResult`'s `events`/`audit` arrays are literal rows of these two
+ * types — the exact rows this call also appended to the `events`/`audit`
+ * collections — so they can never disagree with what a later `list('audit',
+ * ctx)` shows, which is the trap Task 5 paid for (facts drawn beside each
+ * other instead of derived once).
+ */
+export type DomainEvent = EventRow
+export type AuditEvent = AuditRow
+
+export interface Query<T> {
+  where(pred: (row: T) => boolean): Query<T>
+  sort(key: keyof T & string, dir?: 'asc' | 'desc'): Query<T>
+  page(index: number, size: number): Query<T>
+  all(): readonly T[]
+  first(): T | undefined
+  count(): number
+  /** Count before paging — the pagination control needs both this and `count()`. */
+  total(): number
+}
+
+/** §12.4: `ready-durable` versus everything else, exposed so a screen can render it rather than guess. */
+export interface PersistenceCapability {
+  readonly state: StorageBootstrapState
+  readonly durable: boolean
+}
+
+export interface Repository {
+  list<N extends CollectionName>(name: N, ctx: AccessContext): Query<RowOf<N>>
+  get<N extends CollectionName>(name: N, id: string, ctx: AccessContext): RowOf<N> | undefined
+  create<N extends CollectionName>(name: N, row: RowOf<N>, ctx: AccessContext): Promise<WriteResult<RowOf<N>>>
+  update<N extends CollectionName>(
+    name: N,
+    id: string,
+    patch: Partial<RowOf<N>>,
+    ctx: AccessContext,
+  ): Promise<WriteResult<RowOf<N>>>
+  transition<N extends CollectionName>(
+    name: N,
+    id: string,
+    to: string,
+    ctx: AccessContext,
+  ): Promise<WriteResult<RowOf<N>>>
+  subscribe(listener: () => void): () => void
+  reset(): void
+  exportJson(): Record<CollectionName, unknown[]>
+  importJson(data: unknown): { ok: true } | { ok: false; problems: string[] }
+  /** The current §12.4 durability state. Enforced HERE (the capability gate below), never left to a screen to check. */
+  persistenceCapability(): PersistenceCapability
+}
+
+/**
+ * Fix round 1: a THIRD, distinguishable failure shape. "You may not do
+ * this" (`kind: 'denied'`, a real `PermissionDecision`) and "this could not
+ * be made durable" (`kind: 'persistence-unavailable'`) lead to different
+ * screens and different user recourse, and the original two-armed union
+ * could not tell them apart — a caller had no way to know whether a denial
+ * was about identity/scope or about storage.
+ */
+export type WriteResult<T> =
+  | { ok: true; row: T; events: DomainEvent[]; audit: AuditEvent[]; affectedSurfaces: SurfaceId[] }
+  | { ok: false; kind: 'denied'; decision: PermissionDecision; reason: string; explain: string }
+  | {
+      ok: false
+      kind: 'persistence-unavailable'
+      reason: string
+      explain: string
+      capability: PersistenceCapability
+    }
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * Query
+ * ────────────────────────────────────────────────────────────────────── */
+
+/**
+ * `filtered` is the row set after every `where()`/`sort()` so far, BEFORE
+ * paging. `paged` is null until `page()` is called; once set, `all()`/
+ * `count()` read the page while `total()` still reads `filtered.length` —
+ * this is the whole answer to "`total()` before paging, `count()` for the
+ * current page." Trap #1 from the brief: an unfiltered `list()`'s `total()`
+ * compared against a filtered call's `total()` is how a caller tells "no
+ * rows exist" apart from "rows exist but none match the filter" — both
+ * render `all()` as `[]`, but only one of them also reports the wider
+ * `total()` as zero.
+ */
+class QueryImpl<T> implements Query<T> {
+  private constructor(
+    private readonly filtered: readonly T[],
+    private readonly paged: readonly T[] | null,
+  ) {}
+
+  static from<T>(rows: readonly T[]): QueryImpl<T> {
+    return new QueryImpl(rows, null)
+  }
+
+  where(pred: (row: T) => boolean): Query<T> {
+    return new QueryImpl(this.filtered.filter(pred), null)
+  }
+
+  sort(key: keyof T & string, dir: 'asc' | 'desc' = 'asc'): Query<T> {
+    const factor = dir === 'asc' ? 1 : -1
+    const sorted = [...this.filtered].sort((a, b) => {
+      const av = a[key]
+      const bv = b[key]
+      if (av === bv) return 0
+      if (av === null || av === undefined) return 1
+      if (bv === null || bv === undefined) return -1
+      if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * factor
+      return String(av) < String(bv) ? -1 * factor : 1 * factor
+    })
+    return new QueryImpl(sorted, null)
+  }
+
+  page(index: number, size: number): Query<T> {
+    const start = index * size
+    return new QueryImpl(this.filtered, this.filtered.slice(start, start + size))
+  }
+
+  all(): readonly T[] {
+    return this.paged ?? this.filtered
+  }
+
+  first(): T | undefined {
+    return this.all()[0]
+  }
+
+  count(): number {
+    return this.all().length
+  }
+
+  total(): number {
+    return this.filtered.length
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * Read-visibility scoping
+ * ────────────────────────────────────────────────────────────────────── */
+
+function asRecord(row: unknown): Record<string, unknown> {
+  return row as Record<string, unknown>
+}
+
+function rowTenantOf(name: CollectionName, row: Record<string, unknown>): string | null {
+  // `tenants` rows ARE the tenant — there is no separate `tenantId` field
+  // to read (`@/data/schemas/platform#Tenant`).
+  if (name === 'tenants') return typeof row.id === 'string' ? row.id : null
+  return typeof row.tenantId === 'string' ? row.tenantId : null
+}
+
+/**
+ * The read-time reading of `evaluateAccess`'s TENANT_ISOLATION and SCOPE
+ * stages (see this file's header for why the full evaluator is not called
+ * for a plain read). An identity with an EMPTY `siteScope`/`areaScope`
+ * reads as carrying no restriction on that dimension at all — exactly what
+ * a Read-only Auditor's or Tenant Admin's role-grant carries (no
+ * `siteIds`/`areaIds`), the same reading `evaluateAccess`'s own SCOPE stage
+ * gives an undeclared `requiredSites`/`requiredAreas`: an absent
+ * constraint is never a narrower one than a declared, matching one.
+ */
+function withinScope(name: CollectionName, row: Record<string, unknown>, ctx: AccessContext): boolean {
+  const { identity } = ctx
+  if (!identity.signedIn || identity.role === null) return false
+  const domain = roleById(identity.role).domain
+
+  const rowTenant = rowTenantOf(name, row)
+  if (domain === 'TENANT') {
+    if (identity.tenant === null) return false
+    // A row with no tenant field at all (e.g. `roles`, a platform-global
+    // vocabulary) is visible to every signed-in identity; a row that DOES
+    // carry a tenant must match the actor's own — `evaluateAccess`'s
+    // CRITICAL 1 tenant-isolation rule, read for a query instead of a command.
+    if (rowTenant !== null && rowTenant !== identity.tenant) return false
+  }
+  // PLATFORM-domain identities are not narrowed by tenant here: they read
+  // across tenants through a named access session, matching
+  // `evaluateAccess`'s own PLATFORM branch.
+
+  const siteVal = row.siteId
+  if (typeof siteVal === 'string' && identity.siteScope.length > 0 && !identity.siteScope.includes(siteVal)) {
+    return false
+  }
+  const areaVal = row.areaId
+  if (typeof areaVal === 'string' && identity.areaScope.length > 0 && !identity.areaScope.includes(areaVal)) {
+    return false
+  }
+  return true
+}
+
+function rowId(row: Record<string, unknown>): string {
+  const id = row.id
+  return typeof id === 'string' ? id : ''
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * Write authorisation
+ * ────────────────────────────────────────────────────────────────────── */
+
+const TENANT_OPERATIONAL_WRITERS: readonly RoleId[] = ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER']
+const FRONTLINE_WRITERS: readonly RoleId[] = ['WORKER', 'SUPERVISOR', 'QUALITY_MANAGER']
+const PLATFORM_WRITERS: readonly RoleId[] = ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER']
+const COMMAND_ISSUERS: readonly RoleId[] = ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER']
+
+/**
+ * The generic write door's own default role policy, keyed by truth-store
+ * authority. This is deliberately the BROAD authority boundary this task
+ * owns ("no collection write bypasses truth-store + role + scope"), not a
+ * per-collection, per-action permission matrix — the narrower per-command
+ * rules `@/kernel/reduce.ts`'s `SPECS` already carry for the twelve Hub
+ * commands sit on top of, and never below, this floor.
+ */
+function defaultWriteRoles(authority: TruthStoreAuthority): readonly RoleId[] {
+  switch (authority) {
+    case 'hub':
+    case 'studio':
+      return TENANT_OPERATIONAL_WRITERS
+    case 'device-local':
+      return FRONTLINE_WRITERS
+    case 'platform':
+      return PLATFORM_WRITERS
+    case 'command-queue':
+      return COMMAND_ISSUERS
+    case 'audit':
+    case 'telemetry':
+    case 'cc-projection':
+    case 'review':
+      return []
+  }
+}
+
+function affectedSurfacesFor(authority: TruthStoreAuthority): readonly SurfaceId[] {
+  switch (authority) {
+    case 'hub':
+      return ['SURF-DOH', 'SURF-CC']
+    case 'studio':
+      return ['SURF-STU', 'SURF-DOH', 'SURF-CC']
+    case 'device-local':
+      return ['SURF-FL', 'SURF-DOH']
+    case 'command-queue':
+      return ['SURF-CC', 'SURF-DOH', 'SURF-FL']
+    case 'platform':
+      return ['SURF-SA']
+    case 'audit':
+    case 'telemetry':
+    case 'cc-projection':
+    case 'review':
+      return []
+  }
+}
+
+/**
+ * Fix round 1, §12.4: which `ActionClass` (`@/persistence/capability`) a
+ * write against this collection represents, for the `ready-durable` vs.
+ * `ephemeral-preview` gate. Every class below is in that module's own
+ * `DURABLE_ACTIONS` set, so every write this repository can perform is
+ * blocked outright unless storage is fully durable — exactly what §12.4
+ * requires ("block every action representing durable evidence, a required
+ * audit, capture acceptance, queue or command acceptance, approval,
+ * publication, release, hold, synchronisation, or an authoritative
+ * lifecycle change").
+ */
+function actionClassFor(name: CollectionName, authority: TruthStoreAuthority): ActionClass {
+  if (name === 'holds') return 'hold'
+  switch (authority) {
+    case 'device-local':
+      return 'captureAcceptance'
+    case 'command-queue':
+      return 'queueAcceptance'
+    case 'studio':
+      return 'publication'
+    case 'platform':
+      return 'lifecycleChange'
+    case 'hub':
+    case 'audit':
+    case 'telemetry':
+    case 'cc-projection':
+    case 'review':
+      return 'requiredAudit'
+  }
+}
+
+function authorizeWrite(
+  name: CollectionName,
+  authority: TruthStoreAuthority,
+  action: 'create' | 'update' | 'transition',
+  row: Record<string, unknown>,
+  ctx: AccessContext,
+): PermissionDecision {
+  const rowTenant = rowTenantOf(name, row)
+  const siteId = typeof row.siteId === 'string' ? row.siteId : undefined
+  const areaId = typeof row.areaId === 'string' ? row.areaId : undefined
+
+  const req: AccessRequest = {
+    action: `${action.toUpperCase()} ${name}`,
+    allowedRoles: defaultWriteRoles(authority),
+    sourceRefs: ['§12.5', '§12.6', 'repository.ts'],
+    ...(rowTenant !== null ? { resourceTenant: brandTenantId(rowTenant) } : {}),
+    ...(siteId !== undefined && ctx.identity.siteScope.length > 0 ? { requiredSites: [siteId] } : {}),
+    ...(areaId !== undefined && ctx.identity.areaScope.length > 0 ? { requiredAreas: [areaId] } : {}),
+  }
+  return evaluateAccess(req, ctx)
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * State-machine legality
+ * ────────────────────────────────────────────────────────────────────── */
+
+type TransitionRuling =
+  | { readonly allowed: true; readonly field: string }
+  | { readonly allowed: false; readonly reason: string }
+
+/**
+ * Delegates to the REAL, already-wired state machines: `captureTransition`
+ * (`@/frontline/capture`, the fifteen edges the frozen source's own
+ * diagram draws) for `captures`, and the definition/occurrence transition
+ * tables (`@/domain/vocabularies`) for `schedules`. No other collection in
+ * this build has a legality graph the source actually states, and this
+ * function refuses rather than invent one — a fabricated graph would pass
+ * every type check while deciding a question nobody sourced (the brief's
+ * own trap #3: a `transition()` that returns `{ ok: true }` without really
+ * consulting a state machine).
+ *
+ * This gap is recorded debt, not a TODO for this file: each §24.2
+ * workflow unit registers the machine for the collections it actually
+ * drives, against the source, once it has the screens that need it.
+ */
+function stateMachineLegality(name: CollectionName, row: Record<string, unknown>, to: string): TransitionRuling {
+  if (name === 'captures') {
+    const from = row.status as CaptureState
+    const ruling = captureTransition(from, to as CaptureState)
+    return ruling.allowed ? { allowed: true, field: 'status' } : { allowed: false, reason: ruling.reason }
+  }
+  if (name === 'schedules') {
+    if (row.kind === 'definition') {
+      const from = row.status as ScheduleDefinitionState
+      const edge = SCHEDULE_DEFINITION_TRANSITIONS.find(
+        (t) => (t.from as readonly string[]).includes(from) && t.to === to,
+      )
+      return edge
+        ? { allowed: true, field: 'status' }
+        : {
+            allowed: false,
+            reason: `"${from}" to "${to}" is not an edge the schedule-definition state ladder draws (@/domain/vocabularies).`,
+          }
+    }
+    if (row.kind === 'occurrence') {
+      const from = row.status as ScheduleOccurrenceState
+      const edge = SCHEDULE_OCCURRENCE_TRANSITIONS.find(
+        (t) => (t.from as readonly string[]).includes(from) && t.to === to,
+      )
+      return edge
+        ? { allowed: true, field: 'status' }
+        : {
+            allowed: false,
+            reason: `"${from}" to "${to}" is not an edge the schedule-occurrence state ladder draws (@/domain/vocabularies).`,
+          }
+    }
+  }
+  return {
+    allowed: false,
+    reason: `No state machine is registered for "${name}" in this build — transition() refuses rather than guess a legality graph the source does not state.`,
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * Scenario state, for the tenant-isolation/suspension stages evaluateAccess needs
+ * ────────────────────────────────────────────────────────────────────── */
+
+const TENANT_LIFECYCLE_MAP: Readonly<Record<string, TenantPartition['lifecycleState']>> = {
+  invited: 'PROVISIONING',
+  pilot: 'PROVISIONING',
+  active: 'ACTIVE',
+  'soft-suspended': 'SOFT_SUSPENDED',
+  'hard-suspended': 'HARD_SUSPENDED',
+  'compliance-suspended': 'COMPLIANCE_SUSPENDED',
+  // Still operating while its tier changes -- not a suspension.
+  'pending-downgrade': 'ACTIVE',
+  archived: 'ARCHIVED',
+}
+
+/**
+ * Projects the `tenants`/`feature-controls` collections into the
+ * `ScenarioDomainState` shape `evaluateAccess` reads for tenant-isolation
+ * and feature/suspension checks — derived from the collections' own truth
+ * every time it is called, never a second copy of it. Exported so a caller
+ * building an `AccessContext` (the scratch route, and any future screen)
+ * does not have to re-derive this mapping itself.
+ */
+export function scenarioStateFor(store: Store): ScenarioDomainState {
+  const base = emptyDomainState(scenarioRunId('RUN-data-repository'))
+  const tenantRows = store.get('tenants') as readonly { id: string; lifecycle: string; tier: string }[]
+  const featureRows = store.get('feature-controls') as readonly {
+    featureKey: string
+    platformDefault: boolean
+    globallyDisabled: boolean
+    tenantDesired: Record<string, boolean>
+  }[]
+
+  const featureControls: Record<string, boolean> = {}
+  for (const f of featureRows) featureControls[f.featureKey] = f.globallyDisabled ? false : f.platformDefault
+
+  const tenants: Record<string, TenantPartition> = Object.create(null) as Record<string, TenantPartition>
+  for (const t of tenantRows) {
+    const desiredFeatureValues: Record<string, boolean> = {}
+    for (const f of featureRows) {
+      const desired = f.tenantDesired[t.id]
+      if (desired !== undefined) desiredFeatureValues[f.featureKey] = desired
+    }
+    tenants[t.id] = {
+      displayName: t.id,
+      lifecycleState: TENANT_LIFECYCLE_MAP[t.lifecycle] ?? 'ACTIVE',
+      desiredFeatureValues,
+      tier: t.tier,
+      objects: {},
+    }
+  }
+
+  return { ...base, platform: { ...base.platform, featureControls }, tenants }
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * §12.4 persistence — one IndexedDB transaction per committed write
+ * ────────────────────────────────────────────────────────────────────── */
+
+// `satisfies (typeof STORES)[number]` the same way `@/persistence/coordinator`
+// ties its own store-name constants to the schema — a typo here is a
+// compile error, not a silently-missed store.
+const SNAPSHOT_STORE = 'snapshots' satisfies (typeof STORES)[number]
+const AUDIT_STORE = 'audit' satisfies (typeof STORES)[number]
+const EVENTS_STORE = 'events' satisfies (typeof STORES)[number]
+
+/**
+ * The out-of-line key the repository's live snapshot is stored under.
+ * Deliberately a STRING key, not a bare sequence integer: `@/persistence/
+ * coordinator#commitTransition` already keys the SAME `snapshots` store by
+ * `ScenarioDomainState.sequence` (a small integer) for the OTHER kernel
+ * subsystem (`src/kernel`, `src/scenario`) — sharing that integer key space
+ * would risk two unrelated systems' sequence counters colliding on the same
+ * key. `commitTransition` itself is not reused here for the same reason
+ * Task 7's original report gave: its `ProposedTransition`/`ScenarioDomainState`
+ * types are that OTHER subsystem's shape and are not a plain collection
+ * row set — reusing its TYPE would mean an unchecked cast, and reusing its
+ * KEY SPACE would mean a collision. What IS reused, deliberately, is
+ * everything genuinely shared: `openDatabase`, `STORES`, `errorMessage`
+ * from `@/persistence/schema` (the same bridge `boot.ts` already opens
+ * through `bootstrapStorage`), the SAME `audit`/`events` object stores
+ * (keyed by `id`, so two independently-generated id schemes cannot
+ * collide), and the exact abort/complete discipline `commitTransition`
+ * already established (never call `preventDefault()` on a request's
+ * `error` event; resolve only on the transaction's own `oncomplete`).
+ */
+const SNAPSHOT_KEY = 'repository-snapshot'
+
+type CommitOutcome = { readonly ok: true } | { readonly ok: false; readonly reason: string }
+
+/**
+ * Commits the repository's full collection snapshot plus the ONE new
+ * audit row and ONE new event row this write produced, in a single
+ * `readwrite` IndexedDB transaction — §12.4's "next snapshot plus every
+ * required record in one transaction." Resolves `{ ok: true }` only once
+ * the transaction's `oncomplete` fires, matching `commitTransition`'s own
+ * rule that a resolved `put()` request is not durability. Never throws:
+ * every failure — no factory, a refused `open()`, a synchronous `put()`
+ * throw, or an asynchronous request-error event — resolves a typed
+ * failure instead, and the transaction is left to its OWN default abort
+ * (no `preventDefault()`) rather than forced, so a partial write is never
+ * silently accepted.
+ */
+async function commitToPersistence(
+  factory: IDBFactory | null,
+  snapshot: CollectionData,
+  audit: AuditEvent,
+  event: DomainEvent,
+): Promise<CommitOutcome> {
+  if (!factory) return { ok: false, reason: 'No IndexedDB implementation is available in this environment.' }
+
+  let db: IDBDatabase
+  try {
+    db = await openDatabase(factory)
+  } catch (err) {
+    return { ok: false, reason: `Could not open the database: ${errorMessage(err)}` }
+  }
+
+  return new Promise((resolve) => {
+    let settled = false
+    const settle = (result: CommitOutcome) => {
+      if (settled) return
+      settled = true
+      db.close()
+      resolve(result)
+    }
+
+    let tx: IDBTransaction
+    try {
+      tx = db.transaction([SNAPSHOT_STORE, AUDIT_STORE, EVENTS_STORE], 'readwrite')
+    } catch (err) {
+      settle({ ok: false, reason: `Could not open the commit transaction: ${errorMessage(err)}` })
+      return
+    }
+
+    let abortReason: string | null = null
+    tx.onabort = () => settle({ ok: false, reason: abortReason ?? `Transaction aborted: ${errorMessage(tx.error)}` })
+    tx.onerror = (ev) => {
+      // The request's default action is to abort the transaction. Do NOT
+      // call preventDefault() — see `commitTransition`'s own comment on
+      // why that would silently accept a partial write.
+      const target = ev.target as IDBRequest | null
+      abortReason ??= `A record could not be written: ${errorMessage(target?.error ?? tx.error)}`
+    }
+    tx.oncomplete = () => settle({ ok: true })
+
+    try {
+      tx.objectStore(SNAPSHOT_STORE).put(snapshot, SNAPSHOT_KEY)
+      tx.objectStore(AUDIT_STORE).put(audit)
+      tx.objectStore(EVENTS_STORE).put(event)
+    } catch (err) {
+      abortReason = `A record could not be written: ${errorMessage(err)}`
+      try {
+        tx.abort()
+      } catch {
+        // Already finishing/aborted; onabort/onerror above still resolves.
+      }
+    }
+  })
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * Write plumbing shared by create/update/transition
+ * ────────────────────────────────────────────────────────────────────── */
+
+const PLATFORM_TENANT_MARKER = 'PLATFORM'
+
+function resolveEventTenant(name: CollectionName, row: Record<string, unknown>): string {
+  const t = rowTenantOf(name, row)
+  return t ?? PLATFORM_TENANT_MARKER
+}
+
+/**
+ * `Audit.before`/`after` are `Record<string, string | number | boolean |
+ * null>` (OBJ-084's own schema) — a business row commonly carries arrays
+ * and nested objects a plain record cannot hold. Every primitive field is
+ * copied as-is; every non-primitive field is copied as its JSON text, so
+ * nothing is silently dropped from the audit trail and the record always
+ * satisfies its own schema (criterion 5: an exported session must
+ * re-validate).
+ */
+function toAuditPrimitives(row: Record<string, unknown>): Record<string, string | number | boolean | null> {
+  const out: Record<string, string | number | boolean | null> = {}
+  for (const [key, value] of Object.entries(row)) {
+    if (value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      out[key] = value
+    } else {
+      out[key] = JSON.stringify(value)
+    }
+  }
+  return out
+}
+
+function refusal<T>(decision: PermissionDecision): WriteResult<T> {
+  return { ok: false, kind: 'denied', decision, reason: decision.reasonCode, explain: decision.explanation }
+}
+
+function persistenceRefusal<T>(actionClass: ActionClass, capability: PersistenceCapability, detail: string): WriteResult<T> {
+  return {
+    ok: false,
+    kind: 'persistence-unavailable',
+    reason: 'PERSISTENCE_NOT_DURABLE',
+    explain:
+      `This action ("${actionClass}") represents durable evidence, a required audit record, or an ` +
+      `authoritative change, and storage is "${capability.state}" rather than fully durable (§12.4). ${detail} ` +
+      'Navigation and read-only inspection remain available; nothing was changed.',
+    capability,
+  }
+}
+
+function truthStoreRefusal<T>(name: CollectionName, authority: TruthStoreAuthority): WriteResult<T> {
+  const decision = deny(
+    'explicitlyProhibited',
+    'HARD_GATE',
+    `"${name}" is ${authority}-owned truth (§12.5). This generic write door never targets a ${authority} ` +
+      `collection directly — ${
+        authority === 'audit' || authority === 'telemetry'
+          ? 'a row of this kind is only ever appended as a by-product of a real write elsewhere, atomically with it'
+          : 'no surface holds an owned write through this door for it'
+      }.`,
+    { stage: 'COMMAND_VALIDATION', sourceRefs: ['§12.5'] },
+  )
+  return refusal(decision)
+}
+
+function notFoundRefusal<T>(name: CollectionName, id: string, action: string): WriteResult<T> {
+  return refusal(
+    deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', `No "${name}" row with id "${id}" exists to ${action}.`, {
+      stage: 'COMMAND_VALIDATION',
+      sourceRefs: ['repository.ts'],
+    }),
+  )
+}
+
+function invalidResultRefusal<T>(name: CollectionName, verb: string, issues: readonly string[]): WriteResult<T> {
+  return refusal(
+    deny(
+      'explicitlyProhibited',
+      'OBJECT_STATE_INVALID',
+      `The ${verb} would produce an invalid "${name}" row: ${issues.join('; ')}`,
+      { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+    ),
+  )
+}
+
+/** What `boot.ts` hands `createRepository` — the same IndexedDB factory it already resolved for `bootstrapStorage`, plus the durability that call established. */
+export interface PersistenceHandle {
+  readonly factory: IDBFactory | null
+  readonly capability: PersistenceCapability
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * The repository
+ * ────────────────────────────────────────────────────────────────────── */
+
+export function createRepository(store: Store, persistence: PersistenceHandle): Repository {
+  // Mutable only here, in this closure: downgraded on a real commit
+  // failure (see `commitWrite` below) so every subsequent durable write
+  // is honestly blocked too, not just the one that failed.
+  let capability: PersistenceCapability = persistence.capability
+
+  async function commitWrite<N extends CollectionName>(
+    name: N,
+    action: 'create' | 'update' | 'transition',
+    nextRows: readonly RowOf<N>[],
+    row: RowOf<N>,
+    before: RowOf<N> | null,
+    ctx: AccessContext,
+    authority: TruthStoreAuthority,
+  ): Promise<WriteResult<RowOf<N>>> {
+    const seq = store.nextSequence()
+    const occurredAt = new Date(store.clock.now()).toISOString()
+    const rec = asRecord(row)
+    const id = rowId(rec)
+    const tenant = resolveEventTenant(name, rec)
+    // Safe: `authorizeWrite` (called by every caller of `commitWrite` before
+    // this point) only permits an action for a signed-in identity with a
+    // non-null role — `evaluateAccess`'s own SESSION stage guarantees it.
+    const role = ctx.identity.role as RoleId
+
+    const event: DomainEvent = {
+      id: `EVT-${seq}-${name}-${id}`,
+      kind: 'operational',
+      tenantId: tenant,
+      actorId: ctx.actorOfRecord ?? 'unattributed',
+      siteId: typeof rec.siteId === 'string' ? rec.siteId : null,
+      areaId: typeof rec.areaId === 'string' ? rec.areaId : null,
+      occurredAt,
+      signalType: `${name}.${action}`,
+      runId: typeof rec.runId === 'string' ? rec.runId : name === 'runs' ? id : null,
+      stepExecutionId: null,
+      status: 'recorded',
+    }
+
+    const audit: AuditEvent = {
+      id: `AUD-${seq}-${name}-${id}`,
+      tenantId: tenant === PLATFORM_TENANT_MARKER ? null : tenant,
+      actorId: ctx.actorOfRecord ?? 'unattributed',
+      effectiveRole: role,
+      scope: { siteIds: [...ctx.identity.siteScope], areaIds: [...ctx.identity.areaScope] },
+      action: `${action.toUpperCase()} ${name}`,
+      result: 'success',
+      denialReason: null,
+      subjectRef: `${name}:${id}`,
+      occurredAt,
+      before: before ? toAuditPrimitives(asRecord(before)) : null,
+      after: toAuditPrimitives(rec),
+      auditClass: name,
+      correlationId: event.id,
+      causationId: null,
+    }
+
+    // The prospective NEXT store state, computed but NOT yet applied —
+    // §12.4: nothing becomes visible in-memory until the durable commit
+    // resolves. `store.snapshot()` is the CURRENT state; only these three
+    // keys change.
+    const prospective: CollectionData = {
+      ...store.snapshot(),
+      [name]: nextRows,
+      events: [...store.get('events'), event],
+      audit: [...store.get('audit'), audit],
+    }
+
+    const committed = await commitToPersistence(persistence.factory, prospective, audit, event)
+    if (!committed.ok) {
+      // Downgrade honestly: a commit that just failed means storage is no
+      // longer trustworthy for THIS session, not only for this one write.
+      capability = { state: 'persistence-denied', durable: false }
+      return {
+        ok: false,
+        kind: 'persistence-unavailable',
+        reason: 'PERSISTENCE_COMMIT_FAILED',
+        explain: `The write could not be committed durably (${committed.reason}). Nothing was changed.`,
+        capability,
+      }
+    }
+
+    // Only now — after the ONE IndexedDB transaction's `oncomplete` — does
+    // the in-memory store mutate and `notify()` fire. "Commit, then
+    // publish": no subscriber ever sees a write that is not durable.
+    store.replace(name, nextRows)
+    store.replace('events', prospective.events)
+    store.replace('audit', prospective.audit)
+    store.notify()
+
+    return { ok: true, row, events: [event], audit: [audit], affectedSurfaces: [...affectedSurfacesFor(authority)] }
+  }
+
+  const repository: Repository = {
+    list(name, ctx) {
+      const rows = store.get(name) as readonly RowOf<typeof name>[]
+      const visible = rows.filter((row) => withinScope(name, asRecord(row), ctx))
+      return QueryImpl.from(visible)
+    },
+
+    get(name, id, ctx) {
+      const rows = store.get(name) as readonly RowOf<typeof name>[]
+      const row = rows.find((r) => rowId(asRecord(r)) === id)
+      if (row === undefined) return undefined
+      return withinScope(name, asRecord(row), ctx) ? row : undefined
+    },
+
+    async create(name, row, ctx) {
+      const authority = truthStoreFor(name)
+      if (!writableThroughRepository(authority)) return truthStoreRefusal(name, authority)
+
+      const rec = asRecord(row)
+      const decision = authorizeWrite(name, authority, 'create', rec, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const actionClass = actionClassFor(name, authority)
+      if (!permittedUnder(capability.state, actionClass)) {
+        return persistenceRefusal(actionClass, capability, `Creating a "${name}" row is not permitted right now.`)
+      }
+
+      const rows = store.get(name) as readonly RowOf<typeof name>[]
+      const id = rowId(rec)
+      if (rows.some((r) => rowId(asRecord(r)) === id)) {
+        return refusal(
+          deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', `A "${name}" row with id "${id}" already exists.`, {
+            stage: 'COMMAND_VALIDATION',
+            sourceRefs: ['repository.ts'],
+          }),
+        )
+      }
+      const parsed = COLLECTIONS[name].schema.safeParse(row)
+      if (!parsed.success) {
+        return invalidResultRefusal(name, 'create', parsed.error.issues.map((i) => i.message))
+      }
+
+      const nextRows = [...rows, parsed.data as RowOf<typeof name>]
+      return commitWrite(name, 'create', nextRows, parsed.data as RowOf<typeof name>, null, ctx, authority)
+    },
+
+    async update(name, id, patch, ctx) {
+      const authority = truthStoreFor(name)
+      if (!writableThroughRepository(authority)) return truthStoreRefusal(name, authority)
+
+      const rows = store.get(name) as readonly RowOf<typeof name>[]
+      const idx = rows.findIndex((r) => rowId(asRecord(r)) === id)
+      if (idx === -1) return notFoundRefusal(name, id, 'update')
+      const before = rows[idx]!
+
+      const decision = authorizeWrite(name, authority, 'update', asRecord(before), ctx)
+      if (!permitsAction(decision)) return refusal(decision) // nothing mutated
+
+      const actionClass = actionClassFor(name, authority)
+      if (!permittedUnder(capability.state, actionClass)) {
+        return persistenceRefusal(actionClass, capability, `Updating "${name}:${id}" is not permitted right now.`)
+      }
+
+      const merged = { ...before, ...patch }
+      const parsed = COLLECTIONS[name].schema.safeParse(merged)
+      if (!parsed.success) {
+        return invalidResultRefusal(name, 'update', parsed.error.issues.map((i) => i.message))
+      }
+
+      const next = [...rows]
+      next[idx] = parsed.data as RowOf<typeof name>
+      return commitWrite(name, 'update', next, parsed.data as RowOf<typeof name>, before, ctx, authority)
+    },
+
+    async transition(name, id, to, ctx) {
+      const authority = truthStoreFor(name)
+      if (!writableThroughRepository(authority)) return truthStoreRefusal(name, authority)
+
+      const rows = store.get(name) as readonly RowOf<typeof name>[]
+      const idx = rows.findIndex((r) => rowId(asRecord(r)) === id)
+      if (idx === -1) return notFoundRefusal(name, id, 'transition')
+      const before = rows[idx]!
+
+      const decision = authorizeWrite(name, authority, 'transition', asRecord(before), ctx)
+      if (!permitsAction(decision)) return refusal(decision) // nothing mutated
+
+      const actionClass = actionClassFor(name, authority)
+      if (!permittedUnder(capability.state, actionClass)) {
+        return persistenceRefusal(actionClass, capability, `Transitioning "${name}:${id}" is not permitted right now.`)
+      }
+
+      const legality = stateMachineLegality(name, asRecord(before), to)
+      if (!legality.allowed) {
+        return refusal(
+          deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', legality.reason, {
+            stage: 'OBJECT_STATE',
+            sourceRefs: ['repository.ts'],
+          }),
+        )
+      }
+
+      const merged = { ...before, [legality.field]: to }
+      const parsed = COLLECTIONS[name].schema.safeParse(merged)
+      if (!parsed.success) {
+        return invalidResultRefusal(name, 'transition', parsed.error.issues.map((i) => i.message))
+      }
+
+      const next = [...rows]
+      next[idx] = parsed.data as RowOf<typeof name>
+      return commitWrite(name, 'transition', next, parsed.data as RowOf<typeof name>, before, ctx, authority)
+    },
+
+    subscribe(listener) {
+      return store.subscribe(listener)
+    },
+
+    reset() {
+      store.resetToSeed()
+      store.notify()
+    },
+
+    exportJson() {
+      const snap = store.snapshot()
+      const out = {} as Record<CollectionName, unknown[]>
+      for (const name of Object.keys(COLLECTIONS) as CollectionName[]) {
+        out[name] = [...snap[name]]
+      }
+      return out
+    },
+
+    importJson(data) {
+      if (data === null || typeof data !== 'object' || Array.isArray(data)) {
+        return { ok: false, problems: ['Top level must be an object keyed by collection name.'] }
+      }
+      const record = data as Record<string, unknown>
+      const problems: string[] = []
+      const next = {} as Record<CollectionName, readonly unknown[]>
+
+      for (const name of Object.keys(COLLECTIONS) as CollectionName[]) {
+        const rows = record[name]
+        if (!Array.isArray(rows)) {
+          problems.push(`${name}: missing or not an array`)
+          continue
+        }
+        const seen = new Set<string>()
+        const parsedRows: unknown[] = []
+        rows.forEach((row: unknown, i: number) => {
+          const result = COLLECTIONS[name].schema.safeParse(row)
+          if (!result.success) {
+            for (const issue of result.error.issues) {
+              problems.push(`${name}[${i}] ${issue.path.join('.') || '(root)'}: ${issue.message}`)
+            }
+            return
+          }
+          const parsedId = (result.data as { id?: string }).id
+          if (typeof parsedId === 'string') {
+            if (seen.has(parsedId)) problems.push(`${name}[${i}]: duplicate id ${parsedId}`)
+            seen.add(parsedId)
+          }
+          parsedRows.push(result.data)
+        })
+        next[name] = parsedRows
+      }
+
+      if (problems.length > 0) return { ok: false, problems }
+      store.restore(next as CollectionData)
+      store.notify()
+      return { ok: true }
+    },
+
+    persistenceCapability() {
+      return capability
+    },
+  }
+
+  return repository
+}
