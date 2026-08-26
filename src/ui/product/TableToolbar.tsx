@@ -17,6 +17,11 @@ import type { FilterDef } from './DataTable'
  * would leave that bug in place for whoever reuses this toolbar next.
  * Native `<input>`/`<select>` supply full keyboard operability for free
  * (ladder rung 4); only the token classes are new.
+ *
+ * DEBT D6 (progress.md, "Debts D6-D8 recorded with owners", owned by
+ * tasks 10-13): the `<select>`/`<input>` here are a second implementation
+ * alongside `src/ui/primitives/Select.tsx`/`Field.tsx` — see the matching
+ * note in `DataTable.tsx` for the checkbox half of this same debt.
  */
 export interface TableToolbarProps<T> {
   readonly idPrefix: string

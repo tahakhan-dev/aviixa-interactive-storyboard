@@ -26,6 +26,15 @@ import { Pagination } from './Pagination'
  * markup instead, so nothing it renders can inherit a fixed-light colour.
  * `LiveRegion` is the one primitive reused as-is — it sets no colour at all.
  *
+ * DEBT D6 (progress.md, "Debts D6-D8 recorded with owners", owned by
+ * tasks 10-13): this file's native `<input type="checkbox">` markup
+ * (`SelectAllCheckbox` below, the row/page checkboxes) is a second
+ * implementation alongside `src/ui/primitives/Checkbox.tsx` — necessary
+ * now (migrating that primitive is out of this task's scope, per the
+ * brief), but it WILL need reconciling with whichever task migrates
+ * `Checkbox`/`Select`/`Field` onto this token layer. `TableToolbar.tsx`
+ * carries the matching native `<select>`/`<input>` half of this same debt.
+ *
  * SEVEN BEHAVIOURS, ONE REDUCER. `useTableState` owns sort/filter/search/
  * page/selection/column-visibility; `TableToolbar` only dispatches into it
  * and this component only reads from it, so the two can never disagree
@@ -75,7 +84,22 @@ export interface DataTableProps<T> {
 
 /** Fixed row height the virtualization window's spacer math is built on. */
 const ROW_HEIGHT_PX = 44
-/** Above this many rows on the current page, the body windows instead of rendering every row. */
+/**
+ * Above this many rows ON THE CURRENT PAGE, the body windows instead of
+ * rendering every row. Scope, stated rather than implied (fix round 1):
+ * `pageRows.length` is capped at `pageSize` (default 20), so this is INERT
+ * under every screen using the default page size -- no amount of total row
+ * count reaches it while pagination is doing its normal 20-at-a-time job.
+ * It serves the unpaginated / large-page case (a caller passing a big
+ * `pageSize` to get one long scrollable list instead of numbered pages),
+ * and is exercised there: verified against the 417-row `audit` collection
+ * at `pageSize={500}` -- DOM held ~29-30 `<tr>`s at a time, spacer rows
+ * sized correctly, keyboard Tab reached the last row via native
+ * focus-triggered scroll. No screen built so far opts into that page size,
+ * so this path is correct and currently unexercised by any default list --
+ * do not add machinery to force it to fire under the default; that would
+ * be solving a problem no screen has.
+ */
 const VIRTUALIZE_THRESHOLD = 200
 const OVERSCAN_ROWS = 8
 const VIEWPORT_HEIGHT_PX = 560
@@ -138,18 +162,29 @@ export function DataTable<T>({
   // this table draws from, not a second copy of the whole collection.
   const baseTotal = query.total()
 
-  let filteredQuery = query
-  for (const filter of filters ?? []) {
-    const value = state.filters[filter.key]
-    if (value !== undefined && value !== '') {
-      filteredQuery = filteredQuery.where((row) => filter.match(row, value))
+  // Factored out (fix round 1) so the SAME logic that renders the live
+  // filtered set can also be run against a HYPOTHETICAL filter/search value
+  // — before it's dispatched — to compute the exact id list a filter/search
+  // change will produce. That id list is what reconciles `selected`
+  // atomically in `useTableState` (see its own header comment): two call
+  // sites, one filter-application rule, never a second copy that could
+  // drift from what actually renders.
+  const applyFilters = (filterValues: Readonly<Record<string, string>>, searchValue: string): Query<T> => {
+    let q = query
+    for (const filter of filters ?? []) {
+      const value = filterValues[filter.key]
+      if (value !== undefined && value !== '') {
+        q = q.where((row) => filter.match(row, value))
+      }
     }
-  }
-  if (search !== undefined && state.search.trim() !== '') {
-    const needle = state.search.trim()
-    filteredQuery = filteredQuery.where((row) => search.match(row, needle))
+    if (search !== undefined && searchValue.trim() !== '') {
+      const needle = searchValue.trim()
+      q = q.where((row) => search.match(row, needle))
+    }
+    return q
   }
 
+  const filteredQuery = applyFilters(state.filters, state.search)
   const filteredTotal = filteredQuery.total()
   const allFilteredRows = filteredQuery.all()
 
@@ -211,6 +246,15 @@ export function DataTable<T>({
       ? `Sorted by ${sortColumn.header}, ${state.sortDir === 'asc' ? 'ascending' : 'descending'}`
       : ''
 
+  const handleFilterChange = (key: string, value: string): void => {
+    const validIds = applyFilters({ ...state.filters, [key]: value }, state.search).all().map(rowId)
+    actions.setFilter(key, value, validIds)
+  }
+  const handleSearchChange = (value: string): void => {
+    const validIds = applyFilters(state.filters, value).all().map(rowId)
+    actions.setSearch(value, validIds)
+  }
+
   const colSpan = visibleColumns.length + (selection !== undefined ? 1 : 0)
 
   const firstCell = (row: T, content: ReactNode): ReactNode => {
@@ -228,10 +272,10 @@ export function DataTable<T>({
         idPrefix={idPrefix}
         search={search !== undefined ? { placeholder: search.placeholder } : undefined}
         searchValue={state.search}
-        onSearchChange={actions.setSearch}
+        onSearchChange={handleSearchChange}
         filters={filters}
         filterValues={state.filters}
-        onFilterChange={actions.setFilter}
+        onFilterChange={handleFilterChange}
         columns={columns.map((c) => ({ key: c.key, header: c.header }))}
         hiddenColumns={state.hiddenColumns}
         onToggleColumn={actions.toggleColumn}
@@ -243,7 +287,15 @@ export function DataTable<T>({
           aria-label="Bulk actions"
           className={`flex flex-wrap items-center gap-3 ${radiusClass('md')} border ${borderColor('border')} ${bg('raised')} px-3 py-2`}
         >
-          <span className={`text-sm font-medium ${textColor('ink')}`}>{state.selected.size} selected</span>
+          {/* `LiveRegion`-wrapped (fix round 1): a filter/search change can
+              shrink this count via `useTableState`'s reconciliation, and an
+              honest number that changes with no announcement is its own
+              small deception for anyone not looking at the screen — polite
+              `aria-live` here means the correction is heard, not just
+              rendered. */}
+          <LiveRegion>
+            <span className={`text-sm font-medium ${textColor('ink')}`}>{state.selected.size} selected</span>
+          </LiveRegion>
           {selection.bulkActions.map((action) => (
             <button
               key={action.id}
