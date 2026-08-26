@@ -423,10 +423,10 @@
     "displayName": "Esteban Molina",
     "email": "esteban.molina@summitgearworks.example",
     "role": "WORKER",
-    "status": "suspended",
+    "status": "active",
     "locale": "en",
     "createdAt": "2026-03-10T06:00:00Z",
-    "lastSignInAt": "2026-07-30T06:00:00Z"
+    "lastSignInAt": "2026-08-02T06:05:00Z"
   },
   {
     "id": "USR-SG-WKR-02",
@@ -434,10 +434,10 @@
     "displayName": "Amara Nwachukwu",
     "email": "amara.nwachukwu@summitgearworks.example",
     "role": "WORKER",
-    "status": "suspended",
+    "status": "active",
     "locale": "en",
     "createdAt": "2026-03-10T18:00:00Z",
-    "lastSignInAt": "2026-07-30T18:05:00Z"
+    "lastSignInAt": "2026-08-02T18:10:00Z"
   },
   {
     "id": "USR-MR-ADM-01",
