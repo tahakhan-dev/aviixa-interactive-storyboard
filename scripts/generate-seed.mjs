@@ -298,13 +298,18 @@ for (let i = 0; i < GEN_EVAL_COUNT; i++) {
 // Package.status is a ten-member enum (src/data/schemas/studio.ts): the six
 // SoW Fact values (assembled, delivered, validated, pinned, in-use,
 // superseded -- the OBJ-045/OBJ-046 fold) plus, as of Task 4 fix round 1
-// (review Important finding), four Recommendation-R&D values proposed by
-// blueprint §35.6 (L79517-L79530) for a deployed package's failure paths:
-// expired, revoked, corrupt, incompatible-version. The first ten generated
-// rows are forced one per state, in enum order, the same coverage-by-
-// construction pattern as WF_STATES above -- brief pass criterion 4 (at
-// least one expired/revoked/corrupt row, plus incompatible-version) is
-// satisfied by this forced prefix, not by chance.
+// (review Important finding), four values proposed by blueprint §35.6
+// (L79517-L79530) for a deployed package's failure paths: expired,
+// revoked, corrupt, incompatible-version. Fix round 2: those four are NOT
+// uniformly Recommendation-R&D -- `expired` is entirely Client Decision
+// Required (DEC-PKGEXP-001) and `corrupt`/`revoked` are MIXED (a proposed
+// handling shape plus a still-undecided value/resolution folded into
+// DEC-PKGMAN-001); see `PACKAGE_SOURCE_STATUS` in
+// `scripts/seed-fixtures/task4-studio.mjs` for the row-by-row citations.
+// The first ten generated rows are forced one per state, in enum order,
+// the same coverage-by-construction pattern as WF_STATES above -- brief
+// pass criterion 4 (at least one expired/revoked/corrupt row, plus
+// incompatible-version) is satisfied by this forced prefix, not by chance.
 const PKG_STATES = [
   'assembled', 'delivered', 'validated', 'pinned', 'in-use', 'superseded',
   'expired', 'revoked', 'corrupt', 'incompatible-version',

@@ -203,7 +203,7 @@
     "deliveredAt": "2026-05-17T18:11:00.000Z",
     "acknowledgedAt": "2026-05-17T22:59:00.000Z",
     "status": "expired",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 RejectExpired verification branch, L79517-L79530); the validity-horizon value that would trigger this in production is TBD — DEC-PKGEXP-001 (§35.7), not yet decided — this row demonstrates the state’s shape only."
+    "sourceStatus": "Client Decision Required — DEC-PKGEXP-001, for the whole failure class, not mixed (blueprint §35.6 matrix row \"Expiry\", L79585: \"Client Decision Required — DEC-PKGEXP-001\" is the row’s entire Source status, no Recommendation — R&D component) — this row demonstrates the state’s shape only; no validity-horizon value is decided or implemented."
   },
   {
     "id": "PKG-GEN-8",
@@ -221,7 +221,7 @@
     "deliveredAt": "2026-04-02T15:09:00.000Z",
     "acknowledgedAt": "2026-04-02T21:56:00.000Z",
     "status": "revoked",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the command channel; a mid-run revocation stops the run and preserves captured work for Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001."
+    "sourceStatus": "MIXED: the general revocation shape (rides the command channel; shown pending until acknowledged; a mid-run revocation stops the run at its current step and quarantines captured work for Quality Manager disposition) is Recommendation — R&D (blueprint §35.6 Rules 3-4 / matrix rows \"Revocation before staging\", \"... run not started\", \"... run in flight\", L79586-L79588 — all three rows read literally \"Recommendation — R&D\"); but the mid-run RESOLUTION specifically — i.e. whether stopping and quarantining an in-flight run is the accepted final policy for the conflict with version pinning — is separately named Client Decision Required under DEC-PKGMAN-001 in the closing paragraph (L79614: \"the retry bound, expiry value and mid-run revocation resolution are Client Decision Required\")."
   },
   {
     "id": "PKG-GEN-9",
@@ -239,7 +239,7 @@
     "deliveredAt": "2026-04-09T18:32:00.000Z",
     "acknowledgedAt": null,
     "status": "corrupt",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 1 / RejectCorrupt verification branch, L79517-L79530); the re-pull retry bound is TBD — DEC-PKGMAN-001, not yet decided."
+    "sourceStatus": "MIXED: the handling rule (bounded re-pull) is Recommendation — R&D (blueprint §35.6 Rule 1 / matrix row \"Accidental corruption\", L79581); the re-pull retry bound itself is Client Decision Required — DEC-PKGMAN-001 (same row, and L79614), not yet decided."
   },
   {
     "id": "PKG-GEN-10",
@@ -257,7 +257,7 @@
     "deliveredAt": "2026-04-06T18:46:00.000Z",
     "acknowledgedAt": null,
     "status": "incompatible-version",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
+    "sourceStatus": "Recommendation — R&D, entirely, not mixed (blueprint §35.6 Rule 6 / matrix row \"Incompatible application version\", L79584: \"Recommendation — R&D grounded in §8.13.1\" is the row’s entire Source status, no Client-Decision-Required component anywhere in the matrix or the closing paragraph) — grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
   },
   {
     "id": "PKG-GEN-11",
@@ -275,7 +275,7 @@
     "deliveredAt": "2026-07-01T18:09:00.000Z",
     "acknowledgedAt": null,
     "status": "incompatible-version",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
+    "sourceStatus": "Recommendation — R&D, entirely, not mixed (blueprint §35.6 Rule 6 / matrix row \"Incompatible application version\", L79584: \"Recommendation — R&D grounded in §8.13.1\" is the row’s entire Source status, no Client-Decision-Required component anywhere in the matrix or the closing paragraph) — grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
   },
   {
     "id": "PKG-GEN-12",
@@ -347,7 +347,7 @@
     "deliveredAt": "2026-02-08T19:31:00.000Z",
     "acknowledgedAt": null,
     "status": "corrupt",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 1 / RejectCorrupt verification branch, L79517-L79530); the re-pull retry bound is TBD — DEC-PKGMAN-001, not yet decided."
+    "sourceStatus": "MIXED: the handling rule (bounded re-pull) is Recommendation — R&D (blueprint §35.6 Rule 1 / matrix row \"Accidental corruption\", L79581); the re-pull retry bound itself is Client Decision Required — DEC-PKGMAN-001 (same row, and L79614), not yet decided."
   },
   {
     "id": "PKG-GEN-16",
@@ -383,7 +383,7 @@
     "deliveredAt": "2026-04-13T15:42:00.000Z",
     "acknowledgedAt": "2026-04-13T23:47:00.000Z",
     "status": "expired",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 RejectExpired verification branch, L79517-L79530); the validity-horizon value that would trigger this in production is TBD — DEC-PKGEXP-001 (§35.7), not yet decided — this row demonstrates the state’s shape only."
+    "sourceStatus": "Client Decision Required — DEC-PKGEXP-001, for the whole failure class, not mixed (blueprint §35.6 matrix row \"Expiry\", L79585: \"Client Decision Required — DEC-PKGEXP-001\" is the row’s entire Source status, no Recommendation — R&D component) — this row demonstrates the state’s shape only; no validity-horizon value is decided or implemented."
   },
   {
     "id": "PKG-GEN-18",
@@ -401,7 +401,7 @@
     "deliveredAt": "2026-06-16T15:16:00.000Z",
     "acknowledgedAt": "2026-06-16T23:43:00.000Z",
     "status": "revoked",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the command channel; a mid-run revocation stops the run and preserves captured work for Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001."
+    "sourceStatus": "MIXED: the general revocation shape (rides the command channel; shown pending until acknowledged; a mid-run revocation stops the run at its current step and quarantines captured work for Quality Manager disposition) is Recommendation — R&D (blueprint §35.6 Rules 3-4 / matrix rows \"Revocation before staging\", \"... run not started\", \"... run in flight\", L79586-L79588 — all three rows read literally \"Recommendation — R&D\"); but the mid-run RESOLUTION specifically — i.e. whether stopping and quarantining an in-flight run is the accepted final policy for the conflict with version pinning — is separately named Client Decision Required under DEC-PKGMAN-001 in the closing paragraph (L79614: \"the retry bound, expiry value and mid-run revocation resolution are Client Decision Required\")."
   },
   {
     "id": "PKG-GEN-19",
@@ -419,7 +419,7 @@
     "deliveredAt": "2026-02-18T13:06:00.000Z",
     "acknowledgedAt": "2026-02-18T23:14:00.000Z",
     "status": "revoked",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the command channel; a mid-run revocation stops the run and preserves captured work for Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001."
+    "sourceStatus": "MIXED: the general revocation shape (rides the command channel; shown pending until acknowledged; a mid-run revocation stops the run at its current step and quarantines captured work for Quality Manager disposition) is Recommendation — R&D (blueprint §35.6 Rules 3-4 / matrix rows \"Revocation before staging\", \"... run not started\", \"... run in flight\", L79586-L79588 — all three rows read literally \"Recommendation — R&D\"); but the mid-run RESOLUTION specifically — i.e. whether stopping and quarantining an in-flight run is the accepted final policy for the conflict with version pinning — is separately named Client Decision Required under DEC-PKGMAN-001 in the closing paragraph (L79614: \"the retry bound, expiry value and mid-run revocation resolution are Client Decision Required\")."
   },
   {
     "id": "PKG-GEN-20",
@@ -437,7 +437,7 @@
     "deliveredAt": "2026-04-25T15:03:00.000Z",
     "acknowledgedAt": "2026-04-25T22:49:00.000Z",
     "status": "revoked",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the command channel; a mid-run revocation stops the run and preserves captured work for Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001."
+    "sourceStatus": "MIXED: the general revocation shape (rides the command channel; shown pending until acknowledged; a mid-run revocation stops the run at its current step and quarantines captured work for Quality Manager disposition) is Recommendation — R&D (blueprint §35.6 Rules 3-4 / matrix rows \"Revocation before staging\", \"... run not started\", \"... run in flight\", L79586-L79588 — all three rows read literally \"Recommendation — R&D\"); but the mid-run RESOLUTION specifically — i.e. whether stopping and quarantining an in-flight run is the accepted final policy for the conflict with version pinning — is separately named Client Decision Required under DEC-PKGMAN-001 in the closing paragraph (L79614: \"the retry bound, expiry value and mid-run revocation resolution are Client Decision Required\")."
   },
   {
     "id": "PKG-GEN-21",
@@ -473,7 +473,7 @@
     "deliveredAt": "2026-04-11T16:24:00.000Z",
     "acknowledgedAt": null,
     "status": "incompatible-version",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
+    "sourceStatus": "Recommendation — R&D, entirely, not mixed (blueprint §35.6 Rule 6 / matrix row \"Incompatible application version\", L79584: \"Recommendation — R&D grounded in §8.13.1\" is the row’s entire Source status, no Client-Decision-Required component anywhere in the matrix or the closing paragraph) — grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
   },
   {
     "id": "PKG-GEN-23",
@@ -491,7 +491,7 @@
     "deliveredAt": "2026-04-08T18:38:00.000Z",
     "acknowledgedAt": "2026-04-08T22:35:00.000Z",
     "status": "expired",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 RejectExpired verification branch, L79517-L79530); the validity-horizon value that would trigger this in production is TBD — DEC-PKGEXP-001 (§35.7), not yet decided — this row demonstrates the state’s shape only."
+    "sourceStatus": "Client Decision Required — DEC-PKGEXP-001, for the whole failure class, not mixed (blueprint §35.6 matrix row \"Expiry\", L79585: \"Client Decision Required — DEC-PKGEXP-001\" is the row’s entire Source status, no Recommendation — R&D component) — this row demonstrates the state’s shape only; no validity-horizon value is decided or implemented."
   },
   {
     "id": "PKG-GEN-24",
@@ -509,6 +509,6 @@
     "deliveredAt": "2026-02-04T20:30:00.000Z",
     "acknowledgedAt": null,
     "status": "incompatible-version",
-    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
+    "sourceStatus": "Recommendation — R&D, entirely, not mixed (blueprint §35.6 Rule 6 / matrix row \"Incompatible application version\", L79584: \"Recommendation — R&D grounded in §8.13.1\" is the row’s entire Source status, no Client-Decision-Required component anywhere in the matrix or the closing paragraph) — grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
   }
 ]

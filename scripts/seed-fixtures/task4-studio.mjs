@@ -570,21 +570,43 @@ export const PACKAGE_SOURCE_STATUS = {
   pinned: 'SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)',
   'in-use': 'SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)',
   superseded: 'SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)',
+  // Fix round 2 (review finding): tier-by-tier from the §35.6 "Supporting
+  // matrix -- failure classes and their handling" (L79570-79597) and its
+  // closing "Source classification and traceability" paragraph (L79614),
+  // not swept to one tier. Corrupt and revoked are genuinely MIXED --
+  // the handling rule is proposed (Recommendation -- R&D) but a specific
+  // value/resolution inside it stays undecided (Client Decision Required)
+  // -- while expired is entirely undecided and incompatible-version is
+  // entirely proposed. Flattening any of these back to one tier would
+  // silently resolve an open decision as a product requirement (master
+  // prompt §2) or hide the proposed/open split a reviewer needs (§21.2).
   corrupt:
-    'Recommendation — R&D (blueprint §35.6 Rule 1 / RejectCorrupt verification branch, '
-    + 'L79517-L79530); the re-pull retry bound is TBD — DEC-PKGMAN-001, not yet decided.',
+    'MIXED: the handling rule (bounded re-pull) is Recommendation — R&D (blueprint §35.6 '
+    + 'Rule 1 / matrix row "Accidental corruption", L79581); the re-pull retry bound itself '
+    + 'is Client Decision Required — DEC-PKGMAN-001 (same row, and L79614), not yet decided.',
   expired:
-    'Recommendation — R&D (blueprint §35.6 RejectExpired verification branch, L79517-L79530); '
-    + 'the validity-horizon value that would trigger this in production is TBD — '
-    + 'DEC-PKGEXP-001 (§35.7), not yet decided — this row demonstrates the state’s shape only.',
+    'Client Decision Required — DEC-PKGEXP-001, for the whole failure class, not mixed '
+    + '(blueprint §35.6 matrix row "Expiry", L79585: "Client Decision Required — '
+    + 'DEC-PKGEXP-001" is the row’s entire Source status, no Recommendation — R&D component) '
+    + '— this row demonstrates the state’s shape only; no validity-horizon value is decided '
+    + 'or implemented.',
   revoked:
-    'Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the '
-    + 'command channel; a mid-run revocation stops the run and preserves captured work for '
-    + 'Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001.',
+    'MIXED: the general revocation shape (rides the command channel; shown pending until '
+    + 'acknowledged; a mid-run revocation stops the run at its current step and quarantines '
+    + 'captured work for Quality Manager disposition) is Recommendation — R&D (blueprint '
+    + '§35.6 Rules 3-4 / matrix rows "Revocation before staging", "... run not started", '
+    + '"... run in flight", L79586-L79588 — all three rows read literally '
+    + '"Recommendation — R&D"); but the mid-run RESOLUTION specifically — i.e. whether '
+    + 'stopping and quarantining an in-flight run is the accepted final policy for the '
+    + 'conflict with version pinning — is separately named Client Decision Required under '
+    + 'DEC-PKGMAN-001 in the closing paragraph (L79614: "the retry bound, expiry value and '
+    + 'mid-run revocation resolution are Client Decision Required").',
   'incompatible-version':
-    'Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, '
-    + 'L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is '
-    + 'platform-owned release-channel policy).',
+    'Recommendation — R&D, entirely, not mixed (blueprint §35.6 Rule 6 / matrix row '
+    + '"Incompatible application version", L79584: "Recommendation — R&D grounded in '
+    + '§8.13.1" is the row’s entire Source status, no Client-Decision-Required component '
+    + 'anywhere in the matrix or the closing paragraph) — grounded in SoW Fact §8.13.1 (the '
+    + 'application-version floor is platform-owned release-channel policy).',
 }
 
 export const packages = [

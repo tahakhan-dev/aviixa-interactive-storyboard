@@ -135,21 +135,33 @@ export type Specification = z.infer<typeof Specification>
  * not leave that silence unshaped: it proposes a concrete verification
  * state machine (`Received -> ChecksumCheck -> ... -> Trusted`, with
  * `RejectCorrupt`, `RejectExpired`, `RejectVersion` terminal branches) and
- * six numbered business rules, classified `Recommendation — R&D` /
- * `Derived Clarification` throughout, the same tier this file already uses
- * for `Outdated` (below) and `bumpClassification`. `expired`, `revoked`,
- * `corrupt` and `incompatible-version` are added on that basis — four of
- * the twenty-one-stage list's members, not an invented fifth model:
- *   - `corrupt` — Rule 1 / the `RejectCorrupt` branch (checksum mismatch,
- *     bounded re-pull); the bound itself is `TBD` under `DEC-PKGMAN-001`.
- *   - `expired` — the `RejectExpired` branch (validity horizon passed);
- *     the horizon value is `TBD` under `DEC-PKGEXP-001` (§35.7).
- *   - `revoked` — Rules 3-4 (a revocation rides the command channel; a
- *     mid-run revocation stops the run at its current step and preserves
- *     the captured work for Quality Manager disposition); the mid-run
- *     resolution is folded into `DEC-PKGMAN-001`.
- *   - `incompatible-version` — Rule 6 / the `RejectVersion` branch,
- *     grounded in the `SoW Fact` application-version floor (§8.13.1).
+ * six numbered business rules. `expired`, `revoked`, `corrupt` and
+ * `incompatible-version` are added on that basis — four of the
+ * twenty-one-stage list's members, not an invented fifth model.
+ *
+ * Fix round 2 (review finding): the four do NOT all carry the same
+ * classification tier — reading the §35.6 "Supporting matrix" (L79570-
+ * L79597) and its closing paragraph (L79614) row by row, per state,
+ * rather than sweeping all four to `Recommendation — R&D`:
+ *   - `corrupt` — MIXED. The handling rule (Rule 1: bounded re-pull) is
+ *     `Recommendation — R&D` (matrix row "Accidental corruption", L79581);
+ *     the re-pull bound itself is `Client Decision Required` —
+ *     `DEC-PKGMAN-001` (same row, and L79614).
+ *   - `expired` — `Client Decision Required — DEC-PKGEXP-001`, for the
+ *     WHOLE failure class, not mixed (matrix row "Expiry", L79585: that
+ *     is the row's entire Source status, no R&D component).
+ *   - `revoked` — MIXED. The general shape (Rules 3-4: rides the command
+ *     channel, shown pending, a mid-run revocation stops the run at its
+ *     current step and quarantines the captured work) is
+ *     `Recommendation — R&D` (matrix rows "Revocation before staging" /
+ *     "... run not started" / "... run in flight", L79586-L79588, all
+ *     three literally `Recommendation — R&D`); the mid-run RESOLUTION
+ *     specifically is separately named `Client Decision Required` under
+ *     `DEC-PKGMAN-001` in the closing paragraph (L79614).
+ *   - `incompatible-version` — `Recommendation — R&D`, entirely, not
+ *     mixed (matrix row "Incompatible application version", L79584: that
+ *     is the row's entire Source status), grounded in the `SoW Fact`
+ *     application-version floor (§8.13.1).
  * "Replace" and "roll back" (also named alongside these four in master
  * prompt §17.2/§10.4) do NOT get new values: the chapter-35 matrix states
  * replacement is handled by the existing `superseded` value ("Terminal
@@ -164,12 +176,17 @@ export type Specification = z.infer<typeof Specification>
  * `src/ai/storyboards/contract.ts` (`StoryboardFieldId`, rendered by
  * `src/ui/doh/CrossSurfaceStatement.tsx`) instead of inventing a second
  * one, per controller instruction. This is how a reader tells a
- * source-confirmed row from a proposed one without cross-referencing this
- * file: every row states its own classification, e.g.
- * `"SoW Fact — OBJ-045 L8768, OBJ-046 L8788"` for the original six values,
- * or `"Recommendation — R&D (blueprint §35.6, L79517-L79530); retry bound
- * TBD — DEC-PKGMAN-001"` for a `corrupt` row — never presented as V1 fact
- * (master prompt §21.2).
+ * source-confirmed row from a proposed one, and a mixed row from a
+ * single-tier row, without cross-referencing this file: every row states
+ * its own classification, e.g. `"SoW Fact — OBJ-045 L8768, OBJ-046
+ * L8788"` for the original six values, `"Client Decision Required —
+ * DEC-PKGEXP-001..."` for `expired` (never presented as a settled
+ * Recommendation — an open decision does not silently become a product
+ * requirement, master prompt §2), or `"MIXED: ... Recommendation — R&D
+ * ...; ... Client Decision Required — DEC-PKGMAN-001..."` for `corrupt`/
+ * `revoked`, so a reviewer can see, per item, which tier applies (master
+ * prompt §21.2) instead of a later reader flattening a mixed row back to
+ * one tier.
  */
 export const Package = z.object({
   id: z.string().min(1),
