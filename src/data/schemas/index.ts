@@ -110,7 +110,7 @@ export const RELATIONS: ReadonlyArray<
   { from: 'qualifications', field: 'workerId', to: 'workers' },
   { from: 'qualifications', field: 'areaIds', to: 'areas', array: true },
   { from: 'qualification-grants', field: 'workerId', to: 'workers' },
-  { from: 'qualification-grants', field: 'qualificationId', to: 'qualifications' },
+  { from: 'qualification-grants', field: 'qualificationId', to: 'qualifications', nullable: true },
   { from: 'qualification-grants', field: 'areaId', to: 'areas', nullable: true },
   { from: 'qualification-grants', field: 'commandId', to: 'commands', nullable: true },
   { from: 'devices', field: 'tenantId', to: 'tenants' },

@@ -123,10 +123,24 @@ export const Qualification = z.object({
 export type Qualification = z.infer<typeof Qualification>
 
 // OBJ-032 · Clearance (L8437-L8452). Fields L8443; lifecycle L8445: "requested, granted, delivered, in force, lapsed".
+// Fix round 1 (review finding, Important 1): L8443's field list reads
+// "worker reference; qualification or gate reference" -- an exclusive
+// either/or, not "qualification" alone. L8441: granted by a Supervisor for
+// an EXPIRED certification (qualificationId set), or by a Quality Manager
+// where the qualification was NEVER HELD (no Qualification row exists for
+// that worker to reference, so qualificationId is null and gateReference
+// carries the location/cell-narrowing gate description instead, e.g. a
+// Location.requiredCertification string). gateReference is deliberately not
+// named *Id/*Ids: it is not a foreign key into any src/data collection (no
+// "gates" collection exists in the §3.1 forty-name list), so it is exempt
+// from -- not silently missing from -- the RELATIONS/UNCHECKABLE_ID_FIELDS
+// coverage sweep by construction.
 export const QualificationGrant = z.object({
   id: z.string().min(1),
   workerId: z.string().min(1),
-  qualificationId: z.string().min(1),
+  qualificationId: z.string().min(1).nullable(),
+  /** The gate cleared when no Qualification row exists to reference (L8443, "qualification or gate reference"); exactly one of this and qualificationId is set. */
+  gateReference: z.string().min(1).nullable(),
   grantedBy: z.string().min(1),
   reasonCategory: z.string().min(1),
   reasonNote: z.string().nullable(),
@@ -137,7 +151,13 @@ export const QualificationGrant = z.object({
   /** The command channel delivers a Clearance to a device (L8443). */
   commandId: z.string().nullable(),
   status: z.enum(['requested', 'granted', 'delivered', 'in-force', 'lapsed']),
-}).strict()
+}).strict().refine(
+  (row) => (row.qualificationId !== null) !== (row.gateReference !== null),
+  {
+    message: 'exactly one of qualificationId or gateReference must be set, never both, never neither (OBJ-032 L8443: "qualification or gate reference")',
+    path: ['qualificationId'],
+  },
+)
 export type QualificationGrant = z.infer<typeof QualificationGrant>
 
 /**
