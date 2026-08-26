@@ -183,11 +183,15 @@ export const RELATIONS: ReadonlyArray<
   { from: 'notifications', field: 'recipientUserIds', to: 'users', array: true },
   { from: 'commands', field: 'tenantId', to: 'tenants' },
   { from: 'commands', field: 'targetDeviceId', to: 'devices', nullable: true },
+  { from: 'commands', field: 'deliveries[].deviceId', to: 'devices' },
   { from: 'events', field: 'tenantId', to: 'tenants', nullable: true },
   { from: 'events', field: 'deviceId', to: 'devices', nullable: true },
   { from: 'events', field: 'runId', to: 'runs', nullable: true },
   { from: 'events', field: 'stepExecutionId', to: 'step-executions', nullable: true },
   { from: 'audit', field: 'tenantId', to: 'tenants', nullable: true },
+  { from: 'audit', field: 'effectiveRole', to: 'roles' },
+  { from: 'audit', field: 'scope.siteIds', to: 'sites', array: true },
+  { from: 'audit', field: 'scope.areaIds', to: 'areas', array: true },
   { from: 'schedules', field: 'definitionId', to: 'schedules', nullable: true },
   { from: 'ai-requests', field: 'tenantId', to: 'tenants' },
   { from: 'tours', field: 'workflowId', to: 'workflow-definitions', nullable: true },
@@ -257,5 +261,22 @@ export const UNCHECKABLE_ID_FIELDS: ReadonlyArray<
       "what resolves a tour step's controlId against a real control and is where the control-identity " +
       "source of truth will exist \u2014 register this as a real RELATIONS row once it does, rather " +
       "than leaving it here indefinitely.",
+  },
+  {
+    from: 'audit',
+    field: 'correlationId',
+    reason:
+      'A trace token grouping every row this one causal chain of platform activity produced, ' +
+      'across notifications, commands, events, audit, runs and everything else it touches -- not ' +
+      'itself the id of a single row in a single collection, so no fixed RELATIONS target applies.',
+  },
+  {
+    from: 'audit',
+    field: 'causationId',
+    reason:
+      "Nullable; the correlationId (or top-level triggering identifier) of the upstream action that " +
+      "caused this one. Polymorphic across every collection kind this seed has (a Run's state " +
+      "change, a Command, a scheduled occurrence, another audit row...) -- the { from, field, to } " +
+      "shape can only name one fixed target collection, and this field is genuinely not one.",
   },
 ] as const

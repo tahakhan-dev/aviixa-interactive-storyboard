@@ -109,42 +109,42 @@
     "areaId": "AREA-BB-PACKOUT",
     "name": "Pack Line 1",
     "requiredCertification": null,
-    "status": "active"
+    "status": "archived"
   },
   {
     "id": "LOC-BB-PACK-LINE-02",
     "areaId": "AREA-BB-PACKOUT",
     "name": "Pack Line 2",
     "requiredCertification": null,
-    "status": "active"
+    "status": "archived"
   },
   {
     "id": "LOC-BB-PACK-DOCK",
     "areaId": "AREA-BB-PACKOUT",
     "name": "Shipping Dock",
     "requiredCertification": null,
-    "status": "active"
+    "status": "archived"
   },
   {
     "id": "LOC-BB-RECV-DOCK",
     "areaId": "AREA-BB-RECEIVING",
     "name": "Receiving Dock",
     "requiredCertification": "Powered Industrial Truck Certification",
-    "status": "active"
+    "status": "archived"
   },
   {
     "id": "LOC-BB-RECV-KIT-01",
     "areaId": "AREA-BB-RECEIVING",
     "name": "Kitting Station 1",
     "requiredCertification": null,
-    "status": "active"
+    "status": "archived"
   },
   {
     "id": "LOC-BB-RECV-KIT-02",
     "areaId": "AREA-BB-RECEIVING",
     "name": "Kitting Station 2",
     "requiredCertification": null,
-    "status": "active"
+    "status": "archived"
   },
   {
     "id": "LOC-NF-FORGE-01",
@@ -247,14 +247,14 @@
   {
     "id": "LOC-SM-ENSAM-01",
     "areaId": "AREA-SM-ENSAM",
-    "name": "Estación de Ensamblaje 1",
+    "name": "Estaci\u00f3n de Ensamblaje 1",
     "requiredCertification": null,
     "status": "active"
   },
   {
     "id": "LOC-SM-ENSAM-02",
     "areaId": "AREA-SM-ENSAM",
-    "name": "Estación de Ensamblaje 2",
+    "name": "Estaci\u00f3n de Ensamblaje 2",
     "requiredCertification": null,
     "status": "active"
   },
@@ -275,14 +275,14 @@
   {
     "id": "LOC-AC-ENSAM-01",
     "areaId": "AREA-AC-ENSAM",
-    "name": "Estación 1",
+    "name": "Estaci\u00f3n 1",
     "requiredCertification": null,
     "status": "active"
   },
   {
     "id": "LOC-AC-ENSAM-02",
     "areaId": "AREA-AC-ENSAM",
-    "name": "Estación 2",
+    "name": "Estaci\u00f3n 2",
     "requiredCertification": null,
     "status": "active"
   },

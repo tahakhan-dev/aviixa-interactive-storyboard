@@ -148,7 +148,7 @@
     "lastHeartbeatAt": "2026-08-16T06:35:00Z",
     "syncHealthy": true,
     "clockSkewEventCount": 0,
-    "storagePressure": "ok",
+    "storagePressure": "critical",
     "pinnedPackageIds": [],
     "status": "active"
   },

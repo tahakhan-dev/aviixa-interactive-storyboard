@@ -53,7 +53,7 @@
     "shiftIds": [
       "SHIFT-BB-LS-DAY"
     ],
-    "status": "active"
+    "status": "archived"
   },
   {
     "id": "AREA-BB-RECEIVING",
@@ -62,7 +62,7 @@
     "shiftIds": [
       "SHIFT-BB-LS-DAY"
     ],
-    "status": "active"
+    "status": "archived"
   },
   {
     "id": "AREA-NF-FORGE",
@@ -130,7 +130,7 @@
   {
     "id": "AREA-SM-ENSAM",
     "siteId": "SITE-SM-MAIN",
-    "name": "Línea de Ensamblaje",
+    "name": "L\u00ednea de Ensamblaje",
     "shiftIds": [
       "SHIFT-SM-DAY"
     ],

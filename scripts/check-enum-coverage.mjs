@@ -55,13 +55,62 @@ const ALLOWLIST = [
   { collection: 'evidence', path: 'mediaType', value: 'video', reason: 'The permitted evidence-media list is TBD — Client Decision Required under DEC-MEDIA-001 (blueprint L71807); not a gap this seed can resolve on its own.' },
   { collection: 'evidence', path: 'mediaType', value: 'document', reason: 'Same DEC-MEDIA-001 citation as video (L71807).' },
   // Collections owned entirely by a later, not-yet-run task.
-  { collection: 'notifications', path: '*', value: '*', reason: 'Task 6 owns notifications.json; still a single Task-1 placeholder row.' },
-  { collection: 'commands', path: '*', value: '*', reason: 'Task 6 owns commands.json; still a single Task-1 placeholder row.' },
-  { collection: 'events', path: '*', value: '*', reason: 'Task 6 owns events.json; still a single Task-1 placeholder row.' },
-  { collection: 'audit', path: '*', value: '*', reason: 'Task 6 owns audit.json; still a single Task-1 placeholder row.' },
-  { collection: 'schedules', path: '*', value: '*', reason: 'Task 6 owns schedules.json; still a single Task-1 placeholder row.' },
-  { collection: 'ai-requests', path: '*', value: '*', reason: 'Task 6 owns ai-requests.json; still a single Task-1 placeholder row.' },
   { collection: 'tours', path: '*', value: '*', reason: 'Task 15 owns tours.json; still a single Task-1 placeholder row.' },
+
+  // --- Task 6's ten pre-existing gate failures in Task 2/3 collections, decided individually ---
+  // (docs/superpowers/plans/2026-08-26-runway.md Task 6 brief). Six were genuine gaps and are
+  // now seeded (sites/areas/locations/shifts.status 'archived', workers.status 'reactivated',
+  // devices.storagePressure 'critical') so they carry no entry here any more. The four below are
+  // NOT gaps: each is a state the frozen source assigns to a different object, or explicitly
+  // withholds from the product surface, so no row should ever carry it.
+  {
+    collection: 'users', path: 'status', value: 'suspended',
+    reason: "OBJ-027 · User account's own lifecycle (L8351) is exactly three states -- " +
+      '"provisioned, active, disabled". Suspension is the TENANT\'s lifecycle ' +
+      "(soft-suspended/hard-suspended/compliance-suspended on `Tenant.lifecycle`), not the " +
+      "User's own status -- confirmed the hard way in this seed's own history: fix commit " +
+      "39ae3cf (\"hard suspension does not lock a worker out\") reverted two SummitGear workers " +
+      "from `status: 'suspended'` back to `'active'` specifically because a hard-suspended " +
+      "tenant's floor continues (L2237: 'no new runs; mandatory notifications and audit " +
+      "continue') and folding the tenant's suspension into the User row misrepresented that. " +
+      "No row should carry User.status: 'suspended'.",
+  },
+  {
+    collection: 'users', path: 'status', value: 'expired',
+    reason: "Same OBJ-027 citation as 'suspended' above (L8351, three states only). Nothing in " +
+      "the source models the User account itself as expiring: qualifications expire " +
+      "(Qualification.status, already seeded), credentials are trusted within the offline-trust " +
+      "window (a device/session concept, not User.status), and a lapsed pre-activation " +
+      "invitation is its own notification-shaped state sequence (L75551: 'created, eligible, " +
+      "queued, sent, ... expired, superseded, ...') seeded on `notifications`, not folded onto " +
+      "the eventual User row. No row should carry User.status: 'expired'.",
+  },
+  {
+    collection: 'role-grants', path: 'role', value: 'ROOT_SUPER_ADMIN',
+    reason: 'The root account is "created through the backend at platform commissioning, never ' +
+      'through any user interface" (L11652, restated L14937-14940, L8345: "console users are ' +
+      'created by the Root Super Admin only ... no role-escalation path except the root ' +
+      'acting"). A RoleGrant row models an in-product act (`grantedBy`/`grantedAt`, an admin ' +
+      "granting a role through the product); a ROOT_SUPER_ADMIN role-grant row would misrepresent " +
+      'a backend-only, one-time provisioning event as an ordinary product grant. The account\'s ' +
+      'own creation is still auditable (L8356: "account provisioning events including the ' +
+      "backend creation of the root are audit events\") and is seeded on `audit`, where " +
+      "`effectiveRole: 'ROOT_SUPER_ADMIN'` genuinely appears. No row should carry " +
+      "role-grants.role: 'ROOT_SUPER_ADMIN'.",
+  },
+  {
+    collection: 'access-sessions', path: 'kind', value: 'break-glass',
+    reason: 'The frozen source uses "break-glass" as a label for two different things, neither ' +
+      "of which is a distinct AccessSession row alongside 'compliance-emergency'. First: L6467/" +
+      'L9687 read it as a name for the SAME mechanism already seeded as `kind: \'compliance-' +
+      'emergency\'` ("the break-glass route IS the compliance-emergency path"; "the term is not ' +
+      'used" in the Statement of Work itself, L6467). Second: L15617-15690 use it for root-' +
+      'account credential re-provisioning, a `Recommendation — R&D` procedure that REPLACES the ' +
+      'root identity rather than granting scoped tenant access, and so has no tenantId/scope to ' +
+      "put in an AccessSession row at all. Under either reading, no row should carry " +
+      "access-sessions.kind: 'break-glass' -- every genuine break-glass event in this seed is " +
+      "correctly recorded as `kind: 'compliance-emergency'`.",
+  },
 ]
 
 // --- schema-side: every reachable ZodEnum, and every union's literal

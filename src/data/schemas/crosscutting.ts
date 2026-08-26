@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { NOTIFICATION_STATES, SCHEDULE_DEFINITION_STATES, SCHEDULE_OCCURRENCE_STATES } from '@/domain/vocabularies'
 import { COMMAND_STATES } from '@/surfaces/sa/command-state'
-import { Stamp } from './platform'
+import { Stamp, Role } from './platform'
 
 /**
  * OBJ-060 · Notification (L9203-L9218). Fields L9209. Lifecycle L9211 is
@@ -40,6 +40,48 @@ export type Notification = z.infer<typeof Notification>
  * declared as `CommandState` / `COMMAND_STATES` in `@/ui/ScreenStateBoundary`
  * and `@/surfaces/sa/command-state` — reused per controller ruling R2.
  */
+/**
+ * OBJ-082's own "parent and child objects" line (L9779): "children are the
+ * per-device delivery records" — no separate business object or §3.1
+ * collection is given for them, so, matching this file's own
+ * `ScheduleDefinitionRow`/`ScheduleOccurrenceRow` and `Event` folding
+ * pattern, a Command's per-device delivery records are a nested array on
+ * the Command row rather than a second collection. `status` is the same
+ * fifteen-state `COMMAND_STATES` ladder with the five states that describe
+ * only the CENTRAL, not-yet-targeted lifecycle of the command as a whole
+ * (created, authorized, cancelled, superseded, reconciled) excluded via
+ * zod's own `.exclude()` rather than a second hand-typed literal array, so
+ * this can never drift from `COMMAND_STATES` itself (fix round 1 lesson,
+ * applied here from the start): a single device is never itself "created"
+ * or "authorized", and "cancelled"/"superseded"/"reconciled" describe the
+ * command record's own disposition, not one device's copy of it. This is
+ * what lets one command be `applied` on one device and still `queued` (or
+ * `delivered`, not yet `applied`) on another — brief pass criterion 2.
+ */
+const CommandStateEnum = z.enum(COMMAND_STATES)
+export const DeviceDeliveryState = CommandStateEnum.exclude([
+  'created', 'authorized', 'cancelled', 'superseded', 'reconciled',
+])
+export type DeviceDeliveryState = z.infer<typeof DeviceDeliveryState>
+
+export const CommandDelivery = z.object({
+  deviceId: z.string().min(1),
+  status: DeviceDeliveryState,
+  /**
+   * Every timestamp below is DERIVED from `status`, never drawn
+   * independently beside it (the task prompt's own lesson from Task 5's
+   * two fix rounds): present exactly when the status it evidences implies
+   * it, in strictly increasing order, never on a status that has not
+   * reached that point yet.
+   */
+  deliveredAt: Stamp.nullable(),
+  downloadedAt: Stamp.nullable(),
+  appliedAt: Stamp.nullable(),
+  acknowledgedAt: Stamp.nullable(),
+  rejectedReason: z.string().nullable(),
+}).strict()
+export type CommandDelivery = z.infer<typeof CommandDelivery>
+
 export const Command = z.object({
   id: z.string().min(1),
   tenantId: z.string().min(1),
@@ -56,6 +98,7 @@ export const Command = z.object({
   issuedBy: z.string().min(1),
   createdAt: Stamp,
   acknowledgedAt: Stamp.nullable(),
+  deliveries: z.array(CommandDelivery),
   status: z.enum(COMMAND_STATES),
 }).strict()
 export type Command = z.infer<typeof Command>
@@ -100,18 +143,53 @@ export type SyncEvent = z.infer<typeof SyncEvent>
 export const Event = z.discriminatedUnion('kind', [OperationalEvent, SyncEvent])
 export type Event = z.infer<typeof Event>
 
-// OBJ-084 · Audit event (L9810-L9825). Fields L9816. Lifecycle L9818:
-// "written; there is no further lifecycle" — append-only, no status field.
+/**
+ * OBJ-084 · Audit event (L9810-L9825). Fields L9816: "actor identity;
+ * action; subject record; timestamp; before and after values where
+ * applicable; audit class." Lifecycle L9818: "written; there is no further
+ * lifecycle" — append-only, no status field.
+ *
+ * `effectiveRole`, `scope`, `correlationId` and `causationId` are NOT on
+ * OBJ-084's own field line above; they are master prompt §19.3's fuller
+ * statement of the same object ("Every audit event contains ... actor
+ * identity, effective role/grant/scope/qualification, ... correlation/
+ * causation/idempotency/sequence ..."), which this task's brief quotes
+ * near-verbatim as its own pass criterion 3. Per the runway plan's own
+ * rule that the frozen source wins where the two disagree, OBJ-084's field
+ * *line* is the shorter of two true statements about the same object, not
+ * a competing one — master prompt §19.3 is read here as the fuller
+ * specification of the fields the frozen source's audit event already
+ * carries in its worked examples (every Bright Bikes audit illustration
+ * names an actor acting AS a role, e.g. L9825 "Elena's release"), not as a
+ * second, conflicting source. `result` and `denialReason` are the same
+ * §19.3 sentence's "action, result, denial/failure reason", giving the
+ * "at least one row for ... a denial" pass criterion a structured field to
+ * carry rather than requiring it be inferred from `action`'s free text.
+ * `scope` reuses the `siteIds`/`areaIds` shape `RoleGrant` already uses for
+ * the same idea (a grant's or an action's site/area reach) rather than
+ * inventing a second shape for it.
+ */
 export const Audit = z.object({
   id: z.string().min(1),
   tenantId: z.string().nullable(),
   actorId: z.string().min(1),
+  effectiveRole: Role,
+  scope: z.object({
+    siteIds: z.array(z.string()),
+    areaIds: z.array(z.string()),
+  }).strict(),
   action: z.string().min(1),
+  result: z.enum(['success', 'denied', 'failed']),
+  denialReason: z.string().nullable(),
   subjectRef: z.string().min(1),
   occurredAt: Stamp,
   before: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).nullable(),
   after: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).nullable(),
   auditClass: z.string().min(1),
+  /** Opaque trace token grouping every row this one causal chain produced across every collection — not a single collection's row id, see index.ts UNCHECKABLE_ID_FIELDS. */
+  correlationId: z.string().min(1),
+  /** The correlationId (or top-level triggering identifier) of the upstream action that caused this one, where one exists — polymorphic across every collection kind, see index.ts UNCHECKABLE_ID_FIELDS. */
+  causationId: z.string().min(1).nullable(),
 }).strict()
 export type Audit = z.infer<typeof Audit>
 

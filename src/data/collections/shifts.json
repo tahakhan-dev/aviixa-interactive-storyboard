@@ -54,7 +54,7 @@
     ],
     "digestDeliveryTime": "06:45",
     "nominalProductionDateRule": "same calendar day as shift start",
-    "status": "active"
+    "status": "archived"
   },
   {
     "id": "SHIFT-NF-DAY",
@@ -157,7 +157,7 @@
       "AREA-SM-ENSAM"
     ],
     "digestDeliveryTime": "05:45",
-    "nominalProductionDateRule": "mismo día calendario del inicio del turno",
+    "nominalProductionDateRule": "mismo d\u00eda calendario del inicio del turno",
     "status": "active"
   },
   {
@@ -183,7 +183,7 @@
       "AREA-AC-ENSAM"
     ],
     "digestDeliveryTime": "05:45",
-    "nominalProductionDateRule": "mismo día calendario del inicio del turno",
+    "nominalProductionDateRule": "mismo d\u00eda calendario del inicio del turno",
     "status": "active"
   },
   {

@@ -1846,7 +1846,7 @@
       "kind": "unit",
       "id": "SN-BB-25048"
     },
-    "workerId": "WRK-BB-WKR-16",
+    "workerId": "WRK-BB-WKR-15",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-002",
     "locationResolved": true,
@@ -1960,7 +1960,7 @@
       "kind": "unit",
       "id": "SN-BB-54864"
     },
-    "workerId": "WRK-BB-WKR-07",
+    "workerId": "WRK-BB-WKR-06",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-014",
     "locationResolved": true,
@@ -2802,7 +2802,7 @@
       "kind": "unit",
       "id": "SN-BB-74787"
     },
-    "workerId": "WRK-BB-WKR-17",
+    "workerId": "WRK-BB-WKR-16",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-002",
     "locationResolved": true,
@@ -2914,7 +2914,7 @@
       "kind": "unit",
       "id": "SN-BB-62374"
     },
-    "workerId": "WRK-BB-WKR-11",
+    "workerId": "WRK-BB-WKR-10",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-010",
     "locationResolved": true,
@@ -2942,7 +2942,7 @@
       "kind": "unit",
       "id": "SN-BB-62374"
     },
-    "workerId": "WRK-BB-WKR-11",
+    "workerId": "WRK-BB-WKR-10",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-010",
     "locationResolved": true,
@@ -2970,7 +2970,7 @@
       "kind": "unit",
       "id": "SN-BB-62374"
     },
-    "workerId": "WRK-BB-WKR-11",
+    "workerId": "WRK-BB-WKR-10",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-010",
     "locationResolved": true,
@@ -2998,7 +2998,7 @@
       "kind": "unit",
       "id": "SN-BB-62374"
     },
-    "workerId": "WRK-BB-WKR-11",
+    "workerId": "WRK-BB-WKR-10",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-010",
     "locationResolved": true,
@@ -3138,7 +3138,7 @@
       "kind": "unit",
       "id": "SN-BB-41241"
     },
-    "workerId": "WRK-BB-WKR-10",
+    "workerId": "WRK-BB-WKR-09",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-006",
     "locationResolved": true,
@@ -3166,7 +3166,7 @@
       "kind": "unit",
       "id": "SN-BB-83017"
     },
-    "workerId": "WRK-BB-WKR-15",
+    "workerId": "WRK-BB-WKR-14",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-010",
     "locationResolved": true,
@@ -3194,7 +3194,7 @@
       "kind": "unit",
       "id": "SN-BB-83017"
     },
-    "workerId": "WRK-BB-WKR-15",
+    "workerId": "WRK-BB-WKR-14",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-010",
     "locationResolved": true,
@@ -3222,7 +3222,7 @@
       "kind": "unit",
       "id": "SN-BB-83017"
     },
-    "workerId": "WRK-BB-WKR-15",
+    "workerId": "WRK-BB-WKR-14",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-010",
     "locationResolved": true,
@@ -3250,7 +3250,7 @@
       "kind": "unit",
       "id": "SN-BB-83017"
     },
-    "workerId": "WRK-BB-WKR-15",
+    "workerId": "WRK-BB-WKR-14",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-010",
     "locationResolved": true,
@@ -3532,7 +3532,7 @@
       "kind": "unit",
       "id": "SN-BB-55762"
     },
-    "workerId": "WRK-BB-WKR-10",
+    "workerId": "WRK-BB-WKR-09",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-003",
     "locationResolved": true,
@@ -3842,7 +3842,7 @@
       "kind": "unit",
       "id": "SN-BB-53121"
     },
-    "workerId": "WRK-BB-WKR-19",
+    "workerId": "WRK-BB-WKR-18",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-002",
     "locationResolved": true,
@@ -3870,7 +3870,7 @@
       "kind": "unit",
       "id": "SN-BB-53218"
     },
-    "workerId": "WRK-BB-WKR-17",
+    "workerId": "WRK-BB-WKR-16",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-013",
     "locationResolved": true,
@@ -3926,7 +3926,7 @@
       "kind": "unit",
       "id": "SN-BB-80503"
     },
-    "workerId": "WRK-BB-WKR-19",
+    "workerId": "WRK-BB-WKR-18",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-002",
     "locationResolved": true,
@@ -4234,7 +4234,7 @@
       "kind": "unit",
       "id": "SN-BB-29565"
     },
-    "workerId": "WRK-BB-WKR-15",
+    "workerId": "WRK-BB-WKR-14",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-002",
     "locationResolved": true,
@@ -4262,7 +4262,7 @@
       "kind": "unit",
       "id": "SN-BB-29565"
     },
-    "workerId": "WRK-BB-WKR-15",
+    "workerId": "WRK-BB-WKR-14",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-002",
     "locationResolved": true,
@@ -4290,7 +4290,7 @@
       "kind": "unit",
       "id": "SN-BB-29565"
     },
-    "workerId": "WRK-BB-WKR-15",
+    "workerId": "WRK-BB-WKR-14",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-002",
     "locationResolved": true,
@@ -4318,7 +4318,7 @@
       "kind": "unit",
       "id": "SN-BB-29565"
     },
-    "workerId": "WRK-BB-WKR-15",
+    "workerId": "WRK-BB-WKR-14",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-002",
     "locationResolved": true,
@@ -4516,7 +4516,7 @@
       "kind": "unit",
       "id": "SN-BB-22774"
     },
-    "workerId": "WRK-BB-WKR-18",
+    "workerId": "WRK-BB-WKR-17",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-001",
     "locationResolved": true,
@@ -4628,7 +4628,7 @@
       "kind": "unit",
       "id": "SN-BB-99218"
     },
-    "workerId": "WRK-BB-WKR-09",
+    "workerId": "WRK-BB-WKR-08",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-013",
     "locationResolved": true,
@@ -4740,7 +4740,7 @@
       "kind": "unit",
       "id": "SN-BB-93238"
     },
-    "workerId": "WRK-BB-WKR-17",
+    "workerId": "WRK-BB-WKR-16",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-011",
     "locationResolved": true,
@@ -4880,7 +4880,7 @@
       "kind": "unit",
       "id": "SN-BB-62746"
     },
-    "workerId": "WRK-BB-WKR-19",
+    "workerId": "WRK-BB-WKR-18",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-013",
     "locationResolved": true,
@@ -4964,7 +4964,7 @@
       "kind": "unit",
       "id": "SN-BB-32195"
     },
-    "workerId": "WRK-BB-WKR-14",
+    "workerId": "WRK-BB-WKR-13",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-014",
     "locationResolved": true,
@@ -5248,7 +5248,7 @@
       "kind": "unit",
       "id": "SN-BB-58720"
     },
-    "workerId": "WRK-BB-WKR-14",
+    "workerId": "WRK-BB-WKR-13",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-013",
     "locationResolved": true,
@@ -5276,7 +5276,7 @@
       "kind": "unit",
       "id": "SN-BB-58720"
     },
-    "workerId": "WRK-BB-WKR-14",
+    "workerId": "WRK-BB-WKR-13",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-013",
     "locationResolved": true,
@@ -5304,7 +5304,7 @@
       "kind": "unit",
       "id": "SN-BB-58720"
     },
-    "workerId": "WRK-BB-WKR-14",
+    "workerId": "WRK-BB-WKR-13",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-013",
     "locationResolved": true,
@@ -5332,7 +5332,7 @@
       "kind": "unit",
       "id": "SN-BB-58720"
     },
-    "workerId": "WRK-BB-WKR-14",
+    "workerId": "WRK-BB-WKR-13",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-013",
     "locationResolved": true,
@@ -5360,7 +5360,7 @@
       "kind": "unit",
       "id": "SN-BB-92922"
     },
-    "workerId": "WRK-BB-WKR-11",
+    "workerId": "WRK-BB-WKR-10",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-006",
     "locationResolved": true,
@@ -5584,7 +5584,7 @@
       "kind": "unit",
       "id": "SN-BB-90267"
     },
-    "workerId": "WRK-BB-WKR-20",
+    "workerId": "WRK-BB-WKR-19",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-013",
     "locationResolved": true,
@@ -5640,7 +5640,7 @@
       "kind": "unit",
       "id": "SN-BB-70940"
     },
-    "workerId": "WRK-BB-WKR-16",
+    "workerId": "WRK-BB-WKR-15",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-006",
     "locationResolved": true,
@@ -5668,7 +5668,7 @@
       "kind": "unit",
       "id": "SN-BB-54704"
     },
-    "workerId": "WRK-BB-WKR-17",
+    "workerId": "WRK-BB-WKR-16",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-009",
     "locationResolved": true,
@@ -5892,7 +5892,7 @@
       "kind": "unit",
       "id": "SN-BB-31715"
     },
-    "workerId": "WRK-BB-WKR-03",
+    "workerId": "WRK-BB-WKR-02",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-011",
     "locationResolved": true,
@@ -6258,7 +6258,7 @@
       "kind": "unit",
       "id": "SN-BB-29643"
     },
-    "workerId": "WRK-BB-WKR-17",
+    "workerId": "WRK-BB-WKR-16",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-001",
     "locationResolved": true,
@@ -6454,7 +6454,7 @@
       "kind": "unit",
       "id": "SN-BB-47620"
     },
-    "workerId": "WRK-BB-WKR-19",
+    "workerId": "WRK-BB-WKR-18",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-001",
     "locationResolved": true,
@@ -6482,7 +6482,7 @@
       "kind": "unit",
       "id": "SN-BB-47620"
     },
-    "workerId": "WRK-BB-WKR-19",
+    "workerId": "WRK-BB-WKR-18",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-001",
     "locationResolved": true,
@@ -6510,7 +6510,7 @@
       "kind": "unit",
       "id": "SN-BB-47620"
     },
-    "workerId": "WRK-BB-WKR-19",
+    "workerId": "WRK-BB-WKR-18",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-001",
     "locationResolved": true,
@@ -6538,7 +6538,7 @@
       "kind": "unit",
       "id": "SN-BB-47620"
     },
-    "workerId": "WRK-BB-WKR-19",
+    "workerId": "WRK-BB-WKR-18",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-001",
     "locationResolved": true,
@@ -6594,7 +6594,7 @@
       "kind": "unit",
       "id": "SN-BB-84333"
     },
-    "workerId": "WRK-BB-WKR-13",
+    "workerId": "WRK-BB-WKR-12",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-014",
     "locationResolved": true,
@@ -6622,7 +6622,7 @@
       "kind": "unit",
       "id": "SN-BB-84333"
     },
-    "workerId": "WRK-BB-WKR-13",
+    "workerId": "WRK-BB-WKR-12",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-014",
     "locationResolved": true,
@@ -6650,7 +6650,7 @@
       "kind": "unit",
       "id": "SN-BB-84333"
     },
-    "workerId": "WRK-BB-WKR-13",
+    "workerId": "WRK-BB-WKR-12",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-014",
     "locationResolved": true,
@@ -6678,7 +6678,7 @@
       "kind": "unit",
       "id": "SN-BB-84333"
     },
-    "workerId": "WRK-BB-WKR-13",
+    "workerId": "WRK-BB-WKR-12",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-014",
     "locationResolved": true,
@@ -6764,7 +6764,7 @@
       "kind": "unit",
       "id": "SN-BB-43223"
     },
-    "workerId": "WRK-BB-WKR-18",
+    "workerId": "WRK-BB-WKR-17",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-003",
     "locationResolved": true,
@@ -6904,7 +6904,7 @@
       "kind": "unit",
       "id": "SN-BB-41683"
     },
-    "workerId": "WRK-BB-WKR-16",
+    "workerId": "WRK-BB-WKR-15",
     "authorisingWorkerId": null,
     "deviceId": "DEV-BB-TAB-001",
     "locationResolved": true,

@@ -1,14 +1,966 @@
 [
   {
-    "id": "CMD-0001",
+    "id": "CMD-BB-LOTRELEASE-01",
     "tenantId": "TEN-BRIGHTBIKES",
     "class": "lot-release",
-    "targetDeviceId": "DEV-BB-TAB-014",
-    "targetFleetTag": null,
-    "payloadRef": "CMD-PAYLOAD-0001",
+    "targetDeviceId": null,
+    "targetFleetTag": "FLEET-BB-RIVERSIDE-ASSEMBLY",
+    "payloadRef": "LOT-WB-2291",
     "issuedBy": "USR-BB-QM-01",
-    "createdAt": "2026-03-02T06:10:00Z",
+    "createdAt": "2026-08-15T13:05:02Z",
     "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-BB-TAB-001",
+        "status": "acknowledged",
+        "deliveredAt": "2026-08-15T13:05:03Z",
+        "downloadedAt": "2026-08-15T13:05:04Z",
+        "appliedAt": "2026-08-15T13:05:09Z",
+        "acknowledgedAt": "2026-08-15T13:05:10Z",
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-002",
+        "status": "acknowledged",
+        "deliveredAt": "2026-08-15T13:05:04Z",
+        "downloadedAt": "2026-08-15T13:05:05Z",
+        "appliedAt": "2026-08-15T13:05:11Z",
+        "acknowledgedAt": "2026-08-15T13:05:12Z",
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-014",
+        "status": "acknowledged",
+        "deliveredAt": "2026-08-15T13:41:00Z",
+        "downloadedAt": "2026-08-15T13:43:10Z",
+        "appliedAt": "2026-08-15T13:44:00Z",
+        "acknowledgedAt": "2026-08-15T13:44:03Z",
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-003",
+        "status": "delivered",
+        "deliveredAt": "2026-08-15T13:05:05Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "applied"
+  },
+  {
+    "id": "CMD-GEN-BB-1",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "class": "suspension",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-BB-1",
+    "issuedBy": "USR-BB-ADMIN",
+    "createdAt": "2026-03-31T08:13:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "created"
+  },
+  {
+    "id": "CMD-GEN-NF-2",
+    "tenantId": "TEN-NORTHFORGE",
+    "class": "lot-release",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-NF-2",
+    "issuedBy": "USR-NF-ADM-01",
+    "createdAt": "2026-05-16T01:56:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "authorized"
+  },
+  {
+    "id": "CMD-GEN-CW-3",
+    "tenantId": "TEN-CEDARWORKS",
+    "class": "qualification-clearance",
+    "targetDeviceId": "DEV-CW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-CW-3",
+    "issuedBy": "USR-CW-ADM-01",
+    "createdAt": "2026-05-02T08:44:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-CW-TAB-001",
+        "status": "queued",
+        "deliveredAt": null,
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
     "status": "queued"
+  },
+  {
+    "id": "CMD-GEN-HD-4",
+    "tenantId": "TEN-HALLIDAY",
+    "class": "version-change",
+    "targetDeviceId": "DEV-HD-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-HD-4",
+    "issuedBy": "USR-HD-ADM-01",
+    "createdAt": "2026-02-15T00:41:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-HD-TAB-001",
+        "status": "queued",
+        "deliveredAt": null,
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "available for delivery"
+  },
+  {
+    "id": "CMD-GEN-SG-5",
+    "tenantId": "TEN-SUMMITGEAR",
+    "class": "lot-release",
+    "targetDeviceId": "DEV-SG-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-SG-5",
+    "issuedBy": "USR-SG-ADM-01",
+    "createdAt": "2026-07-20T07:33:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-SG-TAB-001",
+        "status": "queued",
+        "deliveredAt": null,
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "delivered"
+  },
+  {
+    "id": "CMD-GEN-MR-6",
+    "tenantId": "TEN-MERIDIAN",
+    "class": "reassignment-or-substitution",
+    "targetDeviceId": "DEV-MR-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-MR-6",
+    "issuedBy": "USR-MR-ADM-01",
+    "createdAt": "2026-03-21T13:40:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-MR-TAB-001",
+        "status": "downloaded",
+        "deliveredAt": "2026-03-21T13:42:00.000Z",
+        "downloadedAt": "2026-03-21T13:45:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "downloaded"
+  },
+  {
+    "id": "CMD-GEN-DW-7",
+    "tenantId": "TEN-DELTAWORKS",
+    "class": "qualification-clearance",
+    "targetDeviceId": "DEV-DW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-DW-7",
+    "issuedBy": "USR-DW-ADM-01",
+    "createdAt": "2026-01-28T02:23:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-DW-TAB-001",
+        "status": "downloaded",
+        "deliveredAt": "2026-01-28T02:27:00.000Z",
+        "downloadedAt": "2026-01-28T02:32:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "validated"
+  },
+  {
+    "id": "CMD-GEN-PW-8",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "class": "version-change",
+    "targetDeviceId": "DEV-PW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-PW-8",
+    "issuedBy": "USR-PW-ADM-01",
+    "createdAt": "2026-02-23T08:44:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-PW-TAB-001",
+        "status": "applied",
+        "deliveredAt": "2026-02-23T08:49:00.000Z",
+        "downloadedAt": "2026-02-23T08:54:00.000Z",
+        "appliedAt": "2026-02-23T08:56:00.000Z",
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "applied"
+  },
+  {
+    "id": "CMD-GEN-SM-9",
+    "tenantId": "TEN-SOLMETAL",
+    "class": "version-change",
+    "targetDeviceId": "DEV-SM-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-SM-9",
+    "issuedBy": "USR-SM-ADM-01",
+    "createdAt": "2026-05-25T12:29:00.000Z",
+    "acknowledgedAt": "2026-05-25T12:43:00.000Z",
+    "deliveries": [
+      {
+        "deviceId": "DEV-SM-TAB-001",
+        "status": "acknowledged",
+        "deliveredAt": "2026-05-25T12:34:00.000Z",
+        "downloadedAt": "2026-05-25T12:38:00.000Z",
+        "appliedAt": "2026-05-25T12:40:00.000Z",
+        "acknowledgedAt": "2026-05-25T12:43:00.000Z",
+        "rejectedReason": null
+      }
+    ],
+    "status": "acknowledged"
+  },
+  {
+    "id": "CMD-GEN-HW-10",
+    "tenantId": "TEN-HARBORWORKS",
+    "class": "qualification-clearance",
+    "targetDeviceId": "DEV-HW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-HW-10",
+    "issuedBy": "USR-HW-ADM-01",
+    "createdAt": "2026-03-01T14:16:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-HW-TAB-001",
+        "status": "rejected",
+        "deliveredAt": "2026-03-01T14:20:00.000Z",
+        "downloadedAt": "2026-03-01T14:25:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": "Device policy validation failed against the delivered payload version."
+      }
+    ],
+    "status": "rejected"
+  },
+  {
+    "id": "CMD-GEN-AC-11",
+    "tenantId": "TEN-AZURACOMP",
+    "class": "lot-release",
+    "targetDeviceId": "DEV-AC-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-AC-11",
+    "issuedBy": "USR-AC-ADM-01",
+    "createdAt": "2026-02-13T10:28:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-AC-TAB-001",
+        "status": "failed",
+        "deliveredAt": "2026-02-13T10:30:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "failed"
+  },
+  {
+    "id": "CMD-GEN-KD-12",
+    "tenantId": "TEN-KESTRELDYN",
+    "class": "lot-release",
+    "targetDeviceId": "DEV-KD-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-KD-12",
+    "issuedBy": "USR-KD-ADM-01",
+    "createdAt": "2026-01-20T00:47:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-KD-TAB-001",
+        "status": "expired",
+        "deliveredAt": "2026-01-20T00:51:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "expired"
+  },
+  {
+    "id": "CMD-GEN-BB-13",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "class": "suspension",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-BB-13",
+    "issuedBy": "USR-BB-ADMIN",
+    "createdAt": "2026-03-24T06:51:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "cancelled"
+  },
+  {
+    "id": "CMD-GEN-NF-14",
+    "tenantId": "TEN-NORTHFORGE",
+    "class": "qualification-clearance",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-NF-14",
+    "issuedBy": "USR-NF-ADM-01",
+    "createdAt": "2026-04-10T02:01:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "superseded"
+  },
+  {
+    "id": "CMD-GEN-CW-15",
+    "tenantId": "TEN-CEDARWORKS",
+    "class": "qualification-clearance",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-CW-15",
+    "issuedBy": "USR-CW-ADM-01",
+    "createdAt": "2026-03-09T11:05:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "reconciled"
+  },
+  {
+    "id": "CMD-GEN-HD-16",
+    "tenantId": "TEN-HALLIDAY",
+    "class": "qualification-clearance",
+    "targetDeviceId": "DEV-HD-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-HD-16",
+    "issuedBy": "USR-HD-ADM-01",
+    "createdAt": "2026-05-07T11:23:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-HD-TAB-001",
+        "status": "expired",
+        "deliveredAt": "2026-05-07T11:27:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "expired"
+  },
+  {
+    "id": "CMD-GEN-SG-17",
+    "tenantId": "TEN-SUMMITGEAR",
+    "class": "qualification-clearance",
+    "targetDeviceId": "DEV-SG-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-SG-17",
+    "issuedBy": "USR-SG-ADM-01",
+    "createdAt": "2026-06-03T04:57:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-SG-TAB-001",
+        "status": "queued",
+        "deliveredAt": null,
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "available for delivery"
+  },
+  {
+    "id": "CMD-GEN-MR-18",
+    "tenantId": "TEN-MERIDIAN",
+    "class": "lot-release",
+    "targetDeviceId": "DEV-MR-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-MR-18",
+    "issuedBy": "USR-MR-ADM-01",
+    "createdAt": "2026-04-21T07:38:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-MR-TAB-001",
+        "status": "expired",
+        "deliveredAt": "2026-04-21T07:42:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "expired"
+  },
+  {
+    "id": "CMD-GEN-DW-19",
+    "tenantId": "TEN-DELTAWORKS",
+    "class": "qualification-clearance",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-DW-19",
+    "issuedBy": "USR-DW-ADM-01",
+    "createdAt": "2026-05-26T05:02:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "authorized"
+  },
+  {
+    "id": "CMD-GEN-PW-20",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "class": "reassignment-or-substitution",
+    "targetDeviceId": "DEV-PW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-PW-20",
+    "issuedBy": "USR-PW-ADM-01",
+    "createdAt": "2026-07-15T12:54:00.000Z",
+    "acknowledgedAt": "2026-07-15T13:06:00.000Z",
+    "deliveries": [
+      {
+        "deviceId": "DEV-PW-TAB-001",
+        "status": "acknowledged",
+        "deliveredAt": "2026-07-15T12:56:00.000Z",
+        "downloadedAt": "2026-07-15T12:58:00.000Z",
+        "appliedAt": "2026-07-15T13:02:00.000Z",
+        "acknowledgedAt": "2026-07-15T13:06:00.000Z",
+        "rejectedReason": null
+      }
+    ],
+    "status": "acknowledged"
+  },
+  {
+    "id": "CMD-GEN-SM-21",
+    "tenantId": "TEN-SOLMETAL",
+    "class": "qualification-clearance",
+    "targetDeviceId": "DEV-SM-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-SM-21",
+    "issuedBy": "USR-SM-ADM-01",
+    "createdAt": "2026-04-25T18:09:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-SM-TAB-001",
+        "status": "downloaded",
+        "deliveredAt": "2026-04-25T18:10:00.000Z",
+        "downloadedAt": "2026-04-25T18:14:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "downloaded"
+  },
+  {
+    "id": "CMD-GEN-HW-22",
+    "tenantId": "TEN-HARBORWORKS",
+    "class": "lot-release",
+    "targetDeviceId": "DEV-HW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-HW-22",
+    "issuedBy": "USR-HW-ADM-01",
+    "createdAt": "2026-05-28T04:18:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-HW-TAB-001",
+        "status": "rejected",
+        "deliveredAt": "2026-05-28T04:23:00.000Z",
+        "downloadedAt": "2026-05-28T04:28:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": "Device policy validation failed against the delivered payload version."
+      }
+    ],
+    "status": "rejected"
+  },
+  {
+    "id": "CMD-GEN-AC-23",
+    "tenantId": "TEN-AZURACOMP",
+    "class": "version-change",
+    "targetDeviceId": "DEV-AC-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-AC-23",
+    "issuedBy": "USR-AC-ADM-01",
+    "createdAt": "2026-05-09T13:04:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-AC-TAB-001",
+        "status": "queued",
+        "deliveredAt": null,
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "available for delivery"
+  },
+  {
+    "id": "CMD-GEN-KD-24",
+    "tenantId": "TEN-KESTRELDYN",
+    "class": "qualification-clearance",
+    "targetDeviceId": "DEV-KD-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-KD-24",
+    "issuedBy": "USR-KD-ADM-01",
+    "createdAt": "2026-07-23T11:45:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-KD-TAB-001",
+        "status": "failed",
+        "deliveredAt": "2026-07-23T11:50:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "failed"
+  },
+  {
+    "id": "CMD-GEN-BB-25",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "class": "suspension",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-BB-25",
+    "issuedBy": "USR-BB-ADMIN",
+    "createdAt": "2026-07-07T06:16:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "cancelled"
+  },
+  {
+    "id": "CMD-GEN-NF-26",
+    "tenantId": "TEN-NORTHFORGE",
+    "class": "reassignment-or-substitution",
+    "targetDeviceId": "DEV-NF-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-NF-26",
+    "issuedBy": "USR-NF-ADM-01",
+    "createdAt": "2026-08-07T10:09:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-NF-TAB-001",
+        "status": "delivered",
+        "deliveredAt": "2026-08-07T10:13:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "downloaded"
+  },
+  {
+    "id": "CMD-GEN-CW-27",
+    "tenantId": "TEN-CEDARWORKS",
+    "class": "qualification-clearance",
+    "targetDeviceId": "DEV-CW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-CW-27",
+    "issuedBy": "USR-CW-ADM-01",
+    "createdAt": "2026-08-11T01:37:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-CW-TAB-001",
+        "status": "queued",
+        "deliveredAt": null,
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "delivered"
+  },
+  {
+    "id": "CMD-GEN-HD-28",
+    "tenantId": "TEN-HALLIDAY",
+    "class": "lot-release",
+    "targetDeviceId": "DEV-HD-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-HD-28",
+    "issuedBy": "USR-HD-ADM-01",
+    "createdAt": "2026-03-21T12:26:00.000Z",
+    "acknowledgedAt": "2026-03-21T12:37:00.000Z",
+    "deliveries": [
+      {
+        "deviceId": "DEV-HD-TAB-001",
+        "status": "acknowledged",
+        "deliveredAt": "2026-03-21T12:28:00.000Z",
+        "downloadedAt": "2026-03-21T12:31:00.000Z",
+        "appliedAt": "2026-03-21T12:32:00.000Z",
+        "acknowledgedAt": "2026-03-21T12:37:00.000Z",
+        "rejectedReason": null
+      }
+    ],
+    "status": "acknowledged"
+  },
+  {
+    "id": "CMD-GEN-SG-29",
+    "tenantId": "TEN-SUMMITGEAR",
+    "class": "reassignment-or-substitution",
+    "targetDeviceId": "DEV-SG-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-SG-29",
+    "issuedBy": "USR-SG-ADM-01",
+    "createdAt": "2026-06-21T14:40:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-SG-TAB-001",
+        "status": "validated",
+        "deliveredAt": "2026-06-21T14:43:00.000Z",
+        "downloadedAt": "2026-06-21T14:45:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "validated"
+  },
+  {
+    "id": "CMD-GEN-MR-30",
+    "tenantId": "TEN-MERIDIAN",
+    "class": "qualification-clearance",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-MR-30",
+    "issuedBy": "USR-MR-ADM-01",
+    "createdAt": "2026-06-29T10:41:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "created"
+  },
+  {
+    "id": "CMD-GEN-DW-31",
+    "tenantId": "TEN-DELTAWORKS",
+    "class": "lot-release",
+    "targetDeviceId": "DEV-DW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-DW-31",
+    "issuedBy": "USR-DW-ADM-01",
+    "createdAt": "2026-01-13T08:20:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-DW-TAB-001",
+        "status": "downloaded",
+        "deliveredAt": "2026-01-13T08:21:00.000Z",
+        "downloadedAt": "2026-01-13T08:25:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "downloaded"
+  },
+  {
+    "id": "CMD-GEN-PW-32",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "class": "suspension",
+    "targetDeviceId": "DEV-PW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-PW-32",
+    "issuedBy": "USR-PW-ADM-01",
+    "createdAt": "2026-06-14T09:05:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-PW-TAB-001",
+        "status": "expired",
+        "deliveredAt": "2026-06-14T09:10:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "expired"
+  },
+  {
+    "id": "CMD-GEN-SM-33",
+    "tenantId": "TEN-SOLMETAL",
+    "class": "reassignment-or-substitution",
+    "targetDeviceId": "DEV-SM-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-SM-33",
+    "issuedBy": "USR-SM-ADM-01",
+    "createdAt": "2026-04-22T12:10:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-SM-TAB-001",
+        "status": "failed",
+        "deliveredAt": "2026-04-22T12:11:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "failed"
+  },
+  {
+    "id": "CMD-GEN-HW-34",
+    "tenantId": "TEN-HARBORWORKS",
+    "class": "version-change",
+    "targetDeviceId": "DEV-HW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-HW-34",
+    "issuedBy": "USR-HW-ADM-01",
+    "createdAt": "2026-05-02T09:27:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-HW-TAB-001",
+        "status": "failed",
+        "deliveredAt": "2026-05-02T09:32:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "failed"
+  },
+  {
+    "id": "CMD-GEN-AC-35",
+    "tenantId": "TEN-AZURACOMP",
+    "class": "lot-release",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-AC-35",
+    "issuedBy": "USR-AC-ADM-01",
+    "createdAt": "2026-06-10T16:40:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "reconciled"
+  },
+  {
+    "id": "CMD-GEN-KD-36",
+    "tenantId": "TEN-KESTRELDYN",
+    "class": "version-change",
+    "targetDeviceId": "DEV-KD-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-KD-36",
+    "issuedBy": "USR-KD-ADM-01",
+    "createdAt": "2026-05-02T02:47:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-KD-TAB-001",
+        "status": "failed",
+        "deliveredAt": "2026-05-02T02:52:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "failed"
+  },
+  {
+    "id": "CMD-GEN-BB-37",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "class": "qualification-clearance",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-BB-37",
+    "issuedBy": "USR-BB-ADMIN",
+    "createdAt": "2026-06-17T16:53:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "created"
+  },
+  {
+    "id": "CMD-GEN-NF-38",
+    "tenantId": "TEN-NORTHFORGE",
+    "class": "suspension",
+    "targetDeviceId": "DEV-NF-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-NF-38",
+    "issuedBy": "USR-NF-ADM-01",
+    "createdAt": "2026-06-01T08:15:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-NF-TAB-001",
+        "status": "rejected",
+        "deliveredAt": "2026-06-01T08:17:00.000Z",
+        "downloadedAt": "2026-06-01T08:22:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": "Device policy validation failed against the delivered payload version."
+      }
+    ],
+    "status": "rejected"
+  },
+  {
+    "id": "CMD-GEN-CW-39",
+    "tenantId": "TEN-CEDARWORKS",
+    "class": "lot-release",
+    "targetDeviceId": "DEV-CW-TAB-001",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-CW-39",
+    "issuedBy": "USR-CW-ADM-01",
+    "createdAt": "2026-01-17T02:33:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-CW-TAB-001",
+        "status": "queued",
+        "deliveredAt": null,
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "delivered"
+  },
+  {
+    "id": "CMD-GEN-HD-40",
+    "tenantId": "TEN-HALLIDAY",
+    "class": "lot-release",
+    "targetDeviceId": null,
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-GEN-HD-40",
+    "issuedBy": "USR-HD-ADM-01",
+    "createdAt": "2026-07-03T01:46:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [],
+    "status": "reconciled"
+  },
+  {
+    "id": "CMD-GEN-DEVICE-COVERAGE",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "class": "version-change",
+    "targetDeviceId": null,
+    "targetFleetTag": "FLEET-BB-DEVICE-COVERAGE",
+    "payloadRef": "CMD-PAYLOAD-GEN-DEVICE-COVERAGE",
+    "issuedBy": "USR-BB-ADMIN",
+    "createdAt": "2026-08-03T08:00:00.000Z",
+    "acknowledgedAt": null,
+    "deliveries": [
+      {
+        "deviceId": "DEV-BB-TAB-001",
+        "status": "queued",
+        "deliveredAt": null,
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-002",
+        "status": "available for delivery",
+        "deliveredAt": null,
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-003",
+        "status": "delivered",
+        "deliveredAt": "2026-08-03T08:02:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-006",
+        "status": "downloaded",
+        "deliveredAt": "2026-08-03T08:02:00.000Z",
+        "downloadedAt": "2026-08-03T08:07:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-009",
+        "status": "validated",
+        "deliveredAt": "2026-08-03T08:05:00.000Z",
+        "downloadedAt": "2026-08-03T08:08:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-010",
+        "status": "applied",
+        "deliveredAt": "2026-08-03T08:02:00.000Z",
+        "downloadedAt": "2026-08-03T08:06:00.000Z",
+        "appliedAt": "2026-08-03T08:09:00.000Z",
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-011",
+        "status": "acknowledged",
+        "deliveredAt": "2026-08-03T08:05:00.000Z",
+        "downloadedAt": "2026-08-03T08:10:00.000Z",
+        "appliedAt": "2026-08-03T08:13:00.000Z",
+        "acknowledgedAt": "2026-08-03T08:15:00.000Z",
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-013",
+        "status": "rejected",
+        "deliveredAt": "2026-08-03T08:02:00.000Z",
+        "downloadedAt": "2026-08-03T08:03:00.000Z",
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": "Device policy validation failed against the delivered payload version."
+      },
+      {
+        "deviceId": "DEV-BB-TAB-014",
+        "status": "failed",
+        "deliveredAt": "2026-08-03T08:01:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      },
+      {
+        "deviceId": "DEV-BB-TAB-001",
+        "status": "expired",
+        "deliveredAt": "2026-08-03T08:05:00.000Z",
+        "downloadedAt": null,
+        "appliedAt": null,
+        "acknowledgedAt": null,
+        "rejectedReason": null
+      }
+    ],
+    "status": "applied"
   }
 ]

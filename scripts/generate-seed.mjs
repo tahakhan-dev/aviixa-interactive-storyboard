@@ -21,6 +21,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as fx from './seed-fixtures/task4-studio.mjs'
 import * as fx5 from './seed-fixtures/task5-hub.mjs'
+import * as fx6 from './seed-fixtures/task6-crosscutting.mjs'
 // The capture-state ladder is the platform's own closed vocabulary (frozen
 // source §22.6.1, L39584-L39619) -- reused directly rather than
 // re-declared, so this generator can never drift from
@@ -29,6 +30,11 @@ import * as fx5 from './seed-fixtures/task5-hub.mjs'
 // strips the TypeScript types at load time; `capture.ts` has no import of
 // its own, so this resolves with no bundler involved.
 import { CAPTURE_STATES } from '../src/frontline/capture.ts'
+// Task 6's own reused vocabularies, same pattern: the schema module and
+// this generator both import the one closed set, so neither can drift
+// from the other (controller ruling R2).
+import { NOTIFICATION_STATES, SCHEDULE_DEFINITION_STATES, SCHEDULE_OCCURRENCE_STATES } from '../src/domain/vocabularies.ts'
+import { COMMAND_STATES } from '../src/surfaces/sa/command-state.ts'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(root, 'src/data/collections')
@@ -858,6 +864,566 @@ for (const t of OPERATIONAL_TENANTS) {
   })
 }
 
+// ===========================================================================
+// Task 6 — cross-cutting collections: notifications, commands, events,
+// audit, schedules, ai-requests (docs/superpowers/plans/2026-08-26-runway.md,
+// Task 6). Runs after Tasks 4-5's sections above, in the same script, so it
+// can place every generated row against real tenants, users, runs,
+// deviations, holds, jobs, devices, role-grants, qualification-grants,
+// workflow-definitions and step-executions already built above -- never a
+// second, disconnected population.
+// ===========================================================================
+const addMin = (iso, minutes) => new Date(new Date(iso).getTime() + minutes * 60000).toISOString()
+const qualificationGrantsAll = readCollection('qualification-grants.json')
+const roleGrantsAll = readCollection('role-grants.json')
+const tenantsAll = readCollection('tenants.json')
+const tenantLifecycle = new Map(tenantsAll.map((t) => [t.id, t.lifecycle]))
+const allRuns = [...fx5.runs, ...generatedRuns]
+const allDeviations = [...fx5.deviations, ...generatedDeviations]
+const allHolds = [...fx5.holds, ...generatedHolds]
+const allJobs = [...fx5.jobs, ...generatedJobs]
+const workerUserId = new Map(workersAll.map((w) => [w.id, w.userId]))
+const userRole = (userId) => usersAll.find((u) => u.id === userId)?.role ?? 'WORKER'
+const runById = new Map(allRuns.map((r) => [r.id, r]))
+
+// --- notifications ---------------------------------------------------------
+// Notification.status is the nineteen-state ladder (L51605/NOTIFICATION_STATES).
+// Only sent/delivered/opened/acknowledged fields exist on the row -- every
+// field below is DERIVED from `status`, never drawn independently beside it
+// (the task prompt's own Task 5 lesson), and the four honesty pairs
+// (sent<delivered<opened<acknowledged<acted) are the only ordering assumed;
+// the remaining twelve states are NOT ranked against each other or against
+// that chain (NOTIFICATION_STATE_DISTINCTIONS is exactly these four pairs
+// and no more).
+const NOTIF_REACH = { // how far along the sent->delivered->opened->acknowledged chain each status implies, or 'none'
+  created: 'none', eligible: 'none', queued: 'none', suppressed: 'none', cancelled: 'none', superseded: 'none',
+  sent: 'sent', 'provider-accepted': 'sent', failed: 'sent',
+  delivered: 'delivered', escalated: 'delivered', expired: 'delivered',
+  opened: 'opened', read: 'opened', claimed: 'opened',
+  acknowledged: 'acknowledged', acted: 'acknowledged', resolved: 'acknowledged', reconciled: 'acknowledged',
+}
+function notificationTiming(status, createdAt, recipientId) {
+  const reach = NOTIF_REACH[status] ?? 'none'
+  let t = createdAt
+  let sentAt = null, deliveredAt = null, openedAt = null, acknowledgedAt = null, acknowledgedBy = null
+  if (reach === 'none') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+  t = addMin(t, int(1, 5)); sentAt = t
+  if (reach === 'sent') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+  t = addMin(t, int(1, 10)); deliveredAt = t
+  if (reach === 'delivered') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+  t = addMin(t, int(1, 120)); openedAt = t
+  if (reach === 'opened') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+  t = addMin(t, int(1, 60)); acknowledgedAt = t; acknowledgedBy = recipientId
+  return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+}
+const nextNotifState = coverageThenRandom(NOTIFICATION_STATES)
+const generatedNotifications = []
+const GEN_NOTIF_COUNT = 55
+for (let i = 0; i < GEN_NOTIF_COUNT; i++) {
+  const tenant = TENANTS[i % TENANTS.length]
+  const candidates = usersAll.filter((u) => u.tenantId === tenant.id)
+  if (!candidates.length) continue
+  const recipient = pick(candidates)
+  const status = nextNotifState()
+  const day = int(0, 220)
+  const createdAt = stamp('2026-01-05T00:00:00Z', day, int(0, 20), int(0, 59))
+  const timing = notificationTiming(status, createdAt, recipient.id)
+  generatedNotifications.push({
+    id: `NOTIF-GEN-${tenant.code}-${i + 1}`,
+    tenantId: tenant.id,
+    eventId: null,
+    severity: pick(['Critical', 'High', 'Medium', 'Informational']),
+    recipientRoleIds: [recipient.role],
+    recipientUserIds: [recipient.id],
+    channels: pick([['in-app'], ['email'], ['in-app', 'email']]),
+    createdAt,
+    ...timing,
+    fallbackDelivered: timing.deliveredAt !== null && chance(0.05),
+    deduplicationGroup: (status === 'superseded' || status === 'suppressed') ? `dedup:${tenant.code}:${i}` : null,
+    status,
+  })
+}
+
+// --- commands ----------------------------------------------------------
+// Command.status is the fifteen-state COMMAND_STATES ladder; per-device
+// `deliveries[].status` is the DeviceDeliveryState subset (crosscutting.ts).
+// Every delivery timestamp is derived from that row's own `status`, never
+// independently drawn -- same lesson as notifications above.
+const CENTRAL_ONLY_COMMAND_STATES = new Set(['created', 'authorized', 'cancelled', 'superseded', 'reconciled'])
+const DEVICE_DELIVERY_STATES = COMMAND_STATES.filter((s) => !CENTRAL_ONLY_COMMAND_STATES.has(s))
+const DEVICE_PROGRESS = ['delivered', 'downloaded', 'validated', 'applied', 'acknowledged']
+function deviceDeliveryFields(devStatus, baseIso) {
+  let t = baseIso
+  let deliveredAt = null, downloadedAt = null, appliedAt = null, acknowledgedAt = null, rejectedReason = null
+  const reach = DEVICE_PROGRESS.indexOf(devStatus)
+  if (reach >= 0) {
+    t = addMin(t, int(1, 5)); deliveredAt = t
+    if (reach >= DEVICE_PROGRESS.indexOf('downloaded')) { t = addMin(t, int(1, 5)); downloadedAt = t }
+    if (reach >= DEVICE_PROGRESS.indexOf('applied')) { t = addMin(t, int(1, 5)); appliedAt = t }
+    if (reach >= DEVICE_PROGRESS.indexOf('acknowledged')) { t = addMin(t, int(1, 5)); acknowledgedAt = t }
+  } else if (devStatus === 'rejected') {
+    deliveredAt = addMin(t, int(1, 5)); downloadedAt = addMin(deliveredAt, int(1, 5))
+    rejectedReason = 'Device policy validation failed against the delivered payload version.'
+  } else if (devStatus === 'failed') {
+    deliveredAt = addMin(t, int(1, 5))
+  } else if (devStatus === 'expired') {
+    deliveredAt = addMin(t, int(1, 5)) // reached the channel, never picked up before expiry
+  }
+  return { deliveredAt, downloadedAt, appliedAt, acknowledgedAt, rejectedReason }
+}
+function deviceStatusFor(commandStatus, isFirst) {
+  switch (commandStatus) {
+    case 'delivered': return pick(['queued', 'available for delivery', 'delivered'])
+    case 'downloaded': return pick(['delivered', 'downloaded'])
+    case 'validated': return pick(['downloaded', 'validated'])
+    case 'applied': return isFirst ? 'applied' : pick(['queued', 'delivered', 'downloaded', 'validated', 'applied'])
+    case 'acknowledged': return isFirst ? 'acknowledged' : pick(['delivered', 'downloaded', 'validated', 'applied', 'acknowledged'])
+    case 'rejected': return isFirst ? 'rejected' : 'delivered'
+    case 'failed': return isFirst ? 'failed' : 'queued'
+    case 'expired': return isFirst ? 'expired' : 'queued'
+    default: return 'queued' // 'available for delivery' central state: nothing device-side yet
+  }
+}
+const nextCommandState = coverageThenRandom(COMMAND_STATES)
+const generatedCommands = []
+const GEN_CMD_COUNT = 40
+for (let i = 0; i < GEN_CMD_COUNT; i++) {
+  const tenant = OPERATIONAL_TENANTS[i % OPERATIONAL_TENANTS.length]
+  const org = orgByTenant.get(tenant.id)
+  if (!org.devices.length) continue
+  const status = nextCommandState()
+  const cls = pick(['lot-release', 'reassignment-or-substitution', 'qualification-clearance', 'suspension', 'version-change'])
+  const day = int(0, 220)
+  const createdAt = stamp('2026-01-05T00:00:00Z', day, int(0, 20), int(0, 59))
+  const single = cls === 'qualification-clearance' || cls === 'suspension' || org.devices.length === 1
+  const deviceCount = CENTRAL_ONLY_COMMAND_STATES.has(status) ? 0 : single ? 1 : int(1, Math.min(3, org.devices.length))
+  const deliveries = []
+  for (let d = 0; d < deviceCount; d++) {
+    const device = org.devices[d % org.devices.length]
+    const devStatus = deviceStatusFor(status, d === 0)
+    deliveries.push({ deviceId: device.id, status: devStatus, ...deviceDeliveryFields(devStatus, createdAt) })
+  }
+  generatedCommands.push({
+    id: `CMD-GEN-${tenant.code}-${i + 1}`,
+    tenantId: tenant.id,
+    class: cls,
+    targetDeviceId: deviceCount === 1 ? deliveries[0].deviceId : null,
+    targetFleetTag: deviceCount > 1 ? `FLEET-${tenant.code}-${org.area.id}` : null,
+    payloadRef: `CMD-PAYLOAD-GEN-${tenant.code}-${i + 1}`,
+    issuedBy: org.owner.id,
+    createdAt,
+    acknowledgedAt: deviceCount === 1 ? (deliveries[0].acknowledgedAt ?? null) : null,
+    deliveries,
+    status,
+  })
+}
+// Full per-device DeviceDeliveryState coverage, forced by construction
+// rather than left to `deviceStatusFor`'s own random pick (fix: the ten
+// device-facing states were reachable but not guaranteed reachable — the
+// exact "state permitted, seed never constructs it" trap the task brief
+// itself names). One coverage-only command, one device per state.
+{
+  const tenant = OPERATIONAL_TENANTS[0]
+  const org = orgByTenant.get(tenant.id)
+  const createdAt = stamp('2026-01-05T00:00:00Z', 210, 8, 0)
+  const deliveries = DEVICE_DELIVERY_STATES.map((devStatus, idx) => ({
+    deviceId: org.devices[idx % org.devices.length].id,
+    status: devStatus,
+    ...deviceDeliveryFields(devStatus, createdAt),
+  }))
+  generatedCommands.push({
+    id: 'CMD-GEN-DEVICE-COVERAGE',
+    tenantId: tenant.id,
+    class: 'version-change',
+    targetDeviceId: null,
+    targetFleetTag: `FLEET-${tenant.code}-DEVICE-COVERAGE`,
+    payloadRef: 'CMD-PAYLOAD-GEN-DEVICE-COVERAGE',
+    issuedBy: org.owner.id,
+    createdAt,
+    acknowledgedAt: null,
+    deliveries,
+    status: 'applied',
+  })
+}
+
+// --- events --------------------------------------------------------------
+const OP_EVENT_STATES = ['recorded', 'uploaded', 'accepted']
+const nextOpEventState = coverageThenRandom(OP_EVENT_STATES)
+const SYNC_EVENT_STATES = ['attempted', 'partial', 'complete', 'failed']
+const nextSyncEventState = coverageThenRandom(SYNC_EVENT_STATES)
+const generatedEvents = []
+const stepSample = generatedStepExecutions.filter((_, i) => i % 7 === 0)
+for (const se of stepSample) {
+  const run = runById.get(se.runId)
+  if (!run) continue
+  const status = nextOpEventState()
+  generatedEvents.push({
+    id: `EVT-GEN-OP-${se.id}`,
+    kind: 'operational',
+    tenantId: run.tenantId,
+    actorId: workerUserId.get(se.workerId) ?? usersAll.find((u) => u.tenantId === run.tenantId)?.id ?? 'USR-ROOT-01',
+    siteId: se.siteId,
+    areaId: se.areaId,
+    occurredAt: se.deviceTime,
+    signalType: pick(['step-execution-completed', 'gate-evaluation', 'device-sync-marker']),
+    runId: run.id,
+    stepExecutionId: se.id,
+    status,
+  })
+}
+for (const device of devicesAll) {
+  const status = nextSyncEventState()
+  const day = int(0, 220)
+  generatedEvents.push({
+    id: `EVT-GEN-SYNC-${device.id}`,
+    kind: 'sync',
+    deviceId: device.id,
+    attemptedAt: stamp('2026-01-05T00:00:00Z', day, int(0, 20), int(0, 59)),
+    capturesUploaded: status === 'failed' ? 0 : int(0, 3),
+    commandsDownloaded: status === 'failed' ? 0 : int(0, 2),
+    commandsApplied: status === 'failed' || status === 'partial' ? 0 : int(0, 2),
+    queueDepthRemaining: status === 'complete' ? 0 : int(0, 3),
+    clockSkewSeconds: status === 'failed' ? null : int(0, 8),
+    status,
+  })
+}
+
+// --- schedules -------------------------------------------------------------
+// The seven end-to-end examples (fx6.schedules) are hand-authored; this
+// fills the remaining SCHEDULE_DEFINITION_STATES (ten) and
+// SCHEDULE_OCCURRENCE_STATES (fifteen) coverage across the rest of the
+// tenant population, per master prompt §19.2's own scheduled-work classes
+// (digest, storage tiering, anonymisation, drift canary, usage ladder).
+const GEN_SCHED_DEF_NAMES = [
+  'digest.shift-summary', 'platform.storage-tiering', 'platform.anonymisation-sweep',
+  'platform.drift-canary', 'platform.usage-ladder-check', 'qualification.clearance-expiry-reblock',
+  'tenant.pilot-expiry-check', 'device.fleet-heartbeat-sweep', 'report.custom-export-retry',
+  'notification.digest-resend',
+]
+const nextSchedDefState = coverageThenRandom(SCHEDULE_DEFINITION_STATES)
+const generatedScheduleDefs = []
+for (let i = 0; i < GEN_SCHED_DEF_NAMES.length; i++) {
+  const tenant = TENANTS[i % TENANTS.length]
+  const state = nextSchedDefState()
+  generatedScheduleDefs.push({
+    id: `SCHED-GEN-${i + 1}`,
+    kind: 'definition',
+    workIdentity: GEN_SCHED_DEF_NAMES[i],
+    cadenceExpression: pick(['daily at 03:00 tenant-local', 'hourly', 'weekly on Sunday at 02:00 tenant-local', 'continuous']),
+    timezone: tenant.locale === 'es' ? 'America/Mexico_City' : 'America/Chicago',
+    misfirePolicy: pick(['fire-once-on-recovery', 'catch-up-next-tick-mark-late', 'durable-redrive-preserve-due-time']),
+    overlapPolicy: pick(['skip', 'queue']),
+    retryPolicy: pick(['retry-3x-backoff', 'redrive-until-succeeded', 'none']),
+    idempotencyKeyTemplate: `${GEN_SCHED_DEF_NAMES[i]}+tenant+date`,
+    blastRadiusBounds: pick(['tenant-wide', 'single-site', 'all-tenants']),
+    enabled: state !== 'retired' && state !== 'archived',
+    status: state,
+  })
+}
+const allScheduleDefs = [...fx6.schedules.filter((s) => s.kind === 'definition'), ...generatedScheduleDefs]
+const nextSchedOccState = coverageThenRandom(SCHEDULE_OCCURRENCE_STATES)
+const generatedScheduleOccs = []
+const GEN_OCC_COUNT = 40
+for (let i = 0; i < GEN_OCC_COUNT; i++) {
+  const def = allScheduleDefs[i % allScheduleDefs.length]
+  const state = nextSchedOccState()
+  const day = int(0, 220)
+  const dueAt = stamp('2026-01-05T00:00:00Z', day, int(0, 20), int(0, 59))
+  const claimed = ['claimed', 'executing', 'partially-executed', 'succeeded', 'failed-retryable', 'dead-lettered'].includes(state)
+  generatedScheduleOccs.push({
+    id: `SCHEDOCC-GEN-${i + 1}`,
+    kind: 'occurrence',
+    definitionId: def.id,
+    dueAt,
+    timezone: def.timezone,
+    idempotencyKey: `${def.workIdentity}+${dueAt.slice(0, 10)}+${i}`,
+    claimedBy: claimed ? 'SYSTEM' : null,
+    outcomeRef: state === 'succeeded' ? `OUTCOME-GEN-${i + 1}` : null,
+    status: state,
+  })
+}
+
+// --- ai-requests -----------------------------------------------------------
+const AI_STATES = ['issued', 'routed', 'failed-over', 'completed', 'cached']
+const AI_ROUTER_ROLES = ['primary', 'fallback', 'lightweight', 'embedding']
+const nextAiState = coverageThenRandom(AI_STATES)
+const nextAiRouter = coverageThenRandom(AI_ROUTER_ROLES)
+const generatedAiRequests = []
+const GEN_AI_COUNT = 36
+for (let i = 0; i < GEN_AI_COUNT; i++) {
+  const tenant = TENANTS[i % TENANTS.length]
+  const status = nextAiState()
+  const routerRole = nextAiRouter()
+  const day = int(0, 220)
+  generatedAiRequests.push({
+    id: `AI-GEN-${tenant.code}-${i + 1}`,
+    tenantId: tenant.id,
+    routerRole,
+    promptTokens: int(80, 3000),
+    completionTokens: status === 'failed-over' || status === 'issued' || status === 'routed' ? 0 : int(10, 800),
+    latencyMs: status === 'cached' ? int(20, 150) : int(200, 12000),
+    deterministic: chance(0.3),
+    semanticCacheHit: status === 'cached',
+    createdAt: stamp('2026-01-05T00:00:00Z', day, int(0, 20), int(0, 59)),
+    status,
+  })
+}
+
+// --- audit -------------------------------------------------------------
+// >= 400 rows drawn from every other collection already generated above,
+// each carrying actor/effectiveRole/scope/correlationId/causationId
+// (crosscutting.ts). Causation is only chained where a real upstream
+// audit row is in scope (run -> deviation -> hold); everywhere else a null
+// causationId is the honest statement that no upstream action is modelled,
+// not a gap. See scripts/seed-fixtures/task6-crosscutting.mjs for the four
+// named categories (denial, fallback entry, scoped support action,
+// compliance-emergency access), already hand-authored.
+const generatedAudit = []
+let auditSeq = 0
+const nextAuditId = () => `AUD-GEN-${String(++auditSeq).padStart(4, '0')}`
+function pushAudit(row) { generatedAudit.push({ id: nextAuditId(), ...row }); return generatedAudit[generatedAudit.length - 1].id }
+
+const runAuditId = new Map()
+for (const run of allRuns) {
+  const job = allJobs.find((j) => j.id === run.jobId)
+  const actorId = job?.ownerUserId ?? usersAll.find((u) => u.tenantId === run.tenantId)?.id ?? 'USR-ROOT-01'
+  const id = pushAudit({
+    tenantId: run.tenantId,
+    actorId,
+    effectiveRole: userRole(actorId),
+    scope: { siteIds: [run.siteId], areaIds: [run.areaId] },
+    action: 'run.status-transition',
+    result: 'success',
+    denialReason: null,
+    subjectRef: run.id,
+    occurredAt: run.actualStartAt ?? run.plannedStartAt,
+    before: null,
+    after: { status: run.status },
+    auditClass: 'run-state-transition',
+    correlationId: `COR-RUN-${run.id}`,
+    causationId: null,
+  })
+  runAuditId.set(run.id, id)
+}
+
+const deviationAuditId = new Map()
+for (const dev of allDeviations) {
+  const run = runById.get(dev.runId)
+  const actorId = workerUserId.get(dev.workerId) ?? usersAll.find((u) => u.tenantId === dev.tenantId)?.id ?? 'USR-ROOT-01'
+  const id = pushAudit({
+    tenantId: dev.tenantId,
+    actorId,
+    effectiveRole: 'WORKER',
+    scope: { siteIds: run ? [run.siteId] : [], areaIds: run ? [run.areaId] : [] },
+    action: 'deviation.classified',
+    result: 'success',
+    denialReason: null,
+    subjectRef: dev.id,
+    occurredAt: run?.actualStartAt ?? '2026-01-05T00:00:00Z',
+    before: null,
+    after: { severityBand: dev.severityBand, status: dev.status },
+    auditClass: 'run-state-transition',
+    correlationId: `COR-DEV-${dev.id}`,
+    causationId: runAuditId.get(dev.runId) ?? null,
+  })
+  deviationAuditId.set(dev.id, id)
+}
+
+for (const hold of allHolds) {
+  const dev = allDeviations.find((d) => d.id === hold.originatingDeviationId)
+  const placedId = pushAudit({
+    tenantId: dev?.tenantId ?? 'TEN-BRIGHTBIKES',
+    actorId: workerUserId.get(dev?.workerId) ?? 'USR-ROOT-01',
+    effectiveRole: 'WORKER',
+    scope: { siteIds: [], areaIds: [] },
+    action: 'hold.placed',
+    result: 'success',
+    denialReason: null,
+    subjectRef: hold.id,
+    occurredAt: hold.placedAt,
+    before: null,
+    after: { status: 'issued', targetKind: hold.targetKind },
+    auditClass: 'run-state-transition',
+    correlationId: `COR-HOLD-${hold.id}`,
+    causationId: deviationAuditId.get(hold.originatingDeviationId) ?? null,
+  })
+  if (hold.releasedAt) {
+    pushAudit({
+      tenantId: dev?.tenantId ?? 'TEN-BRIGHTBIKES',
+      actorId: hold.releasedBy,
+      effectiveRole: userRole(hold.releasedBy),
+      scope: { siteIds: [], areaIds: [] },
+      action: 'hold.released',
+      result: 'success',
+      denialReason: null,
+      subjectRef: hold.id,
+      occurredAt: hold.releasedAt,
+      before: { status: 'release-requested' },
+      after: { status: hold.status },
+      auditClass: 'run-state-transition',
+      correlationId: `COR-HOLD-${hold.id}`,
+      causationId: placedId,
+    })
+  }
+}
+
+for (const job of allJobs) {
+  pushAudit({
+    tenantId: job.tenantId,
+    actorId: job.ownerUserId,
+    effectiveRole: userRole(job.ownerUserId),
+    scope: { siteIds: [job.siteId], areaIds: [job.areaId] },
+    action: 'job.status-transition',
+    result: 'success',
+    denialReason: null,
+    subjectRef: job.id,
+    occurredAt: '2026-01-05T00:00:00Z',
+    before: null,
+    after: { status: job.status },
+    auditClass: 'run-state-transition',
+    correlationId: `COR-JOB-${job.id}`,
+    causationId: null,
+  })
+}
+
+for (const grant of qualificationGrantsAll) {
+  const worker = workersAll.find((w) => w.id === grant.workerId)
+  pushAudit({
+    tenantId: worker?.tenantId ?? null,
+    actorId: grant.grantedBy,
+    effectiveRole: userRole(grant.grantedBy),
+    scope: { siteIds: [], areaIds: grant.areaId ? [grant.areaId] : [] },
+    action: 'clearance.granted',
+    result: 'success',
+    denialReason: null,
+    subjectRef: grant.id,
+    occurredAt: grant.grantedAt,
+    before: null,
+    after: { status: grant.status, reasonCategory: grant.reasonCategory },
+    auditClass: 'clearance-grant-use-lapse',
+    correlationId: `COR-QGR-${grant.id}`,
+    causationId: null,
+  })
+  if (grant.lapsedAt) {
+    pushAudit({
+      tenantId: worker?.tenantId ?? null,
+      actorId: 'USR-ROOT-01', // automated platform action; attributed to the backend-created root identity, per L8356's own framing of provisioning/system events as audited under a real identity
+      effectiveRole: userRole(grant.grantedBy),
+      scope: { siteIds: [], areaIds: grant.areaId ? [grant.areaId] : [] },
+      action: 'clearance.lapsed',
+      result: 'success',
+      denialReason: null,
+      subjectRef: grant.id,
+      occurredAt: grant.lapsedAt,
+      before: { status: 'in-force' },
+      after: { status: 'lapsed' },
+      auditClass: 'clearance-grant-use-lapse',
+      correlationId: `COR-QGR-${grant.id}`,
+      causationId: null,
+    })
+  }
+}
+
+for (const wfd of allWfDefs) {
+  if (!['published', 'superseded', 'rolled-back', 'archived'].includes(wfd.status)) continue
+  const author = usersAll.find((u) => u.tenantId === wfd.tenantId && u.role === 'QUALITY_MANAGER')
+    ?? usersAll.find((u) => u.tenantId === wfd.tenantId)
+  if (!author) continue
+  pushAudit({
+    tenantId: wfd.tenantId,
+    actorId: author.id,
+    effectiveRole: userRole(author.id),
+    scope: { siteIds: [], areaIds: [] },
+    action: 'workflow-definition.published',
+    result: 'success',
+    denialReason: null,
+    subjectRef: wfd.id,
+    occurredAt: '2026-01-05T00:00:00Z',
+    before: null,
+    after: { version: wfd.version, status: wfd.status },
+    auditClass: 'work-instruction-or-media-version-published',
+    correlationId: `COR-WFD-${wfd.id}`,
+    causationId: null,
+  })
+}
+
+for (const tenant of TENANTS) {
+  pushAudit({
+    tenantId: tenant.id,
+    actorId: 'USR-PLAT-ADM-01',
+    effectiveRole: 'ADMIN',
+    scope: { siteIds: [], areaIds: [] },
+    action: 'tenant.state-transition',
+    result: 'success',
+    denialReason: null,
+    subjectRef: tenant.id,
+    occurredAt: '2026-01-05T00:00:00Z',
+    before: null,
+    after: { lifecycle: tenantLifecycle.get(tenant.id) ?? 'active' },
+    auditClass: 'tenant-state-transition',
+    correlationId: `COR-TEN-${tenant.id}`,
+    causationId: null,
+  })
+}
+
+for (const grant of roleGrantsAll) {
+  pushAudit({
+    tenantId: usersAll.find((u) => u.id === grant.userId)?.tenantId ?? null,
+    actorId: grant.grantedBy,
+    effectiveRole: userRole(grant.grantedBy),
+    scope: { siteIds: grant.siteIds ?? [], areaIds: grant.areaIds ?? [] },
+    action: 'permission-change.role-granted',
+    result: 'success',
+    denialReason: null,
+    subjectRef: grant.id,
+    occurredAt: grant.grantedAt,
+    before: null,
+    after: { role: grant.role },
+    auditClass: 'permission-change',
+    correlationId: `COR-RG-${grant.id}`,
+    causationId: null,
+  })
+}
+
+for (const device of devicesAll) {
+  pushAudit({
+    tenantId: device.tenantId,
+    actorId: device.enrolledBy,
+    effectiveRole: userRole(device.enrolledBy),
+    scope: { siteIds: [], areaIds: [] },
+    action: 'device.enrollment',
+    result: 'success',
+    denialReason: null,
+    subjectRef: device.id,
+    occurredAt: device.enrolledAt,
+    before: null,
+    after: { status: device.status, mode: device.mode },
+    auditClass: 'configuration-change',
+    correlationId: `COR-DEVICE-${device.id}`,
+    causationId: null,
+  })
+}
+
+const captureSample = generatedCaptures.filter((_, i) => i % 6 === 0)
+for (const cap of captureSample) {
+  pushAudit({
+    tenantId: runById.get(cap.runId)?.tenantId ?? null,
+    actorId: workerUserId.get(cap.workerId) ?? 'USR-ROOT-01',
+    effectiveRole: 'WORKER',
+    scope: { siteIds: cap.siteId ? [cap.siteId] : [], areaIds: cap.areaId ? [cap.areaId] : [] },
+    action: 'capture.accepted',
+    result: 'success',
+    denialReason: null,
+    subjectRef: cap.id,
+    occurredAt: cap.deviceTime,
+    before: null,
+    after: { status: cap.status, inSpecification: cap.inSpecification },
+    auditClass: 'data-capture',
+    correlationId: `COR-CAP-${cap.id}`,
+    causationId: null,
+  })
+}
+
 // --- assemble and write --------------------------------------------------
 const collections = {
   'workflow-definitions.json': [...fx.workflowDefinitions, ...generatedWorkflowDefinitions],
@@ -877,6 +1443,12 @@ const collections = {
   'holds.json': [...fx5.holds, ...generatedHolds],
   'summaries.json': generatedSummaries,
   'reports.json': generatedReports,
+  'notifications.json': [...fx6.notifications, ...generatedNotifications],
+  'commands.json': [...fx6.commands, ...generatedCommands],
+  'events.json': [...fx6.events, ...generatedEvents],
+  'audit.json': [...fx6.audit, ...generatedAudit],
+  'schedules.json': [...fx6.schedules, ...generatedScheduleDefs, ...generatedScheduleOccs],
+  'ai-requests.json': [...fx6.aiRequests, ...generatedAiRequests],
 }
 
 for (const [file, rows] of Object.entries(collections)) {
