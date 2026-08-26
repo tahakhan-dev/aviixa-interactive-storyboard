@@ -1,0 +1,25 @@
+[
+  {
+    "id": "WF-TORQUE-001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame bolt torque check",
+    "jobTypeId": "JT-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 20,
+    "workInstructionIds": [
+      "WI-0001"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-TORQUE"
+    ],
+    "version": "1.0.0",
+    "bumpClassification": "major",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "published"
+  }
+]

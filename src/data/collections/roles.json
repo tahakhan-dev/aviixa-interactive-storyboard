@@ -1,0 +1,15 @@
+[
+  {
+    "id": "WORKER",
+    "name": "Worker",
+    "domain": "TENANT",
+    "purpose": "Does the work on the floor, on a tablet, and records the evidence that the work was done correctly.",
+    "homeSurface": "SURF-FL",
+    "reachableSurfaces": [
+      "SURF-FL"
+    ],
+    "backendCreatedOnly": false,
+    "maxInstances": null,
+    "sourceRef": "MOD-DOH-09, MOD-FL-A2 / \u00a73.5, \u00a77.4"
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "SITE-RIVERSIDE",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Riverside Plant",
+    "address": "100 Riverside Way, Springfield",
+    "contact": "ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "QGR-0001",
+    "workerId": "WRK-MAYA",
+    "qualificationId": "QUAL-TORQUE",
+    "grantedBy": "USR-MAYA",
+    "reasonCategory": "shift-start",
+    "reasonNote": null,
+    "grantedAt": "2026-03-02T06:00:00Z",
+    "durationMinutes": 480,
+    "lapsedAt": null,
+    "areaId": "AREA-LINE1",
+    "commandId": "CMD-0001",
+    "status": "in-force"
+  }
+]

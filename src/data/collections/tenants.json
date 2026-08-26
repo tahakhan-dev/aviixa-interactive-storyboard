@@ -1,0 +1,15 @@
+[
+  {
+    "id": "TEN-BRIGHTBIKES",
+    "name": "Bright Bikes",
+    "lifecycle": "active",
+    "tier": "growth",
+    "isPilot": false,
+    "regulatedMode": false,
+    "workerShiftsThisMonth": 42,
+    "onboardedAt": "2026-01-05T08:00:00Z",
+    "archivedAt": null,
+    "legalHold": false,
+    "primaryLocale": "en"
+  }
+]

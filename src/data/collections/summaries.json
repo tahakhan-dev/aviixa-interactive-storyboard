@@ -1,0 +1,17 @@
+[
+  {
+    "id": "SUM-0001",
+    "runId": "RUN-0001",
+    "asOf": "2026-03-02T06:15:00Z",
+    "deviationCountBySeverity": {
+      "1": 1,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 100,
+    "anomalyCount": 0,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "under-review"
+  }
+]

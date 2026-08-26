@@ -1,0 +1,13 @@
+[
+  {
+    "id": "CB-0001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "title": "Torque wrench safety reminder",
+    "text": "Confirm the torque wrench calibration sticker is current before use.",
+    "imageUrls": [],
+    "appliedToWorkInstructionIds": [
+      "WI-0001"
+    ],
+    "status": "published"
+  }
+]

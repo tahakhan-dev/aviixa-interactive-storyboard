@@ -1,0 +1,15 @@
+[
+  {
+    "id": "EVAL-0001",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-TORQUE-CLASSIFY",
+    "inputs": {
+      "reading": 38.0,
+      "upperLimit": 47.0
+    },
+    "expectedBehaviour": "Classify 38.0 N\u00b7m against the 47.0 N\u00b7m upper limit as out of specification.",
+    "passCriteria": "Severity band assigned matches the platform floor table.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "active"
+  }
+]

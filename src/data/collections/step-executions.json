@@ -1,0 +1,21 @@
+[
+  {
+    "id": "SE-0001",
+    "runId": "RUN-0001",
+    "unitExecutionId": "UE-0001",
+    "workflowDefinitionId": "WF-TORQUE-001",
+    "pinnedVersion": "1.0.0",
+    "workInstructionId": "WI-0001",
+    "workerId": "WRK-MAYA",
+    "deviceId": "DEV-TAB014",
+    "siteId": "SITE-RIVERSIDE",
+    "areaId": "AREA-LINE1",
+    "locationId": "LOC-CELL1",
+    "deviceTime": "2026-03-02T06:10:00Z",
+    "serverReceiptTime": "2026-03-02T06:10:00Z",
+    "gateOutcome": "failed",
+    "inSpecification": false,
+    "severityBand": 1,
+    "status": "completed"
+  }
+]

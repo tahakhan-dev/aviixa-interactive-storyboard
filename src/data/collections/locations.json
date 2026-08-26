@@ -1,0 +1,9 @@
+[
+  {
+    "id": "LOC-CELL1",
+    "areaId": "AREA-LINE1",
+    "name": "Cell 1",
+    "requiredCertification": null,
+    "status": "active"
+  }
+]

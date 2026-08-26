@@ -1,0 +1,21 @@
+[
+  {
+    "id": "DEV-TAB014",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "mode": "shared",
+    "locationId": "LOC-CELL1",
+    "enrolledAt": "2026-01-05T09:00:00Z",
+    "enrolledBy": "USR-MAYA",
+    "policyVersion": "policy-2026.1",
+    "appVersion": "1.4.0",
+    "lastSeenAt": "2026-03-02T06:15:00Z",
+    "lastHeartbeatAt": "2026-03-02T06:15:00Z",
+    "syncHealthy": true,
+    "clockSkewEventCount": 0,
+    "storagePressure": "ok",
+    "pinnedPackageIds": [
+      "PKG-0001"
+    ],
+    "status": "active"
+  }
+]

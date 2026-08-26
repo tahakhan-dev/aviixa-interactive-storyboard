@@ -1,0 +1,26 @@
+[
+  {
+    "id": "NOTIF-0001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "eventId": "EVT-0001",
+    "severity": "Critical",
+    "recipientRoleIds": [
+      "WORKER"
+    ],
+    "recipientUserIds": [
+      "USR-MAYA"
+    ],
+    "channels": [
+      "in-app"
+    ],
+    "createdAt": "2026-03-02T06:10:00Z",
+    "sentAt": "2026-03-02T06:10:00Z",
+    "deliveredAt": "2026-03-02T06:10:00Z",
+    "openedAt": null,
+    "acknowledgedBy": null,
+    "acknowledgedAt": null,
+    "fallbackDelivered": false,
+    "deduplicationGroup": null,
+    "status": "delivered"
+  }
+]

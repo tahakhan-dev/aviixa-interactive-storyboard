@@ -1,0 +1,11 @@
+[
+  {
+    "id": "SPEC-0001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "lowerLimit": 45.0,
+    "upperLimit": 47.0,
+    "unit": "N\u00b7m",
+    "drawingReference": "DRW-FRAME-014",
+    "status": "published"
+  }
+]

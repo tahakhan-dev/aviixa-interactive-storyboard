@@ -1,0 +1,21 @@
+[
+  {
+    "id": "WI-0001",
+    "workflowDefinitionId": "WF-TORQUE-001",
+    "order": 1,
+    "title": "Torque frame bolt to specification",
+    "referenceImageUrl": null,
+    "inputType": "measurement",
+    "minDurationSeconds": 5,
+    "maxDurationSeconds": 60,
+    "coachingTriggerPercentage": 20,
+    "gateKind": "hard",
+    "specificationId": "SPEC-0001",
+    "containmentChecklistId": null,
+    "escalationRoutingTemplateId": null,
+    "requiresToolId": null,
+    "requiresCalibrationConfirmation": true,
+    "qualificationOverrideIds": [],
+    "status": "published"
+  }
+]

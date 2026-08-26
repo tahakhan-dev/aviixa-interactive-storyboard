@@ -1,0 +1,15 @@
+[
+  {
+    "id": "EVD-0001",
+    "stepExecutionId": "SE-0001",
+    "unitExecutionId": "UE-0001",
+    "workerId": "WRK-MAYA",
+    "deviceId": "DEV-TAB014",
+    "mediaType": "photo",
+    "deviceTime": "2026-03-02T06:10:00Z",
+    "serverReceiptTime": "2026-03-02T06:10:00Z",
+    "storageRef": "evidence/2026-03-02/EVD-0001.jpg",
+    "reviewedBy": null,
+    "status": "accepted"
+  }
+]

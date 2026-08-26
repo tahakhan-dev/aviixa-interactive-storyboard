@@ -1,0 +1,14 @@
+[
+  {
+    "id": "AS-0001",
+    "kind": "support",
+    "platformUserId": "USR-MAYA",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "purpose": "Investigate containment brief delay",
+    "approvedBy": null,
+    "openedAt": "2026-03-02T06:10:00Z",
+    "expiresAt": "2026-03-02T07:15:00Z",
+    "closedAt": null,
+    "readOnly": true
+  }
+]

@@ -1,0 +1,25 @@
+[
+  {
+    "id": "TOUR-0001",
+    "name": "Torque out-of-specification containment walkthrough",
+    "surface": "SURF-FL",
+    "moduleId": "MOD-FL-A2",
+    "workflowId": "WF-TORQUE-001",
+    "variant": "nominal",
+    "steps": [
+      {
+        "order": 1,
+        "controlId": null,
+        "screenPath": "/frontline/run/RUN-0001",
+        "narration": "Maya opens the run on her tablet."
+      },
+      {
+        "order": 2,
+        "controlId": "capture-submit",
+        "screenPath": "/frontline/run/RUN-0001/step/SE-0001",
+        "narration": "She records a torque reading of 38.0 N\u00b7m."
+      }
+    ],
+    "status": "published"
+  }
+]

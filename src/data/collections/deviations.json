@@ -1,0 +1,18 @@
+[
+  {
+    "id": "DEV-0001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "triggerMechanism": "specification-and-evidence",
+    "stepExecutionId": "SE-0001",
+    "workerId": "WRK-MAYA",
+    "runId": "RUN-0001",
+    "lotOrUnitRef": "SN-000481",
+    "workflowVersion": "1.0.0",
+    "severityBand": 1,
+    "agentInterpretation": "Torque reading 38.0 N\u00b7m is below the 45.0-47.0 N\u00b7m specification window.",
+    "containmentChecklistId": null,
+    "escalationRoutingState": "escalated-to-supervisor",
+    "hasEvidenceGaps": false,
+    "status": "contained"
+  }
+]

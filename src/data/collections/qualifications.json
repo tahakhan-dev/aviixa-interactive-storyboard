@@ -1,0 +1,15 @@
+[
+  {
+    "id": "QUAL-TORQUE",
+    "workerId": "WRK-MAYA",
+    "certificationType": "Torque tool operation",
+    "areaIds": [
+      "AREA-LINE1"
+    ],
+    "certificationDate": "2026-01-10T08:00:00Z",
+    "entryDate": "2026-01-10T08:00:00Z",
+    "expiryDate": "2027-01-10T08:00:00Z",
+    "recertifiedFromId": null,
+    "status": "valid"
+  }
+]

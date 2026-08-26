@@ -1,0 +1,22 @@
+[
+  {
+    "id": "JOB-0001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame assembly \u2014 Line 1",
+    "jobTypeId": "JT-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-RIVERSIDE",
+    "areaId": "AREA-LINE1",
+    "shiftId": "SHIFT-MORNING",
+    "workflowDefinitionId": "WF-TORQUE-001",
+    "plannedQuantity": 120,
+    "qualificationRequirementIds": [
+      "QUAL-TORQUE"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-MAYA",
+    "linkedJobId": null,
+    "status": "active"
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "id": "SHIFT-MORNING",
+    "siteId": "SITE-RIVERSIDE",
+    "name": "Morning Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-LINE1"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  }
+]

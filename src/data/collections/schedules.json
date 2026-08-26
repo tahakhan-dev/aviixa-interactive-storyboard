@@ -1,0 +1,16 @@
+[
+  {
+    "id": "SCH-0001",
+    "kind": "definition",
+    "workIdentity": "digest.morning-shift",
+    "cadenceExpression": "every day at 05:45",
+    "timezone": "America/Chicago",
+    "misfirePolicy": "fire-once-on-recovery",
+    "overlapPolicy": "skip",
+    "retryPolicy": "retry-3x-backoff",
+    "idempotencyKeyTemplate": "digest:{siteId}:{date}",
+    "blastRadiusBounds": "single-site",
+    "enabled": true,
+    "status": "active"
+  }
+]

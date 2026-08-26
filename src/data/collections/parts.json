@@ -1,0 +1,10 @@
+[
+  {
+    "id": "PART-0001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame bolt M8",
+    "supplierReference": "SUP-4471-M8",
+    "drawingReference": "DRW-FRAME-014",
+    "status": "complete"
+  }
+]

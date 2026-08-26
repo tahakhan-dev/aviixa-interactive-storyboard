@@ -1,0 +1,21 @@
+[
+  {
+    "id": "RG-0001",
+    "userId": "USR-MAYA",
+    "role": "WORKER",
+    "siteIds": [
+      "SITE-RIVERSIDE"
+    ],
+    "areaIds": [
+      "AREA-LINE1"
+    ],
+    "shiftIds": [
+      "SHIFT-MORNING"
+    ],
+    "grantedBy": "USR-MAYA",
+    "grantedAt": "2026-01-06T08:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  }
+]

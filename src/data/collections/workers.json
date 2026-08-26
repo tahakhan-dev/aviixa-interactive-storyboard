@@ -1,0 +1,14 @@
+[
+  {
+    "id": "WRK-MAYA",
+    "userId": "USR-MAYA",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-TORQUE"
+    ],
+    "status": "active"
+  }
+]

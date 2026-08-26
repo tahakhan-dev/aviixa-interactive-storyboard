@@ -1,0 +1,11 @@
+[
+  {
+    "id": "AREA-LINE1",
+    "siteId": "SITE-RIVERSIDE",
+    "name": "Line 1",
+    "shiftIds": [
+      "SHIFT-MORNING"
+    ],
+    "status": "active"
+  }
+]

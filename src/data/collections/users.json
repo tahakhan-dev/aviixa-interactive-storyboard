@@ -1,0 +1,13 @@
+[
+  {
+    "id": "USR-MAYA",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Maya Ortiz",
+    "email": "maya.ortiz@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-01-06T08:00:00Z",
+    "lastSignInAt": "2026-03-02T06:00:00Z"
+  }
+]

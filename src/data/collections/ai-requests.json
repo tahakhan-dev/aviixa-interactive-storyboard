@@ -1,0 +1,14 @@
+[
+  {
+    "id": "AI-0001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "routerRole": "primary",
+    "promptTokens": 512,
+    "completionTokens": 128,
+    "latencyMs": 840,
+    "deterministic": false,
+    "semanticCacheHit": false,
+    "createdAt": "2026-03-02T06:10:00Z",
+    "status": "completed"
+  }
+]

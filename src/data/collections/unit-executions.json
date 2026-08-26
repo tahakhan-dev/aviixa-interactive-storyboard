@@ -1,0 +1,12 @@
+[
+  {
+    "id": "UE-0001",
+    "runId": "RUN-0001",
+    "unitOrSerialRef": "SN-000481",
+    "workerId": "WRK-MAYA",
+    "deviceId": "DEV-TAB014",
+    "openedAt": "2026-03-02T06:05:00Z",
+    "closedAt": null,
+    "status": "open"
+  }
+]

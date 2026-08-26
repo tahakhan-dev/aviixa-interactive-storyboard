@@ -1,0 +1,15 @@
+[
+  {
+    "id": "FC-0001",
+    "featureKey": "agent-builder",
+    "platformDefault": false,
+    "globallyDisabled": false,
+    "tenantDesired": {
+      "TEN-BRIGHTBIKES": true
+    },
+    "effectiveAt": "2026-01-05T08:00:00Z",
+    "expiresAt": null,
+    "changedBy": "USR-NOAH",
+    "approvedBy": "USR-NOAH"
+  }
+]

@@ -1,0 +1,9 @@
+[
+  {
+    "id": "ENT-0001",
+    "tier": "growth",
+    "featureKey": "agent-builder",
+    "included": true,
+    "cap": null
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "PKG-0001",
+    "runId": "RUN-0001",
+    "workflowDefinitionId": "WF-TORQUE-001",
+    "workflowVersion": "1.0.0",
+    "contentItemIds": [
+      "WI-0001",
+      "CB-0001"
+    ],
+    "localeSet": [
+      "en"
+    ],
+    "difficultyLevelsIncluded": [
+      "standard"
+    ],
+    "assembledAt": "2026-03-02T05:50:00Z",
+    "deliveredAt": "2026-03-02T05:55:00Z",
+    "acknowledgedAt": "2026-03-02T05:56:00Z",
+    "status": "pinned"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": "EVT-0001",
+    "kind": "sync",
+    "deviceId": "DEV-TAB014",
+    "attemptedAt": "2026-03-02T06:15:00Z",
+    "capturesUploaded": 1,
+    "commandsDownloaded": 1,
+    "commandsApplied": 1,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": 0,
+    "status": "complete"
+  }
+]

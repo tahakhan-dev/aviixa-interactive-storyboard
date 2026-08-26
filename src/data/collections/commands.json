@@ -1,0 +1,14 @@
+[
+  {
+    "id": "CMD-0001",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "class": "lot-release",
+    "targetDeviceId": "DEV-TAB014",
+    "targetFleetTag": null,
+    "payloadRef": "CMD-PAYLOAD-0001",
+    "issuedBy": "USR-MAYA",
+    "createdAt": "2026-03-02T06:10:00Z",
+    "acknowledgedAt": null,
+    "status": "queued"
+  }
+]
