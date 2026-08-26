@@ -642,18 +642,20 @@ export const packages = [
     status: 'superseded',
     sourceStatus: PACKAGE_SOURCE_STATUS.superseded,
   },
-  // Task 5's Job 5 Run (`JOB-BB-2026-0418` / `RUN-BB-2026-0418-03`) pins to
-  // this package. `runId` stays null here rather than forward-referencing
-  // a run that does not exist yet in `runs.json` (still a Task-1
-  // placeholder) -- see the task report: OBJ-045 records the pin on the
-  // RUN record, not the package record ("the pin is recorded on the
-  // Delivery Operations Hub run record", L8762), so Task 5 sets
-  // `runs[...].packageId = 'PKG-BB-FRAME-ASSY-1.1.0'` and that direction
-  // resolves cleanly against this already-existing row; nothing here needs
-  // to change when Task 5 lands.
+  // Task 5 claims this package with the recurring cast's Run
+  // (`JOB-BB-2026-0418` / `RUN-BB-2026-0418-03`, scripts/seed-fixtures/
+  // task5-hub.mjs). OBJ-045 records the pin on both sides -- the pin is
+  // recorded on the Delivery Operations Hub run record (L8762) and this
+  // row's own `runId` field exists precisely to carry it back -- so
+  // `runs[...].packageId = 'PKG-BB-FRAME-ASSY-1.1.0'` (task5-hub.mjs) and
+  // this row's `runId` now resolve to each other. This is the debt Task 4
+  // left, and the demonstration AC-PKG-006 needs: a published version
+  // (`WFD-BB-FRAME-ASSY-2.0.0`, still `draft` above) never rebases an
+  // in-flight run -- RUN-BB-2026-0418-03 stays `in-progress`, pinned here
+  // at 1.1.0, for the entire life of this seed.
   {
     id: 'PKG-BB-FRAME-ASSY-1.1.0',
-    runId: null,
+    runId: 'RUN-BB-2026-0418-03',
     workflowDefinitionId: 'WFD-BB-FRAME-ASSY',
     workflowVersion: '1.1.0',
     contentItemIds: [

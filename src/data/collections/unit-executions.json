@@ -1,12 +1,732 @@
 [
   {
-    "id": "UE-0001",
-    "runId": "RUN-0001",
-    "unitOrSerialRef": "SN-000481",
+    "id": "UE-BB-0418-01",
+    "runId": "RUN-BB-2026-0418-03",
+    "unitOrSerialRef": "FRM-0418-01",
     "workerId": "WRK-BB-WKR-01",
     "deviceId": "DEV-BB-TAB-014",
-    "openedAt": "2026-03-02T06:05:00Z",
+    "openedAt": "2026-08-15T06:05:00.000Z",
+    "closedAt": "2026-08-15T06:45:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-BB-0418-02",
+    "runId": "RUN-BB-2026-0418-03",
+    "unitOrSerialRef": "FRM-0418-02",
+    "workerId": "WRK-BB-WKR-02",
+    "deviceId": "DEV-BB-TAB-014",
+    "openedAt": "2026-08-15T06:50:00.000Z",
+    "closedAt": "2026-08-15T07:30:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-BB-0418-03",
+    "runId": "RUN-BB-2026-0418-03",
+    "unitOrSerialRef": "FRM-0418-03",
+    "workerId": "WRK-BB-WKR-01",
+    "deviceId": "DEV-BB-TAB-014",
+    "openedAt": "2026-08-15T07:35:00.000Z",
+    "closedAt": "2026-08-15T08:15:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-BB-0418-04",
+    "runId": "RUN-BB-2026-0418-03",
+    "unitOrSerialRef": "FRM-0418-04",
+    "workerId": "WRK-BB-WKR-02",
+    "deviceId": "DEV-BB-TAB-014",
+    "openedAt": "2026-08-15T08:20:00.000Z",
+    "closedAt": "2026-08-15T09:00:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-BB-0418-05",
+    "runId": "RUN-BB-2026-0418-03",
+    "unitOrSerialRef": "FRM-0418-05",
+    "workerId": "WRK-BB-WKR-01",
+    "deviceId": "DEV-BB-TAB-014",
+    "openedAt": "2026-08-15T09:05:00.000Z",
+    "closedAt": "2026-08-15T09:45:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-BB-0418-06",
+    "runId": "RUN-BB-2026-0418-03",
+    "unitOrSerialRef": "FRM-0418-06",
+    "workerId": "WRK-BB-WKR-02",
+    "deviceId": "DEV-BB-TAB-014",
+    "openedAt": "2026-08-15T09:50:00.000Z",
+    "closedAt": "2026-08-15T10:30:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-BB-0418-07",
+    "runId": "RUN-BB-2026-0418-03",
+    "unitOrSerialRef": "FRM-0418-07",
+    "workerId": "WRK-BB-WKR-01",
+    "deviceId": "DEV-BB-TAB-014",
+    "openedAt": "2026-08-15T10:35:00.000Z",
     "closedAt": null,
     "status": "open"
+  },
+  {
+    "id": "UE-BB-0418-08",
+    "runId": "RUN-BB-2026-0418-03",
+    "unitOrSerialRef": "FRM-0418-08",
+    "workerId": "WRK-BB-WKR-02",
+    "deviceId": "DEV-BB-TAB-014",
+    "openedAt": "2026-08-15T11:20:00.000Z",
+    "closedAt": "2026-08-15T11:48:00.000Z",
+    "status": "abandoned"
+  },
+  {
+    "id": "UE-GEN-CW-2-1",
+    "runId": "RUN-GEN-CW-2",
+    "unitOrSerialRef": "SN-CW-82397",
+    "workerId": "WRK-CW-WKR-01",
+    "deviceId": "DEV-CW-TAB-001",
+    "openedAt": "2026-08-15T08:02:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-BB-5-1",
+    "runId": "RUN-GEN-BB-5",
+    "unitOrSerialRef": "SN-BB-91108",
+    "workerId": "WRK-BB-WKR-05",
+    "deviceId": "DEV-BB-TAB-002",
+    "openedAt": "2026-06-10T09:00:00.000Z",
+    "closedAt": "2026-06-10T10:26:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-AC-10-1",
+    "runId": "RUN-GEN-AC-10",
+    "unitOrSerialRef": "SN-AC-41017",
+    "workerId": "WRK-AC-WKR-02",
+    "deviceId": "DEV-AC-TAB-001",
+    "openedAt": "2026-06-04T06:13:00.000Z",
+    "closedAt": "2026-06-04T06:40:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-11-1",
+    "runId": "RUN-GEN-BB-11",
+    "unitOrSerialRef": "SN-BB-39110",
+    "workerId": "WRK-BB-WKR-12",
+    "deviceId": "DEV-BB-TAB-010",
+    "openedAt": "2026-07-23T08:04:00.000Z",
+    "closedAt": "2026-07-23T09:23:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-HD-14-1",
+    "runId": "RUN-GEN-HD-14",
+    "unitOrSerialRef": "SN-HD-66315",
+    "workerId": "WRK-HD-WKR-02",
+    "deviceId": "DEV-HD-TAB-001",
+    "openedAt": "2026-07-16T05:13:00.000Z",
+    "closedAt": "2026-07-16T05:52:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-17-1",
+    "runId": "RUN-GEN-BB-17",
+    "unitOrSerialRef": "SN-BB-76073",
+    "workerId": "WRK-BB-WKR-09",
+    "deviceId": "DEV-BB-TAB-009",
+    "openedAt": "2026-07-30T09:18:00.000Z",
+    "closedAt": "2026-07-30T10:11:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-PW-18-1",
+    "runId": "RUN-GEN-PW-18",
+    "unitOrSerialRef": "SN-PW-54241",
+    "workerId": "WRK-PW-WKR-02",
+    "deviceId": "DEV-PW-TAB-001",
+    "openedAt": "2026-06-02T08:02:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-HW-20-1",
+    "runId": "RUN-GEN-HW-20",
+    "unitOrSerialRef": "SN-HW-86707",
+    "workerId": "WRK-HW-WKR-01",
+    "deviceId": "DEV-HW-TAB-001",
+    "openedAt": "2026-07-12T08:17:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-KD-22-1",
+    "runId": "RUN-GEN-KD-22",
+    "unitOrSerialRef": "SN-KD-95684",
+    "workerId": "WRK-KD-WKR-01",
+    "deviceId": "DEV-KD-TAB-001",
+    "openedAt": "2026-06-01T05:00:00.000Z",
+    "closedAt": "2026-06-01T06:08:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-23-1",
+    "runId": "RUN-GEN-BB-23",
+    "unitOrSerialRef": "SN-BB-53049",
+    "workerId": "WRK-BB-WKR-02",
+    "deviceId": "DEV-BB-TAB-009",
+    "openedAt": "2026-07-24T10:03:00.000Z",
+    "closedAt": "2026-07-24T10:36:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-25-1",
+    "runId": "RUN-GEN-BB-25",
+    "unitOrSerialRef": "SN-BB-12704",
+    "workerId": "WRK-BB-WKR-05",
+    "deviceId": "DEV-BB-TAB-011",
+    "openedAt": "2026-08-14T06:02:00.000Z",
+    "closedAt": "2026-08-14T06:43:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-27-1",
+    "runId": "RUN-GEN-BB-27",
+    "unitOrSerialRef": "SN-BB-33681",
+    "workerId": "WRK-BB-WKR-20",
+    "deviceId": "DEV-BB-TAB-013",
+    "openedAt": "2026-06-08T09:09:00.000Z",
+    "closedAt": "2026-06-08T09:44:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-29-1",
+    "runId": "RUN-GEN-BB-29",
+    "unitOrSerialRef": "SN-BB-95718",
+    "workerId": "WRK-BB-WKR-03",
+    "deviceId": "DEV-BB-TAB-011",
+    "openedAt": "2026-07-06T07:15:00.000Z",
+    "closedAt": "2026-07-06T07:52:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-SM-30-1",
+    "runId": "RUN-GEN-SM-30",
+    "unitOrSerialRef": "LOT-SM-5222",
+    "workerId": "WRK-SM-WKR-01",
+    "deviceId": "DEV-SM-TAB-001",
+    "openedAt": "2026-06-20T06:03:00.000Z",
+    "closedAt": "2026-06-20T06:55:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-33-1",
+    "runId": "RUN-GEN-BB-33",
+    "unitOrSerialRef": "SN-BB-94473",
+    "workerId": "WRK-BB-WKR-12",
+    "deviceId": "DEV-BB-TAB-011",
+    "openedAt": "2026-06-09T05:17:00.000Z",
+    "closedAt": "2026-06-09T05:34:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-NF-34-1",
+    "runId": "RUN-GEN-NF-34",
+    "unitOrSerialRef": "LOT-NF-4435",
+    "workerId": "WRK-NF-WKR-01",
+    "deviceId": "DEV-NF-TAB-001",
+    "openedAt": "2026-07-25T08:14:00.000Z",
+    "closedAt": "2026-07-25T08:37:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-HD-36-1",
+    "runId": "RUN-GEN-HD-36",
+    "unitOrSerialRef": "SN-HD-36476",
+    "workerId": "WRK-HD-WKR-01",
+    "deviceId": "DEV-HD-TAB-001",
+    "openedAt": "2026-07-21T08:05:00.000Z",
+    "closedAt": "2026-07-21T09:12:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-37-1",
+    "runId": "RUN-GEN-BB-37",
+    "unitOrSerialRef": "SN-BB-32446",
+    "workerId": "WRK-BB-WKR-07",
+    "deviceId": "DEV-BB-TAB-013",
+    "openedAt": "2026-08-03T05:06:00.000Z",
+    "closedAt": "2026-08-03T05:42:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-41-1",
+    "runId": "RUN-GEN-BB-41",
+    "unitOrSerialRef": "SN-BB-28896",
+    "workerId": "WRK-BB-WKR-18",
+    "deviceId": "DEV-BB-TAB-003",
+    "openedAt": "2026-07-31T06:07:00.000Z",
+    "closedAt": "2026-07-31T07:23:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-HW-42-1",
+    "runId": "RUN-GEN-HW-42",
+    "unitOrSerialRef": "SN-HW-30755",
+    "workerId": "WRK-HW-WKR-01",
+    "deviceId": "DEV-HW-TAB-001",
+    "openedAt": "2026-07-17T07:11:00.000Z",
+    "closedAt": "2026-07-17T08:25:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-51-1",
+    "runId": "RUN-GEN-BB-51",
+    "unitOrSerialRef": "SN-BB-77145",
+    "workerId": "WRK-BB-WKR-20",
+    "deviceId": "DEV-BB-TAB-006",
+    "openedAt": "2026-07-16T07:07:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-BB-53-1",
+    "runId": "RUN-GEN-BB-53",
+    "unitOrSerialRef": "SN-BB-42279",
+    "workerId": "WRK-BB-WKR-17",
+    "deviceId": "DEV-BB-TAB-014",
+    "openedAt": "2026-07-14T06:05:00.000Z",
+    "closedAt": "2026-07-14T07:02:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-AC-54-1",
+    "runId": "RUN-GEN-AC-54",
+    "unitOrSerialRef": "SN-AC-36555",
+    "workerId": "WRK-AC-WKR-01",
+    "deviceId": "DEV-AC-TAB-001",
+    "openedAt": "2026-07-23T10:09:00.000Z",
+    "closedAt": "2026-07-23T10:41:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-55-1",
+    "runId": "RUN-GEN-BB-55",
+    "unitOrSerialRef": "SN-BB-83004",
+    "workerId": "WRK-BB-WKR-05",
+    "deviceId": "DEV-BB-TAB-013",
+    "openedAt": "2026-07-23T07:10:00.000Z",
+    "closedAt": "2026-07-23T08:28:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-NF-56-1",
+    "runId": "RUN-GEN-NF-56",
+    "unitOrSerialRef": "LOT-NF-9016",
+    "workerId": "WRK-NF-WKR-03",
+    "deviceId": "DEV-NF-TAB-001",
+    "openedAt": "2026-06-28T07:14:00.000Z",
+    "closedAt": "2026-06-28T08:21:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-MR-60-1",
+    "runId": "RUN-GEN-MR-60",
+    "unitOrSerialRef": "SN-MR-52585",
+    "workerId": "WRK-MR-WKR-01",
+    "deviceId": "DEV-MR-TAB-001",
+    "openedAt": "2026-07-18T10:05:00.000Z",
+    "closedAt": "2026-07-18T11:01:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-61-1",
+    "runId": "RUN-GEN-BB-61",
+    "unitOrSerialRef": "SN-BB-87510",
+    "workerId": "WRK-BB-WKR-08",
+    "deviceId": "DEV-BB-TAB-009",
+    "openedAt": "2026-07-22T05:11:00.000Z",
+    "closedAt": "2026-07-22T05:31:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-PW-62-1",
+    "runId": "RUN-GEN-PW-62",
+    "unitOrSerialRef": "SN-PW-48679",
+    "workerId": "WRK-PW-WKR-02",
+    "deviceId": "DEV-PW-TAB-001",
+    "openedAt": "2026-06-28T09:04:00.000Z",
+    "closedAt": "2026-06-28T09:32:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-HW-64-1",
+    "runId": "RUN-GEN-HW-64",
+    "unitOrSerialRef": "SN-HW-90118",
+    "workerId": "WRK-HW-WKR-01",
+    "deviceId": "DEV-HW-TAB-001",
+    "openedAt": "2026-07-11T07:12:00.000Z",
+    "closedAt": "2026-07-11T08:19:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-KD-66-1",
+    "runId": "RUN-GEN-KD-66",
+    "unitOrSerialRef": "SN-KD-37091",
+    "workerId": "WRK-KD-WKR-02",
+    "deviceId": "DEV-KD-TAB-001",
+    "openedAt": "2026-08-09T05:20:00.000Z",
+    "closedAt": "2026-08-09T06:09:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-67-1",
+    "runId": "RUN-GEN-BB-67",
+    "unitOrSerialRef": "SN-BB-64763",
+    "workerId": "WRK-BB-WKR-01",
+    "deviceId": "DEV-BB-TAB-010",
+    "openedAt": "2026-06-29T06:15:00.000Z",
+    "closedAt": "2026-06-29T06:50:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-SG-70-1",
+    "runId": "RUN-GEN-SG-70",
+    "unitOrSerialRef": "LOT-SG-2670",
+    "workerId": "WRK-SG-WKR-02",
+    "deviceId": "DEV-SG-TAB-001",
+    "openedAt": "2026-06-14T06:10:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-BB-71-1",
+    "runId": "RUN-GEN-BB-71",
+    "unitOrSerialRef": "SN-BB-92728",
+    "workerId": "WRK-BB-WKR-05",
+    "deviceId": "DEV-BB-TAB-002",
+    "openedAt": "2026-07-18T08:12:00.000Z",
+    "closedAt": "2026-07-18T09:23:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-75-1",
+    "runId": "RUN-GEN-BB-75",
+    "unitOrSerialRef": "SN-BB-63308",
+    "workerId": "WRK-BB-WKR-14",
+    "deviceId": "DEV-BB-TAB-006",
+    "openedAt": "2026-06-19T08:02:00.000Z",
+    "closedAt": "2026-06-19T09:10:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-77-1",
+    "runId": "RUN-GEN-BB-77",
+    "unitOrSerialRef": "SN-BB-58610",
+    "workerId": "WRK-BB-WKR-02",
+    "deviceId": "DEV-BB-TAB-002",
+    "openedAt": "2026-06-05T06:09:00.000Z",
+    "closedAt": "2026-06-05T07:03:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-NF-78-1",
+    "runId": "RUN-GEN-NF-78",
+    "unitOrSerialRef": "LOT-NF-1412",
+    "workerId": "WRK-NF-WKR-02",
+    "deviceId": "DEV-NF-TAB-001",
+    "openedAt": "2026-08-10T05:06:00.000Z",
+    "closedAt": "2026-08-10T06:18:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-83-1",
+    "runId": "RUN-GEN-BB-83",
+    "unitOrSerialRef": "SN-BB-44849",
+    "workerId": "WRK-BB-WKR-17",
+    "deviceId": "DEV-BB-TAB-001",
+    "openedAt": "2026-08-13T09:12:00.000Z",
+    "closedAt": "2026-08-13T10:03:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-SG-92-1",
+    "runId": "RUN-GEN-SG-92",
+    "unitOrSerialRef": "LOT-SG-9032",
+    "workerId": "WRK-SG-WKR-02",
+    "deviceId": "DEV-SG-TAB-001",
+    "openedAt": "2026-07-20T05:06:00.000Z",
+    "closedAt": "2026-07-20T06:08:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-93-1",
+    "runId": "RUN-GEN-BB-93",
+    "unitOrSerialRef": "SN-BB-94591",
+    "workerId": "WRK-BB-WKR-03",
+    "deviceId": "DEV-BB-TAB-006",
+    "openedAt": "2026-07-01T07:04:00.000Z",
+    "closedAt": "2026-07-01T07:38:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-97-1",
+    "runId": "RUN-GEN-BB-97",
+    "unitOrSerialRef": "SN-BB-34073",
+    "workerId": "WRK-BB-WKR-17",
+    "deviceId": "DEV-BB-TAB-006",
+    "openedAt": "2026-06-02T10:16:00.000Z",
+    "closedAt": "2026-06-02T11:06:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-AC-98-1",
+    "runId": "RUN-GEN-AC-98",
+    "unitOrSerialRef": "SN-AC-40556",
+    "workerId": "WRK-AC-WKR-02",
+    "deviceId": "DEV-AC-TAB-001",
+    "openedAt": "2026-07-11T08:13:00.000Z",
+    "closedAt": "2026-07-11T09:24:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-101-1",
+    "runId": "RUN-GEN-BB-101",
+    "unitOrSerialRef": "SN-BB-87840",
+    "workerId": "WRK-BB-WKR-15",
+    "deviceId": "DEV-BB-TAB-003",
+    "openedAt": "2026-07-10T06:20:00.000Z",
+    "closedAt": "2026-07-10T07:22:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-HD-102-1",
+    "runId": "RUN-GEN-HD-102",
+    "unitOrSerialRef": "SN-HD-57480",
+    "workerId": "WRK-HD-WKR-01",
+    "deviceId": "DEV-HD-TAB-001",
+    "openedAt": "2026-06-08T05:07:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-BB-105-1",
+    "runId": "RUN-GEN-BB-105",
+    "unitOrSerialRef": "SN-BB-71592",
+    "workerId": "WRK-BB-WKR-05",
+    "deviceId": "DEV-BB-TAB-001",
+    "openedAt": "2026-06-04T07:15:00.000Z",
+    "closedAt": "2026-06-04T08:07:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-107-1",
+    "runId": "RUN-GEN-BB-107",
+    "unitOrSerialRef": "SN-BB-71904",
+    "workerId": "WRK-BB-WKR-07",
+    "deviceId": "DEV-BB-TAB-013",
+    "openedAt": "2026-08-08T07:19:00.000Z",
+    "closedAt": "2026-08-08T08:23:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-109-1",
+    "runId": "RUN-GEN-BB-109",
+    "unitOrSerialRef": "SN-BB-52629",
+    "workerId": "WRK-BB-WKR-16",
+    "deviceId": "DEV-BB-TAB-009",
+    "openedAt": "2026-07-07T06:00:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-BB-111-1",
+    "runId": "RUN-GEN-BB-111",
+    "unitOrSerialRef": "SN-BB-31720",
+    "workerId": "WRK-BB-WKR-07",
+    "deviceId": "DEV-BB-TAB-003",
+    "openedAt": "2026-07-11T10:16:00.000Z",
+    "closedAt": "2026-07-11T10:38:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-113-1",
+    "runId": "RUN-GEN-BB-113",
+    "unitOrSerialRef": "SN-BB-81490",
+    "workerId": "WRK-BB-WKR-14",
+    "deviceId": "DEV-BB-TAB-002",
+    "openedAt": "2026-07-16T09:19:00.000Z",
+    "closedAt": "2026-07-16T10:18:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-SG-114-1",
+    "runId": "RUN-GEN-SG-114",
+    "unitOrSerialRef": "LOT-SG-4033",
+    "workerId": "WRK-SG-WKR-01",
+    "deviceId": "DEV-SG-TAB-001",
+    "openedAt": "2026-08-08T10:19:00.000Z",
+    "closedAt": "2026-08-08T11:14:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-115-1",
+    "runId": "RUN-GEN-BB-115",
+    "unitOrSerialRef": "SN-BB-18052",
+    "workerId": "WRK-BB-WKR-13",
+    "deviceId": "DEV-BB-TAB-014",
+    "openedAt": "2026-06-03T08:18:00.000Z",
+    "closedAt": "2026-06-03T08:58:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-119-1",
+    "runId": "RUN-GEN-BB-119",
+    "unitOrSerialRef": "SN-BB-22945",
+    "workerId": "WRK-BB-WKR-07",
+    "deviceId": "DEV-BB-TAB-009",
+    "openedAt": "2026-07-11T08:10:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-BB-121-1",
+    "runId": "RUN-GEN-BB-121",
+    "unitOrSerialRef": "SN-BB-35575",
+    "workerId": "WRK-BB-WKR-11",
+    "deviceId": "DEV-BB-TAB-009",
+    "openedAt": "2026-07-10T08:19:00.000Z",
+    "closedAt": "2026-07-10T08:37:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-NF-122-1",
+    "runId": "RUN-GEN-NF-122",
+    "unitOrSerialRef": "LOT-NF-1304",
+    "workerId": "WRK-NF-WKR-03",
+    "deviceId": "DEV-NF-TAB-001",
+    "openedAt": "2026-06-25T10:02:00.000Z",
+    "closedAt": "2026-06-25T10:41:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-MR-126-1",
+    "runId": "RUN-GEN-MR-126",
+    "unitOrSerialRef": "SN-MR-98318",
+    "workerId": "WRK-MR-WKR-01",
+    "deviceId": "DEV-MR-TAB-001",
+    "openedAt": "2026-07-09T06:01:00.000Z",
+    "closedAt": "2026-07-09T07:06:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-PW-128-1",
+    "runId": "RUN-GEN-PW-128",
+    "unitOrSerialRef": "SN-PW-83617",
+    "workerId": "WRK-PW-WKR-02",
+    "deviceId": "DEV-PW-TAB-001",
+    "openedAt": "2026-07-16T09:17:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-BB-129-1",
+    "runId": "RUN-GEN-BB-129",
+    "unitOrSerialRef": "SN-BB-75558",
+    "workerId": "WRK-BB-WKR-01",
+    "deviceId": "DEV-BB-TAB-013",
+    "openedAt": "2026-08-07T07:07:00.000Z",
+    "closedAt": "2026-08-07T07:49:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-131-1",
+    "runId": "RUN-GEN-BB-131",
+    "unitOrSerialRef": "SN-BB-78419",
+    "workerId": "WRK-BB-WKR-01",
+    "deviceId": "DEV-BB-TAB-010",
+    "openedAt": "2026-07-22T05:01:00.000Z",
+    "closedAt": "2026-07-22T05:32:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-KD-132-1",
+    "runId": "RUN-GEN-KD-132",
+    "unitOrSerialRef": "SN-KD-49787",
+    "workerId": "WRK-KD-WKR-01",
+    "deviceId": "DEV-KD-TAB-001",
+    "openedAt": "2026-08-02T08:16:00.000Z",
+    "closedAt": "2026-08-02T08:39:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-135-1",
+    "runId": "RUN-GEN-BB-135",
+    "unitOrSerialRef": "SN-BB-10970",
+    "workerId": "WRK-BB-WKR-17",
+    "deviceId": "DEV-BB-TAB-009",
+    "openedAt": "2026-06-01T07:09:00.000Z",
+    "closedAt": "2026-06-01T07:31:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-137-1",
+    "runId": "RUN-GEN-BB-137",
+    "unitOrSerialRef": "SN-BB-44793",
+    "workerId": "WRK-BB-WKR-17",
+    "deviceId": "DEV-BB-TAB-002",
+    "openedAt": "2026-07-04T07:17:00.000Z",
+    "closedAt": "2026-07-04T08:05:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-139-1",
+    "runId": "RUN-GEN-BB-139",
+    "unitOrSerialRef": "SN-BB-29097",
+    "workerId": "WRK-BB-WKR-17",
+    "deviceId": "DEV-BB-TAB-009",
+    "openedAt": "2026-07-24T09:05:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-SM-140-1",
+    "runId": "RUN-GEN-SM-140",
+    "unitOrSerialRef": "LOT-SM-3611",
+    "workerId": "WRK-SM-WKR-01",
+    "deviceId": "DEV-SM-TAB-001",
+    "openedAt": "2026-08-12T09:04:00.000Z",
+    "closedAt": "2026-08-12T10:25:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-BB-141-1",
+    "runId": "RUN-GEN-BB-141",
+    "unitOrSerialRef": "SN-BB-72748",
+    "workerId": "WRK-BB-WKR-20",
+    "deviceId": "DEV-BB-TAB-013",
+    "openedAt": "2026-06-03T07:07:00.000Z",
+    "closedAt": "2026-06-03T08:24:00.000Z",
+    "status": "complete"
+  },
+  {
+    "id": "UE-GEN-AC-142-1",
+    "runId": "RUN-GEN-AC-142",
+    "unitOrSerialRef": "SN-AC-44147",
+    "workerId": "WRK-AC-WKR-02",
+    "deviceId": "DEV-AC-TAB-001",
+    "openedAt": "2026-07-15T09:14:00.000Z",
+    "closedAt": null,
+    "status": "open"
+  },
+  {
+    "id": "UE-GEN-NF-144-1",
+    "runId": "RUN-GEN-NF-144",
+    "unitOrSerialRef": "LOT-NF-8945",
+    "workerId": "WRK-NF-WKR-01",
+    "deviceId": "DEV-NF-TAB-001",
+    "openedAt": "2026-06-14T09:08:00.000Z",
+    "closedAt": "2026-06-14T09:37:00.000Z",
+    "status": "complete"
   }
 ]

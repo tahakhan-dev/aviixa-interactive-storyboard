@@ -2,7 +2,7 @@
   {
     "id": "JOB-0001",
     "tenantId": "TEN-BRIGHTBIKES",
-    "name": "Frame assembly \u2014 Line 1",
+    "name": "Frame assembly — Line 1",
     "jobTypeId": "JT-ASSEMBLY",
     "serviceTypeTagId": null,
     "siteId": "SITE-BB-RIVERSIDE",
@@ -18,5 +18,987 @@
     "ownerUserId": "USR-BB-WKR-01",
     "linkedJobId": null,
     "status": "active"
+  },
+  {
+    "id": "JOB-BB-2026-0418",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame Assembly — Main Triangle Build (Line A, Day Shift)",
+    "jobTypeId": "JT-BB-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-BB-RIVERSIDE",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "shiftId": "SHIFT-BB-DAY",
+    "workflowDefinitionId": "WFD-BB-FRAME-ASSY",
+    "plannedQuantity": 40,
+    "qualificationRequirementIds": [
+      "QUAL-BB-01",
+      "QUAL-BB-14",
+      "QUAL-BB-19B"
+    ],
+    "recurrencePattern": "every scheduled Day Shift",
+    "unitMode": "serialized",
+    "ownerUserId": "USR-BB-SUP-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-BB-1",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Assembly — Wheel Bolt Torque Verification — standing job 1",
+    "jobTypeId": "JT-BB-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-BB-RIVERSIDE",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "shiftId": "SHIFT-BB-DAY",
+    "workflowDefinitionId": "WF-TORQUE-001",
+    "plannedQuantity": 47,
+    "qualificationRequirementIds": [
+      "QUAL-BB-20"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-BB-ADMIN",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-BB-2",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame Assembly — Main Triangle Build — standing job 2",
+    "jobTypeId": "JT-BB-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-BB-RIVERSIDE",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "shiftId": "SHIFT-BB-DAY",
+    "workflowDefinitionId": "WFD-BB-FRAME-ASSY",
+    "plannedQuantity": 73,
+    "qualificationRequirementIds": [
+      "QUAL-BB-07"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "none",
+    "ownerUserId": "USR-BB-ADMIN",
+    "linkedJobId": null,
+    "status": "draft"
+  },
+  {
+    "id": "JOB-GEN-BB-3",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Gearbox Assembly Verification — BB — standing job 3",
+    "jobTypeId": "JT-BB-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-BB-RIVERSIDE",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "shiftId": "SHIFT-BB-DAY",
+    "workflowDefinitionId": "WFD-BB-GEN-15",
+    "plannedQuantity": 100,
+    "qualificationRequirementIds": [
+      "QUAL-BB-02"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "lot",
+    "ownerUserId": "USR-BB-ADMIN",
+    "linkedJobId": null,
+    "status": "pending-approval"
+  },
+  {
+    "id": "JOB-GEN-BB-4",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Assembly — Wheel Bolt Torque Verification — standing job 4",
+    "jobTypeId": "JT-BB-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-BB-RIVERSIDE",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "shiftId": "SHIFT-BB-DAY",
+    "workflowDefinitionId": "WF-TORQUE-001",
+    "plannedQuantity": 24,
+    "qualificationRequirementIds": [
+      "QUAL-BB-03"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-BB-ADMIN",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-NF-1",
+    "tenantId": "TEN-NORTHFORGE",
+    "name": "Fastener Torque Verification — NF — standing job 1",
+    "jobTypeId": "JT-NF-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-NF-MAIN",
+    "areaId": "AREA-NF-FORGE",
+    "shiftId": "SHIFT-NF-DAY",
+    "workflowDefinitionId": "WFD-NF-GEN-02",
+    "plannedQuantity": 111,
+    "qualificationRequirementIds": [
+      "QUAL-NF-03"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "lot",
+    "ownerUserId": "USR-NF-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-NF-2",
+    "tenantId": "TEN-NORTHFORGE",
+    "name": "Weld Seam Inspection — NF — standing job 2",
+    "jobTypeId": "JT-NF-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-NF-MAIN",
+    "areaId": "AREA-NF-FORGE",
+    "shiftId": "SHIFT-NF-DAY",
+    "workflowDefinitionId": "WFD-NF-GEN-16",
+    "plannedQuantity": 88,
+    "qualificationRequirementIds": [
+      "QUAL-NF-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "none",
+    "ownerUserId": "USR-NF-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
+  },
+  {
+    "id": "JOB-GEN-NF-3",
+    "tenantId": "TEN-NORTHFORGE",
+    "name": "Fastener Torque Verification — NF — standing job 3",
+    "jobTypeId": "JT-NF-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-NF-MAIN",
+    "areaId": "AREA-NF-FORGE",
+    "shiftId": "SHIFT-NF-DAY",
+    "workflowDefinitionId": "WFD-NF-GEN-02",
+    "plannedQuantity": 124,
+    "qualificationRequirementIds": [
+      "QUAL-NF-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "serialized",
+    "ownerUserId": "USR-NF-ADM-01",
+    "linkedJobId": null,
+    "status": "archived"
+  },
+  {
+    "id": "JOB-GEN-NF-4",
+    "tenantId": "TEN-NORTHFORGE",
+    "name": "Weld Seam Inspection — NF — standing job 4",
+    "jobTypeId": "JT-NF-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-NF-MAIN",
+    "areaId": "AREA-NF-FORGE",
+    "shiftId": "SHIFT-NF-DAY",
+    "workflowDefinitionId": "WFD-NF-GEN-16",
+    "plannedQuantity": 99,
+    "qualificationRequirementIds": [
+      "QUAL-NF-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "lot",
+    "ownerUserId": "USR-NF-ADM-01",
+    "linkedJobId": null,
+    "status": "draft"
+  },
+  {
+    "id": "JOB-GEN-CW-1",
+    "tenantId": "TEN-CEDARWORKS",
+    "name": "Bearing Press-Fit Verification — CW — standing job 1",
+    "jobTypeId": "JT-CW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-CW-MAIN",
+    "areaId": "AREA-CW-FAB",
+    "shiftId": "SHIFT-CW-DAY",
+    "workflowDefinitionId": "WFD-CW-GEN-03",
+    "plannedQuantity": 129,
+    "qualificationRequirementIds": [
+      "QUAL-CW-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "serialized",
+    "ownerUserId": "USR-CW-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-CW-2",
+    "tenantId": "TEN-CEDARWORKS",
+    "name": "Bearing Press-Fit Verification — CW — standing job 2",
+    "jobTypeId": "JT-CW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-CW-MAIN",
+    "areaId": "AREA-CW-FAB",
+    "shiftId": "SHIFT-CW-DAY",
+    "workflowDefinitionId": "WFD-CW-GEN-03",
+    "plannedQuantity": 94,
+    "qualificationRequirementIds": [
+      "QUAL-CW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-CW-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-CW-3",
+    "tenantId": "TEN-CEDARWORKS",
+    "name": "Bearing Press-Fit Verification — CW — standing job 3",
+    "jobTypeId": "JT-CW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-CW-MAIN",
+    "areaId": "AREA-CW-FAB",
+    "shiftId": "SHIFT-CW-DAY",
+    "workflowDefinitionId": "WFD-CW-GEN-03",
+    "plannedQuantity": 33,
+    "qualificationRequirementIds": [
+      "QUAL-CW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "lot",
+    "ownerUserId": "USR-CW-ADM-01",
+    "linkedJobId": null,
+    "status": "archived"
+  },
+  {
+    "id": "JOB-GEN-CW-4",
+    "tenantId": "TEN-CEDARWORKS",
+    "name": "Bearing Press-Fit Verification — CW — standing job 4",
+    "jobTypeId": "JT-CW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-CW-MAIN",
+    "areaId": "AREA-CW-FAB",
+    "shiftId": "SHIFT-CW-DAY",
+    "workflowDefinitionId": "WFD-CW-GEN-03",
+    "plannedQuantity": 54,
+    "qualificationRequirementIds": [
+      "QUAL-CW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-CW-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-HD-1",
+    "tenantId": "TEN-HALLIDAY",
+    "name": "Coolant System Leak Test — HD — standing job 1",
+    "jobTypeId": "JT-HD-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-HD-MAIN",
+    "areaId": "AREA-HD-MACH",
+    "shiftId": "SHIFT-HD-DAY",
+    "workflowDefinitionId": "WFD-HD-GEN-04",
+    "plannedQuantity": 135,
+    "qualificationRequirementIds": [
+      "QUAL-HD-03"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-HD-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-HD-2",
+    "tenantId": "TEN-HALLIDAY",
+    "name": "Weld Seam Inspection — HD — standing job 2",
+    "jobTypeId": "JT-HD-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-HD-MAIN",
+    "areaId": "AREA-HD-MACH",
+    "shiftId": "SHIFT-HD-DAY",
+    "workflowDefinitionId": "WFD-HD-GEN-18",
+    "plannedQuantity": 70,
+    "qualificationRequirementIds": [
+      "QUAL-HD-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-HD-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
+  },
+  {
+    "id": "JOB-GEN-HD-3",
+    "tenantId": "TEN-HALLIDAY",
+    "name": "Coolant System Leak Test — HD — standing job 3",
+    "jobTypeId": "JT-HD-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-HD-MAIN",
+    "areaId": "AREA-HD-MACH",
+    "shiftId": "SHIFT-HD-DAY",
+    "workflowDefinitionId": "WFD-HD-GEN-04",
+    "plannedQuantity": 73,
+    "qualificationRequirementIds": [
+      "QUAL-HD-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-HD-ADM-01",
+    "linkedJobId": null,
+    "status": "draft"
+  },
+  {
+    "id": "JOB-GEN-HD-4",
+    "tenantId": "TEN-HALLIDAY",
+    "name": "Weld Seam Inspection — HD — standing job 4",
+    "jobTypeId": "JT-HD-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-HD-MAIN",
+    "areaId": "AREA-HD-MACH",
+    "shiftId": "SHIFT-HD-DAY",
+    "workflowDefinitionId": "WFD-HD-GEN-18",
+    "plannedQuantity": 46,
+    "qualificationRequirementIds": [
+      "QUAL-HD-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-HD-ADM-01",
+    "linkedJobId": null,
+    "status": "archived"
+  },
+  {
+    "id": "JOB-GEN-SG-1",
+    "tenantId": "TEN-SUMMITGEAR",
+    "name": "Gearbox Assembly Verification — SG — standing job 1",
+    "jobTypeId": "JT-SG-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-SG-MAIN",
+    "areaId": "AREA-SG-ASSY",
+    "shiftId": "SHIFT-SG-DAY",
+    "workflowDefinitionId": "WFD-SG-GEN-07",
+    "plannedQuantity": 57,
+    "qualificationRequirementIds": [
+      "QUAL-SG-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "lot",
+    "ownerUserId": "USR-SG-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-SG-2",
+    "tenantId": "TEN-SUMMITGEAR",
+    "name": "Final Pack Quality Check — SG — standing job 2",
+    "jobTypeId": "JT-SG-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-SG-MAIN",
+    "areaId": "AREA-SG-ASSY",
+    "shiftId": "SHIFT-SG-DAY",
+    "workflowDefinitionId": "WFD-SG-GEN-21",
+    "plannedQuantity": 118,
+    "qualificationRequirementIds": [
+      "QUAL-SG-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "none",
+    "ownerUserId": "USR-SG-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-SG-3",
+    "tenantId": "TEN-SUMMITGEAR",
+    "name": "Gearbox Assembly Verification — SG — standing job 3",
+    "jobTypeId": "JT-SG-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-SG-MAIN",
+    "areaId": "AREA-SG-ASSY",
+    "shiftId": "SHIFT-SG-DAY",
+    "workflowDefinitionId": "WFD-SG-GEN-07",
+    "plannedQuantity": 88,
+    "qualificationRequirementIds": [
+      "QUAL-SG-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "lot",
+    "ownerUserId": "USR-SG-ADM-01",
+    "linkedJobId": null,
+    "status": "archived"
+  },
+  {
+    "id": "JOB-GEN-SG-4",
+    "tenantId": "TEN-SUMMITGEAR",
+    "name": "Final Pack Quality Check — SG — standing job 4",
+    "jobTypeId": "JT-SG-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-SG-MAIN",
+    "areaId": "AREA-SG-ASSY",
+    "shiftId": "SHIFT-SG-DAY",
+    "workflowDefinitionId": "WFD-SG-GEN-21",
+    "plannedQuantity": 37,
+    "qualificationRequirementIds": [
+      "QUAL-SG-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "lot",
+    "ownerUserId": "USR-SG-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
+  },
+  {
+    "id": "JOB-GEN-MR-1",
+    "tenantId": "TEN-MERIDIAN",
+    "name": "Sensor Bracket Install Check — MR — standing job 1",
+    "jobTypeId": "JT-MR-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-MR-MAIN",
+    "areaId": "AREA-MR-CLEAN",
+    "shiftId": "SHIFT-MR-DAY",
+    "workflowDefinitionId": "WFD-MR-GEN-08",
+    "plannedQuantity": 71,
+    "qualificationRequirementIds": [
+      "QUAL-MR-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "serialized",
+    "ownerUserId": "USR-MR-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-MR-2",
+    "tenantId": "TEN-MERIDIAN",
+    "name": "Surface Finish Inspection — MR — standing job 2",
+    "jobTypeId": "JT-MR-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-MR-MAIN",
+    "areaId": "AREA-MR-CLEAN",
+    "shiftId": "SHIFT-MR-DAY",
+    "workflowDefinitionId": "WFD-MR-GEN-22",
+    "plannedQuantity": 149,
+    "qualificationRequirementIds": [
+      "QUAL-MR-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "lot",
+    "ownerUserId": "USR-MR-ADM-01",
+    "linkedJobId": null,
+    "status": "draft"
+  },
+  {
+    "id": "JOB-GEN-MR-3",
+    "tenantId": "TEN-MERIDIAN",
+    "name": "Sensor Bracket Install Check — MR — standing job 3",
+    "jobTypeId": "JT-MR-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-MR-MAIN",
+    "areaId": "AREA-MR-CLEAN",
+    "shiftId": "SHIFT-MR-DAY",
+    "workflowDefinitionId": "WFD-MR-GEN-08",
+    "plannedQuantity": 44,
+    "qualificationRequirementIds": [
+      "QUAL-MR-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-MR-ADM-01",
+    "linkedJobId": null,
+    "status": "pending-approval"
+  },
+  {
+    "id": "JOB-GEN-MR-4",
+    "tenantId": "TEN-MERIDIAN",
+    "name": "Surface Finish Inspection — MR — standing job 4",
+    "jobTypeId": "JT-MR-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-MR-MAIN",
+    "areaId": "AREA-MR-CLEAN",
+    "shiftId": "SHIFT-MR-DAY",
+    "workflowDefinitionId": "WFD-MR-GEN-22",
+    "plannedQuantity": 128,
+    "qualificationRequirementIds": [
+      "QUAL-MR-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-MR-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
+  },
+  {
+    "id": "JOB-GEN-DW-1",
+    "tenantId": "TEN-DELTAWORKS",
+    "name": "Fastener Torque Verification — DW — standing job 1",
+    "jobTypeId": "JT-DW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-DW-MAIN",
+    "areaId": "AREA-DW-MACH",
+    "shiftId": "SHIFT-DW-DAY",
+    "workflowDefinitionId": "WFD-DW-GEN-09",
+    "plannedQuantity": 13,
+    "qualificationRequirementIds": [
+      "QUAL-DW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-DW-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-DW-2",
+    "tenantId": "TEN-DELTAWORKS",
+    "name": "Coolant System Leak Test — DW — standing job 2",
+    "jobTypeId": "JT-DW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-DW-MAIN",
+    "areaId": "AREA-DW-MACH",
+    "shiftId": "SHIFT-DW-DAY",
+    "workflowDefinitionId": "WFD-DW-GEN-23",
+    "plannedQuantity": 35,
+    "qualificationRequirementIds": [
+      "QUAL-DW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-DW-ADM-01",
+    "linkedJobId": null,
+    "status": "pending-approval"
+  },
+  {
+    "id": "JOB-GEN-DW-3",
+    "tenantId": "TEN-DELTAWORKS",
+    "name": "Fastener Torque Verification — DW — standing job 3",
+    "jobTypeId": "JT-DW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-DW-MAIN",
+    "areaId": "AREA-DW-MACH",
+    "shiftId": "SHIFT-DW-DAY",
+    "workflowDefinitionId": "WFD-DW-GEN-09",
+    "plannedQuantity": 129,
+    "qualificationRequirementIds": [
+      "QUAL-DW-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "none",
+    "ownerUserId": "USR-DW-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
+  },
+  {
+    "id": "JOB-GEN-DW-4",
+    "tenantId": "TEN-DELTAWORKS",
+    "name": "Coolant System Leak Test — DW — standing job 4",
+    "jobTypeId": "JT-DW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-DW-MAIN",
+    "areaId": "AREA-DW-MACH",
+    "shiftId": "SHIFT-DW-DAY",
+    "workflowDefinitionId": "WFD-DW-GEN-23",
+    "plannedQuantity": 121,
+    "qualificationRequirementIds": [
+      "QUAL-DW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-DW-ADM-01",
+    "linkedJobId": null,
+    "status": "draft"
+  },
+  {
+    "id": "JOB-GEN-PW-1",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "name": "Fastener Torque Verification — PW — standing job 1",
+    "jobTypeId": "JT-PW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-PW-MAIN",
+    "areaId": "AREA-PW-FAB",
+    "shiftId": "SHIFT-PW-DAY",
+    "workflowDefinitionId": "WFD-PW-GEN-10",
+    "plannedQuantity": 134,
+    "qualificationRequirementIds": [
+      "QUAL-PW-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "serialized",
+    "ownerUserId": "USR-PW-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-PW-2",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "name": "Sensor Bracket Install Check — PW — standing job 2",
+    "jobTypeId": "JT-PW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-PW-MAIN",
+    "areaId": "AREA-PW-FAB",
+    "shiftId": "SHIFT-PW-DAY",
+    "workflowDefinitionId": "WFD-PW-GEN-24",
+    "plannedQuantity": 37,
+    "qualificationRequirementIds": [
+      "QUAL-PW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "lot",
+    "ownerUserId": "USR-PW-ADM-01",
+    "linkedJobId": null,
+    "status": "draft"
+  },
+  {
+    "id": "JOB-GEN-PW-3",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "name": "Fastener Torque Verification — PW — standing job 3",
+    "jobTypeId": "JT-PW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-PW-MAIN",
+    "areaId": "AREA-PW-FAB",
+    "shiftId": "SHIFT-PW-DAY",
+    "workflowDefinitionId": "WFD-PW-GEN-10",
+    "plannedQuantity": 93,
+    "qualificationRequirementIds": [
+      "QUAL-PW-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "none",
+    "ownerUserId": "USR-PW-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
+  },
+  {
+    "id": "JOB-GEN-PW-4",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "name": "Sensor Bracket Install Check — PW — standing job 4",
+    "jobTypeId": "JT-PW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-PW-MAIN",
+    "areaId": "AREA-PW-FAB",
+    "shiftId": "SHIFT-PW-DAY",
+    "workflowDefinitionId": "WFD-PW-GEN-24",
+    "plannedQuantity": 50,
+    "qualificationRequirementIds": [
+      "QUAL-PW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-PW-ADM-01",
+    "linkedJobId": null,
+    "status": "archived"
+  },
+  {
+    "id": "JOB-GEN-SM-1",
+    "tenantId": "TEN-SOLMETAL",
+    "name": "Sensor Bracket Install Check — SM — standing job 1",
+    "jobTypeId": "JT-SM-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-SM-MAIN",
+    "areaId": "AREA-SM-ENSAM",
+    "shiftId": "SHIFT-SM-DAY",
+    "workflowDefinitionId": "WFD-SM-GEN-25",
+    "plannedQuantity": 142,
+    "qualificationRequirementIds": [
+      "QUAL-SM-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-SM-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-SM-2",
+    "tenantId": "TEN-SOLMETAL",
+    "name": "Sensor Bracket Install Check — SM — standing job 2",
+    "jobTypeId": "JT-SM-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-SM-MAIN",
+    "areaId": "AREA-SM-ENSAM",
+    "shiftId": "SHIFT-SM-DAY",
+    "workflowDefinitionId": "WFD-SM-GEN-25",
+    "plannedQuantity": 34,
+    "qualificationRequirementIds": [
+      "QUAL-SM-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "serialized",
+    "ownerUserId": "USR-SM-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
+  },
+  {
+    "id": "JOB-GEN-SM-3",
+    "tenantId": "TEN-SOLMETAL",
+    "name": "Sensor Bracket Install Check — SM — standing job 3",
+    "jobTypeId": "JT-SM-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-SM-MAIN",
+    "areaId": "AREA-SM-ENSAM",
+    "shiftId": "SHIFT-SM-DAY",
+    "workflowDefinitionId": "WFD-SM-GEN-25",
+    "plannedQuantity": 24,
+    "qualificationRequirementIds": [
+      "QUAL-SM-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "lot",
+    "ownerUserId": "USR-SM-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-SM-4",
+    "tenantId": "TEN-SOLMETAL",
+    "name": "Sensor Bracket Install Check — SM — standing job 4",
+    "jobTypeId": "JT-SM-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-SM-MAIN",
+    "areaId": "AREA-SM-ENSAM",
+    "shiftId": "SHIFT-SM-DAY",
+    "workflowDefinitionId": "WFD-SM-GEN-25",
+    "plannedQuantity": 99,
+    "qualificationRequirementIds": [
+      "QUAL-SM-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-SM-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
+  },
+  {
+    "id": "JOB-GEN-HW-1",
+    "tenantId": "TEN-HARBORWORKS",
+    "name": "Control Panel Wiring Check — HW — standing job 1",
+    "jobTypeId": "JT-HW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-HW-MAIN",
+    "areaId": "AREA-HW-WELD",
+    "shiftId": "SHIFT-HW-DAY",
+    "workflowDefinitionId": "WFD-HW-GEN-12",
+    "plannedQuantity": 49,
+    "qualificationRequirementIds": [
+      "QUAL-HW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-HW-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-HW-2",
+    "tenantId": "TEN-HARBORWORKS",
+    "name": "Sensor Bracket Install Check — HW — standing job 2",
+    "jobTypeId": "JT-HW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-HW-MAIN",
+    "areaId": "AREA-HW-WELD",
+    "shiftId": "SHIFT-HW-DAY",
+    "workflowDefinitionId": "WFD-HW-GEN-26",
+    "plannedQuantity": 35,
+    "qualificationRequirementIds": [
+      "QUAL-HW-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "serialized",
+    "ownerUserId": "USR-HW-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-HW-3",
+    "tenantId": "TEN-HARBORWORKS",
+    "name": "Control Panel Wiring Check — HW — standing job 3",
+    "jobTypeId": "JT-HW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-HW-MAIN",
+    "areaId": "AREA-HW-WELD",
+    "shiftId": "SHIFT-HW-DAY",
+    "workflowDefinitionId": "WFD-HW-GEN-12",
+    "plannedQuantity": 114,
+    "qualificationRequirementIds": [
+      "QUAL-HW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-HW-ADM-01",
+    "linkedJobId": null,
+    "status": "archived"
+  },
+  {
+    "id": "JOB-GEN-HW-4",
+    "tenantId": "TEN-HARBORWORKS",
+    "name": "Sensor Bracket Install Check — HW — standing job 4",
+    "jobTypeId": "JT-HW-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-HW-MAIN",
+    "areaId": "AREA-HW-WELD",
+    "shiftId": "SHIFT-HW-DAY",
+    "workflowDefinitionId": "WFD-HW-GEN-26",
+    "plannedQuantity": 105,
+    "qualificationRequirementIds": [
+      "QUAL-HW-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-HW-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-AC-1",
+    "tenantId": "TEN-AZURACOMP",
+    "name": "Final Pack Quality Check — AC — standing job 1",
+    "jobTypeId": "JT-AC-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-AC-MAIN",
+    "areaId": "AREA-AC-ENSAM",
+    "shiftId": "SHIFT-AC-DAY",
+    "workflowDefinitionId": "WFD-AC-GEN-13",
+    "plannedQuantity": 50,
+    "qualificationRequirementIds": [
+      "QUAL-AC-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "serialized",
+    "ownerUserId": "USR-AC-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-AC-2",
+    "tenantId": "TEN-AZURACOMP",
+    "name": "Final Pack Quality Check — AC — standing job 2",
+    "jobTypeId": "JT-AC-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-AC-MAIN",
+    "areaId": "AREA-AC-ENSAM",
+    "shiftId": "SHIFT-AC-DAY",
+    "workflowDefinitionId": "WFD-AC-GEN-13",
+    "plannedQuantity": 122,
+    "qualificationRequirementIds": [
+      "QUAL-AC-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "none",
+    "ownerUserId": "USR-AC-ADM-01",
+    "linkedJobId": null,
+    "status": "archived"
+  },
+  {
+    "id": "JOB-GEN-AC-3",
+    "tenantId": "TEN-AZURACOMP",
+    "name": "Final Pack Quality Check — AC — standing job 3",
+    "jobTypeId": "JT-AC-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-AC-MAIN",
+    "areaId": "AREA-AC-ENSAM",
+    "shiftId": "SHIFT-AC-DAY",
+    "workflowDefinitionId": "WFD-AC-GEN-13",
+    "plannedQuantity": 75,
+    "qualificationRequirementIds": [
+      "QUAL-AC-01"
+    ],
+    "recurrencePattern": "every scheduled shift",
+    "unitMode": "serialized",
+    "ownerUserId": "USR-AC-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
+  },
+  {
+    "id": "JOB-GEN-AC-4",
+    "tenantId": "TEN-AZURACOMP",
+    "name": "Final Pack Quality Check — AC — standing job 4",
+    "jobTypeId": "JT-AC-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-AC-MAIN",
+    "areaId": "AREA-AC-ENSAM",
+    "shiftId": "SHIFT-AC-DAY",
+    "workflowDefinitionId": "WFD-AC-GEN-13",
+    "plannedQuantity": 50,
+    "qualificationRequirementIds": [
+      "QUAL-AC-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "lot",
+    "ownerUserId": "USR-AC-ADM-01",
+    "linkedJobId": null,
+    "status": "pending-approval"
+  },
+  {
+    "id": "JOB-GEN-KD-1",
+    "tenantId": "TEN-KESTRELDYN",
+    "name": "Fastener Torque Verification — KD — standing job 1",
+    "jobTypeId": "JT-KD-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-KD-MAIN",
+    "areaId": "AREA-KD-ASSY",
+    "shiftId": "SHIFT-KD-DAY",
+    "workflowDefinitionId": "WFD-KD-GEN-14",
+    "plannedQuantity": 97,
+    "qualificationRequirementIds": [
+      "QUAL-KD-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-KD-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-KD-2",
+    "tenantId": "TEN-KESTRELDYN",
+    "name": "Fastener Torque Verification — KD — standing job 2",
+    "jobTypeId": "JT-KD-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-KD-MAIN",
+    "areaId": "AREA-KD-ASSY",
+    "shiftId": "SHIFT-KD-DAY",
+    "workflowDefinitionId": "WFD-KD-GEN-14",
+    "plannedQuantity": 102,
+    "qualificationRequirementIds": [
+      "QUAL-KD-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "serialized",
+    "ownerUserId": "USR-KD-ADM-01",
+    "linkedJobId": null,
+    "status": "active"
+  },
+  {
+    "id": "JOB-GEN-KD-3",
+    "tenantId": "TEN-KESTRELDYN",
+    "name": "Fastener Torque Verification — KD — standing job 3",
+    "jobTypeId": "JT-KD-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-KD-MAIN",
+    "areaId": "AREA-KD-ASSY",
+    "shiftId": "SHIFT-KD-DAY",
+    "workflowDefinitionId": "WFD-KD-GEN-14",
+    "plannedQuantity": 46,
+    "qualificationRequirementIds": [
+      "QUAL-KD-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-KD-ADM-01",
+    "linkedJobId": null,
+    "status": "draft"
+  },
+  {
+    "id": "JOB-GEN-KD-4",
+    "tenantId": "TEN-KESTRELDYN",
+    "name": "Fastener Torque Verification — KD — standing job 4",
+    "jobTypeId": "JT-KD-OPS",
+    "serviceTypeTagId": null,
+    "siteId": "SITE-KD-MAIN",
+    "areaId": "AREA-KD-ASSY",
+    "shiftId": "SHIFT-KD-DAY",
+    "workflowDefinitionId": "WFD-KD-GEN-14",
+    "plannedQuantity": 112,
+    "qualificationRequirementIds": [
+      "QUAL-KD-01"
+    ],
+    "recurrencePattern": null,
+    "unitMode": "none",
+    "ownerUserId": "USR-KD-ADM-01",
+    "linkedJobId": null,
+    "status": "paused"
   }
 ]

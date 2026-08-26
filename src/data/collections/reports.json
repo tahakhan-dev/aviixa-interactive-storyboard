@@ -1,15 +1,169 @@
 [
   {
-    "id": "RPT-0001",
+    "id": "RPT-GEN-BB-1",
     "tenantId": "TEN-BRIGHTBIKES",
-    "dataSet": "run-completion-rate-by-job",
-    "generatedVia": "on-request",
-    "generatedAt": "2026-03-02T06:15:00Z",
-    "asOf": "2026-03-02T06:15:00Z",
+    "dataSet": "worker-utilisation-by-area",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
-        "jobId": "JOB-0001",
-        "completionRate": 0.0
+        "areaId": "AREA-BB-ASSEMBLY",
+        "utilisationPercent": 85
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-NF-1",
+    "tenantId": "TEN-NORTHFORGE",
+    "dataSet": "run-completion-rate-by-job",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "jobId": "JOB-GEN-NF-1",
+        "completionRate": 0.84
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-CW-1",
+    "tenantId": "TEN-CEDARWORKS",
+    "dataSet": "workflow-version-usage",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "workflowDefinitionId": "WFD-CW-GEN-03",
+        "runCount": 29
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-HD-1",
+    "tenantId": "TEN-HALLIDAY",
+    "dataSet": "qualification-override-frequency-by-role",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "role": "SUPERVISOR",
+        "overrideCount": 0
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-SG-1",
+    "tenantId": "TEN-SUMMITGEAR",
+    "dataSet": "tier-allocation-consumption-trend",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "month": "2026-08",
+        "percentOfAllocation": 118
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-MR-1",
+    "tenantId": "TEN-MERIDIAN",
+    "dataSet": "worker-utilisation-by-area",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "areaId": "AREA-MR-CLEAN",
+        "utilisationPercent": 85
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-DW-1",
+    "tenantId": "TEN-DELTAWORKS",
+    "dataSet": "worker-utilisation-by-area",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "areaId": "AREA-DW-MACH",
+        "utilisationPercent": 91
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-PW-1",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "dataSet": "worker-utilisation-by-area",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "areaId": "AREA-PW-FAB",
+        "utilisationPercent": 84
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-SM-1",
+    "tenantId": "TEN-SOLMETAL",
+    "dataSet": "workflow-version-usage",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "workflowDefinitionId": "WFD-SM-GEN-25",
+        "runCount": 5
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-HW-1",
+    "tenantId": "TEN-HARBORWORKS",
+    "dataSet": "qualification-override-frequency-by-role",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "role": "SUPERVISOR",
+        "overrideCount": 3
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-AC-1",
+    "tenantId": "TEN-AZURACOMP",
+    "dataSet": "worker-utilisation-by-area",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "areaId": "AREA-AC-ENSAM",
+        "utilisationPercent": 46
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-KD-1",
+    "tenantId": "TEN-KESTRELDYN",
+    "dataSet": "tier-allocation-consumption-trend",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "month": "2026-08",
+        "percentOfAllocation": 116
       }
     ]
   }
