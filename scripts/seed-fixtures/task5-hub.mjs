@@ -207,6 +207,13 @@ for (let u = 0; u < UNIT_COUNT; u++) {
     const deviceTime = stamp(unitStartOffset + s * 5)
     const serverReceiptTime = synced ? stamp(unitStartOffset + s * 5 + 30) : null
     const isAbandonedStep = isAbandonedUnit && s === stepsThisUnit - 1
+    // Fix round 1, Important 3: append-only correction had zero rows
+    // anywhere in the seed. Unit 1's cable-housing text step (WI-BB-FRAME-07)
+    // is the one this run demonstrates it on: the original capture stays
+    // exactly as committed (immutable at commit, per the source's own
+    // "append, never overwrite" principle), and a second, later capture is
+    // appended below with `correctedFromCaptureId` chaining back to it.
+    const isCorrectionStep = u === 0 && s === 6
 
     let value, inSpecification, severityBand = null, gateOutcome = 'passed'
     let captureType = screen.type
@@ -269,7 +276,7 @@ for (let u = 0; u < UNIT_COUNT; u++) {
       gateOutcome,
       inSpecification,
       severityBand,
-      status: isAbandonedStep ? 'abandoned' : 'completed',
+      status: isAbandonedStep ? 'abandoned' : isCorrectionStep ? 'corrected-by-appended-record' : 'completed',
     })
 
     const captureId = `CAP-BB-0418-${String(u + 1).padStart(2, '0')}-${String(s + 1).padStart(2, '0')}`
@@ -337,6 +344,36 @@ for (let u = 0; u < UNIT_COUNT; u++) {
   })
 }
 
+// The appended correction itself. `CAP-BB-0418-01-07` (unit 1's original
+// cable-housing-length capture, above) stays untouched; this is the linked
+// correction record, timestamped well after the original's own sync so the
+// "correction happens later" ordering holds by construction.
+captures.push({
+  id: 'CAP-BB-0418-01-07-CORR',
+  stepExecutionId: 'SE-BB-0418-01-07',
+  runId: RUN_ID,
+  jobId: JOB_ID,
+  captureType: 'text',
+  value: '618mm front housing, 582mm rear housing (corrected — original measurement mis-recorded)',
+  unitOrLot: { kind: 'unit', id: 'FRM-0418-01' },
+  workerId: ALICE,
+  authorisingWorkerId: BEN, // a second worker's sign-off on the appended correction
+  deviceId: DEVICE_ID,
+  locationResolved: true,
+  siteId: SITE_ID,
+  areaId: AREA_ID,
+  locationId: LOCATION_ID,
+  unresolvedLocationNote: null,
+  deviceTime: stamp(150), // well after the original's own 06:35/07:05 capture+sync
+  serverReceiptTime: stamp(180),
+  inSpecification: null,
+  severityBand: null,
+  evidenceIds: [],
+  lateArrival: false,
+  correctedFromCaptureId: 'CAP-BB-0418-01-07',
+  status: 'officially-recorded',
+})
+
 export { unitExecutions, stepExecutions, captures, evidence }
 
 // --- The three deviations, and the one Severity-1 hold -------------------
@@ -401,6 +438,35 @@ export const deviations = [
     escalationRoutingState: null,
     hasEvidenceGaps: false,
     status: 'resolved',
+  },
+  // Fix round 1, Important 4: `triggerMechanism: 'sequence'` had zero rows
+  // anywhere in the seed, though the source names it as one of three
+  // deterministic detection mechanisms in the same breath as `time` and
+  // `specification-and-evidence` (§5.2.2). A genuine sequence violation —
+  // a screen reached out of its authored order — is a different thing
+  // from a reading outside limits, so this is written as one: on unit 6,
+  // WI-BB-FRAME-03 (head tube bearing race fit-up) was recorded before
+  // WI-BB-FRAME-02 (seat post clamp torque) had a completed record for
+  // this unit, violating the authored screen order 01 -> 02 -> 03 -> ...
+  {
+    id: 'DEV-BB-SEQ-01',
+    tenantId: 'TEN-BRIGHTBIKES',
+    triggerMechanism: 'sequence',
+    stepExecutionId: 'SE-BB-0418-06-03',
+    workerId: BEN,
+    runId: RUN_ID,
+    lotOrUnitRef: 'FRM-0418-06',
+    workflowVersion: WFD_VERSION,
+    severityBand: 2,
+    agentInterpretation:
+      'Screen 3 (head tube bearing race fit-up) was recorded before screen 2 (seat post '
+      + 'clamp torque) had a completed Step Execution on this unit — a violation of the '
+      + 'authored screen order, detected deterministically on device, not a reading outside '
+      + 'a specification limit.',
+    containmentChecklistId: null,
+    escalationRoutingState: 'escalated',
+    hasEvidenceGaps: false,
+    status: 'contained',
   },
 ]
 

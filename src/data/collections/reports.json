@@ -3,13 +3,13 @@
     "id": "RPT-GEN-BB-1",
     "tenantId": "TEN-BRIGHTBIKES",
     "dataSet": "worker-utilisation-by-area",
-    "generatedVia": "scheduled",
+    "generatedVia": "on-request",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
         "areaId": "AREA-BB-ASSEMBLY",
-        "utilisationPercent": 85
+        "utilisationPercent": 59
       }
     ]
   },
@@ -23,7 +23,7 @@
     "rows": [
       {
         "jobId": "JOB-GEN-NF-1",
-        "completionRate": 0.84
+        "completionRate": 0.89
       }
     ]
   },
@@ -37,7 +37,7 @@
     "rows": [
       {
         "workflowDefinitionId": "WFD-CW-GEN-03",
-        "runCount": 29
+        "runCount": 4
       }
     ]
   },
@@ -45,7 +45,7 @@
     "id": "RPT-GEN-HD-1",
     "tenantId": "TEN-HALLIDAY",
     "dataSet": "qualification-override-frequency-by-role",
-    "generatedVia": "scheduled",
+    "generatedVia": "on-request",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
@@ -59,55 +59,55 @@
     "id": "RPT-GEN-SG-1",
     "tenantId": "TEN-SUMMITGEAR",
     "dataSet": "tier-allocation-consumption-trend",
-    "generatedVia": "scheduled",
+    "generatedVia": "on-request",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
         "month": "2026-08",
-        "percentOfAllocation": 118
+        "percentOfAllocation": 52
       }
     ]
   },
   {
     "id": "RPT-GEN-MR-1",
     "tenantId": "TEN-MERIDIAN",
-    "dataSet": "worker-utilisation-by-area",
-    "generatedVia": "on-request",
+    "dataSet": "qualification-override-frequency-by-role",
+    "generatedVia": "scheduled",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
-        "areaId": "AREA-MR-CLEAN",
-        "utilisationPercent": 85
+        "role": "SUPERVISOR",
+        "overrideCount": 4
       }
     ]
   },
   {
     "id": "RPT-GEN-DW-1",
     "tenantId": "TEN-DELTAWORKS",
-    "dataSet": "worker-utilisation-by-area",
+    "dataSet": "tier-allocation-consumption-trend",
     "generatedVia": "scheduled",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
-        "areaId": "AREA-DW-MACH",
-        "utilisationPercent": 91
+        "month": "2026-08",
+        "percentOfAllocation": 135
       }
     ]
   },
   {
     "id": "RPT-GEN-PW-1",
     "tenantId": "TEN-PRAIRIEWORKS",
-    "dataSet": "worker-utilisation-by-area",
+    "dataSet": "qualification-override-frequency-by-role",
     "generatedVia": "on-request",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
-        "areaId": "AREA-PW-FAB",
-        "utilisationPercent": 84
+        "role": "SUPERVISOR",
+        "overrideCount": 5
       }
     ]
   },
@@ -115,13 +115,13 @@
     "id": "RPT-GEN-SM-1",
     "tenantId": "TEN-SOLMETAL",
     "dataSet": "workflow-version-usage",
-    "generatedVia": "scheduled",
+    "generatedVia": "on-request",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
         "workflowDefinitionId": "WFD-SM-GEN-25",
-        "runCount": 5
+        "runCount": 4
       }
     ]
   },
@@ -135,35 +135,35 @@
     "rows": [
       {
         "role": "SUPERVISOR",
-        "overrideCount": 3
+        "overrideCount": 1
       }
     ]
   },
   {
     "id": "RPT-GEN-AC-1",
     "tenantId": "TEN-AZURACOMP",
-    "dataSet": "worker-utilisation-by-area",
+    "dataSet": "workflow-version-usage",
     "generatedVia": "scheduled",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
-        "areaId": "AREA-AC-ENSAM",
-        "utilisationPercent": 46
+        "workflowDefinitionId": "WFD-AC-GEN-13",
+        "runCount": 26
       }
     ]
   },
   {
     "id": "RPT-GEN-KD-1",
     "tenantId": "TEN-KESTRELDYN",
-    "dataSet": "tier-allocation-consumption-trend",
+    "dataSet": "qualification-override-frequency-by-role",
     "generatedVia": "on-request",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
-        "month": "2026-08",
-        "percentOfAllocation": 116
+        "role": "SUPERVISOR",
+        "overrideCount": 2
       }
     ]
   }

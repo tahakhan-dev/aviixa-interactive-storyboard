@@ -512,6 +512,19 @@ const generatedSummaries = []
 
 const nonBB = OPERATIONAL_TENANTS.filter((t) => t.id !== 'TEN-BRIGHTBIKES')
 
+// Fix round 1, Important 2: a Hold was only ever minted opportunistically,
+// off the same 8%-chance x 1-in-5-severities roll that drives Deviations --
+// no forced coverage at all, unlike every other required vocabulary in this
+// generator. `Hold.targetKind` has three genuine V1 values (OBJ-053, L9003:
+// "the Lot where one exists, the Unit where work is serialized, otherwise
+// the Run") and this tracker forces at least two Severity-1 events for each,
+// coherently -- a run's targetKind is never chosen independently of its
+// Job's `unitMode`, it is exactly what `unitMode` already determines below.
+// `Hold.status` coverage still comes from `nextHoldState()` (unchanged) --
+// forcing enough total Hold-creation events is what lets that six-state
+// cycle actually complete instead of firing zero or one time.
+const holdTargetKindCoverage = { lot: 0, unit: 0, run: 0 }
+
 for (let i = 0; i < GEN_RUN_COUNT; i++) {
   // Every other generated run goes to Bright Bikes (>=60 required, >=73
   // land here); the rest round-robin the eleven other operational tenants.
@@ -528,7 +541,17 @@ for (let i = 0; i < GEN_RUN_COUNT; i++) {
   const plannedEndAt = stamp(RUN_BASELINE, day, startHour + 8, 0)
   const started = status !== 'scheduled'
   const ended = status === 'submitted' || status === 'complete' || status === 'finished'
-  const actualStartAt = started ? stamp(RUN_BASELINE, day, startHour, int(0, 20)) : null
+  // The run's own start offset, minutes past `startHour`. Every timestamp
+  // nested inside this run (unit open, step device time) is DERIVED from
+  // this value below rather than drawn as its own independent `int(...)`
+  // call -- fix round 1, Important 1: independent draws for parent and
+  // child left ~39% of generated Step Executions timestamped before their
+  // own parent Unit Execution. Deriving the child's window from inside the
+  // parent's makes "no step before its unit" true by construction, not by
+  // luck of the draw -- checked at every nesting level this generator has
+  // (run -> unit -> step; Job carries no timestamps to nest under).
+  const runStartOffset = int(0, 20)
+  const actualStartAt = started ? stamp(RUN_BASELINE, day, startHour, runStartOffset) : null
   const actualEndAt = ended ? stamp(RUN_BASELINE, day, startHour + 8, int(0, 40)) : null
 
   const runId = `RUN-GEN-${tenant.code}-${i + 1}`
@@ -577,7 +600,10 @@ for (let i = 0; i < GEN_RUN_COUNT; i++) {
     const device = pick(org.devices)
     const ref =
       job.unitMode === 'lot' ? `LOT-${tenant.code}-${int(1000, 9999)}` : `SN-${tenant.code}-${int(10000, 99999)}`
-    const openedAt = stamp(RUN_BASELINE, day, startHour, int(0, 20) + u * 5)
+    // Derived from `runStartOffset`, always strictly after it (the added
+    // band is >= 1 minute) -- never an independent draw off `startHour`.
+    const unitOpenOffset = runStartOffset + int(1, 10) + u * 15
+    const openedAt = stamp(RUN_BASELINE, day, startHour, unitOpenOffset)
     const unitComplete = status !== 'in-progress' || chance(0.5)
     generatedUnitExecutions.push({
       id: unitId,
@@ -586,11 +612,23 @@ for (let i = 0; i < GEN_RUN_COUNT; i++) {
       workerId: worker.id,
       deviceId: device.id,
       openedAt,
-      closedAt: unitComplete ? stamp(RUN_BASELINE, day, startHour, int(30, 90) + u * 5) : null,
+      // `int(40, 90)` comfortably exceeds the largest step offset any step
+      // on this unit can reach below (`int(2,8) + 3*6` = 26 at most, for
+      // the 4th of at most 4 sliced instructions), so a completed unit
+      // always closes after every one of its own steps' `deviceTime`, too.
+      closedAt: unitComplete ? stamp(RUN_BASELINE, day, startHour, unitOpenOffset + int(40, 90)) : null,
       status: unitComplete ? 'complete' : 'open',
     })
-    units.push({ id: unitId, worker, device, ref })
+    units.push({ id: unitId, worker, device, ref, openOffset: unitOpenOffset })
   }
+
+  // This run's Hold target kind, matching OBJ-053's own rule exactly:
+  // Lot where the Job's unit mode is `lot`, Unit where it is `serialized`,
+  // otherwise (unit mode `none`) the Run itself. Computed once so the
+  // forcing check below and the Hold's own `targetKind` field (further
+  // down) can never disagree.
+  const runHoldTargetKind = unitCount ? (job.unitMode === 'lot' ? 'lot' : 'unit') : 'run'
+  let holdForcedThisRun = false
 
   for (let s = 0; s < instructions.length; s++) {
     const wi = instructions[s]
@@ -598,9 +636,15 @@ for (let i = 0; i < GEN_RUN_COUNT; i++) {
     const worker = unit ? unit.worker : pick(org.workers)
     const device = unit ? unit.device : pick(org.devices)
     const stepId = `SE-GEN-${tenant.code}-${i + 1}-${s + 1}`
-    const deviceTime = stamp(RUN_BASELINE, day, startHour, int(0, 20) + s * 6)
+    // Derived from the parent's own offset (the Unit's `openOffset`, or
+    // the Run's own `runStartOffset` when unit mode is `none` and steps
+    // attach directly to the Run) -- same derivation-not-independent-draw
+    // fix as the Unit block above.
+    const baseOffset = unit ? unit.openOffset : runStartOffset
+    const stepOffset = baseOffset + int(2, 8) + s * 6
+    const deviceTime = stamp(RUN_BASELINE, day, startHour, stepOffset)
     const stepSynced = status !== 'in-progress' || chance(0.6)
-    const serverReceiptTime = stepSynced ? stamp(RUN_BASELINE, day, startHour, int(21, 40) + s * 6) : null
+    const serverReceiptTime = stepSynced ? stamp(RUN_BASELINE, day, startHour, stepOffset + int(15, 30)) : null
 
     let inSpecification = null
     let severityBand = null
@@ -608,10 +652,20 @@ for (let i = 0; i < GEN_RUN_COUNT; i++) {
     if (wi.inputType === 'measurement' || wi.inputType === 'ok-not-ok') {
       gateOutcome = 'passed'
       inSpecification = true
-      if (chance(0.08)) {
+      // Force at most one Severity-1 event per run, on the first eligible
+      // step, until every `targetKind` has at least two Hold rows -- see
+      // `holdTargetKindCoverage` above. Falls back to the original organic
+      // 8%-chance roll (still weighted toward 2/3 via `SEVERITIES`) once
+      // coverage is satisfied, so the population stays mostly organic.
+      const forceHold = !holdForcedThisRun && holdTargetKindCoverage[runHoldTargetKind] < 2
+      if (forceHold || chance(0.08)) {
         inSpecification = false
-        severityBand = pick(SEVERITIES)
+        severityBand = forceHold ? 1 : pick(SEVERITIES)
         gateOutcome = 'failed'
+        if (forceHold) {
+          holdTargetKindCoverage[runHoldTargetKind]++
+          holdForcedThisRun = true
+        }
       }
     }
 
@@ -718,7 +772,7 @@ for (let i = 0; i < GEN_RUN_COUNT; i++) {
       if (severityBand === 1) {
         generatedHolds.push({
           id: `HOLD-GEN-${tenant.code}-${i + 1}-${s + 1}`,
-          targetKind: unitCount ? (job.unitMode === 'lot' ? 'lot' : 'unit') : 'run',
+          targetKind: runHoldTargetKind,
           targetId: unitCount ? units[0].ref : runId,
           originatingDeviationId: devId,
           placedAt: deviceTime,
