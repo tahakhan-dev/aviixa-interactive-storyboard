@@ -44,20 +44,31 @@ for (const [name, def] of Object.entries(COLLECTIONS)) {
   console.log(`ok    ${name.padEnd(24)} ${String(rows.length).padStart(5)} rows`)
 }
 
-// `field` may be a nested path, `'<arrayField>[].<leafField>'` (fix round 2:
-// `tours.steps[].controlId` is the one field that needs this). Walks
-// `row[arrayField]` and yields one `{ value, label }` per element's leaf
-// field, recursively — so an arbitrarily deep chain of `arr[].arr[].leaf`
-// would work too, though nothing in this schema set needs more than one
-// level today. A plain (non-nested) `field` behaves exactly as before.
+// `field` is a path that may step through any mix of plain nested objects
+// (`'config.ownerId'`) and array descents (`'steps[].controlId'`), to any
+// depth and in any combination (`'obj.arr[].someId'`,
+// `'outerArr[].innerArr[].someId'`) — fix round 3 (re-review finding: round
+// 2's version only ever matched ONE `arr[].rest` segment, so a plain nested
+// object was invisible to it, the exact blind spot the finding named).
+// A leading segment ending in `[]` descends into that array field and
+// recurses per element; otherwise it descends into that plain field and
+// recurses once. Recursion stops at the first `undefined`/`null` along the
+// way (an absent or nullable container has nothing beneath it to check —
+// the LEAF's own `nullable` handling happens in the caller, below). A path
+// with no `.`/`[]` at all behaves exactly as the original flat lookup did.
 function valuesAtPath(row, path, label) {
-  if (row === undefined) return []
-  const m = path.match(/^([^[.]+)\[\]\.(.+)$/)
-  if (!m) return [{ value: row[path], label: `${label}.${path}` }]
-  const [, arrKey, rest] = m
-  const arr = row[arrKey]
-  if (!Array.isArray(arr)) return []
-  return arr.flatMap((el, i) => valuesAtPath(el, rest, `${label}.${arrKey}[${i}]`))
+  if (row === undefined || row === null) return []
+  const m = path.match(/^([^[.]+)(\[\])?(?:\.(.+))?$/)
+  if (!m) return []
+  const [, key, isArray, rest] = m
+  if (isArray) {
+    const arr = row[key]
+    if (!Array.isArray(arr)) return []
+    if (rest === undefined) return arr.map((v, i) => ({ value: v, label: `${label}.${key}[${i}]` }))
+    return arr.flatMap((el, i) => valuesAtPath(el, rest, `${label}.${key}[${i}]`))
+  }
+  if (rest === undefined) return [{ value: row[key], label: `${label}.${key}` }]
+  return valuesAtPath(row[key], rest, `${label}.${key}`)
 }
 
 for (const rel of RELATIONS) {
@@ -83,22 +94,51 @@ for (const rel of RELATIONS) {
 // the explicit `UNCHECKABLE_ID_FIELDS` allowlist (with its reason, in
 // index.ts), or the validator reds naming the field's full path.
 //
-// Fix round 2 (re-review finding: the depth-1 version of this function
-// walked past `tours.steps[].controlId` — a real, existing nested field its
-// own comment named as exactly this shape of gap, and still missed it).
-// `fieldPaths()` now recurses into a `z.array(z.object(...))` field's
-// element shape too, yielding `'<arrayField>[].<leafField>'` paths that
-// `valuesAtPath()` above knows how to follow at check time. A discriminated
-// union's variants are unioned the same way they always were.
-function fieldPaths(schema, prefix = '') {
+// Fix round 2 added array recursion (`z.array(z.object(...))`).
+//
+// Fix round 3 (re-review finding: round 2's recursion only ever descended
+// `sub.element` — array-shaped — so a plain nested `z.object` field, e.g.
+// `z.object({ config: z.object({ ownerId: z.string() }) })`, was pushed as
+// one opaque path (`'config'`) and never walked into; `config.ownerId`
+// never appeared. Proved on throwaway scratch schemas outside `src/data`,
+// not on anything in this codebase — see the report). `unwrap()` strips
+// whatever zod wrapped the field in (`.optional()`, `.nullable()`,
+// `.default()`, and any chain of those) before asking what shape is
+// underneath, rather than special-casing the two this project happens to
+// use — the wrapper is irrelevant to the STRUCTURE being walked. A plain
+// object sub-field now recurses exactly like an array element does, just
+// without the `[]` marker in the path, so `'obj.arr[].someId'` and
+// `'arr[].obj.someId'` both resolve, at any depth and in any combination.
+// `.unwrap()` itself is not a safe generic signal: `ZodArray` also defines
+// it, meaning "give me the element type" (Array<T> -> T) — a completely
+// different operation from what `ZodOptional`/`ZodNullable`/`ZodDefault`
+// mean by the same method name (T-or-undefined -> T). Calling it
+// unconditionally on an array field silently swapped the array away and is
+// what broke round 3's first draft of this fix. `_def.innerType` is the
+// actual shared shape every wrapper-around-one-inner-schema type sets
+// (`optional`, `nullable`, `default`, `readonly`, `catch`, and presumably
+// whatever else this zod version or a later one adds in the same family) —
+// arrays set `_def.element`, objects set `_def.shape`, unions set
+// `_def.options`, so this signal, unlike the method's presence, only ever
+// matches an actual wrapper.
+function unwrap(schema) {
+  while (schema && schema._def && schema._def.innerType) schema = schema._def.innerType
+  return schema
+}
+
+function fieldPaths(rawSchema, prefix = '') {
   const out = []
+  const schema = unwrap(rawSchema)
   if (schema.shape) {
-    for (const [key, sub] of Object.entries(schema.shape)) {
+    for (const [key, rawSub] of Object.entries(schema.shape)) {
       const path = prefix ? `${prefix}.${key}` : key
       out.push(path)
-      const element = sub && sub.element // ZodArray's element schema, if `sub` is one
+      const sub = unwrap(rawSub)
+      const element = sub.element && unwrap(sub.element) // ZodArray's element schema, if `sub` is one
       if (element && (element.shape || element.options)) {
         for (const nested of fieldPaths(element)) out.push(`${path}[].${nested}`)
+      } else if (sub.shape || sub.options) {
+        for (const nested of fieldPaths(sub)) out.push(`${path}.${nested}`)
       }
     }
   } else if (schema.options) {
