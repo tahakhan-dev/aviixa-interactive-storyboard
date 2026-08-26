@@ -2,24 +2,735 @@
   {
     "id": "WF-TORQUE-001",
     "tenantId": "TEN-BRIGHTBIKES",
-    "name": "Frame bolt torque check",
+    "name": "Assembly — Wheel Bolt Torque Verification",
     "jobTypeId": "JT-ASSEMBLY",
     "serviceTypeTagId": null,
     "localeCoverage": [
-      "en"
+      "en",
+      "es"
     ],
-    "defaultEscalationRoutingTemplateId": null,
+    "defaultEscalationRoutingTemplateId": "ESC-BB-TORQUE-SEV",
     "defaultCoachingTriggerPercentage": 20,
     "workInstructionIds": [
       "WI-0001"
     ],
     "qualificationBaselineIds": [
-      "QUAL-BB-01"
+      "QUAL-BB-01",
+      "QUAL-BB-14"
     ],
     "version": "1.0.0",
     "bumpClassification": "major",
     "republishDescription": null,
     "laneBRoute": false,
     "status": "published"
+  },
+  {
+    "id": "WFD-BB-FRAME-ASSY-1.0.0",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame Assembly — Main Triangle Build",
+    "jobTypeId": "JT-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en",
+      "es"
+    ],
+    "defaultEscalationRoutingTemplateId": "ESC-BB-FRAME-SEV",
+    "defaultCoachingTriggerPercentage": 25,
+    "workInstructionIds": [
+      "WI-BB-FRAME-1.0-01",
+      "WI-BB-FRAME-1.0-02",
+      "WI-BB-FRAME-1.0-03",
+      "WI-BB-FRAME-1.0-04",
+      "WI-BB-FRAME-1.0-05",
+      "WI-BB-FRAME-1.0-06"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-BB-01",
+      "QUAL-BB-14"
+    ],
+    "version": "1.0.0",
+    "bumpClassification": "major",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "outdated"
+  },
+  {
+    "id": "WFD-BB-FRAME-ASSY",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame Assembly — Main Triangle Build",
+    "jobTypeId": "JT-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en",
+      "es"
+    ],
+    "defaultEscalationRoutingTemplateId": "ESC-BB-FRAME-SEV",
+    "defaultCoachingTriggerPercentage": 25,
+    "workInstructionIds": [
+      "WI-BB-FRAME-01",
+      "WI-BB-FRAME-02",
+      "WI-BB-FRAME-03",
+      "WI-BB-FRAME-04",
+      "WI-BB-FRAME-05",
+      "WI-BB-FRAME-06",
+      "WI-BB-FRAME-07",
+      "WI-BB-FRAME-08"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-BB-01",
+      "QUAL-BB-14",
+      "QUAL-BB-19B"
+    ],
+    "version": "1.1.0",
+    "bumpClassification": "minor",
+    "republishDescription": "Added derailleur hanger alignment photo capture and a cable housing length note; retightened the seat post clamp and chainring bolt torque specifications per engineering change order ECO-BB-2031.",
+    "laneBRoute": false,
+    "status": "published"
+  },
+  {
+    "id": "WFD-BB-FRAME-ASSY-2.0.0",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Frame Assembly — Main Triangle Build",
+    "jobTypeId": "JT-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en",
+      "es"
+    ],
+    "defaultEscalationRoutingTemplateId": "ESC-BB-FRAME-SEV",
+    "defaultCoachingTriggerPercentage": 25,
+    "workInstructionIds": [
+      "WI-BB-FRAME-2.0-01",
+      "WI-BB-FRAME-2.0-02",
+      "WI-BB-FRAME-2.0-03",
+      "WI-BB-FRAME-2.0-04",
+      "WI-BB-FRAME-2.0-05",
+      "WI-BB-FRAME-2.0-06"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-BB-01",
+      "QUAL-BB-14",
+      "QUAL-BB-19B"
+    ],
+    "version": "2.0.0",
+    "bumpClassification": "major",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "draft"
+  },
+  {
+    "id": "WFD-BB-GEN-01",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Control Panel Wiring Check — BB",
+    "jobTypeId": "JT-BB-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 18,
+    "workInstructionIds": [
+      "WFD-BB-GEN-01-WI-1",
+      "WFD-BB-GEN-01-WI-2",
+      "WFD-BB-GEN-01-WI-3"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-BB-06"
+    ],
+    "version": "1.1.3",
+    "bumpClassification": "major",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "draft"
+  },
+  {
+    "id": "WFD-NF-GEN-02",
+    "tenantId": "TEN-NORTHFORGE",
+    "name": "Fastener Torque Verification — NF",
+    "jobTypeId": "JT-NF-FAB",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 18,
+    "workInstructionIds": [
+      "WFD-NF-GEN-02-WI-1",
+      "WFD-NF-GEN-02-WI-2",
+      "WFD-NF-GEN-02-WI-3"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-NF-03"
+    ],
+    "version": "3.0.3",
+    "bumpClassification": "minor",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "in-review"
+  },
+  {
+    "id": "WFD-CW-GEN-03",
+    "tenantId": "TEN-CEDARWORKS",
+    "name": "Bearing Press-Fit Verification — CW",
+    "jobTypeId": "JT-CW-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 38,
+    "workInstructionIds": [
+      "WFD-CW-GEN-03-WI-1"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-CW-01"
+    ],
+    "version": "2.2.1",
+    "bumpClassification": "patch",
+    "republishDescription": "Republished after review adjustments to bearing press-fit verification.",
+    "laneBRoute": false,
+    "status": "published"
+  },
+  {
+    "id": "WFD-HD-GEN-04",
+    "tenantId": "TEN-HALLIDAY",
+    "name": "Coolant System Leak Test — HD",
+    "jobTypeId": "JT-HD-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 37,
+    "workInstructionIds": [
+      "WFD-HD-GEN-04-WI-1",
+      "WFD-HD-GEN-04-WI-2"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-HD-01"
+    ],
+    "version": "2.3.1",
+    "bumpClassification": "major",
+    "republishDescription": "Republished after review adjustments to coolant system leak test.",
+    "laneBRoute": false,
+    "status": "outdated"
+  },
+  {
+    "id": "WFD-VG-GEN-05",
+    "tenantId": "TEN-VANTAGE",
+    "name": "Fastener Torque Verification — VG",
+    "jobTypeId": "JT-VG-INSPECT",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 11,
+    "workInstructionIds": [
+      "WFD-VG-GEN-05-WI-1"
+    ],
+    "qualificationBaselineIds": [],
+    "version": "3.4.1",
+    "bumpClassification": "major",
+    "republishDescription": "Republished after review adjustments to fastener torque verification.",
+    "laneBRoute": false,
+    "status": "archived"
+  },
+  {
+    "id": "WFD-IC-GEN-06",
+    "tenantId": "TEN-IRONCLAD",
+    "name": "CNC Bore Tolerance Check — IC",
+    "jobTypeId": "JT-IC-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 40,
+    "workInstructionIds": [
+      "WFD-IC-GEN-06-WI-1",
+      "WFD-IC-GEN-06-WI-2"
+    ],
+    "qualificationBaselineIds": [],
+    "version": "1.0.2",
+    "bumpClassification": "minor",
+    "republishDescription": "Republished after review adjustments to cnc bore tolerance check.",
+    "laneBRoute": false,
+    "status": "published"
+  },
+  {
+    "id": "WFD-SG-GEN-07",
+    "tenantId": "TEN-SUMMITGEAR",
+    "name": "Gearbox Assembly Verification — SG",
+    "jobTypeId": "JT-SG-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 16,
+    "workInstructionIds": [
+      "WFD-SG-GEN-07-WI-1",
+      "WFD-SG-GEN-07-WI-2",
+      "WFD-SG-GEN-07-WI-3"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-SG-01"
+    ],
+    "version": "3.1.3",
+    "bumpClassification": "minor",
+    "republishDescription": "Republished after review adjustments to gearbox assembly verification.",
+    "laneBRoute": false,
+    "status": "outdated"
+  },
+  {
+    "id": "WFD-MR-GEN-08",
+    "tenantId": "TEN-MERIDIAN",
+    "name": "Sensor Bracket Install Check — MR",
+    "jobTypeId": "JT-MR-FAB",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 12,
+    "workInstructionIds": [
+      "WFD-MR-GEN-08-WI-1"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-MR-01"
+    ],
+    "version": "1.1.1",
+    "bumpClassification": "patch",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "draft"
+  },
+  {
+    "id": "WFD-DW-GEN-09",
+    "tenantId": "TEN-DELTAWORKS",
+    "name": "Fastener Torque Verification — DW",
+    "jobTypeId": "JT-DW-FAB",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 34,
+    "workInstructionIds": [
+      "WFD-DW-GEN-09-WI-1",
+      "WFD-DW-GEN-09-WI-2",
+      "WFD-DW-GEN-09-WI-3"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-DW-01"
+    ],
+    "version": "1.0.0",
+    "bumpClassification": "patch",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "in-review"
+  },
+  {
+    "id": "WFD-PW-GEN-10",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "name": "Fastener Torque Verification — PW",
+    "jobTypeId": "JT-PW-MACH",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 23,
+    "workInstructionIds": [
+      "WFD-PW-GEN-10-WI-1",
+      "WFD-PW-GEN-10-WI-2",
+      "WFD-PW-GEN-10-WI-3"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-PW-01"
+    ],
+    "version": "1.3.3",
+    "bumpClassification": "minor",
+    "republishDescription": "Republished after review adjustments to fastener torque verification.",
+    "laneBRoute": false,
+    "status": "outdated"
+  },
+  {
+    "id": "WFD-SM-GEN-11",
+    "tenantId": "TEN-SOLMETAL",
+    "name": "Bearing Press-Fit Verification — SM",
+    "jobTypeId": "JT-SM-INSPECT",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "es"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 19,
+    "workInstructionIds": [
+      "WFD-SM-GEN-11-WI-1",
+      "WFD-SM-GEN-11-WI-2",
+      "WFD-SM-GEN-11-WI-3"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-SM-01"
+    ],
+    "version": "2.1.3",
+    "bumpClassification": "major",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "draft"
+  },
+  {
+    "id": "WFD-HW-GEN-12",
+    "tenantId": "TEN-HARBORWORKS",
+    "name": "Control Panel Wiring Check — HW",
+    "jobTypeId": "JT-HW-MACH",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": "ESC-HW-7",
+    "defaultCoachingTriggerPercentage": 29,
+    "workInstructionIds": [
+      "WFD-HW-GEN-12-WI-1",
+      "WFD-HW-GEN-12-WI-2"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-HW-01"
+    ],
+    "version": "1.4.0",
+    "bumpClassification": "patch",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "draft"
+  },
+  {
+    "id": "WFD-AC-GEN-13",
+    "tenantId": "TEN-AZURACOMP",
+    "name": "Final Pack Quality Check — AC",
+    "jobTypeId": "JT-AC-INSPECT",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "es"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 14,
+    "workInstructionIds": [
+      "WFD-AC-GEN-13-WI-1",
+      "WFD-AC-GEN-13-WI-2",
+      "WFD-AC-GEN-13-WI-3"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-AC-01"
+    ],
+    "version": "2.3.0",
+    "bumpClassification": "minor",
+    "republishDescription": "Republished after review adjustments to final pack quality check.",
+    "laneBRoute": false,
+    "status": "published"
+  },
+  {
+    "id": "WFD-KD-GEN-14",
+    "tenantId": "TEN-KESTRELDYN",
+    "name": "Fastener Torque Verification — KD",
+    "jobTypeId": "JT-KD-INSPECT",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 23,
+    "workInstructionIds": [
+      "WFD-KD-GEN-14-WI-1"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-KD-01"
+    ],
+    "version": "3.4.3",
+    "bumpClassification": "major",
+    "republishDescription": "Republished after review adjustments to fastener torque verification.",
+    "laneBRoute": false,
+    "status": "archived"
+  },
+  {
+    "id": "WFD-BB-GEN-15",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Gearbox Assembly Verification — BB",
+    "jobTypeId": "JT-BB-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 25,
+    "workInstructionIds": [
+      "WFD-BB-GEN-15-WI-1"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-BB-07"
+    ],
+    "version": "1.4.3",
+    "bumpClassification": "patch",
+    "republishDescription": "Republished after review adjustments to gearbox assembly verification.",
+    "laneBRoute": false,
+    "status": "published"
+  },
+  {
+    "id": "WFD-NF-GEN-16",
+    "tenantId": "TEN-NORTHFORGE",
+    "name": "Weld Seam Inspection — NF",
+    "jobTypeId": "JT-NF-INSPECT",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 26,
+    "workInstructionIds": [
+      "WFD-NF-GEN-16-WI-1"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-NF-01"
+    ],
+    "version": "1.3.3",
+    "bumpClassification": "patch",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "in-review"
+  },
+  {
+    "id": "WFD-CW-GEN-17",
+    "tenantId": "TEN-CEDARWORKS",
+    "name": "Control Panel Wiring Check — CW",
+    "jobTypeId": "JT-CW-MACH",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 21,
+    "workInstructionIds": [
+      "WFD-CW-GEN-17-WI-1",
+      "WFD-CW-GEN-17-WI-2",
+      "WFD-CW-GEN-17-WI-3"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-CW-01"
+    ],
+    "version": "3.1.1",
+    "bumpClassification": "minor",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "in-review"
+  },
+  {
+    "id": "WFD-HD-GEN-18",
+    "tenantId": "TEN-HALLIDAY",
+    "name": "Weld Seam Inspection — HD",
+    "jobTypeId": "JT-HD-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 13,
+    "workInstructionIds": [
+      "WFD-HD-GEN-18-WI-1",
+      "WFD-HD-GEN-18-WI-2",
+      "WFD-HD-GEN-18-WI-3"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-HD-01"
+    ],
+    "version": "3.1.3",
+    "bumpClassification": "major",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "in-review"
+  },
+  {
+    "id": "WFD-VG-GEN-19",
+    "tenantId": "TEN-VANTAGE",
+    "name": "Hydraulic Fitting Torque Check — VG",
+    "jobTypeId": "JT-VG-MACH",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 32,
+    "workInstructionIds": [
+      "WFD-VG-GEN-19-WI-1",
+      "WFD-VG-GEN-19-WI-2"
+    ],
+    "qualificationBaselineIds": [],
+    "version": "2.2.2",
+    "bumpClassification": "patch",
+    "republishDescription": "Republished after review adjustments to hydraulic fitting torque check.",
+    "laneBRoute": false,
+    "status": "archived"
+  },
+  {
+    "id": "WFD-IC-GEN-20",
+    "tenantId": "TEN-IRONCLAD",
+    "name": "Fastener Torque Verification — IC",
+    "jobTypeId": "JT-IC-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 35,
+    "workInstructionIds": [
+      "WFD-IC-GEN-20-WI-1"
+    ],
+    "qualificationBaselineIds": [],
+    "version": "3.0.0",
+    "bumpClassification": "major",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "draft"
+  },
+  {
+    "id": "WFD-SG-GEN-21",
+    "tenantId": "TEN-SUMMITGEAR",
+    "name": "Final Pack Quality Check — SG",
+    "jobTypeId": "JT-SG-FAB",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 29,
+    "workInstructionIds": [
+      "WFD-SG-GEN-21-WI-1"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-SG-01"
+    ],
+    "version": "1.4.0",
+    "bumpClassification": "patch",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "in-review"
+  },
+  {
+    "id": "WFD-MR-GEN-22",
+    "tenantId": "TEN-MERIDIAN",
+    "name": "Surface Finish Inspection — MR",
+    "jobTypeId": "JT-MR-INSPECT",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 16,
+    "workInstructionIds": [
+      "WFD-MR-GEN-22-WI-1"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-MR-01"
+    ],
+    "version": "2.3.1",
+    "bumpClassification": "patch",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "in-review"
+  },
+  {
+    "id": "WFD-DW-GEN-23",
+    "tenantId": "TEN-DELTAWORKS",
+    "name": "Coolant System Leak Test — DW",
+    "jobTypeId": "JT-DW-FAB",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": null,
+    "defaultCoachingTriggerPercentage": 36,
+    "workInstructionIds": [
+      "WFD-DW-GEN-23-WI-1",
+      "WFD-DW-GEN-23-WI-2"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-DW-01"
+    ],
+    "version": "1.1.1",
+    "bumpClassification": "minor",
+    "republishDescription": null,
+    "laneBRoute": false,
+    "status": "draft"
+  },
+  {
+    "id": "WFD-PW-GEN-24",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "name": "Sensor Bracket Install Check — PW",
+    "jobTypeId": "JT-PW-MACH",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": "ESC-PW-7",
+    "defaultCoachingTriggerPercentage": 19,
+    "workInstructionIds": [
+      "WFD-PW-GEN-24-WI-1"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-PW-01"
+    ],
+    "version": "1.2.0",
+    "bumpClassification": "major",
+    "republishDescription": "Republished after review adjustments to sensor bracket install check.",
+    "laneBRoute": false,
+    "status": "outdated"
+  },
+  {
+    "id": "WFD-SM-GEN-25",
+    "tenantId": "TEN-SOLMETAL",
+    "name": "Sensor Bracket Install Check — SM",
+    "jobTypeId": "JT-SM-ASSEMBLY",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en",
+      "es"
+    ],
+    "defaultEscalationRoutingTemplateId": "ESC-SM-3",
+    "defaultCoachingTriggerPercentage": 37,
+    "workInstructionIds": [
+      "WFD-SM-GEN-25-WI-1"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-SM-01"
+    ],
+    "version": "3.1.1",
+    "bumpClassification": "patch",
+    "republishDescription": "Republished after review adjustments to sensor bracket install check.",
+    "laneBRoute": false,
+    "status": "published"
+  },
+  {
+    "id": "WFD-HW-GEN-26",
+    "tenantId": "TEN-HARBORWORKS",
+    "name": "Sensor Bracket Install Check — HW",
+    "jobTypeId": "JT-HW-FAB",
+    "serviceTypeTagId": null,
+    "localeCoverage": [
+      "en"
+    ],
+    "defaultEscalationRoutingTemplateId": "ESC-HW-2",
+    "defaultCoachingTriggerPercentage": 25,
+    "workInstructionIds": [
+      "WFD-HW-GEN-26-WI-1",
+      "WFD-HW-GEN-26-WI-2"
+    ],
+    "qualificationBaselineIds": [
+      "QUAL-HW-01"
+    ],
+    "version": "1.3.3",
+    "bumpClassification": "major",
+    "republishDescription": "Republished after review adjustments to sensor bracket install check.",
+    "laneBRoute": false,
+    "status": "outdated"
   }
 ]

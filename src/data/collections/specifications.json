@@ -2,10 +2,136 @@
   {
     "id": "SPEC-0001",
     "tenantId": "TEN-BRIGHTBIKES",
-    "lowerLimit": 45.0,
-    "upperLimit": 47.0,
-    "unit": "N\u00b7m",
-    "drawingReference": "DRW-FRAME-014",
+    "lowerLimit": 44,
+    "upperLimit": 47,
+    "unit": "N·m",
+    "drawingReference": "DWG-A441",
     "status": "published"
+  },
+  {
+    "id": "SPEC-BB-SEATCLAMP-1.0.0",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "lowerLimit": 5,
+    "upperLimit": 7,
+    "unit": "N·m",
+    "drawingReference": "DWG-BB-SEAT-CLAMP-06",
+    "status": "superseded"
+  },
+  {
+    "id": "SPEC-BB-CHAINRING-1.0.0",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "lowerLimit": 11,
+    "upperLimit": 13,
+    "unit": "N·m",
+    "drawingReference": "DWG-BB-CRANK-21",
+    "status": "superseded"
+  },
+  {
+    "id": "SPEC-BB-SEATCLAMP",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "lowerLimit": 6,
+    "upperLimit": 8,
+    "unit": "N·m",
+    "drawingReference": "DWG-BB-SEAT-CLAMP-07",
+    "status": "published"
+  },
+  {
+    "id": "SPEC-BB-CHAINRING",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "lowerLimit": 12,
+    "upperLimit": 14,
+    "unit": "N·m",
+    "drawingReference": "DWG-BB-CRANK-22",
+    "status": "published"
+  },
+  {
+    "id": "SPEC-IC-GEN-6-1",
+    "tenantId": "TEN-IRONCLAD",
+    "lowerLimit": 46,
+    "upperLimit": 50,
+    "unit": "kg",
+    "drawingReference": "DWG-IC-766",
+    "status": "authored"
+  },
+  {
+    "id": "SPEC-SG-GEN-7-1",
+    "tenantId": "TEN-SUMMITGEAR",
+    "lowerLimit": 46,
+    "upperLimit": 52,
+    "unit": "mm",
+    "drawingReference": "DWG-SG-308",
+    "status": "published"
+  },
+  {
+    "id": "SPEC-MR-GEN-8-1",
+    "tenantId": "TEN-MERIDIAN",
+    "lowerLimit": 63,
+    "upperLimit": 68,
+    "unit": "psi",
+    "drawingReference": "DWG-MR-499",
+    "status": "superseded"
+  },
+  {
+    "id": "SPEC-PW-GEN-10-1",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "lowerLimit": 40,
+    "upperLimit": 48,
+    "unit": "mm",
+    "drawingReference": "DWG-PW-185",
+    "status": "authored"
+  },
+  {
+    "id": "SPEC-PW-GEN-10-2",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "lowerLimit": 50,
+    "upperLimit": 60,
+    "unit": "N·m",
+    "drawingReference": null,
+    "status": "authored"
+  },
+  {
+    "id": "SPEC-PW-GEN-10-3",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "lowerLimit": 24,
+    "upperLimit": 33,
+    "unit": "psi",
+    "drawingReference": "DWG-PW-502",
+    "status": "authored"
+  },
+  {
+    "id": "SPEC-AC-GEN-13-1",
+    "tenantId": "TEN-AZURACOMP",
+    "lowerLimit": 72,
+    "upperLimit": 74,
+    "unit": "kg",
+    "drawingReference": "DWG-AC-494",
+    "status": "superseded"
+  },
+  {
+    "id": "SPEC-VG-GEN-19-2",
+    "tenantId": "TEN-VANTAGE",
+    "lowerLimit": 29,
+    "upperLimit": 34,
+    "unit": "psi",
+    "drawingReference": "DWG-VG-367",
+    "status": "published"
+  },
+  {
+    "id": "SPEC-HW-GEN-26-1",
+    "tenantId": "TEN-HARBORWORKS",
+    "lowerLimit": 70,
+    "upperLimit": 73,
+    "unit": "psi",
+    "drawingReference": null,
+    "status": "authored"
+  },
+  {
+    "id": "SPEC-HW-GEN-26-2",
+    "tenantId": "TEN-HARBORWORKS",
+    "lowerLimit": 42,
+    "upperLimit": 44,
+    "unit": "N·m",
+    "drawingReference": null,
+    "status": "superseded"
   }
 ]

@@ -1,9 +1,129 @@
 [
   {
-    "id": "TR-0001",
+    "id": "TR-BB-FRAME-TORQUE-SEQ",
     "tenantId": "TEN-BRIGHTBIKES",
-    "title": "Torque tool operation basics",
-    "bodyText": "How to hold, zero and read a calibrated torque wrench.",
+    "title": "Torque Sequencing for Multi-Bolt Fasteners",
+    "bodyText": "A chainring or any multi-bolt fastener is torqued in a star or criss-cross pattern, never straight around the circle. Bring every bolt to roughly half the target value on the first pass, then complete each bolt to full value on the second pass in the same star sequence. This spreads clamping force evenly and keeps the component from cocking on its seat.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "published"
+  },
+  {
+    "id": "TR-BB-GEN-1",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "title": "Tool Calibration Basics",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "draft"
+  },
+  {
+    "id": "TR-NF-GEN-2",
+    "tenantId": "TEN-NORTHFORGE",
+    "title": "Reading a Torque Wrench Scale",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "in-review"
+  },
+  {
+    "id": "TR-CW-GEN-3",
+    "tenantId": "TEN-CEDARWORKS",
+    "title": "Safe Lifting Technique",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "published"
+  },
+  {
+    "id": "TR-HD-GEN-4",
+    "tenantId": "TEN-HALLIDAY",
+    "title": "Reading a Vernier Caliper",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "archived"
+  },
+  {
+    "id": "TR-VG-GEN-5",
+    "tenantId": "TEN-VANTAGE",
+    "title": "Weld Inspection Fundamentals",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "archived"
+  },
+  {
+    "id": "TR-IC-GEN-6",
+    "tenantId": "TEN-IRONCLAD",
+    "title": "Tool Calibration Basics",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "published"
+  },
+  {
+    "id": "TR-SG-GEN-7",
+    "tenantId": "TEN-SUMMITGEAR",
+    "title": "Tool Calibration Basics",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "published"
+  },
+  {
+    "id": "TR-MR-GEN-8",
+    "tenantId": "TEN-MERIDIAN",
+    "title": "Weld Inspection Fundamentals",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "archived"
+  },
+  {
+    "id": "TR-DW-GEN-9",
+    "tenantId": "TEN-DELTAWORKS",
+    "title": "Reading a Vernier Caliper",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "published"
+  },
+  {
+    "id": "TR-PW-GEN-10",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "title": "Lockout-Tagout Refresher",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "en",
+    "version": "1.0.0",
+    "status": "published"
+  },
+  {
+    "id": "TR-SM-GEN-11",
+    "tenantId": "TEN-SOLMETAL",
+    "title": "Reading a Vernier Caliper",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
+    "videoUrl": null,
+    "locale": "es",
+    "version": "1.0.0",
+    "status": "published"
+  },
+  {
+    "id": "TR-HW-GEN-12",
+    "tenantId": "TEN-HARBORWORKS",
+    "title": "Tool Calibration Basics",
+    "bodyText": "Review this module before your first shift at this station, and ask your supervisor if a step here does not match what you see on the floor.",
     "videoUrl": null,
     "locale": "en",
     "version": "1.0.0",

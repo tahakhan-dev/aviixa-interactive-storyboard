@@ -1,15 +1,209 @@
 [
   {
-    "id": "EVAL-0001",
+    "id": "EVAL-BB-FRAME-CHAINRING-SEV",
     "kind": "scenario",
-    "subjectAtomOrAgentId": "ATOM-TORQUE-CLASSIFY",
+    "subjectAtomOrAgentId": "ATOM-FRAME-CHAINRING-CLASSIFY",
     "inputs": {
-      "reading": 38.0,
-      "upperLimit": 47.0
+      "reading": 15.6,
+      "upperLimit": 14
     },
-    "expectedBehaviour": "Classify 38.0 N\u00b7m against the 47.0 N\u00b7m upper limit as out of specification.",
+    "expectedBehaviour": "Classify a 15.6 N·m chainring bolt reading against the 14 N·m upper limit as out of specification and open a deviation.",
+    "passCriteria": "Severity band assigned matches the platform floor table for the percentage over limit.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "active"
+  },
+  {
+    "id": "EVAL-BB-FRAME-CHAINRING-SEV-R1",
+    "kind": "result",
+    "scenarioId": "EVAL-BB-FRAME-CHAINRING-SEV",
+    "subjectAtomOrAgentId": "ATOM-FRAME-CHAINRING-CLASSIFY",
+    "runAt": "2026-08-10T14:05:00Z",
+    "outcome": "pass",
+    "failureDetail": null,
+    "suiteId": "SUITE-CONTAINMENT",
+    "canaryOrOnDemand": "canary"
+  },
+  {
+    "id": "EVAL-BB-GEN-1",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-BB-CLASSIFY-1",
+    "inputs": {
+      "reading": 56,
+      "upperLimit": 58
+    },
+    "expectedBehaviour": "Classify the captured reading against its configured limit and assign the correct severity band.",
+    "passCriteria": "Severity band assigned matches the platform floor table.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "authored"
+  },
+  {
+    "id": "EVAL-NF-GEN-2",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-NF-CLASSIFY-2",
+    "inputs": {
+      "reading": 62,
+      "upperLimit": 82
+    },
+    "expectedBehaviour": "Classify the captured reading against its configured limit and assign the correct severity band.",
     "passCriteria": "Severity band assigned matches the platform floor table.",
     "suiteId": "SUITE-CONTAINMENT",
     "status": "active"
+  },
+  {
+    "id": "EVAL-NF-GEN-2-R1",
+    "kind": "result",
+    "scenarioId": "EVAL-NF-GEN-2",
+    "subjectAtomOrAgentId": "ATOM-NF-CLASSIFY-2",
+    "runAt": "2026-08-01T05:29:00.000Z",
+    "outcome": "fail",
+    "failureDetail": "Severity band assigned did not match the floor table for this input.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "canaryOrOnDemand": "on-demand"
+  },
+  {
+    "id": "EVAL-CW-GEN-3",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-CW-CLASSIFY-3",
+    "inputs": {
+      "reading": 39,
+      "upperLimit": 99
+    },
+    "expectedBehaviour": "Classify the captured reading against its configured limit and assign the correct severity band.",
+    "passCriteria": "Severity band assigned matches the platform floor table.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "superseded"
+  },
+  {
+    "id": "EVAL-HD-GEN-4",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-HD-CLASSIFY-4",
+    "inputs": {
+      "reading": 79,
+      "upperLimit": 69
+    },
+    "expectedBehaviour": "Classify the captured reading against its configured limit and assign the correct severity band.",
+    "passCriteria": "Severity band assigned matches the platform floor table.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "active"
+  },
+  {
+    "id": "EVAL-HD-GEN-4-R1",
+    "kind": "result",
+    "scenarioId": "EVAL-HD-GEN-4",
+    "subjectAtomOrAgentId": "ATOM-HD-CLASSIFY-4",
+    "runAt": "2026-08-02T03:33:00.000Z",
+    "outcome": "fail",
+    "failureDetail": "Severity band assigned did not match the floor table for this input.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "canaryOrOnDemand": "on-demand"
+  },
+  {
+    "id": "EVAL-VG-GEN-5",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-VG-CLASSIFY-5",
+    "inputs": {
+      "reading": 1,
+      "upperLimit": 58
+    },
+    "expectedBehaviour": "Classify the captured reading against its configured limit and assign the correct severity band.",
+    "passCriteria": "Severity band assigned matches the platform floor table.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "authored"
+  },
+  {
+    "id": "EVAL-VG-GEN-5-R1",
+    "kind": "result",
+    "scenarioId": "EVAL-VG-GEN-5",
+    "subjectAtomOrAgentId": "ATOM-VG-CLASSIFY-5",
+    "runAt": "2026-08-11T07:57:00.000Z",
+    "outcome": "pass",
+    "failureDetail": null,
+    "suiteId": "SUITE-CONTAINMENT",
+    "canaryOrOnDemand": "canary"
+  },
+  {
+    "id": "EVAL-IC-GEN-6",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-IC-CLASSIFY-6",
+    "inputs": {
+      "reading": 85,
+      "upperLimit": 86
+    },
+    "expectedBehaviour": "Classify the captured reading against its configured limit and assign the correct severity band.",
+    "passCriteria": "Severity band assigned matches the platform floor table.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "active"
+  },
+  {
+    "id": "EVAL-IC-GEN-6-R1",
+    "kind": "result",
+    "scenarioId": "EVAL-IC-GEN-6",
+    "subjectAtomOrAgentId": "ATOM-IC-CLASSIFY-6",
+    "runAt": "2026-08-10T03:41:00.000Z",
+    "outcome": "pass",
+    "failureDetail": null,
+    "suiteId": "SUITE-CONTAINMENT",
+    "canaryOrOnDemand": "on-demand"
+  },
+  {
+    "id": "EVAL-SG-GEN-7",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-SG-CLASSIFY-7",
+    "inputs": {
+      "reading": 67,
+      "upperLimit": 51
+    },
+    "expectedBehaviour": "Classify the captured reading against its configured limit and assign the correct severity band.",
+    "passCriteria": "Severity band assigned matches the platform floor table.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "superseded"
+  },
+  {
+    "id": "EVAL-SG-GEN-7-R1",
+    "kind": "result",
+    "scenarioId": "EVAL-SG-GEN-7",
+    "subjectAtomOrAgentId": "ATOM-SG-CLASSIFY-7",
+    "runAt": "2026-08-09T20:38:00.000Z",
+    "outcome": "fail",
+    "failureDetail": "Severity band assigned did not match the floor table for this input.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "canaryOrOnDemand": "canary"
+  },
+  {
+    "id": "EVAL-MR-GEN-8",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-MR-CLASSIFY-8",
+    "inputs": {
+      "reading": 43,
+      "upperLimit": 82
+    },
+    "expectedBehaviour": "Classify the captured reading against its configured limit and assign the correct severity band.",
+    "passCriteria": "Severity band assigned matches the platform floor table.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "superseded"
+  },
+  {
+    "id": "EVAL-DW-GEN-9",
+    "kind": "scenario",
+    "subjectAtomOrAgentId": "ATOM-DW-CLASSIFY-9",
+    "inputs": {
+      "reading": 62,
+      "upperLimit": 89
+    },
+    "expectedBehaviour": "Classify the captured reading against its configured limit and assign the correct severity band.",
+    "passCriteria": "Severity band assigned matches the platform floor table.",
+    "suiteId": "SUITE-CONTAINMENT",
+    "status": "active"
+  },
+  {
+    "id": "EVAL-DW-GEN-9-R1",
+    "kind": "result",
+    "scenarioId": "EVAL-DW-GEN-9",
+    "subjectAtomOrAgentId": "ATOM-DW-CLASSIFY-9",
+    "runAt": "2026-08-01T19:16:00.000Z",
+    "outcome": "pass",
+    "failureDetail": null,
+    "suiteId": "SUITE-CONTAINMENT",
+    "canaryOrOnDemand": "on-demand"
   }
 ]
