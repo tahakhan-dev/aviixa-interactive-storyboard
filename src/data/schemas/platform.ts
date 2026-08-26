@@ -56,7 +56,39 @@ export const User = z.object({
   displayName: z.string().min(1),
   email: z.string().email(),
   role: Role,
-  status: z.enum(['invited', 'active', 'locked', 'suspended', 'expired', 'removed']),
+  /**
+   * Fix round 2 (Task 6, §15.1 vs Task 2's `locked` guess): `'locked'` is
+   * REMOVED from this enum. Task 2's own report already flagged it as a
+   * derived-clarification schema-fit guess, never a source-cited literal
+   * ("`locked` is the closest fit in the schema's `User.status` enum to
+   * 'blocked from login' ... a derived clarification of *how* to
+   * represent that gate in this schema, not a source-cited field value" --
+   * `.superpowers/sdd/2026-08-26-runway/task-2-report.md`). §15.1 "The
+   * user and account lifecycle" (frozen source L18914-L19140) supplies
+   * the actual named state for exactly this case: its own
+   * `stateDiagram-v2` names `Suspended` ("Active --> Suspended... login
+   * refused, records retained") triggered explicitly by "personnel
+   * decision, OR TENANT COMPLIANCE SUSPENSION" (L18937), and `AC-15-01`
+   * (L19031) requires "no account can occupy an undeclared state" among
+   * its nine. `locked` is not one of the nine and had no other citation;
+   * this is §15.1 governing over an unsourced guess, not a genuine
+   * two-source conflict -- Task 2 never claimed `locked` was source-cited
+   * in the first place. The four `TEN-MERIDIAN` rows that carried it are
+   * migrated to `'suspended'` in `users.json`.
+   *
+   * Fix round 2 follow-on: `'expired'` is REMOVED from this enum for the
+   * identical reason and by the identical test. It sits in neither
+   * OBJ-027's three states nor §15.1's nine (Requested, Invited,
+   * IdentityVerified, Activated, Active, Suspended, Reactivated, Revoked,
+   * Offboarded) -- no row could ever legitimately carry it, which is what
+   * made it a permanent allowlist entry rather than a seedable gap.
+   * `AC-15-01`'s "no undeclared state" reaches it exactly as it reached
+   * `locked`; leaving one unsourced literal allowlisted forever while
+   * removing the other for the same reason was the inconsistency this
+   * follow-on closes. No row ever carried `'expired'`, so no data
+   * migration was needed.
+   */
+  status: z.enum(['invited', 'active', 'suspended', 'removed']),
   locale: z.enum(['en', 'es']),
   createdAt: Stamp,
   lastSignInAt: Stamp.nullable(),

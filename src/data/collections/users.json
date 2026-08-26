@@ -621,7 +621,7 @@
     "displayName": "Thomas Vogel",
     "email": "thomas.vogel@meridianregulated.example",
     "role": "TENANT_ADMIN",
-    "status": "locked",
+    "status": "suspended",
     "locale": "en",
     "createdAt": "2025-09-23T09:00:00Z",
     "lastSignInAt": "2026-08-06T09:00:00Z"
@@ -632,7 +632,7 @@
     "displayName": "Leila Amiri",
     "email": "leila.amiri@meridianregulated.example",
     "role": "QUALITY_MANAGER",
-    "status": "locked",
+    "status": "suspended",
     "locale": "en",
     "createdAt": "2025-09-25T08:00:00Z",
     "lastSignInAt": "2026-08-06T07:40:00Z"
@@ -643,7 +643,7 @@
     "displayName": "Henrik Dahl",
     "email": "henrik.dahl@meridianregulated.example",
     "role": "READONLY_AUDITOR",
-    "status": "locked",
+    "status": "suspended",
     "locale": "en",
     "createdAt": "2025-09-28T08:00:00Z",
     "lastSignInAt": "2026-08-05T07:00:00Z"
@@ -654,7 +654,7 @@
     "displayName": "Consolata Mwangi",
     "email": "consolata.mwangi@meridianregulated.example",
     "role": "WORKER",
-    "status": "locked",
+    "status": "suspended",
     "locale": "en",
     "createdAt": "2025-10-01T06:00:00Z",
     "lastSignInAt": "2026-08-05T06:00:00Z"
