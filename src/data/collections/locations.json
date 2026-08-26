@@ -1,8 +1,302 @@
 [
   {
-    "id": "LOC-CELL1",
-    "areaId": "AREA-LINE1",
-    "name": "Cell 1",
+    "id": "LOC-BB-ASSY-CELL-01",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "name": "Assembly Cell 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-WHEEL-2",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "name": "Wheel Station 2",
+    "requiredCertification": "Torque Wrench Operator Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-ASSY-QC",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "name": "Final QC Bench",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-WELD-BAY-01",
+    "areaId": "AREA-BB-WELDING",
+    "name": "Weld Bay 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-WELD-BAY-02",
+    "areaId": "AREA-BB-WELDING",
+    "name": "Weld Bay 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-WELD-JIG",
+    "areaId": "AREA-BB-WELDING",
+    "name": "Jig Fixture Station",
+    "requiredCertification": "Weld Inspection Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-PAINT-BOOTH-01",
+    "areaId": "AREA-BB-PAINT",
+    "name": "Paint Booth 1",
+    "requiredCertification": "Paint Booth Respirator Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-PAINT-BOOTH-02",
+    "areaId": "AREA-BB-PAINT",
+    "name": "Paint Booth 2",
+    "requiredCertification": "Paint Booth Respirator Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-PAINT-CURE",
+    "areaId": "AREA-BB-PAINT",
+    "name": "Curing Oven Bay",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-WHEEL-TRUE-01",
+    "areaId": "AREA-BB-WHEELBUILD",
+    "name": "Truing Stand 1",
+    "requiredCertification": "Wheel Truing Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-WHEEL-TRUE-02",
+    "areaId": "AREA-BB-WHEELBUILD",
+    "name": "Truing Stand 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-WHEEL-SPOKE",
+    "areaId": "AREA-BB-WHEELBUILD",
+    "name": "Spoke Lacing Station",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-MACH-CNC-01",
+    "areaId": "AREA-BB-MACHINING",
+    "name": "CNC Cell 1",
+    "requiredCertification": "CNC Machining Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-MACH-CNC-02",
+    "areaId": "AREA-BB-MACHINING",
+    "name": "CNC Cell 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-MACH-INSPECT",
+    "areaId": "AREA-BB-MACHINING",
+    "name": "Machining Inspection Bench",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-PACK-LINE-01",
+    "areaId": "AREA-BB-PACKOUT",
+    "name": "Pack Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-PACK-LINE-02",
+    "areaId": "AREA-BB-PACKOUT",
+    "name": "Pack Line 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-PACK-DOCK",
+    "areaId": "AREA-BB-PACKOUT",
+    "name": "Shipping Dock",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-RECV-DOCK",
+    "areaId": "AREA-BB-RECEIVING",
+    "name": "Receiving Dock",
+    "requiredCertification": "Powered Industrial Truck Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-RECV-KIT-01",
+    "areaId": "AREA-BB-RECEIVING",
+    "name": "Kitting Station 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-RECV-KIT-02",
+    "areaId": "AREA-BB-RECEIVING",
+    "name": "Kitting Station 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-NF-FORGE-01",
+    "areaId": "AREA-NF-FORGE",
+    "name": "Forge Press 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-NF-FORGE-02",
+    "areaId": "AREA-NF-FORGE",
+    "name": "Forge Press 2",
+    "requiredCertification": "Forging Safety Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-CW-FAB-01",
+    "areaId": "AREA-CW-FAB",
+    "name": "Fab Bay 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-CW-FAB-02",
+    "areaId": "AREA-CW-FAB",
+    "name": "Fab Bay 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-HD-MACH-01",
+    "areaId": "AREA-HD-MACH",
+    "name": "CNC Line 1",
+    "requiredCertification": "Precision CNC Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-HD-MACH-02",
+    "areaId": "AREA-HD-MACH",
+    "name": "CNC Line 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-SG-ASSY-01",
+    "areaId": "AREA-SG-ASSY",
+    "name": "Assembly Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-SG-ASSY-02",
+    "areaId": "AREA-SG-ASSY",
+    "name": "Assembly Line 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-MR-CLEAN-01",
+    "areaId": "AREA-MR-CLEAN",
+    "name": "Cleanroom Bay 1",
+    "requiredCertification": "Cleanroom Gowning Certification",
+    "status": "active"
+  },
+  {
+    "id": "LOC-MR-CLEAN-02",
+    "areaId": "AREA-MR-CLEAN",
+    "name": "Cleanroom Bay 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-DW-MACH-01",
+    "areaId": "AREA-DW-MACH",
+    "name": "Mill Cell 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-DW-MACH-02",
+    "areaId": "AREA-DW-MACH",
+    "name": "Mill Cell 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-PW-FAB-01",
+    "areaId": "AREA-PW-FAB",
+    "name": "Fab Bay 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-PW-FAB-02",
+    "areaId": "AREA-PW-FAB",
+    "name": "Fab Bay 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-SM-ENSAM-01",
+    "areaId": "AREA-SM-ENSAM",
+    "name": "Estación de Ensamblaje 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-SM-ENSAM-02",
+    "areaId": "AREA-SM-ENSAM",
+    "name": "Estación de Ensamblaje 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-HW-WELD-01",
+    "areaId": "AREA-HW-WELD",
+    "name": "Weld Station 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-HW-WELD-02",
+    "areaId": "AREA-HW-WELD",
+    "name": "Weld Station 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-AC-ENSAM-01",
+    "areaId": "AREA-AC-ENSAM",
+    "name": "Estación 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-AC-ENSAM-02",
+    "areaId": "AREA-AC-ENSAM",
+    "name": "Estación 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-KD-ASSY-01",
+    "areaId": "AREA-KD-ASSY",
+    "name": "Assembly Bench 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-KD-ASSY-02",
+    "areaId": "AREA-KD-ASSY",
+    "name": "Assembly Bench 2",
     "requiredCertification": null,
     "status": "active"
   }

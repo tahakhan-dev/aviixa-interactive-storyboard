@@ -1,10 +1,165 @@
 [
   {
-    "id": "AREA-LINE1",
-    "siteId": "SITE-RIVERSIDE",
-    "name": "Line 1",
+    "id": "AREA-BB-ASSEMBLY",
+    "siteId": "SITE-BB-RIVERSIDE",
+    "name": "Assembly Line A",
     "shiftIds": [
-      "SHIFT-MORNING"
+      "SHIFT-BB-DAY",
+      "SHIFT-BB-NIGHT"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-WELDING",
+    "siteId": "SITE-BB-RIVERSIDE",
+    "name": "Welding & Fabrication",
+    "shiftIds": [
+      "SHIFT-BB-DAY",
+      "SHIFT-BB-NIGHT"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-PAINT",
+    "siteId": "SITE-BB-RIVERSIDE",
+    "name": "Paint & Finishing",
+    "shiftIds": [
+      "SHIFT-BB-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-WHEELBUILD",
+    "siteId": "SITE-BB-NORTHGATE",
+    "name": "Wheel Build",
+    "shiftIds": [
+      "SHIFT-BB-NG-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-MACHINING",
+    "siteId": "SITE-BB-NORTHGATE",
+    "name": "Precision Machining",
+    "shiftIds": [
+      "SHIFT-BB-NG-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-PACKOUT",
+    "siteId": "SITE-BB-LAKESIDE",
+    "name": "Pack-Out & Shipping",
+    "shiftIds": [
+      "SHIFT-BB-LS-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-RECEIVING",
+    "siteId": "SITE-BB-LAKESIDE",
+    "name": "Receiving & Kitting",
+    "shiftIds": [
+      "SHIFT-BB-LS-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-NF-FORGE",
+    "siteId": "SITE-NF-MAIN",
+    "name": "Forging Floor",
+    "shiftIds": [
+      "SHIFT-NF-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-CW-FAB",
+    "siteId": "SITE-CW-MAIN",
+    "name": "Fabrication Floor",
+    "shiftIds": [
+      "SHIFT-CW-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-HD-MACH",
+    "siteId": "SITE-HD-MAIN",
+    "name": "Precision Machining",
+    "shiftIds": [
+      "SHIFT-HD-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-SG-ASSY",
+    "siteId": "SITE-SG-MAIN",
+    "name": "Gear Assembly",
+    "shiftIds": [
+      "SHIFT-SG-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-MR-CLEAN",
+    "siteId": "SITE-MR-MAIN",
+    "name": "Cleanroom Assembly",
+    "shiftIds": [
+      "SHIFT-MR-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-DW-MACH",
+    "siteId": "SITE-DW-MAIN",
+    "name": "Machining",
+    "shiftIds": [
+      "SHIFT-DW-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-PW-FAB",
+    "siteId": "SITE-PW-MAIN",
+    "name": "Steel Fabrication",
+    "shiftIds": [
+      "SHIFT-PW-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-SM-ENSAM",
+    "siteId": "SITE-SM-MAIN",
+    "name": "Línea de Ensamblaje",
+    "shiftIds": [
+      "SHIFT-SM-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-HW-WELD",
+    "siteId": "SITE-HW-MAIN",
+    "name": "Weld Shop",
+    "shiftIds": [
+      "SHIFT-HW-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-AC-ENSAM",
+    "siteId": "SITE-AC-MAIN",
+    "name": "Ensamblaje de Componentes",
+    "shiftIds": [
+      "SHIFT-AC-DAY"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-KD-ASSY",
+    "siteId": "SITE-KD-MAIN",
+    "name": "Precision Assembly",
+    "shiftIds": [
+      "SHIFT-KD-DAY"
     ],
     "status": "active"
   }

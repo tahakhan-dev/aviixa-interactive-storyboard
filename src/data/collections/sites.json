@@ -1,10 +1,127 @@
 [
   {
-    "id": "SITE-RIVERSIDE",
+    "id": "SITE-BB-RIVERSIDE",
     "tenantId": "TEN-BRIGHTBIKES",
     "name": "Riverside Plant",
-    "address": "100 Riverside Way, Springfield",
+    "address": "480 Riverside Way, Springfield, IL 62701, USA",
     "contact": "ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-NORTHGATE",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Northgate Components Plant",
+    "address": "1220 Northgate Industrial Pkwy, Elmhurst, IL 60126, USA",
+    "contact": "northgate.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-LAKESIDE",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Lakeside Distribution Center",
+    "address": "77 Lakeside Commerce Dr, Waukegan, IL 60085, USA",
+    "contact": "lakeside.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-NF-MAIN",
+    "tenantId": "TEN-NORTHFORGE",
+    "name": "Northforge Works",
+    "address": "88 Forge St, Gary, IN 46402, USA",
+    "contact": "ops@northforgemetal.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-CW-MAIN",
+    "tenantId": "TEN-CEDARWORKS",
+    "name": "Cedarworks Plant",
+    "address": "14 Cedar Row, Bend, OR 97701, USA",
+    "contact": "ops@cedarworksfab.example",
+    "timezone": "America/Los_Angeles",
+    "status": "active"
+  },
+  {
+    "id": "SITE-HD-MAIN",
+    "tenantId": "TEN-HALLIDAY",
+    "name": "Halliday Main Plant",
+    "address": "500 Precision Pkwy, Dayton, OH 45402, USA",
+    "contact": "ops@hallidaymfg.example",
+    "timezone": "America/New_York",
+    "status": "active"
+  },
+  {
+    "id": "SITE-SG-MAIN",
+    "tenantId": "TEN-SUMMITGEAR",
+    "name": "Summit Gear Plant",
+    "address": "212 Summit Ave, Boise, ID 83702, USA",
+    "contact": "ops@summitgearworks.example",
+    "timezone": "America/Denver",
+    "status": "active"
+  },
+  {
+    "id": "SITE-MR-MAIN",
+    "tenantId": "TEN-MERIDIAN",
+    "name": "Meridian Plant A",
+    "address": "9 Meridian Circle, Austin, TX 78701, USA",
+    "contact": "ops@meridianregulated.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-DW-MAIN",
+    "tenantId": "TEN-DELTAWORKS",
+    "name": "Delta Works Plant",
+    "address": "310 Delta Blvd, Wichita, KS 67202, USA",
+    "contact": "ops@deltapw.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-PW-MAIN",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "name": "Prairie Steel Plant",
+    "address": "45 Prairie Rd, Fargo, ND 58102, USA",
+    "contact": "ops@prairiesteel.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-SM-MAIN",
+    "tenantId": "TEN-SOLMETAL",
+    "name": "Planta Sol Metalúrgica",
+    "address": "Av. Industrial 245, Monterrey, NL 64000, México",
+    "contact": "ops@solmetalurgica.example",
+    "timezone": "America/Monterrey",
+    "status": "active"
+  },
+  {
+    "id": "SITE-HW-MAIN",
+    "tenantId": "TEN-HARBORWORKS",
+    "name": "Harbor Fabrication Yard",
+    "address": "1 Harbor Way, Norfolk, VA 23510, USA",
+    "contact": "ops@harborfab.example",
+    "timezone": "America/New_York",
+    "status": "active"
+  },
+  {
+    "id": "SITE-AC-MAIN",
+    "tenantId": "TEN-AZURACOMP",
+    "name": "Planta Azura Componentes",
+    "address": "Calle Industria 88, Querétaro, QRO 76000, México",
+    "contact": "ops@azuracomponentes.example",
+    "timezone": "America/Mexico_City",
+    "status": "active"
+  },
+  {
+    "id": "SITE-KD-MAIN",
+    "tenantId": "TEN-KESTRELDYN",
+    "name": "Kestrel Dynamics Plant",
+    "address": "77 Kestrel Way, Huntsville, AL 35805, USA",
+    "contact": "ops@kestreldynamics.example",
     "timezone": "America/Chicago",
     "status": "active"
   }

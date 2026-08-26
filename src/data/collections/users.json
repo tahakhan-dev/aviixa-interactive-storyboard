@@ -231,6 +231,160 @@
     "lastSignInAt": "2026-08-14T18:15:00Z"
   },
   {
+    "id": "USR-BB-WKR-07",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Liam O'Connor",
+    "email": "liam.oconnor@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-04-06T06:00:00Z",
+    "lastSignInAt": "2026-08-16T06:58:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-08",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Noor Hassan",
+    "email": "noor.hassan@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-04-06T18:00:00Z",
+    "lastSignInAt": "2026-08-15T18:05:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-09",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Kwabena Asante",
+    "email": "kwabena.asante@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-05-11T06:00:00Z",
+    "lastSignInAt": "2026-08-16T06:02:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-10",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Isabela Marques",
+    "email": "isabela.marques@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-05-11T06:00:00Z",
+    "lastSignInAt": "2026-08-15T06:04:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-11",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Viktor Petrenko",
+    "email": "viktor.petrenko@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-05-18T06:00:00Z",
+    "lastSignInAt": "2026-08-16T06:06:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-12",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Aroha Ngata",
+    "email": "aroha.ngata@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-05-18T06:30:00Z",
+    "lastSignInAt": "2026-08-14T06:20:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-13",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Rin Watanabe",
+    "email": "rin.watanabe@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-06-01T06:00:00Z",
+    "lastSignInAt": "2026-08-15T06:10:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-14",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Tariq Siddiqui",
+    "email": "tariq.siddiqui@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-06-01T06:30:00Z",
+    "lastSignInAt": "2026-08-16T06:08:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-15",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Camille Dubois",
+    "email": "camille.dubois@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-06-08T06:00:00Z",
+    "lastSignInAt": "2026-08-15T06:12:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-16",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Ola Svendsen",
+    "email": "ola.svendsen@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-06-08T06:30:00Z",
+    "lastSignInAt": "2026-08-16T06:14:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-17",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Beatriz Nascimento",
+    "email": "beatriz.nascimento@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-06-15T06:00:00Z",
+    "lastSignInAt": "2026-08-14T06:18:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-18",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Henrik Lindgren",
+    "email": "henrik.lindgren@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-07-13T06:00:00Z",
+    "lastSignInAt": "2026-08-15T06:22:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-19",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Zainab Abioye",
+    "email": "zainab.abioye@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-02-16T06:00:00Z",
+    "lastSignInAt": "2026-08-16T06:24:00Z"
+  },
+  {
+    "id": "USR-BB-WKR-20",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "displayName": "Marcus Alberding",
+    "email": "marcus.alberding@brightbikes.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-07-20T06:00:00Z",
+    "lastSignInAt": "2026-08-15T06:26:00Z"
+  },
+  {
     "id": "USR-NF-ADM-01",
     "tenantId": "TEN-NORTHFORGE",
     "displayName": "Callum Reid",
@@ -273,6 +427,17 @@
     "locale": "en",
     "createdAt": "2026-02-14T18:00:00Z",
     "lastSignInAt": "2026-08-03T18:10:00Z"
+  },
+  {
+    "id": "USR-NF-WKR-03",
+    "tenantId": "TEN-NORTHFORGE",
+    "displayName": "Petra Kovač",
+    "email": "petra.kovac@northforgemetal.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-04-20T06:00:00Z",
+    "lastSignInAt": "2026-08-04T06:08:00Z"
   },
   {
     "id": "USR-CW-ADM-01",
@@ -361,6 +526,17 @@
     "locale": "en",
     "createdAt": "2025-11-12T18:00:00Z",
     "lastSignInAt": "2026-08-15T18:04:00Z"
+  },
+  {
+    "id": "USR-HD-WKR-03",
+    "tenantId": "TEN-HALLIDAY",
+    "displayName": "Chinedu Obi",
+    "email": "chinedu.obi@hallidaymfg.example",
+    "role": "WORKER",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-01-14T06:00:00Z",
+    "lastSignInAt": "2026-08-15T06:06:00Z"
   },
   {
     "id": "USR-VG-ADM-01",

@@ -4,7 +4,7 @@
     "tenantId": "TEN-BRIGHTBIKES",
     "triggerMechanism": "specification-and-evidence",
     "stepExecutionId": "SE-0001",
-    "workerId": "WRK-MAYA",
+    "workerId": "WRK-BB-WKR-01",
     "runId": "RUN-0001",
     "lotOrUnitRef": "SN-000481",
     "workflowVersion": "1.0.0",

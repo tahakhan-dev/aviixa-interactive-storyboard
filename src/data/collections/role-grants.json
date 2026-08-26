@@ -4,7 +4,7 @@
     "userId": "USR-BB-ADMIN",
     "role": "TENANT_ADMIN",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -19,7 +19,7 @@
     "userId": "USR-BB-ADMIN-02",
     "role": "TENANT_ADMIN",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -34,10 +34,15 @@
     "userId": "USR-BB-SUP-01",
     "role": "SUPERVISOR",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
-    "areaIds": [],
-    "shiftIds": [],
+    "areaIds": [
+      "AREA-BB-ASSEMBLY"
+    ],
+    "shiftIds": [
+      "SHIFT-BB-DAY",
+      "SHIFT-BB-NIGHT"
+    ],
     "grantedBy": "USR-BB-ADMIN",
     "grantedAt": "2026-01-14T08:00:00Z",
     "expiresAt": null,
@@ -49,7 +54,7 @@
     "userId": "USR-BB-SUP-02",
     "role": "SUPERVISOR",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -64,7 +69,7 @@
     "userId": "USR-BB-QM-01",
     "role": "QUALITY_MANAGER",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -79,7 +84,7 @@
     "userId": "USR-BB-QM-02",
     "role": "QUALITY_MANAGER",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -94,7 +99,7 @@
     "userId": "USR-BB-AUD-01",
     "role": "READONLY_AUDITOR",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -109,7 +114,7 @@
     "userId": "USR-BB-AUD-02",
     "role": "READONLY_AUDITOR",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -124,10 +129,14 @@
     "userId": "USR-BB-WKR-01",
     "role": "WORKER",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
-    "areaIds": [],
-    "shiftIds": [],
+    "areaIds": [
+      "AREA-BB-ASSEMBLY"
+    ],
+    "shiftIds": [
+      "SHIFT-BB-DAY"
+    ],
     "grantedBy": "USR-BB-ADMIN",
     "grantedAt": "2026-01-15T06:00:00Z",
     "expiresAt": null,
@@ -139,10 +148,14 @@
     "userId": "USR-BB-WKR-02",
     "role": "WORKER",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
-    "areaIds": [],
-    "shiftIds": [],
+    "areaIds": [
+      "AREA-BB-ASSEMBLY"
+    ],
+    "shiftIds": [
+      "SHIFT-BB-NIGHT"
+    ],
     "grantedBy": "USR-BB-ADMIN",
     "grantedAt": "2026-01-15T18:00:00Z",
     "expiresAt": null,
@@ -154,7 +167,7 @@
     "userId": "USR-BB-WKR-03",
     "role": "WORKER",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -169,7 +182,7 @@
     "userId": "USR-BB-WKR-04",
     "role": "WORKER",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -184,7 +197,7 @@
     "userId": "USR-BB-WKR-05",
     "role": "WORKER",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -199,7 +212,7 @@
     "userId": "USR-BB-WKR-06",
     "role": "WORKER",
     "siteIds": [
-      "SITE-RIVERSIDE"
+      "SITE-BB-RIVERSIDE"
     ],
     "areaIds": [],
     "shiftIds": [],
@@ -855,6 +868,214 @@
     "shiftIds": [],
     "grantedBy": "USR-ROOT-01",
     "grantedAt": "2025-06-01T08:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0065",
+    "userId": "USR-BB-WKR-07",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-04-06T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0066",
+    "userId": "USR-BB-WKR-08",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-04-06T18:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0067",
+    "userId": "USR-BB-WKR-09",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-05-11T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0068",
+    "userId": "USR-BB-WKR-10",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-05-11T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0069",
+    "userId": "USR-BB-WKR-11",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-05-18T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0070",
+    "userId": "USR-BB-WKR-12",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-05-18T06:30:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0071",
+    "userId": "USR-BB-WKR-13",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-06-01T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0072",
+    "userId": "USR-BB-WKR-14",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-06-01T06:30:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0073",
+    "userId": "USR-BB-WKR-15",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-06-08T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0074",
+    "userId": "USR-BB-WKR-16",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-06-08T06:30:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0075",
+    "userId": "USR-BB-WKR-17",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-06-15T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0076",
+    "userId": "USR-BB-WKR-18",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-07-13T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0077",
+    "userId": "USR-BB-WKR-19",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-02-16T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0078",
+    "userId": "USR-BB-WKR-20",
+    "role": "WORKER",
+    "siteIds": ["SITE-BB-RIVERSIDE"],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-BB-ADMIN",
+    "grantedAt": "2026-07-20T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0079",
+    "userId": "USR-NF-WKR-03",
+    "role": "WORKER",
+    "siteIds": [],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-NF-ADM-01",
+    "grantedAt": "2026-04-20T06:00:00Z",
+    "expiresAt": null,
+    "revokedAt": null,
+    "purpose": null
+  },
+  {
+    "id": "RG-0080",
+    "userId": "USR-HD-WKR-03",
+    "role": "WORKER",
+    "siteIds": [],
+    "areaIds": [],
+    "shiftIds": [],
+    "grantedBy": "USR-HD-ADM-01",
+    "grantedAt": "2026-01-14T06:00:00Z",
     "expiresAt": null,
     "revokedAt": null,
     "purpose": null

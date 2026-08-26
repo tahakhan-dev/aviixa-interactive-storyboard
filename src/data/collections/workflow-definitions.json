@@ -14,7 +14,7 @@
       "WI-0001"
     ],
     "qualificationBaselineIds": [
-      "QUAL-TORQUE"
+      "QUAL-BB-01"
     ],
     "version": "1.0.0",
     "bumpClassification": "major",

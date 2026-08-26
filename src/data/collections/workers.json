@@ -1,14 +1,485 @@
 [
   {
-    "id": "WRK-MAYA",
+    "id": "WRK-BB-WKR-01",
     "userId": "USR-BB-WKR-01",
     "tenantId": "TEN-BRIGHTBIKES",
     "workerType": "employee",
     "instructionDifficultyProfile": "standard",
     "locale": "en",
     "qualificationIds": [
-      "QUAL-TORQUE"
+      "QUAL-BB-01"
     ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-02",
+    "userId": "USR-BB-WKR-02",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-02"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-03",
+    "userId": "USR-BB-WKR-03",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-03"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-04",
+    "userId": "USR-BB-WKR-04",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-04"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-05",
+    "userId": "USR-BB-WKR-05",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-05"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-06",
+    "userId": "USR-BB-WKR-06",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-06"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-07",
+    "userId": "USR-BB-WKR-07",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "simple",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-07"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-08",
+    "userId": "USR-BB-WKR-08",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-08"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-09",
+    "userId": "USR-BB-WKR-09",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-10",
+    "userId": "USR-BB-WKR-10",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "contractor",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-10"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-11",
+    "userId": "USR-BB-WKR-11",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "expanded",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-11"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-12",
+    "userId": "USR-BB-WKR-12",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-12"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-13",
+    "userId": "USR-BB-WKR-13",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-13"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-14",
+    "userId": "USR-BB-WKR-14",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-14"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-15",
+    "userId": "USR-BB-WKR-15",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "simple",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-15"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-16",
+    "userId": "USR-BB-WKR-16",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "contractor",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-16"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-17",
+    "userId": "USR-BB-WKR-17",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-17"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-18",
+    "userId": "USR-BB-WKR-18",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-19",
+    "userId": "USR-BB-WKR-19",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-19A",
+      "QUAL-BB-19B"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-BB-WKR-20",
+    "userId": "USR-BB-WKR-20",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-BB-20"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-NF-WKR-01",
+    "userId": "USR-NF-WKR-01",
+    "tenantId": "TEN-NORTHFORGE",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-NF-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-NF-WKR-02",
+    "userId": "USR-NF-WKR-02",
+    "tenantId": "TEN-NORTHFORGE",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [],
+    "status": "active"
+  },
+  {
+    "id": "WRK-NF-WKR-03",
+    "userId": "USR-NF-WKR-03",
+    "tenantId": "TEN-NORTHFORGE",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-NF-03"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-CW-WKR-01",
+    "userId": "USR-CW-WKR-01",
+    "tenantId": "TEN-CEDARWORKS",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-CW-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-HD-WKR-01",
+    "userId": "USR-HD-WKR-01",
+    "tenantId": "TEN-HALLIDAY",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-HD-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-HD-WKR-02",
+    "userId": "USR-HD-WKR-02",
+    "tenantId": "TEN-HALLIDAY",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [],
+    "status": "active"
+  },
+  {
+    "id": "WRK-HD-WKR-03",
+    "userId": "USR-HD-WKR-03",
+    "tenantId": "TEN-HALLIDAY",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-HD-03"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-VG-WKR-01",
+    "userId": "USR-VG-WKR-01",
+    "tenantId": "TEN-VANTAGE",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [],
+    "status": "archived"
+  },
+  {
+    "id": "WRK-SG-WKR-01",
+    "userId": "USR-SG-WKR-01",
+    "tenantId": "TEN-SUMMITGEAR",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-SG-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-SG-WKR-02",
+    "userId": "USR-SG-WKR-02",
+    "tenantId": "TEN-SUMMITGEAR",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [],
+    "status": "active"
+  },
+  {
+    "id": "WRK-MR-WKR-01",
+    "userId": "USR-MR-WKR-01",
+    "tenantId": "TEN-MERIDIAN",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-MR-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-DW-WKR-01",
+    "userId": "USR-DW-WKR-01",
+    "tenantId": "TEN-DELTAWORKS",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-DW-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-DW-WKR-02",
+    "userId": "USR-DW-WKR-02",
+    "tenantId": "TEN-DELTAWORKS",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [],
+    "status": "active"
+  },
+  {
+    "id": "WRK-PW-WKR-01",
+    "userId": "USR-PW-WKR-01",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-PW-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-PW-WKR-02",
+    "userId": "USR-PW-WKR-02",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [],
+    "status": "active"
+  },
+  {
+    "id": "WRK-SM-WKR-01",
+    "userId": "USR-SM-WKR-01",
+    "tenantId": "TEN-SOLMETAL",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "es",
+    "qualificationIds": [
+      "QUAL-SM-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-SM-WKR-02",
+    "userId": "USR-SM-WKR-02",
+    "tenantId": "TEN-SOLMETAL",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "es",
+    "qualificationIds": [],
+    "status": "active"
+  },
+  {
+    "id": "WRK-HW-WKR-01",
+    "userId": "USR-HW-WKR-01",
+    "tenantId": "TEN-HARBORWORKS",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-HW-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-AC-WKR-01",
+    "userId": "USR-AC-WKR-01",
+    "tenantId": "TEN-AZURACOMP",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "es",
+    "qualificationIds": [
+      "QUAL-AC-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-AC-WKR-02",
+    "userId": "USR-AC-WKR-02",
+    "tenantId": "TEN-AZURACOMP",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "es",
+    "qualificationIds": [],
+    "status": "active"
+  },
+  {
+    "id": "WRK-KD-WKR-01",
+    "userId": "USR-KD-WKR-01",
+    "tenantId": "TEN-KESTRELDYN",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [
+      "QUAL-KD-01"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "WRK-KD-WKR-02",
+    "userId": "USR-KD-WKR-02",
+    "tenantId": "TEN-KESTRELDYN",
+    "workerType": "employee",
+    "instructionDifficultyProfile": "standard",
+    "locale": "en",
+    "qualificationIds": [],
     "status": "active"
   }
 ]

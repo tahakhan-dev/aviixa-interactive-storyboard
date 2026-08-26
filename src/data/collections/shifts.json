@@ -1,12 +1,199 @@
 [
   {
-    "id": "SHIFT-MORNING",
-    "siteId": "SITE-RIVERSIDE",
-    "name": "Morning Shift",
+    "id": "SHIFT-BB-DAY",
+    "siteId": "SITE-BB-RIVERSIDE",
+    "name": "Day Shift",
     "startTime": "06:00",
     "endTime": "14:00",
     "areaIds": [
-      "AREA-LINE1"
+      "AREA-BB-ASSEMBLY",
+      "AREA-BB-WELDING",
+      "AREA-BB-PAINT"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-NIGHT",
+    "siteId": "SITE-BB-RIVERSIDE",
+    "name": "Night Shift",
+    "startTime": "18:00",
+    "endTime": "02:00",
+    "areaIds": [
+      "AREA-BB-ASSEMBLY",
+      "AREA-BB-WELDING"
+    ],
+    "digestDeliveryTime": "17:45",
+    "nominalProductionDateRule": "production date is the shift's start calendar day, carried across midnight",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-NG-DAY",
+    "siteId": "SITE-BB-NORTHGATE",
+    "name": "Northgate Day Shift",
+    "startTime": "06:30",
+    "endTime": "15:00",
+    "areaIds": [
+      "AREA-BB-WHEELBUILD",
+      "AREA-BB-MACHINING"
+    ],
+    "digestDeliveryTime": "06:15",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-BB-LS-DAY",
+    "siteId": "SITE-BB-LAKESIDE",
+    "name": "Lakeside Day Shift",
+    "startTime": "07:00",
+    "endTime": "15:30",
+    "areaIds": [
+      "AREA-BB-PACKOUT",
+      "AREA-BB-RECEIVING"
+    ],
+    "digestDeliveryTime": "06:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-NF-DAY",
+    "siteId": "SITE-NF-MAIN",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-NF-FORGE"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-CW-DAY",
+    "siteId": "SITE-CW-MAIN",
+    "name": "Day Shift",
+    "startTime": "07:00",
+    "endTime": "15:00",
+    "areaIds": [
+      "AREA-CW-FAB"
+    ],
+    "digestDeliveryTime": "06:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-HD-DAY",
+    "siteId": "SITE-HD-MAIN",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:30",
+    "areaIds": [
+      "AREA-HD-MACH"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-SG-DAY",
+    "siteId": "SITE-SG-MAIN",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-SG-ASSY"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-MR-DAY",
+    "siteId": "SITE-MR-MAIN",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-MR-CLEAN"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-DW-DAY",
+    "siteId": "SITE-DW-MAIN",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-DW-MACH"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-PW-DAY",
+    "siteId": "SITE-PW-MAIN",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-PW-FAB"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-SM-DAY",
+    "siteId": "SITE-SM-MAIN",
+    "name": "Turno Diurno",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-SM-ENSAM"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "mismo día calendario del inicio del turno",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-HW-DAY",
+    "siteId": "SITE-HW-MAIN",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-HW-WELD"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "same calendar day as shift start",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-AC-DAY",
+    "siteId": "SITE-AC-MAIN",
+    "name": "Turno Diurno",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-AC-ENSAM"
+    ],
+    "digestDeliveryTime": "05:45",
+    "nominalProductionDateRule": "mismo día calendario del inicio del turno",
+    "status": "active"
+  },
+  {
+    "id": "SHIFT-KD-DAY",
+    "siteId": "SITE-KD-MAIN",
+    "name": "Day Shift",
+    "startTime": "06:00",
+    "endTime": "14:00",
+    "areaIds": [
+      "AREA-KD-ASSY"
     ],
     "digestDeliveryTime": "05:45",
     "nominalProductionDateRule": "same calendar day as shift start",

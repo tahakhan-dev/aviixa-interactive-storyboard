@@ -5,13 +5,13 @@
     "name": "Frame assembly \u2014 Line 1",
     "jobTypeId": "JT-ASSEMBLY",
     "serviceTypeTagId": null,
-    "siteId": "SITE-RIVERSIDE",
-    "areaId": "AREA-LINE1",
-    "shiftId": "SHIFT-MORNING",
+    "siteId": "SITE-BB-RIVERSIDE",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "shiftId": "SHIFT-BB-DAY",
     "workflowDefinitionId": "WF-TORQUE-001",
     "plannedQuantity": 120,
     "qualificationRequirementIds": [
-      "QUAL-TORQUE"
+      "QUAL-BB-01"
     ],
     "recurrencePattern": null,
     "unitMode": "serialized",

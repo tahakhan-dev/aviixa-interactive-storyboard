@@ -2,9 +2,9 @@
   {
     "id": "RUN-0001",
     "tenantId": "TEN-BRIGHTBIKES",
-    "siteId": "SITE-RIVERSIDE",
-    "areaId": "AREA-LINE1",
-    "shiftId": "SHIFT-MORNING",
+    "siteId": "SITE-BB-RIVERSIDE",
+    "areaId": "AREA-BB-ASSEMBLY",
+    "shiftId": "SHIFT-BB-DAY",
     "jobId": "JOB-0001",
     "source": "manual",
     "packageId": "PKG-0001",
