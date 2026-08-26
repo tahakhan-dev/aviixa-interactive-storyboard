@@ -28,6 +28,20 @@ export const Notification = z.object({
   openedAt: Stamp.nullable(),
   acknowledgedBy: z.string().nullable(),
   acknowledgedAt: Stamp.nullable(),
+  /**
+   * Fix round 1 (review Important 4): OBJ-060's own narrative text states
+   * "the human drives acknowledgement, WHICH IS DISTINCT FROM RESOLUTION"
+   * and its source classification line requires "acknowledge and resolve
+   * be distinct, timestamped states" (L9175, [SoW Fact — §3.9]) -- a
+   * `resolved` row with nothing beyond `acknowledgedBy`/`acknowledgedAt`
+   * is data-model-indistinguishable from an `acknowledged` row, exactly
+   * the "enum value present, case not demonstrated" trap. These two
+   * fields are the same shape as the acknowledgement pair, filled only
+   * when `status === 'resolved'`, never inferred from `acted`/`reconciled`
+   * alone (those are not the same claim as "the matter is closed").
+   */
+  resolvedBy: z.string().nullable(),
+  resolvedAt: Stamp.nullable(),
   fallbackDelivered: z.boolean(),
   deduplicationGroup: z.string().nullable(),
   status: z.enum(NOTIFICATION_STATES),

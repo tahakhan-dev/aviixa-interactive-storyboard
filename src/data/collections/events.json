@@ -214,7 +214,7 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-07-04T08:23:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "device-sync-marker",
     "runId": "RUN-GEN-BB-11",
     "stepExecutionId": "SE-GEN-BB-11-1",
     "status": "uploaded"
@@ -227,7 +227,7 @@
     "siteId": "SITE-MR-MAIN",
     "areaId": "AREA-MR-CLEAN",
     "occurredAt": "2026-07-28T10:22:00.000Z",
-    "signalType": "device-sync-marker",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-MR-16",
     "stepExecutionId": "SE-GEN-MR-16-1",
     "status": "accepted"
@@ -240,10 +240,10 @@
     "siteId": "SITE-PW-MAIN",
     "areaId": "AREA-PW-FAB",
     "occurredAt": "2026-06-29T07:25:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-PW-18",
     "stepExecutionId": "SE-GEN-PW-18-3",
-    "status": "recorded"
+    "status": "accepted"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-SG-26-1",
@@ -266,10 +266,10 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-06-09T05:17:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "device-sync-marker",
     "runId": "RUN-GEN-BB-29",
     "stepExecutionId": "SE-GEN-BB-29-1",
-    "status": "uploaded"
+    "status": "recorded"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-NF-34-2",
@@ -279,10 +279,10 @@
     "siteId": "SITE-NF-MAIN",
     "areaId": "AREA-NF-FORGE",
     "occurredAt": "2026-06-21T09:36:00.000Z",
-    "signalType": "step-execution-completed",
+    "signalType": "device-sync-marker",
     "runId": "RUN-GEN-NF-34",
     "stepExecutionId": "SE-GEN-NF-34-2",
-    "status": "uploaded"
+    "status": "accepted"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-HD-36-2",
@@ -292,7 +292,7 @@
     "siteId": "SITE-HD-MAIN",
     "areaId": "AREA-HD-MACH",
     "occurredAt": "2026-06-06T06:18:00.000Z",
-    "signalType": "device-sync-marker",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-HD-36",
     "stepExecutionId": "SE-GEN-HD-36-2",
     "status": "recorded"
@@ -305,7 +305,7 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-08-12T10:30:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "device-sync-marker",
     "runId": "RUN-GEN-BB-43",
     "stepExecutionId": "SE-GEN-BB-43-3",
     "status": "recorded"
@@ -318,10 +318,10 @@
     "siteId": "SITE-CW-MAIN",
     "areaId": "AREA-CW-FAB",
     "occurredAt": "2026-06-16T10:11:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "device-sync-marker",
     "runId": "RUN-GEN-CW-46",
     "stepExecutionId": "SE-GEN-CW-46-1",
-    "status": "accepted"
+    "status": "recorded"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-DW-50-3",
@@ -331,10 +331,10 @@
     "siteId": "SITE-DW-MAIN",
     "areaId": "AREA-DW-MACH",
     "occurredAt": "2026-08-05T08:28:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-DW-50",
     "stepExecutionId": "SE-GEN-DW-50-3",
-    "status": "uploaded"
+    "status": "accepted"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-AC-54-2",
@@ -344,10 +344,10 @@
     "siteId": "SITE-AC-MAIN",
     "areaId": "AREA-AC-ENSAM",
     "occurredAt": "2026-07-11T07:18:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-AC-54",
     "stepExecutionId": "SE-GEN-AC-54-2",
-    "status": "accepted"
+    "status": "recorded"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-MR-60-1",
@@ -360,7 +360,7 @@
     "signalType": "device-sync-marker",
     "runId": "RUN-GEN-MR-60",
     "stepExecutionId": "SE-GEN-MR-60-1",
-    "status": "accepted"
+    "status": "uploaded"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-BB-67-1",
@@ -370,7 +370,7 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-08-01T05:27:00.000Z",
-    "signalType": "step-execution-completed",
+    "signalType": "gate-evaluation",
     "runId": "RUN-GEN-BB-67",
     "stepExecutionId": "SE-GEN-BB-67-1",
     "status": "accepted"
@@ -383,7 +383,7 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-06-24T08:49:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-BB-69",
     "stepExecutionId": "SE-GEN-BB-69-4",
     "status": "accepted"
@@ -396,10 +396,10 @@
     "siteId": "SITE-SM-MAIN",
     "areaId": "AREA-SM-ENSAM",
     "occurredAt": "2026-06-04T07:12:00.000Z",
-    "signalType": "device-sync-marker",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-SM-74",
     "stepExecutionId": "SE-GEN-SM-74-1",
-    "status": "uploaded"
+    "status": "accepted"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-NF-78-2",
@@ -409,7 +409,7 @@
     "siteId": "SITE-NF-MAIN",
     "areaId": "AREA-NF-FORGE",
     "occurredAt": "2026-06-26T09:17:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-NF-78",
     "stepExecutionId": "SE-GEN-NF-78-2",
     "status": "accepted"
@@ -422,7 +422,7 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-08-14T08:17:00.000Z",
-    "signalType": "step-execution-completed",
+    "signalType": "gate-evaluation",
     "runId": "RUN-GEN-BB-85",
     "stepExecutionId": "SE-GEN-BB-85-1",
     "status": "accepted"
@@ -438,7 +438,7 @@
     "signalType": "step-execution-completed",
     "runId": "RUN-GEN-BB-91",
     "stepExecutionId": "SE-GEN-BB-91-1",
-    "status": "accepted"
+    "status": "recorded"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-BB-95-1",
@@ -448,10 +448,10 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-07-17T10:21:00.000Z",
-    "signalType": "step-execution-completed",
+    "signalType": "device-sync-marker",
     "runId": "RUN-GEN-BB-95",
     "stepExecutionId": "SE-GEN-BB-95-1",
-    "status": "accepted"
+    "status": "recorded"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-AC-98-3",
@@ -461,7 +461,7 @@
     "siteId": "SITE-AC-MAIN",
     "areaId": "AREA-AC-ENSAM",
     "occurredAt": "2026-08-07T06:39:00.000Z",
-    "signalType": "gate-evaluation",
+    "signalType": "device-sync-marker",
     "runId": "RUN-GEN-AC-98",
     "stepExecutionId": "SE-GEN-AC-98-3",
     "status": "accepted"
@@ -474,10 +474,10 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-07-16T09:35:00.000Z",
-    "signalType": "device-sync-marker",
+    "signalType": "gate-evaluation",
     "runId": "RUN-GEN-BB-105",
     "stepExecutionId": "SE-GEN-BB-105-1",
-    "status": "recorded"
+    "status": "accepted"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-BB-111-4",
@@ -487,10 +487,10 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-07-12T10:47:00.000Z",
-    "signalType": "device-sync-marker",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-BB-111",
     "stepExecutionId": "SE-GEN-BB-111-4",
-    "status": "accepted"
+    "status": "recorded"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-BB-119-1",
@@ -500,10 +500,10 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-07-17T06:33:00.000Z",
-    "signalType": "step-execution-completed",
+    "signalType": "gate-evaluation",
     "runId": "RUN-GEN-BB-119",
     "stepExecutionId": "SE-GEN-BB-119-1",
-    "status": "recorded"
+    "status": "uploaded"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-HD-124-2",
@@ -513,7 +513,7 @@
     "siteId": "SITE-HD-MAIN",
     "areaId": "AREA-HD-MACH",
     "occurredAt": "2026-07-15T10:22:00.000Z",
-    "signalType": "device-sync-marker",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-HD-124",
     "stepExecutionId": "SE-GEN-HD-124-2",
     "status": "recorded"
@@ -526,7 +526,7 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-07-18T08:27:00.000Z",
-    "signalType": "device-sync-marker",
+    "signalType": "gate-evaluation",
     "runId": "RUN-GEN-BB-129",
     "stepExecutionId": "SE-GEN-BB-129-1",
     "status": "recorded"
@@ -552,10 +552,10 @@
     "siteId": "SITE-DW-MAIN",
     "areaId": "AREA-DW-MACH",
     "occurredAt": "2026-07-09T10:21:00.000Z",
-    "signalType": "step-execution-completed",
+    "signalType": "gate-evaluation",
     "runId": "RUN-GEN-DW-138",
     "stepExecutionId": "SE-GEN-DW-138-3",
-    "status": "recorded"
+    "status": "uploaded"
   },
   {
     "id": "EVT-GEN-OP-SE-GEN-BB-145-1",
@@ -565,75 +565,15 @@
     "siteId": "SITE-BB-RIVERSIDE",
     "areaId": "AREA-BB-ASSEMBLY",
     "occurredAt": "2026-07-31T10:14:00.000Z",
-    "signalType": "device-sync-marker",
+    "signalType": "step-execution-completed",
     "runId": "RUN-GEN-BB-145",
     "stepExecutionId": "SE-GEN-BB-145-1",
-    "status": "uploaded"
+    "status": "accepted"
   },
   {
     "id": "EVT-GEN-SYNC-DEV-BB-TAB-001",
     "kind": "sync",
     "deviceId": "DEV-BB-TAB-001",
-    "attemptedAt": "2026-07-07T11:41:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 2,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 2,
-    "clockSkewSeconds": 1,
-    "status": "attempted"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-002",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-002",
-    "attemptedAt": "2026-06-07T07:17:00.000Z",
-    "capturesUploaded": 1,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 3,
-    "clockSkewSeconds": 6,
-    "status": "partial"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-003",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-003",
-    "attemptedAt": "2026-08-03T18:23:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 0,
-    "commandsApplied": 1,
-    "queueDepthRemaining": 0,
-    "clockSkewSeconds": 4,
-    "status": "complete"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-004",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-004",
-    "attemptedAt": "2026-02-15T00:06:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 2,
-    "clockSkewSeconds": null,
-    "status": "failed"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-005",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-005",
-    "attemptedAt": "2026-03-17T09:34:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 3,
-    "clockSkewSeconds": null,
-    "status": "failed"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-006",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-006",
     "attemptedAt": "2026-06-24T10:11:00.000Z",
     "capturesUploaded": 0,
     "commandsDownloaded": 1,
@@ -643,93 +583,81 @@
     "status": "attempted"
   },
   {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-002",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-002",
+    "attemptedAt": "2026-01-15T04:32:00.000Z",
+    "capturesUploaded": 2,
+    "commandsDownloaded": 0,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": 5,
+    "status": "partial"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-003",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-003",
+    "attemptedAt": "2026-04-28T00:54:00.000Z",
+    "capturesUploaded": 1,
+    "commandsDownloaded": 2,
+    "commandsApplied": 1,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": 2,
+    "status": "complete"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-004",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-004",
+    "attemptedAt": "2026-08-10T03:04:00.000Z",
+    "capturesUploaded": 0,
+    "commandsDownloaded": 0,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": null,
+    "status": "failed"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-005",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-005",
+    "attemptedAt": "2026-04-07T20:03:00.000Z",
+    "capturesUploaded": 0,
+    "commandsDownloaded": 1,
+    "commandsApplied": 1,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": 1,
+    "status": "complete"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-006",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-006",
+    "attemptedAt": "2026-07-03T06:32:00.000Z",
+    "capturesUploaded": 3,
+    "commandsDownloaded": 0,
+    "commandsApplied": 2,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": 5,
+    "status": "complete"
+  },
+  {
     "id": "EVT-GEN-SYNC-DEV-BB-TAB-007",
     "kind": "sync",
     "deviceId": "DEV-BB-TAB-007",
-    "attemptedAt": "2026-02-19T11:42:00.000Z",
-    "capturesUploaded": 0,
+    "attemptedAt": "2026-07-04T05:58:00.000Z",
+    "capturesUploaded": 3,
     "commandsDownloaded": 0,
     "commandsApplied": 1,
-    "queueDepthRemaining": 2,
+    "queueDepthRemaining": 0,
     "clockSkewSeconds": 0,
-    "status": "attempted"
+    "status": "complete"
   },
   {
     "id": "EVT-GEN-SYNC-DEV-BB-TAB-008",
     "kind": "sync",
     "deviceId": "DEV-BB-TAB-008",
-    "attemptedAt": "2026-03-14T15:28:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 1,
-    "clockSkewSeconds": null,
-    "status": "failed"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-009",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-009",
-    "attemptedAt": "2026-02-14T01:08:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 2,
-    "clockSkewSeconds": null,
-    "status": "failed"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-010",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-010",
-    "attemptedAt": "2026-08-13T01:00:00.000Z",
-    "capturesUploaded": 2,
-    "commandsDownloaded": 1,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 0,
-    "clockSkewSeconds": 4,
-    "status": "partial"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-011",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-011",
-    "attemptedAt": "2026-03-15T11:58:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 1,
-    "clockSkewSeconds": null,
-    "status": "failed"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-012",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-012",
-    "attemptedAt": "2026-05-24T12:49:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 0,
-    "clockSkewSeconds": null,
-    "status": "failed"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-013",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-013",
-    "attemptedAt": "2026-08-03T03:28:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 0,
-    "clockSkewSeconds": null,
-    "status": "failed"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-BB-TAB-014",
-    "kind": "sync",
-    "deviceId": "DEV-BB-TAB-014",
     "attemptedAt": "2026-07-17T19:23:00.000Z",
     "capturesUploaded": 0,
     "commandsDownloaded": 0,
@@ -739,9 +667,9 @@
     "status": "failed"
   },
   {
-    "id": "EVT-GEN-SYNC-DEV-NF-TAB-001",
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-009",
     "kind": "sync",
-    "deviceId": "DEV-NF-TAB-001",
+    "deviceId": "DEV-BB-TAB-009",
     "attemptedAt": "2026-06-17T10:35:00.000Z",
     "capturesUploaded": 1,
     "commandsDownloaded": 0,
@@ -751,10 +679,82 @@
     "status": "complete"
   },
   {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-010",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-010",
+    "attemptedAt": "2026-04-22T01:11:00.000Z",
+    "capturesUploaded": 0,
+    "commandsDownloaded": 0,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": null,
+    "status": "failed"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-011",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-011",
+    "attemptedAt": "2026-06-11T05:51:00.000Z",
+    "capturesUploaded": 0,
+    "commandsDownloaded": 1,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 3,
+    "clockSkewSeconds": 0,
+    "status": "partial"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-012",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-012",
+    "attemptedAt": "2026-06-03T20:29:00.000Z",
+    "capturesUploaded": 1,
+    "commandsDownloaded": 2,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": 3,
+    "status": "complete"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-013",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-013",
+    "attemptedAt": "2026-08-08T04:25:00.000Z",
+    "capturesUploaded": 2,
+    "commandsDownloaded": 0,
+    "commandsApplied": 1,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": 3,
+    "status": "complete"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-BB-TAB-014",
+    "kind": "sync",
+    "deviceId": "DEV-BB-TAB-014",
+    "attemptedAt": "2026-04-16T12:45:00.000Z",
+    "capturesUploaded": 1,
+    "commandsDownloaded": 0,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 2,
+    "clockSkewSeconds": 5,
+    "status": "partial"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-NF-TAB-001",
+    "kind": "sync",
+    "deviceId": "DEV-NF-TAB-001",
+    "attemptedAt": "2026-03-04T17:05:00.000Z",
+    "capturesUploaded": 2,
+    "commandsDownloaded": 2,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 2,
+    "clockSkewSeconds": 3,
+    "status": "attempted"
+  },
+  {
     "id": "EVT-GEN-SYNC-DEV-CW-TAB-001",
     "kind": "sync",
     "deviceId": "DEV-CW-TAB-001",
-    "attemptedAt": "2026-04-22T01:11:00.000Z",
+    "attemptedAt": "2026-07-26T11:29:00.000Z",
     "capturesUploaded": 0,
     "commandsDownloaded": 0,
     "commandsApplied": 0,
@@ -766,78 +766,6 @@
     "id": "EVT-GEN-SYNC-DEV-HD-TAB-001",
     "kind": "sync",
     "deviceId": "DEV-HD-TAB-001",
-    "attemptedAt": "2026-06-11T05:51:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 1,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 3,
-    "clockSkewSeconds": 0,
-    "status": "partial"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-SG-TAB-001",
-    "kind": "sync",
-    "deviceId": "DEV-SG-TAB-001",
-    "attemptedAt": "2026-06-03T20:29:00.000Z",
-    "capturesUploaded": 1,
-    "commandsDownloaded": 2,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 0,
-    "clockSkewSeconds": 3,
-    "status": "complete"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-MR-TAB-001",
-    "kind": "sync",
-    "deviceId": "DEV-MR-TAB-001",
-    "attemptedAt": "2026-08-08T04:25:00.000Z",
-    "capturesUploaded": 2,
-    "commandsDownloaded": 0,
-    "commandsApplied": 1,
-    "queueDepthRemaining": 0,
-    "clockSkewSeconds": 3,
-    "status": "complete"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-DW-TAB-001",
-    "kind": "sync",
-    "deviceId": "DEV-DW-TAB-001",
-    "attemptedAt": "2026-04-16T12:45:00.000Z",
-    "capturesUploaded": 1,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 2,
-    "clockSkewSeconds": 5,
-    "status": "partial"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-PW-TAB-001",
-    "kind": "sync",
-    "deviceId": "DEV-PW-TAB-001",
-    "attemptedAt": "2026-03-04T17:05:00.000Z",
-    "capturesUploaded": 2,
-    "commandsDownloaded": 2,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 2,
-    "clockSkewSeconds": 3,
-    "status": "attempted"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-SM-TAB-001",
-    "kind": "sync",
-    "deviceId": "DEV-SM-TAB-001",
-    "attemptedAt": "2026-07-26T11:29:00.000Z",
-    "capturesUploaded": 0,
-    "commandsDownloaded": 0,
-    "commandsApplied": 0,
-    "queueDepthRemaining": 0,
-    "clockSkewSeconds": null,
-    "status": "failed"
-  },
-  {
-    "id": "EVT-GEN-SYNC-DEV-HW-TAB-001",
-    "kind": "sync",
-    "deviceId": "DEV-HW-TAB-001",
     "attemptedAt": "2026-03-01T15:04:00.000Z",
     "capturesUploaded": 0,
     "commandsDownloaded": 1,
@@ -847,9 +775,9 @@
     "status": "attempted"
   },
   {
-    "id": "EVT-GEN-SYNC-DEV-AC-TAB-001",
+    "id": "EVT-GEN-SYNC-DEV-SG-TAB-001",
     "kind": "sync",
-    "deviceId": "DEV-AC-TAB-001",
+    "deviceId": "DEV-SG-TAB-001",
     "attemptedAt": "2026-02-01T18:14:00.000Z",
     "capturesUploaded": 0,
     "commandsDownloaded": 0,
@@ -859,15 +787,87 @@
     "status": "failed"
   },
   {
-    "id": "EVT-GEN-SYNC-DEV-KD-TAB-001",
+    "id": "EVT-GEN-SYNC-DEV-MR-TAB-001",
     "kind": "sync",
-    "deviceId": "DEV-KD-TAB-001",
+    "deviceId": "DEV-MR-TAB-001",
     "attemptedAt": "2026-04-02T15:41:00.000Z",
     "capturesUploaded": 2,
     "commandsDownloaded": 0,
     "commandsApplied": 2,
     "queueDepthRemaining": 3,
     "clockSkewSeconds": 7,
+    "status": "attempted"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-DW-TAB-001",
+    "kind": "sync",
+    "deviceId": "DEV-DW-TAB-001",
+    "attemptedAt": "2026-03-03T02:20:00.000Z",
+    "capturesUploaded": 0,
+    "commandsDownloaded": 0,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 2,
+    "clockSkewSeconds": null,
+    "status": "failed"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-PW-TAB-001",
+    "kind": "sync",
+    "deviceId": "DEV-PW-TAB-001",
+    "attemptedAt": "2026-03-16T02:40:00.000Z",
+    "capturesUploaded": 3,
+    "commandsDownloaded": 2,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 3,
+    "clockSkewSeconds": 5,
+    "status": "partial"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-SM-TAB-001",
+    "kind": "sync",
+    "deviceId": "DEV-SM-TAB-001",
+    "attemptedAt": "2026-06-04T11:35:00.000Z",
+    "capturesUploaded": 1,
+    "commandsDownloaded": 2,
+    "commandsApplied": 2,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": 0,
+    "status": "attempted"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-HW-TAB-001",
+    "kind": "sync",
+    "deviceId": "DEV-HW-TAB-001",
+    "attemptedAt": "2026-08-05T07:43:00.000Z",
+    "capturesUploaded": 0,
+    "commandsDownloaded": 0,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 1,
+    "clockSkewSeconds": null,
+    "status": "failed"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-AC-TAB-001",
+    "kind": "sync",
+    "deviceId": "DEV-AC-TAB-001",
+    "attemptedAt": "2026-05-23T20:00:00.000Z",
+    "capturesUploaded": 0,
+    "commandsDownloaded": 0,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 0,
+    "clockSkewSeconds": null,
+    "status": "failed"
+  },
+  {
+    "id": "EVT-GEN-SYNC-DEV-KD-TAB-001",
+    "kind": "sync",
+    "deviceId": "DEV-KD-TAB-001",
+    "attemptedAt": "2026-07-08T07:55:00.000Z",
+    "capturesUploaded": 0,
+    "commandsDownloaded": 2,
+    "commandsApplied": 0,
+    "queueDepthRemaining": 2,
+    "clockSkewSeconds": 3,
     "status": "attempted"
   }
 ]

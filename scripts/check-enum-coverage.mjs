@@ -58,27 +58,44 @@ const ALLOWLIST = [
   { collection: 'tours', path: '*', value: '*', reason: 'Task 15 owns tours.json; still a single Task-1 placeholder row.' },
 
   // --- Task 6's ten pre-existing gate failures in Task 2/3 collections, decided individually ---
-  // (docs/superpowers/plans/2026-08-26-runway.md Task 6 brief). Six were genuine gaps and are
-  // now seeded (sites/areas/locations/shifts.status 'archived', workers.status 'reactivated',
-  // devices.storagePressure 'critical') so they carry no entry here any more. The four below are
-  // NOT gaps: each is a state the frozen source assigns to a different object, or explicitly
-  // withholds from the product surface, so no row should ever carry it.
-  {
-    collection: 'users', path: 'status', value: 'suspended',
-    reason: "OBJ-027 · User account's own lifecycle (L8351) is exactly three states -- " +
-      '"provisioned, active, disabled". Suspension is the TENANT\'s lifecycle ' +
-      "(soft-suspended/hard-suspended/compliance-suspended on `Tenant.lifecycle`), not the " +
-      "User's own status -- confirmed the hard way in this seed's own history: fix commit " +
-      "39ae3cf (\"hard suspension does not lock a worker out\") reverted two SummitGear workers " +
-      "from `status: 'suspended'` back to `'active'` specifically because a hard-suspended " +
-      "tenant's floor continues (L2237: 'no new runs; mandatory notifications and audit " +
-      "continue') and folding the tenant's suspension into the User row misrepresented that. " +
-      "No row should carry User.status: 'suspended'.",
-  },
+  // (docs/superpowers/plans/2026-08-26-runway.md Task 6 brief). Fix round 1: `users.status:
+  // 'suspended'` was WRONGLY allowlisted here on first pass, citing OBJ-027's terse three-state
+  // field-line summary (L8351: "provisioned, active, disabled") while missing §15.1 "The user
+  // and account lifecycle" (L18914-L19140), the dedicated deep-dive chapter for exactly this
+  // object, whose own `stateDiagram-v2` names a `Suspended` state ("Active --> Suspended...
+  // Suspended, login refused, records retained") triggered by "personnel decision, or tenant
+  // compliance suspension" (L18937) -- a per-USER state explicitly triggered by a tenant-level
+  // compliance suspension among other causes, not something OBJ-027's summary and §15.1's own
+  // acceptance criterion `AC-15-01` ("Account states are the nine named states; no account can
+  // occupy an undeclared state", L19031) disagree about, once both are read: OBJ-027's three
+  // words compress the same lifecycle §15.1 states in full, exactly the same relationship
+  // Task 1's own `TenantLifecycle` comment in `src/data/schemas/platform.ts` already draws
+  // between OBJ-001's six-state catalogue line and the source's fuller eight-state diagram --
+  // the deep-dive with an acceptance criterion wins over the terse summary, not a contradiction
+  // to disclose. `src/data/schemas/platform.ts:59` already carries `'suspended'` as a schema
+  // literal, matching §15.1, not the citation that had been used to justify allowlisting it.
+  // Seeded: `USR-BB-WKR-15` (Camille Dubois, previously `active`) is now `status: 'suspended'`,
+  // a personnel-decision suspension per §15.1's own FAIL-15-01 scenario ("an account is
+  // suspended for cause while the person is mid-run on an offline device"). TEN-MERIDIAN's four
+  // `locked` users (the tenant's own compliance-suspended cascade) are deliberately left as
+  // `locked` rather than reassigned to `suspended` in this fix round: §15.1's nine named states
+  // do not include a `Locked` state at all, so reassigning them would trade this finding for an
+  // uncited `locked` gap instead of closing it -- a `locked` review is out of this fix round's
+  // scope (the review's finding was `suspended`, not `locked`) and is left for a future pass.
+  //
+  // Five of the ten original gate items were genuine gaps and are now seeded
+  // (sites/areas/locations/shifts.status 'archived', workers.status 'reactivated',
+  // devices.storagePressure 'critical', users.status 'suspended') so they carry no entry here
+  // any more. The three below are NOT gaps: each is a state the frozen source assigns to a
+  // different object, or explicitly withholds from the product surface, so no row should ever
+  // carry it.
   {
     collection: 'users', path: 'status', value: 'expired',
-    reason: "Same OBJ-027 citation as 'suspended' above (L8351, three states only). Nothing in " +
-      "the source models the User account itself as expiring: qualifications expire " +
+    reason: "§15.1's own nine named states (L19031, `AC-15-01`) are Requested, Invited, " +
+      "IdentityVerified, Activated, Active, Suspended, Reactivated, Revoked, Offboarded -- no " +
+      "Expired state among them, so this is not the same citation gap as 'suspended' above (that " +
+      "one WAS in the nine and is now seeded; this one genuinely is not). Nothing else in the " +
+      "source models the User account itself as expiring: qualifications expire " +
       "(Qualification.status, already seeded), credentials are trusted within the offline-trust " +
       "window (a device/session concept, not User.status), and a lapsed pre-activation " +
       "invitation is its own notification-shaped state sequence (L75551: 'created, eligible, " +

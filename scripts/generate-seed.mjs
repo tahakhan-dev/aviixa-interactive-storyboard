@@ -906,15 +906,26 @@ function notificationTiming(status, createdAt, recipientId) {
   const reach = NOTIF_REACH[status] ?? 'none'
   let t = createdAt
   let sentAt = null, deliveredAt = null, openedAt = null, acknowledgedAt = null, acknowledgedBy = null
-  if (reach === 'none') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+  let resolvedBy = null, resolvedAt = null
+  const withResolution = () => {
+    // Fix round 1 (review Important 4): `resolved` needs its own distinct
+    // evidence, not just its own label -- L9175 ([SoW Fact -- §3.9]) requires
+    // acknowledge and resolve be distinct, timestamped states. Filled ONLY
+    // when the row's own status is literally 'resolved', never inferred
+    // from 'acted'/'reconciled' sharing the same acknowledged reach.
+    if (status !== 'resolved') return
+    t = addMin(t, int(1, 30)); resolvedBy = recipientId; resolvedAt = t
+  }
+  if (reach === 'none') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy, resolvedBy, resolvedAt }
   t = addMin(t, int(1, 5)); sentAt = t
-  if (reach === 'sent') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+  if (reach === 'sent') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy, resolvedBy, resolvedAt }
   t = addMin(t, int(1, 10)); deliveredAt = t
-  if (reach === 'delivered') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+  if (reach === 'delivered') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy, resolvedBy, resolvedAt }
   t = addMin(t, int(1, 120)); openedAt = t
-  if (reach === 'opened') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+  if (reach === 'opened') return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy, resolvedBy, resolvedAt }
   t = addMin(t, int(1, 60)); acknowledgedAt = t; acknowledgedBy = recipientId
-  return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy }
+  withResolution()
+  return { sentAt, deliveredAt, openedAt, acknowledgedAt, acknowledgedBy, resolvedBy, resolvedAt }
 }
 const nextNotifState = coverageThenRandom(NOTIFICATION_STATES)
 const generatedNotifications = []

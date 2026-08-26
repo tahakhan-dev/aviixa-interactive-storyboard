@@ -61,12 +61,18 @@ export const notifications = [
     recipientRoleIds: ['SUPERVISOR'],
     recipientUserIds: [MARCO],
     channels: ['in-app', 'email'],
-    createdAt: '2026-08-14T06:00:00Z',
-    sentAt: '2026-08-14T06:00:05Z',
-    deliveredAt: '2026-08-14T06:00:12Z',
-    openedAt: '2026-08-14T07:15:00Z',
+    // Fix round 1 (review Important 5): 06:00 America/Chicago on
+    // 2026-08-14 is CDT (UTC-5), not a naive UTC=local reading -- these
+    // four stamps are now 11:00Z/11:00:05Z/11:00:12Z/12:15Z/12:16:30Z,
+    // matching `SCHEDOCC-BB-QUALWARN-14D`'s own corrected `dueAt` below.
+    createdAt: '2026-08-14T11:00:00Z',
+    sentAt: '2026-08-14T11:00:05Z',
+    deliveredAt: '2026-08-14T11:00:12Z',
+    openedAt: '2026-08-14T12:15:00Z',
     acknowledgedBy: MARCO,
-    acknowledgedAt: '2026-08-14T07:16:30Z',
+    acknowledgedAt: '2026-08-14T12:16:30Z',
+    resolvedBy: null,
+    resolvedAt: null,
     fallbackDelivered: false,
     deduplicationGroup: 'qual-warn:WRK-BB-WKR-02:QUAL-BB-02:14d',
     status: 'acknowledged',
@@ -91,6 +97,8 @@ export const notifications = [
     openedAt: '2026-08-15T07:58:00Z',
     acknowledgedBy: null,
     acknowledgedAt: null,
+    resolvedBy: null,
+    resolvedAt: null,
     fallbackDelivered: false,
     deduplicationGroup: null,
     status: 'read',
@@ -115,6 +123,8 @@ export const notifications = [
     openedAt: '2026-08-15T07:58:00Z',
     acknowledgedBy: PRIYA_QM,
     acknowledgedAt: '2026-08-15T10:29:00Z',
+    resolvedBy: null,
+    resolvedAt: null,
     fallbackDelivered: false,
     deduplicationGroup: null,
     status: 'acted',
@@ -136,6 +146,8 @@ export const notifications = [
     openedAt: '2026-08-15T08:06:00Z',
     acknowledgedBy: null,
     acknowledgedAt: null,
+    resolvedBy: null,
+    resolvedAt: null,
     fallbackDelivered: false,
     deduplicationGroup: null,
     status: 'claimed',
@@ -143,7 +155,11 @@ export const notifications = [
   {
     // The hold's closure, once released at 11:15:00Z -- a distinct
     // `resolved` record to Marco and Dana, not a state the alert row
-    // itself advances to.
+    // itself advances to. Fix round 1 (review Important 4): `resolvedBy`/
+    // `resolvedAt` are the required distinct evidence (L9175, [SoW Fact --
+    // §3.9]) that this row is closed out, not merely acknowledged -- Marco
+    // acknowledges receipt at 11:21, then separately marks the item
+    // resolved on the alert feed at 11:25, a later and different act.
     id: 'NOTIF-BB-SEV1-RESOLVED',
     tenantId: 'TEN-BRIGHTBIKES',
     eventId: null,
@@ -157,6 +173,8 @@ export const notifications = [
     openedAt: '2026-08-15T11:20:00Z',
     acknowledgedBy: MARCO,
     acknowledgedAt: '2026-08-15T11:21:00Z',
+    resolvedBy: MARCO,
+    resolvedAt: '2026-08-15T11:25:00Z',
     fallbackDelivered: false,
     deduplicationGroup: null,
     status: 'resolved',
@@ -164,7 +182,17 @@ export const notifications = [
   {
     // SB-SCHED-14 (L101941-L101962): the original Critical notification
     // that reached `escalated` -- delivered but unacknowledged past its
-    // window, escalated automatically rather than repeated silently.
+    // window, escalated automatically rather than repeated silently. Fix
+    // round 1 (review Important 2): this pair's recipient is DELIBERATELY
+    // unchanged, not an oversight -- L28416 (`NOTIF-DOH-08-2`) states this
+    // exact case in the source's own table: "A Critical notification is
+    // unacknowledged after 4 hours ... **The same audience on the same
+    // channels** ... escalated, then re-delivered." The escalation here IS
+    // the re-delivery itself, to the same Quality Manager, which is why
+    // no target field changes. `NOTIF-BB-QUALWARN-0D-SUP`/`-ESCALATED`
+    // below is the OTHER shape the source names -- a genuine recipient
+    // retarget -- so both readings of "escalated" this vocabulary carries
+    // are demonstrated, not just the one that happens to need no new field.
     id: 'NOTIF-BB-CRIT-ORIGINAL',
     tenantId: 'TEN-BRIGHTBIKES',
     eventId: null,
@@ -178,6 +206,8 @@ export const notifications = [
     openedAt: null,
     acknowledgedBy: null,
     acknowledgedAt: null,
+    resolvedBy: null,
+    resolvedAt: null,
     fallbackDelivered: false,
     deduplicationGroup: null,
     status: 'escalated',
@@ -198,8 +228,73 @@ export const notifications = [
     openedAt: null,
     acknowledgedBy: null,
     acknowledgedAt: null,
+    resolvedBy: null,
+    resolvedAt: null,
     fallbackDelivered: false,
     deduplicationGroup: 'crit-renotify:NOTIF-BB-CRIT-ORIGINAL',
+    status: 'escalated',
+  },
+  {
+    // Fix round 1 (review Important 2, the retargeting half): FUNC-DOH-04-
+    // 2.2.2 (L27551) -- "Escalate an unacknowledged expiry notification to
+    // the Quality Manager after the configurable window, default 2
+    // minutes." QUAL-BB-16 (Ola Svendsen, WRK-BB-WKR-16, Paint Booth
+    // Respirator Certification, AREA-BB-PAINT) expired 2026-08-10T08:00Z
+    // (qualifications.json) -- the 0-day notice to Grace Adeyemi
+    // (USR-BB-SUP-02, the Area's own Supervisor per QGR-BB-01's
+    // `grantedBy`) goes unacknowledged for the 2-minute window, so this
+    // row (Grace's own copy) never advances past `delivered`.
+    id: 'NOTIF-BB-QUALWARN-0D-SUP',
+    tenantId: 'TEN-BRIGHTBIKES',
+    eventId: null,
+    severity: 'High',
+    recipientRoleIds: ['SUPERVISOR'],
+    recipientUserIds: ['USR-BB-SUP-02'],
+    channels: ['in-app', 'email'],
+    createdAt: '2026-08-10T06:00:00Z',
+    sentAt: '2026-08-10T06:00:02Z',
+    deliveredAt: '2026-08-10T06:00:09Z',
+    openedAt: null,
+    acknowledgedBy: null,
+    acknowledgedAt: null,
+    resolvedBy: null,
+    resolvedAt: null,
+    fallbackDelivered: false,
+    deduplicationGroup: 'qualwarn-0d:WRK-BB-WKR-16:QUAL-BB-16',
+    status: 'delivered',
+  },
+  {
+    // NOTIF-DOH-04-4 (L27581): "Expiry event unacknowledged for the
+    // configurable window ... | Quality Manager, resolved on shift | ...
+    // | created, eligible, queued, sent, delivered, escalated,
+    // acknowledged." This is the ESCALATION TARGET's own row -- a
+    // genuinely different `recipientRoleIds`/`recipientUserIds`
+    // (QUALITY_MANAGER/Priya, not SUPERVISOR/Grace) than
+    // `NOTIF-BB-QUALWARN-0D-SUP` above, linked by `deduplicationGroup`,
+    // exactly the "carry the target in the data" fix the review asked
+    // for: an escalation that changes who it went to, not just its label.
+    id: 'NOTIF-BB-QUALWARN-0D-ESCALATED',
+    tenantId: 'TEN-BRIGHTBIKES',
+    eventId: null,
+    severity: 'High',
+    recipientRoleIds: ['QUALITY_MANAGER'],
+    recipientUserIds: [PRIYA_QM],
+    channels: ['in-app', 'email'],
+    createdAt: '2026-08-10T06:02:00Z',
+    sentAt: '2026-08-10T06:02:02Z',
+    deliveredAt: '2026-08-10T06:02:08Z',
+    // Reach stops at `delivered` here, matching this seed's own escalated
+    // = "delivered, not yet opened/acknowledged" derivation used
+    // everywhere else (`NOTIF_REACH` in the generator) -- L27581's
+    // sequence lists `escalated` strictly before `acknowledged`, so this
+    // row's own eventual acknowledgement would be a LATER, separate row.
+    openedAt: null,
+    acknowledgedBy: null,
+    acknowledgedAt: null,
+    resolvedBy: null,
+    resolvedAt: null,
+    fallbackDelivered: false,
+    deduplicationGroup: 'qualwarn-0d:WRK-BB-WKR-16:QUAL-BB-16',
     status: 'escalated',
   },
   {
@@ -221,6 +316,8 @@ export const notifications = [
     openedAt: null,
     acknowledgedBy: null,
     acknowledgedAt: null,
+    resolvedBy: null,
+    resolvedAt: null,
     fallbackDelivered: false,
     deduplicationGroup: 'invite:USR-BB-ADMIN-02',
     status: 'superseded',
@@ -249,10 +346,16 @@ export const commands = [
     issuedBy: PRIYA_QM,
     createdAt: '2026-08-15T13:05:02Z',
     acknowledgedAt: null, // fleet-wide: no single acknowledgement instant applies; see per-device deliveries
+    // Fix round 1 (review Important 3): the three devices below are now
+    // literally `status: 'applied'`, matching OBJ-082's own words exactly
+    // ("applied on two tablets within nine seconds and on TAB-014 at
+    // 13:44") -- the source never claims acknowledgement, only
+    // application, so `acknowledgedAt` on each stays null rather than
+    // overstating the citation.
     deliveries: [
-      { deviceId: 'DEV-BB-TAB-001', status: 'acknowledged', deliveredAt: '2026-08-15T13:05:03Z', downloadedAt: '2026-08-15T13:05:04Z', appliedAt: '2026-08-15T13:05:09Z', acknowledgedAt: '2026-08-15T13:05:10Z', rejectedReason: null },
-      { deviceId: 'DEV-BB-TAB-002', status: 'acknowledged', deliveredAt: '2026-08-15T13:05:04Z', downloadedAt: '2026-08-15T13:05:05Z', appliedAt: '2026-08-15T13:05:11Z', acknowledgedAt: '2026-08-15T13:05:12Z', rejectedReason: null },
-      { deviceId: TAB014, status: 'acknowledged', deliveredAt: '2026-08-15T13:41:00Z', downloadedAt: '2026-08-15T13:43:10Z', appliedAt: '2026-08-15T13:44:00Z', acknowledgedAt: '2026-08-15T13:44:03Z', rejectedReason: null },
+      { deviceId: 'DEV-BB-TAB-001', status: 'applied', deliveredAt: '2026-08-15T13:05:03Z', downloadedAt: '2026-08-15T13:05:04Z', appliedAt: '2026-08-15T13:05:09Z', acknowledgedAt: null, rejectedReason: null },
+      { deviceId: 'DEV-BB-TAB-002', status: 'applied', deliveredAt: '2026-08-15T13:05:04Z', downloadedAt: '2026-08-15T13:05:05Z', appliedAt: '2026-08-15T13:05:11Z', acknowledgedAt: null, rejectedReason: null },
+      { deviceId: TAB014, status: 'applied', deliveredAt: '2026-08-15T13:41:00Z', downloadedAt: '2026-08-15T13:43:10Z', appliedAt: '2026-08-15T13:44:00Z', acknowledgedAt: null, rejectedReason: null },
       // Still pending: delivered to the channel, not yet downloaded or
       // applied -- the device has not synced since the command was
       // issued (Derived Clarification, DEC-SYNC-001's own open question
@@ -590,10 +693,13 @@ export const schedules = [
     status: 'active',
   },
   {
+    // Fix round 1 (review Important 5): the naive UTC=local conversion
+    // this occurrence originally carried is now corrected -- 06:00
+    // America/Chicago on 2026-08-14 is CDT (UTC-5) = 11:00Z, not 06:00Z.
     id: 'SCHEDOCC-BB-QUALWARN-14D',
     kind: 'occurrence',
     definitionId: 'SCHED-QUAL-WARN',
-    dueAt: '2026-08-14T06:00:00Z',
+    dueAt: '2026-08-14T11:00:00Z',
     timezone: 'America/Chicago',
     idempotencyKey: 'TEN-BRIGHTBIKES+WRK-BB-WKR-02+QUAL-BB-02+14d',
     claimedBy: null,

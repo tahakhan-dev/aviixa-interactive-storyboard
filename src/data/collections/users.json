@@ -324,7 +324,7 @@
     "displayName": "Camille Dubois",
     "email": "camille.dubois@brightbikes.example",
     "role": "WORKER",
-    "status": "active",
+    "status": "suspended",
     "locale": "en",
     "createdAt": "2026-06-08T06:00:00Z",
     "lastSignInAt": "2026-08-15T06:12:00Z"
@@ -431,7 +431,7 @@
   {
     "id": "USR-NF-WKR-03",
     "tenantId": "TEN-NORTHFORGE",
-    "displayName": "Petra Kovač",
+    "displayName": "Petra Kova\u010d",
     "email": "petra.kovac@northforgemetal.example",
     "role": "WORKER",
     "status": "active",
@@ -739,7 +739,7 @@
   {
     "id": "USR-SM-ADM-01",
     "tenantId": "TEN-SOLMETAL",
-    "displayName": "Valentina Ríos",
+    "displayName": "Valentina R\u00edos",
     "email": "valentina.rios@solmetalurgica.example",
     "role": "TENANT_ADMIN",
     "status": "active",
@@ -761,7 +761,7 @@
   {
     "id": "USR-SM-WKR-01",
     "tenantId": "TEN-SOLMETAL",
-    "displayName": "Lucía Fernández",
+    "displayName": "Luc\u00eda Fern\u00e1ndez",
     "email": "lucia.fernandez@solmetalurgica.example",
     "role": "WORKER",
     "status": "active",
