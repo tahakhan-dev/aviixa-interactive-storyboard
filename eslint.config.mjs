@@ -3,6 +3,7 @@
 // so `pnpm lint` is a real check rather than a config-not-found failure).
 // Later slices may tighten this (type-aware rules, React-specific plugins).
 import tseslint from 'typescript-eslint'
+import crossTreeImport from './eslint-rules/no-cross-tree-import.mjs'
 
 export default tseslint.config(
   {
@@ -49,12 +50,24 @@ export default tseslint.config(
     // src/data/repository.ts, so swapping the JSON database for a real API
     // later changes one layer rather than every screen. Files inside
     // src/data/** are exempt so boot.ts can load the seed collections.
+    //
+    // `local/no-cross-tree-import` (eslint-rules/no-cross-tree-import.mjs)
+    // resolves each import specifier to a real filesystem path before
+    // checking it against the forbidden directory, rather than matching on
+    // the specifier string the way `no-restricted-imports` does. That is
+    // fix round 1: a `no-restricted-imports` pattern list is depth- and
+    // spelling-dependent (round-1 review found a same-rule nested-path gap
+    // and three further string-level evasions); a resolved-path check is
+    // not, and it catches static import/export-from, dynamic import(), and
+    // require() in one place. See the rule file's header for what it still
+    // cannot see (a two-hop re-export barrel) and why.
     files: ['**/*.{ts,tsx}'],
     ignores: ['src/data/**'],
+    plugins: { local: crossTreeImport },
     rules: {
-      'no-restricted-imports': ['error', {
-        patterns: [{
-          group: ['**/data/collections/**'],
+      'local/no-cross-tree-import': ['error', {
+        zones: [{
+          forbidden: 'src/data/collections',
           message: 'Business truth reaches components only through src/data/repository.ts — master prompt §12.6.',
         }],
       }],
@@ -68,24 +81,26 @@ export default tseslint.config(
     // chrome legitimately renders product components.
     //
     // This block MUST come after (and repeat) the collections restriction
-    // above: flat ESLint config does not merge a rule's `patterns` array
+    // above: flat ESLint config does not merge a rule's options array
     // across matching blocks for the same file — the last matching block
-    // replaces the rule's options entirely. Since the collections block's
-    // `files: ['**/*.{ts,tsx}']` also matches src/ui/product/**, putting
-    // the demo-only patterns in an earlier/separate block let the broader
-    // block silently overwrite them (`--print-config` on a product scratch
-    // file showed only the collections pattern survived). Both patterns
-    // are combined here so product files carry both restrictions.
+    // replaces the rule's options entirely (this is the merge-ordering bug
+    // found in the first review round; it applies to any rule name, not
+    // just `no-restricted-imports`). Since the collections block's
+    // `files: ['**/*.{ts,tsx}']` also matches src/ui/product/**, a
+    // demo-only zone in an earlier/separate block would be silently
+    // overwritten. Both zones are combined here so product files carry
+    // both restrictions.
     files: ['src/ui/product/**/*.{ts,tsx}'],
+    plugins: { local: crossTreeImport },
     rules: {
-      'no-restricted-imports': ['error', {
-        patterns: [
+      'local/no-cross-tree-import': ['error', {
+        zones: [
           {
-            group: ['**/ui/demo/**', '../demo/**', './demo/**'],
+            forbidden: 'src/ui/demo',
             message: 'src/ui/product must never import demo chrome — master prompt §8.6.2 depends on this edge.',
           },
           {
-            group: ['**/data/collections/**'],
+            forbidden: 'src/data/collections',
             message: 'Business truth reaches components only through src/data/repository.ts — master prompt §12.6.',
           },
         ],
