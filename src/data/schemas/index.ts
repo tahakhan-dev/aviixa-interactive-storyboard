@@ -181,4 +181,58 @@ export const RELATIONS: ReadonlyArray<
   { from: 'schedules', field: 'definitionId', to: 'schedules', nullable: true },
   { from: 'ai-requests', field: 'tenantId', to: 'tenants' },
   { from: 'tours', field: 'workflowId', to: 'workflow-definitions', nullable: true },
+
+  // Fix round 1 (review finding 1) — 13 fields whose target collection
+  // exists but had no RELATIONS row, found by an exhaustive introspection
+  // sweep (`fieldNames()` in the validator) rather than by re-reading the
+  // schema files a third time by eye.
+  { from: 'qualifications', field: 'recertifiedFromId', to: 'qualifications', nullable: true },
+  { from: 'workflow-definitions', field: 'qualificationBaselineIds', to: 'qualifications', array: true },
+  { from: 'jobs', field: 'qualificationRequirementIds', to: 'qualifications', array: true },
+  { from: 'captures', field: 'authorisingWorkerId', to: 'workers', nullable: true },
+  { from: 'captures', field: 'siteId', to: 'sites', nullable: true },
+  { from: 'captures', field: 'areaId', to: 'areas', nullable: true },
+  { from: 'captures', field: 'locationId', to: 'locations', nullable: true },
+  { from: 'captures', field: 'correctedFromCaptureId', to: 'captures', nullable: true },
+  { from: 'events', field: 'actorId', to: 'users' },
+  { from: 'events', field: 'siteId', to: 'sites', nullable: true },
+  { from: 'events', field: 'areaId', to: 'areas', nullable: true },
+  { from: 'audit', field: 'actorId', to: 'users' },
+  { from: 'evaluations', field: 'scenarioId', to: 'evaluations' },
+] as const
+
+/**
+ * Every schema field whose name ends in `Id`/`Ids` is presumed to be a
+ * relation and must appear in `RELATIONS` above — the validator's relation
+ * coverage check (fix round 1, review finding 1) enforces this and exits 1
+ * on any field it finds neither there nor here. A field lands here, with
+ * its reason, only when it genuinely cannot be a single-collection
+ * `RELATIONS` row:
+ *
+ *  - no collection in the §3.1 forty-name list is that identifier's system
+ *    of record (a Job Type, Service Type tag, containment checklist,
+ *    escalation routing template, tool/equipment reference, module, AI
+ *    atom/agent, or eval suite — none of these were promoted to their own
+ *    `src/data` collection by this task);
+ *  - the field is genuinely polymorphic — it can hold an id from more than
+ *    one collection, which the `{ from, field, to }` shape (one fixed `to`)
+ *    cannot express.
+ */
+export const UNCHECKABLE_ID_FIELDS: ReadonlyArray<
+  { from: CollectionName; field: string; reason: string }
+> = [
+  { from: 'workflow-definitions', field: 'jobTypeId', reason: 'No job-types collection exists in the §3.1 forty-name list; Job Type (OBJ-011) is a tenant taxonomy value, not promoted to its own collection.' },
+  { from: 'workflow-definitions', field: 'serviceTypeTagId', reason: 'No service-type-tags collection exists; Service Type tag (OBJ-012) is a taxonomy value, not a collection.' },
+  { from: 'workflow-definitions', field: 'defaultEscalationRoutingTemplateId', reason: 'No escalation-routing-templates collection exists; Escalation Routing Template (OBJ-043) was not promoted to a §3.1 collection.' },
+  { from: 'work-instructions', field: 'containmentChecklistId', reason: 'No containment-checklists collection exists; Containment Checklist (OBJ-040) was not promoted to a §3.1 collection.' },
+  { from: 'work-instructions', field: 'escalationRoutingTemplateId', reason: 'No escalation-routing-templates collection exists (see workflow-definitions.defaultEscalationRoutingTemplateId above).' },
+  { from: 'work-instructions', field: 'requiresToolId', reason: 'No tools collection exists in §3.1; tool/equipment references are out of scope for this schema layer.' },
+  { from: 'jobs', field: 'jobTypeId', reason: 'No job-types collection exists (see workflow-definitions.jobTypeId above).' },
+  { from: 'jobs', field: 'serviceTypeTagId', reason: 'No service-type-tags collection exists (see workflow-definitions.serviceTypeTagId above).' },
+  { from: 'deviations', field: 'containmentChecklistId', reason: 'No containment-checklists collection exists (see work-instructions.containmentChecklistId above).' },
+  { from: 'packages', field: 'contentItemIds', reason: "Polymorphic: a package's content items are a mix of work-instructions and content-blocks rows (this collection's own seed row holds one id from each); a RELATIONS row can only name one fixed target collection." },
+  { from: 'holds', field: 'targetId', reason: "Polymorphic, discriminated by targetKind: 'lot' | 'unit' | 'run'. Only 'run' has a §3.1 collection — Lot and Unit (OBJ-020/021) were not promoted to their own collections — so even a per-targetKind relation could not always resolve." },
+  { from: 'evaluations', field: 'subjectAtomOrAgentId', reason: 'No atoms/agents collection exists in §3.1; Agent definition and Atom registration record (OBJ-066/067) were not promoted to collections by this task.' },
+  { from: 'evaluations', field: 'suiteId', reason: 'No suites collection exists; a suite is a grouping label within evaluations, not its own §3.1 collection.' },
+  { from: 'tours', field: 'moduleId', reason: "References the product's static module registry (e.g. MOD-FL-A2), not a src/data collection; modules are not one of §3.1's forty collections." },
 ] as const

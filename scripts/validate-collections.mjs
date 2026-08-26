@@ -14,7 +14,7 @@ import { register } from 'tsx/esm/api'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 register()
-const { COLLECTIONS, RELATIONS } = await import(join(root, 'src/data/schemas/index.ts'))
+const { COLLECTIONS, RELATIONS, UNCHECKABLE_ID_FIELDS } = await import(join(root, 'src/data/schemas/index.ts'))
 
 let failed = 0
 const fail = (msg) => { console.error(`FAIL  ${msg}`); failed++ }
@@ -57,6 +57,39 @@ for (const rel of RELATIONS) {
       if (!ids.has(one)) fail(`${rel.from}[${i}].${rel.field}: "${one}" is not an id in ${rel.to}`)
     }
   })
+}
+
+// Fix round 1 (review finding 1): a `RELATIONS` row is opt-in, so a field
+// nobody remembered to register is silently unchecked rather than flagged.
+// This closes that hole from the other direction — every schema field whose
+// name ends in `Id`/`Ids` must be either in `RELATIONS` or on the explicit
+// `UNCHECKABLE_ID_FIELDS` allowlist (with its reason, in index.ts), or the
+// validator reds naming the field. Introspection is shallow by design: only
+// each collection's own top-level fields are examined (via `.shape` for a
+// plain object, recursing into `.options` for a `discriminatedUnion`) — a
+// nested field one level down (e.g. `tours[].steps[].controlId`) is out of
+// this check's reach, same as it is out of `RELATIONS`' own reach (which
+// only ever reads `row[field]`, never into an array of objects).
+function fieldNames(schema) {
+  if (schema.shape) return Object.keys(schema.shape)
+  if (schema.options) {
+    const set = new Set()
+    for (const opt of schema.options) for (const k of fieldNames(opt)) set.add(k)
+    return [...set]
+  }
+  return []
+}
+
+const relationCovered = new Set(RELATIONS.map((r) => `${r.from}.${r.field}`))
+const allowlisted = new Set(UNCHECKABLE_ID_FIELDS.map((r) => `${r.from}.${r.field}`))
+
+for (const [name, def] of Object.entries(COLLECTIONS)) {
+  for (const field of fieldNames(def.schema)) {
+    if (!/Ids?$/.test(field)) continue
+    const key = `${name}.${field}`
+    if (relationCovered.has(key) || allowlisted.has(key)) continue
+    fail(`${name}.${field}: ends in Id/Ids but is not in RELATIONS or UNCHECKABLE_ID_FIELDS`)
+  }
 }
 
 if (failed) { console.error(`\n${failed} problem(s)`); process.exit(1) }
