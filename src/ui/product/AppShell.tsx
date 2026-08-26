@@ -1,0 +1,258 @@
+'use client'
+
+import { useMemo, type ReactNode } from 'react'
+import { usePathname } from 'next/navigation'
+import { surfaceById, type SurfaceId } from '@/domain/surfaces'
+import type { RoleId } from '@/domain/roles'
+import type { TenantId } from '@/domain/ids'
+import type { BreadcrumbItem } from '@/ui/primitives'
+import { dohModulesReachedBy } from '@/surfaces/doh/modules'
+import { SA_BANDS, modulesInBand } from '@/surfaces/sa/modules'
+import { CC_MODULE_SPINE } from '@/surfaces/cc/modules'
+import { isCcExcludedRole } from '@/surfaces/cc/access'
+import { STU_MODULES, stuModulesReachedBy, type StudioPersonaId } from '@/studio/modules'
+import { FL_DESTINATIONS, frontlinePathname } from '@/frontline/screens'
+import { Nav, type NavGroup, type NavLayout } from './Nav'
+import { PageHeader } from './PageHeader'
+import { bg, type DensityToken } from './tokens'
+
+/** Identity, role, scope, tenant, device — the shell's one read of "who is
+ *  looking at this and on what". Nothing here is a live scenario read: it is
+ *  the caller's own controlled state, exactly as `role`/`tenantState` are
+ *  controlled props on `HubShell` today. */
+export interface ProductSession {
+  readonly identity: string
+  readonly role: RoleId
+  readonly tenant: TenantId | null
+  readonly scope?: { readonly sites?: readonly string[]; readonly areas?: readonly string[] }
+  readonly device: 'desktop' | 'tablet' | 'kiosk'
+}
+
+export interface AppShellProps {
+  readonly surface: SurfaceId
+  readonly session: ProductSession
+  /**
+   * DEVIATION FROM THE BRIEF'S ILLUSTRATIVE INTERFACE SNIPPET, same shape as
+   * `ButtonProps.variant` in `src/ui/primitives/Button.tsx`'s own doc
+   * comment: the brief's `AppShellProps` lists only `surface`, `session` and
+   * `children`, but the brief's own prose requires `AppShell` to compose
+   * `PageHeader` — "breadcrumb, one h1, primary actions slot" — and none of
+   * that content is derivable from a surface id alone. All three are
+   * optional and default to the surface's own name, the same fallback
+   * `SaConsoleShell`/`HubShell`/`StudioShell` already use before a page
+   * supplies a module.
+   */
+  readonly title?: string
+  readonly breadcrumbs?: readonly BreadcrumbItem[]
+  readonly actions?: ReactNode
+  readonly children: ReactNode
+}
+
+interface SurfaceChrome {
+  readonly layout: NavLayout
+  readonly density: DensityToken
+  readonly groups: readonly NavGroup[]
+}
+
+/**
+ * `ProductSession` carries a `RoleId`, and Studio's own reach table is keyed
+ * on a finer `StudioPersonaId` — three of its eight personas (the two
+ * Supervisor columns and the Plant Manager persona) all resolve to the same
+ * `SUPERVISOR` role (`STU_PERSONAS[*].deliveredByRole` in
+ * `@/studio/modules`), a distinction `ProductSession` does not carry. This
+ * picks the fuller-access default for a bare Supervisor session
+ * (`supervisor-with-authoring-grant`) rather than guessing which grant a
+ * given session holds; a later task threading the authoring grant through
+ * `ProductSession` can resolve this exactly instead of defaulting it.
+ * `null` for a platform-domain role, which never reaches SURF-STU at all
+ * (`@/domain/roles`, `reachableSurfaces`).
+ */
+function studioPersonaFor(role: RoleId): StudioPersonaId | null {
+  switch (role) {
+    case 'TENANT_ADMIN':
+      return 'tenant-admin'
+    case 'SUPERVISOR':
+      return 'supervisor-with-authoring-grant'
+    case 'QUALITY_MANAGER':
+      return 'quality-manager'
+    case 'READONLY_AUDITOR':
+      return 'read-only-auditor'
+    case 'WORKER':
+      return 'worker'
+    default:
+      return null
+  }
+}
+
+/**
+ * THE ONE PLACE THIS SHELL DECIDES NAVIGATION, per surface, over the same
+ * reach maps the old per-surface shells read (`@/surfaces/doh/modules`,
+ * `@/surfaces/sa/modules`, `@/surfaces/cc/modules` + `access`,
+ * `@/studio/modules`, `@/frontline/screens`) — never a second permission
+ * check invented here, and never a route offered a role's own reach map
+ * withholds. `src/ui/**` holds no policy; this file is under
+ * `src/ui/product/**` and reads only PRE-DERIVED reach, exactly as
+ * `HubShell`/`StudioShell` already do.
+ */
+function chromeFor(surface: SurfaceId, role: RoleId, pathname: string): SurfaceChrome {
+  switch (surface) {
+    case 'SURF-SA': {
+      // D16: module-level `rolesAllowed` is authoritative nowhere in the
+      // source: every one of the four platform roles reaches every module
+      // route; per-control gating happens inside the screen, not the rail.
+      const groups: NavGroup[] = SA_BANDS.map((band) => ({
+        id: band.id,
+        label: band.name,
+        items: modulesInBand(band.id).map((m) => {
+          const href = `/super-admin/${m.slug}/`
+          return { id: m.id, label: m.name, href, current: pathname.startsWith(href) }
+        }),
+      }))
+      return { layout: 'rail', density: 'comfortable', groups }
+    }
+    case 'SURF-DOH': {
+      const modules = dohModulesReachedBy(role)
+      const groups: NavGroup[] = [
+        {
+          id: 'doh-modules',
+          items: modules.map((m) => {
+            const href = `/hub/${m.slug}/`
+            return { id: m.id, label: m.name, href, current: pathname.startsWith(href) }
+          }),
+        },
+      ]
+      return { layout: 'rail', density: 'comfortable', groups }
+    }
+    case 'SURF-STU': {
+      const persona = studioPersonaFor(role)
+      const modules = persona === null ? [] : stuModulesReachedBy(STU_MODULES, persona)
+      const groups: NavGroup[] = [
+        {
+          id: 'stu-modules',
+          items: modules.flatMap((m) => {
+            if (m.slug === null) return []
+            const href = `/studio/${m.slug}/`
+            return [{ id: m.id, label: m.name, href, current: pathname.startsWith(href) }]
+          }),
+        },
+      ]
+      return { layout: 'rail', density: 'compact', groups }
+    }
+    case 'SURF-CC': {
+      // AC-SCR-CC-001: the Read-only Auditor and the Worker are excluded at
+      // the surface boundary, not cell by cell — `isCcExcludedRole` is the
+      // same door `evaluateCCAccess` checks first.
+      const excluded = isCcExcludedRole(role)
+      const groups: NavGroup[] = [
+        {
+          id: 'cc-modules',
+          items: excluded
+            ? []
+            : CC_MODULE_SPINE.flatMap((m) => {
+                if (m.slug === null) return []
+                const href = `/command-center/${m.slug}/`
+                return [{ id: m.id, label: m.name, href, current: pathname.startsWith(href) }]
+              }),
+        },
+      ]
+      return { layout: 'bar', density: 'compact', groups }
+    }
+    case 'SURF-FL': {
+      // Only the Worker holds SURF-FL in `reachableSurfaces` (@/domain/roles).
+      // `sign-in` is filtered out: it is the pre-authenticated entry gate,
+      // never a destination a signed-in worker taps to revisit.
+      const reaches = role === 'WORKER'
+      const groups: NavGroup[] = [
+        {
+          id: 'fl-destinations',
+          items: !reaches
+            ? []
+            : FL_DESTINATIONS.filter((d) => d.slug !== 'sign-in').map((d) => {
+                const href = `${frontlinePathname(d.slug)}/`
+                return { id: d.slug, label: d.name, href, current: pathname.startsWith(href) }
+              }),
+        },
+      ]
+      return { layout: 'tabbar', density: 'spacious', groups }
+    }
+    default: {
+      const exhaustive: never = surface
+      throw new Error(`AppShell: unknown surface ${String(exhaustive)}`)
+    }
+  }
+}
+
+/**
+ * The shell every product screen renders under, hosting `Nav` (role-derived,
+ * above) and `PageHeader` (breadcrumb, one `h1`, actions slot) around
+ * `children` — and nothing else. Demo chrome is mounted by the route layout
+ * OUTSIDE this component; `src/ui/product/**` cannot import
+ * `src/ui/demo/**` at all (enforced by `local/no-cross-tree-import`), so
+ * there is no way for it to sneak in here even by accident.
+ *
+ * FIVE SURFACES, THREE STRUCTURAL SHAPES, DELIBERATELY NOT FIVE. `rail`
+ * (Super Admin, Hub, Studio) is a collapsing left sidebar; `bar` (Command
+ * Center) is a collapsing horizontal strip across the top, giving the
+ * monitoring cockpit full-width content below it; `tabbar` (Frontline) is a
+ * persistent full-width row of large targets and never collapses into a
+ * drawer at all — a gloved-hands floor tablet is narrow-first by
+ * construction (master prompt: "a full-screen, shallow, large-target
+ * surface, not a desktop page shrunk"), and a slide-out drawer over a bottom
+ * tab bar would be the desktop pattern shrunk back onto it. Density and
+ * touch-target size (`--density-spacious-control-min`, 44px) carry
+ * Frontline's distinctiveness where the layout shape is shared with no
+ * other surface anyway.
+ */
+export function AppShell({ surface, session, title, breadcrumbs, actions, children }: AppShellProps) {
+  const pathname = usePathname()
+  const surfaceDef = surfaceById(surface)
+  const chrome = useMemo(
+    () => chromeFor(surface, session.role, pathname ?? ''),
+    [surface, session.role, pathname],
+  )
+  const resolvedTitle = title ?? surfaceDef.name
+  const resolvedBreadcrumbs = breadcrumbs ?? [{ label: surfaceDef.name }]
+  const navLabel = `${surfaceDef.name} navigation`
+
+  if (chrome.layout === 'tabbar') {
+    return (
+      <div className={`flex min-h-dvh flex-col ${bg('sunken')}`} data-surface={surface}>
+        <main id="main" className="flex-1 px-4 py-4 pb-24">
+          <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
+          <div className="mt-4">{children}</div>
+        </main>
+        <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
+      </div>
+    )
+  }
+
+  if (chrome.layout === 'bar') {
+    return (
+      <div className={`flex min-h-dvh flex-col ${bg('sunken')}`} data-surface={surface}>
+        <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
+        <main id="main" className="flex-1 px-6 py-6">
+          <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
+          <div className="mt-4">{children}</div>
+        </main>
+      </div>
+    )
+  }
+
+  return (
+    // `flex-col md:flex-row`, not a bare `flex` — `Nav`'s three top-level
+    // siblings (persistent rail, narrow-width toggle bar, drawer wrapper)
+    // become direct flex items of THIS container (a fragment hoists its
+    // children into the parent), so a row-direction parent below `md`
+    // placed the toggle bar beside `main` as a narrow column instead of a
+    // full-width bar above it — caught live in Chrome at 360px, not by
+    // reading the JSX. Stacking below `md` fixes it without `Nav` needing
+    // to know its parent's direction.
+    <div className={`flex min-h-dvh flex-col md:flex-row ${bg('sunken')}`} data-surface={surface}>
+      <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
+      <main id="main" className="flex-1 px-6 py-6">
+        <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
+        <div className="mt-4">{children}</div>
+      </main>
+    </div>
+  )
+}

@@ -56,9 +56,16 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Visible, unobscured focus everywhere. WCAG 2.2 AA. */
+/* Visible, unobscured focus everywhere. WCAG 2.2 AA.
+   Task 9: was `var(--color-primary)`, a legacy token with no dark-mode
+   redefinition — #1d4ed8 measures only 2.65:1 against the new dark
+   `--surface` (#111827), under the 3:1 SC 1.4.11 floor for a non-text UI
+   indicator. Caught live in Chrome driving the product shell in dark mode,
+   not by reading the rule. `--accent` is dark-mode aware and its light value
+   is the identical #1d4ed8, so this is a no-op in light mode and a real fix
+   in dark: #3b82f6 measures 4.82:1 against the same dark surface. */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-control);
 }
@@ -69,4 +76,190 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+ * PRODUCT SHELL TOKENS (Task 9) — the vocabulary `src/ui/product/tokens.ts`
+ * types, and the only vocabulary `src/ui/product/**` may reference.
+ *
+ * A SECOND, ADDITIVE LAYER, NOT A REPLACEMENT. The `--color-*` set above
+ * (task 1, 24 properties) is already consumed by every existing screen
+ * under app/super-admin, app/hub, app/studio, app/command-center and
+ * app/frontline through their own per-surface Shell components — none of
+ * those files are touched by this task, so none of those properties move or
+ * change value. This block adds the fuller semantic set the brief asks for
+ * (surface/raised/sunken, ink/ink-muted/ink-subtle, border/border-strong,
+ * accent/accent-ink, a ten-member status family with a background pair
+ * each, and spacing/radius/elevation/density/z-index scales) under new,
+ * unprefixed names so the two layers cannot collide, and defines the
+ * complete light palette on bare `:root` — nothing below has its only
+ * definition inside a media query.
+ *
+ * CONTRAST WAS COMPUTED, NOT EYEBALLED — every body-text pair below clears
+ * 4.5:1 and every border pair clears 3:1 against the surface it is drawn
+ * on, checked with the standard WCAG relative-luminance formula before this
+ * was written and re-verified against the rendered page in Chrome (Task 9
+ * report, ledger). `status-*` foregrounds are checked against their OWN
+ * `-bg` pair (the shape a status pill actually renders) and against
+ * `--surface` (the shape a status-coloured label on a plain panel renders).
+ */
+:root {
+  --surface: #ffffff;
+  --raised: #ffffff;
+  --sunken: #f1f5f9;
+  --ink: #0f172a;
+  --ink-muted: #475569;
+  --ink-subtle: #54637a;
+  --border: #7c8ba1;
+  --border-strong: #64748b;
+  --accent: #1d4ed8;
+  --accent-ink: #ffffff;
+
+  --status-ok: #036d4f;
+  --status-ok-bg: #d1fae5;
+  --status-info: #03659b;
+  --status-info-bg: #dbeafe;
+  --status-warn: #a04a08;
+  --status-warn-bg: #fef3c7;
+  --status-danger: #b91c1c;
+  --status-danger-bg: #fee2e2;
+  --status-stale: #6d28d9;
+  --status-stale-bg: #ede9fe;
+  --status-offline: #475569;
+  --status-offline-bg: #e2e8f0;
+  --status-queued: #4338ca;
+  --status-queued-bg: #e0e7ff;
+  --status-pending: #0e7490;
+  --status-pending-bg: #cffafe;
+  --status-conflict: #c2410c;
+  --status-conflict-bg: #ffedd5;
+  --status-blocked: #991b1b;
+  --status-blocked-bg: #fecaca;
+
+  /* Spacing scale, in rem so it follows the user's root font size. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-pill: 999px;
+
+  /* Elevation: box-shadow tokens. Light-mode shadows read against a light
+     surface; the dark-mode redefinition below swaps to an opacity that
+     reads against a dark one rather than reusing the same rgba values. */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --elevation-2: 0 4px 8px rgba(15, 23, 42, 0.1);
+  --elevation-3: 0 16px 32px rgba(15, 23, 42, 0.18);
+
+  /* Density: paired gap and minimum interactive-target size per surface
+     character. `spacious` clears the 44px touch target the Frontline
+     surface's gloved-hands, large-target requirement calls for; `compact`
+     and `comfortable` stay above the 24px WCAG 2.5.8 AA floor throughout. */
+  --density-compact-gap: 0.5rem;
+  --density-compact-control-min: 2rem;
+  --density-comfortable-gap: 0.75rem;
+  --density-comfortable-control-min: 2.25rem;
+  --density-spacious-gap: 1.25rem;
+  --density-spacious-control-min: 2.75rem;
+
+  --z-nav: 10;
+  --z-header: 20;
+  --z-dropdown: 30;
+  --z-drawer: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+}
+
+/* System preference. Guarded so an explicit `data-theme="light"` toggle
+   (below the media query in source order, but the guard is what actually
+   makes it win — see the `:root[data-theme="dark"]` block) overrides it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: #111827;
+    --raised: #1f2937;
+    --sunken: #0b1220;
+    --ink: #f1f5f9;
+    --ink-muted: #cbd5e1;
+    --ink-subtle: #94a3b8;
+    --border: #64748b;
+    --border-strong: #94a3b8;
+    --accent: #3b82f6;
+    --accent-ink: #0b1220;
+
+    --status-ok: #34d399;
+    --status-ok-bg: #064e3b;
+    --status-info: #38bdf8;
+    --status-info-bg: #082f49;
+    --status-warn: #fbbf24;
+    --status-warn-bg: #78350f;
+    --status-danger: #f87171;
+    --status-danger-bg: #450a0a;
+    --status-stale: #c4b5fd;
+    --status-stale-bg: #4c1d95;
+    --status-offline: #94a3b8;
+    --status-offline-bg: #1e293b;
+    --status-queued: #a5b4fc;
+    --status-queued-bg: #312e81;
+    --status-pending: #22d3ee;
+    --status-pending-bg: #164e63;
+    --status-conflict: #fdba74;
+    --status-conflict-bg: #7c2d12;
+    --status-blocked: #fca5a5;
+    --status-blocked-bg: #7f1d1d;
+
+    --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --elevation-2: 0 4px 8px rgba(0, 0, 0, 0.5);
+    --elevation-3: 0 16px 32px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Explicit toggle. Higher specificity than the media-guarded rule above
+   (an attribute selector on :root beats a bare :root, media query aside),
+   so this wins over a light system preference; the media query's own
+   `:not([data-theme="light"])` guard is what lets an explicit LIGHT choice
+   win over a dark system preference in the other direction. Both win. */
+:root[data-theme="dark"] {
+  --surface: #111827;
+  --raised: #1f2937;
+  --sunken: #0b1220;
+  --ink: #f1f5f9;
+  --ink-muted: #cbd5e1;
+  --ink-subtle: #94a3b8;
+  --border: #64748b;
+  --border-strong: #94a3b8;
+  --accent: #3b82f6;
+  --accent-ink: #0b1220;
+
+  --status-ok: #34d399;
+  --status-ok-bg: #064e3b;
+  --status-info: #38bdf8;
+  --status-info-bg: #082f49;
+  --status-warn: #fbbf24;
+  --status-warn-bg: #78350f;
+  --status-danger: #f87171;
+  --status-danger-bg: #450a0a;
+  --status-stale: #c4b5fd;
+  --status-stale-bg: #4c1d95;
+  --status-offline: #94a3b8;
+  --status-offline-bg: #1e293b;
+  --status-queued: #a5b4fc;
+  --status-queued-bg: #312e81;
+  --status-pending: #22d3ee;
+  --status-pending-bg: #164e63;
+  --status-conflict: #fdba74;
+  --status-conflict-bg: #7c2d12;
+  --status-blocked: #fca5a5;
+  --status-blocked-bg: #7f1d1d;
+
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --elevation-2: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --elevation-3: 0 16px 32px rgba(0, 0, 0, 0.6);
 }
