@@ -8,151 +8,121 @@
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 71,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "under-review"
-  },
-  {
-    "id": "SUM-GEN-DW-6",
-    "runId": "RUN-GEN-DW-6",
-    "asOf": "2026-08-02T14:13:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 86,
-    "anomalyCount": 2,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "closed"
-  },
-  {
-    "id": "SUM-GEN-SM-8",
-    "runId": "RUN-GEN-SM-8",
-    "asOf": "2026-06-14T13:32:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 75,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "closed"
-  },
-  {
-    "id": "SUM-GEN-AC-10",
-    "runId": "RUN-GEN-AC-10",
-    "asOf": "2026-07-13T16:27:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
     "evidenceCompletenessPercent": 85,
-    "anomalyCount": 2,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "computed"
-  },
-  {
-    "id": "SUM-GEN-HD-14",
-    "runId": "RUN-GEN-HD-14",
-    "asOf": "2026-06-26T17:11:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 98,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": "USR-HD-ADM-01",
-    "status": "recomputed-after-finish"
-  },
-  {
-    "id": "SUM-GEN-BB-17",
-    "runId": "RUN-GEN-BB-17",
-    "asOf": "2026-08-04T18:18:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 81,
     "anomalyCount": 2,
     "lateData": true,
     "reviewedBy": null,
     "status": "under-review"
   },
   {
-    "id": "SUM-GEN-PW-18",
-    "runId": "RUN-GEN-PW-18",
-    "asOf": "2026-07-17T15:06:00.000Z",
+    "id": "SUM-GEN-DW-6",
+    "runId": "RUN-GEN-DW-6",
+    "asOf": "2026-08-10T17:07:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 81,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": "USR-PW-ADM-01",
-    "status": "recomputed-after-finish"
-  },
-  {
-    "id": "SUM-GEN-BB-19",
-    "runId": "RUN-GEN-BB-19",
-    "asOf": "2026-06-03T16:20:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 79,
-    "anomalyCount": 1,
+    "evidenceCompletenessPercent": 92,
+    "anomalyCount": 0,
     "lateData": false,
     "reviewedBy": null,
     "status": "closed"
   },
   {
-    "id": "SUM-GEN-CW-24",
-    "runId": "RUN-GEN-CW-24",
-    "asOf": "2026-08-12T18:31:00.000Z",
+    "id": "SUM-GEN-BB-11",
+    "runId": "RUN-GEN-BB-11",
+    "asOf": "2026-07-04T16:34:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 100,
+    "evidenceCompletenessPercent": 95,
+    "anomalyCount": 2,
+    "lateData": false,
+    "reviewedBy": "USR-BB-ADMIN",
+    "status": "closed"
+  },
+  {
+    "id": "SUM-GEN-HD-14",
+    "runId": "RUN-GEN-HD-14",
+    "asOf": "2026-08-01T16:28:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 77,
+    "anomalyCount": 1,
+    "lateData": true,
+    "reviewedBy": null,
+    "status": "recomputing"
+  },
+  {
+    "id": "SUM-GEN-BB-17",
+    "runId": "RUN-GEN-BB-17",
+    "asOf": "2026-07-22T15:24:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 97,
     "anomalyCount": 1,
     "lateData": false,
-    "reviewedBy": "USR-CW-ADM-01",
+    "reviewedBy": "USR-BB-ADMIN",
     "status": "computed"
   },
   {
-    "id": "SUM-GEN-SG-26",
-    "runId": "RUN-GEN-SG-26",
-    "asOf": "2026-07-05T14:35:00.000Z",
+    "id": "SUM-GEN-PW-18",
+    "runId": "RUN-GEN-PW-18",
+    "asOf": "2026-06-29T15:39:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
     "evidenceCompletenessPercent": 86,
-    "anomalyCount": 1,
+    "anomalyCount": 0,
     "lateData": false,
     "reviewedBy": null,
+    "status": "computed"
+  },
+  {
+    "id": "SUM-GEN-BB-25",
+    "runId": "RUN-GEN-BB-25",
+    "asOf": "2026-06-16T16:39:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 88,
+    "anomalyCount": 2,
+    "lateData": true,
+    "reviewedBy": "USR-BB-ADMIN",
     "status": "closed"
   },
   {
-    "id": "SUM-GEN-AC-32",
-    "runId": "RUN-GEN-AC-32",
-    "asOf": "2026-08-11T17:28:00.000Z",
+    "id": "SUM-GEN-BB-29",
+    "runId": "RUN-GEN-BB-29",
+    "asOf": "2026-06-09T13:02:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 93,
+    "anomalyCount": 2,
+    "lateData": true,
+    "reviewedBy": null,
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-SM-30",
+    "runId": "RUN-GEN-SM-30",
+    "asOf": "2026-07-25T16:33:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
@@ -167,67 +137,247 @@
   {
     "id": "SUM-GEN-BB-35",
     "runId": "RUN-GEN-BB-35",
-    "asOf": "2026-08-15T18:29:00.000Z",
+    "asOf": "2026-07-24T14:19:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 91,
-    "anomalyCount": 2,
-    "lateData": true,
-    "reviewedBy": "USR-BB-ADMIN",
+    "evidenceCompletenessPercent": 94,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": null,
     "status": "recomputed-after-finish"
   },
   {
-    "id": "SUM-GEN-BB-37",
-    "runId": "RUN-GEN-BB-37",
-    "asOf": "2026-06-19T17:11:00.000Z",
+    "id": "SUM-GEN-BB-45",
+    "runId": "RUN-GEN-BB-45",
+    "asOf": "2026-06-23T15:28:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 74,
+    "evidenceCompletenessPercent": 95,
     "anomalyCount": 2,
     "lateData": false,
     "reviewedBy": null,
-    "status": "recomputing"
+    "status": "under-review"
   },
   {
-    "id": "SUM-GEN-BB-39",
-    "runId": "RUN-GEN-BB-39",
-    "asOf": "2026-07-18T17:21:00.000Z",
+    "id": "SUM-GEN-SG-48",
+    "runId": "RUN-GEN-SG-48",
+    "asOf": "2026-07-14T16:17:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 100,
+    "evidenceCompletenessPercent": 78,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-AC-54",
+    "runId": "RUN-GEN-AC-54",
+    "asOf": "2026-07-11T15:39:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 89,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": "USR-AC-ADM-01",
+    "status": "under-review"
+  },
+  {
+    "id": "SUM-GEN-BB-55",
+    "runId": "RUN-GEN-BB-55",
+    "asOf": "2026-08-13T17:33:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 85,
+    "anomalyCount": 2,
+    "lateData": false,
+    "reviewedBy": "USR-BB-ADMIN",
+    "status": "recomputing"
+  },
+  {
+    "id": "SUM-GEN-BB-57",
+    "runId": "RUN-GEN-BB-57",
+    "asOf": "2026-07-16T14:22:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 86,
+    "anomalyCount": 2,
+    "lateData": false,
+    "reviewedBy": "USR-BB-ADMIN",
+    "status": "closed"
+  },
+  {
+    "id": "SUM-GEN-BB-59",
+    "runId": "RUN-GEN-BB-59",
+    "asOf": "2026-07-11T14:04:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 90,
+    "anomalyCount": 0,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "under-review"
+  },
+  {
+    "id": "SUM-GEN-MR-60",
+    "runId": "RUN-GEN-MR-60",
+    "asOf": "2026-07-21T18:18:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 83,
     "anomalyCount": 1,
     "lateData": false,
     "reviewedBy": null,
     "status": "recomputing"
   },
   {
-    "id": "SUM-GEN-BB-41",
-    "runId": "RUN-GEN-BB-41",
-    "asOf": "2026-07-15T17:10:00.000Z",
+    "id": "SUM-GEN-BB-61",
+    "runId": "RUN-GEN-BB-61",
+    "asOf": "2026-06-30T14:16:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 77,
+    "evidenceCompletenessPercent": 91,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": "USR-BB-ADMIN",
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-HW-64",
+    "runId": "RUN-GEN-HW-64",
+    "asOf": "2026-06-06T15:18:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 71,
+    "anomalyCount": 2,
+    "lateData": true,
+    "reviewedBy": "USR-HW-ADM-01",
+    "status": "recomputing"
+  },
+  {
+    "id": "SUM-GEN-BB-67",
+    "runId": "RUN-GEN-BB-67",
+    "asOf": "2026-08-01T13:38:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 96,
+    "anomalyCount": 0,
+    "lateData": true,
+    "reviewedBy": "USR-BB-ADMIN",
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-BB-69",
+    "runId": "RUN-GEN-BB-69",
+    "asOf": "2026-06-24T16:14:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 76,
+    "anomalyCount": 0,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-SG-70",
+    "runId": "RUN-GEN-SG-70",
+    "asOf": "2026-06-26T13:04:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 98,
+    "anomalyCount": 0,
+    "lateData": true,
+    "reviewedBy": "USR-SG-ADM-01",
+    "status": "recomputing"
+  },
+  {
+    "id": "SUM-GEN-DW-72",
+    "runId": "RUN-GEN-DW-72",
+    "asOf": "2026-07-31T13:15:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 96,
     "anomalyCount": 2,
     "lateData": false,
     "reviewedBy": null,
     "status": "recomputing"
   },
   {
-    "id": "SUM-GEN-KD-44",
-    "runId": "RUN-GEN-KD-44",
-    "asOf": "2026-06-02T18:29:00.000Z",
+    "id": "SUM-GEN-BB-75",
+    "runId": "RUN-GEN-BB-75",
+    "asOf": "2026-08-01T14:26:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 95,
+    "anomalyCount": 0,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-NF-78",
+    "runId": "RUN-GEN-NF-78",
+    "asOf": "2026-06-26T17:18:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 81,
+    "anomalyCount": 2,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-BB-79",
+    "runId": "RUN-GEN-BB-79",
+    "asOf": "2026-08-03T18:03:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
@@ -237,462 +387,117 @@
     "anomalyCount": 2,
     "lateData": false,
     "reviewedBy": null,
-    "status": "recomputing"
-  },
-  {
-    "id": "SUM-GEN-BB-49",
-    "runId": "RUN-GEN-BB-49",
-    "asOf": "2026-07-25T15:36:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 85,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "closed"
-  },
-  {
-    "id": "SUM-GEN-DW-50",
-    "runId": "RUN-GEN-DW-50",
-    "asOf": "2026-08-01T18:25:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 82,
-    "anomalyCount": 2,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "under-review"
-  },
-  {
-    "id": "SUM-GEN-BB-51",
-    "runId": "RUN-GEN-BB-51",
-    "asOf": "2026-07-17T13:10:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 96,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": "USR-BB-ADMIN",
     "status": "computed"
   },
   {
-    "id": "SUM-GEN-NF-56",
-    "runId": "RUN-GEN-NF-56",
-    "asOf": "2026-06-13T15:22:00.000Z",
+    "id": "SUM-GEN-HW-86",
+    "runId": "RUN-GEN-HW-86",
+    "asOf": "2026-06-05T18:07:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 89,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "closed"
-  },
-  {
-    "id": "SUM-GEN-HD-58",
-    "runId": "RUN-GEN-HD-58",
-    "asOf": "2026-06-13T17:07:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 92,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": "USR-HD-ADM-01",
-    "status": "recomputing"
-  },
-  {
-    "id": "SUM-GEN-BB-59",
-    "runId": "RUN-GEN-BB-59",
-    "asOf": "2026-06-30T14:37:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 95,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "recomputed-after-finish"
-  },
-  {
-    "id": "SUM-GEN-PW-62",
-    "runId": "RUN-GEN-PW-62",
-    "asOf": "2026-06-18T13:24:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 95,
+    "evidenceCompletenessPercent": 79,
     "anomalyCount": 2,
     "lateData": false,
     "reviewedBy": null,
-    "status": "under-review"
-  },
-  {
-    "id": "SUM-GEN-HW-64",
-    "runId": "RUN-GEN-HW-64",
-    "asOf": "2026-07-30T13:03:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 98,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": "USR-HW-ADM-01",
-    "status": "computed"
-  },
-  {
-    "id": "SUM-GEN-KD-66",
-    "runId": "RUN-GEN-KD-66",
-    "asOf": "2026-07-28T13:26:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 91,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": "USR-KD-ADM-01",
     "status": "recomputed-after-finish"
   },
   {
-    "id": "SUM-GEN-BB-69",
-    "runId": "RUN-GEN-BB-69",
-    "asOf": "2026-06-06T15:18:00.000Z",
+    "id": "SUM-GEN-KD-88",
+    "runId": "RUN-GEN-KD-88",
+    "asOf": "2026-07-27T18:17:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 70,
-    "anomalyCount": 2,
-    "lateData": true,
-    "reviewedBy": null,
-    "status": "computed"
-  },
-  {
-    "id": "SUM-GEN-SM-74",
-    "runId": "RUN-GEN-SM-74",
-    "asOf": "2026-06-05T18:22:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 70,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": "USR-SM-ADM-01",
-    "status": "recomputed-after-finish"
-  },
-  {
-    "id": "SUM-GEN-BB-81",
-    "runId": "RUN-GEN-BB-81",
-    "asOf": "2026-06-12T16:05:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 74,
-    "anomalyCount": 2,
-    "lateData": false,
-    "reviewedBy": "USR-BB-ADMIN",
-    "status": "recomputing"
-  },
-  {
-    "id": "SUM-GEN-MR-82",
-    "runId": "RUN-GEN-MR-82",
-    "asOf": "2026-06-09T13:13:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 93,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": "USR-MR-ADM-01",
-    "status": "closed"
-  },
-  {
-    "id": "SUM-GEN-SM-96",
-    "runId": "RUN-GEN-SM-96",
-    "asOf": "2026-07-21T14:38:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 88,
-    "anomalyCount": 2,
-    "lateData": false,
-    "reviewedBy": "USR-SM-ADM-01",
-    "status": "recomputed-after-finish"
-  },
-  {
-    "id": "SUM-GEN-AC-98",
-    "runId": "RUN-GEN-AC-98",
-    "asOf": "2026-07-21T18:36:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 93,
+    "evidenceCompletenessPercent": 78,
     "anomalyCount": 2,
     "lateData": false,
     "reviewedBy": null,
-    "status": "closed"
-  },
-  {
-    "id": "SUM-GEN-BB-99",
-    "runId": "RUN-GEN-BB-99",
-    "asOf": "2026-06-03T16:35:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 81,
-    "anomalyCount": 0,
-    "lateData": true,
-    "reviewedBy": "USR-BB-ADMIN",
     "status": "recomputed-after-finish"
   },
   {
-    "id": "SUM-GEN-NF-100",
-    "runId": "RUN-GEN-NF-100",
-    "asOf": "2026-07-20T14:35:00.000Z",
+    "id": "SUM-GEN-CW-90",
+    "runId": "RUN-GEN-CW-90",
+    "asOf": "2026-06-12T15:38:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 93,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": "USR-NF-ADM-01",
-    "status": "recomputed-after-finish"
-  },
-  {
-    "id": "SUM-GEN-PW-106",
-    "runId": "RUN-GEN-PW-106",
-    "asOf": "2026-06-30T18:32:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 91,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "closed"
-  },
-  {
-    "id": "SUM-GEN-KD-110",
-    "runId": "RUN-GEN-KD-110",
-    "asOf": "2026-08-09T17:27:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 70,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "recomputed-after-finish"
-  },
-  {
-    "id": "SUM-GEN-BB-111",
-    "runId": "RUN-GEN-BB-111",
-    "asOf": "2026-07-24T15:21:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 95,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "closed"
-  },
-  {
-    "id": "SUM-GEN-CW-112",
-    "runId": "RUN-GEN-CW-112",
-    "asOf": "2026-07-22T13:38:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 100,
+    "evidenceCompletenessPercent": 94,
     "anomalyCount": 1,
     "lateData": false,
     "reviewedBy": "USR-CW-ADM-01",
     "status": "closed"
   },
   {
-    "id": "SUM-GEN-BB-113",
-    "runId": "RUN-GEN-BB-113",
-    "asOf": "2026-06-07T16:23:00.000Z",
+    "id": "SUM-GEN-BB-91",
+    "runId": "RUN-GEN-BB-91",
+    "asOf": "2026-06-02T14:29:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 80,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "recomputed-after-finish"
-  },
-  {
-    "id": "SUM-GEN-BB-115",
-    "runId": "RUN-GEN-BB-115",
-    "asOf": "2026-08-02T13:14:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 74,
-    "anomalyCount": 0,
-    "lateData": false,
-    "reviewedBy": null,
-    "status": "computed"
-  },
-  {
-    "id": "SUM-GEN-BB-121",
-    "runId": "RUN-GEN-BB-121",
-    "asOf": "2026-07-20T17:08:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 95,
+    "evidenceCompletenessPercent": 78,
     "anomalyCount": 2,
     "lateData": true,
-    "reviewedBy": "USR-BB-ADMIN",
-    "status": "recomputing"
-  },
-  {
-    "id": "SUM-GEN-MR-126",
-    "runId": "RUN-GEN-MR-126",
-    "asOf": "2026-06-17T13:18:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 99,
-    "anomalyCount": 0,
-    "lateData": false,
     "reviewedBy": null,
-    "status": "under-review"
+    "status": "closed"
   },
   {
-    "id": "SUM-GEN-BB-127",
-    "runId": "RUN-GEN-BB-127",
-    "asOf": "2026-06-18T13:20:00.000Z",
+    "id": "SUM-GEN-BB-95",
+    "runId": "RUN-GEN-BB-95",
+    "asOf": "2026-07-17T18:40:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 92,
+    "evidenceCompletenessPercent": 86,
     "anomalyCount": 1,
     "lateData": false,
-    "reviewedBy": null,
+    "reviewedBy": "USR-BB-ADMIN",
     "status": "under-review"
   },
   {
-    "id": "SUM-GEN-BB-129",
-    "runId": "RUN-GEN-BB-129",
-    "asOf": "2026-06-20T13:37:00.000Z",
+    "id": "SUM-GEN-BB-97",
+    "runId": "RUN-GEN-BB-97",
+    "asOf": "2026-08-15T17:38:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 73,
-    "anomalyCount": 0,
+    "evidenceCompletenessPercent": 94,
+    "anomalyCount": 1,
     "lateData": false,
     "reviewedBy": "USR-BB-ADMIN",
     "status": "computed"
   },
   {
-    "id": "SUM-GEN-KD-132",
-    "runId": "RUN-GEN-KD-132",
-    "asOf": "2026-06-04T14:32:00.000Z",
+    "id": "SUM-GEN-AC-98",
+    "runId": "RUN-GEN-AC-98",
+    "asOf": "2026-08-07T14:06:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
       "3": 0
     },
-    "evidenceCompletenessPercent": 91,
+    "evidenceCompletenessPercent": 84,
     "anomalyCount": 2,
     "lateData": false,
-    "reviewedBy": "USR-KD-ADM-01",
-    "status": "computed"
-  },
-  {
-    "id": "SUM-GEN-SG-136",
-    "runId": "RUN-GEN-SG-136",
-    "asOf": "2026-06-22T18:16:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 96,
-    "anomalyCount": 2,
-    "lateData": false,
-    "reviewedBy": null,
+    "reviewedBy": "USR-AC-ADM-01",
     "status": "closed"
   },
   {
-    "id": "SUM-GEN-BB-137",
-    "runId": "RUN-GEN-BB-137",
-    "asOf": "2026-06-12T17:14:00.000Z",
-    "deviationCountBySeverity": {
-      "1": 0,
-      "2": 0,
-      "3": 0
-    },
-    "evidenceCompletenessPercent": 70,
-    "anomalyCount": 1,
-    "lateData": false,
-    "reviewedBy": "USR-BB-ADMIN",
-    "status": "closed"
-  },
-  {
-    "id": "SUM-GEN-BB-139",
-    "runId": "RUN-GEN-BB-139",
-    "asOf": "2026-07-08T13:15:00.000Z",
+    "id": "SUM-GEN-NF-100",
+    "runId": "RUN-GEN-NF-100",
+    "asOf": "2026-06-17T17:38:00.000Z",
     "deviationCountBySeverity": {
       "1": 0,
       "2": 0,
@@ -701,7 +506,172 @@
     "evidenceCompletenessPercent": 75,
     "anomalyCount": 0,
     "lateData": false,
+    "reviewedBy": "USR-NF-ADM-01",
+    "status": "computed"
+  },
+  {
+    "id": "SUM-GEN-BB-105",
+    "runId": "RUN-GEN-BB-105",
+    "asOf": "2026-07-16T17:04:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 70,
+    "anomalyCount": 1,
+    "lateData": true,
     "reviewedBy": "USR-BB-ADMIN",
+    "status": "under-review"
+  },
+  {
+    "id": "SUM-GEN-BB-107",
+    "runId": "RUN-GEN-BB-107",
+    "asOf": "2026-06-16T15:17:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 91,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "closed"
+  },
+  {
+    "id": "SUM-GEN-DW-116",
+    "runId": "RUN-GEN-DW-116",
+    "asOf": "2026-07-01T14:14:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 91,
+    "anomalyCount": 2,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-HD-124",
+    "runId": "RUN-GEN-HD-124",
+    "asOf": "2026-07-15T18:39:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 73,
+    "anomalyCount": 2,
+    "lateData": false,
+    "reviewedBy": null,
     "status": "recomputing"
+  },
+  {
+    "id": "SUM-GEN-BB-125",
+    "runId": "RUN-GEN-BB-125",
+    "asOf": "2026-07-29T17:14:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 91,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": "USR-BB-ADMIN",
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-PW-128",
+    "runId": "RUN-GEN-PW-128",
+    "asOf": "2026-06-18T13:07:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 74,
+    "anomalyCount": 0,
+    "lateData": false,
+    "reviewedBy": "USR-PW-ADM-01",
+    "status": "under-review"
+  },
+  {
+    "id": "SUM-GEN-BB-131",
+    "runId": "RUN-GEN-BB-131",
+    "asOf": "2026-07-13T16:11:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 87,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "recomputed-after-finish"
+  },
+  {
+    "id": "SUM-GEN-BB-139",
+    "runId": "RUN-GEN-BB-139",
+    "asOf": "2026-07-29T14:25:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 91,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "under-review"
+  },
+  {
+    "id": "SUM-GEN-SM-140",
+    "runId": "RUN-GEN-SM-140",
+    "asOf": "2026-07-23T13:22:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 98,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": "USR-SM-ADM-01",
+    "status": "under-review"
+  },
+  {
+    "id": "SUM-GEN-AC-142",
+    "runId": "RUN-GEN-AC-142",
+    "asOf": "2026-07-30T18:34:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 84,
+    "anomalyCount": 1,
+    "lateData": false,
+    "reviewedBy": null,
+    "status": "recomputing"
+  },
+  {
+    "id": "SUM-GEN-BB-145",
+    "runId": "RUN-GEN-BB-145",
+    "asOf": "2026-07-31T18:22:00.000Z",
+    "deviationCountBySeverity": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "evidenceCompletenessPercent": 77,
+    "anomalyCount": 1,
+    "lateData": true,
+    "reviewedBy": null,
+    "status": "under-review"
   }
 ]

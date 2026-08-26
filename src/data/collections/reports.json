@@ -9,7 +9,7 @@
     "rows": [
       {
         "areaId": "AREA-BB-ASSEMBLY",
-        "utilisationPercent": 59
+        "utilisationPercent": 54
       }
     ]
   },
@@ -23,7 +23,7 @@
     "rows": [
       {
         "jobId": "JOB-GEN-NF-1",
-        "completionRate": 0.89
+        "completionRate": 0.78
       }
     ]
   },
@@ -37,7 +37,7 @@
     "rows": [
       {
         "workflowDefinitionId": "WFD-CW-GEN-03",
-        "runCount": 4
+        "runCount": 25
       }
     ]
   },
@@ -51,7 +51,7 @@
     "rows": [
       {
         "role": "SUPERVISOR",
-        "overrideCount": 0
+        "overrideCount": 4
       }
     ]
   },
@@ -59,19 +59,103 @@
     "id": "RPT-GEN-SG-1",
     "tenantId": "TEN-SUMMITGEAR",
     "dataSet": "tier-allocation-consumption-trend",
-    "generatedVia": "on-request",
+    "generatedVia": "scheduled",
     "generatedAt": "2026-08-16T06:00:00Z",
     "asOf": "2026-08-16T00:00:00Z",
     "rows": [
       {
         "month": "2026-08",
-        "percentOfAllocation": 52
+        "percentOfAllocation": 133
       }
     ]
   },
   {
     "id": "RPT-GEN-MR-1",
     "tenantId": "TEN-MERIDIAN",
+    "dataSet": "worker-utilisation-by-area",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "areaId": "AREA-MR-CLEAN",
+        "utilisationPercent": 93
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-DW-1",
+    "tenantId": "TEN-DELTAWORKS",
+    "dataSet": "tier-allocation-consumption-trend",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "month": "2026-08",
+        "percentOfAllocation": 70
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-PW-1",
+    "tenantId": "TEN-PRAIRIEWORKS",
+    "dataSet": "workflow-version-usage",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "workflowDefinitionId": "WFD-PW-GEN-10",
+        "runCount": 4
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-SM-1",
+    "tenantId": "TEN-SOLMETAL",
+    "dataSet": "workflow-version-usage",
+    "generatedVia": "scheduled",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "workflowDefinitionId": "WFD-SM-GEN-25",
+        "runCount": 14
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-HW-1",
+    "tenantId": "TEN-HARBORWORKS",
+    "dataSet": "run-completion-rate-by-job",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "jobId": "JOB-GEN-HW-1",
+        "completionRate": 0.98
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-AC-1",
+    "tenantId": "TEN-AZURACOMP",
+    "dataSet": "run-completion-rate-by-job",
+    "generatedVia": "on-request",
+    "generatedAt": "2026-08-16T06:00:00Z",
+    "asOf": "2026-08-16T00:00:00Z",
+    "rows": [
+      {
+        "jobId": "JOB-GEN-AC-1",
+        "completionRate": 0.86
+      }
+    ]
+  },
+  {
+    "id": "RPT-GEN-KD-1",
+    "tenantId": "TEN-KESTRELDYN",
     "dataSet": "qualification-override-frequency-by-role",
     "generatedVia": "scheduled",
     "generatedAt": "2026-08-16T06:00:00Z",
@@ -80,90 +164,6 @@
       {
         "role": "SUPERVISOR",
         "overrideCount": 4
-      }
-    ]
-  },
-  {
-    "id": "RPT-GEN-DW-1",
-    "tenantId": "TEN-DELTAWORKS",
-    "dataSet": "tier-allocation-consumption-trend",
-    "generatedVia": "scheduled",
-    "generatedAt": "2026-08-16T06:00:00Z",
-    "asOf": "2026-08-16T00:00:00Z",
-    "rows": [
-      {
-        "month": "2026-08",
-        "percentOfAllocation": 135
-      }
-    ]
-  },
-  {
-    "id": "RPT-GEN-PW-1",
-    "tenantId": "TEN-PRAIRIEWORKS",
-    "dataSet": "qualification-override-frequency-by-role",
-    "generatedVia": "on-request",
-    "generatedAt": "2026-08-16T06:00:00Z",
-    "asOf": "2026-08-16T00:00:00Z",
-    "rows": [
-      {
-        "role": "SUPERVISOR",
-        "overrideCount": 5
-      }
-    ]
-  },
-  {
-    "id": "RPT-GEN-SM-1",
-    "tenantId": "TEN-SOLMETAL",
-    "dataSet": "workflow-version-usage",
-    "generatedVia": "on-request",
-    "generatedAt": "2026-08-16T06:00:00Z",
-    "asOf": "2026-08-16T00:00:00Z",
-    "rows": [
-      {
-        "workflowDefinitionId": "WFD-SM-GEN-25",
-        "runCount": 4
-      }
-    ]
-  },
-  {
-    "id": "RPT-GEN-HW-1",
-    "tenantId": "TEN-HARBORWORKS",
-    "dataSet": "qualification-override-frequency-by-role",
-    "generatedVia": "scheduled",
-    "generatedAt": "2026-08-16T06:00:00Z",
-    "asOf": "2026-08-16T00:00:00Z",
-    "rows": [
-      {
-        "role": "SUPERVISOR",
-        "overrideCount": 1
-      }
-    ]
-  },
-  {
-    "id": "RPT-GEN-AC-1",
-    "tenantId": "TEN-AZURACOMP",
-    "dataSet": "workflow-version-usage",
-    "generatedVia": "scheduled",
-    "generatedAt": "2026-08-16T06:00:00Z",
-    "asOf": "2026-08-16T00:00:00Z",
-    "rows": [
-      {
-        "workflowDefinitionId": "WFD-AC-GEN-13",
-        "runCount": 26
-      }
-    ]
-  },
-  {
-    "id": "RPT-GEN-KD-1",
-    "tenantId": "TEN-KESTRELDYN",
-    "dataSet": "qualification-override-frequency-by-role",
-    "generatedVia": "on-request",
-    "generatedAt": "2026-08-16T06:00:00Z",
-    "asOf": "2026-08-16T00:00:00Z",
-    "rows": [
-      {
-        "role": "SUPERVISOR",
-        "overrideCount": 2
       }
     ]
   }

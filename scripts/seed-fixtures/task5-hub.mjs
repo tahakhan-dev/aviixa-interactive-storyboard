@@ -204,8 +204,24 @@ for (let u = 0; u < UNIT_COUNT; u++) {
   for (let s = 0; s < stepsThisUnit; s++) {
     const screen = SCREENS[s]
     const stepId = `SE-BB-0418-${String(u + 1).padStart(2, '0')}-${String(s + 1).padStart(2, '0')}`
-    const deviceTime = stamp(unitStartOffset + s * 5)
-    const serverReceiptTime = synced ? stamp(unitStartOffset + s * 5 + 30) : null
+    // Fix round 2, Important 4: DEV-BB-SEQ-01's prose said screen 3 was
+    // recorded before screen 2 completed, but the rows disagreed -- every
+    // step below carried strictly increasing `deviceTime`. Constructed the
+    // violation IN THE DATA instead of asserting it beside clean rows: on
+    // unit 6 only, screen 3 (WI-BB-FRAME-03, authored order 3) is swapped
+    // to record two minutes BEFORE screen 2 (WI-BB-FRAME-02, authored
+    // order 2) -- the one deliberate break, nowhere else. Both swapped
+    // offsets stay strictly positive (this unit's own `openedAt` is still
+    // earlier than either), so "no step before its unit" is untouched --
+    // a sequence violation is about the AUTHORED SCREEN ORDER, not about a
+    // child record escaping its parent's time window, and the two must
+    // not be conflated (re-verified below, both invariants checked
+    // separately).
+    let stepOffsetMinutes = s * 5
+    if (u === 5 && s === 2) stepOffsetMinutes = 1 * 5 - 2 // screen 3: 2 minutes before screen 2
+    else if (u === 5 && s === 1) stepOffsetMinutes = 1 * 5 // screen 2: unchanged
+    const deviceTime = stamp(unitStartOffset + stepOffsetMinutes)
+    const serverReceiptTime = synced ? stamp(unitStartOffset + stepOffsetMinutes + 30) : null
     const isAbandonedStep = isAbandonedUnit && s === stepsThisUnit - 1
     // Fix round 1, Important 3: append-only correction had zero rows
     // anywhere in the seed. Unit 1's cable-housing text step (WI-BB-FRAME-07)
@@ -448,6 +464,9 @@ export const deviations = [
   // WI-BB-FRAME-03 (head tube bearing race fit-up) was recorded before
   // WI-BB-FRAME-02 (seat post clamp torque) had a completed record for
   // this unit, violating the authored screen order 01 -> 02 -> 03 -> ...
+  // Fix round 2: the underlying SE-BB-0418-06-02/-03 rows now genuinely
+  // carry that order (see the `stepOffsetMinutes` override above) -- this
+  // deviation is derivable from the rows, not a narrative beside clean data.
   {
     id: 'DEV-BB-SEQ-01',
     tenantId: 'TEN-BRIGHTBIKES',

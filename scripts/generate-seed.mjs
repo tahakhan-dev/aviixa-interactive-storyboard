@@ -770,6 +770,22 @@ for (let i = 0; i < GEN_RUN_COUNT; i++) {
         status: nextDeviationState(),
       })
       if (severityBand === 1) {
+        // Fix round 2, deferred items 1-2: the release fields are DERIVED
+        // from `holdStatus`, not drawn independently beside it. Independent
+        // `chance()` draws previously let `releasedAt` equal `placedAt`
+        // exactly on an unsynced step (fell back to the same `deviceTime`
+        // on both sides) and let `releasedAt` be set while `status` stayed
+        // `issued` -- a row that says released and says not, the same
+        // independent-offsets class as Finding 1, one level up. Every
+        // release-bearing field now exists if and only if `holdStatus`
+        // implies it, and every offset is strictly positive off the one
+        // before it, so a duration a screen renders is never zero and a
+        // status never contradicts its own timestamps.
+        const holdStatus = nextHoldState()
+        const hasRequest = ['release-requested', 'released', 'release-propagating'].includes(holdStatus)
+        const hasRelease = ['released', 'release-propagating'].includes(holdStatus)
+        const requestOffset = stepOffset + int(60, 180)
+        const releaseOffset = requestOffset + int(30, 120)
         generatedHolds.push({
           id: `HOLD-GEN-${tenant.code}-${i + 1}-${s + 1}`,
           targetKind: runHoldTargetKind,
@@ -777,11 +793,11 @@ for (let i = 0; i < GEN_RUN_COUNT; i++) {
           originatingDeviationId: devId,
           placedAt: deviceTime,
           placedByDeviceId: device.id,
-          releaseRequestedAt: chance(0.6) ? (serverReceiptTime ?? deviceTime) : null,
-          releaseRequestNote: chance(0.6) ? 'Requesting release with a note.' : null,
-          releasedBy: chance(0.5) ? org.owner.id : null,
-          releasedAt: chance(0.5) ? (serverReceiptTime ?? deviceTime) : null,
-          status: nextHoldState(),
+          releaseRequestedAt: hasRequest ? stamp(RUN_BASELINE, day, startHour, requestOffset) : null,
+          releaseRequestNote: hasRequest ? 'Requesting release with a note.' : null,
+          releasedBy: hasRelease ? org.owner.id : null,
+          releasedAt: hasRelease ? stamp(RUN_BASELINE, day, startHour, releaseOffset) : null,
+          status: holdStatus,
         })
       }
     }
