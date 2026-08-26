@@ -44,6 +44,26 @@ const pick = (arr) => arr[Math.floor(rng() * arr.length)]
 const int = (lo, hi) => lo + Math.floor(rng() * (hi - lo + 1))
 const chance = (p) => rng() < p
 
+// Fix round 1 (review Minor finding 2): one shared coverage-then-fill
+// helper, replacing five near-identical inline implementations (an
+// index-compared-to-`STATES.length` form used by the WF/TR/EVAL/PKG loops
+// and a standalone incrementing-counter form used by the nested spec loop).
+// Behaviour is identical to both originals: call it once per row of that
+// kind and it yields every state in `states`, in order, exactly once, then
+// falls back to `pick(states)` — whether "once per row" is driven directly
+// by an outer loop's index (WF/TR/EVAL/PKG) or by a conditional nested
+// branch that doesn't fire every outer iteration (specs, only on a
+// `measurement` screen), because the counter lives in the closure rather
+// than being compared against an outer loop variable that may not track
+// 1:1 with "the Nth row of this kind". Tasks 5 and 6: call
+// `coverageThenRandom(THEIR_STATES)` once per collection needing
+// guaranteed-by-construction state coverage, the same way every call site
+// below does, rather than re-copying either of the two retired patterns.
+function coverageThenRandom(states) {
+  let i = 0
+  return () => (i < states.length ? states[i++] : pick(states))
+}
+
 // Deterministic ISO-8601 stamp: a fixed calendar baseline plus an offset,
 // never the wall clock. Every stamp this script emits lands before the
 // platform "now" (2026-08-16T09:12:00Z, see task-4-brief.md) by construction
@@ -113,12 +133,13 @@ const generatedWorkInstructions = []
 const generatedSpecifications = []
 
 const SPEC_STATES = ['authored', 'published', 'superseded']
-let specStateIdx = 0
+const nextSpecState = coverageThenRandom(SPEC_STATES)
+const nextWfState = coverageThenRandom(WF_STATES)
 
 const GEN_WF_COUNT = 26
 for (let i = 0; i < GEN_WF_COUNT; i++) {
   const tenant = TENANTS[i % TENANTS.length]
-  const state = i < WF_STATES.length ? WF_STATES[i] : pick(WF_STATES)
+  const state = nextWfState()
   const id = `WFD-${tenant.code}-GEN-${String(i + 1).padStart(2, '0')}`
   const name = pick(WF_NAME_TEMPLATES)
   const screenCount = int(1, 3)
@@ -134,7 +155,7 @@ for (let i = 0; i < GEN_WF_COUNT; i++) {
       specId = `SPEC-${tenant.code}-GEN-${i + 1}-${j + 1}`
       const lower = int(5, 80)
       const upper = lower + int(2, 10)
-      const specStatus = specStateIdx < SPEC_STATES.length ? SPEC_STATES[specStateIdx++] : pick(SPEC_STATES)
+      const specStatus = nextSpecState()
       generatedSpecifications.push({
         id: specId,
         tenantId: tenant.id,
@@ -220,11 +241,12 @@ for (let i = 0; i < GEN_CB_COUNT; i++) {
 // --- training ---------------------------------------------------------
 const TR_TITLES = ['Tool Calibration Basics', 'Reading a Vernier Caliper', 'Safe Lifting Technique', 'Lockout-Tagout Refresher', 'Reading a Torque Wrench Scale', 'Weld Inspection Fundamentals']
 const TR_STATES = ['draft', 'in-review', 'published', 'archived']
+const nextTrState = coverageThenRandom(TR_STATES)
 const generatedTraining = []
 const GEN_TR_COUNT = 12
 for (let i = 0; i < GEN_TR_COUNT; i++) {
   const tenant = TENANTS[i % TENANTS.length]
-  const state = i < TR_STATES.length ? TR_STATES[i] : pick(TR_STATES)
+  const state = nextTrState()
   generatedTraining.push({
     id: `TR-${tenant.code}-GEN-${i + 1}`,
     tenantId: tenant.id,
@@ -239,11 +261,12 @@ for (let i = 0; i < GEN_TR_COUNT; i++) {
 
 // --- evaluations ------------------------------------------------------
 const EVAL_STATES = ['authored', 'active', 'superseded']
+const nextEvalState = coverageThenRandom(EVAL_STATES)
 const generatedEvaluations = []
 const GEN_EVAL_COUNT = 9
 for (let i = 0; i < GEN_EVAL_COUNT; i++) {
   const tenant = TENANTS[i % TENANTS.length]
-  const state = i < EVAL_STATES.length ? EVAL_STATES[i] : pick(EVAL_STATES)
+  const state = nextEvalState()
   const id = `EVAL-${tenant.code}-GEN-${i + 1}`
   generatedEvaluations.push({
     id,
@@ -272,21 +295,38 @@ for (let i = 0; i < GEN_EVAL_COUNT; i++) {
 }
 
 // --- packages -----------------------------------------------------------
-// Package.status is a six-member enum (assembled, delivered, validated,
-// pinned, in-use, superseded -- src/data/schemas/studio.ts, the
-// OBJ-045/OBJ-046 fold). The first six generated rows are forced one per
-// state, in enum order, the same coverage-by-construction pattern as
-// WF_STATES above.
-const PKG_STATES = ['assembled', 'delivered', 'validated', 'pinned', 'in-use', 'superseded']
+// Package.status is a ten-member enum (src/data/schemas/studio.ts): the six
+// SoW Fact values (assembled, delivered, validated, pinned, in-use,
+// superseded -- the OBJ-045/OBJ-046 fold) plus, as of Task 4 fix round 1
+// (review Important finding), four Recommendation-R&D values proposed by
+// blueprint §35.6 (L79517-L79530) for a deployed package's failure paths:
+// expired, revoked, corrupt, incompatible-version. The first ten generated
+// rows are forced one per state, in enum order, the same coverage-by-
+// construction pattern as WF_STATES above -- brief pass criterion 4 (at
+// least one expired/revoked/corrupt row, plus incompatible-version) is
+// satisfied by this forced prefix, not by chance.
+const PKG_STATES = [
+  'assembled', 'delivered', 'validated', 'pinned', 'in-use', 'superseded',
+  'expired', 'revoked', 'corrupt', 'incompatible-version',
+]
+const nextPkgState = coverageThenRandom(PKG_STATES)
 const allWorkflowRefs = [...fx.workflowDefinitions, ...generatedWorkflowDefinitions].map((w) => ({ id: w.id, version: w.version }))
 const generatedPackages = []
 const GEN_PKG_COUNT = 24
 for (let i = 0; i < GEN_PKG_COUNT; i++) {
   const wf = allWorkflowRefs[i % allWorkflowRefs.length]
-  const state = i < PKG_STATES.length ? PKG_STATES[i] : pick(PKG_STATES)
+  const state = nextPkgState()
   const day = int(0, 200)
+  // `corrupt` and `incompatible-version` are rejected during the §35.6
+  // verification gauntlet, before a package would ever reach the
+  // `Trusted`/acknowledged step (RejectCorrupt and RejectVersion both
+  // branch off before ValidityCheck) -- so both are delivered (bytes
+  // arrived, that's how the failure is detected) but never acknowledged.
+  // `expired` and `revoked` describe a package that was already good
+  // (delivered, acknowledged, in productive use) before something later
+  // withdrew trust from it, so both keep their acknowledgement.
   const hasDelivered = state !== 'assembled'
-  const hasAcknowledged = state === 'validated' || state === 'pinned' || state === 'in-use' || state === 'superseded'
+  const hasAcknowledged = ['validated', 'pinned', 'in-use', 'superseded', 'expired', 'revoked'].includes(state)
   generatedPackages.push({
     id: `PKG-GEN-${i + 1}`,
     runId: null,
@@ -299,6 +339,7 @@ for (let i = 0; i < GEN_PKG_COUNT; i++) {
     deliveredAt: hasDelivered ? stamp('2026-01-05T00:00:00Z', day, int(13, 20), int(0, 59)) : null,
     acknowledgedAt: hasAcknowledged ? stamp('2026-01-05T00:00:00Z', day, int(21, 23), int(0, 59)) : null,
     status: state,
+    sourceStatus: fx.PACKAGE_SOURCE_STATUS[state],
   })
 }
 

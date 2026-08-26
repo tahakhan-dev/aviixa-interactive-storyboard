@@ -120,10 +120,56 @@ export type Specification = z.infer<typeof Specification>
  * above: design §3.1 gives one collection, not two. Work-package fields
  * L8766; work-package lifecycle L8768: "assembled, delivered, pinned, in
  * use, superseded". Manifest fields L8786; manifest lifecycle L8788:
- * "assembled, delivered, validated, superseded". The status enum below is
- * the union of both statements' distinct labels ("validated" is not in the
- * work-package list; "pinned"/"in use" are not in the manifest list) rather
- * than a collapse of either onto the other.
+ * "assembled, delivered, validated, superseded". The first six `status`
+ * values below are the union of both statements' distinct labels
+ * ("validated" is not in the work-package list; "pinned"/"in use" are not
+ * in the manifest list) rather than a collapse of either onto the other.
+ * All six are `SoW Fact`.
+ *
+ * Task 4 fix round 1 (review Important finding): the Statement of Work is
+ * silent on corruption, revocation, expiry and incompatible-version
+ * handling for a *deployed* package (L79518, and the twenty-one-stage
+ * enumeration at L79048, both mark all four `Not specified in the
+ * Statement of Work`) — but blueprint §35.6 "Integrity, revocation,
+ * replacement, rollback and incompatible versions" (L79517-L79530) does
+ * not leave that silence unshaped: it proposes a concrete verification
+ * state machine (`Received -> ChecksumCheck -> ... -> Trusted`, with
+ * `RejectCorrupt`, `RejectExpired`, `RejectVersion` terminal branches) and
+ * six numbered business rules, classified `Recommendation — R&D` /
+ * `Derived Clarification` throughout, the same tier this file already uses
+ * for `Outdated` (below) and `bumpClassification`. `expired`, `revoked`,
+ * `corrupt` and `incompatible-version` are added on that basis — four of
+ * the twenty-one-stage list's members, not an invented fifth model:
+ *   - `corrupt` — Rule 1 / the `RejectCorrupt` branch (checksum mismatch,
+ *     bounded re-pull); the bound itself is `TBD` under `DEC-PKGMAN-001`.
+ *   - `expired` — the `RejectExpired` branch (validity horizon passed);
+ *     the horizon value is `TBD` under `DEC-PKGEXP-001` (§35.7).
+ *   - `revoked` — Rules 3-4 (a revocation rides the command channel; a
+ *     mid-run revocation stops the run at its current step and preserves
+ *     the captured work for Quality Manager disposition); the mid-run
+ *     resolution is folded into `DEC-PKGMAN-001`.
+ *   - `incompatible-version` — Rule 6 / the `RejectVersion` branch,
+ *     grounded in the `SoW Fact` application-version floor (§8.13.1).
+ * "Replace" and "roll back" (also named alongside these four in master
+ * prompt §17.2/§10.4) do NOT get new values: the chapter-35 matrix states
+ * replacement is handled by the existing `superseded` value ("Terminal
+ * safe state: Not applicable — replacement is the normal path", `SoW
+ * Fact — §7.10.6`) and rollback "is treated as a normal new version"
+ * (Rule 5: republication, not reversal) — i.e. a fresh row through the
+ * normal `assembled -> ... -> pinned` path, not a distinct status.
+ *
+ * `sourceStatus` carries that classification, and any decision id, ON THE
+ * ROW ITSELF rather than only in this comment — reusing the existing
+ * `sourceStatus` convention already shipped in
+ * `src/ai/storyboards/contract.ts` (`StoryboardFieldId`, rendered by
+ * `src/ui/doh/CrossSurfaceStatement.tsx`) instead of inventing a second
+ * one, per controller instruction. This is how a reader tells a
+ * source-confirmed row from a proposed one without cross-referencing this
+ * file: every row states its own classification, e.g.
+ * `"SoW Fact — OBJ-045 L8768, OBJ-046 L8788"` for the original six values,
+ * or `"Recommendation — R&D (blueprint §35.6, L79517-L79530); retry bound
+ * TBD — DEC-PKGMAN-001"` for a `corrupt` row — never presented as V1 fact
+ * (master prompt §21.2).
  */
 export const Package = z.object({
   id: z.string().min(1),
@@ -136,6 +182,11 @@ export const Package = z.object({
   assembledAt: Stamp,
   deliveredAt: Stamp.nullable(),
   acknowledgedAt: Stamp.nullable(),
-  status: z.enum(['assembled', 'delivered', 'validated', 'pinned', 'in-use', 'superseded']),
+  status: z.enum([
+    'assembled', 'delivered', 'validated', 'pinned', 'in-use', 'superseded',
+    'expired', 'revoked', 'corrupt', 'incompatible-version',
+  ]),
+  /** See the doc comment above `Package` — required on every row, `SoW Fact` or `Recommendation — R&D`/`Client Decision Required` alike. */
+  sourceStatus: z.string().min(1),
 }).strict()
 export type Package = z.infer<typeof Package>

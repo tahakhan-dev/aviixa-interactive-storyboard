@@ -16,7 +16,8 @@
     "assembledAt": "2026-03-02T05:50:00Z",
     "deliveredAt": "2026-03-02T05:55:00Z",
     "acknowledgedAt": "2026-03-02T05:56:00Z",
-    "status": "in-use"
+    "status": "in-use",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-BB-FRAME-ASSY-1.0.0",
@@ -43,7 +44,8 @@
     "assembledAt": "2026-05-04T05:30:00Z",
     "deliveredAt": "2026-05-04T05:40:00Z",
     "acknowledgedAt": "2026-05-04T05:42:00Z",
-    "status": "superseded"
+    "status": "superseded",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-BB-FRAME-ASSY-1.1.0",
@@ -74,7 +76,8 @@
     "assembledAt": "2026-08-15T05:40:00Z",
     "deliveredAt": "2026-08-15T05:50:00Z",
     "acknowledgedAt": "2026-08-15T05:52:00Z",
-    "status": "pinned"
+    "status": "pinned",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-1",
@@ -91,7 +94,8 @@
     "assembledAt": "2026-07-17T12:41:00.000Z",
     "deliveredAt": null,
     "acknowledgedAt": null,
-    "status": "assembled"
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-2",
@@ -108,7 +112,8 @@
     "assembledAt": "2026-01-27T00:05:00.000Z",
     "deliveredAt": "2026-01-27T20:04:00.000Z",
     "acknowledgedAt": null,
-    "status": "delivered"
+    "status": "delivered",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-3",
@@ -125,7 +130,8 @@
     "assembledAt": "2026-02-27T02:10:00.000Z",
     "deliveredAt": "2026-02-27T19:24:00.000Z",
     "acknowledgedAt": "2026-02-27T21:11:00.000Z",
-    "status": "validated"
+    "status": "validated",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-4",
@@ -142,7 +148,8 @@
     "assembledAt": "2026-05-14T04:57:00.000Z",
     "deliveredAt": "2026-05-14T17:42:00.000Z",
     "acknowledgedAt": "2026-05-14T22:16:00.000Z",
-    "status": "pinned"
+    "status": "pinned",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-5",
@@ -159,7 +166,8 @@
     "assembledAt": "2026-02-04T04:15:00.000Z",
     "deliveredAt": "2026-02-04T18:01:00.000Z",
     "acknowledgedAt": "2026-02-04T21:37:00.000Z",
-    "status": "in-use"
+    "status": "in-use",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-6",
@@ -176,7 +184,8 @@
     "assembledAt": "2026-01-25T04:07:00.000Z",
     "deliveredAt": "2026-01-25T17:00:00.000Z",
     "acknowledgedAt": "2026-01-25T21:33:00.000Z",
-    "status": "superseded"
+    "status": "superseded",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-7",
@@ -190,10 +199,11 @@
     "difficultyLevelsIncluded": [
       "expanded"
     ],
-    "assembledAt": "2026-07-08T08:42:00.000Z",
-    "deliveredAt": "2026-07-08T14:32:00.000Z",
-    "acknowledgedAt": "2026-07-08T23:26:00.000Z",
-    "status": "pinned"
+    "assembledAt": "2026-05-17T12:40:00.000Z",
+    "deliveredAt": "2026-05-17T18:11:00.000Z",
+    "acknowledgedAt": "2026-05-17T22:59:00.000Z",
+    "status": "expired",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 RejectExpired verification branch, L79517-L79530); the validity-horizon value that would trigger this in production is TBD — DEC-PKGEXP-001 (§35.7), not yet decided — this row demonstrates the state’s shape only."
   },
   {
     "id": "PKG-GEN-8",
@@ -205,12 +215,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "standard"
+      "simple"
     ],
-    "assembledAt": "2026-04-18T04:09:00.000Z",
-    "deliveredAt": null,
-    "acknowledgedAt": null,
-    "status": "assembled"
+    "assembledAt": "2026-04-02T06:30:00.000Z",
+    "deliveredAt": "2026-04-02T15:09:00.000Z",
+    "acknowledgedAt": "2026-04-02T21:56:00.000Z",
+    "status": "revoked",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the command channel; a mid-run revocation stops the run and preserves captured work for Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001."
   },
   {
     "id": "PKG-GEN-9",
@@ -222,12 +233,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "standard"
+      "simple"
     ],
-    "assembledAt": "2026-07-11T03:18:00.000Z",
-    "deliveredAt": null,
+    "assembledAt": "2026-04-09T03:31:00.000Z",
+    "deliveredAt": "2026-04-09T18:32:00.000Z",
     "acknowledgedAt": null,
-    "status": "assembled"
+    "status": "corrupt",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 1 / RejectCorrupt verification branch, L79517-L79530); the re-pull retry bound is TBD — DEC-PKGMAN-001, not yet decided."
   },
   {
     "id": "PKG-GEN-10",
@@ -241,10 +253,11 @@
     "difficultyLevelsIncluded": [
       "standard"
     ],
-    "assembledAt": "2026-06-01T05:27:00.000Z",
-    "deliveredAt": "2026-06-01T14:03:00.000Z",
-    "acknowledgedAt": "2026-06-01T23:46:00.000Z",
-    "status": "pinned"
+    "assembledAt": "2026-04-06T02:03:00.000Z",
+    "deliveredAt": "2026-04-06T18:46:00.000Z",
+    "acknowledgedAt": null,
+    "status": "incompatible-version",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
   },
   {
     "id": "PKG-GEN-11",
@@ -260,8 +273,9 @@
     ],
     "assembledAt": "2026-07-01T01:09:00.000Z",
     "deliveredAt": "2026-07-01T18:09:00.000Z",
-    "acknowledgedAt": "2026-07-01T21:11:00.000Z",
-    "status": "superseded"
+    "acknowledgedAt": null,
+    "status": "incompatible-version",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
   },
   {
     "id": "PKG-GEN-12",
@@ -275,10 +289,11 @@
     "difficultyLevelsIncluded": [
       "simple"
     ],
-    "assembledAt": "2026-06-04T00:05:00.000Z",
+    "assembledAt": "2026-02-11T09:08:00.000Z",
     "deliveredAt": null,
     "acknowledgedAt": null,
-    "status": "assembled"
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-13",
@@ -290,12 +305,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "standard"
+      "expanded"
     ],
-    "assembledAt": "2026-04-05T02:00:00.000Z",
-    "deliveredAt": "2026-04-05T16:04:00.000Z",
-    "acknowledgedAt": "2026-04-05T23:53:00.000Z",
-    "status": "in-use"
+    "assembledAt": "2026-01-23T05:36:00.000Z",
+    "deliveredAt": null,
+    "acknowledgedAt": null,
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-14",
@@ -307,12 +323,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "simple"
+      "standard"
     ],
-    "assembledAt": "2026-06-28T10:20:00.000Z",
-    "deliveredAt": "2026-06-28T17:51:00.000Z",
+    "assembledAt": "2026-01-05T00:57:00.000Z",
+    "deliveredAt": "2026-01-05T20:13:00.000Z",
     "acknowledgedAt": null,
-    "status": "delivered"
+    "status": "delivered",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-15",
@@ -324,12 +341,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "simple"
+      "expanded"
     ],
-    "assembledAt": "2026-01-11T07:42:00.000Z",
-    "deliveredAt": "2026-01-11T15:39:00.000Z",
-    "acknowledgedAt": "2026-01-11T22:21:00.000Z",
-    "status": "pinned"
+    "assembledAt": "2026-02-08T04:30:00.000Z",
+    "deliveredAt": "2026-02-08T19:31:00.000Z",
+    "acknowledgedAt": null,
+    "status": "corrupt",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 1 / RejectCorrupt verification branch, L79517-L79530); the re-pull retry bound is TBD — DEC-PKGMAN-001, not yet decided."
   },
   {
     "id": "PKG-GEN-16",
@@ -341,12 +359,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "simple"
+      "standard"
     ],
-    "assembledAt": "2026-07-04T09:43:00.000Z",
+    "assembledAt": "2026-01-25T09:21:00.000Z",
     "deliveredAt": null,
     "acknowledgedAt": null,
-    "status": "assembled"
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-17",
@@ -358,12 +377,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "expanded"
+      "standard"
     ],
-    "assembledAt": "2026-06-01T06:29:00.000Z",
-    "deliveredAt": "2026-06-01T16:18:00.000Z",
-    "acknowledgedAt": "2026-06-01T21:52:00.000Z",
-    "status": "in-use"
+    "assembledAt": "2026-04-13T02:54:00.000Z",
+    "deliveredAt": "2026-04-13T15:42:00.000Z",
+    "acknowledgedAt": "2026-04-13T23:47:00.000Z",
+    "status": "expired",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 RejectExpired verification branch, L79517-L79530); the validity-horizon value that would trigger this in production is TBD — DEC-PKGEXP-001 (§35.7), not yet decided — this row demonstrates the state’s shape only."
   },
   {
     "id": "PKG-GEN-18",
@@ -375,12 +395,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "simple"
+      "standard"
     ],
-    "assembledAt": "2026-06-07T06:03:00.000Z",
-    "deliveredAt": "2026-06-07T15:00:00.000Z",
-    "acknowledgedAt": "2026-06-07T21:43:00.000Z",
-    "status": "in-use"
+    "assembledAt": "2026-06-16T06:24:00.000Z",
+    "deliveredAt": "2026-06-16T15:16:00.000Z",
+    "acknowledgedAt": "2026-06-16T23:43:00.000Z",
+    "status": "revoked",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the command channel; a mid-run revocation stops the run and preserves captured work for Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001."
   },
   {
     "id": "PKG-GEN-19",
@@ -394,10 +415,11 @@
     "difficultyLevelsIncluded": [
       "standard"
     ],
-    "assembledAt": "2026-06-06T05:08:00.000Z",
-    "deliveredAt": "2026-06-06T19:22:00.000Z",
-    "acknowledgedAt": null,
-    "status": "delivered"
+    "assembledAt": "2026-02-18T00:20:00.000Z",
+    "deliveredAt": "2026-02-18T13:06:00.000Z",
+    "acknowledgedAt": "2026-02-18T23:14:00.000Z",
+    "status": "revoked",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the command channel; a mid-run revocation stops the run and preserves captured work for Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001."
   },
   {
     "id": "PKG-GEN-20",
@@ -409,12 +431,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "expanded"
+      "standard"
     ],
-    "assembledAt": "2026-04-02T00:51:00.000Z",
-    "deliveredAt": null,
-    "acknowledgedAt": null,
-    "status": "assembled"
+    "assembledAt": "2026-04-25T01:52:00.000Z",
+    "deliveredAt": "2026-04-25T15:03:00.000Z",
+    "acknowledgedAt": "2026-04-25T22:49:00.000Z",
+    "status": "revoked",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the command channel; a mid-run revocation stops the run and preserves captured work for Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001."
   },
   {
     "id": "PKG-GEN-21",
@@ -426,12 +449,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "standard"
+      "expanded"
     ],
-    "assembledAt": "2026-01-09T12:28:00.000Z",
-    "deliveredAt": "2026-01-09T18:29:00.000Z",
-    "acknowledgedAt": "2026-01-09T23:24:00.000Z",
-    "status": "superseded"
+    "assembledAt": "2026-06-25T00:24:00.000Z",
+    "deliveredAt": null,
+    "acknowledgedAt": null,
+    "status": "assembled",
+    "sourceStatus": "SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)"
   },
   {
     "id": "PKG-GEN-22",
@@ -443,12 +467,13 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "standard"
+      "expanded"
     ],
-    "assembledAt": "2026-05-05T01:17:00.000Z",
-    "deliveredAt": "2026-05-05T16:42:00.000Z",
-    "acknowledgedAt": "2026-05-05T22:23:00.000Z",
-    "status": "validated"
+    "assembledAt": "2026-04-11T06:40:00.000Z",
+    "deliveredAt": "2026-04-11T16:24:00.000Z",
+    "acknowledgedAt": null,
+    "status": "incompatible-version",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
   },
   {
     "id": "PKG-GEN-23",
@@ -462,10 +487,11 @@
     "difficultyLevelsIncluded": [
       "simple"
     ],
-    "assembledAt": "2026-07-24T05:59:00.000Z",
-    "deliveredAt": "2026-07-24T19:57:00.000Z",
-    "acknowledgedAt": "2026-07-24T22:15:00.000Z",
-    "status": "pinned"
+    "assembledAt": "2026-04-08T03:23:00.000Z",
+    "deliveredAt": "2026-04-08T18:38:00.000Z",
+    "acknowledgedAt": "2026-04-08T22:35:00.000Z",
+    "status": "expired",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 RejectExpired verification branch, L79517-L79530); the validity-horizon value that would trigger this in production is TBD — DEC-PKGEXP-001 (§35.7), not yet decided — this row demonstrates the state’s shape only."
   },
   {
     "id": "PKG-GEN-24",
@@ -477,11 +503,12 @@
       "en"
     ],
     "difficultyLevelsIncluded": [
-      "simple"
+      "standard"
     ],
-    "assembledAt": "2026-05-04T05:26:00.000Z",
-    "deliveredAt": "2026-05-04T16:47:00.000Z",
-    "acknowledgedAt": "2026-05-04T22:07:00.000Z",
-    "status": "superseded"
+    "assembledAt": "2026-02-04T12:48:00.000Z",
+    "deliveredAt": "2026-02-04T20:30:00.000Z",
+    "acknowledgedAt": null,
+    "status": "incompatible-version",
+    "sourceStatus": "Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is platform-owned release-channel policy)."
   }
 ]

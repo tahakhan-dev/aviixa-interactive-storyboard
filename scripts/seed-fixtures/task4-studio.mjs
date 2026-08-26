@@ -557,6 +557,36 @@ export const evaluations = [
 ]
 
 // --- packages ---------------------------------------------------------
+// --- Package.sourceStatus lookup -----------------------------------------
+// Task 4 fix round 1: one classification string per `Package.status` value,
+// shared by every hand-authored row below AND by `generate-seed.mjs`'s
+// generated packages (imported from here) so the citation text lives in
+// exactly one place. See the doc comment on `Package` in
+// `src/data/schemas/studio.ts` for the full reasoning; this is its data.
+export const PACKAGE_SOURCE_STATUS = {
+  assembled: 'SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)',
+  delivered: 'SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)',
+  validated: 'SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)',
+  pinned: 'SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)',
+  'in-use': 'SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)',
+  superseded: 'SoW Fact — OBJ-045 L8768, OBJ-046 L8788 (work-package/manifest lifecycle union)',
+  corrupt:
+    'Recommendation — R&D (blueprint §35.6 Rule 1 / RejectCorrupt verification branch, '
+    + 'L79517-L79530); the re-pull retry bound is TBD — DEC-PKGMAN-001, not yet decided.',
+  expired:
+    'Recommendation — R&D (blueprint §35.6 RejectExpired verification branch, L79517-L79530); '
+    + 'the validity-horizon value that would trigger this in production is TBD — '
+    + 'DEC-PKGEXP-001 (§35.7), not yet decided — this row demonstrates the state’s shape only.',
+  revoked:
+    'Recommendation — R&D (blueprint §35.6 Rules 3-4, L79517-L79530: revocation rides the '
+    + 'command channel; a mid-run revocation stops the run and preserves captured work for '
+    + 'Quality Manager disposition); the mid-run resolution is folded into DEC-PKGMAN-001.',
+  'incompatible-version':
+    'Recommendation — R&D (blueprint §35.6 Rule 6 / RejectVersion verification branch, '
+    + 'L79517-L79530), grounded in SoW Fact §8.13.1 (the application-version floor is '
+    + 'platform-owned release-channel policy).',
+}
+
 export const packages = [
   // Legacy-compat: RUN-0001 (Task 1 placeholder, runs.json) and
   // DEV-BB-TAB-014 (devices.json pinnedPackageIds) both reference this id.
@@ -572,6 +602,7 @@ export const packages = [
     deliveredAt: '2026-03-02T05:55:00Z',
     acknowledgedAt: '2026-03-02T05:56:00Z',
     status: 'in-use',
+    sourceStatus: PACKAGE_SOURCE_STATUS['in-use'],
   },
   // The superseded package RUN-BB-2026-0418-03's earlier runs held before
   // 1.1.0 republished (superseded lifecycle state, OBJ-045 L8768).
@@ -587,6 +618,7 @@ export const packages = [
     deliveredAt: '2026-05-04T05:40:00Z',
     acknowledgedAt: '2026-05-04T05:42:00Z',
     status: 'superseded',
+    sourceStatus: PACKAGE_SOURCE_STATUS.superseded,
   },
   // Task 5's Job 5 Run (`JOB-BB-2026-0418` / `RUN-BB-2026-0418-03`) pins to
   // this package. `runId` stays null here rather than forward-referencing
@@ -613,5 +645,6 @@ export const packages = [
     deliveredAt: '2026-08-15T05:50:00Z',
     acknowledgedAt: '2026-08-15T05:52:00Z',
     status: 'pinned',
+    sourceStatus: PACKAGE_SOURCE_STATUS.pinned,
   },
 ]
