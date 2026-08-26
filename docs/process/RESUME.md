@@ -361,6 +361,20 @@ around it, which `tests/coverage/slice-04-gates.test.ts` pins with both locator 
 `Unavailable` remains overloaded across two senses that render oppositely — L42114 against
 L42120 and L41797 — and `MOD-FL-B12` holds both of them, five cells each.
 
+**Do not rank a state family and infer behaviour from the ranking — read what each state is
+actually assigned.** A reviewer assumed hard suspension must be "stricter than soft" in a way that
+extends to blocking logins, and filed a finding against seed data on that basis. The source's
+asymmetry runs by FUNCTION, not by severity: `FUNC-DOH-01-2.1.3` assigns login-blocking to the
+COMPLIANCE state alone, `FUNC-DOH-01-2.1.2` gives the hard state only new-run blocking while
+in-flight runs complete, and L27004 states as a SoW Fact that "in soft and hard suspension,
+workers see nothing on mobile and the floor continues." The finding pointed at the two correct
+rows and missed the two wrong ones — suspending two WORKER accounts encoded the exact opposite of
+the safety property the source asserts, that a commercial state never stops the floor mid-run.
+It was caught only because the fixer was told to resolve from source before editing. **No schema,
+type or validator can catch this class**: it is a product fact, and an intuitive severity ordering
+produces a confident wrong answer. Applies to every state family here — suspension classes,
+severity levels, device trust, capture states, command states, notification states.
+
 **Verify agents' numbers rather than accepting them.** Three times an agent checked a
 figure the controller supplied and found it wrong. Twice an execution claim did not
 survive checking while the underlying work was correct.
