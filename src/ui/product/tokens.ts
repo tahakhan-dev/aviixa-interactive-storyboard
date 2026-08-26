@@ -215,18 +215,23 @@ export const hoverBgSunken = 'hover:bg-[var(--sunken)]'
 
 /**
  * Pins every product-shell colour token to its LIGHT value, as a React
- * inline-style object of CSS custom-property overrides — for content
- * rendered inside `src/ui/primitives/Drawer.tsx`, whose own background is
- * the legacy `--color-surface` token and carries no dark-mode redefinition
- * at all. Without this, `Nav`'s drawer content inherited the page's real
- * (possibly dark) `--ink` while sitting on the Drawer's always-light
- * background — near-white text on a near-white panel, caught live in
- * Chrome at 360px in dark mode, not by reading the JSX. `Drawer.tsx` is a
- * primitive this task does not touch, so the fix is a locally scoped
- * override on the content this task DOES own, applied via `style` (an
- * inline declaration always wins the cascade over the `:root`-level rules
- * in `app/globals.css`, regardless of which theme is active) rather than a
- * className, since no Tailwind utility sets a custom property.
+ * inline-style object of CSS custom-property overrides.
+ *
+ * FIX ROUND 2: no longer used by `Nav.tsx`. It was the fix round 1 patch
+ * for `Drawer`'s content — `Drawer.tsx` itself has since been migrated onto
+ * this token layer (fix round 2) and now sets its own dark-mode-aware
+ * default, so its content adapts on its own instead of needing to be pinned.
+ * KEPT, NOT DELETED: fix round 2's own primitive inventory (Task 9 report)
+ * found the identical shape — an explicit legacy-fixed text colour with no
+ * matching background of its own — in `Breadcrumbs.tsx`, `Checkbox.tsx`,
+ * `Field.tsx`, `Table.tsx`, `Tabs.tsx` and more, none of which this task
+ * migrates. Any of them, mounted directly under the new shell before its own
+ * migration lands, is this exact bug waiting to happen again; this is the
+ * documented escape hatch for whichever task hits one next, applied via
+ * `style` (an inline declaration always wins the cascade over the
+ * `:root`-level rules in `app/globals.css`, regardless of which theme is
+ * active) rather than a className, since no Tailwind utility sets a custom
+ * property.
  *
  * Values are the same literals as the bare `:root` block in
  * `app/globals.css` — this is the one place outside that file duplicating

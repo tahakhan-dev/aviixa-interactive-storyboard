@@ -9,7 +9,6 @@ import {
   controlMinClass,
   gapClass,
   hoverBgSunken,
-  LIGHT_TOKEN_STYLE,
   shadowClass,
   textColor,
   type DensityToken,
@@ -148,14 +147,12 @@ function ResponsiveNav({
       </div>
 
       <div className="md:hidden">
+        {/* Fix round 2: no `LIGHT_TOKEN_STYLE` wrapper any more —
+           `src/ui/primitives/Drawer.tsx` now sets its own `--surface`/`--ink`
+           default (dark-mode aware), so its content adapts to the real
+           active theme on its own instead of being pinned to light. */}
         <Drawer open={open} onClose={() => setOpen(false)} title={ariaLabel} side="left">
-          {/* `LIGHT_TOKEN_STYLE`: the Drawer's own background is always
-             light (legacy token, no dark redefinition), so its content is
-             pinned to light values too rather than inheriting the page's
-             real (possibly dark) theme — see that constant's doc comment. */}
-          <div style={LIGHT_TOKEN_STYLE}>
-            <NavList groups={groups} density={density} onNavigate={() => setOpen(false)} />
-          </div>
+          <NavList groups={groups} density={density} onNavigate={() => setOpen(false)} />
         </Drawer>
       </div>
     </>
