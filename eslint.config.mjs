@@ -44,4 +44,52 @@ export default tseslint.config(
       'no-undef': 'off',
     },
   },
+  {
+    // Master prompt §12.6: business truth reaches a component only through
+    // src/data/repository.ts, so swapping the JSON database for a real API
+    // later changes one layer rather than every screen. Files inside
+    // src/data/** are exempt so boot.ts can load the seed collections.
+    files: ['**/*.{ts,tsx}'],
+    ignores: ['src/data/**'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [{
+          group: ['**/data/collections/**'],
+          message: 'Business truth reaches components only through src/data/repository.ts — master prompt §12.6.',
+        }],
+      }],
+    },
+  },
+  {
+    // Master prompt §8.6.2: a screenshot of a product screen with demo
+    // chrome hidden must be indistinguishable from the real product. That
+    // is only checkable if src/ui/product/** cannot reach src/ui/demo/**
+    // at all. The reverse direction (demo importing product) is allowed —
+    // chrome legitimately renders product components.
+    //
+    // This block MUST come after (and repeat) the collections restriction
+    // above: flat ESLint config does not merge a rule's `patterns` array
+    // across matching blocks for the same file — the last matching block
+    // replaces the rule's options entirely. Since the collections block's
+    // `files: ['**/*.{ts,tsx}']` also matches src/ui/product/**, putting
+    // the demo-only patterns in an earlier/separate block let the broader
+    // block silently overwrite them (`--print-config` on a product scratch
+    // file showed only the collections pattern survived). Both patterns
+    // are combined here so product files carry both restrictions.
+    files: ['src/ui/product/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [
+          {
+            group: ['**/ui/demo/**', '../demo/**', './demo/**'],
+            message: 'src/ui/product must never import demo chrome — master prompt §8.6.2 depends on this edge.',
+          },
+          {
+            group: ['**/data/collections/**'],
+            message: 'Business truth reaches components only through src/data/repository.ts — master prompt §12.6.',
+          },
+        ],
+      }],
+    },
+  },
 )
