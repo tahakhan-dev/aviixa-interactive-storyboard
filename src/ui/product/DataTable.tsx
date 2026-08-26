@@ -110,6 +110,7 @@ function slugify(caption: string): string {
 }
 
 /** Native `indeterminate` has no JSX prop — it must be set imperatively on the DOM node. */
+/** DEBT D6 (see file header): duplicates `src/ui/primitives/Checkbox.tsx`. */
 function SelectAllCheckbox({
   checked,
   indeterminate,
@@ -406,6 +407,7 @@ export function DataTable<T>({
                       <tr key={id} className={`h-11 border-b ${borderColor('border')}`}>
                         {selection !== undefined ? (
                           <td className="p-2">
+                            {/* DEBT D6 (see file header): duplicates `src/ui/primitives/Checkbox.tsx`. */}
                             <input
                               type="checkbox"
                               checked={state.selected.has(id)}

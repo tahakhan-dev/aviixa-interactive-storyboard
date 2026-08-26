@@ -57,6 +57,7 @@ export function TableToolbar<T>({
           <label htmlFor={searchId} className={`text-xs font-medium ${textColor('ink-muted')}`}>
             Search
           </label>
+          {/* DEBT D6 (see file header): duplicates `src/ui/primitives/Field.tsx`. */}
           <input
             id={searchId}
             type="search"
@@ -76,6 +77,7 @@ export function TableToolbar<T>({
             <label htmlFor={filterId} className={`text-xs font-medium ${textColor('ink-muted')}`}>
               {filter.label}
             </label>
+            {/* DEBT D6 (see file header): duplicates `src/ui/primitives/Select.tsx`. */}
             <select
               id={filterId}
               value={filterValues[filter.key] ?? ''}
