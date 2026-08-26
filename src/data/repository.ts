@@ -46,7 +46,7 @@
  * never going to need answered.
  */
 import { z } from 'zod'
-import { COLLECTIONS, type CollectionName } from './schemas'
+import { COLLECTIONS, RELATIONS, type CollectionName } from './schemas'
 import type { Event as EventRow, Audit as AuditRow } from './schemas/crosscutting'
 import type { CollectionData, Store } from './store'
 import { truthStoreFor, writableThroughRepository, type TruthStoreAuthority } from './truth-stores'
@@ -222,11 +222,131 @@ function asRecord(row: unknown): Record<string, unknown> {
   return row as Record<string, unknown>
 }
 
-function rowTenantOf(name: CollectionName, row: Record<string, unknown>): string | null {
-  // `tenants` rows ARE the tenant — there is no separate `tenantId` field
-  // to read (`@/data/schemas/platform#Tenant`).
-  if (name === 'tenants') return typeof row.id === 'string' ? row.id : null
-  return typeof row.tenantId === 'string' ? row.tenantId : null
+/**
+ * Fix round 2 — tenant resolution, walked from the existing `RELATIONS`
+ * graph (`@/data/schemas`) rather than hand-listed per collection.
+ *
+ * THE HOLE THIS CLOSES. `captures` and `evidence` carry no `tenantId`
+ * field of their own (§7.4 puts tenant isolation second in the evaluation
+ * order, above roles and scopes; §26.3 names it an adversarial release
+ * gate) — the OLD `rowTenantOf` read `row.tenantId` directly and returned
+ * `null` for both, which made the write-time isolation check a no-op on
+ * exactly the two collections holding worker evidence. Denormalising a
+ * `tenantId` onto those schemas was rejected: it would be a second,
+ * independently-writable copy of a fact `RELATIONS` already expresses
+ * through `runId`/`jobId`/`siteId`/`workerId`/`deviceId`, and a second copy
+ * of one fact is what this whole layer exists to prevent.
+ *
+ * `TENANT_REACHABLE` is the fixed point of "which collections have a path
+ * to `tenants`", computed once by walking `RELATIONS` — a scalar
+ * (non-array), non-self-referential relation whose `to` is already
+ * reachable makes `from` reachable too. This is what keeps a merely
+ * INCIDENTAL relation (e.g. `users.role → roles`, which exists for
+ * referential-integrity checking, not tenant scoping) from being read as a
+ * tenant path: `roles` has no outgoing relation at all, so it is never
+ * reachable, so `role` is never offered as a candidate.
+ */
+const TENANT_REACHABLE: ReadonlySet<CollectionName> = (() => {
+  const reachable = new Set<CollectionName>(['tenants'])
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const name of Object.keys(COLLECTIONS) as CollectionName[]) {
+      if (reachable.has(name)) continue
+      const canReach = RELATIONS.some((r) => r.from === name && !r.array && r.to !== name && reachable.has(r.to))
+      if (canReach) {
+        reachable.add(name)
+        changed = true
+      }
+    }
+  }
+  return reachable
+})()
+
+/** Every scalar, non-self-referential relation from `name` whose target can itself reach a tenant. */
+function tenantCandidateRelations(name: CollectionName) {
+  return RELATIONS.filter((r) => r.from === name && !r.array && r.to !== name && TENANT_REACHABLE.has(r.to))
+}
+
+/**
+ * `'direct'`: the row's own schema carries `tenantId` (or the row IS
+ * `tenants`, whose `id` is the tenant). `'transitive'`: no field of its
+ * own, but `RELATIONS` gives at least one path to a tenant-bearing
+ * collection — `captures` and `evidence` land here. `'none'`: no path
+ * exists in the graph at all, a static schema fact, not a per-row failure
+ * — `roles`, `feature-controls`, `entitlements`, `schedules` (its one
+ * relation is the self-referential `definitionId`, filtered out above) and
+ * `evaluations` (same, `scenarioId`) are genuinely platform-scoped, not
+ * holes: there is no tenant to isolate a platform-wide register against.
+ */
+export function tenantResolutionKind(name: CollectionName): 'direct' | 'transitive' | 'none' {
+  if (name === 'tenants') return 'direct'
+  if (!TENANT_REACHABLE.has(name)) return 'none'
+  const direct = RELATIONS.some((r) => r.from === name && r.field === 'tenantId' && r.to === 'tenants')
+  return direct ? 'direct' : 'transitive'
+}
+
+export type TenantResolution =
+  | { readonly kind: 'resolved'; readonly tenant: string }
+  /** No tenant concept applies to this row — `tenantResolutionKind(name) === 'none'`. Not a failure. */
+  | { readonly kind: 'none' }
+  /** Two or more of this row's OWN references resolve to different tenants. Refuse; never guess. */
+  | { readonly kind: 'conflict'; readonly candidates: readonly string[] }
+  /** A candidate reference was present but could not be walked to any tenant (a dangling id, most likely). Refuse. */
+  | { readonly kind: 'unresolved' }
+
+/**
+ * Walks `tenantCandidateRelations` for `row`, recursing into each
+ * referenced row's own tenant. `chain` is the set of collections already
+ * being resolved in this call stack — a guard against a cycle (there is
+ * none reachable after the self-loop filter above, but the guard costs
+ * nothing and turns a future graph change that DID introduce one into a
+ * `'none'` contribution rather than a stack overflow).
+ *
+ * Every resolved candidate is collected into a `Set`: one member is the
+ * answer, more than one is a genuine conflict (refused, never picked
+ * between), and zero when at least one candidate FIELD was present but
+ * did not resolve (a dangling reference) is `'unresolved'` (refused) —
+ * distinct from zero because every candidate field was itself null/absent,
+ * which is `'none'` exactly like a collection with no path at all.
+ */
+function resolveTenantId(
+  name: CollectionName,
+  row: Record<string, unknown>,
+  store: Store,
+  chain: ReadonlySet<CollectionName> = new Set(),
+): TenantResolution {
+  if (name === 'tenants') {
+    return typeof row.id === 'string' ? { kind: 'resolved', tenant: row.id } : { kind: 'unresolved' }
+  }
+  const relations = tenantCandidateRelations(name)
+  if (relations.length === 0) return { kind: 'none' }
+  if (chain.has(name)) return { kind: 'none' }
+  const nextChain = new Set(chain)
+  nextChain.add(name)
+
+  const candidates = new Set<string>()
+  let anyCandidateFieldPresent = false
+
+  for (const rel of relations) {
+    const value = row[rel.field]
+    if (value === null || value === undefined || typeof value !== 'string') continue
+    anyCandidateFieldPresent = true
+
+    if (rel.to === 'tenants') {
+      candidates.add(value)
+      continue
+    }
+    const targetRows = store.get(rel.to) as readonly Record<string, unknown>[]
+    const target = targetRows.find((r) => r.id === value)
+    if (target === undefined) continue // dangling reference: contributes nothing
+    const sub = resolveTenantId(rel.to, target, store, nextChain)
+    if (sub.kind === 'resolved') candidates.add(sub.tenant)
+  }
+
+  if (candidates.size === 1) return { kind: 'resolved', tenant: [...candidates][0]! }
+  if (candidates.size > 1) return { kind: 'conflict', candidates: [...candidates] }
+  return anyCandidateFieldPresent ? { kind: 'unresolved' } : { kind: 'none' }
 }
 
 /**
@@ -238,20 +358,25 @@ function rowTenantOf(name: CollectionName, row: Record<string, unknown>): string
  * `siteIds`/`areaIds`), the same reading `evaluateAccess`'s own SCOPE stage
  * gives an undeclared `requiredSites`/`requiredAreas`: an absent
  * constraint is never a narrower one than a declared, matching one.
+ *
+ * Fix round 2: a `'conflict'` or `'unresolved'` tenant resolution is
+ * treated as NOT the caller's tenant (hidden from a TENANT-domain reader)
+ * rather than shown by default — the same fail-closed rule the write path
+ * applies, read for visibility instead of authorisation.
  */
-function withinScope(name: CollectionName, row: Record<string, unknown>, ctx: AccessContext): boolean {
+function withinScope(name: CollectionName, row: Record<string, unknown>, ctx: AccessContext, store: Store): boolean {
   const { identity } = ctx
   if (!identity.signedIn || identity.role === null) return false
   const domain = roleById(identity.role).domain
 
-  const rowTenant = rowTenantOf(name, row)
   if (domain === 'TENANT') {
     if (identity.tenant === null) return false
-    // A row with no tenant field at all (e.g. `roles`, a platform-global
-    // vocabulary) is visible to every signed-in identity; a row that DOES
-    // carry a tenant must match the actor's own — `evaluateAccess`'s
-    // CRITICAL 1 tenant-isolation rule, read for a query instead of a command.
-    if (rowTenant !== null && rowTenant !== identity.tenant) return false
+    const resolution = resolveTenantId(name, row, store)
+    // 'none' -> a platform-scoped row (e.g. `roles`), visible to every
+    // signed-in identity. 'resolved' -> must match the actor's own tenant.
+    // 'conflict'/'unresolved' -> fail closed, never shown as the caller's own.
+    if (resolution.kind === 'resolved' && resolution.tenant !== identity.tenant) return false
+    if (resolution.kind === 'conflict' || resolution.kind === 'unresolved') return false
   }
   // PLATFORM-domain identities are not narrowed by tenant here: they read
   // across tenants through a named access session, matching
@@ -360,14 +485,45 @@ function actionClassFor(name: CollectionName, authority: TruthStoreAuthority): A
   }
 }
 
+/**
+ * Fix round 2: `TENANT_MISMATCH` for a conflicting or unresolvable tenant
+ * is returned BEFORE `evaluateAccess` ever runs — resolving the row's
+ * owning tenant is a precondition for asking whether the actor's own
+ * tenant may touch it, not one more thing `evaluateAccess` itself checks.
+ * §7.4 puts tenant isolation above role/scope in the evaluation order; this
+ * keeps that ordering rather than letting a role check run first against a
+ * tenant the write cannot even prove.
+ */
+function tenantIsolationDenial(
+  name: CollectionName,
+  resolution: Extract<TenantResolution, { kind: 'conflict' | 'unresolved' }>,
+): PermissionDecision {
+  const detail =
+    resolution.kind === 'conflict'
+      ? `its own references resolve to more than one tenant (${resolution.candidates.join(', ')})`
+      : `its owning tenant could not be determined from its own references`
+  return deny(
+    'explicitlyProhibited',
+    'TENANT_MISMATCH',
+    `This "${name}" row's tenant must be verifiable before it can be written: ${detail}. The write is refused ` +
+      'rather than assumed to belong to the caller\'s tenant.',
+    { stage: 'TENANT_ISOLATION', sourceRefs: ['§7.4', '§26.3', 'repository.ts'], auditExpectation: 'RECORDED_AS_REFUSAL' },
+  )
+}
+
 function authorizeWrite(
   name: CollectionName,
   authority: TruthStoreAuthority,
   action: 'create' | 'update' | 'transition',
   row: Record<string, unknown>,
   ctx: AccessContext,
+  store: Store,
 ): PermissionDecision {
-  const rowTenant = rowTenantOf(name, row)
+  const resolution = resolveTenantId(name, row, store)
+  if (resolution.kind === 'conflict' || resolution.kind === 'unresolved') {
+    return tenantIsolationDenial(name, resolution)
+  }
+  const rowTenant = resolution.kind === 'resolved' ? resolution.tenant : null
   const siteId = typeof row.siteId === 'string' ? row.siteId : undefined
   const areaId = typeof row.areaId === 'string' ? row.areaId : undefined
 
@@ -611,9 +767,9 @@ async function commitToPersistence(
 
 const PLATFORM_TENANT_MARKER = 'PLATFORM'
 
-function resolveEventTenant(name: CollectionName, row: Record<string, unknown>): string {
-  const t = rowTenantOf(name, row)
-  return t ?? PLATFORM_TENANT_MARKER
+function resolveEventTenant(name: CollectionName, row: Record<string, unknown>, store: Store): string {
+  const resolution = resolveTenantId(name, row, store)
+  return resolution.kind === 'resolved' ? resolution.tenant : PLATFORM_TENANT_MARKER
 }
 
 /**
@@ -718,7 +874,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
     const occurredAt = new Date(store.clock.now()).toISOString()
     const rec = asRecord(row)
     const id = rowId(rec)
-    const tenant = resolveEventTenant(name, rec)
+    const tenant = resolveEventTenant(name, rec, store)
     // Safe: `authorizeWrite` (called by every caller of `commitWrite` before
     // this point) only permits an action for a signed-in identity with a
     // non-null role — `evaluateAccess`'s own SESSION stage guarantees it.
@@ -795,7 +951,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
   const repository: Repository = {
     list(name, ctx) {
       const rows = store.get(name) as readonly RowOf<typeof name>[]
-      const visible = rows.filter((row) => withinScope(name, asRecord(row), ctx))
+      const visible = rows.filter((row) => withinScope(name, asRecord(row), ctx, store))
       return QueryImpl.from(visible)
     },
 
@@ -803,7 +959,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       const rows = store.get(name) as readonly RowOf<typeof name>[]
       const row = rows.find((r) => rowId(asRecord(r)) === id)
       if (row === undefined) return undefined
-      return withinScope(name, asRecord(row), ctx) ? row : undefined
+      return withinScope(name, asRecord(row), ctx, store) ? row : undefined
     },
 
     async create(name, row, ctx) {
@@ -811,7 +967,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       if (!writableThroughRepository(authority)) return truthStoreRefusal(name, authority)
 
       const rec = asRecord(row)
-      const decision = authorizeWrite(name, authority, 'create', rec, ctx)
+      const decision = authorizeWrite(name, authority, 'create', rec, ctx, store)
       if (!permitsAction(decision)) return refusal(decision)
 
       const actionClass = actionClassFor(name, authority)
@@ -847,7 +1003,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       if (idx === -1) return notFoundRefusal(name, id, 'update')
       const before = rows[idx]!
 
-      const decision = authorizeWrite(name, authority, 'update', asRecord(before), ctx)
+      const decision = authorizeWrite(name, authority, 'update', asRecord(before), ctx, store)
       if (!permitsAction(decision)) return refusal(decision) // nothing mutated
 
       const actionClass = actionClassFor(name, authority)
@@ -875,7 +1031,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       if (idx === -1) return notFoundRefusal(name, id, 'transition')
       const before = rows[idx]!
 
-      const decision = authorizeWrite(name, authority, 'transition', asRecord(before), ctx)
+      const decision = authorizeWrite(name, authority, 'transition', asRecord(before), ctx, store)
       if (!permitsAction(decision)) return refusal(decision) // nothing mutated
 
       const actionClass = actionClassFor(name, authority)
