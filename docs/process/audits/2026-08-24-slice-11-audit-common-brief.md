@@ -45,12 +45,31 @@ in this build.
 
 Artificial intelligence and its absence, across five surfaces. Waves 0-5, candidate `0b937aa`:
 
-- the sixteen-mode machine (`AIMODE-01`…`-16`), thirteen distinct labels — `AIMODE-13`/`-14`
-  are byte-identical across all five contract columns, as are `-03`/`-15` and `-01`/`-16`
+- the sixteen-mode machine (`AIMODE-01`…`-16`), thirteen distinct labels — **`AIMODE-13`/`-14`
+  is the ONLY pair byte-identical across all five contract columns.** `-03`/`-15` and
+  `-01`/`-16` share a worker-visible LABEL and nothing more: at L89356-L89371, `-03` reads
+  `Unavailable` under Agent invocation where `-15` reads `Allowed with conditions`, and both
+  pairs differ on Classification (`-03` `User-Mandated Product Extension` against `-15`
+  `Derived Clarification` on `SoW Fact — §8.5.1`; `-01` `User-Mandated Product Extension` on
+  `SoW Fact — §7.9.1` against `-16` `Derived Clarification`). **R7-C05 — this line claimed all
+  three pairs were byte-identical and the frozen table refutes two of them.** The build already
+  carried the correction: `tests/unit/coverage-uninventoried.test.ts` derives the identical set
+  from `AI_MODE_ROWS` and asserts it equals `['AIMODE-13/AIMODE-14']`, and separately that the
+  three label-sharing pairs are three. Do not re-seed the old wording from this brief.
 - six provenance classes (`PROV-1`…`-6`)
 - thirteen agent abilities with twelve prohibitions; four prohibitions lack a refusal edge
-- a sixty-item `FAIL-AI-*` catalogue across **five** registers in **two** zero-padding
-  conventions (39 + 10 + 1 = 50 distinct literals over 69 owner rows)
+- a sixty-item `FAIL-AI-*` catalogue in **one** register and **one** zero-padding convention:
+  every one of the 60 distinct identifiers is two-digit (214 tokens in the frozen source, all
+  two-digit), and they live in chapter 43's §43.2 — "The Failure Catalog — Sixty Modes in Six
+  Families" (L90051) — across six subsections, §43.2.1 (L90100) to §43.2.6 (L90706). **R7-C05 /
+  R7-C01 — this line said "five registers in two zero-padding conventions (39 + 10 + 1 = 50
+  distinct literals over 69 owner rows)", and every one of those facts belongs to the SIBLING
+  `FB-AI-*` family**, which really does carry two conventions: 32 two-digit plus 18 three-digit
+  = 50 distinct literals in the frozen source, across the collision-aware registry (39 literals
+  over 57 owner rows) and §38.4's three-digit library, whose artificial-intelligence family
+  opens at §38.4.4, L83755. Six FAMILIES of one register is not five registers. The same
+  conflation reached `/coverage/` and is fixed there; both halves are now derived from the
+  frozen source by `tests/unit/coverage-uninventoried.test.ts`.
 - a twelve-state AI request machine
 - thirty chapter-44A storyboards, reachable from an index
 - five-surface AI-degradation overlays; two of the five surfaces have **no source table at all**

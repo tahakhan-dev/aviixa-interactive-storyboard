@@ -93,6 +93,30 @@ export interface PauseSemantic {
   readonly sourceRef: string
 }
 
+/**
+ * WHAT A SCREEN PRINTS, for one pause semantic — round-7 finding `R7-C04`.
+ *
+ * `quotation` is the source's bytes and stays that way: `tests/unit/ai-controls-stop.test.ts`
+ * opens L87789-L87791 and asserts each one verbatim, so stripping the field itself would
+ * weaken the transcription to make the rendering right.
+ *
+ * The screen used to do this inline with a regex anchored at the start of the string —
+ * LEADING emphasis only — so the third semantic's internal `**The pause governs agents, nothing
+ * else**` reached the reader with its markers, on the sentence that says what the
+ * deterministic layer still does while agents are paused. A partial strip is worse than
+ * none: it reads as intentional formatting everywhere it succeeds and as a leak everywhere
+ * it does not.
+ *
+ * Every caller routes through here, and the gate asserts the result differs from
+ * `quotation` by markers alone.
+ */
+export function pauseSemanticBody(semantic: PauseSemantic): string {
+  return semantic.quotation
+    .replace(/^\*\*[^*]+\*\*\s*/, '')
+    .replaceAll('**', '')
+    .replaceAll('`', '')
+}
+
 export const PAUSE_SEMANTICS = [
   {
     id: 'checkpoint-at-stage-boundary',

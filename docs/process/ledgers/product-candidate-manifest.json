@@ -21,11 +21,12 @@
   "git_commit": "4b5caa3598f496d122622003d08b20aa6286c147",
   "git_tree": "7f8783a86619b186f8646e06d2c6a6aa47465ff2",
   "worktree_clean": false,
+  "bytes_measured_against": "the working tree as it stood when this seal ran, which is NOT the tree of git_commit — that field records only where HEAD was, the worktree was dirty, and nothing here attributes these bytes to any commit. Verify them against the filesystem, never against the commit.",
   "source_sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
   "source_drift_from_s0": "none — the frozen blueprint is re-hashed by 40 test files on every run",
   "file_count": 1050,
   "total_bytes": 28767620,
-  "supersedes": "SLICE11-3ee592fe2eac068e",
+  "supersedes": "SLICE04-b82f66e93567c0a5",
   "verification": {
     "verification_id": "VER-S11-040",
     "command_chain": "pnpm verify  (tsc --noEmit; eslint .; node scripts/check-gate-ordering.mjs; vitest run --project release tests/coverage/registry-freshness.test.ts; vitest run --project unit; vitest run --project component; pnpm build:registries && rm -rf out && next build; vitest run --project release; playwright test --project=chromium)",

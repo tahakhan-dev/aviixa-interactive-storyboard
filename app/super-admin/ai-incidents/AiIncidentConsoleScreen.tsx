@@ -16,6 +16,7 @@ import {
   KILL_SWITCH,
   PAUSE_RESUME_WORKFLOW,
   PAUSE_SEMANTICS,
+  pauseSemanticBody,
   RESUME_IS_SEPARATE,
   SITE_SCOPED_PAUSE,
   STOP_ACTS,
@@ -419,7 +420,7 @@ export function AiIncidentConsoleScreen({ role = 'SUPPORT' }: AiIncidentConsoleS
             {PAUSE_SEMANTICS.map((semantic) => (
               <li key={semantic.id} className="text-[var(--color-ink-muted)]">
                 <span className="font-medium text-[var(--color-ink)]">{semantic.heading}.</span>{' '}
-                {semantic.quotation.replace(/^\*\*[^*]+\*\*\s*/, '').replaceAll('`', '')}
+                {pauseSemanticBody(semantic)}
                 <Locator refs={[semantic.sourceRef]} />
               </li>
             ))}

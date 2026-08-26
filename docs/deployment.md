@@ -14,7 +14,13 @@ pnpm build
 generators read the frozen blueprint and the route tree, so **the export's coverage dashboards
 describe the export being built**, not a previous one.
 
-Output: `out/`, 85 pages, roughly 24MB across 485 files.
+Output: `out/` — **102 pages, 668 files, roughly 45 MiB** (rounded to the nearest 5).
+
+Those three figures are asserted against the export itself by
+`tests/coverage/client-document-figures.test.ts`. This line read "85 pages, roughly 24MB across 485
+files" for three slices while the export held 102 pages and 668 files, and nothing could say so:
+the manifest gate checked the manifest, the route gate checked routes, and no gate read this
+sentence.
 
 ## Serve
 
@@ -68,8 +74,15 @@ behaviour into the storyboard that is not in the repository.
 
 ```
 pnpm build
-pnpm screenshots        # ~90 seconds
+pnpm screenshots        # roughly two minutes
 ```
 
 The PNGs are gitignored and rebuilt from the export; `docs/screenshots/manifest.json` is
-committed. Run both before a client review so the manifest matches what is deployed.
+committed — **102 rows, roughly 300 MiB of PNG** (rounded to the nearest 5). Run both before a
+client review so the manifest matches what is deployed.
+
+`pnpm screenshots` does not rebuild the export. It serves the `out/` that already exists, so a
+capture run taken against a stale export writes a manifest describing a build nobody is deploying:
+run `pnpm build` first, in that order, every time. Before this was written down the committed
+manifest named a different identifier set from the export on 18 of its 102 rows, and a different
+capture size on 54 of them — one build behind, with a green chain over it.

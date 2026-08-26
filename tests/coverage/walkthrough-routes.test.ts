@@ -18,8 +18,24 @@ import { exportedRoutes } from '../e2e/exported-routes'
  * covers. The fix is the same — derive the truth, compare the hand-written
  * thing against it.
  *
- * WHAT IT DOES NOT DO. It does not check that a step says anything useful
- * about the page it names, and it cannot. Prose is reviewed by people.
+ * WHAT IT DOES NOT DO, AND WHAT THAT COST — R7-B13. Its subject is ROUTE
+ * STRINGS. It says so above, it was honest about it, and it was still the
+ * only gate over these documents: nine stale or false claims accumulated in
+ * `docs/walkthroughs.md` and `docs/client-review-guide.md` under a green
+ * chain, two of them Critical. All 21 routes this file checked existed the
+ * whole time, while a step counted three prohibitions on a page rendering
+ * six and the guide told a reviewer not to look at eleven shipped screens.
+ * Round 6's shape at document scale: the gate scoped to exclude the defect
+ * the artefact actually has.
+ *
+ * The figures are now held by `tests/coverage/client-document-figures.test.ts`
+ * — every number in these documents extracted by a pattern that must match
+ * exactly once and compared by EQUALITY against `exportedRoutes()`,
+ * `registries/generated/**` or the screenshot manifest. This file keeps its
+ * own narrow subject deliberately; the two together are the coverage.
+ *
+ * What still nothing does: check that a step says anything USEFUL about the
+ * page it names. Prose is reviewed by people.
  */
 
 const DOC = join(process.cwd(), 'docs', 'walkthroughs.md')

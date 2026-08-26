@@ -121,10 +121,39 @@ function gitOrNull(args) {
   }
 }
 
+/**
+ * WHAT `git_commit` MAY AND MAY NOT CLAIM (round-7 `R7-A1`).
+ *
+ * The seal hashes the WORKING TREE. `git_commit` is only where HEAD stood
+ * while it ran, and those are the same bytes exactly when the worktree was
+ * clean. The last seal was taken dirty at `4b5caa35` with the round-6 wave
+ * uncommitted, so 21 of its 1,050 certified entries do not exist in that
+ * commit's tree at all — and commit `03453029`'s message told a reader the
+ * field "names the commit the bytes were measured against". It cannot,
+ * unconditionally, and a field that is unverifiable half the time must say
+ * which half it is in rather than look authoritative in both.
+ *
+ * So the manifest carries the claim as DATA, in one of exactly two forms.
+ * `tests/coverage/process-evidence.test.ts` case 13 holds it: `git_tree` must
+ * be the tree of `git_commit`, `git_commit` must be an ancestor of HEAD, the
+ * sentence must be the one `worktree_clean` implies, and when it is the clean
+ * sentence every certified byte must still be that tree's.
+ */
+export const BYTES_FROM_COMMIT =
+  "the tree of git_commit — the worktree was clean when this seal ran, so every hash below is "
+  + "that commit's blob and stays checkable against it forever"
+export const BYTES_FROM_DIRTY_WORKTREE =
+  'the working tree as it stood when this seal ran, which is NOT the tree of git_commit — that '
+  + 'field records only where HEAD was, the worktree was dirty, and nothing here attributes these '
+  + 'bytes to any commit. Verify them against the filesystem, never against the commit.'
+
 function main() {
   const verifyOnly = process.argv.includes('--verify')
   const vIndex = process.argv.indexOf('--verification')
   const verificationFile = vIndex === -1 ? null : process.argv[vIndex + 1]
+
+  const head = gitOrNull(['rev-parse', 'HEAD'])
+  const clean = gitOrNull(['status', '--porcelain']) === ''
 
   const [productPaths, evidenceAll] = partition(repoFiles())
   const envelopePaths = evidenceAll.filter((p) => p !== ENVELOPE_MANIFEST)
@@ -134,6 +163,7 @@ function main() {
   const candidateId = `SLICE11-${productDigest.slice(0, 16)}`
 
   const previous = JSON.parse(readFileSync(join(ROOT, PRODUCT_MANIFEST), 'utf8'))
+  const previousEnvelope = JSON.parse(readFileSync(join(ROOT, ENVELOPE_MANIFEST), 'utf8'))
   const verification = verificationFile
     ? JSON.parse(readFileSync(verificationFile, 'utf8'))
     : { ...previous.verification, sealed_against: 'stale — resealed without a fresh measurement' }
@@ -159,14 +189,21 @@ function main() {
         'this manifest lives under docs/process/ledgers/, an evidence root, so it is outside '
         + 'the product scope by construction rather than by a remembered exclusion',
     },
-    git_commit: gitOrNull(['rev-parse', 'HEAD']),
-    git_tree: gitOrNull(['rev-parse', 'HEAD^{tree}']),
-    worktree_clean: gitOrNull(['status', '--porcelain']) === '',
+    git_commit: head,
+    git_tree: head === null ? null : gitOrNull(['rev-parse', `${head}^{tree}`]),
+    worktree_clean: clean,
+    bytes_measured_against: clean ? BYTES_FROM_COMMIT : BYTES_FROM_DIRTY_WORKTREE,
     source_sha256: '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27',
     source_drift_from_s0: 'none — the frozen blueprint is re-hashed by 40 test files on every run',
     file_count: productEntries.length,
     total_bytes: productEntries.reduce((n, e) => n + e.bytes, 0),
-    supersedes: previous.candidate_id,
+    // A RESEAL ON UNCHANGED BYTES SUPERSEDES NOTHING (round-7 `R7-A6`). This
+    // read `previous.candidate_id` unguarded, so the second seal of the same
+    // tree wrote the manifest's own id into its own `supersedes` — a manifest
+    // declaring it retired itself, and the real predecessor
+    // `SLICE04-b82f66e93567c0a5`, the candidate `R6-B04` existed to retire,
+    // was gone. Same id in means the chain does not move.
+    supersedes: previous.candidate_id === candidateId ? previous.supersedes : previous.candidate_id,
     verification,
     files: productEntries,
   }
@@ -177,11 +214,13 @@ function main() {
   const payload = entriesFor(envelopePaths)
   const envelopeDigest = scopeDigest(payload)
 
+  const envelopeId = `ENV11-${envelopeDigest.slice(0, 16)}`
+
   const envelope = {
     schema_version: 2,
     ledger: 'Evidence Envelope Manifest',
     governing_section: 'master prompt §23.2 — scope 2 of the two non-self-referential hash scopes',
-    envelope_id: `ENV11-${envelopeDigest.slice(0, 16)}`,
+    envelope_id: envelopeId,
     candidate_id: candidateId,
     slice: '11',
     payload_sha256: envelopeDigest,
@@ -198,7 +237,15 @@ function main() {
     },
     payload_excludes_self: true,
     payload_count: payload.length,
-    supersedes: 'c276164c9eb96503 (slice 2b)',
+    // The opposite half of `R7-A6`: this was the literal
+    // `'c276164c9eb96503 (slice 2b)'`, written once and true for one seal.
+    // Derived from the envelope on disk under the same rule as the product
+    // chain above, so it moves when the envelope moves and stands still when
+    // it does not.
+    supersedes:
+      previousEnvelope.envelope_id === envelopeId
+        ? previousEnvelope.supersedes
+        : previousEnvelope.envelope_id,
     payload,
   }
 

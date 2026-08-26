@@ -5,32 +5,109 @@
     "width": 1280,
     "height": 720
   },
+  "buildId": "PvlcSsuEk8XD3tc1oqsJS",
+  "fieldsNotCarried": {
+    "persona": "every capture is the same anonymous first load; no walkthrough runner assigns a persona to a step. Slice 13.",
+    "scope": "same reason as persona — scope is a property of a walkthrough step. Slice 13.",
+    "storyStep": "no ordered canonical-story set exists (before, action, after, affected-surface, failure, fallback, fallback-failure, safe-state, recovery). Slice 13.",
+    "state": "every capture is the page as loaded, with no interaction, so a state column would hold one value 102 times and distinguish nothing. Slice 13.",
+    "test": "no acceptance test is bound to a capture; this spec writes the artefact, it does not evidence a named test. Slice 13.",
+    "sourceHash": "the frozen blueprint sha256 is asserted every run by tests/coverage/locator-fidelity.test.ts and is not re-stated here, where it would be a second copy that can go stale against the first.",
+    "baselineHash": "this build has no visual baseline, deliberately — docs/screenshots/README.md states why. A baseline hash with no baseline behind it would be the strongest field in the file and the emptiest."
+  },
   "rows": [
     {
+      "id": "SHOT-root",
       "route": "/",
       "file": "root.png",
-      "heading": "Interactive Storyboard",
+      "screen": "Interactive Storyboard",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 34609
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 293714
     },
     {
+      "id": "SHOT-404",
       "route": "/404/",
       "file": "404.png",
-      "heading": "Page not found",
+      "screen": "Page not found",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 23665
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 36052
     },
     {
+      "id": "SHOT-_not-found",
       "route": "/_not-found/",
       "file": "_not-found.png",
-      "heading": "Page not found",
+      "screen": "Page not found",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 23665
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 36052
     },
     {
+      "id": "SHOT-command-center",
       "route": "/command-center/",
       "file": "command-center.png",
-      "heading": "Client Command Center",
+      "screen": "Client Command Center",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-CC-01",
         "MOD-CC-03",
@@ -56,12 +133,61 @@
         "SCR-CC-12",
         "SCR-CC-13"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 148722
     },
     {
+      "id": "SHOT-command-center-agent-activity-panel",
       "route": "/command-center/agent-activity-panel/",
       "file": "command-center-agent-activity-panel.png",
-      "heading": "Agent activity panel",
+      "screen": "Agent activity panel",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-CC-0801-1-1",
+        "FUNC-CC-0803-1-2",
+        "FUNC-CC-0804-1-1"
+      ],
+      "acceptanceIds": [
+        "AC-CC-090",
+        "AC-CC-300",
+        "AC-CC-301",
+        "AC-CC-303",
+        "AC-CC-304",
+        "AC-CC-502"
+      ],
       "identifiersOnPage": [
         "AC-CC-090",
         "AC-CC-300",
@@ -97,12 +223,64 @@
         "SCR-CC-12",
         "SCR-CC-13"
       ],
-      "bytes": 2764643
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 2852192
     },
     {
+      "id": "SHOT-command-center-alert-and-escalation-feed",
       "route": "/command-center/alert-and-escalation-feed/",
       "file": "command-center-alert-and-escalation-feed.png",
-      "heading": "Alert and escalation feed",
+      "screen": "Alert and escalation feed",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-DOH-11"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-DOH-20"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-CC-0901-1-2",
+        "FUNC-CC-0903-1-1",
+        "FUNC-CC-0903-1-2"
+      ],
+      "acceptanceIds": [
+        "AC-CC-072",
+        "AC-CC-112",
+        "AC-CC-323",
+        "AC-CC-324",
+        "AC-CC-325",
+        "AC-CC-329",
+        "AC-CC-502"
+      ],
       "identifiersOnPage": [
         "AC-CC-072",
         "AC-CC-112",
@@ -126,6 +304,7 @@
         "MOD-CC-11",
         "MOD-CC-12",
         "MOD-CC-13",
+        "MOD-DOH-11",
         "SCR-CC-02",
         "SCR-CC-03",
         "SCR-CC-04",
@@ -137,14 +316,71 @@
         "SCR-CC-10",
         "SCR-CC-11",
         "SCR-CC-12",
-        "SCR-CC-13"
+        "SCR-CC-13",
+        "SCR-DOH-20"
       ],
-      "bytes": 1835169
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1884134
     },
     {
+      "id": "SHOT-command-center-cell-view",
       "route": "/command-center/cell-view/",
       "file": "command-center-cell-view.png",
-      "heading": "Cell view",
+      "screen": "Cell view",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-DOH-11"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-DOH-20"
+      ],
+      "featureIds": [
+        "FEAT-CC-0301",
+        "FEAT-CC-0302",
+        "FEAT-CC-0303"
+      ],
+      "functionIds": [
+        "FUNC-CC-0302-1-1",
+        "FUNC-CC-0302-1-2",
+        "FUNC-CC-0302-2-1"
+      ],
+      "acceptanceIds": [
+        "AC-CC-090",
+        "AC-CC-200",
+        "AC-CC-201",
+        "AC-CC-203",
+        "AC-CC-206",
+        "AC-CC-207",
+        "AC-CC-400"
+      ],
       "identifiersOnPage": [
         "AC-CC-090",
         "AC-CC-200",
@@ -171,6 +407,7 @@
         "MOD-CC-11",
         "MOD-CC-12",
         "MOD-CC-13",
+        "MOD-DOH-11",
         "SCR-CC-02",
         "SCR-CC-03",
         "SCR-CC-04",
@@ -182,14 +419,64 @@
         "SCR-CC-10",
         "SCR-CC-11",
         "SCR-CC-12",
-        "SCR-CC-13"
+        "SCR-CC-13",
+        "SCR-DOH-20"
       ],
-      "bytes": 1385740
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1433609
     },
     {
+      "id": "SHOT-command-center-deviation-workspace",
       "route": "/command-center/deviation-workspace/",
       "file": "command-center-deviation-workspace.png",
-      "heading": "Deviation workspace and evidence review",
+      "screen": "Deviation workspace and evidence review",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-DOH-11"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-DOH-20"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-CC-0402-1-2",
+        "FUNC-CC-0403-2-2",
+        "FUNC-CC-0404-1-2"
+      ],
+      "acceptanceIds": [
+        "AC-CC-221",
+        "AC-CC-223",
+        "AC-CC-227",
+        "AC-CC-502"
+      ],
       "identifiersOnPage": [
         "AC-CC-221",
         "AC-CC-223",
@@ -210,6 +497,7 @@
         "MOD-CC-11",
         "MOD-CC-12",
         "MOD-CC-13",
+        "MOD-DOH-11",
         "SCR-CC-02",
         "SCR-CC-03",
         "SCR-CC-04",
@@ -221,14 +509,73 @@
         "SCR-CC-10",
         "SCR-CC-11",
         "SCR-CC-12",
-        "SCR-CC-13"
+        "SCR-CC-13",
+        "SCR-DOH-20"
       ],
-      "bytes": 1480360
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1529111
     },
     {
+      "id": "SHOT-command-center-governance-gate-queue",
       "route": "/command-center/governance-gate-queue/",
       "file": "command-center-governance-gate-queue.png",
-      "heading": "Governance gate queue",
+      "screen": "Governance gate queue",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-DOH-11"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-DOH-20"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-CC-0501-1-1",
+        "FUNC-CC-0501-1-2",
+        "FUNC-CC-0501-1-3",
+        "FUNC-CC-0502-1-1",
+        "FUNC-CC-0502-2-1",
+        "FUNC-CC-0502-2-2",
+        "FUNC-CC-0502-2-3",
+        "FUNC-CC-0502-3-1",
+        "FUNC-CC-0503-1-1",
+        "FUNC-CC-0503-1-2",
+        "FUNC-CC-0503-1-3",
+        "FUNC-CC-0504-1-1"
+      ],
+      "acceptanceIds": [
+        "AC-CC-090",
+        "AC-CC-246",
+        "AC-CC-247",
+        "AC-CC-248"
+      ],
       "identifiersOnPage": [
         "AC-CC-090",
         "AC-CC-246",
@@ -258,6 +605,7 @@
         "MOD-CC-11",
         "MOD-CC-12",
         "MOD-CC-13",
+        "MOD-DOH-11",
         "SCR-CC-02",
         "SCR-CC-03",
         "SCR-CC-04",
@@ -269,14 +617,66 @@
         "SCR-CC-10",
         "SCR-CC-11",
         "SCR-CC-12",
-        "SCR-CC-13"
+        "SCR-CC-13",
+        "SCR-DOH-20"
       ],
-      "bytes": 2539140
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 2586562
     },
     {
+      "id": "SHOT-command-center-learned-change-approvals",
       "route": "/command-center/learned-change-approvals/",
       "file": "command-center-learned-change-approvals.png",
-      "heading": "Learned-change approvals",
+      "screen": "Learned-change approvals",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-DOH-11",
+        "MOD-STU-16"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-DOH-20"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-CC-0605-1-1"
+      ],
+      "acceptanceIds": [
+        "AC-AI-014-8",
+        "AC-CC-060",
+        "AC-CC-502",
+        "AC-STU-097",
+        "AC-STU-104",
+        "AC-STU-138",
+        "AC-STU-143"
+      ],
       "identifiersOnPage": [
         "AC-AI-014-8",
         "AC-CC-060",
@@ -298,6 +698,7 @@
         "MOD-CC-11",
         "MOD-CC-12",
         "MOD-CC-13",
+        "MOD-DOH-11",
         "MOD-STU-16",
         "SCR-CC-02",
         "SCR-CC-03",
@@ -310,14 +711,74 @@
         "SCR-CC-10",
         "SCR-CC-11",
         "SCR-CC-12",
-        "SCR-CC-13"
+        "SCR-CC-13",
+        "SCR-DOH-20"
       ],
-      "bytes": 2430973
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 2482337
     },
     {
+      "id": "SHOT-command-center-learning-read-view",
       "route": "/command-center/learning-read-view/",
       "file": "command-center-learning-read-view.png",
-      "heading": "Learning read view",
+      "screen": "Learning read view",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-FL-B8"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-CC-SAFETY-01"
+      ],
+      "featureIds": [
+        "FEAT-CC-0602",
+        "FEAT-CC-0603",
+        "FEAT-CC-0604",
+        "FEAT-CC-0605"
+      ],
+      "functionIds": [
+        "FUNC-CC-0603-1-1",
+        "FUNC-CC-0603-1-2",
+        "FUNC-CC-0605-1-1",
+        "FUNC-CC-0605-1-2",
+        "FUNC-CC-0702-2-1",
+        "FUNC-CC-0702-3-1",
+        "FUNC-CC-0703-1-1",
+        "FUNC-CC-0703-1-2"
+      ],
+      "acceptanceIds": [
+        "AC-CC-110",
+        "AC-CC-263",
+        "AC-CC-269",
+        "AC-CC-502"
+      ],
       "identifiersOnPage": [
         "AC-CC-110",
         "AC-CC-263",
@@ -362,12 +823,54 @@
         "SCR-CC-13",
         "SCR-CC-SAFETY-01"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2737611
     },
     {
+      "id": "SHOT-command-center-live-shift-board",
       "route": "/command-center/live-shift-board/",
       "file": "command-center-live-shift-board.png",
-      "heading": "Live shift board",
+      "screen": "Live shift board",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-02",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-CC-165",
+        "AC-CC-502"
+      ],
       "identifiersOnPage": [
         "AC-CC-165",
         "AC-CC-502",
@@ -397,12 +900,59 @@
         "SCR-CC-12",
         "SCR-CC-13"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1049573
     },
     {
+      "id": "SHOT-command-center-reports-and-report-builder",
       "route": "/command-center/reports-and-report-builder/",
       "file": "command-center-reports-and-report-builder.png",
-      "heading": "Reports and Custom Report Builder",
+      "screen": "Reports and Custom Report Builder",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-02",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-DOH-01",
+        "MOD-DOH-02",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-09"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-CC-410"
+      ],
       "identifiersOnPage": [
         "AC-CC-410",
         "MOD-CC-01",
@@ -437,12 +987,70 @@
         "SCR-CC-12",
         "SCR-CC-13"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1510752
     },
     {
+      "id": "SHOT-command-center-run-drill-down",
       "route": "/command-center/run-drill-down/",
       "file": "command-center-run-drill-down.png",
-      "heading": "Run drill-down",
+      "screen": "Run drill-down",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-DOH-11"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-DOH-20"
+      ],
+      "featureIds": [
+        "FEAT-CC-0301",
+        "FEAT-CC-0302",
+        "FEAT-CC-0303"
+      ],
+      "functionIds": [
+        "FUNC-CC-0302-1-1",
+        "FUNC-CC-0302-1-2",
+        "FUNC-CC-0302-2-1",
+        "FUNC-CC-0303-1-1"
+      ],
+      "acceptanceIds": [
+        "AC-CC-090",
+        "AC-CC-200",
+        "AC-CC-201",
+        "AC-CC-203",
+        "AC-CC-204",
+        "AC-CC-206",
+        "AC-CC-207",
+        "AC-CC-400"
+      ],
       "identifiersOnPage": [
         "AC-CC-090",
         "AC-CC-200",
@@ -471,6 +1079,7 @@
         "MOD-CC-11",
         "MOD-CC-12",
         "MOD-CC-13",
+        "MOD-DOH-11",
         "SCR-CC-02",
         "SCR-CC-03",
         "SCR-CC-04",
@@ -482,14 +1091,63 @@
         "SCR-CC-10",
         "SCR-CC-11",
         "SCR-CC-12",
-        "SCR-CC-13"
+        "SCR-CC-13",
+        "SCR-DOH-20"
       ],
-      "bytes": 1471850
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1519819
     },
     {
+      "id": "SHOT-command-center-shift-handoff-panel",
       "route": "/command-center/shift-handoff-panel/",
       "file": "command-center-shift-handoff-panel.png",
-      "heading": "Shift handoff panel",
+      "screen": "Shift handoff panel",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-DOH-11"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-DOH-20"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-CC-1201-1-2",
+        "FUNC-CC-1203-1-1",
+        "FUNC-CC-1203-1-2",
+        "FUNC-CC-1203-2-1"
+      ],
+      "acceptanceIds": [
+        "AC-CC-383",
+        "AC-CC-502"
+      ],
       "identifiersOnPage": [
         "AC-CC-383",
         "AC-CC-502",
@@ -509,6 +1167,7 @@
         "MOD-CC-11",
         "MOD-CC-12",
         "MOD-CC-13",
+        "MOD-DOH-11",
         "SCR-CC-02",
         "SCR-CC-03",
         "SCR-CC-04",
@@ -520,14 +1179,60 @@
         "SCR-CC-10",
         "SCR-CC-11",
         "SCR-CC-12",
-        "SCR-CC-13"
+        "SCR-CC-13",
+        "SCR-DOH-20"
       ],
-      "bytes": 2259100
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 2308303
     },
     {
+      "id": "SHOT-command-center-sync-conflict-review-panel",
       "route": "/command-center/sync-conflict-review-panel/",
       "file": "command-center-sync-conflict-review-panel.png",
-      "heading": "Sync-conflict review panel",
+      "screen": "Sync-conflict review panel",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-DOH-11"
+      ],
+      "screenIds": [
+        "SCR-CC-02",
+        "SCR-CC-03",
+        "SCR-CC-04",
+        "SCR-CC-05",
+        "SCR-CC-06",
+        "SCR-CC-07",
+        "SCR-CC-08",
+        "SCR-CC-09",
+        "SCR-CC-10",
+        "SCR-CC-11",
+        "SCR-CC-12",
+        "SCR-CC-13",
+        "SCR-CC-CONF-01",
+        "SCR-DOH-20"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-CC-1003-2-1"
+      ],
+      "acceptanceIds": [
+        "AC-CC-040"
+      ],
       "identifiersOnPage": [
         "AC-CC-040",
         "FUNC-CC-1003-2-1",
@@ -543,6 +1248,7 @@
         "MOD-CC-11",
         "MOD-CC-12",
         "MOD-CC-13",
+        "MOD-DOH-11",
         "SCR-CC-02",
         "SCR-CC-03",
         "SCR-CC-04",
@@ -555,71 +1261,928 @@
         "SCR-CC-11",
         "SCR-CC-12",
         "SCR-CC-13",
-        "SCR-CC-CONF-01"
+        "SCR-CC-CONF-01",
+        "SCR-DOH-20"
       ],
-      "bytes": 2600891
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 2649213
     },
     {
+      "id": "SHOT-coverage",
       "route": "/coverage/",
       "file": "coverage.png",
-      "heading": "Coverage Dashboard",
-      "identifiersOnPage": [
-        "MOD-CC-05"
+      "screen": "Coverage Dashboard",
+      "moduleIds": [
+        "MOD-CC-05",
+        "MOD-FL-A1",
+        "MOD-FL-B8",
+        "MOD-SA-20"
       ],
-      "bytes": 1519069
+      "screenIds": [],
+      "featureIds": [
+        "FEAT-STU-05-02",
+        "FEAT-STU-0502"
+      ],
+      "functionIds": [
+        "FUNC-DOH-03-1"
+      ],
+      "acceptanceIds": [
+        "AC-SA-18-03",
+        "AC-SCR-SA-001"
+      ],
+      "identifiersOnPage": [
+        "AC-SA-18-03",
+        "AC-SCR-SA-001",
+        "FEAT-STU-05-02",
+        "FEAT-STU-0502",
+        "FUNC-DOH-03-1",
+        "MOD-CC-05",
+        "MOD-FL-A1",
+        "MOD-FL-B8",
+        "MOD-SA-20"
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 4916710
     },
     {
+      "id": "SHOT-coverage-actionable-controls",
       "route": "/coverage/actionable-controls/",
       "file": "coverage-actionable-controls.png",
-      "heading": "Actionable Controls",
-      "identifiersOnPage": [
-        "SCR-FL-BLOCK-01"
+      "screen": "Actionable Controls",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-02",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-CC-DEV",
+        "MOD-DOH-01",
+        "MOD-DOH-02",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-08",
+        "MOD-DOH-09",
+        "MOD-DOH-10",
+        "MOD-DOH-11",
+        "MOD-DOH-12",
+        "MOD-DOH-13",
+        "MOD-DOH-14",
+        "MOD-DOH-15",
+        "MOD-DOH-17",
+        "MOD-DOH-18",
+        "MOD-DOH-19",
+        "MOD-FL-A1",
+        "MOD-FL-A3",
+        "MOD-FL-A4",
+        "MOD-FL-A6",
+        "MOD-FL-A7",
+        "MOD-FL-B10",
+        "MOD-FL-B11",
+        "MOD-FL-B8",
+        "MOD-FL-B9",
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-05",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19",
+        "MOD-SA-SCHED",
+        "MOD-STU-02",
+        "MOD-STU-03",
+        "MOD-STU-04",
+        "MOD-STU-10",
+        "MOD-STU-11",
+        "MOD-STU-12",
+        "MOD-STU-14",
+        "MOD-STU-15",
+        "MOD-STU-16",
+        "MOD-STU-18"
       ],
-      "bytes": 5066714
+      "screenIds": [
+        "SCR-CC-05",
+        "SCR-CC-CONFLICT",
+        "SCR-CC-DEV-01",
+        "SCR-CC-FEED",
+        "SCR-CC-GATE-01",
+        "SCR-CC-GATEQUEUE",
+        "SCR-CC-HANDOFF",
+        "SCR-CC-HOLD-02",
+        "SCR-CC-REPORTS",
+        "SCR-DOH-17",
+        "SCR-DOH-22",
+        "SCR-DOH-AUD-01",
+        "SCR-DOH-AUDIT",
+        "SCR-DOH-DEVICES",
+        "SCR-DOH-DIGEST",
+        "SCR-DOH-NOTIF-ESC",
+        "SCR-DOH-PERM-USER",
+        "SCR-DOH-QCAL-01",
+        "SCR-DOH-QUALCAL",
+        "SCR-DOH-SCHEDULE",
+        "SCR-DOH-SUMMARY",
+        "SCR-FL-01",
+        "SCR-FL-02",
+        "SCR-FL-03",
+        "SCR-FL-BLOCK-01",
+        "SCR-FL-DENY-01",
+        "SCR-FL-IDENT",
+        "SCR-FL-PLAYER",
+        "SCR-SA-10",
+        "SCR-SA-APPR-01",
+        "SCR-SA-CLASS-01",
+        "SCR-SA-DENY-01",
+        "SCR-SA-DEV-DETAIL",
+        "SCR-SA-EMERG",
+        "SCR-SA-IDENT",
+        "SCR-SA-PAUSE",
+        "SCR-SA-SET-SYS",
+        "SCR-STU-04",
+        "SCR-STU-PREVIEW",
+        "SCR-STU-PUBLISH",
+        "SCR-STU-QUEUE",
+        "SCR-STU-RELEASE",
+        "SCR-STU-VERSIONS"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [
+        "MOD-CC-01",
+        "MOD-CC-02",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-CC-DEV",
+        "MOD-DOH-01",
+        "MOD-DOH-02",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-08",
+        "MOD-DOH-09",
+        "MOD-DOH-10",
+        "MOD-DOH-11",
+        "MOD-DOH-12",
+        "MOD-DOH-13",
+        "MOD-DOH-14",
+        "MOD-DOH-15",
+        "MOD-DOH-17",
+        "MOD-DOH-18",
+        "MOD-DOH-19",
+        "MOD-FL-A1",
+        "MOD-FL-A3",
+        "MOD-FL-A4",
+        "MOD-FL-A6",
+        "MOD-FL-A7",
+        "MOD-FL-B10",
+        "MOD-FL-B11",
+        "MOD-FL-B8",
+        "MOD-FL-B9",
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-05",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19",
+        "MOD-SA-SCHED",
+        "MOD-STU-02",
+        "MOD-STU-03",
+        "MOD-STU-04",
+        "MOD-STU-10",
+        "MOD-STU-11",
+        "MOD-STU-12",
+        "MOD-STU-14",
+        "MOD-STU-15",
+        "MOD-STU-16",
+        "MOD-STU-18",
+        "SCR-CC-05",
+        "SCR-CC-CONFLICT",
+        "SCR-CC-DEV-01",
+        "SCR-CC-FEED",
+        "SCR-CC-GATE-01",
+        "SCR-CC-GATEQUEUE",
+        "SCR-CC-HANDOFF",
+        "SCR-CC-HOLD-02",
+        "SCR-CC-REPORTS",
+        "SCR-DOH-17",
+        "SCR-DOH-22",
+        "SCR-DOH-AUD-01",
+        "SCR-DOH-AUDIT",
+        "SCR-DOH-DEVICES",
+        "SCR-DOH-DIGEST",
+        "SCR-DOH-NOTIF-ESC",
+        "SCR-DOH-PERM-USER",
+        "SCR-DOH-QCAL-01",
+        "SCR-DOH-QUALCAL",
+        "SCR-DOH-SCHEDULE",
+        "SCR-DOH-SUMMARY",
+        "SCR-FL-01",
+        "SCR-FL-02",
+        "SCR-FL-03",
+        "SCR-FL-BLOCK-01",
+        "SCR-FL-DENY-01",
+        "SCR-FL-IDENT",
+        "SCR-FL-PLAYER",
+        "SCR-SA-10",
+        "SCR-SA-APPR-01",
+        "SCR-SA-CLASS-01",
+        "SCR-SA-DENY-01",
+        "SCR-SA-DEV-DETAIL",
+        "SCR-SA-EMERG",
+        "SCR-SA-IDENT",
+        "SCR-SA-PAUSE",
+        "SCR-SA-SET-SYS",
+        "SCR-STU-04",
+        "SCR-STU-PREVIEW",
+        "SCR-STU-PUBLISH",
+        "SCR-STU-QUEUE",
+        "SCR-STU-RELEASE",
+        "SCR-STU-VERSIONS"
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 21237175
     },
     {
+      "id": "SHOT-coverage-ai-storyboards",
       "route": "/coverage/ai-storyboards/",
       "file": "coverage-ai-storyboards.png",
-      "heading": "AI Storyboards",
+      "screen": "AI Storyboards",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 7918967
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 12424922
     },
     {
+      "id": "SHOT-coverage-business-objects",
       "route": "/coverage/business-objects/",
       "file": "coverage-business-objects.png",
-      "heading": "Business Objects",
+      "screen": "Business Objects",
+      "moduleIds": [
+        "MOD-STU-13",
+        "MOD-STU-15",
+        "MOD-STU-17"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-STU-13",
         "MOD-STU-15",
         "MOD-STU-17"
       ],
-      "bytes": 1098241
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 2040359
     },
     {
+      "id": "SHOT-coverage-business-use-cases",
       "route": "/coverage/business-use-cases/",
       "file": "coverage-business-use-cases.png",
-      "heading": "Business Use Cases",
+      "screen": "Business Use Cases",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 1630156
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 4053095
     },
     {
+      "id": "SHOT-coverage-commands",
       "route": "/coverage/commands/",
       "file": "coverage-commands.png",
-      "heading": "Commands",
+      "screen": "Commands",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 294084
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 536277
     },
     {
+      "id": "SHOT-coverage-events",
       "route": "/coverage/events/",
       "file": "coverage-events.png",
-      "heading": "Events",
+      "screen": "Events",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 453651
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 776789
     },
     {
+      "id": "SHOT-coverage-features",
       "route": "/coverage/features/",
       "file": "coverage-features.png",
-      "heading": "Features",
+      "screen": "Features",
+      "moduleIds": [
+        "MOD-FL-A1",
+        "MOD-FL-A2",
+        "MOD-FL-A3",
+        "MOD-FL-A4",
+        "MOD-FL-A5",
+        "MOD-FL-A6",
+        "MOD-FL-A7",
+        "MOD-FL-B10",
+        "MOD-FL-B11",
+        "MOD-FL-B12",
+        "MOD-FL-B8",
+        "MOD-FL-B9",
+        "MOD-STU-01",
+        "MOD-STU-02",
+        "MOD-STU-03",
+        "MOD-STU-04",
+        "MOD-STU-05",
+        "MOD-STU-06",
+        "MOD-STU-07",
+        "MOD-STU-08",
+        "MOD-STU-09",
+        "MOD-STU-10",
+        "MOD-STU-11",
+        "MOD-STU-12",
+        "MOD-STU-13",
+        "MOD-STU-14",
+        "MOD-STU-15",
+        "MOD-STU-16",
+        "MOD-STU-17",
+        "MOD-STU-18"
+      ],
+      "screenIds": [],
+      "featureIds": [
+        "FEAT-CC-0101",
+        "FEAT-CC-0102",
+        "FEAT-CC-0103",
+        "FEAT-CC-0104",
+        "FEAT-CC-0201",
+        "FEAT-CC-0202",
+        "FEAT-CC-0203",
+        "FEAT-CC-0204",
+        "FEAT-CC-0301",
+        "FEAT-CC-0302",
+        "FEAT-CC-0303",
+        "FEAT-CC-0401",
+        "FEAT-CC-0402",
+        "FEAT-CC-0403",
+        "FEAT-CC-0404",
+        "FEAT-CC-0501",
+        "FEAT-CC-0502",
+        "FEAT-CC-0503",
+        "FEAT-CC-0504",
+        "FEAT-CC-0601",
+        "FEAT-CC-0602",
+        "FEAT-CC-0603",
+        "FEAT-CC-0604",
+        "FEAT-CC-0605",
+        "FEAT-CC-0701",
+        "FEAT-CC-0702",
+        "FEAT-CC-0703",
+        "FEAT-CC-0801",
+        "FEAT-CC-0802",
+        "FEAT-CC-0803",
+        "FEAT-CC-0804",
+        "FEAT-CC-0901",
+        "FEAT-CC-0902",
+        "FEAT-CC-0903",
+        "FEAT-CC-0904",
+        "FEAT-CC-0905",
+        "FEAT-CC-1001",
+        "FEAT-CC-1002",
+        "FEAT-CC-1003",
+        "FEAT-CC-1004",
+        "FEAT-CC-1101",
+        "FEAT-CC-1102",
+        "FEAT-CC-1103",
+        "FEAT-CC-1104",
+        "FEAT-CC-1105",
+        "FEAT-CC-1201",
+        "FEAT-CC-1202",
+        "FEAT-CC-1203",
+        "FEAT-CC-1301",
+        "FEAT-CC-1302",
+        "FEAT-CC-1303",
+        "FEAT-CC-1304",
+        "FEAT-CC-1305",
+        "FEAT-CC-1306",
+        "FEAT-DOH-01-1",
+        "FEAT-DOH-01-2",
+        "FEAT-DOH-01-3",
+        "FEAT-DOH-0101",
+        "FEAT-DOH-0102",
+        "FEAT-DOH-0103",
+        "FEAT-DOH-02-1",
+        "FEAT-DOH-02-2",
+        "FEAT-DOH-02-3",
+        "FEAT-DOH-0201",
+        "FEAT-DOH-0202",
+        "FEAT-DOH-0203",
+        "FEAT-DOH-03-1",
+        "FEAT-DOH-03-2",
+        "FEAT-DOH-0301",
+        "FEAT-DOH-0302",
+        "FEAT-DOH-0303",
+        "FEAT-DOH-04-1",
+        "FEAT-DOH-04-2",
+        "FEAT-DOH-04-3",
+        "FEAT-DOH-0401",
+        "FEAT-DOH-0402",
+        "FEAT-DOH-0403",
+        "FEAT-DOH-0404",
+        "FEAT-DOH-0405",
+        "FEAT-DOH-05-1",
+        "FEAT-DOH-05-2",
+        "FEAT-DOH-05-3",
+        "FEAT-DOH-05-4",
+        "FEAT-DOH-0501",
+        "FEAT-DOH-0502",
+        "FEAT-DOH-0503",
+        "FEAT-DOH-0504",
+        "FEAT-DOH-06-1",
+        "FEAT-DOH-06-2",
+        "FEAT-DOH-06-3",
+        "FEAT-DOH-0601",
+        "FEAT-DOH-0602",
+        "FEAT-DOH-0603",
+        "FEAT-DOH-0604",
+        "FEAT-DOH-0605",
+        "FEAT-DOH-07-1",
+        "FEAT-DOH-07-2",
+        "FEAT-DOH-07-3",
+        "FEAT-DOH-0701",
+        "FEAT-DOH-0702",
+        "FEAT-DOH-0703",
+        "FEAT-DOH-08-1",
+        "FEAT-DOH-08-2",
+        "FEAT-DOH-08-3",
+        "FEAT-DOH-08-4",
+        "FEAT-DOH-0801",
+        "FEAT-DOH-0802",
+        "FEAT-DOH-0803",
+        "FEAT-DOH-0804",
+        "FEAT-DOH-09-1",
+        "FEAT-DOH-09-2",
+        "FEAT-DOH-09-3",
+        "FEAT-DOH-0901",
+        "FEAT-DOH-0902",
+        "FEAT-DOH-0903",
+        "FEAT-DOH-0904",
+        "FEAT-DOH-0905",
+        "FEAT-DOH-10-1",
+        "FEAT-DOH-10-2",
+        "FEAT-DOH-10-3",
+        "FEAT-DOH-10-4",
+        "FEAT-DOH-1001",
+        "FEAT-DOH-1002",
+        "FEAT-DOH-1003",
+        "FEAT-DOH-1004",
+        "FEAT-DOH-11-1",
+        "FEAT-DOH-11-2",
+        "FEAT-DOH-11-3",
+        "FEAT-DOH-1101",
+        "FEAT-DOH-1102",
+        "FEAT-DOH-1103",
+        "FEAT-DOH-12-1",
+        "FEAT-DOH-12-2",
+        "FEAT-DOH-12-3",
+        "FEAT-DOH-1201",
+        "FEAT-DOH-1202",
+        "FEAT-DOH-1203",
+        "FEAT-DOH-1204",
+        "FEAT-DOH-13-1",
+        "FEAT-DOH-13-2",
+        "FEAT-DOH-13-3",
+        "FEAT-DOH-1301",
+        "FEAT-DOH-1302",
+        "FEAT-DOH-1303",
+        "FEAT-DOH-14-1",
+        "FEAT-DOH-14-2",
+        "FEAT-DOH-1401",
+        "FEAT-DOH-1402",
+        "FEAT-DOH-15-1",
+        "FEAT-DOH-15-2",
+        "FEAT-DOH-1501",
+        "FEAT-DOH-1502",
+        "FEAT-DOH-16-1",
+        "FEAT-DOH-16-2",
+        "FEAT-DOH-1601",
+        "FEAT-DOH-1602",
+        "FEAT-DOH-1603",
+        "FEAT-DOH-17-1",
+        "FEAT-DOH-17-2",
+        "FEAT-DOH-1701",
+        "FEAT-DOH-1702",
+        "FEAT-DOH-1703",
+        "FEAT-DOH-18-1",
+        "FEAT-DOH-18-2",
+        "FEAT-DOH-1801",
+        "FEAT-DOH-1802",
+        "FEAT-DOH-1803",
+        "FEAT-DOH-19-1",
+        "FEAT-DOH-19-2",
+        "FEAT-DOH-19-3",
+        "FEAT-DOH-1901",
+        "FEAT-DOH-1902",
+        "FEAT-DOH-1903",
+        "FEAT-FL-0101",
+        "FEAT-FL-0201",
+        "FEAT-FL-0301",
+        "FEAT-FL-0302",
+        "FEAT-FL-0303",
+        "FEAT-FL-0401",
+        "FEAT-FL-0501",
+        "FEAT-FL-0601",
+        "FEAT-FL-0801",
+        "FEAT-FL-0901",
+        "FEAT-FL-1101",
+        "FEAT-FL-1201",
+        "FEAT-FL-A101",
+        "FEAT-FL-A102",
+        "FEAT-FL-A103",
+        "FEAT-FL-A201",
+        "FEAT-FL-A202",
+        "FEAT-FL-A203",
+        "FEAT-FL-A301",
+        "FEAT-FL-A302",
+        "FEAT-FL-A303",
+        "FEAT-FL-A401",
+        "FEAT-FL-A402",
+        "FEAT-FL-A403",
+        "FEAT-FL-A501",
+        "FEAT-FL-A502",
+        "FEAT-FL-A503",
+        "FEAT-FL-A601",
+        "FEAT-FL-A602",
+        "FEAT-FL-A603",
+        "FEAT-FL-A701",
+        "FEAT-FL-A702",
+        "FEAT-FL-A703",
+        "FEAT-FL-B1001",
+        "FEAT-FL-B1002",
+        "FEAT-FL-B1003",
+        "FEAT-FL-B1101",
+        "FEAT-FL-B1102",
+        "FEAT-FL-B1103",
+        "FEAT-FL-B1201",
+        "FEAT-FL-B1202",
+        "FEAT-FL-B1203",
+        "FEAT-FL-B801",
+        "FEAT-FL-B802",
+        "FEAT-FL-B803",
+        "FEAT-FL-B901",
+        "FEAT-FL-B902",
+        "FEAT-FL-B903",
+        "FEAT-FL-SEV1HOLD",
+        "FEAT-SA-01-01",
+        "FEAT-SA-01-02",
+        "FEAT-SA-01-03",
+        "FEAT-SA-0101",
+        "FEAT-SA-0102",
+        "FEAT-SA-0103",
+        "FEAT-SA-02-01",
+        "FEAT-SA-02-02",
+        "FEAT-SA-02-03",
+        "FEAT-SA-02-04",
+        "FEAT-SA-0201",
+        "FEAT-SA-0202",
+        "FEAT-SA-0203",
+        "FEAT-SA-03-01",
+        "FEAT-SA-03-02",
+        "FEAT-SA-03-03",
+        "FEAT-SA-03-04",
+        "FEAT-SA-03-05",
+        "FEAT-SA-0301",
+        "FEAT-SA-0302",
+        "FEAT-SA-0303",
+        "FEAT-SA-04-01",
+        "FEAT-SA-04-02",
+        "FEAT-SA-04-03",
+        "FEAT-SA-04-04",
+        "FEAT-SA-0401",
+        "FEAT-SA-0402",
+        "FEAT-SA-0403",
+        "FEAT-SA-05-01",
+        "FEAT-SA-05-02",
+        "FEAT-SA-05-03",
+        "FEAT-SA-0501",
+        "FEAT-SA-0502",
+        "FEAT-SA-0503",
+        "FEAT-SA-06-01",
+        "FEAT-SA-06-02",
+        "FEAT-SA-06-03",
+        "FEAT-SA-0601",
+        "FEAT-SA-0602",
+        "FEAT-SA-0603",
+        "FEAT-SA-0701",
+        "FEAT-SA-0702",
+        "FEAT-SA-0703",
+        "FEAT-SA-08-01",
+        "FEAT-SA-08-02",
+        "FEAT-SA-08-03",
+        "FEAT-SA-08-04",
+        "FEAT-SA-08-05",
+        "FEAT-SA-0801",
+        "FEAT-SA-0802",
+        "FEAT-SA-0803",
+        "FEAT-SA-0804",
+        "FEAT-SA-0805",
+        "FEAT-SA-0806",
+        "FEAT-SA-09-01",
+        "FEAT-SA-09-02",
+        "FEAT-SA-09-03",
+        "FEAT-SA-09-04",
+        "FEAT-SA-09-05",
+        "FEAT-SA-09-06",
+        "FEAT-SA-0901",
+        "FEAT-SA-0902",
+        "FEAT-SA-0903",
+        "FEAT-SA-10-01",
+        "FEAT-SA-10-02",
+        "FEAT-SA-10-03",
+        "FEAT-SA-1001",
+        "FEAT-SA-1002",
+        "FEAT-SA-1003",
+        "FEAT-SA-11-01",
+        "FEAT-SA-11-02",
+        "FEAT-SA-11-03",
+        "FEAT-SA-11-04",
+        "FEAT-SA-1101",
+        "FEAT-SA-1102",
+        "FEAT-SA-1103",
+        "FEAT-SA-12-01",
+        "FEAT-SA-12-02",
+        "FEAT-SA-12-03",
+        "FEAT-SA-12-04",
+        "FEAT-SA-1201",
+        "FEAT-SA-1202",
+        "FEAT-SA-1203",
+        "FEAT-SA-13-01",
+        "FEAT-SA-13-02",
+        "FEAT-SA-13-03",
+        "FEAT-SA-13-04",
+        "FEAT-SA-1301",
+        "FEAT-SA-1302",
+        "FEAT-SA-1303",
+        "FEAT-SA-14-01",
+        "FEAT-SA-14-02",
+        "FEAT-SA-14-03",
+        "FEAT-SA-14-04",
+        "FEAT-SA-1401",
+        "FEAT-SA-1402",
+        "FEAT-SA-1403",
+        "FEAT-SA-15-01",
+        "FEAT-SA-15-02",
+        "FEAT-SA-1501",
+        "FEAT-SA-1502",
+        "FEAT-SA-1503",
+        "FEAT-SA-1504",
+        "FEAT-SA-1505",
+        "FEAT-SA-1506",
+        "FEAT-SA-16-01",
+        "FEAT-SA-16-02",
+        "FEAT-SA-16-03",
+        "FEAT-SA-1601",
+        "FEAT-SA-1602",
+        "FEAT-SA-1603",
+        "FEAT-SA-17-01",
+        "FEAT-SA-17-02",
+        "FEAT-SA-17-03",
+        "FEAT-SA-17-04",
+        "FEAT-SA-17-05",
+        "FEAT-SA-1701",
+        "FEAT-SA-1702",
+        "FEAT-SA-1703",
+        "FEAT-SA-18-01",
+        "FEAT-SA-18-02",
+        "FEAT-SA-18-03",
+        "FEAT-SA-18-04",
+        "FEAT-SA-1801",
+        "FEAT-SA-1802",
+        "FEAT-SA-1803",
+        "FEAT-SA-19-01",
+        "FEAT-SA-19-02",
+        "FEAT-SA-19-03",
+        "FEAT-SA-19-04",
+        "FEAT-SA-1901",
+        "FEAT-SA-1902",
+        "FEAT-SA-1903",
+        "FEAT-STU-01-01",
+        "FEAT-STU-01-02",
+        "FEAT-STU-0101",
+        "FEAT-STU-0102",
+        "FEAT-STU-0103",
+        "FEAT-STU-02-01",
+        "FEAT-STU-02-02",
+        "FEAT-STU-02-03",
+        "FEAT-STU-0201",
+        "FEAT-STU-0202",
+        "FEAT-STU-0203",
+        "FEAT-STU-03-01",
+        "FEAT-STU-03-02",
+        "FEAT-STU-03-03",
+        "FEAT-STU-0301",
+        "FEAT-STU-0302",
+        "FEAT-STU-0303",
+        "FEAT-STU-04-01",
+        "FEAT-STU-04-02",
+        "FEAT-STU-04-03",
+        "FEAT-STU-0401",
+        "FEAT-STU-0402",
+        "FEAT-STU-0403",
+        "FEAT-STU-05-01",
+        "FEAT-STU-05-02",
+        "FEAT-STU-05-03",
+        "FEAT-STU-05-04",
+        "FEAT-STU-05-05",
+        "FEAT-STU-05-06",
+        "FEAT-STU-05-07",
+        "FEAT-STU-05-08",
+        "FEAT-STU-05-09",
+        "FEAT-STU-05-10",
+        "FEAT-STU-0501",
+        "FEAT-STU-0502",
+        "FEAT-STU-0503",
+        "FEAT-STU-06-01",
+        "FEAT-STU-06-02",
+        "FEAT-STU-06-03",
+        "FEAT-STU-0601",
+        "FEAT-STU-0602",
+        "FEAT-STU-0603",
+        "FEAT-STU-07-01",
+        "FEAT-STU-07-02",
+        "FEAT-STU-07-03",
+        "FEAT-STU-07-04",
+        "FEAT-STU-0701",
+        "FEAT-STU-0702",
+        "FEAT-STU-0703",
+        "FEAT-STU-08-01",
+        "FEAT-STU-08-02",
+        "FEAT-STU-08-03",
+        "FEAT-STU-08-04",
+        "FEAT-STU-0801",
+        "FEAT-STU-0802",
+        "FEAT-STU-0803",
+        "FEAT-STU-09-01",
+        "FEAT-STU-09-02",
+        "FEAT-STU-09-03",
+        "FEAT-STU-0901",
+        "FEAT-STU-0902",
+        "FEAT-STU-0903",
+        "FEAT-STU-10-01",
+        "FEAT-STU-10-02",
+        "FEAT-STU-1001",
+        "FEAT-STU-1002",
+        "FEAT-STU-1003",
+        "FEAT-STU-11-01",
+        "FEAT-STU-11-02",
+        "FEAT-STU-11-03",
+        "FEAT-STU-11-04",
+        "FEAT-STU-11-05",
+        "FEAT-STU-11-06",
+        "FEAT-STU-1101",
+        "FEAT-STU-1102",
+        "FEAT-STU-1103",
+        "FEAT-STU-12-01",
+        "FEAT-STU-12-02",
+        "FEAT-STU-12-03",
+        "FEAT-STU-1201",
+        "FEAT-STU-1202",
+        "FEAT-STU-1203",
+        "FEAT-STU-13-01",
+        "FEAT-STU-13-02",
+        "FEAT-STU-13-03",
+        "FEAT-STU-13-04",
+        "FEAT-STU-13-05",
+        "FEAT-STU-1301",
+        "FEAT-STU-1302",
+        "FEAT-STU-1303",
+        "FEAT-STU-14-01",
+        "FEAT-STU-14-02",
+        "FEAT-STU-14-03",
+        "FEAT-STU-1401",
+        "FEAT-STU-1402",
+        "FEAT-STU-1403",
+        "FEAT-STU-15-01",
+        "FEAT-STU-15-02",
+        "FEAT-STU-15-03",
+        "FEAT-STU-15-04",
+        "FEAT-STU-1501",
+        "FEAT-STU-1502",
+        "FEAT-STU-1503",
+        "FEAT-STU-16-01",
+        "FEAT-STU-16-02",
+        "FEAT-STU-16-03",
+        "FEAT-STU-16-04",
+        "FEAT-STU-1601",
+        "FEAT-STU-1602",
+        "FEAT-STU-1603",
+        "FEAT-STU-17-01",
+        "FEAT-STU-17-02",
+        "FEAT-STU-17-03",
+        "FEAT-STU-1701",
+        "FEAT-STU-1702",
+        "FEAT-STU-1703",
+        "FEAT-STU-18-01",
+        "FEAT-STU-18-02",
+        "FEAT-STU-18-03",
+        "FEAT-STU-18-04",
+        "FEAT-STU-1801",
+        "FEAT-STU-1802",
+        "FEAT-STU-1803"
+      ],
+      "functionIds": [
+        "FUNC-STU-01-01-A-1"
+      ],
+      "acceptanceIds": [
+        "AC-STU-014"
+      ],
       "identifiersOnPage": [
         "AC-STU-014",
         "FEAT-CC-0101",
@@ -1132,12 +2695,846 @@
         "MOD-STU-17",
         "MOD-STU-18"
       ],
-      "bytes": 3272344
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 7258339
     },
     {
+      "id": "SHOT-coverage-functions",
       "route": "/coverage/functions/",
       "file": "coverage-functions.png",
-      "heading": "Functions",
+      "screen": "Functions",
+      "moduleIds": [
+        "MOD-FL-A1",
+        "MOD-FL-A2",
+        "MOD-FL-A3",
+        "MOD-FL-A4",
+        "MOD-FL-A5",
+        "MOD-FL-A6",
+        "MOD-FL-A7",
+        "MOD-FL-B10",
+        "MOD-FL-B11",
+        "MOD-FL-B12",
+        "MOD-FL-B8",
+        "MOD-FL-B9"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-CC-0101",
+        "FUNC-CC-0101-1-1",
+        "FUNC-CC-0101-1-2",
+        "FUNC-CC-0101-1-3",
+        "FUNC-CC-0101-2-1",
+        "FUNC-CC-0101-2-2",
+        "FUNC-CC-0102",
+        "FUNC-CC-0102-1-1",
+        "FUNC-CC-0102-1-2",
+        "FUNC-CC-0102-2-1",
+        "FUNC-CC-0102-2-2",
+        "FUNC-CC-0103",
+        "FUNC-CC-0103-1-1",
+        "FUNC-CC-0103-1-2",
+        "FUNC-CC-0103-1-3",
+        "FUNC-CC-0103-2-1",
+        "FUNC-CC-0103-2-2",
+        "FUNC-CC-0104-1-1",
+        "FUNC-CC-0201",
+        "FUNC-CC-0201-1-1",
+        "FUNC-CC-0201-1-2",
+        "FUNC-CC-0201-1-3",
+        "FUNC-CC-0201-2-1",
+        "FUNC-CC-0202",
+        "FUNC-CC-0202-1-1",
+        "FUNC-CC-0202-1-2",
+        "FUNC-CC-0202-1-3",
+        "FUNC-CC-0202-2-1",
+        "FUNC-CC-0203",
+        "FUNC-CC-0203-1-1",
+        "FUNC-CC-0203-1-2",
+        "FUNC-CC-0203-1-3",
+        "FUNC-CC-0204-1-1",
+        "FUNC-CC-0204-1-2",
+        "FUNC-CC-0204-1-3",
+        "FUNC-CC-0204-2-1",
+        "FUNC-CC-0301",
+        "FUNC-CC-0301-1-1",
+        "FUNC-CC-0301-2-1",
+        "FUNC-CC-0301-2-2",
+        "FUNC-CC-0301-3-1",
+        "FUNC-CC-0302",
+        "FUNC-CC-0302-1-1",
+        "FUNC-CC-0302-1-2",
+        "FUNC-CC-0302-2-1",
+        "FUNC-CC-0303",
+        "FUNC-CC-0303-1-1",
+        "FUNC-CC-0303-1-2",
+        "FUNC-CC-0401",
+        "FUNC-CC-0401-1-1",
+        "FUNC-CC-0401-1-2",
+        "FUNC-CC-0401-2-1",
+        "FUNC-CC-0401-2-2",
+        "FUNC-CC-0402",
+        "FUNC-CC-0402-1-1",
+        "FUNC-CC-0402-1-2",
+        "FUNC-CC-0402-2-1",
+        "FUNC-CC-0402-2-2",
+        "FUNC-CC-04020001",
+        "FUNC-CC-0403",
+        "FUNC-CC-0403-1-1",
+        "FUNC-CC-0403-2-1",
+        "FUNC-CC-0403-2-2",
+        "FUNC-CC-0404-1-1",
+        "FUNC-CC-0404-1-2",
+        "FUNC-CC-0404-2-1",
+        "FUNC-CC-0404-2-2",
+        "FUNC-CC-0501",
+        "FUNC-CC-0501-1-1",
+        "FUNC-CC-0501-1-2",
+        "FUNC-CC-0501-1-3",
+        "FUNC-CC-05010001",
+        "FUNC-CC-0502",
+        "FUNC-CC-0502-1-1",
+        "FUNC-CC-0502-2-1",
+        "FUNC-CC-0502-2-2",
+        "FUNC-CC-0502-2-3",
+        "FUNC-CC-0502-3-1",
+        "FUNC-CC-0503",
+        "FUNC-CC-0503-1-1",
+        "FUNC-CC-0503-1-2",
+        "FUNC-CC-0503-1-3",
+        "FUNC-CC-0504-1-1",
+        "FUNC-CC-0601",
+        "FUNC-CC-0601-1-1",
+        "FUNC-CC-0601-1-2",
+        "FUNC-CC-0601-1-3",
+        "FUNC-CC-06010001",
+        "FUNC-CC-0602",
+        "FUNC-CC-0602-1-1",
+        "FUNC-CC-0602-2-1",
+        "FUNC-CC-0602-3-1",
+        "FUNC-CC-0603",
+        "FUNC-CC-0603-1-1",
+        "FUNC-CC-0603-1-2",
+        "FUNC-CC-0604-1-1",
+        "FUNC-CC-0604-1-2",
+        "FUNC-CC-0604-2-1",
+        "FUNC-CC-0604-3-1",
+        "FUNC-CC-0605-1-1",
+        "FUNC-CC-0605-1-2",
+        "FUNC-CC-0701",
+        "FUNC-CC-0701-1-1",
+        "FUNC-CC-0701-2-1",
+        "FUNC-CC-0702",
+        "FUNC-CC-0702-1-1",
+        "FUNC-CC-0702-2-1",
+        "FUNC-CC-0702-3-1",
+        "FUNC-CC-0703",
+        "FUNC-CC-0703-1-1",
+        "FUNC-CC-0703-1-2",
+        "FUNC-CC-0801",
+        "FUNC-CC-0801-1-1",
+        "FUNC-CC-0801-1-2",
+        "FUNC-CC-0802",
+        "FUNC-CC-0802-1-1",
+        "FUNC-CC-0802-1-2",
+        "FUNC-CC-0802-2-1",
+        "FUNC-CC-0803",
+        "FUNC-CC-0803-1-1",
+        "FUNC-CC-0803-1-2",
+        "FUNC-CC-0803-1-3",
+        "FUNC-CC-0804-1-1",
+        "FUNC-CC-0901",
+        "FUNC-CC-0901-1-1",
+        "FUNC-CC-0901-1-2",
+        "FUNC-CC-0902",
+        "FUNC-CC-0902-1-1",
+        "FUNC-CC-0902-1-2",
+        "FUNC-CC-0903",
+        "FUNC-CC-0903-1-1",
+        "FUNC-CC-0903-1-2",
+        "FUNC-CC-0904-1-1",
+        "FUNC-CC-0904-2-1",
+        "FUNC-CC-0904-2-2",
+        "FUNC-CC-0905-1-1",
+        "FUNC-CC-0905-1-2",
+        "FUNC-CC-0905-1-3",
+        "FUNC-CC-1001",
+        "FUNC-CC-1001-1-1",
+        "FUNC-CC-1001-1-2",
+        "FUNC-CC-10010001",
+        "FUNC-CC-1002",
+        "FUNC-CC-1002-1-1",
+        "FUNC-CC-1002-1-2",
+        "FUNC-CC-1002-1-3",
+        "FUNC-CC-1003",
+        "FUNC-CC-1003-1-1",
+        "FUNC-CC-1003-1-2",
+        "FUNC-CC-1003-2-1",
+        "FUNC-CC-1003-2-2",
+        "FUNC-CC-1004-1-1",
+        "FUNC-CC-1101",
+        "FUNC-CC-1101-1-1",
+        "FUNC-CC-1101-1-2",
+        "FUNC-CC-1101-1-3",
+        "FUNC-CC-11010001",
+        "FUNC-CC-1102",
+        "FUNC-CC-1102-1-1",
+        "FUNC-CC-1102-1-2",
+        "FUNC-CC-1102-1-3",
+        "FUNC-CC-1102-2-1",
+        "FUNC-CC-1103",
+        "FUNC-CC-1103-1-1",
+        "FUNC-CC-1103-1-2",
+        "FUNC-CC-1104-1-1",
+        "FUNC-CC-1104-1-2",
+        "FUNC-CC-1104-1-3",
+        "FUNC-CC-1105-1-1",
+        "FUNC-CC-1201",
+        "FUNC-CC-1201-1-1",
+        "FUNC-CC-1201-1-2",
+        "FUNC-CC-1201-1-3",
+        "FUNC-CC-1202",
+        "FUNC-CC-1202-1-1",
+        "FUNC-CC-1203",
+        "FUNC-CC-1203-1-1",
+        "FUNC-CC-1203-1-2",
+        "FUNC-CC-1203-1-3",
+        "FUNC-CC-1203-2-1",
+        "FUNC-CC-1301",
+        "FUNC-CC-1301-1-1",
+        "FUNC-CC-1301-1-2",
+        "FUNC-CC-13010001",
+        "FUNC-CC-1302",
+        "FUNC-CC-1302-1-1",
+        "FUNC-CC-1302-1-2",
+        "FUNC-CC-1303",
+        "FUNC-CC-1303-1-1",
+        "FUNC-CC-1303-1-2",
+        "FUNC-CC-1303-2-1",
+        "FUNC-CC-1303-2-2",
+        "FUNC-CC-1304-1-1",
+        "FUNC-CC-1304-1-2",
+        "FUNC-CC-13040001",
+        "FUNC-CC-1305-1-1",
+        "FUNC-CC-1305-2-1",
+        "FUNC-CC-1305-3-1",
+        "FUNC-CC-1305-3-2",
+        "FUNC-CC-1305-3-3",
+        "FUNC-CC-13050001",
+        "FUNC-CC-1306-1-1",
+        "FUNC-CC-1306-1-2",
+        "FUNC-CC-1306-1-3",
+        "FUNC-CC-1306-1-4",
+        "FUNC-CC-13060001",
+        "FUNC-CC-ACTIONSET-04",
+        "FUNC-CC-AGENTPANEL-01",
+        "FUNC-CC-ALERTFEED-01",
+        "FUNC-CC-BOARD-01",
+        "FUNC-CC-BOARD-02",
+        "FUNC-CC-CLEARGRANT-01",
+        "FUNC-CC-CONNWATCH-01",
+        "FUNC-CC-GATEQ-02",
+        "FUNC-CC-HANDOFF-01",
+        "FUNC-CC-HANDOFF-02",
+        "FUNC-CC-HOLDSTATE-01",
+        "FUNC-CC-LANEB-02",
+        "FUNC-CC-LANEB-03",
+        "FUNC-CC-REPORTSCHED-01",
+        "FUNC-DOH-01-1",
+        "FUNC-DOH-01-2",
+        "FUNC-DOH-01-3",
+        "FUNC-DOH-0101",
+        "FUNC-DOH-0102",
+        "FUNC-DOH-0103",
+        "FUNC-DOH-02-1",
+        "FUNC-DOH-02-2",
+        "FUNC-DOH-02-3",
+        "FUNC-DOH-0201",
+        "FUNC-DOH-02010001",
+        "FUNC-DOH-0202",
+        "FUNC-DOH-0203",
+        "FUNC-DOH-03-1",
+        "FUNC-DOH-03-2",
+        "FUNC-DOH-0301",
+        "FUNC-DOH-03010001",
+        "FUNC-DOH-0302",
+        "FUNC-DOH-0303",
+        "FUNC-DOH-04-1",
+        "FUNC-DOH-04-2",
+        "FUNC-DOH-04-3",
+        "FUNC-DOH-0401",
+        "FUNC-DOH-0402",
+        "FUNC-DOH-04020001",
+        "FUNC-DOH-0403",
+        "FUNC-DOH-04030001",
+        "FUNC-DOH-0404",
+        "FUNC-DOH-05-1",
+        "FUNC-DOH-05-2",
+        "FUNC-DOH-05-3",
+        "FUNC-DOH-05-4",
+        "FUNC-DOH-0501",
+        "FUNC-DOH-05010001",
+        "FUNC-DOH-0502",
+        "FUNC-DOH-05020001",
+        "FUNC-DOH-0503",
+        "FUNC-DOH-0504",
+        "FUNC-DOH-06-1",
+        "FUNC-DOH-06-2",
+        "FUNC-DOH-06-3",
+        "FUNC-DOH-0601",
+        "FUNC-DOH-06010001",
+        "FUNC-DOH-0602",
+        "FUNC-DOH-0603",
+        "FUNC-DOH-06040001",
+        "FUNC-DOH-06050001",
+        "FUNC-DOH-07-1",
+        "FUNC-DOH-07-2",
+        "FUNC-DOH-07-3",
+        "FUNC-DOH-0701",
+        "FUNC-DOH-07010001",
+        "FUNC-DOH-0702",
+        "FUNC-DOH-07020001",
+        "FUNC-DOH-0703",
+        "FUNC-DOH-08-1",
+        "FUNC-DOH-08-2",
+        "FUNC-DOH-08-3",
+        "FUNC-DOH-08-4",
+        "FUNC-DOH-0801",
+        "FUNC-DOH-0802",
+        "FUNC-DOH-0803",
+        "FUNC-DOH-08030001",
+        "FUNC-DOH-0804",
+        "FUNC-DOH-08040001",
+        "FUNC-DOH-09-1",
+        "FUNC-DOH-09-2",
+        "FUNC-DOH-09-3",
+        "FUNC-DOH-0901",
+        "FUNC-DOH-09010001",
+        "FUNC-DOH-09010002",
+        "FUNC-DOH-0902",
+        "FUNC-DOH-09020001",
+        "FUNC-DOH-0903",
+        "FUNC-DOH-09030001",
+        "FUNC-DOH-0904",
+        "FUNC-DOH-10-1",
+        "FUNC-DOH-10-2",
+        "FUNC-DOH-10-3",
+        "FUNC-DOH-10-4",
+        "FUNC-DOH-1001",
+        "FUNC-DOH-1002",
+        "FUNC-DOH-1003",
+        "FUNC-DOH-1004",
+        "FUNC-DOH-11-1",
+        "FUNC-DOH-11-2",
+        "FUNC-DOH-11-3",
+        "FUNC-DOH-1101",
+        "FUNC-DOH-11010001",
+        "FUNC-DOH-1102",
+        "FUNC-DOH-1103",
+        "FUNC-DOH-12-1",
+        "FUNC-DOH-12-2",
+        "FUNC-DOH-12-3",
+        "FUNC-DOH-1201",
+        "FUNC-DOH-1202",
+        "FUNC-DOH-1203",
+        "FUNC-DOH-1204",
+        "FUNC-DOH-13-1",
+        "FUNC-DOH-13-2",
+        "FUNC-DOH-13-3",
+        "FUNC-DOH-1301",
+        "FUNC-DOH-13010001",
+        "FUNC-DOH-1302",
+        "FUNC-DOH-1303",
+        "FUNC-DOH-14-1",
+        "FUNC-DOH-14-2",
+        "FUNC-DOH-1401",
+        "FUNC-DOH-1402",
+        "FUNC-DOH-15-1",
+        "FUNC-DOH-15-2",
+        "FUNC-DOH-1501",
+        "FUNC-DOH-1502",
+        "FUNC-DOH-16-1",
+        "FUNC-DOH-16-2",
+        "FUNC-DOH-1601",
+        "FUNC-DOH-1602",
+        "FUNC-DOH-1603",
+        "FUNC-DOH-17-1",
+        "FUNC-DOH-17-2",
+        "FUNC-DOH-1701",
+        "FUNC-DOH-1702",
+        "FUNC-DOH-1703",
+        "FUNC-DOH-18-1",
+        "FUNC-DOH-18-2",
+        "FUNC-DOH-1801",
+        "FUNC-DOH-1802",
+        "FUNC-DOH-1803",
+        "FUNC-DOH-19-1",
+        "FUNC-DOH-19-2",
+        "FUNC-DOH-19-3",
+        "FUNC-DOH-1901",
+        "FUNC-DOH-1902",
+        "FUNC-DOH-1903",
+        "FUNC-DOH-AUDITLOG-01",
+        "FUNC-DOH-CMDQUEUE-01",
+        "FUNC-DOH-DIGEST-01",
+        "FUNC-DOH-ESCROUTE-02",
+        "FUNC-DOH-ESCROUTE-03",
+        "FUNC-DOH-ESCTIMER-01",
+        "FUNC-DOH-FINISH-02",
+        "FUNC-DOH-INGEST-01",
+        "FUNC-DOH-NOSHOW-01",
+        "FUNC-DOH-QUALCAL-01",
+        "FUNC-DOH-QUALREC-01",
+        "FUNC-DOH-QUALWARN-01",
+        "FUNC-DOH-SCHEDVIEW-01",
+        "FUNC-FL-01010001",
+        "FUNC-FL-01010002",
+        "FUNC-FL-03010001",
+        "FUNC-FL-03010002",
+        "FUNC-FL-03020001",
+        "FUNC-FL-03030001",
+        "FUNC-FL-04010001",
+        "FUNC-FL-04010002",
+        "FUNC-FL-04010003",
+        "FUNC-FL-05010001",
+        "FUNC-FL-09010001",
+        "FUNC-FL-A101",
+        "FUNC-FL-A102",
+        "FUNC-FL-A103",
+        "FUNC-FL-A201",
+        "FUNC-FL-A202",
+        "FUNC-FL-A203",
+        "FUNC-FL-A301",
+        "FUNC-FL-A302",
+        "FUNC-FL-A303",
+        "FUNC-FL-A401",
+        "FUNC-FL-A402",
+        "FUNC-FL-A403",
+        "FUNC-FL-A501",
+        "FUNC-FL-A502",
+        "FUNC-FL-A503",
+        "FUNC-FL-A601",
+        "FUNC-FL-A602",
+        "FUNC-FL-A603",
+        "FUNC-FL-A701",
+        "FUNC-FL-A702",
+        "FUNC-FL-A703",
+        "FUNC-FL-B1001",
+        "FUNC-FL-B1002",
+        "FUNC-FL-B1003",
+        "FUNC-FL-B1101",
+        "FUNC-FL-B1102",
+        "FUNC-FL-B1103",
+        "FUNC-FL-B1201",
+        "FUNC-FL-B1202",
+        "FUNC-FL-B1203",
+        "FUNC-FL-B801",
+        "FUNC-FL-B802",
+        "FUNC-FL-B803",
+        "FUNC-FL-B901",
+        "FUNC-FL-B902",
+        "FUNC-FL-B903",
+        "FUNC-FL-CAPTURE-02",
+        "FUNC-FL-CMDCHAN-03",
+        "FUNC-FL-DETECT-01",
+        "FUNC-FL-PIN-01",
+        "FUNC-FL-QUALGATE-02",
+        "FUNC-FL-SEV1HOLD-01",
+        "FUNC-FL-SPECGATE-01",
+        "FUNC-FL-SYNC-05",
+        "FUNC-FL-TRUSTWIN-01",
+        "FUNC-FL-WIPE-01",
+        "FUNC-SA-001",
+        "FUNC-SA-002",
+        "FUNC-SA-003",
+        "FUNC-SA-004",
+        "FUNC-SA-005",
+        "FUNC-SA-006",
+        "FUNC-SA-007",
+        "FUNC-SA-008",
+        "FUNC-SA-009",
+        "FUNC-SA-01-01-A1",
+        "FUNC-SA-01-01-A2",
+        "FUNC-SA-01-01-A3",
+        "FUNC-SA-01-01-B1",
+        "FUNC-SA-01-01-B2",
+        "FUNC-SA-01-01-C1",
+        "FUNC-SA-01-01-C2",
+        "FUNC-SA-01-01-D1",
+        "FUNC-SA-01-01-D2",
+        "FUNC-SA-01-02-A1",
+        "FUNC-SA-01-02-A2",
+        "FUNC-SA-01-02-A3",
+        "FUNC-SA-01-03-A1",
+        "FUNC-SA-01-03-A2",
+        "FUNC-SA-01-03-A3",
+        "FUNC-SA-01-03-B1",
+        "FUNC-SA-01-03-B2",
+        "FUNC-SA-010",
+        "FUNC-SA-0101",
+        "FUNC-SA-0102",
+        "FUNC-SA-0103",
+        "FUNC-SA-011",
+        "FUNC-SA-012",
+        "FUNC-SA-013",
+        "FUNC-SA-014",
+        "FUNC-SA-015",
+        "FUNC-SA-016",
+        "FUNC-SA-017",
+        "FUNC-SA-018",
+        "FUNC-SA-019",
+        "FUNC-SA-02-01-A1",
+        "FUNC-SA-02-01-A2",
+        "FUNC-SA-02-01-A3",
+        "FUNC-SA-02-01-B1",
+        "FUNC-SA-02-02-A1",
+        "FUNC-SA-02-02-A2",
+        "FUNC-SA-02-02-B1",
+        "FUNC-SA-02-02-B2",
+        "FUNC-SA-02-03-A1",
+        "FUNC-SA-02-03-A2",
+        "FUNC-SA-02-04-A1",
+        "FUNC-SA-02-04-B1",
+        "FUNC-SA-020",
+        "FUNC-SA-0201",
+        "FUNC-SA-02010001",
+        "FUNC-SA-02010002",
+        "FUNC-SA-0202",
+        "FUNC-SA-0203",
+        "FUNC-SA-03-01-A1",
+        "FUNC-SA-03-01-A2",
+        "FUNC-SA-03-01-A3",
+        "FUNC-SA-03-02-A1",
+        "FUNC-SA-03-02-B1",
+        "FUNC-SA-03-03-A1",
+        "FUNC-SA-03-03-A2",
+        "FUNC-SA-03-03-A3",
+        "FUNC-SA-03-03-A4",
+        "FUNC-SA-03-04-A1",
+        "FUNC-SA-03-04-A2",
+        "FUNC-SA-03-04-A3",
+        "FUNC-SA-03-05-A1",
+        "FUNC-SA-03-05-A2",
+        "FUNC-SA-0301",
+        "FUNC-SA-0302",
+        "FUNC-SA-0303",
+        "FUNC-SA-04-01-A1",
+        "FUNC-SA-04-01-A2",
+        "FUNC-SA-04-01-A3",
+        "FUNC-SA-04-01-A4",
+        "FUNC-SA-04-01-A5",
+        "FUNC-SA-04-02-A1",
+        "FUNC-SA-04-02-A2",
+        "FUNC-SA-04-03-A1",
+        "FUNC-SA-04-03-A2",
+        "FUNC-SA-04-03-A3",
+        "FUNC-SA-04-03-A4",
+        "FUNC-SA-04-03-A5",
+        "FUNC-SA-04-04-A1",
+        "FUNC-SA-04-04-B1",
+        "FUNC-SA-04-04-B2",
+        "FUNC-SA-04-04-B3",
+        "FUNC-SA-0401",
+        "FUNC-SA-04010001",
+        "FUNC-SA-0402",
+        "FUNC-SA-0403",
+        "FUNC-SA-05-01-A1",
+        "FUNC-SA-05-01-A2",
+        "FUNC-SA-05-01-A3",
+        "FUNC-SA-05-01-B1",
+        "FUNC-SA-05-02-A1",
+        "FUNC-SA-05-02-A2",
+        "FUNC-SA-05-02-B1",
+        "FUNC-SA-05-02-C1",
+        "FUNC-SA-05-02-D1",
+        "FUNC-SA-05-02-D2",
+        "FUNC-SA-05-03-A1",
+        "FUNC-SA-05-03-A2",
+        "FUNC-SA-05-03-A3",
+        "FUNC-SA-05-03-B1",
+        "FUNC-SA-0501",
+        "FUNC-SA-05010001",
+        "FUNC-SA-0502",
+        "FUNC-SA-0503",
+        "FUNC-SA-06-01-A1",
+        "FUNC-SA-06-01-A2",
+        "FUNC-SA-06-02-A1",
+        "FUNC-SA-06-02-A2",
+        "FUNC-SA-06-03-A1",
+        "FUNC-SA-06-03-B1",
+        "FUNC-SA-0601",
+        "FUNC-SA-06010001",
+        "FUNC-SA-0602",
+        "FUNC-SA-0603",
+        "FUNC-SA-0701",
+        "FUNC-SA-07010001",
+        "FUNC-SA-0702",
+        "FUNC-SA-0703",
+        "FUNC-SA-08-01-A1",
+        "FUNC-SA-08-01-A2",
+        "FUNC-SA-08-01-A3",
+        "FUNC-SA-08-02-A1",
+        "FUNC-SA-08-02-B1",
+        "FUNC-SA-08-03-A1",
+        "FUNC-SA-08-03-A2",
+        "FUNC-SA-08-03-B1",
+        "FUNC-SA-08-04-A1",
+        "FUNC-SA-08-04-A2",
+        "FUNC-SA-08-04-A3",
+        "FUNC-SA-08-05-A1",
+        "FUNC-SA-08-05-A2",
+        "FUNC-SA-0801",
+        "FUNC-SA-08010001",
+        "FUNC-SA-0802",
+        "FUNC-SA-08020001",
+        "FUNC-SA-08020002",
+        "FUNC-SA-0803",
+        "FUNC-SA-08030001",
+        "FUNC-SA-08050001",
+        "FUNC-SA-08050002",
+        "FUNC-SA-08060001",
+        "FUNC-SA-08060002",
+        "FUNC-SA-08060003",
+        "FUNC-SA-09-01-A1",
+        "FUNC-SA-09-01-B1",
+        "FUNC-SA-09-01-B2",
+        "FUNC-SA-09-02-A1",
+        "FUNC-SA-09-02-B1",
+        "FUNC-SA-09-02-C1",
+        "FUNC-SA-09-02-C2",
+        "FUNC-SA-09-03-A1",
+        "FUNC-SA-09-03-A2",
+        "FUNC-SA-09-04-A1",
+        "FUNC-SA-09-04-A2",
+        "FUNC-SA-09-05-A1",
+        "FUNC-SA-09-06-A1",
+        "FUNC-SA-09-06-A2",
+        "FUNC-SA-0901",
+        "FUNC-SA-0902",
+        "FUNC-SA-0903",
+        "FUNC-SA-10-01-A1",
+        "FUNC-SA-10-01-B1",
+        "FUNC-SA-10-01-C1",
+        "FUNC-SA-10-01-D1",
+        "FUNC-SA-10-01-E1",
+        "FUNC-SA-10-02-A1",
+        "FUNC-SA-10-03-A1",
+        "FUNC-SA-10-03-A2",
+        "FUNC-SA-1001",
+        "FUNC-SA-1002",
+        "FUNC-SA-1003",
+        "FUNC-SA-11-01-A1",
+        "FUNC-SA-11-01-A2",
+        "FUNC-SA-11-01-A3",
+        "FUNC-SA-11-02-A1",
+        "FUNC-SA-11-03-A1",
+        "FUNC-SA-11-03-B1",
+        "FUNC-SA-11-03-B2",
+        "FUNC-SA-11-04-A1",
+        "FUNC-SA-1101",
+        "FUNC-SA-11010001",
+        "FUNC-SA-1102",
+        "FUNC-SA-1103",
+        "FUNC-SA-12-01-A1",
+        "FUNC-SA-12-01-A2",
+        "FUNC-SA-12-02-A1",
+        "FUNC-SA-12-02-A2",
+        "FUNC-SA-12-02-A3",
+        "FUNC-SA-12-02-A4",
+        "FUNC-SA-12-03-A1",
+        "FUNC-SA-12-04-A1",
+        "FUNC-SA-12-04-A2",
+        "FUNC-SA-1201",
+        "FUNC-SA-1202",
+        "FUNC-SA-1203",
+        "FUNC-SA-13-01-A1",
+        "FUNC-SA-13-01-A2",
+        "FUNC-SA-13-01-B1",
+        "FUNC-SA-13-02-A1",
+        "FUNC-SA-13-03-A1",
+        "FUNC-SA-13-03-A2",
+        "FUNC-SA-13-04-A1",
+        "FUNC-SA-1301",
+        "FUNC-SA-13010001",
+        "FUNC-SA-1302",
+        "FUNC-SA-1303",
+        "FUNC-SA-14-01-A1",
+        "FUNC-SA-14-01-A2",
+        "FUNC-SA-14-02-A1",
+        "FUNC-SA-14-02-B1",
+        "FUNC-SA-14-03-A1",
+        "FUNC-SA-14-03-A2",
+        "FUNC-SA-14-04-A1",
+        "FUNC-SA-1401",
+        "FUNC-SA-14010001",
+        "FUNC-SA-1402",
+        "FUNC-SA-1403",
+        "FUNC-SA-15-01-A1",
+        "FUNC-SA-15-01-A2",
+        "FUNC-SA-15-01-A3",
+        "FUNC-SA-15-01-A4",
+        "FUNC-SA-15-02-A1",
+        "FUNC-SA-15-02-A2",
+        "FUNC-SA-15-02-A3",
+        "FUNC-SA-15-02-A4",
+        "FUNC-SA-15-02-A5",
+        "FUNC-SA-1501",
+        "FUNC-SA-15010001",
+        "FUNC-SA-1502",
+        "FUNC-SA-15020001",
+        "FUNC-SA-1503",
+        "FUNC-SA-15030001",
+        "FUNC-SA-15040001",
+        "FUNC-SA-15050001",
+        "FUNC-SA-15060001",
+        "FUNC-SA-16-01-A1",
+        "FUNC-SA-16-01-A2",
+        "FUNC-SA-16-01-A3",
+        "FUNC-SA-16-02-A1",
+        "FUNC-SA-16-02-A2",
+        "FUNC-SA-16-03-A1",
+        "FUNC-SA-16-03-A2",
+        "FUNC-SA-1601",
+        "FUNC-SA-16010001",
+        "FUNC-SA-1602",
+        "FUNC-SA-1603",
+        "FUNC-SA-17-01-A1",
+        "FUNC-SA-17-01-A2",
+        "FUNC-SA-17-02-A1",
+        "FUNC-SA-17-02-A2",
+        "FUNC-SA-17-03-A1",
+        "FUNC-SA-17-04-A1",
+        "FUNC-SA-17-04-A2",
+        "FUNC-SA-17-04-A3",
+        "FUNC-SA-17-05-A1",
+        "FUNC-SA-17-05-A2",
+        "FUNC-SA-17-05-B1",
+        "FUNC-SA-1701",
+        "FUNC-SA-1702",
+        "FUNC-SA-1703",
+        "FUNC-SA-18-01-A1",
+        "FUNC-SA-18-02-A1",
+        "FUNC-SA-18-02-A2",
+        "FUNC-SA-18-03-A1",
+        "FUNC-SA-18-03-A2",
+        "FUNC-SA-18-04-A1",
+        "FUNC-SA-18-04-A2",
+        "FUNC-SA-18-04-A3",
+        "FUNC-SA-18-04-A4",
+        "FUNC-SA-1801",
+        "FUNC-SA-1802",
+        "FUNC-SA-1803",
+        "FUNC-SA-19-01-A1",
+        "FUNC-SA-19-02-A1",
+        "FUNC-SA-19-02-A2",
+        "FUNC-SA-19-03-A1",
+        "FUNC-SA-19-04-A1",
+        "FUNC-SA-19-04-A2",
+        "FUNC-SA-19-04-A3",
+        "FUNC-SA-1901",
+        "FUNC-SA-1902",
+        "FUNC-SA-1903",
+        "FUNC-SA-ANON-01",
+        "FUNC-SA-ARCHIVE-02",
+        "FUNC-SA-EVALGATE-01",
+        "FUNC-SA-FLEET-04",
+        "FUNC-SA-INVARIANT-01",
+        "FUNC-SA-LIFECYCLE-01",
+        "FUNC-SA-METER-02",
+        "FUNC-SA-PAUSE-01",
+        "FUNC-SA-PAUSE-02",
+        "FUNC-SA-PILOT-01",
+        "FUNC-SA-REGBOUND-01",
+        "FUNC-SA-SUPPORT-02",
+        "FUNC-SA-TENREG-01",
+        "FUNC-SA-TIERING-01",
+        "FUNC-SA-TRACE-02",
+        "FUNC-STU-0101",
+        "FUNC-STU-0102",
+        "FUNC-STU-0103",
+        "FUNC-STU-0201",
+        "FUNC-STU-0202",
+        "FUNC-STU-0203",
+        "FUNC-STU-0301",
+        "FUNC-STU-0302",
+        "FUNC-STU-0303",
+        "FUNC-STU-0401",
+        "FUNC-STU-0402",
+        "FUNC-STU-0403",
+        "FUNC-STU-0501",
+        "FUNC-STU-0502",
+        "FUNC-STU-0503",
+        "FUNC-STU-0601",
+        "FUNC-STU-0602",
+        "FUNC-STU-0603",
+        "FUNC-STU-0701",
+        "FUNC-STU-0702",
+        "FUNC-STU-0703",
+        "FUNC-STU-0801",
+        "FUNC-STU-0802",
+        "FUNC-STU-0803",
+        "FUNC-STU-0901",
+        "FUNC-STU-0902",
+        "FUNC-STU-0903",
+        "FUNC-STU-1001",
+        "FUNC-STU-1002",
+        "FUNC-STU-1003",
+        "FUNC-STU-1101",
+        "FUNC-STU-11010001",
+        "FUNC-STU-1102",
+        "FUNC-STU-1103",
+        "FUNC-STU-1201",
+        "FUNC-STU-1202",
+        "FUNC-STU-1203",
+        "FUNC-STU-1301",
+        "FUNC-STU-1302",
+        "FUNC-STU-1303",
+        "FUNC-STU-1401",
+        "FUNC-STU-1402",
+        "FUNC-STU-1403",
+        "FUNC-STU-1501",
+        "FUNC-STU-1502",
+        "FUNC-STU-1503",
+        "FUNC-STU-1601",
+        "FUNC-STU-1602",
+        "FUNC-STU-1603",
+        "FUNC-STU-1701",
+        "FUNC-STU-1702",
+        "FUNC-STU-1703",
+        "FUNC-STU-1801",
+        "FUNC-STU-18010001",
+        "FUNC-STU-18010002",
+        "FUNC-STU-1802",
+        "FUNC-STU-1803",
+        "FUNC-STU-APPROVAL-02",
+        "FUNC-STU-PACKAGE-01",
+        "FUNC-STU-SEMVER-03",
+        "FUNC-TEN-001",
+        "FUNC-TEN-002",
+        "FUNC-TEN-003",
+        "FUNC-TEN-004",
+        "FUNC-TEN-005",
+        "FUNC-TEN-006",
+        "FUNC-TEN-007",
+        "FUNC-TEN-008",
+        "FUNC-TEN-009",
+        "FUNC-TEN-010",
+        "FUNC-TEN-011",
+        "FUNC-TEN-012",
+        "FUNC-TEN-013",
+        "FUNC-TEN-014",
+        "FUNC-TEN-015",
+        "FUNC-TEN-016",
+        "FUNC-TEN-017",
+        "FUNC-TEN-018",
+        "FUNC-TEN-SETTINGS-01"
+      ],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "FUNC-CC-0101",
         "FUNC-CC-0101-1-1",
@@ -1960,12 +4357,107 @@
         "MOD-FL-B8",
         "MOD-FL-B9"
       ],
-      "bytes": 5693062
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 12975507
     },
     {
+      "id": "SHOT-coverage-modules",
       "route": "/coverage/modules/",
       "file": "coverage-modules.png",
-      "heading": "Modules",
+      "screen": "Modules",
+      "moduleIds": [
+        "MOD-CC-01",
+        "MOD-CC-02",
+        "MOD-CC-03",
+        "MOD-CC-04",
+        "MOD-CC-05",
+        "MOD-CC-06",
+        "MOD-CC-07",
+        "MOD-CC-08",
+        "MOD-CC-09",
+        "MOD-CC-10",
+        "MOD-CC-11",
+        "MOD-CC-12",
+        "MOD-CC-13",
+        "MOD-DOH-01",
+        "MOD-DOH-02",
+        "MOD-DOH-03",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-08",
+        "MOD-DOH-09",
+        "MOD-DOH-10",
+        "MOD-DOH-11",
+        "MOD-DOH-12",
+        "MOD-DOH-13",
+        "MOD-DOH-14",
+        "MOD-DOH-15",
+        "MOD-DOH-16",
+        "MOD-DOH-17",
+        "MOD-DOH-18",
+        "MOD-DOH-19",
+        "MOD-FL-A1",
+        "MOD-FL-A2",
+        "MOD-FL-A3",
+        "MOD-FL-A4",
+        "MOD-FL-A5",
+        "MOD-FL-A6",
+        "MOD-FL-A7",
+        "MOD-FL-B10",
+        "MOD-FL-B11",
+        "MOD-FL-B12",
+        "MOD-FL-B8",
+        "MOD-FL-B9",
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19",
+        "MOD-SA-20",
+        "MOD-STU-01",
+        "MOD-STU-02",
+        "MOD-STU-03",
+        "MOD-STU-04",
+        "MOD-STU-05",
+        "MOD-STU-06",
+        "MOD-STU-07",
+        "MOD-STU-08",
+        "MOD-STU-09",
+        "MOD-STU-10",
+        "MOD-STU-11",
+        "MOD-STU-12",
+        "MOD-STU-13",
+        "MOD-STU-14",
+        "MOD-STU-15",
+        "MOD-STU-16",
+        "MOD-STU-17",
+        "MOD-STU-18"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-CC-01",
         "MOD-CC-02",
@@ -2050,12 +4542,43 @@
         "MOD-STU-17",
         "MOD-STU-18"
       ],
-      "bytes": 964482
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1404777
     },
     {
+      "id": "SHOT-coverage-notifications",
       "route": "/coverage/notifications/",
       "file": "coverage-notifications.png",
-      "heading": "Notifications",
+      "screen": "Notifications",
+      "moduleIds": [
+        "MOD-STU-01",
+        "MOD-STU-02",
+        "MOD-STU-03",
+        "MOD-STU-04",
+        "MOD-STU-05",
+        "MOD-STU-06",
+        "MOD-STU-07",
+        "MOD-STU-08",
+        "MOD-STU-09",
+        "MOD-STU-10",
+        "MOD-STU-11",
+        "MOD-STU-12",
+        "MOD-STU-13",
+        "MOD-STU-14",
+        "MOD-STU-15",
+        "MOD-STU-16",
+        "MOD-STU-17",
+        "MOD-STU-18"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-STU-01",
         "MOD-STU-02",
@@ -2076,26 +4599,75 @@
         "MOD-STU-17",
         "MOD-STU-18"
       ],
-      "bytes": 4190175
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 7727862
     },
     {
+      "id": "SHOT-coverage-offline-scenarios",
       "route": "/coverage/offline-scenarios/",
       "file": "coverage-offline-scenarios.png",
-      "heading": "Offline Scenarios",
+      "screen": "Offline Scenarios",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 498792
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1100445
     },
     {
+      "id": "SHOT-coverage-scheduled-work",
       "route": "/coverage/scheduled-work/",
       "file": "coverage-scheduled-work.png",
-      "heading": "Scheduled Work",
+      "screen": "Scheduled Work",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 3254215
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 4049166
     },
     {
+      "id": "SHOT-coverage-sub-features",
       "route": "/coverage/sub-features/",
       "file": "coverage-sub-features.png",
-      "heading": "Sub-features",
+      "screen": "Sub-features",
+      "moduleIds": [
+        "MOD-FL-A1",
+        "MOD-FL-A2",
+        "MOD-FL-A3",
+        "MOD-FL-A4",
+        "MOD-FL-A5",
+        "MOD-FL-A6",
+        "MOD-FL-A7",
+        "MOD-FL-B10",
+        "MOD-FL-B11",
+        "MOD-FL-B12",
+        "MOD-FL-B8",
+        "MOD-FL-B9"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-FL-A1",
         "MOD-FL-A2",
@@ -2110,19 +4682,52 @@
         "MOD-FL-B8",
         "MOD-FL-B9"
       ],
-      "bytes": 2938306
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 7098944
     },
     {
+      "id": "SHOT-coverage-workflows",
       "route": "/coverage/workflows/",
       "file": "coverage-workflows.png",
-      "heading": "Workflows",
+      "screen": "Workflows",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 6553426
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 12136044
     },
     {
+      "id": "SHOT-frontline",
       "route": "/frontline/",
       "file": "frontline.png",
-      "heading": "Frontline Worker Application",
+      "screen": "Frontline Worker Application",
+      "moduleIds": [],
+      "screenIds": [
+        "SCR-FL-01",
+        "SCR-FL-02",
+        "SCR-FL-03",
+        "SCR-FL-04",
+        "SCR-FL-05",
+        "SCR-FL-06"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-FL-009-5"
+      ],
       "identifiersOnPage": [
         "AC-FL-009-5",
         "SCR-FL-01",
@@ -2132,12 +4737,35 @@
         "SCR-FL-05",
         "SCR-FL-06"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 877706
     },
     {
+      "id": "SHOT-frontline-my-runs",
       "route": "/frontline/my-runs/",
       "file": "frontline-my-runs.png",
-      "heading": "My Runs",
+      "screen": "My Runs",
+      "moduleIds": [
+        "MOD-FL-A2",
+        "MOD-FL-A3",
+        "MOD-FL-A6",
+        "MOD-FL-B9"
+      ],
+      "screenIds": [
+        "SCR-FL-02",
+        "SCR-FL-05"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-FL-000-5",
+        "AC-FL-011-1"
+      ],
       "identifiersOnPage": [
         "AC-FL-000-5",
         "AC-FL-011-1",
@@ -2148,12 +4776,54 @@
         "SCR-FL-02",
         "SCR-FL-05"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2607871
     },
     {
+      "id": "SHOT-frontline-notifications-and-sync-inbox",
       "route": "/frontline/notifications-and-sync-inbox/",
       "file": "frontline-notifications-and-sync-inbox.png",
-      "heading": "Notifications and sync inbox",
+      "screen": "Notifications and sync inbox",
+      "moduleIds": [
+        "MOD-CC-10",
+        "MOD-FL-A1",
+        "MOD-FL-A2",
+        "MOD-FL-A3",
+        "MOD-FL-A4",
+        "MOD-FL-A5",
+        "MOD-FL-A6",
+        "MOD-FL-A7",
+        "MOD-FL-B10",
+        "MOD-FL-B11",
+        "MOD-FL-B9"
+      ],
+      "screenIds": [
+        "SCR-FL-003",
+        "SCR-FL-006",
+        "SCR-FL-04",
+        "SCR-FL-06"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-FL-000-4",
+        "AC-FL-006-3",
+        "AC-FL-007-1",
+        "AC-FL-010-1",
+        "AC-FL-010-5",
+        "AC-FL-011-1",
+        "AC-FL-011-5",
+        "AC-OFF-701",
+        "AC-STU-097",
+        "AC-STU-104",
+        "AC-STU-138",
+        "AC-STU-143"
+      ],
       "identifiersOnPage": [
         "AC-FL-000-4",
         "AC-FL-006-3",
@@ -2183,12 +4853,45 @@
         "SCR-FL-04",
         "SCR-FL-06"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 8201826
     },
     {
+      "id": "SHOT-frontline-profile-lite",
       "route": "/frontline/profile-lite/",
       "file": "frontline-profile-lite.png",
-      "heading": "Profile-lite",
+      "screen": "Profile-lite",
+      "moduleIds": [
+        "MOD-FL-A1",
+        "MOD-FL-A2",
+        "MOD-FL-A4",
+        "MOD-FL-A6",
+        "MOD-FL-A7"
+      ],
+      "screenIds": [
+        "SCR-FL-006",
+        "SCR-FL-02",
+        "SCR-FL-03",
+        "SCR-FL-06",
+        "SCR-FL-21"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-FL-000-4",
+        "AC-FL-007-1",
+        "AC-FL-011-1",
+        "AC-FL-011-5",
+        "AC-FL-025-5",
+        "AC-FL-026-5",
+        "AC-OFF-701",
+        "AC-OFF-702"
+      ],
       "identifiersOnPage": [
         "AC-FL-000-4",
         "AC-FL-007-1",
@@ -2209,12 +4912,65 @@
         "SCR-FL-06",
         "SCR-FL-21"
       ],
-      "bytes": 4261194
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 4261120
     },
     {
+      "id": "SHOT-frontline-run-player",
       "route": "/frontline/run-player/",
       "file": "frontline-run-player.png",
-      "heading": "Run Player",
+      "screen": "Run Player",
+      "moduleIds": [
+        "MOD-CC-07",
+        "MOD-FL-A1",
+        "MOD-FL-A2",
+        "MOD-FL-A3",
+        "MOD-FL-A4",
+        "MOD-FL-A5",
+        "MOD-FL-A6",
+        "MOD-FL-A7",
+        "MOD-FL-B10",
+        "MOD-FL-B11",
+        "MOD-FL-B8",
+        "MOD-FL-B9"
+      ],
+      "screenIds": [
+        "SCR-CC-SAFETY-01",
+        "SCR-FL-03",
+        "SCR-FL-13",
+        "SCR-FL-16",
+        "SCR-FL-COACH-07"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-FL-000-4",
+        "AC-FL-000-5",
+        "AC-FL-001-5",
+        "AC-FL-006-3",
+        "AC-FL-007-3",
+        "AC-FL-010-2",
+        "AC-FL-011-1",
+        "AC-FL-011-2",
+        "AC-FL-025-5",
+        "AC-MTX-004",
+        "AC-RUN-004",
+        "AC-SCR-FL-002",
+        "AC-SCR-FL-004",
+        "AC-SCR-FL-006",
+        "AC-STU-065",
+        "AC-STU-070",
+        "AC-STU-090",
+        "AC-STU-097",
+        "AC-STU-104",
+        "AC-STU-138",
+        "AC-STU-143"
+      ],
       "identifiersOnPage": [
         "AC-FL-000-4",
         "AC-FL-000-5",
@@ -2255,12 +5011,35 @@
         "SCR-FL-16",
         "SCR-FL-COACH-07"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 17242521
     },
     {
+      "id": "SHOT-frontline-sign-in",
       "route": "/frontline/sign-in/",
       "file": "frontline-sign-in.png",
-      "heading": "Login",
+      "screen": "Login",
+      "moduleIds": [
+        "MOD-FL-A1",
+        "MOD-FL-B9"
+      ],
+      "screenIds": [
+        "SCR-FL-006",
+        "SCR-FL-01",
+        "SCR-FL-06"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-FL-011-1",
+        "AC-FL-025-5",
+        "AC-FL-026-5"
+      ],
       "identifiersOnPage": [
         "AC-FL-011-1",
         "AC-FL-025-5",
@@ -2271,12 +5050,42 @@
         "SCR-FL-01",
         "SCR-FL-06"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1521910
     },
     {
+      "id": "SHOT-frontline-training-library-viewer",
       "route": "/frontline/training-library-viewer/",
       "file": "frontline-training-library-viewer.png",
-      "heading": "Training Library",
+      "screen": "Training Library",
+      "moduleIds": [
+        "MOD-FL-A1",
+        "MOD-FL-A7",
+        "MOD-FL-B10",
+        "MOD-FL-B11",
+        "MOD-FL-B12",
+        "MOD-FL-B8"
+      ],
+      "screenIds": [
+        "SCR-FL-05",
+        "SCR-FL-19"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-FL-000-4",
+        "AC-FL-011-1",
+        "AC-STU-070",
+        "AC-STU-097",
+        "AC-STU-104",
+        "AC-STU-138",
+        "AC-STU-143"
+      ],
       "identifiersOnPage": [
         "AC-FL-000-4",
         "AC-FL-011-1",
@@ -2294,12 +5103,69 @@
         "SCR-FL-05",
         "SCR-FL-19"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2793313
     },
     {
+      "id": "SHOT-hub",
       "route": "/hub/",
       "file": "hub.png",
-      "heading": "Delivery Operations Hub",
+      "screen": "Delivery Operations Hub",
+      "moduleIds": [
+        "MOD-DOH-01",
+        "MOD-DOH-02",
+        "MOD-DOH-03",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-08",
+        "MOD-DOH-09",
+        "MOD-DOH-10",
+        "MOD-DOH-11",
+        "MOD-DOH-12",
+        "MOD-DOH-13",
+        "MOD-DOH-14",
+        "MOD-DOH-15",
+        "MOD-DOH-16",
+        "MOD-DOH-17",
+        "MOD-DOH-18",
+        "MOD-DOH-19"
+      ],
+      "screenIds": [
+        "SCR-DOH-01",
+        "SCR-DOH-03",
+        "SCR-DOH-04",
+        "SCR-DOH-05",
+        "SCR-DOH-06",
+        "SCR-DOH-07",
+        "SCR-DOH-08",
+        "SCR-DOH-09",
+        "SCR-DOH-10",
+        "SCR-DOH-11",
+        "SCR-DOH-12",
+        "SCR-DOH-13",
+        "SCR-DOH-14",
+        "SCR-DOH-15",
+        "SCR-DOH-16",
+        "SCR-DOH-17",
+        "SCR-DOH-18",
+        "SCR-DOH-19",
+        "SCR-DOH-20",
+        "SCR-DOH-21",
+        "SCR-DOH-22",
+        "SCR-DOH-NN"
+      ],
+      "featureIds": [
+        "FEAT-DOH-1201"
+      ],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "FEAT-DOH-1201",
         "MOD-DOH-01",
@@ -2344,22 +5210,57 @@
         "SCR-DOH-22",
         "SCR-DOH-NN"
       ],
-      "bytes": 595163
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 631623
     },
     {
+      "id": "SHOT-hub-audit-and-retention",
       "route": "/hub/audit-and-retention/",
       "file": "hub-audit-and-retention.png",
-      "heading": "Audit and Retention",
+      "screen": "Audit and Retention",
+      "moduleIds": [
+        "MOD-DOH-11"
+      ],
+      "screenIds": [
+        "SCR-DOH-20"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-DOH-11",
         "SCR-DOH-20"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1683998
     },
     {
+      "id": "SHOT-hub-devices",
       "route": "/hub/devices/",
       "file": "hub-devices.png",
-      "heading": "Device enrollment",
+      "screen": "Device enrollment",
+      "moduleIds": [],
+      "screenIds": [
+        "SCR-DOH-DEVICES"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-WF-DVC-001-01",
+        "AC-WF-DVC-001-03",
+        "AC-WF-DVC-002-01",
+        "AC-WF-DVC-003-01"
+      ],
       "identifiersOnPage": [
         "AC-WF-DVC-001-01",
         "AC-WF-DVC-001-03",
@@ -2367,12 +5268,51 @@
         "AC-WF-DVC-003-01",
         "SCR-DOH-DEVICES"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2085015
     },
     {
+      "id": "SHOT-hub-execution-summary-review",
       "route": "/hub/execution-summary-review/",
       "file": "hub-execution-summary-review.png",
-      "heading": "Execution Summary review",
+      "screen": "Execution Summary review",
+      "moduleIds": [
+        "MOD-CC-13",
+        "MOD-DOH-01",
+        "MOD-DOH-02",
+        "MOD-DOH-03",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-08",
+        "MOD-DOH-09",
+        "MOD-DOH-10",
+        "MOD-DOH-11",
+        "MOD-DOH-12",
+        "MOD-DOH-13",
+        "MOD-DOH-14",
+        "MOD-DOH-15",
+        "MOD-DOH-16",
+        "MOD-DOH-17",
+        "MOD-DOH-18",
+        "MOD-DOH-19"
+      ],
+      "screenIds": [
+        "SCR-DOH-16",
+        "SCR-DOH-17"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-DOH-014-2",
+        "AC-WF-QLT-006-02"
+      ],
       "identifiersOnPage": [
         "AC-DOH-014-2",
         "AC-WF-QLT-006-02",
@@ -2399,12 +5339,35 @@
         "SCR-DOH-16",
         "SCR-DOH-17"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 3442277
     },
     {
+      "id": "SHOT-hub-integration-surface",
       "route": "/hub/integration-surface/",
       "file": "hub-integration-surface.png",
-      "heading": "Integration Surface (Tenant Side)",
+      "screen": "Integration Surface (Tenant Side)",
+      "moduleIds": [
+        "MOD-DOH-10",
+        "MOD-DOH-12"
+      ],
+      "screenIds": [
+        "SCR-DOH-03",
+        "SCR-DOH-21"
+      ],
+      "featureIds": [
+        "FEAT-DOH-1201"
+      ],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-DOH-12-1",
+        "AC-DOH-12-4"
+      ],
       "identifiersOnPage": [
         "AC-DOH-12-1",
         "AC-DOH-12-4",
@@ -2414,24 +5377,73 @@
         "SCR-DOH-03",
         "SCR-DOH-21"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2106316
     },
     {
+      "id": "SHOT-hub-job-approval-queue",
       "route": "/hub/job-approval-queue/",
       "file": "hub-job-approval-queue.png",
-      "heading": "Job Lifecycle and Approval — Job approval queue",
+      "screen": "Job Lifecycle and Approval — Job approval queue",
+      "moduleIds": [
+        "MOD-DOH-05"
+      ],
+      "screenIds": [
+        "SCR-DOH-10",
+        "SCR-DOH-11",
+        "SCR-DOH-12"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-DOH-05",
         "SCR-DOH-10",
         "SCR-DOH-11",
         "SCR-DOH-12"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 553529
     },
     {
+      "id": "SHOT-hub-job-lifecycle-and-approval",
       "route": "/hub/job-lifecycle-and-approval/",
       "file": "hub-job-lifecycle-and-approval.png",
-      "heading": "Job Lifecycle and Approval",
+      "screen": "Job Lifecycle and Approval",
+      "moduleIds": [
+        "MOD-DOH-02",
+        "MOD-DOH-03",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-15"
+      ],
+      "screenIds": [
+        "SCR-DOH-10",
+        "SCR-DOH-11",
+        "SCR-DOH-12",
+        "SCR-DOH-23"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-DOH-05-2",
+        "FUNC-DOH-15-2"
+      ],
+      "acceptanceIds": [
+        "AC-DOH-05-11",
+        "AC-DOH-05-5",
+        "AC-DOH-15-3",
+        "AC-WF-ORG-002-04"
+      ],
       "identifiersOnPage": [
         "AC-DOH-05-11",
         "AC-DOH-05-5",
@@ -2449,12 +5461,57 @@
         "SCR-DOH-12",
         "SCR-DOH-23"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 3122993
     },
     {
+      "id": "SHOT-hub-journey",
       "route": "/hub/journey/",
       "file": "hub-journey.png",
-      "heading": "Job Lifecycle and Approval",
+      "screen": "Job Lifecycle and Approval",
+      "moduleIds": [
+        "MOD-DOH-01",
+        "MOD-DOH-02",
+        "MOD-DOH-03",
+        "MOD-DOH-04",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-08",
+        "MOD-DOH-09",
+        "MOD-DOH-10",
+        "MOD-DOH-11",
+        "MOD-DOH-12",
+        "MOD-DOH-13",
+        "MOD-DOH-14",
+        "MOD-DOH-15",
+        "MOD-DOH-16",
+        "MOD-DOH-17",
+        "MOD-DOH-18",
+        "MOD-DOH-19"
+      ],
+      "screenIds": [
+        "SCR-DOH-10",
+        "SCR-DOH-11",
+        "SCR-DOH-12",
+        "SCR-DOH-23"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-DOH-05-2",
+        "FUNC-DOH-15-2"
+      ],
+      "acceptanceIds": [
+        "AC-DOH-05-11",
+        "AC-DOH-05-5",
+        "AC-DOH-15-3",
+        "AC-WF-ORG-002-04"
+      ],
       "identifiersOnPage": [
         "AC-DOH-05-11",
         "AC-DOH-05-5",
@@ -2486,23 +5543,60 @@
         "SCR-DOH-12",
         "SCR-DOH-23"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 4963004
     },
     {
+      "id": "SHOT-hub-location-configuration",
       "route": "/hub/location-configuration/",
       "file": "hub-location-configuration.png",
-      "heading": "Location Configuration",
+      "screen": "Location Configuration",
+      "moduleIds": [
+        "MOD-DOH-02",
+        "MOD-DOH-05"
+      ],
+      "screenIds": [
+        "SCR-DOH-04"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-DOH-02",
         "MOD-DOH-05",
         "SCR-DOH-04"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1782741
     },
     {
+      "id": "SHOT-hub-multi-area-job-pairing",
       "route": "/hub/multi-area-job-pairing/",
       "file": "hub-multi-area-job-pairing.png",
-      "heading": "Multi-Area Job Pairing — the paired scheduling view",
+      "screen": "Multi-Area Job Pairing — the paired scheduling view",
+      "moduleIds": [
+        "MOD-DOH-15",
+        "MOD-DOH-16"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-DOH-16-1",
+        "FUNC-DOH-16-2"
+      ],
+      "acceptanceIds": [
+        "AC-DOH-16-4"
+      ],
       "identifiersOnPage": [
         "AC-DOH-16-4",
         "FUNC-DOH-16-1",
@@ -2510,12 +5604,32 @@
         "MOD-DOH-15",
         "MOD-DOH-16"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1076686
     },
     {
+      "id": "SHOT-hub-notifications",
       "route": "/hub/notifications/",
       "file": "hub-notifications.png",
-      "heading": "Notifications",
+      "screen": "Notifications",
+      "moduleIds": [
+        "MOD-DOH-03",
+        "MOD-DOH-10",
+        "MOD-DOH-17"
+      ],
+      "screenIds": [
+        "SCR-DOH-19"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-DOH-011-2"
+      ],
       "identifiersOnPage": [
         "AC-DOH-011-2",
         "MOD-DOH-03",
@@ -2523,23 +5637,61 @@
         "MOD-DOH-17",
         "SCR-DOH-19"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 7774239
     },
     {
+      "id": "SHOT-hub-parts-registry",
       "route": "/hub/parts-registry/",
       "file": "hub-parts-registry.png",
-      "heading": "Parts registry",
+      "screen": "Parts registry",
+      "moduleIds": [
+        "MOD-DOH-19",
+        "MOD-STU-10"
+      ],
+      "screenIds": [
+        "SCR-DOH-06"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-DOH-19",
         "MOD-STU-10",
         "SCR-DOH-06"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1022343
     },
     {
+      "id": "SHOT-hub-permissions-roles-and-access",
       "route": "/hub/permissions-roles-and-access/",
       "file": "hub-permissions-roles-and-access.png",
-      "heading": "Permissions, Roles and Access",
+      "screen": "Permissions, Roles and Access",
+      "moduleIds": [
+        "MOD-DOH-09"
+      ],
+      "screenIds": [
+        "SCR-DOH-01",
+        "SCR-DOH-18",
+        "SCR-DOH-PERM-ROLES",
+        "SCR-DOH-ROLE-01",
+        "SCR-DOH-ROLE-04",
+        "SCR-DOH-ROLE-05"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-DOH-09",
         "SCR-DOH-01",
@@ -2549,12 +5701,33 @@
         "SCR-DOH-ROLE-04",
         "SCR-DOH-ROLE-05"
       ],
-      "bytes": 3038233
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 3037950
     },
     {
+      "id": "SHOT-hub-qualification-calendar",
       "route": "/hub/qualification-calendar/",
       "file": "hub-qualification-calendar.png",
-      "heading": "Qualification Calendar",
+      "screen": "Qualification Calendar",
+      "moduleIds": [
+        "MOD-DOH-03",
+        "MOD-DOH-10",
+        "MOD-DOH-14"
+      ],
+      "screenIds": [
+        "SCR-DOH-09",
+        "SCR-DOH-NN"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-DOH-14-4"
+      ],
       "identifiersOnPage": [
         "AC-DOH-14-4",
         "MOD-DOH-03",
@@ -2563,12 +5736,40 @@
         "SCR-DOH-09",
         "SCR-DOH-NN"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2000257
     },
     {
+      "id": "SHOT-hub-run-scheduling-and-execution-oversight",
       "route": "/hub/run-scheduling-and-execution-oversight/",
       "file": "hub-run-scheduling-and-execution-oversight.png",
-      "heading": "Run Scheduling and Execution Oversight",
+      "screen": "Run Scheduling and Execution Oversight",
+      "moduleIds": [
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-07",
+        "MOD-DOH-08"
+      ],
+      "screenIds": [
+        "SCR-DOH-13",
+        "SCR-DOH-14",
+        "SCR-DOH-15",
+        "SCR-DOH-23"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-DOH-014-2",
+        "AC-DOH-07-5",
+        "AC-RUN-002",
+        "AC-RUN-004",
+        "AC-RUN-005"
+      ],
       "identifiersOnPage": [
         "AC-DOH-014-2",
         "AC-DOH-07-5",
@@ -2584,12 +5785,38 @@
         "SCR-DOH-15",
         "SCR-DOH-23"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2769349
     },
     {
+      "id": "SHOT-hub-shift-management",
       "route": "/hub/shift-management/",
       "file": "hub-shift-management.png",
-      "heading": "Shift Management",
+      "screen": "Shift Management",
+      "moduleIds": [
+        "MOD-DOH-03",
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-DOH-10"
+      ],
+      "screenIds": [
+        "SCR-DOH-05",
+        "SCR-TEN-SHIFT-01"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-DOH-03-1",
+        "FUNC-DOH-03-2"
+      ],
+      "acceptanceIds": [
+        "AC-WF-ORG-003-01",
+        "AC-WF-ORG-003-02"
+      ],
       "identifiersOnPage": [
         "AC-WF-ORG-003-01",
         "AC-WF-ORG-003-02",
@@ -2602,12 +5829,34 @@
         "SCR-DOH-05",
         "SCR-TEN-SHIFT-01"
       ],
-      "bytes": 2411969
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 2415011
     },
     {
+      "id": "SHOT-hub-tenant-lifecycle-and-tier-operations",
       "route": "/hub/tenant-lifecycle-and-tier-operations/",
       "file": "hub-tenant-lifecycle-and-tier-operations.png",
-      "heading": "Tenant Lifecycle and Tier Operations",
+      "screen": "Tenant Lifecycle and Tier Operations",
+      "moduleIds": [
+        "MOD-DOH-01",
+        "MOD-DOH-07"
+      ],
+      "screenIds": [
+        "SCR-DOH-03"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-CMD-007",
+        "AC-DOH-01-1",
+        "AC-DOH-01-10",
+        "AC-DOH-01-2"
+      ],
       "identifiersOnPage": [
         "AC-CMD-007",
         "AC-DOH-01-1",
@@ -2617,12 +5866,33 @@
         "MOD-DOH-07",
         "SCR-DOH-03"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1982079
     },
     {
+      "id": "SHOT-hub-tenant-view-of-platform-administration",
       "route": "/hub/tenant-view-of-platform-administration/",
       "file": "hub-tenant-view-of-platform-administration.png",
-      "heading": "Tenant View of Platform Administration",
+      "screen": "Tenant View of Platform Administration",
+      "moduleIds": [
+        "MOD-DOH-11",
+        "MOD-DOH-13"
+      ],
+      "screenIds": [
+        "SCR-DOH-22",
+        "SCR-DOH-NN",
+        "SCR-DOH-PAH-02"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-005"
+      ],
       "identifiersOnPage": [
         "AC-SA-005",
         "MOD-DOH-11",
@@ -2631,12 +5901,46 @@
         "SCR-DOH-NN",
         "SCR-DOH-PAH-02"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2709369
     },
     {
+      "id": "SHOT-hub-worker-assignment",
       "route": "/hub/worker-assignment/",
       "file": "hub-worker-assignment.png",
-      "heading": "Assignment and substitution",
+      "screen": "Assignment and substitution",
+      "moduleIds": [
+        "MOD-DOH-01",
+        "MOD-DOH-04",
+        "MOD-DOH-06",
+        "MOD-DOH-07"
+      ],
+      "screenIds": [
+        "SCR-DOH-15"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-DOH-07-1",
+        "FUNC-DOH-07-2"
+      ],
+      "acceptanceIds": [
+        "AC-DOH-01-1",
+        "AC-DOH-014-1",
+        "AC-DOH-014-2",
+        "AC-DOH-07-1",
+        "AC-DOH-07-10",
+        "AC-DOH-07-2",
+        "AC-DOH-07-3",
+        "AC-DOH-07-4",
+        "AC-DOH-07-5",
+        "AC-DOH-07-7",
+        "AC-DOH-07-8"
+      ],
       "identifiersOnPage": [
         "AC-DOH-01-1",
         "AC-DOH-014-1",
@@ -2657,12 +5961,44 @@
         "MOD-DOH-07",
         "SCR-DOH-15"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2506860
     },
     {
+      "id": "SHOT-hub-worker-lifecycle-and-qualifications",
       "route": "/hub/worker-lifecycle-and-qualifications/",
       "file": "hub-worker-lifecycle-and-qualifications.png",
-      "heading": "Worker Lifecycle and Qualifications",
+      "screen": "Worker Lifecycle and Qualifications",
+      "moduleIds": [
+        "MOD-DOH-04",
+        "MOD-DOH-07"
+      ],
+      "screenIds": [
+        "SCR-DOH-07",
+        "SCR-DOH-08"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-DOH-04-1",
+        "FUNC-DOH-04-2",
+        "FUNC-DOH-04-3"
+      ],
+      "acceptanceIds": [
+        "AC-DOH-04-1",
+        "AC-DOH-04-10",
+        "AC-DOH-04-11",
+        "AC-DOH-04-6",
+        "AC-DOH-04-7",
+        "AC-DOH-04-9",
+        "AC-NFR-1105",
+        "AC-WF-WKR-001-03",
+        "AC-WF-WKR-001-04"
+      ],
       "identifiersOnPage": [
         "AC-DOH-04-1",
         "AC-DOH-04-10",
@@ -2681,19 +6017,82 @@
         "SCR-DOH-07",
         "SCR-DOH-08"
       ],
-      "bytes": 4109305
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 4120244
     },
     {
+      "id": "SHOT-review",
       "route": "/review/",
       "file": "review.png",
-      "heading": "Review",
+      "screen": "Review",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [],
-      "bytes": 75210
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 150497
     },
     {
+      "id": "SHOT-studio",
       "route": "/studio/",
       "file": "studio.png",
-      "heading": "Standards and Operations Studio",
+      "screen": "Standards and Operations Studio",
+      "moduleIds": [
+        "MOD-STU-01",
+        "MOD-STU-02",
+        "MOD-STU-03",
+        "MOD-STU-04",
+        "MOD-STU-05",
+        "MOD-STU-06",
+        "MOD-STU-07",
+        "MOD-STU-08",
+        "MOD-STU-09",
+        "MOD-STU-10",
+        "MOD-STU-11",
+        "MOD-STU-12",
+        "MOD-STU-13",
+        "MOD-STU-14",
+        "MOD-STU-15",
+        "MOD-STU-16",
+        "MOD-STU-17",
+        "MOD-STU-18"
+      ],
+      "screenIds": [
+        "SCR-STU-01",
+        "SCR-STU-02",
+        "SCR-STU-03",
+        "SCR-STU-04",
+        "SCR-STU-05",
+        "SCR-STU-06",
+        "SCR-STU-07",
+        "SCR-STU-08",
+        "SCR-STU-09",
+        "SCR-STU-10",
+        "SCR-STU-11",
+        "SCR-STU-12",
+        "SCR-STU-13",
+        "SCR-STU-14",
+        "SCR-STU-15",
+        "SCR-STU-CAPS",
+        "SCR-STU-LEARN",
+        "SCR-STU-NN",
+        "SCR-STU-PARTADD"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-STU-01",
         "MOD-STU-02",
@@ -2733,12 +6132,51 @@
         "SCR-STU-NN",
         "SCR-STU-PARTADD"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 601168
     },
     {
+      "id": "SHOT-studio-agents",
       "route": "/studio/agents/",
       "file": "studio-agents.png",
-      "heading": "Agent Configuration",
+      "screen": "Agent Configuration",
+      "moduleIds": [
+        "MOD-DOH-03",
+        "MOD-DOH-09",
+        "MOD-SA-02",
+        "MOD-SA-05",
+        "MOD-SA-11",
+        "MOD-STU-01",
+        "MOD-STU-02",
+        "MOD-STU-04",
+        "MOD-STU-05",
+        "MOD-STU-07",
+        "MOD-STU-11",
+        "MOD-STU-13",
+        "MOD-STU-15",
+        "MOD-STU-18"
+      ],
+      "screenIds": [
+        "SCR-STU-13"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-STU-02-01-C-1",
+        "FUNC-STU-02-02-B-2",
+        "FUNC-STU-02-02-B-3"
+      ],
+      "acceptanceIds": [
+        "AC-STU-006",
+        "AC-STU-008",
+        "AC-STU-043",
+        "AC-STU-133",
+        "AC-STU-135"
+      ],
       "identifiersOnPage": [
         "AC-STU-006",
         "AC-STU-008",
@@ -2764,12 +6202,53 @@
         "MOD-STU-18",
         "SCR-STU-13"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2825526
     },
     {
+      "id": "SHOT-studio-approvals",
       "route": "/studio/approvals/",
       "file": "studio-approvals.png",
-      "heading": "Approval Workflow",
+      "screen": "Approval Workflow",
+      "moduleIds": [
+        "MOD-STU-04",
+        "MOD-STU-07",
+        "MOD-STU-08",
+        "MOD-STU-09",
+        "MOD-STU-11",
+        "MOD-STU-15"
+      ],
+      "screenIds": [
+        "SCR-STU-04",
+        "SCR-STU-11"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-STU-07-04-B-1",
+        "FUNC-STU-08-02-A-1",
+        "FUNC-STU-09-02-A-1",
+        "FUNC-STU-11-01-A-2",
+        "FUNC-STU-11-01-B-1",
+        "FUNC-STU-11-01-B-2",
+        "FUNC-STU-11-01-B-3",
+        "FUNC-STU-11-01-C-2",
+        "FUNC-STU-11-03-A-2",
+        "FUNC-STU-15-03-B-1"
+      ],
+      "acceptanceIds": [
+        "AC-STU-097",
+        "AC-STU-098",
+        "AC-STU-099",
+        "AC-STU-104",
+        "AC-STU-138",
+        "AC-STU-143",
+        "AC-WF-AUT-006-03"
+      ],
       "identifiersOnPage": [
         "AC-STU-097",
         "AC-STU-098",
@@ -2797,12 +6276,51 @@
         "SCR-STU-04",
         "SCR-STU-11"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1490629
     },
     {
+      "id": "SHOT-studio-builder",
       "route": "/studio/builder/",
       "file": "studio-builder.png",
-      "heading": "Workflow Builder",
+      "screen": "Workflow Builder",
+      "moduleIds": [
+        "MOD-STU-01",
+        "MOD-STU-04",
+        "MOD-STU-05",
+        "MOD-STU-06",
+        "MOD-STU-07",
+        "MOD-STU-10",
+        "MOD-STU-11",
+        "MOD-STU-13",
+        "MOD-STU-17"
+      ],
+      "screenIds": [
+        "SCR-STU-03"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-STU-04-01-C-1",
+        "FUNC-STU-05-03-A-1",
+        "FUNC-STU-05-06-A-1",
+        "FUNC-STU-05-07-A-1",
+        "FUNC-STU-05-08-A-2",
+        "FUNC-STU-05-08-C-1",
+        "FUNC-STU-05-10-A-1",
+        "FUNC-STU-06-02-A-1",
+        "FUNC-STU-11-02-A-2",
+        "FUNC-STU-17-03-A-1"
+      ],
+      "acceptanceIds": [
+        "AC-STU-007",
+        "AC-STU-055",
+        "AC-STU-149"
+      ],
       "identifiersOnPage": [
         "AC-STU-007",
         "AC-STU-055",
@@ -2828,12 +6346,41 @@
         "MOD-STU-17",
         "SCR-STU-03"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1281622
     },
     {
+      "id": "SHOT-studio-capabilities",
       "route": "/studio/capabilities/",
       "file": "studio-capabilities.png",
-      "heading": "Charter and Position",
+      "screen": "Charter and Position",
+      "moduleIds": [
+        "MOD-STU-01",
+        "MOD-STU-02",
+        "MOD-STU-05",
+        "MOD-STU-07",
+        "MOD-STU-12",
+        "MOD-STU-15",
+        "MOD-STU-18"
+      ],
+      "screenIds": [
+        "SCR-STU-13",
+        "SCR-STU-CAPS"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-STU-005",
+        "AC-STU-006",
+        "AC-STU-007",
+        "AC-STU-008",
+        "AC-STU-041"
+      ],
       "identifiersOnPage": [
         "AC-STU-005",
         "AC-STU-006",
@@ -2850,12 +6397,37 @@
         "SCR-STU-13",
         "SCR-STU-CAPS"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1932897
     },
     {
+      "id": "SHOT-studio-content-libraries",
       "route": "/studio/content-libraries/",
       "file": "studio-content-libraries.png",
-      "heading": "Content Libraries",
+      "screen": "Content Libraries",
+      "moduleIds": [
+        "MOD-SA-07",
+        "MOD-STU-07"
+      ],
+      "screenIds": [
+        "SCR-STU-06",
+        "SCR-STU-07",
+        "SCR-STU-08",
+        "SCR-STU-CHECKLIST"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-STU-018",
+        "AC-STU-070",
+        "AC-STU-071",
+        "AC-STU-077"
+      ],
       "identifiersOnPage": [
         "AC-STU-018",
         "AC-STU-070",
@@ -2868,12 +6440,36 @@
         "SCR-STU-08",
         "SCR-STU-CHECKLIST"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 722818
     },
     {
+      "id": "SHOT-studio-instruction-blocks",
       "route": "/studio/instruction-blocks/",
       "file": "studio-instruction-blocks.png",
-      "heading": "Shared Instruction Blocks",
+      "screen": "Shared Instruction Blocks",
+      "moduleIds": [
+        "MOD-STU-06"
+      ],
+      "screenIds": [
+        "SCR-STU-05",
+        "SCR-STU-BLOCK"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-STU-06-02-A-1",
+        "FUNC-STU-06-03-A-1"
+      ],
+      "acceptanceIds": [
+        "AC-STU-067",
+        "AC-STU-069",
+        "AC-STU-070"
+      ],
       "identifiersOnPage": [
         "AC-STU-067",
         "AC-STU-069",
@@ -2884,12 +6480,39 @@
         "SCR-STU-05",
         "SCR-STU-BLOCK"
       ],
-      "bytes": 758620
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 758598
     },
     {
+      "id": "SHOT-studio-journey",
       "route": "/studio/journey/",
       "file": "studio-journey.png",
-      "heading": "Workflow Library and Tenant Workspace",
+      "screen": "Workflow Library and Tenant Workspace",
+      "moduleIds": [
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-STU-03",
+        "MOD-STU-07",
+        "MOD-STU-12"
+      ],
+      "screenIds": [
+        "SCR-STU-02",
+        "SCR-STU-NEWWF"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-STU-017",
+        "AC-STU-047",
+        "AC-STU-049",
+        "AC-STU-051",
+        "AC-STU-053"
+      ],
       "identifiersOnPage": [
         "AC-STU-017",
         "AC-STU-047",
@@ -2904,12 +6527,39 @@
         "SCR-STU-02",
         "SCR-STU-NEWWF"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2531120
     },
     {
+      "id": "SHOT-studio-learning",
       "route": "/studio/learning/",
       "file": "studio-learning.png",
-      "heading": "Memory and the Two-Lane Learning Loop",
+      "screen": "Memory and the Two-Lane Learning Loop",
+      "moduleIds": [
+        "MOD-CC-06",
+        "MOD-CC-13",
+        "MOD-STU-02",
+        "MOD-STU-15",
+        "MOD-STU-16"
+      ],
+      "screenIds": [
+        "SCR-STU-13",
+        "SCR-STU-LEARN"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-STU-097",
+        "AC-STU-104",
+        "AC-STU-138",
+        "AC-STU-142",
+        "AC-STU-143"
+      ],
       "identifiersOnPage": [
         "AC-STU-097",
         "AC-STU-104",
@@ -2924,12 +6574,33 @@
         "SCR-STU-13",
         "SCR-STU-LEARN"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1579514
     },
     {
+      "id": "SHOT-studio-localisation",
       "route": "/studio/localisation/",
       "file": "studio-localisation.png",
-      "heading": "Localisation",
+      "screen": "Localisation",
+      "moduleIds": [
+        "MOD-STU-17"
+      ],
+      "screenIds": [
+        "SCR-STU-14"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-STU-17-03-A-1",
+        "FUNC-STU-17-03-A-2"
+      ],
+      "acceptanceIds": [
+        "AC-STU-149"
+      ],
       "identifiersOnPage": [
         "AC-STU-149",
         "FUNC-STU-17-03-A-1",
@@ -2937,12 +6608,40 @@
         "MOD-STU-17",
         "SCR-STU-14"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 734021
     },
     {
+      "id": "SHOT-studio-permissions-and-grants",
       "route": "/studio/permissions-and-grants/",
       "file": "studio-permissions-and-grants.png",
-      "heading": "Permissions and Roles in the Studio",
+      "screen": "Permissions and Roles in the Studio",
+      "moduleIds": [
+        "MOD-DOH-09",
+        "MOD-STU-04",
+        "MOD-STU-05",
+        "MOD-STU-07",
+        "MOD-STU-10",
+        "MOD-STU-15",
+        "MOD-STU-18"
+      ],
+      "screenIds": [
+        "SCR-STU-01",
+        "SCR-STU-15",
+        "SCR-STU-GRANT-01"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-STU-152",
+        "AC-STU-155",
+        "AC-STU-157"
+      ],
       "identifiersOnPage": [
         "AC-STU-152",
         "AC-STU-155",
@@ -2958,24 +6657,72 @@
         "SCR-STU-15",
         "SCR-STU-GRANT-01"
       ],
-      "bytes": 3445491
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 3465749
     },
     {
+      "id": "SHOT-studio-qualification-requirements",
       "route": "/studio/qualification-requirements/",
       "file": "studio-qualification-requirements.png",
-      "heading": "Qualification Requirements",
+      "screen": "Qualification Requirements",
+      "moduleIds": [
+        "MOD-CC-13",
+        "MOD-STU-13"
+      ],
+      "screenIds": [
+        "SCR-STU-10"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-STU-119"
+      ],
       "identifiersOnPage": [
         "AC-STU-119",
         "MOD-CC-13",
         "MOD-STU-13",
         "SCR-STU-10"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 382888
     },
     {
+      "id": "SHOT-studio-screen-configuration",
       "route": "/studio/screen-configuration/",
       "file": "studio-screen-configuration.png",
-      "heading": "Screen Authoring — the Nine Configuration Sections",
+      "screen": "Screen Authoring — the Nine Configuration Sections",
+      "moduleIds": [
+        "MOD-DOH-04",
+        "MOD-DOH-19",
+        "MOD-STU-05",
+        "MOD-STU-10",
+        "MOD-STU-14"
+      ],
+      "screenIds": [
+        "SCR-STU-04"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-STU-05-08-C-1",
+        "FUNC-STU-09-03-A-1",
+        "FUNC-STU-10-02-B-1"
+      ],
+      "acceptanceIds": [
+        "AC-STU-065",
+        "AC-STU-090",
+        "AC-STU-096",
+        "AC-STU-150"
+      ],
       "identifiersOnPage": [
         "AC-STU-065",
         "AC-STU-090",
@@ -2991,24 +6738,67 @@
         "MOD-STU-14",
         "SCR-STU-04"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1237303
     },
     {
+      "id": "SHOT-studio-sign-in",
       "route": "/studio/sign-in/",
       "file": "studio-sign-in.png",
-      "heading": "Permissions and Roles in the Studio",
+      "screen": "Permissions and Roles in the Studio",
+      "moduleIds": [
+        "MOD-STU-18"
+      ],
+      "screenIds": [
+        "SCR-STU-01"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-STU-155",
+        "AC-STU-157"
+      ],
       "identifiersOnPage": [
         "AC-STU-155",
         "AC-STU-157",
         "MOD-STU-18",
         "SCR-STU-01"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1041746
     },
     {
+      "id": "SHOT-studio-training-library",
       "route": "/studio/training-library/",
       "file": "studio-training-library.png",
-      "heading": "Training Library",
+      "screen": "Training Library",
+      "moduleIds": [
+        "MOD-FL-B12",
+        "MOD-STU-08"
+      ],
+      "screenIds": [
+        "SCR-STU-09"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-STU-08-03-A-1"
+      ],
+      "acceptanceIds": [
+        "AC-STU-080",
+        "AC-STU-081",
+        "AC-STU-085",
+        "AC-STU-150"
+      ],
       "identifiersOnPage": [
         "AC-STU-080",
         "AC-STU-081",
@@ -3019,12 +6809,68 @@
         "MOD-STU-08",
         "SCR-STU-09"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 607075
     },
     {
+      "id": "SHOT-studio-versions",
       "route": "/studio/versions/",
       "file": "studio-versions.png",
-      "heading": "Versioning and Publication",
+      "screen": "Versioning and Publication",
+      "moduleIds": [
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-STU-01",
+        "MOD-STU-03",
+        "MOD-STU-04",
+        "MOD-STU-05",
+        "MOD-STU-06",
+        "MOD-STU-11",
+        "MOD-STU-12",
+        "MOD-STU-13",
+        "MOD-STU-17"
+      ],
+      "screenIds": [
+        "SCR-STU-12"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-STU-04-02-B-2",
+        "FUNC-STU-05-03-A-1",
+        "FUNC-STU-05-06-A-1",
+        "FUNC-STU-05-07-A-1",
+        "FUNC-STU-05-08-A-2",
+        "FUNC-STU-05-08-C-1",
+        "FUNC-STU-05-10-A-1",
+        "FUNC-STU-06-02-A-1",
+        "FUNC-STU-11-02-A-2",
+        "FUNC-STU-12-01-A-1",
+        "FUNC-STU-12-01-A-2",
+        "FUNC-STU-12-01-B-1",
+        "FUNC-STU-12-02-B-1",
+        "FUNC-STU-12-02-C-1",
+        "FUNC-STU-12-03-A-1",
+        "FUNC-STU-12-03-B-1",
+        "FUNC-STU-12-03-C-1",
+        "FUNC-STU-12-03-D-1",
+        "FUNC-STU-12-03-E-1",
+        "FUNC-STU-17-03-A-1"
+      ],
+      "acceptanceIds": [
+        "AC-STU-007",
+        "AC-STU-053",
+        "AC-STU-105",
+        "AC-STU-106",
+        "AC-STU-108",
+        "AC-STU-110",
+        "AC-STU-111",
+        "AC-STU-149"
+      ],
       "identifiersOnPage": [
         "AC-STU-007",
         "AC-STU-053",
@@ -3067,12 +6913,48 @@
         "MOD-STU-17",
         "SCR-STU-12"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2396290
     },
     {
+      "id": "SHOT-studio-work-package",
       "route": "/studio/work-package/",
       "file": "studio-work-package.png",
-      "heading": "Offline Package",
+      "screen": "Offline Package",
+      "moduleIds": [
+        "MOD-DOH-06",
+        "MOD-FL-A",
+        "MOD-FL-B",
+        "MOD-STU-14"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-STU-14-01-A-1",
+        "FUNC-STU-14-01-A-3",
+        "FUNC-STU-14-01-B-1",
+        "FUNC-STU-14-01-C-1",
+        "FUNC-STU-14-02-A-1",
+        "FUNC-STU-14-02-A-2",
+        "FUNC-STU-14-02-B-1"
+      ],
+      "acceptanceIds": [
+        "AC-STU-030",
+        "AC-STU-070",
+        "AC-STU-080",
+        "AC-STU-090",
+        "AC-STU-120",
+        "AC-STU-125",
+        "AC-STU-126",
+        "AC-STU-127",
+        "AC-STU-150",
+        "AC-WF-AUT-009-01"
+      ],
       "identifiersOnPage": [
         "AC-STU-030",
         "AC-STU-070",
@@ -3096,12 +6978,39 @@
         "MOD-FL-B",
         "MOD-STU-14"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1520253
     },
     {
+      "id": "SHOT-studio-workflow-library",
       "route": "/studio/workflow-library/",
       "file": "studio-workflow-library.png",
-      "heading": "Workflow Library and Tenant Workspace",
+      "screen": "Workflow Library and Tenant Workspace",
+      "moduleIds": [
+        "MOD-DOH-05",
+        "MOD-DOH-06",
+        "MOD-STU-03",
+        "MOD-STU-07",
+        "MOD-STU-12"
+      ],
+      "screenIds": [
+        "SCR-STU-02",
+        "SCR-STU-NEWWF"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-STU-017",
+        "AC-STU-047",
+        "AC-STU-049",
+        "AC-STU-051",
+        "AC-STU-053"
+      ],
       "identifiersOnPage": [
         "AC-STU-017",
         "AC-STU-047",
@@ -3116,13 +7025,20 @@
         "SCR-STU-02",
         "SCR-STU-NEWWF"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1856989
     },
     {
+      "id": "SHOT-super-admin",
       "route": "/super-admin/",
       "file": "super-admin.png",
-      "heading": "Super Admin Platform Console",
-      "identifiersOnPage": [
+      "screen": "Super Admin Platform Console",
+      "moduleIds": [
         "MOD-SA-01",
         "MOD-SA-02",
         "MOD-SA-03",
@@ -3143,12 +7059,71 @@
         "MOD-SA-18",
         "MOD-SA-19"
       ],
-      "bytes": 162578
+      "screenIds": [
+        "SCR-SA-NN",
+        "SCR-SA-SCHED-01"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19",
+        "SCR-SA-NN",
+        "SCR-SA-SCHED-01"
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 178713
     },
     {
+      "id": "SHOT-super-admin-ai-incidents",
       "route": "/super-admin/ai-incidents/",
       "file": "super-admin-ai-incidents.png",
-      "heading": "Artificial-intelligence incident console",
+      "screen": "Artificial-intelligence incident console",
+      "moduleIds": [
+        "MOD-SA-07"
+      ],
+      "screenIds": [
+        "SCR-SA-08",
+        "SCR-SA-INCIDENT",
+        "SCR-SA-INCIDENT-01",
+        "SCR-SA-PAUSE",
+        "SCR-SA-PAUSE-01"
+      ],
+      "featureIds": [
+        "FEAT-SA-0702",
+        "FEAT-SA-0703"
+      ],
+      "functionIds": [
+        "FUNC-SA-0703"
+      ],
+      "acceptanceIds": [
+        "AC-AI-015-4",
+        "AC-AI-015-5",
+        "AC-AI-015-7"
+      ],
       "identifiersOnPage": [
         "AC-AI-015-4",
         "AC-AI-015-5",
@@ -3163,19 +7138,62 @@
         "SCR-SA-PAUSE",
         "SCR-SA-PAUSE-01"
       ],
-      "bytes": 4266246
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 4288643
     },
     {
+      "id": "SHOT-super-admin-atom-registry",
       "route": "/super-admin/atom-registry/",
       "file": "super-admin-atom-registry.png",
-      "heading": "Atom Registry",
+      "screen": "Atom Registry",
+      "moduleIds": [
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19"
+      ],
+      "screenIds": [
+        "SCR-SA-02",
+        "SCR-SA-08",
+        "SCR-SA-ATOM-ENABLE",
+        "SCR-SA-ATOMDETAIL",
+        "SCR-SA-ATOMS"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-AI-007-1",
+        "AC-SA-000-07",
+        "AC-SA-02-01",
+        "AC-SA-02-06",
+        "AC-SA-02-07",
+        "AC-SA-INV-003",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-AI-007-1",
         "AC-SA-000-07",
         "AC-SA-02-01",
-        "AC-SA-02-02",
-        "AC-SA-02-04",
-        "AC-SA-02-05",
         "AC-SA-02-06",
         "AC-SA-02-07",
         "AC-SA-INV-003",
@@ -3205,23 +7223,81 @@
         "SCR-SA-ATOMDETAIL",
         "SCR-SA-ATOMS"
       ],
-      "bytes": 2177716
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 2284130
     },
     {
+      "id": "SHOT-super-admin-console-users-roles-and-change-approvals",
       "route": "/super-admin/console-users-roles-and-change-approvals/",
       "file": "super-admin-console-users-roles-and-change-approvals.png",
-      "heading": "Console Users, Roles and Change Approvals",
+      "screen": "Console Users, Roles and Change Approvals",
+      "moduleIds": [
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19"
+      ],
+      "screenIds": [
+        "SCR-SA-01",
+        "SCR-SA-08",
+        "SCR-SA-09",
+        "SCR-SA-10",
+        "SCR-SA-12",
+        "SCR-SA-13"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-000-04",
+        "AC-SA-000-07",
+        "AC-SA-01-03",
+        "AC-SA-08-01",
+        "AC-SA-08-02",
+        "AC-SA-08-03",
+        "AC-SA-08-04",
+        "AC-SA-08-05",
+        "AC-SA-08-06",
+        "AC-SA-08-07",
+        "AC-SA-08-09",
+        "AC-SA-08-10",
+        "AC-SA-08-11",
+        "AC-SA-INV-003",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-04",
         "AC-SA-000-07",
         "AC-SA-01-03",
         "AC-SA-08-01",
         "AC-SA-08-02",
+        "AC-SA-08-03",
+        "AC-SA-08-04",
         "AC-SA-08-05",
         "AC-SA-08-06",
         "AC-SA-08-07",
         "AC-SA-08-09",
         "AC-SA-08-10",
+        "AC-SA-08-11",
         "AC-SA-INV-003",
         "AC-SEC-801",
         "MOD-SA-01",
@@ -3250,12 +7326,50 @@
         "SCR-SA-12",
         "SCR-SA-13"
       ],
-      "bytes": 4685169
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 4727478
     },
     {
+      "id": "SHOT-super-admin-core-agents-and-composed-agent-review",
       "route": "/super-admin/core-agents-and-composed-agent-review/",
       "file": "super-admin-core-agents-and-composed-agent-review.png",
-      "heading": "Core Agents and Composed-Agent Review",
+      "screen": "Core Agents and Composed-Agent Review",
+      "moduleIds": [
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19"
+      ],
+      "screenIds": [
+        "SCR-SA-03",
+        "SCR-SA-04",
+        "SCR-SA-08",
+        "SCR-SA-AGENTDETAIL",
+        "SCR-SA-MODELS"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-SA-01",
         "MOD-SA-02",
@@ -3282,12 +7396,45 @@
         "SCR-SA-AGENTDETAIL",
         "SCR-SA-MODELS"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2401794
     },
     {
+      "id": "SHOT-super-admin-data-lifecycle-and-archival",
       "route": "/super-admin/data-lifecycle-and-archival/",
       "file": "super-admin-data-lifecycle-and-archival.png",
-      "heading": "Data Lifecycle and Archival",
+      "screen": "Data Lifecycle and Archival",
+      "moduleIds": [
+        "MOD-SA-17"
+      ],
+      "screenIds": [
+        "SCR-SA-24"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-13-05",
+        "AC-SA-17-01",
+        "AC-SA-17-02",
+        "AC-SA-17-03",
+        "AC-SA-17-04",
+        "AC-SA-17-05",
+        "AC-SA-17-06",
+        "AC-SA-17-07",
+        "AC-SA-17-08",
+        "AC-SA-17-09",
+        "AC-SA-17-10",
+        "AC-SA-17-11",
+        "AC-SA-17-12",
+        "AC-SA-18-04",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-13-05",
@@ -3302,17 +7449,44 @@
         "AC-SA-17-09",
         "AC-SA-17-10",
         "AC-SA-17-11",
+        "AC-SA-17-12",
         "AC-SA-18-04",
         "AC-SEC-801",
         "MOD-SA-17",
         "SCR-SA-24"
       ],
-      "bytes": 1703355
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1731888
     },
     {
+      "id": "SHOT-super-admin-devices-and-fleet",
       "route": "/super-admin/devices-and-fleet/",
       "file": "super-admin-devices-and-fleet.png",
-      "heading": "Devices and Fleet",
+      "screen": "Devices and Fleet",
+      "moduleIds": [
+        "MOD-SA-13"
+      ],
+      "screenIds": [
+        "SCR-SA-19"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-000-08",
+        "AC-SA-01-03",
+        "AC-SA-13-02",
+        "AC-SA-13-03",
+        "AC-SA-13-04",
+        "AC-SA-13-05",
+        "AC-SA-13-06",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-000-08",
@@ -3326,12 +7500,59 @@
         "MOD-SA-13",
         "SCR-SA-19"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1574865
     },
     {
+      "id": "SHOT-super-admin-eval-harness",
       "route": "/super-admin/eval-harness/",
       "file": "super-admin-eval-harness.png",
-      "heading": "Eval Harness",
+      "screen": "Eval Harness",
+      "moduleIds": [
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19"
+      ],
+      "screenIds": [
+        "SCR-SA-06",
+        "SCR-SA-08",
+        "SCR-SA-EVALGATE",
+        "SCR-SA-EVALS"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-AI-011-1",
+        "AC-AI-011-2",
+        "AC-AI-011-4",
+        "AC-SA-000-07",
+        "AC-SA-05-01",
+        "AC-SA-05-04",
+        "AC-SA-05-06",
+        "AC-SA-05-09",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-AI-011-1",
         "AC-AI-011-2",
@@ -3366,12 +7587,50 @@
         "SCR-SA-EVALGATE",
         "SCR-SA-EVALS"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2506710
     },
     {
+      "id": "SHOT-super-admin-jbs-access",
       "route": "/super-admin/jbs-access/",
       "file": "super-admin-jbs-access.png",
-      "heading": "JBS Access",
+      "screen": "JBS Access",
+      "moduleIds": [
+        "MOD-SA-02",
+        "MOD-SA-05",
+        "MOD-SA-13",
+        "MOD-SA-16",
+        "MOD-SA-18"
+      ],
+      "screenIds": [
+        "SCR-SA-23"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-SA-16",
+        "FUNC-SA-16-01-A1",
+        "FUNC-SA-16-01-A2"
+      ],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-16-01",
+        "AC-SA-16-02",
+        "AC-SA-16-03",
+        "AC-SA-16-04",
+        "AC-SA-16-05",
+        "AC-SA-16-06",
+        "AC-SA-16-07",
+        "AC-SA-INV-003",
+        "AC-SEC-801",
+        "AC-SEC-807",
+        "AC-WF-PLT-003-01",
+        "AC-WF-ROLE-027-01"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-16-01",
@@ -3380,6 +7639,7 @@
         "AC-SA-16-04",
         "AC-SA-16-05",
         "AC-SA-16-06",
+        "AC-SA-16-07",
         "AC-SA-INV-003",
         "AC-SEC-801",
         "AC-SEC-807",
@@ -3395,12 +7655,58 @@
         "MOD-SA-18",
         "SCR-SA-23"
       ],
-      "bytes": 1206050
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1315876
     },
     {
+      "id": "SHOT-super-admin-memory-architecture",
       "route": "/super-admin/memory-architecture/",
       "file": "super-admin-memory-architecture.png",
-      "heading": "Memory Architecture",
+      "screen": "Memory Architecture",
+      "moduleIds": [
+        "MOD-SA-01",
+        "MOD-SA-02",
+        "MOD-SA-03",
+        "MOD-SA-04",
+        "MOD-SA-05",
+        "MOD-SA-06",
+        "MOD-SA-07",
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-11",
+        "MOD-SA-12",
+        "MOD-SA-13",
+        "MOD-SA-14",
+        "MOD-SA-15",
+        "MOD-SA-16",
+        "MOD-SA-17",
+        "MOD-SA-18",
+        "MOD-SA-19"
+      ],
+      "screenIds": [
+        "SCR-SA-05",
+        "SCR-SA-08",
+        "SCR-SA-FOOTPRINT",
+        "SCR-SA-MEMORY"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-AI-003",
+        "AC-AI-008-2",
+        "AC-AI-008-3",
+        "AC-SA-000-04",
+        "AC-SA-000-07",
+        "AC-SA-04-05",
+        "AC-SA-INV-003",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-AI-003",
         "AC-AI-008-2",
@@ -3434,23 +7740,90 @@
         "SCR-SA-FOOTPRINT",
         "SCR-SA-MEMORY"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2364768
     },
     {
+      "id": "SHOT-super-admin-occurrence-detail",
       "route": "/super-admin/occurrence-detail/",
       "file": "super-admin-occurrence-detail.png",
-      "heading": "Occurrence detail",
+      "screen": "Occurrence detail",
+      "moduleIds": [
+        "MOD-SA-07"
+      ],
+      "screenIds": [
+        "SCR-SA-SCHED-01",
+        "SCR-SA-SCHED-02"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-SA-07",
         "SCR-SA-SCHED-01",
         "SCR-SA-SCHED-02"
       ],
-      "bytes": 1119520
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1119099
     },
     {
+      "id": "SHOT-super-admin-platform-audit",
       "route": "/super-admin/platform-audit/",
       "file": "super-admin-platform-audit.png",
-      "heading": "Platform Audit",
+      "screen": "Platform Audit",
+      "moduleIds": [
+        "MOD-SA-07",
+        "MOD-SA-18"
+      ],
+      "screenIds": [
+        "SCR-SA-21",
+        "SCR-SA-25"
+      ],
+      "featureIds": [
+        "FEAT-SA-18-01",
+        "FEAT-SA-18-02",
+        "FEAT-SA-18-03",
+        "FEAT-SA-18-04"
+      ],
+      "functionIds": [
+        "FUNC-SA-18-01-A1",
+        "FUNC-SA-18-02-A1",
+        "FUNC-SA-18-02-A2",
+        "FUNC-SA-18-03-A1",
+        "FUNC-SA-18-03-A2",
+        "FUNC-SA-18-04-A1",
+        "FUNC-SA-18-04-A2",
+        "FUNC-SA-18-04-A3",
+        "FUNC-SA-18-04-A4"
+      ],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-000-09",
+        "AC-SA-17-06",
+        "AC-SA-18-01",
+        "AC-SA-18-02",
+        "AC-SA-18-03",
+        "AC-SA-18-04",
+        "AC-SA-18-05",
+        "AC-SA-18-06",
+        "AC-SA-18-07",
+        "AC-SA-18-08",
+        "AC-SA-18-09",
+        "AC-SA-18-10",
+        "AC-SEC-602",
+        "AC-SEC-701",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-000-09",
@@ -3468,19 +7841,65 @@
         "AC-SEC-602",
         "AC-SEC-701",
         "AC-SEC-801",
+        "FEAT-SA-18-01",
+        "FEAT-SA-18-02",
+        "FEAT-SA-18-03",
+        "FEAT-SA-18-04",
         "FUNC-SA-18-01-A1",
+        "FUNC-SA-18-02-A1",
+        "FUNC-SA-18-02-A2",
+        "FUNC-SA-18-03-A1",
+        "FUNC-SA-18-03-A2",
+        "FUNC-SA-18-04-A1",
+        "FUNC-SA-18-04-A2",
+        "FUNC-SA-18-04-A3",
         "FUNC-SA-18-04-A4",
         "MOD-SA-07",
         "MOD-SA-18",
         "SCR-SA-21",
         "SCR-SA-25"
       ],
-      "bytes": 1313961
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 2371902
     },
     {
+      "id": "SHOT-super-admin-platform-notifications-and-tenant-communications",
       "route": "/super-admin/platform-notifications-and-tenant-communications/",
       "file": "super-admin-platform-notifications-and-tenant-communications.png",
-      "heading": "Platform Notifications and Tenant Communications",
+      "screen": "Platform Notifications and Tenant Communications",
+      "moduleIds": [
+        "MOD-SA-01",
+        "MOD-SA-07",
+        "MOD-SA-11",
+        "MOD-SA-14"
+      ],
+      "screenIds": [
+        "SCR-SA-17",
+        "SCR-SA-20"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-SA-NOTIFY-TENANTS"
+      ],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-000-09",
+        "AC-SA-07-06-01",
+        "AC-SA-14-01",
+        "AC-SA-14-02",
+        "AC-SA-14-03",
+        "AC-SA-14-04",
+        "AC-SA-14-05",
+        "AC-SA-14-06",
+        "AC-SA-14-07",
+        "AC-SEC-801",
+        "AC-WF-OPS-003-04"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-000-09",
@@ -3502,12 +7921,39 @@
         "SCR-SA-17",
         "SCR-SA-20"
       ],
-      "bytes": 1296070
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1317061
     },
     {
+      "id": "SHOT-super-admin-platform-overview-and-health",
       "route": "/super-admin/platform-overview-and-health/",
       "file": "super-admin-platform-overview-and-health.png",
-      "heading": "Platform Overview and Health",
+      "screen": "Platform Overview and Health",
+      "moduleIds": [
+        "MOD-SA-01",
+        "MOD-SA-07"
+      ],
+      "screenIds": [
+        "SCR-SA-01",
+        "SCR-SA-OVERVIEW-01"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-000-09",
+        "AC-SA-01-01",
+        "AC-SA-01-03",
+        "AC-SA-01-05",
+        "AC-SA-01-06",
+        "AC-SEC-801",
+        "AC-WF-PLT-008-03"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-000-09",
@@ -3522,12 +7968,51 @@
         "SCR-SA-01",
         "SCR-SA-OVERVIEW-01"
       ],
-      "bytes": 940602
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 945412
     },
     {
+      "id": "SHOT-super-admin-platform-settings",
       "route": "/super-admin/platform-settings/",
       "file": "super-admin-platform-settings.png",
-      "heading": "Platform Settings",
+      "screen": "Platform Settings",
+      "moduleIds": [
+        "MOD-SA-07",
+        "MOD-SA-11",
+        "MOD-SA-19"
+      ],
+      "screenIds": [
+        "SCR-SA-08",
+        "SCR-SA-09",
+        "SCR-SA-10",
+        "SCR-SA-11"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-005",
+        "AC-SA-07-01-xx",
+        "AC-SA-07-11-02",
+        "AC-SA-07-12-03",
+        "AC-SA-07-13-04",
+        "AC-SA-07-13-06",
+        "AC-SA-07-14-01",
+        "AC-SA-07-14-05",
+        "AC-SA-07-15-03",
+        "AC-SA-07-15-xx",
+        "AC-SA-11-04",
+        "AC-SA-19-02",
+        "AC-SA-19-05",
+        "AC-SA-INV-003",
+        "AC-SEC-602",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-005",
@@ -3554,23 +8039,71 @@
         "SCR-SA-10",
         "SCR-SA-11"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 2134311
     },
     {
+      "id": "SHOT-super-admin-scheduler-registry",
       "route": "/super-admin/scheduler-registry/",
       "file": "super-admin-scheduler-registry.png",
-      "heading": "Scheduler Registry",
+      "screen": "Scheduler Registry",
+      "moduleIds": [
+        "MOD-SA-07"
+      ],
+      "screenIds": [
+        "SCR-SA-SCHED-01",
+        "SCR-SA-SCHED-02"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-SA-07",
         "SCR-SA-SCHED-01",
         "SCR-SA-SCHED-02"
       ],
-      "bytes": 1503623
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1503061
     },
     {
+      "id": "SHOT-super-admin-support-access",
       "route": "/super-admin/support-access/",
       "file": "super-admin-support-access.png",
-      "heading": "Support Access",
+      "screen": "Support Access",
+      "moduleIds": [
+        "MOD-SA-15"
+      ],
+      "screenIds": [
+        "SCR-SA-21",
+        "SCR-SA-22"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-SA-015",
+        "FUNC-SA-REVOKE-MIDFLOW"
+      ],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-005",
+        "AC-SA-15-01",
+        "AC-SA-15-02",
+        "AC-SA-15-05",
+        "AC-SA-15-07",
+        "AC-SA-15-08",
+        "AC-SA-15-10",
+        "AC-SEC-801",
+        "AC-WF-ROLE-024-01"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-005",
@@ -3582,17 +8115,47 @@
         "AC-SA-15-10",
         "AC-SEC-801",
         "AC-WF-ROLE-024-01",
+        "FUNC-SA-015",
         "FUNC-SA-REVOKE-MIDFLOW",
         "MOD-SA-15",
         "SCR-SA-21",
         "SCR-SA-22"
       ],
-      "bytes": 1689591
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1717289
     },
     {
+      "id": "SHOT-super-admin-tenant-configuration-registry",
       "route": "/super-admin/tenant-configuration-registry/",
       "file": "super-admin-tenant-configuration-registry.png",
-      "heading": "The Tenant-Configuration Registry",
+      "screen": "The Tenant-Configuration Registry",
+      "moduleIds": [
+        "MOD-SA-19"
+      ],
+      "screenIds": [
+        "SCR-SA-26"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-000-09",
+        "AC-SA-07-11-02",
+        "AC-SA-11-04",
+        "AC-SA-18-08",
+        "AC-SA-19-02",
+        "AC-SA-19-03",
+        "AC-SA-19-05",
+        "AC-SA-19-07",
+        "AC-SA-19-09",
+        "AC-SA-INV-003",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-000-09",
@@ -3609,12 +8172,40 @@
         "MOD-SA-19",
         "SCR-SA-26"
       ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
       "bytes": 1471107
     },
     {
+      "id": "SHOT-super-admin-tenant-metrics-and-aggregates",
       "route": "/super-admin/tenant-metrics-and-aggregates/",
       "file": "super-admin-tenant-metrics-and-aggregates.png",
-      "heading": "Tenant Metrics and Aggregates",
+      "screen": "Tenant Metrics and Aggregates",
+      "moduleIds": [
+        "MOD-SA-01",
+        "MOD-SA-09",
+        "MOD-SA-10",
+        "MOD-SA-12",
+        "MOD-SA-15",
+        "MOD-SA-18"
+      ],
+      "screenIds": [
+        "SCR-SA-16"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-04-05",
+        "AC-SA-10-02",
+        "AC-SA-10-03",
+        "AC-SA-10-04",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-04-05",
@@ -3630,12 +8221,49 @@
         "MOD-SA-18",
         "SCR-SA-16"
       ],
-      "bytes": 1079229
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1081498
     },
     {
+      "id": "SHOT-super-admin-tenants-lifecycle-and-pilots",
       "route": "/super-admin/tenants-lifecycle-and-pilots/",
       "file": "super-admin-tenants-lifecycle-and-pilots.png",
-      "heading": "Tenants, Lifecycle and Pilots",
+      "screen": "Tenants, Lifecycle and Pilots",
+      "moduleIds": [
+        "MOD-SA-08",
+        "MOD-SA-09",
+        "MOD-SA-11",
+        "MOD-SA-17"
+      ],
+      "screenIds": [
+        "SCR-SA-11",
+        "SCR-SA-12",
+        "SCR-SA-14",
+        "SCR-SA-15"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-01-03",
+        "AC-SA-09-01",
+        "AC-SA-09-06",
+        "AC-SA-09-07",
+        "AC-SA-09-08",
+        "AC-SA-09-09",
+        "AC-SA-09-10",
+        "AC-SA-09-11",
+        "AC-SA-09-12",
+        "AC-SA-09-14",
+        "AC-SA-11-04",
+        "AC-SA-17-05",
+        "AC-SA-17-07",
+        "AC-SA-20-3-01"
+      ],
       "identifiersOnPage": [
         "AC-SA-01-03",
         "AC-SA-09-01",
@@ -3660,12 +8288,49 @@
         "SCR-SA-14",
         "SCR-SA-15"
       ],
-      "bytes": 1868523
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1881613
     },
     {
+      "id": "SHOT-super-admin-tiers-entitlements-and-caps",
       "route": "/super-admin/tiers-entitlements-and-caps/",
       "file": "super-admin-tiers-entitlements-and-caps.png",
-      "heading": "Tiers, Entitlements and Caps",
+      "screen": "Tiers, Entitlements and Caps",
+      "moduleIds": [
+        "MOD-SA-07",
+        "MOD-SA-11",
+        "MOD-SA-12"
+      ],
+      "screenIds": [
+        "SCR-SA-14",
+        "SCR-SA-17"
+      ],
+      "featureIds": [
+        "FEAT-SA-TIER-ASSIGN"
+      ],
+      "functionIds": [
+        "FUNC-SA-11",
+        "FUNC-SA-11-01-A1"
+      ],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-09-12",
+        "AC-SA-11-01",
+        "AC-SA-11-02",
+        "AC-SA-11-03",
+        "AC-SA-11-04",
+        "AC-SA-11-05",
+        "AC-SA-11-06",
+        "AC-SA-INV-003",
+        "AC-SEC-801",
+        "AC-WF-FEAT-002-01",
+        "AC-WF-FEAT-002-03"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-09-12",
@@ -3688,12 +8353,41 @@
         "SCR-SA-14",
         "SCR-SA-17"
       ],
-      "bytes": 1156633
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1229461
     },
     {
+      "id": "SHOT-super-admin-trace-viewer",
       "route": "/super-admin/trace-viewer/",
       "file": "super-admin-trace-viewer.png",
-      "heading": "Trace Viewer",
+      "screen": "Trace Viewer",
+      "moduleIds": [
+        "MOD-SA-06"
+      ],
+      "screenIds": [
+        "SCR-SA-07"
+      ],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [
+        "AC-SA-000-07",
+        "AC-SA-000-09",
+        "AC-SA-01-03",
+        "AC-SA-06-01",
+        "AC-SA-06-02",
+        "AC-SA-06-03",
+        "AC-SA-06-04",
+        "AC-SA-06-05",
+        "AC-SA-06-06",
+        "AC-SA-06-07",
+        "AC-SA-06-08",
+        "AC-SEC-801"
+      ],
       "identifiersOnPage": [
         "AC-SA-000-07",
         "AC-SA-000-09",
@@ -3710,17 +8404,49 @@
         "MOD-SA-06",
         "SCR-SA-07"
       ],
-      "bytes": 791734
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 984821
     },
     {
+      "id": "SHOT-super-admin-usage-and-metering",
       "route": "/super-admin/usage-and-metering/",
       "file": "super-admin-usage-and-metering.png",
-      "heading": "Usage and Metering",
-      "identifiersOnPage": [
+      "screen": "Usage and Metering",
+      "moduleIds": [
+        "MOD-SA-12"
+      ],
+      "screenIds": [
+        "SCR-SA-15",
+        "SCR-SA-18"
+      ],
+      "featureIds": [],
+      "functionIds": [
+        "FUNC-SA-SET-THRESHOLDS"
+      ],
+      "acceptanceIds": [
         "AC-SA-000-07",
+        "AC-SA-12-01",
         "AC-SA-12-02",
         "AC-SA-12-03",
         "AC-SA-12-04",
+        "AC-SA-12-05",
+        "AC-SA-12-06",
+        "AC-SA-12-07",
+        "AC-SEC-801"
+      ],
+      "identifiersOnPage": [
+        "AC-SA-000-07",
+        "AC-SA-12-01",
+        "AC-SA-12-02",
+        "AC-SA-12-03",
+        "AC-SA-12-04",
+        "AC-SA-12-05",
+        "AC-SA-12-06",
         "AC-SA-12-07",
         "AC-SEC-801",
         "FUNC-SA-SET-THRESHOLDS",
@@ -3728,29 +8454,70 @@
         "SCR-SA-15",
         "SCR-SA-18"
       ],
-      "bytes": 1326883
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 1326882
     },
     {
+      "id": "SHOT-workflows",
       "route": "/workflows/",
       "file": "workflows.png",
-      "heading": "Workflow Index",
+      "screen": "Workflow Index",
+      "moduleIds": [
+        "MOD-CC-02",
+        "MOD-SA-01"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "MOD-CC-02",
         "MOD-SA-01"
       ],
-      "bytes": 16784437
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 17356188
     },
     {
+      "id": "SHOT-workflows-ai-and-its-absence",
       "route": "/workflows/ai-and-its-absence/",
       "file": "workflows-ai-and-its-absence.png",
-      "heading": "Artificial intelligence and its absence",
+      "screen": "Artificial intelligence and its absence",
+      "moduleIds": [
+        "MOD-SA-07"
+      ],
+      "screenIds": [
+        "SCR-FL-LOCK-01"
+      ],
+      "featureIds": [
+        "FEAT-SA-0703"
+      ],
+      "functionIds": [
+        "FUNC-SA-0703"
+      ],
+      "acceptanceIds": [],
       "identifiersOnPage": [
         "FEAT-SA-0703",
         "FUNC-SA-0703",
         "MOD-SA-07",
         "SCR-FL-LOCK-01"
       ],
-      "bytes": 12096495
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 12487429
     }
   ]
 }

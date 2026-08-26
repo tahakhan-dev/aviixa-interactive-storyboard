@@ -355,7 +355,11 @@ export const UNINVENTORIED_FAMILIES = [
     ],
     sizeMeaning:
       'Distinct FB-AI-* literals across BOTH registers — the collision-aware registry and '
-      + 'section 38.4\'s library. It is fewer than the number of CONTRACTS, because the '
+      + 'section 38.4\'s library, whose artificial-intelligence family opens at §38.4.4, L83755. '
+      + 'THIS is the family with two zero-padding conventions, and the split is measured: the '
+      + 'frozen source carries 32 two-digit and 18 three-digit distinct FB-AI- literals, 50 in '
+      + 'all, of which this row holds 49 — FB-AI-31 is correctly in no register and is disclosed '
+      + 'beside this list instead. It is fewer than the number of CONTRACTS, because the '
       + 'collision registry holds more owner rows than literals: that gap is the collision, and '
       + 'it is the measurement reason 2 above rests on.',
   },
@@ -442,10 +446,16 @@ export const UNINVENTORIED_FAMILIES = [
     alsoCitedWithoutARecord: [],
     sizeMeaning:
       'Rows in the catalogue, from FAILURE_CATALOGUE\'s own ids. Every FAIL-AI-* token in the '
-      + 'tree is a member, so nothing in this family is cited without a record. The source '
-      + 'spreads these across five registers in two zero-padding conventions; the catalogue '
-      + 'holds one row per failure, and the register split is recorded where the transcription '
-      + 'lives rather than by splitting this count.',
+      + 'tree is a member, so nothing in this family is cited without a record. ONE register in '
+      + 'ONE zero-padding convention: every distinct FAIL-AI- identifier in the frozen source is '
+      + 'two-digit, and the catalogue is chapter 43\'s single §43.2, whose heading at L90051 '
+      + 'reads "The Failure Catalog — Sixty Modes in Six Families" and whose six subsections run '
+      + '§43.2.1 at L90100 to §43.2.6 at L90706. Six FAMILIES of one register, not six registers. '
+      + 'R7-C01: THIS SENTENCE READ "five registers in two zero-padding conventions" AND BOTH '
+      + 'HALVES BELONG TO THE SIBLING FB-AI- ROW, which really does carry two paddings across two '
+      + 'registers that do not reference each other. It was the neighbouring row\'s reasoning '
+      + 'pasted onto this one. Both facts are now derived from the frozen source by '
+      + 'tests/unit/coverage-uninventoried.test.ts rather than asserted here.',
   },
   {
     prefix: 'AI-',

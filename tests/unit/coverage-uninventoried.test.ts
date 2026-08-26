@@ -722,3 +722,110 @@ describe('the canon consolidation verdicts', () => {
     expect(decAiDisclosedLocally.length).toBeGreaterThan(0)
   })
 })
+
+/* ══════════════════════════════════════════════════════════════════════
+ * R7-C01 — THE STRUCTURAL CLAIMS EACH FAMILY MAKES ABOUT ITS OWN SOURCE.
+ *
+ * `/coverage/` rendered "The source spreads these across five registers in two
+ * zero-padding conventions" of the `FAIL-AI-` catalogue. Measured, both halves
+ * are false of it and both are true of the SIBLING `FB-AI-` row: every
+ * distinct `FAIL-AI-` identifier is two-digit, and the catalogue is one
+ * register, chapter 43's §43.2, in six subsections. It was the neighbouring
+ * row's reasoning pasted onto this one.
+ *
+ * A padding convention and a section count are properties of the frozen
+ * source, so they are DERIVED here and matched into the rendered prose rather
+ * than transcribed beside it. The same measurement runs over `FB-AI-`, where
+ * the two-convention claim is true, so this gate cannot pass by being true of
+ * nothing.
+ *
+ * PLANTED: restored "five registers in two zero-padding conventions" on the
+ * `FAIL-AI-` row. Red on the missing derived sentence, naming the one
+ * convention and the six subsections it measured. Also planted `### 43.2.7`
+ * into a scratch copy of the source scan: red at seven against the six the
+ * prose names.
+ * ══════════════════════════════════════════════════════════════════════ */
+describe('R7-C01: the zero-padding and register claims, derived from the frozen source', () => {
+  const SOURCE = readFileSync('../AVIIXA_Production_Product_Blueprint.md', 'utf8')
+  const LINES = SOURCE.split('\n')
+
+  /** Distinct `<prefix>NN` literals in the frozen source, by digit width. */
+  const paddingWidths = (prefix: string): Map<number, string[]> => {
+    const found = new Map<number, string[]>()
+    const re = new RegExp(`${prefix}(\\d+)`, 'g')
+    for (const id of new Set([...SOURCE.matchAll(re)].map((m) => m[0]))) {
+      const digits = id.slice(prefix.length).length
+      found.set(digits, [...(found.get(digits) ?? []), id])
+    }
+    return found
+  }
+
+  /** `### N.N.N` headings under a chapter section, with their line numbers. */
+  const subsectionsOf = (section: string): { heading: string; line: number }[] =>
+    LINES.flatMap((text, i) =>
+      new RegExp(`^#{3}\\s+${section.replace('.', '\\.')}\\.\\d+\\s`).test(text)
+        ? [{ heading: text, line: i + 1 }]
+        : [],
+    )
+
+  const familyBy = (prefix: string) => {
+    const family = UNINVENTORIED_FAMILIES.find((f) => f.prefix === prefix)
+    expect(family, `${prefix} family`).toBeDefined()
+    return family!
+  }
+
+  it('FAIL-AI- is one convention: every distinct identifier in the source is two-digit', () => {
+    const widths = paddingWidths('FAIL-AI-')
+    expect([...widths.keys()].sort(), 'digit widths of FAIL-AI- in the frozen source').toEqual([2])
+    expect(widths.get(2)!.length, 'distinct FAIL-AI- identifiers').toBe(
+      familyBy('FAIL-AI-').identifiers.length,
+    )
+  })
+
+  it('FAIL-AI- lives in six subsections of one register, and the prose says exactly that', () => {
+    const subsections = subsectionsOf('43.2')
+    expect(subsections.length, '§43.2.N subsections in the frozen source').toBe(6)
+
+    const first = subsections[0]!
+    const last = subsections[subsections.length - 1]!
+    // Built from the measurement, so a changed source moves the expected
+    // string rather than leaving a true-looking sentence standing.
+    const sentence =
+      `six subsections run §43.2.1 at L${first.line} to §43.2.${subsections.length} at ${''}L${last.line}`
+    expect(familyBy('FAIL-AI-').sizeMeaning, 'the derived sentence on the FAIL-AI- row').toContain(
+      sentence,
+    )
+    // The refuted claim in its affirmative voice. The row still QUOTES the
+    // retracted words in its own correction, which is the record this build
+    // keeps; what may not come back is the row asserting them.
+    expect(
+      familyBy('FAIL-AI-').sizeMeaning,
+      'the refuted claim, asserted again. It belongs to the FB-AI- row.',
+    ).not.toContain('The source spreads these across')
+    // The register itself, named by its own heading rather than by a count.
+    expect(LINES[90050], 'L90051, the §43.2 heading').toContain(
+      'The Failure Catalog — Sixty Modes in Six Families',
+    )
+  })
+
+  it('FB-AI- is the family that really carries two conventions, and its split is the one measured', () => {
+    const widths = paddingWidths('FB-AI-')
+    expect([...widths.keys()].sort(), 'digit widths of FB-AI- in the frozen source').toEqual([2, 3])
+
+    const two = widths.get(2)!.length
+    const three = widths.get(3)!.length
+    expect(
+      familyBy('FB-AI-').sizeMeaning,
+      'the FB-AI- row states its own measured split',
+    ).toContain(`${two} two-digit and ${three} three-digit distinct FB-AI- literals, ${two + three} in`)
+
+    // And the row holds all of them but the one it discloses separately, so
+    // the arithmetic in the sentence closes against the array beside it.
+    const family = familyBy('FB-AI-')
+    expect(family.identifiers.length + family.alsoCitedWithoutARecord.length).toBe(two + three)
+
+    // §38.4.4, the three-digit library's AI family, cited on the row.
+    expect(LINES[83754], 'L83755').toContain('38.4.4')
+    expect(family.sizeMeaning).toContain('§38.4.4, L83755')
+  })
+})

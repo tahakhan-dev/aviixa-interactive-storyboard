@@ -12,6 +12,7 @@ import { ownerAt } from '@/ai/fallbacks/registry'
 import { JOURNEY_SURFACES } from '@/ui/shared/journey'
 import {
   SB_21_TO_30,
+  SB_21_TO_30_CONTRACT_SEAMS,
   SB_21_TO_30_CRITERIA,
   SB_21_TO_30_CROSS_REFERENCED_FALLBACKS,
   SB_21_TO_30_DECISION_CITATIONS,
@@ -564,4 +565,132 @@ describe('storyboards 44A.21 to 44A.30 — the decisions, disclosed locally', ()
       expect(text).not.toContain(id)
     })
   }
+})
+
+/* ══════════════════════════════════════════════════════════════════════
+ * R7-C03 — A CHAPTER-WIDE CRITERION, REPORTED AT ITS FULL POPULATION.
+ *
+ * The `TEST-44A-004 and the Spanish message set` seam renders on
+ * `/workflows/ai-and-its-absence/` under a heading naming a criterion whose
+ * subject is every storyboard in chapter 44A, and it reported ONE card.
+ * Measured, twelve of the thirty cards quote a verbatim worker-facing string
+ * and the frozen source writes no Spanish for any of them — so the disclosure
+ * was at one twelfth of its subject.
+ *
+ * THE POPULATION IS RE-MEASURED HERE RATHER THAN TRANSCRIBED, which is what
+ * stops the fix being undone by narrowing the measurement instead of the gap.
+ * The chapter's thirty `| Worker-visible experience |` rows are counted off the
+ * frozen bytes, the twelve carrying a quoted string are found, each is mapped
+ * to its own `### 44A.N` heading, and both the line list and the storyboard
+ * list in the rendered seam are compared against that BY EQUALITY.
+ *
+ * WHAT IS DELIBERATELY NOT WIDENED, and the gate says so: the pinned set. The
+ * paraphrase prohibition is stated exactly once in the chapter and it is
+ * stated about `SCR-FL-LOCK-01`, so pinning only that one is correct.
+ *
+ * PLANTED, against a sha256 of the module taken before and restored
+ * byte-exact:
+ *   `storyboards: [25]` restored — red: 12 expected, 1 found, naming the
+ *     eleven missing.
+ *   dropped L93734 from the seam's finding — red naming L93734 (storyboard 12).
+ *   `### 44A.31` renamed to `### 44A.12` in a scratch copy of the scan input —
+ *     red on the storyboard mapping rather than silently absorbing it.
+ * ══════════════════════════════════════════════════════════════════════ */
+describe('R7-C03: the Spanish message-set gap is disclosed at its measured population', () => {
+  const LINES = readFileSync('../AVIIXA_Production_Product_Blueprint.md', 'utf8').split('\n')
+
+  /** Chapter 44A, by its own headings rather than by a hard-coded window. */
+  const chapterStart = LINES.findIndex((l) => /^## 44A\./.test(l)) + 1
+  const chapterEnd = LINES.findIndex((l, i) => i > chapterStart && /^## 45\./.test(l)) + 1
+
+  /** Every `### 44A.N` card heading, with the storyboard number it opens. */
+  const CARD_HEADINGS = LINES.flatMap((text, i) => {
+    const m = /^###\s+44A\.(\d+)\s/.exec(text)
+    return m === null ? [] : [{ number: Number(m[1]), line: i + 1 }]
+  })
+
+  const storyboardOwning = (line: number): number => {
+    const owner = [...CARD_HEADINGS].reverse().find((h) => h.line < line)
+    if (owner === undefined) throw new Error(`no 44A.N heading opens before L${line}`)
+    return owner.number
+  }
+
+  /** The chapter's worker-visible rows, and the subset quoting a string. */
+  const workerVisible = LINES.flatMap((text, i) =>
+    i + 1 >= chapterStart && i + 1 <= chapterEnd && text.includes('| Worker-visible experience |')
+      ? [{ line: i + 1, text }]
+      : [],
+  )
+  const quoted = workerVisible.filter((r) => r.text.includes('"'))
+
+  const seam = SB_21_TO_30_CONTRACT_SEAMS.find(
+    (s) => s.subject === 'TEST-44A-004 and the Spanish message set',
+  )
+
+  it('the chapter has thirty worker-visible rows and twelve quote a fixed string', () => {
+    expect(chapterStart, 'the §44A heading').toBeGreaterThan(0)
+    expect(chapterEnd, 'the §45 heading after it').toBeGreaterThan(chapterStart)
+    expect(CARD_HEADINGS.filter((h) => h.number <= 30).length, '§44A.1-30 headings').toBe(30)
+    expect(workerVisible.length, 'Worker-visible experience rows in §44A').toBe(30)
+    expect(quoted.length, 'rows quoting a verbatim worker-facing string').toBe(12)
+  })
+
+  it('TEST-44A-004 is chapter-wide, and the source writes no Spanish for any of the twelve', () => {
+    expect(LINES[92_756], 'L92757').toContain('`TEST-44A-004`')
+    expect(LINES[92_756], 'its subject is every storyboard').toContain("every storyboard's")
+    const chapter = LINES.slice(chapterStart - 1, chapterEnd).join('\n')
+    expect(
+      chapter.match(/[áéíóúñ¿¡]/g) ?? [],
+      'accented characters in §44A. Any Spanish string would carry one.',
+    ).toHaveLength(0)
+  })
+
+  it('the rendered seam names all twelve lines and all twelve storyboards, by equality', () => {
+    expect(seam, 'the TEST-44A-004 seam').toBeDefined()
+    const numbers = [...new Set(quoted.map((r) => storyboardOwning(r.line)))].sort((a, b) => a - b)
+    expect(numbers.length, 'distinct storyboards carrying a quoted string').toBe(12)
+
+    expect(
+      [...seam!.storyboards].sort((a, b) => a - b),
+      `the seam must disclose all ${numbers.length} storyboards TEST-44A-004 covers, not a subset`,
+    ).toEqual(numbers)
+
+    const cited = [...seam!.finding.matchAll(/\bL(\d{5})\b/g)].map((m) => Number(m[1]))
+    for (const row of quoted) {
+      expect(cited, `L${row.line} (storyboard ${storyboardOwning(row.line)}) is named`).toContain(
+        row.line,
+      )
+    }
+  })
+
+  it('the sibling PINNED_WORKER_MESSAGES seam covers the same measurement, in its own range', () => {
+    // Found while deriving the twelve: this seam named 22, 23 and 26 and
+    // omitted 27, whose card transcribes its string exactly as they do. Same
+    // shape one row down, so it is derived here too rather than read.
+    const inRange = [...new Set(quoted.map((r) => storyboardOwning(r.line)))]
+      .filter((n) => n >= 21 && n <= 30)
+      .filter((n) => !SB_21_TO_30_DISCLOSED_VIOLATIONS.some((v) => v.storyboard === n))
+      .sort((a, b) => a - b)
+    const pinnedSeam = SB_21_TO_30_CONTRACT_SEAMS.find((x) => x.subject === 'PINNED_WORKER_MESSAGES')
+    expect(pinnedSeam, 'the PINNED_WORKER_MESSAGES seam').toBeDefined()
+    expect(
+      [...pinnedSeam!.storyboards].sort((a, b) => a - b),
+      'cards in 21-30 quoting a fixed worker-facing string that the pinned set does not cover',
+    ).toEqual(inRange)
+  })
+
+  it('and it still says the pinned set is correctly one — the prohibition is stated once', () => {
+    // L94829 writes the message, L94876 states the prohibition, AC-44A-25-2
+    // turns it into a criterion. No other line in the chapter forbids
+    // paraphrase, which is why widening the PINNED set would be wrong.
+    expect(LINES[94_875], 'L94876').toContain('must not be paraphrased')
+    expect(LINES[94_879], 'L94880 carries AC-44A-25-2').toContain('`AC-44A-25-2`')
+    const chapter = LINES.slice(chapterStart - 1, chapterEnd)
+    const forbidding = chapter.flatMap((l, i) =>
+      /must not be paraphrased|with no paraphrase/.test(l) ? [chapterStart + i] : [],
+    )
+    expect(forbidding, 'lines in §44A forbidding paraphrase').toEqual([94_876, 94_880])
+    expect(seam!.whatThisTaskDid, 'the pinned set is not widened').toContain('AC-44A-25-2')
+    expect(SB_21_TO_30_DISCLOSED_VIOLATIONS.map((v) => v.storyboard)).toEqual([25])
+  })
 })

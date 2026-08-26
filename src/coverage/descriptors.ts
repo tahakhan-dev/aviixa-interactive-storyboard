@@ -249,7 +249,11 @@ export const REGISTRY_DESCRIPTORS = [
     sourceNote:
       '605 distinct actionable UI controls, deduped by exact label text from 759 raw ' +
       'extraction entries and less the three the frozen source describes as rendered ' +
-      'messages rather than actions (spec §2.10). The separate DNC-01..DNC-22 do-not-use-cron register ' +
+      'messages rather than actions. Spec §2.10 fixes this inventory at "608 keyed" and says ' +
+      'nothing about rendered messages; 605 is that 608 less R6-B01\'s three, under §2.10\'s own ' +
+      'rule that a raw key count is not a canonical count (R7-A10 — the note here used to read ' +
+      '"(spec §2.10)" beside 605, citing a section that publishes a different number). ' +
+      'The separate DNC-01..DNC-22 do-not-use-cron register ' +
       '(22, verified unique, zero delta) — controls that must always remain a live human ' +
       'decision and may never be enforced by a scheduled sweep — is disclosed on this same ' +
       'index under its own register label, never merged into the 605 ' +

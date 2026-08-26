@@ -57,7 +57,7 @@ export default defineConfig({
    *
    * `serve:out` now copies `out/` to `.serve-snapshot/` and serves THAT, so
    * what a suite reads is fixed at the moment the suite started. Measured
-   * before choosing it: 24MB, 485 files, 0.11s to copy — against a rebuild
+   * before choosing it: 44.3 MiB, 668 files, well under a second to copy — against a rebuild
    * of the whole export, that is free.
    *
    * WHY HERE AND NOT IN THE BUILD. Making the build atomic instead — build

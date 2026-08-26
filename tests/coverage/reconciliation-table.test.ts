@@ -29,7 +29,11 @@ import {
  *
  * WHY EQUALITY AND NOT CONTAINMENT (R4-B02). Five of the client's fourteen
  * named inventories — functions, actionable controls, business use cases,
- * features, sub-features, together 3,010 of the build's 5,018 census rows —
+ * features, sub-features, together MORE THAN HALF the census (R7-A5: this
+ * read "3,010 of the build's 5,018" and both figures were stale; the share is
+ * `R4_B02_FIVE_ROWS` of `CENSUS_ROWS` below, derived from the fourteen
+ * generated registries this file already opens, and printed by the assertion
+ * that uses it rather than transcribed into this comment) —
  * had no row at all, and a table headed "reconciliation" reads as complete.
  * A containment check ("every row names a real registry") passes on a table
  * missing five of them. This gate compares the SET of non-null
@@ -67,6 +71,32 @@ const REPORT = loadReconciliation(
   JSON.parse(readFileSync('registries/generated/source-reconciliation.json', 'utf8')),
 )
 const ROWS = REPORT.reconciliation.reconciliation_rows
+
+/**
+ * The fourteen generated registries, read once. Three describe blocks below
+ * opened the same fourteen files each; they share this now.
+ */
+const REGISTRY_ROWS: Record<string, { status: string }[]> = Object.fromEntries(
+  REGISTRY_DESCRIPTORS.map((d) => [
+    d.slug,
+    (JSON.parse(readFileSync(`registries/generated/${d.slug}.json`, 'utf8')) as {
+      rows: { status: string }[]
+    }).rows,
+  ]),
+)
+
+/** The whole census, derived. Never a literal — R7-A5. */
+const CENSUS_ROWS = Object.values(REGISTRY_ROWS).reduce((a, rows) => a + rows.length, 0)
+
+/** R4-B02's five: the inventories the reconciliation table had no row for. */
+const R4_B02_FIVE = [
+  'functions',
+  'actionable-controls',
+  'business-use-cases',
+  'features',
+  'sub-features',
+] as const
+const R4_B02_FIVE_ROWS = R4_B02_FIVE.reduce((a, slug) => a + (REGISTRY_ROWS[slug]?.length ?? 0), 0)
 
 /** The six column names master prompt §9.6 itself uses, in its own words. */
 const SIX_COLUMNS = [
@@ -116,6 +146,29 @@ describe('the master prompt §9.6 reconciliation table reaches a reader', () => 
     expect(descriptors.length, 'REGISTRY_DESCRIPTORS').toBe(14)
     expect(new Set(slugged).size, 'no registry is reconciled twice').toBe(slugged.length)
     expect([...slugged].sort()).toEqual([...descriptors].sort())
+  })
+
+  /**
+   * R7-A5 — THE REASON EQUALITY IS THE RIGHT CONTROL, MEASURED RATHER THAN
+   * TRANSCRIBED. A containment check passes on a table missing R4-B02's five,
+   * and those five are not a fifth of the census: they are the larger half of
+   * it, so a table missing them reads complete while being mostly incomplete.
+   * Both figures are derived and both are in the failure message, which is why
+   * neither can go stale the way the two literals in this file's header did.
+   */
+  it("R4-B02's five carry more than half the census — the derivation, not a literal", () => {
+    expect(Object.keys(REGISTRY_ROWS).length, 'registries read').toBe(14)
+    expect(CENSUS_ROWS, 'the whole census').toBeGreaterThanOrEqual(5000)
+    for (const slug of R4_B02_FIVE) {
+      expect(REGISTRY_ROWS[slug], `${slug} is one of the fourteen`).toBeDefined()
+      expect(REGISTRY_ROWS[slug]!.length, `${slug} rows`).toBeGreaterThan(0)
+    }
+    expect(
+      R4_B02_FIVE_ROWS * 2,
+      `R4-B02's five hold ${R4_B02_FIVE_ROWS} of the census's ${CENSUS_ROWS} rows. If this ever `
+        + 'falls below half, the argument in this file\'s header for equality-over-containment '
+        + 'has to be re-made rather than inherited.',
+    ).toBeGreaterThan(CENSUS_ROWS)
   })
 
   it('a row that reconciles none of the fourteen says why', () => {
@@ -209,11 +262,7 @@ describe('the dashboard publishes the item-level position beside the registry-le
    * to a client; the item-level figure is a small fraction of that, and
    * `grep -c` for 5018, 4706 and 302 in the built page returned zero for each.
    */
-  const registries = REGISTRY_DESCRIPTORS.map((d) =>
-    JSON.parse(readFileSync(`registries/generated/${d.slug}.json`, 'utf8')) as {
-      rows: { status: string }[]
-    },
-  )
+  const registries = REGISTRY_DESCRIPTORS.map((d) => ({ rows: REGISTRY_ROWS[d.slug]! }))
   const allRows = registries.flatMap((r) => r.rows)
   const byStatus = Object.fromEntries(
     COVERAGE_STATUSES.map((s) => [s, allRows.filter((r) => r.status === s).length]),
@@ -260,13 +309,8 @@ describe('R4-B12 / R5-B05: the statuses no registry holds are named on the page 
    * registries the page reads, so this gate does not transcribe the answer
    * — it transcribes the RULE (`registryStatus`'s precedence) and derives.
    */
-  const registries = REGISTRY_DESCRIPTORS.map(
-    (d) =>
-      JSON.parse(readFileSync(`registries/generated/${d.slug}.json`, 'utf8')) as {
-        rows: { status: string }[]
-      },
-  )
-  const PRECEDENCE = ['demonstrated-in-storyboard', 'mounted-in-another-screen', 'not-represented']
+  const registries = REGISTRY_DESCRIPTORS.map((d) => ({ rows: REGISTRY_ROWS[d.slug]! }))
+  const PRECEDENCE =['demonstrated-in-storyboard', 'mounted-in-another-screen', 'not-represented']
   const registryStatuses = registries.map((r) => {
     const held = new Set(r.rows.map((row) => row.status))
     return PRECEDENCE.find((s) => held.has(s)) ?? 'not-represented'

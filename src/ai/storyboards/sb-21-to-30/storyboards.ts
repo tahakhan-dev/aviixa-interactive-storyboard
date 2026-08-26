@@ -166,37 +166,62 @@ export const SB_21_TO_30_CONTRACT_SEAMS = [
   {
     subject: 'PINNED_WORKER_MESSAGES',
     finding:
-      'It pins `SCR-FL-LOCK-01` only, while three cards in this range quote a fixed worker-facing '
+      'It pins `SCR-FL-LOCK-01` only, while four cards in this range quote a fixed worker-facing '
       + 'string the source writes in full: storyboard 22 at L94572 ("This image could not be '
       + 'assessed automatically. Inspect using the criteria above."), storyboard 23 at L94667 '
       + '("This tablet is running low on storage. Your work is safe. Connect to a network as soon '
-      + 'as you can."), and storyboard 26 at L94911 ("Ask your supervisor for help with this '
-      + 'step."). Declaring any of them in `facts.fixedMessages` reports "no pinned wording covers '
-      + 'it" — a true finding about the pinned set, not a defect in the card.',
+      + 'as you can."), storyboard 26 at L94911 ("Ask your supervisor for help with this '
+      + 'step."), and storyboard 27 at L94995 ("Lot LOT-WB-2291 is held. Release requires a '
+      + 'Quality Manager."). Declaring any of them in `facts.fixedMessages` reports "no pinned '
+      + 'wording covers it" — a true finding about the pinned set, not a defect in the card. '
+      + 'R7-C03, the same shape one row down: THIS SAID THREE AND OMITTED STORYBOARD 27, whose '
+      + 'card transcribes its string exactly as the other three do. Four is what the chapter '
+      + 'measurement gives for this range once the pinned card is set aside, and '
+      + '`tests/unit/ai-storyboards-21-30-cards.test.ts` now derives it rather than reading it '
+      + 'here.',
     whatThisTaskDid:
-      'Left `fixedMessages` empty on 22, 23 and 26 and transcribed each string verbatim into its '
+      'Left `fixedMessages` empty on 22, 23, 26 and 27 and transcribed each string verbatim into its '
       + 'Worker-visible experience field, where the source puts it. The strings are therefore '
       + 'rendered and reviewable but not policed against paraphrase. Only L94876 states the '
       + 'no-paraphrase prohibition explicitly, and it states it about `SCR-FL-LOCK-01`, so '
       + 'extending the pinned set is a judgement for whoever owns that module rather than a '
       + 'transcription this task may make.',
-    storyboards: [22, 23, 26],
+    storyboards: [22, 23, 26, 27],
   },
   {
     subject: 'TEST-44A-004 and the Spanish message set',
     finding:
-      'L94876 declares `SCR-FL-LOCK-01`\'s message "authored in both supported languages as '
-      + 'approved content" and `TEST-44A-004` (L92757) requires every worker-facing message set '
-      + 'complete in both English and Spanish before release. The frozen source writes no Spanish '
-      + 'string for it. `TEST-44A-25-3` (L94882) — assert the compliance message renders '
-      + 'verbatim in English and Spanish — therefore cannot pass as written.',
+      '`TEST-44A-004` (L92757) requires EVERY storyboard\'s worker-facing message set complete in '
+      + 'both English and Spanish before release, and its subject is the whole of chapter 44A, '
+      + 'not one card. R7-C03: THIS FINDING USED TO REPORT ONE MESSAGE, WHICH IS A TWELFTH OF ITS '
+      + 'SUBJECT. Measured over the chapter opened at L92596 — its thirty "Worker-visible '
+      + 'experience" rows — twelve quote a verbatim worker-facing string, at L92797 (storyboard '
+      + '1), L92880 (2), L92964 (3), L93045 (4), L93133 (5), L93225 (6), L93734 (12), L94572 (22), '
+      + 'L94667 (23), L94829 (25), L94911 (26) and L94995 (27), AND THE FROZEN SOURCE WRITES NO '
+      + 'SPANISH FOR ANY OF THEM: chapter 44A contains no accented character anywhere, and the '
+      + 'only three mentions of Spanish in it are the obligation itself, an illustrative example, '
+      + 'and `TEST-44A-25-3`. So `TEST-44A-004` cannot pass as written for twelve cards, not one. '
+      + 'The single-card report is the sharpest of the twelve rather than the extent of the gap: '
+      + 'L94876 declares `SCR-FL-LOCK-01`\'s message "authored in both supported languages as '
+      + 'approved content", so that card is the one where the source promises the translation and '
+      + 'still does not write it, and `TEST-44A-25-3` (L94882) — assert the compliance message '
+      + 'renders verbatim in English and Spanish — is the named test that cannot pass.',
     whatThisTaskDid:
-      'Declared the message with `spanish: null` and let 15A’s check report the absence, then '
-      + 'disclosed that one report in `SB_21_TO_30_DISCLOSED_VIOLATIONS` with both locators. The '
+      'Declared `SCR-FL-LOCK-01` with `spanish: null` and let 15A’s check report the absence, then '
+      + 'disclosed that report in `SB_21_TO_30_DISCLOSED_VIOLATIONS` with both locators. The '
       + 'approved translation is a client-supplied input; inventing one would make the test assert '
       + 'this build’s own invention, which is the failure mode the whole disclosure pattern '
-      + 'exists to avoid.',
-    storyboards: [25],
+      + 'exists to avoid — and that reasoning holds for all twelve, so eleven of them are '
+      + 'transcribed verbatim into their cards\' Worker-visible experience fields and are '
+      + 'reviewable there without a Spanish half either. WHAT IS NOT WIDENED IS THE PINNED SET, '
+      + 'deliberately: the paraphrase prohibition is stated exactly once in the chapter, at '
+      + 'L94829/L94876/`AC-44A-25-2`, so pinning only `SCR-FL-LOCK-01` is correct and pinning the '
+      + 'other eleven would police them against a prohibition the source does not state about '
+      + 'them. The gate’s Spanish arm therefore runs over a population of 1, and the number it '
+      + 'runs short of is 12 rather than unstated. Held by '
+      + '`tests/unit/ai-storyboards-21-30-cards.test.ts`, which re-measures the chapter and reds '
+      + 'if this disclosure narrows again.',
+    storyboards: [1, 2, 3, 4, 5, 6, 12, 22, 23, 25, 26, 27],
   },
 ] as const satisfies readonly ContractSeam[]
 

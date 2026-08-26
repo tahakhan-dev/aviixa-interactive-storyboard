@@ -13,6 +13,7 @@ import {
   KILL_SWITCH,
   PAUSE_RESUME_WORKFLOW,
   PAUSE_SEMANTICS,
+  pauseSemanticBody,
   PAUSE_SHIPPED_SCOPES,
   RESUME_IS_SEPARATE,
   SITE_SCOPED_PAUSE,
@@ -79,6 +80,40 @@ describe('the three fixed semantics, stated exactly (L87789-L87791)', () => {
       expect(lineAt(lineNumber)).toContain(semantic.quotation)
       expect(lineAt(lineNumber)).toContain('SoW Fact — §8.7.5')
     })
+  })
+
+  /* ================================================================ *
+   * R7-C04 — MARKDOWN MARKERS REACHED A READER, ON THE SENTENCE THAT
+   * SAYS WHAT SAFETY STILL DOES WHILE AGENTS ARE PAUSED.
+   *
+   * The screen stripped LEADING emphasis only, so the third semantic's
+   * internal `**The pause governs agents, nothing else**` rendered with
+   * its asterisks. `quotation` stays verbatim -- the case above opens
+   * L87789-L87791 and asserts it -- and `pauseSemanticBody()` is what a
+   * screen prints. Asserting the DIFFERENCE, rather than only the
+   * absence, is what stops the leak being closed by loosening the
+   * transcription instead.
+   * ================================================================ */
+  it('what a screen prints carries no markdown, and differs from the source by markers alone', () => {
+    // The gate is not passing on an array that never had the defect: at
+    // least one quotation must carry emphasis INSIDE it, past the lead.
+    const withInternalEmphasis = PAUSE_SEMANTICS.filter(
+      (s) => s.quotation.replace(/^\*\*[^*]+\*\*\s*/, '').includes('**'),
+    )
+    expect(withInternalEmphasis.map((s) => s.id)).toEqual([
+      'never-suppresses-the-deterministic-layer',
+    ])
+
+    for (const semantic of PAUSE_SEMANTICS) {
+      const body = pauseSemanticBody(semantic)
+      expect(body, `${semantic.id} prints markdown emphasis`).not.toContain('**')
+      expect(body, `${semantic.id} prints a code-span marker`).not.toContain('`')
+      // Markers removed and NOTHING else: same characters, same order.
+      expect(
+        semantic.quotation.replaceAll('**', '').replaceAll('`', '').trimStart(),
+        `${semantic.id} was reworded rather than stripped`,
+      ).toBe(`${semantic.heading}. ${body}`.replace(/^\. /, ''))
+    }
   })
 
   it('holds the deterministic layer untouched as a semantic and not a caveat', () => {

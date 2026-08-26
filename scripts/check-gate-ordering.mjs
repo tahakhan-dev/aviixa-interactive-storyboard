@@ -152,6 +152,24 @@ const AUDITED = {
       'compares against. Contrast registry-freshness, which compared committed artefacts to ' +
       'freshly generated ones and could only ever compare a directory to itself.',
   },
+  'client-document-figures.test.ts': {
+    subject:
+      'the figures stated in docs/client-review-guide.md, docs/walkthroughs.md, docs/deployment.md ' +
+      'and docs/screenshots/README.md, compared against out/, registries/generated/**, the ' +
+      'committed docs/screenshots/manifest.json, the rendered page text, and the support-access ' +
+      'fixture',
+    rewrittenBy: 'build',
+    runsBeforeBuild: false,
+    verdict:
+      'NOT VACUOUS, and the asymmetry is walkthrough-routes\u2019. `build` writes ONE side -- out/ and ' +
+      'registries/generated -- and runs first. It cannot write the other: nothing in `verify` edits ' +
+      'the four hand-written documents, and nothing in `verify` runs `pnpm screenshots`, which is ' +
+      'the only writer of the manifest. A build that moves a count makes the documents wrong and ' +
+      'this gate says so; a build cannot make them right. Every extraction must match EXACTLY ONCE, ' +
+      'so a deleted or duplicated sentence reds rather than emptying a population. Planted 26 times ' +
+      'against the real documents and the real manifest, each red naming the offender, each ' +
+      'restored sha256-identical.',
+  },
   'walkthrough-routes.test.ts': {
     subject:
       'the route paths named in docs/walkthroughs.md, compared against the route list ' +

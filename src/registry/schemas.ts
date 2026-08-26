@@ -120,8 +120,16 @@ export const ReconciliationRowSchema = z
      * set of non-null slugs against `REGISTRY_DESCRIPTORS` BY EQUALITY. A
      * table headed "reconciliation" reads as complete, and five of the
      * fourteen inventories — functions, actionable controls, business use
-     * cases, features and sub-features, 3,010 of the build's 5,018 census
-     * rows — had no row at all while it did.
+     * cases, features and sub-features, between them more than half the whole
+     * census — had no row at all while it did.
+     *
+     * R7-A5: THIS SENTENCE CARRIED "3,010 of the build's 5,018 census rows"
+     * and both figures were stale — the census is 3,007 of 5,015 today. No
+     * number stands here now, because this module is bundled for the browser
+     * and cannot read `registries/generated/` to derive one. The share is
+     * derived instead where the registries are already open, at
+     * `R4_B02_FIVE_ROWS` in `tests/coverage/reconciliation-table.test.ts`,
+     * which asserts it and prints both figures in its own failure message.
      */
     registry_slug: z.string().min(1).nullable(),
     /** Required exactly when `registry_slug` is null; see the refine below. */

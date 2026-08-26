@@ -314,8 +314,46 @@ describe('what the source says about deterministic safety under a failure', () =
   it('carries each pinned statement on the line it is pinned to', () => {
     expect(DETERMINISTIC_SAFETY_STATEMENTS.length).toBeGreaterThan(0)
     for (const statement of DETERMINISTIC_SAFETY_STATEMENTS) {
-      expect(L(lineNumberOf(statement.sourceRef))).toContain(statement.text)
+      expect(L(lineNumberOf(statement.sourceRef))).toContain(statement.verbatim)
     }
+  })
+
+  /**
+   * R7-C04 — THE MARKERS THAT REACHED A READER.
+   *
+   * `**Deterministic safety is untouched.**` rendered with its four asterisks
+   * inside a bare span on `/command-center/agent-activity-panel/`, because one
+   * field was doing two jobs: the citation-grade transcription and the string
+   * a screen prints. `verbatim` is checked against the frozen line above;
+   * `text` is checked here to be that line with the emphasis markers removed
+   * and nothing else changed. Both halves are asserted, so the fix cannot be
+   * undone by putting the markers back in either field, and it cannot be
+   * "satisfied" by loosening the transcription.
+   *
+   * PLANTED: set `text` back to the `**`-bearing string. Red naming L91127 and
+   * the four markers. Planted the reverse too — dropped a clause from `text` —
+   * red on the equality against the stripped `verbatim`.
+   */
+  it('no statement prints markdown emphasis, and stripping is the only difference', () => {
+    const EMPHASIS = /\*\*/
+    for (const statement of DETERMINISTIC_SAFETY_STATEMENTS) {
+      expect(
+        EMPHASIS.test(statement.text),
+        `${statement.sourceRef}: "text" is printed to a reader in a bare span and carries `
+          + 'markdown emphasis. C-41: a card that prints text strips markdown.',
+      ).toBe(false)
+      expect(
+        statement.text,
+        `${statement.sourceRef}: "text" must be "verbatim" less its emphasis markers — nothing `
+          + 'else may differ between the transcription and what a reader sees.',
+      ).toBe(statement.verbatim.replaceAll('**', ''))
+    }
+    // And at least one of them really does carry markers in the source, so
+    // this gate is not passing on an array that never had the defect.
+    expect(
+      DETERMINISTIC_SAFETY_STATEMENTS.filter((s) => EMPHASIS.test(s.verbatim)).length,
+      'statements whose frozen line carries emphasis markers',
+    ).toBeGreaterThan(0)
   })
 
   it('says it on lines that are about an outage, not about an ordinary run', () => {

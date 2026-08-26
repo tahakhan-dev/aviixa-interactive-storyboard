@@ -2238,8 +2238,13 @@ function studioFeatureSchemeNote() {
 // category -- 759 raw entries, each carrying `label`/`surface`/`module_id`/
 // `allowed_roles`/`effect`/`line` and NO `id` field at all -- is the real
 // actionable-control catalogue, deduped by exact label text (first
-// occurrence, chunk order, wins) to 605 distinct controls, matching spec
-// §2.10. `DNC-*` (the do-not-use-cron register, 22, identifier-index only)
+// occurrence, chunk order, wins) to 605 distinct controls. R7-A10: THIS USED
+// TO CLAIM THAT 605 MATCHED SPEC §2.10, AND §2.10 DISAGREES. Its availability table
+// reads `| actionable controls | semantic extraction | 608 keyed |` and says
+// nothing anywhere about excluding rendered messages; what it does say is the
+// count-scope rule this figure obeys, "A raw key count is not a canonical
+// count". 605 is that 608 less the three deduped labels R6-B01 excluded by
+// source line. `DNC-*` (the do-not-use-cron register, 22, identifier-index only)
 // is a real, separate, reconciled inventory -- scheduling policy, never an
 // actionable control -- and is disclosed on the same index under its own
 // `register` tag rather than occupying this slug's main count or being
@@ -2462,7 +2467,9 @@ function buildActionableControlsRegistry() {
       '605 distinct actionable UI controls (labelled actions like "End-session", "Resolve ' +
       'All", "Request release with a note"), deduped by exact label text from 759 raw ' +
       'extraction entries and less the three rendered messages the source describes as lines ' +
-      'rather than actions -- matches spec §2.10. Also discloses, under its own register tag, ' +
+      'rather than actions. Spec §2.10 fixes this inventory at "608 keyed" and says nothing ' +
+      'about rendered messages; 605 is that 608 less R6-B01\'s three, under §2.10\'s own rule ' +
+      'that a raw key count is not a canonical count. Also discloses, under its own register tag, ' +
       'the separate DNC-01..DNC-22 do-not-use-cron register (22): scheduling policy, never an ' +
       'actionable control, and never merged into this count.',
     reconciledCount: 605,
@@ -2470,7 +2477,12 @@ function buildActionableControlsRegistry() {
     dedupRule: appendNote(
       `${rawControls.length} raw controls[] entries across the 36 extraction chunks deduped ` +
         'by exact label text (first occurrence, chunk order, wins) -> 605 distinct actionable ' +
-        'controls, matching spec §2.10. Worst collapse: 14 raw entries sharing one label ' +
+        'controls. R7-A10: THE CITATION HERE CLAIMED 605 MATCHED SPEC §2.10, AND §2.10 SAYS 608. ' +
+        'Its availability table reads "| actionable controls | semantic extraction | 608 keyed |" ' +
+        'and mentions rendered messages nowhere. What §2.10 does supply is the rule this figure ' +
+        'obeys -- "A raw key count is not a canonical count" -- and 605 is that 608 less the ' +
+        'three labels R6-B01 excluded, each asserted by its own source line below. ' +
+        'Worst collapse: 14 raw entries sharing one label ' +
         '("Request release with a note"). R6-B01: THREE DEDUPED LABELS ARE EXCLUDED BECAUSE ' +
         'THE FROZEN SOURCE DESCRIBES THEM AS RENDERED MESSAGES RATHER THAN ACTIONS, so the ' +
         'census counts controls and not the lines a screen prints -- L13538 "Run interruption ' +

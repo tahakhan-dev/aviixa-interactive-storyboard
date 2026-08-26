@@ -252,7 +252,10 @@ until the new path list has been diffed against every row in it.
 
 | agent | path list | status |
 |---|---|---|
-| — | — | nothing running. Fix streams S, T and U (round 6) were interrupted mid-flight when their session ended; their work was measured and committed by the controller in the next session, and the seven sites they left stale are named in §8. |
+| — | — | nothing running. Fix streams V, W and X (round 7) were interrupted mid-flight when their session ended; their work was measured and closed by the controller in the next session. Round 8 is owed and nothing is dispatched. |
+
+Previously: fix streams S, T and U (round 6), interrupted the same way; their work was measured and
+committed by the controller in the next session, and the seven sites they left stale are named in §8.
 
 **A dead agent's work is not a landed agent's work.** Three streams stopped mid-file with nothing
 committed and no report. What made the difference was that the controller measured the tree rather
@@ -310,62 +313,69 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-### Round 6 of the slice-11 audit loop is closed — candidate `SLICE11-3ee592fe2eac068e`
+### Round 7 of the slice-11 audit loop is closed — round 8 is owed
 
-**144 findings declared across six rounds. Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30.
-Round 5: 20. Round 6: 17.** The disposition record
-`docs/process/audits/2026-08-25-slice-11-audit-dispositions-rounds-1-6.md` enumerates **141 rows —
-140 CLOSED and one PARTIAL (`C-18`, reason and owner recorded), none OPEN** — and the gap between
-144 and 141 is stated there rather than reconciled away: round 3 declares fifteen and only eight ids
-are recoverable, round 4 declares thirty and enumerates twenty-nine, and round 2 declares twenty
-while twenty-five rows exist for twenty-four distinct findings. **Counted from the tables, not from
-the headers** — which is the arithmetic mistake round 6 caught three times in one register. That file is round 6's own deliverable —
-finding `R6-B06` was that no such record existed — and `tests/coverage/process-evidence.test.ts` is
-the first gate in this repository that reads the evidence layer at all.
+**172 findings declared across seven rounds. Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30.
+Round 5: 20. Round 6: 17. Round 7: 28.** The disposition record
+`docs/process/audits/2026-08-25-slice-11-audit-dispositions-rounds-1-6.md` enumerates **169 rows —
+167 CLOSED and two PARTIAL (`C-18` and `R6-B03`, reason and owner recorded on both), none OPEN** —
+and the gap between 172 and 169 is stated there rather than reconciled away: round 3 declares fifteen
+and only eight ids are recoverable, round 4 declares thirty and enumerates twenty-nine, round 2
+declares twenty while twenty-five rows exist for twenty-four distinct findings. **Counted from the
+tables, not from the headers.** `tests/coverage/process-evidence.test.ts` holds the seven-register map
+by EQUALITY, so **filing round 8's register reds the gate until the map is extended and its findings
+are dispositioned.** That is deliberate.
 
-**The slice is still not closed.** The loop ends when a round finds nothing, and round 6 found
-seventeen. Round 7 is owed.
+**The slice is still not closed.** The loop ends when a round finds nothing, and round 7 found
+twenty-eight — two Critical, both in the document a client opens first.
 
-**The round-6 wave was interrupted mid-flight and that is the shape worth carrying.** The session
-running fix streams S, T and U ended while all three were writing: no stream wrote a report, nothing
-was committed, and their work sat uncommitted on disk. A later session measured it rather than
-trusting it, and found what the interruption had left behind. **Stream U's census change from 608 to
-605 landed in the generator and in its own gate and left seven dependent sites stale** — three
-literals in `tests/unit/registry-build.test.ts`, `expectedCount` in `src/coverage/descriptors.ts`
-(rendered on `/coverage/` as the expected column), a comment in `src/coverage/registry-schema.ts`,
-the actionable-controls row of `registries/generated/source-reconciliation.json`, and the
-`slice-2c-gates` forbidden-count list where 630 became 627 and took two planted-violation probes with
-it. The chain caught six; the seventh was a comment no gate reads. **Round 3's shape, at wave scale:
-a correct fix that leaves a figure stale somewhere nobody is looking.**
+**Round 7's own shape: the paperwork, not the product.** Rounds 1-5 found defects in the product;
+round 6 found that nothing read the evidence layer; round 7 found that **the fix wave and its
+record-keeping are the densest source of defects in this build** — ten of twenty-eight were
+provenance, arithmetic or citation defects in artefacts written during the previous two rounds, three
+of them the controller's, and one was the wave re-committing the very shape it was closing
+(`R7-A4`: a stated seven against an enumerated six, written by the stream fixing two findings of that
+shape). The two Criticals were in `docs/client-review-guide.md`: it told a reviewer **not to review
+eleven shipped Command Center screens**, and its headline honesty figure — sold as "computed rather
+than asserted" — was hand-typed at 4,970 / 237 / 7 against a build of 5,015 / 299 / 10.
 
-**And closing the record produced a new shape: a gate that reds on success.**
-`tests/coverage/process-evidence.test.ts` asserted the verdict vocabulary was fully *exercised* and
-planted its ownerless-owner probe on "the first OPEN row" — so the first time every finding was
-closed, one case failed on an equality and one threw `undefined.id`. Both are repaired: the
-vocabulary is a subset for `verdict` (which legitimately empties) and an equality for `basis` and
-`severity` (which cannot), and the plant now manufactures its own OPEN row from a named closed one.
-**An assertion whose subject is the defect it exists to prevent will fail the moment the defect is
-gone.** Look for the shape.
+**And round 7's wave was interrupted exactly as round 6's was.** Fix streams V, W and X were all
+writing when their session ended: no stream wrote a report, nothing was committed, 35 modified files
+and one untracked gate sat on disk. **The next session measured the tree rather than trusting the
+briefs** — that is the procedure §6a records, and it worked twice now. What it found: all three
+streams' work landed and holds. Stream W had closed its own seven rows; the other twenty-one were
+`OPEN` with their owning stream named, and the controller closed each one against the artefact and
+the gate that holds it. Chain on those bytes was green everywhere except three `process-evidence`
+cases, all one cause — the manifests were sealed before the untracked gate existed, which is the
+owed reseal rather than a defect.
 
-**Two other closes worth knowing.** `R6-C01` was settled WITHOUT settling the ABSENT-versus-DISABLED
-question this build has ruled unsettled: the 22 `DNC-` rows keep `not-applicable` on the ground that
-§45A.3 is a scheduling-policy register whose seven columns hold no control label, and the reading
-that a locked entry is an absence is withdrawn and cross-referenced to
-`tests/coverage/slice-04-gates.test.ts` rather than relied on. `R6-B05` was closed as a RECORDED
-LIMITATION rather than a built capability — `LIM-VISUAL-01` on `/coverage/` states what master prompt
-§26.2 and §27.2 require, what exists today, and what a reader must not conclude. Building it is
-slice-13 scope.
+**One defect was found by that verification rather than by the audit.**
+`tests/coverage/client-document-figures.test.ts` — round 7's own root-cause fix for `R7-B13`, 16
+cases holding every figure in four client documents against the artefact it describes — **shipped
+without a plant.** A claim gate with no plant is defect shape 1 in the file built to catch shape 5.
+It now carries `P1/P2`: a wrong figure derived as `routes.length + 1` so it can never coincide with
+the truth on a future export, and the sentence reworded away, which must throw on zero matches. The
+filesystem half was proved once by hand — `85` planted over `102` in `docs/deployment.md` reds case
+2 — and restored byte-exact against its sha256. **Look for this shape in every gate a fix wave
+ships: the wave is measured on whether its subject is fixed, and nobody asks whether its new gate
+can fail.**
 
-Chain measured on these exact bytes, one uninterrupted sequential run, exit 0: typecheck 0 · lint 0 ·
-gate-ordering **33/33** · freshness 3/3 · unit **6280**/182 files · component **3054**/108 · build
-**102/102** · release **1000**/33 · e2e/axe **548**. Registries regenerate byte-identically. Both
-manifests are sealed on these bytes by `scripts/seal-manifests.mjs`, and the verification block in
-`product-candidate-manifest.json` was written from that run rather than carried forward.
+**A property of the seal worth knowing before trusting `worktree_clean`.** `R7-A1` was closed by
+making the manifest say which half it is in: `bytes_measured_against` carries one of two sentences
+chosen by `worktree_clean`, and case 13 asserts the clean sentence's claim against git. **The clean
+branch is unreachable in this repository's workflow and that is not yet recorded anywhere else.**
+Sealing on a clean tree writes both manifests, which makes the tree dirty; committing them makes
+`product-candidate-manifest.json` — a certified path in the envelope payload — differ from the tree
+the manifest names, and case 13's clean leg convicts it. So every seal here is a dirty seal carrying
+the honest sentence, and the clean leg has never run on real bytes. **Round 8 should decide whether
+that leg is dead code or whether the seal should exclude its own two outputs from the comparison.**
 
-Registers: rounds 1-6, all six under `docs/process/audits/`. **`tests/coverage/process-evidence.test.ts`
-holds the six-register map by EQUALITY, so filing round 7's register reds the gate until the map is
-extended and its findings are dispositioned.** That is deliberate.
+Chain measured on the corrected bytes, one uninterrupted sequential run: recorded in
+`docs/process/2026-08-25-slice-11-round-7-verification.md` with exact commands and counts.
+Registries regenerate byte-identically. Both manifests are resealed on these bytes by
+`scripts/seal-manifests.mjs`.
 
+Registers: rounds 1-7, all seven under `docs/process/audits/`.
 
 ### The four findings to carry above all others
 

@@ -220,6 +220,72 @@ describe('the queued-request state machine, rendered beside its states', () => {
     expect(page).toContain('<StateMachinePanel')
     expect(page).toContain("from '@/ai/requests/StateMachinePanel'")
   })
+
+  /* ────────────────────────────────────────────────────────────────────
+   * R7-C02 — AND IT IS MOUNTED INSIDE THE EXTENSION LABEL, NOT BESIDE IT.
+   *
+   * This panel and `QueuedRequestSurfaceMatrix` render the twelve-state
+   * worker-initiated help machine and its 12x5 surface matrix. L89727
+   * classifies that state set `User-Mandated Product Extension`; the channel
+   * it presumes is the open `DEC-ASK-001` (L92730/L92732, option (a) being no
+   * channel); and master prompt §18.3 requires those modes in a separate
+   * extension decision preview, `DEC-AIHELP-001` preserved, excluded from
+   * implemented V1 coverage. They were mounted flush against `MOD-DOH-08`'s
+   * own V1 content with none of that on the page.
+   *
+   * CONTAINMENT, NOT A SUBSTRING. A `toContain` over the route would stay
+   * green with the label at the top of the file and a panel dragged out from
+   * under it — the shape this build calls "an import edge is not a mount", one
+   * level up. The route's own element tree is rendered here and each panel's
+   * ancestry is walked to the labelled section.
+   *
+   * PLANTED, on a copy of the route restored byte-exact against a sha256 taken
+   * before:
+   *   moved `<StateMachinePanel …/>` out of the section, after its closing
+   *     tag — red: "the queued-request state machine renders outside the
+   *     extension decision preview".
+   *   deleted the whole `<section data-extension-decision-preview>` wrapper,
+   *     leaving both panels bare — red on the section being absent.
+   *   deleted only `<DecisionDisclosure id="DEC-AIHELP-001" />` — red naming
+   *     DEC-ASK-001 missing from the preview.
+   * ──────────────────────────────────────────────────────────────────── */
+  it('R7-C02: both extension panels render inside the extension decision preview', async () => {
+    const { default: ExecutionSummaryReviewPage } = await import(
+      '../../app/hub/execution-summary-review/page'
+    )
+    const { container } = render(<ExecutionSummaryReviewPage />)
+
+    const preview = container.querySelector('[data-extension-decision-preview]')
+    expect(
+      preview,
+      'the route renders no extension decision preview. Master prompt §18.3 requires these '
+        + 'modes in a separately labelled one, excluded from implemented V1 coverage.',
+    ).not.toBeNull()
+
+    for (const [what, selector] of [
+      ['the queued-request state machine', '[data-testid="queued-request-state-machine"]'],
+      ['the queued-request surface matrix', '[data-testid="queued-request-surface-matrix"]'],
+    ] as const) {
+      const panel = container.querySelector(selector)
+      expect(panel, `${what} is not on the route at all`).not.toBeNull()
+      expect(
+        preview!.contains(panel),
+        `${what} renders outside the extension decision preview, so a reader meets it as `
+          + 'ordinary V1 module content.',
+      ).toBe(true)
+    }
+
+    // The classification and the open decision, both inside the label, both
+    // by their own source words rather than by a paraphrase.
+    const text = (preview!.textContent ?? '').replace(/\s+/g, ' ')
+    expect(text, 'the source classification at L89727').toContain('User-Mandated Product Extension')
+    expect(text, 'L89727, cited').toContain('L89727')
+    expect(text, "§44A's spelling of the open decision").toContain('DEC-ASK-001')
+    expect(text, "§42.6's spelling, which the canon keys on").toContain('DEC-AIHELP-001')
+    expect(text, 'option (a): no channel at all').toContain('no question channel')
+    // And the preview never claims the question is settled here.
+    expect(text).toContain('None is this build’s to settle.')
+  })
 })
 
 /* ==================================================================== *

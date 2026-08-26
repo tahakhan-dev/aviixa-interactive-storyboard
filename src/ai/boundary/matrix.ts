@@ -480,9 +480,31 @@ export const AGENT_ROW_CORROBORATION = [aiProhibition(5), aiProhibition(7)] as c
  * WHAT THE DETERMINISTIC LAYER STILL DOES, UNDER ANY AI STATE.
  * ==================================================================== */
 
+/**
+ * TWO FIELDS, BECAUSE ONE OF THEM IS PRINTED TO A READER (R7-C04).
+ *
+ * `text` was both the citation-grade transcription and the string a screen
+ * prints, and the source writes its lead in markdown emphasis. So
+ * `src/ui/shared/DeterministicBoundary.tsx` put `**Deterministic safety is
+ * untouched.**` inside a bare span and four asterisks reached the reader — on
+ * the most consequential sentence on `/command-center/agent-activity-panel/`,
+ * what the deterministic layer still does during a platform pause. The sibling
+ * entry carries no markers, so the array disagreed with itself.
+ *
+ * C-41 settled the rule: a card that PRINTS text strips markdown. It is fixed
+ * here rather than in the component because every consumer routes through this
+ * constant, and a strip in one renderer leaves the next one exposed. `text` is
+ * now what a reader sees; `verbatim` is the source's own bytes and is what the
+ * citation gate opens the line against. `tests/unit/ai-boundary.test.ts` holds
+ * both: `verbatim` on its cited line, and `text` equal to `verbatim` with the
+ * emphasis markers removed — so a marker cannot come back through either
+ * field, and the transcription cannot be quietly loosened either.
+ */
 export interface DeterministicSafetyStatement {
-  /** The source's sentence, verbatim enough to be found on its own line. */
+  /** What a screen prints. No markdown: this string reaches a reader as-is. */
   readonly text: string
+  /** The source's sentence exactly as the frozen line writes it, markers and all. */
+  readonly verbatim: string
   readonly sourceRef: string
   /** What the sentence is about, in this build's words. */
   readonly scope: string
@@ -491,6 +513,10 @@ export interface DeterministicSafetyStatement {
 export const DETERMINISTIC_SAFETY_STATEMENTS = [
   {
     text:
+      'Deterministic safety is untouched. Gates, specification checks, deviation detection, ' +
+      'and severity classification run locally with no model in the path, under every ' +
+      'artificial-intelligence failure including a platform-wide pause.',
+    verbatim:
       '**Deterministic safety is untouched.** Gates, specification checks, deviation detection, ' +
       'and severity classification run locally with no model in the path, under every ' +
       'artificial-intelligence failure including a platform-wide pause.',
@@ -501,6 +527,7 @@ export const DETERMINISTIC_SAFETY_STATEMENTS = [
   },
   {
     text: 'Deterministic safety mechanisms are unaffected by an audit outage.',
+    verbatim: 'Deterministic safety mechanisms are unaffected by an audit outage.',
     sourceRef: 'L74918',
     scope:
       'An audit-store outage, where halt-class actions do stop. Deterministic safety is named ' +

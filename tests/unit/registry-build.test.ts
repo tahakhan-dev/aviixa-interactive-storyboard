@@ -240,10 +240,13 @@ describe('composite keys stop distinct workflows collapsing', () => {
 // Fix round 1: actionable-controls was keyed on DNC-* (the do-not-use-cron
 // register — scheduling policy). The real actionable controls are the
 // semantic `controls[]` extraction (759 raw entries: label/surface/
-// module_id/allowed_roles/effect/line), deduped by label to 605 per spec
-// §2.10 -- 608 until round 6's R6-B01 excluded the three deduped labels the
-// frozen source describes as rendered messages rather than actions (L13538,
-// L41894, L42209); the generator asserts that exclusion by line, so this
+// module_id/allowed_roles/effect/line), deduped by label to 605. Spec §2.10
+// publishes "608 keyed" for this inventory and mentions rendered messages
+// nowhere (R7-A10); 605 is that 608 less the three deduped labels round 6's
+// R6-B01 excluded because the frozen source describes them as rendered
+// messages rather than actions (L13538, L41894, L42209), under §2.10's own
+// rule that a raw key count is not a canonical count. The generator asserts
+// that exclusion by line, so this
 // figure moves only when those three do. DNC-* is a real, separate, reconciled inventory (22) that gets its
 // own clearly labelled section on the same index, not the whole slug.
 describe('actionable controls is the UI-action catalogue, not the do-not-cron register', () => {
@@ -1372,5 +1375,160 @@ describe('R5-A02: a row links only to a page whose non-comment source names it',
     const raw = readFileSync('app/hub/shift-management/fixtures.ts', 'utf8')
     expect(raw, 'the JSDoc mention that caused R5-A02').toContain('SB-STU-03')
     expect(stripComments(raw), 'and it is only in a comment').not.toContain('SB-STU-03')
+  })
+})
+
+/* ══════════════════════════════════════════════════════════════════════
+ * R7-A4 — A STATED COUNT AGAINST THE ENUMERATION BESIDE IT, IN A PROSE
+ * FIELD, HELD AGAINST THE FROZEN SOURCE.
+ *
+ * The reason field of `registries/authored/census-status-overrides.json`
+ * renders verbatim on `/coverage/actionable-controls/` as every `DNC-` row's
+ * `statusReason`. It read "The register's SEVEN columns are" and then named
+ * SIX, omitting the `DNC-` identifier column — and it was written by the wave
+ * closing the two round-6 findings whose shape is a stated split that does not
+ * total the enumeration beside it.
+ *
+ * SO IT IS GATEABLE, AND THIS IS HOW. The claim has three checkable parts and
+ * they are all in the sentence: a count word, a cited frozen-source line, and
+ * the enumeration. The gate parses the sentence, opens the cited line, splits
+ * the header row on its pipes and compares all three by EQUALITY. A count that
+ * disagrees with the enumeration, an enumeration that disagrees with the
+ * source, and a citation naming the wrong line are each red and each say
+ * which. What is NOT gateable in a prose field is a claim with no anchor —
+ * this one has one, because the record chose to cite the line it is about.
+ *
+ * PLANTED: restored the six-column enumeration. Red on the enumeration length
+ * (7 expected, 6 found) and red again on the missing `DNC-` cell. Also planted
+ * `eight` for the count word: red naming 8 against 7.
+ * ══════════════════════════════════════════════════════════════════════ */
+describe('R7-A4: the census override states a column count its own cited line can settle', () => {
+  const NUMBER_WORDS: Record<string, number> = {
+    two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+  }
+  const CLAIM =
+    /The register's (\w+) columns, transcribed verbatim from the header row at frozen source line (\d+), are ([^.]+)\./
+
+  const OVERRIDES = JSON.parse(
+    readFileSync('registries/authored/census-status-overrides.json', 'utf8'),
+  ) as { overrides: { registry: string; reason: string; registerBodyFirstLine: number }[] }
+
+  const SOURCE = readFileSync('../AVIIXA_Production_Product_Blueprint.md', 'utf8').split('\n')
+
+  /** The pipe-delimited cells of a markdown table row, backticks stripped. */
+  const cellsOf = (line: string): string[] =>
+    line
+      .trim()
+      .replace(/^\|/, '')
+      .replace(/\|$/, '')
+      .split('|')
+      .map((c) => c.replace(/`/g, '').trim())
+
+  const claiming = OVERRIDES.overrides.filter((o) => CLAIM.test(o.reason))
+
+  it('the population is not empty — a gate over a sentence nobody wrote asserts nothing', () => {
+    expect(OVERRIDES.overrides.length, 'authored override records').toBeGreaterThan(0)
+    expect(
+      claiming.length,
+      'override records making a column-count claim. If this reaches zero the claim was '
+        + 'deleted rather than corrected, and this gate would otherwise pass on an empty set.',
+    ).toBe(1)
+  })
+
+  it('the stated count, the enumeration and the cited header row all agree', () => {
+    for (const record of claiming) {
+      const m = CLAIM.exec(record.reason)!
+      const [, word, lineText, enumeration] = m as unknown as [string, string, string, string]
+
+      const stated = NUMBER_WORDS[word.toLowerCase()]
+      expect(stated, `"${word}" is a number word this gate knows`).toBeDefined()
+
+      const named = enumeration.split(/,\s*(?:and\s+)?/).map((s) => s.trim())
+      expect(named.length, `${record.registry}: the enumeration beside "${word}"`).toBe(stated)
+
+      const cited = Number(lineText)
+      const header = SOURCE[cited - 1]
+      expect(header, `frozen source line ${cited}`).toBeDefined()
+      expect(header, `line ${cited} is a markdown table row`).toContain('|')
+
+      // The header row itself, by equality and in order.
+      expect(cellsOf(header as string), `the header row at L${cited}`).toEqual(named)
+
+      // And the separator directly beneath it carries the same arity, so a
+      // header row that lost a cell cannot take the enumeration with it.
+      const separator = SOURCE[cited]
+      expect(cellsOf(separator as string).length, `the separator at L${cited + 1}`).toBe(stated)
+      for (const cell of cellsOf(separator as string)) expect(cell).toMatch(/^:?-{3,}:?$/)
+
+      // The record's own body pointer sits two lines below its header, which
+      // is what makes the cited line the header of THIS register rather than
+      // of some other table that happens to have the right arity.
+      expect(record.registerBodyFirstLine, `${record.registry} body follows its header`).toBe(
+        cited + 2,
+      )
+    }
+  })
+})
+
+/* ══════════════════════════════════════════════════════════════════════
+ * R7-A10 — A CITATION TO A SPEC SECTION THAT DISAGREES WITH THE FIGURE
+ * CITING IT.
+ *
+ * `build-registries.mjs`, the generated `countedThing` and `dedupRule`, and
+ * `src/coverage/descriptors.ts` all said 605 "matches spec §2.10". It does
+ * not: §2.10's availability table reads `| actionable controls | semantic
+ * extraction | 608 keyed |` and says nothing anywhere about excluding rendered
+ * messages. 605 is 608 less R6-B01's three, and §2.10's own count-scope rule
+ * — "a raw key count is not a canonical count" — is what licenses the
+ * difference. The citation now states what the section says and what R6-B01
+ * changed, and this gate holds it against the section's own bytes.
+ *
+ * PLANTED: restored "matching spec §2.10" beside 605 on the `dedupRule`. Red
+ * naming the row: the section's own figure is 608, not 605.
+ * ══════════════════════════════════════════════════════════════════════ */
+describe('R7-A10: what spec §2.10 says about actionable controls, read rather than paraphrased', () => {
+  const SPEC_PATH = 'docs/superpowers/specs/2026-08-17-slice-02c-spec-closure-design.md'
+
+  /** §2.10's availability row for this inventory, found by its own cells. */
+  const availabilityRow = (): string => {
+    const rows = readFileSync(SPEC_PATH, 'utf8')
+      .split('\n')
+      .filter((l) => /^\|\s*actionable controls\s*\|/.test(l))
+    expect(rows.length, `§2.10 availability rows for actionable controls in ${SPEC_PATH}`).toBe(1)
+    return rows[0] as string
+  }
+
+  it('§2.10 fixes 608 keyed for this inventory and says nothing about rendered messages', () => {
+    const row = availabilityRow()
+    expect(row, '§2.10 availability row').toContain('608 keyed')
+    expect(row).not.toContain('605')
+    const spec = readFileSync(SPEC_PATH, 'utf8')
+    expect(spec, '§2.10 never mentions rendered messages').not.toMatch(/rendered message/i)
+    // The rule that DOES license 608 -> 605, quoted from the section itself.
+    expect(spec).toContain('A raw key count is not a canonical count')
+  })
+
+  it('no artefact claims 605 matches §2.10 — the citation states the 608 and the delta', () => {
+    const artefacts: [string, string][] = [
+      ['scripts/build-registries.mjs', readFileSync('scripts/build-registries.mjs', 'utf8')],
+      ['src/coverage/descriptors.ts', readFileSync('src/coverage/descriptors.ts', 'utf8')],
+      [
+        'registries/generated/actionable-controls.json',
+        readFileSync('registries/generated/actionable-controls.json', 'utf8'),
+      ],
+    ]
+    for (const [where, text] of artefacts) {
+      for (const phrase of ['matches spec §2.10', 'matching spec §2.10']) {
+        expect(text, `${where} claims 605 ${phrase}, which §2.10 does not say`).not.toContain(
+          phrase,
+        )
+      }
+      // And every §2.10 citation that survives carries the section's own
+      // figure beside it, so the next author reconciling the two finds the
+      // reconciliation already written down.
+      if (text.includes('§2.10')) {
+        expect(text, `${where} cites §2.10 without naming its 608`).toContain('608 keyed')
+      }
+    }
   })
 })

@@ -22,16 +22,24 @@
  * IT PROVES the manifests describe the tree they sit in: every byte they
  * certify hashes to what they say, and the two file sets TOGETHER equal every
  * path git accounts for, so a file quietly dropped from a manifest reds instead
- * of shrinking a population. It proves each register's findings all have a
- * verdict, that the verdicts and bases come from closed vocabularies, that no
- * `OPEN` or `PARTIAL` row is recorded without a reason and an owner, and that
- * each register's declared severity split matches the enumeration beside it.
+ * of shrinking a population. Round 7 added the locator to that: the commit the
+ * manifest names must be real history this branch descends from, the tree
+ * beside it must be that commit's tree, and the manifest must SAY whether the
+ * commit describes its bytes — which it does only when the seal was taken on a
+ * clean worktree, and which is then checked. It proves each register's findings
+ * all have a verdict, that the verdicts and bases come from closed
+ * vocabularies, that no `OPEN` or `PARTIAL` row is recorded without a reason
+ * and an owner, and that each register's declared severity split matches the
+ * enumeration beside it.
  *
  * IT DOES NOT PROVE A REVIEW HAPPENED. It cannot. A manifest is a fingerprint,
  * and a fingerprint of an unreviewed tree is a perfectly valid fingerprint. Nor
- * does it prove any verdict is CORRECT: 82 of the 141 rows carry basis
- * `REGISTER`, meaning "closed because a later register said so", and this gate
- * checks that the basis is DECLARED, never that the closure is real.
+ * does it prove any verdict is CORRECT: 82 of the 169 rows carry basis
+ * `REGISTER`, meaning "stands on a register's own word", and this gate checks
+ * that the basis is DECLARED, never that the closure is real. Nor can it read
+ * PROSE: round-7 `R7-A2` was a paragraph contradicting a table two lines below
+ * it, and cases 6 to 12 parse rows. That one is stated rather than papered
+ * over.
  *
  * ── IT IS NOT SATISFIABLE BY RESEALING, AND THAT IS DELIBERATE ─────────────
  *
@@ -40,8 +48,8 @@
  * disposition record against the REGISTERS, which the seal script never reads
  * and never writes. So the half of this gate that is about honesty rather than
  * about bytes survives any reseal, and a reseal run to silence a drift failure
- * leaves a `worktree_clean` field and a new Candidate ID behind saying it
- * happened.
+ * leaves a `worktree_clean` field, a `bytes_measured_against` sentence and a
+ * new Candidate ID behind saying it happened.
  *
  * ── PLANTS. Every one real, every one restored byte-exact against a sha256 ──
  *
@@ -55,6 +63,16 @@
  *           dispositioned nowhere.
  *  P4  One `OPEN` row's owner column emptied.
  *      RED  case 10, naming the id.
+ *  P5  `git_commit` moved to a real but wrong rev, tree left alone.
+ *      RED  case 13 leg one — the pair stops being internally consistent.
+ *  P6  Both pointers moved to `4b5caa35` as a CONSISTENT pair and
+ *      `worktree_clean` flipped to true with the sentence the script would
+ *      have written beside it: a manifest that is internally tidy and lying.
+ *      RED  case 13 leg four, naming `app/not-found.tsx` among the certified
+ *           paths that are not in that tree. This is `R7-A1` as it shipped.
+ *  P7  `supersedes` set to the manifest's own `candidate_id`, which is what
+ *      the unguarded script wrote on its second run.
+ *      RED  case 14.
  *
  * The restorations are asserted, not assumed: each plant re-reads the file after
  * its `finally` and compares the sha256 to the one taken before.
@@ -86,6 +104,11 @@ interface Product {
   readonly candidate_manifest_sha256: string
   readonly scope: { readonly evidence_roots: readonly string[]; readonly hashes_itself: boolean }
   readonly file_count: number
+  readonly git_commit: string | null
+  readonly git_tree: string | null
+  readonly worktree_clean: boolean
+  readonly bytes_measured_against: string
+  readonly supersedes: string
   readonly files: readonly Entry[]
 }
 interface Envelope {
@@ -94,6 +117,7 @@ interface Envelope {
   readonly payload_sha256: string
   readonly scope: { readonly excludes: readonly string[] }
   readonly payload_count: number
+  readonly supersedes: string
   readonly payload: readonly Entry[]
 }
 
@@ -118,6 +142,56 @@ const repoFiles = (): readonly string[] =>
 
 const isEvidence = (path: string): boolean =>
   product.scope.evidence_roots.some((root) => path.startsWith(root))
+
+const git = (...args: string[]): string =>
+  execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }).trim()
+
+/**
+ * THE TWO SENTENCES `seal-manifests.mjs` MAY WRITE INTO `bytes_measured_against`
+ * (round-7 `R7-A1`), READ OUT OF THE WRITER ITSELF.
+ *
+ * Not copied here. A copy is a second literal to keep in step, and this file's
+ * whole subject is figures that stopped agreeing with what wrote them.
+ * `tsconfig.json` sets `allowJs: false` so the `.mjs` cannot be imported by a
+ * `.ts` gate; it is imported by a child `node --input-type=module` instead,
+ * which is the real module and not a reading of it. The script's `main()` is
+ * guarded on `process.argv[1]`, which `-e` leaves undefined, so nothing runs.
+ */
+const [BYTES_FROM_COMMIT, BYTES_FROM_DIRTY_WORKTREE] = JSON.parse(
+  execFileSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      "import { BYTES_FROM_COMMIT, BYTES_FROM_DIRTY_WORKTREE } from './scripts/seal-manifests.mjs'"
+        + '; process.stdout.write(JSON.stringify([BYTES_FROM_COMMIT, BYTES_FROM_DIRTY_WORKTREE]))',
+    ],
+    { cwd: ROOT, encoding: 'utf8' },
+  ),
+) as [string, string]
+
+/**
+ * The certified paths whose bytes are NOT the bytes of `tree`. Tracked drift
+ * comes from `git diff`, untracked files are drift by definition — a file that
+ * exists in the worktree and in no tree cannot be that tree's blob.
+ */
+function certifiedPathsDifferingFrom(tree: string): readonly string[] {
+  const certified = new Set([
+    ...product.files.map((e) => e.path),
+    ...envelope.payload.map((e) => e.path),
+  ])
+  const changed = [
+    ...git('diff', '--name-only', tree, '--').split('\n'),
+    ...git('ls-files', '--others', '--exclude-standard').split('\n'),
+  ]
+  return [
+    ...new Set(
+      changed.filter(
+        (p) => p !== '' && certified.has(p) && !p.split('/').some((s) => isForeignProbe(s)),
+      ),
+    ),
+  ].sort()
+}
 
 /**
  * Plant `text` at `path`, run `check`, restore. The restoration is COMPARED,
@@ -218,6 +292,116 @@ describe('the candidate manifests describe the tree they sit in', () => {
     expect(envelope.payload_count).toBe(envelope.payload.length)
   })
 
+  // Case 13. THE COMMIT POINTER (round-7 `R7-A1`). Cases 1-5 check paths,
+  // hashes, digests and ids and never once look at the locator, so the reseal
+  // that closed `R6-B04` fixed 1,050 hashes and left `git_commit` naming
+  // HEAD's GRANDPARENT — 1025 match / 21 differ / 4 missing against that
+  // tree — while the commit message told a reader the field named the commit
+  // the bytes were measured against.
+  //
+  // WHAT THE FIELD CAN AND CANNOT CLAIM. The seal hashes the WORKING TREE, so
+  // `git_commit` describes those bytes exactly when the worktree was clean.
+  // A field that is unverifiable in the other half must SAY which half it is
+  // in, so the manifest carries the claim as data in a two-value vocabulary,
+  // and this case holds all three legs: the pair is internally consistent,
+  // the commit is real history, and the clean claim is checked against git.
+  it('the commit pointer resolves to the tree beside it, and says whether it describes the bytes', () => {
+    expect(product.git_commit, 'the seal recorded no commit').toMatch(/^[0-9a-f]{40}$/)
+    const commit = product.git_commit!
+    expect(product.git_tree, `git_tree is not the tree of ${commit}`)
+      .toBe(git('rev-parse', `${commit}^{tree}`))
+    // Real history, and history this branch descends from: a pointer at a rev
+    // from somewhere else resolves fine and means nothing.
+    expect(
+      () => git('merge-base', '--is-ancestor', commit, 'HEAD'),
+      `${commit} is not an ancestor of HEAD`,
+    ).not.toThrow()
+
+    expect(product.bytes_measured_against, 'the claim does not match worktree_clean').toBe(
+      product.worktree_clean ? BYTES_FROM_COMMIT : BYTES_FROM_DIRTY_WORKTREE,
+    )
+
+    // THE CLEAN CLAIM, CHECKED. Case 2 proves the certified hashes are the
+    // FILESYSTEM's bytes; this proves the filesystem is that tree. Together
+    // they are what "sealed against this commit" has to mean. Nothing is
+    // asserted on the dirty branch — there is nothing to assert, which is
+    // exactly what the sentence on that branch tells a reader.
+    if (product.worktree_clean) {
+      expect(
+        certifiedPathsDifferingFrom(product.git_tree!),
+        `the manifest claims ${commit} describes its bytes; these certified paths are not in it`,
+      ).toEqual([])
+    }
+  })
+
+  // Case 14. NO MANIFEST SUPERSEDES ITSELF (round-7 `R7-A6`).
+  // `seal-manifests.mjs` wrote `previous.candidate_id` unguarded, so the
+  // second seal of an unchanged tree recorded the manifest as its own
+  // predecessor and erased `SLICE04-b82f66e93567c0a5` — the candidate
+  // `R6-B04` existed to retire. An id chain that can point at itself records
+  // no chain at all.
+  it('neither manifest declares itself its own predecessor', () => {
+    expect(product.supersedes, 'the product manifest supersedes itself')
+      .not.toBe(product.candidate_id)
+    expect(envelope.supersedes, 'the envelope supersedes itself').not.toBe(envelope.envelope_id)
+    expect(product.supersedes.length, 'the product chain names no predecessor').toBeGreaterThan(3)
+    expect(envelope.supersedes.length, 'the envelope chain names no predecessor').toBeGreaterThan(3)
+  })
+
+  it('P5/P6 — a wrong commit pointer and a false clean claim both red, naming the offender', () => {
+    // P5. THE POINTER MOVED TO A REAL BUT WRONG REV, leaving the tree beside
+    // it alone — which is what a hand-edit looks like, and what `R7-A1` was.
+    // The rev is CHOSEN, not written: whichever of HEAD and its parent is not
+    // the one already recorded, so the plant still changes something on the
+    // run where the seal was taken at HEAD.
+    const wrong = [git('rev-parse', 'HEAD'), git('rev-parse', 'HEAD~1')]
+      .find((r) => r !== product.git_commit)!
+    expect(wrong, 'no rev to plant').toBeDefined()
+    planted(PRODUCT_MANIFEST, (text) => {
+      const m = JSON.parse(text) as Record<string, unknown>
+      m['git_commit'] = wrong
+      return `${JSON.stringify(m, null, 2)}\n`
+    }, () => {
+      const m = JSON.parse(read(PRODUCT_MANIFEST)) as Product
+      expect(m.git_tree).not.toBe(git('rev-parse', `${m.git_commit!}^{tree}`))
+    })
+
+    // P6. THE CLAIM FLIPPED TO CLEAN, with the sentence the script would have
+    // written beside it — so the manifest is internally consistent and lying.
+    // Both pointers move to `4b5caa35` as a CONSISTENT pair, so legs one and
+    // two pass and the conviction can only come from the byte comparison.
+    // That rev is named rather than derived because the plant needs a tree the
+    // worktree provably is not, and `4b5caa35` is the one this finding
+    // measured at 21 differing paths.
+    const stale = git('rev-parse', '4b5caa3')
+    const victim = 'app/not-found.tsx'
+    planted(PRODUCT_MANIFEST, (text) => {
+      const m = JSON.parse(text) as Record<string, unknown>
+      m['git_commit'] = stale
+      m['git_tree'] = git('rev-parse', `${stale}^{tree}`)
+      m['worktree_clean'] = true
+      m['bytes_measured_against'] = BYTES_FROM_COMMIT
+      return `${JSON.stringify(m, null, 2)}\n`
+    }, () => {
+      const m = JSON.parse(read(PRODUCT_MANIFEST)) as Product
+      expect(m.git_tree).toBe(git('rev-parse', `${m.git_commit!}^{tree}`))
+      expect(m.bytes_measured_against).toBe(BYTES_FROM_COMMIT)
+      const offenders = certifiedPathsDifferingFrom(m.git_tree!)
+      expect(offenders).toContain(victim)
+    })
+
+    // P7. THE SELF-SUPERSEDING MANIFEST, which is what the unguarded script
+    // wrote on its second run.
+    planted(PRODUCT_MANIFEST, (text) => {
+      const m = JSON.parse(text) as Record<string, unknown>
+      m['supersedes'] = m['candidate_id']
+      return `${JSON.stringify(m, null, 2)}\n`
+    }, () => {
+      const m = JSON.parse(read(PRODUCT_MANIFEST)) as Product
+      expect(m.supersedes).toBe(m.candidate_id)
+    })
+  })
+
   it('P1/P2 — a drifted hash and a dropped entry both red, naming the offender', () => {
     const victim = 'app/page.tsx'
     expect(product.files.some((e) => e.path === victim), 'the plant target left the manifest')
@@ -261,7 +445,7 @@ describe('the candidate manifests describe the tree they sit in', () => {
  * and 6, finding R6-B06)
  * ==================================================================== */
 
-/** The six registers, by round. An equality, so a seventh round reds until it is filed. */
+/** The seven registers, by round. An equality, so an eighth round reds until it is filed. */
 const REGISTERS: Readonly<Record<string, string>> = {
   '1': `${AUDITS}/2026-08-24-slice-11-audit-findings.md`,
   '2': `${AUDITS}/2026-08-24-slice-11-audit-round-2-findings.md`,
@@ -269,6 +453,7 @@ const REGISTERS: Readonly<Record<string, string>> = {
   '4': `${AUDITS}/2026-08-25-slice-11-audit-round-4-findings.md`,
   '5': `${AUDITS}/2026-08-25-slice-11-audit-round-5-findings.md`,
   '6': `${AUDITS}/2026-08-25-slice-11-audit-round-6-findings.md`,
+  '7': `${AUDITS}/2026-08-25-slice-11-audit-round-7-findings.md`,
 }
 
 /**
@@ -341,8 +526,8 @@ describe('every audit round has a disposition record that reconciles with its re
   // Case 6. THE POSITIVE CONTROL, and it is not decoration: every case below
   // iterates `rows`, so a parser that silently matched nothing would make each
   // one pass over an empty set — the shape round 3 caught in a live gate.
-  it('the disposition file parses, and covers exactly the six rounds with registers', () => {
-    expect(rows.length).toBe(141)
+  it('the disposition file parses, and covers exactly the seven rounds with registers', () => {
+    expect(rows.length).toBe(169)
     expect([...new Set(rows.map((r) => r.round))].sort()).toEqual(Object.keys(REGISTERS))
     expect(rows.map((r) => `${r.round}/${r.id}`)).toHaveLength(
       new Set(rows.map((r) => `${r.round}/${r.id}`)).size,
@@ -382,7 +567,7 @@ describe('every audit round has a disposition record that reconciles with its re
         checked += 1
       }
     }
-    expect(checked, 'no row was compared against a register severity').toBe(108)
+    expect(checked, 'no row was compared against a register severity').toBe(136)
   })
 
   // Case 9. THE COUNT DISCIPLINE ROUND 6 EXPOSED: a stated split that does not
@@ -401,18 +586,29 @@ describe('every audit round has a disposition record that reconciles with its re
     '4': null,
     '5': 'Four Critical.',
     '6': 'Two Critical.',
+    // THE REGISTER'S OWN SENTENCE, NOT A FORM IT MUST BE WRITTEN IN. Round 7
+    // declares "Two Critical, both stream B." — true, enumerated, and not the
+    // shape the first version of this case required. Demanding `Two Critical.`
+    // would have made an auditor rewrite an accurate register to satisfy a
+    // parser, so the number word is parsed out of whatever the register says.
+    '7': 'Two Critical, both stream B.',
   }
   const WORD = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine']
 
   it('a register that declares a Critical total declares the one it enumerates', () => {
     expect(Object.keys(DECLARED_CRITICAL)).toEqual(Object.keys(REGISTERS))
     const declaring = Object.keys(DECLARED_CRITICAL).filter((r) => DECLARED_CRITICAL[r] !== null)
-    expect(declaring, 'the set of registers declaring a Critical total changed').toEqual(['5', '6'])
+    expect(declaring, 'the set of registers declaring a Critical total changed')
+      .toEqual(['5', '6', '7'])
     for (const round of declaring) {
+      const declared = DECLARED_CRITICAL[round]!
       const count = [...enumerated(round).values()].filter((s) => s === 'Critical').length
-      expect(DECLARED_CRITICAL[round], `round ${round}`).toBe(`${WORD[count]} Critical.`)
+      const word = new RegExp(String.raw`^(${WORD.join('|')}) Critical\b`).exec(declared)
+      expect(word, `round ${round}: "${declared}" does not open with a number word`).not.toBeNull()
+      expect(word![1], `round ${round} declares ${word![1]} Critical and enumerates ${count}`)
+        .toBe(WORD[count])
       expect(read(REGISTERS[round]!), `round ${round} no longer states its split`)
-        .toContain(DECLARED_CRITICAL[round]!)
+        .toContain(declared)
     }
   })
 
@@ -452,13 +648,33 @@ describe('every audit round has a disposition record that reconciles with its re
   })
 
   // Case 12. THE BASIS SPLIT IS PUBLISHED, so the file cannot quietly upgrade
-  // itself. 82 of 141 rows are closed on a register's word rather than on a
-  // measurement, and the header says so in those words.
+  // itself. 82 of 169 rows stand on a register's word rather than on a
+  // measurement, and the header says so in those words. The ceiling was 103
+  // and the floor 66 while round 7's twenty-one rows were in flight; both
+  // moved when the controller measured fix streams V and X's landed work and
+  // re-based those rows on that measurement. Tightening the pair is the
+  // deliberate act the ratchet exists to require.
+  //
+  // A RATCHET, NOT TWO EQUALITIES (round-7 `R7-A8`). This read
+  // `measured === 59` and `register === 82` while the section it reads
+  // prescribes, for exactly this residue, "re-measure and change the basis to
+  // `MEASURED`" — so doing the remedy the subject asks for red the gate. Third
+  // instance of round 6's gate-reds-on-success shape, in the file that
+  // repaired the first two. It is now `reconciliation-table.test.ts:966`'s
+  // form: `REGISTER` is a CEILING and `MEASURED` a FLOOR, so a row re-measured
+  // moves the pair in the only direction that passes, and a row reclassified
+  // to flatter the split cannot happen without editing a literal here — the
+  // deliberate act. The literals move only when a new round is filed, which
+  // reds on the `REGISTERS` equality first and is the same deliberate act.
+  //
+  // The published SENTENCE stays an equality on both live figures: the
+  // ceiling stops a quiet upgrade, and the sentence stops a silent one.
   it('the published MEASURED/REGISTER split is the measured one', () => {
     const measured = rows.filter((r) => r.basis === 'MEASURED').length
     const register = rows.filter((r) => r.basis === 'REGISTER').length
-    expect(measured).toBe(59)
-    expect(register).toBe(82)
+    expect(register, 'the REGISTER residue grew; only re-measurement may move it').toBeLessThanOrEqual(82)
+    expect(measured, 'a row stopped being MEASURED').toBeGreaterThanOrEqual(87)
+    expect(measured + register, 'a row carries neither basis').toBe(rows.length)
     expect(read(DISPOSITIONS)).toContain(
       `**${measured} of the ${rows.length} enumerated rows are \`MEASURED\`; ${register} are \`REGISTER\`.**`,
     )

@@ -122,7 +122,7 @@ export const LOCAL_OPEN_DECISIONS = [
       {
         text:
           'The register row that carries it: "Pause initiation authority and root unavailability", ' +
-          'marked **New**, section 40.15.',
+          'marked "New", section 40.15.',
         locator: 'L88906',
       },
     ],
@@ -186,7 +186,7 @@ export const LOCAL_OPEN_DECISIONS = [
       {
         text:
           'The register row that carries it: "Runaway-loop kill switch scope, threshold, authority ' +
-          'and class", marked **New**, section 40.15.',
+          'and class", marked "New", section 40.15.',
         locator: 'L88905',
       },
     ],
@@ -285,7 +285,7 @@ export const LOCAL_OPEN_DECISIONS = [
       {
         text:
           'The register row that carries it: "Recovery Time Objective and Recovery Point Objective ' +
-          'for the agentic layer", marked **New**, section 40.15.',
+          'for the agentic layer", marked "New", section 40.15.',
         locator: 'L88907',
       },
     ],
