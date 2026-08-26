@@ -44,17 +44,34 @@ for (const [name, def] of Object.entries(COLLECTIONS)) {
   console.log(`ok    ${name.padEnd(24)} ${String(rows.length).padStart(5)} rows`)
 }
 
+// `field` may be a nested path, `'<arrayField>[].<leafField>'` (fix round 2:
+// `tours.steps[].controlId` is the one field that needs this). Walks
+// `row[arrayField]` and yields one `{ value, label }` per element's leaf
+// field, recursively — so an arbitrarily deep chain of `arr[].arr[].leaf`
+// would work too, though nothing in this schema set needs more than one
+// level today. A plain (non-nested) `field` behaves exactly as before.
+function valuesAtPath(row, path, label) {
+  if (row === undefined) return []
+  const m = path.match(/^([^[.]+)\[\]\.(.+)$/)
+  if (!m) return [{ value: row[path], label: `${label}.${path}` }]
+  const [, arrKey, rest] = m
+  const arr = row[arrKey]
+  if (!Array.isArray(arr)) return []
+  return arr.flatMap((el, i) => valuesAtPath(el, rest, `${label}.${arrKey}[${i}]`))
+}
+
 for (const rel of RELATIONS) {
   const src = loaded[rel.from], dst = loaded[rel.to]
   if (!src || !dst) continue
   const ids = new Set(dst.map((r) => r.id))
   src.forEach((row, i) => {
-    const v = row[rel.field]
-    if (v === undefined) return
-    const values = rel.array ? v : [v]
-    for (const one of values) {
-      if (one === null) { if (!rel.nullable) fail(`${rel.from}[${i}].${rel.field}: null not allowed`); continue }
-      if (!ids.has(one)) fail(`${rel.from}[${i}].${rel.field}: "${one}" is not an id in ${rel.to}`)
+    for (const { value: v, label } of valuesAtPath(row, rel.field, `${rel.from}[${i}]`)) {
+      if (v === undefined) continue
+      const values = rel.array ? v : [v]
+      for (const one of values) {
+        if (one === null) { if (!rel.nullable) fail(`${label}: null not allowed`); continue }
+        if (!ids.has(one)) fail(`${label}: "${one}" is not an id in ${rel.to}`)
+      }
     }
   })
 }
@@ -62,29 +79,39 @@ for (const rel of RELATIONS) {
 // Fix round 1 (review finding 1): a `RELATIONS` row is opt-in, so a field
 // nobody remembered to register is silently unchecked rather than flagged.
 // This closes that hole from the other direction — every schema field whose
-// name ends in `Id`/`Ids` must be either in `RELATIONS` or on the explicit
-// `UNCHECKABLE_ID_FIELDS` allowlist (with its reason, in index.ts), or the
-// validator reds naming the field. Introspection is shallow by design: only
-// each collection's own top-level fields are examined (via `.shape` for a
-// plain object, recursing into `.options` for a `discriminatedUnion`) — a
-// nested field one level down (e.g. `tours[].steps[].controlId`) is out of
-// this check's reach, same as it is out of `RELATIONS`' own reach (which
-// only ever reads `row[field]`, never into an array of objects).
-function fieldNames(schema) {
-  if (schema.shape) return Object.keys(schema.shape)
-  if (schema.options) {
-    const set = new Set()
-    for (const opt of schema.options) for (const k of fieldNames(opt)) set.add(k)
-    return [...set]
+// name ends in `Id`/`Ids`, AT ANY DEPTH, must be either in `RELATIONS` or on
+// the explicit `UNCHECKABLE_ID_FIELDS` allowlist (with its reason, in
+// index.ts), or the validator reds naming the field's full path.
+//
+// Fix round 2 (re-review finding: the depth-1 version of this function
+// walked past `tours.steps[].controlId` — a real, existing nested field its
+// own comment named as exactly this shape of gap, and still missed it).
+// `fieldPaths()` now recurses into a `z.array(z.object(...))` field's
+// element shape too, yielding `'<arrayField>[].<leafField>'` paths that
+// `valuesAtPath()` above knows how to follow at check time. A discriminated
+// union's variants are unioned the same way they always were.
+function fieldPaths(schema, prefix = '') {
+  const out = []
+  if (schema.shape) {
+    for (const [key, sub] of Object.entries(schema.shape)) {
+      const path = prefix ? `${prefix}.${key}` : key
+      out.push(path)
+      const element = sub && sub.element // ZodArray's element schema, if `sub` is one
+      if (element && (element.shape || element.options)) {
+        for (const nested of fieldPaths(element)) out.push(`${path}[].${nested}`)
+      }
+    }
+  } else if (schema.options) {
+    for (const opt of schema.options) out.push(...fieldPaths(opt, prefix))
   }
-  return []
+  return [...new Set(out)]
 }
 
 const relationCovered = new Set(RELATIONS.map((r) => `${r.from}.${r.field}`))
 const allowlisted = new Set(UNCHECKABLE_ID_FIELDS.map((r) => `${r.from}.${r.field}`))
 
 for (const [name, def] of Object.entries(COLLECTIONS)) {
-  for (const field of fieldNames(def.schema)) {
+  for (const field of fieldPaths(def.schema)) {
     if (!/Ids?$/.test(field)) continue
     const key = `${name}.${field}`
     if (relationCovered.has(key) || allowlisted.has(key)) continue

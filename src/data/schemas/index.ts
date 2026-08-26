@@ -71,6 +71,16 @@ export type CollectionName = keyof typeof COLLECTIONS
  * five-member closed set, not a `src/data` collection, so those fields are
  * validated by their zod schema (`z.string()`) rather than by a RELATIONS
  * row here.
+ *
+ * `field` may be a NESTED path, `'<arrayField>[].<leafField>'` — the only
+ * shape any schema in this task actually needs (`tours.steps[].controlId`
+ * is the one instance). The validator's `valuesAtPath()` walks `row[
+ * arrayField]` and checks `leafField` on every element; `fieldPaths()`
+ * (the coverage sweep behind `UNCHECKABLE_ID_FIELDS` below) discovers such
+ * paths the same way, by recursing into a `z.array(z.object(...))` field's
+ * element shape. Fix round 2 (re-review finding: `tours.steps[].controlId`
+ * existed, was named in a code comment as exactly this shape of gap, and
+ * was still neither registered nor allowlisted — this is what closes that).
  */
 export const RELATIONS: ReadonlyArray<
   { from: CollectionName; field: string; to: CollectionName; array?: boolean; nullable?: boolean }
@@ -235,4 +245,17 @@ export const UNCHECKABLE_ID_FIELDS: ReadonlyArray<
   { from: 'evaluations', field: 'subjectAtomOrAgentId', reason: 'No atoms/agents collection exists in §3.1; Agent definition and Atom registration record (OBJ-066/067) were not promoted to collections by this task.' },
   { from: 'evaluations', field: 'suiteId', reason: 'No suites collection exists; a suite is a grouping label within evaluations, not its own §3.1 collection.' },
   { from: 'tours', field: 'moduleId', reason: "References the product's static module registry (e.g. MOD-FL-A2), not a src/data collection; modules are not one of §3.1's forty collections." },
+  {
+    from: 'tours',
+    field: 'steps[].controlId',
+    reason:
+      "No collection or registry yet holds real control identity: product primitives only start " +
+      "emitting data-control-id from Task 9 onward (runway plan ruling R4), and " +
+      "registries/generated/actionable-controls.json holds descriptive labels off the frozen source " +
+      "(e.g. 'A replay control'), not the stable ids a real control carries, so it is not a usable " +
+      "target either. TODO(task-15): Task 15 (the guided-tour engine, master prompt \u00a710.6) is " +
+      "what resolves a tour step's controlId against a real control and is where the control-identity " +
+      "source of truth will exist \u2014 register this as a real RELATIONS row once it does, rather " +
+      "than leaving it here indefinitely.",
+  },
 ] as const
