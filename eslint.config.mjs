@@ -80,24 +80,41 @@ export default tseslint.config(
     // at all. The reverse direction (demo importing product) is allowed —
     // chrome legitimately renders product components.
     //
+    // Fix round 2: this zone applies to every file outside src/ui/demo/**
+    // (and src/data/**, for the same reason src/data is exempt below) —
+    // not just src/ui/product/** — because a file scoped narrowly to
+    // product/** left a one-hop evasion open: a re-export barrel living
+    // outside BOTH trees (e.g. src/ui/shared/_barrel.ts re-exporting demo)
+    // was itself unrestricted, so a product file importing the barrel
+    // instead of demo directly passed lint. Barring every non-demo file
+    // from importing demo directly closes that hop at its source, the same
+    // "everyone except the tree itself" shape the collections zone already
+    // uses above. Only a re-export chain of TWO OR MORE hops (barrel A
+    // re-exports barrel B which re-exports demo) can still evade this —
+    // that residual case needs whole-module-graph reachability analysis,
+    // out of scope for a single-file AST rule; see the rule file's header.
+    //
     // This block MUST come after (and repeat) the collections restriction
     // above: flat ESLint config does not merge a rule's options array
     // across matching blocks for the same file — the last matching block
-    // replaces the rule's options entirely (this is the merge-ordering bug
-    // found in the first review round; it applies to any rule name, not
-    // just `no-restricted-imports`). Since the collections block's
-    // `files: ['**/*.{ts,tsx}']` also matches src/ui/product/**, a
-    // demo-only zone in an earlier/separate block would be silently
-    // overwritten. Both zones are combined here so product files carry
-    // both restrictions.
-    files: ['src/ui/product/**/*.{ts,tsx}'],
+    // replaces the rule's options entirely (the merge-ordering bug found in
+    // the first review round; it applies to any rule name, not just
+    // `no-restricted-imports`). Since both blocks now match nearly the same
+    // broad file set, a demo-only zone here would silently overwrite the
+    // collections zone above for every file except src/data/**. Both zones
+    // are combined here so every non-exempt file carries both
+    // restrictions. src/data/** is excluded from this block too, for the
+    // same reason it's excluded above: boot.ts's own collections imports
+    // must not be flagged by the (repeated) collections zone.
+    files: ['**/*.{ts,tsx}'],
+    ignores: ['src/ui/demo/**', 'src/data/**'],
     plugins: { local: crossTreeImport },
     rules: {
       'local/no-cross-tree-import': ['error', {
         zones: [
           {
             forbidden: 'src/ui/demo',
-            message: 'src/ui/product must never import demo chrome — master prompt §8.6.2 depends on this edge.',
+            message: 'Nothing outside src/ui/demo may import demo chrome — master prompt §8.6.2 depends on this edge.',
           },
           {
             forbidden: 'src/data/collections',

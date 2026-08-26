@@ -1,6 +1,7 @@
 // Local ESLint rule (no new dependency). See task-8-report.md, "Fix round 1"
-// for why this exists instead of a longer `no-restricted-imports` pattern
-// list or eslint-plugin-import's `no-restricted-paths`.
+// and "Fix round 2" for why this exists instead of a longer
+// `no-restricted-imports` pattern list or eslint-plugin-import's
+// `no-restricted-paths`.
 //
 // `no-restricted-imports` matches the import SPECIFIER STRING, so every fix
 // expressed there is a guess about how someone will spell a path: relative
@@ -12,26 +13,43 @@
 // spelling stop mattering because the comparison happens after resolution,
 // not on the string.
 //
-// It also inspects the four ways a module can reach another one: static
-// `import`/`export ... from`, dynamic `import()`, and CommonJS `require()`
-// -- one AST walk covers all four, which a string-pattern rule cannot do in
-// one place.
+// It also inspects every way a module can reach another one: static
+// `import`/`export ... from` (including `export * from` and type-only
+// `import type`/`export type` forms -- TS strips these at compile time, but
+// a type-only import still leaks the demo tree's *types* into product
+// signatures, which is the coupling §8.6.2 exists to prevent, so they are
+// deliberately not exempted), dynamic `import()`, and CommonJS `require()`
+// -- one AST walk covers all of these, which a string-pattern rule cannot
+// do in one place.
 //
-// Known limit (stated, not hidden): this only resolves the CURRENT file's
-// own specifiers. A two-hop indirection -- some third file outside both
-// guarded trees re-exporting the forbidden module, then imported by the
-// guarded file -- is invisible here, because the guarded file's own
-// specifier resolves to that innocent third file, not to the forbidden
-// directory. Catching that would require whole-module-graph reachability
-// analysis, which is out of scope for a single-file AST rule.
-// eslint-plugin-import's `no-restricted-paths` has this exact same limit,
-// for the exact same reason (it also only inspects each file's own resolved
-// imports) -- so this is not a gap the alternative dependency would have
-// closed either.
+// Case sensitivity (fix round 2): `path.relative`/`path.resolve` are pure
+// string operations and do not know whether the underlying filesystem
+// treats `Demo/` and `demo/` as the same directory. macOS (this team's
+// platform) and Windows default to case-INsensitive filesystems, where
+// `@/ui/Demo/DemoChrome` resolves to the exact same file as
+// `@/ui/demo/DemoChrome` and must be caught; Linux is case-sensitive by
+// default, where they are genuinely different directories and conflating
+// them could wrongly block a legitimate import. Rather than assume from
+// `process.platform` (a mounted case-sensitive APFS volume on macOS, or a
+// case-sensitive bind mount on Windows, would make that assumption wrong),
+// this probes the ACTUAL filesystem once at module load: does this very
+// file resolve under an upper-cased and a lower-cased version of its own
+// path? Only if both do is the comparison lower-cased; otherwise it stays
+// exact, so Linux keeps `Demo/` and `demo/` distinct.
+import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+
+const THIS_FILE = fileURLToPath(import.meta.url)
+const CASE_INSENSITIVE_FS = (() => {
+  try {
+    return fs.existsSync(THIS_FILE.toUpperCase()) && fs.existsSync(THIS_FILE.toLowerCase())
+  } catch {
+    return false
+  }
+})()
 
 function resolveSpecifier(specifier, fromFile) {
   if (specifier.startsWith('.')) {
@@ -40,11 +58,15 @@ function resolveSpecifier(specifier, fromFile) {
   if (specifier.startsWith('@/')) {
     return path.resolve(ROOT, 'src', specifier.slice(2))
   }
-  return null // bare package specifier (react, next/*, ...) -- not this boundary's concern
+  return null // bare package specifier, node: builtin, URL-shaped specifier -- not this boundary's concern
+}
+
+function normalize(p) {
+  return CASE_INSENSITIVE_FS ? p.toLowerCase() : p
 }
 
 function isUnder(resolved, dirAbs) {
-  const rel = path.relative(dirAbs, resolved)
+  const rel = path.relative(normalize(dirAbs), normalize(resolved))
   return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel))
 }
 
