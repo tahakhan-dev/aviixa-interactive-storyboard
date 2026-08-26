@@ -53,7 +53,7 @@ export function PageHeader({ breadcrumbs, title, actions }: PageHeaderProps) {
               <li key={`${item.label}-${i}`} className="flex items-center gap-1">
                 {i > 0 ? <span aria-hidden="true">/</span> : null}
                 {!isLast && item.href !== undefined ? (
-                  <a href={item.href} className="hover:underline">
+                  <a href={item.href} data-control-id={`breadcrumb-${item.href}`} className="hover:underline">
                     {item.label}
                   </a>
                 ) : (

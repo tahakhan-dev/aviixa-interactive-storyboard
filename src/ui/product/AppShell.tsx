@@ -14,7 +14,7 @@ import { STU_MODULES, stuModulesReachedBy, type StudioPersonaId } from '@/studio
 import { FL_DESTINATIONS, frontlinePathname } from '@/frontline/screens'
 import { Nav, type NavGroup, type NavLayout } from './Nav'
 import { PageHeader } from './PageHeader'
-import { bg, type DensityToken } from './tokens'
+import { bg, textColor, type DensityToken } from './tokens'
 
 /** Identity, role, scope, tenant, device — the shell's one read of "who is
  *  looking at this and on what". Nothing here is a live scenario read: it is
@@ -59,11 +59,26 @@ interface SurfaceChrome {
  * on a finer `StudioPersonaId` — three of its eight personas (the two
  * Supervisor columns and the Plant Manager persona) all resolve to the same
  * `SUPERVISOR` role (`STU_PERSONAS[*].deliveredByRole` in
- * `@/studio/modules`), a distinction `ProductSession` does not carry. This
- * picks the fuller-access default for a bare Supervisor session
- * (`supervisor-with-authoring-grant`) rather than guessing which grant a
- * given session holds; a later task threading the authoring grant through
+ * `@/studio/modules`), a distinction `ProductSession` does not carry. The
+ * source does not settle which of the two a bare Supervisor session gets, so
+ * this is a client-delegated choice under the same standing authority as
+ * every other undecided reading this build has made (§2) — and it is
+ * decided NARROW, not the fuller-access default this file shipped with in
+ * review round 1.
+ *
+ * FIX ROUND 1: reversed from `supervisor-with-authoring-grant`. The two
+ * failure modes are not symmetric. Too little access shows a reviewer a
+ * module missing that should be there — noticed, questioned, caught. Too
+ * much shows a module present that a real Supervisor without the authoring
+ * grant would never see — it LOOKS correct and is not, which is the one
+ * that misleads a client using this shell to confirm what each role can
+ * reach. `supervisor-without-grant`'s own `accessNote` in `@/studio/modules`
+ * is read-only reference access to published content only, no drafts or
+ * in-review versions — a proper subset of what the authoring-grant persona
+ * reaches, never a wider one, so this default can only under-show, never
+ * over-show. A later task threading the authoring grant through
  * `ProductSession` can resolve this exactly instead of defaulting it.
+ *
  * `null` for a platform-domain role, which never reaches SURF-STU at all
  * (`@/domain/roles`, `reachableSurfaces`).
  */
@@ -72,7 +87,7 @@ function studioPersonaFor(role: RoleId): StudioPersonaId | null {
     case 'TENANT_ADMIN':
       return 'tenant-admin'
     case 'SUPERVISOR':
-      return 'supervisor-with-authoring-grant'
+      return 'supervisor-without-grant'
     case 'QUALITY_MANAGER':
       return 'quality-manager'
     case 'READONLY_AUDITOR':
@@ -202,6 +217,19 @@ function chromeFor(surface: SurfaceId, role: RoleId, pathname: string): SurfaceC
  * touch-target size (`--density-spacious-control-min`, 44px) carry
  * Frontline's distinctiveness where the layout shape is shared with no
  * other surface anyway.
+ *
+ * FIX ROUND 1, ITEM 3: every `<main>` below carries `textColor('ink')` as a
+ * default. `color` inherits in CSS, so this is not decoration on the
+ * landmark — it is the one place that keeps a future migrated screen's
+ * UNSTYLED content (a bare `<p>`, a bare `<td>`, anything with no explicit
+ * colour class) legible against the new dark `--sunken` shell background.
+ * Without it, such content falls back to the browser's own default text
+ * colour (effectively black), which is illegible on a dark background and
+ * would have looked like a fresh bug in each of the next twelve migration
+ * tasks rather than the one place it actually needed fixing. Explicit
+ * colour classes elsewhere (the `h1`, the breadcrumb, a real screen's own
+ * styled content) simply override this default at the point they're set —
+ * inheritance never fights a more specific rule.
  */
 export function AppShell({ surface, session, title, breadcrumbs, actions, children }: AppShellProps) {
   const pathname = usePathname()
@@ -217,7 +245,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
   if (chrome.layout === 'tabbar') {
     return (
       <div className={`flex min-h-dvh flex-col ${bg('sunken')}`} data-surface={surface}>
-        <main id="main" className="flex-1 px-4 py-4 pb-24">
+        <main id="main" className={`flex-1 px-4 py-4 pb-24 ${textColor('ink')}`}>
           <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
           <div className="mt-4">{children}</div>
         </main>
@@ -230,7 +258,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
     return (
       <div className={`flex min-h-dvh flex-col ${bg('sunken')}`} data-surface={surface}>
         <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
-        <main id="main" className="flex-1 px-6 py-6">
+        <main id="main" className={`flex-1 px-6 py-6 ${textColor('ink')}`}>
           <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
           <div className="mt-4">{children}</div>
         </main>
@@ -249,7 +277,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
     // to know its parent's direction.
     <div className={`flex min-h-dvh flex-col md:flex-row ${bg('sunken')}`} data-surface={surface}>
       <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
-      <main id="main" className="flex-1 px-6 py-6">
+      <main id="main" className={`flex-1 px-6 py-6 ${textColor('ink')}`}>
         <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
         <div className="mt-4">{children}</div>
       </main>
