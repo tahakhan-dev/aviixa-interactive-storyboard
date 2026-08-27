@@ -1,25 +1,149 @@
 [
   {
-    "id": "TOUR-0001",
-    "name": "Torque out-of-specification containment walkthrough",
-    "surface": "SURF-FL",
-    "moduleId": "MOD-FL-A2",
-    "workflowId": "WF-TORQUE-001",
+    "id": "TOUR-ORIENTATION-001",
+    "version": "1.0.0",
+    "title": "Reviewer orientation: role, location search and a real write",
+    "workflowId": null,
     "variant": "nominal",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
     "steps": [
       {
-        "order": 1,
-        "controlId": null,
-        "screenPath": "/frontline/run/RUN-0001",
-        "narration": "Maya opens the run on her tablet."
+        "id": "nav-home",
+        "narration": "Start at the storyboard's entry point.",
+        "action": { "kind": "navigate", "route": "/" },
+        "expectRoute": "/"
       },
       {
-        "order": 2,
-        "controlId": "capture-submit",
-        "screenPath": "/frontline/run/RUN-0001/step/SE-0001",
-        "narration": "She records a torque reading of 38.0 N\u00b7m."
+        "id": "become-supervisor",
+        "narration": "Become the Supervisor persona using the reviewer's role simulator.",
+        "action": { "kind": "switchRole", "userId": "SUPERVISOR" },
+        "spotlight": "demo-role-simulator",
+        "expectVisible": "demo-role-simulator"
+      },
+      {
+        "id": "nav-hub",
+        "narration": "Open the Hub, the Supervisor's home surface.",
+        "action": { "kind": "navigate", "route": "/hub/" },
+        "expectRoute": "/hub/"
+      },
+      {
+        "id": "nav-location",
+        "narration": "Open Location configuration.",
+        "action": { "kind": "navigate", "route": "/hub/location-configuration/" },
+        "expectRoute": "/hub/location-configuration/"
+      },
+      {
+        "id": "type-search",
+        "narration": "Type into the location search box, one character at a time, exactly as a reviewer would with a keyboard.",
+        "action": { "kind": "type", "controlId": "doh-02-location-search", "value": "Ardmore" },
+        "spotlight": "doh-02-location-search",
+        "expectVisible": "doh-02-location-search"
+      },
+      {
+        "id": "open-inspector",
+        "narration": "Open the Inspector to reach the live cross-surface propagation drawer.",
+        "action": { "kind": "click", "controlId": "demo-inspector-toggle" },
+        "expectVisible": "demo-propagation-sample-write"
+      },
+      {
+        "id": "run-sample-write",
+        "narration": "Run the sample write — a real repository update, permitted for the Supervisor persona.",
+        "action": { "kind": "click", "controlId": "demo-propagation-sample-write" },
+        "spotlight": "demo-propagation-sample-write",
+        "expectVisible": "demo-propagation-sample-write"
       }
-    ],
-    "status": "published"
+    ]
+  },
+  {
+    "id": "TOUR-HANDOFF-001",
+    "version": "1.0.0",
+    "title": "Shift handoff: Frontline capture to Hub review",
+    "workflowId": null,
+    "variant": "nominal",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Mid-shift",
+    "steps": [
+      {
+        "id": "nav-frontline",
+        "narration": "Start on the Frontline surface, the worker's application.",
+        "action": { "kind": "navigate", "route": "/frontline/" },
+        "expectRoute": "/frontline/"
+      },
+      {
+        "id": "become-worker",
+        "narration": "Become Maya, a Worker on the shop floor.",
+        "action": { "kind": "switchRole", "userId": "WORKER" },
+        "spotlight": "demo-role-simulator",
+        "expectVisible": "demo-role-simulator"
+      },
+      {
+        "id": "nav-my-runs",
+        "narration": "Open My Runs.",
+        "action": { "kind": "navigate", "route": "/frontline/my-runs/" },
+        "expectRoute": "/frontline/my-runs/"
+      },
+      {
+        "id": "connectivity-flapping",
+        "narration": "Connectivity turns unreliable partway through the shift.",
+        "action": { "kind": "setConnectivity", "mode": "flapping" },
+        "spotlight": "demo-connectivity",
+        "expectVisible": "demo-connectivity"
+      },
+      {
+        "id": "become-supervisor",
+        "narration": "Hand off to Louise, the Supervisor, on a different surface.",
+        "action": { "kind": "switchRole", "userId": "SUPERVISOR" },
+        "spotlight": "demo-role-simulator",
+        "expectVisible": "demo-role-simulator"
+      },
+      {
+        "id": "cross-to-hub",
+        "narration": "Cross from Frontline to the Hub — the surface handoff.",
+        "action": { "kind": "navigate", "route": "/hub/" },
+        "expectRoute": "/hub/"
+      },
+      {
+        "id": "nav-job-lifecycle",
+        "narration": "Louise opens Job lifecycle and approval to review the shift's work.",
+        "action": { "kind": "navigate", "route": "/hub/job-lifecycle-and-approval/" },
+        "expectRoute": "/hub/job-lifecycle-and-approval/"
+      },
+      {
+        "id": "advance-one-hour",
+        "narration": "An hour passes while she reviews.",
+        "action": { "kind": "advanceClock", "toStamp": "2026-03-02T07:00:00.000Z" },
+        "spotlight": "demo-clock-advance-1h",
+        "expectVisible": "demo-clock-advance-1h"
+      }
+    ]
+  },
+  {
+    "id": "TOUR-CLOCK-LIMIT-001",
+    "version": "1.0.0",
+    "title": "A clock jump the reviewer's own buttons cannot reach",
+    "workflowId": null,
+    "variant": "failure",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Start at the storyboard's entry point.",
+        "action": { "kind": "navigate", "route": "/" },
+        "expectRoute": "/"
+      },
+      {
+        "id": "open-scenario",
+        "narration": "Open the scenario controls to reach the simulated clock.",
+        "action": { "kind": "click", "controlId": "demo-scenario-toggle" },
+        "expectVisible": "demo-clock-advance-1h"
+      },
+      {
+        "id": "attempt-unreachable-jump",
+        "narration": "Attempt to jump straight to 07:30 — ninety minutes on, a timestamp the two fixed +1h/+1d buttons cannot land on exactly. A reviewer clicking by hand could not reach it either, so the tour reports the same failure rather than faking success.",
+        "action": { "kind": "advanceClock", "toStamp": "2026-03-02T07:30:00.000Z" }
+      }
+    ]
   }
 ]

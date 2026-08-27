@@ -805,6 +805,10 @@ export function LocationConfigurationScreen() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              /* Task 15 (ruling R4): a stable control id, so the tour engine
+                 (src/tours) can resolve and type into this real, already-wired
+                 search field the same way a reviewer's keyboard would. */
+              data-control-id="doh-02-location-search"
               className="rounded-[var(--radius-control)] border border-[var(--color-border-strong)] p-2 text-sm"
             />
           </Field>

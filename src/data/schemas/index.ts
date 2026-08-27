@@ -66,21 +66,27 @@ export type CollectionName = keyof typeof COLLECTIONS
  * collection in `COLLECTIONS` is that identifier's system of record at V1
  * (a Job Type code, a tool reference, a containment-checklist reference) —
  * are deliberately absent from this table rather than pointed at the wrong
- * target. `homeSurface` / `reachableSurfaces` (roles, tours' `surface`)
- * carry `SurfaceId` values from `@/domain/surfaces`, which is a fixed
- * five-member closed set, not a `src/data` collection, so those fields are
- * validated by their zod schema (`z.string()`) rather than by a RELATIONS
- * row here.
+ * target. `homeSurface` / `reachableSurfaces` (roles) carry `SurfaceId`
+ * values from `@/domain/surfaces`, which is a fixed five-member closed set,
+ * not a `src/data` collection, so those fields are validated by their zod
+ * schema (`z.string()`) rather than by a RELATIONS row here.
  *
- * `field` may be a NESTED path, `'<arrayField>[].<leafField>'` — the only
- * shape any schema in this task actually needs (`tours.steps[].controlId`
- * is the one instance). The validator's `valuesAtPath()` walks `row[
- * arrayField]` and checks `leafField` on every element; `fieldPaths()`
- * (the coverage sweep behind `UNCHECKABLE_ID_FIELDS` below) discovers such
- * paths the same way, by recursing into a `z.array(z.object(...))` field's
- * element shape. Fix round 2 (re-review finding: `tours.steps[].controlId`
- * existed, was named in a code comment as exactly this shape of gap, and
- * was still neither registered nor allowlisted — this is what closes that).
+ * `field` may be a NESTED path, `'<arrayField>[].<leafField>'`, and — since
+ * Task 15 gave `tours.steps[]` a discriminated-union `action` field —
+ * `'<arrayField>[].<objectField>.<leafField>'` too
+ * (`tours.steps[].action.controlId` is the instance that needs it). The
+ * validator's `valuesAtPath()` walks `row[arrayField]` and recurses through
+ * each further segment, including into whichever union member a given row
+ * actually has (`el.action.controlId` is simply `undefined`, and therefore
+ * skipped, on a variant that carries no `controlId`); `fieldPaths()` (the
+ * coverage sweep behind `UNCHECKABLE_ID_FIELDS` below) discovers such paths
+ * the same way, by recursing into a `z.array(z.object(...))` field's
+ * element shape and into a `z.discriminatedUnion`'s own member shapes. Fix
+ * round 2 (re-review finding: `tours.steps[].controlId` existed, was named
+ * in a code comment as exactly this shape of gap, and was still neither
+ * registered nor allowlisted — this is what closes that; Task 15 carries
+ * the same discipline forward onto the nested shape its own `TourAction`
+ * union introduced).
  */
 export const RELATIONS: ReadonlyArray<
   { from: CollectionName; field: string; to: CollectionName; array?: boolean; nullable?: boolean }
@@ -248,19 +254,82 @@ export const UNCHECKABLE_ID_FIELDS: ReadonlyArray<
   { from: 'holds', field: 'targetId', reason: "Polymorphic, discriminated by targetKind: 'lot' | 'unit' | 'run'. Only 'run' has a §3.1 collection — Lot and Unit (OBJ-020/021) were not promoted to their own collections — so even a per-targetKind relation could not always resolve." },
   { from: 'evaluations', field: 'subjectAtomOrAgentId', reason: 'No atoms/agents collection exists in §3.1; Agent definition and Atom registration record (OBJ-066/067) were not promoted to collections by this task.' },
   { from: 'evaluations', field: 'suiteId', reason: 'No suites collection exists; a suite is a grouping label within evaluations, not its own §3.1 collection.' },
-  { from: 'tours', field: 'moduleId', reason: "References the product's static module registry (e.g. MOD-FL-A2), not a src/data collection; modules are not one of §3.1's forty collections." },
+  /**
+   * D3, CLOSED (Task 15 investigation, not another deferral — the debt
+   * named this task as the one that resolves it, so what follows is the
+   * resolution, not a new TODO). The old `tours.moduleId`/flat
+   * `steps[].controlId` entries this table carried through Task 14 no
+   * longer exist: `crosscutting.ts#Tour` was replaced with the runner's own
+   * `TourDefinition`/`TourStep`/`TourAction` contract (Task 15's brief),
+   * which nests a control id inside three of `TourAction`'s nine variants.
+   *
+   * WHERE CONTROL IDENTITY NOW LIVES: in the rendered DOM, addressed by the
+   * `data-control-id` attribute the product primitives emit (ruling R4,
+   * `src/ui/product/**`) from a stable source per control — a string
+   * literal authored on the component (`"form-submit"`, `"wizard-next"`),
+   * or a registry/route identifier composed with another collection's own
+   * `id` for a per-row control (`Nav.tsx`'s `NavItem.id`, `DataTable`'s
+   * `${idPrefix}-select-${rowId}`). That composition is exactly why
+   * `tours.steps[].action.controlId` still cannot become a `{ from, field,
+   * to: CollectionName }` RELATIONS row: the validator checks an id-shaped
+   * field for exact STRING EQUALITY against another collection's `id` set,
+   * and a rendered control id is frequently a composed string, never equal
+   * to the bare id it was built from. Many valid control ids also exist
+   * only conditionally — gated by role, route or which rows a screen
+   * currently renders — so no static, closed list is ever complete.
+   *
+   * A SECOND, STRUCTURAL BLOCKER: `RELATIONS`' own `to` field is typed
+   * `CollectionName`, one of the forty collections controller ruling R1
+   * fixes (this file's own top comment). Controls are not a §3.1 business
+   * object; adding a forty-first "controls" entry to `COLLECTIONS` to host
+   * them would violate that ruling and misrepresent a live-DOM identifier
+   * space as static reference data it structurally is not.
+   *
+   * WHAT ACTUALLY VALIDATES IT: `TourRunner`'s own `click`/`type`/`select`
+   * resolution and its `expectVisible` check (`src/tours/runner.ts`,
+   * `src/tours/actions.ts`) — pass criterion 3: a step naming a control
+   * that is not actually rendered sets `status: 'failed'` and names the
+   * step. That is STRICTER than a static string-membership test could ever
+   * be: it asks whether the control is really on screen, for this role,
+   * this route, this data, right now — the exact question a frozen JSON
+   * snapshot cannot answer. `steps[].action.userId` and
+   * `steps[].action.failureId` (both new with Task 15's `TourAction` union)
+   * are the same shape of question, resolved the same way: validated
+   * in-schema against the real closed set each one actually draws from
+   * (`@/domain/roles#ROLES` for `userId`, `FailureInjectionMode`'s four
+   * literals for `failureId` — see `crosscutting.ts`'s `TourAction`
+   * schema), never against a `RELATIONS` row, because neither is a foreign
+   * key into a §3.1 collection either.
+   */
   {
     from: 'tours',
-    field: 'steps[].controlId',
+    field: 'steps[].action.controlId',
     reason:
-      "No collection or registry yet holds real control identity: product primitives only start " +
-      "emitting data-control-id from Task 9 onward (runway plan ruling R4), and " +
-      "registries/generated/actionable-controls.json holds descriptive labels off the frozen source " +
-      "(e.g. 'A replay control'), not the stable ids a real control carries, so it is not a usable " +
-      "target either. TODO(task-15): Task 15 (the guided-tour engine, master prompt \u00a710.6) is " +
-      "what resolves a tour step's controlId against a real control and is where the control-identity " +
-      "source of truth will exist \u2014 register this as a real RELATIONS row once it does, rather " +
-      "than leaving it here indefinitely.",
+      "Not a foreign key into any §3.1 collection: a rendered data-control-id is frequently a " +
+      "composed string (a fixed prefix plus another collection's row id, e.g. a DataTable row " +
+      "control) and is sometimes valid only conditionally (role/route/data-dependent), so no fixed " +
+      "collection's id set is ever a complete or exact-match target for it, and RELATIONS checks " +
+      "exact string equality. Validated live instead, by TourRunner's own control resolution and " +
+      "expectVisible check (src/tours/runner.ts) — a stricter, run-time-accurate check a static " +
+      "RELATIONS row could not replicate. See the D3 note above this entry.",
+  },
+  {
+    from: 'tours',
+    field: 'steps[].action.userId',
+    reason:
+      "Names a RoleId from @/domain/roles#ROLES — the reviewer's own role simulator " +
+      "(demo-role-simulator) switches by role, not by an individual users-collection row — so this " +
+      "is a closed code-level enum, not a users foreign key. Validated in TourAction's own zod " +
+      "schema (crosscutting.ts) against ROLES directly, the same pattern this file's top comment " +
+      "already gives for roles.homeSurface/reachableSurfaces.",
+  },
+  {
+    from: 'tours',
+    field: 'steps[].action.failureId',
+    reason:
+      "One of @/ui/demo/DemoChrome's four FailureInjectionMode literals (the reviewer's own " +
+      "demo-failure-injection dropdown), not a collection row id. Validated in TourAction's own zod " +
+      "schema (crosscutting.ts) as a literal enum.",
   },
   {
     from: 'audit',

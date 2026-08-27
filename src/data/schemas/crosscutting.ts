@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import { NOTIFICATION_STATES, SCHEDULE_DEFINITION_STATES, SCHEDULE_OCCURRENCE_STATES } from '@/domain/vocabularies'
 import { COMMAND_STATES } from '@/surfaces/sa/command-state'
+import { ROLES } from '@/domain/roles'
+import { CONNECTIVITY_MODES } from '@/scenario/controls'
 import { Stamp, Role } from './platform'
 
 /**
@@ -325,24 +327,93 @@ export type Evaluation = z.infer<typeof Evaluation>
  * ("Tour engine (§10.6)") and §7's Workflow Index / registry indexes: a
  * tour definition binds to stable control, screen, workflow and
  * state-machine IDs and is replayable from a named seed to an identical
- * end state; §6 names the nominal-plus-variant set (denied, failure,
- * first-fallback, fallback-failure, recovery) that this schema's `variant`
- * enumerates.
+ * end state.
+ *
+ * TASK 15 REPLACES THE PLACEHOLDER SHAPE THIS FILE CARRIED THROUGH TASK 14.
+ * The prior `Tour` (`name`/`surface`/`moduleId`/flat `steps[].controlId`/
+ * `status`) was a guess made before the tour RUNNER'S OWN contract existed.
+ * Task 15's brief hands that contract down verbatim as `TourAction`/
+ * `TourStep`/`TourDefinition` — this is the ONE place that shape is typed,
+ * as zod, so `src/tours/types.ts` re-exports these inferred types under
+ * those names rather than hand-declaring a second copy of the same
+ * interface (this codebase's own repeated rule: reused, never redrawn).
+ * `variant` is the runner contract's own six-member set, not the four this
+ * file guessed at Task 14 (`first-fallback` is now `fallback`, matching the
+ * brief's literal union).
  */
+export const TourAction = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('navigate'), route: z.string().min(1) }).strict(),
+  /**
+   * `userId` names a `RoleId` from `@/domain/roles#ROLES` — the identifier
+   * the reviewer's own role simulator (`@/ui/demo/RoleSimulator`, control id
+   * `demo-role-simulator`) switches by — NOT a `users` collection row id.
+   * `DemoChrome`'s persona mechanism is role-keyed (one persona per fixed
+   * `RoleId`, `@/ui/demo/DemoChrome#DEMO_PERSONAS`), never per individual
+   * worker/user identity, so there is no per-user "become this signed-in
+   * account" control anywhere in this build for a `switchRole` step to
+   * drive. The field is still named `userId`, per the runner contract this
+   * task is handed; see `index.ts`'s `UNCHECKABLE_ID_FIELDS` entry for why
+   * this is validated below against the closed `ROLES` set rather than a
+   * `RELATIONS` row to `users`.
+   */
+  z.object({
+    kind: z.literal('switchRole'),
+    userId: z.string().refine((v) => ROLES.some((r) => r.id === v), {
+      message: 'must be a RoleId in @/domain/roles#ROLES (the reviewer role simulator\'s own option set)',
+    }),
+  }).strict(),
+  z.object({ kind: z.literal('click'), controlId: z.string().min(1) }).strict(),
+  z.object({ kind: z.literal('type'), controlId: z.string().min(1), value: z.string() }).strict(),
+  z.object({ kind: z.literal('select'), controlId: z.string().min(1), value: z.string() }).strict(),
+  z.object({ kind: z.literal('setConnectivity'), mode: z.enum(CONNECTIVITY_MODES) }).strict(),
+  z.object({ kind: z.literal('advanceClock'), toStamp: Stamp }).strict(),
+  /**
+   * `failureId` is one of `@/ui/demo/DemoChrome#FAILURE_INJECTION_MODES` —
+   * the reviewer's own failure-injection dropdown (control id
+   * `demo-failure-injection`). Not imported directly (a `src/data/schemas`
+   * module reaching into `src/ui/demo` would invert this codebase's layering
+   * the wrong way, the same reasoning `Notification.severity`, above, gives
+   * for its own literal enum): the four literals are restated here and must
+   * stay in sync with that module's own array by hand.
+   */
+  z.object({
+    kind: z.literal('injectFailure'),
+    failureId: z.enum(['none', 'network-error', 'validation-error', 'permission-denied']),
+  }).strict(),
+  z.object({ kind: z.literal('assertState'), description: z.string().min(1), check: z.string().min(1) }).strict(),
+])
+export type TourAction = z.infer<typeof TourAction>
+
+export const TourStep = z.object({
+  id: z.string().min(1),
+  /** One or two plain-language sentences — §11 step text lives here. */
+  narration: z.string().min(1),
+  action: TourAction,
+  /** A controlId or screenId to highlight — presentational only; Task 16's overlay interprets it. */
+  spotlight: z.string().min(1).optional(),
+  expectRoute: z.string().min(1).optional(),
+  /** The controlId that must exist after the action runs — see pass criterion 3. */
+  expectVisible: z.string().min(1).optional(),
+}).strict()
+export type TourStep = z.infer<typeof TourStep>
+
 export const Tour = z.object({
   id: z.string().min(1),
-  name: z.string().min(1),
-  /** `SurfaceId` from `@/domain/surfaces`, carried as a plain string — see index.ts RELATIONS note. */
-  surface: z.string().min(1),
-  moduleId: z.string().min(1),
+  version: z.string().min(1),
+  title: z.string().min(1),
   workflowId: z.string().nullable(),
-  variant: z.enum(['nominal', 'denied', 'failure', 'first-fallback', 'fallback-failure', 'recovery']),
-  steps: z.array(z.object({
-    order: z.number().int().nonnegative(),
-    controlId: z.string().nullable(),
-    screenPath: z.string().min(1),
-    narration: z.string().min(1),
-  }).strict()),
-  status: z.enum(['draft', 'ready', 'published']),
+  variant: z.enum(['nominal', 'denied', 'failure', 'fallback', 'fallback-failure', 'recovery']),
+  /**
+   * Documentation/reproducibility label only: this build's own determinism
+   * (pass criterion 4) comes from booting the same static seed every time
+   * plus every action being a real, non-random handler call, not from this
+   * string driving a second "load a canonical story" code path
+   * (`@/scenario/controls#loadCanonicalStory` is a different, unused-by-
+   * tours subsystem — see `src/tours/registry.ts`).
+   */
+  seed: z.string().min(1),
+  /** One of `@/ui/demo/DemoChrome#DEMO_CHECKPOINTS` — a reviewer bookmark, not a gate; best-effort at start(), never a failure reason. */
+  startCheckpoint: z.string().min(1),
+  steps: z.array(TourStep),
 }).strict()
 export type Tour = z.infer<typeof Tour>
