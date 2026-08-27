@@ -65,6 +65,54 @@ export function resolveControl(controlId: string): HTMLElement | null {
 }
 
 /* ────────────────────────────────────────────────────────────────────── *
+ * Fix round 1 / Important 1 — a disabled control is FOUND but not
+ * ACTIVATABLE. Clicking, typing into, or selecting on it is a native no-op
+ * in the browser; treating that as `{ ok: true }` is exactly the failure
+ * §10.6 forbids — a tour reporting success over a product that did not
+ * respond. Every action below that resolves a control and is about to
+ * interact with it runs through this one check first, rather than each
+ * `perform*` re-deriving its own notion of "disabled."
+ * ────────────────────────────────────────────────────────────────────── */
+
+function isDisabled(el: HTMLElement): boolean {
+  return (
+    ((el instanceof HTMLButtonElement ||
+      el instanceof HTMLInputElement ||
+      el instanceof HTMLSelectElement ||
+      el instanceof HTMLTextAreaElement ||
+      el instanceof HTMLFieldSetElement) &&
+      el.disabled) ||
+    el.getAttribute('aria-disabled') === 'true'
+  )
+}
+
+/**
+ * Shared pre-flight for every action about to interact with a resolved,
+ * present control: refuses a disabled one (naming the step's control id and
+ * its visible text — the "why" a human reading the failure would go look
+ * for — rather than the disabled boolean alone) and, for an enabled one,
+ * scrolls it into view first. An off-screen-but-enabled control gets
+ * scrolled to and clicked — what a reviewer's own hand would do — rather
+ * than silently acted on off in a part of the page nobody watching ever
+ * saw.
+ */
+function prepareInteraction(el: HTMLElement, controlId: string): ActionOutcome | null {
+  if (isDisabled(el)) {
+    const label = el.textContent?.trim()
+    return {
+      ok: false,
+      reason:
+        `Element data-control-id="${controlId}"${label ? ` ("${label}")` : ''} is disabled ` +
+        '(el.disabled === true) and cannot be activated. The tour stops here rather than reporting ' +
+        'a click/type/select that did nothing — a disabled-but-present control is not the same as a ' +
+        'successfully activated one.',
+    }
+  }
+  el.scrollIntoView({ block: 'center', behavior: 'instant' })
+  return null
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
  * Native-event plumbing. A React-controlled input/select tracks its own
  * previous value through a property setter React itself installed on the
  * DOM node; assigning `.value =` directly leaves that tracker unaware
@@ -158,6 +206,34 @@ async function ensureScenarioPanelOpen(anyControlIdInside: string, speed: number
   await settle(speed)
 }
 
+/**
+ * Fix round 1 / Important 3 — `restart()`'s only state-clearing step.
+ *
+ * `demo-scenario-toggle`/`demo-inspector-toggle` are TOGGLE buttons: a
+ * click flips open/closed rather than setting an absolute value, so a
+ * second run's identical click on an already-open panel closes it instead
+ * of opening it — the panel state a prior run in the SAME session left
+ * behind is not the panel state a fresh page load would start from.
+ *
+ * This does not special-case which control ids are toggles. It reads the
+ * real ARIA contract every one of the reviewer chrome's toggle buttons
+ * already carries (`aria-expanded`, set in `DemoChrome.tsx`) and clicks
+ * whichever is currently `"true"` closed — the same "click to close" a
+ * reviewer's own hand would do, generic to any control that exposes that
+ * attribute, not a hardcoded list. Scoped to `[data-demo="chrome-root"]`
+ * only: the reviewer's own chrome, never a product panel a tour's own
+ * steps are responsible for opening or closing.
+ */
+export async function closeOpenReviewerPanels(speed: number): Promise<void> {
+  const root = document.querySelector('[data-demo="chrome-root"]')
+  if (!root) return
+  const expanded = Array.from(root.querySelectorAll<HTMLElement>('[aria-expanded="true"]'))
+  for (const el of expanded) {
+    el.click()
+    await settle(speed)
+  }
+}
+
 /* ────────────────────────────────────────────────────────────────────── *
  * One function per TourAction kind.
  * ────────────────────────────────────────────────────────────────────── */
@@ -173,6 +249,8 @@ async function performSwitchRole(userId: string, speed: number): Promise<ActionO
   if (!el || !(el instanceof HTMLSelectElement)) {
     return { ok: false, reason: `Could not resolve "${ROLE_SIMULATOR_ID}" as a <select>.` }
   }
+  const blocked = prepareInteraction(el, ROLE_SIMULATOR_ID)
+  if (blocked) return blocked
   selectValue(el, userId)
   await settle(speed)
   return { ok: true }
@@ -181,6 +259,8 @@ async function performSwitchRole(userId: string, speed: number): Promise<ActionO
 async function performClick(controlId: string, speed: number): Promise<ActionOutcome> {
   const el = resolveControl(controlId)
   if (!el) return { ok: false, reason: `No element carries data-control-id="${controlId}".` }
+  const blocked = prepareInteraction(el, controlId)
+  if (blocked) return blocked
   el.click()
   await settle(speed)
   return { ok: true }
@@ -191,6 +271,8 @@ async function performType(controlId: string, value: string, speed: number): Pro
   if (!el || !isTypeable(el)) {
     return { ok: false, reason: `No typeable <input>/<textarea> carries data-control-id="${controlId}".` }
   }
+  const blocked = prepareInteraction(el, controlId)
+  if (blocked) return blocked
   await typeInto(el, value, speed)
   await settle(speed)
   return { ok: true }
@@ -201,6 +283,8 @@ async function performSelect(controlId: string, value: string, speed: number): P
   if (!el || !(el instanceof HTMLSelectElement)) {
     return { ok: false, reason: `No <select> carries data-control-id="${controlId}".` }
   }
+  const blocked = prepareInteraction(el, controlId)
+  if (blocked) return blocked
   selectValue(el, value)
   await settle(speed)
   return { ok: true }
@@ -212,6 +296,8 @@ async function performSetConnectivity(mode: ConnectivityMode, speed: number): Pr
   if (!el || !(el instanceof HTMLSelectElement)) {
     return { ok: false, reason: `Could not resolve "${CONNECTIVITY_ID}" as a <select>.` }
   }
+  const blocked = prepareInteraction(el, CONNECTIVITY_ID)
+  if (blocked) return blocked
   selectValue(el, mode)
   await settle(speed)
   return { ok: true }
@@ -223,6 +309,8 @@ async function performInjectFailure(failureId: string, speed: number): Promise<A
   if (!el || !(el instanceof HTMLSelectElement)) {
     return { ok: false, reason: `Could not resolve "${FAILURE_INJECTION_ID}" as a <select>.` }
   }
+  const blocked = prepareInteraction(el, FAILURE_INJECTION_ID)
+  if (blocked) return blocked
   selectValue(el, failureId)
   await settle(speed)
   return { ok: true }
