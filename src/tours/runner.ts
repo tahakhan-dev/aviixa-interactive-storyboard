@@ -38,6 +38,16 @@
  * by `back()`, consumed (and cleared) by the very next `next()`/`resume()`,
  * and cleared on `start()`/`restart()`/`exit()` so it never bleeds from one
  * tour run into another.
+ *
+ * `playFromStart` — fix round 2 / Important 2. Both `start()` and
+ * `restart()` begin a tour the identical way: close any reviewer-chrome
+ * panel a PRIOR run in this same session left open (see
+ * `closeOpenReviewerPanels`, `@/tours/actions`), THEN autoplay from step 0.
+ * Fix round 1 put this only on `restart()`, at the one entry point the bug
+ * was reported through; fix round 2 moved it to the one place both entry
+ * points share, because `exit()` a tour, then `start()` a DIFFERENT one,
+ * reproduces the identical stale-panel failure `restart()` alone did not
+ * cover.
  */
 import { closeOpenReviewerPanels, performAction, resolveControl } from './actions'
 import type { PlaybackSpeed, TourDefinition, TourHost, TourRunner, TourRunnerState, TourStep } from './types'
@@ -112,6 +122,22 @@ export function createTourRunner(tours: readonly TourDefinition[], host: TourHos
     }
   }
 
+  /**
+   * Fix round 2 / Important 2 (class, not just the reported reproduction).
+   * ANY tour beginning from step 0 — a fresh `start()` just as much as a
+   * `restart()` — must replay onto the same clean panel baseline a truly
+   * new page load would have. The reviewer reproduced the identical
+   * "toggle closes instead of opens" failure through `exit()` a tour that
+   * left a panel open, then `start()` a DIFFERENT one — a path `restart()`
+   * alone never touched. `start()` and `restart()` now share this one
+   * function rather than each re-deriving "how do I begin a tour cleanly."
+   */
+  async function playFromStart(tour: TourDefinition, myGeneration: number): Promise<void> {
+    await closeOpenReviewerPanels(speed)
+    if (myGeneration !== generation) return
+    await autoplay(tour, 0, myGeneration)
+  }
+
   return {
     start(id) {
       generation += 1
@@ -123,7 +149,7 @@ export function createTourRunner(tours: readonly TourDefinition[], host: TourHos
       }
       const myGeneration = generation
       setState({ tourId: id, stepIndex: 0, status: 'playing', error: null })
-      void autoplay(tour, 0, myGeneration)
+      void playFromStart(tour, myGeneration)
     },
 
     pause() {
@@ -192,14 +218,13 @@ export function createTourRunner(tours: readonly TourDefinition[], host: TourHos
     },
 
     /**
-     * Fix round 1 / Important 3. Replaying a tour's steps from a leftover
-     * mid-tour DOM state is not replaying the tour — it is running a
-     * different one (see `closeOpenReviewerPanels`'s header comment for the
-     * concrete failure this produces). Before autoplaying from step 0 again,
-     * `restart()` closes any reviewer-chrome panel a PRIOR run in this same
-     * session left open, so the replay's first toggle click opens it fresh
-     * exactly as it would on a truly new page load — the condition replay
-     * determinism was actually proved under.
+     * Fix round 1 / Important 3, extended by fix round 2 / Important 2.
+     * Replaying a tour's steps from a leftover mid-tour DOM state is not
+     * replaying the tour — it is running a different one (see
+     * `closeOpenReviewerPanels`'s header comment for the concrete failure
+     * this produces). `restart()` shares `playFromStart` with `start()` (see
+     * this file's header comment) so both begin from the same clean panel
+     * baseline a truly new page load would have.
      *
      * What this does NOT reset, and why that is still honest replay:
      *   - Demo persona / connectivity / failure-injection / checkpoint —
@@ -218,6 +243,26 @@ export function createTourRunner(tours: readonly TourDefinition[], host: TourHos
      *     taking, for the same reason it must not exist here either. A
      *     tour that writes is not restart-idempotent against the
      *     repository, and this file does not pretend otherwise.
+     *
+     * NAMED DEBT, MEASURED, WITH AN OWNER (fix round 2 / Important 4): the
+     * above is not "happens not to matter" — it is a real, confirmed
+     * divergence. Measured live: run `TOUR-ORIENTATION-001` (writes via
+     * `run-sample-write`) to completion, hash `repository.exportJson()`;
+     * `restart()` it in the same session; hash again. The hashes genuinely
+     * differ — the restart's `run-sample-write` opens a SECOND notification
+     * (the first unopened one it finds, which is now a different row than
+     * run 1 opened), an extra write with no corresponding fresh-start
+     * equivalent. Today's three seed tours never exercise this in a way
+     * that fails a pass criterion (no assertion checks total notification
+     * count), which is why it was not caught as a regression — but it is
+     * real domain-state drift, not a coincidence of luck.
+     * This runner cannot close it: `TourHost` (`@/tours/types`) has no hook
+     * into `@/scenario/lineage#branchFrom` or `@/scenario/controls`'
+     * `startClean` — the scenario engine's own actual "begin a clean run"
+     * primitives — so `restart()` has no way to ask the domain layer for a
+     * fresh branch, only to click real DOM controls. Owner: the task that
+     * wires `TourHost` to the scenario engine (gives it a `startClean`- or
+     * `branchFrom`-shaped capability), not this one.
      */
     restart() {
       if (state.tourId === null) return
@@ -227,11 +272,7 @@ export function createTourRunner(tours: readonly TourDefinition[], host: TourHos
       const myGeneration = generation
       replayPending = false
       setState({ stepIndex: 0, status: 'playing', error: null })
-      void (async () => {
-        await closeOpenReviewerPanels(speed)
-        if (myGeneration !== generation) return
-        await autoplay(tour, 0, myGeneration)
-      })()
+      void playFromStart(tour, myGeneration)
     },
 
     setSpeed(x) {

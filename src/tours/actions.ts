@@ -72,9 +72,29 @@ export function resolveControl(controlId: string): HTMLElement | null {
  * respond. Every action below that resolves a control and is about to
  * interact with it runs through this one check first, rather than each
  * `perform*` re-deriving its own notion of "disabled."
+ *
+ * Fix round 2 — `el.disabled` alone misses ANCESTOR disabling: a control
+ * inside `<fieldset disabled>` stays `.disabled === false` on its own IDL
+ * (the browser never reflects the inherited state onto the descendant's
+ * own attribute), but a real `.click()` on it fires nothing — the same
+ * false-success this whole check exists to catch, one containment level
+ * up. `disabledReason` below walks ancestors for a disabled `<fieldset>`,
+ * with the one exception the HTML spec itself carves out: a control inside
+ * that SAME fieldset's own first `<legend>` child is NOT disabled by it
+ * (`:scope > legend` — only the fieldset's own direct legend counts, and
+ * only for that fieldset; an outer ancestor fieldset's disabling still
+ * applies even to a control sitting inside an inner fieldset's legend).
+ *
+ * `pointer-events: none` was checked and is deliberately NOT handled here:
+ * `el.click()` (what every action below actually calls) dispatches a
+ * synthetic click directly, bypassing hit-testing entirely, so
+ * `pointer-events: none` never suppresses it — there is no false-success
+ * to guard against for that CSS property, unlike a real mouse click, which
+ * hit-testing would block. Recorded so the next reader does not
+ * re-investigate it.
  * ────────────────────────────────────────────────────────────────────── */
 
-function isDisabled(el: HTMLElement): boolean {
+function isDirectlyDisabled(el: HTMLElement): boolean {
   return (
     ((el instanceof HTMLButtonElement ||
       el instanceof HTMLInputElement ||
@@ -86,25 +106,52 @@ function isDisabled(el: HTMLElement): boolean {
   )
 }
 
+/** The disabled `<fieldset>` ancestor that actually disables `el`, or `null` if none does. */
+function disablingFieldset(el: HTMLElement): HTMLFieldSetElement | null {
+  let node = el.parentElement
+  while (node) {
+    if (node instanceof HTMLFieldSetElement && node.disabled) {
+      const ownLegend = node.querySelector(':scope > legend')
+      const exempt = ownLegend !== null && ownLegend.contains(el)
+      if (!exempt) return node
+    }
+    node = node.parentElement
+  }
+  return null
+}
+
+/** Human-readable "why" for a disabled control, or `null` if it is genuinely activatable. */
+function disabledReason(el: HTMLElement): string | null {
+  if (isDirectlyDisabled(el)) return 'the control itself carries disabled/aria-disabled'
+  const fieldset = disablingFieldset(el)
+  if (fieldset) {
+    const legend = fieldset.querySelector(':scope > legend')?.textContent?.trim()
+    const name = fieldset.id ? `#${fieldset.id}` : legend ? `"${legend}"` : '(unlabelled)'
+    return `an ancestor <fieldset disabled> ${name}`
+  }
+  return null
+}
+
 /**
  * Shared pre-flight for every action about to interact with a resolved,
- * present control: refuses a disabled one (naming the step's control id and
- * its visible text — the "why" a human reading the failure would go look
- * for — rather than the disabled boolean alone) and, for an enabled one,
- * scrolls it into view first. An off-screen-but-enabled control gets
- * scrolled to and clicked — what a reviewer's own hand would do — rather
- * than silently acted on off in a part of the page nobody watching ever
- * saw.
+ * present control: refuses a disabled one (naming the step's control id
+ * and, per fix round 2, the actual disabling cause — the control itself or
+ * a specific ancestor `<fieldset>` — rather than a bare boolean) and, for
+ * an enabled one, scrolls it into view first. An off-screen-but-enabled
+ * control gets scrolled to and clicked — what a reviewer's own hand would
+ * do — rather than silently acted on off in a part of the page nobody
+ * watching ever saw.
  */
 function prepareInteraction(el: HTMLElement, controlId: string): ActionOutcome | null {
-  if (isDisabled(el)) {
+  const reason = disabledReason(el)
+  if (reason) {
     const label = el.textContent?.trim()
     return {
       ok: false,
       reason:
-        `Element data-control-id="${controlId}"${label ? ` ("${label}")` : ''} is disabled ` +
-        '(el.disabled === true) and cannot be activated. The tour stops here rather than reporting ' +
-        'a click/type/select that did nothing — a disabled-but-present control is not the same as a ' +
+        `Element data-control-id="${controlId}"${label ? ` ("${label}")` : ''} is disabled — ` +
+        `${reason} — and cannot be activated. The tour stops here rather than reporting a ` +
+        'click/type/select that did nothing — a disabled-but-present control is not the same as a ' +
         'successfully activated one.',
     }
   }

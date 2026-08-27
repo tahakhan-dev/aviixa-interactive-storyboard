@@ -255,9 +255,10 @@ export const UNCHECKABLE_ID_FIELDS: ReadonlyArray<
   { from: 'evaluations', field: 'subjectAtomOrAgentId', reason: 'No atoms/agents collection exists in §3.1; Agent definition and Atom registration record (OBJ-066/067) were not promoted to collections by this task.' },
   { from: 'evaluations', field: 'suiteId', reason: 'No suites collection exists; a suite is a grouping label within evaluations, not its own §3.1 collection.' },
   /**
-   * D3, CLOSED (Task 15 investigation, not another deferral — the debt
-   * named this task as the one that resolves it, so what follows is the
-   * resolution, not a new TODO). The old `tours.moduleId`/flat
+   * D3, CORRECTED (fix round 2 — the "CLOSED" note this replaced overstated
+   * its own conclusion; corrected here, not just in the fix-round report,
+   * because this comment is what a reader actually consults when they ask
+   * why control ids are not a RELATIONS row). The old `tours.moduleId`/flat
    * `steps[].controlId` entries this table carried through Task 14 no
    * longer exist: `crosscutting.ts#Tour` was replaced with the runner's own
    * `TourDefinition`/`TourStep`/`TourAction` contract (Task 15's brief),
@@ -269,49 +270,74 @@ export const UNCHECKABLE_ID_FIELDS: ReadonlyArray<
    * literal authored on the component (`"form-submit"`, `"wizard-next"`),
    * or a registry/route identifier composed with another collection's own
    * `id` for a per-row control (`Nav.tsx`'s `NavItem.id`, `DataTable`'s
-   * `${idPrefix}-select-${rowId}`). That composition is exactly why
-   * `tours.steps[].action.controlId` still cannot become a `{ from, field,
-   * to: CollectionName }` RELATIONS row: the validator checks an id-shaped
-   * field for exact STRING EQUALITY against another collection's `id` set,
-   * and a rendered control id is frequently a composed string, never equal
-   * to the bare id it was built from. Many valid control ids also exist
-   * only conditionally — gated by role, route or which rows a screen
-   * currently renders — so no static, closed list is ever complete.
+   * `${idPrefix}-select-${rowId}`).
    *
-   * A SECOND, STRUCTURAL BLOCKER: `RELATIONS`' own `to` field is typed
-   * `CollectionName`, one of the forty collections controller ruling R1
-   * fixes (this file's own top comment). Controls are not a §3.1 business
-   * object; adding a forty-first "controls" entry to `COLLECTIONS` to host
-   * them would violate that ruling and misrepresent a live-DOM identifier
-   * space as static reference data it structurally is not.
+   * A RELATIONS ROW IS IMPOSSIBLE — BUT ONLY FOR THE COMPOSED, ROLE/ROUTE-
+   * CONDITIONAL SUBSET, NOT FOR EVERY CONTROL ID. Two independent blockers,
+   * both real:
+   *   1. String equality can't express composition. RELATIONS checks an
+   *      id-shaped field for exact STRING EQUALITY against another
+   *      collection's `id` set; a composed control id (`Nav.tsx`'s
+   *      `NavItem.id`, `DataTable`'s `${idPrefix}-select-${rowId}`) never
+   *      equals the bare id it was built from, even when it is built from a
+   *      perfectly real one. Many valid control ids are also only
+   *      conditionally valid — gated by role, route, or which rows a
+   *      screen currently renders — so even a per-instance list would go
+   *      stale the moment role/route/data changes.
+   *   2. `RELATIONS`' own `to` field is typed `CollectionName`, one of the
+   *      forty collections controller ruling R1 fixes (this file's own top
+   *      comment). Controls are not a §3.1 business object; adding a
+   *      forty-first "controls" entry to `COLLECTIONS` to host them would
+   *      violate that ruling and misrepresent a live-DOM identifier space
+   *      as static reference data it structurally is not.
+   * Neither blocker applies to a LITERAL, non-composed control id — every
+   * `data-control-id` all three of today's seed tours actually use. For
+   * that subset, a build-time check is not impossible, just not built.
    *
-   * WHAT ACTUALLY VALIDATES IT: `TourRunner`'s own `click`/`type`/`select`
-   * resolution and its `expectVisible` check (`src/tours/runner.ts`,
-   * `src/tours/actions.ts`) — pass criterion 3: a step naming a control
-   * that is not actually rendered sets `status: 'failed'` and names the
-   * step. That is STRICTER than a static string-membership test could ever
-   * be: it asks whether the control is really on screen, for this role,
-   * this route, this data, right now — the exact question a frozen JSON
-   * snapshot cannot answer. `steps[].action.userId` and
-   * `steps[].action.failureId` (both new with Task 15's `TourAction` union)
-   * are the same shape of question, resolved the same way: validated
-   * in-schema against the real closed set each one actually draws from
-   * (`@/domain/roles#ROLES` for `userId`, `FailureInjectionMode`'s four
-   * literals for `failureId` — see `crosscutting.ts`'s `TourAction`
-   * schema), never against a `RELATIONS` row, because neither is a foreign
-   * key into a §3.1 collection either.
+   * WHAT ACTUALLY VALIDATES IT TODAY: `TourRunner`'s own `click`/`type`/
+   * `select` resolution and its `expectVisible` check (`src/tours/
+   * runner.ts`, `src/tours/actions.ts`) — pass criterion 3: a step naming a
+   * control that is not actually rendered sets `status: 'failed'` and names
+   * the step. That check is strictly necessary regardless of what static
+   * checking exists, because it is the only thing that can ever answer
+   * "is this control really on screen, for this role, this route, this
+   * data, right now" — a question no frozen list, literal or composed, can
+   * answer. `steps[].action.userId` and `steps[].action.failureId` (both
+   * new with Task 15's `TourAction` union) are the same shape of question,
+   * resolved the same way: validated in-schema against the real closed set
+   * each one actually draws from (`@/domain/roles#ROLES` for `userId`,
+   * `FailureInjectionMode`'s four literals for `failureId` — see
+   * `crosscutting.ts`'s `TourAction` schema), never against a `RELATIONS`
+   * row, because neither is a foreign key into a §3.1 collection either.
+   *
+   * NAMED DEBT, WITH AN OWNER: a build-time literal-control-id registry —
+   * a script parallel to `scripts/validate-collections.mjs` that statically
+   * scrapes every `data-control-id="literal-string"` JSX attribute across
+   * `app/**`/`src/ui/**` (skipping any template-literal/composed value,
+   * e.g. `${idPrefix}-select-${rowId}`, which stays a runtime-only check
+   * per the impossibility argument above) into a `Set<string>`, then fails
+   * the build if any `tours.json` `steps[].action.controlId`/
+   * `.expectVisible` literal string is absent from it. Ceiling: catches a
+   * renamed/typo'd/removed control id before a browser ever opens; cannot
+   * catch "exists in source but not reachable for this role/route/data" —
+   * that stays the runtime check's job permanently. Owner: whoever next
+   * edits `src/tours/**` or adds a fourth seed tour.
    */
   {
     from: 'tours',
     field: 'steps[].action.controlId',
     reason:
-      "Not a foreign key into any §3.1 collection: a rendered data-control-id is frequently a " +
-      "composed string (a fixed prefix plus another collection's row id, e.g. a DataTable row " +
-      "control) and is sometimes valid only conditionally (role/route/data-dependent), so no fixed " +
-      "collection's id set is ever a complete or exact-match target for it, and RELATIONS checks " +
-      "exact string equality. Validated live instead, by TourRunner's own control resolution and " +
-      "expectVisible check (src/tours/runner.ts) — a stricter, run-time-accurate check a static " +
-      "RELATIONS row could not replicate. See the D3 note above this entry.",
+      "Not a foreign key into any §3.1 collection, for the COMPOSED/CONDITIONAL subset: a " +
+      "rendered data-control-id is frequently a composed string (a fixed prefix plus another " +
+      "collection's row id, e.g. a DataTable row control) and is sometimes valid only " +
+      "conditionally (role/route/data-dependent), so RELATIONS' exact-string-equality check " +
+      "against one fixed collection's id set can never be a complete or accurate target for it. " +
+      "For the LITERAL subset (all three seed tours today), no such blocker applies — a " +
+      "build-time source-scraped registry remains buildable and is recorded as a named debt in " +
+      "the D3 note above this entry, not built by this task. Validated live regardless, by " +
+      "TourRunner's own control resolution and expectVisible check (src/tours/runner.ts) — a " +
+      "check strictly necessary either way, since only it can confirm a control is reachable for " +
+      "the current role/route/data, which no static list (literal or composed) ever can.",
   },
   {
     from: 'tours',
