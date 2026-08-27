@@ -214,9 +214,12 @@ function chromeFor(surface: SurfaceId, role: RoleId, pathname: string): SurfaceC
  * construction (master prompt: "a full-screen, shallow, large-target
  * surface, not a desktop page shrunk"), and a slide-out drawer over a bottom
  * tab bar would be the desktop pattern shrunk back onto it. Density and
- * touch-target size (`--density-spacious-control-min`, 44px) carry
- * Frontline's distinctiveness where the layout shape is shared with no
- * other surface anyway.
+ * touch-target size (`--density-spacious-control-min`, 60px — task 13 fix
+ * round 1, frozen source `AVIIXA_Production_Product_Blueprint.md` L106276,
+ * `DEC-NFR-007`: "Minimum 11 millimetres square for any control a gloved
+ * worker uses in the run player", Required) carry Frontline's
+ * distinctiveness where the layout shape is shared with no other surface
+ * anyway.
  *
  * FIX ROUND 1, ITEM 3: every `<main>` below carries `textColor('ink')` as a
  * default. `color` inherits in CSS, so this is not decoration on the

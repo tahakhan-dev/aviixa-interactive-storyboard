@@ -24,8 +24,10 @@ export type CaptureControlType = Capture['captureType']
  * checkmark standing in for a state it does not know.
  *
  * NOT BUILT ON `fields/TextField`/`fields/NumberField` (Task 11). Those
- * fields use `Form`'s comfortable-density sizing, well under the 44px floor
- * this surface requires, and `FieldShell`'s chrome (label row, hint row,
+ * fields use `Form`'s comfortable-density sizing, well under the 60px floor
+ * this surface requires (task 13 fix round 1: frozen source
+ * `AVIIXA_Production_Product_Blueprint.md` L106276, `DEC-NFR-007`, 11mm
+ * minimum), and `FieldShell`'s chrome (label row, hint row,
  * error row) is built for a desk form, not a one-line capture prompt on a
  * shop-floor tablet. The inputs here are built directly on `tokens.ts`'s
  * `spacious` control-min instead of wrapped, for the same "seven

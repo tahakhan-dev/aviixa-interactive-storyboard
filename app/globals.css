@@ -160,15 +160,48 @@ body {
   --elevation-3: 0 16px 32px rgba(15, 23, 42, 0.18);
 
   /* Density: paired gap and minimum interactive-target size per surface
-     character. `spacious` clears the 44px touch target the Frontline
-     surface's gloved-hands, large-target requirement calls for; `compact`
-     and `comfortable` stay above the 24px WCAG 2.5.8 AA floor throughout. */
+     character. `compact` and `comfortable` stay above the 24px WCAG 2.5.8 AA
+     floor throughout.
+
+     `spacious` IS THE FRONTLINE DENSITY, EXCLUSIVELY — `AppShell.tsx`'s
+     `chromeFor` gives `density: 'spacious'` only to `SURF-FL`, and nothing
+     else in the codebase names this token (checked: `grep -rn "'spacious'"
+     src app`, task 13 fix round 1). So the value below is a Frontline-only
+     dial, not a global one, even though it lives beside the other three
+     surfaces' densities.
+
+     44px (the WCAG 2.5.5 AAA bare-fingertip figure) was the value here
+     through task 13's first pass, and a review correctly called it "exactly
+     on the floor, zero slack" for a surface whose own requirement (frozen
+     source `AVIIXA_Production_Product_Blueprint.md` L106276, `DEC-NFR-007`,
+     "Required") is stricter than bare-fingertip: "Minimum 11 millimetres
+     square for any control a gloved worker uses in the run player."
+
+     11mm DOES NOT MAP TO A FIXED CSS-PIXEL COUNT — that is the actual
+     defect the first pass missed, not merely the old value. The CSS spec's
+     96px-per-inch reference pixel governs `mm`/`in` UNIT ARITHMETIC, not
+     how many real millimetres a device's browser renders one CSS pixel as;
+     that is set by the OS's own devicePixelRatio calibration, and a real
+     "roughly twelve-inch tablet" (the source's own device class, `§7.19`)
+     runs meaningfully denser than 96dpi — a 12.9" tablet-class device
+     (2732x2048 physical px at 2x, 1366x1024 CSS px, ~262.9mm wide) computes
+     to ~132 CSS px per inch, not 96. 11mm at that density needs
+     11 * 132 / 25.4 ≈ 57.2px, not the ~41.6px the 96dpi convention would
+     suggest — the 96dpi math would have UNDER-sized the target a second
+     time in the same file. `3.75rem` (60px) clears 57.2px with real margin
+     (≈11.5mm at 132px/in) and clears the lenient 96dpi reading by a wide
+     margin too (≈19mm), so it holds under either device-density
+     assumption. Kept off a round `4rem` deliberately: the source's own
+     trade-off column for this row is real ("larger targets reduce
+     information density"), so the value is the smallest one this build
+     could show was safe under the stricter of the two readings, not the
+     roundest available number. */
   --density-compact-gap: 0.5rem;
   --density-compact-control-min: 2rem;
   --density-comfortable-gap: 0.75rem;
   --density-comfortable-control-min: 2.25rem;
   --density-spacious-gap: 1.25rem;
-  --density-spacious-control-min: 2.75rem;
+  --density-spacious-control-min: 3.75rem;
 
   --z-nav: 10;
   --z-header: 20;
