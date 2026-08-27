@@ -50,6 +50,28 @@ import { bg, borderColor, radiusClass, statusBg, statusText, textColor } from '.
  *     not an empty array that reads as an oversight.
  *   - `resultingState` is a `{ subject, from, to }` transition, not free
  *     prose — "Are you sure?" cannot be assigned to it.
+ *
+ * FIX ROUND 2 — the type shape from round 1 cannot forbid a non-empty
+ * STRING from being blank: `{ kind: 'no-object', reason: '' }`, `[{ id: '',
+ * label: '' }]` and `{ subject: '', from: 'x', to: 'x' }` all typecheck and
+ * render empty. A vacuous confirmation is worse than none — it looks like a
+ * safeguard and carries no information at the exact moment a user decides
+ * whether to proceed — so `assertMeaningfulConfirmProps` below throws in
+ * development (never production, so it costs the shipped bundle nothing;
+ * `process.env.NODE_ENV !== 'production'` is eliminated as dead code by the
+ * build's minifier) the moment it sees a blank `reason`, a blank `id`/
+ * `label`, or a blank `subject`. The thrown message names the offending
+ * prop and cites brief §4, so whoever trips it mid-flow knows what to fix
+ * and why, not just that "props are invalid".
+ *
+ * `from === to` IS DELIBERATELY NOT GUARDED. An idempotent action can
+ * legitimately confirm a transition that does not change value — e.g.
+ * "Archive lot LOT-1" when LOT-1 is already archived, or "Re-run" a step
+ * whose status stays 'queued' either way. That is real information (the
+ * user learns the action is a no-op, not a surprise), not a vacuous
+ * placeholder, so banning it would reject a legitimate caller just to make
+ * the check tidier. A blank `subject`/`from`/`to` is still caught by the
+ * blank-string checks above regardless of whether `from` and `to` match.
  */
 export interface AffectedObject {
   readonly id: string
@@ -66,6 +88,45 @@ export interface ConfirmDialogTransition {
   readonly subject: string
   readonly from: string
   readonly to: string
+}
+
+/**
+ * Throws in development when `affectedObjects`/`resultingState` are
+ * present but vacuous (blank strings the type system cannot forbid) — see
+ * "FIX ROUND 2" above. No-op in production: the whole function call is
+ * gated by `process.env.NODE_ENV !== 'production'` at the call site, which
+ * the build's minifier dead-code-eliminates for a production build.
+ */
+function assertMeaningfulConfirmProps(
+  affectedObjects: ConfirmDialogAffected,
+  resultingState: ConfirmDialogTransition,
+): void {
+  if ('kind' in affectedObjects) {
+    if (affectedObjects.reason.trim() === '') {
+      throw new Error(
+        "ConfirmDialog: affectedObjects is { kind: 'no-object', reason: '' } — reason is blank. " +
+          'Brief §4 requires a confirmation to state which fictional objects are affected, or ' +
+          'explicitly say why none are, so it never implies a real platform change occurred; a ' +
+          'blank reason gives the user nothing to decide from.',
+      )
+    }
+  } else {
+    const blank = affectedObjects.find((obj) => obj.id.trim() === '' || obj.label.trim() === '')
+    if (blank) {
+      const field = blank.id.trim() === '' ? 'id' : 'label'
+      throw new Error(
+        `ConfirmDialog: affectedObjects contains an entry with a blank ${field} — brief §4 requires ` +
+          'the affected fictional objects to be named, not left blank, so the confirmation never ' +
+          'implies a real platform change occurred.',
+      )
+    }
+  }
+  if (resultingState.subject.trim() === '') {
+    throw new Error(
+      'ConfirmDialog: resultingState.subject is blank — brief §4 requires the resulting simulated ' +
+        'state to name what changes, so the confirmation never implies a real platform change occurred.',
+    )
+  }
 }
 
 export interface ConfirmDialogProps {
@@ -101,6 +162,10 @@ export function ConfirmDialog({
   useOverlayFocus(open, onCancel, containerRef)
 
   if (!open) return null
+
+  if (process.env.NODE_ENV !== 'production') {
+    assertMeaningfulConfirmProps(affectedObjects, resultingState)
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-ink)]/40">
