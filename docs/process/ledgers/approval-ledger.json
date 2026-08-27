@@ -263,6 +263,18 @@
    "limits_surviving": "The two limits APP-012 preserved survive untouched and the client cannot be asked to waive them: an unresolved SOURCE decision is still disclosed on screen with its alternatives and the controller's pick labelled a client-delegated choice, and no production capability may be claimed that is only simulated. Stopping remains permitted only for source drift, an irreversible or destructive operation, or a defect where every path forward is a guess.",
    "superseded_by": null,
    "timestamp": "2026-08-26 session S13-ENTRY"
+  },
+  {
+   "id": "APP-020",
+   "date": "2026-08-28",
+   "subject": "Finish all 19 runway tasks without stopping; then delete every test case; block image reads; production level throughout",
+   "user_response_evidence": "Client message, 2026-08-28: 'continue and don't stop complete all the 19 task and after completing it remove all the test cases there should be no test cases exist and also add the all the images into the ignore file that claude can't read it because it will waste the token don't ask me anything pick it by yourself just do these don't stop untill doing all of these things and make sure everything should be production level implementation'",
+   "scope_authorized": "(1) Complete runway tasks 17, 18 and 19 with no inter-task stop, each still passing independent review and fresh verification. (2) AFTER task 19 closes, DELETE every test case in the repository \u2014 no test file may remain. This SUPERSEDES APP-017's 'keep, demote, don't grow' decision, which retained 324 suites as a regression net; the client has now chosen the strict reading of master prompt \u00a72.3. Release evidence remains the compile-level checks plus live Chrome verification. (3) Block image files from being read by the assistant to stop token waste \u2014 implemented as deny rules so screenshots and captures are never loaded into context. (4) Production level is the standard for all of it.",
+   "gate_released": "Inter-task stops only. Independent review (S7) and fresh verification (S8) still bind on every task, and the client has never waived them.",
+   "limits_surviving": "Unchanged: an unresolved SOURCE decision is disclosed on screen with its alternatives and the controller's pick labelled client-delegated; no production capability is claimed that is only simulated. Stopping remains permitted only for source drift, an irreversible or destructive operation, or a defect where every path forward is a guess.",
+   "supersedes": "APP-017's testing disposition (keep-and-demote) \u2014 replaced by delete-all after task 19.",
+   "superseded_by": null,
+   "timestamp": "2026-08-28 session S13"
   }
  ],
  "pending_gates": [

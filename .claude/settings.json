@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(//**/*.png)",
+      "Read(//**/*.jpg)",
+      "Read(//**/*.jpeg)",
+      "Read(//**/*.gif)",
+      "Read(//**/*.webp)",
+      "Read(//**/*.svg)",
+      "Read(//**/*.bmp)",
+      "Read(//**/*.ico)",
+      "Read(//**/*.pdf)"
+    ]
+  }
+}
