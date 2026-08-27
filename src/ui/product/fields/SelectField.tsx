@@ -31,7 +31,22 @@ export function SelectField({
   onChange,
   error,
 }: SelectFieldProps) {
-  const bound = useFieldBinding<string>(name, value, onChange, error)
+  // FIX ROUND 1 (Important finding #2): when there's no `placeholder`, a
+  // native `<select>` with a value that matches none of its `<option>`s
+  // auto-selects the FIRST option — visually a real, valid-looking choice —
+  // regardless of what (if anything) `Form`'s state holds for this field.
+  // Seeding that same first option back into state is what makes "what the
+  // user sees" and "what the form submits" the same thing. When a
+  // `placeholder` IS given, the browser shows that (disabled, unselected)
+  // option instead and nothing should be seeded — the visible state
+  // honestly says "not chosen yet".
+  const bound = useFieldBinding<string>(
+    name,
+    value,
+    onChange,
+    error,
+    placeholder === undefined ? options[0]?.value : undefined,
+  )
   const invalid = bound.error !== undefined
   return (
     <FieldShell label={label} controlId={bound.controlId} hint={hint} error={bound.error} required={required}>

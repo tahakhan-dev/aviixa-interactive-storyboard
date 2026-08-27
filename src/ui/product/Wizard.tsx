@@ -54,12 +54,23 @@ export function Wizard({ steps, onComplete, cancelHref }: WizardProps) {
   const isLast = index === steps.length - 1
   const liveErrors = step.validate()
 
-  // Deliberately keyed on `attempted`/`index` alone, not `liveErrors` — a
-  // fresh blocked attempt (or a step change) should move focus once, not on
-  // every keystroke's revalidation while the summary is already showing.
+  // FIX ROUND 1 (Critical finding): keyed on `attempted` and `step.id` — a
+  // stable string — never on the `step` object itself or `index`+`step`
+  // together. `step = steps[index]` is a FRESH object reference on every
+  // render whenever the caller builds `steps` inline (this component's own
+  // docblock recommends exactly that pattern for a step's local state), so
+  // keying on the object churned on every keystroke in ANY field on the
+  // step: a re-render rebuilds `steps`, which changes `step`'s reference,
+  // which re-fired this effect and stole focus back to the summary after
+  // every character typed. `step.id` only changes on an ACTUAL step change.
+  // No re-check of `step.validate()` inside the body either — `attempted`
+  // is only ever set `true` by `handleNext` at the exact moment
+  // `liveErrors.length > 0` was true, so the transition to `true` already
+  // IS the "there are errors" signal; re-deriving it here would just be
+  // reading a closure that goes stale between renders for no benefit.
   useEffect(() => {
-    if (attempted && step.validate().length > 0) summaryRef.current?.focus()
-  }, [attempted, index, step])
+    if (attempted) summaryRef.current?.focus()
+  }, [attempted, step.id])
 
   useEffect(() => {
     if (result !== null) resultRef.current?.focus()

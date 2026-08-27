@@ -84,11 +84,42 @@ export function useFieldBinding<V>(
   value: V | undefined,
   onChange: ((next: V) => void) | undefined,
   error: string | undefined,
+  /**
+   * FIX ROUND 1 (Important finding #2): what this field shows the user when
+   * it holds no value of its own yet — `false` for a checkbox, the first
+   * `<option>` for a native `<select>` with no placeholder (the browser
+   * auto-selects it whether or not anything was ever written to state).
+   * Seeded into `Form`'s `values` once at mount, context mode only, so a
+   * required field the user never touches submits the SAME thing it visibly
+   * showed — never `undefined` for a value that reads as already filled in.
+   */
+  displayDefault?: V,
 ): { readonly value: V | undefined; readonly onChange: (next: V) => void; readonly error: string | undefined; readonly controlId: string } {
   const ctx = useContext(FormContext)
+  const standalone = value !== undefined || onChange !== undefined
   const resolvedValue = value !== undefined ? value : (ctx?.values[name] as V | undefined)
   const resolvedOnChange = onChange ?? ((next: V) => ctx?.setValue(name, next))
-  const resolvedError = error ?? ctx?.errors[name]?.[0]
+  // All of this field's messages, not just the first — `ErrorSummary` lists
+  // every one for the same field, and showing fewer beside the field than
+  // in the summary was its own (Minor) inconsistency.
+  const resolvedError = error ?? ctx?.errors[name]?.join(' ')
+
+  // Runs once at mount (`[]`), never on every render/keystroke — the exact
+  // shape of the Critical finding (an effect re-firing on a value that
+  // churns) is what this seeding effect must NOT become. Context mode only:
+  // a standalone field (explicit `value`/`onChange` passed in, e.g. a
+  // `Wizard` step's own local state) is the caller's own state to seed, not
+  // this hook's.
+  useEffect(() => {
+    if (!standalone && ctx !== null && displayDefault !== undefined && ctx.values[name] === undefined) {
+      ctx.setValue(name, displayDefault)
+    }
+    // Deliberately `[]`: see the comment above — seed once at mount, not on
+    // every render (no `react-hooks/exhaustive-deps` rule is configured in
+    // this project — see Wizard.tsx fix round 1 — so this is a plain
+    // comment, not a lint-suppression directive).
+  }, [])
+
   return { value: resolvedValue, onChange: resolvedOnChange, error: resolvedError, controlId: controlIdFor(name) }
 }
 
@@ -160,16 +191,28 @@ function flattenZodErrors(error: { readonly issues: readonly { path: readonly Pr
 export function Form<T>({ schema, initial, onSubmit, children, submitLabel }: FormProps<T>) {
   const [values, setValues] = useState<Record<string, unknown>>(() => ({ ...initial }))
   const [errors, setErrors] = useState<Record<string, readonly string[]>>({})
-  const [submitAttempted, setSubmitAttempted] = useState(false)
+  // FIX ROUND 1 (Important finding #3): a MONOTONIC counter, not a boolean.
+  // `submitAttempted` (`false -> true`, then permanently `true`) cannot
+  // distinguish "just submitted" from "submitted a while ago" on a second
+  // click that happens to fail with the same NUMBER of errors as the
+  // first — `errorCount` was the old (broken) second dependency, and two
+  // different failing field sets can share a count. A count that increments
+  // on every submit attempt is guaranteed to differ every time, regardless
+  // of what the error set looks like.
+  const [submitAttempt, setSubmitAttempt] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<WriteResult<unknown> | null>(null)
   const summaryRef = useRef<HTMLDivElement>(null)
   const resultRef = useRef<HTMLDivElement>(null)
 
-  const errorCount = Object.keys(errors).length
+  // Depends on `submitAttempt` ALONE — `errors` itself is read from this
+  // render's closure, not as a dependency, which is correct here: React
+  // batches `setSubmitAttempt`/`setErrors` from the same `handleSubmit` call
+  // into one commit, so the effect that runs after `submitAttempt` changes
+  // always sees the `errors` that was set alongside it.
   useEffect(() => {
-    if (submitAttempted && errorCount > 0) summaryRef.current?.focus()
-  }, [submitAttempted, errorCount])
+    if (submitAttempt > 0 && Object.keys(errors).length > 0) summaryRef.current?.focus()
+  }, [submitAttempt])
 
   useEffect(() => {
     if (result !== null) resultRef.current?.focus()
@@ -183,7 +226,7 @@ export function Form<T>({ schema, initial, onSubmit, children, submitLabel }: Fo
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
-    setSubmitAttempted(true)
+    setSubmitAttempt((n) => n + 1)
     const parsed = schema.safeParse(values)
     if (!parsed.success) {
       setErrors(flattenZodErrors(parsed.error))
@@ -201,8 +244,12 @@ export function Form<T>({ schema, initial, onSubmit, children, submitLabel }: Fo
     // caller (which owns navigation) decides what happens next.
   }
 
+  // Minor finding #1: a root-level zod issue (an unrecognized top-level key
+  // on a `.strict()` schema, `path: []`) keys as `'(form)'` in `errors` —
+  // no field carries `id="field-(form)"`, so that entry must render as
+  // plain text, never a dead link a click silently no-ops on.
   const summaryEntries: ErrorSummaryEntry[] = Object.entries(errors).flatMap(([name, msgs]) =>
-    msgs.map((message) => ({ message, fieldId: controlIdFor(name) })),
+    msgs.map((message) => (name === '(form)' ? { message } : { message, fieldId: controlIdFor(name) })),
   )
 
   return (
@@ -213,7 +260,7 @@ export function Form<T>({ schema, initial, onSubmit, children, submitLabel }: Fo
       }}
       className="flex flex-col gap-4"
     >
-      {submitAttempted && summaryEntries.length > 0 ? (
+      {submitAttempt > 0 && summaryEntries.length > 0 ? (
         <ErrorSummary ref={summaryRef} title="There is a problem" entries={summaryEntries} />
       ) : null}
 

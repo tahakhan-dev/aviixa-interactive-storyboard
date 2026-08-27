@@ -24,6 +24,14 @@ export interface RadioGroupProps {
  *  `src/ui/primitives/` has no radio-group component, theme-aware or
  *  otherwise, so this carries no DEBT D6 marker. */
 export function RadioGroup({ name, label, options, hint, required, value, onChange, error }: RadioGroupProps) {
+  // FIX ROUND 1 audit (Important finding #2 asked every field type be
+  // checked for the same gap): NOT seeding a `displayDefault` here is
+  // correct, not an oversight. `checked={bound.value === opt.value}` below
+  // means an `undefined` value leaves every radio unchecked — unlike a
+  // native `<select>`, a radio group never auto-picks one on its own, so
+  // the visible state ("nothing chosen") and the held state (`undefined`)
+  // already agree. Seeding an option here would invent a choice the user
+  // never made and never saw selected.
   const bound = useFieldBinding<string>(name, value, onChange, error)
   const invalid = bound.error !== undefined
   const groupLabelId = `${bound.controlId}-label`

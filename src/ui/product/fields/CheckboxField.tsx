@@ -16,7 +16,14 @@ export interface CheckboxFieldProps {
  *  control, not above it, so this repeats the hint/error rendering rather
  *  than force `FieldShell`'s stacked layout onto an input it doesn't fit. */
 export function CheckboxField({ name, label, hint, value, onChange, error }: CheckboxFieldProps) {
-  const bound = useFieldBinding<boolean>(name, value, onChange, error)
+  // FIX ROUND 1 (Important finding #2): `displayDefault={false}` — this
+  // renders `checked={bound.value ?? false}` below, i.e. unchecked, whether
+  // the underlying value is the schema-valid `false` or the actually-held
+  // `undefined`. Without seeding, a required boolean left at that visually
+  // "already answered" default submitted as `undefined` and the schema
+  // rejected it — the user did everything the screen showed them to do and
+  // still could not save.
+  const bound = useFieldBinding<boolean>(name, value, onChange, error, false)
   const invalid = bound.error !== undefined
   return (
     <div className="flex flex-col gap-1">
