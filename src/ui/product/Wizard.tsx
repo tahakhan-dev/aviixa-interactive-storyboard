@@ -43,7 +43,7 @@ export interface WizardProps {
 export function Wizard({ steps, onComplete, cancelHref }: WizardProps) {
   const [index, setIndex] = useState(0)
   const [dirty, setDirty] = useState(false)
-  const [attempted, setAttempted] = useState(false)
+  const [attemptSeq, setAttemptSeq] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState<WriteResult<unknown> | null>(null)
   const summaryRef = useRef<HTMLDivElement>(null)
@@ -54,23 +54,32 @@ export function Wizard({ steps, onComplete, cancelHref }: WizardProps) {
   const isLast = index === steps.length - 1
   const liveErrors = step.validate()
 
-  // FIX ROUND 1 (Critical finding): keyed on `attempted` and `step.id` — a
-  // stable string — never on the `step` object itself or `index`+`step`
-  // together. `step = steps[index]` is a FRESH object reference on every
-  // render whenever the caller builds `steps` inline (this component's own
+  // FIX ROUND 1 (Critical finding): keyed on `step.id` — a stable string —
+  // never on the `step` object itself or `index`+`step` together.
+  // `step = steps[index]` is a FRESH object reference on every render
+  // whenever the caller builds `steps` inline (this component's own
   // docblock recommends exactly that pattern for a step's local state), so
   // keying on the object churned on every keystroke in ANY field on the
   // step: a re-render rebuilds `steps`, which changes `step`'s reference,
   // which re-fired this effect and stole focus back to the summary after
   // every character typed. `step.id` only changes on an ACTUAL step change.
-  // No re-check of `step.validate()` inside the body either — `attempted`
-  // is only ever set `true` by `handleNext` at the exact moment
-  // `liveErrors.length > 0` was true, so the transition to `true` already
-  // IS the "there are errors" signal; re-deriving it here would just be
-  // reading a closure that goes stale between renders for no benefit.
+  // No re-check of `step.validate()` inside the body — `attemptSeq`
+  // incrementing already IS the "a blocked Next just happened" signal (see
+  // `handleNext`); re-deriving validity here would just read a closure that
+  // goes stale between renders for no benefit.
+  //
+  // FIX ROUND 2 (the sweep miss): `attemptSeq > 0`, not `attempted` (a
+  // boolean). `setAttempted(true)` while already `true` was a no-op — same
+  // value in, React bails the re-render, so a SECOND consecutive blocked
+  // Next never re-fired this effect. Same defect shape as `Form.tsx`'s
+  // `submitAttempted` -> `submitAttempt` fix (Important #3, fix round 1),
+  // one layer up: that one was a dependency that stopped distinguishing two
+  // different events; this one was a piece of state that could not change
+  // again once it had changed once. A counter that increments on every
+  // blocked Next is guaranteed to differ every time.
   useEffect(() => {
-    if (attempted) summaryRef.current?.focus()
-  }, [attempted, step.id])
+    if (attemptSeq > 0) summaryRef.current?.focus()
+  }, [attemptSeq, step.id])
 
   useEffect(() => {
     if (result !== null) resultRef.current?.focus()
@@ -90,10 +99,9 @@ export function Wizard({ steps, onComplete, cancelHref }: WizardProps) {
 
   const handleNext = (): void => {
     if (liveErrors.length > 0) {
-      setAttempted(true)
+      setAttemptSeq((n) => n + 1)
       return
     }
-    setAttempted(false)
     if (isLast) {
       void handleComplete()
       return
@@ -102,7 +110,6 @@ export function Wizard({ steps, onComplete, cancelHref }: WizardProps) {
   }
 
   const handleBack = (): void => {
-    setAttempted(false)
     setIndex((i) => Math.max(0, i - 1))
   }
 
@@ -132,7 +139,7 @@ export function Wizard({ steps, onComplete, cancelHref }: WizardProps) {
         Step {index + 1} of {steps.length}: <span className={`font-medium ${textColor('ink')}`}>{step.title}</span>
       </nav>
 
-      {attempted && summaryEntries.length > 0 ? (
+      {attemptSeq > 0 && summaryEntries.length > 0 ? (
         <ErrorSummary ref={summaryRef} title="Fix these before continuing" entries={summaryEntries} />
       ) : null}
 
