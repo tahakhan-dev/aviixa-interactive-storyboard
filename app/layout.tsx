@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { DemoChrome } from '@/ui/demo/DemoChrome'
 import './globals.css'
 
 // M2: `default` is what an untitled route (e.g. the entry page, or the
@@ -30,6 +31,16 @@ export default function RootLayout({
           Skip to main content
         </a>
         {children}
+        {/*
+          Task 14 — mounted OUTSIDE every `AppShell`, as a sibling of
+          `{children}` rather than a wrapper around it, so `DemoChrome` can
+          never become an ancestor an `AppShell` render tree depends on.
+          `src/ui/product/**` never imports `src/ui/demo/**` (the boundary
+          `pnpm check:boundary-rules` enforces) — this placement is the
+          other half of that guarantee: even the ROOT layout never nests
+          product content inside chrome.
+        */}
+        <DemoChrome />
       </body>
     </html>
   )

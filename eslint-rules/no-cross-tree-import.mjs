@@ -94,6 +94,14 @@ function isUnder(resolved, dirAbs) {
   return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel))
 }
 
+// Named exports (task 14 follow-up, coordinator-approved): reused by
+// eslint-rules/no-demo-reexport.mjs so the case-insensitive-filesystem
+// probe and the specifier-resolution logic above are derived exactly
+// once, hardened here across three fix rounds, rather than re-derived a
+// second time for a second rule. Purely additive -- the default export
+// and this rule's own behaviour are unchanged.
+export { ROOT, resolveSpecifier, normalize, isUnder }
+
 const rule = {
   meta: {
     type: 'problem',

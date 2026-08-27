@@ -4,6 +4,18 @@
 // Later slices may tighten this (type-aware rules, React-specific plugins).
 import tseslint from 'typescript-eslint'
 import crossTreeImport from './eslint-rules/no-cross-tree-import.mjs'
+import noDemoReexport from './eslint-rules/no-demo-reexport.mjs'
+
+// One plugin object, reused by EVERY block below that matches app/layout.tsx.
+// Flat ESLint config merges `plugins` entries across every block matching a
+// given file, and throws ("Cannot redefine plugin") if two matching blocks
+// give the SAME plugin key two DIFFERENT object references -- three earlier
+// blocks already match app/layout.tsx (the top recommended-rules block, the
+// collections-only block, and the combined demo+collections block) and each
+// registered `local` as `crossTreeImport` alone. The app/layout.tsx block
+// below also needs `local/no-demo-reexport`, so every block registers the
+// SAME merged object under `local` rather than each inventing its own.
+const localPlugin = { rules: { ...crossTreeImport.rules, ...noDemoReexport.rules } }
 
 export default tseslint.config(
   {
@@ -63,7 +75,7 @@ export default tseslint.config(
     // cannot see (a two-hop re-export barrel) and why.
     files: ['**/*.{ts,tsx}'],
     ignores: ['src/data/**'],
-    plugins: { local: crossTreeImport },
+    plugins: { local: localPlugin },
     rules: {
       'local/no-cross-tree-import': ['error', {
         zones: [{
@@ -92,7 +104,7 @@ export default tseslint.config(
     // block below, which explicitly excludes src/data/** so it cannot
     // re-match and overwrite this one.
     files: ['src/data/**/*.{ts,tsx}'],
-    plugins: { local: crossTreeImport },
+    plugins: { local: localPlugin },
     rules: {
       'local/no-cross-tree-import': ['error', {
         zones: [{
@@ -140,7 +152,7 @@ export default tseslint.config(
     // restrictions.
     files: ['**/*.{ts,tsx}'],
     ignores: ['src/ui/demo/**', 'src/data/**'],
-    plugins: { local: crossTreeImport },
+    plugins: { local: localPlugin },
     rules: {
       'local/no-cross-tree-import': ['error', {
         zones: [
@@ -154,6 +166,59 @@ export default tseslint.config(
           },
         ],
       }],
+    },
+  },
+  {
+    // Task 14: the one legitimate mount point outside src/ui/demo/** itself.
+    // The brief requires `app/layout.tsx` to render `<DemoChrome />` as a
+    // sibling of `{children}` — "outside every AppShell" — which is a real
+    // import of `src/ui/demo/DemoChrome` from a file the block above would
+    // otherwise catch (its `ignores` only carves out `src/ui/demo/**` and
+    // `src/data/**`, and `app/layout.tsx` is neither).
+    //
+    // This is not the "product code needing to know about chrome" case the
+    // boundary exists to refuse: `app/layout.tsx` is the Next.js-mandated
+    // root composition file (it cannot be relocated into `src/ui/demo/**`
+    // and still function as `app/layout.tsx`), it is never part of any
+    // `AppShell`'s own render subtree, and no `src/ui/product/**` file ever
+    // imports it — the one-way edge the boundary protects (§8.6.2's
+    // chrome-hidden screenshot must be indistinguishable from product) is
+    // about product reaching INTO chrome, not about where chrome itself is
+    // composed at the root. `src/ui/product/**` keeps BOTH restrictions
+    // from the block above unchanged; every other `app/**` route file also
+    // keeps them — only this one named file, matching task-8-review's own
+    // recorded pre-fix-round-2 state ("app files carry only the
+    // collections restriction"), gets the narrower zone below. Flat
+    // ESLint config replaces a rule's options per matching file rather
+    // than merging them, so this block — matching only `app/layout.tsx`
+    // and placed last — is what makes that narrowing take effect for this
+    // one file without reopening the demo zone for anything else `**/*.
+    // {ts,tsx}` also matches.
+    files: ['app/layout.tsx'],
+    plugins: { local: localPlugin },
+    rules: {
+      'local/no-cross-tree-import': ['error', {
+        zones: [{
+          forbidden: 'src/data/collections',
+          message: 'Business truth reaches components only through src/data/repository.ts — master prompt §12.6.',
+        }],
+      }],
+      // Coordinator follow-up: the carve-out above is SAFE today (this
+      // file exports only `metadata` and its default component) but not
+      // STRUCTURALLY safe on its own -- nothing stops a future edit from
+      // turning it into the one-hop re-export barrel Task 8's fix round 2
+      // was written to close everywhere else. This rule
+      // (eslint-rules/no-demo-reexport.mjs) is that structural close: it
+      // still allows the plain `import ... from '@/ui/demo/...'` this file
+      // needs to mount `<DemoChrome />`, but flags `export ... from`,
+      // `export * from`, and a demo-imported name later re-exported
+      // without a `from` clause. THIS RULE AND THE CARVE-OUT ABOVE DEPEND
+      // ON EACH OTHER: narrowing this rule, or widening the carve-out
+      // (e.g. to a glob covering more than this one file), reopens the
+      // hole the other is closing. `scripts/check-boundary-rules.mjs`'s
+      // "app/layout.tsx contains no re-export from src/ui/demo/**" case
+      // is what keeps this pair honest going forward.
+      'local/no-demo-reexport': ['error', { forbidden: 'src/ui/demo' }],
     },
   },
 )

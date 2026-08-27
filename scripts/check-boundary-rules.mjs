@@ -30,11 +30,19 @@
 // against, and it was latent (untriggered, since no case's path matched a
 // current global ignore) in the harness meant to prevent it.
 import { ESLint } from 'eslint'
+import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const RULE = 'local/no-cross-tree-import'
+
+// Task 14 follow-up: unlike every other case below (synthetic virtual
+// files), this one case reads app/layout.tsx's REAL, current source --
+// the assertion is about that actual file ("it contains no re-export
+// from src/ui/demo/**"), not a hypothetical string. Read once, still in
+// memory, still no scratch file written anywhere.
+const LAYOUT_SOURCE = fs.readFileSync(path.join(ROOT, 'app/layout.tsx'), 'utf8')
 
 const eslint = new ESLint({
   cwd: ROOT,
@@ -170,6 +178,19 @@ const cases = [
     code: `import worker from 'https://example.com/worker.js'\nexport { worker }\n`,
     mustFail: false,
   },
+
+  // --- Task 14 follow-up: app/layout.tsx may IMPORT demo chrome (it is
+  // the one legitimate mount point, see eslint.config.mjs), but must never
+  // become the one-hop re-export barrel Task 8's fix round 2 was written
+  // to close everywhere else. `local/no-demo-reexport` is the rule that
+  // draws that line; this case checks it against the REAL current file. ---
+  {
+    name: 'app/layout.tsx contains no re-export from src/ui/demo/** (Task 14 follow-up)',
+    file: 'app/layout.tsx',
+    code: LAYOUT_SOURCE,
+    mustFail: false,
+    ruleId: 'local/no-demo-reexport',
+  },
 ]
 
 let failures = 0
@@ -199,7 +220,7 @@ for (const c of cases) {
     continue
   }
   const messages = results[0].messages
-  const fired = messages.some((m) => m.ruleId === RULE)
+  const fired = messages.some((m) => m.ruleId === (c.ruleId ?? RULE))
   const ok = fired === c.mustFail
   const label = c.mustFail ? 'must fail' : 'must pass'
   if (!ok) {
