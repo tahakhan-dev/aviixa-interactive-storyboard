@@ -79,21 +79,46 @@ function isToggleHotkey(e: KeyboardEvent): boolean {
 }
 
 export function useChromeVisibility(): ChromeVisibility {
-  const [hidden, setHidden] = useState(false)
+  // FIX ROUND 1 (Critical): starts `true`, not `false`. This app is a
+  // static export (`next.config.ts`, `output: 'export'`) -- there is no
+  // per-request server, so `next build` renders every route's HTML once,
+  // ahead of time, with no browser and no effects. A `false` default meant
+  // that prerendered HTML, and the very first client paint before this
+  // hook's own mount effect below ever runs, both rendered chrome
+  // unconditionally: `DEMO CHROME` and `data-demo="chrome-root"` shipped in
+  // all 103 files under `out/`, in the raw served bytes, regardless of
+  // `?chrome=off` -- a static export cannot read a query string at render
+  // time, so that param changed nothing either. Defaulting to `true` means
+  // the exported HTML and the pre-hydration paint both carry ZERO demo
+  // markup; the mount effect below is what resolves the real state once
+  // client JS actually runs, matching "demo chrome is a client-only
+  // reviewer tool, not part of the document the product serves."
+  const [hidden, setHidden] = useState(true)
 
-  // Mount-only: applies the `?chrome=off` override (never persisted — it is
-  // a per-load capture override, not a new stored preference) or, failing
-  // that, whatever preference was last persisted. Runs exactly once; the URL
-  // and the stored preference are both read at mount, and neither is a value
-  // this effect needs to react to again afterward — the hotkey and the
-  // `hide`/`show` calls below are what change `hidden` from here on.
+  // Mount-only, client-side: this is now the ONLY place `hidden` is ever
+  // resolved away from its safe `true` default, and it runs after
+  // hydration, never during the static-export prerender.
+  //
+  // `?chrome=off` still does real work here, just not the same work it did
+  // before: chrome was already absent at first paint either way now, so
+  // this param's job is to keep it that way even AFTER hydration would
+  // otherwise show it (its actual use: a screenshot tool that waits for
+  // the page to finish hydrating/settling before capturing must still see
+  // no chrome). It is still never persisted -- a per-load capture
+  // override, not a new stored preference -- and the hotkey still works
+  // normally afterward if a live session needs to bring chrome up anyway.
+  //
+  // With no `chrome=off`, the stored preference (if any) applies; with
+  // neither, `hidden` resolves to `false` -- the ordinary "chrome appears
+  // once the client has mounted" default this fix round's whole point is
+  // to move OUT of the initial render and INTO here. Runs exactly once;
+  // neither source is a value this effect needs to react to again
+  // afterward — the hotkey and the `hide`/`show` calls below are what
+  // change `hidden` from here on.
   useEffect(() => {
-    if (chromeOffParam()) {
-      setHidden(true)
-      return
-    }
+    if (chromeOffParam()) return // stays hidden -- see comment above.
     const stored = readStoredHidden()
-    if (stored !== null) setHidden(stored)
+    setHidden(stored ?? false)
   }, [])
 
   // Registered once, unconditionally, regardless of `hidden` — this is what
