@@ -49,6 +49,7 @@ export function Toaster({ toasts, onDismiss }: ToasterProps) {
   if (toasts.length === 0) return null
 
   return (
+    // DEBT D6 (see file header): duplicates `src/ui/primitives/Toast.tsx`'s single-toast markup.
     <div role="status" className={`fixed bottom-4 right-4 flex flex-col gap-2 ${zIndexClass('toast')}`}>
       {toasts.map((toast) => (
         <div

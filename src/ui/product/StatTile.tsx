@@ -8,10 +8,15 @@ import { FreshnessStamp } from './FreshnessStamp'
  * Task 12, pass criterion 3 (§19.4) — a stat tile never renders `0` for
  * unknown, stale or partial. This is enforced by SHAPE, not by convention:
  * `StatTileData` is a discriminated union where only the `value` variant
- * carries a number at all. There is no code path in this component that can
- * read a numeric field off an `unknown`/`stale`/`partial` payload, because
- * those variants do not have one — a caller cannot even construct a
- * "stale, but here is 0 anyway" tile; the type does not admit it.
+ * declares a number field. The guarantee that actually holds is about the
+ * RENDER PATH, not construction in general: `Body`'s `switch` narrows on
+ * `data.kind` before touching any field, so no branch other than `value`
+ * can ever read a number off the payload, and every real call site (a JSX
+ * object literal) is rejected by the excess-property check if it adds one.
+ * A non-literal intermediate (`const loose: {kind:'stale', value:0, ...} =
+ * {...}; const x: StatTileData = loose`) can still smuggle an extra
+ * `value` field past that check structurally — it is simply never read,
+ * because the narrowing above never looks at it.
  *
  * A dashboard reading "0 deviations" when it means "we have not heard from
  * this site in 40 minutes" is the dishonesty the freshness model exists to

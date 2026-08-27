@@ -97,6 +97,7 @@ export function ObjectPage({
         </div>
       ) : null}
 
+      {/* DEBT D6 (see file header): duplicates `src/ui/primitives/Tabs.tsx`'s roving-tabindex ARIA tablist. */}
       <div role="tablist" aria-label={`${title} sections`} className={`mt-4 flex gap-1 border-b ${borderColor('border')}`}>
         {tabs.map((tab) => {
           const selected = tab.id === active?.id

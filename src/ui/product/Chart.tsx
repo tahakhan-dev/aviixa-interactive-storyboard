@@ -205,6 +205,11 @@ export function Chart({ controlId, kind, title, categories, series, unit }: Char
     })
   }
 
+  // A donut is a pie with its centre cut out — the wedges are drawn as full
+  // pie slices, then a same-colour-as-the-container hole is punched over
+  // the centre so the shape actually reads as a ring, not a disc.
+  const DONUT_HOLE_RATIO = 0.5
+
   function renderDonut() {
     const first = series[0]
     if (!first) return null
@@ -213,7 +218,7 @@ export function Chart({ controlId, kind, title, categories, series, unit }: Char
     const r = Math.min(PLOT_W, PLOT_H) / 2 - 4
     const total = first.values.reduce((a, b) => a + b, 0) || 1
     let angle = -90
-    return first.values.map((value, i) => {
+    const wedges = first.values.map((value, i) => {
       const slice = (value / total) * 360
       const large = slice > 180 ? 1 : 0
       const start = angle
@@ -230,6 +235,12 @@ export function Chart({ controlId, kind, title, categories, series, unit }: Char
         />
       )
     })
+    return (
+      <>
+        {wedges}
+        <circle cx={cx} cy={cy} r={r * DONUT_HOLE_RATIO} style={{ fill: colorVar('raised'), stroke: colorVar('border-strong'), strokeWidth: 1 }} />
+      </>
+    )
   }
 
   return (

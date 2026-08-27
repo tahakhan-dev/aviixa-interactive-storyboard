@@ -38,15 +38,44 @@ import { bg, borderColor, radiusClass, statusBg, statusText, textColor } from '.
  * KEEPS (see that file's own comment): a scrim darkens the page behind the
  * overlay in every theme, and the dark-mode-aware `--ink` would flip it to
  * a light tint in dark mode — a new bug, not a fix.
+ *
+ * FIX ROUND 1 — `affectedObjects`/`resultingState` were `string[]`/`string`:
+ * a caller could pass `[]` and `"Are you sure?"` and it typechecked. The
+ * TYPE now forces the naming brief §4 requires, rather than merely
+ * permitting it:
+ *   - `affectedObjects` is a non-empty tuple of `{ id, label }` (never a
+ *     bare string a caller could leave vague), OR the explicit
+ *     `{ kind: 'no-object', reason }` variant for the rare action that
+ *     touches no named object — that must be a deliberate, distinct value,
+ *     not an empty array that reads as an oversight.
+ *   - `resultingState` is a `{ subject, from, to }` transition, not free
+ *     prose — "Are you sure?" cannot be assigned to it.
  */
+export interface AffectedObject {
+  readonly id: string
+  readonly label: string
+}
+
+/** Non-empty by construction — a destructive action names at least one object, or says explicitly that it names none. */
+export type ConfirmDialogAffected =
+  | readonly [AffectedObject, ...AffectedObject[]]
+  | { readonly kind: 'no-object'; readonly reason: string }
+
+/** The resulting simulated state as a named transition, never a sentence a caller could leave vague. */
+export interface ConfirmDialogTransition {
+  readonly subject: string
+  readonly from: string
+  readonly to: string
+}
+
 export interface ConfirmDialogProps {
   readonly open: boolean
   readonly controlId: string
   readonly title: string
-  /** The fictional objects this action would touch, named — never "this item". */
-  readonly affectedObjects: readonly string[]
-  /** The resulting simulated state, as a sentence — never "Are you sure?". */
-  readonly resultingState: string
+  /** The fictional objects this action would touch — never "this item". */
+  readonly affectedObjects: ConfirmDialogAffected
+  /** The resulting simulated state, as a transition — never "Are you sure?". */
+  readonly resultingState: ConfirmDialogTransition
   readonly confirmLabel?: string
   readonly cancelLabel?: string
   readonly busy?: boolean
@@ -75,6 +104,7 @@ export function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-ink)]/40">
+      {/* DEBT D6 (see file header): duplicates `src/ui/primitives/Dialog.tsx`'s `role="alertdialog"` markup. */}
       <div
         ref={containerRef}
         role="alertdialog"
@@ -89,12 +119,18 @@ export function ConfirmDialog({
         </h2>
         <div id={descId} className="mt-3 space-y-2 text-sm">
           <p className={textColor('ink-muted')}>This will affect:</p>
-          <ul className={`list-disc pl-5 ${textColor('ink')}`}>
-            {affectedObjects.map((obj) => (
-              <li key={obj}>{obj}</li>
-            ))}
-          </ul>
-          <p className={textColor('ink')}>{resultingState}</p>
+          {'kind' in affectedObjects ? (
+            <p className={textColor('ink')}>{affectedObjects.reason}</p>
+          ) : (
+            <ul className={`list-disc pl-5 ${textColor('ink')}`}>
+              {affectedObjects.map((obj) => (
+                <li key={obj.id}>{obj.label}</li>
+              ))}
+            </ul>
+          )}
+          <p className={textColor('ink')}>
+            {resultingState.subject}: {resultingState.from} → {resultingState.to}
+          </p>
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
           <button
