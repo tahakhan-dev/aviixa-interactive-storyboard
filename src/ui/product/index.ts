@@ -32,3 +32,12 @@ export * from './Chart'
 export * from './Timeline'
 export * from './StatusPill'
 export * from './FreshnessStamp'
+
+// Task 13: the Frontline execution frame — device frame, run player shell,
+// step canvas, capture control, connectivity and sync-queue badges.
+export * from './frontline/DeviceFrame'
+export * from './frontline/RunPlayerShell'
+export * from './frontline/StepCanvas'
+export * from './frontline/CaptureControl'
+export * from './frontline/ConnectivityBadge'
+export * from './frontline/SyncQueueBadge'
