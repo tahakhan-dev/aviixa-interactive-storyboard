@@ -210,8 +210,8 @@ export const Audit = z.object({
 export type Audit = z.infer<typeof Audit>
 
 /**
- * `schedules` folds the nine scheduler business objects OBJ-091 through
- * OBJ-099 (L10022-L10190) into one collection with two row kinds, matching
+ * `schedules` folds the nine scheduler business objects OBJ-091 (L10022)
+ * through OBJ-099 (L10174-L10190) into one collection with two row kinds, matching
  * the split `@/domain/state`'s `ScheduleLedgerRecord` already draws between
  * a rule (`definitionState`) and one moment it produced (`occurrenceState`)
  * — a paused rule has not deleted the moments it already planned. The
@@ -229,8 +229,8 @@ export type Audit = z.infer<typeof Audit>
  * `@/domain/vocabularies`, measured there off source L99022-L99157 — a
  * fuller statement than OBJ-091's four-state line (L10031: "defined,
  * enabled, disabled, superseded") and OBJ-093's eight-state line (L10069:
- * "materialised, due, claimed, executing, succeeded, failed, skipped,
- * dead-lettered"). Reused per controller ruling R2.
+ * "materialised, due, claimed, executing, succeeded, failed, skipped by
+ * misfire policy, dead-lettered"). Reused per controller ruling R2.
  */
 export const ScheduleDefinitionRow = z.object({
   id: z.string().min(1),

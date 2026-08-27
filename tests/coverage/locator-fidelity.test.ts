@@ -1527,11 +1527,22 @@ const STRICT_ANCHOR_ALLOWANCE: ReadonlySet<string> = new Set([
   'MTX-PLAT-01@21068',
   'MTX-PLAT-02@21076-21096',
   'MTX-TEN-01@21928',
+  // Fix round 1 (Task 17), read against the frozen source and confirmed
+  // shape 1: each citation below falls inside the OBJ-<n> object card it
+  // names (heading through the next `**`OBJ-...` heading), on a
+  // "Fields or field categories"/"Lifecycle states" bullet a few lines
+  // under that card's own heading, the same shape OBJ-036/037/039 already
+  // carry here.
+  'OBJ-032@8443', // OBJ-032 heads at L8437; next card OBJ-033 opens L8456.
   'OBJ-036@8597',
   'OBJ-036@8598',
   'OBJ-037@8616',
+  'OBJ-038@8633', // OBJ-038 heads at L8627; next card OBJ-039 opens L8646.
   'OBJ-039@8651',
   'OBJ-039@8653',
+  'OBJ-045@8768', // OBJ-045 heads at L8760; next card OBJ-046 opens L8779.
+  'OBJ-046@8788', // OBJ-046 heads at L8779; next card OBJ-047 opens L8799.
+  'OBJ-053@9003', // OBJ-053 heads at L8997; next card OBJ-054 opens L9016.
   'SB-030@65868',
   'SB-25-05@48557-48570',
   'SB-42-401@89451',

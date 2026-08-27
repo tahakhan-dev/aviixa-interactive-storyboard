@@ -122,7 +122,7 @@ export const Qualification = z.object({
 }).strict()
 export type Qualification = z.infer<typeof Qualification>
 
-// OBJ-032 · Clearance (L8437-L8452). Fields L8443; lifecycle L8445: "requested, granted, delivered, in force, lapsed".
+// OBJ-032 · Clearance (L8437-L8452). Fields L8443; lifecycle L8445: "requested where applicable, granted, delivered, in force, lapsed".
 // Fix round 1 (review finding, Important 1): L8443's field list reads
 // "worker reference; qualification or gate reference" -- an exclusive
 // either/or, not "qualification" alone. L8441: granted by a Supervisor for

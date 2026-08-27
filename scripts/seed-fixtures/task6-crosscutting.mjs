@@ -49,7 +49,7 @@ const AREA_ID = 'AREA-BB-ASSEMBLY'
 // ===========================================================================
 export const notifications = [
   {
-    // SB-SCHED-01 step 11 (L101669): "created, eligible, queued, sent,
+    // SB-SCHED-01 step 15 (L101661): "created, eligible, queued, sent,
     // provider-accepted, delivered, opened, read, acknowledged." Marco
     // acknowledges and arranges cover -- acknowledgement is not the
     // business action itself (arranging cover is), so `status` stops at
@@ -214,7 +214,7 @@ export const notifications = [
   },
   {
     // The 4-hour re-notification, "a distinct record linked to the
-    // original" (L101951) via `deduplicationGroup`, not the same row.
+    // original" (L101943) via `deduplicationGroup`, not the same row.
     id: 'NOTIF-BB-CRIT-RENOTIFY-R1',
     tenantId: 'TEN-BRIGHTBIKES',
     eventId: null,
@@ -627,9 +627,9 @@ export const audit = [
     causationId: null,
   },
   {
-    // The Read-only Auditor's own audit-access action (L8348: "the
-    // Read-only Auditor has the same read-only access" as the Tenant
-    // Admin, over the full tenant log) -- also what gives `effectiveRole`
+    // The Read-only Auditor's own audit-access action (OBJ-084 Audit
+    // event, L9814: "the Read-only Auditor has the same read-only
+    // access" as the Tenant Admin, over the full tenant log) -- also what gives `effectiveRole`
     // its READONLY_AUDITOR coverage; nothing else in this seed's audit
     // rows is authored by that role.
     id: 'AUD-BB-AUDITOR-001',
@@ -785,8 +785,8 @@ export const schedules = [
     status: 'succeeded',
   },
   // 5. Device offline-trust expiry — the offline trust window's own
-  // device-local timer (L2085 "Offline --> TrustExpired: offline trust
-  // window exceeded"; L4521 "§7.10.5 The offline trust window, forced
+  // device-local timer (L2085 "Offline --> TrustExpired : offline trust
+  // window exceeded"; §7.10.5, L4521 "The offline trust window, forced
   // sync, and clearance expiry"; L9903 "a 24-hour offline trust window
   // against a 72-hour ceiling"). Modelled as a device-local scheduled work
   // class per master prompt §19.2's own "device-local timers" bucket

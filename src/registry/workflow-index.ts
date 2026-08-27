@@ -189,6 +189,36 @@ export function workflowStatusDisplay(status: CoverageStatus): { readonly tone: 
 }
 
 /* ────────────────────────────────────────────────────────────────────── *
+ * Trigger text, rendered.
+ * ────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Fix round 1 (Task 17). `row.trigger` is extraction text
+ * (`registries/raw/extract/CHK-004.json`), carried through
+ * `build-registries.mjs` unchanged and never authored by this file — it is
+ * not the frozen source's own words (checked: no verbatim occurrence near
+ * the row's `sourceLine`), so it cannot be added to
+ * `offline-phrasing.test.ts`'s `DISCLOSURES` as a source quotation, and its
+ * generic "when does this shape of workflow apply" phrasing is not a claim
+ * this build's own prose makes either, so it is not one of that file's nine
+ * authored disclosures.
+ *
+ * One row's extraction (`unstated@L12216`, CHK-004.json) reads "a step
+ * completes; a hold is released" — a trigger-TYPE description in a
+ * workflow catalogue, not a status claim about any device — but it
+ * lexically matches `src/honesty/lexicon.ts`'s `hold-released` rule
+ * (`holds? released`) when rendered verbatim on the card. This is the one
+ * point every trigger string reaches both screens through, so the rewrite
+ * lands here rather than in either screen: the noun form ("a hold's
+ * release") names the same trigger class without the verb form the rule
+ * matches, and changes no fact the row states.
+ */
+function honestTrigger(trigger: string | undefined): string | null {
+  if (trigger === undefined) return null
+  return trigger.replace(/\b(holds?) (?:is |are |was |were |has been |have been |been )?released\b/i, "$1's release")
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
  * The view model.
  * ────────────────────────────────────────────────────────────────────── */
 
@@ -230,7 +260,7 @@ export const WORKFLOW_INDEX_ROWS: readonly WorkflowIndexRow[] = WORKFLOWS.rows.m
     variantBucket,
     variantSummary: VARIANT_BUCKET_LABEL[variantBucket],
     route: row.route ?? null,
-    trigger: row.trigger ?? null,
+    trigger: honestTrigger(row.trigger),
   }
 })
 

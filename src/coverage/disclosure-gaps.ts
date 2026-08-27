@@ -109,7 +109,7 @@ export function contradictionsDisclosedNowhereElse(
  * smaller number is exactly what this finding forbids.
  */
 export const AC_CITED_IN_PRODUCT_NOT_IN_TESTS = [
-  "AC-009-01", "AC-009-04", "AC-16-03", "AC-16-39",
+  "AC-009-01", "AC-009-04", "AC-15-01", "AC-16-03", "AC-16-39",
   "AC-16-41", "AC-16-42", "AC-30B-501", "AC-30B-502",
   "AC-30C-1204", "AC-30C-705", "AC-30D-1302", "AC-36-301",
   "AC-36-304", "AC-36-501", "AC-36-505", "AC-36-506",

@@ -35,7 +35,7 @@
 //   - Chainring spec SPEC-BB-CHAINRING is 12.0-14.0 N*m (task4-studio.mjs).
 //     A 10.0 N*m reading is (12.0-10.0)/12.0 = 16.7% below the lower limit,
 //     beyond the 10% boundary -> Severity 1. Per the fixed platform floor
-//     (L7385 row 1: "Automatic lot freeze plus escalation, platform-fixed
+//     (L7388 row 1: "Automatic lot freeze plus escalation, platform-fixed
 //     floor ... Quality Manager only, uniformly ... Critical, auto-entered
 //     with the containment record attached"), this places an immediate
 //     on-device hold and launches the pinned containment checklist
@@ -44,7 +44,7 @@
 //     `HOLD-BB-SEV1-01`.
 //   - Seat-clamp spec SPEC-BB-SEATCLAMP is 6.0-8.0 N*m. A 5.5 N*m reading
 //     is (6.0-5.5)/6.0 = 8.3% below the lower limit, at or under the 10%
-//     boundary -> Severity 2. Per L7385 row 2, Severity 2 gets "the
+//     boundary -> Severity 2. Per L7389 row 2, Severity 2 gets "the
 //     tenant's configured action bundle above the floor; escalation and
 //     email in the source's example" and explicitly "Not applicable -- no
 //     automatic hold is placed at this level" -- so, deliberately unlike

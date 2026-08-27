@@ -16,6 +16,29 @@ import { Nav, type NavGroup, type NavLayout } from './Nav'
 import { PageHeader } from './PageHeader'
 import { bg, textColor, type DensityToken } from './tokens'
 
+/**
+ * Fix round 1 (task-17-review.md, Critical). Master prompt §29.4 / §4 / §21.2:
+ * a reader must never mistake a simulated screen for a live system, and
+ * every screen carries a not-real statement in its own rendered text —
+ * `tests/coverage/rendered-disclosure.test.ts` walks the WHOLE static
+ * export and checks for it. `src/ui/sa/PrototypeDisclosure.tsx` is the
+ * existing, spec-quoted copy of this sentence (reused verbatim here so the
+ * wording never drifts screen to screen — its own header comment states
+ * the same reason) but is styled on the legacy `--color-ink-subtle` token,
+ * which Task 9's own primitive inventory found NOT dark-mode aware under
+ * this shell; `src/ui/product/**` may only style against `tokens.ts` (see
+ * `DataTable.tsx`'s header for why), so the text is reused, the markup is
+ * not. Centralised HERE, once, rather than in every `AppShell` caller, so
+ * every screen this shell has ever hosted or will host carries it without
+ * being asked to remember to.
+ */
+const NOT_REAL_TEXT =
+  'Simulated behaviour only. This screen is part of a client-validation storyboard: every state shown is seeded fixture data the user steps through, not a computed transition against a connected production system.'
+
+function NotRealDisclosure() {
+  return <p className={`mt-3 max-w-prose text-xs ${textColor('ink-subtle')}`}>{NOT_REAL_TEXT}</p>
+}
+
 /** Identity, role, scope, tenant, device — the shell's one read of "who is
  *  looking at this and on what". Nothing here is a live scenario read: it is
  *  the caller's own controlled state, exactly as `role`/`tenantState` are
@@ -250,6 +273,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
       <div className={`flex min-h-dvh flex-col ${bg('sunken')}`} data-surface={surface}>
         <main id="main" className={`flex-1 px-4 py-4 pb-24 ${textColor('ink')}`}>
           <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
+          <NotRealDisclosure />
           <div className="mt-4">{children}</div>
         </main>
         <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
@@ -263,6 +287,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
         <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
         <main id="main" className={`flex-1 px-6 py-6 ${textColor('ink')}`}>
           <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
+          <NotRealDisclosure />
           <div className="mt-4">{children}</div>
         </main>
       </div>
@@ -282,6 +307,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
       <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
       <main id="main" className={`flex-1 px-6 py-6 ${textColor('ink')}`}>
         <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
+        <NotRealDisclosure />
         <div className="mt-4">{children}</div>
       </main>
     </div>

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { isForeignProbe, ownProbeDir, withPlanted } from '../probe-paths'
 import { createHash } from 'node:crypto'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, sep } from 'node:path'
 import { isRefusal, permitsAction } from '@/policy/decision'
 import { AI_AGENT_ROSTER, type AiAgentId } from '@/ai/agents/roster'
 import { OPEN_DECISION_IDS } from '@/disclosure/decisions'
@@ -202,12 +202,33 @@ describe('resume is a separate act, and there is no automatic one', () => {
     // a new `src/ai/resume/`, or any other console screen just as invisible.
     // `tests/unit/ai-rollback-taxonomy.test.ts` scans `walk('src')` plus
     // `walk('app')` for its own prohibition, so the tree-wide form was to hand.
-    // Measured over the whole tree with comments stripped: ZERO offenders, so
-    // no exemption is needed and none is granted.
+    //
+    // EXCLUSION: `src/tours/**` (controller ruling, fix round 1). `AC-AI-015-5`
+    // (L87890) is "Resume is a separate action with its own approval and its
+    // own audit record; no automatic resume exists" — a safety property about
+    // resuming a PAUSED AI CAPABILITY. `src/tours/actions.ts` and
+    // `src/tours/runner.ts` each carry one `setTimeout` in a private `sleep()`
+    // helper that paces a narration's typing/click animation for a human
+    // watching, and `runner.ts` reads `window.location.pathname` to confirm a
+    // tour's `navigate` step landed. Neither can resume a paused AI
+    // capability — there is no AI pause/resume state anywhere in `src/tours/`
+    // for either to act on (see the module header of `actions.ts`: no import
+    // of `@/data/repository`, no path but the same controls a human's mouse
+    // drives). This scan is directory-scoped, not semantic, so it cannot tell
+    // a narration timer from a resume timer; `src/tours/` only entered the
+    // widened (tree-wide) scope four tasks after that widening was written,
+    // so nobody had checked it against this rule until now. Excluding the one
+    // directory, for this stated reason, rather than weakening the pattern —
+    // the pattern still runs, tree-wide, everywhere else.
+    // Measured over the whole tree (minus the exclusion) with comments
+    // stripped: ZERO offenders, so no further exemption is needed and none is
+    // granted.
     const own = ownProbeDir('resume')
+    const EXCLUDED_DIRS = [join(process.cwd(), 'src', 'tours') + sep]
     const scan = (): string[] =>
       walk('src', own)
         .concat(walk('app', own))
+        .filter((file) => !EXCLUDED_DIRS.some((dir) => file.startsWith(dir)))
         // Comment lines are stripped: this file's own prose explains the rule.
         .filter((file) =>
           /setTimeout|setInterval|autoResume|resumeAfter|resumeTimer|resumeWindow/i.test(

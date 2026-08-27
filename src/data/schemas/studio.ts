@@ -129,9 +129,9 @@ export type Specification = z.infer<typeof Specification>
  * Task 4 fix round 1 (review Important finding): the Statement of Work is
  * silent on corruption, revocation, expiry and incompatible-version
  * handling for a *deployed* package (L79518, and the twenty-one-stage
- * enumeration at L79048, both mark all four `Not specified in the
+ * enumeration at L79049, both mark all four `Not specified in the
  * Statement of Work`) — but blueprint §35.6 "Integrity, revocation,
- * replacement, rollback and incompatible versions" (L79517-L79530) does
+ * replacement, rollback and incompatible versions" (L79512-L79530) does
  * not leave that silence unshaped: it proposes a concrete verification
  * state machine (`Received -> ChecksumCheck -> ... -> Trusted`, with
  * `RejectCorrupt`, `RejectExpired`, `RejectVersion` terminal branches) and

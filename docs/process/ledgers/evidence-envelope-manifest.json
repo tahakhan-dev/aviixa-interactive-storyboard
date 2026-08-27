@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-0a8d0cb85d17fdb1",
-  "candidate_id": "SLICE11-3ee592fe2eac068e",
+  "envelope_id": "ENV11-e6950312c2e91dd2",
+  "candidate_id": "SLICE11-0e6e3bc0d96ea5d7",
   "slice": "11",
-  "payload_sha256": "0a8d0cb85d17fdb1caab60cc225739a78e691ad39a3f1060754046f9c21ab3a9",
+  "payload_sha256": "e6950312c2e91dd29fa7ab1aa482660bc300507afaffcf6a0e0f19fbc58af463",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -21,8 +21,8 @@
     ]
   },
   "payload_excludes_self": true,
-  "payload_count": 87,
-  "supersedes": "c276164c9eb96503 (slice 2b)",
+  "payload_count": 96,
+  "supersedes": "ENV11-562cde67b7442f26",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -111,13 +111,13 @@
     },
     {
       "path": "docs/process/RESUME.md",
-      "bytes": 29034,
-      "sha256": "7c4f28c278e41755a7e0696a534996a1e8e79188874a4f1ea185a01c6bb57ea5"
+      "bytes": 35119,
+      "sha256": "5f1e952c514fd305ac4224e72ef50733468be5c3ab8cb19b28dd133a13dae286"
     },
     {
       "path": "docs/process/audits/2026-08-24-slice-11-audit-common-brief.md",
-      "bytes": 4932,
-      "sha256": "723c0b2feb22e170d80dcc07454d3d746e558d52b8d143115a79ef27247d7d44"
+      "bytes": 6720,
+      "sha256": "4a59ea40976ba8845aae5e62319a4bbbc037d1525af997994d36ba076d37f8aa"
     },
     {
       "path": "docs/process/audits/2026-08-24-slice-11-audit-dispositions.md",
@@ -146,8 +146,8 @@
     },
     {
       "path": "docs/process/audits/2026-08-25-slice-11-audit-dispositions-rounds-1-6.md",
-      "bytes": 43030,
-      "sha256": "07415207a8aa58ddfe1529abbf9148390c74a3baabd8d56835913d1fb5456210"
+      "bytes": 68725,
+      "sha256": "06a269e63b5ecf83fef52c09467d31f7e037723633780411a51408036d11da84"
     },
     {
       "path": "docs/process/audits/2026-08-25-slice-11-audit-round-3-brief.md",
@@ -181,8 +181,13 @@
     },
     {
       "path": "docs/process/audits/2026-08-25-slice-11-audit-round-7-brief.md",
-      "bytes": 7541,
-      "sha256": "1511747d7ef486293615f0b2d309026b8b38f7e1ecb720805a12921a6cb5e328"
+      "bytes": 7840,
+      "sha256": "8f47768d92b33238309d237d3b59f0734696b36d06d9179acbb52c355f2ebfdc"
+    },
+    {
+      "path": "docs/process/audits/2026-08-25-slice-11-audit-round-7-findings.md",
+      "bytes": 22388,
+      "sha256": "c30e9dc367c61eb67121f05ab8ab1595c41166e70c62054e5a61cc7c017b25e3"
     },
     {
       "path": "docs/process/audits/briefs/fix-A-storyboard-text.md",
@@ -285,6 +290,36 @@
       "sha256": "bae18bd97ab1e31ec5b742a15d293d0cb0153c18bf07d115e7b1805b1280d0f3"
     },
     {
+      "path": "docs/process/audits/fidelity-before/README.md",
+      "bytes": 2019,
+      "sha256": "05bef1947bd9e868a3f5860ef384a732b498c647f395b1059cdf843101bfaeb3"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-CC-live-shift-board.png",
+      "bytes": 297225,
+      "sha256": "e34369a7232d57c99af10941e26fbd2728662851677719bf306e1f9e9ef954d8"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-DOH-hub-landing.png",
+      "bytes": 225063,
+      "sha256": "5b1f20890026a1db9b77ef1e0a9ae65bd03c230e347d748ddffb9249bd5642c5"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-FL-run-player.png",
+      "bytes": 283440,
+      "sha256": "21c4398127e6f9009b735a9133e066a06fc9812f46f17fd328f89c6d58af0420"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-SA-tenants-lifecycle-and-pilots.png",
+      "bytes": 315820,
+      "sha256": "a13ad6b329f00f0f3bed7b46ba0c42aabb068120ef010c8fd9c57983b6f88917"
+    },
+    {
+      "path": "docs/process/audits/fidelity-before/SURF-STU-workflow-builder.png",
+      "bytes": 334239,
+      "sha256": "128f4777dd7a060abedd353c5847c36fccf64c0f092d68e113afa794581e3bf7"
+    },
+    {
       "path": "docs/process/claude-hooks/CLAUDE.md",
       "bytes": 4727,
       "sha256": "89a74c4a0db12ab6272ec16b41a8147fc7daf52c98ad11dd069d6a128f71ddad"
@@ -301,8 +336,8 @@
     },
     {
       "path": "docs/process/ledgers/approval-ledger.json",
-      "bytes": 32926,
-      "sha256": "617746db9dfca53e8ef0c378e4cfce92bdeeead00020683fc62a10268ccf9caa"
+      "bytes": 40458,
+      "sha256": "b7e15c33085bbcc0cfd80d5a0237e160fb73b9aacec925637e3c6e060ee92647"
     },
     {
       "path": "docs/process/ledgers/capability-preflight-matrix.json",
@@ -316,8 +351,8 @@
     },
     {
       "path": "docs/process/ledgers/invocation-evidence-ledger.json",
-      "bytes": 47094,
-      "sha256": "69a7b7686a7524a6574cd3643af2e8d7fe3a07241a9d10f201d97a508bb1bee5"
+      "bytes": 49031,
+      "sha256": "1a547b76b898d47a4cb29a7a316c92f25d14adc686775e0ff6aae44ebbddb0df"
     },
     {
       "path": "docs/process/ledgers/loop-ledger.json",
@@ -326,8 +361,8 @@
     },
     {
       "path": "docs/process/ledgers/product-candidate-manifest.json",
-      "bytes": 184440,
-      "sha256": "93a3168fe21fba7288347b1a2b05c0e91534dfa673c73a1b95df15b8e4834c27"
+      "bytes": 204257,
+      "sha256": "52c2d7cb4d7c301cfe6c0a454699d10c8c94477358841a98071a5bcb717936da"
     },
     {
       "path": "docs/process/ledgers/research-ledger.json",
@@ -346,8 +381,8 @@
     },
     {
       "path": "docs/process/ledgers/verification-ledger.json",
-      "bytes": 48902,
-      "sha256": "bfc7030606d6f70be1fbc81cc5012c6d1055c4048ec84ccb75fdf6a2dee89700"
+      "bytes": 49985,
+      "sha256": "8e49bc3d858622464399ef3aee774812f9c709bee5aa2a017bb64bfca2cbaa3d"
     },
     {
       "path": "docs/process/master-prompt/AVIIXA_Interactive_Storyboard_Master_Prompt_v1.0.md",
@@ -425,6 +460,11 @@
       "sha256": "5a6adb17121c9637df7cd5cdf6da69d0209715d06125ef3d1f69014bd1049ca9"
     },
     {
+      "path": "docs/superpowers/plans/2026-08-26-runway.md",
+      "bytes": 70652,
+      "sha256": "760045363c92b99522e07c53f4922182eb23911fe0b1f3d793d4fc35a8f3b232"
+    },
+    {
       "path": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
       "bytes": 45040,
       "sha256": "e9dac281fc76db96de06d35dbc369844f7a5c22e67c41199c2e48ac19e92d305"
@@ -458,6 +498,11 @@
       "path": "docs/superpowers/specs/2026-08-20-slice-05-studio-authoring-design.md",
       "bytes": 35736,
       "sha256": "dc1f3f4ed7a65dd31b220c84384825029e55a0cad85c5eb8b9e4b0623006a191"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-26-product-fidelity-rebuild-design.md",
+      "bytes": 19124,
+      "sha256": "7009f5121702e4e144f984a0dd7e892fbbeee273ccd5045723858cf57125da60"
     }
   ]
 }

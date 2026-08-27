@@ -83,7 +83,7 @@ export const workflowDefinitions = [
     bumpClassification: 'major',
     // Not a republish -- the very first publish of the workflow carries no
     // mandatory republish description; that field applies to a republish
-    // (§7.3.3, L7228: "Every republish requires a mandatory republish
+    // (§7.3.3, L7229: "Every republish requires a mandatory republish
     // description"), and a first publish is not a republish.
     republishDescription: null,
     laneBRoute: false,
@@ -93,7 +93,7 @@ export const workflowDefinitions = [
   // note) and the seat-post-clamp / chainring torque specs retightened per
   // engineering change order, matching the source's own MINOR definition
   // ("changes to what the worker does ... screens added or removed",
-  // §7.3.3 class table, L7269). This is the current published version and
+  // §7.3.3 class table, L7279). This is the current published version and
   // the id `WFD-BB-FRAME-ASSY` (bare, no version suffix) names it, since it
   // is the row every downstream reference (jobs, tours, the pinned
   // package) means by "the workflow".

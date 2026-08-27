@@ -68,7 +68,7 @@ export const User = z.object({
    * the actual named state for exactly this case: its own
    * `stateDiagram-v2` names `Suspended` ("Active --> Suspended... login
    * refused, records retained") triggered explicitly by "personnel
-   * decision, OR TENANT COMPLIANCE SUSPENSION" (L18937), and `AC-15-01`
+   * decision, OR TENANT COMPLIANCE SUSPENSION" (L18977), and `AC-15-01`
    * (L19031) requires "no account can occupy an undeclared state" among
    * its nine. `locked` is not one of the nine and had no other citation;
    * this is §15.1 governing over an unsourced guess, not a genuine

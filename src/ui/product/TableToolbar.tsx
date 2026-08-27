@@ -73,7 +73,7 @@ export function TableToolbar<T>({
       {(filters ?? []).map((filter) => {
         const filterId = `${idPrefix}-filter-${filter.key}`
         return (
-          <div key={filter.key} className="flex flex-col gap-1">
+          <div key={filter.key} className="flex min-w-0 max-w-full flex-col gap-1">
             <label htmlFor={filterId} className={`text-xs font-medium ${textColor('ink-muted')}`}>
               {filter.label}
             </label>
@@ -83,7 +83,7 @@ export function TableToolbar<T>({
               value={filterValues[filter.key] ?? ''}
               onChange={(e) => onFilterChange(filter.key, e.target.value)}
               data-control-id={filterId}
-              className={`${radiusClass('md')} border ${borderColor('border-strong')} ${bg('surface')} ${textColor('ink')} px-3 py-1.5 text-sm ${controlMinClass('comfortable')}`}
+              className={`w-full max-w-[13rem] truncate ${radiusClass('md')} border ${borderColor('border-strong')} ${bg('surface')} ${textColor('ink')} px-3 py-1.5 text-sm ${controlMinClass('comfortable')}`}
             >
               <option value="">All</option>
               {filter.options.map((opt) => (

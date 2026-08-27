@@ -74,19 +74,24 @@ const DEFAULT_PERSONA_ID: RoleId = 'SUPERVISOR'
 
 export type FailureInjectionMode = 'none' | 'network-error' | 'validation-error' | 'permission-denied'
 
-export const FAILURE_INJECTION_MODES: readonly FailureInjectionMode[] = [
+export const FAILURE_INJECTION_MODES = [
   'none',
   'network-error',
   'validation-error',
   'permission-denied',
-]
+] as const satisfies readonly FailureInjectionMode[]
 
 /**
  * Reviewer bookmarks over the story, not product state — nothing in
  * `src/data` reads this today. Kept short and honestly labelled rather than
  * invented as a longer fake itinerary.
  */
-export const DEMO_CHECKPOINTS: readonly string[] = ['Shift start', 'Mid-shift', 'End of shift', 'Reconciled']
+export const DEMO_CHECKPOINTS = [
+  'Shift start',
+  'Mid-shift',
+  'End of shift',
+  'Reconciled',
+] as const satisfies readonly string[]
 
 /* ────────────────────────────────────────────────────────────────────── *
  * DemoControllerContext — the reviewer's own tool: scenario, checkpoint,

@@ -14,11 +14,11 @@ pnpm build
 generators read the frozen blueprint and the route tree, so **the export's coverage dashboards
 describe the export being built**, not a previous one.
 
-Output: `out/` — **102 pages, 668 files, roughly 45 MiB** (rounded to the nearest 5).
+Output: `out/` — **826 pages, 4289 files, roughly 80 MiB** (rounded to the nearest 5).
 
 Those three figures are asserted against the export itself by
 `tests/coverage/client-document-figures.test.ts`. This line read "85 pages, roughly 24MB across 485
-files" for three slices while the export held 102 pages and 668 files, and nothing could say so:
+files" for three slices while the export held 826 pages and 4289 files, and nothing could say so:
 the manifest gate checked the manifest, the route gate checked routes, and no gate read this
 sentence.
 
@@ -78,7 +78,7 @@ pnpm screenshots        # roughly two minutes
 ```
 
 The PNGs are gitignored and rebuilt from the export; `docs/screenshots/manifest.json` is
-committed — **102 rows, roughly 300 MiB of PNG** (rounded to the nearest 5). Run both before a
+committed — **826 rows, roughly 380 MiB of PNG** (rounded to the nearest 5). Run both before a
 client review so the manifest matches what is deployed.
 
 `pnpm screenshots` does not rebuild the export. It serves the `out/` that already exists, so a

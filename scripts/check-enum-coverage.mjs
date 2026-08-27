@@ -64,7 +64,7 @@ const ALLOWLIST = [
   // and account lifecycle" (L18914-L19140), the dedicated deep-dive chapter for exactly this
   // object, whose own `stateDiagram-v2` names a `Suspended` state ("Active --> Suspended...
   // Suspended, login refused, records retained") triggered by "personnel decision, or tenant
-  // compliance suspension" (L18937). Seeded: `USR-BB-WKR-15` (Camille Dubois) is `'suspended'`
+  // compliance suspension" (L18977). Seeded: `USR-BB-WKR-15` (Camille Dubois) is `'suspended'`
   // for the personnel-decision trigger.
   //
   // Fix round 2: TEN-MERIDIAN's four `locked` users (deferred in round 1) and the standing

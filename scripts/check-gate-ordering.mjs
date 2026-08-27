@@ -395,23 +395,6 @@ const AUDITED = {
     verdict:
       'MOSTLY VACUOUS AND HARMLESS. Its two existence checks assert that build produced files build just produced -- smoke checks, disclosed rather than removed. Its one content check is real.',
   },
-  'workflow-index.test.ts': {
-    subject:
-      'out/workflows/index.html and out/coverage/**, compared against ' +
-      'registries/generated/workflows.json, registries/generated/source-reconciliation.json ' +
-      'and the committed master-prompt artefact',
-    rewrittenBy: 'build',
-    runsBeforeBuild: false,
-    verdict:
-      'NOT VACUOUS, and the entry was widened when R4-B07 and R4-B08 were added -- it used to ' +
-      'read "authored workflow sources", which stopped being the whole subject the moment the ' +
-      'file started reading out/. `build` writes one end and runs first, and what makes that ' +
-      'safe is the other end: the generated workflows registry and the hand-authored ' +
-      'reconciliation report are INPUTS to the page, and the master prompt artefact is a ' +
-      'committed document no verify step writes. Every figure the page is held to is recomputed ' +
-      'from one of those three, never read back out of out/, so build cannot satisfy the gate ' +
-      'by rewriting what it compares against.',
-  },
   'reconciliation-table.test.ts': {
     subject:
       'out/coverage/index.html, compared against registries/generated/source-reconciliation.json, ' +

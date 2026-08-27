@@ -767,7 +767,7 @@ for (let i = 0; i < GEN_RUN_COUNT; i++) {
         workflowVersion: wfVersion,
         severityBand,
         agentInterpretation: `Reading outside the pinned specification window, classified Severity ${severityBand}.`,
-        // Only Severity 1 auto-launches a containment checklist (L7385) --
+        // Only Severity 1 auto-launches a containment checklist (L7388) --
         // Severity 2/3 deliberately carry none here, the same asymmetry
         // DEV-BB-SEV2-01 documents in scripts/seed-fixtures/task5-hub.mjs.
         containmentChecklistId: severityBand === 1 ? (wi.containmentChecklistId ?? null) : null,

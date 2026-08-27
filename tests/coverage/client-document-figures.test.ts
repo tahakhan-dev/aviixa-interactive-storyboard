@@ -474,6 +474,22 @@ describe('the four client documents describe the build that exists', () => {
   it('accounts for exactly the pages that name no identifier', () => {
     const coverageEmpty = emptyIdentifierRoutes.filter((r) => r.startsWith('/coverage/'))
     const otherEmpty = emptyIdentifierRoutes.filter((r) => !r.startsWith('/coverage/'))
+    /*
+     * Fix round 1 (Task 17): `/workflows/*` split out of `otherEmpty` and
+     * checked as a COUNT, not an enumeration. `namedInReadme` below asserts
+     * an EXACT SET of individually-named routes, which was right at eleven
+     * — a human names eleven things. Task 17 put 724 of them (the index
+     * plus 723 detail cards) in this population, most keyed on ids the
+     * regex two lines below cannot even represent (`SB-004@L61093`,
+     * `unstated (measurement lifecycle)`, an em dash) since it accepts only
+     * `[a-z0-9_/-]`. Naming 724 near-identical routes one at a time would
+     * not make the document more checkable, only longer than any reader
+     * would read — the gate's own enumeration design does not reach a
+     * uniform class this size, and the fix is a real count assertion over
+     * that class, not a padded bullet list built to satisfy a set equality.
+     */
+    const workflowsEmpty = otherEmpty.filter((r) => r.startsWith('/workflows/'))
+    const smallEmpty = otherEmpty.filter((r) => !r.startsWith('/workflows/'))
 
     expect(stated(SHOTS_README, /\*\*(\d+) pages name no identifier\*\*/)).toEqual([
       String(emptyIdentifierRoutes.length),
@@ -493,9 +509,19 @@ describe('the four client documents describe the build that exists', () => {
       .join(' ')
     const namedInReadme = [...new Set(bullets.match(/`(\/[a-z0-9_/-]*)`/g) ?? [])]
       .map((m) => m.replace(/`/g, ''))
-      .filter((r) => r.endsWith('/') && !r.startsWith('/coverage/'))
+      .filter((r) => r.endsWith('/') && !r.startsWith('/coverage/') && !r.startsWith('/workflows/'))
       .sort()
-    expect(namedInReadme, 'non-/coverage/ routes the README accounts for').toEqual(otherEmpty)
+    expect(namedInReadme, 'non-/coverage/, non-/workflows/ routes the README accounts for').toEqual(
+      smallEmpty,
+    )
+    // The /workflows/* count, checked by equality against the measured
+    // population — never a floor, so a 725th empty card still reds this.
+    expect(
+      stated(
+        SHOTS_README,
+        /(\d+) of its 724 `\/workflows\/<id>\/` detail cards/,
+      ),
+    ).toEqual([String(workflowsEmpty.length - 1)])
 
     const cc = manifest.rows.find((r) => r.route === '/command-center/')
     expect(stated(SHOTS_README, /`\/command-center\/` names (\d+) identifiers/)).toEqual([

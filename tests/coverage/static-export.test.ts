@@ -3,6 +3,7 @@ import { existsSync, readdirSync, statSync } from 'node:fs'
 import { basename, dirname, join, relative, sep } from 'node:path'
 import { isForeignProbe, isOrphanProbe } from '../probe-paths'
 import { REGISTRY_DESCRIPTORS } from '@/coverage/descriptors'
+import { allWorkflowIndexIds } from '@/registry/workflow-index'
 
 const OUT = join(process.cwd(), 'out')
 
@@ -89,17 +90,25 @@ function authoredRoutes(): readonly string[] {
     .map((rel) => (rel === '' ? '/' : `/${rel.split(sep).join('/')}/`))
     .flatMap((route) => {
       if (!route.includes('[')) return [route]
-      // The ONE dynamic route this build has. A second one must be taught
-      // here rather than silently dropping its whole expansion out of the
-      // expected population -- which is why this throws instead of skipping.
-      if (!route.includes('[registry]')) {
-        throw new Error(
-          `${route} is a dynamic route this gate does not know how to expand. Teach it the ` +
-            'route’s own generateStaticParams source, the way [registry] reads ' +
-            'REGISTRY_DESCRIPTORS.',
-        )
+      // Fix round 1 (Task 17): TWO dynamic routes now. A third must be
+      // taught here rather than silently dropping its whole expansion out
+      // of the expected population -- which is why this throws instead of
+      // skipping.
+      if (route.includes('[registry]')) {
+        return REGISTRY_DESCRIPTORS.map((d) => route.replace('[registry]', d.slug))
       }
-      return REGISTRY_DESCRIPTORS.map((d) => route.replace('[registry]', d.slug))
+      if (route.includes('[workflowId]')) {
+        // The route's own `generateStaticParams` source
+        // (`app/workflows/[workflowId]/page.tsx`) reads `allWorkflowIndexIds()`
+        // -- the same 724 ids `out/workflows/*` is built from, unencoded, since
+        // the static export writes each directory under the literal decoded id.
+        return allWorkflowIndexIds().map((id) => route.replace('[workflowId]', id))
+      }
+      throw new Error(
+        `${route} is a dynamic route this gate does not know how to expand. Teach it the ` +
+          'route’s own generateStaticParams source, the way [registry] reads ' +
+          'REGISTRY_DESCRIPTORS.',
+      )
     })
   return [...routes, ...FRAMEWORK_ROUTES].sort()
 }

@@ -1372,6 +1372,19 @@ const CLIENT_DATA_EXPORT_OFFENDERS: readonly { readonly file: string; readonly r
       'and its component suite reads. `page.tsx` imports the component alone. Fix: a sibling ' +
       '`fixtures.ts` server module.',
   },
+  {
+    file: 'src/ui/demo/DemoChrome.tsx',
+    reason:
+      'Fix round 1 (Task 17): pre-existing, not touched by this task, first caught when this ' +
+      'gate ran full-tree. Two array-literal exports — FAILURE_INJECTION_MODES and ' +
+      'DEMO_CHECKPOINTS — are the demo-chrome vocabulary its own client sibling components ' +
+      'read: `RoleSimulator.tsx`, `PropagationDrawer.tsx` and `ScenarioControls.tsx`, all three ' +
+      "`'use client'`, all three in `src/ui/demo/`. `app/layout.tsx` imports only the " +
+      '`<DemoChrome />` component, never these bindings, and `src/data/schemas/crosscutting.ts` ' +
+      'names both in a doc comment only, not an import — checked, no server file crosses the ' +
+      'boundary for either. Fix: a sibling `constants.ts` client module, the same split the ' +
+      '`fixtures.ts` shape uses above, if a server file ever needs to read one.',
+  },
 ]
 
 /** The names a file exports as plain data — the bindings a server component
@@ -1408,7 +1421,15 @@ describe('slice 9 gate 11: a client file exports components, never plain data', 
     }
     // Every client file exports at least one function, so the sweep is over
     // components rather than over an empty set that trivially satisfies it.
-    for (const f of clients) expect(read(f)).toMatch(/^export (?:default )?function \w+/m)
+    // Fix round 1 (Task 17): widened to admit `export const X = forwardRef(`
+    // — `src/ui/product/ErrorSummary.tsx` (pre-existing, first reached once
+    // the offender list above matched and this line stopped short-circuiting
+    // on it) exports its only component that way, a real React pattern for a
+    // ref-forwarding component, not a plain-data export the boundary check
+    // above cares about.
+    for (const f of clients) {
+      expect(read(f)).toMatch(/^export (?:default )?function \w+|^export const \w+ = forwardRef\b/m)
+    }
     // NON-VACUITY, on this run: the predicate fires on both shapes it names.
     expect(PLAIN_DATA_EXPORT.test('export const OWN_ACTS = [\n')).toBe(true)
     expect(PLAIN_DATA_EXPORT.test('export const CFG: Shape = {\n')).toBe(true)
@@ -1591,7 +1612,15 @@ describe('slice 9 gate 12: every module file reaches a route, or declares that i
       'these files are imported by nothing reachable from app/ and carry no sentence saying so; ' +
         'the difference between an abstention and an oversight is that the abstention says so',
     ).toEqual([
-      'src/surfaces/cc/access.ts',
+      // `src/surfaces/cc/access.ts` REMOVED here, fix round 1 (Task 17): it
+      // is no longer unreached. `app/workflows/WorkflowIndex.tsx` and
+      // `app/workflows/[workflowId]/WorkflowCard.tsx` are the first `app/`
+      // files ever to import `AppShell` (via the `@/ui/product` barrel,
+      // `export * from './AppShell'`), and `AppShell.tsx` itself imports
+      // `isCcExcludedRole` from `@/surfaces/cc/access` — a real three-hop
+      // chain from a real route, not a declaration this file needed to add.
+      // Checked: no other `app/` file imported `AppShell` before this task.
+      //
       // AND THIS ONE DECLARES THE OPPOSITE. Its header says the rail mounts
       // inside the module screens; the wave-1 ruling is that the control rail
       // under cc-13 is the one that mounts and this module card is not. So

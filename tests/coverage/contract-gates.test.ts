@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, sep } from 'node:path'
 import { stripComments } from './strip-comments'
 import { isForeignProbe } from '../probe-paths'
 
@@ -205,8 +205,24 @@ describe('contract gates', () => {
   // AC-4830: 'synced' is never a state name anywhere in the product.
   // Comment-stripped for the same reason as above: a comment explaining
   // that 'synced' is forbidden as a state name must not trip this gate.
+  //
+  // EXCLUSION: `src/tours/**` (controller ruling, fix round 1), the same
+  // directory and the same reasoning as the `AC-AI-015-5` scan in
+  // `tests/unit/ai-controls-stop.test.ts`. AC-4830's `state`/`status` is a
+  // claim about a device, capture, or notification's own recorded state;
+  // `src/tours/runner.ts`'s `TourRunnerStatus` (`'idle' | 'playing' |
+  // 'paused' | 'failed' | 'done'`) is the narration engine's own reducer
+  // state for a guided walkthrough of the UI a human is already looking
+  // at -- it names no device, capture or notification, and setting it to
+  // `'done'` asserts nothing about one. `src/tours/` only entered this
+  // tree-wide scan's population the day this check first ran full-tree;
+  // nobody had checked it against this rule until now. Measured over the
+  // rest of `src/` (minus the exclusion): zero offenders, so no further
+  // exemption is needed and none is granted.
   it('uses none of the forbidden words as a state name', () => {
-    const offenders = SRC.filter((f) =>
+    // `SRC` entries are `walk('src')`'s own relative paths (e.g.
+    // `src/tours/runner.ts`), so the exclusion matches on that same form.
+    const offenders = SRC.filter((f) => !f.startsWith(join('src', 'tours') + sep)).filter((f) =>
       /(state|status)\s*[:=]\s*['"](synced|sent|done)['"]/i.test(STRIPPED.get(f)!),
     )
     expect(offenders).toEqual([])
