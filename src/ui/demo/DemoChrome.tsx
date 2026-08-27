@@ -5,9 +5,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from 'react'
+import { useRouter } from 'next/navigation'
 import { boot } from '@/data/boot'
 import { scenarioStateFor, type AccessContext, type Repository } from '@/data/repository'
 import type { Store } from '@/data/store'
@@ -15,11 +18,16 @@ import { CANONICAL_EPOCH_MS, fixedClock, type Clock } from '@/domain/clock'
 import { tenantId, type TenantId } from '@/domain/ids'
 import { ROLES, type RoleId } from '@/domain/roles'
 import type { ConnectivityMode } from '@/scenario/controls'
+import { createTourRunner } from '@/tours/runner'
+import { listTours } from '@/tours/registry'
+import type { TourDefinition, TourHost, TourRunner, TourRunnerState } from '@/tours/types'
 import type { ProductSession } from '@/ui/product/AppShell'
 import { useChromeVisibility } from './useChromeVisibility'
 import { RoleSimulator } from './RoleSimulator'
 import { ScenarioControls } from './ScenarioControls'
 import { Inspector } from './Inspector'
+import { TourOverlay } from './tour/TourOverlay'
+import { ToursMenu } from './tour/ToursMenu'
 
 /**
  * Task 14 — `src/ui/demo/` is the reviewer's out-of-product tool. This file
@@ -175,6 +183,57 @@ function reviewerAccessContext(store: Store): AccessContext {
 }
 
 /* ────────────────────────────────────────────────────────────────────── *
+ * TourRunnerContext — Task 16. The ONE `TourRunner` instance this session
+ * uses (Task 15's engine, `@/tours/runner`), shared by `WatchButton`,
+ * `ToursMenu` and `TourOverlay` — all three are "index rows and screens" /
+ * chrome consumers of the same running tour, never a second runner each.
+ * `runner` is `null` until `boot()` (above) resolves — a tour needs the
+ * SAME repository/tours data every other reviewer tool waits on, so this
+ * follows the identical null-until-ready shape as `DemoDataApi` rather than
+ * inventing a second "not ready yet" convention.
+ * ────────────────────────────────────────────────────────────────────── */
+
+export interface TourRunnerApi {
+  readonly runner: TourRunner | null
+  readonly tours: readonly TourDefinition[]
+}
+
+const TourRunnerContext = createContext<TourRunnerApi>({ runner: null, tours: [] })
+
+export function useTourRunnerApi(): TourRunnerApi {
+  return useContext(TourRunnerContext)
+}
+
+// Module-level, not an inline arrow in the hook below: `useSyncExternalStore`
+// re-subscribes whenever the `subscribe` function reference changes, and an
+// inline `() => () => {}` is a NEW reference every render — exactly the
+// "effect keyed on a value that churns" class this build keeps producing
+// (task brief). A `runner === null` caller never actually has anything to
+// subscribe to, so the fallback only needs to be referentially STABLE, not
+// distinct per call.
+const NOOP_SUBSCRIBE = () => () => {}
+
+/**
+ * Reactive read of the shared runner's state — re-renders the caller on
+ * every `TourRunner#subscribe` notification. `TourOverlay` and `ToursMenu`
+ * both need this (spotlight/caption/controls react to every step; the menu's
+ * per-row status pill reacts to the same state) — one hook, not two
+ * hand-rolled subscriptions to the same store.
+ */
+export function useTourRunnerState(): TourRunnerState | null {
+  const { runner } = useTourRunnerApi()
+  return useSyncExternalStore(
+    runner ? runner.subscribe : NOOP_SUBSCRIBE,
+    () => runner?.state ?? null,
+    // Server snapshot: this app is a static export (see `next.config.ts`) —
+    // there is no tour running during prerender, matching
+    // `useChromeVisibility`'s own "chrome carries zero markup before
+    // hydration" property.
+    () => null,
+  )
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
  * DemoChrome
  * ────────────────────────────────────────────────────────────────────── */
 
@@ -270,6 +329,39 @@ export function DemoChrome() {
     }
   }, [dataState])
 
+  // `router` itself is not a stable reference across renders; a `ref` kept
+  // current every render (safe — Next.js's own docs use this exact "always
+  // current" ref pattern) means `tourHost.navigate` reads the LATEST router
+  // at call time without `tourHost` itself needing `router` in its own
+  // dependency array. That is what keeps `tourHost` — and therefore, below,
+  // the `TourRunner` built from it — from being torn down and rebuilt on
+  // every render: the defect class the brief names, applied to the one
+  // effect-adjacent value in this file most exposed to it (a tour is
+  // mid-autoplay the instant a re-render would otherwise hand it a NEW
+  // host/runner it never subscribed to).
+  const router = useRouter()
+  const routerRef = useRef(router)
+  routerRef.current = router
+  const tourHost: TourHost = useMemo(
+    () => ({
+      navigate(route: string) {
+        routerRef.current.push(route)
+      },
+    }),
+    [],
+  )
+
+  // Built once repository/reviewerAccess are ready, and never again after
+  // that — `demoData` is itself stable once `dataState` resolves (see its
+  // own `useMemo` above), so this only ever transitions null -> one runner,
+  // matching `createTourRunner`'s own contract: `tours` is handed to it
+  // once, at construction, not re-read on every render.
+  const tourRunnerApi: TourRunnerApi = useMemo(() => {
+    if (!demoData.repository || !demoData.reviewerAccess) return { runner: null, tours: [] }
+    const tours = listTours(demoData.repository, demoData.reviewerAccess)
+    return { runner: createTourRunner(tours, tourHost), tours }
+  }, [demoData, tourHost])
+
   // THE PROPERTY THIS FUNCTION EXISTS TO GUARANTEE: every hook above still
   // ran, so `show()` (reachable only through the hotkey while hidden — see
   // `useChromeVisibility`) keeps working. But the JSX below is `null`, so
@@ -282,14 +374,23 @@ export function DemoChrome() {
     <DemoControllerContext.Provider value={controller}>
       <ProductSessionContext.Provider value={productSessionValue}>
         <DemoDataContext.Provider value={demoData}>
-          <DemoChromeBar onHide={hide} />
+          <TourRunnerContext.Provider value={tourRunnerApi}>
+            <DemoChromeBar onHide={hide} />
+            {/* Task 16 — the overlay is its own top-level demo node, not
+                nested inside `DemoChromeBar`'s panel toggles: it must be
+                visible regardless of which chrome panel (if any) is open,
+                and it disappears along with everything else here the
+                instant `hidden` is true (this whole function already
+                returned `null` above when that's the case). */}
+            <TourOverlay />
+          </TourRunnerContext.Provider>
         </DemoDataContext.Provider>
       </ProductSessionContext.Provider>
     </DemoControllerContext.Provider>
   )
 }
 
-type OpenPanel = 'none' | 'scenario' | 'inspector'
+type OpenPanel = 'none' | 'scenario' | 'inspector' | 'tours'
 
 /**
  * The visible bar. Deliberately NOT the product design system: monospace
@@ -337,6 +438,16 @@ function DemoChromeBar({ onHide }: { onHide: () => void }) {
         >
           Inspector
         </button>
+        <button
+          type="button"
+          data-control-id="demo-tours-toggle"
+          data-demo="control"
+          aria-expanded={openPanel === 'tours'}
+          onClick={() => toggle('tours')}
+          className="rounded border border-[#f5d90a] px-2 py-1 hover:bg-[#2a1a4a]"
+        >
+          Tours
+        </button>
         <span className="ml-auto hidden text-[10px] text-[#c9b3ff] sm:inline">Alt+Shift+D toggles chrome</span>
         <button
           type="button"
@@ -353,6 +464,9 @@ function DemoChromeBar({ onHide }: { onHide: () => void }) {
       </Panel>
       <Panel open={openPanel === 'inspector'} label="panel-inspector">
         <Inspector />
+      </Panel>
+      <Panel open={openPanel === 'tours'} label="panel-tours">
+        <ToursMenu />
       </Panel>
     </div>
   )
