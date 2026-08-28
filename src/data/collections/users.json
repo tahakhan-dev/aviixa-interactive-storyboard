@@ -1043,5 +1043,16 @@
     "locale": "en",
     "createdAt": "2025-03-11T10:00:00Z",
     "lastSignInAt": "2025-11-30T15:00:00Z"
+  },
+  {
+    "id": "USR-GH-ADM-01",
+    "tenantId": "TEN-GRANITEHOLLOW",
+    "displayName": "Felix Okoro",
+    "email": "felix.okoro@granitehollowtooling.example",
+    "role": "TENANT_ADMIN",
+    "status": "invited",
+    "locale": "en",
+    "createdAt": "2026-02-28T09:05:00Z",
+    "lastSignInAt": null
   }
 ]

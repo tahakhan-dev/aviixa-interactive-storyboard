@@ -26,9 +26,11 @@ import {
   type RuntimeData,
 } from './useRepository'
 import {
+  resolveInvitationAcceptance,
   resolveSignIn,
   resolveStepUpCompletion,
   SIGNED_OUT,
+  type InvitationAcceptanceResult,
   type ProductSessionApi,
   type ProductSessionState,
   type SignInOutcome,
@@ -114,6 +116,20 @@ export function ProductRuntime({ children }: { children: ReactNode }) {
         // it was (still `step-up-required`) — the root does not land, and
         // the screen's own acknowledgement panel stays on screen because
         // nothing here cleared it.
+        return result
+      },
+      // Task 8 (unit-01) — the Hub's own landing path. Unlike
+      // `completeStepUp` above, this has no pending outcome to guard: an
+      // invitation-acceptance visitor never went through `signIn` at all,
+      // so there is no `lastOutcome` state machine to be mid-way through.
+      // `session.ts#resolveInvitationAcceptance` does the actual work; this
+      // wiring only lands the resulting session, exactly as `signIn` and
+      // `completeStepUp` do above.
+      async acceptInvitation(tenantId: string): Promise<InvitationAcceptanceResult> {
+        const result = await resolveInvitationAcceptance(runtimeData.repository, tenantId)
+        if (result.kind === 'signed-in') {
+          setSessionState({ session: result.session, sessionId: result.session.identityId, lastOutcome: null })
+        }
         return result
       },
     }),

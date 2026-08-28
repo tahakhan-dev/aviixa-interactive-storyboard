@@ -171,6 +171,23 @@ export interface Repository {
     reason: string | null,
     ctx: AccessContext,
   ): Promise<WriteResult<RowOf<'approval-requests'>>>
+  /**
+   * Task 8 (unit-01) — the fourth door: a tenant's first `TENANT_ADMIN`
+   * accepting the invitation `provisionTenant` issued, on the Hub surface,
+   * before any `ProductSession` exists for them. No `ctx: AccessContext`
+   * parameter — deliberately, matching the precedent already set by
+   * `subscribe`/`reset`/`exportJson`/`importJson`/`persistenceCapability`
+   * below, which also carry no `ctx` — because there is no signed-in
+   * identity for a caller to supply yet: that is the entire reason this
+   * door exists rather than the caller going through `update()`. The
+   * authority question this door answers is never "is the CALLER entitled"
+   * (nobody is signed in to ask that about) but "does THIS ROW, found fresh
+   * from the tenant id alone, still describe a live, acceptable
+   * invitation" — see this method's own implementation comment for the
+   * guards, the probe against the other three doors' own failure modes,
+   * and why `evaluateAccess`'s role stage is not called here at all.
+   */
+  acceptInvitation(tenantId: string): Promise<AcceptInvitationResult>
   subscribe(listener: () => void): () => void
   reset(): void
   exportJson(): Record<CollectionName, unknown[]>
@@ -255,6 +272,153 @@ export type InviteConsoleUserResult =
       /** Exactly `createRow`'s own failure shape — see that function. */
       grantFailure: WriteDenied | WritePersistenceUnavailable
     }
+
+/**
+ * Task 8 (unit-01) — no expiry field exists on `User` or `Tenant` for a
+ * console/tenant-admin invitation (`@/data/schemas/platform` carries none),
+ * and the frozen source states no number of its own for THIS invitation:
+ * §30.3.1 (the tenant-admin onboarding narrative) never gives one, and the
+ * one figure the source does state — §15.1 Table A, `TRN-ACC-01`, L18973 —
+ * is explicit that it is not settled: "Invitation validity is not specified
+ * in the Statement of Work. Recommendation: 7 days — `Recommendation — R&D`."
+ * That is the only number the source offers anywhere for an invited
+ * account, so this build reuses it for the tenant admin's own invitation
+ * rather than inventing an unrelated figure — a client-delegated choice
+ * under APP-012, disclosed on screen (`AcceptInvitationScreen.tsx`) with
+ * the alternative (no fixed window at all) named, not only recorded here.
+ * A real, consumed `const`, never a magic number retyped beside the
+ * arithmetic that uses it or the screen text that states it.
+ */
+export const INVITATION_VALIDITY_DAYS = 7
+const INVITATION_VALIDITY_MS = INVITATION_VALIDITY_DAYS * 24 * 60 * 60 * 1000
+
+/**
+ * The tenant lifecycles under which no invitation may be accepted — the
+ * three-state suspension machine (§8.9) plus `archived`; deliberately NOT
+ * `pending-downgrade` (`TENANT_LIFECYCLE_MAP` below maps it to `ACTIVE` —
+ * "still operating while its tier changes, not a suspension") and
+ * deliberately not `invited`/`pilot` (the ordinary, expected state of a
+ * tenant whose first administrator has not yet accepted at all).
+ */
+const INVITATION_BLOCKED_TENANT_LIFECYCLES: ReadonlySet<RowOf<'tenants'>['lifecycle']> = new Set([
+  'soft-suspended',
+  'hard-suspended',
+  'compliance-suspended',
+  'archived',
+])
+
+/**
+ * The four reader-facing outcomes a visitor's OWN invitation link can be
+ * in, `ok` aside. Shared, verbatim, between the write door below (the
+ * write-time authority) and the Hub screen that renders the SAME facts
+ * before a visitor ever clicks Accept (a render-time preview, exactly the
+ * split `TenantDetailScreen.tsx`'s own `activateGate`/`canActivate` keep
+ * from the generic write door they precede) — so the two can never
+ * disagree about which state a given tenant id is in.
+ */
+export type TenantAdminInvitationStatus =
+  | { readonly kind: 'ok'; readonly tenant: RowOf<'tenants'>; readonly admin: RowOf<'users'> }
+  | { readonly kind: 'not-found' }
+  | { readonly kind: 'already-accepted'; readonly tenant: RowOf<'tenants'>; readonly admin: RowOf<'users'> }
+  | {
+      readonly kind: 'expired'
+      readonly tenant: RowOf<'tenants'>
+      readonly admin: RowOf<'users'>
+      readonly invitedAt: string
+      readonly expiresAt: string
+    }
+  | { readonly kind: 'tenant-blocked'; readonly tenant: RowOf<'tenants'>; readonly admin: RowOf<'users'> }
+
+/**
+ * Pure and read-only: takes the live `tenants`/`users` rows and a clock
+ * reading, never the store or a cached selector, so both call sites
+ * (`acceptInvitation` below, reading fresh from `store.get`; the screen,
+ * reading through `repository.list` with its own signed-out read context)
+ * can call it with whatever snapshot they already hold. The admin in
+ * question is always THIS tenant's EARLIEST-CREATED `TENANT_ADMIN` —
+ * `TenantDetailScreen.tsx#firstTenantAdmin`'s own derivation, repeated
+ * here rather than imported (`src/data` may not import from `app/**`,
+ * boundary rule) — so the two screens can never name a different "first"
+ * administrator for the same tenant. Never takes a caller-supplied user
+ * row: the only input identifying WHICH invitation is `tenantId`, a bare
+ * string, so there is no argument for a later branch to discard the way
+ * `provisionTenant`'s pre-fix idempotent retry once did (fix round 3, that
+ * method's own comment) — every fact this function returns is read fresh
+ * from the collections passed in, never from a value the caller already
+ * believed.
+ */
+export function classifyTenantAdminInvitation(
+  tenants: readonly RowOf<'tenants'>[],
+  users: readonly RowOf<'users'>[],
+  tenantId: string,
+  nowMs: number,
+): TenantAdminInvitationStatus {
+  const tenant = tenants.find((t) => t.id === tenantId)
+  if (!tenant) return { kind: 'not-found' }
+
+  const admin = users
+    .filter((u) => u.tenantId === tenant.id && u.role === 'TENANT_ADMIN')
+    .slice()
+    .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0]
+  if (!admin) return { kind: 'not-found' }
+
+  if (admin.status === 'active') return { kind: 'already-accepted', tenant, admin }
+  // `suspended`/`removed`: reachable by no path this unit builds (the seed
+  // carries none, and nothing here suspends or removes an INVITED admin
+  // before acceptance), but handled honestly rather than assumed away —
+  // from this visitor's own point of view there is no live invitation to
+  // accept, the same fact `not-found` already states, so it is not given
+  // a fourth, invented reader-facing name for a case that cannot happen.
+  if (admin.status !== 'invited') return { kind: 'not-found' }
+
+  const expiresAtMs = Date.parse(admin.createdAt) + INVITATION_VALIDITY_MS
+  if (nowMs >= expiresAtMs) {
+    return {
+      kind: 'expired',
+      tenant,
+      admin,
+      invitedAt: admin.createdAt,
+      expiresAt: new Date(expiresAtMs).toISOString(),
+    }
+  }
+
+  if (INVITATION_BLOCKED_TENANT_LIFECYCLES.has(tenant.lifecycle)) {
+    return { kind: 'tenant-blocked', tenant, admin }
+  }
+
+  return { kind: 'ok', tenant, admin }
+}
+
+/**
+ * `acceptInvitation`'s own result. Deliberately NOT a `partial`-shaped
+ * union like `ProvisionTenantResult`/`InviteConsoleUserResult`: this door
+ * makes exactly ONE write (the admin's own `users` row; see this file's
+ * header and this method's own comment for why the tenant's OWN lifecycle
+ * is deliberately NOT touched here), so there is no second write whose
+ * independent failure a `partial` arm would need to name — the smaller
+ * shape `decideApprovalRequest` above already established for the same
+ * reason. Four of the non-`ok` arms are exactly `TenantAdminInvitationStatus`'s
+ * own non-`ok` arms, `ok: false` added, never a second, hand-typed copy of
+ * the same four facts; `WriteDenied`/`WritePersistenceUnavailable` are the
+ * two purely mechanical failures (`truthStoreRefusal`, the §12.4
+ * persistence-capability gate) every other door in this file also carries,
+ * reused via `Extract`, never redeclared.
+ */
+export type AcceptInvitationResult =
+  | { ok: true; user: RowOf<'users'> }
+  | { ok: false; kind: 'not-found' }
+  | { ok: false; kind: 'already-accepted'; tenant: RowOf<'tenants'>; admin: RowOf<'users'> }
+  | {
+      ok: false
+      kind: 'expired'
+      tenant: RowOf<'tenants'>
+      admin: RowOf<'users'>
+      invitedAt: string
+      expiresAt: string
+    }
+  | { ok: false; kind: 'tenant-blocked'; tenant: RowOf<'tenants'>; admin: RowOf<'users'> }
+  | WriteDenied
+  | WritePersistenceUnavailable
 
 /* ────────────────────────────────────────────────────────────────────── *
  * Query
@@ -1197,7 +1361,14 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
     // claim that it does; the invariant this cast relies on — a signed-in
     // identity with a non-null role — still holds, because it comes from
     // `evaluateAccess`'s own SESSION stage, which every one of those
-    // requests goes through).
+    // requests goes through). Task 8 (unit-01) adds the ONE exception:
+    // `acceptInvitation` calls neither `authorizeWrite` nor
+    // `evaluateAccess` (there is no externally-supplied caller identity for
+    // either to check — see that method's own comment) and instead
+    // constructs `ctx.identity` itself, directly, with `signedIn: true` and
+    // a real `RoleId`; the invariant this cast relies on holds there for a
+    // different, but equally real, reason — the field is set by this
+    // repository's own code, not merely assumed.
     const role = ctx.identity.role as RoleId
 
     const event: DomainEvent = {
@@ -1759,6 +1930,113 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
           : { state: 'returned' as const, approverId: approver.id, decidedAt: nowIso, returnReason: reason!.trim() }
 
       return repository.update('approval-requests', id, patch, ctx)
+    },
+
+    /**
+     * Task 8 (unit-01) — see the `Repository` interface's own comment for
+     * why this door takes no `ctx`. Every guard below reads `tenantId` (a
+     * bare string, the ONLY input) against the live `store`, via the exact
+     * same `classifyTenantAdminInvitation` the screen itself previews with
+     * — never a caller-supplied row, so there is no argument for a later
+     * branch to silently discard the way `provisionTenant`'s pre-fix
+     * idempotent retry once did.
+     *
+     * PROBED AGAINST THE OTHER THREE DOORS' OWN FAILURE MODES (this file's
+     * header, `provisionTenant`'s and `inviteConsoleUser`'s comments):
+     * (1) wider than what it replaces on some axis — there IS no generic
+     * door this could widen: `truthStoreFor('users')` is `'platform'`,
+     * whose floor (`PLATFORM_WRITERS`) does not include `TENANT_ADMIN` at
+     * all, so an honestly-attributed self-service acceptance could never
+     * reach `update('users', …)` no matter what `ctx` a caller built —
+     * this door does not loosen an existing capability, it is the only
+     * path this exact write could ever take. (2) a guard reading a caller
+     * argument a later branch discards — impossible by construction: the
+     * only argument is `tenantId`, and both the tenant and the admin row
+     * are re-resolved from it fresh, every guard, via
+     * `classifyTenantAdminInvitation`; there is no "existing" branch that
+     * reuses a different row than the one just checked. (3) a comment
+     * claiming a narrowness the code does not enforce — this comment
+     * claims exactly three things and no more: the row accepted is always
+     * THIS tenant's earliest-created `TENANT_ADMIN` (`classifyTenantAdminInvitation`'s
+     * own `.sort`), the only field this write ever changes is that one
+     * row's `status`/`lastSignInAt` (the `merged` object below spreads
+     * `status.admin` and touches nothing else), and the tenant's OWN
+     * `lifecycle` is never written here — `Activate` (`TenantDetailScreen.tsx`)
+     * remains the only path from `invited` to `pilot`/`active`, matching
+     * that screen's own precondition (`administratorAccepted`) rather than
+     * a second, competing mechanism.
+     */
+    async acceptInvitation(tenantId) {
+      const authority = truthStoreFor('users')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('users', authority)
+
+      const tenants = store.get('tenants') as readonly RowOf<'tenants'>[]
+      const users = store.get('users') as readonly RowOf<'users'>[]
+      const status = classifyTenantAdminInvitation(tenants, users, tenantId, store.clock.now())
+      if (status.kind !== 'ok') {
+        if (status.kind === 'not-found') return { ok: false, kind: 'not-found' }
+        return { ok: false, ...status }
+      }
+
+      const actionClass = actionClassFor('users', authority)
+      if (!permittedUnder(capability.state, actionClass)) {
+        return persistenceRefusal(actionClass, capability, 'Accepting this invitation is not permitted right now.')
+      }
+
+      const nowMs = store.clock.now()
+      const nowIso = new Date(nowMs).toISOString()
+      // §15.1 `TRN-ACC-03`, "Activated on first successful authentication":
+      // the ONE real, schema-carried field this simulated acceptance can
+      // honestly stamp is `lastSignInAt` — there is no password/credential
+      // field on `User` for a storyboard to pretend to store (see the
+      // screen's own header for why no credential form is rendered here).
+      const merged = { ...status.admin, status: 'active' as const, lastSignInAt: nowIso }
+      const parsed = COLLECTIONS.users.schema.safeParse(merged)
+      if (!parsed.success) {
+        return invalidResultRefusal('users', 'update', parsed.error.issues.map((i) => i.message))
+      }
+
+      const idx = users.findIndex((u) => u.id === status.admin.id)
+      const next = [...users]
+      next[idx] = parsed.data as RowOf<'users'>
+
+      // The invitee's own, honestly-attributed acting identity — built
+      // HERE, from the row this door just resolved and validated, never
+      // taken as a caller-supplied claim (matching `inviteConsoleUser`'s
+      // grantor resolution and `decideApprovalRequest`'s approver
+      // resolution: an actor is only ever attributed from a live, matched
+      // account). `rootActingContext` (`session.ts`) is the same shape for
+      // the same reason, one layer up, for the root's own step-up
+      // completion — this is that pattern's tenant-domain sibling.
+      const writeCtx: AccessContext = {
+        state: scenarioStateFor(store),
+        identity: {
+          signedIn: true,
+          role: 'TENANT_ADMIN',
+          tenant: brandTenantId(status.tenant.id),
+          siteScope: [],
+          areaScope: [],
+          qualifications: [],
+          deviceId: null,
+          stepUpActive: false,
+          accessSessionId: null,
+        },
+        online: true,
+        deviceTrusted: true,
+        actorOfRecord: status.admin.id,
+      }
+
+      const result = await commitWrite(
+        'users',
+        'update',
+        next,
+        parsed.data as RowOf<'users'>,
+        status.admin,
+        writeCtx,
+        authority,
+      )
+      if (!result.ok) return result
+      return { ok: true, user: result.row }
     },
 
     async update(name, id, patch, ctx) {

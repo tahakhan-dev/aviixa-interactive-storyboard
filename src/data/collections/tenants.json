@@ -390,5 +390,19 @@
     "legalHold": false,
     "primaryLocale": "en",
     "pilotExpiresAt": null
+  },
+  {
+    "id": "TEN-GRANITEHOLLOW",
+    "name": "Granite Hollow Tooling",
+    "lifecycle": "compliance-suspended",
+    "tier": "enterprise",
+    "isPilot": false,
+    "regulatedMode": true,
+    "workerShiftsThisMonth": 0,
+    "onboardedAt": "2026-02-28T09:00:00Z",
+    "archivedAt": null,
+    "legalHold": true,
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   }
 ]

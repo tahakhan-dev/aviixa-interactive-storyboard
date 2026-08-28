@@ -60,6 +60,27 @@ export type StepUpCompletionResult =
   | { kind: 'denied'; explain: string }
   | { kind: 'persistence-unavailable'; explain: string }
 
+/**
+ * Task 8 (unit-01) — the four reader-facing outcomes a Tenant Admin's OWN
+ * invitation link can be in, `signed-in` aside — one arm per
+ * `@/data/repository#AcceptInvitationResult` non-`ok` `kind`, `denied`
+ * folded into `persistence-unavailable`'s sibling shape rather than a fifth
+ * arm: `acceptInvitation` never calls `evaluateAccess` (see that method's
+ * own comment), so its `denied` arm is reachable only through the
+ * mechanical `truthStoreRefusal` guard, exactly the same "this could not be
+ * completed" shape `StepUpCompletionResult` above already gives a plain
+ * `explain` string rather than a `PermissionDecision` a screen would have
+ * to unpack for a case that is not a real authority refusal.
+ */
+export type InvitationAcceptanceResult =
+  | { kind: 'signed-in'; session: ProductSession }
+  | { kind: 'not-found' }
+  | { kind: 'already-accepted' }
+  | { kind: 'expired'; invitedAt: string; expiresAt: string }
+  | { kind: 'tenant-blocked'; lifecycle: string }
+  | { kind: 'denied'; explain: string }
+  | { kind: 'persistence-unavailable'; explain: string }
+
 export interface ProductSessionApi extends ProductSessionState {
   signIn(email: string, password: string): SignInOutcome
   signOut(): void
@@ -70,6 +91,22 @@ export interface ProductSessionApi extends ProductSessionState {
    * this can never fabricate a session out of nothing.
    */
   completeStepUp(): Promise<StepUpCompletionResult>
+  /**
+   * Task 8 (unit-01) — the Hub's own landing path, parallel to
+   * `completeStepUp` above: a session lands directly from a repository
+   * write's own result, never through `signIn`/`resolveSignIn`. This is
+   * deliberate, not an oversight — `resolveSignIn`'s tenant-lifecycle check
+   * (`tenant.lifecycle !== 'active' && tenant.lifecycle !== 'pilot'` ⇒
+   * `tenant-suspended`) would misclassify the tenant this invitation
+   * belongs to: it is still honestly `invited` at the moment of acceptance
+   * BY THIS UNIT'S OWN DESIGN (`TenantDetailScreen.tsx`'s `Activate` is a
+   * separate, later Super Admin action, not automatic on acceptance — see
+   * that screen's own `activateGate` comment), and `invited` is not
+   * suspension. Routing this landing through `resolveSignIn` would tell a
+   * freshly-accepted administrator their own brand-new workspace was
+   * "suspended," which is false.
+   */
+  acceptInvitation(tenantId: string): Promise<InvitationAcceptanceResult>
 }
 
 /** The one signed-out value — reused, never rebuilt inline, so every reset (boot-not-ready, sign-out, initial state) is the SAME object. */
@@ -233,4 +270,36 @@ export async function resolveStepUpCompletion(
     return { kind: result.kind, explain: result.explain }
   }
   return { kind: 'signed-in', session: sessionFor(result.row, true) }
+}
+
+/**
+ * Task 8 (unit-01) — the Hub's own accept-invitation screen calls this,
+ * never `repository.acceptInvitation` directly: landing a session is a
+ * SESSION concern (`sessionFor`, `ProductSessionApi`'s own state), and this
+ * file is where every other landing path already lives
+ * (`resolveSignIn`/`resolveStepUpCompletion` above). No `ctx` to build here
+ * — `repository.acceptInvitation` takes none (see its own comment); this
+ * function's only job is translating that door's `AcceptInvitationResult`
+ * into the session-shaped `InvitationAcceptanceResult` the screen renders.
+ */
+export async function resolveInvitationAcceptance(
+  repository: Repository,
+  tenantId: string,
+): Promise<InvitationAcceptanceResult> {
+  const result = await repository.acceptInvitation(tenantId)
+  if (result.ok) return { kind: 'signed-in', session: sessionFor(result.user) }
+  switch (result.kind) {
+    case 'not-found':
+      return { kind: 'not-found' }
+    case 'already-accepted':
+      return { kind: 'already-accepted' }
+    case 'expired':
+      return { kind: 'expired', invitedAt: result.invitedAt, expiresAt: result.expiresAt }
+    case 'tenant-blocked':
+      return { kind: 'tenant-blocked', lifecycle: result.tenant.lifecycle }
+    case 'denied':
+      return { kind: 'denied', explain: result.explain }
+    case 'persistence-unavailable':
+      return { kind: 'persistence-unavailable', explain: result.explain }
+  }
 }
