@@ -32,7 +32,13 @@ import { bg, textColor, type DensityToken } from './tokens'
  * every screen this shell has ever hosted or will host carries it without
  * being asked to remember to.
  */
-const NOT_REAL_TEXT =
+/**
+ * Exported (Task 2, unit-01): the sign-in screen renders outside `AppShell`
+ * entirely (there is no session yet to build a shell around), but the brief
+ * requires it carry the SAME sentence, never a second wording — this is
+ * that one constant, reused rather than redeclared.
+ */
+export const NOT_REAL_TEXT =
   'Simulated behaviour only. This screen is part of a client-validation storyboard: every state shown is seeded fixture data the user steps through, not a computed transition against a connected production system.'
 
 function NotRealDisclosure() {
