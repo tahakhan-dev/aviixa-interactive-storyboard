@@ -48,3 +48,8 @@ export * from './frontline/SyncQueueBadge'
 // `useRuntimeReady`, and the sign-in state machine (`resolveSignIn`,
 // `SignInOutcome`).
 export * from './runtime'
+
+// Task 3 (unit-01) — the signed-out guard every screen inside the shell
+// reuses: loading before `useRuntimeReady()`, a redirect to sign-in before
+// a default persona ever renders.
+export * from './RequireSession'

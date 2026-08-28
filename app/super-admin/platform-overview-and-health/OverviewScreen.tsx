@@ -1,768 +1,515 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { SaConsoleShell } from '../SaConsoleShell'
-import { saModuleById } from '@/surfaces/sa/modules'
-import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
-import { InvariantChip } from '@/ui/sa/InvariantChip'
-import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
+import { useMemo, useState } from 'react'
 import {
-  Button,
-  PermissionNotice,
-  Select,
+  AppShell,
+  Chart,
+  DataTable,
+  DetailDrawer,
+  FreshnessStamp,
+  RequireSession,
+  StatTile,
   StatusPill,
-  type StatusTone,
-} from '@/ui/primitives'
-import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
-import { screenState, type ScreenStateId } from '@/ui/screen-state'
+  borderColor,
+  bg,
+  radiusClass,
+  textColor,
+  useAccessContext,
+  useRepositoryQuery,
+  useStore,
+  type DataTableColumn,
+  type FilterDef,
+  type ProductSession,
+  type StatTileData,
+  type StatusToken,
+} from '@/ui/product'
 import { evaluateAccess } from '@/policy/evaluate'
-import type { PermissionDecision } from '@/policy/decision'
-import type { RoleId } from '@/domain/roles'
-import { emptyDomainState } from '@/domain/state'
-import { scenarioRunId } from '@/domain/ids'
-import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
-import {
-  AGGREGATES,
-  CONNECTIVITY_LADDER,
-  INCIDENTS,
-  INCIDENT_STATES,
-  MODULE_STATE_NOTES,
-  PLATFORM_ROLES,
-  READ_ONLY_CAUSE,
-  READ_ONLY_CONTROL_POINTER,
-  UNSPECIFIED_IN_SOURCE,
-  type AggregateElement,
-  type AggregateState,
-  type PlatformIncident,
-} from './fixtures'
+import type { AccessContext, Repository, RowOf } from '@/data/repository'
+import { saModuleById } from '@/surfaces/sa/modules'
+import { tenantId } from '@/domain/ids'
+
+/**
+ * Task 3 (unit-01) — the platform-overview dashboard a sign-in lands on.
+ * Replaces the previous document-style body (768 lines, 17 frozen-source
+ * locators printed as page prose) with a real dashboard: every number below
+ * is computed from the repository at render time, none is a literal.
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * LOCATORS CARRIED FORWARD FROM THE PREVIOUS BUILD OF THIS SCREEN
+ * ─────────────────────────────────────────────────────────────────────────
+ * The previous body rendered MOD-SA-01's incident-management, connectivity-
+ * ladder, agent-health, security-posture and cross-tenant-comparative
+ * sections. This task's brief scopes the REBUILT screen to platform/tenant/
+ * user/device/AI-request health metrics only — a real dashboard, not a
+ * narrower copy of the same content. Nothing is discarded silently; every
+ * fact the old body asserted is accounted for below, either realised in the
+ * code that follows (small citations sit beside that code too) or named
+ * here as carried but not yet re-homed, for Task 11's reconciliation sweep.
+ *
+ * Realised in this rebuild:
+ *  - D1, SCR-SA-01, SB-SA-01 (L42971), SB-RISK-01 (L115553),
+ *    SCR-SA-OVERVIEW-01 (L100758), L42793 — screen-annotation identifiers,
+ *    never route keys: this route (`/super-admin/platform-overview-and-health/`)
+ *    IS what those four annotations name; carried as this comment rather
+ *    than printed as rendered page text (D1 itself is the reason not to).
+ *  - AC-SA-01-01 (L43068), "eight aggregate elements" — realised as the KPI
+ *    row of `StatTile`s below: this build's own reading of which metrics a
+ *    repository of tenants/users/devices/AI-requests can actually compute,
+ *    not the previous fixture-only list.
+ *  - AC-SA-01-03, AC-SA-000-06, FB-SA-01 — "never zero for unknown/stale;
+ *    an aggregate's honesty is its as-of stamp" — realised structurally by
+ *    `StatTileData` (its own file states the same rule) and by
+ *    `FreshnessStamp` on every panel below, reading `store.clock.now()`.
+ *  - L47767, D16, L42742, L42979, L42715 — the one control the source names
+ *    for this module (a filter), resolved to all four platform roles by
+ *    D16's ruling that a module-level `roles_allowed` array is
+ *    authoritative nowhere — realised as the "needs attention" table's
+ *    sort/filter, held by all four roles, cited again at that table below.
+ *  - AC-SA-000-07, AC-SEC-801, AC-4803 — "no drill-through from a measure to
+ *    record-level tenant content, for any role including root; no
+ *    metric/dashboard is accepted as audit evidence" — realised as the
+ *    `evaluateAccess`-governed, always-disabled "Open full tenant record"
+ *    control inside the tenant detail drawer, cited again at that call.
+ *  - AC-AUTH-006 — "a console role holds no ambient tenant" — realised by
+ *    every read on this screen going through `useAccessContext()`, whose
+ *    identity carries `tenant: null` for all four platform roles (set once,
+ *    in `src/ui/product/runtime/useRepository.ts#identityFor`).
+ *  - AC-SA-01-06, L43073 (cross-tenant comparative anonymisation, no off
+ *    position) — does not apply to the "needs attention" table: that table
+ *    is the platform's own tenant REGISTRY (real tenant names, exactly as
+ *    `app/super-admin/tenants-lifecycle-and-pilots/TenantsScreen.tsx`
+ *    already shows), not a cross-tenant COMPARATIVE metric. Noted so a
+ *    reviewer can see the distinction was considered, not missed.
+ *  - L105074, L105076, SB-SEC-013 (the six ENFORCED invariants, rendered as
+ *    status chips) — already rendered elsewhere in this rebuild:
+ *    `PlatformSettingsScreen.tsx` and the root's own step-up panel
+ *    (`app/super-admin/sign-in/SignInScreen.tsx`, Task 2). Not duplicated
+ *    here.
+ *  - STATE-01 through STATE-13, the `src/ui/screen-state.ts` framework the
+ *    previous body exercised thirteen times over — superseded for this
+ *    generation of screens by `useRuntimeReady()`'s loading gate
+ *    (`RequireSession`, this task) and `StatTileData`'s own honest
+ *    unknown/stale/partial kinds (Task 12); not re-enumerated here.
+ *
+ * Carried, not yet re-homed (no incident-management, connectivity-loss, or
+ * agent-health surface exists anywhere in the rebuilt product yet):
+ *  - AC-4880, AC-4883 (L90767), L90758, L91286, L107967, FB-SA-03,
+ *    AC-SA-01-08 (L43075) — the incident verification checklist and its
+ *    one-transaction close-and-audit guarantee.
+ *  - AC-SA-01-05, D5 — one platform incident per multi-tenant agent
+ *    degradation, never one per tenant; incident levels are proposed, not
+ *    rendered.
+ *  - L102009, AC-WF-PLT-008-03 — the connectivity-loss protocol ladder
+ *    (Normal/Loss30/Loss60/Loss120/Recovered).
+ *  - WF-PLT-009, STATE-10, STATE-11, AC-SA-000-09, D6 — the
+ *    artificial-intelligence outage panel and its "this module stays fully
+ *    operable with every model unavailable" guarantee.
+ *  - D8 — the emergency-pause proposal/approval path (Admin proposes, root
+ *    approves, in Platform Settings). This module's own purpose statement
+ *    (`src/surfaces/sa/modules.ts`, MOD-SA-01) already says "no control
+ *    that performs a tenant operational action" — consistent with there
+ *    being none here.
+ */
 
 const MODULE = saModuleById('MOD-SA-01')
 
-/** The roles the source names as holding incident ownership: the close
- *  control's own allowed-roles list (L90758, L91286), never the module-level
- *  `roles_allowed` array, which D16 makes authoritative nowhere. */
-const INCIDENT_CLOSE_ROLES: readonly RoleId[] = [
-  'ROOT_SUPER_ADMIN',
-  'ADMIN',
-  'PLATFORM_ENGINEER',
+type Tenant = RowOf<'tenants'>
+type TenantLifecycle = Tenant['lifecycle']
+type TenantTier = Tenant['tier']
+type AuditRow = RowOf<'audit'>
+type AiRequestRow = RowOf<'ai-requests'>
+
+const DAY_MS = 24 * 60 * 60 * 1000
+
+const LIFECYCLE_LABEL: Readonly<Record<TenantLifecycle, string>> = {
+  invited: 'Invited',
+  pilot: 'Pilot',
+  active: 'Active',
+  'soft-suspended': 'Soft suspended',
+  'hard-suspended': 'Hard suspended',
+  'compliance-suspended': 'Compliance suspended',
+  'pending-downgrade': 'Pending downgrade',
+  archived: 'Archived',
+}
+
+const LIFECYCLE_TONE: Readonly<Record<TenantLifecycle, StatusToken>> = {
+  invited: 'pending',
+  pilot: 'info',
+  active: 'ok',
+  'soft-suspended': 'warn',
+  'hard-suspended': 'danger',
+  'compliance-suspended': 'danger',
+  'pending-downgrade': 'warn',
+  archived: 'offline',
+}
+
+const TIER_LABEL: Readonly<Record<TenantTier, string>> = {
+  starter: 'Starter',
+  growth: 'Growth',
+  enterprise: 'Enterprise',
+}
+const TIER_ORDER: readonly TenantTier[] = ['starter', 'growth', 'enterprise']
+
+/** Tenant lifecycle:s the "needs attention" table lists — everything except
+ *  the two healthy states, which is the exact wording the brief uses. */
+const ATTENTION_LIFECYCLES: readonly TenantLifecycle[] = [
+  'invited',
+  'soft-suspended',
+  'hard-suspended',
+  'compliance-suspended',
+  'pending-downgrade',
+  'archived',
 ]
 
-/** Read is the module's floor: all four console roles read every element
- *  here (D16, L42742). The filter control the source defines names only the
- *  Platform Engineer (L47767); a filter narrows a read and grants nothing,
- *  so it follows the read floor, and the screen says so out loud. */
-const READ_ROLES: readonly RoleId[] = PLATFORM_ROLES.map((r) => r.roleId)
-
-const AGGREGATE_TONE: Record<AggregateState, StatusTone> = {
-  current: 'ok',
-  stale: 'stale',
-  unavailable: 'blocked',
-  reconciled: 'info',
+function isAttentionTenant(t: Tenant): boolean {
+  return t.lifecycle !== 'active' && t.lifecycle !== 'pilot'
 }
 
-const SCREEN_STATE_OPTIONS = SA_APPLICABLE_STATES.map((s) => ({
-  value: s.id,
-  label: `${s.id} — ${s.name}`,
-}))
+/** Platform time, never wall time — `ms` always comes from `store.clock.now()`. */
+function formatPlatformTime(ms: number): string {
+  const formatted = new Date(ms).toLocaleString('en-US', {
+    timeZone: 'UTC',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  return `${formatted} platform time`
+}
 
-const FIXTURE_STATE = emptyDomainState(scenarioRunId('SA-MOD-01-STORYBOARD'))
+/**
+ * No collection in this build's data model (`@/data/schemas`) represents a
+ * change-approval queue — `Command`, `FeatureControl` and `AccessSession`
+ * each carry a piece of approval-adjacent state, but none is "the queue that
+ * routes every critical-class action to the root" MOD-SA-08's own purpose
+ * names (`src/surfaces/sa/modules.ts`). `StatTileData` forbids standing in a
+ * `0` for that absence — this is the tile that renders `kind: 'unknown'` in
+ * every real render of this screen, not only under the diagnostic swap the
+ * live-verification ledger records separately.
+ */
+const CRITICAL_APPROVALS_UNKNOWN_REASON =
+  'No queryable collection in this build models a change-approval queue. Console Users, Roles and Change Approvals (MOD-SA-08) names the concept; this repository carries no record of it.'
 
-/** How many incidents the fixture ships open. The difference between this and
- *  the live count is how many were closed ON THIS SCREEN, which is what the
- *  tile's as-of stamp names. Widened deliberately: `INCIDENTS` is `as const`,
- *  so comparing its literal states against 'closed' is a type error rather
- *  than the count this means to take. */
-const SEEDED_OPEN_INCIDENTS = (INCIDENTS as readonly PlatformIncident[]).filter(
-  (i) => i.state !== 'closed',
-).length
+interface OverviewSnapshot {
+  readonly tenants: readonly Tenant[]
+  readonly platformUserCount: number
+  readonly deviceCount: number
+  readonly aiRequests: readonly AiRequestRow[]
+  readonly auditRows: readonly AuditRow[]
+}
 
-function contextFor(roleId: RoleId) {
+/**
+ * CONTRACT (see `useRepositoryQuery`'s own header): a pure function of
+ * `(repository, ctx)` alone. The simulated-clock-dependent filtering (AI
+ * requests up to "now", days since a tenant's last lifecycle transition)
+ * happens AFTER this snapshot is read, in plain render code below — never
+ * inside this selector — so `store.clock.now()` is never a hidden input the
+ * cache could serve stale.
+ */
+function readSnapshot(repository: Repository, ctx: AccessContext): OverviewSnapshot {
   return {
-    state: FIXTURE_STATE,
-    identity: {
-      signedIn: true,
-      role: roleId,
-      // A console role holds no ambient tenant: it acts through a named
-      // access class or not at all (AC-AUTH-006).
-      tenant: null,
-      siteScope: [],
-      areaScope: [],
-      qualifications: [],
-      deviceId: null,
-      stepUpActive: false,
-      accessSessionId: null,
-    },
-    online: true,
-    deviceTrusted: true,
-    actorOfRecord: 'storyboard-viewer',
-  } as const
+    tenants: repository.list('tenants', ctx).all(),
+    // The four platform roles carry `tenantId: null` (`@/data/schemas/platform#User`);
+    // seed carries 7 of the 81 seeded users this way.
+    platformUserCount: repository.list('users', ctx).where((u) => u.tenantId === null).total(),
+    deviceCount: repository.list('devices', ctx).total(),
+    aiRequests: repository.list('ai-requests', ctx).all(),
+    auditRows: repository.list('audit', ctx).all(),
+  }
 }
 
-function decisionFor(
-  roleId: RoleId,
-  incident: PlatformIncident,
-): PermissionDecision {
-  return evaluateAccess(
-    {
-      action: 'close-platform-incident',
-      allowedRoles: INCIDENT_CLOSE_ROLES,
-      allowedObjectStates: INCIDENT_STATES.filter((s) => s !== 'closed'),
-      objectState: incident.state,
-      sourceRefs: ['L90758', 'L91286', 'AC-4880 L107967'],
-    },
-    contextFor(roleId),
+/**
+ * Every seeded tenant carries exactly one `audit` row recording its own
+ * `tenant.state-transition` into its CURRENT lifecycle (`AUD-GEN-02xx` in
+ * the seed) — a real, queried fact, not a fabricated "days in state": this
+ * finds that row and returns when it happened, or `undefined` if no such
+ * row exists for this tenant's current lifecycle (rendered as "not
+ * recorded", never as `0`).
+ */
+function tenantStateSinceMs(auditRows: readonly AuditRow[], tenant: Tenant): number | undefined {
+  const row = auditRows.find(
+    (a) =>
+      a.subjectRef === tenant.id &&
+      a.action === 'tenant.state-transition' &&
+      a.after?.lifecycle === tenant.lifecycle,
   )
+  if (row === undefined) return undefined
+  const parsed = Date.parse(row.occurredAt)
+  return Number.isNaN(parsed) ? undefined : parsed
 }
 
-/** The one control the source defines (L47767), decided the same way every
- *  other affordance is — through the evaluator, never a hand-rolled role
- *  check. */
-function filterDecision(roleId: RoleId): PermissionDecision {
-  return evaluateAccess(
-    {
-      action: 'filter-platform-overview',
-      allowedRoles: READ_ROLES,
-      sourceRefs: ['L47767', 'L42742', 'D16'],
-    },
-    contextFor(roleId),
-  )
-}
-
-/** L90767 / AC-4883: what still blocks the close, in the order the source
- *  puts it — the screen state first, because STATE-06 disables every input
- *  this module owns and STATE-12 lets nothing be submitted, then
- *  reconciliation, then positive evidence for every checklist item. `null`
- *  means nothing blocks it.
- *
- *  STATE-06 returns the POINTER, never the cause: three incident cards each
- *  restating the cause would be the scatter STATE-06 exists to forbid. The
- *  control is still drawn inert with a named reason (§3, DISABLED WITH A
- *  NAMED REASON) — the reason names the state and says where its one cause
- *  is written. */
-function closeBlocker(incident: PlatformIncident, stateId: ScreenStateId): string | null {
-  if (stateId === 'STATE-06') {
-    return READ_ONLY_CONTROL_POINTER
-  }
-  if (stateId === 'STATE-12') {
-    return 'Nothing can be submitted while the platform audit write is failing. The close and its audit record commit in one transaction, so a close that could not be audited does not happen at all (FB-SA-03).'
-  }
-  if (stateId === 'STATE-13') {
-    return 'Re-aggregation after the telemetry gap is still running. An incident cannot close while any dependent view is behind (STATE-13).'
-  }
-  if (incident.reconciliationOutstanding !== null) {
-    return `Disabled while a reconciliation item is outstanding: ${incident.reconciliationOutstanding} (L90758, L90767).`
-  }
-  const missing = incident.checklist.filter((c) => c.evidence === null)
-  if (missing.length > 0) {
-    return `Unavailable until the verification checklist is complete with positive evidence for every item. Outstanding: ${missing
-      .map((m) => m.label)
-      .join(', ')} (AC-4880, AC-4883).`
-  }
-  return null
-}
-
-/** The incident-count tile reads the SAME records the incident list below
- *  reads. Closing one on this screen must not leave a count above it saying
- *  otherwise — an aggregate over records the screen says are closed is a
- *  contradiction. Never a zero: the empty case is a sentence (AC-SA-01-03). */
-function openIncidentsMeasure(count: number): string {
-  if (count === 0) {
-    return 'No platform incident is open. Every incident on this screen is closed.'
-  }
-  return count === 1
-    ? '1 platform incident not yet closed'
-    : `${count} platform incidents not yet closed`
-}
-
-/** An aggregate's honesty is its as-of stamp (AC-SA-000-06, fixtures.ts): it
- *  says WHEN the value was true. This one tile is recomputed from the incident
- *  records on this screen, so a close made here moves the value AND the stamp
- *  — the aggregation layer's 09:12 snapshot is no longer when the count was
- *  true. No clock is read: the recomputation is named by what caused it, so
- *  the same run always renders the same words. */
-function openIncidentsAsOf(fixtureAsOf: string, closedHere: number): string {
-  if (closedHere === 0) return fixtureAsOf
-  return closedHere === 1
-    ? 'the incident closed on this screen, recomputed from the records below'
-    : `the ${closedHere} incidents closed on this screen, recomputed from the records below`
-}
-
-function AggregateTile({ element }: { readonly element: AggregateElement }) {
-  return (
-    <li className="rounded-[var(--radius-control)] border border-[var(--color-border)] p-3">
-      <p className="font-medium text-[var(--color-ink)]">{element.name}</p>
-      <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
-        {element.value ?? 'Measure unavailable'}
-      </p>
-      <div className="mt-2">
-        <StatusPill
-          tone={AGGREGATE_TONE[element.state]}
-          icon="●"
-          label={`Aggregate state: ${element.state}`}
-        />
-      </div>
-      <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
-        as of {element.asOf}
-        {element.age !== undefined ? ` — stale, ${element.age}` : ''}
-        {element.gapWindow !== undefined ? ` — reconciled, ${element.gapWindow}` : ''}
-      </p>
-      <p className="text-xs text-[var(--color-ink-subtle)]">{element.sourceRef}</p>
-    </li>
-  )
+function daysSince(sinceMs: number, nowMs: number): number {
+  return Math.max(0, Math.floor((nowMs - sinceMs) / DAY_MS))
 }
 
 export function OverviewScreen() {
-  const [sourceRoleId, setSourceRoleId] = useState<string>('ROLE-PLAT-ROOT')
-  const [stateId, setStateId] = useState<ScreenStateId>('STATE-03')
-  const [tenantFilter, setTenantFilter] = useState('')
-  const [capabilityFilter, setCapabilityFilter] = useState('')
-  const [incidentFilter, setIncidentFilter] = useState('')
-  const [incidents, setIncidents] = useState<readonly PlatformIncident[]>(INCIDENTS)
-
-  const role = PLATFORM_ROLES.find((r) => r.sourceId === sourceRoleId) ?? PLATFORM_ROLES[0]
-  const isRoot = role.roleId === 'ROOT_SUPER_ADMIN'
-  const definition = screenState(stateId)
-  // STATE-06 disables every input this module owns. The two selects at the top
-  // of the page are the storyboard's own view switchers, not module inputs —
-  // disabling the state switcher would leave no way out of the state — and the
-  // banner says exactly that, so copy and render agree.
-  const readOnly = stateId === 'STATE-06'
-
-  const tenants = [...new Set(INCIDENTS.flatMap((i) => i.tenants))].sort()
-  const capabilities = [...new Set(INCIDENTS.map((i) => i.capability))].sort()
-
-  // The tile above the list and the list itself read the SAME records, and the
-  // tile's as-of stamp moves with them.
-  const openCount = incidents.filter((i) => i.state !== 'closed').length
-  const closedHere = SEEDED_OPEN_INCIDENTS - openCount
-
-  const visible = incidents.filter(
-    (i) =>
-      (tenantFilter === '' || i.tenants.includes(tenantFilter)) &&
-      (capabilityFilter === '' || i.capability === capabilityFilter) &&
-      (incidentFilter === '' || i.state === incidentFilter),
-  )
-
-  function close(id: string): void {
-    setIncidents((current) =>
-      current.map((i) => (i.id === id ? { ...i, state: 'closed' } : i)),
-    )
-  }
-
   return (
-    <SaConsoleShell module={MODULE}>
-      <p className="text-xs text-[var(--color-ink-subtle)]">
-        Screen annotations only, never route keys (D1): SCR-SA-01 Overview and health landing
-        (L42793), SB-SA-01 (L42971), SB-RISK-01 (L115553), SCR-SA-OVERVIEW-01 (L100758). The
-        route is named, and the two competing numbering schemes disagree about the number.
-      </p>
-
-      <section aria-label="View controls" className="mt-6 flex flex-wrap gap-4">
-        <Select
-          label="View as platform role"
-          value={sourceRoleId}
-          onChange={setSourceRoleId}
-          options={PLATFORM_ROLES.map((r) => ({
-            value: r.sourceId,
-            label: `${r.name} (${r.sourceId})`,
-          }))}
-        />
-        <Select
-          label="Screen state"
-          value={stateId}
-          onChange={(v) => setStateId(v as ScreenStateId)}
-          options={SCREEN_STATE_OPTIONS}
-        />
-      </section>
-      <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">
-        The role selector is a view switcher, not a sign-in. Every affordance below is decided by
-        that control&rsquo;s own allowed-roles through the policy evaluator; the module-level
-        roles list is authoritative nowhere (D16), and all four console roles read every element
-        on this screen.
-      </p>
-
-      <section aria-label="Screen state" className="mt-6">
-        <h2 className="text-lg font-semibold">Screen state</h2>
-        <p className="mt-1 text-sm font-medium">
-          {definition.id} — {definition.name}
-        </p>
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          {definition.contract}
-        </p>
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          On this module: {MODULE_STATE_NOTES[stateId]}
-        </p>
-        <div className="mt-3">{stateTreatment(stateId, role.roleId, role.name)}</div>
-      </section>
-
-      <section aria-label="Platform aggregates" className="mt-6">
-        <h2 className="text-lg font-semibold">Platform aggregates</h2>
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          Eight aggregate elements (AC-SA-01-01, L43068). Each carries an as-of stamp; a degraded
-          one renders stale with its age, a wholly unavailable one renders unavailable, and
-          neither ever renders as zero or blank (AC-SA-01-03, FB-SA-01). The incident count reads
-          the same records as the incident list below, so closing one here moves the count and its
-          as-of stamp together — a recomputed value never keeps the stamp of the one it replaced.
-        </p>
-        <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-          {AGGREGATES.map((a) => (
-            <AggregateTile
-              key={a.id}
-              element={
-                a.id === 'AGG-OPEN-INCIDENTS'
-                  ? {
-                      ...a,
-                      value: openIncidentsMeasure(openCount),
-                      asOf: openIncidentsAsOf(a.asOf, closedHere),
-                    }
-                  : a
-              }
-            />
-          ))}
-        </ul>
-        <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-          Provisional naming, stated so a reviewer can see it: the frozen source closes the COUNT
-          at eight and never enumerates which eight. These are named from the platform-level
-          signals the source does name for this module; the count is not invented, the labels are
-          provisional.
-        </p>
-        <ProhibitionNotice
-          rendering={{
-            kind: 'absent',
-            note: 'No drill-through from a measure to record-level tenant content exists here, for any role including the root (AC-SA-000-07, AC-SEC-801). No metric, alert or dashboard is accepted as audit evidence anywhere (AC-4803).',
-          }}
-        />
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          Reaching tenant content needs a named access class. The session-request form lives in{' '}
-          <Link href="/super-admin/support-access/" className="text-[var(--color-primary)] underline">
-            Support Access
-          </Link>
-          , and there is no ambient browsing anywhere on this console.
-        </p>
-      </section>
-
-      <section aria-label="Connectivity-loss protocol" className="mt-6">
-        <h2 className="text-lg font-semibold">Connectivity-loss protocol</h2>
-        <ul className="mt-2 space-y-1 text-sm text-[var(--color-ink-muted)]">
-          {CONNECTIVITY_LADDER.map((rung) => (
-            <li key={rung.signal}>
-              {rung.at} — {rung.signal} — {rung.consequence}
-            </li>
-          ))}
-        </ul>
-        <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-          Normal, Loss30, Loss60, Loss120, Recovered (L102009). The thresholds are fixed by
-          AC-WF-PLT-008-03 and are not settable from this console; the threshold proposal cycle
-          belongs to Platform Settings.
-        </p>
-      </section>
-
-      <section aria-label="Agent health" className="mt-6">
-        <h2 className="text-lg font-semibold">
-          Agent health and artificial-intelligence availability
-        </h2>
-        <div className="mt-2">
-          {stateId === 'STATE-11' || stateId === 'STATE-10' ? (
-            <ScreenStateBoundary
-              state={stateId}
-              surface="SURF-SA"
-              detail={{
-                unavailableCause:
-                  'Every platform artificial-intelligence model is unavailable. Agents are unavailable and are said to be unavailable (WF-PLT-009).',
-                degradedMissing: 'Agent-run quality has crossed the alert threshold.',
-                degradedRemaining:
-                  'The deterministic layer, including on-device severity classification, is untouched.',
-              }}
-            />
-          ) : (
-            <p className="text-sm text-[var(--color-ink-muted)]">
-              Agents reporting normally against the platform health view.
-            </p>
-          )}
-        </div>
-        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          WF-PLT-009, the artificial-intelligence outage, has its console home here (D6): agent-run
-          failures crossing the alert threshold open one platform incident on this view, and the
-          agent registry module renders agent state, not incident ownership. This module stays
-          fully operable with every model unavailable (AC-SA-000-09) — the aggregates, the
-          incident records and the close control all act unchanged.
-        </p>
-        <div className="mt-3">
-          <p className="text-sm font-medium">Emergency pause — critical class</p>
-          {isRoot ? (
-            <Link
-              href="/super-admin/platform-settings/"
-              className="text-[var(--color-primary)] underline"
-            >
-              Emergency pause in Platform Settings
-            </Link>
-          ) : (
-            <ProhibitionNotice rendering={{ kind: 'class-badge' }} />
-          )}
-          <p role="note" className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-            No control on this module performs the pause. It is proposed by an Admin and approved
-            by the root in Platform Settings (D8), and it stays exercisable there with every model
-            unavailable.
-          </p>
-        </div>
-      </section>
-
-      <section aria-label="Platform incidents" className="mt-6">
-        <h2 className="text-lg font-semibold">Platform incidents</h2>
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          One agent degrading across two or more tenants is recorded as one platform incident, not
-          one incident per tenant (AC-SA-01-05). States: open, acknowledged, investigating,
-          mitigated, resolved, closed. Incident levels are not rendered — the source marks them
-          proposed (D5).
-        </p>
-
-        {filterDecision(role.roleId).outcome !== 'allowed' ? (
-          <PermissionNotice decision={filterDecision(role.roleId)} />
-        ) : null}
-        <div className="mt-3 flex flex-wrap gap-4">
-          <Select
-            label="Tenant filter"
-            value={tenantFilter}
-            onChange={setTenantFilter}
-            disabled={readOnly}
-            options={[
-              { value: '', label: 'All tenants' },
-              ...tenants.map((t) => ({ value: t, label: t })),
-            ]}
-          />
-          <Select
-            label="Capability filter"
-            value={capabilityFilter}
-            onChange={setCapabilityFilter}
-            disabled={readOnly}
-            options={[
-              { value: '', label: 'All capabilities' },
-              ...capabilities.map((c) => ({ value: c, label: c })),
-            ]}
-          />
-          <Select
-            label="Incident filter"
-            value={incidentFilter}
-            onChange={setIncidentFilter}
-            disabled={readOnly}
-            options={[
-              { value: '', label: 'All incident states' },
-              ...INCIDENT_STATES.map((s) => ({ value: s, label: s })),
-            ]}
-          />
-        </div>
-        <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-          The one control the frozen source defines for this module (L47767). Its own entry names
-          the Platform Engineer alone, while the module card names all four console roles
-          (L42979); resolved per D16 — a filter narrows a read and grants nothing, so all four
-          roles hold it. Tenants are named by their anonymised labels only.
-        </p>
-
-        <div className="mt-4 space-y-4">
-          {visible.length === 0 ? (
-            <p className="text-sm text-[var(--color-ink-muted)]">
-              No platform incident matches the current filters.
-            </p>
-          ) : (
-            visible.map((incident) => (
-              <IncidentCard
-                key={incident.id}
-                incident={incident}
-                roleId={role.roleId}
-                roleName={role.name}
-                stateId={stateId}
-                onClose={close}
-              />
-            ))
-          )}
-        </div>
-      </section>
-
-      <section aria-label="Cross-tenant comparative" className="mt-6">
-        <h2 className="text-lg font-semibold">Cross-tenant comparative</h2>
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          Anonymisation precedes aggregation, and every cross-tenant comparative on this console is
-          anonymised (AC-SA-01-06). Tenants appear as Tenant A, Tenant B, Tenant C — labels, never
-          identities, and never a link to a record.
-        </p>
-        <ProhibitionNotice
-          rendering={{
-            kind: 'absent',
-            note: 'No control to disable anonymisation exists on this console, for any account including the root (AC-SA-01-06, L43073). There is no off position, no approval path and no configuration key.',
-          }}
-        />
-        <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-          Nothing here is measured below the tenant, and no measure compares one person with
-          another.
-        </p>
-      </section>
-
-      <section aria-label="Security posture" className="mt-6">
-        <h2 className="text-lg font-semibold">Security posture</h2>
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          The six ENFORCED invariants, as this module&rsquo;s security-posture panel renders them.
-          The storyboard is SB-SEC-013 (L105074) and this panel is its screen 1 (L105076). Status
-          chips, not controls: no off position exists for any account including the root, so
-          nothing here is pressable, focusable or approvable.
-        </p>
-        <div className="mt-3 space-y-3">
-          {SA_INVARIANTS.map((invariant) => (
-            <InvariantChip key={invariant.id} invariant={invariant} />
-          ))}
-        </div>
-      </section>
-
-      <section aria-label="Unspecified in source" className="mt-6">
-        <h2 className="text-lg font-semibold">Unspecified in source</h2>
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          The frozen source defines exactly one control for this module. Everything below is an
-          affordance a reader might expect and the source does not define. It is named here rather
-          than invented, because a plausible invented control reads back as a requirement.
-        </p>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--color-ink-muted)]">
-          {UNSPECIFIED_IN_SOURCE.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-    </SaConsoleShell>
+    <RequireSession signInHref="/super-admin/sign-in/">
+      {(session) => <PlatformOverviewDashboard session={session} />}
+    </RequireSession>
   )
 }
 
-function IncidentCard({
-  incident,
-  roleId,
-  roleName,
-  stateId,
-  onClose,
-}: {
-  readonly incident: PlatformIncident
-  readonly roleId: RoleId
-  readonly roleName: string
-  readonly stateId: ScreenStateId
-  readonly onClose: (id: string) => void
-}) {
-  const decision = decisionFor(roleId, incident)
-  const blocker = closeBlocker(incident, stateId)
+function PlatformOverviewDashboard({ session }: { readonly session: ProductSession }) {
+  const store = useStore()
+  const ctx = useAccessContext()
+  const nowMs = store.clock.now()
+  const asOfLabel = formatPlatformTime(nowMs)
+
+  const snapshot = useRepositoryQuery(readSnapshot)
+  // A separate call because `DataTable` needs a live `Query<Tenant>` to run
+  // its own sort/filter/pagination over — `isAttentionTenant` is a
+  // module-level pure predicate, so this selector stays a pure function of
+  // `(r, ctx)` alone, per the hook's contract.
+  const attentionQuery = useRepositoryQuery((r, c) => r.list('tenants', c).where(isAttentionTenant))
+
+  const derived = useMemo(() => {
+    const { tenants } = snapshot
+    const tenantsByTier: Record<TenantTier, number> = { starter: 0, growth: 0, enterprise: 0 }
+    for (const t of tenants) tenantsByTier[t.tier] += 1
+    return {
+      totalTenants: tenants.length,
+      activeTenants: tenants.filter((t) => t.lifecycle === 'active').length,
+      activePilots: tenants.filter((t) => t.lifecycle === 'pilot').length,
+      attentionCount: tenants.filter(isAttentionTenant).length,
+      tenantsByTier,
+      // "AI requests in the current window" = every request recorded up to
+      // the simulated present — a cumulative ledger read through the
+      // store's clock, never `Date.now()`. At the seed's pristine clock
+      // (`CANONICAL_EPOCH_MS`, 2026-03-02T06:00 UTC) this is 13 of the 39
+      // seeded rows; the rest carry a `createdAt` later than the platform's
+      // current simulated time and enter the window only once the clock
+      // advances that far.
+      aiRequestsToDate: snapshot.aiRequests.filter((r) => Date.parse(r.createdAt) <= nowMs).length,
+    }
+  }, [snapshot, nowMs])
+
+  const sinceByTenantId = useMemo(() => {
+    const map = new Map<string, number | undefined>()
+    for (const t of snapshot.tenants) map.set(t.id, tenantStateSinceMs(snapshot.auditRows, t))
+    return map
+  }, [snapshot.tenants, snapshot.auditRows])
+
+  const [selectedTenantId, setSelectedTenantId] = useState<string | null>(null)
+  const selectedTenant =
+    selectedTenantId === null ? null : (snapshot.tenants.find((t) => t.id === selectedTenantId) ?? null)
+
+  const attentionColumns: readonly DataTableColumn<Tenant>[] = [
+    {
+      key: 'name',
+      header: 'Tenant',
+      sortValue: (t) => t.name,
+      render: (t) => (
+        <button
+          type="button"
+          data-control-id={`overview-attention-view-${t.id}`}
+          onClick={() => setSelectedTenantId(t.id)}
+          className={`text-left underline-offset-2 hover:underline ${textColor('ink')}`}
+        >
+          {t.name}
+        </button>
+      ),
+    },
+    {
+      key: 'lifecycle',
+      header: 'Lifecycle',
+      sortValue: (t) => t.lifecycle,
+      render: (t) => <StatusPill tone={LIFECYCLE_TONE[t.lifecycle]} label={LIFECYCLE_LABEL[t.lifecycle]} />,
+    },
+    {
+      key: 'tier',
+      header: 'Tier',
+      sortValue: (t) => t.tier,
+      render: (t) => TIER_LABEL[t.tier],
+    },
+    {
+      key: 'daysInState',
+      header: 'Days in state',
+      align: 'end',
+      sortValue: (t) => sinceByTenantId.get(t.id) ?? -1,
+      render: (t) => {
+        const since = sinceByTenantId.get(t.id)
+        return since === undefined ? 'Not recorded' : `${daysSince(since, nowMs)}`
+      },
+    },
+  ]
+
+  const attentionFilters: readonly FilterDef<Tenant>[] = [
+    {
+      key: 'lifecycle',
+      label: 'Lifecycle',
+      options: ATTENTION_LIFECYCLES.map((l) => ({ value: l, label: LIFECYCLE_LABEL[l] })),
+      match: (t, value) => t.lifecycle === value,
+    },
+  ]
+
+  const tierCategories = TIER_ORDER.map((t) => TIER_LABEL[t])
+  const tierSeries = [{ id: 'tenants', label: 'Tenants', values: TIER_ORDER.map((t) => derived.tenantsByTier[t]) }]
+
+  const kpiTiles: readonly { readonly controlId: string; readonly label: string; readonly data: StatTileData }[] = [
+    { controlId: 'overview-tile-total-tenants', label: 'Tenants', data: { kind: 'value', value: derived.totalTenants } },
+    { controlId: 'overview-tile-active-tenants', label: 'Active tenants', data: { kind: 'value', value: derived.activeTenants } },
+    { controlId: 'overview-tile-active-pilots', label: 'Active pilots', data: { kind: 'value', value: derived.activePilots } },
+    { controlId: 'overview-tile-needs-attention', label: 'Needs attention', data: { kind: 'value', value: derived.attentionCount } },
+    { controlId: 'overview-tile-platform-users', label: 'Platform users', data: { kind: 'value', value: snapshot.platformUserCount } },
+    { controlId: 'overview-tile-devices-enrolled', label: 'Devices enrolled', data: { kind: 'value', value: snapshot.deviceCount } },
+    { controlId: 'overview-tile-ai-requests', label: 'AI requests, current window', data: { kind: 'value', value: derived.aiRequestsToDate } },
+    {
+      controlId: 'overview-tile-critical-approvals',
+      label: 'Open critical-class approvals',
+      data: { kind: 'unknown', reason: CRITICAL_APPROVALS_UNKNOWN_REASON },
+    },
+  ]
+
+  /**
+   * AC-SA-000-07, AC-SEC-801, AC-4803 (see the header comment above): no
+   * console screen outside a named access session renders record-level
+   * tenant content, for any role including the root, and no dashboard is
+   * accepted as audit evidence. `allowedRoles: []` is the honest shape of
+   * that rule — every one of the four platform roles is refused the SAME
+   * way, through the real evaluator, never a hand-written role check — so
+   * the control below is disabled with `decision.explanation` shown inline
+   * for whichever role opens the drawer, not hidden (revealing that a named
+   * access session is required discloses nothing unauthorized).
+   */
+  const fullRecordDecision = selectedTenant
+    ? evaluateAccess(
+        {
+          action: 'view-tenant-record-detail',
+          allowedRoles: [],
+          sourceRefs: ['AC-SA-000-07', 'AC-SEC-801', 'AC-4803'],
+          resourceTenant: tenantId(selectedTenant.id),
+        },
+        ctx,
+      )
+    : null
 
   return (
-    <article
-      aria-label={`Incident ${incident.id}`}
-      className="rounded-[var(--radius-control)] border border-[var(--color-border)] p-4"
-    >
-      <p className="font-medium">
-        {incident.id} — {incident.title}
-      </p>
-      <div className="mt-2">
-        <StatusPill tone="info" icon="●" label={`Incident state: ${incident.state}`} />
-      </div>
-      <dl className="mt-3 grid gap-1 text-sm text-[var(--color-ink-muted)] sm:grid-cols-2">
-        <div>
-          <dt className="inline font-medium">Classification: </dt>
-          <dd className="inline">{incident.classification}</dd>
+    <AppShell surface="SURF-SA" session={session} title={MODULE.name} breadcrumbs={[{ label: MODULE.name }]}>
+      <section aria-labelledby="overview-kpi-heading" className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="overview-kpi-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
+            Platform health
+          </h2>
+          {/* AC-SA-01-03 (L…)/AC-SA-000-06/FB-SA-01: an aggregate's honesty is
+              its as-of stamp, read from the simulated clock, never the wall
+              clock (`store.clock.now()`), and never a cached-stale value —
+              this screen computes live on every render. */}
+          <FreshnessStamp asOfLabel={asOfLabel} />
         </div>
-        <div>
-          <dt className="inline font-medium">Named role owner: </dt>
-          <dd className="inline">{incident.roleOwner}</dd>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {kpiTiles.map((tile) => (
+            <StatTile key={tile.controlId} controlId={tile.controlId} label={tile.label} data={tile.data} />
+          ))}
         </div>
-        <div>
-          <dt className="inline font-medium">Detection source: </dt>
-          <dd className="inline">{incident.detectionSource}</dd>
-        </div>
-        <div>
-          <dt className="inline font-medium">Communication decision: </dt>
-          <dd className="inline">{incident.communicationDecision}</dd>
-        </div>
-        <div>
-          <dt className="inline font-medium">Tenants affected: </dt>
-          <dd className="inline">
-            {incident.tenants.join(', ')}
-            {incident.tenants.length > 1
-              ? ' — recorded as one platform incident, not one incident per tenant'
-              : ''}
-          </dd>
-        </div>
-        <div>
-          <dt className="inline font-medium">Capability: </dt>
-          <dd className="inline">{incident.capability}</dd>
-        </div>
-      </dl>
-      <p className="mt-2 text-sm font-medium">Verification checklist</p>
-      <ul className="mt-1 space-y-1 text-sm text-[var(--color-ink-muted)]">
-        {incident.checklist.map((item) => (
-          <li key={item.label}>
-            {item.label} — {item.evidence ?? 'no positive evidence recorded yet'}
-          </li>
-        ))}
-      </ul>
-      <p className="mt-2 text-xs text-[var(--color-ink-subtle)]">{incident.sourceRef}</p>
+      </section>
 
-      <div className="mt-3">
-        {incident.state === 'closed' ? (
-          <p className="text-sm text-[var(--color-ink-muted)]">
-            Closed. The transition and its platform audit record commit in the same transaction
-            (AC-SA-01-08, L43075), and no console screen offers a path back out of a closed
-            incident.
-          </p>
-        ) : decision.outcome !== 'allowed' ? (
-          // ABSENT, by rule, not by taste (spec §3). A role the evaluator
-          // refuses on the ROLE test holds no incident ownership anywhere in
-          // the source, so no control is drawn — a disabled control would
-          // imply an enabled state exists somewhere for this role, and the
-          // build map records this exact control as absent for Support.
-          <ProhibitionNotice
-            rendering={{
-              kind: 'absent',
-              note: `No close control is drawn here for ${roleName}. ${decision.explanation} Incident ownership on this console is held by the Root Super Admin, Admin and Platform Engineer alone, and Support holds none anywhere in the source (L42715) — so nothing is drawn, not a disabled control, because a disabled control would imply an enabled state exists somewhere for this role.`,
-            }}
-          />
-        ) : blocker !== null ? (
-          <Button disabledReason={blocker}>Close incident</Button>
-        ) : (
-          <Button onClick={() => onClose(incident.id)}>Close incident</Button>
-        )}
-      </div>
-    </article>
-  )
-}
+      <section aria-labelledby="overview-chart-heading" className="mt-8 flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="overview-chart-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
+            Tenants by tier
+          </h2>
+          <FreshnessStamp asOfLabel={asOfLabel} />
+        </div>
+        <Chart
+          controlId="overview-chart-tenants-by-tier"
+          kind="donut"
+          title="Tenants by tier"
+          categories={tierCategories}
+          series={tierSeries}
+          unit="tenants"
+        />
+      </section>
 
-function stateTreatment(stateId: ScreenStateId, roleId: RoleId, roleName: string) {
-  const firstIncident = INCIDENTS[0]
-  switch (stateId) {
-    case 'STATE-01':
-      return (
-        <ScreenStateBoundary
-          state="STATE-01"
-          surface="SURF-SA"
-          detail={{
-            objectLabel: 'platform incidents',
+      <section aria-labelledby="overview-attention-heading" className="mt-8 flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="overview-attention-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
+            Tenants needing attention
+          </h2>
+          {/* L47767, D16, L42742, L42979, L42715: the one control the source
+              names for this module (a filter), resolved to all four platform
+              roles by D16 — realised as this table's sort/filter, held
+              identically by Root Super Admin, Admin, Platform Engineer and
+              Support alike. */}
+          <FreshnessStamp asOfLabel={asOfLabel} />
+        </div>
+        <DataTable
+          caption="Tenants needing attention"
+          columns={attentionColumns}
+          query={attentionQuery}
+          rowId={(t) => t.id}
+          filters={attentionFilters}
+          emptyState={{
+            title: 'No tenant needs attention',
             whatCreatesIt:
-              'A detector, a protocol timer, an invariant alert, a freshness alert or a tenant report opens one. No console control creates an incident.',
+              'A tenant appears here when its lifecycle leaves active or pilot — invited, soft or hard suspended, compliance-suspended, pending downgrade, or archived.',
           }}
         />
-      )
-    case 'STATE-02':
-      return (
-        <ScreenStateBoundary
-          state="STATE-02"
-          surface="SURF-SA"
-          detail={{ objectLabel: 'the platform aggregates' }}
-        />
-      )
-    case 'STATE-04':
-      return (
-        <ScreenStateBoundary
-          state="STATE-04"
-          surface="SURF-SA"
-          detail={{
-            fieldLabel: 'Verification checklist',
-            rule: 'Recovery verification requires positive evidence for each item, and an incident cannot be closed on the absence of alerts alone (AC-4883).',
-            permittedFormat:
-              'Every checklist item must carry recorded evidence before the close control acts.',
-          }}
-        />
-      )
-    case 'STATE-05': {
-      const decision =
-        firstIncident !== undefined ? decisionFor(roleId, firstIncident) : undefined
-      if (decision === undefined || decision.outcome === 'allowed') {
-        return (
-          <p role="note" className="text-sm text-[var(--color-ink-muted)]">
-            {roleName} holds the incident close, so no refusal renders for this role. Select
-            Support (ROLE-PLAT-SUP) to see the refusal named rather than hidden behind a missing
-            control.
-          </p>
-        )
-      }
-      return (
-        <ScreenStateBoundary state="STATE-05" surface="SURF-SA" detail={{ decision }} />
-      )
-    }
-    case 'STATE-06':
-      // ONE cause, and the same one for all four roles. Branching the cause on
-      // the role printed two different "single causes" for one condition;
-      // Support's lack of incident ownership is a role fact, it is stated on
-      // the record where the control is ABSENT, and it is not what makes this
-      // screen read-only.
-      return (
-        <ScreenStateBoundary
-          state="STATE-06"
-          surface="SURF-SA"
-          detail={{ readOnlyCause: READ_ONLY_CAUSE }}
-        />
-      )
-    case 'STATE-08':
-      return (
-        <ScreenStateBoundary
-          state="STATE-08"
-          surface="SURF-SA"
-          detail={{
-            asOfLabel: 'as of 2026-08-16 08:30 platform time, 42 minutes old',
-            originLabel: 'served last-known-good from the aggregation layer (FB-SA-01)',
-          }}
-        />
-      )
-    case 'STATE-09':
-      return (
-        <ProhibitionNotice
-          rendering={{
-            kind: 'absent',
-            note: 'Nothing on this module enters the queued state: it issues no device command, and its only write commits with its audit record in one transaction. No element here is drawn as queued.',
-          }}
-        />
-      )
-    case 'STATE-10':
-    case 'STATE-11':
-      return (
-        <p className="text-sm text-[var(--color-ink-muted)]">
-          Rendered in the agent-health panel below. Everything else on this module keeps working.
-        </p>
-      )
-    case 'STATE-12':
-      return (
-        <ScreenStateBoundary
-          state="STATE-12"
-          surface="SURF-SA"
-          detail={{
-            failureWhat: 'The platform audit write accompanying an incident close',
-            wasWritten: false,
-            nextStep:
-              'FB-SA-03: the action does not happen. The incident record is unchanged; the close can be attempted again.',
-          }}
-        />
-      )
-    case 'STATE-13':
-      return (
-        <ScreenStateBoundary
-          state="STATE-13"
-          surface="SURF-SA"
-          detail={{
-            recoveryProgress:
-              'Re-aggregating the telemetry gap window: two of three dependent views recomputed. The incident cannot close while any dependent view is behind.',
-          }}
-        />
-      )
-    case 'STATE-03':
-      return (
-        <p className="text-sm text-[var(--color-ink-muted)]">
-          The aggregates and incident records below are the success rendering, each with its
-          as-of stamp.
-        </p>
-      )
-    case 'STATE-07':
-      // Unreachable: STATE-07 is frontline-only and is not offered by the
-      // selector. Handled so the switch is exhaustive over ScreenStateId
-      // rather than falling through to a default that would silently
-      // swallow a state added later.
-      return (
-        <p className="text-sm text-[var(--color-ink-muted)]">
-          Only the Frontline Worker Application has a true offline state.
-        </p>
-      )
-    default: {
-      const exhaustive: never = stateId
-      throw new Error(`Unhandled screen state: ${String(exhaustive)}`)
-    }
-  }
+      </section>
+
+      <DetailDrawer
+        open={selectedTenant !== null}
+        onClose={() => setSelectedTenantId(null)}
+        title={selectedTenant?.name ?? ''}
+        status={
+          selectedTenant ? (
+            <StatusPill tone={LIFECYCLE_TONE[selectedTenant.lifecycle]} label={LIFECYCLE_LABEL[selectedTenant.lifecycle]} />
+          ) : undefined
+        }
+        actions={
+          selectedTenant && fullRecordDecision ? (
+            <div className="flex flex-col gap-1.5">
+              <button
+                type="button"
+                disabled
+                aria-describedby="overview-full-record-reason"
+                data-control-id="overview-attention-open-full-record"
+                className={`w-fit cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-3 py-1.5 text-sm ${textColor('ink-subtle')}`}
+              >
+                Open full tenant record
+              </button>
+              <p id="overview-full-record-reason" className={`text-xs ${textColor('ink-muted')}`}>
+                {fullRecordDecision.explanation}
+              </p>
+            </div>
+          ) : undefined
+        }
+      >
+        {selectedTenant ? (
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+            <dt className={textColor('ink-muted')}>Tier</dt>
+            <dd className={textColor('ink')}>{TIER_LABEL[selectedTenant.tier]}</dd>
+
+            <dt className={textColor('ink-muted')}>Onboarded</dt>
+            <dd className={textColor('ink')}>{formatPlatformTime(Date.parse(selectedTenant.onboardedAt))}</dd>
+
+            <dt className={textColor('ink-muted')}>Days in current state</dt>
+            <dd className={textColor('ink')}>
+              {(() => {
+                const since = sinceByTenantId.get(selectedTenant.id)
+                return since === undefined ? 'Not recorded' : `${daysSince(since, nowMs)} days`
+              })()}
+            </dd>
+
+            <dt className={textColor('ink-muted')}>Regulated mode</dt>
+            <dd className={textColor('ink')}>{selectedTenant.regulatedMode ? 'On' : 'Off'}</dd>
+
+            <dt className={textColor('ink-muted')}>Legal hold</dt>
+            <dd className={textColor('ink')}>{selectedTenant.legalHold ? 'Yes' : 'No'}</dd>
+
+            <dt className={textColor('ink-muted')}>Worker shifts this month</dt>
+            <dd className={textColor('ink')}>{selectedTenant.workerShiftsThisMonth.toLocaleString()}</dd>
+
+            {selectedTenant.archivedAt !== null ? (
+              <>
+                <dt className={textColor('ink-muted')}>Archived</dt>
+                <dd className={textColor('ink')}>{formatPlatformTime(Date.parse(selectedTenant.archivedAt))}</dd>
+              </>
+            ) : null}
+          </dl>
+        ) : null}
+      </DetailDrawer>
+    </AppShell>
+  )
 }
