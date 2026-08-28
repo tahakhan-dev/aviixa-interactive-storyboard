@@ -11,45 +11,67 @@
       {
         "id": "nav-home",
         "narration": "Start at the storyboard's entry point.",
-        "action": { "kind": "navigate", "route": "/" },
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
         "expectRoute": "/"
       },
       {
         "id": "become-supervisor",
         "narration": "Become the Supervisor persona using the reviewer's role simulator.",
-        "action": { "kind": "switchRole", "userId": "SUPERVISOR" },
+        "action": {
+          "kind": "switchRole",
+          "userId": "SUPERVISOR"
+        },
         "spotlight": "demo-role-simulator",
         "expectVisible": "demo-role-simulator"
       },
       {
         "id": "nav-hub",
         "narration": "Open the Hub, the Supervisor's home surface.",
-        "action": { "kind": "navigate", "route": "/hub/" },
+        "action": {
+          "kind": "navigate",
+          "route": "/hub/"
+        },
         "expectRoute": "/hub/"
       },
       {
         "id": "nav-location",
         "narration": "Open Location configuration.",
-        "action": { "kind": "navigate", "route": "/hub/location-configuration/" },
+        "action": {
+          "kind": "navigate",
+          "route": "/hub/location-configuration/"
+        },
         "expectRoute": "/hub/location-configuration/"
       },
       {
         "id": "type-search",
         "narration": "Type into the location search box, one character at a time, exactly as a reviewer would with a keyboard.",
-        "action": { "kind": "type", "controlId": "doh-02-location-search", "value": "Ardmore" },
+        "action": {
+          "kind": "type",
+          "controlId": "doh-02-location-search",
+          "value": "Ardmore"
+        },
         "spotlight": "doh-02-location-search",
         "expectVisible": "doh-02-location-search"
       },
       {
         "id": "open-inspector",
         "narration": "Open the Inspector to reach the live cross-surface propagation drawer.",
-        "action": { "kind": "click", "controlId": "demo-inspector-toggle" },
+        "action": {
+          "kind": "click",
+          "controlId": "demo-inspector-toggle"
+        },
         "expectVisible": "demo-propagation-sample-write"
       },
       {
         "id": "run-sample-write",
         "narration": "Run the sample write — a real repository update, permitted for the Supervisor persona.",
-        "action": { "kind": "click", "controlId": "demo-propagation-sample-write" },
+        "action": {
+          "kind": "click",
+          "controlId": "demo-propagation-sample-write"
+        },
         "spotlight": "demo-propagation-sample-write",
         "expectVisible": "demo-propagation-sample-write"
       }
@@ -67,52 +89,76 @@
       {
         "id": "nav-frontline",
         "narration": "Start on the Frontline surface, the worker's application.",
-        "action": { "kind": "navigate", "route": "/frontline/" },
+        "action": {
+          "kind": "navigate",
+          "route": "/frontline/"
+        },
         "expectRoute": "/frontline/"
       },
       {
         "id": "become-worker",
         "narration": "Become Maya, a Worker on the shop floor.",
-        "action": { "kind": "switchRole", "userId": "WORKER" },
+        "action": {
+          "kind": "switchRole",
+          "userId": "WORKER"
+        },
         "spotlight": "demo-role-simulator",
         "expectVisible": "demo-role-simulator"
       },
       {
         "id": "nav-my-runs",
         "narration": "Open My Runs.",
-        "action": { "kind": "navigate", "route": "/frontline/my-runs/" },
+        "action": {
+          "kind": "navigate",
+          "route": "/frontline/my-runs/"
+        },
         "expectRoute": "/frontline/my-runs/"
       },
       {
         "id": "connectivity-flapping",
         "narration": "Connectivity turns unreliable partway through the shift.",
-        "action": { "kind": "setConnectivity", "mode": "flapping" },
+        "action": {
+          "kind": "setConnectivity",
+          "mode": "flapping"
+        },
         "spotlight": "demo-connectivity",
         "expectVisible": "demo-connectivity"
       },
       {
         "id": "become-supervisor",
         "narration": "Hand off to Louise, the Supervisor, on a different surface.",
-        "action": { "kind": "switchRole", "userId": "SUPERVISOR" },
+        "action": {
+          "kind": "switchRole",
+          "userId": "SUPERVISOR"
+        },
         "spotlight": "demo-role-simulator",
         "expectVisible": "demo-role-simulator"
       },
       {
         "id": "cross-to-hub",
         "narration": "Cross from Frontline to the Hub — the surface handoff.",
-        "action": { "kind": "navigate", "route": "/hub/" },
+        "action": {
+          "kind": "navigate",
+          "route": "/hub/"
+        },
         "expectRoute": "/hub/"
       },
       {
         "id": "nav-job-lifecycle",
         "narration": "Louise opens Job lifecycle and approval to review the shift's work.",
-        "action": { "kind": "navigate", "route": "/hub/job-lifecycle-and-approval/" },
+        "action": {
+          "kind": "navigate",
+          "route": "/hub/job-lifecycle-and-approval/"
+        },
         "expectRoute": "/hub/job-lifecycle-and-approval/"
       },
       {
         "id": "advance-one-hour",
         "narration": "An hour passes while she reviews.",
-        "action": { "kind": "advanceClock", "toStamp": "2026-03-02T07:00:00.000Z" },
+        "action": {
+          "kind": "advanceClock",
+          "toStamp": "2026-03-02T07:00:00.000Z"
+        },
         "spotlight": "demo-clock-advance-1h",
         "expectVisible": "demo-clock-advance-1h"
       }
@@ -130,19 +176,993 @@
       {
         "id": "nav-home",
         "narration": "Start at the storyboard's entry point.",
-        "action": { "kind": "navigate", "route": "/" },
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
         "expectRoute": "/"
       },
       {
         "id": "open-scenario",
         "narration": "Open the scenario controls to reach the simulated clock.",
-        "action": { "kind": "click", "controlId": "demo-scenario-toggle" },
+        "action": {
+          "kind": "click",
+          "controlId": "demo-scenario-toggle"
+        },
         "expectVisible": "demo-clock-advance-1h"
       },
       {
         "id": "attempt-unreachable-jump",
         "narration": "Attempt to jump straight to 07:30 — ninety minutes on, a timestamp the two fixed +1h/+1d buttons cannot land on exactly. A reviewer clicking by hand could not reach it either, so the tour reports the same failure rather than faking success.",
-        "action": { "kind": "advanceClock", "toStamp": "2026-03-02T07:30:00.000Z" }
+        "action": {
+          "kind": "advanceClock",
+          "toStamp": "2026-03-02T07:30:00.000Z"
+        }
+      }
+    ]
+  },
+  {
+    "id": "TOUR-TENANT-PROVISION-001",
+    "version": "1.0.0",
+    "title": "Provisioning a new tenant, through the wizard's own validation",
+    "workflowId": null,
+    "variant": "nominal",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Start at the storyboard's entry point.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-sign-in",
+        "narration": "Helena Voss, a platform Admin, opens the Super Admin console sign-in page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email",
+        "narration": "She enters her work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "helena.voss@platform.aviixa.example"
+        },
+        "spotlight": "field-email",
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password",
+        "narration": "...and a password — this storyboard accepts any non-empty password for an active account.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in",
+        "narration": "She signs in.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        },
+        "spotlight": "sign-in-submit"
+      },
+      {
+        "id": "land-dashboard",
+        "narration": "Sign-in lands her on the platform dashboard, the console's home surface.",
+        "action": {
+          "kind": "assertState",
+          "description": "The sign-in redirect has resolved.",
+          "check": "demo-role-simulator"
+        },
+        "expectRoute": "/super-admin/platform-overview-and-health/"
+      },
+      {
+        "id": "nav-tenants",
+        "narration": "She opens the tenant list.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/tenants-lifecycle-and-pilots/"
+        },
+        "expectRoute": "/super-admin/tenants-lifecycle-and-pilots/"
+      },
+      {
+        "id": "click-create",
+        "narration": "She clicks Create tenant.",
+        "action": {
+          "kind": "click",
+          "controlId": "tenants-create"
+        },
+        "spotlight": "tenants-create",
+        "expectRoute": "/super-admin/tenants-lifecycle-and-pilots/create/"
+      },
+      {
+        "id": "type-tenant-name",
+        "narration": "She types the new tenant's name.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-name",
+          "value": "Meridian Robotics"
+        },
+        "expectVisible": "field-name"
+      },
+      {
+        "id": "advance-to-commercial",
+        "narration": "With the name valid, Next advances to Commercial.",
+        "action": {
+          "kind": "click",
+          "controlId": "wizard-next"
+        },
+        "expectVisible": "field-tier-starter"
+      },
+      {
+        "id": "select-growth-tier",
+        "narration": "She selects the Growth tier.",
+        "action": {
+          "kind": "click",
+          "controlId": "field-tier-growth"
+        },
+        "expectVisible": "field-tier-growth"
+      },
+      {
+        "id": "advance-to-admin",
+        "narration": "Commercial is valid by default; Next advances to First administrator.",
+        "action": {
+          "kind": "click",
+          "controlId": "wizard-next"
+        },
+        "expectVisible": "field-adminDisplayName"
+      },
+      {
+        "id": "type-admin-name",
+        "narration": "She names the tenant's first administrator.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-adminDisplayName",
+          "value": "Jordan Cole"
+        },
+        "expectVisible": "field-adminDisplayName"
+      },
+      {
+        "id": "type-admin-email",
+        "narration": "...and their email — the address the invitation goes to.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-adminEmail",
+          "value": "jordan.cole@meridianrobotics.example"
+        },
+        "expectVisible": "field-adminEmail"
+      },
+      {
+        "id": "advance-to-review",
+        "narration": "Both administrator fields are valid; Next advances to Review.",
+        "action": {
+          "kind": "click",
+          "controlId": "wizard-next"
+        },
+        "expectVisible": "create-tenant-review-confirm-trigger"
+      },
+      {
+        "id": "open-confirm",
+        "narration": "She opens the review confirmation.",
+        "action": {
+          "kind": "click",
+          "controlId": "create-tenant-review-confirm-trigger"
+        },
+        "expectVisible": "create-tenant-confirm-confirm"
+      },
+      {
+        "id": "confirm-create",
+        "narration": "She confirms the tenant and its administrator invitation.",
+        "action": {
+          "kind": "click",
+          "controlId": "create-tenant-confirm-confirm"
+        }
+      },
+      {
+        "id": "finish-create",
+        "narration": "Finish commits the tenant and its administrator invitation as one real write.",
+        "action": {
+          "kind": "click",
+          "controlId": "wizard-next"
+        }
+      },
+      {
+        "id": "land-detail",
+        "narration": "The write lands her on the new tenant's detail page, Invited. Activate is present but disabled: no administrator has accepted the invitation yet.",
+        "action": {
+          "kind": "assertState",
+          "description": "Landed on the new tenant's own detail page.",
+          "check": "tenant-detail-activate"
+        },
+        "expectRoute": "/super-admin/tenants-lifecycle-and-pilots/detail/"
+      }
+    ]
+  },
+  {
+    "id": "TOUR-TENANT-ACTIVATION-001",
+    "version": "1.0.0",
+    "title": "A Tenant Admin accepts, and the platform team activates the workspace",
+    "workflowId": null,
+    "variant": "nominal",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Start at the storyboard's entry point, signed out. This tour continues the provisioning tour's story on a tenant already seeded in the same 'invited, not yet accepted' state — accepting an invitation needs a signed-out session, and no write from a separate create-tenant run survives into this one.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-accept",
+        "narration": "Nadia Ferreira opens the invitation link Ironclad Fasteners' Tenant Admin was sent.",
+        "action": {
+          "kind": "navigate",
+          "route": "/hub/accept-invitation/?tenant=TEN-IRONCLAD"
+        },
+        "expectRoute": "/hub/accept-invitation/"
+      },
+      {
+        "id": "accept",
+        "narration": "She accepts the invitation — a real write that activates her own account.",
+        "action": {
+          "kind": "click",
+          "controlId": "accept-invitation-submit"
+        },
+        "spotlight": "accept-invitation-submit"
+      },
+      {
+        "id": "land-hub",
+        "narration": "Accepting lands her, signed in, on the Hub — her workspace is visible but not yet operating.",
+        "action": {
+          "kind": "assertState",
+          "description": "Landed in the Hub as the newly active Tenant Admin.",
+          "check": "demo-role-simulator"
+        }
+      },
+      {
+        "id": "nav-sign-in-again",
+        "narration": "Meanwhile, Helena Voss, a platform Admin, opens the console sign-in page to activate the workspace now that its administrator has accepted.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email-2",
+        "narration": "She enters her work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "helena.voss@platform.aviixa.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password-2",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in-2",
+        "narration": "She signs in — this build's sign-in form has no separate sign-out step, so a fresh sign-in simply replaces the prior session.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        },
+        "spotlight": "sign-in-submit"
+      },
+      {
+        "id": "land-dashboard-2",
+        "narration": "Sign-in lands her on the platform dashboard.",
+        "action": {
+          "kind": "assertState",
+          "description": "The sign-in redirect has resolved.",
+          "check": "demo-role-simulator"
+        },
+        "expectRoute": "/super-admin/platform-overview-and-health/"
+      },
+      {
+        "id": "nav-detail",
+        "narration": "She opens Ironclad Fasteners' own detail page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/tenants-lifecycle-and-pilots/detail/?tenant=TEN-IRONCLAD"
+        },
+        "expectRoute": "/super-admin/tenants-lifecycle-and-pilots/detail/"
+      },
+      {
+        "id": "assert-activate-enabled",
+        "narration": "With Nadia's acceptance now on record, Activate is enabled.",
+        "action": {
+          "kind": "assertState",
+          "description": "Activate is reachable now that the administrator has accepted.",
+          "check": "tenant-detail-activate"
+        }
+      },
+      {
+        "id": "click-activate",
+        "narration": "She clicks Activate.",
+        "action": {
+          "kind": "click",
+          "controlId": "tenant-detail-activate"
+        },
+        "spotlight": "tenant-detail-activate",
+        "expectVisible": "tenant-detail-lifecycle-confirm-confirm"
+      },
+      {
+        "id": "confirm-activate",
+        "narration": "...and confirms — a real write moving the tenant from Invited to Active.",
+        "action": {
+          "kind": "click",
+          "controlId": "tenant-detail-lifecycle-confirm-confirm"
+        }
+      },
+      {
+        "id": "activated",
+        "narration": "The confirmation banner reads that Ironclad Fasteners is now Active.",
+        "action": {
+          "kind": "assertState",
+          "description": "The write landed.",
+          "check": "tenant-detail-write-feedback"
+        }
+      },
+      {
+        "id": "nav-list",
+        "narration": "Back on the tenant list...",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/tenants-lifecycle-and-pilots/"
+        },
+        "expectRoute": "/super-admin/tenants-lifecycle-and-pilots/"
+      },
+      {
+        "id": "search-ironclad",
+        "narration": "...searching for Ironclad Fasteners shows its row now carrying the Active status.",
+        "action": {
+          "kind": "type",
+          "controlId": "dt-tenants-search",
+          "value": "Ironclad"
+        },
+        "expectVisible": "dt-tenants-row-TEN-IRONCLAD"
+      }
+    ]
+  },
+  {
+    "id": "TOUR-TENANT-CREATE-DENIED-001",
+    "version": "1.0.0",
+    "title": "Watch what happens when a Platform Engineer tries to create a tenant",
+    "workflowId": null,
+    "variant": "denied",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Start at the storyboard's entry point.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-sign-in",
+        "narration": "Kwame Adjei, a Platform Engineer, opens the console sign-in page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email",
+        "narration": "He enters his work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "kwame.adjei@platform.aviixa.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in",
+        "narration": "He signs in.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        }
+      },
+      {
+        "id": "land-dashboard",
+        "narration": "Sign-in lands him on the platform dashboard.",
+        "action": {
+          "kind": "assertState",
+          "description": "The sign-in redirect has resolved.",
+          "check": "demo-role-simulator"
+        },
+        "expectRoute": "/super-admin/platform-overview-and-health/"
+      },
+      {
+        "id": "nav-tenants",
+        "narration": "He opens the tenant list.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/tenants-lifecycle-and-pilots/"
+        },
+        "expectRoute": "/super-admin/tenants-lifecycle-and-pilots/"
+      },
+      {
+        "id": "assert-create-disabled",
+        "narration": "Create tenant is visible but disabled: tenant creation is reserved for the Root Super Admin and the Admin, not the Platform Engineer.",
+        "action": {
+          "kind": "assertState",
+          "description": "Create tenant renders, disabled.",
+          "check": "tenants-create"
+        }
+      },
+      {
+        "id": "nav-create-direct",
+        "narration": "Navigating straight to the create route does not bypass the rule — the wizard itself still checks who is asking before it writes anything.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/tenants-lifecycle-and-pilots/create/"
+        },
+        "expectRoute": "/super-admin/tenants-lifecycle-and-pilots/create/"
+      },
+      {
+        "id": "type-tenant-name",
+        "narration": "He fills in a tenant name.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-name",
+          "value": "Ridgeline Components"
+        },
+        "expectVisible": "field-name"
+      },
+      {
+        "id": "advance-to-commercial",
+        "narration": "Next advances to Commercial.",
+        "action": {
+          "kind": "click",
+          "controlId": "wizard-next"
+        },
+        "expectVisible": "field-tier-starter"
+      },
+      {
+        "id": "advance-to-admin",
+        "narration": "Next advances to First administrator.",
+        "action": {
+          "kind": "click",
+          "controlId": "wizard-next"
+        },
+        "expectVisible": "field-adminDisplayName"
+      },
+      {
+        "id": "type-admin-name",
+        "narration": "He names an administrator.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-adminDisplayName",
+          "value": "Priya Shah"
+        },
+        "expectVisible": "field-adminDisplayName"
+      },
+      {
+        "id": "type-admin-email",
+        "narration": "...and an email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-adminEmail",
+          "value": "priya.shah@ridgelinecomponents.example"
+        },
+        "expectVisible": "field-adminEmail"
+      },
+      {
+        "id": "advance-to-review",
+        "narration": "Next advances to Review.",
+        "action": {
+          "kind": "click",
+          "controlId": "wizard-next"
+        },
+        "expectVisible": "create-tenant-review-confirm-trigger"
+      },
+      {
+        "id": "open-confirm",
+        "narration": "He opens the review confirmation.",
+        "action": {
+          "kind": "click",
+          "controlId": "create-tenant-review-confirm-trigger"
+        },
+        "expectVisible": "create-tenant-confirm-confirm"
+      },
+      {
+        "id": "confirm",
+        "narration": "...and confirms.",
+        "action": {
+          "kind": "click",
+          "controlId": "create-tenant-confirm-confirm"
+        }
+      },
+      {
+        "id": "finish-attempt",
+        "narration": "He clicks Finish.",
+        "action": {
+          "kind": "click",
+          "controlId": "wizard-next"
+        }
+      },
+      {
+        "id": "denied",
+        "narration": "The write is refused: a Platform Engineer may not provision a tenant. Nothing was created.",
+        "action": {
+          "kind": "assertState",
+          "description": "The write was refused.",
+          "check": "wizard-result-failure"
+        }
+      }
+    ]
+  },
+  {
+    "id": "TOUR-APPROVAL-SOD-001",
+    "version": "1.0.0",
+    "title": "Watch what happens when the root tries to approve its own proposal",
+    "workflowId": null,
+    "variant": "denied",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Start at the storyboard's entry point.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-sign-in",
+        "narration": "The Root Super Admin opens the console sign-in page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email",
+        "narration": "The root enters its work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "root.admin@platform.aviixa.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in",
+        "narration": "It signs in.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        }
+      },
+      {
+        "id": "stepup-shown",
+        "narration": "Root sign-in never lands directly — it stops here first.",
+        "action": {
+          "kind": "assertState",
+          "description": "The root's sign-in requires the platform floor-register acknowledgement before it can proceed.",
+          "check": "sign-in-outcome-step-up-required"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "confirm-stepup",
+        "narration": "Confirming the platform floor register completes the acknowledgement.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-stepup-confirm"
+        },
+        "spotlight": "sign-in-stepup-confirm"
+      },
+      {
+        "id": "land-dashboard",
+        "narration": "Confirming lands the root on the platform dashboard.",
+        "action": {
+          "kind": "assertState",
+          "description": "The acknowledgement has resolved.",
+          "check": "demo-role-simulator"
+        },
+        "expectRoute": "/super-admin/platform-overview-and-health/"
+      },
+      {
+        "id": "nav-console",
+        "narration": "The root opens Console users, roles and change approvals.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/console-users-roles-and-change-approvals/"
+        },
+        "expectRoute": "/super-admin/console-users-roles-and-change-approvals/"
+      },
+      {
+        "id": "open-ar-2",
+        "narration": "It opens a pending engineering-class change it proposed itself — an evaluation-harness retry-policy setting.",
+        "action": {
+          "kind": "click",
+          "controlId": "approvals-open-AR-0002"
+        },
+        "expectVisible": "approvals-approve"
+      },
+      {
+        "id": "assert-sod",
+        "narration": "Approve and Return are visible but disabled: the platform allows no one, not even the root, to decide an engineering-class change they proposed themselves.",
+        "action": {
+          "kind": "assertState",
+          "description": "Approve and Return render, disabled, because the proposer and the decider are the same account.",
+          "check": "approvals-approve"
+        }
+      }
+    ]
+  },
+  {
+    "id": "TOUR-APPROVAL-SECOND-ROOT-001",
+    "version": "1.0.0",
+    "title": "Watch what happens when the root tries to invite a second Root Super Admin",
+    "workflowId": null,
+    "variant": "denied",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Start at the storyboard's entry point.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-sign-in",
+        "narration": "The Root Super Admin opens the console sign-in page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email",
+        "narration": "The root enters its work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "root.admin@platform.aviixa.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in",
+        "narration": "It signs in.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        }
+      },
+      {
+        "id": "stepup-shown",
+        "narration": "Root sign-in never lands directly — it stops here first.",
+        "action": {
+          "kind": "assertState",
+          "description": "The root's sign-in requires the platform floor-register acknowledgement before it can proceed.",
+          "check": "sign-in-outcome-step-up-required"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "confirm-stepup",
+        "narration": "Confirming the platform floor register completes the acknowledgement.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-stepup-confirm"
+        }
+      },
+      {
+        "id": "land-dashboard",
+        "narration": "Confirming lands the root on the platform dashboard.",
+        "action": {
+          "kind": "assertState",
+          "description": "The acknowledgement has resolved.",
+          "check": "demo-role-simulator"
+        },
+        "expectRoute": "/super-admin/platform-overview-and-health/"
+      },
+      {
+        "id": "nav-console",
+        "narration": "The root opens Console users, roles and change approvals.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/console-users-roles-and-change-approvals/"
+        },
+        "expectRoute": "/super-admin/console-users-roles-and-change-approvals/"
+      },
+      {
+        "id": "open-invite",
+        "narration": "It opens Invite console user.",
+        "action": {
+          "kind": "click",
+          "controlId": "console-users-invite"
+        },
+        "expectVisible": "field-displayName"
+      },
+      {
+        "id": "type-name",
+        "narration": "It names a candidate account.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-displayName",
+          "value": "Backup Root Candidate"
+        },
+        "expectVisible": "field-displayName"
+      },
+      {
+        "id": "type-invite-email",
+        "narration": "...and an email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "backup.root@platform.aviixa.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "select-root-role",
+        "narration": "It selects Root Super Admin — offered on this form specifically so attempting it shows the reason it cannot be granted, not because it can be.",
+        "action": {
+          "kind": "click",
+          "controlId": "field-role-ROOT_SUPER_ADMIN"
+        },
+        "expectVisible": "field-role-ROOT_SUPER_ADMIN"
+      },
+      {
+        "id": "submit-invite",
+        "narration": "It sends the invitation.",
+        "action": {
+          "kind": "click",
+          "controlId": "console-users-invite-submit"
+        }
+      },
+      {
+        "id": "denied",
+        "narration": "The invitation is refused: exactly one Root Super Admin account exists, created only by the backend at platform commissioning — no console path, including this one, can create a second.",
+        "action": {
+          "kind": "assertState",
+          "description": "The invitation was refused.",
+          "check": "console-users-invite-result"
+        }
+      }
+    ]
+  },
+  {
+    "id": "TOUR-APPROVAL-CRITICAL-NO-CONTROL-001",
+    "version": "1.0.0",
+    "title": "Watch a non-root viewer open a critical-class change",
+    "workflowId": null,
+    "variant": "denied",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Start at the storyboard's entry point.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-sign-in",
+        "narration": "Helena Voss, a platform Admin, opens the console sign-in page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email",
+        "narration": "She enters her work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "helena.voss@platform.aviixa.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in",
+        "narration": "She signs in.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        }
+      },
+      {
+        "id": "land-dashboard",
+        "narration": "Sign-in lands her on the platform dashboard.",
+        "action": {
+          "kind": "assertState",
+          "description": "The sign-in redirect has resolved.",
+          "check": "demo-role-simulator"
+        },
+        "expectRoute": "/super-admin/platform-overview-and-health/"
+      },
+      {
+        "id": "nav-console",
+        "narration": "She opens Console users, roles and change approvals.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/console-users-roles-and-change-approvals/"
+        },
+        "expectRoute": "/super-admin/console-users-roles-and-change-approvals/"
+      },
+      {
+        "id": "open-ar-3",
+        "narration": "She opens a pending critical-class change — a compliance suspension.",
+        "action": {
+          "kind": "click",
+          "controlId": "approvals-open-AR-0003"
+        },
+        "expectVisible": "approvals-critical-non-root-notice"
+      },
+      {
+        "id": "assert-no-control",
+        "narration": "No Approve or Return control renders at all — the action bar is replaced with a sentence naming why, not a disabled button.",
+        "action": {
+          "kind": "assertState",
+          "description": "No approve or return control renders for a non-root viewer of a critical-class request.",
+          "check": "approvals-critical-non-root-notice"
+        }
+      }
+    ]
+  },
+  {
+    "id": "TOUR-INVITATION-EXPIRED-001",
+    "version": "1.0.0",
+    "title": "Watch what happens when an invitation link has expired",
+    "workflowId": null,
+    "variant": "failure",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Start at the storyboard entry point, signed out.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-accept",
+        "narration": "Marisol Peña tries to open her invitation link to Red Rock Manufacturing, seeded well past its seven-day validity window.",
+        "action": {
+          "kind": "navigate",
+          "route": "/hub/accept-invitation/?tenant=TEN-REDROCKMFG"
+        },
+        "expectRoute": "/hub/accept-invitation/"
+      },
+      {
+        "id": "assert-expired",
+        "narration": "The invitation reads as expired: issued more than seven days ago, past the window this platform treats an unaccepted invitation as still open. This outcome banner carries no data-control-id of its own (a disclosed gap); the route and the screenshot are this steps evidence.",
+        "action": {
+          "kind": "assertState",
+          "description": "The invitation reads as expired.",
+          "check": "demo-role-simulator"
+        }
+      }
+    ]
+  },
+  {
+    "id": "TOUR-INVITATION-TENANT-BLOCKED-001",
+    "version": "1.0.0",
+    "title": "Watch what happens when a tenant is suspended before its administrator accepts",
+    "workflowId": null,
+    "variant": "failure",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Start at the storyboard's entry point, signed out.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-accept",
+        "narration": "Felix Okoro tries to open his invitation to Granite Hollow Tooling.",
+        "action": {
+          "kind": "navigate",
+          "route": "/hub/accept-invitation/?tenant=TEN-GRANITEHOLLOW"
+        },
+        "expectRoute": "/hub/accept-invitation/"
+      },
+      {
+        "id": "assert-blocked",
+        "narration": "Granite Hollow Tooling's account is currently compliance suspended — the invitation cannot be accepted while that holds.",
+        "action": {
+          "kind": "assertState",
+          "description": "The workspace itself is blocked, so the invitation cannot be accepted regardless of whether Felix would otherwise accept it. This outcome banner carries no data-control-id of its own (a disclosed gap); the route and the screenshot are this step's evidence.",
+          "check": "demo-role-simulator"
+        }
       }
     ]
   }

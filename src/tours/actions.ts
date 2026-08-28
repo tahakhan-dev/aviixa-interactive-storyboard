@@ -196,6 +196,23 @@ function fireChange(el: HTMLElement): void {
 }
 
 /**
+ * Task 10 (unit-01) fix — the HTML spec restricts `setSelectionRange`/
+ * `selectionStart`/`selectionEnd` to a handful of `<input>` types (`text`,
+ * `search`, `url`, `tel`, `password`; a `<textarea>` always supports it).
+ * Calling it on any other type — `email` included, the type Task 2's own
+ * sign-in screen and this unit's invite-console-user form both use — throws
+ * a real `InvalidStateError` in every real browser, caught live the first
+ * time a tour in this unit typed into `field-email`: no existing tour
+ * before this one ever typed into a non-text-like input, so the three seed
+ * tours never tripped this. Fixed once here, the single place every typed
+ * step routes through, rather than in each caller.
+ */
+function supportsSelectionRange(el: HTMLInputElement | HTMLTextAreaElement): boolean {
+  if (el instanceof HTMLTextAreaElement) return true
+  return ['text', 'search', 'url', 'tel', 'password'].includes(el.type)
+}
+
+/**
  * Character-by-character, with a visible caret: each keystroke sets the
  * accumulated value through the native setter, places the caret at the end
  * (exactly where a real keystroke would leave it) and fires the same
@@ -207,12 +224,13 @@ async function typeInto(el: HTMLInputElement | HTMLTextAreaElement, text: string
   el.focus()
   const setValue = nativeValueSetter(el)
   if (!setValue) throw new Error('Could not resolve a native value setter for this element.')
+  const canSelect = supportsSelectionRange(el)
   let accumulated = ''
   for (const char of text) {
     accumulated += char
     setValue(accumulated)
     fireInput(el)
-    el.setSelectionRange(accumulated.length, accumulated.length)
+    if (canSelect) el.setSelectionRange(accumulated.length, accumulated.length)
     await sleep(BASE_CHAR_DELAY_MS / speed)
   }
   fireChange(el)
