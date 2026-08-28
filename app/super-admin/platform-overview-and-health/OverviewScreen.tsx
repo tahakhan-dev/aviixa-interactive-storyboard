@@ -94,16 +94,30 @@ import { tenantId } from '@/domain/ids'
  *    already shows), not a cross-tenant COMPARATIVE metric. Noted so a
  *    reviewer can see the distinction was considered, not missed.
  *  - L105074, L105076, SB-SEC-013 (the six ENFORCED invariants, rendered as
- *    status chips) — already rendered elsewhere in this rebuild:
- *    `PlatformSettingsScreen.tsx` and the root's own step-up panel
- *    (`app/super-admin/sign-in/SignInScreen.tsx`, Task 2). Not duplicated
- *    here. `SB-SEC-013` governs no decision and renders no content ON this
- *    screen — it is a pure forward pointer — so it does not belong in a
- *    `sourceRefs` array (that would misattribute authority this screen
- *    doesn't exercise). Carried in a real `data-carried-forward-refs`
- *    attribute on the KPI section below rather than only in this comment,
- *    for the same reason `SB-SA-01` above moved: a header comment is
- *    invisible to the coverage scan (fix round 1, IMPORTANT 1).
+ *    status chips) — the CONTENT this describes is genuinely rendered
+ *    elsewhere in this rebuild: `PlatformSettingsScreen.tsx`'s own
+ *    "The six ENFORCED invariants, rendered locked" section, and the
+ *    root's step-up panel (`app/super-admin/sign-in/SignInScreen.tsx`,
+ *    Task 2, its six 🔒 ENFORCED chips). Not duplicated here.
+ *
+ *    FIX ROUND 2 (review IMPORTANT 1): this paragraph previously said the
+ *    identifier itself was "already rendered elsewhere" and, on the
+ *    strength of that, fix round 1 put `SB-SEC-013` in a
+ *    `data-carried-forward-refs` attribute here so the coverage scan would
+ *    count it. Both were wrong the same way: neither
+ *    `PlatformSettingsScreen.tsx` nor `SignInScreen.tsx` contains the
+ *    literal token `SB-SEC-013` anywhere (`grep -rn "SB-SEC-013" app src`
+ *    finds it nowhere but this comment before this fix) — the FACT those
+ *    screens render is real, but the CITATION was never actually anywhere
+ *    but here. A `demonstrated-in-storyboard` coverage row is a claim a
+ *    reviewer can check by opening a screen and finding the thing cited;
+ *    that claim was false for this identifier, so the attribute is
+ *    removed. `SB-SEC-013` also governs no decision and renders no content
+ *    ON this screen, so it does not belong in a `sourceRefs` array either
+ *    (that would misattribute authority this screen doesn't exercise). It
+ *    stays named here, comment-only, until some screen's real code —
+ *    most plausibly `PlatformSettingsScreen.tsx`'s own invariants section —
+ *    actually cites the identifier, not only the fact it describes.
  *  - STATE-01 through STATE-13, the `src/ui/screen-state.ts` framework the
  *    previous body exercised thirteen times over — superseded for this
  *    generation of screens by `useRuntimeReady()`'s loading gate
@@ -406,11 +420,7 @@ function PlatformOverviewDashboard({ session }: { readonly session: ProductSessi
 
   return (
     <AppShell surface="SURF-SA" session={session} title={MODULE.name} breadcrumbs={[{ label: MODULE.name }]}>
-      <section
-        aria-labelledby="overview-kpi-heading"
-        className="flex flex-col gap-3"
-        data-carried-forward-refs="SB-SEC-013"
-      >
+      <section aria-labelledby="overview-kpi-heading" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="overview-kpi-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
             Platform health

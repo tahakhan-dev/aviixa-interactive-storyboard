@@ -49,15 +49,18 @@ import { saModuleById } from '@/surfaces/sa/modules'
  *    block unconditionally before the identifier regex ever runs. The
  *    census fell from 299 to 292 demonstrated when this file replaced the
  *    original, and a comment citation — however precisely spelled — was
- *    never going to prevent that. Each of the five now exists in real,
- *    non-comment code below: `SB-SA-09` and `SB-31-01` as `sourceRefs` on
- *    the two `evaluateAccess` calls they actually govern
- *    (`filterDecision`/`createDecision`), and `SB-31-02`/`SB-31-05`/
- *    `SB-SA-TENANT-01` — which govern Task 5's or Task 6's screen, not a
- *    decision this list makes — as a rendered `data-carried-forward-refs`
- *    attribute near the table below. This comment is kept too; the fix is
- *    that the identifier ALSO exists in code, not that the comment goes
- *    away.
+ *    never going to prevent that. `SB-SA-09` and `SB-31-01` now exist in
+ *    real, non-comment code below: `sourceRefs` on the two `evaluateAccess`
+ *    calls they actually govern (`filterDecision`/`createDecision`).
+ *    `SB-31-02`/`SB-31-05`/`SB-SA-TENANT-01` do NOT — FIX ROUND 2 (review
+ *    IMPORTANT 1) reverted round 1's `data-carried-forward-refs` attribute
+ *    for these three: they govern Task 5's or Task 6's screen, and a
+ *    `demonstrated-in-storyboard` coverage row is a claim a reviewer can
+ *    open the route and check, which for these three is false today — no
+ *    create wizard, no `[tenantId]/` route exist in this tree yet. A false
+ *    coverage row is worse than an honest gap, so these three stay
+ *    comment-only (see the JSX comment below, where they are named again)
+ *    until Task 5/6 actually build the screens that demonstrate them.
  *  - L52383, L57245 ("headline usage… a count of Worker-Shifts in the
  *    tenant-month, a billing unit on a commercial ledger; nothing beneath
  *    it on this console") — realised as the "Worker-Shifts this month"
@@ -106,9 +109,9 @@ import { saModuleById } from '@/surfaces/sa/modules'
  *    DETAIL-page and lifecycle-ACTION content, not list content — carried
  *    forward, not dropped, to Task 6 (`[tenantId]/TenantDetail.tsx`), which
  *    is this unit's very next task and owns every one of those locators.
- *    Three of them (`SB-31-02`, `SB-31-05`, `SB-SA-TENANT-01`) are also
- *    rendered in a real `data-carried-forward-refs` attribute near the
- *    table below, not only named here, per the coverage fix above.
+ *    Three of them (`SB-31-02`, `SB-31-05`, `SB-SA-TENANT-01`) are named
+ *    again, comment-only, near the table below — not rendered anywhere,
+ *    per the coverage ruling above (fix round 2).
  *  - The role-switcher `<Select>` and the screen-state radio group the
  *    outgoing file rendered as page furniture are gone outright: this
  *    build reads the REAL signed-in role from `useAccessContext()`
@@ -250,6 +253,16 @@ function TenantRegistry({ session }: { readonly session: ProductSession }) {
    * for the tenant list" (`UNSPECIFIED_IN_SOURCE`, `./fixtures.ts`), so
    * search stays what the header comment already says it is — `DataTable`'s
    * own product-standard affordance, never claimed as source-authorised.
+   *
+   * NOTED FOR WHOEVER NEXT TOUCHES ROLE SCOPING ON THIS SCREEN (fix round 2
+   * re-review): `allowedRoles` below lists every platform role that can
+   * reach this route at all, so this branch is never false in practice —
+   * `filterDecision.outcome` is unanimous today. It is still a real,
+   * consumed decision (not decorative: `filters` genuinely depends on it)
+   * and `SB-SA-09`'s citation on it is legitimate, but the gate itself
+   * currently gates nothing. If a future narrower role or scope ever
+   * reaches SURF-SA without this control, this is where that exclusion
+   * belongs.
    */
   const filterDecision = evaluateAccess(
     {
@@ -367,36 +380,43 @@ function TenantRegistry({ session }: { readonly session: ProductSession }) {
         (L117966, the scheduled suspend/pilot-expiry/archive transitions) —
         each governs Task 5's or Task 6's screen, never a decision this list
         makes, so none belongs in a `sourceRefs` array here (that would
-        misattribute authority this screen doesn't exercise). Carried
-        forward as a real, rendered attribute rather than only a header
-        comment, for the same reason `createDecision`/`filterDecision`
-        above moved their own citations out of comment-only text: a
-        registry coverage scan strips every comment before it looks for an
-        identifier (fix round 1, IMPORTANT 1).
+        misattribute authority this screen doesn't exercise).
+
+        FIX ROUND 2 (review IMPORTANT 1): fix round 1 also rendered these
+        three into a `data-carried-forward-refs` attribute so the coverage
+        scan would count them. Reverted — the re-review ruled correctly
+        against it: a `demonstrated-in-storyboard` row is a claim a reviewer
+        can check by opening the route, and opening this route today shows
+        no create wizard and no tenant-detail invitation flow, because
+        Tasks 5 and 6 have not built them yet. A row saying otherwise is
+        false, and this build's one unwaivable limit is that no capability
+        is claimed which is only simulated — a coverage row is exactly a
+        capability claim. These three stay named here, in a comment only,
+        until Task 5/6 ship the screens that actually demonstrate them; the
+        census reads 295, not 299, until then, and that is the honest
+        number.
       */}
-      <div data-carried-forward-refs="SB-31-02 SB-31-05 SB-SA-TENANT-01">
-        <DataTable
-          caption="Tenants"
-          columns={columns}
-          query={tenantsQuery}
-          rowId={(t) => t.id}
-          rowHref={(t) => `/super-admin/tenants-lifecycle-and-pilots/${encodeURIComponent(t.id)}/`}
-          search={{
-            placeholder: 'Search by name or id',
-            match: (t, q) => {
-              const needle = q.toLowerCase()
-              return t.name.toLowerCase().includes(needle) || t.id.toLowerCase().includes(needle)
-            },
-          }}
-          {...(filterDecision.outcome === 'allowed' ? { filters } : {})}
-          pageSize={TENANT_LIST_PAGE_SIZE}
-          emptyState={{
-            title: 'There are no tenants yet.',
-            whatCreatesIt:
-              "The platform team creates one from Create tenant. No public self-signup path exists (AC-SA-09-01).",
-          }}
-        />
-      </div>
+      <DataTable
+        caption="Tenants"
+        columns={columns}
+        query={tenantsQuery}
+        rowId={(t) => t.id}
+        rowHref={(t) => `/super-admin/tenants-lifecycle-and-pilots/${encodeURIComponent(t.id)}/`}
+        search={{
+          placeholder: 'Search by name or id',
+          match: (t, q) => {
+            const needle = q.toLowerCase()
+            return t.name.toLowerCase().includes(needle) || t.id.toLowerCase().includes(needle)
+          },
+        }}
+        {...(filterDecision.outcome === 'allowed' ? { filters } : {})}
+        pageSize={TENANT_LIST_PAGE_SIZE}
+        emptyState={{
+          title: 'There are no tenants yet.',
+          whatCreatesIt:
+            "The platform team creates one from Create tenant. No public self-signup path exists (AC-SA-09-01).",
+        }}
+      />
     </AppShell>
   )
 }
