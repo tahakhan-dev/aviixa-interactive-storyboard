@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { DemoChrome } from '@/ui/demo/DemoChrome'
+import { ProductRuntime } from '@/ui/product/runtime'
 import './globals.css'
 
 // M2: `default` is what an untitled route (e.g. the entry page, or the
@@ -30,17 +31,22 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        {children}
         {/*
-          Task 14 — mounted OUTSIDE every `AppShell`, as a sibling of
-          `{children}` rather than a wrapper around it, so `DemoChrome` can
-          never become an ancestor an `AppShell` render tree depends on.
-          `src/ui/product/**` never imports `src/ui/demo/**` (the boundary
-          `pnpm check:boundary-rules` enforces) — this placement is the
-          other half of that guarantee: even the ROOT layout never nests
-          product content inside chrome.
+          Task 1 (unit-01) — `ProductRuntime` wraps BOTH `{children}` (every
+          product route) and `<DemoChrome/>` so the one `boot()`ed
+          repository/session is reachable from every route, not only from
+          inside the reviewer's chrome. `DemoChrome` stays a SIBLING of
+          `{children}` inside this wrapper, not an ancestor of it (Task 14's
+          placement, preserved): `src/ui/product/**` never imports
+          `src/ui/demo/**` (the boundary `pnpm check:boundary-rules`
+          enforces), and `ProductRuntime` itself lives in
+          `src/ui/product/runtime/`, so the wrapper is the product side
+          reaching down to cover both, never the demo side reaching up.
         */}
-        <DemoChrome />
+        <ProductRuntime>
+          {children}
+          <DemoChrome />
+        </ProductRuntime>
       </body>
     </html>
   )

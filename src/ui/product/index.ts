@@ -41,3 +41,10 @@ export * from './frontline/StepCanvas'
 export * from './frontline/CaptureControl'
 export * from './frontline/ConnectivityBadge'
 export * from './frontline/SyncQueueBadge'
+
+// Task 1 (unit-01) — the product runtime: one repository boot, reachable
+// from every route. `ProductRuntime`, `useRepository`/`useStore`/
+// `useAccessContext`/`useProductSession`/`useRepositoryQuery`/
+// `useRuntimeReady`, and the sign-in state machine (`resolveSignIn`,
+// `SignInOutcome`).
+export * from './runtime'

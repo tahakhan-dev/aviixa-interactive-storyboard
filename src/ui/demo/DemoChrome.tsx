@@ -3,7 +3,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -11,8 +10,7 @@ import {
   type ReactNode,
 } from 'react'
 import { useRouter } from 'next/navigation'
-import { boot } from '@/data/boot'
-import { scenarioStateFor, type AccessContext, type Repository } from '@/data/repository'
+import type { AccessContext, Repository } from '@/data/repository'
 import type { Store } from '@/data/store'
 import { CANONICAL_EPOCH_MS, fixedClock, type Clock } from '@/domain/clock'
 import { tenantId, type TenantId } from '@/domain/ids'
@@ -21,7 +19,7 @@ import type { ConnectivityMode } from '@/scenario/controls'
 import { createTourRunner } from '@/tours/runner'
 import { listTours } from '@/tours/registry'
 import type { TourDefinition, TourHost, TourRunner, TourRunnerState } from '@/tours/types'
-import type { ProductSession } from '@/ui/product/AppShell'
+import { reviewerAccessContext, useRepository, useRuntimeReady, useStore } from '@/ui/product/runtime'
 import { useChromeVisibility } from './useChromeVisibility'
 import { RoleSimulator } from './RoleSimulator'
 import { ScenarioControls } from './ScenarioControls'
@@ -31,19 +29,29 @@ import { ToursMenu } from './tour/ToursMenu'
 
 /**
  * Task 14 — `src/ui/demo/` is the reviewer's out-of-product tool. This file
- * is the one place both of §7.3.1's contexts are defined, because it is the
- * one component that owns both kinds of state: `DemoControllerContext` (the
- * reviewer's own scenario/persona/clock/connectivity picker — never part of
- * the product) and `ProductSessionContext` (the simulated signed-in identity
- * `src/ui/product/AppShell#ProductSession` shape needs, so a page can do
- * `const { session } = useProductSession()` and hand it straight to
- * `AppShell` without caring where it came from). They are two different
- * `useState` trees under two different `createContext`s so switching one can
- * never touch the other — see `useMemo`s below: changing `personaId` rebuilds
- * `session` and, through it, `ProductSessionContext`'s value, but never calls
- * anything in `@/data/repository` — no `create`/`update`/`transition`, ever.
- * That is the whole proof for "changing the demo persona executes no product
- * command": there is no code path from here into a write.
+ * defines `DemoControllerContext` (the reviewer's own scenario/persona/
+ * clock/connectivity picker — never part of the product), the tour runner
+ * context, and `DemoDataContext` (the repository/store, plus a reviewer
+ * `AccessContext`).
+ *
+ * Task 1 (unit-01) — the ONE `ProductSessionContext` (the simulated
+ * signed-in identity a real product screen reads through
+ * `useProductSession()`) moved to `@/ui/product/runtime`: `boot()` now runs
+ * there too (`<ProductRuntime>`, mounted in `app/layout.tsx` around BOTH
+ * `{children}` and this component), not here — this file no longer calls
+ * `boot()` and no longer declares a `ProductSessionContext` of its own.
+ * `DemoDataContext` below is a thin re-export of the runtime's
+ * `useRepository()`/`useStore()`/`useRuntimeReady()` plus
+ * `reviewerAccessContext` (also moved to the runtime, reused rather than
+ * redeclared — `session.ts#resolveSignIn`'s own pre-session user lookup
+ * needs the identical cross-tenant read identity).
+ *
+ * `RoleSimulator`'s persona picker still only touches `DemoControllerContext`
+ * — see `useMemo`s below: changing `personaId` rebuilds `controller`, and
+ * never calls anything in `@/data/repository` — no `create`/`update`/
+ * `transition`, ever. That is the whole proof for "changing the demo persona
+ * executes no product command": there is no code path from here into a
+ * write.
  */
 
 /* ────────────────────────────────────────────────────────────────────── *
@@ -126,33 +134,16 @@ export function useDemoController(): DemoControllerApi {
 }
 
 /* ────────────────────────────────────────────────────────────────────── *
- * ProductSessionContext — the simulated signed-in identity. Shape reused
- * verbatim from `@/ui/product/AppShell#ProductSession` (never redeclared)
- * so a future page can pass `useProductSession().session` straight through
- * as `AppShellProps.session`.
- * ────────────────────────────────────────────────────────────────────── */
-
-export interface ProductSessionApi {
-  readonly session: ProductSession
-}
-
-const ProductSessionContext = createContext<ProductSessionApi | null>(null)
-
-export function useProductSession(): ProductSessionApi {
-  const ctx = useContext(ProductSessionContext)
-  if (ctx === null) throw new Error('useProductSession() must be called under <DemoChrome>')
-  return ctx
-}
-
-/* ────────────────────────────────────────────────────────────────────── *
- * DemoDataContext — the one `Repository` instance this app boots, plus a
+ * DemoDataContext — the one `Repository` instance the runtime boots, plus a
  * reviewer-only `AccessContext` the Inspector reads through. Deliberately
  * `ROOT_SUPER_ADMIN`/no tenant, NOT the simulated persona above: the
  * Inspector is a reviewer tool proving what actually happened in the data
  * layer, not a view scoped to whichever persona the RoleSimulator currently
  * shows — `withinScope` (`@/data/repository`) already lets a PLATFORM-domain
  * identity read across every tenant, exactly what a cross-surface
- * propagation view needs.
+ * propagation view needs. Task 1 (unit-01): `repository`/`store` and
+ * `reviewerAccessContext` itself now come from `@/ui/product/runtime` — this
+ * context is a thin re-export, not a second source of either.
  * ────────────────────────────────────────────────────────────────────── */
 
 export interface DemoDataApi {
@@ -167,33 +158,14 @@ export function useDemoData(): DemoDataApi {
   return useContext(DemoDataContext)
 }
 
-function reviewerAccessContext(store: Store): AccessContext {
-  return {
-    state: scenarioStateFor(store),
-    identity: {
-      signedIn: true,
-      role: 'ROOT_SUPER_ADMIN',
-      tenant: null,
-      siteScope: [],
-      areaScope: [],
-      qualifications: [],
-      deviceId: null,
-      stepUpActive: false,
-      accessSessionId: null,
-    },
-    online: true,
-    deviceTrusted: true,
-    actorOfRecord: 'demo-inspector',
-  }
-}
-
 /* ────────────────────────────────────────────────────────────────────── *
  * TourRunnerContext — Task 16. The ONE `TourRunner` instance this session
  * uses (Task 15's engine, `@/tours/runner`), shared by `WatchButton`,
  * `ToursMenu` and `TourOverlay` — all three are "index rows and screens" /
  * chrome consumers of the same running tour, never a second runner each.
- * `runner` is `null` until `boot()` (above) resolves — a tour needs the
- * SAME repository/tours data every other reviewer tool waits on, so this
+ * `runner` is `null` until the runtime's `boot()` (`@/ui/product/runtime`,
+ * an ancestor of `<DemoChrome>` now) resolves — a tour needs the SAME
+ * repository/tours data every other reviewer tool waits on, so this
  * follows the identical null-until-ready shape as `DemoDataApi` rather than
  * inventing a second "not ready yet" convention.
  * ────────────────────────────────────────────────────────────────────── */
@@ -248,26 +220,14 @@ export function DemoChrome() {
   // function, after every hook call, never before one).
   const { hidden, hide } = useChromeVisibility()
 
-  const [dataState, setDataState] = useState<{ repository: Repository; store: Store } | null>(null)
-  // Mount-once: `boot()` loads the seed, validates it and stands up the one
-  // `Repository` this session uses. Nothing about that ever needs to run
-  // twice, so an empty dependency array is correct, not an oversight.
-  useEffect(() => {
-    let cancelled = false
-    boot()
-      .then((result) => {
-        if (!cancelled) setDataState({ repository: result.repository, store: result.store })
-      })
-      .catch(() => {
-        // A seed validation failure throws from `boot()`; the chrome bar
-        // still renders (persona/scenario controls are presentation-only),
-        // it just has no repository to read — `Inspector`/`PropagationDrawer`
-        // render their own "not connected yet" state for a null repository.
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  // Task 1 (unit-01): `boot()` runs exactly once, in `<ProductRuntime>`
+  // (`app/layout.tsx`), an ancestor of this component now — not here. This
+  // reads the SAME repository/store every product screen reads through the
+  // runtime; `useRuntimeReady()` replaces the local `dataState === null`
+  // check this file used to make itself.
+  const ready = useRuntimeReady()
+  const repository = useRepository()
+  const store = useStore()
 
   const [personaId, setPersonaId] = useState<RoleId>(DEFAULT_PERSONA_ID)
   const [connectivity, setConnectivity] = useState<ConnectivityMode>('online')
@@ -314,25 +274,10 @@ export function DemoChrome() {
     [persona, connectivity, clockMs, failureInjection, checkpointIndex, clock],
   )
 
-  const session: ProductSession = useMemo(
-    () => ({
-      identity: `${persona.label} (demo)`,
-      role: persona.role,
-      tenant: persona.tenant,
-      device: 'desktop',
-    }),
-    [persona],
-  )
-  const productSessionValue: ProductSessionApi = useMemo(() => ({ session }), [session])
-
   const demoData: DemoDataApi = useMemo(() => {
-    if (dataState === null) return { repository: null, store: null, reviewerAccess: null }
-    return {
-      repository: dataState.repository,
-      store: dataState.store,
-      reviewerAccess: reviewerAccessContext(dataState.store),
-    }
-  }, [dataState])
+    if (!ready) return { repository: null, store: null, reviewerAccess: null }
+    return { repository, store, reviewerAccess: reviewerAccessContext(store) }
+  }, [ready, repository, store])
 
   // `router` itself is not a stable reference across renders; a `ref` kept
   // current every render (safe — Next.js's own docs use this exact "always
@@ -357,8 +302,8 @@ export function DemoChrome() {
   )
 
   // Built once repository/reviewerAccess are ready, and never again after
-  // that — `demoData` is itself stable once `dataState` resolves (see its
-  // own `useMemo` above), so this only ever transitions null -> one runner,
+  // that — `demoData` is itself stable once `ready` flips true (see its own
+  // `useMemo` above), so this only ever transitions null -> one runner,
   // matching `createTourRunner`'s own contract: `tours` is handed to it
   // once, at construction, not re-read on every render.
   const tourRunnerApi: TourRunnerApi = useMemo(() => {
@@ -377,20 +322,18 @@ export function DemoChrome() {
 
   return (
     <DemoControllerContext.Provider value={controller}>
-      <ProductSessionContext.Provider value={productSessionValue}>
-        <DemoDataContext.Provider value={demoData}>
-          <TourRunnerContext.Provider value={tourRunnerApi}>
-            <DemoChromeBar onHide={hide} />
-            {/* Task 16 — the overlay is its own top-level demo node, not
-                nested inside `DemoChromeBar`'s panel toggles: it must be
-                visible regardless of which chrome panel (if any) is open,
-                and it disappears along with everything else here the
-                instant `hidden` is true (this whole function already
-                returned `null` above when that's the case). */}
-            <TourOverlay />
-          </TourRunnerContext.Provider>
-        </DemoDataContext.Provider>
-      </ProductSessionContext.Provider>
+      <DemoDataContext.Provider value={demoData}>
+        <TourRunnerContext.Provider value={tourRunnerApi}>
+          <DemoChromeBar onHide={hide} />
+          {/* Task 16 — the overlay is its own top-level demo node, not
+              nested inside `DemoChromeBar`'s panel toggles: it must be
+              visible regardless of which chrome panel (if any) is open,
+              and it disappears along with everything else here the
+              instant `hidden` is true (this whole function already
+              returned `null` above when that's the case). */}
+          <TourOverlay />
+        </TourRunnerContext.Provider>
+      </DemoDataContext.Provider>
     </DemoControllerContext.Provider>
   )
 }
