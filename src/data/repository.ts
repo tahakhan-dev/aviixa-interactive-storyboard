@@ -1223,23 +1223,33 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
      * retrying the exact compound action that put the tenant there" was
      * measured false on re-review: nothing here checked that, so ANY
      * caller naming an existing tenant id reached it, seeded rows
-     * included. The guard below (no `users` row for `tenant.id` yet) makes
-     * that claim true rather than aspirational, but only as a measured
-     * fact about the booted seed, not a structural guarantee: every
-     * `invited` tenant in `tenants.json` already has at least one seeded
-     * user row, so today the ONLY way to present an `invited` tenant with
-     * zero users is to be mid-retry of this method's own partial failure.
-     * A future seed that added an `invited` tenant with no users yet would
-     * reach this branch without ever having called this method — the
-     * guard does not special-case "this is a retry", it only requires
-     * "invited and no users yet", which happens to describe exactly the
-     * retry state for every tenant on file today. Any edit the caller made
-     * to the TENANT half of its two arguments since the first attempt is
-     * silently ignored here, on purpose — the committed row is
-     * authoritative, never a second, divergent copy of a fact this
-     * repository already owns. `CreateTenantWizard.tsx` freezes its own
-     * Identity/Commercial fields once this is true, rather than leaving
-     * them editable and silently inert.
+     * included.
+     *
+     * Fix round 3 (unit-01, Task 5 re-review, IMPORTANT) corrects what fix
+     * round 2 got wrong about what the lifecycle guard actually tests: it
+     * had read `tenant.lifecycle` — the CALLER's argument — while THIS
+     * branch discards that argument and uses `existing` instead. On the
+     * idempotent path the guard was therefore checking a value nothing
+     * downstream ever reads, leaving `tenantHasUsers` as the only real
+     * defence — a property of today's seed, not of the door: measured
+     * reachable via `create('tenants', {lifecycle: 'archived'})` (open to
+     * any `PLATFORM_WRITERS` role, `ADMIN` included) followed by
+     * `provisionTenant` on that same id with a spoofed
+     * `lifecycle: 'invited'` argument — the manufactured tenant has zero
+     * users, so `tenantHasUsers` passed it through, and the row actually
+     * used and written into was `archived` (or `active`, or
+     * `hard-suspended` — the caller's claim is irrelevant once `existing`
+     * is non-null). The guard now tests `subject.lifecycle`, where
+     * `subject` is `existing ?? tenant` — the SAME row the write below
+     * actually uses — so this now enforces "the row that will be used is
+     * invited and has no users yet" for real, not "the caller SAYS invited
+     * and has no users yet". Any edit the caller made to the TENANT half
+     * of its two arguments since the first attempt is silently ignored
+     * here, on purpose — the committed row is authoritative, never a
+     * second, divergent copy of a fact this repository already owns.
+     * `CreateTenantWizard.tsx` freezes its own Identity/Commercial fields
+     * once this is true, rather than leaving them editable and silently
+     * inert.
      */
     async provisionTenant(tenant, admin, ctx) {
       const decision = evaluateAccess(PROVISION_TENANT_REQUEST, ctx)
@@ -1247,12 +1257,43 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
         return { ok: false, kind: 'denied', decision, reason: decision.reasonCode, explain: decision.explanation }
       }
 
-      if (tenant.lifecycle !== 'invited') {
+      // Fix round 3 (unit-01, Task 5 re-review, IMPORTANT) — `existing`
+      // hoisted above every guard and re-checked against `subject`
+      // (the committed row when one exists, the caller's argument
+      // otherwise) rather than against `tenant` directly. The bug this
+      // closes: `tenant.lifecycle` is the CALLER's claim, but the branch
+      // below (`tenantRow = existing`) throws that argument away and uses
+      // the row already on file — so checking `tenant.lifecycle` here
+      // checked a value nothing downstream ever reads. Measured
+      // reachable: `repository.create('tenants', {lifecycle: 'archived'})`
+      // (open to any `PLATFORM_WRITERS` role, `ADMIN` included) manufactures
+      // a real, zero-user, non-invited tenant on demand; calling
+      // `provisionTenant` on that same id with a spoofed
+      // `lifecycle: 'invited'` argument passed this guard while the row
+      // actually on file — and actually used — was `archived` (or
+      // `active`, or `hard-suspended`; the caller's claimed value is
+      // irrelevant once `existing` is non-null). Guard 2 below
+      // (`tenantHasUsers`) happened to still refuse most of that on
+      // TODAY'S seed only because every seeded non-invited tenant already
+      // has users; a tenant manufactured fresh via `create()` has none,
+      // so guard 2 waved it through. Testing `subject.lifecycle` closes
+      // this for any tenant, seeded or manufactured, not just the ones
+      // that happen to carry users already. The other four guards were
+      // checked for the same shape (argument-vs-committed-row) and do NOT
+      // have it: guard 2 keys on `tenant.id`, which is the idempotency key
+      // itself and is invariant across a legitimate retry by construction;
+      // guards 3-5 read `admin.tenantId`/`admin.role`/`admin.status`, and
+      // the `users` write always uses the `admin` ARGUMENT — there is no
+      // "existing admin row" reuse path the way there is for the tenant,
+      // so the argument IS what gets written every time.
+      const existing = (store.get('tenants') as readonly RowOf<'tenants'>[]).find((t) => t.id === tenant.id)
+      const subject = existing ?? tenant
+      if (subject.lifecycle !== 'invited') {
         return refusal(
           deny(
             'explicitlyProhibited',
             'OBJECT_STATE_INVALID',
-            `A tenant can only be provisioned while "invited"; "${tenant.id}" is "${tenant.lifecycle}".`,
+            `A tenant can only be provisioned while "invited"; "${subject.id}" is "${subject.lifecycle}".`,
             { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
           ),
         )
@@ -1312,7 +1353,6 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       const adminAuthority = truthStoreFor('users')
       if (!writableThroughRepository(adminAuthority)) return truthStoreRefusal('users', adminAuthority)
 
-      const existing = (store.get('tenants') as readonly RowOf<'tenants'>[]).find((t) => t.id === tenant.id)
       let tenantRow: RowOf<'tenants'>
       if (existing) {
         tenantRow = existing
