@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, type ReactNode } from 'react'
+import Link from 'next/link'
 import type { BreadcrumbItem } from '@/ui/primitives'
 import { textColor } from './tokens'
 
@@ -53,9 +54,22 @@ export function PageHeader({ breadcrumbs, title, actions }: PageHeaderProps) {
               <li key={`${item.label}-${i}`} className="flex items-center gap-1">
                 {i > 0 ? <span aria-hidden="true">/</span> : null}
                 {!isLast && item.href !== undefined ? (
-                  <a href={item.href} data-control-id={`breadcrumb-${item.href}`} className="hover:underline">
+                  // Fix round 1 (unit-01, Task 5 review) — a plain `<a>` here
+                  // forced a full page reload on every breadcrumb click,
+                  // which discards this build's whole session (in-memory
+                  // only, per `ProductRuntime.tsx`) and, worse, any
+                  // just-written business data (`boot()` always rebuilds
+                  // the store from the static seed — `src/data/boot.ts`).
+                  // `ObjectPage`'s own consumer (`TenantDetailScreen.tsx`,
+                  // reachable straight from the create wizard) was this
+                  // gap's worst case: a mid-wizard breadcrumb click could
+                  // silently drop a session the user was still using.
+                  // `Link` keeps this a real client-side navigation, the
+                  // same primitive every other in-app link in this surface
+                  // already uses (`Nav.tsx`, `TenantsScreen.tsx`'s rowHref).
+                  <Link href={item.href} data-control-id={`breadcrumb-${item.href}`} className="hover:underline">
                     {item.label}
-                  </a>
+                  </Link>
                 ) : (
                   <span aria-current={isLast ? 'page' : undefined} className={textColor('ink')}>
                     {item.label}

@@ -148,24 +148,97 @@ function identityFor(session: ProductSession | null): IdentitySimulationState {
   }
 }
 
+interface AccessContextCache {
+  readonly session: ProductSession | null
+  readonly version: number
+  readonly value: AccessContext
+}
+
 /**
  * Built from the CURRENT product session — signed-out (rule 2: never a
  * default persona) until `useProductSession().session` is non-null, which
  * itself is `null` until `signIn()` resolves to `{ kind: 'signed-in' }`.
+ *
+ * FIX ROUND 1 (unit-01, Task 5 review) — CRITICAL STALENESS FIX. This used
+ * to be a plain `useMemo` keyed on `[store, session]`. `store` is created
+ * ONCE in `ProductRuntime` and never replaced, and `session` only changes
+ * on sign-in/sign-out — so `scenarioStateFor(store)` was computed exactly
+ * ONCE per signed-in session and never again, no matter how many writes
+ * happened afterward. Every `evaluateAccess` call anywhere in the app that
+ * reads `ctx.state` (tenant isolation, feature/suspension) was therefore
+ * reasoning about the store as it stood at sign-in time, forever, for any
+ * component that stayed mounted. Measured consequence (task-5-report.md,
+ * fix round 1): the create-tenant wizard's second write (the invited
+ * administrator's `users` row) was refused `TENANT_MISMATCH` at the
+ * TENANT_ISOLATION stage — not `TENANT_NOT_ACTIVE` at FEATURE_AND_
+ * SUSPENSION as an earlier fix's own comment claimed — because the
+ * tenant this second write named did not exist yet in the STALE `ctx.state`
+ * captured before either write ran, even though the first write had
+ * already committed it to the real `store` by the time the second write's
+ * authorisation check ran.
+ *
+ * FIX: the exact same subscribe-and-version machinery `useRepositoryQuery`
+ * below already uses (and this file already relies on elsewhere) —
+ * `Repository#subscribe` notifies on every committed write;
+ * `useSyncExternalStore` re-derives the snapshot whenever that fires or
+ * `session` changes; a version counter (not the store reference, which
+ * never changes) is what actually invalidates the cache. This makes
+ * `ctx.state` current AS OF THE MOST RECENT RENDER, not as of mount — see
+ * this file's own header comment on `useRepositoryQuery` for why a version
+ * counter is used instead of comparing `select`'s output directly.
+ *
+ * WHAT THIS DOES NOT FIX ON ITS OWN: a value already read out of this hook
+ * and closed over by an in-flight async function (e.g. a multi-step submit
+ * handler) does not become fresher mid-execution just because the store
+ * changed — React does not re-run a running closure. That is a structural
+ * property of JavaScript, not of this hook, and it is why a compound,
+ * multi-write action (like onboarding a tenant) belongs behind ONE
+ * authorisation check inside the data layer (`repository.ts#provisionTenant`)
+ * rather than two sequential calls through this hook's stale-until-next-
+ * render value. This fix closes the class of bug where a component that
+ * STAYS MOUNTED across a write (its own, or one made by a completely
+ * different call) keeps reasoning about `ctx.state` from before that write,
+ * for the rest of its mounted lifetime — a real, independently-diagnosed
+ * defect this build's screens had not yet visibly tripped over only
+ * because every write path that could have exercised it either never
+ * declares `resourceTenant` (Task 6's `tenants`-collection fix) or triggers
+ * a full unmount/remount before the next gate check (client-side page
+ * navigation). See `task-5-report.md`'s fix-round section for the measured
+ * account of which of the unit's known deadlocks this alone does, and does
+ * not, remove.
  */
 export function useAccessContext(): AccessContext {
-  const { store } = useRuntimeData()
+  const { store, repository } = useRuntimeData()
   const { session } = useProductSession()
-  return useMemo<AccessContext>(
-    () => ({
+  const versionRef = useRef(0)
+  const cacheRef = useRef<AccessContextCache | null>(null)
+
+  const subscribe = useMemo(
+    () => (onStoreChange: () => void) =>
+      repository.subscribe(() => {
+        versionRef.current += 1
+        onStoreChange()
+      }),
+    [repository],
+  )
+
+  function getSnapshot(): AccessContext {
+    const cache = cacheRef.current
+    if (cache && cache.session === session && cache.version === versionRef.current) {
+      return cache.value
+    }
+    const value: AccessContext = {
       state: scenarioStateFor(store),
       identity: identityFor(session),
       online: true,
       deviceTrusted: true,
       actorOfRecord: session?.identity ?? null,
-    }),
-    [store, session],
-  )
+    }
+    cacheRef.current = { session, version: versionRef.current, value }
+    return value
+  }
+
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
 }
 
 interface QueryCache<T> {

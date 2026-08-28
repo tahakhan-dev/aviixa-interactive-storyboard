@@ -122,6 +122,22 @@ export interface Repository {
     to: string,
     ctx: AccessContext,
   ): Promise<WriteResult<RowOf<N>>>
+  /**
+   * Fix round 1 (unit-01, Task 5 review) — the one door for onboarding a
+   * tenant: its own row plus its first Tenant Admin's `users` row, under a
+   * SINGLE, explicitly-declared authorisation rather than two calls through
+   * the generic `create()` door (which is what the reverted `authorizeWrite`
+   * carve-outs existed to route around). See this method's own
+   * implementation comment for the full reasoning, including why an
+   * up-front authorisation — not two per-write ones — is what actually
+   * closes the staleness deadlock the review measured, and why the method
+   * is safe to call again with the SAME two rows after a partial failure.
+   */
+  provisionTenant(
+    tenant: RowOf<'tenants'>,
+    admin: RowOf<'users'>,
+    ctx: AccessContext,
+  ): Promise<ProvisionTenantResult>
   subscribe(listener: () => void): () => void
   reset(): void
   exportJson(): Record<CollectionName, unknown[]>
@@ -147,6 +163,46 @@ export type WriteResult<T> =
       reason: string
       explain: string
       capability: PersistenceCapability
+    }
+
+/**
+ * Fix round 1 (unit-01, Task 5 review, minor): the two failure arms above
+ * never actually depend on `WriteResult<T>`'s own `T` — only the `ok: true`
+ * arm does. `refusal`/`persistenceRefusal`/`truthStoreRefusal`/
+ * `notFoundRefusal`/`invalidResultRefusal` below all only ever construct a
+ * failure arm, so they no longer carry a phantom `<T>` that was never used
+ * in their bodies. Derived from `WriteResult` itself (`Extract`), never a
+ * second, hand-typed copy of the same two shapes — and this is exactly
+ * what `provisionTenant`'s own result type reuses below, rather than
+ * redeclaring "denied"/"persistence-unavailable" a third time.
+ */
+type WriteDenied = Extract<WriteResult<unknown>, { kind: 'denied' }>
+type WritePersistenceUnavailable = Extract<WriteResult<unknown>, { kind: 'persistence-unavailable' }>
+
+/**
+ * `provisionTenant`'s own result — deliberately NOT `WriteResult<T>` for
+ * some folded `{tenant, admin}` tuple, because the two-write policy this
+ * type exists to carry (brief: "decide how you handle a second write
+ * failing after the first succeeded ... implement it") has a real THIRD
+ * failure shape `WriteResult` has no room for: the tenant committed but its
+ * administrator did not. `partial` names that shape directly rather than
+ * forcing it through `denied`/`persistence-unavailable`, which would have
+ * to lie about which one it was. The other three arms are exactly
+ * `WriteResult`'s own shapes (`Extract`, not redeclared) so a caller
+ * routing `denied`/`persistence-unavailable` the same way it already
+ * routes a plain `WriteResult`'s failure arms needs no special case for
+ * this door specifically.
+ */
+export type ProvisionTenantResult =
+  | { ok: true; tenant: RowOf<'tenants'>; admin: RowOf<'users'> }
+  | WriteDenied
+  | WritePersistenceUnavailable
+  | {
+      ok: false
+      kind: 'partial'
+      tenant: RowOf<'tenants'>
+      /** Exactly `createRow`'s own failure shape — see that function. */
+      adminFailure: WriteDenied | WritePersistenceUnavailable
     }
 
 /* ────────────────────────────────────────────────────────────────────── *
@@ -408,6 +464,25 @@ const PLATFORM_WRITERS: readonly RoleId[] = ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATF
 const COMMAND_ISSUERS: readonly RoleId[] = ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER']
 
 /**
+ * `provisionTenant`'s own, single, explicitly-declared authorisation —
+ * fix round 1 (unit-01, Task 5 review), replacing the two per-write
+ * `authorizeWrite` exemptions the first pass bolted onto the generic
+ * floor. `L75180`/`L52400`/`SB-31-01` are the SAME identifiers
+ * `TenantsScreen.tsx`'s own `createDecision` already cites for "who may
+ * create a tenant" — the same business decision, now also enforced at the
+ * point of the actual write, not only at the point of showing the button.
+ * Deliberately role-only, no `resourceTenant`: provisioning a tenant names
+ * no existing resource to isolate against (the row does not exist until
+ * this authorisation has already passed), so there is nothing here for a
+ * stale or fresh `ctx.state` to disagree about either way.
+ */
+const PROVISION_TENANT_REQUEST: AccessRequest = {
+  action: 'provision-tenant',
+  allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
+  sourceRefs: ['L75180', 'L52400', 'SB-31-01'],
+}
+
+/**
  * The generic write door's own default role policy, keyed by truth-store
  * authority. This is deliberately the BROAD authority boundary this task
  * owns ("no collection write bypasses truth-store + role + scope"), not a
@@ -552,74 +627,78 @@ function authorizeWrite(
    * refused the platform's own `Activate`/(future unit 10)
    * suspend-release/reactivate/restore writes ON that tenant's own row,
    * because the very state those actions exist to change is what the floor
-   * was reading back as a refusal. `create` was NOT exempt either, despite
-   * this file's own earlier claim to the contrary: a brand-new tenant's id
-   * is not yet in `state.platform.tenants`, so `tenantPartition` there
-   * returns `undefined` — but that does not skip authorisation, it trips
-   * the EARLIER platform-domain check at `evaluate.ts` (M4, ~L229):
-   * `tenantPartition(state, req.resourceTenant) === undefined` denies
-   * `TENANT_MISMATCH` for any `resourceTenant` the platform state doesn't
-   * yet recognise. So `repository.create('tenants', …)` through this
-   * generic door was ALSO refused pre-fix, for every role — this fix is
-   * what makes Task 5's create wizard reachable, not only Task 6's
-   * `Activate`.
+   * was reading back as a refusal.
    *
-   * SCOPE OF WHAT THIS REMOVES: both `NOT_YET_OR_NO_LONGER_ACTIVE_STATES`
-   * (`PROVISIONING`/`ARCHIVED`) AND `SUSPENDED_STATES` (soft/hard/
-   * compliance) stop applying to a `tenants` write, not only the first —
-   * the right direction for unit 10's release/restore writes, which need
-   * exactly this door open. The floor for a `tenants` write is now
-   * ROLE-ONLY (`defaultWriteRoles('platform')`:
-   * `ROOT_SUPER_ADMIN`/`ADMIN`/`PLATFORM_ENGINEER`) — wider than this
-   * screen's own `Activate` gate, which excludes `PLATFORM_ENGINEER`.
-   * Every caller of `repository.update`/`.transition('tenants', …)` MUST
-   * carry its own role/object-state gate (as `TenantDetailScreen.tsx` does)
-   * — this floor will not catch a caller that forgets one.
-   */
-  /**
-   * Task 5 (unit-01) finding — the identical structural deadlock as the
-   * `tenants` fix above, one collection over. Creating the very FIRST
-   * `users` row for a brand-new tenant (the invited Tenant Admin the
-   * create-tenant wizard writes as its second, dependent write) resolves
-   * `resourceTenant` to that tenant's own id, and a brand-new tenant's
-   * `lifecycle` is ALWAYS `invited` (`PROVISIONING`) at the moment this
-   * write happens — a tenant cannot be `active`/`pilot` before its
-   * administrator accepts, and it cannot accept an invitation that was
-   * never created. Left as-is, the feature-and-suspension stage refuses
-   * this write with `TENANT_NOT_ACTIVE` for every role, forever: onboarding
-   * a tenant would be impossible if creating its first administrator were
-   * itself gated on the tenant already being active.
+   * `create` REMAINS EXEMPT TOO, but for a reason unrelated to the
+   * `Activate` case above, and unrelated to staleness (fix round 1, unit-01
+   * Task 5 review): a brand-new tenant's id is not yet in
+   * `state.platform.tenants` no matter how fresh that state is — the row
+   * being authorised does not exist until AFTER this very check passes —
+   * so `evaluate.ts`'s platform-domain M4 check (`tenantPartition(state,
+   * req.resourceTenant) === undefined` denies `TENANT_MISMATCH`) would
+   * refuse it regardless. This exemption still matters for the GENERIC
+   * `repository.create('tenants', …)` door — a future direct caller that
+   * does not go through `provisionTenant` below would hit it again — but
+   * Task 5's create wizard no longer depends on it: `provisionTenant` never
+   * calls `authorizeWrite` for either of its two internal writes at all
+   * (see that method's own comment for why one up-front authorisation
+   * replaces the generic door's per-write check for this one compound
+   * action).
    *
-   * FIX, NARROWLY SCOPED: unlike the `tenants` case above, `resourceTenant`
-   * IS still declared for an ordinary `users` write — every other
-   * protection (role floor, tenant isolation, and a refusal into a
-   * genuinely SUSPENDED or ARCHIVED tenant) must keep applying to `users`.
-   * Only a `create` whose resolved tenant's CURRENT lifecycle is `invited`
-   * — read directly off the live `tenants` collection, never off
-   * `resolution` above, which only proves the id is well-formed, not live
-   * — is exempted from the not-yet-active refusal. `pilot` (also
-   * `PROVISIONING` per `TENANT_LIFECYCLE_MAP`) is deliberately NOT
-   * exempted: a pilot tenant is already operating (`FEAT-SA-09-04`,
-   * "functionally identical to paying tenants"), so a `users` write into
-   * one goes through the same active-tenant door as any other operational
-   * tenant. `update`/`transition` are also NOT exempted — only the
-   * one-time act of CREATING a user is onboarding; a later write to an
-   * already-existing user is an ordinary operational write and must still
-   * be refused into a not-yet-active or closed tenant.
+   * SCOPE OF WHAT THIS REMOVES, PRECISELY (fix round 1, unit-01 Task 5
+   * review, accuracy correction): omitting `resourceTenant` here removes
+   * its input to THREE checks in `evaluate.ts`, not one — the TENANT-domain
+   * and PLATFORM-domain halves of the tenant-isolation stage's
+   * resource-matching check (`req.resourceTenant !== undefined && …`, ~L205
+   * and ~L229) AND the feature-and-suspension stage's `suspensionTenant`
+   * lookup (~L315, `domain === 'TENANT' ? identity.tenant :
+   * (req.resourceTenant ?? null)`), which is what `SUSPENDED_STATES` and
+   * `NOT_YET_OR_NO_LONGER_ACTIVE_STATES` actually key off. It does NOT
+   * remove the tenant-isolation stage's ACTOR-side checks, which do not
+   * depend on `resourceTenant` at all (a TENANT-domain role still needs a
+   * live ambient tenant, ~L192; a PLATFORM-domain role still may not carry
+   * one, ~L212) — those keep applying to a `tenants` write exactly as they
+   * do to any other. The floor for a `tenants` write is therefore
+   * ROLE-ONLY as far as the RESOURCE is concerned
+   * (`defaultWriteRoles('platform')`: `ROOT_SUPER_ADMIN`/`ADMIN`/
+   * `PLATFORM_ENGINEER`) — wider than this screen's own `Activate` gate,
+   * which excludes `PLATFORM_ENGINEER`. Every caller of
+   * `repository.update`/`.transition('tenants', …)` MUST carry its own
+   * role/object-state gate (as `TenantDetailScreen.tsx` does) — this floor
+   * will not catch a caller that forgets one.
+   *
+   * FIX ROUND 1 (unit-01, Task 5 review) — THE `users` CARVE-OUT THIS
+   * COMMENT BLOCK USED TO SIT BESIDE IS REVERTED, NOT REPAIRED. A narrower
+   * exemption here (declare `resourceTenant` for `users` UNLESS the target
+   * tenant's own current lifecycle was `invited`) shipped in this task's
+   * first pass. Measured, under review: it was calibrated to the WRONG
+   * condition. The write it existed for was never refused by the
+   * feature-and-suspension stage it was written against — it was refused
+   * `TENANT_MISMATCH` at the EARLIER tenant-isolation stage, because the
+   * `ctx` the wizard's own two sequential writes shared was captured once,
+   * before either write ran (`useAccessContext`'s own staleness, fixed
+   * above in `src/ui/product/runtime/useRepository.ts` — but a value
+   * already closed over by an in-flight multi-write handler does not
+   * become fresher mid-execution just because the hook that produced it
+   * now is). And once the actual condition was measured rather than
+   * assumed, the exemption did not carry the narrowness its own name
+   * claimed: `onboardingFirstUser` gated on nothing but "does this tenant's
+   * CURRENT lifecycle happen to be invited" — not on the row being created
+   * actually being a first Tenant Admin, not on its role, not on its
+   * status, not on the tenant having no administrator yet. Any of the
+   * three platform writers (including `PLATFORM_ENGINEER`, whom the
+   * wizard's OWN gate excludes) could have created any number of `users`
+   * rows, of any role and status, into any of the four seeded `invited`
+   * tenants, including ones that already had one. Onboarding now has its
+   * own door instead (`provisionTenant` below) — one explicit, single
+   * authorisation for the whole compound action, never a second exemption
+   * bolted onto the generic floor every OTHER `users` write still needs.
    */
-  const onboardingTenant =
-    name === 'users' && action === 'create' && rowTenant !== null
-      ? (store.get('tenants') as readonly { id: string; lifecycle: string }[]).find((t) => t.id === rowTenant)
-      : undefined
-  const onboardingFirstUser = onboardingTenant?.lifecycle === 'invited'
-
   const req: AccessRequest = {
     action: `${action.toUpperCase()} ${name}`,
     allowedRoles: defaultWriteRoles(authority),
     sourceRefs: ['§12.5', '§12.6', 'repository.ts'],
-    ...(rowTenant !== null && name !== 'tenants' && !onboardingFirstUser
-      ? { resourceTenant: brandTenantId(rowTenant) }
-      : {}),
+    ...(rowTenant !== null && name !== 'tenants' ? { resourceTenant: brandTenantId(rowTenant) } : {}),
     ...(siteId !== undefined && ctx.identity.siteScope.length > 0 ? { requiredSites: [siteId] } : {}),
     ...(areaId !== undefined && ctx.identity.areaScope.length > 0 ? { requiredAreas: [areaId] } : {}),
   }
@@ -881,11 +960,11 @@ function toAuditPrimitives(row: Record<string, unknown>): Record<string, string 
   return out
 }
 
-function refusal<T>(decision: PermissionDecision): WriteResult<T> {
+function refusal(decision: PermissionDecision): WriteDenied {
   return { ok: false, kind: 'denied', decision, reason: decision.reasonCode, explain: decision.explanation }
 }
 
-function persistenceRefusal<T>(actionClass: ActionClass, capability: PersistenceCapability, detail: string): WriteResult<T> {
+function persistenceRefusal(actionClass: ActionClass, capability: PersistenceCapability, detail: string): WritePersistenceUnavailable {
   return {
     ok: false,
     kind: 'persistence-unavailable',
@@ -898,7 +977,7 @@ function persistenceRefusal<T>(actionClass: ActionClass, capability: Persistence
   }
 }
 
-function truthStoreRefusal<T>(name: CollectionName, authority: TruthStoreAuthority): WriteResult<T> {
+function truthStoreRefusal(name: CollectionName, authority: TruthStoreAuthority): WriteDenied {
   const decision = deny(
     'explicitlyProhibited',
     'HARD_GATE',
@@ -913,7 +992,7 @@ function truthStoreRefusal<T>(name: CollectionName, authority: TruthStoreAuthori
   return refusal(decision)
 }
 
-function notFoundRefusal<T>(name: CollectionName, id: string, action: string): WriteResult<T> {
+function notFoundRefusal(name: CollectionName, id: string, action: string): WriteDenied {
   return refusal(
     deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', `No "${name}" row with id "${id}" exists to ${action}.`, {
       stage: 'COMMAND_VALIDATION',
@@ -922,7 +1001,7 @@ function notFoundRefusal<T>(name: CollectionName, id: string, action: string): W
   )
 }
 
-function invalidResultRefusal<T>(name: CollectionName, verb: string, issues: readonly string[]): WriteResult<T> {
+function invalidResultRefusal(name: CollectionName, verb: string, issues: readonly string[]): WriteDenied {
   return refusal(
     deny(
       'explicitlyProhibited',
@@ -1036,6 +1115,46 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
     return { ok: true, row, events: [event], audit: [audit], affectedSurfaces: [...affectedSurfacesFor(authority)] }
   }
 
+  /**
+   * Fix round 1 (unit-01, Task 5 review) — the mechanical half of `create`
+   * (persistence-capability gate, duplicate-id check, schema validation,
+   * commit), factored out from AUTHORISATION so `provisionTenant` below can
+   * reuse it for both of its writes without re-running `authorizeWrite`/
+   * `evaluateAccess` a second time. The public `create()` method still
+   * calls `authorizeWrite` itself, once, before calling this — this
+   * function trusts its caller to have already decided the actor MAY
+   * create this row; it is not itself reachable from outside this closure.
+   */
+  async function createRow<N extends CollectionName>(
+    name: N,
+    row: RowOf<N>,
+    ctx: AccessContext,
+    authority: TruthStoreAuthority,
+  ): Promise<WriteResult<RowOf<N>>> {
+    const actionClass = actionClassFor(name, authority)
+    if (!permittedUnder(capability.state, actionClass)) {
+      return persistenceRefusal(actionClass, capability, `Creating a "${name}" row is not permitted right now.`)
+    }
+
+    const rows = store.get(name) as readonly RowOf<N>[]
+    const id = rowId(asRecord(row))
+    if (rows.some((r) => rowId(asRecord(r)) === id)) {
+      return refusal(
+        deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', `A "${name}" row with id "${id}" already exists.`, {
+          stage: 'COMMAND_VALIDATION',
+          sourceRefs: ['repository.ts'],
+        }),
+      )
+    }
+    const parsed = COLLECTIONS[name].schema.safeParse(row)
+    if (!parsed.success) {
+      return invalidResultRefusal(name, 'create', parsed.error.issues.map((i) => i.message))
+    }
+
+    const nextRows = [...rows, parsed.data as RowOf<N>]
+    return commitWrite(name, 'create', nextRows, parsed.data as RowOf<N>, null, ctx, authority)
+  }
+
   const repository: Repository = {
     list(name, ctx) {
       const rows = store.get(name) as readonly RowOf<typeof name>[]
@@ -1054,32 +1173,60 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       const authority = truthStoreFor(name)
       if (!writableThroughRepository(authority)) return truthStoreRefusal(name, authority)
 
-      const rec = asRecord(row)
-      const decision = authorizeWrite(name, authority, 'create', rec, ctx, store)
+      const decision = authorizeWrite(name, authority, 'create', asRecord(row), ctx, store)
       if (!permitsAction(decision)) return refusal(decision)
 
-      const actionClass = actionClassFor(name, authority)
-      if (!permittedUnder(capability.state, actionClass)) {
-        return persistenceRefusal(actionClass, capability, `Creating a "${name}" row is not permitted right now.`)
+      return createRow(name, row, ctx, authority)
+    },
+
+    /**
+     * Fix round 1 (unit-01, Task 5 review) — see the `Repository` interface
+     * and `createRow`'s own comments for the full reasoning. One
+     * authorisation for the whole compound action, then two mechanical
+     * writes that never re-ask `evaluateAccess` — this is what makes the
+     * SECOND write immune to `useAccessContext`'s staleness (fixed
+     * separately, `src/ui/product/runtime/useRepository.ts`): there is no
+     * second `evaluateAccess` call for a stale `ctx.state` to mislead.
+     *
+     * IDEMPOTENT ON `tenant.id` — deliberately, and only because this
+     * method's own two callers (this repository's public surface has
+     * exactly one: `CreateTenantWizard.tsx`) always pass the SAME two rows
+     * on a retry. If a tenant with this id already exists, this method
+     * does NOT attempt to recreate it (the generic door would correctly —
+     * and unhelpfully, for a retry — refuse a duplicate id); it resumes at
+     * the administrator write using the row already on file. This is safe
+     * PRECISELY because the two-write policy lives here, with the writes:
+     * a caller cannot retry "the administrator only" through any other
+     * door, so there is no way to reach this idempotent branch except by
+     * retrying the exact compound action that put the tenant there. Any
+     * edit the caller made to the TENANT half of its two arguments since
+     * the first attempt is silently ignored here, on purpose — the
+     * committed row is authoritative, never a second, divergent copy of a
+     * fact this repository already owns. `CreateTenantWizard.tsx` freezes
+     * its own Identity/Commercial fields once this is true, rather than
+     * leaving them editable and silently inert.
+     */
+    async provisionTenant(tenant, admin, ctx) {
+      const decision = evaluateAccess(PROVISION_TENANT_REQUEST, ctx)
+      if (!permitsAction(decision)) {
+        return { ok: false, kind: 'denied', decision, reason: decision.reasonCode, explain: decision.explanation }
       }
 
-      const rows = store.get(name) as readonly RowOf<typeof name>[]
-      const id = rowId(rec)
-      if (rows.some((r) => rowId(asRecord(r)) === id)) {
-        return refusal(
-          deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', `A "${name}" row with id "${id}" already exists.`, {
-            stage: 'COMMAND_VALIDATION',
-            sourceRefs: ['repository.ts'],
-          }),
-        )
-      }
-      const parsed = COLLECTIONS[name].schema.safeParse(row)
-      if (!parsed.success) {
-        return invalidResultRefusal(name, 'create', parsed.error.issues.map((i) => i.message))
+      const existing = (store.get('tenants') as readonly RowOf<'tenants'>[]).find((t) => t.id === tenant.id)
+      let tenantRow: RowOf<'tenants'>
+      if (existing) {
+        tenantRow = existing
+      } else {
+        const tenantResult = await createRow('tenants', tenant, ctx, 'platform')
+        if (!tenantResult.ok) return tenantResult
+        tenantRow = tenantResult.row
       }
 
-      const nextRows = [...rows, parsed.data as RowOf<typeof name>]
-      return commitWrite(name, 'create', nextRows, parsed.data as RowOf<typeof name>, null, ctx, authority)
+      const adminResult = await createRow('users', admin, ctx, 'platform')
+      if (!adminResult.ok) {
+        return { ok: false, kind: 'partial', tenant: tenantRow, adminFailure: adminResult }
+      }
+      return { ok: true, tenant: tenantRow, admin: adminResult.row }
     },
 
     async update(name, id, patch, ctx) {

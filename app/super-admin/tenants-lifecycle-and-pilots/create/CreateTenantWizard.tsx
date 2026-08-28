@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import type { z } from 'zod'
 import {
   AppShell,
   CheckboxField,
@@ -24,8 +25,6 @@ import {
   type ProductSession,
   type WizardStep,
 } from '@/ui/product'
-import { evaluateAccess, type AccessRequest } from '@/policy/evaluate'
-import { permitsAction } from '@/policy/decision'
 import { Tenant, User } from '@/data/schemas/platform'
 import type { WriteResult } from '@/data/repository'
 import { saModuleById } from '@/surfaces/sa/modules'
@@ -35,28 +34,21 @@ import { saModuleById } from '@/surfaces/sa/modules'
  * administrator, Review. Runs after Task 6, whose detail route
  * (`detail/?tenant=<id>`) is where a successful create navigates.
  *
- * TWO WRITES, ONE LOGICAL CREATION, NO MULTI-COLLECTION TRANSACTION. The
- * repository (`src/data/repository.ts`) commits one collection at a time —
- * there is no primitive that writes `tenants` and `users` atomically
- * together. The choice made here, stated plainly (brief's own instruction):
- * write the tenant FIRST; if that fails, nothing exists and a retry starts
- * clean. If the tenant write SUCCEEDS but the administrator's `users` row
- * then fails, the tenant now exists without an administrator — this is
- * never allowed to pass silently as a generic "could not be saved" message.
- * `partialFailureNote` below renders a distinct, explicit statement of
- * exactly that fact (which row exists, which does not, why), and the
- * already-created tenant's id is remembered (`pending` state) so clicking
- * Finish again retries ONLY the administrator's row — it never re-attempts
- * to create the tenant a second time.
- *
- * TWO PLATFORM-LAYER FIXES THIS TASK NEEDED, BOTH IN `src/data/repository.ts`
- * (disclosed in the task report, not narrated again here): (1) a pre-existing
- * fix (Task 6) that stopped a `tenants` write from refusing itself by reading
- * its own not-yet-active state back as a refusal; (2) a new, narrower fix
- * this task adds — a brand-new tenant is ALWAYS `invited` (`PROVISIONING`)
- * at the exact moment its first administrator's `users` row is created, and
- * without the fix that state read back as a refusal on the SECOND write too.
- * See `authorizeWrite`'s own comment for the reasoning.
+ * FIX ROUND 1 (unit-01, Task 5 review) — ONE DOOR, NOT TWO WRITES FROM THIS
+ * SCREEN. The first pass called `repository.create('tenants', …)` then
+ * `repository.create('users', …)` directly from here, each behind its own
+ * `authorizeWrite` check — and the second of those checks used a `ctx`
+ * captured once, before either write ran, so it never saw the tenant the
+ * FIRST write had just committed (measured: a `TENANT_MISMATCH` refusal at
+ * the tenant-isolation stage, not the `TENANT_NOT_ACTIVE` this file's own
+ * comment used to claim). Both writes, the one-authorisation-for-both
+ * decision, and the two-write failure policy itself now live behind
+ * `repository.provisionTenant(tenant, admin, ctx)` — this screen calls that
+ * ONE method and routes whatever it returns; it does not evaluate access
+ * itself and does not decide what "partial" means. See that method's own
+ * comment in `src/data/repository.ts` for the full reasoning, and
+ * `useAccessContext`'s own comment (`src/ui/product/runtime/useRepository.ts`)
+ * for the staleness bug this design sidesteps rather than papers over.
  */
 
 const MODULE = saModuleById('MOD-SA-09')
@@ -72,29 +64,6 @@ const LOCALE_LABEL: Readonly<Record<Tenant['primaryLocale'], string>> = {
   en: 'English',
   es: 'Español',
 }
-
-/**
- * `SB-31-01` (L75180, L52400): New Tenant is held by the Root Super Admin
- * and the Admin alone — the SAME decision `TenantsScreen.tsx`'s own
- * `createDecision` gates the list's "Create tenant" link with, enforced
- * again here at the point of the actual write. `TenantsScreen.tsx` hides
- * its link for every other role, so a Platform Engineer or Support identity
- * reaches this wizard only via a hand-typed or bookmarked URL — reachable,
- * not linked, matching the same pattern `TenantDetailScreen.tsx`'s two "no
- * such tenant" states already established for this surface. This wizard
- * deliberately does NOT repeat that gate at the page level: every step is
- * viewable and fillable by any signed-in platform role (values are real
- * work product regardless of who typed them), and the repository's own
- * role floor for `tenants`/`users` writes (`defaultWriteRoles('platform')`,
- * wider — it also includes Platform Engineer) is not the right floor for
- * THIS specific action either, so this decision is evaluated explicitly,
- * here, before either write is attempted.
- */
-const CREATE_TENANT_REQUEST = {
-  action: 'create-tenant',
-  allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
-  sourceRefs: ['L75180', 'L52400', 'SB-31-01'],
-} as const satisfies AccessRequest
 
 interface WizardValues {
   readonly name: string
@@ -119,10 +88,19 @@ const INITIAL_VALUES: WizardValues = {
   adminEmail: '',
 }
 
+/** The Identity/Commercial fields — frozen once the tenant row is committed (see `updateField`). */
+const TENANT_FIELD_KEYS: ReadonlySet<keyof WizardValues> = new Set([
+  'name',
+  'primaryLocale',
+  'regulatedMode',
+  'tier',
+  'isPilot',
+  'pilotExpiresAt',
+])
+
 interface Pending {
   readonly tenantId: string
   readonly userId: string
-  readonly tenantCreated: boolean
 }
 
 function slugify(name: string): string {
@@ -130,12 +108,18 @@ function slugify(name: string): string {
   return slug.length > 0 ? slug.slice(0, 16) : 'TENANT'
 }
 
-/** A single field's own schema (a sub-schema of the exact `Tenant`/`User`
- *  objects the repository validates against), not a hand-copied rule. */
-function fieldIssues<V>(schema: { safeParse: (v: V) => { success: boolean; error?: { issues: readonly { message: string }[] } } }, value: V): string[] {
+/**
+ * A single field's own schema — a real sub-schema of the exact `Tenant`/
+ * `User` objects the repository validates against, not a hand-copied rule.
+ * Fix round 1 (unit-01, Task 5 review, minor): typed against zod's own
+ * `z.ZodType<V>` rather than duck-typing a `{ safeParse }` shape — zod is
+ * already a dependency, and the duck-typed shape let a caller pass a
+ * schema whose `V` did not actually match `value`'s type and still get a
+ * plausible, silently-empty issue list back instead of a compile error.
+ */
+function fieldIssues<V>(schema: z.ZodType<V>, value: V): string[] {
   const result = schema.safeParse(value)
-  if (result.success) return []
-  return (result.error?.issues ?? []).map((i) => i.message)
+  return result.success ? [] : result.error.issues.map((i) => i.message)
 }
 
 function buildTenantRow(id: string, values: WizardValues, nowIso: string): Tenant {
@@ -185,6 +169,16 @@ export function CreateTenantWizard() {
   )
 }
 
+/** The frozen-fields notice — one render function, not a shared component, since it has exactly two call sites (Identity/Commercial steps). */
+function LockedTenantNotice() {
+  return (
+    <p role="status" className={`text-sm ${statusText('warn')}`}>
+      This tenant has already been created — these details cannot be changed anymore. Go to Review to
+      retry the administrator invitation.
+    </p>
+  )
+}
+
 function CreateTenantWizardBody({ session }: { readonly session: ProductSession }) {
   const ctx = useAccessContext()
   const repository = useRepository()
@@ -195,6 +189,18 @@ function CreateTenantWizardBody({ session }: { readonly session: ProductSession 
   const [confirmed, setConfirmed] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pending, setPending] = useState<Pending | null>(null)
+  /**
+   * Set once `repository.provisionTenant` reports the tenant half as real
+   * (`ok: true` or `kind: 'partial'`) and never cleared afterward — a
+   * committed tenant cannot become uncommitted from this screen. Gates
+   * `updateField` below: once true, an edit to any Identity/Commercial
+   * field is inert (`provisionTenant` itself ignores the tenant argument on
+   * a retry once a row with the same id exists, using the committed row
+   * instead — see that method's own comment), so those fields must stop
+   * accepting edits here too, or the screen would show a value the write
+   * path silently never uses (fix round 1, unit-01 Task 5 review, item 4).
+   */
+  const [tenantCommitted, setTenantCommitted] = useState(false)
   const [partialFailureNote, setPartialFailureNote] = useState<string | null>(null)
 
   // Real, seeded cap values (`worker-shift-allocation`), never hand-typed —
@@ -226,57 +232,72 @@ function CreateTenantWizardBody({ session }: { readonly session: ProductSession 
   }
 
   function updateField<K extends keyof WizardValues>(key: K, value: WizardValues[K]): void {
+    // Fix round 1 (unit-01, Task 5 review, item 4): once the tenant row is
+    // committed, an edit to a tenant-side field would silently diverge from
+    // what `provisionTenant` actually has on file (it ignores the tenant
+    // argument on a retry — see that method's own comment) — refusing the
+    // edit here, rather than accepting it and never using it, is what keeps
+    // the screen honest about which fields still do anything.
+    if (tenantCommitted && TENANT_FIELD_KEYS.has(key)) return
     setValues((prev) => ({ ...prev, [key]: value }))
     setConfirmed(false)
-    // A reserved id is only invalidated by an edit while nothing has
-    // actually been written yet — once the tenant row is real
-    // (`tenantCreated`), later edits must not orphan it under a fresh id.
-    setPending((prev) => (prev !== null && prev.tenantCreated ? prev : null))
   }
 
   function ensurePending(): Pending {
     if (pending !== null) return pending
     const seq = store.nextSequence()
     const slug = slugify(values.name)
-    const next: Pending = { tenantId: `TEN-${slug}-${seq}`, userId: `USR-${slug}-ADM-${seq}`, tenantCreated: false }
+    const next: Pending = { tenantId: `TEN-${slug}-${seq}`, userId: `USR-${slug}-ADM-${seq}` }
     setPending(next)
     return next
   }
 
   async function submit(): Promise<WriteResult<unknown>> {
-    const gate = evaluateAccess(CREATE_TENANT_REQUEST, ctx)
-    if (!permitsAction(gate)) {
-      // A real permission decision, not a fabricated one — same
-      // `evaluateAccess` function and `WriteResult` denied shape
-      // `repository.ts#refusal` itself builds from a decision. Nothing is
-      // attempted: neither write runs when this gate refuses.
-      return { ok: false, kind: 'denied', decision: gate, reason: gate.reasonCode, explain: gate.explanation }
-    }
-
     const current = ensurePending()
     const nowIso = new Date(store.clock.now()).toISOString()
+    const result = await repository.provisionTenant(
+      buildTenantRow(current.tenantId, values, nowIso),
+      buildUserRow(current.userId, current.tenantId, values, nowIso),
+      ctx,
+    )
 
-    if (!current.tenantCreated) {
-      const tenantResult = await repository.create('tenants', buildTenantRow(current.tenantId, values, nowIso), ctx)
-      if (!tenantResult.ok) {
-        setPending(null) // nothing written; a retry reserves a fresh id
-        return tenantResult
-      }
-      setPending({ ...current, tenantCreated: true })
+    if (result.ok) {
+      setTenantCommitted(true)
+      setPartialFailureNote(null)
+      router.push(`/super-admin/tenants-lifecycle-and-pilots/detail/?tenant=${encodeURIComponent(result.tenant.id)}&created=1`)
+      // A real, non-fabricated observation of what `provisionTenant` just
+      // returned — `events`/`audit` stay empty here (not duplicated from
+      // the door's own two commits) because nothing on this screen reads
+      // them; the real rows are visible on the destination page's own
+      // Audit tab, read live off the repository, not off this return value.
+      return { ok: true, row: result, events: [], audit: [], affectedSurfaces: [] }
     }
 
-    const userResult = await repository.create('users', buildUserRow(current.userId, current.tenantId, values, nowIso), ctx)
-    if (!userResult.ok) {
+    if (result.kind === 'partial') {
+      setTenantCommitted(true)
+      const failure = result.adminFailure
+      // Fix round 1 (unit-01, Task 5 review, item 4): the retry advice used
+      // to be unconditional. It is false for exactly one arm — a
+      // `persistence-unavailable` second write means `repository.ts`
+      // already downgraded capability for the rest of this session, so
+      // "click Finish again" can never succeed until a full reload
+      // restores a durable store. Branch on the actual result kind rather
+      // than assume the generic wording covers both.
       setPartialFailureNote(
-        `${values.name} (${current.tenantId}) was created, but its administrator invitation could not be saved: ` +
-          `${userResult.explain} The tenant now exists without an administrator. Click Finish again to retry only ` +
-          'the invitation — the tenant will not be created a second time.',
+        failure.kind === 'persistence-unavailable'
+          ? `${values.name} (${result.tenant.id}) has been created, but its administrator invitation could not ` +
+              `be saved: ${failure.explain} Storage is no longer durable for the rest of this session, so ` +
+              'retrying here will not succeed. Only the administrator name and email below can still be changed ' +
+              "— the tenant's own details are already saved."
+          : `${values.name} (${result.tenant.id}) has been created, but its administrator invitation could not ` +
+              `be saved: ${failure.explain} Only the administrator name and email below can still be changed — ` +
+              "the tenant's own details are already saved. Click Finish again to retry the invitation.",
       )
-      return userResult
+      return failure
     }
+
     setPartialFailureNote(null)
-    router.push(`/super-admin/tenants-lifecycle-and-pilots/detail/?tenant=${encodeURIComponent(current.tenantId)}&created=1`)
-    return userResult
+    return result
   }
 
   const identityStep: WizardStep = {
@@ -288,6 +309,7 @@ function CreateTenantWizardBody({ session }: { readonly session: ProductSession 
     ],
     content: (
       <div className="flex flex-col gap-4">
+        {tenantCommitted ? <LockedTenantNotice /> : null}
         <TextField
           name="name"
           label="Tenant name"
@@ -327,6 +349,7 @@ function CreateTenantWizardBody({ session }: { readonly session: ProductSession 
     ],
     content: (
       <div className="flex flex-col gap-4">
+        {tenantCommitted ? <LockedTenantNotice /> : null}
         <RadioGroup
           name="tier"
           label="Tier"
@@ -489,9 +512,17 @@ function CreateTenantWizardBody({ session }: { readonly session: ProductSession 
       <ConfirmDialog
         open={confirmOpen}
         controlId="create-tenant-confirm"
-        title={`Create ${values.name || 'this tenant'}`}
+        title={
+          tenantCommitted
+            ? `Retry the administrator invitation for ${values.name}`
+            : `Create ${values.name || 'this tenant'}`
+        }
         affectedObjects={affectedObjects}
-        resultingState={{ subject: 'Tenant lifecycle', from: 'Not yet created', to: 'Invited' }}
+        resultingState={
+          tenantCommitted
+            ? { subject: 'Administrator invitation', from: 'Not yet created', to: 'Invited' }
+            : { subject: 'Tenant lifecycle', from: 'Not yet created', to: 'Invited' }
+        }
         confirmLabel="Confirm"
         onConfirm={() => {
           setConfirmed(true)
