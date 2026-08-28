@@ -32,7 +32,7 @@ pnpm screenshots    # roughly two minutes; writes the PNGs and the manifest
 **In that order.** `pnpm screenshots` serves the `out/` that already exists and never rebuilds it,
 so running it alone writes a manifest describing whatever export happens to be on disk.
 
-The PNGs are **not committed**. They are **roughly 380 MiB across 826 files** (rounded to the
+The PNGs are **not committed**. They are **roughly 380 MiB across 840 files** (rounded to the
 nearest 5, summed from the manifest's own `bytes` column, which is why the figure is checkable in a
 fresh clone where the PNGs are absent). The manifest is committed because it is the artefact that
 must be reviewable in a diff. Run the two commands above before any client review.
@@ -76,7 +76,7 @@ once at the top: `buildId`, the build the captures were taken from.
 Not carried: `persona`, `scope`, `storyStep`, `state`, `test`, `sourceHash`, `baselineHash`. The
 first five are properties of a walkthrough step, and this build has no walkthrough runner — every
 capture is the same anonymous first load of a route with no interaction, so a `persona` column
-would be one invented value repeated 826 times and a `state` column would distinguish nothing.
+would be one invented value repeated 840 times and a `state` column would distinguish nothing.
 **Building the runner is slice 13** (RESUME §5). §27.2's ordered canonical-story set — before,
 action, after, affected-surface, failure, fallback, fallback-failure, safe-state, recovery — does
 not exist for the same reason, and is the same slice.
@@ -89,10 +89,17 @@ rather than what a reviewer sees — and this build has shipped four panels whos
 `undefined` at prerender while every component test passed, because a component suite mounts the
 component and the client boundary only exists in a build.
 
-**735 pages name no identifier**, and that is not 735 defects:
+**744 pages name no identifier**, and that is not 744 defects:
 
 - `/`, `/404/` and `/_not-found/` are chrome;
-- 7 `/coverage/*` pages are inventory dashboards that count identifiers rather than presenting one;
+- 16 `/coverage/*` pages are inventory dashboards that count identifiers rather than presenting
+  one, or — fix round 1 (Task 18) — one of the fourteen `requiredScreenshotRoutes()` item-card
+  representatives whose registry's rows carry no `MOD-`/`SCR-`/`FEAT-`/`FUNC-`/`AC-`-prefixed
+  field (7 dashboards + 9 representatives: ai-storyboards' index and its representative,
+  business-objects' representative, business-use-cases' index and its representative, commands'
+  index and its representative, events' index and its representative, notifications'
+  representative, offline-scenarios' index and its representative, scheduled-work's index and
+  its representative, workflows' index and its representative);
 - `/review/` is the reviewer's own workspace — a note form and the review-package export — and
   presents no product content, so it names no product identifier of any kind;
 - `/workflows/` (the Task 17 Workflow Index) and 723 of its 724 `/workflows/<id>/` detail cards

@@ -428,15 +428,31 @@ filesystem half was proved once by hand — `85` planted over `102` in `docs/dep
 ships: the wave is measured on whether its subject is fixed, and nobody asks whether its new gate
 can fail.**
 
-**A property of the seal worth knowing before trusting `worktree_clean`.** `R7-A1` was closed by
-making the manifest say which half it is in: `bytes_measured_against` carries one of two sentences
-chosen by `worktree_clean`, and case 13 asserts the clean sentence's claim against git. **The clean
-branch is unreachable in this repository's workflow and that is not yet recorded anywhere else.**
-Sealing on a clean tree writes both manifests, which makes the tree dirty; committing them makes
-`product-candidate-manifest.json` — a certified path in the envelope payload — differ from the tree
-the manifest names, and case 13's clean leg convicts it. So every seal here is a dirty seal carrying
-the honest sentence, and the clean leg has never run on real bytes. **Round 8 should decide whether
-that leg is dead code or whether the seal should exclude its own two outputs from the comparison.**
+**A property of the seal worth knowing before trusting `worktree_clean` — SETTLED in Task 18 fix
+round 1.** `R7-A1` was closed by making the manifest say which half it is in: `bytes_measured_against`
+carries one of two sentences chosen by `worktree_clean`, and case 13 asserts the clean sentence's
+claim against git. The clean branch used to be unreachable: sealing on a clean tree writes both
+manifests, which makes the tree dirty; committing them made `product-candidate-manifest.json` — a
+certified path in the envelope payload — differ from the tree the manifest names, and case 13's
+clean leg convicted it. So every seal was a dirty seal carrying the honest sentence, and the clean
+leg had never run on real bytes.
+
+**The ruling: exclude the seal's own two outputs from the comparison**, not retire the leg as dead
+code. A manifest that must contain its own hash cannot ever be correct, and this is the same
+non-self-referential form §23.2 already requires for the Evidence Envelope Manifest against
+itself — it just was not applied to the OTHER file the same seal operation writes.
+`scripts/seal-manifests.mjs`'s envelope payload now excludes both `PRODUCT_MANIFEST` and
+`ENVELOPE_MANIFEST` (`SEAL_OUTPUTS`, stated as data in `scope.excludes` on the manifest itself), so
+neither seal output is certified anywhere and resealing them can never make a certified path fail to
+match the commit that names it. `tests/coverage/process-evidence.test.ts` case 1's partition equality
+and case 3's non-self-reference assertions were updated to match (both seal outputs are still real
+paths added back into the total-partition union; case 3 now asserts the product manifest is absent
+from the envelope payload rather than present in it). Verified on the dirty tree this fix round left
+(seal re-run, all 17 `process-evidence.test.ts` cases pass); the clean branch itself is only
+exercisable after a commit landing this fix, at which point a true no-op reseal (unchanged
+`git_commit`, unchanged digests, unchanged `verification.sealed_against`) writes byte-identical
+manifests and case 13's clean leg runs for the first time on real bytes rather than staying
+structurally unreachable.
 
 Chain measured on the corrected bytes, one uninterrupted sequential run: recorded in
 `docs/process/2026-08-25-slice-11-round-7-verification.md` with exact commands and counts.

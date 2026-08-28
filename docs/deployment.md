@@ -78,7 +78,7 @@ pnpm screenshots        # roughly two minutes
 ```
 
 The PNGs are gitignored and rebuilt from the export; `docs/screenshots/manifest.json` is
-committed — **826 rows, roughly 380 MiB of PNG** (rounded to the nearest 5). Run both before a
+committed — **840 rows, roughly 380 MiB of PNG** (rounded to the nearest 5). Run both before a
 client review so the manifest matches what is deployed.
 
 `pnpm screenshots` does not rebuild the export. It serves the `out/` that already exists, so a

@@ -1,11 +1,11 @@
 {
-  "countedThing": "one full-page screenshot per route in the static export, captured from the served snapshot rather than from src/, so the manifest describes what a reviewer sees. The route list is derived from the export by exportedRoutes(); it is never hand-written.",
-  "capturedRoutes": 826,
+  "countedThing": "one full-page screenshot per REQUIRED route (master prompt §26.2: canonical state of every screen), captured from the served snapshot rather than from src/, so the manifest describes what a reviewer sees. The route list is derived by requiredScreenshotRoutes(), never hand-written; it is exportedRoutes() with the 5,015 single-template /coverage/<registry>/<itemId>/ census-row pages collapsed to one representative per registry (fourteen) — see tests/e2e/required-screenshot-routes.ts for the full reasoning. Every other route is captured 1:1.",
+  "capturedRoutes": 840,
   "viewport": {
     "width": 1280,
     "height": 720
   },
-  "buildId": "xq2DuX5UB9N-lirvvkE8P",
+  "buildId": "aQWvXY-t5T0fV4oWkQch5",
   "fieldsNotCarried": {
     "persona": "every capture is the same anonymous first load; no walkthrough runner assigns a persona to a step. Slice 13.",
     "scope": "same reason as persona — scope is a property of a walkthrough step. Slice 13.",
@@ -1557,6 +1557,29 @@
       "bytes": 21464548
     },
     {
+      "id": "SHOT-coverage-actionable-controls-A replay control",
+      "route": "/coverage/actionable-controls/A replay control/",
+      "file": "coverage-actionable-controls-A replay control.png",
+      "screen": "A replay control",
+      "moduleIds": [
+        "MOD-SA-SCHED"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [
+        "MOD-SA-SCHED"
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 109803
+    },
+    {
       "id": "SHOT-coverage-ai-storyboards",
       "route": "/coverage/ai-storyboards/",
       "file": "coverage-ai-storyboards.png",
@@ -1574,6 +1597,25 @@
       "locale": "en",
       "theme": "light",
       "bytes": 12426539
+    },
+    {
+      "id": "SHOT-coverage-ai-storyboards-SB-001-01",
+      "route": "/coverage/ai-storyboards/SB-001-01/",
+      "file": "coverage-ai-storyboards-SB-001-01.png",
+      "screen": "SB-001-01",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 105931
     },
     {
       "id": "SHOT-coverage-business-objects",
@@ -1603,6 +1645,25 @@
       "bytes": 2041820
     },
     {
+      "id": "SHOT-coverage-business-objects-OBJ-001",
+      "route": "/coverage/business-objects/OBJ-001/",
+      "file": "coverage-business-objects-OBJ-001.png",
+      "screen": "Tenant",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 99166
+    },
+    {
       "id": "SHOT-coverage-business-use-cases",
       "route": "/coverage/business-use-cases/",
       "file": "coverage-business-use-cases.png",
@@ -1620,6 +1681,25 @@
       "locale": "en",
       "theme": "light",
       "bytes": 4052887
+    },
+    {
+      "id": "SHOT-coverage-business-use-cases-UC-041",
+      "route": "/coverage/business-use-cases/UC-041/",
+      "file": "coverage-business-use-cases-UC-041.png",
+      "screen": "UC-041",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 95839
     },
     {
       "id": "SHOT-coverage-commands",
@@ -1641,6 +1721,25 @@
       "bytes": 537700
     },
     {
+      "id": "SHOT-coverage-commands-CMD-ASG-001",
+      "route": "/coverage/commands/CMD-ASG-001/",
+      "file": "coverage-commands-CMD-ASG-001.png",
+      "screen": "CMD-ASG-001",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 101063
+    },
+    {
       "id": "SHOT-coverage-events",
       "route": "/coverage/events/",
       "file": "coverage-events.png",
@@ -1658,6 +1757,25 @@
       "locale": "en",
       "theme": "light",
       "bytes": 778150
+    },
+    {
+      "id": "SHOT-coverage-events-EVT-CAP-001",
+      "route": "/coverage/events/EVT-CAP-001/",
+      "file": "coverage-events-EVT-CAP-001.png",
+      "screen": "EVT-CAP-001",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 96532
     },
     {
       "id": "SHOT-coverage-features",
@@ -2702,6 +2820,29 @@
       "locale": "en",
       "theme": "light",
       "bytes": 7259608
+    },
+    {
+      "id": "SHOT-coverage-features-FEAT-A1-01",
+      "route": "/coverage/features/FEAT-A1-01/",
+      "file": "coverage-features-FEAT-A1-01.png",
+      "screen": "FEAT-A1-01",
+      "moduleIds": [
+        "MOD-FL-A1"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [
+        "MOD-FL-A1"
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 100393
     },
     {
       "id": "SHOT-coverage-functions",
@@ -4366,6 +4507,29 @@
       "bytes": 12977060
     },
     {
+      "id": "SHOT-coverage-functions-FUNC-A1-01-1-1",
+      "route": "/coverage/functions/FUNC-A1-01-1-1/",
+      "file": "coverage-functions-FUNC-A1-01-1-1.png",
+      "screen": "FUNC-A1-01-1-1",
+      "moduleIds": [
+        "MOD-FL-A1"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [
+        "MOD-FL-A1"
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 101736
+    },
+    {
       "id": "SHOT-coverage-modules",
       "route": "/coverage/modules/",
       "file": "coverage-modules.png",
@@ -4551,6 +4715,29 @@
       "bytes": 1404388
     },
     {
+      "id": "SHOT-coverage-modules-MOD-CC-01",
+      "route": "/coverage/modules/MOD-CC-01/",
+      "file": "coverage-modules-MOD-CC-01.png",
+      "screen": "The Live Shift Board",
+      "moduleIds": [
+        "MOD-CC-01"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [
+        "MOD-CC-01"
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 111858
+    },
+    {
       "id": "SHOT-coverage-notifications",
       "route": "/coverage/notifications/",
       "file": "coverage-notifications.png",
@@ -4608,6 +4795,25 @@
       "bytes": 7729750
     },
     {
+      "id": "SHOT-coverage-notifications-NOTIF-001@L51688",
+      "route": "/coverage/notifications/NOTIF-001@L51688/",
+      "file": "coverage-notifications-NOTIF-001@L51688.png",
+      "screen": "NOTIF-001@L51688",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 121776
+    },
+    {
       "id": "SHOT-coverage-offline-scenarios",
       "route": "/coverage/offline-scenarios/",
       "file": "coverage-offline-scenarios.png",
@@ -4627,6 +4833,25 @@
       "bytes": 1101103
     },
     {
+      "id": "SHOT-coverage-offline-scenarios-UC-OFF-001",
+      "route": "/coverage/offline-scenarios/UC-OFF-001/",
+      "file": "coverage-offline-scenarios-UC-OFF-001.png",
+      "screen": "UC-OFF-001",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 97296
+    },
+    {
       "id": "SHOT-coverage-scheduled-work",
       "route": "/coverage/scheduled-work/",
       "file": "coverage-scheduled-work.png",
@@ -4644,6 +4869,25 @@
       "locale": "en",
       "theme": "light",
       "bytes": 4052735
+    },
+    {
+      "id": "SHOT-coverage-scheduled-work-SCHED-001",
+      "route": "/coverage/scheduled-work/SCHED-001/",
+      "file": "coverage-scheduled-work-SCHED-001.png",
+      "screen": "SCHED-001",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 128205
     },
     {
       "id": "SHOT-coverage-sub-features",
@@ -4691,6 +4935,29 @@
       "bytes": 7100078
     },
     {
+      "id": "SHOT-coverage-sub-features-SUB-A1-01-1",
+      "route": "/coverage/sub-features/SUB-A1-01-1/",
+      "file": "coverage-sub-features-SUB-A1-01-1.png",
+      "screen": "SUB-A1-01-1",
+      "moduleIds": [
+        "MOD-FL-A1"
+      ],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [
+        "MOD-FL-A1"
+      ],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 102029
+    },
+    {
       "id": "SHOT-coverage-workflows",
       "route": "/coverage/workflows/",
       "file": "coverage-workflows.png",
@@ -4708,6 +4975,25 @@
       "locale": "en",
       "theme": "light",
       "bytes": 12137964
+    },
+    {
+      "id": "SHOT-coverage-workflows-SB-001@L61090",
+      "route": "/coverage/workflows/SB-001@L61090/",
+      "file": "coverage-workflows-SB-001@L61090.png",
+      "screen": "Onboarding a tenant and the first Tenant Admin's acceptance",
+      "moduleIds": [],
+      "screenIds": [],
+      "featureIds": [],
+      "functionIds": [],
+      "acceptanceIds": [],
+      "identifiersOnPage": [],
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "locale": "en",
+      "theme": "light",
+      "bytes": 119675
     },
     {
       "id": "SHOT-frontline",

@@ -13,9 +13,28 @@
  *   2. Evidence Envelope — process ledgers, approvals, research receipts,
  *      command output, review and verification reports, bound to one Candidate
  *      ID. **The Evidence Envelope Manifest hashes its payload but excludes
- *      itself**, and that is the one exclusion in this file, stated as data in
- *      the manifest it writes (`excludes`) rather than hidden in code.
+ *      both of the seal's own outputs**, stated as data in the manifest it
+ *      writes (`scope.excludes`) rather than hidden in code.
  *
+ * FIX ROUND 1 (Task 18): THE ENVELOPE USED TO CERTIFY THE PRODUCT MANIFEST
+ * TOO, AND THAT WAS THE BUG. The product manifest is outside the PRODUCT
+ * scope by construction (it lives under an evidence root), but nothing kept
+ * it out of the EVIDENCE scope, so the envelope hashed it as an ordinary
+ * evidence file. Sealing writes both manifests in one operation; committing
+ * that write moves HEAD, and now the envelope's certified hash for the
+ * product manifest is the hash of bytes that predate the very commit the
+ * seal names — `tests/coverage/process-evidence.test.ts` case 13 read that
+ * as "the manifest claims this commit describes its bytes, but these
+ * certified paths are not in it", naming the product manifest itself. A
+ * manifest cannot correctly describe a tree that contains the manifest's own
+ * freshly-sealed bytes, which is the same non-self-reference problem
+ * `hashes_itself: false` already solves for the product manifest — it just
+ * was not applied to the OTHER file the same seal operation writes. So
+ * neither seal output is certified anywhere: both are excluded from the
+ * envelope's payload, named in `scope.excludes`, so a reader sees why two
+ * paths are absent rather than inferring it.
+ *
+
  * WHY IT EXISTS. Both manifests named candidate `SLICE04-b82f66e93567c0a5`, a
  * candidate seven slices back: 185 of its 365 entries had drifted, and the
  * envelope named slice 2b with three drifted entries and one file that a schema
@@ -57,6 +76,15 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
 export const PRODUCT_MANIFEST = 'docs/process/ledgers/product-candidate-manifest.json'
 export const ENVELOPE_MANIFEST = 'docs/process/ledgers/evidence-envelope-manifest.json'
+
+/**
+ * THE SEAL'S OWN TWO OUTPUTS — neither is certified by either manifest.
+ * `PRODUCT_MANIFEST` is already outside the product scope (an evidence-root
+ * path); this is what additionally keeps it out of the EVIDENCE scope too,
+ * alongside `ENVELOPE_MANIFEST`'s pre-existing self-exclusion. See the fix
+ * round 1 note above for why both, not just one.
+ */
+const SEAL_OUTPUTS = [PRODUCT_MANIFEST, ENVELOPE_MANIFEST]
 
 /**
  * The evidence side of the partition. Everything else is product.
@@ -156,7 +184,7 @@ function main() {
   const clean = gitOrNull(['status', '--porcelain']) === ''
 
   const [productPaths, evidenceAll] = partition(repoFiles())
-  const envelopePaths = evidenceAll.filter((p) => p !== ENVELOPE_MANIFEST)
+  const envelopePaths = evidenceAll.filter((p) => !SEAL_OUTPUTS.includes(p))
 
   const productEntries = entriesFor(productPaths)
   const productDigest = scopeDigest(productEntries)
@@ -231,9 +259,15 @@ function main() {
         + 'verification reports and status reports',
       derivation:
         'git ls-files --cached --others --exclude-standard, foreign probe entries removed, '
-        + 'every path under an evidence root, this manifest excluded',
+        + 'every path under an evidence root, the seal\'s own two outputs excluded',
       evidence_roots: EVIDENCE_ROOTS,
-      excludes: [ENVELOPE_MANIFEST],
+      excludes: SEAL_OUTPUTS,
+      why_excludes_both:
+        'sealing writes both manifests in one operation, so neither can be certified against a '
+        + 'commit that predates that write — a manifest cannot describe a tree that contains its '
+        + 'own freshly-sealed bytes. Fix round 1 (Task 18): this used to exclude only itself and '
+        + 'certify the product manifest as ordinary evidence payload, which is what made case 13 '
+        + 'unsatisfiable (RESUME §8).',
     },
     payload_excludes_self: true,
     payload_count: payload.length,

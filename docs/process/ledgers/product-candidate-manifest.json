@@ -3,8 +3,8 @@
   "ledger": "Product Candidate Manifest",
   "governing_section": "master prompt §23.2 — scope 1 of the two non-self-referential hash scopes",
   "slice": "11",
-  "candidate_id": "SLICE11-7674fe021a41e2bb",
-  "candidate_manifest_sha256": "7674fe021a41e2bb675dd193c565633109b7e330cee1521c6a3defcb87d00de2",
+  "candidate_id": "SLICE11-a811d578c1e4b86d",
+  "candidate_manifest_sha256": "a811d578c1e4b86da148a965c038a6a076ab1787b39ccfc16abb61d075787c46",
   "scope": {
     "kind": "product-candidate",
     "contents": "application source, tests, fixtures, configuration, lockfile, assets and required delivery documentation",
@@ -18,15 +18,15 @@
     "hashes_itself": false,
     "why_not": "this manifest lives under docs/process/ledgers/, an evidence root, so it is outside the product scope by construction rather than by a remembered exclusion"
   },
-  "git_commit": "353536835076775d59b9fe5bf4477558fb570265",
-  "git_tree": "02c8593c4c43106ede1372339d6e821580723b47",
-  "worktree_clean": true,
-  "bytes_measured_against": "the tree of git_commit — the worktree was clean when this seal ran, so every hash below is that commit's blob and stays checkable against it forever",
+  "git_commit": "82b36696336a1ca2b8e752e8e7889a00467a555a",
+  "git_tree": "ed5eab1f8d2cf62d65cae422f2fb4dba123e9785",
+  "worktree_clean": false,
+  "bytes_measured_against": "the working tree as it stood when this seal ran, which is NOT the tree of git_commit — that field records only where HEAD was, the worktree was dirty, and nothing here attributes these bytes to any commit. Verify them against the filesystem, never against the commit.",
   "source_sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
   "source_drift_from_s0": "none — the frozen blueprint is re-hashed by 40 test files on every run",
-  "file_count": 1171,
-  "total_bytes": 31198172,
-  "supersedes": "SLICE11-0e6e3bc0d96ea5d7",
+  "file_count": 1172,
+  "total_bytes": 31215867,
+  "supersedes": "SLICE11-100bbafb0e58782d",
   "verification": {
     "verification_id": "VER-S11-040",
     "command_chain": "pnpm verify  (tsc --noEmit; eslint .; node scripts/check-gate-ordering.mjs; vitest run --project release tests/coverage/registry-freshness.test.ts; vitest run --project unit; vitest run --project component; pnpm build:registries && rm -rf out && next build; vitest run --project release; playwright test --project=chromium)",
@@ -1071,17 +1071,17 @@
     {
       "path": "docs/deployment.md",
       "bytes": 4008,
-      "sha256": "adfd1ea1c2c887873d834fe807e2c892062d5112794553f913937383412549aa"
+      "sha256": "808e9ae74443aab455f560af20ac43373bfb0e54be295bdbb41d82e1138902be"
     },
     {
       "path": "docs/screenshots/README.md",
-      "bytes": 6873,
-      "sha256": "c88acce337f7e2215b0df40105e15a9649f99c026baaf02291e00c9742062692"
+      "bytes": 7490,
+      "sha256": "ca8ef8c3280a4bbd8cd5b6e46fb1136b3daf56a8c53f3e6cb24de00c82d2cf2e"
     },
     {
       "path": "docs/screenshots/manifest.json",
-      "bytes": 574089,
-      "sha256": "f9ead5ca9d1a7508b5600435930163222a7cfccf6767c4b246a1c85fe7d7942f"
+      "bytes": 581740,
+      "sha256": "e2f6df0629d25faea610489df4f93a24cc4c108e30328178e7a4ab6fb22244a1"
     },
     {
       "path": "docs/walkthroughs.md",
@@ -1495,8 +1495,8 @@
     },
     {
       "path": "scripts/seal-manifests.mjs",
-      "bytes": 12929,
-      "sha256": "52c9baae8e88a4bb2508c6f2c839ef1de5f6a385ca3c12ef99f9efa93cd08f9b"
+      "bytes": 15049,
+      "sha256": "6fbef1501f6796392132e283bcb99a77c3e01d979b5aeae8fea0b141695d7812"
     },
     {
       "path": "scripts/seed-fixtures/task4-studio.mjs",
@@ -4800,8 +4800,8 @@
     },
     {
       "path": "tests/coverage/process-evidence.test.ts",
-      "bytes": 36204,
-      "sha256": "c9bc069ae1c8de94da7a46cff33f7da2835134b3ce614123f19806882b3b8c97"
+      "bytes": 37538,
+      "sha256": "25111e9aaddc1b1bf250f96820ffebfa55126a72b7b8a264cb93b5cdcb8ebfb9"
     },
     {
       "path": "tests/coverage/prohibited-patterns.test.ts",
@@ -4840,8 +4840,8 @@
     },
     {
       "path": "tests/coverage/screenshot-manifest.test.ts",
-      "bytes": 4096,
-      "sha256": "1e28f5ac3d44b52e044a85ad19a81f3e39afbe449cf8324a99fe914fa7becc37"
+      "bytes": 5372,
+      "sha256": "79b940489995c0a35872e2c1e865f270c84936ae4be9c2e542b261481da9eb7e"
     },
     {
       "path": "tests/coverage/slice-03-gates.test.ts",
@@ -4949,6 +4949,11 @@
       "sha256": "63d1bb139a524e4ee717b8de8b5de1f8071fd77f6a1bf834f803839a57bace5f"
     },
     {
+      "path": "tests/e2e/required-screenshot-routes.ts",
+      "bytes": 3864,
+      "sha256": "e8c0c23e86469be3e0681552c9ac9c562b918afc9f9e08b07f9cfe66700fa2e7"
+    },
+    {
       "path": "tests/e2e/review.spec.ts",
       "bytes": 458,
       "sha256": "8445870925325e777952c0b67c9915ff65b174b3dc8f6415274c2c8cd5349672"
@@ -4970,8 +4975,8 @@
     },
     {
       "path": "tests/screenshots/capture.spec.ts",
-      "bytes": 11552,
-      "sha256": "12538a7f66d98ecfdb14e9e6568b1f5a1e4f20ca864d3431dc818470ba482d3b"
+      "bytes": 12385,
+      "sha256": "08e9885dfd04e62da31efacb38e18dc134d5d5dd6f547d3b8fea28369cf4322e"
     },
     {
       "path": "tests/setup.ts",

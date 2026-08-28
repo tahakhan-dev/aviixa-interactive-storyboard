@@ -2,14 +2,14 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-3da83225aeda7384",
-  "candidate_id": "SLICE11-7674fe021a41e2bb",
+  "envelope_id": "ENV11-21326f52183cabaf",
+  "candidate_id": "SLICE11-a811d578c1e4b86d",
   "slice": "11",
-  "payload_sha256": "3da83225aeda73840916ba8c158930e647c37d6e329595e89c909b3b5e78b207",
+  "payload_sha256": "21326f52183cabafb2d82547104d3ee6e7e1c412b2243f0259c735c0ea1ee8a2",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
-    "derivation": "git ls-files --cached --others --exclude-standard, foreign probe entries removed, every path under an evidence root, this manifest excluded",
+    "derivation": "git ls-files --cached --others --exclude-standard, foreign probe entries removed, every path under an evidence root, the seal's own two outputs excluded",
     "evidence_roots": [
       "docs/process/",
       "docs/superpowers/",
@@ -17,12 +17,14 @@
       "artifacts/evidence/"
     ],
     "excludes": [
+      "docs/process/ledgers/product-candidate-manifest.json",
       "docs/process/ledgers/evidence-envelope-manifest.json"
-    ]
+    ],
+    "why_excludes_both": "sealing writes both manifests in one operation, so neither can be certified against a commit that predates that write — a manifest cannot describe a tree that contains its own freshly-sealed bytes. Fix round 1 (Task 18): this used to exclude only itself and certify the product manifest as ordinary evidence payload, which is what made case 13 unsatisfiable (RESUME §8)."
   },
   "payload_excludes_self": true,
-  "payload_count": 96,
-  "supersedes": "ENV11-e6950312c2e91dd2",
+  "payload_count": 95,
+  "supersedes": "ENV11-84938b0e3d094fa8",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -111,8 +113,8 @@
     },
     {
       "path": "docs/process/RESUME.md",
-      "bytes": 35119,
-      "sha256": "5f1e952c514fd305ac4224e72ef50733468be5c3ab8cb19b28dd133a13dae286"
+      "bytes": 36409,
+      "sha256": "4998b429728881f79d38906ce270b584f4ca00a9dce2fc9309604ab711722ae0"
     },
     {
       "path": "docs/process/audits/2026-08-24-slice-11-audit-common-brief.md",
@@ -358,11 +360,6 @@
       "path": "docs/process/ledgers/loop-ledger.json",
       "bytes": 102924,
       "sha256": "9ec63f530deb2ba83fa754a60604012a624d4442f16234f09baf3678a490e48d"
-    },
-    {
-      "path": "docs/process/ledgers/product-candidate-manifest.json",
-      "bytes": 204814,
-      "sha256": "2d11196257948fc5924f96a506453803dcc271d10258f3ecde2d03a2b0f3236e"
     },
     {
       "path": "docs/process/ledgers/research-ledger.json",

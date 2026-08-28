@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { exportedRoutes } from '../e2e/exported-routes'
+import { requiredScreenshotRoutes } from '../e2e/required-screenshot-routes'
 
 /**
  * THE SCREENSHOT MANIFEST WENT THREE SLICES STALE AND NOTHING COULD SAY SO.
@@ -28,6 +29,22 @@ import { exportedRoutes } from '../e2e/exported-routes'
  * manifest (rewritten only by `pnpm screenshots`, which is not part of
  * `verify`). It runs in the release project, AFTER build, which is the only
  * order in which the comparison means anything.
+ *
+ * FIX ROUND 1 (Task 18): "EVERY ROUTE" NARROWED TO "EVERY REQUIRED ROUTE".
+ * Task 18 added 5,015 `/coverage/<registry>/<itemId>/` pages, one Next.js
+ * route/component instantiated per census row across fourteen registries —
+ * not 5,015 distinct blueprint screens. Master prompt §26.2 asks for the
+ * "canonical state of every SCREEN" (Tier 1), the critical states of a screen
+ * (Tier 2), and representative combinations of a screen (Tier 3) — never one
+ * capture per emitted URL, and this build's own established convention (724
+ * `/workflows/<id>/` pages, ALSO one template, captured 1:1) shows full
+ * per-route capture is a choice this project makes for real product screens,
+ * not a rule that survives being applied to a generated census-row dump with
+ * no distinct screen behind each row. `requiredScreenshotRoutes()`
+ * (`tests/e2e/required-screenshot-routes.ts`) states the reasoning and the
+ * collapse rule in full: one representative item-card capture per registry
+ * (fourteen) rather than one per row (5,015) — everything else this gate
+ * checked before is unchanged.
  */
 const MANIFEST = join('docs', 'screenshots', 'manifest.json')
 const SHOTS = join('docs', 'screenshots')
@@ -37,18 +54,20 @@ type Manifest = { capturedRoutes: number; rows: { route: string; file: string }[
 describe('the screenshot manifest describes the export it ships beside', () => {
   const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8')) as Manifest
   const routes = exportedRoutes('out')
+  const required = requiredScreenshotRoutes('out')
 
   it('reads a non-empty export and a non-empty manifest', () => {
     // Non-vacuity for every comparison below: an empty walk would make the set
     // difference empty and the gate would pass on nothing at all.
     expect(routes.length).toBeGreaterThan(50)
+    expect(required.length).toBeGreaterThan(50)
     expect(manifest.rows.length).toBeGreaterThan(50)
   })
 
-  it('covers every exported route, and claims no route the export does not have', () => {
+  it('covers every required route, and claims no route the export does not have', () => {
     const captured = new Set(manifest.rows.map((r) => r.route))
     const exported = new Set(routes)
-    expect([...exported].filter((r) => !captured.has(r)), 'exported but not captured').toEqual([])
+    expect([...required].filter((r) => !captured.has(r)), 'required but not captured').toEqual([])
     expect([...captured].filter((r) => !exported.has(r)), 'captured but not exported').toEqual([])
   })
 

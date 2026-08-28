@@ -229,13 +229,20 @@ describe('the candidate manifests describe the tree they sit in', () => {
     expect(files.length, 'git listed nothing; the derivation is broken, not the manifest')
       .toBeGreaterThan(1000)
     const expectedProduct = files.filter((f) => !isEvidence(f))
-    const expectedEnvelope = files.filter((f) => isEvidence(f) && f !== ENVELOPE_MANIFEST)
+    // Fix round 1 (Task 18): the envelope's payload excludes BOTH of the
+    // seal's own outputs now, not only itself — see PRODUCT_MANIFEST below
+    // and `scripts/seal-manifests.mjs`'s `SEAL_OUTPUTS`.
+    const expectedEnvelope = files.filter(
+      (f) => isEvidence(f) && f !== ENVELOPE_MANIFEST && f !== PRODUCT_MANIFEST,
+    )
 
     expect(product.files.map((e) => e.path)).toEqual(expectedProduct)
     expect(envelope.payload.map((e) => e.path)).toEqual(expectedEnvelope)
     // And the partition is total: nothing is in both, nothing in neither.
+    // Both seal outputs are added back by name — they are real paths git
+    // accounts for, just not certified by either manifest (see case 3).
     expect(
-      [...expectedProduct, ...expectedEnvelope, ENVELOPE_MANIFEST].sort(),
+      [...expectedProduct, ...expectedEnvelope, ENVELOPE_MANIFEST, PRODUCT_MANIFEST].sort(),
     ).toEqual(files)
   })
 
@@ -257,16 +264,28 @@ describe('the candidate manifests describe the tree they sit in', () => {
     expect(drifted, 'the candidate changed after it was sealed; reseal and re-verify').toEqual([])
   })
 
-  // Case 3. NON-SELF-REFERENCE, both directions of §23.2's rule.
-  it('neither manifest hashes itself', () => {
+  // Case 3. NON-SELF-REFERENCE, both directions of §23.2's rule — and, since
+  // fix round 1 (Task 18), non-SIBLING-reference too. The two manifests are
+  // written by ONE seal operation; committing that write is what makes the
+  // written-against commit ("git_commit") stop matching the tree, so neither
+  // output can be certified anywhere without becoming wrong the moment it's
+  // committed. RESUME §8 recorded this as an open question ("whether that leg
+  // is dead code or whether the seal should exclude its own two outputs from
+  // the comparison") — this is the "exclude both" answer, made checkable.
+  it('neither manifest hashes itself, and the envelope excludes both seal outputs', () => {
     expect(product.scope.hashes_itself).toBe(false)
     expect(product.files.map((e) => e.path)).not.toContain(PRODUCT_MANIFEST)
     expect(envelope.payload.map((e) => e.path)).not.toContain(ENVELOPE_MANIFEST)
-    expect(envelope.scope.excludes).toEqual([ENVELOPE_MANIFEST])
-    // The product manifest IS evidence payload, and the envelope must carry it:
-    // that binding is the only thing tying the seal of one to the seal of the
-    // other, and dropping it would let the candidate move under a valid envelope.
-    expect(envelope.payload.map((e) => e.path)).toContain(PRODUCT_MANIFEST)
+    // The product manifest is NO LONGER carried as envelope payload (it was,
+    // before fix round 1) — carrying it is exactly what let a stale
+    // `git_commit` be caught convicting the product manifest's own path in
+    // case 13, because the envelope certified a hash of bytes that predated
+    // the commit the seal named. Excluding it is a smaller claim, not a
+    // weaker one: what the envelope certifies about everything else is
+    // unchanged, and the one path removed was never checkable in the first
+    // place.
+    expect(envelope.payload.map((e) => e.path)).not.toContain(PRODUCT_MANIFEST)
+    expect(envelope.scope.excludes).toEqual([PRODUCT_MANIFEST, ENVELOPE_MANIFEST])
   })
 
   // Case 4. THE ENVELOPE IS BOUND TO ONE CANDIDATE ID. §23.2: an evidence-only

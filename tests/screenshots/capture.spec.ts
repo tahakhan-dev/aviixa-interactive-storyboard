@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { mkdirSync, writeFileSync, statSync, rmSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { exportedRoutes } from '../e2e/exported-routes'
+import { requiredScreenshotRoutes } from '../e2e/required-screenshot-routes'
 
 /**
  * THE SCREENSHOT MANIFEST — one full-page capture of every exported route,
@@ -20,10 +20,16 @@ import { exportedRoutes } from '../e2e/exported-routes'
  * asserts is that **every exported route was reached, rendered, and captured**
  * — which is the claim the manifest makes on the deliverable's behalf.
  *
- * THE ROUTE LIST IS DERIVED, never hand-written. `exportedRoutes()` reads the
- * export, for the reason its own file records at length: two suites carried
- * hand lists that fell twenty-eight routes behind the build and stayed green
- * while claiming to cover everything.
+ * THE ROUTE LIST IS DERIVED, never hand-written. `requiredScreenshotRoutes()`
+ * reads the export via `exportedRoutes()`, for the reason its own file
+ * records at length: two suites carried hand lists that fell twenty-eight
+ * routes behind the build and stayed green while claiming to cover
+ * everything. FIX ROUND 1 (Task 18): it is no longer `exportedRoutes()`
+ * directly — `tests/e2e/required-screenshot-routes.ts` collapses the 5,015
+ * `/coverage/<registry>/<itemId>/` census-row pages (one template, no
+ * distinct screen per row) to one representative per registry, per master
+ * prompt §26.2's "canonical state of every SCREEN"; every other route is
+ * unaffected. See that file for the full argument.
  *
  * ONE TEST, NOT ONE PER ROUTE. The manifest is a single artefact and
  * `fullyParallel` is on, so per-route tests would race each other writing it.
@@ -90,8 +96,8 @@ function buildIdOfExport(root = 'out'): string | null {
  */
 const ID_PREFIXES = ['MOD', 'SCR', 'FEAT', 'FUNC', 'AC'] as const
 
-test('captures every exported route and writes the manifest', async ({ page }) => {
-  const routes = exportedRoutes()
+test('captures every required route and writes the manifest', async ({ page }) => {
+  const routes = requiredScreenshotRoutes()
 
   // FAILS IF: the export is missing or empty, in which case the loop below
   // would write an empty manifest and report success. Planted: OUT pointed at
@@ -184,9 +190,13 @@ test('captures every exported route and writes the manifest', async ({ page }) =
     JSON.stringify(
       {
         countedThing:
-          'one full-page screenshot per route in the static export, captured from the served ' +
-          'snapshot rather than from src/, so the manifest describes what a reviewer sees. The ' +
-          'route list is derived from the export by exportedRoutes(); it is never hand-written.',
+          'one full-page screenshot per REQUIRED route (master prompt §26.2: canonical state of ' +
+          'every screen), captured from the served snapshot rather than from src/, so the ' +
+          'manifest describes what a reviewer sees. The route list is derived by ' +
+          'requiredScreenshotRoutes(), never hand-written; it is exportedRoutes() with the ' +
+          '5,015 single-template /coverage/<registry>/<itemId>/ census-row pages collapsed to ' +
+          'one representative per registry (fourteen) — see tests/e2e/required-screenshot-' +
+          'routes.ts for the full reasoning. Every other route is captured 1:1.',
         capturedRoutes: rows.length,
         viewport: page.viewportSize(),
         buildId: buildIdOfExport(),
