@@ -431,7 +431,7 @@
   {
     "id": "USR-NF-WKR-03",
     "tenantId": "TEN-NORTHFORGE",
-    "displayName": "Petra Kova\u010d",
+    "displayName": "Petra Kovač",
     "email": "petra.kovac@northforgemetal.example",
     "role": "WORKER",
     "status": "active",
@@ -447,8 +447,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-07-02T09:00:00Z",
-    "lastSignInAt": "2026-08-15T09:15:00Z"
+    "createdAt": "2026-02-09T09:00:00Z",
+    "lastSignInAt": "2026-03-25T09:15:00Z"
   },
   {
     "id": "USR-CW-WKR-01",
@@ -568,7 +568,7 @@
     "role": "TENANT_ADMIN",
     "status": "invited",
     "locale": "en",
-    "createdAt": "2026-08-14T09:05:00Z",
+    "createdAt": "2026-03-01T09:05:00Z",
     "lastSignInAt": null
   },
   {
@@ -579,8 +579,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-03-06T09:00:00Z",
-    "lastSignInAt": "2026-08-01T09:20:00Z"
+    "createdAt": "2025-11-16T09:00:00Z",
+    "lastSignInAt": "2026-04-13T09:20:00Z"
   },
   {
     "id": "USR-SG-SUP-01",
@@ -711,8 +711,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-04-12T09:00:00Z",
-    "lastSignInAt": "2026-08-14T09:00:00Z"
+    "createdAt": "2025-12-21T09:00:00Z",
+    "lastSignInAt": "2026-04-24T09:00:00Z"
   },
   {
     "id": "USR-PW-WKR-01",
@@ -739,7 +739,7 @@
   {
     "id": "USR-SM-ADM-01",
     "tenantId": "TEN-SOLMETAL",
-    "displayName": "Valentina R\u00edos",
+    "displayName": "Valentina Ríos",
     "email": "valentina.rios@solmetalurgica.example",
     "role": "TENANT_ADMIN",
     "status": "active",
@@ -761,7 +761,7 @@
   {
     "id": "USR-SM-WKR-01",
     "tenantId": "TEN-SOLMETAL",
-    "displayName": "Luc\u00eda Fern\u00e1ndez",
+    "displayName": "Lucía Fernández",
     "email": "lucia.fernandez@solmetalurgica.example",
     "role": "WORKER",
     "status": "active",
@@ -788,8 +788,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-07-21T09:00:00Z",
-    "lastSignInAt": "2026-08-15T09:10:00Z"
+    "createdAt": "2026-02-19T09:00:00Z",
+    "lastSignInAt": "2026-03-16T09:10:00Z"
   },
   {
     "id": "USR-HW-WKR-01",
@@ -865,8 +865,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-03-19T09:00:00Z",
-    "lastSignInAt": "2026-08-02T09:00:00Z"
+    "createdAt": "2025-12-06T09:00:00Z",
+    "lastSignInAt": "2026-04-21T09:00:00Z"
   },
   {
     "id": "USR-KD-WKR-01",
@@ -898,7 +898,7 @@
     "role": "TENANT_ADMIN",
     "status": "invited",
     "locale": "en",
-    "createdAt": "2026-08-10T09:05:00Z",
+    "createdAt": "2026-02-27T09:05:00Z",
     "lastSignInAt": null
   },
   {
@@ -909,7 +909,7 @@
     "role": "TENANT_ADMIN",
     "status": "invited",
     "locale": "en",
-    "createdAt": "2026-08-05T09:05:00Z",
+    "createdAt": "2026-02-25T09:05:00Z",
     "lastSignInAt": null
   },
   {
@@ -920,7 +920,7 @@
     "role": "TENANT_ADMIN",
     "status": "invited",
     "locale": "es",
-    "createdAt": "2026-07-28T09:05:00Z",
+    "createdAt": "2026-02-22T09:05:00Z",
     "lastSignInAt": null
   },
   {
@@ -931,8 +931,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-07-16T10:00:00Z",
-    "lastSignInAt": "2026-08-12T09:00:00Z"
+    "createdAt": "2026-02-15T10:00:00Z",
+    "lastSignInAt": "2026-03-14T09:00:00Z"
   },
   {
     "id": "USR-CV-ADM-01",
@@ -942,8 +942,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-06-23T10:00:00Z",
-    "lastSignInAt": "2026-08-10T08:30:00Z"
+    "createdAt": "2026-02-02T10:00:00Z",
+    "lastSignInAt": "2026-03-22T08:30:00Z"
   },
   {
     "id": "USR-QR-ADM-01",
@@ -953,8 +953,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-05-31T10:00:00Z",
-    "lastSignInAt": "2026-08-05T09:15:00Z"
+    "createdAt": "2026-01-26T10:00:00Z",
+    "lastSignInAt": "2026-04-02T09:15:00Z"
   },
   {
     "id": "USR-IB-ADM-01",
@@ -964,8 +964,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-05-05T10:00:00Z",
-    "lastSignInAt": "2026-08-14T07:45:00Z"
+    "createdAt": "2026-01-16T10:00:00Z",
+    "lastSignInAt": "2026-04-27T07:45:00Z"
   },
   {
     "id": "USR-SC-ADM-01",
@@ -975,8 +975,8 @@
     "role": "TENANT_ADMIN",
     "status": "active",
     "locale": "en",
-    "createdAt": "2026-04-19T10:00:00Z",
-    "lastSignInAt": "2026-08-13T14:00:00Z"
+    "createdAt": "2026-01-06T10:00:00Z",
+    "lastSignInAt": "2026-05-02T14:00:00Z"
   },
   {
     "id": "USR-GP-ADM-01",

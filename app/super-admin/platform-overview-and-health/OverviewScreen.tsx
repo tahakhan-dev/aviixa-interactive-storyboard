@@ -47,11 +47,24 @@ import { tenantId } from '@/domain/ids'
  * here as carried but not yet re-homed, for Task 11's reconciliation sweep.
  *
  * Realised in this rebuild:
- *  - D1, SCR-SA-01, SB-SA-01 (L42971), SB-RISK-01 (L115553),
- *    SCR-SA-OVERVIEW-01 (L100758), L42793 — screen-annotation identifiers,
- *    never route keys: this route (`/super-admin/platform-overview-and-health/`)
- *    IS what those four annotations name; carried as this comment rather
- *    than printed as rendered page text (D1 itself is the reason not to).
+ *  - D1, SCR-SA-01, SB-RISK-01 (L115553), SCR-SA-OVERVIEW-01 (L100758),
+ *    L42793 — screen-annotation identifiers, never route keys: this route
+ *    (`/super-admin/platform-overview-and-health/`) IS what those
+ *    annotations name; carried as this comment rather than printed as
+ *    rendered page text (D1 itself is the reason not to).
+ *  - FIX ROUND 1 (Task 4's own review, IMPORTANT 1 — the defect is here
+ *    too, caught only when Task 4's rebuild regenerated the registry and
+ *    the census fell from 299 to 292): `SB-SA-01` sat ONLY in this header
+ *    comment, and `scripts/build-registries.mjs`'s coverage scan computes
+ *    its `citedTokens` set from `stripComments(text)` — every block comment
+ *    is removed before the identifier regex runs, so a comment citation was
+ *    never going to count. `SB-SA-01` (L42971 — "the screen opens with a
+ *    single row of eight tiles… clicking a tenant name… navigates to
+ *    SCR-SA-15, the tenant detail page, which is read-only by construction;
+ *    there is no control anywhere on this screen that changes a tenant's
+ *    operational state") is exactly the invariant `fullRecordDecision`
+ *    below already encodes structurally (`allowedRoles: []`) — added there
+ *    as a real `sourceRefs` entry rather than left comment-only.
  *  - AC-SA-01-01 (L43068), "eight aggregate elements" — realised as the KPI
  *    row of `StatTile`s below: this build's own reading of which metrics a
  *    repository of tenants/users/devices/AI-requests can actually compute,
@@ -84,7 +97,13 @@ import { tenantId } from '@/domain/ids'
  *    status chips) — already rendered elsewhere in this rebuild:
  *    `PlatformSettingsScreen.tsx` and the root's own step-up panel
  *    (`app/super-admin/sign-in/SignInScreen.tsx`, Task 2). Not duplicated
- *    here.
+ *    here. `SB-SEC-013` governs no decision and renders no content ON this
+ *    screen — it is a pure forward pointer — so it does not belong in a
+ *    `sourceRefs` array (that would misattribute authority this screen
+ *    doesn't exercise). Carried in a real `data-carried-forward-refs`
+ *    attribute on the KPI section below rather than only in this comment,
+ *    for the same reason `SB-SA-01` above moved: a header comment is
+ *    invisible to the coverage scan (fix round 1, IMPORTANT 1).
  *  - STATE-01 through STATE-13, the `src/ui/screen-state.ts` framework the
  *    previous body exercised thirteen times over — superseded for this
  *    generation of screens by `useRuntimeReady()`'s loading gate
@@ -378,7 +397,7 @@ function PlatformOverviewDashboard({ session }: { readonly session: ProductSessi
         {
           action: 'view-tenant-record-detail',
           allowedRoles: [],
-          sourceRefs: ['AC-SA-000-07', 'AC-SEC-801', 'AC-4803'],
+          sourceRefs: ['AC-SA-000-07', 'AC-SEC-801', 'AC-4803', 'SB-SA-01'],
           resourceTenant: tenantId(selectedTenant.id),
         },
         ctx,
@@ -387,7 +406,11 @@ function PlatformOverviewDashboard({ session }: { readonly session: ProductSessi
 
   return (
     <AppShell surface="SURF-SA" session={session} title={MODULE.name} breadcrumbs={[{ label: MODULE.name }]}>
-      <section aria-labelledby="overview-kpi-heading" className="flex flex-col gap-3">
+      <section
+        aria-labelledby="overview-kpi-heading"
+        className="flex flex-col gap-3"
+        data-carried-forward-refs="SB-SEC-013"
+      >
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="overview-kpi-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
             Platform health

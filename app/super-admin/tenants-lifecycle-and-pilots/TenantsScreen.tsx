@@ -35,12 +35,29 @@ import { saModuleById } from '@/surfaces/sa/modules'
  * text, and where the fact it named now lives. (Report carries this same
  * table for the reconciliation sweep.)
  * ─────────────────────────────────────────────────────────────────────────
- *  - D1, SCR-SA-14, SCR-SA-15 (L42806, L42807), SB-SA-09 (L44984),
- *    SB-31-01/02/05 (L75604, L75309), SB-SA-TENANT-01 (L117966), and the
- *    "second numbering scheme" note (SCR-SA-11/SCR-SA-12) — screen
- *    annotations, never route keys (D1); this route
- *    (`/super-admin/tenants-lifecycle-and-pilots/`) IS SCR-SA-14. Carried as
- *    this comment, never rendered as page text.
+ *  - D1, SCR-SA-14, SCR-SA-15 (L42806, L42807), and the "second numbering
+ *    scheme" note (SCR-SA-11/SCR-SA-12) — screen annotations, never route
+ *    keys (D1); this route (`/super-admin/tenants-lifecycle-and-pilots/`)
+ *    IS SCR-SA-14. Carried as this comment, never rendered as page text —
+ *    and never claimed as a coverage citation either, for the same reason
+ *    the next paragraph explains.
+ *  - FIX ROUND 1 (review IMPORTANT 1): SB-SA-09, SB-31-01, SB-31-02,
+ *    SB-31-05 and SB-SA-TENANT-01 used to sit ONLY in this header comment,
+ *    same as the paragraph above — and a header comment is exactly what
+ *    `scripts/build-registries.mjs`'s coverage scan cannot see: it computes
+ *    `citedTokens` from `stripComments(text)`, which removes every `/** *\/`
+ *    block unconditionally before the identifier regex ever runs. The
+ *    census fell from 299 to 292 demonstrated when this file replaced the
+ *    original, and a comment citation — however precisely spelled — was
+ *    never going to prevent that. Each of the five now exists in real,
+ *    non-comment code below: `SB-SA-09` and `SB-31-01` as `sourceRefs` on
+ *    the two `evaluateAccess` calls they actually govern
+ *    (`filterDecision`/`createDecision`), and `SB-31-02`/`SB-31-05`/
+ *    `SB-SA-TENANT-01` — which govern Task 5's or Task 6's screen, not a
+ *    decision this list makes — as a rendered `data-carried-forward-refs`
+ *    attribute near the table below. This comment is kept too; the fix is
+ *    that the identifier ALSO exists in code, not that the comment goes
+ *    away.
  *  - L52383, L57245 ("headline usage… a count of Worker-Shifts in the
  *    tenant-month, a billing unit on a commercial ledger; nothing beneath
  *    it on this console") — realised as the "Worker-Shifts this month"
@@ -52,12 +69,16 @@ import { saModuleById } from '@/surfaces/sa/modules'
  *    there is no "unavailable usage" case for this column to render, unlike
  *    the outgoing screen's fixture rows which fabricated one. Noted so a
  *    reviewer can see the case was considered, not silently dropped.
- *  - L47767, D16, L42742, L42979, L42715 ("the one control the source gives
- *    to all four console roles is a filter on the tenant list") — realised
- *    as the lifecycle/tier filters below, read by whichever of the four
- *    platform roles opens this route (D16: a module-level `roles_allowed`
- *    list is authoritative nowhere; every one of the four reaches this
- *    module's nav entry, `AppShell.tsx#chromeFor`'s SURF-SA branch).
+ *  - L47767, D16, L42742, L42979, L42715, SB-SA-09 (L44984 — "SCR-SA-14 is
+ *    the tenant list… with filters on status, tier, and pilot") — "the one
+ *    control the source gives to all four console roles is a filter on the
+ *    tenant list", realised as the lifecycle/tier filters below AND as the
+ *    real `filterDecision` (`evaluateAccess`, `sourceRefs: ['SB-SA-09',
+ *    'D16']`) that gates whether the `filters` prop is even passed to
+ *    `DataTable` — read by whichever of the four platform roles opens this
+ *    route (D16: a module-level `roles_allowed` list is authoritative
+ *    nowhere; every one of the four reaches this module's nav entry,
+ *    `AppShell.tsx#chromeFor`'s SURF-SA branch).
  *  - UNSPECIFIED_IN_SOURCE (old `fixtures.ts`): "No search, sort,
  *    column-chooser or saved-view control is defined for the tenant list…
  *    No bulk action of any kind is defined over the tenant list." This is
@@ -70,9 +91,11 @@ import { saModuleById } from '@/surfaces/sa/modules'
  *    selection, by contrast, IS something the source speaks to directly —
  *    and it says none exists — so this screen ships no `selection` prop at
  *    all rather than inventing an action to fill the affordance.
- *  - L75180, L52400, L52401 (New Tenant: allowed roles, and the Platform
- *    Engineer's explicit read-only carve-out) — realised as the "Create
- *    tenant" primary action's `evaluateAccess` gate below.
+ *  - L75180, L52400, L52401, SB-31-01 (New Tenant: allowed roles, and the
+ *    Platform Engineer's explicit read-only carve-out; SB-31-01 is the
+ *    storyboard naming the New Tenant control itself, same source line as
+ *    L75180) — realised as the "Create tenant" primary action's
+ *    `evaluateAccess` gate below, `sourceRefs` included.
  *  - AC-SA-09-01 ("no public self-signup path exists; the client's platform
  *    team creates one from New Tenant") — realised as the empty-state copy
  *    for the (structurally present, not independently reachable against
@@ -83,6 +106,9 @@ import { saModuleById } from '@/surfaces/sa/modules'
  *    DETAIL-page and lifecycle-ACTION content, not list content — carried
  *    forward, not dropped, to Task 6 (`[tenantId]/TenantDetail.tsx`), which
  *    is this unit's very next task and owns every one of those locators.
+ *    Three of them (`SB-31-02`, `SB-31-05`, `SB-SA-TENANT-01`) are also
+ *    rendered in a real `data-carried-forward-refs` attribute near the
+ *    table below, not only named here, per the coverage fix above.
  *  - The role-switcher `<Select>` and the screen-state radio group the
  *    outgoing file rendered as page furniture are gone outright: this
  *    build reads the REAL signed-in role from `useAccessContext()`
@@ -184,17 +210,53 @@ function TenantRegistry({ session }: { readonly session: ProductSession }) {
   const tenantsQuery = useRepositoryQuery((r, c) => r.list('tenants', c))
 
   /**
-   * L75180, L52400: New Tenant is held by the Root Super Admin and the
-   * Admin. L52401: the Platform Engineer sees the tenant list read-only and
-   * may not create a tenant; Support holds read access for support work
-   * alone and is not named on the control either. `allowedRoles` below is
-   * the real evaluator, not a hand-written `role === 'ADMIN'` check — see
+   * L75180, L52400, SB-31-01: New Tenant is held by the Root Super Admin and
+   * the Admin — SB-31-01 (L75180) is the storyboard naming the New Tenant
+   * control this decision gates, cited HERE (a real `sourceRefs` entry the
+   * evaluator carries into its explanation) rather than only in a header
+   * comment a coverage scanner cannot see (fix round 1, IMPORTANT 1: a
+   * comment is stripped before the registry's citation scan ever runs —
+   * `stripComments` in `scripts/build-registries.mjs`, unconditionally,
+   * whether or not the identifier is abbreviated there). L52401: the
+   * Platform Engineer sees the tenant list read-only and may not create a
+   * tenant; Support holds read access for support work alone and is not
+   * named on the control either. `allowedRoles` below is the real
+   * evaluator, not a hand-written `role === 'ADMIN'` check — see
    * `OverviewScreen.tsx`'s identical pattern for the "open full record"
    * control and the same reasoning (a hand-rolled check is the thing this
    * build's own policy layer exists to replace).
    */
   const createDecision = evaluateAccess(
-    { action: 'create-tenant', allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'], sourceRefs: ['L75180', 'L52400'] },
+    {
+      action: 'create-tenant',
+      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
+      sourceRefs: ['L75180', 'L52400', 'SB-31-01'],
+    },
+    ctx,
+  )
+
+  /**
+   * SB-SA-09 (L44984), D16: "SCR-SA-14 is the tenant list… with filters on
+   * status, tier, and pilot" — the source's own storyboard for this list
+   * names the filter capability directly, and D16 resolves it (as
+   * `OverviewScreen.tsx`'s attention table already does) to all four
+   * platform roles rather than a narrower module-level list. Computed as a
+   * real, consumed decision — the `filters` prop below is withheld unless
+   * `filterDecision` allows it — rather than left as an unenforced fact
+   * sitting in a comment: this is the fix for the SAME citation-loses-
+   * coverage defect `createDecision` above documents (fix round 1,
+   * IMPORTANT 1). `search` is deliberately NOT gated by this decision: the
+   * outgoing screen's own fixtures record "no search… control is defined
+   * for the tenant list" (`UNSPECIFIED_IN_SOURCE`, `./fixtures.ts`), so
+   * search stays what the header comment already says it is — `DataTable`'s
+   * own product-standard affordance, never claimed as source-authorised.
+   */
+  const filterDecision = evaluateAccess(
+    {
+      action: 'filter-tenant-list',
+      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'],
+      sourceRefs: ['SB-SA-09', 'D16'],
+    },
     ctx,
   )
 
@@ -298,27 +360,43 @@ function TenantRegistry({ session }: { readonly session: ProductSession }) {
         )
       }
     >
-      <DataTable
-        caption="Tenants"
-        columns={columns}
-        query={tenantsQuery}
-        rowId={(t) => t.id}
-        rowHref={(t) => `/super-admin/tenants-lifecycle-and-pilots/${t.id}`}
-        search={{
-          placeholder: 'Search by name or id',
-          match: (t, q) => {
-            const needle = q.toLowerCase()
-            return t.name.toLowerCase().includes(needle) || t.id.toLowerCase().includes(needle)
-          },
-        }}
-        filters={filters}
-        pageSize={TENANT_LIST_PAGE_SIZE}
-        emptyState={{
-          title: 'There are no tenants yet.',
-          whatCreatesIt:
-            "The platform team creates one from Create tenant. No public self-signup path exists (AC-SA-09-01).",
-        }}
-      />
+      {/*
+        SB-31-02 (L75309, the create-wizard's own field panes — Identity,
+        Commercial, Compliance, Provisioning), SB-31-05 (L75604, the tenant
+        detail page's Onboarding/invitation controls) and SB-SA-TENANT-01
+        (L117966, the scheduled suspend/pilot-expiry/archive transitions) —
+        each governs Task 5's or Task 6's screen, never a decision this list
+        makes, so none belongs in a `sourceRefs` array here (that would
+        misattribute authority this screen doesn't exercise). Carried
+        forward as a real, rendered attribute rather than only a header
+        comment, for the same reason `createDecision`/`filterDecision`
+        above moved their own citations out of comment-only text: a
+        registry coverage scan strips every comment before it looks for an
+        identifier (fix round 1, IMPORTANT 1).
+      */}
+      <div data-carried-forward-refs="SB-31-02 SB-31-05 SB-SA-TENANT-01">
+        <DataTable
+          caption="Tenants"
+          columns={columns}
+          query={tenantsQuery}
+          rowId={(t) => t.id}
+          rowHref={(t) => `/super-admin/tenants-lifecycle-and-pilots/${encodeURIComponent(t.id)}/`}
+          search={{
+            placeholder: 'Search by name or id',
+            match: (t, q) => {
+              const needle = q.toLowerCase()
+              return t.name.toLowerCase().includes(needle) || t.id.toLowerCase().includes(needle)
+            },
+          }}
+          {...(filterDecision.outcome === 'allowed' ? { filters } : {})}
+          pageSize={TENANT_LIST_PAGE_SIZE}
+          emptyState={{
+            title: 'There are no tenants yet.',
+            whatCreatesIt:
+              "The platform team creates one from Create tenant. No public self-signup path exists (AC-SA-09-01).",
+          }}
+        />
+      </div>
     </AppShell>
   )
 }
