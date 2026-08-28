@@ -1,767 +1,1017 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
-import Link from 'next/link'
-import type { RoleId } from '@/domain/roles'
-import { emptyDomainState } from '@/domain/state'
-import { scenarioRunId } from '@/domain/ids'
-import { evaluateAccess } from '@/policy/evaluate'
-import type { PermissionDecision } from '@/policy/decision'
-import { saModuleById } from '@/surfaces/sa/modules'
-import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
-import { ACCESS_CLASSES } from '@/surfaces/sa/access-classes'
-import { SCREEN_STATES, type ScreenStateId } from '@/ui/screen-state'
-import { InvariantChip } from '@/ui/sa/InvariantChip'
-import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
-import { SA_APPLICABLE_STATES } from '@/surfaces/sa/screen-states'
+import { useState } from 'react'
 import {
-  Banner,
-  Button,
-  EmptyState,
-  FreshnessLabel,
-  Select,
-  SkeletonBlock,
+  AppShell,
+  Chart,
+  DataTable,
+  FreshnessStamp,
+  RequireSession,
+  StatTile,
   StatusPill,
-  Table,
-  Tabs,
-  Field,
-  type StatusTone,
-} from '@/ui/primitives'
-import { SaConsoleShell } from '../SaConsoleShell'
-import {
-  SA10_ABSENT_CONTROLS,
-  SA10_CONFLICTS,
-  SA10_DISTRIBUTION,
-  SA10_DISTRIBUTION_AS_OF,
-  SA10_DISTRIBUTION_ORIGIN,
-  SA10_MEASURES,
-  SA10_OVERRIDE_CLUSTERS,
-  SA10_PERMITTED_DIMENSIONS,
-  SA10_PLATFORM_ROLES,
-  SA10_PROHIBITED_DIMENSIONS,
-  SA10_READ_MEASURES_SOURCE_REFS,
-  SA10_STALE_AS_OF,
-  SA10_STALE_ORIGIN,
-  SA10_TENANT_MONTHS,
-  SA10_TENANTS,
-  SA10_UNSPECIFIED_IN_SOURCE,
-  SA10_WORKFLOWS,
-  type MetricState,
-} from './fixtures'
+  bg,
+  borderColor,
+  radiusClass,
+  textColor,
+  useAccessContext,
+  useRepositoryQuery,
+  useStore,
+  type ChartSeries,
+  type DataTableColumn,
+  type ProductSession,
+  type StatTileData,
+  type StatusToken,
+} from '@/ui/product'
+import { evaluateAccess } from '@/policy/evaluate'
+import type { AccessContext, Repository, RowOf } from '@/data/repository'
+import { saModuleById } from '@/surfaces/sa/modules'
+
+/**
+ * Task 9 (unit-01) — the platform-level telemetry dashboard for MOD-SA-10.
+ * Replaces the previous document-style body (767 lines, 39 rendered
+ * blueprint locators, a scenario-state fixture stepper) with a real
+ * dashboard: every figure below is read from the repository at render time,
+ * exactly as `OverviewScreen.tsx` (Task 3) and `TenantDetailScreen.tsx`
+ * (Task 6) already establish for this generation of screens.
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * THE FIFTEEN NAMED MEASURES (frozen source L45134) AND WHAT THIS BUILD
+ * FOUND FOR EACH
+ * ─────────────────────────────────────────────────────────────────────────
+ * L45134 names exactly fifteen, in this order — the order this file's tile
+ * grid keeps:
+ *  1. Errors and agent-run failures
+ *  2. Active workflows, published, in draft and in review
+ *  3. Active agents, the enabled set with activations and gate outcomes
+ *  4. Tokens consumed by router role
+ *  5. Runs and capture volumes
+ *  6. Deviations by severity and containment state
+ *  7. Worker-Shift consumption against allocation
+ *  8. Sync health — device online rates, queue depths, clock-skew events
+ *  9. Hold-propagation lag per tenant against the platform-wide view
+ * 10. Clearance volumes granted under the qualification machinery
+ * 11. Adoption-timing lag
+ * 12. Eval posture of enabled capabilities
+ * 13. Learning-proposal lifecycle
+ * 14. Notification and escalation health
+ * 15. Override patterns (frequency and clustering, never record contents)
+ *
+ * This build's data model (`@/data/schemas`) has no `agents`/`atoms` and no
+ * learning-proposal collection at all, so #1, most of #3, and #13 render
+ * `kind: 'unknown'` — never a fabricated count. #9 and #11 also render
+ * unknown: `holds` records a placement and a release, never the per-device
+ * confirmation moment "propagation" means, and `workflow-definitions`
+ * carries a version and a status but no publish timestamp, so no interval
+ * to "in force on devices" exists to read. #12 (eval posture) is a genuine
+ * source/model mismatch, not a missing collection: `evaluations` is this
+ * build's real Eval Harness data, but it carries no `tenantId` at all — it
+ * tests platform capabilities, not tenant-attributed work — so a PER-TENANT
+ * eval-posture figure cannot be read for any tenant. Disclosed on screen
+ * (see the comparative tab) rather than invented.
+ *
+ * The remaining nine (#2, #4, #5, #6, #7, #8 in part, #10, #14, #15) are
+ * real, computed, per-tenant reads — see `readSnapshot` and the grouping
+ * maps below for exactly which collection backs each.
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * THE ANONYMISATION INVARIANT, ENFORCED IN THE SHAPE OF THE DATA
+ * ─────────────────────────────────────────────────────────────────────────
+ * `deviationRateBands` below takes a `readonly number[]` — plain rates,
+ * already stripped of which tenant produced them — and returns
+ * `{ band, tenantCount }` pairs. No tenant id, name or index EVER enters
+ * that function, so no later edit to this file's render code can leak one
+ * through it: there is no parameter position for identity to travel
+ * through. This is `AC-SA-10-03`/`L45230`/`L45179`'s "anonymisation
+ * precedes aggregation" made structural rather than a step a later
+ * maintainer could quietly skip — the same enforcement style
+ * `OverviewScreen.tsx` uses for `fullRecordDecision` (a decision object
+ * with `allowedRoles: []`, not a comment asking nobody to add a button).
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * ROLE ACCESS — A THREE-WAY CONFLICT IN THE FROZEN SOURCE, RESOLVED AND
+ * DISCLOSED
+ * ─────────────────────────────────────────────────────────────────────────
+ * Three passages state who reads this module, and they do not agree:
+ *  - The Part VIII charter row (L4621) names only "Admin; Platform
+ *    Engineer" — read here as a RACI-style owner summary, the same
+ *    abbreviated pattern every other `§8.x` charter row uses (e.g. `§8.9`
+ *    names only "Admin; Root Super Admin" while its own detailed module
+ *    record grants Support a read as well).
+ *  - The platform-to-module matrix `MTX-PLAT-02` (L21087) marks the
+ *    Platform Engineer `Unavailable` for the WHOLE module.
+ *  - MOD-SA-10's own module record and permission matrix (L45170–L45202,
+ *    the most specific passage — it is the module's own dedicated
+ *    specification, not a cross-module summary table) states "All four
+ *    console roles, read" and its per-action matrix grants Root, Admin,
+ *    Platform Engineer AND Support "Allowed" to both read the fifteen
+ *    measures and read the anonymised comparative.
+ * This build follows the per-module, per-action matrix (L45170–L45202)
+ * over the coarser cross-module summaries, the same precedence this unit's
+ * `OverviewScreen.tsx` already established as `D16` ("a module-level
+ * `roles_allowed` array is authoritative nowhere") — disclosed on screen
+ * below rather than silently picked. A second, narrower conflict — whether
+ * Support reads the ANONYMISED COMPARATIVE specifically — is resolved the
+ * other way: the isolation chapter's own principal-by-layer matrix
+ * (L97155, "Cross-tenant aggregates: Unavailable" for Support, holding the
+ * line it does NOT soften for Support's other reads) is treated as the
+ * more specific, more deliberate statement on that one narrow question,
+ * over MOD-SA-10's own generic "Allowed" cell for that same role/action
+ * pair — consistent with master prompt §15.2's own boundary that Support
+ * exists for narrow, session-scoped remediation, not standing cross-tenant
+ * benchmarking.
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * WHAT THIS SCREEN DOES NOT BUILD
+ * ─────────────────────────────────────────────────────────────────────────
+ * The previous body's "request a support session" form and "open the
+ * tenant's audit log" affordance duplicated Support Access (`MOD-SA-15`,
+ * already its own screen at `/super-admin/support-access/`) rather than
+ * reading telemetry — out of this task's scope ("Produces: nothing later
+ * tasks import"), and this rebuild does not reconstruct it. This screen
+ * reads `tenants`, `workflow-definitions`, `ai-requests`, `runs`,
+ * `captures`, `deviations`, `devices`, `step-executions`,
+ * `qualification-grants`, `workers`, `notifications` and `entitlements` —
+ * it never reads the `reports` collection, which is the tenant-facing
+ * report data this module must never duplicate (`AC-SA-10-05`, L45138).
+ */
 
 const MODULE = saModuleById('MOD-SA-10')
+const USAGE_FEATURE_KEY = 'worker-shift-allocation'
 
-/** The twelve applicable states: all thirteen less the frontline-only STATE-07. */
+type Tenant = RowOf<'tenants'>
+type TenantLifecycle = Tenant['lifecycle']
+type WorkflowDefinition = RowOf<'workflow-definitions'>
+type WorkflowStatus = WorkflowDefinition['status']
+type Run = RowOf<'runs'>
+type Capture = RowOf<'captures'>
+type Deviation = RowOf<'deviations'>
+type DeviationStatus = Deviation['status']
+type Device = RowOf<'devices'>
+type StepExecution = RowOf<'step-executions'>
+type QualificationGrant = RowOf<'qualification-grants'>
+type Worker = RowOf<'workers'>
+type Notification = RowOf<'notifications'>
+type AiRequest = RowOf<'ai-requests'>
+type RouterRole = AiRequest['routerRole']
+type Entitlement = RowOf<'entitlements'>
+type Evaluation = RowOf<'evaluations'>
 
-/** No backend, no clock — the policy layer is handed an empty seeded state. */
-const FIXTURE_STATE = emptyDomainState(scenarioRunId('SA-10-TENANT-METRICS'))
-
-const ANONYMISATION_INVARIANT = SA_INVARIANTS.find(
-  (i) => i.id === 'cross-tenant-analytics-anonymisation',
-)
-
-/**
- * `OBJ-SA-METRIC`'s four states (L45180), driven off the seeded screen state
- * rather than computed. FB-SA-01 (L45228) is the whole of the ladder: stale
- * with its age, then narrowed, then "measure unavailable" — and a zero is
- * never rendered for a missing measure.
- */
-function metricState(state: ScreenStateId): MetricState {
-  if (state === 'STATE-08') return 'stale'
-  if (state === 'STATE-12') return 'unavailable'
-  if (state === 'STATE-13') return 'reconciled'
-  return 'current'
+const LIFECYCLE_LABEL: Readonly<Record<TenantLifecycle, string>> = {
+  invited: 'Invited',
+  pilot: 'Pilot',
+  active: 'Active',
+  'soft-suspended': 'Soft suspended',
+  'hard-suspended': 'Hard suspended',
+  'compliance-suspended': 'Compliance suspended',
+  'pending-downgrade': 'Pending downgrade',
+  archived: 'Archived',
 }
 
-function metricTone(state: MetricState): StatusTone {
-  if (state === 'stale') return 'stale'
-  if (state === 'unavailable') return 'blocked'
-  if (state === 'reconciled') return 'info'
-  return 'ok'
+const LIFECYCLE_TONE: Readonly<Record<TenantLifecycle, StatusToken>> = {
+  invited: 'pending',
+  pilot: 'info',
+  active: 'ok',
+  'soft-suspended': 'warn',
+  'hard-suspended': 'danger',
+  'compliance-suspended': 'danger',
+  'pending-downgrade': 'warn',
+  archived: 'offline',
 }
 
-/**
- * The named reason a drawn-but-inert control carries. Never a bare "denied",
- * and never a reason that implies an approval path exists where none does.
- */
-function namedReason(decision: PermissionDecision, role: RoleId): string {
-  if (decision.outcome === 'allowed') return ''
-  if (role === 'PLATFORM_ENGINEER') {
-    return 'Not available to the Platform Engineer. D17 records the direct conflict — L21166 refuses this role a support session, L65407 grants it — and resolves it by holding the prohibition, while L97154 puts tenant operational content in this role’s may-not list on this surface. L107350 attributes the onward action to this role; that attribution is not honoured here, and the conflict is stated in full below.'
+const WORKFLOW_STATUS_ORDER: readonly WorkflowStatus[] = ['draft', 'in-review', 'published', 'outdated', 'archived']
+const WORKFLOW_STATUS_LABEL: Readonly<Record<WorkflowStatus, string>> = {
+  draft: 'Draft',
+  'in-review': 'In review',
+  published: 'Published',
+  outdated: 'Outdated',
+  archived: 'Archived',
+}
+
+const DEVIATION_STATUS_ORDER: readonly DeviationStatus[] = [
+  'detected', 'classified', 'contained', 'escalated', 'dispositioned', 'bridged', 'resolved',
+]
+const DEVIATION_STATUS_LABEL: Readonly<Record<DeviationStatus, string>> = {
+  detected: 'Detected',
+  classified: 'Classified',
+  contained: 'Contained',
+  escalated: 'Escalated',
+  dispositioned: 'Dispositioned',
+  bridged: 'Bridged',
+  resolved: 'Resolved',
+}
+
+const ROUTER_ROLE_ORDER: readonly RouterRole[] = ['primary', 'fallback', 'lightweight', 'embedding']
+const ROUTER_ROLE_LABEL: Readonly<Record<RouterRole, string>> = {
+  primary: 'Primary',
+  fallback: 'Fallback',
+  lightweight: 'Lightweight',
+  embedding: 'Embedding',
+}
+
+/** Platform time, never wall time — same shape as `OverviewScreen.tsx`'s own helper (its header records the same gap: no shared date-formatting module exists yet for `src/ui/product/**`). */
+function formatPlatformTime(ms: number): string {
+  const formatted = new Date(ms).toLocaleString('en-US', {
+    timeZone: 'UTC', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  })
+  return `${formatted} platform time`
+}
+
+function groupBy<T>(rows: readonly T[], key: (row: T) => string): ReadonlyMap<string, readonly T[]> {
+  const map = new Map<string, T[]>()
+  for (const row of rows) {
+    const k = key(row)
+    const bucket = map.get(k)
+    if (bucket) bucket.push(row)
+    else map.set(k, [row])
   }
-  return `Not available to this role. L107350 attributes the session request to the Platform Engineer and to Support, and to no other console role — the root and the platform Admin are named for it nowhere. D17 holds the prohibition for the Platform Engineer, which leaves Support as the one role that carries it here. Reading a measure carries no session with it. (${decision.explanation})`
+  return map
 }
 
-function Section({
-  id,
-  heading,
-  children,
-}: {
-  readonly id: string
-  readonly heading: string
-  readonly children: ReactNode
-}) {
+interface TenantMetricsSnapshot {
+  readonly tenants: readonly Tenant[]
+  readonly workflowDefinitions: readonly WorkflowDefinition[]
+  readonly runs: readonly Run[]
+  readonly captures: readonly Capture[]
+  readonly deviations: readonly Deviation[]
+  readonly devices: readonly Device[]
+  readonly stepExecutions: readonly StepExecution[]
+  readonly qualificationGrants: readonly QualificationGrant[]
+  readonly workers: readonly Worker[]
+  readonly notifications: readonly Notification[]
+  readonly aiRequests: readonly AiRequest[]
+  readonly entitlements: readonly Entitlement[]
+  readonly evaluations: readonly Evaluation[]
+}
+
+/**
+ * CONTRACT (see `useRepositoryQuery`'s own header, and `OverviewScreen.tsx`'s
+ * identical framing): a pure function of `(repository, ctx)` alone. WHICH
+ * tenant is under inspection is client-side selection state, not part of
+ * either argument, so it is applied in plain render code below, never
+ * folded in here — the same reasoning `TenantDetailScreen.tsx#readSnapshot`
+ * gives for why its own tenant filter lives outside its selector. The
+ * `ai-requests` clock filter ("to date") is the one genuinely time-
+ * dependent read on this screen and is likewise applied AFTER this
+ * snapshot, in `nowMs`-aware render code, never inside this cached
+ * selector — `OverviewScreen.tsx`'s own header explains why in full.
+ */
+function readSnapshot(repository: Repository, ctx: AccessContext): TenantMetricsSnapshot {
+  return {
+    tenants: repository.list('tenants', ctx).all(),
+    workflowDefinitions: repository.list('workflow-definitions', ctx).all(),
+    runs: repository.list('runs', ctx).all(),
+    captures: repository.list('captures', ctx).all(),
+    deviations: repository.list('deviations', ctx).all(),
+    devices: repository.list('devices', ctx).all(),
+    stepExecutions: repository.list('step-executions', ctx).all(),
+    qualificationGrants: repository.list('qualification-grants', ctx).all(),
+    workers: repository.list('workers', ctx).all(),
+    notifications: repository.list('notifications', ctx).all(),
+    aiRequests: repository.list('ai-requests', ctx).all(),
+    entitlements: repository.list('entitlements', ctx).all(),
+    evaluations: repository.list('evaluations', ctx).all(),
+  }
+}
+
+/**
+ * `deviations`/`captures`/`qualification-grants` are not `tenantId`-scoped
+ * directly (see the schema comments beside each collection's own type) —
+ * `captures` joins through `runId → runs.tenantId`, `qualification-grants`
+ * through `workerId → workers.tenantId`. Built once per render from the
+ * snapshot; see this file's header for why this stays outside
+ * `readSnapshot` itself (it is a pure function of the snapshot alone, so it
+ * would be safe there too, but keeping every join beside the render code
+ * that consumes it — the same shape `TenantDetailScreen.tsx` uses for
+ * `usersById`/`roleGrantByUserId` — keeps this file's one contract, "no
+ * clock or selection state inside `readSnapshot`", visibly obvious rather
+ * than requiring a reader to check).
+ */
+function tenantIdOfRun(runs: readonly Run[]): ReadonlyMap<string, string> {
+  return new Map(runs.map((r) => [r.id, r.tenantId] as const))
+}
+
+function anonymisedRatioBands(ratios: readonly number[]): readonly { readonly band: string; readonly tenantCount: number }[] {
+  const bands = [
+    { band: '0%', test: (r: number) => r === 0 },
+    { band: '>0–5%', test: (r: number) => r > 0 && r <= 0.05 },
+    { band: '5–15%', test: (r: number) => r > 0.05 && r <= 0.15 },
+    { band: '>15%', test: (r: number) => r > 0.15 },
+  ]
+  return bands.map((b) => ({ band: b.band, tenantCount: ratios.filter(b.test).length }))
+}
+
+export function TenantMetricsScreen() {
   return (
-    <section aria-labelledby={id} className="mt-8">
-      <h2 id={id} className="text-lg font-semibold">
-        {heading}
-      </h2>
-      {children}
-    </section>
+    <RequireSession signInHref="/super-admin/sign-in/">
+      {(session) => <TenantMetricsDashboard session={session} />}
+    </RequireSession>
   )
 }
 
-export interface TenantMetricsScreenProps {
-  /** View-switcher seed, not a login (spec §8). */
-  readonly role?: RoleId
-  readonly screenState?: ScreenStateId
-}
+function TenantMetricsDashboard({ session }: { readonly session: ProductSession }) {
+  const store = useStore()
+  const ctx = useAccessContext()
+  const nowMs = store.clock.now()
+  const asOfLabel = formatPlatformTime(nowMs)
 
-export function TenantMetricsScreen({
-  role: initialRole = 'ADMIN',
-  screenState: initialScreenState = 'STATE-03',
-}: TenantMetricsScreenProps = {}) {
-  const [role, setRole] = useState<RoleId>(initialRole)
-  const [screenState, setScreenState] = useState<ScreenStateId>(initialScreenState)
+  const snapshot = useRepositoryQuery(readSnapshot)
+  // A separate call, same reasoning as `OverviewScreen.tsx`'s own
+  // `attentionQuery`: `DataTable` needs a live `Query<Tenant>` of its own to
+  // sort/filter/page over.
+  const tenantsQuery = useRepositoryQuery((r, c) => r.list('tenants', c))
+
+  const [selectedTenantId, setSelectedTenantId] = useState<string | null>(null)
   const [tab, setTab] = useState<'per-tenant' | 'comparative'>('per-tenant')
-  const [tenant, setTenant] = useState<string>(SA10_TENANTS[0].id)
-  const [period, setPeriod] = useState<string>(SA10_TENANT_MONTHS[2].id)
-  const [requestOpen, setRequestOpen] = useState(false)
-  // STATE-04 is the seeded validation step: the reason arrives unset, and the
-  // submit names the rule rather than refusing silently.
-  const [reason, setReason] = useState<string>(
-    initialScreenState === 'STATE-04' ? '' : 'Ticket TCK-4471 — tenant reports a measure they cannot reconcile',
-  )
-  const [ticket, setTicket] = useState<string>('TCK-4471')
-  const [requestSubmitted, setRequestSubmitted] = useState(false)
-  const [requestError, setRequestError] = useState<string | null>(null)
-
-  const measures = metricState(screenState)
-  const stateDefinition = SCREEN_STATES.find((s) => s.id === screenState) ?? SCREEN_STATES[0]
-  const tenantName = SA10_TENANTS.find((t) => t.id === tenant)?.name ?? tenant
-  const periodLabel = SA10_TENANT_MONTHS.find((p) => p.id === period)?.label ?? period
-
-  const context = {
-    state: FIXTURE_STATE,
-    identity: {
-      signedIn: true,
-      role,
-      tenant: null,
-      siteScope: [],
-      areaScope: [],
-      qualifications: [],
-      deviceId: null,
-      stepUpActive: false,
-      accessSessionId: null,
-    },
-    online: true,
-    deviceTrusted: true,
-    actorOfRecord: 'FIXTURE-CONSOLE-OPERATOR',
-  }
-
-  // Per-control allowed roles, never the module-level `roles_allowed` (D16).
-  //
-  // The two onward actions L107350 names are the ONLY controls the source
-  // defines for this module beyond the tenant and period filters, and their
-  // allowed-role lists are NOT the same list. L107350 gives the session
-  // request ["Platform Engineer", "Support"] and the audit-log view
-  // ["Platform Engineer"] alone. D17 and L97154 hold the Platform Engineer
-  // outside a support session, which leaves Support as the only role that
-  // carries the session request — and leaves the audit-log view carried by
-  // nobody, so it renders ABSENT below rather than as a control. Neither
-  // list names the root or the platform Admin, so neither is granted here:
-  // a grant the source does not state reads back as a requirement.
-  const sessionDecision = evaluateAccess(
-    {
-      action: 'MOD-SA-10:request-support-session',
-      allowedRoles: ['SUPPORT'],
-      sourceRefs: ['L107350', 'L97155', 'DEC — D17', 'L21166', 'L65407'],
-    },
-    context,
-  )
-  const readDecision = evaluateAccess(
-    {
-      action: 'MOD-SA-10:read-measures',
-      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'],
-      sourceRefs: SA10_READ_MEASURES_SOURCE_REFS,
-    },
-    context,
-  )
-  // The comparative tab IS the cross-tenant aggregate. L97152, L97153 and
-  // L97154 each read "Cross-tenant aggregates: Read-only, anonymised";
-  // L97155 puts "Cross-tenant aggregates: Unavailable" in Support's may-not
-  // list, and does not soften it. Support therefore reads the per-tenant
-  // measures and not this.
-  const comparativeDecision = evaluateAccess(
-    {
-      action: 'MOD-SA-10:read-cross-tenant-aggregates',
-      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER'],
-      sourceRefs: ['L97152', 'L97153', 'L97154', 'L97155', 'L45179'],
-    },
-    context,
-  )
-
-  const sessionDisabled = sessionDecision.outcome !== 'allowed'
-  const comparativeDenied = comparativeDecision.outcome !== 'allowed'
-
-  // STATE-06 disables every input on the screen; STATE-12 lets nothing be
-  // submitted. Both are screen state, which no `role === 'X'` boolean can
-  // see — the form reads this, not the role.
-  const formFrozenReason =
-    screenState === 'STATE-06'
-      ? 'Read-only (STATE-06). Every input on this form is disabled and nothing can be submitted from it; the banner above names the one cause.'
-      : screenState === 'STATE-12'
-        ? 'Failure (STATE-12). The aggregation for this tenant-month could not be read, so nothing may be submitted from this screen. Nothing has been written and no request has been raised.'
-        : null
-  const formFrozen = formFrozenReason !== null
-  const sessionProps = sessionDisabled ? { disabledReason: namedReason(sessionDecision, role) } : {}
-  const submitProps = formFrozenReason !== null ? { disabledReason: formFrozenReason } : {}
 
   /**
-   * L97152–L97155: for every console role tenant memory content reads
-   * "Unavailable — counts and volume only", and for Support the source does
-   * not soften it at all. This is a READOUT for all four roles; no control
-   * exists behind it for any of them.
+   * `MOD-SA-10`'s own permission matrix (L45201–L45202): all four console
+   * roles read the fifteen measures. See this file's header for the
+   * three-way conflict this resolves and why.
    */
-  const memoryReadout = role === 'SUPPORT' ? 'Unavailable' : 'Unavailable — counts and volume only'
+  const readDecision = evaluateAccess(
+    {
+      action: 'MOD-SA-10:read-per-tenant-measures',
+      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER', 'SUPPORT'],
+      sourceRefs: ['L45134', 'L45170', 'L45201'],
+    },
+    ctx,
+  )
+  // Support reads the per-tenant measures above but not this: L97155 puts
+  // "Cross-tenant aggregates: Unavailable" in Support's own row and does
+  // not soften it, the narrower and more deliberate of the two conflicting
+  // statements — see this file's header.
+  const comparativeDecision = evaluateAccess(
+    {
+      action: 'MOD-SA-10:read-anonymised-comparative',
+      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'PLATFORM_ENGINEER'],
+      sourceRefs: ['L45136', 'L45202', 'L97154', 'L97155'],
+    },
+    ctx,
+  )
 
-  function submitRequest() {
-    // The submit is drawn inert in these states; this second guard means the
-    // property holds even if a caller reaches the handler another way.
-    if (formFrozen) return
-    if (reason.trim() === '') {
-      setRequestError(
-        'A session request states its reason. The rule: every platform-side access is reason-required and ticket-linked (L97155), so a request with an empty reason is not accepted. A sentence naming what the session is for is accepted.',
-      )
-      setRequestSubmitted(false)
-      return
-    }
-    setRequestError(null)
-    setRequestSubmitted(true)
+  if (readDecision.outcome !== 'allowed') {
+    return (
+      <AppShell surface="SURF-SA" session={session} title={MODULE.name} breadcrumbs={[{ label: MODULE.name }]}>
+        <div className={`${radiusClass('lg')} border ${borderColor('border')} ${bg('raised')} p-6`}>
+          <h2 className={`text-lg font-semibold ${textColor('ink')}`}>This role does not read telemetry here</h2>
+          <p className={`mt-2 max-w-prose text-sm ${textColor('ink-muted')}`}>{readDecision.explanation}</p>
+        </div>
+      </AppShell>
+    )
   }
 
+  const runTenantId = tenantIdOfRun(snapshot.runs)
+  const workerTenantId = new Map(snapshot.workers.map((w) => [w.id, w.tenantId] as const))
+
+  const runsByTenant = groupBy(snapshot.runs, (r) => r.tenantId)
+  const capturesByTenant = groupBy(
+    snapshot.captures.filter((c) => runTenantId.has(c.runId)),
+    (c) => runTenantId.get(c.runId) as string,
+  )
+  const deviationsByTenant = groupBy(snapshot.deviations, (d) => d.tenantId)
+  const devicesByTenant = groupBy(snapshot.devices, (d) => d.tenantId)
+  const workflowsByTenant = groupBy(snapshot.workflowDefinitions, (w) => w.tenantId)
+  const stepExecutionsByTenant = groupBy(
+    snapshot.stepExecutions.filter((se) => runTenantId.has(se.runId)),
+    (se) => runTenantId.get(se.runId) as string,
+  )
+  const grantsByTenant = groupBy(
+    snapshot.qualificationGrants.filter((g) => workerTenantId.has(g.workerId)),
+    (g) => workerTenantId.get(g.workerId) as string,
+  )
+  const notificationsByTenant = groupBy(snapshot.notifications, (n) => n.tenantId)
+  const aiRequestsToDateByTenant = groupBy(
+    // "to date" per `OverviewScreen.tsx`'s own `aiRequestsToDate` reasoning:
+    // a cumulative ledger read through the simulated clock, never
+    // `Date.now()`. At the seed's pristine clock this exclude the requests
+    // whose `createdAt` has not "happened" yet from the platform's own
+    // simulated point of view.
+    snapshot.aiRequests.filter((a) => Date.parse(a.createdAt) <= nowMs),
+    (a) => a.tenantId,
+  )
+
+  const hasOperationalHistory = (t: Tenant) => (runsByTenant.get(t.id)?.length ?? 0) > 0
+
+  const defaultTenantId =
+    snapshot.tenants.find(hasOperationalHistory)?.id ?? snapshot.tenants[0]?.id ?? null
+  const tenantId = selectedTenantId ?? defaultTenantId
+  const tenant = tenantId === null ? null : (snapshot.tenants.find((t) => t.id === tenantId) ?? null)
+
+  const tenantColumns: readonly DataTableColumn<Tenant>[] = [
+    {
+      key: 'name',
+      header: 'Tenant',
+      sortValue: (t) => t.name,
+      render: (t) => (
+        <button
+          type="button"
+          data-control-id={`tenant-metrics-select-${t.id}`}
+          onClick={() => setSelectedTenantId(t.id)}
+          aria-pressed={t.id === tenantId}
+          className={`text-left underline-offset-2 hover:underline ${t.id === tenantId ? 'font-semibold' : ''} ${textColor('ink')}`}
+        >
+          {t.name}
+        </button>
+      ),
+    },
+    {
+      key: 'lifecycle',
+      header: 'Lifecycle',
+      sortValue: (t) => t.lifecycle,
+      render: (t) => <StatusPill tone={LIFECYCLE_TONE[t.lifecycle]} label={LIFECYCLE_LABEL[t.lifecycle]} />,
+    },
+    {
+      key: 'history',
+      header: 'Operational history',
+      sortValue: (t) => (hasOperationalHistory(t) ? 1 : 0),
+      render: (t) =>
+        hasOperationalHistory(t) ? (
+          <StatusPill tone="ok" label="Recorded" />
+        ) : (
+          <StatusPill tone="offline" label="None yet" />
+        ),
+    },
+  ]
+
   return (
-    <SaConsoleShell module={MODULE}>
-      <p className="text-xs text-[var(--color-ink-subtle)]">
-        Screen annotated SCR-SA-16, with storyboard SB-SA-10 (L45160, L45160). Names are canonical;
-        the numbers are annotations only, and this route is keyed on the module slug.
+    <AppShell surface="SURF-SA" session={session} title={MODULE.name} breadcrumbs={[{ label: MODULE.name }]}>
+      <p className={`max-w-prose text-sm ${textColor('ink-muted')}`}>
+        Counts, rates and statuses for every tenant on the platform — never the underlying operational
+        record. Opening one of those records takes a named, audited session; this module cannot open one
+        itself.
       </p>
 
-      <div className="mt-6 flex flex-wrap gap-6 rounded-[var(--radius-surface)] border border-[var(--color-border)] p-4">
-        <Select
-          label="View as platform role"
-          value={role}
-          onChange={(v) => setRole(v as RoleId)}
-          options={SA10_PLATFORM_ROLES.map((r) => ({
-            value: r.id,
-            label: `${r.name} — ${r.roleAnnotation}`,
-          }))}
+      <section aria-labelledby="tenant-metrics-picker-heading" className="mt-6 flex flex-col gap-3">
+        <h2 id="tenant-metrics-picker-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
+          Choose a tenant
+        </h2>
+        <DataTable
+          caption="Tenants"
+          columns={tenantColumns}
+          query={tenantsQuery}
+          rowId={(t) => t.id}
+          emptyState={{ title: 'No tenant exists yet', whatCreatesIt: 'A tenant appears here once it is provisioned.' }}
         />
-        <Select
-          label="Screen state (fixture)"
-          value={screenState}
-          onChange={(v) => setScreenState(v as ScreenStateId)}
-          options={SA_APPLICABLE_STATES.map((s) => ({ value: s.id, label: `${s.id} — ${s.name}` }))}
-        />
-        <Select
-          label="Tenant"
-          value={tenant}
-          onChange={setTenant}
-          options={SA10_TENANTS.map((t) => ({ value: t.id, label: t.name }))}
-        />
-        <Select
-          label="Period (tenant-month)"
-          value={period}
-          onChange={setPeriod}
-          options={SA10_TENANT_MONTHS.map((p) => ({ value: p.id, label: p.label }))}
-        />
-        <p className="max-w-prose text-xs text-[var(--color-ink-subtle)]">
-          The role control is a view switcher, not a login. The period control offers whole
-          tenant-months and nothing finer: a grain offered once is a grain someone asks to break
-          down, and the line on this surface holds at the tenant.
-        </p>
-      </div>
+      </section>
 
-      <div className="mt-4 rounded-[var(--radius-surface)] bg-[var(--color-surface-sunken)] p-4 text-sm">
-        <p className="font-medium">
-          {stateDefinition.id} — {stateDefinition.name}
-        </p>
-        <p className="mt-1 text-[var(--color-ink-muted)]">{stateDefinition.contract}</p>
-        <p className="mt-1 text-[var(--color-ink-muted)]">{stateDefinition.neverDo}</p>
-      </div>
-
-      {screenState === 'STATE-06' ? (
-        <div className="mt-4">
-          <Banner
-            tone="attention"
-            heading="Read-only"
-            body="One cause: every object on this module is derived and never authored, so nothing here is writable by any role in any state. Every input on the session-request form is disabled while this state holds, and nothing can be submitted from it. This banner names that cause once."
-          />
+      <div className="mt-6" role="tablist" aria-label="Telemetry view">
+        <div className="flex gap-2 border-b" style={{ borderColor: 'var(--border)' }}>
+          {(['per-tenant', 'comparative'] as const).map((id) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={tab === id}
+              data-control-id={`tenant-metrics-tab-${id}`}
+              onClick={() => setTab(id)}
+              className={`px-3 py-2 text-sm font-medium ${
+                tab === id ? `border-b-2 ${textColor('ink')}` : textColor('ink-muted')
+              }`}
+              style={tab === id ? { borderColor: 'var(--accent)' } : undefined}
+            >
+              {id === 'per-tenant' ? 'Per tenant' : 'Anonymised comparative'}
+            </button>
+          ))}
         </div>
-      ) : null}
-
-      {screenState === 'STATE-05' ? (
-        <div className="mt-4">
-          {/*
-            The refusal is stated, never hidden behind a missing control
-            (STATE-05's contract). It is written in this module's own words
-            rather than passed through `PermissionNotice`, because the three
-            refusals on this screen each have a different source line behind
-            them and a shared policy explanation would name none of them.
-            Each is also stated where it happens; this banner points at them
-            rather than standing in for them.
-          */}
-          <Banner
-            tone="attention"
-            heading="This role does not carry the action"
-            body={
-              readDecision.outcome === 'allowed'
-                ? `All four console roles read the per-tenant measures on this module. D16 holds a module-level roles_allowed entry authoritative nowhere, so the grant printed here is the one this screen evaluates for this control, cited to this module’s own permission-matrix row for reading the fifteen measures and to the three feature-tree entries that repeat it, and to nothing else: ${readDecision.sourceRefs.join(', ')}. Three refusals sit on this screen, and each is stated where it happens rather than summarised here. The anonymised comparative is unavailable to Support, which L97155 puts in that role’s may-not list; the root, the platform Admin and the Platform Engineer each read it anonymised (L97152–L97154). Of the two onward actions from a measure, the session request is carried by Support alone once D17 holds, and is drawn inert with its reason for every other role. The audit-log view is carried by no console role at all, so nothing is drawn for it.`
-                : readDecision.explanation
-            }
-          />
-        </div>
-      ) : null}
-
-      {screenState === 'STATE-10' || screenState === 'STATE-11' ? (
-        <div className="mt-4">
-          <Banner
-            tone="info"
-            heading={
-              screenState === 'STATE-11'
-                ? 'Every artificial-intelligence model is unavailable'
-                : 'Artificial intelligence is degraded'
-            }
-            body="This module continues unchanged. Every measure and every comparative on this screen is derived from telemetry, not from a model, so nothing here is cached guidance and nothing here is presented as live artificial intelligence."
-          />
-        </div>
-      ) : null}
-
-      <Section id="sa10-invariant" heading="Enforced invariant on this module">
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          Anonymisation precedes aggregation, and cannot be disabled by any account including the
-          root (AC-SA-10-03, L45230; L45179). It is a status readout. There is no switch here, no
-          configuration key and no approval path around one.
-        </p>
-        <div className="mt-3">
-          {ANONYMISATION_INVARIANT === undefined ? null : (
-            <InvariantChip invariant={ANONYMISATION_INVARIANT} />
-          )}
-        </div>
-      </Section>
-
-      <div className="mt-8">
-        <Tabs
-          tabs={[
-            { id: 'per-tenant', label: 'Per tenant' },
-            { id: 'comparative', label: 'Anonymised comparative' },
-          ]}
-          activeId={tab}
-          onChange={(id) => setTab(id === 'comparative' ? 'comparative' : 'per-tenant')}
-        />
       </div>
 
       {tab === 'per-tenant' ? (
-        <Section id="sa10-measures" heading="Per-tenant measures">
-          <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-            {tenantName}, {periodLabel}. The source fixes fifteen named per-tenant measures at
-            L45134 and L107244 and names one of them — the override-patterns measure AC-SA-10-04
-            governs. The other fourteen are named as unspecified below rather than invented. No
-            measure exposes operational content, and that boundary sits in the pipeline rather than
-            in this screen (AC-SA-10-02, L45230).
-          </p>
-
-          {screenState === 'STATE-02' ? (
-            <div className="mt-3">
-              <SkeletonBlock lines={3} label="Loading the per-tenant measures for this tenant-month" />
-            </div>
-          ) : screenState === 'STATE-01' ? (
-            <div className="mt-3">
-              <EmptyState
-                title="No tenant-month has closed for this tenant yet"
-                whatCreatesIt="Tenant operations generate events; the telemetry pipeline aggregates them into layer-one measures once a tenant-month closes. Nothing on this console authors a measure, so no creating control is offered here."
-              />
-            </div>
-          ) : measures === 'unavailable' ? (
-            <div className="mt-3">
-              <p role="note" className="text-sm">
-                Measure unavailable — the aggregation for this tenant-month could not be read. An
-                unavailable measure is never rendered as a count and never left blank (FB-SA-01,
-                L45228).
-              </p>
-            </div>
-          ) : (
-            <ul className="mt-3 space-y-4">
-              {SA10_MEASURES.map((m) => (
-                <li
-                  key={m.id}
-                  className="rounded-[var(--radius-surface)] border border-[var(--color-border)] p-4"
-                >
-                  <p className="font-medium">{m.name}</p>
-                  <p className="mt-1 text-2xl" data-measure-value={m.id}>
-                    {m.value}
-                  </p>
-                  <StatusPill tone={metricTone(measures)} icon="•" label={measures} />
-                  <dl className="mt-2 grid max-w-2xl grid-cols-[12rem_1fr] gap-x-4 gap-y-1 text-sm">
-                    <dt className="font-medium">Comparison window</dt>
-                    <dd>{m.comparisonWindow}</dd>
-                    <dt className="font-medium">Completeness</dt>
-                    <dd>
-                      {measures === 'reconciled'
-                        ? 'Re-aggregated over the gap window; the degraded window is recorded and this figure is being reconciled against what was previously reported.'
-                        : m.completeness}
-                    </dd>
-                  </dl>
-                  <div className="mt-2">
-                    <FreshnessLabel
-                      asOfLabel={measures === 'stale' ? SA10_STALE_AS_OF : m.asOf}
-                      originLabel={measures === 'stale' ? SA10_STALE_ORIGIN : m.origin}
-                    />
-                  </div>
-                  <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">Source: {m.sourceRef}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {measures === 'stale' ? (
-            <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
-              Last-known-good, stamped with its age. The ladder is stale-with-age, then per-tenant
-              primaries without roll-up, then measure unavailable — a missing measure never becomes
-              a zero (FB-SA-01, L45228).
-            </p>
-          ) : null}
-
-          {measures !== 'unavailable' && screenState !== 'STATE-01' && screenState !== 'STATE-02' ? (
-            <div className="mt-4">
-              <Table
-                caption="Override clustering for this tenant-month — counts only, never record contents"
-                columns={[
-                  { key: 'dimension', header: 'Dimension' },
-                  { key: 'count', header: 'Count in the month' },
-                ]}
-                rows={SA10_OVERRIDE_CLUSTERS.map((c) => ({
-                  dimension: c.dimension,
-                  count: c.count,
-                }))}
-                emptyState={{
-                  title: 'No override was recorded for this tenant-month',
-                  whatCreatesIt:
-                    'An override recorded inside a tenant’s own operations raises the count. Nothing on this console creates one.',
-                }}
-              />
-              <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-                The override audit answers frequency and clustering and never returns record
-                contents (AC-SA-10-04, L45230). Every figure is a count within one tenant-month.
-              </p>
-            </div>
-          ) : null}
-        </Section>
+        tenant === null ? (
+          <div className={`mt-6 ${radiusClass('lg')} border ${borderColor('border')} ${bg('raised')} p-6`}>
+            <p className={`text-sm ${textColor('ink')}`}>No tenant is selected.</p>
+          </div>
+        ) : (
+          <PerTenantMeasures
+            tenant={tenant}
+            asOfLabel={asOfLabel}
+            runs={runsByTenant.get(tenant.id) ?? []}
+            captures={capturesByTenant.get(tenant.id) ?? []}
+            deviations={deviationsByTenant.get(tenant.id) ?? []}
+            devices={devicesByTenant.get(tenant.id) ?? []}
+            workflows={workflowsByTenant.get(tenant.id) ?? []}
+            stepExecutions={stepExecutionsByTenant.get(tenant.id) ?? []}
+            grants={grantsByTenant.get(tenant.id) ?? []}
+            notifications={notificationsByTenant.get(tenant.id) ?? []}
+            aiRequestsToDate={aiRequestsToDateByTenant.get(tenant.id) ?? []}
+            entitlements={snapshot.entitlements}
+          />
+        )
       ) : (
-        <Section id="sa10-comparative" heading="Anonymised comparative">
-          <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-            A distribution, derived and never authored (L45179). No tenant is named in a comparative
-            view for any role including the root, and the anonymisation happens before the
-            aggregation rather than after it, so there is no earlier state any account could return
-            to.
-          </p>
-          {comparativeDenied ? (
-            <div className="mt-3">
-              <Banner
-                tone="blocked"
-                heading="Cross-tenant aggregates: Unavailable to this role"
-                body="L97155 puts cross-tenant aggregates in Support’s may-not list on this surface, and does not soften it the way it softens tenant memory content elsewhere: Support reads inside an open support session only, and a cross-tenant distribution is not something a single tenant’s session can carry. The refusal is stated here rather than hidden behind a missing tab. The roles that do read this comparative, anonymised, are the root (L97152), the platform Admin (L97153) and the Platform Engineer (L97154)."
-              />
-              <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-                No band, no count and no as-of time is rendered for this role, because none of it
-                is read. A refused aggregate is not a zero and not a blank — it is a refusal with
-                the rule named (FB-SA-01, L45228).
-              </p>
-            </div>
-          ) : screenState === 'STATE-02' ? (
-            <div className="mt-3">
-              <SkeletonBlock lines={3} label="Loading the anonymised comparative distribution" />
-            </div>
-          ) : measures === 'unavailable' ? (
-            <div className="mt-3">
-              <Banner
-                tone="blocked"
-                heading="Comparative unavailable"
-                body="Where anonymisation cannot be guaranteed for a comparative view, the view renders unavailable rather than degrading to named data (FB-SA-01, L45228). Nothing is shown narrowed, nothing is shown as a zero, and no tenant is named as a substitute."
-              />
-            </div>
-          ) : (
-            <>
-              <ul className="mt-3 space-y-2">
-                {SA10_DISTRIBUTION.map((band) => (
-                  <li
-                    key={band.id}
-                    data-distribution-band={band.id}
-                    className="flex items-baseline justify-between rounded-[var(--radius-surface)] border border-[var(--color-border)] p-3 text-sm"
-                  >
-                    <span>{band.band}</span>
-                    <span>{band.tenantCount}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-2">
-                <FreshnessLabel
-                  asOfLabel={measures === 'stale' ? SA10_STALE_AS_OF : SA10_DISTRIBUTION_AS_OF}
-                  originLabel={measures === 'stale' ? SA10_STALE_ORIGIN : SA10_DISTRIBUTION_ORIGIN}
-                />
-              </div>
-              <p className="mt-2 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-                Each band carries a count of tenants and nothing else — no ranking, no position, no
-                identifier. The distribution object carries no states at all in the source, because
-                it is derived on every read.
-              </p>
-            </>
-          )}
-        </Section>
+        <ComparativeAnalytics
+          decision={comparativeDecision}
+          asOfLabel={asOfLabel}
+          tenants={snapshot.tenants}
+          runsByTenant={runsByTenant}
+          deviationsByTenant={deviationsByTenant}
+          evaluations={snapshot.evaluations}
+        />
       )}
+    </AppShell>
+  )
+}
 
-      <Section id="sa10-onward" heading="Onward actions from a measure">
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          The source names exactly two onward actions from a measure (L107350), and neither of them
-          opens tenant content from this console. Their allowed-role lists are not the same list,
-          so they do not render the same way. There is no ambient browsing anywhere on this surface
-          (AC-SA-000-07, AC-SEC-801).
-        </p>
-        <div className="mt-3">
-          {role === 'PLATFORM_ENGINEER' ? (
-            // CATEGORICAL, so nothing is drawn (spec S3, the third case).
-            //
-            // D17's reading -- that this role may not enter tenant context
-            // under any access class -- is a Derived Clarification, not a
-            // source sentence. No line of the frozen source says it in those
-            // words, and it is not quoted here as though one did. D17 reaches
-            // it from the Band A / Band B separation, and
-            // the source's own per-control rows carry it on two of the three
-            // named access classes: the compliance-emergency path is
-            // Explicitly prohibited to this role (L45798), and the console-function
-            // permission matrix refuses it one (L21166) -- naming the row by
-            // line rather than by its FUNC id, which the coverage registry
-            // would read as a claim that this screen demonstrates it.
-            //
-            // The competing reading is the one the third class leaves open --
-            // MOD-SA-15's own matrix row allows this role a support session
-            // (L45794) -- and it would draw this control inert with its
-            // reason rather than absent. D17 holds the prohibition, and a
-            // disabled control would say the Platform Engineer could hold
-            // this under some condition, which is the opposite of what D17
-            // holds. MOD-SA-15 renders the same prohibition the same way;
-            // this screen used to draw it inert, and a cross-module review
-            // found the two disagreeing.
-            <ProhibitionNotice
-              rendering={{
-                kind: 'absent',
-                note: 'Nothing is drawn here for the Platform Engineer. Derived Clarification, not a stated rule: no line of the frozen source says this role may not enter tenant context under any access class, and nothing here quotes one as though it did. D17 reads it that way from the Band A / Band B separation, and the source carries the prohibition itself on two of the three named access classes — the compliance-emergency path is Explicitly prohibited to this role (L45798) and the console-function permission matrix refuses it one (L21166). The competing reading is the third class: MOD-SA-15’s own matrix row allows this role a support session (L45794), and under that reading this control would be drawn inert with its reason instead of absent. D17 holds the prohibition, and a session request is a request to enter tenant context. That makes it a categorical prohibition rather than an ungranted permission, so no control appears — a disabled one would imply an enabled state exists for this role somewhere. MOD-SA-15 renders the same prohibition identically.',
-              }}
-            />
-          ) : (
-            <Button {...sessionProps} onClick={() => setRequestOpen(true)}>
-              Request a support session
-            </Button>
-          )}
+/* ────────────────────────────────────────────────────────────────────── *
+ * Per-tenant measures
+ * ────────────────────────────────────────────────────────────────────── */
+
+function PerTenantMeasures({
+  tenant,
+  asOfLabel,
+  runs,
+  captures,
+  deviations,
+  devices,
+  workflows,
+  stepExecutions,
+  grants,
+  notifications,
+  aiRequestsToDate,
+  entitlements,
+}: {
+  readonly tenant: Tenant
+  readonly asOfLabel: string
+  readonly runs: readonly Run[]
+  readonly captures: readonly Capture[]
+  readonly deviations: readonly Deviation[]
+  readonly devices: readonly Device[]
+  readonly workflows: readonly WorkflowDefinition[]
+  readonly stepExecutions: readonly StepExecution[]
+  readonly grants: readonly QualificationGrant[]
+  readonly notifications: readonly Notification[]
+  readonly aiRequestsToDate: readonly AiRequest[]
+  readonly entitlements: readonly Entitlement[]
+}) {
+  // M2 — active workflows, published/in draft/in review (L45134).
+  const workflowCounts = new Map<WorkflowStatus, number>()
+  for (const w of workflows) workflowCounts.set(w.status, (workflowCounts.get(w.status) ?? 0) + 1)
+  const activeWorkflowCount = (workflowCounts.get('draft') ?? 0) + (workflowCounts.get('in-review') ?? 0) + (workflowCounts.get('published') ?? 0)
+
+  // M3 — active agents / gate outcomes. No `agents` collection exists in
+  // this build (see this file's header); `gateOutcome` on `step-executions`
+  // is a real, related read this build DOES have, shown as supporting
+  // detail rather than folded into the tile's own number.
+  const gateOutcomeCounts = { passed: 0, failed: 0, 'not-applicable': 0 } as Record<StepExecution['gateOutcome'], number>
+  for (const se of stepExecutions) gateOutcomeCounts[se.gateOutcome] += 1
+  const gatedStepCount = gateOutcomeCounts.passed + gateOutcomeCounts.failed
+
+  // M4 — tokens consumed by router role, to date.
+  const tokensByRole = new Map<RouterRole, number>()
+  let totalTokens = 0
+  for (const a of aiRequestsToDate) {
+    const tokens = a.promptTokens + a.completionTokens
+    tokensByRole.set(a.routerRole, (tokensByRole.get(a.routerRole) ?? 0) + tokens)
+    totalTokens += tokens
+  }
+
+  // M6 — deviations by severity and containment state.
+  const severities = [...new Set(deviations.map((d) => d.severityBand))].sort((a, b) => a - b)
+  const deviationSeries: readonly ChartSeries[] = DEVIATION_STATUS_ORDER.filter((status) =>
+    deviations.some((d) => d.status === status),
+  ).map((status) => ({
+    id: status,
+    label: DEVIATION_STATUS_LABEL[status],
+    values: severities.map((sev) => deviations.filter((d) => d.severityBand === sev && d.status === status).length),
+  }))
+
+  // M7 — Worker-Shift consumption against allocation (same ceiling
+  // `TenantDetailScreen.tsx#renderOverviewTab` reads — the real, seeded
+  // per-tier cap, never a hand-typed number).
+  const tierEntitlement = entitlements.find((e) => e.tier === tenant.tier && e.featureKey === USAGE_FEATURE_KEY)
+  const cap = tierEntitlement?.cap ?? null
+  const shiftRatio = cap !== null && cap > 0 ? tenant.workerShiftsThisMonth / cap : null
+
+  // M8 — sync health. Zero devices means no rate exists (unknown, not
+  // 0%); one or more devices means a real rate, with queue depth
+  // disclosed as absent from this build's device telemetry (partial).
+  const syncHealthyCount = devices.filter((d) => d.syncHealthy).length
+  const clockSkewTotal = devices.reduce((sum, d) => sum + d.clockSkewEventCount, 0)
+  const lastDeviceContactMs = devices.reduce<number | null>((latest, d) => {
+    if (d.lastSeenAt === null) return latest
+    const ms = Date.parse(d.lastSeenAt)
+    return latest === null || ms > latest ? ms : latest
+  }, null)
+
+  // M10/M15 — clearance volumes and override patterns are the SAME
+  // underlying object (`qualification-grants`, OBJ-032 "Clearance"): the
+  // frozen source's own illustrative example (L45183 area — "two
+  // qualification clearances granted by Sam in the same area in the same
+  // shift") ties the two together directly. M10 is the plain volume; M15
+  // is that same volume clustered by dimension, never by who.
+  const groupsByReasonAndArea = groupBy(grants, (g) => `${g.reasonCategory}::${g.areaId ?? 'unscoped'}`)
+  const clusterRows = [...groupsByReasonAndArea.entries()].map(([key, rows]) => {
+    const [reasonCategory, areaId] = key.split('::')
+    return { reasonCategory, areaId, count: rows.length }
+  })
+
+  // M14 — notification and escalation health: fallbacks fired and
+  // timeouts (the `expired` notification state) are both real fields.
+  const fallbacksFiredCount = notifications.filter((n) => n.fallbackDelivered).length
+  const timeoutCount = notifications.filter((n) => n.status === 'expired').length
+
+  const tiles: readonly { readonly id: string; readonly label: string; readonly data: StatTileData }[] = [
+    {
+      id: 'errors-agent-run-failures',
+      label: 'Errors and agent-run failures',
+      data: {
+        kind: 'unknown',
+        reason: 'No collection in this build models a platform agent run or its failures.',
+      },
+    },
+    {
+      id: 'active-workflows',
+      label: 'Active workflows',
+      data: { kind: 'value', value: activeWorkflowCount, unit: 'workflows' },
+    },
+    {
+      id: 'active-agents',
+      label: 'Active agents',
+      data: {
+        kind: 'partial',
+        reason:
+          gatedStepCount > 0
+            ? `No agent-registry collection exists in this build; ${gatedStepCount} gated step executions are shown below as a related read.`
+            : 'No agent-registry collection exists in this build, and this tenant has no gated step executions recorded either.',
+      },
+    },
+    {
+      id: 'tokens-consumed',
+      label: 'Tokens consumed, to date',
+      data: { kind: 'value', value: totalTokens, unit: 'tokens' },
+    },
+    {
+      id: 'runs',
+      label: 'Runs',
+      data: { kind: 'value', value: runs.length, unit: 'runs' },
+    },
+    {
+      id: 'deviations',
+      label: 'Deviations',
+      data: { kind: 'value', value: deviations.length, unit: 'deviations' },
+    },
+    {
+      id: 'worker-shift-consumption',
+      label: 'Worker-Shift consumption',
+      data: { kind: 'value', value: tenant.workerShiftsThisMonth, unit: 'shifts this month' },
+    },
+    {
+      id: 'sync-health',
+      label: 'Sync health',
+      data:
+        devices.length === 0
+          ? { kind: 'unknown', reason: 'No devices are enrolled for this tenant.' }
+          : {
+              kind: 'partial',
+              reason: `Queue depth is not part of this build's device telemetry. ${syncHealthyCount} of ${devices.length} devices report healthy sync; ${clockSkewTotal} clock-skew events recorded.`,
+            },
+    },
+    {
+      id: 'hold-propagation-lag',
+      label: 'Hold-propagation lag',
+      data: {
+        kind: 'unknown',
+        reason: 'Holds record when they were placed and released, never the per-device confirmation moment propagation means.',
+      },
+    },
+    {
+      id: 'clearance-volumes',
+      label: 'Clearance volumes',
+      data: { kind: 'value', value: grants.length, unit: 'clearances' },
+    },
+    {
+      id: 'adoption-timing-lag',
+      label: 'Adoption-timing lag',
+      data: {
+        kind: 'unknown',
+        reason: 'Workflow versions carry a status but no publish timestamp in this build, so no interval to in-force can be read.',
+      },
+    },
+    {
+      id: 'eval-posture',
+      label: 'Eval posture',
+      data: {
+        kind: 'unknown',
+        reason: "This build's eval-harness records are not attributed to a tenant. A platform-wide figure is shown on the comparative tab.",
+      },
+    },
+    {
+      id: 'learning-proposal-lifecycle',
+      label: 'Learning-proposal lifecycle',
+      data: {
+        kind: 'unknown',
+        reason: 'No collection in this build models a Lane-B learning-proposal queue.',
+      },
+    },
+    {
+      id: 'notification-escalation-health',
+      label: 'Notification and escalation health',
+      data: { kind: 'value', value: fallbacksFiredCount, unit: 'fallbacks fired' },
+    },
+    {
+      id: 'override-patterns',
+      label: 'Override patterns',
+      data: { kind: 'value', value: clusterRows.length, unit: 'clustering groups' },
+    },
+  ]
+
+  const workflowChartSeries: readonly ChartSeries[] = [
+    { id: 'workflows', label: 'Workflow definitions', values: WORKFLOW_STATUS_ORDER.map((s) => workflowCounts.get(s) ?? 0) },
+  ]
+  const tokensChartSeries: readonly ChartSeries[] = [
+    { id: 'tokens', label: 'Tokens (prompt + completion)', values: ROUTER_ROLE_ORDER.map((r) => tokensByRole.get(r) ?? 0) },
+  ]
+  const volumeChartSeries: readonly ChartSeries[] = [
+    { id: 'volume', label: `${tenant.name}`, values: [runs.length, captures.length] },
+  ]
+
+  return (
+    <>
+      <section aria-labelledby="tenant-metrics-tiles-heading" className="mt-8 flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="tenant-metrics-tiles-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
+            {tenant.name} — the fifteen named measures
+          </h2>
+          <FreshnessStamp asOfLabel={asOfLabel} />
         </div>
-        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          L107350 attributes the session request to the Platform Engineer and to Support. D17 holds
-          the prohibition for the Platform Engineer, which leaves Support as the one console role
-          that carries it here — so the control is drawn inert for the root and the platform Admin,
-          and not drawn at all for the Platform Engineer. It resolves to a request form, never to
-          tenant content.
-          {' '}
-          That the root and the platform Admin cannot request one <em>here</em> while they open
-          sessions in Support Access (MOD-SA-15) is scope, not a contradiction: this control is the
-          narrower act the source attributes to Support alone, and a grant the source does not state
-          would read back as a requirement. The session itself is opened where the source puts it.
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {tiles.map((t) => (
+            <StatTile key={t.id} controlId={`tenant-metrics-tile-${t.id}`} label={t.label} data={t.data} />
+          ))}
+        </div>
+        {devices.length > 0 ? (
+          <p className={`text-xs ${textColor('ink-subtle')}`}>
+            Sync health and clock-skew figures are as of this tenant's own last device contact
+            {lastDeviceContactMs !== null ? `, ${formatPlatformTime(lastDeviceContactMs)}` : ''} — device-derived
+            measures freeze at last contact rather than at the platform's own clock.
+          </p>
+        ) : null}
+      </section>
+
+      <section aria-labelledby="tenant-metrics-workflows-heading" className="mt-8 flex flex-col gap-3">
+        <h3 id="tenant-metrics-workflows-heading" className={`text-base font-semibold ${textColor('ink')}`}>
+          Active workflows, by status
+        </h3>
+        <Chart
+          controlId="tenant-metrics-chart-workflows"
+          kind="bar"
+          title={`${tenant.name} — workflow definitions by status`}
+          categories={WORKFLOW_STATUS_ORDER.map((s) => WORKFLOW_STATUS_LABEL[s])}
+          series={workflowChartSeries}
+          unit="workflows"
+        />
+      </section>
+
+      <section aria-labelledby="tenant-metrics-runs-heading" className="mt-8 flex flex-col gap-3">
+        <h3 id="tenant-metrics-runs-heading" className={`text-base font-semibold ${textColor('ink')}`}>
+          Runs and capture volumes
+        </h3>
+        <Chart
+          controlId="tenant-metrics-chart-runs-captures"
+          kind="bar"
+          title={`${tenant.name} — runs and capture volumes`}
+          categories={['Runs', 'Captures']}
+          series={volumeChartSeries}
+        />
+      </section>
+
+      <section aria-labelledby="tenant-metrics-deviations-heading" className="mt-8 flex flex-col gap-3">
+        <h3 id="tenant-metrics-deviations-heading" className={`text-base font-semibold ${textColor('ink')}`}>
+          Deviations, by severity and containment state
+        </h3>
+        {deviations.length === 0 ? (
+          <p className={`text-sm ${textColor('ink-muted')}`}>No deviation has been recorded for this tenant.</p>
+        ) : (
+          <Chart
+            controlId="tenant-metrics-chart-deviations"
+            kind="bar"
+            title={`${tenant.name} — deviations by severity and containment state`}
+            categories={severities.map((s) => `Severity ${s}`)}
+            series={deviationSeries}
+            unit="deviations"
+          />
+        )}
+      </section>
+
+      <section aria-labelledby="tenant-metrics-tokens-heading" className="mt-8 flex flex-col gap-3">
+        <h3 id="tenant-metrics-tokens-heading" className={`text-base font-semibold ${textColor('ink')}`}>
+          Tokens consumed, by router role
+        </h3>
+        {totalTokens === 0 ? (
+          <p className={`text-sm ${textColor('ink-muted')}`}>No AI request for this tenant falls inside the current window.</p>
+        ) : (
+          <Chart
+            controlId="tenant-metrics-chart-tokens"
+            kind="bar"
+            title={`${tenant.name} — tokens consumed by router role`}
+            categories={ROUTER_ROLE_ORDER.map((r) => ROUTER_ROLE_LABEL[r])}
+            series={tokensChartSeries}
+            unit="tokens"
+          />
+        )}
+      </section>
+
+      <section aria-labelledby="tenant-metrics-override-heading" className="mt-8 flex flex-col gap-3">
+        <h3 id="tenant-metrics-override-heading" className={`text-base font-semibold ${textColor('ink')}`}>
+          Override patterns — frequency and clustering
+        </h3>
+        <p className={`max-w-prose text-sm ${textColor('ink-muted')}`}>
+          Grouped by reason and area; never by who granted it or who received it — this table never reads
+          who was involved or why, in their own words, only how often and where.
         </p>
-        <div className="mt-4">
-          <p className="text-sm font-medium">Open the tenant’s own audit log view</p>
-          <ProhibitionNotice
-            rendering={{
-              kind: 'absent',
-              note: 'No console role carries this action here, the root included. L107350 attributes it to the Platform Engineer alone; L97154 puts tenant operational content in that role’s may-not list on this surface and D17 holds the prohibition, so the one role it was attributed to cannot hold it. Nothing is drawn where the control would be, because a disabled control would claim an enabled state exists for somebody. A tenant’s own audit log is that tenant’s record and is reachable only inside a named session in any case — the platform audit stream is a separate view in MOD-SA-18. Which role, if any, should carry this is named below as unspecified in source.',
-            }}
+        {clusterRows.length === 0 ? (
+          <p className={`text-sm ${textColor('ink-muted')}`}>No clearance override has been recorded for this tenant.</p>
+        ) : (
+          <div className={`overflow-x-auto ${radiusClass('lg')} border ${borderColor('border')}`}>
+            <table className="w-full text-sm">
+              <caption className="sr-only">{`${tenant.name} — override clustering by reason and area`}</caption>
+              <thead>
+                <tr className={`border-b ${borderColor('border')} ${bg('raised')} text-left`}>
+                  <th scope="col" className={`p-2 font-medium ${textColor('ink-muted')}`}>Reason category</th>
+                  <th scope="col" className={`p-2 font-medium ${textColor('ink-muted')}`}>Area</th>
+                  <th scope="col" className={`p-2 text-right font-medium ${textColor('ink-muted')}`}>Count in this tenant's history</th>
+                </tr>
+              </thead>
+              <tbody>
+                {clusterRows.map((row) => (
+                  <tr key={`${row.reasonCategory}::${row.areaId}`} className={`border-b ${borderColor('border')} last:border-b-0`}>
+                    <td className={`p-2 ${textColor('ink')}`}>{row.reasonCategory}</td>
+                    <td className={`p-2 ${textColor('ink')}`}>{row.areaId}</td>
+                    <td className={`p-2 text-right ${textColor('ink')}`}>{row.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section aria-labelledby="tenant-metrics-shift-heading" className="mt-8 flex flex-col gap-3">
+        <h3 id="tenant-metrics-shift-heading" className={`text-base font-semibold ${textColor('ink')}`}>
+          Worker-Shift consumption against allocation
+        </h3>
+        <p className={`text-sm ${textColor('ink')}`}>
+          {tenant.workerShiftsThisMonth.toLocaleString()} Worker-Shifts this month
+          {cap !== null ? ` of a ${cap.toLocaleString()} ceiling` : ' — this tier carries no consumption ceiling'}
+          {shiftRatio !== null ? ` (${Math.round(shiftRatio * 100)}% of the ceiling).` : '.'}
+        </p>
+      </section>
+
+      <section aria-labelledby="tenant-metrics-notif-heading" className="mt-8 flex flex-col gap-3">
+        <h3 id="tenant-metrics-notif-heading" className={`text-base font-semibold ${textColor('ink')}`}>
+          Notification and escalation health
+        </h3>
+        <p className={`text-sm ${textColor('ink')}`}>
+          {notifications.length === 0
+            ? 'No notification has been recorded for this tenant.'
+            : `${fallbacksFiredCount} of ${notifications.length} notifications fired a fallback delivery; ${timeoutCount} timed out without acknowledgement.`}
+        </p>
+      </section>
+    </>
+  )
+}
+
+/* ────────────────────────────────────────────────────────────────────── *
+ * Anonymised comparative
+ * ────────────────────────────────────────────────────────────────────── */
+
+function ComparativeAnalytics({
+  decision,
+  asOfLabel,
+  tenants,
+  runsByTenant,
+  deviationsByTenant,
+  evaluations,
+}: {
+  readonly decision: ReturnType<typeof evaluateAccess>
+  readonly asOfLabel: string
+  readonly tenants: readonly Tenant[]
+  readonly runsByTenant: ReadonlyMap<string, readonly Run[]>
+  readonly deviationsByTenant: ReadonlyMap<string, readonly Deviation[]>
+  readonly evaluations: readonly Evaluation[]
+}) {
+  if (decision.outcome !== 'allowed') {
+    return (
+      <section aria-labelledby="tenant-metrics-comparative-denied-heading" className="mt-8">
+        <div className={`${radiusClass('lg')} border ${borderColor('border')} ${bg('raised')} p-6`}>
+          <h2 id="tenant-metrics-comparative-denied-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
+            Not available to this role
+          </h2>
+          <p className={`mt-2 max-w-prose text-sm ${textColor('ink-muted')}`}>{decision.explanation}</p>
+        </div>
+      </section>
+    )
+  }
+
+  // Deviation rate — the one comparative band this build's data model
+  // actually supports. Only tenants with at least one run have a rate at
+  // all; a tenant with none is excluded from every band, never counted
+  // into the "0%" band (that would misstate "never had a deviation" as
+  // "no history to judge from" — two different facts).
+  const deviationRates = tenants
+    .map((t) => {
+      const runCount = runsByTenant.get(t.id)?.length ?? 0
+      if (runCount === 0) return null
+      return (deviationsByTenant.get(t.id)?.length ?? 0) / runCount
+    })
+    .filter((r): r is number => r !== null)
+  const deviationBands = anonymisedRatioBands(deviationRates)
+  const tenantsWithHistory = deviationRates.length
+
+  // Eval pass rate — platform-wide, not per-tenant: `evaluations` carries
+  // no tenant attribution at all (see this file's header). Shown here,
+  // disclosed as platform-wide, rather than invented as a per-tenant
+  // distribution the source names but this build's data model cannot back.
+  const results = evaluations.filter((e) => e.kind === 'result')
+  const passCount = results.filter((r) => r.kind === 'result' && r.outcome === 'pass').length
+  const evalPassRatePercent = results.length > 0 ? Math.round((passCount / results.length) * 100) : null
+
+  return (
+    <>
+      <section aria-labelledby="tenant-metrics-invariant-heading" className="mt-8 flex flex-col gap-3">
+        <h2 id="tenant-metrics-invariant-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
+          Anonymised comparative analytics
+        </h2>
+        <p className={`max-w-prose text-sm ${textColor('ink-muted')}`}>
+          No tenant is named anywhere below, for any role including the root. Anonymisation happens before
+          these numbers are computed — there is no earlier, named version of this view for any account to
+          fall back to, and no setting anywhere turns it off.
+        </p>
+        <details data-control-id="tenant-metrics-role-disclosure" className="text-xs">
+          <summary className={`cursor-pointer ${textColor('ink-muted')}`}>Why the Platform Engineer sees this tab</summary>
+          <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
+            This platform's own specification describes this role's access two different ways: a
+            cross-module summary marks the Platform Engineer unavailable for this whole module; this
+            module's own, more detailed permission table grants the Platform Engineer a read of both the
+            fifteen measures and this anonymised comparative, the same as the root and the Admin. This
+            console follows the module's own, more specific table — a client-delegated choice under
+            APP-012, not a position the source settled.
+          </p>
+        </details>
+      </section>
+
+      <section aria-labelledby="tenant-metrics-eval-heading" className="mt-8 flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 id="tenant-metrics-eval-heading" className={`text-base font-semibold ${textColor('ink')}`}>
+            Eval pass rate
+          </h3>
+          <FreshnessStamp asOfLabel={asOfLabel} />
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <StatTile
+            controlId="tenant-metrics-comparative-eval-pass-rate"
+            label="Eval pass rate — platform-wide"
+            data={
+              evalPassRatePercent === null
+                ? { kind: 'unknown', reason: 'No eval result has been recorded.' }
+                : { kind: 'value', value: evalPassRatePercent, unit: '% pass, all tenants combined' }
+            }
+          />
+          <StatTile
+            controlId="tenant-metrics-comparative-gate-latency"
+            label="Gate-decision latencies"
+            data={{ kind: 'unknown', reason: 'No gate-decision latency is recorded in this build’s data model.' }}
+          />
+          <StatTile
+            controlId="tenant-metrics-comparative-coaching"
+            label="Coaching resolution"
+            data={{ kind: 'unknown', reason: 'No coaching collection exists in this build.' }}
           />
         </div>
-        <ul className="mt-3 list-disc pl-5 text-sm text-[var(--color-ink-muted)]">
-          {ACCESS_CLASSES.map((c) => (
-            <li key={c.id}>{c.name}</li>
-          ))}
-        </ul>
-        <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          A session is raised and held in{' '}
-          <Link href="/super-admin/support-access/" className="text-[var(--color-primary)] underline">
-            Support Access
-          </Link>
-          . Every platform-side access appears in that tenant’s own audit stream and its Platform
-          Access History screen.
+        <p className={`max-w-prose text-xs ${textColor('ink-subtle')}`}>
+          This build's eval-harness records are not attributed to a tenant, so the figure above is
+          platform-wide rather than a per-tenant distribution — disclosed here rather than shown as
+          fifteen invented tenant numbers.
         </p>
-      </Section>
+      </section>
 
-      {requestOpen && !sessionDisabled ? (
-        <Section id="sa10-session-request" heading="Session request">
-          <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-            This form requests a session; it does not open one, and this prototype opens nothing at
-            all. A normal support session is read-only without exception, reason-required and
-            ticket-linked, carries a default two-hour time box, and the tenant ends it from its own
-            banner (L97155, L16022, L9966).
+      <section aria-labelledby="tenant-metrics-deviation-rate-heading" className="mt-8 flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 id="tenant-metrics-deviation-rate-heading" className={`text-base font-semibold ${textColor('ink')}`}>
+            Deviation rate, anonymised distribution
+          </h3>
+          <FreshnessStamp asOfLabel={asOfLabel} />
+        </div>
+        {tenantsWithHistory === 0 ? (
+          <p className={`text-sm ${textColor('ink-muted')}`}>
+            No tenant has a recorded run yet, so no deviation-rate distribution exists.
           </p>
-          <div className="mt-3 max-w-xl space-y-3">
-            <Field
-              label="Reason for the session"
-              required
-              {...(requestError !== null ? { error: requestError } : {})}
-            >
-              <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                disabled={formFrozen}
-                rows={2}
-                className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm"
-              />
-            </Field>
-            <Field label="Ticket reference" required>
-              <input
-                value={ticket}
-                onChange={(e) => setTicket(e.target.value)}
-                disabled={formFrozen}
-                className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm"
-              />
-            </Field>
-            <p className="text-sm">
-              Tenant: {tenantName}. Time box: the stated default of two hours. There is no extension
-              control — a longer look is a new request with a fresh reason (D18, L56107).
-            </p>
-            <Button {...submitProps} onClick={submitRequest}>
-              Submit session request
-            </Button>
-          </div>
-          {requestError !== null ? (
-            <p role="alert" className="mt-2 text-sm text-[var(--color-status-blocked)]">
-              {requestError}
-            </p>
-          ) : null}
-          {requestSubmitted ? (
-            <div className="mt-3">
-              <StatusPill tone="info" icon="•" label="Request pending — nothing has been opened" />
-              <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
-                An accepted request is shown in its own state and never as a granted session. In
-                this storyboard no session exists to grant, and no tenant record is reachable from
-                this screen in any state.
-              </p>
-            </div>
-          ) : null}
-          <div className="mt-3">
-            <ProhibitionNotice
-              rendering={{
-                kind: 'absent',
-                note: 'No export exists from inside a session, and no extension exists for one (D18). Neither is drawn here as a disabled control, because neither exists for any account.',
-              }}
+        ) : (
+          <>
+            <Chart
+              controlId="tenant-metrics-chart-deviation-rate-distribution"
+              kind="donut"
+              title="Tenants by deviation-rate band"
+              categories={deviationBands.map((b) => b.band)}
+              series={[{ id: 'tenants', label: 'Tenants', values: deviationBands.map((b) => b.tenantCount) }]}
+              unit="tenants"
             />
-          </div>
-        </Section>
-      ) : null}
-
-      <Section id="sa10-memory" heading="Tenant memory content">
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          What this console can read of a tenant’s memory, for the role selected above (L97152 to
-          L97155).
-        </p>
-        <p className="mt-2 text-sm font-medium">{memoryReadout}</p>
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          The readout is the same for the root as for every other console role. Profile memory holds
-          aggregates only, and an individual-level profile record cannot be created (AC-SA-04-05,
-          L43627). No control sits behind this readout for any role, because there is nothing behind
-          it to reach.
-        </p>
-      </Section>
-
-      <Section id="sa10-dimensions" heading="What a measure may be dimensioned by">
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          The cardinality allow-list is validated at emission, and an emission carrying a prohibited
-          dimension fails the build rather than being dropped at runtime (L107315, AC-4810 L107368).
-          This console renders the tenant grain and the tenant-month period only; the finer
-          dimensions the pipeline permits are not offered as a breakdown anywhere on this screen.
-        </p>
-        <p className="mt-3 text-sm font-medium">Permitted at emission</p>
-        <ul className="mt-1 list-disc pl-5 text-sm text-[var(--color-ink-muted)]">
-          {SA10_PERMITTED_DIMENSIONS.map((d) => (
-            <li key={d}>{d}</li>
-          ))}
-        </ul>
-        <p className="mt-3 text-sm font-medium">Refused at emission</p>
-        <ul className="mt-1 list-disc pl-5 text-sm text-[var(--color-ink-muted)]">
-          {SA10_PROHIBITED_DIMENSIONS.map((d) => (
-            <li key={d}>{d}</li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section id="sa10-absent" heading="Controls that do not exist here">
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          Each of these is drawn as a note in the place a control would sit. None is a disabled
-          control, because a disabled control implies an enabled state exists somewhere.
-        </p>
-        <ul className="mt-3 space-y-3">
-          {SA10_ABSENT_CONTROLS.map((c) => (
-            <li key={c.label}>
-              <p className="text-sm font-medium">{c.label}</p>
-              <ProhibitionNotice rendering={{ kind: 'absent', note: c.note }} />
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          No critical-class action originates on this module. Every object it renders is derived and
-          never authored, so none of the eleven actions that escalate to the root is reachable from
-          this screen and no class badge replaces an action bar here. The eleven live in the modules
-          that originate them.
-        </p>
-      </Section>
-
-      <Section id="sa10-workflows" heading="Workflows this module renders">
-        <ul className="mt-2 space-y-3 text-sm">
-          {SA10_WORKFLOWS.map((w) => (
-            <li key={w.id}>
-              <p className="font-medium">{w.name}</p>
-              <p className="text-[var(--color-ink-subtle)]">{w.id}</p>
-              <p className="text-[var(--color-ink-muted)]">
-                {w.actor} · {w.trigger}
-              </p>
-              <p className="text-[var(--color-ink-muted)]">Ends at: {w.terminalStates.join('; ')}.</p>
-              <p className="text-xs text-[var(--color-ink-subtle)]">Matched by {w.matchedBy}.</p>
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section id="sa10-unspecified" heading="Unspecified in source">
-        <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-          Each affordance below is one the source does not define. It is named rather than invented:
-          a plausible invented control reads back as a requirement.
-        </p>
-        <ul className="mt-3 space-y-3 text-sm">
-          {SA10_UNSPECIFIED_IN_SOURCE.map((u) => (
-            <li key={u.affordance}>
-              <p className="font-medium">{u.affordance}</p>
-              <p className="text-[var(--color-ink-muted)]">{u.note}</p>
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section id="sa10-conflicts" heading="Conflicts in the source">
-        <ul className="mt-3 space-y-3 text-sm">
-          {SA10_CONFLICTS.map((c) => (
-            <li key={c.topic}>
-              <p className="font-medium">{c.topic}</p>
-              <p className="text-[var(--color-ink-muted)]">{c.conflict}</p>
-              <p className="text-[var(--color-ink-muted)]">Resolved as: {c.resolution}</p>
-            </li>
-          ))}
-        </ul>
-      </Section>
-    </SaConsoleShell>
+            <p className={`max-w-prose text-xs ${textColor('ink-subtle')}`}>
+              {tenantsWithHistory} of {tenants.length} tenants have a recorded run and a deviation rate to
+              place in a band; the rest have no operational history yet and are counted in neither band —
+              a tenant with no runs has no deviation rate, not a deviation rate of zero.
+            </p>
+          </>
+        )}
+      </section>
+    </>
   )
 }
