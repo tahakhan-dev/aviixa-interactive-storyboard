@@ -547,7 +547,7 @@
     "status": "removed",
     "locale": "en",
     "createdAt": "2025-06-16T09:00:00Z",
-    "lastSignInAt": "2026-07-19T16:00:00Z"
+    "lastSignInAt": "2026-01-19T16:00:00Z"
   },
   {
     "id": "USR-VG-WKR-01",
@@ -889,5 +889,159 @@
     "locale": "en",
     "createdAt": "2026-03-21T18:00:00Z",
     "lastSignInAt": "2026-07-31T18:10:00Z"
+  },
+  {
+    "id": "USR-CF-ADM-01",
+    "tenantId": "TEN-CASCADEFAB",
+    "displayName": "Priya Anand",
+    "email": "priya.anand@cascadefab.example",
+    "role": "TENANT_ADMIN",
+    "status": "invited",
+    "locale": "en",
+    "createdAt": "2026-08-10T09:05:00Z",
+    "lastSignInAt": null
+  },
+  {
+    "id": "USR-BC-ADM-01",
+    "tenantId": "TEN-BRISTLECONE",
+    "displayName": "Owen Faraday",
+    "email": "owen.faraday@bristleconemachine.example",
+    "role": "TENANT_ADMIN",
+    "status": "invited",
+    "locale": "en",
+    "createdAt": "2026-08-05T09:05:00Z",
+    "lastSignInAt": null
+  },
+  {
+    "id": "USR-RR-ADM-01",
+    "tenantId": "TEN-REDROCKMFG",
+    "displayName": "Marisol Peña",
+    "email": "marisol.pena@redrockmfg.example",
+    "role": "TENANT_ADMIN",
+    "status": "invited",
+    "locale": "es",
+    "createdAt": "2026-07-28T09:05:00Z",
+    "lastSignInAt": null
+  },
+  {
+    "id": "USR-TL-ADM-01",
+    "tenantId": "TEN-TIMBERLINE",
+    "displayName": "Grace Kim",
+    "email": "grace.kim@timberlinetooling.example",
+    "role": "TENANT_ADMIN",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-07-16T10:00:00Z",
+    "lastSignInAt": "2026-08-12T09:00:00Z"
+  },
+  {
+    "id": "USR-CV-ADM-01",
+    "tenantId": "TEN-COPPERVALE",
+    "displayName": "Malik Osei",
+    "email": "malik.osei@coppervaleassemblies.example",
+    "role": "TENANT_ADMIN",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-06-23T10:00:00Z",
+    "lastSignInAt": "2026-08-10T08:30:00Z"
+  },
+  {
+    "id": "USR-QR-ADM-01",
+    "tenantId": "TEN-QUARTZRIDGE",
+    "displayName": "Elena Rossi",
+    "email": "elena.rossi@quartzridgeprecision.example",
+    "role": "TENANT_ADMIN",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-05-31T10:00:00Z",
+    "lastSignInAt": "2026-08-05T09:15:00Z"
+  },
+  {
+    "id": "USR-IB-ADM-01",
+    "tenantId": "TEN-IRONBRIDGE",
+    "displayName": "Tomas Novak",
+    "email": "tomas.novak@ironbridgeassemblies.example",
+    "role": "TENANT_ADMIN",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-05-05T10:00:00Z",
+    "lastSignInAt": "2026-08-14T07:45:00Z"
+  },
+  {
+    "id": "USR-SC-ADM-01",
+    "tenantId": "TEN-SABLECREEK",
+    "displayName": "Renee Castillo",
+    "email": "renee.castillo@sablecreekfab.example",
+    "role": "TENANT_ADMIN",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-04-19T10:00:00Z",
+    "lastSignInAt": "2026-08-13T14:00:00Z"
+  },
+  {
+    "id": "USR-GP-ADM-01",
+    "tenantId": "TEN-GRANITEPEAK",
+    "displayName": "Victor Lindqvist",
+    "email": "victor.lindqvist@granitepeakindustrial.example",
+    "role": "TENANT_ADMIN",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2026-01-09T10:00:00Z",
+    "lastSignInAt": "2026-08-16T06:30:00Z"
+  },
+  {
+    "id": "USR-SL-ADM-01",
+    "tenantId": "TEN-SILVERLAKE",
+    "displayName": "Camila Duarte",
+    "email": "camila.duarte@silverlakecomponentes.example",
+    "role": "TENANT_ADMIN",
+    "status": "active",
+    "locale": "es",
+    "createdAt": "2025-12-03T10:00:00Z",
+    "lastSignInAt": "2026-02-20T09:00:00Z"
+  },
+  {
+    "id": "USR-SB-ADM-01",
+    "tenantId": "TEN-STONEBRIAR",
+    "displayName": "Hank Delgado",
+    "email": "hank.delgado@stonebriarmetal.example",
+    "role": "TENANT_ADMIN",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2025-10-15T10:00:00Z",
+    "lastSignInAt": "2026-01-05T09:00:00Z"
+  },
+  {
+    "id": "USR-FP-ADM-01",
+    "tenantId": "TEN-FOUNDRYPOINT",
+    "displayName": "Naomi Cole",
+    "email": "naomi.cole@foundrypointsystems.example",
+    "role": "TENANT_ADMIN",
+    "status": "suspended",
+    "locale": "en",
+    "createdAt": "2025-08-20T10:00:00Z",
+    "lastSignInAt": "2025-12-01T09:00:00Z"
+  },
+  {
+    "id": "USR-WB-ADM-01",
+    "tenantId": "TEN-WESTBROOKE",
+    "displayName": "Ines Moreau",
+    "email": "ines.moreau@westbrooketool.example",
+    "role": "TENANT_ADMIN",
+    "status": "active",
+    "locale": "en",
+    "createdAt": "2025-11-12T10:00:00Z",
+    "lastSignInAt": "2026-02-10T09:00:00Z"
+  },
+  {
+    "id": "USR-OM-ADM-01",
+    "tenantId": "TEN-OLDMILL",
+    "displayName": "Walter Higgins",
+    "email": "walter.higgins@oldmillcomponents.example",
+    "role": "TENANT_ADMIN",
+    "status": "removed",
+    "locale": "en",
+    "createdAt": "2025-03-11T10:00:00Z",
+    "lastSignInAt": "2025-11-30T15:00:00Z"
   }
 ]

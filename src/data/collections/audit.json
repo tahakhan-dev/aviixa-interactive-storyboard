@@ -6862,7 +6862,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-BRIGHTBIKES",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-01-22T10:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "active"
@@ -6884,7 +6884,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-NORTHFORGE",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-02-26T11:30:00Z",
     "before": null,
     "after": {
       "lifecycle": "soft-suspended"
@@ -6906,7 +6906,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-CEDARWORKS",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-01-10T09:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "pilot"
@@ -6928,7 +6928,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-HALLIDAY",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2025-11-10T08:30:00Z",
     "before": null,
     "after": {
       "lifecycle": "active"
@@ -6950,7 +6950,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-VANTAGE",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-01-20T09:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "archived"
@@ -6972,7 +6972,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-IRONCLAD",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2025-12-15T09:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "invited"
@@ -6994,7 +6994,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-SUMMITGEAR",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-02-01T10:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "hard-suspended"
@@ -7016,7 +7016,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-MERIDIAN",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2025-10-05T09:15:00Z",
     "before": null,
     "after": {
       "lifecycle": "compliance-suspended"
@@ -7038,7 +7038,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-DELTAWORKS",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-02-18T14:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "pending-downgrade"
@@ -7060,7 +7060,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-PRAIRIEWORKS",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-01-25T10:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "active"
@@ -7082,7 +7082,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-SOLMETAL",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-02-27T09:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "active"
@@ -7104,7 +7104,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-HARBORWORKS",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-02-08T11:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "pilot"
@@ -7126,7 +7126,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-AZURACOMP",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2025-08-12T08:45:00Z",
     "before": null,
     "after": {
       "lifecycle": "active"
@@ -7148,7 +7148,7 @@
     "result": "success",
     "denialReason": null,
     "subjectRef": "TEN-KESTRELDYN",
-    "occurredAt": "2026-01-05T00:00:00Z",
+    "occurredAt": "2026-02-20T13:00:00Z",
     "before": null,
     "after": {
       "lifecycle": "soft-suspended"

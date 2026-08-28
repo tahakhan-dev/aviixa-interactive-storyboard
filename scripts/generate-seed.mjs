@@ -1358,6 +1358,46 @@ for (const wfd of allWfDefs) {
   })
 }
 
+// Task 4 fix (unit-01, controller-disclosed artefact 2): every one of these
+// fourteen rows previously shared the identical literal
+// '2026-01-05T00:00:00Z', which is why the tenant dashboard's "days in
+// state" column (`OverviewScreen.tsx#tenantStateSinceMs`/`daysSince`) read
+// an identical 56 on every row regardless of which tenant or which
+// lifecycle it named -- an aggregate that cannot tell two tenants apart is
+// exactly the honesty failure FB-SA-01/AC-SA-01-03 exist to catch. Each
+// tenant now gets its own transition stamp, hand-picked (not drawn from the
+// shared `rng()` sequence, so this fix cannot perturb any other generated
+// collection's determinism) rather than formulaic, so a reviewer can see
+// the reasoning per row rather than trust an opaque function. Every stamp
+// is at or before `CANONICAL_EPOCH_MS` (`src/domain/clock.ts`,
+// 2026-03-02T06:00 UTC) -- the platform's own pristine "now" -- which is
+// what a "days in state" figure is measured FROM; TEN-VANTAGE's stamp is
+// pinned to match the corrected `archivedAt` this same task set in
+// `tenants.json` (both name the same real-world event, the tenant becoming
+// archived, and must agree). Five tenants here (CEDARWORKS, SUMMITGEAR,
+// PRAIRIEWORKS, HARBORWORKS, KESTRELDYN) carry an `onboardedAt` that itself
+// falls AFTER this same clock -- a broader, pre-existing seed tension this
+// task was not asked to resolve and does not reach for; their transition
+// stamps below still honour the literal "at or before the clock" rule this
+// task WAS given, at the cost of a transition that reads before its own
+// tenant's onboarding for those five rows only, same as the untouched
+// `TEN-IRONCLAD` row already exhibited before this fix.
+const TENANT_STATE_SINCE = {
+  'TEN-BRIGHTBIKES': '2026-01-22T10:00:00Z',
+  'TEN-NORTHFORGE': '2026-02-26T11:30:00Z',
+  'TEN-CEDARWORKS': '2026-01-10T09:00:00Z',
+  'TEN-HALLIDAY': '2025-11-10T08:30:00Z',
+  'TEN-VANTAGE': '2026-01-20T09:00:00Z', // matches tenants.json's corrected archivedAt
+  'TEN-IRONCLAD': '2025-12-15T09:00:00Z',
+  'TEN-SUMMITGEAR': '2026-02-01T10:00:00Z',
+  'TEN-MERIDIAN': '2025-10-05T09:15:00Z',
+  'TEN-DELTAWORKS': '2026-02-18T14:00:00Z',
+  'TEN-PRAIRIEWORKS': '2026-01-25T10:00:00Z',
+  'TEN-SOLMETAL': '2026-02-27T09:00:00Z',
+  'TEN-HARBORWORKS': '2026-02-08T11:00:00Z',
+  'TEN-AZURACOMP': '2025-08-12T08:45:00Z',
+  'TEN-KESTRELDYN': '2026-02-20T13:00:00Z',
+}
 for (const tenant of TENANTS) {
   pushAudit({
     tenantId: tenant.id,
@@ -1368,7 +1408,7 @@ for (const tenant of TENANTS) {
     result: 'success',
     denialReason: null,
     subjectRef: tenant.id,
-    occurredAt: '2026-01-05T00:00:00Z',
+    occurredAt: TENANT_STATE_SINCE[tenant.id] ?? '2026-01-05T00:00:00Z',
     before: null,
     after: { lifecycle: tenantLifecycle.get(tenant.id) ?? 'active' },
     auditClass: 'tenant-state-transition',
