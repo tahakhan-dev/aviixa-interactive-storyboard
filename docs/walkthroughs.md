@@ -1,20 +1,26 @@
 # Guided walkthroughs
 
-6 click-paths through the storyboard, each ending somewhere that answers a question. **Every
-route named here is asserted to exist by `tests/coverage/walkthrough-routes.test.ts`** — a
-walkthrough that names a page the export does not have fails the release gate rather than wasting
-a reviewer's afternoon. **Every figure in this document is asserted against the build by
-`tests/coverage/client-document-figures.test.ts`**, which is a separate and newer gate: the route
-check was green while this document told a reader the Command Center was a placeholder and counted
-three prohibitions on a page that renders six.
+6 click-paths through the storyboard, each ending somewhere that answers a question. Through
+APP-017, **every route named here was asserted to exist by
+`tests/coverage/walkthrough-routes.test.ts`** — a walkthrough that named a page the export did not
+have failed the release gate rather than wasting a reviewer's afternoon — and **every figure in
+this document was asserted against the build by `tests/coverage/client-document-figures.test.ts`**,
+a separate and newer gate: the route check was green while this document once told a reader the
+Command Center was a placeholder and counted three prohibitions on a page that renders six.
+APP-020 (master prompt §2.3, policy-excluding test cases from this project) removed both suites
+along with every other test file; routes and figures below are re-derived by hand against the
+build, not machine-checked on every run.
 
 Start the export first: `pnpm build && pnpm serve:out`, then <http://localhost:4173>.
 
-**The `capture` column** names the committed full-page screenshot of that route in
-`docs/screenshots/`, so a step can be read without a browser and a presenter can check what the
-page looked like when the manifest was written. The PNGs are gitignored and rebuilt by
-`pnpm screenshots`; `docs/screenshots/manifest.json` is committed, and the gate holds each filename
-below equal to that route's row in it. **A screenshot link is one of the thirteen per-step fields
+**The `capture` column** names the full-page screenshot of that route in `docs/screenshots/`, so a
+step can be read without a browser and a presenter can check what the page looked like when the
+manifest was written. The PNGs are gitignored; through APP-017 they were rebuilt by
+`pnpm screenshots` (a Playwright capture) and `docs/screenshots/manifest.json`, committed, was held
+equal to each filename below by a release gate. APP-020 (master prompt §2.3) removed both
+`@playwright/test` and every test file from this project, including that gate; `pnpm screenshots`
+no longer exists, so the PNGs on disk and the committed manifest are a frozen capture from before
+that removal, not a reproducible one. **A screenshot link is one of the thirteen per-step fields
 master prompt §27.2 requires. It is the only one this document carries beyond route and what the
 client sees** — see "What §27.2 asks for and this is not" at the end.
 
@@ -173,11 +179,16 @@ and a one-click "Prepare client demo" reset. **None of that exists. Building it 
 
 **Nothing tests these walkthroughs.** §27.2 requires every walkthrough run from cleared browser
 persistence against the served static export, including refresh recovery and keyboard-only
-completion. No test in this build reloads a page, and no test walks a walkthrough's ordered steps.
-Two things do hold and neither is a substitute: `tests/coverage/walkthrough-routes.test.ts` proves
-every route above exists in the export and that no built surface is left without a step, and
-`tests/accessibility/axe.spec.ts` proves per route that the first Tab press reaches the skip link
-and that `/review/`'s controls are keyboard-operable. The cleared-persistence run is slice 13.
+completion. Through APP-017, no test in this build reloaded a page, and no test walked a
+walkthrough's ordered steps either. Two narrower things did hold and neither was a substitute:
+`tests/coverage/walkthrough-routes.test.ts` proved every route above existed in the export and that
+no built surface was left without a step, and `tests/accessibility/axe.spec.ts` proved per route
+that the first Tab press reached the skip link and that `/review/`'s controls were
+keyboard-operable. APP-020 (master prompt §2.3, policy-excluding test cases from this project)
+removed both suites along with every other test file, so this build now has no automated check of
+any kind over walkthrough routes, figures, or keyboard reachability — only live-Chrome verification
+(APP-017 onward), done by a person, not re-run on every build. The cleared-persistence run remains
+slice 13, unbuilt.
 
 ## What no walkthrough covers yet
 

@@ -3,39 +3,46 @@
 `manifest.json` records one full-page capture per route in the static export — what it
 shows, which identifiers it names, and how large the capture is.
 
-**Every figure in this file is asserted against `manifest.json` and against `out/` by
-`tests/coverage/client-document-figures.test.ts`.** That gate is newer than this file, and it
-exists because every figure below was wrong at once: this README described 85 files and 173MB
-against a 102-row manifest, and its account of which pages name no identifier was stale in all
-three of its terms. Nothing read this file, so nothing could say so.
+**Through APP-017, every figure in this file was asserted against `manifest.json` and against
+`out/` by `tests/coverage/client-document-figures.test.ts`.** That gate was newer than this file,
+and it existed because every figure below was once wrong at once: this README described 85 files
+and 173MB against a 102-row manifest, and its account of which pages name no identifier was stale
+in all three of its terms. Nothing read this file, so nothing could say so. APP-020 (master prompt
+§2.3, policy-excluding test cases from this project) removed that gate, `tests/coverage/screenshot-manifest.test.ts` (below) and every other test file; the figures in this file are
+no longer machine-checked on any run.
 
-## It is not part of `pnpm verify`
+## It is not part of `pnpm verify` — and `pnpm screenshots` no longer exists at all
 
-`pnpm test:e2e` runs `--project=chromium` explicitly. Bare `playwright test` runs **every**
-project, which briefly put this artefact build inside `verify` — and its cleanup
-step deleted this file along with the PNGs. Both are fixed; the capture is `pnpm screenshots` and
-nothing else invokes it.
+Historically, `pnpm test:e2e` ran `--project=chromium` explicitly. Bare `playwright test` ran
+**every** project, which briefly put this artefact build inside `verify` — and its cleanup
+step deleted this file along with the PNGs. Both were fixed; the capture was `pnpm screenshots` and
+nothing else invoked it. APP-020 removed `@playwright/test` from this project entirely, so
+`pnpm screenshots` is gone along with the suites — there is no longer a capture command to run.
 
-`tests/coverage/screenshot-manifest.test.ts` IS part of `verify`, and it is what notices that this
-artefact went stale: it compares the committed manifest's route set against `exportedRoutes()`
-after the build. It does not read the rows' contents, which is how 18 of 102 rows named a
-different identifier set from the export they claim to describe, one build behind, under a green
-chain.
+Through APP-017, `tests/coverage/screenshot-manifest.test.ts` was part of `verify`, and it noticed
+when this artefact went stale: it compared the committed manifest's route set against
+`exportedRoutes()` after the build. It never read the rows' contents, which is how 18 of 102 rows
+once named a different identifier set from the export they claimed to describe, one build behind,
+under a green chain. That gate is deleted along with the rest of `tests/`; nothing notices staleness
+now.
 
-## Regenerating
+## Regenerating — no longer possible with `pnpm`
+
+There is no `pnpm` command left that produces a new capture. Before APP-020, regeneration was:
 
 ```
 pnpm build          # the export the captures are taken from
-pnpm screenshots    # roughly two minutes; writes the PNGs and the manifest
+pnpm screenshots    # roughly two minutes; wrote the PNGs and the manifest
 ```
 
-**In that order.** `pnpm screenshots` serves the `out/` that already exists and never rebuilds it,
-so running it alone writes a manifest describing whatever export happens to be on disk.
+**In that order** — `pnpm screenshots` served the `out/` that already existed and never rebuilt it,
+so running it alone wrote a manifest describing whatever export happened to be on disk.
 
-The PNGs are **not committed**. They are **roughly 380 MiB across 840 files** (rounded to the
-nearest 5, summed from the manifest's own `bytes` column, which is why the figure is checkable in a
-fresh clone where the PNGs are absent). The manifest is committed because it is the artefact that
-must be reviewable in a diff. Run the two commands above before any client review.
+The PNGs on disk are **not committed** (gitignored). They are **roughly 380 MiB across 840 files**
+(rounded to the nearest 5, summed from the manifest's own `bytes` column, which is why the figure is
+checkable in a fresh clone where the PNGs are absent). The manifest is committed because it is the
+artefact that must be reviewable in a diff. Both PNGs and manifest are a frozen capture from before
+APP-020 — reviewable, but not reproducible without reintroducing Playwright to this project.
 
 ## What the manifest asserts, and what it does not
 
@@ -58,7 +65,8 @@ Two checks run inside the capture spec itself, and both have been planted and wa
   paint and would otherwise sit in the manifest looking like coverage.
 
 Neither can catch the manifest not being regenerated at all — a writer checking its own output
-cannot detect that it was never run. That is what the two release gates named above are for.
+cannot detect that it was never run. Through APP-017, the two release gates named above were for
+exactly that; both are deleted along with the rest of `tests/`, so nothing catches it now.
 
 ## Master prompt §27.2 — the nine fields this carries and the seven it does not
 
@@ -109,8 +117,10 @@ component and the client boundary only exists in a build.
   identifier the extraction carried, not something this build added. `/workflows/ai-and-its-absence/`
   is a separate, hand-authored route and always names identifiers, so it is not in this count.
 
-That accounting is asserted by route, as a set equal to the set the manifest yields — not as a
-count, because a count is satisfied by the wrong eleven pages. An earlier version of this section
+Through APP-017, that accounting was asserted by route, as a set equal to the set the manifest
+yields — not as a count, because a count is satisfied by the wrong eleven pages. That gate is
+deleted along with the rest of `tests/`; the accounting above is re-derived by hand, not
+machine-checked. An earlier version of this section
 said thirteen pages, ten of them `/coverage/*`, and named `/command-center/` as "the one to watch:
 it is still the surface placeholder". `/command-center/` names 23 identifiers and the surface is
 built; `/review/` had no slot in the accounting at all.

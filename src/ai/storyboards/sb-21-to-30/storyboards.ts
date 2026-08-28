@@ -177,8 +177,9 @@ export const SB_21_TO_30_CONTRACT_SEAMS = [
       + 'R7-C03, the same shape one row down: THIS SAID THREE AND OMITTED STORYBOARD 27, whose '
       + 'card transcribes its string exactly as the other three do. Four is what the chapter '
       + 'measurement gives for this range once the pinned card is set aside, and '
-      + '`tests/unit/ai-storyboards-21-30-cards.test.ts` now derives it rather than reading it '
-      + 'here.',
+      + '`tests/unit/ai-storyboards-21-30-cards.test.ts` used to derive it rather than reading it '
+      + 'here, until APP-020 (master prompt §2.3) deleted that suite; no surviving script '
+      + 're-derives it, so the number above is this record\'s own count, not anything enforced.',
     whatThisTaskDid:
       'Left `fixedMessages` empty on 22, 23, 26 and 27 and transcribed each string verbatim into its '
       + 'Worker-visible experience field, where the source puts it. The strings are therefore '
@@ -218,9 +219,10 @@ export const SB_21_TO_30_CONTRACT_SEAMS = [
       + 'L94829/L94876/`AC-44A-25-2`, so pinning only `SCR-FL-LOCK-01` is correct and pinning the '
       + 'other eleven would police them against a prohibition the source does not state about '
       + 'them. The gate’s Spanish arm therefore runs over a population of 1, and the number it '
-      + 'runs short of is 12 rather than unstated. Held by '
-      + '`tests/unit/ai-storyboards-21-30-cards.test.ts`, which re-measures the chapter and reds '
-      + 'if this disclosure narrows again.',
+      + 'runs short of is 12 rather than unstated. This was held by '
+      + '`tests/unit/ai-storyboards-21-30-cards.test.ts`, which re-measured the chapter and '
+      + 'reddened if this disclosure narrowed, until APP-020 (master prompt §2.3) deleted that '
+      + 'suite; no surviving script re-measures it, so nothing today would catch a narrowing.',
     storyboards: [1, 2, 3, 4, 5, 6, 12, 22, 23, 25, 26, 27],
   },
 ] as const satisfies readonly ContractSeam[]

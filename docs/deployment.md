@@ -16,11 +16,13 @@ describe the export being built**, not a previous one.
 
 Output: `out/` — **5841 pages, 29367 files, roughly 290 MiB** (rounded to the nearest 5).
 
-Those three figures are asserted against the export itself by
-`tests/coverage/client-document-figures.test.ts`. This line read "85 pages, roughly 24MB across 485
-files" for three slices while the export held 5841 pages and 29367 files, and nothing could say so:
-the manifest gate checked the manifest, the route gate checked routes, and no gate read this
-sentence.
+Through APP-017, those three figures were asserted against the export itself by
+`tests/coverage/client-document-figures.test.ts`. This line once read "85 pages, roughly 24MB across
+485 files" for three slices while the export held 5841 pages and 29367 files, and nothing could say
+so: the manifest gate checked the manifest, the route gate checked routes, and no gate read this
+sentence. APP-020 (master prompt §2.3, policy-excluding test cases from this project) removed that
+gate along with every other test file; the figures above are re-derived by hand against `out/`, not
+machine-checked on every run.
 
 ## Serve
 
@@ -70,19 +72,17 @@ No analytics that phones home from a client's review session. No error-reporting
 authentication proxy. **A reviewer's clicks are not telemetry**, and every one of these would put
 behaviour into the storyboard that is not in the repository.
 
-## Rebuilding the screenshots
+## The screenshots, as of APP-020
 
-```
-pnpm build
-pnpm screenshots        # roughly two minutes
-```
-
-The PNGs are gitignored and rebuilt from the export; `docs/screenshots/manifest.json` is
-committed — **840 rows, roughly 380 MiB of PNG** (rounded to the nearest 5). Run both before a
-client review so the manifest matches what is deployed.
-
-`pnpm screenshots` does not rebuild the export. It serves the `out/` that already exists, so a
-capture run taken against a stale export writes a manifest describing a build nobody is deploying:
-run `pnpm build` first, in that order, every time. Before this was written down the committed
-manifest named a different identifier set from the export on 18 of its 102 rows, and a different
-capture size on 54 of them — one build behind, with a green chain over it.
+`pnpm screenshots` (a Playwright capture) no longer exists — APP-020 (master prompt §2.3,
+policy-excluding test cases from this project) removed `@playwright/test` along with every test
+file. The PNGs on disk are gitignored, not committed; `docs/screenshots/manifest.json` is
+committed — **840 rows, roughly 380 MiB of PNG** (rounded to the nearest 5) as of the capture run
+that produced them, before this removal. Neither the PNGs nor the manifest are reproducible with
+`pnpm` today, and neither is re-checked against a rebuilt export before a client review. Before
+capture was removed, the discipline was: `pnpm build` then the capture, in that order, every time —
+`pnpm screenshots` served the `out/` that already existed and never rebuilt it, so a capture run
+against a stale export wrote a manifest describing a build nobody was deploying. (Before that
+discipline was written down, the committed manifest once named a different identifier set from the
+export on 18 of its 102 rows, and a different capture size on 54 of them — one build behind, with a
+green chain over it.)

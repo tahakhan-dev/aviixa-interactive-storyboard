@@ -1,5 +1,5 @@
 {
-  "countedThing": "one full-page screenshot per REQUIRED route (master prompt §26.2: canonical state of every screen), captured from the served snapshot rather than from src/, so the manifest describes what a reviewer sees. The route list is derived by requiredScreenshotRoutes(), never hand-written; it is exportedRoutes() with the 5,015 single-template /coverage/<registry>/<itemId>/ census-row pages collapsed to one representative per registry (fourteen) — see tests/e2e/required-screenshot-routes.ts for the full reasoning. Every other route is captured 1:1.",
+  "countedThing": "one full-page screenshot per REQUIRED route (master prompt §26.2: canonical state of every screen), captured from the served snapshot rather than from src/, so the manifest describes what a reviewer sees. The route list is derived by requiredScreenshotRoutes(), never hand-written; it is exportedRoutes() with the 5,015 single-template /coverage/<registry>/<itemId>/ census-row pages collapsed to one representative per registry (fourteen) — the full reasoning lived in tests/e2e/required-screenshot-routes.ts, deleted along with the rest of tests/ per APP-020 (master prompt §2.3); this manifest is the frozen output of that reasoning, not a reproducible one. Every other route is captured 1:1.",
   "capturedRoutes": 840,
   "viewport": {
     "width": 1280,
@@ -12,7 +12,7 @@
     "storyStep": "no ordered canonical-story set exists (before, action, after, affected-surface, failure, fallback, fallback-failure, safe-state, recovery). Slice 13.",
     "state": "every capture is the page as loaded, with no interaction, so a state column would hold one value 102 times and distinguish nothing. Slice 13.",
     "test": "no acceptance test is bound to a capture; this spec writes the artefact, it does not evidence a named test. Slice 13.",
-    "sourceHash": "the frozen blueprint sha256 is asserted every run by tests/coverage/locator-fidelity.test.ts and is not re-stated here, where it would be a second copy that can go stale against the first.",
+    "sourceHash": "through APP-017 the frozen blueprint sha256 was asserted every run by tests/coverage/locator-fidelity.test.ts; that gate is deleted along with the rest of tests/ per APP-020 (master prompt §2.3), and no scan replaces it. Still not re-stated here, where it would be a second copy that can go stale against the first.",
     "baselineHash": "this build has no visual baseline, deliberately — docs/screenshots/README.md states why. A baseline hash with no baseline behind it would be the strongest field in the file and the emptiest."
   },
   "rows": [

@@ -14,13 +14,16 @@ pnpm build && pnpm serve:out        # http://localhost:4173
 Or open the deployed URL. Either way you are looking at the same 5841 static pages — there is no
 backend, no login, and nothing you click can change anything for anyone else.
 
-**Every number in this guide is derived from the build and gated.** Each one below is written as a
-numeral and re-measured on every release run by `tests/coverage/client-document-figures.test.ts`,
-which compares it against `exportedRoutes()`, `registries/generated/` or the screenshot manifest by
-equality. A figure that goes stale reds the chain instead of reaching you. That gate exists because
-nine figures in this document reached a reader wrong: it said 85 pages against a 5841-page export and
-4,970 registry rows against the 5,015 that exist, and it told reviewers not to look at eleven
-shipped screens.
+**Every number in this guide is derived from the build.** Each one below is written as a numeral.
+Through APP-017, each was also re-measured on every release run by
+`tests/coverage/client-document-figures.test.ts`, which compared it against `exportedRoutes()`,
+`registries/generated/` or the screenshot manifest by equality, and a figure that went stale red
+the chain instead of reaching a reader. That gate exists because nine figures in this document once
+reached a reader wrong: it said 85 pages against a 5841-page export and 4,970 registry rows against
+the 5,015 that exist, and it told reviewers not to look at eleven shipped screens. APP-020 (master
+prompt §2.3, policy-excluding test cases from this project) removed that gate along with every
+other test file; figures here are re-derived by hand against the sources named above, not
+machine-checked on every run.
 
 ## What this is, in one paragraph
 
@@ -60,8 +63,8 @@ that has reached some devices and not others shows `propagating`, and never prom
 `in force` on a guess. **If you see a screen that sounds more certain than it should be, that is a
 finding — report it.**
 
-Those are the shipped wordings, quoted from the pages that render them and checked against those
-pages by the figures gate. This paragraph used to quote `Unknown while offline` — the blueprint's
+Those are the shipped wordings, quoted from the pages that render them and, through APP-017,
+checked against those pages by the figures gate. This paragraph used to quote `Unknown while offline` — the blueprint's
 own token at L35967, and a string zero of the 5841 exported pages render. It was this guide's worked
 example of the honesty rule it asks you to police, and it was not honest.
 
@@ -138,13 +141,17 @@ and `LIM-VISUAL-01` on `/coverage/` records the related visual-baseline limitati
 
 **And nothing tests a walkthrough end to end.** §27.2 requires every walkthrough run from cleared
 browser persistence against the served export, including refresh recovery and keyboard-only
-completion. No test in this build reloads a page or walks a walkthrough's ordered steps. What does
-hold today: `tests/accessibility/axe.spec.ts` proves per route that the first Tab press reaches the
-skip link and that `/review/`'s controls are keyboard-operable. `/review/` is the one route that
-writes to IndexedDB and it is walkthrough 5 step 1 — so **if a walkthrough is going to diverge in
-front of you, that is where.** If step 1 of walkthrough 5 behaves differently in a fresh browser
-profile than it does on a second visit, that is a real defect and this build has no test that would
-have caught it. Report it.
+completion. Through APP-017, no test in this build reloaded a page or walked a walkthrough's
+ordered steps either; what held then was narrower: `tests/accessibility/axe.spec.ts` proved per
+route that the first Tab press reached the skip link and that `/review/`'s controls were
+keyboard-operable. APP-020 (master prompt §2.3, policy-excluding test cases from this project)
+removed that suite along with every other test file, so this build now has no automated check of
+any kind over keyboard reachability or walkthrough steps — that verdict is live-Chrome verification
+only (APP-017 onward), done by a person, not re-run on every build. `/review/` is the one route
+that writes to IndexedDB and it is walkthrough 5 step 1 — so **if a walkthrough is going to diverge
+in front of you, that is where.** If step 1 of walkthrough 5 behaves differently in a fresh browser
+profile than it does on a second visit, that is a real defect and this build has no automated check
+that would catch it. Report it.
 
 ## How to report what you find
 

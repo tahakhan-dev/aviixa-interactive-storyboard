@@ -626,11 +626,13 @@ export const CC08_DEGRADATION_SEAMS = [
       'this seam as what predicted the staleness. The prediction was the value: the seam named a ' +
       'file it could not edit, said what would go wrong in it, and assigned the close — and the ' +
       'close was performed and recorded there rather than discovered later by a reader.\n\n' +
-      'WHAT KEEPS THIS ROW FROM ROTTING THE WAY THE PARAGRAPH DID. Past tense is prose and prose ' +
-      'is not a gate, so the closure is asserted rather than stated: ' +
-      '`tests/unit/cc-08.test.ts` walks import specifiers from every file under `app/` and ' +
-      'requires `src/ui/shared/DeterministicBoundary.tsx` to be reachable. Unmount it and this ' +
-      'row goes red, which is the direction the original defect could not.',
+      'WHAT KEPT THIS ROW FROM ROTTING THE WAY THE PARAGRAPH DID, WHILE IT LASTED. Past tense is ' +
+      'prose and prose is not a gate, so the closure was asserted rather than stated: ' +
+      '`tests/unit/cc-08.test.ts` walked import specifiers from every file under `app/` and ' +
+      'required `src/ui/shared/DeterministicBoundary.tsx` to be reachable, unmounting it would ' +
+      'have turned the row red. APP-020 (master prompt §2.3) deleted that suite along with the ' +
+      'rest of `tests/`, and no surviving script re-walks this import graph, so nothing today ' +
+      'would catch an unmount. Past tense is prose and prose is not a gate.',
     owner:
       'CLOSED — no owner outstanding. Was `src/ui/shared/DeterministicBoundary.tsx`, import-only ' +
       'for this task, assigned to wave 5 task 20 or task 21; one of them performed it.',

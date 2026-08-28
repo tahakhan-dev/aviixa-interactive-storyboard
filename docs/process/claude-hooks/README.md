@@ -42,4 +42,9 @@ node while reporting success.
 ## Keeping the copies honest
 
 A copy that drifts from the live file is worse than no copy, because it looks authoritative.
-`tests/coverage/hook-config.test.ts` fails if the two diverge.
+Through APP-017, `tests/coverage/hook-config.test.ts` failed if the two diverged; APP-020
+(master prompt §2.3) removed that suite along with every other test file. No compile-level scan
+replaces it — the comparison is against `../CLAUDE.md` and `../.claude/settings.json`, both one
+directory above this repository and outside anything a scan run from here can read. Keeping these
+copies honest is a manual discipline now: re-copy them (see "Restoring them" above, in reverse)
+whenever the live files change.

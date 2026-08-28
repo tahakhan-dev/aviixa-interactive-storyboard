@@ -49,10 +49,15 @@ import { fileURLToPath } from 'node:url'
  * R5-A02. The ONE comment stripper this repository has, reused rather than
  * re-implemented: three hand-rolled tokenizers were defeated in three
  * different ways before it was rewritten on the TypeScript parser, and a
- * second copy here would be a fourth. Node strips the type annotations off
- * this import itself, so no build step is added.
+ * second copy here would be a fourth.
+ *
+ * APP-020: `tests/coverage/strip-comments.ts` (the original TS copy this
+ * import used to read) is deleted along with the rest of `tests/`.
+ * `scripts/lib/strip-comments.mjs` is the surviving copy —
+ * `scripts/scan-no-external-network.mjs` already reads it — so this now
+ * points at that one instead of re-adding a dependency on `tests/`.
  */
-import { stripComments } from '../tests/coverage/strip-comments.ts'
+import { stripComments } from './lib/strip-comments.mjs'
 /** R5-A07: the control-label scan asks the parser what a `control:` is. */
 import ts from 'typescript'
 

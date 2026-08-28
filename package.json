@@ -12,19 +12,13 @@
     "validate:collections": "node scripts/validate-collections.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test:unit": "vitest run --project unit",
-    "test:component": "vitest run --project component",
-    "test:release": "vitest run --project release",
-    "test:e2e": "playwright test --project=chromium",
-    "test:freshness": "vitest run --project release tests/coverage/registry-freshness.test.ts",
     "check:gate-ordering": "node scripts/check-gate-ordering.mjs",
     "check:boundary-rules": "node scripts/check-boundary-rules.mjs",
     "scan:no-external-network": "node scripts/scan-no-external-network.mjs",
     "scan:no-fallback-shells": "node scripts/scan-no-fallback-shells.mjs",
     "ledger:reconcile": "node scripts/ledger-reconcile.mjs",
-    "verify": "pnpm typecheck && pnpm validate:collections && pnpm lint && pnpm check:gate-ordering && pnpm check:boundary-rules && pnpm test:freshness && pnpm test:unit && pnpm test:component && pnpm build && pnpm test:release && pnpm test:e2e",
-    "verify:live-prep": "pnpm scan:no-external-network && pnpm scan:no-fallback-shells && pnpm ledger:reconcile",
-    "screenshots": "playwright test --project=screenshots"
+    "verify": "pnpm typecheck && pnpm validate:collections && pnpm lint && pnpm check:gate-ordering && pnpm check:boundary-rules && pnpm build && pnpm scan:no-external-network && pnpm scan:no-fallback-shells && pnpm ledger:reconcile",
+    "verify:live-prep": "pnpm scan:no-external-network && pnpm scan:no-fallback-shells && pnpm ledger:reconcile"
   },
   "dependencies": {
     "next": "16.3.1",
@@ -33,22 +27,15 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.13.0",
-    "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "4.3.3",
-    "@testing-library/react": "16.3.2",
-    "@testing-library/user-event": "^14.6.4",
     "@types/node": "26.2.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
     "eslint": "10.8.1",
-    "fake-indexeddb": "6.2.5",
-    "jsdom": "30.0.1",
     "serve": "14.2.6",
     "tailwindcss": "4.3.3",
     "tsx": "^4.23.12",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.67.0",
-    "vitest": "4.1.10"
+    "typescript-eslint": "8.67.0"
   }
 }

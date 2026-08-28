@@ -64,10 +64,15 @@ sha256  47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27
         18,565,031 bytes · 122,241 lines
 ```
 
-It is read-only. **Citations name the blueprint line, never a derived index**, and
-`tests/coverage/locator-fidelity.test.ts` reads any `L`-number in a comment as a citation and
-checks it — including inside a sentence explaining that the line is blank. That gate has caught
-wrong citations in every slice it has run in.
+It is read-only. **Citations name the blueprint line, never a derived index.** Through APP-017,
+this was checked automatically: `tests/coverage/locator-fidelity.test.ts` read any `L`-number in a
+comment as a citation and verified it against the frozen source, including inside a sentence
+explaining that the line is blank, and caught wrong citations in every slice it ran in.
+APP-020 (master prompt §2.3, policy-excluding test cases from this project) removed that suite
+along with every other test file; no prohibited-pattern scan replaces it, because the check
+requires indexing the 18MB frozen source and matching quoted spans against a ±3-line window, not
+matching a fixed pattern. Citation fidelity is now an authoring discipline, not a machine-checked
+one.
 
 ## Verifying
 
@@ -75,12 +80,20 @@ wrong citations in every slice it has run in.
 pnpm verify
 ```
 
-Runs, in order: `typecheck`, `lint`, gate-ordering audit, registry freshness, unit, component,
-`build`, release gates, and Playwright e2e with axe accessibility scans. The order is not
-cosmetic — ten of the eighteen release gates read a subject an earlier step rewrites, and
+Runs, in order: `typecheck`, collection validation, `lint`, gate-ordering audit, boundary-rule
+audit, `build`, then three compile-level scans over the built export and the generated registries
+(no external network calls, no fallback error shells, ledger reconciliation). The order is not
+cosmetic — three of those scans read a subject `build` rewrites, and
 `scripts/check-gate-ordering.mjs` audits that each one says where it runs and why.
 
-Individual steps: `pnpm test:unit`, `pnpm test:component`, `pnpm test:release`, `pnpm test:e2e`.
+Individual steps: `pnpm typecheck`, `pnpm validate:collections`, `pnpm lint`,
+`pnpm check:gate-ordering`, `pnpm check:boundary-rules`, `pnpm build`,
+`pnpm scan:no-external-network`, `pnpm scan:no-fallback-shells`, `pnpm ledger:reconcile`.
+
+Release evidence has been the compile-level checks above plus live Chrome verification since
+APP-017 — never a test suite. APP-020 (master prompt §2.3) removed every `*.test.ts`/`*.test.tsx`
+file and the `tests/` directory itself; this project now has no test cases at all, by client
+instruction, not by omission.
 
 ## Where the documentation is
 
