@@ -86,6 +86,11 @@ export const SIGNED_OUT: ProductSessionState = { session: null, sessionId: null,
 function sessionFor(user: RowOf<'users'>, stepUpActive = false): ProductSession {
   return {
     identity: user.displayName,
+    // Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4) — the real
+    // `users` id, so `useAccessContext()` can attribute writes to it
+    // instead of `identity` (the display name). See `ProductSession`'s own
+    // doc comment (`AppShell.tsx`).
+    identityId: user.id,
     role: user.role,
     tenant: user.tenantId ? tenantId(user.tenantId) : null,
     device: 'desktop',
@@ -150,11 +155,20 @@ export function resolveSignIn(
  * deliberately NOT `reviewerAccessContext` (`@/ui/product/runtime/useRepository`):
  * that context exists for the reviewer's own cross-tenant Inspector tool
  * and is attributed to `'demo-inspector'`, which would misrepresent a real
- * product write as reviewer tooling. This one is attributed to the actual
- * signing-in address and carries `stepUpActive: true` — the step-up IS
- * what this write is completing.
+ * product write as reviewer tooling. This one carries `stepUpActive: true`
+ * — the step-up IS what this write is completing.
+ *
+ * `actorOfRecord` is left `null` here on purpose (fix round 2, unit-01,
+ * Task 7 re-review, IMPORTANT 4): at the point this context is built, the
+ * root's own `users` row has not been resolved yet — this same context is
+ * used for the READ that resolves it (`resolveStepUpCompletion` below),
+ * which does not audit. The caller re-derives a second context with the
+ * real `USR-...` id, once known, before the one write this function makes.
+ * Writing `email` here previously would have named an email address, not a
+ * `users` id, in `events.actorId`/`audit.actorId` — the exact defect this
+ * fix round closes for the invite/decision doors, one layer up.
  */
-function rootActingContext(store: Store, email: string): AccessContext {
+function rootActingContext(store: Store): AccessContext {
   return {
     state: scenarioStateFor(store),
     identity: {
@@ -170,7 +184,7 @@ function rootActingContext(store: Store, email: string): AccessContext {
     },
     online: true,
     deviceTrusted: true,
-    actorOfRecord: email,
+    actorOfRecord: null,
   }
 }
 
@@ -197,7 +211,7 @@ export async function resolveStepUpCompletion(
   store: Store,
   email: string,
 ): Promise<StepUpCompletionResult> {
-  const ctx = rootActingContext(store, email)
+  const ctx = rootActingContext(store)
   const user = repository.list('users', ctx).where((u) => u.email === email).first()
   if (!user || user.role !== 'ROOT_SUPER_ADMIN' || user.status !== 'active') {
     return {
@@ -205,11 +219,15 @@ export async function resolveStepUpCompletion(
       explain: 'This acknowledgement no longer matches a signable root account.',
     }
   }
+  // Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4) — the write is
+  // attributed to the now-resolved account's real id, not the placeholder
+  // `null` the read above used.
+  const writeCtx: AccessContext = { ...ctx, actorOfRecord: user.id }
   const result = await repository.update(
     'users',
     user.id,
     { lastSignInAt: new Date(store.clock.now()).toISOString() },
-    ctx,
+    writeCtx,
   )
   if (!result.ok) {
     return { kind: result.kind, explain: result.explain }

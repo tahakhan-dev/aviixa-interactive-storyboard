@@ -50,7 +50,21 @@ function NotRealDisclosure() {
  *  the caller's own controlled state, exactly as `role`/`tenantState` are
  *  controlled props on `HubShell` today. */
 export interface ProductSession {
+  /** Display name — rendered ("Signed in as {identity}"), never an actor-attribution key. */
   readonly identity: string
+  /**
+   * Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4) — the signed-in
+   * `users` row's own id (`USR-...`), carried alongside `identity` (the
+   * display name) specifically so `useRepository.ts#useAccessContext` can
+   * set `AccessContext.actorOfRecord` to a real, resolvable account id
+   * instead of a display name. Every seeded `events.actorId`/`audit.actorId`
+   * carries a `USR-*` id (`@/data/schemas/crosscutting`'s own `RELATIONS`
+   * declare `events.actorId → users` and `audit.actorId → users`); a
+   * display name in that field cannot be resolved back to the account that
+   * acted, which is exactly the defect this field closes at its root
+   * rather than at each write site that discovers it.
+   */
+  readonly identityId: string
   readonly role: RoleId
   readonly tenant: TenantId | null
   readonly scope?: { readonly sites?: readonly string[]; readonly areas?: readonly string[] }

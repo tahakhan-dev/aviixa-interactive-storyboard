@@ -254,7 +254,13 @@ export function useAccessContext(): AccessContext {
       identity: identityFor(session),
       online: true,
       deviceTrusted: true,
-      actorOfRecord: session?.identity ?? null,
+      // Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4) — was
+      // `session?.identity` (the display name); every seeded
+      // `events.actorId`/`audit.actorId` carries a `USR-...` id
+      // (`RELATIONS`: `events.actorId → users`, `audit.actorId → users`),
+      // which a display name cannot resolve back to. `identityId` is the
+      // signed-in `users` row's own id (`ProductSession`, `session.ts#sessionFor`).
+      actorOfRecord: session?.identityId ?? null,
     }
     cacheRef.current = { store, session, version: versionRef.current, value }
     return value

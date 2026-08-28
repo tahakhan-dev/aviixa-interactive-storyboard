@@ -154,7 +154,7 @@ export function WorkflowIndex() {
   return (
     <AppShell
       surface="SURF-SA"
-      session={{ identity: 'Reviewer', role: 'ADMIN', tenant: null, device: 'desktop' }}
+      session={{ identity: 'Reviewer', identityId: 'REVIEWER', role: 'ADMIN', tenant: null, device: 'desktop' }}
       title="Workflow Index"
       breadcrumbs={[{ label: 'Workflow Index' }]}
       actions={

@@ -1521,6 +1521,32 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
           ),
         )
       }
+      /**
+       * Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 2) — `tenantId
+       * === null` alone does not make a role a CONSOLE role: a `WORKER` or
+       * `READONLY_AUDITOR` (both tenant-domain roles) with `tenantId: null`
+       * clears every guard above and would still be a tenant-role account
+       * with no tenant, not a console user — reachable only by calling this
+       * door directly with an argument today's radio group never offers,
+       * which is exactly why the guard belongs at the door rather than on
+       * the form. Measured before this fix: `TENANT_ADMIN`, `WORKER`, and
+       * `READONLY_AUDITOR`, each with `tenantId: null`, cleared every other
+       * guard and reached the write. This module's own header comment
+       * calls `inviteConsoleUser` "the one door for inviting a console
+       * user" and says the implementation "never creates a tenant-scoped
+       * account" — narrower than what the guards actually enforced until
+       * this line existed.
+       */
+      if (roleById(user.role).domain !== 'PLATFORM') {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `A console user must hold one of the four platform-domain roles; "${roleById(user.role).name}" is a tenant-domain role.`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
       if (user.role === 'ROOT_SUPER_ADMIN') {
         const refusalDecision = evaluateAccess(
           {
@@ -1551,8 +1577,12 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
         )
       }
 
+      // Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4) — matched on
+      // `u.id`, not `u.displayName`: `ctx.actorOfRecord` is now the
+      // signed-in account's real `users` id (`ProductSession.identityId`,
+      // threaded through `useAccessContext`), not its display name.
       const grantor = (store.get('users') as readonly RowOf<'users'>[]).find(
-        (u) => u.tenantId === null && u.displayName === ctx.actorOfRecord,
+        (u) => u.tenantId === null && u.id === ctx.actorOfRecord,
       )
       if (!grantor) {
         return refusal(

@@ -57,7 +57,7 @@ export function WorkflowCard({ row }: WorkflowCardProps) {
   return (
     <AppShell
       surface="SURF-SA"
-      session={{ identity: 'Reviewer', role: 'ADMIN', tenant: null, device: 'desktop' }}
+      session={{ identity: 'Reviewer', identityId: 'REVIEWER', role: 'ADMIN', tenant: null, device: 'desktop' }}
       title={row.name}
       breadcrumbs={[{ label: 'Workflow Index', href: '/workflows/' }, { label: row.id }]}
       {...(row.route !== null

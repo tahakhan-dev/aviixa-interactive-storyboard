@@ -85,7 +85,11 @@ import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
  *    pause, and resume, separately" as one row, so the contradiction is
  *    confirmed independently here, not merely inherited. Re-deriving a
  *    second count would risk a THIRD number; the existing, reviewed
- *    resolution is reused and its count note rendered on screen.
+ *    resolution is reused for `actionTypeLabel`'s lookup; its count note
+ *    itself is NOT rendered (fix round 1, unit-01 Task 7 review, IMPORTANT
+ *    1 — removed from the Change approvals section intro, along with
+ *    every other locator, as build-process vocabulary this screen's
+ *    rendered copy must not carry).
  *  - `SA08_PLATFORM_ROLES`, `MATRIX_CONFIGURATION_VERSION`/`MATRIX_TOKEN_LABEL`/
  *    `matrixCell()` (the Roles pane's live per-module matrix, `SCR-SA-12`'s
  *    second pane) → NOT carried forward. The task brief scopes this
@@ -271,7 +275,10 @@ function ConsoleUsersBody({ session }: { readonly session: ProductSession }) {
   const platformUsersQuery = usersQuery.where((u) => u.tenantId === null)
   const platformUsers = platformUsersQuery.all()
 
-  const currentUser = platformUsers.find((u) => u.displayName === ctx.actorOfRecord) ?? null
+  // Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4) — matched on
+  // `u.id`, not `u.displayName`: `ctx.actorOfRecord` is now the signed-in
+  // account's real `users` id (`ProductSession.identityId`).
+  const currentUser = platformUsers.find((u) => u.id === ctx.actorOfRecord) ?? null
 
   return (
     <AppShell surface="SURF-SA" session={session} title={MODULE.name} breadcrumbs={[{ label: MODULE.name }]}>
@@ -356,9 +363,40 @@ function ConsoleUsersSection({
    * instead — citing it here would be a citation for the decision this
    * build did not take. The on-screen disclosure beside the disabled
    * reason below is where that conflict is actually surfaced.
+   *
+   * Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 3) — `WF-ROLE-037`
+   * (the second-root refusal) restored here: it fell out of the generated
+   * registries not because `fixtures.ts` was deleted, but because fix
+   * round 1 moved the refusal ITSELF into `repository.ts#inviteConsoleUser`,
+   * a file the registry's route scanner never reads (it scans route-tree
+   * files under `app/` only). The refusal is still reachable through this
+   * exact form; this gate governs the same act, so the citation belongs
+   * here now. `UC-HO-01` (root creates a console account and assigns a
+   * role type) and `WF-ROLE-005`/`006`/`007`/`008`/`009`/`010` (creating
+   * and assigning each of the three delegable roles) are added for the
+   * same reason: this gate is the door every one of those acts opens
+   * through, and `inviteConsoleUser` genuinely performs both writes
+   * (`users` row plus `role-grants` row) each one describes, for whichever
+   * of the four platform roles the form's radio group selects.
    */
   const inviteGate = evaluateAccess(
-    { action: 'invite-console-user', allowedRoles: ['ROOT_SUPER_ADMIN'], sourceRefs: ['§8.8.1', '§8.8.2', 'SB-31-10'] },
+    {
+      action: 'invite-console-user',
+      allowedRoles: ['ROOT_SUPER_ADMIN'],
+      sourceRefs: [
+        '§8.8.1',
+        '§8.8.2',
+        'SB-31-10',
+        'WF-ROLE-037',
+        'UC-HO-01',
+        'WF-ROLE-005',
+        'WF-ROLE-006',
+        'WF-ROLE-007',
+        'WF-ROLE-008',
+        'WF-ROLE-009',
+        'WF-ROLE-010',
+      ],
+    },
     ctx,
   )
   const canInvite = inviteGate.outcome === 'allowed'
@@ -492,7 +530,8 @@ function ConsoleUsersSection({
               This platform's own specification describes this control two different ways: one version
               says it should not appear at all for anyone but the root; the other says it should stay
               visible for every role, disabled with the reason shown, so a person learns the rule rather
-              than wondering whether the feature is missing. This console follows the second description.
+              than wondering whether the feature is missing. This console follows the second description
+              — a client-delegated choice under APP-012, not a position the source settled.
             </p>
           </details>
         </div>
@@ -756,10 +795,18 @@ function ApprovalsSection({
      * Fix round 1 (unit-01, Task 7 review, IMPORTANT 4) — refuse rather
      * than invent an `approverId`. `currentUser` not resolving to a live
      * platform account means this decision cannot be honestly attributed;
-     * writing `ctx.actorOfRecord` (a display name, not a `users` id) or
-     * `'unattributed'` would commit a value `resolveTenantId` cannot walk,
-     * which — as this exact bug shape already proved for `role-grants` —
-     * refuses every later read/write on the row. No write is attempted.
+     * writing `'unattributed'` would commit a value `resolveTenantId`
+     * cannot walk, which — as this exact bug shape already proved for
+     * `role-grants` — refuses every later read/write on the row. No write
+     * is attempted.
+     *
+     * Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4): `ctx.actorOfRecord`
+     * itself is now a real `users` id (`ProductSession.identityId`), not a
+     * display name — `currentUser` above already resolves on `u.id ===
+     * ctx.actorOfRecord`, so this guard's job is now narrower and honest:
+     * it catches the case where the signed-in identity truly cannot be
+     * matched to a live platform account, not a structural mismatch
+     * between what this file compared and what the door actually wrote.
      */
     if (currentUser === null) {
       setConfirmKind(null)
@@ -809,7 +856,43 @@ function ApprovalsSection({
             who decides it. This platform's specification names no second decision-maker for the most
             consequential class of changes, so this console allows the root — and only the root — to
             decide a critical-class proposal it made itself, rather than leaving that class permanently
-            undecidable whenever the root is the one who raised it.
+            undecidable whenever the root is the one who raised it. A client-delegated choice under
+            APP-012, not a position the source settled.
+          </p>
+        </details>
+        {/*
+          Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 1) — two further
+          open decisions this screen was rendering as settled fact without
+          disclosing that the question is open at all: how long an aging
+          critical request waits before the root is notified again, and
+          whether a non-root viewer sees a disabled control or no control at
+          all for a critical-class request. Both are plain language, no
+          locator, no build-process term.
+        */}
+        <details data-control-id="approvals-aging-disclosure" className="mt-2 text-xs">
+          <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
+            Why the re-notification interval is a flat seventy-two hours
+          </summary>
+          <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
+            This platform's specification says a critical request that sits too long should notify the
+            root again, but it does not say after how long — that interval is left open, with a
+            suggestion, never a decision, that different kinds of critical requests might deserve
+            different intervals. This console uses one flat interval for every critical request rather
+            than guessing at that further split. A client-delegated choice under APP-012, not a position
+            the source settled.
+          </p>
+        </details>
+        <details data-control-id="approvals-critical-control-disclosure" className="mt-2 text-xs">
+          <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
+            Why a non-root viewer sees no control at all, rather than a disabled one
+          </summary>
+          <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
+            This platform's specification describes a critical-class request two different ways for a
+            viewer who is not the root: one version keeps the Approve and Return controls visible but
+            disabled, with the reason shown, so a viewer can see the request is waiting on someone else;
+            the other removes the controls entirely and shows a sentence in their place instead. This
+            console follows the second description. A client-delegated choice under APP-012, not a
+            position the source settled.
           </p>
         </details>
       </div>
@@ -933,17 +1016,20 @@ function ApprovalDetail({
           .sort((a, b) => Date.parse(b.runAt) - Date.parse(a.runAt))[0]
 
   /**
-   * `evaluateAccess`'s SEGREGATION_OF_DUTIES stage compares `makerCheckerOf`
-   * against `ctx.actorOfRecord`. `actorOfRecord` is the signed-in session's
-   * `identity` — this build's own session state carries the DISPLAY NAME
-   * there (`session.ts#sessionFor`, `identity: user.displayName`), not the
-   * `USR-...` id — so the comparison must resolve the proposer's display
-   * name too, never the raw `proposerId`, or two different accounts that
-   * happen to share no name would always compare unequal even when they
-   * are the same identity, and the real self-proposal case would never
-   * compare equal at all.
+   * Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4) — `evaluateAccess`'s
+   * SEGREGATION_OF_DUTIES stage compares `makerCheckerOf` against
+   * `ctx.actorOfRecord`, which is now the signed-in `users` row's own id
+   * (`ProductSession.identityId`, threaded through `useAccessContext`), not
+   * its display name. `request.proposerId` is already that same kind of id
+   * — every other `makerCheckerOf` caller in this codebase
+   * (`@/surfaces/doh/objects.ts`, `@/studio/access/evaluate.ts`) passes an
+   * id, never a display name, and this call now matches them. Resolving
+   * through `proposer?.displayName` first (fix round 1's shape) is no
+   * longer needed and, worse, would silently break the comparison the
+   * moment two platform accounts ever shared a display name — a latent
+   * fragility fix round 1's own report flagged and this removes rather
+   * than papering over.
    */
-  const proposerDisplayName = proposer?.displayName ?? request.proposerId
 
   /**
    * Fix round 1 (unit-01, Task 7 review, IMPORTANT 2) — routed through the
@@ -956,7 +1042,22 @@ function ApprovalDetail({
    * a read of `decisionGate` below: this is a role-only fact ("is the
    * viewer the root"), and `decisionGate` also fails for reasons (object
    * state, approver availability) that must never be mistaken for "you are
-   * not the root."
+   * not the root.
+   *
+   * TWO STORYBOARDS DISAGREE ON HOW THIS RENDERS (fix round 2, unit-01,
+   * Task 7 re-review, IMPORTANT 1) — `SB-RBAC-05` (L21050, "the approval
+   * queue") says the critical-class control renders DISABLED with its
+   * reason, "because an Admin needs to know the request is waiting on
+   * someone else." `SB-HO-004` (L23707, this module's own storyboard, cited
+   * below) says the action bar is REPLACED WITH NO CONTROL. Both are real,
+   * cited storyboards for the identical control, in direct conflict. This
+   * build follows `SB-HO-004` — the storyboard written specifically for
+   * this screen (`MOD-SA-08`'s console approval queue), where `SB-RBAC-05`
+   * describes a differently-named queue ("the approval queue") without
+   * `MOD-SA-08`'s own screen-level detail. The disclosure beside the
+   * Change approvals heading is where this conflict is actually surfaced
+   * on screen; this comment is where it is recorded for a future reader
+   * of the code.
    */
   const criticalViewerGate =
     request.changeClass === 'critical'
@@ -999,7 +1100,7 @@ function ApprovalDetail({
             // — so segregation of duties is checked for the engineering
             // class only, where a different approver (Admin) genuinely
             // exists.
-            ...(request.changeClass === 'engineering' ? { makerCheckerOf: proposerDisplayName } : {}),
+            ...(request.changeClass === 'engineering' ? { makerCheckerOf: request.proposerId } : {}),
             // Fix round 1 (unit-01, Task 7 review, IMPORTANT 7): `AC-SA-08-05`
             // ("No account can approve its own submission") is cited only
             // when this request's own class actually enforces it
@@ -1007,10 +1108,22 @@ function ApprovalDetail({
             // unconditionally, including on the critical-class branch that
             // deliberately does NOT enforce it, would be a citation for a
             // rule this exact call does not apply.
+            //
+            // Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 3) — per
+            // branch, ids verified against their own source lines:
+            // `UC-HO-02` (Admin deciding a submitted request, including
+            // returning it with a reason) and `WF-ROLE-015`/`016` (Admin
+            // approving / returning a Platform Engineer's change) all
+            // describe exactly this gate's engineering branch. `WF-ROLE-019`/
+            // `020` (root approving / declining a critical-class request)
+            // and `WF-ROLE-021` (an aging critical request staying pending,
+            // re-notifying the root, never auto-approving) describe this
+            // gate's critical branch: it is what makes "nothing auto-
+            // approves" true for the aging row rendered above.
             sourceRefs:
               request.changeClass === 'engineering'
-                ? ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-05', 'AC-SA-08-06']
-                : ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-06'],
+                ? ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-05', 'AC-SA-08-06', 'UC-HO-02', 'WF-ROLE-015', 'WF-ROLE-016']
+                : ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-06', 'WF-ROLE-019', 'WF-ROLE-020', 'WF-ROLE-021'],
           },
           ctx,
         )
