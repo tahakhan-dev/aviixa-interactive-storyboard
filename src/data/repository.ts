@@ -1042,9 +1042,15 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
     const rec = asRecord(row)
     const id = rowId(rec)
     const tenant = resolveEventTenant(name, rec, store)
-    // Safe: `authorizeWrite` (called by every caller of `commitWrite` before
-    // this point) only permits an action for a signed-in identity with a
-    // non-null role — `evaluateAccess`'s own SESSION stage guarantees it.
+    // Safe: every path into `commitWrite` runs an `evaluateAccess` call
+    // first — `authorizeWrite` for `create`/`update`/`transition`,
+    // `PROVISION_TENANT_REQUEST` for `provisionTenant`'s two writes (fix
+    // round 2, unit-01, Task 5 re-review: `provisionTenant` → `createRow`
+    // → here does NOT call `authorizeWrite`, correcting fix round 1's
+    // claim that it does; the invariant this cast relies on — a signed-in
+    // identity with a non-null role — still holds, because it comes from
+    // `evaluateAccess`'s own SESSION stage, which every one of those
+    // requests goes through).
     const role = ctx.identity.role as RoleId
 
     const event: DomainEvent = {
@@ -1188,23 +1194,52 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
      * separately, `src/ui/product/runtime/useRepository.ts`): there is no
      * second `evaluateAccess` call for a stale `ctx.state` to mislead.
      *
+     * FIX ROUND 2 (unit-01, Task 5 re-review, IMPORTANT 1) — the paragraph
+     * above is only half the story. `createRow` skips `authorizeWrite`
+     * entirely, so with no further check this method was authorised
+     * narrower than the two carve-outs it replaced on the ACTOR axis
+     * (correctly: `PLATFORM_ENGINEER`/`SUPPORT` are refused
+     * `ROLE_NOT_GRANTED` by `PROVISION_TENANT_REQUEST.allowedRoles`, where
+     * `PLATFORM_WRITERS` admitted them) but measurably WIDER on the
+     * resource and payload axes: it would place a user into a tenant of
+     * any lifecycle (archived, hard-suspended, compliance-suspended
+     * included), accept `admin.tenantId !== tenant.id`, mint any
+     * role/status combination, and re-run against a tenant that already
+     * has administrators. The five checks below are the actual shape of
+     * "onboard a tenant's first administrator" — the thing this method's
+     * name and the paragraph above already claim it does — enforced once,
+     * here, so the two mechanical writes are safe BECAUSE this shape
+     * already held when they ran, not because `createRow` re-checks
+     * anything.
+     *
      * IDEMPOTENT ON `tenant.id` — deliberately, and only because this
      * method's own two callers (this repository's public surface has
      * exactly one: `CreateTenantWizard.tsx`) always pass the SAME two rows
      * on a retry. If a tenant with this id already exists, this method
      * does NOT attempt to recreate it (the generic door would correctly —
      * and unhelpfully, for a retry — refuse a duplicate id); it resumes at
-     * the administrator write using the row already on file. This is safe
-     * PRECISELY because the two-write policy lives here, with the writes:
-     * a caller cannot retry "the administrator only" through any other
-     * door, so there is no way to reach this idempotent branch except by
-     * retrying the exact compound action that put the tenant there. Any
-     * edit the caller made to the TENANT half of its two arguments since
-     * the first attempt is silently ignored here, on purpose — the
-     * committed row is authoritative, never a second, divergent copy of a
-     * fact this repository already owns. `CreateTenantWizard.tsx` freezes
-     * its own Identity/Commercial fields once this is true, rather than
-     * leaving them editable and silently inert.
+     * the administrator write using the row already on file. Fix round 1's
+     * claim that "there is no way to reach this idempotent branch except by
+     * retrying the exact compound action that put the tenant there" was
+     * measured false on re-review: nothing here checked that, so ANY
+     * caller naming an existing tenant id reached it, seeded rows
+     * included. The guard below (no `users` row for `tenant.id` yet) makes
+     * that claim true rather than aspirational, but only as a measured
+     * fact about the booted seed, not a structural guarantee: every
+     * `invited` tenant in `tenants.json` already has at least one seeded
+     * user row, so today the ONLY way to present an `invited` tenant with
+     * zero users is to be mid-retry of this method's own partial failure.
+     * A future seed that added an `invited` tenant with no users yet would
+     * reach this branch without ever having called this method — the
+     * guard does not special-case "this is a retry", it only requires
+     * "invited and no users yet", which happens to describe exactly the
+     * retry state for every tenant on file today. Any edit the caller made
+     * to the TENANT half of its two arguments since the first attempt is
+     * silently ignored here, on purpose — the committed row is
+     * authoritative, never a second, divergent copy of a fact this
+     * repository already owns. `CreateTenantWizard.tsx` freezes its own
+     * Identity/Commercial fields once this is true, rather than leaving
+     * them editable and silently inert.
      */
     async provisionTenant(tenant, admin, ctx) {
       const decision = evaluateAccess(PROVISION_TENANT_REQUEST, ctx)
@@ -1212,17 +1247,82 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
         return { ok: false, kind: 'denied', decision, reason: decision.reasonCode, explain: decision.explanation }
       }
 
+      if (tenant.lifecycle !== 'invited') {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `A tenant can only be provisioned while "invited"; "${tenant.id}" is "${tenant.lifecycle}".`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      const tenantHasUsers = (store.get('users') as readonly RowOf<'users'>[]).some(
+        (u) => u.tenantId === tenant.id,
+      )
+      if (tenantHasUsers) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `Tenant "${tenant.id}" already has at least one user; provisioning only applies to a tenant's first administrator.`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      if (admin.tenantId !== tenant.id) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `The administrator's tenantId ("${admin.tenantId}") must match the tenant being provisioned ("${tenant.id}").`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      if (admin.role !== 'TENANT_ADMIN') {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `A tenant's first administrator must be provisioned with role "TENANT_ADMIN", not "${admin.role}".`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      if (admin.status !== 'invited') {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `A tenant's first administrator must be provisioned with status "invited", not "${admin.status}".`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      // Fix round 2 minor: derive each authority with `truthStoreFor`
+      // rather than hardcoding `'platform'` — both collections happen to
+      // carry that authority today, but a hardcoded literal would drift
+      // silently if either ever moved. `writableThroughRepository` is
+      // `create()`'s own pre-`createRow` gate; repeated here because this
+      // method reaches `createRow` without going through `create()`.
+      const tenantAuthority = truthStoreFor('tenants')
+      if (!writableThroughRepository(tenantAuthority)) return truthStoreRefusal('tenants', tenantAuthority)
+      const adminAuthority = truthStoreFor('users')
+      if (!writableThroughRepository(adminAuthority)) return truthStoreRefusal('users', adminAuthority)
+
       const existing = (store.get('tenants') as readonly RowOf<'tenants'>[]).find((t) => t.id === tenant.id)
       let tenantRow: RowOf<'tenants'>
       if (existing) {
         tenantRow = existing
       } else {
-        const tenantResult = await createRow('tenants', tenant, ctx, 'platform')
+        const tenantResult = await createRow('tenants', tenant, ctx, tenantAuthority)
         if (!tenantResult.ok) return tenantResult
         tenantRow = tenantResult.row
       }
 
-      const adminResult = await createRow('users', admin, ctx, 'platform')
+      const adminResult = await createRow('users', admin, ctx, adminAuthority)
       if (!adminResult.ok) {
         return { ok: false, kind: 'partial', tenant: tenantRow, adminFailure: adminResult }
       }

@@ -241,6 +241,17 @@ function CreateTenantWizardBody({ session }: { readonly session: ProductSession 
     if (tenantCommitted && TENANT_FIELD_KEYS.has(key)) return
     setValues((prev) => ({ ...prev, [key]: value }))
     setConfirmed(false)
+    // Fix round 2 minor (unit-01, Task 5 re-review): a reserved
+    // `pending` id is derived from `values.name` (`ensurePending` below).
+    // Before this round's rewrite, an edit cleared it deliberately so a
+    // later `ensurePending()` call re-derives a slug that matches the
+    // CURRENT name rather than a stale one reserved before this edit.
+    // That clear went missing when `pending` was simplified — restored
+    // here, but only while nothing has been committed yet: once
+    // `tenantCommitted` is true, the reserved id names a row already on
+    // file and must not change out from under it (see `Pending`'s own
+    // comment above and `provisionTenant`'s idempotent-retry contract).
+    if (!tenantCommitted) setPending(null)
   }
 
   function ensurePending(): Pending {

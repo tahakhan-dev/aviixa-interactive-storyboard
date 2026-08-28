@@ -149,6 +149,7 @@ function identityFor(session: ProductSession | null): IdentitySimulationState {
 }
 
 interface AccessContextCache {
+  readonly store: Store
   readonly session: ProductSession | null
   readonly version: number
   readonly value: AccessContext
@@ -206,6 +207,22 @@ interface AccessContextCache {
  * navigation). See `task-5-report.md`'s fix-round section for the measured
  * account of which of the unit's known deadlocks this alone does, and does
  * not, remove.
+ *
+ * FIX ROUND 2 (unit-01, Task 5 re-review) — the cache above was keyed on
+ * `(session, version)` only, dropping `store` from the old `useMemo` deps
+ * without replacing what it was doing. `ProductRuntime` renders once
+ * against a zero-row `EMPTY_STORE` before `boot()` resolves and swaps in
+ * the booted `store`; that swap changes neither `session` nor
+ * `versionRef` (no write, no `repository.subscribe` notification fires
+ * for it), so a pre-boot `AccessContext` computed from `EMPTY_STORE`
+ * could survive the swap inside this cache — the exact stale-state shape
+ * this hook exists to remove, reintroduced by the fix itself. Latent
+ * today only because every consumer sits behind `RequireSession` and a
+ * sign-in cannot resolve against an empty repository (the session flip
+ * always invalidates the cache first in practice). Fixed by adding
+ * `store` to the cache record and the comparison, matching
+ * `useRepositoryQuery`'s own `(repository, ctx, version)` key one
+ * function down.
  */
 export function useAccessContext(): AccessContext {
   const { store, repository } = useRuntimeData()
@@ -224,7 +241,12 @@ export function useAccessContext(): AccessContext {
 
   function getSnapshot(): AccessContext {
     const cache = cacheRef.current
-    if (cache && cache.session === session && cache.version === versionRef.current) {
+    if (
+      cache &&
+      cache.store === store &&
+      cache.session === session &&
+      cache.version === versionRef.current
+    ) {
       return cache.value
     }
     const value: AccessContext = {
@@ -234,7 +256,7 @@ export function useAccessContext(): AccessContext {
       deviceTrusted: true,
       actorOfRecord: session?.identity ?? null,
     }
-    cacheRef.current = { session, version: versionRef.current, value }
+    cacheRef.current = { store, session, version: versionRef.current, value }
     return value
   }
 
