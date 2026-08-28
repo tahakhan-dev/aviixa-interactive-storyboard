@@ -3,8 +3,8 @@
   "ledger": "Product Candidate Manifest",
   "governing_section": "master prompt §23.2 — scope 1 of the two non-self-referential hash scopes",
   "slice": "11",
-  "candidate_id": "SLICE11-0e6e3bc0d96ea5d7",
-  "candidate_manifest_sha256": "0e6e3bc0d96ea5d73496408423da77da19cf0a33418ef3bd53773b731ee02981",
+  "candidate_id": "SLICE11-7674fe021a41e2bb",
+  "candidate_manifest_sha256": "7674fe021a41e2bb675dd193c565633109b7e330cee1521c6a3defcb87d00de2",
   "scope": {
     "kind": "product-candidate",
     "contents": "application source, tests, fixtures, configuration, lockfile, assets and required delivery documentation",
@@ -18,15 +18,15 @@
     "hashes_itself": false,
     "why_not": "this manifest lives under docs/process/ledgers/, an evidence root, so it is outside the product scope by construction rather than by a remembered exclusion"
   },
-  "git_commit": "a274eeeace7afb795bddab7b78b91130be5102b2",
-  "git_tree": "38f4e7a7ec24c033b21cf9e4986b0ab2cd81b2bb",
-  "worktree_clean": false,
-  "bytes_measured_against": "the working tree as it stood when this seal ran, which is NOT the tree of git_commit — that field records only where HEAD was, the worktree was dirty, and nothing here attributes these bytes to any commit. Verify them against the filesystem, never against the commit.",
+  "git_commit": "353536835076775d59b9fe5bf4477558fb570265",
+  "git_tree": "02c8593c4c43106ede1372339d6e821580723b47",
+  "worktree_clean": true,
+  "bytes_measured_against": "the tree of git_commit — the worktree was clean when this seal ran, so every hash below is that commit's blob and stays checkable against it forever",
   "source_sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
   "source_drift_from_s0": "none — the frozen blueprint is re-hashed by 40 test files on every run",
-  "file_count": 1167,
-  "total_bytes": 31206508,
-  "supersedes": "SLICE11-af2711c456407f67",
+  "file_count": 1171,
+  "total_bytes": 31198172,
+  "supersedes": "SLICE11-0e6e3bc0d96ea5d7",
   "verification": {
     "verification_id": "VER-S11-040",
     "command_chain": "pnpm verify  (tsc --noEmit; eslint .; node scripts/check-gate-ordering.mjs; vitest run --project release tests/coverage/registry-freshness.test.ts; vitest run --project unit; vitest run --project component; pnpm build:registries && rm -rf out && next build; vitest run --project release; playwright test --project=chromium)",
@@ -144,14 +144,34 @@
       "sha256": "ec1c0c1a3970c4c730753c8987e0504638a3609dedd0578878c9a94ad4552d05"
     },
     {
+      "path": "app/coverage/ReconciliationTable.tsx",
+      "bytes": 3143,
+      "sha256": "12414999447b668a6409ba06cc65647cde7423eb5e8ef935c6dd182a0dcf481f"
+    },
+    {
+      "path": "app/coverage/[registry]/RegistryIndexScreen.tsx",
+      "bytes": 8313,
+      "sha256": "bcf12717bfa69d0450315de7bd3a2917510d43f0c42984a239e42df102ff09b5"
+    },
+    {
+      "path": "app/coverage/[registry]/[itemId]/ItemCard.tsx",
+      "bytes": 5108,
+      "sha256": "99d36bd0ac1512452e6a23abb6926598d67d56740f47a5da829aa717f01d70ef"
+    },
+    {
+      "path": "app/coverage/[registry]/[itemId]/page.tsx",
+      "bytes": 3237,
+      "sha256": "faff38737ee23104c43bb5d258c2c72ab17dcfdd52ac6232ab8fba34e67ce98e"
+    },
+    {
       "path": "app/coverage/[registry]/page.tsx",
-      "bytes": 21938,
-      "sha256": "454f333511b3fad9cdf138b9d2e90877ccfd0407138faf2217155602dc3737a6"
+      "bytes": 2511,
+      "sha256": "1aad68e9fcfbecf2c5121493e01f9273ad28123fa9b5f403899bf0a1e300c1e0"
     },
     {
       "path": "app/coverage/page.tsx",
-      "bytes": 43792,
-      "sha256": "a0adff3ca789ed5a66f8b353a63807c2b8e7ae1daf5ca20d8e03fcdf91e2001a"
+      "bytes": 43120,
+      "sha256": "24f3ed9c23979012144edee8fc075ae0e59745a94913282b45ec10a17a4fe644"
     },
     {
       "path": "app/frontline/FrontlineShell.tsx",
@@ -1045,13 +1065,13 @@
     },
     {
       "path": "docs/client-review-guide.md",
-      "bytes": 10395,
-      "sha256": "55363c1ee5ee7a8731db47d5470c500b47882549b18db81cb9c92cb4afe72b73"
+      "bytes": 10398,
+      "sha256": "f52f4ddf9a3e4a45df5d8d7ebb27e8c8571b15c3b985367754a15a03c1b3cc8a"
     },
     {
       "path": "docs/deployment.md",
-      "bytes": 4003,
-      "sha256": "3e1eae63c2aa24faffe534b5770c2733fcd00b7d44e58249c232bbd44817b4b4"
+      "bytes": 4008,
+      "sha256": "adfd1ea1c2c887873d834fe807e2c892062d5112794553f913937383412549aa"
     },
     {
       "path": "docs/screenshots/README.md",
@@ -1440,8 +1460,8 @@
     },
     {
       "path": "scripts/check-gate-ordering.mjs",
-      "bytes": 40347,
-      "sha256": "02e96f87eb77a9267420ed016ab7165a32128f558ef5ffe388d1bcf27715c047"
+      "bytes": 39230,
+      "sha256": "e246b46ccb6b753b176f5864fe3d62f2b3b6f4bac4ce4542a015ecfbb6779e0f"
     },
     {
       "path": "scripts/generate-seed.mjs",
@@ -1967,6 +1987,11 @@
       "path": "src/data/store.ts",
       "bytes": 2771,
       "sha256": "e82e32629ba532b600707e7dc68029d27d4245f282f1b7016e15039fd5aaf43a"
+    },
+    {
+      "path": "src/data/tours-index.ts",
+      "bytes": 1887,
+      "sha256": "f5e2ea6b498abe8d6fe25dbb208dc86146d53dccd3c0ebad4167932aeaa2e8b4"
     },
     {
       "path": "src/data/truth-stores.ts",
@@ -2527,6 +2552,11 @@
       "path": "src/policy/schedule-operations.ts",
       "bytes": 33055,
       "sha256": "bc34af058042cea78f613fb286c7c3aa1467400bb51dd287a05e3e48a7735dde"
+    },
+    {
+      "path": "src/registry/coverage-index.ts",
+      "bytes": 11703,
+      "sha256": "6afa3f20f2bba0da54a519c576045649d43de212db5e304205b0ed3e33111460"
     },
     {
       "path": "src/registry/load.ts",
@@ -4554,11 +4584,6 @@
       "sha256": "898e56c0a4c56ed5b77e41b3d9a8a2b220ea4f67643af3e3f3cf87b89f11f577"
     },
     {
-      "path": "tests/component/registry-index.test.tsx",
-      "bytes": 3564,
-      "sha256": "086c63d59ce8ff9b15c3ed9b5d53c2eb1bab2b42d2234898c401e402e6316525"
-    },
-    {
       "path": "tests/component/review-shell.test.tsx",
       "bytes": 8733,
       "sha256": "e249f6eb4c839760119929bba83372fbf1c51ccffc2c4829cb002c996d1e58c0"
@@ -4725,8 +4750,8 @@
     },
     {
       "path": "tests/coverage/census-closure.test.ts",
-      "bytes": 42645,
-      "sha256": "aa17ef77120c17f1d020684ff7657c0d055f30c7d78f1600b76f75bd31e2be8d"
+      "bytes": 42395,
+      "sha256": "10af5700d5f2af65922f55f661236b296ba0c6c77936d2a0885cc3dc008a46ec"
     },
     {
       "path": "tests/coverage/citation-graph.test.ts",
@@ -4792,11 +4817,6 @@
       "path": "tests/coverage/registry-freshness.test.ts",
       "bytes": 13480,
       "sha256": "b29d4e3cbf2305d3b629dfa3d56e40e23982a18aedcbb67ec914b8e254cab1ff"
-    },
-    {
-      "path": "tests/coverage/registry-index-figures.test.ts",
-      "bytes": 19079,
-      "sha256": "faa902af844c93ebd185eddbcd225a4d34a8f1bfa2fbe4dd0541b1b0feac80e4"
     },
     {
       "path": "tests/coverage/rendered-absence-claims.test.ts",
@@ -4895,8 +4915,8 @@
     },
     {
       "path": "tests/coverage/static-export.test.ts",
-      "bytes": 10213,
-      "sha256": "2ccb8284071f397ff30c1e4e969095ec65f1c6eb41dc8df8d183a4aabb6ecd4d"
+      "bytes": 12390,
+      "sha256": "5701b24904a517472876add71bd3f6c81bbc08044294db4b05ac7c83fb885a49"
     },
     {
       "path": "tests/coverage/strip-comments.ts",
@@ -5680,8 +5700,8 @@
     },
     {
       "path": "tests/unit/routes.test.ts",
-      "bytes": 15186,
-      "sha256": "0faae930efc318082530cb8d5312f3c97462aea3898f002ea57d0437a6988456"
+      "bytes": 15383,
+      "sha256": "6d65ecf457ecf22aa96b404b30fdb1c124e0e461e15a9838425cb6515b21d14d"
     },
     {
       "path": "tests/unit/sa-ai-failure-authority.test.ts",
