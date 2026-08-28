@@ -381,6 +381,60 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
+### Session S14 — the runway is closed and the §24.2 workflow units have started
+
+**Read this subsection before the round-7 material below it.** That material is still true and still
+owed; it is simply no longer the front of the queue. §24.3 puts the fidelity rebuild ahead of it,
+APP-021 records the client's re-issue of the master prompt as this session's instruction, and the
+runway that stood between the two is now finished.
+
+**Position, measured at session entry rather than recalled.** Frozen source unchanged at
+`47bd18db…`, 18,565,031 bytes / 122,241 lines. Fresh `pnpm verify` exit 0 on `65d95c0`. Runway
+19/19 closed. Every test case deleted. Census 5,015 rows — 299 demonstrated, 4,684 not represented.
+Workflows 724, of which 80. Live-Verification Ledger empty. 91 of 160 files under `app/` still
+rendering a blueprint line locator.
+
+**Unit 1 — platform bootstrap and tenant provisioning.** Spec
+`docs/superpowers/specs/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning-design.md`,
+plan `docs/superpowers/plans/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning.md`,
+ledger `.superpowers/sdd/2026-08-28-unit-01-platform-bootstrap-and-tenant-provisioning/progress.md`.
+Twelve tasks. **Six complete** — 1 runtime, 2 sign-in, 3 dashboard, 4 tenant list, 6 tenant detail,
+5 create wizard, in that order because the wizard navigates to the detail page. **Task 7 is in its
+first fix round.** Tasks 8-12 unstarted: invitation acceptance, tenant metrics, the guided tours,
+the locator and registry reconciliation, and closure.
+
+**The census has barely moved and twice moved DOWN on purpose.** It reads 293 as this is written.
+Four rows were removed when a screen was found claiming storyboards for screens that do not exist
+yet, and three more when a dead file's claims were traced. A smaller true number beats a larger one
+that would not survive a reviewer opening the route, and the number rises honestly when Tasks 8-10
+build what the removed rows described.
+
+**What this session actually bought is foundation, and the reason is worth carrying.** Four defects
+came out of the data layer, every one of them latent inside work that had already passed review,
+and every one surfaced only when something finally tried to write through the door:
+
+1. `useRepositoryQuery`'s cache keyed on selector identity, so it missed on every render for the
+   only calling convention its signature invites — the query surface all 102 routes read through.
+2. `useAccessContext` memoised the domain state at mount and never recomputed it after a write, so
+   every write-time `evaluateAccess` call in the application decided against mount-time truth.
+3. `authorizeWrite` resolved a `tenants` row to its own id and then refused the write because the
+   tenant was in the state the action existed to change — every tenant-lifecycle write was
+   structurally unreachable, including create.
+4. `resolveTenantId` could not tell "this reference legitimately has no tenant" from "this reference
+   is dangling", so every `role-grants` write for all four platform console roles was refused.
+
+**The lesson under all four:** a green chain proved nothing about paths nothing had exercised. The
+runway's screens read; these were the first that wrote.
+
+**And the reviews earned their seats.** Three of them booted the repository in a read-only harness
+and measured rather than reading the comment above the code; one ran a sensitivity control,
+extracting the pre-fix file and reproducing the defect against it, which is what turns a green
+result into evidence. Five controller figures were corrected by implementers, and one controller
+theory — that a coverage drop came from an abbreviated identifier — was disproved by a reviewer who
+ran `stripComments` and found that comments never carry citations at all. That finding changed the
+relocation rule for every remaining task in the programme: an identifier that governs a permission
+decision is passed as that call's `sourceRefs`, never left in a comment.
+
 ### Round 7 of the slice-11 audit loop is closed — round 8 is owed
 
 **172 findings declared across seven rounds. Round 1: 42. Round 2: 20. Round 3: 15. Round 4: 30.
