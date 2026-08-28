@@ -6,7 +6,7 @@ import { NOT_REAL_TEXT } from '@/ui/product/AppShell'
 import { controlIdFor } from '@/ui/product/Form'
 import { ErrorSummary, type ErrorSummaryEntry } from '@/ui/product/ErrorSummary'
 import { TextField } from '@/ui/product/fields/TextField'
-import { useProductSession, useRuntimeReady, type SignInOutcome } from '@/ui/product/runtime'
+import { useProductSession, useRuntimeReady, type SignInOutcome, type StepUpCompletionResult } from '@/ui/product/runtime'
 import { bg, borderColor, radiusClass, shadowClass, statusBg, statusText, textColor } from '@/ui/product/tokens'
 import { SA_INVARIANTS } from '@/surfaces/sa/invariants'
 import { StoryboardSignInPanel } from './StoryboardSignInPanel'
@@ -68,7 +68,8 @@ export function SignInScreen() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [pending, setPending] = useState(false)
   const [outcome, setOutcome] = useState<SignInOutcome | null>(null)
-  const [stepUpConfirmed, setStepUpConfirmed] = useState(false)
+  const [stepUpResult, setStepUpResult] = useState<StepUpCompletionResult | null>(null)
+  const [stepUpPending, setStepUpPending] = useState(false)
   // Bumped exactly at the two moments the summary/outcome region must take
   // focus: an immediate client-validation failure, and an
   // `invalid-credentials` result arriving after the simulated pending
@@ -106,7 +107,7 @@ export function SignInScreen() {
   function clearOutcomeOnEdit(): void {
     if (outcome !== null) {
       setOutcome(null)
-      setStepUpConfirmed(false)
+      setStepUpResult(null)
     }
   }
 
@@ -138,7 +139,7 @@ export function SignInScreen() {
     setTouched({ email: false, password: false })
     setFieldErrors({})
     setOutcome(null)
-    setStepUpConfirmed(false)
+    setStepUpResult(null)
   }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>): void {
@@ -157,7 +158,7 @@ export function SignInScreen() {
     }
 
     setOutcome(null)
-    setStepUpConfirmed(false)
+    setStepUpResult(null)
     setPending(true)
     // `resolveSignIn` (`@/ui/product/runtime/session.ts`) is a synchronous,
     // pure lookup over already-loaded fixture data — there is no network
@@ -174,6 +175,25 @@ export function SignInScreen() {
       if (result.kind === 'invalid-credentials') setFocusSignal((n) => n + 1)
       if (result.kind === 'signed-in') router.push('/super-admin/platform-overview-and-health/')
     }, 350)
+  }
+
+  // Task 2 fix round 1 (unit-01, review IMPORTANT 1): routes through the
+  // real runtime write (`session.completeStepUp()` ->
+  // `session.ts#resolveStepUpCompletion` -> `repository.update`) instead of
+  // flipping local `useState` — the confirmation sentence this panel shows
+  // is only true once this call has actually landed.
+  async function handleConfirmStepUp(): Promise<void> {
+    if (stepUpPending) return
+    setStepUpPending(true)
+    const result = await session.completeStepUp()
+    setStepUpPending(false)
+    setStepUpResult(result)
+    // Denied/persistence-unavailable: fall through — `stepUpResult` now
+    // holds the failure, the acknowledgement panel (invariants + a "Try
+    // again" control) stays rendered below, and NOTHING navigates. A
+    // session appearing when its record could not be written would be the
+    // same defect this whole fix round exists to remove, in a new place.
+    if (result.kind === 'signed-in') router.push('/super-admin/platform-overview-and-health/')
   }
 
   const displayedEmailError = touched.email ? fieldErrors.email : undefined
@@ -261,7 +281,7 @@ export function SignInScreen() {
                 role="status"
                 tabIndex={-1}
                 data-control-id="sign-in-outcome-invitation-pending"
-                className={`${radiusClass('lg')} border ${borderColor('border')} ${bg('surface')} p-4 focus:outline-none`}
+                className={`${radiusClass('lg')} border ${borderColor('border')} ${bg('surface')} p-4 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]`}
               >
                 <p className={`font-semibold ${textColor('ink')}`}>Invitation not yet accepted</p>
                 <p className={`mt-1 text-sm ${textColor('ink-muted')}`}>
@@ -278,7 +298,7 @@ export function SignInScreen() {
                 role="alert"
                 tabIndex={-1}
                 data-control-id="sign-in-outcome-account-suspended"
-                className={`${radiusClass('lg')} border ${borderColor('border-strong')} ${bg('surface')} p-4 focus:outline-none`}
+                className={`${radiusClass('lg')} border ${borderColor('border-strong')} ${bg('surface')} p-4 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]`}
               >
                 <p className={`font-semibold ${statusText('danger')}`}>Account suspended</p>
                 {/* Property: the outcome's OWN `reason` string — the
@@ -294,7 +314,7 @@ export function SignInScreen() {
                 role="alert"
                 tabIndex={-1}
                 data-control-id="sign-in-outcome-tenant-suspended"
-                className={`${radiusClass('lg')} border ${borderColor('border-strong')} ${bg('surface')} p-4 focus:outline-none`}
+                className={`${radiusClass('lg')} border ${borderColor('border-strong')} ${bg('surface')} p-4 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]`}
               >
                 <p className={`font-semibold ${statusText('danger')}`}>Tenant account suspended</p>
                 <p className={`mt-1 text-sm ${textColor('ink-muted')}`}>
@@ -311,7 +331,7 @@ export function SignInScreen() {
                 role="status"
                 tabIndex={-1}
                 data-control-id="sign-in-outcome-step-up-required"
-                className={`${radiusClass('lg')} border ${borderColor('border-strong')} ${bg('surface')} p-4 focus:outline-none`}
+                className={`${radiusClass('lg')} border ${borderColor('border-strong')} ${bg('surface')} p-4 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]`}
               >
                 <p className={`font-semibold ${textColor('ink')}`}>Step-up verification required</p>
                 <p className={`mt-1 text-sm ${textColor('ink-muted')}`}>
@@ -326,22 +346,16 @@ export function SignInScreen() {
                   Settings renders the six enforced invariants as locked",
                   step 3 "The root confirms the platform floor register",
                   step 4 "The session is audited." What follows renders
-                  exactly those four steps and nothing past them —
-                  `SA_INVARIANTS` (`@/surfaces/sa/invariants`) is the same
-                  six-invariant data `PlatformSettingsScreen.tsx` renders,
-                  reused rather than re-typed.
-
-                  CONCERN, RECORDED RATHER THAN WORKED AROUND: WF-ROLE-004's
-                  own four steps never claim the root lands on the console
-                  as part of THIS workflow, and `resolveSignIn`
-                  (`@/ui/product/runtime/session.ts`, frozen, not touched
-                  by this task) has no path back to a `signed-in` outcome
-                  for `ROOT_SUPER_ADMIN` — every call with root's own
-                  credentials returns `step-up-required` again,
-                  deterministically. Modelling the actual second factor
-                  (and a resulting real session) is out of this task's
-                  scope and out of `resolveSignIn`'s current contract; see
-                  task-2-report.md's concerns section.
+                  exactly those four steps — `SA_INVARIANTS`
+                  (`@/surfaces/sa/invariants`) is the same six-invariant
+                  data `PlatformSettingsScreen.tsx` renders, reused rather
+                  than re-typed — and Confirm now performs step 4 for real:
+                  `session.completeStepUp()` ->
+                  `session.ts#resolveStepUpCompletion` writes the root's own
+                  `lastSignInAt` through `repository.update`, which appends
+                  the audit row atomically (Task 2 fix round 1, review
+                  IMPORTANT 1 — this used to be a local `useState` flag
+                  claiming a record that was never written).
                 */}
                 <div className="mt-3 space-y-2">
                   {SA_INVARIANTS.map((invariant) => (
@@ -355,19 +369,39 @@ export function SignInScreen() {
                     </div>
                   ))}
                 </div>
-                {stepUpConfirmed ? (
+                {stepUpResult?.kind === 'signed-in' ? (
                   <p role="status" className={`mt-3 text-sm font-medium ${statusText('ok')}`}>
                     Confirmed. This sign-in attempt has been recorded.
                   </p>
                 ) : (
-                  <button
-                    type="button"
-                    data-control-id="sign-in-stepup-confirm"
-                    onClick={() => setStepUpConfirmed(true)}
-                    className={`mt-3 ${radiusClass('md')} ${bg('accent')} px-4 py-2 text-sm font-medium ${textColor('accent-ink')}`}
-                  >
-                    Confirm the platform floor register
-                  </button>
+                  <>
+                    {stepUpResult !== null ? (
+                      <div className="mt-3">
+                        {/* Property, same shape as `Form.tsx`'s own two
+                            failure headings: "you may not do this" and
+                            "this could not be made durable" are different
+                            recourse, so they read distinctly. */}
+                        <p className={`text-sm font-semibold ${statusText('danger')}`}>
+                          {stepUpResult.kind === 'denied'
+                            ? 'This acknowledgement could not be completed'
+                            : 'This could not be recorded'}
+                        </p>
+                        <p className={`mt-1 text-sm ${textColor('ink-muted')}`}>{stepUpResult.explain}</p>
+                      </div>
+                    ) : null}
+                    <button
+                      type="button"
+                      data-control-id="sign-in-stepup-confirm"
+                      aria-busy={stepUpPending ? 'true' : undefined}
+                      disabled={stepUpPending}
+                      onClick={() => {
+                        void handleConfirmStepUp()
+                      }}
+                      className={`mt-3 ${radiusClass('md')} ${bg('accent')} px-4 py-2 text-sm font-medium ${textColor('accent-ink')} disabled:opacity-50`}
+                    >
+                      {stepUpPending ? 'Confirming…' : stepUpResult !== null ? 'Try again' : 'Confirm the platform floor register'}
+                    </button>
+                  </>
                 )}
               </div>
             ) : null}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { chromeOffParam, isChromeVisibilityHotkey, readStoredChromeHidden } from '@/lib/chromeVisibility'
 
 /**
  * Task 2 (unit-01) — the reviewer-facing "which seeded identity does what"
@@ -29,38 +30,14 @@ import { useEffect, useState } from 'react'
  *
  * "ABSENT FROM A CHROME-HIDDEN SCREENSHOT" WITHOUT IMPORTING THE HOOK THAT
  * DEFINES IT. `src/ui/demo/useChromeVisibility.ts` is exactly the right
- * logic for this — same `?chrome=off` query check, same
- * `aviixa-demo-chrome-hidden` localStorage key, same Alt+Shift+D hotkey —
- * but it lives under `src/ui/demo/**` and the boundary above forbids
- * importing it from here. What follows is a small, deliberate duplicate of
- * that hook's read-only logic (same storage key, so toggling the real demo
- * chrome bar's visibility keeps this panel in sync even though the two
- * never import one shared module), not a loosened boundary.
+ * logic for this, but it lives under `src/ui/demo/**` and the boundary
+ * above forbids importing it from here. FIX ROUND 1 (task-2 review,
+ * IMPORTANT 2): the read-only pieces of that logic — the storage key, the
+ * `?chrome=off` check, the hotkey predicate — are extracted into
+ * `@/lib/chromeVisibility`, a neutral module BOTH this file and
+ * `useChromeVisibility.ts` itself import. One definition of "chrome is
+ * hidden," not two that can drift; this file no longer carries its own copy.
  */
-const CHROME_HIDDEN_KEY = 'aviixa-demo-chrome-hidden'
-
-function chromeOffParam(): boolean {
-  try {
-    return new URLSearchParams(window.location.search).get('chrome') === 'off'
-  } catch {
-    return false
-  }
-}
-
-function readStoredHidden(): boolean | null {
-  try {
-    const raw = window.localStorage.getItem(CHROME_HIDDEN_KEY)
-    if (raw === 'true') return true
-    if (raw === 'false') return false
-    return null
-  } catch {
-    return null
-  }
-}
-
-function isToggleHotkey(e: KeyboardEvent): boolean {
-  return e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'd'
-}
 
 function slugify(email: string): string {
   return email.replace(/[^a-z0-9]+/gi, '-').toLowerCase()
@@ -131,12 +108,12 @@ export function StoryboardSignInPanel({ onSelect }: StoryboardSignInPanelProps) 
 
   useEffect(() => {
     if (chromeOffParam()) return // stays hidden — see useChromeVisibility's own comment.
-    setHidden(readStoredHidden() ?? false)
+    setHidden(readStoredChromeHidden() ?? false)
   }, [])
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
-      if (isToggleHotkey(e)) setHidden((prev) => !prev)
+      if (isChromeVisibilityHotkey(e)) setHidden((prev) => !prev)
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)

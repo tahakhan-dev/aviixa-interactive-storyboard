@@ -14,8 +14,10 @@ export {
 } from './useRepository'
 export {
   resolveSignIn,
+  resolveStepUpCompletion,
   SIGNED_OUT,
   type ProductSessionApi,
   type ProductSessionState,
   type SignInOutcome,
+  type StepUpCompletionResult,
 } from './session'

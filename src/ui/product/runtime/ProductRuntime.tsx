@@ -25,7 +25,15 @@ import {
   RuntimeDataContext,
   type RuntimeData,
 } from './useRepository'
-import { resolveSignIn, SIGNED_OUT, type ProductSessionApi, type ProductSessionState, type SignInOutcome } from './session'
+import {
+  resolveSignIn,
+  resolveStepUpCompletion,
+  SIGNED_OUT,
+  type ProductSessionApi,
+  type ProductSessionState,
+  type SignInOutcome,
+  type StepUpCompletionResult,
+} from './session'
 
 interface BootData {
   readonly repository: Repository
@@ -79,6 +87,34 @@ export function ProductRuntime({ children }: { children: ReactNode }) {
       },
       signOut() {
         setSessionState(SIGNED_OUT)
+      },
+      // Task 2 fix round 1 (unit-01, review IMPORTANT 1): the ONLY caller
+      // of `resolveStepUpCompletion`, and the ONLY place that guards it —
+      // `sessionState.lastOutcome` is read from the closure at call time
+      // (not a stale value), so a click arriving after the pending outcome
+      // has already changed (a second click, a stale button somehow still
+      // mounted) is refused here, before the repository is ever touched.
+      async completeStepUp(): Promise<StepUpCompletionResult> {
+        if (sessionState.lastOutcome?.kind !== 'step-up-required') {
+          return { kind: 'denied', explain: 'No step-up acknowledgement is pending.' }
+        }
+        const result = await resolveStepUpCompletion(
+          runtimeData.repository,
+          runtimeData.store,
+          sessionState.lastOutcome.email,
+        )
+        if (result.kind === 'signed-in') {
+          setSessionState({
+            session: result.session,
+            sessionId: sessionState.lastOutcome.email,
+            lastOutcome: result,
+          })
+        }
+        // Denied/persistence-unavailable: `sessionState` is left exactly as
+        // it was (still `step-up-required`) — the root does not land, and
+        // the screen's own acknowledgement panel stays on screen because
+        // nothing here cleared it.
+        return result
       },
     }),
     [sessionState, runtimeData],

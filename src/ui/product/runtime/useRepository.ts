@@ -137,7 +137,13 @@ function identityFor(session: ProductSession | null): IdentitySimulationState {
     areaScope: session.scope?.areas ? [...session.scope.areas] : [],
     qualifications: [],
     deviceId: null,
-    stepUpActive: false,
+    // Task 2 fix round 1 (unit-01, review IMPORTANT 1): was hardcoded
+    // `false` for every session regardless of how it landed. Threaded
+    // through from `ProductSession.stepUpActive` (true only for a session
+    // `session.ts#resolveStepUpCompletion` produced) so a later task can
+    // gate a Root-only action on the caller's REAL step-up state instead
+    // of a value this hook silently discarded.
+    stepUpActive: session.stepUpActive ?? false,
     accessSessionId: null,
   }
 }

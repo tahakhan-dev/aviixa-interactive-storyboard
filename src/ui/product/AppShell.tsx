@@ -55,6 +55,16 @@ export interface ProductSession {
   readonly tenant: TenantId | null
   readonly scope?: { readonly sites?: readonly string[]; readonly areas?: readonly string[] }
   readonly device: 'desktop' | 'tablet' | 'kiosk'
+  /**
+   * Task 2 fix round 1 (unit-01, review IMPORTANT 1): true only for a
+   * session landed through `session.ts#resolveStepUpCompletion` — the
+   * root's own step-up acknowledgement. `useRepository.ts#identityFor`
+   * threads this into `IdentitySimulationState.stepUpActive` so
+   * `useAccessContext()` reports it truthfully; a later task gates a
+   * Root-only action on exactly this flag. Every other sign-in leaves it
+   * `undefined` (read as `false`).
+   */
+  readonly stepUpActive?: boolean
 }
 
 export interface AppShellProps {
