@@ -8,12 +8,14 @@ import { DEMO_PERSONAS, useDemoController } from './DemoChrome'
  * Task 14 — the reviewer's persona picker. This is the ENTIRE write surface
  * of a persona switch: `onChange` calls `controller.setPersona(id)`, which
  * (see `DemoChrome.tsx`) sets one piece of local React state and rebuilds
- * `ProductSessionContext`'s value from it. There is no other statement in
- * this file. Nothing here imports `@/data/repository`, so there is no way
- * for this control to execute a product command, approve anything, change
- * business state, or touch an existing audit row's actor — the absence of
- * an import is the proof, not a claim about behaviour this file could still
- * add later without anyone noticing.
+ * `DemoControllerContext`'s value from it. Task 1 (unit-01): `ProductSessionContext`
+ * moved to `@/ui/product/runtime` and is driven solely by `signIn()`/
+ * `signOut()` now — this picker never touches it. There is no other
+ * statement in this file. Nothing here imports `@/data/repository`, so
+ * there is no way for this control to execute a product command, approve
+ * anything, change business state, or touch an existing audit row's actor
+ * — the absence of an import is the proof, not a claim about behaviour
+ * this file could still add later without anyone noticing.
  */
 export function RoleSimulator() {
   const { persona, setPersona } = useDemoController()

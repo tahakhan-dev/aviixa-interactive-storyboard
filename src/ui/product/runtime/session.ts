@@ -70,14 +70,20 @@ export function resolveSignIn(
 ): SignInOutcome {
   const user = repository.list('users', ctx).where((u) => u.email === email).first()
   // `status === 'removed'` folds into the SAME generic outcome as "no such
-  // user"/"no password typed" — R2: telling a caller an account once
-  // existed discloses account existence, which a sign-in screen must not do.
-  if (!user || password.length === 0 || user.status === 'removed') {
+  // user" — R2: telling a caller an account once existed discloses account
+  // existence, which a sign-in screen must not do.
+  if (!user || user.status === 'removed') {
     return { kind: 'invalid-credentials' }
   }
+  // Checked BEFORE the password-empty guard below (fix round 1): an invited
+  // account has never set a password, so there is nothing to check yet — an
+  // empty password on an invited account is `invitation-pending`, not the
+  // generic `invalid-credentials` a real "wrong/missing password" is.
   if (user.status === 'invited') {
-    // The invitation has not been accepted; there is no password to check yet.
     return { kind: 'invitation-pending', email, tenantId: user.tenantId ? tenantId(user.tenantId) : null }
+  }
+  if (password.length === 0) {
+    return { kind: 'invalid-credentials' }
   }
   if (user.status === 'suspended') {
     return { kind: 'account-suspended', reason: 'Account suspended by a platform administrator.' }

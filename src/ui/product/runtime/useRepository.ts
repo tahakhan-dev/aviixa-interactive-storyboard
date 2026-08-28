@@ -165,19 +165,33 @@ export function useAccessContext(): AccessContext {
 interface QueryCache<T> {
   readonly repository: Repository
   readonly ctx: AccessContext
-  readonly select: (r: Repository, ctx: AccessContext) => T
   readonly version: number
   readonly value: T
 }
 
 /**
+ * CONTRACT: `select` must be a pure function of `(repository, ctx)` alone —
+ * it may read anything reachable from those two arguments, but it must not
+ * close over any other reactive value (component state, props, a filter
+ * string) and expect a change in that value alone to invalidate the cache
+ * below. The cache is keyed on `(repository, ctx, version)`, NOT on
+ * `select`'s own identity, precisely so the idiomatic call site — an inline
+ * arrow, a fresh function reference every render — still hits the cache
+ * instead of missing it every render (fix round 1: keying on `select`
+ * identity defeated the cache for exactly that calling convention, which is
+ * the only one this hook's own signature invites — there is no deps array).
+ * A caller that needs to parameterise a query by something other than
+ * `repository`/`ctx` must fold that parameter into scope some other way
+ * (e.g. filtering the already-fetched `T` outside this hook), not rely on
+ * `select`'s closure being re-read on every call.
+ *
  * `select` reads through `Query#all()`/`#first()` etc., which return a
  * fresh array/value on every call even when nothing changed — reading
  * `select(repository, ctx)` directly as `useSyncExternalStore`'s snapshot
  * would look "changed" on every unrelated re-render. `versionRef` is
  * bumped only by an actual `repository.subscribe` notification, so the
- * cached value is reused until real data changes, `ctx` changes (a
- * different signed-in identity) or `select` itself changes.
+ * cached value is reused until real data changes or `ctx` changes (a
+ * different signed-in identity).
  *
  * Server/pre-boot snapshot: the SAME `getSnapshot` serves both — the
  * static export prerenders with no repository, and `useRuntimeData()`
@@ -206,13 +220,12 @@ export function useRepositoryQuery<T>(select: (r: Repository, ctx: AccessContext
       cache &&
       cache.repository === repository &&
       cache.ctx === ctx &&
-      cache.select === select &&
       cache.version === versionRef.current
     ) {
       return cache.value
     }
     const value = select(repository, ctx)
-    cacheRef.current = { repository, ctx, select, version: versionRef.current, value }
+    cacheRef.current = { repository, ctx, version: versionRef.current, value }
     return value
   }
 
