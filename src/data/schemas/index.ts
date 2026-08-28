@@ -55,6 +55,12 @@ export const COLLECTIONS = {
   'ai-requests': { schema: crosscutting.AiRequest, file: 'ai-requests.json' },
   'access-sessions': { schema: platform.AccessSession, file: 'access-sessions.json' },
   tours: { schema: crosscutting.Tour, file: 'tours.json' },
+  // Task 7 (unit-01) — `OBJ-APPROVAL-REQUEST` (§8.8.4), added after the
+  // design's original §3.1 forty-name list. Not modelled as audit rows: the
+  // source is explicit that a change awaiting a decision is a first-class
+  // record with its own state ladder, not a fact recovered by filtering
+  // `audit` after the fact (see `platform.ts#ApprovalRequest`'s own header).
+  'approval-requests': { schema: platform.ApprovalRequest, file: 'approval-requests.json' },
 } as const satisfies Record<string, CollectionDef>
 
 export type CollectionName = keyof typeof COLLECTIONS
@@ -219,6 +225,11 @@ export const RELATIONS: ReadonlyArray<
   { from: 'events', field: 'areaId', to: 'areas', nullable: true },
   { from: 'audit', field: 'actorId', to: 'users' },
   { from: 'evaluations', field: 'scenarioId', to: 'evaluations' },
+
+  // Task 7 (unit-01) — `approval-requests` (`OBJ-APPROVAL-REQUEST`, §8.8.4).
+  { from: 'approval-requests', field: 'proposerId', to: 'users' },
+  { from: 'approval-requests', field: 'approverId', to: 'users', nullable: true },
+  { from: 'approval-requests', field: 'affectedTenantIds', to: 'tenants', array: true },
 ] as const
 
 /**
@@ -254,6 +265,7 @@ export const UNCHECKABLE_ID_FIELDS: ReadonlyArray<
   { from: 'holds', field: 'targetId', reason: "Polymorphic, discriminated by targetKind: 'lot' | 'unit' | 'run'. Only 'run' has a §3.1 collection — Lot and Unit (OBJ-020/021) were not promoted to their own collections — so even a per-targetKind relation could not always resolve." },
   { from: 'evaluations', field: 'subjectAtomOrAgentId', reason: 'No atoms/agents collection exists in §3.1; Agent definition and Atom registration record (OBJ-066/067) were not promoted to collections by this task.' },
   { from: 'evaluations', field: 'suiteId', reason: 'No suites collection exists; a suite is a grouping label within evaluations, not its own §3.1 collection.' },
+  { from: 'approval-requests', field: 'evaluationSuiteId', reason: 'Same grouping label as evaluations.suiteId above, not its own collection — a critical- or engineering-class request that is agent-bearing names the suite whose results govern it (SB-HO-004, L23707), never a specific evaluations row.' },
   /**
    * D3, CORRECTED (fix round 2 — the "CLOSED" note this replaced overstated
    * its own conclusion; corrected here, not just in the fix-round report,

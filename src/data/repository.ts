@@ -384,20 +384,58 @@ function resolveTenantId(
   const candidates = new Set<string>()
   let anyCandidateFieldPresent = false
 
+  /**
+   * Task 7 (unit-01) fix — `role-grants.userId` walking to a PLATFORM user
+   * (`tenantId: null`) surfaced a real bug this loop had carried since the
+   * fix-round-2 rewrite: `anyCandidateFieldPresent` was set the instant a
+   * candidate FIELD held a non-null string, before this function ever
+   * asked what that reference resolved TO. A reference to a row that
+   * genuinely has no tenant concept (`sub.kind === 'none'` — the exact
+   * reading `resolveTenantId('users', platformUserRow, …)` already gives,
+   * two paragraphs above this loop) was therefore indistinguishable from a
+   * DANGLING reference (a row that does not exist at all): both forced
+   * `anyCandidateFieldPresent = true`, and with zero candidates added by
+   * either, both produced `'unresolved'` — refusing a `role-grants` write
+   * for any of the four platform console roles, every one of whose grants
+   * carries a `userId` pointing at a `tenantId: null` row.
+   *
+   * `anyCandidateFieldPresent` now marks only the cases the comment above
+   * `TenantResolution` already says it should: a reference that was
+   * ATTEMPTED and did not yield a tenant — dangling (target missing),
+   * `'unresolved'`, or `'conflict'` beneath it. A reference that resolved
+   * cleanly to `'none'` contributes nothing, exactly like the field being
+   * null in the first place — which is what a platform-scoped `userId`
+   * inside a `role-grants` row actually is: not a data-integrity problem,
+   * just a chain that legitimately ends without a tenant. Every OTHER
+   * outcome (`'resolved'`, dangling, `'unresolved'`, `'conflict'`, the
+   * direct `rel.to === 'tenants'` case) is unchanged — this narrows one
+   * incorrect case in a function every collection's tenant walk shares,
+   * not a per-collection carve-out.
+   */
   for (const rel of relations) {
     const value = row[rel.field]
     if (value === null || value === undefined || typeof value !== 'string') continue
-    anyCandidateFieldPresent = true
 
     if (rel.to === 'tenants') {
       candidates.add(value)
+      anyCandidateFieldPresent = true
       continue
     }
     const targetRows = store.get(rel.to) as readonly Record<string, unknown>[]
     const target = targetRows.find((r) => r.id === value)
-    if (target === undefined) continue // dangling reference: contributes nothing
+    if (target === undefined) {
+      anyCandidateFieldPresent = true // dangling reference: no candidate, but a real integrity problem
+      continue
+    }
     const sub = resolveTenantId(rel.to, target, store, nextChain)
-    if (sub.kind === 'resolved') candidates.add(sub.tenant)
+    if (sub.kind === 'resolved') {
+      candidates.add(sub.tenant)
+      anyCandidateFieldPresent = true
+    } else if (sub.kind === 'conflict' || sub.kind === 'unresolved') {
+      anyCandidateFieldPresent = true
+    }
+    // sub.kind === 'none': the referenced row genuinely carries no tenant.
+    // Contributes nothing, and does NOT force this row to 'unresolved'.
   }
 
   if (candidates.size === 1) return { kind: 'resolved', tenant: [...candidates][0]! }

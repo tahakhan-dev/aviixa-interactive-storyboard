@@ -57,6 +57,7 @@ import entitlements from './collections/entitlements.json'
 import aiRequests from './collections/ai-requests.json'
 import accessSessions from './collections/access-sessions.json'
 import tours from './collections/tours.json'
+import approvalRequests from './collections/approval-requests.json'
 
 const RAW: Readonly<Record<CollectionName, readonly unknown[]>> = {
   tenants,
@@ -99,6 +100,7 @@ const RAW: Readonly<Record<CollectionName, readonly unknown[]>> = {
   'ai-requests': aiRequests,
   'access-sessions': accessSessions,
   tours,
+  'approval-requests': approvalRequests,
 }
 
 export interface BootResult {

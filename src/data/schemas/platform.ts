@@ -162,3 +162,75 @@ export const AccessSession = z.object({
   readOnly: z.boolean(),
 }).strict()
 export type AccessSession = z.infer<typeof AccessSession>
+
+/**
+ * Task 7 (unit-01) — `OBJ-APPROVAL-REQUEST`, §8.8's maker-checker queue as a
+ * first-class record, not an audit row. Frozen source L44735 (`§8.8.4`,
+ * `SoW Fact`): "Approval requests are first-class records carrying
+ * proposer, change class, object reference, diff, rationale, state —
+ * pending, approved, returned, or applied — approver, timestamps, and an
+ * audit reference, committed under the one-transaction guarantee." That is
+ * nine named fields; every one has a home below (`diff` is `before`/`after`,
+ * matching `Audit`'s own primitive-map shape in `./crosscutting.ts` rather
+ * than a hand-invented second shape; "an audit reference" is the audit row
+ * `repository.ts#commitWrite` already appends atomically with this row's
+ * own state change — `subjectRef: "approval-requests:<id>"` on that row IS
+ * the reference, so no separate pointer field is added here to duplicate
+ * it). `platformWide`/`affectedTenantIds` together are SB-HO-004's "the
+ * affected tenants or the word 'platform-wide'" (L23707) — a plain boolean
+ * plus array reads far simpler than a discriminated union for the one
+ * caller (`ConsoleUsersScreen.tsx`) this collection has, and needs no
+ * `RELATIONS` entry beyond the array itself.
+ *
+ * `changeClass` is the two-value split §8.8.3 actually enforces (engineering
+ * class checked by an Admin, critical class checked by the root only);
+ * `actionType` carries which SPECIFIC action this is — one of the eleven ids
+ * in `@/surfaces/sa/critical-actions` for a critical-class row (that
+ * module's own `D12` comment records why the source's stated "ten" and its
+ * own enumeration disagree, and this schema does not re-litigate it), or a
+ * free-text engineering-class action name, since no closed vocabulary for
+ * engineering-class action types exists in the source the way the eleven
+ * critical ones do.
+ *
+ * `evaluationSuiteId` is nullable and is NOT a `RELATIONS` target — like
+ * `evaluations.suiteId` itself (`./index.ts#UNCHECKABLE_ID_FIELDS`), a
+ * suite is a grouping label carried by zero or more `evaluations` rows, not
+ * a collection of its own, so this field carries the identical allowlist
+ * reason rather than a fabricated relation.
+ *
+ * `state` deliberately keeps all four source-named values even though this
+ * build's own Approve control (§8.8.3: "the change and its audit event
+ * commit in the same transaction") never rests a row it writes at
+ * `'approved'` — it commits straight to `'applied'`, matching the source's
+ * own one-transaction wording. One seed row is left at `'approved'`
+ * (`AR-0008`, a tier publication whose actual platform-wide publication is
+ * a separate downstream act this build does not execute) so the state is
+ * genuinely represented, not merely declared in the enum.
+ */
+export const ApprovalRequestClass = z.enum(['engineering', 'critical'])
+export type ApprovalRequestClass = z.infer<typeof ApprovalRequestClass>
+
+export const ApprovalRequestState = z.enum(['pending', 'approved', 'returned', 'applied'])
+export type ApprovalRequestState = z.infer<typeof ApprovalRequestState>
+
+const ApprovalDiffMap = z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))
+
+export const ApprovalRequest = z.object({
+  id: z.string().min(1),
+  changeClass: ApprovalRequestClass,
+  actionType: z.string().min(1),
+  objectRef: z.string().min(1),
+  proposerId: z.string().min(1),
+  rationale: z.string().min(1),
+  before: ApprovalDiffMap,
+  after: ApprovalDiffMap,
+  platformWide: z.boolean(),
+  affectedTenantIds: z.array(z.string()),
+  evaluationSuiteId: z.string().nullable(),
+  state: ApprovalRequestState,
+  approverId: z.string().nullable(),
+  createdAt: Stamp,
+  decidedAt: Stamp.nullable(),
+  returnReason: z.string().nullable(),
+}).strict()
+export type ApprovalRequest = z.infer<typeof ApprovalRequest>

@@ -138,6 +138,10 @@ export const TRUTH_STORES: Readonly<Record<CollectionName, TruthStoreAuthority>>
   'ai-requests': 'hub',
   'access-sessions': 'platform',
   tours: 'studio',
+  // Task 7 (unit-01): the approval queue is the platform console's own
+  // change-governance register (§8.8.4) — the same authority as `tenants`/
+  // `users`/`role-grants` above, not a tenant-owned or audit-owned record.
+  'approval-requests': 'platform',
 } as const satisfies Record<CollectionName, TruthStoreAuthority>
 
 /**
