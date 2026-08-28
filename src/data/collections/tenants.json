@@ -10,7 +10,8 @@
     "onboardedAt": "2026-01-12T09:15:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-NORTHFORGE",
@@ -23,7 +24,8 @@
     "onboardedAt": "2026-02-10T08:30:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-CEDARWORKS",
@@ -36,7 +38,8 @@
     "onboardedAt": "2026-02-08T09:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": "2026-04-09T09:00:00Z"
   },
   {
     "id": "TEN-HALLIDAY",
@@ -49,7 +52,8 @@
     "onboardedAt": "2025-11-03T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-VANTAGE",
@@ -62,7 +66,8 @@
     "onboardedAt": "2025-06-15T08:00:00Z",
     "archivedAt": "2026-01-20T09:00:00Z",
     "legalHold": true,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-IRONCLAD",
@@ -75,7 +80,8 @@
     "onboardedAt": "2026-03-01T09:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-SUMMITGEAR",
@@ -88,7 +94,8 @@
     "onboardedAt": "2025-11-15T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-MERIDIAN",
@@ -101,7 +108,8 @@
     "onboardedAt": "2025-09-22T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-DELTAWORKS",
@@ -114,7 +122,8 @@
     "onboardedAt": "2026-01-20T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-PRAIRIEWORKS",
@@ -127,11 +136,12 @@
     "onboardedAt": "2025-12-20T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-SOLMETAL",
-    "name": "Sol Metalúrgica",
+    "name": "Sol Metal\u00fargica",
     "lifecycle": "active",
     "tier": "growth",
     "isPilot": false,
@@ -140,7 +150,8 @@
     "onboardedAt": "2026-02-25T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "es"
+    "primaryLocale": "es",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-HARBORWORKS",
@@ -153,7 +164,8 @@
     "onboardedAt": "2026-02-18T09:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": "2026-04-19T09:00:00Z"
   },
   {
     "id": "TEN-AZURACOMP",
@@ -166,7 +178,8 @@
     "onboardedAt": "2025-08-01T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "es"
+    "primaryLocale": "es",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-KESTRELDYN",
@@ -179,7 +192,8 @@
     "onboardedAt": "2025-12-05T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-CASCADEFAB",
@@ -192,7 +206,8 @@
     "onboardedAt": "2026-02-27T09:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-BRISTLECONE",
@@ -205,7 +220,8 @@
     "onboardedAt": "2026-02-25T09:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-REDROCKMFG",
@@ -218,7 +234,8 @@
     "onboardedAt": "2026-02-22T09:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "es"
+    "primaryLocale": "es",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-TIMBERLINE",
@@ -231,7 +248,8 @@
     "onboardedAt": "2026-02-14T09:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": "2026-04-15T09:00:00Z"
   },
   {
     "id": "TEN-COPPERVALE",
@@ -244,7 +262,8 @@
     "onboardedAt": "2026-02-01T09:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": "2026-04-02T09:00:00Z"
   },
   {
     "id": "TEN-QUARTZRIDGE",
@@ -257,7 +276,8 @@
     "onboardedAt": "2026-01-25T09:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": "2026-03-26T09:00:00Z"
   },
   {
     "id": "TEN-IRONBRIDGE",
@@ -270,7 +290,8 @@
     "onboardedAt": "2026-01-15T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-SABLECREEK",
@@ -283,7 +304,8 @@
     "onboardedAt": "2026-01-05T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-GRANITEPEAK",
@@ -296,7 +318,8 @@
     "onboardedAt": "2026-01-08T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-SILVERLAKE",
@@ -309,7 +332,8 @@
     "onboardedAt": "2025-12-02T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "es"
+    "primaryLocale": "es",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-STONEBRIAR",
@@ -322,7 +346,8 @@
     "onboardedAt": "2025-10-14T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-FOUNDRYPOINT",
@@ -335,7 +360,8 @@
     "onboardedAt": "2025-08-19T08:00:00Z",
     "archivedAt": null,
     "legalHold": true,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-WESTBROOKE",
@@ -348,7 +374,8 @@
     "onboardedAt": "2025-11-11T08:00:00Z",
     "archivedAt": null,
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   },
   {
     "id": "TEN-OLDMILL",
@@ -361,6 +388,7 @@
     "onboardedAt": "2025-03-10T08:00:00Z",
     "archivedAt": "2025-12-01T09:00:00Z",
     "legalHold": false,
-    "primaryLocale": "en"
+    "primaryLocale": "en",
+    "pilotExpiresAt": null
   }
 ]

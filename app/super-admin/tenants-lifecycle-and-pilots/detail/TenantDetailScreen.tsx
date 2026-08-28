@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import {
   AppShell,
   ConfirmDialog,
@@ -12,6 +12,7 @@ import {
   RequireSession,
   StatusPill,
   Timeline,
+  Toaster,
   bg,
   borderColor,
   colorVar,
@@ -27,6 +28,7 @@ import {
   type ProductSession,
   type StatusToken,
   type TimelineEntry,
+  type ToastItem,
 } from '@/ui/product'
 import { LiveRegion } from '@/ui/primitives'
 import { evaluateAccess } from '@/policy/evaluate'
@@ -71,6 +73,7 @@ import { saModuleById } from '@/surfaces/sa/modules'
 
 const MODULE = saModuleById('MOD-SA-09')
 const LIST_HREF = '/super-admin/tenants-lifecycle-and-pilots/'
+const DETAIL_HREF = '/super-admin/tenants-lifecycle-and-pilots/detail/'
 
 type Tenant = RowOf<'tenants'>
 type TenantLifecycle = Tenant['lifecycle']
@@ -246,6 +249,12 @@ export function TenantDetailScreen() {
 function TenantDetailGate({ session }: { readonly session: ProductSession }) {
   const searchParams = useSearchParams()
   const tenantIdParam = searchParams.get('tenant')
+  // Task 5 (unit-01): the create wizard's success arm links here as
+  // `?tenant=<id>&created=1` — a real search parameter, not a second
+  // storage channel, so the toast survives the very navigation that
+  // produces it (`TenantDetailBody` reads this once, at mount, and the URL
+  // is scrubbed back to plain `?tenant=<id>` right after — see there).
+  const justCreated = searchParams.get('created') === '1'
   const snapshot = useRepositoryQuery(readSnapshot)
   // A separate call, same reasoning as `OverviewScreen.tsx`'s own
   // `attentionQuery`: `DataTable` needs a live `Query<User>` to run its own
@@ -259,7 +268,15 @@ function TenantDetailGate({ session }: { readonly session: ProductSession }) {
     return <TenantNotFound session={session} requestedId={tenantIdParam} />
   }
 
-  return <TenantDetailBody session={session} tenant={tenant} snapshot={snapshot} usersQuery={usersQuery} />
+  return (
+    <TenantDetailBody
+      session={session}
+      tenant={tenant}
+      snapshot={snapshot}
+      usersQuery={usersQuery}
+      justCreated={justCreated}
+    />
+  )
 }
 
 function TenantNotFound({
@@ -295,15 +312,18 @@ function TenantDetailBody({
   tenant,
   snapshot,
   usersQuery,
+  justCreated,
 }: {
   readonly session: ProductSession
   readonly tenant: Tenant
   readonly snapshot: TenantDetailSnapshot
   readonly usersQuery: Query<User>
+  readonly justCreated: boolean
 }) {
   const ctx = useAccessContext()
   const repository = useRepository()
   const store = useStore()
+  const router = useRouter()
   const nowMs = store.clock.now()
 
   const [activeTabId, setActiveTabId] = useState('overview')
@@ -312,6 +332,34 @@ function TenantDetailBody({
   const [writeFeedback, setWriteFeedback] = useState<{ readonly tone: StatusToken; readonly message: string } | null>(
     null,
   )
+  /**
+   * Task 5 (unit-01) — the create wizard's success arm ("navigate to the
+   * new tenant's detail page with a toast"). Lazily initialised from the
+   * `?created=1` search parameter ONCE, at mount — a plain `useState`
+   * initialiser, not a `useEffect`, so the toast is present on the very
+   * first paint rather than flashing in a tick later. `Toaster` itself
+   * (`src/ui/product/Toaster.tsx`) owns no state of its own; this screen is
+   * its first real consumer, the same "first consumer decides the
+   * composition" position `ObjectPage` was in for this file already.
+   */
+  const [toasts, setToasts] = useState<readonly ToastItem[]>(() =>
+    justCreated
+      ? [{ id: 'tenant-created', tone: 'ok', label: `${tenant.name} was created. Invited — not yet operating until its administrator accepts.` }]
+      : [],
+  )
+  // Scrubs `created=1` back out of the address bar right after capturing it
+  // into local state above, so a later back/forward visit to a now-plain
+  // `?tenant=<id>` URL (or a reload, which this build's own in-memory-only
+  // session already sends to sign-in regardless) never replays a stale
+  // "was created" toast for a tenant that has existed the whole time.
+  // `router.replace` keeps this off the history stack; the `toasts` state
+  // above was already seeded from `justCreated` before this ever runs, so
+  // the toast itself is unaffected by the URL changing under it. Runs once
+  // (`[]`): no `react-hooks/exhaustive-deps` rule is configured in this
+  // project (`Wizard.tsx`'s own fix-round comment notes the same thing).
+  useEffect(() => {
+    if (justCreated) router.replace(`${DETAIL_HREF}?tenant=${encodeURIComponent(tenant.id)}`)
+  }, [])
 
   const allUsers = usersQuery.all()
   const tenantUsersQuery = usersQuery.where((u) => u.tenantId === tenant.id)
@@ -425,6 +473,7 @@ function TenantDetailBody({
 
   return (
     <AppShell surface="SURF-SA" session={session}>
+      <Toaster toasts={toasts} onDismiss={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))} />
       {writeFeedback ? (
         <LiveRegion>
           <p
@@ -528,13 +577,16 @@ function renderOverviewTab({
           <dt className={textColor('ink-muted')}>Pilot</dt>
           <dd className={textColor('ink')}>
             {tenant.isPilot ? 'Yes' : 'No'}
+            {tenant.isPilot ? ' ' : null}
             {tenant.isPilot ? (
-              // FEAT-SA-09-04 names 60/90-day pilots, but `Tenant` carries no
-              // expiry field and no separate pilot record exists in this
-              // repository — an honest "not tracked" note, not a fabricated
-              // date, and never a requirement identifier printed as page
-              // text (global constraint).
-              <span className={`ml-2 text-xs ${textColor('ink-subtle')}`}>Pilot expiry is not tracked.</span>
+              // Task 5 (unit-01): `Tenant.pilotExpiresAt` now exists (added
+              // for the create wizard's Commercial step, `FEAT-SA-09-04`'s
+              // 60/90-day pilot term, L44931/L98363) — this reads the real,
+              // seeded/written value rather than the "not tracked" note this
+              // screen rendered before the field existed.
+              <span className={`ml-2 text-xs ${textColor('ink-subtle')}`}>
+                {tenant.pilotExpiresAt === null ? 'Expiry not recorded.' : `Expires ${formatDate(tenant.pilotExpiresAt)}.`}
+              </span>
             ) : null}
           </dd>
         </div>
@@ -670,7 +722,10 @@ function renderPeopleTab({
         rowId={(u) => u.id}
         emptyState={{
           title: 'This tenant has no users yet.',
-          whatCreatesIt: 'A user appears here once the platform team seeds the first Tenant Admin, or once that admin adds more accounts.',
+          // Fix (Task 5, unit-01): "seeds" is build-process vocabulary a
+          // real client would never see (global constraint) — corrected in
+          // passing per this task's own brief, which named this exact line.
+          whatCreatesIt: 'A user appears here once the tenant is created with its first Tenant Admin, or once that admin adds more accounts.',
         }}
       />
     </div>

@@ -576,11 +576,50 @@ function authorizeWrite(
    * carry its own role/object-state gate (as `TenantDetailScreen.tsx` does)
    * — this floor will not catch a caller that forgets one.
    */
+  /**
+   * Task 5 (unit-01) finding — the identical structural deadlock as the
+   * `tenants` fix above, one collection over. Creating the very FIRST
+   * `users` row for a brand-new tenant (the invited Tenant Admin the
+   * create-tenant wizard writes as its second, dependent write) resolves
+   * `resourceTenant` to that tenant's own id, and a brand-new tenant's
+   * `lifecycle` is ALWAYS `invited` (`PROVISIONING`) at the moment this
+   * write happens — a tenant cannot be `active`/`pilot` before its
+   * administrator accepts, and it cannot accept an invitation that was
+   * never created. Left as-is, the feature-and-suspension stage refuses
+   * this write with `TENANT_NOT_ACTIVE` for every role, forever: onboarding
+   * a tenant would be impossible if creating its first administrator were
+   * itself gated on the tenant already being active.
+   *
+   * FIX, NARROWLY SCOPED: unlike the `tenants` case above, `resourceTenant`
+   * IS still declared for an ordinary `users` write — every other
+   * protection (role floor, tenant isolation, and a refusal into a
+   * genuinely SUSPENDED or ARCHIVED tenant) must keep applying to `users`.
+   * Only a `create` whose resolved tenant's CURRENT lifecycle is `invited`
+   * — read directly off the live `tenants` collection, never off
+   * `resolution` above, which only proves the id is well-formed, not live
+   * — is exempted from the not-yet-active refusal. `pilot` (also
+   * `PROVISIONING` per `TENANT_LIFECYCLE_MAP`) is deliberately NOT
+   * exempted: a pilot tenant is already operating (`FEAT-SA-09-04`,
+   * "functionally identical to paying tenants"), so a `users` write into
+   * one goes through the same active-tenant door as any other operational
+   * tenant. `update`/`transition` are also NOT exempted — only the
+   * one-time act of CREATING a user is onboarding; a later write to an
+   * already-existing user is an ordinary operational write and must still
+   * be refused into a not-yet-active or closed tenant.
+   */
+  const onboardingTenant =
+    name === 'users' && action === 'create' && rowTenant !== null
+      ? (store.get('tenants') as readonly { id: string; lifecycle: string }[]).find((t) => t.id === rowTenant)
+      : undefined
+  const onboardingFirstUser = onboardingTenant?.lifecycle === 'invited'
+
   const req: AccessRequest = {
     action: `${action.toUpperCase()} ${name}`,
     allowedRoles: defaultWriteRoles(authority),
     sourceRefs: ['§12.5', '§12.6', 'repository.ts'],
-    ...(rowTenant !== null && name !== 'tenants' ? { resourceTenant: brandTenantId(rowTenant) } : {}),
+    ...(rowTenant !== null && name !== 'tenants' && !onboardingFirstUser
+      ? { resourceTenant: brandTenantId(rowTenant) }
+      : {}),
     ...(siteId !== undefined && ctx.identity.siteScope.length > 0 ? { requiredSites: [siteId] } : {}),
     ...(areaId !== undefined && ctx.identity.areaScope.length > 0 ? { requiredAreas: [areaId] } : {}),
   }

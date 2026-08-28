@@ -383,16 +383,23 @@ function TenantRegistry({ session }: { readonly session: ProductSession }) {
       {/*
         SB-31-02 (L75309, the create-wizard's own field panes — Identity,
         Commercial, Compliance, Provisioning) and SB-SA-TENANT-01 (L117966,
-        the scheduled suspend/pilot-expiry/archive transitions) each govern
-        Task 5's screen or unit 10's screens, never a decision THIS list
-        makes, so neither belongs in a `sourceRefs` array here (that would
-        misattribute authority this screen doesn't exercise). SB-SA-TENANT-01
-        in particular must stay comment-only through unit 10: Task 6's own
-        brief forbids rendering any suspend/restore/archive control at all
-        ("a reader must not meet a control this unit cannot honour"), so
-        citing it as demonstrated anywhere before that unit ships would be
-        the same false coverage claim this comment's own history warns
-        against.
+        the scheduled suspend/pilot-expiry/archive transitions) never
+        belonged in a `sourceRefs` array HERE (that would misattribute
+        authority this list screen doesn't exercise) and still don't, but
+        Task 5's create wizard is now built
+        (`create/CreateTenantWizard.tsx`) — checked, not assumed, before
+        writing this: it stays comment-only THERE too, because the wizard's
+        actual four steps (Identity, Commercial, First administrator,
+        Review — the task's own plan, a Derived Clarification) are not
+        SB-31-02's four panes. It has no Compliance pane (retention
+        horizon, the anonymisation-irreversibility warning) and no
+        Provisioning checklist rail — a reviewer opening that route would
+        not find either, so claiming SB-31-02 as demonstrated there would
+        be exactly the false coverage claim this comment's own history
+        already warns against. SB-SA-TENANT-01 must stay comment-only
+        through unit 10 for the same reason as before: Task 6's own brief
+        forbids rendering any suspend/restore/archive control at all ("a
+        reader must not meet a control this unit cannot honour").
 
         FIX ROUND 2 (review IMPORTANT 1): fix round 1 rendered these
         (then three) identifiers into a `data-carried-forward-refs`

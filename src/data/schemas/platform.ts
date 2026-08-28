@@ -34,6 +34,23 @@ export const Tenant = z.object({
   archivedAt: Stamp.nullable(),
   legalHold: z.boolean(),
   primaryLocale: z.enum(['en', 'es']),
+  /**
+   * Task 5 (unit-01) addition. L44931 (`SoW Fact — §8.9.4`): "Default
+   * duration 60 days, 90 at the client's discretion. ... The module tracks
+   * pilot expiry, conversion, and extension as first-class actions."
+   * `SCHED-14`/`SCHED-023`/`SCHED-PILOT-EXPIRY` (L98237, L98363, L102411,
+   * L117905) all name this as a real, tracked per-tenant deadline — the
+   * source states the FACT (a pilot has an expiry) and the field's own
+   * semantics (an ISO stamp, nullable for a non-pilot), never a literal
+   * JSON key spelling, so `pilotExpiresAt` is this build's naming, chosen to
+   * match every other `Stamp`-typed instant already on this row
+   * (`onboardedAt`, `archivedAt`). `null` for every tenant that is not a
+   * pilot (`isPilot === false`); a real date for one that is. Task 6's own
+   * detail screen previously rendered "Pilot expiry is not tracked" because
+   * this field did not exist yet — that absence note is corrected in the
+   * same task that adds the field, not left standing beside it.
+   */
+  pilotExpiresAt: Stamp.nullable(),
 }).strict()
 export type Tenant = z.infer<typeof Tenant>
 
