@@ -11,5 +11,6 @@
       "Read(//**/*.ico)",
       "Read(//**/*.pdf)"
     ]
-  }
+  },
+  "$comment": "NOT the settings file this session loads. The session's project root is Ron-project1, and its .claude/settings.json is what takes effect. This file was written here first by mistake: the deny rules it carried never loaded, and an image read succeeded while being reported as blocked. Kept, with the rules, only so a session opened FROM this directory inherits them too."
 }
