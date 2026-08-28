@@ -19,7 +19,11 @@
     "test:freshness": "vitest run --project release tests/coverage/registry-freshness.test.ts",
     "check:gate-ordering": "node scripts/check-gate-ordering.mjs",
     "check:boundary-rules": "node scripts/check-boundary-rules.mjs",
+    "scan:no-external-network": "node scripts/scan-no-external-network.mjs",
+    "scan:no-fallback-shells": "node scripts/scan-no-fallback-shells.mjs",
+    "ledger:reconcile": "node scripts/ledger-reconcile.mjs",
     "verify": "pnpm typecheck && pnpm validate:collections && pnpm lint && pnpm check:gate-ordering && pnpm check:boundary-rules && pnpm test:freshness && pnpm test:unit && pnpm test:component && pnpm build && pnpm test:release && pnpm test:e2e",
+    "verify:live-prep": "pnpm scan:no-external-network && pnpm scan:no-fallback-shells && pnpm ledger:reconcile",
     "screenshots": "playwright test --project=screenshots"
   },
   "dependencies": {

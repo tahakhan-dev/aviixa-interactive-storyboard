@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "ledger": "live-verification-ledger",
+  "governing_sections": [
+    "master prompt §2.3 (live verification, no test cases)",
+    "master prompt §8 (release evidence)",
+    "docs/superpowers/plans/2026-08-26-runway.md, Task 19",
+    "docs/process/live-verification-procedure.md (the call sequence every row's evidence must follow)"
+  ],
+  "scope_note": "Created by Task 19, the final task of the 2026-08-26 runway, as the release-evidence apparatus that survives the whole-project deletion of every test suite under tests/ (APP-020, ~324 suites, effective immediately after this task). Every earlier task's live-in-Chrome verification lives only as prose inside .superpowers/sdd/2026-08-26-runway/task-*-report.md; this ledger is the first STRUCTURED record of that class of evidence and is deliberately seeded with ZERO rows rather than backfilled from those reports. Two reasons, stated rather than left implicit: (1) backfilling would mean writing 'screenshots'/'consoleErrors'/'externalRequests' values this task did not itself observe through the procedure in live-verification-procedure.md -- that is exactly the shape of unearned precision this project's own audits (fix-P-round5-absence-claims.md, fix-U-round6-coverage-and-disclosure.md) have repeatedly found and corrected elsewhere, and Task 19 will not reintroduce it in the one document whose whole job is to be trustworthy evidence; (2) the honest starting position matters more than a flattering one -- running scripts/ledger-reconcile.mjs against zero rows reports the entire fourteen-registry census (5015 rows at this build) as uncovered, and that number belongs in the record exactly as measured, not minimised by a handful of retrofitted rows chosen to look like progress. Every row from here forward is added by the §24.2 workflow unit that performs the live verification it describes, following docs/process/live-verification-procedure.md exactly, at the time that unit actually runs the Chrome MCP sequence -- never reconstructed afterward from memory or from a report's prose summary.\n\nROW SHAPE, verbatim from the runway plan's Task 19 interface (`LiveVerificationRow`): id, pathId, role, surface, connectivity, clockStamp, steps, expected, observed, screenshots, consoleErrors, externalRequests, verdict, defect, candidateId, stamp.\n\nPATH ID FORMAT: `${registrySlug}:${id}`, where `registrySlug` is one of the fourteen filenames in registries/generated/*.json without its extension (modules, features, sub-features, functions, workflows, business-use-cases, business-objects, events, commands, notifications, offline-scenarios, ai-storyboards, scheduled-work, actionable-controls) and `id` is that row's own `id` field verbatim. The slug prefix is required, not decorative: registry row ids are NOT unique across the fourteen registries (e.g. `SB-001` is a real, distinct id in both `workflows.json` and `ai-storyboards.json`) -- scripts/ledger-reconcile.mjs's own header explains the collision this prevents. `scripts/ledger-reconcile.mjs` reconciles this ledger's `pathId` column against that same census in both directions: registry rows with no ledger row (the backlog), and ledger rows naming a path no registry contains (a data-integrity defect, fails that script's exit code).\n\nVERDICT VALUES: 'pass' (observed matched expected, externalRequests empty), 'fail' (observed did not match, or externalRequests is non-empty -- ANY entry in externalRequests is a Critical defect per Task 19's brief, regardless of what else passed), 'blocked' (the step sequence could not be completed for a reason recorded in `defect`, e.g. a decision-blocked control per the coverage dashboard's own status vocabulary).\n\nEXTERNAL-NETWORK ROWS ARE NOT THIS LEDGER'S JOB TO CATCH STRUCTURALLY: `scripts/scan-no-external-network.mjs` is the compile-level, always-run gate for that (fetch/XHR/WebSocket/EventSource/sendBeacon/remote URL/`/api` path/telemetry sink, across src/, app/ and out/). `externalRequests` on a ledger row is the LIVE-BROWSER complement to that static scan -- what the Chrome MCP network panel actually observed during one recorded session -- not a substitute for it.",
+  "columns": [
+    "id",
+    "pathId",
+    "role",
+    "surface",
+    "connectivity",
+    "clockStamp",
+    "steps",
+    "expected",
+    "observed",
+    "screenshots",
+    "consoleErrors",
+    "externalRequests",
+    "verdict",
+    "defect",
+    "candidateId",
+    "stamp"
+  ],
+  "entries": []
+}
