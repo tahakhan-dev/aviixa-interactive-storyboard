@@ -28,7 +28,10 @@ import { saModuleById } from '@/surfaces/sa/modules'
  * file, a screen-state radio group as page furniture, seven prose sections
  * of "absent by rule"/"unspecified in source" bullet lists) with a real
  * list screen. `SCR-SA-15` (tenant DETAIL) is a separate route Task 6
- * builds next (`[tenantId]/`) — this file is `SCR-SA-14`, the list, only.
+ * builds next (shipped as `detail/?tenant=<id>`, a search parameter rather
+ * than the `[tenantId]/` segment this comment originally named — see that
+ * task's own routing-decision header) — this file is `SCR-SA-14`, the
+ * list, only.
  *
  * ─────────────────────────────────────────────────────────────────────────
  * LOCATOR RELOCATION — every identifier the outgoing screen printed as page
@@ -57,7 +60,7 @@ import { saModuleById } from '@/surfaces/sa/modules'
  *    for these three: they govern Task 5's or Task 6's screen, and a
  *    `demonstrated-in-storyboard` coverage row is a claim a reviewer can
  *    open the route and check, which for these three is false today — no
- *    create wizard, no `[tenantId]/` route exist in this tree yet. A false
+ *    create wizard, no tenant-detail route exist in this tree yet. A false
  *    coverage row is worse than an honest gap, so these three stay
  *    comment-only (see the JSX comment below, where they are named again)
  *    until Task 5/6 actually build the screens that demonstrate them.
@@ -107,8 +110,12 @@ import { saModuleById } from '@/surfaces/sa/modules'
  *    "Lifecycle actions", "Compliance suspension", "Suspension command
  *    channel", "Tenant detail" (tabs), and "Absent by rule" sections is
  *    DETAIL-page and lifecycle-ACTION content, not list content — carried
- *    forward, not dropped, to Task 6 (`[tenantId]/TenantDetail.tsx`), which
- *    is this unit's very next task and owns every one of those locators.
+ *    forward, not dropped, to Task 6 (`detail/TenantDetailScreen.tsx`),
+ *    which is this unit's very next task and owns every one of those
+ *    locators. Not every locator named there is realised THERE, though:
+ *    Task 6's own scope is `Activate`/`Block` only — suspension,
+ *    restoration and archival are unit 10, and a reader must not meet a
+ *    control this build cannot yet honour.
  *    Three of them (`SB-31-02`, `SB-31-05`, `SB-SA-TENANT-01`) are named
  *    again, comment-only, near the table below — not rendered anywhere,
  *    per the coverage ruling above (fix round 2).
@@ -375,33 +382,52 @@ function TenantRegistry({ session }: { readonly session: ProductSession }) {
     >
       {/*
         SB-31-02 (L75309, the create-wizard's own field panes — Identity,
-        Commercial, Compliance, Provisioning), SB-31-05 (L75604, the tenant
-        detail page's Onboarding/invitation controls) and SB-SA-TENANT-01
-        (L117966, the scheduled suspend/pilot-expiry/archive transitions) —
-        each governs Task 5's or Task 6's screen, never a decision this list
-        makes, so none belongs in a `sourceRefs` array here (that would
-        misattribute authority this screen doesn't exercise).
+        Commercial, Compliance, Provisioning) and SB-SA-TENANT-01 (L117966,
+        the scheduled suspend/pilot-expiry/archive transitions) each govern
+        Task 5's screen or unit 10's screens, never a decision THIS list
+        makes, so neither belongs in a `sourceRefs` array here (that would
+        misattribute authority this screen doesn't exercise). SB-SA-TENANT-01
+        in particular must stay comment-only through unit 10: Task 6's own
+        brief forbids rendering any suspend/restore/archive control at all
+        ("a reader must not meet a control this unit cannot honour"), so
+        citing it as demonstrated anywhere before that unit ships would be
+        the same false coverage claim this comment's own history warns
+        against.
 
-        FIX ROUND 2 (review IMPORTANT 1): fix round 1 also rendered these
-        three into a `data-carried-forward-refs` attribute so the coverage
-        scan would count them. Reverted — the re-review ruled correctly
-        against it: a `demonstrated-in-storyboard` row is a claim a reviewer
-        can check by opening the route, and opening this route today shows
-        no create wizard and no tenant-detail invitation flow, because
-        Tasks 5 and 6 have not built them yet. A row saying otherwise is
-        false, and this build's one unwaivable limit is that no capability
-        is claimed which is only simulated — a coverage row is exactly a
-        capability claim. These three stay named here, in a comment only,
-        until Task 5/6 ship the screens that actually demonstrate them; the
-        census reads 295, not 299, until then, and that is the honest
-        number.
+        FIX ROUND 2 (review IMPORTANT 1): fix round 1 rendered these
+        (then three) identifiers into a `data-carried-forward-refs`
+        attribute so the coverage scan would count them. Reverted — the
+        re-review ruled correctly against it: a `demonstrated-in-storyboard`
+        row is a claim a reviewer can check by opening the route, and this
+        list screen shows neither a create wizard nor a suspend/restore/
+        archive control. A row saying otherwise is false, and this build's
+        one unwaivable limit is that no capability is claimed which is only
+        simulated — a coverage row is exactly a capability claim.
+
+        SB-31-05 (L75604, the tenant detail page's Onboarding/invitation
+        state) is DIFFERENT as of Task 6: it now has a real home in
+        `detail/TenantDetailScreen.tsx`, cited in that file's own
+        `sourceRefs` on the real `evaluateAccess` call `Activate`'s
+        administrator-acceptance precondition governs, and the People tab
+        genuinely renders the first Tenant Admin's invitation state in
+        words. It is not repeated here (this list screen still makes no
+        decision it governs) — named in this comment only so a reader
+        tracing the identifier from this file finds where it actually
+        landed, not where it used to be parked.
       */}
       <DataTable
         caption="Tenants"
         columns={columns}
         query={tenantsQuery}
         rowId={(t) => t.id}
-        rowHref={(t) => `/super-admin/tenants-lifecycle-and-pilots/${encodeURIComponent(t.id)}/`}
+        // Task 6 (unit-01) — the destination is now ONE static route taking
+        // the tenant id as a client-side search parameter, not a dynamic
+        // `[tenantId]/` segment: under `output: "export"` a dynamic segment
+        // emits one file per id enumerated by `generateStaticParams` and
+        // nothing else, which would 404 for a tenant Task 5's create wizard
+        // adds at runtime. `encodeURIComponent` and the trailing slash are
+        // kept exactly as before.
+        rowHref={(t) => `/super-admin/tenants-lifecycle-and-pilots/detail/?tenant=${encodeURIComponent(t.id)}`}
         search={{
           placeholder: 'Search by name or id',
           match: (t, q) => {

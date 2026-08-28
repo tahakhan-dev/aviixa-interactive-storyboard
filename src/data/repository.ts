@@ -527,11 +527,38 @@ function authorizeWrite(
   const siteId = typeof row.siteId === 'string' ? row.siteId : undefined
   const areaId = typeof row.areaId === 'string' ? row.areaId : undefined
 
+  /**
+   * Task 6 (unit-01) finding — `resourceTenant` is NEVER declared for a
+   * write to the `tenants` collection itself, even though `resolveTenantId`
+   * above resolves one (`name === 'tenants'` returns `{ kind: 'resolved',
+   * tenant: row.id }` — the row's OWN id, by construction). `resourceTenant`
+   * exists to answer "which tenant OWNS this resource" (a Job belongs to a
+   * tenant); a `tenants` row does not belong to a tenant, IT IS the tenant,
+   * so resolving it to itself and feeding it back into the tenant-isolation
+   * and feature-and-suspension stages is a category error, not a genuine
+   * isolation check.
+   *
+   * It is also a LOAD-BEARING dead end left unnoticed until this task: the
+   * feature-and-suspension stage (`evaluateAccess`, `NOT_YET_OR_NO_LONGER_
+   * ACTIVE_STATES`) refuses any write whose `resourceTenant` resolves to a
+   * `PROVISIONING` (`invited`/`pilot`... `invited` specifically) or
+   * `ARCHIVED` tenant — correct for an OPERATIONAL write reaching INTO a
+   * not-yet-live or closed tenant, but with the pre-fix code this ALSO
+   * refused the platform's own `Activate`/`Block`/(future unit 10)
+   * suspend-release/reactivate writes ON that tenant's own row, because the
+   * very state those actions exist to change is what the floor was reading
+   * back as a refusal. No prior task's write path ever exercised an
+   * `update()`/`transition()` against a non-active tenant row, so this was
+   * never triggered before Task 6 tried to make `Activate`/`Block` genuinely
+   * write. `create` was never affected — a brand-new tenant does not exist
+   * in `state.platform.tenants` yet when `authorizeWrite` runs, so
+   * `tenantPartition` already returned `undefined` there regardless.
+   */
   const req: AccessRequest = {
     action: `${action.toUpperCase()} ${name}`,
     allowedRoles: defaultWriteRoles(authority),
     sourceRefs: ['§12.5', '§12.6', 'repository.ts'],
-    ...(rowTenant !== null ? { resourceTenant: brandTenantId(rowTenant) } : {}),
+    ...(rowTenant !== null && name !== 'tenants' ? { resourceTenant: brandTenantId(rowTenant) } : {}),
     ...(siteId !== undefined && ctx.identity.siteScope.length > 0 ? { requiredSites: [siteId] } : {}),
     ...(areaId !== undefined && ctx.identity.areaScope.length > 0 ? { requiredAreas: [areaId] } : {}),
   }

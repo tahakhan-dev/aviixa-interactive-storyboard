@@ -1,6 +1,6 @@
 'use client'
 
-import type { KeyboardEvent, ReactNode } from 'react'
+import { useRef, type KeyboardEvent, type ReactNode } from 'react'
 import type { BreadcrumbItem } from '@/ui/primitives'
 import { PageHeader } from './PageHeader'
 import { borderColor, textColor } from './tokens'
@@ -61,11 +61,43 @@ export function ObjectPage({
 }: ObjectPageProps) {
   const active = tabs.find((tab) => tab.id === activeTabId) ?? tabs[0]
 
+  /**
+   * Task 6 (unit-01) fix — roving tabindex moves WHICH tab is selectable
+   * (`aria-selected`/`tabIndex`), but a keyboard event only ever fires on
+   * whatever DOM node currently holds browser focus. Before this fix,
+   * `moveFrom`/`onKeyDown` called `onTabChange` alone: the state updated
+   * correctly, but focus stayed on the ORIGINALLY-focused button, whose own
+   * `tabIndex` had just become `-1`. The practical effect, found live
+   * (`Tenants, Lifecycle and Pilots` detail page, Task 6's own keyboard-only
+   * drive, the first real exercise of this component's keyboard path since
+   * Task 12 shipped it unconsumed): pressing ArrowRight from the first tab
+   * moved the selection to the second tab once, then STUCK there — every
+   * subsequent ArrowRight kept computing "index of the still-focused FIRST
+   * tab, plus one" and landing back on the second tab again, because the
+   * keydown handler closes over that first button's own `id`, never the
+   * current selection. A keyboard-only reader could reach the second tab
+   * and no further. This is a defect in the roving-tabindex CONTRACT
+   * itself, not anything specific to the tab set a caller supplies, so it
+   * is fixed here rather than worked around in one consuming screen.
+   *
+   * The fix: track each tab button in `tabRefs` and imperatively `.focus()`
+   * the newly active one in the same handler that calls `onTabChange` — the
+   * standard roving-tabindex requirement (WAI-ARIA APG, tabs pattern) that
+   * arrow-key navigation moves both the selection AND the browser's focus
+   * together.
+   */
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+
+  function activate(id: string): void {
+    onTabChange(id)
+    tabRefs.current[id]?.focus()
+  }
+
   function moveFrom(id: string, delta: number): void {
     const idx = tabs.findIndex((tab) => tab.id === id)
     if (idx === -1) return
     const next = tabs[(idx + delta + tabs.length) % tabs.length]
-    if (next) onTabChange(next.id)
+    if (next) activate(next.id)
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLButtonElement>, id: string): void {
@@ -78,11 +110,11 @@ export function ObjectPage({
     } else if (e.key === 'Home') {
       e.preventDefault()
       const first = tabs[0]
-      if (first) onTabChange(first.id)
+      if (first) activate(first.id)
     } else if (e.key === 'End') {
       e.preventDefault()
       const last = tabs[tabs.length - 1]
-      if (last) onTabChange(last.id)
+      if (last) activate(last.id)
     }
   }
 
@@ -104,6 +136,9 @@ export function ObjectPage({
           return (
             <button
               key={tab.id}
+              ref={(el) => {
+                tabRefs.current[tab.id] = el
+              }}
               type="button"
               role="tab"
               aria-selected={selected}
