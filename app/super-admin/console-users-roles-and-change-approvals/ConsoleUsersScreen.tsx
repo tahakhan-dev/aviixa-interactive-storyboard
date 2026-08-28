@@ -273,12 +273,6 @@ function ConsoleUsersBody({ session }: { readonly session: ProductSession }) {
   const usersById = new Map(allUsers.map((u) => [u.id, u] as const))
   const tenantsById = new Map(tenants.map((t) => [t.id, t] as const))
   const platformUsersQuery = usersQuery.where((u) => u.tenantId === null)
-  const platformUsers = platformUsersQuery.all()
-
-  // Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4) — matched on
-  // `u.id`, not `u.displayName`: `ctx.actorOfRecord` is now the signed-in
-  // account's real `users` id (`ProductSession.identityId`).
-  const currentUser = platformUsers.find((u) => u.id === ctx.actorOfRecord) ?? null
 
   return (
     <AppShell surface="SURF-SA" session={session} title={MODULE.name} breadcrumbs={[{ label: MODULE.name }]}>
@@ -298,7 +292,6 @@ function ConsoleUsersBody({ session }: { readonly session: ProductSession }) {
         usersById={usersById}
         tenantsById={tenantsById}
         evaluationRows={evaluationRows}
-        currentUser={currentUser}
       />
     </AppShell>
   )
@@ -684,7 +677,6 @@ function ApprovalsSection({
   usersById,
   tenantsById,
   evaluationRows,
-  currentUser,
 }: {
   readonly ctx: AccessContext
   readonly repository: Repository
@@ -693,7 +685,6 @@ function ApprovalsSection({
   readonly usersById: ReadonlyMap<string, PlatformUser>
   readonly tenantsById: ReadonlyMap<string, Tenant>
   readonly evaluationRows: readonly EvalRow[]
-  readonly currentUser: PlatformUser | null
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [returnReason, setReturnReason] = useState('')
@@ -749,10 +740,30 @@ function ApprovalsSection({
       header: 'State',
       render: (r) => {
         const aging = r.changeClass === 'critical' && r.state === 'pending' && ageHoursFor(r) >= AGING_THRESHOLD_HOURS
+        /**
+         * Fix round 3 (unit-01, Task 7 re-review, IMPORTANT 1) — the pill
+         * used to read "Aging — re-notifying root", asserting an act this
+         * build never performs. L56031's own happy path is "a
+         * re-notification is created and delivered on in-app and email"
+         * and its recovery line adds "re-notifications are audited" — this
+         * screen creates no notification row, seeds none (every one of
+         * `notifications.json`'s 65 rows was checked; none references an
+         * `approval-requests` id or a console recipient), and writes no
+         * audit row for it. It also cannot be built here without a schema
+         * change this fix round is told not to make:
+         * `Notification.tenantId` is `z.string().min(1)` with a foreign
+         * key to `tenants`, so a platform-scoped console notification has
+         * no representable row today. The pill now names only the
+         * OBSERVABLE fact this screen actually has — the request is older
+         * than the threshold and still pending — not the notification act
+         * the source describes. A future unit that gives `notifications`
+         * a platform-scoped shape can build the real act and cite
+         * `WF-ROLE-021` honestly; this screen does not claim it.
+         */
         return (
           <span className="flex items-center gap-2">
             <StatusPill tone={STATE_TONE[r.state]} label={STATE_LABEL[r.state]} />
-            {aging ? <StatusPill tone="danger" label="Aging — re-notifying root" /> : null}
+            {aging ? <StatusPill tone="danger" label="Aging — awaiting root" /> : null}
           </span>
         )
       },
@@ -790,40 +801,27 @@ function ApprovalsSection({
     setFeedback(null)
   }
 
+  /**
+   * Fix round 3 (unit-01, Task 7 re-review, IMPORTANT 2) — a thin caller,
+   * matching the shape `ConsoleUsersSection.onInviteFormSubmit` already
+   * uses for `inviteConsoleUser`. Segregation of duties, the critical-
+   * class root-only rule, approver availability, the mandatory-reason
+   * check on Return, and the approver-id resolution all now live inside
+   * `repository.decideApprovalRequest` (see that method's own comment in
+   * `repository.ts`) — this function builds nothing but the two arguments
+   * the door needs beyond the request id, and routes whatever it returns.
+   * The local `currentUser`/`approverId` resolution this function used to
+   * do itself is gone: it duplicated exactly what the door now does
+   * against the live store, one layer closer to the actual write.
+   */
   async function commitDecision(request: ApprovalRequest, kind: 'approve' | 'return') {
-    /**
-     * Fix round 1 (unit-01, Task 7 review, IMPORTANT 4) — refuse rather
-     * than invent an `approverId`. `currentUser` not resolving to a live
-     * platform account means this decision cannot be honestly attributed;
-     * writing `'unattributed'` would commit a value `resolveTenantId`
-     * cannot walk, which — as this exact bug shape already proved for
-     * `role-grants` — refuses every later read/write on the row. No write
-     * is attempted.
-     *
-     * Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4): `ctx.actorOfRecord`
-     * itself is now a real `users` id (`ProductSession.identityId`), not a
-     * display name — `currentUser` above already resolves on `u.id ===
-     * ctx.actorOfRecord`, so this guard's job is now narrower and honest:
-     * it catches the case where the signed-in identity truly cannot be
-     * matched to a live platform account, not a structural mismatch
-     * between what this file compared and what the door actually wrote.
-     */
-    if (currentUser === null) {
-      setConfirmKind(null)
-      setFeedback({
-        tone: 'danger',
-        message: 'This decision could not be attributed to a known console account, so nothing was written.',
-      })
-      return
-    }
     setBusy(true)
-    const nowIso = new Date(nowMs).toISOString()
-    const approverId = currentUser.id
-    const patch =
-      kind === 'approve'
-        ? { state: 'applied' as const, approverId, decidedAt: nowIso }
-        : { state: 'returned' as const, approverId, decidedAt: nowIso, returnReason: returnReason.trim() }
-    const outcome = await repository.update('approval-requests', request.id, patch, ctx)
+    const outcome = await repository.decideApprovalRequest(
+      request.id,
+      kind,
+      kind === 'return' ? returnReason.trim() : null,
+      ctx,
+    )
     setBusy(false)
     setConfirmKind(null)
     if (outcome.ok) {
@@ -871,15 +869,16 @@ function ApprovalsSection({
         */}
         <details data-control-id="approvals-aging-disclosure" className="mt-2 text-xs">
           <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
-            Why the re-notification interval is a flat seventy-two hours
+            Why the aging threshold is a flat seventy-two hours, and what this console does at it
           </summary>
           <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
             This platform's specification says a critical request that sits too long should notify the
             root again, but it does not say after how long — that interval is left open, with a
             suggestion, never a decision, that different kinds of critical requests might deserve
             different intervals. This console uses one flat interval for every critical request rather
-            than guessing at that further split. A client-delegated choice under APP-012, not a position
-            the source settled.
+            than guessing at that further split. It marks a request that has crossed that interval so a
+            reader can see it is waiting; it does not send a further notification of its own. A
+            client-delegated choice under APP-012, not a position the source settled.
           </p>
         </details>
         <details data-control-id="approvals-critical-control-disclosure" className="mt-2 text-xs">
@@ -1116,14 +1115,22 @@ function ApprovalDetail({
             // approving / returning a Platform Engineer's change) all
             // describe exactly this gate's engineering branch. `WF-ROLE-019`/
             // `020` (root approving / declining a critical-class request)
-            // and `WF-ROLE-021` (an aging critical request staying pending,
-            // re-notifying the root, never auto-approving) describe this
-            // gate's critical branch: it is what makes "nothing auto-
-            // approves" true for the aging row rendered above.
+            // describe this gate's critical branch.
+            //
+            // Fix round 3 (unit-01, Task 7 re-review, IMPORTANT 1) —
+            // `WF-ROLE-021` REMOVED from this citation. L56031's own happy
+            // path is "the request ages past its threshold, A
+            // RE-NOTIFICATION IS CREATED AND DELIVERED on in-app and
+            // email... re-notifications are audited" — this build performs
+            // none of that (no notification row, no audit row), and this
+            // gate governs approve/return, not aging or re-notification,
+            // so it was the wrong gate for the id even if the id had
+            // survived. See the pill's own comment below for why the act
+            // is unbuilt rather than faked.
             sourceRefs:
               request.changeClass === 'engineering'
                 ? ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-05', 'AC-SA-08-06', 'UC-HO-02', 'WF-ROLE-015', 'WF-ROLE-016']
-                : ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-06', 'WF-ROLE-019', 'WF-ROLE-020', 'WF-ROLE-021'],
+                : ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-06', 'WF-ROLE-019', 'WF-ROLE-020'],
           },
           ctx,
         )

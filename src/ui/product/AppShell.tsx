@@ -63,8 +63,19 @@ export interface ProductSession {
    * display name in that field cannot be resolved back to the account that
    * acted, which is exactly the defect this field closes at its root
    * rather than at each write site that discovers it.
+   *
+   * `string | null` (fix round 3, unit-01, Task 7 re-review, MINOR) — a
+   * handful of static reviewer/dashboard sessions (`app/coverage/**`,
+   * `app/workflows/**`) construct a `ProductSession` for a persona that is
+   * not a signed-in `users` row at all; those pass `null` rather than a
+   * string this field's own contract says must resolve to a real account.
+   * `useAccessContext` already treats a `null` `identityId` the same way
+   * it treats no session at all (`actorOfRecord: null`), and none of those
+   * four screens write, so this was inert either way — but `null` says so
+   * honestly, where a placeholder string invited the exact defect this
+   * field exists to close, one write away.
    */
-  readonly identityId: string
+  readonly identityId: string | null
   readonly role: RoleId
   readonly tenant: TenantId | null
   readonly scope?: { readonly sites?: readonly string[]; readonly areas?: readonly string[] }

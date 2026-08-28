@@ -151,6 +151,26 @@ export interface Repository {
    * caller-supplied id.
    */
   inviteConsoleUser(user: RowOf<'users'>, ctx: AccessContext): Promise<InviteConsoleUserResult>
+  /**
+   * Fix round 3 (unit-01, Task 7 re-review, IMPORTANT 2) — the one door
+   * for deciding a pending `approval-requests` row: segregation of duties,
+   * the critical-class root-only rule, and approver availability were
+   * enforced only by a `disabled` attribute the screen computed at RENDER
+   * time — the write itself went through the generic `update()`, whose
+   * floor is `PLATFORM_WRITERS` (`ROOT_SUPER_ADMIN`/`ADMIN`/
+   * `PLATFORM_ENGINEER`), wider than any of those three rules. Measured,
+   * before this door existed: an Admin or a Platform Engineer could
+   * approve a CRITICAL row, and a proposer could approve their OWN row, by
+   * calling `repository.update('approval-requests', ...)` directly — see
+   * this method's own implementation comment for the reasoning and the
+   * probe results.
+   */
+  decideApprovalRequest(
+    id: string,
+    decision: 'approve' | 'return',
+    reason: string | null,
+    ctx: AccessContext,
+  ): Promise<WriteResult<RowOf<'approval-requests'>>>
   subscribe(listener: () => void): () => void
   reset(): void
   exportJson(): Record<CollectionName, unknown[]>
@@ -593,6 +613,20 @@ const INVITE_CONSOLE_USER_REQUEST: AccessRequest = {
   action: 'invite-console-user',
   allowedRoles: ['ROOT_SUPER_ADMIN'],
   sourceRefs: ['§8.8.1', '§8.8.2', 'SB-31-10'],
+}
+
+/**
+ * Fix round 3 (unit-01, Task 7 re-review, IMPORTANT 2) — who may decide a
+ * pending `approval-requests` row, by class. Duplicated from
+ * `ConsoleUsersScreen.tsx`'s own (identically-named-in-spirit) render-time
+ * helper rather than imported: `src/data` may not import from `app/`
+ * (boundary rule), and no shared module between the two exists yet for
+ * this one small fact. Both copies must agree; a future task giving this
+ * unit a `src/policy`-level home for per-class approver sets should
+ * collapse them into one.
+ */
+function decisionApproverRoles(changeClass: RowOf<'approval-requests'>['changeClass']): readonly RoleId[] {
+  return changeClass === 'critical' ? ['ROOT_SUPER_ADMIN'] : ['ROOT_SUPER_ADMIN', 'ADMIN']
 }
 
 /**
@@ -1622,6 +1656,109 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
         return { ok: false, kind: 'partial', user: userResult.row, grantFailure: grantResult }
       }
       return { ok: true, user: userResult.row, grant: grantResult.row }
+    },
+
+    /**
+     * Fix round 3 (unit-01, Task 7 re-review, IMPORTANT 2) — read
+     * `provisionTenant`'s and `inviteConsoleUser`'s own comments in full
+     * before writing this; both record the three ways a door in this
+     * build has gone wrong (wider than what it replaced; a guard reading a
+     * caller argument a later branch discards; a comment claiming a
+     * narrowness the code does not enforce). Measured against all three:
+     * every guard below reads `before` (the row already on file) or the
+     * live `users`/`store` state, never a caller-supplied claim about
+     * either — there is no argument for a later branch to discard, because
+     * there is no branch that reuses an existing row the way
+     * `provisionTenant`'s idempotent retry does. `allowedRoles` here is
+     * `decisionApproverRoles(before.changeClass)` — `['ROOT_SUPER_ADMIN']`
+     * for critical, `['ROOT_SUPER_ADMIN','ADMIN']` for engineering — which
+     * is a SUBSET of `PLATFORM_WRITERS`, so this is narrower than the
+     * generic floor it replaces, not wider, matching what this comment
+     * claims and no more.
+     *
+     * Deliberately the SMALLER of the two doors this unit has: no compound
+     * write. This runs the exact `evaluateAccess` request the screen's own
+     * `decisionGate` used to build at render time — role, object state,
+     * segregation of duties, approver availability — derived here from the
+     * LIVE `store`, then delegates the actual mutation to the existing
+     * `update()` below rather than a second, parallel commit path.
+     * `update()` re-authorises through the generic `PLATFORM_WRITERS`
+     * floor on every call; that floor is always a superset of this gate's
+     * own `allowedRoles` for both classes, so the second check can only
+     * ever re-confirm what this gate already decided, never add a second
+     * obstacle or a second bypass.
+     *
+     * The approver id is resolved from the live `store`, keyed on
+     * `ctx.actorOfRecord` — never taken as a caller-supplied id — matching
+     * `inviteConsoleUser`'s own grantor resolution: a caller whose identity
+     * cannot be matched to a live, platform-scoped account is refused
+     * outright, never defaulted.
+     */
+    async decideApprovalRequest(id, decision, reason, ctx) {
+      const authority = truthStoreFor('approval-requests')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('approval-requests', authority)
+
+      const rows = store.get('approval-requests') as readonly RowOf<'approval-requests'>[]
+      const before = rows.find((r) => r.id === id)
+      if (before === undefined) return notFoundRefusal('approval-requests', id, 'update')
+
+      const users = store.get('users') as readonly RowOf<'users'>[]
+      const approverAvailable = users.some(
+        (u) => decisionApproverRoles(before.changeClass).includes(u.role) && u.status === 'active',
+      )
+
+      const gateDecision = evaluateAccess(
+        {
+          action: 'decide-approval-request',
+          allowedRoles: decisionApproverRoles(before.changeClass),
+          objectState: before.state,
+          allowedObjectStates: ['pending'],
+          requiresApproverAvailable: true,
+          approverAvailable,
+          // §8.8.3 / L55989: root approving its own critical-class proposal
+          // is a documented permitted case (the root is the sole
+          // critical-class approver; the source assigns no second
+          // approver) — segregation of duties is checked for the
+          // engineering class only, matching `ConsoleUsersScreen.tsx`'s own
+          // (now render-only) `decisionGate`.
+          ...(before.changeClass === 'engineering' ? { makerCheckerOf: before.proposerId } : {}),
+          sourceRefs:
+            before.changeClass === 'engineering'
+              ? ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-05', 'AC-SA-08-06', 'UC-HO-02', 'WF-ROLE-015', 'WF-ROLE-016']
+              : ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-06', 'WF-ROLE-019', 'WF-ROLE-020'],
+        },
+        ctx,
+      )
+      if (!permitsAction(gateDecision)) return refusal(gateDecision)
+
+      if (decision === 'return' && (reason === null || reason.trim() === '')) {
+        return refusal(
+          deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', 'Returning a request requires a reason.', {
+            stage: 'COMMAND_VALIDATION',
+            sourceRefs: ['repository.ts'],
+          }),
+        )
+      }
+
+      const approver = users.find((u) => u.tenantId === null && u.id === ctx.actorOfRecord)
+      if (!approver) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            'This decision could not be attributed to a known console account, so nothing was written.',
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const nowIso = new Date(store.clock.now()).toISOString()
+      const patch =
+        decision === 'approve'
+          ? { state: 'applied' as const, approverId: approver.id, decidedAt: nowIso }
+          : { state: 'returned' as const, approverId: approver.id, decidedAt: nowIso, returnReason: reason!.trim() }
+
+      return repository.update('approval-requests', id, patch, ctx)
     },
 
     async update(name, id, patch, ctx) {

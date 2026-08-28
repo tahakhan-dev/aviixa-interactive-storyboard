@@ -123,7 +123,7 @@ export function RegistryIndexScreen({ slug }: { readonly slug: RegistrySlug }) {
   return (
     <AppShell
       surface="SURF-SA"
-      session={{ identity: 'Reviewer', identityId: 'REVIEWER', role: 'ADMIN', tenant: null, device: 'desktop' }}
+      session={{ identity: 'Reviewer', identityId: null, role: 'ADMIN', tenant: null, device: 'desktop' }}
       title={descriptor.title}
       breadcrumbs={[{ label: 'Coverage dashboard', href: '/coverage/' }, { label: descriptor.title }]}
       {...(slug === 'workflows'
