@@ -14,11 +14,11 @@ pnpm build
 generators read the frozen blueprint and the route tree, so **the export's coverage dashboards
 describe the export being built**, not a previous one.
 
-Output: `out/` — **826 pages, 4289 files, roughly 80 MiB** (rounded to the nearest 5).
+Output: `out/` — **5841 pages, 29367 files, roughly 290 MiB** (rounded to the nearest 5).
 
 Those three figures are asserted against the export itself by
 `tests/coverage/client-document-figures.test.ts`. This line read "85 pages, roughly 24MB across 485
-files" for three slices while the export held 826 pages and 4289 files, and nothing could say so:
+files" for three slices while the export held 5841 pages and 29367 files, and nothing could say so:
 the manifest gate checked the manifest, the route gate checked routes, and no gate read this
 sentence.
 

@@ -159,8 +159,8 @@ const APP_ROOT = resolve(__dirname, '../../app')
 const WALKED_PAGES = walkPages(APP_ROOT).map((p) => `../../app/${p.slice(APP_ROOT.length + 1)}`)
 
 /**
- * The three pages that deliberately do NOT export `metadata`, each named with
- * where its title actually comes from. A literal list, so a fourth page
+ * The pages that deliberately do NOT export a static `metadata`, each named
+ * with where its title actually comes from. A literal list, so another page
  * quietly losing its title cannot join them: it is `toEqual` against the set
  * difference, never a count and never a subset.
  */
@@ -173,6 +173,8 @@ const TITLE_SOURCED_ELSEWHERE: Readonly<Record<string, string>> = {
   '../../app/coverage/[registry]/page.tsx': 'generateMetadata',
   // Task 17: `generateMetadata` per workflow id, same shape as the registry route above.
   '../../app/workflows/[workflowId]/page.tsx': 'generateMetadata',
+  // Task 18: `generateMetadata` per (registry, itemId) pair, same shape again.
+  '../../app/coverage/[registry]/[itemId]/page.tsx': 'generateMetadata',
 }
 
 /** A title that is any of these is a defect, not a title. */
@@ -213,7 +215,7 @@ describe('every route page ships a usable browser tab title', () => {
     // named above, and every other page was actually asserted.
     expect(new Set(withoutMetadata)).toEqual(new Set(Object.keys(TITLE_SOURCED_ELSEWHERE)))
     expect(new Set([...withMetadata, ...withoutMetadata])).toEqual(new Set(WALKED_PAGES))
-    expect(withMetadata.length).toBe(WALKED_PAGES.length - 4)
+    expect(withMetadata.length).toBe(WALKED_PAGES.length - Object.keys(TITLE_SOURCED_ELSEWHERE).length)
     // 30s, not the project's 5s default: this imports all 87 page modules and
     // their component trees, which took 5.2s under parallel load. The budget
     // is for the work, not for a flaky assertion -- the walk is the point.

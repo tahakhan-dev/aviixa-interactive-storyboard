@@ -4,6 +4,7 @@ import { basename, dirname, join, relative, sep } from 'node:path'
 import { isForeignProbe, isOrphanProbe } from '../probe-paths'
 import { REGISTRY_DESCRIPTORS } from '@/coverage/descriptors'
 import { allWorkflowIndexIds } from '@/registry/workflow-index'
+import { allCoverageItemParams } from '@/registry/coverage-index'
 
 const OUT = join(process.cwd(), 'out')
 
@@ -90,10 +91,42 @@ function authoredRoutes(): readonly string[] {
     .map((rel) => (rel === '' ? '/' : `/${rel.split(sep).join('/')}/`))
     .flatMap((route) => {
       if (!route.includes('[')) return [route]
-      // Fix round 1 (Task 17): TWO dynamic routes now. A third must be
+      // Fix round 1 (Task 17): TWO dynamic routes then. A third must be
       // taught here rather than silently dropping its whole expansion out
       // of the expected population -- which is why this throws instead of
-      // skipping.
+      // skipping. Fix round 2 (Task 18): a COMPOSITE route,
+      // `/coverage/[registry]/[itemId]/`, checked before the bare
+      // `[registry]` branch below -- that branch's `.includes('[registry]')`
+      // would otherwise match this route too and replace only the first
+      // segment, leaving a literal `[itemId]` in the expansion that matches
+      // no exported directory.
+      if (route.includes('[registry]') && route.includes('[itemId]')) {
+        // Encode ONLY `/` and `?` in the itemId half, as `%2F`/`%3F` — not a
+        // full `encodeURIComponent`. Measured directly against `out/` (every
+        // one of the fourteen registries, zero unresolved): Next's static
+        // export writes each item directory under the LITERAL decoded
+        // segment, escaping only the two characters that cannot otherwise
+        // survive as one path segment — a `/` would create a nested
+        // directory, a `?` would read as a query string. Every other
+        // character these ids carry, including a literal space, IS a legal
+        // path-segment character and Next writes it unencoded:
+        // `out/coverage/actionable-controls/A replay control/`, never
+        // `A%20replay%20control`. A full `encodeURIComponent` (as tried
+        // first) also escapes the space and goes stale against the real
+        // export immediately. `rowHref` in `RegistryIndexScreen.tsx` still
+        // uses `encodeURIComponent` on the whole segment for the browser-
+        // facing `href` — that is a different, correct thing: a `%20` in a
+        // URL and a literal space in the file it resolves to are the same
+        // request as far as static-file serving is concerned, so the link
+        // still resolves even though its own bytes differ from the export's
+        // literal directory name compared here. Registry slugs are plain
+        // ASCII with nothing to encode.
+        return allCoverageItemParams().map((p) =>
+          route
+            .replace('[registry]', p.registry)
+            .replace('[itemId]', p.itemId.replaceAll('/', '%2F').replaceAll('?', '%3F')),
+        )
+      }
       if (route.includes('[registry]')) {
         return REGISTRY_DESCRIPTORS.map((d) => route.replace('[registry]', d.slug))
       }

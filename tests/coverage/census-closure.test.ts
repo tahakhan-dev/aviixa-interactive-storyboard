@@ -288,7 +288,10 @@ describe('R4-B03: the control-label scan reads both trees', () => {
     expect(CONTROLS.dedupRule).toContain(`declare ${ALL_LABELS.size} control-matrix labels`)
     expect(CONTROLS.dedupRule).toContain(`(${APP_LABELS.size} in a route file under app/`)
     expect(CONTROLS.dedupRule).toContain(`${SRC_ONLY.length} `)
-    expect(CONTROLS_PAGE).toContain(`declare ${ALL_LABELS.size} control-matrix labels`)
+    // Task 18: the dedupRule PROSE this used to also assert on the rendered
+    // page is gone from page content — §8.6.2 forbids exactly that kind of
+    // narrative sentence as page content, and the index was rebuilt clean.
+    // The artefact-field assertions above are unaffected and stay.
   })
 
   it('the word-for-word figure counts declared labels against the census, by equality', () => {
@@ -338,9 +341,11 @@ describe('R4-B04: the census has the dimensions §13.1 asks it to count by', () 
     expect(CONTROL_ROWS.filter((r) => r.moduleId !== undefined && r.moduleDescriptor !== undefined)).toEqual([])
   })
 
-  it('the index publishes the per-surface and per-module counts and says control type is absent', () => {
+  it('the index publishes the per-surface and per-module counts', () => {
     expect(CONTROLS_PAGE).toContain('Census by surface and by module')
-    expect(CONTROLS_PAGE).toContain('Control type is counted nowhere and that is not an omission')
+    // Task 18: the "control type is absent" sentence was narrative page
+    // content and is gone under §8.6.2 — see R5-B04 below, deleted for the
+    // same reason.
   })
 
   it('R5-A03: the census-by-surface table body holds every group, by EQUALITY', () => {
@@ -375,24 +380,17 @@ describe('R4-B04: the census has the dimensions §13.1 asks it to count by', () 
     expect(CONTROLS_PAGE).toContain(`${expected.length} module groups, with rows`)
   })
 
-  it('R5-B04: the control-type disclosure renders on the controls index and nowhere else', () => {
-    // It reached seven index pages and six list no controls at all. On the
-    // modules index it claimed §13.1 requires THAT inventory counted by
-    // control type, then said "81 record no module" of an inventory whose
-    // rows are modules.
-    const claim = 'Control type is counted nowhere and that is not an omission'
-    const elsewhere = REGISTRY_DESCRIPTORS.filter((d) => d.slug !== 'actionable-controls').filter(
-      (d) =>
-        renderedText(
-          readFileSync(join(OUT, 'coverage', d.slug, 'index.html'), 'utf8'),
-        ).includes(claim),
-    )
-    expect(elsewhere.map((d) => d.slug), 'indexes wrongly carrying the control-type paragraph').toEqual([])
-    // And it is still on the one page it belongs to — an "assert the
-    // population" guard, so deleting the paragraph outright cannot pass.
-    expect(CONTROLS_PAGE).toContain(claim)
-  })
-
+  /*
+    R5-B04's own test — "the control-type disclosure renders on the controls
+    index and nowhere else" — is DELETED under APP-017 (task-18-report.md).
+    It asserted that the narrative sentence "Control type is counted nowhere
+    and that is not an omission" rendered on exactly one page. Task 18
+    removed the sentence from page content everywhere (§8.6.2: no narrative
+    paragraph as page content on any of the fourteen indexes), so the
+    property the test checked — the sentence's exclusivity to one page — no
+    longer has a subject. The fact itself (no control-type field is ever
+    invented) is unaffected and still checked below.
+  */
   it('no control-type field was invented anywhere in the census', () => {
     // The forbidden fix for B04: a keyword-guessed taxonomy printed as source
     // truth. Asserted over every generated row, not only the controls.
@@ -422,16 +420,10 @@ describe('R4-B05 direction 1: rendered controls measured against the census', ()
     const inside = [...ALL_LABELS].filter((l) => censusLabels.has(l))
     expect(inside.length + outside.length).toBe(ALL_LABELS.size)
     expect(inside.filter((l) => outside.includes(l))).toEqual([])
-    /*
-      R5-B03: THE NUMBER, ON THE PAGE, not a sentence that characterises it.
-      The page used to say "the rest are the same control re-worded for a
-      reader" — a claim, unmeasured, and false of the four Record<Kind,
-      string> captions the scan was miscounting. It now prints the distance,
-      and this asserts the exact figure a reader sees.
-    */
-    expect(CONTROLS_PAGE).toContain(
-      `${outside.length} of the declared labels above match no census row word for word`,
-    )
+    // Task 18: the on-page assertion this comment described (R5-B03) is
+    // deleted under APP-017 — the sentence it checked for was narrative page
+    // content, removed under §8.6.2. The measured distance above (`outside`)
+    // is the fact that mattered and stays checked.
   })
 })
 
@@ -453,15 +445,15 @@ describe('R5-B03: the two-way closure is measured in both directions, and render
     expect(directionTwo, 'census rows with neither a rendered control nor a terminal record').toBeGreaterThan(0)
   })
 
-  it('the index renders both figures as rendered text, not as a flight-payload row key', () => {
-    expect(CONTROLS_PAGE).toContain('THE §13.1 CENSUS DOES NOT CLOSE IN EITHER DIRECTION')
-    expect(CONTROLS_PAGE).toContain(
-      `${directionOne} of the declared labels above match no census row word for word`,
-    )
-    expect(CONTROLS_PAGE).toContain(
-      `census rows with neither a rendered control nor a terminal record: ${directionTwo} of the 605`,
-    )
-  })
+  /*
+    "the index renders both figures as rendered text, not as a flight-payload
+    row key" is DELETED under APP-017 (task-18-report.md): it asserted three
+    narrative sentences as page content, all removed from the actionable-
+    controls index under §8.6.2 when Task 18 rebuilt the fourteen indexes on
+    the clean product-kit shell. `directionOne`/`directionTwo` above are the
+    facts that mattered and are still checked (the previous `it`, "both
+    distances are non-zero").
+  */
 
   it('the reconciliation row no longer declares the closure met', () => {
     const reconciliation = JSON.parse(

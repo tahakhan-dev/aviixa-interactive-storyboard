@@ -15,6 +15,7 @@ import { Table, StatusPill, type StatusTone } from '@/ui/primitives'
 import { loadGeneratedRegistry, type GeneratedRegistry } from '@/coverage/registry-loader'
 import { loadReconciliation } from '@/registry/load'
 import sourceReconciliationRaw from '../../registries/generated/source-reconciliation.json'
+import { ReconciliationTable } from './ReconciliationTable'
 import {
   AC_CITED_IN_PRODUCT_NOT_IN_TESTS,
   KNOWN_LIMITATIONS,
@@ -283,7 +284,21 @@ export default function CoveragePage() {
         actually shows today, never what a finished product would show.
       </p>
 
-      <div className="mt-6">
+      {/*
+        §20 / R7 follow-up (task-18-report.md): this table renders 14 rows,
+        each with a registry name, a reconciled-count cell that can carry a
+        long sourceNote sentence, and a status pill — wide enough to force
+        horizontal BODY scroll at 360px with no wrapper, the same defect
+        class Task 17 shipped once already (a filter control this time, a
+        table here). `overflow-x-auto` on the table's own container keeps
+        the overflow local to the table, never the page.
+      */}
+      <div
+        className="mt-6 overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-label="Registry status table, scrollable horizontally"
+      >
         <Table
           caption="The fourteen source-derived inventories the master prompt names, and this build's honest status against each."
           columns={[
@@ -456,48 +471,7 @@ export default function CoveragePage() {
         role="region"
         aria-label="Source reconciliation table, scrollable horizontally"
       >
-        <Table
-          caption={`${RECONCILIATION_ROWS.length} reconciliation rows, each with the master prompt candidate, the count extracted from the frozen source, the count scope, the deduplication rule, the delta and the resolution.`}
-          columns={[
-            { key: 'inventory', header: 'Inventory' },
-            { key: 'prompt_candidate', header: 'Candidate' },
-            { key: 'extracted_count', header: 'Extracted count' },
-            { key: 'count_scope', header: 'Count scope' },
-            { key: 'dedup_rule', header: 'Deduplication rule' },
-            { key: 'delta', header: 'Delta' },
-            { key: 'resolution', header: 'Resolution' },
-          ]}
-          rows={RECONCILIATION_ROWS.map((r) => ({
-            /*
-              PLAIN TEXT, NOT A SECOND LINK. The table at the top of this page
-              already links every one of the fourteen indexes by the same
-              name, and a second anchor with identical text and target adds a
-              duplicate link name to the accessibility tree for no navigation
-              a reader did not already have. The row that indexes none of the
-              fourteen carries its reason instead.
-            */
-            inventory:
-              r.registry_slug === null ? (
-                <>
-                  {r.inventory}
-                  <br />
-                  <span className="text-xs">{r.whyNoRegistrySlug}</span>
-                </>
-              ) : (
-                r.inventory
-              ),
-            prompt_candidate: r.prompt_candidate,
-            extracted_count: r.extracted_count,
-            count_scope: r.count_scope,
-            dedup_rule: r.dedup_rule,
-            delta: r.delta,
-            resolution: r.resolution,
-          }))}
-          emptyState={{
-            title: 'No reconciliation rows',
-            whatCreatesIt: 'registries/generated/source-reconciliation.json',
-          }}
-        />
+        <ReconciliationTable rows={RECONCILIATION_ROWS} />
       </div>
 
       {/*
@@ -543,7 +517,13 @@ export default function CoveragePage() {
         screen “demonstrates” one would be a category error.{' '}
         {UNINVENTORIED_DECISION_LABEL}
       </p>
-      <div className="mt-4">
+      {/* §20 follow-up: same horizontal-scroll containment as the registry table above. */}
+      <div
+        className="mt-4 overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-label="Uninventoried families table, scrollable horizontally"
+      >
         <Table
           caption="Identifier families this build ships that belong to none of the fourteen inventories, with the register that holds each and the reason a fifteenth inventory would be wrong rather than merely redundant."
           columns={[
@@ -620,7 +600,13 @@ export default function CoveragePage() {
         deliberately cites nowhere. Chapter 44&rsquo;s §44A registers are not
         those two and are cited throughout.
       </p>
-      <div className="mt-4">
+      {/* §20 follow-up: same horizontal-scroll containment as the registry table above. */}
+      <div
+        className="mt-4 overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-label="Namespace table, scrollable horizontally"
+      >
         <Table
           caption="Identifier namespaces in the artificial-intelligence area that belong to neither the fourteen inventories nor an uninventoried family, and where each is answered."
           columns={[

@@ -432,23 +432,6 @@ const AUDITED = {
       'relabelling 4,670 rows, which is the outcome the finding warns against. It asserts the ' +
       'distances are measured, published and unchanged.',
   },
-  'registry-index-figures.test.ts': {
-    subject:
-      'every out/coverage/<slug>/index.html, compared against the fourteen ' +
-      'registries/generated/*.json and the committed master-prompt artefact, plus an existence ' +
-      'check of every linked route against out/',
-    rewrittenBy: 'build',
-    runsBeforeBuild: false,
-    verdict:
-      'NOT VACUOUS, and one assertion has BOTH ends inside build\'s output by design: a linked ' +
-      'route is checked against out/ on disk, because the claim under test is precisely that ' +
-      'the export contains the page the row links to. That is reading the transformation, not ' +
-      'comparing a directory to itself -- the route comes from the generated registry and the ' +
-      'page from the Next export, and a renamed route breaks one without breaking the other. ' +
-      'Every other expectation is recomputed from the generated registries, which are the ' +
-      'page\'s input. Populations are floored: fourteen indexes, at least eight with a linked ' +
-      'row, over 250 linked rows, so a fix that resolved one route could not pass.',
-  },
   'rendered-absence-claims.test.ts': {
     subject:
       'the frozen blueprint at run time, compared against (a) authored .ts/.tsx under app/ and ' +

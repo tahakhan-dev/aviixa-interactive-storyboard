@@ -11,14 +11,14 @@ pnpm install
 pnpm build && pnpm serve:out        # http://localhost:4173
 ```
 
-Or open the deployed URL. Either way you are looking at the same 826 static pages — there is no
+Or open the deployed URL. Either way you are looking at the same 5841 static pages — there is no
 backend, no login, and nothing you click can change anything for anyone else.
 
 **Every number in this guide is derived from the build and gated.** Each one below is written as a
 numeral and re-measured on every release run by `tests/coverage/client-document-figures.test.ts`,
 which compares it against `exportedRoutes()`, `registries/generated/` or the screenshot manifest by
 equality. A figure that goes stale reds the chain instead of reaching you. That gate exists because
-nine figures in this document reached a reader wrong: it said 85 pages against a 826-page export and
+nine figures in this document reached a reader wrong: it said 85 pages against a 5841-page export and
 4,970 registry rows against the 5,015 that exist, and it told reviewers not to look at eleven
 shipped screens.
 
@@ -62,7 +62,7 @@ finding — report it.**
 
 Those are the shipped wordings, quoted from the pages that render them and checked against those
 pages by the figures gate. This paragraph used to quote `Unknown while offline` — the blueprint's
-own token at L35967, and a string zero of the 826 exported pages render. It was this guide's worked
+own token at L35967, and a string zero of the 5841 exported pages render. It was this guide's worked
 example of the honesty rule it asks you to police, and it was not honest.
 
 **3 — Permission cells are transcribed, not designed.** Where two blueprint tables disagree about
