@@ -20,7 +20,7 @@ export const metadata: Metadata = { title: `${saModuleById('MOD-SA-09').name} â€
  * explicitly permits carrying an object dimension on a search parameter
  * instead: the pathname stays statically exportable (this file emits
  * exactly one page, `out/super-admin/tenants-lifecycle-and-pilots/detail/
- * index.html`, for all 28 seeded tenants AND every tenant created in a
+ * index.html`, for all 29 seeded tenants AND every tenant created in a
  * session), and the class of 404 this build has shipped before (Task 4's
  * own list-row-to-nowhere defect) cannot recur here structurally.
  *

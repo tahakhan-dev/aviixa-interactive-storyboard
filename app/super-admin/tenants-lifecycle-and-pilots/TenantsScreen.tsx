@@ -105,7 +105,7 @@ import { saModuleById } from '@/surfaces/sa/modules'
  *  - AC-SA-09-01 ("no public self-signup path exists; the client's platform
  *    team creates one from New Tenant") — realised as the empty-state copy
  *    for the (structurally present, not independently reachable against
- *    this seed's 28 real rows) "no tenants at all" state.
+ *    this seed's 29 real rows) "no tenants at all" state.
  *  - Everything under the outgoing screen's own "Lifecycle transitions",
  *    "Lifecycle actions", "Compliance suspension", "Suspension command
  *    channel", "Tenant detail" (tabs), and "Absent by rule" sections is
@@ -189,15 +189,15 @@ function formatOnboarded(iso: string): string {
 /**
  * §8.6.1's fixture-adequacy rule needs three genuinely distinct pages
  * (first, middle, last-partial) over a REALISTIC tenant population.
- * `DataTable`'s own default (`pageSize = 20`) would give this 28-row
- * population exactly two pages (20 + 8) — a first and a last, no middle —
+ * `DataTable`'s own default (`pageSize = 20`) would give this 29-row
+ * population exactly two pages (20 + 9) — a first and a last, no middle —
  * which cannot exercise a middle page at all. Raising the tenant count
  * further to force a third page at the default size would recreate exactly
  * the unrealistic population the seed ruling rejected (one row per
  * CUSTOMER; a real platform at this stage has dozens, not hundreds, of
  * tenants). `pageSize` is a per-screen prop `DataTable` already exposes for
- * precisely this kind of call; 10 turns 28 rows into three real pages
- * (10 + 10 + 8) without inflating the seed.
+ * precisely this kind of call; 10 turns 29 rows into three real pages
+ * (10 + 10 + 9) without inflating the seed.
  */
 const TENANT_LIST_PAGE_SIZE = 10
 

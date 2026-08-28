@@ -98,13 +98,25 @@ export interface ProductSessionApi extends ProductSessionState {
    * deliberate, not an oversight — `resolveSignIn`'s tenant-lifecycle check
    * (`tenant.lifecycle !== 'active' && tenant.lifecycle !== 'pilot'` ⇒
    * `tenant-suspended`) would misclassify the tenant this invitation
-   * belongs to: it is still honestly `invited` at the moment of acceptance
-   * BY THIS UNIT'S OWN DESIGN (`TenantDetailScreen.tsx`'s `Activate` is a
-   * separate, later Super Admin action, not automatic on acceptance — see
-   * that screen's own `activateGate` comment), and `invited` is not
-   * suspension. Routing this landing through `resolveSignIn` would tell a
-   * freshly-accepted administrator their own brand-new workspace was
-   * "suspended," which is false.
+   * belongs to: it is still honestly `invited` at the moment of acceptance.
+   *
+   * Fix round 1 (unit-01, Task 8 review, IMPORTANT 2) — the paragraph used
+   * to call the separate-Activate-step reading "this unit's own design"
+   * without noting that the frozen source states the OTHER reading too:
+   * §30.3.1 step 5 (L61324) has the SAME credential-completion moment carry
+   * both the account activation AND the tenant's own move from `awaiting
+   * administrator` to `active`, in one event (`EVT-TENANT-ACTIVATED`). This
+   * build does not follow that reading — `TenantDetailScreen.tsx`'s
+   * `Activate` is a separate, later Super Admin action (mandated by this
+   * unit's own brief and already built in Task 6, and defensible on its own
+   * terms), never automatic on acceptance. That is a real deviation from
+   * one of the source's own stated readings, not merely "this unit's
+   * design" as if the source were silent on the question — and it is
+   * disclosed on screen exactly where the brief's one unwaivable limit
+   * requires it: `AcceptInvitationScreen.tsx`'s own
+   * `accept-invitation-activation-disclosure` names both readings and
+   * labels this build's pick a client-delegated choice, beside the
+   * screen's identical disclosure for the invitation's expiry window.
    */
   acceptInvitation(tenantId: string): Promise<InvitationAcceptanceResult>
 }

@@ -26,6 +26,7 @@ import {
   type TenantAdminInvitationStatus,
 } from '@/data/repository'
 import type { Store } from '@/data/store'
+import { roleById } from '@/domain/roles'
 
 /**
  * Task 8 (unit-01) — the unit's cross-surface handoff. Every screen before
@@ -178,9 +179,11 @@ export function AcceptInvitationScreen() {
     )
   }
 
+
   if (tenantIdParam === null || preview === null || preview.kind === 'not-found') {
     return (
       <Centered>
+        <h1 className="sr-only">This invitation link isn&rsquo;t recognized</h1>
         <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
           <Banner
             tone="neutral"
@@ -199,6 +202,7 @@ export function AcceptInvitationScreen() {
   if (preview.kind === 'already-accepted') {
     return (
       <Centered>
+        <h1 className="sr-only">Already accepted</h1>
         <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
           <Banner
             tone="info"
@@ -213,6 +217,7 @@ export function AcceptInvitationScreen() {
   if (preview.kind === 'expired') {
     return (
       <Centered>
+        <h1 className="sr-only">This invitation has expired</h1>
         <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
           <Banner
             tone="attention"
@@ -227,6 +232,7 @@ export function AcceptInvitationScreen() {
   if (preview.kind === 'tenant-blocked') {
     return (
       <Centered>
+        <h1 className="sr-only">This workspace is not available</h1>
         <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
           <Banner
             tone="blocked"
@@ -272,6 +278,19 @@ export function AcceptInvitationScreen() {
           named for a Tenant Admin's own invitation. This build uses that same seven-day window here rather than
           inventing an unrelated number. A client-delegated choice under APP-012, not a position the source
           settled.
+        </p>
+      </details>
+
+      <details data-control-id="accept-invitation-activation-disclosure" className="mt-2 text-xs">
+        <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
+          Why accepting this invitation does not switch the workspace on by itself
+        </summary>
+        <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
+          This platform's specification describes one version of this moment where accepting the invitation and
+          the workspace switching on happen together, in the same step. This build instead keeps those as two
+          separate acts: accepting sets your own account active; a platform administrator switches the workspace
+          on afterward, from the Super Admin console. This console follows the second reading rather than the
+          first. A client-delegated choice under APP-012, not a position the source settled.
         </p>
       </details>
     </Centered>
@@ -322,21 +341,51 @@ function OutcomeBanner({
   })()
 
   return (
-    <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
-      <Banner tone={content.tone} heading={content.heading} body={content.body} />
-    </div>
+    <>
+      <h1 className="sr-only">{content.heading}</h1>
+      <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
+        <Banner tone={content.tone} heading={content.heading} body={content.body} />
+      </div>
+    </>
   )
 }
 
+/**
+ * Fix round 1 (unit-01, Task 8 review, MINOR) — focus moves to this landing
+ * banner on mount, matching what every failure branch above already does
+ * through `outcomeRef`: the tree swaps to this component the instant a
+ * session lands, and without this a keyboard/screen-reader user's focus
+ * would fall to `<body>` with no announcement of what just happened.
+ */
 function LandedView({ session }: { readonly session: ProductSession }) {
+  const landedRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    landedRef.current?.focus()
+  }, [])
+  // The role label is READ from the session, never hand-typed beside it —
+  // fix round 1 (unit-01, Task 8 review, MINOR): this used to hardcode
+  // "Tenant Admin" directly in the sentence below, true only because
+  // `acceptInvitation` (`repository.ts`) only ever lands a `TENANT_ADMIN`
+  // today, which made the hardcoded string an assertion the code did not
+  // itself derive.
+  const roleLabel = roleById(session.role).name
+  // No extra heading added here: `AppShell` already renders a real `<h1>`
+  // (the surface's own default title, "Delivery Operations Hub") for every
+  // screen it wraps — adding a second would be exactly the double-`<h1>`
+  // this file's own header already warns `TenantDetailScreen.tsx` about
+  // avoiding. The four bare (pre-session) branch states below have no such
+  // heading to inherit, which is what the fix-round `sr-only` headings
+  // there are actually for.
   return (
     <AppShell surface="SURF-DOH" session={session}>
       <LiveRegion>
-        <Banner
-          tone="ok"
-          heading={LANDED_BANNER_TITLE}
-          body={`Signed in as ${session.identity} — Tenant Admin. Your workspace becomes fully active once the platform team activates it from the Super Admin console; until then you can see it here but it is not yet operating.`}
-        />
+        <div ref={landedRef} tabIndex={-1} className="focus:outline-none">
+          <Banner
+            tone="ok"
+            heading={LANDED_BANNER_TITLE}
+            body={`Signed in as ${session.identity} — ${roleLabel}. Your workspace becomes fully active once the platform team activates it from the Super Admin console; until then you can see it here but it is not yet operating.`}
+          />
+        </div>
       </LiveRegion>
     </AppShell>
   )

@@ -308,13 +308,61 @@ const INVITATION_BLOCKED_TENANT_LIFECYCLES: ReadonlySet<RowOf<'tenants'>['lifecy
 ])
 
 /**
+ * Fix round 1 (unit-01, Task 8 review, IMPORTANT 1) — `expired` and
+ * `tenant-blocked` refuse an action exactly as `provisionTenant`'s own five
+ * COMMAND_VALIDATION guards do, and now carry the same real
+ * `PermissionDecision` those guards build via `deny(...)`, not a bare typed
+ * `kind` with no decision object at all. `PER-DOH-INVITE-ACCEPT` (frozen
+ * source L61323: "Allowed with conditions — valid, unexpired invitation
+ * only") is the source's own permission id for exactly the check `expired`
+ * enforces; `§15.1`'s `TRN-ACC-01` (L18973) is the one place the source
+ * states any validity figure at all for an invited account (see
+ * `INVITATION_VALIDITY_DAYS`'s own comment). Both now live in a real,
+ * consumed `sourceRefs` array `deny(...)` actually builds, not only in a
+ * header comment `scripts/build-registries.mjs` strips before scanning.
+ */
+function expiredDecision(tenant: RowOf<'tenants'>, invitedAt: string, expiresAt: string): PermissionDecision {
+  return deny(
+    'explicitlyProhibited',
+    'OBJECT_STATE_INVALID',
+    `The invitation to ${tenant.name}, issued ${invitedAt}, expired ${expiresAt} — past the ${INVITATION_VALIDITY_DAYS}-day window.`,
+    { stage: 'COMMAND_VALIDATION', sourceRefs: ['PER-DOH-INVITE-ACCEPT', 'L61323', '§15.1', 'TRN-ACC-01', 'L18973'] },
+  )
+}
+
+/**
+ * `archived` reads `TENANT_NOT_ACTIVE` (the reason code `evaluate.ts` itself
+ * uses for that exact state, `REASON_CODES.TENANT_NOT_ACTIVE`: "still being
+ * set up or has been archived"); the three suspended states read
+ * `TENANT_SUSPENDED` — the same split `evaluateAccess`'s own
+ * feature-and-suspension stage draws, reused rather than re-invented.
+ * `MOD-SA-09`/`§8.9` is the tenant-lifecycle module this suspension machine
+ * belongs to, the same identifier `TenantDetailScreen.tsx`'s own
+ * `activateGate` already cites for this module.
+ */
+function tenantBlockedDecision(tenant: RowOf<'tenants'>): PermissionDecision {
+  const reasonCode = tenant.lifecycle === 'archived' ? 'TENANT_NOT_ACTIVE' : 'TENANT_SUSPENDED'
+  return deny(
+    'explicitlyProhibited',
+    reasonCode,
+    `${tenant.name}'s account is currently ${tenant.lifecycle.replace(/-/g, ' ')}; no invitation into it can be accepted while that holds.`,
+    { stage: 'COMMAND_VALIDATION', sourceRefs: ['§8.9', 'MOD-SA-09'] },
+  )
+}
+
+/**
  * The four reader-facing outcomes a visitor's OWN invitation link can be
  * in, `ok` aside. Shared, verbatim, between the write door below (the
  * write-time authority) and the Hub screen that renders the SAME facts
  * before a visitor ever clicks Accept (a render-time preview, exactly the
  * split `TenantDetailScreen.tsx`'s own `activateGate`/`canActivate` keep
  * from the generic write door they precede) — so the two can never
- * disagree about which state a given tenant id is in.
+ * disagree about which state a given tenant id is in. `expired` and
+ * `tenant-blocked` each carry a real `decision: PermissionDecision` (fix
+ * round 1, IMPORTANT 1) built by `expiredDecision`/`tenantBlockedDecision`
+ * above — the `kind` stays distinct from the generic `denied` shape so the
+ * screen can still choose its own plain-language copy per branch, but the
+ * decision object, and the `sourceRefs` inside it, are real.
  */
 export type TenantAdminInvitationStatus =
   | { readonly kind: 'ok'; readonly tenant: RowOf<'tenants'>; readonly admin: RowOf<'users'> }
@@ -326,8 +374,14 @@ export type TenantAdminInvitationStatus =
       readonly admin: RowOf<'users'>
       readonly invitedAt: string
       readonly expiresAt: string
+      readonly decision: PermissionDecision
     }
-  | { readonly kind: 'tenant-blocked'; readonly tenant: RowOf<'tenants'>; readonly admin: RowOf<'users'> }
+  | {
+      readonly kind: 'tenant-blocked'
+      readonly tenant: RowOf<'tenants'>
+      readonly admin: RowOf<'users'>
+      readonly decision: PermissionDecision
+    }
 
 /**
  * Pure and read-only: takes the live `tenants`/`users` rows and a clock
@@ -346,6 +400,13 @@ export type TenantAdminInvitationStatus =
  * method's own comment) — every fact this function returns is read fresh
  * from the collections passed in, never from a value the caller already
  * believed.
+ *
+ * Fix round 1 (unit-01, Task 8 review, IMPORTANT 1, minor ordering note) —
+ * `tenant-blocked` is now checked BEFORE `expired`: an expired invitation
+ * into a suspended tenant used to tell the visitor to ask for a re-issue
+ * that would not help (the tenant itself, not the invitation, is what
+ * blocks them), so the more fundamental refusal — the workspace is not
+ * reachable at all — is surfaced first.
  */
 export function classifyTenantAdminInvitation(
   tenants: readonly RowOf<'tenants'>[],
@@ -371,19 +432,15 @@ export function classifyTenantAdminInvitation(
   // a fourth, invented reader-facing name for a case that cannot happen.
   if (admin.status !== 'invited') return { kind: 'not-found' }
 
-  const expiresAtMs = Date.parse(admin.createdAt) + INVITATION_VALIDITY_MS
-  if (nowMs >= expiresAtMs) {
-    return {
-      kind: 'expired',
-      tenant,
-      admin,
-      invitedAt: admin.createdAt,
-      expiresAt: new Date(expiresAtMs).toISOString(),
-    }
+  if (INVITATION_BLOCKED_TENANT_LIFECYCLES.has(tenant.lifecycle)) {
+    return { kind: 'tenant-blocked', tenant, admin, decision: tenantBlockedDecision(tenant) }
   }
 
-  if (INVITATION_BLOCKED_TENANT_LIFECYCLES.has(tenant.lifecycle)) {
-    return { kind: 'tenant-blocked', tenant, admin }
+  const expiresAtMs = Date.parse(admin.createdAt) + INVITATION_VALIDITY_MS
+  if (nowMs >= expiresAtMs) {
+    const invitedAt = admin.createdAt
+    const expiresAt = new Date(expiresAtMs).toISOString()
+    return { kind: 'expired', tenant, admin, invitedAt, expiresAt, decision: expiredDecision(tenant, invitedAt, expiresAt) }
   }
 
   return { kind: 'ok', tenant, admin }
@@ -415,8 +472,15 @@ export type AcceptInvitationResult =
       admin: RowOf<'users'>
       invitedAt: string
       expiresAt: string
+      decision: PermissionDecision
     }
-  | { ok: false; kind: 'tenant-blocked'; tenant: RowOf<'tenants'>; admin: RowOf<'users'> }
+  | {
+      ok: false
+      kind: 'tenant-blocked'
+      tenant: RowOf<'tenants'>
+      admin: RowOf<'users'>
+      decision: PermissionDecision
+    }
   | WriteDenied
   | WritePersistenceUnavailable
 
