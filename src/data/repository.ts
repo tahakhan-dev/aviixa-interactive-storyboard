@@ -138,6 +138,19 @@ export interface Repository {
     admin: RowOf<'users'>,
     ctx: AccessContext,
   ): Promise<ProvisionTenantResult>
+  /**
+   * Fix round 1 (unit-01, Task 7 review, IMPORTANT 6) — the one door for
+   * inviting a console user: the `users` row plus its `role-grants` row,
+   * under a SINGLE up-front authorisation, in the same shape
+   * `provisionTenant` above already established (one door, one
+   * authorisation, both writes, a `partial` arm for a genuine storage
+   * failure between them) — not two independent `repository.create` calls
+   * from a screen, each authorised through the generic floor's wider
+   * `PLATFORM_WRITERS` set. See this method's own implementation comment
+   * for the guards and why the grantor is resolved here, never taken as a
+   * caller-supplied id.
+   */
+  inviteConsoleUser(user: RowOf<'users'>, ctx: AccessContext): Promise<InviteConsoleUserResult>
   subscribe(listener: () => void): () => void
   reset(): void
   exportJson(): Record<CollectionName, unknown[]>
@@ -203,6 +216,24 @@ export type ProvisionTenantResult =
       tenant: RowOf<'tenants'>
       /** Exactly `createRow`'s own failure shape — see that function. */
       adminFailure: WriteDenied | WritePersistenceUnavailable
+    }
+
+/**
+ * `inviteConsoleUser`'s own result — same shape as `ProvisionTenantResult`
+ * for the same reason: a `users` row can commit while its `role-grants`
+ * row does not, and `partial` names that third shape directly rather than
+ * forcing it through `denied`/`persistence-unavailable`.
+ */
+export type InviteConsoleUserResult =
+  | { ok: true; user: RowOf<'users'>; grant: RowOf<'role-grants'> }
+  | WriteDenied
+  | WritePersistenceUnavailable
+  | {
+      ok: false
+      kind: 'partial'
+      user: RowOf<'users'>
+      /** Exactly `createRow`'s own failure shape — see that function. */
+      grantFailure: WriteDenied | WritePersistenceUnavailable
     }
 
 /* ────────────────────────────────────────────────────────────────────── *
@@ -344,7 +375,16 @@ export function tenantResolutionKind(name: CollectionName): 'direct' | 'transiti
 
 export type TenantResolution =
   | { readonly kind: 'resolved'; readonly tenant: string }
-  /** No tenant concept applies to this row — `tenantResolutionKind(name) === 'none'`. Not a failure. */
+  /**
+   * No tenant concept applies. Two distinct ways to reach this, both real:
+   * the COLLECTION has no path to a tenant at all (`tenantResolutionKind(name)
+   * === 'none'`), or — fix round 1, unit-01 Task 7 review — a `'transitive'`
+   * collection's row has candidate references that are each either absent
+   * or themselves resolve to `'none'` (a `role-grants` row whose `userId`
+   * points at a platform-scoped `users` row, `tenantId: null`, is exactly
+   * this: `role-grants` itself is `'transitive'`, not `'none'`, but THIS
+   * row still carries no tenant). Not a failure either way.
+   */
   | { readonly kind: 'none' }
   /** Two or more of this row's OWN references resolve to different tenants. Refuse; never guess. */
   | { readonly kind: 'conflict'; readonly candidates: readonly string[] }
@@ -411,6 +451,21 @@ function resolveTenantId(
    * direct `rel.to === 'tenants'` case) is unchanged — this narrows one
    * incorrect case in a function every collection's tenant walk shares,
    * not a per-collection carve-out.
+   *
+   * READ-PATH CONSEQUENCE (fix round 1, unit-01 Task 7 review, minor): this
+   * also changes what `withinScope` (below) shows a TENANT-domain reader.
+   * That function treats a `'none'` resolution as "a platform-scoped row,
+   * visible to every signed-in identity" — before this fix, the 21 affected
+   * rows (three collections' worth of platform-scoped `role-grants`-shaped
+   * data, measured by the harness the review ran) resolved `'unresolved'`
+   * and were hidden from a TENANT-domain reader by the same branch; they now
+   * resolve `'none'` and are visible. Not exploitable today — every reader
+   * of those three collections is a `/super-admin/**` screen, none of which
+   * runs under a TENANT-domain identity — but it is a real behaviour change
+   * this comment did not originally mention. Whether `withinScope` should
+   * distinguish a per-row `'none'` from a collection that is STATICALLY
+   * platform-scoped is a separate, larger question, deliberately deferred
+   * rather than folded into this fix.
    */
   for (const rel of relations) {
     const value = row[rel.field]
@@ -518,6 +573,26 @@ const PROVISION_TENANT_REQUEST: AccessRequest = {
   action: 'provision-tenant',
   allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
   sourceRefs: ['L75180', 'L52400', 'SB-31-01'],
+}
+
+/**
+ * `inviteConsoleUser`'s own, single, explicitly-declared authorisation —
+ * fix round 1 (unit-01, Task 7 review, IMPORTANT 6), replacing the
+ * screen-level two-call sequence that authorised each write independently
+ * through the generic floor's `PLATFORM_WRITERS` set (Admin and Platform
+ * Engineer included) even though §8.8.1/§8.8.2 name user creation and role
+ * assignment as root-only. `AC-SA-08-02` is deliberately NOT cited here
+ * (fix round 1, unit-01 Task 7 review, IMPORTANT 7): that acceptance
+ * criterion states the control must be ABSENT for every role but the root,
+ * and this authorisation is exactly the one that renders it DISABLED
+ * instead — `SB-31-10` is the storyboard that actually supports this
+ * reading; citing `AC-SA-08-02` beside it would be a citation for the
+ * decision this build did not take.
+ */
+const INVITE_CONSOLE_USER_REQUEST: AccessRequest = {
+  action: 'invite-console-user',
+  allowedRoles: ['ROOT_SUPER_ADMIN'],
+  sourceRefs: ['§8.8.1', '§8.8.2', 'SB-31-10'],
 }
 
 /**
@@ -1405,6 +1480,118 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
         return { ok: false, kind: 'partial', tenant: tenantRow, adminFailure: adminResult }
       }
       return { ok: true, tenant: tenantRow, admin: adminResult.row }
+    },
+
+    /**
+     * Fix round 1 (unit-01, Task 7 review, IMPORTANT 6) — see the
+     * `Repository` interface's own comment. Every guard checkable from the
+     * ARGUMENTS ALONE runs BEFORE the first write, so none of them can ever
+     * leave an orphan `users` row behind: role must not be
+     * `ROOT_SUPER_ADMIN` (`WF-ROLE-037`, the second-root refusal, reachable
+     * here exactly as it is from the screen's own form), the row must be
+     * platform-scoped (`tenantId: null` — this door never creates a
+     * tenant-scoped account), and it must be freshly `invited`. Only a
+     * genuine persistence-capability failure on the SECOND write can reach
+     * the `partial` arm — `FB-SA-03` ("an audit-write failure ... refuses
+     * the action entirely") is about exactly that failure class, not an
+     * input-validation failure, so scoping `partial` to it alone (never to
+     * a guard failure) is what "refuses the action entirely" means here.
+     *
+     * The grantor is resolved from the live `store`, keyed on
+     * `ctx.actorOfRecord` (fix round 1, unit-01 Task 7 review, IMPORTANT
+     * 4) — never taken as a caller-supplied id and never defaulted to a
+     * hardcoded account or an unattributed placeholder. A caller whose
+     * identity cannot be matched to a live, platform-scoped account is
+     * refused outright: an audited security record naming an invented
+     * grantor is worse than one that never committed.
+     */
+    async inviteConsoleUser(user, ctx) {
+      const decision = evaluateAccess(INVITE_CONSOLE_USER_REQUEST, ctx)
+      if (!permitsAction(decision)) {
+        return { ok: false, kind: 'denied', decision, reason: decision.reasonCode, explain: decision.explanation }
+      }
+
+      if (user.tenantId !== null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            'A console user must be platform-scoped (tenantId: null); this door never creates a tenant-scoped account.',
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      if (user.role === 'ROOT_SUPER_ADMIN') {
+        const refusalDecision = evaluateAccess(
+          {
+            action: 'create-second-root-account',
+            allowedRoles: [],
+            safetyControl:
+              'Exactly one Root Super Admin account exists on this platform. It is created only by the backend at platform commissioning, and no console path — including this invitation — can create a second.',
+            sourceRefs: ['§8.8.1', 'AC-SA-08-01', 'WF-ROLE-037'],
+          },
+          ctx,
+        )
+        return {
+          ok: false,
+          kind: 'denied',
+          decision: refusalDecision,
+          reason: refusalDecision.reasonCode,
+          explain: refusalDecision.explanation,
+        }
+      }
+      if (user.status !== 'invited') {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `A console user must be invited with status "invited", not "${user.status}".`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const grantor = (store.get('users') as readonly RowOf<'users'>[]).find(
+        (u) => u.tenantId === null && u.displayName === ctx.actorOfRecord,
+      )
+      if (!grantor) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            'The inviting identity could not be matched to a live console account, so the role grant cannot be honestly attributed. Nothing was created.',
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const usersAuthority = truthStoreFor('users')
+      if (!writableThroughRepository(usersAuthority)) return truthStoreRefusal('users', usersAuthority)
+      const grantsAuthority = truthStoreFor('role-grants')
+      if (!writableThroughRepository(grantsAuthority)) return truthStoreRefusal('role-grants', grantsAuthority)
+
+      const userResult = await createRow('users', user, ctx, usersAuthority)
+      if (!userResult.ok) return userResult
+
+      const nowIso = new Date(store.clock.now()).toISOString()
+      const grantRow: RowOf<'role-grants'> = {
+        id: `RG-INVITE-${store.nextSequence()}`,
+        userId: userResult.row.id,
+        role: userResult.row.role,
+        siteIds: [],
+        areaIds: [],
+        shiftIds: [],
+        grantedBy: grantor.id,
+        grantedAt: nowIso,
+        expiresAt: null,
+        revokedAt: null,
+        purpose: null,
+      }
+      const grantResult = await createRow('role-grants', grantRow, ctx, grantsAuthority)
+      if (!grantResult.ok) {
+        return { ok: false, kind: 'partial', user: userResult.row, grantFailure: grantResult }
+      }
+      return { ok: true, user: userResult.row, grant: grantResult.row }
     },
 
     async update(name, id, patch, ctx) {

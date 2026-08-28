@@ -184,13 +184,19 @@ export type AccessSession = z.infer<typeof AccessSession>
  *
  * `changeClass` is the two-value split §8.8.3 actually enforces (engineering
  * class checked by an Admin, critical class checked by the root only);
- * `actionType` carries which SPECIFIC action this is — one of the eleven ids
- * in `@/surfaces/sa/critical-actions` for a critical-class row (that
- * module's own `D12` comment records why the source's stated "ten" and its
- * own enumeration disagree, and this schema does not re-litigate it), or a
- * free-text engineering-class action name, since no closed vocabulary for
- * engineering-class action types exists in the source the way the eleven
- * critical ones do.
+ * `actionType` carries which SPECIFIC action this is — for a critical-class
+ * row, ONE OF THE ELEVEN IDS in `@/surfaces/sa/critical-actions` by
+ * CONVENTION only (that module's own `D12` comment records why the
+ * source's stated "ten" and its own enumeration disagree, and this schema
+ * does not re-litigate it) — the field itself stays `z.string().min(1)`,
+ * not a cross-field `.refine()` against `changeClass`, because the only
+ * consumer of this convention is `ConsoleUsersScreen.tsx#actionTypeLabel`'s
+ * own lookup, which falls back to the raw string for anything it does not
+ * recognise; a schema-level constraint here would enforce a rule this file
+ * does not actually need enforced, on data no other collection reads. For
+ * an engineering-class row, `actionType` is free text, since no closed
+ * vocabulary for engineering-class action types exists in the source the
+ * way the eleven critical ones do.
  *
  * `evaluationSuiteId` is nullable and is NOT a `RELATIONS` target — like
  * `evaluations.suiteId` itself (`./index.ts#UNCHECKABLE_ID_FIELDS`), a

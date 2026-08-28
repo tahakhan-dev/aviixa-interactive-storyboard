@@ -29,10 +29,10 @@ import { LiveRegion } from '@/ui/primitives'
 import { evaluateAccess } from '@/policy/evaluate'
 import { roleById, rolesInDomain, type RoleId } from '@/domain/roles'
 import { User } from '@/data/schemas/platform'
-import type { AccessContext, Query, Repository, RowOf, WriteResult } from '@/data/repository'
+import type { AccessContext, InviteConsoleUserResult, Query, Repository, RowOf } from '@/data/repository'
 import type { Store } from '@/data/store'
 import { saModuleById } from '@/surfaces/sa/modules'
-import { CRITICAL_ACTIONS, CRITICAL_ACTION_COUNT_NOTE } from '@/surfaces/sa/critical-actions'
+import { CRITICAL_ACTIONS } from '@/surfaces/sa/critical-actions'
 
 /**
  * Task 7 (unit-01) — console users and the maker-checker change-approval
@@ -136,24 +136,6 @@ type ApprovalState = ApprovalRequest['state']
 type ApprovalClass = ApprovalRequest['changeClass']
 type Tenant = RowOf<'tenants'>
 type EvalRow = RowOf<'evaluations'>
-
-// Only the four platform roles ever render in this table (`platformUsersQuery`
-// filters to `tenantId === null`); the tenant roles are here only because
-// `RoleId` is a nine-member closed set and this map must be exhaustive over
-// it. One uniform tone: the role NAME is what distinguishes Root from the
-// other three, and a load-bearing colour would misstate the account as a
-// data conflict, which is not what "exactly one root" means.
-const ROLE_TONE: Readonly<Record<RoleId, StatusToken>> = {
-  ROOT_SUPER_ADMIN: 'info',
-  ADMIN: 'info',
-  PLATFORM_ENGINEER: 'info',
-  SUPPORT: 'info',
-  TENANT_ADMIN: 'info',
-  SUPERVISOR: 'info',
-  QUALITY_MANAGER: 'info',
-  READONLY_AUDITOR: 'info',
-  WORKER: 'info',
-}
 
 const USER_STATUS_LABEL: Readonly<Record<PlatformUser['status'], string>> = {
   invited: 'Invited',
@@ -300,7 +282,6 @@ function ConsoleUsersBody({ session }: { readonly session: ProductSession }) {
         platformUsersQuery={platformUsersQuery}
         usersById={usersById}
         roleGrants={roleGrants}
-        currentUser={currentUser}
       />
       <ApprovalsSection
         ctx={ctx}
@@ -346,7 +327,6 @@ function ConsoleUsersSection({
   platformUsersQuery,
   usersById,
   roleGrants,
-  currentUser,
 }: {
   readonly ctx: AccessContext
   readonly repository: Repository
@@ -354,24 +334,31 @@ function ConsoleUsersSection({
   readonly platformUsersQuery: Query<PlatformUser>
   readonly usersById: ReadonlyMap<string, PlatformUser>
   readonly roleGrants: readonly RoleGrant[]
-  readonly currentUser: PlatformUser | null
 }) {
   const [inviteOpen, setInviteOpen] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [values, setValues] = useState<InviteValues>({ displayName: '', email: '', role: 'ADMIN' })
   const [attempted, setAttempted] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [result, setResult] = useState<WriteResult<unknown> | null>(null)
+  const [result, setResult] = useState<InviteConsoleUserResult | null>(null)
 
   /**
-   * §8.8.1/§8.8.2: user creation and role assignment are root-only.
-   * `AC-SA-08-02` (L44876). `SB-31-10` (L76133) is the storyboard this
-   * file's header explains was chosen over `SB-SA-08` (L44777) for HOW
-   * the other three roles see this — disabled with a stated reason, never
-   * hidden — matching the dispatch and this rebuild's own convention.
+   * A screen-level DISPLAY gate only — same split `TenantsScreen.tsx`'s own
+   * `createDecision` already uses beside `provisionTenant`'s door
+   * authorisation: this decides whether to show the button or the disabled
+   * reason; `repository.inviteConsoleUser`'s own `INVITE_CONSOLE_USER_REQUEST`
+   * is the real, enforced authorisation the write goes through, and the two
+   * deliberately cite the same authority (§8.8.1/§8.8.2, `SB-31-10`) rather
+   * than drifting into two different reasons for one rule. `AC-SA-08-02` is
+   * NOT cited here (fix round 1, unit-01 Task 7 review, IMPORTANT 7): that
+   * acceptance criterion requires the control to be ABSENT for every role
+   * but the root, and this gate is exactly the one that renders it DISABLED
+   * instead — citing it here would be a citation for the decision this
+   * build did not take. The on-screen disclosure beside the disabled
+   * reason below is where that conflict is actually surfaced.
    */
   const inviteGate = evaluateAccess(
-    { action: 'invite-console-user', allowedRoles: ['ROOT_SUPER_ADMIN'], sourceRefs: ['§8.8.1', '§8.8.2', 'AC-SA-08-02', 'SB-31-10'] },
+    { action: 'invite-console-user', allowedRoles: ['ROOT_SUPER_ADMIN'], sourceRefs: ['§8.8.1', '§8.8.2', 'SB-31-10'] },
     ctx,
   )
   const canInvite = inviteGate.outcome === 'allowed'
@@ -397,7 +384,7 @@ function ConsoleUsersSection({
       key: 'role',
       header: 'Role',
       sortValue: (u) => roleById(u.role).name,
-      render: (u) => <StatusPill tone={ROLE_TONE[u.role]} label={roleById(u.role).name} />,
+      render: (u) => <StatusPill tone="info" label={roleById(u.role).name} />,
     },
     {
       key: 'status',
@@ -426,79 +413,52 @@ function ConsoleUsersSection({
     },
   ]
 
-  async function handleInviteSubmit(value: User): Promise<WriteResult<unknown>> {
-    if (value.role === 'ROOT_SUPER_ADMIN') {
-      /**
-       * `WF-ROLE-037`: "Refusing creation of a second Root Super Admin."
-       * §8.8.1: "there is only ever one." Reached HERE, through the real
-       * form, rather than merely being described — the safety-control
-       * stage (`evaluateAccess`, spec §3.4 stage 2) denies this before any
-       * role check, so no role — including the root's own — can pass it.
-       */
-      const refusal = evaluateAccess(
-        {
-          action: 'create-second-root-account',
-          allowedRoles: [],
-          safetyControl:
-            'Exactly one Root Super Admin account exists on this platform. It is created only by the backend at platform commissioning, and no console path — including this form — can create a second.',
-          sourceRefs: ['§8.8.1', 'AC-SA-08-01', 'WF-ROLE-037'],
-        },
-        ctx,
-      )
-      return { ok: false, kind: 'denied', decision: refusal, reason: refusal.reasonCode, explain: refusal.explanation }
-    }
-
-    const userResult = await repository.create('users', value, ctx)
-    if (!userResult.ok) return userResult
-
-    const grantorId = currentUser?.id ?? 'USR-ROOT-01'
-    const nowIso = new Date(store.clock.now()).toISOString()
-    const grantResult = await repository.create(
-      'role-grants',
-      {
-        id: `RG-INVITE-${store.nextSequence()}`,
-        userId: userResult.row.id,
-        role: value.role,
-        siteIds: [],
-        areaIds: [],
-        shiftIds: [],
-        grantedBy: grantorId,
-        grantedAt: nowIso,
-        expiresAt: null,
-        revokedAt: null,
-        purpose: null,
-      },
-      ctx,
-    )
-    if (!grantResult.ok) {
-      return { ...grantResult, explain: `${value.displayName}'s account was created, but the role grant could not be recorded: ${grantResult.explain}` }
-    }
-    return userResult
-  }
-
   const issues = [
     ...fieldIssues(User.shape.displayName, values.displayName),
     ...fieldIssues(User.shape.email, values.email),
   ]
 
+  /**
+   * Fix round 1 (unit-01, Task 7 review, IMPORTANT 6) — a thin caller. The
+   * second-root refusal, the grantor resolution and the two writes all now
+   * live inside `repository.inviteConsoleUser` (see that method's own
+   * comment in `repository.ts`); this screen builds the candidate row and
+   * routes whatever the door returns, exactly the shape
+   * `CreateTenantWizard.tsx` already uses for `provisionTenant`.
+   */
   async function onInviteFormSubmit() {
     setAttempted(true)
     if (issues.length > 0 || pendingId === null) return
     setBusy(true)
-    const outcome = await handleInviteSubmit({
-      id: pendingId,
-      tenantId: null,
-      displayName: values.displayName,
-      email: values.email,
-      role: values.role,
-      status: 'invited',
-      locale: 'en',
-      createdAt: new Date(store.clock.now()).toISOString(),
-      lastSignInAt: null,
-    })
+    const outcome = await repository.inviteConsoleUser(
+      {
+        id: pendingId,
+        tenantId: null,
+        displayName: values.displayName,
+        email: values.email,
+        role: values.role,
+        status: 'invited',
+        locale: 'en',
+        createdAt: new Date(store.clock.now()).toISOString(),
+        lastSignInAt: null,
+      },
+      ctx,
+    )
     setBusy(false)
     setResult(outcome)
   }
+
+  const resultMessage: { readonly tone: StatusToken; readonly text: string } | null =
+    result === null
+      ? null
+      : result.ok
+        ? { tone: 'ok', text: `${result.user.displayName} was invited.` }
+        : result.kind === 'partial'
+          ? {
+              tone: 'danger',
+              text: `${result.user.displayName}'s account was created, but the role grant could not be recorded: ${result.grantFailure.explain}`,
+            }
+          : { tone: 'danger', text: result.explain }
 
   return (
     <section aria-labelledby="console-users-heading" className="flex flex-col gap-4">
@@ -519,6 +479,22 @@ function ConsoleUsersSection({
             platform commissioning, held in the client's custody, and no console path — including the form
             below — can create a second.
           </p>
+          {/*
+            IMPORTANT 7 (unit-01, Task 7 fix round 1): the disclosure this
+            control's own conflicting specification passages need, moved
+            from a header comment to product-appropriate on-screen UI — a
+            native disclosure widget, not a paragraph of narrative, and
+            with no locator or build-process term in the rendered text.
+          */}
+          <details data-control-id="console-users-invite-disclosure" className="mt-2 text-xs">
+            <summary className={`cursor-pointer ${textColor('ink-muted')}`}>Why this control behaves this way</summary>
+            <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
+              This platform's own specification describes this control two different ways: one version
+              says it should not appear at all for anyone but the root; the other says it should stay
+              visible for every role, disabled with the reason shown, so a person learns the rule rather
+              than wondering whether the feature is missing. This console follows the second description.
+            </p>
+          </details>
         </div>
         {canInvite ? (
           <button
@@ -541,7 +517,7 @@ function ConsoleUsersSection({
               Invite console user
             </button>
             <p id="console-users-invite-reason" className={`text-right text-xs ${textColor('ink-muted')}`}>
-              User creation and role changes are reserved for the Root Super Admin (§8.8.1, §8.8.2).
+              User creation and role changes are reserved for the Root Super Admin.
             </p>
           </div>
         )}
@@ -579,14 +555,14 @@ function ConsoleUsersSection({
             </div>
           ) : null}
 
-          {result !== null ? (
+          {resultMessage !== null ? (
             <LiveRegion>
               <p
                 data-control-id="console-users-invite-result"
                 className={`${radiusClass('md')} border ${borderColor('border')} p-3 text-sm`}
-                style={{ color: result.ok ? statusVar('ok') : statusVar('danger') }}
+                style={{ color: statusVar(resultMessage.tone) }}
               >
-                {result.ok ? `${values.displayName} was invited.` : result.explain}
+                {resultMessage.text}
               </p>
             </LiveRegion>
           ) : null}
@@ -608,7 +584,7 @@ function ConsoleUsersSection({
             options={roleOptions}
             value={values.role}
             onChange={(v) => setValues((p) => ({ ...p, role: v as RoleId }))}
-            hint="Root Super Admin is listed to make the invariant it violates checkable, not because it can be granted here."
+            hint="Root Super Admin is listed here so attempting it shows the reason it cannot be granted, not because it can be."
           />
           <div className="flex gap-2">
             <button
@@ -776,9 +752,26 @@ function ApprovalsSection({
   }
 
   async function commitDecision(request: ApprovalRequest, kind: 'approve' | 'return') {
+    /**
+     * Fix round 1 (unit-01, Task 7 review, IMPORTANT 4) — refuse rather
+     * than invent an `approverId`. `currentUser` not resolving to a live
+     * platform account means this decision cannot be honestly attributed;
+     * writing `ctx.actorOfRecord` (a display name, not a `users` id) or
+     * `'unattributed'` would commit a value `resolveTenantId` cannot walk,
+     * which — as this exact bug shape already proved for `role-grants` —
+     * refuses every later read/write on the row. No write is attempted.
+     */
+    if (currentUser === null) {
+      setConfirmKind(null)
+      setFeedback({
+        tone: 'danger',
+        message: 'This decision could not be attributed to a known console account, so nothing was written.',
+      })
+      return
+    }
     setBusy(true)
     const nowIso = new Date(nowMs).toISOString()
-    const approverId = currentUser?.id ?? ctx.actorOfRecord ?? 'unattributed'
+    const approverId = currentUser.id
     const patch =
       kind === 'approve'
         ? { state: 'applied' as const, approverId, decidedAt: nowIso }
@@ -805,9 +798,20 @@ function ApprovalsSection({
         </h2>
         <p className={`mt-1 max-w-prose text-sm ${textColor('ink-muted')}`}>
           Mutating platform changes wait here until a different, authorised person decides them. Nothing
-          applies while it is pending, and nothing decides itself.{' '}
-          <span className="block mt-1 text-xs">{CRITICAL_ACTION_COUNT_NOTE}</span>
+          applies while it is pending, and nothing decides itself.
         </p>
+        <details data-control-id="approvals-segregation-disclosure" className="mt-2 text-xs">
+          <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
+            Why the root may decide its own critical-class proposals
+          </summary>
+          <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
+            For every other class of change here, the person who proposes it can never also be the one
+            who decides it. This platform's specification names no second decision-maker for the most
+            consequential class of changes, so this console allows the root — and only the root — to
+            decide a critical-class proposal it made itself, rather than leaving that class permanently
+            undecidable whenever the root is the one who raised it.
+          </p>
+        </details>
       </div>
 
       <DataTable
@@ -908,11 +912,24 @@ function ApprovalDetail({
 }) {
   const proposer = usersById.get(request.proposerId)
   const keys = diffKeys(request.before, request.after)
+  /**
+   * Fix round 1 (unit-01, Task 7 review, IMPORTANT 5) — `suiteId` alone is
+   * not a unique key: every seeded `evaluations` row shares
+   * `SUITE-CONTAINMENT`, so filtering on it alone picked the most RECENT
+   * result across every subject, not the result for THIS request's own
+   * object. Filtering on `subjectAtomOrAgentId === request.objectRef` too
+   * is what "the evaluation scenario set that will run" (`SB-HO-004`,
+   * L23707) actually means — the set governing THIS change, not the
+   * platform's latest run of any change.
+   */
   const lastEvalResult =
     request.evaluationSuiteId === null
       ? null
       : evaluationRows
-          .filter((e): e is Extract<EvalRow, { kind: 'result' }> => e.kind === 'result' && e.suiteId === request.evaluationSuiteId)
+          .filter(
+            (e): e is Extract<EvalRow, { kind: 'result' }> =>
+              e.kind === 'result' && e.suiteId === request.evaluationSuiteId && e.subjectAtomOrAgentId === request.objectRef,
+          )
           .sort((a, b) => Date.parse(b.runAt) - Date.parse(a.runAt))[0]
 
   /**
@@ -928,7 +945,27 @@ function ApprovalDetail({
    */
   const proposerDisplayName = proposer?.displayName ?? request.proposerId
 
-  const isCriticalNonRootViewer = request.changeClass === 'critical' && ctx.identity.role !== 'ROOT_SUPER_ADMIN'
+  /**
+   * Fix round 1 (unit-01, Task 7 review, IMPORTANT 2) — routed through the
+   * real evaluator rather than a hand-rolled `ctx.identity.role !==
+   * 'ROOT_SUPER_ADMIN'` comparison living beside it. `SB-HO-004` (L23707)
+   * is the storyboard this exact rule comes from ("where the viewer is not
+   * the root, the action bar is replaced with the sentence..."); citing it
+   * here — genuinely governing this decision — is what makes this screen's
+   * claim to demonstrate `SB-HO-004` honest. Deliberately its OWN gate, not
+   * a read of `decisionGate` below: this is a role-only fact ("is the
+   * viewer the root"), and `decisionGate` also fails for reasons (object
+   * state, approver availability) that must never be mistaken for "you are
+   * not the root."
+   */
+  const criticalViewerGate =
+    request.changeClass === 'critical'
+      ? evaluateAccess(
+          { action: 'view-critical-approval-controls', allowedRoles: ['ROOT_SUPER_ADMIN'], sourceRefs: ['SB-HO-004', 'AC-SA-08-06', '§8.8.3'] },
+          ctx,
+        )
+      : null
+  const isCriticalNonRootViewer = criticalViewerGate !== null && criticalViewerGate.outcome !== 'allowed'
 
   /**
    * Master prompt §15.1 / the brief: "Missing approver blocks; nothing
@@ -963,7 +1000,17 @@ function ApprovalDetail({
             // class only, where a different approver (Admin) genuinely
             // exists.
             ...(request.changeClass === 'engineering' ? { makerCheckerOf: proposerDisplayName } : {}),
-            sourceRefs: ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-05', 'AC-SA-08-06'],
+            // Fix round 1 (unit-01, Task 7 review, IMPORTANT 7): `AC-SA-08-05`
+            // ("No account can approve its own submission") is cited only
+            // when this request's own class actually enforces it
+            // (engineering, via `makerCheckerOf` above) — citing it
+            // unconditionally, including on the critical-class branch that
+            // deliberately does NOT enforce it, would be a citation for a
+            // rule this exact call does not apply.
+            sourceRefs:
+              request.changeClass === 'engineering'
+                ? ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-05', 'AC-SA-08-06']
+                : ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-06'],
           },
           ctx,
         )

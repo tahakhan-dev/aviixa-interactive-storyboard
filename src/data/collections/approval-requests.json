@@ -6,10 +6,16 @@
     "objectRef": "ATOM-FRAME-CHAINRING-CLASSIFY",
     "proposerId": "USR-PLAT-ENG-01",
     "rationale": "Bright Bikes requested chainring-torque classification ahead of their Q2 audit; the containment scenario suite is green for this tenant's configuration.",
-    "before": { "enabledForTenant": false },
-    "after": { "enabledForTenant": true },
+    "before": {
+      "enabledForTenant": false
+    },
+    "after": {
+      "enabledForTenant": true
+    },
     "platformWide": false,
-    "affectedTenantIds": ["TEN-BRIGHTBIKES"],
+    "affectedTenantIds": [
+      "TEN-BRIGHTBIKES"
+    ],
     "evaluationSuiteId": "SUITE-CONTAINMENT",
     "state": "pending",
     "approverId": null,
@@ -24,8 +30,12 @@
     "objectRef": "eval-harness-retry-policy",
     "proposerId": "USR-ROOT-01",
     "rationale": "Reduce false-negative eval failures caused by transient timeouts during the nightly canary run.",
-    "before": { "maxRetries": 1 },
-    "after": { "maxRetries": 2 },
+    "before": {
+      "maxRetries": 1
+    },
+    "after": {
+      "maxRetries": 2
+    },
     "platformWide": true,
     "affectedTenantIds": [],
     "evaluationSuiteId": null,
@@ -42,10 +52,16 @@
     "objectRef": "TEN-BRIGHTBIKES",
     "proposerId": "USR-PLAT-ADM-02",
     "rationale": "Security report flagged anomalous export activity from a compromised integration credential; recommend compliance suspension pending investigation.",
-    "before": { "lifecycle": "active" },
-    "after": { "lifecycle": "compliance-suspended" },
+    "before": {
+      "lifecycle": "active"
+    },
+    "after": {
+      "lifecycle": "compliance-suspended"
+    },
     "platformWide": false,
-    "affectedTenantIds": ["TEN-BRIGHTBIKES"],
+    "affectedTenantIds": [
+      "TEN-BRIGHTBIKES"
+    ],
     "evaluationSuiteId": null,
     "state": "pending",
     "approverId": null,
@@ -60,10 +76,18 @@
     "objectRef": "DEV-SG-TAB-001",
     "proposerId": "USR-PLAT-ADM-01",
     "rationale": "Device unaccounted for since Summit Gear's hard suspension; recommend remote wipe and de-authorisation before the fleet dashboard is trusted again.",
-    "before": { "deviceStatus": "active", "dataPresent": true },
-    "after": { "deviceStatus": "wiped", "dataPresent": false },
+    "before": {
+      "deviceStatus": "active",
+      "dataPresent": true
+    },
+    "after": {
+      "deviceStatus": "wiped",
+      "dataPresent": false
+    },
     "platformWide": false,
-    "affectedTenantIds": ["TEN-SUMMITGEAR"],
+    "affectedTenantIds": [
+      "TEN-SUMMITGEAR"
+    ],
     "evaluationSuiteId": null,
     "state": "pending",
     "approverId": null,
@@ -78,10 +102,16 @@
     "objectRef": "ATOM-SHIFT-HANDOFF-CHECK",
     "proposerId": "USR-PLAT-ENG-02",
     "rationale": "Northforge asked for the shift-handoff completeness check ahead of their next audit cycle.",
-    "before": { "enabledForTenant": false },
-    "after": { "enabledForTenant": true },
+    "before": {
+      "enabledForTenant": false
+    },
+    "after": {
+      "enabledForTenant": true
+    },
     "platformWide": false,
-    "affectedTenantIds": ["TEN-NORTHFORGE"],
+    "affectedTenantIds": [
+      "TEN-NORTHFORGE"
+    ],
     "evaluationSuiteId": null,
     "state": "returned",
     "approverId": "USR-PLAT-ADM-01",
@@ -96,8 +126,12 @@
     "objectRef": "ATOM-DEVIATION-CLASSIFY",
     "proposerId": "USR-PLAT-ENG-01",
     "rationale": "Platform-level enablement following the completed pilot evaluation across three design-partner tenants.",
-    "before": { "enabledPlatformWide": false },
-    "after": { "enabledPlatformWide": true },
+    "before": {
+      "enabledPlatformWide": false
+    },
+    "after": {
+      "enabledPlatformWide": true
+    },
     "platformWide": true,
     "affectedTenantIds": [],
     "evaluationSuiteId": null,
@@ -114,8 +148,12 @@
     "objectRef": "SEVERITY-CATALOG-BAND-2",
     "proposerId": "USR-PLAT-ADM-01",
     "rationale": "Package-affecting severity-band adjustment recommended after a quarter of classification drift review.",
-    "before": { "band2UpperLimitPercent": 10 },
-    "after": { "band2UpperLimitPercent": 12 },
+    "before": {
+      "band2UpperLimitPercent": 10
+    },
+    "after": {
+      "band2UpperLimitPercent": 12
+    },
     "platformWide": true,
     "affectedTenantIds": [],
     "evaluationSuiteId": null,
@@ -132,8 +170,12 @@
     "objectRef": "TIER-GROWTH-v3",
     "proposerId": "USR-PLAT-ADM-02",
     "rationale": "New Growth tier version raising the Worker-Shift ceiling and adding the training-library entitlement.",
-    "before": { "tierVersion": "v2" },
-    "after": { "tierVersion": "v3" },
+    "before": {
+      "tierVersion": "v2"
+    },
+    "after": {
+      "tierVersion": "v3"
+    },
     "platformWide": true,
     "affectedTenantIds": [],
     "evaluationSuiteId": null,
@@ -150,11 +192,15 @@
     "objectRef": "AGENT-SHIFT-HANDOFF-COMPOSED-v2",
     "proposerId": "USR-PLAT-ENG-02",
     "rationale": "New composed agent combining the Shift Handoff and Prevention checks; requesting review before pilot rollout.",
-    "before": { "status": "submitted" },
-    "after": { "status": "enabled" },
+    "before": {
+      "status": "submitted"
+    },
+    "after": {
+      "status": "enabled"
+    },
     "platformWide": true,
     "affectedTenantIds": [],
-    "evaluationSuiteId": null,
+    "evaluationSuiteId": "SUITE-CONTAINMENT",
     "state": "pending",
     "approverId": null,
     "createdAt": "2026-03-01T10:00:00Z",

@@ -3,7 +3,7 @@
   "countedThing": "distinct extracted workflow-passage records from the 36 extraction chunks, composite-keyed on id plus source line -- an extraction-scope count, never a workflow total (the source fixes none anywhere in its 122,241 lines; 81 is the MODULE count and nothing else).",
   "reconciledCount": null,
   "rawCount": 725,
-  "dedupRule": "725 extracted entries, 1 cross-chunk duplicate merged (both variants: \"unnumbered\" at line 74182 in CHK-022, \"A role reading the audit log (6 steps)\", and \"unnumbered\" at the same line in CHK-023, \"A role reading the audit log\" -- same line, same trigger, same actor, one workflow extracted twice) -> 724 rows, keyed on `${id}@L${sourceLine}` whenever the extractor id is a placeholder (\"unnumbered\"/\"unstated\") or recurs at more than one source line. Worst residual collapse: 2. Status is computed from the built route tree, never from a list: 80 of 724 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. The composite key is matched whole: a screen naming \"SB-030\" does not demonstrate \"SB-030@L61090\", because the composite key exists to say the source carries more than one passage under that id and a bare citation cannot say which. The 345 composite-keyed and placeholder-named rows carry no citable identifier at all, so this count under-reports rather than guessing. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
+  "dedupRule": "725 extracted entries, 1 cross-chunk duplicate merged (both variants: \"unnumbered\" at line 74182 in CHK-022, \"A role reading the audit log (6 steps)\", and \"unnumbered\" at the same line in CHK-023, \"A role reading the audit log\" -- same line, same trigger, same actor, one workflow extracted twice) -> 724 rows, keyed on `${id}@L${sourceLine}` whenever the extractor id is a placeholder (\"unnumbered\"/\"unstated\") or recurs at more than one source line. Worst residual collapse: 2. Status is computed from the built route tree, never from a list: 57 of 724 rows read demonstrated-in-storyboard because a shipped route screen under app/ (a directory holding a page.tsx) names that exact identifier as a whole token -- the same evidence class the module rule above uses, widened from MOD-* to this family. Naming includes naming an identifier to record that the screen does NOT act on it, which this build has no structural marker to separate. The composite key is matched whole: a screen naming \"SB-030\" does not demonstrate \"SB-030@L61090\", because the composite key exists to say the source carries more than one passage under that id and a bare citation cannot say which. The 345 composite-keyed and placeholder-named rows carry no citable identifier at all, so this count under-reports rather than guessing. Every other row reads not-represented, which means no route demonstrates it AND no route mounts it -- a module may be fully built and still read not-represented if nothing has mounted it yet. Delete or rename the route that carries that evidence and those rows fall back on the next build.",
   "sourceFixesNoTotal": true,
   "rows": [
     {
@@ -2545,7 +2545,7 @@
     {
       "id": "UC-HO-01",
       "sourceLine": 23709,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Root Super Admin to Admin, delegation of Band B authority",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -2560,13 +2560,12 @@
       "participatingRoles": [
         "Admin",
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "UC-HO-02",
       "sourceLine": 23739,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Admin to Platform Engineer, the maker-checker cycle in reverse",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -2580,8 +2579,7 @@
       ],
       "participatingRoles": [
         "Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "UC-HO-03",
@@ -7230,7 +7228,7 @@
     {
       "id": "WF-ROLE-001",
       "sourceLine": 55577,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Creating the sole Root Super Admin through the back end at platform commissioning",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7242,13 +7240,12 @@
       "terminalStates": [
         "no console access exists at all"
       ],
-      "participatingRoles": [],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      "participatingRoles": []
     },
     {
       "id": "WF-ROLE-002",
       "sourceLine": 55599,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Handing custody of the root account to the client",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7260,13 +7257,12 @@
       "terminalStates": [
         "the root credential is rotated and held by one named custodian; ambiguous custody is resolved by invalidating both copies"
       ],
-      "participatingRoles": [],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      "participatingRoles": []
     },
     {
       "id": "WF-ROLE-003",
       "sourceLine": 55621,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Hardening the root account",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7280,13 +7276,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-004",
       "sourceLine": 55644,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "First root sign-in and the enforced-invariant acknowledgement",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7300,13 +7295,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-005",
       "sourceLine": 55666,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Creating a platform Admin account",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7320,13 +7314,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-006",
       "sourceLine": 55689,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Assigning the Admin role",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7340,13 +7333,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-007",
       "sourceLine": 55711,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Creating a Platform Engineer account",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7360,13 +7352,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-008",
       "sourceLine": 55733,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Assigning the Platform Engineer role",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7380,13 +7371,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-009",
       "sourceLine": 55756,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Creating a Support account",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7400,13 +7390,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-010",
       "sourceLine": 55778,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Assigning the Support role",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7423,13 +7412,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-011",
       "sourceLine": 55801,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Activating a platform Admin account and first sign-in",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7443,13 +7431,12 @@
       ],
       "participatingRoles": [
         "Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-012",
       "sourceLine": 55823,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Activating a Platform Engineer account and first sign-in",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7463,13 +7450,12 @@
       ],
       "participatingRoles": [
         "Platform Engineer"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-013",
       "sourceLine": 55845,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Activating a Support account and first sign-in",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7483,13 +7469,12 @@
       ],
       "participatingRoles": [
         "Support"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-014",
       "sourceLine": 55868,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "A Platform Engineer submitting a Band A change",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7503,13 +7488,12 @@
       ],
       "participatingRoles": [
         "Platform Engineer"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-015",
       "sourceLine": 55892,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "An Admin approving a Platform Engineer change",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7526,13 +7510,12 @@
       ],
       "participatingRoles": [
         "Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-016",
       "sourceLine": 55915,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "An Admin returning a Platform Engineer change",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7546,13 +7529,12 @@
       ],
       "participatingRoles": [
         "Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-017",
       "sourceLine": 55938,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "An Admin performing a routine Band B action",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7570,13 +7552,12 @@
       ],
       "participatingRoles": [
         "Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-018",
       "sourceLine": 55961,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "An Admin initiating a critical-class action",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7590,13 +7571,12 @@
       ],
       "participatingRoles": [
         "Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-019",
       "sourceLine": 55985,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "The root approving a critical-class request",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7614,13 +7594,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-020",
       "sourceLine": 56008,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "The root declining a critical-class request",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7634,13 +7613,12 @@
       ],
       "participatingRoles": [
         "Root Super Admin"
-      ],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      ]
     },
     {
       "id": "WF-ROLE-021",
       "sourceLine": 56031,
-      "status": "demonstrated-in-storyboard",
+      "status": "not-represented",
       "label": "Re-notifying the root about an aging critical request",
       "collapsedFrom": 1,
       "idIsPlaceholder": false,
@@ -7652,8 +7630,7 @@
       "terminalStates": [
         "the request stays pending and visible forever rather than expiring"
       ],
-      "participatingRoles": [],
-      "route": "/super-admin/console-users-roles-and-change-approvals/"
+      "participatingRoles": []
     },
     {
       "id": "WF-ROLE-022",
@@ -15271,8 +15248,8 @@
     }
   ],
   "sourceLineMeaning": "A frozen-source line that MENTIONS the identifier, published so a reader can open it. It is NOT necessarily the line that defines the identifier: a group table, a diagram, or a neighbouring entry that cross-references it will often come first. Follow it as a starting point, not as a definition. It is computed one of three ways, and which one depends on the register the row came from. (1) By default, the FIRST MENTION of the identifier anywhere in the frozen source — the minimum of registries/raw/identifier-index.json's line list for that id. (2) Where the row belongs to a CHAPTER-BANDED register, the first occurrence inside that register's own chapter, which is deliberately NOT the minimum of the list: SB-AI-01 in ai-storyboards.json ships L92693 and not its list minimum L74479, because L74479 is chapter 30D and the row belongs to section 44A. A register label that claims a chapter is asserted against every one of its rows at build time, so a row outside its band is a build failure. (3) Where a register was TRANSCRIBED by the extraction rather than derived from the identifier index — modules, business objects, actionable controls, workflows, the notification placement rows, the Studio triggers and the deployable scheduled-work rows — the line the extraction recorded for that row. Where a module in src/ carries its own locator for the same identifier, that one was opened and read against the source and is the stronger citation.",
-  "namedInSourceCount": 150,
-  "routeResolvedCount": 80,
+  "namedInSourceCount": 130,
+  "routeResolvedCount": 57,
   "routeMeaning": "The shipped screen whose evidence set this row's status: for a module, the route directory its declared slug names or the one whose files name it more often than any other module; for an actionable control, the route directory declaring a control-matrix row with exactly this label; for every other inventory, the route directory that spells this identifier as a whole token. Where several routes qualify, the lexicographically first is recorded, so two independent generations agree. A row carries no route when no route demonstrates it, when the evidence was an import rather than a route file (mounted-in-another-screen), when the row is an authored not-applicable or decision-blocked record, when the only directory found holds a dynamic segment -- app/coverage/[registry] is one directory standing for fourteen URLs and choosing one of them for a row would be a guess -- or, and this is the fifth case and the one the list used to omit, when the evidence is a control matrix declared in a module component under src/ that a route mounts: the row reads demonstrated-in-storyboard and route resolution reads app/ only, so there is no route directory to name. Those rows render their id as plain text with the reason beside it, never as a link to nowhere.",
   "namedInSourceMeaning": "How many rows this registry holds whose identifier is named anywhere under src/ or app/. It is WEAKER than a status and deliberately not one: a status says a route screen demonstrates the row, and this says only that some file in the build spells its identifier. It is published because the two numbers can differ by a lot -- offline-scenarios reads 0 demonstrated and 70 named, because two tasks transcribed all seventy use cases and no route names a UC-OFF-* identifier. Rows whose id is a free-text label rather than an identifier (actionable-controls) cannot be counted this way and read as unnamed here; that is a limit of the measure, not a gap in the build."
 }
