@@ -300,6 +300,20 @@ function monthLabel(monthKey: string): string {
   return new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: 'long' })
 }
 
+/**
+ * Window label for the two tiles built on `ai-requests` (tokens consumed,
+ * and measure 1's AI-failover related read): that collection is clock-gated
+ * "to date" (`aiRequestsToDate`, filtered before it ever reaches this
+ * component — see `TenantMetricsDashboard#readSnapshot`'s own header), so
+ * "All recorded history" would be a false claim over rows the platform's
+ * own simulated clock has not reached yet. Never paired with "Complete":
+ * a to-date ledger is honest about being partial by construction, not a
+ * closed, fully-collected count the way a period-bounded read of `runs` is.
+ */
+function historyToDateWindow(period: string): string {
+  return period === ALL_TIME ? 'History to date' : `${monthLabel(period)} — to date`
+}
+
 function groupBy<T>(rows: readonly T[], key: (row: T) => string): ReadonlyMap<string, readonly T[]> {
   const map = new Map<string, T[]>()
   for (const row of rows) {
@@ -605,6 +619,18 @@ function TenantMetricsDashboard({ session }: { readonly session: ProductSession 
           />
         )}
       </div>
+
+      {/*
+        L107350 (the observability chapter's own telemetry-drill-down
+        storyboard for this exact screen): "A permanently visible footer
+        states: 'Metrics are counts, rates, and statuses. Operational
+        records require an audited session.'" Present regardless of which
+        tab or tenant is selected — outside the tabpanel, not tied to
+        `tab` state.
+      */}
+      <p className={`mt-8 border-t ${borderColor('border')} pt-3 text-xs ${textColor('ink-subtle')}`}>
+        Metrics are counts, rates, and statuses. Operational records require an audited session.
+      </p>
     </AppShell>
   )
 }
@@ -708,6 +734,20 @@ interface MeasureTile {
   readonly label: string
   readonly data: StatTileData
   readonly window: string
+  /**
+   * Fix round 2 (review IMPORTANT) — this used to be inferred as
+   * `data.kind === 'value'`, a type check standing in for a completeness
+   * check that never ran: it said "Complete" for `tokens-consumed` even
+   * when the tile's own to-date window structurally excludes rows, and it
+   * would say "Complete" for ANY future value-kind measure regardless of
+   * whether this build can actually detect a collection gap for it. This
+   * build's telemetry has no simulated collection-gap event (no `stale`
+   * scenario state exists for this generation of screens — see this file's
+   * header on why), so "Complete" is only ever asserted where it is
+   * actually true: a full, period-bounded read of a collection this file
+   * does not additionally gate by the simulated clock.
+   */
+  readonly complete: boolean
 }
 
 function PerTenantMeasures({
@@ -844,10 +884,19 @@ function PerTenantMeasures({
   // are permitted dimensions; worker identity and free-text reason strings
   // are prohibited, because — the rule's own words — "a per-worker metric
   // series is worker surveillance by another name."
-  const groupsByReasonAndArea = groupBy(periodGrants, (g) => `${g.reasonCategory}::${g.areaId ?? 'unscoped'}`)
+  const UNSCOPED_AREA_KEY = 'unscoped'
+  const groupsByReasonAndArea = groupBy(periodGrants, (g) => `${g.reasonCategory}::${g.areaId ?? UNSCOPED_AREA_KEY}`)
   const clusterRows = [...groupsByReasonAndArea.entries()].map(([key, rows]) => {
     const [reasonCategory, areaId] = key.split('::')
-    const areaName = areaId !== undefined ? (areaNameById.get(areaId) ?? areaId) : 'Unscoped'
+    // Fix round 2 (review minor): the join key's own fallback sentinel
+    // (`UNSCOPED_AREA_KEY`) and the display fallback below were two
+    // different strings (`'unscoped'` vs `'Unscoped'`) — `split('::')`
+    // never actually returns `undefined` here (the key is always built
+    // with a fallback), so the capitalised branch was dead and a null-area
+    // grant rendered the lowercase join sentinel verbatim. Checked against
+    // the same sentinel now, so the display fallback is the branch that
+    // actually fires.
+    const areaName = areaId === undefined || areaId === UNSCOPED_AREA_KEY ? 'Unscoped' : (areaNameById.get(areaId) ?? areaId)
     return { reasonCategory: reasonCategory ?? 'Unknown', areaName, count: rows.length }
   })
 
@@ -855,6 +904,8 @@ function PerTenantMeasures({
   // timeouts (the `expired` notification state) are both real fields.
   const fallbacksFiredCount = periodNotifications.filter((n) => n.fallbackDelivered).length
   const timeoutCount = periodNotifications.filter((n) => n.status === 'expired').length
+
+  const toDateWindow = historyToDateWindow(period)
 
   const tiles: readonly MeasureTile[] = [
     {
@@ -865,13 +916,15 @@ function PerTenantMeasures({
         reason:
           `No collection in this build models a platform agent run itself. ${aiFailoverCount} of this tenant's AI requests failed over to a fallback route in this window; evaluation failures are shown platform-wide on the comparative tab.`,
       },
-      window: windowLabel,
+      window: toDateWindow,
+      complete: false,
     },
     {
       id: 'active-workflows',
       label: 'Active workflows',
       data: { kind: 'value', value: activeWorkflowCount, unit: 'workflows' },
       window: CURRENT_STATE_WINDOW,
+      complete: true,
     },
     {
       id: 'active-agents',
@@ -884,30 +937,45 @@ function PerTenantMeasures({
             : 'No agent-registry collection exists in this build, and this tenant has no gated step executions recorded in this window either.',
       },
       window: windowLabel,
+      complete: false,
     },
     {
       id: 'tokens-consumed',
       label: 'Tokens consumed, to date',
       data: { kind: 'value', value: totalTokens, unit: 'tokens' },
-      window: windowLabel,
+      // Fix round 2 (review IMPORTANT) — `aiRequestsToDate` is clock-gated
+      // BEFORE this component ever sees it (see `readSnapshot`'s header):
+      // this tenant's real recorded history is 8,280 tokens across 6
+      // requests, and this tile shows 983 across the ones the platform's
+      // own simulated clock has already reached. Never "Complete" — the
+      // window label says "to date" precisely so a reader never mistakes
+      // this for the tenant's full total, in either the default view or a
+      // period entirely in the platform's own future (which reads 0, not
+      // because there is no data but because nothing in it has "happened"
+      // yet — 0 is the honest answer there too, just not a COMPLETE one).
+      window: toDateWindow,
+      complete: false,
     },
     {
       id: 'runs',
       label: 'Runs',
       data: { kind: 'value', value: periodRuns.length, unit: 'runs' },
       window: windowLabel,
+      complete: true,
     },
     {
       id: 'deviations',
       label: 'Deviations',
       data: { kind: 'value', value: periodDeviations.length, unit: 'deviations' },
       window: windowLabel,
+      complete: true,
     },
     {
       id: 'worker-shift-consumption',
       label: 'Worker-Shift consumption',
       data: { kind: 'value', value: tenant.workerShiftsThisMonth, unit: 'shifts this month' },
       window: 'This month',
+      complete: true,
     },
     {
       id: 'sync-health',
@@ -920,6 +988,7 @@ function PerTenantMeasures({
               reason: `Queue depth is not part of this build's device telemetry. ${syncHealthyCount} of ${devices.length} devices report healthy sync; ${clockSkewTotal} clock-skew events recorded.`,
             },
       window: CURRENT_STATE_WINDOW,
+      complete: false,
     },
     {
       id: 'hold-propagation-lag',
@@ -929,12 +998,14 @@ function PerTenantMeasures({
         reason: 'Holds record when they were placed and released, never the per-device confirmation moment propagation means.',
       },
       window: 'Not applicable',
+      complete: false,
     },
     {
       id: 'clearance-volumes',
       label: 'Clearance volumes',
       data: { kind: 'value', value: periodGrants.length, unit: 'clearances' },
       window: windowLabel,
+      complete: true,
     },
     {
       id: 'adoption-timing-lag',
@@ -944,6 +1015,7 @@ function PerTenantMeasures({
         reason: 'Workflow versions carry a status but no publish timestamp in this build, so no interval to in-force can be read.',
       },
       window: 'Not applicable',
+      complete: false,
     },
     {
       id: 'eval-posture',
@@ -953,6 +1025,7 @@ function PerTenantMeasures({
         reason: "This build's eval-harness records are not attributed to a tenant. A platform-wide figure is shown on the comparative tab.",
       },
       window: 'Not applicable — not tenant-attributed',
+      complete: false,
     },
     {
       id: 'learning-proposal-lifecycle',
@@ -962,18 +1035,21 @@ function PerTenantMeasures({
         reason: 'No collection in this build models a Lane-B learning-proposal queue.',
       },
       window: 'Not applicable',
+      complete: false,
     },
     {
       id: 'notification-escalation-health',
       label: 'Notification and escalation health',
       data: { kind: 'value', value: fallbacksFiredCount, unit: 'fallbacks fired' },
       window: windowLabel,
+      complete: true,
     },
     {
       id: 'override-patterns',
       label: 'Override patterns',
       data: { kind: 'value', value: clusterRows.length, unit: 'clustering groups' },
       window: windowLabel,
+      complete: true,
     },
   ]
 
@@ -1029,7 +1105,7 @@ function PerTenantMeasures({
               <StatTile controlId={`tenant-metrics-tile-${t.id}`} label={t.label} data={t.data} />
               <p className={`text-xs ${textColor('ink-subtle')}`}>
                 Window: {t.window}
-                {t.data.kind === 'value' ? ' · Complete' : ''}
+                {t.complete ? ' · Complete' : ''}
               </p>
             </div>
           ))}
