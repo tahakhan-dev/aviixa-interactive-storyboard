@@ -19,3 +19,8 @@ graphify-out/
 # and 173MB of binary that changes on every copy edit is not something a repository
 # should carry to describe pages it can rebuild.
 docs/screenshots/*.png
+# Live-verification captures, same reasoning: evidence a ledger row NAMES, not
+# binary a diff should carry. `docs/process/live-verification-procedure.md` step 7
+# writes here so the Playwright MCP server stops defaulting to the repository's
+# PARENT directory.
+docs/screenshots/live/**/*.png

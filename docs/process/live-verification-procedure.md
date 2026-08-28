@@ -122,7 +122,8 @@ output fills.
    array. An empty array again means "checked, none found."
 
 7. **Screenshot.** `mcp__playwright__browser_take_screenshot({ filename:
-   "<pathId-with-slashes-replaced>-<n>.png", fullPage: true })` — one
+   "docs/screenshots/live/<unit-or-slice>/<pathId-with-slashes-replaced>-<n>.png",
+   fullPage: true })` — one
    per meaningfully distinct state (before a mutating action and after it,
    at minimum, for any row whose `expected` describes a state change).
    Record each saved filename, in the order taken, in the row's
@@ -130,6 +131,16 @@ output fills.
    pass of this ledger — see "What this procedure cannot do" below — so the
    filename itself, plus the `observed` field's prose description of what
    it shows, is the durable record.
+
+   **The path is part of the step, not a detail left to the tool.** Given a
+   bare filename, the Playwright MCP server writes wherever its own output
+   directory points — which in this environment is the PARENT of the
+   repository, and unit 1 task 1 put nine captures on the client's desktop
+   folder before this was noticed. `docs/screenshots/live/` is inside the
+   repository, is already covered by the `docs/screenshots/*.png` ignore
+   rule's intent (add the nested glob if git starts tracking them), and
+   keeps a ledger row's `screenshots` array resolvable from the repository
+   root by anyone reading it later.
 
 8. **Compare, and write `observed`, `verdict`, `defect`.** `observed` is a
    plain-prose statement of what steps 4-7 actually showed, written so it
