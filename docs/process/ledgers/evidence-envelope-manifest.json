@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-21326f52183cabaf",
-  "candidate_id": "SLICE11-a811d578c1e4b86d",
+  "envelope_id": "ENV11-54c5efd2165db8cc",
+  "candidate_id": "SLICE11-2af2f4aa2a1d3bf2",
   "slice": "11",
-  "payload_sha256": "21326f52183cabafb2d82547104d3ee6e7e1c412b2243f0259c735c0ea1ee8a2",
+  "payload_sha256": "54c5efd2165db8cc5b4ac89217649c3071b507b927f487768538994524107e98",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -23,8 +23,8 @@
     "why_excludes_both": "sealing writes both manifests in one operation, so neither can be certified against a commit that predates that write — a manifest cannot describe a tree that contains its own freshly-sealed bytes. Fix round 1 (Task 18): this used to exclude only itself and certify the product manifest as ordinary evidence payload, which is what made case 13 unsatisfiable (RESUME §8)."
   },
   "payload_excludes_self": true,
-  "payload_count": 95,
-  "supersedes": "ENV11-84938b0e3d094fa8",
+  "payload_count": 97,
+  "supersedes": "ENV11-21326f52183cabaf",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -328,8 +328,8 @@
     },
     {
       "path": "docs/process/claude-hooks/README.md",
-      "bytes": 2130,
-      "sha256": "a8496bdc2ad485d2bfee4378af13991b4537edf0d76468a5ce852530e85622ca"
+      "bytes": 2578,
+      "sha256": "1e76ad7129ee9397956a3ff78e3acf566a0168d154d52e9803e266a6c98ba470"
     },
     {
       "path": "docs/process/claude-hooks/settings.json",
@@ -357,6 +357,11 @@
       "sha256": "1a547b76b898d47a4cb29a7a316c92f25d14adc686775e0ff6aae44ebbddb0df"
     },
     {
+      "path": "docs/process/ledgers/live-verification-ledger.json",
+      "bytes": 4490,
+      "sha256": "cf986fc98bb2e23b3758f049ffb7150f505c1fbac968cd179796d18d52ffed44"
+    },
+    {
       "path": "docs/process/ledgers/loop-ledger.json",
       "bytes": 102924,
       "sha256": "9ec63f530deb2ba83fa754a60604012a624d4442f16234f09baf3678a490e48d"
@@ -373,13 +378,18 @@
     },
     {
       "path": "docs/process/ledgers/tdd-ledger.json",
-      "bytes": 98432,
-      "sha256": "70fe4e91502976643d7e84920ceef7bccab9e390ebfca5a75b6d79e9971b5e22"
+      "bytes": 100092,
+      "sha256": "7c8a8970620aaa04a27e4d71cb3ad37a41579eef6d95a37d6200d5ef9b919adb"
     },
     {
       "path": "docs/process/ledgers/verification-ledger.json",
       "bytes": 49985,
       "sha256": "8e49bc3d858622464399ef3aee774812f9c709bee5aa2a017bb64bfca2cbaa3d"
+    },
+    {
+      "path": "docs/process/live-verification-procedure.md",
+      "bytes": 11019,
+      "sha256": "9bd3afbbb3888132b18707a4f21e9cbefa4e45db259b1794a20334a441a37ca2"
     },
     {
       "path": "docs/process/master-prompt/AVIIXA_Interactive_Storyboard_Master_Prompt_v1.0.md",
