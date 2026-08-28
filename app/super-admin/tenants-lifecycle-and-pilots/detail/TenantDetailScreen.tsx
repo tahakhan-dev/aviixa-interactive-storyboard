@@ -36,9 +36,14 @@ import { saModuleById } from '@/surfaces/sa/modules'
 
 /**
  * Task 6 (unit-01) — the tenant object page: Overview, People, Entitlements
- * and Audit tabs, plus the two lifecycle actions this unit may honour
- * (`Activate`, `Block`). Routing is the search-parameter shape ruled in
+ * and Audit tabs, plus the one lifecycle action this unit may honour
+ * (`Activate`). Routing is the search-parameter shape ruled in
  * `page.tsx`'s own header, not `[tenantId]/`.
+ *
+ * FIX ROUND 1 (review IMPORTANT 2) — `Block` shipped in the first pass and
+ * was REMOVED, not merely disabled: it wrote `lifecycle: 'archived'`, but
+ * archival is a unit-10 state this unit's own brief forbids rendering.
+ * See the removal's full reasoning beside `activateGate` below.
  *
  * ─────────────────────────────────────────────────────────────────────────
  * WHY `ObjectPage` SITS INSIDE `AppShell` WITH `AppShell`'S OWN
@@ -285,8 +290,6 @@ function TenantNotFound({
   )
 }
 
-type LifecycleActionKind = 'activate' | 'block'
-
 function TenantDetailBody({
   session,
   tenant,
@@ -304,7 +307,7 @@ function TenantDetailBody({
   const nowMs = store.clock.now()
 
   const [activeTabId, setActiveTabId] = useState('overview')
-  const [confirmAction, setConfirmAction] = useState<LifecycleActionKind | null>(null)
+  const [confirmingActivate, setConfirmingActivate] = useState(false)
   const [writeBusy, setWriteBusy] = useState(false)
   const [writeFeedback, setWriteFeedback] = useState<{ readonly tone: StatusToken; readonly message: string } | null>(
     null,
@@ -328,23 +331,36 @@ function TenantDetailBody({
    * page with its eight tabs. The Overview tab carries the lifecycle
    * actions as clearly separated controls with confirmation weight
    * proportional to consequence" — a tier assignment is a single
-   * confirmation; `Activate`/`Block` sit at that same, lightest weight
-   * (unit 10's suspensions are the heavier, typed-confirmation and
-   * critical-class actions this unit does not build). `allowedObjectStates`
-   * is the evaluator's own object-state stage (spec §3.4 stage 7) —
-   * "valid only from invited" is enforced by the real evaluator, not a
-   * hand-written `tenant.lifecycle === 'invited'` check.
+   * confirmation; `Activate` sits at that same, lightest weight (unit 10's
+   * suspensions are the heavier, typed-confirmation and critical-class
+   * actions this unit does not build). `allowedObjectStates` is the
+   * evaluator's own object-state stage (spec §3.4 stage 7) — "valid only
+   * from invited" is enforced by the real evaluator, not a hand-written
+   * `tenant.lifecycle === 'invited'` check.
    *
-   * `resourceTenant` is deliberately NOT declared on either request below.
-   * `evaluateAccess`'s feature-and-suspension stage refuses any action
-   * naming a resource tenant that is `PROVISIONING` (which `invited` maps
-   * to, `repository.ts#TENANT_LIFECYCLE_MAP`) or `ARCHIVED` — exactly the
-   * states these two actions exist to act ON. Declaring `resourceTenant`
-   * here would make `Activate`/`Block` permanently unreachable for the only
-   * tenants they are for, the same trap `TenantsScreen.tsx`'s `create-tenant`
-   * decision avoids for the identical reason (no tenant resource exists yet
-   * to name). This is a platform-level decision about the tenant's OWN
-   * record, not an operation reaching INTO an already-provisioned tenant.
+   * `resourceTenant` is deliberately NOT declared below. `evaluateAccess`'s
+   * feature-and-suspension stage refuses any action naming a resource
+   * tenant that is `PROVISIONING` (which `invited` maps to,
+   * `repository.ts#TENANT_LIFECYCLE_MAP`) or `ARCHIVED` — exactly the state
+   * `Activate` exists to act ON. Declaring `resourceTenant` here would make
+   * `Activate` permanently unreachable for the only tenants it is for, the
+   * same trap `TenantsScreen.tsx`'s `create-tenant` decision avoids for the
+   * identical reason (no tenant resource exists yet to name). This is a
+   * platform-level decision about the tenant's OWN record, not an operation
+   * reaching INTO an already-provisioned tenant.
+   *
+   * FIX ROUND 1 (review IMPORTANT 2) — `Block` is REMOVED, not merely
+   * disabled. It shipped writing `lifecycle: 'archived'`, but archival is
+   * unit 10's state to introduce, and this unit's own brief says a reader
+   * must not meet a control it cannot honour. The closed, eight-state
+   * `TenantLifecycle` enum has no "declined"/"blocked" value distinct from
+   * `archived` — that gap is real, not a naming choice this fix can paper
+   * over, so the honest answer is that this unit cannot ship the action at
+   * all, not that it should reuse the wrong state. Blocking, unblocking and
+   * controlled restoration are one source workflow (`FEAT-SA-09-02`) and
+   * belong together in unit 10, where the suspension states they actually
+   * use are already in scope. Recorded here for unit 10 rather than left
+   * for that unit to rediscover the same enum gap.
    */
   const activateGate = evaluateAccess(
     {
@@ -353,16 +369,6 @@ function TenantDetailBody({
       objectState: tenant.lifecycle,
       allowedObjectStates: ['invited'],
       sourceRefs: ['SB-SA-09', 'SB-31-05'],
-    },
-    ctx,
-  )
-  const blockGate = evaluateAccess(
-    {
-      action: 'block-tenant-onboarding',
-      allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN'],
-      objectState: tenant.lifecycle,
-      allowedObjectStates: ['invited'],
-      sourceRefs: ['SB-SA-09'],
     },
     ctx,
   )
@@ -390,29 +396,16 @@ function TenantDetailBody({
       : administratorAccepted
         ? null
         : firstTenantAdmin === null
-          ? 'No Tenant Admin is seeded for this tenant yet, so there is no invitation to accept.'
+          ? 'This tenant has no administrator yet, so there is no invitation to accept.'
           : `Activation is not available until ${firstTenantAdmin.displayName} accepts the invitation and completes identity proof.`
 
-  const canBlock = blockGate.outcome === 'allowed'
-
-  async function handleConfirmedAction() {
-    if (confirmAction === null) return
+  async function handleConfirmedActivate() {
     setWriteBusy(true)
-    const patch =
-      confirmAction === 'activate'
-        ? { lifecycle: nextLifecycleOnActivate }
-        : { lifecycle: 'archived' as const, archivedAt: new Date(store.clock.now()).toISOString() }
-    const result = await repository.update('tenants', tenant.id, patch, ctx)
+    const result = await repository.update('tenants', tenant.id, { lifecycle: nextLifecycleOnActivate }, ctx)
     setWriteBusy(false)
-    setConfirmAction(null)
+    setConfirmingActivate(false)
     if (result.ok) {
-      setWriteFeedback({
-        tone: 'ok',
-        message:
-          confirmAction === 'activate'
-            ? `${tenant.name} is now ${LIFECYCLE_LABEL[nextLifecycleOnActivate]}.`
-            : `${tenant.name}'s onboarding is closed. It was never activated.`,
-      })
+      setWriteFeedback({ tone: 'ok', message: `${tenant.name} is now ${LIFECYCLE_LABEL[nextLifecycleOnActivate]}.` })
     } else {
       setWriteFeedback({ tone: 'danger', message: result.explain })
     }
@@ -450,49 +443,26 @@ function TenantDetailBody({
         status={<StatusPill tone={LIFECYCLE_TONE[tenant.lifecycle]} label={LIFECYCLE_LABEL[tenant.lifecycle]} />}
         freshness={<FreshnessStamp asOfLabel={formatPlatformTime(nowMs)} />}
         actions={
-          <div className="flex items-start gap-3">
-            <div className="flex flex-col items-end gap-1">
-              <button
-                type="button"
-                data-control-id="tenant-detail-activate"
-                disabled={!canActivate}
-                aria-describedby={activateDisabledReason ? 'tenant-detail-activate-reason' : undefined}
-                onClick={() => setConfirmAction('activate')}
-                className={
-                  canActivate
-                    ? `${radiusClass('md')} ${bg('accent')} px-4 py-2 text-sm font-medium text-[var(--accent-ink)]`
-                    : `cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-4 py-2 text-sm font-medium ${textColor('ink-subtle')}`
-                }
-              >
-                Activate
-              </button>
-              {activateDisabledReason ? (
-                <p id="tenant-detail-activate-reason" className={`max-w-xs text-right text-xs ${textColor('ink-muted')}`}>
-                  {activateDisabledReason}
-                </p>
-              ) : null}
-            </div>
-            <div className="flex flex-col items-end gap-1">
-              <button
-                type="button"
-                data-control-id="tenant-detail-block"
-                disabled={!canBlock}
-                aria-describedby={!canBlock ? 'tenant-detail-block-reason' : undefined}
-                onClick={() => setConfirmAction('block')}
-                className={
-                  canBlock
-                    ? `${radiusClass('md')} border ${borderColor('border-strong')} ${bg('surface')} px-4 py-2 text-sm font-medium ${textColor('ink')}`
-                    : `cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-4 py-2 text-sm font-medium ${textColor('ink-subtle')}`
-                }
-              >
-                Block
-              </button>
-              {!canBlock ? (
-                <p id="tenant-detail-block-reason" className={`max-w-xs text-right text-xs ${textColor('ink-muted')}`}>
-                  {blockGate.explanation}
-                </p>
-              ) : null}
-            </div>
+          <div className="flex flex-col items-end gap-1">
+            <button
+              type="button"
+              data-control-id="tenant-detail-activate"
+              disabled={!canActivate}
+              aria-describedby={activateDisabledReason ? 'tenant-detail-activate-reason' : undefined}
+              onClick={() => setConfirmingActivate(true)}
+              className={
+                canActivate
+                  ? `${radiusClass('md')} ${bg('accent')} px-4 py-2 text-sm font-medium text-[var(--accent-ink)]`
+                  : `cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-4 py-2 text-sm font-medium ${textColor('ink-subtle')}`
+              }
+            >
+              Activate
+            </button>
+            {activateDisabledReason ? (
+              <p id="tenant-detail-activate-reason" className={`max-w-xs text-right text-xs ${textColor('ink-muted')}`}>
+                {activateDisabledReason}
+              </p>
+            ) : null}
           </div>
         }
         tabs={tabs}
@@ -501,19 +471,19 @@ function TenantDetailBody({
       />
 
       <ConfirmDialog
-        open={confirmAction !== null}
+        open={confirmingActivate}
         controlId="tenant-detail-lifecycle-confirm"
-        title={confirmAction === 'activate' ? `Activate ${tenant.name}` : `Block ${tenant.name}'s onboarding`}
+        title={`Activate ${tenant.name}`}
         affectedObjects={[{ id: tenant.id, label: tenant.name }]}
         resultingState={{
           subject: 'Tenant lifecycle',
           from: LIFECYCLE_LABEL[tenant.lifecycle],
-          to: confirmAction === 'activate' ? LIFECYCLE_LABEL[nextLifecycleOnActivate] : LIFECYCLE_LABEL.archived,
+          to: LIFECYCLE_LABEL[nextLifecycleOnActivate],
         }}
-        confirmLabel={confirmAction === 'activate' ? 'Activate' : 'Block'}
+        confirmLabel="Activate"
         busy={writeBusy}
-        onConfirm={handleConfirmedAction}
-        onCancel={() => setConfirmAction(null)}
+        onConfirm={handleConfirmedActivate}
+        onCancel={() => setConfirmingActivate(false)}
       />
     </AppShell>
   )
@@ -564,7 +534,7 @@ function renderOverviewTab({
               // repository — an honest "not tracked" note, not a fabricated
               // date, and never a requirement identifier printed as page
               // text (global constraint).
-              <span className={`ml-2 text-xs ${textColor('ink-subtle')}`}>Expiry: not tracked in this build's data</span>
+              <span className={`ml-2 text-xs ${textColor('ink-subtle')}`}>Pilot expiry is not tracked.</span>
             ) : null}
           </dd>
         </div>
@@ -607,10 +577,16 @@ function renderOverviewTab({
           <>
             <div
               role="progressbar"
+              data-control-id="tenant-detail-usage-meter"
               aria-label={`Worker-Shift usage against the ${TIER_LABEL[tenant.tier]} ceiling`}
+              // `aria-valuemax` matches the visible "X% of the ceiling" text
+              // (a percentage of 100), not the 150%-wide VISUAL domain the
+              // fill bar draws against — those are two different scales,
+              // and a screen reader announcing the percentage against a
+              // silent 150 would contradict the text sighted readers see.
               aria-valuenow={Math.round((ratio ?? 0) * 100)}
               aria-valuemin={0}
-              aria-valuemax={150}
+              aria-valuemax={100}
               className="mt-2 h-2.5 w-full max-w-md overflow-hidden rounded-full"
               style={{ backgroundColor: colorVar('sunken') }}
             >
@@ -674,7 +650,7 @@ function renderPeopleTab({
       <div className={`${radiusClass('lg')} border ${borderColor('border')} ${bg('raised')} p-3`}>
         <h3 className={`text-sm font-semibold ${textColor('ink')}`}>First Tenant Admin</h3>
         {firstTenantAdmin === null ? (
-          <p className={`mt-1 text-sm ${textColor('ink-muted')}`}>No Tenant Admin is seeded for this tenant yet.</p>
+          <p className={`mt-1 text-sm ${textColor('ink-muted')}`}>This tenant has no administrator yet.</p>
         ) : (
           <p className={`mt-1 text-sm ${textColor('ink')}`}>
             {firstTenantAdmin.displayName} —{' '}
@@ -718,9 +694,9 @@ function renderEntitlementsTab({
   return (
     <div className="flex flex-col gap-4">
       <p className={`text-sm ${textColor('ink-muted')}`}>
-        {TIER_LABEL[tenant.tier]}'s entitlements, read-only at this unit's scope. The platform floor is what the
-        tier and the platform-wide default allow; the tenant's desired value is this specific tenant's recorded
-        opt-in or opt-out, where one has been recorded.
+        Entitlements are read-only here. The platform floor is what the tier and the platform-wide default
+        allow; the tenant's desired value is this specific tenant's recorded opt-in or opt-out, where one has
+        been recorded.
       </p>
       <div className={`overflow-x-auto ${radiusClass('lg')} border ${borderColor('border')}`}>
         <table className="w-full text-sm">
@@ -788,10 +764,9 @@ function renderAuditTab({
   if (tenantAuditRows.length === 0) {
     return (
       <div className={`${radiusClass('lg')} border ${borderColor('border')} ${bg('raised')} p-6`}>
-        <p className={`text-sm ${textColor('ink')}`}>No audit rows exist for this tenant yet.</p>
+        <p className={`text-sm ${textColor('ink')}`}>No activity has been recorded for this tenant yet.</p>
         <p className={`mt-1 text-sm ${textColor('ink-muted')}`}>
-          This is the correct, honest state for a newly invited or newly provisioned tenant — nothing has happened
-          on its behalf yet. An entry appears here the first time an action is taken for this tenant.
+          An entry appears here the first time an action is taken for this tenant.
         </p>
       </div>
     )

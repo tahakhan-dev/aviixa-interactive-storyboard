@@ -64,40 +64,63 @@ function groupByCorrelation(entries: readonly TimelineEntry[]): Map<string, Time
   return groups
 }
 
+function EntryRow({ entry }: { readonly entry: TimelineEntry }) {
+  return (
+    <>
+      <span aria-hidden="true">{KIND_ICON[entry.kind]}</span>
+      <span className={`font-medium ${textColor('ink')}`}>{entry.actor}</span>
+      <span className={textColor('ink-muted')}>{entry.action}</span>
+      <span
+        className={`inline-flex items-center gap-1 ${radiusClass('pill')} px-1.5 py-0.5 text-xs font-medium ${statusBg(RESULT_TONE[entry.result])} ${statusText(RESULT_TONE[entry.result])}`}
+      >
+        {entry.result}
+      </span>
+      <span className={`text-xs ${textColor('ink-subtle')}`}>{entry.occurredAtLabel}</span>
+    </>
+  )
+}
+
 export function Timeline({ controlId, entries }: TimelineProps) {
   const groups = groupByCorrelation(entries)
 
   return (
     <div data-control-id={controlId} className="flex flex-col gap-4">
-      {Array.from(groups.entries()).map(([correlationId, group]) => (
-        <section
-          key={correlationId}
-          data-control-id={`${controlId}-group-${correlationId}`}
-          className={`${radiusClass('lg')} border ${borderColor('border')} ${bg('raised')} p-3`}
-        >
-          <h4 className={`text-xs font-semibold uppercase tracking-wide ${textColor('ink-muted')}`}>
-            {`Correlation ${correlationId}`}
-          </h4>
-          <ol className="mt-2 flex flex-col gap-2">
-            {group.map((entry) => (
-              <li
-                key={entry.id}
-                className={`flex flex-wrap items-baseline gap-2 border-l-2 ${borderColor('border')} pl-3 text-sm`}
-              >
-                <span aria-hidden="true">{KIND_ICON[entry.kind]}</span>
-                <span className={`font-medium ${textColor('ink')}`}>{entry.actor}</span>
-                <span className={textColor('ink-muted')}>{entry.action}</span>
-                <span
-                  className={`inline-flex items-center gap-1 ${radiusClass('pill')} px-1.5 py-0.5 text-xs font-medium ${statusBg(RESULT_TONE[entry.result])} ${statusText(RESULT_TONE[entry.result])}`}
-                >
-                  {entry.result}
-                </span>
-                <span className={`text-xs ${textColor('ink-subtle')}`}>{entry.occurredAtLabel}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-      ))}
+      {Array.from(groups.entries()).map(([correlationId, group]) => {
+        const rowClassName = `flex flex-wrap items-baseline gap-2 border-l-2 ${borderColor('border')} pl-3 text-sm`
+        // Fix round 1 (Task 6, review MINOR) — a real audit collection is
+        // mostly singleton correlations (one row, one cause, nothing else
+        // in the chain): grouping affordance (the box + "Correlation ..."
+        // heading) is only meaningful where it actually groups more than
+        // one row. A singleton renders as a plain row, matching every
+        // other entry visually, with no opaque correlation id printed for
+        // a chain of one.
+        if (group.length === 1) {
+          const entry = group[0]!
+          return (
+            <div key={correlationId} data-control-id={`${controlId}-row-${entry.id}`} className={rowClassName}>
+              <EntryRow entry={entry} />
+            </div>
+          )
+        }
+        return (
+          <section
+            key={correlationId}
+            data-control-id={`${controlId}-group-${correlationId}`}
+            className={`${radiusClass('lg')} border ${borderColor('border')} ${bg('raised')} p-3`}
+          >
+            <h4 className={`text-xs font-semibold uppercase tracking-wide ${textColor('ink-muted')}`}>
+              {`Correlation ${correlationId}`}
+            </h4>
+            <ol className="mt-2 flex flex-col gap-2">
+              {group.map((entry) => (
+                <li key={entry.id} className={rowClassName}>
+                  <EntryRow entry={entry} />
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      })}
     </div>
   )
 }

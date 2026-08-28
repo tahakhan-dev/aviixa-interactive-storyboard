@@ -39,6 +39,18 @@ import type { ProductSession } from './AppShell'
  *    an effect (a render must not have a navigation side effect), and the
  *    render in the meantime is the SAME inert loading shape, not a flash of
  *    `children`'s dashboard with a null session forced through it.
+ *
+ * FIX ROUND 1 (Task 6, review IMPORTANT 5) — the redirect now appends
+ * `?next=<encoded current path+search>` to `signInHref`, read from
+ * `window.location` inside the effect (client-only, so no SSR/prerender
+ * concern) rather than `useSearchParams()` — that hook requires a
+ * `<Suspense>` boundary under static export, which would force one onto
+ * every page.tsx that renders `<RequireSession>` for a value only ever
+ * needed at redirect time. `SignInScreen.tsx#resolveLandingHref` reads it
+ * back and returns to it after a successful sign-in, so a deep link (a
+ * tenant detail `?tenant=` URL, for one) survives the sign-in round trip
+ * instead of always landing on the Overview dashboard — master prompt
+ * §6.2's "reload and back/forward reconstruct the exact permitted state."
  */
 export interface RequireSessionProps {
   readonly signInHref: string
@@ -61,7 +73,11 @@ export function RequireSession({ signInHref, children }: RequireSessionProps) {
   const router = useRouter()
 
   useEffect(() => {
-    if (ready && session === null) router.replace(signInHref)
+    if (ready && session === null) {
+      const returnTo = `${window.location.pathname}${window.location.search}`
+      const separator = signInHref.includes('?') ? '&' : '?'
+      router.replace(`${signInHref}${separator}next=${encodeURIComponent(returnTo)}`)
+    }
   }, [ready, session, router, signInHref])
 
   if (!ready) return <Waiting label="Preparing the platform console…" />

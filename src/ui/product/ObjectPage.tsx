@@ -141,7 +141,9 @@ export function ObjectPage({
               }}
               type="button"
               role="tab"
+              id={tabButtonId(tab.id)}
               aria-selected={selected}
+              aria-controls={tabPanelId(tab.id)}
               tabIndex={selected ? 0 : -1}
               data-control-id={`object-page-tab-${tab.id}`}
               onClick={() => onTabChange(tab.id)}
@@ -156,7 +158,33 @@ export function ObjectPage({
         })}
       </div>
 
-      <div className="mt-4">{active?.content}</div>
+      {/*
+       * Fix round 1 (Task 6, review MINOR) — this panel had no
+       * `role="tabpanel"`/`id`/`aria-labelledby`/`tabIndex`, so the tab
+       * buttons' `role="tab"` pointed at nothing: a tab widget's contract
+       * (WAI-ARIA APG) is a tab CONTROLS a panel, named both ways. `tabIndex={0}`
+       * lets a keyboard user Tab directly from the active tab into its
+       * panel's content in one step, the standard pattern.
+       */}
+      {active ? (
+        <div
+          role="tabpanel"
+          id={tabPanelId(active.id)}
+          aria-labelledby={tabButtonId(active.id)}
+          tabIndex={0}
+          className="mt-4"
+        >
+          {active.content}
+        </div>
+      ) : null}
     </div>
   )
+}
+
+function tabButtonId(tabId: string): string {
+  return `object-page-tab-${tabId}`
+}
+
+function tabPanelId(tabId: string): string {
+  return `object-page-panel-${tabId}`
 }

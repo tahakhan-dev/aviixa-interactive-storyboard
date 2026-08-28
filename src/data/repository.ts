@@ -528,31 +528,53 @@ function authorizeWrite(
   const areaId = typeof row.areaId === 'string' ? row.areaId : undefined
 
   /**
-   * Task 6 (unit-01) finding — `resourceTenant` is NEVER declared for a
-   * write to the `tenants` collection itself, even though `resolveTenantId`
-   * above resolves one (`name === 'tenants'` returns `{ kind: 'resolved',
-   * tenant: row.id }` — the row's OWN id, by construction). `resourceTenant`
-   * exists to answer "which tenant OWNS this resource" (a Job belongs to a
-   * tenant); a `tenants` row does not belong to a tenant, IT IS the tenant,
-   * so resolving it to itself and feeding it back into the tenant-isolation
-   * and feature-and-suspension stages is a category error, not a genuine
-   * isolation check.
+   * Task 6 (unit-01) finding, corrected in fix round 1 (review IMPORTANT 1)
+   * — `resourceTenant` is NEVER declared for a write to the `tenants`
+   * collection itself, even though `resolveTenantId` above resolves one
+   * (`name === 'tenants'` returns `{ kind: 'resolved', tenant: row.id }` —
+   * the row's OWN id, by construction). That self-resolution is CORRECT and
+   * load-bearing for READ visibility (`withinScope` above, ~L374: it is how
+   * a TENANT-domain reader's own tenant row is matched at all) — the
+   * narrower, write-path-only problem is that feeding it back into
+   * `authorizeWrite`'s `resourceTenant` duplicates the role floor
+   * (`defaultWriteRoles`) that already gates who may write `tenants` at
+   * all, and on this one collection it can only ever produce a FALSE
+   * refusal, never a true isolation catch (there is no second tenant to be
+   * isolated from — the actor and the resource are the same platform-wide
+   * record).
    *
-   * It is also a LOAD-BEARING dead end left unnoticed until this task: the
-   * feature-and-suspension stage (`evaluateAccess`, `NOT_YET_OR_NO_LONGER_
-   * ACTIVE_STATES`) refuses any write whose `resourceTenant` resolves to a
-   * `PROVISIONING` (`invited`/`pilot`... `invited` specifically) or
+   * It is also a LOAD-BEARING dead end this task's own live drive found:
+   * the feature-and-suspension stage (`evaluateAccess`,
+   * `NOT_YET_OR_NO_LONGER_ACTIVE_STATES`) refuses any write whose
+   * `resourceTenant` resolves to a `PROVISIONING` (`invited`/`pilot`) or
    * `ARCHIVED` tenant — correct for an OPERATIONAL write reaching INTO a
    * not-yet-live or closed tenant, but with the pre-fix code this ALSO
-   * refused the platform's own `Activate`/`Block`/(future unit 10)
-   * suspend-release/reactivate writes ON that tenant's own row, because the
-   * very state those actions exist to change is what the floor was reading
-   * back as a refusal. No prior task's write path ever exercised an
-   * `update()`/`transition()` against a non-active tenant row, so this was
-   * never triggered before Task 6 tried to make `Activate`/`Block` genuinely
-   * write. `create` was never affected — a brand-new tenant does not exist
-   * in `state.platform.tenants` yet when `authorizeWrite` runs, so
-   * `tenantPartition` already returned `undefined` there regardless.
+   * refused the platform's own `Activate`/(future unit 10)
+   * suspend-release/reactivate/restore writes ON that tenant's own row,
+   * because the very state those actions exist to change is what the floor
+   * was reading back as a refusal. `create` was NOT exempt either, despite
+   * this file's own earlier claim to the contrary: a brand-new tenant's id
+   * is not yet in `state.platform.tenants`, so `tenantPartition` there
+   * returns `undefined` — but that does not skip authorisation, it trips
+   * the EARLIER platform-domain check at `evaluate.ts` (M4, ~L229):
+   * `tenantPartition(state, req.resourceTenant) === undefined` denies
+   * `TENANT_MISMATCH` for any `resourceTenant` the platform state doesn't
+   * yet recognise. So `repository.create('tenants', …)` through this
+   * generic door was ALSO refused pre-fix, for every role — this fix is
+   * what makes Task 5's create wizard reachable, not only Task 6's
+   * `Activate`.
+   *
+   * SCOPE OF WHAT THIS REMOVES: both `NOT_YET_OR_NO_LONGER_ACTIVE_STATES`
+   * (`PROVISIONING`/`ARCHIVED`) AND `SUSPENDED_STATES` (soft/hard/
+   * compliance) stop applying to a `tenants` write, not only the first —
+   * the right direction for unit 10's release/restore writes, which need
+   * exactly this door open. The floor for a `tenants` write is now
+   * ROLE-ONLY (`defaultWriteRoles('platform')`:
+   * `ROOT_SUPER_ADMIN`/`ADMIN`/`PLATFORM_ENGINEER`) — wider than this
+   * screen's own `Activate` gate, which excludes `PLATFORM_ENGINEER`.
+   * Every caller of `repository.update`/`.transition('tenants', …)` MUST
+   * carry its own role/object-state gate (as `TenantDetailScreen.tsx` does)
+   * — this floor will not catch a caller that forgets one.
    */
   const req: AccessRequest = {
     action: `${action.toUpperCase()} ${name}`,

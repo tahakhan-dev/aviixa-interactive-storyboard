@@ -49,6 +49,35 @@ function humanizeLifecycle(lifecycle: string): string {
   return spaced.length === 0 ? spaced : spaced.charAt(0).toUpperCase() + spaced.slice(1)
 }
 
+/**
+ * Fix round 1 (review IMPORTANT 5) — master prompt §6.2 requires reload and
+ * back/forward to reconstruct the exact permitted state, and this screen is
+ * where a signed-out deep link (e.g. a tenant detail `?tenant=` URL) used to
+ * lose that intent: `RequireSession` redirects here with no return path, and
+ * this screen hardcoded the Overview dashboard as the ONLY landing spot for
+ * every successful sign-in, on every surface. `RequireSession` now appends
+ * `?next=<encoded original path>` to `signInHref` before redirecting; this
+ * reads it back from `window.location.search` (not `useSearchParams()` —
+ * that hook needs a `<Suspense>` boundary under static export, which would
+ * force one onto this screen's `page.tsx` and every other screen that reads
+ * this same pattern, for a value only ever needed inside a click/submit
+ * handler, never during the initial render or prerender).
+ *
+ * Validated as a same-app relative path before use — `next` is a URL query
+ * value a caller could set to anything: it must start with a single `/`
+ * (never `//`, which a browser treats as protocol-relative to another
+ * host) and must not contain `://`. An invalid or absent value falls back
+ * to the pre-existing default, never to an unvalidated redirect.
+ */
+function resolveLandingHref(): string {
+  const DEFAULT_LANDING = '/super-admin/platform-overview-and-health/'
+  if (typeof window === 'undefined') return DEFAULT_LANDING
+  const next = new URLSearchParams(window.location.search).get('next')
+  if (next === null) return DEFAULT_LANDING
+  if (!next.startsWith('/') || next.startsWith('//') || next.includes('://')) return DEFAULT_LANDING
+  return next
+}
+
 interface FieldErrors {
   readonly email?: string | undefined
   readonly password?: string | undefined
@@ -173,7 +202,7 @@ export function SignInScreen() {
       setPending(false)
       setOutcome(result)
       if (result.kind === 'invalid-credentials') setFocusSignal((n) => n + 1)
-      if (result.kind === 'signed-in') router.push('/super-admin/platform-overview-and-health/')
+      if (result.kind === 'signed-in') router.push(resolveLandingHref())
     }, 350)
   }
 
@@ -193,7 +222,7 @@ export function SignInScreen() {
     // again" control) stays rendered below, and NOTHING navigates. A
     // session appearing when its record could not be written would be the
     // same defect this whole fix round exists to remove, in a new place.
-    if (result.kind === 'signed-in') router.push('/super-admin/platform-overview-and-health/')
+    if (result.kind === 'signed-in') router.push(resolveLandingHref())
   }
 
   const displayedEmailError = touched.email ? fieldErrors.email : undefined
