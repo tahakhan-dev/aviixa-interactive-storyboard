@@ -174,11 +174,18 @@ export const SA_MODULE_AI_TABLE: OverlayTable = {
   ],
   headerRef: null,
   kind: 'derived',
+  // NO BARE "L91282-L91298"/"L91214-L91282" SPANS IN THIS RENDERED STRING —
+  // it renders both as `AiDegradationOverlay`'s derivation `<p>` and as the
+  // table's own sr-only `<caption>`, §8.6.2. The table's own axis and the two
+  // acceptance criteria's own ids are the named things a reader needs;
+  // `SA_FLOOR_ABSENCE.sourceRef` ('L91214') and `SA_MATRIX_CAPTION_REF`
+  // ('L91280', from `ai-failure-authority.ts`) already carry the matrix's
+  // line range, unrendered.
   whyDerived:
-    "Section 43.3.5's only table is the control x platform-role authority matrix at "
-    + 'L91282-L91298, whose axis is `Control`, and L91214-L91282 carries zero `MOD-SA` tokens. '
-    + 'No chapter-43 line states a per-module console behaviour, so every row below rests on '
-    + '`AC-43-351` (L91304) and `AC-43-352` (L91305) rather than on a line that states it. '
+    "Section 43.3.5's only table is the control x platform-role authority matrix, whose axis "
+    + 'is `Control`, and that table carries zero `MOD-SA` tokens. No chapter-43 line states a '
+    + 'per-module console behaviour, so every row below rests on `AC-43-351` (L91304) and '
+    + '`AC-43-352` (L91305) rather than on a line that states it. '
     + APP_012_DELEGATED_CHOICE,
   rows: SA_MODULE_AI_ROWS,
 }
