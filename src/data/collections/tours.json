@@ -50,11 +50,11 @@
         "narration": "Type into the location search box, one character at a time, exactly as a reviewer would with a keyboard.",
         "action": {
           "kind": "type",
-          "controlId": "doh-02-location-search",
+          "controlId": "sites-search",
           "value": "Ardmore"
         },
-        "spotlight": "doh-02-location-search",
-        "expectVisible": "doh-02-location-search"
+        "spotlight": "sites-search",
+        "expectVisible": "sites-search"
       },
       {
         "id": "open-inspector",

@@ -110,6 +110,25 @@ const AUDITED = {
       '`verify`, before `build` (step 6) -- and would still be correct after it, since its subject ' +
       'is the lint config, not build output.',
   },
+  'check-tour-targets.mjs': {
+    subject:
+      'src/data/collections/tours.json plus every *.tsx under app/** and src/ui/** as authored ' +
+      '(scraped for data-control-id/controlId literal and template-literal values)',
+    // This script's own header comment mentions `registries/generated`
+    // (documenting a real bug found this task -- see its "doh-02" note),
+    // which trips this audit's derived text-match check below. Filed
+    // honestly as 'build' rather than reworded to dodge the check: the
+    // script does not READ registries/generated at all (it is prose, not
+    // a path this script opens), but filing it this way costs nothing --
+    // it already runs before `build`, same as every other gate here.
+    rewrittenBy: 'build',
+    runsBeforeBuild: true,
+    verdict:
+      'NOT VACUOUS. Its real subject (tours.json, app/**, src/ui/**) is authored source no verify ' +
+      'step rewrites; the `registries/generated` mention this audit matched is a comment, not a ' +
+      'read. Runs at step 6 of `verify`, right after check:boundary-rules and before `build` ' +
+      '(step 7) regardless.',
+  },
   'scan-no-external-network.mjs': {
     subject: 'src/**, app/** as authored, plus every *.html under out/ with <script> blocks stripped',
     rewrittenBy: 'build',
