@@ -153,6 +153,60 @@ export interface Repository {
    */
   inviteConsoleUser(user: RowOf<'users'>, ctx: AccessContext): Promise<InviteConsoleUserResult>
   /**
+   * Task 3 (unit-02) — the tenant-authority sibling of `inviteConsoleUser`
+   * above: a Tenant Admin (see `TENANT_ROLE_GRANT_MATRIX`'s own comment for
+   * why it is Tenant Admin alone) creating a new tenant user account, under
+   * a SINGLE up-front authorisation covering the `users` row AND its first
+   * `role-grants` row — the same compound-write shape `inviteConsoleUser`
+   * established (one door, one authorisation, both writes, a `partial` arm
+   * for a genuine storage failure between them).
+   *
+   * `users`/`role-grants` are `'platform'`-authority tables
+   * (`@/data/truth-stores`, floor `PLATFORM_WRITERS`:
+   * `ROOT_SUPER_ADMIN`/`ADMIN`/`PLATFORM_ENGINEER`) — the same tables
+   * Unit 1 used for platform console accounts, and the ONLY `users`/
+   * `role-grants` tables that exist. A Tenant Admin cannot create a tenant
+   * user through the generic write door AT ALL today. This door is the fix
+   * for that gap: a NEW, deliberately NARROWER door standing next to the
+   * existing platform-authority door, never a widening of it. It can mint
+   * only a tenant-domain account, restricted to the closed four-role set
+   * `TENANT_USER_ROLES` below (never `READONLY_AUDITOR` — out of this
+   * door's own closed set per this task's brief, left to a future task
+   * rather than inventing a rule for it here; and never
+   * `ROOT_SUPER_ADMIN`/`ADMIN`/`PLATFORM_ENGINEER`/`SUPPORT` — a tenant
+   * door can never mint a platform account), always inside the ACTING
+   * session's own tenant (never a caller-supplied `tenantId` — the same
+   * class of guard `resolveTenantId`'s own fix protects, applied here to a
+   * row that does not exist yet), and only when the acting identity's own
+   * role may GRANT the requested one at all. See this method's own
+   * implementation comment and `TENANT_ROLE_GRANT_MATRIX`'s comment for the
+   * segregation-of-duties citations — a caller who could not grant a role
+   * through `assignTenantRole` below must not be able to mint the same
+   * role by inventing a brand-new account with it instead, which is
+   * exactly the bypass this shared check closes.
+   */
+  createTenantUser(user: RowOf<'users'>, ctx: AccessContext): Promise<CreateTenantUserResult>
+  /**
+   * Task 3 (unit-02) — granting an ADDITIONAL tenant role to an EXISTING
+   * tenant user (`SB-HO-005`, the tenant role-assignment storyboard: "the
+   * person may already hold others," roles additive, `§4.8`). Creates one
+   * new `role-grants` row; never touches the target's own `users.role`
+   * field, which this build reads as the account's role AT CREATION, not a
+   * redundant second copy of "every role this person holds" — the
+   * `role-grants` collection already is that list.
+   *
+   * Returns the `segregation-of-duties` arm of `AssignTenantRoleResult`
+   * (Task 4 depends on this exact name and shape) when the ACTING
+   * identity's own role may not grant the REQUESTED role — computed HERE,
+   * per call, from the live `ctx.identity.role`, never baked into a static
+   * `AccessRequest` constant (the analogous risk Task 1's own fix-round-2
+   * finding names for `requiredSites`/`requiredAreas`: a row/actor-dependent
+   * scope fact silently dropped by a static refactor). See this method's
+   * own implementation comment and `TENANT_ROLE_GRANT_MATRIX`'s comment for
+   * the research and its citations.
+   */
+  assignTenantRole(userId: string, role: RoleId, ctx: AccessContext): Promise<AssignTenantRoleResult>
+  /**
    * Fix round 3 (unit-01, Task 7 re-review, IMPORTANT 2) — the one door
    * for deciding a pending `approval-requests` row: segregation of duties,
    * the critical-class root-only rule, and approver availability were
@@ -367,6 +421,44 @@ export type InviteConsoleUserResult =
       /** Exactly `createRow`'s own failure shape — see that function. */
       grantFailure: WriteDenied | WritePersistenceUnavailable
     }
+
+/**
+ * `createTenantUser`'s own result — same shape as `InviteConsoleUserResult`
+ * for the same reason: a `users` row can commit while its `role-grants` row
+ * does not, and `partial` names that third shape directly.
+ */
+export type CreateTenantUserResult =
+  | { ok: true; user: RowOf<'users'>; grant: RowOf<'role-grants'> }
+  | WriteDenied
+  | WritePersistenceUnavailable
+  | {
+      ok: false
+      kind: 'partial'
+      user: RowOf<'users'>
+      /** Exactly `createRow`'s own failure shape — see that function. */
+      grantFailure: WriteDenied | WritePersistenceUnavailable
+    }
+
+/**
+ * `assignTenantRole`'s own result — the exact name and shape Task 4
+ * (dispatched after this task) depends on. `segregation-of-duties` is a
+ * THIRD failure shape distinct from `denied`: "you hold no grant for this
+ * action at all" (a `PermissionDecision`, from the generic role floor) and
+ * "you hold a grant for this DOOR but not for granting THIS role" are
+ * different facts, and folding the second into a bare `denied` would lose
+ * the specific `grantorRole`/`requestedRole` pair a caller needs to render
+ * a business-specific refusal rather than a generic one. No
+ * `PermissionDecision` is carried on this arm — the same reasoning
+ * `CreateShiftResult`'s own `'overlap'` arm gives for the same shape:
+ * `AccessRequest`/`PermissionDecision` describe a question about the
+ * ACTOR's authority in general, and this refusal is a business fact about
+ * one row-independent role pairing, computed per call (see
+ * `TENANT_ROLE_GRANT_MATRIX`'s own comment), not a stale scope baked into a
+ * static request constant.
+ */
+export type AssignTenantRoleResult =
+  | WriteResult<RowOf<'role-grants'>>
+  | { ok: false; kind: 'segregation-of-duties'; grantorRole: RoleId; requestedRole: RoleId }
 
 /**
  * Task 8 (unit-01) — no expiry field exists on `User` or `Tenant` for a
@@ -936,6 +1028,98 @@ const INVITE_CONSOLE_USER_REQUEST: AccessRequest = {
   action: 'invite-console-user',
   allowedRoles: ['ROOT_SUPER_ADMIN'],
   sourceRefs: ['§8.8.1', '§8.8.2', 'SB-31-10'],
+}
+
+/**
+ * Task 3 (unit-02) — the closed tenant-role set `createTenantUser`/
+ * `assignTenantRole` may ever mint or grant. Four of the five tenant roles
+ * (`@/domain/roles`, `MOD-DOH-09 / §3.5`): `READONLY_AUDITOR` is
+ * deliberately excluded from THIS pair of doors' own closed set, per this
+ * task's own brief (Step 2/3, which names "the closed tenant-role enum
+ * values" as exactly these four) — not because the source forbids granting
+ * it, but because this build's brief scopes these two doors to the four it
+ * names, leaving Read-only Auditor provisioning to a future task rather
+ * than inventing an unsourced rule for it here.
+ */
+const TENANT_USER_ROLES: readonly RoleId[] = ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER', 'WORKER']
+
+/**
+ * Task 3 (unit-02) — Step 2's research finding: which tenant role may grant
+ * which other tenant role.
+ *
+ * This task's own brief offered a DISCLOSED DEFAULT to fall back on only if
+ * the frozen source were silent on the question ("Tenant Admin may grant
+ * any of the four tenant roles; Supervisor and Quality Manager may grant
+ * only Worker"). The source is not silent. Two independent, converging
+ * `SoW Fact` citations settle it, both read directly from
+ * `AVIIXA_Production_Product_Blueprint.md`:
+ *
+ * - `MTX-TEN-02a`, the tenant role-to-module matrix (frozen source
+ *   L21990-L22026: "tenant role to module, the nineteen Delivery Operations
+ *   Hub modules"), its own `MOD-DOH-09` "Permissions, Roles and Access" row
+ *   (L22015): `Tenant Admin: Allowed [H17]` · `Supervisor: Unavailable` ·
+ *   `Quality Manager: Unavailable` · `Read-only Auditor: Read-only` ·
+ *   `Worker: Explicitly prohibited [H18]`. This screen's own header
+ *   (elsewhere in this build) already states that `Unavailable` and
+ *   `Explicitly prohibited` are never merged with `Allowed with
+ *   conditions` — `Unavailable` means the module does not exist for that
+ *   role AT ALL, not "exists, narrowed to one role." Supervisor and
+ *   Quality Manager cannot reach this module even to grant the one role
+ *   (Worker) this task's own brief-proposed default would have let them
+ *   grant.
+ * - `TRN-ACC-04` (L18976), the account-lifecycle authority table's own
+ *   "Activated to Active | Roles and scopes assigned" row: Requester
+ *   `Tenant Admin`, Authorizer `Tenant Admin` — singular, unlike
+ *   `TRN-ACC-01` two rows above it (L18973), which names "Supervisor or
+ *   Tenant Admin" as Requester for the earlier account-REQUEST step alone.
+ *   The same transition's own effect table (L18991) confirms there is only
+ *   ever one assigning identity the source ever names: notification goes
+ *   "to the account holder and the assigning Tenant Admin."
+ *
+ * So: only `TENANT_ADMIN` may grant any of the four tenant roles under this
+ * build; every other tenant role's own row is the empty set — narrower
+ * than this task's own brief-proposed default, and cited to the real lines
+ * rather than delegated. `AssignTenantRoleResult`'s own
+ * `segregation-of-duties` arm exists to carry this refusal with the acting
+ * and requested roles named, for a Supervisor or Quality Manager
+ * attempting to grant ANY role, Worker included — not only "a Supervisor
+ * may not grant Quality Manager," which was this task's brief's own
+ * illustrative phrasing of the (here, unused) default rule.
+ */
+const TENANT_ROLE_GRANT_MATRIX: Readonly<Partial<Record<RoleId, readonly RoleId[]>>> = {
+  TENANT_ADMIN: TENANT_USER_ROLES,
+}
+
+/** The roles `grantorRole` may grant, per `TENANT_ROLE_GRANT_MATRIX` above — `[]` for any role the matrix leaves unlisted, never `undefined`. */
+function rolesGrantableBy(grantorRole: RoleId): readonly RoleId[] {
+  return TENANT_ROLE_GRANT_MATRIX[grantorRole] ?? []
+}
+
+/**
+ * Task 3 (unit-02) — `createTenantUser`'s own floor: the same
+ * `TENANT_OPERATIONAL_WRITERS` set the generic Hub door already gives this
+ * collection's SIBLING collections (`sites`/`areas`/`shifts`, per
+ * `defaultWriteRoles('hub')`), NOT `PLATFORM_WRITERS` — the fix for the
+ * `'platform'`-authority gap this task's plan names in its own Architecture
+ * section. A Supervisor or Quality Manager MAY call this door (and reach
+ * the richer, business-specific segregation-of-duties refusal this file's
+ * own comment above describes) even though `TENANT_ROLE_GRANT_MATRIX`
+ * means neither can ever complete it — the same split
+ * `CREATE_SHIFT_REQUEST`'s floor and `shiftOverlapConflict`'s own
+ * row-dependent check keep apart: who may ATTEMPT this action, and what
+ * additional per-call fact refuses it.
+ */
+const CREATE_TENANT_USER_REQUEST: AccessRequest = {
+  action: 'create-tenant-user',
+  allowedRoles: TENANT_OPERATIONAL_WRITERS,
+  sourceRefs: ['L18973', 'TRN-ACC-01', 'L22015', 'MTX-TEN-02a', 'repository.ts'],
+}
+
+/** `CREATE_TENANT_USER_REQUEST`'s own sibling for `assignTenantRole`. Same floor, same reasoning. */
+const ASSIGN_TENANT_ROLE_REQUEST: AccessRequest = {
+  action: 'assign-tenant-role',
+  allowedRoles: TENANT_OPERATIONAL_WRITERS,
+  sourceRefs: ['L18976', 'TRN-ACC-04', 'L22015', 'MTX-TEN-02a', 'repository.ts'],
 }
 
 /**
@@ -2147,6 +2331,280 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
         return { ok: false, kind: 'partial', user: userResult.row, grantFailure: grantResult }
       }
       return { ok: true, user: userResult.row, grant: grantResult.row }
+    },
+
+    /**
+     * Task 3 (unit-02) — see the `Repository` interface's own comment.
+     * `evaluateAccess` runs FIRST, before any row is read (Task 1's own
+     * round-1 review finding: a door that reads or returns data before
+     * checking authorisation is a security bug even on a refusal path).
+     * Every guard checkable from the arguments and `ctx` alone follows, in
+     * the same "argument, never a later-discarded one" discipline
+     * `inviteConsoleUser`'s own comment states; only the grantor lookup
+     * touches the live store, and only after every other guard has already
+     * passed.
+     */
+    async createTenantUser(user, ctx) {
+      const decision = evaluateAccess(CREATE_TENANT_USER_REQUEST, ctx)
+      if (!permitsAction(decision)) {
+        return { ok: false, kind: 'denied', decision, reason: decision.reasonCode, explain: decision.explanation }
+      }
+
+      const actorTenant = ctx.identity.tenant
+      const actorRole = ctx.identity.role
+      if (actorTenant === null || actorRole === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'A tenant user can only be created by an actor with a live tenant and role.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      // The single most important guard on this door: `user.tenantId` is
+      // never trusted as a caller-supplied override target, it is VERIFIED
+      // against the acting session's own tenant and refused on any
+      // mismatch — the same class of guard `resolveTenantId`'s own fix
+      // protects, applied here to a row that does not exist yet. A caller
+      // cannot create a user into a tenant other than the one they are
+      // actually signed into, no matter what `user.tenantId` claims.
+      if (user.tenantId !== actorTenant) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            `A tenant user must be created inside the acting session's own tenant ("${actorTenant}"); ` +
+              `"${user.tenantId ?? 'null'}" was supplied instead. The acting session's tenant is used, never a caller-supplied one.`,
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      // The other half of "never mint a platform account": tenant-domain
+      // only, and closed to the four roles `TENANT_USER_ROLES` names —
+      // never `ROOT_SUPER_ADMIN`/`ADMIN`/`PLATFORM_ENGINEER`/`SUPPORT`, and
+      // never `READONLY_AUDITOR` either (out of this door's own closed set,
+      // see that constant's own comment).
+      if (roleById(user.role).domain !== 'TENANT') {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `A tenant user must hold a tenant-domain role; "${roleById(user.role).name}" is a platform-domain role. This door never mints a platform account.`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      if (!TENANT_USER_ROLES.includes(user.role)) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `This door creates a tenant user holding one of ${TENANT_USER_ROLES.map((r) => roleById(r).name).join(', ')}; "${roleById(user.role).name}" is outside that closed set.`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      if (user.status !== 'invited') {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `A tenant user must be created with status "invited", not "${user.status}".`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      // Segregation of duties: creating a brand-new account already
+      // carrying a role IS a grant of that role, so the same rule
+      // `assignTenantRole` below enforces applies here too — a role this
+      // actor could not GRANT through that door must not be mintable by
+      // inventing a new account with it instead. See
+      // `TENANT_ROLE_GRANT_MATRIX`'s own comment for the citations.
+      // Reported as a plain `denied` refusal, not the `segregation-of-duties`
+      // typed arm — that arm belongs to `AssignTenantRoleResult` alone
+      // (Task 4 depends on its exact shape); `CreateTenantUserResult`
+      // carries no such arm, per this task's brief.
+      if (!rolesGrantableBy(actorRole).includes(user.role)) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'SEGREGATION_OF_DUTIES',
+            `${roleById(actorRole).name} may not create a tenant user holding the ${roleById(user.role).name} role. Only a Tenant Admin may (the tenant role-to-module matrix MTX-TEN-02a, MOD-DOH-09; the account-lifecycle authority table TRN-ACC-04).`,
+            { stage: 'SEGREGATION_OF_DUTIES', sourceRefs: ['L22015', 'MTX-TEN-02a', 'L18976', 'TRN-ACC-04'] },
+          ),
+        )
+      }
+
+      const grantor = (store.get('users') as readonly RowOf<'users'>[]).find(
+        (u) => u.tenantId === actorTenant && u.id === ctx.actorOfRecord,
+      )
+      if (!grantor) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            'The creating identity could not be matched to a live account in this tenant, so the account cannot be honestly attributed. Nothing was created.',
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const usersAuthority = truthStoreFor('users')
+      if (!writableThroughRepository(usersAuthority)) return truthStoreRefusal('users', usersAuthority)
+      const grantsAuthority = truthStoreFor('role-grants')
+      if (!writableThroughRepository(grantsAuthority)) return truthStoreRefusal('role-grants', grantsAuthority)
+
+      const userResult = await createRow('users', user, ctx, usersAuthority)
+      if (!userResult.ok) return userResult
+
+      const nowIso = new Date(store.clock.now()).toISOString()
+      const grantRow: RowOf<'role-grants'> = {
+        id: `RG-CREATE-${store.nextSequence()}`,
+        userId: userResult.row.id,
+        role: userResult.row.role,
+        siteIds: [],
+        areaIds: [],
+        shiftIds: [],
+        grantedBy: grantor.id,
+        grantedAt: nowIso,
+        expiresAt: null,
+        revokedAt: null,
+        purpose: null,
+      }
+      const grantResult = await createRow('role-grants', grantRow, ctx, grantsAuthority)
+      if (!grantResult.ok) {
+        return { ok: false, kind: 'partial', user: userResult.row, grantFailure: grantResult }
+      }
+      return { ok: true, user: userResult.row, grant: grantResult.row }
+    },
+
+    /**
+     * Task 3 (unit-02) — see the `Repository` interface's own comment and
+     * `TENANT_ROLE_GRANT_MATRIX`'s own comment for Step 2's research and its
+     * citations.
+     *
+     * ORDER, and why: the authority/writability gate (static, no row read)
+     * first; `evaluateAccess` next, before any row is read at all (same
+     * discipline `createTenantUser` above follows); THEN the
+     * segregation-of-duties check — computed HERE, per call, from
+     * `ctx.identity.role` (the ACTING identity's own role, read fresh from
+     * the context this call was made with, never baked into the static
+     * `ASSIGN_TENANT_ROLE_REQUEST` constant above, which only decides who
+     * may ATTEMPT this door at all). Expressing "which role THIS caller may
+     * grant" as a static `allowedRoles` list would mean either refusing
+     * every non-Tenant-Admin caller at the generic role floor (losing the
+     * richer, business-specific `segregation-of-duties` result arm this
+     * method's own return type carries) or leaving the check to run only
+     * inside a UI `SelectField`'s own options list — exactly the bypass
+     * this task's brief warns against: calling this method directly, naming
+     * a role the `SelectField` never offered, must still be refused HERE,
+     * by the door, not by the form. The target row is read only AFTER both
+     * checks pass, and its own tenant is compared before any write — the
+     * same "read nothing before authorising" discipline
+     * `archiveLocationTierEntity`'s own fix-round-1 finding established.
+     */
+    async assignTenantRole(userId, role, ctx) {
+      const authority = truthStoreFor('role-grants')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('role-grants', authority)
+
+      const decision = evaluateAccess(ASSIGN_TENANT_ROLE_REQUEST, ctx)
+      if (!permitsAction(decision)) {
+        return { ok: false, kind: 'denied', decision, reason: decision.reasonCode, explain: decision.explanation }
+      }
+
+      const actorRole = ctx.identity.role
+      if (actorRole === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'ROLE_NOT_GRANTED',
+            'No role is attached to the acting identity, so a role grant cannot be attributed. Nothing was written.',
+            { stage: 'BASE_ROLE', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      if (!rolesGrantableBy(actorRole).includes(role)) {
+        return { ok: false, kind: 'segregation-of-duties', grantorRole: actorRole, requestedRole: role }
+      }
+
+      const actorTenant = ctx.identity.tenant
+      if (actorTenant === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'A tenant role can only be granted by an actor with a live tenant.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const targetUser = (store.get('users') as readonly RowOf<'users'>[]).find((u) => u.id === userId)
+      if (targetUser === undefined) return notFoundRefusal('users', userId, 'assign a role to')
+
+      // The cross-tenant refusal (this task's own live-verify risk-3
+      // evidence, alongside the segregation-of-duties denial above): a
+      // role-grant targeting a user id from a DIFFERENT tenant is refused
+      // without naming that user's real tenant, matching
+      // `archiveLocationTierEntity`'s own cross-tenant message shape.
+      if (targetUser.tenantId !== actorTenant) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'This user does not belong to your tenant; a role cannot be assigned to them from here.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['§7.4', '§26.3', 'repository.ts'] },
+          ),
+        )
+      }
+
+      const activeGrants = (store.get('role-grants') as readonly RowOf<'role-grants'>[]).filter(
+        (g) => g.userId === targetUser.id && g.revokedAt === null,
+      )
+      if (activeGrants.some((g) => g.role === role)) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `${targetUser.displayName} already holds the ${roleById(role).name} role; nothing was written.`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const grantor = (store.get('users') as readonly RowOf<'users'>[]).find(
+        (u) => u.tenantId === actorTenant && u.id === ctx.actorOfRecord,
+      )
+      if (!grantor) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            'The granting identity could not be matched to a live account in this tenant, so the grant cannot be honestly attributed. Nothing was written.',
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const nowIso = new Date(store.clock.now()).toISOString()
+      const grantRow: RowOf<'role-grants'> = {
+        id: `RG-ASSIGN-${store.nextSequence()}`,
+        userId: targetUser.id,
+        role,
+        siteIds: [],
+        areaIds: [],
+        shiftIds: [],
+        grantedBy: grantor.id,
+        grantedAt: nowIso,
+        expiresAt: null,
+        revokedAt: null,
+        purpose: null,
+      }
+      return createRow('role-grants', grantRow, ctx, authority)
     },
 
     /**
