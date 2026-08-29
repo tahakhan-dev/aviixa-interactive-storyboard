@@ -1,17 +1,18 @@
 import type { Metadata } from 'next'
 import { surfaceById } from '@/domain/surfaces'
 import { DevicesScreen } from './DevicesScreen'
-import { SCREEN_TITLE } from './fixtures'
 
-// No module id in this title, deliberately: this screen group claims no module
-// (D5) and its identifier appears in neither screen catalogue (D4).
+// No module id in this title, deliberately: this screen group claims no
+// module (D5) and its identifier appears in neither screen catalogue (D4) —
+// reconfirmed against the current registry in `DevicesScreen.tsx`'s own
+// header comment, Task 5 (unit-02).
 export const metadata: Metadata = {
-  title: `${SCREEN_TITLE} — ${surfaceById('SURF-DOH').name}`,
+  title: `Devices — ${surfaceById('SURF-DOH').name}`,
 }
 
-// Re-exported so tests/component/doh-devices.test.tsx can import the screen
-// itself: it needs `useState`, so it lives in its own `'use client'` file, and
-// a file carrying `'use client'` cannot also export `metadata`.
+// Re-exported so the screen itself stays importable directly — a file
+// carrying `'use client'` (required for hooks) cannot also export
+// `metadata`, the same split every screen in this surface uses.
 export { DevicesScreen }
 
 export default function DevicesPage() {
