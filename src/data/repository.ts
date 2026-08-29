@@ -327,6 +327,54 @@ export interface Repository {
     | WriteResult<RowOf<'sites'> | RowOf<'areas'> | RowOf<'locations'>>
     | { readonly ok: false; readonly kind: 'has-active-children'; readonly children: readonly { readonly collection: string; readonly id: string; readonly name: string }[] }
   >
+  /**
+   * Task 4 (unit-02) — `MOD-DOH-04`'s own worker-record door. The
+   * referenced User must already exist, hold role `'WORKER'`, and belong to
+   * the acting session's own tenant — checked HERE, via `repository.get`
+   * itself (so a cross-tenant or otherwise out-of-scope User reads as
+   * honestly absent, never distinguished from "does not exist" for a
+   * caller probing for one). `workerFields` never carries its own
+   * `userId`/`tenantId` — this door sets both, the same "never trust a
+   * caller-supplied tenant/identity override" discipline `createTenantUser`
+   * applies to `user.tenantId`. If no matching User exists yet, the
+   * screen's own "Add worker" flow calls Task 3's `createTenantUser` first
+   * (role `'WORKER'`), then this door — two doors in sequence, one guided
+   * flow, never a single door pretending to write both collections
+   * atomically under one authorisation the way `createTenantUser` itself
+   * does for `users`/`role-grants` (those two ARE one compound act; a User
+   * and its later Worker record are not — a Worker record's own precondition
+   * is that the User already exists).
+   *
+   * `allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR']` — deliberately NOT
+   * `TENANT_OPERATIONAL_WRITERS` (the generic `'hub'`-authority floor, which
+   * also admits Quality Manager). See `CREATE_WORKER_REQUEST`'s own comment
+   * for the citation and for why this is the fourth time this exact class
+   * of mistake had to be corrected in this unit.
+   */
+  createWorker(
+    userId: string,
+    workerFields: Omit<RowOf<'workers'>, 'userId' | 'tenantId'>,
+    ctx: AccessContext,
+  ): Promise<WriteResult<RowOf<'workers'>>>
+  /**
+   * Task 4 (unit-02) — `recordQualification`'s own door, `createWorker`'s
+   * sibling. `qualification.workerId` must reference a real, same-tenant
+   * Worker (inlined as a two-line check — see this method's own
+   * implementation comment for why no new `checkWorkerReference` export was
+   * added to `scope-reference.ts` for a single caller). `qualification
+   * .areaIds` are each checked with Task 1's own `checkAreaReference` — a
+   * Qualification may legitimately span Areas across more than one Site of
+   * the same tenant (`schemas/org.ts#Qualification`'s own comment), so no
+   * single `expectedSiteId` is passed. On success, the new Qualification row
+   * AND the Worker's own `qualificationIds` list commit together (the same
+   * compound-write shape `createTenantUser`/`inviteConsoleUser` use, a
+   * `partial` arm for a genuine second-write storage failure) — leaving
+   * `qualificationIds` unmaintained would be exactly the "two
+   * independently-writable copies of one fact" this file's own header warns
+   * against, since a Worker's held-qualification list and its Qualification
+   * rows would silently disagree.
+   */
+  recordQualification(qualification: RowOf<'qualifications'>, ctx: AccessContext): Promise<RecordQualificationResult>
   subscribe(listener: () => void): () => void
   reset(): void
   exportJson(): Record<CollectionName, unknown[]>
@@ -377,6 +425,29 @@ export type UpdateShiftResult =
   | WriteResult<RowOf<'shifts'>>
   | { ok: false; kind: 'overlap'; conflictingShift: RowOf<'shifts'> }
   | { ok: false; kind: 'invalid-reference'; problem: ScopeReferenceProblem }
+
+/**
+ * Task 4 (unit-02) — `recordQualification`'s own result. `'invalid-reference'`
+ * matches `CreateShiftResult`'s own arm exactly (a bad `areaIds` entry is a
+ * fact about a ROW reference, not a `PermissionDecision`, so it must not be
+ * read as "you may not do this"). `'partial'` matches `InviteConsoleUserResult`
+ * /`CreateTenantUserResult`'s own shape: the Qualification row can commit
+ * while the Worker's own `qualificationIds` update does not, and that third
+ * failure shape is named directly rather than forced through `denied`/
+ * `persistence-unavailable`.
+ */
+export type RecordQualificationResult =
+  | { ok: true; qualification: RowOf<'qualifications'>; worker: RowOf<'workers'> }
+  | WriteDenied
+  | WritePersistenceUnavailable
+  | { ok: false; kind: 'invalid-reference'; problem: ScopeReferenceProblem }
+  | {
+      ok: false
+      kind: 'partial'
+      qualification: RowOf<'qualifications'>
+      /** Exactly `createRow`'s own failure shape, or `update()`'s — see this file's own `WriteResult`. */
+      workerUpdateFailure: WriteDenied | WritePersistenceUnavailable
+    }
 
 /**
  * Fix round 1 (unit-01, Task 5 review, minor): the two failure arms above
@@ -1383,6 +1454,50 @@ const ARCHIVE_LOCATION_TIER_ENTITY_REQUEST: AccessRequest = {
   action: 'archive-location-tier-entity',
   allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['L27122', 'L112908', 'WF-DOH-02-CASCADE', 'repository.ts'],
+}
+
+/**
+ * Task 4 (unit-02) — `createWorker`'s own floor. Controller-verified against
+ * the frozen source's `MOD-DOH-04` roles-and-permissions table (L27470,
+ * "Create or edit a worker record"; the same rows' own functional
+ * breakdown, `FUNC-DOH-04-1.1.1`, "Roles allowed: Tenant Admin, Supervisor
+ * within scope. Roles prohibited: Quality Manager, Read-only Auditor,
+ * Worker"): Tenant Admin `Allowed`, Supervisor `Allowed with conditions —
+ * own scope`, Quality Manager `Explicitly prohibited`.
+ *
+ * DELIBERATELY NOT `TENANT_OPERATIONAL_WRITERS` (the generic `'hub'`-
+ * authority floor, `defaultWriteRoles('hub')`, which also admits Quality
+ * Manager) — widening a write door to that generic floor without checking
+ * the module's OWN action-level table is the exact mistake three of this
+ * unit's four prior review cycles caught (see `CREATE_AREA_UNDER_SITE_
+ * REQUEST`/`CREATE_LOCATION_UNDER_AREA_REQUEST`/`CREATE_SITE_REQUEST`/
+ * `CREATE_SHIFT_REQUEST`/`UPDATE_SHIFT_REQUEST`/`ARCHIVE_LOCATION_TIER_
+ * ENTITY_REQUEST`'s own corrective-task comments above, all landed in one
+ * fix round). Quality Manager's real standing in THIS module is exclusively
+ * clearance-granting for an expired or never-held qualification (the same
+ * table's `Grant a clearance...` rows) — a Client Command Center action
+ * (`WF-DOH-04-CLEARANCE`) the design spec defers out of this task, not a
+ * worker-record write.
+ */
+const CREATE_WORKER_REQUEST: AccessRequest = {
+  action: 'create-worker',
+  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR'],
+  sourceRefs: ['L27470', 'FUNC-DOH-04-1.1.1', 'MOD-DOH-04', 'repository.ts'],
+}
+
+/**
+ * Task 4 (unit-02) — `recordQualification`'s own floor. Same table, "Enter
+ * a qualification" row (L27472; `FUNC-DOH-04-2.1.1`, "Roles allowed: Tenant
+ * Admin, Supervisor. Roles prohibited: Quality Manager, Read-only Auditor,
+ * and absolutely the Worker, because self-attestation is not permitted"):
+ * Tenant Admin `Allowed`, Supervisor `Allowed — with full audit`, Quality
+ * Manager `Explicitly prohibited`. Same reasoning as `CREATE_WORKER_REQUEST`
+ * above for why this is not the generic `'hub'` floor.
+ */
+const RECORD_QUALIFICATION_REQUEST: AccessRequest = {
+  action: 'record-qualification',
+  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR'],
+  sourceRefs: ['L27472', 'FUNC-DOH-04-2.1.1', 'MOD-DOH-04', 'repository.ts'],
 }
 
 /**
@@ -3224,6 +3339,170 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       if (conflict !== null) return { ok: false, kind: 'overlap', conflictingShift: conflict }
 
       return repository.update('shifts', id, patch, ctx)
+    },
+
+    /**
+     * Task 4 (unit-02) — see the `Repository` interface's own comment and
+     * `CREATE_WORKER_REQUEST`'s own comment for the role-floor citation.
+     * `evaluateAccess` runs FIRST, before any row is read — the same
+     * discipline `createTenantUser`/`assignTenantRole` establish, and the
+     * authority/writability gate is deferred to immediately before the
+     * actual write (the shape those two doors settled on after their own
+     * fix rounds), never ahead of `evaluateAccess`.
+     */
+    async createWorker(userId, workerFields, ctx) {
+      const decision = evaluateAccess(CREATE_WORKER_REQUEST, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const actorTenant = ctx.identity.tenant
+      if (actorTenant === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'A worker record can only be created by an actor with a live tenant.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      // `repository.get` itself applies `withinScope` — a cross-tenant or
+      // otherwise out-of-scope User reads as `undefined` here, exactly like
+      // a User that does not exist at all. This is deliberate (see this
+      // door's own interface comment): a caller probing for a foreign
+      // tenant's User id learns nothing beyond "not found."
+      const user = repository.get('users', userId, ctx)
+      if (user === undefined) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `No visible "users" row with id "${userId}" exists to attach a worker record to.`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      if (user.tenantId !== actorTenant) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'This user does not belong to your tenant; a worker record cannot be attached to them from here.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['§7.4', '§26.3', 'repository.ts'] },
+          ),
+        )
+      }
+      if (user.role !== 'WORKER') {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `A worker record can only reference a User holding the Worker role; "${roleById(user.role).name}" does not.`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const existingForUser = (store.get('workers') as readonly RowOf<'workers'>[]).find((w) => w.userId === userId)
+      if (existingForUser !== undefined) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `User "${userId}" already has a worker record ("${existingForUser.id}"); a second one cannot be created for the same User.`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const authority = truthStoreFor('workers')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('workers', authority)
+
+      const workerRow: RowOf<'workers'> = { ...workerFields, userId, tenantId: actorTenant }
+      return createRow('workers', workerRow, ctx, authority)
+    },
+
+    /**
+     * Task 4 (unit-02) — `createWorker`'s own sibling. See the `Repository`
+     * interface's own comment for the compound-write shape and
+     * `RECORD_QUALIFICATION_REQUEST`'s own comment for the role-floor
+     * citation.
+     *
+     * NO `checkWorkerReference` EXPORT — `qualification.workerId` is
+     * validated by a plain two-line lookup here rather than a new function
+     * added to `scope-reference.ts`. That module's own header states its
+     * job as Site/Area/Location reference checks specifically (existence,
+     * tenant match, archived status, wrong-parent); a Worker reference needs
+     * only the first two of those (Workers do not nest under a parent the
+     * way an Area nests under a Site, and an archived Worker is not refused
+     * here — nothing in the source prohibits recording a qualification
+     * against a departed worker's historical record). A second, near-empty
+     * export for this single caller would be the "unrequested abstraction"
+     * this build's own discipline elsewhere warns against, not a reuse.
+     */
+    async recordQualification(qualification, ctx) {
+      const decision = evaluateAccess(RECORD_QUALIFICATION_REQUEST, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const actorTenant = ctx.identity.tenant
+      if (actorTenant === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'A qualification can only be recorded by an actor with a live tenant.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const worker = (store.get('workers') as readonly RowOf<'workers'>[]).find((w) => w.id === qualification.workerId)
+      if (worker === undefined) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `No "workers" row with id "${qualification.workerId}" exists to record a qualification against.`,
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      if (worker.tenantId !== actorTenant) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'This worker does not belong to your tenant; a qualification cannot be recorded against them from here.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['§7.4', '§26.3', 'repository.ts'] },
+          ),
+        )
+      }
+
+      for (const areaId of qualification.areaIds) {
+        const problem = checkAreaReference(store, actorTenant, areaId)
+        if (problem !== null) return { ok: false, kind: 'invalid-reference', problem }
+      }
+
+      const qualAuthority = truthStoreFor('qualifications')
+      if (!writableThroughRepository(qualAuthority)) return truthStoreRefusal('qualifications', qualAuthority)
+
+      const qualResult = await createRow('qualifications', qualification, ctx, qualAuthority)
+      if (!qualResult.ok) return qualResult
+
+      const workersAuthority = truthStoreFor('workers')
+      if (!writableThroughRepository(workersAuthority)) {
+        return { ok: false, kind: 'partial', qualification: qualResult.row, workerUpdateFailure: truthStoreRefusal('workers', workersAuthority) }
+      }
+      const workerResult = await repository.update(
+        'workers',
+        worker.id,
+        { qualificationIds: [...worker.qualificationIds, qualResult.row.id] },
+        ctx,
+      )
+      if (!workerResult.ok) {
+        return { ok: false, kind: 'partial', qualification: qualResult.row, workerUpdateFailure: workerResult }
+      }
+      return { ok: true, qualification: qualResult.row, worker: workerResult.row }
     },
 
     async update(name, id, patch, ctx) {
