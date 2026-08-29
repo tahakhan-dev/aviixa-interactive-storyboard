@@ -3,8 +3,8 @@
   "ledger": "Product Candidate Manifest",
   "governing_section": "master prompt §23.2 — scope 1 of the two non-self-referential hash scopes",
   "slice": "11",
-  "candidate_id": "SLICE11-c5c9c4a7053ae3d5",
-  "candidate_manifest_sha256": "c5c9c4a7053ae3d54665dc23914e9a6e9557c46778ba075d85f93c48a31c5c0a",
+  "candidate_id": "SLICE11-880728d0253a6744",
+  "candidate_manifest_sha256": "880728d0253a67448aedae364d0a7600f7a09a0cec01590420a472cd670b5ee4",
   "scope": {
     "kind": "product-candidate",
     "contents": "application source, fixtures, configuration, lockfile, assets and required delivery documentation",
@@ -18,15 +18,15 @@
     "hashes_itself": false,
     "why_not": "this manifest lives under docs/process/ledgers/, an evidence root, so it is outside the product scope by construction rather than by a remembered exclusion"
   },
-  "git_commit": "3a6c59a6cb8807e01bc7f5467209517b4480703d",
-  "git_tree": "2995892496d2aa5a838d367e8ff8b3853ec0905b",
-  "worktree_clean": false,
-  "bytes_measured_against": "the working tree as it stood when this seal ran, which is NOT the tree of git_commit — that field records only where HEAD was, the worktree was dirty, and nothing here attributes these bytes to any commit. Verify them against the filesystem, never against the commit.",
+  "git_commit": "78f2b9e2626b10a00b6957761f840acb96a4ab91",
+  "git_tree": "0c9305cf5bd49190111066498611898a3e4b7c93",
+  "worktree_clean": true,
+  "bytes_measured_against": "the tree of git_commit — the worktree was clean when this seal ran, so every hash below is that commit's blob and stays checkable against it forever",
   "source_sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
   "source_drift_from_s0": "none as of this seal: `shasum -a 256 ../AVIIXA_Production_Product_Blueprint.md` equals `source_sha256` above. NOTHING RE-HASHES IT AUTOMATICALLY. `scripts/slice-blueprint.mjs` re-derives the hash and byte count on every invocation and refuses rather than emit a line mapping it cannot prove, but that script is not part of `pnpm verify` and runs only when someone runs it. Drift would therefore be silent until the next slice, so check it by hand before quoting this field.",
-  "file_count": 846,
-  "total_bytes": 22753605,
-  "supersedes": "SLICE11-fc32499cd3bdb809",
+  "file_count": 848,
+  "total_bytes": 22708839,
+  "supersedes": "SLICE11-c5c9c4a7053ae3d5",
   "verification": {
     "verification_id": "VER-U01-FINAL-02",
     "supersedes_verification_id": "VER-U01-FINAL-01",
@@ -47,7 +47,7 @@
     "registries_regenerate_byte_identically": "yes -- `pnpm build` regenerates every file under registries/generated/ as part of this chain, and `git status --porcelain` immediately afterward listed no registry path. Re-confirmed by a standalone `node scripts/build-registries.mjs` with the same result.",
     "what_this_candidate_is": "Unit 1 (platform bootstrap and tenant provisioning), twelve tasks, plus this final whole-branch review's single fix wave: the release manifest's false test attestation deleted, seven hand-rolled disclosures routed through the one shared component, the write-only persistence disclosed on screen, the live-verification ledger's screenshot references given sha256 attestations, three references to deleted files repaired, one missing call-time gate added, and two prose corrections in the record that closes the unit.",
     "what_this_candidate_is_not": "NOT a completion claim, and master prompt §29.4 still forbids one. It is not evidence that anything is TESTED -- this project has no test cases by standing decision, and `pnpm verify` is a typecheck, a linter, four static scans, a production build and a ledger reconcile, not a test suite. Persistence is still write-only: writes reach IndexedDB, `boot()` never rehydrates, and a reload returns the storyboard to its seed. That is now disclosed on every screen carrying the not-real statement, and building rehydration is deferred to its own task. 5,003 of the 5,015 census rows still have no live-verification row.",
-    "sealed_against": "this chain -- the figures above were measured on the bytes this seal certifies"
+    "sealed_against": "stale — resealed without a fresh measurement"
   },
   "files": [
     {
@@ -257,18 +257,13 @@
     },
     {
       "path": "app/hub/devices/DevicesScreen.tsx",
-      "bytes": 54787,
-      "sha256": "25b1ca6fec42be18080a92d08b64bb2fdf8e635d158bfdd29ccf210a58149e78"
-    },
-    {
-      "path": "app/hub/devices/fixtures.ts",
-      "bytes": 45188,
-      "sha256": "c508a8f40e068003bfe47bf2334d12e3a282c4f6df6e5b8d50eebe1177e1b339"
+      "bytes": 32209,
+      "sha256": "7d5784273013c948243a099399e28fbb594fc8eeeccb84d50ec02828d4f867c2"
     },
     {
       "path": "app/hub/devices/page.tsx",
-      "bytes": 745,
-      "sha256": "32daaf7cd68b7f1092e7f8a8176497c16cba86c4d2f01d6fa9199c0521047835"
+      "bytes": 1701,
+      "sha256": "8551849eee3617d35490661fbd7b03fcb296283ce0642d1efbd6574e717b9858"
     },
     {
       "path": "app/hub/execution-summary-review/ExecutionSummaryReviewScreen.tsx",
@@ -347,18 +342,18 @@
     },
     {
       "path": "app/hub/location-configuration/LocationConfigurationScreen.tsx",
-      "bytes": 82547,
-      "sha256": "ad51117fb52a2ef5f710bacf2fcda532bd1472b8e92e83f503d9ff771ddce38d"
+      "bytes": 47425,
+      "sha256": "804d533a317781591e5946c6800f96dfa4f0811a498f85d8c00041ecd3aebdaf"
     },
     {
       "path": "app/hub/location-configuration/fixtures.ts",
-      "bytes": 36900,
-      "sha256": "b5d071f25b3738f4e899bc6e7d16a4b6f0f6fa9be0b6f4d524cbd8c5f04ac1b5"
+      "bytes": 37032,
+      "sha256": "0ee7a839a1931cb67e74f9c1766121c484485b3eb4cf2c77237548154dd76c60"
     },
     {
       "path": "app/hub/location-configuration/page.tsx",
-      "bytes": 653,
-      "sha256": "f77f9e79667f28b3391d52248e54a5fdf7bbd3f139aab7d4df4086578df02558"
+      "bytes": 1747,
+      "sha256": "002ba8d35b57e4227f0ff68b084cfc09a73a20bc2b78a8205dce0fabf6ccc8bd"
     },
     {
       "path": "app/hub/multi-area-job-pairing/PairedSchedulingScreen.tsx",
@@ -412,8 +407,8 @@
     },
     {
       "path": "app/hub/permissions-roles-and-access/PermissionsScreen.tsx",
-      "bytes": 77615,
-      "sha256": "648eef98d70c8602e78653f5bd0cc9dc424f78bbdae0e886295810481f71ab39"
+      "bytes": 29233,
+      "sha256": "565e4ea16b29a9fc4c06e6a77618846c8efc6dad86874852a257bca581c967ba"
     },
     {
       "path": "app/hub/permissions-roles-and-access/fixtures.ts",
@@ -422,8 +417,8 @@
     },
     {
       "path": "app/hub/permissions-roles-and-access/page.tsx",
-      "bytes": 692,
-      "sha256": "24e487d1489561b0765b4382d6c877595ee8bca44f7961afe2c9897f2f1a2246"
+      "bytes": 1641,
+      "sha256": "184b3cc3423794017aadf8396e14ce443f82960ec56da7ca88357608fd06df9c"
     },
     {
       "path": "app/hub/qualification-calendar/QualificationCalendarScreen.tsx",
@@ -452,8 +447,8 @@
     },
     {
       "path": "app/hub/shift-management/ShiftManagementScreen.tsx",
-      "bytes": 66064,
-      "sha256": "2d9456ad5ad00674afb162b30747dea9ffcffd2f344115c4f7f80438769485b4"
+      "bytes": 34057,
+      "sha256": "30e5253674be2a6e500af8fd6d0f3e870cb7545965a6a51287fe2b95c9d045b7"
     },
     {
       "path": "app/hub/shift-management/fixtures.ts",
@@ -462,8 +457,8 @@
     },
     {
       "path": "app/hub/shift-management/page.tsx",
-      "bytes": 676,
-      "sha256": "1b20c4954544a50d419d77249d30ffb729fda718a05530edaf4303f6c2dfc38e"
+      "bytes": 1606,
+      "sha256": "33419b13b980935d6517b6cc0a2e415ce80710b861b425721272e1e69145c6bc"
     },
     {
       "path": "app/hub/tenant-lifecycle-and-tier-operations/TenantLifecycleScreen.tsx",
@@ -512,8 +507,8 @@
     },
     {
       "path": "app/hub/worker-lifecycle-and-qualifications/WorkerLifecycleScreen.tsx",
-      "bytes": 106695,
-      "sha256": "287635027a2ace411ed48502c60b3299e603d2cb0e2ce01024e9e8e798a5168c"
+      "bytes": 56117,
+      "sha256": "e1d73d1883933a24b1dd1b49e3639c349834d5d79783540ce8219268c6ef60dc"
     },
     {
       "path": "app/hub/worker-lifecycle-and-qualifications/fixtures.ts",
@@ -522,8 +517,8 @@
     },
     {
       "path": "app/hub/worker-lifecycle-and-qualifications/page.tsx",
-      "bytes": 677,
-      "sha256": "a9ae4a41ed1b02bb1353a839b0d564b144306a636436a56e83a6cfad496570b9"
+      "bytes": 1745,
+      "sha256": "f000c086a1791ae0c7689e8d84993266a8424164e19d720931d449439c69db59"
     },
     {
       "path": "app/layout.tsx",
@@ -1172,13 +1167,13 @@
     },
     {
       "path": "registries/generated/actionable-controls.json",
-      "bytes": 313720,
-      "sha256": "cf0cc0df108160cef4709a2fbaf1a22413a8dffd6d085fbcd5cf5ca8fdfc006a"
+      "bytes": 313619,
+      "sha256": "3bfe4285df0bd578b439e16412b6c025c63c445832473e196176158055005e29"
     },
     {
       "path": "registries/generated/ai-storyboards.json",
-      "bytes": 143135,
-      "sha256": "856c3adfc6c4e2336ca88790dfaddd2a40fba7202668ee140983a21966865277"
+      "bytes": 143092,
+      "sha256": "a7e8349284282c247f058ad2a9a086df2fc029eb2d0eb0d42846fca9d3c05007"
     },
     {
       "path": "registries/generated/business-objects.json",
@@ -1252,8 +1247,8 @@
     },
     {
       "path": "registries/generated/workflows.json",
-      "bytes": 467558,
-      "sha256": "e70037a9c61e65e9474c4b1c880087aabcdc4e21bd0a249e604e79d7b6b10ca7"
+      "bytes": 467665,
+      "sha256": "cd9a9827f711712b41b3eb806809b3e7e7d070750ba859f3242fb309a3e01a69"
     },
     {
       "path": "registries/raw/extract/CHK-001.json",
@@ -1486,9 +1481,19 @@
       "sha256": "a66808b629bbc3e796dead12242bebaca3799e12497626c7d49c0b2c34e328eb"
     },
     {
+      "path": "scripts/generate-location-seed.mjs",
+      "bytes": 7404,
+      "sha256": "b3809566d66ba89a051ffa3009f1990863add232b84b50ef68a2654613729f6f"
+    },
+    {
       "path": "scripts/generate-seed.mjs",
       "bytes": 73393,
       "sha256": "890b4196fb60851aa83a4b5c08879d3f9a3efb4ddb969b9a50c7bfacba10e9a5"
+    },
+    {
+      "path": "scripts/generate-shift-seed.mjs",
+      "bytes": 4878,
+      "sha256": "38f7603e812577155e87bd3369863114d01d7bb4cc73fcff60221fef99a8351a"
     },
     {
       "path": "scripts/graph-update.mjs",
@@ -1802,8 +1807,8 @@
     },
     {
       "path": "src/data/collections/areas.json",
-      "bytes": 3132,
-      "sha256": "74c7789881d0bc014603f3ff22bd05f426d7701c4c14fde395c081ab68232cfe"
+      "bytes": 6310,
+      "sha256": "d041495e22902fdb73fea4ab604a697acfc0e4125fd8723b726963a2e01e0a56"
     },
     {
       "path": "src/data/collections/audit.json",
@@ -1872,8 +1877,8 @@
     },
     {
       "path": "src/data/collections/locations.json",
-      "bytes": 7156,
-      "sha256": "b7706f57c305560964aaa1ea1340803158f23298f3031e722a9668111d48fabc"
+      "bytes": 10398,
+      "sha256": "2a84f86ebc3ffd813c7d40bb86b5449b26ccc168d09b1347433e56d46cc1db16"
     },
     {
       "path": "src/data/collections/notifications.json",
@@ -1927,13 +1932,13 @@
     },
     {
       "path": "src/data/collections/shifts.json",
-      "bytes": 4955,
-      "sha256": "2ee53c934ddd986ec041831d3521c1d916750e2736e70da87e2356a477ec4859"
+      "bytes": 11708,
+      "sha256": "95716ac7e29b773433f5e6c7cc2a1068f79f959aea38dfedafdce9b6004d0963"
     },
     {
       "path": "src/data/collections/sites.json",
-      "bytes": 3786,
-      "sha256": "cb45d8fe893294bc2f2ac3177f46b205687091a8d37dc427042b8a82e9394b46"
+      "bytes": 9995,
+      "sha256": "19679de118987e977ab5a4d1230008225a83ce64ce139e66572d3c3b2cf8ae26"
     },
     {
       "path": "src/data/collections/specifications.json",
@@ -1957,8 +1962,8 @@
     },
     {
       "path": "src/data/collections/tours.json",
-      "bytes": 45688,
-      "sha256": "3029359787ec5e78b6234e2a237cd940b5cb216caec3c7929326f86ba67dcc23"
+      "bytes": 111355,
+      "sha256": "01d82ee1d84cc73c5e71cf7309826c8b12fc7f63b726e8dc0d974393faf4a5f1"
     },
     {
       "path": "src/data/collections/training.json",
@@ -1997,8 +2002,8 @@
     },
     {
       "path": "src/data/repository.ts",
-      "bytes": 108858,
-      "sha256": "cd69bd2b631c749451df331b2479b2880334758c44f47bf0770a7e4318531b31"
+      "bytes": 188973,
+      "sha256": "87ea3c60fd4880d4d8c40e0a27893d438de75fbbe70f140606e94b91475ffe34"
     },
     {
       "path": "src/data/schemas/crosscutting.ts",
@@ -2029,6 +2034,11 @@
       "path": "src/data/schemas/studio.ts",
       "bytes": 10601,
       "sha256": "7df8a97f7c870c48c028d51dd53f724c1c83183a408c9e3f4efdade2d32ce600"
+    },
+    {
+      "path": "src/data/scope-reference.ts",
+      "bytes": 6081,
+      "sha256": "34418e32f725232d376679807d830ae2c4ccaffc3e80066860886433253b8e05"
     },
     {
       "path": "src/data/store.ts",
@@ -4142,8 +4152,8 @@
     },
     {
       "path": "src/ui/product/fields/TextField.tsx",
-      "bytes": 2406,
-      "sha256": "45e0ef852d8dfa9c9e2f745da8dc3d1edcc3451fce4d3545e9e44c2d8ba4c281"
+      "bytes": 2876,
+      "sha256": "2c346f10d0554c9a6e5d863f0ffaf8a20fadb0ec1a583f40f2a992186fb5e7ce"
     },
     {
       "path": "src/ui/product/frontline/CaptureControl.tsx",
