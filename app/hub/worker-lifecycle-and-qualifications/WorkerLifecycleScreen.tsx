@@ -621,7 +621,7 @@ function WorkerListBody({
             >
               Invite a new worker
               <span className={`block text-xs font-normal ${textColor('ink-muted')}`}>
-                Creates their account first (Task 3&apos;s own door), then their worker record.
+                Creates their account first, then their worker record.
               </span>
             </button>
             <button
