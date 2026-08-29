@@ -185,7 +185,7 @@ function validateSnapshot(raw: unknown): CollectionData | null {
   return validated as CollectionData
 }
 
-/** Generated-id prefixes `store.nextSequence()` feeds (`repository.ts`'s `inviteConsoleUser`/`createConsoleUser`/`assignRoleGrant`). */
+/** Generated-id prefixes `store.nextSequence()` feeds (`repository.ts`'s `inviteConsoleUser`/`createTenantUser`/`assignTenantRole`). */
 const GENERATED_ID_PREFIXES = ['RG-INVITE-', 'RG-CREATE-', 'RG-ASSIGN-'] as const
 
 /**
@@ -224,8 +224,8 @@ function resolveSequence(sequenceRaw: unknown, validated: CollectionData): numbe
  * `ready-durable`, attempt to rehydrate the store from whatever the last
  * successful write durably committed (Task 5, closure sweep — the
  * persistence built for §12.4 was write-only until this step; see
- * `readLatestSnapshot`/`validateSnapshot` above for why a read snapshot is
- * never partially trusted). `indexedDbFactory` defaults to
+ * `./repository#readLatestSnapshot` and `validateSnapshot` above for why a
+ * read snapshot is never partially trusted). `indexedDbFactory` defaults to
  * `window.indexedDB` where one exists and to `null` otherwise (a server
  * render, or a browser with no IndexedDB at all) — `bootstrapStorage`
  * already has a typed, non-throwing exit for that case (`ephemeral-preview`).
