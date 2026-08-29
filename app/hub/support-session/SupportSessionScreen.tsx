@@ -156,6 +156,45 @@ function SupportSessionConsole({ session }: { readonly session: ProductSession }
     }
   }
 
+  // Fix round 2 (coordinator review, new issue 1) — an expired-but-unclosed
+  // session (`rawView !== null`, filtered out of `view` by the expiry check
+  // above) used to fall into the exact same "no session, go open one" branch
+  // as genuinely having none — but Support Access refuses a new open while
+  // this row stays open ("go to the read-only session view to close it"),
+  // sending the operator right back here: a closed loop with no escape
+  // NAMED on either page, even though one already existed (the console's own
+  // "Close this session" control, which ignores expiry because the door has
+  // no expiry check). Distinguished here: an expired row gets its own
+  // message AND the real, working close control, on the one screen that can
+  // still reach it.
+  if (view === null && rawView !== null) {
+    return (
+      <AppShell surface="SURF-DOH" session={session} title="This support session has expired">
+        <p data-control-id="support-session-expired" className={`text-sm ${textColor('ink-muted')}`}>
+          Session {rawView.accessSession.id} passed its time box at{' '}
+          {formatTimestamp(rawView.accessSession.expiresAt)} and no longer renders tenant data. It is
+          still recorded as open until closed below — closing does not depend on the time box.
+        </p>
+        <div className="mt-4">
+          <button
+            type="button"
+            data-control-id="support-session-close"
+            disabled={closing}
+            onClick={() => void handleClose()}
+            className={`${radiusClass('md')} ${bg('accent')} px-4 py-2 text-sm font-medium text-[var(--accent-ink)] disabled:opacity-50`}
+          >
+            {closing ? 'Closing…' : 'Close this session and return to the Super Admin console'}
+          </button>
+          {closeError !== null ? (
+            <p data-control-id="support-session-close-error" className={`mt-2 text-sm ${textColor('ink-muted')}`}>
+              {closeError}
+            </p>
+          ) : null}
+        </div>
+      </AppShell>
+    )
+  }
+
   if (view === null) {
     return (
       <AppShell surface="SURF-DOH" session={session} title="No support session is open">
