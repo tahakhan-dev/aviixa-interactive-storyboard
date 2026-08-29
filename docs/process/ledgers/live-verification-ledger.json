@@ -1668,6 +1668,180 @@
       "defect": "Site/area scope narrowing cannot be driven live: no signed-in session in this build populates siteScope/areaScope from role-grants.json (Task 1's finding, out of this unit's scope per the design doc).",
       "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
       "stamp": "2026-08-29T16:18:00Z"
+    },
+    {
+      "id": "LV-0060",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as dana.whitfield@brightbikes.example (Bright Bikes Tenant Admin, active) with ?next=/hub/shift-management/",
+        "clicked Edit on SHIFT-BB-EXP-01 (Day Shift, Rockford Fabrication Plant)",
+        "changed the name to 'Day Shift (Early)' and the end time from 14:00 to 13:30",
+        "submitted the drawer"
+      ],
+      "expected": "updateShift's SUCCESS path commits: the merged row passes the role floor, the row-dependent site-scope check, checkSiteReference and shiftOverlapConflict, and the write is delegated to the generic update().",
+      "observed": "Drawer showed 'Saved.' and the screen raised 'Day Shift (Early) was updated.'; the register row re-rendered under the new name. This is updateShift's success path driven live for the first time in this unit -- every prior Shift-edit row in this ledger exercised a refusal or an overlap arm. Also the first live run of the reordered gate (final review, Important 2): evaluateAccess(UPDATE_SHIFT_REQUEST) now runs BEFORE the target row is read, and the merged-row scope check runs after.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-updateshift-success.png",
+          "bytes": 234183,
+          "sha256": "bfdd2e2d1825840a0c70143e75292646f0e2c3b74f11bf6305a491e2bb8924d0"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:05:00Z"
+    },
+    {
+      "id": "LV-0061",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "same session as LV-0060",
+        "clicked Archive on SHIFT-BB-EXP-02 (Afternoon Shift)",
+        "confirmed in the archive confirmation dialog"
+      ],
+      "expected": "The new archiveShift door (final review, Important 1) authorises with ARCHIVE_SHIFT_REQUEST (['TENANT_ADMIN'], L27293) before any row is read, resolves the row's own tenant and compares it to the session tenant, then delegates the write.",
+      "observed": "'Afternoon Shift was archived.' and the row's status control became shift-management-status-SHIFT-BB-EXP-02-archived. Before this fix this path ran through the bare generic update(), whose only floor for shifts is defaultWriteRoles('hub') = TENANT_OPERATIONAL_WRITERS -- three roles where L27293 names one.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-archiveshift-success.png",
+          "bytes": 260265,
+          "sha256": "dc50c3703161837bfbcb16fce32a04f67812eb62b2769909c1e836657d9b086a"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:07:00Z"
+    },
+    {
+      "id": "LV-0062",
+      "pathId": "modules:MOD-DOH-02",
+      "role": "Tenant Admin",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "same session, navigated to Location Configuration through the module rail",
+        "opened SITE-BB-RIVERSIDE, then AREA-BB-ASSEMBLY",
+        "clicked Archive on LOC-BB-ASSY-QC (Final QC Bench) and confirmed",
+        "repeated for LOC-BB-WHEEL-2 (Wheel Station 2) with an in-page console/error listener installed"
+      ],
+      "expected": "archiveLocationTierEntity's SUCCESS path commits at the Location tier: role floor first, explicit row-tenant comparison, no children beneath a Location to sweep, write delegated to update().",
+      "observed": "'Final QC Bench was archived.' and 'Wheel Station 2 was archived.'; both status controls became ...-archived. Until now only this door's REFUSAL paths (has-active-children, role floor) carried ledger rows -- its success path had never been driven live at any tier.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-archivelocation-success.png",
+          "bytes": 364505,
+          "sha256": "506d8e5c827dbc300dc6ba7644abe3fcd768b8135bb749ddd992134e2a99f554"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:09:00Z"
+    },
+    {
+      "id": "LV-0063",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Supervisor",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as grace.adeyemi@brightbikes.example (Bright Bikes Supervisor, active) with ?next=/hub/shift-management/",
+        "read the Archive column on every active Shift row and the Create control",
+        "attempted to force the disabled control by clearing its disabled attribute and clicking it"
+      ],
+      "expected": "After the archiveShift fix, a Supervisor still meets no live archive control and a named reason, and the underlying door would refuse them (L27293 is Tenant-Admin-only).",
+      "observed": "Archive renders as a disabled control with the reason 'Only the Tenant Admin may archive this.'; Create is disabled too. Forcing the control does nothing: when canWrite is false the screen renders a DIFFERENT element that carries no onClick at all, so there is no handler to reach. Rail unchanged for this role.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-supervisor-rail-and-archive-gate.png",
+          "bytes": 351048,
+          "sha256": "5747a1f5de92f2baf11c71bb0a103b704dabd156d0a99e9debb511e1c1ed8653"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": "The DOOR-level refusal (archiveShift returning a denial for a Supervisor) cannot be driven from this UI: the screen renders no control that reaches archiveShift for a role without the write grant, and no repository handle is exposed on window in the static export. Only the display gate is observable live. Same class of limit as LV-0059, and the same one PermissionsScreen.tsx's own header records for its segregation-of-duties refusal.",
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:12:00Z"
+    },
+    {
+      "id": "LV-0064",
+      "pathId": "modules:MOD-DOH-09",
+      "role": "Supervisor, Quality Manager, Read-only Auditor",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as grace.adeyemi@brightbikes.example (Supervisor), deep-linked to /hub/permissions-roles-and-access/ and read the module rail",
+        "repeated as felix.brandt@brightbikes.example (Quality Manager)",
+        "repeated as tomas.lindqvist@brightbikes.example (Read-only Auditor) as the regression control"
+      ],
+      "expected": "After MOD-DOH-09's reach was moved off the dead fixtures file and onto src/surfaces/doh/modules/doh-09/matrix.ts with MTX-TEN-02a's Unavailable adopted, the rail and PermissionsScreen's own VIEW_REQUEST agree: Tenant Admin and Read-only Auditor reach it, Supervisor and Quality Manager do not.",
+      "observed": "Supervisor rail: MOD-DOH-02,03,04,05,06,07,10,14,15,16,19 -- MOD-DOH-09 ABSENT, and the deep-linked screen refuses with 'The current role does not carry a grant for this action.' Quality Manager rail: MOD-DOH-02,03,04,05,06,07,08,10,11,14,16,19 -- MOD-DOH-09 ABSENT, same screen refusal. Read-only Auditor rail: MOD-DOH-09 PRESENT and the user-and-role register renders read-only with 10 rows and a write-gate message. Tenant Admin rail (LV-0060's session): 16 modules including MOD-DOH-09, unchanged. Before this fix the rail offered Supervisor and Quality Manager a link to a screen that refused them on arrival. No other module's reach moved -- the generated diff is MOD-DOH-09 only.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-supervisor-permissions-rail-and-gate-agree.png",
+          "bytes": 230190,
+          "sha256": "35c3a30a19122b669984bffb7c79eff36cc551428d339fd936841cf9b487866d"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-auditor-permissions-still-reaches.png",
+          "bytes": 388058,
+          "sha256": "1e3dbfad642be4953c320ac8ef394135d7c4d45f7d3f5099b404ea22aba3511e"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:16:00Z"
+    },
+    {
+      "id": "LV-0065",
+      "pathId": "modules:MOD-DOH-03",
+      "role": "Worker",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "signed in as alice.okonkwo@brightbikes.example (Bright Bikes Worker, active) with ?next=/hub/shift-management/",
+        "read the module rail before and after the AppShell D11 fix"
+      ],
+      "expected": "D11: the route registry does not list the Worker among SURF-DOH's allowedRoles, so a Worker is offered no Hub module rail at all.",
+      "observed": "BEFORE the fix, MEASURED: the rail drew four links -- Shift Management, Run Scheduling and Execution Oversight, Worker Assignment, Notifications -- one per module whose matrix grants the Worker something, and Shift Management then refused with 'The current role does not carry a grant for this action.' Root cause was AppShell.tsx, which every screen this unit rebuilt uses instead of HubShell.tsx: it read dohModulesReachedBy(role) without first asking the route registry whether the persona reaches the surface at all, the question HubShell asks first. AFTER the fix: rail empty, 'No modules are offered to this role.' MOD-DOH-03's matrix was NOT changed -- its Worker cell is a real source grant (L27297) and D11 has one owner.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/final-review-worker-d11-empty-rail.png",
+          "bytes": 164532,
+          "sha256": "0a79c7fee165f9d71a6a6ce2cdbd5eaf009421afec85bc04a6737d23e2f8c985"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
+      "stamp": "2026-08-29T21:20:00Z"
     }
   ]
 }
