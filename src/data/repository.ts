@@ -444,6 +444,42 @@ export interface Repository {
    * explicitly, not a derived default).
    */
   reassignDevice(id: string, locationId: string | null, ctx: AccessContext): Promise<ReassignDeviceResult>
+  /**
+   * Task 7 (closure sweep) — see `OPEN_SUPPORT_SESSION_REQUEST`'s own
+   * comment for the role authority research. Opens a READ-ONLY
+   * `access-sessions` row against `tenantId`: `readOnly: true` always, no
+   * argument lets a caller override it — this door creates the record that
+   * MARKS a session read-only, it does not itself grant any capability to
+   * write into the target tenant's own collections. A PLATFORM-domain actor
+   * (Support, Admin, Root) can never satisfy a TENANT-domain door's own role
+   * floor no matter what this method does (`evaluateAccess`'s own PLATFORM
+   * branch keeps `identity.tenant` null for every platform role, always —
+   * see that file's own M4 comment), so there is no path from this door
+   * into a tenant write.
+   *
+   * `resourceTenant: tenantId` on the gate below is what makes
+   * `evaluateAccess`'s existing FEATURE_AND_SUSPENSION stage refuse opening
+   * into a compliance-suspended tenant for free (`WF-ROLE-022`'s own Denied
+   * path: "Compliance-suspended tenant refused") — no extra logic needed
+   * here for that rule.
+   */
+  openSupportSession(
+    tenantId: string,
+    purpose: string,
+    ctx: AccessContext,
+  ): Promise<WriteResult<RowOf<'access-sessions'>>>
+  /**
+   * Task 7 (closure sweep) — the operator's own close (`SupportAccessScreen
+   * .tsx`'s "Close this session" control). See `CLOSE_SUPPORT_SESSION_REQUEST`'s
+   * own comment for the role authority and the Support-only "own sessions"
+   * guard enforced in this method's body. Deliberately does not declare
+   * `resourceTenant` on its own gate — ending a session should never be
+   * blocked by the target tenant's OWN suspension state; closing a session
+   * only ever reduces platform-side exposure into a tenant, never increases
+   * it, so nothing about a tenant's own lifecycle should be able to trap a
+   * session open.
+   */
+  closeSupportSession(id: string, ctx: AccessContext): Promise<WriteResult<RowOf<'access-sessions'>>>
   subscribe(listener: () => void): () => void
   reset(): void
   /**
@@ -1674,6 +1710,62 @@ const REASSIGN_DEVICE_REQUEST: AccessRequest = {
   action: 'reassign-device',
   allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['WF-DVC-002', 'L53124', 'repository.ts'],
+}
+
+/**
+ * Task 7 (closure sweep) — LV-0010's own door: `SupportAccessScreen.tsx`
+ * (`MOD-SA-15`) had zero `repository.*` calls before this task, so "Open a
+ * support session" could never do anything real, and there was no door to
+ * wire the Hub↔Super Admin navigation onto. This is that door.
+ *
+ * `allowedRoles`: `WF-ROLE-022` ("Opening a read-only support session into a
+ * tenant", `registries/generated/workflows.json`, frozen source L56054)
+ * names Support as the primary actor. The four-role permission matrix at
+ * L55560 ("Open a normal support session") gives Root and Admin bare
+ * `Allowed` and Support bare `Allowed`; the supporting matrix at L45794
+ * agrees for all three. The Platform Engineer is the one seat the frozen
+ * source disagrees with itself about across four different matrices —
+ * `Explicitly prohibited` (L21166), `Unavailable` (L48810), `Allowed with
+ * conditions` (L65407), bare `Allowed` (L45794) — and this build already
+ * adjudicated that conflict once, on screen: `SupportAccessScreen.tsx`'s own
+ * D17 draws no session-open form for the Platform Engineer at all, holding
+ * the narrower reading as the safer prototype. This door matches that
+ * existing, disclosed decision rather than silently re-opening it.
+ *
+ * NOT `defaultWriteRoles('platform')` (`PLATFORM_WRITERS`, which admits the
+ * Platform Engineer and excludes Support — exactly backwards from the row
+ * above): the generic `create()`/`update()` doors are never called by
+ * `openSupportSession`/`closeSupportSession` for exactly that reason — see
+ * those methods' own implementation comments.
+ */
+const OPEN_SUPPORT_SESSION_REQUEST: AccessRequest = {
+  action: 'open-support-session',
+  allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'SUPPORT'],
+  sourceRefs: ['L56054', 'L55560', 'L45794', 'repository.ts'],
+}
+
+/**
+ * `closeSupportSession`'s own floor — matches `SupportAccessScreen.tsx`'s
+ * existing (until this task, purely local-state) "Close this session"
+ * control (`closeDecision`, `allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN',
+ * 'SUPPORT']`, L16111). L45794's "End an in-progress session" row gives Root
+ * and Admin bare `Allowed` but Support only `Allowed with conditions — own
+ * sessions` — enforced as an ownership check in the method body
+ * (`before.platformUserId === ctx.actorOfRecord`) for Support alone, never
+ * for Root/Admin, rather than folded into this static role list, matching
+ * this file's own "row-dependent fact, never baked into the constant"
+ * discipline.
+ *
+ * This is NOT `WF-ROLE-023`'s own control (the Tenant Admin ending the
+ * session from the tenant's own banner, L56077) — that is a different actor
+ * on a different surface and is not built by this task; see
+ * `SupportAccessScreen.tsx`'s own `endSessionReason` for why no console role
+ * holds it.
+ */
+const CLOSE_SUPPORT_SESSION_REQUEST: AccessRequest = {
+  action: 'close-support-session',
+  allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'SUPPORT'],
+  sourceRefs: ['L45794', 'L16111', 'repository.ts'],
 }
 
 /**
@@ -3244,6 +3336,136 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
           : { state: 'returned' as const, approverId: approver.id, decidedAt: nowIso, returnReason: reason!.trim() }
 
       return repository.update('approval-requests', id, patch, ctx)
+    },
+
+    /**
+     * Task 7 (closure sweep) — see the `Repository` interface's own comment
+     * and `OPEN_SUPPORT_SESSION_REQUEST`'s own comment. `evaluateAccess` runs
+     * FIRST, before any row is read or written, matching every other door in
+     * this file. Deliberately calls `createRow` directly rather than
+     * `repository.create('access-sessions', …)` — the generic door's own
+     * floor (`defaultWriteRoles('platform')` = `PLATFORM_WRITERS` = Root,
+     * Admin, Platform Engineer) is exactly backwards from this door's own
+     * role list (Support belongs, Platform Engineer does not), so routing
+     * through it would refuse Support and admit the one role this door's own
+     * research excludes.
+     */
+    async openSupportSession(tenantId, purpose, ctx) {
+      const authority = truthStoreFor('access-sessions')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('access-sessions', authority)
+
+      const decision = evaluateAccess(
+        { ...OPEN_SUPPORT_SESSION_REQUEST, resourceTenant: brandTenantId(tenantId) },
+        ctx,
+      )
+      if (!permitsAction(decision)) return refusal(decision)
+
+      // AC-SA-15-02, L45832: a session cannot open without a ticket-linked
+      // reason — `purpose` is this door's own free-text stand-in for that
+      // reason class plus ticket reference, exactly as `SupportAccessScreen
+      // .tsx`'s own form already requires both non-empty before its "Open a
+      // support session" control activates.
+      if (purpose.trim() === '') {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            'A support session cannot open without a ticket-linked reason (AC-SA-15-02, L45832).',
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      if (ctx.actorOfRecord === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            'This session could not be attributed to a known console account, so nothing was opened.',
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      // Two-hour default time box (`SUPPORT_TIME_BOX`, `SupportAccessScreen
+      // .tsx#fixtures.ts`; frozen source L16099: "each support session is
+      // time-boxed, default two hours, configurable in platform settings").
+      // `DEC-SUPEXT-001` (L16125 area) leaves extension undecided and this
+      // build takes no position on it here either — the box is fixed at
+      // open time and this door offers no extension path.
+      const nowMs = store.clock.now()
+      const row: RowOf<'access-sessions'> = {
+        id: `AS-SUPPORT-${store.nextSequence()}`,
+        kind: 'support',
+        platformUserId: ctx.actorOfRecord,
+        tenantId,
+        purpose: purpose.trim(),
+        approvedBy: null,
+        openedAt: new Date(nowMs).toISOString(),
+        expiresAt: new Date(nowMs + 2 * 60 * 60 * 1000).toISOString(),
+        closedAt: null,
+        readOnly: true,
+      }
+      return createRow('access-sessions', row, ctx, authority)
+    },
+
+    /**
+     * Task 7 (closure sweep) — see the `Repository` interface's own comment
+     * and `CLOSE_SUPPORT_SESSION_REQUEST`'s own comment. Replicates
+     * `update()`'s own merge/parse/commit shape rather than delegating to it,
+     * for the same role-floor-mismatch reason `openSupportSession` does not
+     * call `repository.create(...)` — see that method's own comment.
+     */
+    async closeSupportSession(id, ctx) {
+      const authority = truthStoreFor('access-sessions')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('access-sessions', authority)
+
+      const rows = store.get('access-sessions') as readonly RowOf<'access-sessions'>[]
+      const before = rows.find((r) => r.id === id)
+      if (before === undefined) return notFoundRefusal('access-sessions', id, 'close')
+
+      const decision = evaluateAccess(CLOSE_SUPPORT_SESSION_REQUEST, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      // L45794: Root and Admin may end any in-progress session; Support may
+      // end only its own ("Allowed with conditions — own sessions").
+      if (ctx.identity.role === 'SUPPORT' && before.platformUserId !== ctx.actorOfRecord) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            'Support may close only the sessions it opened itself (L45794, "Allowed with conditions — own sessions"). This session belongs to a different operator.',
+            { stage: 'COMMAND_VALIDATION', sourceRefs: ['L45794', 'repository.ts'] },
+          ),
+        )
+      }
+
+      if (before.closedAt !== null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            'This session is already closed.',
+            { stage: 'OBJECT_STATE', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      const actionClass = actionClassFor('access-sessions', authority)
+      if (!permittedUnder(capability.state, actionClass)) {
+        return persistenceRefusal(actionClass, capability, `Closing "access-sessions:${id}" is not permitted right now.`)
+      }
+
+      const merged = { ...before, closedAt: new Date(store.clock.now()).toISOString() }
+      const parsed = COLLECTIONS['access-sessions'].schema.safeParse(merged)
+      if (!parsed.success) {
+        return invalidResultRefusal('access-sessions', 'close', parsed.error.issues.map((i) => i.message))
+      }
+
+      const idx = rows.findIndex((r) => r.id === id)
+      const next = [...rows]
+      next[idx] = parsed.data as RowOf<'access-sessions'>
+      return commitWrite('access-sessions', 'update', next, parsed.data as RowOf<'access-sessions'>, before, ctx, authority)
     },
 
     /**
