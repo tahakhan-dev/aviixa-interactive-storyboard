@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { RoleId } from '@/domain/roles'
 import { emptyDomainState } from '@/domain/state'
 import { scenarioRunId } from '@/domain/ids'
@@ -26,6 +27,10 @@ import {
   StatusPill,
   Table,
 } from '@/ui/primitives'
+import { RequireSession } from '@/ui/product/RequireSession'
+import { useProductSession, useRepositoryQuery } from '@/ui/product/runtime'
+import type { ProductSession } from '@/ui/product/AppShell'
+import type { AccessContext, Repository } from '@/data/repository'
 import { SaConsoleShell } from '../SaConsoleShell'
 import {
   BANNER_STATES,
@@ -43,13 +48,37 @@ import {
   SUPPORT_TIME_BOX,
   SUPPORT_UNSPECIFIED_IN_SOURCE,
   SUPPORT_WORKFLOWS,
-  TENANT_OPTIONS,
   type SessionState,
   UNSPECIFIED_EMERGENCY_CLASS_LABEL,
   UNSPECIFIED_EMERGENCY_CLASS_VALUE,
   UNSPECIFIED_REASON_CLASS_LABEL,
   UNSPECIFIED_REASON_CLASS_VALUE,
 } from './fixtures'
+
+/**
+ * Task 7 (closure sweep) — the real tenant list `TENANT_OPTIONS` (this
+ * file's own former fixture, `./fixtures.ts`) is no longer used for the
+ * "Open a support session" tenant selector: two of its three seeded rows
+ * (`TEN-NORTHFIELD`, `TEN-HARBOUR`) are not real tenants at all
+ * (`src/data/collections/tenants.json` carries neither id), which would
+ * make every real `openSupportSession` call against them fail
+ * `evaluateAccess`'s own tenant-isolation stage (`tenantPartition` finds no
+ * such tenant). Read live instead, scoped to `lifecycle === 'active'` only —
+ * live-verified (Task 7) that `'pilot'`/`'invited'` both resolve to the
+ * scenario state's own `PROVISIONING` (`repository.ts`'s own lifecycle map),
+ * which `evaluateAccess`'s FEATURE_AND_SUSPENSION stage refuses exactly like
+ * a suspended or archived tenant (`NOT_YET_OR_NO_LONGER_ACTIVE_STATES`) — so
+ * listing a pilot tenant here would offer a choice this door can never
+ * actually honour. `'active'` is the one lifecycle every real
+ * `openSupportSession` call against it can succeed for.
+ */
+function selectOpenableTenants(repository: Repository, ctx: AccessContext) {
+  return repository
+    .list('tenants', ctx)
+    .where((t) => t.lifecycle === 'active')
+    .all()
+    .map((t) => ({ value: t.id, label: t.name }))
+}
 
 const MODULE = saModuleById('MOD-SA-15')
 
@@ -120,11 +149,45 @@ export interface SupportAccessScreenProps {
   readonly screenState?: ScreenStateId
 }
 
-export function SupportAccessScreen({
-  role: initialRole = 'SUPPORT',
+/**
+ * Task 7 (closure sweep) — gated behind a real sign-in
+ * (`/super-admin/sign-in/`), matching every other Super Admin module this
+ * build has migrated off local-state-only fixtures (`OverviewScreen.tsx`,
+ * `TenantsScreen.tsx`, `ConsoleUsersScreen.tsx`). Before this task this
+ * screen ran with zero `repository.*` calls and no sign-in requirement at
+ * all — "Open a support session" could not open anything real, so it
+ * needed no real identity either. It does now.
+ */
+export function SupportAccessScreen(props: SupportAccessScreenProps = {}) {
+  return (
+    <RequireSession signInHref="/super-admin/sign-in/">
+      {(session) => <SupportAccessConsole {...props} session={session} />}
+    </RequireSession>
+  )
+}
+
+function SupportAccessConsole({
+  role: explicitRole,
   screenState: initialScreenState = 'STATE-03',
-}: SupportAccessScreenProps = {}) {
-  const [role, setRole] = useState<RoleId>(initialRole)
+  session,
+}: SupportAccessScreenProps & { readonly session: ProductSession }) {
+  const router = useRouter()
+  const { openSupportSession } = useProductSession()
+  const tenantOptions = useRepositoryQuery(selectOpenableTenants)
+  const [openPending, setOpenPending] = useState(false)
+  const [openError, setOpenError] = useState<string | null>(null)
+
+  // Task 7 (closure sweep) — the switcher's own role still drives every
+  // OTHER decision on this page (the whole D16/D17 demonstration this file
+  // already carries, unchanged by this task) — but the "Open a support
+  // session" control below always acts as the REAL signed-in identity
+  // (`session.role`, via `openSupportSession`), never as whatever role the
+  // switcher happens to be showing. Defaulting the switcher to the real
+  // role keeps the common case (previewing your own account) identical to
+  // before; the honesty note beside the control covers the one case they
+  // can diverge — switching the viewer to a DIFFERENT role than the one you
+  // are actually signed in as.
+  const [role, setRole] = useState<RoleId>(explicitRole ?? session.role)
   const [screenState, setScreenState] = useState<ScreenStateId>(initialScreenState)
 
   const [reasonClass, setReasonClass] = useState('')
@@ -368,6 +431,41 @@ export function SupportAccessScreen({
     setEscalationRecorded(false)
     setRootAuthorised(false)
     setAdminAuthorised(false)
+  }
+
+  /**
+   * Task 7 (closure sweep) — LV-0010's own door, landed. Calls
+   * `repository.ts#openSupportSession` (through `useProductSession()`,
+   * which acts as the REAL signed-in identity — see this component's own
+   * header comment for why that is never the role switcher above) and, on
+   * success, navigates into the read-only Hub view this session now grants
+   * — the soft client-side navigation `ProductRuntime` was already
+   * confirmed (unit 1's own final review) to preserve state across.
+   */
+  async function handleOpenSupportSession() {
+    setOpenError(null)
+    setOpenPending(true)
+    const reasonLabel = reasonClass === UNSPECIFIED_REASON_CLASS_VALUE ? UNSPECIFIED_REASON_CLASS_LABEL : reasonClass
+    const result = await openSupportSession(tenant, `${ticketRef.trim()} — ${reasonLabel}`)
+    setOpenPending(false)
+    if (result.kind === 'opened') {
+      setSessionRequested(true)
+      router.push('/hub/support-session/')
+      return
+    }
+    if (result.kind === 'denied') {
+      // `ROLE_NOT_GRANTED`'s own generic default (`policy/decision.ts
+      // #REASON_CODES`) carries no citation — substituted with this file's
+      // own citation-backed `supportRoleReason`, the same text `namedReason`
+      // already renders for the DEMO decision this door parallels, so a
+      // denied role is never told only "the current role does not carry a
+      // grant for this action."
+      setOpenError(result.reason === 'ROLE_NOT_GRANTED' ? supportRoleReason : result.explain)
+    } else if (result.kind === 'persistence-unavailable') {
+      setOpenError(result.explain)
+    } else {
+      setOpenError('Sign in to open a support session.')
+    }
   }
 
   return (
@@ -707,7 +805,7 @@ export function SupportAccessScreen({
                   className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm text-[var(--color-ink)] disabled:opacity-50"
                 >
                   <option value="">— not selected —</option>
-                  {TENANT_OPTIONS.map((t) => (
+                  {tenantOptions.map((t) => (
                     <option key={t.value} value={t.value}>
                       {t.label}
                     </option>
@@ -738,10 +836,24 @@ export function SupportAccessScreen({
               </div>
 
               <div>
-                <Button {...openProps} onClick={() => setSessionRequested(true)}>
+                <Button {...openProps} loading={openPending} onClick={() => void handleOpenSupportSession()}>
                   Open a support session
                 </Button>
+                <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">
+                  This control acts as your real signed-in account ({session.identity},{' '}
+                  {session.role === role ? 'currently previewed above' : 'not the role currently previewed above'}
+                  ), never as the &ldquo;View as platform role&rdquo; selector, which is a reviewer aid
+                  only and performs no real action.
+                </p>
               </div>
+              {openError !== null ? (
+                <p
+                  data-control-id="support-access-open-error"
+                  className="max-w-prose text-sm text-[var(--color-status-blocked)]"
+                >
+                  {openError}
+                </p>
+              ) : null}
               {screenState === 'STATE-09' ? (
                 <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
                   Queued: a request that has been accepted is shown in its true state —{' '}
