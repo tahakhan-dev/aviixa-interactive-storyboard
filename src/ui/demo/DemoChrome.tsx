@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -12,7 +13,6 @@ import {
 import { useRouter } from 'next/navigation'
 import type { AccessContext, Repository } from '@/data/repository'
 import type { Store } from '@/data/store'
-import { CANONICAL_EPOCH_MS, fixedClock, type Clock } from '@/domain/clock'
 import { tenantId, type TenantId } from '@/domain/ids'
 import { ROLES, type RoleId } from '@/domain/roles'
 import type { ConnectivityMode } from '@/scenario/controls'
@@ -233,10 +233,14 @@ export function DemoChrome() {
   const [connectivity, setConnectivity] = useState<ConnectivityMode>('online')
   const [failureInjection, setFailureInjection] = useState<FailureInjectionMode>('none')
   const [checkpointIndex, setCheckpointIndex] = useState(0)
-  // Lazily constructed exactly once (functional initialiser) — never
-  // rebuilt, never touches ambient time; `clock.advance` is the only writer.
-  const [clock] = useState<Clock>(() => fixedClock(CANONICAL_EPOCH_MS))
-  const [clockMs, setClockMs] = useState<number>(() => clock.now())
+  // The real clock lives on the store (`store.clock`, stable across renders
+  // — `createStore` builds it once), not a second decorative one here. This
+  // component just needs to re-render whenever the store changes so the
+  // readout below stays fresh; `advanceClock` below writes the SAME clock
+  // every product screen reads through `repository.ts`.
+  const [, forceRender] = useState(0)
+  useEffect(() => store.subscribe(() => forceRender((n) => n + 1)), [store])
+  const clockMs = store.clock.now()
 
   // `DEMO_PERSONAS` is a module-level constant array, so `.find()` returns
   // the SAME object reference across renders as long as `personaId` is
@@ -254,8 +258,12 @@ export function DemoChrome() {
       setPersona: setPersonaId,
       setConnectivity,
       advanceClock(ms: number) {
-        clock.advance(ms)
-        setClockMs(clock.now())
+        // The real store clock — the same one `repository.ts` stamps every
+        // committed write with — not a decorative copy. `notify()` is what
+        // makes every product screen (and this bar's own `clockMs` readout
+        // above) re-render off the new time, exactly like a committed write.
+        store.clock.advance(ms)
+        store.notify()
       },
       setFailureInjection,
       setCheckpoint: setCheckpointIndex,
@@ -271,7 +279,7 @@ export function DemoChrome() {
         setCheckpointIndex(0)
       },
     }),
-    [persona, connectivity, clockMs, failureInjection, checkpointIndex, clock],
+    [persona, connectivity, clockMs, failureInjection, checkpointIndex, store],
   )
 
   const demoData: DemoDataApi = useMemo(() => {
