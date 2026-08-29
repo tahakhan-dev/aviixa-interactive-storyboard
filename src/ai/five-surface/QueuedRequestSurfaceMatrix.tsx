@@ -87,10 +87,13 @@ export function QueuedRequestSurfaceMatrix({ mountedOn }: QueuedRequestSurfaceMa
         >
           Queued artificial-intelligence requests — what each surface may show, state by state
         </h3>
+        {/* NO "header at L89695" HERE — a bare blueprint line locator
+            rendered as page content, §8.6.2, and redundant with the `h3`
+            above and the table's own `th` header cells below. */}
         <p className="text-sm text-[var(--color-ink-muted)]">
-          Rendered on {mountedOn}. Transcribed from the state-to-surface matrix; header at L89695.
-          Every cell is the source&apos;s own wording, and no cell offers a control — where the
-          source puts an act on another surface, this table shows the state and offers nothing.
+          Rendered on {mountedOn}. Transcribed from the state-to-surface matrix. Every cell is
+          the source&apos;s own wording, and no cell offers a control — where the source puts an
+          act on another surface, this table shows the state and offers nothing.
         </p>
         <ProvenanceMark
           classId={OVERLAY_PROVENANCE}

@@ -70,10 +70,13 @@ export function ShiftHandoffRoleMatrix() {
         >
           {SHIFT_HANDOFF_MATRIX_META.subHeading}
         </h3>
+        {/* `SHIFT_HANDOFF_MATRIX_META.headerRef`/`subHeadingRef` (the frozen-
+            source lines the header row and sub-heading are read from) are not
+            spelled out here — a bare `L#####` in prose is a §8.6.2 violation,
+            and both facts are already on screen: the sub-heading is the `h3`
+            above and the header cells are the table's own `th`s below. */}
         <p className="text-sm text-[var(--color-ink-muted)]">
-          {SHIFT_HANDOFF_MATRIX_META.axisNote} Header at{' '}
-          {SHIFT_HANDOFF_MATRIX_META.headerRef}, sub-heading at{' '}
-          {SHIFT_HANDOFF_MATRIX_META.subHeadingRef}.
+          {SHIFT_HANDOFF_MATRIX_META.axisNote}
         </p>
         <ProvenanceMark
           classId={OVERLAY_PROVENANCE}
@@ -134,7 +137,12 @@ export function ShiftHandoffRoleMatrix() {
                           // would have to choose between the grant and the open
                           // question, and the cell states both.
                           settingValue={cell}
-                          reason={`The cell grants this and names an open client decision as its condition, both at ${row.locator}. Rendering a working control would answer the question; rendering nothing would hide the grant.`}
+                          // NO "both at L#####." SUFFIX — a bare blueprint
+                          // line locator rendered as page content (this text
+                          // renders via `LockedControl`'s `reason`, §8.6.2),
+                          // and redundant with the `[${row.locator}]` badge
+                          // already on this row's own `th` above.
+                          reason="The cell grants this and names an open client decision as its condition. Rendering a working control would answer the question; rendering nothing would hide the grant."
                           // Nothing about this cell is a reader's to change:
                           // the condition is a client decision, not a setting.
                           remains={null}
@@ -168,13 +176,17 @@ export function ShiftHandoffRoleMatrix() {
             <li
               key={decision.id}
               data-open-decision={decision.id}
+              data-decision-source-ref={decision.sourceRef}
               className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] p-2"
             >
               <p className="font-medium text-[var(--color-ink)]">{decision.id}</p>
               <p className="mt-1 text-[var(--color-ink-muted)]">{decision.question}</p>
-              <p className="mt-1 text-[var(--color-ink-subtle)]">
-                {decision.whereItAppears} Read from {decision.sourceRef}.
-              </p>
+              <p className="mt-1 text-[var(--color-ink-subtle)]">{decision.whereItAppears}</p>
+              {/* NO "Read from L#####." SENTENCE HERE — a bare blueprint line
+                  locator rendered as page content, §8.6.2. `decision.sourceRef`
+                  is preserved for traceability in `data-decision-source-ref`
+                  above (and, for DEC-HANDOFF-001/002, is also the same
+                  locator already shown via the row's own `[locator]` badge). */}
             </li>
           ))}
         </ul>

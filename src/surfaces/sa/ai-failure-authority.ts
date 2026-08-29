@@ -467,9 +467,13 @@ function parseRow(line: string, lineNumber: number): ConsoleAuthorityRow {
             settingValue: refusal.settingValue,
             reason:
               `Cannot ship as an enabled control: ${refusal.reason}. The row, verbatim: ${line}`,
+            // NO ", at L#####." SUFFIX ON THE FIRST BRANCH — a bare blueprint
+            // line locator rendered as page content via `LockedControl`'s
+            // `remains` prop, §8.6.2, and redundant with the `[${sourceRef}]`
+            // badge `AiFailureAuthorityPanel` already renders for this row.
             remains:
               citedDecisions.length === 0
-                ? `Undecided in the classification column rather than in a role cell, at ${sourceRef}.`
+                ? 'Undecided in the classification column rather than in a role cell.'
                 : `Open decisions named on this row: ${citedDecisions.join(', ')}.`,
           },
   }
