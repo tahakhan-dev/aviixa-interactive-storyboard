@@ -1,1636 +1,680 @@
 'use client'
 
 import { useState } from 'react'
-import { HubShell, type TenantRoleId } from '../HubShell'
-import { dohModuleById } from '@/surfaces/doh/modules'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
-  ACCESS_CONDITIONS,
-  EVALUATION_ORDER,
-  PRECEDENCE_RULES,
-  type AccessCondition,
-  type PrecedenceRule,
-} from '@/surfaces/doh/access-conditions'
-import { DEFERRED_DOH_SCOPES, type DeferredDohScope } from '@/surfaces/doh/scope'
-import {
-  TENANT_STATES,
-  writeAllowed,
-  type TenantState,
-} from '@/surfaces/doh/tenant-state'
-import {
-  SEEDED_SSO_CONNECTION,
-  SSO_PROTOTYPE_NOTE,
-  resolveSignInTrack,
-  type SignInTrack,
-  type SsoConnectionRecord,
-  type SsoConnectionState,
-  type SsoProtocol,
-} from '@/surfaces/doh/sso-connection'
-import { TENANT_STATE_OPTIONS } from '@/ui/doh/tenant-state-vocabulary'
-import { ScreenStateBoundary } from '@/ui/ScreenStateBoundary'
-import { screenState } from '@/ui/screen-state'
-import { ProhibitionNotice } from '@/ui/sa/ProhibitionNotice'
-import {
-  Button,
-  Field,
-  FreshnessLabel,
-  PermissionNotice,
-  Select,
+  AppShell,
+  DataTable,
+  DetailDrawer,
+  Form,
+  RequireSession,
+  SelectField,
   StatusPill,
-  Table,
-  type StatusTone,
-  type TableRow,
-} from '@/ui/primitives'
-import { evaluateAccess } from '@/policy/evaluate'
-import { permitsAction, type PermissionDecision, type PermissionOutcome } from '@/policy/decision'
+  TextField,
+  Toaster,
+  bg,
+  borderColor,
+  radiusClass,
+  textColor,
+  useAccessContext,
+  useRepository,
+  useRepositoryQuery,
+  useStore,
+  type DataTableColumn,
+  type ProductSession,
+  type StatusToken,
+  type ToastItem,
+} from '@/ui/product'
+import { evaluateAccess, type AccessRequest } from '@/policy/evaluate'
 import { roleById, type RoleId } from '@/domain/roles'
-import {
-  ABSENT_CONTROLS,
-  ACCOUNT_LIFECYCLE_RIVALS,
-  APPROVER_CAPABLE_ROLES,
-  ASSIGNABLE_SCOPE_TARGETS,
-  CONDITION_MAPPINGS,
-  CONFIGURATION_EDIT_ACTION,
-  DOH09_APPLICABLE_STATES,
-  DOH09_INAPPLICABLE_STATES,
-  LOCATION_NODES,
-  MANDATORY_ROLE_STATEMENTS,
-  PERMISSION_MATRIX,
-  REFUSAL_SCENARIOS,
-  REGISTER_AS_OF,
-  REGISTER_ORIGIN,
-  REGISTER_STALE_AS_OF,
-  ROLE_ASSIGNMENT_STATES,
-  ROLE_CARD_BLOCK_NAMES,
-  ROLE_CARD_COPY,
-  ROSTER_SCENARIOS,
-  SCOPE_RULES,
-  SCOPE_TARGET_EXCLUSIONS,
-  SIGN_IN_STAGES,
-  SOURCE_CONFLICTS,
-  TENANT_ROLE_ORDER,
-  TENANT_SCOPE,
-  UNSPECIFIED_IN_SOURCE,
-  USER_ACCOUNT_STATES,
-  fixtureContext,
-  grantFor,
-  matrixRow,
-  mergeProbe,
-  refusalScenario,
-  renderingFor,
-  rolesHeld,
-  scopeChange,
-  scopeFromKey,
-  scopeLabel,
-  standingCounters,
-  type ConditionMapping,
-  type Doh09StateId,
-  type MatrixRow,
-  type LocationNodeRef,
-  type MatrixRowId,
-  type RefusalScenarioId,
-  type RoleCardBlockName,
-  type RosterScenario,
-  type RosterScenarioId,
-  type TenantUserFixture,
-  type UserAccountState,
-} from './fixtures'
+import { User } from '@/data/schemas/platform'
+import type {
+  AccessContext,
+  AssignTenantRoleResult,
+  CreateTenantUserResult,
+  RowOf,
+  WriteResult,
+} from '@/data/repository'
+import { dohModuleById } from '@/surfaces/doh/modules'
 
 /**
- * MOD-DOH-09 — Permissions, Roles and Access, pass two (Tenant, Site, Area).
+ * Task 3 (unit-02) — `MOD-DOH-09`, Permissions, Roles and Access: tenant
+ * users and their role grants, over the repository's own
+ * `createTenantUser`/`assignTenantRole` doors (`src/data/repository.ts`,
+ * this task).
  *
- * The module that decides who exists in the tenant, what each may do, and
- * where. It owns `OBJ-DOH-USER` and is the only module anywhere that creates
- * a tenant user account; every other module that shows a person shows one
- * this screen made.
+ * ─────────────────────────────────────────────────────────────────────────
+ * STEP 1 — WHAT THE OUTGOING 1,636-LINE FILE CARRIED, AND ITS OWN MISTAKE
+ * ─────────────────────────────────────────────────────────────────────────
+ * The previous body (`./fixtures.ts`, 35 locators, a fixture roster, a
+ * nine-condition access-evaluation walkthrough, a role-definition-card
+ * family) rendered THREE screens under one route annotation, by its own
+ * header's admission — and two of those three belong to a DIFFERENT screen
+ * than this route claims to be. Lines 913-1008 of the outgoing file rendered
+ * `SCR-DOH-01` ("the two-track sign-in" — the address-resolution screen that
+ * decides single sign-on versus a platform-managed credential) and lines
+ * 1007 onward rendered `SCR-DOH-ROLE-01` ("the landing, in its two views" —
+ * a role-explanation family: a by-person held/refused/absent breakdown and
+ * a role-definition card). Both are real screens with real facts, but
+ * neither is `SCR-DOH-18`/`SCR-DOH-019` ("Users, roles and scopes"), which
+ * is the actual register this route serves. This rebuild does not carry
+ * either section forward: their facts (the boot-order sign-in stages, the
+ * SSO connection record, the by-person held/refused/absent lists, the
+ * nine-block role-definition card) belong to some other screen's eventual
+ * registry entry, not this one's, and are left there rather than kept here
+ * under the wrong name. `./fixtures.ts` itself is left in place, untouched
+ * and now unimported — the same disposition Task 1's own header gives an
+ * outgoing fixture file another later task might still read.
  *
- * Three screens are annotated on this one route, because the source splits
- * them and D1 forbids keying a route on a screen number: the sign-in address
- * screen, the users-roles-and-scopes register, and the role-explanation
- * family (the landing with its two views, the refusal explanation, and the
- * role definition card).
+ * ─────────────────────────────────────────────────────────────────────────
+ * STEP 2 — THE TENANT ROLE-ASSIGNMENT RULE: FOUND AND CITED, NOT DELEGATED
+ * ─────────────────────────────────────────────────────────────────────────
+ * This task's own brief offers a disclosed DEFAULT to fall back on only if
+ * the frozen source were silent on "which tenant role may grant which other
+ * tenant role" (Tenant Admin grants all four; Supervisor and Quality
+ * Manager grant Worker only). The source is not silent. See
+ * `TENANT_ROLE_GRANT_MATRIX`'s own comment in `repository.ts` for the full
+ * research and its citations — in short: `MTX-TEN-02a` (the tenant
+ * role-to-module matrix, frozen source L22015) states Supervisor and
+ * Quality Manager `Unavailable` for the whole `MOD-DOH-09` module, and
+ * `TRN-ACC-04` (L18976, the account-lifecycle authority table's "Roles and
+ * scopes assigned" row) names Tenant Admin as both Requester and Authorizer,
+ * singular. Only `TENANT_ADMIN` may grant any of the four tenant roles
+ * under this build — narrower than the brief's own proposed default,
+ * disclosed on screen below with the alternative named, per the Global
+ * Constraints citation rule, rather than silently substituted for it.
  *
- * TWO RULES BIND THIS FILE HARDER THAN ANY OTHER IN THE SLICE, and both are
- * this module's own matrix rows:
- *
- * - `AC-16-12` (L20225) — no surface renders a role selector, a session-level
- *   role context, or a banner claiming one. The view control above is the
- *   shell's, it is labelled as a view, and it changes only which seeded
- *   fixtures render. Nothing here is a session role context.
- * - Deny by default (L14476, `AC-DOH-09-9`) — an undefined permission is a
- *   refusal, and a rule that cannot be evaluated is treated as violated.
- *   Failing open is the worst defect this module could ship.
- *
- * The nine access conditions are rendered from the spine's own array, in the
- * spine's own order, with role permission first and safety controls ninth.
- * Safety wins by PRECEDENCE, not by position (L14512). This screen never
- * re-sorts that list: a reviewer reads it here as if the source said so.
+ * DISCLOSED DEVIATION, MATCHING THIS UNIT'S OWN ESTABLISHED PRECEDENT
+ * (`ShiftManagementScreen.tsx`'s own header, `LocationConfigurationScreen
+ * .tsx`'s own header): `MTX-TEN-02a` reads Supervisor/Quality Manager as
+ * `Unavailable` for the WHOLE module, which would mean they cannot even
+ * VIEW this screen. This build follows the repository's own uniform
+ * `'hub'`-authority read/view floor instead (`TENANT_OPERATIONAL_WRITERS`:
+ * Tenant Admin, Supervisor, Quality Manager may all view and attempt these
+ * two doors; Read-only Auditor may view only; Worker reaches no Hub screen
+ * at all, D11) — the same disclosed widening `ShiftManagementScreen.tsx`'s
+ * own header records for its own `WRITE_REQUEST`. This is deliberate, and
+ * it is what makes the segregation-of-duties refusal below LIVE-VERIFIABLE
+ * through the real product UI: a Supervisor or Quality Manager can open
+ * "Invite user"/"Assign role" and submit, and receive the door's own
+ * business-specific refusal, rather than never reaching a control at all —
+ * which is also this screen's answer to the brief's own risk-3 requirement
+ * (drive the denial through the door, not only through a hidden control).
+ * The role-select controls on both forms are therefore NOT narrowed per
+ * acting role in their options list (`TENANT_USER_ROLES`, the same four
+ * options, for every actor who may open the form) — `assignTenantRole`'s
+ * own segregation-of-duties gate is the enforcement, and narrowing the
+ * options to the empty set for Supervisor/Quality Manager would make the
+ * control impossible to exercise at all, defeating the very live-verify
+ * this task's Step 6 asks for.
  */
+
 const MODULE = dohModuleById('MOD-DOH-09')
 
-/* ------------------------------------------------------------------ *
- * Labels. The token stays the data; these are the interface words.
- * ------------------------------------------------------------------ */
+type UserRow = RowOf<'users'>
+type RoleGrantRow = RowOf<'role-grants'>
 
-const OUTCOME_LABEL: Readonly<Record<PermissionOutcome, string>> = {
-  allowed: 'Allowed',
-  allowedWithConditions: 'Allowed with conditions',
-  readOnly: 'Read-only',
-  cachedReadOnlyOffline: 'Read-only, from a stored copy',
-  queuedOffline: 'Queued',
-  explicitlyProhibited: 'Explicitly prohibited',
-  unavailable: 'Unavailable',
-  notApplicable: 'Not applicable',
-  clientDecisionRequired: 'Client Decision Required',
-}
+/**
+ * The closed four-role set `createTenantUser`/`assignTenantRole` mint or
+ * grant — matches `TENANT_USER_ROLES` in `repository.ts` exactly (that
+ * constant is private to this module's file, so this is the screen's own
+ * copy of the SAME four values, not a second, independent decision about
+ * what the closed set is).
+ */
+const TENANT_USER_ROLES: readonly RoleId[] = ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER', 'WORKER']
 
-const OUTCOME_TONE: Readonly<Record<PermissionOutcome, StatusTone>> = {
-  allowed: 'ok',
-  allowedWithConditions: 'info',
-  readOnly: 'stale',
-  cachedReadOnlyOffline: 'stale',
-  queuedOffline: 'info',
-  explicitlyProhibited: 'blocked',
-  unavailable: 'neutral',
-  notApplicable: 'neutral',
-  clientDecisionRequired: 'attention',
-}
-
-const RENDERING_LABEL = {
-  control: 'a live control',
-  'disabled-with-reason': 'a disabled control carrying its reason',
-  'read-only': 'a read-only treatment with its cause named',
-  absent: 'nothing drawn, and the rule stated where it would sit',
-} as const
-
-const ACCOUNT_STATE_LABEL: Readonly<Record<UserAccountState, string>> = {
+const STATUS_LABEL: Readonly<Record<UserRow['status'], string>> = {
+  invited: 'Invited',
   active: 'Active',
-  suspended_by_tenant_state: 'Suspended by tenant state',
-  archived: 'Archived',
+  suspended: 'Suspended',
+  removed: 'Removed',
 }
-
-const TRACK_LABEL: Readonly<Record<SignInTrack, string>> = {
-  sso: 'Single sign-on',
-  managed: 'Platform-managed credential',
-}
-
-const PROTOCOL_LABEL: Readonly<Record<SsoProtocol, string>> = {
-  saml: 'SAML',
-  'openid-connect': 'OpenID Connect',
-}
-
-const DEFERRED_SCOPE_LABEL: Readonly<Record<DeferredDohScope, string>> = {
-  cell: 'Cell',
-  job: 'Job',
-  worker: 'worker',
-}
-
-const CONNECTION_STATE_LABEL: Readonly<Record<SsoConnectionState, string>> = {
-  configured: 'Configured',
-  not_configured: 'Not configured',
-  reserved_inert: 'Reserved, and inert',
+const STATUS_TONE: Readonly<Record<UserRow['status'], StatusToken>> = {
+  invited: 'info',
+  active: 'ok',
+  suspended: 'warn',
+  removed: 'offline',
 }
 
 /**
- * The two rules that sit ABOVE the nine-condition intersection (L14512),
- * rendered from the spine's own array. Titles only — the spine holds the
- * order and the tokens, and this map holds the words a reader sees.
+ * The whole screen's own view gate — real, enforced here, not left to the
+ * nav rail alone (`ShiftManagementScreen.tsx`'s own `VIEW_REQUEST` shape).
+ * `WORKER` excluded (D11, no Hub screen at all). See this file's own header
+ * for why Supervisor/Quality Manager are included despite `MTX-TEN-02a`'s
+ * `Unavailable` reading — a disclosed widening, matching this unit's own
+ * precedent, not a silent one.
  */
-const PRECEDENCE_COPY: Readonly<Record<PrecedenceRule, { title: string; detail: string }>> = {
-  'explicit-deny-wins': {
-    title: 'Explicit deny wins',
-    detail:
-      'Where any condition produces an explicit deny, the request is refused regardless of how many conditions allowed. It matters most for a multi-role identity, whose permissions are otherwise additive.',
-  },
-  'safety-controls-win': {
-    title: 'Safety controls win',
-    detail:
-      'Where a safety control conflicts with any other condition — including a root-level allow — the safety control decides. That is why the most privileged role in the tenant still cannot remove the last Tenant Admin.',
-  },
-}
-
-/** Written as words so no rendered number can be mistaken for a live count. */
-const ORDINALS = [
-  'First',
-  'Second',
-  'Third',
-  'Fourth',
-  'Fifth',
-  'Sixth',
-  'Seventh',
-  'Eighth',
-  'Ninth',
-] as const
-
-/**
- * Never a blank. `ORDINALS[i] ?? ''` rendered "Refused at the &nbsp;of the
- * nine conditions" the moment a scenario's condition left `ACCESS_CONDITIONS`
- * — a hole exactly where a reader is being taught the list. Both readings of
- * a missing ordinal now name themselves.
- */
-function ordinalAt(index: number): string {
-  return ORDINALS[index] ?? 'Unlisted'
-}
-
-function refusedAtPhrase(index: number): string {
-  const ordinal = ORDINALS[index]
-  return ordinal === undefined
-    ? 'refused at a condition the spine no longer lists among the nine, which is a defect stated here rather than rendered as a blank'
-    : `refused at the ${ordinal.toLowerCase()} of the nine conditions evaluated`
-}
-
-/* ------------------------------------------------------------------ *
- * Connection loss (D7). Nothing on this surface ever queues a write.
- * ------------------------------------------------------------------ */
-
-const CONNECTION_LOSS_STATES: ReadonlySet<Doh09StateId> = new Set([
-  'STATE-08',
-  'STATE-12',
-  'STATE-13',
-])
-
-const NEVER_QUEUED_REASON =
-  'The connection to the tenant record is not confirmed, so this write control is disabled and never queued — a queued clearance would be a safety control with no audit entry (D7, L27568). Tenant state is re-read before any write control is offered again.'
-
-const TENANT_GATE_REASON =
-  'Blocked by the tenant state gate, which is read before this control renders rather than after it is pressed. Creating an account, assigning a role or scope, resetting a credential and editing the connection are all a configuration edit, and the write-class table closes every configuration edit while the tenant is suspended or closed (L26919, L28522).'
-
-const READ_ONLY_REASON =
-  'Read-only — the whole module is in its read-only state, and the cause is named once rather than scattered across each control (L48013).'
-
-const REGISTER_EMPTY = {
-  title: 'No user account is on the register.',
-  whatCreatesIt:
-    'A Tenant Admin creates one here. This is the only control anywhere that creates a tenant user account.',
-}
-
-const NO_ACTION_YET =
-  'No control has been used in this view yet. Every write on this screen reports what it did and, just as plainly, what it did not do.'
-
-const ACCEPTED_ADDRESS_FORM =
-  'That address cannot be read. The accepted form is name@domain.example — exactly one @ sign, something either side of it, and at least one dot in the domain. Nothing was submitted anywhere.'
-
-/* ------------------------------------------------------------------ *
- * Small lookups over the fixtures, each failing loudly rather than
- * silently rendering a hole.
- * ------------------------------------------------------------------ */
-
-function rosterScenario(id: RosterScenarioId): RosterScenario {
-  const found = ROSTER_SCENARIOS.find((s) => s.id === id)
-  if (!found) throw new Error(`Unknown MOD-DOH-09 roster scenario: ${id}`)
-  return found
-}
-
-function conditionMapping(condition: AccessCondition): ConditionMapping {
-  const found = CONDITION_MAPPINGS.find((m) => m.condition === condition)
-  if (!found) throw new Error(`No MOD-DOH-09 mapping for access condition: ${condition}`)
-  return found
-}
-
-/** The roles a matrix row lets write. Read out of the matrix, never retyped. */
-function writersOf(row: MatrixRow): readonly RoleId[] {
-  return TENANT_ROLE_ORDER.filter((r) => {
-    const outcome = row.cells[r].outcome
-    return outcome === 'allowed' || outcome === 'allowedWithConditions'
-  })
+const VIEW_REQUEST: AccessRequest = {
+  action: 'view-permissions-roles-and-access',
+  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER', 'READONLY_AUDITOR'],
+  sourceRefs: ['L22015', 'MTX-TEN-02a', 'repository.ts'],
 }
 
 /**
- * Per-control, through the ONE evaluator. The matrix says what the source
- * says; the evaluator says what this identity gets, and the screen renders
- * the two together rather than trusting either alone.
+ * Screen-level DISPLAY gate only, mirroring `CREATE_TENANT_USER_REQUEST`'s/
+ * `ASSIGN_TENANT_ROLE_REQUEST`'s own floor in `repository.ts` (private
+ * there, so restated here rather than imported — same split
+ * `TenantsScreen.tsx`'s own `createDecision` already uses beside
+ * `provisionTenant`'s door authorisation). The REAL, enforced authorisation
+ * is the door itself; this decides only whether to show a live control or
+ * a disabled one with its reason.
  */
-function controlDecision(row: MatrixRow, role: TenantRoleId): PermissionDecision {
-  return evaluateAccess(
-    {
-      action: `MOD-DOH-09:${row.id}`,
-      allowedRoles: writersOf(row),
-      sourceRefs: [row.sourceRef],
-    },
-    fixtureContext(role),
+const WRITE_REQUEST: AccessRequest = {
+  action: 'manage-tenant-users-and-roles',
+  allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
+  sourceRefs: ['L18973', 'L18976', 'TRN-ACC-01', 'TRN-ACC-04', 'repository.ts'],
+}
+
+export function PermissionsScreen() {
+  return (
+    <RequireSession signInHref="/super-admin/sign-in/">
+      {(session) => <PermissionsGate session={session} />}
+    </RequireSession>
   )
 }
 
-export interface PermissionsScreenProps {
-  /** Which seeded persona this view opens on. The screen owns it from here. */
-  readonly role?: TenantRoleId
-  readonly tenantState?: TenantState
-  readonly screenState?: Doh09StateId
-  readonly roster?: RosterScenarioId
-  readonly refusalScenarioId?: RefusalScenarioId
-  /** Whether the audit write in the same transaction succeeds or fails. */
-  readonly auditPath?: 'commits' | 'write-fails'
-}
-
-export function PermissionsScreen({
-  role: initialRole,
-  tenantState: initialTenantState,
-  screenState: initialScreenState,
-  roster: initialRoster,
-  refusalScenarioId: initialRefusal,
-  auditPath: initialAuditPath,
-}: PermissionsScreenProps = {}) {
-  /* STATE OWNERSHIP (task-2 decision): the screen owns `role` and
-     `tenantState`; the shell renders its switcher as a controlled component
-     from them. The props above seed the first render so a test — or a
-     reviewer following a link — can open any combination directly. */
-  const [role, setRole] = useState<TenantRoleId>(initialRole ?? 'TENANT_ADMIN')
-  const [tenantState, setTenantState] = useState<TenantState>(initialTenantState ?? 'active')
-  const [stateId, setStateId] = useState<Doh09StateId>(initialScreenState ?? 'STATE-03')
-  const [rosterId, setRosterId] = useState<RosterScenarioId>(initialRoster ?? 'seeded')
-  const [refusalId, setRefusalId] = useState<RefusalScenarioId>(initialRefusal ?? 'role-permission')
-  const [auditPath, setAuditPath] = useState<'commits' | 'write-fails'>(
-    initialAuditPath ?? 'commits',
-  )
-
-  const seededRoster = rosterScenario(rosterId)
-  const [users, setUsers] = useState<readonly TenantUserFixture[]>(seededRoster.users)
-  const [selectedUserId, setSelectedUserId] = useState<string>(seededRoster.users[0]?.id ?? '')
-  const [roleToAssign, setRoleToAssign] = useState<TenantRoleId>('SUPERVISOR')
-  /* The picker's own value is the KEY, not the scope: a `Select` carries one
-     string, and every key it offers was built from the location records, so
-     `scopeFromKey` can only fail on a value this screen never rendered. */
-  const [scopeToAssign, setScopeToAssign] = useState<string>('tenant')
-  const [registerMessage, setRegisterMessage] = useState<string>(NO_ACTION_YET)
-
-  const [connection, setConnection] = useState<SsoConnectionRecord>(SEEDED_SSO_CONNECTION)
-  const [address, setAddress] = useState('')
-  const [resolvedTrack, setResolvedTrack] = useState<SignInTrack | 'unreadable' | null>(null)
-  const [connectionNote, setConnectionNote] = useState<string | null>(null)
-
-  const [cardExportNote, setCardExportNote] = useState<string | null>(null)
-
-  const roleName = roleById(role).name
-  const counters = standingCounters(users, seededRoster.jobExists)
-  const scenario = refusalScenario(refusalId)
-  const connectionLost = CONNECTION_LOSS_STATES.has(stateId)
-  const tenantGateOpen = writeAllowed(tenantState, CONFIGURATION_EDIT_ACTION)
-
-  /**
-   * The one place a write control asks whether it may act, in the order the
-   * contract gates it: the role's own prohibition rendering first, then the
-   * tenant state gate (S2, one data table), then connection loss (D7), then
-   * the evaluator's own answer for this identity. `null` means the control
-   * is live and its handler changes something observable.
-   */
-  function writeBlockReason(row: MatrixRow): string | null {
-    if (renderingFor(row, role) === 'disabled-with-reason') return row.cells[role].cause
-    if (!tenantGateOpen) return TENANT_GATE_REASON
-    if (connectionLost) return NEVER_QUEUED_REASON
-    if (stateId === 'STATE-06') return READ_ONLY_REASON
-    const decision = controlDecision(row, role)
-    if (!permitsAction(decision)) {
-      return decision.conditionToEnable === null
-        ? decision.explanation
-        : `${decision.explanation} ${decision.conditionToEnable}`
-    }
-    return null
-  }
-
-  /**
-   * A write control, gated. Written as a function returning an element rather
-   * than as a nested component, so React does not remount a fresh `Button`
-   * (and a fresh generated id for its reason) on every keystroke elsewhere on
-   * the screen. The disabled arm cannot be constructed without a reason —
-   * `Button`'s own contract makes that a type error, not a review note.
-   */
-  function gatedButton(rowId: MatrixRowId, label: string, onAct: () => void) {
-    const reason = writeBlockReason(matrixRow(rowId))
-    return reason === null ? (
-      <Button variant="secondary" onClick={onAct}>
-        {label}
-      </Button>
-    ) : (
-      <Button variant="secondary" disabledReason={reason}>
-        {label}
-      </Button>
-    )
-  }
-
-  /**
-   * The scope row asked once, so the button and the picker beside it cannot
-   * disagree about whether this view may assign a scope.
-   */
-  const scopeBlockReason = writeBlockReason(matrixRow('assign-or-remove-scope'))
-
-  function selectedUser(): TenantUserFixture | undefined {
-    return users.find((u) => u.id === selectedUserId)
-  }
-
-  function switchRoster(next: RosterScenarioId) {
-    const scenarioNext = rosterScenario(next)
-    setRosterId(next)
-    setUsers(scenarioNext.users)
-    setSelectedUserId(scenarioNext.users[0]?.id ?? '')
-    setRegisterMessage(NO_ACTION_YET)
-  }
-
-  /* -------------------------------------------------------------- *
-   * Handlers. Every one of them says what it did NOT do.
-   * -------------------------------------------------------------- */
-
-  /**
-   * THE GOVERNING INVARIANT, and the reason it is a function rather than a
-   * branch inside one handler: a business action and its required audit
-   * append are ONE transaction, so an audit failure REFUSES the action
-   * instead of producing an unaudited success. Every write handler below asks
-   * this before it mutates anything — a demonstration wired only to the one
-   * control that changes nothing on its success path would never roll an
-   * observable mutation back, and would teach the opposite of the invariant.
-   *
-   * Asked AFTER a handler's own domain refusals, because a refused action is
-   * not an action and appends no audit entry to fail.
-   */
-  function auditFailure(whatDidNotHappen: string): string {
-    return `The audit write failed, so the action did not happen. ${whatDidNotHappen} The register is unchanged, nothing is left half-applied, and nothing was queued for later — audit commits in the same transaction as the action, so a failed audit fails the action with it.`
-  }
-
-  /** The register-side handlers, whose refusal belongs in the register's own status line. */
-  function auditRefused(whatDidNotHappen: string): boolean {
-    if (auditPath !== 'write-fails') return false
-    setRegisterMessage(auditFailure(whatDidNotHappen))
-    return true
-  }
-
-  function createAccount() {
-    if (auditRefused('No account was created.')) return
-    setRegisterMessage(
-      'Recorded in this storyboard: an intent to create a user account, attributed to the identity in view, with its audit entry in the same transaction. No account was created — the source names the workflow and never the fields of its form, so no form is drawn here and nothing was invented to fill one.',
-    )
-  }
-
-  function assignRole() {
-    const target = selectedUser()
-    if (target === undefined) return
-    if (rolesHeld(target).includes(roleToAssign)) {
-      setRegisterMessage(
-        `${target.displayName} already holds the ${roleById(roleToAssign).name} role. Roles are additive and an assignment is recorded once; nothing was written a second time.`,
-      )
-      return
-    }
-    if (auditRefused(`No role was assigned to ${target.displayName}.`)) return
-    setUsers(
-      users.map((u) =>
-        u.id === target.id
-          ? { ...u, grants: [...u.grants, { role: roleToAssign, scope: TENANT_SCOPE }] }
-          : u,
-      ),
-    )
-    setRegisterMessage(
-      `Assigned the ${roleById(roleToAssign).name} role to ${target.displayName}, at the tenant scope, with its audit entry in the same transaction. A new grant starts at the widest scope and is narrowed afterwards by the scope control beside this one: a scope narrows a role and never grants one. Permissions are additive and take effect on the web surfaces at once; a device would see them at its next sync.`,
-    )
-  }
-
-  function removeRole() {
-    const target = selectedUser()
-    if (target === undefined) return
-    if (!rolesHeld(target).includes(roleToAssign)) {
-      setRegisterMessage(
-        `${target.displayName} does not hold the ${roleById(roleToAssign).name} role, so there is nothing to remove and nothing was written.`,
-      )
-      return
-    }
-    const after = users.map((u) =>
-      u.id === target.id ? { ...u, grants: u.grants.filter((g) => g.role !== roleToAssign) } : u,
-    )
-    const wouldBe = standingCounters(after, seededRoster.jobExists)
-    if (wouldBe.tenantAdmins === 0) {
-      setRegisterMessage(
-        `Refused, and the rule is named rather than hinted at: ${MANDATORY_ROLE_STATEMENTS.tenantAdmin} No override exists on any surface, including within support sessions (AC-16-39, L20658). Nothing was written.`,
-      )
-      return
-    }
-    if (wouldBe.approverCapable === 0 && seededRoster.jobExists) {
-      setRegisterMessage(
-        `Refused, and the rule is named rather than hinted at: ${MANDATORY_ROLE_STATEMENTS.approver} Assign the role to a second person first. Nothing was written.`,
-      )
-      return
-    }
-    if (auditRefused(`No role was removed from ${target.displayName}.`)) return
-    setUsers(after)
-    setRegisterMessage(
-      `Removed the ${roleById(roleToAssign).name} role from ${target.displayName}, with its audit entry in the same transaction. The grant's scope went with it: an assignment is assigned or removed and there is no third state to hold a scope in, so assigning this role again would create a new grant at the widest scope rather than restoring this one. Both mandatory-role rules were checked at the moment of removal, which is the only moment either can be violated.`,
-    )
-  }
-
-  function issuePin() {
-    const target = selectedUser()
-    if (target === undefined) return
-    if (role === 'SUPERVISOR' && !rolesHeld(target).includes('WORKER')) {
-      setRegisterMessage(
-        `Refused by the condition stated on this row: a Supervisor may issue or reset a managed personal identification number within own scope and for workers only (L28531). ${target.displayName} holds no Worker role, so nothing was written.`,
-      )
-      return
-    }
-    if (auditRefused('No personal identification number was issued or reset.')) return
-    setUsers(users.map((u) => (u.id === target.id ? { ...u, managedPinIssued: true } : u)))
-    setRegisterMessage(
-      `Recorded a managed personal identification number issued for ${target.displayName}, with its audit entry in the same transaction. No number is shown, no length is implied and no delivery channel is claimed: the source names the control and never the value, so this screen records the act and stops there.`,
-    )
-  }
-
-  /**
-   * The scope row is a ROUTING prohibition, so a control has to exist here:
-   * the Tenant Admin holds it live and every other role meets it disabled
-   * with its reason, which is what the by-person list says is drawn.
-   *
-   * PASS TWO gives it something to change. It acts on ONE grant — the one
-   * carrying the role in the picker beside it — and the three refusals below
-   * are the three scope rules made enforceable rather than merely printed:
-   *
-   * - no grant for that role: a scope narrows a role and never grants one;
-   * - not a narrowing: a widening or a sideways move is refused (L17470);
-   * - unchanged: nothing to write, and nothing is claimed to have been.
-   *
-   * The audit question is asked AFTER all three, because a refused action is
-   * not an action and appends no audit entry to fail — and BEFORE the
-   * mutation, which the register's Scope column shows.
-   */
-  function assignScope() {
-    const target = selectedUser()
-    if (target === undefined) return
-    const next = scopeFromKey(scopeToAssign)
-    if (next === null) {
-      // Unreachable from the picker, which offers only keys the same walk
-      // built — and answered rather than returned silently, because a
-      // control that does nothing without saying so is the defect this
-      // module's own copy warns about.
-      setRegisterMessage(
-        'Nothing was written: that scope does not resolve to a Site or an Area this tenant holds. No node was guessed at.',
-      )
-      return
-    }
-    const grantRoleName = roleById(roleToAssign).name
-    const grant = grantFor(target, roleToAssign)
-    if (grant === undefined) {
-      setRegisterMessage(
-        `${target.displayName} holds no ${grantRoleName} grant, so there is no scope to narrow and nothing was written. A scope narrows a role and never grants one (L17470): assign the role first, then narrow it.`,
-      )
-      return
-    }
-    const change = scopeChange(grant.scope, next)
-    if (change === 'unchanged') {
-      setRegisterMessage(
-        `The ${grantRoleName} grant on ${target.displayName} already sits at ${scopeLabel(next)}. Nothing was written, and no audit entry was appended for an action that would change nothing.`,
-      )
-      return
-    }
-    if (change === 'not-a-narrowing') {
-      setRegisterMessage(
-        `Refused, and the rule is named rather than hinted at: a scope narrows a role and never widens it (L17470). The ${grantRoleName} grant on ${target.displayName} holds ${scopeLabel(grant.scope)}, and ${scopeLabel(next)} is not inside it — a widening and a sideways move are the same answer here. Nothing was written.`,
-      )
-      return
-    }
-    if (auditRefused(`No scope was assigned to ${target.displayName}.`)) return
-    setUsers(
-      users.map((u) =>
-        u.id === target.id
-          ? {
-              ...u,
-              grants: u.grants.map((g) => (g.role === roleToAssign ? { ...g, scope: next } : g)),
-            }
-          : u,
-      ),
-    )
-    setRegisterMessage(
-      `Narrowed the ${grantRoleName} grant on ${target.displayName} to ${scopeLabel(next)}, with its audit entry in the same transaction. The Scope column on the register moves for that grant and for no other: this account's other grants keep the scope they were given, because scopes do not merge across grants (AC-16-02, L20046).`,
-    )
-  }
-
-  function toggleConnection() {
-    // Same invariant, reported where this control's own answers appear.
-    if (auditPath === 'write-fails') {
-      setConnectionNote(auditFailure('The connection record was not changed.'))
-      return
-    }
-    const nextState = connection.state === 'configured' ? 'not_configured' : 'configured'
-    setConnection({ ...connection, state: nextState })
-    setResolvedTrack(null)
-    setConnectionNote(
-      nextState === 'configured'
-        ? 'Connection record set to configured in this storyboard. The seeded email domain resolves onto the federated branch again. Nothing was reconfigured anywhere, because there is nothing on the other end of this record.'
-        : 'Connection record set to not configured in this storyboard. Every address now resolves onto the platform-held credential path, which is the branch this control exists to show. Nothing was reconfigured anywhere.',
-    )
-  }
-
-  function submitAddress() {
-    const track = resolveSignInTrack(address, connection)
-    setResolvedTrack(track ?? 'unreadable')
-  }
-
-  /* -------------------------------------------------------------- *
-   * The screen-state treatment, rendered once at the top. The body
-   * below always renders: the states this module reaches are about
-   * what a reader may TRUST and what a control may DO, and hiding the
-   * body would hide the very controls whose disabled reasons carry
-   * the answer.
-   * -------------------------------------------------------------- */
-  /**
-   * STATE-05 IS THE ONE STATE WHOSE TREATMENT CANNOT BE A BOUNDARY PAYLOAD
-   * ALONE, and this screen was the only one of the fourteen carrying a
-   * STATE-05 position that did not say so.
-   *
-   * `PermissionNotice` renders NOTHING for a fully `allowed` decision —
-   * there is no cause to account for, which is right where it sits beside a
-   * live control. But it is the WHOLE of the STATE-05 treatment here, and
-   * `create-or-edit-user-account` resolves to plain `allowed` for the
-   * Tenant Admin this screen loads in as. So selecting "STATE-05
-   * Permission-denied" rendered byte-identically to the default STATE-03,
-   * which is a state offered as its own position and rendered as another
-   * one — a state nobody can see (state contract, table at L48006, and
-   * `STATE-05` itself at L48012: "The control is not silently absent").
-   *
-   * The guard is `outcome === 'allowed'` and NOT `permitsAction`, because
-   * the condition being complemented is what `PermissionNotice` falls
-   * silent on, which is that one outcome exactly. `allowedWithConditions`
-   * permits the action AND renders its condition, so routing it down the
-   * paragraph arm would swallow a rendering that works.
-   *
-   * Same shape as `LocationConfigurationScreen`, `DevicesScreen`,
-   * `TenantLifecycleScreen` and the ten others: name the persona that is
-   * not refused, then name one that is, so the position is never blank.
-   */
-  const createDecision = controlDecision(matrixRow('create-or-edit-user-account'), role)
-  const stateTreatment = stateId === 'STATE-05' && createDecision.outcome === 'allowed' ? (
-    <p role="note" className="text-sm text-[var(--color-ink-muted)]">
-      {roleName} holds the account writes on this module, so no refusal renders for this persona.
-      Select the Supervisor, the Quality Manager, the Read-only Auditor or the Worker to meet the
-      refusal named rather than hidden behind a missing control — every one of the four is
-      explicitly prohibited from creating a tenant user account, which belongs to the Tenant Admin
-      alone (L28522).
-    </p>
-  ) : (
-    <ScreenStateBoundary
-      state={stateId}
-      surface="SURF-DOH"
-      detail={{
-        objectLabel: 'user accounts',
-        whatCreatesIt: REGISTER_EMPTY.whatCreatesIt,
-        fieldLabel: 'Work email address',
-        rule: 'An address that cannot be read as one is refused rather than guessed at.',
-        permittedFormat: 'The accepted form is name@domain.example.',
-        decision: createDecision,
-        readOnlyCause: `Read-only for the ${roleName} view: the register is readable and no write row on it is held. The cause is named here once, and never shown as the bare words.`,
-        asOfLabel: REGISTER_STALE_AS_OF,
-        originLabel: REGISTER_ORIGIN,
-        failureWhat: 'The read of the user and role register failed.',
-        wasWritten: false,
-        nextStep:
-          'No write was attempted and none was queued. Reconnect, and tenant state is re-read before any write control is offered again.',
-        recoveryProgress:
-          'Tenant state is being re-read before any write control is re-enabled, so nothing is offered on the strength of a stale gate (D7).',
-      }}
-    />
-  )
-
-  const scenarioDecision = evaluateAccess(scenario.request, fixtureContext(role, scenario))
-  const scenarioRefused = !permitsAction(scenarioDecision)
-  // The position the request was refused AT is a fact about evaluation, so it
-  // is read from the workflow order (L14532 onwards), not from the definition
-  // enumeration. The table below still shows both.
-  const scenarioOrder = EVALUATION_ORDER.indexOf(scenario.condition)
-
-  const conditionRows: TableRow[] = ACCESS_CONDITIONS.map((condition, index) => {
-    const mapping = conditionMapping(condition)
-    return {
-      order: ordinalAt(index),
-      evaluated: ordinalAt(EVALUATION_ORDER.indexOf(condition)),
-      condition: mapping.name,
-      carriedBy: mapping.carriedBy,
-      // L14267: a refusal names who can change the condition that refused.
-      // The column header is deliberately worded apart from that sentence
-      // below, so a reader meets the answer once, not twice.
-      changedBy: mapping.whoCanChangeIt,
-      request:
-        scenarioRefused && condition === scenario.condition
-          ? 'Refused here'
-          : '—',
-    }
-  })
-
-  const matrixRows: TableRow[] = PERMISSION_MATRIX.map((row) => {
-    const cells: TableRow = { control: row.label }
-    for (const r of TENANT_ROLE_ORDER) {
-      cells[r] = (
-        <StatusPill
-          tone={OUTCOME_TONE[row.cells[r].outcome]}
-          icon="●"
-          label={OUTCOME_LABEL[row.cells[r].outcome]}
-        />
-      )
-    }
-    return cells
-  })
-
-  /**
-   * The Scope column is per GRANT, not per account: one line for each role
-   * held, carrying that role's own scope. A single "Scope: Tenant" cell would
-   * be the account-level scope the non-merging rule forbids, drawn.
-   */
-  const registerRows: TableRow[] = users.map((u) => ({
-    person: u.displayName,
-    roles: rolesHeld(u)
-      .map((r) => roleById(r).name)
-      .join(', '),
-    scope:
-      u.grants.length === 0
-        ? 'No grant, so no scope'
-        : u.grants.map((g) => `${roleById(g.role).name}: ${scopeLabel(g.scope)}`).join(' · '),
-    account: ACCOUNT_STATE_LABEL[u.accountState],
-    track: TRACK_LABEL[u.loginTrack],
-    credential: u.managedPinIssued ? 'Issued' : 'None issued',
-  }))
-
-  /**
-   * A heading over an empty list teaches nothing, and the Tenant Admin's
-   * Refused list is empty BY CONSTRUCTION — the `Table` primitive has an
-   * `emptyState` contract for exactly this and these lists had none.
-   */
-  function renderingList(
-    rows: readonly MatrixRow[],
-    whenEmpty: string,
-    describe: (row: MatrixRow) => string,
-  ) {
-    if (rows.length === 0) {
-      return <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">{whenEmpty}</p>
-    }
+function PermissionsGate({ session }: { readonly session: ProductSession }) {
+  const ctx = useAccessContext()
+  const viewGate = evaluateAccess(VIEW_REQUEST, ctx)
+  if (viewGate.outcome !== 'allowed') {
     return (
-      <ul className="mt-2 space-y-2">
-        {rows.map((row) => (
-          <li key={row.id} className="max-w-prose text-sm">
-            <span className="font-medium text-[var(--color-ink)]">{row.label}</span>
-            <span className="text-[var(--color-ink-muted)]"> — {describe(row)}</span>
-          </li>
-        ))}
-      </ul>
+      <AppShell surface="SURF-DOH" session={session} title={MODULE.name} breadcrumbs={[{ label: MODULE.name }]}>
+        <p data-control-id="permissions-unavailable" className={`text-sm ${textColor('ink-muted')}`}>
+          {viewGate.explanation}
+        </p>
+      </AppShell>
     )
   }
-
-  const heldRows = PERMISSION_MATRIX.filter((r) => {
-    const rendering = renderingFor(r, role)
-    return rendering === 'control' || rendering === 'read-only'
-  })
-  const refusedRows = PERMISSION_MATRIX.filter(
-    (r) => renderingFor(r, role) === 'disabled-with-reason',
-  )
-  const absentRows = PERMISSION_MATRIX.filter((r) => renderingFor(r, role) === 'absent')
-
-  /* -------------------------------------------------------------- *
-   * Scope, resolved rather than asserted. Which location nodes this
-   * view reaches is answered by the evaluator's own scope stage, one
-   * request per node, against the identity's real Site and Area sets.
-   * -------------------------------------------------------------- */
-  function reachDecision(node: LocationNodeRef): PermissionDecision {
-    return evaluateAccess(
-      {
-        action: 'MOD-DOH-09:read-location-node',
-        allowedRoles: [...TENANT_ROLE_ORDER],
-        ...(node.dimension === 'site'
-          ? { requiredSites: [node.id] }
-          : { requiredAreas: [node.id] }),
-        sourceRefs: ['L17470', 'L27215'],
-      },
-      fixtureContext(role),
+  if (ctx.identity.tenant === null) {
+    return (
+      <AppShell surface="SURF-DOH" session={session} title={MODULE.name} breadcrumbs={[{ label: MODULE.name }]}>
+        <p data-control-id="permissions-no-tenant" className={`text-sm ${textColor('ink-muted')}`}>
+          No live tenant is attached to this identity, so no tenant user register can be shown.
+        </p>
+      </AppShell>
     )
   }
+  return <PermissionsBody session={session} ctx={ctx} tenantId={ctx.identity.tenant} />
+}
 
-  const reachRows: TableRow[] = LOCATION_NODES.filter((n) => permitsAction(reachDecision(n))).map(
-    (n) => ({
-      node: n.name,
-      dimension: n.dimension === 'site' ? 'Site' : 'Area',
-      parent: n.parentName ?? 'The tenant itself',
-    }),
-  )
+type CreateDrawerState = { readonly pendingId: string } | null
 
-  const selectedForScope = selectedUser()
-  const probe = selectedForScope === undefined ? null : mergeProbe(selectedForScope)
+const USERS_PAGE_SIZE = 10
 
-  function cardBody(block: RoleCardBlockName): string {
-    const copy = ROLE_CARD_COPY[role]
-    switch (block) {
-      case 'Identity':
-        return `${roleName} — one of the five fixed tenant role types. There is no sixth, and no surface creates one.`
-      case 'Reach':
-        return `Whatever this role's own grant is scoped to: the tenant, one Site, or one Area under a Site. The scope narrows the role and never widens it, and where a person holds two roles the two scopes stay apart. Cell, Job and worker scoping are deferred beyond the first version and no rule may depend on them. The table above shows what this view resolves to.`
-      case 'Visibility':
-        return copy.visibility
-      case 'Rights':
-        return copy.rights
-      case 'Prohibition':
-        return copy.prohibition
-      case 'Governance':
-        return 'The five role types are platform-defined and fixed. No create-role, edit-role or clone-role control exists on any surface (L17662), and temporary delegation is deferred beyond the first version.'
-      case 'Traceability':
-        return 'Every action is attributed to the identity that performed it, and no audit entry carries a role-substitution field (L17546). Multi-role identities are additive and still resolve to one named person.'
-      default: {
-        const exhaustive: never = block
-        throw new Error(`Unhandled role-definition-card block: ${String(exhaustive)}`)
+function PermissionsBody({
+  session,
+  ctx,
+  tenantId,
+}: {
+  readonly session: ProductSession
+  readonly ctx: AccessContext
+  readonly tenantId: string
+}) {
+  const repository = useRepository()
+  const store = useStore()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const usersQuery = useRepositoryQuery((r, c) => r.list('users', c))
+  const roleGrantsQuery = useRepositoryQuery((r, c) => r.list('role-grants', c))
+
+  // Defensive tenant filter on the READ side. `repository.ts`'s own
+  // `resolveTenantId`/`withinScope` comment (fix round 1, unit-01 Task 7
+  // review, "READ-PATH CONSEQUENCE") already discloses this exact gap: a
+  // row whose OWN tenant resolution is `'none'` (a platform user,
+  // `tenantId: null`) is treated as visible to every signed-in identity,
+  // which would otherwise put every platform console account into a
+  // Tenant Admin's own user register. That comment records the gap as
+  // deliberately deferred, cross-cutting debt, not something this one
+  // screen's own read should paper over silently — but this screen still
+  // must not RENDER a platform account in a tenant's own roster, so the
+  // filter is applied here, at the one place it actually matters for this
+  // task, rather than left to the repository-level gap alone.
+  const allUsers = usersQuery.all()
+  const tenantUsers = allUsers.filter((u) => u.tenantId === tenantId)
+  const allUsersById = new Map<string, UserRow>(allUsers.map((u) => [u.id, u]))
+
+  const activeGrants = roleGrantsQuery.all().filter((g) => g.revokedAt === null)
+  const grantsByUser = new Map<string, RoleGrantRow[]>()
+  for (const g of activeGrants) {
+    if (!tenantUsers.some((u) => u.id === g.userId)) continue
+    const list = grantsByUser.get(g.userId) ?? []
+    list.push(g)
+    grantsByUser.set(g.userId, list)
+  }
+
+  const [drawer, setDrawer] = useState<CreateDrawerState>(null)
+  const [assignTargetId, setAssignTargetId] = useState<string | null>(null)
+  const [assignRole, setAssignRole] = useState<RoleId>('WORKER')
+  const [assignResult, setAssignResult] = useState<AssignTenantRoleResult | null>(null)
+  const [assignBusy, setAssignBusy] = useState(false)
+  const [toasts, setToasts] = useState<readonly ToastItem[]>([])
+
+  const writeGate = evaluateAccess(WRITE_REQUEST, ctx)
+  const canWrite = writeGate.outcome === 'allowed'
+
+  // The cross-tenant live-verify path (task brief, Step 6): a deep link,
+  // `?assign=<userId>`, opens the Assign-role panel for a user id that need
+  // not be in THIS tenant's own (already tenant-filtered) roster above —
+  // same shape `LocationConfigurationScreen.tsx`'s own `?site=<id>` deep
+  // link uses for the identical purpose one task earlier in this unit. The
+  // id is never looked up or rendered before the door itself is called —
+  // this screen never previews a foreign tenant's real user data, matching
+  // Task 1's own round-1 review finding (no row read/returned before
+  // authorisation).
+  const deepLinkTarget = searchParams.get('assign')
+
+  function pushToast(tone: StatusToken, label: string): void {
+    setToasts((prev) => [...prev, { id: `${store.nextSequence()}`, tone, label }])
+  }
+  function dismissToast(id: string): void {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }
+
+  function openCreate(): void {
+    setDrawer({ pendingId: `USR-${tenantId}-${store.nextSequence()}` })
+  }
+  function closeCreate(): void {
+    setDrawer(null)
+  }
+
+  function openAssign(userId: string): void {
+    setAssignTargetId(userId)
+    setAssignRole('WORKER')
+    setAssignResult(null)
+  }
+  function closeAssign(): void {
+    setAssignTargetId(null)
+    setAssignResult(null)
+    if (deepLinkTarget !== null) router.replace('/hub/permissions-roles-and-access/')
+  }
+
+  if (deepLinkTarget !== null && assignTargetId === null && canWrite) {
+    openAssign(deepLinkTarget)
+  }
+
+  async function confirmAssign(): Promise<void> {
+    if (assignTargetId === null) return
+    setAssignBusy(true)
+    const outcome = await repository.assignTenantRole(assignTargetId, assignRole, ctx)
+    setAssignBusy(false)
+    setAssignResult(outcome)
+    if (outcome.ok) {
+      pushToast('ok', `${roleById(assignRole).name} was granted.`)
+    }
+  }
+
+  /**
+   * `createTenantUser`'s THIRD result shape (`partial`) has no home in
+   * `Form`'s own generic renderer (typed to `WriteResult<unknown>` alone) —
+   * same translation idiom `ShiftManagementScreen.tsx`'s own `toFormResult`
+   * uses for `createShift`'s `'overlap'`/`'invalid-reference'` arms.
+   */
+  function toFormResult(result: CreateTenantUserResult): WriteResult<unknown> {
+    if (result.ok) {
+      pushToast('ok', `${result.user.displayName} was invited.`)
+      // `CreateTenantUserResult`'s own `ok: true` arm carries `{ user, grant }`
+      // — deliberately narrower than `WriteResult`'s (matches
+      // `InviteConsoleUserResult`'s own shape) — so `Form`'s generic
+      // renderer (which only reads `result.ok` to show "Saved.", never the
+      // row/events/audit fields) is given a minimal, honestly-empty
+      // `WriteResult<unknown>` shell rather than a second, invented copy of
+      // facts the door already returned in `result.user`/`result.grant`.
+      return { ok: true, row: result.user, events: [], audit: [], affectedSurfaces: [] }
+    }
+    if (result.kind === 'partial') {
+      return {
+        ok: false,
+        kind: 'denied',
+        decision: {
+          outcome: 'explicitlyProhibited',
+          reasonCode: 'OBJECT_STATE_INVALID',
+          explanation: `${result.user.displayName}'s account was created, but the role grant could not be recorded: ${result.grantFailure.explain}`,
+          stage: 'COMMAND_VALIDATION',
+          sourceRefs: ['repository.ts'],
+          auditExpectation: 'RECORDED_AS_REFUSAL',
+          conditionToEnable: null,
+        },
+        reason: 'OBJECT_STATE_INVALID',
+        explain: `${result.user.displayName}'s account was created, but the role grant could not be recorded: ${result.grantFailure.explain}`,
       }
     }
+    return result
   }
 
-  const exportBlocked =
-    role === 'READONLY_AUDITOR'
-      ? 'Refused with the open decision named rather than guessed at: DEC-AUDEXPORT-001 (L14355) leaves the contents of a role definition card export open, and a separate restatement renders the Auditor export as Client Decision Required in every cell (L16893). Inventing a file here would answer a question the client has not answered.'
-      : null
+  async function onCreateSubmit(value: UserRow): Promise<WriteResult<unknown>> {
+    const outcome = await repository.createTenantUser(value, ctx)
+    return toFormResult(outcome)
+  }
+
+  const columns: readonly DataTableColumn<UserRow>[] = [
+    {
+      key: 'name',
+      header: 'Name',
+      sortValue: (u) => u.displayName,
+      render: (u) => (
+        <span className="flex flex-col">
+          <span className={`font-medium ${textColor('ink')}`}>{u.displayName}</span>
+          <span className={`text-xs ${textColor('ink-subtle')}`}>{u.id}</span>
+        </span>
+      ),
+    },
+    {
+      key: 'email',
+      header: 'Email',
+      sortValue: (u) => u.email,
+      render: (u) => u.email,
+    },
+    {
+      key: 'role',
+      header: 'Role',
+      sortValue: (u) => (grantsByUser.get(u.id) ?? []).map((g) => roleById(g.role).name).join(', '),
+      render: (u) => {
+        const grants = grantsByUser.get(u.id) ?? []
+        if (grants.length === 0) return <span className={textColor('ink-subtle')}>No active grant</span>
+        return grants.map((g) => roleById(g.role).name).join(', ')
+      },
+    },
+    {
+      key: 'grantedBy',
+      header: 'Granted by',
+      render: (u) => {
+        const grants = grantsByUser.get(u.id) ?? []
+        if (grants.length === 0) return '—'
+        const names = [...new Set(grants.map((g) => allUsersById.get(g.grantedBy)?.displayName ?? g.grantedBy))]
+        return names.join(', ')
+      },
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (u) => (
+        <span data-control-id={`permissions-status-${u.id}-${u.status}`}>
+          <StatusPill tone={STATUS_TONE[u.status]} label={STATUS_LABEL[u.status]} />
+        </span>
+      ),
+    },
+    {
+      key: 'assign',
+      header: 'Assign role',
+      render: (u) => (
+        <AssignControl userId={u.id} canWrite={canWrite} onOpen={() => openAssign(u.id)} />
+      ),
+    },
+  ]
+
+  const assignTargetUser = assignTargetId === null ? undefined : allUsersById.get(assignTargetId)
+  const assignTargetHeldGrants = assignTargetId === null ? [] : (grantsByUser.get(assignTargetId) ?? [])
 
   return (
-    <HubShell
-      module={MODULE}
-      role={role}
-      onRoleChange={setRole}
-      tenantState={tenantState}
+    <AppShell
+      surface="SURF-DOH"
+      session={session}
+      title={MODULE.name}
+      breadcrumbs={[{ label: MODULE.name }]}
+      actions={<CreateAction canWrite={canWrite} writeGate={writeGate} onOpen={openCreate} />}
     >
-      <div className="space-y-8">
-        {/* ---------------------------------------------------------- *
-            Reviewer chrome. Separated from the product, like the
-            shell's own switcher, and it performs no product action.
-         * ---------------------------------------------------------- */}
-        <section
-          aria-label="Storyboard scenario controls"
-          className="rounded-[var(--radius-surface)] border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-sunken)] p-4"
-        >
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
-            Reviewer controls — not part of the product
+      <section aria-labelledby="permissions-heading" className="mt-6 flex flex-col gap-4">
+        <h2 id="permissions-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
+          Tenant users and role grants
+        </h2>
+
+        {/*
+          NOT `ControlDisclosure` (`@/disclosure/DecisionDisclosure`):
+          that component unconditionally appends `CLIENT_DELEGATED_SENTENCE`
+          ("A client-delegated choice under APP-012, not a position the
+          source settled") after its children — correct for a GENUINELY
+          open, client-delegated reading, and the exact opposite of what
+          this box states. Step 2's own research FOUND and CITED the real
+          rule; using that component here would have the UI contradict its
+          own sentence in the same paragraph. A plain disclosure block,
+          matching this rebuild's own `<details>` idiom without the
+          component's hardcoded APP-012 framing.
+        */}
+        <details data-control-id="permissions-role-grant-rule-disclosure" className="text-xs">
+          <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
+            Who may grant a tenant role, and why
+          </summary>
+          <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
+            The frozen source states this directly: only a Tenant Admin may grant any of the four
+            tenant roles. The tenant role-to-module matrix (MTX-TEN-02a, frozen source line 22015)
+            states Supervisor and Quality Manager &quot;Unavailable&quot; for the whole Permissions,
+            Roles and Access module — not narrowed, absent. The account-lifecycle authority table
+            (TRN-ACC-04, line 18976) names Tenant Admin as both Requester and Authorizer of a role
+            assignment, singular. A narrower default — Supervisor and Quality Manager granting
+            Worker only — was the fallback this build would have used had the source stayed
+            silent; it did not need to. Supervisor and Quality Manager can still open the controls
+            below and attempt a grant; the door refuses it, with this same reason, every time.
           </p>
-          <div className="mt-3 flex flex-wrap items-end gap-6">
-            <Select
-              label="Tenant state"
-              value={tenantState}
-              options={TENANT_STATE_OPTIONS}
-              onChange={(value) => {
-                const next = TENANT_STATES.find((s) => s === value)
-                if (next !== undefined) setTenantState(next)
-              }}
-            />
-            <Select
-              label="Screen state"
-              value={stateId}
-              options={DOH09_APPLICABLE_STATES.map((s) => ({
-                value: s,
-                label: `${s} ${screenState(s).name}`,
-              }))}
-              onChange={(value) => {
-                const next = DOH09_APPLICABLE_STATES.find((s) => s === value)
-                if (next !== undefined) setStateId(next)
-              }}
-            />
-            <Select
-              label="Seeded roster"
-              value={rosterId}
-              options={ROSTER_SCENARIOS.map((s) => ({ value: s.id, label: s.label }))}
-              onChange={(value) => {
-                const next = ROSTER_SCENARIOS.find((s) => s.id === value)
-                if (next !== undefined) switchRoster(next.id)
-              }}
-            />
-            <Select
-              label="Refusal to explain"
-              value={refusalId}
-              options={REFUSAL_SCENARIOS.map((s) => ({ value: s.id, label: s.label }))}
-              onChange={(value) => {
-                const next = REFUSAL_SCENARIOS.find((s) => s.id === value)
-                if (next !== undefined) setRefusalId(next.id)
-              }}
-            />
-            <Select
-              label="Audit write"
-              value={auditPath}
-              options={[
-                { value: 'commits', label: 'Commits with the action' },
-                { value: 'write-fails', label: 'Fails, so the action fails with it' },
-              ]}
-              onChange={(value) => setAuditPath(value === 'write-fails' ? 'write-fails' : 'commits')}
-            />
-          </div>
-          <p className="mt-3 max-w-prose text-sm text-[var(--color-ink-muted)]">
-            {seededRoster.note}
-          </p>
-        </section>
+        </details>
 
-        {stateTreatment}
+        <DataTable
+          caption="Tenant users"
+          columns={columns}
+          query={usersQuery.where((u) => u.tenantId === tenantId)}
+          rowId={(u) => u.id}
+          search={{
+            placeholder: 'Search by name, email or id',
+            match: (u, q) => {
+              const needle = q.toLowerCase()
+              return (
+                u.displayName.toLowerCase().includes(needle) ||
+                u.email.toLowerCase().includes(needle) ||
+                u.id.toLowerCase().includes(needle)
+              )
+            },
+          }}
+          pageSize={USERS_PAGE_SIZE}
+          emptyState={{
+            title: 'There are no tenant users yet.',
+            whatCreatesIt: 'A Tenant Admin creates the first one from Invite user.',
+          }}
+        />
+      </section>
 
-        {/* ---------------------------------------------------------- *
-            SCR-DOH-01 — the two-track sign-in.
-         * ---------------------------------------------------------- */}
-        <section aria-label="Two-track sign-in" className="space-y-3">
-          <h2 className="text-lg font-semibold">Two-track sign-in — SCR-DOH-01</h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            The boot order is a visible resolution sequence, not an invisible branch. Nothing
-            renders first and asks permission afterwards.
-          </p>
-
-          <ol className="space-y-3">
-            {SIGN_IN_STAGES.map((stage) => (
-              <li
-                key={stage.id}
-                className="rounded-[var(--radius-surface)] border border-[var(--color-border)] p-3"
-              >
-                <p className="font-medium text-[var(--color-ink)]">{stage.name}</p>
-                <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  {stage.detail}
-                </p>
-              </li>
-            ))}
-          </ol>
-
-          <div className="rounded-[var(--radius-surface)] border border-[var(--color-border)] p-3">
-            <p className="font-medium text-[var(--color-ink)]">
-              {connection.providerLabel}
-            </p>
-            <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
-              Connection state: {CONNECTION_STATE_LABEL[connection.state]}. Protocol:{' '}
-              {connection.protocol === null ? 'none chosen' : PROTOCOL_LABEL[connection.protocol]}.
-              Domains resolved onto it: {connection.emailDomains.join(', ')}.
-            </p>
-            <FreshnessLabel
-              asOfLabel={connection.configuredAsOfLabel}
-              originLabel={connection.originLabel}
-            />
-            <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-              {SSO_PROTOTYPE_NOTE}
-            </p>
-            <div className="mt-3">
-              {gatedButton('configure-single-sign-on', 'Configure single sign-on', toggleConnection)}
-            </div>
-            {connectionNote === null ? null : (
-              <p className="mt-2 max-w-prose text-sm text-[var(--color-ink)]">{connectionNote}</p>
-            )}
-          </div>
-
-          <div className="rounded-[var(--radius-surface)] border border-[var(--color-border)] p-3">
-            <Field
-              label="Work email address"
-              description="The address screen resolves the domain against the connection record. It verifies nothing and reaches nowhere."
-              {...(resolvedTrack === 'unreadable' ? { error: ACCEPTED_ADDRESS_FORM } : {})}
-            >
-              <input
-                type="email"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="w-full rounded-[var(--radius-control)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-2 text-sm text-[var(--color-ink)]"
-              />
-            </Field>
-            <div className="mt-3">
-              <Button onClick={submitAddress}>Continue</Button>
-            </div>
-            {resolvedTrack === 'sso' ? (
-              <p className="mt-3 max-w-prose text-sm text-[var(--color-ink)]">
-                This address resolves onto the single sign-on track. In production the platform
-                would hand off to the tenant directory; here the branch is the whole of it.
-              </p>
-            ) : null}
-            {resolvedTrack === 'managed' ? (
-              <p className="mt-3 max-w-prose text-sm text-[var(--color-ink)]">
-                This address resolves onto the platform-managed credential track, the secondary
-                path for staff whose organisation has no directory to federate with. It fails
-                toward the platform-held credential, never toward the federated one.
-              </p>
-            ) : null}
-          </div>
-
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Authentication is not authorization. A group or role claim carried in an assertion is
-            untrusted input: it is logged and ignored, and it grants nothing (AC-RBAC-203, L20993).
-            Role assignment happens on the register below, and nowhere else.
-          </p>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            There is also no just-in-time provisioning at the first version. An asserted subject
-            with no existing user record is refused sign-in, and no account is created to receive
-            it. DEC-SSO-001 (L95907) is the open client decision that governs this.
-          </p>
-          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            Who may reach the address screen is unstated in the source. The shape is rendered; the
-            roles are not assigned. See the panel naming what the source leaves undefined.
-          </p>
-        </section>
-
-        {/* ---------------------------------------------------------- *
-            SCR-DOH-ROLE-01 — the landing, in its two views.
-         * ---------------------------------------------------------- */}
-        <section aria-label="By person — what this view holds" className="space-y-3">
-          <h2 className="text-lg font-semibold">
-            By person — what the {roleName} view holds here (SCR-DOH-ROLE-01)
-          </h2>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
-              Held
-            </h3>
-            {renderingList(
-              heldRows,
-              `The ${roleName} view holds no row on this screen. Every row is either refused with its reason below or drawn nowhere at all, and neither list is a hole.`,
-              (row) =>
-                `${row.cells[role].cause} Drawn as ${RENDERING_LABEL[renderingFor(row, role)]}.`,
-            )}
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
-              Refused, and the control still shown so the rule is taught where it binds
-            </h3>
-            {renderingList(
-              refusedRows,
-              `Nothing is refused-but-drawn for the ${roleName} view. Every row this view does not hold is refused by a rule that binds all five roles, so it is drawn nowhere at all rather than disabled — the list below.`,
-              (row) =>
-                `${row.cells[role].cause} Drawn as ${RENDERING_LABEL[renderingFor(row, role)]}.`,
-            )}
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
-              Drawn nowhere at all
-            </h3>
-            {renderingList(
-              absentRows,
-              `Every row on the matrix reaches the ${roleName} view as a control or as a refusal it can read, so nothing is withheld silently.`,
-              () => `rendered as ${RENDERING_LABEL.absent}.`,
-            )}
-          </div>
-        </section>
-
-        <section aria-label="By capability — the twelve-row control matrix" className="space-y-3">
-          <h2 className="text-lg font-semibold">
-            By capability — every control against all five roles (SCR-DOH-ROLE-01)
-          </h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Unavailable and Explicitly prohibited are different statuses and are never merged: the
-            first means the role cannot hold the capability in any scope, the second means a rule
-            forbids it. Every cell carries one token from the closed set and a stated cause; a
-            blank cell would be a build-blocking defect.
-          </p>
-          <div className="overflow-x-auto">
-            <Table
-              caption="The control matrix for this module, as the source states it"
-              columns={[
-                { key: 'control', header: 'Control' },
-                ...TENANT_ROLE_ORDER.map((r) => ({ key: r, header: roleById(r).name })),
-              ]}
-              rows={matrixRows}
-              emptyState={{
-                title: 'The matrix is empty.',
-                whatCreatesIt: 'The source enumerates it; an empty matrix would be a defect.',
-              }}
-            />
-          </div>
-        </section>
-
-        {/* ---------------------------------------------------------- *
-            SCR-DOH-18 — users, roles and scopes.
-         * ---------------------------------------------------------- */}
-        <section aria-label="Users, roles and scopes" className="space-y-3">
-          <h2 className="text-lg font-semibold">Users, roles and scopes — SCR-DOH-18</h2>
-          <FreshnessLabel
-            asOfLabel={connectionLost ? REGISTER_STALE_AS_OF : REGISTER_AS_OF}
-            originLabel={REGISTER_ORIGIN}
-          />
-          <div className="overflow-x-auto">
-            <Table
-              caption={`The user and role register, as the ${roleName} view sees it`}
-              columns={[
-                { key: 'person', header: 'Person' },
-                { key: 'roles', header: 'Roles held' },
-                { key: 'scope', header: 'Scope, by grant' },
-                { key: 'account', header: 'Account state' },
-                { key: 'track', header: 'Sign-in track' },
-                { key: 'credential', header: 'Managed credential' },
-              ]}
-              rows={registerRows}
-              emptyState={REGISTER_EMPTY}
-              // STATE-12: a read that failed outright renders its failure,
-              // never the rows it failed to fetch. Stale rows under a failure
-              // banner would be the surface claiming to know something it
-              // does not (D7).
-              {...(stateId === 'STATE-12'
-                ? {
-                    error:
-                      'The read of the user and role register failed. Nothing was written, and no write was attempted.',
-                  }
-                : {})}
-            />
-          </div>
-
-          <div className="flex flex-wrap items-end gap-6">
-            {/* STATE-12: the read that would populate this list is the one
-                that failed. Naming eight people from it would be the surface
-                claiming to know something it just said it could not read. */}
-            {stateId === 'STATE-12' ? (
-              <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-                No person can be offered to change. The list of people comes from the read that
-                failed, so it is not drawn from a stale copy and no name is enumerated here.
-              </p>
-            ) : (
-              <Select
-                label="User to change"
-                value={selectedUserId}
-                options={users.map((u) => ({ value: u.id, label: u.displayName }))}
-                onChange={setSelectedUserId}
-              />
-            )}
-            <Select
-              label="Role to assign"
-              value={roleToAssign}
-              options={TENANT_ROLE_ORDER.map((r) => ({ value: r, label: roleById(r).name }))}
-              onChange={(value) => {
-                const next = TENANT_ROLE_ORDER.find((r) => r === value)
-                if (next !== undefined) setRoleToAssign(next)
-              }}
-            />
-            {/* PASS TWO: three live dimensions. Every Site and Area below is
-                read from the location records rather than seeded here, and the
-                two nodes that are withheld say why in the panel further down
-                rather than simply not appearing. Disabled through the SAME
-                gate as the button beside it, so a role the scope row refuses
-                does not meet an enabled picker. */}
-            <Select
-              label="Scope to assign"
-              value={scopeToAssign}
-              options={ASSIGNABLE_SCOPE_TARGETS.map((t) => ({ value: t.key, label: t.label }))}
-              onChange={(value) => {
-                if (scopeFromKey(value) !== null) setScopeToAssign(value)
-              }}
-              disabled={scopeBlockReason !== null}
-            />
-          </div>
-
-          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            The five role types are fixed and platform-defined. Custom roles are deferred beyond
-            the first version and carry this static footnote rather than a disabled button, because
-            a disabled button would imply a roadmap promise the source has not made (L23918).
-          </p>
-          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            Assigning a scope acts on ONE grant — the role chosen in the picker beside it — and
-            only ever narrows it. The control carries this row&apos;s own answer for the view in
-            front of you: live for the Tenant Admin, disabled with its stated reason for every
-            other role. Scoping a role the person does not hold is refused, because a scope
-            narrows a role and never grants one.
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            {gatedButton('create-or-edit-user-account', 'Create a user account', createAccount)}
-            {gatedButton('assign-or-remove-role', 'Assign the role', assignRole)}
-            {gatedButton('assign-or-remove-role', 'Remove the role', removeRole)}
-            {gatedButton('assign-or-remove-scope', 'Assign the scope', assignScope)}
-            {gatedButton(
-              'issue-or-reset-managed-pin',
-              'Issue or reset a managed personal identification number',
-              issuePin,
-            )}
-          </div>
-
-          {/* `role="status"` IS a live region on its own; wrapping it in the
-              LiveRegion primitive would announce the same sentence twice. */}
-          <p
-            role="status"
-            aria-atomic="true"
-            className="max-w-prose rounded-[var(--radius-surface)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-3 text-sm text-[var(--color-ink)]"
+      <DetailDrawer open={drawer !== null} onClose={closeCreate} title="Invite user">
+        {drawer !== null ? (
+          <Form
+            key={drawer.pendingId}
+            schema={User}
+            initial={{
+              id: drawer.pendingId,
+              tenantId,
+              status: 'invited',
+              locale: 'en',
+              createdAt: new Date(store.clock.now()).toISOString(),
+              lastSignInAt: null,
+              role: 'WORKER',
+            }}
+            onSubmit={onCreateSubmit}
+            submitLabel="Send invitation"
           >
-            {registerMessage}
-          </p>
-        </section>
-
-        {/* ---------------------------------------------------------- *
-            The grants on one account, and the rule that keeps their
-            scopes apart.
-         * ---------------------------------------------------------- */}
-        <section aria-label="Scope grants on the selected account" className="space-y-3">
-          <h2 className="text-lg font-semibold">Scope grants on the selected account</h2>
-          {stateId === 'STATE-12' ? (
-            <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-              No grant can be shown and nobody is named here. The grants come from the register
-              read that failed, and a stale copy of them would be this screen claiming to know
-              something it has just said it could not read.
-            </p>
-          ) : selectedForScope === undefined ? (
-            <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-              No account is selected on the register above, so there is no grant set to show.
-            </p>
-          ) : (
-            <>
-              <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-                {selectedForScope.displayName} holds {selectedForScope.grants.length} grant
-                {selectedForScope.grants.length === 1 ? '' : 's'}. Each carries its own scope, and
-                one grant is what a single scope assignment moves.
-              </p>
-              <ul className="space-y-2">
-                {selectedForScope.grants.map((g) => (
-                  <li key={g.role} className="max-w-prose text-sm">
-                    <span className="font-medium text-[var(--color-ink)]">
-                      {roleById(g.role).name}
-                    </span>
-                    <span className="text-[var(--color-ink-muted)]"> — {scopeLabel(g.scope)}</span>
-                  </li>
-                ))}
-              </ul>
-              {probe === null ? (
-                <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  Every grant on this account reaches the same nodes, so nothing here demonstrates
-                  the non-merging rule. It still binds: choose the account holding two roles to see
-                  a node one grant reaches and the other does not.
-                </p>
-              ) : (
-                <p className="max-w-prose text-sm text-[var(--color-ink)]">
-                  {probe.nodeLabel} is reached by the {roleById(probe.reachedBy.role).name} grant,
-                  which holds {scopeLabel(probe.reachedBy.scope)}, and is NOT reached by the{' '}
-                  {roleById(probe.notReachedBy.role).name} grant, which holds{' '}
-                  {scopeLabel(probe.notReachedBy.scope)}. If scopes merged across grants, both would
-                  reach it. They do not merge (AC-16-02, L20046): the permissions add up, the places
-                  never do.
-                </p>
-              )}
-            </>
-          )}
-        </section>
-
-        {/* ---------------------------------------------------------- *
-            What the scope actually resolves to, through the evaluator.
-         * ---------------------------------------------------------- */}
-        <section aria-label="Locations this view reaches" className="space-y-3">
-          <h2 className="text-lg font-semibold">Locations the {roleName} view reaches</h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Every row below is a request naming that node, answered by the scope stage of the one
-            evaluator against this identity&apos;s assigned Site and Area sets. Nothing here is a
-            list this screen filtered by hand.
-          </p>
-          <div className="overflow-x-auto">
-            <Table
-              caption={`The Sites and Areas the ${roleName} view resolves to`}
-              columns={[
-                { key: 'node', header: 'Node' },
-                { key: 'dimension', header: 'Dimension' },
-                { key: 'parent', header: 'Under' },
-              ]}
-              rows={reachRows}
-              emptyState={{
-                title: 'This view reaches no Site and no Area.',
-                whatCreatesIt:
-                  'A Tenant Admin assigns a scope to one of this identity’s grants. Until then it resolves to nothing, and a refusal is the honest answer rather than a blank.',
-              }}
+            <TextField name="displayName" label="Full name" required />
+            <TextField name="email" label="Email" type="email" autoComplete="email" required />
+            <SelectField
+              name="role"
+              label="Role"
+              required
+              options={TENANT_USER_ROLES.map((r) => ({ value: r, label: roleById(r).name }))}
+              hint="All four tenant roles are listed here; only a Tenant Admin can complete the invitation — the door names the reason otherwise."
             />
-          </div>
-          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            What sits outside is not listed, counted or hinted at. A refusal names the boundary and
-            never what is on the other side of it (L14267), which is why this table is the scope
-            itself rather than a longer list with rows greyed out.
-          </p>
-          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            Two different things are on this screen and neither is the other. This table is the
-            scope of the SEEDED PERSONA you are viewing through, which the location configuration
-            module owns and every Hub screen resolves against, so one persona reads the same
-            everywhere. The Scope column on the register above is the scope of each individual
-            account&apos;s grants, which is what the control on this screen writes.
-          </p>
-        </section>
+          </Form>
+        ) : null}
+      </DetailDrawer>
 
-        {/* ---------------------------------------------------------- *
-            The standing mandatory-role panel (L23918).
-         * ---------------------------------------------------------- */}
-        <section aria-label="Mandatory-role guard" className="space-y-3">
-          <h2 className="text-lg font-semibold">Mandatory-role guard</h2>
-          <div className="flex flex-wrap gap-6">
-            <p className="font-medium text-[var(--color-ink)]">
-              Tenant Admins: {counters.tenantAdmins}
-            </p>
-            <p className="font-medium text-[var(--color-ink)]">
-              Approver-capable holders: {counters.approverCapable}
-            </p>
-          </div>
-          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            Approver-capable is counted against a named, declared set:{' '}
-            {APPROVER_CAPABLE_ROLES.map((r) => roleById(r).name).join(' and ')}. The source states
-            the mandatory-role rule three times without ever enumerating that set, so the
-            assumption is printed next to the number rather than inherited quietly.
-          </p>
-          {counters.warnings.length === 0 ? (
-            <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-              Neither counter is at nought. A nought is never rendered quietly: the warning is
-              produced next to the count, so no caller can draw one without the other.
-            </p>
-          ) : (
-            <div
-              role="alert"
-              className="rounded-[var(--radius-surface)] border-l-4 border-[var(--color-status-blocked)] bg-[var(--color-surface)] p-4"
-            >
-              <p className="font-semibold text-[var(--color-ink)]">
-                A mandatory-role rule is breached
+      <DetailDrawer
+        open={assignTargetId !== null}
+        onClose={closeAssign}
+        title={
+          assignTargetUser !== undefined
+            ? `Assign a role to ${assignTargetUser.displayName}`
+            : `Assign a role to user id "${assignTargetId ?? ''}"`
+        }
+      >
+        {assignTargetId !== null ? (
+          <div className="flex flex-col gap-4">
+            {assignTargetUser === undefined ? (
+              <p role="note" className={`text-sm ${textColor('ink-muted')}`}>
+                This id is not shown on this tenant&apos;s own roster above — it may belong to a
+                different tenant, or not exist at all. Nothing about it is looked up or shown here;
+                the attempt is sent to the door as-is, and its refusal (never its data) is what
+                renders below.
               </p>
-              <ul className="mt-2 space-y-1">
-                {counters.warnings.map((warning) => (
-                  <li key={warning} className="text-sm text-[var(--color-ink)]">
-                    {warning}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <ProhibitionNotice
-            rendering={{
-              kind: 'absent',
-              note: matrixRow('remove-last-tenant-admin').cells.TENANT_ADMIN.cause,
-            }}
-          />
-          <ProhibitionNotice
-            rendering={{
-              kind: 'absent',
-              note: matrixRow('remove-last-approver-capable-role').cells.TENANT_ADMIN.cause,
-            }}
-          />
-          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            Whether a Job exists in the tenant is a declared input, not a fact this module owns.
-            The seeded roster states it; no Job record exists in this build.
-          </p>
-        </section>
-
-        {/* ---------------------------------------------------------- *
-            SCR-DOH-ROLE-04 — why was I refused.
-         * ---------------------------------------------------------- */}
-        <section aria-label="Why was I refused" className="space-y-3">
-          <h2 className="text-lg font-semibold">Why was I refused — SCR-DOH-ROLE-04</h2>
-
-          <div className="space-y-3">
-            {PRECEDENCE_RULES.map((rule) => (
-              <div
-                key={rule}
-                className="rounded-[var(--radius-surface)] border border-[var(--color-border)] p-3"
-              >
-                <p className="font-medium text-[var(--color-ink)]">{PRECEDENCE_COPY[rule].title}</p>
-                <p className="mt-1 max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  {PRECEDENCE_COPY[rule].detail}
-                </p>
-              </div>
-            ))}
-          </div>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Those two rules sit ABOVE the nine-condition intersection rather than reordering it.
-            The source then states two things that are easy to mistake for one: it enumerates the
-            nine conditions with role permission first and safety controls ninth, and it separately
-            gives a numbered workflow that evaluates safety FIRST. Both columns below are the
-            source&rsquo;s own — Order is the enumeration, Evaluated is the workflow — and neither
-            is sorted from the other. Safety wins by precedence AND is evaluated first, which is
-            why a safety breach is reported here as a safety refusal and never as an explicit role
-            denial.
-          </p>
-
-          <div className="overflow-x-auto">
-            <Table
-              caption="The nine intersecting access conditions, in the order the source enumerates them and in the order it evaluates them"
-              columns={[
-                { key: 'order', header: 'Order' },
-                { key: 'evaluated', header: 'Evaluated' },
-                { key: 'condition', header: 'Condition' },
-                { key: 'carriedBy', header: 'Where the evaluator carries it' },
-                { key: 'changedBy', header: 'Who changes it' },
-                { key: 'request', header: 'This request' },
-              ]}
-              rows={conditionRows}
-              emptyState={{
-                title: 'No access condition is registered.',
-                whatCreatesIt: 'The spine enumerates them; an empty list would be a defect.',
-              }}
-            />
-          </div>
-
-          <div className="rounded-[var(--radius-surface)] border border-[var(--color-border)] p-3">
-            <p className="font-medium text-[var(--color-ink)]">{scenario.label}</p>
-            {scenarioRefused ? (
-              <>
-                <p className="mt-1 text-sm text-[var(--color-ink)]">
-                  This request was {refusedAtPhrase(scenarioOrder)} —{' '}
-                  {conditionMapping(scenario.condition).name}.
-                </p>
-                <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  {scenario.narrative}
-                </p>
-                <p className="mt-2 max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  Who can change it — {scenario.whoCanChangeIt}
-                </p>
-                <PermissionNotice decision={scenarioDecision} />
-              </>
             ) : (
-              <p className="mt-1 max-w-prose text-sm text-[var(--color-ink)]">
-                No condition refused: every one of the nine passed for the {roleName} view, so the
-                action proceeds. The explanation screen is not only for denials — it is the same
-                screen either way, which is what stops a refusal being a missing button.
+              <p className={`text-sm ${textColor('ink-muted')}`}>
+                Currently holds:{' '}
+                {assignTargetHeldGrants.length === 0
+                  ? 'no active grant'
+                  : assignTargetHeldGrants.map((g) => roleById(g.role).name).join(', ')}
+                . Roles are additive — assigning a new one does not remove any held already.
               </p>
             )}
+
+            <SelectField
+              name="assignRole"
+              label="Role to grant"
+              required
+              options={TENANT_USER_ROLES.map((r) => ({ value: r, label: roleById(r).name }))}
+              value={assignRole}
+              onChange={(v) => setAssignRole(v as RoleId)}
+              hint="All four tenant roles are listed here; only a Tenant Admin can complete the grant — the door names the reason otherwise."
+            />
+
+            {assignResult !== null && !assignResult.ok && assignResult.kind === 'segregation-of-duties' ? (
+              <p
+                role="alert"
+                data-control-id="permissions-assign-segregation-of-duties"
+                className={`${radiusClass('lg')} border ${borderColor('border-strong')} ${bg('raised')} p-3 text-sm ${textColor('ink')}`}
+              >
+                {roleById(assignResult.grantorRole).name} may not grant the{' '}
+                {roleById(assignResult.requestedRole).name} role. Only a Tenant Admin may assign a
+                tenant role (MTX-TEN-02a, MOD-DOH-09; TRN-ACC-04 — frozen source line 22015, line
+                18976).
+              </p>
+            ) : null}
+            {assignResult !== null && !assignResult.ok && assignResult.kind !== 'segregation-of-duties' ? (
+              <p
+                role="alert"
+                data-control-id="permissions-assign-denied"
+                className={`${radiusClass('lg')} border ${borderColor('border-strong')} ${bg('raised')} p-3 text-sm ${textColor('ink')}`}
+              >
+                {assignResult.explain}
+              </p>
+            ) : null}
+            {assignResult !== null && assignResult.ok ? (
+              <p
+                role="status"
+                data-control-id="permissions-assign-success"
+                className={`${radiusClass('lg')} border ${borderColor('border-strong')} ${bg('raised')} p-3 text-sm ${textColor('ink')}`}
+              >
+                {roleById(assignResult.row.role).name} was granted.
+              </p>
+            ) : null}
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                data-control-id="permissions-assign-submit"
+                onClick={() => void confirmAssign()}
+                aria-disabled={assignBusy ? 'true' : undefined}
+                disabled={assignBusy}
+                className={`self-start ${radiusClass('md')} ${bg('accent')} px-4 py-2 text-sm font-medium text-[var(--accent-ink)] disabled:opacity-50`}
+              >
+                {assignBusy ? 'Assigning…' : 'Assign role'}
+              </button>
+              <button
+                type="button"
+                data-control-id="permissions-assign-close"
+                onClick={closeAssign}
+                className={`self-start ${radiusClass('md')} border ${borderColor('border-strong')} ${bg('surface')} px-4 py-2 text-sm ${textColor('ink')}`}
+              >
+                Close
+              </button>
+            </div>
           </div>
+        ) : null}
+      </DetailDrawer>
 
-          <p className="max-w-prose text-sm text-[var(--color-ink-subtle)]">
-            Deny by default: an undefined permission is a refusal and never a grant (L14476), and a
-            rule the platform cannot evaluate is refused with that as the stated reason rather than
-            waved through. A refusal never reveals anything outside the caller&apos;s own scope.
-          </p>
-        </section>
+      <Toaster toasts={toasts} onDismiss={dismissToast} />
+    </AppShell>
+  )
+}
 
-        {/* ---------------------------------------------------------- *
-            SCR-DOH-ROLE-05 — the role definition card.
-         * ---------------------------------------------------------- */}
-        <section aria-label="Role definition card" className="space-y-3">
-          <h2 className="text-lg font-semibold">
-            Role definition card — SCR-DOH-ROLE-05, the {roleName}
-          </h2>
-          <dl className="space-y-3">
-            {ROLE_CARD_BLOCK_NAMES.map((block) => (
-              <div key={block}>
-                <dt className="text-sm font-semibold text-[var(--color-ink)]">{block}</dt>
-                <dd className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  {cardBody(block)}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          {exportBlocked === null ? (
-            <Button
-              variant="secondary"
-              onClick={() =>
-                setCardExportNote(
-                  'The card is rendered in place above rather than written to a file. What an export would contain is an open client decision, so nothing was produced and nothing was downloaded.',
-                )
-              }
-            >
-              Save as document
-            </Button>
-          ) : (
-            <Button variant="secondary" disabledReason={exportBlocked}>
-              Save as document
-            </Button>
-          )}
-          {cardExportNote === null ? null : (
-            <p className="max-w-prose text-sm text-[var(--color-ink)]">{cardExportNote}</p>
-          )}
-        </section>
+/* ────────────────────────────────────────────────────────────────────── *
+ * The Invite action + its role-floor disclosure — same shape
+ * `ShiftManagementScreen.tsx`'s own `CreateAction` uses.
+ * ────────────────────────────────────────────────────────────────────── */
 
-        {/* ---------------------------------------------------------- *
-            Prohibitions rendered by rule.
-         * ---------------------------------------------------------- */}
-        <section aria-label="Controls that do not exist here" className="space-y-3">
-          <h2 className="text-lg font-semibold">Controls that do not exist here</h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Each of these is refused by a rule that binds every role, so nothing is drawn where the
-            control would sit and the rule is stated in its place. A disabled control would imply a
-            roadmap promise; an absent one states a decision.
-          </p>
-          <dl className="space-y-3">
-            {ABSENT_CONTROLS.map((control) => (
-              <div key={control.label}>
-                <dt className="text-sm font-semibold text-[var(--color-ink)]">{control.label}</dt>
-                <dd className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  {control.note}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+function CreateAction({
+  canWrite,
+  writeGate,
+  onOpen,
+}: {
+  readonly canWrite: boolean
+  readonly writeGate: ReturnType<typeof evaluateAccess>
+  readonly onOpen: () => void
+}) {
+  const controlId = 'permissions-invite-user'
+  if (canWrite) {
+    return (
+      <button
+        type="button"
+        data-control-id={controlId}
+        onClick={onOpen}
+        className={`${radiusClass('md')} ${bg('accent')} px-4 py-2 text-sm font-medium text-[var(--accent-ink)]`}
+      >
+        Invite user
+      </button>
+    )
+  }
+  return (
+    <div className="flex max-w-xs flex-col items-end gap-1">
+      <button
+        type="button"
+        disabled
+        aria-describedby={`${controlId}-reason`}
+        data-control-id={controlId}
+        className={`cursor-not-allowed ${radiusClass('md')} border ${borderColor('border-strong')} ${bg('sunken')} px-4 py-2 text-sm font-medium ${textColor('ink-subtle')}`}
+      >
+        Invite user
+      </button>
+      <p id={`${controlId}-reason`} className={`text-right text-xs ${textColor('ink-muted')}`}>
+        {writeGate.explanation}
+      </p>
+    </div>
+  )
+}
 
-        <section aria-label="Scope in this pass" className="space-y-3">
-          <h2 className="text-lg font-semibold">Scope in this pass</h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Three live dimensions: the tenant, a Site, and an Area under a Site. The Sites and Areas
-            offered are read from the location configuration module&apos;s own records — the one
-            place the tenant&apos;s physical structure is seeded — so nothing on this screen is a
-            second copy of the hierarchy, and every node named here resolves there or fails a test.
-          </p>
-          <dl className="space-y-3">
-            {SCOPE_RULES.map((rule) => (
-              <div key={rule.id}>
-                <dt className="text-sm font-semibold text-[var(--color-ink)]">
-                  {rule.title} ({rule.sourceRef})
-                </dt>
-                <dd className="max-w-prose text-sm text-[var(--color-ink-muted)]">{rule.detail}</dd>
-              </div>
-            ))}
-          </dl>
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-ink-subtle)]">
-            Nodes the assignment picker withholds, and why
-          </h3>
-          <ul className="space-y-2">
-            {SCOPE_TARGET_EXCLUSIONS.map((entry) => (
-              <li key={entry.nodeId} className="max-w-prose text-sm">
-                <span className="font-medium text-[var(--color-ink)]">{entry.label}</span>
-                <span className="text-[var(--color-ink-muted)]"> — {entry.reason}</span>
-              </li>
-            ))}
-          </ul>
-          <ul className="space-y-2">
-            {DEFERRED_DOH_SCOPES.map((deferred) => (
-              <li key={deferred} className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-                {DEFERRED_SCOPE_LABEL[deferred]} — deferred beyond the first version, and no rule
-                may depend on it (L14515). It is held outside the live scope type in the spine, so
-                no picker on this surface can offer one by accident: absent by construction rather
-                than by a filter somebody must remember to write.
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* ---------------------------------------------------------- *
-            OBJ-DOH-USER and its rivals (D21).
-         * ---------------------------------------------------------- */}
-        <section aria-label="Object states and their rivals" className="space-y-3">
-          <h2 className="text-lg font-semibold">The user account, and its four rival lifecycles</h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Account states: {USER_ACCOUNT_STATES.map((s) => ACCOUNT_STATE_LABEL[s]).join(', ')}. A
-            role assignment carries its own pair: {ROLE_ASSIGNMENT_STATES.join(' and ')}. Under D21
-            the module identity card governs the vocabulary — the names are renameable, the
-            behaviours behind them are not — and the rivals are recorded rather than discarded.
-          </p>
-          <dl className="space-y-3">
-            {ACCOUNT_LIFECYCLE_RIVALS.map((rival) => (
-              <div key={rival.sourceRef}>
-                <dt className="text-sm font-semibold text-[var(--color-ink)]">
-                  {rival.label} ({rival.sourceRef}){rival.adopted ? ' — adopted' : ''}
-                </dt>
-                <dd className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  {rival.states.join(', ')}. {rival.note}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        <section aria-label="Audit, in the same transaction" className="space-y-3">
-          <h2 className="text-lg font-semibold">Audit</h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Every write on this screen commits its audit entry in the same transaction as the
-            action itself.
-          </p>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            When that write fails, the action did not happen: nothing is half-applied, the register
-            is unchanged, and the screen says so instead of showing an accepted action as done.
-          </p>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Every entry names the identity that performed the action. No entry carries a
-            role-substitution field, and no surface renders a session-level role context at all
-            (L17546, AC-16-12 L20225). Choosing a persona in the reviewer controls re-renders
-            seeded fixtures; it alters no audit actor.
-          </p>
-        </section>
-
-        <section aria-label="Screen states this module reaches" className="space-y-3">
-          <h2 className="text-lg font-semibold">Screen states</h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Reached here: {DOH09_APPLICABLE_STATES.join(', ')}. Connection loss splits three ways
-            (D7) — content already loaded degrades with its age and origin, a read that fails
-            outright names what failed and whether anything was written, and every write control
-            disables with its reason rather than queueing.
-          </p>
-          <dl className="space-y-3">
-            {DOH09_INAPPLICABLE_STATES.map((state) => (
-              <div key={state.id}>
-                <dt className="text-sm font-semibold text-[var(--color-ink)]">
-                  {state.id} does not apply
-                </dt>
-                <dd className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  {state.reason}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-
-        <section aria-label="Cross-slice position" className="space-y-3">
-          <h2 className="text-lg font-semibold">Cross-slice position</h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            This module registers no cross-slice seam of its own. It owns the tenant user account
-            outright, and every fact rendered above is seeded inside this slice, so there is no
-            missing half to name and no inline stub standing in for one.
-          </p>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            One declared input does cross a boundary without being a seam: whether a Job exists in
-            the tenant. The mandatory-role counter reads it, no Job record exists in this build,
-            and the value is stated on the roster scenario rather than invented where it is used.
-          </p>
-        </section>
-
-        <section aria-label="Unspecified in source" className="space-y-3">
-          <h2 className="text-lg font-semibold">Unspecified in source</h2>
-          <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-            Each of these is an affordance the source names without defining. No control was
-            invented to fill any of them: an invented control reads back as a requirement.
-          </p>
-          <ul className="space-y-3">
-            {UNSPECIFIED_IN_SOURCE.map((entry) => (
-              <li key={entry.affordance}>
-                <p className="text-sm font-semibold text-[var(--color-ink)]">{entry.affordance}</p>
-                <p className="max-w-prose text-sm text-[var(--color-ink-muted)]">{entry.note}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section aria-label="Conflicts in the source" className="space-y-3">
-          <h2 className="text-lg font-semibold">Conflicts in the source, and how each was resolved</h2>
-          <dl className="space-y-3">
-            {SOURCE_CONFLICTS.map((conflict) => (
-              <div key={conflict.topic}>
-                <dt className="text-sm font-semibold text-[var(--color-ink)]">{conflict.topic}</dt>
-                <dd className="max-w-prose text-sm text-[var(--color-ink-muted)]">
-                  {conflict.conflict}
-                </dd>
-                <dd className="max-w-prose text-sm text-[var(--color-ink)]">
-                  {conflict.resolution}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      </div>
-    </HubShell>
+function AssignControl({
+  userId,
+  canWrite,
+  onOpen,
+}: {
+  readonly userId: string
+  readonly canWrite: boolean
+  readonly onOpen: () => void
+}) {
+  const controlId = `permissions-assign-${userId}`
+  if (!canWrite) {
+    return (
+      <button
+        type="button"
+        disabled
+        data-control-id={controlId}
+        className={`cursor-not-allowed ${radiusClass('md')} border ${borderColor('border')} ${bg('sunken')} px-2 py-1 text-xs ${textColor('ink-subtle')}`}
+      >
+        Assign role
+      </button>
+    )
+  }
+  return (
+    <button
+      type="button"
+      data-control-id={controlId}
+      onClick={onOpen}
+      className={`${radiusClass('md')} border ${borderColor('border-strong')} ${bg('surface')} px-2 py-1 text-xs font-medium ${textColor('ink')}`}
+    >
+      Assign role
+    </button>
   )
 }
