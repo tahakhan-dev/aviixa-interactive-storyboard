@@ -251,6 +251,23 @@ rather than chased to a fixed point.
 
 Not committed by this task's own hand until the controller reviews it — the controller commits.
 
+**RESEALED BY THE FINAL WHOLE-UNIT REVIEW (2026-08-29).** That review deleted one certified path
+(`app/hub/permissions-roles-and-access/fixtures.ts`, the dead 1,760-line file whose matrix it moved
+under `src/`) and added one (`src/surfaces/doh/modules/doh-09/matrix.ts`), so the sealed manifest
+above named a file that no longer exists. Re-sealed rather than left stale:
+
+```
+Sealed SLICE11-91e73a21b82478c5
+  product  848 files  sha256 91e73a21b82478c52a0772297e957dc1ddec3bda41421ed7add23b14d56c4be3
+  envelope 109 files  sha256 6ac6a4ef5dab4f18ef2373e22bd00aa2a9ee838cc646eaaa5707cab6cc525a49
+```
+
+File count is unchanged at **848** — one path out, one path in — and `source_sha256` still reads
+`47bd18db467817f3…`, the frozen source untouched. `git_commit` names
+`981ba838addf09ec564441ff5d5904a8e162c846` (the ledger/record commit, the last that existed when
+this reseal ran) with `worktree_clean` `true`, and the commit carrying this reseal sits one above
+it — the same one-seal-run lag this section already names above and does not chase.
+
 ## 6. Census, measured fresh
 
 **Census at this unit's start (design doc §2 / `unit-02-entry-verify`): 277 of 5,015.** **Census now,
@@ -269,6 +286,15 @@ census rose to 278 across Tasks 1-7's real coverage gains (each screen's own bui
 `sourceRefs`), then Task 8's main pass corrected an over-claiming `CONTROL_MATRIX` entry
 (278 → 276), then Task 8's own fix round made one further surgical correction (276 → 275). This
 task's own `pnpm build` output reproduced 275 exactly, unchanged.
+
+**AMENDED BY THE FINAL WHOLE-UNIT REVIEW: 275 → 274, −1.** Deleting the dead
+`app/hub/permissions-roles-and-access/fixtures.ts` dropped `workflows:WF-WKR-004` from
+`demonstrated-in-storyboard` to `not-represented`: that file named the identifier in a string
+literal, which `scripts/build-registries.mjs` counts as a citation. The workflow itself is built and
+runs in `PermissionsScreen.tsx`'s `confirmAssign`, and the row was deliberately NOT won back — see
+§7's carried finding 9 for why doing so would be manufacturing evidence. Same shape as Task 8's own
+two corrections: a dead file's false credit removed, the number moving down because it is now more
+honest rather than because coverage was lost.
 
 ## 7. Findings carried forward, named rather than fixed or hidden
 

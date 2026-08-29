@@ -3,8 +3,8 @@
   "ledger": "Product Candidate Manifest",
   "governing_section": "master prompt §23.2 — scope 1 of the two non-self-referential hash scopes",
   "slice": "11",
-  "candidate_id": "SLICE11-880728d0253a6744",
-  "candidate_manifest_sha256": "880728d0253a67448aedae364d0a7600f7a09a0cec01590420a472cd670b5ee4",
+  "candidate_id": "SLICE11-91e73a21b82478c5",
+  "candidate_manifest_sha256": "91e73a21b82478c52a0772297e957dc1ddec3bda41421ed7add23b14d56c4be3",
   "scope": {
     "kind": "product-candidate",
     "contents": "application source, fixtures, configuration, lockfile, assets and required delivery documentation",
@@ -18,15 +18,15 @@
     "hashes_itself": false,
     "why_not": "this manifest lives under docs/process/ledgers/, an evidence root, so it is outside the product scope by construction rather than by a remembered exclusion"
   },
-  "git_commit": "25f35a50ef3c12ad7444b4d67638c94bd64c551f",
-  "git_tree": "cbe5485aa0ea4205336ba2b7b303e9fd9ca495ae",
+  "git_commit": "981ba838addf09ec564441ff5d5904a8e162c846",
+  "git_tree": "7ee752ad31a759f13b13f0cf0c11efef1fb2cd92",
   "worktree_clean": true,
   "bytes_measured_against": "the tree of git_commit — the worktree was clean when this seal ran, so every hash below is that commit's blob and stays checkable against it forever",
   "source_sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
   "source_drift_from_s0": "none as of this seal: `shasum -a 256 ../AVIIXA_Production_Product_Blueprint.md` equals `source_sha256` above. NOTHING RE-HASHES IT AUTOMATICALLY. `scripts/slice-blueprint.mjs` re-derives the hash and byte count on every invocation and refuses rather than emit a line mapping it cannot prove, but that script is not part of `pnpm verify` and runs only when someone runs it. Drift would therefore be silent until the next slice, so check it by hand before quoting this field.",
   "file_count": 848,
-  "total_bytes": 22708839,
-  "supersedes": "SLICE11-c5c9c4a7053ae3d5",
+  "total_bytes": 22665932,
+  "supersedes": "SLICE11-880728d0253a6744",
   "verification": {
     "verification_id": "VER-U01-FINAL-02",
     "supersedes_verification_id": "VER-U01-FINAL-01",
@@ -407,13 +407,8 @@
     },
     {
       "path": "app/hub/permissions-roles-and-access/PermissionsScreen.tsx",
-      "bytes": 29233,
-      "sha256": "565e4ea16b29a9fc4c06e6a77618846c8efc6dad86874852a257bca581c967ba"
-    },
-    {
-      "path": "app/hub/permissions-roles-and-access/fixtures.ts",
-      "bytes": 76829,
-      "sha256": "791eb84682fbe09ae8b4d4cb8348b62a41c525a1ba31a20329729fdd29570dfc"
+      "bytes": 30548,
+      "sha256": "2f953db02c12f7327fd29cf2a0c842032c542569f0b0d8c932f85e49b8bb5040"
     },
     {
       "path": "app/hub/permissions-roles-and-access/page.tsx",
@@ -447,8 +442,8 @@
     },
     {
       "path": "app/hub/shift-management/ShiftManagementScreen.tsx",
-      "bytes": 34057,
-      "sha256": "30e5253674be2a6e500af8fd6d0f3e870cb7545965a6a51287fe2b95c9d045b7"
+      "bytes": 34505,
+      "sha256": "202d3443c1ae788f5a677e4b8230854e502af5063af63ad064ba0df3bf25518d"
     },
     {
       "path": "app/hub/shift-management/fixtures.ts",
@@ -507,8 +502,8 @@
     },
     {
       "path": "app/hub/worker-lifecycle-and-qualifications/WorkerLifecycleScreen.tsx",
-      "bytes": 56117,
-      "sha256": "e1d73d1883933a24b1dd1b49e3639c349834d5d79783540ce8219268c6ef60dc"
+      "bytes": 56092,
+      "sha256": "d3e6e8e91a80204cd2624cc378067425c8ffc9f9e6de12e313510e41e4c6ac1a"
     },
     {
       "path": "app/hub/worker-lifecycle-and-qualifications/fixtures.ts",
@@ -1192,8 +1187,8 @@
     },
     {
       "path": "registries/generated/doh/module-reach.json",
-      "bytes": 3889,
-      "sha256": "830a3afb62fc53363cd18caee74ba5871d81ee9d6f037d827aed4a74bb825d69"
+      "bytes": 3837,
+      "sha256": "8ea4452527a39149ec42bf5b263883f845db33371a117bb773d4764a44bf97bd"
     },
     {
       "path": "registries/generated/events.json",
@@ -1247,8 +1242,8 @@
     },
     {
       "path": "registries/generated/workflows.json",
-      "bytes": 467665,
-      "sha256": "cd9a9827f711712b41b3eb806809b3e7e7d070750ba859f3242fb309a3e01a69"
+      "bytes": 467601,
+      "sha256": "8bad67e6d9c189d243931da3c539525531ed407baeab9d529e74e99e5d5f8e27"
     },
     {
       "path": "registries/raw/extract/CHK-001.json",
@@ -2002,8 +1997,8 @@
     },
     {
       "path": "src/data/repository.ts",
-      "bytes": 188973,
-      "sha256": "87ea3c60fd4880d4d8c40e0a27893d438de75fbbe70f140606e94b91475ffe34"
+      "bytes": 196618,
+      "sha256": "bec25aeb7f56b5957f53cb6934b836698c91feec7692388f324f7ed5405b8feb"
     },
     {
       "path": "src/data/schemas/crosscutting.ts",
@@ -3547,8 +3542,8 @@
     },
     {
       "path": "src/surfaces/doh/modules.ts",
-      "bytes": 50938,
-      "sha256": "fea96c6335140200a3697ef2681435982e922114a33ad4780cd2fe5845233113"
+      "bytes": 51659,
+      "sha256": "ab016caaaca8a3b48bbf65d7cd69b8f5011971d8898c19e7b0c6283db38823d0"
     },
     {
       "path": "src/surfaces/doh/modules/doh-05/access.ts",
@@ -3601,9 +3596,14 @@
       "sha256": "506b50af67a2f8c9d35b244af6bb9331aa042044d82f64f3691f8ab4a2718129"
     },
     {
+      "path": "src/surfaces/doh/modules/doh-09/matrix.ts",
+      "bytes": 17784,
+      "sha256": "5c44dfb7203432b141497dae900decd0c4ab36f62a220d5b1bd8eeea168f3901"
+    },
+    {
       "path": "src/surfaces/doh/modules/doh-09/readings.ts",
-      "bytes": 7387,
-      "sha256": "26f94854500ce0f4b4063692426ae39c2e83fa0528a743ec7ccba10935fca78b"
+      "bytes": 10719,
+      "sha256": "a89484e2a30d4939bcadb58f2308b182e3848c09c3fdeaa19efdbd06a4267c72"
     },
     {
       "path": "src/surfaces/doh/modules/doh-10/matrix.ts",
@@ -4027,8 +4027,8 @@
     },
     {
       "path": "src/ui/product/AppShell.tsx",
-      "bytes": 21351,
-      "sha256": "dcf45ecc45260caea64a351c056c3f05f4375b3ef8ad6492c60a22ff91e66dbb"
+      "bytes": 24169,
+      "sha256": "cf898b1a773650b6edc89bf4c7e6651a71e0f988654775fcc108f515f7040c1e"
     },
     {
       "path": "src/ui/product/Chart.tsx",

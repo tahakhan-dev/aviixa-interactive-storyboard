@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-cb4b336debe0f86f",
-  "candidate_id": "SLICE11-880728d0253a6744",
+  "envelope_id": "ENV11-6ac6a4ef5dab4f18",
+  "candidate_id": "SLICE11-91e73a21b82478c5",
   "slice": "11",
-  "payload_sha256": "cb4b336debe0f86f7f93890e26fe2356993737c43f5e9076432f03472ca9238d",
+  "payload_sha256": "6ac6a4ef5dab4f18ef2373e22bd00aa2a9ee838cc646eaaa5707cab6cc525a49",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -24,7 +24,7 @@
   },
   "payload_excludes_self": true,
   "payload_count": 109,
-  "supersedes": "ENV11-ad7098b6a4fcda79",
+  "supersedes": "ENV11-cb4b336debe0f86f",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -138,13 +138,13 @@
     },
     {
       "path": "docs/process/2026-08-29-unit-02-verification.md",
-      "bytes": 23329,
-      "sha256": "a10424ab70d147d83b376a396cfe1cd1676b0db63b93e43aba9a1ecfcbb47790"
+      "bytes": 31068,
+      "sha256": "e481b23fb3b6f2e61946e33ac9cf55950dcf06140463bbe927a10e6c20dcbbb2"
     },
     {
       "path": "docs/process/RESUME.md",
-      "bytes": 54520,
-      "sha256": "2d87932f68c7846055a3c8d4f05ef2a67be8b259810fc3ef08bfbb7803061bb7"
+      "bytes": 54779,
+      "sha256": "5e2c6e472b878ba37f053eba91101fe4cff8168739e2f1e33f937b0b9ca8ec6b"
     },
     {
       "path": "docs/process/audits/2026-08-24-slice-11-audit-common-brief.md",
@@ -398,8 +398,8 @@
     },
     {
       "path": "docs/process/ledgers/live-verification-ledger.json",
-      "bytes": 93513,
-      "sha256": "1b31022fd266768bd24b339ca7371e19a1c87c4606e78ce89d7618dbace62bea"
+      "bytes": 104830,
+      "sha256": "55e1ac431d3e056287a7b93b3eaf4f6ef9d752d4885190947fc3c22365f4dc18"
     },
     {
       "path": "docs/process/ledgers/loop-ledger.json",
