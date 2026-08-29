@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-193380fcd89f8753",
+  "envelope_id": "ENV11-06766957b8c71598",
   "candidate_id": "SLICE11-91e73a21b82478c5",
   "slice": "11",
-  "payload_sha256": "193380fcd89f87538fbc22854e7e827d0a0be698fd1883a0dfe8c4a6980eabc6",
+  "payload_sha256": "06766957b8c71598faab909c31de6582b136ae6ecfc77a1b85f14290d7c76ab4",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -24,7 +24,7 @@
   },
   "payload_excludes_self": true,
   "payload_count": 109,
-  "supersedes": "ENV11-6ac6a4ef5dab4f18",
+  "supersedes": "ENV11-193380fcd89f8753",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -138,13 +138,13 @@
     },
     {
       "path": "docs/process/2026-08-29-unit-02-verification.md",
-      "bytes": 32834,
-      "sha256": "e086adb73628b78b57034ff29375aed29e5c1e2a9eee33f1317791971d7f4585"
+      "bytes": 34590,
+      "sha256": "228082b15a72a6455e9e4f4d9d4d5430ba199b8ddace702fd16b4c8a014679c6"
     },
     {
       "path": "docs/process/RESUME.md",
-      "bytes": 54779,
-      "sha256": "5e2c6e472b878ba37f053eba91101fe4cff8168739e2f1e33f937b0b9ca8ec6b"
+      "bytes": 61597,
+      "sha256": "8154d8bdcb5adbd3242d7ca8d292ea129c4e1fdf655e76d7d052407eddef7154"
     },
     {
       "path": "docs/process/audits/2026-08-24-slice-11-audit-common-brief.md",
