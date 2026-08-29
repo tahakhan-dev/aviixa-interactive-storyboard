@@ -898,6 +898,23 @@ const INVITE_CONSOLE_USER_REQUEST: AccessRequest = {
  * re-derives the identical tenant fact `authorizeWrite`'s `resourceTenant`
  * would have — through the SAME `siteId` — so this door asks it once, not
  * twice through two different mechanisms.
+ *
+ * NO `requiredSites` HERE EITHER, AND THAT IS DELIBERATE — fix round 2
+ * (task-1 review, new finding): this constant is static, declared once at
+ * module load, with no row to read yet. `authorizeWrite`'s own
+ * `AccessRequest` was built dynamically, per call, and included
+ * `requiredSites: [siteId]` whenever `ctx.identity.siteScope` was
+ * non-empty — the SCOPE stage (`src/policy/evaluate.ts`) that lets a
+ * site-scoped Supervisor (e.g. seeded grant `RG-0003`, `siteIds:
+ * ["SITE-BB-RIVERSIDE"]`) create an Area under THEIR OWN Site but refuses
+ * one under a Site outside their scope. Swapping `authorizeWrite` for this
+ * bare constant silently dropped that check — measured, live, through this
+ * screen's own Areas-tier Create control (a scoped Supervisor could open
+ * ANY Site in the tenant, since a `sites` row carries no `siteId` field of
+ * its own for `withinScope` to filter reads by, and create an Area under
+ * it). The fix is NOT here, in the constant — it is on the call, in
+ * `createAreaUnderSite` itself, which knows the actual `area.siteId` this
+ * constant cannot.
  */
 const CREATE_AREA_UNDER_SITE_REQUEST: AccessRequest = {
   action: 'create-area-under-site',
@@ -905,7 +922,7 @@ const CREATE_AREA_UNDER_SITE_REQUEST: AccessRequest = {
   sourceRefs: ['L27118', 'L26919', 'repository.ts'],
 }
 
-/** `CREATE_AREA_UNDER_SITE_REQUEST`'s own sibling for `createLocationUnderArea`. Same reasoning, `checkAreaReference` in place of `checkSiteReference`. */
+/** `CREATE_AREA_UNDER_SITE_REQUEST`'s own sibling for `createLocationUnderArea`. Same reasoning, `checkAreaReference`/`requiredAreas`/`areaScope` in place of `checkSiteReference`/`requiredSites`/`siteScope`. */
 const CREATE_LOCATION_UNDER_AREA_REQUEST: AccessRequest = {
   action: 'create-location-under-area',
   allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR', 'QUALITY_MANAGER'],
@@ -2204,7 +2221,21 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       const authority = truthStoreFor('areas')
       if (!writableThroughRepository(authority)) return truthStoreRefusal('areas', authority)
 
-      const decision = evaluateAccess(CREATE_AREA_UNDER_SITE_REQUEST, ctx)
+      // Fix round 2 (task-1 review, new finding) — `requiredSites` restored.
+      // `CREATE_AREA_UNDER_SITE_REQUEST` itself is static (it has no row to
+      // read at declaration time), so the ONE thing `authorizeWrite`'s own
+      // dynamic `AccessRequest` construction did that a static constant
+      // cannot is added back HERE, on the call, exactly the condition
+      // `authorizeWrite` used: only when the acting identity actually
+      // carries a site scope, and scoped to the specific Site this new
+      // Area would sit under. An identity with no site scope at all (every
+      // seeded Tenant Admin today) is unaffected — `evaluateAccess`'s SCOPE
+      // stage (`src/policy/evaluate.ts`) only runs this check when
+      // `requiredSites` is both present AND non-empty.
+      const decision = evaluateAccess(
+        { ...CREATE_AREA_UNDER_SITE_REQUEST, ...(ctx.identity.siteScope.length > 0 ? { requiredSites: [area.siteId] } : {}) },
+        ctx,
+      )
       if (!permitsAction(decision)) return refusal(decision)
 
       const actorTenant = ctx.identity.tenant
@@ -2236,7 +2267,21 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       const authority = truthStoreFor('locations')
       if (!writableThroughRepository(authority)) return truthStoreRefusal('locations', authority)
 
-      const decision = evaluateAccess(CREATE_LOCATION_UNDER_AREA_REQUEST, ctx)
+      // Fix round 2 (task-1 review, new finding) — `requiredAreas`
+      // restored, same reasoning as `createAreaUnderSite` above:
+      // `authorizeWrite`'s own dynamic `AccessRequest` construction
+      // included `requiredAreas: [areaId]` whenever `ctx.identity.areaScope`
+      // was non-empty, and the static `CREATE_LOCATION_UNDER_AREA_REQUEST`
+      // constant cannot carry that (it has no row to read at declaration
+      // time) — added back here, on the call, scoped to the specific Area
+      // this new Location would sit under.
+      const decision = evaluateAccess(
+        {
+          ...CREATE_LOCATION_UNDER_AREA_REQUEST,
+          ...(ctx.identity.areaScope.length > 0 ? { requiredAreas: [location.areaId] } : {}),
+        },
+        ctx,
+      )
       if (!permitsAction(decision)) return refusal(decision)
 
       const actorTenant = ctx.identity.tenant
