@@ -298,6 +298,16 @@ export function AcceptInvitationScreen() {
         administrator switches the workspace on afterward, from the Super Admin console. This console
         follows the second reading rather than the first.
       </ControlDisclosure>
+
+      <ControlDisclosure
+        controlId="accept-invitation-identity-disclosure"
+        className="mt-2"
+        summary="Why clicking Accept does not verify who you are"
+      >
+        There is no real email delivery or token behind this link, so clicking Accept does not check
+        the person doing so against anything a real invitee received. Any visitor who opens this page
+        with a matching tenant id in the address can accept the invitation shown.
+      </ControlDisclosure>
     </Centered>
   )
 }
