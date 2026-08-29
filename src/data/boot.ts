@@ -189,13 +189,21 @@ function validateSnapshot(raw: unknown): CollectionData | null {
 const GENERATED_ID_PREFIXES = ['RG-INVITE-', 'RG-CREATE-', 'RG-ASSIGN-'] as const
 
 /**
- * Fallback only: scans a validated snapshot's own `role-grants` ids for the
- * highest numeric suffix already spent, for the rare case a restored
- * snapshot has no usable `SEQUENCE_KEY` value (one committed before this
- * field existed, or a corrupted one) — `resolveSequence` below prefers the
- * persisted value whenever it is present, exactly because reverse-parsing
- * generated ids is more fragile than the value `commitToPersistence` has
- * already committed alongside the snapshot.
+ * Fallback only, for the rare case a restored snapshot has no usable
+ * `SEQUENCE_KEY` value (one committed before this field existed, or a
+ * corrupted one) — `resolveSequence` below prefers the persisted value
+ * whenever it is present, exactly because reverse-parsing generated ids is
+ * more fragile than the value `commitToPersistence` has already committed
+ * alongside the snapshot.
+ *
+ * Scans ONLY `role-grants`' three `RG-` prefixes, not every generated-id
+ * shape `store.nextSequence()` feeds elsewhere (`SITE-`, `AREA-`, `LOC-`,
+ * `SHIFT-`, `WRK-`, `USR-${tenantId}-`, `QUAL-`, `DEV-${tenantId}-`,
+ * `USR-INVITE-`, ...) — it can underestimate the true floor for a legacy
+ * snapshot whose highest-numbered generated id lives in one of those other
+ * collections rather than in `role-grants`. Acceptable for a fallback of a
+ * fallback (only reachable for a snapshot saved before `SEQUENCE_KEY`
+ * existed); not a general-purpose "derive the sequence" scan.
  */
 function deriveSequenceFromIds(data: CollectionData): number {
   let max = 0

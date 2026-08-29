@@ -2213,6 +2213,67 @@ export async function readLatestSnapshot(
   })
 }
 
+/**
+ * Task 5 review follow-up (closure sweep) — `reset()` below only ever
+ * mutated the in-memory store (`store.resetToSeed()`). Before rehydration
+ * existed that was harmless: reset() and a fresh boot() both landed on the
+ * seed either way. Now that `boot()` rehydrates from `SNAPSHOT_STORE`, an
+ * un-cleared persisted snapshot would survive a reset() and silently
+ * reappear on the very next reload, undoing the reset. This deletes both
+ * `SNAPSHOT_KEY` and `SEQUENCE_KEY` from the same store `commitToPersistence`
+ * writes, so a rehydration attempt after a reset() finds nothing and falls
+ * back to the seed exactly like a never-written environment.
+ *
+ * Deliberately NOT awaited by its one caller, and never throws: `reset()`'s
+ * own in-memory effect (`store.resetToSeed()` + `notify()`) is synchronous
+ * and must take effect immediately regardless of whether the IndexedDB
+ * clear succeeds — the same "a failure here must not block the caller's
+ * own effect" discipline this file already applies elsewhere.
+ */
+async function clearPersistedSnapshot(factory: IDBFactory | null): Promise<void> {
+  if (!factory) return
+
+  let db: IDBDatabase
+  try {
+    db = await openDatabase(factory)
+  } catch {
+    return
+  }
+
+  return new Promise((resolve) => {
+    let settled = false
+    const settle = () => {
+      if (settled) return
+      settled = true
+      db.close()
+      resolve()
+    }
+
+    let tx: IDBTransaction
+    try {
+      tx = db.transaction([SNAPSHOT_STORE], 'readwrite')
+    } catch {
+      settle()
+      return
+    }
+
+    tx.oncomplete = settle
+    tx.onerror = settle
+    tx.onabort = settle
+
+    try {
+      tx.objectStore(SNAPSHOT_STORE).delete(SNAPSHOT_KEY)
+      tx.objectStore(SNAPSHOT_STORE).delete(SEQUENCE_KEY)
+    } catch {
+      try {
+        tx.abort()
+      } catch {
+        // Already finishing/aborted; onabort/onerror above still resolves.
+      }
+    }
+  })
+}
+
 /* ────────────────────────────────────────────────────────────────────── *
  * Write plumbing shared by create/update/transition
  * ────────────────────────────────────────────────────────────────────── */
@@ -4008,6 +4069,9 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
     reset() {
       store.resetToSeed()
       store.notify()
+      // Fire-and-forget (see clearPersistedSnapshot's own comment): a
+      // reload after reset() must not rehydrate the pre-reset snapshot.
+      void clearPersistedSnapshot(persistence.factory)
     },
 
     advanceClock(ms) {
