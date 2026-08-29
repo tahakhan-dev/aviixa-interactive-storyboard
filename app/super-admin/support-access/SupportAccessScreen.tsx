@@ -172,10 +172,12 @@ function SupportAccessConsole({
   session,
 }: SupportAccessScreenProps & { readonly session: ProductSession }) {
   const router = useRouter()
-  const { openSupportSession } = useProductSession()
+  const { openSupportSession, closeSupportSession } = useProductSession()
   const tenantOptions = useRepositoryQuery(selectOpenableTenants)
   const [openPending, setOpenPending] = useState(false)
   const [openError, setOpenError] = useState<string | null>(null)
+  const [closePending, setClosePending] = useState(false)
+  const [closeError, setCloseError] = useState<string | null>(null)
 
   // Task 7 (closure sweep) — the switcher's own role still drives every
   // OTHER decision on this page (the whole D16/D17 demonstration this file
@@ -445,8 +447,20 @@ function SupportAccessConsole({
   async function handleOpenSupportSession() {
     setOpenError(null)
     setOpenPending(true)
+    // Fix round 1 (coordinator review, Important 5) — the OLD join
+    // (`${ticketRef.trim()} — ${reasonLabel}`) produced the non-empty
+    // string " — " even when BOTH fields were blank, so the door's own
+    // `purpose.trim() === ''` guard (AC-SA-15-02, "reasonless session
+    // refused") could never actually fire — only this screen's disabled
+    // Open control stood between a blank form and a written row, which is
+    // not a real enforcement of that rule at the trust boundary. Empty
+    // parts are filtered out before joining, so two blank fields now
+    // produce a genuinely blank `purpose` and the door's existing check
+    // catches it — reachable directly (a forged call bypassing this
+    // screen entirely), not only through this control's own disabled state.
     const reasonLabel = reasonClass === UNSPECIFIED_REASON_CLASS_VALUE ? UNSPECIFIED_REASON_CLASS_LABEL : reasonClass
-    const result = await openSupportSession(tenant, `${ticketRef.trim()} — ${reasonLabel}`)
+    const purpose = [ticketRef.trim(), reasonLabel.trim()].filter((part) => part !== '').join(' — ')
+    const result = await openSupportSession(tenant, purpose)
     setOpenPending(false)
     if (result.kind === 'opened') {
       setSessionRequested(true)
@@ -463,8 +477,45 @@ function SupportAccessConsole({
       setOpenError(result.reason === 'ROLE_NOT_GRANTED' ? supportRoleReason : result.explain)
     } else if (result.kind === 'persistence-unavailable') {
       setOpenError(result.explain)
+    } else if (result.kind === 'already-open') {
+      // Fix round 1 (coordinator review, Important 4) — refuses rather than
+      // silently overwriting the held session id: see `session.ts
+      // #OpenSupportSessionResult`'s own comment for why an overwrite would
+      // orphan the first row open forever.
+      setOpenError(
+        'A support session is already open for this account. Close it before opening another — go to the ' +
+          'read-only session view to close it.',
+      )
     } else {
       setOpenError('Sign in to open a support session.')
+    }
+  }
+
+  /**
+   * Fix round 1 (coordinator review, Important 6) — the console-side "Close
+   * this session" control used to be local-state only
+   * (`setClosureRecorded(true)`), acting on the seeded fixture detail
+   * (`SESSION_DETAIL`) regardless of whether a REAL session was open. After
+   * a real `openSupportSession` call, that made the control actively
+   * misleading: pressing it rendered "closed by operator" while the real
+   * `access-sessions` row stayed open underneath. Now it closes the real
+   * session too, when this identity holds one open — the fixture
+   * demonstration (`closureRecorded`, driving the seeded session-detail
+   * panel below) still runs exactly as before, unconditionally, since it
+   * demonstrates the DEMO decision machinery and is unrelated to whether a
+   * real session happens to exist.
+   */
+  async function handleCloseSupportSession() {
+    setClosureRecorded(true)
+    if (session.accessSessionId === null || session.accessSessionId === undefined) {
+      return
+    }
+    setCloseError(null)
+    setClosePending(true)
+    const result = await closeSupportSession()
+    setClosePending(false)
+    if (result.kind === 'denied' || result.kind === 'persistence-unavailable') {
+      setCloseError(result.explain)
     }
   }
 
@@ -693,9 +744,23 @@ function SupportAccessConsole({
 
         <div className="mt-4 flex flex-wrap items-start gap-4">
           <div>
-            <Button {...closeProps} variant="secondary" onClick={() => setClosureRecorded(true)}>
+            <Button
+              {...closeProps}
+              variant="secondary"
+              controlId="support-access-close-session"
+              loading={closePending}
+              onClick={() => void handleCloseSupportSession()}
+            >
               Close this session
             </Button>
+            {closeError !== null ? (
+              <p
+                data-control-id="support-access-close-error"
+                className="mt-1 max-w-prose text-xs text-[var(--color-status-blocked)]"
+              >
+                {closeError}
+              </p>
+            ) : null}
           </div>
           <div>
             <Button
@@ -836,7 +901,12 @@ function SupportAccessConsole({
               </div>
 
               <div>
-                <Button {...openProps} loading={openPending} onClick={() => void handleOpenSupportSession()}>
+                <Button
+                  {...openProps}
+                  controlId="support-access-open-session"
+                  loading={openPending}
+                  onClick={() => void handleOpenSupportSession()}
+                >
                   Open a support session
                 </Button>
                 <p className="mt-1 max-w-prose text-xs text-[var(--color-ink-subtle)]">

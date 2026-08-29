@@ -30,6 +30,15 @@ export interface ButtonProps {
   loading?: boolean
   onClick?: () => void
   type?: 'button' | 'submit'
+  /**
+   * Fix round 1 (closure sweep Task 7, coordinator review, Minor 11) — this
+   * primitive rendered no `data-control-id` at all, for any caller, in the
+   * whole codebase. Optional and additive: every existing call site is
+   * unaffected (no attribute rendered when omitted, exactly today's
+   * behaviour); a caller that needs one no longer has to wrap this component
+   * in an extra element just to get an identifiable control.
+   */
+  controlId?: string
 }
 
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
@@ -47,6 +56,7 @@ export function Button({
   loading = false,
   onClick,
   type = 'button',
+  controlId,
 }: ButtonProps) {
   const reasonId = useId()
   const disabled = disabledReason !== undefined
@@ -56,6 +66,7 @@ export function Button({
     <>
       <button
         type={type}
+        data-control-id={controlId}
         aria-disabled={inert ? 'true' : undefined}
         aria-busy={loading ? 'true' : undefined}
         aria-describedby={disabled ? reasonId : undefined}
