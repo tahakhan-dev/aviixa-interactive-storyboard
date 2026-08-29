@@ -3392,6 +3392,43 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
         )
       }
 
+      // Fix round 2 (coordinator review, Important 4 still open) — the
+      // ONE-SESSION-PER-IDENTITY guard belongs HERE, at the door every
+      // caller actually routes through, not only in `session.ts
+      // #resolveOpenSupportSession`'s client-side pre-check. That check
+      // reads `ProductSession.accessSessionId`, which is React state:
+      // `sessionFor` (`session.ts`) never repopulates it from this
+      // collection on a fresh sign-in, and `signOut` never closes the row
+      // either — so open, sign out, sign back in left `accessSessionId`
+      // `null` while the old row was still `closedAt: null` underneath,
+      // and a second session opened freely, orphaning the first exactly as
+      // before the first fix round. Read directly against the collection
+      // instead, keyed on the real, durable fact (`platformUserId` +
+      // `closedAt`), so the guard holds no matter what the client
+      // remembers. Not `expiresAt`-aware, deliberately: nothing in this
+      // build ever sets `closedAt` on expiry alone (no automatic
+      // close-on-expiry job exists), and the console's own "Close this
+      // session" control already closes a session regardless of expiry —
+      // that remains the one real way out of an expired-but-unclosed row,
+      // exactly as it does today.
+      const actorId = ctx.actorOfRecord
+      const alreadyOpen = repository
+        .list('access-sessions', ctx)
+        .where((r) => r.platformUserId === actorId && r.closedAt === null)
+        .first()
+      if (alreadyOpen) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'OBJECT_STATE_INVALID',
+            `This account already holds an open support session ("${alreadyOpen.id}"). Close it — the console's ` +
+              'own "Close this session" control — before opening another; a session is never handed over or ' +
+              'silently replaced inside its own lifetime (L16099).',
+            { stage: 'OBJECT_STATE', sourceRefs: ['L16099', 'repository.ts'] },
+          ),
+        )
+      }
+
       // Two-hour default time box (`SUPPORT_TIME_BOX`, `SupportAccessScreen
       // .tsx#fixtures.ts`; frozen source L16099: "each support session is
       // time-boxed, default two hours, configurable in platform settings").
