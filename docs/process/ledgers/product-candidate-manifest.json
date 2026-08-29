@@ -18,8 +18,8 @@
     "hashes_itself": false,
     "why_not": "this manifest lives under docs/process/ledgers/, an evidence root, so it is outside the product scope by construction rather than by a remembered exclusion"
   },
-  "git_commit": "981ba838addf09ec564441ff5d5904a8e162c846",
-  "git_tree": "7ee752ad31a759f13b13f0cf0c11efef1fb2cd92",
+  "git_commit": "32090f73ec17e9745996ffac60a965e304683c7d",
+  "git_tree": "183ed17934472173b65d84aa8f0547740547e353",
   "worktree_clean": true,
   "bytes_measured_against": "the tree of git_commit — the worktree was clean when this seal ran, so every hash below is that commit's blob and stays checkable against it forever",
   "source_sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
