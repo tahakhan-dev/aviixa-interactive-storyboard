@@ -371,7 +371,7 @@ function TenantRegistry({ session }: { readonly session: ProductSession }) {
             >
               Create tenant
             </button>
-            <p id="tenants-create-reason" className={`text-right text-xs ${textColor('ink-muted')}`}>
+            <p id="tenants-create-reason" data-control-id="tenants-create-reason" className={`text-right text-xs ${textColor('ink-muted')}`}>
               {createDecision.explanation} Tenant creation is held by the Root Super Admin and the
               Admin. The Platform Engineer sees the tenant list read-only and may not create a
               tenant; Support holds read access for support work alone.

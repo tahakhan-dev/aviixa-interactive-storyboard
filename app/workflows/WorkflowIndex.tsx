@@ -42,7 +42,7 @@ import {
  * regardless of the lint rule. `@/registry/workflow-index`'s own header
  * comment records why tours are not joined into the row data either
  * (`src/data/collections/tours.json` is business truth gated behind
- * `src/data/repository.ts` by §12.6, and all three seeded tours carry
+ * `src/data/repository.ts` by §12.6, and every one of its now-fifteen tours carries
  * `workflowId: null` today, so nothing observable is lost).
  *
  * SIX FILTERS (surface, module, role, object, status, variant coverage),

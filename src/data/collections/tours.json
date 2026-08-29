@@ -203,7 +203,7 @@
   },
   {
     "id": "TOUR-TENANT-PROVISION-001",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "Provisioning a new tenant, through the wizard's own validation",
     "workflowId": null,
     "variant": "nominal",
@@ -212,7 +212,7 @@
     "steps": [
       {
         "id": "nav-home",
-        "narration": "Start at the storyboard's entry point.",
+        "narration": "Open the platform's entry page.",
         "action": {
           "kind": "navigate",
           "route": "/"
@@ -241,7 +241,7 @@
       },
       {
         "id": "type-password",
-        "narration": "...and a password — this storyboard accepts any non-empty password for an active account.",
+        "narration": "...and a password — any non-empty value is accepted for an active account.",
         "action": {
           "kind": "type",
           "controlId": "field-password",
@@ -251,21 +251,12 @@
       },
       {
         "id": "submit-sign-in",
-        "narration": "She signs in.",
+        "narration": "She signs in, landing on the platform dashboard, the console's home surface.",
         "action": {
           "kind": "click",
           "controlId": "sign-in-submit"
         },
-        "spotlight": "sign-in-submit"
-      },
-      {
-        "id": "land-dashboard",
-        "narration": "Sign-in lands her on the platform dashboard, the console's home surface.",
-        "action": {
-          "kind": "assertState",
-          "description": "The sign-in redirect has resolved.",
-          "check": "demo-role-simulator"
-        },
+        "spotlight": "sign-in-submit",
         "expectRoute": "/super-admin/platform-overview-and-health/"
       },
       {
@@ -380,11 +371,11 @@
       },
       {
         "id": "land-detail",
-        "narration": "The write lands her on the new tenant's detail page, Invited. Activate is present but disabled: no administrator has accepted the invitation yet.",
+        "narration": "The write lands her on the new tenant's own detail page, Invited. Activate is present but disabled, and the reason is stated: no administrator has accepted the invitation yet.",
         "action": {
           "kind": "assertState",
-          "description": "Landed on the new tenant's own detail page.",
-          "check": "tenant-detail-activate"
+          "description": "The new tenant's Activate control renders disabled, with its reason stated.",
+          "check": "tenant-detail-activate-reason"
         },
         "expectRoute": "/super-admin/tenants-lifecycle-and-pilots/detail/"
       }
@@ -392,7 +383,7 @@
   },
   {
     "id": "TOUR-TENANT-ACTIVATION-001",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "A Tenant Admin accepts, and the platform team activates the workspace",
     "workflowId": null,
     "variant": "nominal",
@@ -401,12 +392,49 @@
     "steps": [
       {
         "id": "nav-home",
-        "narration": "Start at the storyboard's entry point, signed out. This tour continues the provisioning tour's story on a tenant already seeded in the same 'invited, not yet accepted' state — accepting an invitation needs a signed-out session, and no write from a separate create-tenant run survives into this one.",
+        "narration": "Open the platform's entry page.",
         "action": {
           "kind": "navigate",
           "route": "/"
         },
         "expectRoute": "/"
+      },
+      {
+        "id": "nav-sign-in-reset",
+        "narration": "Before anything else, this run makes sure no session is carried in from an earlier tour — a fresh page load would guarantee that on its own, but a tour launched right after another must establish it for itself.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        }
+      },
+      {
+        "id": "type-reset-email",
+        "narration": "It tries an address this platform does not recognise.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "no-such-admin@example.invalid"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-reset-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "x"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-reset",
+        "narration": "The attempt is refused, and — like any unsuccessful sign-in — leaves no session behind.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        },
+        "expectVisible": "error-summary"
       },
       {
         "id": "nav-accept",
@@ -419,25 +447,27 @@
       },
       {
         "id": "accept",
-        "narration": "She accepts the invitation — a real write that activates her own account.",
+        "narration": "She accepts the invitation — a real write that activates her own account and lands her, signed in, on the Hub. Her workspace is visible but not yet operating.",
         "action": {
           "kind": "click",
           "controlId": "accept-invitation-submit"
         },
-        "spotlight": "accept-invitation-submit"
+        "spotlight": "accept-invitation-submit",
+        "expectVisible": "accept-invitation-landed"
       },
       {
-        "id": "land-hub",
-        "narration": "Accepting lands her, signed in, on the Hub — her workspace is visible but not yet operating.",
+        "id": "sign-out-nadia",
+        "narration": "She signs out from the Hub's own account menu.",
         "action": {
-          "kind": "assertState",
-          "description": "Landed in the Hub as the newly active Tenant Admin.",
-          "check": "demo-role-simulator"
-        }
+          "kind": "click",
+          "controlId": "app-shell-sign-out"
+        },
+        "spotlight": "app-shell-sign-out",
+        "expectVisible": "accept-invitation-already-accepted"
       },
       {
         "id": "nav-sign-in-again",
-        "narration": "Meanwhile, Helena Voss, a platform Admin, opens the console sign-in page to activate the workspace now that its administrator has accepted.",
+        "narration": "Helena Voss, a platform Admin, opens the console sign-in page to activate the workspace now that its administrator has accepted.",
         "action": {
           "kind": "navigate",
           "route": "/super-admin/sign-in/"
@@ -466,21 +496,12 @@
       },
       {
         "id": "submit-sign-in-2",
-        "narration": "She signs in — this build's sign-in form has no separate sign-out step, so a fresh sign-in simply replaces the prior session.",
+        "narration": "She signs in.",
         "action": {
           "kind": "click",
           "controlId": "sign-in-submit"
         },
-        "spotlight": "sign-in-submit"
-      },
-      {
-        "id": "land-dashboard-2",
-        "narration": "Sign-in lands her on the platform dashboard.",
-        "action": {
-          "kind": "assertState",
-          "description": "The sign-in redirect has resolved.",
-          "check": "demo-role-simulator"
-        },
+        "spotlight": "sign-in-submit",
         "expectRoute": "/super-admin/platform-overview-and-health/"
       },
       {
@@ -493,17 +514,8 @@
         "expectRoute": "/super-admin/tenants-lifecycle-and-pilots/detail/"
       },
       {
-        "id": "assert-activate-enabled",
-        "narration": "With Nadia's acceptance now on record, Activate is enabled.",
-        "action": {
-          "kind": "assertState",
-          "description": "Activate is reachable now that the administrator has accepted.",
-          "check": "tenant-detail-activate"
-        }
-      },
-      {
         "id": "click-activate",
-        "narration": "She clicks Activate.",
+        "narration": "With Nadia's acceptance now on record, Activate is enabled. She clicks it.",
         "action": {
           "kind": "click",
           "controlId": "tenant-detail-activate"
@@ -517,16 +529,8 @@
         "action": {
           "kind": "click",
           "controlId": "tenant-detail-lifecycle-confirm-confirm"
-        }
-      },
-      {
-        "id": "activated",
-        "narration": "The confirmation banner reads that Ironclad Fasteners is now Active.",
-        "action": {
-          "kind": "assertState",
-          "description": "The write landed.",
-          "check": "tenant-detail-write-feedback"
-        }
+        },
+        "expectVisible": "tenant-detail-write-feedback"
       },
       {
         "id": "nav-list",
@@ -551,7 +555,7 @@
   },
   {
     "id": "TOUR-TENANT-CREATE-DENIED-001",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "Watch what happens when a Platform Engineer tries to create a tenant",
     "workflowId": null,
     "variant": "denied",
@@ -560,7 +564,7 @@
     "steps": [
       {
         "id": "nav-home",
-        "narration": "Start at the storyboard's entry point.",
+        "narration": "Open the platform's entry page.",
         "action": {
           "kind": "navigate",
           "route": "/"
@@ -598,19 +602,10 @@
       },
       {
         "id": "submit-sign-in",
-        "narration": "He signs in.",
+        "narration": "He signs in, landing on the platform dashboard.",
         "action": {
           "kind": "click",
           "controlId": "sign-in-submit"
-        }
-      },
-      {
-        "id": "land-dashboard",
-        "narration": "Sign-in lands him on the platform dashboard.",
-        "action": {
-          "kind": "assertState",
-          "description": "The sign-in redirect has resolved.",
-          "check": "demo-role-simulator"
         },
         "expectRoute": "/super-admin/platform-overview-and-health/"
       },
@@ -625,11 +620,11 @@
       },
       {
         "id": "assert-create-disabled",
-        "narration": "Create tenant is visible but disabled: tenant creation is reserved for the Root Super Admin and the Admin, not the Platform Engineer.",
+        "narration": "Create tenant is visible but disabled, and the reason is stated: tenant creation is reserved for the Root Super Admin and the Admin, not the Platform Engineer.",
         "action": {
           "kind": "assertState",
-          "description": "Create tenant renders, disabled.",
-          "check": "tenants-create"
+          "description": "Create tenant renders, disabled, with its reason stated.",
+          "check": "tenants-create-reason"
         }
       },
       {
@@ -717,26 +712,18 @@
       },
       {
         "id": "finish-attempt",
-        "narration": "He clicks Finish.",
+        "narration": "He clicks Finish. The write is refused: a Platform Engineer may not provision a tenant. Nothing was created.",
         "action": {
           "kind": "click",
           "controlId": "wizard-next"
-        }
-      },
-      {
-        "id": "denied",
-        "narration": "The write is refused: a Platform Engineer may not provision a tenant. Nothing was created.",
-        "action": {
-          "kind": "assertState",
-          "description": "The write was refused.",
-          "check": "wizard-result-failure"
-        }
+        },
+        "expectVisible": "wizard-result-failure"
       }
     ]
   },
   {
     "id": "TOUR-APPROVAL-SOD-001",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "Watch what happens when the root tries to approve its own proposal",
     "workflowId": null,
     "variant": "denied",
@@ -745,7 +732,7 @@
     "steps": [
       {
         "id": "nav-home",
-        "narration": "Start at the storyboard's entry point.",
+        "narration": "Open the platform's entry page.",
         "action": {
           "kind": "navigate",
           "route": "/"
@@ -801,21 +788,12 @@
       },
       {
         "id": "confirm-stepup",
-        "narration": "Confirming the platform floor register completes the acknowledgement.",
+        "narration": "Confirming the platform floor register completes the acknowledgement and lands the root on the platform dashboard.",
         "action": {
           "kind": "click",
           "controlId": "sign-in-stepup-confirm"
         },
-        "spotlight": "sign-in-stepup-confirm"
-      },
-      {
-        "id": "land-dashboard",
-        "narration": "Confirming lands the root on the platform dashboard.",
-        "action": {
-          "kind": "assertState",
-          "description": "The acknowledgement has resolved.",
-          "check": "demo-role-simulator"
-        },
+        "spotlight": "sign-in-stepup-confirm",
         "expectRoute": "/super-admin/platform-overview-and-health/"
       },
       {
@@ -838,18 +816,18 @@
       },
       {
         "id": "assert-sod",
-        "narration": "Approve and Return are visible but disabled: the platform allows no one, not even the root, to decide an engineering-class change they proposed themselves.",
+        "narration": "Approve and Return are visible but disabled, and the reason is stated: the platform allows no one, not even the root, to decide an engineering-class change they proposed themselves.",
         "action": {
           "kind": "assertState",
-          "description": "Approve and Return render, disabled, because the proposer and the decider are the same account.",
-          "check": "approvals-approve"
+          "description": "Approve and Return render, disabled, with the reason stated.",
+          "check": "approvals-decision-reason"
         }
       }
     ]
   },
   {
     "id": "TOUR-APPROVAL-SECOND-ROOT-001",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "Watch what happens when the root tries to invite a second Root Super Admin",
     "workflowId": null,
     "variant": "denied",
@@ -858,7 +836,7 @@
     "steps": [
       {
         "id": "nav-home",
-        "narration": "Start at the storyboard's entry point.",
+        "narration": "Open the platform's entry page.",
         "action": {
           "kind": "navigate",
           "route": "/"
@@ -914,19 +892,10 @@
       },
       {
         "id": "confirm-stepup",
-        "narration": "Confirming the platform floor register completes the acknowledgement.",
+        "narration": "Confirming the platform floor register completes the acknowledgement and lands the root on the platform dashboard.",
         "action": {
           "kind": "click",
           "controlId": "sign-in-stepup-confirm"
-        }
-      },
-      {
-        "id": "land-dashboard",
-        "narration": "Confirming lands the root on the platform dashboard.",
-        "action": {
-          "kind": "assertState",
-          "description": "The acknowledgement has resolved.",
-          "check": "demo-role-simulator"
         },
         "expectRoute": "/super-admin/platform-overview-and-health/"
       },
@@ -979,26 +948,18 @@
       },
       {
         "id": "submit-invite",
-        "narration": "It sends the invitation.",
+        "narration": "It sends the invitation. The invitation is refused: exactly one Root Super Admin account exists, created only by the backend at platform commissioning — no console path, including this one, can create a second.",
         "action": {
           "kind": "click",
           "controlId": "console-users-invite-submit"
-        }
-      },
-      {
-        "id": "denied",
-        "narration": "The invitation is refused: exactly one Root Super Admin account exists, created only by the backend at platform commissioning — no console path, including this one, can create a second.",
-        "action": {
-          "kind": "assertState",
-          "description": "The invitation was refused.",
-          "check": "console-users-invite-result"
-        }
+        },
+        "expectVisible": "console-users-invite-result"
       }
     ]
   },
   {
     "id": "TOUR-APPROVAL-CRITICAL-NO-CONTROL-001",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "Watch a non-root viewer open a critical-class change",
     "workflowId": null,
     "variant": "denied",
@@ -1007,7 +968,7 @@
     "steps": [
       {
         "id": "nav-home",
-        "narration": "Start at the storyboard's entry point.",
+        "narration": "Open the platform's entry page.",
         "action": {
           "kind": "navigate",
           "route": "/"
@@ -1045,19 +1006,10 @@
       },
       {
         "id": "submit-sign-in",
-        "narration": "She signs in.",
+        "narration": "She signs in, landing on the platform dashboard.",
         "action": {
           "kind": "click",
           "controlId": "sign-in-submit"
-        }
-      },
-      {
-        "id": "land-dashboard",
-        "narration": "Sign-in lands her on the platform dashboard.",
-        "action": {
-          "kind": "assertState",
-          "description": "The sign-in redirect has resolved.",
-          "check": "demo-role-simulator"
         },
         "expectRoute": "/super-admin/platform-overview-and-health/"
       },
@@ -1072,27 +1024,18 @@
       },
       {
         "id": "open-ar-3",
-        "narration": "She opens a pending critical-class change — a compliance suspension.",
+        "narration": "She opens a pending critical-class change — a compliance suspension. No Approve or Return control renders at all — the action bar is replaced with a sentence naming why, not a disabled button.",
         "action": {
           "kind": "click",
           "controlId": "approvals-open-AR-0003"
         },
         "expectVisible": "approvals-critical-non-root-notice"
-      },
-      {
-        "id": "assert-no-control",
-        "narration": "No Approve or Return control renders at all — the action bar is replaced with a sentence naming why, not a disabled button.",
-        "action": {
-          "kind": "assertState",
-          "description": "No approve or return control renders for a non-root viewer of a critical-class request.",
-          "check": "approvals-critical-non-root-notice"
-        }
       }
     ]
   },
   {
     "id": "TOUR-INVITATION-EXPIRED-001",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "Watch what happens when an invitation link has expired",
     "workflowId": null,
     "variant": "failure",
@@ -1101,7 +1044,7 @@
     "steps": [
       {
         "id": "nav-home",
-        "narration": "Start at the storyboard entry point, signed out.",
+        "narration": "Open the platform's entry page, signed out.",
         "action": {
           "kind": "navigate",
           "route": "/"
@@ -1109,28 +1052,56 @@
         "expectRoute": "/"
       },
       {
+        "id": "nav-sign-in-reset",
+        "narration": "Before anything else, this run makes sure no session is carried in from an earlier tour — a fresh page load would guarantee that on its own, but a tour launched right after another must establish it for itself.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        }
+      },
+      {
+        "id": "type-reset-email",
+        "narration": "It tries an address this platform does not recognise.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "no-such-admin@example.invalid"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-reset-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "x"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-reset",
+        "narration": "The attempt is refused, and — like any unsuccessful sign-in — leaves no session behind.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        },
+        "expectVisible": "error-summary"
+      },
+      {
         "id": "nav-accept",
-        "narration": "Marisol Peña tries to open her invitation link to Red Rock Manufacturing, seeded well past its seven-day validity window.",
+        "narration": "Marisol Peña tries to open her invitation link to Red Rock Manufacturing. It reads as expired: issued more than seven days before this session's own clock, past the seven-day window this platform treats an unaccepted invitation as still open.",
         "action": {
           "kind": "navigate",
           "route": "/hub/accept-invitation/?tenant=TEN-REDROCKMFG"
         },
-        "expectRoute": "/hub/accept-invitation/"
-      },
-      {
-        "id": "assert-expired",
-        "narration": "The invitation reads as expired: issued more than seven days ago, past the window this platform treats an unaccepted invitation as still open. This outcome banner carries no data-control-id of its own (a disclosed gap); the route and the screenshot are this steps evidence.",
-        "action": {
-          "kind": "assertState",
-          "description": "The invitation reads as expired.",
-          "check": "demo-role-simulator"
-        }
+        "expectVisible": "accept-invitation-expired"
       }
     ]
   },
   {
     "id": "TOUR-INVITATION-TENANT-BLOCKED-001",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "Watch what happens when a tenant is suspended before its administrator accepts",
     "workflowId": null,
     "variant": "failure",
@@ -1139,7 +1110,7 @@
     "steps": [
       {
         "id": "nav-home",
-        "narration": "Start at the storyboard's entry point, signed out.",
+        "narration": "Open the platform's entry page, signed out.",
         "action": {
           "kind": "navigate",
           "route": "/"
@@ -1147,22 +1118,310 @@
         "expectRoute": "/"
       },
       {
+        "id": "nav-sign-in-reset",
+        "narration": "Before anything else, this run makes sure no session is carried in from an earlier tour — a fresh page load would guarantee that on its own, but a tour launched right after another must establish it for itself.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        }
+      },
+      {
+        "id": "type-reset-email",
+        "narration": "It tries an address this platform does not recognise.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "no-such-admin@example.invalid"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-reset-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "x"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-reset",
+        "narration": "The attempt is refused, and — like any unsuccessful sign-in — leaves no session behind.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        },
+        "expectVisible": "error-summary"
+      },
+      {
         "id": "nav-accept",
-        "narration": "Felix Okoro tries to open his invitation to Granite Hollow Tooling.",
+        "narration": "Felix Okoro tries to open his invitation to Granite Hollow Tooling. The workspace itself is compliance suspended — the invitation cannot be accepted while that holds.",
         "action": {
           "kind": "navigate",
           "route": "/hub/accept-invitation/?tenant=TEN-GRANITEHOLLOW"
         },
-        "expectRoute": "/hub/accept-invitation/"
+        "expectVisible": "accept-invitation-tenant-blocked"
+      }
+    ]
+  },
+  {
+    "id": "TOUR-TENANT-METRICS-001",
+    "version": "1.0.0",
+    "title": "Reading a tenant's own measures, then the anonymised comparative view",
+    "workflowId": null,
+    "variant": "nominal",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Open the platform's entry page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
       },
       {
-        "id": "assert-blocked",
-        "narration": "Granite Hollow Tooling's account is currently compliance suspended — the invitation cannot be accepted while that holds.",
+        "id": "nav-sign-in",
+        "narration": "Helena Voss, a platform Admin, opens the console sign-in page.",
         "action": {
-          "kind": "assertState",
-          "description": "The workspace itself is blocked, so the invitation cannot be accepted regardless of whether Felix would otherwise accept it. This outcome banner carries no data-control-id of its own (a disclosed gap); the route and the screenshot are this step's evidence.",
-          "check": "demo-role-simulator"
-        }
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email",
+        "narration": "She enters her work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "helena.voss@platform.aviixa.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in",
+        "narration": "She signs in, landing on the platform dashboard.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        },
+        "expectRoute": "/super-admin/platform-overview-and-health/"
+      },
+      {
+        "id": "nav-metrics",
+        "narration": "She opens Tenant metrics and aggregates.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/tenant-metrics-and-aggregates/"
+        },
+        "expectRoute": "/super-admin/tenant-metrics-and-aggregates/"
+      },
+      {
+        "id": "select-tenant",
+        "narration": "She selects Bright Bikes to see its own per-tenant measures.",
+        "action": {
+          "kind": "click",
+          "controlId": "tenant-metrics-select-TEN-BRIGHTBIKES"
+        },
+        "spotlight": "tenant-metrics-select-TEN-BRIGHTBIKES",
+        "expectVisible": "tenant-metrics-tab-per-tenant"
+      },
+      {
+        "id": "view-comparative",
+        "narration": "Switching to the anonymised comparative tab shows the same measures aggregated across every tenant, with no tenant identity attached.",
+        "action": {
+          "kind": "click",
+          "controlId": "tenant-metrics-tab-comparative"
+        },
+        "expectVisible": "tenant-metrics-tab-comparative"
+      }
+    ]
+  },
+  {
+    "id": "TOUR-SIGNIN-TENANT-SUSPENDED-001",
+    "version": "1.0.0",
+    "title": "Watch what happens when an account's own tenant is suspended",
+    "workflowId": null,
+    "variant": "failure",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Open the platform's entry page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-sign-in",
+        "narration": "Bianca Costa opens the console sign-in page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email",
+        "narration": "She enters her work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "bianca.costa@northforgemetal.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in",
+        "narration": "Her own account signs in cleanly, but her employer's account is currently suspended — the platform refuses the sign-in and states which of the two is actually the problem.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        },
+        "expectVisible": "sign-in-outcome-tenant-suspended"
+      }
+    ]
+  },
+  {
+    "id": "TOUR-SIGNIN-ACCOUNT-SUSPENDED-001",
+    "version": "1.0.0",
+    "title": "Watch what happens when an account itself has been suspended",
+    "workflowId": null,
+    "variant": "failure",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Open the platform's entry page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-sign-in",
+        "narration": "Camille Dubois opens the console sign-in page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email",
+        "narration": "She enters her work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "camille.dubois@brightbikes.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in",
+        "narration": "Her own account has been suspended by a platform administrator; sign-in is refused and states the real cause.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        },
+        "expectVisible": "sign-in-outcome-account-suspended"
+      }
+    ]
+  },
+  {
+    "id": "TOUR-SIGNIN-INVITATION-PENDING-001",
+    "version": "1.0.0",
+    "title": "Watch what happens when an administrator tries to sign in before accepting",
+    "workflowId": null,
+    "variant": "failure",
+    "seed": "SEED-CANONICAL-BRIGHTBIKES",
+    "startCheckpoint": "Shift start",
+    "steps": [
+      {
+        "id": "nav-home",
+        "narration": "Open the platform's entry page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/"
+        },
+        "expectRoute": "/"
+      },
+      {
+        "id": "nav-sign-in",
+        "narration": "Priya Anand opens the console sign-in page.",
+        "action": {
+          "kind": "navigate",
+          "route": "/super-admin/sign-in/"
+        },
+        "expectRoute": "/super-admin/sign-in/"
+      },
+      {
+        "id": "type-email",
+        "narration": "She enters her work email.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-email",
+          "value": "priya.anand@cascadefab.example"
+        },
+        "expectVisible": "field-email"
+      },
+      {
+        "id": "type-password",
+        "narration": "...and a password.",
+        "action": {
+          "kind": "type",
+          "controlId": "field-password",
+          "value": "reviewer-demo"
+        },
+        "expectVisible": "field-password"
+      },
+      {
+        "id": "submit-sign-in",
+        "narration": "Her invitation to Cascade Fabrication has not been accepted yet; sign-in is refused until she accepts it herself.",
+        "action": {
+          "kind": "click",
+          "controlId": "sign-in-submit"
+        },
+        "expectVisible": "sign-in-outcome-invitation-pending"
       }
     ]
   }

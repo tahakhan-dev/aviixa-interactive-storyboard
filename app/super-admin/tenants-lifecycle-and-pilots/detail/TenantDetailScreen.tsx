@@ -508,7 +508,7 @@ function TenantDetailBody({
               Activate
             </button>
             {activateDisabledReason ? (
-              <p id="tenant-detail-activate-reason" className={`max-w-xs text-right text-xs ${textColor('ink-muted')}`}>
+              <p id="tenant-detail-activate-reason" data-control-id="tenant-detail-activate-reason" className={`max-w-xs text-right text-xs ${textColor('ink-muted')}`}>
                 {activateDisabledReason}
               </p>
             ) : null}

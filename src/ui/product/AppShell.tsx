@@ -15,6 +15,7 @@ import { FL_DESTINATIONS, frontlinePathname } from '@/frontline/screens'
 import { Nav, type NavGroup, type NavLayout } from './Nav'
 import { PageHeader } from './PageHeader'
 import { bg, textColor, type DensityToken } from './tokens'
+import { useProductSession } from './runtime'
 
 /**
  * Fix round 1 (task-17-review.md, Critical). Master prompt §29.4 / §4 / §21.2:
@@ -43,6 +44,41 @@ export const NOT_REAL_TEXT =
 
 function NotRealDisclosure() {
   return <p className={`mt-3 max-w-prose text-xs ${textColor('ink-subtle')}`}>{NOT_REAL_TEXT}</p>
+}
+
+/**
+ * Fix round 1 (unit-01, Task 10 review, CRITICAL 2) — master prompt §7.7
+ * requires every role journey to run login-to-logout; this unit shipped
+ * nine screens and a real sign-in with no way to end a session. This is
+ * that door: real product chrome, not a reviewer/tour convenience, present
+ * on every screen this shell hosts. Reads the CURRENT real session through
+ * `useProductSession()` directly (never the `session` prop `AppShell`
+ * itself was handed) so the handful of static reviewer/dashboard callers
+ * that construct a synthetic `ProductSession` for display only
+ * (`app/coverage/**`, `app/workflows/**` — see `ProductSession.identityId`'s
+ * own comment) render nothing here rather than a Sign out button wired to
+ * a real session that may not even be the one on screen. `signOut()` only
+ * clears `ProductSessionContext`'s own state — it never touches the
+ * repository (`ProductRuntime.tsx#signOut`), the same real-but-inert-on-
+ * business-data shape `RoleSimulator`'s own header claims for a persona
+ * switch.
+ */
+function SessionStatus() {
+  const { session, signOut } = useProductSession()
+  if (session === null) return null
+  return (
+    <div className={`flex items-center justify-end gap-2 pb-2 text-xs ${textColor('ink-muted')}`}>
+      <span>Signed in as {session.identity}</span>
+      <button
+        type="button"
+        data-control-id="app-shell-sign-out"
+        onClick={() => signOut()}
+        className={`underline ${textColor('ink')}`}
+      >
+        Sign out
+      </button>
+    </div>
+  )
 }
 
 /** Identity, role, scope, tenant, device — the shell's one read of "who is
@@ -313,6 +349,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
     return (
       <div className={`flex min-h-dvh flex-col ${bg('sunken')}`} data-surface={surface}>
         <main id="main" className={`flex-1 px-4 py-4 pb-24 ${textColor('ink')}`}>
+          <SessionStatus />
           <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
           <NotRealDisclosure />
           <div className="mt-4">{children}</div>
@@ -327,6 +364,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
       <div className={`flex min-h-dvh flex-col ${bg('sunken')}`} data-surface={surface}>
         <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
         <main id="main" className={`flex-1 px-6 py-6 ${textColor('ink')}`}>
+          <SessionStatus />
           <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
           <NotRealDisclosure />
           <div className="mt-4">{children}</div>
@@ -347,6 +385,7 @@ export function AppShell({ surface, session, title, breadcrumbs, actions, childr
     <div className={`flex min-h-dvh flex-col md:flex-row ${bg('sunken')}`} data-surface={surface}>
       <Nav ariaLabel={navLabel} groups={chrome.groups} layout={chrome.layout} density={chrome.density} />
       <main id="main" className={`flex-1 px-6 py-6 ${textColor('ink')}`}>
+        <SessionStatus />
         <PageHeader breadcrumbs={resolvedBreadcrumbs} title={resolvedTitle} actions={actions} />
         <NotRealDisclosure />
         <div className="mt-4">{children}</div>

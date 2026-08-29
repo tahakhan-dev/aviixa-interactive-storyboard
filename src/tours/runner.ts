@@ -58,6 +58,45 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/**
+ * Fix round 1 (unit-01, Task 10 review, IMPORTANT 3) — `expectRoute`/
+ * `expectVisible` used to be asserted exactly once, immediately after
+ * `performAction`'s own fixed `settle()` sleep. That sleep is scaled by
+ * `speed` (`120 / speed`), but the real async work a check waits on is
+ * NOT presentation delay and does not shrink with it: `SignInScreen.tsx`'s
+ * own 350ms `setTimeout` before it calls `signIn()`, a genuine
+ * `repository`/IndexedDB commit, a route push and the chunk it loads. At
+ * 2x speed the old single check ran at 120/2 = 60ms after the action —
+ * nowhere near enough — a real product could fail a tour that would have
+ * passed at 1x, which is exactly the false-negative class this whole file
+ * exists to keep OUT of a release-blocking signal. `next()`'s own
+ * single-step path had no gap at all, so a fast manual click-through
+ * raced identically.
+ *
+ * Fixed in the engine, not by padding individual tours: both checks now
+ * POLL — check immediately, then retry every `CHECK_POLL_INTERVAL_MS` up
+ * to `CHECK_MAX_ATTEMPTS` times — rather than sleep-then-assert-once. This
+ * is a bounded, counted retry loop, not a wall-clock deadline: this file
+ * lives under the master prompt's simulated-clock ban on `src/tours` (no
+ * `Date.now()`/argument-less `new Date()`), so "how long have we waited"
+ * is tracked by attempt count, not by reading real time. The ceiling
+ * (`CHECK_POLL_INTERVAL_MS * CHECK_MAX_ATTEMPTS` ≈ 2 seconds) is a real
+ * wall-clock budget for genuine async work and is deliberately NOT scaled
+ * by `speed` — the work it waits for does not get faster because a
+ * reviewer picked a faster narration pace, so the ceiling stays fixed at
+ * every speed instead of racing at exactly the speed the picker offers.
+ */
+const CHECK_POLL_INTERVAL_MS = 40
+const CHECK_MAX_ATTEMPTS = 50
+
+async function pollFor(predicate: () => boolean): Promise<boolean> {
+  for (let attempt = 0; attempt < CHECK_MAX_ATTEMPTS; attempt += 1) {
+    if (predicate()) return true
+    await sleep(CHECK_POLL_INTERVAL_MS)
+  }
+  return predicate()
+}
+
 /** Runs one step's action, then its `expectRoute`/`expectVisible` checks. Never throws — every failure becomes a typed outcome. */
 async function runStep(
   step: TourStep,
@@ -68,14 +107,17 @@ async function runStep(
   if (!acted.ok) return acted
 
   if (step.expectRoute !== undefined) {
-    const actual = window.location.pathname
-    if (actual !== step.expectRoute) {
-      return { ok: false, reason: `expected route "${step.expectRoute}", found "${actual}" after the action.` }
+    const expectRoute = step.expectRoute
+    const met = await pollFor(() => window.location.pathname === expectRoute)
+    if (!met) {
+      return { ok: false, reason: `expected route "${expectRoute}", found "${window.location.pathname}" after the action.` }
     }
   }
   if (step.expectVisible !== undefined) {
-    if (!resolveControl(step.expectVisible)) {
-      return { ok: false, reason: `expectVisible control "${step.expectVisible}" is not present after the action.` }
+    const expectVisible = step.expectVisible
+    const met = await pollFor(() => resolveControl(expectVisible) !== null)
+    if (!met) {
+      return { ok: false, reason: `expectVisible control "${expectVisible}" is not present after the action.` }
     }
   }
   return { ok: true }

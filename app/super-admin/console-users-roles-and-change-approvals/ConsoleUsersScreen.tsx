@@ -1266,7 +1266,7 @@ function ApprovalDetail({
               </div>
             </div>
             {decisionGate?.outcome !== 'allowed' ? (
-              <p id="approvals-decision-reason" className={`text-xs ${textColor('ink-muted')}`}>
+              <p id="approvals-decision-reason" data-control-id="approvals-decision-reason" className={`text-xs ${textColor('ink-muted')}`}>
                 {decisionGate?.explanation}
               </p>
             ) : null}

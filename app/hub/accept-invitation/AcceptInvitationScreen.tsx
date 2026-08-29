@@ -184,7 +184,7 @@ export function AcceptInvitationScreen() {
     return (
       <Centered>
         <h1 className="sr-only">This invitation link isn&rsquo;t recognized</h1>
-        <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
+        <div ref={outcomeRef} tabIndex={-1} data-control-id="accept-invitation-not-found" className="focus:outline-none">
           <Banner
             tone="neutral"
             heading="This invitation link isn't recognized"
@@ -203,7 +203,7 @@ export function AcceptInvitationScreen() {
     return (
       <Centered>
         <h1 className="sr-only">Already accepted</h1>
-        <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
+        <div ref={outcomeRef} tabIndex={-1} data-control-id="accept-invitation-already-accepted" className="focus:outline-none">
           <Banner
             tone="info"
             heading="Already accepted"
@@ -218,7 +218,7 @@ export function AcceptInvitationScreen() {
     return (
       <Centered>
         <h1 className="sr-only">This invitation has expired</h1>
-        <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
+        <div ref={outcomeRef} tabIndex={-1} data-control-id="accept-invitation-expired" className="focus:outline-none">
           <Banner
             tone="attention"
             heading="This invitation has expired"
@@ -233,7 +233,7 @@ export function AcceptInvitationScreen() {
     return (
       <Centered>
         <h1 className="sr-only">This workspace is not available</h1>
-        <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
+        <div ref={outcomeRef} tabIndex={-1} data-control-id="accept-invitation-tenant-blocked" className="focus:outline-none">
           <Banner
             tone="blocked"
             heading="This workspace is not available"
@@ -308,24 +308,28 @@ function OutcomeBanner({
     switch (result.kind) {
       case 'not-found':
         return {
+          id: 'accept-invitation-not-found',
           tone: 'neutral' as const,
           heading: "This invitation link isn't recognized",
           body: "It doesn't match any invitation this platform can find. Check the link, or contact the person who invited you.",
         }
       case 'already-accepted':
         return {
+          id: 'accept-invitation-already-accepted',
           tone: 'info' as const,
           heading: 'Already accepted',
           body: 'This invitation has already been accepted. If this is your account, contact your platform administrator for help signing in.',
         }
       case 'expired':
         return {
+          id: 'accept-invitation-expired',
           tone: 'attention' as const,
           heading: 'This invitation has expired',
           body: `It was issued on ${formatPlatformDate(result.invitedAt)}. Ask your platform administrator to re-issue it.`,
         }
       case 'tenant-blocked':
         return {
+          id: 'accept-invitation-tenant-blocked',
           tone: 'blocked' as const,
           heading: 'This workspace is not available',
           body: `This workspace's account is currently ${humanizeLifecycle(result.lifecycle).toLowerCase()}. Contact your platform administrator.`,
@@ -333,6 +337,7 @@ function OutcomeBanner({
       case 'denied':
       case 'persistence-unavailable':
         return {
+          id: 'accept-invitation-denied',
           tone: 'blocked' as const,
           heading: 'This could not be completed',
           body: result.explain,
@@ -343,7 +348,7 @@ function OutcomeBanner({
   return (
     <>
       <h1 className="sr-only">{content.heading}</h1>
-      <div ref={outcomeRef} tabIndex={-1} className="focus:outline-none">
+      <div ref={outcomeRef} tabIndex={-1} data-control-id={content.id} className="focus:outline-none">
         <Banner tone={content.tone} heading={content.heading} body={content.body} />
       </div>
     </>
@@ -379,7 +384,7 @@ function LandedView({ session }: { readonly session: ProductSession }) {
   return (
     <AppShell surface="SURF-DOH" session={session}>
       <LiveRegion>
-        <div ref={landedRef} tabIndex={-1} className="focus:outline-none">
+        <div ref={landedRef} tabIndex={-1} data-control-id="accept-invitation-landed" className="focus:outline-none">
           <Banner
             tone="ok"
             heading={LANDED_BANNER_TITLE}
