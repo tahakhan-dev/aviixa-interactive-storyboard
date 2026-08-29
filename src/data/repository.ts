@@ -3521,6 +3521,35 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       const rows = store.get('shifts') as readonly RowOf<'shifts'>[]
       const before = rows.find((r) => r.id === id)
       if (before === undefined) return notFoundRefusal('shifts', id, 'update')
+
+      /**
+       * Task 4 (closure sweep) — residual finding 11. Before this, the row's
+       * OWN tenant was never checked explicitly here; a foreign row was only
+       * caught incidentally, below, by `checkSiteReference` — which works,
+       * but echoes the foreign site's id back to a caller who already
+       * cleared the role floor. Same `resolveTenantId`/`TENANT_MISMATCH`
+       * shape `archiveShift` uses below, same relative position: right
+       * after the row is found, before any further scope/reference check or
+       * the write. Checked against `before` (the row as stored), not
+       * `merged` — this is about whose row it already is, not what the
+       * patch proposes.
+       */
+      const resolution = resolveTenantId('shifts', before, store)
+      if (resolution.kind === 'conflict' || resolution.kind === 'unresolved') {
+        return refusal(tenantIsolationDenial('shifts', resolution))
+      }
+      const rowTenant = resolution.kind === 'resolved' ? resolution.tenant : null
+      if (rowTenant === null || rowTenant !== ctx.identity.tenant) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'This Shift does not belong to your tenant; it cannot be updated from here.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['§7.4', '§26.3', 'repository.ts'] },
+          ),
+        )
+      }
+
       const merged = { ...before, ...patch }
 
       if (ctx.identity.siteScope.length > 0) {
@@ -3528,18 +3557,7 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
         if (!permitsAction(scopeDecision)) return refusal(scopeDecision)
       }
 
-      const actorTenant = ctx.identity.tenant
-      if (actorTenant === null) {
-        return refusal(
-          deny(
-            'explicitlyProhibited',
-            'TENANT_MISMATCH',
-            'A Shift can only be updated by an actor with a live tenant.',
-            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
-          ),
-        )
-      }
-      const problem = checkSiteReference(store, actorTenant, merged.siteId)
+      const problem = checkSiteReference(store, rowTenant, merged.siteId)
       if (problem !== null) return { ok: false, kind: 'invalid-reference', problem }
 
       const conflict = shiftOverlapConflict(store, merged.siteId, merged.startTime, merged.endTime, id)
