@@ -132,12 +132,13 @@ export const SIGNED_OUT: ProductSessionState = { session: null, sessionId: null,
  * `siteId`/`areaId` top-level field for it to key off, and PLATFORM-domain
  * ctx already reads cross-tenant), so this matches `assignTenantRole`'s own
  * lower-level `store.get('role-grants')` cast-and-filter
- * (`repository.ts:2950-2952`) — the SAME plurality convention: only
- * `revokedAt === null` is filtered on there (a user MAY hold several
- * simultaneous active grants of different roles; that filter's whole job is
- * blocking a second grant of the SAME role, not narrowing to one), plus an
- * `expiresAt` check matched to the one real "now" comparison in this file
- * (`resolveStepUpCompletion` below), never `Date.now()`.
+ * (`repository.ts:2950-2952`) for HOW to read the collection. That filter
+ * only blocks a second grant of the SAME role — it says nothing about how
+ * scope should combine across a user's DIFFERENT held roles, so it is not
+ * the authority for what `scopeFrom` below does with multiple grants; see
+ * that function's own comment for the real one and the gap it leaves.
+ * Also filters `expiresAt`, matched to the one real "now" comparison in
+ * this file (`resolveStepUpCompletion` below), never `Date.now()`.
  */
 function activeGrantsFor(store: Store, userId: string): readonly RowOf<'role-grants'>[] {
   const nowMs = store.clock.now()
@@ -148,16 +149,34 @@ function activeGrantsFor(store: Store, userId: string): readonly RowOf<'role-gra
 
 /**
  * Task 6 (closure sweep) — the union of every active grant's `siteIds`/
- * `areaIds`, deduplicated. Returns `undefined`, not `{ sites: [], areas: [] }`,
- * when the user holds no scoped grant at all: `useRepository.ts#identityFor`'s
+ * `areaIds`, deduplicated.
+ *
+ * KNOWN GAP, disclosed rather than silently assumed correct: this unions
+ * scope across ALL of a user's active grants, regardless of which role each
+ * one carries. The frozen source names blanket union across roles as a
+ * FAILURE mode, not the correct behaviour — `FB-MULTIROLE-001` (L14738)
+ * lists "takes the union of scopes across all held roles" as a named
+ * failure, and `AC-MULTI-1003` (L14752) states scope must be taken from the
+ * ONE role that produced the specific `allow` decision being evaluated,
+ * never from the union of every scope the identity holds. A genuinely
+ * correct implementation resolves scope per-decision, keyed to whichever
+ * role's grant authorised that particular action — not once, up front, at
+ * sign-in. Left as a plain union here because it is currently latent: zero
+ * seeded users hold more than one active grant (verified against
+ * `role-grants.json`), so no seeded case exercises the multi-role
+ * difference either way. A future task wiring a genuinely multi-role user
+ * must fix this before trusting it, not inherit this union as precedent.
+ *
+ * Returns `undefined`, not `{ sites: [], areas: [] }`, when the user holds
+ * no scoped grant at all: `useRepository.ts#identityFor`'s
  * `session.scope?.sites ? [...session.scope.sites] : []` treats an empty
  * array as truthy (only `0`/`''`/`null`/`undefined`/`false`/`NaN` are
  * falsy in JS), so `{ sites: [], areas: [] }` and `undefined` both collapse
  * to `siteScope: []` there either way — behaviourally identical today. This
- * still picks `undefined`: an unscoped identity (14 of 15 seeded Tenant
- * Admins hold no site/area-scoped grant at all) should say so plainly
- * rather than carry a `scope` object whose presence a future reader could
- * mistake for meaning something.
+ * still picks `undefined`: an unscoped identity (13 of the 15 seeded Tenant
+ * Admins hold no site/area-scoped grant at all — the other 2, Bright
+ * Bikes', do) should say so plainly rather than carry a `scope` object
+ * whose presence a future reader could mistake for meaning something.
  */
 function scopeFrom(grants: readonly RowOf<'role-grants'>[]): ProductSession['scope'] {
   const sites = new Set<string>()
