@@ -29,6 +29,16 @@ export interface Store {
   replace(name: CollectionName, rows: readonly unknown[]): void
   /** A monotonic counter shared by every collection — ids and sequencing never collide across a commit. */
   nextSequence(): number
+  /**
+   * Task 5 (closure sweep) — continues the counter after a rehydrated
+   * restore instead of leaving it at the fresh-boot `0` `createStore` always
+   * starts at. `n` is the last sequence value already spent (by the session
+   * whose snapshot this is), so the NEXT `nextSequence()` call returns
+   * `n + 1`. Takes the higher of `n` and the counter's current value, so a
+   * stale/lower rehydrated value can never move the counter backwards.
+   * Call this once, right after `restore()`, before any write runs.
+   */
+  seedSequence(n: number): void
   subscribe(listener: () => void): () => void
   /** Fires every registered listener once. `repository.ts` calls this exactly once per committed write. */
   notify(): void
@@ -56,6 +66,9 @@ export function createStore(seed: CollectionData): Store {
     nextSequence() {
       sequence += 1
       return sequence
+    },
+    seedSequence(n) {
+      sequence = Math.max(sequence, n)
     },
     subscribe(listener) {
       listeners.add(listener)
