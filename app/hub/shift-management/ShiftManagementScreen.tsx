@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   AppShell,
   ConfirmDialog,
@@ -214,6 +216,8 @@ const WRITE_DENIED_REASON =
  */
 const SHIFTS_PAGE_SIZE = 10
 
+const LIST_HREF = '/hub/shift-management/'
+
 export function ShiftManagementScreen() {
   return (
     <RequireSession signInHref="/super-admin/sign-in/">
@@ -252,12 +256,27 @@ function ShiftManagementBody({
 }) {
   const repository = useRepository()
   const store = useStore()
+  const searchParams = useSearchParams()
 
   const shiftsQuery = useRepositoryQuery((r, c) => r.list('shifts', c))
   const sitesQuery = useRepositoryQuery((r, c) => r.list('sites', c))
   const allSites = sitesQuery.all()
   const siteById = new Map<string, SiteRow>(allSites.map((s) => [s.id, s]))
   const activeSites = allSites.filter((s) => s.status === 'active')
+
+  /**
+   * Task 6 (unit-02) cross-link: `LocationConfigurationScreen.tsx`'s own
+   * Site view (`AreasTier`) links here with `?site=<id>` — a Shift's real
+   * `siteId` field is the actual anchor (a Shift belongs to a Site, not a
+   * Location), so this is a Site-level filter reached from Task 1's Site
+   * detail, same query-param shape `PermissionsScreen.tsx`'s own `?assign=`
+   * deep link uses. The id is resolved against `siteById` (already
+   * tenant-scoped, `.list()`'s own `withinScope`), so a foreign-tenant or
+   * unknown id silently falls back to the unfiltered list rather than
+   * leaking whether that id exists.
+   */
+  const siteFilterId = searchParams.get('site')
+  const siteFilter = siteFilterId === null ? null : (siteById.get(siteFilterId) ?? null)
 
   const [drawer, setDrawer] = useState<DrawerState>(null)
   const [archiveTarget, setArchiveTarget] = useState<ShiftRow | null>(null)
@@ -497,10 +516,27 @@ function ShiftManagementBody({
         <h2 id="shift-management-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
           Shifts
         </h2>
+        {siteFilterId !== null ? (
+          <p
+            data-control-id="shift-management-site-filter-banner"
+            className={`text-sm ${textColor('ink-muted')}`}
+          >
+            {siteFilter !== null
+              ? `Filtered to Shifts at ${siteFilter.name}, linked from that Site's own record in Location Configuration.`
+              : `"${siteFilterId}" does not match any Site this tenant can read, so no filter is applied.`}{' '}
+            <Link
+              href={LIST_HREF}
+              data-control-id="shift-management-clear-site-filter"
+              className={`underline ${textColor('ink')}`}
+            >
+              Clear filter
+            </Link>
+          </p>
+        ) : null}
         <DataTable
           caption="Shifts"
           columns={columns}
-          query={shiftsQuery}
+          query={siteFilter !== null ? shiftsQuery.where((s) => s.siteId === siteFilter.id) : shiftsQuery}
           rowId={(s) => s.id}
           search={{
             placeholder: 'Search by name, id or Site',

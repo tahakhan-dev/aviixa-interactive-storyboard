@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   AppShell,
   ConfirmDialog,
@@ -235,6 +237,8 @@ const SUSPEND_ABSENCE_NOTE =
  */
 const DEVICES_PAGE_SIZE = 6
 
+const LIST_HREF = '/hub/devices/'
+
 export function DevicesScreen() {
   return (
     <RequireSession signInHref="/super-admin/sign-in/">
@@ -278,6 +282,7 @@ function DevicesBody({
 }) {
   const repository = useRepository()
   const store = useStore()
+  const searchParams = useSearchParams()
 
   const devicesQuery = useRepositoryQuery((r, c) => r.list('devices', c))
   const sitesQuery = useRepositoryQuery((r, c) => r.list('sites', c))
@@ -290,6 +295,25 @@ function DevicesBody({
   const areaById = new Map<string, AreaRow>(tenantAreas.map((a) => [a.id, a]))
   const tenantLocations = locationsQuery.all().filter((l) => areaById.has(l.areaId))
   const locationById = new Map<string, LocationRow>(tenantLocations.map((l) => [l.id, l]))
+
+  /**
+   * Task 6 (unit-02) cross-link: `WorkerLifecycleScreen.tsx`'s own Worker
+   * detail links here with `?locations=<comma-separated ids>` — the
+   * Locations within that Worker's scoped Areas (`Device.locationId` is the
+   * real field a Device carries; a Device has no Area field of its own).
+   * An empty or wholly-unknown id list is a real, honest outcome — the
+   * Worker's scoped Areas hold no Location this tenant can read — and
+   * renders as a correctly empty table rather than falling back to
+   * unfiltered, which would silently widen what a filtered link promised.
+   */
+  const locationsFilterParam = searchParams.get('locations')
+  const filterLocationIds =
+    locationsFilterParam === null
+      ? null
+      : locationsFilterParam
+          .split(',')
+          .map((id) => id.trim())
+          .filter((id) => id.length > 0)
 
   function locationLabel(id: string | null): string {
     if (id === null) return 'Unplaced — not yet bound to a Location'
@@ -493,10 +517,28 @@ function DevicesBody({
         <h2 id="devices-heading" className={`text-lg font-semibold ${textColor('ink')}`}>
           Device fleet
         </h2>
+        {filterLocationIds !== null ? (
+          <p data-control-id="devices-location-filter-banner" className={`text-sm ${textColor('ink-muted')}`}>
+            {filterLocationIds.length === 0
+              ? 'Filtered to a Worker’s scoped Areas, which name no Location this tenant can read.'
+              : `Filtered to devices at Locations within a Worker's scoped Areas (${filterLocationIds.length} Location${filterLocationIds.length === 1 ? '' : 's'}).`}{' '}
+            <Link
+              href={LIST_HREF}
+              data-control-id="devices-clear-location-filter"
+              className={`underline ${textColor('ink')}`}
+            >
+              Clear filter
+            </Link>
+          </p>
+        ) : null}
         <DataTable
           caption="Devices"
+          query={
+            filterLocationIds === null
+              ? devicesQuery.where((d) => d.tenantId === tenantId)
+              : devicesQuery.where((d) => d.tenantId === tenantId && d.locationId !== null && filterLocationIds.includes(d.locationId))
+          }
           columns={columns}
-          query={devicesQuery.where((d) => d.tenantId === tenantId)}
           rowId={(d) => d.id}
           search={{
             placeholder: 'Search by device id',

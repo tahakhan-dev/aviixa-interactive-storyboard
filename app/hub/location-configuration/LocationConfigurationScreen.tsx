@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type RefObject } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   AppShell,
@@ -988,6 +989,20 @@ function LocationsTier({
           {`Timezone (inherited from ${site.name}, Site-only): `}
           <span className={`font-medium ${textColor('ink')}`}>{site.timezone}</span>
         </p>
+        {/* Task 6 (unit-02) cross-link (task brief, Step 2): "Location
+            detail → Shift Management filtered by that Site". A Shift's
+            real anchor is its own `siteId` (`@/data/schemas/org#Shift`) —
+            Shifts do not reference a Location or an Area at all — so this
+            is a Site-level filter reached from a Location's own detail
+            tier, the closest genuine connection the data supports.
+            `ShiftManagementScreen.tsx`'s own `?site=<id>` filter reads it. */}
+        <Link
+          href={`/hub/shift-management/?site=${encodeURIComponent(site.id)}`}
+          data-control-id="location-config-view-shifts-for-site"
+          className={`mt-2 inline-block w-fit text-sm underline ${textColor('ink')}`}
+        >
+          {`View Shifts at ${site.name}`}
+        </Link>
       </div>
       <DataTable
         caption="Locations"

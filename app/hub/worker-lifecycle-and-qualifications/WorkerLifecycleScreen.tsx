@@ -160,9 +160,11 @@ type RoleGrantRow = RowOf<'role-grants'>
 type SiteRow = RowOf<'sites'>
 type AreaRow = RowOf<'areas'>
 type ShiftRow = RowOf<'shifts'>
+type LocationRow = RowOf<'locations'>
 
 const LIST_HREF = '/hub/worker-lifecycle-and-qualifications/'
 const PERMISSIONS_HREF = '/hub/permissions-roles-and-access/'
+const DEVICES_HREF = '/hub/devices/'
 
 const WORKER_STATUS_LABEL: Readonly<Record<WorkerRow['status'], string>> = {
   active: 'Active',
@@ -311,6 +313,7 @@ function WorkerLifecycleRouter({
   const sitesQuery = useRepositoryQuery((r, c) => r.list('sites', c))
   const areasQuery = useRepositoryQuery((r, c) => r.list('areas', c))
   const shiftsQuery = useRepositoryQuery((r, c) => r.list('shifts', c))
+  const locationsQuery = useRepositoryQuery((r, c) => r.list('locations', c))
 
   const tenantWorkers = workersQuery.all().filter((w) => w.tenantId === tenantId)
   const allUsers = usersQuery.all()
@@ -323,6 +326,10 @@ function WorkerLifecycleRouter({
   const areaById = new Map<string, AreaRow>(tenantAreas.map((a) => [a.id, a]))
   const tenantShifts = shiftsQuery.all().filter((s) => s.siteId !== undefined && siteById.has(s.siteId))
   const shiftById = new Map<string, ShiftRow>(tenantShifts.map((s) => [s.id, s]))
+  // Task 6 (unit-02) cross-link: the Worker's scoped Areas resolve to
+  // Locations only through this list — `Device.locationId` names a
+  // Location, never an Area directly.
+  const tenantLocations = locationsQuery.all().filter((l) => areaById.has(l.areaId))
 
   if (workerIdParam === null) {
     return (
@@ -376,6 +383,7 @@ function WorkerLifecycleRouter({
       areaById={areaById}
       shiftById={shiftById}
       tenantAreas={tenantAreas}
+      tenantLocations={tenantLocations}
     />
   )
 }
@@ -842,6 +850,7 @@ function WorkerDetailBody({
   areaById,
   shiftById,
   tenantAreas,
+  tenantLocations,
 }: {
   readonly session: ProductSession
   readonly ctx: AccessContext
@@ -854,6 +863,7 @@ function WorkerDetailBody({
   readonly areaById: ReadonlyMap<string, AreaRow>
   readonly shiftById: ReadonlyMap<string, ShiftRow>
   readonly tenantAreas: readonly AreaRow[]
+  readonly tenantLocations: readonly LocationRow[]
 }) {
   const repository = useRepository()
   const store = useStore()
@@ -936,6 +946,28 @@ function WorkerDetailBody({
     .filter((a) => a.status === 'active')
     .map((a) => ({ value: a.id, label: `${a.name} (${siteById.get(a.siteId)?.name ?? a.siteId})` }))
 
+  /**
+   * Task 6 (unit-02) cross-link (task brief, Step 2): "Worker detail → the
+   * Devices screen filtered to devices at Locations within the Worker's
+   * scoped Areas". `null` means no Area narrows the filter — either no
+   * active grant exists, or a grant's own `areaIds` is empty, which this
+   * screen's own scope-tab copy already reads as tenant-wide — and the
+   * honest link in that case is the unfiltered Devices screen, not a link
+   * withheld. A real, narrower scope resolves through `tenantLocations`,
+   * the only place an Area turns into the Locations `Device.locationId`
+   * actually references (a Device carries no Area field of its own).
+   */
+  const scopedAreaIds =
+    grants.length === 0 || grants.some((g) => g.areaIds.length === 0)
+      ? null
+      : new Set(grants.flatMap((g) => g.areaIds))
+  const scopedLocationIds =
+    scopedAreaIds === null ? null : tenantLocations.filter((l) => scopedAreaIds.has(l.areaId)).map((l) => l.id)
+  const devicesHref =
+    scopedLocationIds === null
+      ? DEVICES_HREF
+      : `${DEVICES_HREF}?locations=${encodeURIComponent(scopedLocationIds.join(','))}`
+
   const identityTab = (
     <div className="flex flex-col gap-4">
       {linkedUser?.status === 'invited' ? (
@@ -1001,6 +1033,15 @@ function WorkerDetailBody({
         yet populates a real site/area scope on sign-in (a pre-existing, previously-disclosed gap in
         session-construction wiring, not this screen&apos;s own).
       </p>
+      <Link
+        href={devicesHref}
+        data-control-id={`worker-lifecycle-view-devices-${worker.id}`}
+        className={`w-fit ${radiusClass('md')} border ${borderColor('border-strong')} ${bg('surface')} px-3 py-2 text-sm font-medium ${textColor('ink')}`}
+      >
+        {scopedLocationIds === null
+          ? 'View Devices (this scope is tenant-wide)'
+          : `View Devices at ${linkedUser?.displayName ?? worker.id}'s scoped Areas`}
+      </Link>
       {canEditScope ? (
         <Link
           href={`${PERMISSIONS_HREF}?assign=${encodeURIComponent(worker.userId)}`}
