@@ -1061,7 +1061,7 @@ function ApprovalDetail({
   const criticalViewerGate =
     request.changeClass === 'critical'
       ? evaluateAccess(
-          { action: 'view-critical-approval-controls', allowedRoles: ['ROOT_SUPER_ADMIN'], sourceRefs: ['SB-HO-004', 'AC-SA-08-06', '§8.8.3'] },
+          { action: 'view-critical-approval-controls', allowedRoles: ['ROOT_SUPER_ADMIN'], sourceRefs: ['SB-HO-004', 'L23707', 'AC-SA-08-06', '§8.8.3'] },
           ctx,
         )
       : null
@@ -1127,10 +1127,19 @@ function ApprovalDetail({
             // so it was the wrong gate for the id even if the id had
             // survived. See the pill's own comment below for why the act
             // is unbuilt rather than faked.
+            // Fix round 1 (unit-01, Task 11 review): `WF-ROLE-018`/`L55961`
+            // ("initiating a critical-class action belongs to the Admin
+            // and the root") and `L55918` (the outgoing screen's own
+            // `returnDecision` citation) were live `sourceRefs` on the
+            // OUTGOING screen and had no replacement here. Both describe
+            // exactly this gate: `WF-ROLE-018`/`L55961` is the source for
+            // `approverAllowedRoles`'s critical-class root-only rule;
+            // `L55918` is the source for the engineering-class Admin
+            // return this branch also authorises.
             sourceRefs:
               request.changeClass === 'engineering'
-                ? ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-05', 'AC-SA-08-06', 'UC-HO-02', 'WF-ROLE-015', 'WF-ROLE-016']
-                : ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-06', 'WF-ROLE-019', 'WF-ROLE-020'],
+                ? ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-05', 'AC-SA-08-06', 'UC-HO-02', 'L55918', 'WF-ROLE-015', 'WF-ROLE-016']
+                : ['§8.8.3', 'AC-SA-08-04', 'AC-SA-08-06', 'WF-ROLE-018', 'L55961', 'WF-ROLE-019', 'WF-ROLE-020'],
           },
           ctx,
         )
