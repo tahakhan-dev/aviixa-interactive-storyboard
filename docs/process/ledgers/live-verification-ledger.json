@@ -308,7 +308,7 @@
       "consoleErrors": [],
       "externalRequests": [],
       "verdict": "pass",
-      "defect": null,
+      "defect": "PASSES AGAINST A REVISED CRITERION, disclosed here rather than left implicit in the verdict alone. The BASE row (task 12, unit 1's own closure) recorded `blocked` on the original criterion: the full accept-then-activate spine drivable in ONE CONTINUOUS DOCUMENT, which requires an in-app soft-navigation link between SURF-DOH and SURF-SA. That link still does not exist -- confirmed unchanged in this same re-drive, stated in `observed` above. What this re-drive actually demonstrates, and what the `pass` verdict is earned against, is a NARROWER, real criterion: state written in one document (Hub) survives a hard navigation into a second, separate document (Super Admin), because Task 5's persistence rehydration now restores from IndexedDB on `boot()`. The hard-navigation requirement itself is unchanged and unaddressed by this fix -- the original bar (one continuous document) remains unmet. Building the missing in-app link is new-feature scope (a new navigation affordance, route and access-control surface between two surfaces), not a defect this closure sweep's own tasks touch; named as a fifth ruled-open item in both units' amended verification records and RESUME.md rather than silently folded into this pass.",
       "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
       "stamp": "2026-08-29T23:31:00Z"
     },

@@ -89,11 +89,11 @@ import { dohModuleById } from '@/surfaces/doh/modules'
  *    no `siteId`/`areaId` field to further scope by (so every tenant role
  *    sees every Site of ITS OWN tenant), while an Area's `siteId` and a
  *    Location's `areaId` DO narrow by `ctx.identity.siteScope`/`areaScope`
- *    when those arrays are non-empty. Today, every real sign-in this build
- *    produces (`session.ts#sessionFor`) leaves both empty — no seeded or
- *    signed-in session carries a narrower site/area scope yet, a fact
- *    disclosed here rather than staged as a demonstrable state this build
- *    cannot actually produce. `WORKER` reaches no Hub screen at all (D11);
+ *    when those arrays are non-empty. `session.ts#sessionFor` (Task 6,
+ *    closure sweep) populates real scope from the signed-in user's own
+ *    active role-grant(s); a genuinely scoped session (e.g. a Bright
+ *    Bikes Supervisor holding a Riverside-only grant) narrows these
+ *    tables for real, not simulated. `WORKER` reaches no Hub screen at all (D11);
  *    this file gates the whole body on a real `evaluateAccess` call for
  *    exactly that reason, rather than relying on the nav rail alone to
  *    keep a Worker out of a direct URL.

@@ -3412,13 +3412,22 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       // protects nothing (an expired session already renders no tenant data
       // to anyone, `SupportSessionScreen.tsx`'s own expiry check), while
       // permanently locking out any identity whose OLD session merely
-      // outlived its box — measured live against the seed itself:
-      // `AS-0001`/`AS-0002` are both seeded `closedAt: null` and both
-      // already past `expiresAt`, so both seeded Support accounts
-      // (`WF-ROLE-022`'s own primary actor) were refused this door forever,
-      // on a stock seed, before this line existed. `nowMs` matches the same
-      // simulated-clock discipline `SupportSessionScreen.tsx`'s own expiry
-      // check uses (`store.clock.now()`, never wall time).
+      // outlived its box. `nowMs` matches the same simulated-clock
+      // discipline `SupportSessionScreen.tsx`'s own expiry check uses
+      // (`store.clock.now()`, never wall time).
+      //
+      // Task 10 (closure sweep) — this guard's own expiry-awareness did
+      // NOT rescue the two seeded Support accounts (`AS-0001`/`AS-0002`,
+      // `WF-ROLE-022`'s own primary actors): both carried `closedAt: null`
+      // with `expiresAt` in August 2026, AFTER `CANONICAL_EPOCH_MS`
+      // (2026-03-02T06:00Z) — so `expiresAt > nowMs` held true relative to
+      // the simulated clock, and both rows stayed counted as "already
+      // open" regardless of this line. The seed itself was wrong, not this
+      // guard: fixed by setting real `closedAt` values on both rows,
+      // matching `AS-0003`/`AS-0004`'s own established pattern. This
+      // guard's expiry-awareness protects a DIFFERENT, still-real case —
+      // a session that genuinely outlives its own time box in the future,
+      // which self-heals here without needing a seed fix.
       const nowMs = store.clock.now()
       const actorId = ctx.actorOfRecord
       const alreadyOpen = repository
