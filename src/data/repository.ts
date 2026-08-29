@@ -1765,7 +1765,12 @@ const OPEN_SUPPORT_SESSION_REQUEST: AccessRequest = {
 const CLOSE_SUPPORT_SESSION_REQUEST: AccessRequest = {
   action: 'close-support-session',
   allowedRoles: ['ROOT_SUPER_ADMIN', 'ADMIN', 'SUPPORT'],
-  sourceRefs: ['L45794', 'L16111', 'repository.ts'],
+  // Fix round 1 (coordinator review, Minor 10) — `L16111` dropped: it is the
+  // Support role card's "Linked workflows" row, which names which workflow
+  // ids relate to closing a session but carries no role-authority statement
+  // of its own. `L45794` ("End an in-progress session") is the real
+  // citation for this door's role floor.
+  sourceRefs: ['L45794', 'repository.ts'],
 }
 
 /**
@@ -3420,12 +3425,20 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       const authority = truthStoreFor('access-sessions')
       if (!writableThroughRepository(authority)) return truthStoreRefusal('access-sessions', authority)
 
+      // Fix round 1 (coordinator review, Critical 1) — `evaluateAccess` runs
+      // BEFORE any row is read, matching every sibling door in this file
+      // (`archiveLocationTierEntity`, `updateShift`, `archiveShift`,
+      // `reassignDevice`). The row lookup used to come first, so an
+      // unauthorized caller's `notFoundRefusal` disclosed whether a given
+      // `access-sessions` id existed at all — an authorization-order bug,
+      // not merely a style one: the row's existence is exactly the kind of
+      // fact a refused caller must not learn.
+      const decision = evaluateAccess(CLOSE_SUPPORT_SESSION_REQUEST, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
       const rows = store.get('access-sessions') as readonly RowOf<'access-sessions'>[]
       const before = rows.find((r) => r.id === id)
       if (before === undefined) return notFoundRefusal('access-sessions', id, 'close')
-
-      const decision = evaluateAccess(CLOSE_SUPPORT_SESSION_REQUEST, ctx)
-      if (!permitsAction(decision)) return refusal(decision)
 
       // L45794: Root and Admin may end any in-progress session; Support may
       // end only its own ("Allowed with conditions — own sessions").

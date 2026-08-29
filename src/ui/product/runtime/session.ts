@@ -187,6 +187,21 @@ export type OpenSupportSessionResult =
   | { kind: 'denied'; reason: string; explain: string }
   | { kind: 'persistence-unavailable'; explain: string }
   | { kind: 'not-signed-in' }
+  /**
+   * Fix round 1 (coordinator review, Important 4) — this identity already
+   * holds an open `access-sessions` row (`ProductSession.accessSessionId`).
+   * Refused here, BEFORE the door is ever called: `openSupportSession`
+   * itself has no concept of "one session per identity" (nothing in the
+   * frozen source states a hard limit, and the door's own job is one row's
+   * authority, not session bookkeeping across rows) — but landing a SECOND
+   * `accessSessionId` on the client would silently overwrite the first on
+   * `ProductSession`, orphaning the first row open forever with no UI able
+   * to reach it again (`closeSupportSession` only ever closes the id
+   * `ProductSession` currently names). Refusing beats auto-closing the old
+   * one: an operator mid-investigation should not have their own session
+   * silently ended by opening a second one for an unrelated ticket.
+   */
+  | { kind: 'already-open'; accessSessionId: string }
 
 export async function resolveOpenSupportSession(
   repository: Repository,
@@ -196,6 +211,9 @@ export async function resolveOpenSupportSession(
   purpose: string,
 ): Promise<OpenSupportSessionResult> {
   if (session === null) return { kind: 'not-signed-in' }
+  if (session.accessSessionId !== null && session.accessSessionId !== undefined) {
+    return { kind: 'already-open', accessSessionId: session.accessSessionId }
+  }
   const result = await repository.openSupportSession(tenantId, purpose, actingContextFor(store, session))
   if (result.ok) return { kind: 'opened', accessSessionId: result.row.id }
   if (result.kind === 'denied') return { kind: 'denied', reason: result.reason, explain: result.explain }
