@@ -4871,7 +4871,7 @@
         "Admin",
         "Tenant Admin"
       ],
-      "route": "/hub/devices/"
+      "route": "/hub/tenant-view-of-platform-administration/"
     },
     {
       "id": "WF-DVC-004",
@@ -4919,7 +4919,7 @@
       "participatingRoles": [
         "Admin"
       ],
-      "route": "/hub/devices/"
+      "route": "/super-admin/devices-and-fleet/"
     },
     {
       "id": "WF-DVC-006",
