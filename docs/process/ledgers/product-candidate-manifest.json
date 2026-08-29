@@ -3,8 +3,8 @@
   "ledger": "Product Candidate Manifest",
   "governing_section": "master prompt §23.2 — scope 1 of the two non-self-referential hash scopes",
   "slice": "11",
-  "candidate_id": "SLICE11-91e73a21b82478c5",
-  "candidate_manifest_sha256": "91e73a21b82478c52a0772297e957dc1ddec3bda41421ed7add23b14d56c4be3",
+  "candidate_id": "SLICE11-dac428e223d63398",
+  "candidate_manifest_sha256": "dac428e223d6339828c11cf8855e4d62065c2411c825f38e89c43872fb33616a",
   "scope": {
     "kind": "product-candidate",
     "contents": "application source, fixtures, configuration, lockfile, assets and required delivery documentation",
@@ -18,15 +18,15 @@
     "hashes_itself": false,
     "why_not": "this manifest lives under docs/process/ledgers/, an evidence root, so it is outside the product scope by construction rather than by a remembered exclusion"
   },
-  "git_commit": "9fa6bc0752386ca691e6a531497216835b81e9cf",
-  "git_tree": "49eaab8ba3a709d522ee26c05412c1f4ce96faa6",
+  "git_commit": "b42aea674716ad9c9e849edfa01c9f9ab10e1f62",
+  "git_tree": "fdfd286b4b803fe60e5ed904b6982ec24da9dbac",
   "worktree_clean": true,
   "bytes_measured_against": "the tree of git_commit — the worktree was clean when this seal ran, so every hash below is that commit's blob and stays checkable against it forever",
   "source_sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
   "source_drift_from_s0": "none as of this seal: `shasum -a 256 ../AVIIXA_Production_Product_Blueprint.md` equals `source_sha256` above. NOTHING RE-HASHES IT AUTOMATICALLY. `scripts/slice-blueprint.mjs` re-derives the hash and byte count on every invocation and refuses rather than emit a line mapping it cannot prove, but that script is not part of `pnpm verify` and runs only when someone runs it. Drift would therefore be silent until the next slice, so check it by hand before quoting this field.",
-  "file_count": 848,
-  "total_bytes": 22665932,
-  "supersedes": "SLICE11-880728d0253a6744",
+  "file_count": 851,
+  "total_bytes": 22751610,
+  "supersedes": "SLICE11-91e73a21b82478c5",
   "verification": {
     "verification_id": "VER-U01-FINAL-02",
     "supersedes_verification_id": "VER-U01-FINAL-01",
@@ -232,8 +232,8 @@
     },
     {
       "path": "app/hub/accept-invitation/AcceptInvitationScreen.tsx",
-      "bytes": 17059,
-      "sha256": "75dd8b5ad9a756944795226ae2ca16b266dab7db9db761e8fe99403340c39f11"
+      "bytes": 17554,
+      "sha256": "0ef13b97d7153767a2cb94e4ec7125c0cd04b5ebc3c0f7236949b4317123352c"
     },
     {
       "path": "app/hub/accept-invitation/page.tsx",
@@ -407,8 +407,8 @@
     },
     {
       "path": "app/hub/permissions-roles-and-access/PermissionsScreen.tsx",
-      "bytes": 30548,
-      "sha256": "2f953db02c12f7327fd29cf2a0c842032c542569f0b0d8c932f85e49b8bb5040"
+      "bytes": 30927,
+      "sha256": "121959817e9af275bf4dd09477cd310b763c539d1a2afb58084c5da0660739ec"
     },
     {
       "path": "app/hub/permissions-roles-and-access/page.tsx",
@@ -454,6 +454,16 @@
       "path": "app/hub/shift-management/page.tsx",
       "bytes": 1606,
       "sha256": "33419b13b980935d6517b6cc0a2e415ce80710b861b425721272e1e69145c6bc"
+    },
+    {
+      "path": "app/hub/support-session/SupportSessionScreen.tsx",
+      "bytes": 14389,
+      "sha256": "3039d709e8be335d192533951d3ba037777776acef459efeb8a5e48b6ae67b2a"
+    },
+    {
+      "path": "app/hub/support-session/page.tsx",
+      "bytes": 743,
+      "sha256": "356bbd8e1717693fe1527ce2874a9b0c64452305edbc0650f662609a86045460"
     },
     {
       "path": "app/hub/tenant-lifecycle-and-tier-operations/TenantLifecycleScreen.tsx",
@@ -502,8 +512,8 @@
     },
     {
       "path": "app/hub/worker-lifecycle-and-qualifications/WorkerLifecycleScreen.tsx",
-      "bytes": 56092,
-      "sha256": "d3e6e8e91a80204cd2624cc378067425c8ffc9f9e6de12e313510e41e4c6ac1a"
+      "bytes": 56071,
+      "sha256": "d724fa22d4860bd0395bbddb009daffe04a49c06d78925acdca0c35826709ae2"
     },
     {
       "path": "app/hub/worker-lifecycle-and-qualifications/fixtures.ts",
@@ -942,8 +952,8 @@
     },
     {
       "path": "app/super-admin/support-access/SupportAccessScreen.tsx",
-      "bytes": 44854,
-      "sha256": "1e040161798a33b6d3a3da9b672ef7f2b983adc3f2dce0ae613c3927f9c035b9"
+      "bytes": 54740,
+      "sha256": "db32712cf834d6a49d7108a19c7b2d5c4c5162f875ae92de71972ee479f51431"
     },
     {
       "path": "app/super-admin/support-access/fixtures.ts",
@@ -1127,8 +1137,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 1793,
-      "sha256": "a8f1f44c3b8181a507b7bf4073bd2ffbfd954bdfcd591e586e39b623b231275f"
+      "bytes": 1885,
+      "sha256": "8b078d07ed89f1d54d85800d5751a23d3b2c70d5d0ea89cd2d4336750259ac6b"
     },
     {
       "path": "pnpm-lock.yaml",
@@ -1472,8 +1482,13 @@
     },
     {
       "path": "scripts/check-gate-ordering.mjs",
-      "bytes": 11621,
-      "sha256": "a66808b629bbc3e796dead12242bebaca3799e12497626c7d49c0b2c34e328eb"
+      "bytes": 12754,
+      "sha256": "b34600acc99ab9f388261837b341f8b089d1aeb38c87c5f55217642599b87933"
+    },
+    {
+      "path": "scripts/check-tour-targets.mjs",
+      "bytes": 11910,
+      "sha256": "9ffdddd1a82020a18811896c6e5ae963939202cff0600a266a750ec7f79be0a5"
     },
     {
       "path": "scripts/generate-location-seed.mjs",
@@ -1647,18 +1662,18 @@
     },
     {
       "path": "src/ai/five-surface/AiDegradationOverlay.tsx",
-      "bytes": 21310,
-      "sha256": "12aa41198c5bd557fd9f4daef70ed12956002a47821b7a0d9b1146492101863c"
+      "bytes": 23022,
+      "sha256": "4430ac7f76bc2a642dd086f491cfb12d7eee58e91874ee07e2901f41b005eb82"
     },
     {
       "path": "src/ai/five-surface/QueuedRequestSurfaceMatrix.tsx",
-      "bytes": 8210,
-      "sha256": "e1019509d79d5b2bad5a7732401947b717099de4187000a1cdac60fa9b64095c"
+      "bytes": 8407,
+      "sha256": "4c92343b52fd9342d0f7f4253dd408a01c8929f76e04292d86562fb758533960"
     },
     {
       "path": "src/ai/five-surface/ShiftHandoffRoleMatrix.tsx",
-      "bytes": 8713,
-      "sha256": "53591185f886cc07bf3eeae5d11fe75214edb977b5a8b00b5f8ec3b244a865ff"
+      "bytes": 9714,
+      "sha256": "e8ac4a5ec085d30a4e3f4591eeb421b5ab841bd9c8f7cb0a3e6f4d4e79d35644"
     },
     {
       "path": "src/ai/five-surface/journey-overlay.ts",
@@ -1782,13 +1797,13 @@
     },
     {
       "path": "src/data/boot.ts",
-      "bytes": 7107,
-      "sha256": "a7354423e113cc8e7025acc533dbf5eea8c9c8ec45cc0179385cf9b5c491e4f4"
+      "bytes": 11544,
+      "sha256": "20156de770f31a0e69edcbcf0c2f9225142889e2de437ecbb27ccd8c2036db69"
     },
     {
       "path": "src/data/collections/access-sessions.json",
-      "bytes": 1652,
-      "sha256": "7a9613e6561d47598b1a33f14c52583840693bcc81d33369809ae1b68d9b80cb"
+      "bytes": 1688,
+      "sha256": "f51a0d528c40083f8f5e0eefb213b9e264dda0e3bff91d528dae7417c2d1f40e"
     },
     {
       "path": "src/data/collections/ai-requests.json",
@@ -1907,8 +1922,8 @@
     },
     {
       "path": "src/data/collections/role-grants.json",
-      "bytes": 23683,
-      "sha256": "ee7c746dfea72710b9ba201364b3cf6ffcd92e4910c7f9b07daadcee845e6e05"
+      "bytes": 23621,
+      "sha256": "a2f94b77f946ee98aee61b235df8ac5d546731cb24ef55418108034689fd6d76"
     },
     {
       "path": "src/data/collections/roles.json",
@@ -1957,8 +1972,8 @@
     },
     {
       "path": "src/data/collections/tours.json",
-      "bytes": 111355,
-      "sha256": "01d82ee1d84cc73c5e71cf7309826c8b12fc7f63b726e8dc0d974393faf4a5f1"
+      "bytes": 111329,
+      "sha256": "c8d5ddf023d244188d0d6c7484b01d3208869b4de4dd02d393fde434fed82237"
     },
     {
       "path": "src/data/collections/training.json",
@@ -1997,8 +2012,8 @@
     },
     {
       "path": "src/data/repository.ts",
-      "bytes": 196618,
-      "sha256": "bec25aeb7f56b5957f53cb6934b836698c91feec7692388f324f7ed5405b8feb"
+      "bytes": 219057,
+      "sha256": "7706b24d6aef7405de69c81e85239e2c747dbafed8305ca258cd8b29224be173"
     },
     {
       "path": "src/data/schemas/crosscutting.ts",
@@ -2037,8 +2052,8 @@
     },
     {
       "path": "src/data/store.ts",
-      "bytes": 2771,
-      "sha256": "e82e32629ba532b600707e7dc68029d27d4245f282f1b7016e15039fd5aaf43a"
+      "bytes": 3400,
+      "sha256": "3fcd48aa87f78f544bbed9e9c202700060be76a3402d995a52cc1c6c2645b8eb"
     },
     {
       "path": "src/data/tours-index.ts",
@@ -3732,13 +3747,13 @@
     },
     {
       "path": "src/surfaces/sa/ai-degradation.ts",
-      "bytes": 12583,
-      "sha256": "8f06792cc7cf5d1631ca2d121f66ac8524c49a3667400e1dc09fc9ef40b733c9"
+      "bytes": 13819,
+      "sha256": "000524bcea2e7982bd5ecbbca195c726118017eeb184d656f5f76b465f7168b7"
     },
     {
       "path": "src/surfaces/sa/ai-failure-authority.ts",
-      "bytes": 34951,
-      "sha256": "f114705b31bc53e904e3c9ffaaa40995a19bc8610e4b8821f7f2f1c22401acf1"
+      "bytes": 35247,
+      "sha256": "fcfdd808b49ddd1d99e50669f443540c4fe1383b5e6b4c65ec55fb9616e22f88"
     },
     {
       "path": "src/surfaces/sa/command-state.ts",
@@ -3837,13 +3852,13 @@
     },
     {
       "path": "src/ui/demo/DemoChrome.tsx",
-      "bytes": 19790,
-      "sha256": "7fa3fa953f99055926290b39139c2c244721fc3dc4d663a73ceb9706b1ede95e"
+      "bytes": 20311,
+      "sha256": "557d57ecb7eaec961065ceb4f7df13b905df667ed1681e9fab9368ee206c18b4"
     },
     {
       "path": "src/ui/demo/EvidencePanel.tsx",
-      "bytes": 8056,
-      "sha256": "329563ae1f8e57f7b583bd6fd673e742216978be3341ae81ce22d85bdee2f445"
+      "bytes": 8010,
+      "sha256": "8727e3f774311c7b1b7c4434b3b29431e681475f753139793494acab72126fa1"
     },
     {
       "path": "src/ui/demo/Inspector.tsx",
@@ -3937,8 +3952,8 @@
     },
     {
       "path": "src/ui/primitives/Button.tsx",
-      "bytes": 2533,
-      "sha256": "18562e45c8a5bfc52f7d5ea53c3438a69a55169502e4d6a86cbcb8aad2e8e6db"
+      "bytes": 3051,
+      "sha256": "9bdfe4de3f6d06e297381d45d72cc40ce51fa23fa7488e9139dfa1277c244568"
     },
     {
       "path": "src/ui/primitives/Checkbox.tsx",
@@ -4027,8 +4042,8 @@
     },
     {
       "path": "src/ui/product/AppShell.tsx",
-      "bytes": 24169,
-      "sha256": "cf898b1a773650b6edc89bf4c7e6651a71e0f988654775fcc108f515f7040c1e"
+      "bytes": 25169,
+      "sha256": "89fa57019718f980c5ad921145cdce74b6120d42a225e8643431e33093ef996f"
     },
     {
       "path": "src/ui/product/Chart.tsx",
@@ -4192,23 +4207,23 @@
     },
     {
       "path": "src/ui/product/runtime/ProductRuntime.tsx",
-      "bytes": 5946,
-      "sha256": "32cd2aaffcb3bae442f90f060f64cda0faf24e6d9e48338b209d4c1999584dda"
+      "bytes": 7548,
+      "sha256": "3ef079fbc6e417ff97cb69c34909412f162807b9e74ffb9f47e1ec47054fcd45"
     },
     {
       "path": "src/ui/product/runtime/index.ts",
-      "bytes": 769,
-      "sha256": "91867056ef61b0443dfe1ccc3ffdf1b22f5e0ff5225b16b8c7db6f570163b65c"
+      "bytes": 895,
+      "sha256": "3478165f3e1b0b626bd7357e1f57d78bd6ea607e98d726cc41b9849a58eaefbf"
     },
     {
       "path": "src/ui/product/runtime/session.ts",
-      "bytes": 15366,
-      "sha256": "8ab899389edb7db18300a14c5e999d1e85d888b32c0dd8df90f5d8a272054404"
+      "bytes": 26046,
+      "sha256": "a7973882ff98182ab9cade8bdc03590d196e6a351ec9e736c0ae30396a8cd82a"
     },
     {
       "path": "src/ui/product/runtime/useRepository.ts",
-      "bytes": 15145,
-      "sha256": "9e29c9f1ce5a3fcb5d6252b384749a1ab10303ef0f5125ea7baee1147f4f90ba"
+      "bytes": 15521,
+      "sha256": "7d87547e3f9d2246a603606a1dda5f32a1c1f105851a4cc51ea767bf430d554b"
     },
     {
       "path": "src/ui/product/tokens.ts",

@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-06766957b8c71598",
-  "candidate_id": "SLICE11-91e73a21b82478c5",
+  "envelope_id": "ENV11-c0b00ff3b114df82",
+  "candidate_id": "SLICE11-dac428e223d63398",
   "slice": "11",
-  "payload_sha256": "06766957b8c71598faab909c31de6582b136ae6ecfc77a1b85f14290d7c76ab4",
+  "payload_sha256": "c0b00ff3b114df82f293d25fe0a36053d35a2db4673f1f4ef190705c1180bc20",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -23,8 +23,8 @@
     "why_excludes_both": "sealing writes both manifests in one operation, so neither can be certified against a commit that predates that write — a manifest cannot describe a tree that contains its own freshly-sealed bytes. Fix round 1 (Task 18): this used to exclude only itself and certify the product manifest as ordinary evidence payload, which is what made case 13 unsatisfiable (RESUME §8)."
   },
   "payload_excludes_self": true,
-  "payload_count": 109,
-  "supersedes": "ENV11-193380fcd89f8753",
+  "payload_count": 112,
+  "supersedes": "ENV11-06766957b8c71598",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -60,6 +60,11 @@
       "path": "artifacts/evidence/unit-02-entry-verify/pnpm-verify-entry.txt",
       "bytes": 171347,
       "sha256": "ff7728717bcb0057da1fb36982399053847c3596e1d400c325b9d14582f9acc8"
+    },
+    {
+      "path": "artifacts/evidence/units-01-02-closure-sweep-verify/pnpm-verify.txt",
+      "bytes": 171382,
+      "sha256": "fdec05e0255fbe5138bb97be6e6a35d7a8c453fda54c499b8b6ad53adbd14366"
     },
     {
       "path": "docs/census/2026-08-17-surf-sa-build-map.md",
@@ -398,8 +403,8 @@
     },
     {
       "path": "docs/process/ledgers/live-verification-ledger.json",
-      "bytes": 104830,
-      "sha256": "55e1ac431d3e056287a7b93b3eaf4f6ef9d752d4885190947fc3c22365f4dc18"
+      "bytes": 119847,
+      "sha256": "76df975ec53e5be14f849ba24edb7313521db57dd7ffefff7bf63413e2c043b2"
     },
     {
       "path": "docs/process/ledgers/loop-ledger.json",
@@ -522,6 +527,11 @@
       "sha256": "3ac112db7502ef1886b04ccf10cd5c4603cb6a27680c063c4a5ffba5566af0da"
     },
     {
+      "path": "docs/superpowers/plans/2026-08-29-units-01-02-closure-sweep.md",
+      "bytes": 42022,
+      "sha256": "e25bca0846fcb0e64159d0f1ef62eb1c82e6e5f590b5c8dccecf14c05bb2c22e"
+    },
+    {
       "path": "docs/superpowers/specs/2026-08-16-aviixa-interactive-storyboard-design.md",
       "bytes": 45040,
       "sha256": "e9dac281fc76db96de06d35dbc369844f7a5c22e67c41199c2e48ac19e92d305"
@@ -570,6 +580,11 @@
       "path": "docs/superpowers/specs/2026-08-29-unit-02-tenant-configuration-users-workers-design.md",
       "bytes": 9786,
       "sha256": "46b292085e7396d9096bebc0f731d6bd14368fe17cc37bf36c094c6c4a10c102"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-29-units-01-02-closure-sweep-design.md",
+      "bytes": 13684,
+      "sha256": "62e020396800cbb4db77ea5ec67e3b1805665eb1ea34ea57837a282178a7ebd8"
     }
   ]
 }
