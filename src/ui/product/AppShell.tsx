@@ -7,6 +7,7 @@ import type { RoleId } from '@/domain/roles'
 import type { TenantId } from '@/domain/ids'
 import type { BreadcrumbItem } from '@/ui/primitives'
 import { dohModulesReachedBy } from '@/surfaces/doh/modules'
+import { routeBySurface } from '@/routes/definitions'
 import { SA_BANDS, modulesInBand } from '@/surfaces/sa/modules'
 import { CC_MODULE_SPINE } from '@/surfaces/cc/modules'
 import { isCcExcludedRole } from '@/surfaces/cc/access'
@@ -242,6 +243,14 @@ function studioPersonaFor(role: RoleId): StudioPersonaId | null {
  * withholds. `src/ui/**` holds no policy; this file is under
  * `src/ui/product/**` and reads only PRE-DERIVED reach, exactly as
  * `HubShell`/`StudioShell` already do.
+ *
+ * THAT LAST CLAUSE USED TO BE FALSE OF `SURF-DOH`, and this comment asserted
+ * it anyway. `HubShell` asks TWO questions in order — does this persona reach
+ * the surface at all (the route registry, D11), and then which modules does
+ * it reach (the module reach map) — and this shell asked only the second, so
+ * a Worker was drawn a Hub rail `HubShell` would have drawn empty. Corrected
+ * in unit-02's final whole-unit review; see the `SURF-DOH` branch below for
+ * the measurement and for why the guard is scoped to that one surface.
  */
 function chromeFor(surface: SurfaceId, role: RoleId, pathname: string): SurfaceChrome {
   switch (surface) {
@@ -260,6 +269,42 @@ function chromeFor(surface: SurfaceId, role: RoleId, pathname: string): SurfaceC
       return { layout: 'rail', density: 'comfortable', groups }
     }
     case 'SURF-DOH': {
+      /**
+       * D11 FIRST, THE SAME TWO-QUESTION ORDER `HubShell` ASKS — and the
+       * reason this branch used to be wrong.
+       *
+       * FINAL WHOLE-UNIT REVIEW (unit-02, Important 3). `HubShell.tsx` asks
+       * "does this persona reach SURF-DOH at all?" out of the route registry
+       * BEFORE it asks "which modules does it reach?", and offers a persona
+       * that reaches nothing no rail at all. This shell — which every screen
+       * this unit rebuilt uses instead of `HubShell` — asked only the second
+       * question. MEASURED live against the served static export: a signed-in
+       * Worker was drawn a four-item Hub rail (Shift Management, Run
+       * Scheduling, Worker Assignment, Notifications), one link per module
+       * whose matrix column grants the Worker something, and every one of
+       * those screens then refused them on arrival.
+       *
+       * THE FIX BELONGS HERE, NOT IN A MATRIX. `MOD-DOH-03`'s Worker cell is
+       * a real grant in the frozen source (L27297, "own assigned shift
+       * only"), and `rolesReachingByMatrix`'s own doc comment says so
+       * explicitly — a module's reach map answers which modules a Hub persona
+       * reaches, and whether the persona reaches the Hub AT ALL is the route
+       * registry's question, asked first. Editing the matrix to exclude the
+       * Worker would give one rule two owners and delete a source-backed
+       * grant to fix a shell that was not asking the first question. So the
+       * first question is asked here, from the same registry, exactly as
+       * `HubShell` asks it.
+       *
+       * SURF-DOH ONLY, DELIBERATELY. `SURF-STU` and `SURF-FL` carry
+       * `openDecisionRoles`, where the registry states in terms that a role's
+       * absence from `allowedRoles` is NOT a refusal but a recorded open
+       * question; a blanket guard across every surface would convert those
+       * open questions into refusals. `SURF-DOH` carries no open decision, so
+       * absence here is a refusal and reading it as one is correct.
+       */
+      if (!routeBySurface('SURF-DOH').allowedRoles.includes(role)) {
+        return { layout: 'rail', density: 'comfortable', groups: [] }
+      }
       const modules = dohModulesReachedBy(role)
       const groups: NavGroup[] = [
         {
