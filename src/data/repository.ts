@@ -3471,21 +3471,52 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
      * so an edit that only moves the times still gets checked against its
      * (unchanged) Site, and an edit that only moves the Site still gets
      * checked against its (unchanged) times.
+     *
+     * FINAL WHOLE-UNIT REVIEW (unit-02, Important 2) — THE ORDER OF THE
+     * FIRST TWO STATEMENTS, and why it changed. This door used to read the
+     * target row and return `notFoundRefusal(...)` BEFORE `evaluateAccess`
+     * ran at all, which made it the one door in this unit that did not
+     * authorise first — and handed any caller, a role-less one included, a
+     * store-wide "does this shift id exist" oracle ahead of every check.
+     * The leak was bounded (the refusal only echoes the caller's own id
+     * back, and a present-but-foreign row was still caught below by the
+     * role floor and `checkSiteReference`), but it broke the invariant
+     * `archiveLocationTierEntity` was restructured to hold after a real
+     * cross-tenant leak was measured on that door.
+     *
+     * The gate is therefore SPLIT, because the scope half genuinely needs
+     * a row read and the role half does not:
+     *
+     *   1. the ROLE-ONLY floor, with NO `requiredSites`, as the literal
+     *      first action after the writability gate — the same shape
+     *      `createTenantUser`/`assignTenantRole` use for a gate that must
+     *      run before any row exists to read;
+     *   2. then the row is found and merged, and
+     *   3. the SCOPE half re-asks the SAME request with `requiredSites:
+     *      [merged.siteId]`, only when the identity actually carries a site
+     *      scope — the row-dependent scope check `CREATE_SHIFT_REQUEST`'s
+     *      own comment settles must live at the call site and never be
+     *      baked into the static constant.
+     *
+     * `createShift` needs no split: a create door reads its `siteId` off
+     * the INPUT, so its one call can carry `requiredSites` already.
      */
     async updateShift(id, patch, ctx) {
       const authority = truthStoreFor('shifts')
       if (!writableThroughRepository(authority)) return truthStoreRefusal('shifts', authority)
+
+      const roleDecision = evaluateAccess(UPDATE_SHIFT_REQUEST, ctx)
+      if (!permitsAction(roleDecision)) return refusal(roleDecision)
 
       const rows = store.get('shifts') as readonly RowOf<'shifts'>[]
       const before = rows.find((r) => r.id === id)
       if (before === undefined) return notFoundRefusal('shifts', id, 'update')
       const merged = { ...before, ...patch }
 
-      const decision = evaluateAccess(
-        { ...UPDATE_SHIFT_REQUEST, ...(ctx.identity.siteScope.length > 0 ? { requiredSites: [merged.siteId] } : {}) },
-        ctx,
-      )
-      if (!permitsAction(decision)) return refusal(decision)
+      if (ctx.identity.siteScope.length > 0) {
+        const scopeDecision = evaluateAccess({ ...UPDATE_SHIFT_REQUEST, requiredSites: [merged.siteId] }, ctx)
+        if (!permitsAction(scopeDecision)) return refusal(scopeDecision)
+      }
 
       const actorTenant = ctx.identity.tenant
       if (actorTenant === null) {
