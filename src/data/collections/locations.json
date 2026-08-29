@@ -247,14 +247,14 @@
   {
     "id": "LOC-SM-ENSAM-01",
     "areaId": "AREA-SM-ENSAM",
-    "name": "Estaci\u00f3n de Ensamblaje 1",
+    "name": "Estación de Ensamblaje 1",
     "requiredCertification": null,
     "status": "active"
   },
   {
     "id": "LOC-SM-ENSAM-02",
     "areaId": "AREA-SM-ENSAM",
-    "name": "Estaci\u00f3n de Ensamblaje 2",
+    "name": "Estación de Ensamblaje 2",
     "requiredCertification": null,
     "status": "active"
   },
@@ -275,14 +275,14 @@
   {
     "id": "LOC-AC-ENSAM-01",
     "areaId": "AREA-AC-ENSAM",
-    "name": "Estaci\u00f3n 1",
+    "name": "Estación 1",
     "requiredCertification": null,
     "status": "active"
   },
   {
     "id": "LOC-AC-ENSAM-02",
     "areaId": "AREA-AC-ENSAM",
-    "name": "Estaci\u00f3n 2",
+    "name": "Estación 2",
     "requiredCertification": null,
     "status": "active"
   },
@@ -297,6 +297,160 @@
     "id": "LOC-KD-ASSY-02",
     "areaId": "AREA-KD-ASSY",
     "name": "Assembly Bench 2",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-01",
+    "areaId": "AREA-BB-EXP-01",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-01B",
+    "areaId": "AREA-BB-EXP-01B",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-02",
+    "areaId": "AREA-BB-EXP-02",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-03",
+    "areaId": "AREA-BB-EXP-03",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-04",
+    "areaId": "AREA-BB-EXP-04",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-05",
+    "areaId": "AREA-BB-EXP-05",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-06",
+    "areaId": "AREA-BB-EXP-06",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-07",
+    "areaId": "AREA-BB-EXP-07",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-08",
+    "areaId": "AREA-BB-EXP-08",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-09",
+    "areaId": "AREA-BB-EXP-09",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-10",
+    "areaId": "AREA-BB-EXP-10",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-11",
+    "areaId": "AREA-BB-EXP-11",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-12",
+    "areaId": "AREA-BB-EXP-12",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-13",
+    "areaId": "AREA-BB-EXP-13",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-14",
+    "areaId": "AREA-BB-EXP-14",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-15",
+    "areaId": "AREA-BB-EXP-15",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-16",
+    "areaId": "AREA-BB-EXP-16",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-17",
+    "areaId": "AREA-BB-EXP-17",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-18",
+    "areaId": "AREA-BB-EXP-18",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-19",
+    "areaId": "AREA-BB-EXP-19",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-20",
+    "areaId": "AREA-BB-EXP-20",
+    "name": "Line 1",
+    "requiredCertification": null,
+    "status": "active"
+  },
+  {
+    "id": "LOC-BB-EXP-21",
+    "areaId": "AREA-BB-EXP-21",
+    "name": "Line 1",
     "requiredCertification": null,
     "status": "active"
   }

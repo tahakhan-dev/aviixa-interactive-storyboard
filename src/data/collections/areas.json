@@ -130,7 +130,7 @@
   {
     "id": "AREA-SM-ENSAM",
     "siteId": "SITE-SM-MAIN",
-    "name": "L\u00ednea de Ensamblaje",
+    "name": "Línea de Ensamblaje",
     "shiftIds": [
       "SHIFT-SM-DAY"
     ],
@@ -161,6 +161,160 @@
     "shiftIds": [
       "SHIFT-KD-DAY"
     ],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-01",
+    "siteId": "SITE-BB-EXP-01",
+    "name": "Production Floor",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-01B",
+    "siteId": "SITE-BB-EXP-01",
+    "name": "Legacy Fabrication Bay",
+    "shiftIds": [],
+    "status": "archived"
+  },
+  {
+    "id": "AREA-BB-EXP-02",
+    "siteId": "SITE-BB-EXP-02",
+    "name": "Fabrication Bay",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-03",
+    "siteId": "SITE-BB-EXP-03",
+    "name": "Finishing Line",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-04",
+    "siteId": "SITE-BB-EXP-04",
+    "name": "Staging and Shipping",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-05",
+    "siteId": "SITE-BB-EXP-05",
+    "name": "Production Floor",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-06",
+    "siteId": "SITE-BB-EXP-06",
+    "name": "Fabrication Bay",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-07",
+    "siteId": "SITE-BB-EXP-07",
+    "name": "Finishing Line",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-08",
+    "siteId": "SITE-BB-EXP-08",
+    "name": "Staging and Shipping",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-09",
+    "siteId": "SITE-BB-EXP-09",
+    "name": "Production Floor",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-10",
+    "siteId": "SITE-BB-EXP-10",
+    "name": "Fabrication Bay",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-11",
+    "siteId": "SITE-BB-EXP-11",
+    "name": "Finishing Line",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-12",
+    "siteId": "SITE-BB-EXP-12",
+    "name": "Staging and Shipping",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-13",
+    "siteId": "SITE-BB-EXP-13",
+    "name": "Production Floor",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-14",
+    "siteId": "SITE-BB-EXP-14",
+    "name": "Fabrication Bay",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-15",
+    "siteId": "SITE-BB-EXP-15",
+    "name": "Finishing Line",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-16",
+    "siteId": "SITE-BB-EXP-16",
+    "name": "Staging and Shipping",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-17",
+    "siteId": "SITE-BB-EXP-17",
+    "name": "Production Floor",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-18",
+    "siteId": "SITE-BB-EXP-18",
+    "name": "Fabrication Bay",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-19",
+    "siteId": "SITE-BB-EXP-19",
+    "name": "Finishing Line",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-20",
+    "siteId": "SITE-BB-EXP-20",
+    "name": "Staging and Shipping",
+    "shiftIds": [],
+    "status": "active"
+  },
+  {
+    "id": "AREA-BB-EXP-21",
+    "siteId": "SITE-BB-EXP-21",
+    "name": "Production Floor",
+    "shiftIds": [],
     "status": "active"
   }
 ]

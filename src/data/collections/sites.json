@@ -124,5 +124,194 @@
     "contact": "ops@kestreldynamics.example",
     "timezone": "America/Chicago",
     "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-01",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Rockford Fabrication Plant",
+    "address": "101 Rockford Industrial Pkwy, Rockford, IL 61101, USA",
+    "contact": "rockford.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-02",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Peoria Assembly Plant",
+    "address": "102 Peoria Industrial Pkwy, Peoria, IL 61602, USA",
+    "contact": "peoria.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-03",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Aurora Distribution Center",
+    "address": "103 Aurora Industrial Pkwy, Aurora, IL 60505, USA",
+    "contact": "aurora.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-04",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Naperville Machining Plant",
+    "address": "104 Naperville Industrial Pkwy, Naperville, IL 60540, USA",
+    "contact": "naperville.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-05",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Joliet Components Plant",
+    "address": "105 Joliet Industrial Pkwy, Joliet, IL 60431, USA",
+    "contact": "joliet.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-06",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Decatur Finishing Plant",
+    "address": "106 Decatur Industrial Pkwy, Decatur, IL 62521, USA",
+    "contact": "decatur.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-07",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Champaign Fabrication Plant",
+    "address": "107 Champaign Industrial Pkwy, Champaign, IL 61820, USA",
+    "contact": "champaign.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-08",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Bloomington Assembly Plant",
+    "address": "108 Bloomington Industrial Pkwy, Bloomington, IL 61701, USA",
+    "contact": "bloomington.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-09",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Schaumburg Distribution Center",
+    "address": "109 Schaumburg Industrial Pkwy, Schaumburg, IL 60173, USA",
+    "contact": "schaumburg.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-10",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Cicero Machining Plant",
+    "address": "110 Cicero Industrial Pkwy, Cicero, IL 60804, USA",
+    "contact": "cicero.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-11",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Evanston Components Plant",
+    "address": "111 Evanston Industrial Pkwy, Evanston, IL 60201, USA",
+    "contact": "evanston.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-12",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Waukesha Finishing Plant",
+    "address": "112 Waukesha Industrial Pkwy, Waukesha, WI 53186, USA",
+    "contact": "waukesha.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-13",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Kenosha Fabrication Plant",
+    "address": "113 Kenosha Industrial Pkwy, Kenosha, WI 53140, USA",
+    "contact": "kenosha.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-14",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Racine Assembly Plant",
+    "address": "114 Racine Industrial Pkwy, Racine, WI 53403, USA",
+    "contact": "racine.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-15",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Gary Distribution Center",
+    "address": "115 Gary Industrial Pkwy, Gary, IN 46402, USA",
+    "contact": "gary.ops@brightbikes.example",
+    "timezone": "America/Indiana/Indianapolis",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-16",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "South Bend Machining Plant",
+    "address": "116 South Bend Industrial Pkwy, South Bend, IN 46601, USA",
+    "contact": "southbend.ops@brightbikes.example",
+    "timezone": "America/Indiana/Indianapolis",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-17",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Fort Wayne Components Plant",
+    "address": "117 Fort Wayne Industrial Pkwy, Fort Wayne, IN 46802, USA",
+    "contact": "fortwayne.ops@brightbikes.example",
+    "timezone": "America/Indiana/Indianapolis",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-18",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Dubuque Finishing Plant",
+    "address": "118 Dubuque Industrial Pkwy, Dubuque, IA 52001, USA",
+    "contact": "dubuque.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-19",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Cedar Rapids Fabrication Plant",
+    "address": "119 Cedar Rapids Industrial Pkwy, Cedar Rapids, IA 52401, USA",
+    "contact": "cedarrapids.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-20",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Madison Assembly Plant",
+    "address": "120 Madison Industrial Pkwy, Madison, WI 53703, USA",
+    "contact": "madison.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "active"
+  },
+  {
+    "id": "SITE-BB-EXP-21",
+    "tenantId": "TEN-BRIGHTBIKES",
+    "name": "Green Bay Distribution Center",
+    "address": "121 Green Bay Industrial Pkwy, Green Bay, WI 54301, USA",
+    "contact": "greenbay.ops@brightbikes.example",
+    "timezone": "America/Chicago",
+    "status": "archived"
   }
 ]
