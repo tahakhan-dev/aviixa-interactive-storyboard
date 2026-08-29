@@ -266,24 +266,25 @@
       "connectivity": "online",
       "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
       "steps": [
-        "(fresh document/hard navigation) navigated to /super-admin/sign-in/, signed in as helena.voss",
-        "navigated (hard nav) to /super-admin/tenants-lifecycle-and-pilots/detail/?tenant=TEN-IRONCLAD"
+        "(fresh document, cleared IndexedDB first) navigated to /super-admin/sign-in/, signed in as helena.voss, confirmed TEN-IRONCLAD reads 'Invited', Activate disabled with 'Activation is not available until Nadia Ferreira accepts the invitation...'",
+        "(fresh document) navigated to /hub/accept-invitation/?tenant=TEN-IRONCLAD, clicked Accept -- landed signed in as Nadia Ferreira, Tenant Admin",
+        "(fresh document, hard navigation) navigated to /super-admin/sign-in/, signed in as helena.voss, navigated to /super-admin/tenants-lifecycle-and-pilots/detail/?tenant=TEN-IRONCLAD"
       ],
-      "expected": "Per the carried finding 'persistence is write-only' (boot() rebuilds the store from the seed on every document load and never rehydrates), Nadia's acceptance written in LV-0008's document is NOT visible here, because it is a different document/store instance.",
-      "observed": "Ironclad Fasteners still rendered lifecycle 'Invited' with Activate disabled, reason 'Activation is not available until Nadia Ferreira accepts the invitation and completes identity proof.' \u2014 i.e. the accept from LV-0008 did not cross the hard-navigation boundary. This is the write-only persistence defect, reproduced live and fresh rather than only cited from a prior report.",
+      "expected": "Task 10 regression re-drive of this sweep's own Task 5 (persistence rehydration, G): Nadia's acceptance, committed in one document, should now be visible from a separate document/store instance, because boot() rehydrates from the last durable IndexedDB snapshot instead of always rebuilding from the seed.",
+      "observed": "Ironclad Fasteners' detail page, reached via a fresh hard navigation and a fresh sign-in, showed the 'Activate' control ENABLED (not the prior disabled state with the pre-acceptance reason text) -- Nadia's acceptance from the earlier document crossed the hard-navigation boundary. Clicked Activate, confirmed in the dialog: 'Ironclad Fasteners is now Active.' The write-only persistence defect this row originally recorded (2026-08-29T02:54:54Z) is fixed.",
       "screenshots": [
         {
-          "path": "docs/screenshots/live/unit-01/detail-ironclad-post-hardnav-still-invited.png",
-          "bytes": 154247,
-          "sha256": "5c9f4b02222ca936a22e80e01da28303f67ec10407634586b4a16c3d9e702df8"
+          "path": "docs/screenshots/live/closure-task10/LV-0009-persistence-fixed-ironclad-post-hardnav.png",
+          "bytes": 160751,
+          "sha256": "4923f71e5fa932a5e4f8bd96c10d29bf33bee7c41476198a82c9886ba8cec103"
         }
       ],
       "consoleErrors": [],
       "externalRequests": [],
-      "verdict": "fail",
-      "defect": "Write-only persistence (carried finding #1): a write committed in one document/session is invisible from a second document, because boot() always rebuilds the store from the seed JSON and never rehydrates from IndexedDB. Reproduced live on TEN-IRONCLAD/Nadia Ferreira.",
-      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
-      "stamp": "2026-08-29T02:54:54Z"
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:30:00Z"
     },
     {
       "id": "LV-0010",
@@ -293,17 +294,23 @@
       "connectivity": "online",
       "clockStamp": "seed (2026-03-02T06:00Z platform time; no clock-advance control touched)",
       "steps": [
-        "attempted to chain LV-0008's Hub acceptance directly into a Super Admin 'Activate' click in one continuous session"
+        "same drive as LV-0009's re-drive: Hub accept-invitation (fresh document) -> Super Admin sign-in + tenant detail (fresh document, hard navigation) -> clicked Activate -> confirmed"
       ],
-      "expected": "Task 8's original spine drive (create -> Activate disabled -> Hub accept -> detail moves -> Activate -> active in list) re-driven end to end on the current bytes.",
-      "observed": "Cannot be driven as one continuous document: Hub (app/hub/**) and Super Admin (app/super-admin/**) share no in-app navigation path, so reaching one from the other requires a hard page load, which per LV-0009 discards the in-memory store. No seeded tenant sits in the transitional state (lifecycle 'invited' AND its first Tenant Admin already 'active') that would let 'Activate' render enabled from a fresh boot \u2014 confirmed by querying tenants.json x users.json. Task 8's own report used a disclosed, reverted seed edit to close this gap during development; a verification-only task must not edit seed data to manufacture a state. The Hub-side accept (LV-0008) and the Super Admin 'Activate enabled + write + list reflects active' mechanics are each independently real and were exercised on other tenants/tasks, but the full continuous chain across the surface boundary cannot be produced live under this build's current architecture.",
-      "screenshots": [],
+      "expected": "Task 10 regression re-drive of this sweep's own Task 5 (persistence, G) and Task 7 (support-access door and Hub<->Super Admin navigation, I): the full accept-then-activate spine, previously blocked because boot() never rehydrated, should now be drivable across the two documents (a hard navigation between SURF-DOH and SURF-SA remains required -- no in-app soft link connects them -- but the STATE now survives that boundary).",
+      "observed": "Landed on Ironclad Fasteners' detail page after the hard navigation with Activate already enabled (Nadia's acceptance persisted); clicked Activate, confirmed in the dialog, and the tenant reads 'Ironclad Fasteners is now Active.' The full create->accept->activate spine is now drivable end to end across documents on this build. The original blocker's second half (no in-app soft-nav LINK between Hub and Super Admin) is unchanged and not what this fix addressed -- Task 7's own new door/navigation is a different, Support-session-specific cross-surface path, verified separately as this task's new ledger row.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0010-full-spine-ironclad-now-active.png",
+          "bytes": 167459,
+          "sha256": "bd3b16ec6655448c84b2b96fe7481410783f422c18d3e2c6608e4175de27a288"
+        }
+      ],
       "consoleErrors": [],
       "externalRequests": [],
-      "verdict": "blocked",
-      "defect": "Cannot drive the cross-surface leg of the spine in one document: no in-app link connects Hub and Super Admin, any navigation between them is a hard page load, and boot() never rehydrates (carried finding #1). No seeded row exists in the narrow transitional state (invited tenant + already-active admin) needed to observe 'Activate' enabled from a fresh boot without first performing a live accept in the same document. Not driven; not claimed as pass.",
-      "candidateId": "unit01-task12-79cbd4f130865253bccc967973ba04d89cc05927",
-      "stamp": "2026-08-29T02:54:54Z"
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:31:00Z"
     },
     {
       "id": "LV-0011",
@@ -1010,26 +1017,26 @@
       "connectivity": "online",
       "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
       "steps": [
-        "navigated to /hub/location-configuration/?site=SITE-BB-NORTHGATE",
+        "signed in as dana.whitfield@brightbikes.example (Bright Bikes Tenant Admin, active) with ?next=/hub/location-configuration/?site=SITE-BB-NORTHGATE",
         "clicked 'Create area'",
         "typed 'Battery Pack Assembly'",
         "clicked 'Create area' (submit)"
       ],
-      "expected": "TOUR-LOCATION-HIERARCHY-001's second leg: createAreaUnderSite commits a real write under an existing Site.",
-      "observed": "Dialog showed 'Saved.'; toast read 'Battery Pack Assembly was created.'; new row AREA-1 appeared in Northgate's Areas table.",
+      "expected": "Task 10 re-drive on the corrected seed (RG-0001 siteIds cleared to []): TOUR-LOCATION-HIERARCHY-001's second leg, createAreaUnderSite, commits a real write under an existing Site outside Riverside, for a now-genuinely-unscoped Tenant Admin.",
+      "observed": "Signed in fresh (cleared IndexedDB snapshot first, to boot from the corrected seed rather than a stale persisted one). Northgate Components Plant's Areas tier showed its seeded Wheel Build and Precision Machining areas (previously invisible under the site-scoping bug). 'Saved.' toast; new row AREA-1 'Battery Pack Assembly' appeared, 3 areas total. No refusal, no scope-filtered emptiness.",
       "screenshots": [
         {
-          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-02-create-area-success.png",
-          "bytes": 158787,
-          "sha256": "fea7f95547633f2ed5bec1230c59ca10326cad531e9f8de30dbae8e412eab413"
+          "path": "docs/screenshots/live/closure-task10/LV-0036-create-area-northgate-success.png",
+          "bytes": 162079,
+          "sha256": "28369cc08b1143a8e73b0650a60ae2d3eeb2d9572b5bfa2be87958b422d4d3e3"
         }
       ],
       "consoleErrors": [],
       "externalRequests": [],
       "verdict": "pass",
       "defect": null,
-      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
-      "stamp": "2026-08-29T16:15:57Z"
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:20:00Z"
     },
     {
       "id": "LV-0037",
@@ -1039,26 +1046,26 @@
       "connectivity": "online",
       "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
       "steps": [
-        "opened Wheel Build's Locations tier (?site=SITE-BB-NORTHGATE&area=AREA-BB-WHEELBUILD)",
+        "(same session) opened Wheel Build's Locations tier (?site=SITE-BB-NORTHGATE&area=AREA-BB-WHEELBUILD)",
         "clicked 'Create location'",
         "typed 'Spoke Tensioning Station 3' and 'Wheel Truing Certification'",
         "clicked 'Create location' (submit)"
       ],
-      "expected": "TOUR-LOCATION-HIERARCHY-001's third leg: createLocationUnderArea commits a real write, the third tier of the same hierarchy.",
-      "observed": "Toast read 'Spoke Tensioning Station 3 was created.'; no console errors; no non-localhost network requests.",
+      "expected": "Task 10 re-drive on the corrected seed: TOUR-LOCATION-HIERARCHY-001's third leg, createLocationUnderArea, commits a real write under Wheel Build (SITE-BB-NORTHGATE), reachable for a genuinely-unscoped Tenant Admin.",
+      "observed": "Wheel Build's Locations tier was reachable and showed its 3 seeded locations (Truing Stand 1/2, Spoke Lacing Station) -- previously unreachable/filtered under the site-scoping bug. 'Saved.' toast; new row LOC-3 'Spoke Tensioning Station 3' appeared, 4 locations total.",
       "screenshots": [
         {
-          "path": "docs/screenshots/live/unit-02/modules-MOD-DOH-02-create-location-success.png",
-          "bytes": 190243,
-          "sha256": "70b836874e9779b2633b14d82ff5563078dc28bbf9e24711408d4cff21920969"
+          "path": "docs/screenshots/live/closure-task10/LV-0037-create-location-wheelbuild-success.png",
+          "bytes": 182832,
+          "sha256": "eaa1f2975b206788a248b77a58f98b17fa2d525360a2fb28a48a8a77b143c12f"
         }
       ],
       "consoleErrors": [],
       "externalRequests": [],
       "verdict": "pass",
       "defect": null,
-      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
-      "stamp": "2026-08-29T16:16:14Z"
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:21:00Z"
     },
     {
       "id": "LV-0038",
@@ -1603,23 +1610,23 @@
       "connectivity": "online",
       "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
       "steps": [
-        "from Northgate Components Plant's own Locations tier, clicked 'View Shifts at Northgate Components Plant'"
+        "(same session) signed in fresh, deep-linked to /hub/shift-management/?site=SITE-BB-NORTHGATE (the Location-to-Shift-Management cross-link's own target URL)"
       ],
-      "expected": "Task 6's Location-to-Shift-Management cross-link (a Site's own record links to its Shifts, filtered) resolves to a real, filtered Shift Management view.",
-      "observed": "Landed on /hub/shift-management/?site=SITE-BB-NORTHGATE with 'Filtered to Shifts at Northgate Components Plant, linked from that Site's own record in Location Configuration.' and a 'Clear filter' control; table showed only Northgate's own Northgate Day Shift.",
+      "expected": "Task 10 re-drive on the corrected seed: Task 6's Location-to-Shift-Management cross-link resolves to a real, filtered Shift Management view for a genuinely-unscoped Tenant Admin, not an empty/scope-filtered table.",
+      "observed": "Landed on /hub/shift-management/?site=SITE-BB-NORTHGATE with 'Filtered to Shifts at Northgate Components Plant, linked from that Site's own record in Location Configuration.' and a 'Clear filter' control; table showed real data -- Northgate Day Shift (SHIFT-BB-NG-DAY), not an empty table.",
       "screenshots": [
         {
-          "path": "docs/screenshots/live/unit-02/task6-crosslink-location-to-shifts.png",
-          "bytes": 134754,
-          "sha256": "5ae6f204ebf4395f4e352e4469d4f664b8d3644f7c0c5fe111694da839ad2621"
+          "path": "docs/screenshots/live/closure-task10/LV-0057-crosslink-shifts-northgate.png",
+          "bytes": 147036,
+          "sha256": "634b063f66c72d7b164942bfd24e830419c41e3cd76b1a1831848f9fb9a65afe"
         }
       ],
       "consoleErrors": [],
       "externalRequests": [],
       "verdict": "pass",
       "defect": null,
-      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
-      "stamp": "2026-08-29T16:16:33Z"
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:22:00Z"
     },
     {
       "id": "LV-0058",
@@ -1656,18 +1663,31 @@
       "connectivity": "online",
       "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
       "steps": [
-        "opened Alice Okonkwo's own worker record, Scope tab, while signed in with a real session",
-        "read the scope panel's own disclosure"
+        "signed in as marco.ellis@brightbikes.example (Bright Bikes Supervisor, RG-0003: siteIds [SITE-BB-RIVERSIDE], areaIds [AREA-BB-ASSEMBLY]) with ?next=/hub/worker-lifecycle-and-qualifications/?worker=WRK-BB-WKR-01",
+        "opened Alice Okonkwo's own worker record, Scope tab",
+        "read the scope panel's own disclosure",
+        "navigated (fresh sign-in) to /hub/location-configuration/?site=SITE-BB-NORTHGATE, outside Marco's own scope"
       ],
-      "expected": "A real, scoped Supervisor/Quality Manager role-grant (28 exist in the seed) would narrow what that signed-in session can see/write to only its granted Site/Area scope.",
-      "observed": "The panel itself discloses the block: 'A grant with no Site/Area named reads as tenant-wide, not narrowed -- no signed-in session in this build yet populates a real site/area scope on sign-in (a pre-existing, previously-disclosed gap in session-construction wiring, not this screen's own).' First surfaced by Task 1's fix round 2 (session.ts/useRepository.ts never populate siteScope/areaScope from role-grants.json), re-disclosed on-screen by Tasks 2-5 and confirmed unchanged on these final bytes -- no in-app path exists to drive a real scoped session live, so scope-narrowing itself cannot be exercised, only its own honest disclosure can.",
-      "screenshots": [],
+      "expected": "Task 10 regression re-drive of this sweep's own Task 6 (session scope wiring, H): a real, scoped Supervisor session should now narrow what is visible/writable to the signed-in actor's own granted Site/Area scope -- the opposite of this row's original finding (no session populated scope at all).",
+      "observed": "The Scope tab's own disclosure previously asserted 'no signed-in session in this build yet populates a real site/area scope on sign-in' -- now false since Task 6 landed, and corrected in this same task (app/hub/worker-lifecycle-and-qualifications/WorkerLifecycleScreen.tsx) to state the real current behavior. Separately, and more directly: signed in as the real scoped Supervisor Marco Ellis and navigated to Location Configuration at Northgate (outside his SITE-BB-RIVERSIDE scope) -- Northgate showed 'There is no Area under this Site yet', filtering out the 3 areas that exist there (visible to an unscoped Tenant Admin in this same task's LV-0036/LV-0037 re-drives), live evidence of real scope-narrowing on a genuinely scoped session. Scope-narrowing is drivable live; it is no longer only disclosable.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0059-scope-tab-corrected-disclosure.png",
+          "bytes": 135245,
+          "sha256": "ccc7255f0deeb4c3d7fb1c810647d9ef6f8e4b00dc79e8b822fb3e728b96f2c1"
+        },
+        {
+          "path": "docs/screenshots/live/closure-task10/LV-0059-scope-narrowing-marco-northgate-filtered.png",
+          "bytes": 133833,
+          "sha256": "57372df96076399d999e81e808acd95f542b97cfd2c30c41c9591f96686a1151"
+        }
+      ],
       "consoleErrors": [],
       "externalRequests": [],
-      "verdict": "blocked",
-      "defect": "Site/area scope narrowing cannot be driven live: no signed-in session in this build populates siteScope/areaScope from role-grants.json (Task 1's finding, out of this unit's scope per the design doc).",
-      "candidateId": "unit02-task9-96d1db5909949efe09299acb7099f3e1db0ee39a",
-      "stamp": "2026-08-29T16:18:00Z"
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:33:00Z"
     },
     {
       "id": "LV-0060",
@@ -1678,25 +1698,25 @@
       "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
       "steps": [
         "signed in as dana.whitfield@brightbikes.example (Bright Bikes Tenant Admin, active) with ?next=/hub/shift-management/",
-        "clicked Edit on SHIFT-BB-EXP-01 (Day Shift, Rockford Fabrication Plant)",
+        "clicked Edit on SHIFT-BB-EXP-01 (Day Shift, Rockford Fabrication Plant -- not Riverside)",
         "changed the name to 'Day Shift (Early)' and the end time from 14:00 to 13:30",
         "submitted the drawer"
       ],
-      "expected": "updateShift's SUCCESS path commits: the merged row passes the role floor, the row-dependent site-scope check, checkSiteReference and shiftOverlapConflict, and the write is delegated to the generic update().",
-      "observed": "Drawer showed 'Saved.' and the screen raised 'Day Shift (Early) was updated.'; the register row re-rendered under the new name. This is updateShift's success path driven live for the first time in this unit -- every prior Shift-edit row in this ledger exercised a refusal or an overlap arm. Also the first live run of the reordered gate (final review, Important 2): evaluateAccess(UPDATE_SHIFT_REQUEST) now runs BEFORE the target row is read, and the merged-row scope check runs after.",
+      "expected": "Task 10 re-drive on the corrected seed: updateShift's SUCCESS path commits for a genuinely-unscoped Tenant Admin acting on a non-Riverside site, where it was refused under the RG-0001 site-scoping bug.",
+      "observed": "Drawer showed 'Saved.'; the register row re-rendered as 'Day Shift (Early)', Start-end 06:00-13:30, at Rockford Fabrication Plant (SITE-BB-EXP-01). No refusal. This remains the only live evidence of updateShift's success path in either unit's ledger, now genuinely reachable rather than dependent on the scoping bug's absence of enforcement.",
       "screenshots": [
         {
-          "path": "docs/screenshots/live/unit-02/final-review-updateshift-success.png",
-          "bytes": 234183,
-          "sha256": "bfdd2e2d1825840a0c70143e75292646f0e2c3b74f11bf6305a491e2bb8924d0"
+          "path": "docs/screenshots/live/closure-task10/LV-0060-updateshift-success-rockford.png",
+          "bytes": 218064,
+          "sha256": "8bab7452805cc81798c4e6a817859a44ecee1f53035a892f80eddd8b977e9bef"
         }
       ],
       "consoleErrors": [],
       "externalRequests": [],
       "verdict": "pass",
       "defect": null,
-      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
-      "stamp": "2026-08-29T21:05:00Z"
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:24:00Z"
     },
     {
       "id": "LV-0061",
@@ -1707,24 +1727,24 @@
       "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
       "steps": [
         "same session as LV-0060",
-        "clicked Archive on SHIFT-BB-EXP-02 (Afternoon Shift)",
-        "confirmed in the archive confirmation dialog"
+        "clicked Archive on SHIFT-BB-EXP-02 (Afternoon Shift, Peoria Assembly Plant -- not Riverside)",
+        "confirmed in the archive confirmation dialog (shift-management-archive-confirm-confirm)"
       ],
-      "expected": "The new archiveShift door (final review, Important 1) authorises with ARCHIVE_SHIFT_REQUEST (['TENANT_ADMIN'], L27293) before any row is read, resolves the row's own tenant and compares it to the session tenant, then delegates the write.",
-      "observed": "'Afternoon Shift was archived.' and the row's status control became shift-management-status-SHIFT-BB-EXP-02-archived. Before this fix this path ran through the bare generic update(), whose only floor for shifts is defaultWriteRoles('hub') = TENANT_OPERATIONAL_WRITERS -- three roles where L27293 names one.",
+      "expected": "Task 10 re-drive on the corrected seed: archiveShift authorises and commits for a genuinely-unscoped Tenant Admin acting on a non-Riverside site, where it was refused under the RG-0001 site-scoping bug.",
+      "observed": "'Afternoon Shift was archived.'; SHIFT-BB-EXP-02's row status became Archived at Peoria Assembly Plant (SITE-BB-EXP-02). No refusal.",
       "screenshots": [
         {
-          "path": "docs/screenshots/live/unit-02/final-review-archiveshift-success.png",
-          "bytes": 260265,
-          "sha256": "dc50c3703161837bfbcb16fce32a04f67812eb62b2769909c1e836657d9b086a"
+          "path": "docs/screenshots/live/closure-task10/LV-0061-archiveshift-success-peoria.png",
+          "bytes": 225014,
+          "sha256": "5f8ce91d0cce3a54f947a1973d796774e2a9eb60186273a88cfaaa938cf46d99"
         }
       ],
       "consoleErrors": [],
       "externalRequests": [],
       "verdict": "pass",
       "defect": null,
-      "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
-      "stamp": "2026-08-29T21:07:00Z"
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:25:00Z"
     },
     {
       "id": "LV-0062",
@@ -1930,6 +1950,34 @@
       "defect": null,
       "candidateId": "closure-task9-e64fea46e31c50d6aa34321ab1081aa767404a39",
       "stamp": "2026-08-29T22:55:00Z"
+    },
+    {
+      "id": "LV-0068",
+      "pathId": "workflows:WF-ROLE-022",
+      "role": "Support",
+      "surface": "Super Admin Platform Console + Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (CANONICAL_EPOCH_MS 2026-03-02T06:00Z platform time; no clock-advance control touched)",
+      "steps": [
+        "signed in as iris.nakamura@platform.aviixa.example (Support, USR-PLAT-SUP-01) with ?next=/super-admin/support-access/",
+        "selected the reason class (the closed list's own single 'unspecified in source' option), selected tenant TEN-BRIGHTBIKES, typed ticket reference 'BB-9012'",
+        "clicked 'Open a support session'"
+      ],
+      "expected": "Task 10 seed fix C (AS-0001's closedAt corrected from null to 2026-08-16T09:05:00Z): Iris Nakamura's stale AS-0001 row no longer reads as still-open relative to the app's simulated clock, so Task 7's one-session-per-actor guard no longer permanently refuses her a new session. This exercises WF-ROLE-022's own primary actor through a path never live-verifiable before either this seed fix or Task 7's door existed.",
+      "observed": "Landed on /hub/support-session/ -- 'Read-only support session -- Bright Bikes'. Banner: 'Platform support is viewing this workspace, read-only. Engineer Iris Nakamura. Ends by 02/03/2026, 13:00:00.' Full read-only Sites list rendered (24 Bright Bikes sites, including the archived ones correctly labelled). No create/edit/archive control anywhere on the screen. Before this seed fix, opening a new session was unconditionally refused by the (correctly written) one-session-per-actor guard, because AS-0001's stale closedAt: null read as still open.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/closure-task10/new-row-iris-nakamura-support-session-open.png",
+          "bytes": 154857,
+          "sha256": "75d61ad2d8e1d44c307609a00df60059d3fa152639605579b8342fcc5b56cb03"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task10-877038c6a36ac9dcb4cbc41680793806edfafcc5",
+      "stamp": "2026-08-29T23:35:00Z"
     }
   ]
 }
