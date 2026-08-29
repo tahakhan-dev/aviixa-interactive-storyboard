@@ -1842,6 +1842,94 @@
       "defect": null,
       "candidateId": "unit02-final-review-c61634ff6bd06180206d366b8c14e9317ff64fa3",
       "stamp": "2026-08-29T21:20:00Z"
+    },
+    {
+      "id": "LV-0066",
+      "pathId": "modules:MOD-SA-09",
+      "role": "Nadia Ferreira (Tenant Admin, invited) then Helena Voss (Admin) \u2014 both driven by the tour's own switchRole-free identity steps (type/click into the real sign-in form), never a role-simulator shortcut",
+      "surface": "Delivery Operations Hub + Super Admin Platform Console",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "THE RUNNER ITSELF WAS DRIVEN, NOT ITS STEPS REPLICATED BY HAND: opened the Tours menu ('demo-tours-toggle'), clicked the real 'Watch' button for TOUR-TENANT-ACTIVATION-001 ('demo-tour-watch-TOUR-TENANT-ACTIVATION-001') \u2014 the only manual input from here on was reading state and, once, setting playback speed to 0.5x via the runner's own 'demo-tour-speed' control",
+        "observed the runner autoplay all 17 steps unattended: TourRunner#start (src/tours/runner.ts) ran each TourStep's real DOM action (src/tours/actions.ts \u2014 navigate via the app's own Next.js router, type character-by-character with real input events, click via el.click()) and, after each one's expectRoute/expectVisible check passed, auto-advanced on its own STEP_GAP_MS (650ms/speed) timer with no click from this verifier",
+        "confirmed a failed first attempt at re-running the SAME tour in the SAME already-written IndexedDB session ('accept' step refused with 'No element carries data-control-id=\"accept-invitation-submit\"', because Nadia's invitation was already accepted by the prior run) \u2014 this is the runner's own documented, non-idempotent-replay-of-a-write limitation (src/tours/runner.ts's own header comment on `restart()`/write idempotency), not a defect; cleared IndexedDB ('aviixa-storyboard') and reloaded for a genuinely fresh run rather than silently discarding the failure",
+        "on the fresh run: caption/progress read 'step 14 of 17 \u2014 Playing' with the spotlight ring genuinely encircling the real 'tenant-detail-activate' control on /super-admin/tenants-lifecycle-and-pilots/detail/ \u2014 captured live, not stepped-to by hand",
+        "autoplay reached 'step 17 of 17 \u2014 Complete' unattended, landed on /super-admin/tenants-lifecycle-and-pilots/, Ironclad Fasteners' row reading Active",
+        "console-error hook (window.console.error/onerror/unhandledrejection all pushed into an array) was armed before this final clean run; array read empty at completion",
+        "performance.getEntriesByType('resource') read for the whole run: no entry outside http://localhost:4173"
+      ],
+      "expected": "TASK 9's OWN SUBJECT: the real auto-play tour-runner UI (WatchButton/TourOverlay/TourControls/NarrationCaption, src/ui/demo/tour/) drives TOUR-TENANT-ACTIVATION-001 \u2014 the cross-surface accept-then-activate tour \u2014 to completion by itself once 'Watch' is clicked, advancing spotlight/narration/progress on a real-time timer with no per-step click required from the verifier, exactly as src/tours/runner.ts's autoplay() loop is built to do. This is the FIRST ledger row that exercises the runner mechanism itself, closing the gap both units' closure records named identically ('the tour runner mechanism remains entirely undriven by any ledger row').",
+      "observed": "Confirmed a genuine timer-driven autoplay, not click-to-advance: after the initial 'Watch' click, every subsequent step ran and the narration/progress/spotlight advanced with zero further input from this verifier, at a real-time pace scaled by the speed selector (0.5x/1x/2x, TourControls' own 'demo-tour-speed'). NOTABLE FINDING, disclosed precisely and not overclaimed: this run crossed from /hub/accept-invitation/ to /super-admin/... and completed the Activate write, succeeding at exactly the continuous cross-surface chain LV-0010 (this same pathId's sibling row, unit-01 Task 12) recorded 'blocked' for a REVIEWER's own manual navigation ('no in-app link connects Hub and Super Admin, any navigation between them is a hard page load'). The mechanism differs, not the underlying finding: TourHost#navigate (src/ui/demo/DemoChrome.tsx) calls the app's own Next.js router.push(), a client-side transition inside the SAME document/React tree \u2014 never a hard page load \u2014 so the in-memory store (and Nadia's real acceptance write) stayed intact across the surface boundary the runner crossed. A reviewer clicking through the visible UI still has no in-app link between the two surfaces and would still hit LV-0009's write-only-persistence finding on a real hard navigation; this row does not reopen or contradict LV-0010, it demonstrates a different, narrower thing \u2014 the underlying app CAN sustain a client-side transition across that boundary when driven programmatically, which is what makes the tour able to demonstrate the full spine end to end even though a plain reviewer cannot discover that same path by clicking alone. Recorded here because it is real, live-observed behavior this task's own driving surfaced, not because it changes LV-0010's verdict.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-01/TOUR-TENANT-ACTIVATION-001-runner-spotlight-signin2.png",
+          "bytes": 168838,
+          "sha256": "3186a99a59eaa4d0e792449ee052f7f6dbeb14569918b2d0a0aedfae9ffee117"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/TOUR-TENANT-ACTIVATION-001-runner-complete.png",
+          "bytes": 166045,
+          "sha256": "e7650284445c9e435769c95f8aef7cf039236f8f787856e867ab8b6aade89e74"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task9-e64fea46e31c50d6aa34321ab1081aa767404a39",
+      "stamp": "2026-08-29T22:55:00Z"
+    },
+    {
+      "id": "LV-0067",
+      "pathId": "modules:MOD-DOH-04",
+      "role": "Marco Ellis (Supervisor) \u2014 signed in by the tour's own type/click steps into the real sign-in form, never a role-simulator shortcut",
+      "surface": "Delivery Operations Hub",
+      "connectivity": "online",
+      "clockStamp": "seed (SEED-CANONICAL-BRIGHTBIKES, no clock-advance control touched)",
+      "steps": [
+        "THE RUNNER ITSELF WAS DRIVEN, NOT ITS STEPS REPLICATED BY HAND: opened the Tours menu, clicked the real 'Watch' button for TOUR-WORKER-ADD-SOD-001 ('demo-tour-watch-TOUR-WORKER-ADD-SOD-001') and let it autoplay",
+        "observed all 11 steps run and auto-advance unattended (sign-in, navigate to Worker Lifecycle and Qualifications, open Add worker, choose new user, type name/email, submit) to 'step 11 of 11 \u2014 Complete', narration reading the real refusal copy ('Only a Tenant Admin may grant any tenant role...'); console-error hook armed for this run read empty on completion",
+        "RESTARTED THE SAME TOUR (runner's own 'demo-tour-restart' control) and, mid-autoplay, clicked the real 'Pause' control ('demo-tour-playpause') \u2014 landed paused at 'step 6 of 11 \u2014 Paused' ('He opens Worker Lifecycle and Qualifications...'), confirmed the SAME narration/step reached on the earlier full run, i.e. a real, reproducible autoplay position, not a one-off",
+        "EXERCISED TAKE OVER: clicked the real 'Take over' control ('demo-tour-takeover'). Confirmed by inspecting the live DOM immediately after: the tour overlay (spotlight + panel) was gone entirely, the app was still on /hub/worker-lifecycle-and-qualifications/ (the exact page/step-6 state the tour was paused at \u2014 NOT reset to step 0 or to the tour's start route), and focus landed on a real, usable control (TourOverlay's own documented fallback chain: the step-6 target 'sign-in-submit' no longer resolves on this page, so focus correctly fell back to 'demo-tours-toggle')",
+        "CONTINUED MANUALLY FROM THE HANDOFF POINT: with the tour overlay gone and control genuinely back with the verifier, clicked the real product's own 'Add worker' control ('worker-lifecycle-add-worker') by hand \u2014 the exact action step 7 ('open-add-worker') would have performed \u2014 and confirmed it produced the identical real result the tour step expects: the 'choose new user' panel ('worker-lifecycle-add-choose-new-user') rendered. Manual continuation after Take over genuinely works, on the real product, not a second driving mechanism",
+        "console-error hook and performance.getEntriesByType('resource') both re-checked immediately after this manual click: zero console errors, zero requests outside http://localhost:4173"
+      ],
+      "expected": "TASK 9's OWN SUBJECT, the SoD-discovery tour named in the brief as unit-02's representative: the real tour-runner UI drives TOUR-WORKER-ADD-SOD-001 to completion unattended, AND the 'Take over' control genuinely hands control back to the user at the exact current state (not a reset to step 0 or to the tour's start route), with manual continuation from that exact point working on the real product.",
+      "observed": "Both halves confirmed live. Full unattended completion: narration/progress/status advanced from 'step 1 of 11 \u2014 Playing' to 'step 11 of 11 \u2014 Complete' with zero clicks from this verifier after the initial 'Watch'. Take over: state before and after the click was identical except runner status and overlay visibility \u2014 same route, same step index (6 of 11), same underlying repository state \u2014 the overlay simply disappeared and focus moved to a live, usable control; this is a real handoff, not a stop-and-reset. The manually-clicked 'Add worker' afterward produced the exact next real state the tour's own step 7 asserts (worker-lifecycle-add-choose-new-user visible), proving the handoff lands somewhere the reviewer can genuinely keep working from.",
+      "screenshots": [
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-midstep.png",
+          "bytes": 98095,
+          "sha256": "04ab5160cc12e3808de411e63af3d5d5e7813616a2d3cc13c70eb1e162290c6e"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-complete.png",
+          "bytes": 235203,
+          "sha256": "9a2234ad2fa2c9f243b7d28be880f903ecf0b9fc8e59b972aa7faca574b78c8b"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-paused-step6.png",
+          "bytes": 222200,
+          "sha256": "15535f0fb1c57282a84c1abfa258d1fe728558610a7a8333895174dbcb162e0a"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-takeover-handoff.png",
+          "bytes": 197418,
+          "sha256": "6ba7445ac60db3838f9954eb514dcf5972447f8d0fbddb2c458a07829a481bf1"
+        },
+        {
+          "path": "docs/screenshots/live/unit-02/TOUR-WORKER-ADD-SOD-001-runner-manual-continue-after-takeover.png",
+          "bytes": 191630,
+          "sha256": "777daf254ed96c441ca6cbe05fd66f5b5fad70bf14a396130c99c60b7f6b2630"
+        }
+      ],
+      "consoleErrors": [],
+      "externalRequests": [],
+      "verdict": "pass",
+      "defect": null,
+      "candidateId": "closure-task9-e64fea46e31c50d6aa34321ab1081aa767404a39",
+      "stamp": "2026-08-29T22:55:00Z"
     }
   ]
 }
