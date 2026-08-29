@@ -79,7 +79,13 @@ export function ProductRuntime({ children }: { children: ReactNode }) {
         // cross-tenant read context — the same one the demo Inspector reads
         // through, not `useAccessContext()` (a signed-out identity sees
         // nothing).
-        const outcome = resolveSignIn(runtimeData.repository, reviewerAccessContext(runtimeData.store), email, password)
+        const outcome = resolveSignIn(
+          runtimeData.repository,
+          reviewerAccessContext(runtimeData.store),
+          runtimeData.store,
+          email,
+          password,
+        )
         setSessionState(
           outcome.kind === 'signed-in'
             ? { session: outcome.session, sessionId: email, lastOutcome: outcome }
@@ -126,7 +132,7 @@ export function ProductRuntime({ children }: { children: ReactNode }) {
       // wiring only lands the resulting session, exactly as `signIn` and
       // `completeStepUp` do above.
       async acceptInvitation(tenantId: string): Promise<InvitationAcceptanceResult> {
-        const result = await resolveInvitationAcceptance(runtimeData.repository, tenantId)
+        const result = await resolveInvitationAcceptance(runtimeData.repository, runtimeData.store, tenantId)
         if (result.kind === 'signed-in') {
           setSessionState({ session: result.session, sessionId: result.session.identityId, lastOutcome: null })
         }

@@ -125,14 +125,71 @@ export interface ProductSessionApi extends ProductSessionState {
 export const SIGNED_OUT: ProductSessionState = { session: null, sessionId: null, lastOutcome: null }
 
 /**
+ * Task 6 (closure sweep) — every ACTIVE role-grant a user holds, `store`
+ * read directly (not the `Repository` query surface): unlike
+ * `resolveSignIn`'s own `repository.list('users', ctx)` lookup, this
+ * doesn't need `withinScope` filtering (`role-grants` rows carry no
+ * `siteId`/`areaId` top-level field for it to key off, and PLATFORM-domain
+ * ctx already reads cross-tenant), so this matches `assignTenantRole`'s own
+ * lower-level `store.get('role-grants')` cast-and-filter
+ * (`repository.ts:2950-2952`) — the SAME plurality convention: only
+ * `revokedAt === null` is filtered on there (a user MAY hold several
+ * simultaneous active grants of different roles; that filter's whole job is
+ * blocking a second grant of the SAME role, not narrowing to one), plus an
+ * `expiresAt` check matched to the one real "now" comparison in this file
+ * (`resolveStepUpCompletion` below), never `Date.now()`.
+ */
+function activeGrantsFor(store: Store, userId: string): readonly RowOf<'role-grants'>[] {
+  const nowMs = store.clock.now()
+  return (store.get('role-grants') as readonly RowOf<'role-grants'>[]).filter(
+    (g) => g.userId === userId && g.revokedAt === null && (g.expiresAt === null || Date.parse(g.expiresAt) > nowMs),
+  )
+}
+
+/**
+ * Task 6 (closure sweep) — the union of every active grant's `siteIds`/
+ * `areaIds`, deduplicated. Returns `undefined`, not `{ sites: [], areas: [] }`,
+ * when the user holds no scoped grant at all: `useRepository.ts#identityFor`'s
+ * `session.scope?.sites ? [...session.scope.sites] : []` treats an empty
+ * array as truthy (only `0`/`''`/`null`/`undefined`/`false`/`NaN` are
+ * falsy in JS), so `{ sites: [], areas: [] }` and `undefined` both collapse
+ * to `siteScope: []` there either way — behaviourally identical today. This
+ * still picks `undefined`: an unscoped identity (14 of 15 seeded Tenant
+ * Admins hold no site/area-scoped grant at all) should say so plainly
+ * rather than carry a `scope` object whose presence a future reader could
+ * mistake for meaning something.
+ */
+function scopeFrom(grants: readonly RowOf<'role-grants'>[]): ProductSession['scope'] {
+  const sites = new Set<string>()
+  const areas = new Set<string>()
+  for (const grant of grants) {
+    for (const siteId of grant.siteIds) sites.add(siteId)
+    for (const areaId of grant.areaIds) areas.add(areaId)
+  }
+  if (sites.size === 0 && areas.size === 0) return undefined
+  return { sites: [...sites], areas: [...areas] }
+}
+
+/**
  * `stepUpActive` (Task 2 fix round 1): defaults `false` for the ordinary
  * `resolveSignIn` path below (which never calls this for
  * `ROOT_SUPER_ADMIN` — that role always exits through `step-up-required`
  * first); `resolveStepUpCompletion` passes `true` for the session it
  * lands, which is the one and only path a `true` value can reach this
  * function through.
+ *
+ * `store` (Task 6, closure sweep): threaded through so this can resolve the
+ * signing-in user's own active `role-grants` and populate `scope` — every
+ * scope-check this project has ever built was previously verified only
+ * against a forged `AccessContext`, never a real signed-in session, because
+ * this function never populated `scope` for anyone. See `activeGrantsFor`/
+ * `scopeFrom` above.
  */
-function sessionFor(user: RowOf<'users'>, stepUpActive = false): ProductSession {
+function sessionFor(user: RowOf<'users'>, store: Store, stepUpActive = false): ProductSession {
+  // `exactOptionalPropertyTypes` (tsconfig) — `scope` must be OMITTED, not
+  // set to `undefined`, for an unscoped identity; a conditional spread,
+  // not a plain `scope: maybeUndefined` property, is what that requires.
+  const scope = scopeFrom(activeGrantsFor(store, user.id))
   return {
     identity: user.displayName,
     // Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 4) — the real
@@ -142,6 +199,7 @@ function sessionFor(user: RowOf<'users'>, stepUpActive = false): ProductSession 
     identityId: user.id,
     role: user.role,
     tenant: user.tenantId ? tenantId(user.tenantId) : null,
+    ...(scope ? { scope } : {}),
     device: 'desktop',
     stepUpActive,
   }
@@ -156,10 +214,15 @@ function sessionFor(user: RowOf<'users'>, stepUpActive = false): ProductSession 
  * reads across tenants (`@/ui/product/runtime/useRepository#reviewerAccessContext`)
  * — this function performs no write, so which actor a read-only lookup is
  * attributed to is irrelevant.
+ *
+ * `store` (Task 6, closure sweep): passed through to `sessionFor` alone,
+ * to resolve the landing session's `scope` from the signing-in user's own
+ * `role-grants` — not used for anything else here.
  */
 export function resolveSignIn(
   repository: Repository,
   ctx: AccessContext,
+  store: Store,
   email: string,
   password: string,
 ): SignInOutcome {
@@ -196,7 +259,7 @@ export function resolveSignIn(
     // `signed-in` on its own; the acknowledgement gate comes first.
     return { kind: 'step-up-required', challenge: 'authenticator', email }
   }
-  return { kind: 'signed-in', session: sessionFor(user) }
+  return { kind: 'signed-in', session: sessionFor(user, store) }
 }
 
 /**
@@ -281,7 +344,7 @@ export async function resolveStepUpCompletion(
   if (!result.ok) {
     return { kind: result.kind, explain: result.explain }
   }
-  return { kind: 'signed-in', session: sessionFor(result.row, true) }
+  return { kind: 'signed-in', session: sessionFor(result.row, store, true) }
 }
 
 /**
@@ -293,13 +356,17 @@ export async function resolveStepUpCompletion(
  * — `repository.acceptInvitation` takes none (see its own comment); this
  * function's only job is translating that door's `AcceptInvitationResult`
  * into the session-shaped `InvitationAcceptanceResult` the screen renders.
+ *
+ * `store` (Task 6, closure sweep): the third real `sessionFor` call site —
+ * passed through for the same `scope`-resolving reason as the other two.
  */
 export async function resolveInvitationAcceptance(
   repository: Repository,
+  store: Store,
   tenantId: string,
 ): Promise<InvitationAcceptanceResult> {
   const result = await repository.acceptInvitation(tenantId)
-  if (result.ok) return { kind: 'signed-in', session: sessionFor(result.user) }
+  if (result.ok) return { kind: 'signed-in', session: sessionFor(result.user, store) }
   switch (result.kind) {
     case 'not-found':
       return { kind: 'not-found' }
