@@ -41,15 +41,17 @@ import { useProductSession } from './runtime'
  * that one constant, reused rather than redeclared.
  *
  * THE SECOND SENTENCE (unit-01 final whole-branch review, must-fix from
- * triage). Writes on these screens DO reach IndexedDB — one transaction per
- * committed write, `src/data/repository.ts` — but `boot()` never reads that
- * store back and `Repository.reset()` has no caller, so the persistence is
- * write-only: a reload silently returns everything to the seed. Rehydration
- * is a later task's work and is deliberately not built here. The SILENCE was
- * the defect: master prompt §29.4 forbids letting a reader believe a
- * capability that is only simulated, and nothing on screen said a reload
- * discards what they just did. It says so now, in the one sentence every
- * screen carrying this disclosure already renders.
+ * triage; reworded again, Task 5 of the units-01-02 closure sweep). Writes
+ * on these screens DO reach IndexedDB — one transaction per committed
+ * write, `src/data/repository.ts` — and as of Task 5, `boot()` reads that
+ * store back too (`@/data/boot#readLatestSnapshot`/`validateSnapshot`), so a
+ * reload in the SAME browser now rehydrates the last durably-committed
+ * state rather than discarding it back to the seed. The wording below is
+ * updated to match: master prompt §29.4 forbids letting a reader believe a
+ * capability that is only simulated in EITHER direction — the prior wording
+ * ("nothing you do is kept for a later visit") became exactly that false
+ * claim the moment rehydration shipped, so it is corrected here rather than
+ * left to quietly mislead the next reader of this screen.
  *
  * This makes `NOT_REAL_TEXT` a strict SUPERSET of
  * `src/ui/sa/PrototypeDisclosure.tsx`'s copy rather than a verbatim twin.
@@ -59,7 +61,7 @@ import { useProductSession } from './runtime'
  * other component hosts.
  */
 export const NOT_REAL_TEXT =
-  'Simulated behaviour only. This screen is part of a client-validation storyboard: every state shown is seeded fixture data the user steps through, not a computed transition against a connected production system. Anything you change here lives only in this browser tab: reloading the page returns the storyboard to its seeded state, and nothing you do is kept for a later visit.'
+  'Simulated behaviour only. This screen is part of a client-validation storyboard: every state shown is seeded fixture data the user steps through, not a computed transition against a connected production system. Anything you change here is saved only to local storage in this browser: it is still here if you reload this tab, but it is never sent anywhere, never shared with any other device, browser, or person, and is lost if this browser storage is cleared or unavailable.'
 
 function NotRealDisclosure() {
   return <p className={`mt-3 max-w-prose text-xs ${textColor('ink-subtle')}`}>{NOT_REAL_TEXT}</p>
