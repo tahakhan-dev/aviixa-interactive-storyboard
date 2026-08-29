@@ -176,8 +176,15 @@ const VIEW_REQUEST: AccessRequest = {
 
 /**
  * Create/edit/archive's real floor: `repository.ts`'s named `createShift`/
- * `updateShift` doors and the generic `update()` door (for archive) govern
- * every Shift write uniformly.
+ * `updateShift`/`archiveShift` doors govern every Shift write uniformly.
+ *
+ * FINAL WHOLE-UNIT REVIEW (unit-02, Important 1) — archive used to be the
+ * exception named in this paragraph: it went through the GENERIC `update()`
+ * door, whose only floor for `shifts` is `defaultWriteRoles('hub')`
+ * (`TENANT_OPERATIONAL_WRITERS` — Tenant Admin, Supervisor, Quality
+ * Manager), so `L27293` was enforced on this screen as a display gate and
+ * nowhere else. `repository.archiveShift` is now that path's own named
+ * door, `['TENANT_ADMIN']`, and `confirmArchive` below calls it.
  *
  * CORRECTIVE TASK (unit-02, task-corrective-01) — `allowedRoles` narrowed
  * to `['TENANT_ADMIN']`. An earlier pass of this task read the repository's
@@ -315,7 +322,7 @@ function ShiftManagementBody({
   async function confirmArchive(): Promise<void> {
     if (archiveTarget === null) return
     setArchiveBusy(true)
-    const result = await repository.update('shifts', archiveTarget.id, { status: 'archived' }, ctx)
+    const result = await repository.archiveShift(archiveTarget.id, ctx)
     setArchiveBusy(false)
     setArchiveTarget(null)
     if (result.ok) {

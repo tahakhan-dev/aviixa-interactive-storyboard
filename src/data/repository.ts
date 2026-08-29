@@ -309,6 +309,30 @@ export interface Repository {
    */
   updateShift(id: string, patch: Partial<RowOf<'shifts'>>, ctx: AccessContext): Promise<UpdateShiftResult>
   /**
+   * FINAL WHOLE-UNIT REVIEW (unit-02, Important 1) — Shift ARCHIVE's own
+   * named door, the third of the three Shift writes and the one the
+   * corrective task that gave `createShift`/`updateShift` their
+   * Tenant-Admin-only floors did not reach. `ShiftManagementScreen.tsx`
+   * called the bare generic `update('shifts', id, { status: 'archived' })`
+   * for it, whose only floor is `defaultWriteRoles('hub')`
+   * (`TENANT_OPERATIONAL_WRITERS`) — so a Supervisor or Quality Manager,
+   * both `Explicitly prohibited` on `L27293` ("Archive a Shift"), could
+   * archive a Shift through any caller that reached the repository
+   * directly. The screen's own `WRITE_REQUEST` already cited `L27293` and
+   * already knew the answer; it enforced it only as a display gate.
+   *
+   * Shape is `archiveLocationTierEntity`'s exactly, minus the cascade:
+   * `evaluateAccess` is the LITERAL FIRST action after the writability
+   * gate, before any row is read, and the target row's OWN tenant is
+   * resolved and compared to `ctx.identity.tenant` explicitly before the
+   * write is delegated back to the generic `update()`. NO cascade sweep —
+   * nothing nests beneath a Shift in this hierarchy, and the source's own
+   * archive condition ("refused while runs are scheduled against it",
+   * `L27293`) has no Run/Job collection at this authority to read, the
+   * same disclosed gap `reassignDevice` carries for `AC-WF-DVC-002-01`.
+   */
+  archiveShift(id: string, ctx: AccessContext): Promise<WriteResult<RowOf<'shifts'>>>
+  /**
    * Task 1 (unit-02) — `WF-DOH-02-CASCADE` (design spec §3, "the archival
    * cascade"): archiving a Site or Area must not silently orphan an active
    * Area or Location beneath it. This build has no source authority to
@@ -1481,6 +1505,30 @@ const UPDATE_SHIFT_REQUEST: AccessRequest = {
   action: 'update-shift',
   allowedRoles: ['TENANT_ADMIN'],
   sourceRefs: ['L27292', 'repository.ts'],
+}
+
+/**
+ * FINAL WHOLE-UNIT REVIEW (unit-02, Important 1) — `archiveShift`'s own
+ * floor, the third sibling of the two above. `L27293` ("Archive a Shift"):
+ * `Allowed with conditions` for the Tenant Admin, `Explicitly prohibited`
+ * for the Supervisor, the Quality Manager, the Read-only Auditor and the
+ * Worker alike — the same Shift Management roles-and-permissions table
+ * whose own "Security" field reads "Tenant Admin only for writes; all
+ * other roles read within scope". Static, no `requiredSites` baked in:
+ * `archiveShift` adds the row-dependent scope check at the call site, the
+ * shape `CREATE_SHIFT_REQUEST`'s own comment settles.
+ *
+ * Before this door existed the archive path ran through the bare generic
+ * `update()`, whose fallback floor for `shifts` is `defaultWriteRoles
+ * ('hub')` (`TENANT_OPERATIONAL_WRITERS`) — three roles wide where the
+ * source names one. That is the same too-wide-generic-floor defect the
+ * corrective task corrected on six other constants in this file; the
+ * archive path was simply not among them.
+ */
+const ARCHIVE_SHIFT_REQUEST: AccessRequest = {
+  action: 'archive-shift',
+  allowedRoles: ['TENANT_ADMIN'],
+  sourceRefs: ['L27293', 'repository.ts'],
 }
 
 /**
@@ -3457,6 +3505,65 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       if (conflict !== null) return { ok: false, kind: 'overlap', conflictingShift: conflict }
 
       return repository.update('shifts', id, patch, ctx)
+    },
+
+    /**
+     * FINAL WHOLE-UNIT REVIEW (unit-02, Important 1) — see the `Repository`
+     * interface's own comment for why this door exists and
+     * `ARCHIVE_SHIFT_REQUEST`'s own comment for the `L27293` citation.
+     *
+     * ORDER IS `archiveLocationTierEntity`'S, VERBATIM: `evaluateAccess` is
+     * the literal first action after the writability gate, before any
+     * `store.get`; the row's OWN tenant is then resolved and compared to
+     * `ctx.identity.tenant` EXPLICITLY, rather than left to be caught
+     * incidentally by the generic `update()`'s check on the success path —
+     * which is precisely the gap that let a cross-tenant read through on
+     * that door before its own fix round. The site-scope half re-asks the
+     * SAME request with `requiredSites: [row.siteId]`, at the call site and
+     * only for an identity that carries a scope, the split `updateShift`
+     * directly above settles for a door whose scope value needs a row read.
+     *
+     * No cascade sweep, unlike `archiveLocationTierEntity`: nothing nests
+     * beneath a Shift. The source's own archive condition — refused while
+     * runs are scheduled against it (`L27293`, `NOTIF-DOH-03-3`) — is NOT
+     * enforced here, and deliberately: no Run or Job collection exists at
+     * this authority to read a scheduled run off. A disclosed gap, the same
+     * shape and for the same reason as `reassignDevice`'s own
+     * `AC-WF-DVC-002-01`, never a silently invented check.
+     */
+    async archiveShift(id, ctx) {
+      const authority = truthStoreFor('shifts')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('shifts', authority)
+
+      const decision = evaluateAccess(ARCHIVE_SHIFT_REQUEST, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const rows = store.get('shifts') as readonly RowOf<'shifts'>[]
+      const row = rows.find((r) => r.id === id)
+      if (row === undefined) return notFoundRefusal('shifts', id, 'archive')
+
+      const resolution = resolveTenantId('shifts', row, store)
+      if (resolution.kind === 'conflict' || resolution.kind === 'unresolved') {
+        return refusal(tenantIsolationDenial('shifts', resolution))
+      }
+      const rowTenant = resolution.kind === 'resolved' ? resolution.tenant : null
+      if (rowTenant === null || rowTenant !== ctx.identity.tenant) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'This Shift does not belong to your tenant; it cannot be archived from here.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['§7.4', '§26.3', 'repository.ts'] },
+          ),
+        )
+      }
+
+      if (ctx.identity.siteScope.length > 0) {
+        const scopeDecision = evaluateAccess({ ...ARCHIVE_SHIFT_REQUEST, requiredSites: [row.siteId] }, ctx)
+        if (!permitsAction(scopeDecision)) return refusal(scopeDecision)
+      }
+
+      return repository.update('shifts', id, { status: 'archived' }, ctx)
     },
 
     /**
