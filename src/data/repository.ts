@@ -3405,25 +3405,45 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       // before the first fix round. Read directly against the collection
       // instead, keyed on the real, durable fact (`platformUserId` +
       // `closedAt`), so the guard holds no matter what the client
-      // remembers. Not `expiresAt`-aware, deliberately: nothing in this
-      // build ever sets `closedAt` on expiry alone (no automatic
-      // close-on-expiry job exists), and the console's own "Close this
-      // session" control already closes a session regardless of expiry —
-      // that remains the one real way out of an expired-but-unclosed row,
-      // exactly as it does today.
+      // remembers.
+      //
+      // Fix round 3 (coordinator review) — IS expiry-aware now, reversing
+      // round 2's own "deliberately not" call. A guard blind to `expiresAt`
+      // protects nothing (an expired session already renders no tenant data
+      // to anyone, `SupportSessionScreen.tsx`'s own expiry check), while
+      // permanently locking out any identity whose OLD session merely
+      // outlived its box — measured live against the seed itself:
+      // `AS-0001`/`AS-0002` are both seeded `closedAt: null` and both
+      // already past `expiresAt`, so both seeded Support accounts
+      // (`WF-ROLE-022`'s own primary actor) were refused this door forever,
+      // on a stock seed, before this line existed. `nowMs` matches the same
+      // simulated-clock discipline `SupportSessionScreen.tsx`'s own expiry
+      // check uses (`store.clock.now()`, never wall time).
+      const nowMs = store.clock.now()
       const actorId = ctx.actorOfRecord
       const alreadyOpen = repository
         .list('access-sessions', ctx)
-        .where((r) => r.platformUserId === actorId && r.closedAt === null)
+        .where((r) => r.platformUserId === actorId && r.closedAt === null && Date.parse(r.expiresAt) > nowMs)
         .first()
       if (alreadyOpen) {
+        // Fix round 3 (coordinator review) — no longer unconditionally
+        // names "the console's own Close this session control" as a
+        // guaranteed escape: that control (`SupportAccessScreen.tsx
+        // #handleCloseSupportSession`) can only close a session THIS
+        // signed-in browser session itself remembers opening
+        // (`ProductSession.accessSessionId`) — for the exact orphan case
+        // this refusal exists to catch (a still-live session opened in a
+        // DIFFERENT sign-in, or seeded rather than opened by any click at
+        // all), that control cannot act on it, and the old wording claimed
+        // otherwise.
         return refusal(
           deny(
             'explicitlyProhibited',
             'OBJECT_STATE_INVALID',
-            `This account already holds an open support session ("${alreadyOpen.id}"). Close it — the console's ` +
-              'own "Close this session" control — before opening another; a session is never handed over or ' +
-              'silently replaced inside its own lifetime (L16099).',
+            `This account already holds an open, unexpired support session ("${alreadyOpen.id}"). A session is ` +
+              'never handed over or silently replaced inside its own lifetime (L16099); the existing one must be ' +
+              'closed first. The console’s own "Close this session" control does this only for a session it ' +
+              'was itself used to open — it has no way to close one it does not remember.',
             { stage: 'OBJECT_STATE', sourceRefs: ['L16099', 'repository.ts'] },
           ),
         )
@@ -3434,8 +3454,8 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       // time-boxed, default two hours, configurable in platform settings").
       // `DEC-SUPEXT-001` (L16125 area) leaves extension undecided and this
       // build takes no position on it here either — the box is fixed at
-      // open time and this door offers no extension path.
-      const nowMs = store.clock.now()
+      // open time and this door offers no extension path. `nowMs` reused
+      // from the guard above — same instant, one read of the clock.
       const row: RowOf<'access-sessions'> = {
         id: `AS-SUPPORT-${store.nextSequence()}`,
         kind: 'support',
