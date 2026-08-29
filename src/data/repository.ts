@@ -50,6 +50,7 @@ import { COLLECTIONS, RELATIONS, type CollectionName } from './schemas'
 import type { Event as EventRow, Audit as AuditRow } from './schemas/crosscutting'
 import type { CollectionData, Store } from './store'
 import { truthStoreFor, writableThroughRepository, type TruthStoreAuthority } from './truth-stores'
+import { checkAreaReference, checkSiteReference, scopeReferenceMessage } from './scope-reference'
 import { roleById, type RoleId } from '@/domain/roles'
 import type { SurfaceId } from '@/domain/surfaces'
 import {
@@ -188,6 +189,41 @@ export interface Repository {
    * and why `evaluateAccess`'s role stage is not called here at all.
    */
   acceptInvitation(tenantId: string): Promise<AcceptInvitationResult>
+  /**
+   * Task 1 (unit-02) — a new Area's `siteId` must name a real, active,
+   * same-tenant Site, a rule the generic `create()` door does not run (it
+   * validates the row's own shape against `schemas/org.ts#Area`, never
+   * what the row's `siteId` points at). Authorisation is otherwise
+   * IDENTICAL to `create('areas', ...)` — same `authorizeWrite` call, same
+   * `TENANT_OPERATIONAL_WRITERS` floor — so this door calls `authorizeWrite`
+   * itself rather than re-deriving a parallel role/tenant check the way
+   * `provisionTenant`/`inviteConsoleUser` deliberately bypass it for a
+   * genuinely different authorisation shape. Once authorised, this
+   * delegates to the same internal `createRow` the generic door uses —
+   * see `inviteConsoleUser`'s own comment for that same delegation shape.
+   */
+  createAreaUnderSite(area: RowOf<'areas'>, ctx: AccessContext): Promise<WriteResult<RowOf<'areas'>>>
+  /** Task 1 (unit-02) — `createAreaUnderSite`'s own sibling for Location under Area. */
+  createLocationUnderArea(location: RowOf<'locations'>, ctx: AccessContext): Promise<WriteResult<RowOf<'locations'>>>
+  /**
+   * Task 1 (unit-02) — `WF-DOH-02-CASCADE` (design spec §3, "the archival
+   * cascade"): archiving a Site or Area must not silently orphan an active
+   * Area or Location beneath it. This build has no source authority to
+   * invent an automatic reassignment cascade (no Job/Run integration
+   * exists at this collection's authority yet), so the alternate path this
+   * door demonstrates is the honest one: refuse the archive and name every
+   * active child, rather than cascading. Delegates the actual write to the
+   * generic `update()` once the check passes — see this method's own
+   * implementation comment.
+   */
+  archiveLocationTierEntity(
+    collection: 'sites' | 'areas' | 'locations',
+    id: string,
+    ctx: AccessContext,
+  ): Promise<
+    | WriteResult<RowOf<'sites'> | RowOf<'areas'> | RowOf<'locations'>>
+    | { readonly ok: false; readonly kind: 'has-active-children'; readonly children: readonly { readonly collection: string; readonly id: string; readonly name: string }[] }
+  >
   subscribe(listener: () => void): () => void
   reset(): void
   exportJson(): Record<CollectionName, unknown[]>
@@ -2101,6 +2137,131 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
       )
       if (!result.ok) return result
       return { ok: true, user: result.row }
+    },
+
+    /**
+     * Task 1 (unit-02) — see the `Repository` interface's own comment.
+     * `authorizeWrite` runs exactly as it does for `create('areas', ...)`
+     * (same floor, same tenant-isolation stage); the ONE thing this door
+     * adds is `checkSiteReference`, which the generic door never runs at
+     * all — a `siteId` naming an archived or foreign-tenant Site would
+     * otherwise pass straight through to `createRow` and commit.
+     */
+    async createAreaUnderSite(area, ctx) {
+      const authority = truthStoreFor('areas')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('areas', authority)
+
+      const decision = authorizeWrite('areas', authority, 'create', asRecord(area), ctx, store)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const actorTenant = ctx.identity.tenant
+      if (actorTenant === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'An Area can only be created by an actor with a live tenant.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      const problem = checkSiteReference(store, actorTenant, area.siteId)
+      if (problem !== null) {
+        return refusal(
+          deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', scopeReferenceMessage(problem), {
+            stage: 'COMMAND_VALIDATION',
+            sourceRefs: ['repository.ts', 'WF-DOH-02-CASCADE'],
+          }),
+        )
+      }
+
+      return createRow('areas', area, ctx, authority)
+    },
+
+    /** Task 1 (unit-02) — `createAreaUnderSite`'s own sibling for Location under Area. Same shape. */
+    async createLocationUnderArea(location, ctx) {
+      const authority = truthStoreFor('locations')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('locations', authority)
+
+      const decision = authorizeWrite('locations', authority, 'create', asRecord(location), ctx, store)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const actorTenant = ctx.identity.tenant
+      if (actorTenant === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'A Location can only be created by an actor with a live tenant.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+      const problem = checkAreaReference(store, actorTenant, location.areaId)
+      if (problem !== null) {
+        return refusal(
+          deny('explicitlyProhibited', 'OBJECT_STATE_INVALID', scopeReferenceMessage(problem), {
+            stage: 'COMMAND_VALIDATION',
+            sourceRefs: ['repository.ts', 'WF-DOH-02-CASCADE'],
+          }),
+        )
+      }
+
+      return createRow('locations', location, ctx, authority)
+    },
+
+    /**
+     * Task 1 (unit-02) — `WF-DOH-02-CASCADE`. See the `Repository`
+     * interface's own comment for why this refuses-and-names rather than
+     * cascading. The active-children sweep for a Site looks TWO tiers
+     * down, not one: an archived Area can still hold an active Location
+     * beneath it (a pre-existing inconsistency this door did not create),
+     * and archiving the Site above it must not silently widen that hole —
+     * "must not silently orphan active Areas/Locations beneath it" (design
+     * spec, Step 3) names both nouns for exactly this reason. Archiving an
+     * Area itself looks one tier down, at its own Locations. Archiving a
+     * Location looks nowhere — nothing sits beneath it in this hierarchy —
+     * so that branch always proceeds straight to the write once the row
+     * itself is found.
+     *
+     * The write itself, once the check passes, is `repository.update(...)`
+     * — the same generic door, same `authorizeWrite` floor — never a
+     * second, parallel commit path. `decideApprovalRequest` above already
+     * establishes this shape: a named door adds exactly the ONE rule the
+     * generic door doesn't run, then delegates the mechanical write back
+     * to it.
+     */
+    async archiveLocationTierEntity(collection, id, ctx) {
+      const rows = store.get(collection) as readonly Record<string, unknown>[]
+      const row = rows.find((r) => rowId(r) === id)
+      if (row === undefined) return notFoundRefusal(collection, id, 'archive')
+
+      const children: { readonly collection: string; readonly id: string; readonly name: string }[] = []
+      if (collection === 'sites') {
+        const areas = store.get('areas') as readonly RowOf<'areas'>[]
+        const areasUnderSite = areas.filter((a) => a.siteId === id)
+        for (const a of areasUnderSite) {
+          if (a.status === 'active') children.push({ collection: 'areas', id: a.id, name: a.name })
+        }
+        const areaIdsUnderSite = new Set(areasUnderSite.map((a) => a.id))
+        const locations = store.get('locations') as readonly RowOf<'locations'>[]
+        for (const l of locations) {
+          if (areaIdsUnderSite.has(l.areaId) && l.status === 'active') {
+            children.push({ collection: 'locations', id: l.id, name: l.name })
+          }
+        }
+      } else if (collection === 'areas') {
+        const locations = store.get('locations') as readonly RowOf<'locations'>[]
+        for (const l of locations) {
+          if (l.areaId === id && l.status === 'active') children.push({ collection: 'locations', id: l.id, name: l.name })
+        }
+      }
+
+      if (children.length > 0) {
+        return { ok: false, kind: 'has-active-children', children }
+      }
+
+      return repository.update(collection, id, { status: 'archived' } as Partial<RowOf<typeof collection>>, ctx)
     },
 
     async update(name, id, patch, ctx) {
