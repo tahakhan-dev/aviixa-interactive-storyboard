@@ -3,11 +3,11 @@
   "ledger": "Product Candidate Manifest",
   "governing_section": "master prompt §23.2 — scope 1 of the two non-self-referential hash scopes",
   "slice": "11",
-  "candidate_id": "SLICE11-40350cb6ac702e62",
-  "candidate_manifest_sha256": "40350cb6ac702e626dadc2cfde46637d490a20f1a0a6488a5b8a29ef0c82819f",
+  "candidate_id": "SLICE11-fc32499cd3bdb809",
+  "candidate_manifest_sha256": "fc32499cd3bdb809638532d213649d5379e5beba1f639d88bfcc69b90e530542",
   "scope": {
     "kind": "product-candidate",
-    "contents": "application source, tests, fixtures, configuration, lockfile, assets and required delivery documentation",
+    "contents": "application source, fixtures, configuration, lockfile, assets and required delivery documentation",
     "derivation": "git ls-files --cached --others --exclude-standard, foreign probe entries removed, every path NOT under an evidence root",
     "evidence_roots": [
       "docs/process/",
@@ -18,34 +18,36 @@
     "hashes_itself": false,
     "why_not": "this manifest lives under docs/process/ledgers/, an evidence root, so it is outside the product scope by construction rather than by a remembered exclusion"
   },
-  "git_commit": "d1988008336b7c490714d7a689335842e5765a19",
-  "git_tree": "a842c714fdb80aadc448695645b538a952757888",
+  "git_commit": "8688ff571aeed7f0a9a27f96bcdb53849fe04e53",
+  "git_tree": "d47ef92f6ee986de3944931834767f5a151ae549",
   "worktree_clean": false,
   "bytes_measured_against": "the working tree as it stood when this seal ran, which is NOT the tree of git_commit — that field records only where HEAD was, the worktree was dirty, and nothing here attributes these bytes to any commit. Verify them against the filesystem, never against the commit.",
   "source_sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
-  "source_drift_from_s0": "none — the frozen blueprint is re-hashed by 40 test files on every run",
+  "source_drift_from_s0": "none as of this seal: `shasum -a 256 ../AVIIXA_Production_Product_Blueprint.md` equals `source_sha256` above. NOTHING RE-HASHES IT AUTOMATICALLY. `scripts/slice-blueprint.mjs` re-derives the hash and byte count on every invocation and refuses rather than emit a line mapping it cannot prove, but that script is not part of `pnpm verify` and runs only when someone runs it. Drift would therefore be silent until the next slice, so check it by hand before quoting this field.",
   "file_count": 846,
-  "total_bytes": 22744517,
-  "supersedes": "SLICE11-2af2f4aa2a1d3bf2",
+  "total_bytes": 22752773,
+  "supersedes": "SLICE11-40350cb6ac702e62",
   "verification": {
-    "verification_id": "VER-S11-040",
-    "command_chain": "pnpm verify  (tsc --noEmit; eslint .; node scripts/check-gate-ordering.mjs; vitest run --project release tests/coverage/registry-freshness.test.ts; vitest run --project unit; vitest run --project component; pnpm build:registries && rm -rf out && next build; vitest run --project release; playwright test --project=chromium)",
+    "verification_id": "VER-U01-FINAL-01",
+    "supersedes_verification_id": "VER-S11-040",
+    "why_the_previous_block_was_deleted_rather_than_reworded": "VER-S11-040 recorded a command chain of `vitest run --project unit|component|release` and `playwright test --project=chromium`, with results of 6280/6280 unit, 3054/3054 component, 1000/1000 release, 548/548 e2e and 3/3 freshness. None of it could be true here: APP-020 (master prompt §2.3) deleted every test case in this project, `git ls-files` returns zero test files, and `package.json` declares no vitest, no playwright and no test script. It was slice-11 furniture -- `measured_by` named 2026-08-25, before this unit began -- and it survived three reseals on this branch (ece524f, d198800, 8688ff5) because each round treated the block as decoration rather than as a claim. The keys naming a test project (`unit`, `component`, `release`, `e2e`, `freshness`) have no honest counterpart in this repository, so they are gone rather than reworded to a smaller number.",
+    "command_chain": "pnpm verify  (pnpm typecheck && pnpm validate:collections && pnpm lint && pnpm check:gate-ordering && pnpm check:boundary-rules && pnpm build && pnpm scan:no-external-network && pnpm scan:no-fallback-shells && pnpm ledger:reconcile) -- exactly the nine steps package.json defines, in that order",
     "exit_code": 0,
-    "typecheck": 0,
-    "lint": 0,
-    "gate_ordering": "33/33 release gates audited; 23 read a subject an earlier verify step rewrites",
-    "freshness": "3/3",
-    "unit": "6280/6280 in 182 files",
-    "component": "3054/3054 in 108 files",
-    "build": "102/102 static pages",
-    "release": "1000/1000 in 33 files",
-    "e2e": "548/548 (chromium, e2e + axe)",
-    "measured_by": "controller, 2026-08-25, one uninterrupted sequential chain on this candidate's bytes; full log at the path below. Nothing else was running: R6-T02 records that a concurrent build invalidates a release run, and this chain was the only writer.",
-    "log": "scratchpad verify-4.log, chain started 20:55 and exited 0; the three earlier chains of this session (verify-1 red on the stale 608 literals, verify-2 red on the 630 forbidden-count list and manifest drift, verify-3 red on manifest drift alone) are the record of what it took to get here.",
-    "registries_regenerate_byte_identically": "yes -- this chain's `pnpm build` regenerated every registry and the release suite's manifest-drift case then passed, which is the same statement measured from the other side",
-    "what_this_candidate_is": "The round-6 fix wave landed and measured. Fix streams S, T and U were interrupted mid-flight by the end of their session; the controller measured their uncommitted work, closed the seven dependent sites stream U's 608->605 census change left stale, closed R6-T01 and R6-T02, and repaired two cases of tests/coverage/process-evidence.test.ts that went red on the record reaching zero OPEN findings -- a gate that reds on success.",
-    "what_this_candidate_is_not": "NOT a completion claim, and master prompt 29.4 still forbids one. Round 7 of the APP-016 audit loop has not run: the loop closes only when a round finds nothing, and round 6 found seventeen. C-18 from round 1 remains PARTIAL with its reason and owner recorded. Slices 12 and 13 are unbuilt, and three of master prompt 29.1's thirteen bullets fail for that reason.",
-    "sealed_against": "stale — resealed without a fresh measurement"
+    "typecheck": "0 -- tsc --noEmit, no output",
+    "validate_collections": "41 of 41 seed collections valid (2,262 rows total); run twice in the chain, once as its own step and once inside pnpm build",
+    "lint": "0 -- eslint . , no output",
+    "gate_ordering": "5 gate scripts, all audited; 3 read a subject an earlier verify step rewrites, each saying where it runs and why. NOTE: the previous block read `33/33 release gates audited; 23 read a subject...`, which counted release TEST files that no longer exist. This is the real figure `scripts/check-gate-ordering.mjs` prints today.",
+    "boundary_rules": "20 of 20 cases passed (scripts/check-boundary-rules.mjs, in-process ESLint#lintText against the production config)",
+    "build": "next build under output: export -- 5,845 static pages generated across the 94 entries of the build's own route table; compiled in 911ms, TypeScript in 1843ms",
+    "no_external_network": "0 violations across 701 source files under src/+app/ and 5,846 built HTML files under out/",
+    "no_fallback_shells": "0 fallback shells across 5,846 built HTML files under out/",
+    "ledger_reconcile": "Section A: 5,003 registry rows of 5,015 with no live-verification ledger row (the honest backlog). Section B: 0 ledger rows naming a path no registry contains.",
+    "measured_by": "unit-01 final whole-branch review fix wave, 2026-08-29, one uninterrupted sequential `pnpm verify` chain on this candidate's bytes with nothing else writing the tree, run immediately before the seal that carries this block. Every figure above is copied from that run's stdout; none is carried forward from an earlier block.",
+    "log": "scratchpad verify-2.log. A first chain (verify-1.log) ran on the same bytes earlier in this wave and also exited 0; verify-2.log is the one these figures are read from.",
+    "registries_regenerate_byte_identically": "yes -- `pnpm build` regenerates every file under registries/generated/ as part of this chain, and `git status --porcelain` immediately afterward listed no registry path. Re-confirmed by a standalone `node scripts/build-registries.mjs` with the same result.",
+    "what_this_candidate_is": "Unit 1 (platform bootstrap and tenant provisioning), twelve tasks, plus this final whole-branch review's single fix wave: the release manifest's false test attestation deleted, seven hand-rolled disclosures routed through the one shared component, the write-only persistence disclosed on screen, the live-verification ledger's screenshot references given sha256 attestations, three references to deleted files repaired, one missing call-time gate added, and two prose corrections in the record that closes the unit.",
+    "what_this_candidate_is_not": "NOT a completion claim, and master prompt §29.4 still forbids one. It is not evidence that anything is TESTED -- this project has no test cases by standing decision, and `pnpm verify` is a typecheck, a linter, four static scans, a production build and a ledger reconcile, not a test suite. Persistence is still write-only: writes reach IndexedDB, `boot()` never rehydrates, and a reload returns the storyboard to its seed. That is now disclosed on every screen carrying the not-real statement, and building rehydration is deferred to its own task. 5,003 of the 5,015 census rows still have no live-verification row.",
+    "sealed_against": "this chain -- the figures above were measured on the bytes this seal certifies"
   },
   "files": [
     {
@@ -55,8 +57,8 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 890,
-      "sha256": "7b5194d8d957b34918c2c46832773972cb27828d1aae605353497f63054be11e"
+      "bytes": 1875,
+      "sha256": "a53bc8cc8db9fa3aca25731eb4df4ef35d4a4134dd2f02740f65d3b13125060a"
     },
     {
       "path": ".graphifyignore",
@@ -230,8 +232,8 @@
     },
     {
       "path": "app/hub/accept-invitation/AcceptInvitationScreen.tsx",
-      "bytes": 17037,
-      "sha256": "e99315b0963690504a8ea9b6ee8a251ba09db7e7b030a116ef50d6f91b269713"
+      "bytes": 17059,
+      "sha256": "75dd8b5ad9a756944795226ae2ca16b266dab7db9db761e8fe99403340c39f11"
     },
     {
       "path": "app/hub/accept-invitation/page.tsx",
@@ -785,8 +787,8 @@
     },
     {
       "path": "app/super-admin/console-users-roles-and-change-approvals/ConsoleUsersScreen.tsx",
-      "bytes": 58538,
-      "sha256": "84c67eb871dcbc0fa630149b91db29f35dd9292861b3addc940cf6c6e6cdd720"
+      "bytes": 57940,
+      "sha256": "23da85029e8050cd2e5a419b7497719d993869053d35cbff1627b80bf5955970"
     },
     {
       "path": "app/super-admin/console-users-roles-and-change-approvals/page.tsx",
@@ -980,8 +982,8 @@
     },
     {
       "path": "app/super-admin/tenant-metrics-and-aggregates/TenantMetricsScreen.tsx",
-      "bytes": 68171,
-      "sha256": "cd0dd787174a5bf8b4822ec3908b9722f3d84c5fbd7e2cae4b82fa6c6dbfe5b3"
+      "bytes": 68032,
+      "sha256": "94370dc90bcb6fc853a9e8dcd6d36188249cf0f859b73dd9bf11d38980b00f84"
     },
     {
       "path": "app/super-admin/tenant-metrics-and-aggregates/page.tsx",
@@ -1005,8 +1007,8 @@
     },
     {
       "path": "app/super-admin/tenants-lifecycle-and-pilots/detail/TenantDetailScreen.tsx",
-      "bytes": 37867,
-      "sha256": "993a26cc616598a9a61d40eb696dfffc2e8856ca1c0509cb016b853c031cf7eb"
+      "bytes": 38472,
+      "sha256": "c460f3848804a0f0d97e5433d9d37cf8780a468640c7f0726f0b78c3e10fa8a2"
     },
     {
       "path": "app/super-admin/tenants-lifecycle-and-pilots/detail/page.tsx",
@@ -1535,8 +1537,8 @@
     },
     {
       "path": "scripts/seal-manifests.mjs",
-      "bytes": 15049,
-      "sha256": "6fbef1501f6796392132e283bcb99a77c3e01d979b5aeae8fea0b141695d7812"
+      "bytes": 17069,
+      "sha256": "007c2ee9458e7c3ccbe11377ae4fe77acff4342c075cd39fc61eae42cd9b5e41"
     },
     {
       "path": "scripts/seed-fixtures/task4-studio.mjs",
@@ -1775,8 +1777,8 @@
     },
     {
       "path": "src/coverage/uninventoried.ts",
-      "bytes": 48648,
-      "sha256": "9d7323d8225a1f601df1b6815e5126796216fcab838bf9a42047932439d8ae32"
+      "bytes": 49054,
+      "sha256": "59793d42d8c01964c8a46d5d714f51925aa581a3b204feb88e0edfce691339d1"
     },
     {
       "path": "src/data/boot.ts",
@@ -2045,8 +2047,8 @@
     },
     {
       "path": "src/disclosure/DecisionDisclosure.tsx",
-      "bytes": 4848,
-      "sha256": "45b097fd079a807883699619fdfe321cb5a28668b8078488e95af4d8267f9766"
+      "bytes": 7466,
+      "sha256": "541637d25547c36351a8b32db364e6a1ba638e7f71a6e55a53e65a9b53e52890"
     },
     {
       "path": "src/disclosure/decisions.ts",
@@ -2190,8 +2192,8 @@
     },
     {
       "path": "src/frontline/modules/fl-a1/service.ts",
-      "bytes": 21372,
-      "sha256": "913afe3b049d99541e7d96c32dbc924212274cb22392deb1b59d6c70db056d2e"
+      "bytes": 21837,
+      "sha256": "0788d690619a43398fd03005972f8638c5cb8281c3e105b023442fbbf8a4294e"
     },
     {
       "path": "src/frontline/modules/fl-a2/MyRunsView.tsx",
@@ -3430,8 +3432,8 @@
     },
     {
       "path": "src/surfaces/cc/modules/cc-11/report-sets.ts",
-      "bytes": 19677,
-      "sha256": "f8bce5f259ee52be1f8b66cce1805353a56f1fcb51aa1df371f75db2632a1ba7"
+      "bytes": 20271,
+      "sha256": "b491c401f616c6c039526d3b51210ee5959ccecdb9eda30838a27ddf7bb6b619"
     },
     {
       "path": "src/surfaces/cc/modules/cc-12/ShiftHandoffPanel.tsx",
@@ -4015,8 +4017,8 @@
     },
     {
       "path": "src/ui/product/AppShell.tsx",
-      "bytes": 20073,
-      "sha256": "52bab08e0f1d48d74fa3f8e923a8ab5a9317c8034212d4ab71ce2e99c1fe2a28"
+      "bytes": 21351,
+      "sha256": "dcf45ecc45260caea64a351c056c3f05f4375b3ef8ad6492c60a22ff91e66dbb"
     },
     {
       "path": "src/ui/product/Chart.tsx",

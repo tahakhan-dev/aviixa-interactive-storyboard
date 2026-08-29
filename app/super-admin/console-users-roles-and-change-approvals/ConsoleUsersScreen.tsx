@@ -26,6 +26,7 @@ import {
   type StatusToken,
 } from '@/ui/product'
 import { LiveRegion } from '@/ui/primitives'
+import { ControlDisclosure } from '@/disclosure/DecisionDisclosure'
 import { evaluateAccess } from '@/policy/evaluate'
 import { roleById, rolesInDomain, type RoleId } from '@/domain/roles'
 import { User } from '@/data/schemas/platform'
@@ -516,17 +517,22 @@ function ConsoleUsersSection({
             from a header comment to product-appropriate on-screen UI — a
             native disclosure widget, not a paragraph of narrative, and
             with no locator or build-process term in the rendered text.
+
+            Fix (unit-01 final whole-branch review, IMPORTANT 3): rendered by
+            `@/disclosure#ControlDisclosure` rather than by markup this file
+            owns, so the APP-012 sentence has one home instead of seven.
           */}
-          <details data-control-id="console-users-invite-disclosure" className="mt-2 text-xs">
-            <summary className={`cursor-pointer ${textColor('ink-muted')}`}>Why this control behaves this way</summary>
-            <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
-              This platform's own specification describes this control two different ways: one version
-              says it should not appear at all for anyone but the root; the other says it should stay
-              visible for every role, disabled with the reason shown, so a person learns the rule rather
-              than wondering whether the feature is missing. This console follows the second description
-              — a client-delegated choice under APP-012, not a position the source settled.
-            </p>
-          </details>
+          <ControlDisclosure
+            controlId="console-users-invite-disclosure"
+            className="mt-2"
+            summary="Why this control behaves this way"
+          >
+            This platform&apos;s own specification describes this control two different ways: one
+            version says it should not appear at all for anyone but the root; the other says it
+            should stay visible for every role, disabled with the reason shown, so a person learns
+            the rule rather than wondering whether the feature is missing. This console follows the
+            second description.
+          </ControlDisclosure>
         </div>
         {canInvite ? (
           <button
@@ -845,19 +851,17 @@ function ApprovalsSection({
           Mutating platform changes wait here until a different, authorised person decides them. Nothing
           applies while it is pending, and nothing decides itself.
         </p>
-        <details data-control-id="approvals-segregation-disclosure" className="mt-2 text-xs">
-          <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
-            Why the root may decide its own critical-class proposals
-          </summary>
-          <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
-            For every other class of change here, the person who proposes it can never also be the one
-            who decides it. This platform's specification names no second decision-maker for the most
-            consequential class of changes, so this console allows the root — and only the root — to
-            decide a critical-class proposal it made itself, rather than leaving that class permanently
-            undecidable whenever the root is the one who raised it. A client-delegated choice under
-            APP-012, not a position the source settled.
-          </p>
-        </details>
+        <ControlDisclosure
+          controlId="approvals-segregation-disclosure"
+          className="mt-2"
+          summary="Why the root may decide its own critical-class proposals"
+        >
+          For every other class of change here, the person who proposes it can never also be the one
+          who decides it. This platform&apos;s specification names no second decision-maker for the
+          most consequential class of changes, so this console allows the root — and only the root —
+          to decide a critical-class proposal it made itself, rather than leaving that class
+          permanently undecidable whenever the root is the one who raised it.
+        </ControlDisclosure>
         {/*
           Fix round 2 (unit-01, Task 7 re-review, IMPORTANT 1) — two further
           open decisions this screen was rendering as settled fact without
@@ -867,33 +871,29 @@ function ApprovalsSection({
           all for a critical-class request. Both are plain language, no
           locator, no build-process term.
         */}
-        <details data-control-id="approvals-aging-disclosure" className="mt-2 text-xs">
-          <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
-            Why the aging threshold is a flat seventy-two hours, and what this console does at it
-          </summary>
-          <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
-            This platform's specification says a critical request that sits too long should notify the
-            root again, but it does not say after how long — that interval is left open, with a
-            suggestion, never a decision, that different kinds of critical requests might deserve
-            different intervals. This console uses one flat interval for every critical request rather
-            than guessing at that further split. It marks a request that has crossed that interval so a
-            reader can see it is waiting; it does not send a further notification of its own. A
-            client-delegated choice under APP-012, not a position the source settled.
-          </p>
-        </details>
-        <details data-control-id="approvals-critical-control-disclosure" className="mt-2 text-xs">
-          <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
-            Why a non-root viewer sees no control at all, rather than a disabled one
-          </summary>
-          <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
-            This platform's specification describes a critical-class request two different ways for a
-            viewer who is not the root: one version keeps the Approve and Return controls visible but
-            disabled, with the reason shown, so a viewer can see the request is waiting on someone else;
-            the other removes the controls entirely and shows a sentence in their place instead. This
-            console follows the second description. A client-delegated choice under APP-012, not a
-            position the source settled.
-          </p>
-        </details>
+        <ControlDisclosure
+          controlId="approvals-aging-disclosure"
+          className="mt-2"
+          summary="Why the aging threshold is a flat seventy-two hours, and what this console does at it"
+        >
+          This platform&apos;s specification says a critical request that sits too long should notify
+          the root again, but it does not say after how long — that interval is left open, with a
+          suggestion, never a decision, that different kinds of critical requests might deserve
+          different intervals. This console uses one flat interval for every critical request rather
+          than guessing at that further split. It marks a request that has crossed that interval so a
+          reader can see it is waiting; it does not send a further notification of its own.
+        </ControlDisclosure>
+        <ControlDisclosure
+          controlId="approvals-critical-control-disclosure"
+          className="mt-2"
+          summary="Why a non-root viewer sees no control at all, rather than a disabled one"
+        >
+          This platform&apos;s specification describes a critical-class request two different ways
+          for a viewer who is not the root: one version keeps the Approve and Return controls visible
+          but disabled, with the reason shown, so a viewer can see the request is waiting on someone
+          else; the other removes the controls entirely and shows a sentence in their place instead.
+          This console follows the second description.
+        </ControlDisclosure>
       </div>
 
       <DataTable

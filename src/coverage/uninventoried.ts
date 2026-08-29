@@ -411,20 +411,23 @@ export const UNINVENTORIED_FAMILIES = [
           + 'two named homes, and it convicted this line when it did spell it. The gate is right '
           + '— naming the field is not needed to say what this row says.)',
       },
-      {
-        id: 'DEC-AIOUT-001',
-        citedBy: 'app/super-admin/platform-overview-and-health/fixtures.ts',
-        why:
-          'Named in a screen\'s own prose to say that nothing is rendered for it. A statement '
-          + 'that a decision blocks a rendering is not a record of the decision.',
-      },
+      // `DEC-AIOUT-001` STOOD HERE AND HAS BEEN REMOVED, not re-pointed.
+      // Its `citedBy` named `app/super-admin/platform-overview-and-health/
+      // fixtures.ts`, which unit 1 deleted when it rebuilt that screen, and
+      // no file in this tree names the identifier now. This field means
+      // "named by the build and held by no register of its own family"; an
+      // identifier the build no longer names does not belong in it, and
+      // repointing the path at a file that does not carry the citation would
+      // be the plausible-but-false shape this whole record exists to refuse.
+      // The derived count on the dashboard moves 176 -> 175 because of this,
+      // which is the honest number.
     ],
     sizeMeaning:
       'DEC-AI* identifiers across all three homes: members of the canon\'s exported union, those '
       + 'disclosed locally by the pause/kill/rollback console, and the Studio overlay\'s '
       + 'uncanonised list. THAT THERE ARE THREE HOMES IS ITSELF THE FINDING — see the '
       + 'consolidation note below. It is fewer than the DEC-AI* tokens in the tree by exactly '
-      + 'the four listed beside it.',
+      + 'the three listed beside it.',
   },
   {
     prefix: 'FAIL-AI-',

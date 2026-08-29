@@ -4,7 +4,12 @@
  *
  * Master prompt §23.2 requires two NON-SELF-REFERENTIAL hash scopes:
  *
- *   1. Product Candidate — application source, tests, fixtures, configuration,
+ * EVERY `tests/...` PATH NAMED BELOW IS HISTORY, NOT A LIVE GATE. APP-020
+ * (master prompt §2.3) deleted all ~324 suites from this project; the
+ * references are kept because they record WHY this file is shaped the way it
+ * is, and each one is a suite that no longer exists to red on anything.
+ *
+ *   1. Product Candidate — application source, fixtures, configuration,
  *      lockfile, assets, visual baselines, and required product/delivery
  *      documentation. **The Product Candidate Manifest does not hash itself**,
  *      and here it cannot: the manifest lives under `docs/process/ledgers/`,
@@ -205,8 +210,14 @@ function main() {
     candidate_manifest_sha256: productDigest,
     scope: {
       kind: 'product-candidate',
+      // `tests` WAS LISTED HERE AND IS NOT ANY MORE (unit-01 final
+      // whole-branch review, CRITICAL 1). APP-020 / master prompt §2.3
+      // deleted every test case in this project -- `git ls-files` returns
+      // zero test files -- so a scope that named `tests` among its contents
+      // was describing a population of nothing. The DERIVATION below never
+      // mentioned tests and never needed to; only this prose did.
       contents:
-        'application source, tests, fixtures, configuration, lockfile, assets and required '
+        'application source, fixtures, configuration, lockfile, assets and required '
         + 'delivery documentation',
       derivation:
         'git ls-files --cached --others --exclude-standard, foreign probe entries removed, '
@@ -222,7 +233,24 @@ function main() {
     worktree_clean: clean,
     bytes_measured_against: clean ? BYTES_FROM_COMMIT : BYTES_FROM_DIRTY_WORKTREE,
     source_sha256: '47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27',
-    source_drift_from_s0: 'none — the frozen blueprint is re-hashed by 40 test files on every run',
+    // WHAT ACTUALLY RE-HASHES THE FROZEN BLUEPRINT, measured rather than
+    // remembered (unit-01 final whole-branch review, CRITICAL 1). This said
+    // "re-hashed by 40 test files on every run". There are no test files:
+    // APP-020 deleted all ~324 suites, `git ls-files` returns none, and
+    // `package.json` has no test runner. The one mechanism that still
+    // re-hashes the source is `scripts/slice-blueprint.mjs`, which recomputes
+    // the sha256 and byte count of `../AVIIXA_Production_Product_Blueprint.md`
+    // against its own `EXPECTED` constant and REFUSES on mismatch -- but that
+    // script is not in the `pnpm verify` chain and runs only when invoked, so
+    // "on every run" is not true of anything here. The sentence below says
+    // both halves, because the second half is the part a reader needs.
+    source_drift_from_s0:
+      'none as of this seal: `shasum -a 256 ../AVIIXA_Production_Product_Blueprint.md` equals '
+      + '`source_sha256` above. NOTHING RE-HASHES IT AUTOMATICALLY. '
+      + '`scripts/slice-blueprint.mjs` re-derives the hash and byte count on every invocation '
+      + 'and refuses rather than emit a line mapping it cannot prove, but that script is not part '
+      + 'of `pnpm verify` and runs only when someone runs it. Drift would therefore be silent '
+      + 'until the next slice, so check it by hand before quoting this field.',
     file_count: productEntries.length,
     total_bytes: productEntries.reduce((n, e) => n + e.bytes, 0),
     // A RESEAL ON UNCHANGED BYTES SUPERSEDES NOTHING (round-7 `R7-A6`). This

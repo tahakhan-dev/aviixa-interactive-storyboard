@@ -1,4 +1,18 @@
+import type { ReactNode } from 'react'
 import { decisionRecord, type DecisionId } from './decisions'
+import { textColor } from '@/ui/product/tokens'
+
+/**
+ * THE APP-012 SENTENCE, DECLARED ONCE.
+ *
+ * Unit 1's final whole-branch review found it written out longhand in seven
+ * hand-rolled disclosures across three routed screens, three tasks apart —
+ * which is the drift this directory exists to prevent, arriving through a
+ * seam rather than through any one task. It is a constant now, so a screen
+ * cannot render a seventh wording of it by editing a string it happens to own.
+ */
+export const CLIENT_DELEGATED_SENTENCE =
+  'A client-delegated choice under APP-012, not a position the source settled.'
 
 /**
  * The ONLY place an open decision is rendered, on ANY surface. A module
@@ -93,9 +107,57 @@ export function DecisionDisclosure({ id }: DecisionDisclosureProps) {
         This build&apos;s working position
       </p>
       <p className="mt-1 text-[var(--color-ink)]">{decision.adopted}</p>
-      <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">
-        A client-delegated choice under APP-012, not a position the source settled.
-      </p>
+      <p className="mt-1 text-xs text-[var(--color-ink-subtle)]">{CLIENT_DELEGATED_SENTENCE}</p>
     </section>
+  )
+}
+
+/**
+ * THE ID-LESS VARIANT, for a routed product screen.
+ *
+ * `DecisionDisclosure` above renders the canon record: the `DEC-*`
+ * identifier and every reading with its own frozen-source `L` locator. That
+ * is right for the surfaces that cite the canon and WRONG as primary page
+ * content on a routed product screen, where a requirement identifier or a
+ * line locator is a product-fidelity breach. So the three unit-1 screens
+ * wrote their own `<details>` blocks in plain language instead — seven of
+ * them, each defensible alone, and together the exact duplication this
+ * directory exists to hold.
+ *
+ * This is the shared shape for that case. It takes NO `DecisionId`, because
+ * none of these questions has a canon record and minting a fake id to reach
+ * the signature above would put a wrong identifier in a real table. What it
+ * guarantees is the one thing the hand-rolled copies were drifting on: the
+ * APP-012 sentence, from the constant, appended to every body, once.
+ *
+ * The caller supplies the plain-language body. It computes nothing.
+ */
+export interface ControlDisclosureProps {
+  /** Stable control id, as every other product control on these screens carries. */
+  readonly controlId: string
+  /** The `<summary>` line — plain language, no identifier, no locator. */
+  readonly summary: ReactNode
+  /** The body, ending before the APP-012 sentence this component appends. */
+  readonly children: ReactNode
+  /** Layout only (margins). The type and colour are this component's. */
+  readonly className?: string
+}
+
+export function ControlDisclosure({
+  controlId,
+  summary,
+  children,
+  className,
+}: ControlDisclosureProps) {
+  return (
+    <details
+      data-control-id={controlId}
+      className={className === undefined ? 'text-xs' : `${className} text-xs`}
+    >
+      <summary className={`cursor-pointer ${textColor('ink-muted')}`}>{summary}</summary>
+      <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
+        {children} {CLIENT_DELEGATED_SENTENCE}
+      </p>
+    </details>
   )
 }

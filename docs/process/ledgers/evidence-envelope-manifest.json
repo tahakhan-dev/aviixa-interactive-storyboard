@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-6dd9dde47f8e6b17",
-  "candidate_id": "SLICE11-40350cb6ac702e62",
+  "envelope_id": "ENV11-7f2376432de13963",
+  "candidate_id": "SLICE11-fc32499cd3bdb809",
   "slice": "11",
-  "payload_sha256": "6dd9dde47f8e6b17506ebc0a5dc4ff469cfbc199840abadb8b337c219f894041",
+  "payload_sha256": "7f2376432de1396356d403548e82b1bb1f9a1cae7c6bab924e37787ce4c6ad88",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -24,7 +24,7 @@
   },
   "payload_excludes_self": true,
   "payload_count": 102,
-  "supersedes": "ENV11-7b4101195fb80435",
+  "supersedes": "ENV11-6dd9dde47f8e6b17",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -118,8 +118,8 @@
     },
     {
       "path": "docs/process/2026-08-29-unit-01-verification.md",
-      "bytes": 23094,
-      "sha256": "5ce43d7e0e8da52ba5a882c03f098041deff6d0e65d35f4cd421a392d48af035"
+      "bytes": 24061,
+      "sha256": "6034c1b74b41131e9aeda8342aac92de26e0e3a7ad34b5906cc3c5dd0834a267"
     },
     {
       "path": "docs/process/RESUME.md",
@@ -373,8 +373,8 @@
     },
     {
       "path": "docs/process/ledgers/live-verification-ledger.json",
-      "bytes": 45920,
-      "sha256": "37ac6fb697d2070ae93504e7798d88df200e03c0bb2592543ed499b69f26f934"
+      "bytes": 52138,
+      "sha256": "0ad317b09fc7f2cf2a33629ceea96c3c0c3ebedcfd8684dc6321ab719e657d3e"
     },
     {
       "path": "docs/process/ledgers/loop-ledger.json",
@@ -403,8 +403,8 @@
     },
     {
       "path": "docs/process/live-verification-procedure.md",
-      "bytes": 11688,
-      "sha256": "8d1ffc7f1b849284f35597f63901a8e7fde3d101fb5877989c7175a55c2db3c3"
+      "bytes": 12874,
+      "sha256": "ce0a7c372a27932a25752deed3c68b696752961b87bc2929f76bff6451610001"
     },
     {
       "path": "docs/process/master-prompt/AVIIXA_Interactive_Storyboard_Master_Prompt_v1.0.md",

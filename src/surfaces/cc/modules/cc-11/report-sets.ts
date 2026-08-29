@@ -286,8 +286,16 @@ export const DEC_REPORT_001: CcLocalDisclosure = {
     'adoption and the open arm of this position has no slot for one. §21.14’s own closing ' +
     'sentence is the standard this file is built to: "this blueprint implements neither name as ' +
     'final and marks the set’s identity as pending".',
+  // Fix (unit-01 final whole-branch review, MINOR 5): this named
+  // `.../tenant-metrics-and-aggregates/fixtures.ts`, which unit 1 deleted
+  // when it rebuilt MOD-SA-10 as a real screen. `ReportsAndBuilder.tsx`
+  // RENDERS this path, so the dangling value was on screen, not only in
+  // source. The rebuilt screen is where L45138 lives now — it carries the
+  // same `AC-SA-10-05` line, for the same reason (that module must never
+  // duplicate the tenant-facing `reports` collection), so the pointer moves
+  // to the file that actually holds it rather than being dropped.
   heldBy: {
-    path: 'app/super-admin/tenant-metrics-and-aggregates/fixtures.ts',
+    path: 'app/super-admin/tenant-metrics-and-aggregates/TenantMetricsScreen.tsx',
     locatorLine: 45138,
   },
 }

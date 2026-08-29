@@ -448,6 +448,15 @@ function TenantDetailBody({
           : `Activation is not available until ${firstTenantAdmin.displayName} accepts the invitation and completes identity proof.`
 
   async function handleConfirmedActivate() {
+    // Fix (unit-01 final whole-branch review, MINOR 6). `authorizeWrite`
+    // deliberately omits `resourceTenant` for `tenants`
+    // (`src/data/repository.ts`), and says so itself: the repository floor is
+    // role-only, wider than this screen's gate, and "will not catch a caller
+    // that forgets one." `disabled={!canActivate}` on the button is markup,
+    // not a call-time guard. So the gate is re-read from the closure here,
+    // before the repository is touched — the same shape
+    // `ProductRuntime#completeStepUp` established for exactly this reason.
+    if (!canActivate) return
     setWriteBusy(true)
     const result = await repository.update('tenants', tenant.id, { lifecycle: nextLifecycleOnActivate }, ctx)
     setWriteBusy(false)

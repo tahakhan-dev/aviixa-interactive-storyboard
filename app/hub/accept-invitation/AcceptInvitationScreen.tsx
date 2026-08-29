@@ -19,6 +19,7 @@ import {
   type ProductSession,
 } from '@/ui/product'
 import { Banner, LiveRegion } from '@/ui/primitives'
+import { ControlDisclosure } from '@/disclosure/DecisionDisclosure'
 import {
   INVITATION_VALIDITY_DAYS,
   classifyTenantAdminInvitation,
@@ -267,32 +268,36 @@ export function AcceptInvitationScreen() {
         {accepting ? 'Accepting…' : 'Accept invitation'}
       </button>
 
-      <details data-control-id="accept-invitation-expiry-disclosure" className="mt-4 text-xs">
-        <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
-          Why this invitation is treated as valid for {INVITATION_VALIDITY_DAYS} days
-        </summary>
-        <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
-          This platform's specification does not fix how long an invitation to set up an account stays open before
-          it lapses. The closest figure it gives anywhere is a recommendation of seven days for the general
-          account-invitation case, offered as a suggestion rather than a settled rule, with no separate figure
-          named for a Tenant Admin's own invitation. This build uses that same seven-day window here rather than
-          inventing an unrelated number. A client-delegated choice under APP-012, not a position the source
-          settled.
-        </p>
-      </details>
+      {/*
+        Fix (unit-01 final whole-branch review, IMPORTANT 3) — these two were
+        hand-rolled `<details>` blocks that repeated the APP-012 sentence
+        longhand. They render through `@/disclosure#ControlDisclosure` now,
+        the id-less variant of the one component that renders an open
+        decision anywhere in this build; the sentence lives there once.
+      */}
+      <ControlDisclosure
+        controlId="accept-invitation-expiry-disclosure"
+        className="mt-4"
+        summary={`Why this invitation is treated as valid for ${INVITATION_VALIDITY_DAYS} days`}
+      >
+        This platform&apos;s specification does not fix how long an invitation to set up an account
+        stays open before it lapses. The closest figure it gives anywhere is a recommendation of
+        seven days for the general account-invitation case, offered as a suggestion rather than a
+        settled rule, with no separate figure named for a Tenant Admin&apos;s own invitation. This
+        build uses that same seven-day window here rather than inventing an unrelated number.
+      </ControlDisclosure>
 
-      <details data-control-id="accept-invitation-activation-disclosure" className="mt-2 text-xs">
-        <summary className={`cursor-pointer ${textColor('ink-muted')}`}>
-          Why accepting this invitation does not switch the workspace on by itself
-        </summary>
-        <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
-          This platform's specification describes one version of this moment where accepting the invitation and
-          the workspace switching on happen together, in the same step. This build instead keeps those as two
-          separate acts: accepting sets your own account active; a platform administrator switches the workspace
-          on afterward, from the Super Admin console. This console follows the second reading rather than the
-          first. A client-delegated choice under APP-012, not a position the source settled.
-        </p>
-      </details>
+      <ControlDisclosure
+        controlId="accept-invitation-activation-disclosure"
+        className="mt-2"
+        summary="Why accepting this invitation does not switch the workspace on by itself"
+      >
+        This platform&apos;s specification describes one version of this moment where accepting the
+        invitation and the workspace switching on happen together, in the same step. This build
+        instead keeps those as two separate acts: accepting sets your own account active; a platform
+        administrator switches the workspace on afterward, from the Super Admin console. This console
+        follows the second reading rather than the first.
+      </ControlDisclosure>
     </Centered>
   )
 }

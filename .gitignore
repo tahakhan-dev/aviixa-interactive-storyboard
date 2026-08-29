@@ -19,8 +19,23 @@ graphify-out/
 # and 173MB of binary that changes on every copy edit is not something a repository
 # should carry to describe pages it can rebuild.
 docs/screenshots/*.png
-# Live-verification captures, same reasoning: evidence a ledger row NAMES, not
-# binary a diff should carry. `docs/process/live-verification-procedure.md` step 7
-# writes here so the Playwright MCP server stops defaulting to the repository's
-# PARENT directory.
+# Live-verification captures. NOT the same reasoning as the rule above, and the
+# line that said it was is corrected here (unit-01 final whole-branch review,
+# IMPORTANT 4). The rule above rests on "cheap to rebuild": `pnpm screenshots`
+# reproduces every one of those images in about ninety seconds. These are the
+# opposite — a manual browser-driving session against a served export, following
+# `docs/process/live-verification-procedure.md`, that no script reproduces. Lose
+# them and the evidence is gone for good, not regenerable.
+#
+# They are still excluded, because 134MB of PNG is not what a git history should
+# carry, and because this project's own deny rules stop an agent reading an image
+# back anyway. What makes the exclusion survivable is the ATTESTATION, not the
+# rebuild: every path a ledger row cites carries a `sha256` beside it in
+# `docs/process/ledgers/live-verification-ledger.json`, the same pattern both
+# manifests use, so a reference stays checkable against bytes that travel
+# separately. Irreproducible is an argument FOR hashing them, never for treating
+# them as regenerable furniture.
+#
+# Step 7 of the procedure writes here so the Playwright MCP server stops
+# defaulting to the repository's PARENT directory.
 docs/screenshots/live/**/*.png

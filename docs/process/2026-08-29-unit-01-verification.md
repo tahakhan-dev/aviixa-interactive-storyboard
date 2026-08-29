@@ -89,6 +89,18 @@ screens Tasks 2-9 shipped plus the sign-out control as its own item.
 Full detail is in `docs/process/ledgers/live-verification-ledger.json` itself; this table is a
 locator, not a substitute.
 
+**Row ids are assigned by subject, not by drive order, and the `stamp` field is the chronology.**
+LV-0028 through LV-0030 (`03:35:12`, `03:35:22`, `03:35:38`) were driven BEFORE LV-0026 and LV-0027
+(`03:36:41`, `03:38:05`): the three tenant-detail tab rows were captured first and then numbered
+after the two privileged-write rows, so that the five fix-round-1 additions read in subject order
+beside the rows they extend. Nothing was back-dated and no stamp was reconstructed — each is the
+wall-clock time that row's own sequence ran. Read the stamps for order; read the ids for topic.
+
+**Each row's `screenshots` entries carry a `sha256` and a byte count** (unit-01 final whole-branch
+review, IMPORTANT 4). The captures themselves are gitignored and irreproducible — no script
+re-drives the session — so the hash is what keeps a reference checkable against bytes that travel
+separately from the repository. The 33 distinct files cited total 21,153,106 bytes.
+
 **Every row's console-error and external-request capture came back empty** across every document
 driven across both the original session and fix round 1.
 
@@ -219,16 +231,47 @@ one document further out. `docs/process/ledgers/evidence-envelope-manifest.json`
 authoritative current value, not this prose):**
 
 ```
-Sealed SLICE11-40350cb6ac702e62
-  product  846 files  sha256 40350cb6ac702e626dadc2cfde46637d490a20f1a0a6488a5b8a29ef0c82819f
-  envelope 102 files  sha256 ed523acb25b9d91aa820817bcd4cb7c0dcaf9cfb4eedc27b2b290d67fb23131c (as of the seal run before this sentence was last edited)
+Sealed SLICE11-fc32499cd3bdb809
+  product  846 files  sha256 fc32499cd3bdb809638532d213649d5379e5beba1f639d88bfcc69b90e530542
+  envelope 102 files  sha256 7f2376432de1396356d403548e82b1bb1f9a1cae7c6bab924e37787ce4c6ad88 (as of the seal run before this sentence was last edited)
 ```
 
-Product manifest hash **unchanged from task 12's own first seal** (`40350cb6...`, 846 files) — fix
-round 1 touches no product file, only evidence. `git_commit` on the current seal names
-`ece524f0398ab7d3a8e97468e818cc5a27a8e17f` (the commit the controller made of task 12's first pass,
-which this fix round sits on top of), and `worktree_clean` reads `false` with the seal's own honest
-sentence that these bytes are not attributed to any commit until one is made.
+**These figures are the FINAL whole-branch review's reseal, not fix round 1's.** The paragraphs
+above this one describe fix round 1 and are left as its own history; what follows is the state on
+disk now.
+
+`node scripts/seal-manifests.mjs --verify` immediately after that reseal, with §10 below written,
+reads `product: entries=846 drifted=0 missing=0` / `envelope: entries=102 drifted=1 missing=0`. The
+one drifted envelope entry is **this file**, edited after the seal to say what the seal did. That is
+the non-terminating case the paragraph above names, measured rather than hand-waved: the product
+scope — the thing a candidate id certifies — is exact.
+
+The product manifest hash **moved**, from `40350cb6...` to `fc32499c...`: the final review's fix
+wave edits eleven product files — `.gitignore`, `scripts/seal-manifests.mjs`, four routed screens
+(`AcceptInvitationScreen`, `ConsoleUsersScreen`, `TenantMetricsScreen`, `TenantDetailScreen`), and
+five under `src/` (`disclosure/DecisionDisclosure.tsx`, `ui/product/AppShell.tsx`,
+`coverage/uninventoried.ts`, `frontline/modules/fl-a1/service.ts`,
+`surfaces/cc/modules/cc-11/report-sets.ts`). `file_count` is **846, genuinely unchanged** — that is not an assumption, it is the seal's
+own recount of `git ls-files --cached --others --exclude-standard` minus the evidence roots, and it
+holds because the wave adds and deletes no file, only edits existing ones. `total_bytes` moved
+22,744,517 → 22,752,773 for the same reason. `supersedes` now reads `SLICE11-40350cb6ac702e62`, the
+candidate this reseal retires.
+
+The `verification` block was **replaced outright**, not carried forward: see §10. It had attested to
+6,280 unit, 3,054 component, 1,000 release and 548 end-to-end passing tests in a repository that
+contains no test file at all.
+
+`git_commit` on the current seal names **`8688ff571aeed7f0a9a27f96bcdb53849fe04e53`**, and
+`git rev-parse 8688ff57^{tree}` = `d47ef92f6ee986de3944931834767f5a151ae549`, which is the manifest's
+`git_tree` exactly. `worktree_clean` reads `false`, with the seal's own honest sentence that these
+bytes are not attributed to any commit until one is made — the seal ran on the fix wave's
+uncommitted working tree, so `git_commit` records only where HEAD stood, never what was hashed.
+
+**The line that used to stand here named `ece524f0...`, and that was wrong when it was written.**
+The artifact had already said `d1988008...`; commit `8688ff5` moved the manifest field and left this
+prose behind, so the commit titled "five small false statements in the record that closes the unit"
+shipped a sixth. It is corrected against the artifact as it stands after the reseal above, and it
+was checked last, after sealing, rather than predicted before it.
 
 Not committed by this task — the controller commits.
 
@@ -329,7 +372,9 @@ durable record.
 
 1. **Persistence is write-only.** `boot()` rebuilds the store from the seed on every document load
    and never rehydrates; `Repository.reset()` has no caller. **Reproduced live at LV-0009.** A
-   dedicated task after this unit carries snapshot rehydration and the reset door together.
+   dedicated task after this unit carries snapshot rehydration and the reset door together. Still
+   true; what changed in the final review's fix wave is that it is now DISCLOSED — `NOT_REAL_TEXT`
+   says on screen that a reload returns the storyboard to its seeded state (§10).
 2. **`advanceClock` moves a decorative clock**, separate from `store.clock`.
 3. **The tour registry has no gate on tour targets** (`spotlight`, `expectVisible`,
    `assertState.check` are never considered by the dangling-reference check).
@@ -363,3 +408,99 @@ though the screen itself is honest that it cannot do it either.
 - The "eight screens" vs "nine screens" inconsistency in this unit's own record is flagged, not
   resolved.
 - No completion language beyond what this record's evidence carries.
+
+## 10. Final whole-branch review — the one fix wave, and what it changed here
+
+This section is written after §§1-9, by the fix wave that closes the branch. It does not rewrite
+them; §§2-9 stay as task 12's own record and this section states what moved on top of them.
+
+**CRITICAL — the release manifest attested to a test run that cannot exist.** The `verification`
+block of `docs/process/ledgers/product-candidate-manifest.json` recorded a chain of `vitest run
+--project unit|component|release` and `playwright test --project=chromium`, with `6280/6280` unit,
+`3054/3054` component, `1000/1000` release, `548/548` e2e and `3/3` freshness. Over ten thousand
+passing tests, in a repository where `git ls-files` returns zero test files and `package.json`
+declares no test runner and no test script: all ~324 suites were deleted under APP-020 (master
+prompt §2.3). It was inherited slice-11 furniture — `verification_id: VER-S11-040`, `measured_by`
+dated 2026-08-25, before this unit began — and it survived three reseals on this branch (`ece524f`,
+`d198800`, `8688ff5`) because every round treated it as decoration rather than as a claim.
+
+The whole block is replaced by `VER-U01-FINAL-01`, the real `pnpm verify` chain as `package.json`
+defines it: nine steps, exit 0, each figure copied from that run's stdout. The five keys that named
+a test project (`unit`, `component`, `release`, `e2e`, `freshness`) are **deleted, not reworded** —
+they have no honest counterpart here, and a smaller number would have been the same lie at a lower
+volume. `gate_ordering` moved from `33/33 release gates audited; 23 read a subject...` to the figure
+`check-gate-ordering.mjs` actually prints, `5 gate scripts, all audited; 3 read a subject an earlier
+verify step rewrites` — the old figure was counting release test files.
+
+Two further false statements in the same file, from the same cause:
+
+- `scope.contents` listed `"tests"` among the product scope's contents. Removed. The `derivation`
+  beside it never mentioned tests and never needed to.
+- `source_drift_from_s0` read *"none — the frozen blueprint is re-hashed by 40 test files on every
+  run."* There are no test files. The mechanism that actually re-hashes the frozen source is
+  `scripts/slice-blueprint.mjs`, which re-derives its sha256 and byte count against its own
+  `EXPECTED` constant and refuses rather than emit a line mapping it cannot prove — but that script
+  is **not** in the `pnpm verify` chain and runs only when invoked, so *"on every run"* is true of
+  nothing here. The field now says both halves, and says plainly that drift would be silent until
+  the next slice.
+
+All three lived in `scripts/seal-manifests.mjs`, which writes them, so the fix is in the script and
+not only in its output.
+
+**Write-only persistence is now disclosed.** `NOT_REAL_TEXT` (`src/ui/product/AppShell.tsx`) gains a
+second sentence: *"Anything you change here lives only in this browser tab: reloading the page
+returns the storyboard to its seeded state, and nothing you do is kept for a later visit."* It is a
+constant read by `AppShell`'s own disclosure and by the sign-in and invitation-acceptance screens
+that render outside the shell, so every screen carrying the not-real statement carries this too.
+Rehydration is **not** built — that is a later task — but the silence was the defect: nothing on
+screen told a reader that a reload discards what they just did.
+
+**Seven hand-rolled disclosures routed through the one shared component.** Tasks 3, 7 and 8 each
+added bespoke `<details>` blocks to `AcceptInvitationScreen` (2), `ConsoleUsersScreen` (4) and
+`TenantMetricsScreen` (1), each repeating `<summary className={\`cursor-pointer
+${textColor('ink-muted')}\`}>` and writing the APP-012 sentence out longhand. They render through
+`ControlDisclosure` in `src/disclosure/DecisionDisclosure.tsx` now — a new **id-less** variant beside
+the canon renderer, because none of these questions has a canon record and minting a fake
+`DecisionId` to reach the existing signature would have put a wrong identifier in a real table. The
+sentence lives in `CLIENT_DELEGATED_SENTENCE`, once. **The review brief said eight; there are seven.**
+`grep` for `<summary` across the tree returns exactly these seven plus two non-disclosure uses
+(`Chart.tsx`'s table toggle, `TableToolbar.tsx`), and the branch diff since `5f58237^` adds no other.
+
+**The unit's release evidence is hashed.** Every `screenshots` entry in
+`docs/process/ledgers/live-verification-ledger.json` changed shape from a bare path string to
+`{path, bytes, sha256}`, hashes computed from the bytes on disk, none stubbed. 33 distinct files,
+21,153,106 bytes. `scripts/ledger-reconcile.mjs` reads only `pathId` and `verdict` and never read
+`screenshots`, so no script needed changing; it still reports A = 5,003 of 5,015 and B = 0.
+`.gitignore`'s comment is corrected: it justified excluding these captures as *"same reasoning"* as
+the `docs/screenshots/*.png` rule, whose reasoning is explicitly that `pnpm screenshots` rebuilds
+those images in ninety seconds. It does not transfer — these are a manual browser-driving session no
+script reproduces, and irreproducibility is an argument for hashing them, not for treating them as
+cheap.
+
+**Three dangling references to the four `fixtures.ts` files this branch deleted.**
+`src/surfaces/cc/modules/cc-11/report-sets.ts`'s `heldBy.path` named
+`.../tenant-metrics-and-aggregates/fixtures.ts` and — contrary to the review's own note that none of
+the three is rendered — `ReportsAndBuilder.tsx` **renders that path on screen**. It now names
+`TenantMetricsScreen.tsx`, which carries the same `L45138` the contract requires of a holder.
+`src/frontline/modules/fl-a1/service.ts`'s precedent sentence is deleted rather than re-pointed:
+neither `DEC-SUSP-001` nor `DEC-MSG-001` is named anywhere under `app/` now, and naming some other
+locally-disclosing file would have been a citation invented to fill the hole.
+`src/coverage/uninventoried.ts`'s `DEC-AIOUT-001` row is removed for the same reason — the field
+means *"named by the build and held by no register of its own family"*, and no file in this tree
+names that identifier any more. **That row was load-bearing for a rendered census figure:
+`UNINVENTORIED_IDENTIFIERS.length`, shown on `/coverage`, moves 176 → 175.** Measured before and
+after; the fourteen-registry census (5,015) is untouched, and `node scripts/build-registries.mjs`
+regenerates every registry byte-identically.
+
+**One missing call-time gate.** `handleConfirmedActivate` in `TenantDetailScreen.tsx` re-read
+neither `canActivate` nor `activateGate` before writing, trusting `disabled={!canActivate}` on the
+button. `authorizeWrite` deliberately omits `resourceTenant` for `tenants` and its own comment says
+the consequence: the floor is role-only and *"will not catch a caller that forgets one."* It now
+opens with `if (!canActivate) return`, matching `ProductRuntime#completeStepUp`'s existing shape.
+
+**Drive order is narrated (§2).** LV-0028 through LV-0030 were driven before LV-0026 and LV-0027;
+row ids are assigned by subject and the `stamp` field is the chronology.
+
+**Verification of this wave.** `pnpm verify` exit **0** on the final bytes; `node
+scripts/build-registries.mjs` afterward left `git status --porcelain` free of any registry path.
+Both manifests resealed once, with a real `--verification` file — figures in §4.

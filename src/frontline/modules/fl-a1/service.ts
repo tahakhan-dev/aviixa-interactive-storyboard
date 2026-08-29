@@ -287,9 +287,17 @@ export const COMPLIANCE_MESSAGE_FRONTLINE_RENDERINGS = [
  * means editing that file, which this module does not own, so the four
  * are carried here with the same three obligations the renderer discharges:
  * the identifier, EVERY reading with its own locator, and this build's
- * working position labelled a client-delegated choice. The precedent is
- * `SURF-SA`'s, which carries `DEC-SUSP-001` and `DEC-MSG-001` the same way
- * in `app/super-admin/tenants-lifecycle-and-pilots/fixtures.ts`.
+ * working position labelled a client-delegated choice.
+ *
+ * THE PRECEDENT THIS PARAGRAPH USED TO CITE IS GONE, and is not replaced by
+ * a substitute (unit-01 final whole-branch review, MINOR 5). It named
+ * `SURF-SA`'s `app/super-admin/tenants-lifecycle-and-pilots/fixtures.ts` as
+ * carrying `DEC-SUSP-001` and `DEC-MSG-001` the same way; unit 1 deleted
+ * that file when it rebuilt the tenants screens, and neither identifier is
+ * named anywhere under `app/` now. The reasoning above stands on its own —
+ * it never needed the precedent — and naming some other file that happens
+ * to disclose locally would be a citation invented to fill the hole the
+ * deletion left.
  *
  * The fifth disclosure — the Tenant Admin device session — is NOT here. It
  * is a `RouteOpenDecision` recorded once in `src/routes/definitions.ts` and

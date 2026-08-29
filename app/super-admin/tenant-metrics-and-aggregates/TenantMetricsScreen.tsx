@@ -22,6 +22,7 @@ import {
   type StatTileData,
   type StatusToken,
 } from '@/ui/product'
+import { ControlDisclosure } from '@/disclosure/DecisionDisclosure'
 import { evaluateAccess } from '@/policy/evaluate'
 import type { AccessContext, Repository, RowOf } from '@/data/repository'
 import { saModuleById } from '@/surfaces/sa/modules'
@@ -1321,19 +1322,19 @@ function ComparativeAnalytics({
           willing to open every tenant's own view can work out which band each one falls into. Nothing below
           is confidential on its own; what this tab withholds is the convenience of the name attached.
         </p>
-        <details data-control-id="tenant-metrics-role-disclosure" className="text-xs">
-          <summary className={`cursor-pointer ${textColor('ink-muted')}`}>Why every console role sees this tab</summary>
-          <p className={`mt-1 max-w-prose ${textColor('ink-muted')}`}>
-            This platform's own specification describes who reads this comparative in more than one place.
-            A cross-module summary marks the Platform Engineer unavailable for this whole module, while this
-            module's own detailed permission table — and the very condition footnoted onto that summary's
-            own row — both point to the Platform Engineer and Support reading it, anonymised, on the same
-            terms as the root and the Admin. A separate, narrower passage about Support's normal working
-            mode says cross-tenant aggregates are unavailable to it. This console follows the module's own
-            table and its own footnoted condition over that narrower passage, and grants all four platform
-            roles this read — a client-delegated choice under APP-012, not a position the source settled.
-          </p>
-        </details>
+        <ControlDisclosure
+          controlId="tenant-metrics-role-disclosure"
+          summary="Why every console role sees this tab"
+        >
+          This platform&apos;s own specification describes who reads this comparative in more than
+          one place. A cross-module summary marks the Platform Engineer unavailable for this whole
+          module, while this module&apos;s own detailed permission table — and the very condition
+          footnoted onto that summary&apos;s own row — both point to the Platform Engineer and
+          Support reading it, anonymised, on the same terms as the root and the Admin. A separate,
+          narrower passage about Support&apos;s normal working mode says cross-tenant aggregates are
+          unavailable to it. This console follows the module&apos;s own table and its own footnoted
+          condition over that narrower passage, and grants all four platform roles this read.
+        </ControlDisclosure>
       </section>
 
       <section aria-labelledby="tenant-metrics-eval-heading" className="mt-8 flex flex-col gap-3">

@@ -38,9 +38,27 @@ import { useProductSession } from './runtime'
  * entirely (there is no session yet to build a shell around), but the brief
  * requires it carry the SAME sentence, never a second wording — this is
  * that one constant, reused rather than redeclared.
+ *
+ * THE SECOND SENTENCE (unit-01 final whole-branch review, must-fix from
+ * triage). Writes on these screens DO reach IndexedDB — one transaction per
+ * committed write, `src/data/repository.ts` — but `boot()` never reads that
+ * store back and `Repository.reset()` has no caller, so the persistence is
+ * write-only: a reload silently returns everything to the seed. Rehydration
+ * is a later task's work and is deliberately not built here. The SILENCE was
+ * the defect: master prompt §29.4 forbids letting a reader believe a
+ * capability that is only simulated, and nothing on screen said a reload
+ * discards what they just did. It says so now, in the one sentence every
+ * screen carrying this disclosure already renders.
+ *
+ * This makes `NOT_REAL_TEXT` a strict SUPERSET of
+ * `src/ui/sa/PrototypeDisclosure.tsx`'s copy rather than a verbatim twin.
+ * The shared first sentence is still byte-identical, so the wording that
+ * both trees make the same claim in has not drifted; what is added is a
+ * second claim that is true of THIS shell's runtime and of no screen the
+ * other component hosts.
  */
 export const NOT_REAL_TEXT =
-  'Simulated behaviour only. This screen is part of a client-validation storyboard: every state shown is seeded fixture data the user steps through, not a computed transition against a connected production system.'
+  'Simulated behaviour only. This screen is part of a client-validation storyboard: every state shown is seeded fixture data the user steps through, not a computed transition against a connected production system. Anything you change here lives only in this browser tab: reloading the page returns the storyboard to its seeded state, and nothing you do is kept for a later visit.'
 
 function NotRealDisclosure() {
   return <p className={`mt-3 max-w-prose text-xs ${textColor('ink-subtle')}`}>{NOT_REAL_TEXT}</p>

@@ -7,7 +7,7 @@
     "docs/superpowers/plans/2026-08-26-runway.md, Task 19",
     "docs/process/live-verification-procedure.md (the call sequence every row's evidence must follow)"
   ],
-  "scope_note": "Created by Task 19, the final task of the 2026-08-26 runway, as the release-evidence apparatus that survives the whole-project deletion of every test suite under tests/ (APP-020, ~324 suites, effective immediately after this task). Every earlier task's live-in-Chrome verification lives only as prose inside .superpowers/sdd/2026-08-26-runway/task-*-report.md; this ledger is the first STRUCTURED record of that class of evidence and is deliberately seeded with ZERO rows rather than backfilled from those reports. Two reasons, stated rather than left implicit: (1) backfilling would mean writing 'screenshots'/'consoleErrors'/'externalRequests' values this task did not itself observe through the procedure in live-verification-procedure.md -- that is exactly the shape of unearned precision this project's own audits (fix-P-round5-absence-claims.md, fix-U-round6-coverage-and-disclosure.md) have repeatedly found and corrected elsewhere, and Task 19 will not reintroduce it in the one document whose whole job is to be trustworthy evidence; (2) the honest starting position matters more than a flattering one -- running scripts/ledger-reconcile.mjs against zero rows reports the entire fourteen-registry census (5015 rows at this build) as uncovered, and that number belongs in the record exactly as measured, not minimised by a handful of retrofitted rows chosen to look like progress. Every row from here forward is added by the §24.2 workflow unit that performs the live verification it describes, following docs/process/live-verification-procedure.md exactly, at the time that unit actually runs the Chrome MCP sequence -- never reconstructed afterward from memory or from a report's prose summary.\n\nROW SHAPE, verbatim from the runway plan's Task 19 interface (`LiveVerificationRow`): id, pathId, role, surface, connectivity, clockStamp, steps, expected, observed, screenshots, consoleErrors, externalRequests, verdict, defect, candidateId, stamp.\n\nPATH ID FORMAT: `${registrySlug}:${id}`, where `registrySlug` is one of the fourteen filenames in registries/generated/*.json without its extension (modules, features, sub-features, functions, workflows, business-use-cases, business-objects, events, commands, notifications, offline-scenarios, ai-storyboards, scheduled-work, actionable-controls) and `id` is that row's own `id` field verbatim. The slug prefix is required, not decorative: registry row ids are NOT unique across the fourteen registries (e.g. `SB-001` is a real, distinct id in both `workflows.json` and `ai-storyboards.json`) -- scripts/ledger-reconcile.mjs's own header explains the collision this prevents. `scripts/ledger-reconcile.mjs` reconciles this ledger's `pathId` column against that same census in both directions: registry rows with no ledger row (the backlog), and ledger rows naming a path no registry contains (a data-integrity defect, fails that script's exit code).\n\nVERDICT VALUES: 'pass' (observed matched expected, externalRequests empty), 'fail' (observed did not match, or externalRequests is non-empty -- ANY entry in externalRequests is a Critical defect per Task 19's brief, regardless of what else passed), 'blocked' (the step sequence could not be completed for a reason recorded in `defect`, e.g. a decision-blocked control per the coverage dashboard's own status vocabulary).\n\nEXTERNAL-NETWORK ROWS ARE NOT THIS LEDGER'S JOB TO CATCH STRUCTURALLY: `scripts/scan-no-external-network.mjs` is the compile-level, always-run gate for that (fetch/XHR/WebSocket/EventSource/sendBeacon/remote URL/`/api` path/telemetry sink, across src/, app/ and out/). `externalRequests` on a ledger row is the LIVE-BROWSER complement to that static scan -- what the Chrome MCP network panel actually observed during one recorded session -- not a substitute for it.\n\nUNIT-01 CLOSURE (Task 12, 2026-08-29, candidate 79cbd4f130865253bccc967973ba04d89cc05927): the first entries filled, all driven fresh against `pnpm serve:out` on the current bytes rather than transcribed from any task report. Scope: the platform-bootstrap-and-tenant-provisioning spine end to end, each of the shipped screens in its main state, the sign-out control, and the variant/failure paths (sign-in refusals, tenant-create denial, segregation of duties, second-root refusal, critical-class no-control, invitation expired/tenant-blocked). One row (LV-0010) is recorded `blocked`: the full cross-surface accept-then-activate continuity cannot be driven in one document under this build's current architecture (no in-app link connects the Hub and Super Admin surfaces; any navigation between them is a hard page load; `boot()` never rehydrates from IndexedDB) -- reproduced live at LV-0009 rather than only cited from Task 8's report. This is not exhaustive: it is the regression set the unit's own rule requires (every path sharing a changed screen, component, repository method or state machine), not every one of the 5015 census rows.\n\nFIX ROUND 1 (2026-08-29) CORRECTIONS, recorded here rather than only in the task report so a reader of this ledger alone sees them: (1) LV-0015 (root sign-in stopping at the step-up panel) now correctly cites `workflows:WF-ROLE-004` (\"First root sign-in and the enforced-invariant acknowledgement\") -- it previously cited `WF-ROLE-037` (\"Refusing creation of a second Root Super Admin\"), which LV-0018 correctly cites instead. The two ids were transposed in the first pass. (2) LV-0001, LV-0007 and LV-0011 through LV-0014 (ordinary Admin sign-in, sign-out, and four non-root refusal arms) now cite `modules:MOD-SA-01` rather than `WF-ROLE-004`. No row in any of the fourteen registries represents ordinary Super Admin sign-in/sign-out as such -- confirmed by searching all fourteen files for sign-in/authentication/credential-shaped labels -- so `modules:MOD-SA-01` (the destination module every one of these rows is reaching, leaving, or being refused entry to) is the most defensible real id available, not a semantic exact match. `ledger-reconcile.mjs`'s Section B checks pathId EXISTENCE only, not whether the cited id's own label matches what a row actually demonstrates, so this mismatch could not have been caught by that gate -- recorded here as the residual limit of the reconciliation check itself. (3) The tour RUNNER -- the fifteen-tour, 135-step player built and reworked in tasks 10 and 11 (the overlay, spotlight, menu and playback controls) -- has NO row in this ledger. Every LV-row that corresponds to a tour's SUBJECT was driven by replicating that tour's scripted steps directly against real product controls, not by invoking the tour-runner UI itself; the runner mechanism remains undriven by any live-verification row.",
+  "scope_note": "Created by Task 19, the final task of the 2026-08-26 runway, as the release-evidence apparatus that survives the whole-project deletion of every test suite under tests/ (APP-020, ~324 suites, effective immediately after this task). Every earlier task's live-in-Chrome verification lives only as prose inside .superpowers/sdd/2026-08-26-runway/task-*-report.md; this ledger is the first STRUCTURED record of that class of evidence and is deliberately seeded with ZERO rows rather than backfilled from those reports. Two reasons, stated rather than left implicit: (1) backfilling would mean writing 'screenshots'/'consoleErrors'/'externalRequests' values this task did not itself observe through the procedure in live-verification-procedure.md -- that is exactly the shape of unearned precision this project's own audits (fix-P-round5-absence-claims.md, fix-U-round6-coverage-and-disclosure.md) have repeatedly found and corrected elsewhere, and Task 19 will not reintroduce it in the one document whose whole job is to be trustworthy evidence; (2) the honest starting position matters more than a flattering one -- running scripts/ledger-reconcile.mjs against zero rows reports the entire fourteen-registry census (5015 rows at this build) as uncovered, and that number belongs in the record exactly as measured, not minimised by a handful of retrofitted rows chosen to look like progress. Every row from here forward is added by the §24.2 workflow unit that performs the live verification it describes, following docs/process/live-verification-procedure.md exactly, at the time that unit actually runs the Chrome MCP sequence -- never reconstructed afterward from memory or from a report's prose summary.\n\nROW SHAPE, verbatim from the runway plan's Task 19 interface (`LiveVerificationRow`): id, pathId, role, surface, connectivity, clockStamp, steps, expected, observed, screenshots, consoleErrors, externalRequests, verdict, defect, candidateId, stamp.\n\nONE DEPARTURE FROM THAT INTERFACE, and why (unit-01 final whole-branch review, IMPORTANT 4). `screenshots` was a list of bare repository-relative paths. It is now a list of `{path, bytes, sha256}` objects. The captures themselves are gitignored -- correctly, at 134MB for the unit-01 folder -- but the reason the .gitignore gave for excluding them was borrowed from the `docs/screenshots/*.png` rule above it, whose justification is that `pnpm screenshots` rebuilds those images in about ninety seconds. It does not transfer: these are a manual browser-driving session no script reproduces, so on a fresh clone every path this ledger cited dangled with nothing to check a replacement against. Hashing is the attestation pattern both manifests in docs/process/ledgers/ already use, and it is what makes a reference survive bytes that travel separately. The 33 distinct files cited here total 21,153,106 bytes; every hash was computed from the bytes on disk at the time of this change, none is stubbed, and scripts/ledger-reconcile.mjs reads only `pathId` and `verdict` -- it never read `screenshots`, so no script needed updating for this.\n\nPATH ID FORMAT: `${registrySlug}:${id}`, where `registrySlug` is one of the fourteen filenames in registries/generated/*.json without its extension (modules, features, sub-features, functions, workflows, business-use-cases, business-objects, events, commands, notifications, offline-scenarios, ai-storyboards, scheduled-work, actionable-controls) and `id` is that row's own `id` field verbatim. The slug prefix is required, not decorative: registry row ids are NOT unique across the fourteen registries (e.g. `SB-001` is a real, distinct id in both `workflows.json` and `ai-storyboards.json`) -- scripts/ledger-reconcile.mjs's own header explains the collision this prevents. `scripts/ledger-reconcile.mjs` reconciles this ledger's `pathId` column against that same census in both directions: registry rows with no ledger row (the backlog), and ledger rows naming a path no registry contains (a data-integrity defect, fails that script's exit code).\n\nVERDICT VALUES: 'pass' (observed matched expected, externalRequests empty), 'fail' (observed did not match, or externalRequests is non-empty -- ANY entry in externalRequests is a Critical defect per Task 19's brief, regardless of what else passed), 'blocked' (the step sequence could not be completed for a reason recorded in `defect`, e.g. a decision-blocked control per the coverage dashboard's own status vocabulary).\n\nEXTERNAL-NETWORK ROWS ARE NOT THIS LEDGER'S JOB TO CATCH STRUCTURALLY: `scripts/scan-no-external-network.mjs` is the compile-level, always-run gate for that (fetch/XHR/WebSocket/EventSource/sendBeacon/remote URL/`/api` path/telemetry sink, across src/, app/ and out/). `externalRequests` on a ledger row is the LIVE-BROWSER complement to that static scan -- what the Chrome MCP network panel actually observed during one recorded session -- not a substitute for it.\n\nUNIT-01 CLOSURE (Task 12, 2026-08-29, candidate 79cbd4f130865253bccc967973ba04d89cc05927): the first entries filled, all driven fresh against `pnpm serve:out` on the current bytes rather than transcribed from any task report. Scope: the platform-bootstrap-and-tenant-provisioning spine end to end, each of the shipped screens in its main state, the sign-out control, and the variant/failure paths (sign-in refusals, tenant-create denial, segregation of duties, second-root refusal, critical-class no-control, invitation expired/tenant-blocked). One row (LV-0010) is recorded `blocked`: the full cross-surface accept-then-activate continuity cannot be driven in one document under this build's current architecture (no in-app link connects the Hub and Super Admin surfaces; any navigation between them is a hard page load; `boot()` never rehydrates from IndexedDB) -- reproduced live at LV-0009 rather than only cited from Task 8's report. This is not exhaustive: it is the regression set the unit's own rule requires (every path sharing a changed screen, component, repository method or state machine), not every one of the 5015 census rows.\n\nFIX ROUND 1 (2026-08-29) CORRECTIONS, recorded here rather than only in the task report so a reader of this ledger alone sees them: (1) LV-0015 (root sign-in stopping at the step-up panel) now correctly cites `workflows:WF-ROLE-004` (\"First root sign-in and the enforced-invariant acknowledgement\") -- it previously cited `WF-ROLE-037` (\"Refusing creation of a second Root Super Admin\"), which LV-0018 correctly cites instead. The two ids were transposed in the first pass. (2) LV-0001, LV-0007 and LV-0011 through LV-0014 (ordinary Admin sign-in, sign-out, and four non-root refusal arms) now cite `modules:MOD-SA-01` rather than `WF-ROLE-004`. No row in any of the fourteen registries represents ordinary Super Admin sign-in/sign-out as such -- confirmed by searching all fourteen files for sign-in/authentication/credential-shaped labels -- so `modules:MOD-SA-01` (the destination module every one of these rows is reaching, leaving, or being refused entry to) is the most defensible real id available, not a semantic exact match. `ledger-reconcile.mjs`'s Section B checks pathId EXISTENCE only, not whether the cited id's own label matches what a row actually demonstrates, so this mismatch could not have been caught by that gate -- recorded here as the residual limit of the reconciliation check itself. (3) The tour RUNNER -- the fifteen-tour, 135-step player built and reworked in tasks 10 and 11 (the overlay, spotlight, menu and playback controls) -- has NO row in this ledger. Every LV-row that corresponds to a tour's SUBJECT was driven by replicating that tour's scripted steps directly against real product controls, not by invoking the tour-runner UI itself; the runner mechanism remains undriven by any live-verification row.",
   "columns": [
     "id",
     "pathId",
@@ -43,7 +43,11 @@
       "expected": "A valid Admin credential signs in and lands on the Platform Overview and Health dashboard.",
       "observed": "URL changed to /super-admin/platform-overview-and-health/, header read 'Signed in as Helena Voss' with a 'Sign out' control.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/modules-MOD-SA-01-signed-in-dashboard.png"
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-01-signed-in-dashboard.png",
+          "bytes": 315928,
+          "sha256": "23243dc8abdf8fea5416e7271bff073d500c6efa48fed97e68d22ee71bbff341"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -66,7 +70,11 @@
       "expected": "The dashboard renders live-computed tiles from the seeded collections (29 tenants, active/pilot counts, platform users, devices, AI requests) and an honest 'Unknown' for the uncomputable critical-approvals tile.",
       "observed": "Tenants 29, Active tenants 8, Active pilots 5, Needs attention 16, Platform users 7, Devices enrolled 25, AI requests 13, 'Open critical-class approvals: Unknown' with the stated reason. Attention table lists 16 tenants with lifecycle badges and days-in-state.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/modules-MOD-SA-01-signed-in-dashboard.png"
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-01-signed-in-dashboard.png",
+          "bytes": 315928,
+          "sha256": "23243dc8abdf8fea5416e7271bff073d500c6efa48fed97e68d22ee71bbff341"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -89,7 +97,11 @@
       "expected": "The tenant list renders all 29 seeded tenants, paginated, with a real 'Create tenant' control enabled for this role.",
       "observed": "URL /super-admin/tenants-lifecycle-and-pilots/, table shows tenant rows with lifecycle/tier/pilot columns, 'Create tenant' control present and enabled for Admin.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/modules-MOD-SA-09-tenants-list.png"
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-09-tenants-list.png",
+          "bytes": 207878,
+          "sha256": "8e37ee508d2a45867789679d8ed9f3eb470c73bfe5d37f57a9988245932470d0"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -113,7 +125,11 @@
       "expected": "The wizard blocks advancement on an empty required field (schema rejection, R3).",
       "observed": "'Next' rendered aria-disabled=true and did not advance; click action timed out against the disabled control.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/wizard-empty-name-next-disabled.png"
+        {
+          "path": "docs/screenshots/live/unit-01/wizard-empty-name-next-disabled.png",
+          "bytes": 120856,
+          "sha256": "3833c9c5726b0d8f246ceb60c9852bb8a9ff928ff1be76f873f3f05b32c608e1"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -137,7 +153,11 @@
       "expected": "A pilot tenant requires an expiry date before the wizard advances (second schema-rejection case, R3).",
       "observed": "'Next' rendered disabled a second time until the Pilot expiry date field was filled.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/wizard-empty-name-next-disabled.png"
+        {
+          "path": "docs/screenshots/live/unit-01/wizard-empty-name-next-disabled.png",
+          "bytes": 120856,
+          "sha256": "3833c9c5726b0d8f246ceb60c9852bb8a9ff928ff1be76f873f3f05b32c608e1"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -161,8 +181,16 @@
       "expected": "A real repository.create('tenants', ...) write commits; the app navigates to the new tenant's detail page at ?tenant=<generated-id>, which is not in the static export's generateStaticParams (created-in-session rendering path).",
       "observed": "Navigated to /super-admin/tenants-lifecycle-and-pilots/detail/?tenant=TEN-TASK12VERIFICATI-1, success toast 'Task 12 Verification Tenant was created. Invited — not yet operating until its administrator accepts.', lifecycle pill 'Invited', 'Activate' rendered disabled with reason 'Activation is not available until Verification Admin accepts the invitation and completes identity proof.', pilot expiry rendered 'Yes Expires Jun 1, 2026.'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/wizard-review-step.png",
-        "docs/screenshots/live/unit-01/modules-MOD-SA-09-wizard-created-detail-invited.png"
+        {
+          "path": "docs/screenshots/live/unit-01/wizard-review-step.png",
+          "bytes": 136100,
+          "sha256": "3a4b39e1294135a8c0686ba268137cf3fba001c75793228a43efac5b7411f19f"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-09-wizard-created-detail-invited.png",
+          "bytes": 170801,
+          "sha256": "6eb0c192e6c201295aae9e91fd6d289867bd0e9ff0078faddbbdb5992e082f37"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -185,7 +213,11 @@
       "expected": "Sign-out clears the session and redirects to sign-in, preserving the exact prior route as a `next=` return parameter (task 10 fix).",
       "observed": "Redirected to /super-admin/sign-in/?next=%2Fsuper-admin%2Ftenants-lifecycle-and-pilots%2Fdetail%2F%3Ftenant%3DTEN-TASK12VERIFICATI-1.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/spine-sign-out-redirect.png"
+        {
+          "path": "docs/screenshots/live/unit-01/spine-sign-out-redirect.png",
+          "bytes": 56958,
+          "sha256": "ce40cdab8baa75a7cee5c2b2fff5324786cafdb83314c6042945976bfc160ab6"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -208,8 +240,16 @@
       "expected": "The invited administrator's acceptance moves their user row from invited to active and signs them in on the Hub, per §15.1/WF-ROLE-004-adjacent acceptance workflow. Acceptance itself does not activate the tenant (Task 6's design, disclosed on screen).",
       "observed": "Landed signed-in as 'Nadia Ferreira' in the Delivery Operations Hub; status message read 'Signed in as Nadia Ferreira — Tenant Admin. Your workspace becomes fully active once the platform team activates it from the Super Admin console; until then you can see it here but it is not yet operating.'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/hub-accept-invitation-ironclad-before.png",
-        "docs/screenshots/live/unit-01/hub-accept-invitation-ironclad-after.png"
+        {
+          "path": "docs/screenshots/live/unit-01/hub-accept-invitation-ironclad-before.png",
+          "bytes": 63152,
+          "sha256": "9b0f390d026b4e44de8eda436e444f15bd91c1b3080f1532ea9c86b9638c1188"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/hub-accept-invitation-ironclad-after.png",
+          "bytes": 105533,
+          "sha256": "b7da8c273cdaeb942448e3731953c643d85dee6886fe7db373108cb2c0025f22"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -232,7 +272,11 @@
       "expected": "Per the carried finding 'persistence is write-only' (boot() rebuilds the store from the seed on every document load and never rehydrates), Nadia's acceptance written in LV-0008's document is NOT visible here, because it is a different document/store instance.",
       "observed": "Ironclad Fasteners still rendered lifecycle 'Invited' with Activate disabled, reason 'Activation is not available until Nadia Ferreira accepts the invitation and completes identity proof.' — i.e. the accept from LV-0008 did not cross the hard-navigation boundary. This is the write-only persistence defect, reproduced live and fresh rather than only cited from a prior report.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/detail-ironclad-post-hardnav-still-invited.png"
+        {
+          "path": "docs/screenshots/live/unit-01/detail-ironclad-post-hardnav-still-invited.png",
+          "bytes": 154247,
+          "sha256": "5c9f4b02222ca936a22e80e01da28303f67ec10407634586b4a16c3d9e702df8"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -275,7 +319,11 @@
       "expected": "R2: a removed account folds into the SAME generic outcome as an unknown address, to avoid disclosing that the account once existed.",
       "observed": "Banner 'There is a problem — The email or password you entered is incorrect.' identical wording to an unknown address.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/signin-removed-generic.png"
+        {
+          "path": "docs/screenshots/live/unit-01/signin-removed-generic.png",
+          "bytes": 68585,
+          "sha256": "9ecf55a1531c84864f73b7b01de4468eb5959ca98c25989f992deecbd6e34bd2"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -298,7 +346,11 @@
       "expected": "An invited account (never set a password) is told to accept its invitation rather than shown a generic credentials error (R2).",
       "observed": "Status message 'Invitation not yet accepted — nadia.ferreira@ironcladfasteners.example has an open invitation to this platform that has not been accepted yet...'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/signin-invitation-pending.png"
+        {
+          "path": "docs/screenshots/live/unit-01/signin-invitation-pending.png",
+          "bytes": 86770,
+          "sha256": "55b4aa9e8c7758ccccb16d742c7c534252ea5aeb4e3f91fc086505e7e6daf62e"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -321,7 +373,11 @@
       "expected": "A suspended user inside an active tenant is refused with the account-suspended reason.",
       "observed": "Alert 'Account suspended — Account suspended by a platform administrator.'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/signin-account-suspended.png"
+        {
+          "path": "docs/screenshots/live/unit-01/signin-account-suspended.png",
+          "bytes": 69213,
+          "sha256": "b5d2396c44d455f51ae70333c93841f796601c4b2ce10f1db8ac1cb538a72f46"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -344,7 +400,11 @@
       "expected": "An active account whose tenant is suspended is refused and told which of the two is the actual problem.",
       "observed": "Alert 'Tenant account suspended — This account is fine, but its organisation's account is currently soft suspended (lifecycle: soft-suspended). Contact your platform administrator.'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/signin-tenant-suspended.png"
+        {
+          "path": "docs/screenshots/live/unit-01/signin-tenant-suspended.png",
+          "bytes": 78335,
+          "sha256": "4ebbf1fef7d6fffa92d668f3a5e76afc35d88de2d9634101d88c848c8e09b5ab"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -368,7 +428,11 @@
       "expected": "Root sign-in never lands directly; it stops at a step-up panel (six enforced invariants) before landing (WF-ROLE-004, §7.5).",
       "observed": "After sign-in, remained on /super-admin/sign-in/ showing the step-up panel; after confirming, landed on /super-admin/platform-overview-and-health/ as Root Super Admin.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/signin-root-stepup-required.png"
+        {
+          "path": "docs/screenshots/live/unit-01/signin-root-stepup-required.png",
+          "bytes": 111277,
+          "sha256": "6d86059f719fe2ed9768d2daedd69bd7093705cc5c02bb25bf7aa274f366e5c0"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -390,7 +454,11 @@
       "expected": "The approvals queue renders seeded pending/decided change requests with class chips (Critical/Engineering) and platform user rows.",
       "observed": "Screen rendered the approvals queue and platform users table with 7 platform accounts.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/modules-MOD-SA-08-console-users-root-main.png"
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-08-console-users-root-main.png",
+          "bytes": 1862697,
+          "sha256": "1e7ab6da47040dbc8eefa175894fbf44b8fe49cd98a49323bc847fa036e00e56"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -412,7 +480,11 @@
       "expected": "Maker-checker: the platform allows no one, including the root, to decide a change they proposed themselves (§15.1).",
       "observed": "'Approve' and 'Return' both rendered disabled with reason 'The same person cannot both make and approve this change.'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/workflows-WF-ROLE-037-sod-ar0002-root-own-proposal.png"
+        {
+          "path": "docs/screenshots/live/unit-01/workflows-WF-ROLE-037-sod-ar0002-root-own-proposal.png",
+          "bytes": 1877911,
+          "sha256": "0f48dfb0ced9841464c51272a71786367f6d8620c3c5c3e403c090d811d8562a"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -437,7 +509,11 @@
       "expected": "Exactly one Root Super Admin account can ever exist; no console path, including this invitation, can create a second.",
       "observed": "Dialog rendered the refusal 'Exactly one Root Super Admin account exists on this platform. It is created only by the backend at platform commissioning, and no console path — including this invitation — can create a second.' Platform users table remained 'Showing 1-7 of 7' (unchanged) confirming no row was created.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/workflows-WF-ROLE-037-second-root-denied-result.png"
+        {
+          "path": "docs/screenshots/live/unit-01/workflows-WF-ROLE-037-second-root-denied-result.png",
+          "bytes": 1885269,
+          "sha256": "d230e661fe42abc6f2ead0c9bd2f8039e0fb17b529b77deee109e44dc1c84f4c"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -460,7 +536,11 @@
       "expected": "For a critical-class change, a non-root viewer sees NO Approve/Return control at all (structurally absent, not merely disabled) — only the sentence naming why.",
       "observed": "No 'Approve' or 'Return' button rendered anywhere in the decision panel; only the paragraph 'Critical class — root approval required.'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/workflows-critical-no-control-ar0003-admin.png"
+        {
+          "path": "docs/screenshots/live/unit-01/workflows-critical-no-control-ar0003-admin.png",
+          "bytes": 1885485,
+          "sha256": "949154795b6760a9e81e6e843136caf9fa8c4816b4b76909e5f647c11e2b500b"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -483,7 +563,11 @@
       "expected": "Tenant creation is reserved for Root Super Admin and Admin; the Platform Engineer sees 'Create tenant' visible but disabled with the reason stated.",
       "observed": "'Create tenant' rendered disabled with 'The current role does not carry a grant for this action. Tenant creation is held by the Root Super Admin and the Admin...'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/tenant-create-denied-platform-engineer.png"
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-create-denied-platform-engineer.png",
+          "bytes": 225583,
+          "sha256": "a4d2219c7fd39f8509649a14f8f4fce39731940c0dd9ffd0640901b4ffcc464a"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -507,8 +591,16 @@
       "expected": "Navigating straight to the create route does not bypass the rule; the wizard itself re-checks who is asking before it writes anything (write-time authorization, not just render-time UI).",
       "observed": "The Finish click produced 'This action is not permitted — The current role does not carry a grant for this action.' The wizard stayed on step 4/Review; no navigation to a detail page occurred, i.e. no tenant was created.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/tenant-create-route-direct-nav-denied.png",
-        "docs/screenshots/live/unit-01/tenant-create-denied-wizard-finish-refused.png"
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-create-route-direct-nav-denied.png",
+          "bytes": 121209,
+          "sha256": "0e88411d63b64794384df826fc774093757449ce751b17c14f3ff21fa7c590de"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-create-denied-wizard-finish-refused.png",
+          "bytes": 145250,
+          "sha256": "e901a932e865602dae9af5ded25cb914fb8e8606754de6448a6d0f4d60e310fd"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -530,7 +622,11 @@
       "expected": "An invitation older than the platform's expiry window (TRN-ACC-01, ~7 days) reads as expired rather than accepting silently or erroring.",
       "observed": "Heading 'This invitation has expired' and body 'It was issued on Feb 22, 2026 for Red Rock Manufacturing. Ask your platform administrator to re-issue it.'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/invitation-expired-redrockmfg.png"
+        {
+          "path": "docs/screenshots/live/unit-01/invitation-expired-redrockmfg.png",
+          "bytes": 48642,
+          "sha256": "b326e891698dfbb0c9869f9b12bce5412fdbc250a6533aa818c27c9f6c8da069"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -552,7 +648,11 @@
       "expected": "An invitation to a currently-suspended tenant cannot be accepted while the suspension holds.",
       "observed": "Heading 'This workspace is not available' and body \"Granite Hollow Tooling's account is currently compliance suspended. Contact your platform administrator.\"",
       "screenshots": [
-        "docs/screenshots/live/unit-01/invitation-tenant-blocked-granitehollow.png"
+        {
+          "path": "docs/screenshots/live/unit-01/invitation-tenant-blocked-granitehollow.png",
+          "bytes": 49412,
+          "sha256": "c99c4f8e8fb8084b6eac00c8aadd5ab6225334c159031961b056373fba473ad3"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -576,7 +676,11 @@
       "expected": "All fifteen named measures render for the selected tenant (§15.2 vocabulary: counts, rates, statuses only), each with an as-of stamp and an honest unknown/partial/complete completeness marker rather than a fabricated zero.",
       "observed": "Fifteen tiles rendered: Errors and agent-run failures (Partial, explained), Active workflows 5, Active agents (Partial, explained), Tokens consumed 983 'to date', Runs 75 'Complete', Deviations 15 'Complete', Worker-Shift consumption 164/month 'Complete', Sync health (Partial, explained), Hold-propagation lag (Unknown, explained), Clearance volumes 5 'Complete', Adoption-timing lag (Unknown, explained), Eval posture (Unknown, not tenant-attributed), Learning-proposal lifecycle (Unknown, explained), Notification/escalation health 0 fallbacks 'Complete', Override patterns 4 clustering groups 'Complete'.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/modules-MOD-SA-10-tenant-metrics-main.png"
+        {
+          "path": "docs/screenshots/live/unit-01/modules-MOD-SA-10-tenant-metrics-main.png",
+          "bytes": 694621,
+          "sha256": "3bb5000ecd38a8f1b53005a18cbe7202b8598c8e77fe35ac52d48e32104f1381"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -598,7 +702,11 @@
       "expected": "master prompt §15.2: cross-tenant comparison is anonymised as an enforced invariant in the shape of the data, never by omitting a label at render time; a tenant with no runs is excluded from the deviation-rate bands rather than counted as 0%.",
       "observed": "No tenant name appeared anywhere in the tab; the screen's own disclosure states anonymisation happens before the numbers are computed and is presentational rather than informational (the per-tenant tab already publishes the same counts by name). 'Eval pass rate — platform-wide 63%'; deviation-rate bands with the caption '12 of 29 tenants have a recorded run and a deviation rate to place in a band; the rest ... are counted in neither band.'",
       "screenshots": [
-        "docs/screenshots/live/unit-01/tenant-metrics-anonymised-comparative.png"
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-metrics-anonymised-comparative.png",
+          "bytes": 390601,
+          "sha256": "6ce7b225beb998d9bf5f40f5ffe3cf927c910b4b8a593451c5f9ed22182311cb"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -624,7 +732,11 @@
       "expected": "inviteConsoleUser's SUCCESSFUL path: a legitimate platform-role invitation (Support, proposed by Root) commits a real new users row.",
       "observed": "Dialog read 'Task 12 Verification Support was invited.'; the platform users table went from 'Showing 1-7 of 7' to 'Showing 1-8 of 8' with the new row's status 'Invited'.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/console-users-invite-success.png"
+        {
+          "path": "docs/screenshots/live/unit-01/console-users-invite-success.png",
+          "bytes": 1897601,
+          "sha256": "8094263739c30db4e10ff4e73db170e119a55930742b10a509b6de322290c8f9"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -648,9 +760,21 @@
       "expected": "decideApprovalRequest's SUCCESSFUL path -- the maker-checker happy path, task 7's entire subject: a legitimate second approver (not the proposer) can approve an engineering-class request and it applies.",
       "observed": "AR-0001's state moved from 'Pending' to 'Applied' in the queue table; the drawer read 'Atom enablement was approved and applied.' The two rows already in the ledger for this door (LV-0017 segregation-of-duties disabled, LV-0018 second-root refused) only exercised refusals; this is the first successful decideApprovalRequest write in the ledger. pathId note: WF-ROLE-015's own label names an Admin approver; this row's actor was Root Super Admin, who the same decisionGate branch also admits as an eligible second approver for an engineering-class request (confirmed against the code's own decisionApproverRoles) -- the workflow SHAPE (a legitimate second approver clears an engineering-class change) is identical, only the specific role differs from the label's example.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/approvals-ar0001-before-approve.png",
-        "docs/screenshots/live/unit-01/approvals-ar0001-after-approve.png",
-        "docs/screenshots/live/unit-01/approvals-ar0001-approved-confirmed.png"
+        {
+          "path": "docs/screenshots/live/unit-01/approvals-ar0001-before-approve.png",
+          "bytes": 1900852,
+          "sha256": "7fa6d956b24fe8e8c0dff991d92ef609daa733861f9a3a6fb7fa5db64a092704"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/approvals-ar0001-after-approve.png",
+          "bytes": 1893903,
+          "sha256": "3d7f983f8cd4e96b0ba174a9f4a0a1ee103ec94fbaf9115e4f00f474bca02f19"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/approvals-ar0001-approved-confirmed.png",
+          "bytes": 1903369,
+          "sha256": "952dcfb80a948ff28833f11be0b3e945cb5272aeb1b3bf6c697cc1f0aedbe8db"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -673,8 +797,16 @@
       "expected": "Task 6's People tab renders a tenant's real user roster with role and status, and names the First Tenant Admin.",
       "observed": "'First Tenant Admin: Dana Whitfield -- accepted the invitation'; table listed 28 real Bright Bikes users (Tenant Admins, Supervisors, Quality Managers, Read-only Auditors, Workers) each with a role and an 'Active' status, paginated 'Showing 1-20 of 28'.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/tenant-detail-brightbikes-overview.png",
-        "docs/screenshots/live/unit-01/tenant-detail-brightbikes-people.png"
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-detail-brightbikes-overview.png",
+          "bytes": 152591,
+          "sha256": "4b7ce0404bf9e732e622eae3190b62e5b74b753eb60e45122dbef3d4e5b3fb8a"
+        },
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-detail-brightbikes-people.png",
+          "bytes": 221873,
+          "sha256": "4a0dd8214473899005109039eebb21d1ce31d82f7536e055c3de51afa577c63b"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -696,7 +828,11 @@
       "expected": "Task 6's Entitlements tab renders the platform floor (tier + platform default) beside this tenant's own recorded opt-in/opt-out, read-only.",
       "observed": "Four features listed (Agent Builder, Custom Report Builder, Training Library, Worker-Shift allocation) each showing 'Platform floor' vs 'Tenant's desired value', including an honest 'Not recorded -- the platform default applies' and 'Not applicable -- no per-tenant toggle exists for this feature' rather than a fabricated value.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/tenant-detail-brightbikes-entitlements.png"
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-detail-brightbikes-entitlements.png",
+          "bytes": 168166,
+          "sha256": "f27de6b89dbf41787048694ba462b043c0ef5afe6bf9d862fe9d4d89e34da783"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],
@@ -718,7 +854,11 @@
       "expected": "Task 6's Audit tab renders this tenant's real audit trail as a Timeline, grouped by correlation id where one exists, for a tenant with substantial history (Bright Bikes).",
       "observed": "Timeline rendered real actor names, roles, event types (e.g. platform-access.support-session-opened, clearance.granted, hold.placed/released, device.enrollment) and platform-time stamps, spanning from Oct 1, 2025 to Aug 16, 2026, with events genuinely grouped under headings like 'Correlation COR-BB-SEV1-2026-08-15' where a correlation id exists. No pagination truncation observed -- the full history rendered.",
       "screenshots": [
-        "docs/screenshots/live/unit-01/tenant-detail-brightbikes-audit.png"
+        {
+          "path": "docs/screenshots/live/unit-01/tenant-detail-brightbikes-audit.png",
+          "bytes": 2082438,
+          "sha256": "1099abd8fb00a0f6969a9712fe6e201115770a20950e53999f64e0ad486e80ab"
+        }
       ],
       "consoleErrors": [],
       "externalRequests": [],

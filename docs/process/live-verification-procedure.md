@@ -126,21 +126,39 @@ output fills.
    fullPage: true })` — one
    per meaningfully distinct state (before a mutating action and after it,
    at minimum, for any row whose `expected` describes a state change).
-   Record each saved filename, in the order taken, in the row's
-   `screenshots` array. Image files are not re-read by a later verification
-   pass of this ledger — see "What this procedure cannot do" below — so the
-   filename itself, plus the `observed` field's prose description of what
-   it shows, is the durable record.
+   Record each capture, in the order taken, in the row's `screenshots`
+   array, as an object — **not a bare filename**:
+
+   ```json
+   { "path": "docs/screenshots/live/<unit-or-slice>/<name>-<n>.png",
+     "bytes": "<size on disk>", "sha256": "<shasum -a 256 of that file>" }
+   ```
+
+   `sha256` is the hash of the bytes on disk, computed at the time the row
+   is written (`shasum -a 256 <path>`), and `bytes` is that file's size.
+   Image files are not re-read by a later verification pass of this ledger —
+   see "What this procedure cannot do" below — so the path, the hash, and
+   the `observed` field's prose description of what the image shows are the
+   durable record between them.
+
+   **Why the hash, given the images are gitignored (unit-01 final
+   whole-branch review, IMPORTANT 4).** These captures are irreproducible:
+   unlike `docs/screenshots/*.png`, which `pnpm screenshots` rebuilds in
+   about ninety seconds, nothing re-drives this browser session. So on a
+   fresh clone the bytes are simply absent, and a bare path is a reference
+   to nothing that can be checked. The hash makes the reference survive the
+   separation — a reviewer handed the images out of band can prove they are
+   the ones this row was written against.
 
    **The path is part of the step, not a detail left to the tool.** Given a
    bare filename, the Playwright MCP server writes wherever its own output
    directory points — which in this environment is the PARENT of the
    repository, and unit 1 task 1 put nine captures on the client's desktop
    folder before this was noticed. `docs/screenshots/live/` is inside the
-   repository, is already covered by the `docs/screenshots/*.png` ignore
-   rule's intent (add the nested glob if git starts tracking them), and
-   keeps a ledger row's `screenshots` array resolvable from the repository
-   root by anyone reading it later.
+   repository, carries its own `docs/screenshots/live/**/*.png` ignore rule
+   (with its own stated reason, which is NOT the rebuild argument the rule
+   above it makes), and keeps a ledger row's `screenshots` array resolvable
+   from the repository root by anyone reading it later.
 
 8. **Compare, and write `observed`, `verdict`, `defect`.** `observed` is a
    plain-prose statement of what steps 4-7 actually showed, written so it
@@ -189,7 +207,10 @@ write and read, not on the pixels, which it cannot.
   ],
   "expected": "The tenant's status transitions from Requested to Active and the Tenant Admin's acceptance is recorded, per SB-001's passage.",
   "observed": "Status pill changed from 'Requested' to 'Active' immediately after the click; no navigation occurred; no dialog appeared.",
-  "screenshots": ["workflows-SB-001-before.png", "workflows-SB-001-after.png"],
+  "screenshots": [
+    { "path": "docs/screenshots/live/<unit>/workflows-SB-001-before.png", "bytes": "<size on disk>", "sha256": "<shasum -a 256 of that file>" },
+    { "path": "docs/screenshots/live/<unit>/workflows-SB-001-after.png", "bytes": "<size on disk>", "sha256": "<shasum -a 256 of that file>" }
+  ],
   "consoleErrors": [],
   "externalRequests": [],
   "verdict": "pass",
