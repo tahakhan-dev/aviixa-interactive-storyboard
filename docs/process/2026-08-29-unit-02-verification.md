@@ -412,12 +412,27 @@ What genuinely remains open at this unit's own close:
    citation asks whether a screen NAMES the item, which a comment cannot answer", and spelling the
    identifier into rendered copy to recover the row would be manufacturing evidence and a §8.6.2
    violation besides. Correct under the rule as written; recorded here as a known limit of the
-   measure. Census demonstrated-in-storyboard total moved 276 → 274.
+   measure. Census demonstrated-in-storyboard total moved 275 → 274 (corrected here from an
+   earlier draft of this line, which read 276; §6 above had it right throughout).
 10. **Two rendered strings outside this unit's five screens still carry build-process language** —
    `src/ui/demo/EvidencePanel.tsx` lines 110 and 119 both read "(out of Task 14 scope)". Same
    defect class as the final review's Important 5, but unit-01/Task-14-era code that this unit
    never touched; named here rather than fixed, since changing it lies outside this unit's scope
    and this was the last fix wave for unit 2 specifically.
+11. **`updateShift` still lacks the explicit row-tenant comparison its sibling `archiveShift` — written
+   in the SAME fix wave — now has.** Found by the fix wave's own scoped re-review, after the wave's
+   commits had already landed, so it could not have been fixed inside the wave without triggering a
+   second one. `repository.ts`'s `updateShift` reorder (finding above) authorises on the role floor
+   before any row read, correctly, but never separately confirms the found row's own `tenantId`
+   matches the caller's — it relies on `checkSiteReference` catching a foreign row via the row's
+   `siteId`, which it does, but the refusal message echoes that foreign site's id back to a caller who
+   has already cleared the role check. `archiveShift`, added in the same wave, closes this explicitly
+   with its own `resolveTenantId` comparison; `updateShift` does not. No cross-tenant write is
+   possible either way, and no UI path reaches this — a Tenant Admin only ever sees own-tenant shift
+   ids to pass in. Adjudicated rather than sent to a second fix wave, per this project's one-wave rule
+   for a final review: real, and the smaller of the unit's two Shift doors should match the larger's
+   discipline, but not ship-blocking by the re-reviewer's own explicit verdict. Fix, if taken up: the
+   same two lines `archiveShift` already carries, copied in.
 
 ## 8. What is simulated rather than real
 
@@ -437,4 +452,7 @@ descriptive of the seed's role-grant data, never enforced against a live session
 - Findings 8-10 were added by the final whole-unit review: two are structural limits of the
   evidence apparatus rather than product defects (8, 9) and one is out-of-unit code named rather
   than touched (10).
+- Finding 11 was added by the fix wave's own scoped re-review, after the wave's commits had
+  already landed — real, adjudicated as non-blocking by the re-reviewer's own explicit verdict, not
+  sent to a second fix wave under this project's one-wave rule for a final review.
 - No completion language beyond what this record's evidence carries.

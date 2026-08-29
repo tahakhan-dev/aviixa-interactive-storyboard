@@ -381,7 +381,87 @@ survive checking while the underlying work was correct.
 
 ## 8. Position — update this section at every slice boundary
 
-### Unit 2 — tenant configuration, users, workers and devices — Task 9 (closure) complete
+### Unit 2 — tenant configuration, users, workers and devices — CLOSED (final whole-unit review clean after one fix wave)
+
+**Read this subsection first — it is the current position, measured fresh rather than recalled.**
+Everything below it (Task 9's own closure record, Session S14, unit 1's own closure) is still true
+and still the history this build stands on.
+
+**Closed at `f6d590bcd3ddb73707489c5f2d0146d357abf4fa`**, after: all nine plan tasks, the Tasks-1/2
+corrective task, Task 9's own closure (below), a final whole-unit review comparing all twelve of
+this unit's new authorization doors side by side (something no single task's own reviewer could
+do), one fix wave (the only one this project's protocol permits per final review), and one scoped
+re-review of that wave. Frozen source re-hashed at this closure, again: unchanged, `47bd18db…`.
+`pnpm verify` exit 0 on the final tree. `docs/process/2026-08-29-unit-02-verification.md` was
+amended in place (§2, §5, §6, §7 items 8-11, §9) rather than superseded — read it whole, not just
+this summary.
+
+**The final review found six real cross-task defects that no single task's own review could have
+caught, because each task ran with fresh context and only the controller carried facts forward
+between them.** Five were fixed exactly as prescribed: Shift archive had no named authorization
+door and was still enforced only as a UI display gate (the exact defect class the Tasks-1/2
+corrective task existed to eliminate, missed on this one path — fixed with a new `archiveShift`
+door); `updateShift` read its target row before authorizing, the one door in this unit that didn't
+match the shape `archiveLocationTierEntity` was restructured to hold after Task 1's own cross-tenant
+leak (fixed by splitting the gate); build-process language ("Task 3's own door") had leaked into
+rendered product copy on the Worker Lifecycle screen (fixed); and the closure record's own open-
+items list and live-verification coverage had three real gaps (amended, three new ledger rows
+added for previously-undriven success paths).
+
+**The sixth finding — the Hub module rail contradicting `MOD-DOH-09`'s own screen — was fixed, but
+the fix wave's own investigation found the review's diagnosis was wrong on both of its two halves,
+and said so rather than following the prescribed fix blindly.** The `MOD-DOH-09` half's stated root
+cause (a dead `permissions-roles-and-access/fixtures.ts`) was real and was deleted — but the
+review's companion instruction to also delete `doh-09/readings.ts` was wrong: that file is the only
+in-tree disclosure record of a genuine, still-unresolved contradiction between two frozen-source
+tables (`MTX-TEN-02a` says `Unavailable` for Supervisor/Quality Manager; the module's own card says
+`Allowed`/`Read-only` on three specific cells) — it was kept and amended instead, to record which
+reading the build adopted without claiming the source itself agrees. The `MOD-DOH-03`/Worker half
+was diagnosed by the review as that module's own matrix being wrong; it was not — `L27297` genuinely
+grants a Worker their own assigned shift, and live-driving the "fix" first proved a Worker really
+was being handed a four-item Hub rail that then refused every link. The real cause, found by tracing
+the rule to its actual owner: `AppShell.tsx` — the shared shell every screen this unit rebuilt uses
+— never asked whether a persona reaches `SURF-DOH` at all before computing its module list, unlike
+`HubShell.tsx`, which does. Fixed at that one shared function, scoped to the `SURF-DOH` branch only
+(a `switch` case with its own early return — structurally incapable of reaching any other surface).
+**The scoped re-review treated this `AppShell` change as the single most important thing to verify**
+— it is the largest-blast-radius edit in the whole unit, touches code used by Super Admin, Studio,
+Command Center and Frontline screens too, and got no further review after that one pass. The
+re-reviewer independently confirmed the scoping is structural (not merely textual), confirmed the
+`SURF-STU`/`SURF-FL` open-decision exemption that justified NOT making the guard blanket is real
+(citing the actual route registry, `AC-STU-157`/`AC-FL-009-5`) and would have caused a genuine
+regression to the Read-only Auditor's Studio rail had the guard been unscoped, and confirmed the
+regenerated reach map matches the live-measured Worker rail exactly. Verdict: **accept.**
+
+**One residual finding, surfaced here rather than sent to a second fix wave, per this project's own
+one-wave rule for a final review.** The re-review, checking the fix wave's own work after it landed,
+found that `updateShift` — reordered in this same wave to authorize first — still lacks the explicit
+row-tenant comparison its sibling `archiveShift`, added in the very same wave, now carries. No
+cross-tenant write is possible and no UI path reaches it (a Tenant Admin only ever sees own-tenant
+shift ids to act on), but a refusal on this path can echo a foreign tenant's site id back to a
+caller who has already cleared the role floor. The re-reviewer's own explicit verdict: real, and the
+smaller of the unit's two Shift doors should match the larger's discipline, but **not ship-blocking**.
+Adjudicated by the controller as a Ruling rather than looped into another dispatch: parked, disclosed
+in `docs/process/2026-08-29-unit-02-verification.md` §7 finding 11 and §9. Fix, if ever taken up: the
+same two lines `archiveShift` already carries, copied in — a five-minute change with an exact
+template already in the tree, left for a session that has appetite for it rather than forced into
+this one's last wave.
+
+**Census moved once more in this closure: 275 → 274.** `WF-WKR-004` lost its registry citation when
+the dead fixtures file (above) was deleted — the identifier lived only in a string literal in that
+file, which the build-registries generator counts as a citation though the workflow itself is very
+much built and runs. Deliberately not won back: restoring the citation would mean rendering the
+identifier in product copy, which is a §8.6.2 violation of exactly the kind this unit spent three
+separate fix rounds eliminating. Recorded as a known limit of the measure, not a regression in the
+product.
+
+**What the next session should do with this:** nothing here blocks unit 3 starting clean. The
+`updateShift`/`archiveShift` asymmetry (above) is a five-minute pickup if a future session wants it,
+not a dependency. The `AppShell` D11 fix is now load-bearing for every surface's rail computation —
+a future session touching `AppShell.tsx` should read its current `SURF-DOH` branch before assuming
+the old "asks only the second question" behavior still holds anywhere in the file.
+
+### Unit 2 — Task 9's own closure record (superseded in figures by the amendment above; kept for the narrative of what task 9 itself measured)
 
 **Read this subsection first — it is the current position, measured fresh rather than recalled.**
 Everything below it (Session S14, unit 1's own closure, the slice-11 rounds) is still true and still
