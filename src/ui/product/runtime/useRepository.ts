@@ -144,7 +144,12 @@ function identityFor(session: ProductSession | null): IdentitySimulationState {
     // gate a Root-only action on the caller's REAL step-up state instead
     // of a value this hook silently discarded.
     stepUpActive: session.stepUpActive ?? false,
-    accessSessionId: null,
+    // Task 7 (closure sweep): was hardcoded `null` for every session
+    // regardless of whether one was open — this field existed on the type
+    // before this task but nothing ever populated it. Threaded from
+    // `ProductSession.accessSessionId` (`session.ts#resolveOpenSupportSession`
+    // is the only path that ever sets it non-null).
+    accessSessionId: session.accessSessionId ?? null,
   }
 }
 

@@ -13,11 +13,15 @@ export {
   reviewerAccessContext,
 } from './useRepository'
 export {
+  resolveCloseSupportSession,
   resolveInvitationAcceptance,
+  resolveOpenSupportSession,
   resolveSignIn,
   resolveStepUpCompletion,
   SIGNED_OUT,
+  type CloseSupportSessionResult,
   type InvitationAcceptanceResult,
+  type OpenSupportSessionResult,
   type ProductSessionApi,
   type ProductSessionState,
   type SignInOutcome,

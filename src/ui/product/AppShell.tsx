@@ -163,6 +163,19 @@ export interface ProductSession {
    * `undefined` (read as `false`).
    */
   readonly stepUpActive?: boolean
+  /**
+   * Task 7 (closure sweep) — the id of the `access-sessions` row this
+   * identity currently holds open (`repository.ts#openSupportSession`), or
+   * `undefined`/`null` when none is open. Threaded into
+   * `useRepository.ts#identityFor`'s `IdentitySimulationState.accessSessionId`
+   * (a field that already existed on that type, unused, before this task —
+   * every caller set it to a hardcoded `null`). Only ever set for a
+   * PLATFORM-domain session (Root/Admin/Support) — `tenant` stays `null` for
+   * that session throughout, exactly as `evaluateAccess`'s own PLATFORM
+   * branch requires; the target tenant a support session reads is carried
+   * here, never in `tenant`.
+   */
+  readonly accessSessionId?: string | null
 }
 
 export interface AppShellProps {

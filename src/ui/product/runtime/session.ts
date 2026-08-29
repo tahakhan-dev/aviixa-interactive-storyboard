@@ -119,6 +119,107 @@ export interface ProductSessionApi extends ProductSessionState {
    * screen's identical disclosure for the invitation's expiry window.
    */
   acceptInvitation(tenantId: string): Promise<InvitationAcceptanceResult>
+  /**
+   * Task 7 (closure sweep) — LV-0010's own door, landed. Opens a real,
+   * read-only `access-sessions` row against `tenantId` (`repository.ts
+   * #openSupportSession`) for the CURRENTLY signed-in identity, and — on
+   * success — carries the new row's id forward on `ProductSession
+   * .accessSessionId`, so a screen reading the live session afterward can
+   * tell which tenant it is now looking at. Denied for any identity that is
+   * not signed in at all (there is no session to act as).
+   */
+  openSupportSession(tenantId: string, purpose: string): Promise<OpenSupportSessionResult>
+  /**
+   * Task 7 (closure sweep) — the operator's own close of the CURRENTLY held
+   * support session (`ProductSession.accessSessionId`), via
+   * `repository.ts#closeSupportSession`. `no-active-session` when the
+   * signed-in identity holds none open — never silently a no-op.
+   */
+  closeSupportSession(): Promise<CloseSupportSessionResult>
+}
+
+/**
+ * Task 7 (closure sweep) — the acting `AccessContext` for a write made ON
+ * BEHALF OF the currently signed-in identity, generalising `rootActingContext`
+ * below to any role rather than hardcoding `ROOT_SUPER_ADMIN`.
+ * Deliberately NOT `useAccessContext()` (`@/ui/product/runtime/useRepository`)
+ * — that hook cannot be called here: `ProductRuntime.tsx` is the component
+ * that RENDERS `ProductSessionContext.Provider`, so calling a hook that reads
+ * that same context from inside it would read the context as it stood BEFORE
+ * this render (typically `null`), not the live value this call needs.
+ */
+export function actingContextFor(store: Store, session: ProductSession): AccessContext {
+  return {
+    state: scenarioStateFor(store),
+    identity: {
+      signedIn: true,
+      role: session.role,
+      tenant: session.tenant,
+      siteScope: session.scope?.sites ? [...session.scope.sites] : [],
+      areaScope: session.scope?.areas ? [...session.scope.areas] : [],
+      qualifications: [],
+      deviceId: null,
+      stepUpActive: session.stepUpActive ?? false,
+      accessSessionId: session.accessSessionId ?? null,
+    },
+    online: true,
+    deviceTrusted: true,
+    actorOfRecord: session.identityId,
+  }
+}
+
+/**
+ * Task 7 (closure sweep) — mirrors `SignInOutcome`'s own shape: one arm per
+ * real `WriteResult` kind the door can return (`repository.ts
+ * #openSupportSession`), plus `not-signed-in` for the one case the door
+ * itself cannot express (there being no `ctx` to build at all).
+ */
+export type OpenSupportSessionResult =
+  | { kind: 'opened'; accessSessionId: string }
+  // `reason` is the `PermissionDecision.reasonCode` (`repository.ts`'s own
+  // `WriteResult`'s `denied` arm) — carried through, not just `explain`, so
+  // a caller can substitute its own citation-rich text for a generic
+  // reason-code default (`policy/decision.ts#REASON_CODES.ROLE_NOT_GRANTED`
+  // carries no citation on its own; `SupportAccessScreen.tsx`'s own
+  // `supportRoleReason` is the citation-backed substitute, exactly as this
+  // file's D16 disabled-reason machinery already does for the DEMO decision
+  // this door parallels).
+  | { kind: 'denied'; reason: string; explain: string }
+  | { kind: 'persistence-unavailable'; explain: string }
+  | { kind: 'not-signed-in' }
+
+export async function resolveOpenSupportSession(
+  repository: Repository,
+  store: Store,
+  session: ProductSession | null,
+  tenantId: string,
+  purpose: string,
+): Promise<OpenSupportSessionResult> {
+  if (session === null) return { kind: 'not-signed-in' }
+  const result = await repository.openSupportSession(tenantId, purpose, actingContextFor(store, session))
+  if (result.ok) return { kind: 'opened', accessSessionId: result.row.id }
+  if (result.kind === 'denied') return { kind: 'denied', reason: result.reason, explain: result.explain }
+  return { kind: 'persistence-unavailable', explain: result.explain }
+}
+
+export type CloseSupportSessionResult =
+  | { kind: 'closed' }
+  | { kind: 'denied'; explain: string }
+  | { kind: 'persistence-unavailable'; explain: string }
+  | { kind: 'no-active-session' }
+
+export async function resolveCloseSupportSession(
+  repository: Repository,
+  store: Store,
+  session: ProductSession | null,
+): Promise<CloseSupportSessionResult> {
+  if (session === null || session.accessSessionId === null || session.accessSessionId === undefined) {
+    return { kind: 'no-active-session' }
+  }
+  const result = await repository.closeSupportSession(session.accessSessionId, actingContextFor(store, session))
+  if (result.ok) return { kind: 'closed' }
+  if (result.kind === 'denied') return { kind: 'denied', explain: result.explain }
+  return { kind: 'persistence-unavailable', explain: result.explain }
 }
 
 /** The one signed-out value — reused, never rebuilt inline, so every reset (boot-not-ready, sign-out, initial state) is the SAME object. */

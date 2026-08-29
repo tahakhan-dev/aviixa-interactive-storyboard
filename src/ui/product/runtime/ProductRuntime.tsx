@@ -26,11 +26,15 @@ import {
   type RuntimeData,
 } from './useRepository'
 import {
+  resolveCloseSupportSession,
   resolveInvitationAcceptance,
+  resolveOpenSupportSession,
   resolveSignIn,
   resolveStepUpCompletion,
   SIGNED_OUT,
+  type CloseSupportSessionResult,
   type InvitationAcceptanceResult,
+  type OpenSupportSessionResult,
   type ProductSessionApi,
   type ProductSessionState,
   type SignInOutcome,
@@ -135,6 +139,37 @@ export function ProductRuntime({ children }: { children: ReactNode }) {
         const result = await resolveInvitationAcceptance(runtimeData.repository, runtimeData.store, tenantId)
         if (result.kind === 'signed-in') {
           setSessionState({ session: result.session, sessionId: result.session.identityId, lastOutcome: null })
+        }
+        return result
+      },
+      // Task 7 (closure sweep) — LV-0010's own door, landed. `session.ts`
+      // does the actual work (building the acting `ctx`, calling
+      // `repository.openSupportSession`); this wiring only lands the
+      // resulting `accessSessionId` onto the live `ProductSession`, exactly
+      // as every other method here lands its own outcome.
+      async openSupportSession(tenantId: string, purpose: string): Promise<OpenSupportSessionResult> {
+        const result = await resolveOpenSupportSession(
+          runtimeData.repository,
+          runtimeData.store,
+          sessionState.session,
+          tenantId,
+          purpose,
+        )
+        if (result.kind === 'opened' && sessionState.session !== null) {
+          setSessionState({
+            ...sessionState,
+            session: { ...sessionState.session, accessSessionId: result.accessSessionId },
+          })
+        }
+        return result
+      },
+      async closeSupportSession(): Promise<CloseSupportSessionResult> {
+        const result = await resolveCloseSupportSession(runtimeData.repository, runtimeData.store, sessionState.session)
+        if (result.kind === 'closed' && sessionState.session !== null) {
+          setSessionState({
+            ...sessionState,
+            session: { ...sessionState.session, accessSessionId: null },
+          })
         }
         return result
       },
