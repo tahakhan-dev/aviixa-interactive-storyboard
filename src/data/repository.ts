@@ -50,7 +50,7 @@ import { COLLECTIONS, RELATIONS, type CollectionName } from './schemas'
 import type { Event as EventRow, Audit as AuditRow } from './schemas/crosscutting'
 import type { CollectionData, Store } from './store'
 import { truthStoreFor, writableThroughRepository, type TruthStoreAuthority } from './truth-stores'
-import { checkAreaReference, checkSiteReference, scopeReferenceMessage, type ScopeReferenceProblem } from './scope-reference'
+import { checkAreaReference, checkLocationReference, checkSiteReference, scopeReferenceMessage, type ScopeReferenceProblem } from './scope-reference'
 import { roleById, type RoleId } from '@/domain/roles'
 import type { SurfaceId } from '@/domain/surfaces'
 import {
@@ -375,6 +375,51 @@ export interface Repository {
    * rows would silently disagree.
    */
   recordQualification(qualification: RowOf<'qualifications'>, ctx: AccessContext): Promise<RecordQualificationResult>
+  /**
+   * Task 5 (unit-02) — `WF-DVC-001`'s own door. `device.locationId` is
+   * nullable (`schemas/org.ts#Device`, unlike `Shift`/`Qualification`'s
+   * `siteId`/`areaIds`, which are required) — an enrolled-but-unplaced
+   * device is a real, schema-valid state (the workflow's own Failure path:
+   * "The device shows as enrolled with no packages, never as ready" is a
+   * DIFFERENT gap than never being bound at all, but the schema draws no
+   * line forcing a binding at enrollment either), so `checkLocationReference`
+   * runs only when a non-null `locationId` is actually supplied — the same
+   * "check only what was given" shape `recordQualification`'s own
+   * `areaIds` loop uses. `device` never carries its own `tenantId` — this
+   * door sets it, the same "never trust a caller-supplied tenant" discipline
+   * `createWorker`/`createTenantUser` already apply.
+   *
+   * `allowedRoles: ['TENANT_ADMIN']` — see `ENROLL_DEVICE_REQUEST`'s own
+   * comment for the citation and for why this is deliberately narrower than
+   * `TENANT_OPERATIONAL_WRITERS`.
+   */
+  enrollDevice(device: Omit<RowOf<'devices'>, 'tenantId'>, ctx: AccessContext): Promise<EnrollDeviceResult>
+  /**
+   * Task 5 (unit-02) — `WF-DVC-002`'s own door. Takes the target
+   * `locationId` directly (not a partial `Device` patch) — the one field
+   * this workflow actually moves — and runs the SAME nullable-aware
+   * `checkLocationReference` `enrollDevice` runs, because the schema allows
+   * reassigning a device back to unplaced exactly as it allows enrolling one
+   * that way. Delegates the mechanical write to the generic `update()` once
+   * the role floor and the reference both clear — the same "named door adds
+   * exactly the rule the generic door doesn't run, then hands back the
+   * write" shape `updateShift`/`archiveLocationTierEntity` already
+   * establish.
+   *
+   * `AC-WF-DVC-002-01` ("reassignment refused while a run is in flight on
+   * the device") and `AC-WF-DVC-002-02`/`03` (package re-staging and
+   * eviction on confirmed receipt) are NOT enforced here — the real `Device`
+   * schema carries no in-flight-run or package-inventory field this
+   * collection's authority can read (no Job/Run/package integration exists
+   * at the `devices` collection yet), so this build has no source-backed
+   * fact to gate on. A disclosed, real gap, not a silently invented one —
+   * see `DevicesScreen.tsx`'s own header for where this is named on screen.
+   *
+   * `allowedRoles: ['TENANT_ADMIN']` — see `REASSIGN_DEVICE_REQUEST`'s own
+   * comment for the citation (`WF-DVC-002`'s own Denied path names this
+   * explicitly, not a derived default).
+   */
+  reassignDevice(id: string, locationId: string | null, ctx: AccessContext): Promise<ReassignDeviceResult>
   subscribe(listener: () => void): () => void
   reset(): void
   exportJson(): Record<CollectionName, unknown[]>
@@ -448,6 +493,22 @@ export type RecordQualificationResult =
       /** Exactly `createRow`'s own failure shape, or `update()`'s — see this file's own `WriteResult`. */
       workerUpdateFailure: WriteDenied | WritePersistenceUnavailable
     }
+
+/**
+ * Task 5 (unit-02) — `enrollDevice`/`reassignDevice`'s own result. Same
+ * `'invalid-reference'` shape `CreateShiftResult`/`RecordQualificationResult`
+ * already use for a bad row reference — a non-existent, foreign-tenant or
+ * archived `locationId` is a fact about a ROW reference, not a
+ * `PermissionDecision`, so it must not be read as "you may not do this."
+ */
+export type EnrollDeviceResult =
+  | WriteResult<RowOf<'devices'>>
+  | { ok: false; kind: 'invalid-reference'; problem: ScopeReferenceProblem }
+
+/** `EnrollDeviceResult`'s own sibling for `reassignDevice`. Same shape. */
+export type ReassignDeviceResult =
+  | WriteResult<RowOf<'devices'>>
+  | { ok: false; kind: 'invalid-reference'; problem: ScopeReferenceProblem }
 
 /**
  * Fix round 1 (unit-01, Task 5 review, minor): the two failure arms above
@@ -1498,6 +1559,63 @@ const RECORD_QUALIFICATION_REQUEST: AccessRequest = {
   action: 'record-qualification',
   allowedRoles: ['TENANT_ADMIN', 'SUPERVISOR'],
   sourceRefs: ['L27472', 'FUNC-DOH-04-2.1.1', 'MOD-DOH-04', 'repository.ts'],
+}
+
+/**
+ * Task 5 (unit-02) — `enrollDevice`'s own floor. `WF-DVC-001` ("Enrolling a
+ * device into the tenant's fleet", §8.13.4/§8.13.1) names Tenant Admin as
+ * "Primary" and Supervisor as "Secondary" in its own Actors line, but its
+ * own Denied path (L53091) states plainly: "A Supervisor, Quality Manager,
+ * Read-only Auditor, or Worker attempting enrollment is refused. A Support
+ * account cannot enroll a device." This is the same class of internal
+ * contradiction this unit already discloses elsewhere (the Actors/Security
+ * mismatch `CREATE_SHIFT_REQUEST`'s own comment names, and the
+ * DEC-WKRVIEW-001 contradiction `WorkerLifecycleScreen.tsx`'s own header
+ * names) — the explicit, enumerated Denied-path sentence is read as
+ * authoritative over the looser Actors line, the same choice this unit's
+ * corrective task already made for `CREATE_SHIFT_REQUEST`/
+ * `ARCHIVE_LOCATION_TIER_ENTITY_REQUEST`. Independently corroborated by a
+ * SECOND, distinct source location: the Super Admin platform console's own
+ * `MOD-SA-13` permission matrix, "Enroll a device" row (L45543): Tenant
+ * Admin `Allowed — enrollment is tenant-self-service within platform
+ * policy`, `Other tenant roles` `Explicitly prohibited`.
+ *
+ * DELIBERATELY NOT `TENANT_OPERATIONAL_WRITERS` (the generic `'hub'`-
+ * authority floor, which also admits Supervisor and Quality Manager) — the
+ * same class of mistake three-then-four prior write doors in this unit
+ * shipped with before correction (see `CREATE_WORKER_REQUEST`'s own
+ * comment for the full list). Two independent source locations agree here,
+ * so this floor ships narrow from the start rather than needing its own
+ * later fix round.
+ */
+const ENROLL_DEVICE_REQUEST: AccessRequest = {
+  action: 'enroll-device',
+  allowedRoles: ['TENANT_ADMIN'],
+  sourceRefs: ['WF-DVC-001', 'L53091', 'L45543', 'MOD-SA-13', 'repository.ts'],
+}
+
+/**
+ * Task 5 (unit-02) — `reassignDevice`'s own floor. `WF-DVC-002`
+ * ("Reassigning a device to another Area or worker group") is EXPLICIT in
+ * its own Denied path (L53124): "Reassignment by a Supervisor is refused;
+ * device policy sits with the Tenant Admin. A Support account cannot
+ * reassign." No Actors-line ambiguity here at all — the same section's own
+ * Actors line lists "Secondary Supervisors of both Areas" for VISIBILITY
+ * only (they see the change on their own Areas' devices), and the Denied
+ * path is the one sentence that answers the WRITE question directly, in
+ * the affirmative-negative it needs no derivation to read. No `MOD-SA-13`
+ * permission-matrix row exists for reassignment specifically (that table
+ * carries "Enroll a device"/"Set device mode at enrollment" only) — this
+ * door's citation rests on `WF-DVC-002`'s own Denied path alone, and that
+ * sentence is sufficiently explicit to need no second corroborating source.
+ *
+ * DELIBERATELY NOT `TENANT_OPERATIONAL_WRITERS` — same reasoning as
+ * `ENROLL_DEVICE_REQUEST` above.
+ */
+const REASSIGN_DEVICE_REQUEST: AccessRequest = {
+  action: 'reassign-device',
+  allowedRoles: ['TENANT_ADMIN'],
+  sourceRefs: ['WF-DVC-002', 'L53124', 'repository.ts'],
 }
 
 /**
@@ -3503,6 +3621,75 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
         return { ok: false, kind: 'partial', qualification: qualResult.row, workerUpdateFailure: workerResult }
       }
       return { ok: true, qualification: qualResult.row, worker: workerResult.row }
+    },
+
+    /**
+     * Task 5 (unit-02) — see the `Repository` interface's own comment and
+     * `ENROLL_DEVICE_REQUEST`'s own comment for the role-floor citation.
+     * `evaluateAccess` runs FIRST, before any row is read — the same
+     * discipline `createWorker`/`createShift` establish.
+     */
+    async enrollDevice(device, ctx) {
+      const decision = evaluateAccess(ENROLL_DEVICE_REQUEST, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const actorTenant = ctx.identity.tenant
+      if (actorTenant === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'A device can only be enrolled by an actor with a live tenant.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      if (device.locationId !== null) {
+        const problem = checkLocationReference(store, actorTenant, device.locationId)
+        if (problem !== null) return { ok: false, kind: 'invalid-reference', problem }
+      }
+
+      const authority = truthStoreFor('devices')
+      if (!writableThroughRepository(authority)) return truthStoreRefusal('devices', authority)
+
+      const deviceRow: RowOf<'devices'> = { ...device, tenantId: actorTenant }
+      return createRow('devices', deviceRow, ctx, authority)
+    },
+
+    /**
+     * Task 5 (unit-02) — see the `Repository` interface's own comment and
+     * `REASSIGN_DEVICE_REQUEST`'s own comment for the role-floor citation.
+     * Takes the target `locationId` directly, checks it (when non-null) with
+     * the same `checkLocationReference` `enrollDevice` runs, then delegates
+     * the mechanical write to the generic `update()` — which re-derives the
+     * device's own tenant from its `tenantId` field (`resolveTenantId`) and
+     * refuses a cross-tenant `id` there, the same division of labour
+     * `updateShift` already establishes (this door's own role/reference
+     * checks; the generic door's own tenant-isolation check).
+     */
+    async reassignDevice(id, locationId, ctx) {
+      const decision = evaluateAccess(REASSIGN_DEVICE_REQUEST, ctx)
+      if (!permitsAction(decision)) return refusal(decision)
+
+      const actorTenant = ctx.identity.tenant
+      if (actorTenant === null) {
+        return refusal(
+          deny(
+            'explicitlyProhibited',
+            'TENANT_MISMATCH',
+            'A device can only be reassigned by an actor with a live tenant.',
+            { stage: 'TENANT_ISOLATION', sourceRefs: ['repository.ts'] },
+          ),
+        )
+      }
+
+      if (locationId !== null) {
+        const problem = checkLocationReference(store, actorTenant, locationId)
+        if (problem !== null) return { ok: false, kind: 'invalid-reference', problem }
+      }
+
+      return repository.update('devices', id, { locationId }, ctx)
     },
 
     async update(name, id, patch, ctx) {
