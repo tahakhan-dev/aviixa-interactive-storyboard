@@ -3,8 +3,8 @@
   "ledger": "Product Candidate Manifest",
   "governing_section": "master prompt §23.2 — scope 1 of the two non-self-referential hash scopes",
   "slice": "11",
-  "candidate_id": "SLICE11-dac428e223d63398",
-  "candidate_manifest_sha256": "dac428e223d6339828c11cf8855e4d62065c2411c825f38e89c43872fb33616a",
+  "candidate_id": "SLICE11-0a8b025ccc3af492",
+  "candidate_manifest_sha256": "0a8b025ccc3af492badd937b6f4e6b6ce07ff11e479b8fcd8fe17f5bcd23d0de",
   "scope": {
     "kind": "product-candidate",
     "contents": "application source, fixtures, configuration, lockfile, assets and required delivery documentation",
@@ -18,15 +18,15 @@
     "hashes_itself": false,
     "why_not": "this manifest lives under docs/process/ledgers/, an evidence root, so it is outside the product scope by construction rather than by a remembered exclusion"
   },
-  "git_commit": "c2dd51a37ce6f37493a471da9385ca258b20dfc0",
-  "git_tree": "3e882bd89b4663b1969eb415143c912aab7e8ce9",
+  "git_commit": "44ee623fcc4863881d7d0c514c13b33c567a9c49",
+  "git_tree": "caace3b23404dbe85824474d9c22d21fde2182a0",
   "worktree_clean": true,
   "bytes_measured_against": "the tree of git_commit — the worktree was clean when this seal ran, so every hash below is that commit's blob and stays checkable against it forever",
   "source_sha256": "47bd18db467817f3edbe3329c8ae5e332013871aaa2df08c2be6fc5afa8d0b27",
   "source_drift_from_s0": "none as of this seal: `shasum -a 256 ../AVIIXA_Production_Product_Blueprint.md` equals `source_sha256` above. NOTHING RE-HASHES IT AUTOMATICALLY. `scripts/slice-blueprint.mjs` re-derives the hash and byte count on every invocation and refuses rather than emit a line mapping it cannot prove, but that script is not part of `pnpm verify` and runs only when someone runs it. Drift would therefore be silent until the next slice, so check it by hand before quoting this field.",
   "file_count": 851,
-  "total_bytes": 22751610,
-  "supersedes": "SLICE11-91e73a21b82478c5",
+  "total_bytes": 22752171,
+  "supersedes": "SLICE11-dac428e223d63398",
   "verification": {
     "verification_id": "VER-U01-FINAL-02",
     "supersedes_verification_id": "VER-U01-FINAL-01",
@@ -342,8 +342,8 @@
     },
     {
       "path": "app/hub/location-configuration/LocationConfigurationScreen.tsx",
-      "bytes": 47425,
-      "sha256": "804d533a317781591e5946c6800f96dfa4f0811a498f85d8c00041ecd3aebdaf"
+      "bytes": 47417,
+      "sha256": "d21c522028eb8f537e5193d327a61bc45388da2f5f8b8ef729f38ad5401dd7ff"
     },
     {
       "path": "app/hub/location-configuration/fixtures.ts",
@@ -2012,8 +2012,8 @@
     },
     {
       "path": "src/data/repository.ts",
-      "bytes": 219057,
-      "sha256": "7706b24d6aef7405de69c81e85239e2c747dbafed8305ca258cd8b29224be173"
+      "bytes": 219626,
+      "sha256": "03f15c4cda4bf433580b08cf94e4e5397e3df997528cc4387429c94e20c1d668"
     },
     {
       "path": "src/data/schemas/crosscutting.ts",

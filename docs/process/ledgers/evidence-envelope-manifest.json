@@ -2,10 +2,10 @@
   "schema_version": 2,
   "ledger": "Evidence Envelope Manifest",
   "governing_section": "master prompt §23.2 — scope 2 of the two non-self-referential hash scopes",
-  "envelope_id": "ENV11-b51591ab741c0c86",
-  "candidate_id": "SLICE11-dac428e223d63398",
+  "envelope_id": "ENV11-493094c54220167d",
+  "candidate_id": "SLICE11-0a8b025ccc3af492",
   "slice": "11",
-  "payload_sha256": "b51591ab741c0c8602f4c7fb48cb87af79be79315ed7f36e3835d208b8d1f045",
+  "payload_sha256": "493094c54220167d576994b34ca878ead6a50cdac7b476af59540be6c53c5df9",
   "scope": {
     "kind": "evidence-envelope",
     "contents": "process ledgers, approvals, research receipts, command output, review reports, verification reports and status reports",
@@ -24,7 +24,7 @@
   },
   "payload_excludes_self": true,
   "payload_count": 112,
-  "supersedes": "ENV11-c0b00ff3b114df82",
+  "supersedes": "ENV11-b51591ab741c0c86",
   "payload": [
     {
       "path": "artifacts/evidence/slice-11-preverify/raw/slice11-preverify-ch43.md",
@@ -138,18 +138,18 @@
     },
     {
       "path": "docs/process/2026-08-29-unit-01-verification.md",
-      "bytes": 45379,
-      "sha256": "55d37c05b41c7312c505eebb1168418e1ad2872ee525184a4c6d2d89d15fc144"
+      "bytes": 46253,
+      "sha256": "89318f75e86b5ec985ef84ad33a4498ea4d54c1b674b4c90e113f629b3b3a1bd"
     },
     {
       "path": "docs/process/2026-08-29-unit-02-verification.md",
-      "bytes": 44541,
-      "sha256": "94a647926f1c3aaaf6c3825dec5c1e6173929de2fb8df785f46fa16147cd36b2"
+      "bytes": 45215,
+      "sha256": "98d95ee1c5f7d330a0d643a0bda0a15b6c8d3bd91a4b9a5595b68b6028a9ec8a"
     },
     {
       "path": "docs/process/RESUME.md",
-      "bytes": 70540,
-      "sha256": "9ff7c8cf1a13d40696a582ab971d1731c08f9fb35a4ba63cd5c45a3689947496"
+      "bytes": 71385,
+      "sha256": "9af217d6ebf468353d9bda5b2bde302175577ad35f86f94156dc8d5a706c6059"
     },
     {
       "path": "docs/process/audits/2026-08-24-slice-11-audit-common-brief.md",
@@ -403,8 +403,8 @@
     },
     {
       "path": "docs/process/ledgers/live-verification-ledger.json",
-      "bytes": 119847,
-      "sha256": "76df975ec53e5be14f849ba24edb7313521db57dd7ffefff7bf63413e2c043b2"
+      "bytes": 121068,
+      "sha256": "1d096825a81a35597e8a2f83725b0bf4f90302b02334cbe527b39509d7aa5dda"
     },
     {
       "path": "docs/process/ledgers/loop-ledger.json",
