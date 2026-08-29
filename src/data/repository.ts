@@ -446,6 +446,16 @@ export interface Repository {
   reassignDevice(id: string, locationId: string | null, ctx: AccessContext): Promise<ReassignDeviceResult>
   subscribe(listener: () => void): () => void
   reset(): void
+  /**
+   * Task 1 (closure sweep) — the demo/scenario clock control's own door.
+   * Advances the SAME `store.clock` every committed write is stamped with
+   * (`commitWrite` below), then `notify()`s exactly like a committed write
+   * does — no `AccessRequest`/`evaluateAccess`, because this moves fictional
+   * scenario time, not business state, and carries no authorization
+   * semantics of its own. Exists only so `store.notify()` still has exactly
+   * one caller family: this file (`store.ts`'s own header comment).
+   */
+  advanceClock(ms: number): void
   exportJson(): Record<CollectionName, unknown[]>
   importJson(data: unknown): { ok: true } | { ok: false; problems: string[] }
   /** The current §12.4 durability state. Enforced HERE (the capability gate below), never left to a screen to check. */
@@ -3902,6 +3912,11 @@ export function createRepository(store: Store, persistence: PersistenceHandle): 
 
     reset() {
       store.resetToSeed()
+      store.notify()
+    },
+
+    advanceClock(ms) {
+      store.clock.advance(ms)
       store.notify()
     },
 

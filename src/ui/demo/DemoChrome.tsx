@@ -259,11 +259,11 @@ export function DemoChrome() {
       setConnectivity,
       advanceClock(ms: number) {
         // The real store clock — the same one `repository.ts` stamps every
-        // committed write with — not a decorative copy. `notify()` is what
-        // makes every product screen (and this bar's own `clockMs` readout
-        // above) re-render off the new time, exactly like a committed write.
-        store.clock.advance(ms)
-        store.notify()
+        // committed write with — not a decorative copy. `repository.ts` is
+        // the only file allowed to touch `store` directly (its own header
+        // comment), so this calls the door it exposes for exactly this
+        // rather than reaching into `store.clock`/`store.notify()` itself.
+        repository.advanceClock(ms)
       },
       setFailureInjection,
       setCheckpoint: setCheckpointIndex,
@@ -279,7 +279,7 @@ export function DemoChrome() {
         setCheckpointIndex(0)
       },
     }),
-    [persona, connectivity, clockMs, failureInjection, checkpointIndex, store],
+    [persona, connectivity, clockMs, failureInjection, checkpointIndex, repository],
   )
 
   const demoData: DemoDataApi = useMemo(() => {
